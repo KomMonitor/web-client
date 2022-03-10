@@ -113,9 +113,12 @@
 													<tr>
 														<td>
 															<b>Feature-ID *</b>
+															<br>
+															<i>Beispiele: {{featureIdExampleString}}</i>
+															<div ng-show="! validateSingleFeatureId()" style="color:red;"><b>Eingegebene Feature-ID schon vergeben</b></div>
 														</td>
 														<td>
-															<input type="text" class="form-control" ng-model="featureIdValue" required></input>
+															<input type="text" class="form-control" ng-model="featureIdValue" placeholder="{{featureIdValue}}" ng-change="validateSingleFeatureId()" required></input>
 														</td>
 													</tr>
 													<tr>
@@ -123,7 +126,7 @@
 															<b>Feature-NAME *</b>
 														</td>
 														<td>
-															<input type="text" class="form-control" ng-model="featureNameValue" required></input>
+															<input type="text" class="form-control" ng-model="featureNameValue" placeholder="lesbarer Name des Objekts" required></input>
 														</td>
 													</tr>
 													<tr>
@@ -149,7 +152,7 @@
 															<b>{{featureSchemaEntry.property}}</b>
 														</td>
 														<td>
-															<input type="text" class="form-control" ng-model="featureSchemaEntry.value" required></input>
+															<input type="text" class="form-control" ng-model="featureSchemaEntry.value" placeholder="optionaler Wert f&uuml;r Attribut '{{featureSchemaEntry.property}}'" required></input>
 														</td>													
 													</tr>
 												</tbody>
@@ -244,7 +247,7 @@
 
 							<div class="row vertical-align">
 								<!-- submit button -->
-								<button type="button" class="btn btn-success" ng-disabled="!featureGeometryValue || !featureNameValue || !featureIdValue || !featureStartDateValue" ng-click="addSingleGeoresourceFeature()">Einzel-Features importieren</button>
+								<button type="button" class="btn btn-success" ng-disabled="!featureGeometryValue || !featureNameValue || !featureIdValue || validateSingleFeatureId() || !featureStartDateValue" ng-click="addSingleGeoresourceFeature()">Einzel-Features importieren</button>
 					
 							</div>
 	   

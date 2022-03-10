@@ -36,12 +36,14 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 
 		// variables for single feature import
 		$scope.featureIdValue = undefined;
+		$scope.featureIdExampleString = undefined;
 		$scope.featureNameValue = undefined;
 		$scope.featureGeometryValue = undefined;
 		$scope.featureStartDateValue = undefined;
 		$scope.featureEndDateValue = undefined;
 		// [{property: name, value: value}]
 		$scope.featureSchemaProperties = []; 
+		$scope.schemaObject;
 
 		$scope.isPartialUpdate = false;
 
@@ -102,7 +104,7 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 
 		});
 
-		$scope.initSingleFeatureAddMenu = function(){
+		$scope.initSingleFeatureAddMenu = async function(){
 			// init geomap for single feature import, handling geocoding and feature geometry
 			let domId = "singleFeatureGeoMap";
 				let resourceType = kommonitorSingleFeatureMapHelperService.resourceType_point;
@@ -115,7 +117,7 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 				kommonitorSingleFeatureMapHelperService.initSingleFeatureGeoMap(domId, resourceType);			
 
 			// init featureSchema for single feature import
-			$scope.initFeatureSchema();
+			await $scope.initFeatureSchema();
 
 			// add data layer to singleFeatureMap
 			$http({
@@ -129,6 +131,8 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 				$scope.georesourceFeaturesGeoJSON = response.data;
 				kommonitorSingleFeatureMapHelperService.addDataLayertoSingleFeatureGeoMap($scope.georesourceFeaturesGeoJSON);
 				
+				//once the dataset features are fetched we may make a proposal for the ID of a new Feature
+				$scope.featureIdValue = $scope.generateIdProposalFromExistingFeatures();
 
 				}, function errorCallback(error) {
 					if(error.data){							
@@ -142,10 +146,59 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 			});
 		}
 
-		$scope.initFeatureSchema = function(){
+		$scope.generateIdProposalFromExistingFeatures = function(){
+			// String or Integer
+			let idDataType = $scope.schemaObject[__env.FEATURE_ID_PROPERTY_NAME];
+			
+			// array of id values
+			let existingFeatureIds = $scope.georesourceFeaturesGeoJSON.features.map(feature => {
+				if(feature.properties[__env.FEATURE_ID_PROPERTY_NAME]){
+					return feature.properties[__env.FEATURE_ID_PROPERTY_NAME];
+				}
+				else{
+					return 0;
+				}
+			});
+
+			let length = existingFeatureIds.length;
+			$scope.featureIdExampleString = "" + existingFeatureIds[0] + "; " + existingFeatureIds[Math.round(length/2) ] + "; " + existingFeatureIds[length - 1];
+
+			if(idDataType == "Integer" || idDataType == "Double"){
+				return $scope.generateIdProposalFromExistingFeatures_numeric(existingFeatureIds);
+			}
+			else{
+				// generate UUID
+				return $scope.generateIdProposalFromExistingFeatures_uuid(existingFeatureIds);
+			}
+		};
+
+		$scope.generateIdProposalFromExistingFeatures_numeric = function(existingFeatureIds){			
+
+			// determine max value
+			let maxValue = Math.max(...existingFeatureIds);
+
+			// return increment
+			return maxValue + 1;
+		};
+
+		$scope.generateIdProposalFromExistingFeatures_uuid = function(existingFeatureIds){
+			// return UUID using UUID library 
+			return uuidv4();
+		};
+
+		$scope.validateSingleFeatureId = function(){
+			if($scope.georesourceFeaturesGeoJSON && $scope.featureIdValue){
+				let filteredFeatures = $scope.georesourceFeaturesGeoJSON.features.filter(feature => feature.properties[__env.FEATURE_ID_PROPERTY_NAME] == $scope.featureIdValue);
+
+				return filteredFeatures.length == 0;
+			}
+			return false;
+		};
+
+		$scope.initFeatureSchema = async function(){
 			$scope.featureSchemaProperties = [];
 
-			$http({
+			return await $http({
 				url: kommonitorDataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/georesources/" + $scope.currentGeoresourceDataset.georesourceId + "/schema",
 				method: "GET",
 				// headers: {
@@ -153,9 +206,9 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 				// }
 			}).then(function successCallback(response) {
 
-				let schemaObject = response.data;
+				$scope.schemaObject = response.data;
 
-				for (var property in schemaObject){
+				for (var property in $scope.schemaObject){
 					if (property != __env.FEATURE_ID_PROPERTY_NAME && property != __env.FEATURE_NAME_PROPERTY_NAME && property != __env.VALID_START_DATE_PROPERTY_NAME && property != __env.VALID_END_DATE_PROPERTY_NAME){
 						$scope.featureSchemaProperties.push(
 							{property: property,
@@ -163,6 +216,8 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 						);
 					}
 				}
+
+				return $scope.schemaObject;
 
 				}, function errorCallback(error) {
 					
