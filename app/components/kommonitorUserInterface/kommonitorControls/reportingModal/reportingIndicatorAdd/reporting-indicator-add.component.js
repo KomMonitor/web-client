@@ -7,8 +7,10 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		$scope.untouchedTemplateAsString = "";
 		
 		$scope.indicatorNameFilter = "";
+		$scope.poiNameFilter = "";
 		$scope.availableIndicators = [];
 		$scope.selectedIndicator = undefined;
+		$scope.selectedPoiLayer = undefined;
 
 		$scope.availableFeaturesBySpatialUnit = {};
 		$scope.selectedSpatialUnit = undefined;
@@ -70,10 +72,10 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				}
 	
 				// diagrams are prepared, but dom has to be updated first, too
-				$timeout(function() {
+				$timeout(async function() {
 					// we could filter the geoJson here to only include selected areas
 					// but for now we get all areas and filter them out after
-					$scope.initializeOrUpdateAllDiagrams();
+					await $scope.initializeAllDiagrams();
 					if(!$scope.updatingLeafletMaps) {
 						$scope.loadingData = false;
 					}
@@ -242,7 +244,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					let titleEl = pageToInsert.pageElements.find( el => {
 						return el.type === "indicatorTitle-landscape"
 					});
-					titleEl.text = $scope.selectedIndicator.indicatorName + " [" + $scope.selectedIndicator.unit + "]";
+					titleEl.text = "Entfernungen für " + $scope.selectedPoiLayer.datasetName;
 					if(pageToInsert.area) {
 						titleEl.text += ", " + pageToInsert.area
 					}
@@ -251,6 +253,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					let dateEl = pageToInsert.pageElements.find( el => {
 						return el.type === "dataTimestamp+typeOfMovement-landscape"
 					});
+					console.log($scope.selectedTimestamps)
 					dateEl.text = $scope.selectedTimestamps[0].name + ", Fortbewegungsmittel (TODO)";
 					dateEl.isPlaceholder = false;
 
@@ -265,12 +268,6 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					page.id = $scope.templatePageIdCounter++;
 
 				$scope.template.pages.splice($scope.indexOfFirstAreaSpecificPage, numberOfPagesToReplace, ...pagesToInsert)
-			} else {
-				pagesToInsert = JSON.parse(JSON.stringify(pagesToInsert));
-				for(let page of pagesToInsert)
-					page.id = $scope.templatePageIdCounter++;
-				// no timestamp selected, insert as placeholder
-				$scope.template.pages.splice($scope.indexOfFirstAreaSpecificPage, 0, ...pagesToInsertPerTimestamp)
 			}
 		}
 
@@ -278,9 +275,10 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 		// internal array changes do not work with ng-change
 		$scope.$watchCollection('selectedTimestamps', function(newVal, oldVal) {
+			console.log("selectedTimestamps changed");
 			if( typeof($scope.template) === "undefined") return;
 			$scope.loadingData = true;
-			let tab4 = document.querySelector("#reporting-add-indicator-tab4");
+			let tab4 = document.querySelector("#reporting-add-indicator-tab5");
 
 			// get difference between old and new value (the timestamps selected / deselected)
 			let difference = oldVal
@@ -424,6 +422,20 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				}
 			}
 
+			// There is one more special casw for the reachbility template, where we only have one timestamp set at all times,
+			// but that one might change if we change the spatial unit
+			if(newVal.length === oldVal.length && newVal.length === 1 && newVal[0].name != oldVal[0].name) {
+				// simply update the timestamp on all pages
+				for(let page of $scope.template.pages) {
+					for(let pageElement of page.pageElements) {
+						if(pageElement.type === "dataTimestamp+typeOfMovement-landscape") {
+							pageElement.text = newVal[0].name + ", Fortbewegungsmittel (TODO)"
+						}
+						break;
+					}
+				}
+			}
+
 			function updateDiagrams() {
 				if($scope.diagramsPrepared) {
 					$interval.cancel(updateDiagramsInterval); // code below still executes once
@@ -431,13 +443,19 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					return;
 				}
 
-				$timeout(function() {
-					for(let timestamp of $scope.selectedTimestamps) {
-						let classifyUsingWholeTimeseries = false;
-						$scope.prepareDiagrams($scope.selectedIndicator, $scope.selectedSpatialUnit, timestamp.name, classifyUsingWholeTimeseries);
-	
+				$timeout(async function() {
+					// indicator selection is optional in reachability template only
+					if($scope.selectedIndicator) {
+						for(let timestamp of $scope.selectedTimestamps) {
+							let classifyUsingWholeTimeseries = false;
+							$scope.prepareDiagrams($scope.selectedIndicator, $scope.selectedSpatialUnit, timestamp.name, classifyUsingWholeTimeseries);
+		
+						}
+					} else {
+						$scope.reachabilityTemplateGeoMapOptions = $scope.prepareReachabilityEchartsMap();
 					}
-					$scope.initializeOrUpdateAllDiagrams();
+					
+					await $scope.initializeAllDiagrams();
 					if(!$scope.updatingLeafletMaps) {
 						$scope.loadingData = false;
 					}
@@ -464,6 +482,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				page.id = $scope.templatePageIdCounter++;
 			}
 			$scope.template = template;
+			console.log(template);
 
 			if($scope.template.name === "A4-landscape-timestamp")
 				$scope.indexOfFirstAreaSpecificPage = 3;
@@ -472,25 +491,33 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			if($scope.template.name === "A4-landscape-reachability")
 				$scope.indexOfFirstAreaSpecificPage = 1;
 
-			// disbale all tabs except the first one (until an indicator is chosen)
-			let tabPanes = document.querySelectorAll("#reporting-add-indicator-tab-content > .tab-pane")
-			for(let i=1;i<=4;i++) {
-				let tab = document.getElementById("reporting-add-indicator-tab" + i);
-				
-				if(i==1) {
+			// disable tabs to force user to pick a poi-layer / indicator first
+			let tabs = document.querySelector("#reporting-add-indicator-tab-list");
+			let tabPanes = document.querySelectorAll("#reporting-add-indicator-tab-content > .tab-pane");
+			let tabChildren = Array.from(tabs.children)
+			for(let [idx, tab] of tabChildren.entries()) {
+				let id = tab.id.at(-1)
+				if( ($scope.template.name === "A4-landscape-reachability" && id==1) || // pois
+						($scope.template.name !== "A4-landscape-reachability" && id==2) ) { // indicators
 					tab.classList.add("active");
-					tabPanes[i-1].classList.add("active");
+					tabPanes[idx].classList.add("active");
 				} else {
 					tab.classList.remove("active");
-					tabPanes[i-1].classList.remove("active");
+					tabPanes[idx].classList.remove("active");
 				}
 			}
 
 			$scope.initializeDualLists();
-			$scope.queryIndicators()
-				.then( function () {
-					$scope.removeAlreadyAddedIndicators(indicatorNames)
-				});
+
+			if($scope.template.name === "A4-landscape-reachability") {
+				$scope.queryGeoresources()
+				$scope.queryIndicators()
+			} else {
+				$scope.queryIndicators()
+					.then( function () {
+						$scope.removeAlreadyAddedIndicators(indicatorNames)
+					});
+			}
 		}
 
 		$scope.initializeDualLists = function() {
@@ -542,28 +569,76 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			});
 		};
 
+		$scope.queryGeoresources = async function() {
+			
+			// build request
+			// query public endpoint for now, this might change once user role administration is added to reporting
+			let url = kommonitorDataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/georesources"
+			
+			// send request
+			return await $http({
+				url: url,
+				method: "GET"
+			}).then(function successCallback(response) {
+					// save to scope
+					$scope.availablePoiLayers = response.data.filter( georesource => {
+						return georesource.isPOI;
+					});
+					$scope.loadingData = false;
+				}, function errorCallback(error) {
+					$scope.loadingData = false;
+					kommonitorDataExchangeService.displayMapApplicationError(error);
+					console.error(response.statusText);
+			});
+		};
+
+		$scope.queryAllSpatialUnits = async function() {
+			// build request
+			// query public endpoint for now, this might change once user role administration is added to reporting
+			let url = kommonitorDataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/spatial-units"
+			
+			// send request
+			return await $http({
+				url: url,
+				method: "GET"
+			}).then(function successCallback(response) {
+					// save to scope
+					return response.data;
+				}, function errorCallback(error) {
+					$scope.loadingData = false;
+					kommonitorDataExchangeService.displayMapApplicationError(error);
+					console.error(response.statusText);
+			});
+		}
+
 
 		$scope.onSpatialUnitChanged = async function(selectedSpatialUnit) {
 			$scope.loadingData = true;
 			$("#reporting-spatialUnitChangeWarning").hide();
 			$scope.timeseriesAdjustedOnSpatialUnitChange = false;
 			await $scope.updateAreasInDualList()
-
+			let validTimestamps = []
 			// There might be different valid timestamps for the new spatial unit.
-
-			let validTimestamps = getValidTimestampsForSpatialUnit( selectedSpatialUnit.spatialUnitName );
+			if($scope.selectedIndicator) {
+				validTimestamps = getValidTimestampsForSpatialUnit( selectedSpatialUnit );
 			
-			// Check if the currently selected timestamps are also available for the new spatial unit.
-			// If one is not, deselect is and show an info to user
-			let selectedTimestamps_old = [...$scope.selectedTimestamps];
-			$scope.selectedTimestamps = $scope.selectedTimestamps.filter( el => {
-				return validTimestamps.includes(el.name);
-			});
-			// if any timestamp was deselected show a warning alert
-			if(selectedTimestamps_old.length > $scope.selectedTimestamps.length) {
-				$("#reporting-spatialUnitChangeWarning").show();
+				// Check if the currently selected timestamps are also available for the new spatial unit.
+				// If one is not, deselect is and show an info to user
+				let selectedTimestamps_old = [...$scope.selectedTimestamps];
+				$scope.selectedTimestamps = $scope.selectedTimestamps.filter( el => {
+					return validTimestamps.includes(el.name);
+				});
+				// if any timestamp was deselected show a warning alert
+				// except for reachability template, it doesn't matter there
+				if(selectedTimestamps_old.length > $scope.selectedTimestamps.length && $scope.template.name != "A4-landscape-reachability") {
+					$("#reporting-spatialUnitChangeWarning").show();
+				}
+			} else {
+				// without selected indicator we have to fall back to the last update of the new spatial unit
+				let mostRecentTimestampName = $scope.selectedSpatialUnit.metadata.lastUpdate;
+				validTimestamps.push(mostRecentTimestampName)
 			}
-
+			
 			if($scope.template.name === "A4-landscape-timeseries") {
 				// Similar procedure as with timestamps
 				let oldTimeseries = $scope.getFormattedDateSliderValues(true);
@@ -623,19 +698,43 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			// updateAreasInDualList does not trigger diagram updates
 			// we have the wrong geometries set at this point, causing area selection to fail.
 			// echarts requires properties.name to be present, create it from properties.NAME unless it exists
-			let features = $scope.availableFeaturesBySpatialUnit[ selectedSpatialUnit.spatialUnitName ]
-			features = $scope.createLowerCaseNameProperty(features);
-			let geoJSON = { features: features }
-			$scope.selectedIndicator.geoJSON = geoJSON;
-			
-			// no need to check if diagrams are prepared here since we have to prepare them again anyway
-			$timeout(function() {
-				// prepare diagrams for all selected timestamps with all features
-				for(let timestamp of $scope.selectedTimestamps) {
-					let classifyUsingWholeTimeseries = false;
-					$scope.prepareDiagrams($scope.selectedIndicator, selectedSpatialUnit, timestamp.name, classifyUsingWholeTimeseries);
+			let features;
+			if($scope.template.name == "A4-landscape-reachability") {
+				if($scope.selectedIndicator) {
+					features = $scope.availableFeaturesBySpatialUnit[ $scope.selectedSpatialUnit.spatialUnitName ];
+				} else {
+					features = $scope.availableFeaturesBySpatialUnit[ $scope.selectedSpatialUnit.spatialUnitLevel ];
 				}
-				$scope.initializeOrUpdateAllDiagrams();
+				features = $scope.createLowerCaseNameProperty(features);
+				$scope.geoJsonForReachability = { features: features }
+			} else {
+				features = $scope.availableFeaturesBySpatialUnit[ $scope.selectedSpatialUnit.spatialUnitName ];
+				features = $scope.createLowerCaseNameProperty(features);
+				let geoJSON = { features: features }
+				$scope.selectedIndicator.geoJSON = geoJSON;
+			}
+			
+
+			// no need to check if diagrams are prepared here since we have to prepare them again anyway
+			$timeout(async function() {
+				// prepare diagrams for all selected timestamps with all features
+				// Preparing all diagrams is not possible without an indicator, which might happen in the reachability template
+				// User selects a poi layer first and we set the most recent timestamp programmatically, triggering this function without selected Indicator
+				// We only need an echarts geoMap to show isochrones, POIs and spatial unit borders
+				if($scope.selectedIndicator) {
+					if($scope.template.name === "A4-landscape-reachability") {
+						$scope.reachabilityTemplateGeoMapOptions = $scope.prepareReachabilityEchartsMap();
+					} else {
+						for(let timestamp of $scope.selectedTimestamps) {
+							let classifyUsingWholeTimeseries = false;
+							$scope.prepareDiagrams($scope.selectedIndicator, selectedSpatialUnit, timestamp.name, classifyUsingWholeTimeseries);
+						}	
+					}
+				} else {
+					$scope.reachabilityTemplateGeoMapOptions = $scope.prepareReachabilityEchartsMap();
+				}
+
+				await $scope.initializeAllDiagrams();
 				if(!$scope.updatingLeafletMaps) {
 					$scope.loadingData = false;
 				}
@@ -647,49 +746,73 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		 * Queries DataManagement API if needed.
 		 */
 		$scope.updateAreasInDualList = async function() {
-			let indicator = $scope.selectedIndicator;
-			
-			let spatialUnit = $scope.selectedSpatialUnit ?
-				$scope.selectedSpatialUnit :
-				$scope.selectedIndicator.applicableSpatialUnits[0]
-			let indicatorId = indicator.indicatorId;
-			let spatialUnitId = spatialUnit.spatialUnitId;
-			
-			// on indicator change
-			if($scope.availableFeaturesBySpatialUnit.indicatorId != indicator.indicatorId) {
-				// clear all cached features
-				$scope.availableFeaturesBySpatialUnit = {};
-				$scope.availableFeaturesBySpatialUnit.indicatorId = indicatorId;
-
-				let data = await $scope.queryFeatures(indicatorId, spatialUnitId)
-				// save response to scope to avoid further requests
-				$scope.availableFeaturesBySpatialUnit[spatialUnit.spatialUnitName] = data.features
+			// this happens for the reachability template on poi selection
+			if(typeof($scope.selectedIndicator) === "undefined") {
+				let spatialUnit = $scope.selectedSpatialUnit ?
+					$scope.selectedSpatialUnit :
+					$scope.selectedIndicator.applicableSpatialUnits[0]
+				// query spatial unit features using the most recent date
+				let data = await $scope.queryFeatures(undefined, $scope.selectedSpatialUnit);
+				$scope.availableFeaturesBySpatialUnit[spatialUnit.spatialUnitLevel] = data.features
+				let allAreas = $scope.availableFeaturesBySpatialUnit[spatialUnit.spatialUnitLevel]
+				$scope.updateDualList($scope.dualListAreasOptions, allAreas, undefined) // don't select any areas
 			} else {
-				// same indicator
-				if (!$scope.availableFeaturesBySpatialUnit[spatialUnit.spatialUnitName]) {
-					let data = await $scope.queryFeatures(indicatorId, spatialUnitId)
+				let indicator = $scope.selectedIndicator;
+			
+				let spatialUnit = $scope.selectedSpatialUnit ?
+					$scope.selectedSpatialUnit :
+					$scope.selectedIndicator.applicableSpatialUnits[0]
+				let indicatorId = indicator.indicatorId;
+
+				// on indicator change
+				if($scope.availableFeaturesBySpatialUnit.indicatorId != indicator.indicatorId) {
+					// clear all cached features
+					$scope.availableFeaturesBySpatialUnit = {};
+					$scope.availableFeaturesBySpatialUnit.indicatorId = indicatorId;
+	
+					let data = await $scope.queryFeatures(indicatorId, spatialUnit)
 					// save response to scope to avoid further requests
 					$scope.availableFeaturesBySpatialUnit[spatialUnit.spatialUnitName] = data.features
+				} else {
+					// same indicator
+					if (!$scope.availableFeaturesBySpatialUnit[spatialUnit.spatialUnitName]) {
+						let data = await $scope.queryFeatures(indicatorId, spatialUnit)
+						// save response to scope to avoid further requests
+						$scope.availableFeaturesBySpatialUnit[spatialUnit.spatialUnitName] = data.features
+					}
 				}
+	
+				let allAreas = $scope.availableFeaturesBySpatialUnit[spatialUnit.spatialUnitName]
+				$scope.updateDualList($scope.dualListAreasOptions, allAreas, undefined) // don't select any areas
+	
 			}
-
-			let allAreas = $scope.availableFeaturesBySpatialUnit[spatialUnit.spatialUnitName]
-			$scope.updateDualList($scope.dualListAreasOptions, allAreas, undefined) // don't select any areas
-
+			
 			$timeout(function() {
 				$scope.$apply();
 			})
 		}
 
 		/**
-		 * Queries DataManagement API to get features of given indicator
+		 * Queries DataManagement API to get features of given indicator.
+		 * If no indicator id is provided the spatial unit endpoint is queried
 		 * Result is stored to scope to avoid further requests.
 		 * @param {*} indicator | selected indicator
 		 */
-		 $scope.queryFeatures = async function(indicatorId, spatialUnitId) {
+		 $scope.queryFeatures = async function(indicatorId, spatialUnit) {
 			// build request
-			let url = kommonitorDataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() +
-			"/indicators/" + indicatorId + "/" + spatialUnitId;
+			// query different endpoints depending on if we have an indicator or not
+			let url;
+			if(!indicatorId) {
+				let date = spatialUnit.metadata.lastUpdate.split("-")
+				let year = date[0]
+				let month = date[1]
+				let day = date[2]
+				url = kommonitorDataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() +
+					"/spatial-units/" + spatialUnit.spatialUnitId + "/" + year + "/" + month + "/" + day; 
+			} else {
+				url = kommonitorDataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() +
+					"/indicators/" + indicatorId + "/" + spatialUnit.spatialUnitId;
+			}
 			// send request
 			$scope.loadingData = true;
 			return await $http({
@@ -785,28 +908,23 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			});
 		}
 
-		// availableFeaturesBySpatialUnit has to be populated before this method is called
-		function getValidTimestampsForSpatialUnit(spatialUnitName) {
-			// check if the most recent timestamp is valid for the selected spatial unit
-			// if not try the second (third, fourth, ...) most recent
-			// we assume that there is at least one valid timestamp for the spatial unit
-			
-			let validTimestamps = []; // result
+		// availableFeaturesBySpatialUnit has to be populated before this method is called.
+		// Also it is only called in situations where an indicator is selected.
+		function getValidTimestampsForSpatialUnit(spatialUnit) {
 
-			let features = $scope.availableFeaturesBySpatialUnit[ spatialUnitName ];
+			let validTimestamps = []; // result
+			// Iterate all features and add all properties that start with "DATE_" to 'validTimestamps'
+			let features = $scope.availableFeaturesBySpatialUnit[ spatialUnit.spatialUnitName ];
 			if(!features) {
 				let error = new Error("Tried to get valid timestamps but no features were cached.")
 				kommonitorDataExchangeService.displayMapApplicationError(error.message)
 			}
-			// Iterate all features and add all properties that start with "DATE_" to 'validTimestamps'
-			// Not sure if all features always have all timestamps, even if values are missing for some
-			// If  that's the case this iteration could be reduced to the first feature
 			for(let feature of features) {
 				let props = Object.keys(feature.properties)
 				props = props.filter( prop => {
 					return prop.startsWith("DATE_");
 				})
-
+	
 				for(let prop of props) {
 					let timestamp = prop.replace("DATE_", "")
 					if( !validTimestamps.includes(timestamp) ) {
@@ -817,8 +935,219 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			return validTimestamps;
 		}
 
-		
+		$scope.onPoiLayerSelected = async function(poiLayer) {
+
+			$scope.absoluteLabelPositions = [];
+			$scope.diagramsPrepared = false;
+			$scope.selectedPoiLayer = poiLayer
+
+			// get a new template (in case another poi layer was selected previously)
+			$scope.template = $scope.getCleanTemplate();
+
+			$scope.isochrones = await $scope.loadIsochrones()
+			// give each isochrone a unique id so we can reference it from the echarts series data
+			for(let feature of $scope.isochrones.features) {
+				feature.properties.id = feature.properties.group_index + "-" + feature.properties.value
+			}
+
+			$scope.isochronesSeriesData = $scope.convertIsochronesToSeriesData($scope.isochrones);
+
+			// Indicator might not be selected at this point
+			// We get information about all available spatial units (instead of applicable ones)
+			// Then we select the highest one by default
+			let spatialUnits = await $scope.queryAllSpatialUnits();
+			$scope.allSpatialUnitsForReachability = spatialUnits; // needed for spatial unit selection in 3rd tab
+			let highestSpatialUnit = spatialUnits.filter( unit => {
+				return unit.nextUpperHierarchyLevel === null;
+			});
+			if( !$scope.selectedSpatialUnit) {
+				$scope.selectedSpatialUnit = highestSpatialUnit[0];
+			}
+
+			let mostRecentTimestampName = $scope.selectedSpatialUnit.metadata.lastUpdate;
+			$scope.selectedTimestamps = [{
+				category: mostRecentTimestampName,
+				name: mostRecentTimestampName
+			}];
+			
+			await $scope.updateAreasInDualList(); // this populates $scope.availableFeaturesBySpatialUnit
+
+			
+			// update poi layer name and timestamp in preview
+			for(let page of $scope.template.pages) {
+				for(let el of page.pageElements) {
+					if(el.type === "indicatorTitle-landscape") {
+						el.text = "Entfernungen für " + $scope.selectedPoiLayer.datasetName;
+						el.isPlaceholder = false;
+						// no area-specific pages in template since diagrams are not prepared yet
+						// and area/timestamp/timeseries changes are done after that
+					}
+
+					if(el.type === "dataTimestamp+typeOfMovement-landscape") {
+						el.text = $scope.selectedTimestamps[0].name + ", Fortbewegungsmittel (TODO)";
+						el.isPlaceholder = false
+					}
+				}
+			}
+
+			// get all features of largest spatial unit
+			let features;
+			if($scope.selectedIndicator) {
+				features = $scope.availableFeaturesBySpatialUnit[ $scope.selectedSpatialUnit.spatialUnitName ]
+			} else {
+				features = $scope.availableFeaturesBySpatialUnit[ $scope.selectedSpatialUnit.spatialUnitLevel ]
+			}
+			features = $scope.createLowerCaseNameProperty(features);
+			// we have no indicator so we store the geometries directly on the scope
+			$scope.geoJsonForReachability = {
+				features: features
+			}
+
+			// Preparing all diagrams is not possible without an indicator
+			// We only need an echarts geoMap to show isochrones, POIs and spatial unit borders
+			$scope.reachabilityTemplateGeoMapOptions = $scope.prepareReachabilityEchartsMap();
+
+			// select all areas by default
+			let allAreas;
+			if($scope.selectedSpatialUnit.spatialUnitName) {
+				allAreas = $scope.availableFeaturesBySpatialUnit[$scope.selectedSpatialUnit.spatialUnitName];
+			} else {
+				allAreas = $scope.availableFeaturesBySpatialUnit[$scope.selectedSpatialUnit.spatialUnitLevel];
+			}
+				$scope.updateDualList($scope.dualListAreasOptions, allAreas, allAreas);
+
+			let allTabs = document.querySelectorAll("#reporting-add-indicator-tab-list li")
+			for(let tab of allTabs) {
+				$scope.enableTab(tab);
+			}
+		}
+
+	
+		function calculateOverallBoundingBoxFromGeoJSON(features) {
+			let result = [];
+			for(var i=0; i<features.length; i++) {
+			   // check if we have to modify our overall bbox (result)
+			   if(result.length === 0) { // for first feature
+				result.push(...features[i].properties.bbox);
+				continue;
+			  } else {
+				// all other features
+				let bbox = features[i].properties.bbox;
+				result[0] = (bbox[0] < result[0]) ? bbox[0] : result[0];
+				result[1] = (bbox[1] < result[1]) ? bbox[1] : result[1];
+				result[2] = (bbox[2] > result[2]) ? bbox[2] : result[2];
+				result[3] = (bbox[3] > result[3]) ? bbox[3] : result[3];
+			  }
+			}
+			return result;
+		  };
+
+
+		$scope.setMostRecentIndicatorDataToReachabilityMap = function(seriesOptions) {
+			let mostRecentTimestampName = $scope.selectedIndicator.applicableDates.at(-1);
+			let features;
+			if($scope.selectedSpatialUnit.spatialUnitName) {
+				features = $scope.availableFeaturesBySpatialUnit[$scope.selectedSpatialUnit.spatialUnitName]
+			} else {
+				features = $scope.availableFeaturesBySpatialUnit[$scope.selectedSpatialUnit.spatialUnitLevel]
+			}
+			let newSeriesData = features.map( feature => {
+				let name = feature.properties.NAME
+				let value = feature.properties["DATE_" + mostRecentTimestampName]
+				value = Math.round(value * 100) / 100;
+				return {
+					name: name,
+					value: value
+				}
+			});
+			seriesOptions.data = newSeriesData;
+			return seriesOptions;
+		}
+
+		$scope.resetOptionalIndicator = function() {
+			
+			if(!$scope.selectedIndicator) {
+				return;
+			}
+
+			$scope.selectedIndicator = undefined;
+			// since we don't have an indicator selected anymore we reset the spatial unit
+			console.log($scope.allSpatialUnitsForReachability);
+			$scope.selectedSpatialUnit = $scope.allSpatialUnitsForReachability.filter( spatialUnit => {
+				return spatialUnit.spatialUnitLevel === $scope.selectedSpatialUnit.spatialUnitName;
+			})[0];
+			
+			
+			// let filter = $scope.selectedIndicator.applicableSpatialUnits.filter( spatialUnit => {
+			// 	return spatialUnit.spatialUnitName === $scope.selectedSpatialUnit.spatialUnitLevel;
+			// })
+			// $scope.selectedSpatialUnit = filter[0];
+
+			for(let page of $scope.template.pages) {
+				for(let pageElement of page.pageElements) {
+					if(pageElement.type === "map") {
+						let domNode = document.querySelector("#reporting-addIndicator-page-" + $scope.template.pages.indexOf(page) + "-map")
+						let map = echarts.getInstanceByDom(domNode)
+						let options = map.getOption();
+						// remove indicator data
+						options.series[0].data = [];
+						options.series[0].label.formatter = '{b}';
+						map.setOption(options, {
+							replaceMerge: ['series']
+						});
+					}
+				}
+			}
+		}
+
+		$scope.handleIndicatorSelectForReachability = async function(indicator) {
+			console.log($scope.selectedSpatialUnit);
+			$scope.selectedIndicator = indicator;
+			let indicatorId = $scope.selectedIndicator.indicatorId;
+			let featureCollection = await $scope.queryFeatures(indicatorId, $scope.selectedSpatialUnit);
+			if(!$scope.selectedSpatialUnit.spatialUnitName) {
+				// set the applicable spatial unit from the indicator as selected spatial unit
+				let filter = $scope.selectedIndicator.applicableSpatialUnits.filter( spatialUnit => {
+					return spatialUnit.spatialUnitName === $scope.selectedSpatialUnit.spatialUnitLevel;
+				})
+				if(filter && filter.length) {
+					$scope.selectedSpatialUnit = filter[0];
+				}
+			}
+
+			$scope.availableFeaturesBySpatialUnit[$scope.selectedSpatialUnit.spatialUnitName] = featureCollection.features;
+			$scope.selectedIndicator.geoJSON = featureCollection;
+			$scope.selectedIndicator.geoJSON.features = $scope.createLowerCaseNameProperty($scope.selectedIndicator.geoJSON.features);
+			for(let feature of $scope.selectedIndicator.geoJSON.features) {
+				let bbox = turf.bbox(feature); // calculate bbox for each feature
+				feature.properties.bbox = bbox;
+			}
+			
+			for(let page of $scope.template.pages) {
+				for(let pageElement of page.pageElements) {
+					if(pageElement.type === "map") {
+						let domNode = document.querySelector("#reporting-addIndicator-page-" + $scope.template.pages.indexOf(page) + "-map")
+						let map = echarts.getInstanceByDom(domNode)
+						let options = map.getOption();
+						let seriesOptions = $scope.setMostRecentIndicatorDataToReachabilityMap(options.series[0])
+						options.series[0] = seriesOptions;
+						options.series[0].label.formatter = '{b}\n{c}';
+						map.setOption(options, {
+							replaceMerge: ['series']
+						});
+					}
+				}
+			}
+
+		}
+	
 		$scope.onIndicatorSelected = async function(indicator) {
+			$scope.loadingData = true;
+			if($scope.template.name === "A4-landscape-reachability") {
+				$scope.handleIndicatorSelectForReachability(indicator);
+				return;
+			}
+
 			$scope.selectedIndicator = undefined;
 			$scope.selectedTimestamps = [];
 			$scope.selectedAreas = [];
@@ -831,35 +1160,21 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				line: {}
 			}
 			$scope.diagramsPrepared = false;
-			let tab2 = document.querySelector("#reporting-add-indicator-tab2");
-			let tab3 = document.querySelector("#reporting-add-indicator-tab3");
-			let tab4 = document.querySelector("#reporting-add-indicator-tab4");
-			$scope.disableTab(tab2);
-			$scope.disableTab(tab3);
-			$scope.disableTab(tab4);
 			// set indicator manually.
 			// if we use ng-model it gets converted to string instead of an object
 			$scope.selectedIndicator = indicator;
 
 			// get a new template (in case another indicator was selected previously)
-			let cleanTemplate = angular.fromJson($scope.untouchedTemplateAsString);
-			for(let page of cleanTemplate.pages) {
-				page.id = $scope.templatePageIdCounter++;
-			}
-			$scope.template = cleanTemplate;
-
+			$scope.template = $scope.getCleanTemplate();
 			
 			// set spatial unit to highest available one
 			$scope.selectedSpatialUnit = $scope.selectedIndicator.applicableSpatialUnits[0];
 
-			// can be used in the area change listener to check if we are updating an indicator
-			// we don't want to update diagrams in that case since this is done on timestamp/timeseries change later
-			$scope.isIndicatorChange = true; 
 			await $scope.updateAreasInDualList(); // this populates $scope.availableFeaturesBySpatialUnit
 
 			// select most recent timestamp that is valid for the largest spatial unit
 			let dates = $scope.selectedIndicator.applicableDates;
-			let timestampsForSelectedSpatialUnit = getValidTimestampsForSpatialUnit( $scope.selectedSpatialUnit.spatialUnitName);
+			let timestampsForSelectedSpatialUnit = getValidTimestampsForSpatialUnit( $scope.selectedSpatialUnit);
 			timestampsForSelectedSpatialUnit.sort();
 			
 			let availableTimestamps = dates
@@ -932,9 +1247,18 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			let allAreas = $scope.availableFeaturesBySpatialUnit[$scope.selectedSpatialUnit.spatialUnitName];
 			$scope.updateDualList($scope.dualListAreasOptions, allAreas, allAreas);
 
-			$scope.enableTab(tab2);
-			$scope.enableTab(tab3);
-			$scope.enableTab(tab4);
+			let allTabs = document.querySelectorAll("#reporting-add-indicator-tab-list li")
+			for(let tab of allTabs) {
+				$scope.enableTab(tab);
+			}
+		}
+
+		$scope.getCleanTemplate = function() {
+			let result = angular.fromJson($scope.untouchedTemplateAsString);
+			for(let page of result.pages) {
+				page.id = $scope.templatePageIdCounter++;
+			}
+			return result;
 		}
 
 		$scope.onBackToOverviewClicked = function() {
@@ -947,6 +1271,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			$scope.template = undefined;
 			$scope.untouchedTemplateAsString = "";
 			$scope.indicatorNameFilter = "";
+			$scope.poiNameFilter = "";
 			$scope.availableIndicators = [];
 			$scope.selectedIndicator = undefined;
 			$scope.availableFeaturesBySpatialUnit = {};
@@ -964,9 +1289,9 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			$scope.templatePageIdCounter = 1;
 			$scope.dateSlider = undefined;
 
-			let tab2 = document.querySelector("#reporting-add-indicator-tab2");
-			let tab3 = document.querySelector("#reporting-add-indicator-tab3");
-			let tab4 = document.querySelector("#reporting-add-indicator-tab4");
+			let tab2 = document.querySelector("#reporting-add-indicator-tab3");
+			let tab3 = document.querySelector("#reporting-add-indicator-tab4");
+			let tab4 = document.querySelector("#reporting-add-indicator-tab5");
 			$scope.disableTab(tab2);
 			$scope.disableTab(tab3);
 			$scope.disableTab(tab4);
@@ -1035,13 +1360,277 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			tab.firstElementChild.setAttribute("tabindex", "1")
 		}
 
+		$scope.loadIsochrones = async function() {
+			let result = await $http.get("components\\kommonitorUserInterface\\kommonitorControls\\reportingModal\\reportingIndicatorAdd\\temp_isochrones.json")
+			return result.data;
+		}
+
+		// creates and returns a series data array for each range threshold
+		$scope.convertIsochronesToSeriesData = function(isochrones) {
+			let result = [] // array of series data config objects
+			let ranges = isochrones.info.query.ranges.split(",")
+			let rangesInt = ranges.map( e => parseInt(e)); // assuming we only get integer values as input here
+			let colorArr = [];
+			if(ranges.length === 1) colorArr.push("green");
+			if(ranges.length === 2) colorArr.push( ...["green", "yellow"] )
+			if(ranges.length === 3) colorArr.push( ...["green", "yellow", "red"] )
+			if(ranges.length === 4) colorArr.push( ...["green", "yellow", "orange", "red"] )
+			// If we have more than five ranges the last color is used again for now. Can be extended if there is need for it.
+			if(ranges.length >=  5) colorArr.push( ...["green", "yellow", "orange", "red", "brown"] )
+
+			// one series per range value, so we can control the z value and legend display more easily.
+			for(let [idx, range] of rangesInt.entries()) {
+				if(idx >= colorArr.length) idx = colorArr.length-1;
+				let seriesData = [];
+				let data = isochrones.features.filter( feature => {
+					return feature.properties.value === range; // get features for this range threshold
+				}).map( feature => {
+					// map them to  echarts format
+					return {
+						name: feature.properties.id,
+						value: feature.properties.value,
+						itemStyle: {
+							areaColor: colorArr[idx],
+							color: colorArr[idx],
+							opacity: 0.3
+						},
+						label: {
+							show: false
+						},
+						emphasis: {
+							disabled: true
+						}
+					}
+				})
+				seriesData.push(...data)
+				result.push(seriesData);
+			}
+			
+			return result;
+		}
+
+		$scope.createMapForReachability = async function(wrapper, page, pageElement) {
+			
+			let options = JSON.parse(JSON.stringify( $scope.reachabilityTemplateGeoMapOptions ));
+			// add indictor data if it is available
+			if($scope.selectedIndicator) {
+				options.series[0] = $scope.setMostRecentIndicatorDataToReachabilityMap(options.series[0])
+				options.series[0].label.formatter = '{b}\n{c}';
+			}
+			
+			// register a new echarts map with a unique name (needed when filtering by area)
+			// check if there is a map registered for this combination, if not register one with all features
+			let mapName = $scope.selectedPoiLayer.datasetName + "_" + $scope.selectedSpatialUnit.spatialUnitId;
+			if(page.area && page.area.length)
+				mapName += "_" + page.area
+			let registeredMap = echarts.getMap(mapName)
+
+			if( !registeredMap ) {
+				echarts.registerMap(mapName, $scope.geoJsonForReachability)
+			}
+
+			options.series[0].map = mapName;
+
+			// Add isochrones
+			// In echarts one mpa can only handle one series
+			// But we need the isochrones in different series to control their z-indexes (show smaller isochrones above larger ones)
+			// That's why we need to register one map per range threshold, that only contains a subset of isochrones.
+			for(seriesData of $scope.isochronesSeriesData) {
+				let range = seriesData[0].value;
+				registeredMap = echarts.getMap("isochrones-" + range)
+				if( !registeredMap ) {
+					let isochrones = $scope.isochrones.features.filter( feature => {
+						return feature.properties.value === range
+					})
+					let featureCollection = {
+						features: isochrones
+					}
+					echarts.registerMap("isochrones-" + range, featureCollection)
+				}
+			}
+			
+			
+			
+
+			let bbox = $scope.isochrones.bbox; // [left, bottom, right, top]
+			let isochronesBboxForEcharts = [[bbox[0], bbox[3]], [bbox[2], bbox[1]]] // [left, top], [right, bottom]
+			
+
+			for(let [idx, seriesData] of $scope.isochronesSeriesData.entries()) {
+				let series = {
+					name: "isochrones-" + seriesData[0].value,
+					type: 'map',
+					roam: false,
+					left: 0, top: 0, right: 0, bottom: 0,
+					boundingCoords: isochronesBboxForEcharts,
+					map: "isochrones-" + seriesData[0].value,
+					nameProperty: 'id',
+					cursor: "default",
+					select: {
+						disabled: true
+					},
+					z: 90 - idx, // first one has smallest threshold and gets highest index
+					data: seriesData
+				}
+				options.series.push(series)
+			}
+
+			// Add poi markers as additional series
+			let centers = $scope.isochrones.info.query.locations;
+			let centerPointSeriesData = centers.map( lonLatArr => {
+				return {
+					value: [lonLatArr[0], lonLatArr[1]]
+				}
+			})
+
+			let centerPointSeries =  {
+				name: 'centerPoints',
+				type: 'scatter',
+				coordinateSystem: 'geo',
+				
+				symbol: 'pin',
+				symbolSize: 20,
+				itemStyle: {
+					color: "#2981CA", // light blue
+					opacity: 1
+				},
+				cursor: "default",
+				data: centerPointSeriesData,
+				label: {
+					show: false,
+				},
+				emphasis: {
+					disabled: true	
+				},
+				z: 200
+			}
+			options.series.push(centerPointSeries)
+
+			let map = echarts.init( wrapper )
+
+			// label positioning
+			options = enableManualLabelPositioningAcrossPages(page, options, map)
+
+			map.setOption( options )
+
+			$scope.updatingLeafletMaps = true;
+			// initialize the leaflet map beneath the transparent-background echarts map
+			$timeout(function(page, pageElement, echartsMap) {
+				
+				let pageIdx = $scope.template.pages.indexOf(page);
+				let pageDom = document.getElementById("reporting-addIndicator-page-" + pageIdx);
+				let oldMapNode = document.querySelector("#reporting-reachability-leaflet-map-container-" + pageIdx);
+				if(oldMapNode) {
+					oldMapNode.remove();
+				}
+				let div = document.createElement("div");
+				div.id ="reporting-reachability-leaflet-map-container-" + pageIdx;
+				div.style.position = "absolute";
+				div.style.left = pageElement.dimensions.left;
+				div.style.top = pageElement.dimensions.top;
+				div.style.width = pageElement.dimensions.width;
+				div.style.height = pageElement.dimensions.height;
+				div.style.zIndex = 10;
+				pageDom.appendChild(div);
+
+				let leafletMap = L.map("reporting-reachability-leaflet-map-container-" + pageIdx, {
+					zoomControl: false,
+					dragging: false,
+					doubleClickZoom: false,
+					boxZoom: false,
+					trackResize: false,
+					// prevents leaflet form snapping to closest pre-defined zoom level.
+					// In other words, it allows us to set exact map extend by a (echarts) bounding box
+					zoomSnap: 0 
+				});
+				// move attribution to the left side to make space for legend
+				L.control.attribution({
+					position: 'bottomleft'
+				}).addTo(leafletMap)
+
+				let echartsOptions = echartsMap.getOption();
+				// echarts uses [lon, lat], leaflet uses [lat, lon]
+				let boundingCoords = echartsOptions.series[0].boundingCoords;
+				let westLon = boundingCoords[0][0];
+				let southLat = boundingCoords[1][1];
+				let eastLon = boundingCoords[1][0];
+				let northLat = boundingCoords[0][1];
+
+				if(page.area && page.area.length) {
+					for(feature of $scope.geoJsonForReachability.features) {
+						if(feature.properties.NAME === page.area) {
+							// set bounding box to this feature
+							featureBbox = feature.properties.bbox;
+							westLon = featureBbox[0];
+							southLat = featureBbox[1];
+							eastLon = featureBbox[2];
+							northLat = featureBbox[3];
+							break;
+						}
+					}
+				}
+
+				// Add 2% space on all sides
+				let divisor = 50;
+				let bboxHeight = northLat - southLat;
+				let bboxWidth = eastLon - westLon;
+				northLat += bboxHeight/divisor;
+				southLat -= bboxHeight/divisor;
+				eastLon += bboxWidth/divisor;
+				westLon -= bboxWidth/divisor;
+
+				leafletMap.fitBounds( [[southLat, westLon], [northLat, eastLon]] );
+				let bounds = leafletMap.getBounds()
+				// now update the echarts map and isochrones
+				boundingCoords = [ [bounds.getWest(), bounds.getNorth()], [bounds.getEast(), bounds.getSouth()]]
+				for(let series of echartsOptions.series) {
+					series.top = 0;
+					series.bottom = 0;
+					series.aspectScale = 0.625
+					series.boundingCoords = boundingCoords
+				}
+				// also for the invisible geo component to update isochrone center markers
+				echartsOptions.geo[0].top = 0;
+				echartsOptions.geo[0].bottom = 0;
+				echartsOptions.geo[0].aspectScale = 0.625
+				echartsOptions.geo[0].boundingCoords = boundingCoords
+
+				echartsMap.setOption(echartsOptions, {
+					notMerge: true
+				});
+				
+				let osmLayer = new L.TileLayer.Grayscale("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+					attribution: "Map data © <a href='http://openstreetmap.org'>OpenStreetMap</a> contributors",
+				});
+				osmLayer.addTo(leafletMap);
+
+				// can be used to check if positioning in echarts matches the one from leaflet
+				//let geoJsonLayer = L.geoJSON( $scope.geoJsonForReachability.features )
+				//geoJsonLayer.addTo(leafletMap)
+				//let isochronesLayer = L.geoJSON( $scope.isochrones.features )
+				//isochronesLayer.addTo(leafletMap);
+
+				if(pageIdx === $scope.template.pages.length-1) {
+					$scope.updatingLeafletMaps = false;
+					$scope.loadingData = false;
+				}
+			}, 0, true, page, pageElement, map)
+
+			return map;
+		}
+
 		/**
 		 * Creates and returns an echarts geoMap object.
 		 * @param {*} wrapper | the dom element (most likely a div) where the map should be inserted
 		 * @param {*} pageElement 
 		 * @returns 
 		 */
-		$scope.createPageElement_Map = function(wrapper, page, pageElement) {
+		$scope.createPageElement_Map = async function(wrapper, page, pageElement) {
+
+			if($scope.template.name === "A4-landscape-reachability") {
+				let map = await $scope.createMapForReachability(wrapper, page, pageElement);
+				return map;
+			}
 			
 			// check if there is a map registered for this combination, if not register one with all features
 			let mapName = undefined;
@@ -1049,7 +1638,6 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			
 			// get the timestamp from pageElement, not from dom because dom might not be up to date yet
 			let dateElement;
-			// for reachability template dateElement is still undefined
 			if($scope.template.name === "A4-landscape-reachability") {
 				dateElement = page.pageElements.find( el => {
 					return el.type === "dataTimestamp+typeOfMovement-landscape";
@@ -1061,16 +1649,16 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					// pageElement references the map here
 					// do the comparison like this because we have maps with dataTimestamp and dataTimeseries in the timeseries template
 					return el.type === (pageElement.isTimeseries ? "dataTimeseries-landscape" : "dataTimestamp-landscape");
-				});
-
+				})
+				
 				if(pageElement.isTimeseries) {
 					timestamp = dateElement.text.split(" - ")[1]; // get the recent timestamp
 				} else {
 					timestamp = dateElement.text;
 				}
 			}
-
-			mapName = $scope.selectedIndicator.indicatorName + "_" + dateElement.text + "_" + $scope.selectedSpatialUnit.spatialUnitName;
+			
+			mapName = $scope.selectedIndicator.indicatorName + "_" + timestamp + "_" + $scope.selectedSpatialUnit.spatialUnitName;
 			
 			if(pageElement.classify)
 				mapName += "_classified";
@@ -1101,9 +1689,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			series.roam = false;
 			series.selectedMode = false;
 			
-			if($scope.template.name === "A4-landscape-reachability") {
-				options.backgroundColor = "rgba(255,255,255,0)" // transparent, because we draw it over the leaflet map
-			}
+			
 
 			if(pageElement.isTimeseries) {
 				let includeInBetweenDates = true;
@@ -1138,26 +1724,12 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 						el.label.show = true;
 						el.label.textShadowColor = '#ffffff';
 						el.label.textShadowBlur = 2;
-						// only show borders for reachability template
-						if($scope.template.name === "A4-landscape-reachability") {
-							el.itemStyle.areaColor = "rgb(255, 255, 255, 0)"; // 0 = transparent
-							el.itemStyle.borderColor = "rgb(255, 153, 51)"
-							el.itemStyle.borderWidth = 5;
-							el.itemStyle.color = "rgb(255, 255, 255, 0)";
-							el.emphasis.itemStyle.areaColor = "rgb(255, 255, 255, 0)";
-							el.emphasis.itemStyle.borderColor = "rgb(255, 153, 51)"
-							el.emphasis.itemStyle.borderWidth = 5;
-							el.emphasis.itemStyle.color = "rgb(255, 255, 255, 0)";
-						} else {
-							el.itemStyle.areaColor = "rgb(255, 153, 51, 0.6)";
-							el.itemStyle.color = "rgb(255, 153, 51, 0.6)";
-							el.emphasis.itemStyle.areaColor = "rgb(255, 153, 51, 0.6)";
-							el.emphasis.itemStyle.color = "rgb(255, 153, 51, 0.6)";
-						}
-						
+						el.itemStyle.areaColor = "rgb(255, 153, 51, 0.6)";
+						el.itemStyle.color = "rgb(255, 153, 51, 0.6)";
+						el.emphasis.itemStyle.areaColor = "rgb(255, 153, 51, 0.6)";
+						el.emphasis.itemStyle.color = "rgb(255, 153, 51, 0.6)";
 					} else {
 						// Only show borders for any other areas
-						// Transparent area fill in case there is a background map
 						el.itemStyle.color = "rgba(255, 255, 255, 0)";
 						el.itemStyle.areaColor = "rgba(255, 255, 255, 0)";
 						el.emphasis.itemStyle.color = "rgba(255, 255, 255, 0)";
@@ -1213,8 +1785,18 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 
 			// label positioning
+			options = enableManualLabelPositioningAcrossPages(page, options, map)
+			
+			map.setOption(options);
+			return map;
+		}
+
+		function enableManualLabelPositioningAcrossPages(page, options, map) {
 			if(!page.area) {
 				options.labelLayout = function(feature) {
+					if(feature.seriesIndex != 0) { // index 0 are the borders / indicator
+						return;
+					}
 					// Set fixed position for labels that were previously dragged by user
 					// For all other labels try to avoid overlaps
 					let names = $scope.absoluteLabelPositions.map(el=>el.name)
@@ -1233,6 +1815,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 							draggable: true
 						}
 					}	
+					
 				}
 
 				options.labelLine = {
@@ -1249,8 +1832,19 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 						let target = event.target;
 						if(target.parent && target.parent.type === "text") {
 							// get the feature which this label belongs to
-							// feature name is the first child ("first line")
-							$scope.draggingLabelForFeature = target.parent._children[0].style.text;
+							// When user clicks on the label, one of the child elements is clicked
+							// Child elements can be something like: first line of text, second line of text, (white) label background
+							// These elements all have the same parent, which we can use to navigate to the parent and then find the correct child (area name)
+							let parent = target.parent;
+							let areaNameChild;
+							for(let child of parent._children) {
+								// we assume that the area name is the first child with text ("the first line")
+								if(child.style.text && child.style.text.length > 0) {
+									areaNameChild = child;
+									break;
+								}
+							}
+							$scope.draggingLabelForFeature = areaNameChild.style.text;
 						}
 					}
 				});
@@ -1259,7 +1853,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					if(event.target) {
 						let target = event.target;
 						if(target.parent && target.parent.type === "text") {
-							// for all other maps that are not area-specific, do the exact same label drag
+							// for all other maps, that are not area-specific, do the exact same label drag
 							let newX = target.parent.x;
 							let newY = target.parent.y;
 							let names = $scope.absoluteLabelPositions.map(el=>el.name)
@@ -1288,96 +1882,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					}
 				});
 			}
-		
-			map.setOption(options);
-
-			// for reachability initialize the leaflet map beneath the transparent-background echarts map
-			if($scope.template.name === "A4-landscape-reachability") {
-				
-				$timeout(function(page, pageElement, echartsMap) {
-					let pageIdx = $scope.template.pages.indexOf(page);
-					let pageDom = document.getElementById("reporting-addIndicator-page-" + pageIdx);
-					let oldMapNode = document.querySelector("#reporting-reachability-leaflet-map-container-" + pageIdx);
-					if(oldMapNode) {
-						oldMapNode.remove();
-					}
-					let div = document.createElement("div");
-					div.id ="reporting-reachability-leaflet-map-container-" + pageIdx;
-					div.style.position = "absolute";
-					div.style.left = pageElement.dimensions.left;
-					div.style.top = pageElement.dimensions.top;
-					div.style.width = pageElement.dimensions.width;
-					div.style.height = pageElement.dimensions.height;
-					div.style.zIndex = 10;
-					pageDom.appendChild(div);
-
-					let leafletMap = L.map("reporting-reachability-leaflet-map-container-" + pageIdx, {
-						zoomControl: false,
-						// prevents leaflet form snapping to closest pre-defined zoom level.
-						// In other words, it allows us to set exact map extend by a (echarts) bounding box
-						zoomSnap: 0 
-					});
-					let echartsOptions = echartsMap.getOption();
-					// echarts uses [lon, lat], leaflet uses [lat, lon]
-					let boundingCoords = echartsOptions.series[0].boundingCoords;
-					let westLon = boundingCoords[0][0];
-					let southLat = boundingCoords[1][1];
-					let eastLon = boundingCoords[1][0];
-					let northLat = boundingCoords[0][1];
-
-					if(page.area && page.area.length) {
-						for(feature of $scope.selectedIndicator.geoJSON.features) {
-							if(feature.properties.NAME === page.area) {
-								// set bounding box to this feature
-								featureBbox = feature.properties.bbox;
-								westLon = featureBbox[0];
-								southLat = featureBbox[1];
-								eastLon = featureBbox[2];
-								northLat = featureBbox[3];
-								break;
-							}
-						}
-					}
-
-					// Add 2% space on all sides
-					let divisor = 50;
-					let bboxHeight = northLat - southLat;
-					let bboxWidth = eastLon - westLon;
-					northLat += bboxHeight/divisor;
-					southLat -= bboxHeight/divisor;
-					eastLon += bboxWidth/divisor;
-					westLon -= bboxWidth/divisor;
-
-					leafletMap.fitBounds( [[southLat, westLon], [northLat, eastLon]] );
-					let bounds = leafletMap.getBounds()
-					// now update the echarts map
-					boundingCoords = [ [bounds.getWest(), bounds.getNorth()], [bounds.getEast(), bounds.getSouth()]]
-					echartsOptions.series[0].top = 0;
-					echartsOptions.series[0].bottom = 0;
-					echartsOptions.series[0].aspectScale = 0.625
-					echartsOptions.series[0].boundingCoords = boundingCoords
-					echartsMap.setOption(echartsOptions, {
-						replaceMerge: ['series']
-					});
-					
-					let osmLayer = new L.TileLayer.Grayscale("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-						attribution: "Map data © <a href='http://openstreetmap.org'>OpenStreetMap</a> contributors",
-					});
-					osmLayer.addTo(leafletMap);
-
-					// temp geojson
-					let geoJsonLayer = L.geoJSON( $scope.selectedIndicator.geoJSON.features )
-					geoJsonLayer.addTo(leafletMap)
-
-					if(pageIdx === $scope.template.pages.length-1) {
-						$scope.updatingLeafletMaps = false;
-						$scope.loadingData = false;
-					}
-				}, 0, true, page, pageElement, map)
-			}
-
-
-			return map;
+			return options;
 		}
 
 		$scope.createPageElement_Average = function(page, pageElement, calcForSelection) {
@@ -1941,6 +2446,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 
 		$scope.prepareDiagrams = function(selectedIndicator, selectedSpatialUnit, timestampName, classifyUsingWholeTimeseries) {
+			
 			// set settings useOutlierDetectionOnIndicator and classifyUsingWholeTimeseries to false to have consistent reporting setup
 			// we need to undo these changes afterwards, so we store the current values in a backup first
 			const useOutlierDetectionOnIndicator_backup = kommonitorDataExchangeService.useOutlierDetectionOnIndicator;
@@ -1987,7 +2493,69 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			$scope.diagramsPrepared = true;
 		}
 
-		$scope.initializeOrUpdateAllDiagrams = function() {
+
+		$scope.prepareReachabilityEchartsMap = function() {
+			for(let feature of $scope.geoJsonForReachability.features) {
+				let bbox = turf.bbox(feature); // calculate bbox for each feature
+				feature.properties.bbox = bbox;
+			}
+			let overallBbox = calculateOverallBoundingBoxFromGeoJSON($scope.geoJsonForReachability.features)
+			// change format of bbox to match the format needed for echarts
+			overallBbox = [
+				[overallBbox[0], overallBbox[3]], // north-west lon lat
+				[overallBbox[2], overallBbox[1]] // south-east lon lat
+			]
+
+			let mapName = "reachabilityMap"; // gets overwritten later anyway
+			echarts.registerMap(mapName, $scope.geoJsonForReachability)
+
+			let geoMapOptions = {
+				// geo component is only needed for isochrone center markers to work
+				geo: {
+					map: mapName,
+					z: 1,
+					itemStyle: {
+						opacity: 0
+					},
+					roam: false,
+					boundingCoords: overallBbox,
+				},
+				backgroundColor: "rgba(255,255,255,0)", // transparent, because we draw it over the leaflet map
+				series: [{
+					name: "spatialUnitBoundaries",
+					type: 'map',
+					roam: false,
+					boundingCoords: overallBbox,
+					map: mapName,
+					cursor: "default",
+					itemStyle: {
+						areaColor: "rgb(255, 255, 255, 0)",
+						borderColor: "rgb(255, 153, 51)",
+						borderWidth: 5,
+						color: "rgb(255, 255, 255, 0)",
+					},
+					label: {
+						show: true,
+						backgroundColor: 'white',
+						padding: [1, 2, 1, 2] // [top, right, bottom, left]
+					},
+					emphasis: {
+						disabled: true
+					},
+					z: 100,
+					data: []
+				}]
+			};
+			
+			// We can set this here because this function is only relevant for reachability.
+			// The other diagrams don't have to be prepared since they are not used.
+			$scope.diagramsPrepared = true;
+
+			return geoMapOptions
+		}
+
+
+		$scope.initializeAllDiagrams = async function() {
 			if(!$scope.template)
 				return;
 			if($scope.template.name === "A4-landscape-timestamp" && $scope.selectedTimestamps.length === 0) {
@@ -2044,10 +2612,15 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					switch(pageElement.type) {
 						case "map": {
 							// initialize with all areas
-							let map = $scope.createPageElement_Map(pElementDom, page, pageElement);
+							let map = await $scope.createPageElement_Map(pElementDom, page, pageElement);
 							// filter visible areas if needed
 							if(page.area && page.area.length) {
-								$scope.filterMapByAreaName(map, page.area, $scope.selectedIndicator.geoJSON.features);
+								if($scope.selectedIndicator) {
+									$scope.filterMapByAreaName(map, page.area, $scope.selectedIndicator.geoJSON.features);
+								} else {
+									$scope.filterMapByAreaName(map, page.area, $scope.geoJsonForReachability.features);
+								}
+								
 							}
 							pageElement.isPlaceholder = false;
 							break;
@@ -2266,8 +2839,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					return;
 				}
 				// diagrams are prepared, but dom has to be updated first, too
-				$timeout(function() {
-					$scope.initializeOrUpdateAllDiagrams();
+				$timeout(async function() {
+					await $scope.initializeAllDiagrams();
 					$scope.loadingData = false;
 				})
 				
@@ -2287,7 +2860,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			let inBetweenDates;
 			if(includeInBetweenValues) {
 				// get all valid timestamps for this spatial unit that lie in between from and to
-				let validTimestamps = getValidTimestampsForSpatialUnit( $scope.selectedSpatialUnit.spatialUnitName );
+				let validTimestamps = getValidTimestampsForSpatialUnit( $scope.selectedSpatialUnit );
 				inBetweenDates = validTimestamps.filter( el => {
 					let date = new Date(el);
 					date.setHours(0); // remove time-offset...TODO is there a better way?

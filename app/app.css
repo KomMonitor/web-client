@@ -2604,8 +2604,14 @@ input:checked + .switchslider:before {
 	border-top: 1px solid rgb(196, 196, 196)
 }
 
-#reporting-indicator-select-box select {
+#reporting-indicator-select-box select,
+#reporting-poi-select-box select {
 	font-size: 12px;
+}
+
+#reporting-optional-indicator-info {
+	margin-top: 10px;
+	margin-bottom: 10px;
 }
 
 .tab-disabled {
