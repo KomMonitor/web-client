@@ -259,7 +259,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					titleEl.isPlaceholder = false;
 
 					let dateEl = pageToInsert.pageElements.find( el => {
-						return el.type === "dataTimestamp+typeOfMovement-landscape"
+						return el.type === "reachability-subtitle-landscape"
 					});
 
 					dateEl.text = $scope.selectedTimestamps[0].name + ", " + $scope.isochronesTypeOfMovementMapping[$scope.typeOfMovement];
@@ -436,8 +436,10 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				// simply update the timestamp on all pages
 				for(let page of $scope.template.pages) {
 					for(let pageElement of page.pageElements) {
-						if(pageElement.type === "dataTimestamp+typeOfMovement-landscape") {
+						if(pageElement.type === "reachability-subtitle-landscape") {
 							pageElement.text = newVal[0].name + ", " + $scope.isochronesTypeOfMovementMapping[$scope.typeOfMovement]
+							if($scope.selectedIndicator)
+								pageElement.text += ", " + $scope.selectedIndicator.indicatorName;
 						}
 						break;
 					}
@@ -1055,8 +1057,10 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 						// and area/timestamp/timeseries changes are done after that
 					}
 
-					if(el.type === "dataTimestamp+typeOfMovement-landscape") {
+					if(el.type === "reachability-subtitle-landscape") {
 						el.text = $scope.selectedTimestamps[0].name + ", " + $scope.isochronesTypeOfMovementMapping[$scope.typeOfMovement];
+						if($scope.selectedIndicator)
+							el.text += ", " + $scope.selectedIndicator.indicatorName;
 						el.isPlaceholder = false
 					}
 				}
@@ -1167,6 +1171,12 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 							replaceMerge: ['series']
 						});
 					}
+
+					if(pageElement.type === "reachability-subtitle-landscape") {
+						pageElement.text = $scope.selectedTimestamps[0].name;
+						pageElement.text += ", " + $scope.isochronesTypeOfMovementMapping[$scope.typeOfMovement];
+						pageElement.isPlaceholder = false
+					}
 				}
 			}
 		}
@@ -1206,8 +1216,16 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 							replaceMerge: ['series']
 						});
 					}
+
+					if(pageElement.type === "reachability-subtitle-landscape") {
+						pageElement.text = $scope.selectedTimestamps[0].name;
+						pageElement.text += ", " + $scope.isochronesTypeOfMovementMapping[$scope.typeOfMovement];
+						pageElement.text += ", " + indicator.indicatorName;
+						pageElement.isPlaceholder = false;
+					}
 				}
 			}
+			$scope.$apply();
 
 		}
 	
@@ -1280,11 +1298,6 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					if(el.type === "dataTimeseries-landscape") {
 						let dsValues = $scope.getFormattedDateSliderValues()
 						el.text = dsValues.from + " - " + dsValues.to
-						el.isPlaceholder = false
-					}
-
-					if(el.type === "dataTimestamp+typeOfMovement-landscape") {
-						el.text = mostRecentTimestampName + ", " + $scope.isochronesTypeOfMovementMapping[$scope.typeOfMovement];
 						el.isPlaceholder = false
 					}
 				}
@@ -1737,7 +1750,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			let dateElement;
 			if($scope.template.name === "A4-landscape-reachability") {
 				dateElement = page.pageElements.find( el => {
-					return el.type === "dataTimestamp+typeOfMovement-landscape";
+					return el.type === "reachability-subtitle-landscape";
 				});
 				timestamp = dateElement.text.split(",")[0];
 			} else {

@@ -593,7 +593,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 								"css": "text-align: left; padding-left: 5px; font-weight: bold;"
 							},
 							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("communeLogo-landscape"),
-							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("dataTimestamp+typeOfMovement-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("reachability-subtitle-landscape"),
 							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("footerHorizontalSpacer-landscape"),
 							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("footerCreationInfo-landscape"),
 							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("pageNumber-landscape"),
@@ -647,7 +647,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 								"css": "text-align: left; padding-left: 5px; font-weight: bold;"
 							},
 							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("communeLogo-landscape"),
-							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("dataTimestamp+typeOfMovement-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("reachability-subtitle-landscape"),
 							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("footerHorizontalSpacer-landscape"),
 							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("footerCreationInfo-landscape"),
 							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("pageNumber-landscape"),

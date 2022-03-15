@@ -2854,7 +2854,7 @@ angular
         "css": "text-align: left; padding-left: 5px;"
       },
       {
-        "type": "dataTimestamp+typeOfMovement-landscape",
+        "type": "reachability-subtitle-landscape",
         "dimensions": {
           "top": "50px",
           "left": "15px",
@@ -2862,7 +2862,7 @@ angular
           "height": "30px"
         },
         "isPlaceholder": true,
-        "placeholderText": "Aktueller Datenstand, Fortbewegungsmittel",
+        "placeholderText": "Aktueller Datenstand, Fortbewegungsmittel, [Indikator]",
         "text": "",
         "css": "text-align: left; padding-left: 5px;"
       },
