@@ -1519,6 +1519,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				
 				let pageIdx = $scope.template.pages.indexOf(page);
 				let pageDom = document.getElementById("reporting-addIndicator-page-" + pageIdx);
+				let pageElementDom = document.getElementById("reporting-addIndicator-page-" + pageIdx + "-map");
 				let oldMapNode = document.querySelector("#reporting-reachability-leaflet-map-container-" + pageIdx);
 				if(oldMapNode) {
 					oldMapNode.remove();
@@ -1539,14 +1540,21 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					doubleClickZoom: false,
 					boxZoom: false,
 					trackResize: false,
+					attributionControl: false,
 					// prevents leaflet form snapping to closest pre-defined zoom level.
 					// In other words, it allows us to set exact map extend by a (echarts) bounding box
 					zoomSnap: 0 
 				});
-				// move attribution to the left side to make space for legend
-				L.control.attribution({
-					position: 'bottomleft'
-				}).addTo(leafletMap)
+				// manually create a field for attribution so we can control the z-index.
+				let attrDiv = document.createElement("div")
+				attrDiv.innerHTML = "Leaflet | Map data @ OpenStreetMap contributors";
+				attrDiv.style.padding = "5px";
+				attrDiv.style.position = "absolute";
+				attrDiv.style.bottom = 0;
+				attrDiv.style.left = 0;
+				attrDiv.style.zIndex = 800;
+				attrDiv.style.backgroundColor = "rgba(255, 255, 255, 0.5)";
+				pageElementDom.appendChild(attrDiv);
 
 				let echartsOptions = echartsMap.getOption();
 				// echarts uses [lon, lat], leaflet uses [lat, lon]
