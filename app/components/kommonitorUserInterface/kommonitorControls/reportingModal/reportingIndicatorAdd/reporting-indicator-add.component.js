@@ -1472,7 +1472,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			if(ranges.length === 4) colorArr.push( ...["green", "yellow", "orange", "red"] )
 			// If we have more than five ranges the last color is used again for now. Can be extended if there is need for it.
 			if(ranges.length >=  5) colorArr.push( ...["green", "yellow", "orange", "red", "brown"] )
-
+	
 			// one series per range value, so we can control the z value and legend display more easily.
 			for(let [idx, range] of rangesInt.entries()) {
 				if(idx >= colorArr.length) idx = colorArr.length-1;
@@ -1635,6 +1635,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				div.style.height = pageElement.dimensions.height;
 				div.style.zIndex = 10;
 				pageDom.appendChild(div);
+				let echartsOptions = echartsMap.getOption();
 
 				let leafletMap = L.map("reporting-reachability-leaflet-map-container-" + pageIdx, {
 					zoomControl: false,
@@ -1648,17 +1649,25 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					zoomSnap: 0 
 				});
 				// manually create a field for attribution so we can control the z-index.
+				let prevAttributionDiv = pageDom.querySelector(".map-attribution")
+				if(prevAttributionDiv) prevAttributionDiv.remove();
 				let attrDiv = document.createElement("div")
+				attrDiv.classList.add("map-attribution")
 				attrDiv.innerHTML = "Leaflet | Map data @ OpenStreetMap contributors";
+				attrDiv.style.fontSize = "8pt"
 				attrDiv.style.padding = "5px";
 				attrDiv.style.position = "absolute";
 				attrDiv.style.bottom = 0;
 				attrDiv.style.left = 0;
 				attrDiv.style.zIndex = 800;
-				attrDiv.style.backgroundColor = "rgba(255, 255, 255, 0.5)";
+				attrDiv.style.backgroundColor = "rgba(255, 255, 255, 0.75)";
 				pageElementDom.appendChild(attrDiv);
+				// also create the legend manually
+				let prevLegendnDiv = pageDom.querySelector(".map-legend")
+				if(prevLegendnDiv) prevLegendnDiv.remove();
+				let legendDiv = $scope.createReachabilityMapLegend(echartsOptions);
+				pageElementDom.appendChild(legendDiv)
 
-				let echartsOptions = echartsMap.getOption();
 				// echarts uses [lon, lat], leaflet uses [lat, lon]
 				let boundingCoords = echartsOptions.series[0].boundingCoords;
 				let westLon = boundingCoords[0][0];
@@ -3160,6 +3169,96 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		// https://stackoverflow.com/a/2631198/18450475
 		function getNestedProp(obj, ...args) {
 			return args.reduce((obj, level) => obj && obj[level], obj)
+		}
+
+		$scope.createReachabilityMapLegend = function(echartsOptions) {
+			let legendEntries = [];
+			let isochronesHeadingAdded = false;
+			for(let i=0; i<echartsOptions.series.length; i++) {
+				let series = echartsOptions.series[i];
+
+				if(series.name === "spatialUnitBoundaries") {
+					legendEntries.push({
+						label: $scope.selectedSpatialUnit.spatialUnitName ? $scope.selectedSpatialUnit.spatialUnitName : $scope.selectedSpatialUnit.spatialUnitLevel,
+						iconColor: series.itemStyle.borderColor,
+						iconHeight: "4px",
+						isGroupHeading: false
+					});
+				}
+
+				if(series.name.includes("isochrones")) {
+
+					if(!isochronesHeadingAdded) { // add heading above first isochrone entry
+						legendEntries.push({
+							label: "Erreichbarkeit",
+							isGroupHeading: true
+						})
+						isochronesHeadingAdded = true;
+					}
+
+					let value = series.data[0].value;
+					legendEntries.push({
+						label: value,
+						iconColor: series.data[0].itemStyle.areaColor,
+						iconOpacity: series.data[0].itemStyle.opacity,
+						iconHeight: "12px",
+						isGroupHeading: false
+					})
+				}
+			}
+			
+
+			let legendDiv = document.createElement("div");
+			legendDiv.classList.add("map-legend")
+			legendDiv.style.padding = "5px";
+			legendDiv.style.position = "absolute";
+			legendDiv.style.bottom = 0;
+			legendDiv.style.right = 0;
+			legendDiv.style.zIndex = 800;
+			legendDiv.style.backgroundColor = "rgb(255, 255, 255)";
+			legendDiv.style.fontSize = "8pt";
+
+			let table = document.createElement("table");
+			for(let entry of legendEntries) {
+				let row = document.createElement("tr");
+				let labelTd = document.createElement("td");
+
+				if(entry.isGroupHeading) {
+					labelTd.colSpan = 2;
+					let heading = document.createElement("h5");
+					heading.innerText = entry.label;
+					heading.style.fontWeight = "bold";
+					heading.style.fontSize = "8pt";
+					labelTd.appendChild(heading);
+					labelTd.style.textAlign = "left";
+					row.appendChild(labelTd)
+					table.appendChild(row) 
+					continue;
+				}
+
+				labelTd.innerText = entry.label;
+				labelTd.style.textAlign = "left";
+				labelTd.style.paddingLeft = "5px";
+
+				let iconTd = document.createElement("td");
+				let icon = document.createElement("div");
+				iconTd.appendChild(icon);
+
+				icon.style.backgroundColor = entry.iconColor;
+				if(entry.hasOwnProperty("iconOpacity")) {
+					icon.style.opacity = entry.iconOpacity;	
+				}
+				icon.style.width = "30px";
+				icon.style.height = entry.iconHeight;
+				iconTd.style.height = "18px";
+				
+				row.appendChild(iconTd)
+				row.appendChild(labelTd)
+				table.appendChild(row) 
+			}
+
+			legendDiv.appendChild(table);
+			return legendDiv;
 		}
 	}
 ]})
