@@ -903,7 +903,6 @@ angular
           feature.properties.bbox = bbox;
         }
         var bbox = calculateOverallBoundingBoxFromGeoJSON(indicatorMetadataAndGeoJSON.geoJSON.features)
-        //var centerCoords = calculateCenterCoordsFromBbox( bbox );
         // change format of bbox to match the format needed for echarts
         bbox = [
           [bbox[0], bbox[3]], // north-west lon lat
@@ -1853,7 +1852,6 @@ angular
            // check if we have to modify our overall bbox (result)
            if(result.length === 0) { // for first feature
             result.push(...features[i].properties.bbox);
-            continue;
           } else {
             // all other features
             let bbox = features[i].properties.bbox;
@@ -1865,12 +1863,4 @@ angular
         }
         return result;
       };
-
-      // var calculateCenterCoordsFromBbox = function(bbox) {
-      //   // bbox format: [lower left lon, lower left lat, upper right lon, upper right lat]
-      //   var centerLon = bbox[0] + ((bbox[2] - bbox[0]) / 2);
-      //   var centerLat = bbox[1] + ((bbox[3] - bbox[1]) / 2);
-      //   return [centerLon, centerLat]
-      // }
-
     }]);
