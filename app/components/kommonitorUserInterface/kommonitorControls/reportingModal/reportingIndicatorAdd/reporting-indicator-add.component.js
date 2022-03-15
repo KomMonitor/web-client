@@ -2530,8 +2530,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					cursor: "default",
 					itemStyle: {
 						areaColor: "rgb(255, 255, 255, 0)",
-						borderColor: "rgb(255, 153, 51)",
-						borderWidth: 5,
+						borderColor: "rgb(50, 50, 50)",
+						borderWidth: 3,
 						color: "rgb(255, 255, 255, 0)",
 					},
 					label: {
