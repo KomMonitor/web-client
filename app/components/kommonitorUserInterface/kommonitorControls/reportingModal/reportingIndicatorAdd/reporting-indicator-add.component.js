@@ -37,6 +37,14 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		$scope.loadingData = false;
 		$scope.diagramsPrepared = false;
 
+		$scope.isochronesTypeOfMovementMapping = {
+			"foot-walking": "Fußgänger",
+			"driving-car": "Auto",
+			"cycling-regular": "Fahrrad",
+			"wheelchair": "Barrierefrei",
+			"buffer": "Puffer"
+		}
+
 		// used to track template pages instead of using $$hashkey
 		$scope.templatePageIdCounter = 1;
 		
@@ -254,7 +262,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 						return el.type === "dataTimestamp+typeOfMovement-landscape"
 					});
 					console.log($scope.selectedTimestamps)
-					dateEl.text = $scope.selectedTimestamps[0].name + ", Fortbewegungsmittel (TODO)";
+					dateEl.text = $scope.selectedTimestamps[0].name + ", " + $scope.isochronesTypeOfMovementMapping[$scope.typeOfMovement];
 					dateEl.isPlaceholder = false;
 
 					// diagrams have to be inserted later because the div element does not yet exist
@@ -429,7 +437,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				for(let page of $scope.template.pages) {
 					for(let pageElement of page.pageElements) {
 						if(pageElement.type === "dataTimestamp+typeOfMovement-landscape") {
-							pageElement.text = newVal[0].name + ", Fortbewegungsmittel (TODO)"
+							pageElement.text = newVal[0].name + ", " + $scope.isochronesTypeOfMovementMapping[$scope.typeOfMovement]
 						}
 						break;
 					}
@@ -973,7 +981,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			await $scope.updateAreasInDualList(); // this populates $scope.availableFeaturesBySpatialUnit
 
 			
-			// update poi layer name and timestamp in preview
+			// update information in preview
 			for(let page of $scope.template.pages) {
 				for(let el of page.pageElements) {
 					if(el.type === "indicatorTitle-landscape") {
@@ -984,7 +992,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					}
 
 					if(el.type === "dataTimestamp+typeOfMovement-landscape") {
-						el.text = $scope.selectedTimestamps[0].name + ", Fortbewegungsmittel (TODO)";
+						el.text = $scope.selectedTimestamps[0].name + ", " + $scope.isochronesTypeOfMovementMapping[$scope.typeOfMovement];
 						el.isPlaceholder = false
 					}
 				}
@@ -1192,7 +1200,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			if($scope.template.name === "A4-landscape-timeseries") {
 				$scope.dateSlider = $scope.initializeDateRangeSlider( timestampsForSelectedSpatialUnit );
 			}
-			// update indicator name and timestamp in preview
+			// update information in preview
 			for(let page of $scope.template.pages) {
 				for(let el of page.pageElements) {
 					if(el.type === "indicatorTitle-landscape") {
@@ -1214,7 +1222,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					}
 
 					if(el.type === "dataTimestamp+typeOfMovement-landscape") {
-						el.text = mostRecentTimestampName + ", Fortbewegungsmittel (TODO)";
+						el.text = mostRecentTimestampName + ", " + $scope.isochronesTypeOfMovementMapping[$scope.typeOfMovement];
 						el.isPlaceholder = false
 					}
 				}
