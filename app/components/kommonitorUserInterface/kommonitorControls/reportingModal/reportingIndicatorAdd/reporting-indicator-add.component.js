@@ -1444,7 +1444,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		}
 
 		$scope.loadIsochrones = async function() {
-			let result = await $http.get("components\\kommonitorUserInterface\\kommonitorControls\\reportingModal\\reportingIndicatorAdd\\temp_isochrones.json")
+			let result = await $http.get("./config/temp_isochrones.json")
 			return result.data;
 		}
 
