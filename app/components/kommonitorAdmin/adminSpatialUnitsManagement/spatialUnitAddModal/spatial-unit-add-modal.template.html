@@ -224,6 +224,7 @@
 											<label>Geodaten-Quellformat*</label>
 											<select ng-model="converter"
 												ng-options="converter as converter.simpleName for converter in $ctrl.kommonitorImporterHelperServiceInstance.availableConverters"
+												ng-change="onChangeConverter()"
 												class="form-control" required>
 												<option disabled selected value> -- Quellformat w&auml;hlen -- </option>
 											</select>
@@ -234,8 +235,20 @@
 											<div class="form-group">
 												<label>Schema*</label>
 												<select ng-model="schema" ng-options="schema for schema in converter.schemas"
-													ng-change="onChangeSchema(schema)" class="form-control" required>
+													class="form-control" required>
 													<option disabled selected value> -- Schema w&auml;hlen -- </option>
+												</select>
+												<div class="help-block with-errors"></div>
+											</div>
+										</div>
+
+										<div ng-if="converter.mimeTypes">
+
+											<div class="form-group">
+												<label>Quellformat*</label>
+												<select ng-model="mimeType" ng-options="mimeType for mimeType in converter.mimeTypes"
+													class="form-control" required>
+													<option disabled selected value> -- Format w&auml;hlen -- </option>
 												</select>
 												<div class="help-block with-errors"></div>
 											</div>

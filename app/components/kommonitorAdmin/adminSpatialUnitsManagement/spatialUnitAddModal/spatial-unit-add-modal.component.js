@@ -106,6 +106,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 
 		$scope.converter = undefined;
 		$scope.schema = undefined;
+		$scope.mimeType = undefined;
 		$scope.datasourceType = undefined;
 		$scope.spatialUnitDataSourceIdProperty = undefined;
 		$scope.spatialUnitDataSourceNameProperty = undefined;
@@ -164,6 +165,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 
 			$scope.converter = undefined;
 			$scope.schema = undefined;
+			$scope.mimeType = undefined;
 			$scope.datasourceType = undefined;
 			$scope.spatialUnitDataSourceIdProperty = undefined;
 			$scope.spatialUnitDataSourceNameProperty = undefined;
@@ -187,10 +189,6 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 			setTimeout(() => {
 				$scope.$digest();	
 			}, 250);
-		};
-
-		$scope.onChangeSchema = function(schema){
-			$scope.schema = schema;
 		};
 
 		$scope.checkSpatialUnitName = function(){
@@ -302,6 +300,11 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 			}, 250);
 		};
 
+		$scope.onChangeConverter = function(schema){
+			$scope.schema = $scope.converter.schemas ? $scope.converter.schemas[0] : undefined;
+			$scope.mimeType = $scope.converter.mimeTypes[0];
+		};
+
 		$scope.buildImporterObjects = async function(){
 			$scope.converterDefinition = $scope.buildConverterDefinition();
 			$scope.datasourceTypeDefinition = await $scope.buildDatasourceTypeDefinition();
@@ -317,7 +320,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 
 		$scope.buildConverterDefinition = function(){
 
-			return kommonitorImporterHelperService.buildConverterDefinition($scope.converter, "converterParameter_spatialUnitAdd_", $scope.schema);			
+			return kommonitorImporterHelperService.buildConverterDefinition($scope.converter, "converterParameter_spatialUnitAdd_", $scope.schema, $scope.mimeType);			
 		};
 
 		$scope.buildDatasourceTypeDefinition = async function(){
@@ -720,7 +723,16 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 							$scope.schema = schema;
 						}
 					}
-				}		
+				}	
+				
+				$scope.mimeType = undefined;
+					if ($scope.converter && $scope.converter.mimeTypes && $scope.mappingConfigImportSettings.converter.mimeType){
+						for (var mimeType of $scope.converter.mimeTypes) {
+							if (mimeType === $scope.mappingConfigImportSettings.converter.mimeType){
+								$scope.mimeType = mimeType;
+							}
+						}
+					}
 				
 				$scope.datasourceType = undefined;
 				for(var datasourceType of kommonitorImporterHelperService.availableDatasourceTypes){

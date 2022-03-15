@@ -296,10 +296,10 @@ angular
         });        
       };
 
-      this.buildConverterDefinition = function(selectedConverter, converterParameterPrefix, schema){
+      this.buildConverterDefinition = function(selectedConverter, converterParameterPrefix, schema, mimeType){
         var converterDefinition = {
           "encoding": selectedConverter.encodings[0],
-          "mimeType": selectedConverter.mimeTypes[0],
+          "mimeType": selectedConverter.mimeTypes.filter(element => element == mimeType)[0],
           "name": selectedConverter.name,
           "parameters": [
             

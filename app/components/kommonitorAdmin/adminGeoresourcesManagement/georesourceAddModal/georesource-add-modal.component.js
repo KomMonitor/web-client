@@ -148,6 +148,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 
 		$scope.converter = undefined;
 		$scope.schema = undefined;
+		$scope.mimeType = undefined;
 			$scope.datasourceType = undefined;
 			$scope.georesourceDataSourceIdProperty = undefined;
 			$scope.georesourceDataSourceNameProperty = undefined;
@@ -271,6 +272,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 	
 			$scope.converter = undefined;
 			$scope.schema = undefined;
+			$scope.mimeType = undefined;
 			$scope.datasourceType = undefined;
 			$scope.georesourceDataSourceIdProperty = undefined;
 			$scope.georesourceDataSourceNameProperty = undefined;
@@ -299,8 +301,9 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 			}, 250);
 		};
 
-		$scope.onChangeSchema = function(schema){
-			$scope.schema = schema;
+		$scope.onChangeConverter = function(){
+			$scope.schema = $scope.converter.schemas ? $scope.converter.schemas[0] : undefined;
+			$scope.mimeType = $scope.converter.mimeTypes[0];
 		};
 
 		$scope.onChangeGeoresourceType = function(){
@@ -426,7 +429,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 
 		$scope.buildConverterDefinition = function(){
 
-			return kommonitorImporterHelperService.buildConverterDefinition($scope.converter, "converterParameter_georesourceAdd_", $scope.schema);			
+			return kommonitorImporterHelperService.buildConverterDefinition($scope.converter, "converterParameter_georesourceAdd_", $scope.schema, $scope.mimeType);			
 		};
 
 		$scope.buildDatasourceTypeDefinition = async function(){
@@ -980,7 +983,16 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 							$scope.schema = schema;
 						}
 					}
-				}		
+				}	
+				
+				$scope.mimeType = undefined;
+				if ($scope.converter && $scope.converter.mimeTypes && $scope.mappingConfigImportSettings.converter.mimeType){
+					for (var mimeType of $scope.converter.mimeTypes) {
+						if (mimeType === $scope.mappingConfigImportSettings.converter.mimeType){
+							$scope.mimeType = mimeType;
+						}
+					}
+				}	
 				
 				$scope.datasourceType = undefined;
 				for(var datasourceType of kommonitorImporterHelperService.availableDatasourceTypes){
