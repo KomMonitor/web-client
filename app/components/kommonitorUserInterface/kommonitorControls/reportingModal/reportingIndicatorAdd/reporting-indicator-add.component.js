@@ -1144,7 +1144,6 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 			$scope.selectedIndicator = undefined;
 			// since we don't have an indicator selected anymore we reset the spatial unit
-			console.log($scope.allSpatialUnitsForReachability);
 			$scope.selectedSpatialUnit = $scope.allSpatialUnitsForReachability.filter( spatialUnit => {
 				return spatialUnit.spatialUnitLevel === $scope.selectedSpatialUnit.spatialUnitName;
 			})[0];
@@ -1173,7 +1172,6 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		}
 
 		$scope.handleIndicatorSelectForReachability = async function(indicator) {
-			console.log($scope.selectedSpatialUnit);
 			$scope.selectedIndicator = indicator;
 			let indicatorId = $scope.selectedIndicator.indicatorId;
 			let featureCollection = await $scope.queryFeatures(indicatorId, $scope.selectedSpatialUnit);
@@ -3066,8 +3064,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		}
 
 		$scope.validateConfiguration = function() {
-			// indicator has to be selected
-			// at least one area has to be selected
+			// indicator has to be selected (unless template is reachability)
+			// at least one area has to be selected (unless template is reachability)
 			// for timestamps:
 				// at least one timestamp has to be selected
 			// for timeseries
@@ -3080,14 +3078,15 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				return false;
 			}
 
-			if($scope.selectedIndicator) {
+			if($scope.selectedIndicator || $scope.template.name === "A4-landscape-reachability") {
 				isIndicatorSelected = true;
 			}
-			if($scope.selectedAreas.length >= 1) {
+			if($scope.selectedAreas.length >= 1  || $scope.template.name === "A4-landscape-reachability") {
 				isAreaSelected = true;
 			}
 
-			if($scope.template.name === "A4-landscape-timestamp" && $scope.selectedTimestamps.length >= 1) {
+			if( ($scope.template.name === "A4-landscape-timestamp" || $scope.template.name === "A4-landscape-reachability" ) && 
+				$scope.selectedTimestamps.length >= 1) {
 				isTimestampSelected = true;
 			}
 
@@ -3104,7 +3103,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				}
 			}
 
-			if(isIndicatorSelected && isAreaSelected && isTimestampSelected && !$scope.loadingData) {
+			if(isIndicatorSelected && isAreaSelected && isTimestampSelected && !$scope.loadingData && !$scope.updatingLeafletMaps) {
 				return true;
 			} else {
 				return false;
