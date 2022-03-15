@@ -2054,7 +2054,11 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			options.xAxis.axisLabel.show = true;
 			options.yAxis.name = ""; // included in header of each page
 			options.xAxis.name = ""; // always timestamps
-			
+			// black text with halo effect for better visibility
+			if(!options.textStyle) options.textStyle = {};
+			options.textStyle.color = "black";
+			options.textStyle.textShadowColor = '#ffffff';
+			options.textStyle.textShadowBlur = 2;
 			
 			// filter series data and xAxis labels
 			if(page.area && page.area.length) {
@@ -2123,7 +2127,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			options.xAxis.data.push( dataObjSelectionAvg.name )
 			
 			options.series[0].emphasis.itemStyle = {}; // don't show border on hover
-
+	
 			barChart.setOption(options, {
 				replaceMerge: ['series'] // take the new series data, don't update part of the old one
 			});
@@ -2290,8 +2294,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					datasetIndex: 1 // overlap boxplots and avg. line
 				})
 			}
-			
-			
+
 			lineChart.setOption(options, {
 				replaceMerge: ['series'] // take the new series data, don't update part of the old one
 			});
@@ -2427,7 +2430,6 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 			// create table rows once the pages exist
 			function insertDatatableRows(rowsData, page, maxRows) {
-				console.log(maxRows);
 				// get current index of page (might have changed in the meantime)
 				let idx = $scope.template.pages.indexOf(page)
 				let wrapper = document.querySelector("#reporting-addIndicator-page-" + idx + "-datatable");
