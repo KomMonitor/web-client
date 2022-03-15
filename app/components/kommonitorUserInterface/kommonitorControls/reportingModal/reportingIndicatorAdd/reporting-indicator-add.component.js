@@ -732,6 +732,13 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				if($scope.selectedIndicator) {
 					if($scope.template.name === "A4-landscape-reachability") {
 						$scope.reachabilityTemplateGeoMapOptions = $scope.prepareReachabilityEchartsMap();
+					} else if ($scope.template.name === "A4-landscape-timeseries") {
+						let values = $scope.getFormattedDateSliderValues(true);
+						let classifyUsingWholeTimeseries = false;
+						$scope.prepareDiagrams($scope.selectedIndicator, $scope.selectedSpatialUnit, values.to, classifyUsingWholeTimeseries);
+						// prepare diagrams again for most recent timestamp of slider and for whole timeseries (changes).
+						classifyUsingWholeTimeseries = true;
+						$scope.prepareDiagrams($scope.selectedIndicator, $scope.selectedSpatialUnit, values.to, classifyUsingWholeTimeseries);
 					} else {
 						for(let timestamp of $scope.selectedTimestamps) {
 							let classifyUsingWholeTimeseries = false;
@@ -2399,14 +2406,20 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				
 
 			// create table rows once the pages exist
-			$timeout(function(rowsData, page, maxRows) {
+			function insertDatatableRows(rowsData, page, maxRows) {
+				console.log(maxRows);
 				// get current index of page (might have changed in the meantime)
 				let idx = $scope.template.pages.indexOf(page)
 				let wrapper = document.querySelector("#reporting-addIndicator-page-" + idx + "-datatable");
+				if(wrapper) {
+					$interval.cancel(insertDatatableRowsInterval); // code below still executes once
+				} else {
+					return;
+				}
+				
 				wrapper.innerHTML = "";
 				wrapper.style.border = "none"; // hide dotted border from outer dom element
 				wrapper.style.justifyContent = "flex-start"; // align table at top instead of center
-				let addedRowsCounter = 0;
 
 				let columnNames;
 				if($scope.template.name === "A4-landscape-timeseries") {
@@ -2421,48 +2434,68 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				let pageElement = $scope.template.pages[idx].pageElements.find( el => el.type === "datatable");
 				pageElement.isPlaceholder = false;
 
-				for(let data of rowsData) {
-					let row = document.createElement("tr");
-					row.style.height = "25px";
-	
-					for(let colName of columnNames) {
-						let td = document.createElement("td");
-						if(colName === "Bereich") {
-							td.innerText = data.name;
-							td.classList.add("text-left");
-						}
-
-						if(colName === "Zeitpunkt") {
-							td.innerText = data.timestamp;
-						}
-						
-						if(colName === "Wert") {
-							td.innerText = data.value;
-							td.classList.add("text-right");
-						}
-
-						row.appendChild(td);
-					}
-					
+				for(let i=0;i<rowsData.length; i++) {
 					// see which page we have to add the row to
 					// switch to next page if necessary
-					if(addedRowsCounter > 0 && addedRowsCounter % maxRows == 0) {
-						idx++
-						wrapper = document.querySelector("#reporting-addIndicator-page-" + idx + "-datatable");
-						wrapper.innerHTML = "";
-						wrapper.style.border = "none"; // hide dotted border from outer dom element
-						wrapper.style.justifyContent = "flex-start"; // align table at top instead of center
-						table = $scope.createDatatableSkeleton(columnNames);
-						wrapper.appendChild(table);
-						tbody = table.querySelector("tbody");
-						pageElement = $scope.template.pages[idx].pageElements.find( el => el.type === "datatable");
-						pageElement.isPlaceholder = false;
-					}
+					intervalArr = [];
+					if((i % maxRows) == 0) {
+						if(i > 0) idx++
+						const idx_save = idx;
+						const i_save = i;
+						intervalArr[idx_save] = $interval(insertDatatableRowsPerPage, 0, 100, true, pageElement, idx_save, columnNames, maxRows, rowsData, i_save)
 
-					tbody.appendChild(row)
-					addedRowsCounter++;
+						function insertDatatableRowsPerPage(pageElement, idx, columnNames, maxRows, rowsData, i) {
+							// check if page exists already in dom, if not try again later
+							wrapper = document.querySelector("#reporting-addIndicator-page-" + idx + "-datatable");
+							if(wrapper) {
+								$interval.cancel(intervalArr[idx]); // code below still executes once
+							} else {
+								return;
+							}
+							// page exists
+							wrapper.innerHTML = "";
+							wrapper.style.border = "none"; // hide dotted border from outer dom element
+							wrapper.style.justifyContent = "flex-start"; // align table at top instead of center
+							table = $scope.createDatatableSkeleton(columnNames);
+							wrapper.appendChild(table);
+							tbody = table.querySelector("tbody");
+							pageElement = $scope.template.pages[idx].pageElements.find( el => el.type === "datatable");
+							pageElement.isPlaceholder = false;
+							
+							for(let j=i; j<(i + maxRows); j++) {
+								if(!rowsData[j])
+									break; // on last page
+
+								let row = document.createElement("tr");
+								row.style.height = "25px";
+
+								for(let colName of columnNames) {
+									let td = document.createElement("td");
+									if(colName === "Bereich") {
+										td.innerText = rowsData[j].name;
+										td.classList.add("text-left");
+									}
+								
+									if(colName === "Zeitpunkt") {
+										td.innerText = rowsData[j].timestamp;
+									}
+								
+									if(colName === "Wert") {
+										td.innerText = rowsData[j].value;
+										td.classList.add("text-right");
+									}
+								
+									row.appendChild(td);
+								}
+
+								tbody.appendChild(row)
+							}
+						}
+					}
 				}
-			}, 0, true, rowsData, page, maxRows);
+			}
+	
+			let insertDatatableRowsInterval = $interval(insertDatatableRows, 0, 100, true, rowsData, page, maxRows)
 		}
 
 
@@ -2774,7 +2807,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 									nextPageIncludesDatatable = nextPage ? nextPage.pageElements.map(el => el.type).includes("datatable") : false;
 								}
 							}
-							$scope.createPageElement_Datatable(pElementDom, page, pageElement );
+							$scope.createPageElement_Datatable(pElementDom, page);
 							break;
 						}
 					}
