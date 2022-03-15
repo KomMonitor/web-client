@@ -10,12 +10,14 @@
                 <div id="reporting-overwiew-indicators-wrapper">
                     <button id="reporting-configureIndicatorBtn" class="btn btn-success" ng-click='onConfigureNewIndicatorClicked()'>
                         <i class="fa fa-plus"></i>
-                        &nbsp;&nbsp;Indikator konfigurieren
+                        <span ng-show="config.template.name != 'A4-landscape-reachability'">&nbsp;&nbsp;Indikator konfigurieren</span>
+                        <span ng-show="config.template.name == 'A4-landscape-reachability'">&nbsp;&nbsp;POI-Layer konfigurieren</span>
                     </button>
-                    <h3>Hinzugefügte Indikatoren</h3>
+                    <h3 ng-show="config.template.name != 'A4-landscape-reachability'">Hinzugefügte Indikatoren</h3>
+                    <h3 ng-show="config.template.name == 'A4-landscape-reachability'">Hinzugefügte POI-Layer</h3>
                     <p>Die Reihenfolge kann über Drag-and-Drop verändert werden.</p>
                     <div class="list-group" ng-sortable="sortableConfig">
-                        <div ng-repeat="indicator in config.indicators">
+                        <div ng-repeat="indicator in config.indicators" ng-show="config.template.name != 'A4-landscape-reachability'">
                             <hr class="reporting-hr-divider">
                             <div class="row row-no-gutters reporting-added-indicators-row">
                                 <div class="col-sm-11">
@@ -25,6 +27,11 @@
                                     <i class="reporting-indicator-delete-symbol align-middle fa fa-trash-alt" ng-click="removeIndicator(indicator.indicatorName)"></i>
                                 </div>
                             </div>
+                        </div>
+
+                        <div ng-repeat="indicator in config.indicators" ng-show="config.template.name == 'A4-landscape-reachability'">
+                            <hr class="reporting-hr-divider">
+                            TODO
                         </div>
                     </div>
                     
@@ -87,10 +94,23 @@
                                     {{pageElement.text}}
                                 </span>
 
+                                <span ng-show="pageElement.type == 'reachability-subtitle-landscape' && pageElement.isPlaceholder == false"
+                                    ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
+                                    {{pageElement.text}}
+                                </span>
+
                                 <span ng-show="pageElement.type == 'overallAverage' && pageElement.isPlaceholder == false"
                                     ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
                                     <span style="display: block; text-align:left">
                                         Durchschnitt Gesamtstadt:<br />
+                                        {{pageElement.text}}
+                                    </span>
+                                </span>
+
+                                <span ng-show="pageElement.type == 'selectionAverage' && pageElement.isPlaceholder == false"
+                                    ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
+                                    <span style="display: block; text-align:left">
+                                        Durchschnitt Selektion:<br />
                                         {{pageElement.text}}
                                     </span>
                                 </span>
@@ -102,7 +122,15 @@
                                         {{pageElement.text}}
                                     </span>
                                 </span>
-                                
+
+                                <span ng-show="pageElement.type == 'selectionChange' && pageElement.isPlaceholder == false"
+                                    ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
+                                    <span style="display: block; text-align:left">
+                                        Durchschnittliche Veränderung Selektion:<br />
+                                        {{pageElement.text}}
+                                    </span>
+                                </span>
+
                             </div>
                         </div>
                     </div>

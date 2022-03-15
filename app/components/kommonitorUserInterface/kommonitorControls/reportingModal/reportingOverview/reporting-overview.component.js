@@ -78,6 +78,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 			// append to array
 			$scope.config.pages.push(...template.pages);
 			$scope.config.indicators.push(indicator);
+			$scope.config.absoluteLabelPositions = template.absoluteLabelPositions;
 
 			// setup pages after dom exists
 			$scope.setupNewPages(indicator);
@@ -126,33 +127,35 @@ angular.module('reportingOverview').component('reportingOverview', {
 
 		$scope.setupNewPages = function(indicator) {
 			
+			
 			$timeout(async function(indicator) {
-				let indicatorName = indicator.indicatorName;
 
+				let indicatorName = indicator.indicatorName;
+				let indicatorId = indicator.indicatorId;
+				let spatialUnit, spatialUnitId, featureCollection, features, geoJSON;
+				let isFirstPageToAdd = true;
 				for(let [idx, page] of $scope.config.pages.entries()) {
 
 					if(page.indicatorName !== indicatorName) {
 						continue; // only do changes to new pages
+					} else {
+						// Indicator and spatial unit are the same for all added pages
+						// We only need to query features on the first page that we add
+						if(isFirstPageToAdd) {
+							isFirstPageToAdd = false;
+							spatialUnit = indicator.applicableSpatialUnits.filter( el => {
+								return el.spatialUnitName === page.spatialUnitName;
+							});
+							spatialUnitId = spatialUnit[0].spatialUnitId;
+							featureCollection = await $scope.queryFeatures(indicatorId, spatialUnitId);
+							features = $scope.createLowerCaseNameProperty(featureCollection.features);
+							geoJSON = { features: features };
+							
+						}
 					}
 
-					// get spatial unit by name
-					let spatialUnit = indicator.applicableSpatialUnits.filter( el => {
-						return el.spatialUnitName === page.spatialUnitName;
-					});
-					let spatialUnitId = spatialUnit[0].spatialUnitId;
-					let indicatorId = indicator.indicatorId
-					// get features for spatial unit
-					
-					let featureCollection = await $scope.queryFeatures(indicatorId, spatialUnitId)
-					let features = $scope.createLowerCaseNameProperty(featureCollection.features);
-					let geoJSON = { features: features };
-					
-
 					let pageDom = document.querySelector("#reporting-overview-page-" + idx);
-
 					for(let pageElement of page.pageElements) {
-
-
 						// usually each type is included only once per page, but there is an exception for linecharts in area specific part of timeseries template
 						// for now we more or less hardcode this, but it might have to change in the future
 						let pElementDom;
@@ -169,6 +172,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 
 						if(pageElement.type === "map" || pageElement.type === "barchart" || pageElement.type === "linechart") {
 							let instance = echarts.init( pElementDom );
+							
 
 							if(pageElement.type === "map") {
 								// for maps: register maps
@@ -209,11 +213,39 @@ angular.module('reportingOverview').component('reportingOverview', {
 								}
 							}
 
+							// recreate label positions
+							if(!page.area) {
+								pageElement.echartsOptions.labelLayout = function(feature) {
+									// Set fixed position for labels that were previously dragged by user
+									// For all other labels try to avoid overlaps
+									let names = $scope.config.absoluteLabelPositions.map(el=>el.name)
+									let text = feature.text.split("\n")[0] // area name is the first line
+									if(names.includes(text)) {
+										let idx = names.indexOf(text)
+										return {
+											x: $scope.config.absoluteLabelPositions[idx].x,
+											y: $scope.config.absoluteLabelPositions[idx].y,
+											draggable: false // Don't allow label dragging in overview, we could have different spatial units here
+										}
+									} else {
+										return {
+											moveOverlap: 'shiftY',
+											x: feature.rect.x + feature.rect.width / 2,
+											draggable: false
+										}
+									}	
+								}
+							}
+
 							instance.setOption( pageElement.echartsOptions )
 						}
 
 						if(pageElement.type === "overallAverage") {
 							pageDom.querySelector(".type-overallAverage").style.border = "none";
+						}
+
+						if(pageElement.type === "selectionAverage") {
+							pageDom.querySelector(".type-selectionAverage").style.border = "none";
 						}
 
 						if(pageElement.type === "mapLegend") {
@@ -229,13 +261,19 @@ angular.module('reportingOverview').component('reportingOverview', {
 							wrapper.style.height = "100px";
 						}
 
+						if(pageElement.type === "selectionChange") {
+							let wrapper = pageDom.querySelector(".type-selectionChange")
+							wrapper.style.border = "none";
+							wrapper.style.left = "670px";
+							wrapper.style.width = "130px";
+							wrapper.style.height = "100px";
+						}
+
 						if(pageElement.type === "datatable") {
 							$scope.createDatatablePage(pElementDom, pageElement);
 						}
-
 					}
 				}
-
 				$scope.loadingData = false;
 				$scope.$apply();
 
@@ -343,6 +381,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 				$scope.config.indicators = indicators;
 				$scope.config.template = config.template;
 				$scope.config.pages = config.pages;
+				$scope.config.absoluteLabelPositions = config.absoluteLabelPositions;
 				$scope.$apply();
 				for(let indicator of $scope.config.indicators) {
 					$scope.setupNewPages(indicator);
@@ -358,6 +397,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 				let jsonToExport = {};
 				jsonToExport.pages = angular.fromJson(angular.toJson( $scope.config.pages ));
 				jsonToExport.template = angular.fromJson(angular.toJson( $scope.config.template ));
+				jsonToExport.absoluteLabelPositions = $scope.config.absoluteLabelPositions;
 				// replace indicators with indicator names to reduce file size
 				jsonToExport.indicators = $scope.config.indicators.map( indicator => indicator.indicatorName);
 				// only store commune logo once (in first page)
@@ -554,24 +594,28 @@ angular.module('reportingOverview').component('reportingOverview', {
 							break;
 						}
 						// case "mapLegend" can be ignored since it is included in the map if needed
-						case "overallAverage": {
+						case "overallAverage":
+						case "selectionAverage": {
 							let x, y, width, height;
 							x = pageElementDimensions.left;
 							y = pageElementDimensions.top;
 							width = pageElementDimensions.width;
 							height = pageElementDimensions.height;
 							doc.rect(x, y, width, height);
-							let text = "Durchschnitt\nGesamtstadt:\n" + pageElement.text.toString()
+							let avgType = pageElement.type === "overallAverage" ? "Gesamtstadt" : "Selektion"
+							let text = "Durchschnitt\n" + avgType + ":\n" + pageElement.text.toString()
 							doc.text(text, pageElementDimensions.left + pxToMilli(5), pageElementDimensions.top + pxToMilli(5), { baseline: "top" });
 							break;
 						}
-						case "overallChange": {
+						case "overallChange":
+						case "selectionChange": {
 							let x = pxToMilli(670);
 							let y = pageElementDimensions.top;
 							let width = pxToMilli(130);
 							let height = pxToMilli(80);
 							doc.rect(x, y, width, height);
-							let text = "Durchschnittliche\nVeränderung\nGesamtstadt:\n" + pageElement.text.toString()
+							let changeType = pageElement.type === "overallChange" ? "Gesamtstadt" : "Selektion"
+							let text = "Durchschnittliche\nVeränderung\n" + changeType + ":\n" + pageElement.text.toString()
 							doc.text(text, x + pxToMilli(5), y + pxToMilli(5), { baseline: "top" });
 							break;
 						}
@@ -902,7 +946,8 @@ angular.module('reportingOverview').component('reportingOverview', {
 							paragraphs.push(paragraph);
 							break;
 						}
-						case "overallAverage": {
+						case "overallAverage":
+						case "selectionAverage": {
 							let paragraph = new docx.Paragraph({
 								children: [
 									new docx.TextRun({
@@ -910,7 +955,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 										size: 28  // 14pt
 									}),
 									new docx.TextRun({
-										text: "Gesamtstadt",
+										text: pageElement.type === "overallAverage" ? "Gesamtstadt" : "Selektion",
 										size: 28,
 										break: 1,  // 14pt
 									}),
@@ -967,7 +1012,8 @@ angular.module('reportingOverview').component('reportingOverview', {
 							paragraphs.push(paragraph);
 							break;
 						}
-						case "overallChange": {
+						case "overallChange":
+						case "selectionChange": {
 							let paragraph = new docx.Paragraph({
 								children: [
 									new docx.TextRun({
@@ -980,7 +1026,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 										size: 28  // 14pt
 									}),
 									new docx.TextRun({
-										text: "Gesamtstadt",
+										text: pageElement.type === "overallChange" ? "Gesamtstadt" : "Selektion",
 										break: 1,
 										size: 28  // 14pt
 									}),

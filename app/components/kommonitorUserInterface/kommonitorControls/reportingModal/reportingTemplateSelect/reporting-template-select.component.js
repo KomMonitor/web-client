@@ -72,6 +72,17 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 								},
 								"isPlaceholder": true,
 								"placeholderText": "Durchschnitt Gesamtstadt"
+							},
+							{
+								"type": "selectionAverage",
+								"dimensions": {
+									"top": "180px",
+									"left": "700px",
+									"width": "100px",
+									"height": "60px"
+								},
+								"isPlaceholder": true,
+								"placeholderText": "Durchschnitt Selektion"
 							}
 						]
 					},
@@ -112,6 +123,17 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 								},
 								"isPlaceholder": true,
 								"placeholderText": "Durchschnitt Gesamtstadt"
+							},
+							{
+								"type": "selectionAverage",
+								"dimensions": {
+									"top": "180px",
+									"left": "700px",
+									"width": "100px",
+									"height": "60px"
+								},
+								"isPlaceholder": true,
+								"placeholderText": "Durchschnitt Selektion"
 							},
 							{
 								"type": "mapLegend",
@@ -293,6 +315,17 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 								},
 								"isPlaceholder": true,
 								"placeholderText": "Durchschnitt Gesamtstadt (aktuellster Wert)"
+							},
+							{
+								"type": "selectionAverage",
+								"dimensions": {
+									"top": "180px",
+									"left": "700px",
+									"width": "100px",
+									"height": "60px"
+								},
+								"isPlaceholder": true,
+								"placeholderText": "Durchschnitt Selektion (aktuellster Wert)"
 							}
 						]
 					},
@@ -335,6 +368,17 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 								},
 								"isPlaceholder": true,
 								"placeholderText": "Veränderung Gesamtstadt"
+							},
+							{
+								"type": "selectionChange",
+								"dimensions": {
+									"top": "180px",
+									"left": "700px",
+									"width": "100px",
+									"height": "60px"
+								},
+								"isPlaceholder": true,
+								"placeholderText": "Veränderung Selektion"
 							},
 							{
 								"type": "mapLegend",
@@ -534,9 +578,22 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 						"orientation": "landscape",
 						"pageElements": [
 
-							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("indicatorTitle-landscape"),
+							// different placeholder so we don't use the default here
+							{
+								"type": "indicatorTitle-landscape",
+								"dimensions": {
+								  "top": "15px",
+								  "left": "15px",
+								  "width": "720px",
+								  "height": "30px"
+								},
+								"isPlaceholder": true,
+								"placeholderText": "Entfernungen für [Name POI]",
+								"text": "",
+								"css": "text-align: left; padding-left: 5px; font-weight: bold;"
+							},
 							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("communeLogo-landscape"),
-							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("dataTimestamp-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("reachability-subtitle-landscape"),
 							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("footerHorizontalSpacer-landscape"),
 							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("footerCreationInfo-landscape"),
 							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("pageNumber-landscape"),
@@ -551,7 +608,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"height": "440px"
 								},
 								"isPlaceholder": true,
-								"placeholderText": "Karte",
+								"placeholderText": "Karte Gesamtstadt mit Isochronen, Grenzen der gewählten Bereiche farblich hervorgehoben. Kartenhintergrund: nur Hauptstraßen.",
 								"colorScheme": undefined,
 								"classify": false,
 							},
@@ -585,12 +642,12 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 								  "height": "30px"
 								},
 								"isPlaceholder": true,
-								"placeholderText": "Titel des Indikators [Einheit], Bereich (Diese Seite wird für jeden Bereich wiederholt)",
+								"placeholderText": "Entfernungen für [Name POI], Bereich (Diese Seite wird für jeden Bereich wiederholt)",
 								"text": "",
 								"css": "text-align: left; padding-left: 5px; font-weight: bold;"
 							},
 							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("communeLogo-landscape"),
-							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("dataTimestamp-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("reachability-subtitle-landscape"),
 							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("footerHorizontalSpacer-landscape"),
 							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("footerCreationInfo-landscape"),
 							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("pageNumber-landscape"),
@@ -605,7 +662,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"height": "440px"
 								},
 								"isPlaceholder": true,
-								"placeholderText": "Karte",
+								"placeholderText": "Karte Detailansicht Bereich mit Isochronen, Hintergrund OSM-Karte in Graustufen",
 								"colorScheme": undefined,
 								"classify": false,
 							},
@@ -635,10 +692,10 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 
 		$scope.initialize = function() {
 			// open first category
-			let collapsible = document.querySelector("#reporting-template-category-accordion #collapse1")
+			let collapsible = document.querySelector("#reporting-template-category-accordion #collapse3")
 			collapsible.classList.add("in");
 			// select first template
-			collapsible.querySelector("#collapse1-template0").click();
+			collapsible.querySelector("#collapse3-template0").click();
 
 			$scope.datePicker = $('#reporting-general-settings-datefield').datepicker({
 				autoclose: true,
