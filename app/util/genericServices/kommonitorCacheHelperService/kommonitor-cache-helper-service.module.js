@@ -92,13 +92,16 @@ angular
         if(keycloakRolesArray && keycloakRolesArray.length > 0){
           if(keycloakRolesArray.includes(__env.keycloakKommonitorAdminRoleName)){
             metadataKey += "_" + __env.keycloakKommonitorAdminRoleName;
+            timestampKey += "_" + __env.keycloakKommonitorAdminRoleName;
           }
           else{
             metadataKey += "_" + JSON.stringify(keycloakRolesArray);
+            timestampKey += "_" + JSON.stringify(keycloakRolesArray);
           }
         }
         else{
           metadataKey += "_public";
+          timestampKey += "_public";
         }
 
         let lastModTimestamp_fromCache_string = localStorage.getItem(timestampKey);
