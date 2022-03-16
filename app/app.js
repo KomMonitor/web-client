@@ -309,7 +309,7 @@ function initAngularComponents(){
         return {
           request: function (config) {
             var deferred = $q.defer();
-            if (Auth.keycloak.token && isNotUrlThatUsesOwnAuth(config.url)) {
+            if (Auth.keycloak.token && urlRequiresKeycloakAuthHeader(config.url)) {
               Auth.keycloak.updateToken(5).then(function () {
                 config.headers = config.headers || {};
                 config.headers.Authorization = 'Bearer ' + Auth.keycloak.token;
@@ -430,9 +430,16 @@ angular.element(document).ready(function ($http) {
   loadConfigsThenApp();
 });
 
-var isNotUrlThatUsesOwnAuth = function(url){
+var urlRequiresKeycloakAuthHeader = function(url){
   // /admin/ is used to make admin requests against keycloak
   if (url.includes("/admin/")){
+    return false;
+  }
+  // ORS isochrones and directions requests
+  if (url.includes("isochrones")){
+    return false;
+  }
+  if (url.includes("routes")){
     return false;
   }
   
