@@ -237,7 +237,10 @@
 									<!-- together with special helperService that is used to manage map and data -->
 									<label>Geometrie-Definition *</label>
 									<br/>
-									<i>in rot dargestellt sind die weiteren Geometrien des Datensatzes</i>
+									<i>in <em style="color: red;">rot</em> dargestellt sind die weiteren Geometrien des Datensatzes</i>
+									<div ng-if="featureInfoText_singleFeatureAddMenu">
+										<i>{{featureInfoText_singleFeatureAddMenu}}</i>
+									</div>
 									<br/>
 									<div id="singleFeatureGeoMap" style="height: 50vh;"></div>
 								</div>

@@ -62,6 +62,7 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 
 		$scope.converter = undefined;
 		$scope.schema = undefined;
+		$scope.featureInfoText_singleFeatureAddMenu = undefined;
 		$scope.mimeType = undefined;
 			$scope.datasourceType = undefined;
 			$scope.georesourceDataSourceIdProperty = undefined;
@@ -99,9 +100,7 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 
 				$scope.resetGeoresourceEditFeaturesForm();
 
-				kommonitorDataGridHelperService.buildDataGrid_featureTable_spatialResource("georesourceFeatureTable", [], []);
-				
-				$scope.initSingleFeatureAddMenu();				
+				kommonitorDataGridHelperService.buildDataGrid_featureTable_spatialResource("georesourceFeatureTable", [], []);				
 			}
 
 		});
@@ -132,24 +131,22 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 
 				$scope.georesourceFeaturesGeoJSON = response.data;
 				kommonitorSingleFeatureMapHelperService.addDataLayertoSingleFeatureGeoMap($scope.georesourceFeaturesGeoJSON);
+
+				$scope.featureInfoText_singleFeatureAddMenu = "" + $scope.georesourceFeaturesGeoJSON.features.length + " weitere Features im Datensatz vorhanden";
 				
 				//once the dataset features are fetched we may make a proposal for the ID of a new Feature
 				$scope.featureIdValue = $scope.generateIdProposalFromExistingFeatures();
 				$scope.addExampleValuesToSchemaProperties();
 
 				}, function errorCallback(error) {
-					if(error.data){							
-						$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
-					}
-					else{
-						$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error);
-					}
-
-					$("#georesourceEditFeaturesErrorAlert").show();
+					$scope.featureInfoText_singleFeatureAddMenu = "Keine weiteren Features im Datensatz vorhanden oder Fehler bei Abruf";
 			});
 		}
 
 		$scope.generateIdProposalFromExistingFeatures = function(){
+			if (! $scope.georesourceFeaturesGeoJSON){
+				return 0;
+			}
 			// String or Integer
 			let idDataType = $scope.schemaObject[__env.FEATURE_ID_PROPERTY_NAME];
 			
@@ -190,7 +187,7 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 		};
 
 		$scope.validateSingleFeatureId = function(){
-			$scope.featureIdIsValid = false;
+			$scope.featureIdIsValid = true;
 			if($scope.georesourceFeaturesGeoJSON && $scope.featureIdValue){
 				let filteredFeatures = $scope.georesourceFeaturesGeoJSON.features.filter(feature => feature.properties[__env.FEATURE_ID_PROPERTY_NAME] == $scope.featureIdValue);
 
@@ -276,7 +273,9 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 						var updateGeoresourceResponse = await kommonitorImporterHelperService.updateGeoresource($scope.converterDefinition, $scope.datasourceTypeDefinition, $scope.propertyMappingDefinition, $scope.currentGeoresourceDataset.georesourceId, $scope.putBody_georesources, false);						
 
 						$rootScope.$broadcast("refreshGeoresourceOverviewTable", "edit", $scope.currentGeoresourceDataset.georesourceId);
-						// $scope.refreshGeoresourceEditFeaturesOverviewTable();
+						
+						$scope.refreshGeoresourceEditFeaturesOverviewTable();
+						$scope.initSingleFeatureAddMenu();
 
 						$scope.successMessagePart = $scope.currentGeoresourceDataset.datasetName;
 						$scope.importedFeatures = kommonitorImporterHelperService.getImportedFeaturesFromImporterResponse(updateGeoresourceResponse);
@@ -388,7 +387,8 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 				$scope.remainingFeatureHeaders = undefined;
 
 				$rootScope.$broadcast("refreshGeoresourceOverviewTable", "edit", $scope.currentGeoresourceDataset.georesourceId);
-				// $scope.refreshGeoresourceEditFeaturesOverviewTable();
+				$scope.refreshGeoresourceEditFeaturesOverviewTable();
+				$scope.initSingleFeatureAddMenu();
 
 				$scope.successMessagePart = $scope.currentGeoresourceDataset.datasetName;
 
@@ -446,6 +446,7 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 			$scope.converter = undefined;
 			$scope.schema = undefined;
 			$scope.mimeType = undefined;
+			$scope.featureInfoText_singleFeatureAddMenu = undefined;
 			$scope.datasourceType = undefined;
 			$scope.georesourceDataSourceIdProperty = undefined;
 			$scope.georesourceDataSourceNameProperty = undefined;
@@ -706,7 +707,8 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 							var updateGeoresourceResponse = await kommonitorImporterHelperService.updateGeoresource($scope.converterDefinition, $scope.datasourceTypeDefinition, $scope.propertyMappingDefinition, $scope.currentGeoresourceDataset.georesourceId, $scope.putBody_georesources, false);						
 
 							$rootScope.$broadcast("refreshGeoresourceOverviewTable", "edit", $scope.currentGeoresourceDataset.georesourceId);
-							// $scope.refreshGeoresourceEditFeaturesOverviewTable();
+							$scope.refreshGeoresourceEditFeaturesOverviewTable();
+							$scope.initSingleFeatureAddMenu();
 
 							$scope.successMessagePart = $scope.currentGeoresourceDataset.datasetName;
 							$scope.importedFeatures = kommonitorImporterHelperService.getImportedFeaturesFromImporterResponse(updateGeoresourceResponse);

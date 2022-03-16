@@ -424,7 +424,7 @@ angular
 
           // this.layerControl.addOverlay(this.dataLayer, "weitere Objekte des Datensatzes");
           this.dataLayer.addTo(this.map);
-          // this.map.fitBounds(this.dataLayer.getBounds());
+          this.map.fitBounds(this.dataLayer.getBounds());
           this.invalidateMap();
         }
       };
