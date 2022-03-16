@@ -1014,8 +1014,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				$scope.typeOfMovement = "buffer";
 			}
 			// for type buffer the bbox field doesn't exist, so we have to create it.
-			if(!$scope.isochrones.bbox)
-				$scope.addIsochronesBboxProperties()
+			$scope.addIsochronesBboxProperties()
 			if(!$scope.isochrones.centerLocations)
 				$scope.addIsochronesCenterLocationProperty()
 
@@ -1453,7 +1452,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			let result = [] // array of series data config objects
 			let ranges = []
 			if( checkNestedPropExists(isochrones, "info", "query", "profile") ) {
-				ranges = isochrones.has.info.query.ranges.split(",")
+				ranges = isochrones.info.query.ranges.split(",")
 			} else if( isochrones.hasOwnProperty("features")) { // for buffer
 				for(feature of isochrones.features) {
 					if(checkNestedPropExists(feature, "properties", "value") && typeof(feature.properties.value) === "number" ) {
