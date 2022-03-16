@@ -238,8 +238,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 			// sort alphabetically by area name
 			pagesToInsert.sort( (a, b) => {
-				textA = a.area.toLowerCase();
-				textB = b.area.toLowerCase();
+				let textA = a.area.toLowerCase();
+				let textB = b.area.toLowerCase();
 				return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
 			});
 
@@ -988,6 +988,10 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			for(let feature of $scope.isochrones.features) {
 				if(feature.properties.value === firstIsochroneRangeValue) {
 					// bbox format: [lower left lon, lower left lat, upper right lon, upper right lat]
+					if(! feature.properties.bbox){
+						let bbox = turf.bbox(feature); // calculate bbox for each feature
+						feature.properties.bbox = bbox;
+					}
 					let bbox = feature.properties.bbox;
 					let centerLon = bbox[0] + ((bbox[2] - bbox[0]) / 2);
 					let centerLat = bbox[1] + ((bbox[3] - bbox[1]) / 2);
@@ -1455,7 +1459,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			if( checkNestedPropExists(isochrones, "info", "query", "profile") ) {
 				ranges = isochrones.has.info.query.ranges.split(",")
 			} else if( isochrones.hasOwnProperty("features")) { // for buffer
-				for(feature of isochrones.features) {
+				for(let feature of isochrones.features) {
 					if(checkNestedPropExists(feature, "properties", "value") && typeof(feature.properties.value) === "number" ) {
 						ranges.push(feature.properties.value)
 					}
@@ -1530,7 +1534,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			// In echarts one mpa can only handle one series
 			// But we need the isochrones in different series to control their z-indexes (show smaller isochrones above larger ones)
 			// That's why we need to register one map per range threshold, that only contains a subset of isochrones.
-			for(seriesData of $scope.isochronesSeriesData) {
+			for(let seriesData of $scope.isochronesSeriesData) {
 				let range = seriesData[0].value;
 				registeredMap = echarts.getMap("isochrones-" + range)
 				if( !registeredMap ) {
@@ -1676,10 +1680,10 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				let northLat = boundingCoords[0][1];
 
 				if(page.area && page.area.length) {
-					for(feature of $scope.geoJsonForReachability.features) {
+					for(let feature of $scope.geoJsonForReachability.features) {
 						if(feature.properties.NAME === page.area) {
 							// set bounding box to this feature
-							featureBbox = feature.properties.bbox;
+							let featureBbox = feature.properties.bbox;
 							westLon = featureBbox[0];
 							southLat = featureBbox[1];
 							eastLon = featureBbox[2];
