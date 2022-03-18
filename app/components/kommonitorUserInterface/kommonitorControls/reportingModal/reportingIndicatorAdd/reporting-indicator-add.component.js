@@ -484,7 +484,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			$scope.initialize(data);
 		});
 
-		$scope.initialize = function(data) {
+		$scope.initialize = async function(data) {
 			$scope.loadingData = true;
 			let template = data[0];
 			// deep copy template before any changes are made.
@@ -495,7 +495,6 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				page.id = $scope.templatePageIdCounter++;
 			}
 			$scope.template = template;
-			console.log(template);
 
 			if($scope.template.name === "A4-landscape-timestamp")
 				$scope.indexOfFirstAreaSpecificPage = 3;
@@ -523,10 +522,18 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			$scope.initializeDualLists();
 
 			if($scope.template.name === "A4-landscape-reachability") {
-				$scope.queryGeoresources()
-				$scope.queryIndicators()
+				Promise.all([
+					$scope.queryGeoresources(),
+					$scope.queryIndicators()
+				]).then( () => {
+					$scope.loadingData = false;
+					$timeout( () => $scope.$apply());
+				})
 			} else {
-				$scope.queryIndicators()
+				await $scope.queryIndicators();
+				$scope.loadingData = false;
+				$timeout( () => $scope.$apply())
+				
 			}
 		}
 
@@ -566,7 +573,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			let url = kommonitorDataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/indicators"
 			
 			// send request
-			return await $http({
+			await $http({
 				url: url,
 				method: "GET"
 			}).then(function successCallback(response) {
@@ -577,6 +584,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					kommonitorDataExchangeService.displayMapApplicationError(error);
 					console.error(response.statusText);
 			});
+			return Promise.resolve();
 		};
 
 		$scope.queryGeoresources = async function() {
@@ -584,9 +592,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			// build request
 			// query public endpoint for now, this might change once user role administration is added to reporting
 			let url = kommonitorDataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/georesources"
-			
 			// send request
-			return await $http({
+			await $http({
 				url: url,
 				method: "GET"
 			}).then(function successCallback(response) {
@@ -594,12 +601,12 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					$scope.availablePoiLayers = response.data.filter( georesource => {
 						return georesource.isPOI;
 					});
-					$scope.loadingData = false;
 				}, function errorCallback(error) {
 					$scope.loadingData = false;
 					kommonitorDataExchangeService.displayMapApplicationError(error);
 					console.error(response.statusText);
 			});
+			return Promise.resolve();
 		};
 
 		$scope.queryAllSpatialUnits = async function() {
@@ -831,12 +838,10 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					"/indicators/" + indicatorId + "/" + spatialUnit.spatialUnitId;
 			}
 			// send request
-			$scope.loadingData = true;
 			return await $http({
 				url: url,
 				method: "GET"
 			}).then(function successCallback(response) {
-				$scope.loadingData = false;
 				return response.data;
 			}, function errorCallback(error) {
 				// called asynchronously if an error occurs
@@ -3145,14 +3150,6 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				return false;
 			}
 
-		}
-
-		$scope.removeAlreadyAddedIndicators = function(indicatorNames) {
-			$scope.availableIndicators = $scope.availableIndicators.filter( entry => {
-				return !indicatorNames.includes(entry.indicatorName)
-			})
-			$scope.loadingData = false;
-			$scope.$apply();
 		}
 
 		$scope.transformSeriesDataToPercentageChange = function(dataArr) {

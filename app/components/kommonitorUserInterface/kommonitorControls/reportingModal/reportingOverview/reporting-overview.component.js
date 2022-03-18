@@ -95,7 +95,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 			});
 			// append to array
 			$scope.config.pages.push(...template.pages);
-			$scope.config.templateSections.push(page.templateSection);
+			$scope.config.templateSections.push(templateSection);
 				
 			// setup pages after dom exists
 			$scope.setupNewPages($scope.config.templateSections.at(-1));
@@ -194,11 +194,8 @@ angular.module('reportingOverview').component('reportingOverview', {
 							// We only need to query features on the first page that we add
 							if(isFirstPageToAdd) {
 								isFirstPageToAdd = false;
-								spatialUnit = await $scope.querySpatialUnitByIndicator(indicatorId, )
-								indicator.applicableSpatialUnits.filter( el => {
-									return el.spatialUnitName === page.templateSection.spatialUnitName;
-								});
-								featureCollection = await $scope.queryFeatures(indicatorId, spatialUnit[0]);
+								spatialUnit = await $scope.getSpatialUnitByIndicator(indicatorId, page.templateSection.spatialUnitName)
+								featureCollection = await $scope.queryFeatures(indicatorId, spatialUnit);
 								features = $scope.createLowerCaseNameProperty(featureCollection.features);
 								geoJSON = { features: features };
 
@@ -219,6 +216,16 @@ angular.module('reportingOverview').component('reportingOverview', {
 								}
 							} else {
 								pElementDom = pageDom.querySelector("#reporting-overview-page-" + idx + "-" + pageElement.type)
+							}
+							
+							// recreate boxplots, itemNameFormatter did not get transferred
+							if(pageElement.type === "linechart" && pageElement.showBoxplots) {
+								let xAxisLabels = pageElement.echartsOptions.xAxis[0].data;
+								pageElement.echartsOptions.dataset[1].transform.config = {
+									itemNameFormatter: function (params) {
+										return xAxisLabels[params.value];
+									}
+								}
 							}
 
 							if(pageElement.type === "map" || pageElement.type === "barchart" || pageElement.type === "linechart") {
@@ -277,6 +284,39 @@ angular.module('reportingOverview').component('reportingOverview', {
 								}
 						
 								instance.setOption( pageElement.echartsOptions )
+							}
+
+							if(pageElement.type === "overallAverage") {
+								pageDom.querySelector(".type-overallAverage").style.border = "none";
+							}
+	
+							if(pageElement.type === "selectionAverage") {
+								pageDom.querySelector(".type-selectionAverage").style.border = "none";
+							}
+
+							if(pageElement.type === "mapLegend") {
+								pageElement.isPlaceholder = false;
+								pageDom.querySelector(".type-mapLegend").style.display = "none";
+							}
+
+							if(pageElement.type === "overallChange") {
+								let wrapper = pageDom.querySelector(".type-overallChange")
+								wrapper.style.border = "none";
+								wrapper.style.left = "670px";
+								wrapper.style.width = "130px";
+								wrapper.style.height = "100px";
+							}
+
+							if(pageElement.type === "selectionChange") {
+								let wrapper = pageDom.querySelector(".type-selectionChange")
+								wrapper.style.border = "none";
+								wrapper.style.left = "670px";
+								wrapper.style.width = "130px";
+								wrapper.style.height = "100px";
+							}
+
+							if(pageElement.type === "datatable") {
+								$scope.createDatatablePage(pElementDom, pageElement);
 							}
 						}
 					}
