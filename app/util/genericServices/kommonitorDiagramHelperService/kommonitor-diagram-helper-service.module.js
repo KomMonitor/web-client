@@ -1845,6 +1845,97 @@ angular
       };
 
 
+      this.createReportingReachabilityMapLegend = function(echartsOptions, selectedSpatialUnit) {
+        let legendEntries = [];
+        let isochronesHeadingAdded = false;
+        for(let i=0; i<echartsOptions.series.length; i++) {
+          let series = echartsOptions.series[i];
+  
+          if(series.name === "spatialUnitBoundaries") {
+            legendEntries.push({
+              label: selectedSpatialUnit.spatialUnitName ? selectedSpatialUnit.spatialUnitName : selectedSpatialUnit.spatialUnitLevel,
+              iconColor: series.itemStyle.borderColor,
+              iconHeight: "4px",
+              isGroupHeading: false
+            });
+          }
+  
+          if(series.name.includes("isochrones")) {
+  
+            if(!isochronesHeadingAdded) { // add heading above first isochrone entry
+              legendEntries.push({
+                label: "Erreichbarkeit",
+                isGroupHeading: true
+              })
+              isochronesHeadingAdded = true;
+            }
+  
+            let value = series.data[0].value;
+            legendEntries.push({
+              label: value,
+              iconColor: series.data[0].itemStyle.areaColor,
+              iconOpacity: series.data[0].itemStyle.opacity,
+              iconHeight: "12px",
+              isGroupHeading: false
+            })
+          }
+        }
+        
+  
+        let legendDiv = document.createElement("div");
+        legendDiv.classList.add("map-legend")
+        legendDiv.style.padding = "5px";
+        legendDiv.style.position = "absolute";
+        legendDiv.style.bottom = 0;
+        legendDiv.style.right = 0;
+        legendDiv.style.zIndex = 800;
+        legendDiv.style.backgroundColor = "rgb(255, 255, 255)";
+        legendDiv.style.fontSize = "8pt";
+  
+        let table = document.createElement("table");
+        for(let entry of legendEntries) {
+          let row = document.createElement("tr");
+          let labelTd = document.createElement("td");
+  
+          if(entry.isGroupHeading) {
+            labelTd.colSpan = 2;
+            let heading = document.createElement("h5");
+            heading.innerText = entry.label;
+            heading.style.fontWeight = "bold";
+            heading.style.fontSize = "8pt";
+            labelTd.appendChild(heading);
+            labelTd.style.textAlign = "left";
+            row.appendChild(labelTd)
+            table.appendChild(row) 
+            continue;
+          }
+  
+          labelTd.innerText = entry.label;
+          labelTd.style.textAlign = "left";
+          labelTd.style.paddingLeft = "5px";
+  
+          let iconTd = document.createElement("td");
+          let icon = document.createElement("div");
+          iconTd.appendChild(icon);
+  
+          icon.style.backgroundColor = entry.iconColor;
+          if(entry.hasOwnProperty("iconOpacity")) {
+            icon.style.opacity = entry.iconOpacity;	
+          }
+          icon.style.width = "30px";
+          icon.style.height = entry.iconHeight;
+          iconTd.style.height = "18px";
+          
+          row.appendChild(iconTd)
+          row.appendChild(labelTd)
+          table.appendChild(row) 
+        }
+  
+        legendDiv.appendChild(table);
+        return legendDiv;
+      }
+
+
 
       var calculateOverallBoundingBoxFromGeoJSON = function(features) {
         let result = [];

@@ -2586,12 +2586,12 @@ input:checked + .switchslider:before {
 	margin-right: 15px;
 }
 
-.reporting-indicator-delete-symbol {
+.reporting-templateSection-delete-symbol{
 	color: rgba(230, 90, 90, 0.7);
 	height: 100%;
 }
 
-.reporting-added-indicators-row {
+.reporting-added-templateSections-row {
 	display: flex;
 	display: -webkit-flex;
 	flex-wrap: wrap;

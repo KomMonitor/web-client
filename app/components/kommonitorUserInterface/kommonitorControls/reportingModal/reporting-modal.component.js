@@ -39,9 +39,20 @@ angular.module('reportingModal').component('reportingModal', {
 			$scope.$broadcast("reportingConfigureNewIndicatorShown", data)
 		});
 
+		$scope.$on('reportingConfigureNewPoiLayerClicked', function(event, data) {
+			$scope.addingNewIndicator = true; // show add indicator process
+			// tell indicator-add component it is shown
+			$scope.$broadcast("reportingConfigureNewPoiLayerShown", data)
+		});
+
 		$scope.$on('reportingAddNewIndicatorClicked', function(event, data) {
 			$scope.addingNewIndicator = false; // return to overview
 			$scope.$broadcast('reportingIndicatorConfigurationCompleted', data)
+		});
+
+		$scope.$on('reportingAddNewPoiLayerClicked', function(event, data) {
+			$scope.addingNewIndicator = false; // return to overview
+			$scope.$broadcast('reportingPoiLayerConfigurationCompleted', data)
 		});
 
 		$scope.$on('reportingBackToOverviewClicked', function() {
