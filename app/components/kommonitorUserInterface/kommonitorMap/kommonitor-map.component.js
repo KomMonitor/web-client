@@ -540,7 +540,7 @@ angular.module('kommonitorMap').component(
             title: 'Kartenexport',
             position: 'topleft',
             sizeModes: ['Current'],
-            exportOnly: true,
+            outputMode: 'download',
             hidden: true,
             filename: "KomMonitor-Kartenexport",
             hideControlContainer: false,
