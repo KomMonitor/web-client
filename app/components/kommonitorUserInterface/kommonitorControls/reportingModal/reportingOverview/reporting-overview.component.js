@@ -774,7 +774,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 
 			try {
 				format === "pdf" && $scope.generatePdfReport();
-				format === "word" && $scope.generateWordReport();
+				format === "docx" && $scope.generateWordReport();
 				format === "zip" && $scope.generateZipFolder();
 			} catch (error) {
 				$scope.loadingData = false;
