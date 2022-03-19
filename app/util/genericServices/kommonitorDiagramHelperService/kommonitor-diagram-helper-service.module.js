@@ -1844,6 +1844,19 @@ angular
           return timeseriesOptions;
       };
 
+      this.createReportingReachabilityMapAttribution = function() {
+        let attrDiv = document.createElement("div")
+				attrDiv.classList.add("map-attribution")
+				attrDiv.innerHTML = "Leaflet | Map data @ OpenStreetMap contributors";
+				attrDiv.style.fontSize = "8pt"
+				attrDiv.style.padding = "5px";
+				attrDiv.style.position = "absolute";
+				attrDiv.style.bottom = 0;
+				attrDiv.style.left = 0;
+				attrDiv.style.zIndex = 800;
+				attrDiv.style.backgroundColor = "rgb(255, 255, 255)";
+        return attrDiv;
+      }
 
       this.createReportingReachabilityMapLegend = function(echartsOptions, selectedSpatialUnit) {
         let legendEntries = [];

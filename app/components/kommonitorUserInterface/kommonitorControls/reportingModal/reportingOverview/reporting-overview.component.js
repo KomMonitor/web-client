@@ -459,20 +459,28 @@ angular.module('reportingOverview').component('reportingOverview', {
 					// In other words, it allows us to set exact map extend by a (echarts) bounding box
 					zoomSnap: 0 
 				});
+
+				L.easyPrint({
+					title: '',
+					position: 'topleft',
+					sizeModes: ['Current'],
+					outputMode: 'event', // We are only interested in the data, not actually downloading the image
+					hidden: true,
+					filename: "doesNotMatter.png",
+					hideControlContainer: true,
+					defaultSizeTitles: { Current: 'Aktueller Kartenausschnitt' }
+				}).addTo(leafletMap);
+
+				leafletMap.on("easyPrint-finished", function(event) {
+					$scope.leafletEasyPrintResult = event.event
+				})
+
+
 				// manually create a field for attribution so we can control the z-index.
 				let prevAttributionDiv = pageDom.querySelector(".map-attribution")
 				if(prevAttributionDiv) prevAttributionDiv.remove();
-				let attrDiv = document.createElement("div")
-				attrDiv.classList.add("map-attribution")
-				attrDiv.innerHTML = "Leaflet | Map data @ OpenStreetMap contributors";
-				attrDiv.style.fontSize = "8pt"
-				attrDiv.style.padding = "5px";
-				attrDiv.style.position = "absolute";
-				attrDiv.style.bottom = 0;
-				attrDiv.style.left = 0;
-				attrDiv.style.zIndex = 800;
-				attrDiv.style.backgroundColor = "rgba(255, 255, 255, 0.75)";
-				pageElementDom.appendChild(attrDiv);
+				let attrDiv = kommonitorDiagramHelperService.createReportingReachabilityMapAttribution();
+				pageElementDom.appendChild(attrDiv)
 				// also create the legend manually
 				let prevLegendDiv = pageDom.querySelector(".map-legend")
 				if(prevLegendDiv) prevLegendDiv.remove();
@@ -486,6 +494,9 @@ angular.module('reportingOverview').component('reportingOverview', {
 					attribution: "Map data © <a href='http://openstreetmap.org'>OpenStreetMap</a> contributors",
 				});
 				osmLayer.addTo(leafletMap);
+
+				// add leaflet map to pageElement in case we need it again later
+				pageElement.leafletMap = leafletMap;
 			
 				// can be used to check if positioning in echarts matches the one from leaflet
 				//let geoJsonLayer = L.geoJSON( $scope.geoJsonForReachability.features )
@@ -758,7 +769,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 			$scope.generateReport(format);
 		});
 
-		$scope.generateReport = function(format) {
+		$scope.generateReport = async function(format) {
 			$scope.loadingData = true;
 
 			try {
@@ -771,8 +782,8 @@ angular.module('reportingOverview').component('reportingOverview', {
 			}
 		}
 			
-		$scope.generatePdfReport = function() {
-
+		$scope.generatePdfReport = async function() {
+			
 			// create pdf document
 			let doc = new jsPDF({
 				margin: 0,	
@@ -785,11 +796,49 @@ angular.module('reportingOverview').component('reportingOverview', {
 			let fontName = "Helvetica";
 			doc.setDrawColor(148, 148, 148);
 			doc.setFont(fontName, "normal", "normal"); // name, normal/italic, fontweight
+
 			
+			let pageIsSectionStart = true;
+			// screenshot map attribution and legend only once per section
+			let mapLegendDataUrl, mapAttributionDataUrl, mapLegendCanvas, mapAttributionCanvas;
+
 			for(let [idx, page] of $scope.config.pages.entries()) {
+				$scope.leafletEasyPrintResult = undefined;
+
 				if(idx > 0) {
 					doc.addPage();
+					pageIsSectionStart = false;
 				}
+				
+				if($scope.config.template.name === "A4-landscape-reachability") {
+					if(idx > 0 && (page.templateSection.poiLayerName !== $scope.config.pages[idx-1].templateSection.poiLayerName || 
+						page.templateSection.indicatorId !== $scope.config.pages[idx-1].templateSection.indicatorId ||
+						page.templateSection.spatialUnitName !== $scope.config.pages[idx-1].templateSection.spatialUnitName)) {
+						pageIsSectionStart = true;
+					}
+
+					if(pageIsSectionStart) {
+						// let previewArea = document.querySelector("#reporting-overview-preview-area")
+						// previewArea.append(node)
+						mapLegendCanvas= await html2canvas(document.querySelectorAll(".map-legend")[0], {
+							onclone: function(clonedDoc) {
+								let node = clonedDoc.querySelectorAll(".map-legend")[0]
+								node.style.paddingLeft = 0;
+							}
+						})
+						
+						mapLegendDataUrl = mapLegendCanvas.toDataURL()
+						mapAttributionCanvas = await html2canvas(document.querySelectorAll(".map-attribution")[0], {
+							onclone: function(clonedDoc) {
+								let node = clonedDoc.querySelectorAll(".map-attribution")[0]
+								node.style.paddingLeft = 0;
+							}
+						})
+						mapAttributionDataUrl = mapAttributionCanvas.toDataURL()
+					}
+				}
+
+				
 				let pageDom = document.querySelector("#reporting-overview-page-" + idx);
 				for(let pageElement of page.pageElements) {
 
@@ -840,6 +889,10 @@ angular.module('reportingOverview').component('reportingOverview', {
 							doc.text(pageElement.text, pageElementDimensions.left, pageElementDimensions.top, { baseline: "top" })
 							break;
 						}
+						case "reachability-subtitle-landscape": {
+							doc.text(pageElement.text, pageElementDimensions.left, pageElementDimensions.top, { baseline: "top" })
+							break;
+						}
 						case "footerHorizontalSpacer-landscape": {
 							let x1, x2, y1, y2;
 							x1 = pageElementDimensions.left;
@@ -861,9 +914,13 @@ angular.module('reportingOverview').component('reportingOverview', {
 						// template-specific elements
 						case "map": {
 							let instance = echarts.getInstanceByDom(pElementDom)
-							let base64String = instance.getDataURL( {pixelRatio: $scope.echartsImgPixelRatio} )
-							doc.addImage(base64String, "PNG", pageElementDimensions.left, pageElementDimensions.top,
-									pageElementDimensions.width, pageElementDimensions.height, "", 'MEDIUM');
+							let imageDataUrl = instance.getDataURL( {pixelRatio: $scope.echartsImgPixelRatio} )
+
+							if($scope.config.template.name === "A4-landscape-reachability") {
+								imageDataUrl = await $scope.createReachabilityMapImage(pageElement, imageDataUrl, mapLegendCanvas, mapLegendDataUrl, mapAttributionCanvas, mapAttributionDataUrl)
+							}
+							doc.addImage(imageDataUrl, "PNG", pageElementDimensions.left, pageElementDimensions.top,
+								pageElementDimensions.width, pageElementDimensions.height, "", 'MEDIUM');
 							break;
 						}
 						// case "mapLegend" can be ignored since it is included in the map if needed
@@ -937,11 +994,45 @@ angular.module('reportingOverview').component('reportingOverview', {
 			$scope.loadingData = false;
 		}
 
-
-		$scope.generateZipFolder = function() {
+		
+		$scope.generateZipFolder = async function() {
 			// creates a zip folder containing all echarts files
 			let zip = new JSZip();
+			
+			$scope.leafletEasyPrintResult = undefined;
+			// screenshot map attribution and legend only once per section
+			let mapLegendDataUrl, mapAttributionDataUrl, mapLegendCanvas, mapAttributionCanvas;
 			for(let [idx, page] of $scope.config.pages.entries()) {
+				let pageIsSectionStart = (idx === 0); 
+				
+				if($scope.config.template.name === "A4-landscape-reachability") {
+					if(idx > 0 && (page.templateSection.poiLayerName !== $scope.config.pages[idx-1].templateSection.poiLayerName || 
+						page.templateSection.indicatorId !== $scope.config.pages[idx-1].templateSection.indicatorId ||
+						page.templateSection.spatialUnitName !== $scope.config.pages[idx-1].templateSection.spatialUnitName)) {
+						pageIsSectionStart = true;
+					}
+
+					if(pageIsSectionStart) {
+						// let previewArea = document.querySelector("#reporting-overview-preview-area")
+						// previewArea.append(node)
+						mapLegendCanvas= await html2canvas(document.querySelectorAll(".map-legend")[0], {
+							onclone: function(clonedDoc) {
+								let node = clonedDoc.querySelectorAll(".map-legend")[0]
+								node.style.paddingLeft = 0;
+							}
+						})
+						
+						mapLegendDataUrl = mapLegendCanvas.toDataURL()
+						mapAttributionCanvas = await html2canvas(document.querySelectorAll(".map-attribution")[0], {
+							onclone: function(clonedDoc) {
+								let node = clonedDoc.querySelectorAll(".map-attribution")[0]
+								node.style.paddingLeft = 0;
+							}
+						})
+						mapAttributionDataUrl = mapAttributionCanvas.toDataURL()
+					}
+				}
+
 				let pageDom = document.querySelector("#reporting-overview-page-" + idx);
 				for(let pageElement of page.pageElements) {
 					if(pageElement.type === "map" || pageElement.type === "barchart" || pageElement.type === "linechart") {
@@ -957,10 +1048,15 @@ angular.module('reportingOverview').component('reportingOverview', {
 							pElementDom = pageDom.querySelector("#reporting-overview-page-" + idx + "-" + pageElement.type)
 						}
 						let instance = echarts.getInstanceByDom(pElementDom);
-						let base64String = instance.getDataURL({
+						let imageDataUrl = instance.getDataURL({
 							type: "png",
 							pixelRatio: $scope.echartsImgPixelRatio
 						});
+
+						if($scope.config.template.name === "A4-landscape-reachability") {
+							imageDataUrl = await $scope.createReachabilityMapImage(pageElement, imageDataUrl, mapLegendCanvas, mapLegendDataUrl, mapAttributionCanvas, mapAttributionDataUrl)
+						}
+						
 						let filename = "Seite_" + (idx+1) + "_" + pageElement.type + ".png";
 						if(pageElement.type === "linechart" && pageElement.showPercentageChangeToPrevTimestamp) {
 							// two elements with same type on one page
@@ -968,7 +1064,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 							filename = filename.replace(".png", "-proz.Veraenderung.png"); 
 						}
 							
-						zip.file(filename, dataURItoBlob(base64String), "");
+						zip.file(filename, dataURItoBlob(imageDataUrl), "");
 					}
 				}
 			}
@@ -982,13 +1078,44 @@ angular.module('reportingOverview').component('reportingOverview', {
 		}
 
 		let sections = []; // one section per page for now, since this is an easy way to create page breaks
-		
-		$scope.generateWordReport = function() {
+
+		$scope.generateWordReport = async function() {
 			// see docx documentation for more info about the format:
 			// https://docx.js.org/#/?id=basic-usage
-			
-		
+			$scope.leafletEasyPrintResult = undefined;
+			// screenshot map attribution and legend only once per section
+			let mapLegendDataUrl, mapAttributionDataUrl, mapLegendCanvas, mapAttributionCanvas;
 			for(let [idx, page] of $scope.config.pages.entries()) {
+
+				let pageIsSectionStart = (idx === 0); 
+				
+				if($scope.config.template.name === "A4-landscape-reachability") {
+					if(idx > 0 && (page.templateSection.poiLayerName !== $scope.config.pages[idx-1].templateSection.poiLayerName || 
+						page.templateSection.indicatorId !== $scope.config.pages[idx-1].templateSection.indicatorId ||
+						page.templateSection.spatialUnitName !== $scope.config.pages[idx-1].templateSection.spatialUnitName)) {
+						pageIsSectionStart = true;
+					}
+
+					if(pageIsSectionStart) {
+						// let previewArea = document.querySelector("#reporting-overview-preview-area")
+						// previewArea.append(node)
+						mapLegendCanvas= await html2canvas(document.querySelectorAll(".map-legend")[0], {
+							onclone: function(clonedDoc) {
+								let node = clonedDoc.querySelectorAll(".map-legend")[0]
+								node.style.paddingLeft = 0;
+							}
+						})
+						
+						mapLegendDataUrl = mapLegendCanvas.toDataURL()
+						mapAttributionCanvas = await html2canvas(document.querySelectorAll(".map-attribution")[0], {
+							onclone: function(clonedDoc) {
+								let node = clonedDoc.querySelectorAll(".map-attribution")[0]
+								node.style.paddingLeft = 0;
+							}
+						})
+						mapAttributionDataUrl = mapAttributionCanvas.toDataURL()
+					}
+				}
 
 				let paragraphs = [];
 				let pageDom = document.querySelector("#reporting-overview-page-" + idx);
@@ -1190,11 +1317,15 @@ angular.module('reportingOverview').component('reportingOverview', {
 								pElementDom = pageDom.querySelector("#reporting-overview-page-" + idx + "-" + pageElement.type)
 							}
 							let instance = echarts.getInstanceByDom(pElementDom);
-							let base64String = instance.getDataURL({
+							let imageDataUrl = instance.getDataURL({
 							 		type: "png",
 							 		pixelRatio: $scope.echartsImgPixelRatio
 							});
-							let blob = dataURItoBlob(base64String);
+
+							if($scope.config.template.name === "A4-landscape-reachability") {
+								imageDataUrl = await $scope.createReachabilityMapImage(pageElement, imageDataUrl, mapLegendCanvas, mapLegendDataUrl, mapAttributionCanvas, mapAttributionDataUrl)
+							}
+							let blob = dataURItoBlob(imageDataUrl);
 
 							let paragraph = new docx.Paragraph({
 								children: [
@@ -1504,6 +1635,84 @@ angular.module('reportingOverview').component('reportingOverview', {
 				saveAs(blob, filename + ".docx");
 			});
 			$scope.loadingData = false;
+		}
+
+		$scope.createReachabilityMapImage = async function(pageElement, echartsImgSrc, mapLegendCanvas, mapLegendDataUrl, mapAttributionCanvas, mapAttributionDataUrl) {
+			let result;
+			// screenshot leaflet map and merge it with echarts image
+			// get easyprint control from map
+			// remove page offset temporarily 
+			pageElement.leafletMap.getContainer().style.top = "0px"
+			pageElement.leafletMap.getContainer().style.left = "0px"
+			pageElement.leafletMap.easyPrintControl.printMap('Current', '') // output is set to 'event', map has a listener for 'easyPrint-finished'
+			
+			// wait for print process to finish
+			function waitForEasyPrintResult() {
+				return new Promise((resolve, reject) => {
+					console.log("waiting for easyprint results....");
+					const intervalId = setInterval(() => {
+						if(typeof($scope.leafletEasyPrintResult) !== "undefined") {
+							clearInterval(intervalId);
+							resolve()
+						}
+					}, 50);
+				})
+			}
+
+			await waitForEasyPrintResult();
+			pageElement.leafletMap.getContainer().style.top = "90px"
+			pageElement.leafletMap.getContainer().style.left = "15px"
+			
+			// combine images
+			let canvas = document.createElement('canvas');
+			let ctx = canvas.getContext('2d');
+			let pageElementDimensionsPx = calculateDimensions(pageElement.dimensions, "px");
+			canvas.width = pageElementDimensionsPx.width;
+			canvas.height =  pageElementDimensionsPx.height;
+			// we have to draw layers in order
+			let leafletMapImg = new Image();
+			leafletMapImg.width = canvas.width;
+			leafletMapImg.height = canvas.height;
+			let leafletMapImgDrawn = new Promise( (resolve, reject) => {
+				leafletMapImg.onload = function() {
+					ctx.drawImage(leafletMapImg, 0, 0, canvas.width, canvas.height);
+					resolve();
+				}
+			})
+			leafletMapImg.src = $scope.leafletEasyPrintResult;
+			await leafletMapImgDrawn
+
+			let echartsImg = new Image();
+			let echartsImgDrawn = new Promise( (resolve, reject) => {
+				echartsImg.onload = function() {
+					ctx.drawImage(echartsImg, 0, 0, canvas.width, canvas.height);
+					resolve();
+				}
+			});
+			echartsImg.src = echartsImgSrc;
+			await echartsImgDrawn
+
+			let mapAttributionImg = new Image();
+			let mapAttributionImgDrawn = new Promise( (resolve, reject) => {
+				mapAttributionImg.onload = function() {
+					ctx.drawImage(mapAttributionImg, 0, canvas.height - mapAttributionCanvas.height);
+					resolve();
+				}
+			});
+			mapAttributionImg.src = mapAttributionDataUrl;
+			let mapLegendImg = new Image();
+			let mapLegendImgDrawn = new Promise( (resolve, reject) => {
+				mapLegendImg.onload = function() {
+					ctx.drawImage(mapLegendImg, canvas.width - mapLegendCanvas.width, canvas.height - mapLegendCanvas.height);
+					resolve();
+				}
+			});
+			mapLegendImg.src = mapLegendDataUrl;
+
+			await Promise.all([mapAttributionImgDrawn, mapLegendImgDrawn]).then( () => {
+				result = canvas.toDataURL() // canvas contains all four "layers" here
+			});
+			return result;
 		}
 
 		function pxToMilli(px) {

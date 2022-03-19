@@ -1666,16 +1666,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				// manually create a field for attribution so we can control the z-index.
 				let prevAttributionDiv = pageDom.querySelector(".map-attribution")
 				if(prevAttributionDiv) prevAttributionDiv.remove();
-				let attrDiv = document.createElement("div")
-				attrDiv.classList.add("map-attribution")
-				attrDiv.innerHTML = "Leaflet | Map data @ OpenStreetMap contributors";
-				attrDiv.style.fontSize = "8pt"
-				attrDiv.style.padding = "5px";
-				attrDiv.style.position = "absolute";
-				attrDiv.style.bottom = 0;
-				attrDiv.style.left = 0;
-				attrDiv.style.zIndex = 800;
-				attrDiv.style.backgroundColor = "rgba(255, 255, 255, 0.75)";
+				let attrDiv = kommonitorDiagramHelperService.createReportingReachabilityMapAttribution();
 				pageElementDom.appendChild(attrDiv);
 				// also create the legend manually
 				let prevLegendDiv = pageDom.querySelector(".map-legend")
@@ -1737,6 +1728,9 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					attribution: "Map data © <a href='http://openstreetmap.org'>OpenStreetMap</a> contributors",
 				});
 				osmLayer.addTo(leafletMap);
+
+				// add leaflet map to pageElement in case we need it again later
+				pageElement.leafletMap = leafletMap;
 
 				// can be used to check if positioning in echarts matches the one from leaflet
 				//let geoJsonLayer = L.geoJSON( $scope.geoJsonForReachability.features )
