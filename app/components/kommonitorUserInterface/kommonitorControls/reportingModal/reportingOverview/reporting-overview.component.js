@@ -1128,7 +1128,9 @@ angular.module('reportingOverview').component('reportingOverview', {
 		$scope.generateWordReport = async function() {
 			// see docx documentation for more info about the format:
 			// https://docx.js.org/#/?id=basic-usage
+
 			$scope.leafletEasyPrintResult = undefined;
+			let font = "Calibri";
 			// screenshot map attribution and legend only once per section
 			let mapLegendDataUrl, mapAttributionDataUrl, mapLegendCanvas, mapAttributionCanvas;
 			for(let [idx, page] of $scope.config.pages.entries()) {
@@ -1178,6 +1180,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 									new docx.TextRun({
 										text: pageElement.text,
 										bold: true,
+										font: font,
 										size: 32 // 16pt
 									})
 								],
@@ -1234,6 +1237,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 								children: [
 									new docx.TextRun({
 										text: pageElement.text,
+										font: font,
 										size: 32  // 16pt
 									})
 								],
@@ -1295,6 +1299,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 								children: [
 									new docx.TextRun({
 										text: pageElement.text,
+										font: font,
 										size: 32  // 16pt
 									})
 								],
@@ -1324,6 +1329,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 								children: [
 									new docx.TextRun({
 										text: "Seite " + (idx+1),
+										font: font,
 										size: 32  // 16pt
 									},
 									new docx.PageBreak())
@@ -1402,16 +1408,19 @@ angular.module('reportingOverview').component('reportingOverview', {
 								children: [
 									new docx.TextRun({
 										text: "Durchschnitt",
+										font: font,
 										size: 28  // 14pt
 									}),
 									new docx.TextRun({
 										text: pageElement.type === "overallAverage" ? "Gesamtstadt" : "Selektion",
 										size: 28,
+										font: font,
 										break: 1,  // 14pt
 									}),
 									new docx.TextRun({
 										text: pageElement.text.toString(),
 										size: 28,
+										font: font,
 										break: 1  // 14pt
 									})
 								],
@@ -1468,21 +1477,25 @@ angular.module('reportingOverview').component('reportingOverview', {
 								children: [
 									new docx.TextRun({
 										text: "Durchschnittliche",
+										font: font,
 										size: 28  // 14pt
 									}),
 									new docx.TextRun({
 										text: "Veränderung",
+										font: font,
 										break: 1,
 										size: 28  // 14pt
 									}),
 									new docx.TextRun({
 										text: pageElement.type === "overallChange" ? "Gesamtstadt" : "Selektion",
 										break: 1,
+										font: font,
 										size: 28  // 14pt
 									}),
 									new docx.TextRun({
 										text: pageElement.text.toString(),
 										break: 1,
+										font: font,
 										size: 28  // 14pt
 									
 									})
@@ -1539,6 +1552,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 								children: [
 									new docx.TextRun({
 										text: pageElement.text,
+										font: font,
 										size: 24 // 12pt
 									})
 								],
@@ -1594,6 +1608,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 											alignment: docx.AlignmentType.CENTER,
 											children: [new docx.TextRun({
 												text: fieldContent,
+												font: font,
 												bold: true
 											})]
 										})],
