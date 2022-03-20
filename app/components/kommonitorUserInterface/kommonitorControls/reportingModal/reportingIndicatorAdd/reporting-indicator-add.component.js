@@ -20,7 +20,6 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		$scope.indexOfFirstAreaSpecificPage = undefined;
 		$scope.dateSlider = undefined;
 		$scope.absoluteLabelPositions = [];
-		$scope.updatingLeafletMaps = false;
 		$scope.echartsOptions = {
 			map: {
 				// "2017-12-31": ...
@@ -36,7 +35,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		
 		$scope.loadingData = false;
 		$scope.diagramsPrepared = false;
-		$scope.isFirstUpdateOnIndicatorSelection = true;
+		$scope.isFirstUpdateOnIndicatorOrPoiLayerSelection = true;
 
 		$scope.isochronesTypeOfMovementMapping = {
 			"foot-walking": "Fußgänger",
@@ -84,13 +83,14 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				$timeout(async function() {
 					// we could filter the geoJson here to only include selected areas
 					// but for now we get all areas and filter them out after
-					if($scope.isFirstUpdateOnIndicatorSelection) {
+					if($scope.isFirstUpdateOnIndicatorOrPoiLayerSelection) {
 						// Skip the update but set variable to false, so diagrams get updated on time update
 						// (relevant for indicator selection only)
-						$scope.isFirstUpdateOnIndicatorSelection = false;
+						$scope.isFirstUpdateOnIndicatorOrPoiLayerSelection = false;
 					} else {
 						await $scope.initializeAllDiagrams();
-						if(!$scope.updatingLeafletMaps) {
+						if($scope.template.name !== "A4-landscape-reachability") {
+							// in reachability template we have to update leaflet maps, too
 							$scope.loadingData = false;
 						}
 					}
@@ -462,10 +462,10 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				}
 
 				$timeout(async function() {
-					if($scope.isFirstUpdateOnIndicatorSelection) {
+					if($scope.isFirstUpdateOnIndicatorOrPoiLayerSelection) {
 						// Skip the update but set variable to false, so diagrams get updated on time update
 						// (relevant for indicator selection only)
-						$scope.isFirstUpdateOnIndicatorSelection = false;
+						$scope.isFirstUpdateOnIndicatorOrPoiLayerSelection = false;
 					} else {
 						// indicator selection is optional in reachability template only
 						if($scope.selectedIndicator) {
@@ -478,7 +478,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 						}
 
 						await $scope.initializeAllDiagrams();
-						if(!$scope.updatingLeafletMaps) {
+						if($scope.template.name !== "A4-landscape-reachability") {
+							// in reachability template we have to update leaflet maps, too
 							$scope.loadingData = false;
 						}
 					}
@@ -772,7 +773,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				}
 
 				await $scope.initializeAllDiagrams();
-				if(!$scope.updatingLeafletMaps) {
+				if($scope.template.name !== "A4-landscape-reachability") {
+					// in reachability template we have to update leaflet maps, too
 					$scope.loadingData = false;
 				}
 			});
@@ -1019,6 +1021,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 			$scope.absoluteLabelPositions = [];
 			$scope.diagramsPrepared = false;
+			$scope.isFirstUpdateOnIndicatorOrPoiLayerSelection = true;
 			$scope.selectedPoiLayer = poiLayer
 
 			// get a new template (in case another poi layer was selected previously)
@@ -1346,10 +1349,10 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			$scope.prepareDiagrams($scope.selectedIndicator, $scope.selectedSpatialUnit, mostRecentTimestampName, classifyUsingWholeTimeseries);
 			// We have to update time and areas. Usually both of these would result in a diagram update.
 			// We want to skip the first one and only update diagrams once everything is ready for better performance.
-			$scope.isFirstUpdateOnIndicatorSelection = true;
+			$scope.isFirstUpdateOnIndicatorOrPoiLayerSelection = true;
 			if($scope.template.name === "A4-landscape-timeseries") {
 				// This is an exception from the process above
-				$scope.isFirstUpdateOnIndicatorSelection = false;
+				$scope.isFirstUpdateOnIndicatorOrPoiLayerSelection = false;
 				// also prepare the dynamic version of the indicator for displaying changes
 				const indicatorTypeBackup = $scope.selectedIndicator.indicatorType;
 				$scope.selectedIndicator.indicatorType = "RELATIVE";
@@ -1664,7 +1667,6 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				replaceMerge: ['series', 'geo']
 			})
 
-			$scope.updatingLeafletMaps = true;
 			// initialize the leaflet map beneath the transparent-background echarts map
 			$timeout(function(page, pageElement, echartsMap) {
 				let pageIdx = $scope.template.pages.indexOf(page);
@@ -1775,7 +1777,6 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				pageElement.leafletBbox = bounds;
 
 				if(pageIdx === $scope.template.pages.length-1) {
-					$scope.updatingLeafletMaps = false;
 					$scope.loadingData = false;
 				}
 			}, 0, true, page, pageElement, map)
@@ -3177,7 +3178,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				}
 			}
 
-			if(isIndicatorSelected && isAreaSelected && isTimestampSelected && !$scope.loadingData && !$scope.updatingLeafletMaps) {
+			if(isIndicatorSelected && isAreaSelected && isTimestampSelected && !$scope.loadingData) {
 				return true;
 			} else {
 				return false;
