@@ -15,7 +15,6 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		$scope.availableFeaturesBySpatialUnit = {};
 		$scope.selectedSpatialUnit = undefined;
 		$scope.selectedAreas = [];
-		$scope.selectedSpatialUnitsMultiselect = undefined
 
 		$scope.selectedTimestamps = [];
 		$scope.indexOfFirstAreaSpecificPage = undefined;
@@ -33,6 +32,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			},
 			line: {}, // no timestamp needed here
 		}
+		$scope.echartsRegisteredMapNames = [];
 		
 		$scope.loadingData = false;
 		$scope.diagramsPrepared = false;
@@ -1364,7 +1364,6 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			$scope.availableFeaturesBySpatialUnit = {};
 			$scope.selectedSpatialUnit = undefined;
 			$scope.selectedAreas = [];
-			$scope.selectedSpatialUnitsMultiselect = undefined
 			$scope.selectedTimestamps = [];
 			$scope.indexOfFirstAreaSpecificPage = undefined;
 			$scope.echartsOptions = {
@@ -1375,6 +1374,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			$scope.loadingData = false;
 			$scope.templatePageIdCounter = 1;
 			$scope.dateSlider = undefined;
+			$scope.echartsRegisteredMapNames = [];
 
 			let tab2 = document.querySelector("#reporting-add-indicator-tab3");
 			let tab3 = document.querySelector("#reporting-add-indicator-tab4");
@@ -1440,6 +1440,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				$scope.template.spatialUnitName = $scope.selectedSpatialUnit.spatialUnitLevel;
 			}
 			$scope.template.absoluteLabelPositions = $scope.absoluteLabelPositions;
+			$scope.template.echartsRegisteredMapNames = [...new Set($scope.echartsRegisteredMapNames)];
 			if($scope.template.name !== "A4-landscape-reachability") {
 				$scope.$emit('reportingAddNewIndicatorClicked', [$scope.selectedIndicator, $scope.template])
 			} else {
@@ -1533,21 +1534,21 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			let mapName = $scope.selectedPoiLayer.datasetName + "_" + $scope.selectedSpatialUnit.spatialUnitId;
 			if(page.area && page.area.length)
 				mapName += "_" + page.area
-			let registeredMap = echarts.getMap(mapName)
-
-			if( !registeredMap ) {
+			if(!$scope.echartsRegisteredMapNames.includes(mapName)) {
 				echarts.registerMap(mapName, $scope.geoJsonForReachability)
+				$scope.echartsRegisteredMapNames.push(mapName)
 			}
 
 			options.series[0].map = mapName;
+			options.geo.map = mapName
 
 			// Add isochrones
-			// In echarts one mpa can only handle one series
+			// In echarts one map can only handle one series
 			// But we need the isochrones in different series to control their z-indexes (show smaller isochrones above larger ones)
 			// That's why we need to register one map per range threshold, that only contains a subset of isochrones.
 			for(seriesData of $scope.isochronesSeriesData) {
 				let range = seriesData[0].value;
-				registeredMap = echarts.getMap("isochrones-" + range)
+				registeredMap = echarts.getMap($scope.selectedPoiLayer.datasetName + "_isochrones-" + range)
 				if( !registeredMap ) {
 					let isochrones = $scope.isochrones.features.filter( feature => {
 						return feature.properties.value === range
@@ -1555,7 +1556,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					let featureCollection = {
 						features: isochrones
 					}
-					echarts.registerMap("isochrones-" + range, featureCollection)
+					echarts.registerMap($scope.selectedPoiLayer.datasetName + "_isochrones-" + range, featureCollection)
+					$scope.echartsRegisteredMapNames.push($scope.selectedPoiLayer.datasetName + "_isochrones-" + range)
 				}
 			}
 			
@@ -1573,7 +1575,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					roam: false,
 					left: 0, top: 0, right: 0, bottom: 0,
 					boundingCoords: isochronesBboxForEcharts,
-					map: "isochrones-" + seriesData[0].value,
+					map: $scope.selectedPoiLayer.datasetName + "_isochrones-" + seriesData[0].value,
 					nameProperty: 'id',
 					cursor: "default",
 					select: {
@@ -1628,7 +1630,9 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			// label positioning
 			options = enableManualLabelPositioningAcrossPages(page, options, map)
 
-			map.setOption( options )
+			map.setOption( options, {
+				replaceMerge: ['series', 'geo']
+			})
 
 			$scope.updatingLeafletMaps = true;
 			// initialize the leaflet map beneath the transparent-background echarts map
@@ -1739,7 +1743,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				//isochronesLayer.addTo(leafletMap);
 
 				pageElement.leafletBbox = bounds;
-
+				console.log(pageElement.leafletBbox);
 				if(pageIdx === $scope.template.pages.length-1) {
 					$scope.updatingLeafletMaps = false;
 					$scope.loadingData = false;
@@ -1788,7 +1792,11 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				}
 			}
 			
-			mapName = $scope.selectedIndicator.indicatorName + "_" + timestamp + "_" + $scope.selectedSpatialUnit.spatialUnitName;
+			if($scope.template.name === "A4-landscape-reachability") {
+				mapName = $scope.selectedIndicator.indicatorId + "_" + timestamp + "_" + $scope.selectedSpatialUnit.spatialUnitName;
+			} else {
+				mapName = $scope.selectedIndicator.indicatorId + "_" + dateElement.text + "_" + $scope.selectedSpatialUnit.spatialUnitName;
+			}
 			
 			if(pageElement.classify)
 				mapName += "_classified";
@@ -1796,12 +1804,12 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				mapName += "_timeseries"
 			if(page.area && page.area.length)
 				mapName += "_" + page.area
-			let registeredMap = echarts.getMap(mapName)
 
-			if( !registeredMap ) {
-				// register new map
+			if(!$scope.echartsRegisteredMapNames.includes(mapName)) {
 				echarts.registerMap(mapName, $scope.selectedIndicator.geoJSON)
+				$scope.echartsRegisteredMapNames.push(mapName)
 			}
+			
 
 			let map = echarts.init( wrapper );
 			if(pageElement.isTimeseries) {
@@ -2542,6 +2550,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			});
 
 			echarts.registerMap(mapName, { features: features } )
+
 			// echart map bounds are defined by a bounding boy, which has to be updated as well.
 			let bbox = features[0].properties.bbox; // [east, south, west, north]
 			let newBounds = [[bbox[2], bbox[3]], [bbox[0], bbox[1]]] // [[west, north], [east, south]]

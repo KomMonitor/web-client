@@ -80,7 +80,9 @@ angular.module('reportingOverview').component('reportingOverview', {
 				indicatorId: indicator ? indicator.indicatorId : "",
 				poiLayerName: "",
 				spatialUnitName: template.spatialUnitName,
-				absoluteLabelPositions: template.absoluteLabelPositions
+				absoluteLabelPositions: template.absoluteLabelPositions,
+				echartsRegisteredMapNames: template.echartsRegisteredMapNames,
+				echartsMaps: []
 			}
 			for(let page of template.pages) {
 				page.templateSection = templateSection;
@@ -95,9 +97,11 @@ angular.module('reportingOverview').component('reportingOverview', {
 			});
 			// append to array
 			$scope.config.pages.push(...template.pages);
+			
 			$scope.config.templateSections.push(templateSection);
 				
 			// setup pages after dom exists
+			// at this point we still have all the echarts maps registered
 			$scope.setupNewPages($scope.config.templateSections.at(-1));
 		});
 
@@ -111,7 +115,9 @@ angular.module('reportingOverview').component('reportingOverview', {
 				indicatorId: indicator ? indicator.indicatorId : "",
 				poiLayerName: poiLayer.datasetName,
 				spatialUnitName: template.spatialUnitName,
-				absoluteLabelPositions: template.absoluteLabelPositions
+				absoluteLabelPositions: template.absoluteLabelPositions,
+				echartsRegisteredMapNames: template.echartsRegisteredMapNames,
+				echartsMaps: []
 			}
 			for(let page of template.pages) {
 				page.templateSection = templateSection;
@@ -129,7 +135,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 			$scope.config.templateSections.push(templateSection);
 				
 			// setup pages after dom exists
-			//TODO setupNewPage parameters ???
+			// at this point we still have all the echarts maps registered
 			$scope.setupNewPages($scope.config.templateSections.at(-1));
 		});
 
@@ -164,7 +170,10 @@ angular.module('reportingOverview').component('reportingOverview', {
 				let sorted = [];
 				for(let section of newVal) {
 					for(let page of $scope.config.pages) {
-						if(page.templateSection === section) {
+						if(page.templateSection.indicatorId === section.indicatorId &&
+							page.templateSection.spatialUnitId === section.spatialUnitId &&
+							page.templateSection.poiLayerName === section.poiLayerName) {
+
 							sorted.push(page);
 						}
 					}
@@ -233,28 +242,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 
 
 								if(pageElement.type === "map") {
-									// for maps: register maps
-									// check if there is a map registered for this combination, if not register one with all features
-									let mapName = undefined;
-									// get the timestamp from pageElement, not from dom because dom might not be up to date yet
-									let dateElement = page.pageElements.find( el => {
-										return el.type === (pageElement.isTimeseries ? "dataTimeseries-landscape" : "dataTimestamp-landscape");
-									});
-									mapName = indicatorId + "_" + dateElement.text + "_" + page.templateSection.spatialUnitName;
-
-									if(pageElement.classify)
-										mapName += "_classified";
-									if(pageElement.isTimeseries)
-										mapName += "_timeseries"
-									if(page.area && page.area.length)
-										mapName += "_" + page.area
-									let registeredMap = echarts.getMap(mapName)
-
-									if( !registeredMap ) {
-										// register new map
-										echarts.registerMap(mapName, geoJSON)
-									}
-
+									
 									if(page.area && page.area.length) {
 										// at this point we have not yet set echarts options, so we provide them as an extra parameter
 										$scope.filterMapByArea(instance, pageElement.echartsOptions, page.area, geoJSON.features)
@@ -282,8 +270,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 										}
 									}
 								}
-						
-								instance.setOption( pageElement.echartsOptions )
+								instance.setOption(pageElement.echartsOptions)
 							}
 
 							if(pageElement.type === "overallAverage") {
@@ -332,10 +319,9 @@ angular.module('reportingOverview').component('reportingOverview', {
 
 		$scope.handleSetupNewPagesForReachability = async function(templateSection) {
 			let poiLayerName = templateSection.poiLayerName;
-			let spatialUnit, featureCollection, features, geoJSON, indicatorName, indicatorId;
+			let spatialUnit, featureCollection, features, geoJSON, indicatorId;
 			// if indicator was chosen
 			if( templateSection.indicatorId) {
-				indicatorName = templateSection.indicatorName;
 				indicatorId = templateSection.indicatorId;
 			}
 			let isFirstPageToAdd = true;
@@ -368,27 +354,6 @@ angular.module('reportingOverview').component('reportingOverview', {
 
 					if(pageElement.type === "map") {
 						let instance = echarts.init( pElementDom );
-						// register maps
-						// check if there is a map registered for this combination, if not register one with all features
-						let mapName = "";
-						// get the timestamp from pageElement, not from dom because dom might not be up to date yet
-						let subtitleEl = page.pageElements.find( el => {
-							return el.type === "reachability-subtitle-landscape";
-						});
-						let date = subtitleEl.text.split(",")[0]
-						if(indicatorId) {
-							mapName = indicatorId + "_"
-						}	
-						mapName += date + "_" + page.templateSection.spatialUnitName;
-
-						if(page.area && page.area.length)
-							mapName += "_" + page.area
-						let registeredMap = echarts.getMap(mapName)
-
-						if( !registeredMap ) {
-							// register new map
-							echarts.registerMap(mapName, geoJSON)
-						}
 
 						if(page.area && page.area.length) {
 							// at this point we have not yet set echarts options, so we provide them as an extra parameter
@@ -488,7 +453,10 @@ angular.module('reportingOverview').component('reportingOverview', {
 				pageElementDom.appendChild(legendDiv)
 			
 				// we have the bbox stored in config
-				leafletMap.fitBounds( pageElement.leafletBbox );
+				// pageElement.leafletBbox is invalid after export and import. Maybe because the prototype object gets removed...
+				// We create a new bounds object from the stored data
+				let bounds = L.latLngBounds(pageElement.leafletBbox._southWest, pageElement.leafletBbox._northEast);
+				leafletMap.fitBounds( bounds );
 				
 				let osmLayer = new L.TileLayer.Grayscale("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
 					attribution: "Map data © <a href='http://openstreetmap.org'>OpenStreetMap</a> contributors",
@@ -652,6 +620,35 @@ angular.module('reportingOverview').component('reportingOverview', {
 				$scope.config.template = config.template;
 				$scope.config.pages = config.pages;
 				$scope.config.templateSections = config.templateSections;
+
+				// register echarts maps
+				for(let section of $scope.config.templateSections) {
+					console.log(section);
+					for(let mapName of section.echartsRegisteredMapNames) {
+						if($scope.config.template.name === "A4-landscape-reachability") {
+							if(!mapName.includes("_isochrones")) {
+								let geoJson = section.echartsMaps.filter( map => map.name === section.poiLayerName)[0].geoJson
+								echarts.registerMap(mapName, geoJson)
+							} else {
+								let geoJson = section.echartsMaps.filter( map => map.name === mapName)[0].geoJson
+								echarts.registerMap(mapName, geoJson)
+							}
+						} else {
+							let geoJson = section.echartsMaps[0].geoJson
+							echarts.registerMap(mapName, geoJson)
+						}
+					}
+				}
+
+				for(let page of $scope.config.pages) {
+					for(let pageElement of page.pageElements) {
+						if(pageElement.type === "map" && pageElement.hasOwnProperty("echartsMaps")) {
+							for(let map of pageElement.echartsMaps) {
+								echarts.registerMap(map.name, map.geoJson)
+							}
+						}
+					}
+				}
 				$scope.$apply();
 
 				for(let section of $scope.config.templateSections) {
@@ -666,16 +663,62 @@ angular.module('reportingOverview').component('reportingOverview', {
 		$scope.exportConfig = function() {
 			try {
 				let jsonToExport = {};
-				jsonToExport.pages = angular.fromJson(angular.toJson( $scope.config.pages ));
+				
+				let temp = JSON.stringify( $scope.config.pages, function(key, value) {
+					// Leaflet map contains cyclic object references so we have to remove it.
+					// We have to initialize the map again on import based on the stored boundingbox
+					if(key === "leafletMap") {
+						return undefined;
+					} else {
+						return value;
+					}
+				})
+
+				jsonToExport.pages = JSON.parse( temp )
 				jsonToExport.template = angular.fromJson(angular.toJson( $scope.config.template ));
 				jsonToExport.templateSections = $scope.config.templateSections;
-	
-				// only store commune logo once (in first page)
+
+				// Only store commune logo once (in first page)
+				// It is base64 encoded and adds quite a bit to the file size
 				for(let [idx, page] of jsonToExport.pages.entries()) {
 					for(let pageElement of page.pageElements) {
 						if(pageElement.type === "communeLogo-landscape" && idx > 0) {
 							pageElement.src = "";
 						}
+					}
+				}
+				
+				for(let section of jsonToExport.templateSections) {
+					let mapNames = [...new Set(section.echartsRegisteredMapNames)]
+					if($scope.config.template.name === "A4-landscape-reachability") {
+						let mapAdded = false;
+						for(let name of mapNames) {
+							// store all isochrones
+							if(name.includes("_isochrones")) {
+								let map = echarts.getMap(name)
+								section.echartsMaps.push({
+									name: name,
+									geoJson: map.geoJson
+								})
+							}
+							// all other maps have the same geojson, so we only store them once
+							if(!mapAdded && name.includes(section.poiLayerName)) {
+								let map = echarts.getMap(name)
+								section.echartsMaps.push({
+									name: section.poiLayerName,
+									geoJson: map.geoJson
+								})
+								mapAdded = true;
+							}
+
+						}
+					} else {
+						// geojson is the same for all maps so we just pick the fist one
+						let map = echarts.getMap(mapNames[0])
+						section.echartsMaps.push({
+							name: mapNames[0],
+							geoJson: map.geoJson
+						})
 					}
 				}
 
@@ -689,6 +732,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 				downloadAnchorNode.remove();
 			} catch (error) {
 				kommonitorDataExchangeService.displayMapApplicationError(error.message);
+				console.error(error)
 			}
 			
 		}
