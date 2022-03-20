@@ -1232,7 +1232,8 @@ angular.module('reportingOverview').component('reportingOverview', {
 							break;
 						}
 						case "dataTimestamp-landscape":
-						case "dataTimeseries-landscape": {
+						case "dataTimeseries-landscape":
+						case "reachability-subtitle-landscape": {
 							let paragraph = new docx.Paragraph({
 								children: [
 									new docx.TextRun({
