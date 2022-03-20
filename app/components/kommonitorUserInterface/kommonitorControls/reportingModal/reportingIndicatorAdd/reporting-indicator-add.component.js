@@ -36,6 +36,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		
 		$scope.loadingData = false;
 		$scope.diagramsPrepared = false;
+		$scope.isFirstUpdateOnIndicatorSelection = true;
 
 		$scope.isochronesTypeOfMovementMapping = {
 			"foot-walking": "Fußgänger",
@@ -83,10 +84,17 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				$timeout(async function() {
 					// we could filter the geoJson here to only include selected areas
 					// but for now we get all areas and filter them out after
-					await $scope.initializeAllDiagrams();
-					if(!$scope.updatingLeafletMaps) {
-						$scope.loadingData = false;
+					if($scope.isFirstUpdateOnIndicatorSelection) {
+						// Skip the update but set variable to false, so diagrams get updated on time update
+						// (relevant for indicator selection only)
+						$scope.isFirstUpdateOnIndicatorSelection = false;
+					} else {
+						await $scope.initializeAllDiagrams();
+						if(!$scope.updatingLeafletMaps) {
+							$scope.loadingData = false;
+						}
 					}
+					
 				});
 			}
 	
@@ -454,20 +462,25 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				}
 
 				$timeout(async function() {
-					// indicator selection is optional in reachability template only
-					if($scope.selectedIndicator) {
-						for(let timestamp of $scope.selectedTimestamps) {
-							let classifyUsingWholeTimeseries = false;
-							$scope.prepareDiagrams($scope.selectedIndicator, $scope.selectedSpatialUnit, timestamp.name, classifyUsingWholeTimeseries);
-		
-						}
+					if($scope.isFirstUpdateOnIndicatorSelection) {
+						// Skip the update but set variable to false, so diagrams get updated on time update
+						// (relevant for indicator selection only)
+						$scope.isFirstUpdateOnIndicatorSelection = false;
 					} else {
-						$scope.reachabilityTemplateGeoMapOptions = $scope.prepareReachabilityEchartsMap();
-					}
-					
-					await $scope.initializeAllDiagrams();
-					if(!$scope.updatingLeafletMaps) {
-						$scope.loadingData = false;
+						// indicator selection is optional in reachability template only
+						if($scope.selectedIndicator) {
+							for(let timestamp of $scope.selectedTimestamps) {
+								let classifyUsingWholeTimeseries = false;
+								$scope.prepareDiagrams($scope.selectedIndicator, $scope.selectedSpatialUnit, timestamp.name, classifyUsingWholeTimeseries);
+							}
+						} else {
+							$scope.reachabilityTemplateGeoMapOptions = $scope.prepareReachabilityEchartsMap();
+						}
+
+						await $scope.initializeAllDiagrams();
+						if(!$scope.updatingLeafletMaps) {
+							$scope.loadingData = false;
+						}
 					}
 				});
 				
@@ -1229,11 +1242,14 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					}
 				}
 			}
+			$scope.loadingData = false;
 			$scope.$apply();
 
 		}
 	
 		$scope.onIndicatorSelected = async function(indicator) {
+			
+
 			$scope.loadingData = true;
 			if($scope.template.name === "A4-landscape-reachability") {
 				$scope.handleIndicatorSelectForReachability(indicator);
@@ -1319,7 +1335,12 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			$scope.selectedIndicator.geoJSON = geoJson;
 			let classifyUsingWholeTimeseries = false;
 			$scope.prepareDiagrams($scope.selectedIndicator, $scope.selectedSpatialUnit, mostRecentTimestampName, classifyUsingWholeTimeseries);
+			// We have to update time and areas. Usually both of these would result in a diagram update.
+			// We want to skip the first one and only update diagrams once everything is ready for better performance.
+			$scope.isFirstUpdateOnIndicatorSelection = true;
 			if($scope.template.name === "A4-landscape-timeseries") {
+				// This is an exception from the process above
+				$scope.isFirstUpdateOnIndicatorSelection = false;
 				// also prepare the dynamic version of the indicator for displaying changes
 				const indicatorTypeBackup = $scope.selectedIndicator.indicatorType;
 				$scope.selectedIndicator.indicatorType = "RELATIVE";
@@ -1743,7 +1764,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				//isochronesLayer.addTo(leafletMap);
 
 				pageElement.leafletBbox = bounds;
-				
+
 				if(pageIdx === $scope.template.pages.length-1) {
 					$scope.updatingLeafletMaps = false;
 					$scope.loadingData = false;
