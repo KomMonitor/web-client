@@ -31,12 +31,8 @@
                                     <b ng-show="config.template.name == 'A4-landscape-reachability'">{{section.poiLayerName}}</b>
                                 </div>
                                 <div class="col-sm-1 text-right">
-                                    <i ng-show="config.template.name != 'A4-landscape-reachability'"
-                                        class="reporting-templateSection-delete-symbol align-middle fa fa-trash-alt"
-                                        ng-click="removeTemplateSection(section.indicatorName)"></i>
-                                    <i ng-show="config.template.name == 'A4-landscape-reachability'"
-                                        class="reporting-templateSection-delete-symbol align-middle fa fa-trash-alt"
-                                        ng-click="removeTemplateSection(section.poiLayerName)"></i>
+                                    <i class="reporting-templateSection-delete-symbol align-middle fa fa-trash-alt"
+                                        ng-click="removeTemplateSection($$index)"></i>
                                 </div>
                             </div>
                         </div>

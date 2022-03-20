@@ -139,10 +139,8 @@ angular.module('reportingOverview').component('reportingOverview', {
 			$scope.setupNewPages($scope.config.templateSections.at(-1));
 		});
 
-		$scope.removeTemplateSection = function(templateSection) {
-			$scope.config.templateSections = $scope.config.templateSections.filter( el => {
-				return el.templateSection !== templateSection;
-			});
+		$scope.removeTemplateSection = function(idx) {
+			$scope.config.templateSections.splice(idx, 1)
 
 			// show empty template if this was the last indicator
 			if($scope.config.templateSections.length === 0) {
@@ -162,7 +160,11 @@ angular.module('reportingOverview').component('reportingOverview', {
 				let removedSection = difference[0];
 				// remove all pages for that section
 				$scope.config.pages = $scope.config.pages.filter( page => {
-					return page.templateSection !== removedSection;
+					if(!page.hasOwnProperty("templateSection")) return true; // for placeholder
+					
+					return page.templateSection.indicatorId !== removedSection.indicatorId ||
+						page.templateSection.spatialUnitId !== removedSection.spatialUnitId ||
+						page.templateSection.poiLayerName !== removedSection.poiLayerName
 				});
 			}
 			if(newVal.length === oldVal.length) { // order changed

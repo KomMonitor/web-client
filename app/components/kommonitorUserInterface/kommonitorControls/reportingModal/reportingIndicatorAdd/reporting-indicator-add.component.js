@@ -1743,7 +1743,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				//isochronesLayer.addTo(leafletMap);
 
 				pageElement.leafletBbox = bounds;
-				console.log(pageElement.leafletBbox);
+				
 				if(pageIdx === $scope.template.pages.length-1) {
 					$scope.updatingLeafletMaps = false;
 					$scope.loadingData = false;
