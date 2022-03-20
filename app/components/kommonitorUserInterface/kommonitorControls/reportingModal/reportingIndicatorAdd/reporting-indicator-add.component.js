@@ -1054,8 +1054,17 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			if( !$scope.selectedSpatialUnit) {
 				$scope.selectedSpatialUnit = highestSpatialUnit[0];
 			}
-
-			let mostRecentTimestampName = $scope.selectedSpatialUnit.metadata.lastUpdate;
+			console.log($scope.selectedSpatialUnit);
+			let mostRecentTimestampName
+			if($scope.selectedSpatialUnit.metadata) {
+				mostRecentTimestampName = $scope.selectedSpatialUnit.metadata.lastUpdate;
+			} else {
+				// Happens when poiLayer is changed after an indicator was selected
+				// ( = spatial unit is the one from the indicator endpoint, not the spatial unit endpoint)
+				mostRecentTimestampName = $scope.allSpatialUnitsForReachability.filter( spatialUnit => {
+					return spatialUnit.spatialUnitId === $scope.selectedSpatialUnit.spatialUnitId
+				})[0].metadata.lastUpdate
+			}
 			$scope.selectedTimestamps = [{
 				category: mostRecentTimestampName,
 				name: mostRecentTimestampName
