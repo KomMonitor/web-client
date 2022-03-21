@@ -831,10 +831,26 @@ angular.module('reportingOverview').component('reportingOverview', {
 		$scope.generateReport = async function(format) {
 			$scope.loadingData = true;
 
+			$timeout( () => { 
+				// The timeout is needed to hide the loading overlay after report generation is done.
+				// The problem is that it might be executed too early in some cases (reachability template du to leaflet easyprint)
+				// We check if report is already done from time to time
+				$scope.reportGenerationFinished = false;
+				const intervalId = setInterval(() => {
+					if($scope.reportGenerationFinished) {
+						clearInterval(intervalId);
+						$scope.loadingData = false;
+						$scope.$apply();
+					}
+				}, 1000);
+			})
+
 			try {
-				format === "pdf" && $scope.generatePdfReport();
-				format === "docx" && $scope.generateWordReport();
-				format === "zip" && $scope.generateZipFolder();
+				format === "pdf" && await $scope.generatePdfReport();
+				format === "docx" && await $scope.generateWordReport();
+				format === "zip" && await $scope.generateZipFolder();
+				$scope.reportGenerationFinished = true;
+				
 			} catch (error) {
 				$scope.loadingData = false;
 				kommonitorDataExchangeService.displayMapApplicationError(error.message);
