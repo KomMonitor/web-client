@@ -20,6 +20,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		$scope.indexOfFirstAreaSpecificPage = undefined;
 		$scope.dateSlider = undefined;
 		$scope.absoluteLabelPositions = [];
+		$scope.showMapLabels = true;
 		$scope.echartsOptions = {
 			map: {
 				// "2017-12-31": ...
@@ -3176,6 +3177,21 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				to: maxIdx
 			});
 			return dateSlider;
+		}
+
+		$scope.onChangeShowMapLabels = function() {
+
+			for(let i=0; i<$scope.template.pages.length; i++) {
+				let instance = echarts.getInstanceByDom( document.querySelector("#reporting-addIndicator-page-" + i +"-map"))
+				let options = instance.getOption();
+				let series = options.series[0];
+
+				series.label.show = $scope.showMapLabels;
+
+				instance.setOption(options, {
+					replaceMerge: ['series']
+				});
+			}
 		}
 
 		$scope.validateConfiguration = function() {
