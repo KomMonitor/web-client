@@ -556,7 +556,16 @@ angular
 					 * Changes the focus of the analysis between
 					 * distance and time.
 					 */
-					$scope.changeFocus = function() {
+					$scope.changeFocus = function(value) {
+
+						if(value === 'time' && $scope.settings.transitMode === "buffer") {
+							$scope.settings.focus = 'distance'
+							$scope.isTime=false;
+							$scope.unit = 'Meter';
+							$scope.changeValues();
+							return;
+						}
+
 						$scope.resetSlider();
 
 						if ($scope.settings.focus=='distance'){

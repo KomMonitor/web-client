@@ -82,12 +82,12 @@
 							<div class="btn-group btn-group-justified" data-toggle="buttons">
 								<label class="btn btn-primary active">
 									<input type="radio" name="options" id="focus_distance" autocomplete="off" checked
-										ng-change="changeFocus()" ng-model="settings.focus" value="distance"> <i
+										ng-change="changeFocus('distance')" ng-model="settings.focus" value="distance"> <i
 										class="fas fa-ruler"></i> Distanz
 								</label>
 								<label class="btn btn-primary" ng-disabled="settings.transitMode === 'buffer'">
 									<input type="radio" name="options" id="focus_time" autocomplete="off"
-										ng-change="changeFocus()" ng-model="settings.focus" value="time"><i
+										ng-change="changeFocus('time')" ng-model="settings.focus" value="time"><i
 										class="far fa-clock"></i> Zeit
 								</label>
 							</div>
