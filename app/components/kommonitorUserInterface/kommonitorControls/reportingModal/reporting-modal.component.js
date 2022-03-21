@@ -7,6 +7,11 @@ angular.module('reportingModal').component('reportingModal', {
 		$scope.templateSelected = false;
 		$scope.addingNewIndicator = false;
 		let modalDialog = document.querySelector("#reporting-modal .modal-dialog");
+
+		
+		
+
+
 		$scope.$on('reportingWorkflowSelected', function(event, data) {
 			// make modal wide
 			modalDialog.classList.add("modal-xl");

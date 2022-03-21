@@ -267,12 +267,15 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					}
 					titleEl.isPlaceholder = false;
 
-					let dateEl = pageToInsert.pageElements.find( el => {
+					let subtitleEl = pageToInsert.pageElements.find( el => {
 						return el.type === "reachability-subtitle-landscape"
 					});
-
-					dateEl.text = $scope.selectedTimestamps[0].name + ", " + $scope.isochronesTypeOfMovementMapping[$scope.typeOfMovement];
-					dateEl.isPlaceholder = false;
+					subtitleEl.text = $scope.selectedTimestamps[0].name;
+					if($scope.isochrones)
+						subtitleEl.text += ", " + $scope.isochronesTypeOfMovementMapping[$scope.typeOfMovement];
+					if($scope.selectedIndicator)
+						subtitleEl.text += ", " + $scope.selectedIndicator.indicatorName;
+					subtitleEl.isPlaceholder = false;
 
 					// diagrams have to be inserted later because the div element does not yet exist
 				}
@@ -295,7 +298,6 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 			if( typeof($scope.template) === "undefined") return;
 			$scope.loadingData = true;
-			let tab4 = document.querySelector("#reporting-add-indicator-tab5");
 
 			// get difference between old and new value (the timestamps selected / deselected)
 			let difference = oldVal
@@ -304,7 +306,6 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			
 			// if selected
 			if(newVal.length > oldVal.length) {
-				$scope.enableTab(tab4);
 				// if this was the first timestamp
 				if(newVal.length === 1) {
 					// no need to insert pages, we just replace the placeholder timestamp
@@ -419,7 +420,6 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			if(newVal.length < oldVal.length) {
 				// if it was the last one
 				if(newVal.length === 0) {
-					$scope.disableTab(tab4);
 					let cleanTemplate = angular.fromJson($scope.untouchedTemplateAsString);
 					for(let page of cleanTemplate.pages) {
 						page.id = $scope.templatePageIdCounter++;
@@ -446,7 +446,9 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				for(let page of $scope.template.pages) {
 					for(let pageElement of page.pageElements) {
 						if(pageElement.type === "reachability-subtitle-landscape") {
-							pageElement.text = newVal[0].name + ", " + $scope.isochronesTypeOfMovementMapping[$scope.typeOfMovement]
+							pageElement.text = newVal[0].name;
+							if($scope.isochrones)
+								pageElement.text += ", " + $scope.isochronesTypeOfMovementMapping[$scope.typeOfMovement];
 							if($scope.selectedIndicator)
 								pageElement.text += ", " + $scope.selectedIndicator.indicatorName;
 						}
@@ -519,13 +521,13 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				$scope.indexOfFirstAreaSpecificPage = 1;
 
 			// disable tabs to force user to pick a poi-layer / indicator first
-			let tabs = document.querySelector("#reporting-add-indicator-tab-list");
+			let tabList = document.querySelector("#reporting-add-indicator-tab-list");
 			let tabPanes = document.querySelectorAll("#reporting-add-indicator-tab-content > .tab-pane");
-			let tabChildren = Array.from(tabs.children)
+			let tabChildren = Array.from(tabList.children)
 			for(let [idx, tab] of tabChildren.entries()) {
-				let id = tab.id.at(-1)
+				let id = tab.id.at(-1);
 				if( ($scope.template.name === "A4-landscape-reachability" && id==1) || // pois
-						($scope.template.name !== "A4-landscape-reachability" && id==2) ) { // indicators
+						($scope.template.name !== "A4-landscape-reachability" && id==3) ) { // indicators
 					tab.classList.add("active");
 					tabPanes[idx].classList.add("active");
 				} else {
@@ -623,6 +625,31 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			});
 			return Promise.resolve();
 		};
+
+		$scope.queryMostRecentGeoresourceFeatures = async function(georesource) {
+			// Most likely this is only a temporary method
+			// It checks the availablePeriodsOfValidity and takes the most recent one to query features.
+
+			let timestamp = georesource.availablePeriodsOfValidity.at(-1).startDate;
+			let timestampSplit = timestamp.split("-")
+			let year = timestampSplit[0];
+			let month = timestampSplit[1];
+			let day = timestampSplit[2];
+
+			let url = kommonitorDataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource()
+			url += "/georesources/" + georesource.georesourceId + "/" + year + "/" + month + "/" + day
+			// send request
+			return await $http({
+				url: url,
+				method: "GET"
+			}).then(function successCallback(response) {
+					return response.data;
+				}, function errorCallback(error) {
+					$scope.loadingData = false;
+					kommonitorDataExchangeService.displayMapApplicationError(error);
+					console.error(response.statusText);
+			});
+		}
 
 		$scope.queryAllSpatialUnits = async function() {
 			// build request
@@ -1018,28 +1045,19 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			}
 		}
 
-		$scope.onPoiLayerSelected = async function(poiLayer) {
-
-			$scope.absoluteLabelPositions = [];
-			$scope.diagramsPrepared = false;
-			$scope.isFirstUpdateOnIndicatorOrPoiLayerSelection = true;
-			$scope.selectedPoiLayer = poiLayer
-
-			// get a new template (in case another poi layer was selected previously)
-			$scope.template = $scope.getCleanTemplate();
-
-			$scope.isochrones = await $scope.loadIsochrones();
-			
-			if(checkNestedPropExists($scope.isochrones, 'info', 'query', 'profile')) {
+		$scope.$on("reportingIsochronesCalculationFinished", function(event, isochrones) {
+			$scope.isochrones = isochrones;
+			if(checkNestedPropExists($scope.isochrones, 'info', 'query', 'profile'))
 				$scope.typeOfMovement = $scope.isochrones.info.query.profile;
-			} else {
+			else
 				$scope.typeOfMovement = "buffer";
-			}
-			if(checkNestedPropExists($scope.isochrones, 'info', 'query', 'units')) {
-				$scope.isochronesRangeType = $scope.isochrones.info.query.range_type
-			}
-			if(checkNestedPropExists($scope.isochrones, 'info', 'query', 'units')) {
-				$scope.isochronesRangeUnits = $scope.isochrones.info.query.units
+
+			if($scope.typeOfMovement === "buffer") {
+				$scope.isochronesRangeType = "distance";
+				$scope.isochronesRangeUnits = "m";
+			} else {
+				$scope.isochronesRangeType = $scope.isochrones.info.query.range_type;
+				$scope.isochronesRangeUnits = $scope.isochrones.info.query.units;
 			}
 			
 			// for type buffer the bbox field doesn't exist, so we have to create it.
@@ -1047,13 +1065,49 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			if(!$scope.isochrones.centerLocations)
 				$scope.addIsochronesCenterLocationProperty()
 
-			// give each isochrone a unique id so we can reference it from the echarts series data
-			for(let feature of $scope.isochrones.features) {
-				feature.properties.id = feature.properties.group_index + "-" + feature.properties.value
+			// Add a new property that is used as a unique id and can be used by echarts
+			// For buffer there is no group_index, so we use the ID
+			if($scope.typeOfMovement === "buffer") {
+				for(let feature of $scope.isochrones.features) {
+					feature.properties.echartsId = feature.properties.ID + "-" + feature.properties.value
+				}
+			} else {
+				for(let feature of $scope.isochrones.features) {
+					feature.properties.echartsId = feature.properties.group_index + "-" + feature.properties.value
+				}
 			}
 
 			$scope.isochronesSeriesData = $scope.convertIsochronesToSeriesData($scope.isochrones);
 
+			// TODO performance could be improved if we just iterate pages and update echarts
+			$scope.initializeAllDiagrams();
+		});
+
+		$scope.resetIsochrones = function() {
+			$scope.isochrones = undefined;
+			$scope.typeOfMovement = undefined;
+			$scope.isochronesRangeType = undefined,
+			$scope.isochronesRangeUnits = undefined,
+			$scope.isochronesSeriesData = undefined
+			// TODO performance could be improved if we just iterate pages and update echarts
+			$scope.initializeAllDiagrams();
+		}
+		
+
+
+		$scope.onPoiLayerSelected = async function(poiLayer) {
+
+			$scope.absoluteLabelPositions = [];
+			$scope.diagramsPrepared = false;
+			$scope.isFirstUpdateOnIndicatorOrPoiLayerSelection = true;
+			$scope.selectedPoiLayer = poiLayer;
+			$scope.selectedPoiLayer.geoJSON = await $scope.queryMostRecentGeoresourceFeatures($scope.selectedPoiLayer)
+		
+			$scope.$broadcast("reportingPoiLayerSelected", $scope.selectedPoiLayer)
+
+			// get a new template (in case another poi layer was selected previously)
+			$scope.template = $scope.getCleanTemplate();
+			
 			// Indicator might not be selected at this point
 			// We get information about all available spatial units (instead of applicable ones)
 			// Then we select the highest one by default
@@ -1094,7 +1148,9 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					}
 
 					if(el.type === "reachability-subtitle-landscape") {
-						el.text = $scope.selectedTimestamps[0].name + ", " + $scope.isochronesTypeOfMovementMapping[$scope.typeOfMovement];
+						el.text = $scope.selectedTimestamps[0].name;
+						if($scope.isochrones)
+							el.text += ", " + $scope.isochronesTypeOfMovementMapping[$scope.typeOfMovement];
 						if($scope.selectedIndicator)
 							el.text += ", " + $scope.selectedIndicator.indicatorName;
 						el.isPlaceholder = false
@@ -1110,7 +1166,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				features = $scope.availableFeaturesBySpatialUnit[ $scope.selectedSpatialUnit.spatialUnitLevel ]
 			}
 			features = $scope.createLowerCaseNameProperty(features);
-			// we have no indicator so we store the geometries directly on the scope
+			// we might have no indicator so we store the geometries directly on the scope
 			$scope.geoJsonForReachability = {
 				features: features
 			}
@@ -1210,7 +1266,10 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 					if(pageElement.type === "reachability-subtitle-landscape") {
 						pageElement.text = $scope.selectedTimestamps[0].name;
-						pageElement.text += ", " + $scope.isochronesTypeOfMovementMapping[$scope.typeOfMovement];
+						if($scope.isochrones) {
+							pageElement.text += ", " + $scope.isochronesTypeOfMovementMapping[$scope.typeOfMovement];
+						}
+						
 						pageElement.isPlaceholder = false
 					}
 				}
@@ -1255,7 +1314,9 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 					if(pageElement.type === "reachability-subtitle-landscape") {
 						pageElement.text = $scope.selectedTimestamps[0].name;
-						pageElement.text += ", " + $scope.isochronesTypeOfMovementMapping[$scope.typeOfMovement];
+						if($scope.isochrones) {
+							pageElement.text += ", " + $scope.isochronesTypeOfMovementMapping[$scope.typeOfMovement];
+						}
 						pageElement.text += ", " + indicator.indicatorName;
 						pageElement.isPlaceholder = false;
 					}
@@ -1416,12 +1477,10 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			$scope.dateSlider = undefined;
 			$scope.echartsRegisteredMapNames = [];
 
-			let tab2 = document.querySelector("#reporting-add-indicator-tab3");
-			let tab3 = document.querySelector("#reporting-add-indicator-tab4");
-			let tab4 = document.querySelector("#reporting-add-indicator-tab5");
-			$scope.disableTab(tab2);
-			$scope.disableTab(tab3);
-			$scope.disableTab(tab4);
+			for(let i=2;i<7;i++) {
+				let tab = document.querySelector("#reporting-add-indicator-tab" + i);
+				$scope.disableTab(tab);
+			}
 		}
 
 		$scope.onAddBtnClicked = function() {
@@ -1501,11 +1560,6 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			tab.firstElementChild.setAttribute("tabindex", "1")
 		}
 
-		$scope.loadIsochrones = async function() {
-			let result = await $http.get("components\\kommonitorUserInterface\\kommonitorControls\\reportingModal\\reportingIndicatorAdd\\temp_isochrones.json")
-			return result.data;
-		}
-
 		// creates and returns a series data array for each range threshold
 		$scope.convertIsochronesToSeriesData = function(isochrones) {
 			let result = [] // array of series data config objects
@@ -1518,7 +1572,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 						ranges.push(feature.properties.value)
 					}
 				}
-			} 
+				ranges = [...new Set(ranges)] // remove dupes
+			}
 			if(!ranges || ranges.length === 0) {
 				throw new Error("Could not determine ranges from isochrones. Is the format correct?")
 			}
@@ -1538,9 +1593,9 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				let data = isochrones.features.filter( feature => {
 					return feature.properties.value === range; // get features for this range threshold
 				}).map( feature => {
-					// map them to  echarts format
+					
 					return {
-						name: feature.properties.id,
+						name: feature.properties.echartsId,
 						value: feature.properties.value,
 						itemStyle: {
 							areaColor: colorArr[idx],
@@ -1584,65 +1639,54 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			options.series[0].map = mapName;
 			options.geo.map = mapName
 
-			// Add isochrones
+			// Add isochrones if possible
 			// In echarts one map can only handle one series
 			// But we need the isochrones in different series to control their z-indexes (show smaller isochrones above larger ones)
 			// That's why we need to register one map per range threshold, that only contains a subset of isochrones.
-			for(seriesData of $scope.isochronesSeriesData) {
-				let range = seriesData[0].value;
-				registeredMap = echarts.getMap($scope.selectedPoiLayer.datasetName + "_isochrones-" + range)
-				if( !registeredMap ) {
-					let isochrones = $scope.isochrones.features.filter( feature => {
-						return feature.properties.value === range
-					})
-					let featureCollection = {
-						features: isochrones
+			if($scope.isochrones) {
+				for(seriesData of $scope.isochronesSeriesData) {
+					let range = seriesData[0].value;
+					registeredMap = echarts.getMap($scope.selectedPoiLayer.datasetName + "_isochrones-" + range)
+					if( !registeredMap ) {
+						let isochrones = $scope.isochrones.features.filter( feature => {
+							return feature.properties.value === range;
+						})
+						let featureCollection = {
+							features: isochrones
+						}
+						echarts.registerMap($scope.selectedPoiLayer.datasetName + "_isochrones-" + range, featureCollection)
+						$scope.echartsRegisteredMapNames.push($scope.selectedPoiLayer.datasetName + "_isochrones-" + range)
 					}
-					echarts.registerMap($scope.selectedPoiLayer.datasetName + "_isochrones-" + range, featureCollection)
-					$scope.echartsRegisteredMapNames.push($scope.selectedPoiLayer.datasetName + "_isochrones-" + range)
+				}
+				
+				let bbox = $scope.isochrones.bbox; // [left, bottom, right, top]
+				let isochronesBboxForEcharts = [[bbox[0], bbox[3]], [bbox[2], bbox[1]]] // [left, top], [right, bottom]
+				
+	
+				for(let [idx, seriesData] of $scope.isochronesSeriesData.entries()) {
+					let series = {
+						name: "isochrones-" + seriesData[0].value,
+						type: 'map',
+						roam: false,
+						left: 0, top: 0, right: 0, bottom: 0,
+						boundingCoords: isochronesBboxForEcharts,
+						map: $scope.selectedPoiLayer.datasetName + "_isochrones-" + seriesData[0].value,
+						nameProperty: 'echartsId',
+						cursor: "default",
+						select: {
+							disabled: true
+						},
+						z: 90 - idx, // first one has smallest threshold and gets highest index
+						data: seriesData
+					}
+					options.series.push(series)
 				}
 			}
 			
-			
-			
-
-			let bbox = $scope.isochrones.bbox; // [left, bottom, right, top]
-			let isochronesBboxForEcharts = [[bbox[0], bbox[3]], [bbox[2], bbox[1]]] // [left, top], [right, bottom]
-			
-
-			for(let [idx, seriesData] of $scope.isochronesSeriesData.entries()) {
-				let series = {
-					name: "isochrones-" + seriesData[0].value,
-					type: 'map',
-					roam: false,
-					left: 0, top: 0, right: 0, bottom: 0,
-					boundingCoords: isochronesBboxForEcharts,
-					map: $scope.selectedPoiLayer.datasetName + "_isochrones-" + seriesData[0].value,
-					nameProperty: 'id',
-					cursor: "default",
-					select: {
-						disabled: true
-					},
-					z: 90 - idx, // first one has smallest threshold and gets highest index
-					data: seriesData
-				}
-				options.series.push(series)
-			}
-
 			// Add poi markers as additional series
-			let centers;
-			if(checkNestedPropExists($scope.isochrones, 'info', 'query', 'locations')) {
-				centers = $scope.isochrones.info.query.locations;
-			} else {
-				// for type of movement buffer
-				centers = $scope.isochrones.centerLocations;
-			}
-
-			let centerPointSeriesData = centers.map( lonLatArr => {
-				return {
-					value: [lonLatArr[0], lonLatArr[1]]
-				}
-			})
+			let centerPointSeriesData = $scope.selectedPoiLayer.geoJSON.features.map( feature => {
+				return feature.geometry.coordinates;
+			});
 
 			let centerPointSeries =  {
 				name: 'centerPoints',
@@ -1765,7 +1809,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 				leafletMap.fitBounds( [[southLat, westLon], [northLat, eastLon]] );
 				let bounds = leafletMap.getBounds()
-				// now update the echarts map and isochrones
+				// now update every echarts series
 				boundingCoords = [ [bounds.getWest(), bounds.getNorth()], [bounds.getEast(), bounds.getSouth()]]
 				for(let series of echartsOptions.series) {
 					series.top = 0;
@@ -1773,7 +1817,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					series.aspectScale = 0.625
 					series.boundingCoords = boundingCoords
 				}
-				// also for the invisible geo component to update isochrone center markers
+				// also for the invisible geo component to update pois
 				echartsOptions.geo[0].top = 0;
 				echartsOptions.geo[0].bottom = 0;
 				echartsOptions.geo[0].aspectScale = 0.625
@@ -1783,9 +1827,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					notMerge: true
 				});
 				
-				let osmLayer = new L.TileLayer.Grayscale("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-					attribution: "Map data © <a href='http://openstreetmap.org'>OpenStreetMap</a> contributors",
-				});
+				// Attribution is handled in a custom element
+				let osmLayer = new L.TileLayer.Grayscale("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png");
 				osmLayer.addTo(leafletMap);
 
 				// add leaflet map to pageElement in case we need it again later

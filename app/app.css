@@ -2267,10 +2267,7 @@ hr {
 	-webkit-transform-origin: 50% 50%;
 	transform-origin:50% 50%;
 	-ms-transform-origin:50% 50%; /* IE 9 */
-  }
-
-
-  
+}
 
 @-moz-keyframes spin {
   from {
@@ -2299,6 +2296,17 @@ hr {
   }
 }
 
+#reporting-isochrones-config #kommonitorReachability > .box-primary:last-child {
+	display: none;
+}
+
+#reporting-isochrones-config #reachability-draw-points-btn {
+	visibility:hidden;
+}
+
+#reporting-isochrones-config #reachabiltiy-method-btn-group {
+	display: none;
+}
 
 /* The switch - the box around the slider */
 .switch {
