@@ -1648,10 +1648,10 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				type: 'scatter',
 				coordinateSystem: 'geo',
 				
-				symbol: 'pin',
-				symbolSize: 20,
+				symbol: "image://https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.5.1/images/marker-icon.png",
+				symbolSize: [17, 26],
+				symbolOffset: [0, '-50%'],
 				itemStyle: {
-					color: "#2981CA", // light blue
 					opacity: 1
 				},
 				cursor: "default",
@@ -1791,10 +1791,28 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				pageElement.leafletMap = leafletMap;
 
 				// can be used to check if positioning in echarts matches the one from leaflet
-				//let geoJsonLayer = L.geoJSON( $scope.geoJsonForReachability.features )
-				//geoJsonLayer.addTo(leafletMap)
-				//let isochronesLayer = L.geoJSON( $scope.isochrones.features )
-				//isochronesLayer.addTo(leafletMap);
+				// let geoJsonLayer = L.geoJSON( $scope.geoJsonForReachability.features )
+				// geoJsonLayer.addTo(leafletMap)
+				// let isochronesLayer = L.geoJSON( $scope.isochrones.features )
+				// isochronesLayer.addTo(leafletMap);
+				// let poiMarkerLSource = {
+				// 	"type": "FeatureCollection",
+				// 	"features": []
+				// }
+				// for(let lonLatArr of centers) {
+				// 	poiMarkerLSource.features.push({
+				// 		"type": "Feature",
+				// 		"geometry": {
+				// 			"type": "Point",
+				// 			"coordinates": [
+				// 				lonLatArr[0],
+				// 				lonLatArr[1]
+				// 			]
+				// 		}
+				// 	})
+				// }
+				// poiMarkerLayer = L.geoJSON( poiMarkerLSource )
+				// poiMarkerLayer.addTo(leafletMap);
 
 				pageElement.leafletBbox = bounds;
 
