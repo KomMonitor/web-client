@@ -1844,21 +1844,32 @@ angular
           return timeseriesOptions;
       };
 
-      this.createReportingReachabilityMapAttribution = function() {
-        let attrDiv = document.createElement("div")
-				attrDiv.classList.add("map-attribution")
-				attrDiv.innerHTML = "Leaflet | Map data @ OpenStreetMap contributors";
-				attrDiv.style.fontSize = "8pt"
-				attrDiv.style.padding = "5px";
-				attrDiv.style.position = "absolute";
-				attrDiv.style.bottom = 0;
-				attrDiv.style.left = 0;
-				attrDiv.style.zIndex = 800;
-				attrDiv.style.backgroundColor = "rgb(255, 255, 255)";
-        return attrDiv;
+      // Returns an image.
+      // Attribution has to be converted to an image anyway for report generation.
+      this.createReportingReachabilityMapAttribution = async function() {
+        let attributionText = "Leaflet | Map data @ OpenStreetMap contributors"
+        let canvas = document.createElement("canvas")
+        canvas.width = 800;
+        let ctx = canvas.getContext('2d')
+        ctx.font = "8pt Arial";
+        ctx.textBaseline = 'top';
+        ctx.fillStyle = "rgb(60, 60, 60)";
+        ctx.fillText(attributionText, 0, 0);
+        canvas = trimCanvas(canvas, 5)
+
+        let image = new Image(canvas.width, canvas.height)
+        image.style.backgroundColor = "white";
+        return await new Promise( (resolve, reject) => {
+          image.onload = function() {
+            resolve(image);
+          }
+          image.src = canvas.toDataURL();
+        });
       }
 
-      this.createReportingReachabilityMapLegend = function(echartsOptions, selectedSpatialUnit) {
+      // Returns an image.
+      // Legend has to be converted to an image anyway for report generation.
+      this.createReportingReachabilityMapLegend = async function(echartsOptions, selectedSpatialUnit, isochronesRangeType, isochronesRangeUnits) {
         let legendEntries = [];
         let isochronesHeadingAdded = false;
         for(let i=0; i<echartsOptions.series.length; i++) {
@@ -1868,7 +1879,7 @@ angular
             legendEntries.push({
               label: selectedSpatialUnit.spatialUnitName ? selectedSpatialUnit.spatialUnitName : selectedSpatialUnit.spatialUnitLevel,
               iconColor: series.itemStyle.borderColor,
-              iconHeight: "4px",
+              iconHeight: 4,
               isGroupHeading: false
             });
           }
@@ -1888,67 +1899,83 @@ angular
               label: value,
               iconColor: series.data[0].itemStyle.areaColor,
               iconOpacity: series.data[0].itemStyle.opacity,
-              iconHeight: "12px",
-              isGroupHeading: false
+              iconHeight: 12,
+              isGroupHeading: false,
+              isIsochroneEntry: true
             })
           }
         }
+
+        let canvas = document.createElement("canvas")
+        canvas.width = 800;
+        canvas.height = 800;
+        let ctx = canvas.getContext('2d')
+        let fontStyle = "8pt Arial"
+        ctx.font = fontStyle
+        let xPos = 5
+        let yPos = 5
+        let rowHeight = 20
+        let iconWidth = 30
         
-  
-        let legendDiv = document.createElement("div");
-        legendDiv.classList.add("map-legend")
-        legendDiv.style.padding = "5px";
-        legendDiv.style.position = "absolute";
-        legendDiv.style.bottom = 0;
-        legendDiv.style.right = 0;
-        legendDiv.style.zIndex = 800;
-        legendDiv.style.backgroundColor = "rgb(255, 255, 255)";
-        legendDiv.style.fontSize = "8pt";
-  
-        let table = document.createElement("table");
         for(let entry of legendEntries) {
-          let row = document.createElement("tr");
-          let labelTd = document.createElement("td");
-  
           if(entry.isGroupHeading) {
-            labelTd.colSpan = 2;
-            let heading = document.createElement("h5");
-            heading.innerText = entry.label;
-            heading.style.fontWeight = "bold";
-            heading.style.fontSize = "8pt";
-            labelTd.appendChild(heading);
-            labelTd.style.textAlign = "left";
-            row.appendChild(labelTd)
-            table.appendChild(row) 
-            continue;
+            isochronesRangeTypeMapping = {
+              "time": "Zeit",
+              "distance": "Distanz"
+            }
+            // only draw label
+            ctx.font = "bold " + fontStyle;
+            ctx.fillStyle = "black";
+            ctx.textBaseline = "top";
+            let text = entry.label + " [" + isochronesRangeTypeMapping[isochronesRangeType] + "]"
+            ctx.fillText(text , xPos, yPos);
+            yPos += rowHeight
+          } else {
+            // icon
+            if(entry.isIsochroneEntry) {
+              let isochroneEntries = legendEntries.filter( entry => {
+                return entry.isIsochroneEntry
+              });
+              // layer isochrone icons on top of each other unitl we reach the current one
+              for(let isochroneEntry of isochroneEntries.reverse()) {
+                if(isochroneEntry === entry) {
+                  break;
+                }
+                ctx.fillStyle = isochroneEntry.iconColor;
+                ctx.globalAlpha = isochroneEntry.iconOpacity;
+                ctx.fillRect(xPos, yPos + ( (12-entry.iconHeight) / 2), iconWidth, isochroneEntry.iconHeight)
+                ctx.globalAlpha = 1;
+              }
+            }
+
+            ctx.fillStyle = entry.iconColor;
+            ctx.globalAlpha = entry.iconOpacity ? entry.iconOpacity : 1;
+            ctx.fillRect(xPos, yPos + ( (12-entry.iconHeight) / 2), iconWidth, entry.iconHeight)
+            ctx.globalAlpha = 1;
+            // and label
+            ctx.font = fontStyle;
+            ctx.fillStyle = "black";
+            ctx.textBaseline = "top";
+            if(entry.isIsochroneEntry) {
+              let text = entry.label + " " + isochronesRangeUnits
+              ctx.fillText(text, xPos + iconWidth + 5, yPos)
+            } else {
+              ctx.fillText(entry.label, xPos + iconWidth + 5, yPos)
+            }
+            yPos += rowHeight
           }
-  
-          labelTd.innerText = entry.label;
-          labelTd.style.textAlign = "left";
-          labelTd.style.paddingLeft = "5px";
-  
-          let iconTd = document.createElement("td");
-          let icon = document.createElement("div");
-          iconTd.appendChild(icon);
-  
-          icon.style.backgroundColor = entry.iconColor;
-          if(entry.hasOwnProperty("iconOpacity")) {
-            icon.style.opacity = entry.iconOpacity;	
-          }
-          icon.style.width = "30px";
-          icon.style.height = entry.iconHeight;
-          iconTd.style.height = "18px";
-          
-          row.appendChild(iconTd)
-          row.appendChild(labelTd)
-          table.appendChild(row) 
         }
-  
-        legendDiv.appendChild(table);
-        return legendDiv;
+
+        canvas = trimCanvas(canvas, 5)
+        let image = new Image(canvas.width, canvas.height)
+        image.style.backgroundColor = "white";
+        return await new Promise( (resolve, reject) => {
+          image.onload = function() {
+            resolve(image);
+          }
+          image.src = canvas.toDataURL();
+        });
       }
-
-
 
       var calculateOverallBoundingBoxFromGeoJSON = function(features) {
         let result = [];
@@ -1967,4 +1994,41 @@ angular
         }
         return result;
       };
+
+      function trimCanvas(canvas, padding=0) {
+        function rowBlank(imageData, width, y) {
+            for (var x = 0; x < width; ++x) {
+                if (imageData.data[y * width * 4 + x * 4 + 3] !== 0) return false;
+            }
+            return true;
+        }
+     
+        function columnBlank(imageData, width, x, top, bottom) {
+            for (var y = top; y < bottom; ++y) {
+                if (imageData.data[y * width * 4 + x * 4 + 3] !== 0) return false;
+            }
+            return true;
+        }
+     
+     
+            var ctx = canvas.getContext("2d");
+            var width = canvas.width;
+            var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            var top = 0, bottom = imageData.height, left = 0, right = imageData.width;
+     
+            while (top < bottom && rowBlank(imageData, width, top)) ++top;
+            while (bottom - 1 > top && rowBlank(imageData, width, bottom - 1)) --bottom;
+            while (left < right && columnBlank(imageData, width, left, top, bottom)) ++left;
+            while (right - 1 > left && columnBlank(imageData, width, right - 1, top, bottom)) --right;
+     
+            var trimmed = ctx.getImageData(left, top, right - left, bottom - top);
+            var copy = canvas.ownerDocument.createElement("canvas");
+            var copyCtx = copy.getContext("2d");
+            copy.width = trimmed.width + padding*2;
+            copy.height = trimmed.height + padding*2;
+            copyCtx.putImageData(trimmed, padding, padding);
+     
+            return copy;
+     };
+
     }]);

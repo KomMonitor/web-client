@@ -1034,6 +1034,13 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			} else {
 				$scope.typeOfMovement = "buffer";
 			}
+			if(checkNestedPropExists($scope.isochrones, 'info', 'query', 'units')) {
+				$scope.isochronesRangeType = $scope.isochrones.info.query.range_type
+			}
+			if(checkNestedPropExists($scope.isochrones, 'info', 'query', 'units')) {
+				$scope.isochronesRangeUnits = $scope.isochrones.info.query.units
+			}
+			
 			// for type buffer the bbox field doesn't exist, so we have to create it.
 			$scope.addIsochronesBboxProperties()
 			if(!$scope.isochrones.centerLocations)
@@ -1057,7 +1064,6 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			if( !$scope.selectedSpatialUnit) {
 				$scope.selectedSpatialUnit = highestSpatialUnit[0];
 			}
-			console.log($scope.selectedSpatialUnit);
 			let mostRecentTimestampName
 			if($scope.selectedSpatialUnit.metadata) {
 				mostRecentTimestampName = $scope.selectedSpatialUnit.metadata.lastUpdate;
@@ -1474,6 +1480,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			}
 			$scope.template.absoluteLabelPositions = $scope.absoluteLabelPositions;
 			$scope.template.echartsRegisteredMapNames = [...new Set($scope.echartsRegisteredMapNames)];
+			$scope.template.isochronesRangeType = $scope.isochronesRangeType;
+			$scope.template.isochronesRangeUnits = $scope.isochronesRangeUnits;
 			if($scope.template.name !== "A4-landscape-reachability") {
 				$scope.$emit('reportingAddNewIndicatorClicked', [$scope.selectedIndicator, $scope.template])
 			} else {
@@ -1668,7 +1676,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			})
 
 			// initialize the leaflet map beneath the transparent-background echarts map
-			$timeout(function(page, pageElement, echartsMap) {
+			await $timeout(async function(page, pageElement, echartsMap) {
 				let pageIdx = $scope.template.pages.indexOf(page);
 				let id = "reporting-addPoiLayer-reachability-leaflet-map-container-" + pageIdx;
 				let pageDom = document.getElementById("reporting-addIndicator-page-" + pageIdx);
@@ -1702,12 +1710,26 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				// manually create a field for attribution so we can control the z-index.
 				let prevAttributionDiv = pageDom.querySelector(".map-attribution")
 				if(prevAttributionDiv) prevAttributionDiv.remove();
-				let attrDiv = kommonitorDiagramHelperService.createReportingReachabilityMapAttribution();
+				let attrDiv = document.createElement("div")
+				attrDiv.classList.add("map-attribution")
+				attrDiv.style.position = "absolute";
+				attrDiv.style.bottom = 0;
+				attrDiv.style.left = 0;
+				attrDiv.style.zIndex = 800;
+				let attrImg = await kommonitorDiagramHelperService.createReportingReachabilityMapAttribution();
+				attrDiv.appendChild(attrImg);
 				pageElementDom.appendChild(attrDiv);
 				// also create the legend manually
 				let prevLegendDiv = pageDom.querySelector(".map-legend")
 				if(prevLegendDiv) prevLegendDiv.remove();
-				let legendDiv = kommonitorDiagramHelperService.createReportingReachabilityMapLegend(echartsOptions, $scope.selectedSpatialUnit);
+				let legendDiv = document.createElement("div")
+				legendDiv.classList.add("map-legend")
+				legendDiv.style.position = "absolute";
+				legendDiv.style.bottom = 0;
+				legendDiv.style.right = 0;
+				legendDiv.style.zIndex = 800;
+				let legendImg = await kommonitorDiagramHelperService.createReportingReachabilityMapLegend(echartsOptions, $scope.selectedSpatialUnit, $scope.isochronesRangeType, $scope.isochronesRangeUnits);
+				legendDiv.appendChild(legendImg);
 				pageElementDom.appendChild(legendDiv)
 
 				// echarts uses [lon, lat], leaflet uses [lat, lon]
