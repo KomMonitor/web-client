@@ -306,6 +306,10 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 			$scope.mimeType = $scope.converter.mimeTypes[0];
 		};
 
+		$scope.onChangeMimeType = function(mimeType){
+			$scope.mimeType = mimeType;
+		};
+
 		$scope.onChangeGeoresourceType = function(){
 
 			switch ($scope.georesourceType) {

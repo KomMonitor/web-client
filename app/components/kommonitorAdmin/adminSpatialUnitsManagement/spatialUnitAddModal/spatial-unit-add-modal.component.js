@@ -305,6 +305,10 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 			$scope.mimeType = $scope.converter.mimeTypes[0];
 		};
 
+		$scope.onChangeMimeType = function(mimeType){
+			$scope.mimeType = mimeType;
+		};
+
 		$scope.buildImporterObjects = async function(){
 			$scope.converterDefinition = $scope.buildConverterDefinition();
 			$scope.datasourceTypeDefinition = await $scope.buildDatasourceTypeDefinition();

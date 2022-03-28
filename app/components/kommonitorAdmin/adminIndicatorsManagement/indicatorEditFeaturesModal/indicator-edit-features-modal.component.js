@@ -309,6 +309,10 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 				$scope.schema = $scope.converter.schemas ? $scope.converter.schemas[0] : undefined;
 				$scope.mimeType = $scope.converter.mimeTypes[0];
 			};
+
+			$scope.onChangeMimeType = function(mimeType){
+				$scope.mimeType = mimeType;
+			};
 	
 			$scope.filterByKomMonitorProperties = function() {
 				return function( item ) {

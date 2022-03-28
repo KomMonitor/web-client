@@ -484,6 +484,10 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 			$scope.mimeType = $scope.converter.mimeTypes[0];
 		};
 
+		$scope.onChangeMimeType = function(mimeType){
+			$scope.mimeType = mimeType;
+		};
+
 		$scope.filterByKomMonitorProperties = function() {
 			return function( item ) {
 

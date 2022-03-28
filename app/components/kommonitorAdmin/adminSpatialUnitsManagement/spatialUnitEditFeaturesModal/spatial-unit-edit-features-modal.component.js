@@ -108,6 +108,10 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 			$scope.mimeType = $scope.converter.mimeTypes[0];
 		};
 
+		$scope.onChangeMimeType = function(mimeType){
+			$scope.mimeType = mimeType;
+		};
+
 		$scope.refreshSpatialUnitEditFeaturesOverviewTable = function(){
 
 			$scope.loadingData = true;

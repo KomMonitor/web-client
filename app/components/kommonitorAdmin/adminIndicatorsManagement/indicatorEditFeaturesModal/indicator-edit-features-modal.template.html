@@ -144,7 +144,7 @@
 										<div class="form-group">
 											<label>Quellformat*</label>
 											<select ng-model="mimeType" ng-options="mimeType for mimeType in converter.mimeTypes"
-												class="form-control" required>
+												class="form-control" ng-change="onChangeMimeType(mimeType)" required>
 												<option disabled selected value> -- Format w&auml;hlen -- </option>
 											</select>
 											<div class="help-block with-errors"></div>
