@@ -174,7 +174,7 @@
 										<div class="list-group-item list-group-item-default"
 											style="background: #bdd7e7; color: white;">
 											<a id="{{::subsubTopic.topicId}}" class="collapseTrigger"
-												style="color: white;" ng-attr-title="{{::subsubTopic.topicDescription}}"
+												style="color: black;" ng-attr-title="{{::subsubTopic.topicDescription}}"
 												href="" ng-click="isCollapsed_subsubTopic = !isCollapsed_subsubTopic"
 												ng-init="isCollapsed_subsubTopic=true"><i
 													class="glyphicon glyphicon-chevron-right"></i>{{::subsubTopic.topicName}}
@@ -191,10 +191,11 @@
 											<div class="list-group-item list-group-item-default"
 												style="background: #eff3ff; color: white;">
 												<a id="{{::subsubsubTopic.topicId}}" class="collapseTrigger"
-													style="color: white;"
+													style="color: black;"
 													ng-attr-title="{{::subsubsubTopic.topicDescription}}"
 													ng-click="isCollapsed_subsubsubTopic = !isCollapsed_subsubsubTopic"
-													ng-init="isCollapsed_subsubsubTopic=true">{{::subsubsubTopic.topicName}}
+													ng-init="isCollapsed_subsubsubTopic=true"><i
+													class="glyphicon glyphicon-chevron-right"></i>{{::subsubsubTopic.topicName}}
 													({{subsubsubTopic.totalCount}})</a>
 												&nbsp;&nbsp; <input type="checkbox" ng-model="subsubsubTopic.isSelected"
 													value="subsubsubTopic.isSelected"
