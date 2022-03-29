@@ -1145,22 +1145,6 @@ angular
 			    	});
 			    }
 
-
-                this.filterConverters = function(resourceType) {
-                    // remove csvLatLon for indicators
-                    // and csv_onlyIndicator for georesources
-                    return function (converter) {
-                        if(resourceType === "georesource" && converter.simpleName === "csv_onlyIndicator")
-                            return false
-                        if(resourceType === "indicator" && converter.simpleName === "csvLatLon")
-                            return false
-                        
-                        return true
-                    };
-
-                }
-
-
                 this.onClickSaveColDefaultValue = function(resourceType, selectedCol, newValue, replaceAll, batchList) {
                     // differentiate between timeseries mapping and other columns
                     if(selectedCol == "mappingObj.propertyMapping.timeseriesMappings") {

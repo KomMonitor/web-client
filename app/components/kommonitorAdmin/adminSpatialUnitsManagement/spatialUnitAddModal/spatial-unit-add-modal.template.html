@@ -223,7 +223,7 @@
 										<div class="form-group">
 											<label>Geodaten-Quellformat*</label>
 											<select ng-model="converter"
-												ng-options="converter as converter.simpleName for converter in $ctrl.kommonitorImporterHelperServiceInstance.availableConverters"
+												ng-options="converter as converter.name for converter in $ctrl.kommonitorImporterHelperServiceInstance.availableConverters | filter:$ctrl.kommonitorImporterHelperServiceInstance.filterConverters('spatialUnit')"
 												ng-change="onChangeConverter()"
 												class="form-control" required>
 												<option disabled selected value> -- Quellformat w&auml;hlen -- </option>

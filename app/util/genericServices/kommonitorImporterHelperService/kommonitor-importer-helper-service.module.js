@@ -17,7 +17,6 @@ angular
       kommonitorDataExchangeService, $http, __env) {
 
       this.targetUrlToImporterService = __env.targetUrlToImporterService;
-      this.prefix_converterName = "org.n52.kommonitor.importer.converter.";
 
       this.availableConverters = undefined;
 
@@ -173,7 +172,6 @@ angular
           var converter = this.availableConverters[index];
           
           converter = await this.fetchConverterDetails(converter);
-          converter.simpleName = converter.name.replace(this.prefix_converterName, "");
           this.availableConverters[index] = converter;
         }
 
@@ -185,6 +183,21 @@ angular
           $rootScope.$apply();
         }, 1500);
 
+      };
+
+      this.filterConverters = function(resourceType) {
+        // remove csvLatLon for indicators
+        // and csv_onlyIndicator for georesources
+        return function (converter) {
+            if(resourceType === "georesource" && converter.name.includes("Indikator"))
+                return false;
+            if(resourceType === "spatialUnit" && (converter.name.includes("Indikator") || converter.name.includes("Tabelle")))
+                return false;
+            if(resourceType === "indicator" && (converter.name.includes("Geokodierung") || converter.name.includes("Koordinate")) )
+                return false;    
+            
+            return true;
+        };
       };
 
       this.fetchConverters = async function(){
