@@ -855,7 +855,7 @@ angular
 
           let indicatorMetadata = kommonitorDataExchangeService.getIndicatorMetadataById(indicatorId);
 
-          $rootScope.$broadcast("onEditIndicatorSpatialUnitaccessControl", indicatorMetadata);
+          $rootScope.$broadcast("onEditIndicatorSpatialUnitRoles", indicatorMetadata);
         });
 
       };
