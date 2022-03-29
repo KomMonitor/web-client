@@ -2280,10 +2280,7 @@ hr {
 	-webkit-transform-origin: 50% 50%;
 	transform-origin:50% 50%;
 	-ms-transform-origin:50% 50%; /* IE 9 */
-  }
-
-
-  
+}
 
 @-moz-keyframes spin {
   from {
@@ -2312,6 +2309,17 @@ hr {
   }
 }
 
+#reporting-isochrones-config #kommonitorReachability > .box-primary:last-child {
+	display: none;
+}
+
+#reporting-isochrones-config #reachability-draw-points-btn {
+	visibility:hidden;
+}
+
+#reporting-isochrones-config #reachabiltiy-method-btn-group {
+	display: none;
+}
 
 /* The switch - the box around the slider */
 .switch {
@@ -2599,12 +2607,12 @@ input:checked + .switchslider:before {
 	margin-right: 15px;
 }
 
-.reporting-indicator-delete-symbol {
+.reporting-templateSection-delete-symbol{
 	color: rgba(230, 90, 90, 0.7);
 	height: 100%;
 }
 
-.reporting-added-indicators-row {
+.reporting-added-templateSections-row {
 	display: flex;
 	display: -webkit-flex;
 	flex-wrap: wrap;

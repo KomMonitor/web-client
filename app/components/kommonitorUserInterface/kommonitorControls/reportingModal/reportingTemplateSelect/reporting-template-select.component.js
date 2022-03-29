@@ -615,6 +615,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 							{
 								"type": "mapLegend",
 								"dimensions": {
+									// used for the placeholder only
 									"top": "400px",
 									"left": "700px",
 									"width": "100px",
@@ -622,7 +623,20 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 								},
 								"isPlaceholder": true,
 								"placeholderText": "Legende"
+							},
+							{
+								"type": "mapAttribution",
+								"dimensions": {
+									// used for the placeholder only
+									"top": "495px",
+									"left": "25px",
+									"width": "125px",
+									"height": "25px"
+								},
+								"isPlaceholder": true,
+								"placeholderText": "Copyrightvermerk"
 							}
+							
 						]
 					},
 					// one page for each selected area
@@ -669,6 +683,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 							{
 								"type": "mapLegend",
 								"dimensions": {
+									// used for the placeholder only
 									"top": "400px",
 									"left": "700px",
 									"width": "100px",
@@ -676,6 +691,18 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 								},
 								"isPlaceholder": true,
 								"placeholderText": "Legende"
+							},
+							{
+								"type": "mapAttribution",
+								"dimensions": {
+									// used for the placeholder only
+									"top": "495px",
+									"left": "25px",
+									"width": "125px",
+									"height": "25px"
+								},
+								"isPlaceholder": true,
+								"placeholderText": "Copyrightvermerk"
 							}
 						]
 					}

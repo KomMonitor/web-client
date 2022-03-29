@@ -7,6 +7,11 @@ angular.module('reportingModal').component('reportingModal', {
 		$scope.templateSelected = false;
 		$scope.addingNewIndicator = false;
 		let modalDialog = document.querySelector("#reporting-modal .modal-dialog");
+
+		
+		
+
+
 		$scope.$on('reportingWorkflowSelected', function(event, data) {
 			// make modal wide
 			modalDialog.classList.add("modal-xl");
@@ -39,9 +44,20 @@ angular.module('reportingModal').component('reportingModal', {
 			$scope.$broadcast("reportingConfigureNewIndicatorShown", data)
 		});
 
+		$scope.$on('reportingConfigureNewPoiLayerClicked', function(event, data) {
+			$scope.addingNewIndicator = true; // show add indicator process
+			// tell indicator-add component it is shown
+			$scope.$broadcast("reportingConfigureNewPoiLayerShown", data)
+		});
+
 		$scope.$on('reportingAddNewIndicatorClicked', function(event, data) {
 			$scope.addingNewIndicator = false; // return to overview
 			$scope.$broadcast('reportingIndicatorConfigurationCompleted', data)
+		});
+
+		$scope.$on('reportingAddNewPoiLayerClicked', function(event, data) {
+			$scope.addingNewIndicator = false; // return to overview
+			$scope.$broadcast('reportingPoiLayerConfigurationCompleted', data)
 		});
 
 		$scope.$on('reportingBackToOverviewClicked', function() {

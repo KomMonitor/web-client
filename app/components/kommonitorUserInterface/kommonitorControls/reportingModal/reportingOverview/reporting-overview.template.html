@@ -8,30 +8,33 @@
         <div class="row">
             <div class="col-sm-3" id="reporting-overview-sidebar">
                 <div id="reporting-overwiew-indicators-wrapper">
-                    <button id="reporting-configureIndicatorBtn" class="btn btn-success" ng-click='onConfigureNewIndicatorClicked()'>
+                    <button ng-show="config.template.name != 'A4-landscape-reachability'" id="reporting-configureIndicatorBtn"
+                        class="btn btn-success" ng-click='onConfigureNewIndicatorClicked()'>
                         <i class="fa fa-plus"></i>
-                        <span ng-show="config.template.name != 'A4-landscape-reachability'">&nbsp;&nbsp;Indikator konfigurieren</span>
-                        <span ng-show="config.template.name == 'A4-landscape-reachability'">&nbsp;&nbsp;POI-Layer konfigurieren</span>
+                        <span >&nbsp;&nbsp;Indikator konfigurieren</span>
+                    </button>
+                    <button ng-show="config.template.name == 'A4-landscape-reachability'" id="reporting-configurePoiLayerrBtn"
+                        class="btn btn-success" ng-click='onConfigureNewPoiLayerClicked()'>
+                        <i class="fa fa-plus"></i>
+                        <span>&nbsp;&nbsp;POI-Layer konfigurieren</span>
                     </button>
                     <h3 ng-show="config.template.name != 'A4-landscape-reachability'">Hinzugefügte Indikatoren</h3>
                     <h3 ng-show="config.template.name == 'A4-landscape-reachability'">Hinzugefügte POI-Layer</h3>
                     <p>Die Reihenfolge kann über Drag-and-Drop verändert werden.</p>
                     <div class="list-group" ng-sortable="sortableConfig">
-                        <div ng-repeat="indicator in config.indicators" ng-show="config.template.name != 'A4-landscape-reachability'">
+
+                        <div ng-repeat="section in config.templateSections">
                             <hr class="reporting-hr-divider">
-                            <div class="row row-no-gutters reporting-added-indicators-row">
+                            <div class="row row-no-gutters reporting-added-templateSections-row">
                                 <div class="col-sm-11">
-                                    <b>{{indicator.indicatorName}}</b>
+                                    <b ng-show="config.template.name != 'A4-landscape-reachability'">{{section.indicatorName}}</b>
+                                    <b ng-show="config.template.name == 'A4-landscape-reachability'">{{section.poiLayerName}}</b>
                                 </div>
                                 <div class="col-sm-1 text-right">
-                                    <i class="reporting-indicator-delete-symbol align-middle fa fa-trash-alt" ng-click="removeIndicator(indicator.indicatorName)"></i>
+                                    <i class="reporting-templateSection-delete-symbol align-middle fa fa-trash-alt"
+                                        ng-click="removeTemplateSection($$index)"></i>
                                 </div>
                             </div>
-                        </div>
-
-                        <div ng-repeat="indicator in config.indicators" ng-show="config.template.name == 'A4-landscape-reachability'">
-                            <hr class="reporting-hr-divider">
-                            TODO
                         </div>
                     </div>
                     
@@ -39,7 +42,7 @@
             </div>
             <div class="col-sm-9">
                 <!-- defining width and height like this is probably not the best solution, but it works as a first approach -->
-                <div class="loading-overlay-reporting" style="width: calc(100% - 30px); height: calc(100% - 75px)" ng-show="loadingData">
+                <div class="loading-overlay-reporting" style="width: calc(100% - 30px); height: calc(100% - 15px)" ng-show="loadingData">
                     <span class="glyphicon glyphicon-refresh icon-spin"></span>
                 </div>
                 <div class="row" style="margin:0">
@@ -54,7 +57,8 @@
                                     left: {{pageElement.dimensions.left}};
                                     width: {{pageElement.dimensions.width}};
                                     height: {{pageElement.dimensions.height}};
-                                    {{ pageElement.type != 'footerHorizontalSpacer-landscape' ? 'border: dashed gray 1px;' : pageElement.css }}">
+                                    {{ pageElement.type != 'footerHorizontalSpacer-landscape' ? 'border: dashed gray 1px;' : pageElement.css }}
+                                    z-index: {{ pageElement.type == 'map' ? 20 : 1 }}">
                                 
                                 <span ng-show="pageElement.isPlaceholder == true"
                                     ng-attr-style="{{pageElement.css ? pageElement.css : ''}}"

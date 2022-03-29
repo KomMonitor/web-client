@@ -325,6 +325,24 @@ angular
 						return getRequest;
 					};
 
+					// If the reporting modal is shown we want to integrate this component there.
+					// A couple of modifications need to be done to achieve that.
+					// These are controlled by setting a variable and checking it when needed.
+					$('#reporting-modal').on('shown.bs.modal', function (e) {
+						$scope.isUsedInReporting = true;
+					})
+			
+					$('#reporting-modal').on('hidden.bs.modal', function (e) {
+						$scope.isUsedInReporting = false;
+						$scope.$apply()
+					})
+
+					$scope.$on("reportingPoiLayerSelected", function(event, data) {
+						$scope.settings.selectedStartPointLayer = data;
+						$scope.pointSourceConfigured = true; // timestamp selection is hidden, so we are good to go for now.
+					});
+					
+
 					$scope.resetPoisInIsochrone = function(){
 						$scope.echartsInstances_reachabilityAnalysis = new Map();
 						document.getElementById("reachability_diagrams_section").innerHTML = "";
@@ -475,8 +493,7 @@ angular
 					};
 
 					$scope.prepareIsochroneDownload = function(){
-						console
-							.log('removing old download button if available')
+						console.log('removing old download button if available')
 						if (document
 							.getElementById('downloadReachabilityIsochrones'))
 							document
@@ -497,8 +514,7 @@ angular
 						});
 						var data = URL.createObjectURL(blob);
 
-						console
-							.log('create new Download button and append it to DOM');
+						console.log('create new Download button and append it to DOM');
 						var a = document.createElement('a');
 						a.download = fileName;
 						a.href = data;
@@ -512,8 +528,7 @@ angular
 					};
 
 					$scope.prepareRouteDownload = function(){
-						console
-							.log('removing old download button if available')
+						console.log('removing old download button if available')
 						if (document
 							.getElementById('downloadReachabilityRoute'))
 							document
@@ -531,8 +546,7 @@ angular
 						});
 						var data = URL.createObjectURL(blob);
 
-						console
-							.log('create new Download button and append it to DOM');
+						console.log('create new Download button and append it to DOM');
 						var a = document.createElement('a');
 						a.download = fileName;
 						a.href = data;
@@ -783,7 +797,9 @@ angular
 							if(! $scope.settings.isochroneConfig.selectedDate){
 								$scope.settings.isochroneConfig.selectedDate = $scope.settings.selectedStartPointLayer.availablePeriodsOfValidity[$scope.settings.selectedStartPointLayer.availablePeriodsOfValidity.length - 1];
 							}
-							$scope.fetchGeoJSONForIsochrones();
+							if(!isUsedInReporting) {
+								$scope.fetchGeoJSONForIsochrones();
+							}
 						}, 500);
 					};
 
@@ -854,7 +870,9 @@ angular
 							$scope.settings.isochroneConfig.selectedDate = $scope.settings.selectedStartPointLayer.availablePeriodsOfValidity[$scope.settings.selectedStartPointLayer.availablePeriodsOfValidity.length - 1];
 						}
 
-						$scope.fetchGeoJSONForIsochrones();
+						if(!isUsedInReporting) {
+							$scope.fetchGeoJSONForIsochrones();
+						}
 					};
 
 					/**
@@ -869,18 +887,24 @@ angular
 					 *
 					 * The values from the input-elements are all
 					 * up-to-date and saved in the variables
-					 * accessable via the scope. The request URl
+					 * accessible via the scope. The request URL
 					 * will be build by this values and send towards
 					 * the routing-API. The result will be handled,
 					 * stored in the related scope- variables and
 					 * displayed in the KM GUI.
+					 * 
+					 * If this method is fired from within the reporting modal
+					 * ($scope.isUsedInReporting = true) the result is not added to the main map,
+					 * but returned to the reporting component per broadcast.
 					 */
 					$scope.startAnalysis = function() {
 
 						$timeout(function(){ 
 							// Any code in here will automatically have an $scope.apply() run afterwards 
-							$scope.settings.loadingData = true;
-							$rootScope.$broadcast("showLoadingIconOnMap");
+							if(!$scope.isUsedInReporting) { // reporting uses it's own loading overlay, which is controlled there
+								$scope.settings.loadingData = true;
+								$rootScope.$broadcast("showLoadingIconOnMap");
+							}
 							// And it just works! 
 						  }, 50);
 
@@ -981,11 +1005,11 @@ angular
 					 * Starts an isochrone-calculation.
 					 */
 					$scope.startIsochroneCalculation = async function() {
-						$scope.settings.loadingData = true;
-						$rootScope.$broadcast('showLoadingIconOnMap');
-
+						if(!$scope.isUsedInReporting) { // reporting uses it's own loading overlay, which is controlled there
+							$scope.settings.loadingData = true;
+							$rootScope.$broadcast("showLoadingIconOnMap");
+						}
 						
-
 						$scope.checkArrayInput();
 
 						$scope.locationsArray = $scope.makeLocationsArrayFromStartPoints();	
@@ -1006,9 +1030,15 @@ angular
 							resultIsochrones = await $scope.createIsochrones();
 						}
 
-						
+						if($scope.isUsedInReporting) {
+							// No need to add isochrones to main map.
+							// Instead they are returned to reporting modal
+							$scope.$emit("reportingIsochronesCalculationFinished", resultIsochrones)
+							return;
+						}
 
 						$scope.currentIsochronesGeoJSON = resultIsochrones;
+
 
 						kommonitorMapService.replaceIsochroneMarker($scope.locationsArray);
 						kommonitorMapService
@@ -1030,10 +1060,6 @@ angular
 							
 
 							$scope.$digest();
-
-							// setTimeout(function(){
-							//
-							// }, 5000);
 					};
 
 
@@ -1667,7 +1693,9 @@ angular
 								return;
 							}
 
-							$scope.fetchGeoJSONForIsochrones();
+							if(!isUsedInReporting) {
+								$scope.fetchGeoJSONForIsochrones();
+							}
 
 							// $timeout(function(){
 	
