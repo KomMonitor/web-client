@@ -159,11 +159,16 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 					var tmpRemainingHeaders = [];
 	
 					for (var property in $scope.indicatorFeaturesJSON[0]){
-						if (property != __env.FEATURE_ID_PROPERTY_NAME && property != __env.FEATURE_NAME_PROPERTY_NAME && property != __env.VALID_START_DATE_PROPERTY_NAME && property != __env.VALID_END_DATE_PROPERTY_NAME && property != "fid" && property != "arisenFrom"){
+						// only show indicator date columns as editable fields
+						// since we fetch the database view (with joined spatial unit), any additional information from the spatial unit must be filtered out 
+						if (property.includes(__env.indicatorDatePrefix)){
 							tmpRemainingHeaders.push(property);
-						}
+						}						
 					}
-	
+
+					//sort date headers
+					tmpRemainingHeaders.sort((a, b) => a.localeCompare(b));
+
 					$scope.remainingFeatureHeaders = tmpRemainingHeaders;
 					kommonitorDataGridHelperService.buildDataGrid_featureTable_indicatorResource("indicatorFeatureTable", tmpRemainingHeaders, $scope.indicatorFeaturesJSON, $scope.currentIndicatorDataset.indicatorId, kommonitorDataGridHelperService.resourceType_indicator, $scope.enableDeleteFeatures, $scope.overviewTableTargetSpatialUnitMetadata.spatialUnitId);
 
