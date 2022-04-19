@@ -2776,6 +2776,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			}
 			$scope.echartsOptions.map[timestampName] = JSON.parse(JSON.stringify( kommonitorDiagramHelperService.getGeoMapChartOptions() ));
 			$scope.echartsOptions.bar[timestampName] = JSON.parse(JSON.stringify( kommonitorDiagramHelperService.getBarChartOptions() ));
+			$scope.echartsOptions.bar[timestampName].visualMap.show = true;
 			// no timestamp needed here
 			$scope.echartsOptions.line = JSON.parse(JSON.stringify( kommonitorDiagramHelperService.getLineChartOptions() ));
 			$scope.diagramsPrepared = true;
