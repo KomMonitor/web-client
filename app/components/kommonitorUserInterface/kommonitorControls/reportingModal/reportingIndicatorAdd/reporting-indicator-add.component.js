@@ -1648,7 +1648,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			// But we need the isochrones in different series to control their z-indexes (show smaller isochrones above larger ones)
 			// That's why we need to register one map per range threshold, that only contains a subset of isochrones.
 			if($scope.isochrones) {
-				for(seriesData of $scope.isochronesSeriesData) {
+				for(let seriesData of $scope.isochronesSeriesData) {
 					let range = seriesData[0].value;
 					registeredMap = echarts.getMap($scope.selectedPoiLayer.datasetName + "_isochrones-" + range)
 					if( !registeredMap ) {
