@@ -572,6 +572,28 @@ angular.module('kommonitorMap').component(
 
         });
 
+        function isKomMonitorSpecificProperty(propertyKey){
+          let isKomMonitorSpecificProperty = false;
+
+          if(propertyKey == "outlier"){
+            isKomMonitorSpecificProperty = true;
+          }
+          else if(propertyKey == __env.VALID_START_DATE_PROPERTY_NAME){
+            isKomMonitorSpecificProperty = true;
+          }
+          else if(propertyKey == __env.VALID_END_DATE_PROPERTY_NAME){
+            isKomMonitorSpecificProperty = true;
+          }
+          else if(propertyKey == "bbox"){
+            isKomMonitorSpecificProperty = true;
+          }
+          else if(propertyKey.includes(__env.indicatorDatePrefix)){
+            isKomMonitorSpecificProperty = true;
+          }
+
+          return isKomMonitorSpecificProperty;
+        }
+
         $scope.updateSearchControl = function () {
 
           setTimeout(function () {
@@ -652,9 +674,20 @@ angular.module('kommonitorMap').component(
 
                   regSearch = new RegExp(I + text, icase);
 
-                  //TODO use .filter or .map
                   for (var key in records) {
-                    if (regSearch.test(key))
+
+                    // make a searchable string from all relevant feature properties
+                    let recordString = "";
+                    let record = records[key];
+                    let recordProperties = record.layer.feature.properties;
+
+                    for (const propertyKey in recordProperties) {
+                      if(recordProperties[propertyKey] && !isKomMonitorSpecificProperty(propertyKey)){
+                        recordString += recordProperties[propertyKey];
+                      }
+                    }
+
+                    if (regSearch.test(recordString))
                       frecords[key] = records[key];
                   }
 
