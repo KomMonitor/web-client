@@ -833,6 +833,10 @@ pre.CodeMirror-line {
 	z-index: 1003;
 }
 
+.leaflet-container {
+	font-size: 12px !important;
+}
+
 .leaflet-left .leaflet-control-layers {
   /* display: inline-block; */
   /* float: none; */
