@@ -1430,14 +1430,10 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			if($scope.template.name === "A4-landscape-timeseries") {
 				// This is an exception from the process above
 				$scope.isFirstUpdateOnIndicatorOrPoiLayerSelection = false;
-				// also prepare the dynamic version of the indicator for displaying changes
-				const indicatorTypeBackup = $scope.selectedIndicator.indicatorType;
-				$scope.selectedIndicator.indicatorType = "RELATIVE";
-				classifyUsingWholeTimeseries = true;
+				classifyUsingWholeTimeseries = false;
 				let values = $scope.getFormattedDateSliderValues();
 				let isTimeseries = true;
 				$scope.prepareDiagrams($scope.selectedIndicator, $scope.selectedSpatialUnit, mostRecentTimestampName, classifyUsingWholeTimeseries, isTimeseries, values.from, values.to);
-				$scope.selectedIndicator.indicatorType = indicatorTypeBackup;
 			} else {
 				$scope.updateDualList($scope.dualListTimestampsOptions, availableTimestamps, mostRecentTimestamp)
 			}
@@ -2749,6 +2745,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			// if is  timeseries we must modify the indicator type of the given indicator, since it should display changes over time and hence 
 			// must be treated as dynamic indicator
 			let indicator = JSON.parse(JSON.stringify(selectedIndicator));
+			let targetTimestamp = timestampName;
 			if (isTimeseries) {
 				var indicatorType = indicator.indicatorType;
 				if (indicatorType.includes("ABSOLUTE")) {
@@ -2801,7 +2798,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			kommonitorDataExchangeService.classifyZeroSeparately = classifyZeroSeparately_backup;
 
 			// copy and save echarts options so we can re-use them later
-			if(classifyUsingWholeTimeseries) {
+			if(isTimeseries) {
 				timestampName += "_relative"; // save relative indicator separately
 			}
 			$scope.echartsOptions.map[timestampName] = JSON.parse(JSON.stringify( kommonitorDiagramHelperService.getGeoMapChartOptions() ));
@@ -2809,6 +2806,27 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			$scope.echartsOptions.bar[timestampName].visualMap.show = true;
 			// no timestamp needed here
 			$scope.echartsOptions.line = JSON.parse(JSON.stringify( kommonitorDiagramHelperService.getLineChartOptions() ));
+
+			// if is timeseries then the original value for the toDate timestamp must be used instead of the computed change value above
+			if(isTimeseries){
+				// series[0] is average line
+				// replace the value for same index same toDate
+				let originalFeatures = selectedIndicator.geoJSON.features;
+				let sumToDate = 0;
+				let counter = 0;
+
+				for (const feature of originalFeatures) {
+					if (!kommonitorDataExchangeService.indicatorValueIsNoData(feature.properties[timestampPrefix])){
+						sumToDate += feature.properties[timestampPrefix];
+						counter++;
+					}
+				}
+
+				let toDateIndex = selectedIndicator.applicableDates.indexOf(targetTimestamp);	
+							
+				$scope.echartsOptions.line.series[0].data[toDateIndex] = kommonitorDataExchangeService.getIndicatorValue_asNumber(sumToDate / counter);
+			}
+
 			$scope.diagramsPrepared = true;
 		}
 

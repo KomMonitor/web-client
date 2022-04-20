@@ -328,32 +328,6 @@ angular
         var indicatorValueArray = new Array();
         var indicatorValueBarChartArray = new Array();
 
-        var indicatorTimeSeriesDatesArray = indicatorMetadataAndGeoJSON.applicableDates;
-
-        if(filterOutFutureDates){
-          // remove all timestamps that are newer than the given date
-          var dateInDateFormat = Date.parse(date);
-          indicatorTimeSeriesDatesArray = indicatorTimeSeriesDatesArray.filter( t => {
-            var tInDateFormat = Date.parse(t);
-            if (tInDateFormat <= dateInDateFormat) {
-              return true;
-            } else {
-              return false;
-            }
-          });
-        }        
-
-        var indicatorTimeSeriesAverageArray = new Array(indicatorTimeSeriesDatesArray.length);
-        var indicatorTimeSeriesMaxArray = new Array(indicatorTimeSeriesDatesArray.length);
-        var indicatorTimeSeriesMinArray = new Array(indicatorTimeSeriesDatesArray.length);
-        var indicatorTimeSeriesCountArray = new Array(indicatorTimeSeriesDatesArray.length);
-
-        // initialize timeSeries arrays
-        for (var i = 0; i < indicatorTimeSeriesDatesArray.length; i++) {
-          indicatorTimeSeriesAverageArray[i] = 0;
-          indicatorTimeSeriesCountArray[i] = 0;
-        }
-
         //sort array of features
         var cartographicFeatures = indicatorMetadataAndGeoJSON.geoJSON.features;
         cartographicFeatures.sort(compareFeaturesByIndicatorValue);
@@ -390,6 +364,33 @@ angular
 
           indicatorValueBarChartArray.push(seriesItem);
 
+        }
+
+        // TIMESERIES
+        var indicatorTimeSeriesDatesArray = indicatorMetadataAndGeoJSON.applicableDates;
+
+        if(filterOutFutureDates){
+          // remove all timestamps that are newer than the given date
+          var dateInDateFormat = Date.parse(date);
+          indicatorTimeSeriesDatesArray = indicatorTimeSeriesDatesArray.filter( t => {
+            var tInDateFormat = Date.parse(t);
+            if (tInDateFormat <= dateInDateFormat) {
+              return true;
+            } else {
+              return false;
+            }
+          });
+        }        
+
+        var indicatorTimeSeriesAverageArray = new Array(indicatorTimeSeriesDatesArray.length);
+        var indicatorTimeSeriesMaxArray = new Array(indicatorTimeSeriesDatesArray.length);
+        var indicatorTimeSeriesMinArray = new Array(indicatorTimeSeriesDatesArray.length);
+        var indicatorTimeSeriesCountArray = new Array(indicatorTimeSeriesDatesArray.length);
+
+        // initialize timeSeries arrays
+        for (var i = 0; i < indicatorTimeSeriesDatesArray.length; i++) {
+          indicatorTimeSeriesAverageArray[i] = 0;
+          indicatorTimeSeriesCountArray[i] = 0;
         }
       
         let indicatorMetadataForTimeseries = indicatorMetadataAndGeoJSON;
