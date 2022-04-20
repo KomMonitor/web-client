@@ -429,7 +429,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 					zoomSnap: 0 
 				});
 
-				L.easyPrint({
+				let easyPrintControl = L.easyPrint({
 					title: '',
 					position: 'topleft',
 					sizeModes: ['Current'],
@@ -439,6 +439,8 @@ angular.module('reportingOverview').component('reportingOverview', {
 					hideControlContainer: true,
 					defaultSizeTitles: { Current: 'Aktueller Kartenausschnitt' }
 				}).addTo(leafletMap);
+
+				leafletMap.easyPrintControl = easyPrintControl;
 
 				leafletMap.on("easyPrint-finished", function(event) {
 					$scope.leafletEasyPrintResult = event.event
@@ -513,7 +515,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 				// or server returns response with an error status.
 				$scope.loadingData = false;
 				kommonitorDataExchangeService.displayMapApplicationError(error);
-				console.error(response.statusText);
+				console.error(error);
 			});
 		}
 
@@ -535,7 +537,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 				// or server returns response with an error status.
 				$scope.loadingData = false;
 				kommonitorDataExchangeService.displayMapApplicationError(error);
-				console.error(response.statusText);
+				console.error(error);
 			});
 		}
 
@@ -808,7 +810,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 				// or server returns response with an error status.
 				$scope.loadingData = false;
 				kommonitorDataExchangeService.displayMapApplicationError(error);
-				console.error(response.statusText);
+				console.error(error);
 			});
 		}
 
@@ -962,7 +964,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 								} catch(error) {
 									$scope.loadingData = false;
 									kommonitorDataExchangeService.displayMapApplicationError(error);
-									console.error(response.statusText);
+									console.error(error);
 								}
 							}
 							doc.addImage(imageDataUrl, "PNG", pageElementDimensions.left, pageElementDimensions.top,
@@ -1075,7 +1077,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 							} catch(error) {
 								$scope.loadingData = false;
 								kommonitorDataExchangeService.displayMapApplicationError(error);
-								console.error(response.statusText);
+								console.error(error);
 							}
 						}
 						
@@ -1326,7 +1328,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 								} catch(error) {
 									$scope.loadingData = false;
 									kommonitorDataExchangeService.displayMapApplicationError(error);
-									console.error(response.statusText);
+									console.error(error);
 								}
 							}
 							let blob = dataURItoBlob(imageDataUrl);
@@ -1684,6 +1686,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 			canvas.height =  pageElementDimensionsPx.height;
 			// we have to draw layers in order
 			let leafletMapImg = new Image();
+			// leafletMapImg.crossOrigin = "anonymous";
 			leafletMapImg.width = canvas.width;
 			leafletMapImg.height = canvas.height;
 			let leafletMapImgDrawn = new Promise( (resolve, reject) => {
@@ -1696,6 +1699,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 			await leafletMapImgDrawn
 
 			let echartsImg = new Image();
+			// echartsImg.crossOrigin = "anonymous";
 			let echartsImgDrawn = new Promise( (resolve, reject) => {
 				echartsImg.onload = function() {
 					ctx.drawImage(echartsImg, 0, 0, canvas.width, canvas.height);
@@ -1705,7 +1709,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 			echartsImg.src = echartsImgSrc;
 			await echartsImgDrawn
 
-			let mapAttributionImg = pageDom.querySelector(".map-attribution > img")
+			let mapAttributionImg = pageDom.querySelector(".map-attribution > img");
 			ctx.fillStyle = "white";
 			ctx.fillRect(0, canvas.height - mapAttributionImg.height, mapAttributionImg.width, mapAttributionImg.height)
 			ctx.drawImage(mapAttributionImg, 0, canvas.height - mapAttributionImg.height);

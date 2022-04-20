@@ -605,7 +605,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				}, function errorCallback(error) {
 					$scope.loadingData = false;
 					kommonitorDataExchangeService.displayMapApplicationError(error);
-					console.error(response.statusText);
+					console.error(error);
 			});
 			return Promise.resolve();
 		};
@@ -627,7 +627,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				}, function errorCallback(error) {
 					$scope.loadingData = false;
 					kommonitorDataExchangeService.displayMapApplicationError(error);
-					console.error(response.statusText);
+					console.error(error);
 			});
 			return Promise.resolve();
 		};
@@ -653,7 +653,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				}, function errorCallback(error) {
 					$scope.loadingData = false;
 					kommonitorDataExchangeService.displayMapApplicationError(error);
-					console.error(response.statusText);
+					console.error(error);
 			});
 		}
 
@@ -672,7 +672,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				}, function errorCallback(error) {
 					$scope.loadingData = false;
 					kommonitorDataExchangeService.displayMapApplicationError(error);
-					console.error(response.statusText);
+					console.error(error);
 			});
 		}
 
@@ -900,7 +900,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				// or server returns response with an error status.
 				$scope.loadingData = false;
 				kommonitorDataExchangeService.displayMapApplicationError(error);
-				console.error(response.statusText);
+				console.error(error);
 			});
 		}
 
@@ -1703,9 +1703,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			let centerPointSeries =  {
 				name: 'centerPoints',
 				type: 'scatter',
-				coordinateSystem: 'geo',
-				
-				symbol: "image://https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.5.1/images/marker-icon.png",
+				coordinateSystem: 'geo',				
+				symbol: "image://icons/marker-icon.png",
 				symbolSize: [17, 26],
 				symbolOffset: [0, '-50%'],
 				itemStyle: {
