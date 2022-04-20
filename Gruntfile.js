@@ -184,7 +184,7 @@ module.exports = function (grunt) {
             //the path prefix 'app/' will be set in the copy-command itself! Thus is omitted here.
             'dependencies/**/*',
             'kommonitor-script-resources/**/*',
-            'iconsFromPngTree/**/*',
+            'icons/**/*',
             'logos/**/*',
             'components/**/*.template.html',
             'config/**/*'           
