@@ -48,6 +48,11 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 		// used to track template pages instead of using $$hashkey
 		$scope.templatePageIdCounter = 1;
+
+		$scope.filterTimeseriesIndicator = function(indicator) {
+			// must have more than one applicable date
+			return indicator.applicableDates && indicator.applicableDates.length > 1;
+		  };
 		
 		// internal array changes do not work with ng-change
 		$scope.$watchCollection('selectedAreas', function(newVal) {
