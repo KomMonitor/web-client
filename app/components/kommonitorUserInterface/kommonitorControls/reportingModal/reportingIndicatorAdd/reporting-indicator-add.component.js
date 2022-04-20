@@ -474,7 +474,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 						if($scope.selectedIndicator) {
 							for(let timestamp of $scope.selectedTimestamps) {
 								let classifyUsingWholeTimeseries = false;
-								$scope.prepareDiagrams($scope.selectedIndicator, $scope.selectedSpatialUnit, timestamp.name, classifyUsingWholeTimeseries);
+								let isTimeseries = false;
+								$scope.prepareDiagrams($scope.selectedIndicator, $scope.selectedSpatialUnit, timestamp.name, classifyUsingWholeTimeseries, isTimeseries, undefined, undefined);
 							}
 						} else {
 							$scope.reachabilityTemplateGeoMapOptions = $scope.prepareReachabilityEchartsMap();
@@ -786,14 +787,17 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					} else if ($scope.template.name === "A4-landscape-timeseries") {
 						let values = $scope.getFormattedDateSliderValues(true);
 						let classifyUsingWholeTimeseries = false;
-						$scope.prepareDiagrams($scope.selectedIndicator, $scope.selectedSpatialUnit, values.to, classifyUsingWholeTimeseries);
+						let isTimeseries = true;
+						$scope.prepareDiagrams($scope.selectedIndicator, $scope.selectedSpatialUnit, values.to, classifyUsingWholeTimeseries, isTimeseries, values.from, values.to);
 						// prepare diagrams again for most recent timestamp of slider and for whole timeseries (changes).
 						classifyUsingWholeTimeseries = true;
-						$scope.prepareDiagrams($scope.selectedIndicator, $scope.selectedSpatialUnit, values.to, classifyUsingWholeTimeseries);
+						isTimeseries = false;
+						$scope.prepareDiagrams($scope.selectedIndicator, $scope.selectedSpatialUnit, values.to, classifyUsingWholeTimeseries, isTimeseries, undefined, undefined);
 					} else {
 						for(let timestamp of $scope.selectedTimestamps) {
 							let classifyUsingWholeTimeseries = false;
-							$scope.prepareDiagrams($scope.selectedIndicator, selectedSpatialUnit, timestamp.name, classifyUsingWholeTimeseries);
+							let isTimeseries = false;
+							$scope.prepareDiagrams($scope.selectedIndicator, selectedSpatialUnit, timestamp.name, classifyUsingWholeTimeseries, isTimeseries, undefined, undefined);
 						}	
 					}
 				} else {
@@ -1418,7 +1422,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			// used in prepareDiagrams
 			$scope.selectedIndicator.geoJSON = geoJson;
 			let classifyUsingWholeTimeseries = false;
-			$scope.prepareDiagrams($scope.selectedIndicator, $scope.selectedSpatialUnit, mostRecentTimestampName, classifyUsingWholeTimeseries);
+			let isTimeseries = false;
+			$scope.prepareDiagrams($scope.selectedIndicator, $scope.selectedSpatialUnit, mostRecentTimestampName, classifyUsingWholeTimeseries, isTimeseries, undefined, undefined);
 			// We have to update time and areas. Usually both of these would result in a diagram update.
 			// We want to skip the first one and only update diagrams once everything is ready for better performance.
 			$scope.isFirstUpdateOnIndicatorOrPoiLayerSelection = true;
@@ -1429,7 +1434,9 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				const indicatorTypeBackup = $scope.selectedIndicator.indicatorType;
 				$scope.selectedIndicator.indicatorType = "RELATIVE";
 				classifyUsingWholeTimeseries = true;
-				$scope.prepareDiagrams($scope.selectedIndicator, $scope.selectedSpatialUnit, mostRecentTimestampName, classifyUsingWholeTimeseries);
+				let values = $scope.getFormattedDateSliderValues();
+				let isTimeseries = true;
+				$scope.prepareDiagrams($scope.selectedIndicator, $scope.selectedSpatialUnit, mostRecentTimestampName, classifyUsingWholeTimeseries, isTimeseries, values.from, values.to);
 				$scope.selectedIndicator.indicatorType = indicatorTypeBackup;
 			} else {
 				$scope.updateDualList($scope.dualListTimestampsOptions, availableTimestamps, mostRecentTimestamp)
@@ -2672,8 +2679,12 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 			echarts.registerMap(mapName, { features: features } )
 
-			// echart map bounds are defined by a bounding boy, which has to be updated as well.
+			// echart map bounds are defined by a bounding box, which has to be updated as well.
+			if(!features[0].properties.bbox){
+				features[0].properties.bbox = turf.bbox(features[0]);
+			}
 			let bbox = features[0].properties.bbox; // [east, south, west, north]
+			
 			let newBounds = [[bbox[2], bbox[3]], [bbox[0], bbox[1]]] // [[west, north], [east, south]]
 			options.series[0].boundingCoords = newBounds;
 			echartsInstance.setOption(options, {
@@ -2733,8 +2744,27 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		}
 
 
-		$scope.prepareDiagrams = function(selectedIndicator, selectedSpatialUnit, timestampName, classifyUsingWholeTimeseries) {
+		$scope.prepareDiagrams = function(selectedIndicator, selectedSpatialUnit, timestampName, classifyUsingWholeTimeseries, isTimeseries, fromDate, toDate) {
 			
+			// if is  timeseries we must modify the indicator type of the given indicator, since it should display changes over time and hence 
+			// must be treated as dynamic indicator
+			let indicator = JSON.parse(JSON.stringify(selectedIndicator));
+			if (isTimeseries) {
+				var indicatorType = indicator.indicatorType;
+				if (indicatorType.includes("ABSOLUTE")) {
+					indicator.indicatorType = "DYNAMIC_ABSOLUTE";
+				}
+				else if (indicatorType.includes("RELATIVE")) {
+					indicator.indicatorType = "DYNAMIC_RELATIVE";
+				}
+				else if (indicatorType.includes("STANDARDIZED")) {
+					indicator.indicatorType = "DYNAMIC_STANDARDIZED";
+				}
+
+				// compute and set actual change values to perform correct colorization of features
+				indicator.geoJSON.features = calculateAndSetSeriesDataForTimeseries(indicator.geoJSON.features, fromDate, toDate); 
+			}
+
 			// set settings useOutlierDetectionOnIndicator and classifyUsingWholeTimeseries to false to have consistent reporting setup
 			// we need to undo these changes afterwards, so we store the current values in a backup first
 			const useOutlierDetectionOnIndicator_backup = kommonitorDataExchangeService.useOutlierDetectionOnIndicator;
@@ -2748,20 +2778,20 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			
 			
 			let timestampPrefix = __env.indicatorDatePrefix + timestampName;
-			let numClasses = selectedIndicator.defaultClassificationMapping.items.length;
-			let colorCodeStandard = selectedIndicator.defaultClassificationMapping.colorBrewerSchemeName;
+			let numClasses = indicator.defaultClassificationMapping.items.length;
+			let colorCodeStandard = indicator.defaultClassificationMapping.colorBrewerSchemeName;
 			let colorCodePositiveValues = __env.defaultColorBrewerPaletteForBalanceIncreasingValues;
 			let colorCodeNegativeValues = __env.defaultColorBrewerPaletteForBalanceDecreasingValues;
 			let classifyMethod = __env.defaultClassifyMethod;
 
 			// setup brew
-			let defaultBrew = kommonitorVisualStyleHelperService.setupDefaultBrew(selectedIndicator.geoJSON, timestampPrefix, numClasses, colorCodeStandard, classifyMethod, true, selectedIndicator);
-			let dynamicBrewsArray = kommonitorVisualStyleHelperService.setupDynamicIndicatorBrew(selectedIndicator.geoJSON, timestampPrefix, colorCodePositiveValues, colorCodeNegativeValues, classifyMethod);
+			let defaultBrew = kommonitorVisualStyleHelperService.setupDefaultBrew(indicator.geoJSON, timestampPrefix, numClasses, colorCodeStandard, classifyMethod, true, selectedIndicator);
+			let dynamicBrewsArray = kommonitorVisualStyleHelperService.setupDynamicIndicatorBrew(indicator.geoJSON, timestampPrefix, colorCodePositiveValues, colorCodeNegativeValues, classifyMethod);
 			let dynamicIncreaseBrew = dynamicBrewsArray[0];
 			let dynamicDecreaseBrew = dynamicBrewsArray[1];
 
 			// setup diagram resources
-			kommonitorDiagramHelperService.prepareAllDiagramResources_forReportingIndicator(selectedIndicator, selectedSpatialUnit.spatialUnitName, timestampName, defaultBrew, undefined, undefined, dynamicIncreaseBrew, dynamicDecreaseBrew, false, 0, true);
+			kommonitorDiagramHelperService.prepareAllDiagramResources_forReportingIndicator(indicator, selectedSpatialUnit.spatialUnitName, timestampName, defaultBrew, undefined, undefined, dynamicIncreaseBrew, dynamicDecreaseBrew, false, 0, true);
 			// at this point the echarts instance has one map registered (geoMapChart).
 			// that is the "default" map, which can be used to create individual maps for indicator + date + spatialUnit (+ area) combinations later
 
@@ -3019,6 +3049,18 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			}
 		}
 
+		function calculateAndSetSeriesDataForTimeseries(features, fromDate, toDate){
+
+			for(let feature of features) {
+				let value = feature.properties["DATE_" + toDate] - feature.properties["DATE_" + fromDate];
+				if(typeof(value) == 'number') {
+					value = Math.round( value * 100) / 100;
+				}
+				feature.properties["DATE_" + toDate] = value;
+			}
+
+			return features;
+		}
 
 		$scope.calculateSeriesDataForTimeseries = function(features, timeseries) {
 			let result = [];
@@ -3103,9 +3145,11 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			let values = $scope.getFormattedDateSliderValues(true);
 			// prepare diagrams again for most recent timestamp of slider and for whole timeseries (changes).
 			let classifyUsingWholeTimeseries = false;
-			$scope.prepareDiagrams($scope.selectedIndicator, $scope.selectedSpatialUnit, values.to, classifyUsingWholeTimeseries);
+			let isTimeseries = true;			
+			$scope.prepareDiagrams($scope.selectedIndicator, $scope.selectedSpatialUnit, values.to, classifyUsingWholeTimeseries, isTimeseries, values.from, values.to);
+			isTimeseries = false;
 			classifyUsingWholeTimeseries = true;
-			$scope.prepareDiagrams($scope.selectedIndicator, $scope.selectedSpatialUnit, values.to, classifyUsingWholeTimeseries);
+			$scope.prepareDiagrams($scope.selectedIndicator, $scope.selectedSpatialUnit, values.to, classifyUsingWholeTimeseries, isTimeseries, undefined, undefined);
 			
 			// set dates on all pages according to new slider values
 			for(let page of $scope.template.pages) {
