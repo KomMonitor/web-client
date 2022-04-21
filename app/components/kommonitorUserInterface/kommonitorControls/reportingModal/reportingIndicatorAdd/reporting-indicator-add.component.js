@@ -2606,7 +2606,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				for(let i=0;i<rowsData.length; i++) {
 					// see which page we have to add the row to
 					// switch to next page if necessary
-					intervalArr = [];
+					let intervalArr = [];
 					if((i % maxRows) == 0) {
 						if(i > 0) idx++
 						const idx_save = idx;
