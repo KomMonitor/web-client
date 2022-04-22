@@ -1371,7 +1371,22 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			$scope.template = $scope.getCleanTemplate();
 			
 			// set spatial unit to highest available one
-			$scope.selectedSpatialUnit = $scope.selectedIndicator.applicableSpatialUnits[0];
+			let spatialUnits = await $scope.queryAllSpatialUnits();
+			// go from highest to lowest spatial unit and check if it is available.
+			for(let spatialUnit of spatialUnits) {
+				let applicableSpatialUnitsFiltered = $scope.selectedIndicator.applicableSpatialUnits.filter( (unit) => {
+					return unit.spatialUnitId === spatialUnit.spatialUnitId;
+				})
+
+				if(applicableSpatialUnitsFiltered.length === 1) {
+					$scope.selectedSpatialUnit = applicableSpatialUnitsFiltered[0];
+					break;
+				}
+			}
+
+			if(!$scope.selectedSpatialUnit) {
+				throw new Error("No applicable spatial unit found.")
+			}
 
 			await $scope.updateAreasInDualList(); // this populates $scope.availableFeaturesBySpatialUnit
 
