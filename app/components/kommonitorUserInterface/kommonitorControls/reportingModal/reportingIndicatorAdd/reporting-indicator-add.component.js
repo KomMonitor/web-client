@@ -3298,12 +3298,18 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		$scope.onChangeShowMapLabels = function() {
 
 			for(let i=0; i<$scope.template.pages.length; i++) {
-				let instance = echarts.getInstanceByDom( document.querySelector("#reporting-addIndicator-page-" + i +"-map"))
+				let map = document.querySelector("#reporting-addIndicator-page-" + i +"-map")
+				if(!map) {
+					continue; // no map on current page
+				}
+
+				let instance = echarts.getInstanceByDom(map)
 				let options = instance.getOption();
-				let series = options.series[0];
-
-				series.label.show = $scope.showMapLabels;
-
+				options.series[0].label.show = $scope.showMapLabels;
+				options.series[0].select.label.show = $scope.showMapLabels;
+				for(let item of options.series[0].data) {
+					item.label.show = $scope.showMapLabels;
+				}
 				instance.setOption(options, {
 					replaceMerge: ['series']
 				});
