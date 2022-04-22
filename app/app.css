@@ -2478,6 +2478,10 @@ input:checked + .switchslider:before {
 	text-align: center;
 }
 
+.reporting-page div span {
+	text-align: center;
+}
+
 .reporting-page-landscape {
 	--page-width: 830px; /* +30px to account for padding, content area is 800px wide */
 	/* aspect ratio 1/sqrt(2) */
