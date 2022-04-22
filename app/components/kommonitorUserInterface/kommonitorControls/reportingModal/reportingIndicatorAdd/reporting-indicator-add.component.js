@@ -77,34 +77,36 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			if($scope.template.name === "A4-landscape-reachability")
 				$scope.updateAreasForReachabilityTemplates(newVal)
 
+			let updateDiagramsInterval_areas;
 
-			function updateDiagrams() {
+			async function updateDiagrams() {
+
 				if($scope.diagramsPrepared) {
-					$interval.cancel(updateDiagramsInterval); // code below still executes once
+					$interval.cancel(updateDiagramsInterval_areas); // code below still executes once
 				} else {
 					return;
 				}
 	
 				// diagrams are prepared, but dom has to be updated first, too
-				$timeout(async function() {
 					// we could filter the geoJson here to only include selected areas
 					// but for now we get all areas and filter them out after
+					let justChanged = false;
 					if($scope.isFirstUpdateOnIndicatorOrPoiLayerSelection) {
 						// Skip the update but set variable to false, so diagrams get updated on time update
 						// (relevant for indicator selection only)
 						$scope.isFirstUpdateOnIndicatorOrPoiLayerSelection = false;
-					} else {
+						justChanged = true;
+					} 
+					if($scope.template.name == "A4-landscape-reachability" || ($scope.isFirstUpdateOnIndicatorOrPoiLayerSelection == false && justChanged == false)) {
 						await $scope.initializeAllDiagrams();
 						if($scope.template.name !== "A4-landscape-reachability") {
 							// in reachability template we have to update leaflet maps, too
 							$scope.loadingData = false;
 						}
 					}
-					
-				});
 			}
-	
-			let updateDiagramsInterval = $interval(updateDiagrams, 0, 100)
+				updateDiagramsInterval_areas = $interval(updateDiagrams, 0, 100)
+			
 		}
 
 
@@ -1694,7 +1696,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					options.series.push(series)
 				}
 			}
-			
+
 			// Add poi markers as additional series
 			let centerPointSeriesData = $scope.selectedPoiLayer.geoJSON.features.map( feature => {
 				return feature.geometry.coordinates;
@@ -1941,8 +1943,6 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			if(pageElement.isTimeseries) {
 				timestamp += "_relative"
 			}
-			console.log($scope.echartsOptions);
-			console.log($scope.echartsOptions.map);
 			let options = JSON.parse(JSON.stringify( $scope.echartsOptions.map[timestamp] ));
 			
 			// default changes for all reporting maps
