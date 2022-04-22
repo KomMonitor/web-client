@@ -672,6 +672,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 					$scope.setupNewPages(section);
 				}
 			} catch (error) {
+				console.error(error);
 				$scope.loadingData = false;
 				kommonitorDataExchangeService.displayMapApplicationError(error.message);
 			}
@@ -855,6 +856,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 				
 			} catch (error) {
 				$scope.loadingData = false;
+				console.error(error);
 				kommonitorDataExchangeService.displayMapApplicationError(error.message);
 			}
 		}
