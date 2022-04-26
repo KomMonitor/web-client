@@ -833,27 +833,13 @@ angular.module('reportingOverview').component('reportingOverview', {
 
 		$scope.generateReport = async function(format) {
 			$scope.loadingData = true;
+ 
 
-			$timeout( () => { 
-				// The timeout is needed to hide the loading overlay after report generation is done.
-				// The problem is that it might be executed too early in some cases (reachability template du to leaflet easyprint)
-				// We check if report is already done from time to time
-				$scope.reportGenerationFinished = false;
-				const intervalId = setInterval(() => {
-					if($scope.reportGenerationFinished) {
-						clearInterval(intervalId);
-						$scope.loadingData = false;
-						$scope.$apply();
-					}
-				}, 1000);
-			})
 
 			try {
 				format === "pdf" && await $scope.generatePdfReport();
 				format === "docx" && await $scope.generateWordReport();
 				format === "zip" && await $scope.generateZipFolder();
-				$scope.reportGenerationFinished = true;
-				
 			} catch (error) {
 				$scope.loadingData = false;
 				console.error(error);
@@ -1042,6 +1028,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 			let now = getCurrentDateAndTime();
 			doc.save(now + "_KomMonitor-Report.pdf");
 			$scope.loadingData = false;
+			$scope.$apply()
 		}
 
 		
@@ -1650,8 +1637,9 @@ angular.module('reportingOverview').component('reportingOverview', {
 			// Used to export the file into a .docx file
 			docx.Packer.toBlob(doc).then((blob) => {
 				saveAs(blob, filename + ".docx");
+				$scope.loadingData = false;
+				$scope.$apply()
 			});
-			$scope.loadingData = false;
 		}
 
 		$scope.createReachabilityMapImage = async function(pageDom, pageElement, echartsImgSrc) {
