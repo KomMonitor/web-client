@@ -429,22 +429,35 @@ angular.module('reportingOverview').component('reportingOverview', {
 					zoomSnap: 0 
 				});
 
-				let easyPrintControl = L.easyPrint({
-					title: '',
-					position: 'topleft',
-					sizeModes: ['Current'],
-					outputMode: 'event', // We are only interested in the data, not actually downloading the image
-					hidden: true,
-					filename: "doesNotMatter.png",
-					hideControlContainer: true,
-					defaultSizeTitles: { Current: 'Aktueller Kartenausschnitt' }
-				}).addTo(leafletMap);
-
-				leafletMap.easyPrintControl = easyPrintControl;
-
-				leafletMap.on("easyPrint-finished", function(event) {
-					$scope.leafletEasyPrintResult = event.event
-				})
+				// from the docs, most of it is probably not needed
+				let screenshotterOptions = {
+					cropImageByInnerWH: true, // crop blank opacity from image borders
+					hidden: true, // hide screen icon
+					preventDownload: true, // prevent download on button click
+					domtoimageOptions: {}, // see options for dom-to-image
+					position: 'topleft', // position of take screen icon
+					screenName: 'screen', // string or function
+					hideElementsWithSelectors: ['.leaflet-control-container'], // by default hide map controls All els must be child of _map._container
+					mimeType: 'image/png', // used if format == image,
+					caption: null, // string or function, added caption to bottom of screen
+					captionFontSize: 15,
+					captionFont: 'Arial',
+					captionColor: 'black',
+					captionBgColor: 'white',
+					captionOffset: 5,
+					// callback for manually edit map if have warn: "May be map size very big on that zoom level, we have error"
+					// and screenshot not created
+					onPixelDataFail: async function({ node, plugin, error, mapPane, domtoimageOptions }) {
+						// Solutions:
+						// decrease size of map
+						// or decrease zoom level
+						// or remove elements with big distanses
+						// and after that return image in Promise - plugin._getPixelDataOfNormalMap
+						return plugin._getPixelDataOfNormalMap(domtoimageOptions)
+					}
+				}
+				 
+				leafletMap.simpleMapScreenshoter = L.simpleMapScreenshoter(screenshotterOptions).addTo(leafletMap)
 
 				// manually create a field for attribution so we can control the z-index.
 				let prevAttributionDiv = pageDom.querySelector(".map-attribution")
@@ -863,7 +876,6 @@ angular.module('reportingOverview').component('reportingOverview', {
 			doc.setFont(fontName, "normal", "normal"); // name, normal/italic, fontweight
 			
 			for(let [idx, page] of $scope.config.pages.entries()) {
-				$scope.leafletEasyPrintResult = undefined;
 
 				if(idx > 0) {
 					doc.addPage();
@@ -1036,7 +1048,6 @@ angular.module('reportingOverview').component('reportingOverview', {
 			// creates a zip folder containing all echarts files
 			let zip = new JSZip();
 			
-			$scope.leafletEasyPrintResult = undefined;
 			// screenshot map attribution and legend only once per section
 			for(let [idx, page] of $scope.config.pages.entries()) {
 			
@@ -1096,7 +1107,6 @@ angular.module('reportingOverview').component('reportingOverview', {
 			// see docx documentation for more info about the format:
 			// https://docx.js.org/#/?id=basic-usage
 
-			$scope.leafletEasyPrintResult = undefined;
 			let font = "Calibri";
 			
 			for(let [idx, page] of $scope.config.pages.entries()) {
@@ -1645,26 +1655,16 @@ angular.module('reportingOverview').component('reportingOverview', {
 		$scope.createReachabilityMapImage = async function(pageDom, pageElement, echartsImgSrc) {
 			let result;
 			// screenshot leaflet map and merge it with echarts image
-			// get easyprint control from map
 			// remove page offset temporarily 
 			pageElement.leafletMap.getContainer().style.top = "0px"
 			pageElement.leafletMap.getContainer().style.left = "0px"
-			pageElement.leafletMap.easyPrintControl.printMap('Current', '') // output is set to 'event', map has a listener for 'easyPrint-finished'
-			
-			// wait for print process to finish
-			function waitForEasyPrintResult() {
-				return new Promise((resolve, reject) => {
-					console.log("waiting for easyprint results....");
-					const intervalId = setInterval(() => {
-						if(typeof($scope.leafletEasyPrintResult) !== "undefined") {
-							clearInterval(intervalId);
-							resolve()
-						}
-					}, 50);
-				})
-			}
 
-			await waitForEasyPrintResult();
+			// wait for print process to finish
+			let format = 'image'
+			let overridedPluginOptions = {
+				mimeType: 'image/jpeg'
+			}
+			let leafletMapScreenshot = await pageElement.leafletMap.simpleMapScreenshoter.takeScreen(format, overridedPluginOptions)
 			pageElement.leafletMap.getContainer().style.top = "90px"
 			pageElement.leafletMap.getContainer().style.left = "15px"
 			
@@ -1685,7 +1685,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 					resolve();
 				}
 			})
-			leafletMapImg.src = $scope.leafletEasyPrintResult;
+			leafletMapImg.src = leafletMapScreenshot;
 			await leafletMapImgDrawn
 
 			let echartsImg = new Image();
