@@ -283,7 +283,15 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 						// as the update was successfull we must prevent the user from importing the same object again
 						$scope.featureIdIsValid = false;
 						// add the new feature to current dataset!
-						$scope.georesourceFeaturesGeoJSON.features.push($scope.featureGeometryValue.features[0]);
+						if($scope.georesourceFeaturesGeoJSON){
+							$scope.georesourceFeaturesGeoJSON.features.push($scope.featureGeometryValue.features[0]);
+						}
+						else{
+							$scope.georesourceFeaturesGeoJSON = turf.featureCollection([
+								$scope.featureGeometryValue.features[0]
+							  ]);
+						}
+						
 
 						$("#georesourceEditFeaturesSuccessAlert").show();
 						$scope.loadingData = false;
@@ -303,6 +311,7 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 
 					}
 				} catch (error) {
+					console.error(error);
 					if(error.data){							
 						$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
 					}
@@ -387,7 +396,8 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 				$scope.remainingFeatureHeaders = undefined;
 
 				$rootScope.$broadcast("refreshGeoresourceOverviewTable", "edit", $scope.currentGeoresourceDataset.georesourceId);
-				$scope.refreshGeoresourceEditFeaturesOverviewTable();
+				// empty data grid as all data has been deleted 				
+				kommonitorDataGridHelperService.buildDataGrid_featureTable_spatialResource("georesourceFeatureTable", [], []);
 				$scope.initSingleFeatureAddMenu();
 
 				$scope.successMessagePart = $scope.currentGeoresourceDataset.datasetName;
