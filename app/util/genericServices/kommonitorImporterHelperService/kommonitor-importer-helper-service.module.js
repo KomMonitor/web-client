@@ -129,7 +129,7 @@ angular
       this.converterDefinition_singleFeatureImport = {
         "encoding": "UTF-8",
         "mimeType": "application/geo+json",
-        "name": "org.n52.kommonitor.importer.converter.geojson",
+        "name": "GeoJSON",
         "parameters": [
           {
             "name": "CRS",
