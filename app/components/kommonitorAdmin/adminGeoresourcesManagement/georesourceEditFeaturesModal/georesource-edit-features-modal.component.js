@@ -1042,6 +1042,7 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 
 				// modify state of single feature geo map
 				kommonitorSingleFeatureMapHelperService.invalidateMap();
+				kommonitorSingleFeatureMapHelperService.zoomToDataLayer();
 				
 				$scope.current_fs = $(this).parent();
 				$scope.previous_fs = $(this).parent().prev();
