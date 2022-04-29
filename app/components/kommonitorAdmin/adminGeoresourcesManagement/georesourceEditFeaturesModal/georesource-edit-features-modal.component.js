@@ -139,7 +139,13 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 				$scope.addExampleValuesToSchemaProperties();
 
 				}, function errorCallback(error) {
-					$scope.featureInfoText_singleFeatureAddMenu = "Keine weiteren Features im Datensatz vorhanden oder Fehler bei Abruf";
+					$scope.featureInfoText_singleFeatureAddMenu = "Keine weiteren Features im Datensatz vorhanden oder Fehler bei Abruf";				
+			}).finally(function (){		
+				$scope.validateSingleFeatureId();		
+				// $timeout(function(){
+					
+				// 	$scope.$digest();
+				// }, 250);
 			});
 		}
 
@@ -198,7 +204,17 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 					$scope.featureIdIsValid = false;					
 				}
 				return $scope.featureIdIsValid;
-			}			
+			}	
+			else{
+				// no other data available in dataset
+				if ($scope.featureIdValue == undefined || $scope.featureIdValue == null){
+					$scope.featureIdIsValid = false;
+				}
+				else{
+					$scope.featureIdIsValid = true;
+				}
+			}	
+
 			return $scope.featureIdIsValid;
 		};
 
@@ -398,7 +414,8 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 				$rootScope.$broadcast("refreshGeoresourceOverviewTable", "edit", $scope.currentGeoresourceDataset.georesourceId);
 				// empty data grid as all data has been deleted 				
 				kommonitorDataGridHelperService.buildDataGrid_featureTable_spatialResource("georesourceFeatureTable", [], []);
-				$scope.initSingleFeatureAddMenu();
+				// reset whole form
+				$scope.resetGeoresourceEditFeaturesForm();
 
 				$scope.successMessagePart = $scope.currentGeoresourceDataset.datasetName;
 

@@ -126,7 +126,7 @@
 															<b>Feature-NAME *</b>
 														</td>
 														<td>
-															<input type="text" class="form-control" ng-model="featureNameValue" placeholder="lesbarer Name des Objekts" required></input>
+															<input type="text" class="form-control" ng-model="featureNameValue" placeholder="lesbarer Name des Objekts" ng-change="validateSingleFeatureId()" required></input>
 														</td>
 													</tr>
 													<tr>
@@ -135,7 +135,7 @@
 														</td>
 														<td>
 															<input type="text" ng-model="featureStartDateValue" ng-change="checkSingleFeaturePeriodOfValidity()"
-													class="form-control pull-right" id="georesourceSingleFeatureDatepickerStart" placeholder="YYYY-MM-DD" required>
+													class="form-control pull-right" id="georesourceSingleFeatureDatepickerStart" placeholder="YYYY-MM-DD" ng-change="validateSingleFeatureId()" required>
 														</td>
 													</tr>
 													<tr>
@@ -254,7 +254,7 @@
 
 							<div class="row vertical-align">
 								<!-- submit button -->
-								<button type="button" class="btn btn-success" ng-disabled="!featureGeometryValue || !featureNameValue || !featureIdValue || !featureIdIsValid || !featureStartDateValue" ng-click="addSingleGeoresourceFeature()">Einzel-Features importieren</button>
+								<button type="button" class="btn btn-success" ng-disabled="!featureGeometryValue || !featureNameValue || featureIdValue == undefined || featureIdValue == null || !featureIdIsValid || !featureStartDateValue" ng-click="addSingleGeoresourceFeature()">Einzel-Features importieren</button>
 					
 							</div>
 	   
