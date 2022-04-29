@@ -42,8 +42,8 @@
         <li class="header">Administration</li>
         <!-- Optionally, you can add icons to the links -->
         <li id="adminDashboardNavItem" class="active" ng-click="onClickOtherAdminPanel('adminDashboardNavItem')"><a data-toggle="tab" data-target="#dashboardWrapper" href=""><i class="fas fa-tachometer-alt"></i> <span>&Uuml;bersicht</span></a></li>
-        <li id="adminUsersNavItem" ng-click="onClickOtherAdminPanel('adminUsersNavItem')"><a data-toggle="tab" data-target="#userWrapper" href=""><i class="fas fa-users"></i> <span>Zugriffskontrolle</span></a></li>
-        <li id="adminTopicsNavItem" ng-click="onClickOtherAdminPanel('adminTopicsNavItem')"><a data-toggle="tab" data-target="#topicsWrapper" href=""><i class="fas fa-book"></i> <span>Themenverwaltung</span></a></li>
+        <li id="adminUsersNavItem" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.checkAdminPermission()" ng-click="onClickOtherAdminPanel('adminUsersNavItem')"><a data-toggle="tab" data-target="#userWrapper" href=""><i class="fas fa-users"></i> <span>Zugriffskontrolle</span></a></li>
+        <li id="adminTopicsNavItem" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.checkAdminPermission()" ng-click="onClickOtherAdminPanel('adminTopicsNavItem')"><a data-toggle="tab" data-target="#topicsWrapper" href=""><i class="fas fa-book"></i> <span>Themenverwaltung</span></a></li>
         <li id="adminGeodataWrapperNavItem" class="treeview">
           <a data-toggle="tab" href="" ng-click="onClickGeodataWrapperItem()"><i class="fas fa-globe-americas"></i> <span>Geodatenverwaltung</span>
             <span class="pull-right-container">
@@ -58,7 +58,7 @@
         </li>
         <li id="adminScriptsNavItem" ng-click="onClickOtherAdminPanel('adminScriptsNavItem')"><a data-toggle="tab" data-target="#scriptWrapper" href=""><i class="far fa-file-code"></i> <span>Skriptverwaltung</span></a></li>
         <li id="adminScriptExecutionNavItem" ng-click="onClickOtherAdminPanel('adminScriptExecutionNavItem')"><a data-toggle="tab" data-target="#scriptExecutionWrapper" href=""><i class="far fa-file-code"></i> <span>Indikatorenberechnung</span></a></li>
-        <li id="adminConfigWrapperNavItem" class="treeview">
+        <li id="adminConfigWrapperNavItem" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.checkAdminPermission()" class="treeview">
           <a data-toggle="tab" href="" ng-click="onClickConfigWrapperItem()"><i class="fas fa-tools"></i> <span>Einstellungen</span>
             <span class="pull-right-container">
                 <i class="fa fa-angle-left pull-right"></i>
@@ -88,13 +88,13 @@
 
       </div>
 
-      <div id="userWrapper" class="tab-pane fade in">
+      <div id="userWrapper" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.checkAdminPermission()" class="tab-pane fade in">
 
         <admin-role-management></admin-role-management>
 
       </div>
 
-      <div id="topicsWrapper" class="tab-pane fade in">
+      <div id="topicsWrapper" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.checkAdminPermission()" class="tab-pane fade in">
 
         <admin-topics-management></admin-topics-management>
 
@@ -130,19 +130,19 @@
 
       </div>
 
-      <div id="appConfigWrapper" class="tab-pane fade in">
+      <div id="appConfigWrapper" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.checkAdminPermission()" class="tab-pane fade in">
 
         <admin-app-config></admin-app-config>
 
       </div>
 
-      <div id="keycloakConfigWrapper" class="tab-pane fade in">
+      <div id="keycloakConfigWrapper" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.checkAdminPermission()" class="tab-pane fade in">
 
         <admin-keycloak-config></admin-keycloak-config>
 
       </div>
 
-      <div id="controlsConfigWrapper" class="tab-pane fade in">
+      <div id="controlsConfigWrapper" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.checkAdminPermission()" class="tab-pane fade in">
 
         <admin-controls-config></admin-controls-config>
 

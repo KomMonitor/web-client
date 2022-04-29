@@ -2814,6 +2814,25 @@ angular
       return false;
     }
 
+    this.checkEditorPermission = function(){
+      for(const role of this.currentKeycloakLoginRoles){
+        const permissionLevel = role.split("-")[1]; //e.g. kommonitor-creator
+        if(permissionLevel == "editor" || permissionLevel == "creator" || permissionLevel == "publisher"){
+          return true;
+        }
+      }
+      return false;
+    }
+
+    this.checkAdminPermission = function(){
+      for(const role of this.currentKeycloakLoginRoles){
+        if(role.includes("kommonitor-creator")){
+          return true;
+        }
+      }
+      return false;
+    }
+
 
     $rootScope.$on("onAddedFeatureToSelection", function (event, selectedIndicatorFeatureIds) {
       let propertyName = buildIndicatorPropertyName();

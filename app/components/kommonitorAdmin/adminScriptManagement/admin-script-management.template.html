@@ -7,7 +7,7 @@
 		</h1>
 
 		<div class="adminTableButtonWrapper">
-			<button class="btn btn-success btn-sm" type="button" data-toggle="modal" data-target="#modal-add-script"><i
+			<button class="btn btn-success btn-sm" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.checkCreatePermission()" type="button" data-toggle="modal" data-target="#modal-add-script"><i
 					class="fas fa-plus"></i>&nbsp;&nbsp;Erstellen</button>
 			<!-- edit metadata -->
 
