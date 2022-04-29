@@ -35,7 +35,7 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 		$scope.loadingData = false;
 
 		// variables for single feature import
-		$scope.featureIdValue = undefined;
+		$scope.featureIdValue = 0;
 		$scope.featureIdExampleString = undefined;
 		$scope.featureIdIsValid = false;
 		$scope.featureNameValue = undefined;
@@ -425,7 +425,7 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 			kommonitorDataGridHelperService.featureTable_georesource_lastUpdate_timestamp_failure = undefined;
 
 			// variables for single feature import
-			$scope.featureIdValue = undefined;
+			$scope.featureIdValue = 0;
 			$scope.featureIdExampleString = undefined;
 			$scope.featureIdIsValid = false;
 			$scope.featureNameValue = undefined;
