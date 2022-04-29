@@ -160,9 +160,5 @@ angular.module('adminSpatialUnitsManagement').component('adminSpatialUnitsManage
 			// submit selected spatial unit to modal controller
 			$rootScope.$broadcast("onEditSpatialUnitFeatures", spatialUnitDataset);
 		};
-		
-		$scope.checkCreatePermission = function(){
-			return kommonitorDataExchangeService.checkCreatePermission();
-		};
 	}
 ]});
