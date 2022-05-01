@@ -78,7 +78,7 @@ angular
         
         if (kommonitorDataExchangeService.enableKeycloakSecurity) {
           // disable button if there is no applicable spatial unit or user has no creator rights
-          let disabled = params.data.applicableSpatialUnits.length == 0 || !params.data.userPermissions.includes("creator");
+          let disabled = params.data.applicableSpatialUnits.length == 0 || !params.data.userPermissions.includes("editor");
           html += '<button id="btn_indicator_editRoleBasedAccess_' + params.data.indicatorId + '"class="btn btn-warning btn-sm indicatorEditRoleBasedAccessBtn ';
 
           if (disabled) {
