@@ -7,14 +7,14 @@
 		</h1>
 
 		<div class="adminTableButtonWrapper">
-			<button class="btn btn-success btn-sm" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.checkCreatePermission()" type="button" data-toggle="modal" data-target="#modal-add-script"><i
+			<button class="btn btn-success btn-sm" ng-disabled="!$ctrl.kommonitorDataExchangeServiceInstance.checkCreatePermission()" type="button" data-toggle="modal" data-target="#modal-add-script"><i
 					class="fas fa-plus"></i>&nbsp;&nbsp;Erstellen</button>
 			<!-- edit metadata -->
 
 			<!-- edit features -->
 
 			<!-- delete selected completely -->
-			<button class="btn btn-danger btn-sm" type="button" data-toggle="modal" data-target="#modal-delete-scripts"
+			<button class="btn btn-danger btn-sm" type="button" data-toggle="modal" data-target="#modal-delete-scripts" ng-disabled="!$ctrl.kommonitorDataExchangeServiceInstance.checkDeletePermission()"
 				ng-click="onClickDeleteDatasets()"><i class="fas fa-trash"></i>&nbsp;&nbsp;L&ouml;schen</button>
 
 			<!-- delete b timestamp -->

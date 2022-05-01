@@ -2804,9 +2804,22 @@ angular
       return allowedRoles.join(", ");
     }
 
-    this.checkCreatePermission = function(){
+    this.checkDeletePermission = function(){
       for(const role of this.currentKeycloakLoginRoles){
-        const permissionLevel = role.split("-")[1]; //e.g. kommonitor-creator
+        let roleNameParts = role.split("-");
+
+        const permissionLevel = roleNameParts[roleNameParts.length - 1]; //e.g. kommonitor-creator
+        if(permissionLevel == "creator"){
+          return true;
+        }
+      }
+      return false;
+    }
+
+    this.checkCreatePermission = function(){      
+      for(const role of this.currentKeycloakLoginRoles){
+        let roleNameParts = role.split("-");
+        const permissionLevel = roleNameParts[roleNameParts.length - 1]; //e.g. kommonitor-creator
         if(permissionLevel == "publisher" || permissionLevel == "creator"){
           return true;
         }
@@ -2816,7 +2829,8 @@ angular
 
     this.checkEditorPermission = function(){
       for(const role of this.currentKeycloakLoginRoles){
-        const permissionLevel = role.split("-")[1]; //e.g. kommonitor-creator
+        let roleNameParts = role.split("-");
+        const permissionLevel = roleNameParts[roleNameParts.length - 1]; //e.g. kommonitor-creator
         if(permissionLevel == "editor" || permissionLevel == "creator" || permissionLevel == "publisher"){
           return true;
         }
