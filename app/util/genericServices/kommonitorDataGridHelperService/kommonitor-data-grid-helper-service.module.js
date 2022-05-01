@@ -401,7 +401,7 @@ angular
 
       this.buildDataGridColumnConfig_georesources_loi = function (georesourceMetadataArray) {
         const columnDefs = [
-          { headerName: 'Editierfunktionen', pinned: 'left', maxWidth: 150, checkboxSelection: true, headerCheckboxSelection: true, 
+          { headerName: 'Editierfunktionen', pinned: 'left', maxWidth: 150, checkboxSelection: false, headerCheckboxSelection: false, 
             headerCheckboxSelectionFilteredOnly: true, filter: false, sortable: false, cellRenderer: 'displayEditButtons_georesources' },
           { headerName: 'Id', field: "georesourceId", pinned: 'left', maxWidth: 125 },
           { headerName: 'Name', field: "datasetName", pinned: 'left', minWidth: 300 },
@@ -479,7 +479,7 @@ angular
 
       this.buildDataGridColumnConfig_georesources_aoi = function (georesourceMetadataArray) {
         const columnDefs = [
-          { headerName: 'Editierfunktionen', pinned: 'left', maxWidth: 150, checkboxSelection: true, headerCheckboxSelection: true, 
+          { headerName: 'Editierfunktionen', pinned: 'left', maxWidth: 150, checkboxSelection: false, headerCheckboxSelection: false, 
             headerCheckboxSelectionFilteredOnly: true, filter: false, sortable: false, cellRenderer: 'displayEditButtons_georesources' },
           { headerName: 'Id', field: "georesourceId", pinned: 'left', maxWidth: 125 },
           { headerName: 'Name', field: "datasetName", pinned: 'left', minWidth: 300 },
