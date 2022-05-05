@@ -786,6 +786,35 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 		}
 
 		/**
+		 * converts a base64 encoded data url SVG image to a PNG image
+		 * @param originalBase64 data url of svg image
+		 * @param width target width in pixel of PNG image
+		 * @return {Promise<String>} resolves to png data url of the image
+		 */
+		async function base64SvgToBase64Png (originalBase64, width) {
+			return await new Promise(resolve => {
+				let img = document.createElement('img');
+				img.onload = function () {
+					document.body.appendChild(img);
+					let canvas = document.createElement("canvas");
+					let ratio = (img.clientWidth / img.clientHeight) || 1;
+					document.body.removeChild(img);
+					canvas.width = width;
+					canvas.height = width / ratio;
+					let ctx = canvas.getContext("2d");
+					ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+					try {
+						let data = canvas.toDataURL('image/png');
+						resolve(data);
+					} catch (e) {
+						resolve(null);
+					}
+				};
+				img.src = originalBase64;
+			});
+		}
+
+		/**
 		 * reads a file chosen by the user
 		 * @returns {string} file content
 		 */
@@ -797,8 +826,15 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 				return;
 			}
 			var reader = new FileReader();
-			reader.onload = function(e) {
+			reader.onload = async function(e) {
 				content = e.target.result;
+
+				// if content is SVG base64 string then convert that to png image
+				// as svg is porblemativ when perfirming PDF export later with jsPDF
+				if(content.includes("svg")){
+					content = await base64SvgToBase64Png(content, 250);
+				}
+
 				if(srcElement.id === "reporting-load-commune-logo-button") {
 					$scope.generalSettings.communeLogo = content;
 					// set isPlaceholder to false
