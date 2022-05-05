@@ -552,12 +552,20 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					$scope.queryIndicators()
 				]).then( () => {
 					$scope.loadingData = false;
-					$timeout( () => $scope.$apply());
+					$timeout( () => {
+						$timeout(function(){
+							$scope.$digest();
+						});
+					});
 				})
 			} else {
 				await $scope.queryIndicators();
 				$scope.loadingData = false;
-				$timeout( () => $scope.$apply())
+				$timeout( () => {
+					$timeout(function(){
+						$scope.$digest();
+					});
+				})
 				
 			}
 		}
@@ -865,9 +873,9 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 	
 			}
 			
-			$timeout(function() {
-				$scope.$apply();
-			})
+			$timeout(function(){
+				$scope.$digest();
+			});
 		}
 
 		/**
@@ -1338,7 +1346,9 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				}
 			}
 			$scope.loadingData = false;
-			$scope.$apply();
+			$timeout(function(){
+				$scope.$digest();
+			});
 
 		}
 	
@@ -3177,7 +3187,10 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 		$scope.onChangeDateSliderInterval = function() {
 			$scope.loadingData = true;
-			$scope.$apply(); // needed to tell angular something has changed
+			// needed to tell angular something has changed
+			$timeout(function(){
+				$scope.$digest();
+			});
 			// setup all pages with the new timeseries
 			let values = $scope.getFormattedDateSliderValues(true);
 			// prepare diagrams again for most recent timestamp of slider and for whole timeseries (changes).

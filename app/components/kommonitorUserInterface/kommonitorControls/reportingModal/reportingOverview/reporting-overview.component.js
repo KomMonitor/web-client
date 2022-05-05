@@ -312,7 +312,9 @@ angular.module('reportingOverview').component('reportingOverview', {
 						}
 					}
 					$scope.loadingData = false;
-					$scope.$apply();
+					$timeout(function(){
+						$scope.$digest();
+					});
 				} else {
 					$scope.handleSetupNewPagesForReachability(templateSection)
 				}
@@ -393,7 +395,9 @@ angular.module('reportingOverview').component('reportingOverview', {
 				}
 			}
 			$scope.loadingData = false;
-			$scope.$apply();
+			$timeout(function(){
+				$scope.$digest();
+			});
 		}
 
 		$scope.initializeLeafletMap = async function(page, pageElement, map, spatialUnit) {
@@ -627,7 +631,9 @@ angular.module('reportingOverview').component('reportingOverview', {
 
 		$scope.importConfig = function(config) {
 			$scope.loadingData = true;
-			$scope.$apply();
+			$timeout(function(){
+				$scope.$digest();
+			});
 			try {
 				// restore commune logo for every page, starting at the second
 				let communeLogoSrc = ""; // base64 string
@@ -679,7 +685,9 @@ angular.module('reportingOverview').component('reportingOverview', {
 						}
 					}
 				}
-				$scope.$apply();
+				$timeout(function(){
+					$scope.$digest();
+				});
 
 				for(let section of $scope.config.templateSections) {
 					$scope.setupNewPages(section);
@@ -1040,7 +1048,9 @@ angular.module('reportingOverview').component('reportingOverview', {
 			let now = getCurrentDateAndTime();
 			doc.save(now + "_KomMonitor-Report.pdf");
 			$scope.loadingData = false;
-			$scope.$apply()
+			$timeout(function(){
+				$scope.$digest();
+			});
 		}
 
 		
@@ -1097,7 +1107,9 @@ angular.module('reportingOverview').component('reportingOverview', {
 			zip.generateAsync({type:"blob"}).then(function(content) {
 				saveAs(content, zipFileName + ".zip");
 				$scope.loadingData = false;
-				$scope.$apply();
+				$timeout(function(){
+					$scope.$digest();
+				});
 			});
 		}
 
@@ -1648,7 +1660,9 @@ angular.module('reportingOverview').component('reportingOverview', {
 			docx.Packer.toBlob(doc).then((blob) => {
 				saveAs(blob, filename + ".docx");
 				$scope.loadingData = false;
-				$scope.$apply()
+				$timeout(function(){
+					$scope.$digest();
+				});
 			});
 		}
 

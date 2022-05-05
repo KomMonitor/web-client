@@ -811,8 +811,8 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 						})
 					}
 
-					$timeout(function() {
-						$scope.$apply();
+					$timeout(function(){
+						$scope.$digest();
 					});
 				}
 			 };

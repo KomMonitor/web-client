@@ -28,8 +28,8 @@ angular.module('reportingModal').component('reportingModal', {
 			}
 
 			// for some reason angular won't register the change if a config file was selected
-			$timeout(function() {
-				$scope.$apply()
+			$timeout(function(){
+				$scope.$digest();
 			});
 		});
 
