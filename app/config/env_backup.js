@@ -15,6 +15,9 @@ try {
   // enable/disable role based access using keycloak
   window.__env.enableKeycloakSecurity = true;
 
+  // keycloak super admin role name
+  window.__env.keycloakKomMonitorAdminRoleName = "kommonitor-creator";
+
   // enable and show/hide switch to toggle basic and advanced mode
   // this feature can hide certain app elements via ID if in basic mode
   // configure elements in admin page app settings via controls-config file
@@ -66,10 +69,6 @@ try {
  window.__env.extendedInfoModalTabTitle = "Weitere Informationen"  // title of the second tab
  window.__env.extendedInfoModalHTMLMessage = "";  // message in the second tab as HTML
 
-  // admin user credentials to log into admin view in No-Keycloak-Settings
-  window.__env.adminUserName = "Admin";
-  window.__env.adminPassword = "kmAdmin";
-
   // property names of feature id and name (relevant for all spatial features) - KomMonitor specific
   // DO NOT CHANGE THEM - ONLY IF YOU REALLY KNOW WHAT YOU ARE DOING
   window.__env.FEATURE_ID_PROPERTY_NAME = "ID";
@@ -95,6 +94,9 @@ try {
 
   // Data Imporret URL
   window.__env.targetUrlToImporterService = 'http://localhost:8087/importer/';
+
+  // KomMonitor Geocoder Proxy
+  window.__env.targetUrlToGeocoderService = 'https://geocoder.fbg-hsbo.de/nominatim/';
 
   // optional geometry simplification (a feature of Data Management API)
   window.__env.simplifyGeometriesParameterName = "simplifyGeometries";

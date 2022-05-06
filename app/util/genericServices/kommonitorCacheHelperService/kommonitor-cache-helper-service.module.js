@@ -93,9 +93,9 @@ angular
         
         if(keycloakRolesArray && keycloakRolesArray.length > 0){
           // admin role is kommonitor-creator
-          if(keycloakRolesArray.includes("kommonitor-creator")){
-            metadataKey += "_kommonitor-creator";
-            timestampKey += "_kommonitor-creator";
+          if(keycloakRolesArray.includes(__env.keycloakKomMonitorAdminRoleName)){
+            metadataKey += "_" + __env.keycloakKomMonitorAdminRoleName;
+            timestampKey += "_" + __env.keycloakKomMonitorAdminRoleName;
           }
           else{
             metadataKey += "_" + JSON.stringify(keycloakRolesArray);

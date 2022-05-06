@@ -165,8 +165,8 @@ angular
               params: {
                 viewbox: "" + (Number(__env.initialLongitude) - 0.001) + "," + (Number(__env.initialLatitude) - 0.001) + "," + (Number(__env.initialLongitude) + 0.001) + "," + (Number(__env.initialLatitude) + 0.001)
               },
-              searchUrl: 'https://geocoder.fbg-hsbo.de/nominatim/',
-              reverseUrl: 'https://geocoder.fbg-hsbo.de/nominatim/reverse'
+              searchUrl: __env.targetUrlToGeocoderService,
+              reverseUrl: __env.targetUrlToGeocoderService + 'reverse'
             }
           );
 

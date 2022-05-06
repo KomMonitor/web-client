@@ -1953,7 +1953,7 @@ angular
 
           // var roleMappingAllowsDisplay = function(indicatorMetadata){
           //   //admin  --> everything allowed       
-          //   if(self.currentKeycloakLoginRoles.includes("kommonitor-creator")){
+          //   if(self.currentKeycloakLoginRoles.includes(__env.keycloakKomMonitorAdminRoleName)){
           //     return true;
           //   }     
             
@@ -2840,7 +2840,7 @@ angular
 
     this.checkAdminPermission = function(){
       for(const role of this.currentKeycloakLoginRoles){
-        if(role.includes("kommonitor-creator")){
+        if(role.includes(__env.keycloakKomMonitorAdminRoleName)){
           return true;
         }
       }
