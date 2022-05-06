@@ -157,17 +157,15 @@ angular
           // remaining is the same as in the docs, accept for the var instead of const declarations
           var provider = new OpenStreetMapProvider(    
             {
-              // params: {
-              //   'accept-language': 'de', // render results in Dutch
-              //   countrycodes: 'de', // limit search results to the Netherlands
-              //   addressdetails: 1 // include additional address detail parts                
-              // },
-              params: {
-                viewbox: "" + (Number(__env.initialLongitude) - 0.001) + "," + (Number(__env.initialLatitude) - 0.001) + "," + (Number(__env.initialLongitude) + 0.001) + "," + (Number(__env.initialLatitude) + 0.001)
-              },
-              searchUrl: __env.targetUrlToGeocoderService,
-              reverseUrl: __env.targetUrlToGeocoderService + 'reverse'
-            }
+						  params: {
+							'accept-language': 'de', // render results in Dutch
+							countrycodes: 'de', // limit search results to the Netherlands
+							addressdetails: 1, // include additional address detail parts  
+							viewbox: "" + (Number(__env.initialLongitude) - 0.001) + "," + (Number(__env.initialLatitude) - 0.001) + "," + (Number(__env.initialLongitude) + 0.001) + "," + (Number(__env.initialLatitude) + 0.001)             
+						  },
+						  searchUrl: __env.targetUrlToGeocoderService + '/search',
+						  reverseUrl: __env.targetUrlToGeocoderService + '/reverse'
+						}
           );
 
           console.log(provider);
