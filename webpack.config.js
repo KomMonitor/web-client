@@ -64,7 +64,6 @@ module.exports = {
             { from: nodeModulePathConstant + 'leaflet-measure/dist/leaflet-measure.de.js', to: 'leaflet-measure' },
             { from: nodeModulePathConstant + 'leaflet-measure/dist/leaflet-measure.css', to: 'leaflet-measure' },
             { from: nodeModulePathConstant + 'leaflet-measure/dist/assets', to: 'leaflet-measure/assets' },
-            { from: './customizedExternalLibs/leaflet-easyprint/dist/bundle.js', to: 'leaflet-easyprint/leaflet-easyprint.js' },
             { from: nodeModulePathConstant + 'leaflet-simple-map-screenshoter/dist/leaflet-simple-map-screenshoter.js', to: 'leaflet-simple-map-screenshoter/leaflet-simple-map-screenshoter.js' },
             { from: './customizedExternalLibs/leaflet-wfst.src_custom.js', to: 'leaflet-wfst/' },
             { from: nodeModulePathConstant + 'bootstrap-colorpicker/dist', to: 'bootstrap-colorpicker/' },

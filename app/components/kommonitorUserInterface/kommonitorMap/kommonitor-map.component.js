@@ -546,42 +546,60 @@ angular.module('kommonitorMap').component(
           $scope.measureControl.addTo($scope.map);
 
           /////////////////////////////////////////////////////
-          ///// LEAFLET EASY PRINT SETUP
+          ///// LEAFLET SCREENSHOTER SETUP
           /////////////////////////////////////////////////////
 
-          $scope.printControl = L.easyPrint({
-            title: 'Kartenexport',
-            position: 'topleft',
-            sizeModes: ['Current'],
-            outputMode: 'download',
-            hidden: true,
-            filename: "KomMonitor-Kartenexport",
-            hideControlContainer: false,
-            hideClasses: ['leaflet-left'],
-            defaultSizeTitles: { Current: 'Aktueller Kartenausschnitt', A4Landscape: 'A4 Querformat', A4Portrait: 'A4 Portrait' }
-          });
-
-          $scope.printControl.addTo($scope.map);
+          // from the docs, most of it is probably not needed
+				let screenshotterOptions = {
+					cropImageByInnerWH: true, // crop blank opacity from image borders
+					hidden: true, // hide screen icon
+					preventDownload: false, // prevent download on button click
+					domtoimageOptions: {}, // see options for dom-to-image
+					position: 'topleft', // position of take screen icon
+					screenName: 'screen', // string or function
+					hideElementsWithSelectors: ['.leaflet-control-container'], // by default hide map controls All els must be child of _map._container
+					mimeType: 'image/png', // used if format == image,
+					caption: null, // string or function, added caption to bottom of screen
+					captionFontSize: 15,
+					captionFont: 'Arial',
+					captionColor: 'black',
+					captionBgColor: 'white',
+					captionOffset: 5,
+					// callback for manually edit map if have warn: "May be map size very big on that zoom level, we have error"
+					// and screenshot not created
+					onPixelDataFail: async function({ node, plugin, error, mapPane, domtoimageOptions }) {
+						// Solutions:
+						// decrease size of map
+						// or decrease zoom level
+						// or remove elements with big distanses
+						// and after that return image in Promise - plugin._getPixelDataOfNormalMap
+						return plugin._getPixelDataOfNormalMap(domtoimageOptions)
+					}
+				}
+				 
+        $scope.simpleMapScreenshoter = L.simpleMapScreenshoter(screenshotterOptions).addTo($scope.map);
+				$scope.map.simpleMapScreenshoter = $scope.simpleMapScreenshoter;
 
         }; // end initialize map
 
 
         $scope.$on("exportMap", function (event) {
-          try {
-            $scope.printControl.printMap('CurrentSize', 'KomMonitor-Kartenexport');
 
-            setTimeout(function () {
-              $(".leaflet-left").css("display", "");
-            }, 1000);
-          }
-          catch (error) {
+            // wait for print process to finish
+            let format = 'blob'; // 'image' - return base64, 'canvas' - return canvas
+            let overridedPluginOptions = {
+              mimeType: 'image/png'
+            };
+            $scope.simpleMapScreenshoter.takeScreen(format, overridedPluginOptions);
+            $scope.simpleMapScreenshoter.takeScreen(format, overridedPluginOptions).then(blob => {
+              // FileSaver saveAs method
+              saveAs(blob, 'KomMonitor-Screenshot.png');
+           }).catch(error => {
             console.log("Error while exporting map view.");
             console.error(error);
 
             kommonitorDataExchangeService.displayMapApplicationError(error);
-
-            $(".leaflet-left").css("display", "");
-          }
+           });
 
         });
 

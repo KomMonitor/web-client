@@ -890,15 +890,6 @@ pre.CodeMirror-line {
 	z-index: 1003;
 }
 
-.leaflet-left .leaflet-control-easyPrint{
-
-	/* display: inline-block; */
-	/* float: none; */
-	position: absolute;
-	left: 170px;
-	z-index: 1003;
-}
-
 .leaflet-left .leaflet-draw {
   /* display: inline-block; */
   /* float: none; */
