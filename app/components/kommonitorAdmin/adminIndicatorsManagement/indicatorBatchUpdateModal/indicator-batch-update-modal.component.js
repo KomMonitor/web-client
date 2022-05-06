@@ -100,7 +100,7 @@ angular.module('indicatorBatchUpdateModal').component('indicatorBatchUpdateModal
 					reader.readAsText(file)
 				});
 	
-				$scope.$apply();
+				$scope.$digest();
 			};
 			
 			$scope.loadIndicatorsBatchList = function() {

@@ -965,7 +965,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 									let name = item.properties.NAME
 									// remove item to select from left side and add to right side
 									// we can't filter programmatically here because the changes won't get applied to scope variables
-									// not even with $scope.$apply in a $timeout
+									// not even with $scope.$digest in a $timeout
 									// instead we click on the elements
 									// get dom element by name
 									let arr = [];

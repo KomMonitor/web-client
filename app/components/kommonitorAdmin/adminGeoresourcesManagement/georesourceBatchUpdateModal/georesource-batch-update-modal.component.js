@@ -103,7 +103,7 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 					reader.readAsText(file)
 				});
 
-				$scope.$apply();
+				$scope.$digest();
 			};
 
 			$scope.loadGeoresourcesBatchList = function() {

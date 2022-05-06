@@ -334,7 +334,7 @@ angular
 			
 					$('#reporting-modal').on('hidden.bs.modal', function (e) {
 						$scope.isUsedInReporting = false;
-						$scope.$apply()
+						$scope.$digest()
 					})
 
 					$scope.$on("reportingPoiLayerSelected", function(event, data) {
