@@ -133,6 +133,15 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 	
 			});
 
+			// called if indicator was edited - then we must make sure that the view is refreshed
+			// i.e. if a new spatial unit was setup the first time via edit menu, then we must ensure that this new spatial unit is actually 
+			// visible within features overview table dropdown
+			$rootScope.$on("refreshIndicatorOverviewTableCompleted", function() {
+				$scope.currentIndicatorDataset = kommonitorDataExchangeService.getIndicatorMetadataById($scope.currentIndicatorDataset.indicatorId);
+
+				$scope.$digest();
+			});
+
 			$scope.filterOverviewTargetSpatialUnits = function(){
 				return function( spatialUnitMetadata ) {
 					if($scope.currentIndicatorDataset){
