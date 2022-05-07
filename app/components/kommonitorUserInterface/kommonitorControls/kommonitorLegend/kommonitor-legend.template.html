@@ -356,9 +356,9 @@
 									<label>Fortbewegungsart:
 									</label>&nbsp; {{$ctrl.kommonitorDataExchangeServiceInstance.routingLegend.transitMode}}
 									<br />
-									<label>Routing-Typ: </label>&nbsp;
+									<!-- <label>Routing-Typ: </label>&nbsp;
 									{{$ctrl.kommonitorDataExchangeServiceInstance.routingLegend.preference}}
-									<br />
+									<br /> -->
 				
 									<div>
 										<i style="background: #ed561a; opacity:0.7;"></i> Pfad in Kartendarstellung
@@ -385,14 +385,12 @@
 											<tr>
 												<th>Dauer</th>
 												<th>Distanz</th>
-												<th>Durchschnittsgeschwindigkeit</th>
 											</tr>
 										</thead>
 										<tbody>
 											<tr>
 												<td>{{$ctrl.kommonitorDataExchangeServiceInstance.routingLegend.routeDuration_minutes}} Minuten</td>
 												<td>{{$ctrl.kommonitorDataExchangeServiceInstance.routingLegend.routeDistance_km}} km</td>
-												<td>{{$ctrl.kommonitorDataExchangeServiceInstance.routingLegend.routeAvgSpeed_kmh}} km/h</td>
 											</tr>
 										</tbody>
 									</table>

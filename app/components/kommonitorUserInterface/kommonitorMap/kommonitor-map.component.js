@@ -488,9 +488,6 @@ angular.module('kommonitorMap').component(
                 addressdetails: 1, // include additional address detail parts  
                 viewbox: "" + (Number(__env.initialLongitude) - 0.001) + "," + (Number(__env.initialLatitude) - 0.001) + "," + (Number(__env.initialLongitude) + 0.001) + "," + (Number(__env.initialLatitude) + 0.001)             
               },
-              // params: {
-              //   
-              // },
               searchUrl: __env.targetUrlToGeocoderService + '/search',
               reverseUrl: __env.targetUrlToGeocoderService + '/reverse'
             }
@@ -1503,8 +1500,7 @@ angular.module('kommonitorMap').component(
         });
 
         $scope.$on("replaceRouteAsGeoJSON", function (event, geoJSON, transitMode, preference, routingStartPoint, routingEndPoint,
-          routeDistance_km, routeDuration_minutes, routeAvgSpeed_kmh,
-				routeTotalAscent, routeTotalDescent) {
+          routeDistance_km, routeDuration_minutes) {
 
           if ($scope.routingLayer) {
             $scope.layerControl.removeLayer($scope.routingLayer);
@@ -1545,10 +1541,7 @@ angular.module('kommonitorMap').component(
             routingStartPoint: routingStartPoint,
             routingEndPoint: routingEndPoint,
             routeDistance_km: routeDistance_km,
-            routeDuration_minutes: routeDuration_minutes,
-            routeAvgSpeed_kmh: routeAvgSpeed_kmh,
-            routeTotalAscent: routeTotalAscent,
-            routeTotalDescent: routeTotalDescent            
+            routeDuration_minutes: routeDuration_minutes           
           };
 
           var style = {

@@ -29,7 +29,19 @@ angular
 					$('.box').boxWidget();
 
 					var OpenStreetMapProvider = window.GeoSearch.OpenStreetMapProvider;
-					$scope.openStreetMapProvider = new OpenStreetMapProvider();
+
+					 $scope.openStreetMapProvider = new OpenStreetMapProvider(    
+						{
+						  params: {
+							'accept-language': 'de', // render results in Dutch
+							countrycodes: 'de', // limit search results to the Netherlands
+							addressdetails: 1, // include additional address detail parts  
+							viewbox: "" + (Number(__env.initialLongitude) - 0.001) + "," + (Number(__env.initialLatitude) - 0.001) + "," + (Number(__env.initialLongitude) + 0.001) + "," + (Number(__env.initialLatitude) + 0.001)             
+						  },
+						  searchUrl: __env.targetUrlToGeocoderService + '/search',
+						  reverseUrl: __env.targetUrlToGeocoderService + '/reverse'
+						}
+					  );
 
 					const INDICATOR_DATE_PREFIX = __env.indicatorDatePrefix;
 					this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
@@ -80,9 +92,6 @@ angular
 
 					$scope.routeDistance_km = undefined;
 					$scope.routeDuration_minutes = undefined;
-					$scope.routeAvgSpeed_kmh = undefined;
-					$scope.routeTotalAscent = undefined;
-					$scope.routeTotalDescent = undefined;
 
 
 					/**
@@ -254,21 +263,32 @@ angular
 					 */
 					var createRoutingRequest = function(transitMode, preference, routingStartPointInput, routingEndPointInput){
 						var locString = routingStartPointInput+'%7C'+routingEndPointInput;
-						var getRequest = $scope.targetUrlToReachabilityService_ORS
-							+ '/routes?'
-							+ 'coordinates=' + locString
-							+ '&profile='+transitMode
-							+ '&preference='+preference
-							+ '&units='+'km'
-							+ '&language='+'de'
-							+ '&format='+'geojson'
-							+ '&instructions='+'true'
-							+ '&instructions_format='+'html'
-							+ '&maneuvers='+'true'
-							+ '&attributes='+'avgspeed'
-							+ '&elevation='+'true';
+
+						// if user never clicked transit mode set standard 
+						if(transitMode === "buffer"){
+							transitMode = "foot-walking";
+						}
+						
+						// var getRequest = $scope.targetUrlToReachabilityService_ORS
+						// 	+ '/routes?'
+						// 	+ 'coordinates=' + locString
+						// 	+ '&profile='+transitMode
+						// 	+ '&preference='+preference
+						// 	+ '&units='+'km'
+						// 	+ '&language='+'de'
+						// 	+ '&format='+'geojson'
+						// 	+ '&instructions='+'true'
+						// 	+ '&instructions_format='+'html'
+						// 	+ '&maneuvers='+'true'
+						// 	+ '&attributes='+'avgspeed'
+						// 	+ '&elevation='+'true';
 
 						//console.log(getRequest);
+
+						var getRequest = $scope.targetUrlToReachabilityService_ORS
+							+ '/v2/directions/' + transitMode + '?'
+							+ 'start=' + routingStartPointInput 
+							+ '&end=' + routingEndPointInput;
 
 						return getRequest;
 					}
@@ -414,9 +434,6 @@ angular
 
 						$scope.routeDistance_km = undefined;
 						$scope.routeDuration_minutes = undefined;
-						$scope.routeAvgSpeed_kmh = undefined;
-						$scope.routeTotalAscent = undefined;
-						$scope.routeTotalDescent = undefined;
 
 						$scope.currentIsochronesGeoJSON = undefined;
 						$scope.currentRouteGeoJSON = undefined;
@@ -667,14 +684,6 @@ angular
 					};
 
 					/**
-					 * Changes the transitMode depending on the selection in the
-					 * transitModeList-GUI-elements current selection.
-					 */
-					$scope.changeTransitMode = function(){
-						$scope.settings.transitMode = document.getElementById('transitModeList').value;
-					};
-
-					/**
 					 * Changes the max_value depending on the
 					 * selected vehicle type.
 					 */
@@ -790,6 +799,13 @@ angular
 					 */
 					$scope.showRouting = function() {
 						$scope.showIsochrones = false;
+						// force active setting of transit mode foot-walking when changing to routing mode 
+						$scope.settings.transitMode = "foot-walking";
+						document.getElementById("optFeet").click();
+						document.getElementById("optFeetRadioButtonLabel").classList.add('active');
+						$timeout(function(){
+							$scope.$digest();
+						});
 					};
 
 					$scope.onClickPerDataset_isochroneConfig = function(){
@@ -930,6 +946,14 @@ angular
 						var endPointString = $scope.routingEndPoint.longitude + "," + $scope.routingEndPoint.latitude;
 
 						var url = createRoutingRequest($scope.settings.transitMode, $scope.settings.preference, startPointString, endPointString);
+						// let coordinatesArray = [];
+						// coordinatesArray.push(startPointString);
+						// coordinatesArray.push(endPointString);
+						// let postBody = {
+						// 	"coordinates": coordinatesArray
+						// };
+						// let url = $scope.targetUrlToReachabilityService_ORS
+						// + '/v2/directions/' + $scope.settings.transitMode + '/geojson';
 
 						console.log("execute OpenRouteService routing request: " + url);
 
@@ -939,19 +963,18 @@ angular
 								headers: {
 									// 'Accept': 'application/json'
 								}
-							}
+							};
 
 							$http(req)
+							// $http.post(url, postBody)
 								.then(
 									function successCallback(
 										response) {
 										$scope.currentRouteGeoJSON = response.data;
 
-										$scope.routeDistance_km = $scope.currentRouteGeoJSON.features[0].properties.summary[0].distance;
-										$scope.routeDuration_minutes = Math.round($scope.currentRouteGeoJSON.features[0].properties.summary[0].duration / 60);
-										$scope.routeAvgSpeed_kmh = $scope.currentRouteGeoJSON.features[0].properties.summary[0].avgspeed;
-										$scope.routeTotalAscent = $scope.currentRouteGeoJSON.features[0].properties.summary[0].ascent;
-										$scope.routeTotalDescent = $scope.currentRouteGeoJSON.features[0].properties.summary[0].descent;
+										$scope.routeDistance_km = $scope.currentRouteGeoJSON.features[0].properties.summary.distance / 1000;
+										$scope.routeDuration_minutes = Math.round($scope.currentRouteGeoJSON.features[0].properties.summary.duration / 60);
+
 
 										// TODO : CDB
 										kommonitorMapService
@@ -959,8 +982,7 @@ angular
 												$scope.currentRouteGeoJSON,
 												$scope.settings.transitMode,
 												$scope.settings.preference, $scope.routingStartPoint, $scope.routingEndPoint,
-												$scope.routeDistance_km, $scope.routeDuration_minutes, $scope.routeAvgSpeed_kmh,
-												$scope.routeTotalAscent, $scope.routeTotalDescent);
+												$scope.routeDistance_km, $scope.routeDuration_minutes);
 										$scope.prepareDownloadGeoJSON();
 										$scope.settings.loadingData = false;
 										$rootScope.$broadcast('hideLoadingIconOnMap');

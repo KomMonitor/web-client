@@ -39,18 +39,16 @@
 								<label>showIsochrones= {{showIsochrones}}, transitMode= {{settings.transitMode}}</label>
 							 -->
 
-			<div ng-show="showIsochrones" class="ng-show" id="isochoneCalculation">
+			<div class="just-padding">
 
-						<div class="just-padding">
-							<!-- <label for="TODO">Verkehrsmittel</label> -->
-							<br />
+				<br />
 							<div class="btn-group btn-group-justified" data-toggle="buttons">
-								<label class="btn btn-primary active">
-									<input type="radio" name="options" id="optBuffer" autocomplete="off" checked
-										ng-change="changeType()" ng-model="settings.transitMode" value="buffer"> <i
-										class="far fa-dot-circle"></i> Puffer</input>
-								</label>
-								<label class="btn btn-primary">
+									<label class="btn btn-primary active" ng-show="showIsochrones">
+										<input type="radio" name="options" id="optBuffer" autocomplete="off" checked
+											ng-change="changeType()" ng-model="settings.transitMode" value="buffer"> <i
+											class="far fa-dot-circle"></i> Puffer</input>
+									</label>
+								<label class="btn btn-primary" id="optFeetRadioButtonLabel">
 									<input type="radio" name="options" id="optFeet" autocomplete="off" checked
 										ng-change="changeType()" ng-model="settings.transitMode" value="foot-walking"> <i
 										class="fas fa-walking"></i> Fu&szlig;g&aumlnger </input>
@@ -71,9 +69,12 @@
 										class="fab fa-accessible-icon"></i> Barrierefrei </input>
 								</label>
 							</div>
-							<!--
-											<label>{{settings.transitMode}}</label>
-										-->
+
+			</div>
+
+			<div ng-show="showIsochrones" class="ng-show" id="isochoneCalculation">
+
+						<div class="just-padding">
 
 							<!-- <label for="TODO">Analysefokus</label> -->
 
@@ -319,44 +320,6 @@
 			<div ng-hide="showIsochrones" class="ng-hide" id="routing">
 				
 				<div class="just-padding">
-					<div class="form-group">
-						<label for="transitModeList">Verkehrsmittel</label>
-						<select class="form-control" id="transitModeList" ng-change="changeTransitMode()"
-							ng-model="settings.transitMode">
-							<option value="driving-car">PKW</option>
-							<!-- <option value="driving-hgv">LKW</option> -->
-							<option value="cycling-regular">Fahrrad</option>
-							<!-- <option value="cycling-road">Fahrrad asphaltiert</option>
-											  <option value="cycling-safe">Fahrrad separiert</option>
-											  <option value="cycling-mountain">Farrad offroad</option>
-											  <option value="cycling-tour">Fahrrad tour</option>
-											  <option value="cycling-electric">Fahrrad elektrisch</option> -->
-							<option value="foot-walking">Fu&szlig;g&auml;nger</option>
-							<option value="wheelchair">Barrierefrei</option>
-							<!-- <option value="foot-hiking">Wandern</option>
-											  <option value="wheelchair">Rollstuhl</option> -->
-						</select>
-					</div>
-	
-					<div class="btn-group btn-group-justified btn-group-sm" data-toggle="buttons">
-						<label class="btn btn-primary active">
-							<input type="radio" name="options" id="optFastest" autocomplete="off" checked
-								ng-model="settings.preference" value="fastest">Schnellste
-						</label>
-						<label class="btn btn-primary">
-							<input type="radio" name="options" id="optShortest" autocomplete="off" ng-model="settings.preference"
-								value="shortest">K&uuml;rzeste
-						</label>
-						<label class="btn btn-primary">
-							<input type="radio" name="options" id="optRecommended" autocomplete="off" ng-model="settings.preference"
-								value="recommended">Empfohlene
-						</label>
-					</div>
-					<!--
-											<label>{{settings.preference}}</label>
-										-->
-	
-					<br />
 	
 					<label for="TODO">Startpunkt:</label>
 	
