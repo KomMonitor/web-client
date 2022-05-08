@@ -23,6 +23,8 @@ module.exports = function (grunt) {
             'app/components/kommonitorUserInterface/kommonitorControls/kommonitorDataSetup/kommonitor-data-setup.component.js',
             'app/components/kommonitorAdmin/adminDashboardManagement/admin-dashboard-management.module.js',
             'app/components/kommonitorAdmin/adminDashboardManagement/admin-dashboard-management.component.js',
+            'app/components/kommonitorAdmin/adminRoleExplanation/admin-role-explanation.module.js',
+            'app/components/kommonitorAdmin/adminRoleExplanation/admin-role-explanation.component.js',
             'app/components/kommonitorAdmin/adminRoleManagement/admin-role-management.module.js',
             'app/components/kommonitorAdmin/adminRoleManagement/admin-role-management.component.js',
             'app/components/kommonitorAdmin/adminRoleManagement/roleAddModal/role-add-modal.module.js',

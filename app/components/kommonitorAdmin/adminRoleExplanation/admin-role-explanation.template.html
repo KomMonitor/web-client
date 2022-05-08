@@ -1,0 +1,195 @@
+<div id="adminRoleExplanationContent">
+
+	<div align="center">
+		<div class="loading-overlay-admin-panel ng-hide" ng-show="loadingData">
+			<span class="glyphicon glyphicon-refresh icon-spin"></span>
+		</div>
+	</div>
+
+	<!-- Content Header (Page header) -->
+	<section class="content-header">
+		<h1>
+			Rollenkonzept und Verwaltung des Zugriffsschutzes auf Datens&auml;tze
+			<small>Erl&auml;uterungen &uuml;ber die Bedeutung der verschiedenen Organisationen und deren Rollen 
+				zur Umsetzung eines Zugriffsschutzes auf Datens&auml;tze (Raumeinheiten, Georessourcen, Indikatoren)</small>
+		</h1>
+	</section>
+
+	<!-- Main content -->
+	<section class="content container-fluid">
+		<!--------------------------
+			| Your Page Content Here |
+			-------------------------->
+
+		<!-- <br/>
+							<br/> -->
+
+		<p>
+			KomMonitor erlaubt eine datensatzscharfe Definition des Zugriffsschutzes auf die grundlegenden Ressourcen der Raumeinheiten, darauf definierter Indikatoren und sonstiger Georessourcen. 
+			Der Zugriffsschutz wird dabei realisiert &uuml;ber die Definition von <b>Organisationen</b> und einem <b>mehrstufigen Rollenkonzept</b>.
+			KomMonitor unterscheidet folgende grundlegende <b>Organisationstypen</b>:
+			<ul>
+				<li>
+					<b>public</b> &dash; <i>(anonymer Organisation f&uuml; &ouml;ffentliche User ohne Login - Zugriff f&uuml;r alle, die den Link auf die Anwendung haben)</i>
+				</li>
+				<li>
+					<b>kommonitor</b> &dash; <i>(spezielle globale KomMonitor Organisation - Organisation f&uuml;r KomMonitor-Administratoren und alle User, die keiner sonstigen Organisation zugeordnet werden k&ouml;nnen)</i>
+				</li>
+				<li>
+					<b>beliebige weitere Organisationen</b> &dash; <i>(weitere Organisationen mit beliebigem Namen - Administratoren k&ouml;nnen beliebige weitere Organisationen anlegen, um verschiedene Personengruppen und deren Zugriff auf Datens&auml;tze zu kontrollieren)</i>
+				</li>
+			</ul> 
+		</p>
+
+		<p>
+			Pro Organisation werden in KomMonitor vier aufeinander aufbauende <b>Rollen</b> definiert
+		</p>
+
+		<div class="row vertical-align">
+			<div class="col-md-3 col-sm-6 col-xs-12">
+
+				<div >
+					<i class="fa-solid fa-user-check fa-5x"></i>
+				</div>
+				
+				<i>&lt;organisation&gt;</i><b>-viewer</b>
+
+				<p>
+					<b>lesender</b> Zugriff auf verkn&uuml;pfte Datens&auml;tze
+				</p>
+
+
+			</div>
+			<!-- ./col -->
+			<div class="col-md-3 col-sm-6 col-xs-12">
+
+				<div >
+					<i class="fa-solid fa-user-pen fa-5x"></i>
+				</div>
+				
+				<i>&lt;organisation&gt;</i><b>-editor</b>
+
+				<p>
+					<b>schreibender</b> Zugriff auf verkn&uuml;pfte Datens&auml;tze (Metadaten und Features editeren)
+
+					<br>
+					<br>
+					(beinhaltet alle Rechte der <i>&lt;organisation&gt;</i><b>-viewer</b>-Rolle)
+				</p>
+
+
+			</div>
+			<!-- ./col -->
+			<div class="col-md-3 col-sm-6 col-xs-12">
+
+				<div >
+					<i class="fa-solid fa-user-plus fa-5x"></i>
+				</div>
+				
+				<i>&lt;organisation&gt;</i><b>-publisher</b>
+
+				<p>
+					<b>schreibender</b> Zugriff auf verkn&uuml;pfte Datens&auml;tze (Metadaten und Features editeren) 
+					<br>					
+					<b>Anlegen</b> neuer Datens&auml;tze
+
+					<br>
+					<br>
+					(beinhaltet alle Rechte der <i>&lt;organisation&gt;</i><b>-editor</b>-Rolle)
+				</p>
+
+
+			</div>
+			<!-- ./col -->
+			<div class="col-md-3 col-sm-6 col-xs-12">
+
+				<div >
+					<i class="fa-solid fa-user-shield fa-5x"></i>
+					<!-- <i class="fa-solid fa-user-xmark fa-5x"></i> -->
+				</div>
+				
+				<i>&lt;organisation&gt;</i><b>-creator</b>
+
+				<p>
+					<b>schreibender</b> Zugriff auf verkn&uuml;pfte Datens&auml;tze (Metadaten und Features editeren) 					
+					<br>					
+					<b>Anlegen</b> neuer Datens&auml;tze
+					<br>					
+					<b>Löschen</b> verkn&uuml;pfter Datens&auml;tze
+
+					<br>
+					<br>
+					(beinhaltet alle Rechte der <i>&lt;organisation&gt;</i><b>-publisher</b>-Rolle)
+				</p>
+
+
+			</div>
+			<!-- ./col -->
+		</div>
+		<!-- /.row -->
+
+		<hr>
+
+		<p>
+			Der Zugriffsschutz in KomMonitor erfolgt explizit, indem in den Metadaten des jeweiligen Datensatzes eine Verkn&uuml;pfung mit organisationsspezifischen Rollen erfolgt. Verschiedenen Organisationen k&ouml;nnen dabei verschiedene Rechte gew&auml;hrt werden.
+			Bei Indikatoren m&uuml;ssen neben den Metadaten auch die Zugriffe auf eingeladene Raumeinheiten verwaltet werden (Beispiel: Altersgruppen werden auf Stadtteilebene &ouml;ffentlich freigegeben, kleinr&auml;umige Baublockebene wird nur Stadtverwaltungsintern freigegeben)    
+			<ul>
+				<li>
+					<b>ohne Verkn&uuml;pfung</b> &dash; <i>kein Zugriff</i>
+				</li>
+				<li>
+					<b><i>*-viewer</i> Verkn&uuml;pfung</b> &dash; <i>lesender Zugriff auf Metadaten und Features </i>
+				</li>
+				<li>
+					<b><i>*-editor</i> Verkn&uuml;pfung</b> &dash; <i>lesender und schreibender Zugriff auf Metadaten und Features </i>
+				</li>
+				<li>
+					<b><i>*-publisher</i> Verkn&uuml;pfung</b> &dash; <i>lesender und schreibender Zugriff auf Metadaten und Features </i>
+				</li>
+				<li>
+					<b><i>*-creator</i> Verkn&uuml;pfung</b> &dash; <i>lesender und schreibender Zugriff auf Metadaten und Features sowie recht auf Entfernen des gesamten Datensatzes </i>
+				</li>
+			</ul>  
+		</p>
+
+		<hr>
+		
+		<p>
+			Besondere <b>Rollen</b>
+		</p>
+
+		<div class="row vertical-align">
+			<div class="col-md-6 col-sm-6 col-xs-12">
+
+				<div >
+					<i class="fa-solid fa-user-check fa-5x"></i>
+				</div>
+				
+				<i>public</i><b>-viewer</b>
+
+				<p>
+					<b>lesender</b> Zugriff auf verkn&uuml;pfte Datens&auml;tze f&uuml;r anonyme User (ohne Login)
+				</p>
+
+			</div>
+			<!-- ./col -->
+			<div class="col-md-6 col-sm-6 col-xs-12">
+
+				<div >
+					<i class="fa-solid fa-user-gear fa-5x"></i>
+				</div>
+				
+				<i>kommonitor</i><b>-creator</b>
+
+				<p>
+					<b>Administrationsrechte</b> auf das Gesamtsystem, inklusive App-Einstellungen, Verwaltung von Organisationen und Rollen sowie volle Zugriffsrechte auf s&auml;mtliche Datens&auml;tze (auch ohne explizite Verkn&uuml;pfung)
+				</p>
+
+			</div>
+			<!-- ./col -->
+		</div>
+		<!-- ./row -->
+
+	</section>
+	<!-- /.content -->
+</div>
