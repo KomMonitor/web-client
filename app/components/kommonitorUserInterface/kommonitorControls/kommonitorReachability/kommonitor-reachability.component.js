@@ -25,6 +25,8 @@ angular
 
 					//$("[data-toggle=tooltip]").tooltip();
 
+					$scope.isUsedInReporting = false;
+
 					// initialize any adminLTE box widgets
 					$('.box').boxWidget();
 
@@ -350,11 +352,12 @@ angular
 					// These are controlled by setting a variable and checking it when needed.
 					$('#reporting-modal').on('shown.bs.modal', function (e) {
 						$scope.isUsedInReporting = true;
+						$scope.$digest();
 					})
 			
 					$('#reporting-modal').on('hidden.bs.modal', function (e) {
 						$scope.isUsedInReporting = false;
-						$scope.$digest()
+						$scope.$digest();
 					})
 
 					$scope.$on("reportingPoiLayerSelected", function(event, data) {
@@ -813,7 +816,7 @@ angular
 							if(! $scope.settings.isochroneConfig.selectedDate){
 								$scope.settings.isochroneConfig.selectedDate = $scope.settings.selectedStartPointLayer.availablePeriodsOfValidity[$scope.settings.selectedStartPointLayer.availablePeriodsOfValidity.length - 1];
 							}
-							if(!isUsedInReporting) {
+							if(!$scope.isUsedInReporting) {
 								$scope.fetchGeoJSONForIsochrones();
 							}
 						}, 500);
@@ -886,7 +889,7 @@ angular
 							$scope.settings.isochroneConfig.selectedDate = $scope.settings.selectedStartPointLayer.availablePeriodsOfValidity[$scope.settings.selectedStartPointLayer.availablePeriodsOfValidity.length - 1];
 						}
 
-						if(!isUsedInReporting) {
+						if(!$scope.isUsedInReporting) {
 							$scope.fetchGeoJSONForIsochrones();
 						}
 					};
@@ -1715,7 +1718,7 @@ angular
 								return;
 							}
 
-							if(!isUsedInReporting) {
+							if(!$scope.isUsedInReporting) {
 								$scope.fetchGeoJSONForIsochrones();
 							}
 
