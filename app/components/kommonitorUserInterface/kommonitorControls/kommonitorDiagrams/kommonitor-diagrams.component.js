@@ -177,8 +177,11 @@ angular
 								// console.log(barElement);
 
 								var spatialFeatureName = $scope.barOption.xAxis.data[dataIndex];
-								// console.log(spatialFeatureName);
-								$rootScope.$broadcast("highlightFeatureOnMap", spatialFeatureName);
+								if(spatialFeatureName){
+									// console.log(spatialFeatureName);
+									$rootScope.$broadcast("highlightFeatureOnMap", spatialFeatureName);
+								}
+								
 							});
 
 							$scope.barChart.on('mouseOut', function (params) {
@@ -194,7 +197,10 @@ angular
 
 								var spatialFeatureName = $scope.barOption.xAxis.data[dataIndex];
 								// console.log(spatialFeatureName);
-								$rootScope.$broadcast("unhighlightFeatureOnMap", spatialFeatureName);
+								if(spatialFeatureName){
+									$rootScope.$broadcast("unhighlightFeatureOnMap", spatialFeatureName);
+								}
+								
 							});
 
 							$scope.barChart.on('click', function (params) {
@@ -209,7 +215,10 @@ angular
 
 								var spatialFeatureName = $scope.barOption.xAxis.data[dataIndex];
 								// console.log(spatialFeatureName);
-								$rootScope.$broadcast("switchHighlightFeatureOnMap", spatialFeatureName);
+								if(spatialFeatureName){
+									$rootScope.$broadcast("switchHighlightFeatureOnMap", spatialFeatureName);
+								}
+								
 							});
 
 							$scope.eventsRegistered = true;

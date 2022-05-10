@@ -400,7 +400,10 @@ angular
 								// $scope.userHoveresOverItem = true;
 								var spatialFeatureName = params.data.name;
 								// console.log(spatialFeatureName);
-								$rootScope.$broadcast("highlightFeatureOnMap", spatialFeatureName);
+								if(spatialFeatureName){
+									$rootScope.$broadcast("highlightFeatureOnMap", spatialFeatureName);
+								}
+								
 							});
 
 							$scope.radarChart.on('mouseOut', function (params) {
@@ -408,14 +411,19 @@ angular
 
 								var spatialFeatureName = params.data.name;
 								// console.log(spatialFeatureName);
-								$rootScope.$broadcast("unhighlightFeatureOnMap", spatialFeatureName);
+								if(spatialFeatureName){
+									$rootScope.$broadcast("unhighlightFeatureOnMap", spatialFeatureName);
+								}
+								
 							});
 
 							//disable feature removal for radar chart - seems to be unintuititve
 							// $scope.radarChart.on('click', function(params){
 							// 	var spatialFeatureName = params.data.name;
 							// 	// console.log(spatialFeatureName);
+							// if(spatialFeatureName){
 							// 	$rootScope.$broadcast("switchHighlightFeatureOnMap", spatialFeatureName);
+							// }
 							// });
 
 							$scope.eventsRegistered = true;

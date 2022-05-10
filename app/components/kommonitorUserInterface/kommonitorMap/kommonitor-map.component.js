@@ -3213,6 +3213,9 @@ angular.module('kommonitorMap').component(
 
           // console.log("highlight feature on map for featureName " + spatialFeatureName);
 
+          if(!spatialFeatureName){
+            return;
+          }
           var done = false;
 
           $scope.map.eachLayer(function (layer) {
@@ -3228,6 +3231,9 @@ angular.module('kommonitorMap').component(
         });
 
         $scope.$on("unhighlightFeatureOnMap", function (event, spatialFeatureName) {
+          if(!spatialFeatureName){
+            return;
+          }
 
           // console.log("unhighlight feature on map for featureName " + spatialFeatureName);
 
@@ -3246,6 +3252,9 @@ angular.module('kommonitorMap').component(
         });
 
         $scope.$on("switchHighlightFeatureOnMap", function (event, spatialFeatureName) {
+          if(!spatialFeatureName){
+            return;
+          }
 
           // console.log("switch highlight feature on map for featureName " + spatialFeatureName);
 
