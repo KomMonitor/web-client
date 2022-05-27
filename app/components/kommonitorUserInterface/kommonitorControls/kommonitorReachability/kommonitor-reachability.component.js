@@ -542,9 +542,12 @@ angular
 						a.id = 'downloadReachabilityIsochrones';
 						a.setAttribute('class', 'btn btn-info');
 
-						document.getElementById(
-								'reachabilityIsochroneButtonSection')
-							.appendChild(a);
+						let elements = document.getElementsByClassName(
+								'reachabilityIsochroneButtonSection');
+
+						for (const element of elements) {
+							element.appendChild(a);
+						}
 					};
 
 					$scope.prepareRouteDownload = function(){
@@ -574,9 +577,12 @@ angular
 						a.id = 'downloadReachabilityRoute';
 						a.setAttribute('class', 'btn btn-info');
 
-						document.getElementById(
-								'reachabilityRouteButtonSection')
-							.appendChild(a);
+							let elements = document.getElementsByClassName(
+								'reachabilityRouteButtonSection');
+
+						for (const element of elements) {
+							element.appendChild(a);
+						}
 					};
 
 					/**

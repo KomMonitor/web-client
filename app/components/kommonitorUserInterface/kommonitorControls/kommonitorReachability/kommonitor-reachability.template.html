@@ -296,7 +296,7 @@
 							<div ng-show="showIsochrones && $ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend">
 								<br/>
 								<br/>
-								<div style="display: inline-block" align="center" id="reachabilityIsochroneButtonSection">
+								<div style="display: inline-block" align="center" class="reachabilityIsochroneButtonSection">
 									<button ng-click="removeReachabilityLayers()" type="button" class="btn btn-danger">Ergebnis
 										verwerfen / Layer entfernen</button>
 									<!-- another button to download as GeoJSOn will be set programatically within component file -->
@@ -307,7 +307,7 @@
 								<br/>
 								<br/>
 								
-								<div style="display: inline-block" align="center" id="reachabilityRouteButtonSection">
+								<div style="display: inline-block" align="center" class="reachabilityRouteButtonSection">
 									<button ng-click="removeRoutingLayers()" type="button" class="btn btn-danger">Ergebnis verwerfen /
 										Layer entfernen</button>
 									<!-- another button to download as GeoJSOn will be set programatically within component file -->
@@ -423,7 +423,7 @@
 	</div>
 	<!-- /.box -->
 
-	<div class="box box-primary collapsed-box">
+	<div class="box box-primary collapsed-box" ng-if="!isUsedInReporting">
 		<div class="box-header with-border">
 			<h3 class="box-title">Punktobjekte im Einzugsgebiet</h3>
 
