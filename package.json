@@ -89,7 +89,7 @@
     "jstat": "^1.7.1",
     "jszip": "^3.7.1",
     "keycloak-js": "10.0.1",
-    "leaflet": "^1.7.1",
+    "leaflet": "1.7.1",
     "leaflet-draw": "^1.0.4",
     "leaflet-geosearch": "^3.6.0",
     "leaflet-groupedlayercontrol": "^0.6.1",
