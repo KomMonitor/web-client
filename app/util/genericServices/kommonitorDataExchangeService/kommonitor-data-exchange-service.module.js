@@ -2839,10 +2839,8 @@ angular
     }
 
     this.checkAdminPermission = function(){
-      for(const role of this.currentKeycloakLoginRoles){
-        if(role.includes(__env.keycloakKomMonitorAdminRoleName)){
-          return true;
-        }
+      if(this.currentKeycloakLoginRoles.includes(__env.keycloakKomMonitorAdminRoleName)){
+        return true;
       }
       return false;
     }
