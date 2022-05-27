@@ -445,8 +445,6 @@ angular
 						$scope.geosearchResults_startingPoint;
 						$scope.geosearchResults_endPoint;
 
-						document.getElementById("optFastest").click();
-
 						$scope.routingStartPoint = undefined;
 						$scope.routingEndPoint = undefined;
 
