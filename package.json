@@ -36,7 +36,7 @@
     "grunt-processhtml": "^0.3.13",
     "grunt-script-link-tags": "^1.0.2",
     "grunt-war": "^0.5.1",
-    "http-server": "^0.12.3",
+    "http-server": "^14.1.0",
     "license-checker": "^25.0.1",
     "release-it": "^14.6.2",
     "webpack": "^5.1.0",
@@ -44,7 +44,7 @@
   },
   "scripts": {
     "build": "npm install --force && webpack && grunt",
-    "start": "http-server -p 8000 -c-1 ./app",
+    "start": "http-server -p 8000 -c-1 ./app --cors --gzip",
     "release": "release-it"
   },
   "dependencies": {
