@@ -659,9 +659,11 @@ angular.module('reportingOverview').component('reportingOverview', {
 
 				// register echarts maps
 				for(let section of $scope.config.templateSections) {
-					console.log(section);
 					for(let mapName of section.echartsRegisteredMapNames) {
 						if($scope.config.template.name === "A4-landscape-reachability") {
+							if(!mapName.includes(section.spatialUnitName)) {
+								continue;
+							}
 							if(!mapName.includes("_isochrones")) {
 								let geoJson = section.echartsMaps.filter( map => map.name === section.poiLayerName)[0].geoJson
 								echarts.registerMap(mapName, geoJson)
@@ -670,12 +672,14 @@ angular.module('reportingOverview').component('reportingOverview', {
 								echarts.registerMap(mapName, geoJson)
 							}
 						} else {
+							if(!mapName.includes(section.spatialUnitName)) {
+								continue;
+							}
 							let geoJson = section.echartsMaps[0].geoJson
 							echarts.registerMap(mapName, geoJson)
 						}
 					}
 				}
-
 				for(let page of $scope.config.pages) {
 					for(let pageElement of page.pageElements) {
 						if(pageElement.type === "map" && pageElement.hasOwnProperty("echartsMaps")) {
@@ -731,7 +735,10 @@ angular.module('reportingOverview').component('reportingOverview', {
 					let mapNames = [...new Set(section.echartsRegisteredMapNames)]
 					if($scope.config.template.name === "A4-landscape-reachability") {
 						let mapAdded = false;
-						for(let name of mapNames) {
+						for(let [idx, name] of mapNames.entries()) {
+							if(!name.includes(section.spatialUnitName)) {
+								continue;
+							}
 							// store all isochrones
 							if(name.includes("_isochrones")) {
 								let map = echarts.getMap(name)
@@ -740,9 +747,10 @@ angular.module('reportingOverview').component('reportingOverview', {
 									geoJson: map.geoJson
 								})
 							}
-							// all other maps have the same geojson, so we only store them once
+							// First map with the correct spatial unit
+							// All other maps have the same geojson, so we only store them once
 							if(!mapAdded && name.includes(section.poiLayerName)) {
-								let map = echarts.getMap(name)
+								let map = echarts.getMap(mapNames[idx])
 								section.echartsMaps.push({
 									name: section.poiLayerName,
 									geoJson: map.geoJson
@@ -752,12 +760,18 @@ angular.module('reportingOverview').component('reportingOverview', {
 
 						}
 					} else {
-						// geojson is the same for all maps so we just pick the fist one
-						let map = echarts.getMap(mapNames[0])
-						section.echartsMaps.push({
-							name: mapNames[0],
-							geoJson: map.geoJson
-						})
+						for(let [idx, name] of mapNames.entries()) {
+							if(!name.includes(section.spatialUnitName)) {
+								continue;
+							} else {
+								// First map with the correct spatial unit
+								let map = echarts.getMap(mapNames[idx])
+								section.echartsMaps.push({
+									name: mapNames[idx],
+									geoJson: map.geoJson
+								});
+							}
+						}
 					}
 				}
 
