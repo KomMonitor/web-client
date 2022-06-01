@@ -2304,7 +2304,7 @@ hr {
   }
 }
 
-#reporting-isochrones-config #kommonitorReachability > .box-primary:last-child {
+#reporting-isochrones-config #kommonitorReachability #reachability-point-box {
 	display: none;
 }
 
