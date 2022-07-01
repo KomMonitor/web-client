@@ -213,6 +213,8 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 	
 					$rootScope.$broadcast("refreshIndicatorOverviewTable", "edit", $scope.currentIndicatorDataset.indicatorId);
 					// $scope.refreshIndicatorEditFeaturesOverviewTable();
+					// force empty feature overview table on successful deletion of entries 
+					kommonitorDataGridHelperService.buildDataGrid_featureTable_indicatorResource("indicatorFeatureTable", [], []);
 	
 					$scope.successMessagePart = $scope.currentIndicatorDataset.indicatorName;
 	

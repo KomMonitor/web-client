@@ -175,6 +175,8 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 
 				$rootScope.$broadcast("refreshSpatialUnitOverviewTable", "edit", $scope.currentSpatialUnitDataset.spatialUnitId);
 				// $scope.refreshGeoresourceEditFeaturesOverviewTable();
+				// force empty feature overview table on successful deletion of entries 
+				kommonitorDataGridHelperService.buildDataGrid_featureTable_spatialResource("spatialUnitFeatureTable", [], []);
 
 				$scope.successMessagePart = $scope.currentSpatialUnitDataset.spatialUnitLevel;
 
