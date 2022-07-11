@@ -1324,36 +1324,34 @@ angular
           },
           { headerName: 'Feature-Id', field: __env.FEATURE_ID_PROPERTY_NAME, pinned: 'left', editable: false, cellClass: "grid-non-editable", maxWidth: 125 },
           { headerName: 'Name', field: __env.FEATURE_NAME_PROPERTY_NAME, pinned: 'left', minWidth: 150 }, 
-          { headerName: 'Geometrie', field: "kommonitorGeometry", autoHeight: false, wrapText: false,
-            cellRenderer: function (params) {
-              let html = JSON.stringify(params.data.kommonitorGeometry);
+          // { headerName: 'Geometrie', field: "kommonitorGeometry", autoHeight: false, wrapText: false,
+          //   cellRenderer: function (params) {
+          //     let html = JSON.stringify(params.data.kommonitorGeometry);
 
-              return html;
-            },
-            filter: 'agTextColumnFilter', 
-            filterValueGetter: (params) => {
-              return JSON.stringify(params.data.kommonitorGeometry);
-            },
-            valueGetter: params => {
-              return JSON.stringify(params.data.kommonitorGeometry);
-            },
-            valueSetter: params => {
-                try {
-                  params.data.kommonitorGeometry = JSON.parse(params.newValue);
-                } catch (error) {
-                  try {
-                    params.data.kommonitorGeometry = JSON.parse(params.oldValue);
-                  } catch (error) {
-                    params.data.kommonitorGeometry = params.oldValue;
-                  }
+          //     return html;
+          //   },
+          //   filter: 'agTextColumnFilter', 
+          //   filterValueGetter: (params) => {
+          //     return JSON.stringify(params.data.kommonitorGeometry);
+          //   },
+          //   valueGetter: params => {
+          //     return JSON.stringify(params.data.kommonitorGeometry);
+          //   },
+          //   valueSetter: params => {
+          //       try {
+          //         params.data.kommonitorGeometry = JSON.parse(params.newValue);
+          //       } catch (error) {
+          //         try {
+          //           params.data.kommonitorGeometry = JSON.parse(params.oldValue);
+          //         } catch (error) {
+          //           params.data.kommonitorGeometry = params.oldValue;
+          //         }
                   
-                }                
-                return true;
-            },
-            minWidth: 200 
-          },  
-          // { headerName: 'Id', field: __env.FEATURE_ID_PROPERTY_NAME,  maxWidth: 125 },
-          // { headerName: 'Name', field: __env.FEATURE_NAME_PROPERTY_NAME,  minWidth: 300 }, 
+          //       }                
+          //       return true;
+          //   },
+          //   minWidth: 200 
+          // },  
           { headerName: 'Lebenszeitbeginn', field: __env.VALID_START_DATE_PROPERTY_NAME, minWidth: 150, cellEditor: getDatePicker() },
           { headerName: 'Lebenszeitende', field: __env.VALID_END_DATE_PROPERTY_NAME, cellEditor: getDatePicker(), 
             // cellRenderer: function (params) {
