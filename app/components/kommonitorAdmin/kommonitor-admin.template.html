@@ -22,6 +22,12 @@
       <!-- witch back to KomMonitor Main Application -->
       <a href="#!/" class="btn btn-danger" style="margin-top:8px;" ng-click="switchToMapApplication()"><i class="fas fa-user-cog"></i>&nbsp;&nbsp;Administration verlassen</a>
 
+      <!-- user profile information -->
+      &nbsp; &nbsp;
+        <i class="fas fa-user-cog"></i>
+        <b>eingeloggt als </b> {{$ctrl.kommonitorDataExchangeServiceInstance.currentKeycloakUser.username}} &nbsp; &nbsp; <b>Login-Rollen:</b> {{$ctrl.kommonitorDataExchangeServiceInstance.currentKomMonitorLoginRoleNames}}
+
+
       <!-- Navbar Right Menu -->
       <div class="navbar-custom-menu">
         <ul class="nav navbar-nav">

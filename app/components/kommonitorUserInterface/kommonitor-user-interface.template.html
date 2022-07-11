@@ -24,8 +24,18 @@
 					<h4>User Login</h4>
 					<div ng-if="authenticated" style="margin-bottom: 10px;">
 						<span><b>Nutzer:</b></span>
-						<span style="word-break: break-all;"><i>{{username}}</i></span>
-						<br/>
+						<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.currentKeycloakUser.firstName && $ctrl.kommonitorDataExchangeServiceInstance.currentKeycloakUser.lastName">
+							<span style="word-break: break-all;"><i>{{$ctrl.kommonitorDataExchangeServiceInstance.currentKeycloakUser.username}} ({{$ctrl.kommonitorDataExchangeServiceInstance.currentKeycloakUser.firstName}} {{$ctrl.kommonitorDataExchangeServiceInstance.currentKeycloakUser.lastName}})</i></span>
+						</div>
+						<div ng-if="! $ctrl.kommonitorDataExchangeServiceInstance.currentKeycloakUser.firstName && $ctrl.kommonitorDataExchangeServiceInstance.currentKeycloakUser.lastName">
+							<span style="word-break: break-all;"><i>{{$ctrl.kommonitorDataExchangeServiceInstance.currentKeycloakUser.username}} ({{$ctrl.kommonitorDataExchangeServiceInstance.currentKeycloakUser.lastName}})</i></span>
+						</div>
+						<div ng-if="! $ctrl.kommonitorDataExchangeServiceInstance.currentKeycloakUser.firstName && !$ctrl.kommonitorDataExchangeServiceInstance.currentKeycloakUser.lastName">
+							<span style="word-break: break-all;"><i>{{$ctrl.kommonitorDataExchangeServiceInstance.currentKeycloakUser.username}}</i></span>
+						</div>
+						<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.currentKeycloakUser.email">
+							<span style="word-break: break-all;"><i>{{$ctrl.kommonitorDataExchangeServiceInstance.currentKeycloakUser.email}}</i></span>
+						</div>
 						<br/>
 						<span><b>zugewiesene Rollen:</b></span>
 						<span><i>{{$ctrl.kommonitorDataExchangeServiceInstance.currentKomMonitorLoginRoleNames}}</i></span>

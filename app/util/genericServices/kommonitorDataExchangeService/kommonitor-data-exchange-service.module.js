@@ -61,6 +61,7 @@ angular
           this.enableKeycloakSecurity = __env.enableKeycloakSecurity;
           this.currentKeycloakLoginRoles = [];
           this.currentKomMonitorLoginRoleNames = [];
+          this.currentKeycloakUser;
 
           // MAP objects for available resource metadata in order to have quick access to datasets by ID
           this.availableIndicators_map = new Map();
@@ -992,6 +993,10 @@ angular
             if (Auth.keycloak.authenticated){
               await Auth.keycloak.loadUserProfile()
               .then(function (profile) {
+                // set user profile
+                self.currentKeycloakUser = profile;
+                console.log("User logged in with email: " + profile.email);
+
                 if(Auth.keycloak.tokenParsed && Auth.keycloak.tokenParsed.realm_access && Auth.keycloak.tokenParsed.realm_access.roles){
                   self.currentKeycloakLoginRoles = Auth.keycloak.tokenParsed.realm_access.roles;
                   if (Auth.keycloak.tokenParsed.resource_access["realm-management"]) {
