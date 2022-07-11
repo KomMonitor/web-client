@@ -1934,8 +1934,7 @@ angular
         let columnDefs = [];
         // Only show edit column if user is Realm Admin
         if (isRealmAdmin) {
-          columnDefs.push({ headerName: 'Editierfunktionen', maxWidth: 200, checkboxSelection: (row) => {return row.data.name != "public" && row.data.name != "kommonitor"}, headerCheckboxSelection: true, 
-          headerCheckboxSelectionFilteredOnly: true, filter: false, sortable: false, cellRenderer: 'displayEditButtons_accessControl' });
+          columnDefs.push({ headerName: 'Editierfunktionen', maxWidth: 200, checkboxSelection: (row) => {return row.data.name != "public" && row.data.name != "kommonitor"}, filter: false, sortable: false, cellRenderer: 'displayEditButtons_accessControl' });
         }
 
         return columnDefs.concat([
