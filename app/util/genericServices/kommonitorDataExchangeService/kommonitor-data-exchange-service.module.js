@@ -12,10 +12,10 @@ angular.module('kommonitorDataExchange', ['kommonitorMap', 'kommonitorKeycloakHe
 angular
 		.module('kommonitorDataExchange', ['kommonitorCacheHelper', 'angularjs-dropdown-multiselect'])
 		.service(
-				'kommonitorDataExchangeService', ['$rootScope', '$timeout', 'kommonitorMapService', 'kommonitorKeycloakHelperService',
+				'kommonitorDataExchangeService', ['$rootScope', '$timeout', '$interval', 'kommonitorMapService', 'kommonitorKeycloakHelperService',
         'kommonitorCacheHelperService', 
         '$http', '__env', '$q', 'Auth',
-				function($rootScope, $timeout,
+				function($rootScope, $timeout, $interval,
 						kommonitorMapService, kommonitorKeycloakHelperService, kommonitorCacheHelperService, $http, __env, $q, Auth,) {              
 
               let thisService = this;
@@ -975,6 +975,34 @@ angular
       		    });
       		};
 
+          
+
+          this.extendKeycloakSession = function () {
+            // Auth.keycloak.updateToken(5).then(function () {
+            //   console.log("keycloak token refreshed.");
+            // }).catch(function () {
+            //   console.error('Failed to refresh token. Will redirect to Login screen');
+            //   Auth.keycloak.login();
+            // });
+
+            Auth.keycloak.login();
+          };
+
+          this.tryLogoutUser = function() {
+            Auth.keycloak.logout();
+          };
+
+          var startCheckSessionExpiration = function(){
+            $interval(function () {
+              // minutes until current browser session invalidates
+              // use refresh token as this is used when calling "updateToken" keycloak method. Only if that is invalid the whole session is invalid
+              self.keycloakTokenExpirationInfo = Math.round((Auth.keycloak.refreshTokenParsed.exp + Auth.keycloak.timeSkew - new Date().getTime() / 1000) / 60);
+              if(! self.keycloakTokenExpirationInfo){
+                self.keycloakTokenExpirationInfo = 30;
+              }
+            }, 1000 * 60);            
+          };
+
           /*
           * FETCH INITIAL METADATA ABOUT EACH RESOURCE
           */
@@ -1006,6 +1034,9 @@ angular
                 } else {
                   self.currentKeycloakLoginRoles = [];
                 }
+
+                // set token expiration
+                startCheckSessionExpiration();                
                 })
               .catch(function () {
                 console.log('Failed to load user profile');

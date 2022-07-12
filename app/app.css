@@ -216,6 +216,7 @@ MULTI STEP FORM
         --submit_bg: #1FCC44;
 		--submit_hover: #40e263;
 		--logout_bg: rgb(216, 0, 0);
+		--extend_bg: rgb(235, 160, 0);
         --logout_hover: #ff7373;
         --icon_color:#d84a4a;
     }
@@ -285,6 +286,31 @@ MULTI STEP FORM
         /* remove the outline */
         outline: none;
     }
+
+	.input_extend_session {
+        /* submit button has a different color and different padding */
+        background-color: var(--extend_bg);
+		color: white;
+		font-weight: bold;
+		text-transform: uppercase;
+		padding-left: 0;
+	}
+
+	.input_container,
+    .input_extend_session {
+			height: 40px;
+			border-radius: 20px;
+			width: 100%;
+			margin-bottom: 10px;
+    }
+
+	.input_extend_session:hover {
+        background-color: var(--submit_hover);
+        /* simple color transition on hover */
+        transition: background-color,
+            1s;
+        cursor: pointer;
+	}
 
     #input_submit {
         /* submit button has a different color and different padding */

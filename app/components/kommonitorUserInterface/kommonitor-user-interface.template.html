@@ -17,49 +17,30 @@
 				
 			 </div> 			  
 
-			 <!-- switch back to KomMonitor Main Application -->
 			<a id="userLogin" ng-mouseover="showUserLogin = true" ng-init="showUserLogin = false" title="Useristration" style="font-size:1.2em; float: right; margin-right: 2%; margin-left: 2%; margin-top: 0.5%;"><i class="fas fa-user-cog"></i></a>
 			<div id="userLoginForm" ng-show="showUserLogin && $ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity" ng-mouseleave="showUserLogin = false" class="userFormWrapper">
 				<div id="userForm">
 					<h4>User Login</h4>
 					<div ng-if="authenticated" style="margin-bottom: 10px;">
-						<span><b>Nutzer:</b></span>
+						<span><b>Nutzername:</b></span> <i>{{$ctrl.kommonitorDataExchangeServiceInstance.currentKeycloakUser.username}}</i>
 						<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.currentKeycloakUser.firstName && $ctrl.kommonitorDataExchangeServiceInstance.currentKeycloakUser.lastName">
-							<span style="word-break: break-all;"><i>{{$ctrl.kommonitorDataExchangeServiceInstance.currentKeycloakUser.username}} ({{$ctrl.kommonitorDataExchangeServiceInstance.currentKeycloakUser.firstName}} {{$ctrl.kommonitorDataExchangeServiceInstance.currentKeycloakUser.lastName}})</i></span>
+							<span style="word-break: break-all;"><b>Vor- und Nachname:</b><i> {{$ctrl.kommonitorDataExchangeServiceInstance.currentKeycloakUser.firstName}} {{$ctrl.kommonitorDataExchangeServiceInstance.currentKeycloakUser.lastName}}</i></span>
 						</div>
 						<div ng-if="! $ctrl.kommonitorDataExchangeServiceInstance.currentKeycloakUser.firstName && $ctrl.kommonitorDataExchangeServiceInstance.currentKeycloakUser.lastName">
-							<span style="word-break: break-all;"><i>{{$ctrl.kommonitorDataExchangeServiceInstance.currentKeycloakUser.username}} ({{$ctrl.kommonitorDataExchangeServiceInstance.currentKeycloakUser.lastName}})</i></span>
-						</div>
-						<div ng-if="! $ctrl.kommonitorDataExchangeServiceInstance.currentKeycloakUser.firstName && !$ctrl.kommonitorDataExchangeServiceInstance.currentKeycloakUser.lastName">
-							<span style="word-break: break-all;"><i>{{$ctrl.kommonitorDataExchangeServiceInstance.currentKeycloakUser.username}}</i></span>
+							<span style="word-break: break-all;"><b>Nachname:</b><i>({{$ctrl.kommonitorDataExchangeServiceInstance.currentKeycloakUser.lastName}}</i></span>
 						</div>
 						<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.currentKeycloakUser.email">
-							<span style="word-break: break-all;"><i>{{$ctrl.kommonitorDataExchangeServiceInstance.currentKeycloakUser.email}}</i></span>
+							<span style="word-break: break-all;"><b>E-Mail:</b><i>{{$ctrl.kommonitorDataExchangeServiceInstance.currentKeycloakUser.email}}</i></span>
 						</div>
 						<br/>
-						<span><b>zugewiesene Rollen:</b></span>
-						<span><i>{{$ctrl.kommonitorDataExchangeServiceInstance.currentKomMonitorLoginRoleNames}}</i></span>
+						<span><b>zugewiesene Rollen:</b></span> <i>{{$ctrl.kommonitorDataExchangeServiceInstance.currentKomMonitorLoginRoleNames}}</i>             
+						<br/>
+						<br/>
+						<span><b>Session läuft ab in:</b> {{$ctrl.kommonitorDataExchangeServiceInstance.keycloakTokenExpirationInfo || 30}} Minuten</span>
 					</div>
 					<input type="submit" ng-if="!authenticated" value="Login" id='input_submit' ng-click="tryLoginUser()" class='input_field' >
-					<input type="submit" ng-if="authenticated" value="Logout" id='input_submit' ng-click="tryLogoutUser()" class='input_field input_authenticated' >
-				</div>
-			</div>
-			<div id="userLoginForm_withoutKeycloak" ng-show="showUserLogin && ! $ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity" ng-mouseleave="showUserLogin = false" class="userFormWrapper">
-				<div id="userForm">
-					<h4>User Login</h4>
-                <div class="input_container">
-                    <i class="fas fa-user"></i>
-                    <input placeholder="Username" type="text" ng-model="username" name="Username" id="field_username" class='input_field'>
-                </div>
-                <div class="input_container">
-                    <i class="fas fa-lock"></i>
-                    <input  placeholder="Password" type="password" ng-model="password" ng-keypress="tryLoginUserByKeypress($event)" name="Password" id="field_password" class='input_field'>
-                </div>
-                <input type="submit" value="Login" id='input_submit' ng-click="tryLoginUser()" class='input_field'>
-                <!-- <span>Forgot <a href="#"> Username / Password ?</a></span>
-                <span id='create_account'>
-                    <a href="#">Create your account ➡ </a>
-                </span> -->
+					<input type="submit" ng-if="authenticated" value="Logout" id='input_submit' ng-click="$ctrl.kommonitorDataExchangeServiceInstance.tryLogoutUser()" class='input_field input_authenticated' >
+					<input type="submit" ng-if="authenticated" value="Relogin" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.extendKeycloakSession()" class='input_field input_extend_session' >
 				</div>
 			</div>
 			<a ng-if="showAdminLogin" ng-click="openAdminUI()" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%; cursor:pointer;" title="Admin UI&nbsp;&nbsp;"><span class="fas fa-cogs"></span></a>

@@ -23,10 +23,37 @@
       <a href="#!/" class="btn btn-danger" style="margin-top:8px;" ng-click="switchToMapApplication()"><i class="fas fa-user-cog"></i>&nbsp;&nbsp;Administration verlassen</a>
 
       <!-- user profile information -->
-      &nbsp; &nbsp;
-        <i class="fas fa-user-cog"></i>
-        <span style="color: white;"><b>eingeloggt als </b> {{$ctrl.kommonitorDataExchangeServiceInstance.currentKeycloakUser.username}} &nbsp; &nbsp; <b>Login-Rollen:</b> {{$ctrl.kommonitorDataExchangeServiceInstance.currentKomMonitorLoginRoleNames}}</span>
+        <a id="userLogin" ng-mouseover="showUserInfo = true" ng-init="showUserInfo = false" title="User and Session Info" style="font-size:1.2em; float: right; margin-right: 2%; margin-left: 2%; margin-top: 1%;"><i class="fas fa-user-cog" style="color:white;"></i></a>
+        <div id="userLoginForm" ng-show="showUserInfo && $ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity" ng-mouseleave="showUserInfo = false" class="userFormWrapper">
+          <div id="userForm">
+            <h4>User Und Session Informationen</h4>
+            <div style="margin-bottom: 10px;">
+              <span><b>Nutzername:</b></span> <i>{{$ctrl.kommonitorDataExchangeServiceInstance.currentKeycloakUser.username}}</i>
+              <div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.currentKeycloakUser.firstName && $ctrl.kommonitorDataExchangeServiceInstance.currentKeycloakUser.lastName">
+                <span style="word-break: break-all;"><b>Vor- und Nachname:</b><i> {{$ctrl.kommonitorDataExchangeServiceInstance.currentKeycloakUser.firstName}} {{$ctrl.kommonitorDataExchangeServiceInstance.currentKeycloakUser.lastName}}</i></span>
+              </div>
+              <div ng-if="! $ctrl.kommonitorDataExchangeServiceInstance.currentKeycloakUser.firstName && $ctrl.kommonitorDataExchangeServiceInstance.currentKeycloakUser.lastName">
+                <span style="word-break: break-all;"><b>Nachname:</b><i>({{$ctrl.kommonitorDataExchangeServiceInstance.currentKeycloakUser.lastName}}</i></span>
+              </div>
+              <div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.currentKeycloakUser.email">
+                <span style="word-break: break-all;"><b>E-Mail:</b><i>{{$ctrl.kommonitorDataExchangeServiceInstance.currentKeycloakUser.email}}</i></span>
+              </div>
+              <br/>
+              <span><b>zugewiesene Rollen:</b></span> <i>{{$ctrl.kommonitorDataExchangeServiceInstance.currentKomMonitorLoginRoleNames}}</i>             
+              <br/>
+              <br/>
+              <span><b>Session läuft ab in:</b> {{$ctrl.kommonitorDataExchangeServiceInstance.keycloakTokenExpirationInfo || 30}} Minuten</span>
 
+            </div>
+            <!-- <input type="submit" value="Refresh" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.extendKeycloakSession()" class='input_field input_extend_session' >
+            <input type="submit" value="Logout" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.tryLogoutUser()" class='input_field input_authenticated' > -->
+
+            <input type="submit" value="Logout" id='input_submit' ng-click="$ctrl.kommonitorDataExchangeServiceInstance.tryLogoutUser()" class='input_field input_authenticated' >
+					  <input type="submit" value="Relogin" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.extendKeycloakSession()" class='input_field input_extend_session' >
+          </div>
+        </div>
+
+        <span style="float: right; margin-top: 1%; color: white;"><b>Session läuft ab in:</b> {{$ctrl.kommonitorDataExchangeServiceInstance.keycloakTokenExpirationInfo || 30}} Minuten</span>
 
       <!-- Navbar Right Menu -->
       <div class="navbar-custom-menu">

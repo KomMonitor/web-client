@@ -322,6 +322,8 @@ function initAngularComponents(){
                 deferred.resolve(config);
               }).catch(function () {
                 deferred.reject('Failed to refresh token');
+                console.error('Failed to refresh token. Will redirect to Login screen');
+                auth.keycloak.login();
               });
               return deferred.promise;
             } else {
