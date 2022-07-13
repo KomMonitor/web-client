@@ -1,7 +1,7 @@
 {
   "name": "kommonitor-client",
   "private": true,
-  "version": "1.7.0",
+  "version": "2.0.0-beta",
   "description": "AngularJS Leaflet Client for KomMonitor",
   "repository": {
     "type": "git",
