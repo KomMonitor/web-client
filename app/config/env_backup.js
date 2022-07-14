@@ -169,7 +169,7 @@ try {
       name: "NRW Digitale Topographische Karte", 
       url: "https://www.wms.nrw.de/geobasis/wms_nw_dtk?", 
       layerType: "WMS", 
-      layerName_WMS: "nw_dtk_col", 
+      layerName_WMS: "nw_dtk_sw", 
       attribution_html: "Map data © <a href='https://www.bezreg-koeln.nrw.de/brk_internet/geobasis/'>Geobasis NRW</a>", 
       minZoomLevel: window.__env.minZoomLevel, 
       maxZoomLevel: 20 
