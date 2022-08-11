@@ -12,6 +12,9 @@ if (/Edge\/\d./i.test(navigator.userAgent)){
 
 var env = {};
 
+// for jspdf insert backwards compatibility according to https://github.com/parallax/jsPDF/releases/tag/v2.0.0
+window.jsPDF = window.jspdf.jsPDF;
+
 // Declare app level module which depends on views, and components
 var appModule = angular.module('kommonitorClient', [ 'ngRoute', 'kommonitorUserInterface', 'kommonitorAdmin']);
 

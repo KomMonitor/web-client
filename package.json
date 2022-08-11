@@ -84,8 +84,6 @@
     "js-xlsx": "^0.8.22",
     "jshint": "^2.13.5",
     "jsonlint": "^1.6.3",
-    "jspdf": "^1.5.3",
-    "jspdf-autotable": "3.4.6",
     "jstat": "^1.7.1",
     "jszip": "^3.7.1",
     "keycloak-js": "19.0.1",
