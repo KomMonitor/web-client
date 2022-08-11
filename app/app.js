@@ -374,22 +374,9 @@ function initAngularComponents(){
 }
 
 function bootstrapApplication(){
-
-  /*
-    var keycloak = new Keycloak({
-      url: 'http://keycloak-server/auth',
-      realm: 'myrealm',
-      clientId: 'myapp'
-    });
-  */
-  var keycloakConfig_forDirectInit = {
-    "url": window.__env.keycloakConfig["auth-server-url"],
-    "realm": window.__env.keycloakConfig["realm"],
-    "clientId": window.__env.keycloakConfig["resource"]
-  };
   
   if(window.__env.enableKeycloakSecurity){
-    var keycloakAdapter = new Keycloak(keycloakConfig_forDirectInit);  
+    var keycloakAdapter = new Keycloak(window.__env.configStorageServerConfig.targetUrlToConfigStorageServer_keycloakConfig);  
     keycloakAdapter.init({
       onLoad: 'check-sso',
     }).then(function (authenticated) {
