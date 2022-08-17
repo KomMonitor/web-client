@@ -1003,6 +1003,7 @@ angular
 
               // if session is expired then show warning to User!
               if (self.keycloakTokenExpirationInfo <= 0){
+                self.keycloakTokenExpirationInfo = 0;
                 self.displayMapApplicationError("Ihre aktuelle Login-Session ist abgelaufen. Sie müssen sich neu einloggen. Nutzen Sie dazu das User-Menü oben rechts.");
               }
 
