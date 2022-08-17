@@ -77,8 +77,11 @@ angular.module('roleEditMetadataModal').component('roleEditMetadataModal', {
 
 				try {
 					await kommonitorKeycloakHelperService.renameExistingRoles($scope.old.name, $scope.current.name);
+					// on successful update within keycloak explicitly set old name to current name
+					// otherwise subsequent edit requests will be erronous 
+					$scope.old.name = $scope.current.name;
 					await kommonitorKeycloakHelperService.fetchAndSetKeycloakRoles();	
-					$("#keycloakRoleEditErrorAlert").show();
+					$("#keycloakRoleEditSuccessAlert").show();
 				} catch (error) {
 					if (error.data) {
 						$scope.keycloakErrorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
