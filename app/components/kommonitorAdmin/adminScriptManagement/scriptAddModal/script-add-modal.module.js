@@ -3,5 +3,5 @@ angular.module('scriptAddModal', ['kommonitorDataExchange', 'kommonitorScriptHel
     'scriptMultiplication', 'scriptPointsInPolygon', "scriptHeadlineIndicator", "scriptPromille",
     "scriptChangeAbsolute", "scriptChangeRelative", "scriptChangeAbsoluteRefDate", "scriptChangeRelativeRefDate",
     "scriptTrend", "scriptContinuity", "scriptGeoresourceStatistics", "scriptGeoresourceSubsetShare", 
-    "scriptLineSegmentInPolygon"
+    "scriptLineSegmentInPolygon", 'kommonitorMultiStepFormHelper'
 ]);

@@ -1,1 +1,1 @@
-angular.module('georesourceEditFeaturesModal', ['kommonitorDataGridHelper', 'kommonitorImporterHelper', 'kommonitorSingleFeatureMapHelper']);
+angular.module('georesourceEditFeaturesModal', ['kommonitorDataGridHelper', 'kommonitorImporterHelper', 'kommonitorSingleFeatureMapHelper', 'kommonitorMultiStepFormHelper']);

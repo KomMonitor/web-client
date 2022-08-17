@@ -11,6 +11,7 @@ module.exports = function (grunt) {
             'app/util/genericServices/kommonitorImporterHelperService/kommonitor-importer-helper-service.module.js',
             'app/util/genericServices/kommonitorScriptHelperService/kommonitor-script-helper-service.module.js',
             'app/util/genericServices/kommonitorConfigStorageService/kommonitor-config-storage-service.module.js',
+            'app/util/genericServices/kommonitorMultiStepFormHelperService/kommonitor-multi-step-form-helper-service.module.js',
             'app/util/genericServices/kommonitorKeycloakHelperService/kommonitor-keycloak-helper-service.module.js',
             'app/util/genericServices/kommonitorDataGridHelperService/kommonitor-data-grid-helper-service.module.js',
             'app/util/genericServices/kommonitorVisualStyleHelperService/kommonitor-visual-style-helper-service.module.js',

@@ -1,1 +1,1 @@
-angular.module('georesourceAddModal', ['kommonitorImporterHelper', 'excaliburDualList']);
+angular.module('georesourceAddModal', ['kommonitorImporterHelper', 'excaliburDualList', 'kommonitorMultiStepFormHelper']);

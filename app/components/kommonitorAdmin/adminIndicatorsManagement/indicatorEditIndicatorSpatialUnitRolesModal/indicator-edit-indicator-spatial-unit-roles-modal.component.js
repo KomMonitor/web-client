@@ -1,6 +1,8 @@
 angular.module('indicatorEditIndicatorSpatialUnitRolesModal').component('indicatorEditIndicatorSpatialUnitRolesModal', {
 	templateUrl: "components/kommonitorAdmin/adminIndicatorsManagement/indicatorEditIndicatorSpatialUnitRolesModal/indicator-edit-indicator-spatial-unit-roles-modal.template.html",
-	controller: ['kommonitorDataExchangeService', '$scope', '$rootScope', '$http', '__env', function IndicatorEditIndicatorSpatialUnitRolesModalController(kommonitorDataExchangeService, $scope, $rootScope, $http, __env) {
+	controller: ['kommonitorDataExchangeService', '$scope', '$rootScope', '$http', '__env', 'kommonitorMultiStepFormHelperService',
+		function IndicatorEditIndicatorSpatialUnitRolesModalController(kommonitorDataExchangeService, $scope, $rootScope, 
+				$http, __env, kommonitorMultiStepFormHelperService) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 
@@ -18,6 +20,7 @@ angular.module('indicatorEditIndicatorSpatialUnitRolesModal').component('indicat
 			$scope.currentIndicatorDataset = indicatorDataset;
 
 			$scope.resetIndicatorEditIndicatorSpatialUnitRolesForm();
+			kommonitorMultiStepFormHelperService.registerClickHandler();
 
 		});
 

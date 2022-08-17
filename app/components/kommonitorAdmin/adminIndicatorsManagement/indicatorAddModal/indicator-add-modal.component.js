@@ -1,7 +1,7 @@
 angular.module('indicatorAddModal').component('indicatorAddModal', {
 	templateUrl : "components/kommonitorAdmin/adminIndicatorsManagement/indicatorAddModal/indicator-add-modal.template.html",
-	controller : ['kommonitorDataExchangeService', 'kommonitorImporterHelperService', '$scope', '$rootScope', '$http', '$timeout', '__env',
-		function IndicatorAddModalAddModalController(kommonitorDataExchangeService, kommonitorImporterHelperService, $scope, $rootScope, $http, $timeout, __env) {
+	controller : ['kommonitorDataExchangeService', 'kommonitorImporterHelperService', '$scope', '$rootScope', '$http', '$timeout', '__env', 'kommonitorMultiStepFormHelperService',
+		function IndicatorAddModalAddModalController(kommonitorDataExchangeService, kommonitorImporterHelperService, $scope, $rootScope, $http, $timeout, __env, kommonitorMultiStepFormHelperService) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 		this.kommonitorImporterHelperServiceInstance = kommonitorImporterHelperService;
@@ -1037,100 +1037,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 				$("#indicatorAddMetadataImportErrorAlert").hide();
 			};
 
-			/*
-			MULTI STEP FORM STUFF
-			*/
-			//jQuery time
-			$scope.current_fs; 
-			$scope.next_fs; 
-			$scope.previous_fs; //fieldsets
-			$scope.opacity; 
-			$scope.scale; //fieldset properties which we will animate
-			$scope.animating; //flag to prevent quick multi-click glitches
-
-			$timeout(function(){
-				
-				$(".next_addIndicator").click(function(){
-					if($scope.animating) return false;
-					$scope.animating = true;
-					
-					$scope.current_fs = $(this).parent();
-					$scope.next_fs = $(this).parent().next();
-					
-					//activate next step on progressbar using the index of $scope.next_fs
-					$("#progressbar li").eq($("fieldset").index($scope.next_fs)).addClass("active");
-					
-					//show the next fieldset
-					$scope.next_fs.show(); 
-					//hide the current fieldset with style
-					$scope.current_fs.animate({opacity: 0}, {
-						step: function(now, mx) {
-							//as the $scope.opacity of current_fs reduces to 0 - stored in "now"
-							//1. $scope.scale current_fs down to 80%
-							$scope.scale = 1 - (1 - now) * 0.2;
-							//2. bring $scope.next_fs from the right(50%)
-							// left = (now * 50)+"%";
-							//3. increase $scope.opacity of $scope.next_fs to 1 as it moves in
-							$scope.opacity = 1 - now;
-							$scope.current_fs.css({
-								'position': 'absolute'
-							});
-							// $scope.next_fs.css({'left': left, '$scope.opacity': $scope.opacity});
-							$scope.next_fs.css({'opacity': $scope.opacity});
-						}, 
-						duration: 200, 
-						complete: function(){
-							$scope.current_fs.hide();
-							$scope.animating = false;
-						}, 
-						//this comes from the custom easing plugin
-						easing: 'easeInOutBack'
-					});
-				});
-	
-				$(".previous_addIndicator").click(function(){
-					if($scope.animating) return false;
-					$scope.animating = true;
-					
-					$scope.current_fs = $(this).parent();
-					$scope.previous_fs = $(this).parent().prev();
-					
-					//de-activate current step on progressbar
-					$("#progressbar li").eq($("fieldset").index($scope.current_fs)).removeClass("active");
-					
-					//show the previous fieldset
-					$scope.previous_fs.show(); 
-					//hide the current fieldset with style
-					$scope.current_fs.animate({opacity: 0}, {
-						step: function(now, mx) {
-							//as the $scope.opacity of current_fs reduces to 0 - stored in "now"
-							//1. $scope.scale $scope.previous_fs from 80% to 100%
-							$scope.scale = 0.8 + (1 - now) * 0.2;
-							//2. take current_fs to the right(50%) - from 0%
-							// left = ((1-now) * 50)+"%";
-							//3. increase $scope.opacity of $scope.previous_fs to 1 as it moves in
-							$scope.opacity = 1 - now;
-							// current_fs.css({'left': left});
-							// $scope.previous_fs.css({'transform': '$scope.scale('+$scope.scale+')', '$scope.opacity': $scope.opacity});
-							$scope.previous_fs.css({
-								'position': 'absolute'
-							});
-							$scope.previous_fs.css({'opacity': $scope.opacity});
-						}, 
-						duration: 200, 
-						complete: function(){
-							$scope.current_fs.hide();
-							$scope.previous_fs.css({
-								'position': 'relative'
-							});
-							$scope.animating = false;
-						}, 
-						//this comes from the custom easing plugin
-						easing: 'easeInOutBack'
-					});
-				});
-				
-			}, 500);
+			kommonitorMultiStepFormHelperService.registerClickHandler();
 
 	}
 ]});

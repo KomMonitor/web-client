@@ -145,6 +145,7 @@ MULTI STEP FORM
 	letter-spacing: 1px;
 	/* transform-style: preserve-3d; */
 	/* z-index: 1; */
+	cursor: pointer;
 }
 
 #progressbar li:before {
