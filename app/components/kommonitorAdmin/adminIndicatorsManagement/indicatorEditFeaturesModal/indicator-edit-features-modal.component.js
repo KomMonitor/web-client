@@ -603,8 +603,7 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 					// property Mapping
 					$scope.spatialUnitRefKeyProperty = $scope.mappingConfigImportSettings.propertyMapping.spatialReferenceKeyProperty; 
 					
-					timeseriesMappingToLoad = $scope.mappingConfigImportSettings.propertyMapping.timeseriesMappings;
-					$scope.$broadcast('loadTimeseriesMapping', { mapping: timeseriesMappingToLoad } )
+					$scope.$broadcast('loadTimeseriesMapping', { mapping: $scope.mappingConfigImportSettings.propertyMapping.timeseriesMappings } );
 
 					if($scope.mappingConfigImportSettings.targetSpatialUnitName){
 						for (const spatialUnitMetadata of kommonitorDataExchangeService.availableSpatialUnits) {
@@ -614,8 +613,7 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 						
 						}	
 					}
-
-					var selectedRolesMetadata = kommonitorDataExchangeService.getRoleMetadataForRoleIds($scope.mappingConfigImportSettings.allowedRoles);			
+		
 					$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorEditFeaturesRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, $scope.mappingConfigImportSettings.allowedRoles);
 
 					$scope.keepMissingValues = $scope.mappingConfigImportSettings.propertyMapping.keepMissingOrNullValueIndicator;
