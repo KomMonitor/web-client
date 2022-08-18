@@ -1,1 +1,1 @@
-angular.module('georesourceEditMetadataModal', ['excaliburDualList', 'kommonitorMultiStepFormHelper']);
+angular.module('georesourceEditMetadataModal', ['excaliburDualList', 'kommonitorMultiStepFormHelper', 'kommonitorDataGridHelper']);

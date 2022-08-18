@@ -2588,6 +2588,315 @@ angular
         }
       };
 
+      function CheckboxRenderer_viewer() {}
+
+      CheckboxRenderer_viewer.prototype.init = function(params) {
+        this.params = params;
+
+        let isChecked = false;
+        let exists = false;
+        let className;
+        for (const role of params.data.roles) {
+          if (role.permissionLevel == "viewer"){
+            exists = true;
+            isChecked = role.isChecked;
+            className = role.roleId;
+            break;
+          }
+        }  
+
+        if(exists){
+          this.eGui = document.createElement('input');
+          this.eGui.className = className;
+          this.eGui.type = 'checkbox';
+          this.eGui.checked = isChecked;
+
+          this.checkedHandler = this.checkedHandler.bind(this);
+          this.eGui.addEventListener('click', this.checkedHandler);
+        }
+      };
+
+      CheckboxRenderer_viewer.prototype.checkedHandler = function(e) {
+        let checked = e.target.checked;
+        for (const role of this.params.data.roles) {
+          if (role.permissionLevel == "viewer"){            
+            role.isChecked = checked;
+            break;
+          }
+        }  
+      };
+
+      CheckboxRenderer_viewer.prototype.getGui = function(params) {
+        return this.eGui;
+      };
+
+      CheckboxRenderer_viewer.prototype.destroy = function(params) {
+        if(this.eGui){
+          this.eGui.removeEventListener('click', this.checkedHandler);
+        }        
+      };
+
+      function CheckboxRenderer_editor() {}
+
+      CheckboxRenderer_editor.prototype.init = function(params) {
+        this.params = params;
+
+        let isChecked = false;
+        let exists = false;
+        let className;
+        for (const role of params.data.roles) {
+          if (role.permissionLevel == "editor"){
+            exists = true;
+            isChecked = role.isChecked;
+            className = role.roleId;
+            break;
+          }
+        }  
+
+        if(exists){
+          this.eGui = document.createElement('input');
+          this.eGui.className = className;
+          this.eGui.type = 'checkbox';
+          this.eGui.checked = isChecked;
+
+          this.checkedHandler = this.checkedHandler.bind(this);
+          this.eGui.addEventListener('click', this.checkedHandler);
+        }
+      };
+
+      CheckboxRenderer_editor.prototype.checkedHandler = function(e) {
+        let checked = e.target.checked;
+        for (const role of this.params.data.roles) {
+          if (role.permissionLevel == "viewer"){    
+            if (checked){
+              role.isChecked = true;
+              $('.' + role.roleId).attr('disabled', true);
+              $('.' + role.roleId).prop("checked", true);
+            }                    
+            else{
+              $('.' + role.roleId).attr('disabled', false);
+            }
+          }
+          else if (role.permissionLevel == "editor"){            
+            role.isChecked = checked;
+          }
+        }  
+      };
+
+      CheckboxRenderer_editor.prototype.getGui = function(params) {
+        return this.eGui;
+      };
+
+      CheckboxRenderer_editor.prototype.destroy = function(params) {
+        if(this.eGui){
+          this.eGui.removeEventListener('click', this.checkedHandler);
+        }  
+      };
+
+      function CheckboxRenderer_creator() {}
+
+      CheckboxRenderer_creator.prototype.init = function(params) {
+        this.params = params;
+
+        let isChecked = false;
+        let exists = false;
+        let className;
+        for (const role of params.data.roles) {
+          if (role.permissionLevel == "creator"){
+            exists = true;
+            isChecked = role.isChecked;
+            className = role.roleId;
+            break;
+          }
+        }  
+
+        if(exists){
+          this.eGui = document.createElement('input');
+          this.eGui.className = className;
+          this.eGui.type = 'checkbox';
+          this.eGui.checked = isChecked;
+
+          this.checkedHandler = this.checkedHandler.bind(this);
+          this.eGui.addEventListener('click', this.checkedHandler);
+        }
+      };
+
+      CheckboxRenderer_creator.prototype.checkedHandler = function(e) {
+        let checked = e.target.checked;
+        for (const role of this.params.data.roles) {
+          if (role.permissionLevel == "editor"){            
+            if (checked){
+              role.isChecked = true;
+              $('.' + role.roleId).attr('disabled', true);
+              $('.' + role.roleId).prop("checked", true);
+            }                    
+            else{
+              $('.' + role.roleId).attr('disabled', false);
+            }
+          }
+          else if (role.permissionLevel == "viewer"){            
+            if (checked){
+              role.isChecked = true;
+              $('.' + role.roleId).attr('disabled', true);
+              $('.' + role.roleId).prop("checked", true);
+            }                    
+            else{
+              $('.' + role.roleId).attr('disabled', true);
+            }
+          }
+          else if (role.permissionLevel == "creator" || role.permissionLevel == "editor" || role.permissionLevel == "viewer"){            
+            role.isChecked = checked;
+          }
+        }  
+      };
+
+      CheckboxRenderer_creator.prototype.getGui = function(params) {
+        return this.eGui;
+      };
+
+      CheckboxRenderer_creator.prototype.destroy = function(params) {
+        if(this.eGui){
+          this.eGui.removeEventListener('click', this.checkedHandler);
+        }  
+      };
+
+      this.buildRoleManagementGridRowData = function(accessControlMetadata, selectedRoleIds){
+        let data = JSON.parse(JSON.stringify(accessControlMetadata));
+        for (let elem of data) {
+          for (let role of elem.roles) {
+            role.isChecked = false;
+            if (selectedRoleIds && selectedRoleIds.includes(role.roleId)){
+              role.isChecked = true;
+            }
+          }
+        }
+
+        let array = [];
+        array.push(data[0]);
+        array.push(data[1]);
+
+        data.splice(0,2);
+        data.sort(function (a, b) {
+          if (a.name < b.name) {
+            return -1;
+          }
+          if (a.name > b.name) {
+            return 1;
+          }
+          return 0;
+        });
+
+        array = array.concat(data);
+
+        return array;
+      };
+
+      this.buildRoleManagementGridColumnConfig = function(){
+        let columnDefs = [];
+
+        return columnDefs.concat([
+          { headerName: 'Organisationseinheit', field: "name", minWidth: 200 },
+          { headerName: 'lesen', field: "roles", filter: false, sortable: false, maxWidth: 100, cellRenderer: 'checkboxRenderer_viewer', },
+          { headerName: 'editieren', field: "roles", filter: false, sortable: false, maxWidth: 100, cellRenderer: 'checkboxRenderer_editor', },
+          { headerName: 'löschen', field: "roles", filter: false, sortable: false, maxWidth: 100, cellRenderer: 'checkboxRenderer_creator', }          
+        ]);
+      };
+
+      this.buildRoleManagementGridOptions = function(accessControlMetadata, selectedRoleIds){
+        let columnDefs = this.buildRoleManagementGridColumnConfig();
+          let rowData = this.buildRoleManagementGridRowData(accessControlMetadata, selectedRoleIds);
+  
+          let components = {
+            checkboxRenderer_viewer: CheckboxRenderer_viewer,
+            checkboxRenderer_editor: CheckboxRenderer_editor,
+            checkboxRenderer_creator: CheckboxRenderer_creator
+          };
+
+          let gridOptions = {
+            defaultColDef: {
+              editable: false,
+              sortable: true,
+              flex: 1,
+              minWidth: 200,
+              filter: true,
+              floatingFilter: false,
+              // filterParams: {
+              //   newRowsAction: 'keep'
+              // },
+              resizable: true,
+              wrapText: true,
+              autoHeight: true,
+              cellStyle: { 'font-size': '12px;', 'white-space': 'normal !important', "line-height": "20px !important", "word-break": "break-word !important", "padding-top": "17px", "padding-bottom": "17px" },
+              headerComponentParams: {
+                template:
+                  '<div class="ag-cell-label-container" role="presentation">' +
+                  '  <span ref="eMenu" class="ag-header-icon ag-header-cell-menu-button"></span>' +
+                  '  <div ref="eLabel" class="ag-header-cell-label" role="presentation">' +
+                  '    <span ref="eSortOrder" class="ag-header-icon ag-sort-order"></span>' +
+                  '    <span ref="eSortAsc" class="ag-header-icon ag-sort-ascending-icon"></span>' +
+                  '    <span ref="eSortDesc" class="ag-header-icon ag-sort-descending-icon"></span>' +
+                  '    <span ref="eSortNone" class="ag-header-icon ag-sort-none-icon"></span>' +
+                  '    <span ref="eText" class="ag-header-cell-text" role="columnheader" style="white-space: normal;"></span>' +
+                  '    <span ref="eFilter" class="ag-header-icon ag-filter-icon"></span>' +
+                  '  </div>' +
+                  '</div>',
+              },
+            },
+            components: components,
+            floatingFilter: false,
+            columnDefs: columnDefs,
+            rowData: rowData,
+            rowHeight: 10,
+            suppressRowClickSelection: true,
+            rowSelection: 'multiple',
+            enableCellTextSelection: false,
+            ensureDomOrder: true,
+            pagination: true,
+            paginationPageSize: 5,
+            suppressColumnVirtualisation: true,          
+            onFirstDataRendered: function () {
+            },
+            onColumnResized: function () {
+            },        
+            onRowDataChanged: function () {
+            },   
+            onViewportChanged: function () {       
+            },
+  
+          };
+  
+          return gridOptions;
+      };
+
+      this.buildRoleManagementGrid = function(tableDOMId, currentTableOptionsObject, accessControlMetadata, selectedRoleIds){
+        if (currentTableOptionsObject && currentTableOptionsObject.api) {
+
+          let newRowData = this.buildRoleManagementGridRowData(accessControlMetadata, selectedRoleIds);
+          currentTableOptionsObject.api.setRowData(newRowData);
+        }
+        else {
+          currentTableOptionsObject = this.buildRoleManagementGridOptions(accessControlMetadata, selectedRoleIds);
+          let gridDiv = document.querySelector('#' + tableDOMId);
+          new agGrid.Grid(gridDiv, currentTableOptionsObject);
+        }
+        return currentTableOptionsObject;
+      };
+
+      this.getSelectedRoleIds_roleManagementGrid = function(roleManagementTableOptions){
+        let ids = [];
+        if (roleManagementTableOptions && roleManagementTableOptions.api){
+
+          roleManagementTableOptions.api.forEachNode(function(node, index){
+            for (const role of node.data.roles) {
+              if(role && role.isChecked){
+                ids.push(role.roleId);
+              }
+            }
+          })               
+        }
+        return ids;
+      };
+
       this.saveGridStore = function (gridOptions) {
         window.colState = gridOptions.columnApi.getColumnState();
         window.filterState = gridOptions.api.getFilterModel();

@@ -1,7 +1,9 @@
 angular.module('spatialUnitEditMetadataModal').component('spatialUnitEditMetadataModal', {
 	templateUrl : "components/kommonitorAdmin/adminSpatialUnitsManagement/spatialUnitEditMetadataModal/spatial-unit-edit-metadata-modal.template.html",
-	controller : ['kommonitorDataExchangeService', '$scope', '$rootScope', '$http', '__env', '$timeout', 'kommonitorMultiStepFormHelperService',
-		function SpatialUnitEditMetadataModalController(kommonitorDataExchangeService, $scope, $rootScope, $http, __env, $timeout, kommonitorMultiStepFormHelperService) {
+	controller : ['kommonitorDataExchangeService', '$scope', '$rootScope', '$http', '__env', '$timeout', 
+		'kommonitorMultiStepFormHelperService', 'kommonitorDataGridHelperService',
+		function SpatialUnitEditMetadataModalController(kommonitorDataExchangeService, $scope, $rootScope, $http, __env, $timeout, 
+			kommonitorMultiStepFormHelperService, kommonitorDataGridHelperService) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 
@@ -75,9 +77,7 @@ angular.module('spatialUnitEditMetadataModal').component('spatialUnitEditMetadat
 		$scope.metadata.lastUpdate = undefined;
 		$scope.metadata.description = undefined;
 
-		$scope.allowedRoleNames = {selectedItems: []};
-		$scope.duallist = {duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, null, "roleName")};			
-
+		$scope.roleManagementTableOptions = undefined;
 
 		$scope.nextLowerHierarchySpatialUnit = undefined;
 		$scope.nextUpperHierarchySpatialUnit = undefined;
@@ -101,8 +101,8 @@ angular.module('spatialUnitEditMetadataModal').component('spatialUnitEditMetadat
 		});
 
 		function refreshRoles() {
-			$scope.allowedRoleNames = { selectedItems: [] };
-			$scope.duallist = { duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, null, "roleName") };
+			let allowedRoles = $scope.currentSpatialUnitDataset ? $scope.currentSpatialUnitDataset.allowedRoles : [];
+			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('spatialUnitEditRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, allowedRoles);
 		}
 
 		$scope.resetSpatialUnitEditMetadataForm = function(){
@@ -119,9 +119,8 @@ angular.module('spatialUnitEditMetadataModal').component('spatialUnitEditMetadat
 			$scope.metadata.contact = $scope.currentSpatialUnitDataset.metadata.contact;
 			$scope.metadata.description = $scope.currentSpatialUnitDataset.metadata.description;
 
-			var selectedRolesMetadata = kommonitorDataExchangeService.getRoleMetadataForRoleIds($scope.currentSpatialUnitDataset.allowedRoles);			
-			$scope.duallist = {duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, selectedRolesMetadata, "roleName")};			
-			$scope.allowedRoleNames = {selectedItems: $scope.duallist.duallistRoleOptions.selectedItems};
+			let allowedRoles = $scope.currentSpatialUnitDataset ? $scope.currentSpatialUnitDataset.allowedRoles : [];
+			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('spatialUnitEditRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, allowedRoles);
 
 			$scope.metadata.lastUpdate = $scope.currentSpatialUnitDataset.metadata.lastUpdate;
 			// $('#spatialUnitEditMetadataLastUpdateDatepicker').data({date: $scope.currentSpatialUnitDataset.metadata.lastUpdate});
@@ -212,9 +211,9 @@ angular.module('spatialUnitEditMetadataModal').component('spatialUnitEditMetadat
 				"nextUpperHierarchyLevel": $scope.nextUpperHierarchySpatialUnit ? $scope.nextUpperHierarchySpatialUnit.spatialUnitLevel : null
 			};
 
-			for (const roleDuallistItem of $scope.allowedRoleNames.selectedItems) {
-				var roleMetadata = kommonitorDataExchangeService.getRoleMetadataForRoleName(roleDuallistItem.name);
-				patchBody.allowedRoles.push(roleMetadata.roleId);
+			let roleIds = kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid($scope.roleManagementTableOptions);
+			for (const roleId of roleIds) {
+				patchBody.allowedRoles.push(roleId);
 			}
 
 			// TODO Create and perform POST Request with loading screen
@@ -335,9 +334,7 @@ angular.module('spatialUnitEditMetadataModal').component('spatialUnitEditMetadat
 				$scope.metadata.description = $scope.metadataImportSettings.metadata.description;
 				$scope.metadata.databasis = $scope.metadataImportSettings.metadata.databasis;
 
-				var selectedRolesMetadata = kommonitorDataExchangeService.getRoleMetadataForRoleIds($scope.metadataImportSettings.allowedRoles);			
-				$scope.duallist = {duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, selectedRolesMetadata, "roleName")};			
-				$scope.allowedRoleNames = {selectedItems: $scope.duallist.duallistRoleOptions.selectedItems};
+				$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('spatialUnitEditRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, $scope.metadataImportSettings.allowedRoles);
 
 				for(var i=0; i<kommonitorDataExchangeService.availableSpatialUnits.length; i++){
 					var spatialUnit = kommonitorDataExchangeService.availableSpatialUnits[i];
@@ -388,9 +385,9 @@ angular.module('spatialUnitEditMetadataModal').component('spatialUnitEditMetadat
 			metadataExport.spatialUnitLevel = $scope.spatialUnitLevel || "";
 
 			metadataExport.allowedRoles = [];
-			for (const roleDuallistItem of $scope.allowedRoleNames.selectedItems) {
-				var roleMetadata = kommonitorDataExchangeService.getRoleMetadataForRoleName(roleDuallistItem.name);
-				metadataExport.allowedRoles.push(roleMetadata.roleId);
+			let roleIds = kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid($scope.roleManagementTableOptions);
+			for (const roleId of roleIds) {
+				metadataExport.allowedRoles.push(roleId);
 			}
 
 			if($scope.metadata.updateInterval){

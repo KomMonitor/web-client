@@ -437,13 +437,8 @@ angular
           "indicatorValues": [],
           "applicableSpatialUnit": scopeProperties.targetSpatialUnitMetadata.spatialUnitLevel,
           "defaultClassificationMapping": scopeProperties.currentIndicatorDataset.defaultClassificationMapping,
-          "allowedRoles": []
+          "allowedRoles": scopeProperties.allowedRoles
           };
-
-          for (const roleDuallistItem of scopeProperties.allowedRoleNames.selectedItems) {
-            var roleMetadata = kommonitorDataExchangeService.getRoleMetadataForRoleName(roleDuallistItem.name);
-            putBody.allowedRoles.push(roleMetadata.roleId);
-          }
 
         return putBody;
       };

@@ -248,15 +248,20 @@
 
 								<br/>
 
-								<h4>Rollenbasierter Zeitreihen-Zugriffsschutz f&uuml;r Raumebene {{targetSpatialUnitMetadata.spatialUnitLevel}}</h4>
+								<h4>Vergabe der Zugriffsrechte auf die Datensatz-Zeitreihe f&uuml;r Raumebene {{targetSpatialUnitMetadata.spatialUnitLevel}}</h4>
 
 								<p>Klicken Sie ein oder mehrere der verf&uuml;gbaren Rollen aus der linken &Uuml;bersicht an, um den Zugriff auf die Zeitreihen-Daten des Indikators auf der ausgew&auml;hlten Raumebene f&uuml;r diese Rollen freizugeben. Der Zugriff ist nur f&uuml;r die Rollen erlaubt, die im rechten &Uuml;bersichtsfenster gelistet sind.</p>
-								<p>Wird keine Rolle selektiert, so sind die Zeitreihendaten des Indikator-Datensatzes auf der gew&auml;hlten Raumebene nur f&uuml;r Administratoren abrufbar.</p>
+								
+								<p>Zugriffsrechte (lesen, editieren, l&ouml;schen) m&uuml;ssen explizit vergeben werden. Administratoren (Rolle <i>kommonitor-creator</i>) haben immer vollen Zugriff.</p>
+	
 
-								<div class="row no-margin">
-									<div class="col-md">
-										<excalibur-dual-list ng-model='allowedRoleNames.selectedItems' options="duallist.duallistRoleOptions"></excalibur-dual-list>
+								<div class="row">
+									<div class="col-md-3"></div>
+									<div class="col-md-6 col-sm-6 col-xs-12">
+											<div id="indicatorEditFeaturesRoleManagementTable" style="height: 45vh" class="ag-theme-alpine"></div>  
+										
 									</div>
+									<div class="col-md-3"></div>
 								</div>								
 
 							<br/>

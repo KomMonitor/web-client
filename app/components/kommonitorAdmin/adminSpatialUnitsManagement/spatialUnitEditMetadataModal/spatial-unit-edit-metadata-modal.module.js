@@ -1,1 +1,1 @@
-angular.module('spatialUnitEditMetadataModal', ['excaliburDualList', 'kommonitorMultiStepFormHelper']);
+angular.module('spatialUnitEditMetadataModal', ['excaliburDualList', 'kommonitorMultiStepFormHelper', 'kommonitorDataGridHelper']);

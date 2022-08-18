@@ -1,7 +1,9 @@
 angular.module('georesourceAddModal').component('georesourceAddModal', {
 	templateUrl : "components/kommonitorAdmin/adminGeoresourcesManagement/georesourceAddModal/georesource-add-modal.template.html",
-	controller : ['kommonitorDataExchangeService', 'kommonitorImporterHelperService', '$scope', '$rootScope', '$http', '$timeout', '__env', 'kommonitorMultiStepFormHelperService',
-		function GeoresourceAddModalAddModalController(kommonitorDataExchangeService, kommonitorImporterHelperService, $scope, $rootScope, $http, $timeout, __env, kommonitorMultiStepFormHelperService) {
+	controller : ['kommonitorDataExchangeService', 'kommonitorImporterHelperService', '$scope', '$rootScope', '$http', '$timeout', 
+		'__env', 'kommonitorMultiStepFormHelperService', 'kommonitorDataGridHelperService',
+		function GeoresourceAddModalAddModalController(kommonitorDataExchangeService, kommonitorImporterHelperService, $scope, $rootScope, 
+			$http, $timeout, __env, kommonitorMultiStepFormHelperService, kommonitorDataGridHelperService) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 		this.kommonitorImporterHelperServiceInstance = kommonitorImporterHelperService;
@@ -98,9 +100,8 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 		$scope.metadata.lastUpdate = undefined;
 		$scope.metadata.description = undefined;
 
-		$scope.allowedRoleNames = {selectedItems: []};
-		$scope.duallist = {duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, null, "roleName")};			
-
+		$scope.roleManagementTableOptions = undefined;
+		
 		$scope.$on("availableRolesUpdate", function (event) {
 			refreshRoles();
 		});
@@ -110,9 +111,8 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 			refreshRoles();
 		});
 
-		function refreshRoles() {
-			$scope.allowedRoleNames = { selectedItems: [] };
-			$scope.duallist = { duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, null, "roleName") };
+		function refreshRoles() {	
+			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('georesourceAddRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, null);	
 		}
 
 		$scope.georesourceTopic_mainTopic = undefined;
@@ -241,8 +241,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 			$scope.metadata.description = undefined;
 
 			console.log("resetGeoresourceAddForm");
-			$scope.allowedRoleNames = {selectedItems: []};
-			$scope.duallist = {duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, null, "roleName")};				
+			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('georesourceAddRoleManagementTable', null, kommonitorDataExchangeService.accessControl, null);
 
 			$scope.georesourceTopic_mainTopic = undefined;
 			$scope.georesourceTopic_subTopic = undefined;
@@ -486,9 +485,9 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 			  "topicReference": null
 			};
 
-			for (const roleDuallistItem of $scope.allowedRoleNames.selectedItems) {
-				var roleMetadata = kommonitorDataExchangeService.getRoleMetadataForRoleName(roleDuallistItem.name);
-				postBody.allowedRoles.push(roleMetadata.roleId);
+			let roleIds = kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid($scope.roleManagementTableOptions);
+			for (const roleId of roleIds) {
+				postBody.allowedRoles.push(roleId);
 			}
 
 			if($scope.isPOI){
@@ -715,9 +714,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 
 				$scope.datasetName = $scope.metadataImportSettings.datasetName;
 
-				var selectedRolesMetadata = kommonitorDataExchangeService.getRoleMetadataForRoleIds($scope.metadataImportSettings.allowedRoles);			
-				$scope.duallist = {duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, selectedRolesMetadata, "roleName")};			
-				$scope.allowedRoleNames = {selectedItems: $scope.duallist.duallistRoleOptions.selectedItems};
+				$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('georesourceAddRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, $scope.metadataImportSettings.allowedRoles);
 
 				// georesource specific properties
 
@@ -810,9 +807,10 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 			metadataExport.datasetName = $scope.datasetName || "";
 
 			metadataExport.allowedRoles = [];
-			for (const roleDuallistItem of $scope.allowedRoleNames.selectedItems) {
-				var roleMetadata = kommonitorDataExchangeService.getRoleMetadataForRoleName(roleDuallistItem.name);
-				metadataExport.allowedRoles.push(roleMetadata.roleId);
+
+			let roleIds = kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid($scope.roleManagementTableOptions);
+			for (const roleId of roleIds) {
+				metadataExport.allowedRoles.push(roleId);
 			}
 
 			if($scope.metadata.updateInterval){

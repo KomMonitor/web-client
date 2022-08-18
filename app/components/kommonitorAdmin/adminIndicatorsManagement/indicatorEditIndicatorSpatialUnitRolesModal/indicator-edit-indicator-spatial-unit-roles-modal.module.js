@@ -1,1 +1,1 @@
-angular.module('indicatorEditIndicatorSpatialUnitRolesModal', ['kommonitorDataExchange', 'excaliburDualList', 'kommonitorMultiStepFormHelper']);
+angular.module('indicatorEditIndicatorSpatialUnitRolesModal', ['kommonitorDataExchange', 'excaliburDualList', 'kommonitorMultiStepFormHelper', 'kommonitorDataGridHelper']);

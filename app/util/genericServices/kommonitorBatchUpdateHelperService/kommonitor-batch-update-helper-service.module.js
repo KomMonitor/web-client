@@ -162,6 +162,15 @@ angular
                                 );
     
                                 console.log("propertyMappingDefinition of row " + i + " with importerService: ", propertyMappingDefinition);
+
+                                let indicatorMetadata = kommonitorDataExchangeService.getIndicatorMetadataById(resourceId);
+                                let allowedRoleIds = [];
+
+                                for (const applicableSpatialUnit of indicatorMetadata.applicableSpatialUnits) {
+                                    if (applicableSpatialUnit.spatialUnitId === row.selectedTargetSpatialUnit.spatialUnitId){
+                                        allowedRoleIds = applicableSpatialUnit.allowedRoles;
+                                    }
+                                }
     
                                 var scopeProperties = {
                                     "targetSpatialUnitMetadata": {
@@ -170,9 +179,7 @@ angular
                                     "currentIndicatorDataset": {
                                         "defaultClassificationMapping": row.name.defaultClassificationMapping
                                     },
-                                    "allowedRoleNames": {
-                                        "selectedItems": [] // do not allow to change roles in batch update
-                                    }
+                                    "allowedRoles": allowedRoleIds
                                 };
                                  var putBody_indicators = kommonitorImporterHelperService.buildPutBody_indicators(scopeProperties);
                                  //console.log("putBody_indicators of row " + i + ": ", putBody_indicators);
@@ -839,29 +846,6 @@ angular
                     return null;
                 }
 
-
-                // helper function to get a georesource object by id.
-                // returns null if no georesource object was found
-                this.getGeoresourceObjectById = function (id) {
-                    for (const georesource of kommonitorDataExchangeService.availableGeoresources) {
-                        if (georesource.georesourceId === id) {
-                            return georesource;
-                        }
-                    }
-                    return null;
-                }
-
-                // helper function to get a indicator object by id.
-                // returns null if no indicator object was found
-                this.getIndicatorObjectById = function (id) {
-                    for (let indicator of kommonitorDataExchangeService.availableIndicators) {
-                        if (indicator.indicatorId === id) {
-                            return indicator;
-                        }
-                    }
-                    return null;
-                }
-
                 this.createAttributeMappingsObject = function(row) {
                     var attributeMapping = [];
                     for (let i = 0; i < row.mappingObj.propertyMapping.attributes.length; i++) {
@@ -1253,9 +1237,9 @@ angular
                         if(row.tempResourceId) {
                             let resource;
                             if (resourceType === "georesource")
-                                resource = this.getGeoresourceObjectById(row.tempResourceId);
+                                resource = kommonitorDataExchangeService.getGeoresourceMetadataById(row.tempResourceId);
                             if (resourceType === "indicator")
-                                resource = this.getIndicatorObjectById(row.tempResourceId);
+                                resource = kommonitorDataExchangeService.getIndicatorMetadataById(row.tempResourceId);
                             
                             row.name = resource;
                         }

@@ -1,7 +1,9 @@
 angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataModal', {
 	templateUrl : "components/kommonitorAdmin/adminIndicatorsManagement/indicatorEditMetadataModal/indicator-edit-metadata-modal.template.html",
 	controller : ['kommonitorDataExchangeService', '$scope', '$rootScope', '$http', '__env', '$timeout', 'kommonitorMultiStepFormHelperService',
-		function IndicatorEditMetadataModalController(kommonitorDataExchangeService, $scope, $rootScope, $http, __env, $timeout, kommonitorMultiStepFormHelperService) {
+		'kommonitorDataGridHelperService', 
+		function IndicatorEditMetadataModalController(kommonitorDataExchangeService, $scope, $rootScope, $http, __env, $timeout, 
+			kommonitorMultiStepFormHelperService, kommonitorDataGridHelperService) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 
@@ -154,8 +156,7 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 		$scope.metadata.lastUpdate = undefined;
 		$scope.metadata.description = undefined;
 
-		$scope.duallist = {duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, null, "roleName")};			
-		$scope.allowedRoleNames = {selectedItems: []};
+		$scope.roleManagementTableOptions = undefined;
 
 
 		$scope.datasetName = undefined;
@@ -240,8 +241,8 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 		});
 
 		$scope.$on("availableRolesUpdate", function (event) {
-			$scope.allowedRoleNames = { selectedItems: [] };
-			$scope.duallist = { duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, null, "roleName") };
+			let allowedRoles = $scope.currentIndicatorDataset ? $scope.currentIndicatorDataset.allowedRoles : [];
+			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorEditRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, allowedRoles);
 		});
 
 		$scope.resetIndicatorEditMetadataForm = function(){
@@ -274,9 +275,8 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 				}
 			});
 
-			var selectedRolesMetadata = kommonitorDataExchangeService.getRoleMetadataForRoleIds($scope.currentIndicatorDataset.allowedRoles);			
-			$scope.duallist = {duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, selectedRolesMetadata, "roleName")};			
-			$scope.allowedRoleNames = {selectedItems: $scope.duallist.duallistRoleOptions.selectedItems};
+			let allowedRoles = $scope.currentIndicatorDataset ? $scope.currentIndicatorDataset.allowedRoles : [];
+			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorEditRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, allowedRoles);
 
 			$scope.indicatorAbbreviation = $scope.currentIndicatorDataset.abbreviation;
 
@@ -634,9 +634,9 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 				  }
 			};
 
-			for (const roleDuallistItem of $scope.allowedRoleNames.selectedItems) {
-				var roleMetadata = kommonitorDataExchangeService.getRoleMetadataForRoleName(roleDuallistItem.name);
-				patchBody.allowedRoles.push(roleMetadata.roleId);
+			let roleIds = kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid($scope.roleManagementTableOptions);
+			for (const roleId of roleIds) {
+				patchBody.allowedRoles.push(roleId);
 			}
 
 			// TAGS
@@ -815,13 +815,10 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 				$scope.indicatorReferenceDateNote = $scope.metadataImportSettings.referenceDateNote;
 				$scope.displayOrder = $scope.metadataImportSettings.displayOrder;
 
-				var selectedRolesMetadata = kommonitorDataExchangeService.getRoleMetadataForRoleIds($scope.metadataImportSettings.allowedRoles);			
-				$scope.duallist = {duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, selectedRolesMetadata, "roleName")};			
-				$scope.allowedRoleNames = {selectedItems: $scope.duallist.duallistRoleOptions.selectedItems};
+				$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorEditRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, $scope.metadataImportSettings.allowedRoles);
 
 				// indicator specific properties
 
-				
 				$scope.indicatorAbbreviation = $scope.metadataImportSettings.abbreviation;
 
 				for (const indicatorTypeOption of kommonitorDataExchangeService.indicatorTypeOptions) {
@@ -992,9 +989,9 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 			metadataExport.displayOrder = $scope.displayOrder;
 
 			metadataExport.allowedRoles = [];
-			for (const roleDuallistItem of $scope.allowedRoleNames.selectedItems) {
-				var roleMetadata = kommonitorDataExchangeService.getRoleMetadataForRoleName(roleDuallistItem.name);
-				metadataExport.allowedRoles.push(roleMetadata.roleId);
+			let roleIds = kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid($scope.roleManagementTableOptions);
+			for (const roleId of roleIds) {
+				metadataExport.allowedRoles.push(roleId);
 			}
 
 			if($scope.metadata.updateInterval){

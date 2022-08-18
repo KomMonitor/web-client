@@ -1,9 +1,9 @@
 angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 	templateUrl : "components/kommonitorAdmin/adminSpatialUnitsManagement/spatialUnitAddModal/spatial-unit-add-modal.template.html",
 	controller : ['kommonitorDataExchangeService', 'kommonitorImporterHelperService', '$scope', '$rootScope', 
-		'$timeout', '$http', '__env', 'kommonitorMultiStepFormHelperService',
+		'$timeout', '$http', '__env', 'kommonitorMultiStepFormHelperService', 'kommonitorDataGridHelperService',
 		function SpatialUnitAddModalController(kommonitorDataExchangeService, kommonitorImporterHelperService, 
-			$scope, $rootScope, $timeout, $http, __env, kommonitorMultiStepFormHelperService) {
+			$scope, $rootScope, $timeout, $http, __env, kommonitorMultiStepFormHelperService, kommonitorDataGridHelperService) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 		this.kommonitorImporterHelperServiceInstance = kommonitorImporterHelperService;
@@ -80,8 +80,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 		$scope.metadata.lastUpdate = undefined;
 		$scope.metadata.description = undefined;
 
-		$scope.allowedRoleNames = {selectedItems: []};
-		$scope.duallist = {duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, null, "roleName")};			
+		$scope.roleManagementTableOptions = undefined;	
 
 		$scope.$on("availableRolesUpdate", function (event) {
 			refreshRoles();
@@ -93,8 +92,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 		});
 		
 		function refreshRoles() {
-			$scope.allowedRoleNames = { selectedItems: [] };
-			$scope.duallist = { duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, null, "roleName") };
+			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('spatialUnitAddRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, null);	
 		}
 
 		$scope.nextLowerHierarchySpatialUnit = undefined;
@@ -153,8 +151,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 			$scope.metadata.lastUpdate = undefined;
 			$scope.metadata.description = undefined;
 
-			$scope.allowedRoleNames = {selectedItems: []};
-			$scope.duallist = {duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, null, "roleName")};			
+			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('spatialUnitAddRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, null);	
 
 			$scope.nextLowerHierarchySpatialUnit = undefined;
 			$scope.nextUpperHierarchySpatialUnit = undefined;
@@ -380,9 +377,9 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 				"nextUpperHierarchyLevel": $scope.nextUpperHierarchySpatialUnit ? $scope.nextUpperHierarchySpatialUnit.spatialUnitLevel : undefined
 			};
 
-			for (const roleDuallistItem of $scope.allowedRoleNames.selectedItems) {
-				var roleMetadata = kommonitorDataExchangeService.getRoleMetadataForRoleName(roleDuallistItem.name);
-				postBody.allowedRoles.push(roleMetadata.roleId);
+			let roleIds = kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid($scope.roleManagementTableOptions);
+			for (const roleId of roleIds) {
+				postBody.allowedRoles.push(roleId);
 			}
 
 			return postBody;
@@ -558,9 +555,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 				$scope.metadata.description = $scope.metadataImportSettings.metadata.description;
 				$scope.metadata.databasis = $scope.metadataImportSettings.metadata.databasis;
 
-				var selectedRolesMetadata = kommonitorDataExchangeService.getRoleMetadataForRoleIds($scope.metadataImportSettings.allowedRoles);			
-				$scope.duallist = {duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, selectedRolesMetadata, "roleName")};			
-				$scope.allowedRoleNames = {selectedItems: $scope.duallist.duallistRoleOptions.selectedItems};
+				$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('spatialUnitAddRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, $scope.metadataImportSettings.allowedRoles);	
 
 				for(var i=0; i<kommonitorDataExchangeService.availableSpatialUnits.length; i++){
 					var spatialUnit = kommonitorDataExchangeService.availableSpatialUnits[i];
@@ -611,9 +606,9 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 			metadataExport.spatialUnitLevel = $scope.spatialUnitLevel || "";
 
 			metadataExport.allowedRoles = [];
-			for (const roleDuallistItem of $scope.allowedRoleNames.selectedItems) {
-				var roleMetadata = kommonitorDataExchangeService.getRoleMetadataForRoleName(roleDuallistItem.name);
-				metadataExport.allowedRoles.push(roleMetadata.roleId);
+			let roleIds = kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid($scope.roleManagementTableOptions);
+			for (const roleId of roleIds) {
+				metadataExport.allowedRoles.push(roleId);
 			}
 
 			if($scope.metadata.updateInterval){

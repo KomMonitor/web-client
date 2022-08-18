@@ -61,8 +61,7 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 	
 			
 
-			$scope.allowedRoleNames = {selectedItems: []};
-			$scope.duallist = {duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, null, "roleName")};			
+			$scope.roleManagementTableOptions = undefined;
 
 			$scope.$on("availableRolesUpdate", function (event) {
 				refreshRoles();
@@ -74,12 +73,13 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 			});
 			
 			function refreshRoles() {
-				$scope.allowedRoleNames = { selectedItems: [] };
-				$scope.duallist = { duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, null, "roleName") };
+				let allowedRoles = $scope.targetApplicableSpatialUnit ? $scope.targetApplicableSpatialUnit.allowedRoles : [];
+				$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorEditFeaturesRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, allowedRoles);
 			}
 	
 			$scope.indicatorFeaturesJSON;
 			$scope.currentIndicatorDataset;
+			$scope.targetApplicableSpatialUnit;
 			$scope.remainingFeatureHeaders;
 
 			$scope.indicatorMappingConfigImportError;
@@ -253,11 +253,11 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 					}					
 				}
 	
-				$scope.allowedRoleNames = {selectedItems: []};
-				$scope.duallist = {duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, null, "roleName")};			
+				$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorEditFeaturesRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, null);
 
 				$scope.spatialUnitRefKeyProperty = undefined;
 				$scope.targetSpatialUnitMetadata = undefined;
+				$scope.targetApplicableSpatialUnit = undefined;
 
 		
 				$scope.converter = undefined;
@@ -299,18 +299,14 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 				
 				var applicableSpatialUnits = $scope.currentIndicatorDataset.applicableSpatialUnits;
 
-				var targetApplicableSpatialUnit;
-
 				for (const applicableSpatialUnit of applicableSpatialUnits) {
 					if (applicableSpatialUnit.spatialUnitId === targetSpatialUnitMetadata.spatialUnitId){
-						targetApplicableSpatialUnit = applicableSpatialUnit;
+						$scope.targetApplicableSpatialUnit = applicableSpatialUnit;
 						break;
 					}
 				}
 				
-				var selectedRolesMetadata = kommonitorDataExchangeService.getRoleMetadataForRoleIds(targetApplicableSpatialUnit.allowedRoles);			
-				$scope.duallist = {duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, selectedRolesMetadata, "roleName")};			
-				$scope.allowedRoleNames = {selectedItems: $scope.duallist.duallistRoleOptions.selectedItems};
+				$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorEditFeaturesRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, $scope.targetApplicableSpatialUnit.allowedRoles);
 
 			};
 	
@@ -354,6 +350,9 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 				$scope.converterDefinition = $scope.buildConverterDefinition();
 				$scope.datasourceTypeDefinition = await $scope.buildDatasourceTypeDefinition();
 				$scope.propertyMappingDefinition = $scope.buildPropertyMappingDefinition();
+
+				let roleIds = kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid($scope.roleManagementTableOptions);
+
 				var scopeProperties = {
 					"targetSpatialUnitMetadata": {
 						"spatialUnitLevel": $scope.targetSpatialUnitMetadata.spatialUnitLevel,	
@@ -361,9 +360,7 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 					"currentIndicatorDataset": {
 						"defaultClassificationMapping": $scope.currentIndicatorDataset.defaultClassificationMapping
 					},
-					"allowedRoleNames": {
-						"selectedItems": $scope.allowedRoleNames.selectedItems
-					}
+					"allowedRoles": roleIds
 				}
 				$scope.putBody_indicators = kommonitorImporterHelperService.buildPutBody_indicators(scopeProperties);
 	
@@ -616,8 +613,7 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 					}
 
 					var selectedRolesMetadata = kommonitorDataExchangeService.getRoleMetadataForRoleIds($scope.mappingConfigImportSettings.allowedRoles);			
-					$scope.duallist = {duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, selectedRolesMetadata, "roleName")};			
-					$scope.allowedRoleNames = {selectedItems: $scope.duallist.duallistRoleOptions.selectedItems};
+					$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorEditFeaturesRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, $scope.mappingConfigImportSettings.allowedRoles);
 
 					$scope.keepMissingValues = $scope.mappingConfigImportSettings.propertyMapping.keepMissingOrNullValueIndicator;
 					
@@ -638,9 +634,10 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 				};
 
 				mappingConfigExport.allowedRoles = [];
-				for (const roleDuallistItem of $scope.allowedRoleNames.selectedItems) {
-					var roleMetadata = kommonitorDataExchangeService.getRoleMetadataForRoleName(roleDuallistItem.name);
-					mappingConfigExport.allowedRoles.push(roleMetadata.roleId);
+
+				let roleIds = kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid($scope.roleManagementTableOptions);
+				for (const roleId of roleIds) {
+					mappingConfigExport.allowedRoles.push(roleId);
 				}
 	
 				mappingConfigExport.periodOfValidity = $scope.periodOfValidity;
