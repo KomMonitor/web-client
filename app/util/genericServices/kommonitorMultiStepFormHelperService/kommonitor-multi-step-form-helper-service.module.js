@@ -1,11 +1,11 @@
-angular.module('kommonitorMultiStepFormHelper', []);
+angular.module('kommonitorMultiStepFormHelper', ['kommonitorSingleFeatureMapHelper']);
 
 angular
   .module('kommonitorMultiStepFormHelper', [])
   .service(
     'kommonitorMultiStepFormHelperService', [
-    '$http', '__env', '$timeout',
-    function ($http, __env, $timeout) {
+    '$http', '__env', '$timeout', 'kommonitorSingleFeatureMapHelperService',
+    function ($http, __env, $timeout, kommonitorSingleFeatureMapHelperService) {
 
       /*
 			MULTI STEP FORM STUFF
@@ -90,7 +90,12 @@ angular
 
               self.current_fs.hide();
             }
+
+            // should any page be shown, where there is a single feature edit map then we must ensure that content is zoomed to
+            kommonitorSingleFeatureMapHelperService.invalidateMap();
+            kommonitorSingleFeatureMapHelperService.zoomToDataLayer();
           });
+
         }, 500);
       };
 
@@ -117,6 +122,10 @@ angular
             });
 
             self.current_fs.hide();
+
+            // should any page be shown, where there is a single feature edit map then we must ensure that content is zoomed to
+            kommonitorSingleFeatureMapHelperService.invalidateMap();
+            kommonitorSingleFeatureMapHelperService.zoomToDataLayer();
           });
   
         }, 500);
@@ -142,6 +151,10 @@ angular
               'position': 'absolute'
             });
             self.current_fs.hide(); 
+
+            // should any page be shown, where there is a single feature edit map then we must ensure that content is zoomed to
+            kommonitorSingleFeatureMapHelperService.invalidateMap();
+            kommonitorSingleFeatureMapHelperService.zoomToDataLayer();
           });
   
         }, 500);
