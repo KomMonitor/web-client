@@ -2115,7 +2115,7 @@ angular
             jspdf.addImage(img, 'PNG', 193, 5, 12, 12);
   
             jspdf.setFontSize(16);
-            jspdf.setFontStyle('bolditalic');
+            jspdf.setFont('Helvetica', 'bolditalic', 'normal');
             var titleArray = jspdf.splitTextToSize("Indikator: " +indicator.indicatorName, 180);
             jspdf.text(titleArray, 14, 25);
   
@@ -2442,7 +2442,7 @@ angular
             jspdf.addImage(img, 'PNG', 193, 5, 12, 12);
   
             jspdf.setFontSize(16);
-            jspdf.setFontStyle('bolditalic');
+            jspdf.setFont('Helvetica', 'bolditalic', 'normal');
             var titleArray = jspdf.splitTextToSize("Geodatensatz: " + georesource.datasetName, 180);
             jspdf.text(titleArray, 14, 25);
   
