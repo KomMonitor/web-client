@@ -2312,11 +2312,23 @@ angular
           headerCheckboxSelectionFilteredOnly: true },
           { headerName: 'Script-Id', field: "jobData.scriptId", pinned: 'left', maxWidth: 125 },
           { headerName: 'Ziel-Indikator', pinned: 'left', maxWidth: 250, cellRenderer: function (params) {
-              return kommonitorDataExchangeService.getIndicatorMetadataById(params.data.jobData.targetIndicatorId).indicatorName;
+            if(params.data.jobData && params.data.jobData.targetIndicatorId){
+              let indicatorMetadata = kommonitorDataExchangeService.getIndicatorMetadataById(params.data.jobData.targetIndicatorId); 
+              if (indicatorMetadata){
+                return indicatorMetadata.indicatorName;
+              }
+            }
+            return "";
             },
             filter: 'agTextColumnFilter', 
             filterValueGetter: (params) => {
-              return kommonitorDataExchangeService.getIndicatorMetadataById(params.data.jobData.targetIndicatorId).indicatorName;
+              if(params.data.jobData && params.data.jobData.targetIndicatorId){
+                let indicatorMetadata = kommonitorDataExchangeService.getIndicatorMetadataById(params.data.jobData.targetIndicatorId); 
+                if (indicatorMetadata){
+                  return indicatorMetadata.indicatorName;
+                }
+              }
+              return "";
             } 
           },
           { headerName: 'Job-Status', field: "status", maxWidth: 125 },
