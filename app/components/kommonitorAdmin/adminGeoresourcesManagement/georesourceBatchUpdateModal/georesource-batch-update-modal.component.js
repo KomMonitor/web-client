@@ -143,7 +143,7 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 						// The exported batchList does not contain all of the metadata.
 						// We have to use the georesourceId to select the corresponding select option in the "name" column.
 						var georesourceId = newBatchList[i].name;
-						var georesourceObj = kommonitorBatchUpdateHelperService.getGeoresourceObjectById(georesourceId);
+						var georesourceObj = kommonitorDataExchangeService.getGeoresourceMetadataById(georesourceId);
 						row.name = georesourceObj;
 
 						// mappingTableName
