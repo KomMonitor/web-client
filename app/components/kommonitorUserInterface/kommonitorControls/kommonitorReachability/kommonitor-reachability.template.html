@@ -23,7 +23,7 @@
 		<div class="box-body">
 			<!-- <label for="TODO">Berechnungsaufgabe:</label> -->
 
-			<div class="btn-group btn-group-justified" data-toggle="buttons">
+			<div id="reachabiltiy-method-btn-group" class="btn-group btn-group-justified" data-toggle="buttons">
 				<label class="btn btn-primary active">
 					<input type="radio" name="btn_show_iso" id="btn_isochrones" ng-change="showIso()" autocomplete="off"
 						checked ng-model="showIsochrones" value="true"><i class="far fa-dot-circle"></i>
@@ -39,18 +39,16 @@
 								<label>showIsochrones= {{showIsochrones}}, transitMode= {{settings.transitMode}}</label>
 							 -->
 
-			<div ng-show="showIsochrones" class="ng-show" id="isochoneCalculation">
+			<div class="just-padding">
 
-						<div class="just-padding">
-							<!-- <label for="TODO">Verkehrsmittel</label> -->
-							<br />
+				<br />
 							<div class="btn-group btn-group-justified" data-toggle="buttons">
-								<label class="btn btn-primary active">
-									<input type="radio" name="options" id="optBuffer" autocomplete="off" checked
-										ng-change="changeType()" ng-model="settings.transitMode" value="buffer"> <i
-										class="far fa-dot-circle"></i> Puffer</input>
-								</label>
-								<label class="btn btn-primary">
+									<label class="btn btn-primary active" ng-show="showIsochrones">
+										<input type="radio" name="options" id="optBuffer" autocomplete="off" checked
+											ng-change="changeType()" ng-model="settings.transitMode" value="buffer"> <i
+											class="far fa-dot-circle"></i> Puffer</input>
+									</label>
+								<label class="btn btn-primary" id="optFeetRadioButtonLabel">
 									<input type="radio" name="options" id="optFeet" autocomplete="off" checked
 										ng-change="changeType()" ng-model="settings.transitMode" value="foot-walking"> <i
 										class="fas fa-walking"></i> Fu&szlig;g&aumlnger </input>
@@ -71,9 +69,12 @@
 										class="fab fa-accessible-icon"></i> Barrierefrei </input>
 								</label>
 							</div>
-							<!--
-											<label>{{settings.transitMode}}</label>
-										-->
+
+			</div>
+
+			<div ng-show="showIsochrones" class="ng-show" id="isochoneCalculation">
+
+						<div class="just-padding">
 
 							<!-- <label for="TODO">Analysefokus</label> -->
 
@@ -82,12 +83,12 @@
 							<div class="btn-group btn-group-justified" data-toggle="buttons">
 								<label class="btn btn-primary active">
 									<input type="radio" name="options" id="focus_distance" autocomplete="off" checked
-										ng-change="changeFocus()" ng-model="settings.focus" value="distance"> <i
+										ng-change="changeFocus('distance')" ng-model="settings.focus" value="distance"> <i
 										class="fas fa-ruler"></i> Distanz
 								</label>
 								<label class="btn btn-primary" ng-disabled="settings.transitMode === 'buffer'">
 									<input type="radio" name="options" id="focus_time" autocomplete="off"
-										ng-change="changeFocus()" ng-model="settings.focus" value="time"><i
+										ng-change="changeFocus('time')" ng-model="settings.focus" value="time"><i
 										class="far fa-clock"></i> Zeit
 								</label>
 							</div>
@@ -165,107 +166,111 @@
 
 							<hr>
 							<br />
-
-							<label for="TODO">Startpunkte</label>
-
-							<br />
-
-							<div class="btn-group btn-group-justified " data-toggle="buttons">
-								<label class="btn btn-primary active">
-									<input type="radio" name="options" id="startPointsSource_layer" autocomplete="off"
-										checked ng-change="changeStartPointsSource_fromLayer()" ng-model="settings.startPointsSource"
-										value="fromLayer"><i class="fas fa-layer-group"></i> aus Punkt-Layer</input>
-								</label>
-								<label class="btn btn-primary">
-									<input type="radio" name="options" id="startPointsSource_draw" autocomplete="off"
-										ng-change="changeStartPointsSource_manual()" ng-model="settings.startPointsSource"
-										value="manual"><i class="fas fa-map-marked-alt"></i> Punkte zeichnen</input>
-								</label>
+							<div>
+								
 							</div>
+							<div ng-show="!isUsedInReporting">
+								<label for="TODO">Startpunkte</label>
 
-							<!--
-											<label>Fokus= {{settings.focus}}, Time= {{isTime}}</label>
-										-->
-
-							<br />
-
-							<div ng-show="settings.startPointsSource === 'fromLayer'">
-
-								<label>Art der Datumsdefinition zum Abruf eines Datensatzes</label>
-								<div class="form-group">
-									<label class="radio-inline"><input type="radio" name="settings.isochroneConfig.dateSelectionType"  ng-value="settings.isochroneConfig.dateSelectionType_valueIndicator" ng-model="settings.isochroneConfig.dateSelectionType.selectedDateType" ng-change="fetchGeoJSONForIsochrones()" >Datum des aktuellen Indikators</label>
-									<label class="radio-inline"><input type="radio" name="settings.isochroneConfig.dateSelectionType"  ng-value="settings.isochroneConfig.dateSelectionType_valueManual" ng-model="settings.isochroneConfig.dateSelectionType.selectedDateType">manuelles Datum
-										<div ng-hide="!(settings.isochroneConfig.dateSelectionType.selectedDateType === settings.isochroneConfig.dateSelectionType_valueManual)" class="input-group date">
-											<div class="input-group-addon">
-												<i class="far fa-calendar-alt"></i>
-											</div>
-											<input type="text" ng-model="settings.isochroneConfig.selectedDate_manual" ng-change="onChangeManualDate_isochroneConfig()" ng-model-options="{debounce: 500, blur: 0}"
-												class="form-control pull-right" placeholder="YYYY-MM-DD"
-												id="manualDateDatepicker_reachabilityConfig" required>
-										</div>
+								<br />
+	
+								<div class="btn-group btn-group-justified " data-toggle="buttons">
+									<label class="btn btn-primary active">
+										<input type="radio" name="options" id="startPointsSource_layer" autocomplete="off"
+											checked ng-change="changeStartPointsSource_fromLayer()" ng-model="settings.startPointsSource"
+											value="fromLayer"><i class="fas fa-layer-group"></i> aus Punkt-Layer</input>
 									</label>
-									<label class="radio-inline"><input type="radio" name="settings.isochroneConfig.dateSelectionType"  ng-value="settings.isochroneConfig.dateSelectionType_valuePerDataset" ng-model="settings.isochroneConfig.dateSelectionType.selectedDateType" ng-change="onClickPerDataset_isochroneConfig()" >pro Datensatz</label>
+									<label id="reachability-draw-points-btn" class="btn btn-primary">
+										<input type="radio" name="options" id="startPointsSource_draw" autocomplete="off"
+											ng-change="changeStartPointsSource_manual()" ng-model="settings.startPointsSource"
+											value="manual"><i class="fas fa-map-marked-alt"></i> Punkte zeichnen</input>
+									</label>
 								</div>
-
-								<br/>
-
-								<div class="row vertical-align" style="margin-right:0px;">
-									<div class="col-md-6 col-sm-6 col-xs-6">
-										<div class="horizontal-align" ng-show="settings.selectedStartPointLayer.geoJSON">
-											<p><b>{{settings.selectedStartPointLayer.geoJSON.features.length}}</b> Startpunkte im
-												selektierten Layer</p>
-										</div>
-
-										<div class="horizontal-align" ng-hide="settings.selectedStartPointLayer">
-											<p>noch kein Layer selektiert</p>
-										</div>
-
-										<div class="horizontal-align" ng-if="settings.selectedStartPointLayer && ! settings.selectedStartPointLayer.geoJSON">
-											<p style="color: red;">zum angegebenen Zeitwert konnten keine validen Feature-Daten abgerufen werden</p>
-										</div>
+	
+								<!--
+												<label>Fokus= {{settings.focus}}, Time= {{isTime}}</label>
+											-->
+	
+								<br />
+	
+								<div ng-show="settings.startPointsSource === 'fromLayer'">
+	
+									<label>Art der Datumsdefinition zum Abruf eines Datensatzes</label>
+									<div class="form-group">
+										<label class="radio-inline"><input type="radio" name="settings.isochroneConfig.dateSelectionType"  ng-value="settings.isochroneConfig.dateSelectionType_valueIndicator" ng-model="settings.isochroneConfig.dateSelectionType.selectedDateType" ng-change="!isUsedInReporting && fetchGeoJSONForIsochrones()" >Datum des aktuellen Indikators</label>
+										<label class="radio-inline"><input type="radio" name="settings.isochroneConfig.dateSelectionType"  ng-value="settings.isochroneConfig.dateSelectionType_valueManual" ng-model="settings.isochroneConfig.dateSelectionType.selectedDateType">manuelles Datum
+											<div ng-hide="!(settings.isochroneConfig.dateSelectionType.selectedDateType === settings.isochroneConfig.dateSelectionType_valueManual)" class="input-group date">
+												<div class="input-group-addon">
+													<i class="far fa-calendar-alt"></i>
+												</div>
+												<input type="text" ng-model="settings.isochroneConfig.selectedDate_manual" ng-change="onChangeManualDate_isochroneConfig()" ng-model-options="{debounce: 500, blur: 0}"
+													class="form-control pull-right" placeholder="YYYY-MM-DD"
+													id="manualDateDatepicker_reachabilityConfig" required>
+											</div>
+										</label>
+										<label class="radio-inline"><input type="radio" name="settings.isochroneConfig.dateSelectionType"  ng-value="settings.isochroneConfig.dateSelectionType_valuePerDataset" ng-model="settings.isochroneConfig.dateSelectionType.selectedDateType" ng-change="onClickPerDataset_isochroneConfig()" >pro Datensatz</label>
 									</div>
-									<div class="col-md-6 col-sm-6 col-xs-6">
-										<select style="font-size: 12px;" ng-model="settings.selectedStartPointLayer"
-											ng-options="poi as poi.datasetName for poi in $ctrl.kommonitorDataExchangeServiceInstance.displayableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois()"
-											ng-change="onChangeSelectedStartPointLayer()" class="form-control" required>
-											<option disabled selected value> -- Punkt-Layer w&auml;hlen -- </option>
-										</select>
-
-										<div ng-if="settings.selectedStartPointLayer && settings.isochroneConfig.dateSelectionType.selectedDateType === settings.isochroneConfig.dateSelectionType_valuePerDataset">
-											<select style="font-size: 11px; width:135px; padding: 0px;"
-													ng-model="settings.isochroneConfig.selectedDate" ng-change="fetchGeoJSONForIsochrones()" ng-options="date as date.startDate for date in settings.selectedStartPointLayer.availablePeriodsOfValidity | orderBy: 'startDate' | unique: 'startDate'" ng-init="settings.isochroneConfig.selectedDate = settings.selectedStartPointLayer.availablePeriodsOfValidity[settings.selectedStartPointLayer.availablePeriodsOfValidity.length - 1]"
-													class="form-control" required>
+	
+									<br/>
+	
+									<div class="row vertical-align" style="margin-right:0px;">
+										<div class="col-md-6 col-sm-6 col-xs-6">
+											<div class="horizontal-align" ng-show="settings.selectedStartPointLayer.geoJSON">
+												<p><b>{{settings.selectedStartPointLayer.geoJSON.features.length}}</b> Startpunkte im
+													selektierten Layer</p>
+											</div>
+	
+											<div class="horizontal-align" ng-hide="settings.selectedStartPointLayer">
+												<p>noch kein Layer selektiert</p>
+											</div>
+	
+											<div class="horizontal-align" ng-if="settings.selectedStartPointLayer && ! settings.selectedStartPointLayer.geoJSON">
+												<p style="color: red;">zum angegebenen Zeitwert konnten keine validen Feature-Daten abgerufen werden</p>
+											</div>
+										</div>
+										<div class="col-md-6 col-sm-6 col-xs-6">
+											<select style="font-size: 12px;" ng-model="settings.selectedStartPointLayer"
+												ng-options="poi as poi.datasetName for poi in $ctrl.kommonitorDataExchangeServiceInstance.displayableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois()"
+												ng-change="onChangeSelectedStartPointLayer()" class="form-control" required>
+												<option disabled selected value> -- Punkt-Layer w&auml;hlen -- </option>
 											</select>
-										</div>										
-									</div>
-								</div>
-							</div>
-
-							<div ng-show="settings.startPointsSource === 'manual'">
-
-								<p>Zeichnen Sie selbst Punkte in die Karte. Dazu nutzen Sie bitte das Zeichen-Werkzeug
-									in der unteren linken Ecke der Karte.</p>
-
-								<div class="row vertical-align" style="margin-right:0px;">
-									<div class="col-md-6 col-sm-6 col-xs-6">
-										<div class="horizontal-align" ng-show="manualStartPoints.features.length > 0">
-											<p><b>{{manualStartPoints.features.length}}</b> Startpunkte gezeichnet</p>
-										</div>
-
-										<div class="horizontal-align" ng-hide="manualStartPoints.features.length > 0">
-											<p>noch keine Start-Punkte gezeichnet</p>
+	
+											<div ng-if="settings.selectedStartPointLayer && settings.isochroneConfig.dateSelectionType.selectedDateType === settings.isochroneConfig.dateSelectionType_valuePerDataset">
+												<select style="font-size: 11px; width:135px; padding: 0px;"
+														ng-model="settings.isochroneConfig.selectedDate" ng-change="!isUsedInReporting && fetchGeoJSONForIsochrones()" ng-options="date as date.startDate for date in settings.selectedStartPointLayer.availablePeriodsOfValidity | orderBy: 'startDate' | unique: 'startDate'" ng-init="settings.isochroneConfig.selectedDate = settings.selectedStartPointLayer.availablePeriodsOfValidity[settings.selectedStartPointLayer.availablePeriodsOfValidity.length - 1]"
+														class="form-control" required>
+												</select>
+											</div>										
 										</div>
 									</div>
-									<div class="col-md-6 col-sm-6 col-xs-6">
-										<button type="button" class="btn btn-danger btn-sm"
-											ng-click="removeAllDrawnPoints()">Punkte entfernen</button>
+								</div>
+	
+								<div ng-show="settings.startPointsSource === 'manual'">
+	
+									<p>Zeichnen Sie selbst Punkte in die Karte. Dazu nutzen Sie bitte das Zeichen-Werkzeug
+										in der unteren linken Ecke der Karte.</p>
+	
+									<div class="row vertical-align" style="margin-right:0px;">
+										<div class="col-md-6 col-sm-6 col-xs-6">
+											<div class="horizontal-align" ng-show="manualStartPoints.features.length > 0">
+												<p><b>{{manualStartPoints.features.length}}</b> Startpunkte gezeichnet</p>
+											</div>
+	
+											<div class="horizontal-align" ng-hide="manualStartPoints.features.length > 0">
+												<p>noch keine Start-Punkte gezeichnet</p>
+											</div>
+										</div>
+										<div class="col-md-6 col-sm-6 col-xs-6">
+											<button type="button" class="btn btn-danger btn-sm"
+												ng-click="removeAllDrawnPoints()">Punkte entfernen</button>
+										</div>
 									</div>
 								</div>
-							</div>
 
-							<br />
-							<hr>
-							<br />
+								<br />
+								<hr>
+								<br />	
+							</div>
 
 							<div align="center">
 
@@ -291,7 +296,7 @@
 							<div ng-show="showIsochrones && $ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend">
 								<br/>
 								<br/>
-								<div style="display: inline-block" align="center" id="reachabilityIsochroneButtonSection">
+								<div style="display: inline-block" align="center" class="reachabilityIsochroneButtonSection">
 									<button ng-click="removeReachabilityLayers()" type="button" class="btn btn-danger">Ergebnis
 										verwerfen / Layer entfernen</button>
 									<!-- another button to download as GeoJSOn will be set programatically within component file -->
@@ -302,7 +307,7 @@
 								<br/>
 								<br/>
 								
-								<div style="display: inline-block" align="center" id="reachabilityRouteButtonSection">
+								<div style="display: inline-block" align="center" class="reachabilityRouteButtonSection">
 									<button ng-click="removeRoutingLayers()" type="button" class="btn btn-danger">Ergebnis verwerfen /
 										Layer entfernen</button>
 									<!-- another button to download as GeoJSOn will be set programatically within component file -->
@@ -315,44 +320,6 @@
 			<div ng-hide="showIsochrones" class="ng-hide" id="routing">
 				
 				<div class="just-padding">
-					<div class="form-group">
-						<label for="transitModeList">Verkehrsmittel</label>
-						<select class="form-control" id="transitModeList" ng-change="changeTransitMode()"
-							ng-model="settings.transitMode">
-							<option value="driving-car">PKW</option>
-							<!-- <option value="driving-hgv">LKW</option> -->
-							<option value="cycling-regular">Fahrrad</option>
-							<!-- <option value="cycling-road">Fahrrad asphaltiert</option>
-											  <option value="cycling-safe">Fahrrad separiert</option>
-											  <option value="cycling-mountain">Farrad offroad</option>
-											  <option value="cycling-tour">Fahrrad tour</option>
-											  <option value="cycling-electric">Fahrrad elektrisch</option> -->
-							<option value="foot-walking">Fu&szlig;g&auml;nger</option>
-							<option value="wheelchair">Barrierefrei</option>
-							<!-- <option value="foot-hiking">Wandern</option>
-											  <option value="wheelchair">Rollstuhl</option> -->
-						</select>
-					</div>
-	
-					<div class="btn-group btn-group-justified btn-group-sm" data-toggle="buttons">
-						<label class="btn btn-primary active">
-							<input type="radio" name="options" id="optFastest" autocomplete="off" checked
-								ng-model="settings.preference" value="fastest">Schnellste
-						</label>
-						<label class="btn btn-primary">
-							<input type="radio" name="options" id="optShortest" autocomplete="off" ng-model="settings.preference"
-								value="shortest">K&uuml;rzeste
-						</label>
-						<label class="btn btn-primary">
-							<input type="radio" name="options" id="optRecommended" autocomplete="off" ng-model="settings.preference"
-								value="recommended">Empfohlene
-						</label>
-					</div>
-					<!--
-											<label>{{settings.preference}}</label>
-										-->
-	
-					<br />
 	
 					<label for="TODO">Startpunkt:</label>
 	
@@ -456,7 +423,7 @@
 	</div>
 	<!-- /.box -->
 
-	<div class="box box-primary collapsed-box">
+	<div class="box box-primary collapsed-box" ng-if="!isUsedInReporting" id="reachability-point-box">
 		<div class="box-header with-border">
 			<h3 class="box-title">Punktobjekte im Einzugsgebiet</h3>
 

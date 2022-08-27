@@ -12,7 +12,7 @@
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span></button>
-				<h4 class="modal-title">Neue Rolle registrieren</h4>
+				<h4 class="modal-title">Neue Organisationseinheit registrieren</h4>
 			</div>
 			<div class="modal-body">
 
@@ -21,30 +21,42 @@
 					<div class="col-md-12">
 						<form class="multiStepForm form-group" id="roleAddForm" role="form" data-toggle="validator"
 							data-disable="true" style="margin-bottom: 0px;">
-							<!-- progressbar -->
-							<ul id="progressbar">
-								<li style="width: 100%;" class="active">Rolleninformationen</li>
-							</ul>
+							<!-- div required for click logic -->
+							<div> 
+								<!-- progressbar -->
+								<ul id="progressbar">
+									<li style="width: 100%;" class="active">Basisinformationen</li>
+								</ul>
+							</div>							
 							<!-- fieldsets -->
 							<fieldset>
-								<h2 class="fs-title">Rolleninformationen</h2>
-								<h3 class="fs-subtitle">Angaben &uuml;ber die neue Rolle</h3>
+								<h2 class="fs-title">Basisinformationen</h2>
+								<h3 class="fs-subtitle">Angaben &uuml;ber die neue Organisationseinheit</h3>
 								<p><b><i>* = Pflichtfeld</i></b></p>
 
 								<div class="row vertical-align">
 									<div class="col-md-5">
-										<label >Name der Rolle*</label>
-										<input style="width:100%;" class="form-control" type="text" placeholder="Rollenname" ng-model="roleName" 
-										ng-change="checkRoleName()" required></input>
+										<label>Name*</label>
+										<input style="width:100%;" class="form-control" type="text"
+											placeholder="Rollenname" ng-model="newOrganizationalUnit.name"
+											ng-change="checkRoleName()" required></input>
 										<div class="help-block with-errors"></div>
-										<div class="help-block">Eindeutiger Name der Rolle. Der identische Rollenname muss auch in Keycloak definiert werden.</div>
-										<div ng-if="roleNameInvalid" style="color: red;">
-											<p>Eingabe ung&uuml;ltig. Es existiert bereits eine Rolle mit
-												gleichem Namen.</p>
+										<div ng-if="nameInvalid" style="color: red;">
+											<p>Eingabe ung&uuml;ltig. Es existiert bereits eine andere Organisationseinheit mit gleichem Namen.</p>
 										</div>
-									</div>				
+									</div>
+									<div class="col-md-5">
+										<label>Beschreibung*</label>
+										<input style="width:100%;" class="form-control" type="text"
+											placeholder="Abteilung 52" ng-model="newOrganizationalUnit.description" required></input>
+									</div>
+									<div class="col-md-5">
+										<label>Kontakt*</label>
+										<input style="width:100%;" class="form-control" type="text"
+											placeholder="sekretariat@kommonitor.de" ng-model="newOrganizationalUnit.contact" required></input>
+									</div>			
 								</div>
-
+								<br/>					
 							</fieldset>
 
 						</form>
@@ -57,7 +69,7 @@
 				<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Schlie&szlig;en</button>
 
 				<button type="button" class="btn btn-success" type="submit" ng-click="addRole()"
-					ng-disabled="!roleName || roleNameInvalid">Rolle registrieren</button>
+					ng-disabled="!newOrganizationalUnit.name || !newOrganizationalUnit.description || !newOrganizationalUnit.contact || nameInvalid">Rolle registrieren</button>
 				<button type="button" class="btn btn-danger" ng-click="resetRoleAddForm()">Zur&uuml;cksetzen</button>
 			</div>
 
@@ -65,7 +77,7 @@
 				class="alert alert-success alert-dismissable">
 				<button type="button" class="close" ng-click="hideSuccessAlert()" aria-hidden="true">&times;</button>
 				<h4><i class="icon fa fa-check"></i>Rolle in KomMonitor Datenbank registriert</h4>
-				<p>Eine neue Rolle mit Namen {{roleName}} wurde in KomMonitor registriert und in die
+				<p>Eine neue Einheit mit Namen {{newOrganizationalUnit.name}} wurde in KomMonitor registriert und in die
 					&Uuml;bersichtstabelle eingetragen.
 				</p>
 			</div>
@@ -74,7 +86,7 @@
 				class="alert alert-danger alert-dismissable">
 				<button type="button" class="close" ng-click="hideErrorAlert()" aria-hidden="true">&times;</button>
 				<h4><i class="icon fa fa-ban"></i>Registrierung in KomMonitor Datenbank gescheitert</h4>
-				Bei der Registrierung der Rolle in der KomMonitor Datenbank ist ein Fehler aufgetreten. Fehlermeldung:
+				Bei der Registrierung der Organisationseinheit in der KomMonitor Datenbank ist ein Fehler aufgetreten. Fehlermeldung:
 				<br />
 				<pre style="overflow:auto; max-height:500px;" ng-bind-html="errorMessagePart"></pre>
 				<br />
@@ -85,7 +97,7 @@
 				class="alert alert-success alert-dismissable">
 				<button type="button" class="close" ng-click="hideKeycloakSuccessAlert()" aria-hidden="true">&times;</button>
 				<h4><i class="icon fa fa-check"></i>Rolle in Keycloak registriert</h4>
-				<p>Eine neue Rolle mit Namen {{roleName}} wurde in Keycloak registriert. Dort k&ouml;nnen nun Nutzer mit der Rolle verkn&uuml;pt werden.
+				<p>Neue Rollen für die Einheit {{newOrganizationalUnit.name}} wurden in Keycloak registriert. Dort k&ouml;nnen nun Nutzer verkn&uuml;pt werden.
 					<a ng-href="{{$ctrl.kommonitorKeycloakHelperServiceInstance.targetUrlToKeycloakInstance}}" target="_blank" rel="noopener noreferrer">{{$ctrl.kommonitorKeycloakHelperServiceInstance.targetUrlToKeycloakInstance}}</a>
 				</p>
 			</div>
@@ -94,7 +106,7 @@
 				class="alert alert-danger alert-dismissable">
 				<button type="button" class="close" ng-click="hideKeycloakErrorAlert()" aria-hidden="true">&times;</button>
 				<h4><i class="icon fa fa-ban"></i>Registrierung in Keycloak gescheitert</h4>
-				Bei der Registrierung der Rolle in Keycloak ist ein Fehler aufgetreten. Fehlermeldung:
+				Bei der Registrierung in Keycloak ist ein Fehler aufgetreten. Fehlermeldung:
 				<br />
 				<pre style="overflow:auto; max-height:500px;" ng-bind-html="keycloakErrorMessagePart"></pre>
 				<br />

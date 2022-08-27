@@ -22,6 +22,39 @@
       <!-- witch back to KomMonitor Main Application -->
       <a href="#!/" class="btn btn-danger" style="margin-top:8px;" ng-click="switchToMapApplication()"><i class="fas fa-user-cog"></i>&nbsp;&nbsp;Administration verlassen</a>
 
+      <!-- user profile information -->
+        <a id="userLogin" ng-mouseover="showUserInfo = true" ng-init="showUserInfo = false" title="User and Session Info" style="font-size:1.2em; float: right; margin-right: 2%; margin-left: 2%; margin-top: 1%;"><i class="fas fa-user-cog" style="color:white;"></i></a>
+        <div id="userLoginForm" ng-show="showUserInfo && $ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity" ng-mouseleave="showUserInfo = false" class="userFormWrapper">
+          <div id="userForm">
+            <h4>User Und Session Informationen</h4>
+            <div style="margin-bottom: 10px;">
+              <span><b>Nutzername:</b></span> <i>{{$ctrl.kommonitorDataExchangeServiceInstance.currentKeycloakUser.username}}</i>
+              <div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.currentKeycloakUser.firstName && $ctrl.kommonitorDataExchangeServiceInstance.currentKeycloakUser.lastName">
+                <span style="word-break: break-all;"><b>Vor- und Nachname:</b><i> {{$ctrl.kommonitorDataExchangeServiceInstance.currentKeycloakUser.firstName}} {{$ctrl.kommonitorDataExchangeServiceInstance.currentKeycloakUser.lastName}}</i></span>
+              </div>
+              <div ng-if="! $ctrl.kommonitorDataExchangeServiceInstance.currentKeycloakUser.firstName && $ctrl.kommonitorDataExchangeServiceInstance.currentKeycloakUser.lastName">
+                <span style="word-break: break-all;"><b>Nachname:</b><i>({{$ctrl.kommonitorDataExchangeServiceInstance.currentKeycloakUser.lastName}}</i></span>
+              </div>
+              <div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.currentKeycloakUser.email">
+                <span style="word-break: break-all;"><b>E-Mail:</b><i>{{$ctrl.kommonitorDataExchangeServiceInstance.currentKeycloakUser.email}}</i></span>
+              </div>
+              <br/>
+              <span><b>zugewiesene Rollen:</b></span> <i>{{$ctrl.kommonitorDataExchangeServiceInstance.currentKomMonitorLoginRoleNames}}</i>             
+              <br/>
+              <br/>
+              <span><b>Session G&uuml;ltigkeit:</b> {{$ctrl.kommonitorDataExchangeServiceInstance.keycloakTokenExpirationInfo || 30}} Minuten</span>
+
+            </div>
+            <!-- <input type="submit" value="Refresh" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.extendKeycloakSession()" class='input_field input_extend_session' >
+            <input type="submit" value="Logout" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.tryLogoutUser()" class='input_field input_authenticated' > -->
+
+            <input type="submit" value="Logout" id='input_submit' ng-click="$ctrl.kommonitorDataExchangeServiceInstance.tryLogoutUser()" class='input_field input_authenticated' >
+					  <input type="submit" value="Relogin" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.extendKeycloakSession()" class='input_field input_extend_session' >
+          </div>
+        </div>
+
+        <span style="float: right; margin-top: 1%; color: white;"><b>Session G&uuml;ltigkeit:</b> {{$ctrl.kommonitorDataExchangeServiceInstance.keycloakTokenExpirationInfo || 30}} Minuten</span>
+
       <!-- Navbar Right Menu -->
       <div class="navbar-custom-menu">
         <ul class="nav navbar-nav">
@@ -42,8 +75,9 @@
         <li class="header">Administration</li>
         <!-- Optionally, you can add icons to the links -->
         <li id="adminDashboardNavItem" class="active" ng-click="onClickOtherAdminPanel('adminDashboardNavItem')"><a data-toggle="tab" data-target="#dashboardWrapper" href=""><i class="fas fa-tachometer-alt"></i> <span>&Uuml;bersicht</span></a></li>
-        <li id="adminUsersNavItem" ng-click="onClickOtherAdminPanel('adminUsersNavItem')"><a data-toggle="tab" data-target="#userWrapper" href=""><i class="fas fa-users"></i> <span>Rollenverwaltung</span></a></li>
-        <li id="adminTopicsNavItem" ng-click="onClickOtherAdminPanel('adminTopicsNavItem')"><a data-toggle="tab" data-target="#topicsWrapper" href=""><i class="fas fa-book"></i> <span>Themenverwaltung</span></a></li>
+        <li id="adminUsersNavItem" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.checkAdminPermission()" ng-click="onClickOtherAdminPanel('adminUsersNavItem')"><a data-toggle="tab" data-target="#userWrapper" href=""><i class="fas fa-users"></i> <span>Zugriffskontrolle</span></a></li>
+        <li id="adminRoleExplanationNavItem" ng-click="onClickOtherAdminPanel('adminRoleExplanationNavItem')"><a data-toggle="tab" data-target="#roleExplanationWrapper" href=""><i class="fa-solid fa-user-lock"></i> <span>Zugriffskontrolle-Konzept</span></a></li>        
+        <li id="adminTopicsNavItem" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.checkAdminPermission()" ng-click="onClickOtherAdminPanel('adminTopicsNavItem')"><a data-toggle="tab" data-target="#topicsWrapper" href=""><i class="fas fa-book"></i> <span>Themenverwaltung</span></a></li>
         <li id="adminGeodataWrapperNavItem" class="treeview">
           <a data-toggle="tab" href="" ng-click="onClickGeodataWrapperItem()"><i class="fas fa-globe-americas"></i> <span>Geodatenverwaltung</span>
             <span class="pull-right-container">
@@ -57,8 +91,8 @@
           </ul>
         </li>
         <li id="adminScriptsNavItem" ng-click="onClickOtherAdminPanel('adminScriptsNavItem')"><a data-toggle="tab" data-target="#scriptWrapper" href=""><i class="far fa-file-code"></i> <span>Skriptverwaltung</span></a></li>
-        <!-- <li id="adminScriptExecutionNavItem" ng-click="onClickOtherAdminPanel('adminScriptExecutionNavItem')"><a data-toggle="tab" data-target="#scriptExecutionWrapper" href=""><i class="far fa-file-code"></i> <span>Indikatorenberechnung</span></a></li> -->
-        <li id="adminConfigWrapperNavItem" class="treeview">
+        <li id="adminScriptExecutionNavItem" ng-click="onClickOtherAdminPanel('adminScriptExecutionNavItem')"><a data-toggle="tab" data-target="#scriptExecutionWrapper" href=""><i class="far fa-file-code"></i> <span>Indikatorenberechnung</span></a></li>
+        <li id="adminConfigWrapperNavItem" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.checkAdminPermission()" class="treeview">
           <a data-toggle="tab" href="" ng-click="onClickConfigWrapperItem()"><i class="fas fa-tools"></i> <span>Einstellungen</span>
             <span class="pull-right-container">
                 <i class="fa fa-angle-left pull-right"></i>
@@ -66,7 +100,8 @@
           </a>
           <ul class="treeview-menu">
             <li id="adminAppConfigNavItem"><a data-toggle="tab" data-target="#appConfigWrapper" ng-click="onClickConfigAdminPanel('adminAppConfigNavItem')" href=""><i class="fas fa-cogs"></i> <span>Allgemeine Einstellungen</span></a></li>
-            <li id="adminKeycloakConfigNavItem"><a data-toggle="tab" data-target="#keycloakConfigWrapper" ng-click="onClickConfigAdminPanel('adminKeycloakConfigNavItem')" href=""><i class="fas fa-users-cog"></i> <span>Keycloak-Konfiguration</span></a></li>
+            <!-- hide keycloak settings screen as those config must not be changed by any user directly -->
+            <!-- <li id="adminKeycloakConfigNavItem"><a data-toggle="tab" data-target="#keycloakConfigWrapper" ng-click="onClickConfigAdminPanel('adminKeycloakConfigNavItem')" href=""><i class="fas fa-users-cog"></i> <span>Keycloak-Konfiguration</span></a></li> -->
             <li id="adminControlsConfigNavItem"><a data-toggle="tab" data-target="#controlsConfigWrapper" ng-click="onClickConfigAdminPanel('adminControlsConfigNavItem')" href=""><i class="far fa-eye-slash"></i> <span>Widget-Konfiguration</span></a></li>
           </ul>
         </li>
@@ -88,13 +123,19 @@
 
       </div>
 
-      <div id="userWrapper" class="tab-pane fade in">
+      <div id="roleExplanationWrapper" class="tab-pane fade in">
+
+        <admin-role-explanation></admin-role-explanation>
+
+      </div>
+
+      <div id="userWrapper" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.checkAdminPermission()" class="tab-pane fade in">
 
         <admin-role-management></admin-role-management>
 
       </div>
 
-      <div id="topicsWrapper" class="tab-pane fade in">
+      <div id="topicsWrapper" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.checkAdminPermission()" class="tab-pane fade in">
 
         <admin-topics-management></admin-topics-management>
 
@@ -124,25 +165,26 @@
 
       </div>
 
-      <!-- <div id="scriptExecutionWrapper" class="tab-pane fade in">
+      <div id="scriptExecutionWrapper" class="tab-pane fade in">
 
         <admin-script-execution></admin-script-execution>
 
-      </div> -->
+      </div>
 
-      <div id="appConfigWrapper" class="tab-pane fade in">
+      <div id="appConfigWrapper" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.checkAdminPermission()" class="tab-pane fade in">
 
         <admin-app-config></admin-app-config>
 
       </div>
 
-      <div id="keycloakConfigWrapper" class="tab-pane fade in">
+      <!-- hide keycloak settings screen as those config must not be changed by any user directly -->
+      <!-- <div id="keycloakConfigWrapper" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.checkAdminPermission()" class="tab-pane fade in">
 
         <admin-keycloak-config></admin-keycloak-config>
 
-      </div>
+      </div> -->
 
-      <div id="controlsConfigWrapper" class="tab-pane fade in">
+      <div id="controlsConfigWrapper" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.checkAdminPermission()" class="tab-pane fade in">
 
         <admin-controls-config></admin-controls-config>
 
@@ -160,9 +202,12 @@
       <!-- Modal -->
       <spatial-unit-delete-modal></spatial-unit-delete-modal>
 
-
+      
       <!-- Modal -->
       <georesource-add-modal></georesource-add-modal>
+
+      <!-- Modal -->
+      <georesource-batch-update-modal></georesource-batch-update-modal>
 
       <!-- Modal -->
       <georesource-edit-features-modal></georesource-edit-features-modal>
@@ -176,6 +221,9 @@
 
       <!-- Modal -->
       <indicator-add-modal></indicator-add-modal>
+
+      <!-- Modal -->
+      <indicator-batch-update-modal></indicator-batch-update-modal>
 
       <!-- Modal -->
       <indicator-edit-features-modal></indicator-edit-features-modal>
@@ -211,7 +259,10 @@
       <!-- Modal -->
       <role-delete-modal></role-delete-modal>
 
-      
+
+      <!-- Modal -->
+      <batch-update-result-modal></batch-update-result-modal>
+    
 
       <div style="position: absolute; left: 12%; top: 200px; width: 75%;" hidden
 				class="alert alert-danger alert-dismissable mapApplicationErrorAlert">
@@ -232,7 +283,7 @@
     <div class="pull-right hidden-xs">
       Vielen Dank f&uuml;r die Nutzung von KomMonitor
     </div>
-    <strong>Copyright &copy; 2019 <a href="http://kommonitor.de">KomMonitor-Team</a>.</strong>
+    <strong>Copyright &copy; <a href="http://kommonitor.de">KomMonitor-Team</a>.</strong>
   </footer>
 
 </div>

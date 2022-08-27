@@ -12,36 +12,34 @@
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span></button>
-				<h4 class="modal-title">Rollen l&ouml;schen</h4>
+				<h4 class="modal-title">Organisationseinheiten l&ouml;schen</h4>
 			</div>
 			<div class="modal-body">
 
-				<h4><b>Sollen die folgenden Rollen wirklich gel&ouml;scht werden?</b></h4>
+				<h4><b>Sollen die folgenden Organisationseinheiten wirklich gel&ouml;scht werden?</b></h4>
 
-				<p>Eventuelle Zugriffsregeln dieser Rollen auf KomMonitor-Ressourcen werden dabei entfernt.</p>
+				<p>Eventuelle Zugriffsregeln dieser Einheiten auf KomMonitor-Ressourcen werden dabei entfernt.</p>
 
-				<div ng-if="datasetsToDelete.length > 0">
+				<div ng-if="elementsToDelete.length > 0">
 					<ul>
-						<li ng-repeat="dataset in datasetsToDelete">{{dataset.roleName}}, {{dataset.roleId}}</li>
+						<li ng-repeat="dataset in elementsToDelete">{{dataset.name}}, {{dataset.organizationalUnitId}}</li>
 					</ul>
 				</div>
 
-				<div ng-if="! datasetsToDelete.length > 0">
+				<div ng-if="! elementsToDelete.length > 0">
 					<pre>kein Datensatz zum L&ouml;schen markiert. Mindestens ein Datensatz muss markiert werden.</pre>
 				</div>
 
-				<div ng-if="datasetsToDelete.length > 0">
+				<div ng-if="elementsToDelete.length > 0">
 					<h3>ACHTUNG!</h3>
 					<p>
-						<!-- Bei den folgenden Datens&auml;tzen besteht derzeit ein rollenbasierter Zugriffsschutz mit
-						mindestens
-						einer der zu l&ouml;schenden Rollen. Wird die L&ouml;sch-Operation best&auml;tigt, so wird die
-						Verkn&uuml;pfung
-						zwischen dem jeweiligen Datensatz und der zu l&ouml;schenden Rolle aufgehoben.</p> -->
-						Sollten Ressourcen noch durch die zu l&ouml;schende(n) Rolle(n) abgesichert sein, so schl&auml;gt die L&ouml;sch-Operation 
-						m&ouml;glicherweise fehl. So soll verhindert werden, dass gesch&uuml;tzte Ressourcen durch L&ouml;schen der verkn&uuml;pften Rolle(n) frei zug&auml;nglich werden. 
-						
-						Administratoren m&uuml;ssten vorab die unten gelisteten Verkn&uuml;pfungen zuerst aufheben, um die Rolle tats&auml;chlich l&ouml;schen zu k&ouml;nnen.
+						Sollten Ressourcen noch durch die zu l&ouml;schende(n) Organisationseinheite(n) abgesichert sein, so
+						schl&auml;gt die L&ouml;sch-Operation
+						m&ouml;glicherweise fehl. So soll verhindert werden, dass gesch&uuml;tzte Ressourcen durch
+						L&ouml;schen der verkn&uuml;pften Organisationseinheite(n) frei zug&auml;nglich werden.
+
+						Administratoren m&uuml;ssten vorab die unten gelisteten Verkn&uuml;pfungen zuerst aufheben, um
+						die Organisationseinheite(n) tats&auml;chlich l&ouml;schen zu k&ouml;nnen.
 
 					<h4>Betroffene Raumeinheiten</h4>
 					<div ng-if="! affectedSpatialUnits.length > 0">
@@ -54,7 +52,7 @@
 								<tr>
 									<th>Raumeinheit-ID</th>
 									<th>Raumeinheit-Name</th>
-									<th>verkn&uuml;pfte Rollen</th>
+									<th>verkn&uuml;pfte Einheiten</th>
 								</tr>
 							</thead>
 
@@ -80,7 +78,7 @@
 								<tr>
 									<th>Georessourcen-ID</th>
 									<th>Georessourcen-Name</th>
-									<th>verkn&uuml;pfte Rollen</th>
+									<th>verkn&uuml;pfte Einheiten</th>
 								</tr>
 							</thead>
 
@@ -106,8 +104,8 @@
 								<tr>
 									<th>Indikatoren-ID</th>
 									<th>Indikatoren-Name</th>
-									<th>verkn&uuml;pfte Rollen zu Metadatensatz</th>
-									<th>verkn&uuml;pfte Rollen pro verkn&uuml;pfter Raumebene</th>
+									<th>verkn&uuml;pfte Einheiten zu Metadatensatz</th>
+									<th>verkn&uuml;pfte Einheiten pro verkn&uuml;pfter Raumebene</th>
 								</tr>
 							</thead>
 
@@ -122,70 +120,75 @@
 							</tbody>
 						</table>
 					</div>
-				
+
 				</div>
+
+				<br />
+				<hr>
 
 				<div class="row vertical-align">
 					<div class="col-md-3 col-sm-6 col-xs-12">
 						<div class="form-group">
-							<label>Gleichnamige Keycloak-Rolle mit l&ouml;schen?*</label>		
+							<label>Gleichnamige Keycloak-Rolle mit l&ouml;schen?*</label>
 							<label class="switch">
-								<input type="checkbox" value="deleteCorrespondingKeycloakRole" ng-model="deleteCorrespondingKeycloakRole">
+								<input type="checkbox" value="deleteCorrespondingKeycloakRole"
+									ng-model="deleteCorrespondingKeycloakRole">
 								<span class="switchslider round"></span>
-							</label>	
-						
+							</label>
+
 							<div class="help-block">
-								<p>Angabe, ob die gleichnamige Rolle auch aus der Keycloak-Instanz zu l&ouml;schen ist.</p>
-							</div>	
+								<p>Angabe, ob die assoziierten Einheiten auch aus der Keycloak-Instanz zu l&ouml;schen ist.
+								</p>
+							</div>
 							<div class="help-block with-errors"></div>
 						</div>
 					</div>
 				</div>
 
 			</div>
-		<div class="modal-footer">
-			<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Schlie&szlig;en</button>
-			<button type="button" class="btn btn-danger" ng-click="deleteRoles()"
-				ng-disabled="! datasetsToDelete.length > 0">Rollen unwiderruflich l&ouml;schen</button>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Schlie&szlig;en</button>
+				<button type="button" class="btn btn-danger" ng-click="deleteRoles()"
+					ng-disabled="! elementsToDelete.length > 0">Unwiderruflich l&ouml;schen</button>
+			</div>
+
+			<div id="rolesDeleteSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
+				class="alert alert-success alert-dismissable">
+				<button type="button" class="close" ng-click="hideSuccessAlert()" aria-hidden="true">&times;</button>
+				<h4><i class="icon fa fa-check"></i>Folgende Organisationseinheiten wurde erfolgreich gel&ouml;scht</h4>
+				<ul>
+					<li ng-repeat="dataset in successfullyDeletedDatasets">{{dataset.name}}</li>
+				</ul>
+			</div>
+
+			<div id="rolesDeleteErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
+				class="alert alert-danger alert-dismissable">
+				<button type="button" class="close" ng-click="hideErrorAlert()" aria-hidden="true">&times;</button>
+				<h4><i class="icon fa fa-ban"></i>L&ouml;schen fehlgeschlagen</h4>
+				Folgende Datens&auml;tze konnten nicht gel&ouml;scht werden.
+				<br />
+				<table class="table table-bordered table-condensed" style="width:100%; overflow:auto; font-size: 11px;">
+					<thead>
+						<tr>
+							<th>Name</th>
+							<th>Fehlermeldung</th>
+						</tr>
+					</thead>
+
+					<tbody>
+						<tr ng-repeat="dataset in failedDatasetsAndErrors">
+							<td>{{dataset[0].name}}</td>
+							<td ng-bind-html="dataset[1]"></td>
+						</tr>
+
+					</tbody>
+				</table>
+
+			</div>
+
 		</div>
-
-		<div id="rolesDeleteSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
-			class="alert alert-success alert-dismissable">
-			<button type="button" class="close" ng-click="hideSuccessAlert()" aria-hidden="true">&times;</button>
-			<h4><i class="icon fa fa-check"></i>Folgende Rollen wurde erfolgreich gel&ouml;scht</h4>
-			<ul>
-				<li ng-repeat="dataset in successfullyDeletedDatasets">{{dataset.roleName}}</li>
-			</ul>
-		</div>
-
-		<div id="rolesDeleteErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
-			class="alert alert-danger alert-dismissable">
-			<button type="button" class="close" ng-click="hideErrorAlert()" aria-hidden="true">&times;</button>
-			<h4><i class="icon fa fa-ban"></i>L&ouml;schen gescheitert</h4>
-			Folgende Datens&auml;tze konnten nicht gel&ouml;scht werden.
-			<br />
-			<table class="table table-bordered table-condensed" style="width:100%; overflow:auto; font-size: 11px;">
-				<thead>
-					<tr>
-						<th>Name</th>
-						<th>Fehlermeldung</th>
-					</tr>
-				</thead>
-
-				<tbody>
-					<tr ng-repeat="dataset in failedDatasetsAndErrors">
-						<td>{{dataset[0].roleName}}</td>
-						<td ng-bind-html="dataset[1]"></td>
-					</tr>
-
-				</tbody>
-			</table>
-
-		</div>
-
+		<!-- /.modal-content -->
 	</div>
-	<!-- /.modal-content -->
-</div>
-<!-- /.modal-dialog -->
+	<!-- /.modal-dialog -->
 </div>
 <!-- /.modal -->

@@ -1,1 +1,1 @@
-angular.module('adminSpatialUnitsManagement', ['kommonitorDataExchange', 'datatables']);
+angular.module('adminSpatialUnitsManagement', ['kommonitorDataExchange', 'kommonitorCacheHelper', 'kommonitorDataGridHelper']);

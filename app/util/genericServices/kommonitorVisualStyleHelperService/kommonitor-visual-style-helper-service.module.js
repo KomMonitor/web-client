@@ -161,13 +161,13 @@ angular
         return defaultColorForZeroValues;
       };
 
-      this.setupDefaultBrew = function (geoJSON, propertyName, numClasses, colorCode, classifyMethod) {
+      this.setupDefaultBrew = function (geoJSON, propertyName, numClasses, colorCode, classifyMethod, forceProvidedIndicator, indicator) {
         this.resetFeaturesPerColorObjects();
 
         var values = new Array();
 
         if(kommonitorDataExchangeService.classifyUsingWholeTimeseries){
-          values = this.setupDefaultBrewValues_wholeTimeseries(geoJSON, values);
+          values = this.setupDefaultBrewValues_wholeTimeseries(geoJSON, values, forceProvidedIndicator, indicator);
         }
         else{
           values = this.setupDefaultBrewValues_singleTimestamp(geoJSON, propertyName, values);
@@ -199,8 +199,14 @@ angular
         return values;
       };
 
-      this.setupDefaultBrewValues_wholeTimeseries = function(geoJSON, values){
-        var indicatorTimeSeriesDatesArray = kommonitorDataExchangeService.selectedIndicator.applicableDates;
+      this.setupDefaultBrewValues_wholeTimeseries = function(geoJSON, values, forceProvidedIndicator, indicator){
+        var indicatorTimeSeriesDatesArray;
+        if(forceProvidedIndicator) {
+          indicatorTimeSeriesDatesArray = indicator.applicableDates;
+        } else {
+          indicatorTimeSeriesDatesArray = kommonitorDataExchangeService.selectedIndicator.applicableDates;
+        }
+        
 
           for (const date of indicatorTimeSeriesDatesArray) {
             var propertyName = __env.indicatorDatePrefix + date;

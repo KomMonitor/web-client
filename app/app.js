@@ -12,6 +12,9 @@ if (/Edge\/\d./i.test(navigator.userAgent)){
 
 var env = {};
 
+// for jspdf insert backwards compatibility according to https://github.com/parallax/jsPDF/releases/tag/v2.0.0
+window.jsPDF = window.jspdf.jsPDF;
+
 // Declare app level module which depends on views, and components
 var appModule = angular.module('kommonitorClient', [ 'ngRoute', 'kommonitorUserInterface', 'kommonitorAdmin']);
 
@@ -193,7 +196,11 @@ function initAngularComponents(){
         function ($scope, $element, $attrs) {
           $scope.$watch($attrs.mathjaxBind, function (texExpression) {
             $element.html(texExpression);
-            MathJax.typeset([$element[0]]);
+            // only if texExpression contains the special character '$' which is used to mark tex code
+            // then call MathJax function
+            if(texExpression && texExpression.includes("$")){
+              MathJax.typesetPromise([$element[0]]);
+            }            
           });
         },
       ],
@@ -264,7 +271,13 @@ function initAngularComponents(){
               'auth': function(Auth, $q, $location) { 
                 if(window.__env.enableKeycloakSecurity){
                   if (Auth.keycloak.authenticated) {
-                    if (Auth.keycloak.tokenParsed.realm_access.roles.includes('administrator')) {
+                    if(Auth.keycloak.tokenParsed 
+                      && Auth.keycloak.tokenParsed.realm_access 
+                      && Auth.keycloak.tokenParsed.realm_access.roles 
+                      && Auth.keycloak.tokenParsed.realm_access.roles.some(role => role.endsWith("-creator") || role.endsWith("-publisher") || role.endsWith("-editor"))){
+                        Auth.keycloak.showAdminView = true;
+                    }
+                    if (Auth.keycloak.showAdminView) {
                       return true;
                     } else {
                       return $q.reject('Not Authenticated');
@@ -305,13 +318,15 @@ function initAngularComponents(){
         return {
           request: function (config) {
             var deferred = $q.defer();
-            if (Auth.keycloak.token && isNotUrlThatUsesOwnAuth(config.url)) {
+            if (Auth.keycloak.token && urlRequiresKeycloakAuthHeader(config.url)) {
               Auth.keycloak.updateToken(5).then(function () {
                 config.headers = config.headers || {};
                 config.headers.Authorization = 'Bearer ' + Auth.keycloak.token;
                 deferred.resolve(config);
               }).catch(function () {
                 deferred.reject('Failed to refresh token');
+                console.error('Failed to refresh token. Will redirect to Login screen');
+                auth.keycloak.login();
               });
               return deferred.promise;
             } else {
@@ -362,22 +377,9 @@ function initAngularComponents(){
 }
 
 function bootstrapApplication(){
-
-  /*
-    var keycloak = new Keycloak({
-      url: 'http://keycloak-server/auth',
-      realm: 'myrealm',
-      clientId: 'myapp'
-    });
-  */
-  var keycloakConfig_forDirectInit = {
-    "url": window.__env.keycloakConfig["auth-server-url"],
-    "realm": window.__env.keycloakConfig["realm"],
-    "clientId": window.__env.keycloakConfig["resource"]
-  };
   
   if(window.__env.enableKeycloakSecurity){
-    var keycloakAdapter = new Keycloak(keycloakConfig_forDirectInit);  
+    var keycloakAdapter = new Keycloak(window.__env.configStorageServerConfig.targetUrlToConfigStorageServer_keycloakConfig);  
     keycloakAdapter.init({
       onLoad: 'check-sso',
     }).then(function (authenticated) {
@@ -426,9 +428,21 @@ angular.element(document).ready(function ($http) {
   loadConfigsThenApp();
 });
 
-var isNotUrlThatUsesOwnAuth = function(url){
+var urlRequiresKeycloakAuthHeader = function(url){
   // /admin/ is used to make admin requests against keycloak
   if (url.includes("/admin/")){
+    return false;
+  }
+  // ORS isochrones and directions requests
+  if (url.includes("isochrones")){
+    return false;
+  }
+  if (url.includes("routes")){
+    return false;
+  }
+
+  // for KomMonitor public requests we do not need any authentication
+  if (url.includes("/public/")){
     return false;
   }
   

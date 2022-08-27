@@ -15,11 +15,16 @@ angular.module('georesourceDeleteModal').component('georesourceDeleteModal', {
 		$scope.affectedIndicatorReferences = [];
 
 		$scope.$on("onDeleteGeoresources", function (event, datasets) {
+			$scope.loadingData = true;
 
 			$scope.datasetsToDelete = datasets;
 
 			$scope.resetGeoresourcesDeleteForm();
 
+			$timeout(function(){
+				
+				$scope.loadingData = false;
+			});	
 		});
 
 
@@ -106,13 +111,13 @@ angular.module('georesourceDeleteModal').component('georesourceDeleteModal', {
 						if($scope.successfullyDeletedDatasets.length > 0){
 							$("#georesourcesDeleteSuccessAlert").show();
 
-							// fetch indicatorMetada again as a georesource was deleted
-							await kommonitorDataExchangeService.fetchIndicatorsMetadata();
 							// refresh spatial unit overview table
-							$rootScope.$broadcast("refreshGeoresourceOverviewTable");
+							$rootScope.$broadcast("refreshGeoresourceOverviewTable", "delete", $scope.successfullyDeletedDatasets.map(dataset => {return dataset.georesourceId;}));
 
 							// refresh all admin dashboard diagrams due to modified metadata
-							$rootScope.$broadcast("refreshAdminDashboardDiagrams");
+							$timeout(function(){
+								$rootScope.$broadcast("refreshAdminDashboardDiagrams");
+							}, 500);
 
 							
 							$timeout(function(){

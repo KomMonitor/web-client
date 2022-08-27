@@ -145,6 +145,7 @@ MULTI STEP FORM
 	letter-spacing: 1px;
 	/* transform-style: preserve-3d; */
 	/* z-index: 1; */
+	cursor: pointer;
 }
 
 #progressbar li:before {
@@ -204,7 +205,7 @@ MULTI STEP FORM
 }
 
 #userLoginForm_withoutKeycloak h4, span {
-    text-align: center;
+    text-align: left;
 }
 
 :root {
@@ -216,6 +217,7 @@ MULTI STEP FORM
         --submit_bg: #1FCC44;
 		--submit_hover: #40e263;
 		--logout_bg: rgb(216, 0, 0);
+		--extend_bg: rgb(235, 160, 0);
         --logout_hover: #ff7373;
         --icon_color:#d84a4a;
     }
@@ -285,6 +287,31 @@ MULTI STEP FORM
         /* remove the outline */
         outline: none;
     }
+
+	.input_extend_session {
+        /* submit button has a different color and different padding */
+        background-color: var(--extend_bg);
+		color: white;
+		font-weight: bold;
+		text-transform: uppercase;
+		padding-left: 0;
+	}
+
+	.input_container,
+    .input_extend_session {
+			height: 40px;
+			border-radius: 20px;
+			width: 100%;
+			margin-bottom: 10px;
+    }
+
+	.input_extend_session:hover {
+        background-color: var(--submit_hover);
+        /* simple color transition on hover */
+        transition: background-color,
+            1s;
+        cursor: pointer;
+	}
 
     #input_submit {
         /* submit button has a different color and different padding */
@@ -573,6 +600,12 @@ pre.CodeMirror-line {
 	overflow: auto;
 }
 
+/* display above loading screen */
+#spatialUnitNotificationModal {
+	z-index: 100001;
+	overflow: auto;
+}
+
 .popover {
 	min-width: 250px;
 	width: auto;
@@ -827,6 +860,10 @@ pre.CodeMirror-line {
 	z-index: 1003;
 }
 
+.leaflet-container {
+	font-size: 12px !important;
+}
+
 .leaflet-left .leaflet-control-layers {
   /* display: inline-block; */
   /* float: none; */
@@ -880,15 +917,6 @@ pre.CodeMirror-line {
 	z-index: 1003;
 }
 
-.leaflet-left .leaflet-control-easyPrint{
-
-	/* display: inline-block; */
-	/* float: none; */
-	position: absolute;
-	left: 170px;
-	z-index: 1003;
-}
-
 .leaflet-left .leaflet-draw {
   /* display: inline-block; */
   /* float: none; */
@@ -923,8 +951,8 @@ pre.CodeMirror-line {
     height: 35px;
 		top: 5px;
 		left: 20px;
-    /* background: url(iconsFromPngTree/filter-icon.png) no-repeat 4px 4px #fff; */
-		background-image: url(iconsFromPngTree/filter-icon.png);
+    /* background: url(icons/filter-icon.png) no-repeat 4px 4px #fff; */
+		background-image: url(icons/filter-icon.png);
 		background-repeat: no-repeat;
 		background-size: 60% 60%;
   	background-position: center;
@@ -935,8 +963,8 @@ pre.CodeMirror-line {
 }
 
 .leaflet-control-search .search-button:hover {
-    /* background: url(iconsFromPngTree/filter-icon.png) no-repeat 4px 4px #fff; */
-		background-image: url(iconsFromPngTree/filter-icon.png);
+    /* background: url(icons/filter-icon.png) no-repeat 4px 4px #fff; */
+		background-image: url(icons/filter-icon.png);
 		background-repeat: no-repeat;
 		background-size: 60% 60%;
   	background-position: center;
@@ -945,6 +973,31 @@ pre.CodeMirror-line {
 
 .chart {
 	overflow:auto;
+}
+
+.admin-table-wrapper .ag-root-wrapper.ag-layout-normal {
+	height: 70vh !important;
+}
+
+.featureTableWrapper .ag-root-wrapper.ag-layout-normal {
+	height: 45vh !important;
+}
+
+#roleOverviewTable .ag-root-wrapper.ag-layout-normal {
+	height: 45vh !important;
+}
+
+.ag-cell { 
+	font-size: 12px;
+	white-space: normal ;
+	line-height: 20px !important; 
+	word-break: break-word !important; 
+	padding-top: 17px;
+	padding-bottom: 17px;
+}
+
+.grid-non-editable { 
+	background-color: #D7D7D7;
 }
 
 .admin-table-wrapper{
@@ -1659,7 +1712,8 @@ transition: opacity 0.3s;
 }
 
 #sidebarLegend.disappear {
-	width: 0;
+	max-width: 0;
+	min-width: 0;
 	opacity: 0;
 }
 
@@ -2196,8 +2250,8 @@ hr {
 }
 
 .loading-overlay-reporting {
-  width: 640px;
-  height: 390px;
+  width: 100%;
+  height: 100%;
   position: absolute;
   background-color: rgb(128,128,128);
   border-radius: 5px;
@@ -2210,9 +2264,8 @@ hr {
   width: 25px;
   height: 25px;
   position: absolute;
-  top: 195px;
-  left: 320px;
-  margin: -12.5px 0 0 -12.5px;
+  top: 50%;
+  left: 50%;
   
   -webkit-animation: spin 1s infinite linear;
   -moz-animation: spin 1s infinite linear;
@@ -2249,10 +2302,7 @@ hr {
 	-webkit-transform-origin: 50% 50%;
 	transform-origin:50% 50%;
 	-ms-transform-origin:50% 50%; /* IE 9 */
-  }
-
-
-  
+}
 
 @-moz-keyframes spin {
   from {
@@ -2281,6 +2331,17 @@ hr {
   }
 }
 
+#reporting-isochrones-config #kommonitorReachability #reachability-point-box {
+	display: none;
+}
+
+#reporting-isochrones-config #reachability-draw-points-btn {
+	visibility:hidden;
+}
+
+#reporting-isochrones-config #reachabiltiy-method-btn-group {
+	display: none;
+}
 
 /* The switch - the box around the slider */
 .switch {
@@ -2393,47 +2454,69 @@ input:checked + .switchslider:before {
 	margin: 1px;
 }
 
+.reporting-selectable-template {
+	cursor: pointer;
+}
+
+.reporting-element-config-box {
+	height: 150px;
+	border: solid lightgray 1px;
+	padding:10px;
+	margin-bottom: 15px;
+}
+
+.reporting-element-config-box > h5 {
+	font-weight: bold;
+}
+
+#reporting-add-indicator-tab-content,
+#area-method-1 {
+	position: relative;
+}
+
 .reporting-page {
 	background-color:white;
-	border: solid gray 1px;
+	border: none;
 	margin: 0 auto;
 	margin-top: 10px;
 	margin-bottom:10px;
 	padding:15px;
+	position: relative;
+	text-align: center;
+	display: flex;
+	flex-direction:row;
+	flex-wrap:wrap;
+}
+
+.reporting-page div {
+	display: flex;
+	align-content: center;
+	justify-content: center;
+	flex-direction:column;
+	text-align: center;
+}
+
+.reporting-page div span {
+	text-align: center;
 }
 
 .reporting-page-landscape {
+	--page-width: 830px; /* +30px to account for padding, content area is 800px wide */
 	/* aspect ratio 1/sqrt(2) */
-	width: calc(1120px/1.4); /* TODO dynamisch an nutzerbildschirm anpassen, dann über javascript */
-	height: calc(790px/1.4);
+	width: var(--page-width);
+	height: calc( var(--page-width) / 1.4);
+
 }
 
 .reporting-page-portrait {
+	--page-width: calc( 820px / 1.41 );
 	/* aspect ratio 1/sqrt(2) */
-	width: calc(790px/1.4); /* TODO dynamisch an nutzerbildschirm anpassen, dann über javascript */
-	height: calc(1120px/1.4);
+	width: var(--page-width);
+	height: calc( var(--page-width) * 1.4);
 }
 
-.grid-stack-item {
-	background-color:white;
-	border: dashed gray 1px;
-}
-
-.grid-stack-item-content {
-	left:0 !important;
-	right:0 !important;
-}
-
-.grid-stack > .grid-stack-item > .ui-resizable-s {
-	left: 0;
-}
-
-.grid-stack > .grid-stack-item > .ui-resizable-e {
-	right: 0;
-}
-
-.grid-stack > .grid-stack-item > .ui-resizable-w {
-	left: 0;
+.reporting-element-configuration-box {
+	border: solid black 1px;
 }
 
 #reporting-metadata-table {
@@ -2444,9 +2527,263 @@ input:checked + .switchslider:before {
 	margin-bottom: 4px;
 }
 
-#reporting-load-settings-button {
+#reporting-dateSliderWrapper {
+	margin: 20px auto 20px auto;
+	font: 16px/18px Arial, Helvetica, sans-serif; 
+}
+
+#reporting-dateSliderWrapper .irs-grid-text{
+	color: black;
+	font-size: 16px;
+	margin-top: 3px;
+	padding: 0px 5px;
+	background-color: white;
+	border-radius: 3px;
+	line-height: 20px;
+}
+
+#reporting-dateSliderWrapper .irs-min{
+	font-size: 16px;
+}
+
+#reporting-dateSliderWrapper .irs-single{
+	font-size: 16px;
+}
+
+#reporting-load-settings-button,
+#reporting-load-commune-logo-button {
 	display:none;
 }
+
+.reporting-template-category-heading .accordion-toggle:after {
+    /* symbol for "opening" panels */
+    font-family: 'Glyphicons Halflings';  /* essential for enabling glyphicon */
+    content: "\e114";
+    float: right;
+    color: grey;
+}
+.reporting-template-category-heading .accordion-toggle.collapsed:after {
+    /* symbol for "collapsed" panels */
+    content: "\e080";
+}
+
+.reporting-content-wrapper {
+	background: white;
+	border: 0 none;
+	border-radius: 0px;
+	margin-left: -15px; /* revert padding from parent elements */
+	box-shadow: 0 0 15px 1px rgba(0, 0, 0, 0.2);
+	padding: 20px 10px;
+	box-sizing: border-box;
+	position: relative;
+}
+
+#reporting-template-preview-area,
+#reporting-overview-preview-area {
+	position: relative;
+	margin-bottom: 15px;
+	height:650px;
+	border:solid darkgray 1px;
+    background-color: lightgray;
+	overflow:auto;
+}
+
+
+#reporting-report-formats-selection .modal-dialog {
+	position: absolute;
+	top: 35%;
+	left: 50%;
+	transform: translate(-50%, -50%) !important;
+}
+
+
+#reporting-add-indicator-preview-area {
+	margin-top: 15px;
+	height:650px;
+	border:solid darkgray 1px;
+    background-color: lightgray;
+	overflow:auto;
+}
+
+#reporting-overview-bot-btn-row-1 {
+	margin-bottom: 25px;
+}
+
+#reporting-overview-bot-btn-row-2 {
+	margin-top: 10px;
+}
+
+#reporting-overview-bot-btn-row-1 button:not(:last-child),
+#reporting-overview-bot-btn-row-2 button:not(:last-child) {
+	margin-right: 10px;
+}
+
+#reporting-template-categories-wrapper,
+#reporting-overwiew-indicators-wrapper,
+#reporting-template-customization-wrapper {
+	border: solid darkgray 1px;
+	padding: 5px 10px;
+}
+
+#reporting-template-customization-wrapper {
+	margin-top: 15px;
+}
+
+#reporting-template-select-config-import-btn {
+	margin-right: 15px;
+}
+
+.reporting-templateSection-delete-symbol{
+	color: rgba(230, 90, 90, 0.7);
+	height: 100%;
+}
+
+.reporting-added-templateSections-row {
+	display: flex;
+	display: -webkit-flex;
+	flex-wrap: wrap;
+	align-items: center;
+	padding: 5px 0px 5px 0px;
+	cursor: pointer;
+}
+
+.reporting-hr-divider {
+	border-top: 1px solid rgb(196, 196, 196)
+}
+
+#reporting-indicator-select-box select,
+#reporting-poi-select-box select {
+	font-size: 12px;
+}
+
+#reporting-optional-indicator-info {
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+
+.tab-disabled {
+	pointer-events: none;
+}
+
+.tab-disabled a {
+	color: #777;
+}
+
+
+#reporting-spatial-unit-select-wrapper {
+	margin: 10px 0px 10px 0px;
+}
+
+
+
+
+
+.batch-list-table-wrapper {
+	max-height: 75vh !important;
+	overflow-y: auto !important;
+}
+
+.batch-list-table .form-control {
+	width: auto;
+}
+
+.batch-list-table th {
+	position: sticky;
+	top: 0;
+	z-index: 3; /* datepicker fields have a z-index of 2, so this needs to be higher */
+	background: white;
+}
+
+
+.batch-list-odd-rows td:nth-child(-n+2) {
+	background: #f9f9f9 !important;
+}
+
+.batch-list-even-rows td:nth-child(-n+2) {
+	background: white !important;
+}
+
+.batch-list-table-sticky-column {
+	position: sticky;
+	z-index: 4 !important;
+}
+
+.batch-list-table-sticky-column-1 {
+	left:0px;
+}
+
+.batch-list-table-sticky-column-2 {
+	left: 20px;
+	width: auto;
+	min-width: 300px;
+	max-width: 500px;
+	padding: 0;
+
+}
+
+.batch-list-table-name-field {
+	width: 100% !important;
+}
+
+.batch-list-table-sticky-column-header,
+.batch-list-table-sticky-column-footer {
+	z-index: 5 !important;
+}
+
+.ui-select-container {
+	padding: 0;
+}
+
+.ui-select-search {
+	width: 100% !important;
+}
+
+.ui-select-choices {
+	width: auto !important;
+	position: relative;
+	top: 0 !important;
+	z-index: 1111 !important;
+}
+
+.ui-select-choices-row-inner {
+	float: left;
+}
+
+#modal-batch-update-result > div {
+	width: 700px;
+	max-height: 75vh;
+}
+
+.batch-update-result-table-wrapper {
+	max-height: 50vh !important;
+	overflow-y: auto !important;
+	width: 670px !important;
+}
+
+.batch-update-result-table {
+	width: 670px !important;
+	overflow:auto;
+	font-size: 11px;
+}
+
+
+.batch-update-result-td1 {
+	min-width: 200px;
+	padding: 10px;
+}
+
+.batch-update-result-td2 {
+	padding: 10px !important;
+}
+
+/*
+.georesource-result-error-message {
+	background-color: #c82333 !important;
+	border-color: #bd2130 !important;
+	color: white !important;
+	padding: 12px !important;
+}
+*/
 
 .style-simple-indicator {
 	background-color: white;
@@ -2469,3 +2806,114 @@ input:checked + .switchslider:before {
 	background: darkseagreen !important;
 	color: black !important;
 }
+
+.spatialFilterDuallist {
+	display: block;
+	margin-top: 10px;
+	margin-bottom: 30px;
+}
+
+#selectionByFeatureSpatialFilterResetSelectionBtn {
+	margin-top: 5px;
+	margin-bottom: 20px;
+}
+
+#manualSelectionSpatialFilterSelectByMapBtn {
+	margin-bottom: 10px;
+}
+
+#statisticalValuesDisplayTable td {
+	padding: 0;
+	margin: 0;
+ }
+
+.scriptAddFormList {
+	margin-left: 20px;
+}
+
+.scriptAddFormChecklistItemWrapper {
+	float:left;
+	height:40px;
+	margin-right: 15px;
+	display: table;
+}
+
+.scriptAddFormChecklistItemWrapper p {
+	display: table-cell;
+	vertical-align: middle;
+}
+.scriptAddFormChecklistItem {
+	margin-bottom: 10px;
+	display: table;
+}
+
+.scriptAddFormListItemIcon {
+	font-size: 24px;
+
+}
+
+.scriptAddFormListText {
+	min-height: 40px;
+	display: table-cell;
+	vertical-align: middle;
+}
+
+.classificationBoxToogleSlidersWrapper {
+	display: table;
+}
+
+.classificationBoxToogleSlidersLbl {
+	display: table-cell;
+	vertical-align: middle;
+}
+
+
+#infoModalTabs {
+	margin-bottom: 10px;
+}
+
+/* The snackbar - position it at the bottom and in the middle of the screen */
+#snackbar {
+	visibility: hidden; /* Hidden by default. Visible on click */
+	min-width: 250px; /* Set a default minimum width */
+	margin-left: -125px; /* Divide value of min-width by 2 */
+	background-color: #333; /* Black background color */
+	color: #fff; /* White text color */
+	text-align: center; /* Centered text */
+	border-radius: 2px; /* Rounded borders */
+	padding: 16px; /* Padding */
+	position: fixed; /* Sit on top of the screen */
+	z-index: 99999; /* Add a z-index if needed */
+	left: 75%; /* Center the snackbar */
+	bottom: 60vh; /* 50vh from the bottom */
+  }
+  
+  /* Show the snackbar when clicking on a button (class added with JavaScript) */
+  #snackbar.show {
+	visibility: visible; /* Show the snackbar */
+	/* Add animation: Take 0.5 seconds to fade in and out the snackbar.
+	However, delay the fade out process for 2.5 seconds */
+	-webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+	animation: fadein 0.5s, fadeout 0.5s 2.5s;
+  }
+  
+  /* Animations to fade the snackbar in and out */
+  @-webkit-keyframes fadein {
+	from {bottom: 0; opacity: 0;}
+	to {bottom: 60vh; opacity: 1;}
+  }
+  
+  @keyframes fadein {
+	from {bottom: 0; opacity: 0;}
+	to {bottom: 60vh; opacity: 1;}
+  }
+  
+  @-webkit-keyframes fadeout {
+	from {bottom: 60vh; opacity: 1;}
+	to {bottom: 0; opacity: 0;}
+  }
+  
+  @keyframes fadeout {
+	from {bottom: 60vh; opacity: 1;}
+	to {bottom: 0; opacity: 0;}
+  }

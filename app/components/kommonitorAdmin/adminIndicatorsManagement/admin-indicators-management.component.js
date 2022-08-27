@@ -1,17 +1,19 @@
 angular.module('adminIndicatorsManagement').component('adminIndicatorsManagement', {
 	templateUrl : "components/kommonitorAdmin/adminIndicatorsManagement/admin-indicators-management.template.html",
-	controller : ['kommonitorDataExchangeService', '$scope', '$timeout', '$rootScope', '__env', '$http', 
-	function IndicatorsManagementController(kommonitorDataExchangeService, $scope, $timeout, $rootScope, __env, $http) {
+	controller : ['kommonitorDataExchangeService', 'kommonitorCacheHelperService', 'kommonitorDataGridHelperService', '$scope', '$timeout', '$rootScope', '__env', '$http', 
+	function IndicatorsManagementController(kommonitorDataExchangeService, kommonitorCacheHelperService, kommonitorDataGridHelperService, $scope, $timeout, $rootScope, __env, $http) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
+		this.kommonitorDataGridHelperServiceInstance = kommonitorDataGridHelperService;
 
 		// initialize any adminLTE box widgets
 	  $('.box').boxWidget();
 
 		$scope.loadingData = true;
 
-		$scope.availableIndicatorDatasets;
 		$scope.selectIndicatorEntriesInput = false;
+
+		$scope.dataGrid;
 
 		$scope.sortableConfig = {
 			onEnd: function (/**Event*/evt) {
@@ -73,19 +75,15 @@ angular.module('adminIndicatorsManagement').component('adminIndicatorsManagement
 
 		$scope.initializeOrRefreshOverviewTable = function(){
 			$scope.loadingData = true;
-			$scope.availableIndicatorDatasets = JSON.parse(JSON.stringify(kommonitorDataExchangeService.availableIndicators));
-
-			// initialize properties
-			$scope.availableIndicatorDatasets.forEach(function(dataset){
-				dataset.isSelected = false;
-			});
+			
+			kommonitorDataGridHelperService.buildDataGrid_indicators(kommonitorDataExchangeService.availableIndicators);
 
 			$scope.loadingData = false;
 		};
 
-		$scope.$on("refreshIndicatorOverviewTable", function (event) {
+		$scope.$on("refreshIndicatorOverviewTable", function (event, crudType, targetIndicatorId) {
 			$scope.loadingData = true;
-			$scope.refreshIndicatorOverviewTable();
+			$scope.refreshIndicatorOverviewTable(crudType, targetIndicatorId);
 		});
 
 		$scope.onChangeSelectIndicatorEntries = function(){
@@ -102,19 +100,67 @@ angular.module('adminIndicatorsManagement').component('adminIndicatorsManagement
 			}
 		};
 
-		$scope.refreshIndicatorOverviewTable = function(){
+		$scope.refreshIndicatorOverviewTable = function(crudType, targetIndicatorId){
 
-			// refetch all metadata from spatial units to update table
-			kommonitorDataExchangeService.fetchIndicatorsMetadata().then(function successCallback(response) {
+			if(! crudType || !targetIndicatorId){
+				// refetch all metadata from spatial units to update table
+				kommonitorDataExchangeService.fetchIndicatorsMetadata(kommonitorDataExchangeService.currentKeycloakLoginRoles).then(function successCallback(response) {
 
-						$scope.initializeOrRefreshOverviewTable();
-
-						$scope.loadingData = false;
-
-				}, function errorCallback(response) {
+					$scope.initializeOrRefreshOverviewTable();
+					$rootScope.$broadcast("refreshIndicatorOverviewTableCompleted");
 
 					$scope.loadingData = false;
-			});
+
+					}, function errorCallback(response) {
+
+						$scope.loadingData = false;
+						$rootScope.$broadcast("refreshIndicatorOverviewTableCompleted");
+				});
+			}
+			else if(crudType && targetIndicatorId){
+				if(crudType == "add"){
+					kommonitorCacheHelperService.fetchSingleIndicatorMetadata(targetIndicatorId, kommonitorDataExchangeService.currentKeycloakLoginRoles).then(function successCallback(data) {
+
+						kommonitorDataExchangeService.addSingleIndicatorMetadata(data);
+
+						$scope.initializeOrRefreshOverviewTable();
+						$rootScope.$broadcast("refreshIndicatorOverviewTableCompleted");
+	
+						$scope.loadingData = false;
+	
+						}, function errorCallback(response) {
+	
+							$scope.loadingData = false;
+							$rootScope.$broadcast("refreshIndicatorOverviewTableCompleted");
+					});
+				}
+				else if(crudType == "edit"){
+					kommonitorCacheHelperService.fetchSingleIndicatorMetadata(targetIndicatorId, kommonitorDataExchangeService.currentKeycloakLoginRoles).then(function successCallback(data) {
+
+						kommonitorDataExchangeService.replaceSingleIndicatorMetadata(data);
+						
+						$scope.initializeOrRefreshOverviewTable();
+						$rootScope.$broadcast("refreshIndicatorOverviewTableCompleted");
+	
+						$scope.loadingData = false;
+	
+						}, function errorCallback(response) {
+	
+							$scope.loadingData = false;
+							$rootScope.$broadcast("refreshIndicatorOverviewTableCompleted");
+					});
+				}
+				else if(crudType == "delete"){
+					kommonitorDataExchangeService.deleteSingleIndicatorMetadata(targetIndicatorId);
+						
+						$scope.initializeOrRefreshOverviewTable();
+						$rootScope.$broadcast("refreshIndicatorOverviewTableCompleted");
+	
+						$scope.loadingData = false;
+				}
+			}
+
+			
 
 		};
 
@@ -133,21 +179,6 @@ angular.module('adminIndicatorsManagement').component('adminIndicatorsManagement
 
 		// 	$scope.loadingData = false;
 		// };
-
-		$scope.onClickEditMetadata = function(indicatorDataset){
-			// submit selected spatial unit to modal controller
-			$rootScope.$broadcast("onEditIndicatorMetadata", indicatorDataset);
-		};
-
-		$scope.onClickEditFeatures = function(indicatorDataset){
-			// submit selected spatial unit to modal controller
-			$rootScope.$broadcast("onEditIndicatorFeatures", indicatorDataset);
-		};
-
-		$scope.onClickEditIndicatorSpatialUnitRoles = function(indicatorDataset){
-			$rootScope.$broadcast("onEditIndicatorSpatialUnitRoles", indicatorDataset);
-		};
-
 
 	}
 ]});

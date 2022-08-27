@@ -10,16 +10,19 @@ angular
 					 */
 					controller : ['$scope', '$rootScope', 'kommonitorMapService', 'kommonitorVisualStyleHelperService', 
 					'kommonitorDataExchangeService', 'kommonitorDiagramHelperService', 'kommonitorElementVisibilityHelperService', 
-					'__env', '$timeout', '$sce',
+					'kommonitorFilterHelperService', '__env', '$timeout', '$sce', 'kommonitorShareHelperService',
 					function KommonitorLegendController($scope, $rootScope, kommonitorMapService, 
 						kommonitorVisualStyleHelperService, kommonitorDataExchangeService, kommonitorDiagramHelperService, kommonitorElementVisibilityHelperService, 
-						__env, $timeout, $sce) {
+						kommonitorFilterHelperService, __env, $timeout, $sce, kommonitorShareHelperService) {
 
 						const INDICATOR_DATE_PREFIX = __env.indicatorDatePrefix;
 						this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 						this.kommonitorMapServiceInstance = kommonitorMapService;
 						this.kommonitorVisualStyleHelperServiceInstance = kommonitorVisualStyleHelperService;
 						this.kommonitorElementVisibilityHelperServiceInstance = kommonitorElementVisibilityHelperService;
+						this.kommonitorFilterHelperServiceInstance = kommonitorFilterHelperService;
+						this.kommonitorShareHelperServiceInstance = kommonitorShareHelperService;
+						this.envInstance = __env;
 						
 						this.env = __env;
 						$scope.svgString_outlierLow = $sce.trustAsHtml('<svg height="18" width="18"><line x1="10" y1="0" x2="110" y2="100" style="stroke:' + __env.defaultColorForOutliers_low + ';stroke-width:2; stroke-opacity: ' + __env.defaultFillOpacityForOutliers_low + ';" /><line x1="0" y1="0" x2="100" y2="100" style="stroke:' + __env.defaultColorForOutliers_low + ';stroke-width:2; stroke-opacity: ' + __env.defaultFillOpacityForOutliers_low + ';" /><line x1="0" y1="10" x2="100" y2="110" style="stroke:' + __env.defaultColorForOutliers_low + ';stroke-width:2; stroke-opacity: ' + __env.defaultFillOpacityForOutliers_low + ';" />Sorry, your browser does not support inline SVG.</svg>');
@@ -45,17 +48,18 @@ angular
 						$scope.onChangeIndicatorDatepickerDate = function(){
 							$rootScope.$broadcast("changeIndicatorDate");
 						};
+
 						
 						$scope.filterSpatialUnits = function(){
 							return function( item ) {
-								return kommonitorDataExchangeService.isAllowedSpatialUnitForCurrentIndicator(item);
+								return kommonitorDataExchangeService.isAllowedSpatialUnitForCurrentIndicator(item);								
 						  };
 						};
 
 						$scope.makeOutliersLowLegendString = function(outliersArray) {
 							if (outliersArray.length > 1) {
 				  
-							  return "(" + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(outliersArray[0]) + " &dash; " + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(outliersArray[outliersArray.length - 1]) + ")";
+							  return "(" + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(outliersArray[0]) + " - " + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(outliersArray[outliersArray.length - 1]) + ")";
 							}
 							else {
 							  return "(" + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(outliersArray[0]) + ")";
@@ -64,7 +68,7 @@ angular
 				  
 						  $scope.makeOutliersHighLegendString = function(outliersArray) {
 							if (outliersArray.length > 1) {
-							  return "(" + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(outliersArray[0]) + " &dash; " + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(outliersArray[outliersArray.length - 1]) + ")";
+							  return "(" + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(outliersArray[0]) + " - " + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(outliersArray[outliersArray.length - 1]) + ")";
 							}
 							else {
 							  return "(" + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(outliersArray[0]) + ")";
@@ -74,7 +78,23 @@ angular
 						$scope.onChangeSelectedSpatialUnit = function(){
 
 							$rootScope.$broadcast("changeSpatialUnit");
+
+							if(__env.enableSpatialUnitNotificationSelection) {
+								if(! (localStorage.getItem("hideKomMonitorSpatialUnitNotification") === "true")) {
+									let selectedSpatialUnitName = kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel;
+									if(__env.spatialUnitNotificationSelection.includes(selectedSpatialUnitName)) {
+										$('#spatialUnitNotificationModal').modal('show');	
+									}
+								}
+							}
 						};
+
+
+						$scope.showSpatialUnitNotificationModalIfEnabled = function() {
+							if(__env.enableSpatialUnitNotificationSelection) {
+								$('#spatialUnitNotificationModal').modal('show');	
+							}
+						}
 
 						$(document).on('click', '#controlIndicatorClassifyOption_wholeTimeseries', function (e) {
 							var wholeTimeseriesClassificationCheckbox = document.getElementById('controlIndicatorClassifyOption_wholeTimeseries');
@@ -111,18 +131,9 @@ angular
 
 						$scope.onClickDownloadMetadata = async function(){
 							// create PDF from currently selected/displayed indicator!
-							var indicatorMetadata = kommonitorDataExchangeService.selectedIndicator;														
-							var jspdf = await kommonitorDataExchangeService.createMetadataPDF_indicator(indicatorMetadata);
-
+							var indicatorMetadata = kommonitorDataExchangeService.selectedIndicator;
 							var pdfName = indicatorMetadata.indicatorName + ".pdf";
-  
-							jspdf.setProperties({
-							title: 'KomMonitor Indikatorenblatt',
-							subject: pdfName,
-							author: 'KomMonitor',
-							keywords: 'Indikator, Metadatenblatt',
-							creator: 'KomMonitor'
-							});
+							var jspdf = await kommonitorDataExchangeService.generateIndicatorMetadataPdf(indicatorMetadata, pdfName);							
             				jspdf.save(pdfName);
 						};
 
@@ -171,45 +182,18 @@ angular
 							else{
 							  geoJSON_string = JSON.stringify(kommonitorDataExchangeService.selectedIndicator.geoJSON);
 							  fileName += "_" + kommonitorDataExchangeService.selectedDate;
-							}
+							}			
 				  
-							fileName += ".geojson";
-				  
-							var blob = new Blob([geoJSON_string], { type: "application/json" });
-							var data = URL.createObjectURL(blob);
-							//
-							// $scope.indicatorDownloadURL = data;
-							// $scope.indicatorDownloadName = fileName;
-				  
-							// var element = document.createElement('a');
-							// element.setAttribute('href', 'data:application/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(geoJSON)));
-							// element.setAttribute('download', fileName);
-							//
-							// element.style.display = 'none';
-							// document.body.appendChild(element);
-							//
-							// element.click();
-							//
-							// document.body.removeChild(element);
-				  
-							var a = document.createElement('a');
-							a.download = fileName;
-							a.href = data;
-							a.textContent = "GeoJSON";
-							a.target = "_blank";
-							a.rel = "noopener noreferrer";
-							a.click();
-				  
-							a.remove();
+							kommonitorDataExchangeService.generateAndDownloadIndicatorZIP(geoJSON_string, fileName, ".geojson", {});
 						  };
 				  
 						  $scope.downloadIndicatorAsShape = function () {
 				  
-							var folderName = kommonitorDataExchangeService.selectedIndicator.indicatorName + "_" + kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel;
+							var fileName = kommonitorDataExchangeService.selectedIndicator.indicatorName + "_" + kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel;
 							var polygonName = kommonitorDataExchangeService.selectedIndicator.indicatorName + "_" + kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel;
 				  
 							var options = {
-							  folder: folderName,
+							  folder: "shape",
 							  types: {
 								point: 'points',
 								polygon: polygonName,
@@ -222,11 +206,11 @@ angular
 							if(kommonitorDataExchangeService.isBalanceChecked){
 							  geoJSON = jQuery.extend(true, {}, kommonitorDataExchangeService.indicatorAndMetadataAsBalance.geoJSON);
 							  geoJSON = prepareBalanceGeoJSON(geoJSON, kommonitorDataExchangeService.indicatorAndMetadataAsBalance);
-							  folderName += "_Bilanz_" + kommonitorDataExchangeService.indicatorAndMetadataAsBalance['fromDate'] + " - " + kommonitorDataExchangeService.indicatorAndMetadataAsBalance['toDate'];
+							  fileName += "_Bilanz_" + kommonitorDataExchangeService.indicatorAndMetadataAsBalance['fromDate'] + " - " + kommonitorDataExchangeService.indicatorAndMetadataAsBalance['toDate'];
 							}
 							else{
 							  geoJSON = jQuery.extend(true, {}, kommonitorDataExchangeService.selectedIndicator.geoJSON);
-							  folderName += "_" + kommonitorDataExchangeService.selectedDate;
+							  fileName += "_" + kommonitorDataExchangeService.selectedDate;
 							}
 				  
 							for (var feature of geoJSON.features) {
@@ -265,7 +249,9 @@ angular
 							  feature.properties = properties;
 							}
 				  
-							shpwrite.download(geoJSON, options);
+							// shpwrite.download(geoJSON, options);
+							var arrayBuffer = shpwrite.zip(geoJSON, options);							
+							kommonitorDataExchangeService.generateAndDownloadIndicatorZIP(arrayBuffer, fileName, "_shape.zip", {base64: true});
 						  };
 
 						  $scope.downloadIndicatorAsCSV = function () {
@@ -342,7 +328,7 @@ angular
 							for (var i = 0; i < array.length; i++) {
 								var line = '';
 								for (var index in array[i]) {
-									if (line != '') line += ','
+									if (line != '') line += ';';
 						
 									line += array[i][index];
 								}
@@ -361,27 +347,34 @@ angular
 							// Convert Object to JSON
 							var jsonObject = JSON.stringify(items);
 						
-							var csv = convertToCSV(jsonObject);
-						
-							var exportedFilenmae = fileTitle + '.csv' || 'export.csv';
-						
-							var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-							if (navigator.msSaveBlob) { // IE 10+
-								navigator.msSaveBlob(blob, exportedFilenmae);
-							} else {
-								var link = document.createElement("a");
-								if (link.download !== undefined) { // feature detection
-									// Browsers that support HTML5 download attribute
-									var url = URL.createObjectURL(blob);
-									link.setAttribute("href", url);
-									link.setAttribute("download", exportedFilenmae);
-									link.style.visibility = 'hidden';
-									document.body.appendChild(link);
-									link.click();
-									document.body.removeChild(link);
-								}
-							}
+							var csv = convertToCSV(jsonObject);						
+
+							kommonitorDataExchangeService.generateAndDownloadIndicatorZIP(csv, fileTitle, ".csv", {});
 						}
+
+						$scope.onClickShareLinkButton = function(){
+
+							kommonitorShareHelperService.generateCurrentShareLink();
+							
+							/* Copy to clipboard */
+							if(navigator && navigator.clipboard){
+								navigator.clipboard.writeText(kommonitorShareHelperService.currentShareLink);
+
+								// Get the snackbar DIV
+								var x = document.getElementById("snackbar");
+
+								// Add the "show" class to DIV
+								x.className = "show";
+
+								// After 3 seconds, remove the show class from DIV
+								setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+							}
+							else{
+								// open in new tab
+								window.open(kommonitorShareHelperService.currentShareLink, '_blank');
+							}
+  							
+						};
 				  
 
 					}]

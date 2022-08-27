@@ -9,12 +9,12 @@ angular
 					 * enabled tabs
 					 */
 					controller : [
-							'kommonitorDataExchangeService', '$scope', 'kommonitorMapService', '$http', '$rootScope', '__env', '$timeout',
-							function kommonitorDataSetupController(kommonitorDataExchangeService, $scope, kommonitorMapService, $http, $rootScope, __env, $timeout) {
+							'kommonitorDataExchangeService', '$scope', 'kommonitorMapService', '$http', '$rootScope', '__env', 
+							'$timeout',
+							function kommonitorDataSetupController(kommonitorDataExchangeService, $scope, kommonitorMapService, $http, $rootScope, __env, 
+								$timeout) {
 
 								const INDICATOR_DATE_PREFIX = __env.indicatorDatePrefix;
-								const initialIndicatorId = __env.initialIndicatorId;
-								const initialSpatialUnitName = __env.initialSpatialUnitName;
 
 								$scope.indicatorNameFilter = undefined;
 
@@ -72,7 +72,7 @@ angular
 
 								$scope.onClickHierarchyIndicator = function(indicatorMetadata){
 									kommonitorDataExchangeService.selectedIndicator = indicatorMetadata;
-									$scope.onChangeSelectedIndicator();
+									$scope.onChangeSelectedIndicator(false);
 								};
 
 								// $scope.$watch('filteredSpatialUnits', function(value){
@@ -241,7 +241,7 @@ angular
 										var indicatorIndex = undefined;
 
 										for (var index=0; index < kommonitorDataExchangeService.displayableIndicators.length; index++){
-											if (kommonitorDataExchangeService.displayableIndicators[index].indicatorId === initialIndicatorId){
+											if (kommonitorDataExchangeService.displayableIndicators[index].indicatorId === __env.initialIndicatorId){
 												if(kommonitorDataExchangeService.displayableIndicators[index].applicableDates.length > 0){
 													indicatorIndex = index;
 													break;
@@ -270,7 +270,7 @@ angular
 
 										// set spatialUnit
 										for (var spatialUnitEntry of kommonitorDataExchangeService.availableSpatialUnits){
-											if(spatialUnitEntry.spatialUnitLevel === initialSpatialUnitName){
+											if(spatialUnitEntry.spatialUnitLevel === __env.initialSpatialUnitName){
 												kommonitorDataExchangeService.selectedSpatialUnit = spatialUnitEntry;
 												break;
 											}
@@ -279,7 +279,13 @@ angular
 												kommonitorDataExchangeService.selectedSpatialUnit = $scope.getFirstSpatialUnitForSelectedIndicator();
 										}
 
-										$scope.onChangeSelectedIndicator();
+										if(! __env.centerMapInitially){
+											$scope.onChangeSelectedIndicator(false);	
+										}
+										else{
+											$scope.onChangeSelectedIndicator(true);	
+										}
+																			
 
 									}
 									catch(error){
@@ -468,7 +474,7 @@ angular
 									});
 
 									$scope.dateSlider = $("#dateSlider").data("ionRangeSlider");
-									// make sure that tha handles are properly set to man and max values
+									// make sure that the handle is properly set to max value
 									$scope.dateSlider.update({
 											from: $scope.datesAsMs.length -1 // index, not the date
 									});
@@ -526,6 +532,9 @@ angular
 
 										$scope.modifyExports(false);
 
+										if(document.getElementById('controlNoDataDisplay').checked)
+											$rootScope.$broadcast('applyNoDataDisplay')
+
 										$scope.loadingData = false;
 										$rootScope.$broadcast("hideLoadingIconOnMap");
 										$rootScope.$broadcast("selectedIndicatorDateHasChanged");
@@ -581,7 +590,7 @@ angular
 
 											kommonitorDataExchangeService.selectedIndicator.geoJSON = geoJSON;
 
-											$rootScope.$broadcast("updateMeasureOfValueBar", $scope.date);
+											$rootScope.$broadcast("updateMeasureOfValueBar", $scope.date, kommonitorDataExchangeService.selectedIndicator);
 
 											// $scope.updateMeasureOfValueBar($scope.date);
 
@@ -633,6 +642,9 @@ angular
 
 										$scope.modifyExports(false);
 
+										if(document.getElementById('controlNoDataDisplay').checked)
+											$rootScope.$broadcast('applyNoDataDisplay')	
+
 										$scope.loadingData = false;
 										$rootScope.$broadcast("hideLoadingIconOnMap");
 										$rootScope.$broadcast("selectedIndicatorDateHasChanged");
@@ -661,6 +673,9 @@ angular
 
 										$scope.modifyExports(false);
 
+										if(document.getElementById('controlNoDataDisplay').checked)
+											$rootScope.$broadcast('applyNoDataDisplay');
+
 										$scope.loadingData = false;
 										$rootScope.$broadcast("hideLoadingIconOnMap");
 										$scope.$digest();
@@ -679,10 +694,10 @@ angular
 
 								$scope.onChangeSelectedIndicator_fromAlphabeticalList = function(indicatorMetadata){
 									kommonitorDataExchangeService.selectedIndicator = indicatorMetadata;
-									$scope.onChangeSelectedIndicator();
+									$scope.onChangeSelectedIndicator(false);
 								};
 
-								$scope.onChangeSelectedIndicator = async function(){
+								$scope.onChangeSelectedIndicator = async function(recenterMap){
 
 									if(kommonitorDataExchangeService.selectedIndicator){
 
@@ -712,17 +727,24 @@ angular
 											return;
 										}
 
-											$rootScope.$broadcast("DisableBalance");
-												$scope.modifyExports(true);
+										$rootScope.$broadcast("DisableBalance");
+										$scope.modifyExports(true);
 
+										if(document.getElementById('controlNoDataDisplay').checked)
+											$rootScope.$broadcast('applyNoDataDisplay');
 
-												$scope.loadingData = false;
-												$rootScope.$broadcast("hideLoadingIconOnMap");
-												$scope.changeIndicatorWasClicked = false;
+										$scope.loadingData = false;
 
-												// $rootScope.$broadcast("updateDiagrams", kommonitorDataExchangeService.selectedIndicator, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel, $scope.selectedDate);
+										if(recenterMap){
+											$rootScope.$broadcast("recenterMapContent");
+										}
 
-												$rootScope.$apply();
+										$rootScope.$broadcast("hideLoadingIconOnMap");
+										$scope.changeIndicatorWasClicked = false;
+
+										// $rootScope.$broadcast("updateDiagrams", kommonitorDataExchangeService.selectedIndicator, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel, $scope.selectedDate);
+
+										$rootScope.$apply();
 
 
 									}
@@ -752,7 +774,7 @@ angular
 									};
 
 									$rootScope.$broadcast("updateBalanceSlider", kommonitorDataExchangeService.selectedDate);
-									$rootScope.$broadcast("updateIndicatorValueRangeFilter", kommonitorDataExchangeService.selectedDate);
+									$rootScope.$broadcast("updateIndicatorValueRangeFilter", kommonitorDataExchangeService.selectedDate, kommonitorDataExchangeService.selectedIndicator);
 									$scope.addSelectedIndicatorToMap(changeIndicator);
 
 								}

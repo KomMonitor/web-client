@@ -1,1 +1,1 @@
-angular.module('spatialUnitEditFeaturesModal', ['datatables', 'kommonitorImporterHelper']);
+angular.module('spatialUnitEditFeaturesModal', ['kommonitorDataGridHelper', 'kommonitorImporterHelper', 'kommonitorMultiStepFormHelper']);

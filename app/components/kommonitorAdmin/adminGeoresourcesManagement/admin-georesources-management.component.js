@@ -1,18 +1,13 @@
 angular.module('adminGeoresourcesManagement').component('adminGeoresourcesManagement', {
 	templateUrl : "components/kommonitorAdmin/adminGeoresourcesManagement/admin-georesources-management.template.html",
-	controller : ['kommonitorDataExchangeService', '$scope', '$timeout', '$rootScope', '__env', '$http', 
-	function GeoresourcesManagementController(kommonitorDataExchangeService, $scope, $timeout, $rootScope, __env, $http) {
+	controller : ['kommonitorDataExchangeService', 'kommonitorCacheHelperService', 'kommonitorDataGridHelperService', '$scope', '$timeout', '$rootScope', '__env', '$http', 
+	function GeoresourcesManagementController(kommonitorDataExchangeService, kommonitorCacheHelperService, kommonitorDataGridHelperService, $scope, $timeout, $rootScope, __env, $http) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 		// initialize any adminLTE box widgets
 	  $('.box').boxWidget();
 
 		$scope.loadingData = true;
-
-		$scope.availableGeoresourceDatasets;
-		$scope.selectPoiEntriesInput = false;
-		$scope.selectLoiEntriesInput = false;
-		$scope.selectAoiEntriesInput = false;
 
 		$scope.$on("initialMetadataLoadingCompleted", function (event) {
 
@@ -26,112 +21,142 @@ angular.module('adminGeoresourcesManagement').component('adminGeoresourcesManage
 
 		$scope.$on("initialMetadataLoadingFailed", function (event, errorArray) {
 
-			$scope.loadingData = false;
+			$timeout(function(){
+				
+				$scope.loadingData = false;
+			});	
 
 		});
 
 		$scope.initializeOrRefreshOverviewTable = function(){
 			$scope.loadingData = true;
-			$scope.availableGeoresourceDatasets = JSON.parse(JSON.stringify(kommonitorDataExchangeService.availableGeoresources));
+			
+			kommonitorDataGridHelperService.buildDataGrid_georesources(kommonitorDataExchangeService.availableGeoresources);
 
-			// initialize properties
-			$scope.availableGeoresourceDatasets.forEach(function(dataset){
-				dataset.isSelected = false;
-			});
-
-			$scope.loadingData = false;
+			$timeout(function(){
+				
+				$scope.loadingData = false;
+			});	
 		};
 
-		$scope.$on("refreshGeoresourceOverviewTable", function (event) {
+		$scope.$on("refreshGeoresourceOverviewTable", function (event, crudType, targetGeoresourceId) {
 			$scope.loadingData = true;
-			$scope.refreshGeoresourceOverviewTable();
+			$scope.refreshGeoresourceOverviewTable(crudType, targetGeoresourceId);
 		});
 
-		$scope.onChangeSelectPoiEntries = function(){
-			if ($scope.selectPoiEntriesInput){
-				$scope.availableGeoresourceDatasets.forEach(function(dataset){
-					if(dataset.isPOI)
-						dataset.isSelected = true;
-				});
-			}
-			else{
-				$scope.availableGeoresourceDatasets.forEach(function(dataset){
-					if(dataset.isPOI)
-						dataset.isSelected = false;
-				});
-			}
-		};
+		
+		$scope.refreshGeoresourceOverviewTable = function(crudType, targetGeoresourceId){
 
-		$scope.onChangeSelectLoiEntries = function(){
-			if ($scope.selectLoiEntriesInput){
-				$scope.availableGeoresourceDatasets.forEach(function(dataset){
-					if(dataset.isLOI)
-						dataset.isSelected = true;
-				});
-			}
-			else{
-				$scope.availableGeoresourceDatasets.forEach(function(dataset){
-					if(dataset.isLOI)
-						dataset.isSelected = false;
-				});
-			}
-		};
+			if(! crudType || !targetGeoresourceId){
+				// refetch all metadata from spatial units to update table
+				kommonitorDataExchangeService.fetchGeoresourcesMetadata(kommonitorDataExchangeService.currentKeycloakLoginRoles).then(function successCallback(response) {
 
-		$scope.onChangeSelectAoiEntries = function(){
-			if ($scope.selectAoiEntriesInput){
-				$scope.availableGeoresourceDatasets.forEach(function(dataset){
-					if(dataset.isAOI)
-						dataset.isSelected = true;
+					$scope.initializeOrRefreshOverviewTable();
+					$rootScope.$broadcast("refreshGeoresourceOverviewTableCompleted");
+
+					$timeout(function(){
+				
+						$scope.loadingData = false;
+					});	
+
+					}, function errorCallback(response) {
+
+						$timeout(function(){
+				
+							$scope.loadingData = false;
+						});	
+						$rootScope.$broadcast("refreshGeoresourceOverviewTableCompleted");
 				});
 			}
-			else{
-				$scope.availableGeoresourceDatasets.forEach(function(dataset){
-					if(dataset.isAOI)
-						dataset.isSelected = false;
-				});
-			}
-		};
+			else if(crudType && targetGeoresourceId){
+				if(crudType == "add"){
+					kommonitorCacheHelperService.fetchSingleGeoresourceMetadata(targetGeoresourceId, kommonitorDataExchangeService.currentKeycloakLoginRoles).then(function successCallback(data) {
 
-		$scope.refreshGeoresourceOverviewTable = function(){
-
-			// refetch all metadata from spatial units to update table
-			kommonitorDataExchangeService.fetchGeoresourcesMetadata().then(function successCallback(response) {
+						kommonitorDataExchangeService.addSingleGeoresourceMetadata(data);
 
 						$scope.initializeOrRefreshOverviewTable();
+						$rootScope.$broadcast("refreshGeoresourceOverviewTableCompleted");
+	
+						$timeout(function(){
+				
+							$scope.loadingData = false;
+						});	
+	
+						}, function errorCallback(response) {
+	
+							$timeout(function(){
+				
+								$scope.loadingData = false;
+							});	
+							$rootScope.$broadcast("refreshGeoresourceOverviewTableCompleted");
+					});
+				}
+				else if(crudType == "edit"){
+					kommonitorCacheHelperService.fetchSingleGeoresourceMetadata(targetGeoresourceId, kommonitorDataExchangeService.currentKeycloakLoginRoles).then(function successCallback(data) {
 
-						$scope.loadingData = false;
+						kommonitorDataExchangeService.replaceSingleGeoresourceMetadata(data);
+						
+						$scope.initializeOrRefreshOverviewTable();
+						$rootScope.$broadcast("refreshGeoresourceOverviewTableCompleted");
+	
+						$timeout(function(){
+				
+							$scope.loadingData = false;
+						});	
+	
+						}, function errorCallback(response) {
+	
+							$timeout(function(){
+				
+								$scope.loadingData = false;
+							});	
+							$rootScope.$broadcast("refreshGeoresourceOverviewTableCompleted");
+					});
+				}				
+				else if(crudType == "delete"){
+					// targetGeoresourceId might be array in this case
+					if(targetGeoresourceId && typeof targetGeoresourceId == "string"){
+						kommonitorDataExchangeService.deleteSingleGeoresourceMetadata(targetGeoresourceId);
+						
+						$scope.initializeOrRefreshOverviewTable();
+						$rootScope.$broadcast("refreshGeoresourceOverviewTableCompleted");
+	
+						$timeout(function(){
+				
+							$scope.loadingData = false;
+						});	
+					}
 
-				}, function errorCallback(response) {
+					else if (targetGeoresourceId && Array.isArray(targetGeoresourceId)){
+						for (const id of targetGeoresourceId) {
+							kommonitorDataExchangeService.deleteSingleGeoresourceMetadata(id);
+						}
+						$scope.initializeOrRefreshOverviewTable();
+						$rootScope.$broadcast("refreshGeoresourceOverviewTableCompleted");
+	
+						$timeout(function(){
+				
+							$scope.loadingData = false;
+						});	
+					}
+					
+				}
+			}
 
-					$scope.loadingData = false;
-			})
-
-		};
-
-		$scope.onChangeSelectPoiDataset = function(georesourceDataset){
-			console.log(georesourceDataset.datasetName);
-		};
-		$scope.onChangeSelectLoiDataset = function(georesourceDataset){
-			console.log(georesourceDataset.datasetName);
-		};
-		$scope.onChangeSelectAoiDataset = function(georesourceDataset){
-			console.log(georesourceDataset.datasetName);
 		};
 
 		$scope.onClickDeleteDatasets = function(){
 			$scope.loadingData = true;
 
-			var markedEntriesForDeletion = [];
-			$scope.availableGeoresourceDatasets.forEach(function(dataset){
-				if(dataset.isSelected){
-					markedEntriesForDeletion.push(dataset);
-				}
-			});
+			var markedEntriesForDeletion = kommonitorDataGridHelperService.getSelectedGeoresourcesMetadata();			
 
 			// submit selected spatial units to modal controller
 			$rootScope.$broadcast("onDeleteGeoresources", markedEntriesForDeletion);
 
-			$scope.loadingData = false;
+			$timeout(function(){
+				
+				$scope.loadingData = false;
+			});	
 		};
 
 		$scope.onClickEditMetadata = function(georesourceDataset){
@@ -143,7 +168,6 @@ angular.module('adminGeoresourcesManagement').component('adminGeoresourcesManage
 			// submit selected spatial unit to modal controller
 			$rootScope.$broadcast("onEditGeoresourceFeatures", georesourceDataset);
 		};
-
 
 	}
 ]});

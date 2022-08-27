@@ -10,12 +10,15 @@ angular.module('kommonitorDataExchange', ['kommonitorMap', 'kommonitorKeycloakHe
  * parameters for each WPS operation represented by different Angular components
  */
 angular
-		.module('kommonitorDataExchange', ['datatables'])
+		.module('kommonitorDataExchange', ['kommonitorCacheHelper', 'angularjs-dropdown-multiselect'])
 		.service(
-				'kommonitorDataExchangeService', ['$rootScope', '$timeout', 'kommonitorMapService', 'kommonitorKeycloakHelperService', '$http', '__env', 'DTOptionsBuilder', '$q', 'Auth',
-				function($rootScope, $timeout,
-						kommonitorMapService, kommonitorKeycloakHelperService, $http, __env, DTOptionsBuilder, $q, Auth,) {              
+				'kommonitorDataExchangeService', ['$rootScope', '$timeout', '$interval', 'kommonitorMapService', 'kommonitorKeycloakHelperService',
+        'kommonitorCacheHelperService', 
+        '$http', '__env', '$q', 'Auth',
+				function($rootScope, $timeout, $interval,
+						kommonitorMapService, kommonitorKeycloakHelperService, kommonitorCacheHelperService, $http, __env, $q, Auth,) {              
 
+              let thisService = this;
               this.appTitle = __env.appTitle;
 
               this.customLogoURL = __env.customLogoURL;
@@ -42,23 +45,7 @@ angular
               const defaultBorderColorForOutliers_low = __env.defaultBorderColorForOutliers_low;
               const defaultFillOpacityForOutliers_low = __env.defaultFillOpacityForOutliers_low;
 
-              const georesourcesPublicEndpoint = "/public/georesources";
-              const georesourcesProtectedEndpoint = "/georesources";
-              const spatialUnitsPublicEndpoint = "/public/spatial-units";
-              const spatialUnitsProtectedEndpoint = "/spatial-units";
-              const indicatorsPublicEndpoint = "/public/indicators";
-              const indicatorsProtectedEndpoint = "/indicators";
-              const scriptsPublicEndpoint = "/public/process-scripts";
-              const scriptsProtectedEndpoint = "/process-scripts";
-              const topicsPublicEndpoint = "/public/topics";
-              // only resource that has no public endpoint
-              const rolesEndpoint = "/roles";
-
-              var georesourcesEndpoint = georesourcesProtectedEndpoint;
-              var spatialUnitsEndpoint = spatialUnitsProtectedEndpoint;
-              var indicatorsEndpoint = indicatorsProtectedEndpoint;
-              var scriptsEndpoint = scriptsProtectedEndpoint;
-              this.spatialResourceGETUrlPath_forAuthentication = "/public";
+              
 
           var self = this;
 
@@ -74,17 +61,40 @@ angular
           this.enableKeycloakSecurity = __env.enableKeycloakSecurity;
           this.currentKeycloakLoginRoles = [];
           this.currentKomMonitorLoginRoleNames = [];
+          this.currentKeycloakUser;
 
-          this.setCurrentKomMonitorRoles = function(){
-            var roleMetadataForCurrentKeycloakLoginRoles = this.availableRoles.filter(role => this.currentKeycloakLoginRoles.includes(role.roleName)); 
+          // MAP objects for available resource metadata in order to have quick access to datasets by ID
+          this.availableIndicators_map = new Map();
+          this.availableGeoresources_map = new Map();
+          this.availableSpatialUnits_map = new Map();
+          this.availableProcessScripts_map = new Map();
 
-            var tmpCurrentKomMonitorRoles = [];
-
-            for (const roleMetadata of roleMetadataForCurrentKeycloakLoginRoles) {              
-              tmpCurrentKomMonitorRoles.push(roleMetadata.roleName);
-            }
-            this.currentKomMonitorLoginRoleNames = tmpCurrentKomMonitorRoles;
+          this.accessControl = [];
+          this.accessControl_map = new Map();
+          
+          // Define translations, settings for dropdown-multiselect 
+          this.multiselectDropdownTranslations = {	checkAll: 'Alle auswählen', uncheckAll: 'Nichts auswählen', dynamicButtonTextSuffix: 'Werte ausgewählt',
+								   	buttonDefaultText: 'Objekteigenschaften auswählen', searchPlaceholder: 'Suchen...'
+								};
+          
+          this.multiselectDropdownSettings = { 
+            enableSearch: true, clearSearchOnClose: true,
+            scrollableHeight: '250px', scrollable: true,
+            buttonClasses: 'form-control btn-block', 
+            template: '{{option}}', smartButtonTextConverter(skip, option) { return option; },
+            styleActive: true
           };
+
+          // Filter out roles unrelated to kommonitor
+          this.setCurrentKomMonitorLoginRoleNames = function() {
+            var possibleRoles = ["manage-realm"]
+            this.accessControl.forEach(organizationalUnit => {
+              organizationalUnit.roles.forEach(role => {
+                possibleRoles.push(organizationalUnit.name + "-" + role.permissionLevel)
+              });
+            });
+            this.currentKomMonitorLoginRoleNames = this.currentKeycloakLoginRoles.filter(role => possibleRoles.includes(role));
+          }
 
           this.isAllowedSpatialUnitForCurrentIndicator = function(spatialUnitMetadata){
             if(! this.selectedIndicator){
@@ -95,23 +105,15 @@ angular
               return false;
             }
 
-            var isAllowed = false;
-            
-            var roleMetadataForCurrentKeycloakLoginRoles = this.availableRoles.filter(role => this.currentKeycloakLoginRoles.includes(role.roleName));
-            this.setCurrentKomMonitorRoles();                     
-            
             var filteredApplicableUnits = this.selectedIndicator.applicableSpatialUnits.filter(function (applicableSpatialUnit) {
-              if (applicableSpatialUnit.spatialUnitName ===  spatialUnitMetadata.spatialUnitLevel){
-                if (applicableSpatialUnit.allowedRoles.length == 0){
-                  return true;
-                }
-                else{
-                  return applicableSpatialUnit.allowedRoles.some(allowedRoleId => roleMetadataForCurrentKeycloakLoginRoles.some(roleMetadata => roleMetadata.roleId === allowedRoleId) );
-                }
-              }              
-              
+              if (applicableSpatialUnit.spatialUnitId ===  spatialUnitMetadata.spatialUnitId){
+                return true;
+              }
+              else{
+                return false;
+              }
             });
-
+            
             return filteredApplicableUnits.length > 0;
           };
 
@@ -120,12 +122,6 @@ angular
           this.VALID_START_DATE_PROPERTY_NAME = __env.VALID_START_DATE_PROPERTY_NAME;
           this.VALID_END_DATE_PROPERTY_NAME = __env.VALID_END_DATE_PROPERTY_NAME;
           this.indicatorDatePrefix = __env.indicatorDatePrefix;
-
-          this.datatablesOptions = DTOptionsBuilder.newOptions()
-      				.withPaginationType('full_numbers')
-      				.withDisplayLength(5)
-      				.withLanguageSource('./Datatables.Language.German.json')
-              .withOption('lengthMenu', [[5, 10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "Alle"]]);
 
           this.datePickerOptions = {
             autoclose: true,
@@ -311,6 +307,14 @@ angular
             }
           ];
 
+          this.getLoiDashSvgFromStringValue = function(loiDashArrayString){
+            for (const loiDashArrayObject of this.availableLoiDashArrayObjects) {
+              if(loiDashArrayObject.dashArrayValue == loiDashArrayString){
+                return loiDashArrayObject.svgString;
+              }
+            }
+          };
+
 					this.kommonitorMapServiceInstance = kommonitorMapService;
 
           this.updateIntervalOptions = __env.updateIntervalOptions;
@@ -350,6 +354,7 @@ angular
           this.useOutlierDetectionOnIndicator = __env.useOutlierDetectionOnIndicator;
           this.classifyZeroSeparately = __env.classifyZeroSeparately;
           this.classifyUsingWholeTimeseries = __env.classifyUsingWholeTimeseries;
+          this.useNoDataToggle = __env.useNoDataToggle;
 
           this.getUpdateIntervalDisplayValue = function(apiValue){
             for (const updateIntervalOption of this.updateIntervalOptions) {
@@ -360,30 +365,48 @@ angular
           };
 
           this.getBaseUrlToKomMonitorDataAPI_spatialResource = function(){
-            return this.baseUrlToKomMonitorDataAPI + this.spatialResourceGETUrlPath_forAuthentication;
+            return this.baseUrlToKomMonitorDataAPI + kommonitorCacheHelperService.spatialResourceGETUrlPath_forAuthentication;
           };
-
-          this.checkAuthentication = function() {
-            if (Auth.keycloak.authenticated) {
-              georesourcesEndpoint = georesourcesProtectedEndpoint;
-              spatialUnitsEndpoint = spatialUnitsProtectedEndpoint;
-              indicatorsEndpoint = indicatorsProtectedEndpoint;
-              scriptsEndpoint = scriptsProtectedEndpoint;
-              this.spatialResourceGETUrlPath_forAuthentication = "";
-            } else{
-              georesourcesEndpoint = georesourcesPublicEndpoint;
-              spatialUnitsEndpoint = spatialUnitsPublicEndpoint;
-              indicatorsEndpoint = indicatorsPublicEndpoint;
-              scriptsEndpoint = scriptsPublicEndpoint;
-              this.spatialResourceGETUrlPath_forAuthentication = "/public";
-            }
-
-          };
-
-          self.checkAuthentication();
 
 					this.setProcessScripts = function(scriptsArray){
 						this.availableProcessScripts = scriptsArray;
+            this.availableProcessScripts_map = new Map();
+            for (const scriptMetadata of scriptsArray) {
+              this.availableProcessScripts_map.set(scriptMetadata.scriptId, scriptMetadata);
+            }
+          };
+
+          this.addSingleProcessScriptMetadata = function(processScriptMetadata){
+            let tmpArray = [processScriptMetadata];
+            Array.prototype.push.apply(tmpArray, this.availableProcessScripts);
+            this.availableProcessScripts =  tmpArray;
+            this.availableProcessScripts_map.set(processScriptMetadata.scriptId, processScriptMetadata);
+          };
+
+          this.replaceSingleProcessScriptMetadata = function(processScriptMetadata){
+            for (let index = 0; index < this.availableProcessScripts.length; index++) {
+              let processScript = this.availableProcessScripts[index];
+              if(processScript.scriptId == processScriptMetadata.scriptId){
+                this.availableProcessScripts[index] = processScriptMetadata;
+                break;
+              }
+            }
+            this.availableProcessScripts_map.set(processScriptMetadata.scriptId, processScriptMetadata);
+          };
+
+          this.deleteSingleProcessScriptMetadata = function(processScriptId){
+            for (let index = 0; index < this.availableProcessScripts.length; index++) {
+              const processScript = this.availableProcessScripts[index];
+              if(processScript.scriptId == processScriptId){
+                this.availableProcessScripts.splice(index, 1);
+                break;
+              }              
+            }
+            this.availableProcessScripts_map.delete(processScriptId);
+          };
+
+          this.getProcessScriptMetadataById = function(scriptId){
+            return this.availableProcessScripts_map.get(scriptId);
           };
 
 
@@ -419,11 +442,40 @@ angular
 
 					this.setSpatialUnits = function(spatialUnitsArray){
 						this.availableSpatialUnits = spatialUnitsArray;
+            this.availableSpatialUnits_map = new Map();
+            for (const spatialUnitMetadata of spatialUnitsArray) {
+              this.availableSpatialUnits_map.set(spatialUnitMetadata.spatialUnitId, spatialUnitMetadata);
+            }
           };
-          
-          // REPORTING
 
-          this.reportingIndicatorConfig = [];
+          this.addSingleSpatialUnitMetadata = function(spatialUnitMetadata){
+            let tmpArray = [spatialUnitMetadata];
+            Array.prototype.push.apply(tmpArray, this.availableSpatialUnits);
+            this.availableSpatialUnits =  tmpArray;
+            this.availableSpatialUnits_map.set(spatialUnitMetadata.spatialUnitId, spatialUnitMetadata);
+          };
+
+          this.replaceSingleSpatialUnitMetadata = function(spatialUnitMetadata){
+            for (let index = 0; index < this.availableSpatialUnits.length; index++) {
+              let spatialUnit = this.availableSpatialUnits[index];
+              if(spatialUnit.spatialUnitId == spatialUnitMetadata.spatialUnitId){
+                this.availableSpatialUnits[index] = spatialUnitMetadata;
+                break;
+              }
+            }
+            this.availableSpatialUnits_map.set(spatialUnitMetadata.spatialUnitId, spatialUnitMetadata);
+          };
+
+          this.deleteSingleSpatialUnitMetadata = function(spatialUnitId){
+            for (let index = 0; index < this.availableSpatialUnits.length; index++) {
+              const spatialUnit = this.availableSpatialUnits[index];
+              if(spatialUnit.spatialUnitId == spatialUnitId){
+                this.availableSpatialUnits.splice(index, 1);
+                break;
+              }              
+            }
+            this.availableSpatialUnits_map.delete(spatialUnitId);
+          };
 
 					// GEORESOURCES
 
@@ -436,6 +488,12 @@ angular
 
 					this.setGeoresources = function(georesourcesArray){
 						this.availableGeoresources = georesourcesArray;
+
+            this.availableGeoresources_map = new Map();
+            for (const georesourceMetadata of georesourcesArray) {
+              this.availableGeoresources_map.set(georesourceMetadata.georesourceId, georesourceMetadata);
+            }
+
             this.displayableGeoresources = this.availableGeoresources.filter(item => self.isDisplayableGeoresource(item));
             this.displayableGeoresources_keywordFiltered = JSON.parse(JSON.stringify(this.displayableGeoresources));
 
@@ -451,10 +509,36 @@ angular
             };
 					};
 
+          this.addSingleGeoresourceMetadata = function(georesourceMetadata){
+            let tmpArray = [georesourceMetadata];
+            Array.prototype.push.apply(tmpArray, this.availableGeoresources);
+            this.availableGeoresources =  tmpArray;
+            this.availableGeoresources_map.set(georesourceMetadata.georesourceId, georesourceMetadata);
+          };
 
+          this.replaceSingleGeoresourceMetadata = function(georesourceMetadata){
+            for (let index = 0; index < this.availableGeoresources.length; index++) {
+              let georesource = this.availableGeoresources[index];
+              if(georesource.georesourceId == georesourceMetadata.georesourceId){
+                this.availableGeoresources[index] = georesourceMetadata;
+                break;
+              }
+            }
+            this.availableGeoresources_map.set(georesourceMetadata.georesourceId, georesourceMetadata);
+          };
 
-					// INDICATORS
-					this.clickedIndicatorFeatureNames = new Array();
+          this.deleteSingleGeoresourceMetadata = function(georesourceId){
+            for (let index = 0; index < this.availableGeoresources.length; index++) {
+              const georesource = this.availableGeoresources[index];
+              if(georesource.georesourceId == georesourceId){
+                this.availableGeoresources.splice(index, 1);
+                break;
+              }              
+            }
+            this.availableGeoresources_map.delete(georesourceId);
+          };
+
+					// INDICATORS					
 
 					this.availableIndicators = [];
           this.displayableIndicators = [];
@@ -479,9 +563,41 @@ angular
 
 					this.setIndicators = function(indicatorsArray){
 						this.availableIndicators = indicatorsArray;
-            this.displayableIndicators = this.availableIndicators.filter(item => isDisplayableIndicator(item));
-            this.displayableIndicators_keywordFiltered = JSON.parse(JSON.stringify(this.displayableIndicators));
+            this.availableIndicators_map = new Map();
+            
+            for (const indicatorMetadata of indicatorsArray) {
+              this.availableIndicators_map.set(indicatorMetadata.indicatorId, indicatorMetadata);
+            }
 					};
+
+          this.addSingleIndicatorMetadata = function(indicatorMetadata){
+            let tmpArray = [indicatorMetadata];
+            Array.prototype.push.apply(tmpArray, this.availableIndicators);
+            this.availableIndicators =  tmpArray;
+            this.availableIndicators_map.set(indicatorMetadata.indicatorId, indicatorMetadata);
+          };
+
+          this.replaceSingleIndicatorMetadata = function(indicatorMetadata){
+            for (let index = 0; index < this.availableIndicators.length; index++) {
+              let indicator = this.availableIndicators[index];
+              if(indicator.indicatorId == indicatorMetadata.indicatorId){
+                this.availableIndicators[index] = indicatorMetadata;
+                break;
+              }
+            }
+            this.availableIndicators_map.set(indicatorMetadata.indicatorId, indicatorMetadata);
+          };
+
+          this.deleteSingleIndicatorMetadata = function(indicatorId){
+            for (let index = 0; index < this.availableIndicators.length; index++) {
+              const indicator = this.availableIndicators[index];
+              if(indicator.indicatorId == indicatorId){
+                this.availableIndicators.splice(index, 1);
+                break;
+              }              
+            }
+            this.availableIndicators_map.delete(indicatorId);
+          };
 
 
 					// TOPICS
@@ -734,19 +850,15 @@ angular
           };
 
           this.getIndicatorMetadataById = function(indicatorId){
-            for (const indicatorMetadata of this.availableIndicators) {
-              if(indicatorMetadata.indicatorId === indicatorId){
-                return indicatorMetadata;
-              }
-            }
+            return this.availableIndicators_map.get(indicatorId);
           };
 
           this.getGeoresourceMetadataById = function(georesourceId){
-            for (const georesourceMetadata of this.availableGeoresources) {
-              if(georesourceMetadata.georesourceId === georesourceId){
-                return georesourceMetadata;
-              }
-            }
+            return this.availableGeoresources_map.get(georesourceId);
+          };
+
+          this.getSpatialUnitMetadataById = function(spatialUnitId){
+            return this.availableSpatialUnits_map.get(spatialUnitId);
           };
 
           this.getIndicatorAbbreviationFromIndicatorId = function(indicatorId){
@@ -841,10 +953,6 @@ angular
             return topicHierarchyArray;
           };
 
-					// FILTER
-					this.rangeFilterData;
-					this.filteredIndicatorFeatureNames;
-
           this.syntaxHighlightJSON = function(json) {
       		    if (typeof json != 'string') {
       		         json = JSON.stringify(json, undefined, 2);
@@ -867,40 +975,94 @@ angular
       		    });
       		};
 
+          
+
+          this.extendKeycloakSession = function () {
+            // Auth.keycloak.updateToken(5).then(function () {
+            //   console.log("keycloak token refreshed.");
+            // }).catch(function () {
+            //   console.error('Failed to refresh token. Will redirect to Login screen');
+            //   Auth.keycloak.login();
+            // });
+
+            Auth.keycloak.login();
+          };
+
+          this.tryLogoutUser = function() {
+            Auth.keycloak.logout();
+          };
+
+          var startCheckSessionExpiration = function(){
+            $interval(function () {
+              // minutes until current browser session invalidates
+              // use refresh token as this is used when calling "updateToken" keycloak method. Only if that is invalid the whole session is invalid
+              self.keycloakTokenExpirationInfo = Math.round((Auth.keycloak.refreshTokenParsed.exp + Auth.keycloak.timeSkew - new Date().getTime() / 1000) / 60);
+              if(! self.keycloakTokenExpirationInfo){
+                self.keycloakTokenExpirationInfo = 30;
+              }
+
+              // if session is expired then show warning to User!
+              if (self.keycloakTokenExpirationInfo <= 0){
+                self.keycloakTokenExpirationInfo = 0;
+                self.displayMapApplicationError("Ihre aktuelle Login-Session ist abgelaufen. Sie müssen sich neu einloggen. Nutzen Sie dazu das User-Menü oben rechts.");
+              }
+
+            }, 1000 * 60);            
+          };
+
           /*
           * FETCH INITIAL METADATA ABOUT EACH RESOURCE
           */
-
-          var fetchedTopicsInitially = false;
-          var fetchedSpatialUnitsInitially = false;
-          var fetchedGeoresourcesInitially = false;
-          var fetchedIndicatorsInitially = false;
-          var fetchedUsersInitially = false;
-          var fetchedRolesInitially = false;
 
           // $rootScope.$on("$locationChangeStart", function(event){
           //   self.fetchAllMetadata();
           //   self.adminIsLoggedIn = false;
           // });
 
-          this.fetchAllMetadata = function(){
+          this.fetchAllMetadata = async function(){
             console.log("fetching all metadata from management component");
-
-            //TODO revise metadata fecthing for protected endpoints
-            // var usersPromise = this.fetchUsersMetadata();            
-            var scriptsPromise = this.fetchIndicatorScriptsMetadata();
-            var topicsPromise = this.fetchTopicsMetadata();
-            var spatialUnitsPromise = this.fetchSpatialUnitsMetadata();
-            var georesourcesPromise = this.fetchGeoresourcesMetadata();
-            var indicatorsPromise = this.fetchIndicatorsMetadata();
             
             // var metadataPromises = [topicsPromise, usersPromise, rolesPromise, spatialUnitsPromise, georesourcesPromise, indicatorsPromise, scriptsPromise];
-            var metadataPromises = [spatialUnitsPromise, georesourcesPromise, indicatorsPromise, topicsPromise, scriptsPromise];
+            var metadataPromises = [];
 
             if (Auth.keycloak.authenticated){
-              var rolesPromise = this.fetchRolesMetadata();
-              metadataPromises.push(rolesPromise);
+              await Auth.keycloak.loadUserProfile()
+              .then(function (profile) {
+                // set user profile
+                self.currentKeycloakUser = profile;
+                console.log("User logged in with email: " + profile.email);
+
+                if(Auth.keycloak.tokenParsed && Auth.keycloak.tokenParsed.realm_access && Auth.keycloak.tokenParsed.realm_access.roles){
+                  self.currentKeycloakLoginRoles = Auth.keycloak.tokenParsed.realm_access.roles;
+                  if (Auth.keycloak.tokenParsed.resource_access["realm-management"]) {
+                    self.isRealmAdmin = true;
+                    self.currentKeycloakLoginRoles = self.currentKeycloakLoginRoles.concat(Auth.keycloak.tokenParsed.resource_access["realm-management"].roles);
+                  }
+                } else {
+                  self.currentKeycloakLoginRoles = [];
+                }
+
+                // set token expiration
+                startCheckSessionExpiration();                
+                })
+              .catch(function () {
+                console.log('Failed to load user profile');
+              });
+              var promise = await this.fetchAccessControlMetadata(self.currentKeycloakLoginRoles);
+              metadataPromises.push(promise);
             }
+
+            //TODO revise metadata fecthing for protected endpoints        
+            var scriptsPromise = await this.fetchIndicatorScriptsMetadata(self.currentKeycloakLoginRoles);
+            var topicsPromise = await this.fetchTopicsMetadata(self.currentKeycloakLoginRoles);
+            var spatialUnitsPromise = await this.fetchSpatialUnitsMetadata(self.currentKeycloakLoginRoles);
+            var georesourcesPromise = await this.fetchGeoresourcesMetadata(self.currentKeycloakLoginRoles);
+            var indicatorsPromise = await this.fetchIndicatorsMetadata(self.currentKeycloakLoginRoles);
+            metadataPromises.push(scriptsPromise);
+            metadataPromises.push(topicsPromise);
+            metadataPromises.push(spatialUnitsPromise);
+            metadataPromises.push(georesourcesPromise);
+            metadataPromises.push(indicatorsPromise);
 
             $q.all(metadataPromises).then(function successCallback(successArray) {
 
@@ -940,6 +1102,9 @@ angular
             for (const indicator of this.availableIndicators) {
               indicator.applicableSpatialUnits = indicator.applicableSpatialUnits.filter(applicableSpatialUnit => availableSpatialUnitNames.includes(applicableSpatialUnit.spatialUnitName)); 
             }
+
+            this.displayableIndicators = this.availableIndicators.filter(item => isDisplayableIndicator(item));
+            this.displayableIndicators_keywordFiltered = JSON.parse(JSON.stringify(this.displayableIndicators));
           };
 
           this.buildTopicsMap_indicators = function(indicatorTopics){
@@ -1474,113 +1639,91 @@ angular
                 });
               }, 1000);
             }, 1000);
-            
             // setTimeout(() => {
             //   // $rootScope.$broadcast("initialMetadataLoadingCompleted");
-
-                  
             // }, 1000);
-
-              
-
           };
 
-          this.fetchRolesMetadata = function(){
-            return $http({
-              url: this.baseUrlToKomMonitorDataAPI + rolesEndpoint,
-              method: "GET"
-            }).then(function successCallback(response) {
-                // this callback will be called asynchronously
-                // when the response is available
-
-                self.availableRoles = response.data;
-                fetchedRolesInitially = true;
-
-              });
+          this.setAccessControl = function(input){
+            this.accessControl = input;
+            this.accessControl_map = new Map();
+            for (const entry of input) {
+              this.accessControl_map.set(entry.organizationalUnitId, entry);
+            }
+            this.updateAvailableRoles();
           };
 
-          this.fetchUsersMetadata = function(){
-            return $http({
-              url: this.baseUrlToKomMonitorDataAPI + "/users",
-              method: "GET"
-            }).then(function successCallback(response) {
-                // this callback will be called asynchronously
-                // when the response is available
-
-                self.availableUsers=response.data;
-                fetchedUsersInitially = true;
-
-              });
+          this.fetchAccessControlMetadata = async function(keycloakRolesArray){
+            self.setAccessControl(await kommonitorCacheHelperService.fetchAccessControlMetadata(keycloakRolesArray));
+            self.setCurrentKomMonitorLoginRoleNames();
           };
 
-          this.fetchTopicsMetadata = function(){
-            return $http({
-              url: this.baseUrlToKomMonitorDataAPI + topicsPublicEndpoint,
-              method: "GET"
-            }).then(function successCallback(response) {
-                // this callback will be called asynchronously
-                // when the response is available
-
-                self.setTopics(response.data);
-                fetchedTopicsInitially = true;
-
-              });
+          this.replaceSingleAccessControlMetadata = function(targetRoleMetadata){
+            for (let index = 0; index < this.accessControl.length; index++) {
+              let oldMetadata = this.accessControl[index];
+              if(oldMetadata.organizationalUnitId == targetRoleMetadata.organizationalUnitId){
+                this.accessControl[index] = targetRoleMetadata;
+                break;
+              }
+            }
+            this.accessControl_map.set(targetRoleMetadata.organizationalUnitId, targetRoleMetadata);
+            this.updateAvailableRoles();
           };
 
-          this.fetchSpatialUnitsMetadata = function(){
-            return $http({
-              url: this.baseUrlToKomMonitorDataAPI + spatialUnitsEndpoint,
-              method: "GET"
-            }).then(function successCallback(response) {
-                // this callback will be called asynchronously
-                // when the response is available
-
-                self.setSpatialUnits(response.data);
-                fetchedSpatialUnitsInitially = true;
-
-              });
+          this.addSingleAccessControlMetadata = function(metadata){
+            let tmpArray = [metadata];
+            Array.prototype.push.apply(tmpArray, this.accessControl);
+            this.accessControl = tmpArray;
+            this.accessControl_map.set(metadata.organizationalUnitId, metadata);
+            this.updateAvailableRoles();
           };
 
-          this.fetchGeoresourcesMetadata = function(){
-            console.log("request: " + this.baseUrlToKomMonitorDataAPI + georesourcesEndpoint);
-            return $http({
-              url: this.baseUrlToKomMonitorDataAPI + georesourcesEndpoint,
-              method: "GET"
-            }).then(function successCallback(response) {
-                // this callback will be called asynchronously
-                // when the response is available
-
-                self.setGeoresources(response.data);
-                fetchedGeoresourcesInitially = true;
-
-              });
+          this.deleteSingleAccessControlMetadata = function(id){
+            for (let index = 0; index < this.accessControl.length; index++) {
+              const oldMetadata = this.accessControl[index];
+              if(oldMetadata.organizationalUnitId == id){
+                this.accessControl.splice(index, 1);
+                break;
+              }              
+            }
+            this.accessControl_map.delete(id);
+            this.updateAvailableRoles();
           };
 
-          this.fetchIndicatorsMetadata = function(){
-            return $http({
-              url: this.baseUrlToKomMonitorDataAPI + indicatorsEndpoint,
-              method: "GET"
-            }).then(function successCallback(response) {
-                // this callback will be called asynchronously
-                // when the response is available
+          this.updateAvailableRoles = function() {
+            this.availableRoles = [];
+            for (let elem of this.accessControl) {
+              for (let role of elem.roles) {
+                let available = {...role, ...{"organizationalUnit": elem, "roleName": elem.name + "-" + role.permissionLevel}};
+                this.availableRoles.push(available);
+              }
+            }
+            // we need to refresh all modals as roles have changed
+            $rootScope.$broadcast("availableRolesUpdate");
+          }
 
-                self.setIndicators(response.data);
-                fetchedIndicatorsInitially = true;
-
-              });
+          this.getAccessControlById = function(id){
+            return this.accessControl_map.get(id);
           };
 
-          this.fetchIndicatorScriptsMetadata = function(){
-            return $http({
-              url: this.baseUrlToKomMonitorDataAPI + scriptsEndpoint,
-              method: "GET"
-            }).then(function successCallback(response) {
-                // this callback will be called asynchronously
-                // when the response is available
+          this.fetchTopicsMetadata = async function(keycloakRolesArray){
+            self.setTopics(await kommonitorCacheHelperService.fetchTopicsMetadata(keycloakRolesArray));
+          };
 
-                self.setProcessScripts(response.data);
+          this.fetchSpatialUnitsMetadata = async function(keycloakRolesArray){
+            self.setSpatialUnits(await kommonitorCacheHelperService.fetchSpatialUnitsMetadata(keycloakRolesArray));
+          };
 
-              });
+          this.fetchGeoresourcesMetadata = async function(keycloakRolesArray){
+            self.setGeoresources(await kommonitorCacheHelperService.fetchGeoresourceMetadata(keycloakRolesArray));
+          };
+
+          this.fetchIndicatorsMetadata = async function(keycloakRolesArray){
+            self.setIndicators(await kommonitorCacheHelperService.fetchIndicatorsMetadata(keycloakRolesArray));
+          };
+
+          this.fetchIndicatorScriptsMetadata = async function(keycloakRolesArray){
+            self.setProcessScripts(await kommonitorCacheHelperService.fetchProcessScriptsMetadata(keycloakRolesArray));
           };
 
 					this.indicatorValueIsNoData = function(indicatorValue){
@@ -1669,13 +1812,13 @@ angular
                 var numberOfWhitespaces = 2 * index;
                 var whitespaceString = "";
                 for (let k = 0; k < numberOfWhitespaces; k++) {
-                  whitespaceString += " ";
+                  whitespaceString += "&nbsp;";
                 }
                 topicsString += whitespaceString + topicHierarchyArray[index].topicName;
               }
   
-              if (index < topicHierarchyArray.length - 1) {
-                topicsString += "\n";
+              if (index < topicHierarchyArray.length) {
+                topicsString += "<br/>";
               }
   
             }
@@ -1696,144 +1839,91 @@ angular
             return indicatorTypeString;
           };
 
-          this.totalFeaturesPropertyValue;
-          this.totalFeaturesPropertyUnit;
-          this.totalFeaturesPropertyLabel;
+          
+          this.labelAllFeatures = "alle Features";
+          this.labelFilteredFeatures = "gefilterte Features";
+          this.labelSelectedFeatures = "selektierte Features";
+          this.labelNumberOfFeatures = "Anzahl:"
+          this.labelSum = "Summe:"
+          this.labelMean = "arith. Mittel:"
+          this.labelMin = "Minimalwert:"
+          this.labelMax = "Maximalwert"
 
-          this.setTotalFeaturesProperty = function(indicatorMetadataAndGeoJSON, propertyName){
-            var sum = 0;
-            var count = 0;
+          this.allFeaturesNumberOfFeatures;
+          this.allFeaturesSum;
+          this.allFeaturesMean;
+          this.allFeaturesMin;
+          this.allFeaturesMax;
+          this.selectedFeaturesNumberOfFeatures;
+          this.selectedFeaturesSum;
+          this.selectedFeaturesMean;
+          this.selectedFeaturesMin;
+          this.selectedFeaturesMax;
+          this.allFeaturesPropertyUnit;
+
+          this.setAllFeaturesProperty = function(indicatorMetadataAndGeoJSON, propertyName){
+            let sum = 0;
+            let count = 0;
+            let min = Number.MAX_VALUE;
+            let max = Number.MIN_VALUE;
 
             for (const feature of indicatorMetadataAndGeoJSON.geoJSON.features) {
               if(! this.indicatorValueIsNoData(feature.properties[propertyName])){
-                sum += this.getIndicatorValueFromArray_asNumber(feature.properties, propertyName);
+                let value = this.getIndicatorValueFromArray_asNumber(feature.properties, propertyName)
+                sum += value;
+                if (value < min) min = value;
+                if (value > max) max = value;
                 count++;
               }
             }
 
-            this.totalFeaturesPropertyUnit = indicatorMetadataAndGeoJSON.unit;
+            this.allFeaturesPropertyUnit = indicatorMetadataAndGeoJSON.unit;
+            this.allFeaturesNumberOfFeatures = count;
+            this.allFeaturesSum = this.getIndicatorValue_asFormattedText(sum);
+            // no division by zero
+            if (count > 0) 
+              this.allFeaturesMean = this.getIndicatorValue_asFormattedText(sum / count);
+            else 
+              this.allFeaturesMean = 0;
+            this.allFeaturesMin = this.getIndicatorValue_asFormattedText(min);
+            this.allFeaturesMax = this.getIndicatorValue_asFormattedText(max)
+          };
 
-            if(indicatorMetadataAndGeoJSON.indicatorType.includes("ABSOLUTE") || indicatorMetadataAndGeoJSON.indicatorType.includes("DYNAMIC")){
-              this.totalFeaturesPropertyValue = this.getIndicatorValue_asFormattedText(sum);
-              this.totalFeaturesPropertyLabel = "Summe aller Features";
-            }
-            else{
-              this.totalFeaturesPropertyValue = this.getIndicatorValue_asFormattedText(sum / count);     
-              this.totalFeaturesPropertyLabel = "Arithmetisches Mittel aller Features";         
-            }  
+          
+          this.setSelectedFeatureProperty = function(selectedFeaturesMap, propertyName) {
+            let sum = 0;
+            let count = 0
+            let min = Number.MAX_VALUE;
+            let max = Number.MIN_VALUE;
             
-          };
+            selectedFeaturesMap.forEach(function(feature, key, map) {
+              if(! thisService.indicatorValueIsNoData(feature.properties[propertyName])){
+                let value = thisService.getIndicatorValueFromArray_asNumber(feature.properties, propertyName);
+                sum += value;
+                if (value < min) min = value;
+                if (value > max) max = value;
+                count++;
+              }
+            });
+
+            if(count === 0) {
+              // no feature selected, overwrite initial values for min and max
+              min = 0;
+              max = 0;
+            }
             
-          this.getColorFromBrewInstance = function(brewInstance, feature, targetDate){
-            var color;
-            for (var index=0; index < brewInstance.breaks.length; index++){
 
-              if(this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) == this.getIndicatorValue_asNumber(brewInstance.breaks[index])){
-                if(index < brewInstance.breaks.length -1){
-                  // min value
-                  color =  brewInstance.colors[index];
-                  break;
-                }
-                else {
-                  //max value
-                  if (brewInstance.colors[index]){
-                    color =  brewInstance.colors[index];
-                  }
-                  else{
-                    color =  brewInstance.colors[index - 1];
-                  }
-                  break;
-                }
-              }
-              else{
-                if(this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) < this.getIndicatorValue_asNumber(brewInstance.breaks[index + 1])) {
-                  color =  brewInstance.colors[index];
-                  break;
-                }
-              }
-            }
-
-            return color;
+            this.selectedFeaturesNumberOfFeatures = count;
+            this.selectedFeaturesSum = this.getIndicatorValue_asFormattedText(sum);
+            // no division by zero
+            if (count > 0) 
+              this.selectedFeaturesMean = this.getIndicatorValue_asFormattedText(sum / count);
+            else 
+              this.selectedFeaturesMean = 0;
+            this.selectedFeaturesMin = this.getIndicatorValue_asFormattedText(min);
+            this.selectedFeaturesMax = this.getIndicatorValue_asFormattedText(max);
           };
 
-          this.getColorForFeature = function(feature, indicatorMetadataAndGeoJSON, targetDate, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue){
-            var color;
-
-            if(!targetDate.includes(DATE_PREFIX)){
-							targetDate = DATE_PREFIX + targetDate;
-						}
-
-            if(this.indicatorValueIsNoData(feature.properties[targetDate])){
-              color = defaultColorForNoDataValues;
-            }
-            else if(this.filteredIndicatorFeatureNames.includes(feature.properties[__env.FEATURE_NAME_PROPERTY_NAME])){
-              color = defaultColorForFilteredValues;
-            }
-            else if(this.classifyZeroSeparately && this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) === 0 ){
-              color = defaultColorForZeroValues;
-            }
-            else if(feature.properties["outlier"] !== undefined && feature.properties["outlier"].includes("low") && this.useOutlierDetectionOnIndicator){
-              color = defaultColorForOutliers_low;
-            }
-            else if(feature.properties["outlier"] !== undefined && feature.properties["outlier"].includes("high") && this.useOutlierDetectionOnIndicator){
-              color = defaultColorForOutliers_high;
-            }
-            else if(isMeasureOfValueChecked){
-
-              if(this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) >= +Number(measureOfValue).toFixed(numberOfDecimals)){
-                color = this.getColorFromBrewInstance(gtMeasureOfValueBrew, feature, targetDate);                
-              }
-              else {
-                color = this.getColorFromBrewInstance(ltMeasureOfValueBrew, feature, targetDate);
-              }
-
-            }
-            else{
-              if(indicatorMetadataAndGeoJSON.indicatorType.includes('DYNAMIC')){
-
-                if(feature.properties[targetDate] < 0){
-                  
-                  color = this.getColorFromBrewInstance(dynamicDecreaseBrew, feature, targetDate);
-                }
-                else{
-                  color = this.getColorFromBrewInstance(dynamicIncreaseBrew, feature, targetDate);
-                }
-
-              }
-              else{
-
-                if(containsNegativeValues(indicatorMetadataAndGeoJSON.geoJSON, targetDate)){
-                  if(this.getIndicatorValue_asNumber(feature.properties[targetDate]) >= 0){
-                    if(this.classifyZeroSeparately && (feature.properties[targetDate] == 0 || feature.properties[targetDate] == "0")){
-                      color = defaultColorForZeroValues;
-                      if(useTransparencyOnIndicator){
-                        fillOpacity = defaultFillOpacityForZeroFeatures;
-                      }
-                    }
-                    else{
-                      color = this.getColorFromBrewInstance(dynamicIncreaseBrew, feature, targetDate);
-                    }
-                  }
-                  else{
-                    if(this.classifyZeroSeparately && (feature.properties[targetDate] == 0 || feature.properties[targetDate] == "0")){
-                      color = defaultColorForZeroValues;
-                      if(useTransparencyOnIndicator){
-                        fillOpacity = defaultFillOpacityForZeroFeatures;
-                      }
-                    }
-                    else{
-                      color = this.getColorFromBrewInstance(dynamicDecreaseBrew, feature, targetDate);
-                    }
-                  }
-                }
-                else{
-                  color = this.getColorFromBrewInstance(defaultBrew, feature, targetDate);                 
-                }
-              }
-            }
-
-            return color;
-          };
 
           var containsNegativeValues = function(geoJSON, propertyName){
 
@@ -1904,18 +1994,24 @@ angular
             return (spatialUnitName.includes("raster") || spatialUnitName.includes("Raster") || spatialUnitName.includes("RASTER") || spatialUnitName.includes("grid") || spatialUnitName.includes("GRID") || spatialUnitName.includes("Grid"));
           };
 
-          var roleMappingAllowsDisplay = function(indicatorMetadata){
-            if(self.currentKeycloakLoginRoles.includes(kommonitorKeycloakHelperService.adminRoleName)){
-              return true;
-            }            
-            var roleMetadataForCurrentKeycloakLoginRoles = self.availableRoles.filter(role => self.currentKeycloakLoginRoles.includes(role.roleName));            
+          // var roleMappingAllowsDisplay = function(indicatorMetadata){
+          //   //admin  --> everything allowed       
+          //   if(self.currentKeycloakLoginRoles.includes(__env.keycloakKomMonitorAdminRoleName)){
+          //     return true;
+          //   }     
             
-            var filteredApplicableUnits = indicatorMetadata.applicableSpatialUnits.filter(function (applicableSpatialUnit) {
-              return applicableSpatialUnit.allowedRoles.length == 0 || applicableSpatialUnit.allowedRoles.some(allowedRoleId => roleMetadataForCurrentKeycloakLoginRoles.some(roleMetadata => roleMetadata.roleId === allowedRoleId) );                
-            });
+          //   // public user
 
-            return filteredApplicableUnits.length > 0;
-          };
+            
+          //   // non-admin
+          //   self.roleMetadataForCurrentKeycloakLoginRoles = self.availableRoles.filter(role => self.currentKeycloakLoginRoles.includes(role.roleName));                       
+            
+          //   var filteredApplicableUnits = indicatorMetadata.applicableSpatialUnits.filter(function (applicableSpatialUnit) {
+          //     return applicableSpatialUnit.allowedRoles.length == 0 || applicableSpatialUnit.allowedRoles.some(allowedRoleId => self.roleMetadataForCurrentKeycloakLoginRoles.some(roleMetadata => roleMetadata.roleId === allowedRoleId) );                
+          //   });
+
+          //   return filteredApplicableUnits.length > 0;
+          // };
 
           var isDisplayableIndicator = function(item){
              // var arrayOfNameSubstringsForHidingIndicators = ["Standardabweichung", "Prozentuale Ver"];
@@ -1935,9 +2031,9 @@ angular
                    return false;
                  }
 
-                 if(! roleMappingAllowsDisplay(item.indicatorMetadata)){
-                   return false;
-                 }
+                //  if(! roleMappingAllowsDisplay(item.indicatorMetadata)){
+                //    return false;
+                //  }
 
                return true;
              }
@@ -1956,9 +2052,9 @@ angular
                    return false;
                  }
 
-                 if(! roleMappingAllowsDisplay(item)){
-                  return false;
-                }
+                //  if(! roleMappingAllowsDisplay(item)){
+                //   return false;
+                // }
 
                return true;
              }
@@ -2019,7 +2115,7 @@ angular
             jspdf.addImage(img, 'PNG', 193, 5, 12, 12);
   
             jspdf.setFontSize(16);
-            jspdf.setFontStyle('bolditalic');
+            jspdf.setFont('Helvetica', 'bolditalic', 'normal');
             var titleArray = jspdf.splitTextToSize("Indikator: " +indicator.indicatorName, 180);
             jspdf.text(titleArray, 14, 25);
   
@@ -2310,10 +2406,31 @@ angular
             return jspdf;
           };
 
+          this.generateIndicatorMetadataPdf_asBlob = async function(){
+            // create PDF from currently selected/displayed indicator!
+            var indicatorMetadata = this.selectedIndicator;
+            var pdfName = indicatorMetadata.indicatorName + ".pdf";
+            var jspdf = await this.generateIndicatorMetadataPdf(indicatorMetadata, pdfName);							
+                  return jspdf.output("blob", {filename: pdfName});
+          };
+      
+          this.generateIndicatorMetadataPdf = async function(indicatorMetadata, pdfName){																					
+            var jspdf = await this.createMetadataPDF_indicator(indicatorMetadata);
+      
+            jspdf.setProperties({
+            title: 'KomMonitor Indikatorenblatt',
+            subject: pdfName,
+            author: 'KomMonitor',
+            keywords: 'Indikator, Metadatenblatt',
+            creator: 'KomMonitor'
+            });
+            return jspdf;
+          }; 
+
           /**
            * creates and returns a pdf for the georesource given as parameter
            */
-           this.createMetadataPDF_georesource = async function(georesource) {
+           this.createMetadataPDF_georesource = async function(georesource, pdfName) {
 
             var jspdf = new jsPDF();
             jspdf.setFontSize(16);
@@ -2325,7 +2442,7 @@ angular
             jspdf.addImage(img, 'PNG', 193, 5, 12, 12);
   
             jspdf.setFontSize(16);
-            jspdf.setFontStyle('bolditalic');
+            jspdf.setFont('Helvetica', 'bolditalic', 'normal');
             var titleArray = jspdf.splitTextToSize("Geodatensatz: " + georesource.datasetName, 180);
             jspdf.text(titleArray, 14, 25);
   
@@ -2496,8 +2613,6 @@ angular
               startY: jspdf.autoTable.previous.finalY + 10
             });
   
-            var pdfName = georesource.datasetName + ".pdf";
-  
             jspdf.setProperties({
               title: 'KomMonitor Geodatenblatt',
               subject: pdfName,
@@ -2505,9 +2620,19 @@ angular
               keywords: 'Geodaten, Metadatenblatt',
               creator: 'KomMonitor'
             });
-
-            jspdf.save(pdfName);
             return jspdf;
+          };
+
+          this.generateGeoresourceMetadataPdf_asBlob = async function(georesourceMetadata){            
+            var pdfName = georesourceMetadata.datasetName + ".pdf";
+            var jspdf = await this.createMetadataPDF_georesource(georesourceMetadata, pdfName);							
+            return jspdf.output("blob", {filename: pdfName});
+          };
+
+          this.downloadMetadataPDF_georesource = async function(georesourceMetadata){            
+            var pdfName = georesourceMetadata.datasetName + ".pdf";
+            var jspdf = await this.createMetadataPDF_georesource(georesourceMetadata, pdfName);							
+            return jspdf.save(pdfName);
           };
 
           // this.getIndicatorStringFromIndicatorType = function (indicator) {
@@ -2550,7 +2675,7 @@ angular
               month: 'long',
               day: 'numeric'
             });
-            }            
+            }
           };
   
           this.tsToDate_withOptionalUpdateInterval = function(ts, updateIntervalApiName) {
@@ -2623,6 +2748,17 @@ angular
             }            
           };
 
+          this.getSpatialUnitIdFromSpatialUnitName = function(name) {
+            let result = null;
+            $(this.availableSpatialUnits).each( (id, obj) => {
+              if (obj.spatialUnitLevel === name) {
+                result = obj.spatialUnitId;
+                return false;
+              }
+            });
+            return result;
+          }
+
           /**
 		 * creates an array of objects from an array of strings.
 		 * each object in the result has the properties "category" and "name"
@@ -2631,7 +2767,7 @@ angular
 		 * convert ["s1", "s2", ...]    ===>    [{category: "s1",name: "s1"}, {category: "s2", name: "s2"}, ...]
 		 * @param {array} array 
 		 */
-		this.createDualListInputArray = function(array, nameProperty) {
+		this.createDualListInputArray = function(array, nameProperty, idProperty) {
 			var result = [];
 
       if(array && Array.isArray(array)){
@@ -2639,6 +2775,9 @@ angular
           var obj = {};
           obj["category"] = array[i][nameProperty];
           obj["name"] = array[i][nameProperty];
+          if(idProperty && array[i][idProperty]){
+            obj["id"] = array[i][idProperty];
+          }
           result.push(obj);
         }
       }
@@ -2696,5 +2835,221 @@ angular
       return rolesMetadata;
     };
 
+    this.getAllowedRolesString = function(allowedRoleIds){
+      var allowedRoles = [];
+      for(const organizationalUnit of this.accessControl){
+        for(const role of organizationalUnit.roles){
+          if(allowedRoleIds.includes(role.roleId)){
+            allowedRoles.push(organizationalUnit.name + "-" + role.permissionLevel)
+          }
+        }
+      }
+      return allowedRoles.join(", ");
+    }
 
-				}]);
+    this.checkDeletePermission = function(){
+      for(const role of this.currentKeycloakLoginRoles){
+        let roleNameParts = role.split("-");
+
+        const permissionLevel = roleNameParts[roleNameParts.length - 1]; //e.g. kommonitor-creator
+        if(permissionLevel == "creator"){
+          return true;
+        }
+      }
+      return false;
+    }
+
+    this.checkCreatePermission = function(){      
+      for(const role of this.currentKeycloakLoginRoles){
+        let roleNameParts = role.split("-");
+        const permissionLevel = roleNameParts[roleNameParts.length - 1]; //e.g. kommonitor-creator
+        if(permissionLevel == "publisher" || permissionLevel == "creator"){
+          return true;
+        }
+      }
+      return false;
+    }
+
+    this.checkEditorPermission = function(){
+      for(const role of this.currentKeycloakLoginRoles){
+        let roleNameParts = role.split("-");
+        const permissionLevel = roleNameParts[roleNameParts.length - 1]; //e.g. kommonitor-creator
+        if(permissionLevel == "editor" || permissionLevel == "creator" || permissionLevel == "publisher"){
+          return true;
+        }
+      }
+      return false;
+    }
+
+    this.checkAdminPermission = function(){
+      if(this.currentKeycloakLoginRoles.includes(__env.keycloakKomMonitorAdminRoleName)){
+        return true;
+      }
+      return false;
+    }
+
+
+    $rootScope.$on("onAddedFeatureToSelection", function (event, selectedIndicatorFeatureIds) {
+      let propertyName = buildIndicatorPropertyName();
+
+      $timeout(function(params) {
+        thisService.setSelectedFeatureProperty(selectedIndicatorFeatureIds, propertyName);
+      });
+    });
+
+    $rootScope.$on("onRemovedFeatureFromSelection", function (event, selectedIndicatorFeatureIds) {
+      let propertyName = buildIndicatorPropertyName();
+
+      $timeout(function(params) {
+        thisService.setSelectedFeatureProperty(selectedIndicatorFeatureIds, propertyName);
+      });
+    });
+
+    function buildIndicatorPropertyName() {
+      const INDICATOR_DATE_PREFIX = __env.indicatorDatePrefix;
+      let propertyName = INDICATOR_DATE_PREFIX + thisService.selectedDate;
+      return propertyName;
+    }
+
+    this.reportingDefaultTemplatePageElements = [
+      {
+        "type": "indicatorTitle-landscape",
+        "dimensions": {
+          "top": "15px",
+          "left": "15px",
+          "width": "720px",
+          "height": "30px"
+        },
+        "isPlaceholder": true,
+        "placeholderText": "Titel des Indikators [Einheit]",
+        "text": "",
+        "css": "text-align: left; padding-left: 5px; font-weight: bold;"
+      },
+      {
+        "type": "dataTimestamp-landscape",
+        "dimensions": {
+          "top": "50px",
+          "left": "15px",
+          "width": "720px",
+          "height": "30px"
+        },
+        "isPlaceholder": true,
+        "placeholderText": "Datenstand",
+        "text": "",
+        "css": "text-align: left; padding-left: 5px;"
+      },
+      {
+        "type": "dataTimeseries-landscape",
+        "dimensions": {
+          "top": "50px",
+          "left": "15px",
+          "width": "720px",
+          "height": "30px"
+        },
+        "isPlaceholder": true,
+        "placeholderText": "Zeitreihe von - bis",
+        "text": "",
+        "css": "text-align: left; padding-left: 5px;"
+      },
+      {
+        "type": "reachability-subtitle-landscape",
+        "dimensions": {
+          "top": "50px",
+          "left": "15px",
+          "width": "720px",
+          "height": "30px"
+        },
+        "isPlaceholder": true,
+        "placeholderText": "Aktueller Datenstand, Fortbewegungsmittel, [Indikator]",
+        "text": "",
+        "css": "text-align: left; padding-left: 5px;"
+      },
+      {
+        "type": "communeLogo-landscape",
+        "dimensions": {
+          "top": "15px",
+          "left": "740px",
+          "width": "75px",
+          "height": "65px"
+        },
+        "isPlaceholder": true,
+        "placeholderText": "Logo",
+        "src": ""
+      },
+      {
+        "type": "footerHorizontalSpacer-landscape",
+        "dimensions": {
+          "top": "535px",
+          "left": "15px",
+          "width": "800px",
+          "height": "0px"
+        },
+        "css": "border-top: solid rgb(148, 148, 148) 1px;"
+      },
+
+      {
+        "type": "footerCreationInfo-landscape",
+        "dimensions": {
+          "top": "545px",
+          "left": "15px",
+          "width": "720px",
+          "height": "30px"
+        },
+        "isPlaceholder": true,
+        "placeholderText": "Erstellt am [Datum] von [Name d. Bearbeiters], [Name d. Kommune]",
+        "css": "text-align: left; padding-left: 5px;"
+      },
+      {
+        "type": "pageNumber-landscape",
+        "dimensions": {
+          "top": "545px",
+          "left": "740px",
+          "width": "75px",
+          "height": "30px"
+        },
+        "isPlaceholder": true,
+        "placeholderText": "[Seitenzahl]",
+        "css": "text-align: right; padding-right: 5px;"
+      },
+    ]
+
+    this.getDefaultReportingTemplatePageElement = function(type) {
+      let result = this.reportingDefaultTemplatePageElements.filter((el) => {
+        return el.type === type;
+      });
+      if(typeof(result) === "undefined") {
+        throw "No DefaultReportingTemplatePageElement exists for type " + type + "."
+      } else {
+        return result[0];
+      }
+    }
+     
+
+    this.generateAndDownloadIndicatorZIP = async function(indicatorData, fileName, fileEnding, jsZipOptions){
+      // generate metadata file and include actual dataset and metadata file in download
+
+      var metadataPdf = await this.generateIndicatorMetadataPdf_asBlob();							
+      var zip = new JSZip();
+      zip.file(fileName + fileEnding, indicatorData, jsZipOptions);
+      zip.file(fileName + "_Metadata.pdf", metadataPdf);
+      zip.generateAsync({type:"blob"})
+      .then(function(content) {
+        // see FileSaver.js
+        saveAs(content, fileName + ".zip");
+      });
+    };
+
+    this.generateAndDownloadGeoresourceZIP = async function(georesourceMetadata, georesourceData, fileName, fileEnding, jsZipOptions){
+      // generate metadata file and include actual dataset and metadata file in download
+      
+      var metadataPdf = await this.generateGeoresourceMetadataPdf_asBlob(georesourceMetadata);							
+      var zip = new JSZip();
+      zip.file(fileName + fileEnding, georesourceData, jsZipOptions);
+      zip.file(fileName + "_Metadata.pdf", metadataPdf);
+      zip.generateAsync({type:"blob"})
+      .then(function(content) {
+        // see FileSaver.js
+        saveAs(content, fileName + ".zip");
+      });
+    };
+}]);

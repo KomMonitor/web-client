@@ -1,55 +1,44 @@
 angular.module('kommonitorKeycloakHelper', ['kommonitorDataExchange']);
 
-/**
- * a common serviceInstance that holds all needed properties for a WPS service.
- *
- * This service represents a shared object ´which is used across the different
- * application tabs/components like Setup, Capabilities, Execute etc.
- *
- * This way, one single service instance can be used to easily share values and
- * parameters for each WPS operation represented by different Angular components
- */
 angular
   .module('kommonitorKeycloakHelper', [])
   .service(
-    'kommonitorKeycloakHelperService', ['$rootScope', '$timeout', '$http', '$httpParamSerializerJQLike', '__env',
-    function ($rootScope, $timeout,
-      $http, $httpParamSerializerJQLike, __env) {
+    'kommonitorKeycloakHelperService', ['$rootScope', '$timeout', '$http', '$httpParamSerializerJQLike', 'Auth', '__env',
+    function ($rootScope, $timeout, $http, $httpParamSerializerJQLike, Auth, __env) {
 
       var self = this;
       this.availableKeycloakRoles = [];
       this.targetUrlToKeycloakInstance = "";
+      this.targetRealmUrlToKeycloakInstance = "";
       this.realm = "";
       this.clientId = "";
-      this.adminRoleName = "";
-      this.adminRolePassword = "";      
+
+      this.roleSuffixes = ["viewer", "editor", "publisher", "creator"];
 
       this.init = async function () {
         try {
-          if(window.__env.keycloakConfig){
+          if (window.__env.keycloakConfig) {
             this.configureKeycloakParameters(window.__env.keycloakConfig);
           }
-          else{
+          else {
             await $http.get('./config/keycloak_backup.json').then(async function (response) {
-              self.configureKeycloakParameters(response.data);            
+              self.configureKeycloakParameters(response.data);
             });
-          }          
+          }
         } catch (error) {
           console.error("Error while initializing kommonitorKeycloakHelperService. Error while fetching and interpreting config file. Error is: " + error);
         }
       };
 
-      this.configureKeycloakParameters = function(keycloakConfig){           
-            self.targetUrlToKeycloakInstance = keycloakConfig['auth-server-url'];
-            self.realm = keycloakConfig['realm'];
-            self.clientId = keycloakConfig['resource'];
-            self.adminRoleName = keycloakConfig['admin-rolename']; 
-            self.adminRolePassword = keycloakConfig["admin-rolepassword"];           
+      this.configureKeycloakParameters = function (keycloakConfig) {
+        // // https://<keycloak.url>/auth/
+        self.targetUrlToKeycloakInstance = keycloakConfig['auth-server-url'];
+        self.realm = keycloakConfig['realm'];
+        self.clientId = keycloakConfig['resource'];
 
-            if(__env.enableKeycloakSecurity){
-              self.fetchAndSetKeycloakRoles();
-            }
-      };      
+        // https://<keycloak.url>/auth/admin/<realm-name>/console
+        self.targetRealmUrlToKeycloakInstance = self.targetUrlToKeycloakInstance + "admin/" + self.realm + "/console";
+      };
 
       this.fetchRoles = async function () {
 
@@ -72,50 +61,7 @@ angular
         });
       };
 
-      this.requestToken = async function(){
-        var parameters = {
-          "username": this.adminRoleName,
-          "password": this.adminRolePassword,
-          "client_id": "admin-cli",
-          "grant_type": "password"
-        };
-
-        return await $http({
-            url: this.targetUrlToKeycloakInstance + "realms/master/protocol/openid-connect/token",
-            method: 'POST',
-            data: $httpParamSerializerJQLike(parameters), // Make sure to inject the service you choose to the controller
-            headers: {
-              'Content-Type': 'application/x-www-form-urlencoded' // Note the appropriate header
-            }
-          }).then(function successCallback(response) {
-            /*
-            {
-                "access_token": "tokenString",
-                "expires_in": 60,
-                "refresh_expires_in": 1800,
-                "refresh_token": "tokenString",
-                "token_type": "bearer",
-                "not-before-policy": 0,
-                "session_state": "5d9d8418-be24-4641-a47c-3309bb243d8d",
-                "scope": "email profile"
-            }
-          */
-          return response.data;
-  
-          }, function errorCallback(error) {
-            // called asynchronously if an error occurs
-            // or server returns response with an error status.
-            //$scope.error = response.statusText;
-            console.error("Error while requesting auth bearer token from keycloak.");
-            throw error;
-
-        });
-      }; 
-
-      this.postNewRole_withToken = async function(bearerToken, roleName){
-        var rolesBody = {
-          "name": roleName
-        };
+      this.postNewRole_withToken = async function (bearerToken, rolesBody) {
 
         return await $http({
           url: this.targetUrlToKeycloakInstance + "admin/realms/" + this.realm + "/roles",
@@ -126,22 +72,18 @@ angular
             'Authorization': "Bearer " + bearerToken // Note the appropriate header
           }
         }).then(function successCallback(response) {
-            // this callback will be called asynchronously
-            // when the response is available
-  
-            return response.data;
-  
-          }, function errorCallback(error) {
-            // called asynchronously if an error occurs
-            // or server returns response with an error status.
-            //$scope.error = response.statusText;
-            console.error("Error while posting role to keycloak.");
-            throw error;
-
+          // return created response location
+          return response.data;
+        }, function errorCallback(error) {
+          // called asynchronously if an error occurs
+          // or server returns response with an error status.
+          //$scope.error = response.statusText;
+          console.error("Error while posting role to keycloak.");
+          throw error;
         });
       };
 
-      this.renameExistingRole_withToken = async function(bearerToken, oldRoleName, newRoleName){
+      this.renameExistingRole_withToken = async function (bearerToken, oldRoleName, newRoleName) {
         var rolesBody = {
           "name": newRoleName
         };
@@ -155,22 +97,22 @@ angular
             'Authorization': "Bearer " + bearerToken // Note the appropriate header
           }
         }).then(function successCallback(response) {
-            // this callback will be called asynchronously
-            // when the response is available
-  
-            return response.data;
-  
-          }, function errorCallback(error) {
-            // called asynchronously if an error occurs
-            // or server returns response with an error status.
-            //$scope.error = response.statusText;
-            console.error("Error while posting role to keycloak.");
-            throw error;
+          // this callback will be called asynchronously
+          // when the response is available
+
+          return response.data;
+
+        }, function errorCallback(error) {
+          // called asynchronously if an error occurs
+          // or server returns response with an error status.
+          //$scope.error = response.statusText;
+          console.error("Error while posting role to keycloak.");
+          throw error;
 
         });
       };
 
-      this.deleteRole_withToken = async function(bearerToken, roleName){
+      this.deleteRole_withToken = async function (bearerToken, roleName) {
 
         return await $http({
           url: this.targetUrlToKeycloakInstance + "admin/realms/" + this.realm + "/roles/" + roleName,
@@ -179,22 +121,22 @@ angular
             'Authorization': "Bearer " + bearerToken // Note the appropriate header
           }
         }).then(function successCallback(response) {
-            // this callback will be called asynchronously
-            // when the response is available
-  
-            return response.data;
-  
-          }, function errorCallback(error) {
-            // called asynchronously if an error occurs
-            // or server returns response with an error status.
-            //$scope.error = response.statusText;
-            console.error("Error while deleting role from keycloak.");
-            throw error;
+          // this callback will be called asynchronously
+          // when the response is available
+
+          return response.data;
+
+        }, function errorCallback(error) {
+          // called asynchronously if an error occurs
+          // or server returns response with an error status.
+          //$scope.error = response.statusText;
+          console.error("Error while deleting role from keycloak.");
+          throw error;
 
         });
       };
 
-      this.getAllRoles_withToken = async function(bearerToken){
+      this.getAllRoles_withToken = async function (bearerToken) {
 
         return await $http({
           url: this.targetUrlToKeycloakInstance + "admin/realms/" + this.realm + "/roles",
@@ -203,88 +145,132 @@ angular
             'Authorization': "Bearer " + bearerToken // Note the appropriate header
           }
         }).then(function successCallback(response) {
-            // this callback will be called asynchronously
-            // when the response is available
-  
-            return response.data;
-  
-          }, function errorCallback(error) {
-            // called asynchronously if an error occurs
-            // or server returns response with an error status.
-            //$scope.error = response.statusText;
-            console.error("Error while deleting role from keycloak.");
-            throw error;
+          // this callback will be called asynchronously
+          // when the response is available
+
+          return response.data;
+
+        }, function errorCallback(error) {
+          // called asynchronously if an error occurs
+          // or server returns response with an error status.
+          //$scope.error = response.statusText;
+          console.error("Error while adding role to keycloak.");
+          throw error;
 
         });
       };
 
-      this.postNewRole = async function(roleName){
-        try {
-            // first get auth token to make admin requests
-            var tokenResponse = await this.requestToken();
-            var bearerToken = tokenResponse["access_token"];
+      this.addCompositeRole_withToken = async function (bearerToken, baseRole, composite) {
+        let data = [{
+          "id": composite.id,
+          "name": composite.name
+        }];
+        return await $http({
+          url: this.targetUrlToKeycloakInstance + "admin/realms/" + this.realm + "/roles/" + baseRole.name + "/composites",
+          method: 'POST',
+          data: data,
+          headers: {
+            'Authorization': "Bearer " + bearerToken // Note the appropriate header
+          }
+        }).then(function successCallback(response) {
+          // this callback will be called asynchronously
+          // when the response is available
+          return response.data;
+        }, function errorCallback(error) {
+          // called asynchronously if an error occurs
+          // or server returns response with an error status.
+          //$scope.error = response.statusText;
+          console.error("Error while creating composite role in keycloak.");
+          throw error;
+        });
+      }
 
-            // then make admin request
-            return await this.postNewRole_withToken(bearerToken, roleName);  
+      this.postNewRoles = async function (organizationalUnitName) {
+        try {
+          // get auth token to make admin requests
+          var bearerToken = Auth.keycloak.token;
+
+          // post individual roles
+          for (let suffix of this.roleSuffixes) {
+            // post individual role
+            await this.postNewRole_withToken(bearerToken, { "name": organizationalUnitName + "-" + suffix });
+          }
+          const allRoles = await this.getAllRoles_withToken(bearerToken);
+          var roleMap = allRoles.filter(role => role.name.startsWith(organizationalUnitName + "-"))
+            .reduce((prev, curr) => (prev[curr.name] = curr, prev), {});
+
+          // Add composites
+          await this.addCompositeRole_withToken(
+            bearerToken,
+            roleMap[organizationalUnitName + "-editor"],
+            roleMap[organizationalUnitName + "-viewer"]
+          );
+          await this.addCompositeRole_withToken(
+            bearerToken,
+            roleMap[organizationalUnitName + "-publisher"],
+            roleMap[organizationalUnitName + "-editor"]
+          );
+          await this.addCompositeRole_withToken(
+            bearerToken,
+            roleMap[organizationalUnitName + "-creator"],
+            roleMap[organizationalUnitName + "-publisher"]
+          );
         } catch (error) {
           throw error;
         }
-        
       };
 
-      this.renameExistingRole = async function(oldRoleName, newRoleName){
+      this.renameExistingRoles = async function (oldOrganizationalUnitName, newOrganizationalUnitName) {
         try {
-            // first get auth token to make admin requests
-            var tokenResponse = await this.requestToken();
-            var bearerToken = tokenResponse["access_token"];
+          // first get auth token to make admin requests
+          var bearerToken = Auth.keycloak.token;
 
-            // then make admin request
-            return await this.renameExistingRole_withToken(bearerToken, oldRoleName, newRoleName);  
+          for (let suffix of this.roleSuffixes) {
+            await this.renameExistingRole_withToken(bearerToken, oldOrganizationalUnitName + "-" + suffix, newOrganizationalUnitName + "-" + suffix);
+          }
         } catch (error) {
           throw error;
         }
-        
+
       };
 
-      this.deleteRole = async function(roleName){
+      this.deleteRoles = async function (organizationalUnitName) {
         try {
-            // first get auth token to make admin requests
-            var tokenResponse = await this.requestToken();
-            var bearerToken = tokenResponse["access_token"];
+          // first get auth token to make admin requests
+          var bearerToken = Auth.keycloak.token;
 
-            // then make admin request
-            return await this.deleteRole_withToken(bearerToken, roleName);  
+          for (let suffix of this.roleSuffixes) {
+            await this.deleteRole_withToken(bearerToken, organizationalUnitName + "-" + suffix);
+          }
         } catch (error) {
           throw error;
         }
-        
       };
 
-      this.getAllRoles = async function(){
+      this.getAllRoles = async function () {
         try {
-            // first get auth token to make admin requests
-            var tokenResponse = await this.requestToken();
-            var bearerToken = tokenResponse["access_token"];
+          // first get auth token to make admin requests
+          var bearerToken = Auth.keycloak.token;
 
-            // then make admin request
-            return await this.getAllRoles_withToken(bearerToken);  
+          // then make admin request
+          return await this.getAllRoles_withToken(bearerToken);
         } catch (error) {
           throw error;
         }
-        
+
       };
 
-      this.setAvailableKeycloakRoles = function(roles){
+      this.setAvailableKeycloakRoles = function (roles) {
         this.availableKeycloakRoles = roles;
       };
 
-      this.fetchAndSetKeycloakRoles = async function(){
-        this.setAvailableKeycloakRoles(await this.getAllRoles());
+      this.fetchAndSetKeycloakRoles = async function (username, password) {
+        this.setAvailableKeycloakRoles(await this.getAllRoles(username, password));
       };
 
-      this.isRoleInKeycloak = function(roleName){
+      this.isRoleInKeycloak = function (roleName) {
         for (const keycloakRole of this.availableKeycloakRoles) {
-          if(keycloakRole.name === roleName){
+          if (keycloakRole.name === roleName) {
             return true;
           }
         }

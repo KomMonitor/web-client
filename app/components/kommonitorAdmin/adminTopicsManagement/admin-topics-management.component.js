@@ -1,6 +1,7 @@
 angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 	templateUrl : "components/kommonitorAdmin/adminTopicsManagement/admin-topics-management.template.html",
-	controller : ['kommonitorDataExchangeService', '$scope', '$rootScope', '__env', '$http', '$timeout', function TopicsManagementController(kommonitorDataExchangeService, $scope, $rootScope, __env, $http, $timeout) {
+	controller : ['kommonitorDataExchangeService', 'kommonitorCacheHelperService', '$scope', '$rootScope', '__env', '$http', '$timeout', 
+		function TopicsManagementController(kommonitorDataExchangeService, kommonitorCacheHelperService, $scope, $rootScope, __env, $http, $timeout) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 
@@ -91,7 +92,7 @@ angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 					// this callback will be called asynchronously
 					// when the response is available
 
-					await kommonitorDataExchangeService.fetchTopicsMetadata();
+					await kommonitorDataExchangeService.fetchTopicsMetadata(kommonitorDataExchangeService.currentKeycloakLoginRoles);
 
 					$scope.refreshTopicsOverview();
 
@@ -179,7 +180,7 @@ angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 					// this callback will be called asynchronously
 					// when the response is available
 
-					await kommonitorDataExchangeService.fetchTopicsMetadata();
+					await kommonitorDataExchangeService.fetchTopicsMetadata(kommonitorDataExchangeService.currentKeycloakLoginRoles);
 
 					$scope.refreshTopicsOverview();
 
@@ -274,7 +275,7 @@ angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 					// this callback will be called asynchronously
 					// when the response is available
 
-					await kommonitorDataExchangeService.fetchTopicsMetadata();
+					await kommonitorDataExchangeService.fetchTopicsMetadata(kommonitorDataExchangeService.currentKeycloakLoginRoles);
 
 					$scope.refreshTopicsOverview();
 
@@ -360,7 +361,7 @@ angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 					// this callback will be called asynchronously
 					// when the response is available
 
-					await kommonitorDataExchangeService.fetchTopicsMetadata();
+					await kommonitorDataExchangeService.fetchTopicsMetadata(kommonitorDataExchangeService.currentKeycloakLoginRoles);
 
 					$scope.refreshTopicsOverview();
 
@@ -411,7 +412,7 @@ angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 					// this callback will be called asynchronously
 					// when the response is available
 
-					await kommonitorDataExchangeService.fetchTopicsMetadata();
+					await kommonitorDataExchangeService.fetchTopicsMetadata(kommonitorDataExchangeService.currentKeycloakLoginRoles);
 
 					$scope.refreshTopicsOverview();
 

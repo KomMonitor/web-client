@@ -1,10 +1,13 @@
 angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesModal', {
 	templateUrl : "components/kommonitorAdmin/adminIndicatorsManagement/indicatorEditFeaturesModal/indicator-edit-features-modal.template.html",
-	controller : ['kommonitorDataExchangeService', 'kommonitorImporterHelperService', '$scope', '$rootScope', '$http', '__env', '$timeout',
-		function IndicatorEditFeaturesModalController(kommonitorDataExchangeService, kommonitorImporterHelperService, $scope, $rootScope, $http, __env, $timeout) {
+	controller : ['kommonitorDataExchangeService', 'kommonitorDataGridHelperService', 'kommonitorImporterHelperService', 
+		'$scope', '$rootScope', '$http', '__env', '$timeout', 'kommonitorMultiStepFormHelperService',
+		function IndicatorEditFeaturesModalController(kommonitorDataExchangeService, kommonitorDataGridHelperService, 
+			kommonitorImporterHelperService, $scope, $rootScope, $http, __env, $timeout, kommonitorMultiStepFormHelperService) {
 
 			this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 			this.kommonitorImporterHelperServiceInstance = kommonitorImporterHelperService;
+			this.kommonitorDataGridHelperServiceInstance = kommonitorDataGridHelperService;
 	
 			/*	PUT BODY
 				{
@@ -56,22 +59,27 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 					}
 			*/
 	
-			//Date picker
-			$('#indicatorEditFeaturesDirectTimestampDatepicker').datepicker(kommonitorDataExchangeService.datePickerOptions);
+			
 
-			$scope.allowedRoleNames = {selectedItems: []};
-			$scope.duallist = {duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, null, "roleName")};			
+			$scope.roleManagementTableOptions = undefined;
 
+			$scope.$on("availableRolesUpdate", function (event) {
+				refreshRoles();
+			});
+	
 			// make sure that initial fetching of availableRoles has happened
 			$scope.$on("initialMetadataLoadingCompleted", function (event) {
-				$timeout(function () {
-					$scope.allowedRoleNames = { selectedItems: [] };
-					$scope.duallist = { duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, null, "roleName") };
-				});
+				refreshRoles();
 			});
+			
+			function refreshRoles() {
+				let allowedRoles = $scope.targetApplicableSpatialUnit ? $scope.targetApplicableSpatialUnit.allowedRoles : [];
+				$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorEditFeaturesRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, allowedRoles);
+			}
 	
 			$scope.indicatorFeaturesJSON;
 			$scope.currentIndicatorDataset;
+			$scope.targetApplicableSpatialUnit;
 			$scope.remainingFeatureHeaders;
 
 			$scope.indicatorMappingConfigImportError;
@@ -82,14 +90,11 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 	
 			$scope.spatialUnitRefKeyProperty = undefined;
 			$scope.targetSpatialUnitMetadata = undefined;
-			$scope.tmpTimeseriesMapping_indicatorValuesPropertyName = undefined;
-			$scope.useTimeseriesAsProperty = false;
-			$scope.tmpTimeseriesMapping_timestampPropertyName = undefined;
-			$scope.tmpTimeseriesMapping_directTimestamp = undefined;
-			$scope.timeseriesMappings_adminView = [];
+			
 
 			$scope.converter = undefined;
 			$scope.schema = undefined;
+			$scope.mimeType = undefined;
 			$scope.datasourceType = undefined;
 			$scope.indicatorDataSourceIdProperty = undefined;
 			$scope.indicatorDataSourceNameProperty = undefined;
@@ -110,10 +115,11 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 
 			$scope.loadingData = false;
 
+			$scope.timeseriesMappingReference; // gets updated by a broadcast whenever $scope.timeseries mapping in indicatorEditTimeseriesMapping component changes
 	
 			$scope.$on("onEditIndicatorFeatures", function (event, indicatorDataset) {
-	
-				if($scope.currentIndicatorDataset && $scope.currentIndicatorDataset.indicatorName === indicatorDataset.indicatorName){
+				kommonitorMultiStepFormHelperService.registerClickHandler();
+				if($scope.currentIndicatorDataset && $scope.currentIndicatorDataset.indicatorId === indicatorDataset.indicatorId){
 					return;
 				}
 				else{
@@ -122,8 +128,23 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 					// $scope.refreshIndicatorEditFeaturesOverviewTable();
 	
 					$scope.resetIndicatorEditFeaturesForm();
+
+					kommonitorDataGridHelperService.buildDataGrid_featureTable_indicatorResource("indicatorFeatureTable", [], []);
+					
 				}
 	
+			});
+
+			// called if indicator was edited - then we must make sure that the view is refreshed
+			// i.e. if a new spatial unit was setup the first time via edit menu, then we must ensure that this new spatial unit is actually 
+			// visible within features overview table dropdown
+			$rootScope.$on("refreshIndicatorOverviewTableCompleted", function() {
+				if($scope.currentIndicatorDataset){
+					$scope.currentIndicatorDataset = kommonitorDataExchangeService.getIndicatorMetadataById($scope.currentIndicatorDataset.indicatorId);
+
+					$scope.$digest();
+				}
+				
 			});
 
 			$scope.filterOverviewTargetSpatialUnits = function(){
@@ -132,15 +153,6 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 						var isIncluded = $scope.currentIndicatorDataset.applicableSpatialUnits.some(o => o.spatialUnitName === spatialUnitMetadata.spatialUnitLevel);
 						return isIncluded;
 					}
-				  };
-			};
-
-			$scope.filterImporterConverters = function(){
-				return function( converterMetadata ) {
-					if(converterMetadata && converterMetadata.simpleName && converterMetadata.simpleName.includes("LatLon")){
-						return false;
-					}
-					return true;
 				  };
 			};
 	
@@ -161,12 +173,19 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 					var tmpRemainingHeaders = [];
 	
 					for (var property in $scope.indicatorFeaturesJSON[0]){
-						if (property != __env.FEATURE_ID_PROPERTY_NAME && property != __env.FEATURE_NAME_PROPERTY_NAME && property != __env.VALID_START_DATE_PROPERTY_NAME && property != __env.VALID_END_DATE_PROPERTY_NAME){
+						// only show indicator date columns as editable fields
+						// since we fetch the database view (with joined spatial unit), any additional information from the spatial unit must be filtered out 
+						if (property.includes(__env.indicatorDatePrefix)){
 							tmpRemainingHeaders.push(property);
-						}
+						}						
 					}
-	
+
+					//sort date headers
+					tmpRemainingHeaders.sort((a, b) => a.localeCompare(b));
+
 					$scope.remainingFeatureHeaders = tmpRemainingHeaders;
+					kommonitorDataGridHelperService.buildDataGrid_featureTable_indicatorResource("indicatorFeatureTable", tmpRemainingHeaders, $scope.indicatorFeaturesJSON, $scope.currentIndicatorDataset.indicatorId, kommonitorDataGridHelperService.resourceType_indicator, $scope.enableDeleteFeatures, $scope.overviewTableTargetSpatialUnitMetadata.spatialUnitId);
+
 	
 						$scope.loadingData = false;
 	
@@ -197,8 +216,10 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 					$scope.indicatorFeaturesJSON = undefined;
 					$scope.remainingFeatureHeaders = undefined;
 	
-					$rootScope.$broadcast("refreshIndicatorOverviewTable");
+					$rootScope.$broadcast("refreshIndicatorOverviewTable", "edit", $scope.currentIndicatorDataset.indicatorId);
 					// $scope.refreshIndicatorEditFeaturesOverviewTable();
+					// force empty feature overview table on successful deletion of entries 
+					kommonitorDataGridHelperService.buildDataGrid_featureTable_indicatorResource("indicatorFeatureTable", [], []);
 	
 					$scope.successMessagePart = $scope.currentIndicatorDataset.indicatorName;
 	
@@ -219,6 +240,10 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 			};
 	
 			$scope.resetIndicatorEditFeaturesForm = function(){
+
+				// reset edit banners
+				kommonitorDataGridHelperService.featureTable_indicator_lastUpdate_timestamp_success = undefined;
+				kommonitorDataGridHelperService.featureTable_indicator_lastUpdate_timestamp_failure = undefined;
 	
 				$scope.indicatorFeaturesJSON = undefined;
 				$scope.remainingFeatureHeaders = undefined;
@@ -231,19 +256,16 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 					}					
 				}
 	
-				$scope.allowedRoleNames = {selectedItems: []};
-				$scope.duallist = {duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, null, "roleName")};			
+				$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorEditFeaturesRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, null);
 
 				$scope.spatialUnitRefKeyProperty = undefined;
 				$scope.targetSpatialUnitMetadata = undefined;
-				$scope.tmpTimeseriesMapping_indicatorValuesPropertyName = undefined;
-				$scope.useTimeseriesAsProperty = false;
-				$scope.tmpTimeseriesMapping_timestampPropertyName = undefined;
-				$scope.tmpTimeseriesMapping_directTimestamp = undefined;
-				$scope.timeseriesMappings_adminView = [];
+				$scope.targetApplicableSpatialUnit = undefined;
+
 		
 				$scope.converter = undefined;
 				$scope.schema = undefined;
+				$scope.mimeType = undefined;
 				$scope.datasourceType = undefined;
 				$scope.indicatorDataSourceIdProperty = undefined;
 				$scope.indicatorDataSourceNameProperty = undefined;
@@ -264,6 +286,8 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 				$scope.successMessagePart = undefined;
 				$scope.errorMessagePart = undefined;
 				$scope.importerErrors = undefined;
+
+				$rootScope.$broadcast('resetTimeseriesMapping')
 	
 				$("#indicatorEditFeaturesSuccessAlert").hide();
 				$("#indicatorEditFeaturesErrorAlert").hide();
@@ -278,23 +302,24 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 				
 				var applicableSpatialUnits = $scope.currentIndicatorDataset.applicableSpatialUnits;
 
-				var targetApplicableSpatialUnit;
-
 				for (const applicableSpatialUnit of applicableSpatialUnits) {
 					if (applicableSpatialUnit.spatialUnitId === targetSpatialUnitMetadata.spatialUnitId){
-						targetApplicableSpatialUnit = applicableSpatialUnit;
+						$scope.targetApplicableSpatialUnit = applicableSpatialUnit;
 						break;
 					}
 				}
 				
-				var selectedRolesMetadata = kommonitorDataExchangeService.getRoleMetadataForRoleIds(targetApplicableSpatialUnit.allowedRoles);			
-				$scope.duallist = {duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, selectedRolesMetadata, "roleName")};			
-				$scope.allowedRoleNames = {selectedItems: $scope.duallist.duallistRoleOptions.selectedItems};
+				$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorEditFeaturesRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, $scope.targetApplicableSpatialUnit.allowedRoles);
 
 			};
 	
-			$scope.onChangeSchema = function(schema){
-				$scope.schema = schema;
+			$scope.onChangeConverter = function(){
+				$scope.schema = $scope.converter.schemas ? $scope.converter.schemas[0] : undefined;
+				$scope.mimeType = $scope.converter.mimeTypes[0];
+			};
+
+			$scope.onChangeMimeType = function(mimeType){
+				$scope.mimeType = mimeType;
 			};
 	
 			$scope.filterByKomMonitorProperties = function() {
@@ -312,83 +337,7 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 				};
 			};
 
-			$scope.onEditFeaturesOrUpdateTimeseriesMapping = function(){
-				var tmpIndicatorTimeseriesMapping_adminView = {
-					"indicatorValuesPropertyName": $scope.tmpTimeseriesMapping_indicatorValuesPropertyName,
-					"timestampPropertyName": $scope.tmpTimeseriesMapping_timestampPropertyName,
-					"timestampDirect": $scope.tmpTimeseriesMapping_directTimestamp
-				};
-	
-				var processed = false;
-	
-				for (let index = 0; index < $scope.timeseriesMappings_adminView.length; index++) {
-					var timeseriesMappingEntry_adminView = $scope.timeseriesMappings_adminView[index];
-					
-					if (timeseriesMappingEntry_adminView.indicatorValuesPropertyName === tmpIndicatorTimeseriesMapping_adminView.indicatorValuesPropertyName){
-						// replace object
-						$scope.timeseriesMappings_adminView[index] = tmpIndicatorTimeseriesMapping_adminView;
-						processed = true;
-						break;
-					}
-				}			
-	
-				if(! processed){
-					// new entry
-					$scope.timeseriesMappings_adminView.push(tmpIndicatorTimeseriesMapping_adminView);
-				}
-	
-				$scope.tmpTimeseriesMapping_indicatorValuesPropertyName = undefined;
-				$scope.tmpTimeseriesMapping_timestampPropertyName = undefined;
-				$scope.tmpTimeseriesMapping_directTimestamp = undefined;
-	
-				setTimeout(() => {
-					$scope.$digest();
-				}, 250);
-			};
-	
-			$scope.onChangeUseTimeseriesAsProperty = function(){
-				if($scope.useTimeseriesAsProperty){
-					$scope.tmpTimeseriesMapping_directTimestamp = undefined;
-				}
-				else{			
-					$scope.tmpTimeseriesMapping_timestampPropertyName = undefined;
-				}
-			};
-	
-			$scope.onClickEditTimeseriesMapping = function(timeseriesMappingEntry_adminView){
-	
-				$scope.tmpTimeseriesMapping_indicatorValuesPropertyName = timeseriesMappingEntry_adminView.indicatorValuesPropertyName;
-				$scope.tmpTimeseriesMapping_timestampPropertyName = timeseriesMappingEntry_adminView.timestampPropertyName;
-				$scope.tmpTimeseriesMapping_directTimestamp = timeseriesMappingEntry_adminView.timestampDirect;			
-	
-				if($scope.tmpTimeseriesMapping_directTimestamp){				
-					$('#indicatorEditFeaturesDirectTimestampDatepicker').datepicker('setDate', $scope.tmpTimeseriesMapping_directTimestamp);
-					$scope.useTimeseriesAsProperty = false;
-				}
-				else{
-					$scope.useTimeseriesAsProperty = true;
-				}
-	
-				setTimeout(() => {
-					$scope.$digest();
-				}, 250);
-			};
-	
-			$scope.onClickDeleteTimeseriesMapping = function(timeseriesMappingEntry_adminView){
-	
-				for (let index = 0; index < $scope.timeseriesMappings_adminView.length; index++) {
-					
-					if ($scope.timeseriesMappings_adminView[index].indicatorValuesPropertyName === timeseriesMappingEntry_adminView.indicatorValuesPropertyName){
-						// remove object
-						$scope.timeseriesMappings_adminView.splice(index, 1);
-						break;
-					}
-				}				
-	
-				setTimeout(() => {
-					$scope.$digest();
-				}, 250);
-			};
+			
 	
 	
 			$scope.getFeatureId = function(jsonFeature){
@@ -404,7 +353,19 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 				$scope.converterDefinition = $scope.buildConverterDefinition();
 				$scope.datasourceTypeDefinition = await $scope.buildDatasourceTypeDefinition();
 				$scope.propertyMappingDefinition = $scope.buildPropertyMappingDefinition();
-				$scope.putBody_indicators = $scope.buildPutBody_indicators();
+
+				let roleIds = kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid($scope.roleManagementTableOptions);
+
+				var scopeProperties = {
+					"targetSpatialUnitMetadata": {
+						"spatialUnitLevel": $scope.targetSpatialUnitMetadata.spatialUnitLevel,	
+					},
+					"currentIndicatorDataset": {
+						"defaultClassificationMapping": $scope.currentIndicatorDataset.defaultClassificationMapping
+					},
+					"allowedRoles": roleIds
+				}
+				$scope.putBody_indicators = kommonitorImporterHelperService.buildPutBody_indicators(scopeProperties);
 	
 				if(!$scope.converterDefinition || !$scope.datasourceTypeDefinition || !$scope.propertyMappingDefinition || !$scope.putBody_indicators){
 					return false;
@@ -415,7 +376,7 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 	
 			$scope.buildConverterDefinition = function(){
 	
-				return kommonitorImporterHelperService.buildConverterDefinition($scope.converter, "converterParameter_indicatorEditFeatures_", $scope.schema);			
+				return kommonitorImporterHelperService.buildConverterDefinition($scope.converter, "converterParameter_indicatorEditFeatures_", $scope.schema, $scope.mimeType);			
 			};
 	
 			$scope.buildDatasourceTypeDefinition = async function(){
@@ -437,37 +398,13 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 	
 			$scope.buildPropertyMappingDefinition = function(){
 				// arsion from is undefined currently
-					// arsion from is undefined currently
-				var timeseriesMappingForImporter = [];
-
-				if($scope.timeseriesMappings_adminView && $scope.timeseriesMappings_adminView.length > 0){
-					for (const timeseriesEntry_adminView of $scope.timeseriesMappings_adminView) {
-						timeseriesMappingForImporter.push({
-							"indicatorValueProperty": timeseriesEntry_adminView.indicatorValuesPropertyName,
-							"timestamp": timeseriesEntry_adminView.timestampDirect ? timeseriesEntry_adminView.timestampDirect : undefined,
-							"timestampProperty": timeseriesEntry_adminView.timestampPropertyName ? timeseriesEntry_adminView.timestampPropertyName : undefined,
-						});
-					}
-				}
+				let timeseriesMappingForImporter = [];
+				timeseriesMappingForImporter = $scope.timeseriesMappingReference;
+				console.log("timeseriesMappingForImporter: ", timeseriesMappingForImporter);
 				return kommonitorImporterHelperService.buildPropertyMapping_indicatorResource($scope.spatialUnitRefKeyProperty, timeseriesMappingForImporter, $scope.keepMissingValues);	
 			};
 	
-			$scope.buildPutBody_indicators = function(){
-				var putBody =
-				{
-					"indicatorValues": [],
-					"applicableSpatialUnit": $scope.targetSpatialUnitMetadata.spatialUnitLevel,
-					"defaultClassificationMapping": $scope.currentIndicatorDataset.defaultClassificationMapping,
-					"allowedRoles": []
-					};
-
-					for (const roleDuallistItem of $scope.allowedRoleNames.selectedItems) {
-						var roleMetadata = kommonitorDataExchangeService.getRoleMetadataForRoleName(roleDuallistItem.name);
-						putBody.allowedRoles.push(roleMetadata.roleId);
-					}
-	
-				return putBody;
-			};
+			
 	
 	
 			$scope.editIndicatorFeatures = async function(){
@@ -513,7 +450,7 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 								// all good, really execute the request to import data against data management API
 								var updateIndicatorResponse = await kommonitorImporterHelperService.updateIndicator($scope.converterDefinition, $scope.datasourceTypeDefinition, $scope.propertyMappingDefinition, $scope.currentIndicatorDataset.indicatorId, $scope.putBody_indicators, false);						
 	
-								$rootScope.$broadcast("refreshIndicatorOverviewTable");
+								$rootScope.$broadcast("refreshIndicatorOverviewTable", "edit", $scope.currentIndicatorDataset.indicatorId);
 								// $scope.refreshIndicatorEditFeaturesOverviewTable();
 	
 								$scope.successMessagePart = $scope.currentIndicatorDataset.indicatorName;
@@ -628,7 +565,16 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 								$scope.schema = schema;
 							}
 						}
-					}		
+					}	
+					
+					$scope.mimeType = undefined;
+					if ($scope.converter && $scope.converter.mimeTypes && $scope.mappingConfigImportSettings.converter.mimeType){
+						for (var mimeType of $scope.converter.mimeTypes) {
+							if (mimeType === $scope.mappingConfigImportSettings.converter.mimeType){
+								$scope.mimeType = mimeType;
+							}
+						}
+					}	
 					
 					$scope.datasourceType = undefined;
 					for(var datasourceType of kommonitorImporterHelperService.availableDatasourceTypes){
@@ -656,18 +602,9 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 					
 					// property Mapping
 					$scope.spatialUnitRefKeyProperty = $scope.mappingConfigImportSettings.propertyMapping.spatialReferenceKeyProperty; 
-					$scope.timeseriesMappings_adminView = [];
-	
-					for (var timeseriesMapping of $scope.mappingConfigImportSettings.propertyMapping.timeseriesMappings) {
-						var tmpEntry = {
-							"indicatorValuesPropertyName": timeseriesMapping.indicatorValueProperty,
-							"timestampPropertyName": timeseriesMapping.timestampProperty,
-							"timestampDirect": timeseriesMapping.timestamp
-						};
-	
-						$scope.timeseriesMappings_adminView.push(tmpEntry);
-					}	
 					
+					$scope.$broadcast('loadTimeseriesMapping', { mapping: $scope.mappingConfigImportSettings.propertyMapping.timeseriesMappings } );
+
 					if($scope.mappingConfigImportSettings.targetSpatialUnitName){
 						for (const spatialUnitMetadata of kommonitorDataExchangeService.availableSpatialUnits) {
 							if(spatialUnitMetadata.spatialUnitLevel === $scope.mappingConfigImportSettings.targetSpatialUnitName){
@@ -676,10 +613,8 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 						
 						}	
 					}
-
-					var selectedRolesMetadata = kommonitorDataExchangeService.getRoleMetadataForRoleIds($scope.mappingConfigImportSettings.allowedRoles);			
-					$scope.duallist = {duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, selectedRolesMetadata, "roleName")};			
-					$scope.allowedRoleNames = {selectedItems: $scope.duallist.duallistRoleOptions.selectedItems};
+		
+					$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorEditFeaturesRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, $scope.mappingConfigImportSettings.allowedRoles);
 
 					$scope.keepMissingValues = $scope.mappingConfigImportSettings.propertyMapping.keepMissingOrNullValueIndicator;
 					
@@ -700,9 +635,10 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 				};
 
 				mappingConfigExport.allowedRoles = [];
-				for (const roleDuallistItem of $scope.allowedRoleNames.selectedItems) {
-					var roleMetadata = kommonitorDataExchangeService.getRoleMetadataForRoleName(roleDuallistItem.name);
-					mappingConfigExport.allowedRoles.push(roleMetadata.roleId);
+
+				let roleIds = kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid($scope.roleManagementTableOptions);
+				for (const roleId of roleIds) {
+					mappingConfigExport.allowedRoles.push(roleId);
 				}
 	
 				mappingConfigExport.periodOfValidity = $scope.periodOfValidity;
@@ -745,96 +681,37 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 				$scope.hideMappingConfigErrorAlert = function(){
 					$("#indicatorEditFeaturesMappingConfigImportErrorAlert").hide();
 				};
-	
-				/*
-				MULTI STEP FORM STUFF
-				*/
-				//jQuery time
-				$scope.current_fs; 
-				$scope.next_fs; 
-				$scope.previous_fs; //fieldsets
-				$scope.opacity; 
-				$scope.scale; //fieldset properties which we will animate
-				$scope.animating; //flag to prevent quick multi-click glitches
-	
-				$(".next_editFeaturesIndicator").click(function(){
-					if($scope.animating) return false;
-					$scope.animating = true;
+
+				$rootScope.$on("showLoadingIcon_" + kommonitorDataGridHelperService.resourceType_indicator, function(event){
+					$timeout(function(){
 					
-					$scope.current_fs = $(this).parent();
-					$scope.next_fs = $(this).parent().next();
-					
-					//activate next step on progressbar using the index of $scope.next_fs
-					$("#progressbar li").eq($("fieldset").index($scope.next_fs)).addClass("active");
-					
-					//show the next fieldset
-					$scope.next_fs.show(); 
-					//hide the current fieldset with style
-					$scope.current_fs.animate({opacity: 0}, {
-						step: function(now, mx) {
-							//as the $scope.opacity of current_fs reduces to 0 - stored in "now"
-							//1. $scope.scale current_fs down to 80%
-							$scope.scale = 1 - (1 - now) * 0.2;
-							//2. bring $scope.next_fs from the right(50%)
-							// left = (now * 50)+"%";
-							//3. increase $scope.opacity of $scope.next_fs to 1 as it moves in
-							$scope.opacity = 1 - now;
-							$scope.current_fs.css({
-								'position': 'absolute'
-							});
-							// $scope.next_fs.css({'left': left, '$scope.opacity': $scope.opacity});
-							$scope.next_fs.css({'opacity': $scope.opacity});
-						}, 
-						duration: 200, 
-						complete: function(){
-							$scope.current_fs.hide();
-							$scope.animating = false;
-						}, 
-						//this comes from the custom easing plugin
-						easing: 'easeInOutBack'
-					});
+						$scope.loadingData = true;
+					});	
 				});
 	
-				$(".previous_editFeaturesIndicator").click(function(){
-					if($scope.animating) return false;
-					$scope.animating = true;
+				$rootScope.$on("hideLoadingIcon_" + kommonitorDataGridHelperService.resourceType_indicator, function(event){
+					$timeout(function(){
 					
-					$scope.current_fs = $(this).parent();
-					$scope.previous_fs = $(this).parent().prev();
-					
-					//de-activate current step on progressbar
-					$("#progressbar li").eq($("fieldset").index($scope.current_fs)).removeClass("active");
-					
-					//show the previous fieldset
-					$scope.previous_fs.show(); 
-					//hide the current fieldset with style
-					$scope.current_fs.animate({opacity: 0}, {
-						step: function(now, mx) {
-							//as the $scope.opacity of current_fs reduces to 0 - stored in "now"
-							//1. $scope.scale $scope.previous_fs from 80% to 100%
-							$scope.scale = 0.8 + (1 - now) * 0.2;
-							//2. take current_fs to the right(50%) - from 0%
-							// left = ((1-now) * 50)+"%";
-							//3. increase $scope.opacity of $scope.previous_fs to 1 as it moves in
-							$scope.opacity = 1 - now;
-							// current_fs.css({'left': left});
-							// $scope.previous_fs.css({'transform': '$scope.scale('+$scope.scale+')', '$scope.opacity': $scope.opacity});
-							$scope.previous_fs.css({
-								'position': 'absolute'
-							});
-							$scope.previous_fs.css({'opacity': $scope.opacity});
-						}, 
-						duration: 200, 
-						complete: function(){
-							$scope.current_fs.hide();
-							$scope.previous_fs.css({
-								'position': 'relative'
-							});
-							$scope.animating = false;
-						}, 
-						//this comes from the custom easing plugin
-						easing: 'easeInOutBack'
-					});
+						$scope.loadingData = false;
+					});	
+				});
+	
+				$rootScope.$on("onDeleteFeatureEntry_" + kommonitorDataGridHelperService.resourceType_indicator, function(event){
+					$rootScope.$broadcast("refreshIndicatorOverviewTable", "edit", $scope.currentIndicatorDataset.indicatorId);
+					$scope.refreshIndicatorEditFeaturesOverviewTable();
+				});
+	
+				$scope.onChangeEnableDeleteFeatures = function(){
+					if($scope.enableDeleteFeatures){
+						$(".indicatorDeleteFeatureRecordBtn").attr("disabled", false);
+					}
+					else{
+						$(".indicatorDeleteFeatureRecordBtn").attr("disabled", true);
+					}
+				}
+
+				$rootScope.$on("timeseriesMappingChanged", function(event, data) {
+					$scope.timeseriesMappingReference = data.mapping;
 				});
 
 	}

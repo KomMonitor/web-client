@@ -44,7 +44,10 @@ angular
 
 
 								// initialize any adminLTE box widgets
-								$('.box').boxWidget();
+								$timeout(function(){
+									$('.box').boxWidget();
+								}, 750);
+								
 
 								const DATE_PREFIX = __env.indicatorDatePrefix;
 
@@ -527,18 +530,9 @@ angular
 									}).then(function successCallback(response) {
 											// this callback will be called asynchronously
 											// when the response is available
-											var geoJSON = response.data;
+											var geoJSON_string = JSON.stringify(response.data);
 
-											var element = document.createElement('a');
-											element.setAttribute('href', 'data:application/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(geoJSON)));
-											element.setAttribute('download', fileName);
-
-											element.style.display = 'none';
-											document.body.appendChild(element);
-
-											element.click();
-
-											document.body.removeChild(element);
+											kommonitorDataExchangeService.generateAndDownloadGeoresourceZIP(poi, geoJSON_string, fileName, ".geojson", {});
 
 										}, function errorCallback(error) {
 											// called asynchronously if an error occurs
@@ -837,6 +831,10 @@ angular
 									var opacity = 1 - dataset.transparency;
 
 									kommonitorMapService.adjustColorForWfsLayer(dataset, opacity);
+								};
+
+								$scope.zoomToLayer = function(georesourceMetadata){
+									$rootScope.$broadcast("zoomToGeoresourceLayer", georesourceMetadata);
 								};
 
 

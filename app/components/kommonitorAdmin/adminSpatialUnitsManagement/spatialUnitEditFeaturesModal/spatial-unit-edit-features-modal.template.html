@@ -33,11 +33,15 @@
 						<form role="form" id="spatialUnitEditFeaturesForm" class="multiStepForm form-group" data-toggle="validator"
 							style="margin-bottom: 0px;">
 
-							<!-- progressbar -->
-							<ul id="progressbar">
-								<li style="width: 50%;" class="active">Feature &Uuml;bersicht</li>
-								<li style="width: 50%;">R&auml;umlicher Datensatz</li>
-							</ul>
+							<!-- div required for click logic -->
+							<div> 
+								<!-- progressbar -->
+								<ul id="progressbar">
+									<li style="width: 50%;" class="active">Feature &Uuml;bersicht</li>
+									<li style="width: 50%;">R&auml;umlicher Datensatz</li>
+								</ul>
+							</div>
+							
 
 							<fieldset>
 								<h2 class="fs-title">Feature &Uuml;bersicht</h2>
@@ -46,7 +50,7 @@
 								<div class="row vertical-align">
 									<div class="col-md-6 col-sm-6 col-xs-12">
 										<div class="form-group">
-											<label>Datenbank-Features holen</label>
+											<label>Datenbank-Features abrufen und editieren</label>
 											<button class="btn btn-info"
 												ng-click="refreshSpatialUnitEditFeaturesOverviewTable()"><i
 													class="fas fa-sync-alt"></i>&nbsp;Zeige alle Features</button>
@@ -55,14 +59,24 @@
 												<p>Das Anzeigen aller Features der Raumeinheit kann je nach Anzahl und
 													Komplexität der Objekte einige
 													Zeit in Anspruch nehmen</p>
+												<p>Editieren einzelner Zellwerte via Doppelklick. Best&auml;tigen der Editierung durch Enter oder Klicken in eine andere Zelle</p>
 											</div>
 											<div class="help-block with-errors"></div>
 										</div>
 									</div>
 									<div class="col-md-6 col-sm-6 col-xs-12">
 										<div class="form-group">
-											<label>Datenbank-Features bereinigen</label>
-											<button class="btn btn-danger" ng-click="clearAllSpatialUnitFeatures()"><i
+											<label >Datenbank-Features bereinigen (Funktion muss zuerst aktiv eingeschaltet werden)</label>										
+										<label class="switch">
+											<input class="elementCheckbox" type="checkbox"
+												ng-model="enableDeleteFeatures" ng-init="enableDeleteFeatures = false"
+												ng-checked="enableDeleteFeatures" ng-change="onChangeEnableDeleteFeatures()">
+											<span class="switchslider round text-left" style="line-height:25px;"></span>
+										</label>
+
+										&nbsp;&nbsp;
+
+											<button class="btn btn-danger" ng-click="clearAllSpatialUnitFeatures()" ng-disabled="!enableDeleteFeatures"><i
 													class="fas fa-trash"></i>&nbsp;Lösche alle Features</button>
 
 											<div class="help-block">
@@ -75,52 +89,19 @@
 									</div>
 								</div>
 
-								<div class="admin-table-wrapper">
-									<table id="spatialUnitFeatureTable" datatable="ng"
-										dt-options="$ctrl.kommonitorDataExchangeServiceInstance.datatablesOptions"
-										class="table table-bordered table-condensed table-striped"
-										style="width:100%; overflow:auto; font-size: 11px;">
-										<thead>
-											<tr>
-												<th>Id</th>
-												<th>Name</th>
-												<th>G&uuml;ltigkeitszeitraum</th>
-												<th>Koordinatensystem</th>
-												<th ng-repeat="header in remainingFeatureHeaders">{{header}}</th>
-											</tr>
-										</thead>
+								<div>
+									<div ng-show="$ctrl.kommonitorDataGridHelperServiceInstance.featureTable_spatialUnit_lastUpdate_timestamp_success" style="background-color: #9DC89F;">
+										<b>Letztes erfolgreiches Update eines Einzeleintrags</b>
+											  {{$ctrl.kommonitorDataGridHelperServiceInstance.featureTable_spatialUnit_lastUpdate_timestamp_success}}
+									</div>
+									<div ng-show="$ctrl.kommonitorDataGridHelperServiceInstance.featureTable_spatialUnit_lastUpdate_timestamp_failure" style="background-color: #E79595;">
+										<b>Letztes gescheitertes Update eines Einzeleintrags</b>
+												{{$ctrl.kommonitorDataGridHelperServiceInstance.featureTable_spatialUnit_lastUpdate_timestamp_failure}}
+									</div>
+								</div>
 
-										<tbody>
-											<tr ng-repeat="spatialUnitFeature in spatialUnitFeaturesGeoJSON.features">
-												<td>{{getFeatureId(spatialUnitFeature)}}</td>
-												<td>{{getFeatureName(spatialUnitFeature)}}</td>
-												<td>
-													<p ng-show="spatialUnitFeature.properties.validEndDate">
-														{{spatialUnitFeature.properties.validStartDate | date:'yyyy-MM-dd'}}
-														-
-														{{spatialUnitFeature.properties.validEndDate | date:'yyyy-MM-dd'}}
-													</p>
-													<p ng-show="! spatialUnitFeature.properties.validEndDate">
-														{{spatialUnitFeature.properties.validStartDate | date:'yyyy-MM-dd'}}
-														- heute </p>
-												</td>
-												<td>4326</td>
-												<td ng-repeat="header in remainingFeatureHeaders">
-													{{spatialUnitFeature.properties[header]}}</td>
-											</tr>
-
-										</tbody>
-
-										<tfoot>
-											<tr>
-												<th>Id</th>
-												<th>Name</th>
-												<th>G&uuml;ltigkeitszeitraum</th>
-												<th>Koordinatensystem</th>
-												<th ng-repeat="header in remainingFeatureHeaders">{{header}}</th>
-											</tr>
-										</tfoot>
-									</table>
+								<div class="admin-table-wrapper featureTableWrapper" >
+									<table id="spatialUnitFeatureTable" style="height: 50vh; width: 100%;" class="ag-theme-alpine"></table>
 
 								</div>
 
@@ -146,7 +127,8 @@
 										<div class="form-group">
 											<label>Geodaten-Quellformat*</label>
 											<select ng-model="converter"
-												ng-options="converter as converter.simpleName for converter in $ctrl.kommonitorImporterHelperServiceInstance.availableConverters"
+												ng-options="converter as converter.name for converter in $ctrl.kommonitorImporterHelperServiceInstance.availableConverters | filter:$ctrl.kommonitorImporterHelperServiceInstance.filterConverters('spatialUnit')"
+												ng-change="onChangeConverter()"
 												class="form-control" required>
 												<option disabled selected value> -- Quellformat w&auml;hlen -- </option>
 											</select>
@@ -157,8 +139,20 @@
 											<div class="form-group">
 												<label>Schema*</label>
 												<select ng-model="schema" ng-options="schema for schema in converter.schemas"
-													ng-change="onChangeSchema(schema)" class="form-control" required>
+													class="form-control" required>
 													<option disabled selected value> -- Schema w&auml;hlen -- </option>
+												</select>
+												<div class="help-block with-errors"></div>
+											</div>
+										</div>
+
+										<div ng-if="converter.mimeTypes">
+
+											<div class="form-group">
+												<label>Quellformat*</label>
+												<select ng-model="mimeType" ng-options="mimeType for mimeType in converter.mimeTypes"
+													class="form-control" ng-change="onChangeMimeType(mimeType)" required>
+													<option disabled selected value> -- Format w&auml;hlen -- </option>
 												</select>
 												<div class="help-block with-errors"></div>
 											</div>
@@ -311,6 +305,29 @@
 												<p>Eingabe ung&uuml;ltig. Definiertes Zeitintervall ist nicht erlaubt.</p>
 											</div>
 										</div>
+									</div>
+								</div>
+
+								<hr>
+								<br/>
+
+								<div class="row vertical-align">
+									<div class="col-md-6 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Partielles Update einzelner Geometrien*</label>
+
+											<br/>	
+											<label class="switch">
+												<input type="checkbox" value="isPartialUpdate" ng-model="isPartialUpdate">
+												<span class="switchslider round"></span>
+											</label>
+
+
+											<div class="help-block">
+												<p>Angabe, ob das Update nur einen Teil der r&auml;lichen Objekte enth&auml;lt (bspw. 20/50 Stadtteilen). Wird der vollst&auml;ndige Datensatz hochgeladen (Schalter deaktiviert), so vergleicht KomMonitor die in der Datenbank befindlichen Objekte und l&ouml;scht solche Objekte, die nicht mehr im hochgeladenen Datensatz enthalten sind, aber im gleichen Lebenzeitintervall liegen.</p>
+											</div>
+										</div>
+
 									</div>
 								</div>
 				

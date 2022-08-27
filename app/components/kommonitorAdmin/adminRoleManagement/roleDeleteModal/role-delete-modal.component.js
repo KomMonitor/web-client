@@ -5,7 +5,7 @@ angular.module('roleDeleteModal').component('roleDeleteModal', {
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 		this.kommonitorKeycloakHelperServiceInstance = kommonitorKeycloakHelperService;
 
-		$scope.datasetsToDelete = [];
+		$scope.elementsToDelete = [];
 
 		$scope.loadingData = false;
 
@@ -18,12 +18,15 @@ angular.module('roleDeleteModal').component('roleDeleteModal', {
 		$scope.affectedGeoresources = [];
 		$scope.affectedIndicators = [];
 
-		$scope.$on("onDeleteRoles", function (event, datasets) {
-
-			$scope.datasetsToDelete = datasets;
-
+		$scope.$on("onDeleteOrganizationalUnit", function (event, datasets) {
 			$scope.resetRolesDeleteForm();
-
+			const original_size = datasets.length;
+			datasets = datasets.filter(org => org.name != "public" && org.name != "kommonitor")
+			if (datasets.length < original_size) {
+				$scope.failedDatasetsAndErrors.push([{"name": "public / kommonitor"}, "System Organisationseinheiten können nicht gelöscht werden! Die betroffene Einheit wurde aus der Liste entfernt."]);
+				$("#rolesDeleteErrorAlert").show();
+			}
+			$scope.elementsToDelete = datasets;
 		});
 
 
@@ -44,8 +47,8 @@ angular.module('roleDeleteModal').component('roleDeleteModal', {
 			kommonitorDataExchangeService.availableSpatialUnits.forEach(function (spatialUnit) {
 				var allowedRoles = spatialUnit.allowedRoles;
 
-				for (const datasetToDelete of $scope.datasetsToDelete) {
-					if (allowedRoles.includes(datasetToDelete.roleId)) {
+				for (const datasetToDelete of $scope.elementsToDelete) {
+					if (allowedRoles.includes(datasetToDelete.organizationalUnitId)) {
 						$scope.affectedSpatialUnits.push(spatialUnit);
 						break;
 					}
@@ -61,8 +64,8 @@ angular.module('roleDeleteModal').component('roleDeleteModal', {
 			kommonitorDataExchangeService.availableGeoresources.forEach(function (georesource) {
 				var allowedRoles = georesource.allowedRoles;
 
-				for (const datasetToDelete of $scope.datasetsToDelete) {
-					if (allowedRoles.includes(datasetToDelete.roleId)) {
+				for (const datasetToDelete of $scope.elementsToDelete) {
+					if (allowedRoles.includes(datasetToDelete.organizationalUnitId)) {
 						$scope.affectedGeoresources.push(georesource);
 						break;
 					}
@@ -78,15 +81,15 @@ angular.module('roleDeleteModal').component('roleDeleteModal', {
 			kommonitorDataExchangeService.availableIndicators.forEach(function (indicator) {
 				var allowedRoles_metadata = indicator.allowedRoles;
 
-				for (const datasetToDelete of $scope.datasetsToDelete) {
-					if (allowedRoles_metadata.includes(datasetToDelete.roleId)) {
+				for (const datasetToDelete of $scope.elementsToDelete) {
+					if (allowedRoles_metadata.includes(datasetToDelete.organizationalUnitId)) {
 						$scope.affectedIndicators.push(indicator);
 						break;
 					}
 
 					var applicableSpatialUnits = indicator.applicableSpatialUnits;
 					for (const applicableSpatialUnit of applicableSpatialUnits) {
-						if (applicableSpatialUnit.allowedRoles.includes(datasetToDelete.roleId)) {
+						if (applicableSpatialUnit.allowedRoles.includes(datasetToDelete.organizationalUnitId)) {
 							$scope.affectedIndicators.push(indicator);
 							break;
 						}
@@ -103,7 +106,7 @@ angular.module('roleDeleteModal').component('roleDeleteModal', {
 
 			var deletePromises = [];
 
-			$scope.datasetsToDelete.forEach(function (dataset) {
+			$scope.elementsToDelete.forEach(function (dataset) {
 				deletePromises.push($scope.getDeleteDatasetPromise(dataset));
 			});
 
@@ -123,9 +126,10 @@ angular.module('roleDeleteModal').component('roleDeleteModal', {
 					$("#rolesDeleteSuccessAlert").show();
 
 					// fetch mMetada again as roles were deleted
-					await kommonitorDataExchangeService.fetchRolesMetadata();
+					
+					await kommonitorDataExchangeService.fetchAccessControlMetadata(kommonitorDataExchangeService.currentKeycloakLoginRoles);
 					// refresh role overview table
-					$rootScope.$broadcast("refreshRoleOverviewTable");
+					$rootScope.$broadcast("refreshAccessControlTable", "delete", $scope.successfullyDeletedDatasets.map(dataset => dataset.organizationalUnitId));
 
 					// refresh all admin dashboard diagrams due to modified metadata
 					$rootScope.$broadcast("refreshAdminDashboardDiagrams");
@@ -142,7 +146,7 @@ angular.module('roleDeleteModal').component('roleDeleteModal', {
 				// 	$("#georesourcesDeleteSuccessAlert").show();
 				// }
 
-				$rootScope.$broadcast("refreshRoleOverviewTable");
+				$rootScope.$broadcast("refreshAccessControlTable");
 				$scope.loadingData = false;
 			});
 
@@ -150,7 +154,7 @@ angular.module('roleDeleteModal').component('roleDeleteModal', {
 
 		$scope.getDeleteDatasetPromise = function (dataset) {
 			return $http({
-				url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/roles/" + dataset.roleId,
+				url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/organizationalUnits/" + dataset.organizationalUnitId,
 				method: "DELETE"
 			}).then(function successCallback(response) {
 				$scope.successfullyDeletedDatasets.push(dataset);
@@ -159,7 +163,7 @@ angular.module('roleDeleteModal').component('roleDeleteModal', {
 				var index = -1;
 
 				for (var i = 0; i < kommonitorDataExchangeService.availableRoles.length; i++) {
-					if (kommonitorDataExchangeService.availableRoles[i].roleId === dataset.roleId) {
+					if (kommonitorDataExchangeService.availableRoles[i].organizationalUnitId === dataset.organizationalUnitId) {
 						index = i;
 						break;
 					}
@@ -185,9 +189,8 @@ angular.module('roleDeleteModal').component('roleDeleteModal', {
 		};
 
 		$scope.tryDeleteKeycloakRole = async function(roleMetadata){
-			try {
-				kommonitorKeycloakHelperService.deleteRole(roleMetadata.roleName);
-
+			try {	
+				kommonitorKeycloakHelperService.deleteRoles(roleMetadata.name);
 				await kommonitorKeycloakHelperService.fetchAndSetKeycloakRoles();
 			} catch (error) {
 				if (error.data) {

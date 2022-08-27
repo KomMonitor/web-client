@@ -458,7 +458,7 @@
 
 								<br/>
 
-								<div class="row vertical-align">
+								<div class="row vertical-align" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.checkAdminPermission()">
 									<div class="col-md-10 col-sm-12 col-xs-12">
 										<div style="text-align: left;">
 											<div id="indicatorEditAdmin_topicsManagement" class="box box-primary collapsed-box" style="background: #ebf0fd;">
@@ -902,22 +902,22 @@
 							</fieldset>
 
 								<fieldset ng-if="$ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity">
-									<h2 class="fs-title">Rollenbasierter Zugriffsschutz (Optional)</h2>
-									<h3 class="fs-subtitle">Angabe ob nur ausgew&auml;hlte Rollen Zugriff auf Indikatoren-Datensatz-Metadaten erhalten sollen.</h3>
+
+									<h2 class="fs-title">Rollenbasierter Zugriffsschutz</h2>
+									<h3 class="fs-subtitle">Vergabe der Zugriffsrechte auf Indikatoren-Metadaten pro Organisationseinheit</h3>
 		
-									<p>Klicken Sie ein oder mehrere der verf&uuml;gbaren Rollen aus der linken &Uuml;bersicht an, um den Zugriff auf die Metadaten des Indikators auf diese Rollen einzuschr&auml;nken.</p>
-		
-									<p>Der Zugriff ist nur f&uuml;r die Rollen erlaubt, die im rechten &Uuml;bersichtsfenster gelistet sind.</p>
-		
-									<p>Wird keine Rolle selektiert, so sind die Metadaten des Indikator-Datensatzes ohne Zugriffsbeschr&auml;nkung abrufbar.</p>
+									<p>Zugriffsrechte (lesen, editieren, l&ouml;schen) m&uuml;ssen explizit vergeben werden. Administratoren (Rolle <i>kommonitor-creator</i>) haben immer vollen Zugriff.</p>
 	
-									<p><strong>Bei Indikatoren gibt es zus&auml;tzlich die M&ouml;glichkeit, f&uuml;r jede verkn&uuml;pfte Raumebene den Abruf der Zeitreihen-Daten f&uuml;r die jeweilige Raumebene abzusichern. Dazu nutzen Sie bitte das Feature-Fortf&uuml;hren-Men&uuml;.</strong></p>
+									<p><strong>Bei Indikatoren muss zus&auml;tzlich zu den Metadaten f&uuml;r jede verkn&uuml;pfte Raumebene der Zugriff auf die Zeitreihen-Daten freigegeben werden. Dazu nutzen Sie bitte das Feature-Fortf&uuml;hren-Men&uuml;.</strong></p>
 		
-									<div class="row no-margin">
-										<div class="col-md">
-											<excalibur-dual-list ng-model='allowedRoleNames.selectedItems' options="duallist.duallistRoleOptions"></excalibur-dual-list>
+									<div class="row">
+										<div class="col-md-3"></div>
+										<div class="col-md-6 col-sm-6 col-xs-12">
+												<div id="indicatorEditRoleManagementTable" style="height: 45vh" class="ag-theme-alpine"></div>  
+											
 										</div>
-									</div>
+										<div class="col-md-3"></div>
+									</div>	
 									
 									<input type="button" name="previous" class="previous previous_editIndicatorMetadata action-button-previous" value="Voriger Schritt"/>								
 								</fieldset>						

@@ -45,15 +45,15 @@
 
 						<div class="row" style="margin-right: 0px;">
 							<div class="col-sm-7">
-								<div class="text-left"><label>Raumebene</label></div>
-								<select style="font-size: 12px;" ng-model="$ctrl.kommonitorDataExchangeServiceInstance.selectedSpatialUnit"
+								<div class="text-left"><label>Raumebene</label><a ng-show="$ctrl.envInstance.enableSpatialUnitNotificationButton" data-toggle="modal" ng-click="showSpatialUnitNotificationModalIfEnabled()" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%; cursor:pointer;" title="Information zu Raumeinheiten&nbsp;&nbsp;"><span class="glyphicon glyphicon-info-sign"></span></a></div>
+								<select id="spatialUnitSelectionInput" style="font-size: 12px;" ng-model="$ctrl.kommonitorDataExchangeServiceInstance.selectedSpatialUnit"
 									ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits | filter:filterSpatialUnits()"
 									class="form-control" ng-change="onChangeSelectedSpatialUnit()" required>
 									<option disabled selected value> -- Raumeinheit w&auml;hlen --
 									</option>
 								</select>
 							</div>
-							<div class="col-sm-5">
+							<div class="col-sm-4">
 								<div class="text-left"><label>Datum</label></div>
 								<input id="indicatorDatePicker" type="text" placeholder="YYYY-MM-DD" 
 								ng-model="$ctrl.kommonitorDataExchangeServiceInstance.selectedDate" ng-change="onChangeIndicatorDatepickerDate()"
@@ -79,7 +79,7 @@
 							<button id="downloadGeoJSON" ng-click="downloadIndicatorAsGeoJSON()" class="btn btn-primary btn-xs">GeoJSON</button>
 							<button id="downloadShape" ng-click="downloadIndicatorAsShape()" class="btn btn-primary btn-xs">ESRI
 								Shape</button>
-								<button id="downloadCSV" ng-click="downloadIndicatorAsCSV()" class="btn btn-primary btn-xs">CSV</button>	
+							<button id="downloadCSV" ng-click="downloadIndicatorAsCSV()" class="btn btn-primary btn-xs">CSV</button>							
 							<!-- <a style="color:white;pointer-events: none;cursor: default;" class="btn btn-primary btn-xs disabled" ng-href="$ctrl.kommonitorDataExchangeServiceInstance.wmsUrlForSelectedIndicator"
 								target="_blank" rel="noopener noreferrer" id="downloadWMS"><span
 									title="WMS Link in Zukunft abrufbar">WMS</span></a>
@@ -87,60 +87,14 @@
 								target="_blank" rel="noopener noreferrer" id="downloadWFS"><span
 									title="WFS Link in Zukunft abrufbar">WFS</span></a> -->
 						</div>
+						<br>
+						<br>
+						<button title="Teilen Sie die aktuelle Indikatorenansicht mittels eines Links" id="shareLinkButton" ng-click="onClickShareLinkButton()" class="btn btn-info btn-xs"><i class="fas fa-share-alt"></i>aktuelle Ansicht teilen</button>
+						<div id="snackbar">Link zur aktuellen Indikatoren-Ansicht in Zwischenablage kopiert</div>	
 					</div>
 
 				</div>
 
-			</div>
-			<!-- /.box-body -->
-		</div>
-		<!-- /.box -->
-
-		<!-- classification  -->
-		<div id="kommonitorIndicatorClassification" class="box box-primary collapsed-box">
-			<div class="box-header with-border">
-				<h3 class="box-title">Klassifikation anpassen</h3>
-
-				<div class="box-tools pull-right">
-					<button id="indicatorClassificationCollapse" type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
-					</button>
-				</div>
-			</div>
-			<div class="box-body boxedLegend">
-
-				<strong
-					title="Hier können Sie die Klassifizierungsmethode ändern. Das Herüberfahren des Mauszeigers über eine der Optionen öffnet einen Tooltip mit Informationen zu den Methoden. In Zukunft sollen auch manuelle Klassifikationen möglich gemacht werden.">Klassifizierungsmethode:</strong>
-				<form>
-					<div> 
-						<label
-							title="Bei Jenks (Natürliche Unterbrechungen) werden Klassengrenzen identifiziert, die ähnliche Werte möglichst gut gruppieren und zugleich die Unterschiede zwischen den Klassen maximieren."
-							class="radio-inline"><input id="radiojenks" type="radio" ng-model="$ctrl.kommonitorVisualStyleHelperServiceInstance.classifyMethod" ng-checked="$ctrl.kommonitorVisualStyleHelperServiceInstance.classifyMethod == 'jenks'" name="classifyMethod">Jenks</label> 
-						<label
-							title="Mit der Methode Gleiches Intervall wird der Bereich der Attributwerte in gleich große Teilbereiche unterteilt."
-							class="radio-inline"><input id="radioequal_interval" type="radio" ng-model="$ctrl.kommonitorVisualStyleHelperServiceInstance.classifyMethod" ng-checked="$ctrl.kommonitorVisualStyleHelperServiceInstance.classifyMethod == 'equal_interval'" name="classifyMethod"
-								checked="">Gleiches Intervall</label> 
-						<label
-							title="Bei der Quantil-Methode enthält jede Klasse die gleiche Anzahl von Features."
-							class="radio-inline"><input id="radioquantile" type="radio" ng-model="$ctrl.kommonitorVisualStyleHelperServiceInstance.classifyMethod" ng-checked="$ctrl.kommonitorVisualStyleHelperServiceInstance.classifyMethod == 'quantile'" name="classifyMethod">Quantile</label>
-					</div>
-				</form>
-				<br>
-
-				<div>
-					<strong>Klassifizierung &uuml;ber die gesamte Zeitreihe</strong> &nbsp;
-					<label class="switch" title="Klassifizierung &uuml;ber die gesamte Zeitreihe"><input id="controlIndicatorClassifyOption_wholeTimeseries" type="checkbox" value="useWholeTimeseriesClassification" ng-model="$ctrl.kommonitorDataExchangeServiceInstance.classifyUsingWholeTimeseries" ng-checked="$ctrl.kommonitorDataExchangeServiceInstance.classifyUsingWholeTimeseries"><span class="switchslider round"></span></label>
-				</div>
-
-				<div ng-if="containsZeroValues">
-					<strong>Wert "0" als separate Klasse darstellen</strong> &nbsp;
-					<label class="switch" title="0 als separate Klasse darstellen"><input id="controlIndicatorZeroClassifyOption" type="checkbox" value="useSeparateZeroClass" ng-model="$ctrl.kommonitorDataExchangeServiceInstance.classifyZeroSeparately" ng-checked="$ctrl.kommonitorDataExchangeServiceInstance.classifyZeroSeparately"><span class="switchslider round"></span></label>
-				</div>
-
-				<div ng-if="containsOutliers_high || containsOutliers_low">
-					<strong>Ausrei&szlig;er gesondert markieren</strong> &nbsp;
-					<label class="switch" title="Ausrei&szlig;er gesondert markieren"><input id="controlIndicatorOutlierDetection" type="checkbox" value="useOutlierDetection" ng-model="$ctrl.kommonitorDataExchangeServiceInstance.useOutlierDetectionOnIndicator" ng-checked="$ctrl.kommonitorDataExchangeServiceInstance.useOutlierDetectionOnIndicator"><span class="switchslider round"></span></label>
-				</div>
-				
 			</div>
 			<!-- /.box-body -->
 		</div>
@@ -218,11 +172,11 @@
 									<div class="col-md-3">{{$ctrl.kommonitorVisualStyleHelperServiceInstance.featuresPerOutlierHigh}}</div><br>
 								</div>				
 							</div>
-							<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.filteredIndicatorFeatureNames.length > 0">
+							<div ng-if="($ctrl.kommonitorFilterHelperServiceInstance.filteredIndicatorFeatureIds.size > 0) && (!$ctrl.kommonitorFilterHelperServiceInstance.completelyRemoveFilteredFeaturesFromDisplay)">
 								<div class="row" style="margin-right: 0px;">
 									<div class="col-md-3"><i style="background:{{::$ctrl.env.defaultColorForFilteredValues}}; border: 2px solid {{::$ctrl.env.defaultBorderColorForFilteredValues}}; opacity: {{$ctrl.kommonitorVisualStyleHelperServiceInstance.currentIndicatorOpacity}};"></i></div>
 									<div class="col-md-6">gefilterte Features</div>
-									<div class="col-md-3">{{$ctrl.kommonitorDataExchangeServiceInstance.filteredIndicatorFeatureNames.length}}</div><br>
+									<div class="col-md-3">{{$ctrl.kommonitorFilterHelperServiceInstance.filteredIndicatorFeatureIds.size}}</div><br>
 								</div>				
 							</div>
 							<br/>
@@ -257,7 +211,7 @@
 
 							</div>
 							<!-- Dynamic legend items -->
-							<div ng-if="($ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.indicatorType.includes('DYNAMIC') || containsNegativeValues) && ! $ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked">					
+							<div ng-if="($ctrl.kommonitorDataExchangeServiceInstance.isBalanceChecked || $ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.indicatorType.includes('DYNAMIC') || containsNegativeValues) && ! $ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked">					
 
 								<!-- < 0 values -->
 								<div class="row" style="margin-right: 0px;" ng-repeat="color in $ctrl.kommonitorVisualStyleHelperServiceInstance.dynamicBrew[1].colors">
@@ -288,7 +242,7 @@
 							</div>
 
 							<!-- Static/Status legend items -->
-							<div ng-if="($ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.indicatorType.includes('STATUS') && ! containsNegativeValues) && ! $ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked">
+							<div ng-if="($ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.indicatorType.includes('STATUS') && ! containsNegativeValues) && ! $ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked && ! $ctrl.kommonitorDataExchangeServiceInstance.isBalanceChecked">
 								<!-- zero -->
 								<div class="row" style="margin-right: 0px;" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.classifyZeroSeparately && containsZeroValues">
 									<div class="col-md-3"><i style="background:{{::$ctrl.env.defaultColorForZeroValues}}; opacity: {{$ctrl.kommonitorVisualStyleHelperServiceInstance.currentIndicatorOpacity}};"></i></div>
@@ -346,9 +300,9 @@
 									<label>Fortbewegungsart:
 									</label>&nbsp; {{$ctrl.kommonitorDataExchangeServiceInstance.routingLegend.transitMode}}
 									<br />
-									<label>Routing-Typ: </label>&nbsp;
+									<!-- <label>Routing-Typ: </label>&nbsp;
 									{{$ctrl.kommonitorDataExchangeServiceInstance.routingLegend.preference}}
-									<br />
+									<br /> -->
 				
 									<div>
 										<i style="background: #ed561a; opacity:0.7;"></i> Pfad in Kartendarstellung
@@ -375,14 +329,12 @@
 											<tr>
 												<th>Dauer</th>
 												<th>Distanz</th>
-												<th>Durchschnittsgeschwindigkeit</th>
 											</tr>
 										</thead>
 										<tbody>
 											<tr>
 												<td>{{$ctrl.kommonitorDataExchangeServiceInstance.routingLegend.routeDuration_minutes}} Minuten</td>
 												<td>{{$ctrl.kommonitorDataExchangeServiceInstance.routingLegend.routeDistance_km}} km</td>
-												<td>{{$ctrl.kommonitorDataExchangeServiceInstance.routingLegend.routeAvgSpeed_kmh}} km/h</td>
 											</tr>
 										</tbody>
 									</table>
@@ -433,10 +385,115 @@
 					</uib-tab>
 
 				
-				</uib-tabset>
+				</uib-tabset>	
+			</div>
+			<!-- /.box-body -->
+		</div>
+		<!-- /.box -->
 
+		<!-- classification  -->
+		<div id="kommonitorIndicatorClassification" class="box box-primary collapsed-box">
+			<div class="box-header with-border">
+				<h3 class="box-title">Klassifikation anpassen</h3>
+
+				<div class="box-tools pull-right">
+					<button id="indicatorClassificationCollapse" type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+					</button>
+				</div>
+			</div>
+			<div class="box-body boxedLegend">
+
+				<strong
+					title="Hier können Sie die Klassifizierungsmethode ändern. Das Herüberfahren des Mauszeigers über eine der Optionen öffnet einen Tooltip mit Informationen zu den Methoden. In Zukunft sollen auch manuelle Klassifikationen möglich gemacht werden.">Klassifizierungsmethode:</strong>
+				<form>
+					<div> 
+						<label
+							title="Bei Jenks (Natürliche Unterbrechungen) werden Klassengrenzen identifiziert, die ähnliche Werte möglichst gut gruppieren und zugleich die Unterschiede zwischen den Klassen maximieren."
+							class="radio-inline"><input id="radiojenks" type="radio" ng-model="$ctrl.kommonitorVisualStyleHelperServiceInstance.classifyMethod" ng-checked="$ctrl.kommonitorVisualStyleHelperServiceInstance.classifyMethod == 'jenks'" name="classifyMethod">Jenks</label> 
+						<label
+							title="Mit der Methode Gleiches Intervall wird der Bereich der Attributwerte in gleich große Teilbereiche unterteilt."
+							class="radio-inline"><input id="radioequal_interval" type="radio" ng-model="$ctrl.kommonitorVisualStyleHelperServiceInstance.classifyMethod" ng-checked="$ctrl.kommonitorVisualStyleHelperServiceInstance.classifyMethod == 'equal_interval'" name="classifyMethod"
+								checked="">Gleiches Intervall</label> 
+						<label
+							title="Bei der Quantil-Methode enthält jede Klasse die gleiche Anzahl von Features."
+							class="radio-inline"><input id="radioquantile" type="radio" ng-model="$ctrl.kommonitorVisualStyleHelperServiceInstance.classifyMethod" ng-checked="$ctrl.kommonitorVisualStyleHelperServiceInstance.classifyMethod == 'quantile'" name="classifyMethod">Quantile</label>
+					</div>
+				</form>
+				<br>
+
+				<div class="classificationBoxToogleSlidersWrapper">
+					<span class="classificationBoxToogleSlidersLbl"><strong>Klassifizierung &uuml;ber die gesamte Zeitreihe</strong> &nbsp;</span>
+					<label class="switch" title="Klassifizierung &uuml;ber die gesamte Zeitreihe"><input id="controlIndicatorClassifyOption_wholeTimeseries" type="checkbox" value="useWholeTimeseriesClassification" ng-model="$ctrl.kommonitorDataExchangeServiceInstance.classifyUsingWholeTimeseries" ng-checked="$ctrl.kommonitorDataExchangeServiceInstance.classifyUsingWholeTimeseries"><span class="switchslider round"></span></label>
+				</div>
+
+				<div class="classificationBoxToogleSlidersWrapper" ng-if="containsZeroValues">
+					<span class="classificationBoxToogleSlidersLbl"><strong>Wert "0" als separate Klasse darstellen</strong> &nbsp;</span>
+					<label class="switch" title="0 als separate Klasse darstellen"><input id="controlIndicatorZeroClassifyOption" type="checkbox" value="useSeparateZeroClass" ng-model="$ctrl.kommonitorDataExchangeServiceInstance.classifyZeroSeparately" ng-checked="$ctrl.kommonitorDataExchangeServiceInstance.classifyZeroSeparately"><span class="switchslider round"></span></label>
+				</div>
+
+				<div class="classificationBoxToogleSlidersWrapper" ng-if="containsOutliers_high || containsOutliers_low">
+					<span class="classificationBoxToogleSlidersLbl"><strong>Ausrei&szlig;er gesondert markieren</strong> &nbsp;</span>
+					<label class="switch" title="Ausrei&szlig;er gesondert markieren"><input id="controlIndicatorOutlierDetection" type="checkbox" value="useOutlierDetection" ng-model="$ctrl.kommonitorDataExchangeServiceInstance.useOutlierDetectionOnIndicator" ng-checked="$ctrl.kommonitorDataExchangeServiceInstance.useOutlierDetectionOnIndicator"><span class="switchslider round"></span></label>
+				</div>
+
+				<div class="classificationBoxToogleSlidersWrapper">
+					<span class="classificationBoxToogleSlidersLbl"><strong>NoData-Werte tempor&auml;r aus Datensatz entfernen</strong> &nbsp;</span>
+					<label class="switch" title="NoData-Werte tempor&auml;r aus Datensatz entfernen"><input id="controlNoDataDisplay" type="checkbox" value="useNoDataToggle" ng-model="$ctrl.kommonitorDataExchangeServiceInstance.useNoDataToggle" ng-checked="$ctrl.kommonitorDataExchangeServiceInstance.useNoDataToggle"><span class="switchslider round"></span></label>
+				</div>
 				
+				
+			</div>
+			<!-- /.box-body -->
+		</div>
+		<!-- /.box -->
 
+		<div id="kommonitorsStatisticalValues" class="box box-primary">
+			<div class="box-header with-border">
+				<h3 class="box-title">Statistische Merkmale</h3>
+
+				<div class="box-tools pull-right">
+					<button id="statisticalValuesCollapse" type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+					</button>
+				</div>
+			</div>
+			<div class="box-body">
+				<table id="statisticalValuesDisplayTable" class="table">
+					<thead>
+						<tr>
+							<th></th>
+							<th ng-show="$ctrl.kommonitorFilterHelperServiceInstance.filteredIndicatorFeatureIds.size == 0">{{$ctrl.kommonitorDataExchangeServiceInstance.labelAllFeatures}}</th>
+							<th ng-show="$ctrl.kommonitorFilterHelperServiceInstance.filteredIndicatorFeatureIds.size > 0">{{$ctrl.kommonitorDataExchangeServiceInstance.labelFilteredFeatures}}</th>
+							<th>{{$ctrl.kommonitorDataExchangeServiceInstance.labelSelectedFeatures}}</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>{{$ctrl.kommonitorDataExchangeServiceInstance.labelNumberOfFeatures}}</td>
+							<td>{{$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesNumberOfFeatures}}</td>
+							<td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedFeaturesNumberOfFeatures}}</td>
+						</tr>
+						<tr>
+							<td>{{$ctrl.kommonitorDataExchangeServiceInstance.labelSum}}</td>
+							<td>{{$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesSum}}</td>
+							<td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedFeaturesSum}}</td>
+						</tr>
+       		            <tr>
+       		                <td>{{$ctrl.kommonitorDataExchangeServiceInstance.labelMean}}</td>
+       		                <td>{{$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesMean}}</td>
+							<td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedFeaturesMean}}</td>
+       		            </tr>
+       		            <tr>
+       		                <td>{{$ctrl.kommonitorDataExchangeServiceInstance.labelMin}}</td>
+       		                <td>{{$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesMin}}</td>
+							<td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedFeaturesMin}}</td>
+       		            </tr>
+						<tr>
+							<td>{{$ctrl.kommonitorDataExchangeServiceInstance.labelMax}}</td>
+       		                <td>{{$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesMax}}</td>
+							<td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedFeaturesMax}}</td>
+						</tr>
+					</tbody>
+				</table>
 			</div>
 			<!-- /.box-body -->
 		</div>

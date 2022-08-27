@@ -1,0 +1,375 @@
+<div class="modal fade" id="modal-batch-update-indicators" role="dialog">
+	<div class="modal-dialog modal-xl">
+		<div class="modal-content">
+
+			<div align="center">
+				<div class="loading-overlay-admin-panel ng-hide" ng-show="loadingData">
+					<span class="glyphicon glyphicon-refresh icon-spin"></span>
+				</div>
+			</div>
+
+
+
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Batch-Update</h4>
+			</div>
+			
+			<div class="modal-body">
+				<div class="row">
+					<div class="col-md-12 col-sm-12 col-xs-12">
+						<p>Diese Funktion erm&ouml;glicht es, die Mapping-Parameter mehrerer Indikatoren gleichzeitig zu aktualisieren.</p>
+						<p><b>* = Pflichtfeld</b></p>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-md-12 col-sm-12 col-xs-12">
+						<form id="indicatorBatchUpdateForm" class="form-group" role="form" data-toggle="validator" data-disable="true">
+							<div class="batch-list-table-wrapper table-responsive">
+								<table class="batch-list-table table table-bordered table-condensed table-striped" style="width:100%; overflow:auto; font-size: 11px;">
+									<thead>
+										<tr>
+											<th class="batch-list-table-sticky-column batch-list-table-sticky-column-header batch-list-table-sticky-column-1"><input type="checkbox" ng-model="allRowsSelected" ng-change="$ctrl.kommonitorBatchUpdateHelperServiceInstance.onChangeSelectAllRows(this.allRowsSelected, this.batchList)"></th>
+											<th class="batch-list-table-sticky-column batch-list-table-sticky-column-header batch-list-table-sticky-column-2">Name*</th>
+											<th>Mappingtabelle</th>
+											<th>Zeitreihen-Mapping*</th>
+											<th>Datensatz-Quellformat*</th>
+											<th>CRS*</th>
+											<th ng-show="checkIfSelectedConverterIsCsvOnlyIndicator()">separator*</th>
+											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedConverterIsWfsV1(batchList)">Schema*</th>
+											<th>Datenquelltyp*</th>
+											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedDatasourceTypeIsFile(batchList)">Datei*</th>
+											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedDatasourceTypeIsHttp(batchList)">URL*</th>
+											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedDatasourceTypeIsInline(batchList)">Payload*</th>
+											<th>ID Attributname der Raumeinheiten-Features*</th>
+											<th>Ziel-Raumebene*</th>
+											<th>Mappingtabelle speichern</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr ng-repeat="indicator in batchList"  ng-class-odd="'batch-list-odd-rows'" ng-class-even="'batch-list-even-rows'">
+
+											<!-- isSelected -->
+											<td class="batch-list-table-sticky-column batch-list-table-sticky-column-1">
+												<input type="checkbox" ng-model="indicator.isSelected">
+											</td>
+
+											<!-- Name -->
+											<td class="batch-list-table-sticky-column batch-list-table-sticky-column-2">
+												<ui-select id="indicatorSelect{{$index}}" class="form-control batch-list-table-name-field" ng-model="indicator.name" 
+													ng-change="$ctrl.kommonitorBatchUpdateHelperServiceInstance.resizeNameColumnDropdowns(indicator)" required>
+													<ui-select-match>
+														<span ng-bind="$select.selected.indicatorName"></span>
+													</ui-select-match>
+													<ui-select-choices repeat="avIndicator in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filterIndicators: {indicatorName: $select.search}">
+														<span ng-bind="avIndicator.indicatorName"></span>
+													</ui-select-choices>
+												</ui-select>
+											</td>
+											
+											<!-- Mappingtabelle -->
+											<td>
+												<input id="indicatorMappingTableSelect{{$index}}" class="form-control indicatorMappingTableInputField" type="file">
+											</td>
+
+											<!-- Zeitreihen Mapping* -->
+											<td>
+												<button id="indicatorTimeseriesMappingBtn{{$index}}" class="form-control btn btn-success btn-sm indicatorTimeseriesMappingBtn"
+													ng-click="onTimeseriesMappingBtnClicked($event)" style="background-color: #5cb85c;">
+													Hinzuf&uuml;gen/Editieren
+												</button>
+											</td>
+
+											<!-- Datensatz-Quellformat -->
+											<td>
+												<select class="form-control" ng-model="indicator.selectedConverter"
+														ng-options="converter as converter.name for converter in $ctrl.kommonitorImporterHelperServiceInstance.availableConverters | filter:$ctrl.kommonitorImporterHelperServiceInstance.filterConverters('indicator')" required>
+																<option disabled selected value> -- Quellformat w&auml;hlen -- </option>
+												</select>
+											</td>
+
+											<!-- CRS -->
+											<td>
+												<input id="indicatorCrsInputField{{$index}}" class="form-control" ng-model="indicator.mappingObj.converter.CRS.value"
+												type="text" placeholder="z.B. EPSG:4326" required>
+											</td>
+
+											<!-- separator -->
+											<td ng-show="checkIfSelectedConverterIsCsvOnlyIndicator()">
+												<input class="form-control" ng-model="indicator.mappingObj.converter.separator.value"
+												type="text" ng-disabled="!indicator.selectedConverter.name.includes(&quot;csv_onlyIndicator&quot;)" required>
+											</td>
+
+											<!-- schema -->
+											<td ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedConverterIsWfsV1(batchList)">
+												<select class="form-control" ng-model="indicator.mappingObj.converter.schema" 
+													ng-options="schema for schema in $ctrl.kommonitorImporterHelperServiceInstance.availableConverters[3].schemas"
+													ng-disabled="!indicator.selectedConverter.name.includes(&quot;wfs.v1&quot;)" required>
+													<option disabled selected value> -- Schema w&auml;hlen -- </option>
+												</select>
+											</td>
+
+											<!-- Datenquelltyp -->
+											<td>
+												<select ng-model="indicator.selectedDatasourceType"
+														ng-options="datasourceType as datasourceType.type for datasourceType in $ctrl.kommonitorImporterHelperServiceInstance.availableDatasourceTypes"
+														class="form-control" required>
+																<option disabled selected value> -- Quelltyp w&auml;hlen -- </option>
+												</select>
+											</td>
+
+											<!-- Datei -->
+											<td ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedDatasourceTypeIsFile(batchList)">
+												<input id="indicatorDataSourceFileInputField{{$index}}" class="form-control indicatorDataSourceFileInputField" type="file" 
+												ng-disabled="!indicator.selectedDatasourceType.type.includes(&quot;FILE&quot;)" required>
+											</td>
+
+											<!-- URL -->
+											<td ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedDatasourceTypeIsHttp(batchList)">
+												<input class="form-control" type="text" ng-model="indicator.mappingObj.dataSource.URL.value"
+												ng-disabled="!indicator.selectedDatasourceType.type.includes(&quot;HTTP&quot;)" required>
+											</td>
+
+											<!-- Payload -->
+											<td ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedDatasourceTypeIsInline(batchList)">
+												<input class="form-control" type="text" ng-model="indicator.mappingObj.dataSource.payload.value"
+												ng-disabled="!indicator.selectedDatasourceType.type.includes(&quot;INLINE&quot;)" required>
+											</td>
+
+											<!-- ID Attributname der Raumeinheiten-Features* -->
+											<td>
+												<input class="form-control" ng-model="indicator.mappingObj.propertyMapping.spatialReferenceKeyProperty" type="text" required>
+											</td>
+
+											<!-- Ziel-Raumebene -->
+											<td>
+												<select ng-model="indicator.selectedTargetSpatialUnit"
+														ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits" class="form-control" required> <!-- enable filter: | filter:filterApplicableSpatialUnits($index)-->
+															<option disabled selected value> -- Raumeinheit w&auml;hlen -- </option>
+												</select>
+											</td>
+
+											<!-- Mappingtabelle speichern -->
+											<td>
+												<button id="indicatorMappingTableSave{{$index}}" type="button" class="btn btn-primary fas fa-save" 
+													ng-click="$ctrl.kommonitorBatchUpdateHelperServiceInstance.saveMappingObjectToFile('indicator', $event, batchList)" >
+												</button>
+											</td>
+
+										</tr>
+									</tbody>
+
+									<tfoot>
+										<tr>
+											<th class="batch-list-table-sticky-column batch-list-table-sticky-column-footer batch-list-table-sticky-column-1"><input type="checkbox" ng-model="allRowsSelected" ng-change="$ctrl.kommonitorBatchUpdateHelperServiceInstance.onChangeSelectAllRows(this.allRowsSelected, this.batchList)"></th>
+											<th class="batch-list-table-sticky-column batch-list-table-sticky-column-footer batch-list-table-sticky-column-2">Name*</th>
+											<th>Mappingtabelle</th>
+											<th>Zeitreihen-Mapping*</th>
+											<th>Datensatz-Quellformat*</th>
+											<th>CRS*</th>
+											<th ng-show="checkIfSelectedConverterIsCsvOnlyIndicator()">separator*</th>
+											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedConverterIsWfsV1(batchList)">Schema*</th>
+											<th>Datenquelltyp*</th>
+											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedDatasourceTypeIsFile(batchList)">Datei*</th>
+											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedDatasourceTypeIsHttp(batchList)">URL*</th>
+											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedDatasourceTypeIsInline(batchList)">Payload*</th>
+											<th>ID Attributname der Raumeinheiten-Features*</th>
+											<th>Ziel-Raumebene*</th>
+											<th>Mappingtabelle speichern</th>
+										</tr>
+									</tfoot>
+								</table>
+							</div>
+
+							<button type="button" class="btn btn-primary" ng-click="$ctrl.kommonitorBatchUpdateHelperServiceInstance.addNewRowToBatchList('indicator', this.batchList)">neue Zeile hinzuf&uuml;gen</button>
+							<button type="button" class="btn btn-danger" ng-click="$ctrl.kommonitorBatchUpdateHelperServiceInstance.deleteSelectedRowsFromBatchList(this.batchList, this.allRowsSelected)">ausgew&auml;hlte Zeilen l&ouml;schen</button>
+						</div>
+					</form>
+				</div>
+
+
+
+				<div class="row">
+					<div class="col-md-4 col-sm-4 col-xs-6">
+						<div class="form-group">
+							<label>Standardwert-Funktion</label>
+							<div class="help-block">
+								<p>
+									Diese Funktion erm&ouml;glicht es, einen Standardwert f&uuml;r alle Zeilen einer variablen Tabellenspalte zu setzen.<br />
+									Sofern die Checkbox aktiviert ist, wird der Wert f&uuml;r alle Zeilen gesetzt. Ist sie deaktiviert, werden nur leere Tabellenfelder &uuml;berschrieben, sodass bereits eingetragene Werte erhalten bleiben.<br />
+									Beim Zeitreihen-Mapping kann &uuml;ber die Checkbox festgelegt werden, ob bestehende Mappingeintr&auml;ge f&uuml;r den angegebenen Attributnamen aktualisiert werden sollen. Neue Attributnamen werden unabh&auml;ngig davon f&uuml;r alle Zeilen hinzugef&uuml;gt.<br />
+									Gesperrte (ausgegraute) Felder werden ignoriert.
+								</p>
+							</div>
+							<div class="row">
+								<div class="col-md-6 col-sm-6 col-xs-6">
+									<label for="indicatorColDefaultFunctionColSelectInput">Tabellenspalte:</label>
+									<select id="indicatorColDefaultFunctionColSelectInput" class="form-control"
+										ng-model="colDefaultFunctionSelectedColumn" ng-change="colDefaultFunctionNewValue=undefined">
+										<option disabled selected value> -- Tabellenspalte w&auml;hlen -- </option>
+										<option value="mappingObj.propertyMapping.timeseriesMappings">Zeitreihen-Mapping*</option>
+										<option value="selectedConverter">Datensatz-Quellformat*</option>
+										<option value="mappingObj.converter.CRS.value">CRS*</option>
+										<option value="mappingObj.converter.separator.value">separator*</option>
+										<option value="mappingObj.converter.schema">Schema*</option>
+										<option value="selectedDatasourceType">Datenquelltyp*</option>
+										<option value="mappingObj.dataSource.URL.value">URL*</option>
+										<option value="mappingObj.dataSource.payload.value">Payload*</option>
+										<option value="mappingObj.propertyMapping.spatialReferenceKeyProperty">ID Attributname der Raumeinheiten-Features*</option>
+										<option value="selectedTargetSpatialUnit">Ziel-Raumebene*</option>
+									</select>
+									<label>Wert:</label>
+									<!-- default -->
+									<input ng-show="!colDefaultFunctionSelectedColumn" type="text" class="form-control" ng-model="colDefaultFunctionNewValue" disabled placeholder="keine Tabellenspalte ausgew&auml;hlt"></input>
+									<!-- Zeitreihen-Mapping* -->
+									<button class="form-control btn btn-success btn-sm" ng-click="onDefaultTimeseriesMappingBtnClicked($event)"
+										ng-show="colDefaultFunctionSelectedColumn=='mappingObj.propertyMapping.timeseriesMappings'"
+										style="background-color: #5cb85c;">
+											Hinzuf&uuml;gen/Editieren
+									</button>
+									<!-- Datensatz-Quellformat* -->
+									<select ng-show="colDefaultFunctionSelectedColumn=='selectedConverter'" class="form-control" ng-model="colDefaultFunctionNewValue"
+										ng-options="converter as converter.name for converter in $ctrl.kommonitorImporterHelperServiceInstance.availableConverters | filter:$ctrl.kommonitorImporterHelperServiceInstance.filterConverters('indicator')">
+											<option disabled selected value> -- Quellformat w&auml;hlen -- </option>
+									</select>
+									<!-- CRS* -->
+									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.converter.CRS.value'" type="text" class="form-control"
+										ng-model="colDefaultFunctionNewValue" placeholder="z.B. EPSG:4326">
+									</input>
+									<!-- separator* -->
+									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.converter.separator.value'" type="text" class="form-control"
+										ng-model="colDefaultFunctionNewValue" ng-disabled="!checkIfSelectedConverterIsCsvOnlyIndicator()">
+									</input>
+									<!-- Schema* -->
+									<select ng-show="colDefaultFunctionSelectedColumn=='mappingObj.converter.schema'" class="form-control" ng-model="colDefaultFunctionNewValue" 
+										ng-options="schema for schema in $ctrl.kommonitorImporterHelperServiceInstance.availableConverters[3].schemas"
+										ng-disabled="!$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedConverterIsWfsV1(batchList)">
+											<option disabled selected value> -- Schema w&auml;hlen -- </option>
+									</select>
+									<!-- Datenquelltyp* -->
+									<select ng-show="colDefaultFunctionSelectedColumn=='selectedDatasourceType'" class="form-control" ng-model="colDefaultFunctionNewValue"
+										ng-options="datasourceType as datasourceType.type for datasourceType in $ctrl.kommonitorImporterHelperServiceInstance.availableDatasourceTypes">
+											<option disabled selected value> -- Quelltyp w&auml;hlen -- </option>
+									</select>
+									<!-- URL* -->
+									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.dataSource.URL.value'" type="text" class="form-control"
+										ng-model="colDefaultFunctionNewValue" ng-disabled="!$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedDatasourceTypeIsHttp(batchList)">
+									</input>
+									<!-- Payload* -->
+									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.dataSource.payload.value'" type="text" class="form-control"
+										ng-model="colDefaultFunctionNewValue" ng-disabled="!$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedDatasourceTypeIsInline(batchList)">
+									</input>
+									<!-- ID Attributname der Raumeinheiten-Features* -->
+									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.propertyMapping.spatialReferenceKeyProperty'" type="text" class="form-control"
+										ng-model="colDefaultFunctionNewValue">
+									</input>
+									<!-- Ziel-Raumebene* -->
+									<select ng-show="colDefaultFunctionSelectedColumn=='selectedTargetSpatialUnit'" class="form-control" ng-model="colDefaultFunctionNewValue"
+										ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits">
+											<option disabled selected value> -- Raumeinheit w&auml;hlen -- </option>
+									</select>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-12 col-sm-12 col-xs-12">
+									<label for="indicatorColDefaultFunctionAllRowsChb">Vorhandene Werte &uuml;berschreiben?</label>
+									<input id="indicatorColDefaultFunctionAllRowsChb" type="checkbox" ng-model="colDefaultFunctionAllRowsChb">
+								</div>
+								<div class="col-md-12 col-sm-12 col-xs-12">
+									<button type="button" class="btn btn-primary"
+										ng-click="$ctrl.kommonitorBatchUpdateHelperServiceInstance.onClickSaveColDefaultValue('indicator', colDefaultFunctionSelectedColumn, colDefaultFunctionNewValue, colDefaultFunctionAllRowsChb, batchList, defaultTimeseriesMappingSave)">
+										Standardwert eintragen
+									</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-md-4 col-sm-4 col-xs-6">
+						<div class="form-group">
+							<label>Fehlende/NULL Werte beibehalten (als NoData-Wert)*</label>
+							<br/>	
+							<label class="switch">
+								<input type="checkbox" value="keepMissingValues" ng-model="keepMissingValues">
+								<span class="switchslider round"></span>
+							</label>
+							<div class="help-block">
+								<p>Angabe, ob leere Attributwerte (<code>NULL</code>-Werte) &uuml;bernommen werden. Diese werden wie NoData-Werte behandelt.
+									Bei deaktivierter Option wird bei einem solchen Fall ein Fehler geworfen.
+								</p>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Schlie&szlig;en</button>
+				<button type="button" class="btn btn-info pull-left" ng-click="loadIndicatorsBatchList()"
+					title="Importieren der Batch-Liste aus einer Datei">
+					<i class="fas fa-file-import"></i>&nbsp;&nbsp;Batch-Liste importieren
+				</button>
+
+				<input style="display:none;" class="pull-left" type="file" class="form-control"
+					id="indicatorsBatchListFile" accept=".json,"></input>
+
+				<button type="button" style="margin-left: 6px;" class="btn btn-info pull-left" ng-disabled=""
+					ng-click="$ctrl.kommonitorBatchUpdateHelperServiceInstance.saveBatchListToFile('indicator', batchList)" title="Exportieren der Batch-Liste in eine Datei">
+					<i class="fas fa-file-export"></i>&nbsp;&nbsp;Batch-Liste exportieren
+				</button>
+
+				<button id="indicator-reopen-results-btn" type="button" class="btn btn-info"
+					ng-click="reopenResultModal()" ng-disabled="lastUpdateResponseObj===undefined">Ergebnis anzeigen
+				</button>
+
+				<button id="indicator-batch-update-btn" type="button" class="btn btn-success"
+					ng-click="$ctrl.kommonitorBatchUpdateHelperServiceInstance.batchUpdate('indicator', batchList, keepMissingValues, false)" ng-disabled="!$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfNameAndFilesChosenInEachRow('indicator', batchList)">Update ausf&uuml;hren
+				</button>
+				
+				<button type="button" class="btn btn-danger"
+					ng-click="$ctrl.kommonitorBatchUpdateHelperServiceInstance.resetBatchUpdateForm('indicator', batchList)">Zur&uuml;cksetzen
+				</button>
+			</div>
+		</div>
+		<!-- /.modal-content -->
+	</div>
+	<!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+
+<!-- wrapper for timeseries mapping -->
+<div class="modal fade" id="indicator-edit-time-series-mapping-modal" role="dialog">
+	<div class="modal-dialog modal-xl">
+		<div class="modal-content" style="width:95%">
+			<div class="modal-header">
+				<h4 class="modal-title">Zeitreihen-Mapping</h4>
+			</div>
+			<div class="modal-body">
+				<indicator-edit-timeseries-mapping></indicator-edit-timeseries-mapping>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Schlie&szlig;en</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- wrapper for default timeseries mapping -->
+<div class="modal fade" id="indicator-edit-default-time-series-mapping-modal" role="dialog">
+	<div class="modal-dialog modal-xl">
+		<div class="modal-content" style="width:95%">
+			<div class="modal-header">
+				<h4 class="modal-title">Zeitreihen-Mapping f&uuml;r alle Zeilen</h4>
+			</div>
+			<div class="modal-body">
+				<p style="color:red">&Auml;nderungen werden erst durch Klick auf den Knopf 'Standardwert eintragen' im Hauptfenster gespeichert.</p>
+				<indicator-edit-timeseries-mapping></indicator-edit-timeseries-mapping>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Schlie&szlig;en</button>
+			</div>
+		</div>
+	</div>
+</div>

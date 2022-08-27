@@ -25,11 +25,25 @@ angular
 
 					//$("[data-toggle=tooltip]").tooltip();
 
+					$scope.isUsedInReporting = false;
+
 					// initialize any adminLTE box widgets
 					$('.box').boxWidget();
 
 					var OpenStreetMapProvider = window.GeoSearch.OpenStreetMapProvider;
-					$scope.openStreetMapProvider = new OpenStreetMapProvider();
+
+					 $scope.openStreetMapProvider = new OpenStreetMapProvider(    
+						{
+						  params: {
+							'accept-language': 'de', // render results in Dutch
+							countrycodes: 'de', // limit search results to the Netherlands
+							addressdetails: 1, // include additional address detail parts  
+							viewbox: "" + (Number(__env.initialLongitude) - 0.001) + "," + (Number(__env.initialLatitude) - 0.001) + "," + (Number(__env.initialLongitude) + 0.001) + "," + (Number(__env.initialLatitude) + 0.001)             
+						  },
+						  searchUrl: __env.targetUrlToGeocoderService + '/search',
+						  reverseUrl: __env.targetUrlToGeocoderService + '/reverse'
+						}
+					  );
 
 					const INDICATOR_DATE_PREFIX = __env.indicatorDatePrefix;
 					this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
@@ -80,9 +94,6 @@ angular
 
 					$scope.routeDistance_km = undefined;
 					$scope.routeDuration_minutes = undefined;
-					$scope.routeAvgSpeed_kmh = undefined;
-					$scope.routeTotalAscent = undefined;
-					$scope.routeTotalDescent = undefined;
 
 
 					/**
@@ -254,21 +265,32 @@ angular
 					 */
 					var createRoutingRequest = function(transitMode, preference, routingStartPointInput, routingEndPointInput){
 						var locString = routingStartPointInput+'%7C'+routingEndPointInput;
-						var getRequest = $scope.targetUrlToReachabilityService_ORS
-							+ '/routes?'
-							+ 'coordinates=' + locString
-							+ '&profile='+transitMode
-							+ '&preference='+preference
-							+ '&units='+'km'
-							+ '&language='+'de'
-							+ '&format='+'geojson'
-							+ '&instructions='+'true'
-							+ '&instructions_format='+'html'
-							+ '&maneuvers='+'true'
-							+ '&attributes='+'avgspeed'
-							+ '&elevation='+'true';
+
+						// if user never clicked transit mode set standard 
+						if(transitMode === "buffer"){
+							transitMode = "foot-walking";
+						}
+						
+						// var getRequest = $scope.targetUrlToReachabilityService_ORS
+						// 	+ '/routes?'
+						// 	+ 'coordinates=' + locString
+						// 	+ '&profile='+transitMode
+						// 	+ '&preference='+preference
+						// 	+ '&units='+'km'
+						// 	+ '&language='+'de'
+						// 	+ '&format='+'geojson'
+						// 	+ '&instructions='+'true'
+						// 	+ '&instructions_format='+'html'
+						// 	+ '&maneuvers='+'true'
+						// 	+ '&attributes='+'avgspeed'
+						// 	+ '&elevation='+'true';
 
 						//console.log(getRequest);
+
+						var getRequest = $scope.targetUrlToReachabilityService_ORS
+							+ '/v2/directions/' + transitMode + '?'
+							+ 'start=' + routingStartPointInput 
+							+ '&end=' + routingEndPointInput;
 
 						return getRequest;
 					}
@@ -325,6 +347,25 @@ angular
 						return getRequest;
 					};
 
+					// If the reporting modal is shown we want to integrate this component there.
+					// A couple of modifications need to be done to achieve that.
+					// These are controlled by setting a variable and checking it when needed.
+					$('#reporting-modal').on('shown.bs.modal', function (e) {
+						$scope.isUsedInReporting = true;
+						$scope.$digest();
+					})
+			
+					$('#reporting-modal').on('hidden.bs.modal', function (e) {
+						$scope.isUsedInReporting = false;
+						$scope.$digest();
+					})
+
+					$scope.$on("reportingPoiLayerSelected", function(event, data) {
+						$scope.settings.selectedStartPointLayer = data;
+						$scope.pointSourceConfigured = true; // timestamp selection is hidden, so we are good to go for now.
+					});
+					
+
 					$scope.resetPoisInIsochrone = function(){
 						$scope.echartsInstances_reachabilityAnalysis = new Map();
 						document.getElementById("reachability_diagrams_section").innerHTML = "";
@@ -346,7 +387,28 @@ angular
 
 						$scope.settings = {};
 
+						$scope.settings = {};
+
 						$scope.settings.usePreconfigRanges_500_1000 = false;
+
+						$scope.settings.dateSelectionType_valueIndicator = "date_indicator";
+									$scope.settings.dateSelectionType_valueManual = "date_manual";
+									$scope.settings.dateSelectionType_valuePerDataset = "date_perDataset";
+									$scope.settings.dateSelectionType = {
+										selectedDateType: $scope.settings.dateSelectionType_valuePerDataset
+									};
+
+						$scope.settings.selectedDate_manual = undefined;
+
+						$scope.settings.isochroneConfig = {};
+						$scope.settings.isochroneConfig.dateSelectionType_valueIndicator = "date_indicator";
+									$scope.settings.isochroneConfig.dateSelectionType_valueManual = "date_manual";
+									$scope.settings.isochroneConfig.dateSelectionType_valuePerDataset = "date_perDataset";
+									$scope.settings.isochroneConfig.dateSelectionType = {
+										selectedDateType: $scope.settings.isochroneConfig.dateSelectionType_valuePerDataset
+									};
+
+						$scope.settings.isochroneConfig.selectedDate_manual = undefined;
 
 						$scope.showIsochrones = true;
 						$scope.settings.dissolveIsochrones = true;
@@ -375,9 +437,6 @@ angular
 
 						$scope.routeDistance_km = undefined;
 						$scope.routeDuration_minutes = undefined;
-						$scope.routeAvgSpeed_kmh = undefined;
-						$scope.routeTotalAscent = undefined;
-						$scope.routeTotalDescent = undefined;
 
 						$scope.currentIsochronesGeoJSON = undefined;
 						$scope.currentRouteGeoJSON = undefined;
@@ -385,8 +444,6 @@ angular
 
 						$scope.geosearchResults_startingPoint;
 						$scope.geosearchResults_endPoint;
-
-						document.getElementById("optFastest").click();
 
 						$scope.routingStartPoint = undefined;
 						$scope.routingEndPoint = undefined;
@@ -454,8 +511,7 @@ angular
 					};
 
 					$scope.prepareIsochroneDownload = function(){
-						console
-							.log('removing old download button if available')
+						console.log('removing old download button if available')
 						if (document
 							.getElementById('downloadReachabilityIsochrones'))
 							document
@@ -476,8 +532,7 @@ angular
 						});
 						var data = URL.createObjectURL(blob);
 
-						console
-							.log('create new Download button and append it to DOM');
+						console.log('create new Download button and append it to DOM');
 						var a = document.createElement('a');
 						a.download = fileName;
 						a.href = data;
@@ -485,14 +540,16 @@ angular
 						a.id = 'downloadReachabilityIsochrones';
 						a.setAttribute('class', 'btn btn-info');
 
-						document.getElementById(
-								'reachabilityIsochroneButtonSection')
-							.appendChild(a);
+						let elements = document.getElementsByClassName(
+								'reachabilityIsochroneButtonSection');
+
+						for (const element of elements) {
+							element.appendChild(a);
+						}
 					};
 
 					$scope.prepareRouteDownload = function(){
-						console
-							.log('removing old download button if available')
+						console.log('removing old download button if available')
 						if (document
 							.getElementById('downloadReachabilityRoute'))
 							document
@@ -510,8 +567,7 @@ angular
 						});
 						var data = URL.createObjectURL(blob);
 
-						console
-							.log('create new Download button and append it to DOM');
+						console.log('create new Download button and append it to DOM');
 						var a = document.createElement('a');
 						a.download = fileName;
 						a.href = data;
@@ -519,9 +575,12 @@ angular
 						a.id = 'downloadReachabilityRoute';
 						a.setAttribute('class', 'btn btn-info');
 
-						document.getElementById(
-								'reachabilityRouteButtonSection')
-							.appendChild(a);
+							let elements = document.getElementsByClassName(
+								'reachabilityRouteButtonSection');
+
+						for (const element of elements) {
+							element.appendChild(a);
+						}
 					};
 
 					/**
@@ -535,7 +594,16 @@ angular
 					 * Changes the focus of the analysis between
 					 * distance and time.
 					 */
-					$scope.changeFocus = function() {
+					$scope.changeFocus = function(value) {
+
+						if(value === 'time' && $scope.settings.transitMode === "buffer") {
+							$scope.settings.focus = 'distance'
+							$scope.isTime=false;
+							$scope.unit = 'Meter';
+							$scope.changeValues();
+							return;
+						}
+
 						$scope.resetSlider();
 
 						if ($scope.settings.focus=='distance'){
@@ -620,14 +688,6 @@ angular
 						$scope.changeValues();
 						$scope.changeMinMaxSpeed();
 						$scope.resetSlider();
-					};
-
-					/**
-					 * Changes the transitMode depending on the selection in the
-					 * transitModeList-GUI-elements current selection.
-					 */
-					$scope.changeTransitMode = function(){
-						$scope.settings.transitMode = document.getElementById('transitModeList').value;
 					};
 
 					/**
@@ -746,6 +806,13 @@ angular
 					 */
 					$scope.showRouting = function() {
 						$scope.showIsochrones = false;
+						// force active setting of transit mode foot-walking when changing to routing mode 
+						$scope.settings.transitMode = "foot-walking";
+						document.getElementById("optFeet").click();
+						document.getElementById("optFeetRadioButtonLabel").classList.add('active');
+						$timeout(function(){
+							$scope.$digest();
+						});
 					};
 
 					$scope.onClickPerDataset_isochroneConfig = function(){
@@ -753,7 +820,9 @@ angular
 							if(! $scope.settings.isochroneConfig.selectedDate){
 								$scope.settings.isochroneConfig.selectedDate = $scope.settings.selectedStartPointLayer.availablePeriodsOfValidity[$scope.settings.selectedStartPointLayer.availablePeriodsOfValidity.length - 1];
 							}
-							$scope.fetchGeoJSONForIsochrones();
+							if(!$scope.isUsedInReporting) {
+								$scope.fetchGeoJSONForIsochrones();
+							}
 						}, 500);
 					};
 
@@ -824,7 +893,9 @@ angular
 							$scope.settings.isochroneConfig.selectedDate = $scope.settings.selectedStartPointLayer.availablePeriodsOfValidity[$scope.settings.selectedStartPointLayer.availablePeriodsOfValidity.length - 1];
 						}
 
-						$scope.fetchGeoJSONForIsochrones();
+						if(!$scope.isUsedInReporting) {
+							$scope.fetchGeoJSONForIsochrones();
+						}
 					};
 
 					/**
@@ -839,18 +910,24 @@ angular
 					 *
 					 * The values from the input-elements are all
 					 * up-to-date and saved in the variables
-					 * accessable via the scope. The request URl
+					 * accessible via the scope. The request URL
 					 * will be build by this values and send towards
 					 * the routing-API. The result will be handled,
 					 * stored in the related scope- variables and
 					 * displayed in the KM GUI.
+					 * 
+					 * If this method is fired from within the reporting modal
+					 * ($scope.isUsedInReporting = true) the result is not added to the main map,
+					 * but returned to the reporting component per broadcast.
 					 */
 					$scope.startAnalysis = function() {
 
 						$timeout(function(){ 
 							// Any code in here will automatically have an $scope.apply() run afterwards 
-							$scope.settings.loadingData = true;
-							$rootScope.$broadcast("showLoadingIconOnMap");
+							if(!$scope.isUsedInReporting) { // reporting uses it's own loading overlay, which is controlled there
+								$scope.settings.loadingData = true;
+								$rootScope.$broadcast("showLoadingIconOnMap");
+							}
 							// And it just works! 
 						  }, 50);
 
@@ -876,6 +953,14 @@ angular
 						var endPointString = $scope.routingEndPoint.longitude + "," + $scope.routingEndPoint.latitude;
 
 						var url = createRoutingRequest($scope.settings.transitMode, $scope.settings.preference, startPointString, endPointString);
+						// let coordinatesArray = [];
+						// coordinatesArray.push(startPointString);
+						// coordinatesArray.push(endPointString);
+						// let postBody = {
+						// 	"coordinates": coordinatesArray
+						// };
+						// let url = $scope.targetUrlToReachabilityService_ORS
+						// + '/v2/directions/' + $scope.settings.transitMode + '/geojson';
 
 						console.log("execute OpenRouteService routing request: " + url);
 
@@ -885,19 +970,18 @@ angular
 								headers: {
 									// 'Accept': 'application/json'
 								}
-							}
+							};
 
 							$http(req)
+							// $http.post(url, postBody)
 								.then(
 									function successCallback(
 										response) {
 										$scope.currentRouteGeoJSON = response.data;
 
-										$scope.routeDistance_km = $scope.currentRouteGeoJSON.features[0].properties.summary[0].distance;
-										$scope.routeDuration_minutes = Math.round($scope.currentRouteGeoJSON.features[0].properties.summary[0].duration / 60);
-										$scope.routeAvgSpeed_kmh = $scope.currentRouteGeoJSON.features[0].properties.summary[0].avgspeed;
-										$scope.routeTotalAscent = $scope.currentRouteGeoJSON.features[0].properties.summary[0].ascent;
-										$scope.routeTotalDescent = $scope.currentRouteGeoJSON.features[0].properties.summary[0].descent;
+										$scope.routeDistance_km = $scope.currentRouteGeoJSON.features[0].properties.summary.distance / 1000;
+										$scope.routeDuration_minutes = Math.round($scope.currentRouteGeoJSON.features[0].properties.summary.duration / 60);
+
 
 										// TODO : CDB
 										kommonitorMapService
@@ -905,8 +989,7 @@ angular
 												$scope.currentRouteGeoJSON,
 												$scope.settings.transitMode,
 												$scope.settings.preference, $scope.routingStartPoint, $scope.routingEndPoint,
-												$scope.routeDistance_km, $scope.routeDuration_minutes, $scope.routeAvgSpeed_kmh,
-												$scope.routeTotalAscent, $scope.routeTotalDescent);
+												$scope.routeDistance_km, $scope.routeDuration_minutes);
 										$scope.prepareDownloadGeoJSON();
 										$scope.settings.loadingData = false;
 										$rootScope.$broadcast('hideLoadingIconOnMap');
@@ -951,11 +1034,11 @@ angular
 					 * Starts an isochrone-calculation.
 					 */
 					$scope.startIsochroneCalculation = async function() {
-						$scope.settings.loadingData = true;
-						$rootScope.$broadcast('showLoadingIconOnMap');
-
+						if(!$scope.isUsedInReporting) { // reporting uses it's own loading overlay, which is controlled there
+							$scope.settings.loadingData = true;
+							$rootScope.$broadcast("showLoadingIconOnMap");
+						}
 						
-
 						$scope.checkArrayInput();
 
 						$scope.locationsArray = $scope.makeLocationsArrayFromStartPoints();	
@@ -976,9 +1059,15 @@ angular
 							resultIsochrones = await $scope.createIsochrones();
 						}
 
-						
+						if($scope.isUsedInReporting) {
+							// No need to add isochrones to main map.
+							// Instead they are returned to reporting modal
+							$scope.$emit("reportingIsochronesCalculationFinished", resultIsochrones)
+							return;
+						}
 
 						$scope.currentIsochronesGeoJSON = resultIsochrones;
+
 
 						kommonitorMapService.replaceIsochroneMarker($scope.locationsArray);
 						kommonitorMapService
@@ -1000,10 +1089,6 @@ angular
 							
 
 							$scope.$digest();
-
-							// setTimeout(function(){
-							//
-							// }, 5000);
 					};
 
 
@@ -1447,6 +1532,12 @@ angular
 							var nextEntry_valueGeoJSON = nextEntry.value[1];
 							var numberOfFeatures = 0;
 
+							var nextEntry_keyRange_label = nextEntry_keyRange;
+							if($scope.settings.focus == 'time'){
+								// compute seconds to minutes for display
+								nextEntry_keyRange_label = nextEntry_keyRange_label / 60;
+							}
+
 							if(nextEntry_valueGeoJSON){
 								numberOfFeatures = nextEntry_valueGeoJSON.features.length;
 							}
@@ -1466,13 +1557,13 @@ angular
 							else{
 								var reachabilityDiagramsSectionNode = document.getElementById("reachability_diagrams_section");
 								var newChartNode = document.createElement("div");
-								newChartNode.innerHTML = '<hr><h4>Analyse Einzugsgebiet ' + nextEntry_keyRange + ' [' + kommonitorDataExchangeService.isochroneLegend.cutOffUnit + ']</h4><br/><br/><div class="chart"><div  id="reachability_pieDiagram_range_' + nextEntry_keyRange + '" style="width:100%; min-height:150px;"></div></div>';
+								newChartNode.innerHTML = '<hr><h4>Analyse Einzugsgebiet ' + nextEntry_keyRange_label + ' [' + kommonitorDataExchangeService.isochroneLegend.cutOffUnit + ']</h4><br/><br/><div class="chart"><div  id="reachability_pieDiagram_range_' + nextEntry_keyRange + '" style="width:100%; min-height:150px;"></div></div>';
 								reachabilityDiagramsSectionNode.appendChild(newChartNode);
 
 								// init new echarts instance
 								var echartsInstance = echarts.init(document.getElementById('reachability_pieDiagram_range_' + nextEntry_keyRange + ''));
 								// use configuration item and data specified to show chart
-								var echartsOptions = kommonitorDiagramHelperService.createInitialReachabilityAnalysisPieOptions(poi, nextEntry_valueGeoJSON, nextEntry_keyRange, date);
+								var echartsOptions = kommonitorDiagramHelperService.createInitialReachabilityAnalysisPieOptions(poi, nextEntry_valueGeoJSON, nextEntry_keyRange_label + " " + $scope.unit, date);
 								echartsInstance.setOption(echartsOptions);
 
 								echartsInstance.hideLoading();
@@ -1631,7 +1722,9 @@ angular
 								return;
 							}
 
-							$scope.fetchGeoJSONForIsochrones();
+							if(!$scope.isUsedInReporting) {
+								$scope.fetchGeoJSONForIsochrones();
+							}
 
 							// $timeout(function(){
 	

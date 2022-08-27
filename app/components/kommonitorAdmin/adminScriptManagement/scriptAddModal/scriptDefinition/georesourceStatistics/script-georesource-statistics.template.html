@@ -1,0 +1,293 @@
+<h4>Statistiken anhand Eigenschaft der punktbasierten Georessource</h4>
+
+<p>Auswahl einer punktbasierten Georessource, für die anhand einer bestimmten Eigenschaft und Auswahl einer statistischen Methode Indikatoren-Kennwerte pro Raumeinheit zu enthalten.</p>
+	<p><b><i><u>Berechnung:</u></i></b> Identifikation aller Punkte innerhalb jedes Raumeinheits-Features mit anschließender statistischen Indikatorenberechnung anhand gew&auml;hlter Objekt-Eigenschaft</p>
+
+	<div class="row vertical-align">
+		<div class="col-md-10 col-sm-12 col-xs-12">
+			<!-- <div style="text-align: left;"> -->
+			<div class="box box-danger collapsed-box" style="background: #ebf0fd;">
+				<div class="box-header">
+					<h3 class="box-title">Notwendige punkthafte Georessource</h3>
+	
+					<div class="box-tools pull-right">
+						<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+						</button>
+					</div>
+				</div>
+				<!-- /.box-header -->
+				<div class="box-body">
+	
+					<!-- Inputs for new reference -->
+	
+					<div class="row vertical-align">
+						<div class="col-md-12 col-sm-12 col-xs-12">
+							<div class="form-group">
+								<label>Auswahl der f&uuml;r die Berechnung erforderlichen Georessource</label>
+								<div class="input-group">
+									<span class="input-group-addon"><i class="fas fa-filter"></i></span>
+									<input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model-options="{debounce: 500, blur: 0}"
+										ng-model="georesourceNameFilter">
+								</div>
+								<br />
+								<select ng-model="georesourceSelection" size="5" ng-change="onChangeGeoresource(georesourceSelection)"
+									ng-options="georesourceMetadata as georesourceMetadata.datasetName for georesourceMetadata in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isPOI:'true'} | filter:georesourceNameFilter"
+									class="form-control">
+									<option disabled selected value> -- Georessource als Berechnungsgrundlage w&auml;hlen --
+									</option>
+								</select>
+								<div class="help-block with-errors"></div>
+							</div>
+						</div>
+					</div>
+	
+					<div class="row vertical-align">
+						<div class="col-md-6 col-sm-6 col-xs-12">
+							<div class="form-group">
+								<label>ID der selektierten Georessource</label>
+								<input type="text" class="form-control input-sm" disabled placeholder="GeoressourcenId"
+									ng-model="georesourceSelection.georesourceId">
+								<div class="help-block with-errors"></div>
+							</div>
+						</div>
+						<div class="col-md-6 col-sm-6 col-xs-12">
+							<div class="form-group">
+								<label>Name der selektierten Georessource</label>
+								<input type="text" class="form-control input-sm" disabled placeholder="GeoressourcenName"
+									ng-model="georesourceSelection.datasetName">
+								<div class="help-block with-errors"></div>
+							</div>
+						</div>
+					</div>
+
+					<div class="row vertical-align">
+						<div class="col-md-10 col-sm-10 col-xs-12">
+							<div class="form-group">
+								<label>Beschreibung der selektierten Georessource</label>
+								<textarea rows="4" class="form-control input-sm" disabled placeholder="GeoressourcenBeschreibung"
+									ng-model="georesourceSelection.metadata.description"></textarea>
+								<div class="help-block with-errors"></div>
+							</div>
+						</div>		
+					</div>
+	
+				</div>
+				<!-- Box Body -->
+			</div>
+			<!-- Box -->
+	
+			<!-- </div>	 -->
+	
+		</div>
+	
+	</div>
+
+<!-- Box for object property -->
+<div class="row vertical-align">
+	<div class="col-md-10 col-sm-12 col-xs-12">
+		<!-- <div style="text-align: left;"> -->
+		<div class="box box-danger collapsed-box" style="background: #ebf0fd;">
+			<div class="box-header">
+				<h3 class="box-title">Notwendige Objekt-Eigenschaft</h3>
+
+				<div class="box-tools pull-right">
+					<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+					</button>
+				</div>
+			</div>
+			<!-- /.box-header -->
+			<div class="box-body">
+
+				<!-- Inputs for new reference -->
+
+				<div class="row vertical-align">
+					<div class="col-md-3 col-sm-2 col-xs-12">
+						<div class="form-group">
+							<label>Numerische Objekteigenschaft</label>
+							<br />
+							<select class="form-control" ng-model="numericPropertyName" 
+								ng-options="propertyOption for propertyOption in numericPropertyOptions"
+								ng-change="onChangeNumericPropertyName()">
+								<option disabled selected value> -- Objekteigenschaft w&auml;hlen --
+								</option>
+							</select>
+							<div class="help-block with-errors"></div>
+						</div>
+					</div>
+				</div>
+
+			</div>
+			<!-- Box Body -->
+		</div>
+		<!-- Box -->
+
+		<!-- </div>	 -->
+
+	</div>
+
+</div>
+
+<!-- Box for object property -->
+<div class="row vertical-align">
+	<div class="col-md-10 col-sm-12 col-xs-12">
+		<!-- <div style="text-align: left;"> -->
+		<div class="box box-danger collapsed-box" style="background: #ebf0fd;">
+			<div class="box-header">
+				<h3 class="box-title">Notwendige statistische Berechnungsmethode</h3>
+
+				<div class="box-tools pull-right">
+					<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+					</button>
+				</div>
+			</div>
+			<!-- /.box-header -->
+			<div class="box-body">
+
+				<!-- Inputs for new reference -->
+
+				<div class="row vertical-align">
+					<div class="col-md-3 col-sm-2 col-xs-12">
+						<div class="form-group">
+							<label>Auswahl der statistischen Berechnungsmethode</label>
+							<br />
+							<select ng-model="compMethod" size="5"
+								ng-options="compOption as compOption.displayName for compOption in compOptions | orderBy: 'displayName'"
+								ng-change="onChangeComputationOption()"
+								class="form-control">
+								<option disabled selected value> -- statistische Berechnungsmethode w&auml;hlen --
+								</option>
+							</select>
+							<div class="help-block with-errors"></div>
+						</div>
+					</div>
+				</div>
+
+			</div>
+			<!-- Box Body -->
+		</div>
+		<!-- Box -->
+
+		<!-- </div>	 -->
+
+	</div>
+
+</div>
+
+	
+
+<div class="row vertical-align">
+	<div class="col-md-10 col-sm-12 col-xs-12">
+		<!-- <div style="text-align: left;"> -->
+		<div class="box box-danger collapsed-box" style="background: #ebf0fd;">
+			<div class="box-header">
+				<h3 class="box-title">Skript Code - Vorschaufenster (Statistisches Merkmal aller Punkte in Polygon)</h3>
+
+				<div class="box-tools pull-right">
+					<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+					</button>
+				</div>
+			</div>
+			<!-- /.box-header -->
+			<div class="box-body">
+
+				<div class="row vertical-align">
+					<div class="col-md-10 col-sm-10 col-xs-12">
+						<p>Der Skript Code ist vordefiniert und kann nicht editiert werden. Dieses Fenster dient lediglich der Vorschau und Nachvollziehbarkeit der Berechnungsschritte.</p>
+					</div>
+				</div>
+
+				<div class="row vertical-align">
+					<div class="col-md-12 col-sm-12 col-xs-12">
+						<div class="form-group">
+							<label>Vorschaufenster des Skript-Codes*</label>
+							<br/>
+							<br/>
+							<pre ng-show="scriptCode_readableString_forPreview" class="prettyprint linenums" style="max-height: 450px; overflow: auto; text-align: left;" id="scriptCodePreview"><code class="language-javascript" ng-bind-html="scriptCode_readableString_forPreview"></code></pre>
+						</div>
+					</div>
+				</div>
+
+
+			</div>
+			<!-- Box Body -->
+		</div>
+		<!-- Box -->
+
+		<!-- </div>	 -->
+
+	</div>
+</div>	
+
+<div class="row vertical-align">
+		<div class="col-md-10 col-sm-12 col-xs-12">
+			<!-- <div style="text-align: left;"> -->
+			<div class="box box-info collapsed-box" style="background: #ebf0fd;">
+				<div class="box-header">
+					<h3 class="box-title">&Uuml;berschreiben relevanter Ziel-Indikator Metadaten (Optional)</h3>
+	
+					<div class="box-tools pull-right">
+						<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+						</button>
+					</div>
+				</div>
+				<!-- /.box-header -->
+				<div class="box-body">
+
+					<p>KomMonitor erlaubt es, die Berechnungs-Methodik des Ziel-Indikators zu &uuml;berschreiben. 
+						Das Vorschaufenster zeigt den (editierbaren) Textbaustein. Um diesen Text als "Methodik" des Ziel-Indikators zu setzen,
+						aktivieren Sie bitte den entsprechenden Schalter und registrieren das Skript. 
+					</p>
+	
+					<div class="row vertical-align">
+						<div class="col-md-6 col-sm-6 col-xs-12">
+							<div class="form-group">
+								<label>Editierfenster des Methodik-Textbausteins (HTML)</label>
+								<br/>
+								<br/>
+								<textarea rows="4" ng-model="$ctrl.kommonitorScriptHelperServiceInstance.scriptFormulaHTML"></textarea>
+							</div>
+						</div>
+						<div class="col-md-6 col-sm-6 col-xs-12">
+							<div class="form-group">
+								<label>Vorschaufenster</label>
+								<br/>
+								<br/>
+								<p ng-bind-html="$ctrl.kommonitorScriptHelperServiceInstance.scriptFormulaHTML"></p>
+							</div>
+						</div>
+					</div>
+
+					<hr>
+	
+					<div class="row vertical-align">
+						<div class="col-md-6 col-sm-6 col-xs-12">
+							<div class="form-group">
+								<label>Mit diesem Textbaustein das "Methodik"-Metadatum des Ziel-Indikators &uuml;berschreiben?</label>
+	
+								<br/>	
+								<label class="switch">
+									<input type="checkbox" value="$ctrl.kommonitorScriptHelperServiceInstance.scriptFormulaHTML_overwriteTargetIndicatorMethod" ng-model="$ctrl.kommonitorScriptHelperServiceInstance.scriptFormulaHTML_overwriteTargetIndicatorMethod">
+									<span class="switchslider round"></span>
+								</label>
+							</div>
+						</div>
+						<div class="col-md-6 col-sm-6 col-xs-12">
+							<div class="form-group">
+								<label>Derzeitiger Eintrag zum Vergleich</label>
+								<br/>
+								<br/>
+								<p mathjax-bind="$ctrl.kommonitorScriptHelperServiceInstance.targetIndicator.processDescription"></p>
+							</div>
+						</div>
+					</div>		
+	
+				</div>
+				<!-- Box Body -->
+			</div>
+			<!-- Box -->
+	
+			<!-- </div>	 -->
+	
+		</div>
+
+</div>

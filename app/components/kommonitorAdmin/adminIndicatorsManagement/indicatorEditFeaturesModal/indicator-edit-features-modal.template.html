@@ -29,11 +29,15 @@
 			 <div class="row">
 				<div class="col-md-12">
 					<form class="multiStepForm form-group" id="indicatorEditFeaturesForm" role="form" data-toggle="validator" data-disable="true" style="margin-bottom: 0px;">
-						<!-- progressbar -->
-						<ul id="progressbar">
-							<li style="width: 50%;" class="active">Feature &Uuml;bersicht</li>
-							<li style="width: 50%;">R&auml;umlicher Datensatz</li>
-						</ul>
+						<!-- div required for click logic -->
+						<div> 
+							<!-- progressbar -->
+							<ul id="progressbar">
+								<li style="width: 50%;" class="active">Feature &Uuml;bersicht</li>
+								<li style="width: 50%;">R&auml;umlicher Datensatz</li>
+							</ul>
+						</div>
+						
 						<!-- fieldsets -->
 						<fieldset>
 							<h2 class="fs-title">Feature &Uuml;bersicht</h2>
@@ -57,57 +61,45 @@
 										<label >Datenbank-Features holen</label>
 										<button class="btn btn-info" ng-click="refreshIndicatorEditFeaturesOverviewTable()"><i class="fas fa-sync-alt"></i>&nbsp;Zeige alle Features</button>
 	   
-										<div class="help-block"><p>Das Anzeigen aller Features des Indikators kann je nach Anzahl und Komplexit&auml;t der Objekte einige Zeit in Anspruch nehmen</p></div>
+										<div class="help-block"><p>Das Anzeigen aller Features des Indikators kann je nach Anzahl und Komplexit&auml;t der Objekte einige Zeit in Anspruch nehmen</p>
+											<p>Editieren einzelner Zellwerte via Doppelklick. Best&auml;tigen der Editierung durch Enter oder Klicken in eine andere Zelle</p>
+										</div>
 										<div class="help-block with-errors"></div>
 									</div>
 								</div>
 								<div class="col-md-4 col-sm-4 col-xs-12">
 									<div class="form-group">
-										<label >Datenbank-Features bereinigen</label>
-										<button class="btn btn-danger" ng-click="clearAllIndicatorFeatures()"><i class="fas fa-trash"></i>&nbsp;L&ouml;sche Indikator-Features der selektierten Raumebene</button>
+										<label >Datenbank-Features bereinigen (Funktion muss zuerst aktiv eingeschaltet werden)</label>										
+										<label class="switch">
+											<input class="elementCheckbox" type="checkbox"
+												ng-model="enableDeleteFeatures" ng-init="enableDeleteFeatures = false"
+												ng-checked="enableDeleteFeatures" ng-change="onChangeEnableDeleteFeatures()">
+											<span class="switchslider round text-left" style="line-height:25px;"></span>
+										</label>
+
+										&nbsp;&nbsp;
+
+										<button class="btn btn-danger" ng-click="clearAllIndicatorFeatures()" ng-disabled="!enableDeleteFeatures"><i class="fas fa-trash"></i>&nbsp;L&ouml;sche Indikator-Features der selektierten Raumebene</button>
 	   
 										<div class="help-block"><p>Das L&ouml;schen aller Features des Indikators f&uuml;r die selektierte Raumebene ist unwiderruflich. Der Datensatz als solches (Metadaten) sowie die Indikatorendaten der sonstigen Raumebenen bleiben dabei bestehen.</p></div>
 										<div class="help-block with-errors"></div>
 									</div>
 								</div>
 					</div>
+
+					<div>
+						<div ng-show="$ctrl.kommonitorDataGridHelperServiceInstance.featureTable_indicator_lastUpdate_timestamp_success" style="background-color: #9DC89F;">
+							<b>Letztes erfolgreiches Update eines Einzeleintrags</b>
+								  {{$ctrl.kommonitorDataGridHelperServiceInstance.featureTable_indicator_lastUpdate_timestamp_success}}
+						</div>
+						<div ng-show="$ctrl.kommonitorDataGridHelperServiceInstance.featureTable_indicator_lastUpdate_timestamp_failure" style="background-color: #E79595;">
+							<b>Letztes gescheitertes Update eines Einzeleintrags</b>
+									{{$ctrl.kommonitorDataGridHelperServiceInstance.featureTable_indicator_lastUpdate_timestamp_failure}}
+						</div>
+					</div>
 	   
-					<div class="admin-table-wrapper" >
-						<table id="indicatorFeatureTable" datatable="ng" dt-options="$ctrl.kommonitorDataExchangeServiceInstance.datatablesOptions" class="table table-bordered table-condensed table-striped" style="width:100%; overflow:auto; font-size: 11px;">
-							<thead>
-							<tr>
-								<th>Id</th>
-								<th>Name</th>
-								<th>G&uuml;ltigkeitszeitraum</th>
-								<th>Koordinatensystem</th>
-								<th ng-repeat="header in remainingFeatureHeaders">{{header}}</th>
-							</tr>
-							</thead>
-	   
-							<tbody>
-							<tr ng-repeat="indicatorFeature in indicatorFeaturesJSON">
-								<td>{{getFeatureId(indicatorFeature)}}</td>
-								<td>{{getFeatureName(indicatorFeature)}}</td>
-								<td>
-									<p ng-show="indicatorFeature.validEndDate">{{indicatorFeature.validStartDate | date:'yyyy-MM-dd'}} - {{indicatorFeature.validEndDate | date:'yyyy-MM-dd'}}</p>
-									<p ng-show="! indicatorFeature.validEndDate">{{indicatorFeature.validStartDate | date:'yyyy-MM-dd'}} - heute </p>
-								</td>
-								<td>4326</td>
-								<td ng-repeat="header in remainingFeatureHeaders" >{{indicatorFeature[header]}}</td>
-							</tr>
-	   
-							</tbody>
-	   
-							<tfoot>
-							<tr>
-								<th>Id</th>
-								<th>Name</th>
-								<th>G&uuml;ltigkeitszeitraum</th>
-								<th>Koordinatensystem</th>
-								<th ng-repeat="header in remainingFeatureHeaders">{{header}}</th>
-							</tr>
-							</tfoot>
-						</table>
+					<div class="admin-table-wrapper featureTableWrapper" >
+						<table id="indicatorFeatureTable" style="height: 50vh; width: 100%;" class="ag-theme-alpine"></table>
 	   
 					</div>
 	   
@@ -132,7 +124,8 @@
 									<div class="form-group">
 										<label>Datensatz-Quellformat*</label>
 										<select ng-model="converter"
-											ng-options="converter as converter.simpleName for converter in $ctrl.kommonitorImporterHelperServiceInstance.availableConverters | filter:filterImporterConverters()"
+											ng-options="converter as converter.name for converter in $ctrl.kommonitorImporterHelperServiceInstance.availableConverters | filter:$ctrl.kommonitorImporterHelperServiceInstance.filterConverters('indicator')"
+											ng-change="onChangeConverter()"
 											class="form-control" required>
 											<option disabled selected value> -- Quellformat w&auml;hlen -- </option>
 										</select>
@@ -143,8 +136,20 @@
 										<div class="form-group">
 											<label>Schema*</label>
 											<select ng-model="schema" ng-options="schema for schema in converter.schemas"
-												ng-change="onChangeSchema(schema)" class="form-control" required>
+												class="form-control" required>
 												<option disabled selected value> -- Schema w&auml;hlen -- </option>
+											</select>
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+
+									<div ng-if="converter.mimeTypes">
+
+										<div class="form-group">
+											<label>Quellformat*</label>
+											<select ng-model="mimeType" ng-options="mimeType for mimeType in converter.mimeTypes"
+												class="form-control" ng-change="onChangeMimeType(mimeType)" required>
+												<option disabled selected value> -- Format w&auml;hlen -- </option>
 											</select>
 											<div class="help-block with-errors"></div>
 										</div>
@@ -243,15 +248,19 @@
 
 								<br/>
 
-								<h4>Rollenbasierter Zeitreihen-Zugriffsschutz f&uuml;r Raumebene {{targetSpatialUnitMetadata.spatialUnitLevel}} (Optional)</h4>
+								<h4>Vergabe der Zugriffsrechte auf die Datensatz-Zeitreihe f&uuml;r Raumebene {{targetSpatialUnitMetadata.spatialUnitLevel}}</h4>
 
-								<p>Klicken Sie ein oder mehrere der verf&uuml;gbaren Rollen aus der linken &Uuml;bersicht an, um den Zugriff auf die Zeitreihen-Daten des Indikators auf der ausgew&auml;hlten Raumebene f&uuml;r diese Rollen einzuschr&auml;nken. Der Zugriff ist nur f&uuml;r die Rollen erlaubt, die im rechten &Uuml;bersichtsfenster gelistet sind.</p>
-								<p>Wird keine Rolle selektiert, so sind die Zeitreihendaten des Indikator-Datensatzes auf der gew&auml;hlten Raumebene ohne Zugriffsbeschr&auml;nkung abrufbar.</p>
+								<p>Zugriffsrechte (lesen, editieren, l&ouml;schen) m&uuml;ssen explizit vergeben werden. Administratoren (Rolle <i>kommonitor-creator</i>) haben immer vollen Zugriff.</p>
+								<p><strong>lesender Zugriff auf die Indikator-Zeitreihe wird nur den Organisationseinheiten gew&auml;hrt, die auch lesenden Zugriff auf Metadaten der assoziierten Raumeinheit besitzen.</strong></p>
+		
 
-								<div class="row no-margin">
-									<div class="col-md">
-										<excalibur-dual-list ng-model='allowedRoleNames.selectedItems' options="duallist.duallistRoleOptions"></excalibur-dual-list>
+								<div class="row">
+									<div class="col-md-3"></div>
+									<div class="col-md-6 col-sm-6 col-xs-12">
+											<div id="indicatorEditFeaturesRoleManagementTable" style="height: 45vh" class="ag-theme-alpine"></div>  
+										
 									</div>
+									<div class="col-md-3"></div>
 								</div>								
 
 							<br/>
@@ -263,92 +272,7 @@
 							<br/>
 
 							<h4>Zeitreihen-Mapping</h4>
-							<p>Angabe des Attribut-Mappings f&uuml;r jeden zu importierenden Zeitschnitt. Jedes Mapping umfasst dabei das Attribut, in dem die Indikatoren-Werte hinterlegt sind 
-								sowie entweder einen direkt definierten Zeitstempel oder ein Attribut, welches den Zeitstempel gem&auml;&szlig; ISO8601 enth&auml;lt</p>
-
-							<div class="row vertical-align">
-								<div class="col-md-4 col-sm-6 col-xs-12">
-									<div class="form-group">
-										<label>Attributname der Indikatorenwerte*</label>
-										<input type="text" class="form-control input-sm" placeholder="Attributname f&uuml;r Indikatorenwerte" ng-model="tmpTimeseriesMapping_indicatorValuesPropertyName">
-										<div class="help-block with-errors"></div>
-									</div>
-								</div>
-								<div class="col-md-4 col-sm-6 col-xs-12">												
-									<label></label>
-									<label class="switch">
-										<input type="checkbox" value="useTimeseriesAsProperty" ng-model="useTimeseriesAsProperty" ng-change="onChangeUseTimeseriesAsProperty()">
-										<span class="switchslider round"></span>
-									</label>	
-								
-									<div class="help-block">
-										<p>Angabe, ob der Zeitstempel aus einem Attribut entnommen werden soll</p>
-									</div>
-								</div>
-								<div ng-show="useTimeseriesAsProperty" class="col-md-4 col-sm-6 col-xs-12">												
-									<div class="form-group">
-										<label>Attributname des Zeitstempels</label>
-										<input type="text" class="form-control input-sm" placeholder="Attributname f&uuml;r Zeitstempel" ng-model="tmpTimeseriesMapping_timestampPropertyName">
-										<div class="help-block with-errors"></div>
-									</div>
-								</div>
-								<div ng-show="! useTimeseriesAsProperty" class="col-md-4 col-sm-6 col-xs-12">
-									<div class="form-group">
-										<label>Zeitstempel (direkte Angabe)</label>
-										<div class="input-group date">
-											<div class="input-group-addon">
-												<i class="far fa-calendar-alt"></i>
-											</div>
-											<input type="text" ng-model="tmpTimeseriesMapping_directTimestamp" placeholder="YYYY-MM-DD"
-												class="form-control pull-right" id="indicatorEditFeaturesDirectTimestampDatepicker">
-										</div>
-									</div>
-								</div>
-							</div>
-
-							<div class="row vertical-align">
-								<div class="col-md-3 col-sm-6 col-xs-12">
-									<div class="form-group">
-										<button class="btn btn-success btn-sm" ng-disabled="!tmpTimeseriesMapping_indicatorValuesPropertyName || (! tmpTimeseriesMapping_timestampPropertyName && !tmpTimeseriesMapping_directTimestamp)" ng-click="onEditFeaturesOrUpdateTimeseriesMapping()">Hinzuf&uuml;gen/Editieren</button>
-										<div class="help-block with-errors"></div>
-									</div>
-								</div>
-							</div>
-
-							<br/>
-							<br/>
-
-							<!-- Table to display currently specified references -->
-							<div class="row vertical-align">
-								<div class="col-md-12 col-sm-12 col-xs-12">
-									<label>&Uuml;bersicht der definierten Indikatoren-Zeitreihen-Mappings</label>
-									<table class="table table-condensed">
-										<thead>
-											<tr>
-												<th>Editierfunktionen</th>
-												<th>Attributname der Indikatorenwerte</th>
-												<th>Attributname des Zeitstempels</th>
-												<th>Zeitstempel (direkte Angabe)</th>
-											</tr>
-										</thead>
-										<tbody>
-											<tr ng-repeat="timeseriesMappingEntry in timeseriesMappings_adminView">
-												<td>
-													<div class="btn-group btn-group-sm">
-														<button class="btn btn-warning btn-sm" type="button" ng-click="onClickEditTimeseriesMapping(timeseriesMappingEntry)"
-															title="Referenz editieren"><i class="fas fa-pencil-alt"></i></button>
-														<button class="btn btn-danger btn-sm" type="button" ng-click="onClickDeleteTimeseriesMapping(timeseriesMappingEntry)"
-															title="Referenz l&ouml;schen"><i class="fas fa-trash"></i></button>
-													</div>
-												</td>
-												<td>{{timeseriesMappingEntry.indicatorValuesPropertyName}}</td>
-												<td>{{timeseriesMappingEntry.timestampPropertyName}}</td>
-												<td>{{timeseriesMappingEntry.timestampDirect}}</td>
-											</tr>
-										</tbody>
-									</table>
-								</div>
-							</div>
+							<indicator-edit-timeseries-mapping></indicator-edit-timeseries-mapping>
 
 							<div class="row vertical-align">
 								<div class="col-md-6 col-sm-6 col-xs-12">

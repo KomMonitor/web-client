@@ -6,9 +6,9 @@ angular
 			templateUrl: "components/kommonitorUserInterface/kommonitorControls/indicatorRadar/indicator-radar.template.html",
 
 			controller: [
-				'kommonitorDataExchangeService', 'kommonitorDiagramHelperService', '$scope', '$rootScope', '$timeout', '$http', '__env',
+				'kommonitorDataExchangeService', 'kommonitorDiagramHelperService', 'kommonitorFilterHelperService', '$scope', '$rootScope', '$timeout', '$http', '__env',
 				function indicatorRadarController(
-					kommonitorDataExchangeService, kommonitorDiagramHelperService, $scope, $rootScope, $timeout, $http, __env) {
+					kommonitorDataExchangeService, kommonitorDiagramHelperService, kommonitorFilterHelperService, $scope, $rootScope, $timeout, $http, __env) {
 					/*
 					 * reference to kommonitorDataExchangeService instances
 					 */
@@ -142,6 +142,11 @@ angular
 
 								// make object to hold indicatorName, max value and average value
 								var indicatorProperties = indicatorsForRadar[i].indicatorProperties;
+
+								if(kommonitorFilterHelperService.completelyRemoveFilteredFeaturesFromDisplay && kommonitorFilterHelperService.filteredIndicatorFeatureIds.size > 0){
+									indicatorProperties = indicatorProperties.filter(featureProperties => ! kommonitorFilterHelperService.featureIsCurrentlyFiltered(featureProperties[__env.FEATURE_ID_PROPERTY_NAME]));
+								}
+
 								sampleProperties = indicatorsForRadar[i].indicatorProperties;
 
 								// var closestApplicableTimestamp = kommonitorDiagramHelperService.findClostestTimestamForTargetDate(indicatorsForRadar[i], $scope.date);
@@ -299,7 +304,7 @@ angular
 											}
 										},
 										restore: { show: false, title: "Darstellung erneuern" },
-										saveAsImage: { show: true, title: "Export" }
+										saveAsImage: { show: true, title: "Export", pixelRatio: 4 }
 									}
 								},
 								legend: {
@@ -382,7 +387,7 @@ angular
 					var appendSelectedFeaturesIfNecessary = function (sampleProperties) {
 
 						for (var propertiesInstance of sampleProperties) {
-							if (kommonitorDataExchangeService.clickedIndicatorFeatureNames.includes(propertiesInstance[__env.FEATURE_NAME_PROPERTY_NAME])) {
+							if (kommonitorFilterHelperService.featureIsCurrentlySelected(propertiesInstance[__env.FEATURE_ID_PROPERTY_NAME])) {
 								appendSeriesToRadarChart(propertiesInstance);
 							}
 						}
@@ -395,7 +400,10 @@ angular
 								// $scope.userHoveresOverItem = true;
 								var spatialFeatureName = params.data.name;
 								// console.log(spatialFeatureName);
-								$rootScope.$broadcast("highlightFeatureOnMap", spatialFeatureName);
+								if(spatialFeatureName){
+									$rootScope.$broadcast("highlightFeatureOnMap", spatialFeatureName);
+								}
+								
 							});
 
 							$scope.radarChart.on('mouseOut', function (params) {
@@ -403,14 +411,19 @@ angular
 
 								var spatialFeatureName = params.data.name;
 								// console.log(spatialFeatureName);
-								$rootScope.$broadcast("unhighlightFeatureOnMap", spatialFeatureName);
+								if(spatialFeatureName){
+									$rootScope.$broadcast("unhighlightFeatureOnMap", spatialFeatureName);
+								}
+								
 							});
 
 							//disable feature removal for radar chart - seems to be unintuititve
 							// $scope.radarChart.on('click', function(params){
 							// 	var spatialFeatureName = params.data.name;
 							// 	// console.log(spatialFeatureName);
+							// if(spatialFeatureName){
 							// 	$rootScope.$broadcast("switchHighlightFeatureOnMap", spatialFeatureName);
+							// }
 							// });
 
 							$scope.eventsRegistered = true;
@@ -424,7 +437,7 @@ angular
 							return;
 						}
 
-						if (!kommonitorDataExchangeService.clickedIndicatorFeatureNames.includes(featureProperties[__env.FEATURE_NAME_PROPERTY_NAME])) {
+						if (!kommonitorFilterHelperService.featureIsCurrentlySelected(featureProperties[__env.FEATURE_ID_PROPERTY_NAME])) {
 							appendSeriesToRadarChart(featureProperties);
 						}
 
@@ -462,7 +475,7 @@ angular
 								var date = kommonitorDiagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime[i].selectedDate;
 
 								for (var indicatorPropertyInstance of indicatorProperties) {
-									if (indicatorPropertyInstance[__env.FEATURE_NAME_PROPERTY_NAME] === featureProperties[__env.FEATURE_NAME_PROPERTY_NAME]) {
+									if (indicatorPropertyInstance[__env.FEATURE_NAME_PROPERTY_NAME] == featureProperties[__env.FEATURE_NAME_PROPERTY_NAME]) {
 										if (!kommonitorDataExchangeService.indicatorValueIsNoData(indicatorPropertyInstance[DATE_PREFIX + date])) {
 											featureSeries.value.push(kommonitorDataExchangeService.getIndicatorValueFromArray_asNumber(indicatorPropertyInstance, date));
 										}
@@ -507,14 +520,14 @@ angular
 
 						unhighlightFeatureInRadarChart(featureProperties);
 
-						if (!kommonitorDataExchangeService.clickedIndicatorFeatureNames.includes(featureProperties[__env.FEATURE_NAME_PROPERTY_NAME])) {
+						if (!kommonitorFilterHelperService.featureIsCurrentlySelected(featureProperties[__env.FEATURE_ID_PROPERTY_NAME])) {
 							removeSeriesFromRadarChart(featureProperties);
 						}
 					});
 
 					var getSeriesDataIndexByFeatureName = function (featureName) {
 						for (var index = 0; index < $scope.radarOption.series[0].data.length; index++) {
-							if ($scope.radarOption.series[0].data[index].name === featureName)
+							if ($scope.radarOption.series[0].data[index].name == featureName)
 								return index;
 						}
 

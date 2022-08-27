@@ -1,14 +1,17 @@
 <h4>Anzahl Punktobjekte pro Gebietsk&ouml;rperschaft</h4>
 
-<p>Auswahl einer punktbasierten Georessource, für die eine Punkt-in-Polygon Analyse gerechnet wird, um die Anzahl der Punkte pro Raumeinheits-Feature zu erhalten.</p>
-	<p><b><i><u>Berechnung:</u></i></b> Summe aller Punkte innerhalb jedes Raumeinheits-Features</p>
+<p>Auswahl einer punktbasierten Georessource, für die eine Punkt-in-Polygon Analyse durchgef&uuml;hrt wird, um die Anzahl der Punkte pro Raumeinheits-Feature zu erhalten. 
+	Optional k&ouml;nnen die Punktdaten anhand einer Objekteigenschaft sowie einem Filterwert dieser Objekteigenschaft gefiltert werden 
+	(z. B. Objekteigenschaft: Schulform, Filterwert: Grundschule, Operatoren: gleich/ungleich/enth&auml;lt). Für numerische Werte lassen sich zudem Wertebereiche spezifizieren (z. B.
+	Objekteigenschaft: Anzahl, Filterwert: 50, Operatoren: <, <=, =, >, >=, !=, Wertebereich) </p>
+	<p><b><i><u>Berechnung:</u></i></b> Summe aller Punkte innerhalb jedes Raumeinheits-Features. <b><i><u>Optional:</u></i></b> Anwenden eines Filters anhand einer Objekteigenschaft</p>
 
 	<div class="row vertical-align">
 		<div class="col-md-10 col-sm-12 col-xs-12">
 			<!-- <div style="text-align: left;"> -->
 			<div class="box box-danger collapsed-box" style="background: #ebf0fd;">
 				<div class="box-header">
-					<h3 class="box-title">Notwendige punkthafte Georessource</h3>
+					<h3 class="box-title">Ben&ouml;tigte punktbasierte Georessource</h3>
 	
 					<div class="box-tools pull-right">
 						<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
@@ -23,7 +26,7 @@
 					<div class="row vertical-align">
 						<div class="col-md-12 col-sm-12 col-xs-12">
 							<div class="form-group">
-								<label>Auswahl der f&uuml;r die Berechnung erforderlichen Georessource</label>
+								<label>Auswahl der zur Berechnung erforderlichen Georessource</label>
 								<div class="input-group">
 									<span class="input-group-addon"><i class="fas fa-filter"></i></span>
 									<input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model-options="{debounce: 500, blur: 0}"
@@ -33,7 +36,7 @@
 								<select ng-model="georesourceSelection" size="5" ng-change="onChangeGeoresource(georesourceSelection)"
 									ng-options="georesourceMetadata as georesourceMetadata.datasetName for georesourceMetadata in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isPOI:'true'} | filter:georesourceNameFilter"
 									class="form-control">
-									<option disabled selected value> -- Georessource als Berechnungsgrundlage w&auml;hlen --
+									<option disabled selected value> -- Georessource w&auml;hlen --
 									</option>
 								</select>
 								<div class="help-block with-errors"></div>
@@ -82,6 +85,113 @@
 	
 	</div>
 	
+<!-- Box for object property -->
+<div class="row vertical-align">
+	<div class="col-md-10 col-sm-12 col-xs-12">
+		<!-- <div style="text-align: left;"> -->
+		<div class="box box-danger collapsed-box" style="background: #ebf0fd;">
+			<div class="box-header">
+				<h3 class="box-title"> Filter durch eine Objekteigenschaft (Optional)</h3>
+
+				<div class="box-tools pull-right">
+					<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+					</button>
+				</div>
+			</div>
+			<!-- /.box-header -->
+			<div class="box-body">
+
+				<!-- Inputs for new reference -->
+
+				<div class="row vertical-align">
+					<div class="col-md-3 col-sm-2 col-xs-12">
+						<div class="form-group">
+							<label>Name der Objekteigenschaft</label>
+							<br />
+							<select class="form-control" ng-model="propertyName" 
+								ng-options="propertyOption for propertyOption in propertyOptions"
+								ng-change="onChangePropertyName()">
+								<option disabled selected value> -- Objekteigenschaft w&auml;hlen --
+								</option>
+							</select>
+							<div class="help-block with-errors"></div>
+						</div>
+					</div>
+					<div class="col-md-3 col-sm-2 col-xs-12">
+						<div class="form-group">
+							<label>Operator</label>
+							<br />
+							<select class="form-control" ng-model="operator" 
+								ng-options="operatorOption as operatorOption.displayName for operatorOption in operatorOptions | orderBy: 'displayName'"
+								ng-change="onChangeOperatorOption()">
+								<option disabled selected value> -- Operator w&auml;hlen --
+								</option>
+							</select>
+							<div class="help-block with-errors"></div>
+						</div>
+					</div>
+					<div class="col-md-3 col-sm-2 col-xs-12" ng-show="operator.apiName!='Range' && operator.apiName!='Contains'">
+						<div class="form-group">
+							<label>Filterwert</label>
+							<br />
+							<select class="form-control" ng-model="propertyValue" 
+								ng-options="propertyValue for propertyValue in propertyValueOptions"
+								ng-change="onChangePropertyValue()">
+								<option disabled selected value> -- Filterwert w&auml;hlen --
+								</option>
+							</select>
+							<div class="help-block with-errors"></div>
+						</div>
+					</div>
+					<div class="col-md-3 col-sm-2 col-xs-12" ng-show="operator.apiName=='Contains'">
+						<div class="form-group">
+							<label>Filterwert</label>
+							<br />
+							<div ng-dropdown-multiselect="" options="propertyValueOptions" selected-model="propertyValueSelection" 
+								extra-settings="dropdownSettings", translation-texts="dropdownTranslations" events="dropdownEvents">
+						   	</div>
+							<div class="help-block with-errors"></div>
+						</div>
+					</div>
+					<div ng-show="operator.apiName=='Range'" class="col-md-5 col-sm-2 col-xs-12">
+						<div class="form-group">
+							<div class="input-group">
+								<div class="col-md-6 col-sm-2 col-xs-12">
+									<label>untere Grenze</label>
+									<br>
+									<select class="form-control input-sm ng-pristine ng-untouched ng-valid ng-empty" ng-model="propertyValueRange_from"
+										ng-options="propertyValue for propertyValue in propertyValueOptions" ng-change="onChangePropertyValueRange_range()">
+										<option disabled selected value> -- untere Grenze definieren --
+										</option>
+									</select>
+									<div class="help-block with-errors">
+									</div>
+								</div>						
+								<div class="col-md-6 col-sm-2 col-xs-12">
+									<label>obere Grenze</label>
+									<br>
+									<select class="form-control input-sm ng-pristine ng-untouched ng-valid ng-empty" ng-model="propertyValueRange_to"
+									ng-options="propertyValue for propertyValue in propertyValueOptions| filter: filterPropertyValueRange_toOptions()" ng-change="onChangePropertyValueRange_range()">
+									<option disabled selected value> -- obere Grenze definieren --
+									</option>
+									</select>									
+									<div class="help-block with-errors">
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- Box Body -->
+		</div>
+		<!-- Box -->
+
+		<!-- </div>	 -->
+
+	</div>
+
+</div>
 
 <div class="row vertical-align">
 	<div class="col-md-10 col-sm-12 col-xs-12">

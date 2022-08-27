@@ -12,7 +12,7 @@
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span></button>
-				<h4 class="modal-title">Metadaten der Rolle <i><b>{{currentRoleDataset.roleName}}</b></i> editieren</h4>
+				<h4 class="modal-title">Metadaten der Organisationseinheit <i><b> {{$ctrl.old.name}} </b></i> editieren</h4>
 			</div>
 			<div class="modal-body">
 
@@ -23,36 +23,54 @@
 						<form role="form" class="multiStepForm form-group" data-toggle="validator"
 							style="margin-bottom: 0px;">
 
-							<!-- progressbar -->
-							<ul id="progressbar">
-								<li style="width: 100%;" class="active">Metadaten der Rolle</li>
-							</ul>
+							<!-- div required for click logic -->
+							<div> 
+								<!-- progressbar -->
+								<ul id="progressbar">
+									<li style="width: 100%;" class="active">Metadaten der Organisationseinheit</li>
+								</ul>
+							</div>
+
+							
 
 
 							<fieldset>
-								<h2 class="fs-title">Metadaten der Rolle</h2>
-								<h3 class="fs-subtitle">Angaben &uuml;ber die Rolle</h3>
-
+								<h2 class="fs-title">Metadaten der Organisationseinheit</h2>
 								<p><b><i>* = Pflichtfeld</i></b></p>
 
 								<div class="row vertical-align">
 									<div class="col-md-5">
-										<label >Id der Rolle</label>
-										<input style="width:100%;" class="form-control" type="text" placeholder="Rollen-Id" ng-model="currentRoleDataset.roleId" disabled></input>
+										<label>Id der Rolle</label>
+										<input style="width:100%;" class="form-control" type="text"
+											placeholder="Id" ng-model="current.organizationalUnitId"
+											disabled></input>
 										<div class="help-block with-errors"></div>
 									</div>
 									<div class="col-md-5">
-										<label >Name der Rolle*</label>
-										<input style="width:100%;" class="form-control" type="text" placeholder="Rollenname" ng-model="currentRoleDataset.roleName" 
-										ng-change="checkRoleName()" required></input>
+										<label>Name*</label>
+										<input style="width:100%;" class="form-control" type="text"
+											placeholder="Rollenname" ng-model="current.name"
+											ng-change="checkRoleName()" required></input>
 										<div class="help-block with-errors"></div>
-										<div class="help-block">Eindeutiger Name der Rolle. Der identische Rollenname muss auch in Keycloak definiert werden.</div>
-										<div ng-if="roleNameInvalid" style="color: red;">
+										<div class="help-block">Eindeutiger Name der Rolle. Der identische Rollenname
+											muss auch in Keycloak definiert werden.</div>
+										<div ng-if="nameInvalid" style="color: red;">
 											<p>Eingabe ung&uuml;ltig. Es existiert bereits eine andere Rolle mit
 												gleichem Namen.</p>
 										</div>
-									</div>				
+									</div>
+									<div class="col-md-5">
+										<label>Beschreibung*</label>
+										<input style="width:100%;" class="form-control" type="text"
+											placeholder="Abteilung 52" ng-model="current.description" required></input>
+									</div>
+									<div class="col-md-5">
+										<label>Kontakt*</label>
+										<input style="width:100%;" class="form-control" type="text"
+											placeholder="sekretariat@kommonitor.de" ng-model="current.contact" required></input>
+									</div>
 								</div>
+								<br />
 
 							</fieldset>
 
@@ -67,13 +85,14 @@
 			<div class="modal-footer">
 				<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Schlie&szlig;en</button>
 
-				<button type="button" class="btn btn-success" ng-disabled="!currentRoleDataset.roleName || !currentRoleDataset.roleId || roleNameInvalid"
+				<button type="button" class="btn btn-success"
+					ng-disabled="!current.name || !current.description || !current.contact || nameInvalid"
 					ng-click="editRoleMetadata()">Metadaten aktualisieren</button>
 				<button type="button" class="btn btn-danger"
 					ng-click="resetRoleEditMetadataForm()">Zur&uuml;cksetzen</button>
 			</div>
 
-			<div id="roleEditMetadataSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
+			<div id="editMetadataSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
 				class="alert alert-success alert-dismissable">
 				<button type="button" class="close" ng-click="hideSuccessAlert()" aria-hidden="true">&times;</button>
 				<h4><i class="icon fa fa-check"></i>Rolle aktualisiert</h4>
@@ -81,7 +100,7 @@
 				&Uuml;bersichtstabelle eingetragen.
 			</div>
 
-			<div id="roleEditMetadataErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
+			<div id="editMetadataErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
 				class="alert alert-danger alert-dismissable">
 				<button type="button" class="close" ng-click="hideErrorAlert()" aria-hidden="true">&times;</button>
 				<h4><i class="icon fa fa-ban"></i>Aktualisierung gescheitert</h4>
@@ -93,22 +112,23 @@
 			<div id="keycloakRoleEditSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
 				class="alert alert-success alert-dismissable">
 				<button type="button" class="close" ng-click="hideKeycloakSuccessAlert()" aria-hidden="true">&times;</button>
-				<h4><i class="icon fa fa-check"></i>Rolle in Keycloak aktualisiert</h4>
-				<p>Die Rolle mit altem Namen {{oldRoleName}} wurde in Keycloak aktualisiert. Der neue Name lautet {{successMessagePart}}.
+				<h4><i class="icon fa fa-check"></i>Rolle in Keycloak editiert</h4>
+				<p>Die Rollen für die Einheit {{successMessagePart}} wurden in Keycloak editiert. Bestehende Verkn&uuml;pfungen mit Usern bleiben erhalten.
 				</p>
 			</div>
 
 			<div id="keycloakRoleEditErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
 				class="alert alert-danger alert-dismissable">
 				<button type="button" class="close" ng-click="hideKeycloakErrorAlert()" aria-hidden="true">&times;</button>
-				<h4><i class="icon fa fa-ban"></i>Aktualisierung in Keycloak gescheitert</h4>
-				Bei der Aktualisierung der Rolle {{oldRoleName}} in Keycloak ist ein Fehler aufgetreten. Fehlermeldung:
+				<h4><i class="icon fa fa-ban"></i>Editierung in Keycloak gescheitert</h4>
+				Bei der Editierung in Keycloak ist ein Fehler aufgetreten. Fehlermeldung:
 				<br />
 				<pre style="overflow:auto; max-height:500px;" ng-bind-html="keycloakErrorMessagePart"></pre>
 				<br />
 				<br />
-				Die Rolle kann auch direkt in der Keycloak Administrationsseite aktualisiert werden. Besuchen Sie dazu				
+				Die Rolle kann auch direkt in der Keycloak Administrationsseite editiert werden. Besuchen Sie dazu				
 					<a ng-href="{{$ctrl.kommonitorKeycloakHelperServiceInstance.targetUrlToKeycloakInstance}}" target="_blank" rel="noopener noreferrer">{{$ctrl.kommonitorKeycloakHelperServiceInstance.targetUrlToKeycloakInstance}}</a>
+					Dort k&ouml;nnen dann auch Nutzer mit der Rolle verkn&uuml;pt werden.
 			</div>
 
 		</div>

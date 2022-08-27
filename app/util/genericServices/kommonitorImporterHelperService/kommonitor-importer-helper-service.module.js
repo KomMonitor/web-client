@@ -17,7 +17,6 @@ angular
       kommonitorDataExchangeService, $http, __env) {
 
       this.targetUrlToImporterService = __env.targetUrlToImporterService;
-      this.prefix_converterName = "org.n52.kommonitor.importer.converter.";
 
       this.availableConverters = undefined;
 
@@ -127,6 +126,36 @@ angular
           "targetSpatialUnitName": "string"
         }; 
 
+      this.converterDefinition_singleFeatureImport = {
+        "encoding": "UTF-8",
+        "mimeType": "application/geo+json",
+        "name": "GeoJSON",
+        "parameters": [
+          {
+            "name": "CRS",
+            "value": "EPSG:4326"
+          }
+        ]
+      }; 
+      
+      this.datasourceDefinition_singleFeatureImport = {
+        "parameters": [
+          {
+            "name": "payload",
+            "value": "geojsonValue"
+          }
+        ],
+        "type": "INLINE"
+      };
+      
+      this.propertyMappingDefinition_singleFeatureImport = {
+        "identifierProperty": "ID",
+        "nameProperty": "NAME",
+        "keepAttributes": true,
+        "keepMissingOrNullValueAttributes": true,
+        "attributes": []
+      };
+
       this.fetchResourcesFromImporter = async function(){
         console.log("Trying to fetch converters and datasourceTypes from importer service");
         this.availableConverters = await this.fetchConverters();
@@ -143,7 +172,6 @@ angular
           var converter = this.availableConverters[index];
           
           converter = await this.fetchConverterDetails(converter);
-          converter.simpleName = converter.name.replace(this.prefix_converterName, "");
           this.availableConverters[index] = converter;
         }
 
@@ -155,6 +183,21 @@ angular
           $rootScope.$apply();
         }, 1500);
 
+      };
+
+      this.filterConverters = function(resourceType) {
+        // remove csvLatLon for indicators
+        // and csv_onlyIndicator for georesources
+        return function (converter) {
+            if(resourceType === "georesource" && converter.name.includes("Indikator"))
+                return false;
+            if(resourceType === "spatialUnit" && (converter.name.includes("Indikator") || converter.name.includes("Tabelle")))
+                return false;
+            if(resourceType === "indicator" && (converter.name.includes("Geokodierung") || converter.name.includes("Koordinate")) )
+                return false;    
+            
+            return true;
+        };
       };
 
       this.fetchConverters = async function(){
@@ -239,7 +282,7 @@ angular
 
       this.uploadNewFile = async function(fileData, fileName){
         console.log("Trying to POST to importer service to upload a new file.");
-
+        
         var formdata = new FormData();
         formdata.append("filename", fileName); 
         formdata.append("file", fileData);       
@@ -266,10 +309,10 @@ angular
         });        
       };
 
-      this.buildConverterDefinition = function(selectedConverter, converterParameterPrefix, schema){
+      this.buildConverterDefinition = function(selectedConverter, converterParameterPrefix, schema, mimeType){
         var converterDefinition = {
           "encoding": selectedConverter.encodings[0],
-          "mimeType": selectedConverter.mimeTypes[0],
+          "mimeType": selectedConverter.mimeTypes.filter(element => element == mimeType)[0],
           "name": selectedConverter.name,
           "parameters": [
             
@@ -372,6 +415,34 @@ angular
         return datasourceTypeDefinition;
       };
 
+      this.buildPutBody_georesources = function(scopeProperties) {
+
+        var putBody =
+        {
+            "geoJsonString": "",
+            "periodOfValidity": {
+                "endDate": scopeProperties.periodOfValidity.endDate,
+                "startDate": scopeProperties.periodOfValidity.startDate
+            },
+            "isPartialUpdate": scopeProperties.isPartialUpdate
+        };
+
+        return putBody;
+      }
+
+      this.buildPutBody_indicators = function(scopeProperties){
+        
+        var putBody =
+        {
+          "indicatorValues": [],
+          "applicableSpatialUnit": scopeProperties.targetSpatialUnitMetadata.spatialUnitLevel,
+          "defaultClassificationMapping": scopeProperties.currentIndicatorDataset.defaultClassificationMapping,
+          "allowedRoles": scopeProperties.allowedRoles
+          };
+
+        return putBody;
+      };
+
       this.buildPropertyMapping_spatialResource = function(nameProperty, idPropety, validStartDateProperty, validEndDateProperty, arisenFromProperty, keepAttributes, keepMissingValues, attributeMappings_adminView){
         if(validStartDateProperty === ""){
           validStartDateProperty = undefined;
@@ -410,7 +481,9 @@ angular
       };
 
       this.buildPropertyMapping_indicatorResource = function(spatialReferenceKeyProperty, timeseriesMappings, keepMissingOrNullValueIndicator){
-
+        console.log(spatialReferenceKeyProperty);
+        console.log(timeseriesMappings);
+        console.log(keepMissingOrNullValueIndicator);
         // attributeMapping is undefined for indicators
         return {
           "spatialReferenceKeyProperty": spatialReferenceKeyProperty,
@@ -453,7 +526,7 @@ angular
         });        
       };
 
-      this.updateSpatialUnit = async function(converterDefinition, datasourceTypeDefinition, propertyMappingDefinition, spatialUnitId, spatiaUnitPutBody_managementAPI, isDryRun){
+      this.updateSpatialUnit = async function(converterDefinition, datasourceTypeDefinition, propertyMappingDefinition, spatialUnitId, spatialUnitPutBody_managementAPI, isDryRun){
         console.log("Trying to POST to importer service to update spatial unit with id '" + spatialUnitId + "'.");
 
         var postBody = {
@@ -461,7 +534,7 @@ angular
           "dataSource": datasourceTypeDefinition,
           "propertyMapping": propertyMappingDefinition,
           "spatialUnitId": spatialUnitId,
-          "spatialUnitPutBody": spatiaUnitPutBody_managementAPI,
+          "spatialUnitPutBody": spatialUnitPutBody_managementAPI,
           "dryRun": isDryRun
         };        
 

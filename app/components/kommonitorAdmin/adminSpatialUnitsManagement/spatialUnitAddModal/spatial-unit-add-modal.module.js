@@ -1,1 +1,1 @@
-angular.module('spatialUnitAddModal', ['kommonitorImporterHelper', 'excaliburDualList']);
+angular.module('spatialUnitAddModal', ['kommonitorImporterHelper', 'excaliburDualList', 'kommonitorMultiStepFormHelper', 'kommonitorDataGridHelper']);

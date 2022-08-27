@@ -1,9 +1,9 @@
 angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 	templateUrl : "components/kommonitorUserInterface/kommonitor-user-interface.template.html",
 	controller : ['kommonitorDataExchangeService', 'kommonitorKeycloakHelperService', 'kommonitorElementVisibilityHelperService', '$scope', 
-	'$rootScope', '$location', 'Auth', 'ControlsConfigService', '$compile',
+	'$rootScope', '$location', 'Auth', 'ControlsConfigService', '$compile', 'kommonitorShareHelperService', '__env',
 	function UserInterfaceController(kommonitorDataExchangeService, kommonitorKeycloakHelperService, kommonitorElementVisibilityHelperService, 
-		$scope, $rootScope, $location, Auth, ControlsConfigService, $compile) {
+		$scope, $rootScope, $location, Auth, ControlsConfigService, $compile, kommonitorShareHelperService, __env) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 		this.kommonitorKeycloakHelperServiceInstance = kommonitorKeycloakHelperService;
@@ -12,18 +12,20 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 		kommonitorDataExchangeService.anySideBarIsShown = false;
 
 		
-		$scope.username;
+		kommonitorDataExchangeService.currentKeycloakUser;
 		$scope.password;
 		$scope.showAdminLogin = false;
 
-		$scope.init = function () {
+		$scope.init = async function () {
 			// initialize application
 			console.log("Initialize Application");
 			if ($scope.authenticated) {
 				console.log("Authetication successfull");
 			}			
 
-			checkAuthentication();
+			await checkAuthentication();
+
+			kommonitorShareHelperService.init();
 
 			kommonitorDataExchangeService.fetchAllMetadata();
 		};
@@ -76,7 +78,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 
 			// currently only simple ADMIN user login is possible
 			console.log("Check user login");
-			if (kommonitorDataExchangeService.adminUserName === $scope.username && kommonitorDataExchangeService.adminPassword === $scope.password){
+			if (kommonitorDataExchangeService.adminUserName === kommonitorDataExchangeService.currentKeycloakUser && kommonitorDataExchangeService.adminPassword === $scope.password){
 				// success login --> currently switch to ADMIN page directly
 				console.log("User Login success - redirect to Admin Page");
 				kommonitorDataExchangeService.adminIsLoggedIn = true;
@@ -106,31 +108,17 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 	    }
 		};
 
-		var checkAuthentication = function () {	
+		var checkAuthentication = async function () {	
 			kommonitorDataExchangeService.currentKeycloakLoginRoles = [];
 
 			if (Auth.keycloak.authenticated) {
 				$scope.authenticated = Auth.keycloak.authenticated;
-				Auth.keycloak.loadUserProfile()
-    				.then(function (profile) {
-						if (profile.emailVerified) {
-							$scope.username = profile.email;
-							if(Auth.keycloak.tokenParsed && Auth.keycloak.tokenParsed.realm_access && Auth.keycloak.tokenParsed.realm_access.roles){
-								kommonitorDataExchangeService.currentKeycloakLoginRoles = Auth.keycloak.tokenParsed.realm_access.roles;
-							}
-							else{
-								kommonitorDataExchangeService.currentKeycloakLoginRoles = [];
-							}
-							console.log("User logged in with email: " + profile.email);
-						} else {
-							alert("Email not verified. User will be logged out automatically!");
-							$scope.tryLogoutUser();
-						}
-    				}).catch(function () {
-       					console.log('Failed to load user profile');
-					});
-				if(Auth.keycloak.tokenParsed && Auth.keycloak.tokenParsed.realm_access && Auth.keycloak.tokenParsed.realm_access.roles && Auth.keycloak.tokenParsed.realm_access.roles.includes('administrator')){
-					$scope.showAdminLogin = true;
+				if(Auth.keycloak.tokenParsed 
+					&& Auth.keycloak.tokenParsed.realm_access 
+					&& Auth.keycloak.tokenParsed.realm_access.roles 
+					&& Auth.keycloak.tokenParsed.realm_access.roles.some(role => role.endsWith("-creator") || role.endsWith("-publisher") || role.endsWith("-editor"))){
+						Auth.keycloak.showAdminView = true;
+						$scope.showAdminLogin = true;
 				}
 			}
 		};
@@ -434,6 +422,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				$scope.buttonLegendClass = "btn btn-custom-right btn-circle-right";
 			}
 
+			$rootScope.$broadcast("invalidateMapSize");
 			$rootScope.$broadcast("refreshIndicatorValueRangeSlider");
 		};
 

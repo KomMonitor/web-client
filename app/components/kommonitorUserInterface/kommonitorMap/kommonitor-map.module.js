@@ -1,4 +1,4 @@
-angular.module('kommonitorMap', ['kommonitorDataExchange', 'kommonitorVisualStyleHelper', 'kommonitorInfoLegendHelper']);
+angular.module('kommonitorMap', ['kommonitorDataExchange', 'kommonitorVisualStyleHelper', 'kommonitorInfoLegendHelper', 'kommonitorFilterHelper']);
 /**
  * a common serviceInstance that holds all needed properties and methods for
  * interacting with a map (openlayers).
@@ -78,12 +78,10 @@ angular.module('kommonitorMap').service(
 			};
 
       this.replaceRouteGeoJSON = function (geoJSON, transitMode, preference, routingStartPoint, routingEndPoint,
-		routeDistance_km, routeDuration_minutes, routeAvgSpeed_kmh,
-		routeTotalAscent, routeTotalDescent) {
+		routeDistance_km, routeDuration_minutes) {
 
 				$rootScope.$broadcast("replaceRouteAsGeoJSON", geoJSON, transitMode, preference, routingStartPoint, routingEndPoint, 
-				routeDistance_km, routeDuration_minutes, routeAvgSpeed_kmh,
-				routeTotalAscent, routeTotalDescent);
+				routeDistance_km, routeDuration_minutes);
 			};
 
       this.replaceIsochroneMarker = function (lonLatArray) {

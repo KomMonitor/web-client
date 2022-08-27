@@ -9,9 +9,9 @@ angular
 			 * enabled tabs
 			 */
 			controller: [
-				'kommonitorDataExchangeService', 'kommonitorDiagramHelperService',
+				'kommonitorDataExchangeService', 'kommonitorDiagramHelperService', 'kommonitorFilterHelperService', 
 				'$scope', '$rootScope', '__env',
-				function kommonitorDiagramsController(kommonitorDataExchangeService, kommonitorDiagramHelperService,
+				function kommonitorDiagramsController(kommonitorDataExchangeService, kommonitorDiagramHelperService, kommonitorFilterHelperService,
 					$scope, $rootScope, __env) {
 					this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 					this.kommonitorDiagramHelperServiceInstance = kommonitorDiagramHelperService;
@@ -177,8 +177,11 @@ angular
 								// console.log(barElement);
 
 								var spatialFeatureName = $scope.barOption.xAxis.data[dataIndex];
-								// console.log(spatialFeatureName);
-								$rootScope.$broadcast("highlightFeatureOnMap", spatialFeatureName);
+								if(spatialFeatureName){
+									// console.log(spatialFeatureName);
+									$rootScope.$broadcast("highlightFeatureOnMap", spatialFeatureName);
+								}
+								
 							});
 
 							$scope.barChart.on('mouseOut', function (params) {
@@ -194,7 +197,10 @@ angular
 
 								var spatialFeatureName = $scope.barOption.xAxis.data[dataIndex];
 								// console.log(spatialFeatureName);
-								$rootScope.$broadcast("unhighlightFeatureOnMap", spatialFeatureName);
+								if(spatialFeatureName){
+									$rootScope.$broadcast("unhighlightFeatureOnMap", spatialFeatureName);
+								}
+								
 							});
 
 							$scope.barChart.on('click', function (params) {
@@ -209,7 +215,10 @@ angular
 
 								var spatialFeatureName = $scope.barOption.xAxis.data[dataIndex];
 								// console.log(spatialFeatureName);
-								$rootScope.$broadcast("switchHighlightFeatureOnMap", spatialFeatureName);
+								if(spatialFeatureName){
+									$rootScope.$broadcast("switchHighlightFeatureOnMap", spatialFeatureName);
+								}
+								
 							});
 
 							$scope.eventsRegistered = true;
@@ -285,7 +294,7 @@ angular
 
 					var findPropertiesForTimeSeries = function (spatialUnitFeatureName) {
 						for (var feature of kommonitorDataExchangeService.selectedIndicator.geoJSON.features) {
-							if (feature.properties[__env.FEATURE_NAME_PROPERTY_NAME] === spatialUnitFeatureName) {
+							if (feature.properties[__env.FEATURE_NAME_PROPERTY_NAME] == spatialUnitFeatureName) {
 								return feature.properties;
 							}
 						}
@@ -337,7 +346,7 @@ angular
 
 					$scope.$on("updateDiagramsForUnhoveredFeature", function (event, featureProperties) {
 
-						if (!kommonitorDataExchangeService.clickedIndicatorFeatureNames.includes(featureProperties[__env.FEATURE_NAME_PROPERTY_NAME])) {
+						if (!kommonitorFilterHelperService.featureIsCurrentlySelected(featureProperties[__env.FEATURE_ID_PROPERTY_NAME])) {
 							unhighlightFeatureInLineChart(featureProperties);
 
 							removeSeriesFromLineChart(featureProperties);

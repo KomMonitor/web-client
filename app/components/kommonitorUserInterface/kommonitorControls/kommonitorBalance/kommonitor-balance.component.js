@@ -8,8 +8,10 @@ angular
 					 * injected with a modules service method that manages
 					 * enabled tabs
 					 */
-					controller : ['$scope', '$rootScope', 'kommonitorMapService', 'kommonitorDataExchangeService', 'kommonitorDiagramHelperService', '__env', '$timeout',
-					function kommonitorBalanceController($scope, $rootScope, kommonitorMapService, kommonitorDataExchangeService, kommonitorDiagramHelperService, __env, $timeout) {
+					controller : ['$scope', '$rootScope', 'kommonitorMapService', 'kommonitorDataExchangeService', 'kommonitorDiagramHelperService', 
+					'kommonitorFilterHelperService', '__env', '$timeout',
+					function kommonitorBalanceController($scope, $rootScope, kommonitorMapService, kommonitorDataExchangeService, kommonitorDiagramHelperService, 
+						kommonitorFilterHelperService, __env, $timeout) {
 
 						const INDICATOR_DATE_PREFIX = __env.indicatorDatePrefix;
 						this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
@@ -53,6 +55,8 @@ angular
 								kommonitorDataExchangeService.isMeasureOfValueChecked = false;
 							}
 
+							let indicatorMetadataAndGeoJSON = undefined;
+
 							if(kommonitorDataExchangeService.isBalanceChecked){
 								kommonitorDataExchangeService.isMeasureOfValueChecked = false;
 								$scope.rangeSliderForBalance.update({
@@ -80,7 +84,8 @@ angular
 								
 									$scope.updateTrendChart(kommonitorDataExchangeService.selectedIndicator, data);	
 								});
-								kommonitorMapService.replaceIndicatorGeoJSON(kommonitorDataExchangeService.indicatorAndMetadataAsBalance, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel, $scope.targetDate, true);
+								indicatorMetadataAndGeoJSON = kommonitorDataExchangeService.indicatorAndMetadataAsBalance;
+								// kommonitorMapService.replaceIndicatorGeoJSON(kommonitorDataExchangeService.indicatorAndMetadataAsBalance, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel, $scope.targetDate, true);
 							}
 							else{
 								$scope.rangeSliderForBalance.update({
@@ -88,9 +93,12 @@ angular
 								});
 								// reanebalbe DateSlider on map
 								$rootScope.$broadcast("EnableDateSlider");
-								kommonitorMapService.replaceIndicatorGeoJSON(kommonitorDataExchangeService.selectedIndicator, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel, $scope.targetDate, true);
+								indicatorMetadataAndGeoJSON = kommonitorDataExchangeService.selectedIndicator;
+								// kommonitorMapService.replaceIndicatorGeoJSON(kommonitorDataExchangeService.selectedIndicator, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel, $scope.targetDate, true);
 							}
-							$rootScope.$broadcast("updateIndicatorValueRangeFilter", $scope.targetDate);
+							// $rootScope.$broadcast("updateIndicatorValueRangeFilter", $scope.targetDate, indicatorMetadataAndGeoJSON);
+							// do not replace dataset directly, but check if any filter can be applied when changing balance mode for the current dataset
+							kommonitorFilterHelperService.filterAndReplaceDataset();
 						};
 
 						function getFromDate_asPropertyString(datePeriodSliderData){
@@ -292,7 +300,7 @@ angular
 							});
 
 							$scope.rangeSliderForBalance = $("#rangeSliderForBalance").data("ionRangeSlider");
-							// make sure that tha handles are properly set to man and max values
+							// make sure that the handles are properly set to min and max values
 							$scope.rangeSliderForBalance.update({
 									from: 0, // index, not the date
 									to: $scope.datesAsMs.length -1, // index, not the date
