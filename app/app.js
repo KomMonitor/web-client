@@ -380,8 +380,14 @@ function bootstrapApplication(){
   
   if(window.__env.enableKeycloakSecurity){
     var keycloakAdapter = new Keycloak(window.__env.configStorageServerConfig.targetUrlToConfigStorageServer_keycloakConfig);  
+
+    // https://www.keycloak.org/docs/latest/securing_apps/#session-status-iframe
+    // https://www.keycloak.org/docs/latest/securing_apps/#_modern_browsers
+    
     keycloakAdapter.init({
       onLoad: 'check-sso',
+      checkLoginIframe: false,
+      silentCheckSsoFallback: false
     }).then(function (authenticated) {
       console.log(authenticated ? 'User is authenticated!' : 'User is not authenticated!');
       auth.keycloak = keycloakAdapter;
