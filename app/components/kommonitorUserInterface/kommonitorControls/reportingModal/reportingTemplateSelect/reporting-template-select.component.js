@@ -719,10 +719,10 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 
 		$scope.initialize = function() {
 			// open first category
-			let collapsible = document.querySelector("#reporting-template-category-accordion #collapse3")
+			let collapsible = document.querySelector("#reporting-template-category-accordion #collapse1")
 			collapsible.classList.add("in");
 			// select first template
-			collapsible.querySelector("#collapse3-template0").click();
+			collapsible.querySelector("#collapse1-template0").click();
 
 			$scope.datePicker = $('#reporting-general-settings-datefield').datepicker({
 				autoclose: true,
