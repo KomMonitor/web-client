@@ -1070,6 +1070,10 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			}
 		}
 
+		$scope.$on("reportingIsochronesCalculationStarted", function(event) {
+			$scope.loadingData = true;
+		});
+
 		$scope.$on("reportingIsochronesCalculationFinished", function(event, isochrones) {
 			$scope.isochrones = isochrones;
 			if(checkNestedPropExists($scope.isochrones, 'info', 'query', 'profile'))
@@ -1108,6 +1112,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 			// TODO performance could be improved if we just iterate pages and update echarts
 			$scope.initializeAllDiagrams();
+			$scope.loadingData = false;
 		});
 
 		$scope.resetIsochrones = function() {

@@ -1034,6 +1034,8 @@ angular
 						if(!$scope.isUsedInReporting) { // reporting uses it's own loading overlay, which is controlled there
 							$scope.settings.loadingData = true;
 							$rootScope.$broadcast("showLoadingIconOnMap");
+						} else {
+							$scope.$emit("reportingIsochronesCalculationStarted");
 						}
 						
 						$scope.checkArrayInput();
