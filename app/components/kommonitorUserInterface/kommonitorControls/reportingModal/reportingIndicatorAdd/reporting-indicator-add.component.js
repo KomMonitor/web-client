@@ -446,7 +446,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				}
 			}
 
-			// There is one more special casw for the reachbility template, where we only have one timestamp set at all times,
+			// There is one more special case for the reachbility template, where we only have one timestamp set at all times,
 			// but that one might change if we change the spatial unit
 			if(newVal.length === oldVal.length && newVal.length === 1 && newVal[0].name != oldVal[0].name) {
 				// simply update the timestamp on all pages
@@ -3331,7 +3331,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					continue; // no map on current page
 				}
 
-				let instance = echarts.getInstanceByDom(map)
+				let instance = echarts.getInstanceByDom(map);
 				let options = instance.getOption();
 				options.series[0].label.show = $scope.showMapLabels;
 				options.series[0].select.label.show = $scope.showMapLabels;

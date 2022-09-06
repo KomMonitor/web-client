@@ -350,19 +350,16 @@ angular
 					// If the reporting modal is shown we want to integrate this component there.
 					// A couple of modifications need to be done to achieve that.
 					// These are controlled by setting a variable and checking it when needed.
-					$('#reporting-modal').on('shown.bs.modal', function (e) {
-						$scope.isUsedInReporting = true;
-						$scope.$digest();
-					})
-			
 					$('#reporting-modal').on('hidden.bs.modal', function (e) {
 						$scope.isUsedInReporting = false;
 						$scope.$digest();
 					})
 
 					$scope.$on("reportingPoiLayerSelected", function(event, data) {
+						$scope.isUsedInReporting = true;
 						$scope.settings.selectedStartPointLayer = data;
 						$scope.pointSourceConfigured = true; // timestamp selection is hidden, so we are good to go for now.
+						$scope.$digest();
 					});
 					
 
