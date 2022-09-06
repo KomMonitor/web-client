@@ -548,6 +548,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			$scope.initializeDualLists();
 
 			if($scope.template.name === "A4-landscape-reachability") {
+				$scope.resetIsochrones();
 				Promise.all([
 					$scope.queryGeoresources(),
 					$scope.queryIndicators()
@@ -1116,7 +1117,9 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			$scope.isochronesRangeUnits = undefined,
 			$scope.isochronesSeriesData = undefined
 			// TODO performance could be improved if we just iterate pages and update echarts
-			$scope.initializeAllDiagrams();
+			if($scope.diagramsPrepared) {
+				$scope.initializeAllDiagrams();
+			}
 			$scope.showResetIsochronesBtn = false;
 		}
 		
