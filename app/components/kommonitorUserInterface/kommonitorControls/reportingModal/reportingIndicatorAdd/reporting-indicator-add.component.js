@@ -37,6 +37,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		$scope.loadingData = false;
 		$scope.diagramsPrepared = false;
 		$scope.isFirstUpdateOnIndicatorOrPoiLayerSelection = true;
+		$scope.showResetIsochronesBtn = false;
 
 		$scope.isochronesTypeOfMovementMapping = {
 			"foot-walking": "Fußgänger",
@@ -1102,6 +1103,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 			$scope.isochronesSeriesData = $scope.convertIsochronesToSeriesData($scope.isochrones);
 
+			$scope.showResetIsochronesBtn =true;
+
 			// TODO performance could be improved if we just iterate pages and update echarts
 			$scope.initializeAllDiagrams();
 		});
@@ -1114,6 +1117,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			$scope.isochronesSeriesData = undefined
 			// TODO performance could be improved if we just iterate pages and update echarts
 			$scope.initializeAllDiagrams();
+			$scope.showResetIsochronesBtn = false;
 		}
 		
 

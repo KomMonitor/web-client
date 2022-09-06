@@ -65,11 +65,10 @@
                                 <span class="glyphicon glyphicon-refresh icon-spin"></span>
                             </div>
                             <div id="reporting-isochrones-config">
-                                <button type="button" class="btn btn-danger" style="margin-left: 1%; margin-top: 10px;" ng-click="resetIsochrones()">Auswahl zurücksetzen</button>
-                                
                                 <div ng-if="template.name == 'A4-landscape-reachability'">
                                     <kommonitor-reachability></kommonitor-reachability>
-                                </div>                                
+                                </div>
+                                <button type="button" class="btn btn-danger" style="margin-left: 1%; margin-top: 10px;" ng-click="resetIsochrones()" ng-show="showResetIsochronesBtn">Isochronen entfernen</button>                               
                             </div>
 						    
                         </div>
