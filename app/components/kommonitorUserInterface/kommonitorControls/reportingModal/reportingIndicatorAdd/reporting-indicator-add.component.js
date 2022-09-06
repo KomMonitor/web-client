@@ -3336,6 +3336,9 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				options.series[0].label.show = $scope.showMapLabels;
 				options.series[0].select.label.show = $scope.showMapLabels;
 				for(let item of options.series[0].data) {
+					if(typeof item.label === "undefined") {
+						item.label = {};
+					}
 					item.label.show = $scope.showMapLabels;
 				}
 				instance.setOption(options, {
