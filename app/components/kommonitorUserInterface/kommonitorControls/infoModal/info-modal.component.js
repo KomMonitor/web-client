@@ -20,17 +20,18 @@ angular.module('infoModal').component('infoModal', {
 				$("#changeHideGreetingsInput").prop('checked', true);
 			}
 
-			if(__env.enableExtendedInfoModal) {
-				let tab1 = document.getElementById("infoModalTab1");
-				let tab2 = document.getElementById("infoModalTab2");
-				let tab2content = document.getElementById("infoModalTab2Content")
-				tab1.innerHTML = __env.standardInfoModalTabTitle;
-				tab2.innerHTML = __env.extendedInfoModalTabTitle;
-				tab2content.innerHTML = __env.extendedInfoModalHTMLMessage;
-				tab1.click();
-				tab1.focus();
+			let tab1 = document.getElementById("infoModalTab1");
+			tab1.innerHTML = __env.standardInfoModalTabTitle;
+			tab1.click();
+			tab1.focus();
+
+			if(__env.enableExtendedInfoModal) {				
+				let tab3 = document.getElementById("infoModalTab3");
+				let tab3content = document.getElementById("infoModalTab3Content");				
+				tab3.innerHTML = __env.extendedInfoModalTabTitle;
+				tab3content.innerHTML = __env.extendedInfoModalHTMLMessage;				
 			} else {
-				document.getElementById("infoModalTabs").style.display = "none";
+				document.getElementById("infoModalTab3").style.display = "none";
 			}
 			
 

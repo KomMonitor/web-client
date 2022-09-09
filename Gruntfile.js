@@ -160,6 +160,8 @@ module.exports = function (grunt) {
             'app/components/kommonitorUserInterface/kommonitorControls/poi/wfsModal/wfs-modal.component.js',
             'app/components/kommonitorUserInterface/kommonitorMap/kommonitor-map.module.js',
             'app/components/kommonitorUserInterface/kommonitorMap/kommonitor-map.component.js',
+            'app/components/kommonitorUserInterface/kommonitorControls/versionInfo/version-info.module.js',
+            'app/components/kommonitorUserInterface/kommonitorControls/versionInfo/version-info.component.js',
             'app/components/kommonitorUserInterface/kommonitorControls/infoModal/info-modal.module.js',
             'app/components/kommonitorUserInterface/kommonitorControls/infoModal/info-modal.component.js',
             'app/components/kommonitorUserInterface/kommonitorControls/spatialUnitNotificationModal/spatial-unit-notification-modal.module.js',
