@@ -742,7 +742,33 @@ angular
               
         }
         else if(indicatorType.includes("DYNAMIC")){
-          // dynamic brew
+          // dynamic brew   
+          
+          if(dynamicDecreaseBrew){
+            var dynamicDecreaseBreaks = dynamicDecreaseBrew.breaks;
+            var dynamicDecreaseColors = dynamicDecreaseBrew.colors;
+
+            for (var j = 0; j < dynamicDecreaseColors.length; j++) {
+
+              var legendItem_dynamicDecreaseMov = {
+                min: dynamicDecreaseBreaks[j],                  
+                opacity: 0.8,
+                // color: dynamicDecreaseColors[dynamicDecreaseColors.length - 1 - j]
+                color: dynamicDecreaseColors[j]
+              };
+              if(dynamicDecreaseBreaks[j + 1]){
+                legendItem_dynamicDecreaseMov.max = dynamicDecreaseBreaks[j + 1];
+                legendItem_dynamicDecreaseMov.label = "" + kommonitorDataExchangeService.getIndicatorValue_asNumber(dynamicDecreaseBreaks[j]) + " - < " + kommonitorDataExchangeService.getIndicatorValue_asNumber(dynamicDecreaseBreaks[j + 1]);
+              }
+              else{
+                legendItem_dynamicDecreaseMov.max = -0.01;
+                legendItem_dynamicDecreaseMov.label = kommonitorDataExchangeService.getIndicatorValue_asNumber(dynamicDecreaseBreaks[j]);
+              }
+
+              pieces.push(legendItem_dynamicDecreaseMov);
+
+            }
+          }
 
           if(dynamicIncreaseBrew){
               var dynamicIncreaseBreaks = dynamicIncreaseBrew.breaks;
@@ -757,38 +783,49 @@ angular
                 };
                 if(dynamicIncreaseBreaks[j + 1]){
                   legendItem_dynamicIncreaseMov.max = dynamicIncreaseBreaks[j + 1];
+                  legendItem_dynamicIncreaseMov.label = "" + kommonitorDataExchangeService.getIndicatorValue_asNumber(dynamicIncreaseBreaks[j]) + " - < " + kommonitorDataExchangeService.getIndicatorValue_asNumber(dynamicIncreaseBreaks[j + 1]);
+                }
+                else{
+                  legendItem_dynamicIncreaseMov.max = dynamicIncreaseBreaks[j];
                 }
 
                 pieces.push(legendItem_dynamicIncreaseMov);
 
               }
-          }
+          }  
+          
+        }
+        else {
+          // default brew
 
-          if(dynamicDecreaseBrew){
+          if(containsNegativeValues(indicatorMetadataAndGeoJSON.geoJSON, date)){
+            // dynamic brew            
+            if(dynamicDecreaseBrew){
               var dynamicDecreaseBreaks = dynamicDecreaseBrew.breaks;
               var dynamicDecreaseColors = dynamicDecreaseBrew.colors;
 
               for (var j = 0; j < dynamicDecreaseColors.length; j++) {
 
                 var legendItem_dynamicDecreaseMov = {
-                  min: dynamicDecreaseBreaks[j],                  
-                  opacity: 0.8,
-                  color: dynamicDecreaseColors[dynamicDecreaseColors.length - 1 - j]
+                  min: dynamicDecreaseBreaks[j],
+                  opacity: 0.8,                  
+                  // color: dynamicDecreaseColors[dynamicDecreaseColors.length - 1 - j]
+                  color: dynamicDecreaseColors[j]
                 };
                 if(dynamicDecreaseBreaks[j + 1]){
                   legendItem_dynamicDecreaseMov.max = dynamicDecreaseBreaks[j + 1];
+                  legendItem_dynamicDecreaseMov.label = "" + kommonitorDataExchangeService.getIndicatorValue_asNumber(dynamicDecreaseBreaks[j]) + " - < " + kommonitorDataExchangeService.getIndicatorValue_asNumber(dynamicDecreaseBreaks[j + 1]);
+                }
+                else{
+                  legendItem_dynamicDecreaseMov.max = -0.01;
+                  legendItem_dynamicDecreaseMov.label = kommonitorDataExchangeService.getIndicatorValue_asNumber(dynamicDecreaseBreaks[j]);
                 }
 
                 pieces.push(legendItem_dynamicDecreaseMov);
 
               }
-          }          
-        }
-        else {
-          // default brew
-
-          if(containsNegativeValues(indicatorMetadataAndGeoJSON.geoJSON, date)){
-            // dynamic brew
+            }
+          
             if(dynamicIncreaseBrew){
               var dynamicIncreaseBreaks = dynamicIncreaseBrew.breaks;
               var dynamicIncreaseColors = dynamicIncreaseBrew.colors;
@@ -802,32 +839,17 @@ angular
                 };
                 if(dynamicIncreaseBreaks[j + 1]){
                   legendItem_dynamicIncreaseMov.max = dynamicIncreaseBreaks[j + 1];
+                  legendItem_dynamicIncreaseMov.label = "" + kommonitorDataExchangeService.getIndicatorValue_asNumber(dynamicIncreaseBreaks[j]) + " - < " + kommonitorDataExchangeService.getIndicatorValue_asNumber(dynamicIncreaseBreaks[j + 1]);
+                }
+                else{
+                  legendItem_dynamicIncreaseMov.max = dynamicIncreaseBreaks[j];
                 }
 
                 pieces.push(legendItem_dynamicIncreaseMov);
 
               }
-          }
-
-          if(dynamicDecreaseBrew){
-              var dynamicDecreaseBreaks = dynamicDecreaseBrew.breaks;
-              var dynamicDecreaseColors = dynamicDecreaseBrew.colors;
-
-              for (var j = 0; j < dynamicDecreaseColors.length; j++) {
-
-                var legendItem_dynamicDecreaseMov = {
-                  min: dynamicDecreaseBreaks[j],
-                  opacity: 0.8,                  
-                  color: dynamicDecreaseColors[dynamicDecreaseColors.length - 1 - j]
-                };
-                if(dynamicDecreaseBreaks[j + 1]){
-                  legendItem_dynamicDecreaseMov.max = dynamicDecreaseBreaks[j + 1];
-                }
-
-                pieces.push(legendItem_dynamicDecreaseMov);
-
-              }
-          }       
+            }
+            
           }
           else{
             if(defaultBrew && defaultBrew.breaks && defaultBrew.colors){
