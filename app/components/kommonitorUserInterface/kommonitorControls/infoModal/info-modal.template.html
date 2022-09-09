@@ -5,7 +5,7 @@
 		<div class="modal-content">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal">&times;</button>
-				<h4 class="modal-title"><b>Wichtige Informationen zur KomMonitor-Pilotversion</b></h4>
+				<h4 class="modal-title"><b>Wichtige Informationen zu KomMonitor</b> - <i>Version 2.1.0</i></h4>
 			</div>
 			<div class="modal-body" style="text-align: justify">
 
@@ -18,23 +18,25 @@
 					<li class="nav-item">
 						<a class="nav-link" id="infoModalTab2" data-toggle="tab"
 							href="#infoModalTab2Content" role="tab" aria-controls="infoModalTab2Content"
+							aria-selected="false">Versionsinfo</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" id="infoModalTab3" data-toggle="tab"
+							href="#infoModalTab3Content" role="tab" aria-controls="infoModalTab3Content"
 							aria-selected="false"></a>
 					</li>
 				</ul>
 				<div class="tab-content" id="infoModalTabContent">
 					<div class="tab-pane active" id="infoModalTab1Content" role="tabpanel" aria-labelledby="infoModalTab1">
 						
-						<p>KomMonitor ist ein GIS-gest&uuml;tztes, raum-zeitliches Monitoring-Portal.
+						<p>KomMonitor ist ein GIS-gest&uuml;tztes, raum-zeitliches Monitoring-Portal. 
 							<br/>
-							Gegenw&auml;rtig befindet sich diese Anwendung in einem kontinuierlichen Entwicklungsstadium.
+							Der Anwendungsfokus liegt dabei auf der <b>Darstellung und Analyse von Indikatoren-Zeitreihendaten</b>. 
+							Dar&uuml;ber hinaus k&ouml;nnen erg&auml;nzende <b>Geodatens&auml;tze</b> im System hinterlegt und zus&auml;tzlich in die Kartenanwendung eingeladen werden. 
+							Au&szlig;erdem bietet KomMonitor die M&ouml;glichkeit, <b>Erreichbarkeitsanalysen</b> auf Basis von 
+							<a href="https://www.openstreetmap.org" target="_blank" rel="noopener noreferrer" >OpenStreetMap</a> Daten und dem <a href="https://openrouteservice.org/" target="_blank" rel="noopener noreferrer" >OpenRouteService</a> durchzuf&uuml;hren.
+
 							Sollten Sie eine fehlerhafte Darstellung oder unerkl&auml;rliche Anwendungsfehler erhalten, so nehmen Sie bitte Kontakt zum Entwickler-Team auf.
-		
-							Im Sinne eines Testbetriebs k&ouml;nnen Sie die aktuelle Anwendungsversion ausprobieren, um eigene Daten erg&auml;nzen und wir laden Sie dazu ein, Feedback, Anregungen sowie Ideen f&uuml;r fehlende Funktionalit&auml;ten
-							an uns weiterzureichen.
-							<br/>
-							Wir w&uuml;nschen Ihnen viel Spaß beim Testen!
-							<br/>
-							<img src="logos/unterschrift.png" alt="Unterschrift Projektteam" width="35%" height="35%">
 						</p>
 		
 						<br/>
@@ -78,6 +80,9 @@
 							<b>Zus&auml;tzliche Hinweise</b>
 							<p ng-bind-html="$ctrl.kommonitorDataExchangeServiceInstance.customGreetingsTextInfoMessage"></p>
 						</div>
+
+						<br/>
+							<img src="logos/unterschrift.png" alt="Unterschrift Projektteam" width="35%" height="35%">
 		
 						<br/>
 						<br/>
@@ -92,6 +97,9 @@
 
 					</div>
 					<div class="tab-pane" id="infoModalTab2Content" role="tabpanel" aria-labelledby="infoModalTab2">
+						<version-info></version-info>
+					</div>
+					<div class="tab-pane" id="infoModalTab3Content" role="tabpanel" aria-labelledby="infoModalTab3">
 						
 					</div>
 				</div>

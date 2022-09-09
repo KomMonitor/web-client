@@ -2600,6 +2600,27 @@ angular
         }
       };
 
+      function anyHigherRoleIsChecked(roles, roleSuffix){
+        let filteresRoles = [];
+        
+        if(roleSuffix == "viewer"){
+          filteresRoles = roles.filter(function(role){
+            if (role.isChecked && (role.permissionLevel == "editor" || role.permissionLevel == "creator")){
+              return true;
+            }
+          });
+        }
+        else if (roleSuffix == "editor"){
+          filteresRoles = roles.filter(function(role){
+            if (role.isChecked && role.permissionLevel == "creator"){
+              return true;
+            }
+          });
+        }
+        
+        return filteresRoles.length > 0;
+      };
+
       function CheckboxRenderer_viewer() {}
 
       CheckboxRenderer_viewer.prototype.init = function(params) {
@@ -2625,6 +2646,10 @@ angular
 
           this.checkedHandler = this.checkedHandler.bind(this);
           this.eGui.addEventListener('click', this.checkedHandler);
+          // if higher role rights are checked as well 
+          if(isChecked && anyHigherRoleIsChecked(params.data.roles, "viewer")){
+            this.eGui.disabled = true;
+          }                    
         }
       };
 
@@ -2673,6 +2698,10 @@ angular
 
           this.checkedHandler = this.checkedHandler.bind(this);
           this.eGui.addEventListener('click', this.checkedHandler);
+          // if higher role rights are checked as well 
+          if(isChecked && anyHigherRoleIsChecked(params.data.roles, "editor")){
+            this.eGui.disabled = true;
+          } 
         }
       };
 
