@@ -233,7 +233,7 @@ angular.module('spatialUnitEditMetadataModal').component('spatialUnitEditMetadat
 
 					$scope.successMessagePart = $scope.currentSpatialUnitDataset.spatialUnitLevel;
 
-					$rootScope.$broadcast("refreshSpatialUnitOverviewTable", "edit", $scope.currentSpatialUnitDataset);
+					$rootScope.$broadcast("refreshSpatialUnitOverviewTable", "edit", $scope.currentSpatialUnitDataset.spatialUnitId);
 					$("#spatialUnitEditMetadataSuccessAlert").show();
 					$timeout(function(){
 				
