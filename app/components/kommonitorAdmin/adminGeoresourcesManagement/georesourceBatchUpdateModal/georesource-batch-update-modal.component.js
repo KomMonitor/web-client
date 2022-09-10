@@ -165,7 +165,7 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 					}
 				});
 
-                kommonitorBatchUpdateHelperService.initializeGeoresourceDatepickerFields($scope.batchList);
+				kommonitorBatchUpdateHelperService.initializeGeoresourceDatepickerFields($scope.batchList);
 				kommonitorBatchUpdateHelperService.resizeNameColumnDropdowns(null);
 			})
 

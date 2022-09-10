@@ -2,7 +2,7 @@ angular.module('indicatorBatchUpdateModal').component('indicatorBatchUpdateModal
 	templateUrl : "components/kommonitorAdmin/adminIndicatorsManagement/indicatorBatchUpdateModal/indicator-batch-update-modal.template.html",
 	controller : ['kommonitorDataExchangeService', 'kommonitorImporterHelperService', 'kommonitorBatchUpdateHelperService', '$scope', '$rootScope', '$http', '$timeout', '__env',
 		function IndicatorBatchUpdateModalController(kommonitorDataExchangeService, kommonitorImporterHelperService, kommonitorBatchUpdateHelperService, $scope, $rootScope, $http, $timeout, __env) {
-        
+		
 			this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 			this.kommonitorImporterHelperServiceInstance = kommonitorImporterHelperService;
 			this.kommonitorBatchUpdateHelperServiceInstance = kommonitorBatchUpdateHelperService;
@@ -35,14 +35,14 @@ angular.module('indicatorBatchUpdateModal').component('indicatorBatchUpdateModal
 				"propertyMapping": {
 					timeseriesMappings: [
 						{
-						    "indicatorValueProperty": "string",
-						    "timestamp": "date" // direct timestamp
+							"indicatorValueProperty": "string",
+							"timestamp": "date" // direct timestamp
 						}, {
-						    "indicatorValueProperty": "string",
-						    "timestampProperty": "string"   // attribute column that contains timestamp(s)
+							"indicatorValueProperty": "string",
+							"timestampProperty": "string"   // attribute column that contains timestamp(s)
 						}],
 					spatialReferenceKeyProperty: "",
-                    keepMissingOrNullValueIndicator: true,
+					keepMissingOrNullValueIndicator: true,
 				},
 				targetSpatialUnitName: ""
 			}
