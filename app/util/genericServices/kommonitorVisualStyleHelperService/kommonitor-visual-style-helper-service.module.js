@@ -347,6 +347,13 @@ angular
           colorBrewerInstance = undefined;
         }
 
+        // round values 
+        if (colorBrewerInstance && colorBrewerInstance.breaks){
+          for (let index = 0; index < colorBrewerInstance.breaks.length; index++) {
+            colorBrewerInstance.breaks[index] = kommonitorDataExchangeService.getIndicatorValue_asNumber(colorBrewerInstance.breaks[index]);            
+          }
+        }
+
         return colorBrewerInstance;
       }
 

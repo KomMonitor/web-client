@@ -758,11 +758,16 @@ angular
               };
               if(dynamicDecreaseBreaks[j + 1]){
                 legendItem_dynamicDecreaseMov.max = dynamicDecreaseBreaks[j + 1];
-                legendItem_dynamicDecreaseMov.label = "" + kommonitorDataExchangeService.getIndicatorValue_asNumber(dynamicDecreaseBreaks[j]) + " - < " + kommonitorDataExchangeService.getIndicatorValue_asNumber(dynamicDecreaseBreaks[j + 1]);
+                legendItem_dynamicDecreaseMov.label = "" + dynamicDecreaseBreaks[j] + " - < " + dynamicDecreaseBreaks[j + 1];
+
+                // in negative scala we must ensure that smallest value near 0 (here max) is included in range
+                if(j == dynamicDecreaseColors.length - 1){
+                  legendItem_dynamicDecreaseMov.max = -0.01;
+                }
               }
               else{
                 legendItem_dynamicDecreaseMov.max = -0.01;
-                legendItem_dynamicDecreaseMov.label = kommonitorDataExchangeService.getIndicatorValue_asNumber(dynamicDecreaseBreaks[j]);
+                legendItem_dynamicDecreaseMov.label = dynamicDecreaseBreaks[j];
               }
 
               pieces.push(legendItem_dynamicDecreaseMov);
@@ -783,7 +788,7 @@ angular
                 };
                 if(dynamicIncreaseBreaks[j + 1]){
                   legendItem_dynamicIncreaseMov.max = dynamicIncreaseBreaks[j + 1];
-                  legendItem_dynamicIncreaseMov.label = "" + kommonitorDataExchangeService.getIndicatorValue_asNumber(dynamicIncreaseBreaks[j]) + " - < " + kommonitorDataExchangeService.getIndicatorValue_asNumber(dynamicIncreaseBreaks[j + 1]);
+                  legendItem_dynamicIncreaseMov.label = "" + dynamicIncreaseBreaks[j] + " - < " + dynamicIncreaseBreaks[j + 1];
                 }
                 else{
                   legendItem_dynamicIncreaseMov.max = dynamicIncreaseBreaks[j];
@@ -814,11 +819,16 @@ angular
                 };
                 if(dynamicDecreaseBreaks[j + 1]){
                   legendItem_dynamicDecreaseMov.max = dynamicDecreaseBreaks[j + 1];
-                  legendItem_dynamicDecreaseMov.label = "" + kommonitorDataExchangeService.getIndicatorValue_asNumber(dynamicDecreaseBreaks[j]) + " - < " + kommonitorDataExchangeService.getIndicatorValue_asNumber(dynamicDecreaseBreaks[j + 1]);
+                  legendItem_dynamicDecreaseMov.label = "" + dynamicDecreaseBreaks[j] + " - < " + dynamicDecreaseBreaks[j + 1];
+
+                  // in negative scala we must ensure that smallest value near 0 (here max) is included in range
+                  if(j == dynamicDecreaseColors.length - 1){
+                    legendItem_dynamicDecreaseMov.max = -0.01;
+                  }
                 }
                 else{
                   legendItem_dynamicDecreaseMov.max = -0.01;
-                  legendItem_dynamicDecreaseMov.label = kommonitorDataExchangeService.getIndicatorValue_asNumber(dynamicDecreaseBreaks[j]);
+                  legendItem_dynamicDecreaseMov.label = dynamicDecreaseBreaks[j];
                 }
 
                 pieces.push(legendItem_dynamicDecreaseMov);
@@ -839,7 +849,7 @@ angular
                 };
                 if(dynamicIncreaseBreaks[j + 1]){
                   legendItem_dynamicIncreaseMov.max = dynamicIncreaseBreaks[j + 1];
-                  legendItem_dynamicIncreaseMov.label = "" + kommonitorDataExchangeService.getIndicatorValue_asNumber(dynamicIncreaseBreaks[j]) + " - < " + kommonitorDataExchangeService.getIndicatorValue_asNumber(dynamicIncreaseBreaks[j + 1]);
+                  legendItem_dynamicIncreaseMov.label = "" + dynamicIncreaseBreaks[j] + " - < " + dynamicIncreaseBreaks[j + 1];
                 }
                 else{
                   legendItem_dynamicIncreaseMov.max = dynamicIncreaseBreaks[j];
