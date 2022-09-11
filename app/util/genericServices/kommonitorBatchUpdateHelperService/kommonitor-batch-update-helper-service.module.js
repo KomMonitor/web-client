@@ -9,6 +9,29 @@ angular
 				let thisService = this; // to enable access to service methods from inside other functions (e. g. $timeout) where 'this' references something else
 				let timeseriesMappingReference;
 
+				// Maps the values of the "name" property in the converter's parameter array to the property names used in the batch update
+				// We can't use the parameters array directly because we have to bind angularjs variables to object properties, not array elements
+				// Used in converterParametersArrayToProperties and converterPropertiesToParametersArray 
+				const converterParametersToPropertiesMapping = {
+					"CRS": "crs",
+					"Hausnummer_Spaltenname": "hnrColumnName",
+					"Strasse_Spaltenname": "streetColumnName",
+					"Adresse_Spaltenname": "addressColumnName",
+					"Strasse_Hausnummer_Spaltenname": "streetHnrColumnName",
+					"X_Koordinatenspalte_Rechtswert": "xCoordColumnName",
+					"Y_Koordinatenspalte_Hochwert": "yCoordColumnName",
+					"Postleitzahl_Spaltenname": "plzColumnName",
+					"Stadt_Spaltenname": "cityColumnName",
+					"NAMESPACE": "schemaNamespace",
+					"SCHEMA_LOCATION": "schemaLocation",
+					"Trennzeichen": "separator",
+				}
+				const datasourceParametersToPropertiesMapping = {
+					"NAME": "name",
+					"URL": "url",
+					"payload": "payload"
+				}
+
 				this.batchUpdate = async function (resourceType, batchList, keepMissingOrNullValueIndicator, keepMissingOrNullValueAttributes) {
 
 					let startBtn = document.getElementById(resourceType + "-batch-update-btn");
@@ -48,10 +71,10 @@ angular
 							row.mappingObj.dataSource = this.buildDataSourceDefinition(row.selectedDatasourceType, row.mappingObj.dataSource, true);
 	
 							var converterDefinition = row.mappingObj.converter;
-							//console.log("converterDefinition of row " + i + ": ", converterDefinition);
+							console.log("converterDefinition of row " + i + ": ", converterDefinition);
 	
 							var datasourceTypeDefinition = row.mappingObj.dataSource;
-							//console.log("datasourceTypeDefinition before file upload: ", datasourceTypeDefinition);
+							console.log("datasourceTypeDefinition before file upload: ", datasourceTypeDefinition);
 							
 							var datasourceFileInputId = resourceType + "DataSourceFileInputField" + i;
 							// upload file to importer
@@ -60,8 +83,8 @@ angular
 								try {
 									var fileUploadName = await this.uploadFileToImporter(datasourceFileInputId);
 									if(fileUploadName) {
+										// .value here because we already built the datasourceTypeDefinition
 										datasourceTypeDefinition.parameters[0].value = fileUploadName;
-										//console.log("datasourceTypeDefinition after file upload: ", datasourceTypeDefinition);
 									}
 								} catch (error) {
 									console.error("error while uploading file in row: " + i);
@@ -73,7 +96,7 @@ angular
 									continue;
 								}
 							}
-							//console.log("datasourceTypeDefinition of row " + i + ": ", datasourceTypeDefinition);
+							console.log("datasourceTypeDefinition of row " + i + ": ", datasourceTypeDefinition);
 	
 							// ========== for georesource update ========== 
 							if(resourceType === "georesource") {
@@ -91,10 +114,10 @@ angular
 									this.createAttributeMappingsObject(row)
 								)
 	
-								//console.log("propertyMappingDefinition of row " + i + " with importerService: ", propertyMappingDefinition);
+								console.log("propertyMappingDefinition of row " + i + " with importerService: ", propertyMappingDefinition);
 	
 								 var putBody_georesources = kommonitorImporterHelperService.buildPutBody_georesources(row.mappingObj)
-								 //console.log("putBody_georesources of row " + i + ": ", putBody_georesources);
+								 console.log("putBody_georesources of row " + i + ": ", putBody_georesources);
 		 
 								 // send post request and wait for it to complete
 								 var updateGeoresourceResponse_dryRun = undefined;
@@ -562,71 +585,34 @@ angular
 				// selectedConverter = the currently selected converter in the dropdown
 				// oldConverter = the converter property from a mapping object.
 				this.buildConverterDefinition = function (selectedConverter, oldConverter) {
+					console.log("building converter definition");
+					console.log("selected converter: ", selectedConverter);
+					console.log("old converter: ", oldConverter);
 
 					if (! selectedConverter){
 						return oldConverter;
+					}
+
+					// Remove all properties that are not part of the selected converter.
+					// This is usually needed when the user switches to a different converter.
+					let paramNames = selectedConverter.parameters.map(obj => obj.name);
+					for(var i=oldConverter.parameters.length-1; i>=0; i--) {
+						if(!paramNames.includes(oldConverter.parameters[i].name)) {
+							oldConverter.parameters.splice(i, 1);
+						}
 					}
 					
 					var converterDefinition = {
 						encoding: selectedConverter.encodings[0],
 						mimeType: selectedConverter.mimeTypes[0],
 						name: selectedConverter.name,
-						parameters: [],
+						parameters: oldConverter.parameters,
 						schema: undefined
 					}
 
-					if (selectedConverter.name.includes("wfs.v1")) {
+					if (selectedConverter.name.includes("WFS_v1")) {
 						if (oldConverter.schema && oldConverter.schema.length > 0)
 							converterDefinition.schema = oldConverter.schema;
-					}
-
-					// add crs parameter
-					var param;
-					param = oldConverter.parameters.find(obj => {
-						return obj.name === "CRS"
-					});
-					if (param) {
-						converterDefinition.parameters.push({
-							name: param.name,
-							value: param.value
-						});
-					}
-
-					// add more parameters for specific converter types
-					if (selectedConverter.name.includes("csvLatLon") ||
-						selectedConverter.name.includes("csv_onlyIndicator")) {
-
-						param = oldConverter.parameters.find(obj => {
-							return obj.name == "separator"
-						});
-						if (param) {
-							converterDefinition.parameters.push({
-								name: param.name,
-								value: param.value
-							});
-						}
-					}
-
-					if (selectedConverter.name.includes("csvLatLon")) {
-						param = oldConverter.parameters.find(obj => {
-							return obj.name == "yCoordColumn"
-						});
-						if (param) {
-							converterDefinition.parameters.push({
-								name: param.name,
-								value: param.value
-							});
-						}
-
-						param = oldConverter.parameters.find(obj => {
-							return obj.name == "xCoordColumn"
-						});
-						if (param) {
-							converterDefinition.parameters.push({
-								name: param.name,
-								value: param.value
-							});
-						}
 					}
 
 					return converterDefinition;
@@ -637,56 +623,46 @@ angular
 				// selectedDatasourceType = the currently selected datasource in the dropdown
 				// oldDataSource = the datasource property from a mapping object.
 				this.buildDataSourceDefinition = function (selectedDatasourceType, oldDataSource, includeFileName) {
-
+					console.log("in buildDataSourceDefinition");
+					console.log("selectedDatasourceType: ", selectedDatasourceType);
+					console.log("oldDataSource", oldDataSource);
 					if (! selectedDatasourceType){
 						return oldDataSource;
 					}
+
+					// Remove all properties that are not part of the selected datasource.
+					// This is usually needed when the user switches to a different datasource.
+					// let paramNames = selectedDatasourceType.parameters.map(obj => obj.name);
+					// for(var i=oldDataSource.parameters.length-1; i>=0; i--) {
+					// 	if(!paramNames.includes(oldDataSource.parameters[i].name)) {
+					// 		oldDataSource.parameters.splice(i, 1);
+					// 	}
+					// }
 
 					var dataSourceDefinition = {
 						parameters: [],
 						type: selectedDatasourceType.type
 					}
 
-
 					if (dataSourceDefinition.type === "FILE") {
-						var param = oldDataSource.parameters.find(obj => {
-							return obj.name === "NAME";
+						dataSourceDefinition.parameters.push({
+							name: "NAME",
+							value: includeFileName ? oldDataSource.name : ""
 						});
-						if (param) {
-							dataSourceDefinition.parameters.push({
-								name: param.name
-							});
-							if(includeFileName)
-								dataSourceDefinition.parameters[0].value = param.name;
-							else
-								dataSourceDefinition.parameters[0].value = ""
-						}
-
 					}
 
 					if (dataSourceDefinition.type === "HTTP") {
-						var param = oldDataSource.parameters.find(obj => {
-							return obj.name === "URL";
+						dataSourceDefinition.parameters.push({
+							name: "URL",
+							value: oldDataSource.url ? oldDataSource.url : ""
 						});
-						if (param) {
-							dataSourceDefinition.parameters.push({
-								name: param.name,
-								value: param.value
-							});
-						}
 					}
 
 					if (dataSourceDefinition.type === "INLINE") {
-						var param = oldDataSource.parameters.find(obj => {
-							return obj.name === "payload";
+						dataSourceDefinition.parameters.push({
+							name: "payload",
+							value: oldDataSource.payload ? oldDataSource.payload : ""
 						});
-						if (param) {
-							dataSourceDefinition.parameters.push({
-								name: param.name,
-								value: param.value
-							});
-						}
-
 					}
 
 					return dataSourceDefinition;
@@ -700,15 +676,12 @@ angular
 					var array = converter.parameters;
 					// for each array element add a new property
 					for (var i = 0; i < array.length; i++) {
-						var paramName = array[i].name
-						var paramValue = array[i].value
-						result[paramName] = {
-							"name": paramName,
-							"value": paramValue
-						}
+						var paramName = array[i].name;
+						var propName = converterParametersToPropertiesMapping[paramName];
+						var paramValue = array[i].value;
+						result[propName] = paramValue;
 					}
 					delete result.parameters;
-
 					return result;
 				}
 
@@ -717,60 +690,33 @@ angular
 					var result = $.extend(true, {}, converter);
 					result.parameters = [];
 
-					if (result.hasOwnProperty("CRS")) {
-						result.parameters.push({
-							name: "CRS",
-							value: result.CRS.value
+					for(const [prop, value] of Object.entries(result)) {
+						// If prop is in mapping table
+						Object.keys(converterParametersToPropertiesMapping).forEach(function(key) {
+							if (converterParametersToPropertiesMapping[key] == prop) {
+								result.parameters.push({
+									name: key,
+									value: value
+								});
+								delete result[prop];
+							}
 						});
-						delete result.CRS;
 					}
-
-					if (result.hasOwnProperty("separator")) {
-						result.parameters.push({
-							name: "separator",
-							value: result.separator.value
-						});
-						delete result.separator;
-					}
-
-					if (result.hasOwnProperty("yCoordColumn")) {
-						result.parameters.push({
-							name: "yCoordColumn",
-							value: result.yCoordColumn.value
-						});
-						delete result.yCoordColumn;
-					}
-
-					if (result.hasOwnProperty("xCoordColumn")) {
-						result.parameters.push({
-							name: "xCoordColumn",
-							value: result.xCoordColumn.value
-						});
-						delete result.xCoordColumn;
-					}
-
 					return result;
 				}
 
 				// We need properties to bind model variables to them.
-				// Binding to unnamed objects in an array tricky (using the index is not reliable)
+				// Binding to unnamed objects in an array is tricky (using the index is not reliable)
 				// It also creates other problems
 				this.dataSourceParametersArrayToProperty = function (dataSource) {
 					if(dataSource) {
 						var result = $.extend(true, {}, dataSource);
 						var array = dataSource.parameters;
-	
-						if (array.length == 1) {
-							var paramName = array[0].name
-							var paramValue = array[0].value
-	
-							result[paramName] = {
-								name: paramName,
-								value: paramValue
-							}
-						}
+						// only one datasource can be selected for each row, so the array has to be of length one
+						var paramName = array[0].name;
+						var paramValue = array[0].value;
+						result[paramName] = paramValue;
 						delete result.parameters;
-	
 						return result;
 					}
 				}
@@ -780,43 +726,32 @@ angular
 					if (dataSource) {
 						var result = $.extend(true, {}, dataSource);
 						result.parameters = [];
-	
-						if (result.hasOwnProperty("NAME")) {
-							result.parameters.push({
-								name: "NAME",
-								value: result.NAME.value
+
+						for(const [prop, value] of Object.entries(result)) {
+							// If prop is in mapping table
+							Object.keys(datasourceParametersToPropertiesMapping).forEach(function(key) {
+								if (datasourceParametersToPropertiesMapping[key] == prop) {
+									result.parameters.push({
+										name: key,
+										value: value
+									});
+									delete result[prop];
+								}
 							});
-							delete result.NAME;
 						}
-	
-						if (result.hasOwnProperty("URL")) {
-							result.parameters.push({
-								name: "URL",
-								value: result.URL.value
-							});
-							delete result.URL;
-						}
-	
-						if (result.hasOwnProperty("payload")) {
-							result.parameters.push({
-								name: "payload",
-								value: result.payload.value
-							});
-							delete result.payload;
-						}
-	
 						return result;
 					}
-					
 				}
 
 
 				// helper function to get a converter object by full name.
 				// returns null if no converter was found
 				this.getConverterObjectByName = function (name) {
-					for (const converter of kommonitorImporterHelperService.availableConverters) {
-						if (converter.name === name) {
-							return converter;
+					if(kommonitorImporterHelperService.availableConverters) {
+						for (const converter of kommonitorImporterHelperService.availableConverters) {
+							if (converter.name === name) {
+								return converter;
+							}
 						}
 					}
 					return null;
@@ -998,12 +933,11 @@ angular
 							if (datasourceType != undefined && datasourceType.length > 0) {
 
 								if (datasourceType == "FILE") {
-									if(!dataSource.NAME) {
+									if(!dataSource.name) {
 										updateBtn.title = "Die Spalte Datei* ist nicht für alle Zeilen gesetzt, in denen die Spalte Datenquelltyp* auf FILE gesetzt ist."
 										return false;
 									} else {
-										let value = dataSource.NAME.value;
-										if(value == undefined || value == "") {
+										if(dataSource.name == undefined || dataSource.name == "") {
 											updateBtn.title = "Die Spalte Datei* ist nicht für alle Zeilen gesetzt, in denen die Spalte Datenquelltyp* auf FILE gesetzt ist."
 											return false;
 										}
@@ -1011,14 +945,13 @@ angular
 								}
 
 								if (datasourceType == "HTTP") {
-									if(!dataSource.URL) {
+									if(!dataSource.url) {
 										// property does not exist until user uses the input field for the first time
 										updateBtn.title = "Die Spalte URL* ist nicht für alle Zeilen gesetzt, in denen die Spalte Datenquelltyp* auf HTTP gesetzt ist."
 										return false;
 									} else {
 										// the field could still be empty (if it had input before)
-										let value = dataSource.URL.value;
-										if(value == undefined || value == "") {
+										if(dataSource.url == undefined || dataSource.url == "") {
 											updateBtn.title = "Die Spalte URL* ist nicht für alle Zeilen gesetzt, in denen die Spalte Datenquelltyp* auf HTTP gesetzt ist."
 											return false;
 										}
@@ -1032,8 +965,7 @@ angular
 										return false;
 									} else {
 										 // the field could still be empty (if it had input before)
-										let value = dataSource.payload.value;
-										if(value == undefined || value == "") {
+										if(dataSource.payload == undefined || dataSource.payload == "") {
 											updateBtn.title = "Die Spalte Payload* ist nicht für alle Zeilen gesetzt, in denen die Spalte Datenquelltyp* auf INLINE gesetzt ist."
 											return false;
 										}
@@ -1050,7 +982,7 @@ angular
 							if(resourceType === "georesource")
 								updateBtn.title = "Die Spalte Geodaten-Quellformat* ist nicht für alle Zeilen gesetzt."
 							else
-								updateBtn.title = "Die Spalte Datensatz-Quellformat* ist nicht für alle Zeilen gesetzt."
+								updateBtn.title = "Die Spalte Datensatz-Quellformat* ist nicht für alle Zeilen gesetzt." // for indicators
 							
 							return false;
 						}
@@ -1066,8 +998,7 @@ angular
 					$timeout(function() {
 						let dataSource = batchList[rowIndex].mappingObj.dataSource;
 						dataSource.parameters = [];
-						dataSource.NAME = {}
-						dataSource.NAME.value = name
+						dataSource.name = name
 						batchList[rowIndex].mappingObj.dataSource = dataSource;
 					});
 				}
@@ -1121,7 +1052,7 @@ angular
 					// do not import file name
 					if(mappingObj.dataSource) {
 						if(mappingObj.dataSource.type == "FILE") {
-							mappingObj.dataSource.NAME.value = "";
+							mappingObj.dataSource.name = "";
 						}
 					}
 				
@@ -1231,6 +1162,25 @@ angular
 					}, 200)
 				}
 
+				// Generic function to check which columns have to be shown depending on the selected converter.
+				// Returns an array of the selected converter names
+				this.checkColumnsToShow_selectedConverter = function(batchList) {
+					let result = [];
+					// We have to check the whole batch list.
+					// If only one row has a spscific converter selected, we have to show the corresponding collumns
+					for(let i=0;i<batchList.length;i++) {
+						if(batchList[i].selectedConverter) {
+							let converterName = batchList[i].selectedConverter.name;
+							if(converterName != undefined && converterName.length > 0) {
+								// Only add if name isn't added already
+								if( !result.includes(converterName) ) {
+									result.push(converterName)
+								}
+							}
+						}
+					}
+					return result;
+				}
 
 				// the variable availableGeoresources / availableIndicators (which is used to fill the ng-options)
 				// changes after each update, causing angularjs to loose the connection.
@@ -1261,7 +1211,7 @@ angular
 							input.css("border", "none");
 							input.css("width", '100%');
 						}
-					}, 500);     	
+					}, 500);
 				};
 
 

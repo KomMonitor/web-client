@@ -169,25 +169,6 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 				kommonitorBatchUpdateHelperService.resizeNameColumnDropdowns(null);
 			})
 
-
-			// loop through batch list and check if condition is true for at least one row
-			$scope.checkIfSelectedConverterIsCsvLatLon = function() {
-				var selectedConverterIsCsvLatLon = false;
-				for(let i=0;i<$scope.batchList.length;i++) {
-					if($scope.batchList[i].selectedConverter) {
-						let converterName = $scope.batchList[i].selectedConverter.name;
-						if(converterName != undefined && converterName.length > 0) {
-							if(converterName.includes("csvLatLon")) {
-								selectedConverterIsCsvLatLon = true;
-								break;
-							}
-						}
-					}
-				}
-				return selectedConverterIsCsvLatLon;
-			}
-			
-
 			$rootScope.$on("refreshGeoresourceOverviewTableCompleted", function() {
 				kommonitorBatchUpdateHelperService.refreshNameColumn("georesource", $scope.batchList)
 			});

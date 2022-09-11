@@ -34,11 +34,28 @@
 											<th>G&uuml;ltigkeitszeitraum von*</th>
 											<th>G&uuml;ltigkeitszeitraum bis</th>
 											<th>Geodaten-Quellformat*</th>
-											<th>CRS*</th>
-											<th ng-show="checkIfSelectedConverterIsCsvLatLon()">separator*</th>
-											<th ng-show="checkIfSelectedConverterIsCsvLatLon()">yCoordColumn*</th>
-											<th ng-show="checkIfSelectedConverterIsCsvLatLon()">xCoordColumn*</th>
-											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedConverterIsWfsV1(batchList)">Schema*</th>
+											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).length">Quellformat*</th>
+											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('GeoJSON') ||
+											$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('Shapefile (ZIP-Ordner mit .shp, .dbf, .prj)') ||
+											$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('Tabelle_XY_Koordinate_zu_Punkt') ||
+											$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('WFS_v1')">CRS*</th>
+											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('Tabelle_Geokodierung_Adresse_strukturierte_Einzelspalten')">Hausnummer_Spaltenname*</th>
+											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('Tabelle_Geokodierung_Adresse_strukturierte_Einzelspalten')">Strasse_Spaltenname*</th>
+											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('Tabelle_Geokodierung_beliebige_Zeichenkette')">Adresse_Spaltenname*</th>
+											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('Tabelle_Geokodierung_Strasse_Hausnummer_Stadt')">Strasse_Hausnummer_Spaltenname*</th>
+											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('Tabelle_XY_Koordinate_zu_Punkt')">X_Koordinatenspalte_Rechtswert*</th>
+											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('Tabelle_XY_Koordinate_zu_Punkt')">Y_Koordinatenspalte_Hochwert*</th>
+											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('Tabelle_Geokodierung_Adresse_strukturierte_Einzelspalten') ||
+														$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('Tabelle_Geokodierung_Strasse_Hausnummer_Stadt')">Postleitzahl_Spaltenname</th>
+											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('Tabelle_Geokodierung_Adresse_strukturierte_Einzelspalten') ||
+														$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('Tabelle_Geokodierung_Strasse_Hausnummer_Stadt')">Stadt_Spaltenname</th>
+											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('WFS_v1')">Schema*</th>
+											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('WFS_v1')">NAMESPACE</th>
+											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('WFS_v1')">SCHEMA_LOCATION</th>
+											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('Tabelle_Geokodierung_Adresse_strukturierte_Einzelspalten') ||
+														$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('Tabelle_Geokodierung_beliebige_Zeichenkette') ||
+														$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('Tabelle_Geokodierung_Strasse_Hausnummer_Stadt') ||
+														$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('Tabelle_XY_Koordinate_zu_Punkt')">Trennzeichen</th>
 											<th>Datenquelltyp*</th>
 											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedDatasourceTypeIsFile(batchList)">Datei*</th>
 											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedDatasourceTypeIsHttp(batchList)">URL*</th>
@@ -103,41 +120,105 @@
 											<td>
 												<select class="form-control" ng-model="georesource.selectedConverter"
 														ng-options="converter as converter.name for converter in $ctrl.kommonitorImporterHelperServiceInstance.availableConverters | filter:$ctrl.kommonitorImporterHelperServiceInstance.filterConverters('georesource')" required>
-																<option disabled selected value> -- Quellformat w&auml;hlen -- </option>
+																<option disabled selected value> -- Geodaten-Quellformat w&auml;hlen -- </option>
+												</select>
+											</td>
+
+											<!-- Quellformat -->
+											<td ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).length>0">
+												<select class="form-control" ng-model="georesource.mappingObj.converter.mimeType" 
+													ng-options="mimeType for mimeType in georesource.selectedConverter.mimeTypes" required>
+													<option disabled selected value> -- Quellformat w&auml;hlen -- </option>
 												</select>
 											</td>
 
 											<!-- CRS -->
-											<td>
-												<input id="georesourceCrsInputField{{$index}}" class="form-control" ng-model="georesource.mappingObj.converter.CRS.value"
+											<td ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('GeoJSON') ||
+														$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('Shapefile (ZIP-Ordner mit .shp, .dbf, .prj)') ||
+														$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('Tabelle_XY_Koordinate_zu_Punkt') ||
+														$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('WFS_v1')">
+												<input id="georesourceCrsInputField{{$index}}" class="form-control" ng-model="georesource.mappingObj.converter.crs"
 												type="text" placeholder="z.B. EPSG:4326" required>
 											</td>
 
-											<!-- separator -->
-											<td ng-show="checkIfSelectedConverterIsCsvLatLon()">
-												<input class="form-control" ng-model="georesource.mappingObj.converter.separator.value"
-												type="text" ng-disabled="!georesource.selectedConverter.name.includes(&quot;csvLatLon&quot;)" required>
+											<!-- Hausnummer_Spaltenname -->
+											<td ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('Tabelle_Geokodierung_Adresse_strukturierte_Einzelspalten')">
+												<input class="form-control" ng-model="georesource.mappingObj.converter.hnrColumnName"
+												type="text" ng-disabled="!georesource.selectedConverter.name.includes('Tabelle_Geokodierung_Adresse_strukturierte_Einzelspalten')" required>
 											</td>
 
-											<!-- yCoordColumn -->
-											<td ng-show="checkIfSelectedConverterIsCsvLatLon()">
-												<input class="form-control" ng-model="georesource.mappingObj.converter.yCoordColumn.value"
-												type="text" ng-disabled="!georesource.selectedConverter.name.includes(&quot;csvLatLon&quot;)" required>
+											<!-- Strasse_Spaltenname -->
+											<td ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('Tabelle_Geokodierung_Adresse_strukturierte_Einzelspalten')">
+												<input class="form-control" ng-model="georesource.mappingObj.converter.streetColumnName"
+												type="text" ng-disabled="!georesource.selectedConverter.name.includes('Tabelle_Geokodierung_Adresse_strukturierte_Einzelspalten')" required>
 											</td>
 
-											<!-- xCoordColumn -->
-											<td ng-show="checkIfSelectedConverterIsCsvLatLon()">
-												<input class="form-control" ng-model="georesource.mappingObj.converter.xCoordColumn.value"
-												type="text" ng-disabled="!georesource.selectedConverter.name.includes(&quot;csvLatLon&quot;)" required>
+											<!-- Adresse_Spaltenname -->
+											<td ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('Tabelle_Geokodierung_beliebige_Zeichenkette')">
+												<input class="form-control" ng-model="georesource.mappingObj.converter.addressColumnName"
+												type="text" ng-disabled="!georesource.selectedConverter.name.includes('Tabelle_Geokodierung_beliebige_Zeichenkette')" required>
+											</td>
+
+											<!-- Strasse_Hausnummer_Spaltenname -->
+											<td ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('Tabelle_Geokodierung_Strasse_Hausnummer_Stadt')">
+												<input class="form-control" ng-model="georesource.mappingObj.converter.streetHnrColumnName"
+												type="text" ng-disabled="!georesource.selectedConverter.name.includes('Tabelle_Geokodierung_Strasse_Hausnummer_Stadt')" required>
+											</td>
+
+											<!-- X_Koordinatenspalte_Rechtswert -->
+											<td ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('Tabelle_XY_Koordinate_zu_Punkt')">
+												<input class="form-control" ng-model="georesource.mappingObj.converter.xCoordColumnName"
+												type="text" ng-disabled="!georesource.selectedConverter.name.includes('Tabelle_XY_Koordinate_zu_Punkt')" required>
+											</td>
+
+											<!-- Y_Koordinatenspalte_Rechtswert -->
+											<td ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('Tabelle_XY_Koordinate_zu_Punkt')">
+												<input class="form-control" ng-model="georesource.mappingObj.converter.yCoordColumnName"
+												type="text" ng-disabled="!georesource.selectedConverter.name.includes('Tabelle_XY_Koordinate_zu_Punkt')" required>
+											</td>
+
+											<!-- Postleitzahl_Spaltenname -->
+											<td ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('Tabelle_Geokodierung_Adresse_strukturierte_Einzelspalten') ||
+														$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('Tabelle_Geokodierung_Strasse_Hausnummer_Stadt')">
+												<input class="form-control" ng-model="georesource.mappingObj.converter.plzColumnName"
+												type="text" ng-disabled="!['Tabelle_Geokodierung_Adresse_strukturierte_Einzelspalten', 'Tabelle_Geokodierung_Strasse_Hausnummer_Stadt'].includes(georesource.selectedConverter.name)">
+											</td>
+
+											<!-- Stadt_Spaltenname -->
+											<td ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('Tabelle_Geokodierung_Adresse_strukturierte_Einzelspalten') ||
+														$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('Tabelle_Geokodierung_Strasse_Hausnummer_Stadt')">
+												<input class="form-control" ng-model="georesource.mappingObj.converter.cityColumnName"
+												type="text" ng-disabled="!['Tabelle_Geokodierung_Adresse_strukturierte_Einzelspalten', 'Tabelle_Geokodierung_Strasse_Hausnummer_Stadt'].includes(georesource.selectedConverter.name)">
 											</td>
 
 											<!-- schema -->
-											<td ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedConverterIsWfsV1(batchList)">
+											<td ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('WFS_v1')">
 												<select class="form-control" ng-model="georesource.mappingObj.converter.schema" 
-													ng-options="schema for schema in $ctrl.kommonitorImporterHelperServiceInstance.availableConverters[3].schemas"
-													ng-disabled="!georesource.selectedConverter.name.includes(&quot;wfs.v1&quot;)" required>
+													ng-options="schema for schema in georesource.selectedConverter.schemas"
+													ng-disabled="!georesource.selectedConverter.name.includes('WFS_v1')" required>
 													<option disabled selected value> -- Schema w&auml;hlen -- </option>
 												</select>
+											</td>
+
+											<!-- NAMESPACE -->
+											<td ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('WFS_v1')">
+												<input class="form-control" ng-model="georesource.mappingObj.converter.schemaNamespace"
+												type="text" ng-disabled="!georesource.selectedConverter.name.includes('WFS_v1')">
+											</td>
+
+											<!-- SCHEMA_LOCATION -->
+											<td ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('WFS_v1')">
+												<input class="form-control" ng-model="georesource.mappingObj.converter.schemaLocation"
+												type="text" ng-disabled="!georesource.selectedConverter.name.includes('WFS_v1')">
+											</td>
+
+											<!-- Trennzeichen -->
+											<td ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('Tabelle_Geokodierung_Adresse_strukturierte_Einzelspalten') ||
+														$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('Tabelle_Geokodierung_beliebige_Zeichenkette') ||
+														$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('Tabelle_Geokodierung_Strasse_Hausnummer_Stadt') ||
+														$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('Tabelle_XY_Koordinate_zu_Punkt')">
+												<input class="form-control" ng-model="georesource.mappingObj.converter.separator"
+												type="text" ng-disabled="!['Tabelle_Geokodierung_Adresse_strukturierte_Einzelspalten', 'Tabelle_Geokodierung_beliebige_Zeichenkette', 'Tabelle_Geokodierung_Strasse_Hausnummer_Stadt', 'Tabelle_XY_Koordinate_zu_Punkt'].includes(georesource.selectedConverter.name)">
 											</td>
 
 											<!-- Datenquelltyp -->
@@ -152,19 +233,19 @@
 											<!-- Datei -->
 											<td ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedDatasourceTypeIsFile(batchList)">
 												<input id="georesourceDataSourceFileInputField{{$index}}" class="form-control georesourceDataSourceFileInputField" type="file" 
-												ng-disabled="!georesource.selectedDatasourceType.type.includes(&quot;FILE&quot;)" required>
+												ng-disabled="!georesource.selectedDatasourceType.type.includes('FILE')" required>
 											</td>
 
 											<!-- URL -->
 											<td ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedDatasourceTypeIsHttp(batchList)">
-												<input class="form-control" type="text" ng-model="georesource.mappingObj.dataSource.URL.value"
-												ng-disabled="!georesource.selectedDatasourceType.type.includes(&quot;HTTP&quot;)" required>
+												<input class="form-control" type="text" ng-model="georesource.mappingObj.dataSource.url"
+												ng-disabled="!georesource.selectedDatasourceType.type.includes('HTTP')" required>
 											</td>
 
 											<!-- Payload -->
 											<td ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedDatasourceTypeIsInline(batchList)">
-												<input class="form-control" type="text" ng-model="georesource.mappingObj.dataSource.payload.value"
-												ng-disabled="!georesource.selectedDatasourceType.type.includes(&quot;INLINE&quot;)" required>
+												<input class="form-control" type="text" ng-model="georesource.mappingObj.dataSource.payload"
+												ng-disabled="!georesource.selectedDatasourceType.type.includes('INLINE')" required>
 											</td>
 
 											<!-- ID Attributname -->
@@ -205,11 +286,28 @@
 											<th>G&uuml;ltigkeitszeitraum von*</th>
 											<th>G&uuml;ltigkeitszeitraum bis</th>
 											<th>Geodaten-Quellformat*</th>
-											<th>CRS*</th>
-											<th ng-show="checkIfSelectedConverterIsCsvLatLon()">separator*</th>
-											<th ng-show="checkIfSelectedConverterIsCsvLatLon()">yCoordColumn*</th>
-											<th ng-show="checkIfSelectedConverterIsCsvLatLon()">xCoordColumn*</th>
-											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedConverterIsWfsV1(batchList)">Schema*</th>
+											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).length">Quellformat*</th>
+											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('GeoJSON') ||
+											$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('Shapefile (ZIP-Ordner mit .shp, .dbf, .prj)') ||
+											$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('Tabelle_XY_Koordinate_zu_Punkt') ||
+											$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('WFS_v1')">CRS*</th>
+											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('Tabelle_Geokodierung_Adresse_strukturierte_Einzelspalten')">Hausnummer_Spaltenname*</th>
+											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('Tabelle_Geokodierung_Adresse_strukturierte_Einzelspalten')">Strasse_Spaltenname*</th>
+											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('Tabelle_Geokodierung_beliebige_Zeichenkette')">Adresse_Spaltenname*</th>
+											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('Tabelle_Geokodierung_Strasse_Hausnummer_Stadt')">Strasse_Hausnummer_Spaltenname*</th>
+											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('Tabelle_XY_Koordinate_zu_Punkt')">X_Koordinatenspalte_Rechtswert*</th>
+											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('Tabelle_XY_Koordinate_zu_Punkt')">Y_Koordinatenspalte_Hochwert*</th>
+											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('Tabelle_Geokodierung_Adresse_strukturierte_Einzelspalten') ||
+														$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('Tabelle_Geokodierung_Strasse_Hausnummer_Stadt')">Postleitzahl_Spaltenname</th>
+											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('Tabelle_Geokodierung_Adresse_strukturierte_Einzelspalten') ||
+														$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('Tabelle_Geokodierung_Strasse_Hausnummer_Stadt')">Stadt_Spaltenname</th>
+											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('WFS_v1')">Schema*</th>
+											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('WFS_v1')">NAMESPACE</th>
+											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('WFS_v1')">SCHEMA_LOCATION</th>
+											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('Tabelle_Geokodierung_Adresse_strukturierte_Einzelspalten') ||
+														$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('Tabelle_Geokodierung_beliebige_Zeichenkette') ||
+														$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('Tabelle_Geokodierung_Strasse_Hausnummer_Stadt') ||
+														$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('Tabelle_XY_Koordinate_zu_Punkt')">Trennzeichen</th>
 											<th>Datenquelltyp*</th>
 											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedDatasourceTypeIsFile(batchList)">Datei*</th>
 											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedDatasourceTypeIsHttp(batchList)">URL*</th>
@@ -250,22 +348,34 @@
 										<option value="mappingObj.periodOfValidity.startDate">G&uuml;ltigkeitszeitraum von*</option>
 										<option value="mappingObj.periodOfValidity.endDate">G&uuml;ltigkeitszeitraum bis</option>
 										<option value="selectedConverter">Geodaten-Quellformat*</option>
-										<option value="mappingObj.converter.CRS.value">CRS*</option>
-										<option value="mappingObj.converter.separator.value">separator*</option>
-										<option value="mappingObj.converter.yCoordColumn.value">yCoordColumn*</option>
-										<option value="mappingObj.converter.xCoordColumn.value">xCoordColumn*</option>
+										<option value="mappingObj.converter.mimeType">Quellformat*</option>
+										<option value="mappingObj.converter.crs">CRS*</option>
+										<option value="mappingObj.converter.hnrColumnName">Hausnummer_Spaltenname*</option>
+										<option value="mappingObj.converter.streetColumnName">Strasse_Spaltenname*</option>
+										<option value="mappingObj.converter.addressColumnName">Adresse_Spaltenname*</option>
+										<option value="mappingObj.converter.streetHnrColumnName">Strasse_Hausnummer_Spaltenname*</option>
+										<option value="mappingObj.converter.xCoordColumnName">X_Koordinatenspalte_Rechtswert*</option>
+										<option value="mappingObj.converter.yCoordColumnName">Y_Koordinatenspalte_Hochwert*</option>
+										<option value="mappingObj.converter.plzColumnName">Postleitzahl_Spaltenname</option>
+										<option value="mappingObj.converter.cityColumnName">Stadt_Spaltenname</option>
 										<option value="mappingObj.converter.schema">Schema*</option>
+										<option value="mappingObj.converter.schemaNamespace">NAMESPACE</option>
+										<option value="mappingObj.converter.schemaLocation">SCHEMA_LOCATION</option>
+										<option value="mappingObj.converter.separator">Trennzeichen</option>
 										<option value="selectedDatasourceType">Datenquelltyp*</option>
-										<option value="mappingObj.dataSource.URL.value">URL*</option>
-										<option value="mappingObj.dataSource.payload.value">Payload*</option>
+										<!-- File is not supported here -->
+										<option value="mappingObj.dataSource.url">URL*</option>
+										<option value="mappingObj.dataSource.payload">Payload*</option>
 										<option value="mappingObj.propertyMapping.identifierProperty">ID Attributname*</option>
 										<option value="mappingObj.propertyMapping.nameProperty">NAME Attributname*</option>
 										<option value="mappingObj.propertyMapping.validStartDateProperty">Lebenszeit-Beginn Attributname</option>
 										<option value="mappingObj.propertyMapping.validEndDateProperty">Lebenszeit-Ende Attributname</option>
 									</select>
 									<label>Wert:</label>
+
 									<!-- default -->
 									<input ng-show="!colDefaultFunctionSelectedColumn" type="text" class="form-control" ng-model="colDefaultFunctionNewValue" disabled placeholder="keine Tabellenspalte ausgew&auml;hlt"></input>
+									
 									<!-- Gültigkeitszeitraum von* -->
 									<div ng-show="colDefaultFunctionSelectedColumn=='mappingObj.periodOfValidity.startDate'"
 										class="input-group date">
@@ -275,6 +385,7 @@
 										<input id="georesourceDefaultColumnDatePickerStart" class="form-control pull-right" type="text"  placeholder="YYYY-MM-DD"
 											value={{colDefaultFunctionNewValue}} ng-model="colDefaultFunctionNewValue">
 									</div>
+
 									<!-- Gültigkeitszeitraum bis* -->
 									<div ng-show="colDefaultFunctionSelectedColumn=='mappingObj.periodOfValidity.endDate'"
 										class="input-group date">
@@ -284,44 +395,120 @@
 										<input id="georesourceDefaultColumnDatePickerEnd" class="form-control pull-right" type="text"  placeholder="YYYY-MM-DD"
 											value={{colDefaultFunctionNewValue}} ng-model="colDefaultFunctionNewValue">
 									</div>
+
 									<!-- Geodaten-Quellformat* -->
 									<select ng-show="colDefaultFunctionSelectedColumn=='selectedConverter'" class="form-control" ng-model="colDefaultFunctionNewValue"
 										ng-options="converter as converter.name for converter in $ctrl.kommonitorImporterHelperServiceInstance.availableConverters | filter:$ctrl.kommonitorImporterHelperServiceInstance.filterConverters('georesource')">
-											<option disabled selected value> -- Quellformat w&auml;hlen -- </option>
+											<option disabled selected value> -- Geodaten-Quellformat w&auml;hlen -- </option>
 									</select>
+
+									<!-- Quellformat* -->
+									<!-- Only enable this field if every row has the same converter selected.
+										This is why we can use the values of the converter of the first row here, because all other rows should be the same. -->
+									<select ng-show="colDefaultFunctionSelectedColumn=='mappingObj.converter.mimeType'" class="form-control" ng-model="colDefaultFunctionNewValue"
+									ng-options="mimeType for mimeType in $ctrl.kommonitorBatchUpdateHelperServiceInstance.getConverterObjectByName(batchList[0].selectedConverter.name).mimeTypes"
+									ng-disabled="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).length != 1">
+										<option disabled selected value> -- Quellformat w&auml;hlen -- </option>
+									</select>
+									</td>
 									<!-- CRS* -->
-									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.converter.CRS.value'" type="text" class="form-control"
-										ng-model="colDefaultFunctionNewValue" placeholder="z.B. EPSG:4326">
+									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.converter.crs'" type="text" class="form-control"
+										ng-model="colDefaultFunctionNewValue" placeholder="z.B. EPSG:4326"
+										ng-disabled="!($ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('GeoJSON') ||
+													$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('Shapefile (ZIP-Ordner mit .shp, .dbf, .prj)') ||
+													$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('Tabelle_XY_Koordinate_zu_Punkt') ||
+													$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('WFS_v1'))">
 									</input>
-									<!-- separator* -->
-									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.converter.separator.value'" type="text" class="form-control"
-										ng-model="colDefaultFunctionNewValue" ng-disabled="!checkIfSelectedConverterIsCsvLatLon()">
+
+									<!-- Hausnummer_Spaltenname* -->
+									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.converter.hnrColumnName'" type="text" class="form-control"
+										ng-model="colDefaultFunctionNewValue"
+										ng-disabled="!$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('Tabelle_Geokodierung_Adresse_strukturierte_Einzelspalten')">
 									</input>
-									<!-- yCoordColumn* -->
-									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.converter.yCoordColumn.value'" type="text" class="form-control"
-										ng-model="colDefaultFunctionNewValue" ng-disabled="!checkIfSelectedConverterIsCsvLatLon()">
+
+									<!-- Strasse_Spaltenname* -->
+									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.converter.streetColumnName'" type="text" class="form-control"
+										ng-model="colDefaultFunctionNewValue"
+										ng-disabled="!$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('Tabelle_Geokodierung_Adresse_strukturierte_Einzelspalten')">
 									</input>
-									<!-- xCoordColumn* -->
-									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.converter.xCoordColumn.value'" type="text" class="form-control"
-										ng-model="colDefaultFunctionNewValue" ng-disabled="!checkIfSelectedConverterIsCsvLatLon()">
+
+									<!-- Adresse_Spaltenname* -->
+									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.converter.addressColumnName'" type="text" class="form-control"
+										ng-model="colDefaultFunctionNewValue"
+										ng-disabled="!$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('Tabelle_Geokodierung_beliebige_Zeichenkette')">
 									</input>
+
+									<!-- Strasse_Hausnummer_Spaltenname* -->
+									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.converter.streetHnrColumnName'" type="text" class="form-control"
+										ng-model="colDefaultFunctionNewValue"
+										ng-disabled="!$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('Tabelle_Geokodierung_Strasse_Hausnummer_Stadt')">
+									</input>
+
+									<!-- X_Koordinatenspalte_Rechtswert* -->
+									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.converter.xCoordColumnName'" type="text" class="form-control"
+										ng-model="colDefaultFunctionNewValue"
+										ng-disabled="!$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('Tabelle_XY_Koordinate_zu_Punkt')">
+									</input>
+
+									<!-- Y_Koordinatenspalte_Rechtswert* -->
+									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.converter.yCoordColumnName'" type="text" class="form-control"
+										ng-model="colDefaultFunctionNewValue"
+										ng-disabled="!$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('Tabelle_XY_Koordinate_zu_Punkt')">
+									</input>
+
+									<!-- Postleitzahl_Spaltenname -->
+									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.converter.plzColumnName'" type="text" class="form-control"
+										ng-model="colDefaultFunctionNewValue"
+										ng-disabled="!($ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('Tabelle_Geokodierung_Adresse_strukturierte_Einzelspalten') ||
+													$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('Tabelle_Geokodierung_Strasse_Hausnummer_Stadt'))">
+									</input>
+
+									<!-- Stadt_Spaltenname -->
+									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.converter.cityColumnName'" type="text" class="form-control"
+										ng-model="colDefaultFunctionNewValue"
+										ng-disabled="!($ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('Tabelle_Geokodierung_Adresse_strukturierte_Einzelspalten') ||
+													$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('Tabelle_Geokodierung_Strasse_Hausnummer_Stadt'))">
+									</input>
+
 									<!-- Schema* -->
 									<select ng-show="colDefaultFunctionSelectedColumn=='mappingObj.converter.schema'" class="form-control" ng-model="colDefaultFunctionNewValue" 
-										ng-options="schema for schema in $ctrl.kommonitorImporterHelperServiceInstance.availableConverters[3].schemas"
-										ng-disabled="!$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedConverterIsWfsV1(batchList)">
+										ng-options="schema for schema in $ctrl.kommonitorBatchUpdateHelperServiceInstance.getConverterObjectByName('WFS_v1').schemas"
+										ng-disabled="!$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('WFS_v1')">
 											<option disabled selected value> -- Schema w&auml;hlen -- </option>
 									</select>
+									
+									<!-- NAMESPACE -->
+									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.converter.schemaNamespace'" type="text" class="form-control"
+										ng-model="colDefaultFunctionNewValue"
+										ng-disabled="!$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('WFS_v1')">
+									</input>
+									
+									<!-- SCHEMA LOCATION -->
+									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.converter.schemaLocation'" type="text" class="form-control"
+										ng-model="colDefaultFunctionNewValue"
+										ng-disabled="!$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('WFS_v1')">
+									</input>
+
+									<!-- Trennzeichen -->
+									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.converter.separator'" type="text" class="form-control"
+										ng-model="colDefaultFunctionNewValue"
+										ng-disabled="!($ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('Tabelle_Geokodierung_Adresse_strukturierte_Einzelspalten') ||
+													$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('Tabelle_Geokodierung_beliebige_Zeichenkette') ||
+													$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('Tabelle_Geokodierung_Strasse_Hausnummer_Stadt') ||
+													$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('Tabelle_XY_Koordinate_zu_Punkt'))">
+									</input>
+									
 									<!-- Datenquelltyp* -->
 									<select ng-show="colDefaultFunctionSelectedColumn=='selectedDatasourceType'" class="form-control" ng-model="colDefaultFunctionNewValue"
 										ng-options="datasourceType as datasourceType.type for datasourceType in $ctrl.kommonitorImporterHelperServiceInstance.availableDatasourceTypes">
 											<option disabled selected value> -- Quelltyp w&auml;hlen -- </option>
 									</select>
 									<!-- URL* -->
-									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.dataSource.URL.value'" type="text" class="form-control"
+									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.dataSource.url'" type="text" class="form-control"
 										ng-model="colDefaultFunctionNewValue" ng-disabled="!$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedDatasourceTypeIsHttp(batchList)">
 									</input>
 									<!-- Payload* -->
-									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.dataSource.payload.value'" type="text" class="form-control"
+									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.dataSource.payload'" type="text" class="form-control"
 										ng-model="colDefaultFunctionNewValue" ng-disabled="!$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedDatasourceTypeIsInline(batchList)">
 									</input>
 									<!-- ID Attributname* -->
