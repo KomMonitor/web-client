@@ -508,6 +508,7 @@ angular
 								encoding: "",
 								mimeType: "",
 								name: "",
+								crs: "EPSG:4326",
 								parameters: [
 									/*
 										{

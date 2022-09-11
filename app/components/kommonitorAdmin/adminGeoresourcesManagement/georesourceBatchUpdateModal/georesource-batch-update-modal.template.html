@@ -406,11 +406,11 @@
 									<!-- Only enable this field if every row has the same converter selected.
 										This is why we can use the values of the converter of the first row here, because all other rows should be the same. -->
 									<select ng-show="colDefaultFunctionSelectedColumn=='mappingObj.converter.mimeType'" class="form-control" ng-model="colDefaultFunctionNewValue"
-									ng-options="mimeType for mimeType in $ctrl.kommonitorBatchUpdateHelperServiceInstance.getConverterObjectByName(batchList[0].selectedConverter.name).mimeTypes"
-									ng-disabled="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).length != 1">
+										ng-options="mimeType for mimeType in $ctrl.kommonitorBatchUpdateHelperServiceInstance.getConverterObjectByName(batchList[0].selectedConverter.name).mimeTypes"
+										ng-disabled="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).length != 1">
 										<option disabled selected value> -- Quellformat w&auml;hlen -- </option>
 									</select>
-									</td>
+
 									<!-- CRS* -->
 									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.converter.crs'" type="text" class="form-control"
 										ng-model="colDefaultFunctionNewValue" placeholder="z.B. EPSG:4326"

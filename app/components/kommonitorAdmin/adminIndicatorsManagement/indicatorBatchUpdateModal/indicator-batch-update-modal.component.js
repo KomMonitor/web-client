@@ -167,26 +167,6 @@ angular.module('indicatorBatchUpdateModal').component('indicatorBatchUpdateModal
 				kommonitorBatchUpdateHelperService.resizeNameColumnDropdowns(null);
 			})
 	
-		
-			
-	
-			// loop through batch list and check if condition is true for at least one row
-			$scope.checkIfSelectedConverterIsCsvOnlyIndicator = function() {
-				let selectedConverterIsCsvOnlyIndicator = false;
-				for(let i=0; i<$scope.batchList.length; i++) {
-					if($scope.batchList[i].selectedConverter) {
-						let converterName = $scope.batchList[i].selectedConverter.name;
-						if(converterName != undefined && converterName.length > 0) {
-							if(converterName.includes("csv_onlyIndicator")) {
-								selectedConverterIsCsvOnlyIndicator = true;
-								break;
-							}
-						}
-					}
-				}
-				return selectedConverterIsCsvOnlyIndicator;
-			}
-
 			/*
 			// can be used to show only applicable spatial units for current indicator.
 			$scope.filterApplicableSpatialUnits = function(batchIndex) {
@@ -219,8 +199,6 @@ angular.module('indicatorBatchUpdateModal').component('indicatorBatchUpdateModal
 			});
 
 			
-	
-
 			$scope.onTimeseriesMappingBtnClicked = function($event) {
 				$("#indicator-edit-time-series-mapping-modal").modal("show", $event.currentTarget);
 			}

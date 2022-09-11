@@ -35,9 +35,12 @@
 											<th>Mappingtabelle</th>
 											<th>Zeitreihen-Mapping*</th>
 											<th>Datensatz-Quellformat*</th>
-											<th>CRS*</th>
-											<th ng-show="checkIfSelectedConverterIsCsvOnlyIndicator()">separator*</th>
-											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedConverterIsWfsV1(batchList)">Schema*</th>
+											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).length">Quellformat*</th>
+											<th ng-show="false">CRS*</th>
+											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('Tabelle_Zeitreihe_zu_Indikator')">Trennzeichen*</th>
+											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('WFS_v1')">Schema*</th>
+											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('WFS_v1')">NAMESPACE</th>
+											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('WFS_v1')">SCHEMA_LOCATION</th>
 											<th>Datenquelltyp*</th>
 											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedDatasourceTypeIsFile(batchList)">Datei*</th>
 											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedDatasourceTypeIsHttp(batchList)">URL*</th>
@@ -85,29 +88,56 @@
 											<td>
 												<select class="form-control" ng-model="indicator.selectedConverter"
 														ng-options="converter as converter.name for converter in $ctrl.kommonitorImporterHelperServiceInstance.availableConverters | filter:$ctrl.kommonitorImporterHelperServiceInstance.filterConverters('indicator')" required>
-																<option disabled selected value> -- Quellformat w&auml;hlen -- </option>
+																<option disabled selected value> -- Datensatz-Quellformat w&auml;hlen -- </option>
+												</select>
+											</td>
+
+											<!-- Quellformat -->
+											<td ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).length>0">
+												<select class="form-control" ng-model="indicator.mappingObj.converter.mimeType" 
+													ng-options="mimeType for mimeType in indicator.selectedConverter.mimeTypes" required>
+													<option disabled selected value> -- Quellformat w&auml;hlen -- </option>
 												</select>
 											</td>
 
 											<!-- CRS -->
-											<td>
-												<input id="indicatorCrsInputField{{$index}}" class="form-control" ng-model="indicator.mappingObj.converter.CRS.value"
-												type="text" placeholder="z.B. EPSG:4326" required>
+											<!-- Not shown to user and preset to EPSG:4326 -->
+											<td ng-show="false">
+												<input id="indicatorCrsInputField{{$index}}" class="form-control" ng-model="indicator.mappingObj.converter.crs"
+												type="text" required >
 											</td>
 
-											<!-- separator -->
+											<!-- Trennzeichen -->
+											<td ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('Tabelle_Zeitreihe_zu_Indikator')">
+												<input class="form-control" ng-model="indicator.mappingObj.converter.separator"
+												type="text" ng-disabled="!indicator.selectedConverter.name.includes('Tabelle_Zeitreihe_zu_Indikator')">
+											</td>
+
+											<!-- Trennzeichen -->
 											<td ng-show="checkIfSelectedConverterIsCsvOnlyIndicator()">
-												<input class="form-control" ng-model="indicator.mappingObj.converter.separator.value"
-												type="text" ng-disabled="!indicator.selectedConverter.name.includes(&quot;csv_onlyIndicator&quot;)" required>
+												<input class="form-control" ng-model="indicator.mappingObj.converter.separator"
+												type="text" ng-disabled="!indicator.selectedConverter.name.includes('csv_onlyIndicator')" required>
 											</td>
 
-											<!-- schema -->
-											<td ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedConverterIsWfsV1(batchList)">
+											<!-- Schema -->
+											<td ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('WFS_v1')">
 												<select class="form-control" ng-model="indicator.mappingObj.converter.schema" 
-													ng-options="schema for schema in $ctrl.kommonitorImporterHelperServiceInstance.availableConverters[3].schemas"
-													ng-disabled="!indicator.selectedConverter.name.includes(&quot;wfs.v1&quot;)" required>
+													ng-options="schema for schema in indicator.selectedConverter.schemas"
+													ng-disabled="!indicator.selectedConverter.name.includes('WFS_v1')" required>
 													<option disabled selected value> -- Schema w&auml;hlen -- </option>
 												</select>
+											</td>
+
+											<!-- NAMESPACE -->
+											<td ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('WFS_v1')">
+												<input class="form-control" ng-model="indicator.mappingObj.converter.schemaNamespace"
+												type="text" ng-disabled="!indicator.selectedConverter.name.includes('WFS_v1')">
+											</td>
+
+											<!-- SCHEMA_LOCATION -->
+											<td ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('WFS_v1')">
+												<input class="form-control" ng-model="indicator.mappingObj.converter.schemaLocation"
+												type="text" ng-disabled="!indicator.selectedConverter.name.includes('WFS_v1')">
 											</td>
 
 											<!-- Datenquelltyp -->
@@ -122,19 +152,19 @@
 											<!-- Datei -->
 											<td ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedDatasourceTypeIsFile(batchList)">
 												<input id="indicatorDataSourceFileInputField{{$index}}" class="form-control indicatorDataSourceFileInputField" type="file" 
-												ng-disabled="!indicator.selectedDatasourceType.type.includes(&quot;FILE&quot;)" required>
+												ng-disabled="!indicator.selectedDatasourceType.type.includes('FILE')" required>
 											</td>
 
 											<!-- URL -->
 											<td ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedDatasourceTypeIsHttp(batchList)">
-												<input class="form-control" type="text" ng-model="indicator.mappingObj.dataSource.URL.value"
-												ng-disabled="!indicator.selectedDatasourceType.type.includes(&quot;HTTP&quot;)" required>
+												<input class="form-control" type="text" ng-model="indicator.mappingObj.dataSource.url"
+												ng-disabled="!indicator.selectedDatasourceType.type.includes('HTTP')" required>
 											</td>
 
 											<!-- Payload -->
 											<td ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedDatasourceTypeIsInline(batchList)">
-												<input class="form-control" type="text" ng-model="indicator.mappingObj.dataSource.payload.value"
-												ng-disabled="!indicator.selectedDatasourceType.type.includes(&quot;INLINE&quot;)" required>
+												<input class="form-control" type="text" ng-model="indicator.mappingObj.dataSource.payload"
+												ng-disabled="!indicator.selectedDatasourceType.type.includes('INLINE')" required>
 											</td>
 
 											<!-- ID Attributname der Raumeinheiten-Features* -->
@@ -162,14 +192,17 @@
 
 									<tfoot>
 										<tr>
-											<th class="batch-list-table-sticky-column batch-list-table-sticky-column-footer batch-list-table-sticky-column-1"><input type="checkbox" ng-model="allRowsSelected" ng-change="$ctrl.kommonitorBatchUpdateHelperServiceInstance.onChangeSelectAllRows(this.allRowsSelected, this.batchList)"></th>
-											<th class="batch-list-table-sticky-column batch-list-table-sticky-column-footer batch-list-table-sticky-column-2">Name*</th>
+											<th class="batch-list-table-sticky-column batch-list-table-sticky-column-header batch-list-table-sticky-column-1"><input type="checkbox" ng-model="allRowsSelected" ng-change="$ctrl.kommonitorBatchUpdateHelperServiceInstance.onChangeSelectAllRows(this.allRowsSelected, this.batchList)"></th>
+											<th class="batch-list-table-sticky-column batch-list-table-sticky-column-header batch-list-table-sticky-column-2">Name*</th>
 											<th>Mappingtabelle</th>
 											<th>Zeitreihen-Mapping*</th>
 											<th>Datensatz-Quellformat*</th>
-											<th>CRS*</th>
-											<th ng-show="checkIfSelectedConverterIsCsvOnlyIndicator()">separator*</th>
-											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedConverterIsWfsV1(batchList)">Schema*</th>
+											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).length">Quellformat*</th>
+											<th ng-show="false">CRS*</th>
+											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('Tabelle_Zeitreihe_zu_Indikator')">Trennzeichen*</th>
+											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('WFS_v1')">Schema*</th>
+											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('WFS_v1')">NAMESPACE</th>
+											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('WFS_v1')">SCHEMA_LOCATION</th>
 											<th>Datenquelltyp*</th>
 											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedDatasourceTypeIsFile(batchList)">Datei*</th>
 											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedDatasourceTypeIsHttp(batchList)">URL*</th>
@@ -210,60 +243,90 @@
 										<option disabled selected value> -- Tabellenspalte w&auml;hlen -- </option>
 										<option value="mappingObj.propertyMapping.timeseriesMappings">Zeitreihen-Mapping*</option>
 										<option value="selectedConverter">Datensatz-Quellformat*</option>
-										<option value="mappingObj.converter.CRS.value">CRS*</option>
-										<option value="mappingObj.converter.separator.value">separator*</option>
+										<option value="mappingObj.converter.mimeType">Quellformat*</option>
+										<option value="mappingObj.converter.separator">Trennzeichen*</option>
 										<option value="mappingObj.converter.schema">Schema*</option>
+										<option value="mappingObj.converter.schemaNamespace">NAMESPACE</option>
+										<option value="mappingObj.converter.schemaLocation">SCHEMA_LOCATION</option>
 										<option value="selectedDatasourceType">Datenquelltyp*</option>
-										<option value="mappingObj.dataSource.URL.value">URL*</option>
-										<option value="mappingObj.dataSource.payload.value">Payload*</option>
+										<!-- File is not supported here -->
+										<option value="mappingObj.dataSource.url">URL*</option>
+										<option value="mappingObj.dataSource.payload">Payload*</option>
 										<option value="mappingObj.propertyMapping.spatialReferenceKeyProperty">ID Attributname der Raumeinheiten-Features*</option>
 										<option value="selectedTargetSpatialUnit">Ziel-Raumebene*</option>
 									</select>
 									<label>Wert:</label>
 									<!-- default -->
 									<input ng-show="!colDefaultFunctionSelectedColumn" type="text" class="form-control" ng-model="colDefaultFunctionNewValue" disabled placeholder="keine Tabellenspalte ausgew&auml;hlt"></input>
+									
 									<!-- Zeitreihen-Mapping* -->
 									<button class="form-control btn btn-success btn-sm" ng-click="onDefaultTimeseriesMappingBtnClicked($event)"
 										ng-show="colDefaultFunctionSelectedColumn=='mappingObj.propertyMapping.timeseriesMappings'"
 										style="background-color: #5cb85c;">
 											Hinzuf&uuml;gen/Editieren
 									</button>
+
 									<!-- Datensatz-Quellformat* -->
 									<select ng-show="colDefaultFunctionSelectedColumn=='selectedConverter'" class="form-control" ng-model="colDefaultFunctionNewValue"
 										ng-options="converter as converter.name for converter in $ctrl.kommonitorImporterHelperServiceInstance.availableConverters | filter:$ctrl.kommonitorImporterHelperServiceInstance.filterConverters('indicator')">
 											<option disabled selected value> -- Quellformat w&auml;hlen -- </option>
 									</select>
-									<!-- CRS* -->
-									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.converter.CRS.value'" type="text" class="form-control"
-										ng-model="colDefaultFunctionNewValue" placeholder="z.B. EPSG:4326">
+
+									<!-- Quellformat* -->
+									<!-- Only enable this field if every row has the same converter selected.
+										This is why we can use the values of the converter of the first row here, because all other rows should be the same. -->
+									<select ng-show="colDefaultFunctionSelectedColumn=='mappingObj.converter.mimeType'" class="form-control" ng-model="colDefaultFunctionNewValue"
+										ng-options="mimeType for mimeType in $ctrl.kommonitorBatchUpdateHelperServiceInstance.getConverterObjectByName(batchList[0].selectedConverter.name).mimeTypes"
+										ng-disabled="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).length != 1">
+										<option disabled selected value> -- Quellformat w&auml;hlen -- </option>
+									</select>
+									
+									<!-- Trennzeichen* -->
+									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.converter.separator'" type="text" class="form-control"
+										ng-model="colDefaultFunctionNewValue"
+										ng-disabled="!$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('Tabelle_Zeitreihe_zu_Indikator')">
 									</input>
-									<!-- separator* -->
-									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.converter.separator.value'" type="text" class="form-control"
-										ng-model="colDefaultFunctionNewValue" ng-disabled="!checkIfSelectedConverterIsCsvOnlyIndicator()">
-									</input>
+
 									<!-- Schema* -->
 									<select ng-show="colDefaultFunctionSelectedColumn=='mappingObj.converter.schema'" class="form-control" ng-model="colDefaultFunctionNewValue" 
-										ng-options="schema for schema in $ctrl.kommonitorImporterHelperServiceInstance.availableConverters[3].schemas"
-										ng-disabled="!$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedConverterIsWfsV1(batchList)">
+										ng-options="schema for schema in $ctrl.kommonitorBatchUpdateHelperServiceInstance.getConverterObjectByName('WFS_v1').schemas"
+										ng-disabled="!$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('WFS_v1')">
 											<option disabled selected value> -- Schema w&auml;hlen -- </option>
 									</select>
+									
+									<!-- NAMESPACE -->
+									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.converter.schemaNamespace'" type="text" class="form-control"
+										ng-model="colDefaultFunctionNewValue"
+										ng-disabled="!$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('WFS_v1')">
+									</input>
+									
+									<!-- SCHEMA LOCATION -->
+									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.converter.schemaLocation'" type="text" class="form-control"
+										ng-model="colDefaultFunctionNewValue"
+										ng-disabled="!$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('WFS_v1')">
+									</input>
+
 									<!-- Datenquelltyp* -->
 									<select ng-show="colDefaultFunctionSelectedColumn=='selectedDatasourceType'" class="form-control" ng-model="colDefaultFunctionNewValue"
 										ng-options="datasourceType as datasourceType.type for datasourceType in $ctrl.kommonitorImporterHelperServiceInstance.availableDatasourceTypes">
 											<option disabled selected value> -- Quelltyp w&auml;hlen -- </option>
 									</select>
+
 									<!-- URL* -->
-									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.dataSource.URL.value'" type="text" class="form-control"
+									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.dataSource.url'" type="text" class="form-control"
 										ng-model="colDefaultFunctionNewValue" ng-disabled="!$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedDatasourceTypeIsHttp(batchList)">
 									</input>
+
 									<!-- Payload* -->
-									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.dataSource.payload.value'" type="text" class="form-control"
+									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.dataSource.payload'" type="text" class="form-control"
 										ng-model="colDefaultFunctionNewValue" ng-disabled="!$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedDatasourceTypeIsInline(batchList)">
 									</input>
+
 									<!-- ID Attributname der Raumeinheiten-Features* -->
 									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.propertyMapping.spatialReferenceKeyProperty'" type="text" class="form-control"
 										ng-model="colDefaultFunctionNewValue">
 									</input>
+
 									<!-- Ziel-Raumebene* -->
 									<select ng-show="colDefaultFunctionSelectedColumn=='selectedTargetSpatialUnit'" class="form-control" ng-model="colDefaultFunctionNewValue"
 										ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits">
