@@ -1954,7 +1954,7 @@ angular
         
         for(let entry of legendEntries) {
           if(entry.isGroupHeading) {
-            isochronesRangeTypeMapping = {
+            let isochronesRangeTypeMapping = {
               "time": "Zeit",
               "distance": "Distanz"
             }
