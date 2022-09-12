@@ -1132,97 +1132,105 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 		$scope.onPoiLayerSelected = async function(poiLayer) {
 
-			$scope.absoluteLabelPositions = [];
-			$scope.diagramsPrepared = false;
-			$scope.isFirstUpdateOnIndicatorOrPoiLayerSelection = true;
-			$scope.selectedPoiLayer = poiLayer;
-			$scope.selectedPoiLayer.geoJSON = await $scope.queryMostRecentGeoresourceFeatures($scope.selectedPoiLayer)
-		
-			$scope.$broadcast("reportingPoiLayerSelected", $scope.selectedPoiLayer)
-
-			// get a new template (in case another poi layer was selected previously)
-			$scope.template = $scope.getCleanTemplate();
+			try {
+				$scope.absoluteLabelPositions = [];
+				$scope.diagramsPrepared = false;
+				$scope.isFirstUpdateOnIndicatorOrPoiLayerSelection = true;
+				$scope.selectedPoiLayer = poiLayer;
+				$scope.selectedPoiLayer.geoJSON = await $scope.queryMostRecentGeoresourceFeatures($scope.selectedPoiLayer)
 			
-			// Indicator might not be selected at this point
-			// We get information about all available spatial units (instead of applicable ones)
-			// Then we select the highest one by default
-			let spatialUnits = await $scope.queryAllSpatialUnits();
-			$scope.allSpatialUnitsForReachability = spatialUnits; // needed for spatial unit selection in 3rd tab
-			let highestSpatialUnit = spatialUnits.filter( unit => {
-				return unit.nextUpperHierarchyLevel === null;
-			});
-			if( !$scope.selectedSpatialUnit) {
-				$scope.selectedSpatialUnit = highestSpatialUnit[0];
-			}
-			let mostRecentTimestampName
-			if($scope.selectedSpatialUnit.metadata) {
-				mostRecentTimestampName = $scope.selectedSpatialUnit.metadata.lastUpdate;
-			} else {
-				// Happens when poiLayer is changed after an indicator was selected
-				// ( = spatial unit is the one from the indicator endpoint, not the spatial unit endpoint)
-				mostRecentTimestampName = $scope.allSpatialUnitsForReachability.filter( spatialUnit => {
-					return spatialUnit.spatialUnitId === $scope.selectedSpatialUnit.spatialUnitId
-				})[0].metadata.lastUpdate
-			}
-			$scope.selectedTimestamps = [{
-				category: mostRecentTimestampName,
-				name: mostRecentTimestampName
-			}];
-			
-			await $scope.updateAreasInDualList(); // this populates $scope.availableFeaturesBySpatialUnit
+				$scope.$broadcast("reportingPoiLayerSelected", $scope.selectedPoiLayer);
 
-			
-			// update information in preview
-			for(let page of $scope.template.pages) {
-				for(let el of page.pageElements) {
-					if(el.type === "indicatorTitle-landscape") {
-						el.text = "Entfernungen für " + $scope.selectedPoiLayer.datasetName;
-						el.isPlaceholder = false;
-						// no area-specific pages in template since diagrams are not prepared yet
-						// and area/timestamp/timeseries changes are done after that
-					}
+				// get a new template (in case another poi layer was selected previously)
+				$scope.template = $scope.getCleanTemplate();
+				
+				// Indicator might not be selected at this point
+				// We get information about all available spatial units (instead of applicable ones)
+				// Then we select the highest one by default
+				let spatialUnits = await $scope.queryAllSpatialUnits();
+				$scope.allSpatialUnitsForReachability = spatialUnits; // needed for spatial unit selection in 3rd tab
+				let highestSpatialUnit = spatialUnits.filter( unit => {
+					return unit.nextUpperHierarchyLevel === null;
+				});
+				if( !$scope.selectedSpatialUnit) {
+					$scope.selectedSpatialUnit = highestSpatialUnit[0];
+				}
+				let mostRecentTimestampName
+				if($scope.selectedSpatialUnit.metadata) {
+					mostRecentTimestampName = $scope.selectedSpatialUnit.metadata.lastUpdate;
+				} else {
+					// Happens when poiLayer is changed after an indicator was selected
+					// ( = spatial unit is the one from the indicator endpoint, not the spatial unit endpoint)
+					mostRecentTimestampName = $scope.allSpatialUnitsForReachability.filter( spatialUnit => {
+						return spatialUnit.spatialUnitId === $scope.selectedSpatialUnit.spatialUnitId
+					})[0].metadata.lastUpdate
+				}
+				$scope.selectedTimestamps = [{
+					category: mostRecentTimestampName,
+					name: mostRecentTimestampName
+				}];
+				
+				await $scope.updateAreasInDualList(); // this populates $scope.availableFeaturesBySpatialUnit
 
-					if(el.type === "reachability-subtitle-landscape") {
-						el.text = $scope.selectedTimestamps[0].name;
-						if($scope.isochrones)
-							el.text += ", " + $scope.isochronesTypeOfMovementMapping[$scope.typeOfMovement];
-						if($scope.selectedIndicator)
-							el.text += ", " + $scope.selectedIndicator.indicatorName;
-						el.isPlaceholder = false
+				
+				// update information in preview
+				for(let page of $scope.template.pages) {
+					for(let el of page.pageElements) {
+						if(el.type === "indicatorTitle-landscape") {
+							el.text = "Entfernungen für " + $scope.selectedPoiLayer.datasetName;
+							el.isPlaceholder = false;
+							// no area-specific pages in template since diagrams are not prepared yet
+							// and area/timestamp/timeseries changes are done after that
+						}
+
+						if(el.type === "reachability-subtitle-landscape") {
+							el.text = $scope.selectedTimestamps[0].name;
+							if($scope.isochrones)
+								el.text += ", " + $scope.isochronesTypeOfMovementMapping[$scope.typeOfMovement];
+							if($scope.selectedIndicator)
+								el.text += ", " + $scope.selectedIndicator.indicatorName;
+							el.isPlaceholder = false
+						}
 					}
 				}
+
+				// get all features of largest spatial unit
+				let features;
+				if($scope.selectedIndicator) {
+					features = $scope.availableFeaturesBySpatialUnit[ $scope.selectedSpatialUnit.spatialUnitName ]
+				} else {
+					features = $scope.availableFeaturesBySpatialUnit[ $scope.selectedSpatialUnit.spatialUnitLevel ]
+				}
+				features = $scope.createLowerCaseNameProperty(features);
+				// we might have no indicator so we store the geometries directly on the scope
+				$scope.geoJsonForReachability = {
+					features: features
+				}
+
+				// Preparing all diagrams is not possible without an indicator
+				// We only need an echarts geoMap to show isochrones, POIs and spatial unit borders
+				$scope.reachabilityTemplateGeoMapOptions = $scope.prepareReachabilityEchartsMap();
+
+				// select all areas by default
+				let allAreas;
+				if($scope.selectedSpatialUnit.spatialUnitName) {
+					allAreas = $scope.availableFeaturesBySpatialUnit[$scope.selectedSpatialUnit.spatialUnitName];
+				} else {
+					allAreas = $scope.availableFeaturesBySpatialUnit[$scope.selectedSpatialUnit.spatialUnitLevel];
+				}
+					$scope.updateDualList($scope.dualListAreasOptions, allAreas, allAreas);
+
+				let allTabs = document.querySelectorAll("#reporting-add-indicator-tab-list li")
+				for(let tab of allTabs) {
+					$scope.enableTab(tab);
+				}
+			} catch (error) {
+				console.error(error);
+				kommonitorDataExchangeService.displayMapApplicationError(error);
+				$scope.loadingData = false;
 			}
 
-			// get all features of largest spatial unit
-			let features;
-			if($scope.selectedIndicator) {
-				features = $scope.availableFeaturesBySpatialUnit[ $scope.selectedSpatialUnit.spatialUnitName ]
-			} else {
-				features = $scope.availableFeaturesBySpatialUnit[ $scope.selectedSpatialUnit.spatialUnitLevel ]
-			}
-			features = $scope.createLowerCaseNameProperty(features);
-			// we might have no indicator so we store the geometries directly on the scope
-			$scope.geoJsonForReachability = {
-				features: features
-			}
-
-			// Preparing all diagrams is not possible without an indicator
-			// We only need an echarts geoMap to show isochrones, POIs and spatial unit borders
-			$scope.reachabilityTemplateGeoMapOptions = $scope.prepareReachabilityEchartsMap();
-
-			// select all areas by default
-			let allAreas;
-			if($scope.selectedSpatialUnit.spatialUnitName) {
-				allAreas = $scope.availableFeaturesBySpatialUnit[$scope.selectedSpatialUnit.spatialUnitName];
-			} else {
-				allAreas = $scope.availableFeaturesBySpatialUnit[$scope.selectedSpatialUnit.spatialUnitLevel];
-			}
-				$scope.updateDualList($scope.dualListAreasOptions, allAreas, allAreas);
-
-			let allTabs = document.querySelectorAll("#reporting-add-indicator-tab-list li")
-			for(let tab of allTabs) {
-				$scope.enableTab(tab);
-			}
+			
 		}
 
 	
@@ -1365,130 +1373,134 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		}
 	
 		$scope.onIndicatorSelected = async function(indicator) {
-			
+			try {
+				$scope.loadingData = true;
+				if($scope.template.name === "A4-landscape-reachability") {
+					$scope.handleIndicatorSelectForReachability(indicator);
+					return;
+				}
 
-			$scope.loadingData = true;
-			if($scope.template.name === "A4-landscape-reachability") {
-				$scope.handleIndicatorSelectForReachability(indicator);
-				return;
-			}
+				$scope.selectedIndicator = undefined;
+				$scope.selectedTimestamps = [];
+				$scope.selectedAreas = [];
+				$scope.selectedSpatialUnit = undefined;
+				$scope.availableFeaturesBySpatialUnit = {};
+				$scope.absoluteLabelPositions = [];
+				$scope.echartsOptions = {
+					map: {},
+					bar: {},
+					line: {}
+				}
+				$scope.diagramsPrepared = false;
+				// set indicator manually.
+				// if we use ng-model it gets converted to string instead of an object
+				$scope.selectedIndicator = indicator;
 
-			$scope.selectedIndicator = undefined;
-			$scope.selectedTimestamps = [];
-			$scope.selectedAreas = [];
-			$scope.selectedSpatialUnit = undefined;
-			$scope.availableFeaturesBySpatialUnit = {};
-			$scope.absoluteLabelPositions = [];
-			$scope.echartsOptions = {
-				map: {},
-				bar: {},
-				line: {}
-			}
-			$scope.diagramsPrepared = false;
-			// set indicator manually.
-			// if we use ng-model it gets converted to string instead of an object
-			$scope.selectedIndicator = indicator;
+				// get a new template (in case another indicator was selected previously)
+				$scope.template = $scope.getCleanTemplate();
+				
+				// set spatial unit to highest available one
+				let spatialUnits = await $scope.queryAllSpatialUnits();
+				// go from highest to lowest spatial unit and check if it is available.
+				for(let spatialUnit of spatialUnits) {
+					let applicableSpatialUnitsFiltered = $scope.selectedIndicator.applicableSpatialUnits.filter( (unit) => {
+						return unit.spatialUnitId === spatialUnit.spatialUnitId;
+					})
 
-			// get a new template (in case another indicator was selected previously)
-			$scope.template = $scope.getCleanTemplate();
-			
-			// set spatial unit to highest available one
-			let spatialUnits = await $scope.queryAllSpatialUnits();
-			// go from highest to lowest spatial unit and check if it is available.
-			for(let spatialUnit of spatialUnits) {
-				let applicableSpatialUnitsFiltered = $scope.selectedIndicator.applicableSpatialUnits.filter( (unit) => {
-					return unit.spatialUnitId === spatialUnit.spatialUnitId;
+					if(applicableSpatialUnitsFiltered.length === 1) {
+						$scope.selectedSpatialUnit = applicableSpatialUnitsFiltered[0];
+						break;
+					}
+				}
+
+				if(!$scope.selectedSpatialUnit) {
+					throw new Error("No applicable spatial unit found.")
+				}
+
+				await $scope.updateAreasInDualList(); // this populates $scope.availableFeaturesBySpatialUnit
+
+				// select most recent timestamp that is valid for the largest spatial unit
+				let dates = $scope.selectedIndicator.applicableDates;
+				let timestampsForSelectedSpatialUnit = getValidTimestampsForSpatialUnit( $scope.selectedSpatialUnit);
+				timestampsForSelectedSpatialUnit.sort();
+				
+				let availableTimestamps = dates
+					.filter( name => { // filter dates to only show the ones valid for selected spatial unit 
+						return timestampsForSelectedSpatialUnit.includes( name )
+					}).map( name => { // then convert all timestamps to required format ("feature")
+						return { "properties": { "NAME": name } }
 				})
 
-				if(applicableSpatialUnitsFiltered.length === 1) {
-					$scope.selectedSpatialUnit = applicableSpatialUnitsFiltered[0];
-					break;
+				let mostRecentTimestampName = timestampsForSelectedSpatialUnit.at(-1);
+				let mostRecentTimestamp = availableTimestamps.filter( el => {
+					return el.properties.NAME === mostRecentTimestampName;
+				})
+				
+				if($scope.template.name === "A4-landscape-timeseries") {
+					$scope.dateSlider = $scope.initializeDateRangeSlider( timestampsForSelectedSpatialUnit );
 				}
-			}
+				// update information in preview
+				for(let page of $scope.template.pages) {
+					for(let el of page.pageElements) {
+						if(el.type === "indicatorTitle-landscape") {
+							el.text = indicator.indicatorName + " [" + indicator.unit + "]";
+							el.isPlaceholder = false;
+							// no area-specific pages in template since diagrams are not prepared yet
+							// and area/timestamp/timeseries changes are done after that
+						}
 
-			if(!$scope.selectedSpatialUnit) {
-				throw new Error("No applicable spatial unit found.")
-			}
+						if(el.type === "dataTimestamp-landscape") {
+							el.text = mostRecentTimestampName;
+							el.isPlaceholder = false
+						}
 
-			await $scope.updateAreasInDualList(); // this populates $scope.availableFeaturesBySpatialUnit
-
-			// select most recent timestamp that is valid for the largest spatial unit
-			let dates = $scope.selectedIndicator.applicableDates;
-			let timestampsForSelectedSpatialUnit = getValidTimestampsForSpatialUnit( $scope.selectedSpatialUnit);
-			timestampsForSelectedSpatialUnit.sort();
-			
-			let availableTimestamps = dates
-				.filter( name => { // filter dates to only show the ones valid for selected spatial unit 
-					return timestampsForSelectedSpatialUnit.includes( name )
-				}).map( name => { // then convert all timestamps to required format ("feature")
-					return { "properties": { "NAME": name } }
-			})
-
-			let mostRecentTimestampName = timestampsForSelectedSpatialUnit.at(-1);
-			let mostRecentTimestamp = availableTimestamps.filter( el => {
-				return el.properties.NAME === mostRecentTimestampName;
-			})
-			
-			if($scope.template.name === "A4-landscape-timeseries") {
-				$scope.dateSlider = $scope.initializeDateRangeSlider( timestampsForSelectedSpatialUnit );
-			}
-			// update information in preview
-			for(let page of $scope.template.pages) {
-				for(let el of page.pageElements) {
-					if(el.type === "indicatorTitle-landscape") {
-						el.text = indicator.indicatorName + " [" + indicator.unit + "]";
-						el.isPlaceholder = false;
-						// no area-specific pages in template since diagrams are not prepared yet
-						// and area/timestamp/timeseries changes are done after that
-					}
-
-					if(el.type === "dataTimestamp-landscape") {
-						el.text = mostRecentTimestampName;
-						el.isPlaceholder = false
-					}
-
-					if(el.type === "dataTimeseries-landscape") {
-						let dsValues = $scope.getFormattedDateSliderValues()
-						el.text = dsValues.from + " - " + dsValues.to
-						el.isPlaceholder = false
+						if(el.type === "dataTimeseries-landscape") {
+							let dsValues = $scope.getFormattedDateSliderValues()
+							el.text = dsValues.from + " - " + dsValues.to
+							el.isPlaceholder = false
+						}
 					}
 				}
-			}
 
-			// get all features of largest spatial unit
-			let features = $scope.availableFeaturesBySpatialUnit[ $scope.selectedSpatialUnit.spatialUnitName ]
-			features = $scope.createLowerCaseNameProperty(features);
-			let geoJson = {
-				features: features
-			}
+				// get all features of largest spatial unit
+				let features = $scope.availableFeaturesBySpatialUnit[ $scope.selectedSpatialUnit.spatialUnitName ]
+				features = $scope.createLowerCaseNameProperty(features);
+				let geoJson = {
+					features: features
+				}
 
-			// add new prop to indicator metadata, because it is expected that way by kommonitorVisualStyleHelperService
-			// used in prepareDiagrams
-			$scope.selectedIndicator.geoJSON = geoJson;
-			let classifyUsingWholeTimeseries = false;
-			let isTimeseries = false;
-			$scope.prepareDiagrams($scope.selectedIndicator, $scope.selectedSpatialUnit, mostRecentTimestampName, classifyUsingWholeTimeseries, isTimeseries, undefined, undefined);
-			// We have to update time and areas. Usually both of these would result in a diagram update.
-			// We want to skip the first one and only update diagrams once everything is ready for better performance.
-			$scope.isFirstUpdateOnIndicatorOrPoiLayerSelection = true;
-			if($scope.template.name === "A4-landscape-timeseries") {
-				// This is an exception from the process above
-				$scope.isFirstUpdateOnIndicatorOrPoiLayerSelection = false;
-				classifyUsingWholeTimeseries = false;
-				let values = $scope.getFormattedDateSliderValues();
-				let isTimeseries = true;
-				$scope.prepareDiagrams($scope.selectedIndicator, $scope.selectedSpatialUnit, mostRecentTimestampName, classifyUsingWholeTimeseries, isTimeseries, values.from, values.to);
-			} else {
-				$scope.updateDualList($scope.dualListTimestampsOptions, availableTimestamps, mostRecentTimestamp)
-			}
+				// add new prop to indicator metadata, because it is expected that way by kommonitorVisualStyleHelperService
+				// used in prepareDiagrams
+				$scope.selectedIndicator.geoJSON = geoJson;
+				let classifyUsingWholeTimeseries = false;
+				let isTimeseries = false;
+				$scope.prepareDiagrams($scope.selectedIndicator, $scope.selectedSpatialUnit, mostRecentTimestampName, classifyUsingWholeTimeseries, isTimeseries, undefined, undefined);
+				// We have to update time and areas. Usually both of these would result in a diagram update.
+				// We want to skip the first one and only update diagrams once everything is ready for better performance.
+				$scope.isFirstUpdateOnIndicatorOrPoiLayerSelection = true;
+				if($scope.template.name === "A4-landscape-timeseries") {
+					// This is an exception from the process above
+					$scope.isFirstUpdateOnIndicatorOrPoiLayerSelection = false;
+					classifyUsingWholeTimeseries = false;
+					let values = $scope.getFormattedDateSliderValues();
+					let isTimeseries = true;
+					$scope.prepareDiagrams($scope.selectedIndicator, $scope.selectedSpatialUnit, mostRecentTimestampName, classifyUsingWholeTimeseries, isTimeseries, values.from, values.to);
+				} else {
+					$scope.updateDualList($scope.dualListTimestampsOptions, availableTimestamps, mostRecentTimestamp)
+				}
 
-			// select all areas by default
-			let allAreas = $scope.availableFeaturesBySpatialUnit[$scope.selectedSpatialUnit.spatialUnitName];
-			$scope.updateDualList($scope.dualListAreasOptions, allAreas, allAreas);
+				// select all areas by default
+				let allAreas = $scope.availableFeaturesBySpatialUnit[$scope.selectedSpatialUnit.spatialUnitName];
+				$scope.updateDualList($scope.dualListAreasOptions, allAreas, allAreas);
 
-			let allTabs = document.querySelectorAll("#reporting-add-indicator-tab-list li")
-			for(let tab of allTabs) {
-				$scope.enableTab(tab);
+				let allTabs = document.querySelectorAll("#reporting-add-indicator-tab-list li")
+				for(let tab of allTabs) {
+					$scope.enableTab(tab);
+				}
+			} catch (error) {
+				console.error(error);
+				kommonitorDataExchangeService.displayMapApplicationError(error);
+				$scope.loadingData = false;
 			}
 		}
 

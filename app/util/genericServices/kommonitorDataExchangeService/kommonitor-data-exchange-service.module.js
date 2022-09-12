@@ -421,6 +421,9 @@ angular
                 if(error.data){							
                   self.errorMessage = self.syntaxHighlightJSON(error.data);
                 }
+                if(error.message){							
+                  self.errorMessage = self.syntaxHighlightJSON(error.message);
+                }
                 else{
                   self.errorMessage = self.syntaxHighlightJSON(error);
                 }
