@@ -1,5 +1,19 @@
 <div id="kommonitorReachability">
 
+	<script>
+		function isInputAllowed(evt) {
+			var code = (evt.keyCode ? evt.keyCode : evt.which);
+			if (code == 8) { //Backspace key press
+				return true;
+			} else {
+				var ch = String.fromCharCode(evt.which);
+				if (!(/[0-9,]/.test(ch))) {
+					evt.preventDefault();
+				}
+			}
+		}
+	</script>
+
 	<div align="center">
 		<div class="loading-overlay-sidebar-small ng-hide" ng-show="settings.loadingData">
 			<span class="glyphicon glyphicon-refresh icon-spin"></span>
@@ -142,19 +156,6 @@
 											  
 										</div>
 
-										<script>
-											function isInputAllowed(evt) {
-												var code = (evt.keyCode ? evt.keyCode : evt.which);
-												if (code == 8) { //Backspace key press
-													return true;
-												} else {
-													var ch = String.fromCharCode(evt.which);
-													if (!(/[0-9,]/.test(ch))) {
-														evt.preventDefault();
-													}
-												}
-											}
-										</script>
 									<!-- </div>
 								</div>								 -->
 								<!-- <br />
