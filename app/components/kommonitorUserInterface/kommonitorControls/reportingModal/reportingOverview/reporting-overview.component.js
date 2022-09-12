@@ -60,11 +60,11 @@ angular.module('reportingOverview').component('reportingOverview', {
 		})
 
 		$scope.onConfigureNewIndicatorClicked = function() {
-			$scope.$emit('reportingConfigureNewIndicatorClicked', [$scope.config.template])
+			$scope.$emit('reportingConfigureNewIndicatorClicked', [$scope.config.template]);
 		}
 
 		$scope.onConfigureNewPoiLayerClicked = function() {
-			$scope.$emit('reportingConfigureNewPoiLayerClicked', [$scope.config.template])
+			$scope.$emit('reportingConfigureNewPoiLayerClicked', [$scope.config.template]);
 		}
 		
 		$scope.onBackToTemplateSelectionClicked = function() {
