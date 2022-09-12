@@ -1697,7 +1697,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			if($scope.isochrones) {
 				for(let seriesData of $scope.isochronesSeriesData) {
 					let range = seriesData[0].value;
-					registeredMap = echarts.getMap($scope.selectedPoiLayer.datasetName + "_isochrones-" + range)
+					let registeredMap = echarts.getMap($scope.selectedPoiLayer.datasetName + "_isochrones-" + range)
 					if( !registeredMap ) {
 						let isochrones = $scope.isochrones.features.filter( feature => {
 							return feature.properties.value === range;
