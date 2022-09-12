@@ -30,6 +30,21 @@ angular
 					// initialize any adminLTE box widgets
 					$('.box').boxWidget();
 
+					let input = document.getElementById("isochroneCutInput");
+					input.addEventListener("keypress", function isInputAllowed(evt) {
+						var code = (evt.keyCode ? evt.keyCode : evt.which);
+						if (code == 8) { //Backspace key press
+							return true;
+						} else {
+							var ch = String.fromCharCode(evt.which);
+							if (!(/[0-9,]/.test(ch))) {
+								evt.preventDefault();
+							}
+						}
+					});
+
+					
+
 					var OpenStreetMapProvider = window.GeoSearch.OpenStreetMapProvider;
 
 					 $scope.openStreetMapProvider = new OpenStreetMapProvider(    
