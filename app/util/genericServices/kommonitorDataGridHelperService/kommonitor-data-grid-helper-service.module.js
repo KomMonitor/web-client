@@ -10,12 +10,40 @@ angular
       var self = this;
       this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 
+      this.resourceType_georesource = "georesource";
+      this.resourceType_spatialUnit = "spatialUnit";
+      this.resourceType_indicator = "indicator";
+
+      this.featureTable_spatialUnit_lastUpdate_timestamp_success = undefined;
+      this.featureTable_spatialUnit_lastUpdate_timestamp_failure = undefined;
+      this.featureTable_georesource_lastUpdate_timestamp_success = undefined;
+      this.featureTable_georesource_lastUpdate_timestamp_failure = undefined;
+      this.featureTable_indicator_lastUpdate_timestamp_success = undefined;
+      this.featureTable_indicator_lastUpdate_timestamp_failure = undefined;
+
       this.dataGridOptions_indicators;
       this.dataGridOptions_georesources_poi;
       this.dataGridOptions_georesources_loi;
       this.dataGridOptions_georesources_aoi;
       this.dataGridOptions_spatialUnits;
-      this.dataGridOptions_roles;
+      this.dataGridOptions_accessControl;
+
+      function getCurrentTimestampString(){
+        let date = new Date();
+        let hours = date.getHours();
+        if(hours < 10){
+          hours = "0" + hours;
+        }
+        let minutes = date.getMinutes();
+        if(minutes < 10){
+          minutes = "0" + minutes;
+        }
+        let seconds = date.getSeconds();
+        if(seconds < 10){
+          seconds = "0" + seconds;
+        }
+        return "" + hours + ":" + minutes + ":" + seconds;
+      }
 
       function headerHeightGetter() {
         var columnHeaderTexts = [
@@ -36,19 +64,28 @@ angular
       }
 
       var displayEditButtons_indicators = function (params) {
+        let disabledEditButtons = !params.data.userPermissions.includes("editor")
+        let editMetadataButtonId = 'btn_georesource_editMetadata_' + params.data.indicatorId;
+        let editFeaturesButtonId = 'btn_georesource_editFeatures_' + params.data.indicatorId;
 
         let html = '<div class="btn-group btn-group-sm">';
-        html += '<button id="btn_indicator_editMetadata_' + params.data.indicatorId + '" class="btn btn-warning btn-sm indicatorEditMetadataBtn" type="button" data-toggle="modal" data-target="#modal-edit-indicator-metadata" title="Metadaten editieren"><i class="fas fa-pencil-alt"></i></button>';
-        html += '<button id="btn_indicator_editFeatures_' + params.data.indicatorId + '" class="btn btn-warning btn-sm indicatorEditFeaturesBtn" type="button" data-toggle="modal" data-target="#modal-edit-indicator-features" title="Features fortf&uuml;hren"><i class="fas fa-draw-polygon"></i></button>';
+        html += '<button id="' + editMetadataButtonId + '" class="btn btn-warning btn-sm indicatorEditMetadataBtn disabled" type="button" data-toggle="modal" data-target="#modal-edit-indicator-metadata" title="Metadaten editieren" disabled><i class="fas fa-pencil-alt"></i></button>';
+        html += '<button id="' + editFeaturesButtonId + '" class="btn btn-warning btn-sm indicatorEditFeaturesBtn disabled" type="button" data-toggle="modal" data-target="#modal-edit-indicator-features" title="Features fortf&uuml;hren" disabled><i class="fas fa-draw-polygon"></i></button>';
+        
+        if(!disabledEditButtons){
+          html = html.replaceAll("disabled", "") //enabled
+        }
+        
         if (kommonitorDataExchangeService.enableKeycloakSecurity) {
-          let disabled = params.data.applicableSpatialUnits.length == 0;
+          // disable button if there is no applicable spatial unit or user has no creator rights
+          let disabled = params.data.applicableSpatialUnits.length == 0 || !params.data.userPermissions.includes("editor");
           html += '<button id="btn_indicator_editRoleBasedAccess_' + params.data.indicatorId + '"class="btn btn-warning btn-sm indicatorEditRoleBasedAccessBtn ';
 
           if (disabled) {
-            html += 'disabled';
+            html += 'disabled" disabled';
           }
 
-          html += '" type="button" data-toggle="modal" data-target="#modal-edit-indicator-spatial-unit-roles" title="Rollenbasierten Zugriffsschutz editieren"><i class="fas fa-user-lock"></i></button>';
+          html += ' type="button" data-toggle="modal" data-target="#modal-edit-indicator-spatial-unit-roles" title="Rollenbasierten Zugriffsschutz editieren"><i class="fas fa-user-lock"></i></button>';
         }
         html += '</div>';
 
@@ -56,10 +93,13 @@ angular
       };
 
       var displayEditButtons_georesources = function (params) {
+        let editMetadataButtonId = 'btn_georesource_editMetadata_' + params.data.georesourceId;
+        let editFeaturesButtonId = 'btn_georesource_editFeatures_' + params.data.georesourceId;
 
         let html = '<div class="btn-group btn-group-sm">';
-        html += '<button id="btn_georesource_editMetadata_' + params.data.georesourceId + '" class="btn btn-warning btn-sm georesourceEditMetadataBtn" type="button" data-toggle="modal" data-target="#modal-edit-georesource-metadata" title="Metadaten editieren"><i class="fas fa-pencil-alt"></i></button>';
-        html += '<button id="btn_georesource_editFeatures_' + params.data.georesourceId + '" class="btn btn-warning btn-sm georesourceEditFeaturesBtn" type="button" data-toggle="modal" data-target="#modal-edit-georesource-features" title="Features fortf&uuml;hren"><i class="fas fa-draw-polygon"></i></button>';
+        html += '<button id="'+ editMetadataButtonId +'" class="btn btn-warning btn-sm georesourceEditMetadataBtn" type="button" data-toggle="modal" data-target="#modal-edit-georesource-metadata" title="Metadaten editieren" '+ (params.data.userPermissions.includes("editor") ? '' : 'disabled') + '><i class="fas fa-pencil-alt" ></i></button>';
+        html += '<button id="'+ editFeaturesButtonId + '" class="btn btn-warning btn-sm georesourceEditFeaturesBtn" type="button" data-toggle="modal" data-target="#modal-edit-georesource-features" title="Features fortf&uuml;hren" '+ (params.data.userPermissions.includes("editor") ? '' : 'disabled') + '><i class="fas fa-draw-polygon"></i></button>';
+        html += '<button id="btn_georesource_deleteGeoresource_' + params.data.georesourceId + '" class="btn btn-danger btn-sm georesourceDeleteBtn" type="button" data-toggle="modal" data-target="#modal-delete-georesources" title="Georessource entfernen"  '+ (params.data.userPermissions.includes("creator") ? '' : 'disabled') + '><i class="fas fa-trash"></i></button>'
         html += '</div>';
 
         return html;
@@ -68,21 +108,73 @@ angular
       var displayEditButtons_spatialUnits = function (params) {
 
         let html = '<div class="btn-group btn-group-sm">';
-        html += '<button id="btn_spatialUnit_editMetadata_' + params.data.spatialUnitId + '" class="btn btn-warning btn-sm spatialUnitEditMetadataBtn" type="button" data-toggle="modal" data-target="#modal-edit-spatial-unit-metadata" title="Metadaten editieren"><i class="fas fa-pencil-alt"></i></button>';
-        html += '<button id="btn_spatialUnit_editFeatures_' + params.data.spatialUnitId + '" class="btn btn-warning btn-sm spatialUnitEditFeaturesBtn" type="button" data-toggle="modal" data-target="#modal-edit-spatial-unit-features" title="Features fortf&uuml;hren"><i class="fas fa-draw-polygon"></i></button>';
+        html += '<button id="btn_spatialUnit_editMetadata_' + params.data.spatialUnitId + '" class="btn btn-warning btn-sm spatialUnitEditMetadataBtn" type="button" data-toggle="modal" data-target="#modal-edit-spatial-unit-metadata" title="Metadaten editieren"  '+ (params.data.userPermissions.includes("editor") ? '' : 'disabled') + '><i class="fas fa-pencil-alt"></i></button>';
+        html += '<button id="btn_spatialUnit_editFeatures_' + params.data.spatialUnitId + '" class="btn btn-warning btn-sm spatialUnitEditFeaturesBtn" type="button" data-toggle="modal" data-target="#modal-edit-spatial-unit-features" title="Features fortf&uuml;hren"  '+ (params.data.userPermissions.includes("editor") ? '' : 'disabled') + '><i class="fas fa-draw-polygon"></i></button>';
+        html += '<button id="btn_spatialUnit_deleteSpatialUnit_' + params.data.spatialUnitId + '" class="btn btn-danger btn-sm spatialUnitDeleteBtn" type="button" data-toggle="modal" data-target="#modal-delete-spatial-units" title="Raumeinheit entfernen"  '+ (params.data.userPermissions.includes("creator") ? '' : 'disabled') + '><i class="fas fa-trash"></i></button>'
         html += '</div>';
 
         return html;
       };
 
-      var displayEditButtons_roles = function (params) {
+      var displayEditButtons_accessControl = function (params) {
 
         let html = '<div class="btn-group btn-group-sm">';
-        html += '<button id="btn_role_editMetadata_' + params.data.roleId + '" class="btn btn-warning btn-sm roleEditMetadataBtn" type="button" data-toggle="modal" data-target="#modal-edit-role-metadata" title="Metadaten editieren"><i class="fas fa-pencil-alt"></i></button>';
+        html += '<button id="btn_role_editMetadata_' + params.data.organizationalUnitId + '" class="btn btn-warning btn-sm roleEditMetadataBtn" type="button" data-toggle="modal" data-target="#modal-edit-role-metadata" title="Metadaten editieren"><i class="fas fa-pencil-alt"></i></button>';
         html += '</div>';
 
         return html;
       };
+
+      function getDatePicker() {
+        // function to act as a class
+        function Datepicker() {}
+      
+        // gets called once before the renderer is used
+        Datepicker.prototype.init = function (params) {
+          // create the cell
+          this.eInput = document.createElement('input');
+          this.eInput.value = params.value;
+          this.eInput.classList.add('ag-input');
+          this.eInput.style.height = '100%';
+      
+          // https://jqueryui.com/datepicker/
+          // $(this.eInput).datepicker({
+          //   dateFormat: 'yyyy-mm-dd',
+          // });
+          $(this.eInput).datepicker(kommonitorDataExchangeService.datePickerOptions);
+
+        };
+      
+        // gets called once when grid ready to insert the element
+        Datepicker.prototype.getGui = function () {
+          return this.eInput;
+        };
+      
+        // focus and select can be done after the gui is attached
+        Datepicker.prototype.afterGuiAttached = function () {
+          this.eInput.focus();
+          this.eInput.select();
+        };
+      
+        // returns the new value after editing
+        Datepicker.prototype.getValue = function () {
+          return this.eInput.value;
+        };
+      
+        // any cleanup we need to be done here
+        Datepicker.prototype.destroy = () => {
+          // but this example is simple, no cleanup, we could
+          // even leave this method out as it's optional
+        };
+      
+        // if true, then this editor will appear in a popup
+        Datepicker.prototype.isPopup = () => {
+          // and we could leave this method out also, false is the default
+          return false;
+        };
+      
+        return Datepicker;
+      }
 
       this.buildDataGridColumnConfig_indicators = function (indicatorMetadataArray) {
         const columnDefs = [
@@ -204,6 +296,12 @@ angular
               return "" + params.data.metadata.contact;
             }
           },
+          { headerName: 'Rollen', minWidth: 400, cellRenderer: function (params) { return kommonitorDataExchangeService.getAllowedRolesString(params.data.allowedRoles); },
+          filter: 'agTextColumnFilter', 
+          filterValueGetter: (params) => {
+              return "" +  kommonitorDataExchangeService.getAllowedRolesString(params.data.allowedRoles);
+            } 
+          }
         ];
 
         return columnDefs;
@@ -216,8 +314,11 @@ angular
 
       this.buildDataGridColumnConfig_georesources_poi = function (georesourceMetadataArray) {
         const columnDefs = [
-          { headerName: 'Editierfunktionen', pinned: 'left', maxWidth: 150, checkboxSelection: true, headerCheckboxSelection: true, 
-          headerCheckboxSelectionFilteredOnly: true, filter: false, sortable: false, cellRenderer: 'displayEditButtons_georesources' },
+          { headerName: 'Editierfunktionen', pinned: 'left', maxWidth: 150, checkboxSelection: false,
+          headerCheckboxSelection: false, 
+          headerCheckboxSelectionFilteredOnly: true, 
+          filter: false, 
+          sortable: false, cellRenderer: 'displayEditButtons_georesources' },
           { headerName: 'Id', field: "georesourceId", pinned: 'left', maxWidth: 125 },
           { headerName: 'Name', field: "datasetName", pinned: 'left', minWidth: 300 },
           { headerName: 'Symbolfarbe', filter: false, sortable: false, maxWidth: 125, cellRenderer: function (params) { return "<div>" + params.data.poiSymbolColor+ "</div><br/><div style='width: 20px; height: 20px; background-color: " + params.data.poiSymbolColor + ";'></div>"; } },
@@ -287,6 +388,12 @@ angular
               return "" + params.data.metadata.contact;
             }
           },
+          { headerName: 'Rollen', minWidth: 400, cellRenderer: function (params) { return kommonitorDataExchangeService.getAllowedRolesString(params.data.allowedRoles); },
+          filter: 'agTextColumnFilter', 
+          filterValueGetter: (params) => {
+              return "" +  kommonitorDataExchangeService.getAllowedRolesString(params.data.allowedRoles);
+            } 
+          }
         ];
 
         return columnDefs;
@@ -294,7 +401,7 @@ angular
 
       this.buildDataGridColumnConfig_georesources_loi = function (georesourceMetadataArray) {
         const columnDefs = [
-          { headerName: 'Editierfunktionen', pinned: 'left', maxWidth: 150, checkboxSelection: true, headerCheckboxSelection: true, 
+          { headerName: 'Editierfunktionen', pinned: 'left', maxWidth: 150, checkboxSelection: false, headerCheckboxSelection: false, 
             headerCheckboxSelectionFilteredOnly: true, filter: false, sortable: false, cellRenderer: 'displayEditButtons_georesources' },
           { headerName: 'Id', field: "georesourceId", pinned: 'left', maxWidth: 125 },
           { headerName: 'Name', field: "datasetName", pinned: 'left', minWidth: 300 },
@@ -359,6 +466,12 @@ angular
               return "" + params.data.metadata.contact;
             }
           },
+          { headerName: 'Rollen', minWidth: 400, cellRenderer: function (params) { return kommonitorDataExchangeService.getAllowedRolesString(params.data.allowedRoles); },
+          filter: 'agTextColumnFilter', 
+          filterValueGetter: (params) => {
+              return "" +  kommonitorDataExchangeService.getAllowedRolesString(params.data.allowedRoles);
+            } 
+          }
         ];
 
         return columnDefs;
@@ -366,7 +479,7 @@ angular
 
       this.buildDataGridColumnConfig_georesources_aoi = function (georesourceMetadataArray) {
         const columnDefs = [
-          { headerName: 'Editierfunktionen', pinned: 'left', maxWidth: 150, checkboxSelection: true, headerCheckboxSelection: true, 
+          { headerName: 'Editierfunktionen', pinned: 'left', maxWidth: 150, checkboxSelection: false, headerCheckboxSelection: false, 
             headerCheckboxSelectionFilteredOnly: true, filter: false, sortable: false, cellRenderer: 'displayEditButtons_georesources' },
           { headerName: 'Id', field: "georesourceId", pinned: 'left', maxWidth: 125 },
           { headerName: 'Name', field: "datasetName", pinned: 'left', minWidth: 300 },
@@ -429,6 +542,12 @@ angular
               return "" + params.data.metadata.contact;
             }
           },
+          { headerName: 'Rollen', minWidth: 400, cellRenderer: function (params) { return kommonitorDataExchangeService.getAllowedRolesString(params.data.allowedRoles); },
+          filter: 'agTextColumnFilter', 
+          filterValueGetter: (params) => {
+              return "" +  kommonitorDataExchangeService.getAllowedRolesString(params.data.allowedRoles);
+            } 
+          }
         ];
 
         return columnDefs;
@@ -485,7 +604,7 @@ angular
 
       this.buildDataGridColumnConfig_spatialUnits = function (spatialUnitMetadataArray) {
         const columnDefs = [
-          { headerName: 'Editierfunktionen', pinned: 'left', maxWidth: 150, checkboxSelection: true, headerCheckboxSelection: true, 
+          { headerName: 'Editierfunktionen', pinned: 'left', maxWidth: 150, checkboxSelection: false, headerCheckboxSelection: false, 
           headerCheckboxSelectionFilteredOnly: true, filter: false, sortable: false, cellRenderer: 'displayEditButtons_spatialUnits' },
           { headerName: 'Id', field: "spatialUnitId", pinned: 'left', maxWidth: 125 },
           { headerName: 'Name', field: "spatialUnitLevel", pinned: 'left', minWidth: 300 },
@@ -543,6 +662,12 @@ angular
               return "" + params.data.metadata.contact;
             }
           },
+          { headerName: 'Rollen', minWidth: 400, cellRenderer: function (params) { return kommonitorDataExchangeService.getAllowedRolesString(params.data.allowedRoles); },
+          filter: 'agTextColumnFilter', 
+          filterValueGetter: (params) => {
+              return "" +  kommonitorDataExchangeService.getAllowedRolesString(params.data.allowedRoles);
+            } 
+          }
         ];
 
         return columnDefs;
@@ -562,18 +687,18 @@ angular
         return spatialUnitsMetadataArray;
       };
 
-      this.getSelectedRolesMetadata = function(){
-        let rolesMetadataArray = [];
+      this.getSelectedAccessControlMetadata = function(){
+        let accessControlMetadataArray = [];
 
-        if (this.dataGridOptions_roles && this.dataGridOptions_roles.api){
-          let selectedNodes = this.dataGridOptions_roles.api.getSelectedNodes();
+        if (this.dataGridOptions_accessControl && this.dataGridOptions_accessControl.api){
+          let selectedNodes = this.dataGridOptions_accessControl.api.getSelectedNodes();
 
           for (const selectedNode of selectedNodes) {
-            rolesMetadataArray.push(selectedNode.data);
+            accessControlMetadataArray.push(selectedNode.data);
           }
         }
 
-        return rolesMetadataArray;
+        return accessControlMetadataArray;
       };
 
       this.getSelectedScriptsMetadata = function(){
@@ -667,7 +792,7 @@ angular
                 // setTimeout(function () {
                 //   self.dataGridOptions_indicators.api.resetRowHeights();
                 // }, 1000);
-                self.dataGridOptions_indicators.api.resetRowHeights();
+                // self.dataGridOptions_indicators.api.resetRowHeights();
               });
 
               // setTimeout(function () {
@@ -692,7 +817,13 @@ angular
         //     $rootScope.$broadcast("onEditIndicatorMetadata", indicatorMetadata);
         //   });
         // }
-        $(".indicatorEditMetadataBtn").on("click", function () {
+        $(".indicatorEditMetadataBtn").on("click", function (event) {
+          // ensure that only the target button gets clicked
+          // manually open modal
+          event.stopPropagation();
+          let modalId = document.getElementById(this.id).getAttribute("data-target");
+          $(modalId).modal('show');
+          
           let indicatorId = this.id.split("_")[3];
 
           let indicatorMetadata = kommonitorDataExchangeService.getIndicatorMetadataById(indicatorId);
@@ -700,7 +831,13 @@ angular
           $rootScope.$broadcast("onEditIndicatorMetadata", indicatorMetadata);
         });
 
-        $(".indicatorEditFeaturesBtn").on("click", function () {
+        $(".indicatorEditFeaturesBtn").on("click", function (event) {
+          // ensure that only the target button gets clicked
+          // manually open modal
+          event.stopPropagation();
+          let modalId = document.getElementById(this.id).getAttribute("data-target");
+          $(modalId).modal('show');
+          
           let indicatorId = this.id.split("_")[3];
 
           let indicatorMetadata = kommonitorDataExchangeService.getIndicatorMetadataById(indicatorId);
@@ -708,7 +845,13 @@ angular
           $rootScope.$broadcast("onEditIndicatorFeatures", indicatorMetadata);
         });
 
-        $(".indicatorEditRoleBasedAccessBtn").on("click", function () {
+        $(".indicatorEditRoleBasedAccessBtn").on("click", function (event) {
+          // ensure that only the target button gets clicked
+          // manually open modal
+          event.stopPropagation();
+          let modalId = document.getElementById(this.id).getAttribute("data-target");
+          $(modalId).modal('show');
+          
           let indicatorId = this.id.split("_")[3];
 
           let indicatorMetadata = kommonitorDataExchangeService.getIndicatorMetadataById(indicatorId);
@@ -720,7 +863,13 @@ angular
 
       this.registerClickHandler_georesources = function (georesourceMetadataArray) {
 
-        $(".georesourceEditMetadataBtn").on("click", function () {
+        $(".georesourceEditMetadataBtn").on("click", function (event) {
+          // ensure that only the target button gets clicked
+          // manually open modal
+          event.stopPropagation();
+          let modalId = document.getElementById(this.id).getAttribute("data-target");
+          $(modalId).modal('show');
+          
           let georesourceId = this.id.split("_")[3];
 
           let georesourceMetadata = kommonitorDataExchangeService.getGeoresourceMetadataById(georesourceId);
@@ -728,12 +877,32 @@ angular
           $rootScope.$broadcast("onEditGeoresourceMetadata", georesourceMetadata);
         });
 
-        $(".georesourceEditFeaturesBtn").on("click", function () {
+        $(".georesourceEditFeaturesBtn").on("click", function (event) {
+          // ensure that only the target button gets clicked
+          // manually open modal
+          event.stopPropagation();
+          let modalId = document.getElementById(this.id).getAttribute("data-target");
+          $(modalId).modal('show');
+          
           let georesourceId = this.id.split("_")[3];
 
           let georesourceMetadata = kommonitorDataExchangeService.getGeoresourceMetadataById(georesourceId);
 
           $rootScope.$broadcast("onEditGeoresourceFeatures", georesourceMetadata);
+        });
+
+        $(".georesourceDeleteBtn").on("click", function (event) {
+          // ensure that only the target button gets clicked
+          // manually open modal
+          event.stopPropagation();
+          let modalId = document.getElementById(this.id).getAttribute("data-target");
+          $(modalId).modal('show');
+                 
+          let spatialUnitId = this.id.split("_")[3]; 
+
+          let spatialUnitMetadata = kommonitorDataExchangeService.getGeoresourceMetadataById(spatialUnitId);
+
+          $rootScope.$broadcast("onDeleteGeoresources", [spatialUnitMetadata]); //handler function takes an array
         });
 
       };
@@ -1011,7 +1180,13 @@ angular
 
       this.registerClickHandler_spatialUnits = function (spatialUnitMetadataArray) {
 
-        $(".spatialUnitEditMetadataBtn").on("click", function () {
+        $(".spatialUnitEditMetadataBtn").on("click", function (event) {
+          // ensure that only the target button gets clicked
+          // manually open modal
+          event.stopPropagation();
+          let modalId = document.getElementById(this.id).getAttribute("data-target");
+          $(modalId).modal('show');
+          
           let spatialUnitId = this.id.split("_")[3];
 
           let spatialUnitMetadata = kommonitorDataExchangeService.getSpatialUnitMetadataById(spatialUnitId);
@@ -1019,12 +1194,32 @@ angular
           $rootScope.$broadcast("onEditSpatialUnitMetadata", spatialUnitMetadata);
         });
 
-        $(".spatialUnitEditFeaturesBtn").on("click", function () {
+        $(".spatialUnitEditFeaturesBtn").on("click", function (event) {
+          // ensure that only the target button gets clicked
+          // manually open modal
+          event.stopPropagation();
+          let modalId = document.getElementById(this.id).getAttribute("data-target");
+          $(modalId).modal('show');
+          
           let spatialUnitId = this.id.split("_")[3];
 
           let spatialUnitMetadata = kommonitorDataExchangeService.getSpatialUnitMetadataById(spatialUnitId);
 
           $rootScope.$broadcast("onEditSpatialUnitFeatures", spatialUnitMetadata);
+        });
+
+        $(".spatialUnitDeleteBtn").on("click", function (event) { 
+          // ensure that only the target button gets clicked
+          // manually open modal
+          event.stopPropagation();
+          let modalId = document.getElementById(this.id).getAttribute("data-target");
+          $(modalId).modal('show');
+                
+          let spatialUnitId = this.id.split("_")[3]; 
+
+          let spatialUnitMetadata = kommonitorDataExchangeService.getSpatialUnitMetadataById(spatialUnitId);
+
+          $rootScope.$broadcast("onDeleteSpatialUnits", [spatialUnitMetadata]); //handler function takes an array
         });
 
       };
@@ -1091,60 +1286,256 @@ angular
 
       // FEATURE TABLES
 
-      this.buildDataGridColumnConfig_featureTable = function(specificHeadersArray){
+      const isDate = (date) => {
+        return (new Date(date) !== "Invalid Date") && !isNaN(new Date(date));
+      }
+
+      this.buildDataGridColumnConfig_featureTable_spatialResource = function(specificHeadersArray, datasetId, resourceType, deleteButtonEnabled){
         const columnDefs = [
-          { headerName: 'Id', field: __env.FEATURE_ID_PROPERTY_NAME, pinned: 'left', maxWidth: 125 },
-          { headerName: 'Name', field: __env.FEATURE_NAME_PROPERTY_NAME, pinned: 'left', minWidth: 300 },  
-          // { headerName: 'Id', field: __env.FEATURE_ID_PROPERTY_NAME,  maxWidth: 125 },
-          // { headerName: 'Name', field: __env.FEATURE_NAME_PROPERTY_NAME,  minWidth: 300 },         
-          {
-            headerName: 'Gültigkeitszeitraum', minWidth: 400,
+          { headerName: 'DB-Record-Id', field: "kommonitorRecordId", pinned: 'left', editable: false, cellClass: "grid-non-editable", maxWidth: 125,
             cellRenderer: function (params) {
-              let html = '<p>';
+              let html = "";
 
-              if (params.data.validEndDate){
-                html += params.data.validStartDate + " &dash; " + params.data.validEndDate;
+              // only show delete button, if user has the permission to delete the dataset
+              // if only editor rights, then user may edit cells, but shall not remove data entries
+              // if(params.data.userPermissions.includes("creator")){
+                // if (resourceType == self.resourceType_spatialUnit){
+                //   html += '<button id="btn__spatialUnit__deleteFeatureEntry__' + datasetId + '__' + params.data[__env.FEATURE_ID_PROPERTY_NAME] + '__' + params.data.kommonitorRecordId + '" class="btn btn-danger btn-sm spatialUnitDeleteFeatureRecordBtn" type="button" title="Datenobjekt unwiderruflich entfernen"  ' + (deleteButtonEnabled ? '' : 'disabled') + '><i class="fas fa-trash"></i></button>';
+                // }
+                // else {
+                //   html += '<button id="btn__georesource__deleteFeatureEntry__' + datasetId + '__' + params.data[__env.FEATURE_ID_PROPERTY_NAME] + '__' + params.data.kommonitorRecordId + '" class="btn btn-danger btn-sm georesourceDeleteFeatureRecordBtn" type="button" title="Datenobjekt unwiderruflich entfernen"  ' + (deleteButtonEnabled ? '' : 'disabled') + '><i class="fas fa-trash"></i></button>';
+                // }
+                
+              // }
+
+              if (resourceType == self.resourceType_spatialUnit){
+                html += '<button id="btn__spatialUnit__deleteFeatureEntry__' + datasetId + '__' + params.data[__env.FEATURE_ID_PROPERTY_NAME] + '__' + params.data.kommonitorRecordId + '" class="btn btn-danger btn-sm spatialUnitDeleteFeatureRecordBtn" type="button" title="Datenobjekt unwiderruflich entfernen"  ' + (deleteButtonEnabled ? '' : 'disabled') + '><i class="fas fa-trash"></i></button>';
               }
-              else{
-                html += params.data.validStartDate + " &dash; heute";
+              else {
+                html += '<button id="btn__georesource__deleteFeatureEntry__' + datasetId + '__' + params.data[__env.FEATURE_ID_PROPERTY_NAME] + '__' + params.data.kommonitorRecordId + '" class="btn btn-danger btn-sm georesourceDeleteFeatureRecordBtn" type="button" title="Datenobjekt unwiderruflich entfernen"  ' + (deleteButtonEnabled ? '' : 'disabled') + '><i class="fas fa-trash"></i></button>';
               }
 
-              html += "</p>";
+              html += "<br/>";
+
+              html += params.data.kommonitorRecordId;
 
               return html;
-            },
-            filter: 'agTextColumnFilter', 
-            filterValueGetter: (params) => {
-              if (params.data.validEndDate){
-                return "" + params.data.validStartDate + " " + params.data.validEndDate;
-              }
-              return params.data.validStartDate;
-            }
-          }
+            } 
+          },
+          { headerName: 'Feature-Id', field: __env.FEATURE_ID_PROPERTY_NAME, pinned: 'left', editable: false, cellClass: "grid-non-editable", maxWidth: 125 },
+          { headerName: 'Name', field: __env.FEATURE_NAME_PROPERTY_NAME, pinned: 'left', minWidth: 150 }, 
+          // { headerName: 'Geometrie', field: "kommonitorGeometry", autoHeight: false, wrapText: false,
+          //   cellRenderer: function (params) {
+          //     let html = JSON.stringify(params.data.kommonitorGeometry);
+
+          //     return html;
+          //   },
+          //   filter: 'agTextColumnFilter', 
+          //   filterValueGetter: (params) => {
+          //     return JSON.stringify(params.data.kommonitorGeometry);
+          //   },
+          //   valueGetter: params => {
+          //     return JSON.stringify(params.data.kommonitorGeometry);
+          //   },
+          //   valueSetter: params => {
+          //       try {
+          //         params.data.kommonitorGeometry = JSON.parse(params.newValue);
+          //       } catch (error) {
+          //         try {
+          //           params.data.kommonitorGeometry = JSON.parse(params.oldValue);
+          //         } catch (error) {
+          //           params.data.kommonitorGeometry = params.oldValue;
+          //         }
+                  
+          //       }                
+          //       return true;
+          //   },
+          //   minWidth: 200 
+          // },  
+          { headerName: 'Lebenszeitbeginn', field: __env.VALID_START_DATE_PROPERTY_NAME, minWidth: 150, cellEditor: getDatePicker() },
+          { headerName: 'Lebenszeitende', field: __env.VALID_END_DATE_PROPERTY_NAME, cellEditor: getDatePicker(), 
+            // cellRenderer: function (params) {
+            //   let html = '<p><i>';
+
+            //   if (params.data.validEndDate){
+            //     html += params.data.validEndDate;
+            //   }
+            //   else{
+            //     html += "uneingeschr&auml;nkt g&uuml;ltig";
+            //   }
+
+            //   html += "</i></p>";
+
+            //   return html;
+            // },
+            // filter: 'agTextColumnFilter', 
+            // filterValueGetter: (params) => {
+            //   if (params.data.validEndDate){
+            //     return "" + params.data.validEndDate;
+            //   }
+            //   return "uneingeschr&auml;nkt g&uuml;ltig";
+            // },
+          minWidth: 150 }
         ];
 
         for (const header of specificHeadersArray) {
-          columnDefs.push({ headerName: "" + header, field: "" + header, minWidth: 200 });
+          columnDefs.push({ headerName: "" + header, field: "" + header, minWidth: 125 });
         }
 
         return columnDefs;
       };
 
-      this.buildDataGridRowData_featureTable = function(dataArray){
+      this.buildDataGridRowData_featureTable_spatialResource = function(dataArray){
+
+        
         if(dataArray[0] && dataArray[0].properties){
-          return dataArray.map(dataItem => dataItem.properties);
+          return dataArray.map(dataItem => {
+              // add geometry and database record ID to properties to be available within data grid object
+              dataItem.properties.kommonitorGeometry = dataItem.geometry;
+              dataItem.properties.kommonitorRecordId = dataItem.id;
+              return dataItem.properties;
+             }
+          );
         }
         
         return dataArray;
       };
 
-      this.buildDataGridOptions_featureTable = function(specificHeadersArray, dataArray){
-          let columnDefs = this.buildDataGridColumnConfig_featureTable(specificHeadersArray);
-          let rowData = this.buildDataGridRowData_featureTable(dataArray);
+      this.buildDataGridOptions_featureTable_spatialResource = function(specificHeadersArray, dataArray, datasetId, resourceType, deleteButtonEnabled){
+          let columnDefs = this.buildDataGridColumnConfig_featureTable_spatialResource(specificHeadersArray, datasetId, resourceType, deleteButtonEnabled);
+          let rowData = this.buildDataGridRowData_featureTable_spatialResource(dataArray);
   
           let gridOptions = {
             defaultColDef: {
-              editable: false,
+              editable: true,
+              // enables the fill handle
+              enableFillHandle: false,              
+              cellEditor: 'agLargeTextCellEditor',
+              onCellValueChanged: function(newValueParams){
+                /* https://www.ag-grid.com/javascript-data-grid/cell-editing/ 
+                  interface NewValueParams {
+                    // The value before the change 
+                    oldValue: any;
+                    // The value after the change 
+                    newValue: any;
+                    // Row node for the given row 
+                    node: RowNode | null;
+                    // Data associated with the node 
+                    data: any;
+                    // Column for this callback 
+                    column: Column;
+                    // ColDef provided for this column 
+                    colDef: ColDef;
+                    api: GridApi;
+                    columnApi: ColumnApi;
+                    // The context as provided on `gridOptions.context` 
+                    context: any;
+                  }
+                */
+
+                  // make sure that date properties are actually set
+                  if (! newValueParams.data.validStartDate){
+                    newValueParams.data.validStartDate = newValueParams.oldValue;
+                  }
+                  if (!isDate(newValueParams.data.validStartDate)){
+                    newValueParams.data.validStartDate = newValueParams.oldValue;
+                  }
+                  if(newValueParams.data.validEndDate == ""){
+                    newValueParams.data.validEndDate = undefined;
+                  }  
+                  if(newValueParams.data.validEndDate){
+                    if (!isDate(newValueParams.data.validEndDate)){
+                      newValueParams.data.validEndDate = newValueParams.oldValue;
+                    }
+                  }                  
+
+                  // take the modified data from newValueParams.data
+                  // take geometry info from newValueParams.data.geometry and remove that property afterwards   
+                  // take kommonitorRecordId info from newValueParams.data.kommonitorRecordId and remove that property afterwards                  
+                  // then build GeoJSON and send modification request to data Management component
+                  let geoJSON = {
+                    "type": "Feature",
+                    geometry: "",
+                    properties: "",
+                    id: ""
+                  };
+
+                  // clone properties
+                  geoJSON.geometry = JSON.parse(JSON.stringify(newValueParams.data.kommonitorGeometry));
+                  geoJSON.id = JSON.parse(JSON.stringify(newValueParams.data.kommonitorRecordId));
+                  geoJSON.properties = JSON.parse(JSON.stringify(newValueParams.data));
+
+                  // now delete information
+                  delete geoJSON.properties.kommonitorGeometry;
+                  delete geoJSON.properties.kommonitorRecordId;
+
+                  let url = __env.apiUrl + __env.basePath; 
+                  if(resourceType == self.resourceType_georesource){
+                    url += "/georesources/";
+                  }
+                  else {
+                    url += "/spatial-units/";
+                  }
+                  
+                  url += datasetId + "/singleFeature/" + newValueParams.data[__env.FEATURE_ID_PROPERTY_NAME] + "/singleFeatureRecord/" + newValueParams.data.kommonitorRecordId;
+
+                  $http({
+                    url: url,
+                    method: "PUT",
+                    data: geoJSON,
+                    headers: {
+                      'Content-Type': "application/json"
+                    }
+                  }).then(function successCallback(response) {
+                      // this callback will be called asynchronously
+                      // when the response is available
+
+                      console.log("Successfully updated database record");
+
+                      // on success mark grid cell with green background and set update information
+                      newValueParams.colDef.cellStyle = (p) =>
+                          p.rowIndex.toString() === newValueParams.node.id ? {'background-color': '#9DC89F'} : "";
+
+                          newValueParams.api.refreshCells({
+                          force: true,
+                          columns: [newValueParams.column.getId()],
+                          rowNodes: [newValueParams.node]
+                      });
+                                      
+                      if(resourceType == self.resourceType_georesource){
+                        self.featureTable_georesource_lastUpdate_timestamp_success = getCurrentTimestampString();
+                      }
+                      else {
+                        self.featureTable_spatialUnit_lastUpdate_timestamp_success = getCurrentTimestampString();
+                      }                    
+            
+                    }, function errorCallback(error) {
+                      // called asynchronously if an error occurs
+                      // or server returns response with an error status.
+                      //$scope.error = response.statusText;
+                      console.error("Error while updating database record. Error is:\n" + error);
+
+                      // reset cell value as an error occurred
+                      newValueParams.data[newValueParams.column.colId] = newValueParams.oldValue;
+
+                      // on failure mark grid cell with red background and set update failure information
+                      newValueParams.colDef.cellStyle = (p) =>
+                          p.rowIndex.toString() === newValueParams.node.id ? {'background-color': '#E79595'} : "";
+
+                          newValueParams.api.refreshCells({
+                          force: true,
+                          columns: [newValueParams.column.getId()],
+                          rowNodes: [newValueParams.node]
+                      });
+                      if(resourceType == self.resourceType_georesource){
+                        self.featureTable_georesource_lastUpdate_timestamp_failure = timestamp_string;
+                      }
+                      else {
+                        self.featureTable_spatialUnit_lastUpdate_timestamp_failure = timestamp_string;
+                      }   
+                      throw error;
+                  }); 
+              },
               sortable: true,
               flex: 1,
               minWidth: 200,
@@ -1174,6 +1565,12 @@ angular
             },
             columnDefs: columnDefs,
             rowData: rowData,
+            // enables undo / redo
+            undoRedoCellEditing: true,
+            // restricts the number of undo / redo steps to 10
+            undoRedoCellEditingLimit: 10,
+            // enables flashing to help see cell changes
+            enableCellChangeFlash: true,
             suppressRowClickSelection: true,
             // rowSelection: 'multiple',
             enableCellTextSelection: true,
@@ -1187,15 +1584,340 @@ angular
             // onColumnResized: function () {
             //   headerHeightSetter(this);
             // }
+            // onRowDataChanged: function () {
+            //   self.registerClickHandler_featureTable_spatialResource(resourceType);
+            // },   
+            onViewportChanged: function () {
+              self.registerClickHandler_featureTable_spatialResource(resourceType);                   
+            },
   
           };
   
           return gridOptions;        
       };
 
-      this.buildDataGrid_featureTable = function (domElementId, specificHeadersArray, dataArray) {
+      this.registerClickHandler_featureTable_spatialResource = function (resourceType) {        
+
+        let className = "";
+        let url = __env.apiUrl + __env.basePath;
+
+        if (resourceType == this.resourceType_georesource){
+          className = ".georesourceDeleteFeatureRecordBtn";
+          url += "/georesources/";
+        }
+        else{
+          className = ".spatialUnitDeleteFeatureRecordBtn";
+          url += "/spatial-units/";
+        }
+
+          $(className).on("click", function (event) {
+
+            // ensure that only the target button gets clicked
+            event.stopPropagation();
+            event.stopImmediatePropagation();
+            $rootScope.$broadcast("showLoadingIcon_" + resourceType);
+
+            // id example is id="btn__spatialUnit__deleteFeatureEntry__' + datasetId + '__' + params.data[__env.FEATURE_ID_PROPERTY_NAME] + '__' + params.data.kommonitorRecordId + '"
+            let idArray = this.id.split("__");
+
+            let datasetId = idArray[3];
+            let featureId = idArray[4];
+            let recordId = idArray[5];
+                  
+                  url += datasetId + "/singleFeature/" + featureId + "/singleFeatureRecord/" + recordId;  
+
+                  $http({
+                    url: url,
+                    method: "DELETE"
+                  }).then(function successCallback(response) {
+                      // this callback will be called asynchronously
+                      // when the response is available
+
+                      console.log("Successfully deleted database record"); 
+
+                      if(resourceType == self.resourceType_georesource){
+                        self.featureTable_georesource_lastUpdate_timestamp_success = getCurrentTimestampString();
+                      }
+                      else {
+                        self.featureTable_spatialUnit_lastUpdate_timestamp_success = getCurrentTimestampString();
+                      }       
+                      
+                      $rootScope.$broadcast("onDeleteFeatureEntry_" + resourceType);
+            
+                    }, function errorCallback(error) {
+                      // called asynchronously if an error occurs
+                      // or server returns response with an error status.
+                      //$scope.error = response.statusText;
+                      console.error("Error while deleting database record. Error is:\n" + error); 
+                      $rootScope.$broadcast("hideLoadingIcon_" + resourceType);
+                      if(resourceType == self.resourceType_georesource){
+                        self.featureTable_georesource_lastUpdate_timestamp_failure = getCurrentTimestampString();
+                      }
+                      else {
+                        self.featureTable_spatialUnit_lastUpdate_timestamp_failure = getCurrentTimestampString();
+                      }       
+                      throw error;
+                  });
+          });
         
-          let dataGridOptions_featureTable = this.buildDataGridOptions_featureTable(specificHeadersArray, dataArray);
+      }; 
+
+      this.buildDataGrid_featureTable_spatialResource = function (domElementId, specificHeadersArray, dataArray, datasetId, resourceType, deleteButtonEnabled) {
+
+        let dataGridOptions_featureTable;
+
+        dataGridOptions_featureTable = this.buildDataGridOptions_featureTable_spatialResource(specificHeadersArray, dataArray, datasetId, resourceType, deleteButtonEnabled);
+        
+          let gridDiv = document.querySelector('#' + domElementId);
+          while (gridDiv.firstChild) {
+            gridDiv.removeChild(gridDiv.firstChild);
+          }
+          new agGrid.Grid(gridDiv, dataGridOptions_featureTable);
+      };
+
+      // INDICATORS FEATURE TABLE
+      this.buildDataGridColumnConfig_featureTable_indicatorResource = function(specificHeadersArray, datasetId, resourceType, deleteButtonEnabled, spatialUnitId){
+        const columnDefs = [
+          { headerName: 'DB-Record-Id', field: "fid", pinned: 'left', editable: false, cellClass: "grid-non-editable", maxWidth: 125,
+            cellRenderer: function (params) {
+              let html = "";
+
+              // only show delete button, if user has the permission to delete the dataset
+              // if only editor rights, then user may edit cells, but shall not remove data entries
+              // if(params.data.userPermissions.includes("creator")){
+                // html += '<button id="btn__indicator__deleteFeatureEntry__' + datasetId + '__'  + spatialUnitId + '__' + params.data[__env.FEATURE_ID_PROPERTY_NAME] + '__' + params.data.fid + '" class="btn btn-danger btn-sm indicatorDeleteFeatureRecordBtn" type="button" title="Datenobjekt unwiderruflich entfernen"  ' + (deleteButtonEnabled ? '' : 'disabled') + '><i class="fas fa-trash"></i></button>';              
+
+                
+              // }
+
+              html += '<button id="btn__indicator__deleteFeatureEntry__' + datasetId + '__'  + spatialUnitId + '__' + params.data[__env.FEATURE_ID_PROPERTY_NAME] + '__' + params.data.fid + '" class="btn btn-danger btn-sm indicatorDeleteFeatureRecordBtn" type="button" title="Datenobjekt unwiderruflich entfernen"  ' + (deleteButtonEnabled ? '' : 'disabled') + '><i class="fas fa-trash"></i></button>';              
+
+              html += "&nbsp;&nbsp;";
+              html += params.data.fid;
+
+              return html;
+            } 
+          },
+          { headerName: 'Feature-Id', field: __env.FEATURE_ID_PROPERTY_NAME, pinned: 'left', editable: false, cellClass: "grid-non-editable", maxWidth: 125 },
+          { headerName: 'Name', field: __env.FEATURE_NAME_PROPERTY_NAME, pinned: 'left', minWidth: 200, editable: false, cellClass: "grid-non-editable", },   
+          // { headerName: 'Id', field: __env.FEATURE_ID_PROPERTY_NAME,  maxWidth: 125 },
+          // { headerName: 'Name', field: __env.FEATURE_NAME_PROPERTY_NAME,  minWidth: 300 }, 
+          { headerName: 'Lebenszeitbeginn', field: __env.VALID_START_DATE_PROPERTY_NAME, minWidth: 125, editable: false, cellClass: "grid-non-editable" },
+          { headerName: 'Lebenszeitende', field: __env.VALID_END_DATE_PROPERTY_NAME, editable: false, cellClass: "grid-non-editable",
+          minWidth: 125 }
+        ];
+
+        for (const header of specificHeadersArray) {
+          columnDefs.push({ headerName: "" + header, field: "" + header, minWidth: 125 });
+        }
+
+        return columnDefs;
+      };
+
+      this.buildDataGridRowData_featureTable_indicatorResource = function(dataArray){
+
+        return dataArray.map(dataItem => {
+          // remove arisonFrom property as this is currently never used
+          delete dataItem.arisenFrom;
+          return dataItem;
+         }
+        );
+      };
+
+      this.buildDataGridOptions_featureTable_indicatorResource = function(specificHeadersArray, dataArray, datasetId, resourceType, deleteButtonEnabled, spatialUnitId){
+          let columnDefs = this.buildDataGridColumnConfig_featureTable_indicatorResource(specificHeadersArray, datasetId, resourceType, deleteButtonEnabled, spatialUnitId);
+          let rowData = this.buildDataGridRowData_featureTable_indicatorResource(dataArray);
+  
+          let gridOptions = {
+            defaultColDef: {
+              editable: true,
+              // enables the fill handle
+              enableFillHandle: false,              
+              cellEditor: 'agLargeTextCellEditor',
+              onCellValueChanged: function(newValueParams){
+                /* https://www.ag-grid.com/javascript-data-grid/cell-editing/ 
+                  interface NewValueParams {
+                    // The value before the change 
+                    oldValue: any;
+                    // The value after the change 
+                    newValue: any;
+                    // Row node for the given row 
+                    node: RowNode | null;
+                    // Data associated with the node 
+                    data: any;
+                    // Column for this callback 
+                    column: Column;
+                    // ColDef provided for this column 
+                    colDef: ColDef;
+                    api: GridApi;
+                    columnApi: ColumnApi;
+                    // The context as provided on `gridOptions.context` 
+                    context: any;
+                  }
+                */                 
+
+                  // take the modified data from newValueParams.data                 
+                  // then build JSON and send modification request to data Management component
+                  let json = JSON.parse(JSON.stringify(newValueParams.data));
+
+                  // now delete information - only ID and fid shall remain for indicator record update
+                  delete json[__env.VALID_START_DATE_PROPERTY_NAME];
+                  delete json[__env.VALID_END_DATE_PROPERTY_NAME];
+                  delete json[__env.FEATURE_NAME_PROPERTY_NAME];                  
+
+                  let url = __env.apiUrl + __env.basePath + "/indicators/"; 
+                  
+                  url += datasetId + "/" + spatialUnitId + "/singleFeature/" + newValueParams.data[__env.FEATURE_ID_PROPERTY_NAME] + "/singleFeatureRecord/" + newValueParams.data.fid;
+
+                  $http({
+                    url: url,
+                    method: "PUT",
+                    data: json,
+                    headers: {
+                      'Content-Type': "application/json"
+                    }
+                  }).then(function successCallback(response) {
+                      // this callback will be called asynchronously
+                      // when the response is available
+
+                      console.log("Successfully updated database record");
+
+                      // on success mark grid cell with green background and set update information
+                      newValueParams.colDef.cellStyle = (p) =>
+                          p.rowIndex.toString() === newValueParams.node.id ? {'background-color': '#9DC89F'} : "";
+
+                          newValueParams.api.refreshCells({
+                          force: true,
+                          columns: [newValueParams.column.getId()],
+                          rowNodes: [newValueParams.node]
+                      });
+                                      
+                      self.featureTable_indicator_lastUpdate_timestamp_success = getCurrentTimestampString();                   
+            
+                    }, function errorCallback(error) {
+                      // called asynchronously if an error occurs
+                      // or server returns response with an error status.
+                      //$scope.error = response.statusText;
+                      console.error("Error while updating database record. Error is:\n" + error);
+
+                      // reset cell value as an error occurred
+                      newValueParams.data[newValueParams.column.colId] = newValueParams.oldValue;
+
+                      // on failure mark grid cell with red background and set update failure information
+                      newValueParams.colDef.cellStyle = (p) =>
+                          p.rowIndex.toString() === newValueParams.node.id ? {'background-color': '#E79595'} : "";
+
+                          newValueParams.api.refreshCells({
+                          force: true,
+                          columns: [newValueParams.column.getId()],
+                          rowNodes: [newValueParams.node]
+                      });
+                      self.featureTable_indicator_lastUpdate_timestamp_failure = timestamp_string;
+                      throw error;
+                  }); 
+              },
+              sortable: true,
+              flex: 1,
+              minWidth: 200,
+              filter: true,
+              floatingFilter: true,
+              // filterParams: {
+              //   newRowsAction: 'keep'
+              // },
+              resizable: true,
+              wrapText: true,
+              autoHeight: true,
+              cellStyle: { 'font-size': '12px;', 'white-space': 'normal !important', "line-height": "20px !important", "word-break": "break-word !important", "padding-top": "17px", "padding-bottom": "17px" },
+              headerComponentParams: {
+                template:
+                  '<div class="ag-cell-label-container" role="presentation">' +
+                  '  <span ref="eMenu" class="ag-header-icon ag-header-cell-menu-button"></span>' +
+                  '  <div ref="eLabel" class="ag-header-cell-label" role="presentation">' +
+                  '    <span ref="eSortOrder" class="ag-header-icon ag-sort-order"></span>' +
+                  '    <span ref="eSortAsc" class="ag-header-icon ag-sort-ascending-icon"></span>' +
+                  '    <span ref="eSortDesc" class="ag-header-icon ag-sort-descending-icon"></span>' +
+                  '    <span ref="eSortNone" class="ag-header-icon ag-sort-none-icon"></span>' +
+                  '    <span ref="eText" class="ag-header-cell-text" role="columnheader" style="white-space: normal;"></span>' +
+                  '    <span ref="eFilter" class="ag-header-icon ag-filter-icon"></span>' +
+                  '  </div>' +
+                  '</div>',
+              },
+            },
+            columnDefs: columnDefs,
+            rowData: rowData,
+            // enables undo / redo
+            undoRedoCellEditing: true,
+            // restricts the number of undo / redo steps to 10
+            undoRedoCellEditingLimit: 10,
+            // enables flashing to help see cell changes
+            enableCellChangeFlash: true,
+            suppressRowClickSelection: true,
+            // rowSelection: 'multiple',
+            enableCellTextSelection: true,
+            ensureDomOrder: true,
+            pagination: true,
+            paginationPageSize: 10,
+            suppressColumnVirtualisation: true,          
+            onViewportChanged: function () {
+              self.registerClickHandler_featureTable_indicatorResource(resourceType);                   
+            },
+  
+          };
+  
+          return gridOptions;        
+      };
+
+      this.registerClickHandler_featureTable_indicatorResource = function (resourceType) {        
+
+        let className = ".indicatorDeleteFeatureRecordBtn";
+        let url = __env.apiUrl + __env.basePath + "/indicators/";
+
+          $(className).on("click", function (event) {
+
+            // ensure that only the target button gets clicked
+            event.stopPropagation();
+            event.stopImmediatePropagation();
+            $rootScope.$broadcast("showLoadingIcon_" + resourceType);
+
+            // id example is "btn__indicator__deleteFeatureEntry__' + datasetId + '__'  + spatialUnitId + '__' + params.data[__env.FEATURE_ID_PROPERTY_NAME] + '__' + params.data.kommonitorRecordId + '" class="btn btn-danger btn-sm indicatorDeleteFeatureRecordBtn"
+            let idArray = this.id.split("__");
+
+            let datasetId = idArray[3];
+            let spatialUnitId = idArray[4];
+            let featureId = idArray[5];
+            let recordId = idArray[6];
+                  
+                  url += datasetId + "/" + spatialUnitId + "/singleFeature/" + featureId + "/singleFeatureRecord/" + recordId;  
+
+                  $http({
+                    url: url,
+                    method: "DELETE"
+                  }).then(function successCallback(response) {
+                      // this callback will be called asynchronously
+                      // when the response is available
+
+                      console.log("Successfully deleted database record"); 
+                      
+                      $rootScope.$broadcast("onDeleteFeatureEntry_" + resourceType);
+                      self.featureTable_indicator_lastUpdate_timestamp_success = getCurrentTimestampString(); 
+            
+                    }, function errorCallback(error) {
+                      // called asynchronously if an error occurs
+                      // or server returns response with an error status.
+                      //$scope.error = response.statusText;
+                      console.error("Error while deleting database record. Error is:\n" + error); 
+                      $rootScope.$broadcast("hideLoadingIcon_" + resourceType);
+                      self.featureTable_indicator_lastUpdate_timestamp_failure = getCurrentTimestampString(); 
+                      throw error;
+                  });
+          });
+        
+      };
+
+      this.buildDataGrid_featureTable_indicatorResource = function (domElementId, specificHeadersArray, dataArray, datasetId, resourceType, deleteButtonEnabled, spatialUnitId) {
+
+        let dataGridOptions_featureTable = this.buildDataGridOptions_featureTable_indicatorResource(specificHeadersArray, dataArray, datasetId, resourceType, deleteButtonEnabled, spatialUnitId);
+        
           let gridDiv = document.querySelector('#' + domElementId);
           while (gridDiv.firstChild) {
             gridDiv.removeChild(gridDiv.firstChild);
@@ -1206,44 +1928,45 @@ angular
 
       // ROLE OVERVIEW TABLE
 
-      this.buildDataGridColumnConfig_roles = function(){
-        const columnDefs = [
-          { headerName: 'Editierfunktionen', maxWidth: 300, checkboxSelection: true, headerCheckboxSelection: true, 
-          headerCheckboxSelectionFilteredOnly: true, filter: false, sortable: false, cellRenderer: 'displayEditButtons_roles' },
-          { headerName: 'Id', field: "roleId", minWidth: 400 },
-          { headerName: 'Name', field: "roleName", minWidth: 400 },         
-          {
-            headerName: 'In Keycloak registriert', minWidth: 250,
-            cellRenderer: function (params) {
-              if (params.data.registeredInKeyCloak){
-                return '<i class="fas fa-check"></i>';
-              }
-              else{
-                return '<i class="fas fa-times"></i>';
-              }
-            },
-            filter: 'agTextColumnFilter', 
-            filterValueGetter: (params) => {
-              if (params.data.registeredInKeyCloak){
-                return "true1wahr";
-              }
-              return "false0falsch";
-            }
+      this.buildDataGridColumnConfig_accessControl = function(isRealmAdmin){
+        let columnDefs = [];
+        // Only show edit column if user is Realm Admin
+        if (isRealmAdmin) {
+          columnDefs.push({ headerName: 'Editierfunktionen', maxWidth: 200, checkboxSelection: (row) => {return row.data.name != "public" && row.data.name != "kommonitor"}, filter: false, sortable: false, cellRenderer: 'displayEditButtons_accessControl' });
+        }
+
+        return columnDefs.concat([
+          //{ headerName: 'Id', field: "organizationalUnitId", minWidth: 400 },
+          { headerName: 'Organisationseinheit', field: "name", minWidth: 300 },
+          { headerName: 'Rollen', field: "roleString", minWidth: 300 },
+          { headerName: 'Beschreibung', field: "description", minWidth: 400 },
+          { headerName: 'Kontakt', field: "contact", minWidth: 400 },
+        ]);
+      };
+
+      this.buildDataGridRowData_accessControl = function(dataArray){
+        let data = JSON.parse(JSON.stringify(dataArray));
+        for (let elem of data) {
+          elem.roleString = "";
+          for (let role of elem.roles) {
+            elem.roleString += role.permissionLevel + ", ";
           }
-        ];
-
-        return columnDefs;
+          elem.roleString = elem.roleString.substring(0, elem.roleString.length - 2);
+        }
+        return data;
       };
 
-      this.buildDataGridRowData_roles = function(dataArray){
-        
-        return dataArray;
-      };
-
-      this.buildDataGridOptions_roles = function(rolesArray){
-          let columnDefs = this.buildDataGridColumnConfig_roles();
-          let rowData = this.buildDataGridRowData_roles(rolesArray);
+      this.buildDataGridOptions_accessControl = function(accessControlArray){
+          let columnDefs = this.buildDataGridColumnConfig_accessControl(kommonitorDataExchangeService.isRealmAdmin);
+          let rowData = this.buildDataGridRowData_accessControl(accessControlArray);
   
+          let components = {};
+          if (kommonitorDataExchangeService.isRealmAdmin) {
+            components = {displayEditButtons_accessControl: displayEditButtons_accessControl};
+          } else {
+            components = {}
+          }
+
           let gridOptions = {
             defaultColDef: {
               editable: false,
@@ -1274,9 +1997,7 @@ angular
                   '</div>',
               },
             },
-            components: {
-              displayEditButtons_roles: displayEditButtons_roles
-            },
+            components: components,
             columnDefs: columnDefs,
             rowData: rowData,
             suppressRowClickSelection: true,
@@ -1287,16 +2008,16 @@ angular
             paginationPageSize: 10,
             suppressColumnVirtualisation: true,          
             onFirstDataRendered: function () {
-              headerHeightSetter(self.dataGridOptions_roles);
+              headerHeightSetter(self.dataGridOptions_accessControl);
             },
             onColumnResized: function () {
-              headerHeightSetter(self.dataGridOptions_roles);
+              headerHeightSetter(self.dataGridOptions_accessControl);
             },        
             onRowDataChanged: function () {
-              self.registerClickHandler_roles(rolesArray);
+              self.registerClickHandler_accessControl(accessControlArray);
             },   
             onViewportChanged: function () {
-              self.registerClickHandler_roles(rolesArray);                   
+              self.registerClickHandler_accessControl(accessControlArray);                   
             },
   
           };
@@ -1304,30 +2025,36 @@ angular
           return gridOptions;        
       };
 
-      this.registerClickHandler_roles = function (roleMetadataArray) {
+      this.registerClickHandler_accessControl = function (roleMetadataArray) {
 
-        $(".roleEditMetadataBtn").on("click", function () {
-          let roleId = this.id.split("_")[3];
+        $(".roleEditMetadataBtn").on("click", function (event) {
+          // ensure that only the target button gets clicked
+          // manually open modal
+          event.stopPropagation();
+          let modalId = document.getElementById(this.id).getAttribute("data-target");
+          $(modalId).modal('show');
+          
+          let id = this.id.split("_")[3];
 
-          let roleMetadata = kommonitorDataExchangeService.getRoleMetadataById(roleId);
+          let roleMetadata = kommonitorDataExchangeService.getAccessControlById(id);
 
           $rootScope.$broadcast("onEditRoleMetadata", roleMetadata);
         });
       };  
 
-      this.buildDataGrid_roles = function (rolesArray) {
+      this.buildDataGrid_accessControl = function (accessControlArray) {
         
-        if (this.dataGridOptions_roles && this.dataGridOptions_roles.api) {
+        if (this.dataGridOptions_accessControl && this.dataGridOptions_accessControl.api) {
 
-          this.saveGridStore(this.dataGridOptions_roles);
-          let newRowData = this.buildDataGridRowData_roles(rolesArray);
-          this.dataGridOptions_roles.api.setRowData(newRowData);
-          this.restoreGridStore(this.dataGridOptions_roles);
+          this.saveGridStore(this.dataGridOptions_accessControl);
+          let newRowData = this.buildDataGridRowData_accessControl(accessControlArray);
+          this.dataGridOptions_accessControl.api.setRowData(newRowData);
+          this.restoreGridStore(this.dataGridOptions_accessControl);
         }
         else {
-          this.dataGridOptions_roles = this.buildDataGridOptions_roles(rolesArray);
+          this.dataGridOptions_accessControl = this.buildDataGridOptions_accessControl(accessControlArray);
           let gridDiv = document.querySelector('#roleOverviewTable');
-          new agGrid.Grid(gridDiv, this.dataGridOptions_roles);
+          new agGrid.Grid(gridDiv, this.dataGridOptions_accessControl);
         }
       };
 
@@ -1585,11 +2312,23 @@ angular
           headerCheckboxSelectionFilteredOnly: true },
           { headerName: 'Script-Id', field: "jobData.scriptId", pinned: 'left', maxWidth: 125 },
           { headerName: 'Ziel-Indikator', pinned: 'left', maxWidth: 250, cellRenderer: function (params) {
-              return kommonitorDataExchangeService.getIndicatorMetadataById(params.data.jobData.targetIndicatorId).indicatorName;
+            if(params.data.jobData && params.data.jobData.targetIndicatorId){
+              let indicatorMetadata = kommonitorDataExchangeService.getIndicatorMetadataById(params.data.jobData.targetIndicatorId); 
+              if (indicatorMetadata){
+                return indicatorMetadata.indicatorName;
+              }
+            }
+            return "";
             },
             filter: 'agTextColumnFilter', 
             filterValueGetter: (params) => {
-              return kommonitorDataExchangeService.getIndicatorMetadataById(params.data.jobData.targetIndicatorId).indicatorName;
+              if(params.data.jobData && params.data.jobData.targetIndicatorId){
+                let indicatorMetadata = kommonitorDataExchangeService.getIndicatorMetadataById(params.data.jobData.targetIndicatorId); 
+                if (indicatorMetadata){
+                  return indicatorMetadata.indicatorName;
+                }
+              }
+              return "";
             } 
           },
           { headerName: 'Job-Status', field: "status", maxWidth: 125 },
@@ -1859,6 +2598,344 @@ angular
           let gridDiv = document.querySelector('#jobExecutionTable_customizedComputation');
           new agGrid.Grid(gridDiv, this.dataGridOptions_customizedJobs);
         }
+      };
+
+      function anyHigherRoleIsChecked(roles, roleSuffix){
+        let filteresRoles = [];
+        
+        if(roleSuffix == "viewer"){
+          filteresRoles = roles.filter(function(role){
+            if (role.isChecked && (role.permissionLevel == "editor" || role.permissionLevel == "creator")){
+              return true;
+            }
+          });
+        }
+        else if (roleSuffix == "editor"){
+          filteresRoles = roles.filter(function(role){
+            if (role.isChecked && role.permissionLevel == "creator"){
+              return true;
+            }
+          });
+        }
+        
+        return filteresRoles.length > 0;
+      };
+
+      function CheckboxRenderer_viewer() {}
+
+      CheckboxRenderer_viewer.prototype.init = function(params) {
+        this.params = params;
+
+        let isChecked = false;
+        let exists = false;
+        let className;
+        for (const role of params.data.roles) {
+          if (role.permissionLevel == "viewer"){
+            exists = true;
+            isChecked = role.isChecked;
+            className = role.roleId;
+            break;
+          }
+        }  
+
+        if(exists){
+          this.eGui = document.createElement('input');
+          this.eGui.className = className;
+          this.eGui.type = 'checkbox';
+          this.eGui.checked = isChecked;
+
+          this.checkedHandler = this.checkedHandler.bind(this);
+          this.eGui.addEventListener('click', this.checkedHandler);
+          // if higher role rights are checked as well 
+          if(isChecked && anyHigherRoleIsChecked(params.data.roles, "viewer")){
+            this.eGui.disabled = true;
+          }                    
+        }
+      };
+
+      CheckboxRenderer_viewer.prototype.checkedHandler = function(e) {
+        let checked = e.target.checked;
+        for (const role of this.params.data.roles) {
+          if (role.permissionLevel == "viewer"){            
+            role.isChecked = checked;
+            break;
+          }
+        }  
+      };
+
+      CheckboxRenderer_viewer.prototype.getGui = function(params) {
+        return this.eGui;
+      };
+
+      CheckboxRenderer_viewer.prototype.destroy = function(params) {
+        if(this.eGui){
+          this.eGui.removeEventListener('click', this.checkedHandler);
+        }        
+      };
+
+      function CheckboxRenderer_editor() {}
+
+      CheckboxRenderer_editor.prototype.init = function(params) {
+        this.params = params;
+
+        let isChecked = false;
+        let exists = false;
+        let className;
+        for (const role of params.data.roles) {
+          if (role.permissionLevel == "editor"){
+            exists = true;
+            isChecked = role.isChecked;
+            className = role.roleId;
+            break;
+          }
+        }  
+
+        if(exists){
+          this.eGui = document.createElement('input');
+          this.eGui.className = className;
+          this.eGui.type = 'checkbox';
+          this.eGui.checked = isChecked;
+
+          this.checkedHandler = this.checkedHandler.bind(this);
+          this.eGui.addEventListener('click', this.checkedHandler);
+          // if higher role rights are checked as well 
+          if(isChecked && anyHigherRoleIsChecked(params.data.roles, "editor")){
+            this.eGui.disabled = true;
+          } 
+        }
+      };
+
+      CheckboxRenderer_editor.prototype.checkedHandler = function(e) {
+        let checked = e.target.checked;
+        for (const role of this.params.data.roles) {
+          if (role.permissionLevel == "viewer"){    
+            if (checked){
+              role.isChecked = true;
+              $('.' + role.roleId).attr('disabled', true);
+              $('.' + role.roleId).prop("checked", true);
+            }                    
+            else{
+              $('.' + role.roleId).attr('disabled', false);
+            }
+          }
+          else if (role.permissionLevel == "editor"){            
+            role.isChecked = checked;
+          }
+        }  
+      };
+
+      CheckboxRenderer_editor.prototype.getGui = function(params) {
+        return this.eGui;
+      };
+
+      CheckboxRenderer_editor.prototype.destroy = function(params) {
+        if(this.eGui){
+          this.eGui.removeEventListener('click', this.checkedHandler);
+        }  
+      };
+
+      function CheckboxRenderer_creator() {}
+
+      CheckboxRenderer_creator.prototype.init = function(params) {
+        this.params = params;
+
+        let isChecked = false;
+        let exists = false;
+        let className;
+        for (const role of params.data.roles) {
+          if (role.permissionLevel == "creator"){
+            exists = true;
+            isChecked = role.isChecked;
+            className = role.roleId;
+            break;
+          }
+        }  
+
+        if(exists){
+          this.eGui = document.createElement('input');
+          this.eGui.className = className;
+          this.eGui.type = 'checkbox';
+          this.eGui.checked = isChecked;
+
+          this.checkedHandler = this.checkedHandler.bind(this);
+          this.eGui.addEventListener('click', this.checkedHandler);
+        }
+      };
+
+      CheckboxRenderer_creator.prototype.checkedHandler = function(e) {
+        let checked = e.target.checked;
+        for (const role of this.params.data.roles) {
+          if (role.permissionLevel == "editor"){            
+            if (checked){
+              role.isChecked = true;
+              $('.' + role.roleId).attr('disabled', true);
+              $('.' + role.roleId).prop("checked", true);
+            }                    
+            else{
+              $('.' + role.roleId).attr('disabled', false);
+            }
+          }
+          else if (role.permissionLevel == "viewer"){            
+            if (checked){
+              role.isChecked = true;
+              $('.' + role.roleId).attr('disabled', true);
+              $('.' + role.roleId).prop("checked", true);
+            }                    
+            else{
+              $('.' + role.roleId).attr('disabled', true);
+            }
+          }
+          else if (role.permissionLevel == "creator" || role.permissionLevel == "editor" || role.permissionLevel == "viewer"){            
+            role.isChecked = checked;
+          }
+        }  
+      };
+
+      CheckboxRenderer_creator.prototype.getGui = function(params) {
+        return this.eGui;
+      };
+
+      CheckboxRenderer_creator.prototype.destroy = function(params) {
+        if(this.eGui){
+          this.eGui.removeEventListener('click', this.checkedHandler);
+        }  
+      };
+
+      this.buildRoleManagementGridRowData = function(accessControlMetadata, selectedRoleIds){
+        let data = JSON.parse(JSON.stringify(accessControlMetadata));
+        for (let elem of data) {
+          for (let role of elem.roles) {
+            role.isChecked = false;
+            if (selectedRoleIds && selectedRoleIds.includes(role.roleId)){
+              role.isChecked = true;
+            }
+          }
+        }
+
+        let array = [];
+        array.push(data[0]);
+        array.push(data[1]);
+
+        data.splice(0,2);
+        data.sort(function (a, b) {
+          if (a.name < b.name) {
+            return -1;
+          }
+          if (a.name > b.name) {
+            return 1;
+          }
+          return 0;
+        });
+
+        array = array.concat(data);
+
+        return array;
+      };
+
+      this.buildRoleManagementGridColumnConfig = function(){
+        let columnDefs = [];
+
+        return columnDefs.concat([
+          { headerName: 'Organisationseinheit', field: "name", minWidth: 200 },
+          { headerName: 'lesen', field: "roles", filter: false, sortable: false, maxWidth: 100, cellRenderer: 'checkboxRenderer_viewer', },
+          { headerName: 'editieren', field: "roles", filter: false, sortable: false, maxWidth: 100, cellRenderer: 'checkboxRenderer_editor', },
+          { headerName: 'löschen', field: "roles", filter: false, sortable: false, maxWidth: 100, cellRenderer: 'checkboxRenderer_creator', }          
+        ]);
+      };
+
+      this.buildRoleManagementGridOptions = function(accessControlMetadata, selectedRoleIds){
+        let columnDefs = this.buildRoleManagementGridColumnConfig();
+          let rowData = this.buildRoleManagementGridRowData(accessControlMetadata, selectedRoleIds);
+  
+          let components = {
+            checkboxRenderer_viewer: CheckboxRenderer_viewer,
+            checkboxRenderer_editor: CheckboxRenderer_editor,
+            checkboxRenderer_creator: CheckboxRenderer_creator
+          };
+
+          let gridOptions = {
+            defaultColDef: {
+              editable: false,
+              sortable: true,
+              flex: 1,
+              minWidth: 200,
+              filter: true,
+              floatingFilter: false,
+              // filterParams: {
+              //   newRowsAction: 'keep'
+              // },
+              resizable: true,
+              wrapText: true,
+              autoHeight: true,
+              cellStyle: { 'font-size': '12px;', 'white-space': 'normal !important', "line-height": "20px !important", "word-break": "break-word !important", "padding-top": "17px", "padding-bottom": "17px" },
+              headerComponentParams: {
+                template:
+                  '<div class="ag-cell-label-container" role="presentation">' +
+                  '  <span ref="eMenu" class="ag-header-icon ag-header-cell-menu-button"></span>' +
+                  '  <div ref="eLabel" class="ag-header-cell-label" role="presentation">' +
+                  '    <span ref="eSortOrder" class="ag-header-icon ag-sort-order"></span>' +
+                  '    <span ref="eSortAsc" class="ag-header-icon ag-sort-ascending-icon"></span>' +
+                  '    <span ref="eSortDesc" class="ag-header-icon ag-sort-descending-icon"></span>' +
+                  '    <span ref="eSortNone" class="ag-header-icon ag-sort-none-icon"></span>' +
+                  '    <span ref="eText" class="ag-header-cell-text" role="columnheader" style="white-space: normal;"></span>' +
+                  '    <span ref="eFilter" class="ag-header-icon ag-filter-icon"></span>' +
+                  '  </div>' +
+                  '</div>',
+              },
+            },
+            components: components,
+            floatingFilter: false,
+            columnDefs: columnDefs,
+            rowData: rowData,
+            rowHeight: 10,
+            suppressRowClickSelection: true,
+            rowSelection: 'multiple',
+            enableCellTextSelection: false,
+            ensureDomOrder: true,
+            pagination: true,
+            paginationPageSize: 5,
+            suppressColumnVirtualisation: true,          
+            onFirstDataRendered: function () {
+            },
+            onColumnResized: function () {
+            },        
+            onRowDataChanged: function () {
+            },   
+            onViewportChanged: function () {       
+            },
+  
+          };
+  
+          return gridOptions;
+      };
+
+      this.buildRoleManagementGrid = function(tableDOMId, currentTableOptionsObject, accessControlMetadata, selectedRoleIds){
+        if (currentTableOptionsObject && currentTableOptionsObject.api) {
+
+          let newRowData = this.buildRoleManagementGridRowData(accessControlMetadata, selectedRoleIds);
+          currentTableOptionsObject.api.setRowData(newRowData);
+        }
+        else {
+          currentTableOptionsObject = this.buildRoleManagementGridOptions(accessControlMetadata, selectedRoleIds);
+          let gridDiv = document.querySelector('#' + tableDOMId);
+          new agGrid.Grid(gridDiv, currentTableOptionsObject);
+        }
+        return currentTableOptionsObject;
+      };
+
+      this.getSelectedRoleIds_roleManagementGrid = function(roleManagementTableOptions){
+        let ids = [];
+        if (roleManagementTableOptions && roleManagementTableOptions.api){
+
+          roleManagementTableOptions.api.forEachNode(function(node, index){
+            for (const role of node.data.roles) {
+              if(role && role.isChecked){
+                ids.push(role.roleId);
+              }
+            }
+          })               
+        }
+        return ids;
       };
 
       this.saveGridStore = function (gridOptions) {

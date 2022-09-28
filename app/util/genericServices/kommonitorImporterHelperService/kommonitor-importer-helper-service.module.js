@@ -17,7 +17,6 @@ angular
       kommonitorDataExchangeService, $http, __env) {
 
       this.targetUrlToImporterService = __env.targetUrlToImporterService;
-      this.prefix_converterName = "org.n52.kommonitor.importer.converter.";
 
       this.availableConverters = undefined;
 
@@ -127,6 +126,36 @@ angular
           "targetSpatialUnitName": "string"
         }; 
 
+      this.converterDefinition_singleFeatureImport = {
+        "encoding": "UTF-8",
+        "mimeType": "application/geo+json",
+        "name": "GeoJSON",
+        "parameters": [
+          {
+            "name": "CRS",
+            "value": "EPSG:4326"
+          }
+        ]
+      }; 
+      
+      this.datasourceDefinition_singleFeatureImport = {
+        "parameters": [
+          {
+            "name": "payload",
+            "value": "geojsonValue"
+          }
+        ],
+        "type": "INLINE"
+      };
+      
+      this.propertyMappingDefinition_singleFeatureImport = {
+        "identifierProperty": "ID",
+        "nameProperty": "NAME",
+        "keepAttributes": true,
+        "keepMissingOrNullValueAttributes": true,
+        "attributes": []
+      };
+
       this.fetchResourcesFromImporter = async function(){
         console.log("Trying to fetch converters and datasourceTypes from importer service");
         this.availableConverters = await this.fetchConverters();
@@ -143,7 +172,6 @@ angular
           var converter = this.availableConverters[index];
           
           converter = await this.fetchConverterDetails(converter);
-          converter.simpleName = converter.name.replace(this.prefix_converterName, "");
           this.availableConverters[index] = converter;
         }
 
@@ -155,6 +183,21 @@ angular
           $rootScope.$apply();
         }, 1500);
 
+      };
+
+      this.filterConverters = function(resourceType) {
+        // remove csvLatLon for indicators
+        // and csv_onlyIndicator for georesources
+        return function (converter) {
+            if(resourceType === "georesource" && converter.name.includes("Indikator"))
+                return false;
+            if(resourceType === "spatialUnit" && (converter.name.includes("Indikator") || converter.name.includes("Tabelle")))
+                return false;
+            if(resourceType === "indicator" && (converter.name.includes("Geokodierung") || converter.name.includes("Koordinate")) )
+                return false;    
+            
+            return true;
+        };
       };
 
       this.fetchConverters = async function(){
@@ -266,10 +309,10 @@ angular
         });        
       };
 
-      this.buildConverterDefinition = function(selectedConverter, converterParameterPrefix, schema){
+      this.buildConverterDefinition = function(selectedConverter, converterParameterPrefix, schema, mimeType){
         var converterDefinition = {
           "encoding": selectedConverter.encodings[0],
-          "mimeType": selectedConverter.mimeTypes[0],
+          "mimeType": selectedConverter.mimeTypes.filter(element => element == mimeType)[0],
           "name": selectedConverter.name,
           "parameters": [
             
@@ -394,13 +437,8 @@ angular
           "indicatorValues": [],
           "applicableSpatialUnit": scopeProperties.targetSpatialUnitMetadata.spatialUnitLevel,
           "defaultClassificationMapping": scopeProperties.currentIndicatorDataset.defaultClassificationMapping,
-          "allowedRoles": []
+          "allowedRoles": scopeProperties.allowedRoles
           };
-
-          for (const roleDuallistItem of scopeProperties.allowedRoleNames.selectedItems) {
-            var roleMetadata = kommonitorDataExchangeService.getRoleMetadataForRoleName(roleDuallistItem.name);
-            putBody.allowedRoles.push(roleMetadata.roleId);
-          }
 
         return putBody;
       };

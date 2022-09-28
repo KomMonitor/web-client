@@ -63,7 +63,7 @@ angular
         }
         else if(Auth.keycloak.authenticated) {
           // admin role user always sees all data and widgets
-          if(kommonitorDataExchangeService.currentKeycloakLoginRoles.includes(__env.keycloakKommonitorAdminRoleName)){
+          if(Auth.keycloak.showAdminView){
             return true;
           }
           var hasAllowedRole = false;          

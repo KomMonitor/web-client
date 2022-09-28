@@ -84,7 +84,7 @@
 											<!-- Datensatz-Quellformat -->
 											<td>
 												<select class="form-control" ng-model="indicator.selectedConverter"
-														ng-options="converter as converter.simpleName for converter in $ctrl.kommonitorImporterHelperServiceInstance.availableConverters | filter:$ctrl.kommonitorBatchUpdateHelperServiceInstance.filterConverters('indicator')" required>
+														ng-options="converter as converter.name for converter in $ctrl.kommonitorImporterHelperServiceInstance.availableConverters | filter:$ctrl.kommonitorImporterHelperServiceInstance.filterConverters('indicator')" required>
 																<option disabled selected value> -- Quellformat w&auml;hlen -- </option>
 												</select>
 											</td>
@@ -230,7 +230,7 @@
 									</button>
 									<!-- Datensatz-Quellformat* -->
 									<select ng-show="colDefaultFunctionSelectedColumn=='selectedConverter'" class="form-control" ng-model="colDefaultFunctionNewValue"
-										ng-options="converter as converter.simpleName for converter in $ctrl.kommonitorImporterHelperServiceInstance.availableConverters | filter:$ctrl.kommonitorBatchUpdateHelperServiceInstance.filterConverters('indicator')">
+										ng-options="converter as converter.name for converter in $ctrl.kommonitorImporterHelperServiceInstance.availableConverters | filter:$ctrl.kommonitorImporterHelperServiceInstance.filterConverters('indicator')">
 											<option disabled selected value> -- Quellformat w&auml;hlen -- </option>
 									</select>
 									<!-- CRS* -->

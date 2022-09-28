@@ -1,6 +1,9 @@
 angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataModal', {
 	templateUrl : "components/kommonitorAdmin/adminIndicatorsManagement/indicatorEditMetadataModal/indicator-edit-metadata-modal.template.html",
-	controller : ['kommonitorDataExchangeService', '$scope', '$rootScope', '$http', '__env', '$timeout',function IndicatorEditMetadataModalController(kommonitorDataExchangeService, $scope, $rootScope, $http, __env, $timeout) {
+	controller : ['kommonitorDataExchangeService', '$scope', '$rootScope', '$http', '__env', '$timeout', 'kommonitorMultiStepFormHelperService',
+		'kommonitorDataGridHelperService', 
+		function IndicatorEditMetadataModalController(kommonitorDataExchangeService, $scope, $rootScope, $http, __env, $timeout, 
+			kommonitorMultiStepFormHelperService, kommonitorDataGridHelperService) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 
@@ -153,8 +156,7 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 		$scope.metadata.lastUpdate = undefined;
 		$scope.metadata.description = undefined;
 
-		$scope.duallist = {duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, null, "roleName")};			
-		$scope.allowedRoleNames = {selectedItems: []};
+		$scope.roleManagementTableOptions = undefined;
 
 
 		$scope.datasetName = undefined;
@@ -234,14 +236,19 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 			$scope.currentIndicatorDataset = indicatorDataset;
 
 			$scope.resetIndicatorEditMetadataForm();
+			kommonitorMultiStepFormHelperService.registerClickHandler();
 
 		});
 
+		$scope.$on("availableRolesUpdate", function (event) {
+			let allowedRoles = $scope.currentIndicatorDataset ? $scope.currentIndicatorDataset.allowedRoles : [];
+			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorEditRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, allowedRoles);
+		});
 
 		$scope.resetIndicatorEditMetadataForm = function(){
 
 			$scope.successMessagePart = undefined;
-				$scope.errorMessagePart = undefined;
+			$scope.errorMessagePart = undefined;
 
 			$scope.datasetName = $scope.currentIndicatorDataset.indicatorName;
 			$scope.datasetNameInvalid = false;
@@ -268,9 +275,8 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 				}
 			});
 
-			var selectedRolesMetadata = kommonitorDataExchangeService.getRoleMetadataForRoleIds($scope.currentIndicatorDataset.allowedRoles);			
-			$scope.duallist = {duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, selectedRolesMetadata, "roleName")};			
-			$scope.allowedRoleNames = {selectedItems: $scope.duallist.duallistRoleOptions.selectedItems};
+			let allowedRoles = $scope.currentIndicatorDataset ? $scope.currentIndicatorDataset.allowedRoles : [];
+			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorEditRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, allowedRoles);
 
 			$scope.indicatorAbbreviation = $scope.currentIndicatorDataset.abbreviation;
 
@@ -628,9 +634,9 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 				  }
 			};
 
-			for (const roleDuallistItem of $scope.allowedRoleNames.selectedItems) {
-				var roleMetadata = kommonitorDataExchangeService.getRoleMetadataForRoleName(roleDuallistItem.name);
-				patchBody.allowedRoles.push(roleMetadata.roleId);
+			let roleIds = kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid($scope.roleManagementTableOptions);
+			for (const roleId of roleIds) {
+				patchBody.allowedRoles.push(roleId);
 			}
 
 			// TAGS
@@ -809,13 +815,10 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 				$scope.indicatorReferenceDateNote = $scope.metadataImportSettings.referenceDateNote;
 				$scope.displayOrder = $scope.metadataImportSettings.displayOrder;
 
-				var selectedRolesMetadata = kommonitorDataExchangeService.getRoleMetadataForRoleIds($scope.metadataImportSettings.allowedRoles);			
-				$scope.duallist = {duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, selectedRolesMetadata, "roleName")};			
-				$scope.allowedRoleNames = {selectedItems: $scope.duallist.duallistRoleOptions.selectedItems};
+				$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorEditRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, $scope.metadataImportSettings.allowedRoles);
 
 				// indicator specific properties
 
-				
 				$scope.indicatorAbbreviation = $scope.metadataImportSettings.abbreviation;
 
 				for (const indicatorTypeOption of kommonitorDataExchangeService.indicatorTypeOptions) {
@@ -986,9 +989,9 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 			metadataExport.displayOrder = $scope.displayOrder;
 
 			metadataExport.allowedRoles = [];
-			for (const roleDuallistItem of $scope.allowedRoleNames.selectedItems) {
-				var roleMetadata = kommonitorDataExchangeService.getRoleMetadataForRoleName(roleDuallistItem.name);
-				metadataExport.allowedRoles.push(roleMetadata.roleId);
+			let roleIds = kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid($scope.roleManagementTableOptions);
+			for (const roleId of roleIds) {
+				metadataExport.allowedRoles.push(roleId);
 			}
 
 			if($scope.metadata.updateInterval){
@@ -1125,101 +1128,6 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 			$scope.hideMetadataErrorAlert = function(){
 				$("#indicatorEditMetadataImportErrorAlert").hide();
 			};
-
-			/*
-			MULTI STEP FORM STUFF
-			*/
-			//jQuery time
-			$scope.current_fs; 
-			$scope.next_fs; 
-			$scope.previous_fs; //fieldsets
-			$scope.opacity; 
-			$scope.scale; //fieldset properties which we will animate
-			$scope.animating; //flag to prevent quick multi-click glitches
-
-			$timeout(function(){
-				
-				$(".next_editIndicatorMetadata").click(function(){
-					if($scope.animating) return false;
-					$scope.animating = true;
-					
-					$scope.current_fs = $(this).parent();
-					$scope.next_fs = $(this).parent().next();
-					
-					//activate next step on progressbar using the index of $scope.next_fs
-					$("#progressbar li").eq($("fieldset").index($scope.next_fs)).addClass("active");
-					
-					//show the next fieldset
-					$scope.next_fs.show(); 
-					//hide the current fieldset with style
-					$scope.current_fs.animate({opacity: 0}, {
-						step: function(now, mx) {
-							//as the $scope.opacity of current_fs reduces to 0 - stored in "now"
-							//1. $scope.scale current_fs down to 80%
-							$scope.scale = 1 - (1 - now) * 0.2;
-							//2. bring $scope.next_fs from the right(50%)
-							// left = (now * 50)+"%";
-							//3. increase $scope.opacity of $scope.next_fs to 1 as it moves in
-							$scope.opacity = 1 - now;
-							$scope.current_fs.css({
-								'position': 'absolute'
-							});
-							// $scope.next_fs.css({'left': left, '$scope.opacity': $scope.opacity});
-							$scope.next_fs.css({'opacity': $scope.opacity});
-						}, 
-						duration: 200, 
-						complete: function(){
-							$scope.current_fs.hide();
-							$scope.animating = false;
-						}, 
-						//this comes from the custom easing plugin
-						easing: 'easeInOutBack'
-					});
-				});
-	
-				$(".previous_editIndicatorMetadata").click(function(){
-					if($scope.animating) return false;
-					$scope.animating = true;
-					
-					$scope.current_fs = $(this).parent();
-					$scope.previous_fs = $(this).parent().prev();
-					
-					//de-activate current step on progressbar
-					$("#progressbar li").eq($("fieldset").index($scope.current_fs)).removeClass("active");
-					
-					//show the previous fieldset
-					$scope.previous_fs.show(); 
-					//hide the current fieldset with style
-					$scope.current_fs.animate({opacity: 0}, {
-						step: function(now, mx) {
-							//as the $scope.opacity of current_fs reduces to 0 - stored in "now"
-							//1. $scope.scale $scope.previous_fs from 80% to 100%
-							$scope.scale = 0.8 + (1 - now) * 0.2;
-							//2. take current_fs to the right(50%) - from 0%
-							// left = ((1-now) * 50)+"%";
-							//3. increase $scope.opacity of $scope.previous_fs to 1 as it moves in
-							$scope.opacity = 1 - now;
-							// current_fs.css({'left': left});
-							// $scope.previous_fs.css({'transform': '$scope.scale('+$scope.scale+')', '$scope.opacity': $scope.opacity});
-							$scope.previous_fs.css({
-								'position': 'absolute'
-							});
-							$scope.previous_fs.css({'opacity': $scope.opacity});
-						}, 
-						duration: 200, 
-						complete: function(){
-							$scope.current_fs.hide();
-							$scope.previous_fs.css({
-								'position': 'relative'
-							});
-							$scope.animating = false;
-						}, 
-						//this comes from the custom easing plugin
-						easing: 'easeInOutBack'
-					});
-				});
-				
-			}, 500);
 
 	}
 ]});

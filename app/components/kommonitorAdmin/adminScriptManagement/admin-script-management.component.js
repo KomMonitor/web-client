@@ -72,7 +72,7 @@ angular.module('adminScriptManagement').component('adminScriptManagement', {
 
 			if(! crudType || !targetScriptId){
 				// refetch all metadata from spatial units to update table
-				kommonitorDataExchangeService.fetchIndicatorScriptsMetadata().then(function successCallback(response) {
+				kommonitorDataExchangeService.fetchIndicatorScriptsMetadata(kommonitorDataExchangeService.currentKeycloakLoginRoles).then(function successCallback(response) {
 
 					$scope.initializeOrRefreshOverviewTable();
 
@@ -85,7 +85,7 @@ angular.module('adminScriptManagement').component('adminScriptManagement', {
 			}
 			else if(crudType && targetScriptId){
 				if(crudType == "add"){
-					kommonitorCacheHelperService.fetchSingleIndicatorScriptMetadata(targetScriptId).then(function successCallback(data) {
+					kommonitorCacheHelperService.fetchSingleIndicatorScriptMetadata(targetScriptId, kommonitorDataExchangeService.currentKeycloakLoginRoles).then(function successCallback(data) {
 
 						kommonitorDataExchangeService.addSingleProcessScriptMetadata(data);
 
@@ -99,7 +99,7 @@ angular.module('adminScriptManagement').component('adminScriptManagement', {
 					});
 				}
 				else if(crudType == "edit"){
-					kommonitorCacheHelperService.fetchSingleIndicatorScriptMetadata(targetScriptId).then(function successCallback(data) {
+					kommonitorCacheHelperService.fetchSingleIndicatorScriptMetadata(targetScriptId, kommonitorDataExchangeService.currentKeycloakLoginRoles).then(function successCallback(data) {
 
 						kommonitorDataExchangeService.replaceSingleProcessScriptMetadata(data);
 						

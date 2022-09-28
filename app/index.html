@@ -39,8 +39,6 @@
         <link rel="stylesheet" href="dependencies/excalibur-duallist/css/excalibur-duallist.css">
         <link rel="stylesheet" href="dependencies/admin-lte/css/AdminLTE.min.css">
         <link rel="stylesheet" href="dependencies/admin-lte/css/skins/skin-blue.min.css">
-        <link rel="stylesheet" href="dependencies/gridstack/gridstack.min.css">
-        <!--<link rel="stylesheet" href="dependencies/gridstack/gridstack-extra.min.css">-->
         <link rel="stylesheet" href="dependencies/bootstrap-iconpicker/css/bootstrap-iconpicker.min.css">
         <link rel="stylesheet" href="dependencies/bootstrap-datepicker/css/bootstrap-datepicker.min.css">
         <link rel="stylesheet" href="dependencies/codemirror/lib/codemirror.css">
@@ -119,13 +117,15 @@
         <script src="dependencies/leaflet-geosearch/leaflet-geosearch.min.js"></script>
         <script src="dependencies/leaflet-search/dist/leaflet-search.src.js"></script>
         <script src="dependencies/leaflet-measure/leaflet-measure.de.js"></script>
-        <script src="dependencies/leaflet-easyprint/leaflet-easyprint.js"></script>
+        <script src="dependencies/leaflet-simple-map-screenshoter/leaflet-simple-map-screenshoter.js"></script>
         <script src="dependencies/leaflet-wfst/leaflet-wfst.src_custom.js"></script>
         <script src="dependencies/leaflet-betterWMS/L.TileLayer.BetterWMS.js"></script>
         <script src="dependencies/turf/turf.min.js"></script>
         <script src="dependencies/bootstrap-tour/bootstrap-tour-standalone.min.js"></script>
-        <script src="dependencies/jspdf/jspdf.min.js"></script>
-        <script src="dependencies/jspdf-autotable/jspdf.plugin.autotable.min.js"></script>
+        <!-- <script src="dependencies/jspdf/jspdf.min.js"></script> -->
+        <script src="https://unpkg.com/jspdf@latest/dist/jspdf.umd.min.js" type="text/javascript"></script>
+        <script src="https://unpkg.com/jspdf-autotable@latest/dist/jspdf.plugin.autotable.js" type="text/javascript"></script>
+        <!-- <script src="dependencies/jspdf-autotable/jspdf.plugin.autotable.min.js"></script> -->
         <script src="dependencies/shp-write/shpwrite.js"></script>
         <script src="dependencies/jstat/jstat.min.js"></script>
         <script src="dependencies/leaflet-pattern/leaflet.pattern.js"></script>
@@ -143,12 +143,12 @@
         <script src="dependencies/angular-legacy-sortablejs/angular-legacy-sortable.js"></script>
         <script src="dependencies/ag-grid-community/ag-grid-community.min.js"></script>
         <script src="dependencies/ui-select/select.min.js"></script>
+        <script src="dependencies/jszip/jszip.min.js"></script>
+        <script src="dependencies/docx/index.js"></script>
         
         
         
         <!-- <script src="dependencies/bootstrap-iconpicker/js/bootstrap-iconpicker.bundle.min.js"></script> -->
-        <script src="dependencies/gridstack/gridstack.min.js"></script>
-        <script src="dependencies/gridstack/gridstack.jQueryUI.min.js"></script>
         <script src="dependencies/html2canvas/html2canvas.min.js"></script>
         <script src="dependencies/html2pdf/html2pdf.js"></script>
         <script src="dependencies/jquery.easing/jquery.easing.min.js"></script>
@@ -167,6 +167,9 @@
         <script src="dependencies/mathjax/tex-chtml.js"></script>
         <script src="dependencies/code-prettify/run_prettify.js?skin=desert"></script>
 
+        <!-- UUID library directly loaded as minified version -->
+        <script src="https://unpkg.com/uuid@8.3.2/dist/umd/uuidv4.min.js" type="text/javascript"></script>
+
         <!-- end lib script tags -->
 
         <!-- Load environment variables -->
@@ -178,22 +181,26 @@
         <script src="util/genericServices/kommonitorShareHelperService/kommonitor-share-helper-service.module.js" type="text/javascript"></script>
         <script src="util/genericServices/kommonitorDataExchangeService/kommonitor-data-exchange-service.module.js" type="text/javascript"></script>
         <script src="util/genericServices/kommonitorDiagramHelperService/kommonitor-diagram-helper-service.module.js" type="text/javascript"></script>
-        <script src="util/genericServices/kommonitorImporterHelperService/kommonitor-Importer-helper-service.module.js" type="text/javascript"></script>
+        <script src="util/genericServices/kommonitorImporterHelperService/kommonitor-importer-helper-service.module.js" type="text/javascript"></script>
         <script src="util/genericServices/kommonitorScriptHelperService/kommonitor-script-helper-service.module.js" type="text/javascript"></script>
         <script src="util/genericServices/kommonitorConfigStorageService/kommonitor-config-storage-service.module.js" type="text/javascript"></script>
+        <script src="util/genericServices/kommonitorMultiStepFormHelperService/kommonitor-multi-step-form-helper-service.module.js" type="text/javascript"></script>
         <script src="util/genericServices/kommonitorKeycloakHelperService/kommonitor-keycloak-helper-service.module.js" type="text/javascript"></script>
         <script src="util/genericServices/kommonitorDataGridHelperService/kommonitor-data-grid-helper-service.module.js" type="text/javascript"></script>
         <script src="util/genericServices/kommonitorVisualStyleHelperService/kommonitor-visual-style-helper-service.module.js" type="text/javascript"></script>
         <script src="util/genericServices/kommonitorInfoLegendHelperService/kommonitor-info-legend-helper-service.module.js" type="text/javascript"></script>
         <script src="util/genericServices/kommonitorBatchUpdateHelperService/kommonitor-batch-update-helper-service.module.js" type="text/javascript"></script>
         <script src="util/genericServices/kommonitorFilterHelperService/kommonitor-filter-helper-service.module.js" type="text/javascript"></script>
+        <script src="util/genericServices/kommonitorSingleFeatureMapHelperService/kommonitor-single-feature-map-helper-service.module.js" type="text/javascript"></script>
         <script src="util/genericServices/kommonitorElementVisibilityHelperService/kommonitor-element-visibility-helper-service.module.js" type="text/javascript"></script>
         <script src="components/kommonitorUserInterface/kommonitorControls/kommonitorDataSetup/kommonitor-data-setup.module.js" type="text/javascript"></script>
         <script src="components/kommonitorUserInterface/kommonitorControls/kommonitorDataSetup/kommonitor-data-setup.component.js" type="text/javascript"></script>
         <script src="components/kommonitorAdmin/adminDashboardManagement/admin-dashboard-management.module.js" type="text/javascript"></script>
         <script src="components/kommonitorAdmin/adminDashboardManagement/admin-dashboard-management.component.js" type="text/javascript"></script>
+        <script src="components/kommonitorAdmin/adminRoleExplanation/admin-role-explanation.module.js" type="text/javascript"></script>
+        <script src="components/kommonitorAdmin/adminRoleExplanation/admin-role-explanation.component.js" type="text/javascript"></script>
         <script src="components/kommonitorAdmin/adminRoleManagement/admin-role-management.module.js" type="text/javascript"></script>
-        <script src="components/kommonitorAdmin/adminRoleManagement/admin-role-management.component.js" type="text/javascript"></script>
+        <script src="components/kommonitorAdmin/adminRoleManagement/admin-role-management.component.js" type="text/javascript"></script>        
         <script src="components/kommonitorAdmin/adminRoleManagement/roleAddModal/role-add-modal.module.js" type="text/javascript"></script>
         <script src="components/kommonitorAdmin/adminRoleManagement/roleAddModal/role-add-modal.component.js" type="text/javascript"></script>
         <script src="components/kommonitorAdmin/adminRoleManagement/roleEditMetadataModal/role-edit-metadata-modal.module.js" type="text/javascript"></script>
@@ -325,17 +332,25 @@
         <script src="components/kommonitorUserInterface/kommonitorControls/poi/wfsModal/wfs-modal.module.js" type="text/javascript"></script>
         <script src="components/kommonitorUserInterface/kommonitorControls/poi/wfsModal/wfs-modal.component.js" type="text/javascript"></script>
         <script src="components/kommonitorUserInterface/kommonitorControls/kommonitorDataImport/kommonitor-data-import.module.js" type="text/javascript"></script>
-        <script src="components/kommonitorUserInterface/kommonitorControls/kommonitorDataImport/kommonitor-data-import.component.js" type="text/javascript"></script> 
+        <script src="components/kommonitorUserInterface/kommonitorControls/kommonitorDataImport/kommonitor-data-import.component.js" type="text/javascript"></script>
+        <script src="components/kommonitorUserInterface/kommonitorControls/versionInfo/version-info.module.js" type="text/javascript"></script>
+        <script src="components/kommonitorUserInterface/kommonitorControls/versionInfo/version-info.component.js" type="text/javascript"></script> 
         <script src="components/kommonitorUserInterface/kommonitorControls/infoModal/info-modal.module.js" type="text/javascript"></script>
-        <script src="components/kommonitorUserInterface/kommonitorControls/infoModal/info-modal.component.js" type="text/javascript"></script>
+        <script src="components/kommonitorUserInterface/kommonitorControls/infoModal/info-modal.component.js" type="text/javascript"></script>        
         <script src="components/kommonitorUserInterface/kommonitorControls/spatialUnitNotificationModal/spatial-unit-notification-modal.module.js" type="text/javascript"></script>
         <script src="components/kommonitorUserInterface/kommonitorControls/spatialUnitNotificationModal/spatial-unit-notification-modal.component.js" type="text/javascript"></script>
         <script src="components/kommonitorUserInterface/kommonitorControls/feedbackModal/feedback-modal.module.js" type="text/javascript"></script>
         <script src="components/kommonitorUserInterface/kommonitorControls/feedbackModal/feedback-modal.component.js" type="text/javascript"></script>
         <script src="components/kommonitorUserInterface/kommonitorControls/reportingModal/reporting-modal.module.js" type="text/javascript"></script>
         <script src="components/kommonitorUserInterface/kommonitorControls/reportingModal/reporting-modal.component.js" type="text/javascript"></script>
-        <script src="components/kommonitorUserInterface/kommonitorControls/reportingModal/reportingAddIndicatorModal/reporting-add-indicator-modal.module.js" type="text/javascript"></script>
-        <script src="components/kommonitorUserInterface/kommonitorControls/reportingModal/reportingAddIndicatorModal/reporting-add-indicator-modal.component.js" type="text/javascript"></script>
+        <script src="components/kommonitorUserInterface/kommonitorControls/reportingModal/reportingWorkflowSelect/reporting-workflow-select.module.js" type="text/javascript"></script>
+        <script src="components/kommonitorUserInterface/kommonitorControls/reportingModal/reportingWorkflowSelect/reporting-workflow-select.component.js" type="text/javascript"></script>
+        <script src="components/kommonitorUserInterface/kommonitorControls/reportingModal/reportingTemplateSelect/reporting-template-select.module.js" type="text/javascript"></script>
+        <script src="components/kommonitorUserInterface/kommonitorControls/reportingModal/reportingTemplateSelect/reporting-template-select.component.js" type="text/javascript"></script>
+        <script src="components/kommonitorUserInterface/kommonitorControls/reportingModal/reportingOverview/reporting-overview.module.js" type="text/javascript"></script>
+        <script src="components/kommonitorUserInterface/kommonitorControls/reportingModal/reportingOverview/reporting-overview.component.js" type="text/javascript"></script>
+        <script src="components/kommonitorUserInterface/kommonitorControls/reportingModal/reportingIndicatorAdd/reporting-indicator-add.module.js" type="text/javascript"></script>
+        <script src="components/kommonitorUserInterface/kommonitorControls/reportingModal/reportingIndicatorAdd/reporting-indicator-add.component.js" type="text/javascript"></script>
         <script src="components/kommonitorUserInterface/kommonitor-user-interface.module.js" type="text/javascript"></script>
         <script src="components/kommonitorUserInterface/kommonitor-user-interface.component.js" type="text/javascript"></script>        
         <script src="app.js" type="text/javascript"></script>

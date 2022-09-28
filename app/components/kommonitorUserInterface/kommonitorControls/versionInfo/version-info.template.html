@@ -1,0 +1,277 @@
+<div id="versionInfo">
+
+	<!-- version info  -->
+	<div id="kommonitorIndicatorClassification" class="box box-primary collapsed-box">
+		<div class="box-header with-border">
+			<h3 class="box-title">Neuerungen in KomMonitor V2.1.1</h3>
+
+			<div class="box-tools pull-right">
+				<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+				</button>
+			</div>
+		</div>
+		<div class="box-body">
+
+			<ul>
+				<li>
+					Fehlerbehebungen im Reporting-Tool
+				</li>
+
+			</ul>
+
+		</div>
+		<!-- /.box-body -->
+	</div>
+	<!-- /.box -->
+
+	<!-- version info  -->
+	<div id="kommonitorIndicatorClassification" class="box box-primary collapsed-box">
+		<div class="box-header with-border">
+			<h3 class="box-title">Neuerungen in KomMonitor V2.1.0</h3>
+
+			<div class="box-tools pull-right">
+				<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+				</button>
+			</div>
+		</div>
+		<div class="box-body">
+
+			<ul>
+				<li>
+					Anpassungen in der <b>Admin-Ansicht</b>
+					<ul>
+						<li>
+							<b>Einf&uuml;hurung einer Versioninfo inklusive Changelog im Begr&uuml;&szlig;ungsfenster</b>.
+						</li>
+						<li><b>Klickbare Fortschrittsleiste in Verwaltungsmen&uuml;s</b>.
+							Ab sofort k&ouml;nnen die einzelnen Unterseiten eines Verwaltungsmen&uuml;s auch mittels
+							eines Klicks auf die Fortschrittsleiste erreicht werden.
+						</li>
+						<li>
+							<b>tabellarische Verwaltung des Zugriffsschutzes</b>. F&uuml;r
+							Die Zugriffsrechte (lesen, editieren, l&ouml;schen) bestimmter Organisationen auf einzelne
+							Datens&auml;tze werden nun mittels einer &uuml;bersichtlichen Tabelle verwaltet.
+						</li>
+						<li>
+							<b>Aktualisierte Hinweistexte bei der Verwaltung des Zugriffsschutzes</b>.
+						</li>
+						<li><b>Verbesserung des POI-Geocodings</b>.
+							Der Import von Adressdaten als punktbasierte Georessource mittels OpenStreetMap wurde
+							dahingehend verbessert,
+							dass eine Bewertung der m&ouml;glichen Treffer durch den Backend-Dienst vorgenommen wird.
+							Jeder erfolgreich importierte Punkt besitzt zwei Sachattribute, <i>geocoderank</i> und
+							<i>geocodedesc</i> mit folgenden Wertem&ouml;glichkeiten:
+							<ol>
+								<li><b>geocoderank</b>=<i>2</i> &dash; <b>geocodedesc</b> = <i>high accuracy - low risk
+										of false positioning. feature
+										matches same street and city/postcode and same housenumber</i></li>
+								<li><b>geocoderank</b>=<i>1</i> &dash; <b>geocodedesc</b> = <i>moderate accuracy -
+										medium risk of false positioning.
+										feature matches same street and city/postcode. but housenumber does not
+										match</i></li>
+							</ol>
+
+							Somit k&ouml;nnen Mehrfachtreffer bestimmter Adressen direkt geokodiert werden. Wenn ein
+							Ergebnistreffer der Suchanfrage gleiche Stra&szlig;e, Hausnummer und Ort/PLZ aufweist, ist
+							es
+							der
+							bestm&ouml;gliche Treffer (<b>geocoderank</b>=<i>2</i>). Stimmen immerhin Ort/PLZ und
+							Stra&szlig;e &uuml;berein, so kann zumindest eine ungenauere Koordinate ohne richtige
+							Hausnummer bestimmt werden
+							(<b>geocoderank</b>=<i>1</i>).
+
+							<br>
+							<br>
+							Adressen, die nicht geocodiert werden k&ouml;nnen f&uuml;hren zu einer Fehlermeldung beim
+							Import.
+							Solche Eintr&auml;ge sollten auf Tippfehler gepr&uuml;ft werden. Sollte auch dann kein
+							Treffer gefunden werden, so muss diese Adresse aus der Quelldatei entfernt werden und
+							nachtr&auml;glich manuell erg&auml;nzt werden.
+
+
+						</li>
+						<li>
+							Bugfixes in Keycloak-Anbindung und Einzelfeature-Fortf&uuml;hren Men&uuml;
+						</li>
+						<li>
+							Sicherstellung der korrekten Integration der Abh&auml;ngigkeiten <i>uuid</i> und <i>jspdf</i>
+						</li>
+					</ul>
+				</li>
+
+			</ul>
+
+		</div>
+		<!-- /.box-body -->
+	</div>
+	<!-- /.box -->
+
+
+	<!-- version info  -->
+	<div id="kommonitorIndicatorClassification" class="box box-primary collapsed-box">
+		<div class="box-header with-border">
+			<h3 class="box-title">Neuerungen in KomMonitor V2.0.1</h3>
+
+			<div class="box-tools pull-right">
+				<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+				</button>
+			</div>
+		</div>
+		<div class="box-body">
+
+			<ul>
+				<li>
+					Bugfixes in Keycloak-Verbindung und Aktualisierungen einiger Programmbibliotheken.
+				</li>
+
+			</ul>
+
+		</div>
+		<!-- /.box-body -->
+	</div>
+	<!-- /.box -->
+
+	<!-- version info  -->
+	<div id="kommonitorIndicatorClassification" class="box box-primary collapsed-box">
+		<div class="box-header with-border">
+			<h3 class="box-title">Neuerungen in KomMonitor V2.0.0</h3>
+
+			<div class="box-tools pull-right">
+				<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+				</button>
+			</div>
+		</div>
+		<div class="box-body">
+
+			<strong>Grundlegende Erweiterung des Datenmodells und des Rollen- und Rechtemanagements</strong>
+			<p>Die Aktualisierung aller KomMonitor Komponenten auf eine Version &gt;= V2.0.0 beinhaltet bedeutende
+				Erweiterungen im Datenmodell sowie des gezielten Zugriffsschutzes auf einzelen Ressourcen.
+				Version &gt;= 2.0.0 umfasst folgende Anpassungen:
+			</p>
+			<ul>
+				<li>
+					Einf&uuml;hrung einer Ressource <i>Organisation</i>. Pro angelegter Organisation werden folgende
+					vier
+					Rollen/Rechtestufen unterschieden
+					<ul>
+						<li>
+							<i>&lt;orgname&gt;<b>-viewer</b></i> &dash; lesender Zugriff auf Datens&auml;tze
+						</li>
+						<li>
+							<i>&lt;orgname&gt;<b>-editor</b></i> &dash; lesender + schreibender Zugriff auf
+							Datens&auml;tze
+						</li>
+						<li>
+							<i>&lt;orgname&gt;<b>-publisher</b></i> &dash; lesender + schreibender Zugriff auf
+							Datens&auml;tze sowie Anlegen neuer Datens&auml;tze
+						</li>
+						<li>
+							<i>&lt;orgname&gt;<b>-creator</b></i> &dash; lesender + schreibender + l&ouml;schender
+							Zugriff auf Datens&auml;tze sowie Anlegen neuer Datens&auml;tze
+						</li>
+					</ul>
+				</li>
+				<li>
+					Die <b>User Verwaltung</b> erfolgt nun verpflichtend mit der freien Software <b>Keycloak</b>. Dort
+					m&uuml;ssen weiterhin von KomMonitor Administratoren die User verwaltet werden und mit den passenden
+					Organisationen und Rechtestufen assoziiert werden.
+				</li>
+				<li>
+					Alle Backend Dienste sind nun vollst&auml;ndig &uuml;ber Keycloak abgesichert, sodass nur noch
+					autorisierte
+					Benutzer systemrelevante Aktionen wie das Antriggern von Indikatorenberechnungen oder Editieren von
+					Konfigurationsdateien durchf&uuml;hren k&ouml;nnen. Dazu m&uuml;ssen Anpassungen in der
+					Keycloak-Umgebung
+					vorgenommen werden. Sprechen Sie f&uuml;r Unterst&uuml;tzung <a
+						href="mailto:christian.danowski-buhren@hs-bochum.de">Christian Danowski-Buhren</a> von der
+					Hochschule Bochum an.
+				</li>
+				<li>
+					Anpassungen in der <b>Admin-Ansicht</b>
+					<ul>
+						<li>erweiterte <b>Verwaltung von Organisationen und
+								Rollen/Rechtestufen</b>
+						</li>
+						<li><b>Editierbarkeit von Feature-Tabellen</b>. F&uuml;r
+							Indikatoren, Raumeinheiten und Georessourcen &uuml;ber das <i>Feature
+								fortf&uuml;hren</i>-Men&uuml; lassen
+							sich die
+							einzelnen Datenzeilen in einer Feature-Tabelle anzeigen. Ein Doppelklick auf eine
+							editierbare Zelle
+							erm&ouml;glicht dem User nun, den Zellenwert zu &auml;ndern und diese &Auml;nderung in der
+							Datenbank
+							dauerhaft zu
+							&uuml;bernehmen.
+						</li>
+						<li>
+							<b>Editierbarkeit von Georessourcen-Features</b>. F&uuml;r
+							jeden Georessourcen Datensatz bietet das <i>Feature fortf&uuml;hren</i>-Men&uuml; eine neue
+							M&ouml;glichkeit,
+							Einzelobjekte hinzuzuf&uuml;gen (bspw. einen neuen Standort einer neuen Kita manuell
+							hinzuf&uuml;gen).
+							Dazu
+							kann die Geometrie des Objekts mit Hilfe eines Kartenwerkzeugs erstellt werden und mittels
+							Textfeldern k&ouml;nnen die Sachattribute des neuen Objekts gesetzt werden.
+						</li>
+						<li>
+							<b>Geocoding-Prototyp beim Import von Adressdaten als punktbasierte Georessource</b>. Ein
+							neuer Backend-Dienst wurde entwickelt, der auf Basis von OpenStreetMap Daten ein Geocoding
+							von Adressdaten umsetzt. In der Admin-Ansicht kann nun beim Import von punktbasierten
+							Georessourcen eine Excel- oder CSV-Datei mit Adressdaten angegeben werden, sodass
+							erfolgreich geocodierbare Objekte als POI in die KomMonitor Datenbank &uuml;bernommen werden
+							k&ouml;nnen. Das Resultat ist stark abh&auml;ngig von der Qualit&auml;t der in OpenStreetMap
+							hinterlegten
+							Daten. Der Geocodierungsdienst wird von der Hochschule Bochum betrieben und basiert auf der
+							Software Nominatim. In k&uuml;nftigen Updates wird diese Mechanik weiter verbessert.
+						</li>
+					</ul>
+				</li>
+				<li>
+					Anpassungen in der <b>Kartenapp</b>
+					<ul>
+						<li>
+							&Uuml;berarbeitete <b>Reporting-Funktion</b> in der Kartenapp. Es lassen sich nun Reporting
+							Vorlagen
+							ausw&auml;hlen,
+							die dann mit gew&uuml;nschten Metadaten und Indikatorendaten gef&uuml;llt werden k&ouml;nnen
+							(Zeitpunkt und
+							zeitliche Entwicklung). Au&szlig;erdem k&ouml;nnen Isochronen um punktbasierte Georessourcen
+							in
+							einem
+							Report erstellt werden.
+						</li>
+					</ul>
+
+				</li>
+				<li>
+					diverse Bugfixes und Aktualisierungen einiger Programmbibliotheken.
+				</li>
+
+			</ul>
+
+		</div>
+		<!-- /.box-body -->
+	</div>
+	<!-- /.box -->
+
+	<!-- version info  -->
+	<div id="kommonitorIndicatorClassification" class="box box-primary collapsed-box">
+		<div class="box-header with-border">
+			<h3 class="box-title">Upgradeempfehlung KomMonitor &lt; V2.0.0</h3>
+
+			<div class="box-tools pull-right">
+				<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+				</button>
+			</div>
+		</div>
+		<div class="box-body">
+
+			KomMonitor wurde in Version 2.0.0 hinsichtlich des Datenmodells sowie Rechte- und Rollenkonzepts grundlegend
+			erweitert. Es wird daher dringend empfohlen, alle Komponenten auf die neueste Version zu aktualisieren.
+
+		</div>
+		<!-- /.box-body -->
+	</div>
+	<!-- /.box -->
+
+</div>

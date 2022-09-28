@@ -213,20 +213,20 @@
 						</fieldset>	
 
 							<fieldset ng-if="$ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity">
-								<h2 class="fs-title">Rollenbasierter Zugriffsschutz (Optional)</h2>
-								<h3 class="fs-subtitle">Angabe ob nur ausgew&auml;hlte Rollen Zugriff auf Datensatz-Metadaten und -Features erhalten sollen</h3>
-	
-								<p>Klicken Sie ein oder mehrere der verf&uuml;gbaren Rollen aus der linken &Uuml;bersicht an, um den Zugriff auf den Datensatz auf diese Rollen einzuschr&auml;nken.</p>
-	
-								<p>Der Zugriff ist nur f&uuml;r die Rollen erlaubt, die im rechten &Uuml;bersichtsfenster gelistet sind.</p>
-	
-								<p>Wird keine Rolle selektiert, so ist der Datensatz ohne Zugriffsbeschr&auml;nkung abrufbar.</p>
-	
-								<div class="row no-margin">
-									<div class="col-md">
-										<excalibur-dual-list ng-model='allowedRoleNames.selectedItems' options="duallist.duallistRoleOptions"></excalibur-dual-list>
-									</div>
-								</div>
+								<h2 class="fs-title">Rollenbasierter Zugriffsschutz</h2>
+									<h3 class="fs-subtitle">Vergabe der Zugriffsrechte auf Datensatz-Metadaten und -Features pro Organisationseinheit</h3>
+		
+									<p>Zugriffsrechte (lesen, editieren, l&ouml;schen) m&uuml;ssen explizit vergeben werden. Administratoren (Rolle <i>kommonitor-creator</i>) haben immer vollen Zugriff.</p>
+							
+										<div class="row">
+											<div class="col-md-3"></div>
+											<div class="col-md-6 col-sm-6 col-xs-12">
+													<!-- <div id="georesourceAddRoleManagementTable" style="height: 40vh; overflow-y: auto;" class="ag-theme-alpine"></div>     -->
+													<div id="spatialUnitEditRoleManagementTable" style="height: 45vh" class="ag-theme-alpine"></div>  
+												
+											</div>
+											<div class="col-md-3"></div>
+										</div>	
 								
 								<input type="button" name="previous" class="previous previous_editSpatialUnit action-button-previous" value="Voriger Schritt"/>
 							</fieldset>

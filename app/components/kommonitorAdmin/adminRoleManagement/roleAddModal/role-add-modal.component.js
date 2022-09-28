@@ -8,32 +8,23 @@ angular.module('roleAddModal').component('roleAddModal', {
 			this.kommonitorKeycloakHelperServiceInstance = kommonitorKeycloakHelperService;
 
 			$scope.loadingData = false;
-			$scope.roleName = undefined;
-			$scope.roleNameInvalid = false;
+			$scope.newOrganizationalUnit = {};
+
+			$scope.nameInvalid = false;
 			$scope.errorMessagePart = undefined;
 			$scope.keycloakErrorMessagePart = undefined;
 
-			$scope.keycloakAdminUserName = undefined;
-			$scope.keycloakAdminUserPassword = undefined;
-
-			$scope.checkRoleName = function(){
-				$scope.roleNameInvalid = false;
-				kommonitorDataExchangeService.availableRoles.forEach(function(role){
-					if (role.roleName === $scope.roleName){
-						$scope.roleNameInvalid = true;
-						return;
-					}
-				});
+			$scope.checkRoleName = function () {
+				$scope.nameInvalid = kommonitorDataExchangeService.accessControl.some(ou => ou.name === $scope.newOrganizationalUnit.name);
 			};
 
+			
 			$scope.resetRoleAddForm = function () {
-				$scope.roleName = undefined;
-
-				$scope.keycloakAdminUserName = undefined;
-				$scope.keycloakAdminUserPassword = undefined;
+				$scope.newOrganizationalUnit = {};
 
 				$scope.errorMessagePart = undefined;
 				$scope.keycloakErrorMessagePart = undefined;
+				$scope.checkRoleName();
 
 				setTimeout(() => {
 					$scope.$digest();
@@ -48,13 +39,15 @@ angular.module('roleAddModal').component('roleAddModal', {
 				try {
 					var postBody =
 					{
-						"roleName": $scope.roleName
+						"name": $scope.newOrganizationalUnit.name,
+						"description": $scope.newOrganizationalUnit.description,
+						"contact": $scope.newOrganizationalUnit.contact,
 					};
 
 					$scope.loadingData = true;
 
 					$http({
-						url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/roles",
+						url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/organizationalUnits",
 						method: "POST",
 						data: postBody
 						// headers: {
@@ -65,36 +58,42 @@ angular.module('roleAddModal').component('roleAddModal', {
 						// when the response is available
 
 						$("#roleAddSuccessAlert").show();
+						try {
+							// The fetch API does not expose the Location Header for XSS protection
+							// So we refetch all metadata
+							await kommonitorDataExchangeService.fetchAccessControlMetadata(kommonitorDataExchangeService.currentKeycloakLoginRoles);
+							kommonitorDataExchangeService.accessControl.forEach(function (entry) {
+								if (entry.name === $scope.newOrganizationalUnit.name) {
+									$scope.newOrganizationalUnit = JSON.parse(JSON.stringify(entry))
+								}
+							});
 
-						try {							
-							let roleResponse = await kommonitorKeycloakHelperService.postNewRole($scope.roleName, $scope.keycloakAdminUserName, $scope.keycloakAdminUserPassword);	
-							roleId = roleResponse.roleId;
-							await kommonitorKeycloakHelperService.fetchAndSetKeycloakRoles($scope.keycloakAdminUserName, $scope.keycloakAdminUserPassword);
+							await kommonitorKeycloakHelperService.postNewRoles($scope.newOrganizationalUnit.name);
+							await kommonitorKeycloakHelperService.fetchAndSetKeycloakRoles();
 							$("#keycloakRoleAddSuccessAlert").show();
-							
 						} catch (error) {
 							if (error.data) {
 								$scope.keycloakErrorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
 							}
 							else {
 								$scope.keycloakErrorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error);
-							}		
+							}
 
-							$timeout(function(){
-				
+							$timeout(function () {
+
 								$("#keycloakRoleAddErrorAlert").show();
 								$scope.loadingData = false;
 							});
 						}
-						
-						$rootScope.$broadcast("refreshRoleOverviewTable", "add", roleId);
-						$timeout(function(){
-				
+
+						$rootScope.$broadcast("refreshAccessControlTable", "add", $scope.newOrganizationalUnit.organizationalUnitId);
+						$scope.checkRoleName();
+						$timeout(function () {
 							$scope.loadingData = false;
-						});	
+						});
 
 					}, function errorCallback(error) {
-						
+
 					});
 				} catch (error) {
 					if (error.data) {
@@ -107,8 +106,6 @@ angular.module('roleAddModal').component('roleAddModal', {
 					$("#roleAddErrorAlert").show();
 					$scope.loadingData = false;
 				}
-
-				
 			};
 
 			$scope.hideSuccessAlert = function () {
@@ -123,7 +120,7 @@ angular.module('roleAddModal').component('roleAddModal', {
 				$("#roleAddErrorAlert").hide();
 			};
 
-			$scope.hideKeycloakErrorAlert = function(){
+			$scope.hideKeycloakErrorAlert = function () {
 				$("#keycloakRoleAddErrorAlert").hide();
 			};
 

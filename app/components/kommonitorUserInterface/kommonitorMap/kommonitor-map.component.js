@@ -480,7 +480,18 @@ angular.module('kommonitorMap').component(
           var OpenStreetMapProvider = window.GeoSearch.OpenStreetMapProvider;
 
           // remaining is the same as in the docs, accept for the var instead of const declarations
-          var provider = new OpenStreetMapProvider();
+          var provider = new OpenStreetMapProvider(    
+            {
+              params: {
+                'accept-language': 'de', // render results in Dutch
+                countrycodes: 'de', // limit search results to the Netherlands
+                addressdetails: 1, // include additional address detail parts  
+                viewbox: "" + (Number(__env.initialLongitude) - 0.001) + "," + (Number(__env.initialLatitude) - 0.001) + "," + (Number(__env.initialLongitude) + 0.001) + "," + (Number(__env.initialLatitude) + 0.001)             
+              },
+              searchUrl: __env.targetUrlToGeocoderService + '/search',
+              reverseUrl: __env.targetUrlToGeocoderService + '/reverse'
+            }
+          );
 
           $scope.geosearchControl = new GeoSearchControl({
             position: "topleft",
@@ -533,44 +544,84 @@ angular.module('kommonitorMap').component(
           $scope.measureControl.addTo($scope.map);
 
           /////////////////////////////////////////////////////
-          ///// LEAFLET EASY PRINT SETUP
+          ///// LEAFLET SCREENSHOTER SETUP
           /////////////////////////////////////////////////////
 
-          $scope.printControl = L.easyPrint({
-            title: 'Kartenexport',
-            position: 'topleft',
-            sizeModes: ['Current'],
-            exportOnly: true,
-            hidden: true,
-            filename: "KomMonitor-Kartenexport",
-            hideControlContainer: false,
-            hideClasses: ['leaflet-left'],
-            defaultSizeTitles: { Current: 'Aktueller Kartenausschnitt', A4Landscape: 'A4 Querformat', A4Portrait: 'A4 Portrait' }
-          });
-
-          $scope.printControl.addTo($scope.map);
+          // from the docs, most of it is probably not needed
+				let screenshotterOptions = {
+					cropImageByInnerWH: true, // crop blank opacity from image borders
+					hidden: true, // hide screen icon
+					preventDownload: false, // prevent download on button click
+					domtoimageOptions: {}, // see options for dom-to-image
+					position: 'topleft', // position of take screen icon
+					screenName: 'screen', // string or function
+					hideElementsWithSelectors: ['.leaflet-control-container'], // by default hide map controls All els must be child of _map._container
+					mimeType: 'image/png', // used if format == image,
+					caption: null, // string or function, added caption to bottom of screen
+					captionFontSize: 15,
+					captionFont: 'Arial',
+					captionColor: 'black',
+					captionBgColor: 'white',
+					captionOffset: 5,
+					// callback for manually edit map if have warn: "May be map size very big on that zoom level, we have error"
+					// and screenshot not created
+					onPixelDataFail: async function({ node, plugin, error, mapPane, domtoimageOptions }) {
+						// Solutions:
+						// decrease size of map
+						// or decrease zoom level
+						// or remove elements with big distanses
+						// and after that return image in Promise - plugin._getPixelDataOfNormalMap
+						return plugin._getPixelDataOfNormalMap(domtoimageOptions)
+					}
+				}
+				 
+        $scope.simpleMapScreenshoter = L.simpleMapScreenshoter(screenshotterOptions).addTo($scope.map);
+				$scope.map.simpleMapScreenshoter = $scope.simpleMapScreenshoter;
 
         }; // end initialize map
 
 
         $scope.$on("exportMap", function (event) {
-          try {
-            $scope.printControl.printMap('CurrentSize', 'KomMonitor-Kartenexport');
 
-            setTimeout(function () {
-              $(".leaflet-left").css("display", "");
-            }, 1000);
-          }
-          catch (error) {
+            // wait for print process to finish
+            let format = 'blob'; // 'image' - return base64, 'canvas' - return canvas
+            let overridedPluginOptions = {
+              mimeType: 'image/png'
+            };
+            $scope.simpleMapScreenshoter.takeScreen(format, overridedPluginOptions);
+            $scope.simpleMapScreenshoter.takeScreen(format, overridedPluginOptions).then(blob => {
+              // FileSaver saveAs method
+              saveAs(blob, 'KomMonitor-Screenshot.png');
+           }).catch(error => {
             console.log("Error while exporting map view.");
             console.error(error);
 
             kommonitorDataExchangeService.displayMapApplicationError(error);
-
-            $(".leaflet-left").css("display", "");
-          }
+           });
 
         });
+
+        function isKomMonitorSpecificProperty(propertyKey){
+          let isKomMonitorSpecificProperty = false;
+
+          if(propertyKey == "outlier"){
+            isKomMonitorSpecificProperty = true;
+          }
+          else if(propertyKey == __env.VALID_START_DATE_PROPERTY_NAME){
+            isKomMonitorSpecificProperty = true;
+          }
+          else if(propertyKey == __env.VALID_END_DATE_PROPERTY_NAME){
+            isKomMonitorSpecificProperty = true;
+          }
+          else if(propertyKey == "bbox"){
+            isKomMonitorSpecificProperty = true;
+          }
+          else if(propertyKey.includes(__env.indicatorDatePrefix)){
+            isKomMonitorSpecificProperty = true;
+          }
+
+          return isKomMonitorSpecificProperty;
+        }
 
         $scope.updateSearchControl = function () {
 
@@ -652,9 +703,20 @@ angular.module('kommonitorMap').component(
 
                   regSearch = new RegExp(I + text, icase);
 
-                  //TODO use .filter or .map
                   for (var key in records) {
-                    if (regSearch.test(key))
+
+                    // make a searchable string from all relevant feature properties
+                    let recordString = "";
+                    let record = records[key];
+                    let recordProperties = record.layer.feature.properties;
+
+                    for (const propertyKey in recordProperties) {
+                      if(recordProperties[propertyKey] && !isKomMonitorSpecificProperty(propertyKey)){
+                        recordString += recordProperties[propertyKey];
+                      }
+                    }
+
+                    if (regSearch.test(recordString))
                       frecords[key] = records[key];
                   }
 
@@ -1438,8 +1500,7 @@ angular.module('kommonitorMap').component(
         });
 
         $scope.$on("replaceRouteAsGeoJSON", function (event, geoJSON, transitMode, preference, routingStartPoint, routingEndPoint,
-          routeDistance_km, routeDuration_minutes, routeAvgSpeed_kmh,
-				routeTotalAscent, routeTotalDescent) {
+          routeDistance_km, routeDuration_minutes) {
 
           if ($scope.routingLayer) {
             $scope.layerControl.removeLayer($scope.routingLayer);
@@ -1480,10 +1541,7 @@ angular.module('kommonitorMap').component(
             routingStartPoint: routingStartPoint,
             routingEndPoint: routingEndPoint,
             routeDistance_km: routeDistance_km,
-            routeDuration_minutes: routeDuration_minutes,
-            routeAvgSpeed_kmh: routeAvgSpeed_kmh,
-            routeTotalAscent: routeTotalAscent,
-            routeTotalDescent: routeTotalDescent            
+            routeDuration_minutes: routeDuration_minutes           
           };
 
           var style = {
@@ -3155,6 +3213,9 @@ angular.module('kommonitorMap').component(
 
           // console.log("highlight feature on map for featureName " + spatialFeatureName);
 
+          if(!spatialFeatureName){
+            return;
+          }
           var done = false;
 
           $scope.map.eachLayer(function (layer) {
@@ -3170,6 +3231,9 @@ angular.module('kommonitorMap').component(
         });
 
         $scope.$on("unhighlightFeatureOnMap", function (event, spatialFeatureName) {
+          if(!spatialFeatureName){
+            return;
+          }
 
           // console.log("unhighlight feature on map for featureName " + spatialFeatureName);
 
@@ -3188,6 +3252,9 @@ angular.module('kommonitorMap').component(
         });
 
         $scope.$on("switchHighlightFeatureOnMap", function (event, spatialFeatureName) {
+          if(!spatialFeatureName){
+            return;
+          }
 
           // console.log("switch highlight feature on map for featureName " + spatialFeatureName);
 

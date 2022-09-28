@@ -353,7 +353,7 @@ angular.module('indicatorDeleteModal').component('indicatorDeleteModal', {
 				$("#indicatorsDeleteSuccessAlert").show();
 
 				// fetch indicatorMetada again as a georesource was deleted
-				await kommonitorDataExchangeService.fetchIndicatorsMetadata();
+				await kommonitorDataExchangeService.fetchIndicatorsMetadata(kommonitorDataExchangeService.currentKeycloakLoginRoles);
 				// refresh overview table
 				$rootScope.$broadcast("refreshIndicatorOverviewTable", "edit", $scope.currentIndicatorId);
 
@@ -420,6 +420,11 @@ angular.module('indicatorDeleteModal').component('indicatorDeleteModal', {
 
 			$scope.hideErrorAlert = function(){
 				$("#indicatorsDeleteErrorAlert").hide();
+			};
+
+			$scope.getIndicatorsWithPermission = function(){
+				let indicators =  kommonitorDataExchangeService.availableIndicators.filter(indicator => indicator.userPermissions.includes("creator"));
+				return indicators;
 			};
 
 	}

@@ -52,7 +52,7 @@ angular
 						
 						$scope.filterSpatialUnits = function(){
 							return function( item ) {
-								return kommonitorDataExchangeService.isAllowedSpatialUnitForCurrentIndicator(item);
+								return kommonitorDataExchangeService.isAllowedSpatialUnitForCurrentIndicator(item);								
 						  };
 						};
 
@@ -131,18 +131,9 @@ angular
 
 						$scope.onClickDownloadMetadata = async function(){
 							// create PDF from currently selected/displayed indicator!
-							var indicatorMetadata = kommonitorDataExchangeService.selectedIndicator;														
-							var jspdf = await kommonitorDataExchangeService.createMetadataPDF_indicator(indicatorMetadata);
-
+							var indicatorMetadata = kommonitorDataExchangeService.selectedIndicator;
 							var pdfName = indicatorMetadata.indicatorName + ".pdf";
-  
-							jspdf.setProperties({
-							title: 'KomMonitor Indikatorenblatt',
-							subject: pdfName,
-							author: 'KomMonitor',
-							keywords: 'Indikator, Metadatenblatt',
-							creator: 'KomMonitor'
-							});
+							var jspdf = await kommonitorDataExchangeService.generateIndicatorMetadataPdf(indicatorMetadata, pdfName);							
             				jspdf.save(pdfName);
 						};
 
@@ -191,45 +182,18 @@ angular
 							else{
 							  geoJSON_string = JSON.stringify(kommonitorDataExchangeService.selectedIndicator.geoJSON);
 							  fileName += "_" + kommonitorDataExchangeService.selectedDate;
-							}
+							}			
 				  
-							fileName += ".geojson";
-				  
-							var blob = new Blob([geoJSON_string], { type: "application/json" });
-							var data = URL.createObjectURL(blob);
-							//
-							// $scope.indicatorDownloadURL = data;
-							// $scope.indicatorDownloadName = fileName;
-				  
-							// var element = document.createElement('a');
-							// element.setAttribute('href', 'data:application/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(geoJSON)));
-							// element.setAttribute('download', fileName);
-							//
-							// element.style.display = 'none';
-							// document.body.appendChild(element);
-							//
-							// element.click();
-							//
-							// document.body.removeChild(element);
-				  
-							var a = document.createElement('a');
-							a.download = fileName;
-							a.href = data;
-							a.textContent = "GeoJSON";
-							a.target = "_blank";
-							a.rel = "noopener noreferrer";
-							a.click();
-				  
-							a.remove();
+							kommonitorDataExchangeService.generateAndDownloadIndicatorZIP(geoJSON_string, fileName, ".geojson", {});
 						  };
 				  
 						  $scope.downloadIndicatorAsShape = function () {
 				  
-							var folderName = kommonitorDataExchangeService.selectedIndicator.indicatorName + "_" + kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel;
+							var fileName = kommonitorDataExchangeService.selectedIndicator.indicatorName + "_" + kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel;
 							var polygonName = kommonitorDataExchangeService.selectedIndicator.indicatorName + "_" + kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel;
 				  
 							var options = {
-							  folder: folderName,
+							  folder: "shape",
 							  types: {
 								point: 'points',
 								polygon: polygonName,
@@ -242,11 +206,11 @@ angular
 							if(kommonitorDataExchangeService.isBalanceChecked){
 							  geoJSON = jQuery.extend(true, {}, kommonitorDataExchangeService.indicatorAndMetadataAsBalance.geoJSON);
 							  geoJSON = prepareBalanceGeoJSON(geoJSON, kommonitorDataExchangeService.indicatorAndMetadataAsBalance);
-							  folderName += "_Bilanz_" + kommonitorDataExchangeService.indicatorAndMetadataAsBalance['fromDate'] + " - " + kommonitorDataExchangeService.indicatorAndMetadataAsBalance['toDate'];
+							  fileName += "_Bilanz_" + kommonitorDataExchangeService.indicatorAndMetadataAsBalance['fromDate'] + " - " + kommonitorDataExchangeService.indicatorAndMetadataAsBalance['toDate'];
 							}
 							else{
 							  geoJSON = jQuery.extend(true, {}, kommonitorDataExchangeService.selectedIndicator.geoJSON);
-							  folderName += "_" + kommonitorDataExchangeService.selectedDate;
+							  fileName += "_" + kommonitorDataExchangeService.selectedDate;
 							}
 				  
 							for (var feature of geoJSON.features) {
@@ -285,7 +249,9 @@ angular
 							  feature.properties = properties;
 							}
 				  
-							shpwrite.download(geoJSON, options);
+							// shpwrite.download(geoJSON, options);
+							var arrayBuffer = shpwrite.zip(geoJSON, options);							
+							kommonitorDataExchangeService.generateAndDownloadIndicatorZIP(arrayBuffer, fileName, "_shape.zip", {base64: true});
 						  };
 
 						  $scope.downloadIndicatorAsCSV = function () {
@@ -362,7 +328,7 @@ angular
 							for (var i = 0; i < array.length; i++) {
 								var line = '';
 								for (var index in array[i]) {
-									if (line != '') line += ','
+									if (line != '') line += ';';
 						
 									line += array[i][index];
 								}
@@ -381,26 +347,9 @@ angular
 							// Convert Object to JSON
 							var jsonObject = JSON.stringify(items);
 						
-							var csv = convertToCSV(jsonObject);
-						
-							var exportedFilenmae = fileTitle + '.csv' || 'export.csv';
-						
-							var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-							if (navigator.msSaveBlob) { // IE 10+
-								navigator.msSaveBlob(blob, exportedFilenmae);
-							} else {
-								var link = document.createElement("a");
-								if (link.download !== undefined) { // feature detection
-									// Browsers that support HTML5 download attribute
-									var url = URL.createObjectURL(blob);
-									link.setAttribute("href", url);
-									link.setAttribute("download", exportedFilenmae);
-									link.style.visibility = 'hidden';
-									document.body.appendChild(link);
-									link.click();
-									document.body.removeChild(link);
-								}
-							}
+							var csv = convertToCSV(jsonObject);						
+
+							kommonitorDataExchangeService.generateAndDownloadIndicatorZIP(csv, fileTitle, ".csv", {});
 						}
 
 						$scope.onClickShareLinkButton = function(){

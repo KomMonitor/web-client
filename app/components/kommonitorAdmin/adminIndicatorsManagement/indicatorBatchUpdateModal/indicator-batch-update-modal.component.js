@@ -100,7 +100,7 @@ angular.module('indicatorBatchUpdateModal').component('indicatorBatchUpdateModal
 					reader.readAsText(file)
 				});
 	
-				$scope.$apply();
+				$scope.$digest();
 			};
 			
 			$scope.loadIndicatorsBatchList = function() {
@@ -139,7 +139,7 @@ angular.module('indicatorBatchUpdateModal').component('indicatorBatchUpdateModal
 						// The exported batchList does not contain all of the metadata.
 						// We have to use the indicatorId to select the corresponding select option in the "name" column.
 						var indicatorId = newBatchList[i].name;
-						var indicatorObj = kommonitorBatchUpdateHelperService.getIndicatorObjectById(indicatorId);
+						var indicatorObj = kommonitorDataExchangeService.getIndicatorMetadataById(indicatorId);
 						row.name = indicatorObj;
 	
 						// mappingTableName

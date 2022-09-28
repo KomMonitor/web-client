@@ -102,7 +102,7 @@
 											<!-- Geodaten-Quellformat -->
 											<td>
 												<select class="form-control" ng-model="georesource.selectedConverter"
-														ng-options="converter as converter.simpleName for converter in $ctrl.kommonitorImporterHelperServiceInstance.availableConverters | filter:$ctrl.kommonitorBatchUpdateHelperServiceInstance.filterConverters('georesource')" required>
+														ng-options="converter as converter.name for converter in $ctrl.kommonitorImporterHelperServiceInstance.availableConverters | filter:$ctrl.kommonitorImporterHelperServiceInstance.filterConverters('georesource')" required>
 																<option disabled selected value> -- Quellformat w&auml;hlen -- </option>
 												</select>
 											</td>
@@ -286,7 +286,7 @@
 									</div>
 									<!-- Geodaten-Quellformat* -->
 									<select ng-show="colDefaultFunctionSelectedColumn=='selectedConverter'" class="form-control" ng-model="colDefaultFunctionNewValue"
-										ng-options="converter as converter.simpleName for converter in $ctrl.kommonitorImporterHelperServiceInstance.availableConverters | filter:$ctrl.kommonitorBatchUpdateHelperServiceInstance.filterConverters('georesource')">
+										ng-options="converter as converter.name for converter in $ctrl.kommonitorImporterHelperServiceInstance.availableConverters | filter:$ctrl.kommonitorImporterHelperServiceInstance.filterConverters('georesource')">
 											<option disabled selected value> -- Quellformat w&auml;hlen -- </option>
 									</select>
 									<!-- CRS* -->

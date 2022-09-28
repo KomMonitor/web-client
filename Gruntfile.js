@@ -11,17 +11,21 @@ module.exports = function (grunt) {
             'app/util/genericServices/kommonitorImporterHelperService/kommonitor-importer-helper-service.module.js',
             'app/util/genericServices/kommonitorScriptHelperService/kommonitor-script-helper-service.module.js',
             'app/util/genericServices/kommonitorConfigStorageService/kommonitor-config-storage-service.module.js',
+            'app/util/genericServices/kommonitorMultiStepFormHelperService/kommonitor-multi-step-form-helper-service.module.js',
             'app/util/genericServices/kommonitorKeycloakHelperService/kommonitor-keycloak-helper-service.module.js',
             'app/util/genericServices/kommonitorDataGridHelperService/kommonitor-data-grid-helper-service.module.js',
             'app/util/genericServices/kommonitorVisualStyleHelperService/kommonitor-visual-style-helper-service.module.js',
             'app/util/genericServices/kommonitorElementVisibilityHelperService/kommonitor-element-visibility-helper-service.module.js',
             'app/util/genericServices/kommonitorInfoLegendHelperService/kommonitor-info-legend-helper-service.module.js',
             'app/util/genericServices/kommonitorBatchUpdateHelperService/kommonitor-batch-update-helper-service.module.js',
-            'app/util/genericServices/kommonitorFilterHelperService/kommonitor-filter-helper-service.module.js',            
+            'app/util/genericServices/kommonitorFilterHelperService/kommonitor-filter-helper-service.module.js', 
+            'app/util/genericServices/kommonitorSingleFeatureMapHelperService/kommonitor-single-feature-map-helper-service.module.js',            
             'app/components/kommonitorUserInterface/kommonitorControls/kommonitorDataSetup/kommonitor-data-setup.module.js',
             'app/components/kommonitorUserInterface/kommonitorControls/kommonitorDataSetup/kommonitor-data-setup.component.js',
             'app/components/kommonitorAdmin/adminDashboardManagement/admin-dashboard-management.module.js',
             'app/components/kommonitorAdmin/adminDashboardManagement/admin-dashboard-management.component.js',
+            'app/components/kommonitorAdmin/adminRoleExplanation/admin-role-explanation.module.js',
+            'app/components/kommonitorAdmin/adminRoleExplanation/admin-role-explanation.component.js',
             'app/components/kommonitorAdmin/adminRoleManagement/admin-role-management.module.js',
             'app/components/kommonitorAdmin/adminRoleManagement/admin-role-management.component.js',
             'app/components/kommonitorAdmin/adminRoleManagement/roleAddModal/role-add-modal.module.js',
@@ -156,6 +160,8 @@ module.exports = function (grunt) {
             'app/components/kommonitorUserInterface/kommonitorControls/poi/wfsModal/wfs-modal.component.js',
             'app/components/kommonitorUserInterface/kommonitorMap/kommonitor-map.module.js',
             'app/components/kommonitorUserInterface/kommonitorMap/kommonitor-map.component.js',
+            'app/components/kommonitorUserInterface/kommonitorControls/versionInfo/version-info.module.js',
+            'app/components/kommonitorUserInterface/kommonitorControls/versionInfo/version-info.component.js',
             'app/components/kommonitorUserInterface/kommonitorControls/infoModal/info-modal.module.js',
             'app/components/kommonitorUserInterface/kommonitorControls/infoModal/info-modal.component.js',
             'app/components/kommonitorUserInterface/kommonitorControls/spatialUnitNotificationModal/spatial-unit-notification-modal.module.js',
@@ -164,8 +170,14 @@ module.exports = function (grunt) {
             'app/components/kommonitorUserInterface/kommonitorControls/feedbackModal/feedback-modal.component.js',
             'app/components/kommonitorUserInterface/kommonitorControls/reportingModal/reporting-modal.module.js',
             'app/components/kommonitorUserInterface/kommonitorControls/reportingModal/reporting-modal.component.js',
-            'app/components/kommonitorUserInterface/kommonitorControls/reportingModal/reportingAddIndicatorModal/reporting-add-indicator-modal.module.js',
-            'app/components/kommonitorUserInterface/kommonitorControls/reportingModal/reportingAddIndicatorModal/reporting-add-indicator-modal.component.js',
+            'app/components/kommonitorUserInterface/kommonitorControls/reportingModal/reportingWorkflowSelect/reporting-workflow-select.module.js',
+            'app/components/kommonitorUserInterface/kommonitorControls/reportingModal/reportingWorkflowSelect/reporting-workflow-select.component.js',
+            'app/components/kommonitorUserInterface/kommonitorControls/reportingModal/reportingTemplateSelect/reporting-template-select.module.js',
+            'app/components/kommonitorUserInterface/kommonitorControls/reportingModal/reportingTemplateSelect/reporting-template-select.component.js',
+            'app/components/kommonitorUserInterface/kommonitorControls/reportingModal/reportingOverview/reporting-overview.module.js',
+            'app/components/kommonitorUserInterface/kommonitorControls/reportingModal/reportingOverview/reporting-overview.component.js',
+            'app/components/kommonitorUserInterface/kommonitorControls/reportingModal/reportingIndicatorAdd/reporting-indicator-add.module.js',
+            'app/components/kommonitorUserInterface/kommonitorControls/reportingModal/reportingIndicatorAdd/reporting-indicator-add.component.js',
             'app/components/kommonitorUserInterface/kommonitor-user-interface.module.js',
             'app/components/kommonitorUserInterface/kommonitor-user-interface.component.js',
             'app/app.js'
@@ -177,7 +189,7 @@ module.exports = function (grunt) {
             //the path prefix 'app/' will be set in the copy-command itself! Thus is omitted here.
             'dependencies/**/*',
             'kommonitor-script-resources/**/*',
-            'iconsFromPngTree/**/*',
+            'icons/**/*',
             'logos/**/*',
             'components/**/*.template.html',
             'config/**/*'           
@@ -200,7 +212,20 @@ module.exports = function (grunt) {
 
         babel: {
           options: {
-            sourceMap: true
+            sourceMap: true,
+            presets: [
+                [
+                    "env",
+                    {
+                        "targets": {
+                            "browsers": [
+                                "last 2 versions"
+                            ]
+                        },
+                        "forceAllTransforms": true // this line turns "let" into "var", etc
+                    }
+                ]
+            ]
           },
           dist: {
             files: {

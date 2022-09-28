@@ -29,11 +29,15 @@
 			 <div class="row">
 				<div class="col-md-12">
 					<form class="multiStepForm form-group" id="indicatorEditFeaturesForm" role="form" data-toggle="validator" data-disable="true" style="margin-bottom: 0px;">
-						<!-- progressbar -->
-						<ul id="progressbar">
-							<li style="width: 50%;" class="active">Feature &Uuml;bersicht</li>
-							<li style="width: 50%;">R&auml;umlicher Datensatz</li>
-						</ul>
+						<!-- div required for click logic -->
+						<div> 
+							<!-- progressbar -->
+							<ul id="progressbar">
+								<li style="width: 50%;" class="active">Feature &Uuml;bersicht</li>
+								<li style="width: 50%;">R&auml;umlicher Datensatz</li>
+							</ul>
+						</div>
+						
 						<!-- fieldsets -->
 						<fieldset>
 							<h2 class="fs-title">Feature &Uuml;bersicht</h2>
@@ -57,19 +61,41 @@
 										<label >Datenbank-Features holen</label>
 										<button class="btn btn-info" ng-click="refreshIndicatorEditFeaturesOverviewTable()"><i class="fas fa-sync-alt"></i>&nbsp;Zeige alle Features</button>
 	   
-										<div class="help-block"><p>Das Anzeigen aller Features des Indikators kann je nach Anzahl und Komplexit&auml;t der Objekte einige Zeit in Anspruch nehmen</p></div>
+										<div class="help-block"><p>Das Anzeigen aller Features des Indikators kann je nach Anzahl und Komplexit&auml;t der Objekte einige Zeit in Anspruch nehmen</p>
+											<p>Editieren einzelner Zellwerte via Doppelklick. Best&auml;tigen der Editierung durch Enter oder Klicken in eine andere Zelle</p>
+										</div>
 										<div class="help-block with-errors"></div>
 									</div>
 								</div>
 								<div class="col-md-4 col-sm-4 col-xs-12">
 									<div class="form-group">
-										<label >Datenbank-Features bereinigen</label>
-										<button class="btn btn-danger" ng-click="clearAllIndicatorFeatures()"><i class="fas fa-trash"></i>&nbsp;L&ouml;sche Indikator-Features der selektierten Raumebene</button>
+										<label >Datenbank-Features bereinigen (Funktion muss zuerst aktiv eingeschaltet werden)</label>										
+										<label class="switch">
+											<input class="elementCheckbox" type="checkbox"
+												ng-model="enableDeleteFeatures" ng-init="enableDeleteFeatures = false"
+												ng-checked="enableDeleteFeatures" ng-change="onChangeEnableDeleteFeatures()">
+											<span class="switchslider round text-left" style="line-height:25px;"></span>
+										</label>
+
+										&nbsp;&nbsp;
+
+										<button class="btn btn-danger" ng-click="clearAllIndicatorFeatures()" ng-disabled="!enableDeleteFeatures"><i class="fas fa-trash"></i>&nbsp;L&ouml;sche Indikator-Features der selektierten Raumebene</button>
 	   
 										<div class="help-block"><p>Das L&ouml;schen aller Features des Indikators f&uuml;r die selektierte Raumebene ist unwiderruflich. Der Datensatz als solches (Metadaten) sowie die Indikatorendaten der sonstigen Raumebenen bleiben dabei bestehen.</p></div>
 										<div class="help-block with-errors"></div>
 									</div>
 								</div>
+					</div>
+
+					<div>
+						<div ng-show="$ctrl.kommonitorDataGridHelperServiceInstance.featureTable_indicator_lastUpdate_timestamp_success" style="background-color: #9DC89F;">
+							<b>Letztes erfolgreiches Update eines Einzeleintrags</b>
+								  {{$ctrl.kommonitorDataGridHelperServiceInstance.featureTable_indicator_lastUpdate_timestamp_success}}
+						</div>
+						<div ng-show="$ctrl.kommonitorDataGridHelperServiceInstance.featureTable_indicator_lastUpdate_timestamp_failure" style="background-color: #E79595;">
+							<b>Letztes gescheitertes Update eines Einzeleintrags</b>
+									{{$ctrl.kommonitorDataGridHelperServiceInstance.featureTable_indicator_lastUpdate_timestamp_failure}}
+						</div>
 					</div>
 	   
 					<div class="admin-table-wrapper featureTableWrapper" >
@@ -98,7 +124,8 @@
 									<div class="form-group">
 										<label>Datensatz-Quellformat*</label>
 										<select ng-model="converter"
-											ng-options="converter as converter.simpleName for converter in $ctrl.kommonitorImporterHelperServiceInstance.availableConverters | filter:filterImporterConverters()"
+											ng-options="converter as converter.name for converter in $ctrl.kommonitorImporterHelperServiceInstance.availableConverters | filter:$ctrl.kommonitorImporterHelperServiceInstance.filterConverters('indicator')"
+											ng-change="onChangeConverter()"
 											class="form-control" required>
 											<option disabled selected value> -- Quellformat w&auml;hlen -- </option>
 										</select>
@@ -109,8 +136,20 @@
 										<div class="form-group">
 											<label>Schema*</label>
 											<select ng-model="schema" ng-options="schema for schema in converter.schemas"
-												ng-change="onChangeSchema(schema)" class="form-control" required>
+												class="form-control" required>
 												<option disabled selected value> -- Schema w&auml;hlen -- </option>
+											</select>
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+
+									<div ng-if="converter.mimeTypes">
+
+										<div class="form-group">
+											<label>Quellformat*</label>
+											<select ng-model="mimeType" ng-options="mimeType for mimeType in converter.mimeTypes"
+												class="form-control" ng-change="onChangeMimeType(mimeType)" required>
+												<option disabled selected value> -- Format w&auml;hlen -- </option>
 											</select>
 											<div class="help-block with-errors"></div>
 										</div>
@@ -209,15 +248,19 @@
 
 								<br/>
 
-								<h4>Rollenbasierter Zeitreihen-Zugriffsschutz f&uuml;r Raumebene {{targetSpatialUnitMetadata.spatialUnitLevel}} (Optional)</h4>
+								<h4>Vergabe der Zugriffsrechte auf die Datensatz-Zeitreihe f&uuml;r Raumebene {{targetSpatialUnitMetadata.spatialUnitLevel}}</h4>
 
-								<p>Klicken Sie ein oder mehrere der verf&uuml;gbaren Rollen aus der linken &Uuml;bersicht an, um den Zugriff auf die Zeitreihen-Daten des Indikators auf der ausgew&auml;hlten Raumebene f&uuml;r diese Rollen einzuschr&auml;nken. Der Zugriff ist nur f&uuml;r die Rollen erlaubt, die im rechten &Uuml;bersichtsfenster gelistet sind.</p>
-								<p>Wird keine Rolle selektiert, so sind die Zeitreihendaten des Indikator-Datensatzes auf der gew&auml;hlten Raumebene ohne Zugriffsbeschr&auml;nkung abrufbar.</p>
+								<p>Zugriffsrechte (lesen, editieren, l&ouml;schen) m&uuml;ssen explizit vergeben werden. Administratoren (Rolle <i>kommonitor-creator</i>) haben immer vollen Zugriff.</p>
+								<p><strong>lesender Zugriff auf die Indikator-Zeitreihe wird nur den Organisationseinheiten gew&auml;hrt, die auch lesenden Zugriff auf Metadaten der assoziierten Raumeinheit besitzen.</strong></p>
+		
 
-								<div class="row no-margin">
-									<div class="col-md">
-										<excalibur-dual-list ng-model='allowedRoleNames.selectedItems' options="duallist.duallistRoleOptions"></excalibur-dual-list>
+								<div class="row">
+									<div class="col-md-3"></div>
+									<div class="col-md-6 col-sm-6 col-xs-12">
+											<div id="indicatorEditFeaturesRoleManagementTable" style="height: 45vh" class="ag-theme-alpine"></div>  
+										
 									</div>
+									<div class="col-md-3"></div>
 								</div>								
 
 							<br/>

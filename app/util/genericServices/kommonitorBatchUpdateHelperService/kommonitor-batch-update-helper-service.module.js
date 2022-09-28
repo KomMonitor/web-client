@@ -159,9 +159,18 @@ angular
                                     row.mappingObj.propertyMapping.spatialReferenceKeyProperty,
                                     row.mappingObj.propertyMapping.timeseriesMappings,
                                     keepMissingOrNullValueIndicator
-                                )
+                                );
     
                                 console.log("propertyMappingDefinition of row " + i + " with importerService: ", propertyMappingDefinition);
+
+                                let indicatorMetadata = kommonitorDataExchangeService.getIndicatorMetadataById(resourceId);
+                                let allowedRoleIds = [];
+
+                                for (const applicableSpatialUnit of indicatorMetadata.applicableSpatialUnits) {
+                                    if (applicableSpatialUnit.spatialUnitId === row.selectedTargetSpatialUnit.spatialUnitId){
+                                        allowedRoleIds = applicableSpatialUnit.allowedRoles;
+                                    }
+                                }
     
                                 var scopeProperties = {
                                     "targetSpatialUnitMetadata": {
@@ -170,11 +179,9 @@ angular
                                     "currentIndicatorDataset": {
                                         "defaultClassificationMapping": row.name.defaultClassificationMapping
                                     },
-                                    "allowedRoleNames": {
-                                        "selectedItems": [] // do not allow to change roles in batch update
-                                    }
-                                }
-                                 var putBody_indicators = kommonitorImporterHelperService.buildPutBody_indicators(scopeProperties)
+                                    "allowedRoles": allowedRoleIds
+                                };
+                                 var putBody_indicators = kommonitorImporterHelperService.buildPutBody_indicators(scopeProperties);
                                  //console.log("putBody_indicators of row " + i + ": ", putBody_indicators);
          
                                  // send post request and wait for it to complete
@@ -237,7 +244,7 @@ angular
                             value: responses
                         });
                     } catch (error) {
-                        console.error("An error occurred during the batch update: ", error)
+                        console.error("An error occurred during the batch update: ", error);
                     } finally {
                         startBtn.removeAttribute("disabled");
                         startBtn.innerHTML = "Update starten";
@@ -293,9 +300,11 @@ angular
                     objToExport.dataSource = this.buildDataSourceDefinition(row.selectedDatasourceType, objToExport.dataSource, false)
 
                     if(resourceType === "indicator" ) {
-                        if(typeof(row.selectedTargetSpatialUnit) === undefined)
+                        if(! row.selectedTargetSpatialUnit || ! row.selectedTargetSpatialUnit.spatialUnitLevel)
                             console.error("Ziel-Raumebene* is not defined.")
-                        objToExport.targetSpatialUnitName = row.selectedTargetSpatialUnit.spatialUnitLevel;
+                        else{
+                            objToExport.targetSpatialUnitName = row.selectedTargetSpatialUnit.spatialUnitLevel;
+                        }                            
                     }
                         
 
@@ -553,6 +562,10 @@ angular
                 // selectedConverter = the currently selected converter in the dropdown
                 // oldConverter = the converter property from a mapping object.
                 this.buildConverterDefinition = function (selectedConverter, oldConverter) {
+
+                    if (! selectedConverter){
+                        return oldConverter;
+                    }
                     
                     var converterDefinition = {
                         encoding: selectedConverter.encodings[0],
@@ -624,6 +637,10 @@ angular
                 // selectedDatasourceType = the currently selected datasource in the dropdown
                 // oldDataSource = the datasource property from a mapping object.
                 this.buildDataSourceDefinition = function (selectedDatasourceType, oldDataSource, includeFileName) {
+
+                    if (! selectedDatasourceType){
+                        return oldDataSource;
+                    }
 
                     var dataSourceDefinition = {
                         parameters: [],
@@ -824,29 +841,6 @@ angular
                     for (const spatialUnit of kommonitorDataExchangeService.availableSpatialUnits) {
                         if (spatialUnit.spatialUnitLevel === name) {
                             return spatialUnit;
-                        }
-                    }
-                    return null;
-                }
-
-
-                // helper function to get a georesource object by id.
-                // returns null if no georesource object was found
-                this.getGeoresourceObjectById = function (id) {
-                    for (const georesource of kommonitorDataExchangeService.availableGeoresources) {
-                        if (georesource.georesourceId === id) {
-                            return georesource;
-                        }
-                    }
-                    return null;
-                }
-
-                // helper function to get a indicator object by id.
-                // returns null if no indicator object was found
-                this.getIndicatorObjectById = function (id) {
-                    for (let indicator of kommonitorDataExchangeService.availableIndicators) {
-                        if (indicator.indicatorId === id) {
-                            return indicator;
                         }
                     }
                     return null;
@@ -1135,22 +1129,6 @@ angular
 			    	});
 			    }
 
-
-                this.filterConverters = function(resourceType) {
-                    // remove csvLatLon for indicators
-                    // and csv_onlyIndicator for georesources
-                    return function (converter) {
-                        if(resourceType === "georesource" && converter.simpleName === "csv_onlyIndicator")
-                            return false
-                        if(resourceType === "indicator" && converter.simpleName === "csvLatLon")
-                            return false
-                        
-                        return true
-                    };
-
-                }
-
-
                 this.onClickSaveColDefaultValue = function(resourceType, selectedCol, newValue, replaceAll, batchList) {
                     // differentiate between timeseries mapping and other columns
                     if(selectedCol == "mappingObj.propertyMapping.timeseriesMappings") {
@@ -1259,9 +1237,9 @@ angular
                         if(row.tempResourceId) {
                             let resource;
                             if (resourceType === "georesource")
-                                resource = this.getGeoresourceObjectById(row.tempResourceId);
+                                resource = kommonitorDataExchangeService.getGeoresourceMetadataById(row.tempResourceId);
                             if (resourceType === "indicator")
-                                resource = this.getIndicatorObjectById(row.tempResourceId);
+                                resource = kommonitorDataExchangeService.getIndicatorMetadataById(row.tempResourceId);
                             
                             row.name = resource;
                         }

@@ -1,1 +1,1 @@
-angular.module('infoModal', []);
+angular.module('infoModal', ['versionInfo']);

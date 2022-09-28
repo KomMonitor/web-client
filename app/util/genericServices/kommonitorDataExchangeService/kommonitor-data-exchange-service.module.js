@@ -12,10 +12,10 @@ angular.module('kommonitorDataExchange', ['kommonitorMap', 'kommonitorKeycloakHe
 angular
 		.module('kommonitorDataExchange', ['kommonitorCacheHelper', 'angularjs-dropdown-multiselect'])
 		.service(
-				'kommonitorDataExchangeService', ['$rootScope', '$timeout', 'kommonitorMapService', 'kommonitorKeycloakHelperService',
+				'kommonitorDataExchangeService', ['$rootScope', '$timeout', '$interval', 'kommonitorMapService', 'kommonitorKeycloakHelperService',
         'kommonitorCacheHelperService', 
         '$http', '__env', '$q', 'Auth',
-				function($rootScope, $timeout,
+				function($rootScope, $timeout, $interval,
 						kommonitorMapService, kommonitorKeycloakHelperService, kommonitorCacheHelperService, $http, __env, $q, Auth,) {              
 
               let thisService = this;
@@ -61,13 +61,16 @@ angular
           this.enableKeycloakSecurity = __env.enableKeycloakSecurity;
           this.currentKeycloakLoginRoles = [];
           this.currentKomMonitorLoginRoleNames = [];
+          this.currentKeycloakUser;
 
           // MAP objects for available resource metadata in order to have quick access to datasets by ID
           this.availableIndicators_map = new Map();
           this.availableGeoresources_map = new Map();
           this.availableSpatialUnits_map = new Map();
           this.availableProcessScripts_map = new Map();
-          this.availableRoles_map = new Map();
+
+          this.accessControl = [];
+          this.accessControl_map = new Map();
           
           // Define translations, settings for dropdown-multiselect 
           this.multiselectDropdownTranslations = {	checkAll: 'Alle auswählen', uncheckAll: 'Nichts auswählen', dynamicButtonTextSuffix: 'Werte ausgewählt',
@@ -82,16 +85,16 @@ angular
             styleActive: true
           };
 
-          this.setCurrentKomMonitorRoles = function(){
-            var roleMetadataForCurrentKeycloakLoginRoles = this.availableRoles.filter(role => this.currentKeycloakLoginRoles.includes(role.roleName)); 
-
-            var tmpCurrentKomMonitorRoles = [];
-
-            for (const roleMetadata of roleMetadataForCurrentKeycloakLoginRoles) {              
-              tmpCurrentKomMonitorRoles.push(roleMetadata.roleName);
-            }
-            this.currentKomMonitorLoginRoleNames = tmpCurrentKomMonitorRoles;
-          };
+          // Filter out roles unrelated to kommonitor
+          this.setCurrentKomMonitorLoginRoleNames = function() {
+            var possibleRoles = ["manage-realm"]
+            this.accessControl.forEach(organizationalUnit => {
+              organizationalUnit.roles.forEach(role => {
+                possibleRoles.push(organizationalUnit.name + "-" + role.permissionLevel)
+              });
+            });
+            this.currentKomMonitorLoginRoleNames = this.currentKeycloakLoginRoles.filter(role => possibleRoles.includes(role));
+          }
 
           this.isAllowedSpatialUnitForCurrentIndicator = function(spatialUnitMetadata){
             if(! this.selectedIndicator){
@@ -102,23 +105,15 @@ angular
               return false;
             }
 
-            var isAllowed = false;
-            
-            var roleMetadataForCurrentKeycloakLoginRoles = this.availableRoles.filter(role => this.currentKeycloakLoginRoles.includes(role.roleName));
-            this.setCurrentKomMonitorRoles();                     
-            
             var filteredApplicableUnits = this.selectedIndicator.applicableSpatialUnits.filter(function (applicableSpatialUnit) {
-              if (applicableSpatialUnit.spatialUnitName ===  spatialUnitMetadata.spatialUnitLevel){
-                if (applicableSpatialUnit.allowedRoles.length == 0){
-                  return true;
-                }
-                else{
-                  return applicableSpatialUnit.allowedRoles.some(allowedRoleId => roleMetadataForCurrentKeycloakLoginRoles.some(roleMetadata => roleMetadata.roleId === allowedRoleId) );
-                }
-              }              
-              
+              if (applicableSpatialUnit.spatialUnitId ===  spatialUnitMetadata.spatialUnitId){
+                return true;
+              }
+              else{
+                return false;
+              }
             });
-
+            
             return filteredApplicableUnits.length > 0;
           };
 
@@ -373,8 +368,6 @@ angular
             return this.baseUrlToKomMonitorDataAPI + kommonitorCacheHelperService.spatialResourceGETUrlPath_forAuthentication;
           };
 
-          
-
 					this.setProcessScripts = function(scriptsArray){
 						this.availableProcessScripts = scriptsArray;
             this.availableProcessScripts_map = new Map();
@@ -427,6 +420,9 @@ angular
             $timeout(function () {
                 if(error.data){							
                   self.errorMessage = self.syntaxHighlightJSON(error.data);
+                }
+                if(error.message){							
+                  self.errorMessage = self.syntaxHighlightJSON(error.message);
                 }
                 else{
                   self.errorMessage = self.syntaxHighlightJSON(error);
@@ -483,10 +479,6 @@ angular
             }
             this.availableSpatialUnits_map.delete(spatialUnitId);
           };
-          
-          // REPORTING
-
-          this.reportingIndicatorConfig = [];
 
 					// GEORESOURCES
 
@@ -986,6 +978,41 @@ angular
       		    });
       		};
 
+          
+
+          this.extendKeycloakSession = function () {
+            // Auth.keycloak.updateToken(5).then(function () {
+            //   console.log("keycloak token refreshed.");
+            // }).catch(function () {
+            //   console.error('Failed to refresh token. Will redirect to Login screen');
+            //   Auth.keycloak.login();
+            // });
+
+            Auth.keycloak.login();
+          };
+
+          this.tryLogoutUser = function() {
+            Auth.keycloak.logout();
+          };
+
+          var startCheckSessionExpiration = function(){
+            $interval(function () {
+              // minutes until current browser session invalidates
+              // use refresh token as this is used when calling "updateToken" keycloak method. Only if that is invalid the whole session is invalid
+              self.keycloakTokenExpirationInfo = Math.round((Auth.keycloak.refreshTokenParsed.exp + Auth.keycloak.timeSkew - new Date().getTime() / 1000) / 60);
+              if(! self.keycloakTokenExpirationInfo){
+                self.keycloakTokenExpirationInfo = 30;
+              }
+
+              // if session is expired then show warning to User!
+              if (self.keycloakTokenExpirationInfo < 0){
+                self.keycloakTokenExpirationInfo = 0;
+                self.displayMapApplicationError("Ihre aktuelle Login-Session ist abgelaufen. Sie müssen sich neu einloggen. Nutzen Sie dazu das User-Menü oben rechts.");
+              }
+
+            }, 1000 * 60);            
+          };
+
           /*
           * FETCH INITIAL METADATA ABOUT EACH RESOURCE
           */
@@ -995,43 +1022,50 @@ angular
           //   self.adminIsLoggedIn = false;
           // });
 
-          this.setKeycloakRoles = async function(){
-            await Auth.keycloak.loadUserProfile()
-    				.then(function (profile) {
-              if(Auth.keycloak.tokenParsed && Auth.keycloak.tokenParsed.realm_access && Auth.keycloak.tokenParsed.realm_access.roles){
-                self.currentKeycloakLoginRoles = Auth.keycloak.tokenParsed.realm_access.roles;
-              }
-              else{
-                self.currentKeycloakLoginRoles = [];
-              }
-              }).catch(function () {
-                  console.log('Failed to load user profile');
-            });
-          };
-
           this.fetchAllMetadata = async function(){
             console.log("fetching all metadata from management component");
-
-            if (Auth.keycloak.authenticated){
-
-              await this.setKeycloakRoles();
-            } 
-
-            //TODO revise metadata fecthing for protected endpoints        
-            var scriptsPromise = await this.fetchIndicatorScriptsMetadata();
-            var topicsPromise = await this.fetchTopicsMetadata();
-            var spatialUnitsPromise = await this.fetchSpatialUnitsMetadata();
-            var georesourcesPromise = await this.fetchGeoresourcesMetadata();
-            var indicatorsPromise = await this.fetchIndicatorsMetadata();
             
             // var metadataPromises = [topicsPromise, usersPromise, rolesPromise, spatialUnitsPromise, georesourcesPromise, indicatorsPromise, scriptsPromise];
-            var metadataPromises = [spatialUnitsPromise, georesourcesPromise, indicatorsPromise, topicsPromise, scriptsPromise];
+            var metadataPromises = [];
 
             if (Auth.keycloak.authenticated){
+              await Auth.keycloak.loadUserProfile()
+              .then(function (profile) {
+                // set user profile
+                self.currentKeycloakUser = profile;
+                console.log("User logged in with email: " + profile.email);
 
-              var rolesPromise = await this.fetchRolesMetadata();
-              metadataPromises.push(rolesPromise);
+                if(Auth.keycloak.tokenParsed && Auth.keycloak.tokenParsed.realm_access && Auth.keycloak.tokenParsed.realm_access.roles){
+                  self.currentKeycloakLoginRoles = Auth.keycloak.tokenParsed.realm_access.roles;
+                  if (Auth.keycloak.tokenParsed.resource_access["realm-management"]) {
+                    self.isRealmAdmin = true;
+                    self.currentKeycloakLoginRoles = self.currentKeycloakLoginRoles.concat(Auth.keycloak.tokenParsed.resource_access["realm-management"].roles);
+                  }
+                } else {
+                  self.currentKeycloakLoginRoles = [];
+                }
+
+                // set token expiration
+                startCheckSessionExpiration();                
+                })
+              .catch(function () {
+                console.log('Failed to load user profile');
+              });
+              var promise = await this.fetchAccessControlMetadata(self.currentKeycloakLoginRoles);
+              metadataPromises.push(promise);
             }
+
+            //TODO revise metadata fecthing for protected endpoints        
+            var scriptsPromise = await this.fetchIndicatorScriptsMetadata(self.currentKeycloakLoginRoles);
+            var topicsPromise = await this.fetchTopicsMetadata(self.currentKeycloakLoginRoles);
+            var spatialUnitsPromise = await this.fetchSpatialUnitsMetadata(self.currentKeycloakLoginRoles);
+            var georesourcesPromise = await this.fetchGeoresourcesMetadata(self.currentKeycloakLoginRoles);
+            var indicatorsPromise = await this.fetchIndicatorsMetadata(self.currentKeycloakLoginRoles);
+            metadataPromises.push(scriptsPromise);
+            metadataPromises.push(topicsPromise);
+            metadataPromises.push(spatialUnitsPromise);
+            metadataPromises.push(georesourcesPromise);
+            metadataPromises.push(indicatorsPromise);
 
             $q.all(metadataPromises).then(function successCallback(successArray) {
 
@@ -1608,89 +1642,92 @@ angular
                 });
               }, 1000);
             }, 1000);
-            
             // setTimeout(() => {
             //   // $rootScope.$broadcast("initialMetadataLoadingCompleted");
-
-                  
             // }, 1000);
-
-              
-
           };
 
-          this.setRoles = function(rolesArray){
-            self.availableRoles = rolesArray;
-            this.availableRoles_map = new Map();
-            for (const roleMetadata of rolesArray) {
-              this.availableRoles_map.set(roleMetadata.roleId, roleMetadata);
+          this.setAccessControl = function(input){
+            this.accessControl = input;
+            this.accessControl_map = new Map();
+            for (const entry of input) {
+              this.accessControl_map.set(entry.organizationalUnitId, entry);
             }
+            this.updateAvailableRoles();
           };
 
-          this.fetchRolesMetadata = async function(){          
-
-              self.setRoles(await kommonitorCacheHelperService.fetchRolesMetadata(self.currentKeycloakLoginRoles));
+          this.fetchAccessControlMetadata = async function(keycloakRolesArray){
+            self.setAccessControl(await kommonitorCacheHelperService.fetchAccessControlMetadata(keycloakRolesArray));
+            self.setCurrentKomMonitorLoginRoleNames();
           };
 
-          this.replaceSingleRoleMetadata = function(targetRoleMetadata){
-            for (let index = 0; index < this.availableRoles.length; index++) {
-              let roleMetadata = this.availableRoles[index];
-              if(roleMetadata.roleId == targetRoleMetadata.roleId){
-                this.availableRoles[index] = targetRoleMetadata;
+          this.replaceSingleAccessControlMetadata = function(targetRoleMetadata){
+            for (let index = 0; index < this.accessControl.length; index++) {
+              let oldMetadata = this.accessControl[index];
+              if(oldMetadata.organizationalUnitId == targetRoleMetadata.organizationalUnitId){
+                this.accessControl[index] = targetRoleMetadata;
                 break;
               }
             }
-            this.availableProcessScripts_map.set(targetRoleMetadata.roleId, targetRoleMetadata);
+            this.accessControl_map.set(targetRoleMetadata.organizationalUnitId, targetRoleMetadata);
+            this.updateAvailableRoles();
           };
 
-          this.addSingleRoleMetadata = function(roleMetadata){
-            let tmpArray = [roleMetadata];
-            Array.prototype.push.apply(tmpArray, this.availableRoles);
-            this.availableRoles =  tmpArray;
-            this.availableProcessScripts_map.set(roleMetadata.roleId, roleMetadata);
+          this.addSingleAccessControlMetadata = function(metadata){
+            let tmpArray = [metadata];
+            Array.prototype.push.apply(tmpArray, this.accessControl);
+            this.accessControl = tmpArray;
+            this.accessControl_map.set(metadata.organizationalUnitId, metadata);
+            this.updateAvailableRoles();
           };
 
-          this.deleteSingleRoleMetadata = function(roleId){
-            for (let index = 0; index < this.availableRoles.length; index++) {
-              const roleMetadata = this.availableRoles[index];
-              if(roleMetadata.roleId == roleId){
-                this.availableRoles.splice(index, 1);
+          this.deleteSingleAccessControlMetadata = function(id){
+            for (let index = 0; index < this.accessControl.length; index++) {
+              const oldMetadata = this.accessControl[index];
+              if(oldMetadata.organizationalUnitId == id){
+                this.accessControl.splice(index, 1);
                 break;
               }              
             }
-            this.availableProcessScripts_map.delete(roleId);
+            this.accessControl_map.delete(id);
+            this.updateAvailableRoles();
           };
 
-          this.getRoleMetadataById = function(roleId){
-            return this.availableRoles_map.get(roleId);
+          this.updateAvailableRoles = function() {
+            this.availableRoles = [];
+            for (let elem of this.accessControl) {
+              for (let role of elem.roles) {
+                let available = {...role, ...{"organizationalUnit": elem, "roleName": elem.name + "-" + role.permissionLevel}};
+                this.availableRoles.push(available);
+              }
+            }
+            // we need to refresh all modals as roles have changed
+            $rootScope.$broadcast("availableRolesUpdate");
+          }
+
+          this.getAccessControlById = function(id){
+            return this.accessControl_map.get(id);
           };
 
-          this.fetchTopicsMetadata = async function(){
-            self.setTopics(await kommonitorCacheHelperService.fetchTopicsMetadata(self.currentKeycloakLoginRoles));
-
+          this.fetchTopicsMetadata = async function(keycloakRolesArray){
+            self.setTopics(await kommonitorCacheHelperService.fetchTopicsMetadata(keycloakRolesArray));
           };
 
-          this.fetchSpatialUnitsMetadata = async function(){
-            self.setSpatialUnits(await kommonitorCacheHelperService.fetchSpatialUnitsMetadata(self.currentKeycloakLoginRoles));
+          this.fetchSpatialUnitsMetadata = async function(keycloakRolesArray){
+            self.setSpatialUnits(await kommonitorCacheHelperService.fetchSpatialUnitsMetadata(keycloakRolesArray));
           };
 
-          this.fetchGeoresourcesMetadata = async function(){
-            self.setGeoresources(await kommonitorCacheHelperService.fetchGeoresourceMetadata(self.currentKeycloakLoginRoles));
+          this.fetchGeoresourcesMetadata = async function(keycloakRolesArray){
+            self.setGeoresources(await kommonitorCacheHelperService.fetchGeoresourceMetadata(keycloakRolesArray));
           };
 
-          
-
-          this.fetchIndicatorsMetadata = async function(){
-            self.setIndicators(await kommonitorCacheHelperService.fetchIndicatorsMetadata(self.currentKeycloakLoginRoles));
+          this.fetchIndicatorsMetadata = async function(keycloakRolesArray){
+            self.setIndicators(await kommonitorCacheHelperService.fetchIndicatorsMetadata(keycloakRolesArray));
           };
 
-          
-
-          this.fetchIndicatorScriptsMetadata = async function(){
-            self.setProcessScripts(await kommonitorCacheHelperService.fetchProcessScriptsMetadata(self.currentKeycloakLoginRoles));
+          this.fetchIndicatorScriptsMetadata = async function(keycloakRolesArray){
+            self.setProcessScripts(await kommonitorCacheHelperService.fetchProcessScriptsMetadata(keycloakRolesArray));
           };
-
-          
 
 					this.indicatorValueIsNoData = function(indicatorValue){
 						if(Number.isNaN(indicatorValue) || indicatorValue === null || indicatorValue === undefined){
@@ -1960,18 +1997,24 @@ angular
             return (spatialUnitName.includes("raster") || spatialUnitName.includes("Raster") || spatialUnitName.includes("RASTER") || spatialUnitName.includes("grid") || spatialUnitName.includes("GRID") || spatialUnitName.includes("Grid"));
           };
 
-          var roleMappingAllowsDisplay = function(indicatorMetadata){
-            if(self.currentKeycloakLoginRoles.includes(kommonitorKeycloakHelperService.adminRoleName)){
-              return true;
-            }            
-            var roleMetadataForCurrentKeycloakLoginRoles = self.availableRoles.filter(role => self.currentKeycloakLoginRoles.includes(role.roleName));            
+          // var roleMappingAllowsDisplay = function(indicatorMetadata){
+          //   //admin  --> everything allowed       
+          //   if(self.currentKeycloakLoginRoles.includes(__env.keycloakKomMonitorAdminRoleName)){
+          //     return true;
+          //   }     
             
-            var filteredApplicableUnits = indicatorMetadata.applicableSpatialUnits.filter(function (applicableSpatialUnit) {
-              return applicableSpatialUnit.allowedRoles.length == 0 || applicableSpatialUnit.allowedRoles.some(allowedRoleId => roleMetadataForCurrentKeycloakLoginRoles.some(roleMetadata => roleMetadata.roleId === allowedRoleId) );                
-            });
+          //   // public user
 
-            return filteredApplicableUnits.length > 0;
-          };
+            
+          //   // non-admin
+          //   self.roleMetadataForCurrentKeycloakLoginRoles = self.availableRoles.filter(role => self.currentKeycloakLoginRoles.includes(role.roleName));                       
+            
+          //   var filteredApplicableUnits = indicatorMetadata.applicableSpatialUnits.filter(function (applicableSpatialUnit) {
+          //     return applicableSpatialUnit.allowedRoles.length == 0 || applicableSpatialUnit.allowedRoles.some(allowedRoleId => self.roleMetadataForCurrentKeycloakLoginRoles.some(roleMetadata => roleMetadata.roleId === allowedRoleId) );                
+          //   });
+
+          //   return filteredApplicableUnits.length > 0;
+          // };
 
           var isDisplayableIndicator = function(item){
              // var arrayOfNameSubstringsForHidingIndicators = ["Standardabweichung", "Prozentuale Ver"];
@@ -1991,9 +2034,9 @@ angular
                    return false;
                  }
 
-                 if(! roleMappingAllowsDisplay(item.indicatorMetadata)){
-                   return false;
-                 }
+                //  if(! roleMappingAllowsDisplay(item.indicatorMetadata)){
+                //    return false;
+                //  }
 
                return true;
              }
@@ -2012,9 +2055,9 @@ angular
                    return false;
                  }
 
-                 if(! roleMappingAllowsDisplay(item)){
-                  return false;
-                }
+                //  if(! roleMappingAllowsDisplay(item)){
+                //   return false;
+                // }
 
                return true;
              }
@@ -2075,7 +2118,7 @@ angular
             jspdf.addImage(img, 'PNG', 193, 5, 12, 12);
   
             jspdf.setFontSize(16);
-            jspdf.setFontStyle('bolditalic');
+            jspdf.setFont('Helvetica', 'bolditalic', 'normal');
             var titleArray = jspdf.splitTextToSize("Indikator: " +indicator.indicatorName, 180);
             jspdf.text(titleArray, 14, 25);
   
@@ -2366,10 +2409,31 @@ angular
             return jspdf;
           };
 
+          this.generateIndicatorMetadataPdf_asBlob = async function(){
+            // create PDF from currently selected/displayed indicator!
+            var indicatorMetadata = this.selectedIndicator;
+            var pdfName = indicatorMetadata.indicatorName + ".pdf";
+            var jspdf = await this.generateIndicatorMetadataPdf(indicatorMetadata, pdfName);							
+                  return jspdf.output("blob", {filename: pdfName});
+          };
+      
+          this.generateIndicatorMetadataPdf = async function(indicatorMetadata, pdfName){																					
+            var jspdf = await this.createMetadataPDF_indicator(indicatorMetadata);
+      
+            jspdf.setProperties({
+            title: 'KomMonitor Indikatorenblatt',
+            subject: pdfName,
+            author: 'KomMonitor',
+            keywords: 'Indikator, Metadatenblatt',
+            creator: 'KomMonitor'
+            });
+            return jspdf;
+          }; 
+
           /**
            * creates and returns a pdf for the georesource given as parameter
            */
-           this.createMetadataPDF_georesource = async function(georesource) {
+           this.createMetadataPDF_georesource = async function(georesource, pdfName) {
 
             var jspdf = new jsPDF();
             jspdf.setFontSize(16);
@@ -2381,7 +2445,7 @@ angular
             jspdf.addImage(img, 'PNG', 193, 5, 12, 12);
   
             jspdf.setFontSize(16);
-            jspdf.setFontStyle('bolditalic');
+            jspdf.setFont('Helvetica', 'bolditalic', 'normal');
             var titleArray = jspdf.splitTextToSize("Geodatensatz: " + georesource.datasetName, 180);
             jspdf.text(titleArray, 14, 25);
   
@@ -2552,8 +2616,6 @@ angular
               startY: jspdf.autoTable.previous.finalY + 10
             });
   
-            var pdfName = georesource.datasetName + ".pdf";
-  
             jspdf.setProperties({
               title: 'KomMonitor Geodatenblatt',
               subject: pdfName,
@@ -2561,9 +2623,19 @@ angular
               keywords: 'Geodaten, Metadatenblatt',
               creator: 'KomMonitor'
             });
-
-            jspdf.save(pdfName);
             return jspdf;
+          };
+
+          this.generateGeoresourceMetadataPdf_asBlob = async function(georesourceMetadata){            
+            var pdfName = georesourceMetadata.datasetName + ".pdf";
+            var jspdf = await this.createMetadataPDF_georesource(georesourceMetadata, pdfName);							
+            return jspdf.output("blob", {filename: pdfName});
+          };
+
+          this.downloadMetadataPDF_georesource = async function(georesourceMetadata){            
+            var pdfName = georesourceMetadata.datasetName + ".pdf";
+            var jspdf = await this.createMetadataPDF_georesource(georesourceMetadata, pdfName);							
+            return jspdf.save(pdfName);
           };
 
           // this.getIndicatorStringFromIndicatorType = function (indicator) {
@@ -2606,7 +2678,7 @@ angular
               month: 'long',
               day: 'numeric'
             });
-            }            
+            }
           };
   
           this.tsToDate_withOptionalUpdateInterval = function(ts, updateIntervalApiName) {
@@ -2766,6 +2838,60 @@ angular
       return rolesMetadata;
     };
 
+    this.getAllowedRolesString = function(allowedRoleIds){
+      var allowedRoles = [];
+      for(const organizationalUnit of this.accessControl){
+        for(const role of organizationalUnit.roles){
+          if(allowedRoleIds.includes(role.roleId)){
+            allowedRoles.push(organizationalUnit.name + "-" + role.permissionLevel)
+          }
+        }
+      }
+      return allowedRoles.join(", ");
+    }
+
+    this.checkDeletePermission = function(){
+      for(const role of this.currentKeycloakLoginRoles){
+        let roleNameParts = role.split("-");
+
+        const permissionLevel = roleNameParts[roleNameParts.length - 1]; //e.g. kommonitor-creator
+        if(permissionLevel == "creator"){
+          return true;
+        }
+      }
+      return false;
+    }
+
+    this.checkCreatePermission = function(){      
+      for(const role of this.currentKeycloakLoginRoles){
+        let roleNameParts = role.split("-");
+        const permissionLevel = roleNameParts[roleNameParts.length - 1]; //e.g. kommonitor-creator
+        if(permissionLevel == "publisher" || permissionLevel == "creator"){
+          return true;
+        }
+      }
+      return false;
+    }
+
+    this.checkEditorPermission = function(){
+      for(const role of this.currentKeycloakLoginRoles){
+        let roleNameParts = role.split("-");
+        const permissionLevel = roleNameParts[roleNameParts.length - 1]; //e.g. kommonitor-creator
+        if(permissionLevel == "editor" || permissionLevel == "creator" || permissionLevel == "publisher"){
+          return true;
+        }
+      }
+      return false;
+    }
+
+    this.checkAdminPermission = function(){
+      if(this.currentKeycloakLoginRoles.includes(__env.keycloakKomMonitorAdminRoleName)){
+        return true;
+      }
+      return false;
+    }
+
+
     $rootScope.$on("onAddedFeatureToSelection", function (event, selectedIndicatorFeatureIds) {
       let propertyName = buildIndicatorPropertyName();
 
@@ -2787,4 +2913,146 @@ angular
       let propertyName = INDICATOR_DATE_PREFIX + thisService.selectedDate;
       return propertyName;
     }
+
+    this.reportingDefaultTemplatePageElements = [
+      {
+        "type": "indicatorTitle-landscape",
+        "dimensions": {
+          "top": "15px",
+          "left": "15px",
+          "width": "720px",
+          "height": "30px"
+        },
+        "isPlaceholder": true,
+        "placeholderText": "Titel des Indikators [Einheit]",
+        "text": "",
+        "css": "text-align: left; padding-left: 5px; font-weight: bold;"
+      },
+      {
+        "type": "dataTimestamp-landscape",
+        "dimensions": {
+          "top": "50px",
+          "left": "15px",
+          "width": "720px",
+          "height": "30px"
+        },
+        "isPlaceholder": true,
+        "placeholderText": "Datenstand",
+        "text": "",
+        "css": "text-align: left; padding-left: 5px;"
+      },
+      {
+        "type": "dataTimeseries-landscape",
+        "dimensions": {
+          "top": "50px",
+          "left": "15px",
+          "width": "720px",
+          "height": "30px"
+        },
+        "isPlaceholder": true,
+        "placeholderText": "Zeitreihe von - bis",
+        "text": "",
+        "css": "text-align: left; padding-left: 5px;"
+      },
+      {
+        "type": "reachability-subtitle-landscape",
+        "dimensions": {
+          "top": "50px",
+          "left": "15px",
+          "width": "720px",
+          "height": "30px"
+        },
+        "isPlaceholder": true,
+        "placeholderText": "Aktueller Datenstand, Fortbewegungsmittel, [Indikator]",
+        "text": "",
+        "css": "text-align: left; padding-left: 5px;"
+      },
+      {
+        "type": "communeLogo-landscape",
+        "dimensions": {
+          "top": "15px",
+          "left": "740px",
+          "width": "75px",
+          "height": "65px"
+        },
+        "isPlaceholder": true,
+        "placeholderText": "Logo",
+        "src": ""
+      },
+      {
+        "type": "footerHorizontalSpacer-landscape",
+        "dimensions": {
+          "top": "535px",
+          "left": "15px",
+          "width": "800px",
+          "height": "0px"
+        },
+        "css": "border-top: solid rgb(148, 148, 148) 1px;"
+      },
+
+      {
+        "type": "footerCreationInfo-landscape",
+        "dimensions": {
+          "top": "545px",
+          "left": "15px",
+          "width": "720px",
+          "height": "30px"
+        },
+        "isPlaceholder": true,
+        "placeholderText": "Erstellt am [Datum] von [Name d. Bearbeiters], [Name d. Kommune]",
+        "css": "text-align: left; padding-left: 5px;"
+      },
+      {
+        "type": "pageNumber-landscape",
+        "dimensions": {
+          "top": "545px",
+          "left": "740px",
+          "width": "75px",
+          "height": "30px"
+        },
+        "isPlaceholder": true,
+        "placeholderText": "[Seitenzahl]",
+        "css": "text-align: right; padding-right: 5px;"
+      },
+    ]
+
+    this.getDefaultReportingTemplatePageElement = function(type) {
+      let result = this.reportingDefaultTemplatePageElements.filter((el) => {
+        return el.type === type;
+      });
+      if(typeof(result) === "undefined") {
+        throw "No DefaultReportingTemplatePageElement exists for type " + type + "."
+      } else {
+        return result[0];
+      }
+    }
+     
+
+    this.generateAndDownloadIndicatorZIP = async function(indicatorData, fileName, fileEnding, jsZipOptions){
+      // generate metadata file and include actual dataset and metadata file in download
+
+      var metadataPdf = await this.generateIndicatorMetadataPdf_asBlob();							
+      var zip = new JSZip();
+      zip.file(fileName + fileEnding, indicatorData, jsZipOptions);
+      zip.file(fileName + "_Metadata.pdf", metadataPdf);
+      zip.generateAsync({type:"blob"})
+      .then(function(content) {
+        // see FileSaver.js
+        saveAs(content, fileName + ".zip");
+      });
+    };
+
+    this.generateAndDownloadGeoresourceZIP = async function(georesourceMetadata, georesourceData, fileName, fileEnding, jsZipOptions){
+      // generate metadata file and include actual dataset and metadata file in download
+      
+      var metadataPdf = await this.generateGeoresourceMetadataPdf_asBlob(georesourceMetadata);							
+      var zip = new JSZip();
+      zip.file(fileName + fileEnding, georesourceData, jsZipOptions);
+      zip.file(fileName + "_Metadata.pdf", metadataPdf);
+      zip.generateAsync({type:"blob"})
+      .then(function(content) {
+        // see FileSaver.js
+        saveAs(content, fileName + ".zip");
+      });
+    };
 }]);

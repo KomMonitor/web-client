@@ -687,7 +687,10 @@ angular
 											// $scope.userHoveresOverItem = true;
 											var spatialFeatureName = params.data.name;
 											// console.log(spatialFeatureName);
-											$rootScope.$broadcast("highlightFeatureOnMap", spatialFeatureName);
+											if(spatialFeatureName){
+												$rootScope.$broadcast("highlightFeatureOnMap", spatialFeatureName);
+											}
+
 										});
 
 										$scope.regressionChart.on('mouseOut', function(params){
@@ -695,13 +698,18 @@ angular
 
 											var spatialFeatureName = params.data.name;
 											// console.log(spatialFeatureName);
-											$rootScope.$broadcast("unhighlightFeatureOnMap", spatialFeatureName);
+											if(spatialFeatureName){
+												$rootScope.$broadcast("unhighlightFeatureOnMap", spatialFeatureName);
+											}										
 										});
 
 										$scope.regressionChart.on('click', function(params){
 											var spatialFeatureName = params.data.name;
 											// console.log(spatialFeatureName);
-											$rootScope.$broadcast("switchHighlightFeatureOnMap", spatialFeatureName);
+											if(spatialFeatureName){
+												$rootScope.$broadcast("switchHighlightFeatureOnMap", spatialFeatureName);
+											}
+											
 										});
 
 										$scope.eventsRegistered = true;

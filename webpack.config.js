@@ -44,8 +44,6 @@ module.exports = {
             { from: nodeModulePathConstant + '@turf/turf/turf.min.js', to: 'turf' },
             { from: nodeModulePathConstant + 'bootstrap-tour/build/css/bootstrap-tour-standalone.min.css', to: 'bootstrap-tour' },
             { from: nodeModulePathConstant + 'bootstrap-tour/build/js/bootstrap-tour-standalone.min.js', to: 'bootstrap-tour' },
-            { from: nodeModulePathConstant + 'jspdf/dist/jspdf.min.js', to: 'jspdf' },
-            { from: nodeModulePathConstant + 'jspdf-autotable/dist/jspdf.plugin.autotable.min.js', to: 'jspdf-autotable' },
             { from: './customizedExternalLibs/shpwrite.js', to: 'shp-write' },
             { from: nodeModulePathConstant + 'jstat/dist/jstat.min.js', to: 'jstat' },
             { from: nodeModulePathConstant + 'leaflet.pattern/dist/leaflet.pattern.js', to: 'leaflet-pattern' },
@@ -57,14 +55,14 @@ module.exports = {
             { from: nodeModulePathConstant + 'angular-sanitize/angular-sanitize.min.js', to: 'angular-sanitize' },
             { from: nodeModulePathConstant + 'bootstrap-validator/dist/validator.min.js', to: 'bootstrap-validator' },
             { from: nodeModulePathConstant + 'leaflet-geosearch/dist/bundle.min.js', to: 'leaflet-geosearch/leaflet-geosearch.min.js' },
-            { from: nodeModulePathConstant + 'leaflet-geosearch/dist/style.css', to: 'leaflet-geosearch/leaflet-geosearch.css' },
+            { from: nodeModulePathConstant + 'leaflet-geosearch/dist/geosearch.css', to: 'leaflet-geosearch/leaflet-geosearch.css' },
             { from: nodeModulePathConstant + 'leaflet-geosearch/assets/css/leaflet.css', to: 'leaflet-geosearch/leaflet-geosearch-leaflet.css' },
             { from: nodeModulePathConstant + 'leaflet-search/dist/', to: 'leaflet-search/dist' },
             { from: nodeModulePathConstant + 'leaflet-search/images/', to: 'leaflet-search/images' },
             { from: nodeModulePathConstant + 'leaflet-measure/dist/leaflet-measure.de.js', to: 'leaflet-measure' },
             { from: nodeModulePathConstant + 'leaflet-measure/dist/leaflet-measure.css', to: 'leaflet-measure' },
             { from: nodeModulePathConstant + 'leaflet-measure/dist/assets', to: 'leaflet-measure/assets' },
-            { from: nodeModulePathConstant + 'leaflet-easyprint/dist/bundle.js', to: 'leaflet-easyprint/leaflet-easyprint.js' },
+            { from: nodeModulePathConstant + 'leaflet-simple-map-screenshoter/dist/leaflet-simple-map-screenshoter.js', to: 'leaflet-simple-map-screenshoter/leaflet-simple-map-screenshoter.js' },
             { from: './customizedExternalLibs/leaflet-wfst.src_custom.js', to: 'leaflet-wfst/' },
             { from: nodeModulePathConstant + 'bootstrap-colorpicker/dist', to: 'bootstrap-colorpicker/' },
             { from: './customizedExternalLibs/L.TileLayer.BetterWMS.js', to: 'leaflet-betterWMS/' },
@@ -77,7 +75,6 @@ module.exports = {
             { from: './customizedExternalLibs/bootstrap-iconpicker', to: 'bootstrap-iconpicker/' },
             { from: './customizedExternalLibs/Excalibur-Dual-List/dist', to: 'excalibur-duallist/' },
             { from: './customizedExternalLibs/Excalibur-Dual-List/excalibur-duallist.html', to: 'excalibur-duallist/excalibur-duallist.html' },
-            { from: nodeModulePathConstant + 'gridstack/dist', to: 'gridstack/' },
             { from: nodeModulePathConstant + 'html2canvas/dist', to: 'html2canvas/' },
             { from: nodeModulePathConstant + 'html2pdf.js/dist', to: 'html2pdf/' },
             { from: nodeModulePathConstant + 'jquery.easing/jquery.easing.min.js', to: 'jquery.easing/' },
@@ -95,7 +92,8 @@ module.exports = {
             { from: nodeModulePathConstant + 'ag-grid-community/dist/ag-grid-community.min.js', to: 'ag-grid-community/' },
 			{ from: nodeModulePathConstant + 'ui-select/dist', to: 'ui-select/' },
             { from: nodeModulePathConstant + 'angularjs-dropdown-multiselect/dist/', to: 'angularjs-dropdown-multiselect/' },	
-          
+            { from: nodeModulePathConstant + 'jszip/dist/jszip.min.js', to: 'jszip/' },
+            { from: nodeModulePathConstant + 'docx/build/index.js', to: 'docx/' },
           
 
       ]})

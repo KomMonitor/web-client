@@ -38,14 +38,14 @@ angular.module('adminSpatialUnitsManagement').component('adminSpatialUnitsManage
 
 		$scope.$on("refreshSpatialUnitOverviewTable", function (event, crudType, targetSpatialUnitId) {
 			$scope.loadingData = true;
-			$scope.refreshSpatialUnitOverviewTable();
+			$scope.refreshSpatialUnitOverviewTable(crudType, targetSpatialUnitId);
 		});
 
 		$scope.refreshSpatialUnitOverviewTable = function(crudType, targetSpatialUnitId){
 
 			if(! crudType || !targetSpatialUnitId){
 				// refetch all metadata from spatial units to update table
-				kommonitorDataExchangeService.fetchSpatialUnitsMetadata().then(function successCallback(response) {
+				kommonitorDataExchangeService.fetchSpatialUnitsMetadata(kommonitorDataExchangeService.currentKeycloakLoginRoles).then(function successCallback(response) {
 
 					$scope.initializeOrRefreshOverviewTable();
 
@@ -64,7 +64,7 @@ angular.module('adminSpatialUnitsManagement').component('adminSpatialUnitsManage
 			}
 			else if(crudType && targetSpatialUnitId){
 				if(crudType == "add"){
-					kommonitorCacheHelperService.fetchSingleSpatialUnitMetadata(targetSpatialUnitId).then(function successCallback(data) {
+					kommonitorCacheHelperService.fetchSingleSpatialUnitMetadata(targetSpatialUnitId, kommonitorDataExchangeService.currentKeycloakLoginRoles).then(function successCallback(data) {
 
 						kommonitorDataExchangeService.addSingleSpatialUnitMetadata(data);
 
@@ -84,7 +84,7 @@ angular.module('adminSpatialUnitsManagement').component('adminSpatialUnitsManage
 					});
 				}
 				else if(crudType == "edit"){
-					kommonitorCacheHelperService.fetchSingleSpatialUnitMetadata(targetSpatialUnitId).then(function successCallback(data) {
+					kommonitorCacheHelperService.fetchSingleSpatialUnitMetadata(targetSpatialUnitId, kommonitorDataExchangeService.currentKeycloakLoginRoles).then(function successCallback(data) {
 
 						kommonitorDataExchangeService.replaceSingleSpatialUnitMetadata(data);
 						
@@ -160,6 +160,5 @@ angular.module('adminSpatialUnitsManagement').component('adminSpatialUnitsManage
 			// submit selected spatial unit to modal controller
 			$rootScope.$broadcast("onEditSpatialUnitFeatures", spatialUnitDataset);
 		};
-
 	}
 ]});

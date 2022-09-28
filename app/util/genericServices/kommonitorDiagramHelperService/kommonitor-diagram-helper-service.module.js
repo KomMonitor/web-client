@@ -328,6 +328,45 @@ angular
         var indicatorValueArray = new Array();
         var indicatorValueBarChartArray = new Array();
 
+        //sort array of features
+        var cartographicFeatures = indicatorMetadataAndGeoJSON.geoJSON.features;
+        cartographicFeatures.sort(compareFeaturesByIndicatorValue);
+
+        for (var j = 0; j < cartographicFeatures.length; j++) {
+          // diff occurs when balance mode is activated
+          // then, cartographicFeatures display balance over time period, which shall be reflected in bar chart and histogram
+          // the other diagrams must use the "normal" unbalanced indicator instead --> selectedFeatures
+          var cartographicFeature = cartographicFeatures[j];
+
+          var indicatorValue;
+          if (kommonitorDataExchangeService.indicatorValueIsNoData(cartographicFeature.properties[self.indicatorPropertyName])) {
+            indicatorValue = null;
+          }
+          else {
+            indicatorValue = kommonitorDataExchangeService.getIndicatorValue_asNumber(cartographicFeature.properties[self.indicatorPropertyName]);  
+          }
+
+          var featureName = cartographicFeature.properties[__env.FEATURE_NAME_PROPERTY_NAME]
+          featureNamesArray.push(featureName);
+          indicatorValueArray.push(indicatorValue);
+
+          var color = this.getColorForFeature(cartographicFeature, indicatorMetadataAndGeoJSON, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue);
+
+          var seriesItem = {
+            value: indicatorValue,
+            name: featureName,
+            itemStyle: {
+              color: color
+              // borderWidth: 1,
+              // borderColor: 'black'
+            }
+          };
+
+          indicatorValueBarChartArray.push(seriesItem);
+
+        }
+
+        // TIMESERIES
         var indicatorTimeSeriesDatesArray = indicatorMetadataAndGeoJSON.applicableDates;
 
         if(filterOutFutureDates){
@@ -352,42 +391,6 @@ angular
         for (var i = 0; i < indicatorTimeSeriesDatesArray.length; i++) {
           indicatorTimeSeriesAverageArray[i] = 0;
           indicatorTimeSeriesCountArray[i] = 0;
-        }
-
-        //sort array of features
-        var cartographicFeatures = indicatorMetadataAndGeoJSON.geoJSON.features;
-        cartographicFeatures.sort(compareFeaturesByIndicatorValue);
-
-        for (var j = 0; j < cartographicFeatures.length; j++) {
-          // diff occurs when balance mode is activated
-          // then, cartographicFeatures display balance over time period, which shall be reflected in bar chart and histogram
-          // the other diagrams must use the "normal" unbalanced indicator instead --> selectedFeatures
-          var cartographicFeature = cartographicFeatures[j];
-
-          var indicatorValue;
-          if (kommonitorDataExchangeService.indicatorValueIsNoData(cartographicFeature.properties[self.indicatorPropertyName])) {
-            indicatorValue = null;
-          }
-          else {
-            indicatorValue = kommonitorDataExchangeService.getIndicatorValue_asNumber(cartographicFeature.properties[self.indicatorPropertyName]);  
-          }
-
-          featureNamesArray.push(cartographicFeature.properties[__env.FEATURE_NAME_PROPERTY_NAME]);
-          indicatorValueArray.push(indicatorValue);
-
-          var color = this.getColorForFeature(cartographicFeature, indicatorMetadataAndGeoJSON, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue);
-
-          var seriesItem = {
-            value: indicatorValue,
-            itemStyle: {
-              color: color
-              // borderWidth: 1,
-              // borderColor: 'black'
-            }
-          };
-
-          indicatorValueBarChartArray.push(seriesItem);
-
         }
       
         let indicatorMetadataForTimeseries = indicatorMetadataAndGeoJSON;
@@ -439,7 +442,7 @@ angular
 
         setLineChartOptions(indicatorMetadataAndGeoJSON, indicatorTimeSeriesDatesArray, indicatorTimeSeriesAverageArray, indicatorTimeSeriesMaxArray, indicatorTimeSeriesMinArray, spatialUnitName, date);
 
-        setBarChartOptions(indicatorMetadataAndGeoJSON, featureNamesArray, indicatorValueBarChartArray, spatialUnitName, date);
+        setBarChartOptions(indicatorMetadataAndGeoJSON, featureNamesArray, indicatorValueBarChartArray, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue);
 
         setGeoMapChartOptions(indicatorMetadataAndGeoJSON, featureNamesArray, indicatorValueBarChartArray, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue);
       };
@@ -452,7 +455,7 @@ angular
         return 0;
       };
 
-      var setBarChartOptions = function (indicatorMetadataAndGeoJSON, featureNamesArray, indicatorValueBarChartArray, spatialUnitName, date) {
+      var setBarChartOptions = function (indicatorMetadataAndGeoJSON, featureNamesArray, indicatorValueBarChartArray, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue) {
 
         // specify chart configuration item and data
         var labelOption = {
@@ -476,6 +479,11 @@ angular
         else {
           barChartTitel += date;
         }
+
+        var legendConfig = setupVisualMap(indicatorMetadataAndGeoJSON, featureNamesArray,
+                  indicatorValueBarChartArray, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew,
+                  ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked,
+                  measureOfValue);
 
         var barOption = {
           // grid get rid of whitespace around chart
@@ -590,6 +598,13 @@ angular
               }
             },
             data: indicatorValueBarChartArray
+          }],
+          visualMap: [{
+              left: 'left',
+              type: "piecewise",
+              pieces: legendConfig,
+              precision: 2,
+              show: false
           }]
         };
 
@@ -640,7 +655,7 @@ angular
         return containsZeroValues;
       };
 
-      var setupGeoMapLegend = function(indicatorMetadataAndGeoJSON, featureNamesArray, indicatorValueBarChartArray, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue){
+      var setupVisualMap = function(indicatorMetadataAndGeoJSON, featureNamesArray, indicatorValueBarChartArray, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue){
         /*
         pieces: [
               // Range of a piece can be specified by property min and max,
@@ -727,7 +742,38 @@ angular
               
         }
         else if(indicatorType.includes("DYNAMIC")){
-          // dynamic brew
+          // dynamic brew   
+          
+          if(dynamicDecreaseBrew){
+            var dynamicDecreaseBreaks = dynamicDecreaseBrew.breaks;
+            var dynamicDecreaseColors = dynamicDecreaseBrew.colors;
+
+            for (var j = 0; j < dynamicDecreaseColors.length; j++) {
+
+              var legendItem_dynamicDecreaseMov = {
+                min: dynamicDecreaseBreaks[j],                  
+                opacity: 0.8,
+                // color: dynamicDecreaseColors[dynamicDecreaseColors.length - 1 - j]
+                color: dynamicDecreaseColors[j]
+              };
+              if(dynamicDecreaseBreaks[j + 1]){
+                legendItem_dynamicDecreaseMov.max = dynamicDecreaseBreaks[j + 1];
+                legendItem_dynamicDecreaseMov.label = "" + dynamicDecreaseBreaks[j] + " - < " + dynamicDecreaseBreaks[j + 1];
+
+                // in negative scala we must ensure that smallest value near 0 (here max) is included in range
+                if(j == dynamicDecreaseColors.length - 1){
+                  legendItem_dynamicDecreaseMov.max = -0.01;
+                }
+              }
+              else{
+                legendItem_dynamicDecreaseMov.max = -0.01;
+                legendItem_dynamicDecreaseMov.label = dynamicDecreaseBreaks[j];
+              }
+
+              pieces.push(legendItem_dynamicDecreaseMov);
+
+            }
+          }
 
           if(dynamicIncreaseBrew){
               var dynamicIncreaseBreaks = dynamicIncreaseBrew.breaks;
@@ -742,38 +788,54 @@ angular
                 };
                 if(dynamicIncreaseBreaks[j + 1]){
                   legendItem_dynamicIncreaseMov.max = dynamicIncreaseBreaks[j + 1];
+                  legendItem_dynamicIncreaseMov.label = "" + dynamicIncreaseBreaks[j] + " - < " + dynamicIncreaseBreaks[j + 1];
+                }
+                else{
+                  legendItem_dynamicIncreaseMov.max = dynamicIncreaseBreaks[j];
                 }
 
                 pieces.push(legendItem_dynamicIncreaseMov);
 
               }
-          }
+          }  
+          
+        }
+        else {
+          // default brew
 
-          if(dynamicDecreaseBrew){
+          if(containsNegativeValues(indicatorMetadataAndGeoJSON.geoJSON, date)){
+            // dynamic brew            
+            if(dynamicDecreaseBrew){
               var dynamicDecreaseBreaks = dynamicDecreaseBrew.breaks;
               var dynamicDecreaseColors = dynamicDecreaseBrew.colors;
 
               for (var j = 0; j < dynamicDecreaseColors.length; j++) {
 
                 var legendItem_dynamicDecreaseMov = {
-                  min: dynamicDecreaseBreaks[j],                  
-                  opacity: 0.8,
-                  color: dynamicDecreaseColors[dynamicDecreaseColors.length - 1 - j]
+                  min: dynamicDecreaseBreaks[j],
+                  opacity: 0.8,                  
+                  // color: dynamicDecreaseColors[dynamicDecreaseColors.length - 1 - j]
+                  color: dynamicDecreaseColors[j]
                 };
                 if(dynamicDecreaseBreaks[j + 1]){
                   legendItem_dynamicDecreaseMov.max = dynamicDecreaseBreaks[j + 1];
+                  legendItem_dynamicDecreaseMov.label = "" + dynamicDecreaseBreaks[j] + " - < " + dynamicDecreaseBreaks[j + 1];
+
+                  // in negative scala we must ensure that smallest value near 0 (here max) is included in range
+                  if(j == dynamicDecreaseColors.length - 1){
+                    legendItem_dynamicDecreaseMov.max = -0.01;
+                  }
+                }
+                else{
+                  legendItem_dynamicDecreaseMov.max = -0.01;
+                  legendItem_dynamicDecreaseMov.label = dynamicDecreaseBreaks[j];
                 }
 
                 pieces.push(legendItem_dynamicDecreaseMov);
 
               }
-          }          
-        }
-        else {
-          // default brew
-
-          if(containsNegativeValues(indicatorMetadataAndGeoJSON.geoJSON, date)){
-            // dynamic brew
+            }
+          
             if(dynamicIncreaseBrew){
               var dynamicIncreaseBreaks = dynamicIncreaseBrew.breaks;
               var dynamicIncreaseColors = dynamicIncreaseBrew.colors;
@@ -787,32 +849,17 @@ angular
                 };
                 if(dynamicIncreaseBreaks[j + 1]){
                   legendItem_dynamicIncreaseMov.max = dynamicIncreaseBreaks[j + 1];
+                  legendItem_dynamicIncreaseMov.label = "" + dynamicIncreaseBreaks[j] + " - < " + dynamicIncreaseBreaks[j + 1];
+                }
+                else{
+                  legendItem_dynamicIncreaseMov.max = dynamicIncreaseBreaks[j];
                 }
 
                 pieces.push(legendItem_dynamicIncreaseMov);
 
               }
-          }
-
-          if(dynamicDecreaseBrew){
-              var dynamicDecreaseBreaks = dynamicDecreaseBrew.breaks;
-              var dynamicDecreaseColors = dynamicDecreaseBrew.colors;
-
-              for (var j = 0; j < dynamicDecreaseColors.length; j++) {
-
-                var legendItem_dynamicDecreaseMov = {
-                  min: dynamicDecreaseBreaks[j],
-                  opacity: 0.8,                  
-                  color: dynamicDecreaseColors[dynamicDecreaseColors.length - 1 - j]
-                };
-                if(dynamicDecreaseBreaks[j + 1]){
-                  legendItem_dynamicDecreaseMov.max = dynamicDecreaseBreaks[j + 1];
-                }
-
-                pieces.push(legendItem_dynamicDecreaseMov);
-
-              }
-          }       
+            }
+            
           }
           else{
             if(defaultBrew && defaultBrew.breaks && defaultBrew.colors){
@@ -842,6 +889,7 @@ angular
 
       };
 
+
       var setGeoMapChartOptions = function (indicatorMetadataAndGeoJSON, featureNamesArray, indicatorValueBarChartArray, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue) {
 
         indicatorMetadataAndGeoJSON.geoJSON.features.forEach(feature => {
@@ -854,7 +902,7 @@ angular
 
         // specify chart configuration item and data
 
-        var legendConfig = setupGeoMapLegend(indicatorMetadataAndGeoJSON, featureNamesArray, indicatorValueBarChartArray, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue);
+        var legendConfig = setupVisualMap(indicatorMetadataAndGeoJSON, featureNamesArray, indicatorValueBarChartArray, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue);
 
         // default fontSize of echarts
         var fontSize = 18;
@@ -882,6 +930,18 @@ angular
             value: featureValue
           });
         }
+
+        // needed for reporting
+        for(let feature of indicatorMetadataAndGeoJSON.geoJSON.features) {
+          bbox = turf.bbox(feature); // calculate bbox for each feature
+          feature.properties.bbox = bbox;
+        }
+        var bbox = calculateOverallBoundingBoxFromGeoJSON(indicatorMetadataAndGeoJSON.geoJSON.features)
+        // change format of bbox to match the format needed for echarts
+        bbox = [
+          [bbox[0], bbox[3]], // north-west lon lat
+          [bbox[2], bbox[1]] // south-east lon lat
+        ]
 
         var geoMapOption = {
           // grid get rid of whitespace around chart
@@ -960,12 +1020,14 @@ angular
             type: "piecewise",
             pieces: legendConfig,
             // selectedMode: 'multiple',
-            precision: 2
+            precision: 2,
+            show: true
         },
           series: [{
             name: indicatorMetadataAndGeoJSON.indicatorName,
             type: 'map',
             roam: true,
+            boundingCoords: bbox,
             map: uniqueMapRef,
             emphasis: {
                 label: {
@@ -1204,7 +1266,7 @@ angular
         };
 
         // perform checks if there are negative values or only > 0 values
-        // then stacks must be adjusted to be correcty displayed
+        // then stacks must be adjusted to be correctly displayed
         var minStack_minValue = Math.min(...indicatorTimeSeriesMinArray);
         if(minStack_minValue < 0){
           minStack.areaStyle = {
@@ -1816,5 +1878,192 @@ angular
 
           return timeseriesOptions;
       };
+
+      // Returns an image.
+      // Attribution has to be converted to an image anyway for report generation.
+      this.createReportingReachabilityMapAttribution = async function() {
+        let attributionText = "Leaflet | Map data @ OpenStreetMap contributors"
+        let canvas = document.createElement("canvas")
+        canvas.width = 800;
+        let ctx = canvas.getContext('2d')
+        ctx.font = "8pt Arial";
+        ctx.textBaseline = 'top';
+        ctx.fillStyle = "rgb(60, 60, 60)";
+        ctx.fillText(attributionText, 0, 0);
+        canvas = trimCanvas(canvas, 5)
+
+        let image = new Image(canvas.width, canvas.height)
+        image.style.backgroundColor = "white";
+        return await new Promise( (resolve, reject) => {
+          image.onload = function() {
+            resolve(image);
+          }
+          image.src = canvas.toDataURL();
+        });
+      }
+
+      // Returns an image.
+      // Legend has to be converted to an image anyway for report generation.
+      this.createReportingReachabilityMapLegend = async function(echartsOptions, selectedSpatialUnit, isochronesRangeType, isochronesRangeUnits) {
+        let legendEntries = [];
+        let isochronesHeadingAdded = false;
+        for(let i=0; i<echartsOptions.series.length; i++) {
+          let series = echartsOptions.series[i];
+  
+          if(series.name === "spatialUnitBoundaries") {
+            legendEntries.push({
+              label: selectedSpatialUnit.spatialUnitName ? selectedSpatialUnit.spatialUnitName : selectedSpatialUnit.spatialUnitLevel,
+              iconColor: series.itemStyle.borderColor,
+              iconHeight: 4,
+              isGroupHeading: false
+            });
+          }
+  
+          if(series.name.includes("isochrones")) {
+  
+            if(!isochronesHeadingAdded) { // add heading above first isochrone entry
+              legendEntries.push({
+                label: "Erreichbarkeit",
+                isGroupHeading: true
+              })
+              isochronesHeadingAdded = true;
+            }
+  
+            let value = series.data[0].value;
+            legendEntries.push({
+              label: value,
+              iconColor: series.data[0].itemStyle.areaColor,
+              iconOpacity: series.data[0].itemStyle.opacity,
+              iconHeight: 12,
+              isGroupHeading: false,
+              isIsochroneEntry: true
+            })
+          }
+        }
+
+        let canvas = document.createElement("canvas")
+        canvas.width = 800;
+        canvas.height = 800;
+        let ctx = canvas.getContext('2d')
+        let fontStyle = "8pt Arial"
+        ctx.font = fontStyle
+        let xPos = 5
+        let yPos = 5
+        let rowHeight = 20
+        let iconWidth = 30
+        
+        for(let entry of legendEntries) {
+          if(entry.isGroupHeading) {
+            let isochronesRangeTypeMapping = {
+              "time": "Zeit",
+              "distance": "Distanz"
+            }
+            // only draw label
+            ctx.font = "bold " + fontStyle;
+            ctx.fillStyle = "black";
+            ctx.textBaseline = "top";
+            let text = entry.label + " [" + isochronesRangeTypeMapping[isochronesRangeType] + "]"
+            ctx.fillText(text , xPos, yPos);
+            yPos += rowHeight
+          } else {
+            // icon
+            if(entry.isIsochroneEntry) {
+              let isochroneEntries = legendEntries.filter( entry => {
+                return entry.isIsochroneEntry
+              });
+              // layer isochrone icons on top of each other unitl we reach the current one
+              for(let isochroneEntry of isochroneEntries.reverse()) {
+                if(isochroneEntry === entry) {
+                  break;
+                }
+                ctx.fillStyle = isochroneEntry.iconColor;
+                ctx.globalAlpha = isochroneEntry.iconOpacity;
+                ctx.fillRect(xPos, yPos + ( (12-entry.iconHeight) / 2), iconWidth, isochroneEntry.iconHeight)
+                ctx.globalAlpha = 1;
+              }
+            }
+
+            ctx.fillStyle = entry.iconColor;
+            ctx.globalAlpha = entry.iconOpacity ? entry.iconOpacity : 1;
+            ctx.fillRect(xPos, yPos + ( (12-entry.iconHeight) / 2), iconWidth, entry.iconHeight)
+            ctx.globalAlpha = 1;
+            // and label
+            ctx.font = fontStyle;
+            ctx.fillStyle = "black";
+            ctx.textBaseline = "top";
+            if(entry.isIsochroneEntry) {
+              let text = entry.label + " " + isochronesRangeUnits
+              ctx.fillText(text, xPos + iconWidth + 5, yPos)
+            } else {
+              ctx.fillText(entry.label, xPos + iconWidth + 5, yPos)
+            }
+            yPos += rowHeight
+          }
+        }
+
+        canvas = trimCanvas(canvas, 5)
+        let image = new Image(canvas.width, canvas.height)
+        image.style.backgroundColor = "white";
+        return await new Promise( (resolve, reject) => {
+          image.onload = function() {
+            resolve(image);
+          }
+          image.src = canvas.toDataURL();
+        });
+      }
+
+      var calculateOverallBoundingBoxFromGeoJSON = function(features) {
+        let result = [];
+        for(var i=0; i<features.length; i++) {
+           // check if we have to modify our overall bbox (result)
+           if(result.length === 0) { // for first feature
+            result.push(...features[i].properties.bbox);
+          } else {
+            // all other features
+            let bbox = features[i].properties.bbox;
+            result[0] = (bbox[0] < result[0]) ? bbox[0] : result[0];
+            result[1] = (bbox[1] < result[1]) ? bbox[1] : result[1];
+            result[2] = (bbox[2] > result[2]) ? bbox[2] : result[2];
+            result[3] = (bbox[3] > result[3]) ? bbox[3] : result[3];
+          }
+        }
+        return result;
+      };
+
+      function trimCanvas(canvas, padding=0) {
+        function rowBlank(imageData, width, y) {
+            for (var x = 0; x < width; ++x) {
+                if (imageData.data[y * width * 4 + x * 4 + 3] !== 0) return false;
+            }
+            return true;
+        }
+     
+        function columnBlank(imageData, width, x, top, bottom) {
+            for (var y = top; y < bottom; ++y) {
+                if (imageData.data[y * width * 4 + x * 4 + 3] !== 0) return false;
+            }
+            return true;
+        }
+     
+     
+            var ctx = canvas.getContext("2d");
+            var width = canvas.width;
+            var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            var top = 0, bottom = imageData.height, left = 0, right = imageData.width;
+     
+            while (top < bottom && rowBlank(imageData, width, top)) ++top;
+            while (bottom - 1 > top && rowBlank(imageData, width, bottom - 1)) --bottom;
+            while (left < right && columnBlank(imageData, width, left, top, bottom)) ++left;
+            while (right - 1 > left && columnBlank(imageData, width, right - 1, top, bottom)) --right;
+     
+            var trimmed = ctx.getImageData(left, top, right - left, bottom - top);
+            var copy = canvas.ownerDocument.createElement("canvas");
+            var copyCtx = copy.getContext("2d");
+            copy.width = trimmed.width + padding*2;
+            copy.height = trimmed.height + padding*2;
+            copyCtx.putImageData(trimmed, padding, padding);
+     
+            return copy;
+     };
 
     }]);

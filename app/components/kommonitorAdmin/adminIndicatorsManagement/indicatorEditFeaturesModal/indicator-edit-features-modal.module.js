@@ -1,1 +1,1 @@
-angular.module('indicatorEditFeaturesModal', ['kommonitorDataGridHelper', 'kommonitorImporterHelper']);
+angular.module('indicatorEditFeaturesModal', ['kommonitorDataGridHelper', 'kommonitorImporterHelper', 'kommonitorMultiStepFormHelper']);

@@ -33,11 +33,15 @@
 						<form role="form" id="spatialUnitEditFeaturesForm" class="multiStepForm form-group" data-toggle="validator"
 							style="margin-bottom: 0px;">
 
-							<!-- progressbar -->
-							<ul id="progressbar">
-								<li style="width: 50%;" class="active">Feature &Uuml;bersicht</li>
-								<li style="width: 50%;">R&auml;umlicher Datensatz</li>
-							</ul>
+							<!-- div required for click logic -->
+							<div> 
+								<!-- progressbar -->
+								<ul id="progressbar">
+									<li style="width: 50%;" class="active">Feature &Uuml;bersicht</li>
+									<li style="width: 50%;">R&auml;umlicher Datensatz</li>
+								</ul>
+							</div>
+							
 
 							<fieldset>
 								<h2 class="fs-title">Feature &Uuml;bersicht</h2>
@@ -46,7 +50,7 @@
 								<div class="row vertical-align">
 									<div class="col-md-6 col-sm-6 col-xs-12">
 										<div class="form-group">
-											<label>Datenbank-Features holen</label>
+											<label>Datenbank-Features abrufen und editieren</label>
 											<button class="btn btn-info"
 												ng-click="refreshSpatialUnitEditFeaturesOverviewTable()"><i
 													class="fas fa-sync-alt"></i>&nbsp;Zeige alle Features</button>
@@ -55,14 +59,24 @@
 												<p>Das Anzeigen aller Features der Raumeinheit kann je nach Anzahl und
 													Komplexität der Objekte einige
 													Zeit in Anspruch nehmen</p>
+												<p>Editieren einzelner Zellwerte via Doppelklick. Best&auml;tigen der Editierung durch Enter oder Klicken in eine andere Zelle</p>
 											</div>
 											<div class="help-block with-errors"></div>
 										</div>
 									</div>
 									<div class="col-md-6 col-sm-6 col-xs-12">
 										<div class="form-group">
-											<label>Datenbank-Features bereinigen</label>
-											<button class="btn btn-danger" ng-click="clearAllSpatialUnitFeatures()"><i
+											<label >Datenbank-Features bereinigen (Funktion muss zuerst aktiv eingeschaltet werden)</label>										
+										<label class="switch">
+											<input class="elementCheckbox" type="checkbox"
+												ng-model="enableDeleteFeatures" ng-init="enableDeleteFeatures = false"
+												ng-checked="enableDeleteFeatures" ng-change="onChangeEnableDeleteFeatures()">
+											<span class="switchslider round text-left" style="line-height:25px;"></span>
+										</label>
+
+										&nbsp;&nbsp;
+
+											<button class="btn btn-danger" ng-click="clearAllSpatialUnitFeatures()" ng-disabled="!enableDeleteFeatures"><i
 													class="fas fa-trash"></i>&nbsp;Lösche alle Features</button>
 
 											<div class="help-block">
@@ -72,6 +86,17 @@
 											</div>
 											<div class="help-block with-errors"></div>
 										</div>
+									</div>
+								</div>
+
+								<div>
+									<div ng-show="$ctrl.kommonitorDataGridHelperServiceInstance.featureTable_spatialUnit_lastUpdate_timestamp_success" style="background-color: #9DC89F;">
+										<b>Letztes erfolgreiches Update eines Einzeleintrags</b>
+											  {{$ctrl.kommonitorDataGridHelperServiceInstance.featureTable_spatialUnit_lastUpdate_timestamp_success}}
+									</div>
+									<div ng-show="$ctrl.kommonitorDataGridHelperServiceInstance.featureTable_spatialUnit_lastUpdate_timestamp_failure" style="background-color: #E79595;">
+										<b>Letztes gescheitertes Update eines Einzeleintrags</b>
+												{{$ctrl.kommonitorDataGridHelperServiceInstance.featureTable_spatialUnit_lastUpdate_timestamp_failure}}
 									</div>
 								</div>
 
@@ -102,7 +127,8 @@
 										<div class="form-group">
 											<label>Geodaten-Quellformat*</label>
 											<select ng-model="converter"
-												ng-options="converter as converter.simpleName for converter in $ctrl.kommonitorImporterHelperServiceInstance.availableConverters"
+												ng-options="converter as converter.name for converter in $ctrl.kommonitorImporterHelperServiceInstance.availableConverters | filter:$ctrl.kommonitorImporterHelperServiceInstance.filterConverters('spatialUnit')"
+												ng-change="onChangeConverter()"
 												class="form-control" required>
 												<option disabled selected value> -- Quellformat w&auml;hlen -- </option>
 											</select>
@@ -113,8 +139,20 @@
 											<div class="form-group">
 												<label>Schema*</label>
 												<select ng-model="schema" ng-options="schema for schema in converter.schemas"
-													ng-change="onChangeSchema(schema)" class="form-control" required>
+													class="form-control" required>
 													<option disabled selected value> -- Schema w&auml;hlen -- </option>
+												</select>
+												<div class="help-block with-errors"></div>
+											</div>
+										</div>
+
+										<div ng-if="converter.mimeTypes">
+
+											<div class="form-group">
+												<label>Quellformat*</label>
+												<select ng-model="mimeType" ng-options="mimeType for mimeType in converter.mimeTypes"
+													class="form-control" ng-change="onChangeMimeType(mimeType)" required>
+													<option disabled selected value> -- Format w&auml;hlen -- </option>
 												</select>
 												<div class="help-block with-errors"></div>
 											</div>

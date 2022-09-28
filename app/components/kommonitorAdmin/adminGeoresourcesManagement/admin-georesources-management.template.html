@@ -15,15 +15,13 @@
 
 			<div class="adminTableButtonWrapper">
 				<!-- batch update georesources -->
-				<button id="button-batch-update-georesources" class="btn btn-success btn-sm" type="button" data-toggle="modal" data-target="#modal-batch-update-georesources"><i class="fas fa-refresh"></i>&nbsp;&nbsp;Batch-Update</button>
+				<button id="button-batch-update-georesources" class="btn btn-success btn-sm" type="button" ng-disabled="!$ctrl.kommonitorDataExchangeServiceInstance.checkEditorPermission()"
+					data-toggle="modal" data-target="#modal-batch-update-georesources"><i class="fas fa-refresh"></i>&nbsp;&nbsp;Batch-Update</button>
 				<!-- add georesource -->					  		
-				<button class="btn btn-success btn-sm" type="button" data-toggle="modal" data-target="#modal-add-georesource"><i class="fas fa-plus"></i>&nbsp;&nbsp;Erstellen</button>
+				<button  ng-disabled="!$ctrl.kommonitorDataExchangeServiceInstance.checkCreatePermission()" class="btn btn-success btn-sm" type="button" data-toggle="modal" data-target="#modal-add-georesource"><i class="fas fa-plus"></i>&nbsp;&nbsp;Erstellen</button>
 				<!-- edit metadata -->
 
 				<!-- edit features -->
-
-				<!-- delete selected completely -->
-				<button class="btn btn-danger btn-sm" type="button" data-toggle="modal" data-target="#modal-delete-georesources" ng-click="onClickDeleteDatasets()"><i class="fas fa-trash"></i>&nbsp;&nbsp;L&ouml;schen</button>
 
 				<!-- delete b timestamp -->
 			</div>

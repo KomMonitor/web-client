@@ -175,7 +175,7 @@ angular
 						    	});
 
 								$scope.rangeSliderForFilter = $("#rangeSliderForFiltering").data("ionRangeSlider");
-								// make sure that tha handles are properly set to min and max values
+								// make sure that the handles are properly set to min and max values
 								$scope.rangeSliderForFilter.update({
 						        from: $scope.valueRangeMinValue,
 						        to: $scope.valueRangeMaxValue
@@ -331,7 +331,7 @@ angular
 						    });
 
 								$scope.movRangeSlider = $("#measureOfValueInput").data("ionRangeSlider");
-								// make sure that tha handles are properly set to man and max values
+								// make sure that the handles are properly set to min and max values
 								$scope.movRangeSlider.update({
 						        from: $scope.movMiddleValue
 						    });

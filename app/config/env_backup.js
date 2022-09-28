@@ -14,8 +14,9 @@ try {
 
   // enable/disable role based access using keycloak
   window.__env.enableKeycloakSecurity = true;
-  // role name within keycloak kommonitor realm (not master realm) that shall be used as administrator role for kommonitor
-  window.__env.keycloakKommonitorAdminRoleName = "administrator";
+
+  // keycloak super admin role name
+  window.__env.keycloakKomMonitorAdminRoleName = "kommonitor-creator";
 
   // enable and show/hide switch to toggle basic and advanced mode
   // this feature can hide certain app elements via ID if in basic mode
@@ -68,10 +69,6 @@ try {
  window.__env.extendedInfoModalTabTitle = "Weitere Informationen"  // title of the second tab
  window.__env.extendedInfoModalHTMLMessage = "";  // message in the second tab as HTML
 
-  // admin user credentials to log into admin view in No-Keycloak-Settings
-  window.__env.adminUserName = "Admin";
-  window.__env.adminPassword = "kmAdmin";
-
   // property names of feature id and name (relevant for all spatial features) - KomMonitor specific
   // DO NOT CHANGE THEM - ONLY IF YOU REALLY KNOW WHAT YOU ARE DOING
   window.__env.FEATURE_ID_PROPERTY_NAME = "ID";
@@ -100,6 +97,9 @@ try {
 
   // Data Imporert URL
   window.__env.targetUrlToImporterService = 'https://maps.smartdemography.de/data-importer/importer/';
+
+  // KomMonitor Geocoder Proxy
+  window.__env.targetUrlToGeocoderService = 'https://geocoder.fbg-hsbo.de/nominatim/';
 
   // optional geometry simplification (a feature of Data Management API)
   window.__env.simplifyGeometriesParameterName = "simplifyGeometries";
@@ -172,7 +172,7 @@ try {
       name: "NRW Digitale Topographische Karte", 
       url: "https://www.wms.nrw.de/geobasis/wms_nw_dtk?", 
       layerType: "WMS", 
-      layerName_WMS: "nw_dtk_col", 
+      layerName_WMS: "nw_dtk_sw", 
       attribution_html: "Map data © <a href='https://www.bezreg-koeln.nrw.de/brk_internet/geobasis/'>Geobasis NRW</a>", 
       minZoomLevel: window.__env.minZoomLevel, 
       maxZoomLevel: 20 

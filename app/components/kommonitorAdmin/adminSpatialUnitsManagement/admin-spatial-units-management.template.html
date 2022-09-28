@@ -14,13 +14,10 @@
 			</h1>
 
 			<div class="adminTableButtonWrapper">
-				<button class="btn btn-success btn-sm" type="button" data-toggle="modal" data-target="#modal-add-spatial-unit"><i class="fas fa-plus"></i>&nbsp;&nbsp;Erstellen</button>
+				<button ng-disabled="!$ctrl.kommonitorDataExchangeServiceInstance.checkCreatePermission()" class="btn btn-success btn-sm" type="button" data-toggle="modal" data-target="#modal-add-spatial-unit"><i class="fas fa-plus"></i>&nbsp;&nbsp;Erstellen</button>
 				<!-- edit metadata -->
 
 				<!-- edit features -->
-
-				<!-- delete selected completely -->
-				<button class="btn btn-danger btn-sm" type="button" data-toggle="modal" data-target="#modal-delete-spatial-units" ng-click="onClickDeleteDatasets()"><i class="fas fa-trash"></i>&nbsp;&nbsp;L&ouml;schen</button>
 
 				<!-- delete b timestamp -->
 			</div>

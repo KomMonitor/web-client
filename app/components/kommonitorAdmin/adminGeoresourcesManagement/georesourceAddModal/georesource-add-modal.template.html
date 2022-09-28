@@ -393,7 +393,7 @@
 
 								<br/>
 
-								<div class="row vertical-align">
+								<div class="row vertical-align" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.checkAdminPermission()">
 									<div class="col-md-10 col-sm-12 col-xs-12">
 										<div style="text-align: left;">
 											<div id="georesourceAddAdmin_topicsManagement" class="box box-primary collapsed-box" style="background: #ebf0fd;">
@@ -431,20 +431,20 @@
 							</fieldset>
 
 								<fieldset ng-if="$ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity">
-									<h2 class="fs-title">Rollenbasierter Zugriffsschutz (Optional)</h2>
-									<h3 class="fs-subtitle">Angabe ob nur ausgew&auml;hlte Rollen Zugriff auf Datensatz-Metadaten und -Features erhalten sollen</h3>
+									<h2 class="fs-title">Rollenbasierter Zugriffsschutz</h2>
+									<h3 class="fs-subtitle">Vergabe der Zugriffsrechte auf Datensatz-Metadaten und -Features pro Organisationseinheit</h3>
 		
-									<p>Klicken Sie ein oder mehrere der verf&uuml;gbaren Rollen aus der linken &Uuml;bersicht an, um den Zugriff auf den Datensatz auf diese Rollen einzuschr&auml;nken.</p>
-		
-									<p>Der Zugriff ist nur f&uuml;r die Rollen erlaubt, die im rechten &Uuml;bersichtsfenster gelistet sind.</p>
-		
-									<p>Wird keine Rolle selektiert, so ist der Datensatz ohne Zugriffsbeschr&auml;nkung abrufbar.</p>
-		
-									<div class="row no-margin">
-										<div class="col-md">
-											<excalibur-dual-list ng-model='allowedRoleNames.selectedItems' options="duallist.duallistRoleOptions"></excalibur-dual-list>
-										</div>
-									</div>
+									<p>Zugriffsrechte (lesen, editieren, l&ouml;schen) m&uuml;ssen explizit vergeben werden. Administratoren (Rolle <i>kommonitor-creator</i>) haben immer vollen Zugriff.</p>
+							
+										<div class="row">
+											<div class="col-md-3"></div>
+											<div class="col-md-6 col-sm-6 col-xs-12">
+													<!-- <div id="georesourceAddRoleManagementTable" style="height: 40vh; overflow-y: auto;" class="ag-theme-alpine"></div>     -->
+													<div id="georesourceAddRoleManagementTable" style="height: 45vh" class="ag-theme-alpine"></div>  
+												
+											</div>
+											<div class="col-md-3"></div>
+										</div>	
 									
 									<input type="button" name="previous" class="previous previous_addGeoresource action-button-previous" value="Voriger Schritt"/>
 									<input type="button" name="next" class="next next_addGeoresource action-button" value="N&auml;chster Schritt"/>
@@ -467,7 +467,8 @@
 										<div class="form-group">
 											<label>Geodaten-Quellformat*</label>
 											<select ng-model="converter"
-												ng-options="converter as converter.simpleName for converter in $ctrl.kommonitorImporterHelperServiceInstance.availableConverters"
+												ng-options="converter as converter.name for converter in $ctrl.kommonitorImporterHelperServiceInstance.availableConverters | filter:$ctrl.kommonitorImporterHelperServiceInstance.filterConverters('georesource')"
+												ng-change="onChangeConverter()"
 												class="form-control" required>
 												<option disabled selected value> -- Quellformat w&auml;hlen -- </option>
 											</select>
@@ -477,9 +478,21 @@
 
 											<div class="form-group">
 												<label>Schema*</label>
-												<select ng-model="schema" ng-change="onChangeSchema(schema)" ng-options="schema for schema in converter.schemas"
+												<select ng-model="schema" ng-options="schema for schema in converter.schemas"
 													class="form-control" required>
 													<option disabled selected value> -- Schema w&auml;hlen -- </option>
+												</select>
+												<div class="help-block with-errors"></div>
+											</div>
+										</div>
+
+										<div ng-if="converter.mimeTypes">
+
+											<div class="form-group">
+												<label>Quellformat*</label>
+												<select ng-model="mimeType" ng-options="mimeType for mimeType in converter.mimeTypes"
+													class="form-control" ng-change="onChangeMimeType(mimeType)" required>
+													<option disabled selected value> -- Format w&auml;hlen -- </option>
 												</select>
 												<div class="help-block with-errors"></div>
 											</div>

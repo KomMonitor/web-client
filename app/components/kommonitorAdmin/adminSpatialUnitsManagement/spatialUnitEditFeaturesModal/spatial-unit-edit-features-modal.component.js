@@ -1,11 +1,13 @@
 angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeaturesModal', {
 	templateUrl : "components/kommonitorAdmin/adminSpatialUnitsManagement/spatialUnitEditFeaturesModal/spatial-unit-edit-features-modal.template.html",
-	controller : ['kommonitorDataExchangeService', 'kommonitorDataGridHelperService', 'kommonitorImporterHelperService', '$scope', '$rootScope', '$http', '__env', '$timeout',
+	controller : ['kommonitorDataExchangeService', 'kommonitorDataGridHelperService', 'kommonitorImporterHelperService', 
+		'$scope', '$rootScope', '$http', '__env', '$timeout', 'kommonitorMultiStepFormHelperService',
 		function SpatialUnitEditFeaturesModalController(kommonitorDataExchangeService, kommonitorDataGridHelperService, 
-			kommonitorImporterHelperService, $scope, $rootScope, $http, __env, $timeout) {
+			kommonitorImporterHelperService, $scope, $rootScope, $http, __env, $timeout, kommonitorMultiStepFormHelperService) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 		this.kommonitorImporterHelperServiceInstance = kommonitorImporterHelperService;
+		this.kommonitorDataGridHelperServiceInstance = kommonitorDataGridHelperService;
 
 		/*	POST BODY
 				{
@@ -60,6 +62,7 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 
 		$scope.converter = undefined;
 		$scope.schema = undefined;
+		$scope.mimeType = undefined;
 			$scope.datasourceType = undefined;
 			$scope.spatialUnitDataSourceIdProperty = undefined;
 			$scope.spatialUnitDataSourceNameProperty = undefined;
@@ -86,6 +89,8 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 
 		$scope.$on("onEditSpatialUnitFeatures", function (event, spatialUnitDataset) {
 
+			kommonitorMultiStepFormHelperService.registerClickHandler();
+
 			if($scope.currentSpatialUnitDataset && $scope.currentSpatialUnitDataset.spatialUnitLevel === spatialUnitDataset.spatialUnitLevel){
 				return;
 			}
@@ -96,13 +101,20 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 
 				$scope.resetSpatialUnitEditFeaturesForm();
 
-				kommonitorDataGridHelperService.buildDataGrid_featureTable("spatialUnitFeatureTable", [], []);
+				kommonitorDataGridHelperService.buildDataGrid_featureTable_spatialResource("spatialUnitFeatureTable", [], []);
 			}
+
+			
 
 		});
 
-		$scope.onChangeSchema = function(schema){
-			$scope.schema = schema;
+		$scope.onChangeConverter = function(schema){
+			$scope.schema = $scope.converter.schemas ? $scope.converter.schemas[0] : undefined;
+			$scope.mimeType = $scope.converter.mimeTypes[0];
+		};
+
+		$scope.onChangeMimeType = function(mimeType){
+			$scope.mimeType = mimeType;
 		};
 
 		$scope.refreshSpatialUnitEditFeaturesOverviewTable = function(){
@@ -129,7 +141,7 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 
 				$scope.remainingFeatureHeaders = tmpRemainingHeaders;
 
-				kommonitorDataGridHelperService.buildDataGrid_featureTable("spatialUnitFeatureTable", tmpRemainingHeaders, $scope.spatialUnitFeaturesGeoJSON.features);
+				kommonitorDataGridHelperService.buildDataGrid_featureTable_spatialResource("spatialUnitFeatureTable", tmpRemainingHeaders, $scope.spatialUnitFeaturesGeoJSON.features, $scope.currentSpatialUnitDataset.spatialUnitId, kommonitorDataGridHelperService.resourceType_spatialUnit, $scope.enableDeleteFeatures);
 
 				$timeout(function(){
 				
@@ -166,8 +178,10 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 				$scope.spatialUnitFeaturesGeoJSON = undefined;
 				$scope.remainingFeatureHeaders = undefined;
 
-				$rootScope.$broadcast("refreshSpatialUnitOverviewTable", "edit", $scope.currentSpatialUnitDataset);
+				$rootScope.$broadcast("refreshSpatialUnitOverviewTable", "edit", $scope.currentSpatialUnitDataset.spatialUnitId);
 				// $scope.refreshGeoresourceEditFeaturesOverviewTable();
+				// force empty feature overview table on successful deletion of entries 
+				kommonitorDataGridHelperService.buildDataGrid_featureTable_spatialResource("spatialUnitFeatureTable", [], []);
 
 				$scope.successMessagePart = $scope.currentSpatialUnitDataset.spatialUnitLevel;
 
@@ -195,6 +209,10 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 
 		$scope.resetSpatialUnitEditFeaturesForm = function(){
 
+			// reset edit banners
+			kommonitorDataGridHelperService.featureTable_spatialUnit_lastUpdate_timestamp_success = undefined;
+			kommonitorDataGridHelperService.featureTable_spatialUnit_lastUpdate_timestamp_failure = undefined;
+
 			$scope.spatialUnitFeaturesGeoJSON = undefined;
 			$scope.remainingFeatureHeaders = undefined;
 
@@ -213,6 +231,7 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 
 			$scope.converter = undefined;
 			$scope.schema = undefined;
+			$scope.mimeType = undefined;
 			$scope.datasourceType = undefined;
 			$scope.spatialUnitDataSourceIdProperty = undefined;
 			$scope.spatialUnitDataSourceNameProperty = undefined;
@@ -355,7 +374,7 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 
 		$scope.buildConverterDefinition = function(){
 
-			return kommonitorImporterHelperService.buildConverterDefinition($scope.converter, "converterParameter_spatialUnitEditFeatures_", $scope.schema);			
+			return kommonitorImporterHelperService.buildConverterDefinition($scope.converter, "converterParameter_spatialUnitEditFeatures_", $scope.schema, $scope.mimeType);			
 		};
 
 		$scope.buildDatasourceTypeDefinition = async function(){
@@ -441,7 +460,7 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 							$scope.successMessagePart = $scope.putBody_spatialUnits.spatialUnitLevel;
 							$scope.importedFeatures = kommonitorImporterHelperService.getImportedFeaturesFromImporterResponse(updateSpatialUnitResponse);
 
-							$rootScope.$broadcast("refreshSpatialUnitOverviewTable", "edit", $scope.currentSpatialUnitDataset);
+							$rootScope.$broadcast("refreshSpatialUnitOverviewTable", "edit", $scope.currentSpatialUnitDataset.spatialUnitId);
 							// $scope.refreshSpatialUnitEditFeaturesOverviewTable();
 
 							$scope.successMessagePart = $scope.currentSpatialUnitDataset.spatialUnitLevel;
@@ -560,7 +579,16 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 							$scope.schema = schema;
 						}
 					}
-				}		
+				}	
+				
+				$scope.mimeType = undefined;
+					if ($scope.converter && $scope.converter.mimeTypes && $scope.mappingConfigImportSettings.converter.mimeType){
+						for (var mimeType of $scope.converter.mimeTypes) {
+							if (mimeType === $scope.mappingConfigImportSettings.converter.mimeType){
+								$scope.mimeType = mimeType;
+							}
+						}
+					}
 				
 				$scope.datasourceType = undefined;
 				for(var datasourceType of kommonitorImporterHelperService.availableDatasourceTypes){
@@ -680,95 +708,32 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 				$("#spatialUnitEditFeaturesMappingConfigImportErrorAlert").hide();
 			};
 
-			/*
-			MULTI STEP FORM STUFF
-			*/
-			//jQuery time
-			$scope.current_fs; 
-			$scope.next_fs; 
-			$scope.previous_fs; //fieldsets
-			$scope.opacity; 
-			$scope.scale; //fieldset properties which we will animate
-			$scope.animating; //flag to prevent quick multi-click glitches
+			$scope.onChangeEnableDeleteFeatures = function(){
+				if($scope.enableDeleteFeatures){
+					$(".spatialUnitDeleteFeatureRecordBtn").attr("disabled", false);
+				}
+				else{
+					$(".spatialUnitDeleteFeatureRecordBtn").attr("disabled", true);
+				}
+			}
 
-			$(".next_editSpatialUnitFeatures").click(function(){
-				if($scope.animating) return false;
-				$scope.animating = true;
+            $rootScope.$on("showLoadingIcon_" + kommonitorDataGridHelperService.resourceType_spatialUnit, function(event){
+				$timeout(function(){
 				
-				$scope.current_fs = $(this).parent();
-				$scope.next_fs = $(this).parent().next();
-				
-				//activate next step on progressbar using the index of $scope.next_fs
-				$("#progressbar li").eq($("fieldset").index($scope.next_fs)).addClass("active");
-				
-				//show the next fieldset
-				$scope.next_fs.show(); 
-				//hide the current fieldset with style
-				$scope.current_fs.animate({opacity: 0}, {
-					step: function(now, mx) {
-						//as the $scope.opacity of current_fs reduces to 0 - stored in "now"
-						//1. $scope.scale current_fs down to 80%
-						$scope.scale = 1 - (1 - now) * 0.2;
-						//2. bring $scope.next_fs from the right(50%)
-						// left = (now * 50)+"%";
-						//3. increase $scope.opacity of $scope.next_fs to 1 as it moves in
-						$scope.opacity = 1 - now;
-						$scope.current_fs.css({
-							'position': 'absolute'
-						});
-						// $scope.next_fs.css({'left': left, '$scope.opacity': $scope.opacity});
-						$scope.next_fs.css({'opacity': $scope.opacity});
-					}, 
-					duration: 200, 
-					complete: function(){
-						$scope.current_fs.hide();
-						$scope.animating = false;
-					}, 
-					//this comes from the custom easing plugin
-					easing: 'easeInOutBack'
-				});
+					$scope.loadingData = true;
+				});	
 			});
 
-			$(".previous_editSpatialUnitFeatures").click(function(){
-				if($scope.animating) return false;
-				$scope.animating = true;
+			$rootScope.$on("hideLoadingIcon_" + kommonitorDataGridHelperService.resourceType_spatialUnit, function(event){
+				$timeout(function(){
 				
-				$scope.current_fs = $(this).parent();
-				$scope.previous_fs = $(this).parent().prev();
-				
-				//de-activate current step on progressbar
-				$("#progressbar li").eq($("fieldset").index($scope.current_fs)).removeClass("active");
-				
-				//show the previous fieldset
-				$scope.previous_fs.show(); 
-				//hide the current fieldset with style
-				$scope.current_fs.animate({opacity: 0}, {
-					step: function(now, mx) {
-						//as the $scope.opacity of current_fs reduces to 0 - stored in "now"
-						//1. $scope.scale $scope.previous_fs from 80% to 100%
-						$scope.scale = 0.8 + (1 - now) * 0.2;
-						//2. take current_fs to the right(50%) - from 0%
-						// left = ((1-now) * 50)+"%";
-						//3. increase $scope.opacity of $scope.previous_fs to 1 as it moves in
-						$scope.opacity = 1 - now;
-						// current_fs.css({'left': left});
-						// $scope.previous_fs.css({'transform': '$scope.scale('+$scope.scale+')', '$scope.opacity': $scope.opacity});
-						$scope.previous_fs.css({
-							'position': 'absolute'
-						});
-						$scope.previous_fs.css({'opacity': $scope.opacity});
-					}, 
-					duration: 200, 
-					complete: function(){
-						$scope.current_fs.hide();
-						$scope.previous_fs.css({
-							'position': 'relative'
-						});
-						$scope.animating = false;
-					}, 
-					//this comes from the custom easing plugin
-					easing: 'easeInOutBack'
-				});
+					$scope.loadingData = false;
+				});	
+			});
+
+			$rootScope.$on("onDeleteFeatureEntry_" + kommonitorDataGridHelperService.resourceType_spatialUnit, function(event){
+				$rootScope.$broadcast("refreshSpatialUnitOverviewTable", "edit", $scope.currentSpatialUnitDataset.spatialUnitId);
+				$scope.refreshSpatialUnitEditFeaturesOverviewTable();
 			});
 
 	}

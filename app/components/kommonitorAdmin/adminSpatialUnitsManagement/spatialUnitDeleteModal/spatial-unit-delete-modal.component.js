@@ -12,11 +12,14 @@ angular.module('spatialUnitDeleteModal').component('spatialUnitDeleteModal', {
 		$scope.failedDatasetsAndErrors = [];
 
 		$scope.$on("onDeleteSpatialUnits", function (event, datasets) {
+			$scope.loadingData = true;
 
-			$scope.datasetsToDelete = datasets;
+			$scope.datasetsToDelete = datasets;	
+			$scope.resetSpatialUnitsDeleteForm();	
 
-			$scope.resetSpatialUnitsDeleteForm();
-
+			$timeout(function(){
+				$scope.loadingData = false;
+			});	
 		});
 
 
@@ -56,7 +59,7 @@ angular.module('spatialUnitDeleteModal').component('spatialUnitDeleteModal', {
 							$("#spatialUnitsDeleteSuccessAlert").show();
 
 							// fetch indicatorMetada again as a spatialUnit was deleted
-							await kommonitorDataExchangeService.fetchIndicatorsMetadata();
+							await kommonitorDataExchangeService.fetchIndicatorsMetadata(kommonitorDataExchangeService.currentKeycloakLoginRoles);
 							// refresh spatial unit overview table
 							$rootScope.$broadcast("refreshSpatialUnitOverviewTable", "delete", $scope.successfullyDeletedDatasets.map(dataset => {return dataset.spatialUnitId;}));
 
