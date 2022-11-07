@@ -298,7 +298,7 @@ angular
 
 				this.saveMappingObjectToFile = function(resourceType, $event, batchList) {
 
-					var filename;
+					var fileName;
 					var jsonToExport;
 					var rowIndex = this.getIndexFromId($event.currentTarget.id);
 					var row = batchList[rowIndex];
