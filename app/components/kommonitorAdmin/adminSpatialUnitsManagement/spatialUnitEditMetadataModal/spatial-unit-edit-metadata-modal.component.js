@@ -192,6 +192,9 @@ angular.module('spatialUnitEditMetadataModal').component('spatialUnitEditMetadat
 
 		$scope.editSpatialUnitMetadata = function(){
 
+			let spatialUnitName_old = $scope.currentSpatialUnitDataset.spatialUnitLevel;
+			let spatialUnitName_new = $scope.spatialUnitLevel;
+
 			var patchBody =
 			{
 				"datasetName": $scope.spatialUnitLevel,
@@ -235,6 +238,10 @@ angular.module('spatialUnitEditMetadataModal').component('spatialUnitEditMetadat
 					$scope.successMessagePart = $scope.currentSpatialUnitDataset.spatialUnitLevel;
 
 					$rootScope.$broadcast("refreshSpatialUnitOverviewTable");
+					// if the name has changed, then indicator metadata must be fetched as well
+					if (spatialUnitName_old != spatialUnitName_new){
+						$rootScope.$broadcast("refreshIndicatorOverviewTable");
+					}					
 					$("#spatialUnitEditMetadataSuccessAlert").show();
 					$timeout(function(){
 				
