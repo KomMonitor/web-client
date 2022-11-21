@@ -156,7 +156,7 @@ angular.module('spatialUnitEditMetadataModal').component('spatialUnitEditMetadat
 		$scope.checkSpatialUnitName = function(){
 			$scope.spatialUnitLevelInvalid = false;
 			kommonitorDataExchangeService.availableSpatialUnits.forEach(function(spatialUnit){
-				if (spatialUnit.spatialUnitLevel === $scope.spatialUnitLevel){
+				if (spatialUnit.spatialUnitLevel === $scope.spatialUnitLevel && spatialUnit.spatialUnitId != $scope.currentSpatialUnitDataset.spatialUnitId){
 					$scope.spatialUnitLevelInvalid = true;
 					return;
 				}
@@ -194,6 +194,7 @@ angular.module('spatialUnitEditMetadataModal').component('spatialUnitEditMetadat
 
 			var patchBody =
 			{
+				"datasetName": $scope.spatialUnitLevel,
 				"metadata": {
 					"note": $scope.metadata.note,
 					"literature": $scope.metadata.literature,
@@ -233,7 +234,7 @@ angular.module('spatialUnitEditMetadataModal').component('spatialUnitEditMetadat
 
 					$scope.successMessagePart = $scope.currentSpatialUnitDataset.spatialUnitLevel;
 
-					$rootScope.$broadcast("refreshSpatialUnitOverviewTable", "edit", $scope.currentSpatialUnitDataset.spatialUnitId);
+					$rootScope.$broadcast("refreshSpatialUnitOverviewTable");
 					$("#spatialUnitEditMetadataSuccessAlert").show();
 					$timeout(function(){
 				
