@@ -4,6 +4,8 @@
 // Author: Ishmael Smyrnow
 L.Control.GroupedLayers = L.Control.extend({
 
+  itemCounter: 0,
+
   options: {
     collapsed: true,
     position: 'topright',
@@ -38,16 +40,16 @@ L.Control.GroupedLayers = L.Control.extend({
     this._update();
 
     map
-        .on('layeradd', this._onLayerChange, this)
-        .on('layerremove', this._onLayerChange, this);
+      .on('layeradd', this._onLayerChange, this)
+      .on('layerremove', this._onLayerChange, this);
 
     return this._container;
   },
 
   onRemove: function (map) {
     map
-        .off('layeradd', this._onLayerChange, this)
-        .off('layerremove', this._onLayerChange, this);
+      .off('layeradd', this._onLayerChange, this)
+      .off('layerremove', this._onLayerChange, this);
   },
 
   addBaseLayer: function (layer, name) {
@@ -99,8 +101,8 @@ L.Control.GroupedLayers = L.Control.extend({
     if (this.options.collapsed) {
       if (!L.Browser.android) {
         L.DomEvent
-            .on(container, 'mouseover', this._expand, this)
-            .on(container, 'mouseout', this._collapse, this);
+          .on(container, 'mouseover', this._expand, this)
+          .on(container, 'mouseout', this._collapse, this);
       }
       var link = this._layersLink = L.DomUtil.create('a', className + '-toggle', container);
       link.href = '#';
@@ -108,8 +110,8 @@ L.Control.GroupedLayers = L.Control.extend({
 
       if (L.Browser.touch) {
         L.DomEvent
-            .on(link, 'click', L.DomEvent.stop)
-            .on(link, 'click', this._expand, this);
+          .on(link, 'click', L.DomEvent.stop)
+          .on(link, 'click', this._expand, this);
       } else {
         L.DomEvent.on(link, 'focus', this._expand, this);
       }
@@ -173,11 +175,11 @@ L.Control.GroupedLayers = L.Control.extend({
 
     for (var i = 0; i < this._layers.length; i++) {
       obj = this._layers[i];
-      try{
-          this._addItem(obj);
-          overlaysPresent = overlaysPresent || obj.overlay;
-          baseLayersPresent = baseLayersPresent || !obj.overlay;
-      } catch(error){
+      try {
+        this._addItem(obj);
+        overlaysPresent = overlaysPresent || obj.overlay;
+        baseLayersPresent = baseLayersPresent || !obj.overlay;
+      } catch (error) {
 
       }
     }
@@ -209,10 +211,13 @@ L.Control.GroupedLayers = L.Control.extend({
   },
 
   // IE7 bugs out if you create a radio dynamically, so you have to do it this hacky way (see http://bit.ly/PqYLBe)
-  _createRadioElement: function (name, checked) {
+  _createRadioElement: function (name, checked, id) {
     var radioHtml = '<input type="radio" class="leaflet-control-layers-selector" name="' + name + '"';
     if (checked) {
       radioHtml += ' checked="checked"';
+    }
+    if (id) {
+      radioHtml += ` id="${id}"`
     }
     radioHtml += '/>';
 
@@ -222,36 +227,106 @@ L.Control.GroupedLayers = L.Control.extend({
     return radioFragment.firstChild;
   },
 
+  _getOpacity: function(obj) {
+    if (obj.layer?.options?.opacity !== undefined) {
+      return obj.layer.options.opacity;
+    } else if(obj.layer?.getLayers) {
+      const layer = obj.layer.getLayers()[0];
+      if (layer?.options.fillOpacity) {
+        return layer.options.fillOpacity;
+      }
+    }
+    return '1';
+  },
+
+  _createOpacitySlider: function (obj) {
+
+    wrapper = document.createElement('div');
+    wrapper.className = 'opacity-slider';
+
+    sliderValue = (1 - parseFloat(this._getOpacity(obj))).toFixed(2);
+
+    const label = document.createElement('div');
+    label.textContent = 'Transparenz';
+    wrapper.appendChild(label);
+
+    const value = document.createElement('div');
+    value.className = 'slider-value';
+    value.textContent = sliderValue;
+
+    slider = document.createElement('input');
+    slider.type = 'range';
+    slider.min = '0';
+    slider.max = '1';
+    slider.step = '0.01';
+    slider.value = sliderValue;
+    slider.onchange = (evt) => {
+      sliderValue = evt.target.value;
+      opacity = (1 - parseFloat(evt.target.value)).toFixed(2);
+      if (obj.layer && obj.layer.setOpacity) {
+        // WMS Layer
+        obj.layer.setOpacity(opacity);
+      } else if (obj.layer.eachLayer) {
+        // group/geojson layer
+        obj.layer.eachLayer((layer) => {
+          if (layer.setStyle) {
+            layer.setStyle({
+              fillOpacity: opacity,
+              opacity: opacity
+            })
+          }
+          if (layer.setOpacity) {
+            layer.setOpacity(opacity);
+          }
+        });
+      } else {
+        debugger;
+      }
+      value.textContent = sliderValue;
+    }
+    wrapper.appendChild(slider);
+    wrapper.appendChild(value);
+    return wrapper;
+  },
+
   _addItem: function (obj) {
-    var label = document.createElement('label'),
+    this.itemCounter++;
+    var itemId = `${this.itemCounter++}`;
+    var wrapper = document.createElement('div'),
       input,
       checked = this._map.hasLayer(obj.layer),
       container,
       groupRadioName;
 
+    wrapper.className = 'leaflet-control-layers-selector';
+
     if (obj.overlay) {
       if (obj.group.exclusive) {
         groupRadioName = 'leaflet-exclusive-group-layer-' + obj.group.id;
-        input = this._createRadioElement(groupRadioName, checked);
+        input = this._createRadioElement(groupRadioName, checked, itemId);
       } else {
         input = document.createElement('input');
         input.type = 'checkbox';
+        input.id = itemId;
         input.className = 'leaflet-control-layers-selector';
         input.defaultChecked = checked;
       }
     } else {
-      input = this._createRadioElement('leaflet-base-layers', checked);
+      input = this._createRadioElement('leaflet-base-layers', checked, itemId);
     }
 
     input.layerId = L.Util.stamp(obj.layer);
     input.groupID = obj.group.id;
     L.DomEvent.on(input, 'click', this._onInputClick, this);
 
-    var name = document.createElement('span');
-    name.innerHTML = ' ' + obj.name;
+    var label = document.createElement('label');
+    label.setAttribute('for', itemId);
+    label.innerHTML = ' ' + obj.name;
 
-    label.appendChild(input);
-    label.appendChild(name);
+    wrapper.appendChild(input);
+    wrapper.appendChild(label);
+
+    wrapper.appendChild(this._createOpacitySlider(obj));
 
     if (obj.overlay) {
       container = this._overlaysList;
@@ -296,9 +371,9 @@ L.Control.GroupedLayers = L.Control.extend({
       container = this._baseLayersList;
     }
 
-    container.appendChild(label);
+    container.appendChild(wrapper);
 
-    return label;
+    return wrapper;
   },
 
   _onGroupInputClick: function () {
@@ -352,11 +427,11 @@ L.Control.GroupedLayers = L.Control.extend({
   _expand: function () {
     L.DomUtil.addClass(this._container, 'leaflet-control-layers-expanded');
     // permits to have a scrollbar if overlays heighter than the map.
-    var acceptableHeight = this._map._size.y - (this._container.offsetTop * 4);
-    if (acceptableHeight < this._form.clientHeight) {
-      L.DomUtil.addClass(this._form, 'leaflet-control-layers-scrollbar');
-      this._form.style.height = acceptableHeight + 'px';
-    }
+    // var acceptableHeight = this._map._size.y - (this._container.offsetTop * 4);
+    // if (acceptableHeight < this._form.clientHeight) {
+    //   L.DomUtil.addClass(this._form, 'leaflet-control-layers-scrollbar');
+    //   this._form.style.height = acceptableHeight + 'px';
+    // }
   },
 
   _collapse: function () {
