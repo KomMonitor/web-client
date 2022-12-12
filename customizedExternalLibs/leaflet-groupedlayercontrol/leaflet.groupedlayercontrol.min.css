@@ -13,18 +13,50 @@
     padding-right: 10px
 }
 
-.leaflet-control-layers-selector .opacity-slider {
-    padding: 10px 20px;
+.leaflet-control-layers-item {
+    display: flex;
+    gap: 5px;
+    border: 1px solid lightgrey;
+    border-radius: 5px;
+    margin: 1px 0px;
+}
+
+.leaflet-control-layers-item label {
+    margin: 0;
+}
+
+.leaflet-control-layers-item input[type=checkbox],input[type=radio] {
+    margin: 0;
+}
+
+.leaflet-control-layers-item .dnd-handle {
+    font-size: 150%;
+    align-self: center;
+    padding: 10px;
+    cursor: move;
+}
+
+.leaflet-control-layers-item .control-wrapper {
+    flex: 1;
+    padding-left: 10px;
+}
+
+.leaflet-control-layers-item.dnd-over {
+    border-top: 3px dashed grey;
+}
+
+.leaflet-control-layers-item .opacity-slider {
+    padding: 7px 10px;
     display: flex;
     gap: 10px;
     font-weight: bold;
 }
 
-.leaflet-control-layers-selector .slider-value {
+.leaflet-control-layers-item .slider-value {
     flex: 0 0 30px;
     text-align: end;
 }
 
-.leaflet-control-layers-selector label {
+.leaflet-control-layers-item label {
     display: inline;
 }

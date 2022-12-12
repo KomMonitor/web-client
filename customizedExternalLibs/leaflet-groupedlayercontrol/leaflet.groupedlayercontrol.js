@@ -17,12 +17,13 @@ L.Control.GroupedLayers = L.Control.extend({
   initialize: function (baseLayers, groupedOverlays, options) {
     var i, j;
     L.Util.setOptions(this, options);
-
+    
     this._layers = [];
     this._lastZIndex = 0;
     this._handlingClick = false;
     this._groupList = [];
     this._domGroups = [];
+    this._sortableLayers = options.sortableLayers || [];
 
     for (i in baseLayers) {
       this._addLayer(baseLayers[i], i);
@@ -129,7 +130,7 @@ L.Control.GroupedLayers = L.Control.extend({
     container.appendChild(form);
   },
 
-  _addLayer: function (layer, name, group, overlay) {
+  _addLayer: function (layer, name, groupName, overlay) {
     var id = L.Util.stamp(layer);
 
     var _layer = {
@@ -139,17 +140,20 @@ L.Control.GroupedLayers = L.Control.extend({
     };
     this._layers.push(_layer);
 
-    group = group || '';
-    var groupId = this._indexOf(this._groupList, group);
+    groupName = groupName || '';
+    var groupId = this._groupList.findIndex(e => e.name === groupName);
 
     if (groupId === -1) {
-      groupId = this._groupList.push(group) - 1;
+      groupId = this._groupList.push({
+        name: groupName,
+        sortable: this._sortableLayers.indexOf(groupName) > -1
+      }) - 1;
     }
 
-    var exclusive = (this._indexOf(this.options.exclusiveGroups, group) !== -1);
+    var exclusive = (this._indexOf(this.options.exclusiveGroups, groupName) !== -1);
 
     _layer.group = {
-      name: group,
+      name: groupName,
       id: groupId,
       exclusive: exclusive
     };
@@ -183,6 +187,32 @@ L.Control.GroupedLayers = L.Control.extend({
 
       }
     }
+
+    this._groupList.forEach((g, i) => {
+      if (g.sortable) {
+        const groupElem = document.getElementById(`leaflet-control-layers-group-${i}`)?.querySelector('.group-list');
+        if (groupElem) {
+          zIndexOrder = [];
+          groupElem.querySelectorAll('.leaflet-control-layers-selector').forEach(e => {
+            layer = this._getLayer(e.layerId);
+            zIndexOrder.push(layer.layer.options.zIndex);
+            console.log(layer.layer);
+          })
+          Sortable.create(groupElem, {
+            group: `layers-group-${i}`,
+            handle: '.dnd-handle',
+            onUpdate: (evt) => {
+              groupElem.querySelectorAll('.leaflet-control-layers-selector').forEach((e, i) => {
+                layer = this._getLayer(e.layerId);
+                layer.layer.setZIndex(zIndexOrder[i]);
+                console.log(layer.name);
+              })
+              // const currentLayer = this._getLayer(evt.item.querySelector('.leaflet-control-layers-selector').layerId);
+            }
+          });
+        }
+      }
+    })
 
     this._separator.style.display = overlaysPresent && baseLayersPresent ? '' : 'none';
   },
@@ -240,15 +270,14 @@ L.Control.GroupedLayers = L.Control.extend({
   },
 
   _createOpacitySlider: function (obj) {
-
-    wrapper = document.createElement('div');
-    wrapper.className = 'opacity-slider';
+    sliderWrapper = document.createElement('div');
+    sliderWrapper.className = 'opacity-slider';
 
     sliderValue = (1 - parseFloat(this._getOpacity(obj))).toFixed(2);
 
     const label = document.createElement('div');
     label.textContent = 'Transparenz';
-    wrapper.appendChild(label);
+    sliderWrapper.appendChild(label);
 
     const value = document.createElement('div');
     value.className = 'slider-value';
@@ -284,23 +313,29 @@ L.Control.GroupedLayers = L.Control.extend({
       }
       value.textContent = sliderValue;
     }
-    wrapper.appendChild(slider);
-    wrapper.appendChild(value);
-    return wrapper;
+    sliderWrapper.appendChild(slider);
+    sliderWrapper.appendChild(value);
+    return sliderWrapper;
   },
 
   _addItem: function (obj) {
     this.itemCounter++;
     var itemId = `${this.itemCounter++}`;
-    var wrapper = document.createElement('div'),
+    var itemWrapper = document.createElement('div'),
       input,
       checked = this._map.hasLayer(obj.layer),
       container,
       groupRadioName;
 
-    wrapper.className = 'leaflet-control-layers-selector';
-
+    itemWrapper.className = 'leaflet-control-layers-item';
+    
     if (obj.overlay) {
+      const group = this._groupList[obj.group.id];
+      if (group.sortable) {
+        var handle = document.createElement('i');
+        handle.className = 'dnd-handle fa fa-grip-vertical';
+        itemWrapper.appendChild(handle);
+      }
       if (obj.group.exclusive) {
         groupRadioName = 'leaflet-exclusive-group-layer-' + obj.group.id;
         input = this._createRadioElement(groupRadioName, checked, itemId);
@@ -323,11 +358,18 @@ L.Control.GroupedLayers = L.Control.extend({
     label.setAttribute('for', itemId);
     label.innerHTML = ' ' + obj.name;
 
-    wrapper.appendChild(input);
-    wrapper.appendChild(label);
+    controlWrapper = document.createElement('div');
+    controlWrapper.className = 'control-wrapper';
+    const selectElem = document.createElement('div');
+    selectElem.style.display = 'flex';
+    selectElem.style.gap = '5px';
+    selectElem.appendChild(input);
+    selectElem.appendChild(label);
+    controlWrapper.appendChild(selectElem);
+    controlWrapper.appendChild(this._createOpacitySlider(obj));
+    itemWrapper.appendChild(controlWrapper);
 
-    wrapper.appendChild(this._createOpacitySlider(obj));
-
+    // grouping of not
     if (obj.overlay) {
       container = this._overlaysList;
 
@@ -339,8 +381,11 @@ L.Control.GroupedLayers = L.Control.extend({
         groupContainer.className = 'leaflet-control-layers-group';
         groupContainer.id = 'leaflet-control-layers-group-' + obj.group.id;
 
-        var groupLabel = document.createElement('label');
+        var groupLabel = document.createElement('div');
         groupLabel.className = 'leaflet-control-layers-group-label';
+
+        var groupList = document.createElement('div');
+        groupList.className = 'group-list';
 
         if (obj.group.name !== '' && !obj.group.exclusive) {
           // ------ add a group checkbox with an _onInputClickGroup function
@@ -361,19 +406,17 @@ L.Control.GroupedLayers = L.Control.extend({
         groupLabel.appendChild(groupName);
 
         groupContainer.appendChild(groupLabel);
+        groupContainer.appendChild(groupList);
         container.appendChild(groupContainer);
 
         this._domGroups[obj.group.id] = groupContainer;
       }
 
-      container = groupContainer;
+      groupContainer.querySelector('.group-list').appendChild(itemWrapper);
     } else {
-      container = this._baseLayersList;
+      this._baseLayersList.appendChild(itemWrapper);
     }
-
-    container.appendChild(wrapper);
-
-    return wrapper;
+    return itemWrapper;
   },
 
   _onGroupInputClick: function () {
@@ -426,12 +469,6 @@ L.Control.GroupedLayers = L.Control.extend({
 
   _expand: function () {
     L.DomUtil.addClass(this._container, 'leaflet-control-layers-expanded');
-    // permits to have a scrollbar if overlays heighter than the map.
-    // var acceptableHeight = this._map._size.y - (this._container.offsetTop * 4);
-    // if (acceptableHeight < this._form.clientHeight) {
-    //   L.DomUtil.addClass(this._form, 'leaflet-control-layers-scrollbar');
-    //   this._form.style.height = acceptableHeight + 'px';
-    // }
   },
 
   _collapse: function () {
