@@ -138,7 +138,11 @@ L.Control.GroupedLayers = L.Control.extend({
       name: name,
       overlay: overlay
     };
-    this._layers.push(_layer);
+    if (groupName) {
+      this._layers.unshift(_layer);
+    } else {
+      this._layers.push(_layer);
+    }
 
     groupName = groupName || '';
     var groupId = this._groupList.findIndex(e => e.name === groupName);
