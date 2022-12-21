@@ -43,7 +43,18 @@ angular
 						}
 					});
 
-					
+					$scope.openReachabilityScenarioModal = function(scenarioDataset){
+
+						if(scenarioDataset){
+							// submit selected spatial unit to modal controller
+							$rootScope.$broadcast("onManageReachabilityScenario", scenarioDataset);
+						}
+						else{
+							// open modal controller without dataset
+							$rootScope.$broadcast("onManageReachabilityScenario");
+						}
+
+					};
 
 					var OpenStreetMapProvider = window.GeoSearch.OpenStreetMapProvider;
 

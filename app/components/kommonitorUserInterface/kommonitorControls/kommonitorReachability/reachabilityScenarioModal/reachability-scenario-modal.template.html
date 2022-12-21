@@ -1,0 +1,303 @@
+<div class="modal fade" id="modal-manage-reachability-scenario" role="dialog" data-backdrop="false">
+	<div class="modal-dialog modal-xl">
+		<div class="modal-content">
+
+			<div align="center">
+				<div class="loading-overlay-admin-panel ng-hide" ng-show="loadingData">
+					<span class="glyphicon glyphicon-refresh icon-spin"></span>
+				</div>
+			</div>
+
+
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Erreichbarkeitsszenario verwalten</h4>
+			</div>
+			<div class="modal-body">
+
+
+				<!-- MultiStep Form -->
+				<div class="row">
+					<div class="col-md-12">
+						<form class="multiStepForm form-group" id="reachabilityScenarioForm" role="form"
+							data-toggle="validator" data-disable="true" style="margin-bottom: 0px;">
+							<!-- div required for click logic -->
+							<div>
+								<!-- progressbar -->
+								<ul id="progressbar">
+									<li style="width: 33.33%;" class="active">Szenario-Metadaten</li>
+									<li style="width: 33.33%;">Bearbeiten der Punktdatenquelle</li>
+									<li style="width: 33.33%;">Einzugsgebiets-Definition</li>
+								</ul>
+							</div>
+
+							<!-- fieldsets -->
+							<fieldset>
+								<h2 class="fs-title">Name und Punktdatenquelle</h2>
+								<h3 class="fs-subtitle">Definition eines eindeutigen Namens pro Szenario und Wahl der
+									Punktdatenquelle, f&uuml;r die Einzugsgebiete berechnet werden sollen</h3>
+
+								<div class="row vertical-align">
+									<div class="col-md-6 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<input ng-model="currentScenarioDataset.name"></input>
+
+											<div class="help-block">
+												<p>Vergeben Sie einen Namen, der m&ouml;glichst gut darstellt, was das
+													Szenario beinhaltet.</p>
+												<p>Beispiel 1: <i>Kitas2022_ist_5min_10min_15min_fusslaeufig</i></p>
+												<p>Beispiel 2: <i>Kitas2024_planung_5min_10min_15min_fusslaeufig</i></p>
+											</div>
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+									<div class="col-md-6 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Auswahl von Punktdatenquelle und Zeitpunkt</label>
+
+											<div class="row vertical-align" style="margin-right:0px;">
+
+												<div class="col-md-6 col-sm-6 col-xs-6">
+													<div class="horizontal-align"
+														ng-show="currentScenarioDataset.poiResource.geoJSON">
+														<p><b>{{currentScenarioDataset.poiResource.geoJSON.features.length}}</b>
+															Startpunkte im
+															selektierten Layer</p>
+													</div>
+
+													<div class="horizontal-align"
+														ng-hide="currentScenarioDataset.poiResource">
+														<p>noch kein Layer selektiert</p>
+													</div>
+
+													<div class="horizontal-align"
+														ng-if="currentScenarioDataset.poiResource && ! currentScenarioDataset.poiResource.geoJSON">
+														<p style="color: red;">zum angegebenen Zeitwert konnten keine
+															validen Feature-Daten abgerufen werden</p>
+													</div>
+												</div>
+												<div class="col-md-6 col-sm-6 col-xs-6">
+													<select style="font-size: 12px;"
+														ng-model="currentScenarioDataset.poiResource"
+														ng-options="poi as poi.datasetName for poi in $ctrl.kommonitorDataExchangeServiceInstance.displayableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois()"
+														ng-change="onChangePoiResource()"
+														class="form-control" required>
+														<option disabled selected value> -- Punkt-Layer w&auml;hlen --
+														</option>
+													</select>
+
+													<div
+														ng-if="currentScenarioDataset.poiResource">
+														<select style="font-size: 11px; width:135px; padding: 0px;"
+															ng-model="currentScenarioDataset.selectedDate"
+															ng-change="fetchPoiResourceGeoJSON()"
+															ng-options="date as date.startDate for date in currentScenarioDataset.poiResource.availablePeriodsOfValidity | orderBy: 'startDate' | unique: 'startDate'"
+															ng-init="currentScenarioDataset.selectedDate = currentScenarioDataset.poiResource.availablePeriodsOfValidity[currentScenarioDataset.poiResource.availablePeriodsOfValidity.length - 1]"
+															class="form-control" required>
+														</select>
+													</div>
+												</div>
+
+											</div>
+
+											<div class="help-block">
+												<p>Das L&ouml;schen aller Features der Georessource ist unwiderruflich.
+													Der Datensatz als solches (Metadaten) bleibt dabei bestehen.</p>
+											</div>
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+								</div>
+
+								<input type="button" name="next" class="next  action-button"
+									value="N&auml;chster Schritt" />
+							</fieldset>
+
+							<fieldset>
+								<h2 class="fs-title">Bearbeiten der Punktdatenquelle</h2>
+								<h3 class="fs-subtitle">Eine interaktive Karte sowie Eingabefelder erlauben das Editieren einzelner Features hinsichtlich 
+									r&auml;umlicher Lage und/oder Sachdaten. Weiterhin k&ouml;nnen vorhandene Punkte entfernt oder neue Punkte erg&auml;nzt werden. 
+									Die &Auml;nderungen gelten nur im Rahmen dieses Erreichbarkeits-Szenarios und werden nicht in der Datenbank gespeichert.</h3>
+
+								<div class="row vertical-align">
+									<div class="col-md-6 col-sm-6 col-xs-12">
+
+										<label>Attribute gem&auml;&szlig; Feature-Schema</label>
+										<div style="max-height: 50vh; overflow: auto;">
+
+											<table class="table table-condensed">
+												<thead>
+													<tr>
+														<th>Attributname</th>
+														<th>Attributwert</th>
+													</tr>
+												</thead>
+												<tbody>
+													<tr>
+														<td>
+															<b>Feature-ID *</b>
+															<br>
+															<i>Beispiele: {{featureIdExampleString}}</i>
+															<div ng-show="! validateSingleFeatureId()"
+																style="color:red;"><b>Eingegebene Feature-ID schon
+																	vergeben oder ung&uuml;ltig</b></div>
+														</td>
+														<td>
+															<input type="text" class="form-control"
+																ng-model="featureIdValue"
+																placeholder="{{featureIdValue}}"
+																ng-change="validateSingleFeatureId()" required></input>
+														</td>
+													</tr>
+													<tr>
+														<td>
+															<b>Feature-NAME *</b>
+														</td>
+														<td>
+															<input type="text" class="form-control"
+																ng-model="featureNameValue"
+																placeholder="lesbarer Name des Objekts"
+																ng-change="validateSingleFeatureId()" required></input>
+														</td>
+													</tr>
+													<tr>
+														<td>
+															<b>G&uuml;ltigkeitszeitraum: g&uuml;ltig seit *</b>
+														</td>
+														<td>
+															<input type="text" ng-model="featureStartDateValue"
+																ng-change="checkSingleFeaturePeriodOfValidity()"
+																class="form-control pull-right"
+																id="georesourceSingleFeatureDatepickerStart"
+																placeholder="YYYY-MM-DD"
+																ng-change="validateSingleFeatureId()" required>
+														</td>
+													</tr>
+													<tr>
+														<td>
+															<b>G&uuml;ltigkeitszeitraum: g&uuml;ltig bis</b>
+														</td>
+														<td>
+															<input type="text" ng-model="featureEndDateValue"
+																ng-change="checkSingleFeaturePeriodOfValidity()"
+																class="form-control pull-right"
+																id="georesourceSingleFeatureDatepickerEnd"
+																placeholder="YYYY-MM-DD" required>
+														</td>
+													</tr>
+													<tr ng-repeat="featureSchemaEntry in featureSchemaProperties">
+														<td>
+															<b>{{featureSchemaEntry.property}}</b>
+															<br>
+															<i>Beispiel: {{featureSchemaEntry.exampleValue}}</i>
+														</td>
+														<td>
+															<input type="text" class="form-control"
+																ng-model="featureSchemaEntry.value"
+																placeholder="optionaler Wert f&uuml;r Attribut '{{featureSchemaEntry.property}}'"
+																required></input>
+														</td>
+													</tr>
+												</tbody>
+											</table>
+
+										</div>
+									</div>
+
+
+
+									<div class="col-md-6 col-sm-6 col-xs-12">
+										<!-- geometry with interactive map and geocoder functionality -->
+										<!-- together with special helperService that is used to manage map and data -->
+										<label>Geometrie-Definition *</label>
+										<br />
+										<i>in <em style="color: red;">rot</em> dargestellt sind die weiteren Geometrien
+											des Datensatzes</i>
+										<div ng-if="featureInfoText_singleFeatureAddMenu">
+											<i>{{featureInfoText_singleFeatureAddMenu}}</i>
+										</div>
+										<br />
+										<div id="reachabilityScenarioEditFeaturesGeoMap" style="height: 50vh;"></div>
+									</div>
+								</div>
+
+								<div class="row vertical-align">
+									<!-- other optional properties according to feature schema as interactive table? -->
+								</div>
+
+								<br />
+
+								<input type="button" name="previous" class="previous  action-button-previous"
+									value="Voriger Schritt" />
+								<input type="button" name="next" class="next  action-button"
+									value="N&auml;chster Schritt" />
+							</fieldset>
+
+							<fieldset>
+
+								<h2 class="fs-title">Einzugsgebiets-Definition mittels OpenRouteService</h2>
+								<h3 class="fs-subtitle">Konfiguration der Berechnung von Einzugsgebieten f&uuml;r alle Punkte der Szenarien-Punktdatenquelle. 
+									Die Einstellungen umfassen Fortbewegungsmittel und Erreichbarkeitszonen (Distanz oder Zeit).</h3>
+
+									<p><label>Platzhalter</label></p>
+
+								<input type="button" name="previous" class="previous  action-button-previous"
+									value="Voriger Schritt" />
+
+							</fieldset>
+						</form>
+					</div>
+				</div>
+
+				<form role="form" class="form-group" data-toggle="validator" style="margin-bottom: 0px;">
+
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Schlie&szlig;en</button>
+				<button type="button" class="btn btn-success"
+					ng-disabled="!currentGeoresourceDataset.datasetName || !georesourceDataSourceIdProperty || !georesourceDataSourceNameProperty || !periodOfValidity.startDate || periodOfValidityInvalid || !converter || !datasourceType"
+					ng-click="editGeoresourceFeatures()">Features fortf&uuml;hren</button>
+				<button type="button" class="btn btn-danger"
+					ng-click="resetGeoresourceEditFeaturesForm()">Zur&uuml;cksetzen</button>
+			</div>
+
+			<div id="georesourceEditFeaturesSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
+				class="alert alert-success alert-dismissable">
+				<button type="button" class="close" ng-click="hideSuccessAlert()" aria-hidden="true">&times;</button>
+				<h4><i class="icon fa fa-check"></i>Features erfolgreich fortgef&uuml;hrt</h4>
+				<p>Fortf&uuml;hren der Features der Georessource mit Namen {{successMessagePart}} war erfolgreich.
+				<div ng-if="importedFeatures && importedFeatures.length > 0">
+					{{importedFeatures.length}} Features wurden dabei importiert.
+				</div>
+				</p>
+			</div>
+
+			<div id="georesourceEditFeaturesErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
+				class="alert alert-danger alert-dismissable">
+				<button type="button" class="close" ng-click="hideErrorAlert()" aria-hidden="true">&times;</button>
+				<h4><i class="icon fa fa-ban"></i>Features fortf&uuml;hren gescheitert</h4>
+				Beim Fortf&uuml;hren der Features ist ein Fehler aufgetreten. Fehlermeldung:
+				<br />
+				<pre style="overflow:auto; max-height:500px;" ng-bind-html="errorMessagePart"></pre>
+				<br />
+				<br />
+
+				<div ng-show="importerErrors">
+					<p>Bei den {{importerErrors.length}} Features mit folgenden IDs scheitert der Import:</p>
+					<pre style="overflow:auto; max-height:500px;">
+						<ul>
+							<li ng-repeat="error in importerErrors">{{error}}</li>
+						</ul>
+					</pre>
+					<p>Bitte beheben Sie die angezeigten Fehler im Datensatz und wiederholen den Prozess.</p>
+				</div>
+			</div>
+
+
+		</div>
+		<!-- /.modal-content -->
+	</div>
+	<!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->

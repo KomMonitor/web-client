@@ -148,6 +148,8 @@ module.exports = function (grunt) {
             'app/components/kommonitorUserInterface/kommonitorControls/kommonitorBalance/kommonitor-balance.component.js',
             'app/components/kommonitorUserInterface/kommonitorControls/kommonitorLegend/kommonitor-legend.module.js',
             'app/components/kommonitorUserInterface/kommonitorControls/kommonitorLegend/kommonitor-legend.component.js',
+            'app/components/kommonitorUserInterface/kommonitorControls/kommonitorReachability/reachabilityScenarioModal/reachability-scenario-modal.module.js',
+            'app/components/kommonitorUserInterface/kommonitorControls/kommonitorReachability/reachabilityScenarioModal/reachability-scenario-modal.component.js',
             'app/components/kommonitorUserInterface/kommonitorControls/kommonitorReachability/kommonitor-reachability.module.js',
             'app/components/kommonitorUserInterface/kommonitorControls/kommonitorReachability/kommonitor-reachability.component.js',
             'app/components/kommonitorUserInterface/kommonitorControls/poi/poi.module.js',

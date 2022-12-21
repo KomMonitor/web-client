@@ -1,4 +1,4 @@
-angular.module('kommonitorReachability', ['kommonitorDataExchange', 'kommonitorMap', 'kommonitorDiagramHelper'])
+angular.module('kommonitorReachability', ['kommonitorDataExchange', 'kommonitorMap', 'kommonitorDiagramHelper', 'reachabilityScenarioModal'])
 
 .directive('stringToNumber', function() {
   return {

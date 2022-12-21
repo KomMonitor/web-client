@@ -6,15 +6,65 @@
 		</div>
 	</div>
 
+	<!-- we might want to restructure the whole menu 
+
+		dedicated service that manages scenarios as a map / list object with all assets and configs
+	
+	1. a new box for organizing POI scenarios where I have a table with all scenarios and their most interesting statistics/information
+	  + edit buttons 
+	  - add new scenario (name, description, POI layer, including edit tools to make changes to the POINT source, reachability analysis)
+	  - edit existing scenario (name, description, POI source, reachability analysis -> after edit of point source, reachability analysis must be redone to be in sync with point source)
+	  - duplicate scenario with all assets and copy name
+	  - remove whole scenario
+	  - import/export single config
+
+	  + import/export scenario collection
+	  
+	  -> all those assets shall be configured within an extra modal to make use of the whole display (like reporting) 
+	  -> in that modal we can also include interactive map for POI source edits like adding/deleting/moving points 
+	  -> make modal feel like admin modals with prograss bar for the important steps (name descr poi source, edit poi source on interactive map, configure and preview isochrones as background job) then submit that config as new scenario
+
+
+	  -> MAYBE EVEN A SEPARATE ROUTE ESPECIALLY FOR REACHABILITY ANALYSIS TO HAVE THE WHOLE PAGE FOR THAT PURPOSE? 
+
+	2. preserve box for point in polygon analysis and choose a scenario for that analysis
+	3. new box for viewing/comparing scenarios on main map and as table? maybe again within a modal?
+	4. new box for indicator summary statistics for a certain scenario -> for single scenario as well as comparison between two scenarios
+	-->
+
 	<p></p>
 
-	<div class="box box-primary">
+	<div class="box box-primary" ng-if="!isUsedInReporting" id="reachability-point-box">
 		<div class="box-header with-border">
-			<h3 class="box-title">Erreichbarkeitsanalysen</h3>
-			<p style="margin: 0 0 0px;">auf Basis von Stra&szlig;en- und Wegenetzen mittels OpenRouteService</p>
+			<h3 class="box-title">Erreichbarkeits-Szenarien verwalten</h3>
 
 			<div class="box-tools pull-right">
 				<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+				</button>
+			</div>
+		</div>
+		<!-- /.box-header -->
+
+		<div class="box-body">
+
+			<button class="btn btn-success btn-sm" ng-click="openReachabilityScenarioModal()" type="button" data-toggle="modal" data-target="#modal-manage-reachability-scenario"><i class="fas fa-plus"></i>&nbsp;&nbsp;Szenario anlegen</button>
+			
+			<br>
+			<p><label>Platzhalter Tabelle: &Uuml;bersicht vorhandener Szenarien</label></p>
+
+		</div>
+		<!-- /.box-body -->
+
+	</div>
+	<!-- /.box -->
+
+	<div class="box box-primary collapsed-box">
+		<div class="box-header with-border">
+			<h3 class="box-title">Erreichbarkeitsanalysen (deprecated)</h3>
+			<p style="margin: 0 0 0px;">auf Basis von Stra&szlig;en- und Wegenetzen mittels OpenRouteService</p>
+
+			<div class="box-tools pull-right">
+				<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
 				</button>
 			</div>
 		</div>
@@ -522,6 +572,30 @@
 				</div>
 
 			</div>
+
+		</div>
+		<!-- /.box-body -->
+
+	</div>
+	<!-- /.box -->
+
+	<div class="box box-primary" ng-if="!isUsedInReporting" id="reachability-point-box">
+		<div class="box-header with-border">
+			<h3 class="box-title">DEMO Indikatoren-Statistik</h3>
+
+			<div class="box-tools pull-right">
+				<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+				</button>
+			</div>
+		</div>
+		<!-- /.box-header -->
+
+		<div class="box-body">
+
+			<button class="btn btn-success btn-sm" ng-click="openReachabilityScenarioModal()" type="button" data-toggle="modal" data-target="#modal-manage-reachability-scenario"><i class="fas fa-plus"></i>&nbsp;&nbsp;Szenario anlegen</button>
+			
+			<br>
+			<p><label>Platzhalter Tabelle: &Uuml;bersicht vorhandener Szenarien</label></p>
 
 		</div>
 		<!-- /.box-body -->
