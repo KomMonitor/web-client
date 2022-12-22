@@ -26,9 +26,11 @@
 							<div>
 								<!-- progressbar -->
 								<ul id="progressbar">
-									<li style="width: 33.33%;" class="active">Szenario-Metadaten</li>
-									<li style="width: 33.33%;">Bearbeiten der Punktdatenquelle</li>
-									<li style="width: 33.33%;">Einzugsgebiets-Definition</li>
+									<li style="width: 20%;" class="active">Szenario-Metadaten</li>
+									<li style="width: 20%;">Bearbeiten der Punktdatenquelle</li>
+									<li style="width: 20%;">Einzugsgebiets-Definition</li>
+									<li style="width: 20%;">Punkte in Einzugsgebieten</li>
+									<li style="width: 20%;">Indikatoren-Statistiken</li>
 								</ul>
 							</div>
 
@@ -244,6 +246,92 @@
 
 								<input type="button" name="previous" class="previous  action-button-previous"
 									value="Voriger Schritt" />
+								<input type="button" name="next" class="next  action-button"
+									value="N&auml;chster Schritt" />
+
+							</fieldset>
+
+							<fieldset>
+
+								<h2 class="fs-title">Punkte in Einzugsgebieten</h2>
+								<h3 class="fs-subtitle">...</h3>
+
+									<p><label>Platzhalter</label></p>
+
+								<input type="button" name="previous" class="previous  action-button-previous"
+									value="Voriger Schritt" />
+								<input type="button" name="next" class="next  action-button"
+									value="N&auml;chster Schritt" />
+
+							</fieldset>
+
+							<fieldset>
+
+								<h2 class="fs-title">Indikatoren-Statistiken</h2>
+								<h3 class="fs-subtitle">...</h3>
+
+								<div class="row vertical-align">
+									<div class="col-md-6 col-sm-6 col-xs-12">
+										<div class="input-group">
+											<span class="input-group-addon"><i class="fas fa-filter"></i></span>
+											<input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model="indicatorNameFilter" ng-model-options="{debounce: 500, blur: 0}" ng-change="$ctrl.kommonitorDataExchangeServiceInstance.onChangeIndicatorKeywordFilter(indicatorNameFilter)">
+										  </div>
+							
+										<div class="just-padding">
+											<select style="font-size: 12px;" ng-model="selectedIndicatorForStatistics" id="indicatorSelection_reachabilityStatistic"
+												ng-change="onChangeSelectedIndicatorForStatistics(indicatorMetadata)"
+												size="5" class="form-control" required>
+												<option disabled selected value> -- Indikator w&auml;hlen -- </option>
+												<option ng-value="indicatorMetadata"
+												ng-repeat="indicatorMetadata in $ctrl.kommonitorDataExchangeServiceInstance.displayableIndicators_keywordFiltered track by indicatorMetadata.indicatorId"> 
+													{{::indicatorMetadata.indicatorName}} [{{::indicatorMetadata.unit}}] </option>
+											</select>
+										</div>
+							
+										<div class="row" style="margin-right: 0px;">
+											<div class="col-sm-7">
+												<div class="text-left"><label>Raumebene</label></div>
+												<select id="spatialUnitSelection_reachabilityStatistic" style="font-size: 12px;" ng-model="selectedSpatialUnit"
+													class="form-control" ng-change="onChangeSelectedSpatialUnit()" required>
+													<option disabled selected value> -- Raumeinheit w&auml;hlen --
+													</option>
+													<option ng-value="spatialUnit" ng-repeat="spatialUnit in selectedIndicatorForStatistics.applicableSpatialUnits">{{::spatialUnit.spatialUnitName}}</option>
+												</select>
+											</div>
+											<div class="col-sm-4">
+												<div class="text-left"><label>Indikatoren-Zeitschnitt</label></div>
+												<!-- <input id="indicatorDate_reachabilityStatistic" type="text" placeholder="YYYY-MM-DD" 
+												ng-model="$ctrl.kommonitorDataExchangeServiceInstance.selectedDate" ng-change="onChangeIndicatorDatepickerDate()"
+												ng-disabled="$ctrl.kommonitorDataExchangeServiceInstance.disableIndicatorDatePicker"> -->
+												<select id="indicatorDate_reachabilityStatistic" style="font-size: 12px;" ng-model="selectedIndicatorDate"													
+													class="form-control" required>
+													<option disabled selected value> -- Datum w&auml;hlen --
+													</option>
+													<option ng-value="date" ng-repeat="date in selectedIndicatorForStatistics.applicableDates">{{::date}}</option>
+												</select>
+											</div>
+										</div><br>
+							
+										<button class="btn btn-success btn-sm" ng-click="demoComputeStatistic()" type="button" ><i class="fas fa-plus"></i>&nbsp;&nbsp;Indikatoren-Statistik generieren</button>
+										
+
+										<p><label>Platzhalter Tabelle Übersicht über konfigurierte Indikatorenstatistiken</label></p>
+
+									</div>
+									<div class="col-md-6 col-sm-6 col-xs-12">
+
+										<p><label>Platzhalter interaktive Karte</label></p>
+
+									</div>
+								</div>
+
+								
+					
+
+								<input type="button" name="previous" class="previous  action-button-previous"
+									value="Voriger Schritt" />
+								<input type="button" name="next" class="next  action-button"
+									value="N&auml;chster Schritt" />
 
 							</fieldset>
 						</form>

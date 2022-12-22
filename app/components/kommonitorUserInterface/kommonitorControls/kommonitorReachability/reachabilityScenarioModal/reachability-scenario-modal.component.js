@@ -110,6 +110,18 @@ angular.module('reachabilityScenarioModal').component('reachabilityScenarioModal
 
 				$scope.featureInfoText_singleFeatureAddMenu = "" + $scope.currentScenarioDataset.poiResource.geoJSON.features.length + " Features im Szenario-Datensatz vorhanden";
 
+			};
+
+			$scope.onChangeSelectedIndicatorForStatistics = function(){
+				// $scope.selectedIndicatorForStatistics;
+
+				$scope.selectedSpatialUnit = $scope.selectedIndicatorForStatistics.applicableSpatialUnits[$scope.selectedIndicatorForStatistics.applicableSpatialUnits.length - 1];
+				$scope.selectedIndicatorDate = $scope.selectedIndicatorForStatistics.applicableDates[$scope.selectedIndicatorForStatistics.applicableDates.length - 1]; 
+
+				$scope.$digest();
+				// for (const iterator of $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits) {
+					
+				// }				
 			}
 		}
 	]
