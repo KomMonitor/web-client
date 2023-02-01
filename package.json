@@ -85,7 +85,7 @@
     "jshint": "^2.13.5",
     "jsonlint": "^1.6.3",
     "jstat": "^1.7.1",
-    "jszip": "^3.7.1",
+    "jszip": "^3.8.0",
     "keycloak-js": "20.0.0",
     "leaflet": "1.7.1",
     "leaflet-draw": "^1.0.4",
