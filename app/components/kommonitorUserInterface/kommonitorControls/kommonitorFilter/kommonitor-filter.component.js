@@ -58,20 +58,25 @@ angular
 							};
 
 
-							$scope.setupSpatialUnitFilter = function(indicatorMetadataAndGeoJSON, spatialUnitName, date){							
+							$scope.setupSpatialUnitFilter = function(indicatorMetadataAndGeoJSON, spatialUnitName, date){	
+								
+								let allowedSpatialUnitIds = indicatorMetadataAndGeoJSON.applicableSpatialUnits.map(spatialUnitEntry => {
+									return spatialUnitEntry.spatialUnitId;
+								});
 								
 								$scope.higherSpatialUnits = JSON.parse(JSON.stringify(kommonitorDataExchangeService.availableSpatialUnits));
-								let targetIndex = 0;
+								
+								// only show those spatial units that are actually visible according to keycloak role
+								// and associated to the current indicator as well
 								for (let index = 0; index < $scope.higherSpatialUnits.length; index++) {
 									const spatialUnitMetadata = $scope.higherSpatialUnits[index];
 									
-									if(spatialUnitMetadata.spatialUnitLevel == spatialUnitName){
-										targetIndex = index;
-										break;
+									if(! allowedSpatialUnitIds.includes(spatialUnitMetadata.spatialUnitId)){										
+										$scope.higherSpatialUnits.splice(index);
 									}
 								}
 
-								$scope.higherSpatialUnits.splice(targetIndex);
+								// $scope.higherSpatialUnits.splice(targetIndex);
 								$scope.selectedSpatialUnitForFilter = $scope.higherSpatialUnits[$scope.higherSpatialUnits.length - 1];
 							};
 
