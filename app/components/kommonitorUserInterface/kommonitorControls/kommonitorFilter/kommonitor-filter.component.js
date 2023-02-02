@@ -71,7 +71,7 @@ angular
 								for (let index = 0; index < $scope.higherSpatialUnits.length; index++) {
 									const spatialUnitMetadata = $scope.higherSpatialUnits[index];
 									
-									if(! allowedSpatialUnitIds.includes(spatialUnitMetadata.spatialUnitId)){										
+									if(! allowedSpatialUnitIds.includes(spatialUnitMetadata.spatialUnitId || spatialUnitName == spatialUnitMetadata.spatialUnitLevel)){										
 										$scope.higherSpatialUnits.splice(index);
 									}
 								}
