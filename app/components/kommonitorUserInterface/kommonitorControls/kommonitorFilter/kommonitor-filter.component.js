@@ -20,6 +20,9 @@ angular
 							// initialize any adminLTE box widgets
 							$('.box').boxWidget();
 
+							$scope.considerAllowedSpatialUnitsOfCurrentIndicator = true;
+							$scope.loadingData = false;
+
 							$scope.rangeSliderForFilter;
 							$scope.valueRangeMinValue;
 							$scope.valueRangeMaxValue;
@@ -58,10 +61,12 @@ angular
 							};
 
 
-							$scope.setupSpatialUnitFilter = function(indicatorMetadataAndGeoJSON, spatialUnitName, date){	
+							$scope.setupSpatialUnitFilter = function(indicatorMetadataAndGeoJSON, spatialUnitName, date){
 								
-								let allowedSpatialUnitIds = indicatorMetadataAndGeoJSON.applicableSpatialUnits.map(spatialUnitEntry => {
-									return spatialUnitEntry.spatialUnitId;
+								$scope.loadingData = true;
+								
+								let allowedSpatialUnitIds = indicatorMetadataAndGeoJSON.applicableSpatialUnits.map(spatialUnitEntry => {									
+									return spatialUnitEntry.spatialUnitId;									
 								});
 								
 								$scope.higherSpatialUnits = JSON.parse(JSON.stringify(kommonitorDataExchangeService.availableSpatialUnits));
@@ -71,13 +76,31 @@ angular
 								for (let index = 0; index < $scope.higherSpatialUnits.length; index++) {
 									const spatialUnitMetadata = $scope.higherSpatialUnits[index];
 									
-									if(! allowedSpatialUnitIds.includes(spatialUnitMetadata.spatialUnitId || spatialUnitName == spatialUnitMetadata.spatialUnitLevel)){										
+									// remove if it is not applicable for current indicator OR
+									// remove if it is the currently displayed spatial unit to show only hierarchically higher spatial units
+									if($scope.considerAllowedSpatialUnitsOfCurrentIndicator && ! allowedSpatialUnitIds.includes(spatialUnitMetadata.spatialUnitId)){	
+										
+										// only remove the current element
+										// which represents a spatial unit that is 
+										// not supported by the current indicator 
+										$scope.higherSpatialUnits.splice(index, 1);
+									}
+
+									// since we query through a hierarchically sorted array of ALL spatial units
+									// we have to stop when we identify the currently displayed spatial unit
+									// in that case we have to remove that from the list of upper  
+									if (spatialUnitName == spatialUnitMetadata.spatialUnitLevel){
+										// remove current all all remaining elements from array
+										// (which are lower hierarchy spatial units)
 										$scope.higherSpatialUnits.splice(index);
+										break;
 									}
 								}
 
 								// $scope.higherSpatialUnits.splice(targetIndex);
 								$scope.selectedSpatialUnitForFilter = $scope.higherSpatialUnits[$scope.higherSpatialUnits.length - 1];
+
+								$scope.loadingData = false;
 							};
 
 							$scope.inputNotValid = false;
@@ -381,12 +404,20 @@ angular
 							};
 
 							$scope.updateSelectableAreas = async function(selectionType) {
+								$scope.loadingData = true;
 								//send request to datamanagement API
 								let selectedSpatialUnit = kommonitorDataExchangeService.selectedSpatialUnit;
 								let selectedSpatialUnitId = selectedSpatialUnit.spatialUnitId;
-								let upperSpatialUnitId;
-								if (selectionType === "byFeature") {
-									upperSpatialUnitId = $scope.selectedSpatialUnitForFilter.spatialUnitId;									
+								let upperSpatialUnitId = undefined;
+								
+								// spatial filter not applicable since no upper spatial unit is available or selected
+								if(! $scope.selectedSpatialUnitForFilter){
+									$scope.loadingData = false;
+									return;
+								}
+
+								if (selectionType === "byFeature" && $scope.selectedSpatialUnitForFilter) {									
+									upperSpatialUnitId = $scope.selectedSpatialUnitForFilter.spatialUnitId;																		
 								}
 								let selectedIndicatorId = kommonitorDataExchangeService.selectedIndicator.indicatorId;
 
@@ -429,6 +460,8 @@ angular
 										let dataArray = kommonitorDataExchangeService.createDualListInputArray(areaNames, "name", "id");
 										$scope.selectionByFeatureSpatialFilterDuallistOptions.items = dataArray;
 									}
+									$scope.loadingData = false;
+									$scope.$digest();
 								});
 							};
 
