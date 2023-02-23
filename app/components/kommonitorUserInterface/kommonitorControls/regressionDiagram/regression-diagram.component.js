@@ -56,7 +56,7 @@ angular
 								const defaultBorderColorForOutliers_low = __env.defaultBorderColorForOutliers_low;
 								const defaultFillOpacityForOutliers_low = __env.defaultFillOpacityForOutliers_low;
 
-								$scope.setupCompleted = false;
+								$scope.setupCompleted = true;
 
 								//$scope.allIndicatorProperties;
 								$scope.selection.selectedIndicatorForXAxis;
@@ -97,6 +97,18 @@ angular
 								};
 
 								var wait = ms => new Promise((r, j)=>setTimeout(r, ms));
+
+								$scope.$on("allIndicatorPropertiesForCurrentSpatialUnitAndTime setup begin", async function (event) {
+
+									await wait(130);
+									$scope.setupCompleted = false;
+									
+			
+									$timeout(function(){
+										$scope.$digest();
+									}, 500);
+									
+								});
 
 								$scope.$on("allIndicatorPropertiesForCurrentSpatialUnitAndTime setup completed", async function (event) {
 
