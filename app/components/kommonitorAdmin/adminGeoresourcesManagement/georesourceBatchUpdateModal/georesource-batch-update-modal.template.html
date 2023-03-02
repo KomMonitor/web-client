@@ -238,7 +238,7 @@
 
 											<!-- URL -->
 											<td ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedDatasourceTypeIsHttp(batchList)">
-												<input class="form-control" type="text" ng-model="georesource.mappingObj.dataSource.url"
+												<input class="form-control" type="text" ng-model="georesource.mappingObj.dataSource.URL"
 												ng-disabled="!georesource.selectedDatasourceType.type.includes('HTTP')" required>
 											</td>
 
@@ -364,7 +364,7 @@
 										<option value="mappingObj.converter.separator">Trennzeichen</option>
 										<option value="selectedDatasourceType">Datenquelltyp*</option>
 										<!-- File is not supported here -->
-										<option value="mappingObj.dataSource.url">URL*</option>
+										<option value="mappingObj.dataSource.URL">URL*</option>
 										<option value="mappingObj.dataSource.payload">Payload*</option>
 										<option value="mappingObj.propertyMapping.identifierProperty">ID Attributname*</option>
 										<option value="mappingObj.propertyMapping.nameProperty">NAME Attributname*</option>
@@ -504,7 +504,7 @@
 											<option disabled selected value> -- Quelltyp w&auml;hlen -- </option>
 									</select>
 									<!-- URL* -->
-									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.dataSource.url'" type="text" class="form-control"
+									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.dataSource.URL'" type="text" class="form-control"
 										ng-model="colDefaultFunctionNewValue" ng-disabled="!$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedDatasourceTypeIsHttp(batchList)">
 									</input>
 									<!-- Payload* -->

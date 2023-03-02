@@ -157,7 +157,7 @@
 
 											<!-- URL -->
 											<td ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedDatasourceTypeIsHttp(batchList)">
-												<input class="form-control" type="text" ng-model="indicator.mappingObj.dataSource.url"
+												<input class="form-control" type="text" ng-model="indicator.mappingObj.dataSource.URL"
 												ng-disabled="!indicator.selectedDatasourceType.type.includes('HTTP')" required>
 											</td>
 
@@ -250,7 +250,7 @@
 										<option value="mappingObj.converter.schemaLocation">SCHEMA_LOCATION</option>
 										<option value="selectedDatasourceType">Datenquelltyp*</option>
 										<!-- File is not supported here -->
-										<option value="mappingObj.dataSource.url">URL*</option>
+										<option value="mappingObj.dataSource.URL">URL*</option>
 										<option value="mappingObj.dataSource.payload">Payload*</option>
 										<option value="mappingObj.propertyMapping.spatialReferenceKeyProperty">ID Attributname der Raumeinheiten-Features*</option>
 										<option value="selectedTargetSpatialUnit">Ziel-Raumebene*</option>
@@ -313,7 +313,7 @@
 									</select>
 
 									<!-- URL* -->
-									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.dataSource.url'" type="text" class="form-control"
+									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.dataSource.URL'" type="text" class="form-control"
 										ng-model="colDefaultFunctionNewValue" ng-disabled="!$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedDatasourceTypeIsHttp(batchList)">
 									</input>
 
