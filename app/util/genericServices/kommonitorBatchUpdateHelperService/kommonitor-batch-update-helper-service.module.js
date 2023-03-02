@@ -646,23 +646,26 @@ angular
 					}
 
 					if (dataSourceDefinition.type === "FILE") {
+						let nameParam = oldDataSource.parameters.find((param) => param.name === "NAME")
 						dataSourceDefinition.parameters.push({
 							name: "NAME",
-							value: includeFileName ? oldDataSource.name : ""
+							value: includeFileName ? nameParam.value : ""
 						});
 					}
 
 					if (dataSourceDefinition.type === "HTTP") {
+						let urlParam = oldDataSource.parameters.find((param) => param.name === "URL")
 						dataSourceDefinition.parameters.push({
 							name: "URL",
-							value: oldDataSource.url ? oldDataSource.url : ""
+							value: urlParam.value ? urlParam.value : ""
 						});
 					}
 
 					if (dataSourceDefinition.type === "INLINE") {
+						let payloadParam = oldDataSource.parameters.find((param) => param.name === "payload")
 						dataSourceDefinition.parameters.push({
 							name: "payload",
-							value: oldDataSource.payload ? oldDataSource.payload : ""
+							value: payloadParam.value ? payloadParam.value : ""
 						});
 					}
 
@@ -714,7 +717,7 @@ angular
 						var result = $.extend(true, {}, dataSource);
 						var array = dataSource.parameters;
 						// only one datasource can be selected for each row, so the array has to be of length one
-						var paramName = array[0].name;
+						var paramName = datasourceParametersToPropertiesMapping[array[0].name];
 						var paramValue = array[0].value;
 						result[paramName] = paramValue;
 						delete result.parameters;
