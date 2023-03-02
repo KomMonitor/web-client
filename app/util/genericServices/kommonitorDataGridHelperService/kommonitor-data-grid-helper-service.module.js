@@ -1763,7 +1763,23 @@ angular
                   // now delete information - only ID and fid shall remain for indicator record update
                   delete json[__env.VALID_START_DATE_PROPERTY_NAME];
                   delete json[__env.VALID_END_DATE_PROPERTY_NAME];
-                  delete json[__env.FEATURE_NAME_PROPERTY_NAME];                  
+                  delete json[__env.FEATURE_NAME_PROPERTY_NAME]; 
+                  
+                  /*
+                  for indicators we should check if an empty/null/undefined value has been set by user and transmit it as null value
+                  */
+                 for (const key in json) {
+                  if (Object.hasOwnProperty.call(json, key)) {
+                    const element = json[key];
+
+                    if(key.includes(__env.indicatorDatePrefix)){
+                      if (element == ""){
+                        json[key] = null;
+                      }
+                    }
+                    
+                  }
+                 }
 
                   let url = __env.apiUrl + __env.basePath + "/indicators/"; 
                   
