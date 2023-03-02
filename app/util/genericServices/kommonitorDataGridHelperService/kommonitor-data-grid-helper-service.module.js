@@ -907,8 +907,8 @@ angular
 
       };
 
-      this.buildDataGrid_indicators = function (indicatorMetadataArray) {
-        if (this.dataGridOptions_indicators && this.dataGridOptions_indicators.api) {
+      this.buildDataGrid_indicators = function (indicatorMetadataArray) {        
+        if (this.dataGridOptions_indicators && this.dataGridOptions_indicators.api && document.querySelector('#indicatorOverviewTable').childElementCount > 0) {
 
           this.saveGridStore(this.dataGridOptions_indicators);
           let newRowData = this.buildDataGridRowData_indicators(indicatorMetadataArray);
@@ -1226,7 +1226,7 @@ angular
 
       this.buildDataGrid_georesources = function (georesourceMetadataArray) {
         // POI
-        if (this.dataGridOptions_georesources_poi && this.dataGridOptions_georesources_poi.api) {
+        if (this.dataGridOptions_georesources_poi && this.dataGridOptions_georesources_poi.api && document.querySelector('#poiOverviewTable').childElementCount > 0) {
 
           this.saveGridStore(this.dataGridOptions_georesources_poi);
           let newRowData = this.buildDataGridRowData_georesources_poi(georesourceMetadataArray);
@@ -1240,7 +1240,7 @@ angular
         }
 
         // LOI
-        if (this.dataGridOptions_georesources_loi && this.dataGridOptions_georesources_loi.api) {
+        if (this.dataGridOptions_georesources_loi && this.dataGridOptions_georesources_loi.api && document.querySelector('#loiOverviewTable').childElementCount > 0) {
 
           this.saveGridStore(this.dataGridOptions_georesources_loi);
           let newRowData = this.buildDataGridRowData_georesources_loi(georesourceMetadataArray);
@@ -1254,7 +1254,7 @@ angular
         }
 
         // AOI
-        if (this.dataGridOptions_georesources_aoi && this.dataGridOptions_georesources_aoi.api) {
+        if (this.dataGridOptions_georesources_aoi && this.dataGridOptions_georesources_aoi.api && document.querySelector('#aoiOverviewTable').childElementCount > 0) {
 
           this.saveGridStore(this.dataGridOptions_georesources_aoi);
           let newRowData = this.buildDataGridRowData_georesources_aoi(georesourceMetadataArray);
@@ -1270,7 +1270,7 @@ angular
 
       this.buildDataGrid_spatialUnits = function (spatialUnitMetadataArray) {
         
-        if (this.dataGridOptions_spatialUnits && this.dataGridOptions_spatialUnits.api) {
+        if (this.dataGridOptions_spatialUnits && this.dataGridOptions_spatialUnits.api && document.querySelector('#spatialUnitOverviewTable').childElementCount > 0) {
 
           this.saveGridStore(this.dataGridOptions_spatialUnits);
           let newRowData = this.buildDataGridRowData_spatialUnits(spatialUnitMetadataArray);
@@ -2044,7 +2044,7 @@ angular
 
       this.buildDataGrid_accessControl = function (accessControlArray) {
         
-        if (this.dataGridOptions_accessControl && this.dataGridOptions_accessControl.api) {
+        if (this.dataGridOptions_accessControl && this.dataGridOptions_accessControl.api && document.querySelector('#roleOverviewTable').childElementCount > 0) {
 
           this.saveGridStore(this.dataGridOptions_accessControl);
           let newRowData = this.buildDataGridRowData_accessControl(accessControlArray);
@@ -2290,7 +2290,7 @@ angular
 
       this.buildDataGrid_scripts = function (scriptsArray) {
         
-        if (this.dataGridOptions_scripts && this.dataGridOptions_scripts.api) {
+        if (this.dataGridOptions_scripts && this.dataGridOptions_scripts.api && document.querySelector('#scriptOverviewTable').childElementCount > 0) {
 
           this.saveGridStore(this.dataGridOptions_scripts);
           let newRowData = this.buildDataGridRowData_scripts(scriptsArray);
@@ -2466,7 +2466,7 @@ angular
 
       this.buildDataGrid_defaultJobs = function (jobsArray) {
         
-        if (this.dataGridOptions_defaultJobs && this.dataGridOptions_defaultJobs.api) {
+        if (this.dataGridOptions_defaultJobs && this.dataGridOptions_defaultJobs.api && document.querySelector('#jobExecutionTable_defaultComputation').childElementCount > 0) {
 
           this.saveGridStore(this.dataGridOptions_defaultJobs);
           let newRowData = this.buildDataGridRowData_defaultJobs(jobsArray);
@@ -2586,7 +2586,7 @@ angular
 
       this.buildDataGrid_customizedJobs = function (jobsArray) {
         
-        if (this.dataGridOptions_customizedJobs && this.dataGridOptions_customizedJobs.api) {
+        if (this.dataGridOptions_customizedJobs && this.dataGridOptions_customizedJobs.api && document.querySelector('#jobExecutionTable_customizedComputation').childElementCount > 0) {
 
           this.saveGridStore(this.dataGridOptions_customizedJobs);
           let newRowData = this.buildDataGridRowData_customizedJobs(jobsArray);
