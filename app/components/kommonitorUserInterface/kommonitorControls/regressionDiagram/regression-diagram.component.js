@@ -312,6 +312,42 @@ angular
 									return color;
 								};
 
+								function mapRegressionData(indicatorPropertiesArray, timestamp, map, axisValueName){
+
+									for (const indicatorPropertiesEntry of indicatorPropertiesArray) {
+										let featureName = indicatorPropertiesEntry[__env.FEATURE_NAME_PROPERTY_NAME];
+										let indicatorValue;
+
+										if (kommonitorDataExchangeService.indicatorValueIsNoData(indicatorPropertiesEntry[DATE_PREFIX + timestamp])){
+											indicatorValue = null;
+										}
+										else{
+											indicatorValue = kommonitorDataExchangeService.getIndicatorValue_asNumber(indicatorPropertiesEntry[DATE_PREFIX + timestamp]);
+										}
+
+										if(map.has(featureName)){
+											let oldObject = map.get(featureName);
+											oldObject[axisValueName] = indicatorValue;
+											map.set(featureName, oldObject);
+										}
+										else{
+											let color = getColor(featureName);
+											let regressionObject = {
+												name: featureName,											
+												itemStyle: {
+													color: color
+												}
+											};
+
+											regressionObject[axisValueName] = indicatorValue;
+											map.set(featureName, regressionObject);
+										}
+
+									}
+
+									return map;
+								}
+
 								$scope.buildDataArrayForSelectedIndicators = async function(){
 									$scope.data = new Array();
 									$scope.dataWithLabels = new Array();
@@ -328,38 +364,43 @@ angular
 									var timestamp_xAxis = $scope.selection.selectedIndicatorForXAxis.selectedDate;
 									var timestamp_yAxis = $scope.selection.selectedIndicatorForYAxis.selectedDate;
 
-									for (var i=0; i<indicatorPropertiesArrayForXAxis.length; i++){
+									/*
+									consider several cases
+									across data timestamps or whole features might not exist
+									--> cope with that and only preserve those result objects that have both timestamp values 
+									for x and y axis 
+									*/
 
-										// + sign turns output into number!
-										var xAxisDataElement;
-										var yAxisDataElement
+									// store data in a map to check above prerequesits
+									// key = ID, 
+									// value = regressionObject = {
+									// 	name: featureName,											
+									// 	itemStyle: {
+									// 		color: color
+									// 	},
+									//  xAxisName: indicatorValue_x,
+									//  yAxisName: indicatorValue_y
+									//}
+									let xAxisName = "xValue";
+									let yAxisName = "yValue";
+									let dataCandidateMap = mapRegressionData(indicatorPropertiesArrayForXAxis, timestamp_xAxis, new Map(), xAxisName);
+									dataCandidateMap = mapRegressionData(indicatorPropertiesArrayForYAxis, timestamp_yAxis, dataCandidateMap, yAxisName);
 
-										if (kommonitorDataExchangeService.indicatorValueIsNoData(indicatorPropertiesArrayForXAxis[i][DATE_PREFIX + timestamp_xAxis])){
-											xAxisDataElement = null;
+									// now iterate over map and identify those objects that have both indicator axis values set
+									// put those into resulting lists 
+
+									dataCandidateMap.forEach(function(regressionObject, key, map){
+										// $scope.data.push([xAxisDataElement, yAxisDataElement])
+										if (regressionObject[xAxisName] && regressionObject[yAxisName]){
+											$scope.data.push([regressionObject[xAxisName], regressionObject[yAxisName]]);
+
+											regressionObject.value = [regressionObject[xAxisName], regressionObject[yAxisName]];
+
+											$scope.dataWithLabels.push(
+												regressionObject
+											);
 										}
-										else{
-											xAxisDataElement = kommonitorDataExchangeService.getIndicatorValue_asNumber(indicatorPropertiesArrayForXAxis[i][DATE_PREFIX + timestamp_xAxis]);
-										}
-
-										if (kommonitorDataExchangeService.indicatorValueIsNoData(indicatorPropertiesArrayForYAxis[i][DATE_PREFIX + timestamp_yAxis])){
-											yAxisDataElement = null;
-										}
-										else{
-											yAxisDataElement = kommonitorDataExchangeService.getIndicatorValue_asNumber(indicatorPropertiesArrayForYAxis[i][DATE_PREFIX + timestamp_yAxis]);
-										}
-
-										$scope.data.push([xAxisDataElement, yAxisDataElement]);
-
-										var featureName = indicatorPropertiesArrayForXAxis[i][__env.FEATURE_NAME_PROPERTY_NAME];
-										var color = getColor(featureName);
-										$scope.dataWithLabels.push({
-											name: featureName,
-											value: [xAxisDataElement, yAxisDataElement],
-											itemStyle: {
-												color: color
-											}
-										});
-									}
+									});
 
 									return $scope.data;
 								};
