@@ -602,10 +602,36 @@ angular
 							oldConverter.parameters.splice(i, 1);
 						}
 					}
+
+					let mimeTypeValue = oldConverter.mimeType ? oldConverter.mimeType : "";
+					if (mimeTypeValue == "" && oldConverter.parameters){
+						// check for another property already inserted as parameter
+						for (const parameter of oldConverter.parameters) {
+							if (parameter.name == "mimeType"){
+								mimeTypeValue = parameter.value;
+								break;
+							}
+						}
+					}
+
+					let encodingValue = oldConverter.encoding ? oldConverter.encoding : "";
+					if (encodingValue == "" && oldConverter.parameters){
+						// check for another property already inserted as parameter
+						for (const parameter of oldConverter.parameters) {
+							if (parameter.name == "encoding"){
+								encodingValue = parameter.value;
+								break;
+							}
+						}
+					}
+					// set first encoding as fallback option
+					if(encodingValue == ""){
+						encodingValue = selectedConverter.encodings[0];
+					}
 					
 					var converterDefinition = {
-						encoding: selectedConverter.encodings[0],
-						mimeType: selectedConverter.mimeTypes[0],
+						encoding: encodingValue,
+						mimeType: mimeTypeValue,
 						name: selectedConverter.name,
 						parameters: oldConverter.parameters,
 						schema: undefined
