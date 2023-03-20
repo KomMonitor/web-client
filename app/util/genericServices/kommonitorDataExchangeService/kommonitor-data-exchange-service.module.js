@@ -2443,7 +2443,7 @@ angular
             //insert logo
             var img = new Image();
             var subPath = location.pathname;
-            img.src = subPath + '/logos/KM_Logo1.png';
+            img.src = subPath + 'logos/KM_Logo1.png';
             jspdf.addImage(img, 'PNG', 193, 5, 12, 12);
   
             jspdf.setFontSize(16);
