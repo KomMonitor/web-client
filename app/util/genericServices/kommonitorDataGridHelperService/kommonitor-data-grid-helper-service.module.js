@@ -771,10 +771,10 @@ angular
             headerHeightSetter(self.dataGridOptions_indicators);
             // self.registerClickHandler_indicators(indicatorMetadataArray);
           },
-          // onModelUpdated: function () {
-          //   // self.registerClickHandler_indicators(indicatorMetadataArray);
+          onModelUpdated: function () {
+            self.registerClickHandler_indicators(indicatorMetadataArray);
             
-          // },
+          },
           onRowDataChanged: function () {
             self.registerClickHandler_indicators(indicatorMetadataArray);
           },
@@ -817,6 +817,9 @@ angular
         //     $rootScope.$broadcast("onEditIndicatorMetadata", indicatorMetadata);
         //   });
         // }
+
+        //first unbind previous click events
+        $(".indicatorEditMetadataBtn").off();
         $(".indicatorEditMetadataBtn").on("click", function (event) {
           // ensure that only the target button gets clicked
           // manually open modal
@@ -831,6 +834,8 @@ angular
           $rootScope.$broadcast("onEditIndicatorMetadata", indicatorMetadata);
         });
 
+        //first unbind previous click events
+        $(".indicatorEditFeaturesBtn").off();
         $(".indicatorEditFeaturesBtn").on("click", function (event) {
           // ensure that only the target button gets clicked
           // manually open modal
@@ -845,6 +850,7 @@ angular
           $rootScope.$broadcast("onEditIndicatorFeatures", indicatorMetadata);
         });
 
+        $(".indicatorEditRoleBasedAccessBtn").off();
         $(".indicatorEditRoleBasedAccessBtn").on("click", function (event) {
           // ensure that only the target button gets clicked
           // manually open modal
@@ -863,6 +869,7 @@ angular
 
       this.registerClickHandler_georesources = function (georesourceMetadataArray) {
 
+        $(".georesourceEditMetadataBtn").off();
         $(".georesourceEditMetadataBtn").on("click", function (event) {
           // ensure that only the target button gets clicked
           // manually open modal
@@ -877,6 +884,7 @@ angular
           $rootScope.$broadcast("onEditGeoresourceMetadata", georesourceMetadata);
         });
 
+        $(".georesourceEditFeaturesBtn").off();
         $(".georesourceEditFeaturesBtn").on("click", function (event) {
           // ensure that only the target button gets clicked
           // manually open modal
@@ -891,6 +899,7 @@ angular
           $rootScope.$broadcast("onEditGeoresourceFeatures", georesourceMetadata);
         });
 
+        $(".georesourceDeleteBtn").off();
         $(".georesourceDeleteBtn").on("click", function (event) {
           // ensure that only the target button gets clicked
           // manually open modal
@@ -976,6 +985,9 @@ angular
           },    
           onRowDataChanged: function () {
             self.registerClickHandler_georesources(georesourceMetadataArray);
+          },
+          onModelUpdated: function () {
+            self.registerClickHandler_georesources(georesourceMetadataArray);
           },      
           onViewportChanged: function () {
             self.registerClickHandler_georesources(georesourceMetadataArray);                   
@@ -1041,6 +1053,9 @@ angular
           onRowDataChanged: function () {
             self.registerClickHandler_georesources(georesourceMetadataArray);
           }, 
+          onModelUpdated: function () {
+            self.registerClickHandler_georesources(georesourceMetadataArray);
+          }, 
           onViewportChanged: function () {
             self.registerClickHandler_georesources(georesourceMetadataArray);                   
           },
@@ -1103,6 +1118,9 @@ angular
             headerHeightSetter(self.dataGridOptions_georesources_aoi);
           },    
           onRowDataChanged: function () {
+            self.registerClickHandler_georesources(georesourceMetadataArray);
+          },    
+          onModelUpdated: function () {
             self.registerClickHandler_georesources(georesourceMetadataArray);
           },       
           onViewportChanged: function () {
@@ -1169,6 +1187,10 @@ angular
           onRowDataChanged: function () {
             self.registerClickHandler_spatialUnits(spatialUnitMetadataArray);
           },   
+          onModelUpdated: function () {
+            self.registerClickHandler_spatialUnits(spatialUnitMetadataArray);
+            
+          },
           onViewportChanged: function () {
             self.registerClickHandler_spatialUnits(spatialUnitMetadataArray);                   
           },
@@ -1180,6 +1202,7 @@ angular
 
       this.registerClickHandler_spatialUnits = function (spatialUnitMetadataArray) {
 
+        $(".spatialUnitEditMetadataBtn").off();
         $(".spatialUnitEditMetadataBtn").on("click", function (event) {
           // ensure that only the target button gets clicked
           // manually open modal
@@ -1194,6 +1217,7 @@ angular
           $rootScope.$broadcast("onEditSpatialUnitMetadata", spatialUnitMetadata);
         });
 
+        $(".spatialUnitEditFeaturesBtn").off();
         $(".spatialUnitEditFeaturesBtn").on("click", function (event) {
           // ensure that only the target button gets clicked
           // manually open modal
@@ -1208,6 +1232,7 @@ angular
           $rootScope.$broadcast("onEditSpatialUnitFeatures", spatialUnitMetadata);
         });
 
+        $(".spatialUnitDeleteBtn").off();
         $(".spatialUnitDeleteBtn").on("click", function (event) { 
           // ensure that only the target button gets clicked
           // manually open modal
@@ -1584,9 +1609,13 @@ angular
             // onColumnResized: function () {
             //   headerHeightSetter(this);
             // }
-            // onRowDataChanged: function () {
-            //   self.registerClickHandler_featureTable_spatialResource(resourceType);
-            // },   
+            onRowDataChanged: function () {
+              self.registerClickHandler_featureTable_spatialResource(resourceType);
+            },  
+            onModelUpdated: function () {
+              self.registerClickHandler_featureTable_spatialResource(resourceType);  
+              
+            }, 
             onViewportChanged: function () {
               self.registerClickHandler_featureTable_spatialResource(resourceType);                   
             },
@@ -1610,6 +1639,7 @@ angular
           url += "/spatial-units/";
         }
 
+          $(className).off();
           $(className).on("click", function (event) {
 
             // ensure that only the target button gets clicked
@@ -1888,6 +1918,7 @@ angular
         let className = ".indicatorDeleteFeatureRecordBtn";
         let url = __env.apiUrl + __env.basePath + "/indicators/";
 
+          $(className).off();
           $(className).on("click", function (event) {
 
             // ensure that only the target button gets clicked
@@ -2032,6 +2063,10 @@ angular
             onRowDataChanged: function () {
               self.registerClickHandler_accessControl(accessControlArray);
             },   
+            onModelUpdated: function () {
+              self.registerClickHandler_accessControl(accessControlArray);
+            },   
+
             onViewportChanged: function () {
               self.registerClickHandler_accessControl(accessControlArray);                   
             },
@@ -2043,6 +2078,7 @@ angular
 
       this.registerClickHandler_accessControl = function (roleMetadataArray) {
 
+        $(".roleEditMetadataBtn").off();
         $(".roleEditMetadataBtn").on("click", function (event) {
           // ensure that only the target button gets clicked
           // manually open modal
@@ -2914,10 +2950,16 @@ angular
             onFirstDataRendered: function () {
             },
             onColumnResized: function () {
+              self.registerClickHandler_accessControl(accessControlMetadata);
             },        
             onRowDataChanged: function () {
+              self.registerClickHandler_accessControl(accessControlMetadata);
             },   
-            onViewportChanged: function () {       
+            onModelUpdated: function () {
+              self.registerClickHandler_accessControl(accessControlMetadata);
+            },   
+            onViewportChanged: function () {   
+              self.registerClickHandler_accessControl(accessControlMetadata);    
             },
   
           };
