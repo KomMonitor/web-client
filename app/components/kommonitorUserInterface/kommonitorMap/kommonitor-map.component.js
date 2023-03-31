@@ -263,6 +263,8 @@ angular.module('kommonitorMap').component(
         const wfsLayerGroupName = "Web Feature Services (WFS)";
         const fileLayerGroupName = "Dateilayer";
 
+        sortableLayers = ["Web Map Services (WMS)"];
+
         // create classyBrew object
         $scope.defaultBrew = new classyBrew();
         $scope.gtMeasureOfValueBrew = new classyBrew();
@@ -431,7 +433,7 @@ angular.module('kommonitorMap').component(
             }
           };
 
-          $scope.layerControl = L.control.groupedLayers($scope.baseMaps, $scope.groupedOverlays, { position: 'topleft' });
+          $scope.layerControl = L.control.groupedLayers($scope.baseMaps, $scope.groupedOverlays, { position: 'topleft', sortableLayers });
           $scope.map.addControl($scope.layerControl);
 
           // Disable dragging when user's cursor enters the element

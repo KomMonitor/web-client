@@ -878,10 +878,10 @@ pre.CodeMirror-line {
 }
 
 .leaflet-left .leaflet-control-layers-expanded {
-
-	width:500px;
-	height: auto;
-	overflow : auto;
+	width: 500px;
+	overflow-x: hidden;
+	overflow-y: auto;
+	max-height: 80vh;
 }
 
 .leaflet-left .leaflet-control-measure-interaction {
