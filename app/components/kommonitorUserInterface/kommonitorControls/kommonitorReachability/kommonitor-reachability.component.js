@@ -1490,7 +1490,8 @@ angular
 							nextKey = keyIter.next();
 						}
 
-						poi.geoJSON = pointsPerIsochroneRangeMap.get(largestRange);
+						// map stores keys as string
+						poi.geoJSON = pointsPerIsochroneRangeMap.get("" + largestRange);
 
 						return poi;
 					}
@@ -1539,7 +1540,7 @@ angular
 						var map = new Map();
 
 						for (const feature of $scope.currentIsochronesGeoJSON.features) {
-							map.set(feature.properties.value, null);
+							map.set("" + feature.properties.value, null);
 						}
 
 						return map;

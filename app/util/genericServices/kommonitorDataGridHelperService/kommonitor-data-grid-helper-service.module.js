@@ -771,10 +771,10 @@ angular
             headerHeightSetter(self.dataGridOptions_indicators);
             // self.registerClickHandler_indicators(indicatorMetadataArray);
           },
-          // onModelUpdated: function () {
-          //   // self.registerClickHandler_indicators(indicatorMetadataArray);
+          onModelUpdated: function () {
+            self.registerClickHandler_indicators(indicatorMetadataArray);
             
-          // },
+          },
           onRowDataChanged: function () {
             self.registerClickHandler_indicators(indicatorMetadataArray);
           },
@@ -817,6 +817,9 @@ angular
         //     $rootScope.$broadcast("onEditIndicatorMetadata", indicatorMetadata);
         //   });
         // }
+
+        //first unbind previous click events
+        $(".indicatorEditMetadataBtn").off();
         $(".indicatorEditMetadataBtn").on("click", function (event) {
           // ensure that only the target button gets clicked
           // manually open modal
@@ -831,6 +834,8 @@ angular
           $rootScope.$broadcast("onEditIndicatorMetadata", indicatorMetadata);
         });
 
+        //first unbind previous click events
+        $(".indicatorEditFeaturesBtn").off();
         $(".indicatorEditFeaturesBtn").on("click", function (event) {
           // ensure that only the target button gets clicked
           // manually open modal
@@ -845,6 +850,7 @@ angular
           $rootScope.$broadcast("onEditIndicatorFeatures", indicatorMetadata);
         });
 
+        $(".indicatorEditRoleBasedAccessBtn").off();
         $(".indicatorEditRoleBasedAccessBtn").on("click", function (event) {
           // ensure that only the target button gets clicked
           // manually open modal
@@ -863,6 +869,7 @@ angular
 
       this.registerClickHandler_georesources = function (georesourceMetadataArray) {
 
+        $(".georesourceEditMetadataBtn").off();
         $(".georesourceEditMetadataBtn").on("click", function (event) {
           // ensure that only the target button gets clicked
           // manually open modal
@@ -877,6 +884,7 @@ angular
           $rootScope.$broadcast("onEditGeoresourceMetadata", georesourceMetadata);
         });
 
+        $(".georesourceEditFeaturesBtn").off();
         $(".georesourceEditFeaturesBtn").on("click", function (event) {
           // ensure that only the target button gets clicked
           // manually open modal
@@ -891,6 +899,7 @@ angular
           $rootScope.$broadcast("onEditGeoresourceFeatures", georesourceMetadata);
         });
 
+        $(".georesourceDeleteBtn").off();
         $(".georesourceDeleteBtn").on("click", function (event) {
           // ensure that only the target button gets clicked
           // manually open modal
@@ -907,8 +916,8 @@ angular
 
       };
 
-      this.buildDataGrid_indicators = function (indicatorMetadataArray) {
-        if (this.dataGridOptions_indicators && this.dataGridOptions_indicators.api) {
+      this.buildDataGrid_indicators = function (indicatorMetadataArray) {        
+        if (this.dataGridOptions_indicators && this.dataGridOptions_indicators.api && document.querySelector('#indicatorOverviewTable').childElementCount > 0) {
 
           this.saveGridStore(this.dataGridOptions_indicators);
           let newRowData = this.buildDataGridRowData_indicators(indicatorMetadataArray);
@@ -976,6 +985,9 @@ angular
           },    
           onRowDataChanged: function () {
             self.registerClickHandler_georesources(georesourceMetadataArray);
+          },
+          onModelUpdated: function () {
+            self.registerClickHandler_georesources(georesourceMetadataArray);
           },      
           onViewportChanged: function () {
             self.registerClickHandler_georesources(georesourceMetadataArray);                   
@@ -1041,6 +1053,9 @@ angular
           onRowDataChanged: function () {
             self.registerClickHandler_georesources(georesourceMetadataArray);
           }, 
+          onModelUpdated: function () {
+            self.registerClickHandler_georesources(georesourceMetadataArray);
+          }, 
           onViewportChanged: function () {
             self.registerClickHandler_georesources(georesourceMetadataArray);                   
           },
@@ -1103,6 +1118,9 @@ angular
             headerHeightSetter(self.dataGridOptions_georesources_aoi);
           },    
           onRowDataChanged: function () {
+            self.registerClickHandler_georesources(georesourceMetadataArray);
+          },    
+          onModelUpdated: function () {
             self.registerClickHandler_georesources(georesourceMetadataArray);
           },       
           onViewportChanged: function () {
@@ -1169,6 +1187,10 @@ angular
           onRowDataChanged: function () {
             self.registerClickHandler_spatialUnits(spatialUnitMetadataArray);
           },   
+          onModelUpdated: function () {
+            self.registerClickHandler_spatialUnits(spatialUnitMetadataArray);
+            
+          },
           onViewportChanged: function () {
             self.registerClickHandler_spatialUnits(spatialUnitMetadataArray);                   
           },
@@ -1180,6 +1202,7 @@ angular
 
       this.registerClickHandler_spatialUnits = function (spatialUnitMetadataArray) {
 
+        $(".spatialUnitEditMetadataBtn").off();
         $(".spatialUnitEditMetadataBtn").on("click", function (event) {
           // ensure that only the target button gets clicked
           // manually open modal
@@ -1194,6 +1217,7 @@ angular
           $rootScope.$broadcast("onEditSpatialUnitMetadata", spatialUnitMetadata);
         });
 
+        $(".spatialUnitEditFeaturesBtn").off();
         $(".spatialUnitEditFeaturesBtn").on("click", function (event) {
           // ensure that only the target button gets clicked
           // manually open modal
@@ -1208,6 +1232,7 @@ angular
           $rootScope.$broadcast("onEditSpatialUnitFeatures", spatialUnitMetadata);
         });
 
+        $(".spatialUnitDeleteBtn").off();
         $(".spatialUnitDeleteBtn").on("click", function (event) { 
           // ensure that only the target button gets clicked
           // manually open modal
@@ -1226,7 +1251,7 @@ angular
 
       this.buildDataGrid_georesources = function (georesourceMetadataArray) {
         // POI
-        if (this.dataGridOptions_georesources_poi && this.dataGridOptions_georesources_poi.api) {
+        if (this.dataGridOptions_georesources_poi && this.dataGridOptions_georesources_poi.api && document.querySelector('#poiOverviewTable').childElementCount > 0) {
 
           this.saveGridStore(this.dataGridOptions_georesources_poi);
           let newRowData = this.buildDataGridRowData_georesources_poi(georesourceMetadataArray);
@@ -1240,7 +1265,7 @@ angular
         }
 
         // LOI
-        if (this.dataGridOptions_georesources_loi && this.dataGridOptions_georesources_loi.api) {
+        if (this.dataGridOptions_georesources_loi && this.dataGridOptions_georesources_loi.api && document.querySelector('#loiOverviewTable').childElementCount > 0) {
 
           this.saveGridStore(this.dataGridOptions_georesources_loi);
           let newRowData = this.buildDataGridRowData_georesources_loi(georesourceMetadataArray);
@@ -1254,7 +1279,7 @@ angular
         }
 
         // AOI
-        if (this.dataGridOptions_georesources_aoi && this.dataGridOptions_georesources_aoi.api) {
+        if (this.dataGridOptions_georesources_aoi && this.dataGridOptions_georesources_aoi.api && document.querySelector('#aoiOverviewTable').childElementCount > 0) {
 
           this.saveGridStore(this.dataGridOptions_georesources_aoi);
           let newRowData = this.buildDataGridRowData_georesources_aoi(georesourceMetadataArray);
@@ -1270,7 +1295,7 @@ angular
 
       this.buildDataGrid_spatialUnits = function (spatialUnitMetadataArray) {
         
-        if (this.dataGridOptions_spatialUnits && this.dataGridOptions_spatialUnits.api) {
+        if (this.dataGridOptions_spatialUnits && this.dataGridOptions_spatialUnits.api && document.querySelector('#spatialUnitOverviewTable').childElementCount > 0) {
 
           this.saveGridStore(this.dataGridOptions_spatialUnits);
           let newRowData = this.buildDataGridRowData_spatialUnits(spatialUnitMetadataArray);
@@ -1584,9 +1609,13 @@ angular
             // onColumnResized: function () {
             //   headerHeightSetter(this);
             // }
-            // onRowDataChanged: function () {
-            //   self.registerClickHandler_featureTable_spatialResource(resourceType);
-            // },   
+            onRowDataChanged: function () {
+              self.registerClickHandler_featureTable_spatialResource(resourceType);
+            },  
+            onModelUpdated: function () {
+              self.registerClickHandler_featureTable_spatialResource(resourceType);  
+              
+            }, 
             onViewportChanged: function () {
               self.registerClickHandler_featureTable_spatialResource(resourceType);                   
             },
@@ -1610,6 +1639,7 @@ angular
           url += "/spatial-units/";
         }
 
+          $(className).off();
           $(className).on("click", function (event) {
 
             // ensure that only the target button gets clicked
@@ -1763,7 +1793,23 @@ angular
                   // now delete information - only ID and fid shall remain for indicator record update
                   delete json[__env.VALID_START_DATE_PROPERTY_NAME];
                   delete json[__env.VALID_END_DATE_PROPERTY_NAME];
-                  delete json[__env.FEATURE_NAME_PROPERTY_NAME];                  
+                  delete json[__env.FEATURE_NAME_PROPERTY_NAME]; 
+                  
+                  /*
+                  for indicators we should check if an empty/null/undefined value has been set by user and transmit it as null value
+                  */
+                 for (const key in json) {
+                  if (Object.hasOwnProperty.call(json, key)) {
+                    const element = json[key];
+
+                    if(key.includes(__env.indicatorDatePrefix)){
+                      if (element == ""){
+                        json[key] = null;
+                      }
+                    }
+                    
+                  }
+                 }
 
                   let url = __env.apiUrl + __env.basePath + "/indicators/"; 
                   
@@ -1872,6 +1918,7 @@ angular
         let className = ".indicatorDeleteFeatureRecordBtn";
         let url = __env.apiUrl + __env.basePath + "/indicators/";
 
+          $(className).off();
           $(className).on("click", function (event) {
 
             // ensure that only the target button gets clicked
@@ -2016,6 +2063,10 @@ angular
             onRowDataChanged: function () {
               self.registerClickHandler_accessControl(accessControlArray);
             },   
+            onModelUpdated: function () {
+              self.registerClickHandler_accessControl(accessControlArray);
+            },   
+
             onViewportChanged: function () {
               self.registerClickHandler_accessControl(accessControlArray);                   
             },
@@ -2027,6 +2078,7 @@ angular
 
       this.registerClickHandler_accessControl = function (roleMetadataArray) {
 
+        $(".roleEditMetadataBtn").off();
         $(".roleEditMetadataBtn").on("click", function (event) {
           // ensure that only the target button gets clicked
           // manually open modal
@@ -2044,7 +2096,7 @@ angular
 
       this.buildDataGrid_accessControl = function (accessControlArray) {
         
-        if (this.dataGridOptions_accessControl && this.dataGridOptions_accessControl.api) {
+        if (this.dataGridOptions_accessControl && this.dataGridOptions_accessControl.api && document.querySelector('#roleOverviewTable').childElementCount > 0) {
 
           this.saveGridStore(this.dataGridOptions_accessControl);
           let newRowData = this.buildDataGridRowData_accessControl(accessControlArray);
@@ -2290,7 +2342,7 @@ angular
 
       this.buildDataGrid_scripts = function (scriptsArray) {
         
-        if (this.dataGridOptions_scripts && this.dataGridOptions_scripts.api) {
+        if (this.dataGridOptions_scripts && this.dataGridOptions_scripts.api && document.querySelector('#scriptOverviewTable').childElementCount > 0) {
 
           this.saveGridStore(this.dataGridOptions_scripts);
           let newRowData = this.buildDataGridRowData_scripts(scriptsArray);
@@ -2466,7 +2518,7 @@ angular
 
       this.buildDataGrid_defaultJobs = function (jobsArray) {
         
-        if (this.dataGridOptions_defaultJobs && this.dataGridOptions_defaultJobs.api) {
+        if (this.dataGridOptions_defaultJobs && this.dataGridOptions_defaultJobs.api && document.querySelector('#jobExecutionTable_defaultComputation').childElementCount > 0) {
 
           this.saveGridStore(this.dataGridOptions_defaultJobs);
           let newRowData = this.buildDataGridRowData_defaultJobs(jobsArray);
@@ -2586,7 +2638,7 @@ angular
 
       this.buildDataGrid_customizedJobs = function (jobsArray) {
         
-        if (this.dataGridOptions_customizedJobs && this.dataGridOptions_customizedJobs.api) {
+        if (this.dataGridOptions_customizedJobs && this.dataGridOptions_customizedJobs.api && document.querySelector('#jobExecutionTable_customizedComputation').childElementCount > 0) {
 
           this.saveGridStore(this.dataGridOptions_customizedJobs);
           let newRowData = this.buildDataGridRowData_customizedJobs(jobsArray);
@@ -2898,10 +2950,16 @@ angular
             onFirstDataRendered: function () {
             },
             onColumnResized: function () {
+              self.registerClickHandler_accessControl(accessControlMetadata);
             },        
             onRowDataChanged: function () {
+              self.registerClickHandler_accessControl(accessControlMetadata);
             },   
-            onViewportChanged: function () {       
+            onModelUpdated: function () {
+              self.registerClickHandler_accessControl(accessControlMetadata);
+            },   
+            onViewportChanged: function () {   
+              self.registerClickHandler_accessControl(accessControlMetadata);    
             },
   
           };

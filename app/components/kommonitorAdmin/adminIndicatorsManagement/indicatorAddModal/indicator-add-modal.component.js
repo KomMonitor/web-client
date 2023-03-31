@@ -167,7 +167,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 		});
 
 		function refreshRoles() {
-			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorAddRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, null);
+			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorAddRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, kommonitorDataExchangeService.getCurrentKomMonitorLoginRoleIds());
 		}
 
 		$scope.datasetName = undefined;
@@ -265,7 +265,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			$scope.metadata.lastUpdate = undefined;
 			$scope.metadata.description = undefined;
 
-			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorAddRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, null);			
+			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorAddRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, kommonitorDataExchangeService.getCurrentKomMonitorLoginRoleIds());			
 
 			$scope.datasetName = undefined;
 			$scope.indicatorAbbreviation = undefined;

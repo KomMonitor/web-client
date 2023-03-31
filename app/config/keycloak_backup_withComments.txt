@@ -1,6 +1,6 @@
 { // COMMENTS NOT ALLOWED IN JSON, BUT USED HERE TO EXPLAIN PROPERTIES
   "realm": "kommonitor", // Keycloak Realm name used for all KomMonitor components
-  "auth-server-url": "https://keycloak.url/auth/", // keycloak server URL inluding "/auth/"
+  "auth-server-url": "https://keycloak.url/", // keycloak server URL inluding "/"
   "ssl-required": "external",  // SSL Setting, leave it to "external"
   "resource": "kommonitor-web-client",  // Keycloak resource/client name within upper realm
   "public-client": true, // Keycloak setting that client itself does not require authentication to access page
