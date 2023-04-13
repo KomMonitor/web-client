@@ -71,10 +71,10 @@ angular.module('kommonitorMap').service(
 						georesourceMetadataAndGeoJSON, date);
 			};
 
-      this.replaceIsochroneGeoJSON = function (geoJSON, transitMode, reachMode, cutOffValues, useMultipleStartPoints, dissolveIsochrones, speedInKilometersPerHour) {
+      this.replaceIsochroneGeoJSON = function (geoJSON, transitMode, reachMode, cutOffValues, useMultipleStartPoints, dissolveIsochrones) {
 
 				$rootScope.$broadcast("replaceIsochronesAsGeoJSON",
-						geoJSON, transitMode, reachMode, cutOffValues, useMultipleStartPoints, dissolveIsochrones, speedInKilometersPerHour);
+						geoJSON, transitMode, reachMode, cutOffValues, useMultipleStartPoints, dissolveIsochrones);
 			};
 
       this.replaceRouteGeoJSON = function (geoJSON, transitMode, preference, routingStartPoint, routingEndPoint,

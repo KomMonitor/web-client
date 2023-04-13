@@ -1,0 +1,121 @@
+<div align="center" ng-show="! $ctrl.kommonitorReachabilityHelperServiceInstance.currentIsochronesGeoJSON">
+	<p>
+		Bitte f&uuml;hren Sie zuerst eine Isochronenberechnung durch.
+	</p>
+</div>
+
+<div align="center" ng-show="$ctrl.kommonitorReachabilityHelperServiceInstance.currentIsochronesGeoJSON">
+	<div class="just-padding">
+
+		<div class="">
+
+			<p>Bestimmen Sie ein Referenzdatum und selektieren relevante Punktlayer in der Tabelle. F&uuml;r jeden
+				Punktlayer werden gem&auml;&szlig; des Referenzdatums
+				die g&uuml;ltigen Punktobjekte geladen und mit den zuvor berechneten Isochronen verschnitten.
+			</p>
+
+			<label>Art der Datumsdefinition zum Abruf eines Datensatzes</label>
+			<div class="form-group">
+				<label class="radio-inline"><input type="radio" name="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.dateSelectionType"
+						ng-value="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.dateSelectionType_valueIndicator"
+						ng-model="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.dateSelectionType.selectedDateType"
+						ng-click="onClickUseIndicatorTimestamp()">Datum des aktuellen Indikators</label>
+				<label class="radio-inline"><input type="radio" name="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.dateSelectionType"
+						ng-value="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.dateSelectionType_valueManual"
+						ng-model="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.dateSelectionType.selectedDateType">manuelles Datum
+					<div ng-hide="!(settings.dateSelectionType.selectedDateType === $ctrl.kommonitorReachabilityHelperServiceInstance.settings.dateSelectionType_valueManual)"
+						class="input-group date">
+						<div class="input-group-addon">
+							<i class="far fa-calendar-alt"></i>
+						</div>
+						<input type="text" ng-model="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.selectedDate_manual" ng-change="onChangeManualDate()"
+							class="form-control pull-right" placeholder="YYYY-MM-DD"
+							id="manualDateDatepicker_reachabilityAnalysis" required>
+					</div>
+				</label>
+				<label class="radio-inline"><input type="radio" name="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.dateSelectionType"
+						ng-value="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.dateSelectionType_valuePerDataset"
+						ng-model="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.dateSelectionType.selectedDateType">pro Datensatz</label>
+			</div>
+
+			<!-- <p>Selektieren eines Eintrags aus unten stehender Liste f&uuml;gt den entsprechenden Punkt-Layer der Kartendarstellung hinzu. Deselektion entfernt den entsprechenden Layer aus der Kartendarstellung.</p> -->
+
+			<div class="input-group">
+				<span class="input-group-addon"><i class="fas fa-filter"></i></span>
+				<input type="text" class="form-control input-sm" placeholder="Stichwortfilter"
+					ng-model="poiNameFilter_reachabilityAnalysis" ng-model-options="{debounce: 500, blur: 0}">
+			</div>
+
+			<br />
+
+			<div id="poiInputForm_reachabilityAnalysis">
+
+				<table class="table table-condensed" style="margin-bottom:0px;">
+					<thead>
+						<tr>
+							<th>Datensatz</th>
+							<th>Beschreibung</th>
+							<th>Legende</th>
+							<th
+								ng-if="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.dateSelectionType.selectedDateType === $ctrl.kommonitorReachabilityHelperServiceInstance.settings.dateSelectionType_valuePerDataset">
+								Zeitschnitt</th>
+						</tr>
+					</thead>
+
+					<tbody>
+
+						<tr
+							ng-repeat='poi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois() | filter:poiNameFilter_reachabilityAnalysis'>
+							<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
+							<td>
+								<label class='checkbox-inline'><input type="checkbox" value="poi.datasetName"
+										ng-model="poi.isSelected_reachabilityAnalysis"
+										ng-change="handlePoiForAnalysis(poi)">
+
+									<b>&nbsp;&nbsp;{{poi.datasetName}}</b>
+								</label>
+							</td>
+							<td>
+								<p>{{poi.metadata.description}}</p>
+							</td>
+							<td class="text-center">
+								<div align="center">
+									<div
+										class="awesome-marker-legend awesome-marker-legend-icon-{{poi.poiMarkerColor}}">
+										<span
+											style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:{{poi.poiSymbolColor}};"
+											class="glyphicon glyphicon-{{poi.poiSymbolBootstrap3Name}}"
+											aria-hidden="true"></span>
+									</div>
+								</div>
+							</td>
+							<td
+								ng-if="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.dateSelectionType.selectedDateType === $ctrl.kommonitorReachabilityHelperServiceInstance.settings.dateSelectionType_valuePerDataset">
+								<select style="font-size: 11px; width:135px; padding: 0px;" ng-model="poi.selectedDate"
+									ng-change="onChangeSelectedDate(poi)"
+									ng-options="date as date.startDate + ' - ' + date.endDate for date in poi.availablePeriodsOfValidity | orderBy: 'startDate'"
+									ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]"
+									class="form-control" required>
+								</select>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+
+				<br />
+
+			</div>
+
+			<br />
+
+
+			<div id="reachability_diagrams_section">
+
+			</div>
+
+
+		</div>
+
+	</div>
+
+</div>

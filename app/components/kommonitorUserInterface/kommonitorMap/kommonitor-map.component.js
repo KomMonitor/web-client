@@ -1305,7 +1305,7 @@ angular.module('kommonitorMap').component(
           $scope.map.invalidateSize(true);
         });
 
-        $scope.$on("replaceIsochronesAsGeoJSON", function (event, geoJSON, transitMode, reachMode, cutOffValues, useMultipleStartPoints, dissolveIsochrones, speedInKilometersPerHour) {
+        $scope.$on("replaceIsochronesAsGeoJSON", function (event, geoJSON, transitMode, reachMode, cutOffValues, useMultipleStartPoints, dissolveIsochrones) {
 
           if ($scope.isochronesLayer) {
             $scope.layerControl.removeLayer($scope.isochronesLayer);
@@ -1343,7 +1343,6 @@ angular.module('kommonitorMap').component(
           kommonitorDataExchangeService.isochroneLegend = {
             transitMode: transitModeValue,
             reachMode: reachModeValue,
-            speedInKilometersPerHour: speedInKilometersPerHour,
             colorValueEntries: [],
             cutOffValues: cutOffValues,
             cutOffUnit: cutOffUnitValue

@@ -1,10 +1,11 @@
 angular.module('reachabilityScenarioModal').component('reachabilityScenarioModal', {
 	templateUrl: "components/kommonitorUserInterface/kommonitorControls/kommonitorReachability/reachabilityScenarioModal/reachability-scenario-modal.template.html",
 	controller: ['kommonitorDataExchangeService', 'kommonitorSingleFeatureMapHelperService',
-		'$scope', '$rootScope', '$http', '__env', '$timeout', 'kommonitorMultiStepFormHelperService',
+		'$scope', '$rootScope', '$http', '__env', '$timeout', 'kommonitorMultiStepFormHelperService', 'kommonitorReachabilityHelperService',
 		function ReachabilityScenarioModalController(kommonitorDataExchangeService, kommonitorSingleFeatureMapHelperService,
-			$scope, $rootScope, $http, __env, $timeout, kommonitorMultiStepFormHelperService) {
+			$scope, $rootScope, $http, __env, $timeout, kommonitorMultiStepFormHelperService, kommonitorReachabilityHelperService) {
 
+			this.kommonitorReachabilityHelperServiceInstance = kommonitorReachabilityHelperService;
 			this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 			this.kommonitorSingleFeatureMapHelperServiceInstance = kommonitorSingleFeatureMapHelperService;
 
