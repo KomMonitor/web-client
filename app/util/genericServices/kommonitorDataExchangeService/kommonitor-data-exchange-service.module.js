@@ -1231,13 +1231,18 @@ angular
               if (topicsMap.has(georesourceMetadata.topicReference)){
                 var georesourceDatasets = topicsMap.get(georesourceMetadata.topicReference);
                 
-                if(georesourceMetadata.isPOI){
+                // catch any frehsly created reachability scenario data sources as they are handled differently (only for reachability analysis)
+                if(georesourceMetadata.isNewReachabilityDataSource){
+                  continue;
+                }
+
+                else if(georesourceMetadata.isPOI){
                   georesourceDatasets.poiDatasets.push(georesourceMetadata);
                 }
-                if(georesourceMetadata.isLOI){
+                else if(georesourceMetadata.isLOI){
                   georesourceDatasets.loiDatasets.push(georesourceMetadata);
                 }
-                if(georesourceMetadata.isAOI){
+                else if(georesourceMetadata.isAOI){
                   georesourceDatasets.aoiDatasets.push(georesourceMetadata);
                 }                
 
@@ -1246,13 +1251,18 @@ angular
               else{
                 var georesourceDatasets_unmapped = topicsMap.get(this.georesourceMapKey_forUnmappedTopicReferences);
                 
-                if(georesourceMetadata.isPOI){
+                // catch any frehsly created reachability scenario data sources as they are handled differently (only for reachability analysis)
+                if(georesourceMetadata.isNewReachabilityDataSource){
+                  continue;
+                }
+
+                else if(georesourceMetadata.isPOI){
                   georesourceDatasets_unmapped.poiDatasets.push(georesourceMetadata);
                 }
-                if(georesourceMetadata.isLOI){
+                else if(georesourceMetadata.isLOI){
                   georesourceDatasets_unmapped.loiDatasets.push(georesourceMetadata);
                 }
-                if(georesourceMetadata.isAOI){
+                else if(georesourceMetadata.isAOI){
                   georesourceDatasets_unmapped.aoiDatasets.push(georesourceMetadata);
                 }                
 
