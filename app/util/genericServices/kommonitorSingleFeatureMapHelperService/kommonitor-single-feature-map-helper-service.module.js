@@ -27,74 +27,74 @@ angular
          * L.TileLayer.Grayscale is a regular tilelayer with grayscale makeover.
          */
 
-        L.TileLayer.Grayscale = L.TileLayer.extend({
-          options: {
-            quotaRed: 21,
-            quotaGreen: 71,
-            quotaBlue: 8,
-            quotaDividerTune: 0,
-            quotaDivider: function () {
-              return this.quotaRed + this.quotaGreen + this.quotaBlue + this.quotaDividerTune;
-            }
-          },
-
-          initialize: function (url, options) {
-            options = options || {};
-            options.crossOrigin = true;
-            L.TileLayer.prototype.initialize.call(this, url, options);
-
-            this.on('tileload', function (e) {
-              this._makeGrayscale(e.tile);
-            });
-          },
-
-          _createTile: function () {
-            var tile = L.TileLayer.prototype._createTile.call(this);
-            tile.crossOrigin = "Anonymous";
-            return tile;
-          },
-
-          _makeGrayscale: function (img) {
-            if (img.getAttribute('data-grayscaled'))
-              return;
-
-            img.crossOrigin = '';
-            var canvas = document.createElement("canvas");
-            canvas.width = img.width;
-            canvas.height = img.height;
-            var ctx = canvas.getContext("2d");
-            ctx.drawImage(img, 0, 0);
-
-            var imgd = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            var pix = imgd.data;
-            for (var i = 0, n = pix.length; i < n; i += 4) {
-              pix[i] = pix[i + 1] = pix[i + 2] = (this.options.quotaRed * pix[i] + this.options.quotaGreen * pix[i + 1] + this.options.quotaBlue * pix[i + 2]) / this.options.quotaDivider();
-            }
-            ctx.putImageData(imgd, 0, 0);
-            img.setAttribute('data-grayscaled', true);
-            img.src = canvas.toDataURL();
+      L.TileLayer.Grayscale = L.TileLayer.extend({
+        options: {
+          quotaRed: 21,
+          quotaGreen: 71,
+          quotaBlue: 8,
+          quotaDividerTune: 0,
+          quotaDivider: function () {
+            return this.quotaRed + this.quotaGreen + this.quotaBlue + this.quotaDividerTune;
           }
-        });
+        },
 
-      this.invalidateMap = function(){
-        if (this.map){
+        initialize: function (url, options) {
+          options = options || {};
+          options.crossOrigin = true;
+          L.TileLayer.prototype.initialize.call(this, url, options);
+
+          this.on('tileload', function (e) {
+            this._makeGrayscale(e.tile);
+          });
+        },
+
+        _createTile: function () {
+          var tile = L.TileLayer.prototype._createTile.call(this);
+          tile.crossOrigin = "Anonymous";
+          return tile;
+        },
+
+        _makeGrayscale: function (img) {
+          if (img.getAttribute('data-grayscaled'))
+            return;
+
+          img.crossOrigin = '';
+          var canvas = document.createElement("canvas");
+          canvas.width = img.width;
+          canvas.height = img.height;
+          var ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0);
+
+          var imgd = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          var pix = imgd.data;
+          for (var i = 0, n = pix.length; i < n; i += 4) {
+            pix[i] = pix[i + 1] = pix[i + 2] = (this.options.quotaRed * pix[i] + this.options.quotaGreen * pix[i + 1] + this.options.quotaBlue * pix[i + 2]) / this.options.quotaDivider();
+          }
+          ctx.putImageData(imgd, 0, 0);
+          img.setAttribute('data-grayscaled', true);
+          img.src = canvas.toDataURL();
+        }
+      });
+
+      this.invalidateMap = function () {
+        if (this.map) {
           // just wait a bit in order to ensure that map element is visible to make invalidateSize actually work
-          $timeout(function(){            
+          $timeout(function () {
             self.map.invalidateSize(true);
           }, 500);
         }
       };
 
-      this.zoomToDataLayer = function(){
-        if (this.map && this.dataLayer){
+      this.zoomToDataLayer = function () {
+        if (this.map && this.dataLayer) {
           // just wait a bit in order to ensure that map element is visible to make invalidateSize actually work
-          $timeout(function(){            
+          $timeout(function () {
             self.map.fitBounds(self.dataLayer.getBounds());
           }, 750);
         }
       };
 
-      this.initSingleFeatureGeoMap = function(domId, resourceType){
+      this.initSingleFeatureGeoMap = function (domId, resourceType) {
         // init leaflet map
 
         // add geometry editing tool for the respective RESOURCE TYPE
@@ -103,112 +103,112 @@ angular
 
         // register events that broadcast new geometry to other components
 
-          if(this.map){
-            this.map.off();
-            this.map.remove();
+        if (this.map) {
+          this.map.off();
+          this.map.remove();
 
-            // var domNode = document.getElementById(domId);
+          // var domNode = document.getElementById(domId);
 
-						// 	while (domNode.hasChildNodes()) {
-						// 		domNode.removeChild(domNode.lastChild);
-						// 	}
-          }
+          // 	while (domNode.hasChildNodes()) {
+          // 		domNode.removeChild(domNode.lastChild);
+          // 	}
+        }
 
-          // backgroundLayer
-          this.backgroundLayer = new L.TileLayer.Grayscale("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { minZoom: __env.minZoomLevel, maxZoom: __env.maxZoomLevel, attribution: "Map data © <a href='http://openstreetmap.org'>OpenStreetMap</a> contributors" });
-      
-          this.map = L.map(domId, {
-            center: [__env.initialLatitude, __env.initialLongitude],
-            zoom: __env.initialZoomLevel,
-            zoomDelta: 0.5,
-            zoomSnap: 0.5,
-            layers: [this.backgroundLayer]
-          });
+        // backgroundLayer
+        this.backgroundLayer = new L.TileLayer.Grayscale("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { minZoom: __env.minZoomLevel, maxZoom: __env.maxZoomLevel, attribution: "Map data © <a href='http://openstreetmap.org'>OpenStreetMap</a> contributors" });
 
-          L.control.scale().addTo(this.map); 
-          
-          // this.initLayerControl();
+        this.map = L.map(domId, {
+          center: [__env.initialLatitude, __env.initialLongitude],
+          zoom: __env.initialZoomLevel,
+          zoomDelta: 0.5,
+          zoomSnap: 0.5,
+          layers: [this.backgroundLayer]
+        });
 
-          if(resourceType == this.resourceType_point){
-            this.initGeosearchControl();
-          }          
+        L.control.scale().addTo(this.map);
 
-          this.initDrawControl(resourceType);
+        // this.initLayerControl();
 
-          this.invalidateMap();
+        if (resourceType == this.resourceType_point) {
+          this.initGeosearchControl();
+        }
+
+        this.initDrawControl(resourceType);
+
+        this.invalidateMap();
       };
 
-      this.initLayerControl = function(){
+      this.initLayerControl = function () {
         let baseLayers = {
           "OpenStreetMap Graustufen": this.backgroundLayer
         };
         let overlays = {};
 
-        this.layerControl = L.control.layers(baseLayers, overlays, {position: "topleft"}).addTo(this.map);
+        this.layerControl = L.control.layers(baseLayers, overlays, { position: "topleft" }).addTo(this.map);
       };
 
-      this.initGeosearchControl = function(){
+      this.initGeosearchControl = function () {
         /////////////////////////////////////////////////////
-          ///// LEAFLET GEOSEARCH SETUP
-          /////////////////////////////////////////////////////
-          var GeoSearchControl = window.GeoSearch.GeoSearchControl;
-          var OpenStreetMapProvider = window.GeoSearch.OpenStreetMapProvider;
+        ///// LEAFLET GEOSEARCH SETUP
+        /////////////////////////////////////////////////////
+        var GeoSearchControl = window.GeoSearch.GeoSearchControl;
+        var OpenStreetMapProvider = window.GeoSearch.OpenStreetMapProvider;
 
-          // remaining is the same as in the docs, accept for the var instead of const declarations
-          var provider = new OpenStreetMapProvider(    
-            {
-						  params: {
-							'accept-language': 'de', // render results in Dutch
-							countrycodes: 'de', // limit search results to the Netherlands
-							addressdetails: 1, // include additional address detail parts  
-							viewbox: "" + (Number(__env.initialLongitude) - 0.001) + "," + (Number(__env.initialLatitude) - 0.001) + "," + (Number(__env.initialLongitude) + 0.001) + "," + (Number(__env.initialLatitude) + 0.001)             
-						  },
-						  searchUrl: __env.targetUrlToGeocoderService + '/search',
-						  reverseUrl: __env.targetUrlToGeocoderService + '/reverse'
-						}
-          );
-
-          console.log(provider);
-
-          this.geosearchControl = new GeoSearchControl({
-            position: "topright",
-            provider: provider,
-            style: 'button',
-            autoComplete: true,
-            autoCompleteDelay: 250,
-            showMarker: false,                                   // optional: true|false  - default true
-            showPopup: false,                                   // optional: true|false  - default false
-            marker: {                                           // optional: L.Marker    - default L.Icon.Default
-              icon: new L.Icon.Default(),
-              draggable: false,
+        // remaining is the same as in the docs, accept for the var instead of const declarations
+        var provider = new OpenStreetMapProvider(
+          {
+            params: {
+              'accept-language': 'de', // render results in Dutch
+              countrycodes: 'de', // limit search results to the Netherlands
+              addressdetails: 1, // include additional address detail parts  
+              viewbox: "" + (Number(__env.initialLongitude) - 0.001) + "," + (Number(__env.initialLatitude) - 0.001) + "," + (Number(__env.initialLongitude) + 0.001) + "," + (Number(__env.initialLatitude) + 0.001)
             },
-            popupFormat: ({ query, result }) => result.label,   // optional: function    - default returns result label
-            maxMarkers: 1,                                      // optional: number      - default 1
-            retainZoomLevel: false,                             // optional: true|false  - default false
-            animateZoom: true,                                  // optional: true|false  - default true
-            autoClose: false,                                   // optional: true|false  - default false
-            searchLabel: 'Suche nach Adressen ...',                       // optional: string      - default 'Enter address'
-            keepResult: false                                   // optional: true|false  - default false
-          });
+            searchUrl: __env.targetUrlToGeocoderService + '/search',
+            reverseUrl: __env.targetUrlToGeocoderService + '/reverse'
+          }
+        );
 
-          this.map.addControl(this.geosearchControl);
-          // this.map.on('geosearch/showlocation', function(event){
-          //   console.log(event);
-          //   let geoJSON = {
-          //     type: "Feature",
-          //     geometry: {
-          //       type: "Point",
-          //       coordinates: [event.x, event.y]
-          //     },
-          //     properties: {
+        console.log(provider);
 
-          //     }
-          //   };
-          //   $rootScope.$broadcast("onUpdateSingleFeatureGeometry", geoJSON);
-          // });
+        this.geosearchControl = new GeoSearchControl({
+          position: "topright",
+          provider: provider,
+          style: 'button',
+          autoComplete: true,
+          autoCompleteDelay: 250,
+          showMarker: false,                                   // optional: true|false  - default true
+          showPopup: false,                                   // optional: true|false  - default false
+          marker: {                                           // optional: L.Marker    - default L.Icon.Default
+            icon: new L.Icon.Default(),
+            draggable: false,
+          },
+          popupFormat: ({ query, result }) => result.label,   // optional: function    - default returns result label
+          maxMarkers: 1,                                      // optional: number      - default 1
+          retainZoomLevel: false,                             // optional: true|false  - default false
+          animateZoom: true,                                  // optional: true|false  - default true
+          autoClose: false,                                   // optional: true|false  - default false
+          searchLabel: 'Suche nach Adressen ...',                       // optional: string      - default 'Enter address'
+          keepResult: false                                   // optional: true|false  - default false
+        });
+
+        this.map.addControl(this.geosearchControl);
+        // this.map.on('geosearch/showlocation', function(event){
+        //   console.log(event);
+        //   let geoJSON = {
+        //     type: "Feature",
+        //     geometry: {
+        //       type: "Point",
+        //       coordinates: [event.x, event.y]
+        //     },
+        //     properties: {
+
+        //     }
+        //   };
+        //   $rootScope.$broadcast("onUpdateSingleFeatureGeometry", geoJSON);
+        // });
       };
 
-      this.initDrawControlOptions = function(resourceType, enableDrawToolbar){
+      this.initDrawControlOptions = function (resourceType, enableDrawToolbar) {
         let options = {
           edit: {
             featureGroup: this.featureLayer
@@ -216,7 +216,7 @@ angular
           position: 'bottomright'
         };
 
-        if(enableDrawToolbar){
+        if (enableDrawToolbar) {
           options.draw = {
             polyline: resourceType == this.resourceType_line ? true : false,
             polygon: resourceType == this.resourceType_polygon ? true : false,
@@ -226,14 +226,14 @@ angular
             marker: resourceType == this.resourceType_point ? true : false
           };
         }
-        else{
+        else {
           options.draw = false;
-        }        
+        }
 
         return options;
       };
 
-      this.initDrawControl = function(resourceType){
+      this.initDrawControl = function (resourceType) {
         // FeatureGroup is to store editable layers
         this.featureLayer = new L.FeatureGroup();
 
@@ -355,11 +355,11 @@ angular
           var layer = event.layer;
 
           self.featureLayer.addLayer(layer);
-          
+
           // disable draw tools
           self.map.removeControl(self.drawControl);
           self.drawControl = new L.Control.Draw(self.initDrawControlOptions(resourceType, false));
-          self.map.addControl(self.drawControl);          
+          self.map.addControl(self.drawControl);
 
           $rootScope.$broadcast("onUpdateSingleFeatureGeometry", self.featureLayer.toGeoJSON());
         });
@@ -377,7 +377,7 @@ angular
           // enable draw tools
           self.map.removeControl(self.drawControl);
           self.drawControl = new L.Control.Draw(self.initDrawControlOptions(resourceType, true));
-          self.map.addControl(self.drawControl);    
+          self.map.addControl(self.drawControl);
 
           $rootScope.$broadcast("onUpdateSingleFeatureGeometry", undefined);
         });
@@ -387,29 +387,29 @@ angular
       * binds the popup of a clicked output
       * to layer.feature.properties.popupContent
       */
-      this.onEachFeatureGeoresource = function(feature, layer) {
-       layer.on({
-         click: function () {
+      this.onEachFeatureGeoresource = function (feature, layer) {
+        layer.on({
+          click: function () {
 
-           var popupContent = '<div class="georesourceInfoPopupContent featurePropertyPopupContent"><table class="table table-condensed">';
-           for (var p in feature.properties) {
-               popupContent += '<tr><td>' + p + '</td><td>'+ feature.properties[p] + '</td></tr>';
-           }
-           popupContent += '</table></div>';
+            var popupContent = '<div class="georesourceInfoPopupContent featurePropertyPopupContent"><table class="table table-condensed">';
+            for (var p in feature.properties) {
+              popupContent += '<tr><td>' + p + '</td><td>' + feature.properties[p] + '</td></tr>';
+            }
+            popupContent += '</table></div>';
 
-           layer.bindPopup(popupContent);
-         }
-       });
-     };
+            layer.bindPopup(popupContent);
+          }
+        });
+      };
 
-      this.addDataLayertoSingleFeatureGeoMap = function(geoJSON){
-        if(this.map){
+      this.addDataLayertoSingleFeatureGeoMap = function (geoJSON) {
+        if (this.map) {
           this.dataLayer = L.geoJSON(geoJSON, {
-            pointToLayer: function(geoJsonPoint, latlng) {
+            pointToLayer: function (geoJsonPoint, latlng) {
               return L.circleMarker(latlng, {
                 radius: 6
               });
-          },
+            },
             style: function (feature) {
               return {
                 color: "red",

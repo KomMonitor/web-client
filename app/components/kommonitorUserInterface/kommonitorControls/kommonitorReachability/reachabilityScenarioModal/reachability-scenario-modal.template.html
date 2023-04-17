@@ -65,8 +65,8 @@
 
 												<div class="col-md-6 col-sm-6 col-xs-6">
 													<div class="horizontal-align"
-														ng-show="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.selectedStartPointLayer.geoJSON">
-														<p><b>{{$ctrl.kommonitorReachabilityHelperServiceInstance.settings.selectedStartPointLayer.geoJSON.features.length}}</b>
+														ng-show="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.selectedStartPointLayer.geoJSON_reachability">
+														<p><b>{{$ctrl.kommonitorReachabilityHelperServiceInstance.settings.selectedStartPointLayer.geoJSON_reachability.features.length}}</b>
 															Startpunkte im
 															selektierten Layer</p>
 													</div>
@@ -77,7 +77,7 @@
 													</div>
 
 													<div class="horizontal-align"
-														ng-if="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.selectedStartPointLayer && ! $ctrl.kommonitorReachabilityHelperServiceInstance.settings.selectedStartPointLayer.geoJSON">
+														ng-if="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.selectedStartPointLayer && ! $ctrl.kommonitorReachabilityHelperServiceInstance.settings.selectedStartPointLayer.geoJSON_reachability">
 														<p style="color: red;">zum angegebenen Zeitwert konnten keine
 															validen Feature-Daten abgerufen werden</p>
 													</div>
@@ -139,113 +139,7 @@
 									Die &Auml;nderungen gelten nur im Rahmen dieses Erreichbarkeits-Szenarios und werden
 									nicht in der Datenbank gespeichert.</h3>
 
-								<div class="row vertical-align">
-									<div class="col-md-6 col-sm-6 col-xs-12">
-
-										<label>Attribute gem&auml;&szlig; Feature-Schema</label>
-										<div style="max-height: 50vh; overflow: auto;">
-
-											<table class="table table-condensed">
-												<thead>
-													<tr>
-														<th>Attributname</th>
-														<th>Attributwert</th>
-													</tr>
-												</thead>
-												<tbody>
-													<tr>
-														<td>
-															<b>Feature-ID *</b>
-															<br>
-															<i>Beispiele: {{featureIdExampleString}}</i>
-															<div ng-show="! validateSingleFeatureId()"
-																style="color:red;"><b>Eingegebene Feature-ID schon
-																	vergeben oder ung&uuml;ltig</b></div>
-														</td>
-														<td>
-															<input type="text" class="form-control"
-																ng-model="featureIdValue"
-																placeholder="{{featureIdValue}}"
-																ng-change="validateSingleFeatureId()" required></input>
-														</td>
-													</tr>
-													<tr>
-														<td>
-															<b>Feature-NAME *</b>
-														</td>
-														<td>
-															<input type="text" class="form-control"
-																ng-model="featureNameValue"
-																placeholder="lesbarer Name des Objekts"
-																ng-change="validateSingleFeatureId()" required></input>
-														</td>
-													</tr>
-													<tr>
-														<td>
-															<b>G&uuml;ltigkeitszeitraum: g&uuml;ltig seit *</b>
-														</td>
-														<td>
-															<input type="text" ng-model="featureStartDateValue"
-																ng-change="checkSingleFeaturePeriodOfValidity()"
-																class="form-control pull-right"
-																id="georesourceSingleFeatureDatepickerStart"
-																placeholder="YYYY-MM-DD"
-																ng-change="validateSingleFeatureId()" required>
-														</td>
-													</tr>
-													<tr>
-														<td>
-															<b>G&uuml;ltigkeitszeitraum: g&uuml;ltig bis</b>
-														</td>
-														<td>
-															<input type="text" ng-model="featureEndDateValue"
-																ng-change="checkSingleFeaturePeriodOfValidity()"
-																class="form-control pull-right"
-																id="georesourceSingleFeatureDatepickerEnd"
-																placeholder="YYYY-MM-DD" required>
-														</td>
-													</tr>
-													<tr ng-repeat="featureSchemaEntry in featureSchemaProperties">
-														<td>
-															<b>{{featureSchemaEntry.property}}</b>
-															<br>
-															<i>Beispiel: {{featureSchemaEntry.exampleValue}}</i>
-														</td>
-														<td>
-															<input type="text" class="form-control"
-																ng-model="featureSchemaEntry.value"
-																placeholder="optionaler Wert f&uuml;r Attribut '{{featureSchemaEntry.property}}'"
-																required></input>
-														</td>
-													</tr>
-												</tbody>
-											</table>
-
-										</div>
-									</div>
-
-
-
-									<div class="col-md-6 col-sm-6 col-xs-12">
-										<!-- geometry with interactive map and geocoder functionality -->
-										<!-- together with special helperService that is used to manage map and data -->
-										<label>Geometrie-Definition *</label>
-										<br />
-										<i>in <em style="color: red;">rot</em> dargestellt sind die weiteren Geometrien
-											des Datensatzes</i>
-										<div ng-if="featureInfoText_singleFeatureAddMenu">
-											<i>{{featureInfoText_singleFeatureAddMenu}}</i>
-										</div>
-										<br />
-										<div id="reachabilityScenarioEditFeaturesGeoMap" style="height: 50vh;"></div>
-									</div>
-								</div>
-
-								<div class="row vertical-align">
-									<!-- other optional properties according to feature schema as interactive table? -->
-								</div>
-
-								<br />
+								<single-feature-edit></single-feature-edit>
 
 								<input type="button" name="previous" class="previous  action-button-previous"
 									value="Voriger Schritt" />

@@ -1,9 +1,9 @@
 angular.module('reachabilityScenarioConfiguration').component('reachabilityScenarioConfiguration', {
 	templateUrl: "components/kommonitorUserInterface/kommonitorControls/kommonitorReachability/reachabilityScenarioModal/reachabilityScenarioConfiguration/reachability-scenario-configuration.template.html",
 	controller: ['kommonitorDataExchangeService',
-		'$scope', '$rootScope', '$http', '__env', '$timeout', 'kommonitorReachabilityHelperService',
+		'$scope', '$rootScope', '$http', '__env', '$timeout', 'kommonitorReachabilityHelperService', 'kommonitorSingleFeatureMapHelperService',
 		function ReachabilityScenarioConfigurationController(kommonitorDataExchangeService,
-			$scope, $rootScope, $http, __env, $timeout, kommonitorReachabilityHelperService) {
+			$scope, $rootScope, $http, __env, $timeout, kommonitorReachabilityHelperService, kommonitorSingleFeatureMapHelperService) {
 
 			this.kommonitorReachabilityHelperServiceInstance = kommonitorReachabilityHelperService;
 			this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
@@ -12,6 +12,19 @@ angular.module('reachabilityScenarioConfiguration').component('reachabilityScena
 			$('#manualDateDatepicker_reachabilityConfig').datepicker(kommonitorDataExchangeService.datePickerOptions);
 
 			$scope.isUsedInReporting = false;
+
+			$scope.initIsochronesFeaturesGeoMap = async function () {
+				let domId = "reachabilityScenarioIsochroneGeoMap";
+				let resourceType = kommonitorSingleFeatureMapHelperService.resourceType_polygon;
+				kommonitorSingleFeatureMapHelperService.initSingleFeatureGeoMap(domId, resourceType);
+
+				// add data layer to singleFeatureMap
+				// kommonitorSingleFeatureMapHelperService.addDataLayertoSingleFeatureGeoMap($scope.currentScenarioDataset.poiResource.geoJSON);
+
+			};
+
+			// init empty map
+			$scope.initIsochronesFeaturesGeoMap();
 
 			let input = document.getElementById("isochroneCutInput");
 			input.addEventListener("keypress", function isInputAllowed(evt) {
@@ -33,11 +46,6 @@ angular.module('reachabilityScenarioConfiguration').component('reachabilityScena
 			* direct GeoJSON structure
 			*/
 			kommonitorReachabilityHelperService.settings.manualStartPoints = undefined;
-
-			/**
-			* indicator wheather the isochrone point source is configured
-			*/
-			kommonitorReachabilityHelperService.settings.pointSourceConfigured = false;
 
 			/**
 			 * Indicator if multiple starting-points shall
@@ -84,7 +92,6 @@ angular.module('reachabilityScenarioConfiguration').component('reachabilityScena
 			$scope.$on("reportingPoiLayerSelected", function (event, data) {
 				$scope.isUsedInReporting = true;
 				kommonitorReachabilityHelperService.settings.selectedStartPointLayer = data;
-				kommonitorReachabilityHelperService.settings.pointSourceConfigured = true; // timestamp selection is hidden, so we are good to go for now.
 				$scope.$digest();
 			});
 
@@ -109,13 +116,6 @@ angular.module('reachabilityScenarioConfiguration').component('reachabilityScena
 				setTimeout(function () {
 					$scope.$digest();
 				}, 200);
-			};
-
-			$scope.removePotentialDrawnStartingPoints = function () {
-				// TODO
-				kommonitorReachabilityHelperService.settings.manualStartPoints = undefined;
-				$scope.disablePointDrawTool();
-				$scope.removeAllDrawnPoints();
 			};
 
 			/**
@@ -174,9 +174,9 @@ angular.module('reachabilityScenarioConfiguration').component('reachabilityScena
 				var a = document.createElement('a');
 				a.download = fileName;
 				a.href = data;
-				a.textContent = 'Download Isochronen als GeoJSON';
+				a.textContent = 'Download Isochronen';
 				a.id = 'downloadReachabilityIsochrones';
-				a.setAttribute('class', 'btn btn-info');
+				a.setAttribute('class', 'btn btn-s btn-info');
 
 				let elements = document.getElementsByClassName(
 					'reachabilityIsochroneButtonSection');
@@ -217,58 +217,6 @@ angular.module('reachabilityScenarioConfiguration').component('reachabilityScena
 					$scope.$digest();
 				});				
 			};
-
-			/**
-			 * Changes the start points source of the analysis between
-			 * fromLayer and manualDraw.
-			 */
-			$scope.changeStartPointsSource_fromLayer = function () {
-
-				$scope.disablePointDrawTool();
-				kommonitorReachabilityHelperService.settings.startPointsSource = "fromLayer";
-
-			};
-			$scope.changeStartPointsSource_manual = function () {
-
-				$scope.enablePointDrawTool();
-				kommonitorReachabilityHelperService.settings.startPointsSource = "manual";
-
-			};
-
-			$scope.removeAllDrawnPoints = function () {
-				// TODO
-
-				$rootScope.$broadcast("removeAllDrawnPoints");
-			};
-
-			$scope.enablePointDrawTool = function () {
-				// add/activate leaflet-draw toolbar for only POINT features
-
-				$rootScope.$broadcast("enablePointDrawTool");
-			};
-
-			$scope.disablePointDrawTool = function () {
-				// disable/hide leaflet-draw toolbar for only POINT features
-				$rootScope.$broadcast("disablePointDrawTool");
-			};
-
-			$scope.$on("onUpdateDrawnPointFeatures", function (event, drawnPointsFeatureGroup) {
-
-				// if drawnPointsFeatureGroup is empty or does not exist, we must catch that
-				try {
-					kommonitorReachabilityHelperService.settings.manualStartPoints = drawnPointsFeatureGroup.toGeoJSON();
-					kommonitorReachabilityHelperService.settings.pointSourceConfigured = true;
-				}
-				catch (error) {
-					kommonitorReachabilityHelperService.settings.manualStartPoints = undefined;
-					kommonitorReachabilityHelperService.settings.pointSourceConfigured = false;
-				}
-
-				setTimeout(function () {
-					$scope.$digest();
-				}, 150);
-			});
-
 
 			/**
 			 * Resets the slider for the distance-/time to initial values.
@@ -343,20 +291,6 @@ angular.module('reachabilityScenarioConfiguration').component('reachabilityScena
 				}, 500);
 			};
 
-			
-
-			$scope.onChangeSelectedStartPointLayer = async function () {
-				kommonitorReachabilityHelperService.settings.isochroneConfig.selectedDate = undefined;
-
-				if (!kommonitorReachabilityHelperService.settings.isochroneConfig.selectedDate) {
-					kommonitorReachabilityHelperService.settings.isochroneConfig.selectedDate = kommonitorReachabilityHelperService.settings.selectedStartPointLayer.availablePeriodsOfValidity[kommonitorReachabilityHelperService.settings.selectedStartPointLayer.availablePeriodsOfValidity.length - 1];
-				}
-
-				if (!$scope.isUsedInReporting) {
-					kommonitorReachabilityHelperService.fetchGeoJSONForIsochrones();
-				}
-			};
-
 			/**
 			 * Starts the analysis. This function is fired
 			 * when the related button is pushed.
@@ -402,6 +336,9 @@ angular.module('reachabilityScenarioConfiguration').component('reachabilityScena
 			$rootScope.$on("isochronesCalculationFinished", function(){
 				$scope
 					.prepareDownloadGeoJSON();
+
+				// add data to interactive map
+				kommonitorSingleFeatureMapHelperService.addDataLayertoSingleFeatureGeoMap(kommonitorReachabilityHelperService.currentIsochronesGeoJSON);
 			});
 
 		}

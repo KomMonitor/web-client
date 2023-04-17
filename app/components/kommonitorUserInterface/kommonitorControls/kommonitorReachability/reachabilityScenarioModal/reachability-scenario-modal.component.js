@@ -1,13 +1,12 @@
 angular.module('reachabilityScenarioModal').component('reachabilityScenarioModal', {
 	templateUrl: "components/kommonitorUserInterface/kommonitorControls/kommonitorReachability/reachabilityScenarioModal/reachability-scenario-modal.template.html",
-	controller: ['kommonitorDataExchangeService', 'kommonitorSingleFeatureMapHelperService',
+	controller: ['kommonitorDataExchangeService',
 		'$scope', '$rootScope', '$http', '__env', '$timeout', 'kommonitorMultiStepFormHelperService', 'kommonitorReachabilityHelperService',
-		function ReachabilityScenarioModalController(kommonitorDataExchangeService, kommonitorSingleFeatureMapHelperService,
+		function ReachabilityScenarioModalController(kommonitorDataExchangeService,
 			$scope, $rootScope, $http, __env, $timeout, kommonitorMultiStepFormHelperService, kommonitorReachabilityHelperService) {
 
 			this.kommonitorReachabilityHelperServiceInstance = kommonitorReachabilityHelperService;
 			this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
-			this.kommonitorSingleFeatureMapHelperServiceInstance = kommonitorSingleFeatureMapHelperService;
 
 			$scope.emptyDatasetName = "-- leerer neuer Datensatz --";
 
@@ -30,7 +29,6 @@ angular.module('reachabilityScenarioModal').component('reachabilityScenarioModal
 				// create empty georesource dataset and geoJSON 
 				let emptyDataset = {
 					"datasetName": $scope.emptyDatasetName,
-					"isEmptyDataset": true,
 					"isNewReachabilityDataSource": true,
 					"isPOI": true,
 					"availablePeriodsOfValidity": [
@@ -41,14 +39,14 @@ angular.module('reachabilityScenarioModal').component('reachabilityScenarioModal
 					]
 				};
 
-				emptyDataset.geoJSON = {
+				emptyDataset.geoJSON_reachability = {
 					"type": "FeatureCollection",
 					"features": []
 				};
 
 				kommonitorDataExchangeService.displayableGeoresources.splice(0, 0, emptyDataset)
 
-				$timeout(function(){
+				$timeout(function () {
 					$scope.$digest();
 				}, 250);
 			};
@@ -67,7 +65,7 @@ angular.module('reachabilityScenarioModal').component('reachabilityScenarioModal
 			$scope.$on("onManageReachabilityScenario", function (event, scenarioDataset) {
 				kommonitorMultiStepFormHelperService.registerClickHandler();
 				if (scenarioDataset) {
-					if (kommonitorReachabilityHelperService.settings.selectedStartPointLayer && kommonitorReachabilityHelperService.settings.selectedStartPointLayer.scenarioName === scenarioDataset.name) {						
+					if (kommonitorReachabilityHelperService.settings.selectedStartPointLayer && kommonitorReachabilityHelperService.settings.selectedStartPointLayer.scenarioName === scenarioDataset.name) {
 						return;
 					}
 					else {
@@ -84,9 +82,9 @@ angular.module('reachabilityScenarioModal').component('reachabilityScenarioModal
 				kommonitorReachabilityHelperService.settings.isochroneConfig.selectedDate = undefined;
 
 				// if emtpy layer is selected then no features can be fetched at all!
-				if (kommonitorReachabilityHelperService.settings.selectedStartPointLayer.isEmptyDataset) {
+				if (kommonitorReachabilityHelperService.settings.selectedStartPointLayer.isNewReachabilityDataSource) {
 					// init geoMap with empty dataset
-					$scope.initPoiResourceEditFeaturesGeoMap();
+					$scope.initPoiResourceEditFeaturesMenu();
 					return;
 				}
 
@@ -114,10 +112,10 @@ angular.module('reachabilityScenarioModal').component('reachabilityScenarioModal
 					// }
 				}).then(function successCallback(response) {
 
-					kommonitorReachabilityHelperService.settings.selectedStartPointLayer.geoJSON = response.data;
+					kommonitorReachabilityHelperService.settings.selectedStartPointLayer.geoJSON_reachability = response.data;
 
 					// prepare feature edit geo map
-					$scope.initPoiResourceEditFeaturesGeoMap();
+					$scope.initPoiResourceEditFeaturesMenu();
 
 				}, function errorCallback(error) {
 					console.error(error);
@@ -157,21 +155,25 @@ angular.module('reachabilityScenarioModal').component('reachabilityScenarioModal
 				});
 			};
 
-			$scope.initPoiResourceEditFeaturesGeoMap = async function () {
-				// init geomap for single feature import, handling geocoding and feature geometry
-				let domId = "reachabilityScenarioEditFeaturesGeoMap";
-				let resourceType = kommonitorSingleFeatureMapHelperService.resourceType_point;
-				kommonitorSingleFeatureMapHelperService.initSingleFeatureGeoMap(domId, resourceType);
+			$scope.initPoiResourceEditFeaturesMenu = async function () {
+				// check if empty dataset for a new POI dataset has been selected
+				// if so, no features can be fetched from KomMonitor Database as thex do not exist
+				// then we must init feature edit component with empty dataset!
+				let isReachabilityDatasetOnly = false;
 
-				// init featureSchema for single feature import
-				await $scope.initFeatureSchema();
+				if (kommonitorReachabilityHelperService.settings.selectedStartPointLayer.isNewReachabilityDataSource) {
+					isReachabilityDatasetOnly = true;
+				}
 
-				// add data layer to singleFeatureMap
-				kommonitorSingleFeatureMapHelperService.addDataLayertoSingleFeatureGeoMap(kommonitorReachabilityHelperService.settings.selectedStartPointLayer.geoJSON);
-
-				$scope.featureInfoText_singleFeatureAddMenu = "" + kommonitorReachabilityHelperService.settings.selectedStartPointLayer.geoJSON.features.length + " Features im Szenario-Datensatz vorhanden";
+				$rootScope.$broadcast("onEditGeoresourceFeatures", kommonitorReachabilityHelperService.settings.selectedStartPointLayer, isReachabilityDatasetOnly);
 
 			};
+
+			// react on events from signel feature edit menu
+			$scope.$on("georesourceGeoJSONUpdated", function(event, geoJSON){
+				// simply update geoJSON of reachability layer
+				kommonitorReachabilityHelperService.settings.selectedStartPointLayer.geoJSON_reachability = geoJSON;
+			});
 
 			$scope.onChangeSelectedIndicatorForStatistics = function () {
 				// $scope.selectedIndicatorForStatistics;
