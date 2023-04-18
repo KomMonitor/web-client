@@ -96,7 +96,111 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 
 		$scope.$on("georesourceGeoJSONUpdated_addSingleFeature", function(event, geoJSONFeature){
 			$scope.addSingleGeoresourceFeature(geoJSONFeature);
-		});		
+		});	
+		
+		$scope.$on("georesourceGeoJSONUpdated_editSingleFeature", function(event, geoJSONFeature){
+			$scope.editSingleGeoresourceFeature(geoJSONFeature);
+		});	
+
+		$scope.$on("georesourceGeoJSONUpdated_deleteSingleFeature", function(event, geoJSONFeature){
+			$scope.deleteSingleGeoresourceFeature(geoJSONFeature);
+		});	
+
+			$scope.editSingleGeoresourceFeature = function (geoJSONFeature) {
+
+				$timeout(function () {
+					$scope.loadingData = true;
+				});
+
+				$scope.successMessagePart = undefined;
+				$scope.errorMessagePart = undefined;
+
+				let url = __env.apiUrl + __env.basePath + "/georesources/";
+
+				url += $scope.currentGeoresourceDataset.georesourceId + "/singleFeature/" + geoJSONFeature.properties[__env.FEATURE_ID_PROPERTY_NAME] + "/singleFeatureRecord/" + geoJSONFeature["id"];
+
+				$http({
+					url: url,
+					method: "PUT",
+					data: geoJSONFeature,
+					headers: {
+						'Content-Type': "application/json"
+					}
+				}).then(function successCallback(response) {
+					$rootScope.$broadcast("refreshGeoresourceOverviewTable", "edit", $scope.currentGeoresourceDataset.georesourceId);
+
+					$scope.refreshGeoresourceEditFeaturesOverviewTable();
+
+					$scope.successMessagePart = $scope.currentGeoresourceDataset.datasetName;
+
+					$("#georesourceEditFeaturesSuccessAlert").show();
+					$scope.loadingData = false;
+
+				}, function errorCallback(error) {
+					console.error(error);
+					if (error.data) {
+						$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
+					}
+					else {
+						$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error);
+					}
+
+					$("#georesourceEditFeaturesErrorAlert").show();
+					$scope.loadingData = false;
+
+					setTimeout(() => {
+						$scope.$digest();
+					}, 250);
+				});
+			};
+
+			$scope.deleteSingleGeoresourceFeature = function (geoJSONFeature) {
+
+				$timeout(function () {
+					$scope.loadingData = true;
+				});
+
+				$scope.successMessagePart = undefined;
+				$scope.errorMessagePart = undefined;
+
+				let url = __env.apiUrl + __env.basePath + "/georesources/";
+
+				url += $scope.currentGeoresourceDataset.georesourceId + "/singleFeature/" + geoJSONFeature.properties[__env.FEATURE_ID_PROPERTY_NAME] + "/singleFeatureRecord/" + geoJSONFeature["id"];
+
+				$http({
+					url: url,
+					method: "DELETE",
+					data: geoJSONFeature,
+					headers: {
+						'Content-Type': "application/json"
+					}
+				}).then(function successCallback(response) {
+					$rootScope.$broadcast("refreshGeoresourceOverviewTable", "edit", $scope.currentGeoresourceDataset.georesourceId);
+
+					$scope.refreshGeoresourceEditFeaturesOverviewTable();
+
+					$scope.successMessagePart = $scope.currentGeoresourceDataset.datasetName;
+
+					$("#georesourceEditFeaturesSuccessAlert").show();
+					$scope.loadingData = false;
+
+				}, function errorCallback(error) {
+					console.error(error);
+					if (error.data) {
+						$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
+					}
+					else {
+						$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error);
+					}
+
+					$("#georesourceEditFeaturesErrorAlert").show();
+					$scope.loadingData = false;
+
+					setTimeout(() => {
+						$scope.$digest();
+					}, 250);
+				});
+			};
 
 		$scope.addSingleGeoresourceFeature = async function(geoJSONFeature){
 
@@ -135,15 +239,15 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 						$scope.importedFeatures = kommonitorImporterHelperService.getImportedFeaturesFromImporterResponse(updateGeoresourceResponse);
 
 
-						// add the new feature to current dataset!
-						if($scope.georesourceFeaturesGeoJSON){
-							$scope.georesourceFeaturesGeoJSON.features.push(geoJSONFeature);
-						}
-						else{
-							$scope.georesourceFeaturesGeoJSON = turf.featureCollection([
-								geoJSONFeature
-							  ]);
-						}
+						// // add the new feature to current dataset!
+						// if($scope.georesourceFeaturesGeoJSON){
+						// 	$scope.georesourceFeaturesGeoJSON.features.push(geoJSONFeature);
+						// }
+						// else{
+						// 	$scope.georesourceFeaturesGeoJSON = turf.featureCollection([
+						// 		geoJSONFeature
+						// 	  ]);
+						// }
 						
 
 						$("#georesourceEditFeaturesSuccessAlert").show();

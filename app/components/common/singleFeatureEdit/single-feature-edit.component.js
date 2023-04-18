@@ -1,11 +1,12 @@
 angular.module('singleFeatureEdit').component('singleFeatureEdit', {
 	templateUrl: "components/common/singleFeatureEdit/single-feature-edit.template.html",
 	controller: ['kommonitorDataExchangeService', 'kommonitorSingleFeatureMapHelperService',
-		'$scope', '$rootScope', '__env', '$http',
+		'$scope', '$rootScope', '__env', '$http', '$timeout',
 		function SingleFeatureEditController(kommonitorDataExchangeService, kommonitorSingleFeatureMapHelperService,
-			$scope, $rootScope, __env, $http) {
+			$scope, $rootScope, __env, $http, $timeout) {
 
 			this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
+			this.kommonitorSingleFeatureMapHelperServiceInstance = kommonitorSingleFeatureMapHelperService;
 
 			let domId = "singleFeatureGeoMap";
 
@@ -16,6 +17,8 @@ angular.module('singleFeatureEdit').component('singleFeatureEdit', {
 
 			// variables for single feature import
 			$scope.featureIdValue = 0;
+			// record id of kommonitor database
+			$scope.featureRecordId = undefined;
 			$scope.featureIdExampleString = undefined;
 			$scope.featureIdIsUnique = false;
 			$scope.featureNameValue = undefined;
@@ -36,6 +39,7 @@ angular.module('singleFeatureEdit').component('singleFeatureEdit', {
 				}
 				else {
 					$scope.currentGeoresourceDataset = georesourceDataset;
+					$scope.georesourceFeaturesGeoJSON = undefined;
 					$scope.isReachabilityDatasetOnly = isReachabilityDatasetOnly;
 
 					await $scope.initFeatureSchema();
@@ -44,11 +48,16 @@ angular.module('singleFeatureEdit').component('singleFeatureEdit', {
 
 			});
 
+			$scope.onChangeEditMode = function () {
+				$scope.reinitSingleFeatureEdit();
+			};
+
 			$scope.resetContent = function () {
-				$scope.georesourceFeaturesGeoJSON = undefined;
 
 				// variables for single feature import
 				$scope.featureIdValue = 0;
+				// record id of kommonitor database
+				$scope.featureRecordId = undefined;
 				$scope.featureIdExampleString = undefined;
 				$scope.featureIdIsUnique = false;
 				$scope.featureNameValue = undefined;
@@ -58,13 +67,49 @@ angular.module('singleFeatureEdit').component('singleFeatureEdit', {
 				// [{property: name, value: value}]
 				$scope.featureSchemaProperties = [];
 				$scope.schemaObject;
+
+				$scope.validateSingleFeatureId();
 			};
 
-			$scope.$on("reinitSingleFeatureEdit", async function () {
+			$scope.resetContentFromFeature = function (feature) {
+				// variables for single feature import
+				$scope.featureIdValue = feature.properties[__env.FEATURE_ID_PROPERTY_NAME];
+				$scope.featureIdExampleString = undefined;
+				$scope.featureNameValue = feature.properties[__env.FEATURE_NAME_PROPERTY_NAME];
+				$scope.featureGeometryValue = {
+					"type": "FeatureCollection",
+					"features": []
+				}
+				$scope.featureGeometryValue.features[0] = feature;
+				$scope.featureStartDateValue = feature.properties[__env.VALID_START_DATE_PROPERTY_NAME];
+				$scope.featureEndDateValue = feature.properties[__env.VALID_END_DATE_PROPERTY_NAME];;
+				// [{property: name, value: value}]
+				let newFeatureSchemaProperties = [];
+				for (const featureSchemaEntry of $scope.featureSchemaProperties) {
+					featureSchemaEntry.value = feature.properties[featureSchemaEntry.property];
+					newFeatureSchemaProperties.push(featureSchemaEntry);
+				}
+				$scope.featureSchemaProperties = newFeatureSchemaProperties;
+
+				// record id of kommonitor database
+				$scope.featureRecordId = feature.id;
+
+				$scope.validateSingleFeatureId();
+
+				$timeout(function () {
+					$scope.$digest();
+				}, 250)
+			};
+
+			$scope.$on("reinitSingleFeatureEdit", function () {
+				$scope.reinitSingleFeatureEdit();
+			});
+
+			$scope.reinitSingleFeatureEdit = async function () {
 				$scope.resetContent();
 				await $scope.initFeatureSchema();
 				await $scope.initGeoMap();
-			});
+			};
 
 			let initDefaultSchema = function () {
 				let schemaObject = {};
@@ -126,7 +171,7 @@ angular.module('singleFeatureEdit').component('singleFeatureEdit', {
 				$scope.initGeoresourceFeatures();
 			};
 
-			let initEmptyGeoJSON = function(){
+			let initEmptyGeoJSON = function () {
 				return {
 					"type": "FeatureCollection",
 					"features": []
@@ -155,7 +200,7 @@ angular.module('singleFeatureEdit').component('singleFeatureEdit', {
 					});
 				}
 				else {
-					$scope.georesourceFeaturesGeoJSON = $scope.currentGeoresourceDataset.geoJSON ? $scope.currentGeoresourceDataset.geoJSON : initEmptyGeoJSON()
+					$scope.georesourceFeaturesGeoJSON = $scope.georesourceFeaturesGeoJSON ? $scope.georesourceFeaturesGeoJSON : initEmptyGeoJSON()
 				}
 
 				kommonitorSingleFeatureMapHelperService.addDataLayertoSingleFeatureGeoMap($scope.georesourceFeaturesGeoJSON);
@@ -246,8 +291,7 @@ angular.module('singleFeatureEdit').component('singleFeatureEdit', {
 				}
 			};
 
-			$scope.addSingleGeoresourceFeature = async function () {
-
+			$scope.buildSingleFeature = function () {
 				// build new feature object and add it to geoJSON
 				// then broadcast updated resources
 				$scope.featureGeometryValue.features[0].properties[__env.FEATURE_ID_PROPERTY_NAME] = $scope.featureIdValue;
@@ -258,6 +302,19 @@ angular.module('singleFeatureEdit').component('singleFeatureEdit', {
 				for (const element of $scope.featureSchemaProperties) {
 					$scope.featureGeometryValue.features[0].properties[element.property] = element.value;
 				}
+
+				// if original geojson feature has so called record id then add it again to perform single feature updates in
+				// edit georesource features form
+
+				if ($scope.featureRecordId){
+					$scope.featureGeometryValue.features[0].id = $scope.featureRecordId; 
+				}
+					
+			};
+
+			$scope.addSingleGeoresourceFeature = async function () {
+
+				$scope.buildSingleFeature();
 
 				// as the update was successfull we must prevent the user from importing the same object again
 				$scope.featureIdIsUnique = false;
@@ -273,15 +330,54 @@ angular.module('singleFeatureEdit').component('singleFeatureEdit', {
 
 				$scope.broadcastUpdate_addSingleFeature();
 				$scope.broadcastUpdate_wholeGeoJSON();
-
+				$scope.reinitSingleFeatureEdit();
 			};
+			$scope.editSingleGeoresourceFeature = function () {
+				$scope.buildSingleFeature();
+
+				// replace updated feature in geoJSON
+				for (let index = 0; index < $scope.georesourceFeaturesGeoJSON.features.length; index++) {
+					const feature = $scope.georesourceFeaturesGeoJSON.features[index];
+					if (feature.properties[__env.FEATURE_ID_PROPERTY_NAME] == $scope.featureGeometryValue.features[0].properties[__env.FEATURE_ID_PROPERTY_NAME]) {
+						$scope.georesourceFeaturesGeoJSON.features[index] = $scope.featureGeometryValue.features[0];
+					}
+				}
+
+				$scope.broadcastUpdate_editSingleFeature();
+				$scope.broadcastUpdate_wholeGeoJSON();
+				$scope.reinitSingleFeatureEdit();
+			};
+
+			$scope.deleteSingleGeoresourceFeature = function () {
+				$scope.buildSingleFeature();
+
+				// remove selected feature from geoJSON
+				for (let index = 0; index < $scope.georesourceFeaturesGeoJSON.features.length; index++) {
+					const feature = $scope.georesourceFeaturesGeoJSON.features[index];
+					if (feature.properties[__env.FEATURE_ID_PROPERTY_NAME] == $scope.featureGeometryValue.features[0].properties[__env.FEATURE_ID_PROPERTY_NAME]) {
+						$scope.georesourceFeaturesGeoJSON.features.splice(index, 1);
+					}
+				}
+
+				$scope.broadcastUpdate_deleteSingleFeature();
+				$scope.broadcastUpdate_wholeGeoJSON();
+				$scope.reinitSingleFeatureEdit();
+			};
+
+			$scope.$on("singleFeatureSelected", function (event, feature) {
+				$scope.resetContentFromFeature(feature);
+			});
 
 			$scope.broadcastUpdate_addSingleFeature = function () {
 				$rootScope.$broadcast("georesourceGeoJSONUpdated_addSingleFeature", $scope.featureGeometryValue.features[0]);
 			};
 
 			$scope.broadcastUpdate_editSingleFeature = function () {
-				$rootScope.$broadcast("georesourceGeoJSONUpdated_addSingleFeature", $scope.georesourceFeaturesGeoJSON);
+				$rootScope.$broadcast("georesourceGeoJSONUpdated_editSingleFeature", $scope.featureGeometryValue.features[0]);
+			};
+
+			$scope.broadcastUpdate_deleteSingleFeature = function () {
+				$rootScope.$broadcast("georesourceGeoJSONUpdated_deleteSingleFeature", $scope.featureGeometryValue.features[0]);
 			};
 
 			$scope.broadcastUpdate_wholeGeoJSON = function () {

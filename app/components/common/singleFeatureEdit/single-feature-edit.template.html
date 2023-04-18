@@ -1,8 +1,50 @@
 <div class="row vertical-align">
+
+	<div class="col-md-6 col-sm-6 col-xs-12">
+		<div class="btn-group btn-group-justified" data-toggle="buttons">
+			<label class="btn btn-primary active">
+				<input type="radio" name="options" autocomplete="off" checked ng-change="onChangeEditMode()"
+					ng-model="$ctrl.kommonitorSingleFeatureMapHelperServiceInstance.editMode" value="create">
+					<i class="fa-solid fa-plus"></i>&nbsp;Erstellen
+				</input>
+			</label>
+			<label class="btn btn-primary">
+				<input type="radio" name="options" autocomplete="off" ng-change="onChangeEditMode()"
+					ng-model="$ctrl.kommonitorSingleFeatureMapHelperServiceInstance.editMode" value="edit"> 
+					<i class="fa-solid fa-pencil"></i>&nbsp;Editieren
+				</input>
+			</label>
+			<label class="btn btn-primary">
+				<input type="radio" name="options" autocomplete="off" ng-change="onChangeEditMode()"
+					ng-model="$ctrl.kommonitorSingleFeatureMapHelperServiceInstance.editMode" value="delete"> 
+					<i class="fa-solid fa-trash"></i>&nbsp;Entfernen
+				</input>
+			</label>
+		</div>
+
+		<br/>
+
+		<div ng-if="$ctrl.kommonitorSingleFeatureMapHelperServiceInstance.editMode == 'create'">
+			<i><b>Hinweis:</b> Attribute f&uuml;llen und Geometrie setzen, dann <b>Erstellen</b>-Button bet&auml;tigen</i>
+		</div>
+		<div ng-if="$ctrl.kommonitorSingleFeatureMapHelperServiceInstance.editMode == 'edit'">
+			<i><b>Hinweis:</b> Kartenobjekt anklicken, um Objekt zu selektieren, dann Attribute und Geometrie editieren, dann <b>Editieren</b>-Button bet&auml;tigen</i>
+		</div>
+		<div ng-if="$ctrl.kommonitorSingleFeatureMapHelperServiceInstance.editMode == 'delete'">
+			<i><b>Hinweis:</b> Kartenobjekt anklicken, um Objekt zu selektieren, Attribute prüfen, dann <b>L&ouml;schen</b>-Button bet&auml;tigen</i>
+		</div>
+	</div>
+
+</div>
+
+<hr>
+<br/>
+
+<div class="row ">
 	<div class="col-md-6 col-sm-6 col-xs-12">
 
 		<label>Attribute gem&auml;&szlig; Feature-Schema</label>
-		<div style="max-height: 50vh; overflow: auto;">
+		<div style="max-height: 40vh; overflow: auto;">
 
 			<table class="table table-condensed">
 				<thead>
@@ -17,12 +59,14 @@
 							<b>Feature-ID *</b>
 							<br>
 							<i>Beispiele: {{featureIdExampleString}}</i>
-							<div ng-show="! validateSingleFeatureId()" style="color:red;"><b>Eingegebene Feature-ID
+							<div ng-show="! featureIdIsUnique" style="color:red;"><b>Eingegebene Feature-ID
 									schon vergeben oder ung&uuml;ltig</b></div>
 						</td>
 						<td>
 							<input type="text" class="form-control" ng-model="featureIdValue"
-								placeholder="{{featureIdValue}}" ng-change="validateSingleFeatureId()" required></input>
+								placeholder="{{featureIdValue}}" ng-change="validateSingleFeatureId()"
+								ng-disabled="$ctrl.kommonitorSingleFeatureMapHelperServiceInstance.editMode != 'create'"
+								required></input>
 						</td>
 					</tr>
 					<tr>
@@ -31,8 +75,7 @@
 						</td>
 						<td>
 							<input type="text" class="form-control" ng-model="featureNameValue"
-								placeholder="lesbarer Name des Objekts" ng-change="validateSingleFeatureId()"
-								required></input>
+								placeholder="lesbarer Name des Objekts" required></input>
 						</td>
 					</tr>
 					<tr>
@@ -80,17 +123,13 @@
 		<!-- together with special helperService that is used to manage map and data -->
 		<label>Geometrie-Definition *</label>
 		<br />
-		<i>in <em style="color: red;">rot</em> dargestellt sind die weiteren Geometrien des Datensatzes</i>
+		<!-- <i>in <em style="color: red;">rot</em> dargestellt sind die weiteren Geometrien des Datensatzes</i>
 		<div ng-if="featureInfoText_singleFeatureAddMenu">
 			<i>{{featureInfoText_singleFeatureAddMenu}}</i>
 		</div>
-		<br />
-		<div id="singleFeatureGeoMap" style="height: 50vh;"></div>
+		<br /> -->
+		<div id="singleFeatureGeoMap" style="height: 40vh;"></div>
 	</div>
-</div>
-
-<div class="row vertical-align">
-	<!-- other optional properties according to feature schema as interactive table? -->
 </div>
 
 <br />
@@ -98,7 +137,21 @@
 <div class="row vertical-align">
 	<!-- submit button -->
 	<button type="button" class="btn btn-success"
+		ng-show="$ctrl.kommonitorSingleFeatureMapHelperServiceInstance.editMode == 'create'"
 		ng-disabled="!featureGeometryValue || !featureNameValue || featureIdValue == undefined || featureIdValue == null || !featureIdIsUnique || !featureStartDateValue"
-		ng-click="addSingleGeoresourceFeature()">Einzel-Features importieren</button>
+		ng-click="addSingleGeoresourceFeature()">Einzel-Feature erstellen
+	</button>
+	<button type="button" class="btn btn-warning"
+		ng-show="$ctrl.kommonitorSingleFeatureMapHelperServiceInstance.editMode == 'edit'"
+		ng-disabled="!featureGeometryValue || !featureNameValue || featureIdValue == undefined || featureIdValue == null || !featureStartDateValue"
+		ng-click="editSingleGeoresourceFeature()">Einzel-Feature editieren
+	</button>
+	<button type="button" class="btn btn-danger"
+		ng-show="$ctrl.kommonitorSingleFeatureMapHelperServiceInstance.editMode == 'delete'"
+		ng-disabled="!featureGeometryValue || !featureNameValue || featureIdValue == undefined || featureIdValue == null || !featureStartDateValue"
+		ng-click="deleteSingleGeoresourceFeature()">Einzel-Feature entfernen
+	</button>
+
+
 
 </div>

@@ -8,6 +8,11 @@ angular
 
       var self = this;
 
+      // create, edit, delete
+      this.editMode = "create";
+
+      this.georesourceData_geoJSON;
+
       this.resourceType_point = "POINT";
       this.resourceType_line = "LINE";
       this.resourceType_polygon = "POLYGON";
@@ -86,7 +91,7 @@ angular
       };
 
       this.zoomToDataLayer = function () {
-        if (this.map && this.dataLayer) {
+        if (this.map && this.dataLayer && this.georesourceData_geoJSON.features && this.georesourceData_geoJSON.features.length > 0) {
           // just wait a bit in order to ensure that map element is visible to make invalidateSize actually work
           $timeout(function () {
             self.map.fitBounds(self.dataLayer.getBounds());
@@ -167,8 +172,6 @@ angular
             reverseUrl: __env.targetUrlToGeocoderService + '/reverse'
           }
         );
-
-        console.log(provider);
 
         this.geosearchControl = new GeoSearchControl({
           position: "topright",
@@ -346,7 +349,11 @@ angular
         };
 
         this.map.addLayer(this.featureLayer);
-        this.drawControlOptions = this.initDrawControlOptions(resourceType, true);
+        let enableDraw = false;
+        if (this.editMode === "create") {
+          enableDraw = true;
+        }
+        this.drawControlOptions = this.initDrawControlOptions(resourceType, enableDraw);
         this.drawControl = new L.Control.Draw(this.drawControlOptions);
 
         this.map.addControl(this.drawControl);
@@ -372,7 +379,7 @@ angular
         this.map.on(L.Draw.Event.DELETED, function (event) {
 
           // reinit featureGroupLayer
-          self.featureLayer = new L.FeatureGroup();
+          self.featureLayer.clearLayers();
 
           // enable draw tools
           self.map.removeControl(self.drawControl);
@@ -391,6 +398,16 @@ angular
         layer.on({
           click: function () {
 
+            // add as editable layer if required
+            if (self.editMode != "create") {
+              // new layer in order to have simpe marker layer              
+              let singlePointLayer = L.marker([feature.geometry.coordinates[1], feature.geometry.coordinates[0]]);
+              self.featureLayer.clearLayers();
+              self.featureLayer.addLayer(singlePointLayer);
+
+              $rootScope.$broadcast("singleFeatureSelected", feature);
+            }
+
             var popupContent = '<div class="georesourceInfoPopupContent featurePropertyPopupContent"><table class="table table-condensed">';
             for (var p in feature.properties) {
               popupContent += '<tr><td>' + p + '</td><td>' + feature.properties[p] + '</td></tr>';
@@ -403,26 +420,34 @@ angular
       };
 
       this.addDataLayertoSingleFeatureGeoMap = function (geoJSON) {
-        if (this.map) {
-          this.dataLayer = L.geoJSON(geoJSON, {
-            pointToLayer: function (geoJsonPoint, latlng) {
-              return L.circleMarker(latlng, {
-                radius: 6
-              });
-            },
-            style: function (feature) {
-              return {
-                color: "red",
-                weight: 1,
-                opacity: 1
-              };
-            },
-            onEachFeature: self.onEachFeatureGeoresource
-          });
 
+        this.georesourceData_geoJSON = geoJSON;
+
+        let geojsonLayer = L.geoJSON(this.georesourceData_geoJSON, {
+          onEachFeature: self.onEachFeatureGeoresource,
+          pointToLayer: function (geoJsonPoint, latlng) {
+            return L.circleMarker(latlng, {
+              radius: 6
+            });
+          },
+          style: function (feature) {
+            return {
+              color: "red",
+              weight: 1,
+              opacity: 1
+            };
+          }
+        });
+
+        if (this.map) {
+
+          this.dataLayer = geojsonLayer;
           // this.layerControl.addOverlay(this.dataLayer, "weitere Objekte des Datensatzes");
           this.dataLayer.addTo(this.map);
-          this.map.fitBounds(this.dataLayer.getBounds());
+
+          if (this.georesourceData_geoJSON.features && this.georesourceData_geoJSON.features.length > 0) {
+            this.map.fitBounds(geojsonLayer.getBounds());
+          }
           this.invalidateMap();
         }
       };
