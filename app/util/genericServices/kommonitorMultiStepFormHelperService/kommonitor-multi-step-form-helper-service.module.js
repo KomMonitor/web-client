@@ -1,7 +1,7 @@
 angular.module('kommonitorMultiStepFormHelper', ['kommonitorSingleFeatureMapHelper']);
 
 angular
-  .module('kommonitorMultiStepFormHelper', [])
+  .module('kommonitorMultiStepFormHelper')
   .service(
     'kommonitorMultiStepFormHelperService', [
     '$http', '__env', '$timeout', 'kommonitorSingleFeatureMapHelperService',

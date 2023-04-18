@@ -106,6 +106,12 @@ angular.module('singleFeatureEdit').component('singleFeatureEdit', {
 			});
 
 			$scope.reinitSingleFeatureEdit = async function () {
+
+				// when reiniting single feature edit menu we must ensure that any changes to dataset will remain
+				// so we assume that any change has been done and mark dataset as reachabilityDataset
+				// thus we prevent KomMonitor from refetching the dataset again from DB and override any changes
+				$scope.isReachabilityDatasetOnly = true;
+
 				$scope.resetContent();
 				await $scope.initFeatureSchema();
 				await $scope.initGeoMap();
@@ -366,6 +372,11 @@ angular.module('singleFeatureEdit').component('singleFeatureEdit', {
 
 			$scope.$on("singleFeatureSelected", function (event, feature) {
 				$scope.resetContentFromFeature(feature);
+
+				// depending on editMode we must tell mapHelper to put feature into editable featureLayer
+				if(kommonitorSingleFeatureMapHelperService.editMode != "create"){
+					kommonitorSingleFeatureMapHelperService.changeEditableFeature(feature);
+				}
 			});
 
 			$scope.broadcastUpdate_addSingleFeature = function () {
@@ -384,10 +395,12 @@ angular.module('singleFeatureEdit').component('singleFeatureEdit', {
 				$rootScope.$broadcast("georesourceGeoJSONUpdated", $scope.georesourceFeaturesGeoJSON);
 			};
 
-			$scope.$on("onUpdateSingleFeatureGeometry", function (event, geoJSON) {
+			$scope.$on("onUpdateSingleFeatureGeometry", function (event, geoJSON, drawControl) {
 				$scope.featureGeometryValue = geoJSON;
 				$scope.$digest();
 			});
+
+
 
 
 		}
