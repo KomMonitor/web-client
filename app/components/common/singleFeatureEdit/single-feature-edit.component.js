@@ -107,11 +107,6 @@ angular.module('singleFeatureEdit').component('singleFeatureEdit', {
 
 			$scope.reinitSingleFeatureEdit = async function () {
 
-				// when reiniting single feature edit menu we must ensure that any changes to dataset will remain
-				// so we assume that any change has been done and mark dataset as reachabilityDataset
-				// thus we prevent KomMonitor from refetching the dataset again from DB and override any changes
-				$scope.isReachabilityDatasetOnly = true;
-
 				$scope.resetContent();
 				await $scope.initFeatureSchema();
 				await $scope.initGeoMap();
@@ -186,8 +181,8 @@ angular.module('singleFeatureEdit').component('singleFeatureEdit', {
 
 			$scope.initGeoresourceFeatures = async function () {
 
-				// only fetch more details if possible - that is - if data is actually stored in database
-				if (!$scope.isReachabilityDatasetOnly) {
+				// only fetch data from db if it is not reachability dataset and if it has not been fetched before!				
+				if (!$scope.isReachabilityDatasetOnly && !$scope.georesourceFeaturesGeoJSON) {
 					// add data layer to singleFeatureMap
 					await $http({
 						url: kommonitorDataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/georesources/" + $scope.currentGeoresourceDataset.georesourceId + "/allFeatures",
@@ -205,8 +200,8 @@ angular.module('singleFeatureEdit').component('singleFeatureEdit', {
 
 					});
 				}
-				else {
-					$scope.georesourceFeaturesGeoJSON = $scope.georesourceFeaturesGeoJSON ? $scope.georesourceFeaturesGeoJSON : initEmptyGeoJSON()
+				if(!$scope.georesourceFeaturesGeoJSON) {
+					$scope.georesourceFeaturesGeoJSON = initEmptyGeoJSON();
 				}
 
 				kommonitorSingleFeatureMapHelperService.addDataLayertoSingleFeatureGeoMap($scope.georesourceFeaturesGeoJSON);
