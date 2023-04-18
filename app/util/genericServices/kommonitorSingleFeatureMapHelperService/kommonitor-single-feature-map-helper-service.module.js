@@ -76,14 +76,45 @@ angular
 
       this.changeEditableFeature = function (feature) {
         kommonitorGenericMapHelperService.changeEditableFeature(feature, this.mapParts.drawControlObject.featureLayer);
-      }
+      };
+
+      this.pointToLayer = function (geoJsonPoint, latlng) {
+        return L.circleMarker(latlng, {
+          radius: 6
+        });
+      };
+
+      this.style = function (feature) {
+        return {
+          color: "red",
+          weight: 1,
+          opacity: 1
+        };
+      };
+
+      this.onEachFeature = function (feature, layer) {
+        layer.on({
+          click: function () {
+
+            $rootScope.$broadcast("singleFeatureSelected", feature);
+
+            var popupContent = '<div class="georesourceInfoPopupContent featurePropertyPopupContent"><table class="table table-condensed">';
+            for (var p in feature.properties) {
+              popupContent += '<tr><td>' + p + '</td><td>' + feature.properties[p] + '</td></tr>';
+            }
+            popupContent += '</table></div>';
+
+            layer.bindPopup(popupContent);
+          }
+        });
+      };
 
       this.addDataLayertoSingleFeatureGeoMap = function (geoJSON) {
 
         this.georesourceData_geoJSON = geoJSON;
 
         //function (geoJSON, map, layerControl, layerName)
-        this.mapParts.dataLayer = kommonitorGenericMapHelperService.addDataLayer(geoJSON, this.mapParts.map, undefined, "");
+        this.mapParts.dataLayer = kommonitorGenericMapHelperService.addDataLayer(geoJSON, this.mapParts.map, undefined, "", this.onEachFeature, this.pointToLayer, this.style);
       };
 
 

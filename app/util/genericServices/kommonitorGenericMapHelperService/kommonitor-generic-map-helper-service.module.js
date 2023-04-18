@@ -388,49 +388,18 @@ angular
         }
       };
 
-      /**
-      * binds the popup of a clicked output
-      * to layer.feature.properties.popupContent
-      */
-      this.onEachFeatureGeoresource = function (feature, layer) {
-        layer.on({
-          click: function () {
-
-            $rootScope.$broadcast("singleFeatureSelected", feature);
-
-            var popupContent = '<div class="georesourceInfoPopupContent featurePropertyPopupContent"><table class="table table-condensed">';
-            for (var p in feature.properties) {
-              popupContent += '<tr><td>' + p + '</td><td>' + feature.properties[p] + '</td></tr>';
-            }
-            popupContent += '</table></div>';
-
-            layer.bindPopup(popupContent);
-          }
-        });
-      };
-
       this.changeEditableFeature = function (feature, featureLayer) {
         let singlePointLayer = L.marker([feature.geometry.coordinates[1], feature.geometry.coordinates[0]]);
         featureLayer.clearLayers();
         featureLayer.addLayer(singlePointLayer);
       }
 
-      this.addDataLayer = function (geoJSON, map, layerControl, layerName) {
+      this.addDataLayer = function (geoJSON, map, layerControl, layerName, onEachFeature, pointToLayer, style) {
 
         let geojsonLayer = L.geoJSON(geoJSON, {
-          onEachFeature: self.onEachFeatureGeoresource,
-          pointToLayer: function (geoJsonPoint, latlng) {
-            return L.circleMarker(latlng, {
-              radius: 6
-            });
-          },
-          style: function (feature) {
-            return {
-              color: "red",
-              weight: 1,
-              opacity: 1
-            };
-          }
+          onEachFeature: onEachFeature,
+          pointToLayer: pointToLayer,
+          style: style
         });
 
         if (map) {
