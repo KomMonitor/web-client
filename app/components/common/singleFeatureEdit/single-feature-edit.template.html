@@ -5,40 +5,43 @@
 			<label class="btn btn-primary active">
 				<input type="radio" name="options" autocomplete="off" checked ng-change="onChangeEditMode()"
 					ng-model="$ctrl.kommonitorSingleFeatureMapHelperServiceInstance.editMode" value="create">
-					<i class="fa-solid fa-plus"></i>&nbsp;Erstellen
+				<i class="fa-solid fa-plus"></i>&nbsp;Erstellen
 				</input>
 			</label>
 			<label class="btn btn-primary">
 				<input type="radio" name="options" autocomplete="off" ng-change="onChangeEditMode()"
-					ng-model="$ctrl.kommonitorSingleFeatureMapHelperServiceInstance.editMode" value="edit"> 
-					<i class="fa-solid fa-pencil"></i>&nbsp;Editieren
+					ng-model="$ctrl.kommonitorSingleFeatureMapHelperServiceInstance.editMode" value="edit">
+				<i class="fa-solid fa-pencil"></i>&nbsp;Editieren
 				</input>
 			</label>
 			<label class="btn btn-primary">
 				<input type="radio" name="options" autocomplete="off" ng-change="onChangeEditMode()"
-					ng-model="$ctrl.kommonitorSingleFeatureMapHelperServiceInstance.editMode" value="delete"> 
-					<i class="fa-solid fa-trash"></i>&nbsp;Entfernen
+					ng-model="$ctrl.kommonitorSingleFeatureMapHelperServiceInstance.editMode" value="delete">
+				<i class="fa-solid fa-trash"></i>&nbsp;Entfernen
 				</input>
 			</label>
 		</div>
 
-		<br/>
+		<br />
 
 		<div ng-if="$ctrl.kommonitorSingleFeatureMapHelperServiceInstance.editMode == 'create'">
-			<i><b>Hinweis:</b> Attribute f&uuml;llen und Geometrie setzen, dann <b>Erstellen</b>-Button bet&auml;tigen</i>
+			<i><b>Hinweis:</b> Attribute f&uuml;llen und Geometrie setzen, dann <b>Erstellen</b>-Button
+				bet&auml;tigen</i>
 		</div>
 		<div ng-if="$ctrl.kommonitorSingleFeatureMapHelperServiceInstance.editMode == 'edit'">
-			<i><b>Hinweis:</b> Kartenobjekt anklicken, um Objekt zu selektieren, dann Attribute und Geometrie editieren, dann <b>Editieren</b>-Button bet&auml;tigen</i>
+			<i><b>Hinweis:</b> Kartenobjekt anklicken, um Objekt zu selektieren, dann Attribute und Geometrie editieren,
+				dann <b>Editieren</b>-Button bet&auml;tigen</i>
 		</div>
 		<div ng-if="$ctrl.kommonitorSingleFeatureMapHelperServiceInstance.editMode == 'delete'">
-			<i><b>Hinweis:</b> Kartenobjekt anklicken, um Objekt zu selektieren, Attribute prüfen, dann <b>L&ouml;schen</b>-Button bet&auml;tigen</i>
+			<i><b>Hinweis:</b> Kartenobjekt anklicken, um Objekt zu selektieren, Attribute prüfen, dann
+				<b>L&ouml;schen</b>-Button bet&auml;tigen</i>
 		</div>
 	</div>
 
 </div>
 
 <hr>
-<br/>
+<br />
 
 <div class="row ">
 	<div class="col-md-6 col-sm-6 col-xs-12">
@@ -75,6 +78,7 @@
 						</td>
 						<td>
 							<input type="text" class="form-control" ng-model="featureNameValue"
+								ng-disabled="$ctrl.kommonitorSingleFeatureMapHelperServiceInstance.editMode == 'delete'"
 								placeholder="lesbarer Name des Objekts" required></input>
 						</td>
 					</tr>
@@ -85,6 +89,7 @@
 						<td>
 							<input type="text" ng-model="featureStartDateValue"
 								ng-change="checkSingleFeaturePeriodOfValidity()" class="form-control pull-right"
+								ng-disabled="$ctrl.kommonitorSingleFeatureMapHelperServiceInstance.editMode == 'delete'"
 								id="georesourceSingleFeatureDatepickerStart" placeholder="YYYY-MM-DD"
 								ng-change="validateSingleFeatureId()" required>
 						</td>
@@ -96,6 +101,7 @@
 						<td>
 							<input type="text" ng-model="featureEndDateValue"
 								ng-change="checkSingleFeaturePeriodOfValidity()" class="form-control pull-right"
+								ng-disabled="$ctrl.kommonitorSingleFeatureMapHelperServiceInstance.editMode == 'delete'"
 								id="georesourceSingleFeatureDatepickerEnd" placeholder="YYYY-MM-DD" required>
 						</td>
 					</tr>
@@ -107,6 +113,7 @@
 						</td>
 						<td>
 							<input type="text" class="form-control" ng-model="featureSchemaEntry.value"
+								ng-disabled="$ctrl.kommonitorSingleFeatureMapHelperServiceInstance.editMode == 'delete'"
 								placeholder="optionaler Wert f&uuml;r Attribut '{{featureSchemaEntry.property}}'"
 								required></input>
 						</td>
@@ -128,6 +135,9 @@
 			<i>{{featureInfoText_singleFeatureAddMenu}}</i>
 		</div>
 		<br /> -->
+		<div ng-if="! currentGeoresourceDataset">
+			<i>noch kein Geodatensatz selektiert</i>
+		</div>
 		<div id="singleFeatureGeoMap" style="height: 40vh;"></div>
 	</div>
 </div>

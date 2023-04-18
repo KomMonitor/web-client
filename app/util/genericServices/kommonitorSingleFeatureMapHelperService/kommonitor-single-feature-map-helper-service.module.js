@@ -212,12 +212,16 @@ angular
       };
 
       this.initDrawControlOptions = function (resourceType, enableDrawToolbar) {
-        let options = {
-          edit: {
-            featureGroup: this.featureLayer
-          },
+        let options = {          
           position: 'bottomright'
         };
+
+        // only allow edit toolbar if creating/editing items
+        if (this.editMode != 'delete'){
+          options.edit = {
+            featureGroup: this.featureLayer
+          };
+        }
 
         if (enableDrawToolbar) {
           options.draw = {
