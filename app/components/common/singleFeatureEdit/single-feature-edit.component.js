@@ -365,11 +365,11 @@ angular.module('singleFeatureEdit').component('singleFeatureEdit', {
 				$scope.reinitSingleFeatureEdit();
 			};
 
-			$scope.$on("singleFeatureSelected", function (event, feature) {
-				$scope.resetContentFromFeature(feature);
+			$scope.$on("singleFeatureSelected", function (event, feature) {				
 
 				// depending on editMode we must tell mapHelper to put feature into editable featureLayer
 				if(kommonitorSingleFeatureMapHelperService.editMode != "create"){
+					$scope.resetContentFromFeature(feature);
 					kommonitorSingleFeatureMapHelperService.changeEditableFeature(feature);
 				}
 			});
