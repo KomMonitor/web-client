@@ -1,2 +1,2 @@
 angular.module('reachabilityScenarioConfiguration', ['kommonitorDataExchange', 
-'kommonitorReachabilityHelper']);
+'kommonitorReachabilityHelper', 'kommonitorReachabilityMapHelper']);

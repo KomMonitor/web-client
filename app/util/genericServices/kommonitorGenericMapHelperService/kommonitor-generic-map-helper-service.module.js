@@ -212,7 +212,7 @@ angular
           domNode.removeChild(domNode.lastChild);
         }
 
-        let layerControl, map, geosearchControl, backgroundLayer, drawControl;
+        let layerControl, map, geosearchControl, backgroundLayer, drawControlObject;
 
         // backgroundLayer
         backgroundLayer = this.generateBackgroundMap_osmGrayscale();
@@ -417,6 +417,18 @@ angular
         }
 
         return geojsonLayer;
+      };
+
+      this.removeLayerFromMap = function(map, layer){
+        if(map && layer){
+          map.removeLayer(layer);
+        }
+      };
+
+      this.removeLayerFromLayerControl = function(layerControl, layer){
+        if(layerControl && layer){
+          layerControl.removeLayer(layer);
+        }
       };
 
 

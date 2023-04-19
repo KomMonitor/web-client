@@ -1,12 +1,12 @@
-angular.module('kommonitorReachabilityHelper', ['kommonitorDataExchange', 'kommonitorMap']);
+angular.module('kommonitorReachabilityHelper', ['kommonitorDataExchange']);
 
 
 angular
-	.module('kommonitorReachabilityHelper', [])
+	.module('kommonitorReachabilityHelper')
 	.service(
 		'kommonitorReachabilityHelperService', [
-		'$http', '$rootScope', '$timeout','__env', 'Auth', '$routeParams', '$location', 'kommonitorDataExchangeService', 'kommonitorMapService',
-		function ($http, $rootScope, $timeout, __env, Auth, $routeParams, $location, kommonitorDataExchangeService, kommonitorMapService) {
+		'$http', '$rootScope', '$timeout','__env', 'Auth', '$routeParams', '$location', 'kommonitorDataExchangeService',
+		function ($http, $rootScope, $timeout, __env, Auth, $routeParams, $location, kommonitorDataExchangeService) {
 
 			let self = this;
 
@@ -19,8 +19,6 @@ angular
 			this.settings.unit = 'Meter';
 
 			this.settings.locationsArray = [];
-
-			this.settings.usePreconfigRanges_500_1000 = false;
 
 			this.settings.dateSelectionType_valueIndicator = "date_indicator";
 			this.settings.dateSelectionType_valueManual = "date_manual";
@@ -113,8 +111,6 @@ angular
 				this.settings.unit = 'Meter';
 
 				this.settings.locationsArray = [];
-
-				this.settings.usePreconfigRanges_500_1000 = false;
 
 				this.settings.dateSelectionType_valueIndicator = "date_indicator";
 				this.settings.dateSelectionType_valueManual = "date_manual";
@@ -252,7 +248,7 @@ angular
 				}
 				else {
 					// establish from chosen layer
-					self.settings.selectedStartPointLayer.geoJSON.features.forEach(function (feature) {
+					self.settings.selectedStartPointLayer.geoJSON_reachability.features.forEach(function (feature) {
 						self.settings.locationsArray.push(feature.geometry.coordinates);
 					});
 				}
@@ -294,7 +290,6 @@ angular
 			this.startIsochroneCalculation = async function (isUsedInReporting) {
 				if (!isUsedInReporting) { // reporting uses it's own loading overlay, which is controlled there
 					self.settings.loadingData = true;
-					$rootScope.$broadcast("showLoadingIconOnMap");
 				} else {
 					$rootScope.$broadcast("reportingIsochronesCalculationStarted");
 				}
@@ -326,25 +321,11 @@ angular
 					return;
 				}
 
-				self.currentIsochronesGeoJSON = resultIsochrones;
-
-
-				kommonitorMapService.replaceIsochroneMarker(self.settings.locationsArray);
-				kommonitorMapService
-					.replaceIsochroneGeoJSON(
-						self.currentIsochronesGeoJSON,
-						self.settings.transitMode,
-						self.settings.focus,
-						self.rangeArray,
-						self.settings.useMultipleStartPoints,
-						self.settings.dissolveIsochrones);				
+				self.currentIsochronesGeoJSON = resultIsochrones;			
 
 				$rootScope.$broadcast("isochronesCalculationFinished");
 
 				self.settings.loadingData = false;
-				$timeout(function () {
-					$rootScope.$broadcast('hideLoadingIconOnMap');
-				}, 500);
 
 			};
 
@@ -404,7 +385,6 @@ angular
 							this.error = error.data.error.message;
 							self.settings.loadingData = false;
 							kommonitorDataExchangeService.displayMapApplicationError(error);
-							$rootScope.$broadcast("hideLoadingIconOnMap");
 						});
 			};
 
@@ -419,7 +399,7 @@ angular
 				}
 				else {
 					// establish from chosen layer
-					startingPoints_geoJSON = self.settings.selectedStartPointLayer.geoJSON;
+					startingPoints_geoJSON = self.settings.selectedStartPointLayer.geoJSON_reachability;
 				}
 
 				// range in meters
@@ -523,7 +503,7 @@ angular
 				}
 
 				// clear any previous results
-				self.settings.selectedStartPointLayer.geoJSON = undefined;
+				self.settings.selectedStartPointLayer.geoJSON_reachability = undefined;
 
 				var date;
 
@@ -560,7 +540,7 @@ angular
 					// when the response is available
 					var geoJSON = response.data;
 
-					self.settings.selectedStartPointLayer.geoJSON = geoJSON;
+					self.settings.selectedStartPointLayer.geoJSON_reachability = geoJSON;
 
 					self.settings.loadingData = false;
 					self.settings.pointSourceConfigured = true;

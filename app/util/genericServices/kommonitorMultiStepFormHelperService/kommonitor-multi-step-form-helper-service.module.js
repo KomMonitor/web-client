@@ -1,11 +1,11 @@
-angular.module('kommonitorMultiStepFormHelper', ['kommonitorSingleFeatureMapHelper']);
+angular.module('kommonitorMultiStepFormHelper', ['kommonitorSingleFeatureMapHelper', 'kommonitorReachabilityMapHelper']);
 
 angular
   .module('kommonitorMultiStepFormHelper')
   .service(
     'kommonitorMultiStepFormHelperService', [
-    '$http', '__env', '$timeout', 'kommonitorSingleFeatureMapHelperService',
-    function ($http, __env, $timeout, kommonitorSingleFeatureMapHelperService) {
+    '$http', '__env', '$timeout', 'kommonitorSingleFeatureMapHelperService', 'kommonitorReachabilityMapHelperService',
+    function ($http, __env, $timeout, kommonitorSingleFeatureMapHelperService, kommonitorReachabilityMapHelperService) {
 
       /*
 			MULTI STEP FORM STUFF
@@ -94,6 +94,9 @@ angular
             // should any page be shown, where there is a single feature edit map then we must ensure that content is zoomed to
             kommonitorSingleFeatureMapHelperService.invalidateMap();
             kommonitorSingleFeatureMapHelperService.zoomToDataLayer();
+
+            kommonitorReachabilityMapHelperService.invalidateMaps();
+            kommonitorReachabilityMapHelperService.zoomToIsochroneLayers();
           });
 
         }, 500);
@@ -126,6 +129,9 @@ angular
             // should any page be shown, where there is a single feature edit map then we must ensure that content is zoomed to
             kommonitorSingleFeatureMapHelperService.invalidateMap();
             kommonitorSingleFeatureMapHelperService.zoomToDataLayer();
+
+            kommonitorReachabilityMapHelperService.invalidateMaps();
+            kommonitorReachabilityMapHelperService.zoomToIsochroneLayers();
           });
   
         }, 500);
@@ -155,6 +161,9 @@ angular
             // should any page be shown, where there is a single feature edit map then we must ensure that content is zoomed to
             kommonitorSingleFeatureMapHelperService.invalidateMap();
             kommonitorSingleFeatureMapHelperService.zoomToDataLayer();
+
+            kommonitorReachabilityMapHelperService.invalidateMaps();
+            kommonitorReachabilityMapHelperService.zoomToIsochroneLayers();
           });
   
         }, 500);
