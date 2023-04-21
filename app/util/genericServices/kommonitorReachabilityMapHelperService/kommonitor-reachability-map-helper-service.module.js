@@ -3,8 +3,8 @@ angular.module('kommonitorReachabilityMapHelper', ['kommonitorDataExchange', 'ko
 angular
   .module('kommonitorReachabilityMapHelper')
   .service(
-    'kommonitorReachabilityMapHelperService', ['$rootScope', '__env', '$timeout', 
-    'kommonitorDataExchangeService','kommonitorGenericMapHelperService',
+    'kommonitorReachabilityMapHelperService', ['$rootScope', '__env', '$timeout',
+    'kommonitorDataExchangeService', 'kommonitorGenericMapHelperService',
     function ($rootScope, __env, $timeout, kommonitorDataExchangeService, kommonitorGenericMapHelperService) {
 
       var self = this;
@@ -18,7 +18,8 @@ angular
           "isochroneLayers": {
             "markerLayer": markerLayer,
             "isochroneLayer": isochroneLayer
-          }
+          },
+          "poiInIsoLayers": poiInIsoLayersMap // map object
         }
         */
       this.mapPartsMap = new Map();
@@ -46,6 +47,9 @@ angular
           "markerLayer": undefined,
           "isochroneLayer": undefined
         }
+
+        // empty map of poiInIsoLayers
+        mapParts.isochroneLayers.poiInIsoLayers = new Map();
 
         this.mapPartsMap.set(domId, mapParts);
         return mapParts;
@@ -365,6 +369,89 @@ angular
 
         kommonitorGenericMapHelperService.removeLayerFromMap(mapParts.map, mapParts.isochroneLayers.markerLayer);
         kommonitorGenericMapHelperService.removeLayerFromMap(mapParts.map, mapParts.isochroneLayers.isochroneLayer);
+      };
+
+      /*
+      POI IN ISOCHRONES SECTION
+      */
+
+      this.addPoiGeoresourceGeoJSON_reachabilityAnalysis = function (domId, georesourceMetadataAndGeoJSON, date, useCluster) {
+
+        let mapParts = this.mapPartsMap.get(domId);
+
+        if (mapParts && mapParts.isochroneLayers && mapParts.isochroneLayers.poiInIsoLayers
+          && mapParts.isochroneLayers.poiInIsoLayers.has(georesourceMetadataAndGeoJSON.georesourceId)) {
+          let layer = mapParts.isochroneLayers.poiInIsoLayers.get(georesourceMetadataAndGeoJSON.georesourceId);
+          kommonitorGenericMapHelperService.removeLayerFromMap(mapParts.map, layer);
+          kommonitorGenericMapHelperService.removeLayerFromLayerControl(mapParts.layerControl, layer);
+        }
+
+        // use leaflet.markercluster to cluster markers!
+        var markers;
+        if (useCluster) {
+          markers = L.markerClusterGroup({
+            iconCreateFunction: function (cluster) {
+              var childCount = cluster.getChildCount();
+
+              var c = 'cluster-';
+              if (childCount < 10) {
+                c += 'small';
+              } else if (childCount < 30) {
+                c += 'medium';
+              } else {
+                c += 'large';
+              }
+
+              var className = "marker-cluster " + c + " awesome-marker-legend-TransparentIcon-" + georesourceMetadataAndGeoJSON.poiMarkerColor;
+
+              //'marker-cluster' + c + ' ' +
+              return new L.DivIcon({ html: '<div class="awesome-marker-legend-icon-' + georesourceMetadataAndGeoJSON.poiMarkerColor + '" ><span>' + childCount + '</span></div>', className: className, iconSize: new L.Point(40, 40) });
+            }
+          });
+        }
+        else {
+          markers = L.layerGroup();
+        }
+
+        georesourceMetadataAndGeoJSON.geoJSON.features.forEach(function (poiFeature) {
+          // index 0 should be longitude and index 1 should be latitude
+          //.bindPopup( poiFeature.properties.name )
+          var newMarker = kommonitorGenericMapHelperService.createCustomMarker(poiFeature, georesourceMetadataAndGeoJSON.poiSymbolColor, georesourceMetadataAndGeoJSON.poiMarkerColor, georesourceMetadataAndGeoJSON.poiSymbolBootstrap3Name, georesourceMetadataAndGeoJSON);
+
+          markers = kommonitorGenericMapHelperService.addPoiMarker(markers, newMarker);
+        });
+
+        // markers.StyledLayerControl = {
+        //   removable : false,
+        //   visible : true
+        // };
+
+        mapParts.isochroneLayers.poiInIsoLayers.set(georesourceMetadataAndGeoJSON.georesourceId, markers);
+
+        mapParts.layerControl.addOverlay(markers, georesourceMetadataAndGeoJSON.datasetName + "_" + date + "_inEinzugsgebiet");
+        markers.addTo(mapParts.map);
+
+        this.invalidateMap(domId);
+        this.zoomToIsochroneLayer(domId);
+
+        this.mapPartsMap.set(domId, mapParts);
+      };
+
+      this.removePoiGeoresource_reachabilityAnalysis = function (domId, georesourceMetadataAndGeoJSON) {
+
+        let mapParts = this.mapPartsMap.get(domId);
+
+        if (mapParts && mapParts.isochroneLayers && mapParts.isochroneLayers.poiInIsoLayers
+          && mapParts.isochroneLayers.poiInIsoLayers.has(georesourceMetadataAndGeoJSON.georesourceId)) {
+          let layer = mapParts.isochroneLayers.poiInIsoLayers.get(georesourceMetadataAndGeoJSON.georesourceId);
+          kommonitorGenericMapHelperService.removeLayerFromMap(mapParts.map, layer);
+          kommonitorGenericMapHelperService.removeLayerFromLayerControl(mapParts.layerControl, layer);
+        }
+
+        this.invalidateMap(domId);
+        this.zoomToIsochroneLayer(domId);
+
+        this.mapPartsMap.set(domId, mapParts);
       };
 
     }]);

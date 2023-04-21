@@ -12,10 +12,17 @@ angular.module('kommonitorMap').component(
       'kommonitorVisualStyleHelperService',
       'kommonitorInfoLegendHelperService',
       'kommonitorFilterHelperService', 
+      'kommonitorGenericMapHelperService',
       '__env',
       function MapController($rootScope, $http, $scope, $timeout, kommonitorMapService, kommonitorDataExchangeService, kommonitorVisualStyleHelperService, 
-        kommonitorInfoLegendHelperService, kommonitorFilterHelperService, __env) {
+        kommonitorInfoLegendHelperService, kommonitorFilterHelperService, kommonitorGenericMapHelperService, __env) {
 
+          /*
+           
+          #################################################################################
+          #TODO FIXME could be refactored to make intensive use of genericMapHelperService#
+          #################################################################################
+           */
         this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 
         const INDICATOR_DATE_PREFIX = __env.indicatorDatePrefix;
@@ -1305,66 +1312,7 @@ angular.module('kommonitorMap').component(
           $scope.map.invalidateSize(true);
         });        
 
-        var createCustomMarkersFromWfsPoints = function(wfsLayer, poiMarkerLayer, dataset){
-          for (var layerPropName in wfsLayer._layers){
-            var geoJSONFeature = wfsLayer._layers[layerPropName].feature;
-            var latlng = wfsLayer._layers[layerPropName]._latlng;
-
-            geoJSONFeature.geometry = {
-              type: "Point",
-              coordinates: [latlng.lng, latlng.lat]
-            };
-
-            var customMarker = createCustomMarker(geoJSONFeature, dataset.poiSymbolColor, dataset.poiMarkerColor, dataset.poiSymbolBootstrap3Name, dataset);
-            poiMarkerLayer = addPoiMarker(poiMarkerLayer, customMarker);
-          }
-
-          return poiMarkerLayer;
-        };
-
-        var createCustomMarker = function(poiFeature, poiSymbolColor, poiMarkerColor, poiSymbolBootstrap3Name, metadataObject){
-          var customMarker;
-          try {
-            customMarker = L.AwesomeMarkers.icon({
-              icon: poiSymbolBootstrap3Name,
-              iconColor: poiSymbolColor,
-              markerColor: poiMarkerColor
-            });
-          } catch (err) {
-            customMarker = L.AwesomeMarkers.icon({
-              icon: 'home', // default back to home
-              iconColor: poiSymbolColor,
-              markerColor: poiMarkerColor
-            });
-          }
-
-          var newMarker;
-
-          if(poiFeature.geometry.type === "Point"){              
-            // LAT LON order
-            newMarker = L.marker([Number(poiFeature.geometry.coordinates[1]), Number(poiFeature.geometry.coordinates[0])], { icon: customMarker });
-
-            //populate the original geoJSOn feature to the marker layer!
-            newMarker.feature = poiFeature;
-            newMarker.metadataObject = metadataObject;
-          }
-          else if (poiFeature.geometry.type === "MultiPoint"){
-
-            // simply take the first point as feature reference POI
-            // LAT LON order
-            newMarker = L.marker([Number(poiFeature.geometry.coordinates[0][1]), Number(poiFeature.geometry.coordinates[0][0])], { icon: customMarker });
-
-            //populate the original geoJSOn feature to the marker layer!
-            newMarker.feature = poiFeature;
-            newMarker.metadataObject = metadataObject;
-          }
-          else{
-            console.error("NO POI object: instead got feature of type " + poiFeature.geometry.type);
-          }
-          
-          return newMarker;
-
-        };
+        
 
         $scope.$on("addPoiGeoresourceAsGeoJSON", function (event, georesourceMetadataAndGeoJSON, date, useCluster) {
 
@@ -1398,9 +1346,9 @@ angular.module('kommonitorMap').component(
           georesourceMetadataAndGeoJSON.geoJSON.features.forEach(function (poiFeature) {
             // index 0 should be longitude and index 1 should be latitude
             //.bindPopup( poiFeature.properties.name )
-            var newMarker = createCustomMarker(poiFeature, georesourceMetadataAndGeoJSON.poiSymbolColor, georesourceMetadataAndGeoJSON.poiMarkerColor, georesourceMetadataAndGeoJSON.poiSymbolBootstrap3Name, georesourceMetadataAndGeoJSON);            
+            var newMarker = kommonitorGenericMapHelperService.createCustomMarker(poiFeature, georesourceMetadataAndGeoJSON.poiSymbolColor, georesourceMetadataAndGeoJSON.poiMarkerColor, georesourceMetadataAndGeoJSON.poiSymbolBootstrap3Name, georesourceMetadataAndGeoJSON);            
             
-            markers = addPoiMarker(markers, newMarker);
+            markers = kommonitorGenericMapHelperService.addPoiMarker(markers, newMarker);
           });
 
           // markers.StyledLayerControl = {
@@ -1415,102 +1363,12 @@ angular.module('kommonitorMap').component(
           $scope.map.invalidateSize(true);
         });
 
-        $scope.$on("addPoiGeoresourceAsGeoJSON_reachabilityAnalysis", function (event, georesourceMetadataAndGeoJSON, date, useCluster) {
-
-          // use leaflet.markercluster to cluster markers!
-          var markers;
-          if (useCluster) {
-            markers = L.markerClusterGroup({
-              iconCreateFunction: function (cluster) {
-                var childCount = cluster.getChildCount();
-
-                var c = 'cluster-';
-                if (childCount < 10) {
-                  c += 'small';
-                } else if (childCount < 30) {
-                  c += 'medium';
-                } else {
-                  c += 'large';
-                }
-
-                var className = "marker-cluster " + c + " awesome-marker-legend-TransparentIcon-" + georesourceMetadataAndGeoJSON.poiMarkerColor;
-
-                //'marker-cluster' + c + ' ' +
-                return new L.DivIcon({ html: '<div class="awesome-marker-legend-icon-' + georesourceMetadataAndGeoJSON.poiMarkerColor + '" ><span>' + childCount + '</span></div>', className: className, iconSize: new L.Point(40, 40) });
-              }
-            });
-          }
-          else {
-            markers = L.layerGroup();
-          }          
-
-          georesourceMetadataAndGeoJSON.geoJSON.features.forEach(function (poiFeature) {
-            // index 0 should be longitude and index 1 should be latitude
-            //.bindPopup( poiFeature.properties.name )
-            var newMarker = createCustomMarker(poiFeature, georesourceMetadataAndGeoJSON.poiSymbolColor, georesourceMetadataAndGeoJSON.poiMarkerColor, georesourceMetadataAndGeoJSON.poiSymbolBootstrap3Name, georesourceMetadataAndGeoJSON);            
-            
-            markers = addPoiMarker(markers, newMarker);
-          });
-
-          // markers.StyledLayerControl = {
-          //   removable : false,
-          //   visible : true
-          // };
-
-          $scope.layerControl.addOverlay(markers, georesourceMetadataAndGeoJSON.datasetName + "_" + date + "_inEinzugsgebiet", reachabilityLayerGroupName);
-          markers.addTo($scope.map);
-          $scope.updateSearchControl();
-          // $scope.map.addLayer( markers );
-          $scope.map.invalidateSize(true);
-        });
-
-        var addPoiMarker = function(markers, poiMarker){
-            
-          // var propertiesString = "<pre>" + JSON.stringify(poiMarker.feature.properties, null, ' ').replace(/[\{\}"]/g, '') + "</pre>";
-
-          var popupContent = '<div class="poiInfoPopupContent featurePropertyPopupContent"><table class="table table-condensed">';
-            for (var p in poiMarker.feature.properties) {
-                popupContent += '<tr><td>' + p + '</td><td>'+ poiMarker.feature.properties[p] + '</td></tr>';
-            }
-            popupContent += '</table></div>';
-
-          if (poiMarker.feature.properties.name) {
-            poiMarker.bindPopup(poiMarker.feature.properties.name + "\n\n" + popupContent);
-          }
-          else if (poiMarker.feature.properties.NAME) {
-            poiMarker.bindPopup(poiMarker.feature.properties.NAME + "\n\n" + popupContent);
-          }
-          else if (poiMarker.feature.properties[__env.FEATURE_NAME_PROPERTY_NAME]) {
-            poiMarker.bindPopup(poiMarker.feature.properties[__env.FEATURE_NAME_PROPERTY_NAME] + "\n\n" + popupContent);
-          }
-          else {
-            // poiMarker.bindPopup(propertiesString);
-            poiMarker.bindPopup(popupContent);
-          }
-          markers.addLayer(poiMarker);
-
-          return markers;
-      };
-
         $scope.$on("removePoiGeoresource", function (event, georesourceMetadataAndGeoJSON) {
 
           var layerName = georesourceMetadataAndGeoJSON.datasetName;
 
           $scope.layerControl._layers.forEach(function (layer) {
             if (layer.group.name === poiLayerGroupName && layer.name.includes(layerName + "_")) {
-              $scope.layerControl.removeLayer(layer.layer);
-              $scope.map.removeLayer(layer.layer);
-              $scope.updateSearchControl();
-            }
-          });
-        });
-
-        $scope.$on("removePoiGeoresource_reachabilityAnalysis", function (event, georesourceMetadataAndGeoJSON) {
-
-          var layerName = georesourceMetadataAndGeoJSON.datasetName;
-
-          $scope.layerControl._layers.forEach(function (layer) {
-            if (layer.group.name === reachabilityLayerGroupName && layer.name.includes(layerName + "_")) {
               $scope.layerControl.removeLayer(layer.layer);
               $scope.map.removeLayer(layer.layer);
               $scope.updateSearchControl();
@@ -1864,7 +1722,7 @@ angular.module('kommonitorMap').component(
             wfsLayer.once('load', function () {
 
               if(dataset.geometryType === "POI"){
-                poiMarkerLayer = createCustomMarkersFromWfsPoints(wfsLayer, poiMarkerLayer, dataset);
+                poiMarkerLayer = kommonitorGenericMapHelperService.createCustomMarkersFromWfsPoints(wfsLayer, poiMarkerLayer, dataset);
               }
 
               console.log("Try to fit bounds on wfsLayer");

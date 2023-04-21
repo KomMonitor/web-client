@@ -1,3 +1,3 @@
 
 angular.module('reachabilityPoiInIso', ['kommonitorDataExchange', 
-'kommonitorReachabilityHelper', 'kommonitorDiagramHelper', 'kommonitorMap']);
+'kommonitorReachabilityHelper', 'kommonitorDiagramHelper', 'kommonitorReachabilityMapHelper']);

@@ -2,14 +2,17 @@ angular.module('reachabilityPoiInIso').component('reachabilityPoiInIso', {
 	templateUrl: "components/kommonitorUserInterface/kommonitorControls/kommonitorReachability/reachabilityScenarioModal/reachabilityPoiInIso/reachability-poi-in-iso.template.html",
 	controller: ['kommonitorDataExchangeService',
 		'$scope', '$rootScope', '$http', '__env', '$timeout', 'kommonitorReachabilityHelperService', 'kommonitorDiagramHelperService',
-		'kommonitorMapService',
+		'kommonitorReachabilityMapHelperService',
 		function reachabilityPoiInIsoController(kommonitorDataExchangeService,
 			$scope, $rootScope, $http, __env, $timeout, kommonitorReachabilityHelperService, kommonitorDiagramHelperService,
-			kommonitorMapService) {
+			kommonitorReachabilityMapHelperService) {
 
 			this.kommonitorReachabilityHelperServiceInstance = kommonitorReachabilityHelperService;
 			this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 			this.kommonitorDiagramHelperServiceInstance = kommonitorDiagramHelperService;
+
+			$scope.domId = "reachabilityScenarioPoiInIsoGeoMap";
+			$scope.mapParts;
 
 			$scope.echartsInstances_reachabilityAnalysis = new Map();
 
@@ -18,6 +21,26 @@ angular.module('reachabilityPoiInIso').component('reachabilityPoiInIso', {
 			$rootScope.$on("resetPoisInIsochrone", function () {
 				$scope.resetPoisInIsochrone();
 			});
+
+			$rootScope.$on("isochronesCalculationFinished", function () {
+
+				kommonitorReachabilityMapHelperService
+					.replaceIsochroneGeoJSON(
+						$scope.domId,
+						kommonitorReachabilityHelperService.currentIsochronesGeoJSON,
+						kommonitorReachabilityHelperService.settings.transitMode,
+						kommonitorReachabilityHelperService.settings.focus,
+						kommonitorReachabilityHelperService.rangeArray,
+						kommonitorReachabilityHelperService.settings.useMultipleStartPoints,
+						kommonitorReachabilityHelperService.settings.dissolveIsochrones);
+
+			});
+
+			$scope.init = function () {
+				$scope.mapParts = kommonitorReachabilityMapHelperService.initReachabilityGeoMap($scope.domId);
+			};
+
+			$scope.init();
 
 			$scope.resetPoisInIsochrone = function () {
 				$scope.echartsInstances_reachabilityAnalysis = new Map();
@@ -50,7 +73,7 @@ angular.module('reachabilityPoiInIso').component('reachabilityPoiInIso', {
 
 			$scope.handlePoiForAnalysis = async function (poi) {
 				kommonitorReachabilityHelperService.settings.loadingData = true;
-				$rootScope.$broadcast("showLoadingIconOnMap");
+				
 
 				try {
 					if (poi.isSelected_reachabilityAnalysis) {
@@ -67,7 +90,7 @@ angular.module('reachabilityPoiInIso').component('reachabilityPoiInIso', {
 				}
 
 				kommonitorReachabilityHelperService.settings.loadingData = false;
-				$rootScope.$broadcast("hideLoadingIconOnMap");
+				
 
 				// as method is async we may call angular digest cycle
 				setTimeout(() => {
@@ -103,7 +126,7 @@ angular.module('reachabilityPoiInIso').component('reachabilityPoiInIso', {
 					// or server returns response with an error status.
 					kommonitorReachabilityHelperService.settings.loadingData = false;
 					kommonitorDataExchangeService.displayMapApplicationError(error);
-					$rootScope.$broadcast("hideLoadingIconOnMap");
+					
 				});
 			};
 
@@ -290,25 +313,23 @@ angular.module('reachabilityPoiInIso').component('reachabilityPoiInIso', {
 
 			$scope.addPoiLayerToMap = function (poiGeoresource) {
 				kommonitorReachabilityHelperService.settings.loadingData = true;
-				$rootScope.$broadcast("showLoadingIconOnMap");
+				
 
 				// fale --> useCluster = false 
-				kommonitorMapService.addPoiGeoresourceGeoJSON_reachabilityAnalysis(poiGeoresource, $scope.getQueryDate(poiGeoresource), false);
+				kommonitorReachabilityMapHelperService.addPoiGeoresourceGeoJSON_reachabilityAnalysis($scope.domId, poiGeoresource, $scope.getQueryDate(poiGeoresource), false);
 				kommonitorReachabilityHelperService.settings.loadingData = false;
-				$rootScope.$broadcast("hideLoadingIconOnMap");
+				
 
 			};
 
 			$scope.removePoiLayerFromMap = function (poiGeoresource) {
 				kommonitorReachabilityHelperService.settings.loadingData = true;
-				$rootScope.$broadcast("showLoadingIconOnMap");
+				
 
 				poiGeoresource = poiGeoresource;
 
-				kommonitorMapService.removePoiGeoresource_reachabilityAnalysis(poiGeoresource);
+				kommonitorReachabilityMapHelperService.removePoiGeoresource_reachabilityAnalysis($scope.domId, poiGeoresource);
 				kommonitorReachabilityHelperService.settings.loadingData = false;
-				$rootScope.$broadcast("hideLoadingIconOnMap");
-
 			};
 
 			$scope.refreshPoiLayers = async function () {
@@ -372,7 +393,7 @@ angular.module('reachabilityPoiInIso').component('reachabilityPoiInIso', {
 					$timeout(function () {
 
 						$scope.loadingData = true;
-						$rootScope.$broadcast("showLoadingIconOnMap");
+						
 					});
 
 					$timeout(function () {
@@ -407,7 +428,7 @@ angular.module('reachabilityPoiInIso').component('reachabilityPoiInIso', {
 					// $timeout(function(){
 
 					// 	$scope.loadingData = true;
-					// 	$rootScope.$broadcast("showLoadingIconOnMap");
+					// 	
 					// });
 
 					// $timeout(function(){
@@ -430,7 +451,7 @@ angular.module('reachabilityPoiInIso').component('reachabilityPoiInIso', {
 				$timeout(function () {
 
 					$scope.loadingData = true;
-					$rootScope.$broadcast("showLoadingIconOnMap");
+					
 				});
 
 				$timeout(function () {
@@ -454,7 +475,7 @@ angular.module('reachabilityPoiInIso').component('reachabilityPoiInIso', {
 				}
 
 				$scope.loadingData = false;
-				$rootScope.$broadcast("hideLoadingIconOnMap");
+				
 			};
 
 			$scope.onChangeSelectedDate = async function (georesourceDataset) {

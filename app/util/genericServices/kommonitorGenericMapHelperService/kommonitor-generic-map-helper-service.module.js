@@ -431,5 +431,98 @@ angular
         }
       };
 
+      /*
+      HELPER SECTION
+      */
+
+      this.createCustomMarkersFromWfsPoints = function(wfsLayer, poiMarkerLayer, dataset){
+        for (var layerPropName in wfsLayer._layers){
+          var geoJSONFeature = wfsLayer._layers[layerPropName].feature;
+          var latlng = wfsLayer._layers[layerPropName]._latlng;
+
+          geoJSONFeature.geometry = {
+            type: "Point",
+            coordinates: [latlng.lng, latlng.lat]
+          };
+
+          var customMarker = this.createCustomMarker(geoJSONFeature, dataset.poiSymbolColor, dataset.poiMarkerColor, dataset.poiSymbolBootstrap3Name, dataset);
+          poiMarkerLayer = this.addPoiMarker(poiMarkerLayer, customMarker);
+        }
+
+        return poiMarkerLayer;
+      };
+
+      this.createCustomMarker = function(poiFeature, poiSymbolColor, poiMarkerColor, poiSymbolBootstrap3Name, metadataObject){
+        var customMarker;
+        try {
+          customMarker = L.AwesomeMarkers.icon({
+            icon: poiSymbolBootstrap3Name,
+            iconColor: poiSymbolColor,
+            markerColor: poiMarkerColor
+          });
+        } catch (err) {
+          customMarker = L.AwesomeMarkers.icon({
+            icon: 'home', // default back to home
+            iconColor: poiSymbolColor,
+            markerColor: poiMarkerColor
+          });
+        }
+
+        var newMarker;
+
+        if(poiFeature.geometry.type === "Point"){              
+          // LAT LON order
+          newMarker = L.marker([Number(poiFeature.geometry.coordinates[1]), Number(poiFeature.geometry.coordinates[0])], { icon: customMarker });
+
+          //populate the original geoJSOn feature to the marker layer!
+          newMarker.feature = poiFeature;
+          newMarker.metadataObject = metadataObject;
+        }
+        else if (poiFeature.geometry.type === "MultiPoint"){
+
+          // simply take the first point as feature reference POI
+          // LAT LON order
+          newMarker = L.marker([Number(poiFeature.geometry.coordinates[0][1]), Number(poiFeature.geometry.coordinates[0][0])], { icon: customMarker });
+
+          //populate the original geoJSOn feature to the marker layer!
+          newMarker.feature = poiFeature;
+          newMarker.metadataObject = metadataObject;
+        }
+        else{
+          console.error("NO POI object: instead got feature of type " + poiFeature.geometry.type);
+        }
+        
+        return newMarker;
+
+      };
+
+      this.addPoiMarker = function(markers, poiMarker){
+            
+        // var propertiesString = "<pre>" + JSON.stringify(poiMarker.feature.properties, null, ' ').replace(/[\{\}"]/g, '') + "</pre>";
+
+        var popupContent = '<div class="poiInfoPopupContent featurePropertyPopupContent"><table class="table table-condensed">';
+          for (var p in poiMarker.feature.properties) {
+              popupContent += '<tr><td>' + p + '</td><td>'+ poiMarker.feature.properties[p] + '</td></tr>';
+          }
+          popupContent += '</table></div>';
+
+        if (poiMarker.feature.properties.name) {
+          poiMarker.bindPopup(poiMarker.feature.properties.name + "\n\n" + popupContent);
+        }
+        else if (poiMarker.feature.properties.NAME) {
+          poiMarker.bindPopup(poiMarker.feature.properties.NAME + "\n\n" + popupContent);
+        }
+        else if (poiMarker.feature.properties[__env.FEATURE_NAME_PROPERTY_NAME]) {
+          poiMarker.bindPopup(poiMarker.feature.properties[__env.FEATURE_NAME_PROPERTY_NAME] + "\n\n" + popupContent);
+        }
+        else {
+          // poiMarker.bindPopup(propertiesString);
+          poiMarker.bindPopup(popupContent);
+        }
+        markers.addLayer(poiMarker);
+
+        return markers;
+    };
+
 
     }]);

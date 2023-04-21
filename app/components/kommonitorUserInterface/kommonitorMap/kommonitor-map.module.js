@@ -1,4 +1,5 @@
-angular.module('kommonitorMap', ['kommonitorDataExchange', 'kommonitorVisualStyleHelper', 'kommonitorInfoLegendHelper', 'kommonitorFilterHelper']);
+angular.module('kommonitorMap', ['kommonitorDataExchange', 'kommonitorVisualStyleHelper', 'kommonitorInfoLegendHelper', 
+'kommonitorFilterHelper', 'kommonitorGenericMapHelper']);
 /**
  * a common serviceInstance that holds all needed properties and methods for
  * interacting with a map (openlayers).
@@ -53,12 +54,6 @@ angular.module('kommonitorMap').service(
 						georesourceMetadataAndGeoJSON, date, useCluster);
 			};
 
-	   this.addPoiGeoresourceGeoJSON_reachabilityAnalysis = function (georesourceMetadataAndGeoJSON, date, useCluster) {
-
-				$rootScope.$broadcast("addPoiGeoresourceAsGeoJSON_reachabilityAnalysis",
-						georesourceMetadataAndGeoJSON, date, useCluster);
-			};	
-
       this.addLoiGeoresourceGeoJSON = function (georesourceMetadataAndGeoJSON, date) {
 
 				$rootScope.$broadcast("addLoiGeoresourceAsGeoJSON",
@@ -74,12 +69,6 @@ angular.module('kommonitorMap').service(
       this.removePoiGeoresource = function (georesourceMetadataAndGeoJSON) {
 
 				$rootScope.$broadcast("removePoiGeoresource",
-						georesourceMetadataAndGeoJSON);
-			};
-
-	   this.removePoiGeoresource_reachabilityAnalysis = function (georesourceMetadataAndGeoJSON) {
-
-				$rootScope.$broadcast("removePoiGeoresource_reachabilityAnalysis",
 						georesourceMetadataAndGeoJSON);
 			};		
 
