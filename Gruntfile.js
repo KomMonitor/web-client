@@ -192,7 +192,8 @@ module.exports = function (grunt) {
             'icons/**/*',
             'logos/**/*',
             'components/**/*.template.html',
-            'config/**/*'           
+            'config/**/*',
+            'favicon.ico'           
         ],
 
         // babel: {

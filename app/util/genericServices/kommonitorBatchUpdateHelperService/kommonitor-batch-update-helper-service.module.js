@@ -602,10 +602,36 @@ angular
 							oldConverter.parameters.splice(i, 1);
 						}
 					}
+
+					let mimeTypeValue = oldConverter.mimeType ? oldConverter.mimeType : "";
+					if (mimeTypeValue == "" && oldConverter.parameters){
+						// check for another property already inserted as parameter
+						for (const parameter of oldConverter.parameters) {
+							if (parameter.name == "mimeType"){
+								mimeTypeValue = parameter.value;
+								break;
+							}
+						}
+					}
+
+					let encodingValue = oldConverter.encoding ? oldConverter.encoding : "";
+					if (encodingValue == "" && oldConverter.parameters){
+						// check for another property already inserted as parameter
+						for (const parameter of oldConverter.parameters) {
+							if (parameter.name == "encoding"){
+								encodingValue = parameter.value;
+								break;
+							}
+						}
+					}
+					// set first encoding as fallback option
+					if(encodingValue == ""){
+						encodingValue = selectedConverter.encodings[0];
+					}
 					
 					var converterDefinition = {
-						encoding: selectedConverter.encodings[0],
-						mimeType: selectedConverter.mimeTypes[0],
+						encoding: encodingValue,
+						mimeType: mimeTypeValue,
 						name: selectedConverter.name,
 						parameters: oldConverter.parameters,
 						schema: undefined
@@ -653,16 +679,40 @@ angular
 					}
 
 					if (dataSourceDefinition.type === "HTTP") {
+
+						let urlValue = oldDataSource.URL ? oldDataSource.URL : "";
+						if (urlValue == "" && oldDataSource.parameters){
+							// check for another property already inserted as parameter
+							for (const parameter of oldDataSource.parameters) {
+								if (parameter.name == "URL"){
+									urlValue = parameter.value;
+									break;
+								}
+							}
+						}
+						
 						dataSourceDefinition.parameters.push({
 							name: "URL",
-							value: oldDataSource.url ? oldDataSource.url : ""
+							value: urlValue
 						});
 					}
 
 					if (dataSourceDefinition.type === "INLINE") {
+
+						let payloadValue = oldDataSource.payload ? oldDataSource.payload : "";
+						if (payloadValue == "" && oldDataSource.parameters){
+							// check for another property already inserted as parameter
+							for (const parameter of oldDataSource.parameters) {
+								if (parameter.name == "payload"){
+									payloadValue = parameter.value;
+									break;
+								}
+							}
+						}
+
 						dataSourceDefinition.parameters.push({
 							name: "payload",
-							value: oldDataSource.payload ? oldDataSource.payload : ""
+							value: payloadValue
 						});
 					}
 
@@ -946,13 +996,13 @@ angular
 								}
 
 								if (datasourceType == "HTTP") {
-									if(!dataSource.url) {
+									if(!dataSource.URL) {
 										// property does not exist until user uses the input field for the first time
 										updateBtn.title = "Die Spalte URL* ist nicht für alle Zeilen gesetzt, in denen die Spalte Datenquelltyp* auf HTTP gesetzt ist."
 										return false;
 									} else {
 										// the field could still be empty (if it had input before)
-										if(dataSource.url == undefined || dataSource.url == "") {
+										if(dataSource.URL == undefined || dataSource.URL == "") {
 											updateBtn.title = "Die Spalte URL* ist nicht für alle Zeilen gesetzt, in denen die Spalte Datenquelltyp* auf HTTP gesetzt ist."
 											return false;
 										}

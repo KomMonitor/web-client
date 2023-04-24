@@ -107,6 +107,9 @@ angular
       this.filterSameUnitAndSameTime = false;
 
       this.setupIndicatorPropertiesForCurrentSpatialUnitAndTime = function (filterBySameUnitAndSameTime) {
+
+        $rootScope.$broadcast("allIndicatorPropertiesForCurrentSpatialUnitAndTime setup begin");
+
         this.indicatorPropertiesForCurrentSpatialUnitAndTime = [];
 
         kommonitorDataExchangeService.displayableIndicators.forEach(indicatorMetadata => {

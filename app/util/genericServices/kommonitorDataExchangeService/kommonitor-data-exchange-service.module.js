@@ -96,6 +96,33 @@ angular
             this.currentKomMonitorLoginRoleNames = this.currentKeycloakLoginRoles.filter(role => possibleRoles.includes(role));
           }
 
+          this.setCurrentKomMonitorLoginRoleIds = function() {
+            this.currentKomMonitorLoginRoleIds = [];
+
+            // make a map of all role names currently logged in user according to pattern 
+            // <organization>-<permissionLevel> 
+            let roleNameMap_loggedIn = new Map();
+
+            for (const roleName of this.currentKeycloakLoginRoles) {
+              // roleName consists of <organization>-<permission-level>
+              roleNameMap_loggedIn.set(roleName, "");              
+            }
+
+            // now iterate once over all possible KomMonitor roles and check if they are within previous map
+            this.accessControl.forEach(organizationalUnit => {
+              organizationalUnit.roles.forEach(role => {
+                if(roleNameMap_loggedIn.has(organizationalUnit.name + "-" + role.permissionLevel)){
+                  this.currentKomMonitorLoginRoleIds.push(role.roleId);
+                }
+              });
+            });
+          };
+
+          this.getCurrentKomMonitorLoginRoleIds = function() {
+            return this.currentKomMonitorLoginRoleIds;
+          };
+
+
           this.isAllowedSpatialUnitForCurrentIndicator = function(spatialUnitMetadata){
             if(! this.selectedIndicator){
               return false;
@@ -1659,6 +1686,7 @@ angular
           this.fetchAccessControlMetadata = async function(keycloakRolesArray){
             self.setAccessControl(await kommonitorCacheHelperService.fetchAccessControlMetadata(keycloakRolesArray));
             self.setCurrentKomMonitorLoginRoleNames();
+            self.setCurrentKomMonitorLoginRoleIds();
           };
 
           this.replaceSingleAccessControlMetadata = function(targetRoleMetadata){
@@ -2114,7 +2142,8 @@ angular
   
             //insert logo
             var img = new Image();
-            img.src = '/logos/KM_Logo1.png';
+            var subPath = location.pathname;
+            img.src = subPath + 'logos/KM_Logo1.png';
             jspdf.addImage(img, 'PNG', 193, 5, 12, 12);
   
             jspdf.setFontSize(16);
@@ -2441,7 +2470,8 @@ angular
   
             //insert logo
             var img = new Image();
-            img.src = '/logos/KM_Logo1.png';
+            var subPath = location.pathname;
+            img.src = subPath + 'logos/KM_Logo1.png';
             jspdf.addImage(img, 'PNG', 193, 5, 12, 12);
   
             jspdf.setFontSize(16);

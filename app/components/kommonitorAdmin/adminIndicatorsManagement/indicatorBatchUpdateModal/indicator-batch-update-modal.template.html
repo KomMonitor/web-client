@@ -36,6 +36,7 @@
 											<th>Zeitreihen-Mapping*</th>
 											<th>Datensatz-Quellformat*</th>
 											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).length">Quellformat*</th>
+											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).length">Encoding*</th>
 											<th ng-show="false">CRS*</th>
 											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('Tabelle_Zeitreihe_zu_Indikator')">Trennzeichen*</th>
 											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).includes('WFS_v1')">Schema*</th>
@@ -100,6 +101,14 @@
 												</select>
 											</td>
 
+											<!-- Encoding -->
+											<td ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).length>0">
+												<select class="form-control" ng-model="indicator.mappingObj.converter.encoding" 
+													ng-options="encoding for encoding in indicator.selectedConverter.encodings" required>
+													<option disabled selected value> -- Encoding w&auml;hlen -- </option>
+												</select>
+											</td>
+
 											<!-- CRS -->
 											<!-- Not shown to user and preset to EPSG:4326 -->
 											<td ng-show="false">
@@ -157,7 +166,7 @@
 
 											<!-- URL -->
 											<td ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedDatasourceTypeIsHttp(batchList)">
-												<input class="form-control" type="text" ng-model="indicator.mappingObj.dataSource.url"
+												<input class="form-control" type="text" ng-model="indicator.mappingObj.dataSource.URL"
 												ng-disabled="!indicator.selectedDatasourceType.type.includes('HTTP')" required>
 											</td>
 
@@ -244,13 +253,14 @@
 										<option value="mappingObj.propertyMapping.timeseriesMappings">Zeitreihen-Mapping*</option>
 										<option value="selectedConverter">Datensatz-Quellformat*</option>
 										<option value="mappingObj.converter.mimeType">Quellformat*</option>
+										<option value="mappingObj.converter.encoding">Encoding*</option>
 										<option value="mappingObj.converter.separator">Trennzeichen*</option>
 										<option value="mappingObj.converter.schema">Schema*</option>
 										<option value="mappingObj.converter.schemaNamespace">NAMESPACE</option>
 										<option value="mappingObj.converter.schemaLocation">SCHEMA_LOCATION</option>
 										<option value="selectedDatasourceType">Datenquelltyp*</option>
 										<!-- File is not supported here -->
-										<option value="mappingObj.dataSource.url">URL*</option>
+										<option value="mappingObj.dataSource.URL">URL*</option>
 										<option value="mappingObj.dataSource.payload">Payload*</option>
 										<option value="mappingObj.propertyMapping.spatialReferenceKeyProperty">ID Attributname der Raumeinheiten-Features*</option>
 										<option value="selectedTargetSpatialUnit">Ziel-Raumebene*</option>
@@ -279,6 +289,15 @@
 										ng-options="mimeType for mimeType in $ctrl.kommonitorBatchUpdateHelperServiceInstance.getConverterObjectByName(batchList[0].selectedConverter.name).mimeTypes"
 										ng-disabled="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).length != 1">
 										<option disabled selected value> -- Quellformat w&auml;hlen -- </option>
+									</select>
+
+									<!-- Encoding* -->
+									<!-- Only enable this field if every row has the same converter selected.
+										This is why we can use the values of the converter of the first row here, because all other rows should be the same. -->
+										<select ng-show="colDefaultFunctionSelectedColumn=='mappingObj.converter.encoding'" class="form-control" ng-model="colDefaultFunctionNewValue"
+										ng-options="encoding for encoding in $ctrl.kommonitorBatchUpdateHelperServiceInstance.getConverterObjectByName(batchList[0].selectedConverter.name).encodings"
+										ng-disabled="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkColumnsToShow_selectedConverter(batchList).length != 1">
+										<option disabled selected value> -- Encoding w&auml;hlen -- </option>
 									</select>
 									
 									<!-- Trennzeichen* -->
@@ -313,7 +332,7 @@
 									</select>
 
 									<!-- URL* -->
-									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.dataSource.url'" type="text" class="form-control"
+									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.dataSource.URL'" type="text" class="form-control"
 										ng-model="colDefaultFunctionNewValue" ng-disabled="!$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedDatasourceTypeIsHttp(batchList)">
 									</input>
 
