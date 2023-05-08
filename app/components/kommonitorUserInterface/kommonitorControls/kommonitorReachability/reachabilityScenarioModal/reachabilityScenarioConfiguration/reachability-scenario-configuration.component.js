@@ -141,26 +141,8 @@ angular.module('reachabilityScenarioConfiguration').component('reachabilityScena
 				kommonitorReachabilityHelperService.settings.loadingData = false;
 			};
 
-			/**
-					 * TODO
-					 */
-			$scope.prepareDownloadGeoJSON = function () {
 
-				if (kommonitorReachabilityHelperService.currentIsochronesGeoJSON) {
-					$scope.prepareIsochroneDownload();
-				}
-
-			};
-
-			$scope.prepareIsochroneDownload = function () {
-				console.log('removing old download button if available')
-				if (document
-					.getElementById('downloadReachabilityIsochrones'))
-					document
-						.getElementById(
-							'downloadReachabilityIsochrones')
-						.remove();
-
+			$scope.downloadIsochrones = function(){
 				var geoJSON_string = JSON
 					.stringify(kommonitorReachabilityHelperService.currentIsochronesGeoJSON);
 
@@ -180,19 +162,12 @@ angular.module('reachabilityScenarioConfiguration').component('reachabilityScena
 				var a = document.createElement('a');
 				a.download = fileName;
 				a.href = data;
-				a.innerHTML = '<i class="fa-solid fa-file-arrow-down"></i> &nbsp; Isochronen';
-				a.id = 'downloadReachabilityIsochrones';
-				a.setAttribute('class', 'btn btn-s btn-success');
-
-				label.appendChild(a);
-
-				let elements = document.getElementsByClassName(
-					'reachabilityIsochroneButtonSection');
-
-				for (const element of elements) {
-					element.appendChild(label);
-				}
-			};
+				a.textContent = "JSON";
+				a.target = "_self";
+				a.rel = "noopener noreferrer";
+				a.click()
+				a.remove();
+			}
 
 			/**
 					 * Changes the focus of the analysis between
@@ -341,8 +316,6 @@ angular.module('reachabilityScenarioConfiguration').component('reachabilityScena
 			};
 
 			$rootScope.$on("isochronesCalculationFinished", function () {
-				$scope
-					.prepareDownloadGeoJSON();
 
 				kommonitorReachabilityMapHelperService.replaceIsochroneMarker($scope.domId, kommonitorReachabilityHelperService.settings.locationsArray);
 				kommonitorReachabilityMapHelperService

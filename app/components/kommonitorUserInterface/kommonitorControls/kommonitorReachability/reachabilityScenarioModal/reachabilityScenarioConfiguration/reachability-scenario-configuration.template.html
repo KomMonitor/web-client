@@ -166,12 +166,13 @@
 												Start</span></button>
 									</label>
 
-									<!-- <label>
-										<button ng-click="removeReachabilityLayers()" type="button"
-											class="btn btn-s btn-danger"><i class="fa-solid fa-trash"></i> &nbsp; Verwerfen</button>
-									</label>  -->
-									&nbsp;
-									<!-- another button to download as GeoJSOn will be set programatically within component file -->
+									<label>
+										<button class="btn btn-s btn-success"
+											ng-show="$ctrl.kommonitorReachabilityHelperServiceInstance.currentIsochronesGeoJSON"
+											ng-click="downloadIsochrones()">
+											<span class="btn__text"><i class="fa-solid fa-file-arrow-down"></i> &nbsp; Isochronen</span></button>
+									</label>
+
 								</div>
 							</div>
 
