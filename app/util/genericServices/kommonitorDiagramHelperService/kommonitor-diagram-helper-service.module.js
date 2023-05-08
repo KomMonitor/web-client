@@ -1611,7 +1611,7 @@ angular
 						top: 0,
 						right: '4%',
 						bottom: 30,
-						containLabel: false
+						containLabel: true
           },
           title: {
             text: 'Analyse Einzugsgebiet ' + rangeValue,
@@ -1621,7 +1621,7 @@ angular
             // top: 15
           },
           toolbox: {
-            show: true,
+            show: false,
             fontSize: '8',
             right: '15',
             feature: {
@@ -1667,7 +1667,7 @@ angular
               show: false,
               trigger: 'item',
               formatter: '{a} <br/>{b}: {c} ({d}%)',
-              fontSize: '8',
+              fontSize: '10',
               confine: true
           },
           legend: {
@@ -1683,18 +1683,18 @@ angular
                   name: "Punkte im Einzugsgebiet " + rangeValue,
                   type: 'pie',
                   radius: ['20%', '30%'],
-                  center: ["70%", "70%"],
+                  center: ["50%", "80%"],
                   avoidLabelOverlap: true,
                   label: {
                       show: false,
                       position: 'center',
-                      fontSize: '8'
+                      fontSize: '10'
                   },
                   
                   emphasis: {
                       label: {
                           show: true,
-                          fontSize: '8',
+                          fontSize: '10',
                           // fontWeight: 'bold'
                       }
                   },

@@ -1449,7 +1449,7 @@ color: #777;
 #poiInputForm_reachabilityAnalysis {
 	padding: 5px;
 	height: auto !important;
-	max-height: 500px;
+	max-height: 60vh;
 	max-width: 100%;
 	font-size: 11px;
 	border: 2px solid gray;
