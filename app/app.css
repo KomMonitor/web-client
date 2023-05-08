@@ -880,17 +880,32 @@ pre.CodeMirror-line {
 	font-size: 12px !important;
 }
 
+.leaflet-control-layers {
+	text-align: left !important;
+	width: auto !important;
+	overflow : auto;
+	z-index: 1003;
+	/* max-width	: 600px;
+	max-height : 350px; */
+}
+
+.leaflet-control-layers-expanded {
+	width: 300px;
+	overflow-x: hidden;
+	overflow-y: auto;
+	max-height: 40vh;
+}
+
+.leaflet-control-layers-expanded input {
+	width: auto;
+}
+
 .leaflet-left .leaflet-control-layers {
   /* display: inline-block; */
   /* float: none; */
 	left: 220px;
 	position: absolute;
-
-	width: auto;
-	/* max-width	: 600px;
-	max-height : 350px; */
-	overflow : auto;
-	z-index: 1003;
+	
 }
 
 .leaflet-left .leaflet-control-layers-expanded {
@@ -2144,6 +2159,16 @@ hr {
 		margin: 0px 0;
 }
 
+.icon-spin {  
+	-webkit-animation: spin 1s infinite linear;
+	-moz-animation: spin 1s infinite linear;
+	-o-animation: spin 1s infinite linear;
+	animation: spin 1s infinite linear;
+	-webkit-transform-origin: 50% 50%;
+	transform-origin:50% 50%;
+	-ms-transform-origin:50% 50%; /* IE 9 */
+  }
+
 .loading-overlay-admin-panel {
   width: 100%;
   height: 100%;
@@ -2906,40 +2931,6 @@ input:checked + .switchslider:before {
   .row {
 	margin-right: 0px;
   }
-
-  .btn {
-	position: relative;
-  }
-
-  .btn__text {
-    transition: all 0.2s;
-}
-
-  .btn-loading::after {
-    content: "";
-    position: absolute;	
-    width: 16px;
-    height: 16px;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    margin: auto;
-    border: 4px solid transparent;
-    border-top-color: #ffffff;
-    border-radius: 50%;
-    animation: btn-loading-spinner 1s ease infinite;
-}
-
-@keyframes btn-loading-spinner {
-    from {
-        transform: rotate(0turn);
-    }
-
-    to {
-        transform: rotate(1turn);
-    }
-}
   
   /* Show the snackbar when clicking on a button (class added with JavaScript) */
   #snackbar.show {
