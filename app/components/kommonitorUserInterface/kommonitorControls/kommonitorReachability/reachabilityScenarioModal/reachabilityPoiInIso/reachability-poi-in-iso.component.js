@@ -264,7 +264,7 @@ angular.module('reachabilityPoiInIso').component('reachabilityPoiInIso', {
 						// init new echarts instance
 						var echartsInstance = echarts.init(document.getElementById('reachability_pieDiagram_range_' + nextEntry_keyRange + ''));
 						// use configuration item and data specified to show chart
-						var echartsOptions = kommonitorDiagramHelperService.createInitialReachabilityAnalysisPieOptions(poi, nextEntry_valueGeoJSON, nextEntry_keyRange_label + " " + $scope.unit, date);
+						var echartsOptions = kommonitorDiagramHelperService.createInitialReachabilityAnalysisPieOptions(poi, nextEntry_valueGeoJSON, nextEntry_keyRange_label + " " + kommonitorDataExchangeService.isochroneLegend.cutOffUnit, date);
 						echartsInstance.setOption(echartsOptions);
 
 						echartsInstance.hideLoading();

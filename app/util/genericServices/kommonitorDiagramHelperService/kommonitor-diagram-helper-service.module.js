@@ -1611,16 +1611,18 @@ angular
 						top: 0,
 						right: '4%',
 						bottom: 30,
-						containLabel: true
+						containLabel: false
           },
           title: {
             text: 'Analyse Einzugsgebiet ' + rangeValue,
             left: 'center',
+            fontSize: '10',
             show: false
             // top: 15
           },
           toolbox: {
             show: true,
+            fontSize: '8',
             right: '15',
             feature: {
               // mark : {show: true},
@@ -1662,13 +1664,16 @@ angular
             }
           },
           tooltip: {
+              show: false,
               trigger: 'item',
               formatter: '{a} <br/>{b}: {c} ({d}%)',
+              fontSize: '8',
               confine: true
           },
           legend: {
               orient: 'vertical',
               type: "scroll",
+              fontSize: '8',
               left: 0,
               data: [this.makeFeatureNameForPoiInIsochroneDiagram(poiGeoresource, geoJSONFeatureCollection, date)]
               // data: [legendText]
@@ -1677,18 +1682,19 @@ angular
               {
                   name: "Punkte im Einzugsgebiet " + rangeValue,
                   type: 'pie',
-                  radius: ['50%', '70%'],
-                  center: ["70%", "50%"],
+                  radius: ['20%', '30%'],
+                  center: ["70%", "70%"],
                   avoidLabelOverlap: true,
                   label: {
                       show: false,
-                      position: 'center'
+                      position: 'center',
+                      fontSize: '8'
                   },
                   
                   emphasis: {
                       label: {
                           show: true,
-                          fontSize: '10',
+                          fontSize: '8',
                           // fontWeight: 'bold'
                       }
                   },

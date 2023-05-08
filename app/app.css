@@ -119,6 +119,18 @@ MULTI STEP FORM
 	width: auto;
 }
 
+#reachabilityPoiInIsoConfigForm {
+	font-size: 12px;
+}
+
+#reachabilityPoiInIsoConfigForm input, label{
+	width: auto;
+}
+
+#reachability_diagrams_section{
+	overflow-y: auto;
+}
+
 /*headings*/
 .fs-title {
     font-size: 18px;
@@ -1277,8 +1289,7 @@ select {
 		border-radius: 5px;
     line-height: 18px;
     color: #555;
-		width: 50%;
-		max-width: 300px;
+		width: auto;
 		height: auto !important;
 		max-height: 400px;
 	  overflow: auto;
