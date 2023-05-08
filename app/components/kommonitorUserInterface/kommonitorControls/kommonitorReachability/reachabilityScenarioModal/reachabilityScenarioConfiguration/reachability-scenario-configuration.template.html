@@ -36,10 +36,6 @@
 				</label>
 			</div>
 
-
-
-			<br />
-
 			<div class="ng-show" id="isochoneCalculation">
 
 				<div>
@@ -137,7 +133,7 @@
 
 					<div align="center">
 
-						<div>
+						<!-- <div>
 							<b>Isochronen vereinigen</b> (erh&ouml;ht die Laufzeit der Berechnung)
 							&nbsp;
 							<label class="switch">
@@ -147,13 +143,11 @@
 									checked>
 								<span class="switchslider round"></span>
 							</label>
-							<br />
-							<br />
-						</div>
+						</div> -->
 
 						<div class="row vertical-align">
 							<!-- reachability config -->
-							<div class="col-md-3 col-sm-3 col-xs-12">
+							<div class="col-md-4 col-sm-4 col-xs-12">
 								<div class="btn-group btn-group-justified reachabilityIsochroneButtonSection"
 									data-toggle="buttons">
 
@@ -166,6 +160,8 @@
 												Start</span></button>
 									</label>
 
+									<br/>
+
 									<label>
 										<button class="btn btn-s btn-success"
 											ng-show="$ctrl.kommonitorReachabilityHelperServiceInstance.currentIsochronesGeoJSON"
@@ -176,29 +172,31 @@
 								</div>
 							</div>
 
-							<div class="col-md-9 col-sm-9 col-xs-12">
+							<div class="col-md-8 col-sm-8 col-xs-12">
 								<!-- Legend -->
-								<div ng-show="$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend">
-									<div align="center">
-										<div class="legend" align="left">
-											<label>Fortbewegungsart:
-											</label>&nbsp;
-											{{$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend.transitMode}}
-											<br />
-											<label>Abbruchkriterium: </label>&nbsp;
-											{{$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend.reachMode}}
-											<br />
-											<label>Einheit: </label>&nbsp;
-											{{$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend.cutOffUnit}}
-											<br />
-											<div
-												ng-repeat="entry in $ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend.colorValueEntries">
-												<i style="background: {{entry.color}}; opacity: 0.3;"></i>
-												{{entry.value}}
+								<div class="just-padding">
+									<div ng-show="$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend">
+										<div align="center">
+											<div class="legend" align="left">
+												<label>Fortbewegungsart:
+												</label>&nbsp;
+												{{$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend.transitMode}}
+												<br />
+												<label>Abbruchkriterium: </label>&nbsp;
+												{{$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend.reachMode}}
+												<br />
+												<label>Einheit: </label>&nbsp;
+												{{$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend.cutOffUnit}}
+												<br />
+												<div
+													ng-repeat="entry in $ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend.colorValueEntries">
+													<i style="background: {{entry.color}}; opacity: 0.3;"></i>
+													{{entry.value}}
+												</div>
 											</div>
 										</div>
 									</div>
-								</div>
+								</div>								
 							</div>
 						</div>
 					</div>
