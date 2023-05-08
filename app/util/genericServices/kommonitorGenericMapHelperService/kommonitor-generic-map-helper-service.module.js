@@ -258,7 +258,7 @@ angular
         };
         let overlays = {};
 
-        return L.control.layers(baseLayers, overlays, { position: "topleft" }).addTo(map);
+        return L.control.layers(baseLayers, overlays, { position: "topright" }).addTo(map);
       };
 
       this.initGeosearchControl = function (map) {
