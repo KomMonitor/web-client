@@ -191,49 +191,37 @@ angular
 			/**
 			 * TODO
 			 */
-			this.createORSIsochroneRequest = function (transitMode, locationsArray, rangeArray) {
-				var locationsString = '';
+			this.createORSIsochroneRequestBody = function (locationsArray, rangeArray) {
+				let body = { 
+					"locations": [], 
+					"range": [], 
+					"attributes": ["reachfactor", "area"], 
+					"location_type": "start", 
+					"range_type": self.settings.focus, 
+					"smoothing": 0, 
+					"area_units": "km", 
+					"units": "m" 
+				};
+
 				for (var index = 0; index < locationsArray.length; index++) {
 					// element looks like
 					// [longitude,latitude]
-					locationsString += locationsArray[index][0] + ',' + locationsArray[index][1];
-					if (index != locationsArray.length - 1) {
-						// encode pipe symbol '|' manually
-						locationsString += '%7C';
-					}
+					let point = [locationsArray[index][0], locationsArray[index][1]];
+					body.locations.push(point);
 				};
 
-				var rangeString = '';
-				for (var i = 0; i < rangeArray.length; i++) {
-					var cValue = rangeArray[i];
+					for (var i = 0; i < rangeArray.length; i++) {
+						var cValue = rangeArray[i];
 
-					// CALCULATE SECONDS FROM MINUTE VALUES IF TIME-ANALYSIS IS WANTED
-					if (this.settings.focus == 'time')
-						cValue = cValue * 60;
-					rangeString += cValue;
+						// CALCULATE SECONDS FROM MINUTE VALUES IF TIME-ANALYSIS IS WANTED
+						if(self.settings.focus=='time'){
+							cValue = cValue*60;
+						}
+							
+						body.range.push(cValue);
+					};
 
-					if (i != rangeArray.length - 1) {
-						rangeString += ',';
-					}
-				};
-
-				// var constantParameters = '&units=m&location_type=start&range_type=time';
-				// encode pipe symbol manually via %7C
-
-				var constantParameters = '&smoothing=0&units=m&location_type=start&range_type=' +
-					this.settings.focus + '&attributes=area%7Creachfactor';
-
-				var getRequest = __env.targetUrlToReachabilityService_ORS +
-					'/isochrones?profile=' +
-					transitMode +
-					'&locations=' +
-					locationsString +
-					'&range=' +
-					rangeString +
-					constantParameters;
-
-				console.log(getRequest);
-				return getRequest;
+				return body;
 			};
 
 			this.makeLocationsArrayFromStartPoints = function () {
@@ -332,16 +320,20 @@ angular
 
 
 			this.fetchIsochrones = async function (tempStartPointsArray) {
-				var url = self.createORSIsochroneRequest(
-					self.settings.transitMode,
+				var body = self.createORSIsochroneRequestBody(
 					tempStartPointsArray,
 					self.rangeArray);
 
+				let url = __env.targetUrlToReachabilityService_ORS +
+				'/v2/isochrones/' + self.settings.transitMode;	
+
 				var req = {
-					method: 'GET',
+					method: 'POST',
 					url: url,
+					data: body,
 					headers: {
-						// 'Accept': 'application/json'
+						// 'Accept': 'application/json',
+						"Content-Type": 'application/json'
 					}
 				};
 
