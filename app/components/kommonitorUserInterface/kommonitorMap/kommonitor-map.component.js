@@ -1033,6 +1033,17 @@ angular.module('kommonitorMap').component(
           $rootScope.$broadcast("restyleCurrentLayer", false);
         });
 
+        $scope.$on("changeNumClasses", function (event, num) {
+          kommonitorVisualStyleHelperService.numClasses = num;  
+          
+          $timeout(function(){
+            kommonitorVisualStyleHelperService.numClasses = num;  
+            $rootScope.$apply();
+          }, 350);
+
+          $rootScope.$broadcast("restyleCurrentLayer", false);
+        })
+
         $(document).on('click', '#controlNoDataDisplay', function (e) {
           var controlNoDataDisplayCheckbox = document.getElementById('controlNoDataDisplay');
 
@@ -3176,7 +3187,12 @@ angular.module('kommonitorMap').component(
                   $scope.dynamicDecreaseBrew = dynamicIndicatorBrewArray[1];
                 }
                 else {
-                  $scope.defaultBrew = kommonitorVisualStyleHelperService.setupDefaultBrew($scope.currentGeoJSONOfCurrentLayer, $scope.indicatorPropertyName, $scope.currentIndicatorMetadataAndGeoJSON.defaultClassificationMapping.items.length, $scope.currentIndicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName, kommonitorVisualStyleHelperService.classifyMethod);
+                  $scope.defaultBrew = kommonitorVisualStyleHelperService.setupDefaultBrew(
+                    $scope.currentGeoJSONOfCurrentLayer, 
+                    $scope.indicatorPropertyName, 
+                    kommonitorVisualStyleHelperService.numClasses, 
+                    $scope.currentIndicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName, 
+                    kommonitorVisualStyleHelperService.classifyMethod);
                 }
 
                 $scope.currentIndicatorLayer.eachLayer(function (layer) {
