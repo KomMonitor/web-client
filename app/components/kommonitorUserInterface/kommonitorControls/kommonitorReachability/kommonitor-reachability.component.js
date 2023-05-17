@@ -313,53 +313,37 @@ angular
 					/**
 					 * TODO
 					 */
-					var createORSIsochroneRequest = function(transitMode, locationsArray, rangeArray, speedInKilometersPerHour) {
-						var locationsString = '';
+					var createORSIsochroneRequestBody = function (locationsArray, rangeArray) {
+						let body = { 
+							"locations": [], 
+							"range": [], 
+							"attributes": ["reachfactor", "area"], 
+							"location_type": "start", 
+							"range_type": $scope.settings.focus, 
+							"smoothing": 0, 
+							"area_units": "km", 
+							"units": "m" 
+						};
+
 						for (var index = 0; index < locationsArray.length; index++) {
 							// element looks like
 							// [longitude,latitude]
-							locationsString += locationsArray[index][0] + ',' + locationsArray[index][1];
-							if (index != locationsArray.length - 1) {
-								// encode pipe symbol '|' manually
-								locationsString += '%7C';
-							}
+							let point = [locationsArray[index][0], locationsArray[index][1]];
+							body.locations.push(point);
 						};
 
-						var rangeString = '';
 							for (var i = 0; i < rangeArray.length; i++) {
 								var cValue = rangeArray[i];
 
 								// CALCULATE SECONDS FROM MINUTE VALUES IF TIME-ANALYSIS IS WANTED
-								if($scope.settings.focus=='time')
+								if($scope.settings.focus=='time'){
 									cValue = cValue*60;
-								rangeString += cValue;
-
-								if (i != rangeArray.length - 1) {
-									rangeString += ',';
 								}
+									
+								body.range.push(cValue);
 							};
 
-						var optionsString = '{"maximum_speed":' + speedInKilometersPerHour + '}';
-
-						// var constantParameters = '&units=m&location_type=start&range_type=time';
-						// encode pipe symbol manually via %7C
-
-						var constantParameters = '&smoothing=0&units=m&location_type=start&range_type=' +
-								$scope.settings.focus+'&attributes=area%7Creachfactor';
-
-						var getRequest = $scope.targetUrlToReachabilityService_ORS +
-							'/isochrones?profile=' +
-							transitMode +
-							'&locations=' +
-							locationsString +
-							'&range=' +
-							rangeString +
-							constantParameters +
-							'&options=' +
-							encodeURIComponent(optionsString);
-
-						console.log(getRequest);
-						return getRequest;
+						return body;
 					};
 
 					// If the reporting modal is shown we want to integrate this component there.
@@ -1108,17 +1092,20 @@ angular
 
 
 					$scope.fetchIsochrones = async function(tempStartPointsArray){
-						var url = createORSIsochroneRequest(
-							$scope.settings.transitMode,
+						var body = createORSIsochroneRequestBody(
 							tempStartPointsArray,
-							$scope.rangeArray,
-							$scope.settings.speedInKilometersPerHour);
+							$scope.rangeArray);
+
+						let url = $scope.targetUrlToReachabilityService_ORS +
+						'/v2/isochrones/' + $scope.settings.transitMode;	
 
 						var req = {
-							method: 'GET',
+							method: 'POST',
 							url: url,
+							data: body,
 							headers: {
-								// 'Accept': 'application/json'
+								// 'Accept': 'application/json',
+								"Content-Type": 'application/json'
 							}
 						};
 
