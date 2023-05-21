@@ -1,0 +1,29 @@
+.classification-container {
+  display: grid;
+  grid-template-rows: auto auto auto auto;
+  column-gap: 10px;
+}
+
+.classificationInputsWrapper {
+  display: flex;
+  white-space: nowrap;
+  column-gap: 5px;
+}
+
+.methodSelection{
+  flex-grow: 2;
+}
+
+.nrClassSelection{
+  flex-grow: 1;
+}
+
+.classificationBoxToogleSlidersWrapper {
+  grid-column-end: span 3;
+  display: flex;
+  justify-content: space-between;
+}
+
+select {
+  font-weight: normal;
+}
