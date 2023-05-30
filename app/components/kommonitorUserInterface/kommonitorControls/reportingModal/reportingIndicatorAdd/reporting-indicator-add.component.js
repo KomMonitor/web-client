@@ -2836,6 +2836,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 			// setup brew
 			let defaultBrew = kommonitorVisualStyleHelperService.setupDefaultBrew(indicator.geoJSON, timestampPrefix, numClasses, colorCodeStandard, classifyMethod, true, selectedIndicator);
+			let manualBrew = kommonitorVisualStyleHelperService.setupManualBrew(indicator.geoJSON, timestampPrefix, numClasses, colorCodeStandard, classifyMethod, true, selectedIndicator);
 			let dynamicBrewsArray = kommonitorVisualStyleHelperService.setupDynamicIndicatorBrew(indicator.geoJSON, timestampPrefix, colorCodePositiveValues, colorCodeNegativeValues, classifyMethod);
 			let dynamicIncreaseBrew = dynamicBrewsArray[0];
 			let dynamicDecreaseBrew = dynamicBrewsArray[1];

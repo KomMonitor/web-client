@@ -21,6 +21,7 @@ angular
       this.defaultBrew = undefined;
       this.measureOfValueBrew = undefined;
       this.dynamicBrew = undefined;
+      this.manualBrew = undefined;
 
       //allowesValues: equal_interval, quantile, jenks
       this.classifyMethods = [{
@@ -214,6 +215,38 @@ angular
           }          
 
         return values;
+      };
+
+      this.setupManualBrew = function (geoJSON, propertyName, numClasses, colorCode, breaks, forceProvidedIndicator, indicator) {
+        this.resetFeaturesPerColorObjects();
+
+        var values = new Array();
+
+        if(kommonitorDataExchangeService.classifyUsingWholeTimeseries){
+          values = this.setupDefaultBrewValues_wholeTimeseries(geoJSON, values, forceProvidedIndicator, indicator);
+        }
+        else{
+          values = this.setupDefaultBrewValues_singleTimestamp(geoJSON, propertyName, values);
+        }
+
+        var colorBrewerInstance = new classyBrew();
+
+        values.sort((a, b) => a - b);
+        colorBrewerInstance.colors = JSON.parse(JSON.stringify(colorBrewerInstance.colorSchemes[colorCode][numClasses]));
+        colorBrewerInstance.numClasses = numClasses;
+        colorBrewerInstance.colorCode = colorCode;
+
+        let adjBreaks = breaks;
+        while (adjBreaks.length < numClasses + 1) {
+          adjBreaks.push(breaks[breaks.length - 1]);
+        }
+        while (adjBreaks.length > numClasses + 1) {
+          adjBreaks.splice(adjBreaks.length-2, 1);
+        }
+
+        colorBrewerInstance.breaks = adjBreaks;
+        
+        return colorBrewerInstance;
       };
 
       /**

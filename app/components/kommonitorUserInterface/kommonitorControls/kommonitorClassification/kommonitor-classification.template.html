@@ -36,6 +36,20 @@
       </form>
     </div>
 
+    <div class="sliderWrapper" ng-if="$ctrl.kommonitorVisualStyleHelperServiceInstance.classifyMethod=='manual'">
+      <label>
+        Klassengrenzen
+        <div ng-repeat="(i, b) in $ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks track by $index">
+          <input 
+            type="number"
+            class="form-control"
+            ng-change="onBreaksChanged()"
+            ng-model="$ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks[i]">
+        </div>
+      </label>
+      <!--<div id="classificationSlider"></div>-->
+    </div>
+
     <div class="classificationBoxToogleSlidersWrapper">
       <!-- round class breaks -->
       <span class="classificationBoxToogleSlidersLbl">

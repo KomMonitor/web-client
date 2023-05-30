@@ -115,19 +115,7 @@ angular
 							var opacity = 1 - transparency;
 				  
 							$rootScope.$broadcast("adjustOpacityForIndicatorLayer", indicatorMetadata, opacity);
-						  });
-
-						$(document).on('click', '#radiojenks', function (e) {
-							$rootScope.$broadcast("changeClassifyMethod", "jenks");
-						  });
-				  
-						  $(document).on('click', '#radioquantile', function (e) {
-							$rootScope.$broadcast("changeClassifyMethod", "quantile");
-						  });
-				  
-						  $(document).on('click', '#radioequal_interval', function (e) {
-							$rootScope.$broadcast("changeClassifyMethod", "equal_interval");
-						  });
+						});
 
 						$scope.onClickDownloadMetadata = async function(){
 							// create PDF from currently selected/displayed indicator!
