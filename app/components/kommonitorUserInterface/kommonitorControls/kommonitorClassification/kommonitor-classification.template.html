@@ -4,11 +4,11 @@
     <div class="classificationInputsWrapper">
       <form class="methodSelection">
         <!-- classification method -->
-        <label>Methode
+        <label title="Hier können Sie die Klassifizierungsmethode ändern.">Methode
           <select 
             ng-model="$ctrl.kommonitorVisualStyleHelperServiceInstance.classifyMethod"
             ng-change="onChangeSelectedClassifyMethod()"
-            class="form-control">
+            class="classificationSelect form-control">
             <option 
               value="jenks"
               title="Bei Jenks (Natürliche Unterbrechungen) werden Klassengrenzen identifiziert, die ähnliche Werte möglichst gut gruppieren und zugleich die Unterschiede zwischen den Klassen maximieren.">
@@ -36,18 +36,17 @@
       </form>
     </div>
 
-    <div class="sliderWrapper" ng-if="$ctrl.kommonitorVisualStyleHelperServiceInstance.classifyMethod=='manual'">
-      <label>
-        Klassengrenzen
-        <div ng-repeat="(i, b) in $ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks track by $index">
-          <input 
-            type="number"
-            class="form-control"
-            ng-change="onBreaksChanged()"
-            ng-model="$ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks[i]">
-        </div>
-      </label>
-      <!--<div id="classificationSlider"></div>-->
+    <div ng-if="$ctrl.kommonitorVisualStyleHelperServiceInstance.classifyMethod=='manual'">
+      <label>Klassengrenzen</label>
+      <div class="breaksWrapper" ng-repeat="(i, b) in $ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks track by $index">
+        <input 
+          type="number"
+          class="form-control"
+          ng-change="onBreaksChanged()"
+          ng-model="$ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks[i]">
+          <div class="countBarContainer" style="width:{{getWidthForBar(i-1)}}%"></div>
+          <div class="countBarContainer" style="width:{{getWidthForBar(i)}}%"></div>
+      </div>
     </div>
 
     <div class="classificationBoxToogleSlidersWrapper">

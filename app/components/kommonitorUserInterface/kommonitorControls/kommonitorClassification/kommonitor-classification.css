@@ -27,3 +27,30 @@
 select {
   font-weight: normal;
 }
+
+.breaksWrapper {
+  display: grid;
+  grid-template-columns: 50% 50%;
+  grid-template-rows: auto;
+  grid-auto-flow: column;
+} 
+
+.breaksWrapper input {
+  grid-column: 1;
+  grid-row-end: span 2;
+}
+
+.breaksWrapper .countBarContainer {
+  grid-column: 2;
+}
+
+.countBarContainer {
+  height: 70%;
+  align-self: end;
+  background-color: rgb(51,122,183);
+  margin-left: 5px;
+}
+
+.countBarContainer:nth-child(2n) {
+  align-self: start;
+}
