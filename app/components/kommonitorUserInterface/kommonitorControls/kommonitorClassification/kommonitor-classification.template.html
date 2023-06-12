@@ -1,25 +1,28 @@
 <!-- classification  -->
 <div id="kommonitorClassification">
   <div class="classification-container">
-    <div class="classificationInputsWrapper">
-      <form class="methodSelection">
-        <!-- classification method -->
-        <label title="Hier können Sie die Klassifizierungsmethode ändern.">Methode
-          <select 
-            ng-model="$ctrl.kommonitorVisualStyleHelperServiceInstance.classifyMethod"
-            ng-change="onChangeSelectedClassifyMethod()"
-            class="classificationSelect form-control">
-            <option 
-              value="jenks"
-              title="Bei Jenks (Natürliche Unterbrechungen) werden Klassengrenzen identifiziert, die ähnliche Werte möglichst gut gruppieren und zugleich die Unterschiede zwischen den Klassen maximieren.">
-              Jenks
-            </option>
-            <option value="equal_interval">Gleiches Intervall</option>
-            <option value="quantile">Quantile</option>
-            <option value="manual">Manuell</option>
-          </select>
-        </label>
-      </form>
+    <div class="select-container">
+      <div title="Hier können Sie die Klassifizierungsmethode ändern.">
+        <div style="font-weight: bold;">Methode</div>
+        <div 
+          id="method-select-selected" 
+          class="form-control"
+          ng-click="showMethodSelection = !showMethodSelection">
+          {{methodName}}
+        </div>
+        <div ng-show="showMethodSelection" id="method-select-selection"> 
+          <div 
+            id="method-select-method" 
+            ng-click="onMethodSelected(method)" 
+            ng-repeat="method in methods">
+            <div><i class="fas fa-chart-bar"></i></div>
+            <div class="method-select-method-text">
+              <div class="method-select-method-name">{{method.name}}</div>
+              <div>{{method.description}}</div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <!-- number of classes -->
       <form class="nrClassSelection">
@@ -34,7 +37,6 @@
             class="form-control">
         </label>
       </form>
-    </div>
 
     <div ng-if="$ctrl.kommonitorVisualStyleHelperServiceInstance.classifyMethod=='manual'">
       <label>Klassengrenzen</label>
@@ -49,8 +51,8 @@
       </div>
     </div>
 
+    <!--
     <div class="classificationBoxToogleSlidersWrapper">
-      <!-- round class breaks -->
       <span class="classificationBoxToogleSlidersLbl">
         <strong>Wertebereiche abrunden</strong>
       </span>
@@ -61,7 +63,7 @@
           value="roundValues">
         <span class="switchslider round"></span>
       </label>
-    </div>
+    </div>-->
   
     <!-- use whole time series -->
     <div class="classificationBoxToogleSlidersWrapper">

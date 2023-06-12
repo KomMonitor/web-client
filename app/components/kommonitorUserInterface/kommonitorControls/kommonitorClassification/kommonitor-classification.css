@@ -1,14 +1,12 @@
 .classification-container {
   display: grid;
-  grid-template-rows: auto auto auto auto;
+  grid-template-rows: auto auto auto auto auto;
   column-gap: 10px;
 }
 
-.classificationInputsWrapper {
-  display: flex;
-  white-space: nowrap;
-  column-gap: 5px;
-  width: 100%;
+#method-form-wrapper {
+  position: static;
+  height: 100px;
 }
 
 .methodSelection{
@@ -53,4 +51,43 @@ select {
 
 .countBarContainer:nth-child(2n) {
   align-self: start;
+}
+
+
+
+/* select codepen */
+
+#method-select-selected {
+  cursor: pointer;
+  user-select: none;
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 5px;
+
+  background-image: url(https://i.imgur.com/K5gtkay.png);
+  background-repeat: no-repeat;
+  background-position: right center;
+}
+
+#method-select-selection {
+  cursor: pointer;
+  user-select: none;
+  position: absolute;
+  background-color: white;
+  z-index: 10;
+}
+
+#method-select-method {
+  display: flex;
+  gap: 10px;
+  padding: 0px 2px 1px;
+}
+
+.method-select-method-name {
+  font-weight: bold;
+}
+
+#method-select-method:hover {
+  background-color: #1E90FF;
+  color: #fff;
 }
