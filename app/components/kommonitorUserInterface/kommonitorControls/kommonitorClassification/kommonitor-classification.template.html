@@ -44,7 +44,7 @@
         <input 
           type="number"
           class="form-control"
-          ng-change="onBreaksChanged()"
+          ng-blur="onBreaksChanged()"
           ng-model="$ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks[i]">
           <div class="countBarContainer" style="width:{{getWidthForBar(i-1)}}%"></div>
           <div class="countBarContainer" style="width:{{getWidthForBar(i)}}%"></div>
