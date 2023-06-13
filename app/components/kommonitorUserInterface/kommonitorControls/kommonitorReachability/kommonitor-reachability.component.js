@@ -1215,10 +1215,8 @@ angular
 							$scope.locationsArray.length +
 							' start points.');
 
-							var maxLocationsForORSRequest = 150;
-
-						console.log("Number of Isochrone starting points is greater than the maximum number of locations (" + maxLocationsForORSRequest + "). Must split up starting points to make multiple requests. Result will contain all isochrones though.");
-	
+							var maxLocationsForORSRequest = 400;
+					
 						var featureIndex = 0;
 						// log progress for each 10% of features
 						var logProgressIndexSeparator = Math.round($scope.locationsArray.length / 100 * 10);
