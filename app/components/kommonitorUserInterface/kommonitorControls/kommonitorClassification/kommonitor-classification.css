@@ -26,6 +26,9 @@ select {
   font-weight: normal;
 }
 
+
+/* breaks and histogram */
+
 .breaksWrapper {
   display: grid;
   grid-template-columns: 50% 50%;
@@ -42,11 +45,22 @@ select {
   grid-column: 2;
 }
 
+.countBar {
+  background-color: rgb(51,122,183);
+  margin-left: 5px;
+  height: 100%; 
+}
+
 .countBarContainer {
   height: 70%;
   align-self: end;
-  background-color: rgb(51,122,183);
-  margin-left: 5px;
+  height: 70%;
+  width: 95%;
+  overflow: hidden;
+}
+
+.countBarContainer:nth-child(2n + 1) {
+  display: flex;
 }
 
 .countBarContainer:nth-child(2n) {
@@ -54,6 +68,11 @@ select {
 }
 
 
+.histogramNumber {
+  position: absolute;
+  margin-left: 4px;
+  margin-top: 4px;
+}
 
 /* select codepen */
 

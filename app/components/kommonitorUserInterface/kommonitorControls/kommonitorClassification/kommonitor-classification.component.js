@@ -57,6 +57,12 @@ angular
 							let returnVal = (countFeatures / nrItems) * 100;
 							return returnVal;
 						}
+
+						$scope.getHistogramNumber = function (i) {
+							let color = kommonitorVisualStyleHelperService.manualBrew.colors[i];
+							let countFeatures = kommonitorVisualStyleHelperService.featuresPerColorMap.get(color) || 0;
+							return countFeatures;
+						}
 					}
 				]
 			}

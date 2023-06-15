@@ -46,8 +46,19 @@
           class="form-control"
           ng-blur="onBreaksChanged()"
           ng-model="$ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks[i]">
-          <div class="countBarContainer" style="width:{{getWidthForBar(i-1)}}%"></div>
-          <div class="countBarContainer" style="width:{{getWidthForBar(i)}}%"></div>
+          <div class="countBarContainer">
+            <div class="countBar" style="width:{{getWidthForBar(i-1)}}%">
+            </div>
+          </div>
+          <div class="countBarContainer">
+            <div class="countBar" style="width:{{getWidthForBar(i)}}%">
+            </div>
+            <div>
+              <div ng-show="(i != $ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks.length - 1)" class="histogramNumber">
+                {{getHistogramNumber(i)}}             
+              </div>
+            </div>
+          </div>
       </div>
     </div>
 
