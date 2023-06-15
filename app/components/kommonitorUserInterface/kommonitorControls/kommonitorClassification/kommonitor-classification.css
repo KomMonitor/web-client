@@ -52,7 +52,6 @@ select {
 }
 
 .countBarContainer {
-  height: 70%;
   align-self: end;
   height: 70%;
   width: 95%;
@@ -74,14 +73,21 @@ select {
   margin-top: 4px;
 }
 
-/* select codepen */
 
+
+/* select option */
+
+.select-border {
+  border: 1px solid #ced4da;
+  border-radius: 0.25rem;
+  box-shadow: inset 0 0 0 transparent;
+}
 #method-select-selected {
   cursor: pointer;
   user-select: none;
   width: 100%;
   box-sizing: border-box;
-  margin-bottom: 5px;
+  margin-bottom: 2px;
 
   background-image: url(https://i.imgur.com/K5gtkay.png);
   background-repeat: no-repeat;
@@ -94,16 +100,25 @@ select {
   position: absolute;
   background-color: white;
   z-index: 10;
+  width: 94%;
+  box-shadow: 2px 2px 9px 0px #66666661;
 }
 
 #method-select-method {
   display: flex;
   gap: 10px;
-  padding: 0px 2px 1px;
+  padding-top: 4px;
+  padding-left: 4px;
+  padding-right: 4px;
+  padding-bottom: 4px;
 }
 
 .method-select-method-name {
   font-weight: bold;
+}
+
+.method-select-method-description {
+  font-size: 11px;
 }
 
 #method-select-method:hover {

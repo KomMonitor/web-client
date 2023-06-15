@@ -10,15 +10,15 @@
           ng-click="showMethodSelection = !showMethodSelection">
           {{methodName}}
         </div>
-        <div ng-show="showMethodSelection" id="method-select-selection"> 
+        <div ng-show="showMethodSelection" id="method-select-selection" class="select-border"> 
           <div 
-            id="method-select-method" 
+            id="method-select-method"
             ng-click="onMethodSelected(method)" 
             ng-repeat="method in methods">
             <div><i class="fas fa-chart-bar"></i></div>
             <div class="method-select-method-text">
               <div class="method-select-method-name">{{method.name}}</div>
-              <div>{{method.description}}</div>
+              <div class="method-select-method-description">{{method.description}}</div>
             </div>
           </div>
         </div>
