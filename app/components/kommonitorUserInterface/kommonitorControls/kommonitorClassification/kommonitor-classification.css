@@ -105,12 +105,28 @@ select {
 }
 
 #method-select-method {
-  display: flex;
+  display: grid;
+  grid-template-columns: 55px auto;
   gap: 10px;
   padding-top: 4px;
   padding-left: 4px;
   padding-right: 4px;
   padding-bottom: 4px;
+}
+
+.method-select-method-symbol {
+  color: #555;
+  padding: 5px;
+  width: 100%;
+}
+
+.method-select-method-symbol div {
+  filter: invert(25%);
+  width: 100%;
+  height: 100%;
+  background-size: 80%;
+  background-position-x: center;
+  background-repeat: no-repeat;
 }
 
 .method-select-method-name {
@@ -124,4 +140,8 @@ select {
 #method-select-method:hover {
   background-color: #1E90FF;
   color: #fff;
+}
+
+#method-select-method:hover .method-select-method-symbol div {
+  filter: invert(100%);
 }

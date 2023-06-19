@@ -15,7 +15,9 @@
             id="method-select-method"
             ng-click="onMethodSelected(method)" 
             ng-repeat="method in methods">
-            <div><i class="fas fa-chart-bar"></i></div>
+            <div class="method-select-method-symbol"><!--<i class="fas fa-chart-bar"></i>-->
+              <div style="background-image: url('{{ method.imgPath }}')"></div>
+            </div>
             <div class="method-select-method-text">
               <div class="method-select-method-name">{{method.name}}</div>
               <div class="method-select-method-description">{{method.description}}</div>
