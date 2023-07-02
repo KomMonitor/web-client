@@ -1,5 +1,5 @@
+"use strict";
 angular.module('kommonitorInfoLegendHelper', ['kommonitorDataExchange']);
-
 /**
  * a common serviceInstance that holds all needed properties for a WPS service.
  *
@@ -10,12 +10,8 @@ angular.module('kommonitorInfoLegendHelper', ['kommonitorDataExchange']);
  * parameters for each WPS operation represented by different Angular components
  */
 angular
-  .module('kommonitorInfoLegendHelper', [])
-  .service(
-    'kommonitorInfoLegendHelperService', ['$rootScope', '$timeout', 'kommonitorDataExchangeService', '$http', '__env',
-    function ($rootScope, $timeout,
-      kommonitorDataExchangeService, $http, __env) {
-
-
-
+    .module('kommonitorInfoLegendHelper', [])
+    .service('kommonitorInfoLegendHelperService', ['$rootScope', '$timeout', 'kommonitorDataExchangeService', '$http', '__env',
+    function ($rootScope, $timeout, kommonitorDataExchangeService, $http, __env) {
     }]);
+//# sourceMappingURL=kommonitor-info-legend-helper-service.module.js.map

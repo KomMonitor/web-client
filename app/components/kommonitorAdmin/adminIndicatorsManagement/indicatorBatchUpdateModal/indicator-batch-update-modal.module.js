@@ -1,20 +1,20 @@
+"use strict";
 angular.module('indicatorBatchUpdateModal', ['kommonitorImporterHelper', 'kommonitorBatchUpdateHelper', 'ngSanitize', 'ui.select']);
-
-angular.module('indicatorBatchUpdateModal').filter('filterIndicators', function() {
-    return function(indicators, props) {
+angular.module('indicatorBatchUpdateModal').filter('filterIndicators', function () {
+    return function (indicators, props) {
         // props is an object
         // properties can be defined when calling the filter, e. g. { indicatorName }
-        var result = []
+        var result = [];
         var searchTermLower;
         if (props.hasOwnProperty("indicatorName"))
-            searchTermLower = props.indicatorName.toLowerCase()
+            searchTermLower = props.indicatorName.toLowerCase();
         else
-            console.error("Given prarameter 'props' does not have a property named 'indicatorName'.")
-            
-        angular.forEach(indicators, function(indicator) {
-            if(indicator.indicatorName.toLowerCase().includes( searchTermLower ) && indicator.userPermissions.includes("editor"))
-                result.push(indicator)
-        })
+            console.error("Given prarameter 'props' does not have a property named 'indicatorName'.");
+        angular.forEach(indicators, function (indicator) {
+            if (indicator.indicatorName.toLowerCase().includes(searchTermLower) && indicator.userPermissions.includes("editor"))
+                result.push(indicator);
+        });
         return result;
-    }
-})
+    };
+});
+//# sourceMappingURL=indicator-batch-update-modal.module.js.map
