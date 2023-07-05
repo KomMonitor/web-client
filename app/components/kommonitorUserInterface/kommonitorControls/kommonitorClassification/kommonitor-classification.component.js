@@ -11,6 +11,7 @@ angular
 
 						$scope.methodName = 'Klassifizierungsmethode auswählen';
 						$scope.showMethodSelection = false;
+						kommonitorVisualStyleHelperService.numClasses = 5;
 
 						$scope.methods = [
 							{
@@ -42,9 +43,7 @@ angular
 							kommonitorVisualStyleHelperService.classifyMethod = method.id;
 							$rootScope.$broadcast("changeClassifyMethod", kommonitorVisualStyleHelperService.classifyMethod);
 						}
-
-						// set default values
-						kommonitorVisualStyleHelperService.numClasses = 5;
+						
 						$scope.onChangeSelectedClassifyMethod = function () {
 							$rootScope.$broadcast("changeClassifyMethod", kommonitorVisualStyleHelperService.classifyMethod);
 						} 
@@ -58,6 +57,17 @@ angular
 								return a - b;
 							});
 							$rootScope.$broadcast("changeBreaks", kommonitorVisualStyleHelperService.manualBrew.breaks);
+						}
+
+						$scope.onMOVBreaksChanged = function () {
+							kommonitorVisualStyleHelperService.manualMOVBreaks[0] = kommonitorVisualStyleHelperService.measureOfValueBrew[0].breaks;
+							kommonitorVisualStyleHelperService.manualMOVBreaks[1] = kommonitorVisualStyleHelperService.measureOfValueBrew[1].breaks;
+							
+							kommonitorVisualStyleHelperService.manualMOVBreaks[0].sort(function(a, b) {return a - b;});
+							kommonitorVisualStyleHelperService.manualMOVBreaks[1].sort(function(a, b) {return a - b;});
+
+
+							$rootScope.$broadcast("changeMOVBreaks", kommonitorVisualStyleHelperService.manualMOVBreaks);
 						}
 						
 						$scope.onWholeTimeseriesClassificationCheckboxChanged = function () {

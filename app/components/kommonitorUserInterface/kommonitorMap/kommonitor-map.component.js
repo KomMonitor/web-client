@@ -1056,6 +1056,17 @@ angular.module('kommonitorMap').component(
           $rootScope.$broadcast("restyleCurrentLayer", false);
         });
 
+        $scope.$on("changeMOVBreaks", function (event, breaks) {
+          kommonitorVisualStyleHelperService.manualMOVBreaks = breaks;
+
+          $timeout(function(){ 
+            kommonitorVisualStyleHelperService.manualMOVBreaks = breaks;
+            $rootScope.$apply();
+          }, 350);
+
+          $rootScope.$broadcast("restyleCurrentLayer", false);
+        });
+
         $(document).on('click', '#controlNoDataDisplay', function (e) {
           var controlNoDataDisplayCheckbox = document.getElementById('controlNoDataDisplay');
 
@@ -2995,7 +3006,16 @@ angular.module('kommonitorMap').component(
           $scope.indicatorTypeOfCurrentLayer = indicatorMetadataAndGeoJSON.indicatorType;
 
           if (kommonitorDataExchangeService.isMeasureOfValueChecked) {
-            var measureOfValueBrewArray = kommonitorVisualStyleHelperService.setupMeasureOfValueBrew($scope.currentGeoJSONOfCurrentLayer, $scope.indicatorPropertyName, defaultColorBrewerPaletteForGtMovValues, defaultColorBrewerPaletteForLtMovValues, kommonitorVisualStyleHelperService.classifyMethod, kommonitorDataExchangeService.measureOfValue);
+            var measureOfValueBrewArray = kommonitorVisualStyleHelperService.setupMeasureOfValueBrew(
+              $scope.currentGeoJSONOfCurrentLayer, 
+              $scope.indicatorPropertyName, 
+              defaultColorBrewerPaletteForGtMovValues, 
+              defaultColorBrewerPaletteForLtMovValues, 
+              kommonitorVisualStyleHelperService.classifyMethod, 
+              kommonitorDataExchangeService.measureOfValue,
+              kommonitorVisualStyleHelperService.manualMOVBreaks,
+              kommonitorVisualStyleHelperService.numClasses
+            );
             $scope.gtMeasureOfValueBrew = measureOfValueBrewArray[0];
             $scope.ltMeasureOfValueBrew = measureOfValueBrewArray[1];
 
@@ -3139,6 +3159,36 @@ angular.module('kommonitorMap').component(
 
             $scope.currentIndicatorContainsZeroValues = false;
 
+            
+            // set default manual breaks
+            if (kommonitorVisualStyleHelperService.classifyMethod == 'manual' && !kommonitorVisualStyleHelperService.manualMOVBreaks) {
+              // for measureOfValue
+              if (kommonitorDataExchangeService.isMeasureOfValueChecked) {
+                if(kommonitorVisualStyleHelperService.measureOfValueBrew) {
+                  // take existing MOV breaks:
+                  kommonitorVisualStyleHelperService.manualMOVBreaks = [];
+                  kommonitorVisualStyleHelperService.manualMOVBreaks[1] = kommonitorVisualStyleHelperService.measureOfValueBrew[1].breaks;
+                  kommonitorVisualStyleHelperService.manualMOVBreaks[0] = kommonitorVisualStyleHelperService.measureOfValueBrew[0].breaks;
+                }
+                else {
+                  // create new brew for default breaks:
+                  var measureOfValueBrewArray = kommonitorVisualStyleHelperService.setupMeasureOfValueBrew(
+                    $scope.currentGeoJSONOfCurrentLayer, 
+                    $scope.indicatorPropertyName, 
+                    defaultColorBrewerPaletteForGtMovValues, 
+                    defaultColorBrewerPaletteForLtMovValues, 
+                    kommonitorVisualStyleHelperService.classifyMethod, 
+                    kommonitorDataExchangeService.measureOfValue,
+                    kommonitorVisualStyleHelperService.manualMOVBreaks,
+                    kommonitorVisualStyleHelperService.numClasses
+                  );
+                  kommonitorVisualStyleHelperService.manualMOVBreaks = [];
+                  kommonitorVisualStyleHelperService.manualMOVBreaks[1] = measureOfValueBrewArray[1].breaks;
+                  kommonitorVisualStyleHelperService.manualMOVBreaks[0] = measureOfValueBrewArray[0].breaks;
+                }
+              }
+            }
+
             for (var i = 0; i < $scope.currentIndicatorMetadataAndGeoJSON.geoJSON.features.length; i++) {
               var containsZero = false;
               var containsNoData = false;
@@ -3158,7 +3208,16 @@ angular.module('kommonitorMap').component(
             }
 
             if (kommonitorDataExchangeService.isMeasureOfValueChecked) {
-              var measureOfValueBrewArray = kommonitorVisualStyleHelperService.setupMeasureOfValueBrew($scope.currentGeoJSONOfCurrentLayer, $scope.indicatorPropertyName, defaultColorBrewerPaletteForGtMovValues, defaultColorBrewerPaletteForLtMovValues, kommonitorVisualStyleHelperService.classifyMethod, kommonitorDataExchangeService.measureOfValue);
+              var measureOfValueBrewArray = kommonitorVisualStyleHelperService.setupMeasureOfValueBrew(
+                $scope.currentGeoJSONOfCurrentLayer, 
+                $scope.indicatorPropertyName, 
+                defaultColorBrewerPaletteForGtMovValues, 
+                defaultColorBrewerPaletteForLtMovValues, 
+                kommonitorVisualStyleHelperService.classifyMethod, 
+                kommonitorDataExchangeService.measureOfValue,
+                kommonitorVisualStyleHelperService.manualMOVBreaks,
+                kommonitorVisualStyleHelperService.numClasses
+              );
               $scope.gtMeasureOfValueBrew = measureOfValueBrewArray[0];
               $scope.ltMeasureOfValueBrew = measureOfValueBrewArray[1];
 
@@ -3216,8 +3275,6 @@ angular.module('kommonitorMap').component(
                         kommonitorVisualStyleHelperService.manualBrew = $scope.defaultBrew;
                       }
                       $scope.manualBrew = kommonitorVisualStyleHelperService.setupManualBrew(
-                        $scope.currentGeoJSONOfCurrentLayer, 
-                        $scope.indicatorPropertyName, 
                         kommonitorVisualStyleHelperService.numClasses, 
                         $scope.currentIndicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName, 
                         kommonitorVisualStyleHelperService.manualBrew.breaks);

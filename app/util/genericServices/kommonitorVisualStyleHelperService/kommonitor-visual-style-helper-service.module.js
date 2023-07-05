@@ -34,6 +34,8 @@ angular
         name: "Quantile",
         value: "quantile"
         }];
+
+      this.manualMOVBreaks = undefined;
     
       this.classifyMethod = __env.defaultClassifyMethod || "jenks";
 
@@ -217,25 +219,16 @@ angular
         return values;
       };
 
-      this.setupManualBrew = function (geoJSON, propertyName, numClasses, colorCode, breaks, forceProvidedIndicator, indicator) {
+      this.setupManualBrew = function (numClasses, colorCode, breaks) {
         this.resetFeaturesPerColorObjects();
-
-        var values = new Array();
-
-        if(kommonitorDataExchangeService.classifyUsingWholeTimeseries){
-          values = this.setupDefaultBrewValues_wholeTimeseries(geoJSON, values, forceProvidedIndicator, indicator);
-        }
-        else{
-          values = this.setupDefaultBrewValues_singleTimestamp(geoJSON, propertyName, values);
-        }
 
         var colorBrewerInstance = new classyBrew();
 
-        values.sort((a, b) => a - b);
         colorBrewerInstance.colors = JSON.parse(JSON.stringify(colorBrewerInstance.colorSchemes[colorCode][numClasses]));
         colorBrewerInstance.numClasses = numClasses;
         colorBrewerInstance.colorCode = colorCode;
 
+        // add or delete breaks to match numClasses
         let adjBreaks = breaks;
         while (adjBreaks.length < numClasses + 1) {
           adjBreaks.push(breaks[breaks.length - 1]);
@@ -254,7 +247,7 @@ angular
        *
        * [gtMeasureOfValueBrew, ltMeasureOfValueBrew]
        */
-      this.setupMeasureOfValueBrew = function (geoJSON, propertyName, colorCodeForGreaterThanValues, colorCodeForLesserThanValues, classifyMethod, measureOfValue) {
+      this.setupMeasureOfValueBrew = function (geoJSON, propertyName, colorCodeForGreaterThanValues, colorCodeForLesserThanValues, classifyMethod, measureOfValue, breaks, numClasses) {
 
         /*
         * Idea: Analyse the complete geoJSON property array for each feature and make conclusion about how to build the legend
@@ -281,9 +274,27 @@ angular
           this.setupMovBrewValues_singleTimestamp(geoJSON, propertyName, measureOfValue);
         }        
 
-        var gtMeasureOfValueBrew = this.setupGtMeasureOfValueBrew(this.greaterThanValues, colorCodeForGreaterThanValues, classifyMethod);
-        var ltMeasureOfValueBrew = this.setupLtMeasureOfValueBrew(this.lesserThanValues, colorCodeForLesserThanValues, classifyMethod);
+        var gtMeasureOfValueBrew = this.setupGtMeasureOfValueBrew(this.greaterThanValues, colorCodeForGreaterThanValues, classifyMethod, numClasses);
+        var ltMeasureOfValueBrew = this.setupLtMeasureOfValueBrew(this.lesserThanValues, colorCodeForLesserThanValues, classifyMethod, numClasses);
+        
+        if(classifyMethod == "manual") {
+          if (!breaks) {
+            breaks = [];
+            breaks[0] = gtMeasureOfValueBrew.breaks;
+            breaks[1] = ltMeasureOfValueBrew.breaks;
+          }
+  
+          var manualBreaksMatchMeasureOfValue = 
+            (breaks[1][breaks[1].length-1] <= measureOfValue) &&
+            (measureOfValue <= breaks[0][0]);
 
+          if (manualBreaksMatchMeasureOfValue) {
+            gtMeasureOfValueBrew = this.setupManualBrew(numClasses, colorCodeForGreaterThanValues, breaks[0]);
+            ltMeasureOfValueBrew = this.setupManualBrew(numClasses, colorCodeForLesserThanValues, breaks[1]);
+            ltMeasureOfValueBrew.colors = ltMeasureOfValueBrew.colors.reverse();
+          }
+        }
+        
         this.measureOfValueBrew = [gtMeasureOfValueBrew, ltMeasureOfValueBrew];
         return this.measureOfValueBrew;
       };
@@ -390,15 +401,15 @@ angular
         return colorBrewerInstance;
       }
 
-      this.setupGtMeasureOfValueBrew = function (greaterThanValues, colorCodeForGreaterThanValues, classifyMethod) {        
+      this.setupGtMeasureOfValueBrew = function (greaterThanValues, colorCodeForGreaterThanValues, classifyMethod, numClasses) {        
 
-        return setupClassyBrew_usingFeatureCount(greaterThanValues, colorCodeForGreaterThanValues, classifyMethod, 3);
+        return setupClassyBrew_usingFeatureCount(greaterThanValues, colorCodeForGreaterThanValues, classifyMethod, numClasses);
 
       };
 
-      this.setupLtMeasureOfValueBrew = function (lesserThanValues, colorCodeForLesserThanValues, classifyMethod) {
+      this.setupLtMeasureOfValueBrew = function (lesserThanValues, colorCodeForLesserThanValues, classifyMethod, numClasses) {
 
-        var brew = setupClassyBrew_usingFeatureCount(lesserThanValues, colorCodeForLesserThanValues, classifyMethod, 3);
+        var brew = setupClassyBrew_usingFeatureCount(lesserThanValues, colorCodeForLesserThanValues, classifyMethod, numClasses);
         if(brew && brew.colors && brew.colors.length > 1){        
           brew.colors = brew.colors.reverse();
         }

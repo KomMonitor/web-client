@@ -29,6 +29,10 @@ select {
 
 /* breaks and histogram */
 
+.measureOfValueBreaks {
+  display: flex;
+}
+
 .breaksWrapper {
   display: grid;
   grid-template-columns: 50% 50%;

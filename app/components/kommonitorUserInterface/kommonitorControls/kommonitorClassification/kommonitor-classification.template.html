@@ -29,7 +29,10 @@
       <!-- number of classes -->
       <form class="nrClassSelection">
         <label>
-          Anzahl Klassen
+          Anzahl Klassen 
+          <span ng-if="$ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked">
+            (pro Seite)
+          </span>
           <input 
             type="number"
             min="3"
@@ -42,7 +45,10 @@
 
     <div ng-if="$ctrl.kommonitorVisualStyleHelperServiceInstance.classifyMethod=='manual'">
       <label>Klassengrenzen</label>
-      <div class="breaksWrapper" ng-repeat="(i, b) in $ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks track by $index">
+      <div 
+        class="breaksWrapper" 
+        ng-if="!$ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked"
+        ng-repeat="(i, b) in $ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks track by $index">
         <input 
           type="number"
           class="form-control"
@@ -61,6 +67,31 @@
               </div>
             </div>
           </div>
+      </div>
+      <!-- Bei Schwellwertklassifizierung: -->
+      <div 
+        class="measureOfValueBreaks"
+        ng-if="$ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked">
+        <div>
+          unter Schwellwert:
+          <div class="movbreaksWrapper" ng-repeat="(i, b) in $ctrl.kommonitorVisualStyleHelperServiceInstance.measureOfValueBrew[1].breaks track by $index">
+            <input 
+              type="number"
+              class="form-control"
+              ng-blur="onMOVBreaksChanged()"
+              ng-model="$ctrl.kommonitorVisualStyleHelperServiceInstance.measureOfValueBrew[1].breaks[i]">
+          </div>
+        </div>
+        <div>
+          über Schwellwert:
+          <div class="movbreaksWrapper" ng-repeat="(i, b) in $ctrl.kommonitorVisualStyleHelperServiceInstance.measureOfValueBrew[0].breaks track by $index">
+            <input 
+              type="number"
+              class="form-control"
+              ng-blur="onMOVBreaksChanged()"
+              ng-model="$ctrl.kommonitorVisualStyleHelperServiceInstance.measureOfValueBrew[0].breaks[i]">
+          </div>
+        </div>
       </div>
     </div>
 
