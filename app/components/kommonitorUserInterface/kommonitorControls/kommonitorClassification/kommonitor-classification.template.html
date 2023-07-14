@@ -1,99 +1,145 @@
 <!-- classification  -->
 <div id="kommonitorClassification">
   <div class="classification-container">
-    <div class="select-container">
-      <div title="Hier können Sie die Klassifizierungsmethode ändern.">
-        <div style="font-weight: bold;">Methode</div>
+    <div title="Hier können Sie die Klassifizierungsmethode ändern.">
+      <div style="font-weight: bold;">Methode</div>
+      <div 
+        id="method-select-selected" 
+        class="form-control"
+        ng-click="showMethodSelection = !showMethodSelection">
+        {{methodName}}
+      </div>
+      <div ng-show="showMethodSelection" id="method-select-selection" class="select-border"> 
         <div 
-          id="method-select-selected" 
-          class="form-control"
-          ng-click="showMethodSelection = !showMethodSelection">
-          {{methodName}}
-        </div>
-        <div ng-show="showMethodSelection" id="method-select-selection" class="select-border"> 
-          <div 
-            id="method-select-method"
-            ng-click="onMethodSelected(method)" 
-            ng-repeat="method in methods">
-            <div class="method-select-method-symbol"><!--<i class="fas fa-chart-bar"></i>-->
-              <div style="background-image: url('{{ method.imgPath }}')"></div>
-            </div>
-            <div class="method-select-method-text">
-              <div class="method-select-method-name">{{method.name}}</div>
-              <div class="method-select-method-description">{{method.description}}</div>
-            </div>
+          id="method-select-method"
+          ng-click="onMethodSelected(method)" 
+          ng-repeat="method in methods">
+          <div class="method-select-method-symbol">
+            <div style="background-image: url('{{ method.imgPath }}')"></div>
           </div>
-        </div>
-      </div>
-
-      <!-- number of classes -->
-      <form class="nrClassSelection">
-        <label>
-          Anzahl Klassen 
-          <span ng-if="$ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked">
-            (pro Seite)
-          </span>
-          <input 
-            type="number"
-            min="3"
-            max="7"
-            ng-change="onChangeNumberOfClasses()"
-            ng-model="$ctrl.kommonitorVisualStyleHelperServiceInstance.numClasses"
-            class="form-control">
-        </label>
-      </form>
-
-    <div ng-if="$ctrl.kommonitorVisualStyleHelperServiceInstance.classifyMethod=='manual'">
-      <label>Klassengrenzen</label>
-      <div 
-        class="breaksWrapper" 
-        ng-if="!$ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked"
-        ng-repeat="(i, b) in $ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks track by $index">
-        <input 
-          type="number"
-          class="form-control"
-          ng-blur="onBreaksChanged()"
-          ng-model="$ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks[i]">
-          <div class="countBarContainer">
-            <div class="countBar" style="width:{{getWidthForBar(i-1)}}%">
-            </div>
-          </div>
-          <div class="countBarContainer">
-            <div class="countBar" style="width:{{getWidthForBar(i)}}%">
-            </div>
-            <div>
-              <div ng-show="(i != $ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks.length - 1)" class="histogramNumber">
-                {{getHistogramNumber(i)}}             
-              </div>
-            </div>
-          </div>
-      </div>
-      <!-- Bei Schwellwertklassifizierung: -->
-      <div 
-        class="measureOfValueBreaks"
-        ng-if="$ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked">
-        <div>
-          unter Schwellwert:
-          <div class="movbreaksWrapper" ng-repeat="(i, b) in $ctrl.kommonitorVisualStyleHelperServiceInstance.measureOfValueBrew[1].breaks track by $index">
-            <input 
-              type="number"
-              class="form-control"
-              ng-blur="onMOVBreaksChanged()"
-              ng-model="$ctrl.kommonitorVisualStyleHelperServiceInstance.measureOfValueBrew[1].breaks[i]">
-          </div>
-        </div>
-        <div>
-          über Schwellwert:
-          <div class="movbreaksWrapper" ng-repeat="(i, b) in $ctrl.kommonitorVisualStyleHelperServiceInstance.measureOfValueBrew[0].breaks track by $index">
-            <input 
-              type="number"
-              class="form-control"
-              ng-blur="onMOVBreaksChanged()"
-              ng-model="$ctrl.kommonitorVisualStyleHelperServiceInstance.measureOfValueBrew[0].breaks[i]">
+          <div class="method-select-method-text">
+            <div class="method-select-method-name">{{method.name}}</div>
+            <div class="method-select-method-description">{{method.description}}</div>
           </div>
         </div>
       </div>
     </div>
+
+    <!-- number of classes -->
+    <form class="nrClassSelection">
+      <label>
+        Anzahl Klassen 
+        <span ng-if="$ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked">
+          (pro Seite)
+        </span>
+        <input 
+          type="number"
+          min="3"
+          max="7"
+          ng-change="onChangeNumberOfClasses()"
+          ng-model="$ctrl.kommonitorVisualStyleHelperServiceInstance.numClasses"
+          class="form-control">
+      </label>
+    </form>
+
+    <!-- manual breaks -->
+    <div ng-if="$ctrl.kommonitorVisualStyleHelperServiceInstance.classifyMethod=='manual'">
+      <uib-tabset active="0">
+        <!-- Class Breaks Tab-->
+        <uib-tab index="0" heading="Klassengrenzen">
+          <label>Klassengrenzen</label>
+          <div 
+            class="breaksWrapper" 
+            ng-if="!$ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked"
+            ng-repeat="(i, b) in $ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks track by $index">
+            <input 
+              type="number"
+              class="form-control"
+              ng-blur="onBreaksChanged()"
+              ng-model="$ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks[i]">
+              <div class="countBarContainer">
+                <div class="countBar" style="width:{{getWidthForBar(i-1)}}%">
+                </div>
+              </div>
+              <div class="countBarContainer">
+                <div class="countBar" style="width:{{getWidthForBar(i)}}%">
+                </div>
+                <div>
+                  <div ng-show="(i != $ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks.length - 1)" class="histogramNumber">
+                    {{getHistogramNumber(i)}}             
+                  </div>
+                </div>
+              </div>
+          </div>
+          <!-- Measure Of Value Classification: -->
+          <div 
+            class="measureOfValueBreaks"
+            ng-if="$ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked">
+            <div>
+              unter Schwellwert:
+              <div class="movbreaksWrapper" ng-repeat="(i, b) in $ctrl.kommonitorVisualStyleHelperServiceInstance.measureOfValueBrew[1].breaks track by $index">
+                <input 
+                  type="number"
+                  class="form-control"
+                  ng-blur="onMOVBreaksChanged()"
+                  ng-model="$ctrl.kommonitorVisualStyleHelperServiceInstance.measureOfValueBrew[1].breaks[i]">
+              </div>
+            </div>
+            <div>
+              über Schwellwert:
+              <div class="movbreaksWrapper" ng-repeat="(i, b) in $ctrl.kommonitorVisualStyleHelperServiceInstance.measureOfValueBrew[0].breaks track by $index">
+                <input 
+                  type="number"
+                  class="form-control"
+                  ng-blur="onMOVBreaksChanged()"
+                  ng-model="$ctrl.kommonitorVisualStyleHelperServiceInstance.measureOfValueBrew[0].breaks[i]">
+              </div>
+            </div>
+          </div>
+        </uib-tab>
+
+        <!-- Histogram Tab-->
+        <uib-tab index="1" heading="Histogramm">
+          <div class="histogramTabWrapper">
+            <div class="breaksArea">
+              <!-- measure of Value -->
+              <div class="breakWrapper measureOfValue"
+                   style="top: {{getPercentage(kommonitorDataExchangeServiceInstance.measureOfValue)}}%"
+                   ng-mousedown="onBreakMouseMove($event)">
+                <div class ="break">
+                  <!--<div class="colorBox"></div>-->
+                  <input type="number" 
+                         ng-model="kommonitorDataExchangeServiceInstance.measureOfValue">
+                  <i class="fa-regular fa-trash-can"></i>
+                </div>
+                <div class="line"></div>
+              </div>
+              <!-- other breaks -->
+              <div class="breakWrapper"
+                   ng-repeat="(i, b) in $ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks"
+                   style="top: {{getPercentage(b)}}%">
+                <div class="break"
+                      ng-mousemove="onBreakMouseMove($event)">
+                  <!--<div class="colorBox"></div>-->
+                  <input type="number" 
+                         ng-model="$ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks[i]">
+                  <i class="fa-regular fa-trash-can"></i>
+                </div>
+                <div class="line"></div>
+              </div>
+            </div>
+            <!-- bars -->
+            <div class="histogram">
+              <div class="histogramBar"
+                   ng-repeat="(i, b) in $ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks"
+                   style="height: {{getHeightForBar(i)}}%; 
+                          width: {{getWidthForHistogramBar(i)}}%;
+                          background-color: {{$ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.colors[i]}}">
+              </div>
+            </div>
+          </div>
+        </uib-tab>
+      </uib-tabset>
 
     <!--
     <div class="classificationBoxToogleSlidersWrapper">

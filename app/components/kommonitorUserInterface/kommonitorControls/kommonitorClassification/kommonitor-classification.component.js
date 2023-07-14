@@ -28,7 +28,7 @@ angular
 							{
 								name: 'Quantile', 
 								id: 'quantile', 
-								imgPath: 'icons/classificationMethods/neu/quantile.svg',
+								imgPath: 'icons/classificationMethods/neu/quantile_grau.svg',
 								description: 'Bei der Quantil-Methode enthält jede Klasse die gleiche Anzahl von Features.'},
 							{
 								name: 'Manuell', 
@@ -89,6 +89,36 @@ angular
 							let color = kommonitorVisualStyleHelperService.manualBrew.colors[i];
 							let countFeatures = kommonitorVisualStyleHelperService.featuresPerColorMap.get(color) || 0;
 							return countFeatures;
+						}
+
+
+						// for histogram:
+						$scope.getWidthForHistogramBar = function (i) {
+							let colors = kommonitorVisualStyleHelperService.manualBrew.colors;
+							let countArray = [];
+							colors.forEach(function (color) {
+								countArray.push(kommonitorVisualStyleHelperService.featuresPerColorMap.get(color));
+							})
+							return (countArray[i] / Math.max(...countArray)) * 100 || 0;
+						};
+						$scope.getHeightForBar = function (i) {
+							let size = kommonitorVisualStyleHelperService.manualBrew.breaks[i+1] - kommonitorVisualStyleHelperService.manualBrew.breaks[i];
+							return (size / ($scope.getMaxValue() - $scope.getMinValue())) * 100;
+						};
+						$scope.getPercentage = function (n) {
+							return ((n - $scope.getMinValue()) / ($scope.getMaxValue() - $scope.getMinValue())) * 100;
+						};
+						$scope.getMaxValue = function ()  {
+							breaks = kommonitorVisualStyleHelperService.manualBrew.breaks;
+							return breaks[breaks.length - 1];
+						}
+						$scope.getMinValue = function () {
+							return kommonitorVisualStyleHelperService.manualBrew.breaks[0];
+						}
+						$scope.onBreakMouseMove = function (e) {
+							console.log(e);
+							console.log(e.target.parentNode.parentNode);
+							console.log(e.buttons);
 						}
 					}
 				]

@@ -149,3 +149,89 @@ select {
 #method-select-method:hover .method-select-method-symbol div {
   filter: invert(100%);
 }
+
+
+/* histogram tab */
+
+.histogramTabWrapper {
+  height: 150px;
+  display: grid;
+  grid-template-columns: auto auto;
+  user-select: none;
+  margin-top: 15px;
+  margin-bottom: 15px;
+}
+
+.histogramTabWrapper .histogram {
+  height: 150px;
+  background-color: white;
+}
+.histogramTabWrapper .histogramBar {
+  background-color: rgb(51,122,183);
+}
+.histogramTabWrapper .breaksArea {
+  position: relative;
+  height: 100%;
+}
+.histogramTabWrapper .breakWrapper {
+  position: absolute;
+  right: 0%;
+  display: grid;
+  grid-template-columns: auto auto;
+}
+.histogramTabWrapper .break {
+  color: white;
+    text-shadow: none;
+    padding: 1px 5px;
+    background-color: #428bca;
+    background: linear-gradient(to bottom, #428bca 0%, #3071a9 100%);
+    border-radius: 3px;
+  margin-top: -10px;
+  height: 20px;
+  display: grid;
+  grid-template-columns: auto auto auto;
+}
+.histogramTabWrapper .colorBox {
+  background-color: white;
+  width: 12px;
+  height: 12px;
+  margin-top: auto;
+  margin-bottom: auto;
+  margin-right: 4px;
+}
+.histogramTabWrapper input {
+  width: 54px;
+  background-color: transparent;
+  color: white;
+  border: 0;
+}
+.histogramTabWrapper i {
+  margin-right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.histogramTabWrapper .line {
+  height: 2px;
+  background-color: #666;
+  width: 30px;
+}
+
+.histogramTabWrapper .breakWrapper:last-of-type .line {
+  margin-top: -2px;
+}
+.histogramTabWrapper .breakWrapper:last-of-type .break {
+  margin-top: -12px;
+}
+
+.histogramTabWrapper .measureOfValue .line {
+  border-top: 2px dotted red;
+  height: 0;
+  background-color: transparent;
+  width: 30px;
+}
+.histogramTabWrapper .measureOfValue .break {
+  background-color: #cacaca;
+    background: linear-gradient(to bottom, #9b9b9b 0%, #616161 100%);
+}
