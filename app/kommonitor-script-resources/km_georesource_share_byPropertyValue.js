@@ -133,9 +133,9 @@ async function computeIndicator(targetDate, targetSpatialUnit_geoJSON, baseIndic
                 KmHelper.setIndicatorValue(spatialUnitFeat, targetDate, null);
             }
         }
-    }
-    if (featureIndex % logProgressIndexSeparator === 0) {
-        KmHelper.log("PROGRESS: Compared '" + featureIndex + "' of total '" + targetSpatialUnit_geoJSON.features.length + "' spatial units to point features.");
+        if (featureIndex % logProgressIndexSeparator === 0) {
+            KmHelper.log("PROGRESS: Compared '" + featureIndex + "' of total '" + targetSpatialUnit_geoJSON.features.length + "' spatial units to point features.");
+        }
     }
     KmHelper.log("Computation of indicator finished");
     return targetSpatialUnit_geoJSON;

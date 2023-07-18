@@ -24,7 +24,8 @@
                 "app/"
               ],
               "styles": [
-                "app/app.css"
+                "app/app.css",
+                "node_modules/bootstrap/dist/css/bootstrap.min.css"
               ],
               "scripts": []
             },
@@ -89,7 +90,8 @@
                 "app/favicon.ico"
               ],
               "styles": [
-                "app/app.css"
+                "app/app.css",
+                "node_modules/bootstrap/dist/css/bootstrap.min.css"
               ],
               "scripts": []
             }

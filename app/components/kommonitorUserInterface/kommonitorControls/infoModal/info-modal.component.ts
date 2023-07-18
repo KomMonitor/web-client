@@ -1,81 +1,89 @@
-angular.module('infoModal').component('infoModal', {
-	templateUrl : "components/kommonitorUserInterface/kommonitorControls/infoModal/info-modal.template.html",
-	controller : [
-		'kommonitorDataExchangeService', '$scope', '$rootScope', '__env', '$timeout', 
-		function InfoModalController(kommonitorDataExchangeService, $scope, $rootScope, __env, $timeout) {
 
-		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
+import { DomSanitizer, SafeHtml } from "@angular/platform-browser";
+import { Component, OnInit } from '@angular/core';
+import { NgbModule} from '@ng-bootstrap/ng-bootstrap';
+import { Router } from '@angular/router';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+@Component({
+  selector: 'infoModal',
+  templateUrl: 'info-modal.template.html',
+  styleUrls: ['info-modal.component.css']
+})
+export class InfoModalComponent implements OnInit {
+ 
+  isHideGreetings: boolean = false;
+ 
+  customGreetingsContact_name: SafeHtml;
+  customGreetingsContact_organisation: SafeHtml;
+  customGreetingsContact_mail: string;
+  customGreetingsTextInfoMessage: SafeHtml;
+    sanitizer: any;
 
-		$scope.isHideGreetings = false;
 
-		$scope.init = function(){
-			if(! (localStorage.getItem("hideKomMonitorAppGreeting") === "true")) {
-					
-				$scope.isHideGreetings = false;
+  constructor(private modalService: NgbModal, private router: Router) {
+    this.customGreetingsContact_name = this.sanitizer.bypassSecurityTrustHtml(''); 
+    this.customGreetingsContact_organisation = this.sanitizer.bypassSecurityTrustHtml(''); 
+    this.customGreetingsContact_mail = ''; 
+    this.customGreetingsTextInfoMessage = this.sanitizer.bypassSecurityTrustHtml('');
 
-				$('#infoModal').modal('show');		
-			}
-			else{
-				$scope.isHideGreetings = true;
-				$("#changeHideGreetingsInput").prop('checked', true);
-			}
+  
+  }
 
-			let tab1 = document.getElementById("infoModalTab1");
-			tab1.innerHTML = __env.standardInfoModalTabTitle;
-			tab1.click();
-			tab1.focus();
+  ngOnInit(): void {
+    if (!(localStorage.getItem('hideKomMonitorAppGreeting') === 'true')) {
+      this.isHideGreetings = false;
+      this.modalService.open('infoModal'); 
+    } else {
+      this.isHideGreetings = true;
+    }
 
-			if(__env.enableExtendedInfoModal) {				
-				let tab3 = document.getElementById("infoModalTab3");
-				let tab3content = document.getElementById("infoModalTab3Content");				
-				tab3.innerHTML = __env.extendedInfoModalTabTitle;
-				tab3content.innerHTML = __env.extendedInfoModalHTMLMessage;				
-			} else {
-				document.getElementById("infoModalTab3").style.display = "none";
-			}
-			
+  }
+  dismissModal() {
+    this.modalService.dismissAll();
+  }
 
-			$timeout(function(){
-				$scope.$digest();
-			}, 250);
-			
-		};
+ 
+  onChangeHideGreetings(): void {
+    if (this.isHideGreetings) {
+      localStorage.setItem('hideKomMonitorAppGreeting', 'true');
+    } else {
+      localStorage.setItem('hideKomMonitorAppGreeting', 'false');
+    }
+  }
+  callStartGuidedTour(): void {
+    this.modalService.dismissAll('infoModal'); 
+    this.router.navigate(['/guided-tour']); 
+  }
+  showFeedbackForm(): void {
+    this.modalService.dismissAll('infoModal'); 
+    this.router.navigate(['/feedback']);
+  }
+}
 
-		var onChangeHideGreetings = function(){
-			if($scope.isHideGreetings){
-				localStorage.setItem("hideKomMonitorAppGreeting", "true");
-			}
-			else{
-				localStorage.setItem("hideKomMonitorAppGreeting", "false");
-			}
-		};
 
-		$('#changeHideGreetingsInput').on('click', function(event) {
 
-			if($scope.isHideGreetings){
-				$scope.isHideGreetings = false;
-			}
-			else{
-				$scope.isHideGreetings = true;
-			}
-			onChangeHideGreetings();
-			event.stopPropagation();
-	   });
 
-		var callStartGuidedTour = function(){
-			$('#infoModal').modal('hide');
-			$rootScope.$broadcast("startGuidedTour");
-		};
 
-		$(document).on('click', '#callStartGuidedTourButton', function (e) {
-			callStartGuidedTour();
-		  });
 
-		$scope.showFeedbackForm = function(){
-			$('#infoModal').modal('hide');
-			$('#feedbackModal').modal('show');
-		};
 
-		$scope.init();
-	}
-]});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function dismissModal() {
+    throw new Error("Function not implemented.");
+}
+
