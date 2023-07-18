@@ -3019,6 +3019,8 @@ angular.module('kommonitorMap').component(
             $scope.gtMeasureOfValueBrew = measureOfValueBrewArray[0];
             $scope.ltMeasureOfValueBrew = measureOfValueBrewArray[1];
 
+            $scope.setDefaultManualMOVBreaks();
+
             $scope.propertyName = INDICATOR_DATE_PREFIX + date;
 
             layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
@@ -3046,6 +3048,7 @@ angular.module('kommonitorMap').component(
               }
               else {
                 $scope.defaultBrew = kommonitorVisualStyleHelperService.setupDefaultBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, indicatorMetadataAndGeoJSON.defaultClassificationMapping.items.length, indicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName, kommonitorVisualStyleHelperService.classifyMethod);
+                kommonitorVisualStyleHelperService.manualBrew = $scope.defaultBrew;
               }
               $scope.propertyName = INDICATOR_DATE_PREFIX + date;
 
@@ -3120,6 +3123,12 @@ angular.module('kommonitorMap').component(
           $scope.map.invalidateSize(true);
         });
 
+        $scope.setDefaultManualMOVBreaks = function () {
+          kommonitorVisualStyleHelperService.manualMOVBreaks = [];
+          kommonitorVisualStyleHelperService.manualMOVBreaks[1] = $scope.ltMeasureOfValueBrew.breaks;
+          kommonitorVisualStyleHelperService.manualMOVBreaks[0] = $scope.gtMeasureOfValueBrew.breaks;
+        }
+
         $scope.containsNegativeValues = function (geoJSON) {
 
           var containsNegativeValues = false;
@@ -3158,36 +3167,6 @@ angular.module('kommonitorMap').component(
             $scope.currentGeoJSONOfCurrentLayer = $scope.currentIndicatorMetadataAndGeoJSON.geoJSON;
 
             $scope.currentIndicatorContainsZeroValues = false;
-
-            
-            // set default manual breaks
-            if (kommonitorVisualStyleHelperService.classifyMethod == 'manual' && !kommonitorVisualStyleHelperService.manualMOVBreaks) {
-              // for measureOfValue
-              if (kommonitorDataExchangeService.isMeasureOfValueChecked) {
-                if(kommonitorVisualStyleHelperService.measureOfValueBrew) {
-                  // take existing MOV breaks:
-                  kommonitorVisualStyleHelperService.manualMOVBreaks = [];
-                  kommonitorVisualStyleHelperService.manualMOVBreaks[1] = kommonitorVisualStyleHelperService.measureOfValueBrew[1].breaks;
-                  kommonitorVisualStyleHelperService.manualMOVBreaks[0] = kommonitorVisualStyleHelperService.measureOfValueBrew[0].breaks;
-                }
-                else {
-                  // create new brew for default breaks:
-                  var measureOfValueBrewArray = kommonitorVisualStyleHelperService.setupMeasureOfValueBrew(
-                    $scope.currentGeoJSONOfCurrentLayer, 
-                    $scope.indicatorPropertyName, 
-                    defaultColorBrewerPaletteForGtMovValues, 
-                    defaultColorBrewerPaletteForLtMovValues, 
-                    kommonitorVisualStyleHelperService.classifyMethod, 
-                    kommonitorDataExchangeService.measureOfValue,
-                    kommonitorVisualStyleHelperService.manualMOVBreaks,
-                    kommonitorVisualStyleHelperService.numClasses
-                  );
-                  kommonitorVisualStyleHelperService.manualMOVBreaks = [];
-                  kommonitorVisualStyleHelperService.manualMOVBreaks[1] = measureOfValueBrewArray[1].breaks;
-                  kommonitorVisualStyleHelperService.manualMOVBreaks[0] = measureOfValueBrewArray[0].breaks;
-                }
-              }
-            }
 
             for (var i = 0; i < $scope.currentIndicatorMetadataAndGeoJSON.geoJSON.features.length; i++) {
               var containsZero = false;
@@ -3271,9 +3250,6 @@ angular.module('kommonitorMap').component(
                     kommonitorVisualStyleHelperService.classifyMethod);
 
                     if(kommonitorVisualStyleHelperService.classifyMethod == 'manual') {
-                      if (!kommonitorVisualStyleHelperService.manualBrew) {
-                        kommonitorVisualStyleHelperService.manualBrew = $scope.defaultBrew;
-                      }
                       $scope.manualBrew = kommonitorVisualStyleHelperService.setupManualBrew(
                         kommonitorVisualStyleHelperService.numClasses, 
                         $scope.currentIndicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName, 
