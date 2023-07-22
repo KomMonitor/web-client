@@ -274,8 +274,8 @@ angular
           this.setupMovBrewValues_singleTimestamp(geoJSON, propertyName, measureOfValue);
         }        
 
-        var gtMeasureOfValueBrew = this.setupGtMeasureOfValueBrew(this.greaterThanValues, colorCodeForGreaterThanValues, classifyMethod, numClasses);
-        var ltMeasureOfValueBrew = this.setupLtMeasureOfValueBrew(this.lesserThanValues, colorCodeForLesserThanValues, classifyMethod, numClasses);
+        var gtMeasureOfValueBrew = this.setupGtMeasureOfValueBrew(this.greaterThanValues, colorCodeForGreaterThanValues, classifyMethod, Math.ceil(numClasses / 2));
+        var ltMeasureOfValueBrew = this.setupLtMeasureOfValueBrew(this.lesserThanValues, colorCodeForLesserThanValues, classifyMethod, Math.floor(numClasses / 2));
         
         if(classifyMethod == "manual") {
           if (!breaks) {
@@ -354,6 +354,16 @@ angular
 
           colorBrewerInstance.colors = tempBrew.getColors();
           colorBrewerInstance.breaks = tempBrew.getBreaks();
+
+          if(tempBrew.numClasses == 2) {
+            colorBrewerInstance.colors = tempBrew.colorSchemes[colorCode]['3'];
+            colorBrewerInstance.colors.shift();
+          }
+          if(tempBrew.numClasses == 1) {
+            colorBrewerInstance.colors = tempBrew.colorSchemes[colorCode]['3'];
+            colorBrewerInstance.colors.shift();
+            colorBrewerInstance.colors.shift();
+          }
         }
 
         else if (valuesArray.length === 4) {
