@@ -1,0 +1,80 @@
+<div align="center" ng-show="! $ctrl.kommonitorReachabilityHelperServiceInstance.currentIsochronesGeoJSON">
+	<p>
+		Bitte f&uuml;hren Sie zuerst eine Isochronenberechnung durch.
+	</p>
+</div>
+
+<div align="center" ng-show="$ctrl.kommonitorReachabilityHelperServiceInstance.currentIsochronesGeoJSON">
+
+	<div class="row vertical-align">
+		<div class="col-md-6 col-sm-6 col-xs-12">
+			<div class="input-group">
+				<span class="input-group-addon"><i class="fas fa-filter"></i></span>
+				<input type="text" class="form-control input-sm"
+					placeholder="Stichwortfilter" ng-model="indicatorNameFilter"
+					ng-model-options="{debounce: 500, blur: 0}"
+					ng-change="$ctrl.kommonitorDataExchangeServiceInstance.onChangeIndicatorKeywordFilter(indicatorNameFilter)">
+			</div>
+
+			<div class="just-padding">
+				<select style="font-size: 12px;" ng-model="selectedIndicatorForStatistics"
+					id="indicatorSelection_reachabilityStatistic"
+					ng-change="onChangeSelectedIndicatorForStatistics(indicatorMetadata)"
+					size="5" class="form-control" required>
+					<option disabled selected value> -- Indikator w&auml;hlen -- </option>
+					<option ng-value="indicatorMetadata"
+						ng-repeat="indicatorMetadata in $ctrl.kommonitorDataExchangeServiceInstance.displayableIndicators_keywordFiltered track by indicatorMetadata.indicatorId">
+						{{::indicatorMetadata.indicatorName}} [{{::indicatorMetadata.unit}}]
+					</option>
+				</select>
+			</div>
+
+			<div class="row" style="margin-right: 0px;">
+				<div class="col-sm-7">
+					<div class="text-left"><label>Raumebene</label></div>
+					<select id="spatialUnitSelection_reachabilityStatistic"
+						style="font-size: 12px;" ng-model="selectedSpatialUnit"
+						class="form-control" ng-change="onChangeSelectedSpatialUnit()"
+						required>
+						<option disabled selected value> -- Raumeinheit w&auml;hlen --
+						</option>
+						<option ng-value="spatialUnit"
+							ng-repeat="spatialUnit in selectedIndicatorForStatistics.applicableSpatialUnits">
+							{{::spatialUnit.spatialUnitName}}</option>
+					</select>
+				</div>
+				<div class="col-sm-4">
+					<div class="text-left"><label>Indikatoren-Zeitschnitt</label></div>
+					<!-- <input id="indicatorDate_reachabilityStatistic" type="text" placeholder="YYYY-MM-DD" 
+					ng-model="$ctrl.kommonitorDataExchangeServiceInstance.selectedDate" ng-change="onChangeIndicatorDatepickerDate()"
+					ng-disabled="$ctrl.kommonitorDataExchangeServiceInstance.disableIndicatorDatePicker"> -->
+					<select id="indicatorDate_reachabilityStatistic"
+						style="font-size: 12px;" ng-model="selectedIndicatorDate"
+						class="form-control" required>
+						<option disabled selected value> -- Datum w&auml;hlen --
+						</option>
+						<option ng-value="date"
+							ng-repeat="date in selectedIndicatorForStatistics.applicableDates">
+							{{::date}}</option>
+					</select>
+				</div>
+			</div><br>
+
+			<button class="btn btn-success btn-sm" ng-click="computeReachabilityIndicatorStatistic()"
+				type="button"><i class="fas fa-plus"></i>&nbsp;&nbsp;Indikatoren-Statistik
+				generieren</button>
+
+
+			<p><label>Platzhalter Tabelle Übersicht über konfigurierte
+					Indikatorenstatistiken</label></p>
+
+		</div>
+		<div class="col-md-6 col-sm-6 col-xs-12">
+
+			<p><label>Platzhalter interaktive Karte</label></p>
+
+		</div>
+	</div>
+
+
+</div>

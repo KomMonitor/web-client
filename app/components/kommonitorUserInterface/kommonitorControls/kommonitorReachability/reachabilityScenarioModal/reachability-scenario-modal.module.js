@@ -1,2 +1,2 @@
 angular.module('reachabilityScenarioModal', ['kommonitorDataExchange', 'singleFeatureEdit', 'kommonitorMultiStepFormHelper',
-'kommonitorReachabilityHelper', 'reachabilityPoiInIso', 'reachabilityScenarioConfiguration']);
+'kommonitorReachabilityHelper', 'reachabilityPoiInIso', 'reachabilityScenarioConfiguration', 'reachabilityIndicatorStatistics']);

@@ -169,23 +169,11 @@ angular.module('reachabilityScenarioModal').component('reachabilityScenarioModal
 
 			};
 
-			// react on events from signel feature edit menu
+			// react on events from single feature edit menu
 			$scope.$on("georesourceGeoJSONUpdated", function(event, geoJSON){
 				// simply update geoJSON of reachability layer
 				kommonitorReachabilityHelperService.settings.selectedStartPointLayer.geoJSON_reachability = geoJSON;
-			});
-
-			$scope.onChangeSelectedIndicatorForStatistics = function () {
-				// $scope.selectedIndicatorForStatistics;
-
-				$scope.selectedSpatialUnit = $scope.selectedIndicatorForStatistics.applicableSpatialUnits[$scope.selectedIndicatorForStatistics.applicableSpatialUnits.length - 1];
-				$scope.selectedIndicatorDate = $scope.selectedIndicatorForStatistics.applicableDates[$scope.selectedIndicatorForStatistics.applicableDates.length - 1];
-
-				$scope.$digest();
-				// for (const iterator of $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits) {
-
-				// }				
-			}
+			});			
 
 		}
 	]
