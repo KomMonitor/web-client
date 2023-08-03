@@ -3299,8 +3299,12 @@ angular.module('kommonitorMap').component(
         });
 
         $scope.updateDefaultManualBreaksFromMOVManualBreaks = function (){
-          let ltBreaks = kommonitorVisualStyleHelperService.manualMOVBreaks[0];
-          let gtBreaks = kommonitorVisualStyleHelperService.manualMOVBreaks[1];
+          let ltBreaks = [...kommonitorVisualStyleHelperService.manualMOVBreaks[0]];
+          let gtBreaks = [...kommonitorVisualStyleHelperService.manualMOVBreaks[1]];
+
+          ltBreaks.shift()
+          gtBreaks.pop();
+
           kommonitorVisualStyleHelperService.manualBrew.breaks = [...gtBreaks, ...ltBreaks];
         };
 
@@ -3315,6 +3319,8 @@ angular.module('kommonitorMap').component(
               ltBreaks.push(br);
             }
           });
+          gtBreaks.push(kommonitorDataExchangeService.measureOfValue);
+          ltBreaks.unshift(kommonitorDataExchangeService.measureOfValue);
           kommonitorVisualStyleHelperService.manualMOVBreaks = [];
           kommonitorVisualStyleHelperService.manualMOVBreaks[0] = ltBreaks;
           kommonitorVisualStyleHelperService.manualMOVBreaks[1] = gtBreaks;

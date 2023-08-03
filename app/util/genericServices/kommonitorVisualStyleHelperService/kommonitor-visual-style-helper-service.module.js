@@ -224,7 +224,23 @@ angular
 
         var colorBrewerInstance = new classyBrew();
 
-        colorBrewerInstance.colors = JSON.parse(JSON.stringify(colorBrewerInstance.colorSchemes[colorCode][numClasses]));
+        if(numClasses >= 3) {
+          colorBrewerInstance.colors = colorBrewerInstance.colorSchemes[colorCode][numClasses];
+        }
+        else {
+          colorBrewerInstance.colors = colorBrewerInstance.colorSchemes[colorCode][3];
+          if(numClasses == 2) {
+            colorBrewerInstance.colors.shift();
+          }
+          if(numClasses == 1) {
+            colorBrewerInstance.colors.shift();
+            colorBrewerInstance.colors.shift();
+          }
+          if(numClasses == 0) {
+            colorBrewerInstance.colors = [];
+          }
+        }
+        
         colorBrewerInstance.numClasses = numClasses;
         colorBrewerInstance.colorCode = colorCode;
 
@@ -289,8 +305,8 @@ angular
             (measureOfValue <= breaks[0][0]);
 
           if (manualBreaksMatchMeasureOfValue) {
-            gtMeasureOfValueBrew = this.setupManualBrew(numClasses, colorCodeForGreaterThanValues, breaks[0]);
-            ltMeasureOfValueBrew = this.setupManualBrew(numClasses, colorCodeForLesserThanValues, breaks[1]);
+            gtMeasureOfValueBrew = this.setupManualBrew(breaks[0].length -1, colorCodeForGreaterThanValues, breaks[0]);
+            ltMeasureOfValueBrew = this.setupManualBrew(breaks[1].length -1, colorCodeForLesserThanValues, breaks[1]);
             ltMeasureOfValueBrew.colors = ltMeasureOfValueBrew.colors.reverse();
           }
         }

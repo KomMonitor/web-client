@@ -35,6 +35,7 @@
           max="7"
           ng-change="onChangeNumberOfClasses()"
           ng-model="$ctrl.kommonitorVisualStyleHelperServiceInstance.numClasses"
+          ng-disabled="($ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked) && ($ctrl.kommonitorVisualStyleHelperServiceInstance.classifyMethod=='manual')"
           class="form-control">
       </label>
     </form>
@@ -48,7 +49,7 @@
           <div 
             class="breaksWrapper" 
             ng-if="!$ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked"
-            ng-repeat="(i, b) in $ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks track by $index">
+            ng-repeat="(i, b) in $ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks">
             <input 
               type="number"
               class="form-control"
@@ -84,7 +85,7 @@
             </div>
             <div>
               über Schwellwert:
-              <div class="movbreaksWrapper" ng-repeat="(i, b) in $ctrl.kommonitorVisualStyleHelperServiceInstance.measureOfValueBrew[0].breaks track by $index">
+              <div class="movbreaksWrapper" ng-repeat="(i, b) in $ctrl.kommonitorVisualStyleHelperServiceInstance.measureOfValueBrew[0].breaks">
                 <input 
                   type="number"
                   class="form-control"
