@@ -1,3 +1,6 @@
+import { enableProdMode } from '@angular/core';
+import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
+
 if (/MSIE 9/i.test(navigator.userAgent) || /MSIE 10/i.test(navigator.userAgent) || /rv:11.0/i.test(navigator.userAgent)) {
     // This is internet explorer 9, 10 or 11
     window.alert('Internet Explorer erkannt. Für eine optimale Nutzung von KomMonitor nutzen Sie nach Möglichkeit die Browser Firefox oder Chrome.');
@@ -376,57 +379,58 @@ function initAngularComponents(){
     
 }
 
-function bootstrapApplication(){
-  
-  if(window.__env.enableKeycloakSecurity){
-    var keycloakAdapter = new Keycloak(window.__env.configStorageServerConfig.targetUrlToConfigStorageServer_keycloakConfig);  
 
-    // https://www.keycloak.org/docs/latest/securing_apps/#session-status-iframe
-    // https://www.keycloak.org/docs/latest/securing_apps/#_modern_browsers
-    
-    keycloakAdapter.init({
-      onLoad: 'check-sso',
-      checkLoginIframe: false,
-      silentCheckSsoFallback: false
-    }).then(function (authenticated) {
+
+
+
+
+
+async function bootstrapApplication() {
+  if (window.__env.enableKeycloakSecurity) {
+    try {
+      const keycloakAdapter = new Keycloak(window.__env.configStorageServerConfig.targetUrlToConfigStorageServer_keycloakConfig);
+      const authenticated = await keycloakAdapter.init({
+        onLoad: 'check-sso',
+        checkLoginIframe: false,
+        silentCheckSsoFallback: false
+      });
+
       console.log(authenticated ? 'User is authenticated!' : 'User is not authenticated!');
-      auth.keycloak = keycloakAdapter;
-      appModule.factory('Auth', function () {
-        return auth;
-      });
-      try {
-        console.debug('Trying to bootstrap application.');
-        angular.bootstrap(document, [appModule.name]);
-      }
-      catch (e) {
-        console.error('Application bootstrapping failed.');
-        console.error(e);
-      }
-    }).catch(function () {      
-      console.log('Failed to initialize authentication adapter. Will try to bootstrap application without keycloak security');
-      alert('Failed to initialize keycloak authentication adapter. Will try to bootstrap application without keycloak security');
-      window.__env.enableKeycloakSecurity = false;
-      bootstrapApplication();
-    });
-  }
-  else{
-    var keycloakAdapter = new Keycloak(keycloakConfig_forDirectInit);  
-      auth.keycloak = keycloakAdapter;
-      appModule.factory('Auth', function () {
-        return auth;
-      });
 
-      try {
-        console.debug('Trying to bootstrap application.');
-        angular.bootstrap(document, [appModule.name]);
+      if (authenticated) {
+        window.__env.keycloak = keycloakAdapter;
+      } else {
+        console.log('Failed to initialize authentication adapter. Will try to bootstrap application without keycloak security');
+        alert('Failed to initialize keycloak authentication adapter. Will try to bootstrap application without keycloak security');
+        window.__env.enableKeycloakSecurity = false;
+        await bootstrapApplication();
       }
-      catch (e) {
-        console.error('Application bootstrapping failed.');
-        console.error(e);
-      }  
+    } catch (e) {
+      console.error('Application bootstrapping failed.');
+      console.error(e);
+    }
+  } else {
+    window.__env.keycloak = new Keycloak(keycloakConfig_forDirectInit);
   }
 
+  if (environment.production) {
+    enableProdMode();
+  }
+
+  platformBrowserDynamic()
+    .bootstrapModule(AppModule)
+    .catch(err => console.error(err));
 }
+
+
+
+
+
+
+
+
+
+
 
 angular.element(document).ready(function ($http) {
 
