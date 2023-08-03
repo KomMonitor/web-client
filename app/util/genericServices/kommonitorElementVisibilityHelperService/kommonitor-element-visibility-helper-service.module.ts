@@ -1,4 +1,3 @@
-angular.module('kommonitorElementVisibilityHelper', ['kommonitorDataExchange', 'kommonitorKeycloakHelper']);
 
 /**
  * a common serviceInstance that holds all needed properties for a WPS service.
@@ -9,112 +8,108 @@ angular.module('kommonitorElementVisibilityHelper', ['kommonitorDataExchange', '
  * This way, one single service instance can be used to easily share values and
  * parameters for each WPS operation represented by different Angular components
  */
-angular
-  .module('kommonitorElementVisibilityHelper', [])
-  .service(
-    'kommonitorElementVisibilityHelperService', ['$rootScope', '$timeout', '$http', '$httpParamSerializerJQLike', '__env', 
-    'ControlsConfigService', 'Auth', 'kommonitorDataExchangeService', 'kommonitorKeycloakHelperService',
-    function ($rootScope, $timeout,
-      $http, $httpParamSerializerJQLike, __env, ControlsConfigService, Auth, kommonitorDataExchangeService, kommonitorKeycloakHelperService) {
+// Import required modules and interfaces
+import { Component } from '@angular/core';
+import { Injectable } from '@angular/core';
+import { ControlsConfigService } from '../kommonitorConfigStorageService/kommonitor-config-storage-service.module';
+import { kommonitorDataExchangeService } from '../kommonitorDataExchangeService/kommonitor-data-exchange-service.module'
+import { kommonitorKeycloakHelperService } from '../kommonitorKeycloakHelperService/kommonitor-keycloak-helper-service.module'';
 
-      var self = this;
-      this.elementVisibility = {};
+// Define the Angular service
+@Injectable({
+  providedIn: 'root'
+})
+export class KommonitorElementVisibilityHelperService {
+const Auth;
+  elementVisibility: { [key: string]: boolean } = {};
 
-      this.isAdvancedMode = __env.isAdvancedMode;
-      this.showAdvancedModeSwitch = __env.showAdvancedModeSwitch;
+  isAdvancedMode = __env.isAdvancedMode;
+  showAdvancedModeSwitch = __env.showAdvancedModeSwitch;
+  advancedModeRoleName = "fakeAdvancedModeRole";
 
-      this.advancedModeRoleName = "fakeAdvancedModeRole"; 
+  constructor(
+    private controlsConfigService: ControlsConfigService,
+    private auth: Auth,
+    private kommonitorDataExchangeService: kommonitorDataExchangeService,
+    private kommonitorKeycloakHelperService: kommonitorKeycloakHelperService
+  ) {
+    this.initElementVisibility();
+  }
 
-      this.initElementVisibility = function () {
-        kommonitorDataExchangeService.showDiagramExportButtons = true;
-        kommonitorDataExchangeService.showGeoresourceExportButtons = true;
+  initElementVisibility(): void {
+    this.kommonitorDataExchangeService.showDiagramExportButtons = true;
+    this.kommonitorDataExchangeService.showGeoresourceExportButtons = true;
 
-        this.elementVisibility = {};
-        var config = ControlsConfigService.getControlsConfig();
-        config.forEach(element => {
-          self.elementVisibility[element.id] = checkElementVisibility(element.id);
-        });
+    this.elementVisibility = {};
+    const config = this.controlsConfigService.getControlsConfig();
+    config.forEach(element => {
+      this.elementVisibility[element.id] = this.checkElementVisibility(element.id);
+    });
+  }
 
-        $timeout(function(){
-          $rootScope.$apply();
+  onChangeIsAdvancedMode(): void {
+    this.initElementVisibility();
+    // if any sidebar was previously not displayed we must ensure that it is properly instantiated for the current indicator
+    $rootScope.$broadcast("changeIndicatorDate");
+  }
 
-        });
-        
-        
-      };
+  private checkElementVisibility(id: string): boolean {
+    const element = this.controlsConfigService.getControlsConfig().filter(element => element.id === id)[0];
 
-      this.onChangeIsAdvancedMode = function (){
-
-        this.initElementVisibility();
-
-        // if any sidebar was previously not displayed we must ensure that it is properly instantiated for current indicator 
-        $rootScope.$broadcast("changeIndicatorDate");
-      };
-
-      var checkElementVisibility = function(id) {
-
-        var element = ControlsConfigService.getControlsConfig().filter(element => element.id === id)[0];
-
-        if(element.roles === undefined || element.roles.length === 0) {
+    if (element.roles === undefined || element.roles.length === 0) {
+      return true;
+    } else if (this.isAdvancedMode && element.roles && element.roles.includes(this.advancedModeRoleName)) {
+      return true;
+    } else if (this.auth.keycloak.authenticated) {
+      // admin role user always sees all data and widgets
+      if (this.auth.keycloak.showAdminView) {
+        return true;
+      }
+      let hasAllowedRole = false;
+      for (const role of element.roles) {
+        if (this.auth.keycloak.tokenParsed.realm_access.roles.includes(role)) {
           return true;
         }
-        else if(self.isAdvancedMode && element.roles && element.roles.includes(self.advancedModeRoleName)){
-          return true;
-        }
-        else if(Auth.keycloak.authenticated) {
-          // admin role user always sees all data and widgets
-          if(Auth.keycloak.showAdminView){
-            return true;
-          }
-          var hasAllowedRole = false;          
-          for (var i = 0; i < element.roles.length; i++) {
-            if(Auth.keycloak.tokenParsed.realm_access.roles.includes(element.roles[i])){
-              return true;
-            }	
-          }
+      }
+
+      // special case for diagram export buttons
+      if (!hasAllowedRole && element.id === "diagramExportButtons") {
+        this.kommonitorDataExchangeService.showDiagramExportButtons = false;
+      }
+      // special case for georesource export buttons
+      if (!hasAllowedRole && element.id === "georesourceExportButtons") {
+        this.kommonitorDataExchangeService.showGeoresourceExportButtons = false;
+      }
+
+      return hasAllowedRole;
+    } else {
+      if (!this.kommonitorDataExchangeService.enableKeycloakSecurity) {
+        if (element.roles && element.roles.includes(this.advancedModeRoleName)) {
 
           // special case for diagram export buttons
-          if(! hasAllowedRole && element.id === "diagramExportButtons"){
-            kommonitorDataExchangeService.showDiagramExportButtons = false;
+          if (element.id === "diagramExportButtons") {
+            this.kommonitorDataExchangeService.showDiagramExportButtons = false;
           }
           // special case for georesource export buttons
-          if(! hasAllowedRole && element.id === "georesourceExportButtons"){
-            kommonitorDataExchangeService.showGeoresourceExportButtons = false;
+          if (element.id === "georesourceExportButtons") {
+            this.kommonitorDataExchangeService.showGeoresourceExportButtons = false;
           }
 
-          return hasAllowedRole;
-        } else {
-          if(! kommonitorDataExchangeService.enableKeycloakSecurity){
-            if(element.roles && element.roles.includes(self.advancedModeRoleName)){
-
-              // special case for diagram export buttons
-              if(element.id === "diagramExportButtons"){
-                kommonitorDataExchangeService.showDiagramExportButtons = false;
-              }
-              // special case for georesource export buttons
-              if(element.id === "georesourceExportButtons"){
-                kommonitorDataExchangeService.showGeoresourceExportButtons = false;
-              }
-
-              return false;
-            }
-            return true;
-          }
-          else{
-            // special case for diagram export buttons
-            if(element.id === "diagramExportButtons"){
-              kommonitorDataExchangeService.showDiagramExportButtons = false;
-            }
-            // special case for georesource export buttons
-            if(element.id === "georesourceExportButtons"){
-              kommonitorDataExchangeService.showGeoresourceExportButtons = false;
-            }
-
-            return false;
-          }				
+          return false;
         }
-      };
+        return true;
+      } else {
+        // special case for diagram export buttons
+        if (element.id === "diagramExportButtons") {
+          this.kommonitorDataExchangeService.showDiagramExportButtons = false;
+        }
+        // special case for georesource export buttons
+        if (element.id === "georesourceExportButtons") {
+          this.kommonitorDataExchangeService.showGeoresourceExportButtons = false;
+        }
 
-      this.initElementVisibility();
-  
-    }]);
+        return false;
+      }
+    }
+  }
+}
