@@ -9,7 +9,6 @@
  * parameters for each WPS operation represented by different Angular components
  */
 // Import required modules and interfaces
-import { Component } from '@angular/core';
 import { Injectable } from '@angular/core';
 import { ControlsConfigService } from '../kommonitorConfigStorageService/kommonitor-config-storage-service.module';
 import { kommonitorDataExchangeService } from '../kommonitorDataExchangeService/kommonitor-data-exchange-service.module'
