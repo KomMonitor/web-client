@@ -380,11 +380,6 @@ function initAngularComponents(){
 }
 
 
-
-
-
-
-
 async function bootstrapApplication() {
   if (window.__env.enableKeycloakSecurity) {
     try {
@@ -421,6 +416,7 @@ async function bootstrapApplication() {
     .bootstrapModule(AppModule)
     .catch(err => console.error(err));
 }
+
 
 
 

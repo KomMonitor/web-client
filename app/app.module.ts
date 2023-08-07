@@ -3,6 +3,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { UpgradeModule, setAngularJSGlobal } from '@angular/upgrade/static';
 import { InfoModalModule } from 'components/kommonitorUserInterface/kommonitorControls/infoModal/info-modal.module';
 import { VersionInfoModule } from 'components/kommonitorUserInterface/kommonitorControls/versionInfo/version-info.module';
+import { ajskommonitorCacheHelperServiceProvider,ajskommonitorBatchUpdateHelperServiceProvider,ajskommonitorConfigStorageServiceProvider,ajskommonitorDataExchangeServiceeProvider,ajskommonitorDataGridHelperServiceProvider,ajskommonitorDiagramHelperServiceProvider,ajskommonitorFilterHelperServiceProvider,ajskommonitorKeycloackHelperServiceProvider,ajskommonitorMultiStepFormHelperServiceProvider, ajskommonitorSingleFeatureMapServiceProvider } from 'app-upgraded-providers';
 
 declare var angular: any; // Declare the AngularJS global variable
 
@@ -13,6 +14,13 @@ declare var angular: any; // Declare the AngularJS global variable
     InfoModalModule,
     VersionInfoModule
   ],
+  providers:[
+ajskommonitorCacheHelperServiceProvider,ajskommonitorBatchUpdateHelperServiceProvider,
+ajskommonitorConfigStorageServiceProvider,ajskommonitorKeycloackHelperServiceProvider,
+ajskommonitorMultiStepFormHelperServiceProvider,ajskommonitorDataExchangeServiceeProvider,
+ajskommonitorDataGridHelperServiceProvider,ajskommonitorSingleFeatureMapServiceProvider,
+ajskommonitorDiagramHelperServiceProvider,ajskommonitorFilterHelperServiceProvider
+  ]
   // ...
 })
 export class AppModule implements DoBootstrap {
