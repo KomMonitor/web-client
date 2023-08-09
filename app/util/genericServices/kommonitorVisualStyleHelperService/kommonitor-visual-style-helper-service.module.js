@@ -223,6 +223,7 @@ angular
         this.resetFeaturesPerColorObjects();
 
         var colorBrewerInstance = new classyBrew();
+        numClasses = breaks.length-1;
 
         if(numClasses >= 3) {
           colorBrewerInstance.colors = colorBrewerInstance.colorSchemes[colorCode][numClasses];
@@ -244,16 +245,7 @@ angular
         colorBrewerInstance.numClasses = numClasses;
         colorBrewerInstance.colorCode = colorCode;
 
-        // add or delete breaks to match numClasses
-        let adjBreaks = breaks;
-        while (adjBreaks.length < numClasses + 1) {
-          adjBreaks.push(breaks[breaks.length - 1]);
-        }
-        while (adjBreaks.length > numClasses + 1) {
-          adjBreaks.splice(adjBreaks.length-2, 1);
-        }
-
-        colorBrewerInstance.breaks = adjBreaks;
+        colorBrewerInstance.breaks = breaks;
         
         return colorBrewerInstance;
       };

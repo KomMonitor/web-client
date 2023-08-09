@@ -11,6 +11,8 @@ angular
 
 						$scope.methodName = 'Klassifizierungsmethode auswählen';
 						$scope.showMethodSelection = false;
+						$scope.addBtnHeight = 0;
+						$scope.showAddBtn = false;
 						kommonitorVisualStyleHelperService.numClasses = 5;
 
 						$scope.methods = [
@@ -50,6 +52,44 @@ angular
 
 						$scope.onChangeNumberOfClasses = function () {
 							$rootScope.$broadcast("changeNumClasses", kommonitorVisualStyleHelperService.numClasses);
+						}
+
+						$scope.getHeightInElement = function (e) {
+							var rect = e.currentTarget.getBoundingClientRect();
+							var y = Math.floor(e.clientY - rect.top);
+							$scope.addBtnHeight = y;
+							return y;
+						}
+
+						$scope.toggleAddBtn = function () {
+							if(!$scope.showAddBtn) {
+								$scope.showAddBtn = true;
+								setTimeout(function () {
+									$scope.$apply(function(){
+										$scope.showAddBtn = false;
+									});
+								}, 1500);
+							}
+						}
+
+						$scope.addNewBreak = function () {
+							let histogram = document.querySelector("#editableHistogram");
+							if(kommonitorVisualStyleHelperService.manualBrew.breaks.length <  10) {
+								if($scope.addBtnHeight >= 0 && $scope.addBtnHeight < histogram.offsetHeight) {
+									let breaks = kommonitorVisualStyleHelperService.manualBrew.breaks;
+									let newBreak = Math.floor(($scope.addBtnHeight / histogram.offsetHeight) * (breaks[breaks.length-1] - breaks[0]) + breaks[0]);
+									kommonitorVisualStyleHelperService.manualBrew.breaks.push(newBreak);
+									kommonitorVisualStyleHelperService.manualBrew.breaks.sort(function(a, b) {
+										return a - b;
+									});
+									$rootScope.$broadcast("changeBreaks", kommonitorVisualStyleHelperService.manualBrew.breaks);
+								}
+							}
+						}
+
+						$scope.deleteBreak = function (i) {
+							kommonitorVisualStyleHelperService.manualBrew.breaks.splice(i, 1);
+							$rootScope.$broadcast("changeBreaks", kommonitorVisualStyleHelperService.manualBrew.breaks);
 						}
 
 						$scope.onBreaksChanged = function () {
@@ -97,7 +137,7 @@ angular
 							let colors = kommonitorVisualStyleHelperService.manualBrew.colors;
 							let countArray = [];
 							colors.forEach(function (color) {
-								countArray.push(kommonitorVisualStyleHelperService.featuresPerColorMap.get(color));
+								countArray.push(kommonitorVisualStyleHelperService.featuresPerColorMap.get(color) || 0);
 							})
 							return (countArray[i] / Math.max(...countArray)) * 100 || 0;
 						};

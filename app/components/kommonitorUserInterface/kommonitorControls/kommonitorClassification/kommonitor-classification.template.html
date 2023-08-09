@@ -49,7 +49,7 @@
           <div 
             class="breaksWrapper" 
             ng-if="!$ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked"
-            ng-repeat="(i, b) in $ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks">
+            ng-repeat="(i, b) in $ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks track by $index">
             <input 
               type="number"
               class="form-control"
@@ -85,7 +85,7 @@
             </div>
             <div>
               über Schwellwert:
-              <div class="movbreaksWrapper" ng-repeat="(i, b) in $ctrl.kommonitorVisualStyleHelperServiceInstance.measureOfValueBrew[0].breaks">
+              <div class="movbreaksWrapper" ng-repeat="(i, b) in $ctrl.kommonitorVisualStyleHelperServiceInstance.measureOfValueBrew[0].breaks track by $index">
                 <input 
                   type="number"
                   class="form-control"
@@ -98,8 +98,19 @@
 
         <!-- Histogram Tab-->
         <uib-tab index="1" heading="Histogramm">
-          <div class="histogramTabWrapper">
+          <div ng-if="!$ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked" 
+               class="histogramTabWrapper"
+               ng-mousemove="getHeightInElement($event); toggleAddBtn()"
+               id="editableHistogram">
             <div class="breaksArea">
+              <!-- add btn -->
+              <div class="addBtnWrapper breakWrapper"
+                   style="top: {{addBtnHeight}}px"
+                   ng-if="showAddBtn"
+                   ng-mousover="toggleAddBtn()">
+                <div class="addBtn" ng-click="addNewBreak()">+</div>
+                <div class="line"></div>
+              </div>
               <!-- measure of Value -->
               <div class="breakWrapper measureOfValue"
                    style="top: {{getPercentage(kommonitorDataExchangeServiceInstance.measureOfValue)}}%"
@@ -114,14 +125,18 @@
               </div>
               <!-- other breaks -->
               <div class="breakWrapper"
-                   ng-repeat="(i, b) in $ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks"
+                   ng-repeat="(i, b) in $ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks track by $index"
                    style="top: {{getPercentage(b)}}%">
                 <div class="break"
                       ng-mousemove="onBreakMouseMove($event)">
                   <!--<div class="colorBox"></div>-->
-                  <input type="number" 
+                  <input type="number"
+                         ng-blur="onBreaksChanged()"
+                         ng-model-options="{ updateOn: 'blur'}"
+                         min="{{$ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks[0]}}"
+                         max="{{$ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks[$ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks.length - 1]}}"
                          ng-model="$ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks[i]">
-                  <i class="fa-regular fa-trash-can"></i>
+                  <i class="fa-regular fa-trash-can" ng-click="deleteBreak(i)"></i>
                 </div>
                 <div class="line"></div>
               </div>

@@ -191,6 +191,9 @@ select {
   display: grid;
   grid-template-columns: auto auto auto;
 }
+.histogramTabWrapper .break:hover, .histogramTabWrapper .break:focus-within {
+  z-index: 1001;
+}
 .histogramTabWrapper .colorBox {
   background-color: white;
   width: 12px;
@@ -204,6 +207,17 @@ select {
   background-color: transparent;
   color: white;
   border: 0;
+}
+.histogramTabWrapper input::-webkit-outer-spin-button,
+.histogramTabWrapper input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.histogramTabWrapper input[type=number] {
+  -moz-appearance: textfield;
+}
+.histogramTabWrapper textarea:focus, input:focus{
+  outline: none;
 }
 .histogramTabWrapper i {
   margin-right: 0;
@@ -234,4 +248,20 @@ select {
 .histogramTabWrapper .measureOfValue .break {
   background-color: #cacaca;
     background: linear-gradient(to bottom, #9b9b9b 0%, #616161 100%);
+}
+
+.addBtnWrapper .line {
+  width: 125px;
+  background-color: #ccc;
+}
+
+.addBtnWrapper .addBtn {
+  color: white;
+    text-shadow: none;
+    padding: 1px 5px;
+    background-color: #ccc;
+    background: linear-gradient(to bottom, #ccc 0%, #888 100%);
+    border-radius: 3px;
+  margin-top: -10px;
+  height: 20px;
 }
