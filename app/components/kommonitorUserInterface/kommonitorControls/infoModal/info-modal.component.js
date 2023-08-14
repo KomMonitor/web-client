@@ -6,7 +6,17 @@ angular.module('infoModal').component('infoModal', {
         function InfoModalController(kommonitorDataExchangeService, $scope, $rootScope, __env, $timeout) {
             this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
             $scope.isHideGreetings = false;
+
+            //prevent bootrap modals tabs opened by a tag with href elements from adding their anchor location to 
+                // URL
+            $("a[href^='#']").click(function(e) {
+                e.preventDefault();
+                
+            });  
+
             $scope.init = function () {
+                
+
                 if (!(localStorage.getItem("hideKomMonitorAppGreeting") === "true")) {
                     $scope.isHideGreetings = false;
                     $('#infoModal').modal('show');

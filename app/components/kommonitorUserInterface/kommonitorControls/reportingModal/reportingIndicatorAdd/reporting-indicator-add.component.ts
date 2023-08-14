@@ -3,6 +3,14 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 	controller : ['$scope', '$http', '$timeout', '$interval', '__env', 'kommonitorDataExchangeService', 'kommonitorDiagramHelperService', 'kommonitorVisualStyleHelperService',
 	function ReportingIndicatorAddController($scope, $http, $timeout, $interval, __env, kommonitorDataExchangeService, kommonitorDiagramHelperService, kommonitorVisualStyleHelperService) {
 
+
+		//prevent bootrap modals tabs opened by a tag with href elements from adding their anchor location to 
+        // URL
+        $("a[href^='#']").click(function(e) {
+            e.preventDefault();
+            
+        }); 
+
 		$scope.template = undefined;
 		$scope.untouchedTemplateAsString = "";
 		

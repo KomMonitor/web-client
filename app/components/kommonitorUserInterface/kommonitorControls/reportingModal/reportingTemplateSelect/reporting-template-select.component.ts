@@ -3,6 +3,13 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 	controller : ['$scope', '$rootScope', '__env', '$timeout', 'kommonitorDataExchangeService',
 	function ReportingTemplateSelectController($scope, $rootScope, __env, $timeout, kommonitorDataExchangeService) {
 
+		//prevent bootrap modals tabs opened by a tag with href elements from adding their anchor location to 
+        // URL
+        $("a[href^='#']").click(function(e) {
+            e.preventDefault();
+            
+        }); 
+
 		$scope.generalSettings = {
 			creator: "M. Mustermann",
 			commune: "Testkommune",

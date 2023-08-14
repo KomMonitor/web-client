@@ -6,6 +6,14 @@ angular.module('reportingModal').component('reportingModal', {
             $scope.workflowSelected = false;
             $scope.templateSelected = false;
             $scope.addingNewIndicator = false;
+
+            //prevent bootrap modals tabs opened by a tag with href elements from adding their anchor location to 
+            // URL
+            $("a[href^='#']").click(function(e) {
+                e.preventDefault();
+                
+            });  
+
             let modalDialog = document.querySelector("#reporting-modal .modal-dialog");
             $scope.$on('reportingWorkflowSelected', function (event, data) {
                 // make modal wide
