@@ -21,10 +21,15 @@ export class InfoModalComponent implements OnInit {
 
 
   constructor(private modalService: NgbModal, private router: Router) {
-    this.customGreetingsContact_name = this.sanitizer.bypassSecurityTrustHtml(''); 
-    this.customGreetingsContact_organisation = this.sanitizer.bypassSecurityTrustHtml(''); 
-    this.customGreetingsContact_mail = ''; 
-    this.customGreetingsTextInfoMessage = this.sanitizer.bypassSecurityTrustHtml('');
+    // this.customGreetingsContact_name = this.sanitizer.bypassSecurityTrustHtml(''); 
+    // this.customGreetingsContact_organisation = this.sanitizer.bypassSecurityTrustHtml(''); 
+    // this.customGreetingsContact_mail = ''; 
+    // this.customGreetingsTextInfoMessage = this.sanitizer.bypassSecurityTrustHtml('');
+
+    this.customGreetingsContact_name = "Test"; 
+    this.customGreetingsContact_organisation = "Test"; 
+    this.customGreetingsContact_mail = "Test"; 
+    this.customGreetingsTextInfoMessage = "Test";
 
   
   }
@@ -39,7 +44,8 @@ export class InfoModalComponent implements OnInit {
 
     if (!(localStorage.getItem('hideKomMonitorAppGreeting') === 'true')) {
       this.isHideGreetings = false;
-      this.modalService.open('infoModal'); 
+      // TODO FIXME 15.08.2023: this code currently breaks app, as modal cannot be interacted with
+      // this.modalService.open('infoModal'); 
     } else {
       this.isHideGreetings = true;
     }

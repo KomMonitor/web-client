@@ -1,30 +1,35 @@
-import { DoBootstrap, NgModule, Injector } from '@angular/core';
+import { DoBootstrap, NgModule, Version } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { UpgradeModule } from '@angular/upgrade/static';
+import { downgradeComponent } from '@angular/upgrade/static';
+
 import $ from 'jquery';
 import Keycloak from 'keycloak-js';
-// import angular from "angular";
+import angular from "angular";
+
 import { RouterModule, Routes } from '@angular/router';
-import {setUpLocationSync} from '@angular/router/upgrade';
 import { HashLocationStrategy, LocationStrategy } from '@angular/common';
 
-import { UpgradeModule, setAngularJSGlobal } from '@angular/upgrade/static';
-import { downgradeInjectable } from '@angular/upgrade/static';
-
-import { InfoModalModule } from 'components/kommonitorUserInterface/kommonitorControls/infoModal/info-modal.module';
-import { VersionInfoModule } from 'components/kommonitorUserInterface/kommonitorControls/versionInfo/version-info.module';
+import { InfoModalComponent } from 'components/kommonitorUserInterface/kommonitorControls/infoModal/info-modal.component';
+import { VersionInfoComponent } from 'components/kommonitorUserInterface/kommonitorControls/versionInfo/version-info.component';
+// import { InfoModalModule } from 'components/kommonitorUserInterface/kommonitorControls/infoModal/info-modal.module';
+// import { VersionInfoModule } from 'components/kommonitorUserInterface/kommonitorControls/versionInfo/version-info.module';
 import { ajskommonitorCacheHelperServiceProvider,ajskommonitorBatchUpdateHelperServiceProvider,ajskommonitorConfigStorageServiceProvider,ajskommonitorDataExchangeServiceeProvider,ajskommonitorDataGridHelperServiceProvider,ajskommonitorDiagramHelperServiceProvider,ajskommonitorFilterHelperServiceProvider,ajskommonitorKeycloackHelperServiceProvider,ajskommonitorMultiStepFormHelperServiceProvider, ajskommonitorSingleFeatureMapServiceProvider } from 'app-upgraded-providers';
 
-declare var MathJax;
-declare var angular;
 
 // currently the AngularJS routing is still used as part of kommonitorClient module
 const routes: Routes = [];
+
+declare var MathJax;
 
 @NgModule({
   imports: [
     BrowserModule,
     UpgradeModule,
-    RouterModule.forRoot(routes , { useHash: true }),    
+    RouterModule.forRoot(routes , { useHash: true }),
+    VersionInfoComponent
+    // InfoModalModule,
+    // VersionInfoModule
   ],
   providers:[
     {provide: LocationStrategy, useClass: HashLocationStrategy},
@@ -33,10 +38,12 @@ const routes: Routes = [];
     ajskommonitorMultiStepFormHelperServiceProvider,ajskommonitorDataExchangeServiceeProvider,
     ajskommonitorDataGridHelperServiceProvider,ajskommonitorSingleFeatureMapServiceProvider,
     ajskommonitorDiagramHelperServiceProvider,ajskommonitorFilterHelperServiceProvider,
-    InfoModalModule,
-    VersionInfoModule
+  ],
+ 
+  declarations: [
+    InfoModalComponent,
+    
   ]
-  // ...
 })
 
 export class AppModule implements DoBootstrap {
@@ -44,15 +51,42 @@ export class AppModule implements DoBootstrap {
   private env: any = {};
 
   constructor(private upgrade: UpgradeModule) {
-    setAngularJSGlobal(angular); // Set the AngularJS global object for @angular/upgrade/static
-  }
 
-  ngDoBootstrap() {
+  }
+  async ngDoBootstrap() {
 
     this.checkBrowser();
 
-    this.loadConfigsThenApp();
+    await this.loadConfigs();
+    // instantiate env variable 
+    this.env = window.__env || {};
 
+    this.downgradeDependencies();
+
+    // initialize kommonitorClient module
+    await this.initKomMonitorClientModule();
+
+    // init keycloak authentication
+    await this.initKeycloak();
+
+    this.upgrade.bootstrap(document.documentElement, ['kommonitorClient']);
+    // setUpLocationSync(this.upgrade);
+
+  }
+
+  private downgradeDependencies(): void {  
+
+    // to inject already upgraded KomMonitor Angular components into "old" AngluarJS components, we must do 2 things
+    // 1. downgrade the new Angular component and register it as directive within each requiring AngularJS module/component
+    //    --> this especially means all components, where the downgraded component is used within the HTML part as directive
+    // 2. in order to prevent no module errors we must remove the old module reference within the .module file of the AngularJS modules/components 
+    angular.module('kommonitorUserInterface')
+    .directive('infoModal',  downgradeComponent({ component: InfoModalComponent }) as angular.IDirectiveFactory);
+
+    angular.module('kommonitorUserInterface')
+    .directive('versionInfo',  downgradeComponent({ component: VersionInfoComponent }) as angular.IDirectiveFactory);
+
+    console.log("registered downgraded Angular components for AngularJS usage");
   }
 
   private checkBrowser(): void {
@@ -69,22 +103,22 @@ export class AppModule implements DoBootstrap {
     }
   }
 
-  private loadConfigsThenApp(): void {
+  private async loadConfigs(): Promise<any> {
 
     console.log("start loading required config files");
 
     let self = this;
 
-    $.when(this.ajaxCall_keycloakConfig_localBackup(window.__env.configStorageServerConfig), this.ajaxCall_controlsConfig_localBackup(window.__env.configStorageServerConfig)).then(function (ajax1Results, ajax2Results) {
+    await $.when(this.ajaxCall_keycloakConfig_localBackup(window.__env.configStorageServerConfig), this.ajaxCall_controlsConfig_localBackup(window.__env.configStorageServerConfig)).then(async function (ajax1Results, ajax2Results) {
       console.log("local backup configs have been loaded in case config server is not reachable.");
 
-      self.ajaxCall_configServerFile();
+      await self.ajaxCall_configServerFile();
 
-    }, function () {
+    }, async function () {
       // on fail
       console.log("all configs have been loaded - at least some from local backup values. See console log for details");
 
-      self.ajaxCall_configServerFile();
+      await self.ajaxCall_configServerFile();
     });
 
   };
@@ -175,11 +209,11 @@ export class AppModule implements DoBootstrap {
       script.src = scriptUrl;
       script.type = 'text/javascript';
       script.onerror = rej;
-      script.async = false;
+      script.async = true;
       script.onload = res;
       script.addEventListener('error', rej);
       script.addEventListener('load', res);
-      document.head.appendChild(script);      
+      document.head.appendChild(script);
     });
   }
 
@@ -189,9 +223,6 @@ export class AppModule implements DoBootstrap {
       Object.assign(this.env, window.__env);
     }
 
-    // // instantiate env variable 
-    // this.env = window.__env || {};
-
     if (!this.env.enableDebug) {
       if (window) {
         window.console.log = function () { };
@@ -200,24 +231,9 @@ export class AppModule implements DoBootstrap {
 
   }
 
-  private async bootstrapKomMonitor() {    
-
-    // initialize kommonitorClient module
-    await this.initKomMonitorClientModule();
-
-    await this.downgradeDependencies();
-
-    // init keycloak authentication
-    await this.initKeycloak();
-
-    console.log("bootrapping application in hybrid mode");
-    this.upgrade.bootstrap(document.documentElement, ['kommonitorClient']);
-    setUpLocationSync(this.upgrade);
-  }
-
-  private ajaxCall_configServerFile(): void {
+  private ajaxCall_configServerFile(): JQuery.jqXHR<any> {
     let self = this;
-    $.ajax({
+    return $.ajax({
       url: "./config/config-storage-server.json",
       success: function (result) {
         window.__env = window.__env || {};
@@ -226,19 +242,17 @@ export class AppModule implements DoBootstrap {
         // inject script tag dynamically to DOM to load ENV variables
         console.log("dynamically load env.js");
         const event = self.loadAppConfigScriptDynamically(window.__env.configStorageServerConfig.targetUrlToConfigStorageServer_appConfig)
-          .then(() => { console.log("loaded app config dynamically"); })
+          .then(() => { console.log("loaded"); })
           .catch(() => {
             console.log("Error while loading app config from client config storage server. Will use defaults instead");
             alert("Error while loading app config from client config storage server. Will use defaults instead.");
           });
 
 
-        $.when(self.ajaxCall_keycloakConfig(window.__env.configStorageServerConfig), self.ajaxCall_controlsConfig(window.__env.configStorageServerConfig), self.ajaxCall_appConfig(window.__env.configStorageServerConfig)).then(function (ajax1Results, ajax2Results, ajax3Results) {
+        return $.when(self.ajaxCall_keycloakConfig(window.__env.configStorageServerConfig), self.ajaxCall_controlsConfig(window.__env.configStorageServerConfig), self.ajaxCall_appConfig(window.__env.configStorageServerConfig)).then(function (ajax1Results, ajax2Results, ajax3Results) {
           console.log("all configs have been loaded");
 
           self.initEnvVariables();
-
-          self.bootstrapKomMonitor();          
 
           return;
         }, function () {
@@ -246,8 +260,6 @@ export class AppModule implements DoBootstrap {
           console.log("all configs have been loaded - at least some from local backup values. See console log for details");
 
           self.initEnvVariables();
-
-          self.bootstrapKomMonitor();  
 
           return;
         });
@@ -257,8 +269,6 @@ export class AppModule implements DoBootstrap {
 
   private initKomMonitorClientModule(): void {
     let self = this;
-
-    console.log("register necessary components for kommonitorClient module");
 
     // Register environment in AngularJS as constant
     angular.module('kommonitorClient').constant('__env', window.__env);
@@ -277,7 +287,7 @@ export class AppModule implements DoBootstrap {
               // only if texExpression contains the special character '$' which is used to mark tex code
               // then call MathJax function
               if (texExpression && texExpression.includes("$")) {
-                // MathJax.typesetPromise([$element[0]]);
+                MathJax.typesetPromise([$element[0]]);
               }
             });
           },
@@ -313,12 +323,12 @@ export class AppModule implements DoBootstrap {
     angular.module('kommonitorClient').service("ControlsConfigService", ['$http', function ($http) {
       window.__env.config = null;
 
-      var resourcePath = window.__env.configStorageServerConfig ? window.__env.configStorageServerConfig.targetUrlToConfigStorageServer_controlsConfig : './config/controls-config_backup.json';
+      // var resourcePath = window.__env.configStorageServerConfig ? window.__env.configStorageServerConfig.targetUrlToConfigStorageServer_controlsConfig : './config/controls-config_backup.json';
+      var resourcePath = './config/controls-config_backup.json';
       var promise = $http.get(resourcePath).then(function (response) {
+        // window.__env.config = response.data;
         window.__env.config = window.__env.controlsConfig;
       });
-
-      window.__env.config = window.__env.controlsConfig;
 
       return {
         promise: promise,
@@ -374,9 +384,7 @@ export class AppModule implements DoBootstrap {
                 }
               }
             })
-            .otherwise({
-              redirectTo: '/'
-            });
+            .otherwise('/');
         }
       ]);
 
@@ -407,18 +415,6 @@ export class AppModule implements DoBootstrap {
       $httpProvider.interceptors.push('authInterceptor');
     }]);
 
-    console.log("finished registration of necessary components for kommonitorClient module");
-
-  }
-
-  private downgradeDependencies(): void {
-    angular.module('kommonitorClient', [])
-    .factory('infoModal', downgradeInjectable(InfoModalModule));
-
-    angular.module('kommonitorClient', [])
-    .factory('versionInfo', downgradeInjectable(VersionInfoModule));
-
-    console.log("registered downgraded Angular components for AngularJS usage");
   }
 
   private urlRequiresKeycloakAuthHeader(url: String): boolean {
