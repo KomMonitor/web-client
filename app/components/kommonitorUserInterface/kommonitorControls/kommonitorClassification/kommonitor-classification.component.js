@@ -141,8 +141,22 @@ angular
 							})
 							return (countArray[i] / Math.max(...countArray)) * 100 || 0;
 						};
+						$scope.getWidthForHistogramBarMOV = function (side, i) {
+							let colors = [...kommonitorVisualStyleHelperService.measureOfValueBrew[0].colors, ...kommonitorVisualStyleHelperService.measureOfValueBrew[1].colors];
+							let countArray = [];
+							colors.forEach(function (color) {
+								countArray.push(kommonitorVisualStyleHelperService.featuresPerColorMap.get(color) || 0);
+							})
+							color = kommonitorVisualStyleHelperService.measureOfValueBrew[side].colors[i];
+							count = kommonitorVisualStyleHelperService.featuresPerColorMap.get(color);
+							return (count / Math.max(...countArray)) * 100 || 0;
+						};
 						$scope.getHeightForBar = function (i) {
 							let size = kommonitorVisualStyleHelperService.manualBrew.breaks[i+1] - kommonitorVisualStyleHelperService.manualBrew.breaks[i];
+							return (size / ($scope.getMaxValue() - $scope.getMinValue())) * 100;
+						};
+						$scope.getHeightForBarMOV = function (site, i) {
+							let size = kommonitorVisualStyleHelperService.measureOfValueBrew[site].breaks[i+1] - kommonitorVisualStyleHelperService.measureOfValueBrew[site].breaks[i];
 							return (size / ($scope.getMaxValue() - $scope.getMinValue())) * 100;
 						};
 						$scope.getPercentage = function (n) {

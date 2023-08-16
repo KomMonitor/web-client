@@ -26,7 +26,8 @@
     </div>
 
     <!-- number of classes -->
-    <form class="nrClassSelection">
+    <form class="nrClassSelection" 
+          ng-show="$ctrl.kommonitorVisualStyleHelperServiceInstance.classifyMethod !== 'manual'">
       <label>
         Anzahl Klassen 
         <input 
@@ -35,7 +36,6 @@
           max="7"
           ng-change="onChangeNumberOfClasses()"
           ng-model="$ctrl.kommonitorVisualStyleHelperServiceInstance.numClasses"
-          ng-disabled="($ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked) && ($ctrl.kommonitorVisualStyleHelperServiceInstance.classifyMethod=='manual')"
           class="form-control">
       </label>
     </form>
@@ -151,6 +151,54 @@
               </div>
             </div>
           </div>
+
+          <div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked" class="histogramTabWrapper">
+            <div class="breaksArea">
+              <!-- measure of Value -->
+              <div class="breakWrapper measureOfValue"
+                   style="top: {{getPercentage(kommonitorDataExchangeServiceInstance.measureOfValue)}}%"
+                   ng-mousedown="onBreakMouseMove($event)">
+                <div class ="break">
+                  <!--<div class="colorBox"></div>-->
+                  <input type="number" 
+                         ng-model="kommonitorDataExchangeServiceInstance.measureOfValue">
+                  <i class="fa-regular fa-trash-can"></i>
+                </div>
+                <div class="line"></div>
+              </div>
+              <!-- other breaks -->
+              <div class="breakWrapper"
+                   ng-repeat="(i, b) in $ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks track by $index"
+                   style="top: {{getPercentage(b)}}%">
+                <div class="break"
+                      ng-mousemove="onBreakMouseMove($event)">
+                  <!--<div class="colorBox"></div>-->
+                  <input type="number" 
+                         ng-blur="onBreaksChanged()"
+                         ng-model="$ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks[i]">
+                  <i class="fa-regular fa-trash-can"></i>
+                </div>
+                <div class="line"></div>
+              </div>
+            </div>
+            <!-- bars -->
+            <div class="histogram">
+              <div class="histogramBar"
+                   ng-repeat="(i, b) in $ctrl.kommonitorVisualStyleHelperServiceInstance.measureOfValueBrew[1].breaks"
+                   ng-if="i != $ctrl.kommonitorVisualStyleHelperServiceInstance.measureOfValueBrew[1].breaks.length - 1"
+                   style="height: {{getHeightForBarMOV(1, i)}}%; 
+                          width: {{getWidthForHistogramBarMOV(1, i)}}%;
+                          background-color: {{$ctrl.kommonitorVisualStyleHelperServiceInstance.measureOfValueBrew[1].colors[i]}}">
+              </div>
+              <div class="histogramBar"
+                   ng-repeat="(i, b) in $ctrl.kommonitorVisualStyleHelperServiceInstance.measureOfValueBrew[0].breaks"
+                   ng-if="i != $ctrl.kommonitorVisualStyleHelperServiceInstance.measureOfValueBrew[0].breaks.length - 1"
+                   style="height: {{getHeightForBarMOV(0, i)}}%; 
+                          width: {{getWidthForHistogramBarMOV(0, i)}}%;
+                          background-color: {{$ctrl.kommonitorVisualStyleHelperServiceInstance.measureOfValueBrew[0].colors[i]}}">
+            </div>
+            </div>
+          </div>
         </uib-tab>
       </uib-tabset>
 
@@ -168,7 +216,9 @@
       </label>
     </div>-->
   
+    
     <!-- use whole time series -->
+    <!--
     <div class="classificationBoxToogleSlidersWrapper">
       <span class="classificationBoxToogleSlidersLbl">
         <strong>Klassifizierung &uuml;ber die gesamte Zeitreihe</strong> &nbsp;
@@ -202,5 +252,6 @@
         <span class="switchslider round"></span>
       </label>
     </div>
+    -->
   </div>
 </div>
