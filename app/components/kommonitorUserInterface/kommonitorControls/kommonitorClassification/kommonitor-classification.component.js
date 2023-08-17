@@ -36,7 +36,7 @@ angular
 								name: 'Manuell', 
 								id: 'manual', 
 								imgPath: 'icons/classificationMethods/neu/manuell.svg',
-								description: 'Bei der manuellen Klassifizierung lassen sich die Klassengrenzen von Hand einstellen.'}
+								description: 'Bei der manuellen Klassifizierung lassen sich die Klassengrenzen nach Bedarf einstellen.'}
 						];
 
 						$scope.onMethodSelected = function (method) {
