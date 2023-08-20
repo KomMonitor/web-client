@@ -1610,7 +1610,9 @@ angular.module('kommonitorMap').component(
           }
 
           for (var i = 0; i < colorValueEntries.length; i++) {
-            if (featureCutOffValue === colorValueEntries[i].value) {
+            // only use == to support String and Number comparison
+            // i.e. "1500" == 1500
+            if (featureCutOffValue == colorValueEntries[i].value) {
               index = i;
               break;
             }
