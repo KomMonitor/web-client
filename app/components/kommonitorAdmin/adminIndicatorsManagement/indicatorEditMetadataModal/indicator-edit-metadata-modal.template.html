@@ -123,11 +123,16 @@
 										<div class="form-group">
 											<label>Indikatorname*</label>
 											<input type="text" class="form-control" ng-model="datasetName"
+												ng-change="checkDatasetName()"
 												placeholder="Name" required></input>
 											<div class="help-block with-errors"></div>
 											<div class="help-block">
-												<p>Das Tupel aus 'Indikatorname', 'Indikatoren-Typ' und optionaler 'Merkmalsauspr&auml;gung' muss eindeutig sein.</p>
+												<p>Das Tupel aus 'Indikatorname' und 'Indikatoren-Typ' muss eindeutig sein.</p>
 												
+											</div>
+											<div ng-if="datasetNameInvalid" style="color: red;">
+												<p>Umbenennung ung&uuml;ltig. Es existiert bereits ein weiterer Indikator mit
+													gleichem Namen und gleichem Typ.</p>
 											</div>
 										</div>
 									</div>
@@ -145,6 +150,7 @@
 											<select ng-model="indicatorType"
 												ng-options="type as type.displayName for type in $ctrl.kommonitorDataExchangeServiceInstance.indicatorTypeOptions"
 												ng-init="indicatorType = $ctrl.kommonitorDataExchangeServiceInstance.indicatorTypeOptions[0]"
+												ng-change="checkDatasetName()"
 												class="form-control" required>
 												<option disabled selected value> -- Indikatorentyp w&auml;hlen --
 												</option>
@@ -159,7 +165,10 @@
 
 									</div>
 									<div class="col-md-3 col-sm-6 col-xs-12">
-										<div class="form-group">
+										<!-- we hide characteristicValue parameter as it is and old relic not used any longer. 
+										-> deprecated -->
+										
+										<!-- <div class="form-group">
 											<label>Merkmalsauspr&auml;gung</label>
 											<input type="text" class="form-control" ng-model="indicatorCharacteristicValue"
 												placeholder="optionale Merkmalsauspr&auml;gung"></input>
@@ -169,7 +178,7 @@
 													(bspw. Einwohnerzahl männlich, Einwohnerzahl weiblich, Einwohnerzahl diverse)</p>
 											</div>	
 											<div class="help-block with-errors"></div>
-										</div>
+										</div> -->
 									</div>
 								</div>
 

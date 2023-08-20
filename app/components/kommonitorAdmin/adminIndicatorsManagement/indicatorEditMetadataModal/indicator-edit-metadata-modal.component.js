@@ -162,7 +162,7 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 		$scope.datasetName = undefined;
 			$scope.indicatorAbbreviation = undefined;
 			$scope.indicatorType = undefined;
-			$scope.indicatorCharacteristicValue = undefined;
+			// $scope.indicatorCharacteristicValue = undefined;
 			$scope.isHeadlineIndicator = false;
 			$scope.indicatorUnit = undefined;
 			$scope.enableFreeTextUnit = false;
@@ -286,7 +286,7 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 				}
 			});
 
-			$scope.indicatorCharacteristicValue = $scope.currentIndicatorDataset.characteristicValue;
+			// $scope.indicatorCharacteristicValue = $scope.currentIndicatorDataset.characteristicValue;
 			$scope.isHeadlineIndicator = $scope.currentIndicatorDataset.isHeadlineIndicator;
 			$scope.indicatorUnit = $scope.currentIndicatorDataset.unit;
 
@@ -569,7 +569,8 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 		$scope.checkDatasetName = function(){
 			$scope.datasetNameInvalid = false;
 			kommonitorDataExchangeService.availableIndicators.forEach(function(indicator){
-				if (indicator.indicatorName === $scope.datasetName){
+				// show error only if indicator is renamed to another already existing indicator
+				if (indicator.indicatorName === $scope.datasetName && indicator.indicatorType === $scope.indicatorType.apiName && indicator.indicatorId != $scope.currentIndicatorDataset.indicatorId){
 					$scope.datasetNameInvalid = true;
 					return;
 				}
@@ -842,7 +843,7 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 					}
 				}
 
-				$scope.indicatorCharacteristicValue = $scope.metadataImportSettings.characteristicValue;
+				// $scope.indicatorCharacteristicValue = $scope.metadataImportSettings.characteristicValue;
 				$scope.isHeadlineIndicator = $scope.metadataImportSettings.isHeadlineIndicator;
 				$scope.indicatorUnit = $scope.metadataImportSettings.unit;
 				if(kommonitorDataExchangeService.indicatorUnitOptions.includes($scope.metadataImportSettings.unit)){
@@ -1006,7 +1007,7 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 			metadataExport.indicatorType = $scope.indicatorType ? $scope.indicatorType.apiName : "";
 			metadataExport.creationType = $scope.indicatorCreationType ? $scope.indicatorCreationType.apiName : "";
 
-			metadataExport.characteristicValue = $scope.indicatorCharacteristicValue || "";
+			// metadataExport.characteristicValue = $scope.indicatorCharacteristicValue || "";
 			metadataExport.isHeadlineIndicator = $scope.isHeadlineIndicator || false;
 			metadataExport.unit = $scope.indicatorUnit || "";
 			metadataExport.processDescription = $scope.indicatorProcessDescription || "";
