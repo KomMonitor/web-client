@@ -126,15 +126,17 @@
               <div class="breakWrapper"
                    ng-repeat="(i, b) in $ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks track by $index"
                    style="top: {{getPercentage(b)}}%"
-                   ng-dblclick="onBreakDblClick($event)"
-                   ng-mousemove="onBreakMouseMove($event, i)">
-                <div class="break">
+                   ng-dblclick="onBreakDblClick($event, i)"
+                   ng-mousemove="onBreakMouseMove($event, i)"
+                   ng-class="{'fixed': i === 0 || i === $ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks.length-1}">
+                <div class="break"
+                     ng-class="{'fixed': i === 0 || i === $ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks.length-1}">
                   <!--<div class="colorBox"></div>-->
                   <input type="number"
                          ng-blur="onBreaksChanged($event)"
                          ng-model-options="{ updateOn: 'blur'}"
-                         
                          disabled
+                         ng-class="{'fixed': i === 0 || i === $ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks.length-1}"
                          in="{{$ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks[0]}}"
                          max="{{$ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks[$ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks.length - 1]}}"
                          ng-model="$ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks[i]">

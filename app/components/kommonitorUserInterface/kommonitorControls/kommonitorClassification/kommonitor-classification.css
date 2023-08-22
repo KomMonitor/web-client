@@ -286,3 +286,7 @@ select {
 .fa-trash-can {
   cursor: pointer;
 }
+
+.histogramTabWrapper .fixed {
+  cursor: default !important;
+}
