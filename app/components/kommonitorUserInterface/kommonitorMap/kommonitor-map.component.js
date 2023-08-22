@@ -1047,6 +1047,7 @@ angular.module('kommonitorMap').component(
 
         $scope.$on("changeBreaks", function (event, breaks) {
           kommonitorVisualStyleHelperService.manualBrew.breaks = breaks; 
+          $scope.updateManualMOVBreaksFromDefaultManualBreaks();
 
           $timeout(function(){ 
             kommonitorVisualStyleHelperService.manualBrew.breaks = breaks; 

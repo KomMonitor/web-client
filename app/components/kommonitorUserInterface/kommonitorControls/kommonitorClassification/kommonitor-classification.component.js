@@ -61,12 +61,12 @@ angular
 							return y;
 						}
 
-						$scope.toggleAddBtn = function () {
-							if(!$scope.showAddBtn) {
+						$scope.toggleAddBtn = function (e) {
+							if(!$scope.showAddBtn && e.buttons === 0) {
 								$scope.showAddBtn = true;
 								setTimeout(function () {
 									$scope.$apply(function(){
-										$scope.showAddBtn = false;
+										//$scope.showAddBtn = false;
 									});
 								}, 1500);
 							}
@@ -92,11 +92,24 @@ angular
 							$rootScope.$broadcast("changeBreaks", kommonitorVisualStyleHelperService.manualBrew.breaks);
 						}
 
-						$scope.onBreaksChanged = function () {
+						$scope.onBreaksChanged = function (e) {
+							e.currentTarget.disabled = true;
 							kommonitorVisualStyleHelperService.manualBrew.breaks.sort(function(a, b) {
 								return a - b;
 							});
 							$rootScope.$broadcast("changeBreaks", kommonitorVisualStyleHelperService.manualBrew.breaks);
+						}
+
+						$scope.onBreakDblClick = function (e) {
+							let input = e.currentTarget.children[0].children[0];
+							input.disabled = false;
+							input.focus();
+
+							if (window.getSelection) {
+								window.getSelection().removeAllRanges();
+							} else if (document.selection) {
+									document.selection.empty();
+							}
 						}
 
 						$scope.onMOVBreaksChanged = function () {
@@ -169,10 +182,26 @@ angular
 						$scope.getMinValue = function () {
 							return kommonitorVisualStyleHelperService.manualBrew.breaks[0];
 						}
-						$scope.onBreakMouseMove = function (e) {
-							console.log(e);
-							console.log(e.target.parentNode.parentNode);
-							console.log(e.buttons);
+						$scope.onBreakMouseMove = function (e, i) {
+							$scope.showAddBtn = false;
+
+							if(e.buttons === 1) {
+								let histogram = document.querySelector("#editableHistogram");
+
+								let newHeight = $scope.addBtnHeight / histogram.offsetHeight * 100;
+								e.currentTarget.style.top = newHeight + "%";
+							
+								(async () => {
+									let breaks = kommonitorVisualStyleHelperService.manualBrew.breaks;
+									let newBreak = Math.floor(($scope.addBtnHeight / histogram.offsetHeight) * (breaks[breaks.length-1] - breaks[0]) + breaks[0]);
+									e.currentTarget.children[0].children[0].value = newBreak;
+									kommonitorVisualStyleHelperService.manualBrew.breaks[i] = newBreak;
+									kommonitorVisualStyleHelperService.manualBrew.breaks.sort(function(a, b) {
+										return a - b;
+									});
+									$rootScope.$broadcast("changeBreaks", kommonitorVisualStyleHelperService.manualBrew.breaks);
+								})();
+							}
 						}
 					}
 				]

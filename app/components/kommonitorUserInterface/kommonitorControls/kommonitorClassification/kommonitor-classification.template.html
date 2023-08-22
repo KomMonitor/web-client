@@ -100,43 +100,47 @@
         <uib-tab index="1" heading="Histogramm">
           <div ng-if="!$ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked" 
                class="histogramTabWrapper"
-               ng-mousemove="getHeightInElement($event); toggleAddBtn()"
+               ng-mousemove="getHeightInElement($event); toggleAddBtn($event)"
                id="editableHistogram">
             <div class="breaksArea">
               <!-- add btn -->
               <div class="addBtnWrapper breakWrapper"
                    style="top: {{addBtnHeight}}px"
                    ng-if="showAddBtn"
-                   ng-mousover="toggleAddBtn()">
+                   ng-mousover="toggleAddBtn($event)">
                 <div class="addBtn" ng-click="addNewBreak()">+</div>
                 <div class="line"></div>
               </div>
               <!-- measure of Value -->
-              <div class="breakWrapper measureOfValue"
+              <!--<div class="breakWrapper measureOfValue"
                    style="top: {{getPercentage(kommonitorDataExchangeServiceInstance.measureOfValue)}}%"
                    ng-mousedown="onBreakMouseMove($event)">
                 <div class ="break">
-                  <!--<div class="colorBox"></div>-->
                   <input type="number" 
                          ng-model="kommonitorDataExchangeServiceInstance.measureOfValue">
                   <i class="fa-regular fa-trash-can"></i>
                 </div>
                 <div class="line"></div>
-              </div>
+              </div>-->
               <!-- other breaks -->
               <div class="breakWrapper"
                    ng-repeat="(i, b) in $ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks track by $index"
-                   style="top: {{getPercentage(b)}}%">
-                <div class="break"
-                      ng-mousemove="onBreakMouseMove($event)">
+                   style="top: {{getPercentage(b)}}%"
+                   ng-dblclick="onBreakDblClick($event)"
+                   ng-mousemove="onBreakMouseMove($event, i)">
+                <div class="break">
                   <!--<div class="colorBox"></div>-->
                   <input type="number"
-                         ng-blur="onBreaksChanged()"
+                         ng-blur="onBreaksChanged($event)"
                          ng-model-options="{ updateOn: 'blur'}"
-                         min="{{$ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks[0]}}"
+                         
+                         disabled
+                         in="{{$ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks[0]}}"
                          max="{{$ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks[$ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks.length - 1]}}"
                          ng-model="$ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks[i]">
-                  <i class="fa-regular fa-trash-can" ng-click="deleteBreak(i)"></i>
+                  <i class="fa-regular fa-trash-can" 
+                     ng-click="deleteBreak(i)"
+                     ng-if="i != 0 && i != $ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks.length-1"></i>
                 </div>
                 <div class="line"></div>
               </div>
@@ -156,13 +160,12 @@
             <div class="breaksArea">
               <!-- measure of Value -->
               <div class="breakWrapper measureOfValue"
-                   style="top: {{getPercentage(kommonitorDataExchangeServiceInstance.measureOfValue)}}%"
+                   style="top: {{getPercentage($ctrl.kommonitorDataExchangeServiceInstance.measureOfValue)}}%"
                    ng-mousedown="onBreakMouseMove($event)">
                 <div class ="break">
                   <!--<div class="colorBox"></div>-->
                   <input type="number" 
-                         ng-model="kommonitorDataExchangeServiceInstance.measureOfValue">
-                  <i class="fa-regular fa-trash-can"></i>
+                         ng-model="$ctrl.kommonitorDataExchangeServiceInstance.measureOfValue">
                 </div>
                 <div class="line"></div>
               </div>
@@ -176,7 +179,9 @@
                   <input type="number" 
                          ng-blur="onBreaksChanged()"
                          ng-model="$ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks[i]">
-                  <i class="fa-regular fa-trash-can"></i>
+                  <i class="fa-regular fa-trash-can"
+                     ng-click="deleteBreak(i)"
+                     ng-if="i != 0 && i != $ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks.length-1"></i>
                 </div>
                 <div class="line"></div>
               </div>

@@ -178,6 +178,7 @@ select {
   right: 0%;
   display: grid;
   grid-template-columns: auto auto;
+  cursor: ns-resize;
 }
 .histogramTabWrapper .break {
   color: white;
@@ -190,6 +191,7 @@ select {
   height: 20px;
   display: grid;
   grid-template-columns: auto auto auto;
+  cursor: ns-resize;
 }
 .histogramTabWrapper .break:hover, .histogramTabWrapper .break:focus-within {
   z-index: 1001;
@@ -207,6 +209,12 @@ select {
   background-color: transparent;
   color: white;
   border: 0;
+  user-select: none;
+  cursor: ns-resize !important;
+}
+.histogramTabWrapper input:disabled {
+  user-select: none;
+  pointer-events: none;
 }
 .histogramTabWrapper input::-webkit-outer-spin-button,
 .histogramTabWrapper input::-webkit-inner-spin-button {
@@ -218,6 +226,9 @@ select {
 }
 .histogramTabWrapper textarea:focus, input:focus{
   outline: none;
+  background-color: white;
+  color:#3071a9;
+  cursor: text !important;
 }
 .histogramTabWrapper i {
   margin-right: 0;
@@ -253,6 +264,11 @@ select {
 .addBtnWrapper .line {
   width: 125px;
   background-color: #ccc;
+  cursor: default;
+}
+
+.addBtnWrapper {
+  cursor: default;
 }
 
 .addBtnWrapper .addBtn {
@@ -264,4 +280,9 @@ select {
     border-radius: 3px;
   margin-top: -10px;
   height: 20px;
+  cursor: pointer;
+}
+
+.fa-trash-can {
+  cursor: pointer;
 }
