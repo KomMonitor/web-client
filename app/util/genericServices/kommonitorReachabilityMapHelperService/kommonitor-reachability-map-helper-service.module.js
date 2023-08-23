@@ -335,7 +335,7 @@ angular
         }
 
         for (var i = 0; i < colorValueEntries.length; i++) {
-          if (featureCutOffValue === colorValueEntries[i].value) {
+          if (featureCutOffValue == colorValueEntries[i].value) {
             index = i;
             break;
           }
