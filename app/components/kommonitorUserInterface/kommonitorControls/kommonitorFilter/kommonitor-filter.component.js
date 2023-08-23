@@ -43,6 +43,7 @@ angular
 							$scope.selectedSpatialUnitForFilter;
 							$scope.higherSpatialUnits = undefined;
 							$scope.higherSpatialUnitFilterFeatureGeoJSON;
+							$scope.reappliedFilter = false;
 
 							$scope.selectionByFeatureSpatialFilterDuallistOptions = {
 								title: {label: 'Gebiete', helpMessage: 'help'},
@@ -105,8 +106,24 @@ angular
 
 							$scope.inputNotValid = false;
 
-							$scope.$on("replaceIndicatorAsGeoJSON", function (event, indicatorMetadataAndGeoJSON, spatialUnitName, date, justRestyling, isCustomComputation) {
+							$scope.$on("onChangeSelectedIndicator", function(event){
+								$scope.reappliedFilter = false;
+							});
 
+							$scope.$on("indicatortMapDisplayFinished", function(){
+								// trigger the continous display of current filter									
+								if(! $scope.reappliedFilter){
+									$scope.reappliedFilter = true;
+									if ($scope.showSelectionByFeatureSpatialFilter){
+										$scope.onSelectionByFeatureSpatialFilterSelectBtnPressed();
+									}
+									if ($scope.showManualSelectionSpatialFilter){
+										$scope.onManualSelectionBySelectedMapFeaturesBtnPressed();
+									}										
+								}	
+							});
+
+							$scope.$on("replaceIndicatorAsGeoJSON", function (event, indicatorMetadataAndGeoJSON, spatialUnitName, date, justRestyling, isCustomComputation) {
 
 								$scope.setupSpatialUnitFilter(indicatorMetadataAndGeoJSON, spatialUnitName, date);
 
@@ -117,7 +134,9 @@ angular
 									$scope.previouslySelectedSpatialUnit = kommonitorDataExchangeService.selectedSpatialUnit;
 								}
 
-								if($scope.previouslySelectedIndicator.indicatorId != indicatorMetadataAndGeoJSON.indicatorId || $scope.previouslySelectedSpatialUnit.spatialUnitLevel != spatialUnitName){
+								// if($scope.previouslySelectedIndicator.indicatorId != indicatorMetadataAndGeoJSON.indicatorId || $scope.previouslySelectedSpatialUnit.spatialUnitLevel != spatialUnitName){
+								if($scope.previouslySelectedSpatialUnit.spatialUnitLevel != spatialUnitName){
+									// reset filter component
 									if ($scope.showSelectionByFeatureSpatialFilter)
 										$scope.updateSelectableAreas("byFeature");
 										kommonitorFilterHelperService.clearFilteredFeatures();

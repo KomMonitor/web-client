@@ -346,10 +346,13 @@
 														<td><b>Typ</b></td>
 														<td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.indicatorType}}</td>
 													</tr>
-													<tr ng-if="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.characteristicValue">
+													<!-- we hide characteristicValue parameter as it is and old relic not used any longer. 
+													-> deprecated -->
+
+													<!-- <tr ng-if="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.characteristicValue">
 														<td><b>Merkmalsauspr&auml;gung</b></td>
 														<td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.characteristicValue}}</td>
-													</tr>
+													</tr> -->
 													<tr>
 														<td><b>Kennzeichen/K&uuml;rzel</b></td>
 														<td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.abbreviation}}</td>

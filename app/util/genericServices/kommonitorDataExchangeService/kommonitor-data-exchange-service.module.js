@@ -1064,9 +1064,9 @@ angular
 
                 if(Auth.keycloak.tokenParsed && Auth.keycloak.tokenParsed.realm_access && Auth.keycloak.tokenParsed.realm_access.roles){
                   self.currentKeycloakLoginRoles = Auth.keycloak.tokenParsed.realm_access.roles;
-                  if (Auth.keycloak.tokenParsed.resource_access["realm-management"]) {
+                  if (self.currentKeycloakLoginRoles.includes(__env.keycloakKomMonitorAdminRoleName)) {
                     self.isRealmAdmin = true;
-                    self.currentKeycloakLoginRoles = self.currentKeycloakLoginRoles.concat(Auth.keycloak.tokenParsed.resource_access["realm-management"].roles);
+                    // self.currentKeycloakLoginRoles = self.currentKeycloakLoginRoles.concat(Auth.keycloak.tokenParsed.resource_access["realm-management"].roles);
                   }
                 } else {
                   self.currentKeycloakLoginRoles = [];

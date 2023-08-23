@@ -1714,7 +1714,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					let registeredMap = echarts.getMap($scope.selectedPoiLayer.datasetName + "_isochrones-" + range)
 					if( !registeredMap ) {
 						let isochrones = $scope.isochrones.features.filter( feature => {
-							return feature.properties.value === range;
+							// only weak comparison to allow string == number comparison
+							return feature.properties.value == range;
 						})
 						let featureCollection = {
 							features: isochrones

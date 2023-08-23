@@ -53,9 +53,6 @@ angular
 
 					$scope.error = undefined;
 
-					
-
-
 				}
 			]
 		});
