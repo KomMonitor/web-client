@@ -1,7 +1,7 @@
 {
   "name": "kommonitor-client",
   "private": true,
-  "version": "2.1.12",
+  "version": "2.1.14",
   "description": "AngularJS Leaflet Client for KomMonitor",
   "repository": {
     "type": "git",
@@ -11,7 +11,7 @@
   "devDependencies": {
     "@babel/cli": "^7.17.3",
     "@babel/core": "^7.17.5",
-    "@release-it/keep-a-changelog": "^2.2.2",
+    "@release-it/keep-a-changelog": "^3.1.0",
     "babel-core": "^6.26.0",
     "babel-plugin-angularjs-annotate": "^0.10.0",
     "babel-plugin-transform-es2015-destructuring": "^6.23.0",
@@ -96,7 +96,7 @@
     "leaflet-simple-map-screenshoter": "^0.4.5",
     "leaflet-wfst": "^2.0.1-beta.21",
     "leaflet.awesome-markers": "^2.0.5",
-    "leaflet.markercluster": "^1.4.1",
+    "leaflet.markercluster": "^1.5.3",
     "leaflet.pattern": "^0.1.0",
     "mathjax": "^3.1.2",
     "rangeslide.js": "^0.13.0",

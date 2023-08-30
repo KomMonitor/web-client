@@ -58,12 +58,13 @@ angular
         if(element.roles === undefined || element.roles.length === 0) {
           return true;
         }
-        else if(self.isAdvancedMode && element.roles && element.roles.includes(self.advancedModeRoleName)){
+        if(self.isAdvancedMode && element.roles && element.roles.includes(self.advancedModeRoleName)){
           return true;
         }
-        else if(Auth.keycloak.authenticated) {
+        // authenticated access control
+        if(Auth.keycloak.authenticated) {
           // admin role user always sees all data and widgets
-          if(Auth.keycloak.showAdminView){
+          if(Auth.keycloak.tokenParsed.realm_access.roles.includes(__env.keycloakKomMonitorAdminRoleName)){
             return true;
           }
           var hasAllowedRole = false;          

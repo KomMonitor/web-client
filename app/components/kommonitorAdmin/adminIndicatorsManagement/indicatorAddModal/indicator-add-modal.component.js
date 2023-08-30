@@ -107,8 +107,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 				}
 			  ],
 			"datasetName": "Name of indicator dataset",
-			"abbreviation": "optional abbreviation of the indicator dataset",
-			"characteristicValue": "if the same datasetName is used for different indicators, the optional characteristicValue parameter may serve to distinguish between them (i.e. Habitants - male, Habitants - female, Habitants - diverse)",
+			"abbreviation": "optional abbreviation of the indicator dataset",		
 			"tags": [
 				"optinal list of tags; each tag is a free text tag"
 			],
@@ -173,7 +172,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 		$scope.datasetName = undefined;
 			$scope.indicatorAbbreviation = undefined;
 			$scope.indicatorType = undefined;
-			$scope.indicatorCharacteristicValue = undefined;
+			// $scope.indicatorCharacteristicValue = undefined;
 			$scope.isHeadlineIndicator = false;
 			$scope.indicatorUnit = undefined;
 			$scope.enableFreeTextUnit = false;
@@ -270,7 +269,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			$scope.datasetName = undefined;
 			$scope.indicatorAbbreviation = undefined;
 			$scope.indicatorType = kommonitorDataExchangeService.indicatorTypeOptions[0];
-			$scope.indicatorCharacteristicValue = undefined;
+			// $scope.indicatorCharacteristicValue = undefined;
 			$scope.isHeadlineIndicator = false;
 			$scope.indicatorUnit = undefined;
 			$scope.enableFreeTextUnit = false;
@@ -465,7 +464,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 		$scope.checkDatasetName = function(){
 			$scope.datasetNameInvalid = false;
 			kommonitorDataExchangeService.availableIndicators.forEach(function(indicator){
-				if (indicator.indicatorName === $scope.datasetName){
+				if (indicator.indicatorName === $scope.datasetName && indicator.indicatorType === $scope.indicatorType.apiName){
 					$scope.datasetNameInvalid = true;
 					return;
 				}
@@ -749,7 +748,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 					}
 				}
 
-				$scope.indicatorCharacteristicValue = $scope.metadataImportSettings.characteristicValue;
+				// $scope.indicatorCharacteristicValue = $scope.metadataImportSettings.characteristicValue;
 				$scope.isHeadlineIndicator = $scope.metadataImportSettings.isHeadlineIndicator;
 				$scope.indicatorUnit = $scope.metadataImportSettings.unit;
 				if(kommonitorDataExchangeService.indicatorUnitOptions.includes($scope.metadataImportSettings.unit)){
@@ -913,7 +912,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			metadataExport.indicatorType = $scope.indicatorType ? $scope.indicatorType.apiName : "";
 			metadataExport.creationType = $scope.indicatorCreationType ? $scope.indicatorCreationType.apiName : "";
 
-			metadataExport.characteristicValue = $scope.indicatorCharacteristicValue || "";
+			// metadataExport.characteristicValue = $scope.indicatorCharacteristicValue || "";
 			metadataExport.isHeadlineIndicator = $scope.isHeadlineIndicator || false;
 			metadataExport.unit = $scope.indicatorUnit || "";
 			metadataExport.processDescription = $scope.indicatorProcessDescription || "";
