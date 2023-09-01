@@ -1,14 +1,11 @@
 
 import { Component, OnInit } from '@angular/core';
 //import { KommonitorDataExchangeService } from '../../../../util/genericServices/kommonitorDataExchangeService' // Update the path accordingly
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { NgbCollapseModule } from '@ng-bootstrap/ng-bootstrap';
+
 declare var $:any;
 @Component({
-  selector: 'versionInfo',
+  selector: 'version-info',
   templateUrl: 'version-info.template.html', 
-  standalone:true,
-  imports:[NgbCollapseModule]// Update the template URL
 })
 export class VersionInfoComponent implements OnInit {
 public isCollapsed=false;

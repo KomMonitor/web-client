@@ -1,102 +1,109 @@
-
-import { DomSanitizer, SafeHtml } from "@angular/platform-browser";
-import { Component, OnInit } from '@angular/core';
-import { NgbModule} from '@ng-bootstrap/ng-bootstrap';
-import { Router } from '@angular/router';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { Component, OnInit,AfterViewInit } from '@angular/core';
+import { environment } from 'env_backup';
+import { kommonitorDataExchangeServiceFactory } from 'app-upgraded-providers';
+import { ModalService } from 'util/genericServices/modal.service';
+import { VersionInfoComponent } from '../versionInfo/version-info.component';
 @Component({
-  selector: 'infoModal',
+  selector: 'info-modal',
   templateUrl: 'info-modal.template.html',
-  styleUrls: ['info-modal.component.css']
+  styleUrls: ['info-modal.component.css'],
+ 
 })
-export class InfoModalComponent implements OnInit {
- 
+export class InfoModalComponent implements OnInit{
+  kommonitorDataExchangeServiceInstance: any;
   isHideGreetings: boolean = false;
- 
-  customGreetingsContact_name: SafeHtml;
-  customGreetingsContact_organisation: SafeHtml;
-  customGreetingsContact_mail: string;
-  customGreetingsTextInfoMessage: SafeHtml;
-    sanitizer: any;
+ tab1:any='null';
 
 
-  constructor(private modalService: NgbModal, private router: Router) {
-    // this.customGreetingsContact_name = this.sanitizer.bypassSecurityTrustHtml(''); 
-    // this.customGreetingsContact_organisation = this.sanitizer.bypassSecurityTrustHtml(''); 
-    // this.customGreetingsContact_mail = ''; 
-    // this.customGreetingsTextInfoMessage = this.sanitizer.bypassSecurityTrustHtml('');
-
+  customGreetingsContact_name = "Test"; 
+  customGreetingsContact_organisation = "Test"; 
+  customGreetingsContact_mail = "Test"; 
+  customGreetingsTextInfoMessage = "Test";
+  constructor(private modalService: ModalService) {
     this.customGreetingsContact_name = "Test"; 
     this.customGreetingsContact_organisation = "Test"; 
     this.customGreetingsContact_mail = "Test"; 
     this.customGreetingsTextInfoMessage = "Test";
-
+   }
   
-  }
 
   ngOnInit(): void {
 
-	//prevent bootrap modals tabs opened by a tag with href elements from adding their anchor location to 
-    // URL
-	$("a[href^='#']").click(function(e) {
-		e.preventDefault();		
-	});  
 
-    if (!(localStorage.getItem('hideKomMonitorAppGreeting') === 'true')) {
+
+    this.modalService.startGuidedTour$.subscribe(() => {
+      // Call a method to handle the guided tour event
+      this.callStartGuidedTour();
+    });
+    this.kommonitorDataExchangeServiceInstance =  kommonitorDataExchangeServiceFactory;
+   
+    if (!(localStorage.getItem("hideKomMonitorAppGreeting") === "true")) {
       this.isHideGreetings = false;
-      // TODO FIXME 15.08.2023: this code currently breaks app, as modal cannot be interacted with
-      // this.modalService.open('infoModal'); 
+      $('#infoModal').modal('show');
     } else {
       this.isHideGreetings = true;
+      $("#changeHideGreetingsInput").prop('checked', true);
     }
 
-  }
-  dismissModal() {
-    this.modalService.dismissAll();
-  }
+   const tab1 = document.getElementById("infoModalTab1");
+   if(tab1 ){
+    tab1.innerHTML = environment.standardInfoModalTabTitle;
+    tab1.click();
+    tab1.focus();
+   
+   
 
- 
+    if (environment.enableExtendedInfoModal) {
+      const tab3 = document.getElementById("infoModalTab3");
+      const tab3content = document.getElementById("infoModalTab3Content");
+
+      if (tab3 && tab3content) {
+        tab3.innerHTML = environment.extendedInfoModalTabTitle;
+        tab3content.innerHTML =environment.extendedInfoModalHTMLMessage;
+      } 
+      else {
+        alert("not founde")
+      }
+      
+    } 
+    else{
+      console.log("content hasnt be loaded")
+    }
+  }
+    setTimeout(() => {
+      // You might need to use Angular's change detection instead of $digest
+    }, 250);
+  
+  
+  
+  
+  
+  
+  
+  }
+  
+
   onChangeHideGreetings(): void {
     if (this.isHideGreetings) {
-      localStorage.setItem('hideKomMonitorAppGreeting', 'true');
+      localStorage.setItem("hideKomMonitorAppGreeting", "true");
     } else {
-      localStorage.setItem('hideKomMonitorAppGreeting', 'false');
+      localStorage.setItem("hideKomMonitorAppGreeting", "false");
     }
   }
+
+  onToggleHideGreetings(): void {
+    this.isHideGreetings = !this.isHideGreetings;
+    localStorage.setItem("hideKomMonitorAppGreeting", this.isHideGreetings ? "true" : "false");
+  }
+
   callStartGuidedTour(): void {
-    this.modalService.dismissAll('infoModal'); 
-    this.router.navigate(['/guided-tour']); 
+    $('#infoModal').modal('hide');
+    this.modalService.startGuidedTour();
+
   }
+
   showFeedbackForm(): void {
-    this.modalService.dismissAll('infoModal'); 
-    this.router.navigate(['/feedback']);
+    $('#infoModal').modal('hide');
+    $('#feedbackModal').modal('show');
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-function dismissModal() {
-    throw new Error("Function not implemented.");
-}
-

@@ -2,21 +2,22 @@ import { DoBootstrap, NgModule, Version } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { UpgradeModule } from '@angular/upgrade/static';
 import { downgradeComponent } from '@angular/upgrade/static';
-
-import $ from 'jquery';
+import * as bootstrap from 'bootstrap';
+import * as $ from 'jquery'
 import Keycloak from 'keycloak-js';
 import angular from "angular";
-
+import * as echarts from 'echarts';
 import { RouterModule, Routes } from '@angular/router';
 import { HashLocationStrategy, LocationStrategy } from '@angular/common';
-
+import { NgxEchartsModule } from 'ngx-echarts';
+import { EchartsDirective, EchartsxModule } from 'echarts-for-angular';
 import { InfoModalComponent } from 'components/kommonitorUserInterface/kommonitorControls/infoModal/info-modal.component';
 import { VersionInfoComponent } from 'components/kommonitorUserInterface/kommonitorControls/versionInfo/version-info.component';
 // import { InfoModalModule } from 'components/kommonitorUserInterface/kommonitorControls/infoModal/info-modal.module';
 // import { VersionInfoModule } from 'components/kommonitorUserInterface/kommonitorControls/versionInfo/version-info.module';
 import { ajskommonitorCacheHelperServiceProvider,ajskommonitorBatchUpdateHelperServiceProvider,ajskommonitorConfigStorageServiceProvider,ajskommonitorDataExchangeServiceeProvider,ajskommonitorDataGridHelperServiceProvider,ajskommonitorDiagramHelperServiceProvider,ajskommonitorFilterHelperServiceProvider,ajskommonitorKeycloackHelperServiceProvider,ajskommonitorMultiStepFormHelperServiceProvider, ajskommonitorSingleFeatureMapServiceProvider } from 'app-upgraded-providers';
-
-
+//import { KommonitorDiagramsComponent } from 'components/kommonitorUserInterface/kommonitorControls/kommonitorDiagrams/kommonitor-diagrams.component';
+import { KommonitorDiagramsModule } from 'components/kommonitorUserInterface/kommonitorControls/kommonitorDiagrams/kommonitor-diagrams.module';
 // currently the AngularJS routing is still used as part of kommonitorClient module
 const routes: Routes = [];
 
@@ -27,7 +28,11 @@ declare var MathJax;
     BrowserModule,
     UpgradeModule,
     RouterModule.forRoot(routes , { useHash: true }),
-    VersionInfoComponent
+  KommonitorDiagramsModule,
+  NgxEchartsModule.forRoot({
+    echarts: () => import('echarts')
+  }),
+  EchartsxModule,
     // InfoModalModule,
     // VersionInfoModule
   ],
@@ -85,7 +90,10 @@ export class AppModule implements DoBootstrap {
 
     angular.module('kommonitorUserInterface')
     .directive('versionInfo',  downgradeComponent({ component: VersionInfoComponent }) as angular.IDirectiveFactory);
-
+    
+    //angular.module('kommonitorUserInterface')
+    //.directive('kommonitor-diagrams',  downgradeComponent({ component: KommonitorDiagramsComponent }) as angular.IDirectiveFactory);
+    
     console.log("registered downgraded Angular components for AngularJS usage");
   }
 
