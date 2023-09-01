@@ -30,7 +30,7 @@
 			</div>
 
 			<div class="row" style="margin-right: 0px;">
-				<div class="col-sm-7">
+				<div class="col-sm-4">
 					<div class="text-left"><label>Raumebene</label></div>
 					<select id="spatialUnitSelection_reachabilityStatistic"
 						style="font-size: 12px;" ng-model="selectedSpatialUnit"
@@ -43,7 +43,7 @@
 							{{::spatialUnit.spatialUnitName}}</option>
 					</select>
 				</div>
-				<div class="col-sm-4">
+				<div class="col-sm-3">
 					<div class="text-left"><label>Indikatoren-Zeitschnitt</label></div>
 					<!-- <input id="indicatorDate_reachabilityStatistic" type="text" placeholder="YYYY-MM-DD" 
 					ng-model="$ctrl.kommonitorDataExchangeServiceInstance.selectedDate" ng-change="onChangeIndicatorDatepickerDate()"
@@ -58,20 +58,80 @@
 							{{::date}}</option>
 					</select>
 				</div>
-			</div><br>
+				<div class="col-sm-5">
+					<div class="text-left"><label>Gewichtung geschnittener Raumebenen</label></div>
+					<select id="weightingStrategy_reachabilityStatistic"
+						style="font-size: 12px;" ng-model="weightStrategy"
+						class="form-control" required>
+						<option disabled selected value> -- Gewichtung w&auml;hlen --
+						</option>
+						<option ng-value="weight"
+							ng-repeat="weight in weightStrategyOptions">
+							{{::weight.displayName}}</option>
+					</select>
+				</div>
+			</div>
+
 
 			<button class="btn btn-success btn-sm" ng-click="computeReachabilityIndicatorStatistic()"
 				type="button"><i class="fas fa-plus"></i>&nbsp;&nbsp;Indikatoren-Statistik
 				generieren</button>
 
+				<br/>
 
-			<p><label>Platzhalter Tabelle Übersicht über konfigurierte
-					Indikatorenstatistiken</label></p>
+				<div style="max-height: 20vh; overflow: auto;">
+
+					<b>Indikatoren-Statistiken f&uuml;r Punktquelle </b>				
+					<i>{{$ctrl.kommonitorReachabilityHelperServiceInstance.settings.selectedStartPointLayer.datasetName}}</i>
+
+					<table class="table table-condensed">
+						<thead>
+							<tr>
+								<th>Indikator</th>
+								<th>Raumeinheit</th>
+								<th>Zeitschnitt</th>
+								<th>Gewichtung</th>
+								<th>&Uuml;berdeckung</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr ng-repeat="indicatorStatisticsEntry in indicatorStatistics">
+								<td>
+									<b>{{::indicatorStatisticsEntry.indicator.indicatorName}}</b>
+									<span class="glyphicon glyphicon-refresh icon-spin" ng-show="indicatorStatisticsEntry.progress != 'finished' && indicatorStatisticsEntry.progress != 'failed'"></span>
+
+									<i>Edit Buttons here</i>
+								</td>
+								<td>
+									{{::indicatorStatisticsEntry.spatialUnit.spatialUnitLevel}}
+								</td>
+								<td>
+									{{::indicatorStatisticsEntry.timestamp}}
+								</td>
+								<td>
+									{{::indicatorStatisticsEntry.weightStrategy.displayName}}
+								</td>
+								<td>
+									<span class="glyphicon glyphicon-refresh icon-spin" ng-show="indicatorStatisticsEntry.progress != 'finished' && indicatorStatisticsEntry.progress != 'failed'"></span>
+									<div ng-repeat="overallCoverageEntry in indicatorStatisticsEntry.coverageResult.overallCoverage">
+										<b>{{::overallCoverageEntry.range}} [Sekunden]</b>
+										<br/>
+										<i>absolut</i>: {{::$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText(overallCoverageEntry.coverage[0].absoluteCoverage)}} [{{indicatorStatisticsEntry.indicator.unit}}]
+										<br/>
+										<i>proz. Anteil</i>: {{::$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText(overallCoverageEntry.coverage[0].relativeCoverage * 100)}} [%] 
+										<br/><br/>
+									</div>									
+								</td>
+							</tr>
+						</tbody>
+					</table>
+		
+				</div>
 
 		</div>
 		<div class="col-md-6 col-sm-6 col-xs-12">
 
-			<p><label>Platzhalter interaktive Karte</label></p>
+			<div id="reachabilityScenarioIsochroneStatisticsGeoMap" style="height: 57vh;"></div>
 
 		</div>
 	</div>

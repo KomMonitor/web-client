@@ -11,6 +11,7 @@ angular
 			let self = this;
 
 			this.currentIsochronesGeoJSON = undefined;
+			this.original_nonDissolved_isochrones = undefined;
 
 			this.settings = {};
 
@@ -19,6 +20,7 @@ angular
 			this.settings.unit = 'Meter';
 
 			this.settings.locationsArray = [];
+			this.settings.locationsArrayIdArray = [];
 
 			this.settings.dateSelectionType_valueIndicator = "date_indicator";
 			this.settings.dateSelectionType_valueManual = "date_manual";
@@ -227,17 +229,20 @@ angular
 			this.makeLocationsArrayFromStartPoints = function () {
 				// array of arrays of lon,lat
 				self.settings.locationsArray = [];
+				self.settings.locationsArrayIdArray = [];
 
 				if (self.settings.startPointsSource === "manual") {
 					// establish from drawn points
 					self.settings.manualStartPoints.features.forEach(function (feature) {
 						self.settings.locationsArray.push(feature.geometry.coordinates);
+						self.settings.locationsArrayIdArray.push(feature.properties[__env.FEATURE_ID_PROPERTY_NAME]);
 					});
 				}
 				else {
 					// establish from chosen layer
 					self.settings.selectedStartPointLayer.geoJSON_reachability.features.forEach(function (feature) {
 						self.settings.locationsArray.push(feature.geometry.coordinates);
+						self.settings.locationsArrayIdArray.push(feature.properties[__env.FEATURE_ID_PROPERTY_NAME]);
 					});
 				}
 
@@ -271,6 +276,42 @@ angular
 
 				this.rangeArray.sort(function (a, b) { return a - b; });
 			};
+
+			/*
+			attaches the featureID of starting points to corresponding result isochrones
+			using
+			featureID_rangeValue
+			i.e.
+			1_300 --> may stand for featureID = 1 and rangeValue = 300
+			*/
+			this.attachPoiFeatureIDsToIsochrones = function(){
+
+				// the order of isochrone features following rules:
+				// for two starting points an three ranges
+				// the first starting point is on index 0,1,2 with increasing range value
+				// then index 3,4,5 will represent the second point for each increasing range
+				let locationsArrayIdIndex = 0;
+				for (let isochroneIndex = 0; isochroneIndex < this.original_nonDissolved_isochrones.features.length; isochroneIndex++) {					
+
+					for (let rangeIndex = 0; rangeIndex < self.rangeArray.length; rangeIndex++) {
+						const rangeValue = self.rangeArray[rangeIndex];
+						
+						const resultIsochrone = this.original_nonDissolved_isochrones.features[isochroneIndex];
+						resultIsochrone.properties.ID = self.settings.locationsArrayIdArray[locationsArrayIdIndex] + '_' + rangeValue;
+						this.original_nonDissolved_isochrones.features[isochroneIndex] = resultIsochrone;
+
+						// for multiple ranges we must increment the isochrone index in this inner loop
+						// but not if the last range value has been processed
+						if(rangeIndex != self.rangeArray.length -1){
+							isochroneIndex++;
+						}						
+					}	
+					// now increment locationArrayIDIndex as now the point for each range has been processed 
+					locationsArrayIdIndex++;				
+				}
+
+				return this.original_nonDissolved_isochrones;
+			}
 
 			/**
 			 * Starts an isochrone-calculation.
@@ -346,24 +387,8 @@ angular
 							// asynchronously
 							// when the response is
 							// available
-
-							// dissolve features
-							if (self.settings.dissolveIsochrones) {
-								try {
-									var dissolved = turf.dissolve(response.data, { propertyName: 'value' });
-									return dissolved;
-								} catch (e) {
-									console.error("Dissolving Isochrones failed with error: " + e);
-									console.error("Will return undissolved isochrones");
-									return response.data;
-								} finally {
-
-								}
-
-							}
-							else {
-								return response.data;
-							}
+							
+							return response.data;
 
 						},
 						function errorCallback(
@@ -405,18 +430,6 @@ angular
 						]);
 					}
 
-					if (self.settings.dissolveIsochrones) {
-						try {
-							geoJSON_buffered = turf.dissolve(geoJSON_buffered);
-						} catch (e) {
-							console.error("Dissolving Isochrones failed with error: " + e);
-							console.error("Will return undissolved isochrones");
-						} finally {
-
-						}
-
-					}
-
 					// add property: value --> range
 					if (geoJSON_buffered.features && geoJSON_buffered.features.length > 0) {
 						for (const feature of geoJSON_buffered.features) {
@@ -432,6 +445,21 @@ angular
 					}
 				}
 
+				this.original_nonDissolved_isochrones = resultIsochrones;
+				this.original_nonDissolved_isochrones = this.attachPoiFeatureIDsToIsochrones();
+
+				if (self.settings.dissolveIsochrones) {
+					try {
+						geoJSON_buffered = turf.dissolve(geoJSON_buffered, { propertyName: 'value' });
+					} catch (e) {
+						console.error("Dissolving Isochrones failed with error: " + e);
+						console.error("Will return undissolved isochrones");
+					} finally {
+
+					}
+
+				}
+
 				return resultIsochrones;
 			};
 
@@ -443,8 +471,6 @@ angular
 					' start points.');
 
 				var maxLocationsForORSRequest = 150;
-
-				console.log("Number of Isochrone starting points is greater than the maximum number of locations (" + maxLocationsForORSRequest + "). Must split up starting points to make multiple requests. Result will contain all isochrones though.");
 
 				var featureIndex = 0;
 				// log progress for each 10% of features
@@ -482,6 +508,23 @@ angular
 
 					} // end if
 				} // end for
+
+				this.original_nonDissolved_isochrones = resultIsochrones;
+				this.original_nonDissolved_isochrones = this.attachPoiFeatureIDsToIsochrones();
+
+				if (self.settings.dissolveIsochrones) {
+					try {
+						var dissolved = turf.dissolve(resultIsochrones, { propertyName: 'value' });
+						return dissolved;
+					} catch (e) {
+						console.error("Dissolving Isochrones failed with error: " + e);
+						console.error("Will return undissolved isochrones");
+						return response.data;
+					} finally {
+
+					}
+
+				}
 
 				return resultIsochrones;
 

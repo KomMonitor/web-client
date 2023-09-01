@@ -32,7 +32,38 @@ angular
           kommonitorGenericMapHelperService.clearMap(mapParts.map);
 
         //function (domId, withLayerControl, withGeosearchControl, withDrawControl, drawResourceType, editMode)
-        mapParts = kommonitorGenericMapHelperService.initMap(domId, true, true, false, undefined, this.editMode);
+        mapParts = kommonitorGenericMapHelperService.initMap(domId, true, true, false, undefined, undefined);
+        // response:
+        /*
+        {
+          "map": mapObject,
+          "layerControl": layerControl,
+          "backgroundLayer": backgroundLayer,
+          "geosearchControl": geosearchControl,
+        }
+        */
+
+        mapParts.isochroneLayers = {
+          "markerLayer": undefined,
+          "isochroneLayer": undefined
+        }
+
+        // empty map of poiInIsoLayers
+        mapParts.isochroneLayers.poiInIsoLayers = new Map();
+
+        this.mapPartsMap.set(domId, mapParts);
+        return mapParts;
+      };
+
+      this.initReachabilityIndicatorStatisticsGeoMap = function (domId) {
+        // init leaflet map
+        let mapParts = this.mapPartsMap.get(domId);
+
+        if (mapParts && mapParts.map)
+          kommonitorGenericMapHelperService.clearMap(mapParts.map);
+
+        //function (domId, withLayerControl, withGeosearchControl, withDrawControl, drawResourceType, editMode)
+        mapParts = kommonitorGenericMapHelperService.initMap(domId, true, true, false, undefined, undefined);
         // response:
         /*
         {
