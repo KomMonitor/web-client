@@ -36,21 +36,26 @@ angular
           */
           let body = {
             "name": "isochrone-prune",
-            "isochrones": isochroneGeoJson,
+            "isochrones": JSON.stringify(isochroneGeoJson),
             "spatialUnit": spatialUnitId,
             "indicator": indicatorIdArray,
             "date": targetDate,
             "weighting": weighting
           };
 
+          let headers = {
+            'Accept': 'application/json',
+            
+          };
+          if (bearerToken){
+            headers['Authorization'] = "Bearer " + bearerToken // Note the appropriate header
+          }
+
           return await $http({
             url: this.targetUrlToSpatialDataProcessorInstance + "jobs",
             method: 'POST',
             data: body,
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': "Bearer " + bearerToken // Note the appropriate header
-            }
+            headers: headers
           }).then(function successCallback(response) {
             // return created job ID
             return response.data;
@@ -58,7 +63,7 @@ angular
             // called asynchronously if an error occurs
             // or server returns response with an error status.
             //$scope.error = response.statusText;
-            console.error("Error while posting role to keycloak.");
+            console.error("Error while posting isochrone statistic request.");
             throw error;
           });
 
@@ -67,10 +72,26 @@ angular
         }
       };
 
+      /*
+        {
+          "id": "a81da875-2e13-4436-8643-08b532637b07",
+          "process": "org.n52.kommonitor.spatialdataprocessor.process.IsochronePruneProcess@323aa6ab",
+          "timestamp": "2023-09-01T09:17:20.9885221+02:00",
+          "status": "finished"
+        }
+      */
       this.getJobStatus = async function (jobId) {
         try {
           // get auth token to make authenticated requests
           let bearerToken = Auth.keycloak.token;
+
+          let headers = {
+            'Accept': 'application/json',
+            
+          };
+          if (bearerToken){
+            headers['Authorization'] = "Bearer " + bearerToken // Note the appropriate header
+          }
 
           /*
           returns
@@ -85,10 +106,7 @@ angular
           return await $http({
             url: this.targetUrlToSpatialDataProcessorInstance + "jobs/" + jobId,
             method: 'GET',
-            headers: {
-              'Accept': 'application/json',
-              'Authorization': "Bearer " + bearerToken // Note the appropriate header
-            }
+            headers: headers
           }).then(function successCallback(response) {
             // return created job ID
             return response.data;
@@ -96,7 +114,7 @@ angular
             // called asynchronously if an error occurs
             // or server returns response with an error status.
             //$scope.error = response.statusText;
-            console.error("Error while posting role to keycloak.");
+            console.error("Error while fetching job status.");
             throw error;
           });
 
@@ -105,10 +123,64 @@ angular
         }
       };
 
+      /*
+      {
+        "id": "a81da875-2e13-4436-8643-08b532637b07",
+        "result": [
+          {
+            "indicatorId": "eefe288b-0da8-4d30-a2fe-759a9814f9d5",
+            "overallCoverage": [
+              {
+                "range": 300,
+                "coverage": [
+                  {
+                    "date": "2023-01-01",
+                    "absoluteCoverage": 350.60593,
+                    "relativeCoverage": 0.11357497
+                  }
+                ]
+              }
+            ],
+            "poiCoverage": [
+              {
+                "poiFeatureId": "35_5",
+                "overallCoverage": [
+                  {
+                    "date": "2023-01-01",
+                    "absoluteCoverage": 6.3172536,
+                    "relativeCoverage": 0.0020464053
+                  }
+                ],
+                "spatialUnitCoverage": [
+                  {
+                    "spatialUnitFeatureId": "7",
+                    "coverage": [
+                      {
+                        "date": "2023-01-01",
+                        "absoluteCoverage": 6.3172536,
+                        "relativeCoverage": 0.0186901
+                      }
+                    ]
+                  }
+                ]
+              },
+              ...
+            ]
+          }
+        ]
+      }
+      */
       this.getJobResult = async function (jobId) {
         try {
           // get auth token to make authenticated requests
           let bearerToken = Auth.keycloak.token;
+          let headers = {
+            'Accept': 'application/json',
+            
+          };
+          if (bearerToken){
+            headers['Authorization'] = "Bearer " + bearerToken // Note the appropriate header
+          }
 
           /*
           returns
@@ -118,10 +190,7 @@ angular
           return await $http({
             url: this.targetUrlToSpatialDataProcessorInstance + "jobs/" + jobId + "/result",
             method: 'GET',
-            headers: {
-              'Accept': 'application/json',
-              'Authorization': "Bearer " + bearerToken // Note the appropriate header
-            }
+            headers: headers
           }).then(function successCallback(response) {
             // return created job ID
             return response.data;
@@ -129,7 +198,7 @@ angular
             // called asynchronously if an error occurs
             // or server returns response with an error status.
             //$scope.error = response.statusText;
-            console.error("Error while posting role to keycloak.");
+            console.error("Error while fetching job result.");
             throw error;
           });
 
