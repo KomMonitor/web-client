@@ -99,7 +99,7 @@
 									<th>Raumeinheit</th>
 									<th>Zeitschnitt</th>
 									<th>Gewichtung</th>
-									<th>&Uuml;berdeckung</th>
+									<th>&Uuml;berdeckung / Versorgung</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -113,8 +113,11 @@
 											<a href=""><i class="fa-solid fa-trash-can" title="Statistik-Eintrag entfernen" ng-click="removeIndicatorStatistic(indicatorStatisticsEntry)"></i></a>
 										</div> -->
 										<div>
-											<button class="btn btn-info btn-sm"><i class="fa-solid fa-map-location-dot" title="Auf Karte darstellen" ng-click="displayIndicatorStatisticOnMap(indicatorStatisticsEntry)"></i></button>
-											<button class="btn btn-danger btn-sm"><i class="fa-solid fa-trash-can" title="Statistik-Eintrag entfernen" ng-click="removeIndicatorStatistic(indicatorStatisticsEntry)"></i></button>
+											<button class="btn btn-info btn-sm" title="Auf Karte darstellen" ng-disabled="indicatorStatisticsEntry.active" ng-click="displayIndicatorStatisticOnMap(indicatorStatisticsEntry)"><i class="fa-solid fa-map-location-dot" ></i></button>
+											<button class="btn btn-danger btn-sm" title="Statistik-Eintrag entfernen" ng-click="removeIndicatorStatistic(indicatorStatisticsEntry)"><i class="fa-solid fa-trash-can"></i></button>
+										</div>
+										<div ng-show="indicatorStatisticsEntry.active">
+											<i>(sichtbar in Karte)</i>
 										</div>
 									</td>
 									<td>
@@ -137,7 +140,7 @@
 											</div>											
 											<!-- <br/> -->
 											<div style="margin-left: 10px;">
-												<b><i>{{::$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText(overallCoverageEntry.coverage[0].absoluteCoverage)}} / {{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText(indicatorStatisticsEntry.coverageResult.timeseries[0].value)}}</i></b> [{{indicatorStatisticsEntry.indicator.unit}}]
+												<b><i>{{::$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText(overallCoverageEntry.coverage[0].absoluteCoverage)}} von {{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText(indicatorStatisticsEntry.coverageResult.timeseries[0].value)}}</i></b> [{{indicatorStatisticsEntry.indicator.unit}}]
 												<br/>
 												<b><i>entspricht {{::$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText(overallCoverageEntry.coverage[0].relativeCoverage * 100)}}</i></b> [%] 												
 											</div>

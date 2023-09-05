@@ -565,21 +565,21 @@ angular
       * binds the popup of a clicked output
       * to layer.feature.properties.popupContent
       */
-      this.onEachFeatureIndicator = function(feature, layer, indicatorProperty) {
-       var indicatorValue = feature.properties[indicatorProperty];
-       var indicatorValueText;
-       if (kommonitorDataExchangeService.indicatorValueIsNoData(indicatorValue)) {
-         indicatorValueText = "NoData";
-       }
-       else {
-         indicatorValueText = kommonitorDataExchangeService.getIndicatorValue_asFormattedText(indicatorValue);
-       }
-       var tooltipHtml = "<b>" + feature.properties[__env.FEATURE_NAME_PROPERTY_NAME] + "</b><br/>" + indicatorValueText + " [" + kommonitorDataExchangeService.selectedIndicator.unit + "]";
-       layer.bindTooltip(tooltipHtml, {
-         sticky: false // If true, the tooltip will follow the mouse instead of being fixed at the feature center.
-       });
+      this.onEachFeatureIndicator = function (feature, layer, indicatorProperty) {
+        var indicatorValue = feature.properties[indicatorProperty];
+        var indicatorValueText;
+        if (kommonitorDataExchangeService.indicatorValueIsNoData(indicatorValue)) {
+          indicatorValueText = "NoData";
+        }
+        else {
+          indicatorValueText = kommonitorDataExchangeService.getIndicatorValue_asFormattedText(indicatorValue);
+        }
+        var tooltipHtml = "<b>" + feature.properties[__env.FEATURE_NAME_PROPERTY_NAME] + "</b><br/>" + indicatorValueText + " [" + kommonitorDataExchangeService.selectedIndicator.unit + "]";
+        layer.bindTooltip(tooltipHtml, {
+          sticky: false // If true, the tooltip will follow the mouse instead of being fixed at the feature center.
+        });
 
-     };
+      };
 
       this.generateIndicatorLayer = async function (indicatorStatisticsCandidate) {
         /*  
@@ -611,12 +611,12 @@ angular
         let defaultBrew = kommonitorVisualStyleHelperService.setupDefaultBrew(indicatorMetadataAndGeoJSON.geoJSON, indicatorPropertyName, indicatorMetadataAndGeoJSON.defaultClassificationMapping.items.length, indicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName, kommonitorVisualStyleHelperService.classifyMethod);
 
         let outlierDetection_currentGLobalValue = kommonitorDataExchangeService.useOutlierDetectionOnIndicator;
-        kommonitorDataExchangeService.useOutlierDetectionOnIndicator = false; 
+        kommonitorDataExchangeService.useOutlierDetectionOnIndicator = false;
         let layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
           style: function (feature) {
             return kommonitorVisualStyleHelperService.styleDefault(feature, defaultBrew, undefined, undefined, indicatorPropertyName, true, false);
           },
-          onEachFeature: function(featuer, layer){
+          onEachFeature: function (featuer, layer) {
             return self.onEachFeatureIndicator(featuer, layer, indicatorPropertyName);
           }
         });
@@ -667,9 +667,9 @@ angular
         this.mapPartsMap.set(domId, mapParts);
       }
 
-      this.getIndicatorFeature_forSpatialUnitFeatureId = function(indicatorGeoJSON, spatialUnitFeatureId){
+      this.getIndicatorFeature_forSpatialUnitFeatureId = function (indicatorGeoJSON, spatialUnitFeatureId) {
         for (const feature of indicatorGeoJSON.features) {
-          if (feature.properties[__env.FEATURE_ID_PROPERTY_NAME] == spatialUnitFeatureId){
+          if (feature.properties[__env.FEATURE_ID_PROPERTY_NAME] == spatialUnitFeatureId) {
             return feature;
           }
         }
@@ -720,7 +720,7 @@ angular
           html += "<h4>" + range + " [" + unit + "]</h4>";
           html += "<h4><i>Gesamtgebiet</i></h4>"
 
-          html += "<i>" + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(isochronePruneResult.overallCoverage[0].absoluteCoverage) + " / " + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(indicatorStatisticsCandidate.coverageResult.timeseries[0].value) + " [" + indicatorStatisticsCandidate.indicator.unit + "]</i>";
+          html += "<i>" + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(isochronePruneResult.overallCoverage[0].absoluteCoverage) + " von " + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(indicatorStatisticsCandidate.coverageResult.timeseries[0].value) + " [" + indicatorStatisticsCandidate.indicator.unit + "]</i>";
           html += "<br/>";
           html += "entspricht <i>" + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(isochronePruneResult.overallCoverage[0].relativeCoverage * 100) + " [%]</i><br/><br/>";
 
@@ -745,8 +745,8 @@ angular
 
             html += "<h4><i>" + indicatorFeature.properties[__env.FEATURE_NAME_PROPERTY_NAME] + "</i></h4>";
             // we can directly query the first element of coverage array as we only query one indicator timestamp at a time
-            html += "<i>" + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(spatialUnitCoverageEntry.coverage[0].absoluteCoverage) + " / " 
-              + indicatorFeature.properties[__env.indicatorDatePrefix + indicatorStatisticsCandidate.timestamp] 
+            html += "<i>" + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(spatialUnitCoverageEntry.coverage[0].absoluteCoverage) + " von "
+              + indicatorFeature.properties[__env.indicatorDatePrefix + indicatorStatisticsCandidate.timestamp]
               + " [" + indicatorStatisticsCandidate.indicator.unit + "]</i>";
             html += "<br/>";
             html += "entspricht <i>" + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(spatialUnitCoverageEntry.coverage[0].relativeCoverage * 100) + " [%]</i><br/><br/>";
@@ -844,6 +844,9 @@ angular
         let poiMap = new Map();
 
         for (const poiFeature of poiGeoJSON.features) {
+          // ensure that each poi does not hold old information from another scenario
+          delete poiFeature.properties.individualIsochrones;
+          delete poiFeature.properties.individualIsochronePruneResults;
           poiMap.set(poiFeature.properties[__env.FEATURE_ID_PROPERTY_NAME], poiFeature);
         }
 

@@ -110,15 +110,16 @@ angular.module('reachabilityIndicatorStatistics').component('reachabilityIndicat
 				let response = await kommonitorSpatialDataProcessorHelperService.getJobResult(jobId);
 
 				for (const indicatorStatisticsEntry of $scope.indicatorStatistics) {
+					indicatorStatisticsEntry.active = false;
 					if (indicatorStatisticsEntry.jobId == jobId) {
 						// as wen only query spatial data processor for one indicator and on timestamp at a time we can use first entry of result array
 						// but we must consider that maybe multiple ranges have been queried
 						indicatorStatisticsEntry.coverageResult = response.result[0];
+						indicatorStatisticsEntry.active = true;
 
-						$scope.$digest();
+						$scope.$digest();						
 
-						$scope.displayIndicatorStatisticOnMap(indicatorStatisticsEntry);
-						break;
+						$scope.displayIndicatorStatisticOnMap(indicatorStatisticsEntry);						
 					}
 				}
 			}
@@ -138,7 +139,8 @@ angular.module('reachabilityIndicatorStatistics').component('reachabilityIndicat
 					timestamp: $scope.selectedIndicatorDate,
 					progress: "queued",
 					jobId: jobId,
-					coverageResult: undefined
+					coverageResult: undefined,
+					active: false
 				}
 
 				$scope.indicatorStatistics.push(newIsochroneStatisticsEntry);
@@ -159,6 +161,14 @@ angular.module('reachabilityIndicatorStatistics').component('reachabilityIndicat
 
 			$scope.displayIndicatorStatisticOnMap = function(indicatorStatisticsCandidate){
 				// property coverageResult stores isochrone prune result
+
+				// mark active list element
+				for (const indicatorStatisticsEntry of $scope.indicatorStatistics) {
+					indicatorStatisticsEntry.active = false;
+					if (indicatorStatisticsEntry.jobId == indicatorStatisticsCandidate.jobId) {
+						indicatorStatisticsEntry.active = true;					
+					}
+				}
 
 				let poiDataset = kommonitorReachabilityHelperService.settings.selectedStartPointLayer;
 				let original_nonDissolved_isochrones = kommonitorReachabilityHelperService.original_nonDissolved_isochrones;
