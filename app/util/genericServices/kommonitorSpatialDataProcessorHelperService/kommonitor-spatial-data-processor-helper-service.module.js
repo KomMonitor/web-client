@@ -129,6 +129,12 @@ angular
         "result": [
           {
             "indicatorId": "eefe288b-0da8-4d30-a2fe-759a9814f9d5",
+             "timeseries": [
+                {
+                    "date": "2021-12-31",
+                    "value": 588375.0
+                }
+            ],
             "overallCoverage": [
               {
                 "range": 300,

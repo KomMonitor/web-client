@@ -113,6 +113,7 @@ angular.module('reachabilityScenarioModal').component('reachabilityScenarioModal
 				}).then(function successCallback(response) {
 
 					kommonitorReachabilityHelperService.settings.selectedStartPointLayer.geoJSON_reachability = response.data;
+					kommonitorReachabilityHelperService.settings.selectedStartPointLayer.geoJSON = response.data;
 
 					// prepare feature edit geo map
 					$scope.initPoiResourceEditFeaturesMenu();

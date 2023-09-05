@@ -61,70 +61,95 @@
 				<div class="col-sm-5">
 					<div class="text-left"><label>Gewichtung geschnittener Raumebenen</label></div>
 					<select id="weightingStrategy_reachabilityStatistic"
-						style="font-size: 12px;" ng-model="weightStrategy"
+						style="font-size: 12px;" ng-model="weightStrategy" ng-init="weightStrategy = weightStrategyOptions[0]"
+						ng-options="weight.displayName for weight in weightStrategyOptions"
 						class="form-control" required>
-						<option disabled selected value> -- Gewichtung w&auml;hlen --
+						<option disabled value> -- Gewichtung w&auml;hlen --
 						</option>
-						<option ng-value="weight"
+						<!-- <option ng-value="weight"
 							ng-repeat="weight in weightStrategyOptions">
-							{{::weight.displayName}}</option>
+							{{::weight.displayName}}</option> -->
 					</select>
 				</div>
 			</div>
 
-
-			<button class="btn btn-success btn-sm" ng-click="computeReachabilityIndicatorStatistic()"
-				type="button"><i class="fas fa-plus"></i>&nbsp;&nbsp;Indikatoren-Statistik
-				generieren</button>
-
+			<div class="row" style="margin-right: 0px;">
+				<div class="col-sm-8">
+					<b>betrachtete Punktquelle:</b>				
+						<i>{{$ctrl.kommonitorReachabilityHelperServiceInstance.settings.selectedStartPointLayer.datasetName}}</i>
+				</div>
+				<div class="col-sm-4">
+					<button class="btn btn-success btn-sm" ng-click="computeReachabilityIndicatorStatistic()"
+					type="button"><i class="fas fa-plus"></i>&nbsp;&nbsp;Indikatoren-Statistik
+					generieren</button>
+				</div>
+			</div>
+			
 				<br/>
+				<hr>
 
-				<div style="max-height: 20vh; overflow: auto;">
+				<div>					
 
-					<b>Indikatoren-Statistiken f&uuml;r Punktquelle </b>				
-					<i>{{$ctrl.kommonitorReachabilityHelperServiceInstance.settings.selectedStartPointLayer.datasetName}}</i>
-
-					<table class="table table-condensed">
-						<thead>
-							<tr>
-								<th>Indikator</th>
-								<th>Raumeinheit</th>
-								<th>Zeitschnitt</th>
-								<th>Gewichtung</th>
-								<th>&Uuml;berdeckung</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr ng-repeat="indicatorStatisticsEntry in indicatorStatistics">
-								<td>
-									<b>{{::indicatorStatisticsEntry.indicator.indicatorName}}</b>
-									<span class="glyphicon glyphicon-refresh icon-spin" ng-show="indicatorStatisticsEntry.progress != 'finished' && indicatorStatisticsEntry.progress != 'failed'"></span>
-
-									<i>Edit Buttons here</i>
-								</td>
-								<td>
-									{{::indicatorStatisticsEntry.spatialUnit.spatialUnitLevel}}
-								</td>
-								<td>
-									{{::indicatorStatisticsEntry.timestamp}}
-								</td>
-								<td>
-									{{::indicatorStatisticsEntry.weightStrategy.displayName}}
-								</td>
-								<td>
-									<span class="glyphicon glyphicon-refresh icon-spin" ng-show="indicatorStatisticsEntry.progress != 'finished' && indicatorStatisticsEntry.progress != 'failed'"></span>
-									<div ng-repeat="overallCoverageEntry in indicatorStatisticsEntry.coverageResult.overallCoverage">
-										<b>{{::overallCoverageEntry.range}} [Sekunden]</b>
-										<br/>
-										<i>absolut</i>: {{::$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText(overallCoverageEntry.coverage[0].absoluteCoverage)}} [{{indicatorStatisticsEntry.indicator.unit}}]
-										<br/>
-										<i>proz. Anteil</i>: {{::$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText(overallCoverageEntry.coverage[0].relativeCoverage * 100)}} [%] 
-										<br/><br/>
-									</div>									
-								</td>
-							</tr>
-						</tbody>
-					</table>
+					<div style="max-height: 30vh; overflow: auto;">
+					
+						<table class="table table-condensed">
+							<thead>
+								<tr>
+									<th>Indikator</th>
+									<th>Raumeinheit</th>
+									<th>Zeitschnitt</th>
+									<th>Gewichtung</th>
+									<th>&Uuml;berdeckung</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr ng-repeat="indicatorStatisticsEntry in indicatorStatistics">
+									<td>
+										<b>{{::indicatorStatisticsEntry.indicator.indicatorName}}</b>
+										<span class="glyphicon glyphicon-refresh icon-spin" ng-show="indicatorStatisticsEntry.progress != 'finished' && indicatorStatisticsEntry.progress != 'failed'"></span>
+										<br>
+										<!-- <div>
+											<a href=""><i class="fa-solid fa-map-location-dot" title="Auf Karte darstellen" ng-click="displayIndicatorStatisticOnMap(indicatorStatisticsEntry)"></i></a>
+											<a href=""><i class="fa-solid fa-trash-can" title="Statistik-Eintrag entfernen" ng-click="removeIndicatorStatistic(indicatorStatisticsEntry)"></i></a>
+										</div> -->
+										<div>
+											<button class="btn btn-info btn-sm"><i class="fa-solid fa-map-location-dot" title="Auf Karte darstellen" ng-click="displayIndicatorStatisticOnMap(indicatorStatisticsEntry)"></i></button>
+											<button class="btn btn-danger btn-sm"><i class="fa-solid fa-trash-can" title="Statistik-Eintrag entfernen" ng-click="removeIndicatorStatistic(indicatorStatisticsEntry)"></i></button>
+										</div>
+									</td>
+									<td>
+										{{::indicatorStatisticsEntry.spatialUnit.spatialUnitName}}
+									</td>
+									<td>
+										{{::indicatorStatisticsEntry.timestamp}}
+									</td>
+									<td>
+										{{::indicatorStatisticsEntry.weightStrategy.displayName}}
+									</td>
+									<td>
+										<span class="glyphicon glyphicon-refresh icon-spin" ng-show="indicatorStatisticsEntry.progress != 'finished' && indicatorStatisticsEntry.progress != 'failed'"></span>
+										<div ng-repeat="overallCoverageEntry in indicatorStatisticsEntry.coverageResult.overallCoverage">
+											<div ng-if="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.focus == 'time'">
+												<b>{{::overallCoverageEntry.range / 60}} [Minuten]</b>
+											</div>	
+											<div ng-if="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.focus == 'distance'">
+												<b>{{::overallCoverageEntry.range}} [Meter]</b>
+											</div>											
+											<!-- <br/> -->
+											<div style="margin-left: 10px;">
+												<b><i>{{::$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText(overallCoverageEntry.coverage[0].absoluteCoverage)}} / {{indicatorStatisticsEntry.coverageResult.timeseries[0].value}}</i></b> [{{indicatorStatisticsEntry.indicator.unit}}]
+												<br/>
+												<b><i>entspricht {{::$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText(overallCoverageEntry.coverage[0].relativeCoverage * 100)}}</i></b> [%] 												
+											</div>
+											<br/>
+										</div>									
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					
+					</div>
+					
 		
 				</div>
 

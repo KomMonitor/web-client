@@ -576,6 +576,7 @@ angular
 					var geoJSON = response.data;
 
 					self.settings.selectedStartPointLayer.geoJSON_reachability = geoJSON;
+					self.settings.selectedStartPointLayer.geoJSON = geoJSON;
 
 					self.settings.loadingData = false;
 					self.settings.pointSourceConfigured = true;

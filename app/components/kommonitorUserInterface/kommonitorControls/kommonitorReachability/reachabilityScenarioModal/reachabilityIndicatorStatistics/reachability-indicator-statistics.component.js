@@ -65,10 +65,6 @@ angular.module('reachabilityIndicatorStatistics').component('reachabilityIndicat
 
 			};
 
-			$scope.displayJobResult = function (jobId, indicatorStatisticsResult) {
-				console.log("called displayJobResult");
-			};
-
 			$scope.queryJobStatus = function(jobId){
 				let jobCompletedOrFailed = false;				
 				// query every second
@@ -80,6 +76,10 @@ angular.module('reachabilityIndicatorStatistics').component('reachabilityIndicat
 						failed - The job failed due to an error during process execution.
 					*/
 					let jobStatus = await kommonitorSpatialDataProcessorHelperService.getJobStatus(jobId);
+					if(jobStatus == undefined || jobStatus.status == undefined){
+						jobCompletedOrFailed = true;
+						$scope.modifyJobStatus(jobId, "failed");
+					}
 					if (jobStatus.status == "finished" || jobStatus.status == "failed") {
 						jobCompletedOrFailed = true;
 
@@ -94,7 +94,7 @@ angular.module('reachabilityIndicatorStatistics').component('reachabilityIndicat
 						// query again
 						$scope.queryJobStatus(jobId);
 					}
-				}, 1);
+				}, 1000);
 			};
 
 			$scope.modifyJobStatus = function (jobId, jobStatus) {
@@ -117,7 +117,7 @@ angular.module('reachabilityIndicatorStatistics').component('reachabilityIndicat
 
 						$scope.$digest();
 
-						$scope.displayJobResult(jobId, response.result[0]);
+						$scope.displayIndicatorStatisticOnMap(indicatorStatisticsEntry);
 						break;
 					}
 				}
@@ -132,7 +132,7 @@ angular.module('reachabilityIndicatorStatistics').component('reachabilityIndicat
 					},
 					spatialUnit: {
 						spatialUnitId: $scope.selectedSpatialUnit.spatialUnitId,
-						spatialUnitLevel: $scope.selectedSpatialUnit.spatialUnitLevel
+						spatialUnitName: $scope.selectedSpatialUnit.spatialUnitName
 					},
 					weightStrategy: $scope.weightStrategy,
 					timestamp: $scope.selectedIndicatorDate,
@@ -146,6 +146,24 @@ angular.module('reachabilityIndicatorStatistics').component('reachabilityIndicat
 				// now trigger periodical query of job status
 				$scope.queryJobStatus(jobId);				
 			}
+
+			$scope.removeIndicatorStatistic = function(indicatorStatisticsCandidate){
+				for (let index = 0; index < $scope.indicatorStatistics.length; index++) {
+					const entry = $scope.indicatorStatistics[index];
+					if(entry.jobId == indicatorStatisticsCandidate.jobId){
+						$scope.indicatorStatistics.splice(index, 1);
+						break;
+					}					
+				}
+			};
+
+			$scope.displayIndicatorStatisticOnMap = function(indicatorStatisticsCandidate){
+				// property coverageResult stores isochrone prune result
+
+				let poiDataset = kommonitorReachabilityHelperService.settings.selectedStartPointLayer;
+				let original_nonDissolved_isochrones = kommonitorReachabilityHelperService.original_nonDissolved_isochrones;
+				kommonitorReachabilityMapHelperService.replaceReachabilityIndicatorStatisticsOnMap($scope.domId, poiDataset, original_nonDissolved_isochrones, indicatorStatisticsCandidate);
+			};
 
 			$scope.computeReachabilityIndicatorStatistic = async function () {
 				// query spatial data processor in order to compute indicator statistics
