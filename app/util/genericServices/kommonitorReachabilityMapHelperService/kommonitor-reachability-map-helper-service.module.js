@@ -605,7 +605,7 @@ angular
         poiFeature.properties.individualIsochronePruneResults.sort((a, b) => {
           let range_a = Number(a.poiFeatureId.split("_")[1]);
           let range_b = Number(b.poiFeatureId.split("_")[1]);
-          range_a - range_b
+          return range_a - range_b;
         });
 
         for (const isochronePruneResult of poiFeature.properties.individualIsochronePruneResults) {
@@ -616,7 +616,7 @@ angular
           // } 
           html += "<h4>" + range + " [" + unit + "] - Gesamtgebiet</h4>";
 
-          html += "<i>" + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(isochronePruneResult.overallCoverage[0].absoluteCoverage) + " / " + indicatorStatisticsCandidate.coverageResult.timeseries[0].value + " [" + indicatorStatisticsCandidate.indicator.unit + "]</i>";
+          html += "<i>" + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(isochronePruneResult.overallCoverage[0].absoluteCoverage) + " / " + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(indicatorStatisticsCandidate.coverageResult.timeseries[0].value) + " [" + indicatorStatisticsCandidate.indicator.unit + "]</i>";
           html += "<br/>";
           html += "entspricht <i>" + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(isochronePruneResult.overallCoverage[0].relativeCoverage * 100) + " [%]</i><br/><br/>";
 

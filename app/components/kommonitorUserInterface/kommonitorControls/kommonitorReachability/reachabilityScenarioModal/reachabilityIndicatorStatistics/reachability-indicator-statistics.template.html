@@ -23,7 +23,7 @@
 					size="5" class="form-control" required>
 					<option disabled selected value> -- Indikator w&auml;hlen -- </option>
 					<option ng-value="indicatorMetadata"
-						ng-repeat="indicatorMetadata in $ctrl.kommonitorDataExchangeServiceInstance.displayableIndicators_keywordFiltered track by indicatorMetadata.indicatorId">
+						ng-repeat="indicatorMetadata in ($ctrl.kommonitorDataExchangeServiceInstance.displayableIndicators_keywordFiltered | filter:{indicatorType:'STATUS_ABSOLUTE'}) track by indicatorMetadata.indicatorId">
 						{{::indicatorMetadata.indicatorName}} [{{::indicatorMetadata.unit}}]
 					</option>
 				</select>
@@ -137,7 +137,7 @@
 											</div>											
 											<!-- <br/> -->
 											<div style="margin-left: 10px;">
-												<b><i>{{::$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText(overallCoverageEntry.coverage[0].absoluteCoverage)}} / {{indicatorStatisticsEntry.coverageResult.timeseries[0].value}}</i></b> [{{indicatorStatisticsEntry.indicator.unit}}]
+												<b><i>{{::$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText(overallCoverageEntry.coverage[0].absoluteCoverage)}} / {{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText(indicatorStatisticsEntry.coverageResult.timeseries[0].value)}}</i></b> [{{indicatorStatisticsEntry.indicator.unit}}]
 												<br/>
 												<b><i>entspricht {{::$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText(overallCoverageEntry.coverage[0].relativeCoverage * 100)}}</i></b> [%] 												
 											</div>
