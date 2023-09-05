@@ -1,11 +1,12 @@
-angular.module('kommonitorReachabilityMapHelper', ['kommonitorDataExchange', 'kommonitorGenericMapHelper']);
+angular.module('kommonitorReachabilityMapHelper', ['kommonitorDataExchange', 'kommonitorGenericMapHelper', 'kommonitorVisualStyleHelper']);
 
 angular
   .module('kommonitorReachabilityMapHelper')
   .service(
-    'kommonitorReachabilityMapHelperService', ['$rootScope', '__env', '$timeout',
-    'kommonitorDataExchangeService', 'kommonitorGenericMapHelperService',
-    function ($rootScope, __env, $timeout, kommonitorDataExchangeService, kommonitorGenericMapHelperService) {
+    'kommonitorReachabilityMapHelperService', ['$rootScope', '__env', '$timeout', '$http',
+    'kommonitorDataExchangeService', 'kommonitorGenericMapHelperService', 'kommonitorVisualStyleHelperService',
+    function ($rootScope, __env, $timeout, $http,
+      kommonitorDataExchangeService, kommonitorGenericMapHelperService, kommonitorVisualStyleHelperService) {
 
       var self = this;
 
@@ -23,7 +24,7 @@ angular
           "indicatorStatistics": {
             "poiLayer": poiLayer, // layer with enhanced indicatorStatisticInformation
             "poiIsochroneLayer": poiIsochroneLayer, // individual isochrone of active clicked poi
-            "spatialUnitBordersLayer": spatialUnitBordersLayer, // borders of certain spatial unit
+            
             "indicatorLayer": indicatorLayer  // the indicator of interest on the spatial unit of interest
           }
         }
@@ -382,7 +383,7 @@ angular
       POI IN ISOCHRONES SECTION
       */
 
-      this.generatePoiMarkers = function(georesourceMetadataAndGeoJSON, useCluster){
+      this.generatePoiMarkers = function (georesourceMetadataAndGeoJSON, useCluster) {
         // use leaflet.markercluster to cluster markers!
         var markers;
         if (useCluster) {
@@ -499,9 +500,9 @@ angular
           "isochroneLayer": undefined
         }
         mapParts.indicatorStatistics = {
-          "poiLayer": undefined, 
-          "poiIsochroneLayer": undefined, 
-           "indicatorLayer": undefined
+          "poiLayer": undefined,
+          "poiIsochroneLayer": undefined,
+          "indicatorLayer": undefined
         }
 
         // empty map of poiInIsoLayers
@@ -510,61 +511,155 @@ angular
         this.mapPartsMap.set(domId, mapParts);
         return mapParts;
       };
-      this.removeOldLayers_reachabilityIndicatorStatistics = function(domId){
+      this.removeOldLayers_reachabilityIndicatorStatistics = function (domId) {
         let mapParts = this.mapPartsMap.get(domId);
         /*
           "indicatorStatistics": {
             "poiLayer": poiLayer, // layer with enhanced indicatorStatisticInformation
             "poiIsochroneLayer": poiIsochroneLayer, // individual isochrone of active clicked poi
-            "spatialUnitBordersLayer": spatialUnitBordersLayer, // borders of certain spatial unit
+            
             "indicatorLayer": indicatorLayer  // the indicator of interest on the spatial unit of interest
           }
         */
-          if (mapParts && mapParts.indicatorStatistics && mapParts.indicatorStatistics.poiLayer) {
-            let poiLayer = mapParts.indicatorStatistics.poiLayer;
-            kommonitorGenericMapHelperService.removeLayerFromMap(mapParts.map, poiLayer);
-            kommonitorGenericMapHelperService.removeLayerFromLayerControl(mapParts.layerControl, poiLayer);
-          }
+        if (mapParts && mapParts.indicatorStatistics && mapParts.indicatorStatistics.poiLayer) {
+          let poiLayer = mapParts.indicatorStatistics.poiLayer;
+          kommonitorGenericMapHelperService.removeLayerFromMap(mapParts.map, poiLayer);
+          kommonitorGenericMapHelperService.removeLayerFromLayerControl(mapParts.layerControl, poiLayer);
+        }
 
-          if (mapParts && mapParts.indicatorStatistics && mapParts.indicatorStatistics.poiIsochroneLayer) {
-            let poiIsochroneLayer = mapParts.indicatorStatistics.poiIsochroneLayer;
-            kommonitorGenericMapHelperService.removeLayerFromMap(mapParts.map, poiIsochroneLayer);
-            kommonitorGenericMapHelperService.removeLayerFromLayerControl(mapParts.layerControl, poiIsochroneLayer);
-          }
+        if (mapParts && mapParts.indicatorStatistics && mapParts.indicatorStatistics.poiIsochroneLayer) {
+          let poiIsochroneLayer = mapParts.indicatorStatistics.poiIsochroneLayer;
+          kommonitorGenericMapHelperService.removeLayerFromMap(mapParts.map, poiIsochroneLayer);
+          kommonitorGenericMapHelperService.removeLayerFromLayerControl(mapParts.layerControl, poiIsochroneLayer);
+        }
 
-          if (mapParts && mapParts.indicatorStatistics && mapParts.indicatorStatistics.indicatorLayer) {
-            let indicatorLayer = mapParts.indicatorStatistics.indicatorLayer;
-            kommonitorGenericMapHelperService.removeLayerFromMap(mapParts.map, indicatorLayer);
-            kommonitorGenericMapHelperService.removeLayerFromLayerControl(mapParts.layerControl, indicatorLayer);
-          }
+        if (mapParts && mapParts.indicatorStatistics && mapParts.indicatorStatistics.indicatorLayer) {
+          let indicatorLayer = mapParts.indicatorStatistics.indicatorLayer;
+          kommonitorGenericMapHelperService.removeLayerFromMap(mapParts.map, indicatorLayer);
+          kommonitorGenericMapHelperService.removeLayerFromLayerControl(mapParts.layerControl, indicatorLayer);
+        }
       };
 
-      this.replaceReachabilityIndicatorStatisticsOnMap = function(domId, poiDataset, original_nonDissolved_isochrones, indicatorStatisticsCandidate){
+      this.fetchIndicatorForSpatialUnit = async function (indicatorId, spatialUnitId, timestamp) {
+
+        let dateComps = timestamp.split("-");
+        var year = dateComps[0];
+        var month = dateComps[1];
+        var day = dateComps[2];
+
+        return await $http({
+          url: kommonitorDataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/indicators/" + indicatorId + "/" + spatialUnitId + "/" + year + "/" + month + "/" + day + "?" + kommonitorDataExchangeService.simplifyGeometriesParameterName + "=" + kommonitorDataExchangeService.simplifyGeometries,
+          method: "GET"
+        }).then(function successCallback(response) {
+          // this callback will be called asynchronously
+          // when the response is available
+          return response.data;
+
+        }, function errorCallback(error) {
+          // called asynchronously if an error occurs
+          // or server returns response with an error status.
+        });
+      }
+
+      /**
+      * binds the popup of a clicked output
+      * to layer.feature.properties.popupContent
+      */
+      this.onEachFeatureIndicator = function(feature, layer, indicatorProperty) {
+       var indicatorValue = feature.properties[indicatorProperty];
+       var indicatorValueText;
+       if (kommonitorDataExchangeService.indicatorValueIsNoData(indicatorValue)) {
+         indicatorValueText = "NoData";
+       }
+       else {
+         indicatorValueText = kommonitorDataExchangeService.getIndicatorValue_asFormattedText(indicatorValue);
+       }
+       var tooltipHtml = "<b>" + feature.properties[__env.FEATURE_NAME_PROPERTY_NAME] + "</b><br/>" + indicatorValueText + " [" + kommonitorDataExchangeService.selectedIndicator.unit + "]";
+       layer.bindTooltip(tooltipHtml, {
+         sticky: false // If true, the tooltip will follow the mouse instead of being fixed at the feature center.
+       });
+
+     };
+
+      this.generateIndicatorLayer = async function (indicatorStatisticsCandidate) {
+        /*  
+          {
+            indicator: {
+              indicatorId: $scope.selectedIndicatorForStatistics.indicatorId,
+              indicatorName: $scope.selectedIndicatorForStatistics.indicatorName,
+              unit: $scope.selectedIndicatorForStatistics.unit
+            },
+            spatialUnit: {
+              spatialUnitId: $scope.selectedSpatialUnit.spatialUnitId,
+              spatialUnitName: $scope.selectedSpatialUnit.spatialUnitName
+            },
+            weightStrategy: $scope.weightStrategy,
+            timestamp: $scope.selectedIndicatorDate,
+            progress: "queued",
+            jobId: jobId,
+            coverageResult: undefined
+          }
+        */
+        let indicatorId = indicatorStatisticsCandidate.indicator.indicatorId;
+        let spatialUnitId = indicatorStatisticsCandidate.spatialUnit.spatialUnitId;
+        let timestamp = indicatorStatisticsCandidate.timestamp;
+        let indicatorMetadataAndGeoJSON = kommonitorDataExchangeService.getIndicatorMetadataById(indicatorId);
+        indicatorMetadataAndGeoJSON.geoJSON = await this.fetchIndicatorForSpatialUnit(indicatorId, spatialUnitId, timestamp);
+        indicatorStatisticsCandidate.indicator.geoJSON = indicatorMetadataAndGeoJSON.geoJSON;
+        let indicatorPropertyName = __env.indicatorDatePrefix + timestamp;
+
+        let defaultBrew = kommonitorVisualStyleHelperService.setupDefaultBrew(indicatorMetadataAndGeoJSON.geoJSON, indicatorPropertyName, indicatorMetadataAndGeoJSON.defaultClassificationMapping.items.length, indicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName, kommonitorVisualStyleHelperService.classifyMethod);
+
+        let outlierDetection_currentGLobalValue = kommonitorDataExchangeService.useOutlierDetectionOnIndicator;
+        kommonitorDataExchangeService.useOutlierDetectionOnIndicator = false; 
+        let layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
+          style: function (feature) {
+            return kommonitorVisualStyleHelperService.styleDefault(feature, defaultBrew, undefined, undefined, indicatorPropertyName, true, false);
+          },
+          onEachFeature: function(featuer, layer){
+            return self.onEachFeatureIndicator(featuer, layer, indicatorPropertyName);
+          }
+        });
+
+        kommonitorDataExchangeService.useOutlierDetectionOnIndicator = outlierDetection_currentGLobalValue;
+
+        return layer;
+      }
+
+      this.replaceReachabilityIndicatorStatisticsOnMap = async function (domId, poiDataset, original_nonDissolved_isochrones, indicatorStatisticsCandidate) {
         let mapParts = this.mapPartsMap.get(domId);
 
         this.removeOldLayers_reachabilityIndicatorStatistics(domId);
 
+        let indicatorLayer = await this.generateIndicatorLayer(indicatorStatisticsCandidate);
+
         // generate poiLayer from POI geometries, original_undissolved isochrones per POI and isochrone prune Result per poi_and_undissolved_isochrone
         let poiLayer = this.generatePoiLayerForIndicatorStatistic(poiDataset, original_nonDissolved_isochrones, indicatorStatisticsCandidate);
-        // let spatialUnitBordersLayer = this.generateSpatialUnitBordersLayer(indicatorStatisticsCandidate.spatialUnit.spatialUnitId);
-        // let indicatorLayer = this.generateIndicatorLayer(indicatorStatisticsCandidate.indicator.indicatorId);
 
         /*
           "indicatorStatistics": {
             "poiLayer": poiLayer, // layer with enhanced indicatorStatisticInformation
             "poiIsochroneLayer": poiIsochroneLayer, // individual isochrone of active clicked poi
-            "spatialUnitBordersLayer": spatialUnitBordersLayer, // borders of certain spatial unit
+            
             "indicatorLayer": indicatorLayer  // the indicator of interest on the spatial unit of interest
           }
         */
         mapParts.indicatorStatistics.poiLayer = poiLayer;
-        // mapParts.indicatorStatistics.indicatorLayer = indicatorLayer;
+        mapParts.indicatorStatistics.indicatorLayer = indicatorLayer;
 
         mapParts.layerControl.addOverlay(poiLayer, poiDataset.datasetName);
         poiLayer.addTo(mapParts.map);
 
-        // mapParts.layerControl.addOverlay(indicatorLayer, indicatorStatisticsCandidate.indicator.indicatorName + " [" + indicatorStatisticsCandidate.indicator.unit + "]");
-        // indicatorLayer.addTo(mapParts.map);
+        mapParts.layerControl.addOverlay(indicatorLayer, indicatorStatisticsCandidate.indicator.indicatorName + " [" + indicatorStatisticsCandidate.indicator.unit + "]");
+        indicatorLayer.addTo(mapParts.map);
+
+        // redraw whole isochrone layer to display it on top of indicator layer        
+        if (mapParts && mapParts.isochroneLayers && mapParts.isochroneLayers.isochroneLayer && mapParts.layerControl) {
+          // mapParts.layerControl.removeLayer(mapParts.isochroneLayers.isochroneLayer);
+          mapParts.map.removeLayer(mapParts.isochroneLayers.isochroneLayer);
+          mapParts.isochroneLayers.isochroneLayer.addTo(mapParts.map);
+
+        }
 
         this.invalidateMap(domId);
         this.zoomToIsochroneLayer(domId);
@@ -572,7 +667,15 @@ angular
         this.mapPartsMap.set(domId, mapParts);
       }
 
-      this.generatePoiPopupContent = function(poiFeature, indicatorStatisticsCandidate){
+      this.getIndicatorFeature_forSpatialUnitFeatureId = function(indicatorGeoJSON, spatialUnitFeatureId){
+        for (const feature of indicatorGeoJSON.features) {
+          if (feature.properties[__env.FEATURE_ID_PROPERTY_NAME] == spatialUnitFeatureId){
+            return feature;
+          }
+        }
+      };
+
+      this.generatePoiPopupContent = function (poiFeature, indicatorStatisticsCandidate) {
 
         /*
           ISOCHRONE PRUNE RESULT EXAMPLE
@@ -600,7 +703,7 @@ angular
           },
         */
 
-        let html = "<div style='max-height: 30vh; overflow:auto;'><h3>" + poiFeature.properties[__env.FEATURE_NAME_PROPERTY_NAME] + "</h3>";        
+        let html = "<div style='max-height: 30vh; overflow:auto;'><h3>" + poiFeature.properties[__env.FEATURE_NAME_PROPERTY_NAME] + "</h3>";
 
         poiFeature.properties.individualIsochronePruneResults.sort((a, b) => {
           let range_a = Number(a.poiFeatureId.split("_")[1]);
@@ -614,7 +717,8 @@ angular
           // if(kommonitorReachabilityHelperService.settings.focus == 'distance'){
           //   unit = "Meter";
           // } 
-          html += "<h4>" + range + " [" + unit + "] - Gesamtgebiet</h4>";
+          html += "<h4>" + range + " [" + unit + "]</h4>";
+          html += "<h4><i>Gesamtgebiet</i></h4>"
 
           html += "<i>" + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(isochronePruneResult.overallCoverage[0].absoluteCoverage) + " / " + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(indicatorStatisticsCandidate.coverageResult.timeseries[0].value) + " [" + indicatorStatisticsCandidate.indicator.unit + "]</i>";
           html += "<br/>";
@@ -635,9 +739,15 @@ angular
             ]
           */
           for (const spatialUnitCoverageEntry of isochronePruneResult.spatialUnitCoverage) {
-            html += "<h4>Raumeinheit <i>" + spatialUnitCoverageEntry.spatialUnitFeatureId + "</i></h4>";
+
+            let indicatorGeoJSON = indicatorStatisticsCandidate.indicator.geoJSON;
+            let indicatorFeature = self.getIndicatorFeature_forSpatialUnitFeatureId(indicatorGeoJSON, spatialUnitCoverageEntry.spatialUnitFeatureId);
+
+            html += "<h4><i>" + indicatorFeature.properties[__env.FEATURE_NAME_PROPERTY_NAME] + "</i></h4>";
             // we can directly query the first element of coverage array as we only query one indicator timestamp at a time
-            html += "<i>" + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(spatialUnitCoverageEntry.coverage[0].absoluteCoverage) + " / X [" + indicatorStatisticsCandidate.indicator.unit + "]</i>";
+            html += "<i>" + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(spatialUnitCoverageEntry.coverage[0].absoluteCoverage) + " / " 
+              + indicatorFeature.properties[__env.indicatorDatePrefix + indicatorStatisticsCandidate.timestamp] 
+              + " [" + indicatorStatisticsCandidate.indicator.unit + "]</i>";
             html += "<br/>";
             html += "entspricht <i>" + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(spatialUnitCoverageEntry.coverage[0].relativeCoverage * 100) + " [%]</i><br/><br/>";
           }
@@ -650,8 +760,8 @@ angular
         return html;
       };
 
-      this.onClickPoiMarker_indicatorStatistics = function(event){
-        
+      this.onClickPoiMarker_indicatorStatistics = function (event) {
+
         let mapParts = self.mapPartsMap.get(self.domId_indicatorStatistics);
 
         //remove any old layer
@@ -691,10 +801,10 @@ angular
 
         self.invalidateMap(self.domId_indicatorStatistics);
 
-        self.mapPartsMap.set(self.domId_indicatorStatistics, mapParts);     
+        self.mapPartsMap.set(self.domId_indicatorStatistics, mapParts);
       };
 
-      this.generatePoiMarkers_indicatorStatistics = function(poiDataset, indicatorStatisticsCandidate){
+      this.generatePoiMarkers_indicatorStatistics = function (poiDataset, indicatorStatisticsCandidate) {
         let markers = this.generatePoiMarkers(poiDataset, false);
 
         // now replace bindPopup method and add click interaction event
@@ -702,7 +812,7 @@ angular
         markers.eachLayer(function (marker) {
           let feature = marker.feature;
           let popupContent = self.generatePoiPopupContent(feature, indicatorStatisticsCandidate);
-          marker.bindPopup(popupContent);          
+          marker.bindPopup(popupContent);
 
           marker.on('click', self.onClickPoiMarker_indicatorStatistics)
         });
@@ -710,13 +820,13 @@ angular
         return markers;
       }
 
-      this.generatePoiLayerForIndicatorStatistic = function(poiDataset, original_nonDissolved_isochrones, indicatorStatisticsCandidate){
+      this.generatePoiLayerForIndicatorStatistic = function (poiDataset, original_nonDissolved_isochrones, indicatorStatisticsCandidate) {
         // for each point attach its personal isochrones (one for each range) as array in it's feature properties. 
         // so after click on a point we can inspect its properties and draw the respective isochrones on the map.
 
         // the information about queried geometries for reachability analysis is stored in reachabilityHelperService settings
 
-        let poiMap = this.initPoiMap(poiDataset.geoJSON_reachability);         
+        let poiMap = this.initPoiMap(poiDataset.geoJSON_reachability);
         poiMap = this.attachIndividualIsochronesToPOIs(poiMap, original_nonDissolved_isochrones);
 
         // also store its POI specific isochrone prune result as feature property to display it's information within a popup
@@ -730,7 +840,7 @@ angular
         return markersLayer;
       };
 
-      this.initPoiMap = function(poiGeoJSON){
+      this.initPoiMap = function (poiGeoJSON) {
         let poiMap = new Map();
 
         for (const poiFeature of poiGeoJSON.features) {
@@ -740,7 +850,7 @@ angular
         return poiMap;
       };
 
-      this.attachIndividualIsochronesToPOIs = function(poiMap, original_nonDissolved_isochrones){
+      this.attachIndividualIsochronesToPOIs = function (poiMap, original_nonDissolved_isochrones) {
 
         for (const isochroneFeature of original_nonDissolved_isochrones.features) {
           // each feature ID consists of poiFeatureID and isochrone rangeValue separated by "_"
@@ -749,8 +859,8 @@ angular
 
           let poiFeature = poiMap.get(poiFeatureID);
 
-          if(poiFeature){
-            if(!poiFeature.properties.individualIsochrones){
+          if (poiFeature) {
+            if (!poiFeature.properties.individualIsochrones) {
               poiFeature.properties.individualIsochrones = [];
             }
             poiFeature.properties.individualIsochrones.push(isochroneFeature);
@@ -761,7 +871,7 @@ angular
         return poiMap;
       }
 
-      this.attachIndividualIsochronePruneResultsToPOIs = function(poiMap, isochronePruneResults){
+      this.attachIndividualIsochronePruneResultsToPOIs = function (poiMap, isochronePruneResults) {
 
         // isochronePruneResults.result is per indicator --> but we only allow one indicator at the same time currently
         // hence we can directly go to first entry and ask its poiCoverage for each range
@@ -773,8 +883,8 @@ angular
 
           let poiFeature = poiMap.get(poiFeatureID);
 
-          if(poiFeature){
-            if(!poiFeature.properties.individualIsochronePruneResults){
+          if (poiFeature) {
+            if (!poiFeature.properties.individualIsochronePruneResults) {
               poiFeature.properties.individualIsochronePruneResults = [];
             }
             poiFeature.properties.individualIsochronePruneResults.push(poiCoverage_foreach_range);
