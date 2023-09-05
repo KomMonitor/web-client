@@ -150,9 +150,15 @@ angular.module('reachabilityIndicatorStatistics').component('reachabilityIndicat
 			}
 
 			$scope.removeIndicatorStatistic = function(indicatorStatisticsCandidate){
+
+				// remove from map if active
+				if(indicatorStatisticsCandidate.active){
+					kommonitorReachabilityMapHelperService.removeOldLayers_reachabilityIndicatorStatistics($scope.domId);
+				}
+
 				for (let index = 0; index < $scope.indicatorStatistics.length; index++) {
 					const entry = $scope.indicatorStatistics[index];
-					if(entry.jobId == indicatorStatisticsCandidate.jobId){
+					if(entry.jobId == indicatorStatisticsCandidate.jobId){						
 						$scope.indicatorStatistics.splice(index, 1);
 						break;
 					}					
