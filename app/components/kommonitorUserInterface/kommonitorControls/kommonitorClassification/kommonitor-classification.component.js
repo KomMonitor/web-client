@@ -13,6 +13,11 @@ angular
 						$scope.showMethodSelection = false;
 						$scope.addBtnHeight = 0;
 						$scope.showAddBtn = false;
+
+						$scope.isDraggingBreak = false;
+						$scope.draggingBreak = null;
+						$scope.nrOfDraggingBreak = null;
+
 						kommonitorVisualStyleHelperService.numClasses = 5;
 
 						$scope.methods = [
@@ -184,24 +189,32 @@ angular
 						$scope.getMinValue = function () {
 							return kommonitorVisualStyleHelperService.manualBrew.breaks[0];
 						}
-						$scope.onBreakMouseMove = function (e, i) {
-							if (i != 0 && i != kommonitorVisualStyleHelperService.manualBrew.breaks.length-1) {
+						$scope.onBreakMouseDown = function (e, i) {
+							$scope.isDraggingBreak = true;
+							$scope.draggingBreak = e.currentTarget;
+							$scope.nrOfDraggingBreak = i;
+						}
+						$scope.onClassificationMouseUp = function () {
+							$scope.isDraggingBreak = false;
+						}
+						$scope.onBreakMouseMove = function (e) {
+							if ($scope.nrOfDraggingBreak != 0 && $scope.nrOfDraggingBreak != kommonitorVisualStyleHelperService.manualBrew.breaks.length-1) {
 								$scope.showAddBtn = false;
 
-								if(e.buttons === 1) {
+								if(e.buttons === 1 && $scope.isDraggingBreak) {
 									let histogram = document.querySelector("#editableHistogram");
 
 									let newHeight = $scope.addBtnHeight / histogram.offsetHeight * 100;
 									if(newHeight > 0 && newHeight < 100) {
-										e.currentTarget.style.top = newHeight + "%";
+										$scope.draggingBreak.style.top = newHeight + "%";
 									}
 
 									(async () => {
 										let breaks = kommonitorVisualStyleHelperService.manualBrew.breaks;
 										let newBreak = Math.floor(($scope.addBtnHeight / histogram.offsetHeight) * (breaks[breaks.length-1] - breaks[0]) + breaks[0]);
 										if (newBreak > breaks[0] && newBreak < breaks[breaks.length-1]) {
-											e.currentTarget.children[0].children[0].value = newBreak;
-											kommonitorVisualStyleHelperService.manualBrew.breaks[i] = newBreak;
+											$scope.draggingBreak.children[0].children[0].value = newBreak;
+											kommonitorVisualStyleHelperService.manualBrew.breaks[$scope.nrOfDraggingBreak] = newBreak;
 											kommonitorVisualStyleHelperService.manualBrew.breaks.sort(function(a, b) {
 												return a - b;
 											});

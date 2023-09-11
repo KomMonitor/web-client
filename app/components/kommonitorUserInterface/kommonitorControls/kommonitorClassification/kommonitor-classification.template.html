@@ -1,5 +1,6 @@
 <!-- classification  -->
-<div id="kommonitorClassification">
+<div id="kommonitorClassification"
+  ng-mouseup="onClassificationMouseUp()">
   <div class="classification-container">
     <div title="Hier können Sie die Klassifizierungsmethode ändern.">
       <div style="font-weight: bold;">Methode</div>
@@ -102,7 +103,8 @@
                class="histogramTabWrapper"
                ng-mousemove="getHeightInElement($event); toggleAddBtn($event)"
                id="editableHistogram">
-            <div class="breaksArea">
+            <div class="breaksArea"
+                 ng-mousemove="onBreakMouseMove($event)">
               <!-- add btn -->
               <div class="addBtnWrapper breakWrapper"
                    style="top: {{addBtnHeight}}px"
@@ -126,8 +128,9 @@
               <div class="breakWrapper"
                    ng-repeat="(i, b) in $ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks track by $index"
                    style="top: {{getPercentage(b)}}%"
+                   ng-mousedown="onBreakMouseDown($event, i)"
+                   ng-click="onBreakClick()"
                    ng-dblclick="onBreakDblClick($event, i)"
-                   ng-mousemove="onBreakMouseMove($event, i)"
                    ng-class="{'fixed': i === 0 || i === $ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks.length-1}">
                 <div class="break"
                      ng-class="{'fixed': i === 0 || i === $ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks.length-1}">
