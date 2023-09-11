@@ -662,7 +662,7 @@ angular
         }
 
         this.invalidateMap(domId);
-        this.zoomToIsochroneLayer(domId);
+        // this.zoomToIsochroneLayer(domId);
 
         this.mapPartsMap.set(domId, mapParts);
       }
