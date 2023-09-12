@@ -97,12 +97,25 @@ angular
 							$rootScope.$broadcast("changeBreaks", kommonitorVisualStyleHelperService.manualBrew.breaks);
 						}
 
-						$scope.onBreaksChanged = function (e) {
+						$scope.onBreaksChanged = function (e, i) {
 							e.currentTarget.disabled = true;
-							kommonitorVisualStyleHelperService.manualBrew.breaks.sort(function(a, b) {
-								return a - b;
-							});
-							$rootScope.$broadcast("changeBreaks", kommonitorVisualStyleHelperService.manualBrew.breaks);
+							
+							let breaks = [...kommonitorVisualStyleHelperService.manualBrew.breaks];
+							if(e.currentTarget.value <= breaks[0] || e.currentTarget.value >= breaks[breaks.length - 1]) {
+								e.currentTarget.value = breaks[i];
+								setTimeout(function () {
+									$scope.$apply(function(){
+										e.currentTarget.value = breaks[i];
+										kommonitorVisualStyleHelperService.manualBrew.breaks[i] = breaks[i];
+									});
+								}, 10);
+							}
+							else {
+								kommonitorVisualStyleHelperService.manualBrew.breaks.sort(function(a, b) {
+									return a - b;
+								});
+								$rootScope.$broadcast("changeBreaks", kommonitorVisualStyleHelperService.manualBrew.breaks);
+							}
 						}
 
 						$scope.onBreakDblClick = function (e, i) {

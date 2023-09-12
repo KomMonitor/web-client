@@ -136,11 +136,11 @@
                      ng-class="{'fixed': i === 0 || i === $ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks.length-1}">
                   <!--<div class="colorBox"></div>-->
                   <input type="number"
-                         ng-blur="onBreaksChanged($event)"
-                         ng-model-options="{ updateOn: 'blur'}"
+                         ng-blur="onBreaksChanged($event, i)"
+                         ng-model-options="{ updateOn: 'blur', allowInvalid: false }"
                          disabled
                          ng-class="{'fixed': i === 0 || i === $ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks.length-1}"
-                         in="{{$ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks[0]}}"
+                         min="{{$ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks[0]}}"
                          max="{{$ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks[$ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks.length - 1]}}"
                          ng-model="$ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks[i]">
                   <i class="fa-regular fa-trash-can" 
@@ -161,8 +161,20 @@
             </div>
           </div>
 
-          <div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked" class="histogramTabWrapper">
-            <div class="breaksArea">
+          <div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked" 
+               class="histogramTabWrapper"
+               ng-mousemove="getHeightInElement($event); toggleAddBtn($event)"
+               id="editableHistogram">
+            <div class="breaksArea"
+                 ng-mousemove="onBreakMouseMove($event)">
+              <!-- add btn -->
+              <div class="addBtnWrapper breakWrapper"
+                   style="top: {{addBtnHeight}}px"
+                   ng-if="showAddBtn"
+                   ng-mousover="toggleAddBtn($event)">
+                <div class="addBtn" ng-click="addNewBreak()">+</div>
+                <div class="line"></div>
+              </div>
               <!-- measure of Value -->
               <div class="breakWrapper measureOfValue"
                    style="top: {{getPercentage($ctrl.kommonitorDataExchangeServiceInstance.measureOfValue)}}%"
@@ -177,12 +189,21 @@
               <!-- other breaks -->
               <div class="breakWrapper"
                    ng-repeat="(i, b) in $ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks track by $index"
-                   style="top: {{getPercentage(b)}}%">
+                   style="top: {{getPercentage(b)}}%"
+                   ng-mousedown="onBreakMouseDown($event, i)"
+                   ng-click="onBreakClick()"
+                   ng-dblclick="onBreakDblClick($event, i)"
+                   ng-class="{'fixed': i === 0 || i === $ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks.length-1}">
                 <div class="break"
-                      ng-mousemove="onBreakMouseMove($event)">
+                     ng-class="{'fixed': i === 0 || i === $ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks.length-1}">
                   <!--<div class="colorBox"></div>-->
                   <input type="number" 
-                         ng-blur="onBreaksChanged()"
+                         ng-blur="onBreaksChanged($event, i)"
+                         ng-model-options="{ updateOn: 'blur', allowInvalid: false }"
+                         disabled
+                         ng-class="{'fixed': i === 0 || i === $ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks.length-1}"
+                         min="{{$ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks[0]}}"
+                         max="{{$ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks[$ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks.length - 1]}}"
                          ng-model="$ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks[i]">
                   <i class="fa-regular fa-trash-can"
                      ng-click="deleteBreak(i)"
