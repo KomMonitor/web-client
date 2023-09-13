@@ -6,7 +6,7 @@ const nodeModulePathConstant = './node_modules/';
 
 module.exports = {
     entry: {
-        app: "./app/app.ajs.js",
+        app: "./app/main.ts",
     },
     output: {
         path: __dirname + "/app/dependencies",

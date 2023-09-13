@@ -1,22 +1,54 @@
-import { DoBootstrap, NgModule } from '@angular/core';
+import { DoBootstrap, NgModule, Version } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { UpgradeModule } from '@angular/upgrade/static';
-import $ from 'jquery';
+import { downgradeComponent } from '@angular/upgrade/static';
+import * as bootstrap from 'bootstrap';
+import * as $ from 'jquery'
 import Keycloak from 'keycloak-js';
 import angular from "angular";
+import * as echarts from 'echarts';
 import { RouterModule, Routes } from '@angular/router';
 import { HashLocationStrategy, LocationStrategy } from '@angular/common';
-
+import { NgxEchartsModule } from 'ngx-echarts';
+import { EchartsDirective, EchartsxModule } from 'echarts-for-angular';
+import { InfoModalComponent } from 'components/kommonitorUserInterface/kommonitorControls/infoModal/info-modal.component';
+import { VersionInfoComponent } from 'components/kommonitorUserInterface/kommonitorControls/versionInfo/version-info.component';
+// import { InfoModalModule } from 'components/kommonitorUserInterface/kommonitorControls/infoModal/info-modal.module';
+// import { VersionInfoModule } from 'components/kommonitorUserInterface/kommonitorControls/versionInfo/version-info.module';
+import { ajskommonitorCacheHelperServiceProvider,ajskommonitorBatchUpdateHelperServiceProvider,ajskommonitorConfigStorageServiceProvider,ajskommonitorDataExchangeServiceeProvider,ajskommonitorDataGridHelperServiceProvider,ajskommonitorDiagramHelperServiceProvider,ajskommonitorFilterHelperServiceProvider,ajskommonitorKeycloackHelperServiceProvider,ajskommonitorMultiStepFormHelperServiceProvider, ajskommonitorSingleFeatureMapServiceProvider } from 'app-upgraded-providers';
+//import { KommonitorDiagramsComponent } from 'components/kommonitorUserInterface/kommonitorControls/kommonitorDiagrams/kommonitor-diagrams.component';
+import { KommonitorDiagramsModule } from 'components/kommonitorUserInterface/kommonitorControls/kommonitorDiagrams/kommonitor-diagrams.module';
 // currently the AngularJS routing is still used as part of kommonitorClient module
 const routes: Routes = [];
+
+declare var MathJax;
 
 @NgModule({
   imports: [
     BrowserModule,
     UpgradeModule,
-    RouterModule.forRoot(routes , { useHash: true })
+    RouterModule.forRoot(routes , { useHash: true }),
+  KommonitorDiagramsModule,
+  NgxEchartsModule.forRoot({
+    echarts: () => import('echarts')
+  }),
+  EchartsxModule,
+    // InfoModalModule,
+    // VersionInfoModule
   ],
-  providers: [{provide: LocationStrategy, useClass: HashLocationStrategy}],
+  providers:[
+    {provide: LocationStrategy, useClass: HashLocationStrategy},
+    ajskommonitorCacheHelperServiceProvider,ajskommonitorBatchUpdateHelperServiceProvider,
+    ajskommonitorConfigStorageServiceProvider,ajskommonitorKeycloackHelperServiceProvider,
+    ajskommonitorMultiStepFormHelperServiceProvider,ajskommonitorDataExchangeServiceeProvider,
+    ajskommonitorDataGridHelperServiceProvider,ajskommonitorSingleFeatureMapServiceProvider,
+    ajskommonitorDiagramHelperServiceProvider,ajskommonitorFilterHelperServiceProvider,
+  ],
+ 
+  declarations: [
+    InfoModalComponent,
+    
+  ]
 })
 
 export class AppModule implements DoBootstrap {
@@ -34,6 +66,8 @@ export class AppModule implements DoBootstrap {
     // instantiate env variable 
     this.env = window.__env || {};
 
+    this.downgradeDependencies();
+
     // initialize kommonitorClient module
     await this.initKomMonitorClientModule();
 
@@ -43,6 +77,24 @@ export class AppModule implements DoBootstrap {
     this.upgrade.bootstrap(document.documentElement, ['kommonitorClient']);
     // setUpLocationSync(this.upgrade);
 
+  }
+
+  private downgradeDependencies(): void {  
+
+    // to inject already upgraded KomMonitor Angular components into "old" AngluarJS components, we must do 2 things
+    // 1. downgrade the new Angular component and register it as directive within each requiring AngularJS module/component
+    //    --> this especially means all components, where the downgraded component is used within the HTML part as directive
+    // 2. in order to prevent no module errors we must remove the old module reference within the .module file of the AngularJS modules/components 
+    angular.module('kommonitorUserInterface')
+    .directive('infoModal',  downgradeComponent({ component: InfoModalComponent }) as angular.IDirectiveFactory);
+
+    angular.module('kommonitorUserInterface')
+    .directive('versionInfo',  downgradeComponent({ component: VersionInfoComponent }) as angular.IDirectiveFactory);
+    
+    //angular.module('kommonitorUserInterface')
+    //.directive('kommonitor-diagrams',  downgradeComponent({ component: KommonitorDiagramsComponent }) as angular.IDirectiveFactory);
+    
+    console.log("registered downgraded Angular components for AngularJS usage");
   }
 
   private checkBrowser(): void {
@@ -243,7 +295,7 @@ export class AppModule implements DoBootstrap {
               // only if texExpression contains the special character '$' which is used to mark tex code
               // then call MathJax function
               if (texExpression && texExpression.includes("$")) {
-                // MathJax.typesetPromise([$element[0]]);
+                MathJax.typesetPromise([$element[0]]);
               }
             });
           },

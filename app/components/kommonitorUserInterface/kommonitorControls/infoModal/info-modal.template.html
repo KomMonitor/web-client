@@ -21,7 +21,7 @@
 							aria-selected="false">Versionsinfo</a>
 					</li>
 					<li class="nav-item">
-						<a class="nav-link" id="infoModalTab3" data-toggle="tab"
+						<a class="nav-link" id="infoModalTab3" data-toggle="tab" 
 							href="#infoModalTab3Content" role="tab" aria-controls="infoModalTab3Content"
 							aria-selected="false"></a>
 					</li>
@@ -47,13 +47,10 @@
 		
 							Weiterhin bietet die <b>Webseite</b> <a href="https://kommonitor.de" target="_blank" rel="noopener noreferrer" >KomMonitor.de</a> allgemeine Informationen.
 		
-							Zuletzt sei auf das <b>Forum</b> <a href="https://forum.kommonitor.de/" target="_blank" rel="noopener noreferrer" >https://forum.kommonitor.de/</a> hingewiesen. Tauschen Sie sich dort gerne mit weiteren Anwendern und Entwicklern aus und tragen so zur Weiterentwicklung des Systems bei.
-						
-						</p>
-		
+							Zuletzt sei auf das <b>Forum</b> <a href="https://forum.kommonitor.de/" target="_blank" rel="noopener noreferrer" >https://forum.kommonitor.de/</a> hingewiesen. Tauschen Sie sich dort gerne mit weiteren Anwendern und Entwicklern aus und tragen so zur Weiterentwicklung des Systems bei.					
+						</p>		
 						<br/>
-						<br/>
-		
+						<br/>		
 						<div>
 							<b>Kontakt</b>
 							<table class=" table-condensed">
@@ -68,7 +65,6 @@
 							  <tr>
 								<td ng-bind-html="$ctrl.kommonitorDataExchangeServiceInstance.customGreetingsContact_name"></td>
 								<td ng-bind-html="$ctrl.kommonitorDataExchangeServiceInstance.customGreetingsContact_organisation"></td>
-								<td><a href="mailto:{{$ctrl.kommonitorDataExchangeServiceInstance.customGreetingsContact_mail}}">{{$ctrl.kommonitorDataExchangeServiceInstance.customGreetingsContact_mail}}</a></td>
 							  </tr>
 							</tbody>
 						  </table>
@@ -89,43 +85,33 @@
 						<p>Entwickelt wird die technische Plattform gemeinsam durch die Hochschule Bochum, Ruhr-Universit&auml;t Bochum und diverse Kommunen und Kreisverwaltungen, im Rahmen des BMBF-gef&ouml;rderten Forschungsprojekts <a href="http://www.kommonitor.de" target="_blank">KomMonitor</a>.
 						</p>
 						<br/>
-		
 						<div align='center'>
-							<img src="logos/BMBF.svg"></img>
-							<img src="logos/FONA.svg"></img>
+							<img src="logos/BMBF.svg"/>
+							<img src="logos/FONA.svg"/>
 						</div>
-
 					</div>
 					<div class="tab-pane" id="infoModalTab2Content" role="tabpanel" aria-labelledby="infoModalTab2">
-						<version-info></version-info>
+				<!-- <version-info></version-info> -->
 					</div>
-					<div class="tab-pane" id="infoModalTab3Content" role="tabpanel" aria-labelledby="infoModalTab3">
+					<div class="tab-pane" id="infoModalTab3Content" role="tabpanel"
+           aria-labelledby="infoModalTab3">
 						
 					</div>
 				</div>
-
-
-				
-
-
-			<div class="modal-footer">
-
+				<div class="modal-footer">
 				<div class="row">
 					<div class="col-md-8">						
 							<label>
 								Begr&uuml;&szlig;ungsfenster beim n&auml;chsten Aufruf verbergen								
 							</label>
-							<input type="checkbox" id="changeHideGreetingsInput" name="dismiss">
-						
-							
+							<input type="checkbox" id="changeHideGreetingsInput" name="dismiss">									
 					</div>
 					<div class="col-md-2">
-						<button type="button" id="callStartGuidedTourButton" class="btn btn-danger">Guided Tour&nbsp;&nbsp;<span class="glyphicon glyphicon-play"></span></button>				
+						<button type="button" id="callStartGuidedTourButton" (click)="callStartGuidedTour()"class="btn btn-danger">Guided Tour&nbsp;&nbsp;<span class="glyphicon glyphicon-play"></span></button>				
 					</div>
 					<div class="col-md-2">
 						<button type="button" class="btn btn-default" data-dismiss="modal">Schlie&szlig;en</button>
 					</div>
-
 				</div>
 			</div>
 		</div>

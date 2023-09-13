@@ -1,88 +1,109 @@
-angular.module('infoModal').component('infoModal', {
-	templateUrl : "components/kommonitorUserInterface/kommonitorControls/infoModal/info-modal.template.html",
-	controller : [
-		'kommonitorDataExchangeService', '$scope', '$rootScope', '__env', '$timeout', 
-		function InfoModalController(kommonitorDataExchangeService, $scope, $rootScope, __env, $timeout) {
+import { Component, OnInit,AfterViewInit } from '@angular/core';
+import { environment } from 'env_backup';
+import { kommonitorDataExchangeServiceFactory } from 'app-upgraded-providers';
+import { ModalService } from 'util/genericServices/modal.service';
+import { VersionInfoComponent } from '../versionInfo/version-info.component';
+@Component({
+  selector: 'info-modal',
+  templateUrl: 'info-modal.template.html',
+  styleUrls: ['info-modal.component.css'],
+ 
+})
+export class InfoModalComponent implements OnInit{
+  kommonitorDataExchangeServiceInstance: any;
+  isHideGreetings: boolean = false;
+ tab1:any='null';
 
-		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 
-		$scope.isHideGreetings = false;
+  customGreetingsContact_name = "Test"; 
+  customGreetingsContact_organisation = "Test"; 
+  customGreetingsContact_mail = "Test"; 
+  customGreetingsTextInfoMessage = "Test";
+  constructor(private modalService: ModalService) {
+    this.customGreetingsContact_name = "Test"; 
+    this.customGreetingsContact_organisation = "Test"; 
+    this.customGreetingsContact_mail = "Test"; 
+    this.customGreetingsTextInfoMessage = "Test";
+   }
+  
 
-		//prevent bootrap modals tabs opened by a tag with href elements from adding their anchor location to 
-        // URL
-		$("a[href^='#']").click(function(e) {
-			e.preventDefault();
-			
-		});  
+  ngOnInit(): void {
 
-		$scope.init = function(){
-			if(! (localStorage.getItem("hideKomMonitorAppGreeting") === "true")) {
-					
-				$scope.isHideGreetings = false;
 
-				$('#infoModal').modal('show');		
-			}
-			else{
-				$scope.isHideGreetings = true;
-				$("#changeHideGreetingsInput").prop('checked', true);
-			}
 
-			let tab1 = document.getElementById("infoModalTab1");
-			tab1.innerHTML = __env.standardInfoModalTabTitle;
-			tab1.click();
-			tab1.focus();
+    this.modalService.startGuidedTour$.subscribe(() => {
+      // Call a method to handle the guided tour event
+      this.callStartGuidedTour();
+    });
+    this.kommonitorDataExchangeServiceInstance =  kommonitorDataExchangeServiceFactory;
+   
+    if (!(localStorage.getItem("hideKomMonitorAppGreeting") === "true")) {
+      this.isHideGreetings = false;
+      $('#infoModal').modal('show');
+    } else {
+      this.isHideGreetings = true;
+      $("#changeHideGreetingsInput").prop('checked', true);
+    }
 
-			if(__env.enableExtendedInfoModal) {				
-				let tab3 = document.getElementById("infoModalTab3");
-				let tab3content = document.getElementById("infoModalTab3Content");				
-				tab3.innerHTML = __env.extendedInfoModalTabTitle;
-				tab3content.innerHTML = __env.extendedInfoModalHTMLMessage;				
-			} else {
-				document.getElementById("infoModalTab3").style.display = "none";
-			}
-			
+   const tab1 = document.getElementById("infoModalTab1");
+   if(tab1 ){
+    tab1.innerHTML = environment.standardInfoModalTabTitle;
+    tab1.click();
+    tab1.focus();
+   
+   
 
-			$timeout(function(){
-				$scope.$digest();
-			}, 250);
-			
-		};
+    if (environment.enableExtendedInfoModal) {
+      const tab3 = document.getElementById("infoModalTab3");
+      const tab3content = document.getElementById("infoModalTab3Content");
 
-		var onChangeHideGreetings = function(){
-			if($scope.isHideGreetings){
-				localStorage.setItem("hideKomMonitorAppGreeting", "true");
-			}
-			else{
-				localStorage.setItem("hideKomMonitorAppGreeting", "false");
-			}
-		};
+      if (tab3 && tab3content) {
+        tab3.innerHTML = environment.extendedInfoModalTabTitle;
+        tab3content.innerHTML =environment.extendedInfoModalHTMLMessage;
+      } 
+      else {
+        alert("not founde")
+      }
+      
+    } 
+    else{
+      console.log("content hasnt be loaded")
+    }
+  }
+    setTimeout(() => {
+      // You might need to use Angular's change detection instead of $digest
+    }, 250);
+  
+  
+  
+  
+  
+  
+  
+  }
+  
 
-		$('#changeHideGreetingsInput').on('click', function(event) {
+  onChangeHideGreetings(): void {
+    if (this.isHideGreetings) {
+      localStorage.setItem("hideKomMonitorAppGreeting", "true");
+    } else {
+      localStorage.setItem("hideKomMonitorAppGreeting", "false");
+    }
+  }
 
-			if($scope.isHideGreetings){
-				$scope.isHideGreetings = false;
-			}
-			else{
-				$scope.isHideGreetings = true;
-			}
-			onChangeHideGreetings();
-			event.stopPropagation();
-	   });
+  onToggleHideGreetings(): void {
+    this.isHideGreetings = !this.isHideGreetings;
+    localStorage.setItem("hideKomMonitorAppGreeting", this.isHideGreetings ? "true" : "false");
+  }
 
-		var callStartGuidedTour = function(){
-			$('#infoModal').modal('hide');
-			$rootScope.$broadcast("startGuidedTour");
-		};
+  callStartGuidedTour(): void {
+    $('#infoModal').modal('hide');
+    this.modalService.startGuidedTour();
 
-		$(document).on('click', '#callStartGuidedTourButton', function (e) {
-			callStartGuidedTour();
-		  });
+  }
 
-		$scope.showFeedbackForm = function(){
-			$('#infoModal').modal('hide');
-			$('#feedbackModal').modal('show');
-		};
-
-		$scope.init();
-	}
-]});
+  showFeedbackForm(): void {
+    $('#infoModal').modal('hide');
+    $('#feedbackModal').modal('show');
+  }
+}
