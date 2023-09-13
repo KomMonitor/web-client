@@ -1,13 +1,23 @@
-"use strict";
-angular.module('versionInfo').component('versionInfo', {
-    templateUrl: "components/kommonitorUserInterface/kommonitorControls/versionInfo/version-info.template.html",
-    controller: [
-        'kommonitorDataExchangeService', '$scope', '$rootScope', '__env', '$timeout',
-        function VersionInfoController(kommonitorDataExchangeService, $scope, $rootScope, __env, $timeout) {
-            this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
-            // initialize any adminLTE box widgets
-            $('.box').boxWidget();
-        }
-    ]
-});
+import { __decorate } from "tslib";
+import { Component } from '@angular/core';
+export let VersionInfoComponent = class VersionInfoComponent {
+    constructor(
+    // private kommonitorDataExchangeService: KommonitorDataExchangeService
+    ) {
+        this.isCollapsed = false;
+    }
+    ngOnInit() {
+        // Initialize any adminLTE box widgets
+        this.initializeBoxWidget();
+    }
+    initializeBoxWidget() {
+        $('.box').boxWidget();
+    }
+};
+VersionInfoComponent = __decorate([
+    Component({
+        selector: 'version-info',
+        templateUrl: 'version-info.template.html',
+    })
+], VersionInfoComponent);
 //# sourceMappingURL=version-info.component.js.map
