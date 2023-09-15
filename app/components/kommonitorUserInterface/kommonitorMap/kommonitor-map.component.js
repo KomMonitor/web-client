@@ -263,7 +263,12 @@ angular.module('kommonitorMap').component(
         const wfsLayerGroupName = "Web Feature Services (WFS)";
         const fileLayerGroupName = "Dateilayer";
 
-        sortableLayers = ["Web Map Services (WMS)"];
+        if (__env.sortableLayers) {
+          sortableLayers = __env.sortableLayers;
+        } 
+        else {
+          sortableLayers = ["Web Map Services (WMS)"];
+        }        
 
         // create classyBrew object
         $scope.defaultBrew = new classyBrew();
