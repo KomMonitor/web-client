@@ -1066,6 +1066,10 @@ pre.CodeMirror-line {
 	filter: brightness(85%);
 }
 
+#indicatorDatePicker {
+	height: 34px;
+}
+
 #dateSliderWrapper .irs--big .irs-line {
 	background-color: #92bce0;
   border: 1px solid #428bca;

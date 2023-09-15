@@ -1999,24 +1999,6 @@ angular.module('kommonitorMap').component(
           });
         });
 
-        $scope.$on("adjustOpacityForIndicatorLayer", function (event, indicatorMetadata, opacity) {
-          // var layerName = indicatorMetadataAndGeoJSON.indicatorName;
-          //
-          // $scope.layerControl._layers.forEach(function(layer){
-          //   if(layer.group.name === indicatorLayerGroupName && layer.name.includes(layerName)){
-          //     layer.layer.setOpacity(opacity);
-          //     layer.layer.setStyle({
-          //       opacity: opacity
-          //     });
-          //   }
-          // });
-
-          opacity = opacity.toFixed(numberOfDecimals);
-
-          kommonitorVisualStyleHelperService.setOpacity(opacity);
-          $rootScope.$broadcast("restyleCurrentLayer", true);
-        });
-
         $scope.$on("addWmsLayerToMap", function (event, dataset, opacity) {
           var wmsLayer = L.tileLayer.betterWms(dataset.url, {
             layers: dataset.layerName,
@@ -2549,6 +2531,7 @@ angular.module('kommonitorMap').component(
 
         function highlightFeature(e) {
           var layer = e.target;
+          kommonitorVisualStyleHelperService.setOpacity(layer.options.fillOpacity);
 
           highlightFeatureForLayer(layer);
         }
