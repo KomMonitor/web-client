@@ -438,8 +438,14 @@ angular.module('kommonitorMap').component(
             }
           };
 
-          $scope.layerControl = L.control.groupedLayers($scope.baseMaps, $scope.groupedOverlays, { position: 'topleft', sortableLayers });
+          $scope.layerControl = L.control.groupedLayers($scope.baseMaps, $scope.groupedOverlays, {collapsed: false, position: 'topleft', sortableLayers });
           $scope.map.addControl($scope.layerControl);
+
+          // Hide Leaflet layer control button in favor of a custom button for opening the layer control group
+          $('.leaflet-control-layers').hide();
+          $scope.$on("openLayerControl", function (event) {
+            $('.leaflet-control-layers').toggle();
+          });
 
           // Disable dragging when user's cursor enters the element
           $scope.layerControl.getContainer().addEventListener('mouseover', function () {

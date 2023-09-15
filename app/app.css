@@ -860,6 +860,12 @@ pre.CodeMirror-line {
 	z-index: 1003;
 }
 
+#openLayerControlButton {
+	left: 220px;
+	top: 10px;
+	z-index: 1003;
+}
+
 .leaflet-container {
 	font-size: 12px !important;
 }
@@ -867,7 +873,7 @@ pre.CodeMirror-line {
 .leaflet-left .leaflet-control-layers {
   /* display: inline-block; */
   /* float: none; */
-	left: 220px;
+	left: 270px;
 	position: absolute;
 
 	width: auto;
