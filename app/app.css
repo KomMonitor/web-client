@@ -900,7 +900,7 @@ pre.CodeMirror-line {
   /* display: inline-block; */
   /* float: none; */
 	position: absolute;
-	left: 6vh;
+	left: 60px;
 	top: 100px;
 	z-index: 1003;
 }
@@ -908,7 +908,7 @@ pre.CodeMirror-line {
 .leaflet-left .leaflet-control-search {
   /* float: none; */
 	position: absolute;
-	left: 6vh;
+	left: 60px;
 	top: 50px;
 	z-index: 1003;
 }
@@ -918,7 +918,7 @@ pre.CodeMirror-line {
 	/* display: inline-block; */
 	/* float: none; */
 	position: absolute;
-	left: 6vh;
+	left: 60px;
 	top: 150px;
 	z-index: 1003;
 }
@@ -927,7 +927,7 @@ pre.CodeMirror-line {
   /* display: inline-block; */
   /* float: none; */
 	position: absolute;
-	left: 6vh;
+	left: 60px;
 	bottom: 100px;
 	z-index: 1003;
 }
