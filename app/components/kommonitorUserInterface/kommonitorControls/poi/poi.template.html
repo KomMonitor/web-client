@@ -213,7 +213,6 @@
 																<th>Typ</th>
 																<th>Datensatz</th>
 																<th>Beschreibung</th>
-																<th>Layer Transparenz</th>
 																<th>Legende</th>
 																<th
 																	ng-if="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
@@ -241,21 +240,6 @@
 																</td>
 																<td>
 																	<p>{{::poi.metadata.description}}</p>
-																</td>
-																<td>
-																	<div class="form-group" align="center">
-
-
-																		<input class=" input-sm"
-																			ng-model="poi.transparency"
-																			ng-init="poi.transparency=0"
-																			ng-change="adjustPOILayerTransparency(poi)"
-																			type="range" min="0" max="1" step="0.01">
-
-																		<br />
-
-																		<label>{{poi.transparency}}</label>
-																	</div>
 																</td>
 																<td class="text-center">
 																	<div align="center">
@@ -308,21 +292,6 @@
 																<td>
 																	<p>{{::loi.metadata.description}}</p>
 																</td>
-																<td>
-																	<div class="form-group" align="center">
-
-
-																		<input class=" input-sm"
-																			ng-model="loi.transparency"
-																			ng-init="loi.transparency=0"
-																			ng-change="adjustLOILayerTransparency(loi)"
-																			type="range" min="0" max="1" step="0.01">
-
-																		<br />
-
-																		<label>{{loi.transparency}}</label>
-																	</div>
-																</td>
 																<td class="text-center">
 																	<div align="center">
 																		<i
@@ -371,20 +340,6 @@
 																<td>
 																	<p>{{::aoi.metadata.description}}</p>
 																</td>
-																<td>
-																	<div class="form-group" align="center">
-
-																		<input class=" input-sm"
-																			ng-model="aoi.transparency"
-																			ng-init="aoi.transparency=0.3"
-																			ng-change="adjustAOILayerTransparency(aoi)"
-																			type="range" min="0" max="1" step="0.01">
-
-																		<br />
-
-																		<label>{{aoi.transparency}}</label>
-																	</div>
-																</td>
 																<td class="text-center">
 																	<div align="center">
 																		<i
@@ -431,20 +386,6 @@
 																<td>
 																	<p ng-bind-html="::dataset.description"></p>
 																</td>
-																<td>
-																	<div class="form-group" align="center">
-
-																		<input class=" input-sm"
-																			ng-model="dataset.transparency"
-																			ng-init="dataset.transparency=0"
-																			ng-change="adjustWMSLayerTransparency(dataset)"
-																			type="range" min="0" max="1" step="0.01">
-
-																		<br />
-
-																		<label>{{dataset.transparency}}</label>
-																	</div>
-																</td>
 																<td class="text-center">
 																	<div ng-if="! dataset.showLegend">
 																		<button class="btn btn-sm btn-primary"
@@ -484,21 +425,6 @@
 																</td>
 																<td>
 																	<p ng-bind-html="::dataset.description"></p>
-																</td>
-																<td>
-																	<div class="form-group" align="center">
-
-
-																		<input class=" input-sm"
-																			ng-model="dataset.transparency"
-																			ng-init="dataset.transparency=0"
-																			ng-change="adjustWFSLayerTransparency(dataset)"
-																			type="range" min="0" max="1" step="0.01">
-
-																		<br />
-
-																		<label>{{dataset.transparency}}</label>
-																	</div>
 																</td>
 																<!-- <td>
 																		<label class="switch">
@@ -582,7 +508,6 @@
 															<th>Typ</th>
 															<th>Datensatz</th>
 															<th>Beschreibung</th>
-															<th>Layer Transparenz</th>
 															<th>Legende</th>
 															<th
 																ng-if="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
@@ -610,20 +535,6 @@
 															</td>
 															<td>
 																<p>{{::poi.metadata.description}}</p>
-															</td>
-															<td>
-																<div class="form-group" align="center">
-
-
-																	<input class=" input-sm" ng-model="poi.transparency"
-																		ng-init="poi.transparency=0"
-																		ng-change="adjustPOILayerTransparency(poi)"
-																		type="range" min="0" max="1" step="0.01">
-
-																	<br />
-
-																	<label>{{poi.transparency}}</label>
-																</div>
 															</td>
 															<td class="text-center">
 																<div align="center">
@@ -676,20 +587,6 @@
 															<td>
 																<p>{{::loi.metadata.description}}</p>
 															</td>
-															<td>
-																<div class="form-group" align="center">
-
-
-																	<input class=" input-sm" ng-model="loi.transparency"
-																		ng-init="loi.transparency=0"
-																		ng-change="adjustLOILayerTransparency(loi)"
-																		type="range" min="0" max="1" step="0.01">
-
-																	<br />
-
-																	<label>{{loi.transparency}}</label>
-																</div>
-															</td>
 															<td class="text-center">
 																<div align="center">
 																	<i
@@ -738,19 +635,6 @@
 															<td>
 																<p>{{::aoi.metadata.description}}</p>
 															</td>
-															<td>
-																<div class="form-group" align="center">
-
-																	<input class=" input-sm" ng-model="aoi.transparency"
-																		ng-init="aoi.transparency=0.3"
-																		ng-change="adjustAOILayerTransparency(aoi)"
-																		type="range" min="0" max="1" step="0.01">
-
-																	<br />
-
-																	<label>{{aoi.transparency}}</label>
-																</div>
-															</td>
 															<td class="text-center">
 																<div align="center">
 																	<i
@@ -797,20 +681,6 @@
 															<td>
 																<p ng-bind-html="::dataset.description"></p>
 															</td>
-															<td>
-																<div class="form-group" align="center">
-
-																	<input class=" input-sm"
-																		ng-model="dataset.transparency"
-																		ng-init="dataset.transparency=0"
-																		ng-change="adjustWMSLayerTransparency(dataset)"
-																		type="range" min="0" max="1" step="0.01">
-
-																	<br />
-
-																	<label>{{dataset.transparency}}</label>
-																</div>
-															</td>
 															<td class="text-center">
 																<div ng-if="! dataset.showLegend">
 																	<button class="btn btn-sm btn-primary"
@@ -850,21 +720,6 @@
 															</td>
 															<td>
 																<p ng-bind-html="::dataset.description"></p>
-															</td>
-															<td>
-																<div class="form-group" align="center">
-
-
-																	<input class=" input-sm"
-																		ng-model="dataset.transparency"
-																		ng-init="dataset.transparency=0"
-																		ng-change="adjustWFSLayerTransparency(dataset)"
-																		type="range" min="0" max="1" step="0.01">
-
-																	<br />
-
-																	<label>{{dataset.transparency}}</label>
-																</div>
 															</td>
 															<!-- <td>
 																		<label class="switch">
@@ -948,7 +803,6 @@
 														<th>Typ</th>
 														<th>Datensatz</th>
 														<th>Beschreibung</th>
-														<th>Layer Transparenz</th>
 														<th>Legende</th>
 														<th
 															ng-if="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
@@ -975,20 +829,6 @@
 														</td>
 														<td>
 															<p>{{::poi.metadata.description}}</p>
-														</td>
-														<td>
-															<div class="form-group" align="center">
-
-
-																<input class=" input-sm" ng-model="poi.transparency"
-																	ng-init="poi.transparency=0"
-																	ng-change="adjustPOILayerTransparency(poi)"
-																	type="range" min="0" max="1" step="0.01">
-
-																<br />
-
-																<label>{{poi.transparency}}</label>
-															</div>
 														</td>
 														<td class="text-center">
 															<div align="center">
@@ -1039,20 +879,6 @@
 														<td>
 															<p>{{::loi.metadata.description}}</p>
 														</td>
-														<td>
-															<div class="form-group" align="center">
-
-
-																<input class=" input-sm" ng-model="loi.transparency"
-																	ng-init="loi.transparency=0"
-																	ng-change="adjustLOILayerTransparency(loi)"
-																	type="range" min="0" max="1" step="0.01">
-
-																<br />
-
-																<label>{{loi.transparency}}</label>
-															</div>
-														</td>
 														<td class="text-center">
 															<div align="center">
 																<i
@@ -1098,19 +924,6 @@
 														<td>
 															<p>{{::aoi.metadata.description}}</p>
 														</td>
-														<td>
-															<div class="form-group" align="center">
-
-																<input class=" input-sm" ng-model="aoi.transparency"
-																	ng-init="aoi.transparency=0.3"
-																	ng-change="adjustAOILayerTransparency(aoi)"
-																	type="range" min="0" max="1" step="0.01">
-
-																<br />
-
-																<label>{{aoi.transparency}}</label>
-															</div>
-														</td>
 														<td class="text-center">
 															<div align="center">
 																<i
@@ -1154,19 +967,6 @@
 														<td>
 															<p ng-bind-html="::dataset.description"></p>
 														</td>
-														<td>
-															<div class="form-group" align="center">
-
-																<input class=" input-sm" ng-model="dataset.transparency"
-																	ng-init="dataset.transparency=0"
-																	ng-change="adjustWMSLayerTransparency(dataset)"
-																	type="range" min="0" max="1" step="0.01">
-
-																<br />
-
-																<label>{{dataset.transparency}}</label>
-															</div>
-														</td>
 
 														<td class="text-center">
 															<div ng-if="! dataset.showLegend">
@@ -1206,19 +1006,6 @@
 														</td>
 														<td>
 															<p ng-bind-html="::dataset.description"></p>
-														</td>
-														<td>
-															<div class="form-group" align="center">
-
-																<input class=" input-sm" ng-model="dataset.transparency"
-																	ng-init="dataset.transparency=0"
-																	ng-change="adjustWFSLayerTransparency(dataset)"
-																	type="range" min="0" max="1" step="0.01">
-
-																<br />
-
-																<label>{{dataset.transparency}}</label>
-															</div>
 														</td>
 														<!-- <td>
 																	<label class="switch">
@@ -1304,7 +1091,6 @@
 													<th>Typ</th>
 													<th>Datensatz</th>
 													<th>Beschreibung</th>
-													<th>Layer Transparenz</th>
 													<th>Legende</th>
 													<th
 														ng-if="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
@@ -1331,20 +1117,6 @@
 													</td>
 													<td>
 														<p>{{::poi.metadata.description}}</p>
-													</td>
-													<td>
-														<div class="form-group" align="center">
-
-
-															<input class=" input-sm" ng-model="poi.transparency"
-																ng-init="poi.transparency=0"
-																ng-change="adjustPOILayerTransparency(poi)" type="range"
-																min="0" max="1" step="0.01">
-
-															<br />
-
-															<label>{{poi.transparency}}</label>
-														</div>
 													</td>
 													<td class="text-center">
 														<div align="center">
@@ -1395,20 +1167,6 @@
 													<td>
 														<p>{{::loi.metadata.description}}</p>
 													</td>
-													<td>
-														<div class="form-group" align="center">
-
-
-															<input class=" input-sm" ng-model="loi.transparency"
-																ng-init="loi.transparency=0"
-																ng-change="adjustLOILayerTransparency(loi)" type="range"
-																min="0" max="1" step="0.01">
-
-															<br />
-
-															<label>{{loi.transparency}}</label>
-														</div>
-													</td>
 													<td class="text-center">
 														<div align="center">
 															<i
@@ -1454,19 +1212,6 @@
 													<td>
 														<p>{{::aoi.metadata.description}}</p>
 													</td>
-													<td>
-														<div class="form-group" align="center">
-
-															<input class=" input-sm" ng-model="aoi.transparency"
-																ng-init="aoi.transparency=0.3"
-																ng-change="adjustAOILayerTransparency(aoi)" type="range"
-																min="0" max="1" step="0.01">
-
-															<br />
-
-															<label>{{aoi.transparency}}</label>
-														</div>
-													</td>
 													<td class="text-center">
 														<div align="center">
 															<i
@@ -1511,19 +1256,6 @@
 													<td>
 														<p ng-bind-html="::dataset.description"></p>
 													</td>
-													<td>
-														<div class="form-group" align="center">
-
-															<input class=" input-sm" ng-model="dataset.transparency"
-																ng-init="dataset.transparency=0"
-																ng-change="adjustWMSLayerTransparency(dataset)"
-																type="range" min="0" max="1" step="0.01">
-
-															<br />
-
-															<label>{{dataset.transparency}}</label>
-														</div>
-													</td>
 
 													<td class="text-center">
 														<div ng-if="! dataset.showLegend">
@@ -1563,19 +1295,6 @@
 													</td>
 													<td>
 														<p ng-bind-html="::dataset.description"></p>
-													</td>
-													<td>
-														<div class="form-group" align="center">
-
-															<input class=" input-sm" ng-model="dataset.transparency"
-																ng-init="dataset.transparency=0"
-																ng-change="adjustWFSLayerTransparency(dataset)"
-																type="range" min="0" max="1" step="0.01">
-
-															<br />
-
-															<label>{{dataset.transparency}}</label>
-														</div>
 													</td>
 													<!-- <td>
 																<label class="switch">
@@ -1673,8 +1392,6 @@
 												<th>Typ</th>
 												<th>Datensatz</th>
 												<th>Beschreibung</th>
-
-												<th>Layer Transparenz</th>
 												<th>Legende</th>
 												<th
 													ng-if="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
@@ -1702,21 +1419,6 @@
 												</td>
 												<td>
 													<p>{{::poi.metadata.description}}</p>
-												</td>
-
-												<td>
-													<div class="form-group" align="center">
-
-
-														<input class=" input-sm" ng-model="poi.transparency"
-															ng-init="poi.transparency=0"
-															ng-change="adjustPOILayerTransparency(poi)" type="range"
-															min="0" max="1" step="0.01">
-
-														<br />
-
-														<label>{{poi.transparency}}</label>
-													</div>
 												</td>
 												<td class="text-center">
 													<div align="center">
@@ -1767,21 +1469,7 @@
 												</td>
 												<td>
 													<p>{{::loi.metadata.description}}</p>
-												</td>
-												<td>
-													<div class="form-group" align="center">
-
-
-														<input class=" input-sm" ng-model="loi.transparency"
-															ng-init="loi.transparency=0"
-															ng-change="adjustLOILayerTransparency(loi)" type="range"
-															min="0" max="1" step="0.01">
-
-														<br />
-
-														<label>{{loi.transparency}}</label>
-													</div>
-												</td>
+												</td>>
 												<td class="text-center">
 													<div align="center">
 														<i
@@ -1828,19 +1516,6 @@
 												<td>
 													<p>{{::aoi.metadata.description}}</p>
 												</td>
-												<td>
-													<div class="form-group" align="center">
-
-														<input class=" input-sm" ng-model="aoi.transparency"
-															ng-init="aoi.transparency=0.3"
-															ng-change="adjustAOILayerTransparency(aoi)" type="range"
-															min="0" max="1" step="0.01">
-
-														<br />
-
-														<label>{{aoi.transparency}}</label>
-													</div>
-												</td>
 												<td class="text-center">
 													<div align="center">
 														<i
@@ -1886,19 +1561,6 @@
 												<td>
 													<p ng-bind-html="::dataset.description"></p>
 												</td>
-												<td>
-													<div class="form-group" align="center">
-
-														<input class=" input-sm" ng-model="dataset.transparency"
-															ng-init="dataset.transparency=0"
-															ng-change="adjustWMSLayerTransparency(dataset)" type="range"
-															min="0" max="1" step="0.01">
-
-														<br />
-
-														<label>{{dataset.transparency}}</label>
-													</div>
-												</td>
 
 												<td class="text-center">
 													<div ng-if="! dataset.showLegend">
@@ -1939,19 +1601,6 @@
 												</td>
 												<td>
 													<p ng-bind-html="::dataset.description"></p>
-												</td>
-												<td>
-													<div class="form-group" align="center">
-
-														<input class=" input-sm" ng-model="dataset.transparency"
-															ng-init="dataset.transparency=0"
-															ng-change="adjustWFSLayerTransparency(dataset)" type="range"
-															min="0" max="1" step="0.01">
-
-														<br />
-
-														<label>{{dataset.transparency}}</label>
-													</div>
 												</td>
 												<!-- <td>
 												<label class="switch">
@@ -2051,7 +1700,6 @@
 												<tr>
 													<th>Datensatz</th>
 													<th>Beschreibung</th>
-													<th>Layer Transparenz</th>
 													<th>Legende</th>
 													<th
 														ng-if="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
@@ -2075,20 +1723,6 @@
 													</td>
 													<td>
 														<p>{{::poi.metadata.description}}</p>
-													</td>
-													<td>
-														<div class="form-group" align="center">
-
-
-															<input class=" input-sm" ng-model="poi.transparency"
-																ng-init="poi.transparency=0"
-																ng-change="adjustPOILayerTransparency(poi)" type="range"
-																min="0" max="1" step="0.01">
-
-															<br />
-
-															<label>{{poi.transparency}}</label>
-														</div>
 													</td>
 													<td class="text-center">
 														<div align="center">
@@ -2160,7 +1794,6 @@
 												<tr>
 													<th>Datensatz</th>
 													<th>Beschreibung</th>
-													<th>Layer Transparenz</th>
 													<th>Legende</th>
 													<th
 														ng-if="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
@@ -2184,20 +1817,6 @@
 													</td>
 													<td>
 														<p>{{::loi.metadata.description}}</p>
-													</td>
-													<td>
-														<div class="form-group" align="center">
-
-
-															<input class=" input-sm" ng-model="loi.transparency"
-																ng-init="loi.transparency=0"
-																ng-change="adjustLOILayerTransparency(loi)" type="range"
-																min="0" max="1" step="0.01">
-
-															<br />
-
-															<label>{{loi.transparency}}</label>
-														</div>
 													</td>
 													<td class="text-center">
 														<div align="center">
@@ -2260,7 +1879,6 @@
 												<tr>
 													<th>Datensatz</th>
 													<th>Beschreibung</th>
-													<th>Layer Transparenz</th>
 													<th>Legende</th>
 													<th
 														ng-if="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
@@ -2285,19 +1903,6 @@
 													</td>
 													<td>
 														<p>{{::aoi.metadata.description}}</p>
-													</td>
-													<td>
-														<div class="form-group" align="center">
-
-															<input class=" input-sm" ng-model="aoi.transparency"
-																ng-init="aoi.transparency=0.3"
-																ng-change="adjustAOILayerTransparency(aoi)" type="range"
-																min="0" max="1" step="0.01">
-
-															<br />
-
-															<label>{{aoi.transparency}}</label>
-														</div>
 													</td>
 													<td class="text-center">
 														<div align="center">
@@ -2358,7 +1963,6 @@
 											<tr>
 												<th>Datensatz</th>
 												<th>Beschreibung</th>
-												<th>Layer Transparenz</th>
 												<th>WMS URL</th>
 												<th>Legende</th>
 											</tr>
@@ -2379,19 +1983,6 @@
 												</td>
 												<td>
 													<p ng-bind-html="::dataset.description"></p>
-												</td>
-												<td>
-													<div class="form-group" align="center">
-
-														<input class=" input-sm" ng-model="dataset.transparency"
-															ng-init="dataset.transparency=0"
-															ng-change="adjustWMSLayerTransparency(dataset)" type="range"
-															min="0" max="1" step="0.01">
-
-														<br />
-
-														<label>{{dataset.transparency}}</label>
-													</div>
 												</td>
 												<td ng-if="$ctrl.kommonitorDataExchangeServiceInstance.showGeoresourceExportButtons" class="text-center">
 													<div align="center">
@@ -2454,7 +2045,6 @@
 											<tr>
 												<th>Datensatz</th>
 												<th>Beschreibung</th>
-												<th>Layer Transparenz</th>
 												<th>auf aktuellen Raumausschnitt beschr&auml;nken</th>
 												<th>WFS URL</th>
 												<th>Legende</th>
@@ -2475,19 +2065,6 @@
 												</td>
 												<td>
 													<p ng-bind-html="::dataset.description"></p>
-												</td>
-												<td>
-													<div class="form-group" align="center">
-
-														<input class=" input-sm" ng-model="dataset.transparency"
-															ng-init="dataset.transparency=0"
-															ng-change="adjustWFSLayerTransparency(dataset)" type="range"
-															min="0" max="1" step="0.01">
-
-														<br />
-
-														<label>{{dataset.transparency}}</label>
-													</div>
 												</td>
 												<td>
 													<label class="switch">
