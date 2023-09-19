@@ -131,41 +131,11 @@ angular
 								}
 							}
 						}
-
-						$scope.onMOVBreaksChanged = function () {
-							kommonitorVisualStyleHelperService.manualMOVBreaks[0] = kommonitorVisualStyleHelperService.measureOfValueBrew[0].breaks;
-							kommonitorVisualStyleHelperService.manualMOVBreaks[1] = kommonitorVisualStyleHelperService.measureOfValueBrew[1].breaks;
-							
-							kommonitorVisualStyleHelperService.manualMOVBreaks[0].sort(function(a, b) {return a - b;});
-							kommonitorVisualStyleHelperService.manualMOVBreaks[1].sort(function(a, b) {return a - b;});
-
-
-							$rootScope.$broadcast("changeMOVBreaks", kommonitorVisualStyleHelperService.manualMOVBreaks);
-						}
 						
 						$scope.onWholeTimeseriesClassificationCheckboxChanged = function () {
 							$rootScope.$broadcast("restyleCurrentLayer", false);
 						}
 
-						$scope.getWidthForBar = function (i) {
-							let nrItems = 0;
-							kommonitorVisualStyleHelperService.manualBrew.colors.forEach(color => {
-								nrItems += kommonitorVisualStyleHelperService.featuresPerColorMap.get(color) || 0;
-							});
-							let color = kommonitorVisualStyleHelperService.manualBrew.colors[i];
-							let countFeatures = kommonitorVisualStyleHelperService.featuresPerColorMap.get(color) || 0;
-							let returnVal = (countFeatures / nrItems) * 100;
-							return returnVal;
-						}
-
-						$scope.getHistogramNumber = function (i) {
-							let color = kommonitorVisualStyleHelperService.manualBrew.colors[i];
-							let countFeatures = kommonitorVisualStyleHelperService.featuresPerColorMap.get(color) || 0;
-							return countFeatures;
-						}
-
-
-						// for histogram:
 						$scope.getWidthForHistogramBar = function (i) {
 							let colors = kommonitorVisualStyleHelperService.manualBrew.colors;
 							let countArray = [];
