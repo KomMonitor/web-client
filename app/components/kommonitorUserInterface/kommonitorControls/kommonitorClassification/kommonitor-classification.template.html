@@ -179,10 +179,9 @@
               <div class="breakWrapper measureOfValue"
                    style="top: {{getPercentage($ctrl.kommonitorDataExchangeServiceInstance.measureOfValue)}}%"
                    ng-mousedown="onBreakMouseMove($event)">
-                <div class ="break">
+                <div class ="break fixed">
                   <!--<div class="colorBox"></div>-->
-                  <input type="number" 
-                         ng-model="$ctrl.kommonitorDataExchangeServiceInstance.measureOfValue">
+                  <span>{{$ctrl.kommonitorDataExchangeServiceInstance.measureOfValue}}</span>
                 </div>
                 <div class="line"></div>
               </div>

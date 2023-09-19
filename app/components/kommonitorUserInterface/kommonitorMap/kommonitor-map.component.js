@@ -1068,6 +1068,10 @@ angular.module('kommonitorMap').component(
           $rootScope.$broadcast("restyleCurrentLayer", false);
         });
 
+        $scope.$on("changeMOV", function (event, mov) {
+          $scope.updateManualMOVBreaksFromDefaultManualBreaks();
+        });
+
         $(document).on('click', '#controlNoDataDisplay', function (e) {
           var controlNoDataDisplayCheckbox = document.getElementById('controlNoDataDisplay');
 
