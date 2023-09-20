@@ -2850,6 +2850,12 @@ input:checked + .switchslider:before {
 #statisticalValuesDisplayTable td {
 	padding: 0;
 	margin: 0;
+	text-align: end;
+	padding-right: 24px;
+ }
+
+ #statisticalValuesDisplayTable th {
+	text-align: center;
  }
 
 .scriptAddFormList {
