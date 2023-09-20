@@ -144,6 +144,11 @@
     <div id="content" style="height: 100%; width: 100%; position: relative;">
 
         <kommonitor-map style="height: 100%; width: 100%; position: absolute;"></kommonitor-map>
+		
+		<button type="button" id="sidebarLegendCollapse"
+		ng-click="onSidebarLegendButtonClick()" ng-class="buttonLegendClass" data-toggle="tooltip" title="Legenden- und Informationsfenster">
+		<i style="font-size:2.5vh;" class="fas fa-info"></i>
+	</button>
 
 				<!-- LEFT-HANDED SIDEBAR BUTTONS -->
 
@@ -207,10 +212,6 @@
 							<i style="font-size:2.5vh;" class="fas fa-sliders-h"></i>
 						</button> -->
 
-						<button type="button" id="sidebarLegendCollapse"
-							ng-click="onSidebarLegendButtonClick()" ng-class="buttonLegendClass" data-toggle="tooltip" title="Legenden- und Informationsfenster">
-							<i style="font-size:2.5vh;" class="fas fa-info"></i>
-						</button>
 				</div>
 
 				<!-- MAP UTIL BUTTONS -->
