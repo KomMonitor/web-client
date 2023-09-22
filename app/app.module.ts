@@ -14,9 +14,10 @@ import { EchartsDirective, EchartsxModule } from 'echarts-for-angular';
 import { InfoModalComponent } from 'components/kommonitorUserInterface/kommonitorControls/infoModal/info-modal.component';
 import { VersionInfoComponent } from 'components/kommonitorUserInterface/kommonitorControls/versionInfo/version-info.component';
 import { KommonitorDiagramsComponent } from 'components/kommonitorUserInterface/kommonitorControls/kommonitorDiagrams/kommonitor-diagrams.component';
+import { IndicatorRadarComponent } from 'components/kommonitorUserInterface/kommonitorControls/indicatorRadar/indicator-radar';
 // import { InfoModalModule } from 'components/kommonitorUserInterface/kommonitorControls/infoModal/info-modal.module';
 // import { VersionInfoModule } from 'components/kommonitorUserInterface/kommonitorControls/versionInfo/version-info.module';
-
+import { RegressionDiagramComponent } from 'components/kommonitorUserInterface/kommonitorControls/regressionDiagram/regression-diagram.component';
 import { ajskommonitorCacheHelperServiceProvider,ajskommonitorBatchUpdateHelperServiceProvider,ajskommonitorConfigStorageServiceProvider,ajskommonitorDataExchangeServiceeProvider,ajskommonitorDataGridHelperServiceProvider,ajskommonitorDiagramHelperServiceProvider,ajskommonitorFilterHelperServiceProvider,ajskommonitorKeycloackHelperServiceProvider,ajskommonitorMultiStepFormHelperServiceProvider, ajskommonitorSingleFeatureMapServiceProvider } from 'app-upgraded-providers';
 //import { KommonitorDiagramsComponent } from 'components/kommonitorUserInterface/kommonitorControls/kommonitorDiagrams/kommonitor-diagrams.component';
 
@@ -49,17 +50,27 @@ declare var MathJax;
   declarations: [
     InfoModalComponent,
     VersionInfoComponent,
-KommonitorDiagramsComponent
+    KommonitorDiagramsComponent,
+    IndicatorRadarComponent,
+    RegressionDiagramComponent
+
+
+
   ]
 })
 
 export class AppModule implements DoBootstrap {
+
+
+ 
+
 
   private env: any = {};
 
   constructor(private upgrade: UpgradeModule) {
 
   }
+
   async ngDoBootstrap() {
 
     this.checkBrowser();
@@ -92,7 +103,6 @@ export class AppModule implements DoBootstrap {
 
     angular.module('kommonitorUserInterface')
     .directive('versionInfo',  downgradeComponent({ component: VersionInfoComponent }) as angular.IDirectiveFactory);
-
 
   
     
@@ -539,4 +549,8 @@ export class AppModule implements DoBootstrap {
     }
   }
 
+
+
+
+ 
 }

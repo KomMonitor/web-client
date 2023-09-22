@@ -1,15 +1,15 @@
 // indicator-radar.module.ts
 
 import { NgModule } from '@angular/core';
-
-import { kommonitorDiagramHelperServiceFactory } from 'app-upgraded-providers';
-import { kommonitorDataExchangeServiceFactory } from 'app-upgraded-providers';
+import { ajskommonitorDiagramHelperServiceProvider } from 'app-upgraded-providers';
+import { ajskommonitorDataExchangeServiceeProvider } from 'app-upgraded-providers';
+import { ajskommonitorFilterHelperServiceProvider } from 'app-upgraded-providers';
 import { IndicatorRadarComponent } from './indicator-radar';
 @NgModule({
   imports: [
- 
+
   ],
-  providers:[kommonitorDataExchangeServiceFactory,kommonitorDiagramHelperServiceFactory],
+  providers: [ajskommonitorDiagramHelperServiceProvider,ajskommonitorDataExchangeServiceeProvider,ajskommonitorFilterHelperServiceProvider], 
   declarations: [IndicatorRadarComponent],
   exports: [] 
 })

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-
+import { environment } from 'env_backup';
 @Injectable({
   providedIn: 'root'
 })
@@ -23,7 +23,7 @@ export class KommonitorConfigStorageService {
     formdata.append("appConfig", new Blob([jsonString], { type: "application/json" }));
 
     return this.http.post<any>(
-      __env.configStorageServerConfig.targetUrlToConfigStorageServer_keycloakConfig,
+      environment.configStorageServerConfig.targetUrlToConfigStorageServer_keycloakConfig,
       formdata,
       {
         headers: { "Accept": "text/plain" },
@@ -48,7 +48,7 @@ export class KommonitorConfigStorageService {
     formdata.append("appConfig", new Blob([jsonString], { type: "application/json" }));
 
     return this.http.post<any>(
-      __env.configStorageServerConfig.targetUrlToConfigStorageServer_controlsConfig,
+      environment.configStorageServerConfig.targetUrlToConfigStorageServer_controlsConfig,
       formdata,
       {
         headers: { "Accept": "text/plain" },
@@ -73,7 +73,7 @@ export class KommonitorConfigStorageService {
     formdata.append("appConfig", new Blob([jsString], { type: "application/javascript" }));
 
     return this.http.post<any>(
-      __env.configStorageServerConfig.targetUrlToConfigStorageServer_appConfig,
+      environment.configStorageServerConfig.targetUrlToConfigStorageServer_appConfig,
       formdata,
       {
         headers: { "Accept": "text/plain" },
@@ -93,7 +93,7 @@ export class KommonitorConfigStorageService {
    */
   getKeycloakConfig(): Observable<any> {
     return this.http.get<any>(
-      __env.configStorageServerConfig.targetUrlToConfigStorageServer_keycloakConfig,
+      environment.configStorageServerConfig.targetUrlToConfigStorageServer_keycloakConfig,
       {
         responseType: 'json'
       }
@@ -111,7 +111,7 @@ export class KommonitorConfigStorageService {
    */
   getControlsConfig(): Observable<any> {
     return this.http.get<any>(
-      __env.configStorageServerConfig.targetUrlToConfigStorageServer_controlsConfig,
+      environment.configStorageServerConfig.targetUrlToConfigStorageServer_controlsConfig,
       {
         responseType: 'json'
       }
@@ -129,7 +129,7 @@ export class KommonitorConfigStorageService {
    */
   getAppConfig(): Observable<any> {
     return this.http.get<any>(
-      __env.configStorageServerConfig.targetUrlToConfigStorageServer_appConfig,
+      environment.configStorageServerConfig.targetUrlToConfigStorageServer_appConfig,
       {
         responseType: 'text'
       }

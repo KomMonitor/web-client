@@ -76,6 +76,8 @@ angular
                 };
             };
             var wait = ms => new Promise((r, j) => setTimeout(r, ms));
+            
+            
             $scope.$on("allIndicatorPropertiesForCurrentSpatialUnitAndTime setup begin", async function (event) {
                 await wait(130);
                 $scope.setupCompleted = false;
@@ -91,6 +93,7 @@ angular
                     $scope.onChangeSelectedIndicators();
                 }, 500);
             });
+       
             $scope.onChangeSelectedDate = function (input) {
                 $scope.onChangeSelectedIndicators();
             };
@@ -151,6 +154,7 @@ angular
                     $scope.onChangeSelectedIndicators();
                 }, 500);
             });
+
             $scope.$on("updateDiagramsForHoveredFeature", function (event, featureProperties) {
                 if (!$scope.regressionChart) {
                     return;
@@ -179,6 +183,7 @@ angular
                     });
                 }
             });
+
             $scope.$on("updateDiagramsForUnhoveredFeature", function (event, featureProperties) {
                 if (!$scope.regressionChart) {
                     return;
@@ -207,6 +212,8 @@ angular
                     }
                 }
             });
+
+    
             $scope.getAllIndicatorPropertiesSortedBySpatialUnitFeatureName = function () {
                 for (var i = 0; i < kommonitorDiagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime.length; i++) {
                     // make object to hold indicatorName, max value and average value
@@ -226,6 +233,7 @@ angular
                 }
                 return kommonitorDiagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime;
             };
+           
             $scope.getPropertiesForIndicatorName = async function (indicatorName) {
                 for (var [index, indicator] of kommonitorDiagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime.entries()) {
                     if (indicator.indicatorMetadata.indicatorName == indicatorName) {
@@ -247,6 +255,8 @@ angular
                 }
                 return color;
             };
+
+            
             function mapRegressionData(indicatorPropertiesArray, timestamp, map, axisValueName) {
                 for (const indicatorPropertiesEntry of indicatorPropertiesArray) {
                     let featureName = indicatorPropertiesEntry[__env.FEATURE_NAME_PROPERTY_NAME];
@@ -276,6 +286,8 @@ angular
                 }
                 return map;
             }
+
+    
             $scope.buildDataArrayForSelectedIndicators = async function () {
                 $scope.data = new Array();
                 $scope.dataWithLabels = new Array();
@@ -287,22 +299,6 @@ angular
                 }
                 var timestamp_xAxis = $scope.selection.selectedIndicatorForXAxis.selectedDate;
                 var timestamp_yAxis = $scope.selection.selectedIndicatorForYAxis.selectedDate;
-                /*
-                consider several cases
-                across data timestamps or whole features might not exist
-                --> cope with that and only preserve those result objects that have both timestamp values
-                for x and y axis
-                */
-                // store data in a map to check above prerequesits
-                // key = ID, 
-                // value = regressionObject = {
-                // 	name: featureName,											
-                // 	itemStyle: {
-                // 		color: color
-                // 	},
-                //  xAxisName: indicatorValue_x,
-                //  yAxisName: indicatorValue_y
-                //}
                 let xAxisName = "xValue";
                 let yAxisName = "yValue";
                 let dataCandidateMap = mapRegressionData(indicatorPropertiesArrayForXAxis, timestamp_xAxis, new Map(), xAxisName);
@@ -368,6 +364,7 @@ angular
                 var answer = step1 / step4;
                 return Number(+answer.toFixed(2));
             }
+            // currently here
             $scope.calculatePearsonCorrelation = function (data) {
                 // data is an array of arrays containing the pairs of [x, y]
                 var xArray = new Array();
@@ -468,23 +465,7 @@ angular
                             feature: {
                                 // mark : {show: true},
                                 dataView: { show: kommonitorDataExchangeService.showDiagramExportButtons, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - lineare Regression', 'schlie&szlig;en', 'refresh'], optionToContent: function (opt) {
-                                        // 	<table class="table table-condensed table-hover">
-                                        // 	<thead>
-                                        // 		<tr>
-                                        // 			<th>Indikator-Name</th>
-                                        // 			<th>Beschreibung der Verkn&uuml;pfung</th>
-                                        // 		</tr>
-                                        // 	</thead>
-                                        // 	<tbody>
-                                        // 		<tr ng-repeat="indicator in $ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.referencedIndicators">
-                                        // 			<td>{{indicator.referencedIndicatorName}}</td>
-                                        // 			<td>{{indicator.referencedIndicatorDescription}}</td>
-                                        // 		</tr>
-                                        // 	</tbody>
-                                        // </table>
-                                        // has properties "name" and "value"
-                                        // value: [Number(xAxisDataElement.toFixed(4)), Number(yAxisDataElement.toFixed(4))]
-                                        var scatterSeries = opt.series[0].data;
+                                          var scatterSeries = opt.series[0].data;
                                         var lineSeries = opt.series[1].data;
                                         var dataTableId = "regressionDataTable";
                                         var tableExportName = opt.title[0].text + " - Scatter Table";
@@ -586,7 +567,9 @@ angular
                                         }]
                                 }
                             }]
-                    };
+                    }; //regressiojoptions
+
+                    
                     $scope.regressionChart.setOption($scope.regressionOption);
                     await $scope.regressionChart.hideLoading();
                     setTimeout(function () {

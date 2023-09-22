@@ -105,6 +105,7 @@
     "echarts": "^5.4.3",
     "echarts-for-angular": "^0.4.0",
     "echarts-stat": "^1.2.0",
+    "eslint-plugin-import": "^2.28.1",
     "fastclick": "^1.0.6",
     "file-saver": "^2.0.5",
     "font-awesome": "^4.7.0",
