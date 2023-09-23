@@ -15,6 +15,9 @@ import {kommonitorShareHelperService} from 'util/genericServices/kommonitorShare
 import {kommonitorSingleFeatureMapHelperService} from 'util/genericServices/kommonitorSingleFeatureMapHelperService/kommonitor-single-feature-map-helper-service.module'
 import {kommonitorVisualStyleHelperService} from 'util/genericServices/kommonitorVisualStyleHelperService/kommonitor-visual-style-helper-service.module'
 
+
+//cache helper service
+
 export function kommonitorCacheHelperServiceFactory(injector:any){
     return injector.get('kommonitorCacheHelperService');
 }
@@ -24,7 +27,7 @@ export const ajskommonitorCacheHelperServiceProvider: any = {
     useFactory:kommonitorCacheHelperServiceFactory ,
   };
   
-
+ //batch update helper service
 export function kommonitorBatchUpdateHelperServiceFactory (injector:any){
     return injector.get('kommonitorBatchUpdateHelperService')
 }
@@ -35,6 +38,7 @@ export const ajskommonitorBatchUpdateHelperServiceProvider: any = {
     useFactory:kommonitorBatchUpdateHelperServiceFactory ,
   };
 
+  //config storage
   export function kommonitorConfigStorageServiceFactory (injector:any){
     return injector.get('kommonitorConfigStorageService')
 }
@@ -65,9 +69,8 @@ export const ajskommonitorDataGridHelperServiceProvider: any = {
     useFactory:kommonitorDataGridHelperServiceFactory,
   };
 //diagram helper
-  export function kommonitorDiagramHelperServiceFactory (injector:any){
-    return injector.get('kommonitorDiagramHelperService')
-}
+
+export const kommonitorDiagramHelperServiceFactory = (injector: any) => injector.get('KommonitorDiagramHelperService');
 
 export const ajskommonitorDiagramHelperServiceProvider: any = {
     deps: ['$injector'],

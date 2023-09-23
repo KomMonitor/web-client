@@ -31,7 +31,9 @@
       "strictInjectionParameters": true,
       "strictInputAccessModifiers": true,
       "strictTemplates": true,
-  
+      "strictPropertyInitialization":false,
+      "experimentalDecorators": true,
+        "emitDecoratorMetadata": true
 
     }
   }

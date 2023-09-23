@@ -77,6 +77,7 @@ angular
                 }
                 modifyRadarContent(kommonitorDiagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime);
             };
+            //here
             $scope.onChangeSelectedDate = function (input) {
                 if (input.isSelected) {
                     modifyRadarContent(kommonitorDiagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime);
