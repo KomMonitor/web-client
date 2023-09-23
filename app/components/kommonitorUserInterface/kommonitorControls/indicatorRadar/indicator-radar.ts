@@ -18,7 +18,7 @@ export class IndicatorRadarComponent implements OnInit, OnDestroy, AfterViewInit
   eventsRegistered=false
   private resizeSubscription= new Subscription;
   public activeTab = 0;
-  public radarChart;
+  // public radarChart;
   radarOption;
   private DATE_PREFIX = environment.indicatorDatePrefix;
   public indicatorNameFilter = undefined;
@@ -26,7 +26,7 @@ export class IndicatorRadarComponent implements OnInit, OnDestroy, AfterViewInit
   public date='';
   public spatialUnitName:string | undefined;
  public indicatorPropertiesForCurrentSpatialUnitAndTime: any[] = [];
- @ViewChild('radarChart') radarChart: ElementRef;
+ @ViewChild('radarChart') radarChart: any;
 
  FEATURE_ID_PROPERTY_NAME = environment.FEATURE_ID_PROPERTY_NAME;
  defaultSeriesValueArray: any[] = [];
@@ -114,7 +114,7 @@ export class IndicatorRadarComponent implements OnInit, OnDestroy, AfterViewInit
     console.log("updating radar diagram");
     this.setupCompleted = false;
     this.updateRadarChart(indicatorMetadataAndGeoJSON, spatialUnitName, spatialUnitId, date);
-    this.preserveHighlightedFeatures.emit();
+    // this.preserveHighlightedFeatures.emit();
   }
 
   async updateRadarChart(indicatorMetadataAndGeoJSON: any, spatialUnitName: string, spatialUnitId: string, date: any) {
@@ -161,9 +161,9 @@ export class IndicatorRadarComponent implements OnInit, OnDestroy, AfterViewInit
     }
   }
   async modifyRadarContent(indicatorsForRadar: any[]): Promise<void> {
-    const indicatorArrayForRadarChart = [];
-    const defaultSeriesValueArray = [];
-    let sampleProperties = null;
+    const indicatorArrayForRadarChart:any[] = [];
+    const defaultSeriesValueArray: any[] = [];
+    let sampleProperties:any = undefined;
 
     
     for (let i = 0; i < indicatorsForRadar.length; i++) {
@@ -195,13 +195,14 @@ export class IndicatorRadarComponent implements OnInit, OnDestroy, AfterViewInit
         if (maxValue == null) {
           maxValue = 1;
         }
-        indicatorArrayForRadarChart.push({
+        let object = {
           name: indicatorsForRadar[i].indicatorMetadata.indicatorName + " - " + indicatorsForRadar[i].selectedDate,
           unit: indicatorsForRadar[i].indicatorMetadata.unit,
           max:maxValue,
           min: minValue
-        });
-        defaultSeriesValueArray.push(this.kommonitorDataExchangeService.getIndicatorValueFromArray_asNumber(indicatorPropertyInstance, date));
+        };
+        indicatorArrayForRadarChart.push(object);
+        defaultSeriesValueArray.push(this.kommonitorDataExchangeService.getIndicatorValue_asNumber(Number(valueSum / indicatorProperties.length)));
       }
     };//end of for loop
     if (this.defaultSeriesValueArray.length === 0) {
@@ -380,9 +381,10 @@ export class IndicatorRadarComponent implements OnInit, OnDestroy, AfterViewInit
 
   appendSeriesToRadarChart(featureProperties: any): void {
     this.radarOption.legend.data.push(featureProperties[environment.FEATURE_NAME_PROPERTY_NAME]);
+    let valueArray: any[] = [];
     let featureSeries = {
       name: featureProperties[environment.FEATURE_NAME_PROPERTY_NAME],
-      value: [],
+      value: valueArray,
       emphasis: {
         lineStyle: {
           width: 4,
