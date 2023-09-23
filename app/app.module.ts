@@ -104,7 +104,11 @@ export class AppModule implements DoBootstrap {
     angular.module('kommonitorUserInterface')
     .directive('versionInfo',  downgradeComponent({ component: VersionInfoComponent }) as angular.IDirectiveFactory);
 
-  
+    angular.module('kommonitorUserInterface')
+    .directive('regression-diagram',  downgradeComponent({ component: RegressionDiagramComponent }) as angular.IDirectiveFactory);
+
+    angular.module('kommonitorUserInterface')
+    .directive('kommonitorDiagrams',  downgradeComponent({ component: KommonitorDiagramsComponent }) as angular.IDirectiveFactory);
     
     angular.module('kommonitorUserInterface')
     .directive('kommonitorDiagrams',  downgradeComponent({ component: KommonitorDiagramsComponent }) as angular.IDirectiveFactory);

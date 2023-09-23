@@ -7,9 +7,10 @@ import { takeUntil } from 'rxjs';
 declare var $: any;
 import * as echarts from 'echarts';
 import * as ecStat from 'echarts-stat';
+import * as $ from 'jquery';
 
 @Component({
-  selector: 'app-regression-diagram',
+  selector: 'regression-diagram',
   templateUrl: 'regression-diagram.template.html',
   providers:[ajskommonitorDataExchangeServiceeProvider,ajskommonitorDiagramHelperServiceProvider,ajskommonitorFilterHelperServiceProvider]
 })
@@ -369,7 +370,7 @@ private ngUnsubscribe: Subject<void> = new Subject<void>();
                       htmlString += "</tbody>";  
                       htmlString += "</table>";
                       this.$rootScope.$broadcast("AppendExportButtonsForTable", dataTableId, tableExportName);
-                      this.rootScope.$broadcast("AppendExportButtonsForTable", lineTableId, lineTableExportName);
+                      this.$rootScope.$broadcast("AppendExportButtonsForTable", lineTableId, lineTableExportName);
                       return htmlString;
                     }
                     
@@ -481,7 +482,7 @@ registerEventsIfNecessary(): void {
       const spatialFeatureName = params.data.name;
 
       if (spatialFeatureName) {
-        this.rootScope.$broadcast("switchHighlightFeatureOnMap", spatialFeatureName);
+        this.$rootScope.$broadcast("switchHighlightFeatureOnMap", spatialFeatureName);
       }
     });
 
@@ -555,11 +556,11 @@ mapRegressionData(indicatorPropertiesArray: any[], timestamp: string, map: Map<s
   for (const indicatorPropertiesEntry of indicatorPropertiesArray) {
     let featureName = indicatorPropertiesEntry[environment.FEATURE_NAME_PROPERTY_NAME];
     let indicatorValue: number | null;
-    if (this.kommonitorDataExchangeService.indicatorValueIsNoData(indicatorPropertiesEntry[DATE_PREFIX + timestamp])) {
+    if (this.kommonitorDataExchangeService.indicatorValueIsNoData(indicatorPropertiesEntry[this.DATE_PREFIX + timestamp])) {
       indicatorValue = null;
     }
     else {
-      indicatorValue = this.kommonitorDataExchangeService.getIndicatorValue_asNumber(indicatorPropertiesEntry[DATE_PREFIX + timestamp]);
+      indicatorValue = this.kommonitorDataExchangeService.getIndicatorValue_asNumber(indicatorPropertiesEntry[this.DATE_PREFIX + timestamp]);
     }
     if (map.has(featureName)) {
       let oldObject = map.get(featureName);
@@ -587,8 +588,8 @@ async buildDataArrayForSelectedIndicators() {
   let indicatorPropertiesArrayForXAxis = await this.getPropertiesForIndicatorName(this.selection.selectedIndicatorForXAxis.indicatorMetadata.indicatorName);
   let indicatorPropertiesArrayForYAxis = await this.getPropertiesForIndicatorName(this.selection.selectedIndicatorForYAxis.indicatorMetadata.indicatorName);
   if (this.kommonitorFilterHelperService.completelyRemoveFilteredFeaturesFromDisplay && this.kommonitorFilterHelperService.filteredIndicatorFeatureIds.size > 0) {
-      indicatorPropertiesArrayForXAxis = indicatorPropertiesArrayForXAxis.filter(featureProperties => !this.kommonitorFilterHelperService.featureIsCurrentlyFiltered(featureProperties[this.environment.FEATURE_ID_PROPERTY_NAME]));
-      indicatorPropertiesArrayForYAxis = indicatorPropertiesArrayForYAxis.filter(featureProperties => !this.kommonitorFilterHelperService.featureIsCurrentlyFiltered(featureProperties[this.environment.FEATURE_ID_PROPERTY_NAME]));
+      indicatorPropertiesArrayForXAxis = indicatorPropertiesArrayForXAxis.filter(featureProperties => !this.kommonitorFilterHelperService.featureIsCurrentlyFiltered(featureProperties[environment.FEATURE_ID_PROPERTY_NAME]));
+      indicatorPropertiesArrayForYAxis = indicatorPropertiesArrayForYAxis.filter(featureProperties => !this.kommonitorFilterHelperService.featureIsCurrentlyFiltered(featureProperties[environment.FEATURE_ID_PROPERTY_NAME]));
   }
   let timestamp_xAxis = this.selection.selectedIndicatorForXAxis.selectedDate;
   let timestamp_yAxis = this.selection.selectedIndicatorForYAxis.selectedDate;

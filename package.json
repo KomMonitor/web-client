@@ -141,7 +141,7 @@
     "shpjs": "^3.4.3",
     "slimscroll": "^0.9.1",
     "sortablejs": "^1.13.0",
-    "tableexport": "^5.0.5",
+    "tableexport": "^5.2.0",
     "tslib": "^2.6.0",
     "ui-select": "^0.19.8",
     "zone.js": "^0.13.1"

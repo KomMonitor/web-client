@@ -6,7 +6,7 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ajskommonitorDataExchangeServiceeProvider, ajskommonitorDiagramHelperServiceProvider, ajskommonitorFilterHelperServiceProvider } from 'app-upgraded-providers';
 @Component({
-  selector: 'app-indicator-radar',
+  selector: 'indicator-radar',
   templateUrl: 'indicator-radar.template.html',
   providers:[ajskommonitorDataExchangeServiceeProvider,ajskommonitorDiagramHelperServiceProvider,ajskommonitorFilterHelperServiceProvider]
 })
