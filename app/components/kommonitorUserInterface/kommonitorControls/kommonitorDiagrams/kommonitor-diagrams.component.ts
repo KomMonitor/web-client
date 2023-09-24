@@ -4,9 +4,9 @@ import { Subject } from 'rxjs';
 import { debounceTime ,takeUntil} from 'rxjs/operators';
 import { environment } from 'env_backup';
 declare var echarts: any; 
-import { TableExport } from 'tableexport';
+// import { TableExport } from 'tableexport';
 @Component({
-  selector: 'app-kommonitor-diagrams',
+  selector: 'kommonitor-diagrams',
   templateUrl: 'kommonitor-diagrams.template.html',
   // styleUrls: ['./kommonitor-diagrams.component.css']
 })
@@ -412,18 +412,18 @@ indicatorPr
       setTimeout(() => {
         const tableElement = document.getElementById(tableId);
         if (tableElement) {
-          new TableExport(tableElement, {
-            headers: true,
-            footers: true,
-            formats: ['xlsx', 'csv', 'txt'],
-            filename: tableExportName,
-            bootstrap: true,
-            exportButtons: true,
-            position: 'top',
-            ignoreRows: [], // they generally arent needed
-            ignoreCols:[], // they are generally not needed AND THEY CAN BE ARRAY or removed from the code
-            trimWhitespace: true
-          });
+          // new TableExport(tableElement, {
+          //   headers: true,
+          //   footers: true,
+          //   formats: ['xlsx', 'csv', 'txt'],
+          //   filename: tableExportName,
+          //   bootstrap: true,
+          //   exportButtons: true,
+          //   position: 'top',
+          //   ignoreRows: [], // they generally arent needed
+          //   ignoreCols:[], // they are generally not needed AND THEY CAN BE ARRAY or removed from the code
+          //   trimWhitespace: true
+          // });
         } else {
           console.error(`Element with id "${tableId}" not found`);
         }

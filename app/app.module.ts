@@ -110,8 +110,8 @@ export class AppModule implements DoBootstrap {
     // angular.module('kommonitorUserInterface')
     // .directive('kommonitorDiagrams',  downgradeComponent({ component: KommonitorDiagramsComponent }) as angular.IDirectiveFactory);
     
-    // angular.module('kommonitorUserInterface')
-    // .directive('kommonitorDiagrams',  downgradeComponent({ component: KommonitorDiagramsComponent }) as angular.IDirectiveFactory);
+    angular.module('kommonitorUserInterface')
+    .directive('kommonitorDiagrams',  downgradeComponent({ component: KommonitorDiagramsComponent }) as angular.IDirectiveFactory);
     
     console.log("registered downgraded Angular components for AngularJS usage");
   }
