@@ -1,9 +1,13 @@
 import { NgModule } from '@angular/core';
-import { kommonitorDataExchangeServiceFactory } from 'app-upgraded-providers';
-import { kommonitorDiagramHelperServiceFactory } from 'app-upgraded-providers';
-
+import { CommonModule } from '@angular/common';
+import { ajskommonitorDataExchangeServiceeProvider } from 'app-upgraded-providers';
+import { ajskommonitorDiagramHelperServiceProvider } from 'app-upgraded-providers';
+import { KommonitorDiagramsComponent } from './kommonitor-diagrams.component';
 @NgModule({
-declarations:[],
-providers:[]
+declarations:[KommonitorDiagramsComponent],
+imports:[CommonModule],
+exports:[KommonitorDiagramsComponent],
+providers:[ajskommonitorDataExchangeServiceeProvider, ajskommonitorDiagramHelperServiceProvider],
+bootstrap:[KommonitorDiagramsComponent]
 })
 export class KommonitorDiagramsModule {}

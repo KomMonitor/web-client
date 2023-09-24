@@ -1,25 +1,23 @@
-import { Component, OnInit,AfterViewInit } from '@angular/core';
+import { Component, OnInit,AfterViewInit, Inject } from '@angular/core';
 import { environment } from 'env_backup';
-import { kommonitorDataExchangeServiceFactory } from 'app-upgraded-providers';
+import { ajskommonitorDataExchangeServiceeProvider, kommonitorDataExchangeServiceFactory } from 'app-upgraded-providers';
 import { ModalService } from 'util/genericServices/modal.service';
 import { VersionInfoComponent } from '../versionInfo/version-info.component';
 @Component({
   selector: 'info-modal',
   templateUrl: 'info-modal.template.html',
   styleUrls: ['info-modal.component.css'],
- 
+ providers:[ModalService,ajskommonitorDataExchangeServiceeProvider]
 })
 export class InfoModalComponent implements OnInit{
-  kommonitorDataExchangeServiceInstance: any;
+  
   isHideGreetings: boolean = false;
  tab1:any='null';
-
-
   customGreetingsContact_name = "Test"; 
   customGreetingsContact_organisation = "Test"; 
   customGreetingsContact_mail = "Test"; 
   customGreetingsTextInfoMessage = "Test";
-  constructor(private modalService: ModalService) {
+  constructor(private modalService: ModalService,@Inject('kommonitorDataExchangeService') public kommonitorDataExchangeService: any) {
     this.customGreetingsContact_name = "Test"; 
     this.customGreetingsContact_organisation = "Test"; 
     this.customGreetingsContact_mail = "Test"; 
@@ -35,7 +33,6 @@ export class InfoModalComponent implements OnInit{
       // Call a method to handle the guided tour event
       this.callStartGuidedTour();
     });
-    this.kommonitorDataExchangeServiceInstance =  kommonitorDataExchangeServiceFactory;
    
     if (!(localStorage.getItem("hideKomMonitorAppGreeting") === "true")) {
       this.isHideGreetings = false;
@@ -73,11 +70,6 @@ export class InfoModalComponent implements OnInit{
     setTimeout(() => {
       // You might need to use Angular's change detection instead of $digest
     }, 250);
-  
-  
-  
-  
-  
   
   
   }
