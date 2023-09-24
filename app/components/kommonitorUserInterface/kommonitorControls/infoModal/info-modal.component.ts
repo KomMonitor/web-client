@@ -17,7 +17,7 @@ export class InfoModalComponent implements OnInit{
   customGreetingsContact_organisation = "Test"; 
   customGreetingsContact_mail = "Test"; 
   customGreetingsTextInfoMessage = "Test";
-  constructor(private modalService: ModalService,@Inject('ajsKommonitorDataExchangeService') public kommonitorDataExchangeService: any) {
+  constructor(private modalService: ModalService,@Inject('kommonitorDataExchangeService') public kommonitorDataExchangeService: any) {
     this.customGreetingsContact_name = "Test"; 
     this.customGreetingsContact_organisation = "Test"; 
     this.customGreetingsContact_mail = "Test"; 
@@ -33,7 +33,6 @@ export class InfoModalComponent implements OnInit{
       // Call a method to handle the guided tour event
       this.callStartGuidedTour();
     });
-    this.kommonitorDataExchangeService =  kommonitorDataExchangeServiceFactory(this.kommonitorDataExchangeService);
    
     if (!(localStorage.getItem("hideKomMonitorAppGreeting") === "true")) {
       this.isHideGreetings = false;

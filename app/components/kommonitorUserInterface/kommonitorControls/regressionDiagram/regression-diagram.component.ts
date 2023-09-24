@@ -75,9 +75,9 @@ private ngUnsubscribe: Subject<void> = new Subject<void>();
   lineTableExportName: string |undefined
   
   constructor( private cd:ChangeDetectorRef,
-   @Inject('ajsKommonitorDataExchangeService') private kommonitorDataExchangeService:any,
-   @Inject('ajsKommonitorDiagramHelperService') private kommonitorDiagramHelperService:any,
-   @Inject('ajsKommonitorFilterHelperService') private kommonitorFilterHelperService:any,
+   @Inject('kommonitorDataExchangeService') private kommonitorDataExchangeService:any,
+   @Inject('kommonitorDiagramHelperService') private kommonitorDiagramHelperService:any,
+   @Inject('kommonitorFilterHelperService') private kommonitorFilterHelperService:any,
   ) { }
 
 

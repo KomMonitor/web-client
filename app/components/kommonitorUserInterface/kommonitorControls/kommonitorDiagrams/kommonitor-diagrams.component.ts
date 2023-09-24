@@ -3,12 +3,14 @@ import { fromEvent, Subscription } from 'rxjs';
 import { Subject } from 'rxjs';
 import { debounceTime ,takeUntil} from 'rxjs/operators';
 import { environment } from 'env_backup';
+import { ajskommonitorDataExchangeServiceeProvider, ajskommonitorDiagramHelperServiceProvider } from 'app-upgraded-providers';
 declare var echarts: any; 
 // import { TableExport } from 'tableexport';
 @Component({
   selector: 'kommonitor-diagrams',
   templateUrl: 'kommonitor-diagrams.template.html',
-  // styleUrls: ['./kommonitor-diagrams.component.css']
+  // styleUrls: ['./kommonitor-diagrams.component.css'],
+  providers:[ajskommonitorDataExchangeServiceeProvider, ajskommonitorDiagramHelperServiceProvider],
 })
 export class KommonitorDiagramsComponent implements OnInit, OnDestroy, AfterViewInit {
   histogramChart: any;
@@ -55,9 +57,9 @@ indicatorPr
   featureNamePropertyName: string =environment.FEATURE_NAME_PROPERTY_NAME; 
 
   constructor( private ngZone: NgZone, 
-    @Inject('ajsKommonitorDataExchangeService') private kommonitorDataExchangeService: any,
-    @Inject('ajsKommonitorDiagramHelperService') private kommonitorDiagramHelperService: any,
-    @Inject('ajsKommonitorFilterHelperService') private kommonitorFilterHelperService: any
+    @Inject('kommonitorDataExchangeService') private kommonitorDataExchangeService: any,
+    @Inject('kommonitorDiagramHelperService') private kommonitorDiagramHelperService: any,
+    @Inject('kommonitorFilterHelperService') private kommonitorFilterHelperService: any
   ) {}
 
 

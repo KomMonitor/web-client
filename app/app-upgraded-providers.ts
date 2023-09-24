@@ -70,7 +70,7 @@ export const ajskommonitorDataGridHelperServiceProvider: any = {
   };
 //diagram helper
 
-export const kommonitorDiagramHelperServiceFactory = (injector: any) => injector.get('KommonitorDiagramHelperService');
+export const kommonitorDiagramHelperServiceFactory = (injector: any) => injector.get('kommonitorDiagramHelperService');
 
 export const ajskommonitorDiagramHelperServiceProvider: any = {
     deps: ['$injector'],
