@@ -14,10 +14,10 @@ import { EchartsDirective, EchartsxModule } from 'echarts-for-angular';
 import { InfoModalComponent } from 'components/kommonitorUserInterface/kommonitorControls/infoModal/info-modal.component';
 import { VersionInfoComponent } from 'components/kommonitorUserInterface/kommonitorControls/versionInfo/version-info.component';
 import { KommonitorDiagramsComponent } from 'components/kommonitorUserInterface/kommonitorControls/kommonitorDiagrams/kommonitor-diagrams.component';
-import { IndicatorRadarComponent } from 'components/kommonitorUserInterface/kommonitorControls/indicatorRadar/indicator-radar';
+// import { IndicatorRadarComponent } from 'components/kommonitorUserInterface/kommonitorControls/indicatorRadar/indicator-radar';
 // import { InfoModalModule } from 'components/kommonitorUserInterface/kommonitorControls/infoModal/info-modal.module';
 // import { VersionInfoModule } from 'components/kommonitorUserInterface/kommonitorControls/versionInfo/version-info.module';
-import { RegressionDiagramComponent } from 'components/kommonitorUserInterface/kommonitorControls/regressionDiagram/regression-diagram.component';
+// import { RegressionDiagramComponent } from 'components/kommonitorUserInterface/kommonitorControls/regressionDiagram/regression-diagram.component';
 import { ajskommonitorCacheHelperServiceProvider,ajskommonitorBatchUpdateHelperServiceProvider,ajskommonitorConfigStorageServiceProvider,ajskommonitorDataExchangeServiceeProvider,ajskommonitorDataGridHelperServiceProvider,ajskommonitorDiagramHelperServiceProvider,ajskommonitorFilterHelperServiceProvider,ajskommonitorKeycloackHelperServiceProvider,ajskommonitorMultiStepFormHelperServiceProvider, ajskommonitorSingleFeatureMapServiceProvider } from 'app-upgraded-providers';
 //import { KommonitorDiagramsComponent } from 'components/kommonitorUserInterface/kommonitorControls/kommonitorDiagrams/kommonitor-diagrams.component';
 
@@ -51,8 +51,8 @@ declare var MathJax;
     InfoModalComponent,
     VersionInfoComponent,
     KommonitorDiagramsComponent,
-    IndicatorRadarComponent,
-    RegressionDiagramComponent
+    // IndicatorRadarComponent,
+    // RegressionDiagramComponent
 
 
 
@@ -104,14 +104,14 @@ export class AppModule implements DoBootstrap {
     angular.module('kommonitorUserInterface')
     .directive('versionInfo',  downgradeComponent({ component: VersionInfoComponent }) as angular.IDirectiveFactory);
 
-    angular.module('kommonitorUserInterface')
-    .directive('regression-diagram',  downgradeComponent({ component: RegressionDiagramComponent }) as angular.IDirectiveFactory);
+    // angular.module('kommonitorUserInterface')
+    // .directive('regression-diagram',  downgradeComponent({ component: RegressionDiagramComponent }) as angular.IDirectiveFactory);
 
-    angular.module('kommonitorUserInterface')
-    .directive('kommonitorDiagrams',  downgradeComponent({ component: KommonitorDiagramsComponent }) as angular.IDirectiveFactory);
+    // angular.module('kommonitorUserInterface')
+    // .directive('kommonitorDiagrams',  downgradeComponent({ component: KommonitorDiagramsComponent }) as angular.IDirectiveFactory);
     
-    angular.module('kommonitorUserInterface')
-    .directive('kommonitorDiagrams',  downgradeComponent({ component: KommonitorDiagramsComponent }) as angular.IDirectiveFactory);
+    // angular.module('kommonitorUserInterface')
+    // .directive('kommonitorDiagrams',  downgradeComponent({ component: KommonitorDiagramsComponent }) as angular.IDirectiveFactory);
     
     console.log("registered downgraded Angular components for AngularJS usage");
   }

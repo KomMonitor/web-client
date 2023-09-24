@@ -4,11 +4,11 @@ import { Subject } from 'rxjs';
 import { debounceTime ,takeUntil} from 'rxjs/operators';
 import { environment } from 'env_backup';
 declare var echarts: any; 
-import { TableExport } from 'dependencies/tableexport/tableexport';
+import { TableExport } from 'tableexport';
 @Component({
   selector: 'app-kommonitor-diagrams',
   templateUrl: 'kommonitor-diagrams.template.html',
-  styleUrls: ['./kommonitor-diagrams.component.css']
+  // styleUrls: ['./kommonitor-diagrams.component.css']
 })
 export class KommonitorDiagramsComponent implements OnInit, OnDestroy, AfterViewInit {
   histogramChart: any;
