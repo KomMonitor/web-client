@@ -135,7 +135,6 @@ angular
 
 
 				this.settings.dissolveIsochrones = true;
-				document.getElementById("btn_isochrones").click();
 				this.settings.transitMode = 'buffer';
 				document.getElementById("optBuffer").click();
 				this.settings.focus = 'distance';

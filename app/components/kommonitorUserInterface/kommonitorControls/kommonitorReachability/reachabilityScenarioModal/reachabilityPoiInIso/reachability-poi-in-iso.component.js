@@ -22,7 +22,12 @@ angular.module('reachabilityPoiInIso').component('reachabilityPoiInIso', {
 				$scope.resetPoisInIsochrone();
 			});
 
-			$rootScope.$on("isochronesCalculationFinished", function () {
+			$rootScope.$on("isochronesCalculationFinished", function (event, reinit) {
+
+				if(reinit){
+					$scope.init();
+					$scope.resetPoisInIsochrone();
+				}
 
 				kommonitorReachabilityMapHelperService
 					.replaceIsochroneGeoJSON(

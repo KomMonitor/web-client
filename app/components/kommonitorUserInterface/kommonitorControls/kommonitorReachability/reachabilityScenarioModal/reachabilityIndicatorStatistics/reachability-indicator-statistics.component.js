@@ -2,21 +2,22 @@ angular.module('reachabilityIndicatorStatistics').component('reachabilityIndicat
 	templateUrl: "components/kommonitorUserInterface/kommonitorControls/kommonitorReachability/reachabilityScenarioModal/reachabilityIndicatorStatistics/reachability-indicator-statistics.template.html",
 	controller: ['kommonitorDataExchangeService',
 		'$scope', '$rootScope', '$http', '__env', '$timeout', 'kommonitorReachabilityHelperService', 'kommonitorDiagramHelperService',
-		'kommonitorReachabilityMapHelperService', 'kommonitorSpatialDataProcessorHelperService',
+		'kommonitorReachabilityMapHelperService', 'kommonitorSpatialDataProcessorHelperService', 'kommonitorReachabilityScenarioHelperService',
 		function reachabilityIndicatorStatisticsController(kommonitorDataExchangeService,
 			$scope, $rootScope, $http, __env, $timeout, kommonitorReachabilityHelperService, kommonitorDiagramHelperService,
-			kommonitorReachabilityMapHelperService, kommonitorSpatialDataProcessorHelperService) {
+			kommonitorReachabilityMapHelperService, kommonitorSpatialDataProcessorHelperService, kommonitorReachabilityScenarioHelperService) {
 
 			this.kommonitorReachabilityHelperServiceInstance = kommonitorReachabilityHelperService;
 			this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 			this.kommonitorDiagramHelperServiceInstance = kommonitorDiagramHelperService;
 			this.kommonitorSpatialDataProcessorHelperServiceInstance = kommonitorSpatialDataProcessorHelperService;
+			this.kommonitorReachabilityScenarioHelperServiceInstance = kommonitorReachabilityScenarioHelperService;
 
 			$scope.selectedIndicatorForStatistics = undefined;
 			$scope.selectedSpatialUnit = undefined;
 			$scope.selectedIndicatorDate = undefined;
 
-			$scope.indicatorStatistics = [];
+			kommonitorReachabilityScenarioHelperService.tmpActiveScenario.indicatorStatistics = [];
 
 			$scope.weightStrategyOptions = [
 				{
@@ -98,7 +99,7 @@ angular.module('reachabilityIndicatorStatistics').component('reachabilityIndicat
 			};
 
 			$scope.modifyJobStatus = function (jobId, jobStatus) {
-				for (const indicatorStatisticsEntry of $scope.indicatorStatistics) {
+				for (const indicatorStatisticsEntry of kommonitorReachabilityScenarioHelperService.tmpActiveScenario.indicatorStatistics) {
 					if (indicatorStatisticsEntry.jobId == jobId) {
 						indicatorStatisticsEntry.progress = jobStatus;
 						break;
@@ -109,7 +110,7 @@ angular.module('reachabilityIndicatorStatistics').component('reachabilityIndicat
 			$scope.retrieveJobResult = async function (jobId) {
 				let response = await kommonitorSpatialDataProcessorHelperService.getJobResult(jobId);
 
-				for (const indicatorStatisticsEntry of $scope.indicatorStatistics) {
+				for (const indicatorStatisticsEntry of kommonitorReachabilityScenarioHelperService.tmpActiveScenario.indicatorStatistics) {
 					indicatorStatisticsEntry.active = false;
 					if (indicatorStatisticsEntry.jobId == jobId) {
 						// as wen only query spatial data processor for one indicator and on timestamp at a time we can use first entry of result array
@@ -143,7 +144,7 @@ angular.module('reachabilityIndicatorStatistics').component('reachabilityIndicat
 					active: false
 				}
 
-				$scope.indicatorStatistics.push(newIsochroneStatisticsEntry);
+				kommonitorReachabilityScenarioHelperService.tmpActiveScenario.indicatorStatistics.push(newIsochroneStatisticsEntry);
 
 				// now trigger periodical query of job status
 				$scope.queryJobStatus(jobId);				
@@ -156,10 +157,10 @@ angular.module('reachabilityIndicatorStatistics').component('reachabilityIndicat
 					kommonitorReachabilityMapHelperService.removeOldLayers_reachabilityIndicatorStatistics($scope.domId);
 				}
 
-				for (let index = 0; index < $scope.indicatorStatistics.length; index++) {
-					const entry = $scope.indicatorStatistics[index];
+				for (let index = 0; index < kommonitorReachabilityScenarioHelperService.tmpActiveScenario.indicatorStatistics.length; index++) {
+					const entry = kommonitorReachabilityScenarioHelperService.tmpActiveScenario.indicatorStatistics[index];
 					if(entry.jobId == indicatorStatisticsCandidate.jobId){						
-						$scope.indicatorStatistics.splice(index, 1);
+						kommonitorReachabilityScenarioHelperService.tmpActiveScenario.indicatorStatistics.splice(index, 1);
 						break;
 					}					
 				}
@@ -169,7 +170,7 @@ angular.module('reachabilityIndicatorStatistics').component('reachabilityIndicat
 				// property coverageResult stores isochrone prune result
 
 				// mark active list element
-				for (const indicatorStatisticsEntry of $scope.indicatorStatistics) {
+				for (const indicatorStatisticsEntry of kommonitorReachabilityScenarioHelperService.tmpActiveScenario.indicatorStatistics) {
 					indicatorStatisticsEntry.active = false;
 					if (indicatorStatisticsEntry.jobId == indicatorStatisticsCandidate.jobId) {
 						indicatorStatisticsEntry.active = true;					

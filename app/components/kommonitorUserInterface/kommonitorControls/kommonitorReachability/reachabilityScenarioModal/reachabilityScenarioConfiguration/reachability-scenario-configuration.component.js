@@ -315,7 +315,11 @@ angular.module('reachabilityScenarioConfiguration').component('reachabilityScena
 
 			};
 
-			$rootScope.$on("isochronesCalculationFinished", function () {
+			$rootScope.$on("isochronesCalculationFinished", function (event, reinit) {
+
+				if(reinit){
+					$scope.init();
+				}
 
 				kommonitorReachabilityMapHelperService.replaceIsochroneMarker($scope.domId, kommonitorReachabilityHelperService.settings.locationsArray);
 				kommonitorReachabilityMapHelperService

@@ -2,10 +2,13 @@ angular.module('reachabilityScenarioModal').component('reachabilityScenarioModal
 	templateUrl: "components/kommonitorUserInterface/kommonitorControls/kommonitorReachability/reachabilityScenarioModal/reachability-scenario-modal.template.html",
 	controller: ['kommonitorDataExchangeService',
 		'$scope', '$rootScope', '$http', '__env', '$timeout', 'kommonitorMultiStepFormHelperService', 'kommonitorReachabilityHelperService',
+		'kommonitorReachabilityScenarioHelperService',
 		function ReachabilityScenarioModalController(kommonitorDataExchangeService,
-			$scope, $rootScope, $http, __env, $timeout, kommonitorMultiStepFormHelperService, kommonitorReachabilityHelperService) {
+			$scope, $rootScope, $http, __env, $timeout, kommonitorMultiStepFormHelperService, kommonitorReachabilityHelperService,
+			kommonitorReachabilityScenarioHelperService) {
 
 			this.kommonitorReachabilityHelperServiceInstance = kommonitorReachabilityHelperService;
+			this.kommonitorReachabilityScenarioHelperServiceInstance = kommonitorReachabilityScenarioHelperService;
 			this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 
 			$scope.emptyDatasetName = "-- leerer neuer Datensatz --";
@@ -61,18 +64,25 @@ angular.module('reachabilityScenarioModal').component('reachabilityScenarioModal
 
 			};
 
+			$scope.resetReachabilityScenarioForm = function(){
+				kommonitorReachabilityHelperService.settings.selectedStartPointLayer = undefined;
+				kommonitorReachabilityHelperService.currentIsochronesGeoJSON = undefined;
+				kommonitorReachabilityHelperService.original_nonDissolved_isochrones = undefined;
+				kommonitorReachabilityScenarioHelperService.resetTmpActiveScenario();
+				kommonitorReachabilityHelperService.resetSettings();
+			}
+
 
 			$scope.$on("onManageReachabilityScenario", function (event, scenarioDataset) {
+
 				kommonitorMultiStepFormHelperService.registerClickHandler();
-				if (scenarioDataset) {
-					if (kommonitorReachabilityHelperService.settings.selectedStartPointLayer && kommonitorReachabilityHelperService.settings.selectedStartPointLayer.scenarioName === scenarioDataset.name) {
+				if (scenarioDataset) {						
+
+					if (kommonitorReachabilityScenarioHelperService.tmpActiveScenario.scenarioName && kommonitorReachabilityScenarioHelperService.tmpActiveScenario.scenarioName == scenarioDataset.scenarioName) {
 						return;
 					}
-					else {
-						kommonitorReachabilityHelperService.settings.selectedStartPointLayer = scenarioDataset;
-
-						$scope.resetReachabilityScenarioForm();
-
+					else {								
+						kommonitorReachabilityScenarioHelperService.loadActiveScenario(scenarioDataset);	
 					}
 				}
 
@@ -126,7 +136,7 @@ angular.module('reachabilityScenarioModal').component('reachabilityScenarioModal
 			};
 
 			$scope.initFeatureSchema = async function () {
-				$scope.featureSchemaProperties = [];
+				kommonitorReachabilityHelperService.settings.selectedStartPointLayer.featureSchemaProperties = [];
 
 				return await $http({
 					url: kommonitorDataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/georesources/" + kommonitorReachabilityHelperService.settings.selectedStartPointLayer.georesourceId + "/schema",
@@ -136,11 +146,11 @@ angular.module('reachabilityScenarioModal').component('reachabilityScenarioModal
 					// }
 				}).then(function successCallback(response) {
 
-					$scope.schemaObject = response.data;
+					kommonitorReachabilityHelperService.settings.selectedStartPointLayer.schemaObject = response.data;
 
-					for (var property in $scope.schemaObject) {
+					for (var property in kommonitorReachabilityHelperService.settings.selectedStartPointLayer.schemaObject) {
 						if (property != __env.FEATURE_ID_PROPERTY_NAME && property != __env.FEATURE_NAME_PROPERTY_NAME && property != __env.VALID_START_DATE_PROPERTY_NAME && property != __env.VALID_END_DATE_PROPERTY_NAME) {
-							$scope.featureSchemaProperties.push(
+							kommonitorReachabilityHelperService.settings.selectedStartPointLayer.featureSchemaProperties.push(
 								{
 									property: property,
 									value: undefined
@@ -149,7 +159,7 @@ angular.module('reachabilityScenarioModal').component('reachabilityScenarioModal
 						}
 					}
 
-					return $scope.schemaObject;
+					return kommonitorReachabilityHelperService.settings.selectedStartPointLayer.schemaObject;
 
 				}, function errorCallback(error) {
 

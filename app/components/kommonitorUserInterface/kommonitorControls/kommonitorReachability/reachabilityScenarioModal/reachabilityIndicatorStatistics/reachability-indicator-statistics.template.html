@@ -103,7 +103,7 @@
 								</tr>
 							</thead>
 							<tbody>
-								<tr ng-repeat="indicatorStatisticsEntry in indicatorStatistics">
+								<tr ng-repeat="indicatorStatisticsEntry in $ctrl.kommonitorReachabilityScenarioHelperServiceInstance.tmpActiveScenario.indicatorStatistics">
 									<td>
 										<b>{{::indicatorStatisticsEntry.indicator.indicatorName}}</b>
 										<span class="glyphicon glyphicon-refresh icon-spin" ng-show="indicatorStatisticsEntry.progress != 'finished' && indicatorStatisticsEntry.progress != 'failed'"></span>

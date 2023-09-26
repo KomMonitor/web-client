@@ -43,7 +43,7 @@
 									<div class="col-md-6 col-sm-6 col-xs-12">
 										<div class="form-group">
 											<input
-												ng-model="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.selectedStartPointLayer.scenarioName"
+												ng-model="$ctrl.kommonitorReachabilityScenarioHelperServiceInstance.tmpActiveScenario.scenarioName"
 												placeholder="sprechender Name, der Szenario passend umschreibt"></input>
 
 											<div class="help-block">
@@ -206,6 +206,13 @@
 
 			</div>
 			<div class="modal-footer">
+				<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Schlie&szlig;en</button>								
+
+				<button type="button" class="btn btn-success"
+					ng-disabled="! $ctrl.kommonitorReachabilityScenarioHelperServiceInstance.tmpActiveScenario.scenarioName || !$ctrl.kommonitorReachabilityHelperServiceInstance.currentIsochronesGeoJSON || !$ctrl.kommonitorReachabilityHelperServiceInstance.original_nonDissolved_isochrones"
+					ng-click="$ctrl.kommonitorReachabilityScenarioHelperServiceInstance.addReachabilityScenario()">Szenario anlegen/aktualisieren</button>
+				<button type="button" class="btn btn-danger"
+					ng-click="resetReachabilityScenarioForm()">Zur&uuml;cksetzen</button>
 			</div>
 
 

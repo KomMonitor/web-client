@@ -49,10 +49,66 @@
 
 		<div class="box-body">
 
-			<button class="btn btn-success btn-sm" ng-click="openReachabilityScenarioModal()" type="button" data-toggle="modal" data-target="#modal-manage-reachability-scenario"><i class="fas fa-plus"></i>&nbsp;&nbsp;Szenario anlegen</button>
-			
-			<br>
-			<p><label>Platzhalter Tabelle: &Uuml;bersicht vorhandener Szenarien</label></p>
+			<div>
+				<button class="btn btn-success " ng-click="openReachabilityScenarioModal()" type="button"
+					data-toggle="modal" data-target="#modal-manage-reachability-scenario"><i
+						class="fas fa-plus"></i>&nbsp;&nbsp;Szenario anlegen</button>
+				<button type="button" class="btn btn-info " style="margin-left: 6px;"
+					ng-click="$ctrl.kommonitorReachabilityScenarioHelperServiceInstance.onImportScenariosFile()"
+					title="Importieren der Szenarien aus einer Datei"><i
+						class="fas fa-file-import"></i>&nbsp;&nbsp;Szenarien-Import</button>
+				<input style="display:none;" type="file" class="form-control"
+					id="reachabilityScenariosImportFile" accept=".json,"></input>
+				<button type="button" style="margin-left: 6px;" class="btn btn-info "
+					ng-disabled="$ctrl.kommonitorReachabilityScenarioHelperServiceInstance.reachabilityScenarios.length == 0"
+					ng-click="$ctrl.kommonitorReachabilityScenarioHelperServiceInstance.exportScenarios()"
+					title="Exportieren der Szenarien in eine Datei"><i
+						class="fas fa-file-export"></i>&nbsp;&nbsp;Szenarien-Export</button>
+			</div>
+
+			<br/>
+			<hr>
+			<div style="max-height: 50vh; overflow: auto;">
+
+				<table class="table table-condensed">
+					<thead>
+						<tr>
+							<th>Szenarioname</th>
+							<th>Punktdatenquelle</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr
+							ng-repeat="reachabilityScenario in $ctrl.kommonitorReachabilityScenarioHelperServiceInstance.reachabilityScenarios">
+							<td>
+								<b>{{::reachabilityScenario.scenarioName}}</b>
+								<br />
+								<!-- <div>
+									<button class="btn btn-warning btn-sm" title="Editieren" ng-click="openReachabilityScenarioModal(reachabilityScenario)" data-toggle="modal" data-target="#modal-manage-reachability-scenario"><i class="fa-solid fa-pen" ></i></button>
+									<button class="btn btn-danger btn-sm" title="L&ouml;schen" ng-click="$ctrl.kommonitorReachabilityScenarioHelperServiceInstance.removeReachabilityScenario(reachabilityScenario)"><i class="fa-solid fa-trash-can"></i></button>
+									<button class="btn btn-info btn-sm" title="Duplizieren" ng-click="$ctrl.kommonitorReachabilityScenarioHelperServiceInstance.cloneReachabilityScenario(reachabilityScenario)"><i class="fa-solid fa-copy" ></i></button>
+								</div> -->
+								<div>
+									<i title="Editieren" style="cursor: pointer;" class="fa-solid fa-pen"
+										ng-click="openReachabilityScenarioModal(reachabilityScenario)"
+										data-toggle="modal" data-target="#modal-manage-reachability-scenario"></i>
+									&nbsp; &nbsp;
+									<i class="fa-solid fa-trash-can" style="cursor: pointer;" title="L&ouml;schen"
+										ng-click="$ctrl.kommonitorReachabilityScenarioHelperServiceInstance.removeReachabilityScenario(reachabilityScenario)"></i>
+									&nbsp; &nbsp;
+									<i class="fa-solid fa-copy" style="cursor: pointer;" title="Duplizieren"
+										ng-click="$ctrl.kommonitorReachabilityScenarioHelperServiceInstance.cloneReachabilityScenario(reachabilityScenario)"></i>
+								</div>
+							</td>
+							<td>
+								{{::reachabilityScenario.reachabilitySettings.selectedStartPointLayer.datasetName}}
+							</td>
+
+						</tr>
+					</tbody>
+				</table>
+
+			</div>
 
 		</div>
 		<!-- /.box-body -->

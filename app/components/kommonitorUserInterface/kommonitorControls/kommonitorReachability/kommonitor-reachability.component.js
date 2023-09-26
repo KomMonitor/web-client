@@ -17,16 +17,19 @@ angular
 				'kommonitorDiagramHelperService',
 				'__env',
 				'kommonitorReachabilityHelperService',
+				'kommonitorReachabilityScenarioHelperService',
 				/**
 				 * TODO
 				 */
 				function kommonitorReachabilityController($scope,
 					$rootScope, $http, $timeout, kommonitorMapService,
-					kommonitorDataExchangeService, kommonitorDiagramHelperService,__env, kommonitorReachabilityHelperService) {
+					kommonitorDataExchangeService, kommonitorDiagramHelperService,__env, kommonitorReachabilityHelperService,
+					kommonitorReachabilityScenarioHelperService) {
 
 					//$("[data-toggle=tooltip]").tooltip();
 
-					this.kommonitorReachabilityHelperServiceInstance = kommonitorReachabilityHelperService;					
+					this.kommonitorReachabilityHelperServiceInstance = kommonitorReachabilityHelperService;	
+					this.kommonitorReachabilityScenarioHelperServiceInstance = kommonitorReachabilityScenarioHelperService;					
 
 					// initialize any adminLTE box widgets
 					$('.box').boxWidget();
