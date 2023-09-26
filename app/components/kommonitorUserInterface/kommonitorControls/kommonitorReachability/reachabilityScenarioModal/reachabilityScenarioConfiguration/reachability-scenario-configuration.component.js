@@ -113,8 +113,6 @@ angular.module('reachabilityScenarioConfiguration').component('reachabilityScena
 
 				$scope.changeStartPointsSource_fromLayer();
 
-				$scope.rangeArray = [];
-
 				$scope.isTime = false;
 
 				$scope.removePotentialDrawnStartingPoints();
@@ -328,7 +326,7 @@ angular.module('reachabilityScenarioConfiguration').component('reachabilityScena
 						kommonitorReachabilityHelperService.currentIsochronesGeoJSON,
 						kommonitorReachabilityHelperService.settings.transitMode,
 						kommonitorReachabilityHelperService.settings.focus,
-						kommonitorReachabilityHelperService.rangeArray,
+						kommonitorReachabilityHelperService.settings.rangeArray,
 						kommonitorReachabilityHelperService.settings.useMultipleStartPoints,
 						kommonitorReachabilityHelperService.settings.dissolveIsochrones);
 

@@ -83,6 +83,7 @@ angular.module('reachabilityScenarioModal').component('reachabilityScenarioModal
 					}
 					else {								
 						kommonitorReachabilityScenarioHelperService.loadActiveScenario(scenarioDataset);	
+						$scope.initPoiResourceEditFeaturesMenu();
 					}
 				}
 

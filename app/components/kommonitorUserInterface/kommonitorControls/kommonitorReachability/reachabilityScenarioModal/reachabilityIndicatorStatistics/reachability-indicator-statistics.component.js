@@ -41,7 +41,17 @@ angular.module('reachabilityIndicatorStatistics').component('reachabilityIndicat
 				$scope.mapParts = kommonitorReachabilityMapHelperService.initReachabilityIndicatorStatisticsGeoMap($scope.domId);
 			};
 
-			$rootScope.$on("isochronesCalculationFinished", function () {
+			$rootScope.$on("isochronesCalculationFinished", function (event, reinit) {
+
+				if(reinit){
+					$scope.init();
+
+					for (const indicatorStatistic of kommonitorReachabilityScenarioHelperService.tmpActiveScenario.indicatorStatistics) {
+						if (indicatorStatistic.active){
+							$scope.displayIndicatorStatisticOnMap(indicatorStatistic);
+						}
+					}
+				}
 
 				kommonitorReachabilityMapHelperService
 					.replaceIsochroneGeoJSON(
@@ -49,7 +59,7 @@ angular.module('reachabilityIndicatorStatistics').component('reachabilityIndicat
 						kommonitorReachabilityHelperService.currentIsochronesGeoJSON,
 						kommonitorReachabilityHelperService.settings.transitMode,
 						kommonitorReachabilityHelperService.settings.focus,
-						kommonitorReachabilityHelperService.rangeArray,
+						kommonitorReachabilityHelperService.settings.rangeArray,
 						kommonitorReachabilityHelperService.settings.useMultipleStartPoints,
 						kommonitorReachabilityHelperService.settings.dissolveIsochrones);
 

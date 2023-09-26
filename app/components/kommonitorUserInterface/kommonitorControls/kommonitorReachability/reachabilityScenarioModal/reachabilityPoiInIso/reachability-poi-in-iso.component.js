@@ -35,7 +35,7 @@ angular.module('reachabilityPoiInIso').component('reachabilityPoiInIso', {
 						kommonitorReachabilityHelperService.currentIsochronesGeoJSON,
 						kommonitorReachabilityHelperService.settings.transitMode,
 						kommonitorReachabilityHelperService.settings.focus,
-						kommonitorReachabilityHelperService.rangeArray,
+						kommonitorReachabilityHelperService.settings.rangeArray,
 						kommonitorReachabilityHelperService.settings.useMultipleStartPoints,
 						kommonitorReachabilityHelperService.settings.dissolveIsochrones);
 

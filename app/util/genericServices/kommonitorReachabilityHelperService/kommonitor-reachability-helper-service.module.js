@@ -259,7 +259,7 @@ angular
 			 * covered by isochones.
 			 */
 			this.checkArrayInput = function () {
-				this.rangeArray = [];
+				this.settings.rangeArray = [];
 				var split = self.settings.isochroneInput.split(',');
 				var actVal;
 				if (split.length > 0) {
@@ -267,13 +267,13 @@ angular
 						if (!isNaN(split[a])) {
 							actVal = parseFloat(split[a]);
 							if (!isNaN(actVal))
-								this.rangeArray
+								this.settings.rangeArray
 									.push(actVal);
 						}
 					}
 				}
 
-				this.rangeArray.sort(function (a, b) { return a - b; });
+				this.settings.rangeArray.sort(function (a, b) { return a - b; });
 			};
 
 			/*
@@ -292,8 +292,8 @@ angular
 				let locationsArrayIdIndex = 0;
 				for (let isochroneIndex = 0; isochroneIndex < this.original_nonDissolved_isochrones.features.length; isochroneIndex++) {					
 
-					for (let rangeIndex = 0; rangeIndex < self.rangeArray.length; rangeIndex++) {
-						const rangeValue = self.rangeArray[rangeIndex];
+					for (let rangeIndex = 0; rangeIndex < self.settings.rangeArray.length; rangeIndex++) {
+						const rangeValue = self.settings.rangeArray[rangeIndex];
 						
 						const resultIsochrone = this.original_nonDissolved_isochrones.features[isochroneIndex];
 						resultIsochrone.properties.ID = self.settings.locationsArrayIdArray[locationsArrayIdIndex] + '_' + rangeValue;
@@ -301,7 +301,7 @@ angular
 
 						// for multiple ranges we must increment the isochrone index in this inner loop
 						// but not if the last range value has been processed
-						if(rangeIndex != self.rangeArray.length -1){
+						if(rangeIndex != self.settings.rangeArray.length -1){
 							isochroneIndex++;
 						}						
 					}	
@@ -362,7 +362,7 @@ angular
 			this.fetchIsochrones = async function (tempStartPointsArray) {
 				var body = self.createORSIsochroneRequestBody(
 					tempStartPointsArray,
-					self.rangeArray);
+					self.settings.rangeArray);
 
 				let url = __env.targetUrlToReachabilityService_ORS +
 				'/v2/isochrones/' + self.settings.transitMode;	
@@ -419,7 +419,7 @@ angular
 				}
 
 				// range in meters
-				for (const range of this.rangeArray) {
+				for (const range of this.settings.rangeArray) {
 					var geoJSON_buffered = turf.buffer(startingPoints_geoJSON, Number(range) / 1000, { units: 'kilometers', steps: 12 });
 
 					if (!geoJSON_buffered.features) {
