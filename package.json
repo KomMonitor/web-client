@@ -105,6 +105,7 @@
     "slimscroll": "^0.9.1",
     "sortablejs": "^1.13.0",
     "tableexport": "^5.0.5",
+    "toastr": "^2.1.4",
     "ui-select": "^0.19.8"
   },
   "jshintConfig": {

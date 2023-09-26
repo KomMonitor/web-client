@@ -2,10 +2,10 @@ angular.module('reachabilityScenarioModal').component('reachabilityScenarioModal
 	templateUrl: "components/kommonitorUserInterface/kommonitorControls/kommonitorReachability/reachabilityScenarioModal/reachability-scenario-modal.template.html",
 	controller: ['kommonitorDataExchangeService',
 		'$scope', '$rootScope', '$http', '__env', '$timeout', 'kommonitorMultiStepFormHelperService', 'kommonitorReachabilityHelperService',
-		'kommonitorReachabilityScenarioHelperService',
+		'kommonitorReachabilityScenarioHelperService', 'kommonitorToastHelperService',
 		function ReachabilityScenarioModalController(kommonitorDataExchangeService,
 			$scope, $rootScope, $http, __env, $timeout, kommonitorMultiStepFormHelperService, kommonitorReachabilityHelperService,
-			kommonitorReachabilityScenarioHelperService) {
+			kommonitorReachabilityScenarioHelperService, kommonitorToastHelperService) {
 
 			this.kommonitorReachabilityHelperServiceInstance = kommonitorReachabilityHelperService;
 			this.kommonitorReachabilityScenarioHelperServiceInstance = kommonitorReachabilityScenarioHelperService;
@@ -91,6 +91,12 @@ angular.module('reachabilityScenarioModal').component('reachabilityScenarioModal
 
 			$scope.onChangePoiResource = async function () {
 				kommonitorReachabilityHelperService.settings.isochroneConfig.selectedDate = undefined;
+
+				if(kommonitorReachabilityScenarioHelperService.tmpActiveScenario.poiDataset &&
+					kommonitorReachabilityScenarioHelperService.tmpActiveScenario.poiDataset.poiName &&
+					kommonitorReachabilityScenarioHelperService.tmpActiveScenario.poiDataset.poiName != kommonitorReachabilityScenarioHelperService.tmpActiveScenario.reachabilitySettings.selectedStartPointLayer.datasetName){
+						kommonitorToastHelperService.displayWarningToast("Datenquelle neu gesetzt", "Die weiteren Abschnitte weisen vielleicht veraltete Daten auf.");
+					}
 
 				// if emtpy layer is selected then no features can be fetched at all!
 				if (kommonitorReachabilityHelperService.settings.selectedStartPointLayer.isNewReachabilityDataSource) {

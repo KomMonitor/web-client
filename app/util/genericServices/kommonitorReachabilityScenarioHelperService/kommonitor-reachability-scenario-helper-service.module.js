@@ -1,11 +1,12 @@
-angular.module('kommonitorReachabilityScenarioHelper', ['kommonitorDataExchange', 'kommonitorReachabilityHelper']);
+angular.module('kommonitorReachabilityScenarioHelper', ['kommonitorDataExchange', 'kommonitorReachabilityHelper',
+'kommonitorToastHelper']);
 
 angular
   .module('kommonitorReachabilityScenarioHelper')
   .service(
     'kommonitorReachabilityScenarioHelperService', ['__env', '$rootScope',
-    'kommonitorDataExchangeService', 'kommonitorReachabilityHelperService',
-    function (__env, $rootScope, kommonitorDataExchangeService, kommonitorReachabilityHelperService ) {
+    'kommonitorDataExchangeService', 'kommonitorReachabilityHelperService', 'kommonitorToastHelperService',
+    function (__env, $rootScope, kommonitorDataExchangeService, kommonitorReachabilityHelperService, kommonitorToastHelperService ) {
 
       var self = this;
 
@@ -16,6 +17,10 @@ angular
           "indicatorStatistics": indicatorStatistics, // array of all calculated indicator statistics
           "isochrones_dissolved": isochrones_dissolved, // kommonitorReachabilityHelperService.currentIsochronesGeoJSON 
           "isochrones_perPoint": isochrones_perPoint, //kommonitorReachabilityHelperService.original_nonDissolved_isochrones 
+          "poiDataset": {
+            "poiId": poiId,
+            "poiName": poiName,
+          }
         }
         */
       this.reachabilityScenarios = [];
@@ -26,6 +31,10 @@ angular
           "indicatorStatistics": [], // array of all calculated indicator statistics
           "isochrones_dissolved": {}, // kommonitorReachabilityHelperService.currentIsochronesGeoJSON 
           "isochrones_perPoint": {}, //kommonitorReachabilityHelperService.original_nonDissolved_isochrones
+          "poiDataset": {
+            "poiId": "",
+            "poiName": "",
+          }
       };
 
       this.resetTmpActiveScenario = function(){
@@ -35,7 +44,17 @@ angular
             "indicatorStatistics": [], // array of all calculated indicator statistics
             "isochrones_dissolved": {}, // kommonitorReachabilityHelperService.currentIsochronesGeoJSON 
             "isochrones_perPoint": {}, //kommonitorReachabilityHelperService.original_nonDissolved_isochrones
+            "poiDataset": {
+              "poiId": "",
+              "poiName": "",
+            }
         };
+      }
+
+      this.setPoiDataset = function(poiDataset){
+        this.tmpActiveScenario.poiDataset = {};
+        this.tmpActiveScenario.poiDataset.poiId = poiDataset.georesourceId;
+        this.tmpActiveScenario.poiDataset.poiName = poiDataset.datasetName;
       }
 
       this.setActiveScenario = function(scenarioDataset){
@@ -57,11 +76,14 @@ angular
         this.tmpActiveScenario.isochrones_dissolved = kommonitorReachabilityHelperService.currentIsochronesGeoJSON;
         this.tmpActiveScenario.isochrones_perPoint = kommonitorReachabilityHelperService.original_nonDissolved_isochrones;
         // this.tmpActiveScenario.indicatorStatistics and this.tmpActiveScenario.scenarioName are already directly set within reachability components 
+        
+        this.setPoiDataset(this.tmpActiveScenario.reachabilitySettings.selectedStartPointLayer);
 
-        this.replaceOrAddScenario(JSON.parse(JSON.stringify(this.tmpActiveScenario)));        
+        this.replaceOrAddScenario(JSON.parse(JSON.stringify(this.tmpActiveScenario))); 
+      
       }
 
-      this.replaceOrAddScenario = function(scenario){
+      this.replaceOrAddScenario = function(scenario){        
         // remove AngularJS key
         delete scenario['$$hashKey']; 
         let replaced = false;
@@ -69,12 +91,14 @@ angular
           if(this.reachabilityScenarios[i].scenarioName == scenario.scenarioName){
             this.reachabilityScenarios.splice(i, 1, scenario);
             replaced = true;
+            kommonitorToastHelperService.displaySuccessToast("Erreichbarkeitsszenario aktualisiert", this.tmpActiveScenario.scenarioName);
             break;
           }           
         }
 
         if (! replaced){
           this.reachabilityScenarios.push(scenario);
+          kommonitorToastHelperService.displaySuccessToast("Erreichbarkeitsszenario neu angelegt", this.tmpActiveScenario.scenarioName);
         }
       }
 
