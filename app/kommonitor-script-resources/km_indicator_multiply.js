@@ -89,8 +89,8 @@ async function computeIndicator(targetDate, targetSpatialUnit_geoJSON, baseIndic
 			  var partValue = KmHelper.getIndicatorValue(feature, targetDate);
 			  if(partValue === undefined || partValue === null){
 				  KmHelper.log("WARNING: the feature with featureID '" + featureId + "' does not contain a time series value for targetDate '" + targetDate + "'");
-				  KmHelper.log("WARNING: the feature value will thus be set to '0' and computation will continue");
-				  partValue = 0;
+				  KmHelper.log("WARNING: the feature value will thus be set to 'NULL' and computation will abort");
+				  partValue = null;
 				  }
 			  // modify map object (i.e. set value initially, or perform calculations and store modified value)
 			  // key should be unique featureId of the spatial unit feature
@@ -102,8 +102,14 @@ async function computeIndicator(targetDate, targetSpatialUnit_geoJSON, baseIndic
 					  };
 				  map.set(featureId, mapObject);					 
 				}
+
 				var mapEntry = map.get(featureId);
-				mapEntry.intermediateValue = mapEntry.intermediateValue * partValue;
+        if(partValue == null || mapEntry.intermediateValue == null){
+          mapEntry.intermediateValue = null;
+        }
+        else{
+          mapEntry.intermediateValue = mapEntry.intermediateValue * partValue;
+        }
 				map.set(featureId, mapEntry);
 			});		
 		});  
