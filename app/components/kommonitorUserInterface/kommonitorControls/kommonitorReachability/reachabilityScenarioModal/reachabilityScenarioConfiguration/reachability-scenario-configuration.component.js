@@ -323,6 +323,7 @@ angular.module('reachabilityScenarioConfiguration').component('reachabilityScena
 				kommonitorReachabilityMapHelperService
 					.replaceIsochroneGeoJSON(
 						$scope.domId,
+						kommonitorReachabilityHelperService.settings.selectedStartPointLayer.datasetName,
 						kommonitorReachabilityHelperService.currentIsochronesGeoJSON,
 						kommonitorReachabilityHelperService.settings.transitMode,
 						kommonitorReachabilityHelperService.settings.focus,

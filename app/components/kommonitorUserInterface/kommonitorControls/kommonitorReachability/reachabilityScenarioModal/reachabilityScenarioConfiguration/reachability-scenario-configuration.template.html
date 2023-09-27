@@ -127,8 +127,9 @@
 
 					<hr>
 					<br />
-					<div>
 
+					<div ng-show="$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend.datasetName != $ctrl.kommonitorReachabilityHelperServiceInstance.settings.selectedStartPointLayer.datasetName">
+						<label style="color: red;">Punktdatenquelle des Szenarios ge&auml;ndert - Neuberechnung erforderlich f&uuml;r <i>{{$ctrl.kommonitorReachabilityHelperServiceInstance.settings.selectedStartPointLayer.datasetName}}</i></label>
 					</div>
 
 					<div align="center">
@@ -174,12 +175,18 @@
 								</div>
 							</div>
 
-							<div class="col-md-8 col-sm-8 col-xs-12">
+							<div class="col-md-8 col-sm-8 col-xs-12">								
+
 								<!-- Legend -->
-								<div class="just-padding">
+								<div class="just-padding">									
+
 									<div ng-show="$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend">
 										<div align="center">
 											<div class="legend" align="left">
+												<label>Punktdatenquelle:
+												</label>&nbsp;
+												{{$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend.datasetName}}
+												<br />
 												<label>Fortbewegungsart:
 												</label>&nbsp;
 												{{$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend.transitMode}}
@@ -203,6 +210,8 @@
 						</div>
 					</div>
 				</div>
+
+				
 
 			</div>
 

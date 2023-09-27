@@ -56,6 +56,7 @@ angular.module('reachabilityIndicatorStatistics').component('reachabilityIndicat
 				kommonitorReachabilityMapHelperService
 					.replaceIsochroneGeoJSON(
 						$scope.domId,
+						kommonitorReachabilityHelperService.settings.selectedStartPointLayer.datasetName,
 						kommonitorReachabilityHelperService.currentIsochronesGeoJSON,
 						kommonitorReachabilityHelperService.settings.transitMode,
 						kommonitorReachabilityHelperService.settings.focus,

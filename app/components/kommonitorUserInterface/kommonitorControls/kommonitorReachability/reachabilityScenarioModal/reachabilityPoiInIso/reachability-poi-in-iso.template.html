@@ -10,6 +10,10 @@
 		<div class="col-md-4 col-sm-4 col-xs-12" style="padding-left: 5px; padding-right: 5px;">
 			<div class="just-padding" style="height: 57vh; overflow-y: auto;" id="reachabilityPoiInIsoConfigForm">
 
+				<div ng-show="$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend.datasetName != $ctrl.kommonitorReachabilityHelperServiceInstance.settings.selectedStartPointLayer.datasetName">
+					<label style="color: red;">Punktdatenquelle des Szenarios ge&auml;ndert - Neuberechnung erforderlich f&uuml;r <i>{{$ctrl.kommonitorReachabilityHelperServiceInstance.settings.selectedStartPointLayer.datasetName}}</i></label>
+				</div>
+
 				<!-- <label>Art der Datumsdefinition zum Abruf eines Datensatzes</label>
 				<div class="form-group">
 					<label class="radio-inline"><input type="radio"

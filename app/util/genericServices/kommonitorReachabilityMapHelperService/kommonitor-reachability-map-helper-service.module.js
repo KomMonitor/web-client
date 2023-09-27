@@ -156,7 +156,7 @@ angular
         this.mapPartsMap.set(domId, mapParts);
       };
 
-      this.replaceIsochroneGeoJSON = function (domId, geoJSON, transitMode, reachMode, cutOffValues, useMultipleStartPoints, dissolveIsochrones) {
+      this.replaceIsochroneGeoJSON = function (domId, datasetName, geoJSON, transitMode, reachMode, cutOffValues, useMultipleStartPoints, dissolveIsochrones) {
 
         let mapParts = this.mapPartsMap.get(domId);
 
@@ -193,6 +193,7 @@ angular
         }
 
         kommonitorDataExchangeService.isochroneLegend = {
+          datasetName: datasetName,          
           transitMode: transitModeValue,
           reachMode: reachModeValue,
           reachMode_apiValue: reachMode,

@@ -32,6 +32,7 @@ angular.module('reachabilityPoiInIso').component('reachabilityPoiInIso', {
 				kommonitorReachabilityMapHelperService
 					.replaceIsochroneGeoJSON(
 						$scope.domId,
+						kommonitorReachabilityHelperService.settings.selectedStartPointLayer.datasetName,
 						kommonitorReachabilityHelperService.currentIsochronesGeoJSON,
 						kommonitorReachabilityHelperService.settings.transitMode,
 						kommonitorReachabilityHelperService.settings.focus,

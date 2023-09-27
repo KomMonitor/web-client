@@ -74,9 +74,21 @@
 			</div>
 
 			<div class="row" style="margin-right: 0px;">
+
+				<div ng-show="$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend.datasetName != $ctrl.kommonitorReachabilityHelperServiceInstance.settings.selectedStartPointLayer.datasetName">
+					<label style="color: red;">Punktdatenquelle des Szenarios ge&auml;ndert - Neuberechnung erforderlich f&uuml;r <i>{{$ctrl.kommonitorReachabilityHelperServiceInstance.settings.selectedStartPointLayer.datasetName}}</i></label>
+				</div>
+
 				<div class="col-sm-8">
-					<b>betrachtete Punktquelle:</b>				
+					<div ng-show="$ctrl.kommonitorReachabilityScenarioHelperServiceInstance.tmpActiveScenario.poiDataset.poiName">
+						<b>Berechnungen f&uuml;r Punktdatenquelle:</b>				
+						<i>{{$ctrl.kommonitorReachabilityScenarioHelperServiceInstance.tmpActiveScenario.poiDataset.poiName}}</i>
+					</div>
+					<div ng-show="! $ctrl.kommonitorReachabilityScenarioHelperServiceInstance.tmpActiveScenario.poiDataset.poiName">
+						<b>Berechnungen f&uuml;r Punktdatenquelle:</b>				
 						<i>{{$ctrl.kommonitorReachabilityHelperServiceInstance.settings.selectedStartPointLayer.datasetName}}</i>
+					</div>
+					
 				</div>
 				<div class="col-sm-4">
 					<button class="btn btn-success btn-sm" ng-click="computeReachabilityIndicatorStatistic()"
