@@ -75,6 +75,13 @@ angular
 					}
 
 					$scope.$on("GeoJSONFromFileFinished", function(event, tmpKommonitorGeoresource){
+
+						// init feature NAME and ID fields
+						tmpKommonitorGeoresource.ID_ATTRIBUTE = tmpKommonitorGeoresource.featureSchema[0];
+						tmpKommonitorGeoresource.NAME_ATTRIBUTE = tmpKommonitorGeoresource.featureSchema[0];
+						$scope.onChangeIdProperty(tmpKommonitorGeoresource);
+						$scope.onChangeNameProperty(tmpKommonitorGeoresource);
+
 						$scope.addFileToMap(tmpKommonitorGeoresource);
 					});
 
@@ -188,6 +195,18 @@ angular
 						}
 					}
 
+					$scope.onChangeNameProperty = function(dataset){
+						// ensure it is a string
+						for (const feature of dataset.geoJSON.features) {
+							feature.properties[__env.FEATURE_NAME_PROPERTY_NAME] = "" + feature.properties[dataset.NAME_ATTRIBUTE]
+						}
+					}
 
+					$scope.onChangeIdProperty = function(dataset){
+						// ensure it is a string
+						for (const feature of dataset.geoJSON.features) {
+							feature.properties[__env.FEATURE_ID_PROPERTY_NAME] = "" + feature.properties[dataset.NAME_ATTRIBUTE]
+						}
+					}
 				}]
 		});

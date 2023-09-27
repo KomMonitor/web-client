@@ -51,7 +51,7 @@ angular.module('reachabilityPoiInIso').component('reachabilityPoiInIso', {
 			$scope.resetPoisInIsochrone = function () {
 				$scope.echartsInstances_reachabilityAnalysis = new Map();
 				document.getElementById("reachability_diagrams_section").innerHTML = "";
-				for (var poi of kommonitorDataExchangeService.availableGeoresources) {
+				for (var poi of kommonitorDataExchangeService.displayableGeoresources) {
 					if (poi.isSelected_reachabilityAnalysis) {
 						poi.isSelected_reachabilityAnalysis = false;
 						//remove POI layer from map
@@ -339,7 +339,7 @@ angular.module('reachabilityPoiInIso').component('reachabilityPoiInIso', {
 			};
 
 			$scope.refreshPoiLayers = async function () {
-				for (var poi of kommonitorDataExchangeService.availableGeoresources) {
+				for (var poi of kommonitorDataExchangeService.displayableGeoresources) {
 					if (poi.isSelected_reachabilityAnalysis) {
 						//remove POI layer from map
 						$scope.removePoiLayerFromMap(poi);
@@ -467,7 +467,7 @@ angular.module('reachabilityPoiInIso').component('reachabilityPoiInIso', {
 			});
 
 			$scope.refreshSelectedGeoresources = async function () {
-				for (const georesource of kommonitorDataExchangeService.availableGeoresources) {
+				for (const georesource of kommonitorDataExchangeService.displayableGeoresources) {
 					if (georesource.isSelected_reachabilityAnalysis) {
 
 						if (georesource.isPOI) {

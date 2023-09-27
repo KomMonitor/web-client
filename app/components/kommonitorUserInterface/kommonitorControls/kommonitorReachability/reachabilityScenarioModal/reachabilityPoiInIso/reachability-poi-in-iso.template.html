@@ -71,7 +71,7 @@
 						<tbody>
 
 							<tr
-								ng-repeat='poi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois() | filter:poiNameFilter_reachabilityAnalysis'>
+								ng-repeat='poi in $ctrl.kommonitorDataExchangeServiceInstance.displayableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois() | filter:poiNameFilter_reachabilityAnalysis'>
 								<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 								<td>
 									<label class='checkbox-inline'><input type="checkbox" value="poi.datasetName"

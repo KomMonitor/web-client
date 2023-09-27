@@ -99,7 +99,13 @@ angular.module('reachabilityScenarioModal').component('reachabilityScenarioModal
 					}
 
 				// if emtpy layer is selected then no features can be fetched at all!
-				if (kommonitorReachabilityHelperService.settings.selectedStartPointLayer.isNewReachabilityDataSource) {
+				if (kommonitorReachabilityHelperService.settings.selectedStartPointLayer.isNewReachabilityDataSource || kommonitorReachabilityHelperService.settings.selectedStartPointLayer.isTmpDataLayer) {
+					
+					// if tmp datalayer has been selected we assume that there are features already in property .geoJSON
+					if(kommonitorReachabilityHelperService.settings.selectedStartPointLayer.isTmpDataLayer){
+						kommonitorReachabilityHelperService.settings.selectedStartPointLayer.geoJSON_reachability = kommonitorReachabilityHelperService.settings.selectedStartPointLayer.geoJSON;
+					}
+					
 					// init geoMap with empty dataset
 					$scope.initPoiResourceEditFeaturesMenu();
 					return;
@@ -179,7 +185,7 @@ angular.module('reachabilityScenarioModal').component('reachabilityScenarioModal
 				// then we must init feature edit component with empty dataset!
 				let isReachabilityDatasetOnly = false;
 
-				if (kommonitorReachabilityHelperService.settings.selectedStartPointLayer.isNewReachabilityDataSource) {
+				if (kommonitorReachabilityHelperService.settings.selectedStartPointLayer.isNewReachabilityDataSource || kommonitorReachabilityHelperService.settings.selectedStartPointLayer.isTmpDataLayer) {
 					isReachabilityDatasetOnly = true;
 				}
 

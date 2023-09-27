@@ -108,7 +108,7 @@
 													</div>
 
 													<div
-														ng-if="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.selectedStartPointLayer && ! $ctrl.kommonitorReachabilityHelperServiceInstance.settings.selectedStartPointLayer.isEmptyDataset">
+														ng-if="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.selectedStartPointLayer && ! $ctrl.kommonitorReachabilityHelperServiceInstance.settings.selectedStartPointLayer.isEmptyDataset && ! $ctrl.kommonitorReachabilityHelperServiceInstance.settings.selectedStartPointLayer.isTmpDataLayer">
 														<select style="font-size: 11px; width:135px; padding: 0px;"
 															ng-model="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.isochroneConfig.selectedDate"
 															ng-change="fetchPoiResourceGeoJSON()"

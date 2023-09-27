@@ -156,6 +156,23 @@ angular.module('singleFeatureEdit').component('singleFeatureEdit', {
 
 					});
 				}
+				else{
+					// if there are any existing properties, then use the first entry
+					if ($scope.currentGeoresourceDataset && $scope.currentGeoresourceDataset.geoJSON &&
+						$scope.currentGeoresourceDataset.geoJSON.features && $scope.currentGeoresourceDataset.geoJSON.features[0] &&
+						$scope.currentGeoresourceDataset.geoJSON.features[0].properties ){
+						for (var property in $scope.currentGeoresourceDataset.geoJSON.features[0].properties) {
+							if (property != __env.FEATURE_ID_PROPERTY_NAME && property != __env.FEATURE_NAME_PROPERTY_NAME && property != __env.VALID_START_DATE_PROPERTY_NAME && property != __env.VALID_END_DATE_PROPERTY_NAME) {
+								$scope.featureSchemaProperties.push(
+									{
+										property: property,
+										value: undefined
+									}
+								);
+							}
+						}
+					}
+				}
 
 			};
 
@@ -200,8 +217,14 @@ angular.module('singleFeatureEdit').component('singleFeatureEdit', {
 
 					});
 				}
-				if(!$scope.georesourceFeaturesGeoJSON) {
-					$scope.georesourceFeaturesGeoJSON = initEmptyGeoJSON();
+				if (!$scope.georesourceFeaturesGeoJSON) {
+					if ($scope.currentGeoresourceDataset.geoJSON && $scope.currentGeoresourceDataset.geoJSON.features &&
+						$scope.currentGeoresourceDataset.geoJSON.features.length > 0) {
+						$scope.georesourceFeaturesGeoJSON = $scope.currentGeoresourceDataset.geoJSON;
+					}
+					else {
+						$scope.georesourceFeaturesGeoJSON = initEmptyGeoJSON();
+					}
 				}
 
 				kommonitorSingleFeatureMapHelperService.addDataLayertoSingleFeatureGeoMap($scope.georesourceFeaturesGeoJSON);

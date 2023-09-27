@@ -99,6 +99,8 @@
 							<thead>
 								<tr>
 									<th>Dateiname</th>
+									<th>ID-Attribut</th>
+									<th>NAME-Attribut</th>
 									<th>Layer Transparenz</th>
 									<th>Legende</th>
 								</tr>
@@ -117,10 +119,31 @@
 											<br>
 											<div>
 												<i class="fa-solid fa-trash-can" style="cursor: pointer;"
-													title="Entfernen"
-													ng-click="removeDataLayer(dataset)"></i>
+													title="Entfernen" ng-click="removeDataLayer(dataset)"></i>
 											</div>
 										</label>
+									</td>
+									<td>										
+										<div>
+											<select style="font-size: 11px; width:135px; padding: 0px;"
+												ng-model="dataset.ID_ATTRIBUTE"
+												ng-change="onChangeIdProperty(dataset)"
+												ng-options="property as property for property in dataset.featureSchema"
+												ng-init="dataset.ID_ATTRIBUTE = dataset.featureSchema[0]"
+												class="form-control" required>
+											</select>
+										</div>
+									</td>
+									<td>										
+										<div>
+											<select style="font-size: 11px; width:135px; padding: 0px;"
+												ng-model="dataset.NAME_ATTRIBUTE"
+												ng-change="onChangeNameProperty(dataset)"
+												ng-options="property as property for property in dataset.featureSchema"
+												ng-init="dataset.NAME_ATTRIBUTE = dataset.featureSchema[0]"
+												class="form-control" required>
+											</select>
+										</div>
 									</td>
 									<td>
 										<div class="form-group" align="center">
