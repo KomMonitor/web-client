@@ -138,6 +138,27 @@ angular
 							}
 						}
 
+						$scope.onBreaksChangedDynamic = function (e, i, site) {
+							e.currentTarget.disabled = true;
+							
+							let breaks = [...kommonitorVisualStyleHelperService.dynamicBrew[site].breaks];
+							if(e.currentTarget.value <= breaks[0] || e.currentTarget.value >= breaks[breaks.length - 1]) {
+								e.currentTarget.value = breaks[i];
+								setTimeout(function () {
+									$scope.$apply(function(){
+										e.currentTarget.value = breaks[i];
+										kommonitorVisualStyleHelperService.dynamicBrew[site].breaks[i] = breaks[i];
+									});
+								}, 10);
+							}
+							else {
+								kommonitorVisualStyleHelperService.dynamicBrew[site].breaks.sort(function(a, b) {
+									return a - b;
+								});
+								$rootScope.$broadcast("changeDynamicBreaks", [kommonitorVisualStyleHelperService.dynamicBrew[0].breaks, kommonitorVisualStyleHelperService.dynamicBrew[1].breaks]);
+							}
+						}
+
 						$scope.onBreakDblClick = function (e, i, site) {
 							if (i != 0 && i != kommonitorVisualStyleHelperService.manualBrew.breaks.length-1) {
 								let input = e.currentTarget.children[0].children[0];

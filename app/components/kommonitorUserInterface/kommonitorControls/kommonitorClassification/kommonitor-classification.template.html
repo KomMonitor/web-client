@@ -194,7 +194,7 @@
           <div class="break"
                 ng-class="{'fixed': i === 0 || i === $ctrl.kommonitorVisualStyleHelperServiceInstance.dynamicBrew[1].breaks.length-1}">
             <input type="number" 
-                    ng-blur="onBreaksChanged($event, i, 1)"
+                    ng-blur="onBreaksChangedDynamic($event, i, 1)"
                     ng-model-options="{ updateOn: 'blur', allowInvalid: false }"
                     disabled
                     ng-class="{'fixed': i === 0 || i === $ctrl.kommonitorVisualStyleHelperServiceInstance.dynamicBrew[1].breaks.length-1}"
@@ -243,7 +243,7 @@
           <div class="break"
                 ng-class="{'fixed': i === 0 || i === $ctrl.kommonitorVisualStyleHelperServiceInstance.dynamicBrew[0].breaks.length-1}">
             <input type="number" 
-                    ng-blur="onBreaksChanged($event, i, 0)"
+                    ng-blur="onBreaksChangedDynamic($event, i, 0)"
                     ng-model-options="{ updateOn: 'blur', allowInvalid: false }"
                     disabled
                     ng-class="{'fixed': i === 0 || i === $ctrl.kommonitorVisualStyleHelperServiceInstance.dynamicBrew[0].breaks.length-1}"
