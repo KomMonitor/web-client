@@ -217,6 +217,7 @@ MULTI STEP FORM
 
 #userLoginForm{
     display: block;
+	z-index: 1004;
 }
 
 #userLoginForm h4, span {
@@ -590,6 +591,15 @@ pre.CodeMirror-line {
 	font-weight: unset;
 }
 
+/* .radio input[type="radio"],
+.radio-inline input[type="radio"],
+.checkbox input[type="checkbox"],
+.checkbox-inline input[type="checkbox"] {
+  vertical-align: middle;
+  margin-top: 4px \9;
+  margin-left: -20px;
+} */
+
 .tour-backdrop {
 	opacity: 0.6;
 }
@@ -876,6 +886,12 @@ pre.CodeMirror-line {
 	z-index: 1003;
 }
 
+#openLayerControlButton {
+	left: 220px;
+	top: 10px;
+	z-index: 1003;
+}
+
 .leaflet-container {
 	font-size: 12px !important;
 }
@@ -903,7 +919,7 @@ pre.CodeMirror-line {
 .leaflet-left .leaflet-control-layers {
   /* display: inline-block; */
   /* float: none; */
-	left: 220px;
+	left: 270px;
 	position: absolute;
 	
 }
@@ -925,7 +941,7 @@ pre.CodeMirror-line {
   /* display: inline-block; */
   /* float: none; */
 	position: absolute;
-	left: 6vh;
+	left: 60px;
 	top: 100px;
 	z-index: 1003;
 }
@@ -933,7 +949,7 @@ pre.CodeMirror-line {
 .leaflet-left .leaflet-control-search {
   /* float: none; */
 	position: absolute;
-	left: 6vh;
+	left: 60px;
 	top: 50px;
 	z-index: 1003;
 }
@@ -943,7 +959,7 @@ pre.CodeMirror-line {
 	/* display: inline-block; */
 	/* float: none; */
 	position: absolute;
-	left: 6vh;
+	left: 60px;
 	top: 150px;
 	z-index: 1003;
 }
@@ -952,7 +968,7 @@ pre.CodeMirror-line {
   /* display: inline-block; */
   /* float: none; */
 	position: absolute;
-	left: 6vh;
+	left: 60px;
 	bottom: 100px;
 	z-index: 1003;
 }
@@ -1089,6 +1105,10 @@ pre.CodeMirror-line {
 .irs-bar:hover {
 	cursor: pointer;
 	filter: brightness(85%);
+}
+
+#indicatorDatePicker {
+	height: 34px;
 }
 
 #dateSliderWrapper .irs--big .irs-line {
@@ -1729,22 +1749,26 @@ transition: opacity 0.3s;
 	/* min-width: 35%; */
 	right: 0;
     position: fixed;
-    top: 54px;
+    top: 70px;
     z-index: 1000;
 	max-width: 25%;
 	min-width: 25%;
 	font-size: 11px;
-		height: 83vh;
-		/* min-height: 100vh; */
-		background: rgb(236,240,245);
-		transition: opacity 0.3s;
-		overflow: auto;
+	max-height: 83vh;
+	/* min-height: 100vh; */
+	background: rgb(236,240,245);
+	transition: opacity 0.3s;
+	overflow: auto;
 }
 
 #sidebarLegend.disappear {
 	max-width: 0;
 	min-width: 0;
 	opacity: 0;
+}
+
+#sidebarLegendCollapse {
+	z-index: 1002;
 }
 
 #indicatorSetup{
@@ -1980,13 +2004,13 @@ transition: opacity 0.3s;
 	background-color: #337ab7;
 	color: white;
 	z-index: 1003;
+	transition: 0.3s;
 }
 
 .btn-custom-right:hover {
 	background-color: white;
 	color: black;
 	border: 2px solid #337ab7;
-	position: fixed;
 	z-index: 1003;
 }
 
@@ -2005,6 +2029,7 @@ transition: opacity 0.3s;
 	background-color: rgb(236,240,245);
 	color: black;
 	position: fixed;
+	top: 70px;
 	z-index: 1003;
 }
 
@@ -2865,6 +2890,12 @@ input:checked + .switchslider:before {
 #statisticalValuesDisplayTable td {
 	padding: 0;
 	margin: 0;
+	text-align: end;
+	padding-right: 24px;
+ }
+
+ #statisticalValuesDisplayTable th {
+	text-align: center;
  }
 
 .scriptAddFormList {

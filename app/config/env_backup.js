@@ -123,6 +123,10 @@ try {
   window.__env.minZoomLevel = 5;
   window.__env.maxZoomLevel = 18;
 
+  // Controls, which layers will be sortable via drag&drop in Leaflet's layer control
+  // Possible values ["Raumeinheiten", "Georessourcen", "Points of Interest", "Lines of Interest", "Areas of Interest", "Indikatoren", "Erreichbarkeiten", "Web Map Services (WMS)", "Web Feature Services (WFS)"]
+  window.__env.sortableLayers = ["Web Map Services (WMS)"];
+
   window.__env.baseLayers = [ // baseLayers of instance; first will be set as default starting layer
     // {
     //   name: "",  // display name

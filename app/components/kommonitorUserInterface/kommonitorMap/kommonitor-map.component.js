@@ -270,7 +270,12 @@ angular.module('kommonitorMap').component(
         const wfsLayerGroupName = "Web Feature Services (WFS)";
         const fileLayerGroupName = "Dateilayer";
 
-        sortableLayers = ["Web Map Services (WMS)"];
+        if (__env.sortableLayers) {
+          sortableLayers = __env.sortableLayers;
+        } 
+        else {
+          sortableLayers = ["Web Map Services (WMS)"];
+        }        
 
         // create classyBrew object
         $scope.defaultBrew = new classyBrew();
@@ -440,8 +445,14 @@ angular.module('kommonitorMap').component(
             }
           };
 
-          $scope.layerControl = L.control.groupedLayers($scope.baseMaps, $scope.groupedOverlays, { position: 'topleft', sortableLayers });
+          $scope.layerControl = L.control.groupedLayers($scope.baseMaps, $scope.groupedOverlays, {collapsed: false, position: 'topleft', sortableLayers });
           $scope.map.addControl($scope.layerControl);
+
+          // Hide Leaflet layer control button in favor of a custom button for opening the layer control group
+          $('.leaflet-control-layers').hide();
+          $scope.$on("openLayerControl", function (event) {
+            $('.leaflet-control-layers').toggle();
+          });
 
           // Disable dragging when user's cursor enters the element
           $scope.layerControl.getContainer().addEventListener('mouseover', function () {
@@ -1489,24 +1500,6 @@ angular.module('kommonitorMap').component(
           });
         });
 
-        $scope.$on("adjustOpacityForIndicatorLayer", function (event, indicatorMetadata, opacity) {
-          // var layerName = indicatorMetadataAndGeoJSON.indicatorName;
-          //
-          // $scope.layerControl._layers.forEach(function(layer){
-          //   if(layer.group.name === indicatorLayerGroupName && layer.name.includes(layerName)){
-          //     layer.layer.setOpacity(opacity);
-          //     layer.layer.setStyle({
-          //       opacity: opacity
-          //     });
-          //   }
-          // });
-
-          opacity = opacity.toFixed(numberOfDecimals);
-
-          kommonitorVisualStyleHelperService.setOpacity(opacity);
-          $rootScope.$broadcast("restyleCurrentLayer", true);
-        });
-
         $scope.$on("addWmsLayerToMap", function (event, dataset, opacity) {
           var wmsLayer = L.tileLayer.betterWms(dataset.url, {
             layers: dataset.layerName,
@@ -2015,6 +2008,7 @@ angular.module('kommonitorMap').component(
 
         function highlightFeature(e) {
           var layer = e.target;
+          kommonitorVisualStyleHelperService.setOpacity(layer.options.fillOpacity);
 
           highlightFeatureForLayer(layer);
         }

@@ -438,6 +438,10 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 			$rootScope.$broadcast("unselectAllFeatures");
 		}
 
+		$scope.onOpenLayerControlButtonClick = function(){
+			$rootScope.$broadcast("openLayerControl");
+		}
+
 		$scope.onToggleInfoControlButtonClick = function(){
 			$rootScope.$broadcast("toggleInfoControl");
 		}

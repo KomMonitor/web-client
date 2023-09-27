@@ -541,7 +541,7 @@ angular
 
               return {
                 weight: 1,
-                opacity: 1,
+                opacity: fillOpacity,
                 color: kommonitorDataExchangeService.selectedSpatialUnitIsRaster() ? undefined : defaultBorderColor,
                 dashArray: '',
                 fillOpacity: fillOpacity,
@@ -564,7 +564,7 @@ angular
 
               return {
                 weight: 1,
-                opacity: 1,
+                opacity: fillOpacity,
                 color: kommonitorDataExchangeService.selectedSpatialUnitIsRaster() ? undefined : defaultBorderColor,
                 dashArray: '',
                 fillOpacity: fillOpacity,
@@ -580,7 +580,7 @@ angular
 
         return {
           weight: 1,
-          opacity: 1,
+          opacity: fillOpacity,
           color: kommonitorDataExchangeService.selectedSpatialUnitIsRaster() ? undefined : defaultBorderColor,
           dashArray: '',
           fillOpacity: fillOpacity,
