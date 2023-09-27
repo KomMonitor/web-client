@@ -418,7 +418,26 @@ angular.module('singleFeatureEdit').component('singleFeatureEdit', {
 				$scope.$digest();
 			});
 
-
+			$scope.exportCurrentDataset = function(){
+				let geoJSON = JSON
+							.stringify($scope.georesourceFeaturesGeoJSON);
+		
+						var fileName = $scope.currentGeoresourceDataset.datasetName + '_export.json';
+		
+						var blob = new Blob([geoJSON], {
+							type: 'application/json'
+						});
+						var data = URL.createObjectURL(blob);
+		
+						var a = document.createElement('a');
+						a.download = fileName;
+						a.href = data;
+						a.textContent = "JSON";
+						a.target = "_self";
+						a.rel = "noopener noreferrer";
+						a.click()
+						a.remove();
+			  }
 
 
 		}

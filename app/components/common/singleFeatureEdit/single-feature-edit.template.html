@@ -146,7 +146,7 @@
 
 <div class="row vertical-align">
 	<button type="button" class="btn btn-info"
-		ng-click="reinitSingleFeatureEdit()">Reset
+		ng-click="reinitSingleFeatureEdit()"><i class="fa-solid fa-rotate"></i>&nbsp;&nbsp;Reset
 	</button>
 
 	&nbsp; &nbsp; &nbsp;
@@ -155,18 +155,27 @@
 	<button type="button" class="btn btn-success"
 		ng-show="$ctrl.kommonitorSingleFeatureMapHelperServiceInstance.editMode == 'create'"
 		ng-disabled="!featureGeometryValue || !featureNameValue || featureIdValue == undefined || featureIdValue == null || !featureIdIsUnique || !featureStartDateValue"
-		ng-click="addSingleGeoresourceFeature()">Einzel-Feature erstellen
+		ng-click="addSingleGeoresourceFeature()"><i
+		class="fa-solid fa-plus"></i>&nbsp;&nbsp;Einzel-Feature erstellen
 	</button>
 	<button type="button" class="btn btn-warning"
 		ng-show="$ctrl.kommonitorSingleFeatureMapHelperServiceInstance.editMode == 'edit'"
 		ng-disabled="!featureGeometryValue || !featureNameValue || featureIdValue == undefined || featureIdValue == null || !featureStartDateValue"
-		ng-click="editSingleGeoresourceFeature()">Einzel-Feature editieren
+		ng-click="editSingleGeoresourceFeature()"><i
+		class="fa-solid fa-pen"></i>&nbsp;&nbsp;Einzel-Feature editieren
 	</button>
 	<button type="button" class="btn btn-danger"
 		ng-show="$ctrl.kommonitorSingleFeatureMapHelperServiceInstance.editMode == 'delete'"
 		ng-disabled="!featureGeometryValue || !featureNameValue || featureIdValue == undefined || featureIdValue == null || !featureStartDateValue"
-		ng-click="deleteSingleGeoresourceFeature()">Einzel-Feature entfernen
+		ng-click="deleteSingleGeoresourceFeature()"><i
+		class="fa-solid fa-trash"></i>&nbsp;&nbsp;Einzel-Feature entfernen
 	</button>
+	&nbsp; &nbsp; &nbsp;
+	<button type="button" class="btn btn-info"
+					ng-disabled="georesourceFeaturesGeoJSON.features.length == 0"
+					ng-click="exportCurrentDataset()"
+					title="Exportieren des Datensatzes in eine Datei"><i
+						class="fa-solid fa-file-export"></i>&nbsp;&nbsp;Datensatz-Export</button>
 
 
 
