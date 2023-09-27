@@ -1,5 +1,5 @@
 angular.module('kommonitorDataImport', [ 'kommonitorDataExchange', 'kommonitorMap', 'ngSanitize', 
-'kommonitorToastHelper']);
+'kommonitorToastHelper', 'kommonitorFileHelper']);
 
 angular.module('kommonitorDataImport').directive('droppable', ['$rootScope', function($rootScope) {
     return {

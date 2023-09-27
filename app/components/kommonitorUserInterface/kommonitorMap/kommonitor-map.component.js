@@ -1828,112 +1828,32 @@ angular.module('kommonitorMap').component(
             fillColor: dataset.displayColor
           };
 
-          var fileType = dataset.type;
-          if (fileType.toUpperCase() === "geojson".toUpperCase()) {
-            var geoJSON = dataset.content;
+          fileLayer = L.geoJSON(dataset.geoJSON, {
+            style: style,
+            onEachFeature: function (feature, layer) {
+              layer.on({
+                click: function () {
 
-            if (isLinearGeoJSON(geoJSON)) {
-              // when is line dataset then set the border color
-              style.color = dataset.displayColor;
-            }
+                  // var propertiesString = "<pre>" + JSON.stringify(feature.properties, null, ' ').replace(/[\{\}"]/g, '') + "</pre>";
 
-            fileLayer = L.geoJSON(geoJSON, {
-              style: style,
-              onEachFeature: function (feature, layer) {
-                layer.on({
-                  click: function () {
-
-                    // var propertiesString = "<pre>" + JSON.stringify(feature.properties, null, ' ').replace(/[\{\}"]/g, '') + "</pre>";
-
-                    var popupContent = '<div class="fileInfoPopupContent featurePropertyPopupContent"><table class="table table-condensed">';
-                    for (var p in feature.properties) {
-                        popupContent += '<tr><td>' + p + '</td><td>'+ feature.properties[p] + '</td></tr>';
-                    }
-                    popupContent += '</table></div>';
-
-                    if (popupContent)
-                      layer.bindPopup(popupContent);
+                  var popupContent = '<div class="fileInfoPopupContent featurePropertyPopupContent"><table class="table table-condensed">';
+                  for (var p in feature.properties) {
+                      popupContent += '<tr><td>' + p + '</td><td>'+ feature.properties[p] + '</td></tr>';
                   }
-                });
-              }
-            });
-            $scope.showFileLayer(fileLayer, dataset);
-          }
-          else if (fileType.toUpperCase() === "shp".toUpperCase()) {
-            // transform shape ZIP arrayBuffer to GeoJSON
-            // var geoJSON = await shp(dataset.content).then(
-            // var zip = shp.parseZip(dataset.content);
-            shp(dataset.content).then(
-              function (geojson) {
-                console.log("Shapefile parsed successfully");
+                  popupContent += '</table></div>';
 
-                if (isLinearGeoJSON(geojson)) {
-                  // when is line dataset then set the border color
-                  style.color = dataset.displayColor;
+                  if (popupContent)
+                    layer.bindPopup(popupContent);
                 }
-
-                fileLayer = L.geoJSON(geojson, {
-                  style: style,
-                  onEachFeature: function (feature, layer) {
-                    layer.on({
-                      click: function () {
-
-                        // var propertiesString = "<pre>" + JSON.stringify(feature.properties, null, ' ').replace(/[\{\}"]/g, '') + "</pre>";
-
-                        var popupContent = '<div class="fileInfoPopupContent featurePropertyPopupContent"><table class="table table-condensed">';
-                        for (var p in feature.properties) {
-                            popupContent += '<tr><td>' + p + '</td><td>'+ feature.properties[p] + '</td></tr>';
-                        }
-                        popupContent += '</table></div>';
-
-                        if (popupContent)
-                          layer.bindPopup(popupContent);
-                      }
-                    });
-                  }
-                });
-
-
-                $scope.showFileLayer(fileLayer, dataset);
-              },
-              function (reason) {
-                console.error("Error while parsing Shapefile");
-                console.error(reason);
-                $rootScope.$broadcast("FileLayerError", reason, dataset);
-                throw reason;
-              }
-            );
-          }
+              });
+            }
+          });
+          $scope.showFileLayer(fileLayer, dataset);          
 
         });
 
-        var isLinearGeoJSON = function (geoJSON) {
-          if (geoJSON.features) {
-            // featureCollection
-            if (geoJSON.features[0].geometry) {
-              if (geoJSON.features[0].geometry.type === "LineString" || geoJSON.features[0].geometry.type === "MultiLineString") {
-                return true;
-              }
-            }
-          }
-          else if (geoJSON.geometry) {
-            // single object
-            if (geoJSON.geometry.type === "LineString" || geoJSON.geometry.type === "MultiLineString") {
-              return true;
-            }
-          }
-          else if (geoJSON.geometries) {
-            // geometryCollection
-            if (geoJSON.geometries[0].type === "LineString" || geoJSON.geometries[0].type === "MultiLineString") {
-              return true;
-            }
-          }
-
-          return false;
-        };
-
         $scope.showFileLayer = function (fileLayer, dataset) {
-          $scope.layerControl.addOverlay(fileLayer, dataset.title, fileLayerGroupName);
+          $scope.layerControl.addOverlay(fileLayer, dataset.datasetName, fileLayerGroupName);
           fileLayer.addTo($scope.map);
 
           console.log("Try to fit bounds on fileLayer");
@@ -1949,7 +1869,7 @@ angular.module('kommonitorMap').component(
         };
 
         $scope.$on("adjustOpacityForFileLayer", function (event, dataset, opacity) {
-          var layerName = dataset.title;
+          var layerName = dataset.datasetName;
 
           $scope.layerControl._layers.forEach(function (layer) {
             if (layer.group.name === fileLayerGroupName && layer.name.includes(layerName)) {
@@ -1969,7 +1889,7 @@ angular.module('kommonitorMap').component(
         });
 
         $scope.$on("adjustColorForFileLayer", function (event, dataset) {
-          var layerName = dataset.title;
+          var layerName = dataset.datasetName;
 
           $scope.layerControl._layers.forEach(function (layer) {
             if (layer.group.name === fileLayerGroupName && layer.name.includes(layerName)) {
@@ -1984,9 +1904,6 @@ angular.module('kommonitorMap').component(
               var firstLayersPropertyName = Object.keys(layer.layer._layers)[0];
               if (firstLayersPropertyName) {
                 var geoJSON_exmaple = layer.layer._layers[firstLayersPropertyName].toGeoJSON();
-                if (isLinearGeoJSON(geoJSON_exmaple)) {
-                  newStyle.color = dataset.displayColor;
-                }
               }
 
               layer.layer.setStyle(newStyle);
@@ -1996,7 +1913,7 @@ angular.module('kommonitorMap').component(
 
         $scope.$on("removeFileLayerFromMap", function (event, dataset) {
 
-          var layerName = dataset.title;
+          var layerName = dataset.datasetName;
 
           $scope.layerControl._layers.forEach(function (layer) {
             if (layer.group.name === fileLayerGroupName && layer.name.includes(layerName)) {

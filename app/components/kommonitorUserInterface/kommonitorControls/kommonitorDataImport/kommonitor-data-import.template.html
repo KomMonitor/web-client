@@ -50,7 +50,7 @@
 		</div>
 		<div class="box-body">
 
-			<div class="">				
+			<div class="">
 
 				<div class="row vertical-align">
 					<div class="col-xs-10">
@@ -107,12 +107,19 @@
 							<tbody>
 
 								<tr
-									ng-repeat='dataset in $ctrl.kommonitorDataExchangeServiceInstance.fileDatasets | filter:fileNameFilter | orderBy:"title"'>
+									ng-repeat='dataset in $ctrl.kommonitorDataExchangeServiceInstance.fileDatasets | filter:fileNameFilter | orderBy:"datasetName"'>
 									<td>
-										<label class='checkbox-inline'><input type="checkbox" value="dataset.title"
-												ng-model="dataset.isSelected" ng-change="handleFileOnMap(dataset)">
+										<label class='checkbox-inline'><input type="checkbox"
+												value="dataset.datasetName" ng-model="dataset.isSelected"
+												ng-change="toggleDataLayer(dataset)">
 
-											<b ng-bind-html="dataset.title"></b>
+											<b ng-bind-html="dataset.datasetName"></b>
+											<br>
+											<div>
+												<i class="fa-solid fa-trash-can" style="cursor: pointer;"
+													title="Entfernen"
+													ng-click="removeDataLayer(dataset)"></i>
+											</div>
 										</label>
 									</td>
 									<td>
