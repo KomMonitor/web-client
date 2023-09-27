@@ -58,10 +58,11 @@
 							<!-- DRAG/DROP Area to insert features from file  -->
 							<div id="drop_zone" droppable ng-click="openFileDialog()" drop="dropHandler(event);">
 								<input type="file" id="fileUploadInput" style="display: none"
-									accept=".json, .geojson, .zip" />
+									accept=".json, .geojson, .zip, .csv" />
 								<i style="font-size:4em; margin:5px; " class="fas fa-file-upload"></i>
 								<h4 style="vertical-align: middle;  margin-bottom:10px;">GeoJSON (.json
-									oder .geojson) oder Shapefile (ZIP-Archiv mit .shp, .dbf, ggf. .prj)</h4>
+									oder .geojson) <br>Shapefile (ZIP-Archiv mit .shp, .dbf, ggf. .prj) <br>CSV (lat,
+									lon oder Adressbasiert)</h4>
 								<p style="vertical-align: middle;  margin-bottom:5px;">
 									Koordinatensystem muss WGS 84 sein (z.B. EPSG:4326)</p>
 							</div>
@@ -83,8 +84,58 @@
 
 				<br />
 
-				<div ng-show="$ctrl.kommonitorDataExchangeServiceInstance.fileDatasets.length > 0">
+				<div ng-show="tmpKommonitorGeoresource_table.type == 'CSV'">
 
+					<hr>
+
+
+					<h4>CSV Datenquelle als Layer laden: <i>{{tmpKommonitorGeoresource_table.datasetName}}</i></h4>
+
+					<div class="row vertical-align">
+						<div class="col-xs-3">
+							<label>Import als</label>
+							<select style="font-size: 11px;" ng-model="tableProcessType"
+								ng-options="tableProcessType as tableProcessType.displayName for tableProcessType in tableProcessTypes"
+								ng-init="tableProcessType = tableProcessTypes[0]" class="form-control" required>
+							</select>
+						</div>
+						<div class="col-xs-3" ng-show="tableProcessType.apiName == 'latLon'">
+
+							<label>Spaltenname Longitude</label>
+							<select style="font-size: 11px; " ng-model="tmpKommonitorGeoresource_table.LON_ATTRIBUTE"
+								ng-options="property as property for property in tmpKommonitorGeoresource_table.featureSchema"
+								ng-init="tmpKommonitorGeoresource_table.LON_ATTRIBUTE = dataset.featureSchema[0]"
+								class="form-control" required>
+							</select>
+						</div>
+						<div class="col-xs-3" ng-show="tableProcessType.apiName == 'latLon'">
+
+							<label>Spaltenname Latitude</label>
+							<select style="font-size: 11px; " ng-model="tmpKommonitorGeoresource_table.LAT_ATTRIBUTE"
+								ng-options="property as property for property in tmpKommonitorGeoresource_table.featureSchema"
+								ng-init="tmpKommonitorGeoresource_table.LAT_ATTRIBUTE = dataset.featureSchema[0]"
+								class="form-control" required>
+							</select>
+						</div>
+						<div class="col-xs-3" ng-show="tableProcessType.apiName == 'latLon'">
+
+							<button type="button" class="btn btn-success"
+								ng-click="loadCSV_latLon()"><i
+									class="fa-solid fa-plus"></i>&nbsp;&nbsp;laden
+							</button>
+
+						</div>
+					</div>
+
+					<br>
+					<hr>
+					<br>
+					<br>
+
+				</div>
+
+				<div ng-show="$ctrl.kommonitorDataExchangeServiceInstance.fileDatasets.length > 0">
+					<h4>Geladene Datenlayer</h4>
 					<div class="input-group">
 						<span class="input-group-addon"><i class="fas fa-filter"></i></span>
 						<input type="text" class="form-control input-sm" placeholder="Stichwortfilter"
@@ -123,18 +174,17 @@
 											</div>
 										</label>
 									</td>
-									<td>										
+									<td>
 										<div>
 											<select style="font-size: 11px; width:135px; padding: 0px;"
-												ng-model="dataset.ID_ATTRIBUTE"
-												ng-change="onChangeIdProperty(dataset)"
+												ng-model="dataset.ID_ATTRIBUTE" ng-change="onChangeIdProperty(dataset)"
 												ng-options="property as property for property in dataset.featureSchema"
 												ng-init="dataset.ID_ATTRIBUTE = dataset.featureSchema[0]"
 												class="form-control" required>
 											</select>
 										</div>
 									</td>
-									<td>										
+									<td>
 										<div>
 											<select style="font-size: 11px; width:135px; padding: 0px;"
 												ng-model="dataset.NAME_ATTRIBUTE"

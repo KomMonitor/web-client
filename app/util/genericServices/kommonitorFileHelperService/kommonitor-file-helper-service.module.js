@@ -22,11 +22,24 @@ angular
         if (geoJSON && geoJSON.features && geoJSON.features[0] &&
           geoJSON.features[0].properties) {
           for (var property in geoJSON.features[0].properties) {
-            if (property != __env.FEATURE_ID_PROPERTY_NAME && property != __env.FEATURE_NAME_PROPERTY_NAME && property != __env.VALID_START_DATE_PROPERTY_NAME && property != __env.VALID_END_DATE_PROPERTY_NAME) {
-              schema.push(
-                property
-              );
-            }
+            schema.push(
+              property
+            );
+          }
+        }
+
+        return schema;
+      }
+
+      this.getFeatureSchema_fromCsvRows = function (rows) {
+        // if there are any existing properties, then use the first entry
+        let schema = [];
+        if (rows && rows[0]) {
+          for (var property in rows[0]) {
+            schema.push(
+              property
+            );
+
           }
         }
 
@@ -46,6 +59,10 @@ angular
         else if (fileEnding.toUpperCase() === "zip".toUpperCase()) {
           console.log("Potential Shapefile file identified")
           tmpKommonitorGeoresource = this.processFileInput_shape(file, customColor);
+        }
+        else if (fileEnding.toUpperCase() === "csv".toUpperCase()) {
+          console.log("Potential CSV file identified")
+          tmpKommonitorGeoresource = this.processFileInput_csv(file, customColor);
         }
         else {
           let fileLayerError = "Dateiformat kann nicht verarbeitet werden";
@@ -126,6 +143,60 @@ angular
         return tmpKommonitorGeoresource;
       }
 
+      this.makeGeoresourceMetadata_fromCsvRows = function (file, customColor, type, rows) {
+        let tmpKommonitorGeoresource = {
+          "allowedRoles": [
+
+          ],
+          "aoiColor": customColor,
+          "availablePeriodsOfValidity": [
+            {
+              "endDate": undefined,
+              "startDate": undefined
+            }
+          ],
+          "datasetName": file.name,
+          "georesourceId": undefined,
+          "isAOI": false,
+          "isLOI": false,
+          "isPOI": true,
+          "loiColor": customColor,
+          "loiDashArrayString": "10",
+          "loiWidth": 1,
+          "metadata": {
+            "contact": "",
+            "databasis": "",
+            "datasource": "",
+            "description": "",
+            "lastUpdate": "",
+            "literature": "",
+            "note": "",
+            "sridEPSG": 0,
+            "updateInterval": "ARBITRARY"
+          },
+          "poiMarkerColor": "orange",
+          "poiSymbolBootstrap3Name": "home",
+          "poiSymbolColor": "white",
+          "topicReference": "",
+          "userPermissions": [
+
+          ],
+          "wfsUrl": "",
+          "wmsUrl": ""
+        }
+
+        tmpKommonitorGeoresource.isTmpDataLayer = true;
+        tmpKommonitorGeoresource.isSelected = true;
+        tmpKommonitorGeoresource.displayColor = customColor;
+        tmpKommonitorGeoresource.type = type;
+        tmpKommonitorGeoresource.dataRows = rows;
+        tmpKommonitorGeoresource.transparency = 0;
+
+        tmpKommonitorGeoresource.featureSchema = this.getFeatureSchema_fromCsvRows(rows);
+
+        return tmpKommonitorGeoresource;
+      }
+
       this.setGeometryType = function (kommonitorGeoresource, geoJSON_geometry) {
         if (geoJSON_geometry.type == "LineString" || geoJSON_geometry.type == "MultiLineString") {
           kommonitorGeoresource.isLOI = true;
@@ -186,5 +257,23 @@ angular
 
         fileReader.readAsArrayBuffer(file);
       };
+
+      this.processFileInput_csv = function (file, customColor) {
+        var fileReader = new FileReader();
+
+        fileReader.onload = function (event) {
+          // Key data by field name instead of index/position
+          let results = Papa.parse(event.target.result, {
+            header: true,
+            skipEmptyLines: true,
+          });
+
+          let tmpKommonitorGeoresource = self.makeGeoresourceMetadata_fromCsvRows(file, customColor, "CSV", results.data);
+
+          $rootScope.$broadcast("CSVFromFileFinished", tmpKommonitorGeoresource);
+        };
+
+        fileReader.readAsText(file);
+      }
 
     }]);

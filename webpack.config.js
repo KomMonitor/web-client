@@ -95,6 +95,7 @@ module.exports = {
             { from: nodeModulePathConstant + 'jszip/dist/jszip.min.js', to: 'jszip/' },
             { from: nodeModulePathConstant + 'docx/build/index.js', to: 'docx/' },
             { from: nodeModulePathConstant + 'toastr/build', to: 'toastr/' },
+            { from: nodeModulePathConstant + 'papaparse/papaparse.min.js', to: 'papaparse/papaparse.min.js' },
           
 
       ]})

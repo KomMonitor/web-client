@@ -25,6 +25,19 @@ angular
 
 					$scope.customFileInputColor = `#00AABB`;
 
+					$scope.tmpKommonitorGeoresource_table;
+					$scope.tableProcessType;
+					$scope.tableProcessTypes = [
+						{
+							displayName: "Latitude und Longitude Spalten",
+							apiName: "latLon"
+						},
+						{
+							displayName: "Adressen - Ort, PLZ, Strasse",
+							apiName: "address_city_postcode_street"
+						}
+					]
+
 					$('#customFileInputColorDiv').colorpicker();
 
 					// initialize colorpicker after some time
@@ -50,19 +63,12 @@ angular
 					$scope.addFileToMap = function (dataset) {
 						console.log("Toggle File Layer: " + dataset.datasetName);
 
-						kommonitorDataExchangeService.fileDatasets.push(dataset);
-						kommonitorDataExchangeService.displayableGeoresources.push(dataset);
-						$scope.$digest();
-						// initialize colorpicker in table
-						setTimeout(function () {
-							// initialize colorpicker
-							$('.input-group.colorpicker-component').colorpicker();
-						}, 350);
+						
 
 						$scope.toggleDataLayer(dataset);
 					};
 
-					$scope.toggleDataLayer = function(dataset){
+					$scope.toggleDataLayer = function (dataset) {
 						if (dataset.isSelected) {
 							//display on Map
 							var opacity = 1 - dataset.transparency;
@@ -74,7 +80,7 @@ angular
 						}
 					}
 
-					$scope.$on("GeoJSONFromFileFinished", function(event, tmpKommonitorGeoresource){
+					$scope.$on("GeoJSONFromFileFinished", function (event, tmpKommonitorGeoresource) {
 
 						// init feature NAME and ID fields
 						tmpKommonitorGeoresource.ID_ATTRIBUTE = tmpKommonitorGeoresource.featureSchema[0];
@@ -84,6 +90,61 @@ angular
 
 						$scope.addFileToMap(tmpKommonitorGeoresource);
 					});
+
+					$scope.$on("CSVFromFileFinished", function (event, tmpKommonitorGeoresource) {
+
+						// init feature NAME and ID fields
+						tmpKommonitorGeoresource.ID_ATTRIBUTE = tmpKommonitorGeoresource.featureSchema[0];
+						tmpKommonitorGeoresource.NAME_ATTRIBUTE = tmpKommonitorGeoresource.featureSchema[0];
+						tmpKommonitorGeoresource.LON_ATTRIBUTE = tmpKommonitorGeoresource.featureSchema[0];
+						tmpKommonitorGeoresource.LAT_ATTRIBUTE = tmpKommonitorGeoresource.featureSchema[0];
+
+						$scope.tmpKommonitorGeoresource_table = tmpKommonitorGeoresource;
+
+						kommonitorToastHelperService.displayInfoToast_upperLeft("CSV-Datei erkannt", "Weitere Konfiguration erforderlich");
+
+						$scope.$digest();
+					});
+
+					$scope.loadCSV_latLon = function () {
+						try {
+							let geoJSON = $scope.makeGeoJSONFromCSVRows($scope.tmpKommonitorGeoresource_table);
+
+							$scope.tmpKommonitorGeoresource_table.geoJSON = geoJSON;
+
+							$scope.onChangeIdProperty($scope.tmpKommonitorGeoresource_table);
+							$scope.onChangeNameProperty($scope.tmpKommonitorGeoresource_table);
+
+							$scope.addFileToMap($scope.tmpKommonitorGeoresource_table);	
+						} catch (error) {
+							console.error(error);
+							kommonitorToastHelperService.displayErrorToast_upperLeft("Fehler beim Laden der CSV-Datei", error);
+						}						
+					}
+
+					$scope.makeGeoJSONFromCSVRows = function (kommonitorGeoresource) {
+						let geoJSON = {
+							"type": "FeatureCollection",
+							"features": []
+						};
+
+						for (const row of kommonitorGeoresource.dataRows) {
+							if (row[kommonitorGeoresource.LON_ATTRIBUTE] && row[kommonitorGeoresource.LAT_ATTRIBUTE]) {
+								let feature = {
+									"type": "Feature",
+									"geometry": {
+										"type": "Point",
+										"coordinates": [Number(row[kommonitorGeoresource.LON_ATTRIBUTE]), Number(row[kommonitorGeoresource.LAT_ATTRIBUTE])]
+									},
+									"properties": row
+								};
+
+								geoJSON.features.push(feature);
+							}
+						}
+
+						return geoJSON;
+					}
 
 					$scope.dropHandler = function (ev) {
 						$scope.fileLayerError = undefined;
@@ -98,14 +159,14 @@ angular
 									// If dropped items aren't files, reject them
 									if (ev.dataTransfer.items[i].kind === 'file') {
 										var file = ev.dataTransfer.items[i].getAsFile();
-										kommonitorFileHelperService.transformFileToKomMonitorGeoressource(file, $scope.customFileInputColor);										
+										kommonitorFileHelperService.transformFileToKomMonitorGeoressource(file, $scope.customFileInputColor);
 									}
 								}
 							} else {
 								// Use DataTransfer interface to access the file(s)
 								for (var i = 0; i < ev.dataTransfer.files.length; i++) {
 									var file = ev.dataTransfer.files[i];
-									kommonitorFileHelperService.transformFileToKomMonitorGeoressource(file, $scope.customFileInputColor);									
+									kommonitorFileHelperService.transformFileToKomMonitorGeoressource(file, $scope.customFileInputColor);
 								}
 							}
 						} catch (e) {
@@ -155,7 +216,7 @@ angular
 
 						for (var i = 0; i < files.length; i++) {
 							var file = files[i];
-							kommonitorFileHelperService.transformFileToKomMonitorGeoressource(file, $scope.customFileInputColor);							
+							kommonitorFileHelperService.transformFileToKomMonitorGeoressource(file, $scope.customFileInputColor);
 						}
 					});
 
@@ -173,36 +234,48 @@ angular
 					});
 
 					$scope.$on("FileLayerSuccess", function (event, dataset) {
-						$scope.fileLayerError = undefined;
+						$scope.fileLayerError = undefined;						
+						kommonitorDataExchangeService.fileDatasets.push(dataset);
+						kommonitorDataExchangeService.displayableGeoresources.push(dataset);
+
+						setTimeout(function () {
+							$scope.$digest();
+
+							setTimeout(function () {
+								// initialize colorpicker
+								$('.input-group.colorpicker-component').colorpicker();
+							}, 350);
+						}, 350);
+
 						kommonitorToastHelperService.displaySuccessToast_upperLeft("Datei erfolgreich importiert", dataset.title);
-					});
+					});					
 
-					$scope.removeDataLayer = function(dataset){
+					$scope.removeDataLayer = function (dataset) {
 
-						if(dataset.isSelected){
+						if (dataset.isSelected) {
 							kommonitorMapService.removeFileLayerFromMap(dataset);
 						}
 
-						for (let i=0; i < kommonitorDataExchangeService.fileDatasets.length; i++) {
-							if (kommonitorDataExchangeService.fileDatasets[i].datasetName == dataset.datasetName){
+						for (let i = 0; i < kommonitorDataExchangeService.fileDatasets.length; i++) {
+							if (kommonitorDataExchangeService.fileDatasets[i].datasetName == dataset.datasetName) {
 								kommonitorDataExchangeService.fileDatasets.splice(i, 1);
 							}
 						}
-						for (let i=0; i < kommonitorDataExchangeService.displayableGeoresources.length; i++) {
-							if (kommonitorDataExchangeService.displayableGeoresources[i].datasetName == dataset.datasetName){
+						for (let i = 0; i < kommonitorDataExchangeService.displayableGeoresources.length; i++) {
+							if (kommonitorDataExchangeService.displayableGeoresources[i].datasetName == dataset.datasetName) {
 								kommonitorDataExchangeService.displayableGeoresources.splice(i, 1);
 							}
 						}
 					}
 
-					$scope.onChangeNameProperty = function(dataset){
+					$scope.onChangeNameProperty = function (dataset) {
 						// ensure it is a string
 						for (const feature of dataset.geoJSON.features) {
 							feature.properties[__env.FEATURE_NAME_PROPERTY_NAME] = "" + feature.properties[dataset.NAME_ATTRIBUTE]
 						}
 					}
 
-					$scope.onChangeIdProperty = function(dataset){
+					$scope.onChangeIdProperty = function (dataset) {
 						// ensure it is a string
 						for (const feature of dataset.geoJSON.features) {
 							feature.properties[__env.FEATURE_ID_PROPERTY_NAME] = "" + feature.properties[dataset.NAME_ATTRIBUTE]

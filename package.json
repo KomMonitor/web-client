@@ -99,6 +99,7 @@
     "leaflet.markercluster": "^1.5.3",
     "leaflet.pattern": "^0.1.0",
     "mathjax": "^3.1.2",
+    "papaparse": "^5.4.1",
     "rangeslide.js": "^0.13.0",
     "shp-write": "^0.3.2",
     "shpjs": "^3.4.3",

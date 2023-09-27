@@ -1817,39 +1817,43 @@ angular.module('kommonitorMap').component(
         });
 
         $scope.$on("addFileLayerToMap", function (event, dataset, opacity) {
-          var fileLayer;
+          try {
+            var fileLayer;
 
-          var style = {
-            weight: 1,
-            opacity: opacity,
-            color: defaultBorderColor,
-            dashArray: '',
-            fillOpacity: 1,
-            fillColor: dataset.displayColor
-          };
+            var style = {
+              weight: 1,
+              opacity: opacity,
+              color: defaultBorderColor,
+              dashArray: '',
+              fillOpacity: 1,
+              fillColor: dataset.displayColor
+            };
 
-          fileLayer = L.geoJSON(dataset.geoJSON, {
-            style: style,
-            onEachFeature: function (feature, layer) {
-              layer.on({
-                click: function () {
+            fileLayer = L.geoJSON(dataset.geoJSON, {
+              style: style,
+              onEachFeature: function (feature, layer) {
+                layer.on({
+                  click: function () {
 
-                  // var propertiesString = "<pre>" + JSON.stringify(feature.properties, null, ' ').replace(/[\{\}"]/g, '') + "</pre>";
+                    // var propertiesString = "<pre>" + JSON.stringify(feature.properties, null, ' ').replace(/[\{\}"]/g, '') + "</pre>";
 
-                  var popupContent = '<div class="fileInfoPopupContent featurePropertyPopupContent"><table class="table table-condensed">';
-                  for (var p in feature.properties) {
-                      popupContent += '<tr><td>' + p + '</td><td>'+ feature.properties[p] + '</td></tr>';
+                    var popupContent = '<div class="fileInfoPopupContent featurePropertyPopupContent"><table class="table table-condensed">';
+                    for (var p in feature.properties) {
+                        popupContent += '<tr><td>' + p + '</td><td>'+ feature.properties[p] + '</td></tr>';
+                    }
+                    popupContent += '</table></div>';
+
+                    if (popupContent)
+                      layer.bindPopup(popupContent);
                   }
-                  popupContent += '</table></div>';
-
-                  if (popupContent)
-                    layer.bindPopup(popupContent);
-                }
-              });
-            }
-          });
-          $scope.showFileLayer(fileLayer, dataset);          
-
+                });
+              }
+            });
+            $scope.showFileLayer(fileLayer, dataset); 
+          } catch (error) {
+            console.error(error);
+            $rootScope.$broadcast("FileLayerError", error, dataset);
+          }          
         });
 
         $scope.showFileLayer = function (fileLayer, dataset) {
