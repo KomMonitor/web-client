@@ -7,8 +7,9 @@ angular
 
 					controller : [
 							'kommonitorDataExchangeService', 'kommonitorMapService', '$scope', '$rootScope', '$http', '__env',
+							'kommonitorToastHelperService', 
 							function kommonitorDataImportController(
-									kommonitorDataExchangeService, kommonitorMapService, $scope, $rootScope, $http, __env) {
+									kommonitorDataExchangeService, kommonitorMapService, $scope, $rootScope, $http, __env, kommonitorToastHelperService) {
 								/*
 								 * reference to kommonitorDataExchangeService instances
 								 */
@@ -76,7 +77,7 @@ angular
 									  }
 									} catch (e) {
 										$scope.fileLayerError = e;
-										$("#fileErrorAlert").show();
+										kommonitorToastHelperService.displayErrorToast_upperLeft("Fehler in Dateiverarbeitung", $scope.fileLayerError);										
 									} finally {
 
 									}
@@ -98,7 +99,7 @@ angular
 									}
 									else{
 										$scope.fileLayerError = "Unknown or unsupported file format";
-										$("#fileErrorAlert").show();
+										kommonitorToastHelperService.displayErrorToast_upperLeft("Fehler in Dateiverarbeitung", $scope.fileLayerError);	
 									}
 								};
 
@@ -223,7 +224,7 @@ angular
 
 								$scope.$on("FileLayerError", function (event, errorMsg, dataset) {
 									$scope.fileLayerError = errorMsg;
-									$("#fileErrorAlert").show();
+									kommonitorToastHelperService.displayErrorToast_upperLeft("Fehler in Dateiverarbeitung", $scope.fileLayerError);	
 
 									// remove element from fileDatasets
 									for( var i = 0; i < kommonitorDataExchangeService.fileDatasets.length; i++){
@@ -236,8 +237,7 @@ angular
 
 								$scope.$on("FileLayerSuccess", function (event, dataset) {
 									$scope.fileLayerError = undefined;
-									$("#fileErrorAlert").hide();
-									$("#fileSucessAlert").show();
+									kommonitorToastHelperService.displaySuccessToast_upperLeft("Datei erfolgreich importiert", dataset.title);	
 								});
 
 

@@ -1,5 +1,8 @@
 /* app css stylesheet */
 
+/* toastr library override of transparency */
+.toast { opacity: 0.8 }
+
 .alert {
 		z-index: 99999;
 		max-height: 500px;

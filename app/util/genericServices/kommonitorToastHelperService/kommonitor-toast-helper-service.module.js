@@ -34,26 +34,34 @@ angular
       }
 
       this.displaySuccessToast = function(toastTitle, toastContent){
-        toastr.success(toastContent, toastTitle, () => {
-          // do something when clicked
-        });
+        toastr.success(toastContent, toastTitle);
       }
 
       this.displayInfoToast = function(toastTitle, toastContent){
-        toastr.info(toastContent, toastTitle, () => {
-          // do something when clicked
-        });
+        toastr.info(toastContent, toastTitle);
       }
 
       this.displayWarningToast = function(toastTitle, toastContent){
-        toastr.warning(toastContent, toastTitle, () => {
-          // do something when clicked
-        });
+        toastr.warning(toastContent, toastTitle);
       }
 
       this.displayErrorToast = function(toastTitle, toastContent){
-        toastr.error(toastContent, toastTitle, () => {
-          // do something when clicked
-        });
+        toastr.error(toastContent, toastTitle);
+      }
+
+      this.displaySuccessToast_upperLeft = function(toastTitle, toastContent){
+        toastr.success(toastContent, toastTitle, {positionClass: "toast-top-left"});
+      }
+
+      this.displayInfoToast_upperLeft = function(toastTitle, toastContent){
+        toastr.info(toastContent, toastTitle, {positionClass: "toast-top-left"});
+      }
+
+      this.displayWarningToast_upperLeft = function(toastTitle, toastContent){
+        toastr.warning(toastContent, toastTitle, {positionClass: "toast-top-left"});
+      }
+
+      this.displayErrorToast_upperLeft = function(toastTitle, toastContent){
+        toastr.error(toastContent, toastTitle, {positionClass: "toast-top-left"});
       }
     }]);
