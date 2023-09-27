@@ -11,3 +11,5 @@ tmp
 .idea
 build
 dist
+
+.vscode/settings.json

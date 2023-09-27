@@ -1,7 +1,9 @@
 angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 	templateUrl : "components/kommonitorUserInterface/kommonitorControls/reportingModal/reportingIndicatorAdd/reporting-indicator-add.template.html",
-	controller : ['$scope', '$http', '$timeout', '$interval', '__env', 'kommonitorDataExchangeService', 'kommonitorDiagramHelperService', 'kommonitorVisualStyleHelperService',
-	function ReportingIndicatorAddController($scope, $http, $timeout, $interval, __env, kommonitorDataExchangeService, kommonitorDiagramHelperService, kommonitorVisualStyleHelperService) {
+	controller : ['$scope', '$http', '$timeout', '$interval', '__env', 'kommonitorDataExchangeService', 'kommonitorDiagramHelperService', 
+	'kommonitorVisualStyleHelperService', 'kommonitorReachabilityHelperService',
+	function ReportingIndicatorAddController($scope, $http, $timeout, $interval, __env, kommonitorDataExchangeService, kommonitorDiagramHelperService, 
+		kommonitorVisualStyleHelperService, kommonitorReachabilityHelperService) {
 
 		$scope.template = undefined;
 		$scope.untouchedTemplateAsString = "";
@@ -1631,8 +1633,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				ranges = isochrones.info.query.ranges.split(",")
 			} else if( isochrones.hasOwnProperty("features")) { // for buffer
 				for(let feature of isochrones.features) {
-					if(checkNestedPropExists(feature, "properties", "value") && typeof(feature.properties.value) === "number" ) {
-						ranges.push(feature.properties.value)
+					if(checkNestedPropExists(feature, "properties", "value")) {
+						ranges.push(Number(feature.properties.value))
 					}
 				}
 				ranges = [...new Set(ranges)] // remove dupes
@@ -1654,7 +1656,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				if(idx >= colorArr.length) idx = colorArr.length-1;
 				let seriesData = [];
 				let data = isochrones.features.filter( feature => {
-					return feature.properties.value === range; // get features for this range threshold
+					return Number(feature.properties.value) == Number(range); // get features for this range threshold
 				}).map( feature => {
 					
 					return {
@@ -1712,7 +1714,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					let registeredMap = echarts.getMap($scope.selectedPoiLayer.datasetName + "_isochrones-" + range)
 					if( !registeredMap ) {
 						let isochrones = $scope.isochrones.features.filter( feature => {
-							return feature.properties.value === range;
+							// only weak comparison to allow string == number comparison
+							return feature.properties.value == range;
 						})
 						let featureCollection = {
 							features: isochrones

@@ -45,7 +45,7 @@ angular
 
 					var numberOfDecimals = __env.numberOfDecimals;
 
-					$scope.setupCompleted = false;
+					$scope.setupCompleted = true;
 
 					$scope.onChangeFilterSameUnitAndSameTime = function(){
 						if($scope.radarChart){
@@ -115,6 +115,18 @@ angular
 					};
 
 					var wait = ms => new Promise((r, j) => setTimeout(r, ms));
+
+					$scope.$on("allIndicatorPropertiesForCurrentSpatialUnitAndTime setup begin", async function (event) {
+
+						await wait(130);
+						$scope.setupCompleted = false;
+						
+
+						$timeout(function(){
+							$scope.$digest();
+						}, 500);
+						
+					});
 
 					$scope.$on("allIndicatorPropertiesForCurrentSpatialUnitAndTime setup completed", async function (event) {
 

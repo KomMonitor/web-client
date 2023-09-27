@@ -91,8 +91,8 @@ async function computeIndicator(targetDate, targetSpatialUnit_geoJSON, baseIndic
 		
 		if(numeratorValue === undefined || numeratorValue === null){
 			KmHelper.log("WARNING: the feature with featureID '" + featureId + "' does not contain a time series value for targetDate '" + targetDate + "'");
-			KmHelper.log("WARNING: the feature value will thus be set to '0' and computation will continue");
-			numeratorValue = 0;
+			KmHelper.log("WARNING: the feature value will thus be set to 'NULL' and computation will abort");
+			numeratorValue = null;
 			}
 		// modify map object (i.e. set value initially, or perform calculations and store modified value)
         // key should be unique featureId of the spatial unit feature
@@ -100,8 +100,8 @@ async function computeIndicator(targetDate, targetSpatialUnit_geoJSON, baseIndic
             var mapObject = {
                 featureId: featureId,
                 indicatorValue: undefined,
-                numeratorValue: 0,
-				denominatorValue: 0
+                numeratorValue: null,
+				denominatorValue: null
                 };
  
             map.set(featureId, mapObject);    
@@ -127,8 +127,8 @@ async function computeIndicator(targetDate, targetSpatialUnit_geoJSON, baseIndic
         // key should be unique featureId of the spatial unit feature
 		if(denominatorValue === undefined || denominatorValue === null){
 			KmHelper.log("WARNING: the feature with featureID '" + featureId + "' does not contain a time series value for targetDate '" + targetDate + "'");
-			KmHelper.log("WARNING: the feature value will thus be set to '0' and computation will continue");
-			denominatorValue = 0;
+			KmHelper.log("WARNING: the feature value will thus be set to 'NULL' and computation will abort");
+			denominatorValue = null;
       }
       
       if (! map.has(featureId)){
@@ -136,8 +136,8 @@ async function computeIndicator(targetDate, targetSpatialUnit_geoJSON, baseIndic
         var mapObject = {
             featureId: featureId,
             indicatorValue: undefined,
-            numeratorValue: 0,
-            denominatorValue: 0
+            numeratorValue: null,
+            denominatorValue: null
           };
 
             map.set(featureId, mapObject);    

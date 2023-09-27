@@ -96,6 +96,33 @@ angular
             this.currentKomMonitorLoginRoleNames = this.currentKeycloakLoginRoles.filter(role => possibleRoles.includes(role));
           }
 
+          this.setCurrentKomMonitorLoginRoleIds = function() {
+            this.currentKomMonitorLoginRoleIds = [];
+
+            // make a map of all role names currently logged in user according to pattern 
+            // <organization>-<permissionLevel> 
+            let roleNameMap_loggedIn = new Map();
+
+            for (const roleName of this.currentKeycloakLoginRoles) {
+              // roleName consists of <organization>-<permission-level>
+              roleNameMap_loggedIn.set(roleName, "");              
+            }
+
+            // now iterate once over all possible KomMonitor roles and check if they are within previous map
+            this.accessControl.forEach(organizationalUnit => {
+              organizationalUnit.roles.forEach(role => {
+                if(roleNameMap_loggedIn.has(organizationalUnit.name + "-" + role.permissionLevel)){
+                  this.currentKomMonitorLoginRoleIds.push(role.roleId);
+                }
+              });
+            });
+          };
+
+          this.getCurrentKomMonitorLoginRoleIds = function() {
+            return this.currentKomMonitorLoginRoleIds;
+          };
+
+
           this.isAllowedSpatialUnitForCurrentIndicator = function(spatialUnitMetadata){
             if(! this.selectedIndicator){
               return false;
@@ -1037,9 +1064,9 @@ angular
 
                 if(Auth.keycloak.tokenParsed && Auth.keycloak.tokenParsed.realm_access && Auth.keycloak.tokenParsed.realm_access.roles){
                   self.currentKeycloakLoginRoles = Auth.keycloak.tokenParsed.realm_access.roles;
-                  if (Auth.keycloak.tokenParsed.resource_access["realm-management"]) {
+                  if (self.currentKeycloakLoginRoles.includes(__env.keycloakKomMonitorAdminRoleName)) {
                     self.isRealmAdmin = true;
-                    self.currentKeycloakLoginRoles = self.currentKeycloakLoginRoles.concat(Auth.keycloak.tokenParsed.resource_access["realm-management"].roles);
+                    // self.currentKeycloakLoginRoles = self.currentKeycloakLoginRoles.concat(Auth.keycloak.tokenParsed.resource_access["realm-management"].roles);
                   }
                 } else {
                   self.currentKeycloakLoginRoles = [];
@@ -1204,13 +1231,18 @@ angular
               if (topicsMap.has(georesourceMetadata.topicReference)){
                 var georesourceDatasets = topicsMap.get(georesourceMetadata.topicReference);
                 
-                if(georesourceMetadata.isPOI){
+                // catch any frehsly created reachability scenario data sources as they are handled differently (only for reachability analysis)
+                if(georesourceMetadata.isNewReachabilityDataSource){
+                  continue;
+                }
+
+                else if(georesourceMetadata.isPOI){
                   georesourceDatasets.poiDatasets.push(georesourceMetadata);
                 }
-                if(georesourceMetadata.isLOI){
+                else if(georesourceMetadata.isLOI){
                   georesourceDatasets.loiDatasets.push(georesourceMetadata);
                 }
-                if(georesourceMetadata.isAOI){
+                else if(georesourceMetadata.isAOI){
                   georesourceDatasets.aoiDatasets.push(georesourceMetadata);
                 }                
 
@@ -1219,13 +1251,18 @@ angular
               else{
                 var georesourceDatasets_unmapped = topicsMap.get(this.georesourceMapKey_forUnmappedTopicReferences);
                 
-                if(georesourceMetadata.isPOI){
+                // catch any frehsly created reachability scenario data sources as they are handled differently (only for reachability analysis)
+                if(georesourceMetadata.isNewReachabilityDataSource){
+                  continue;
+                }
+
+                else if(georesourceMetadata.isPOI){
                   georesourceDatasets_unmapped.poiDatasets.push(georesourceMetadata);
                 }
-                if(georesourceMetadata.isLOI){
+                else if(georesourceMetadata.isLOI){
                   georesourceDatasets_unmapped.loiDatasets.push(georesourceMetadata);
                 }
-                if(georesourceMetadata.isAOI){
+                else if(georesourceMetadata.isAOI){
                   georesourceDatasets_unmapped.aoiDatasets.push(georesourceMetadata);
                 }                
 
@@ -1659,6 +1696,7 @@ angular
           this.fetchAccessControlMetadata = async function(keycloakRolesArray){
             self.setAccessControl(await kommonitorCacheHelperService.fetchAccessControlMetadata(keycloakRolesArray));
             self.setCurrentKomMonitorLoginRoleNames();
+            self.setCurrentKomMonitorLoginRoleIds();
           };
 
           this.replaceSingleAccessControlMetadata = function(targetRoleMetadata){
@@ -2114,7 +2152,8 @@ angular
   
             //insert logo
             var img = new Image();
-            img.src = '/logos/KM_Logo1.png';
+            var subPath = location.pathname;
+            img.src = subPath + 'logos/KM_Logo1.png';
             jspdf.addImage(img, 'PNG', 193, 5, 12, 12);
   
             jspdf.setFontSize(16);
@@ -2441,7 +2480,8 @@ angular
   
             //insert logo
             var img = new Image();
-            img.src = '/logos/KM_Logo1.png';
+            var subPath = location.pathname;
+            img.src = subPath + 'logos/KM_Logo1.png';
             jspdf.addImage(img, 'PNG', 193, 5, 12, 12);
   
             jspdf.setFontSize(16);

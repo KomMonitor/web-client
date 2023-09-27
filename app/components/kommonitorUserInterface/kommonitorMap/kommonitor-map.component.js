@@ -12,10 +12,17 @@ angular.module('kommonitorMap').component(
       'kommonitorVisualStyleHelperService',
       'kommonitorInfoLegendHelperService',
       'kommonitorFilterHelperService', 
+      'kommonitorGenericMapHelperService',
       '__env',
       function MapController($rootScope, $http, $scope, $timeout, kommonitorMapService, kommonitorDataExchangeService, kommonitorVisualStyleHelperService, 
-        kommonitorInfoLegendHelperService, kommonitorFilterHelperService, __env) {
+        kommonitorInfoLegendHelperService, kommonitorFilterHelperService, kommonitorGenericMapHelperService, __env) {
 
+          /*
+           
+          #################################################################################
+          #TODO FIXME could be refactored to make intensive use of genericMapHelperService#
+          #################################################################################
+           */
         this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 
         const INDICATOR_DATE_PREFIX = __env.indicatorDatePrefix;
@@ -263,6 +270,8 @@ angular.module('kommonitorMap').component(
         const wfsLayerGroupName = "Web Feature Services (WFS)";
         const fileLayerGroupName = "Dateilayer";
 
+        sortableLayers = ["Web Map Services (WMS)"];
+
         // create classyBrew object
         $scope.defaultBrew = new classyBrew();
         $scope.gtMeasureOfValueBrew = new classyBrew();
@@ -431,7 +440,7 @@ angular.module('kommonitorMap').component(
             }
           };
 
-          $scope.layerControl = L.control.groupedLayers($scope.baseMaps, $scope.groupedOverlays, { position: 'topleft' });
+          $scope.layerControl = L.control.groupedLayers($scope.baseMaps, $scope.groupedOverlays, { position: 'topleft', sortableLayers });
           $scope.map.addControl($scope.layerControl);
 
           // Disable dragging when user's cursor enters the element
@@ -1301,423 +1310,7 @@ angular.module('kommonitorMap').component(
           $scope.updateSearchControl();
 
           $scope.map.invalidateSize(true);
-        });
-
-        $scope.$on("replaceIsochronesAsGeoJSON", function (event, geoJSON, transitMode, reachMode, cutOffValues, useMultipleStartPoints, dissolveIsochrones, speedInKilometersPerHour) {
-
-          if ($scope.isochronesLayer) {
-            $scope.layerControl.removeLayer($scope.isochronesLayer);
-            $scope.map.removeLayer($scope.isochronesLayer);
-          }
-
-          $scope.isochronesLayer = L.featureGroup();
-
-          $scope.isochroneReachMode = reachMode;
-          var cutOffUnitValue = "Meter";
-          var reachModeValue = "Distanz";
-          if (reachMode === "time") {
-            cutOffUnitValue = "Minuten";
-            reachModeValue = "Zeit";
-          }
-
-          var transitModeValue = "Passant";
-          switch (transitMode) {
-            case "buffer":
-              transitModeValue = "Puffer (Luftlinie)";
-              break;
-            case "cycling-regular":
-              transitModeValue = "Fahrrad";
-              break;
-            case "driving-car":
-              transitModeValue = "PKW";
-              break;
-            case "wheelchair":
-              transitModeValue = "Barrierefrei";
-              break;
-            default:
-              transitModeValue = "Passant";
-          }
-
-          kommonitorDataExchangeService.isochroneLegend = {
-            transitMode: transitModeValue,
-            reachMode: reachModeValue,
-            speedInKilometersPerHour: speedInKilometersPerHour,
-            colorValueEntries: [],
-            cutOffValues: cutOffValues,
-            cutOffUnit: cutOffUnitValue
-          };
-
-          if (cutOffValues.length === 0) {
-            return;
-          }
-          else if (cutOffValues.length === 1) {
-            kommonitorDataExchangeService.isochroneLegend.colorValueEntries = [{
-              color: "green",
-              value: cutOffValues[0]
-            }];
-          }
-          else if (cutOffValues.length === 2) {
-            kommonitorDataExchangeService.isochroneLegend.colorValueEntries = [{
-              color: "yellow",
-              value: cutOffValues[1]
-            },
-            {
-              color: "green",
-              value: cutOffValues[0]
-            }];
-          }
-          else if (cutOffValues.length === 3) {
-            kommonitorDataExchangeService.isochroneLegend.colorValueEntries = [{
-              color: "red",
-              value: cutOffValues[2]
-            },
-            {
-              color: "yellow",
-              value: cutOffValues[1]
-            },
-            {
-              color: "green",
-              value: cutOffValues[0]
-            }];
-          }
-          else if (cutOffValues.length === 4) {
-            kommonitorDataExchangeService.isochroneLegend.colorValueEntries = [{
-              color: "red",
-              value: cutOffValues[3]
-            },
-            {
-              color: "orange",
-              value: cutOffValues[2]
-            },
-            {
-              color: "yellow",
-              value: cutOffValues[1]
-            },
-            {
-              color: "green",
-              value: cutOffValues[0]
-            }];
-          }
-          else if (cutOffValues.length === 5) {
-            kommonitorDataExchangeService.isochroneLegend.colorValueEntries = [{
-              color: "brown",
-              value: cutOffValues[4]
-            }, {
-              color: "red",
-              value: cutOffValues[3]
-            },
-            {
-              color: "orange",
-              value: cutOffValues[2]
-            },
-            {
-              color: "yellow",
-              value: cutOffValues[1]
-            },
-            {
-              color: "green",
-              value: cutOffValues[0]
-            }];
-          }
-          else {
-            kommonitorDataExchangeService.isochroneLegend.colorValueEntries = [{
-              color: "brown",
-              value: cutOffValues[4]
-            }, {
-              color: "red",
-              value: cutOffValues[3]
-            },
-            {
-              color: "orange",
-              value: cutOffValues[2]
-            },
-            {
-              color: "yellow",
-              value: cutOffValues[1]
-            },
-            {
-              color: "green",
-              value: cutOffValues[0]
-            }];
-          }
-
-          if (useMultipleStartPoints && dissolveIsochrones) {
-            // merge intersecting isochrones of same cutOffValue
-
-            // execute it 3 times in order to dissolve multiple intersections
-            geoJSON = mergeIntersectingIsochrones(geoJSON);
-            geoJSON = mergeIntersectingIsochrones(geoJSON);
-            geoJSON = mergeIntersectingIsochrones(geoJSON);
-          }
-
-          // sort features to ensure correct z-order of layers (begin with smallest isochrones)
-          geoJSON.features.sort((a, b) => a.properties.value - b.properties.value);
-
-          for (var index = geoJSON.features.length - 1; index >= 0; index--) {
-
-            var styleIndex = getStyleIndexForFeature(geoJSON.features[index], kommonitorDataExchangeService.isochroneLegend.colorValueEntries, reachMode);
-
-            var style = {
-              color: kommonitorDataExchangeService.isochroneLegend.colorValueEntries[styleIndex].color,
-              weight: 1,
-              opacity: 0.4,
-              fillOpacity: 0.3
-            };
-
-            L.geoJSON(geoJSON.features[index], {
-              style: style,
-              onEachFeature: function (feature, layer) {
-                layer.on({
-                  click: function () {
-
-                    var isochroneValue = layer.feature.properties.value;
-
-                    if ($scope.isochroneReachMode === "time") {
-                      //transform seconds to minutes
-                      isochroneValue = isochroneValue / 60;
-                    }
-                    var popupContent = "" + isochroneValue + " " + cutOffUnitValue;
-                    // var popupContent = "TestValue";
-
-                    if (popupContent)
-                      layer.bindPopup("Isochrone: " + JSON.stringify(popupContent));
-                  }
-                });
-              }
-            }).addTo($scope.isochronesLayer);
-          }
-
-          // $scope.isochronesLayer.StyledLayerControl = {
-          //   removable : false,
-          //   visible : true
-          // };
-
-          $scope.layerControl.addOverlay($scope.isochronesLayer, "Erreichbarkeits-Isochronen_" + transitModeValue, reachabilityLayerGroupName);
-          $scope.isochronesLayer.addTo($scope.map);
-          $scope.updateSearchControl();
-
-          $scope.map.invalidateSize(true);
-        });
-
-        $scope.$on("replaceRouteAsGeoJSON", function (event, geoJSON, transitMode, preference, routingStartPoint, routingEndPoint,
-          routeDistance_km, routeDuration_minutes) {
-
-          if ($scope.routingLayer) {
-            $scope.layerControl.removeLayer($scope.routingLayer);
-            $scope.map.removeLayer($scope.routingLayer);
-          }
-
-          var preferenceValue = "Schnellste";
-          if (preference === "recommended") {
-            preferenceValue = "Empfohlen";
-          }
-          else if (preference === "shortest") {
-            preferenceValue = "Kürzeste";
-          }
-
-          var transitModeValue = "Passant";
-          switch (transitMode) {
-            case "cycling-regular":
-              transitModeValue = "Fahrrad";
-              break;
-            case "driving-car":
-              transitModeValue = "PKW";
-              break;
-            case "wheelchair":
-              transitModeValue = "Barrierefrei";
-              break;
-            default:
-              transitModeValue = "Passant";
-          }
-
-          /*
-          routeDistance_km, routeDuration_minutes, routeAvgSpeed_kmh,
-				routeTotalAscent, routeTotalDescent
-          */
-
-          kommonitorDataExchangeService.routingLegend = {
-            transitMode: transitModeValue,
-            preference: preferenceValue,
-            routingStartPoint: routingStartPoint,
-            routingEndPoint: routingEndPoint,
-            routeDistance_km: routeDistance_km,
-            routeDuration_minutes: routeDuration_minutes           
-          };
-
-          var style = {
-            color: "#ed561a",
-            weight: 5,
-            opacity: 0.7
-          };
-
-          $scope.routingLayer = L.featureGroup();
-
-          // start and end point
-          var customStartMarker = L.AwesomeMarkers.icon({
-            icon: "home",
-            iconColor: "white",
-            markerColor: "green"
-          });
-
-          var customEndMarker = L.AwesomeMarkers.icon({
-            icon: "screenshot",
-            iconColor: "white",
-            markerColor: "red"
-          });
-
-          var numPoints = geoJSON.features[0].geometry.coordinates.length;
-          var startPoint = geoJSON.features[0].geometry.coordinates[0];
-          var endPoint = geoJSON.features[0].geometry.coordinates[numPoints - 1];
-
-          L.marker([startPoint[1], startPoint[0]], { icon: customStartMarker }).bindPopup(routingStartPoint.label).addTo($scope.routingLayer);
-          L.marker([endPoint[1], endPoint[0]], { icon: customEndMarker }).bindPopup(routingEndPoint.label).addTo($scope.routingLayer);
-
-          L.geoJSON(geoJSON, {
-            style: style,
-            onEachFeature: function (feature, layer) {
-              layer.on({
-                click: function () {
-                  var popupContent = "Routing Ergebnis - " + transitModeValue + " - " + preferenceValue;
-                  // var popupContent = "TestValue";
-
-                  if (popupContent)
-                    layer.bindPopup(JSON.stringify(popupContent));
-                }
-              });
-            }
-          }).addTo($scope.routingLayer);
-
-          // $scope.isochronesLayer.StyledLayerControl = {
-          //   removable : false,
-          //   visible : true
-          // };
-
-          $scope.layerControl.addOverlay($scope.routingLayer, "Routing-Ergebnis_" + transitModeValue + "_" + preferenceValue, reachabilityLayerGroupName);
-          $scope.routingLayer.addTo($scope.map);
-          $scope.map.fitBounds($scope.routingLayer.getBounds());
-          $scope.updateSearchControl();
-
-          $scope.map.invalidateSize(true);
-        });
-
-        var getStyleIndexForFeature = function (feature, colorValueEntries, reachMode) {
-          var index = 0;
-          var featureCutOffValue = feature.properties.value;
-
-          if (reachMode === "time") {
-            // answe has time in seconds - we expect minutes!
-            featureCutOffValue = featureCutOffValue / 60;
-          }
-
-          for (var i = 0; i < colorValueEntries.length; i++) {
-            if (featureCutOffValue === colorValueEntries[i].value) {
-              index = i;
-              break;
-            }
-          }
-
-          return index;
-        };
-
-        var mergeIntersectingIsochrones = function (geoJSON) {
-          // use turf to dissolve any overlapping/intersecting isochrones that have the same cutOffValue!
-
-          try {
-            var dissolved = turf.dissolve(geoJSON, { propertyName: 'value' });
-
-            return dissolved;
-          } catch (e) {
-            console.error("Dissolving Isochrones failed with error: " + e);
-            console.error("Will return undissolved isochrones");
-            return geoJSON;
-          } finally {
-
-          }
-
-        };
-
-        $scope.$on("replaceIsochroneMarker", function (event, lonLatArray) {
-
-          if ($scope.isochroneMarkerLayer) {
-            $scope.layerControl.removeLayer($scope.isochroneMarkerLayer);
-            $scope.map.removeLayer($scope.isochroneMarkerLayer);
-          }
-
-          $scope.isochroneMarkerLayer = L.featureGroup();
-
-          lonLatArray.forEach(function (lonLat) {
-            var layer = L.marker([lonLat[1], lonLat[0]]);
-            layer.bindPopup("Startpunkt der Isochronenberechnung");
-            layer.addTo($scope.isochroneMarkerLayer);
-          });
-
-          $scope.layerControl.addOverlay($scope.isochroneMarkerLayer, "Startpunkte für Isochronenberechnung", reachabilityLayerGroupName);
-          $scope.isochroneMarkerLayer.addTo($scope.map);
-          $scope.updateSearchControl();
-
-          $scope.map.invalidateSize(true);
-        });
-
-        var createCustomMarkersFromWfsPoints = function(wfsLayer, poiMarkerLayer, dataset){
-          for (var layerPropName in wfsLayer._layers){
-            var geoJSONFeature = wfsLayer._layers[layerPropName].feature;
-            var latlng = wfsLayer._layers[layerPropName]._latlng;
-
-            geoJSONFeature.geometry = {
-              type: "Point",
-              coordinates: [latlng.lng, latlng.lat]
-            };
-
-            var customMarker = createCustomMarker(geoJSONFeature, dataset.poiSymbolColor, dataset.poiMarkerColor, dataset.poiSymbolBootstrap3Name, dataset);
-            poiMarkerLayer = addPoiMarker(poiMarkerLayer, customMarker);
-          }
-
-          return poiMarkerLayer;
-        };
-
-        var createCustomMarker = function(poiFeature, poiSymbolColor, poiMarkerColor, poiSymbolBootstrap3Name, metadataObject){
-          var customMarker;
-          try {
-            customMarker = L.AwesomeMarkers.icon({
-              icon: poiSymbolBootstrap3Name,
-              iconColor: poiSymbolColor,
-              markerColor: poiMarkerColor
-            });
-          } catch (err) {
-            customMarker = L.AwesomeMarkers.icon({
-              icon: 'home', // default back to home
-              iconColor: poiSymbolColor,
-              markerColor: poiMarkerColor
-            });
-          }
-
-          var newMarker;
-
-          if(poiFeature.geometry.type === "Point"){              
-            // LAT LON order
-            newMarker = L.marker([Number(poiFeature.geometry.coordinates[1]), Number(poiFeature.geometry.coordinates[0])], { icon: customMarker });
-
-            //populate the original geoJSOn feature to the marker layer!
-            newMarker.feature = poiFeature;
-            newMarker.metadataObject = metadataObject;
-          }
-          else if (poiFeature.geometry.type === "MultiPoint"){
-
-            // simply take the first point as feature reference POI
-            // LAT LON order
-            newMarker = L.marker([Number(poiFeature.geometry.coordinates[0][1]), Number(poiFeature.geometry.coordinates[0][0])], { icon: customMarker });
-
-            //populate the original geoJSOn feature to the marker layer!
-            newMarker.feature = poiFeature;
-            newMarker.metadataObject = metadataObject;
-          }
-          else{
-            console.error("NO POI object: instead got feature of type " + poiFeature.geometry.type);
-          }
-          
-          return newMarker;
-
-        };
+        });        
 
         $scope.$on("addPoiGeoresourceAsGeoJSON", function (event, georesourceMetadataAndGeoJSON, date, useCluster) {
 
@@ -1751,9 +1344,9 @@ angular.module('kommonitorMap').component(
           georesourceMetadataAndGeoJSON.geoJSON.features.forEach(function (poiFeature) {
             // index 0 should be longitude and index 1 should be latitude
             //.bindPopup( poiFeature.properties.name )
-            var newMarker = createCustomMarker(poiFeature, georesourceMetadataAndGeoJSON.poiSymbolColor, georesourceMetadataAndGeoJSON.poiMarkerColor, georesourceMetadataAndGeoJSON.poiSymbolBootstrap3Name, georesourceMetadataAndGeoJSON);            
+            var newMarker = kommonitorGenericMapHelperService.createCustomMarker(poiFeature, georesourceMetadataAndGeoJSON.poiSymbolColor, georesourceMetadataAndGeoJSON.poiMarkerColor, georesourceMetadataAndGeoJSON.poiSymbolBootstrap3Name, georesourceMetadataAndGeoJSON);            
             
-            markers = addPoiMarker(markers, newMarker);
+            markers = kommonitorGenericMapHelperService.addPoiMarker(markers, newMarker);
           });
 
           // markers.StyledLayerControl = {
@@ -1768,102 +1361,12 @@ angular.module('kommonitorMap').component(
           $scope.map.invalidateSize(true);
         });
 
-        $scope.$on("addPoiGeoresourceAsGeoJSON_reachabilityAnalysis", function (event, georesourceMetadataAndGeoJSON, date, useCluster) {
-
-          // use leaflet.markercluster to cluster markers!
-          var markers;
-          if (useCluster) {
-            markers = L.markerClusterGroup({
-              iconCreateFunction: function (cluster) {
-                var childCount = cluster.getChildCount();
-
-                var c = 'cluster-';
-                if (childCount < 10) {
-                  c += 'small';
-                } else if (childCount < 30) {
-                  c += 'medium';
-                } else {
-                  c += 'large';
-                }
-
-                var className = "marker-cluster " + c + " awesome-marker-legend-TransparentIcon-" + georesourceMetadataAndGeoJSON.poiMarkerColor;
-
-                //'marker-cluster' + c + ' ' +
-                return new L.DivIcon({ html: '<div class="awesome-marker-legend-icon-' + georesourceMetadataAndGeoJSON.poiMarkerColor + '" ><span>' + childCount + '</span></div>', className: className, iconSize: new L.Point(40, 40) });
-              }
-            });
-          }
-          else {
-            markers = L.layerGroup();
-          }          
-
-          georesourceMetadataAndGeoJSON.geoJSON.features.forEach(function (poiFeature) {
-            // index 0 should be longitude and index 1 should be latitude
-            //.bindPopup( poiFeature.properties.name )
-            var newMarker = createCustomMarker(poiFeature, georesourceMetadataAndGeoJSON.poiSymbolColor, georesourceMetadataAndGeoJSON.poiMarkerColor, georesourceMetadataAndGeoJSON.poiSymbolBootstrap3Name, georesourceMetadataAndGeoJSON);            
-            
-            markers = addPoiMarker(markers, newMarker);
-          });
-
-          // markers.StyledLayerControl = {
-          //   removable : false,
-          //   visible : true
-          // };
-
-          $scope.layerControl.addOverlay(markers, georesourceMetadataAndGeoJSON.datasetName + "_" + date + "_inEinzugsgebiet", reachabilityLayerGroupName);
-          markers.addTo($scope.map);
-          $scope.updateSearchControl();
-          // $scope.map.addLayer( markers );
-          $scope.map.invalidateSize(true);
-        });
-
-        var addPoiMarker = function(markers, poiMarker){
-            
-          // var propertiesString = "<pre>" + JSON.stringify(poiMarker.feature.properties, null, ' ').replace(/[\{\}"]/g, '') + "</pre>";
-
-          var popupContent = '<div class="poiInfoPopupContent featurePropertyPopupContent"><table class="table table-condensed">';
-            for (var p in poiMarker.feature.properties) {
-                popupContent += '<tr><td>' + p + '</td><td>'+ poiMarker.feature.properties[p] + '</td></tr>';
-            }
-            popupContent += '</table></div>';
-
-          if (poiMarker.feature.properties.name) {
-            poiMarker.bindPopup(poiMarker.feature.properties.name + "\n\n" + popupContent);
-          }
-          else if (poiMarker.feature.properties.NAME) {
-            poiMarker.bindPopup(poiMarker.feature.properties.NAME + "\n\n" + popupContent);
-          }
-          else if (poiMarker.feature.properties[__env.FEATURE_NAME_PROPERTY_NAME]) {
-            poiMarker.bindPopup(poiMarker.feature.properties[__env.FEATURE_NAME_PROPERTY_NAME] + "\n\n" + popupContent);
-          }
-          else {
-            // poiMarker.bindPopup(propertiesString);
-            poiMarker.bindPopup(popupContent);
-          }
-          markers.addLayer(poiMarker);
-
-          return markers;
-      };
-
         $scope.$on("removePoiGeoresource", function (event, georesourceMetadataAndGeoJSON) {
 
           var layerName = georesourceMetadataAndGeoJSON.datasetName;
 
           $scope.layerControl._layers.forEach(function (layer) {
             if (layer.group.name === poiLayerGroupName && layer.name.includes(layerName + "_")) {
-              $scope.layerControl.removeLayer(layer.layer);
-              $scope.map.removeLayer(layer.layer);
-              $scope.updateSearchControl();
-            }
-          });
-        });
-
-        $scope.$on("removePoiGeoresource_reachabilityAnalysis", function (event, georesourceMetadataAndGeoJSON) {
-
-          var layerName = georesourceMetadataAndGeoJSON.datasetName;
-
-          $scope.layerControl._layers.forEach(function (layer) {
-            if (layer.group.name === reachabilityLayerGroupName && layer.name.includes(layerName + "_")) {
               $scope.layerControl.removeLayer(layer.layer);
               $scope.map.removeLayer(layer.layer);
               $scope.updateSearchControl();
@@ -2217,7 +1720,7 @@ angular.module('kommonitorMap').component(
             wfsLayer.once('load', function () {
 
               if(dataset.geometryType === "POI"){
-                poiMarkerLayer = createCustomMarkersFromWfsPoints(wfsLayer, poiMarkerLayer, dataset);
+                poiMarkerLayer = kommonitorGenericMapHelperService.createCustomMarkersFromWfsPoints(wfsLayer, poiMarkerLayer, dataset);
               }
 
               console.log("Try to fit bounds on wfsLayer");
@@ -2504,30 +2007,6 @@ angular.module('kommonitorMap').component(
 
           $scope.layerControl._layers.forEach(function (layer) {
             if (layer.group.name === fileLayerGroupName && layer.name.includes(layerName)) {
-              $scope.layerControl.removeLayer(layer.layer);
-              $scope.map.removeLayer(layer.layer);
-            }
-          });
-        });
-
-        $scope.$on("removeReachabilityLayers", function (event) {
-
-          var layerNamePartly = "Isochrone";
-
-          $scope.layerControl._layers.forEach(function (layer) {
-            if (layer.group.name === reachabilityLayerGroupName && layer.name.includes(layerNamePartly)) {
-              $scope.layerControl.removeLayer(layer.layer);
-              $scope.map.removeLayer(layer.layer);
-            }
-          });
-        });
-
-        $scope.$on("removeRoutingLayers", function (event) {
-
-          var layerNamePartly = "Routing";
-
-          $scope.layerControl._layers.forEach(function (layer) {
-            if (layer.group.name === reachabilityLayerGroupName && layer.name.includes(layerNamePartly)) {
               $scope.layerControl.removeLayer(layer.layer);
               $scope.map.removeLayer(layer.layer);
             }
@@ -3069,7 +2548,8 @@ angular.module('kommonitorMap').component(
             $scope.showOutlierInfoAlert = true;
           }
 
-          $rootScope.$broadcast("updateDiagrams", $scope.currentIndicatorMetadataAndGeoJSON, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitId, date, $scope.defaultBrew, $scope.gtMeasureOfValueBrew, $scope.ltMeasureOfValueBrew, $scope.dynamicIncreaseBrew, $scope.dynamicDecreaseBrew, kommonitorDataExchangeService.isMeasureOfValueChecked, kommonitorDataExchangeService.measureOfValue, justRestyling);
+          $rootScope.$broadcast("updateDiagrams", $scope.currentIndicatorMetadataAndGeoJSON, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitId, date, $scope.defaultBrew, $scope.gtMeasureOfValueBrew, $scope.ltMeasureOfValueBrew, $scope.dynamicIncreaseBrew, $scope.dynamicDecreaseBrew, kommonitorDataExchangeService.isMeasureOfValueChecked, kommonitorDataExchangeService.measureOfValue, justRestyling);          
+          $rootScope.$broadcast("indicatortMapDisplayFinished");
 
           $scope.map.invalidateSize(true);
         });

@@ -699,6 +699,8 @@ angular
 
 								$scope.onChangeSelectedIndicator = async function(recenterMap){
 
+									$rootScope.$broadcast("onChangeSelectedIndicator");
+
 									if(kommonitorDataExchangeService.selectedIndicator){
 
 										$scope.loadingData = true;

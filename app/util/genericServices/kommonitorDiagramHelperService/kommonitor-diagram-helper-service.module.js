@@ -107,6 +107,9 @@ angular
       this.filterSameUnitAndSameTime = false;
 
       this.setupIndicatorPropertiesForCurrentSpatialUnitAndTime = function (filterBySameUnitAndSameTime) {
+
+        $rootScope.$broadcast("allIndicatorPropertiesForCurrentSpatialUnitAndTime setup begin");
+
         this.indicatorPropertiesForCurrentSpatialUnitAndTime = [];
 
         kommonitorDataExchangeService.displayableIndicators.forEach(indicatorMetadata => {
@@ -1613,11 +1616,13 @@ angular
           title: {
             text: 'Analyse Einzugsgebiet ' + rangeValue,
             left: 'center',
+            fontSize: '10',
             show: false
             // top: 15
           },
           toolbox: {
-            show: true,
+            show: false,
+            fontSize: '8',
             right: '15',
             feature: {
               // mark : {show: true},
@@ -1659,13 +1664,16 @@ angular
             }
           },
           tooltip: {
+              show: false,
               trigger: 'item',
               formatter: '{a} <br/>{b}: {c} ({d}%)',
+              fontSize: '10',
               confine: true
           },
           legend: {
               orient: 'vertical',
               type: "scroll",
+              fontSize: '8',
               left: 0,
               data: [this.makeFeatureNameForPoiInIsochroneDiagram(poiGeoresource, geoJSONFeatureCollection, date)]
               // data: [legendText]
@@ -1674,12 +1682,13 @@ angular
               {
                   name: "Punkte im Einzugsgebiet " + rangeValue,
                   type: 'pie',
-                  radius: ['50%', '70%'],
-                  center: ["70%", "50%"],
+                  radius: ['20%', '30%'],
+                  center: ["50%", "80%"],
                   avoidLabelOverlap: true,
                   label: {
                       show: false,
-                      position: 'center'
+                      position: 'center',
+                      fontSize: '10'
                   },
                   
                   emphasis: {

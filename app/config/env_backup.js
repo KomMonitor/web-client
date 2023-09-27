@@ -98,6 +98,10 @@ try {
   // KomMonitor Geocoder Proxy
   window.__env.targetUrlToGeocoderService = 'https://geocoder.fbg-hsbo.de/nominatim/';
 
+  // KomMonitor Spatial Data Processor
+  window.__env.targetUrlToSpatialDataProcessorInstance = 'http://localhost:8090/';
+  window.__env.spatialDataProcessor_processName_indicatorReachabilityStatistics = "isochrone-prune";
+
   // optional geometry simplification (a feature of Data Management API)
   window.__env.simplifyGeometriesParameterName = "simplifyGeometries";
   // allowed values and meaning:

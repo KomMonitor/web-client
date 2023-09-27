@@ -44,6 +44,7 @@
         <link rel="stylesheet" href="dependencies/codemirror/lib/codemirror.css">
         <link rel="stylesheet" href="dependencies/codemirror/addon/lint/lint.css">
         <link rel="stylesheet" href="dependencies/ui-select/select.min.css">
+        <link rel="stylesheet" href="dependencies/toastr/toastr.min.css">
         <!-- end lib style tags -->
 
         <!-- build:css kommonitor-client.min.css -->
@@ -144,6 +145,7 @@
         <script src="dependencies/jsonlint/jsonlint.js"></script>
         <script src="dependencies/mathjax/tex-chtml.js"></script>
         <script src="dependencies/code-prettify/run_prettify.js?skin=desert"></script>
+        <script src="dependencies/toastr/toastr.min.js"></script>
 
         <!-- UUID library directly loaded as minified version -->
         <script src="https://unpkg.com/uuid@8.3.2/dist/umd/uuidv4.min.js" type="text/javascript"></script>
@@ -169,8 +171,16 @@
         <script src="util/genericServices/kommonitorInfoLegendHelperService/kommonitor-info-legend-helper-service.module.js" type="text/javascript"></script>
         <script src="util/genericServices/kommonitorBatchUpdateHelperService/kommonitor-batch-update-helper-service.module.js" type="text/javascript"></script>
         <script src="util/genericServices/kommonitorFilterHelperService/kommonitor-filter-helper-service.module.js" type="text/javascript"></script>
+        <script src="util/genericServices/kommonitorGenericMapHelperService/kommonitor-generic-map-helper-service.module.js" type="text/javascript"></script>
         <script src="util/genericServices/kommonitorSingleFeatureMapHelperService/kommonitor-single-feature-map-helper-service.module.js" type="text/javascript"></script>
+        <script src="util/genericServices/kommonitorReachabilityScenarioHelperService/kommonitor-reachability-scenario-helper-service.module.js" type="text/javascript"></script>
+        <script src="util/genericServices/kommonitorReachabilityMapHelperService/kommonitor-reachability-map-helper-service.module.js" type="text/javascript"></script>
         <script src="util/genericServices/kommonitorElementVisibilityHelperService/kommonitor-element-visibility-helper-service.module.js" type="text/javascript"></script>
+        <script src="util/genericServices/kommonitorReachabilityHelperService/kommonitor-reachability-helper-service.module.js" type="text/javascript"></script>
+        <script src="util/genericServices/kommonitorSpatialDataProcessorHelperService/kommonitor-spatial-data-processor-helper-service.module.js" type="text/javascript"></script>
+        <script src="util/genericServices/kommonitorToastHelperService/kommonitor-toast-helper-service.module.js" type="text/javascript"></script>
+        <script src="components/common/singleFeatureEdit/single-feature-edit.module.js" type="text/javascript"></script>
+        <script src="components/common/singleFeatureEdit/single-feature-edit.component.js" type="text/javascript"></script>
         <script src="components/kommonitorUserInterface/kommonitorControls/kommonitorDataSetup/kommonitor-data-setup.module.js" type="text/javascript"></script>
         <script src="components/kommonitorUserInterface/kommonitorControls/kommonitorDataSetup/kommonitor-data-setup.component.js" type="text/javascript"></script>
         <script src="components/kommonitorAdmin/adminDashboardManagement/admin-dashboard-management.module.js" type="text/javascript"></script>
@@ -301,6 +311,14 @@
         <script src="components/kommonitorUserInterface/kommonitorControls/kommonitorBalance/kommonitor-balance.component.js" type="text/javascript"></script>
         <script src="components/kommonitorUserInterface/kommonitorControls/kommonitorLegend/kommonitor-legend.module.js" type="text/javascript"></script>
         <script src="components/kommonitorUserInterface/kommonitorControls/kommonitorLegend/kommonitor-legend.component.js" type="text/javascript"></script>
+        <script src="components/kommonitorUserInterface/kommonitorControls/kommonitorReachability/reachabilityScenarioModal/reachabilityIndicatorStatistics/reachability-indicator-statistics.module.js" type="text/javascript"></script>
+        <script src="components/kommonitorUserInterface/kommonitorControls/kommonitorReachability/reachabilityScenarioModal/reachabilityIndicatorStatistics/reachability-indicator-statistics.component.js" type="text/javascript"></script>
+        <script src="components/kommonitorUserInterface/kommonitorControls/kommonitorReachability/reachabilityScenarioModal/reachabilityScenarioConfiguration/reachability-scenario-configuration.module.js" type="text/javascript"></script>  
+        <script src="components/kommonitorUserInterface/kommonitorControls/kommonitorReachability/reachabilityScenarioModal/reachabilityScenarioConfiguration/reachability-scenario-configuration.component.js" type="text/javascript"></script>
+        <script src="components/kommonitorUserInterface/kommonitorControls/kommonitorReachability/reachabilityScenarioModal/reachabilityPoiInIso/reachability-poi-in-iso.module.js" type="text/javascript"></script>
+        <script src="components/kommonitorUserInterface/kommonitorControls/kommonitorReachability/reachabilityScenarioModal/reachabilityPoiInIso/reachability-poi-in-iso.component.js" type="text/javascript"></script>
+        <script src="components/kommonitorUserInterface/kommonitorControls/kommonitorReachability/reachabilityScenarioModal/reachability-scenario-modal.module.js" type="text/javascript"></script>
+        <script src="components/kommonitorUserInterface/kommonitorControls/kommonitorReachability/reachabilityScenarioModal/reachability-scenario-modal.component.js" type="text/javascript"></script>
         <script src="components/kommonitorUserInterface/kommonitorControls/kommonitorReachability/kommonitor-reachability.module.js" type="text/javascript"></script>
         <script src="components/kommonitorUserInterface/kommonitorControls/kommonitorReachability/kommonitor-reachability.component.js" type="text/javascript"></script>
         <script src="components/kommonitorUserInterface/kommonitorControls/poi/poi.module.js" type="text/javascript"></script>

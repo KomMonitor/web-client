@@ -1,1 +1,1 @@
-angular.module('reportingIndicatorAdd', ['excaliburDualList', 'ngSanitize']);
+angular.module('reportingIndicatorAdd', ['excaliburDualList', 'ngSanitize', 'reachabilityScenarioConfiguration', 'kommonitorReachabilityHelper']);

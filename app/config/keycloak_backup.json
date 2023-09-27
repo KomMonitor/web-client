@@ -1,6 +1,6 @@
 {
   "realm": "kommonitor", 
-  "auth-server-url": "https://keycloak.url/auth/", 
+  "auth-server-url": "https://keycloak.url/", 
   "ssl-required": "external", 
   "resource": "kommonitor-web-client",
   "public-client": true, 

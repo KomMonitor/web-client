@@ -150,7 +150,7 @@ angular
         for (const feature of kommonitorDataExchangeService.selectedIndicator.geoJSON.features) {
           this.filteredIndicatorFeatureIds.set("" + feature.properties[__env.FEATURE_ID_PROPERTY_NAME], feature);
           for (const higherSpatialUnitFeature of targetHigherSpatialUnitFilterFeatures) {
-            if(turf.booleanWithin(turf.pointOnFeature(feature), higherSpatialUnitFeature)){
+            if(turf.booleanPointInPolygon(turf.pointOnFeature(feature), higherSpatialUnitFeature)){
               this.filteredIndicatorFeatureIds.delete("" + feature.properties[__env.FEATURE_ID_PROPERTY_NAME]);
               break;
             }

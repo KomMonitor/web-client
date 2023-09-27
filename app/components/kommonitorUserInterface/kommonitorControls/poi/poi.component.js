@@ -65,6 +65,31 @@ angular
 									// });
 								}, 3000);
 
+								var addClickListenerToEachCollapseTrigger = function(){
+									setTimeout(function(){
+										$('.list-group-item > .collapseTrigger').on('click', function() {
+									    $('.glyphicon', this)
+									      .toggleClass('glyphicon-chevron-right')
+									      .toggleClass('glyphicon-chevron-down');
+
+												// manage uncollapsed entries
+												// var clickedTopicId = $(this).attr('id');
+												// if ($scope.unCollapsedTopicIds.includes(clickedTopicId)){
+												// 	var index = $scope.unCollapsedTopicIds.indexOf(clickedTopicId);
+												// 	$scope.unCollapsedTopicIds.splice(index, 1);
+												// }
+												// else{
+												// 	$scope.unCollapsedTopicIds.push(clickedTopicId);
+												// }
+									  });
+									}, 500);
+								};
+
+								$(document).ready(function() {
+
+									addClickListenerToEachCollapseTrigger();
+								});
+
 								$scope.onChangeShowPOI = function(){
 									if ($scope.showPOI){
 										$scope.showPOI = false;

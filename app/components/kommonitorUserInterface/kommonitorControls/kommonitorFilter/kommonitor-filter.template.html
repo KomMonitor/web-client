@@ -121,17 +121,44 @@
 					<span class="switchslider round"></span>
 				</label>
 
-				<div id="selectionByFeatureSpatialFilter" ng-show="showSelectionByFeatureSpatialFilter">
+				<div id="selectionByFeatureSpatialFilter" ng-show="showSelectionByFeatureSpatialFilter">					
 
-					<div ng-show="selectedSpatialUnitForFilter.length == 0">
+					<div align="center">
+						<div class="loading-overlay-sidebar ng-hide" ng-show="loadingData">
+									<span class="glyphicon glyphicon-refresh icon-spin"></span>
+						</div>
+					</div>
+
+					<br>
+					<br>
+
+					<div ng-show="! selectedSpatialUnitForFilter">
 						Auswahl bei derzeitig visualisierter Raumebene nicht m&ouml;glich - keine &uuml;bergeordneten Raumebenen vorhanden
 					</div>
 
-					<div class="row">
-						<div class="col-sm-12 col-md-5 col-lg-5">
-							<label>Raumebene</label>
-						</div>
+					<div class="row">						
 						<div class="col-sm-12 col-md-7 col-lg-7">
+							<label>nur Raumeinheiten des aktuellen Indikators ber&uuml;cksichtigen</label>
+							
+						</div>
+						<div class="col-sm-12 col-md-2 col-lg-2">
+							<label class="switch">
+								<input id="considerAllowedSpatialUnitsOfCurrentIndicatorToggle" type="checkbox" ng-change="onChangeShowSelectionByFeature()"
+									ng-model="considerAllowedSpatialUnitsOfCurrentIndicator" 
+									ng-checked="considerAllowedSpatialUnitsOfCurrentIndicator"></input>
+								<span class="switchslider round"></span>					
+							</label>
+						</div>
+						<div class="col-sm-12 col-md-3 col-lg-3">
+							
+						</div>
+					</div>
+
+					<div class="row">						
+						<div class="col-sm-12 col-md-3 col-lg-3">
+							<label>Raumebene</label>							
+						</div>
+						<div class="col-sm-12 col-md-6 col-lg-6">
 							<select style="font-size: 12px;"
 								ng-model="selectedSpatialUnitForFilter"
 								ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in higherSpatialUnits"
@@ -140,6 +167,9 @@
 								<option disabled selected value> -- Raumeinheit w&auml;hlen --
 								</option>
 							</select>
+						</div>
+						<div class="col-sm-12 col-md-3 col-lg-3">
+							
 						</div>
 					</div>
 
@@ -154,7 +184,6 @@
 						ng-click="onSelectionByFeatureSpatialFilterResetBtnPressed()">Selektion zurücksetzen</button>
 				</div>
 
-				<br/>
 				<hr>
 
 				<h4>Manuelle Selektion anzuzeigender Features</h4>
