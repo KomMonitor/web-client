@@ -80,24 +80,53 @@ angular
 						}
 					}
 
+					$scope.refreshDataLayer = function (dataset) {
+						if (dataset.isSelected) {
+							kommonitorMapService.removeFileLayerFromMap(dataset);
+							//display on Map
+							var opacity = 1 - dataset.transparency;
+							kommonitorMapService.addFileLayerToMap(dataset, opacity);
+						}
+					}
+
 					$scope.$on("GeoJSONFromFileFinished", function (event, tmpKommonitorGeoresource) {
 
 						// init feature NAME and ID fields
-						tmpKommonitorGeoresource.ID_ATTRIBUTE = tmpKommonitorGeoresource.featureSchema[0];
-						tmpKommonitorGeoresource.NAME_ATTRIBUTE = tmpKommonitorGeoresource.featureSchema[0];
+						tmpKommonitorGeoresource = $scope.initSpecialFields(tmpKommonitorGeoresource);
+
 						$scope.onChangeIdProperty(tmpKommonitorGeoresource);
 						$scope.onChangeNameProperty(tmpKommonitorGeoresource);
 
 						$scope.addFileToMap(tmpKommonitorGeoresource);
 					});
 
-					$scope.$on("CSVFromFileFinished", function (event, tmpKommonitorGeoresource) {
-
+					$scope.initSpecialFields = function(tmpKommonitorGeoresource){
 						// init feature NAME and ID fields
 						tmpKommonitorGeoresource.ID_ATTRIBUTE = tmpKommonitorGeoresource.featureSchema[0];
 						tmpKommonitorGeoresource.NAME_ATTRIBUTE = tmpKommonitorGeoresource.featureSchema[0];
 						tmpKommonitorGeoresource.LON_ATTRIBUTE = tmpKommonitorGeoresource.featureSchema[0];
 						tmpKommonitorGeoresource.LAT_ATTRIBUTE = tmpKommonitorGeoresource.featureSchema[0];
+
+						for (const property of tmpKommonitorGeoresource.featureSchema) {
+							if(property.toLowerCase().includes("id")){
+								tmpKommonitorGeoresource.ID_ATTRIBUTE = property;
+							}
+							if(property.toLowerCase().includes("name")){
+								tmpKommonitorGeoresource.NAME_ATTRIBUTE = property;
+							}
+							if(property.toLowerCase().includes("lon") || property.toLowerCase().includes("rechts") || property.toLowerCase().includes("x")){
+								tmpKommonitorGeoresource.LON_ATTRIBUTE = property;
+							}
+							if(property.toLowerCase().includes("lat") || property.toLowerCase().includes("hoch") || property.toLowerCase().includes("y")){
+								tmpKommonitorGeoresource.LAT_ATTRIBUTE = property;
+							}
+						}
+
+						return tmpKommonitorGeoresource;
+					}
+
+					$scope.$on("CSVFromFileFinished", function (event, tmpKommonitorGeoresource) {
+						tmpKommonitorGeoresource = $scope.initSpecialFields(tmpKommonitorGeoresource)
 
 						$scope.tmpKommonitorGeoresource_table = tmpKommonitorGeoresource;
 
@@ -273,13 +302,17 @@ angular
 						for (const feature of dataset.geoJSON.features) {
 							feature.properties[__env.FEATURE_NAME_PROPERTY_NAME] = "" + feature.properties[dataset.NAME_ATTRIBUTE]
 						}
+
+						// $scope.refreshDataLayer(dataset);
 					}
 
 					$scope.onChangeIdProperty = function (dataset) {
 						// ensure it is a string
 						for (const feature of dataset.geoJSON.features) {
-							feature.properties[__env.FEATURE_ID_PROPERTY_NAME] = "" + feature.properties[dataset.NAME_ATTRIBUTE]
+							feature.properties[__env.FEATURE_ID_PROPERTY_NAME] = "" + feature.properties[dataset.ID_ATTRIBUTE]
 						}
+
+						// $scope.refreshDataLayer(dataset);
 					}
 				}]
 		});

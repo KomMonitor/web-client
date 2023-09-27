@@ -656,7 +656,7 @@ angular.module('kommonitorMap').component(
               }
             }
 
-            // build L.layerGroup of available POI layers
+            // build L.featureGroup of available POI layers
             var featureLayers = [];
 
             for (var layerEntry of $scope.layerControl._layers) {
@@ -1349,7 +1349,7 @@ angular.module('kommonitorMap').component(
             });
           }
           else {
-            markers = L.layerGroup();
+            markers = L.featureGroup();
           }          
 
           georesourceMetadataAndGeoJSON.geoJSON.features.forEach(function (poiFeature) {
@@ -1700,7 +1700,7 @@ angular.module('kommonitorMap').component(
               });
             }
             else {
-              poiMarkerLayer = L.layerGroup();
+              poiMarkerLayer = L.featureGroup();
             } 
 
             wfsLayer = new L.WFS(wfsLayerOptions);
@@ -1820,35 +1820,49 @@ angular.module('kommonitorMap').component(
           try {
             var fileLayer;
 
-            var style = {
-              weight: 1,
-              opacity: opacity,
-              color: defaultBorderColor,
-              dashArray: '',
-              fillOpacity: 1,
-              fillColor: dataset.displayColor
-            };
-
-            fileLayer = L.geoJSON(dataset.geoJSON, {
-              style: style,
-              onEachFeature: function (feature, layer) {
-                layer.on({
-                  click: function () {
-
-                    // var propertiesString = "<pre>" + JSON.stringify(feature.properties, null, ' ').replace(/[\{\}"]/g, '') + "</pre>";
-
-                    var popupContent = '<div class="fileInfoPopupContent featurePropertyPopupContent"><table class="table table-condensed">';
-                    for (var p in feature.properties) {
-                        popupContent += '<tr><td>' + p + '</td><td>'+ feature.properties[p] + '</td></tr>';
+            if (dataset.isPOI){
+              fileLayer = L.featureGroup();
+    
+              dataset.geoJSON.features.forEach(function (poiFeature) {
+                // index 0 should be longitude and index 1 should be latitude
+                //.bindPopup( poiFeature.properties.name )
+                var newMarker = kommonitorGenericMapHelperService.createCustomMarker(poiFeature, dataset.poiSymbolColor, dataset.poiMarkerColor, dataset.poiSymbolBootstrap3Name, dataset);            
+                
+                fileLayer = kommonitorGenericMapHelperService.addPoiMarker(fileLayer, newMarker);
+              });
+            }
+            else{
+              var style = {
+                weight: 1,
+                opacity: opacity,
+                color: defaultBorderColor,
+                dashArray: '',
+                fillOpacity: 1,
+                fillColor: dataset.displayColor
+              };
+  
+              fileLayer = L.geoJSON(dataset.geoJSON, {
+                style: style,
+                onEachFeature: function (feature, layer) {
+                  layer.on({
+                    click: function () {
+  
+                      // var propertiesString = "<pre>" + JSON.stringify(feature.properties, null, ' ').replace(/[\{\}"]/g, '') + "</pre>";
+  
+                      var popupContent = '<div class="fileInfoPopupContent featurePropertyPopupContent"><table class="table table-condensed">';
+                      for (var p in feature.properties) {
+                          popupContent += '<tr><td>' + p + '</td><td>'+ feature.properties[p] + '</td></tr>';
+                      }
+                      popupContent += '</table></div>';
+  
+                      if (popupContent)
+                        layer.bindPopup(popupContent);
                     }
-                    popupContent += '</table></div>';
+                  });
+                }
+              });
+            }
 
-                    if (popupContent)
-                      layer.bindPopup(popupContent);
-                  }
-                });
-              }
-            });
             $scope.showFileLayer(fileLayer, dataset); 
           } catch (error) {
             console.error(error);
@@ -1897,20 +1911,32 @@ angular.module('kommonitorMap').component(
 
           $scope.layerControl._layers.forEach(function (layer) {
             if (layer.group.name === fileLayerGroupName && layer.name.includes(layerName)) {
-              var newStyle = {
-                weight: 1,
-                color: defaultBorderColor,
-                dashArray: '',
-                fillColor: dataset.displayColor
-              };
 
-              //var geoJSON = layer.layertoGeoJSON();
-              var firstLayersPropertyName = Object.keys(layer.layer._layers)[0];
-              if (firstLayersPropertyName) {
-                var geoJSON_exmaple = layer.layer._layers[firstLayersPropertyName].toGeoJSON();
+              if(dataset.isPOI){
+                if(layer.layer._layers){
+                  for(var layerId in layer.layer._layers){
+                    layer.layer._layers[layerId].setOpacity(opacity);
+                  }
+                } 
+                else if(layer.layer._featureGroup){
+                  for(var layerId in layer.layer._featureGroup._layers){
+                    layer.layer._featureGroup._layers[layerId].setOpacity(opacity);
+                  }
+                }   
+                else{                
+                  layer.layer.setOpacity(opacity);
+                } 
               }
-
-              layer.layer.setStyle(newStyle);
+              else{
+                var newStyle = {
+                  weight: 1,
+                  color: defaultBorderColor,
+                  dashArray: '',
+                  fillColor: dataset.displayColor
+                };
+  
+                layer.layer.setStyle(newStyle);
+              }              
             }
           });
         });
