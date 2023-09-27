@@ -162,9 +162,17 @@ select {
   margin-bottom: 15px;
 }
 
+.editableHistogramDynamic {
+  height: 100px;
+  margin-bottom: 35px;
+}
+
 .histogramTabWrapper .histogram {
   height: 150px;
   background-color: white;
+}
+.editableHistogramDynamic .histogram {
+  height: 100px;
 }
 .histogramTabWrapper .histogramBar {
   background-color: rgb(51,122,183);

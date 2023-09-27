@@ -43,17 +43,16 @@
 
     <!-- manual breaks -->
     <div ng-if="$ctrl.kommonitorVisualStyleHelperServiceInstance.classifyMethod=='manual'">
-      <div ng-if="!$ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked" 
-            class="histogramTabWrapper"
-            ng-mousemove="getHeightInElement($event); toggleAddBtn($event)"
-            id="editableHistogram">
+      <div ng-if="!$ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked && !$ctrl.kommonitorDataExchangeServiceInstance.isBalanceChecked" 
+            class="histogramTabWrapper editableHistogram"
+            ng-mousemove="toggleAddBtn($event, 0)">
         <div class="breaksArea"
               ng-mousemove="onBreakMouseMove($event)">
           <!-- add btn -->
           <div class="addBtnWrapper breakWrapper"
-                style="top: {{addBtnHeight}}px"
-                ng-if="showAddBtn"
-                ng-mousover="toggleAddBtn($event)">
+                style="top: {{addBtnHeight[0]}}px"
+                ng-if="showAddBtn[0]"
+                ng-mousover="toggleAddBtn($event, 0)">
             <div class="addBtn" ng-click="addNewBreak()">+</div>
             <div class="line"></div>
           </div>
@@ -71,16 +70,15 @@
           <!-- other breaks -->
           <div class="breakWrapper"
                 ng-repeat="(i, b) in $ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks track by $index"
-                style="top: {{getPercentage(b)}}%"
-                ng-mousedown="onBreakMouseDown($event, i)"
-                ng-click="onBreakClick()"
-                ng-dblclick="onBreakDblClick($event, i)"
+                style="top: {{getPercentage(b, 0)}}%"
+                ng-mousedown="onBreakMouseDown($event, i, 0)"
+                ng-dblclick="onBreakDblClick($event, i, 0)"
                 ng-class="{'fixed': i === 0 || i === $ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks.length-1}">
             <div class="break"
                   ng-class="{'fixed': i === 0 || i === $ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks.length-1}">
               <!--<div class="colorBox"></div>-->
               <input type="number"
-                      ng-blur="onBreaksChanged($event, i)"
+                      ng-blur="onBreaksChanged($event, i, 0)"
                       ng-model-options="{ updateOn: 'blur', allowInvalid: false }"
                       disabled
                       ng-class="{'fixed': i === 0 || i === $ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks.length-1}"
@@ -88,7 +86,7 @@
                       max="{{$ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks[$ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks.length - 1]}}"
                       ng-model="$ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks[i]">
               <i class="fa-regular fa-trash-can" 
-                  ng-click="deleteBreak(i)"
+                  ng-click="deleteBreak(i, 0)"
                   ng-if="i != 0 && i != $ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks.length-1"></i>
             </div>
             <div class="line"></div>
@@ -106,22 +104,21 @@
       </div>
 
       <div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked" 
-            class="histogramTabWrapper"
-            ng-mousemove="getHeightInElement($event); toggleAddBtn($event)"
-            id="editableHistogram">
+            class="histogramTabWrapper editableHistogram"
+            ng-mousemove="toggleAddBtn($event, 0)">
         <div class="breaksArea"
               ng-mousemove="onBreakMouseMove($event)">
           <!-- add btn -->
           <div class="addBtnWrapper breakWrapper"
-                style="top: {{addBtnHeight}}px"
-                ng-if="showAddBtn"
-                ng-mousover="toggleAddBtn($event)">
+                style="top: {{addBtnHeight[0]}}px"
+                ng-if="showAddBtn[0]"
+                ng-mousover="toggleAddBtn($event, 0)">
             <div class="addBtn" ng-click="addNewBreak()">+</div>
             <div class="line"></div>
           </div>
           <!-- measure of Value -->
           <div class="breakWrapper measureOfValue"
-                style="top: {{getPercentage($ctrl.kommonitorDataExchangeServiceInstance.measureOfValue)}}%"
+                style="top: {{getPercentage($ctrl.kommonitorDataExchangeServiceInstance.measureOfValue, 0)}}%"
                 ng-mousedown="onBreakMouseMove($event)">
             <div class ="break fixed">
               <!--<div class="colorBox"></div>-->
@@ -132,16 +129,15 @@
           <!-- other breaks -->
           <div class="breakWrapper"
                 ng-repeat="(i, b) in $ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks track by $index"
-                style="top: {{getPercentage(b)}}%"
-                ng-mousedown="onBreakMouseDown($event, i)"
-                ng-click="onBreakClick()"
-                ng-dblclick="onBreakDblClick($event, i)"
+                style="top: {{getPercentage(b, 0)}}%"
+                ng-mousedown="onBreakMouseDown($event, i, 0)"
+                ng-dblclick="onBreakDblClick($event, i, 0)"
                 ng-class="{'fixed': i === 0 || i === $ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks.length-1}">
             <div class="break"
                   ng-class="{'fixed': i === 0 || i === $ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks.length-1}">
               <!--<div class="colorBox"></div>-->
               <input type="number" 
-                      ng-blur="onBreaksChanged($event, i)"
+                      ng-blur="onBreaksChanged($event, i, 0)"
                       ng-model-options="{ updateOn: 'blur', allowInvalid: false }"
                       disabled
                       ng-class="{'fixed': i === 0 || i === $ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks.length-1}"
@@ -149,7 +145,7 @@
                       max="{{$ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks[$ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks.length - 1]}}"
                       ng-model="$ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks[i]">
               <i class="fa-regular fa-trash-can"
-                  ng-click="deleteBreak(i)"
+                  ng-click="deleteBreak(i, 0)"
                   ng-if="i != 0 && i != $ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks.length-1"></i>
             </div>
             <div class="line"></div>
@@ -174,6 +170,104 @@
       </div>
     </div>
 
+    <!-- balance checked -- lower than values -->
+    <div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.isBalanceChecked" 
+          class="histogramTabWrapper editableHistogram editableHistogramDynamic"
+          ng-mousemove="toggleAddBtn($event, 1)">
+      <div class="breaksArea"
+            ng-mousemove="onDynamicBreakMouseMove($event, 1)">
+
+        <div class="addBtnWrapper breakWrapper"
+              style="top: {{addBtnHeight[1]}}px"
+              ng-if="showAddBtn[1]"
+              ng-mousover="toggleAddBtn($event, 1)">
+          <div class="addBtn" ng-click="addNewBreakDynamic(1)">+</div>
+          <div class="line"></div>
+        </div>
+
+        <div class="breakWrapper"
+              ng-repeat="(i, b) in $ctrl.kommonitorVisualStyleHelperServiceInstance.dynamicBrew[1].breaks track by $index"
+              style="top: {{getPercentage(b, 1)}}%"
+              ng-mousedown="onBreakMouseDown($event, i, 1)"
+              ng-dblclick="onBreakDblClick($event, i, 1)"
+              ng-class="{'fixed': i === 0 || i === $ctrl.kommonitorVisualStyleHelperServiceInstance.dynamicBrew[1].breaks.length-1}">
+          <div class="break"
+                ng-class="{'fixed': i === 0 || i === $ctrl.kommonitorVisualStyleHelperServiceInstance.dynamicBrew[1].breaks.length-1}">
+            <input type="number" 
+                    ng-blur="onBreaksChanged($event, i, 1)"
+                    ng-model-options="{ updateOn: 'blur', allowInvalid: false }"
+                    disabled
+                    ng-class="{'fixed': i === 0 || i === $ctrl.kommonitorVisualStyleHelperServiceInstance.dynamicBrew[1].breaks.length-1}"
+                    ng-model="$ctrl.kommonitorVisualStyleHelperServiceInstance.dynamicBrew[1].breaks[i]">
+            <i class="fa-regular fa-trash-can"
+                ng-click="deleteBreak(i, 1)"
+                ng-if="i != 0 && i != $ctrl.kommonitorVisualStyleHelperServiceInstance.dynamicBrew[1].breaks.length-1"></i>
+          </div>
+          <div class="line"></div>
+        </div>
+      </div>
+
+      <div class="histogram">
+        <div class="histogramBar"
+              ng-repeat="(i, b) in $ctrl.kommonitorVisualStyleHelperServiceInstance.dynamicBrew[1].breaks"
+              ng-if="i != $ctrl.kommonitorVisualStyleHelperServiceInstance.dynamicBrew[1].breaks.length - 1"
+              style="height: {{getHeightForBarDynamic(1, i)}}%; 
+                    width: {{getWidthForHistogramBarDynamic(1, i)}}%;
+                    background-color: {{$ctrl.kommonitorVisualStyleHelperServiceInstance.dynamicBrew[1].colors[i]}}">
+        </div>
+      </div>
+    </div>
+
+
+    <!-- balance checked -- higher than values -->
+    <div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.isBalanceChecked" 
+          class="histogramTabWrapper editableHistogram editableHistogramDynamic"
+          ng-mousemove="toggleAddBtn($event, 0)">
+      <div class="breaksArea"
+            ng-mousemove="onDynamicBreakMouseMove($event, 0)">
+
+        <div class="addBtnWrapper breakWrapper"
+              style="top: {{addBtnHeight[0]}}px"
+              ng-if="showAddBtn[0]"
+              ng-mousover="toggleAddBtn($event, 0)">
+          <div class="addBtn" ng-click="addNewBreakDynamic(0)">+</div>
+          <div class="line"></div>
+        </div>
+
+        <div class="breakWrapper"
+              ng-repeat="(i, b) in $ctrl.kommonitorVisualStyleHelperServiceInstance.dynamicBrew[0].breaks track by $index"
+              style="top: {{getPercentage(b, 0)}}%"
+              ng-mousedown="onBreakMouseDown($event, i, 0)"
+              ng-dblclick="onBreakDblClick($event, i, 0)"
+              ng-class="{'fixed': i === 0 || i === $ctrl.kommonitorVisualStyleHelperServiceInstance.dynamicBrew[0].breaks.length-1}">
+          <div class="break"
+                ng-class="{'fixed': i === 0 || i === $ctrl.kommonitorVisualStyleHelperServiceInstance.dynamicBrew[0].breaks.length-1}">
+            <input type="number" 
+                    ng-blur="onBreaksChanged($event, i, 0)"
+                    ng-model-options="{ updateOn: 'blur', allowInvalid: false }"
+                    disabled
+                    ng-class="{'fixed': i === 0 || i === $ctrl.kommonitorVisualStyleHelperServiceInstance.dynamicBrew[0].breaks.length-1}"
+                    ng-model="$ctrl.kommonitorVisualStyleHelperServiceInstance.dynamicBrew[0].breaks[i]">
+            <i class="fa-regular fa-trash-can"
+                ng-click="deleteBreak(i, 0)"
+                ng-if="i != 0 && i != $ctrl.kommonitorVisualStyleHelperServiceInstance.dynamicBrew[0].breaks.length-1"></i>
+          </div>
+          <div class="line"></div>
+        </div>
+      </div>
+
+      <div class="histogram">
+        <div class="histogramBar"
+              ng-repeat="(i, b) in $ctrl.kommonitorVisualStyleHelperServiceInstance.dynamicBrew[0].breaks"
+              ng-if="i != $ctrl.kommonitorVisualStyleHelperServiceInstance.dynamicBrew[0].breaks.length - 1"
+              style="height: {{getHeightForBarDynamic(0, i)}}%; 
+                    width: {{getWidthForHistogramBarDynamic(0, i)}}%;
+                    background-color: {{$ctrl.kommonitorVisualStyleHelperServiceInstance.dynamicBrew[0].colors[i]}}">
+        </div>
+      </div>
+    </div>
+
+
     <!--
     <div class="classificationBoxToogleSlidersWrapper">
       <span class="classificationBoxToogleSlidersLbl">
@@ -190,7 +284,7 @@
   
     
     <!-- use whole time series -->
-    <!--
+
     <div class="classificationBoxToogleSlidersWrapper">
       <span class="classificationBoxToogleSlidersLbl">
         <strong>Klassifizierung &uuml;ber die gesamte Zeitreihe</strong> &nbsp;
@@ -206,7 +300,7 @@
           <span class="switchslider round"></span>
       </label>
     </div>
-  
+  <!--
     <div class="classificationBoxToogleSlidersWrapper" ng-if="containsZeroValues">
       <span class="classificationBoxToogleSlidersLbl"><strong>Wert "0" als separate Klasse darstellen</strong> &nbsp;</span>
       <label class="switch" title="0 als separate Klasse darstellen"><input id="controlIndicatorZeroClassifyOption" type="checkbox" value="useSeparateZeroClass" ng-model="$ctrl.kommonitorDataExchangeServiceInstance.classifyZeroSeparately" ng-checked="$ctrl.kommonitorDataExchangeServiceInstance.classifyZeroSeparately"><span class="switchslider round"></span></label>

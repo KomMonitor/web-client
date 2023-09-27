@@ -1057,6 +1057,22 @@ angular.module('kommonitorMap').component(
           $rootScope.$broadcast("restyleCurrentLayer", false);
         });
 
+        $scope.$on("changeDynamicBreaks", function (event, breaks) {
+          kommonitorVisualStyleHelperService.dynamicBrewBreaks = breaks;
+          kommonitorVisualStyleHelperService.dynamicBrew[1].breaks = breaks[1];
+          kommonitorVisualStyleHelperService.dynamicBrew[0].breaks = breaks[0];
+          $scope.updateManualMOVBreaksFromDefaultManualBreaks();
+
+          $timeout(function(){ 
+            kommonitorVisualStyleHelperService.dynamicBrewBreaks = breaks;
+            kommonitorVisualStyleHelperService.dynamicBrew[1].breaks = breaks[1];
+            kommonitorVisualStyleHelperService.dynamicBrew[0].breaks = breaks[0];
+            $rootScope.$apply();
+          }, 350);
+
+          $rootScope.$broadcast("restyleCurrentLayer", false);
+        });
+
         $scope.$on("changeMOVBreaks", function (event, breaks) {
           kommonitorVisualStyleHelperService.manualMOVBreaks = breaks;
 
@@ -3049,7 +3065,14 @@ angular.module('kommonitorMap').component(
             if (indicatorMetadataAndGeoJSON.indicatorType.includes("STATUS")) {
               $scope.datasetContainsNegativeValues = $scope.containsNegativeValues(indicatorMetadataAndGeoJSON.geoJSON);
               if ($scope.datasetContainsNegativeValues) {
-                var dynamicIndicatorBrewArray = kommonitorVisualStyleHelperService.setupDynamicIndicatorBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, defaultColorBrewerPaletteForBalanceIncreasingValues, defaultColorBrewerPaletteForBalanceDecreasingValues, kommonitorVisualStyleHelperService.classifyMethod);
+                var dynamicIndicatorBrewArray = kommonitorVisualStyleHelperService.setupDynamicIndicatorBrew(
+                  indicatorMetadataAndGeoJSON.geoJSON, 
+                  $scope.indicatorPropertyName, 
+                  defaultColorBrewerPaletteForBalanceIncreasingValues, 
+                  defaultColorBrewerPaletteForBalanceDecreasingValues, 
+                  kommonitorVisualStyleHelperService.classifyMethod,
+                  kommonitorVisualStyleHelperService.numClasses,
+                  kommonitorVisualStyleHelperService.dynamicBrewBreaks);
                 $scope.dynamicIncreaseBrew = dynamicIndicatorBrewArray[0];
                 $scope.dynamicDecreaseBrew = dynamicIndicatorBrewArray[1];
 
@@ -3073,7 +3096,14 @@ angular.module('kommonitorMap').component(
               // $scope.makeDefaultLegend(indicatorMetadataAndGeoJSON.defaultClassificationMapping, $scope.datasetContainsNegativeValues, isCustomComputation);
             }
             else if (indicatorMetadataAndGeoJSON.indicatorType.includes("DYNAMIC")) {
-              var dynamicIndicatorBrewArray = kommonitorVisualStyleHelperService.setupDynamicIndicatorBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, defaultColorBrewerPaletteForBalanceIncreasingValues, defaultColorBrewerPaletteForBalanceDecreasingValues, kommonitorVisualStyleHelperService.classifyMethod);
+              var dynamicIndicatorBrewArray = kommonitorVisualStyleHelperService.setupDynamicIndicatorBrew(
+                indicatorMetadataAndGeoJSON.geoJSON, 
+                $scope.indicatorPropertyName, 
+                defaultColorBrewerPaletteForBalanceIncreasingValues, 
+                defaultColorBrewerPaletteForBalanceDecreasingValues, 
+                kommonitorVisualStyleHelperService.classifyMethod,
+                kommonitorVisualStyleHelperService.numClasses,
+                kommonitorVisualStyleHelperService.dynamicBrewBreaks);
               $scope.dynamicIncreaseBrew = dynamicIndicatorBrewArray[0];
               $scope.dynamicDecreaseBrew = dynamicIndicatorBrewArray[1];
 
@@ -3224,7 +3254,14 @@ angular.module('kommonitorMap').component(
             else {
 
               if ($scope.indicatorTypeOfCurrentLayer.includes('DYNAMIC')) {
-                var dynamicIndicatorBrewArray = kommonitorVisualStyleHelperService.setupDynamicIndicatorBrew($scope.currentIndicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, defaultColorBrewerPaletteForBalanceIncreasingValues, defaultColorBrewerPaletteForBalanceDecreasingValues, kommonitorVisualStyleHelperService.classifyMethod);
+                var dynamicIndicatorBrewArray = kommonitorVisualStyleHelperService.setupDynamicIndicatorBrew(
+                  $scope.currentIndicatorMetadataAndGeoJSON.geoJSON, 
+                  $scope.indicatorPropertyName, 
+                  defaultColorBrewerPaletteForBalanceIncreasingValues, 
+                  defaultColorBrewerPaletteForBalanceDecreasingValues, 
+                  kommonitorVisualStyleHelperService.classifyMethod,
+                  kommonitorVisualStyleHelperService.numClasses,
+                  kommonitorVisualStyleHelperService.dynamicBrewBreaks);
                 $scope.dynamicIncreaseBrew = dynamicIndicatorBrewArray[0];
                 $scope.dynamicDecreaseBrew = dynamicIndicatorBrewArray[1];
 
@@ -3244,7 +3281,14 @@ angular.module('kommonitorMap').component(
               else {
                 $scope.datasetContainsNegativeValues = $scope.containsNegativeValues($scope.currentGeoJSONOfCurrentLayer);
                 if ($scope.datasetContainsNegativeValues) {
-                  var dynamicIndicatorBrewArray = kommonitorVisualStyleHelperService.setupDynamicIndicatorBrew($scope.currentIndicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, defaultColorBrewerPaletteForBalanceIncreasingValues, defaultColorBrewerPaletteForBalanceDecreasingValues, kommonitorVisualStyleHelperService.classifyMethod);
+                  var dynamicIndicatorBrewArray = kommonitorVisualStyleHelperService.setupDynamicIndicatorBrew(
+                    $scope.currentIndicatorMetadataAndGeoJSON.geoJSON, 
+                    $scope.indicatorPropertyName, 
+                    defaultColorBrewerPaletteForBalanceIncreasingValues, 
+                    defaultColorBrewerPaletteForBalanceDecreasingValues, 
+                    kommonitorVisualStyleHelperService.classifyMethod,
+                    kommonitorVisualStyleHelperService.numClasses,
+                    kommonitorVisualStyleHelperService.dynamicBrewBreaks);
                   $scope.dynamicIncreaseBrew = dynamicIndicatorBrewArray[0];
                   $scope.dynamicDecreaseBrew = dynamicIndicatorBrewArray[1];
                 }

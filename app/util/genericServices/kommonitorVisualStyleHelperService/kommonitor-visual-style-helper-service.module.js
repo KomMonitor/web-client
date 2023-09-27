@@ -439,7 +439,7 @@ angular
        *
        * [dynamicIncreaseBrew, dynamicDecreaseBrew]
        */
-      this.setupDynamicIndicatorBrew = function (geoJSON, propertyName, colorCodeForPositiveValues, colorCodeForNegativeValues, classifyMethod) {
+      this.setupDynamicIndicatorBrew = function (geoJSON, propertyName, colorCodeForPositiveValues, colorCodeForNegativeValues, classifyMethod, numClasses, breaks) {
 
         /*
         * Idea: Analyse the complete geoJSON property array for each feature and make conclusion about how to build the legend
@@ -466,8 +466,19 @@ angular
           this.setupDynamicBrewValues_singleTimestamp(geoJSON, propertyName);
         }
 
-        var dynamicIncreaseBrew = setupDynamicIncreaseBrew(this.positiveValues, colorCodeForPositiveValues, classifyMethod);
-        var dynamicDecreaseBrew = setupDynamicDecreaseBrew(this.negativeValues, colorCodeForNegativeValues, classifyMethod);
+        var dynamicIncreaseBrew = setupDynamicIncreaseBrew(this.positiveValues, colorCodeForPositiveValues, classifyMethod, Math.ceil(numClasses / 2));
+        var dynamicDecreaseBrew = setupDynamicDecreaseBrew(this.negativeValues, colorCodeForNegativeValues, classifyMethod, Math.floor(numClasses / 2));
+
+        if(classifyMethod == "manual") {
+          if (!breaks) {
+            breaks = [];
+            breaks[0] = dynamicIncreaseBrew.breaks;
+            breaks[1] = dynamicDecreaseBrew.breaks;
+          }
+          dynamicIncreaseBrew = this.setupManualBrew(breaks[0].length -1, colorCodeForPositiveValues, breaks[0]);
+          dynamicDecreaseBrew = this.setupManualBrew(breaks[1].length -1, colorCodeForNegativeValues, breaks[1]);
+          dynamicDecreaseBrew.colors = dynamicDecreaseBrew.colors.reverse();
+        }
 
         this.dynamicBrew = [dynamicIncreaseBrew, dynamicDecreaseBrew]; 
         return this.dynamicBrew;
@@ -509,12 +520,12 @@ angular
         }
       };
 
-      function setupDynamicIncreaseBrew(positiveValues, colorCodeForPositiveValues, classifyMethod) {
-        return setupClassyBrew_usingFeatureCount(positiveValues, colorCodeForPositiveValues, classifyMethod, 3);
+      function setupDynamicIncreaseBrew(positiveValues, colorCodeForPositiveValues, classifyMethod, numClasses) {
+        return setupClassyBrew_usingFeatureCount(positiveValues, colorCodeForPositiveValues, classifyMethod, numClasses);
       }
 
-      function setupDynamicDecreaseBrew(negativeValues, colorCodeForNegativeValues, classifyMethod) {
-        var brew = setupClassyBrew_usingFeatureCount(negativeValues, colorCodeForNegativeValues, classifyMethod, 3);
+      function setupDynamicDecreaseBrew(negativeValues, colorCodeForNegativeValues, classifyMethod, numClasses) {
+        var brew = setupClassyBrew_usingFeatureCount(negativeValues, colorCodeForNegativeValues, classifyMethod, numClasses);
         if(brew && brew.colors && brew.colors.length > 1){        
           brew.colors = brew.colors.reverse();
         }
