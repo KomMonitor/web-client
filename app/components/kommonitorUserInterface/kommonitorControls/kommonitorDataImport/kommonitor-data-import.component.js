@@ -34,7 +34,7 @@ angular
 						},
 						{
 							displayName: "Adressen - Ort, PLZ, Strasse",
-							apiName: "address_city_postcode_street"
+							apiName: "address"
 						}
 					]
 
@@ -63,9 +63,12 @@ angular
 					$scope.addFileToMap = function (dataset) {
 						console.log("Toggle File Layer: " + dataset.datasetName);
 
+						let clone = JSON.parse(JSON.stringify(dataset));	
+						if(dataset.type == "CSV"){
+							clone.datasetName = clone.datasetName + "_" + $scope.tableProcessType.apiName;
+						}
 
-
-						$scope.toggleDataLayer(dataset);
+						$scope.toggleDataLayer(clone);
 					};
 
 					$scope.toggleDataLayer = function (dataset) {
@@ -183,8 +186,10 @@ angular
 							kommonitorToastHelperService.displaySuccessToast_upperLeft($scope.tmpKommonitorGeoresource_table.geoJSON.features.length + " von " + $scope.tmpKommonitorGeoresource_table.dataRows.length + " Adressen geokodiert",
 								"Objekteigenschaften 'geocoderank' und 'geocodedesc' bewerten Genauigkeit");
 
-							kommonitorToastHelperService.displayWarningToast_upperLeft($scope.tmpKommonitorGeoresource_table.dataRows_notGeocoded.length + " von " + $scope.tmpKommonitorGeoresource_table.dataRows.length + " Adressen nicht geokodiert");
-
+							if($scope.tmpKommonitorGeoresource_table.dataRows_notGeocoded.length > 0){
+								kommonitorToastHelperService.displayWarningToast_upperLeft($scope.tmpKommonitorGeoresource_table.dataRows_notGeocoded.length + " von " + $scope.tmpKommonitorGeoresource_table.dataRows.length + " Adressen nicht geokodiert");
+							}
+							
 							$scope.onChangeIdProperty($scope.tmpKommonitorGeoresource_table);
 							$scope.onChangeNameProperty($scope.tmpKommonitorGeoresource_table);
 
@@ -363,8 +368,12 @@ angular
 
 					$scope.$on("FileLayerSuccess", function (event, dataset) {
 						$scope.fileLayerError = undefined;
-						$scope.loadingData = false;
-						kommonitorDataExchangeService.fileDatasets.push(dataset);
+						$scope.loadingData = false;						
+						
+						//remove any old entry with the same name to prevent dupes
+						$scope.removeDataLayerFromOverviewTables(dataset);
+						
+						kommonitorDataExchangeService.fileDatasets.push(JSON.parse(JSON.stringify(dataset)));
 						kommonitorDataExchangeService.displayableGeoresources.push(dataset);
 
 						setTimeout(function () {
@@ -384,6 +393,11 @@ angular
 						if (dataset.isSelected) {
 							kommonitorMapService.removeFileLayerFromMap(dataset);
 						}
+
+						$scope.removeDataLayerFromOverviewTables(dataset);
+					}
+
+					$scope.removeDataLayerFromOverviewTables = function (dataset) {
 
 						for (let i = 0; i < kommonitorDataExchangeService.fileDatasets.length; i++) {
 							if (kommonitorDataExchangeService.fileDatasets[i].datasetName == dataset.datasetName) {

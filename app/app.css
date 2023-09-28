@@ -1458,6 +1458,22 @@ color: #777;
 	overflow: auto;
 }
 
+.fileInputForm{
+	padding: 5px;
+	/* height: auto !important;
+	max-height: 500px; */
+	max-width: 100%;
+	max-height: 400px;
+	font-size: 12px;
+	/* border: 2px solid gray;
+	border-radius: 8px; */
+	overflow: auto;
+}
+
+.datasetButtonForm {
+	padding-left: 20px;
+}
+
 #poiInputForm {
 	padding: 5px;
 	height: auto !important;

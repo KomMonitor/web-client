@@ -22,7 +22,7 @@
 			
 			keep required metainformation editable 
 
-			if CSV/Excel let user decide whether it is with coordinate colums (plus field for EPSG code) OR with adress information
+			if CSV/Excel let user decide whether it is with coordinate colums (plus field for EPSG code) OR with address information
 			-> support both and 
 			
 			OR as third submenu -> Geocoding from CSV/Excel -> make use of importer entries to create form
@@ -116,7 +116,7 @@
 							</button>
 
 						</div>
-						<div class="col-xs-3" ng-show="tableProcessType.apiName == 'address_city_postcode_street'">
+						<div class="col-xs-3" ng-show="tableProcessType.apiName == 'address'">
 
 							<label>Spaltenname Stadt</label>
 							<select style="font-size: 11px; " ng-model="tmpKommonitorGeoresource_table.CITY_ATTRIBUTE"
@@ -124,7 +124,7 @@
 								class="form-control" required>
 							</select>
 						</div>
-						<div class="col-xs-3" ng-show="tableProcessType.apiName == 'address_city_postcode_street'">
+						<div class="col-xs-3" ng-show="tableProcessType.apiName == 'address'">
 
 							<label>Spaltenname Postleitzahl</label>
 							<select style="font-size: 11px; "
@@ -133,7 +133,7 @@
 								class="form-control" required>
 							</select>
 						</div>
-						<div class="col-xs-3" ng-show="tableProcessType.apiName == 'address_city_postcode_street'">
+						<div class="col-xs-3" ng-show="tableProcessType.apiName == 'address'">
 
 							<label>Spaltenname Strasse</label>
 							<select style="font-size: 11px; " ng-model="tmpKommonitorGeoresource_table.STREET_ATTRIBUTE"
@@ -141,7 +141,7 @@
 								class="form-control" required>
 							</select>
 						</div>
-						<div class="col-xs-3" ng-show="tableProcessType.apiName == 'address_city_postcode_street'">
+						<div class="col-xs-3" ng-show="tableProcessType.apiName == 'address'">
 
 							<button type="button" class="btn btn-success"
 								ng-click="loadCSV_address_city_postcode_street()" ng-disabled="loadingData">
@@ -169,7 +169,7 @@
 
 					<br />
 
-					<div id="fileInputForm">
+					<div class="fileInputForm">
 
 						<table class="table table-condensed" style="margin-bottom:0px;">
 							<thead>
@@ -193,7 +193,7 @@
 											<b ng-bind-html="dataset.datasetName"></b>
 										</label>
 										<br>
-										<div>
+										<div class="datasetButtonForm">
 											<i class="fa-solid fa-trash-can" style="cursor: pointer;" title="Entfernen"
 												ng-click="removeDataLayer(dataset)"></i>
 											&nbsp;&nbsp;
@@ -253,7 +253,6 @@
 														class="glyphicon glyphicon-{{::dataset.poiSymbolBootstrap3Name}}"
 														aria-hidden="true"></span>
 												</div>
-												ungenau
 											</div>
 											<div align="center" ng-show="dataset.isGeocodedDataset">
 												hohe Genauigkeit
