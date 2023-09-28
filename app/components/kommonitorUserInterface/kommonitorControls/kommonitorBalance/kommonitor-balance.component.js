@@ -59,6 +59,7 @@ angular
 
 							if(kommonitorDataExchangeService.isBalanceChecked){
 								kommonitorDataExchangeService.isMeasureOfValueChecked = false;
+								kommonitorDataExchangeService.classifyUsingWholeTimeseries = false;
 								$scope.rangeSliderForBalance.update({
 										block: false
 								});

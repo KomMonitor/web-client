@@ -281,45 +281,33 @@
         <span class="switchslider round"></span>
       </label>
     </div>-->
-  
-    
-    <!-- use whole time series -->
 
-    <div class="classificationBoxToogleSlidersWrapper">
-      <span class="classificationBoxToogleSlidersLbl">
-        <strong>Klassifizierung &uuml;ber die gesamte Zeitreihe</strong> &nbsp;
-      </span>
-      <label class="switch" title="Klassifizierung &uuml;ber die gesamte Zeitreihe">
-        <input 
-          id="controlIndicatorClassifyOption_wholeTimeseries" 
-          type="checkbox" 
-          value="useWholeTimeseriesClassification" 
-          ng-change="onWholeTimeseriesClassificationCheckboxChanged()"
-          ng-model="$ctrl.kommonitorDataExchangeServiceInstance.classifyUsingWholeTimeseries" 
-          ng-checked="$ctrl.kommonitorDataExchangeServiceInstance.classifyUsingWholeTimeseries">
-          <span class="switchslider round"></span>
-      </label>
-    </div>
-  <!--
-    <div class="classificationBoxToogleSlidersWrapper" ng-if="containsZeroValues">
-      <span class="classificationBoxToogleSlidersLbl"><strong>Wert "0" als separate Klasse darstellen</strong> &nbsp;</span>
-      <label class="switch" title="0 als separate Klasse darstellen"><input id="controlIndicatorZeroClassifyOption" type="checkbox" value="useSeparateZeroClass" ng-model="$ctrl.kommonitorDataExchangeServiceInstance.classifyZeroSeparately" ng-checked="$ctrl.kommonitorDataExchangeServiceInstance.classifyZeroSeparately"><span class="switchslider round"></span></label>
-    </div>
-  
-    <div class="classificationBoxToogleSlidersWrapper" ng-if="containsOutliers_high || containsOutliers_low">
-      <span class="classificationBoxToogleSlidersLbl"><strong>Ausrei&szlig;er gesondert markieren</strong> &nbsp;</span>
-      <label class="switch" title="Ausrei&szlig;er gesondert markieren"><input id="controlIndicatorOutlierDetection" type="checkbox" value="useOutlierDetection" ng-model="$ctrl.kommonitorDataExchangeServiceInstance.useOutlierDetectionOnIndicator" ng-checked="$ctrl.kommonitorDataExchangeServiceInstance.useOutlierDetectionOnIndicator"><span class="switchslider round"></span></label>
-    </div>
-  
-    <div class="classificationBoxToogleSlidersWrapper">
-      <span class="classificationBoxToogleSlidersLbl"><strong>NoData-Werte tempor&auml;r aus Datensatz entfernen</strong> &nbsp;</span>
-      <label class="switch" title="NoData-Werte tempor&auml;r aus Datensatz entfernen">
-        <input id="controlNoDataDisplay" type="checkbox" value="useNoDataToggle" ng-model="$ctrl.kommonitorDataExchangeServiceInstance.useNoDataToggle" ng-checked="$ctrl.kommonitorDataExchangeServiceInstance.useNoDataToggle">
+  </div>
+  <div class="classificationBoxToogleSlidersWrapper">
+    <span class="classificationBoxToogleSlidersLbl">
+      <strong>Klassifizierung &uuml;ber die gesamte Zeitreihe</strong> &nbsp;
+    </span>
+    <label class="switch" title="Klassifizierung &uuml;ber die gesamte Zeitreihe">
+      <input 
+        id="controlIndicatorClassifyOption_wholeTimeseries" 
+        type="checkbox" 
+        value="useWholeTimeseriesClassification"
+        ng-disabled="$ctrl.kommonitorDataExchangeServiceInstance.isBalanceChecked"
+        ng-change="onWholeTimeseriesClassificationCheckboxChanged()"
+        ng-model="$ctrl.kommonitorDataExchangeServiceInstance.classifyUsingWholeTimeseries" 
+        ng-checked="$ctrl.kommonitorDataExchangeServiceInstance.classifyUsingWholeTimeseries">
         <span class="switchslider round"></span>
-      </label>
-    </div>
-    -->
+    </label>
+  </div>
 
+  <div class="classificationBoxToogleSlidersWrapper" ng-if="containsZeroValues">
+    <span class="classificationBoxToogleSlidersLbl"><strong>Wert "0" als separate Klasse darstellen</strong> &nbsp;</span>
+    <label class="switch" title="0 als separate Klasse darstellen"><input id="controlIndicatorZeroClassifyOption" type="checkbox" value="useSeparateZeroClass" ng-model="$ctrl.kommonitorDataExchangeServiceInstance.classifyZeroSeparately" ng-checked="$ctrl.kommonitorDataExchangeServiceInstance.classifyZeroSeparately"><span class="switchslider round"></span></label>
+  </div>
+
+  <div class="classificationBoxToogleSlidersWrapper" ng-if="containsOutliers_high || containsOutliers_low">
+    <span class="classificationBoxToogleSlidersLbl"><strong>Ausrei&szlig;er gesondert markieren</strong> &nbsp;</span>
+    <label class="switch" title="Ausrei&szlig;er gesondert markieren"><input id="controlIndicatorOutlierDetection" type="checkbox" value="useOutlierDetection" ng-model="$ctrl.kommonitorDataExchangeServiceInstance.useOutlierDetectionOnIndicator" ng-checked="$ctrl.kommonitorDataExchangeServiceInstance.useOutlierDetectionOnIndicator"><span class="switchslider round"></span></label>
   </div>
   <div class="classificationBoxToogleSlidersWrapper">
     <span class="classificationBoxToogleSlidersLbl">
