@@ -283,7 +283,8 @@
     </div>-->
 
   </div>
-  <div class="classificationBoxToogleSlidersWrapper">
+  <div class="classificationBoxToogleSlidersWrapper"
+       ng-if="!$ctrl.kommonitorDataExchangeServiceInstance.isBalanceChecked">
     <span class="classificationBoxToogleSlidersLbl">
       <strong>Klassifizierung &uuml;ber die gesamte Zeitreihe</strong> &nbsp;
     </span>
@@ -292,7 +293,6 @@
         id="controlIndicatorClassifyOption_wholeTimeseries" 
         type="checkbox" 
         value="useWholeTimeseriesClassification"
-        ng-disabled="$ctrl.kommonitorDataExchangeServiceInstance.isBalanceChecked"
         ng-change="onWholeTimeseriesClassificationCheckboxChanged()"
         ng-model="$ctrl.kommonitorDataExchangeServiceInstance.classifyUsingWholeTimeseries" 
         ng-checked="$ctrl.kommonitorDataExchangeServiceInstance.classifyUsingWholeTimeseries">
