@@ -207,6 +207,9 @@ angular
 							let row = dataRows[index];
 
 							if (singleFeatureArray[0]) {
+
+								singleFeatureArray[0].type = "Feature";
+
 								// add prefix "geocode_" to all properties of geocoding result
 								for (const property_old in singleFeatureArray[0].properties) {
 									singleFeatureArray[0].properties["geocoder_" + property_old] = singleFeatureArray[0].properties[property_old]
@@ -415,6 +418,29 @@ angular
 					$scope.downloadDataLayer = function (dataset) {
 						let geoJSON = JSON
 							.stringify(dataset.geoJSON);
+
+						var fileName = dataset.datasetName + '_export.json';
+
+						var blob = new Blob([geoJSON], {
+							type: 'application/json'
+						});
+						var data = URL.createObjectURL(blob);
+
+						var a = document.createElement('a');
+						a.download = fileName;
+						a.href = data;
+						a.textContent = "JSON";
+						a.target = "_self";
+						a.rel = "noopener noreferrer";
+						a.click()
+						a.remove();
+					}
+
+					$scope.downloadGeocodedDataRowsAsGeoJSON_highAccuracy = function(dataset){
+						let filteredGeoJSON = JSON.parse(JSON.stringify(dataset.geoJSON));
+						filteredGeoJSON.features = filteredGeoJSON.features.filter(feature => feature.properties["geocoder_geocoderank"] == 2);
+						let geoJSON = JSON
+							.stringify(filteredGeoJSON);
 
 						var fileName = dataset.datasetName + '_export.json';
 

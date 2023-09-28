@@ -200,6 +200,11 @@
 											<i class="fa-solid fa-file-export" style="cursor: pointer;"
 												title="Download als GeoJSON" ng-click="downloadDataLayer(dataset)"></i>
 											&nbsp;&nbsp;
+											<i class="fa-solid fa-file-circle-check" style="cursor: pointer;"
+												title="Download nur der genauen geokodierten Daten als CSV"
+												ng-show="dataset.isGeocodedDataset"
+												ng-click="downloadGeocodedDataRowsAsGeoJSON_highAccuracy(dataset)"></i>
+											&nbsp;&nbsp;
 											<i class="fa-solid fa-file-circle-xmark" style="cursor: pointer;"
 												title="Download nicht geokodierter Datenzeilen als CSV"
 												ng-show="dataset.dataRows_notGeocoded.length > 0"

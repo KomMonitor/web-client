@@ -1912,22 +1912,6 @@ angular.module('kommonitorMap').component(
           $scope.layerControl._layers.forEach(function (layer) {
             if (layer.group.name === fileLayerGroupName && layer.name.includes(layerName)) {
 
-              if(dataset.isPOI){
-                if(layer.layer._layers){
-                  for(var layerId in layer.layer._layers){
-                    layer.layer._layers[layerId].setOpacity(opacity);
-                  }
-                } 
-                else if(layer.layer._featureGroup){
-                  for(var layerId in layer.layer._featureGroup._layers){
-                    layer.layer._featureGroup._layers[layerId].setOpacity(opacity);
-                  }
-                }   
-                else{                
-                  layer.layer.setOpacity(opacity);
-                } 
-              }
-              else{
                 var newStyle = {
                   weight: 1,
                   color: defaultBorderColor,
@@ -1936,7 +1920,7 @@ angular.module('kommonitorMap').component(
                 };
   
                 layer.layer.setStyle(newStyle);
-              }              
+                            
             }
           });
         });
