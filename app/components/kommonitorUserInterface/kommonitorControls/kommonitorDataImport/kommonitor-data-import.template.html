@@ -1,11 +1,5 @@
 <div id="dataImport">
 
-	<div align="center">
-		<div class="loading-overlay-sidebar-small ng-hide" ng-show="loadingData">
-			<span class="glyphicon glyphicon-refresh icon-spin"></span>
-		</div>
-	</div>
-
 	<p></p>
 
 	<!-- IDEA: 
@@ -122,6 +116,40 @@
 							</button>
 
 						</div>
+						<div class="col-xs-3" ng-show="tableProcessType.apiName == 'address_city_postcode_street'">
+
+							<label>Spaltenname Stadt</label>
+							<select style="font-size: 11px; " ng-model="tmpKommonitorGeoresource_table.CITY_ATTRIBUTE"
+								ng-options="property as property for property in tmpKommonitorGeoresource_table.featureSchema"
+								class="form-control" required>
+							</select>
+						</div>
+						<div class="col-xs-3" ng-show="tableProcessType.apiName == 'address_city_postcode_street'">
+
+							<label>Spaltenname Postleitzahl</label>
+							<select style="font-size: 11px; "
+								ng-model="tmpKommonitorGeoresource_table.POSTCODE_ATTRIBUTE"
+								ng-options="property as property for property in tmpKommonitorGeoresource_table.featureSchema"
+								class="form-control" required>
+							</select>
+						</div>
+						<div class="col-xs-3" ng-show="tableProcessType.apiName == 'address_city_postcode_street'">
+
+							<label>Spaltenname Strasse</label>
+							<select style="font-size: 11px; " ng-model="tmpKommonitorGeoresource_table.STREET_ATTRIBUTE"
+								ng-options="property as property for property in tmpKommonitorGeoresource_table.featureSchema"
+								class="form-control" required>
+							</select>
+						</div>
+						<div class="col-xs-3" ng-show="tableProcessType.apiName == 'address_city_postcode_street'">
+
+							<button type="button" class="btn btn-success"
+								ng-click="loadCSV_address_city_postcode_street()" ng-disabled="loadingData">
+								<i class="fa-solid fa-plus"></i>&nbsp;&nbsp;laden
+								<span class="glyphicon glyphicon-refresh icon-spin" ng-show="loadingData"></span>
+							</button>
+
+						</div>
 					</div>
 
 					<br>
@@ -163,12 +191,20 @@
 												ng-change="toggleDataLayer(dataset)">
 
 											<b ng-bind-html="dataset.datasetName"></b>
-											<br>
-											<div>
-												<i class="fa-solid fa-trash-can" style="cursor: pointer;"
-													title="Entfernen" ng-click="removeDataLayer(dataset)"></i>
-											</div>
 										</label>
+										<br>
+										<div>
+											<i class="fa-solid fa-trash-can" style="cursor: pointer;" title="Entfernen"
+												ng-click="removeDataLayer(dataset)"></i>
+											&nbsp;&nbsp;
+											<i class="fa-solid fa-file-export" style="cursor: pointer;"
+												title="Download als GeoJSON" ng-click="downloadDataLayer(dataset)"></i>
+											&nbsp;&nbsp;
+											<i class="fa-solid fa-file-circle-xmark" style="cursor: pointer;"
+												title="Download nicht geokodierter Datenzeilen als CSV"
+												ng-show="dataset.dataRows_notGeocoded.length > 0"
+												ng-click="downloadNonGeocodedDataRowsAsCSV(dataset)"></i>
+										</div>
 									</td>
 									<td>
 										<div>
@@ -204,7 +240,7 @@
 											<!-- <i style="background-color:{{dataset.displayColor}}; margin-left: 12px; width: 18px; height: 18px; float: left;"></i> -->
 										</div>
 										<div ng-show="dataset.isPOI">
-											<div align="center">
+											<div align="center" ng-show="! dataset.isGeocodedDataset">
 												<div
 													class="awesome-marker-legend awesome-marker-legend-icon-{{::dataset.poiMarkerColor}}">
 													<span
@@ -212,6 +248,28 @@
 														class="glyphicon glyphicon-{{::dataset.poiSymbolBootstrap3Name}}"
 														aria-hidden="true"></span>
 												</div>
+												ungenau
+											</div>
+											<div align="center" ng-show="dataset.isGeocodedDataset">
+												hohe Genauigkeit
+												<div class="awesome-marker-legend awesome-marker-legend-icon-green">
+													<span
+														style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:{{::dataset.poiSymbolColor}};"
+														class="glyphicon glyphicon-{{::dataset.poiSymbolBootstrap3Name}}"
+														aria-hidden="true"></span>
+												</div>
+
+												<br>
+												<hr>
+												Niedrige Genauigkeit
+												<div
+													class="awesome-marker-legend awesome-marker-legend-icon-{{::dataset.poiMarkerColor}}">
+													<span
+														style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:{{::dataset.poiSymbolColor}};"
+														class="glyphicon glyphicon-{{::dataset.poiSymbolBootstrap3Name}}"
+														aria-hidden="true"></span>
+												</div>
+
 											</div>
 										</div>
 									</td>

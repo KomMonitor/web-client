@@ -7,10 +7,10 @@ angular
 
 			controller: [
 				'kommonitorDataExchangeService', 'kommonitorMapService', '$scope', '$rootScope', '$http', '__env',
-				'kommonitorToastHelperService', 'kommonitorFileHelperService',
+				'kommonitorToastHelperService', 'kommonitorFileHelperService', 'kommonitorGeocoderHelperService',
 				function kommonitorDataImportController(
 					kommonitorDataExchangeService, kommonitorMapService, $scope, $rootScope, $http, __env,
-					kommonitorToastHelperService, kommonitorFileHelperService) {
+					kommonitorToastHelperService, kommonitorFileHelperService, kommonitorGeocoderHelperService) {
 					/*
 					 * reference to kommonitorDataExchangeService instances
 					 */
@@ -63,7 +63,7 @@ angular
 					$scope.addFileToMap = function (dataset) {
 						console.log("Toggle File Layer: " + dataset.datasetName);
 
-						
+
 
 						$scope.toggleDataLayer(dataset);
 					};
@@ -100,25 +100,37 @@ angular
 						$scope.addFileToMap(tmpKommonitorGeoresource);
 					});
 
-					$scope.initSpecialFields = function(tmpKommonitorGeoresource){
+					$scope.initSpecialFields = function (tmpKommonitorGeoresource) {
 						// init feature NAME and ID fields
 						tmpKommonitorGeoresource.ID_ATTRIBUTE = tmpKommonitorGeoresource.featureSchema[0];
 						tmpKommonitorGeoresource.NAME_ATTRIBUTE = tmpKommonitorGeoresource.featureSchema[0];
 						tmpKommonitorGeoresource.LON_ATTRIBUTE = tmpKommonitorGeoresource.featureSchema[0];
 						tmpKommonitorGeoresource.LAT_ATTRIBUTE = tmpKommonitorGeoresource.featureSchema[0];
+						tmpKommonitorGeoresource.CITY_ATTRIBUTE = tmpKommonitorGeoresource.featureSchema[0];
+						tmpKommonitorGeoresource.POSTCODE_ATTRIBUTE = tmpKommonitorGeoresource.featureSchema[0];
+						tmpKommonitorGeoresource.STREET_ATTRIBUTE = tmpKommonitorGeoresource.featureSchema[0];
 
 						for (const property of tmpKommonitorGeoresource.featureSchema) {
-							if(property.toLowerCase().includes("id")){
+							if (property.toLowerCase().includes("id")) {
 								tmpKommonitorGeoresource.ID_ATTRIBUTE = property;
 							}
-							if(property.toLowerCase().includes("name")){
+							if (property.toLowerCase().includes("name")) {
 								tmpKommonitorGeoresource.NAME_ATTRIBUTE = property;
 							}
-							if(property.toLowerCase().includes("lon") || property.toLowerCase().includes("rechts") || property.toLowerCase().includes("x")){
+							if (property.toLowerCase().includes("lon") || property.toLowerCase().includes("rechts") || property.toLowerCase().includes("x")) {
 								tmpKommonitorGeoresource.LON_ATTRIBUTE = property;
 							}
-							if(property.toLowerCase().includes("lat") || property.toLowerCase().includes("hoch") || property.toLowerCase().includes("y")){
+							if (property.toLowerCase().includes("lat") || property.toLowerCase().includes("hoch") || property.toLowerCase().includes("y")) {
 								tmpKommonitorGeoresource.LAT_ATTRIBUTE = property;
+							}
+							if (property.toLowerCase().includes("stadt") || property.toLowerCase().includes("ort") || property.toLowerCase().includes("gemeinde")) {
+								tmpKommonitorGeoresource.CITY_ATTRIBUTE = property;
+							}
+							if (property.toLowerCase().includes("plz") || property.toLowerCase().includes("post") || property.toLowerCase().includes("leit")) {
+								tmpKommonitorGeoresource.POSTCODE_ATTRIBUTE = property;
+							}
+							if (property.toLowerCase().includes("str") || property.toLowerCase().includes("adr") || property.toLowerCase().includes("addr")) {
+								tmpKommonitorGeoresource.STREET_ATTRIBUTE = property;
 							}
 						}
 
@@ -137,21 +149,103 @@ angular
 
 					$scope.loadCSV_latLon = function () {
 						try {
-							let geoJSON = $scope.makeGeoJSONFromCSVRows($scope.tmpKommonitorGeoresource_table);
+							let geoJSON = $scope.makeGeoJSONFromCSVRows_latLon($scope.tmpKommonitorGeoresource_table);
 
 							$scope.tmpKommonitorGeoresource_table.geoJSON = geoJSON;
 
 							$scope.onChangeIdProperty($scope.tmpKommonitorGeoresource_table);
 							$scope.onChangeNameProperty($scope.tmpKommonitorGeoresource_table);
 
-							$scope.addFileToMap($scope.tmpKommonitorGeoresource_table);	
+							$scope.addFileToMap($scope.tmpKommonitorGeoresource_table);
 						} catch (error) {
 							console.error(error);
+							$scope.loadingData = false;
 							kommonitorToastHelperService.displayErrorToast_upperLeft("Fehler beim Laden der CSV-Datei", error);
-						}						
+						}
 					}
 
-					$scope.makeGeoJSONFromCSVRows = function (kommonitorGeoresource) {
+					$scope.loadCSV_address_city_postcode_street = async function () {
+						try {
+							$scope.loadingData = true;
+							setTimeout(function () {
+								$scope.$digest();
+							}, 150);
+							let cityProperty = $scope.tmpKommonitorGeoresource_table.CITY_ATTRIBUTE;
+							let postcodeProperty = $scope.tmpKommonitorGeoresource_table.POSTCODE_ATTRIBUTE;
+							let streetProperty = $scope.tmpKommonitorGeoresource_table.STREET_ATTRIBUTE;
+							let resultFeaturesArray = await kommonitorGeocoderHelperService.geocodeCSVRows($scope.tmpKommonitorGeoresource_table.dataRows, cityProperty, postcodeProperty, streetProperty);
+
+							$scope.tmpKommonitorGeoresource_table.geoJSON = $scope.makeFeatureCollection($scope.tmpKommonitorGeoresource_table.dataRows, resultFeaturesArray);
+							$scope.tmpKommonitorGeoresource_table.dataRows_notGeocoded = $scope.identifyNonGeocodedDataRows($scope.tmpKommonitorGeoresource_table.dataRows, resultFeaturesArray);
+
+							$scope.tmpKommonitorGeoresource_table.isGeocodedDataset = true;
+
+							kommonitorToastHelperService.displaySuccessToast_upperLeft($scope.tmpKommonitorGeoresource_table.geoJSON.features.length + " von " + $scope.tmpKommonitorGeoresource_table.dataRows.length + " Adressen geokodiert",
+								"Objekteigenschaften 'geocoderank' und 'geocodedesc' bewerten Genauigkeit");
+
+							kommonitorToastHelperService.displayWarningToast_upperLeft($scope.tmpKommonitorGeoresource_table.dataRows_notGeocoded.length + " von " + $scope.tmpKommonitorGeoresource_table.dataRows.length + " Adressen nicht geokodiert");
+
+							$scope.onChangeIdProperty($scope.tmpKommonitorGeoresource_table);
+							$scope.onChangeNameProperty($scope.tmpKommonitorGeoresource_table);
+
+							$scope.addFileToMap($scope.tmpKommonitorGeoresource_table);
+						} catch (error) {
+							console.error(error);
+							$scope.loadingData = false;
+							kommonitorToastHelperService.displayErrorToast_upperLeft("Fehler beim Laden der CSV-Datei", error);
+						}
+					}
+
+					$scope.makeFeatureCollection = function (dataRows, resultFeaturesArray) {
+						let featureCollection = {
+							"type": "FeatureCollection",
+							"features": []
+						}
+
+						for (let index = 0; index < resultFeaturesArray.length; index++) {
+							const singleFeatureArray = resultFeaturesArray[index];
+							let row = dataRows[index];
+
+							if (singleFeatureArray[0]) {
+								// add prefix "geocode_" to all properties of geocoding result
+								for (const property_old in singleFeatureArray[0].properties) {
+									singleFeatureArray[0].properties["geocoder_" + property_old] = singleFeatureArray[0].properties[property_old]
+
+									delete singleFeatureArray[0].properties[property_old];
+								}
+								// add lat and lon coord as properties
+								singleFeatureArray[0].properties["geocoder_lon"] = singleFeatureArray[0].geometry.coordinates[0];
+								singleFeatureArray[0].properties["geocoder_lat"] = singleFeatureArray[0].geometry.coordinates[1];
+
+								// now add all original properties of dataRow
+								for (const key in row) {
+									if (Object.hasOwnProperty.call(row, key)) {
+										singleFeatureArray[0].properties[key] = row[key];
+									}
+								}
+
+								featureCollection.features.push(singleFeatureArray[0]);
+							}
+						}
+
+						return featureCollection;
+					}
+
+					$scope.identifyNonGeocodedDataRows = function (dataRows, resultFeaturesArray) {
+						let nonGeocodedDataRows = [];
+
+						for (let index = 0; index < resultFeaturesArray.length; index++) {
+							const singleFeatureArray = resultFeaturesArray[index];
+
+							if (!singleFeatureArray[0]) {
+								nonGeocodedDataRows.push(dataRows[index]);
+							}
+						}
+
+						return nonGeocodedDataRows;
+					}
+
+					$scope.makeGeoJSONFromCSVRows_latLon = function (kommonitorGeoresource) {
 						let geoJSON = {
 							"type": "FeatureCollection",
 							"features": []
@@ -200,6 +294,7 @@ angular
 							}
 						} catch (e) {
 							$scope.fileLayerError = e;
+							$scope.loadingData = false;
 							console.error(e);
 							kommonitorToastHelperService.displayErrorToast_upperLeft("Fehler in Dateiverarbeitung", $scope.fileLayerError);
 						} finally {
@@ -251,6 +346,7 @@ angular
 
 					$scope.$on("FileLayerError", function (event, errorMsg, dataset) {
 						$scope.fileLayerError = errorMsg;
+						$scope.loadingData = false;
 						kommonitorToastHelperService.displayErrorToast_upperLeft("Fehler in Dateiverarbeitung", $scope.fileLayerError);
 
 						// remove element from fileDatasets
@@ -263,7 +359,8 @@ angular
 					});
 
 					$scope.$on("FileLayerSuccess", function (event, dataset) {
-						$scope.fileLayerError = undefined;						
+						$scope.fileLayerError = undefined;
+						$scope.loadingData = false;
 						kommonitorDataExchangeService.fileDatasets.push(dataset);
 						kommonitorDataExchangeService.displayableGeoresources.push(dataset);
 
@@ -277,7 +374,7 @@ angular
 						}, 350);
 
 						kommonitorToastHelperService.displaySuccessToast_upperLeft("Datei erfolgreich importiert", dataset.title);
-					});					
+					});
 
 					$scope.removeDataLayer = function (dataset) {
 
@@ -313,6 +410,58 @@ angular
 						}
 
 						// $scope.refreshDataLayer(dataset);
+					}
+
+					$scope.downloadDataLayer = function (dataset) {
+						let geoJSON = JSON
+							.stringify(dataset.geoJSON);
+
+						var fileName = dataset.datasetName + '_export.json';
+
+						var blob = new Blob([geoJSON], {
+							type: 'application/json'
+						});
+						var data = URL.createObjectURL(blob);
+
+						var a = document.createElement('a');
+						a.download = fileName;
+						a.href = data;
+						a.textContent = "JSON";
+						a.target = "_self";
+						a.rel = "noopener noreferrer";
+						a.click()
+						a.remove();
+					}
+
+					$scope.downloadNonGeocodedDataRowsAsCSV = function (dataset) {
+						// let conf = {
+						// 	quotes: false, //or array of booleans
+						// 	quoteChar: '"',
+						// 	escapeChar: '"',
+						// 	delimiter: ";",
+						// 	header: true,
+						// 	newline: "\r\n",
+						// 	skipEmptyLines: true, //other option is 'greedy', meaning skip delimiters, quotes, and whitespace.
+						// 	columns: null //or array of strings
+						// };
+						var csv = Papa.unparse(dataset.dataRows_notGeocoded, {delimiter: ";", skipEmptyLines: true});
+
+						var fileName = dataset.datasetName + '_nicht_geokodiert.csv';
+
+						var blob = new Blob([csv], {
+							type: 'text/csv'
+						});
+						var data = URL.createObjectURL(blob);
+
+						var a = document.createElement('a');
+						a.download = fileName;
+						a.href = data;
+						a.textContent = "CSV";
+						a.target = "_self";
+						a.rel = "noopener noreferrer";
+						a.click()
+						a.remove();
+
 					}
 				}]
 		});

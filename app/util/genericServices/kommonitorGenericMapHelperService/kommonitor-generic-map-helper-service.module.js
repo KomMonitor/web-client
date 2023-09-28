@@ -468,6 +468,17 @@ angular
           });
         }
 
+        // special treatment for geocoded results
+        if(metadataObject.isGeocodedDataset){
+          if (poiFeature.properties["geocoder_geocoderank"] == 2){
+            customMarker = L.AwesomeMarkers.icon({
+              icon: poiSymbolBootstrap3Name,
+              iconColor: poiSymbolColor,
+              markerColor: "green"
+            });
+          }          
+        }
+
         var newMarker;
 
         if(poiFeature.geometry.type === "Point"){              
