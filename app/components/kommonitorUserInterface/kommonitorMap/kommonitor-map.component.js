@@ -3179,6 +3179,10 @@ angular.module('kommonitorMap').component(
           return containsNegativeValues;
         };
 
+        $scope.$on("changeSpatialUnit", function(event){
+          kommonitorVisualStyleHelperService.dynamicBrewBreaks = null;
+        });
+
         $scope.$on("restyleCurrentLayer", function (event, skipDiagramRefresh) {
 
           // var transparency = document.getElementById("indicatorTransparencyInput").value;
