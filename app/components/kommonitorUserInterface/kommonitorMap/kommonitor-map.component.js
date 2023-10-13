@@ -3183,6 +3183,11 @@ angular.module('kommonitorMap').component(
           kommonitorVisualStyleHelperService.dynamicBrewBreaks = null;
         });
 
+        $scope.$on("allIndicatorPropertiesForCurrentSpatialUnitAndTime setup begin", function (event) {
+          $scope.updateManualMOVBreaksFromDefaultManualBreaks();
+          $scope.$broadcast("restyleCurrentLayer", false);
+        });
+
         $scope.$on("restyleCurrentLayer", function (event, skipDiagramRefresh) {
 
           // var transparency = document.getElementById("indicatorTransparencyInput").value;
