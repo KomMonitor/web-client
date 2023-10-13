@@ -1050,15 +1050,12 @@ angular.module('kommonitorMap').component(
           $scope.updateManualMOVBreaksFromDefaultManualBreaks();
 
           $timeout(function(){ 
-            $rootScope.$apply(function(){
-              kommonitorVisualStyleHelperService.manualBrew.breaks = breaks;
-              $scope.updateManualMOVBreaksFromDefaultManualBreaks();
-            });
+            kommonitorVisualStyleHelperService.manualBrew.breaks = breaks;
+            $scope.updateManualMOVBreaksFromDefaultManualBreaks();
             $rootScope.$apply();
             $rootScope.$broadcast("restyleCurrentLayer", false);
           }, 350);
 
-          $rootScope.$broadcast("restyleCurrentLayer", false);
         });
 
         $scope.$on("changeDynamicBreaks", function (event, breaks) {
