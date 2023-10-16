@@ -901,7 +901,6 @@ pre.CodeMirror-line {
 
 .leaflet-control-layers {
 	text-align: left !important;
-	width: auto !important;
 	overflow : auto;
 	z-index: 1003;
 	/* max-width	: 600px;
@@ -909,7 +908,7 @@ pre.CodeMirror-line {
 }
 
 .leaflet-control-layers-expanded {
-	width: 300px;
+	width: 500px;
 	overflow-x: hidden;
 	overflow-y: auto;
 	max-height: 40vh;

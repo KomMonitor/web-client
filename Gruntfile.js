@@ -159,7 +159,7 @@ module.exports = function (grunt) {
             'app/components/kommonitorUserInterface/kommonitorControls/kommonitorLegend/kommonitor-legend.module.js',
             'app/components/kommonitorUserInterface/kommonitorControls/kommonitorLegend/kommonitor-legend.component.js',
             'app/components/kommonitorUserInterface/kommonitorControls/kommonitorReachability/reachabilityScenarioModal/reachabilityIndicatorStatistics/reachability-indicator-statistics.module.js',
-            'app/components/kommonitorUserInterface/kommonitorControls/kommonitorReachability/reachabilityScenarioModal/reachabilityIndicatorStatistics/reachability-indicator-statistics.module.js',
+            'app/components/kommonitorUserInterface/kommonitorControls/kommonitorReachability/reachabilityScenarioModal/reachabilityIndicatorStatistics/reachability-indicator-statistics.component.js',
             'app/components/kommonitorUserInterface/kommonitorControls/kommonitorReachability/reachabilityScenarioModal/reachabilityScenarioConfiguration/reachability-scenario-configuration.module.js',  
             'app/components/kommonitorUserInterface/kommonitorControls/kommonitorReachability/reachabilityScenarioModal/reachabilityScenarioConfiguration/reachability-scenario-configuration.component.js',
             'app/components/kommonitorUserInterface/kommonitorControls/kommonitorReachability/reachabilityScenarioModal/reachabilityPoiInIso/reachability-poi-in-iso.module.js',
