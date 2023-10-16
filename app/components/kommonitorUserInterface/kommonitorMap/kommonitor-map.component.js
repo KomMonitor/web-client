@@ -270,6 +270,7 @@ angular.module('kommonitorMap').component(
         const wfsLayerGroupName = "Web Feature Services (WFS)";
         const fileLayerGroupName = "Dateilayer";
 
+        let sortableLayers = ["Web Map Services (WMS)"];
         if (__env.sortableLayers) {
           sortableLayers = __env.sortableLayers;
         } 
