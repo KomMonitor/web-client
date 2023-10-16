@@ -1054,7 +1054,7 @@ angular.module('kommonitorMap').component(
             $scope.updateManualMOVBreaksFromDefaultManualBreaks();
             $rootScope.$apply();
             $rootScope.$broadcast("restyleCurrentLayer", false);
-          }, 350);
+          }, 1);
 
         });
 
