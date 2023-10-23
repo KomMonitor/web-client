@@ -30,6 +30,9 @@ try {
   // possible values: ["kommonitorRangeFilter", "kommonitorSpatialFilter", "kommonitorThresholdFilter"]
   window.__env.filterModes = ["kommonitorRangeFilter", "kommonitorSpatialFilter", "kommonitorThresholdFilter"];
 
+  // controls whether the bilance tool should visualize temporal trends or not
+  window.__env.enableBilanceTrend = true;
+
   // encrypted data transfer from Data Management API settings
   window.__env.encryption = {
     enabled: false,
