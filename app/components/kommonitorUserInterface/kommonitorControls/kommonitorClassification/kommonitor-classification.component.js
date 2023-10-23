@@ -45,6 +45,13 @@ angular
 								description: 'Bei der manuellen Klassifizierung lassen sich die Klassengrenzen nach Bedarf einstellen.'}
 						];
 
+						kommonitorVisualStyleHelperService.classifyMethod = __env.defaultClassifyMethod || "jenks";
+						$scope.methods.forEach((method) => {
+							if (method.id == kommonitorVisualStyleHelperService.classifyMethod) {
+								$scope.methodName = method.name;
+							}
+						});
+
 						$scope.onMethodSelected = function (method) {
 							$scope.methodName = method.name;
 							$scope.showMethodSelection = false;
