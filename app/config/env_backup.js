@@ -24,6 +24,12 @@ try {
   window.__env.isAdvancedMode = true; // controls if advanced mode is activated on startup
   window.__env.showAdvancedModeSwitch = true; // controls if toggle switch is at all displayed for toggling basinc/advanced mode  
 
+  // enable/disable certain tools and functions
+
+  // controls, which filter modes should be active
+  // possible values: ["kommonitorRangeFilter", "kommonitorSpatialFilter", "kommonitorThresholdFilter"]
+  window.__env.filterModes = ["kommonitorRangeFilter", "kommonitorSpatialFilter", "kommonitorThresholdFilter"];
+
   // encrypted data transfer from Data Management API settings
   window.__env.encryption = {
     enabled: false,
