@@ -397,16 +397,38 @@ angular
           if(selectedDatasourceType.parameters.length > 0){
             for (const parameter of selectedDatasourceType.parameters) {
               var parameterName = parameter.name;
-              var parameterValue = $("#" + datasourceTypeParameterPrefix + parameterName).val();
-    
-              if (parameterValue === undefined || parameterValue === null){
-                return null;
-              }
-              else{
+              if (parameterName === "bbox") {
+                var bboxType = $("#" + datasourceTypeParameterPrefix + "bboxType").val();
                 datasourceTypeDefinition.parameters.push({
-                  "name": parameterName,
-                  "value": parameterValue
+                  "name": "bboxType",
+                  "value": bboxType
                 });
+                var value = undefined;
+                if (bboxType === 'ref') {
+                    value = $("#" + datasourceTypeParameterPrefix + "bboxRef").val()
+                } else {
+                    minx = $("#" + datasourceTypeParameterPrefix + "bbox_minx").val()
+                    miny = $("#" + datasourceTypeParameterPrefix + "bbox_miny").val()
+                    maxx= $("#" + datasourceTypeParameterPrefix + "bbox_maxx").val()
+                    maxy = $("#" + datasourceTypeParameterPrefix + "bbox_maxy").val()
+                    value = minx + "," + miny + "," + maxx + "," + maxy
+                };
+                datasourceTypeDefinition.parameters.push({
+                  "name": "bbox",
+                  "value": value
+                });
+              } else {
+                  var parameterValue = $("#" + datasourceTypeParameterPrefix + parameterName).val();
+
+                  if (parameterValue === undefined || parameterValue === null){
+                    return datasourceTypeDefinition;
+                  }
+                  else {
+                    datasourceTypeDefinition.parameters.push({
+                      "name": parameterName,
+                      "value": parameterValue
+                    });
+                  }
               }
             }
           }
