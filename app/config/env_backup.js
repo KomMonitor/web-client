@@ -33,6 +33,9 @@ try {
   // controls whether the bilance tool should visualize temporal trends or not
   window.__env.enableBilanceTrend = true;
 
+  // controls whether the scatter plot should include a bivariate regression line or not
+  window.__env.enableScatterPlotRegression = true;
+
   // encrypted data transfer from Data Management API settings
   window.__env.encryption = {
     enabled: false,
