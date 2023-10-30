@@ -524,12 +524,12 @@
 												<div class="form-group">
 													<label>Datenquelltyp*</label>
 													<select ng-model="datasourceType"
-														ng-options="datasourceType as datasourceType.type for datasourceType in availableDatasourceTypes"
+														ng-options="datasourceType as datasourceType.type for datasourceType in availableDatasourceTypes track by datasourceType.name"
 														ng-change="onChangeDatasourceType()"
 														class="form-control" required>
 														<option disabled selected value> -- Quelltyp w&auml;hlen -- </option>
 													</select>
-													<div class="help-block with-errors"></div>
+													<div class="help-block"></div>
 												</div>
 
 												<div ng-show="datasourceType.type === 'FILE'">
@@ -557,6 +557,7 @@
 														</div>
 													</div>
 													<div ng-show="bboxType == 'literal'">
+														<label>Begrenzungsrahmen*</label>
 														<input id="datasourceTypeParameter_georesourceAdd_bbox_minx" class="form-control" type="number" placeholder="-180" ng-required="bboxType == 'literal'">
 														<div class="help-block">
 															<p>Minimale x-Koordinate</p>
@@ -578,7 +579,8 @@
 												<div ng-show="! (datasourceType.type === 'FILE')">
 													<div ng-repeat="parameter in datasourceType.parameters | filter: { name: '!bbox' } ">
 														<div class="form-group">
-															<label>{{parameter.name}}*</label>
+															<label ng-if="parameter.mandatory">{{parameter.name}}*</label>
+															<label ng-if="!parameter.mandatory">{{parameter.name}}</label>
 															<textarea rows="1" id="datasourceTypeParameter_georesourceAdd_{{parameter.name}}"
 																class="form-control" placeholder="{{parameter.name}}" ng-required="parameter.mandatory"></textarea>
 															<div class="help-block">

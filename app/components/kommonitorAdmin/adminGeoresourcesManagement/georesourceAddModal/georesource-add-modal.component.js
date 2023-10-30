@@ -154,6 +154,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
         $scope.georesourceDataSourceNameProperty = undefined;
 
         $scope.availableDatasourceTypes = [];
+        $scope.availableSpatialUnits = undefined;
 
         $scope.converterDefinition = undefined;
         $scope.datasourceTypeDefinition = undefined;
@@ -321,7 +322,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 		};
 
         $scope.onChangeDatasourceType = function(){
-            if ($scope.datasourceType.type == "OGCAPI_FEATURES") {
+            if ($scope.datasourceType && $scope.datasourceType.type == "OGCAPI_FEATURES") {
                 $scope.availableSpatialUnits = [ ...kommonitorDataExchangeService.availableSpatialUnits_map.values() ]
                 // console.log($scope.availableSpatialUnits)
             }
@@ -989,7 +990,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 				$scope.$digest();
 			}
 			
-          $scope.converter = undefined;
+            $scope.converter = undefined;
 			for(var converter of kommonitorImporterHelperService.availableConverters){
 				if (converter.name === $scope.mappingConfigImportSettings.converter.name){
 					$scope.converter = converter;					
@@ -1016,20 +1017,19 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
             }
 
             $scope.datasourceType = undefined;
-
-            for(var datasourceType of kommonitorImporterHelperService.availableDatasourceTypes){
-                for(var availableType of $scope.converter.datasources) {
+            for(var availableType of $scope.converter.datasources) {
+                for (var datasourceType of kommonitorImporterHelperService.availableDatasourceTypes) {
                     if (datasourceType.type === availableType){
                         $scope.availableDatasourceTypes.push(datasourceType);
-                    }
-                    if ($scope.mappingConfigImportSettings.dataSource.type == availableType) {
-                        $scope.datasourceType = datasourceType;
+                        if ($scope.mappingConfigImportSettings.dataSource.type === availableType) {
+                            $scope.datasourceType = $scope.mappingConfigImportSettings.dataSource;
+                        }
+                        break;
                     }
                 }
             }
 
-            $scope.onChangeDatasourceType();
-
+            $scope.onChangeConverter();
             $scope.$digest();
 
             // converter parameters
@@ -1058,10 +1058,6 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
                     }
                 }
             }
-
-
-
-
 
             // property Mapping
             $scope.georesourceDataSourceNameProperty = $scope.mappingConfigImportSettings.propertyMapping.nameProperty;
