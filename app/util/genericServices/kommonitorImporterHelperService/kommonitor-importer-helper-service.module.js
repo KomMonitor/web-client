@@ -327,16 +327,19 @@ angular
           else{
             converterDefinition.schema = schema;
           }
-        }  
+        }
+
+        if (selectedConverter.name === "OGC API - Features") {
+            converterDefinition.parameters.push({
+              "name": "CRS",
+              "value": "EPSG:4326"
+            });
+        }
   
-        if(selectedConverter.parameters.length > 0){
+        if(selectedConverter.parameters && selectedConverter.parameters.length > 0){
           for (const parameter of selectedConverter.parameters) {
             var parameterName = parameter.name;
             var parameterValue = $("#" + converterParameterPrefix + parameterName).val();
-  
-            if(parameter.mandatory){
-
-            }
 
             if (parameter.mandatory && (parameterValue === undefined || parameterValue === null || parameterValue === "")){
               return null;
