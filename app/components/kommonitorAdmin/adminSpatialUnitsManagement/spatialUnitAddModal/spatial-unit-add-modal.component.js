@@ -190,6 +190,9 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 			$scope.validityEndDate_perFeature = undefined;
 			$scope.validityStartDate_perFeature = undefined;
 
+            $scope.onChangeConverter();
+            $scope.onChangeDatasourceType();
+
 			setTimeout(() => {
 				$scope.$digest();	
 			}, 250);
@@ -305,19 +308,25 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 		};
 
 		$scope.onChangeConverter = function(schema){
-			$scope.schema = $scope.converter.schemas ? $scope.converter.schemas[0] : undefined;
-			$scope.mimeType = $scope.converter.mimeTypes[0];
+		    if ($scope.converter) {
+                $scope.schema = $scope.converter.schemas ? $scope.converter.schemas[0] : undefined;
+                $scope.mimeType = $scope.converter.mimeTypes[0];
 
-            // update available datasourcetypes for this specific converter
-            $scope.availableDatasourceTypes = [];
-            for(var datasourceType of kommonitorImporterHelperService.availableDatasourceTypes){
-                for(var availableType of $scope.converter.datasources) {
-                    if (datasourceType.type === availableType){
-                        $scope.availableDatasourceTypes.push(datasourceType);
+                // update available datasourcetypes for this specific converter
+                $scope.availableDatasourceTypes = [];
+                for(var datasourceType of kommonitorImporterHelperService.availableDatasourceTypes){
+                    for(var availableType of $scope.converter.datasources) {
+                        if (datasourceType.type === availableType){
+                            $scope.availableDatasourceTypes.push(datasourceType);
+                        }
                     }
                 }
-            }
 
+                if ($scope.availableDatasourceTypes.length == 1) {
+                    $scope.datasourceType = $scope.availableDatasourceTypes[0];
+                    $scope.onChangeDatasourceType();
+                }
+            }
 		};
 
         $scope.onChangeDatasourceType = function(){
@@ -326,6 +335,9 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
                 // console.log($scope.availableSpatialUnits)
             }
         };
+
+        $scope.onChangeConverter();
+        $scope.onChangeDatasourceType();
 
 		$scope.onChangeMimeType = function(mimeType){
 			$scope.mimeType = mimeType;

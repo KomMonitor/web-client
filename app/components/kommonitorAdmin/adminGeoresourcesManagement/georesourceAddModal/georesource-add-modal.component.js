@@ -218,7 +218,6 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 		},1000);
 
 
-
 		// initialize colorPickers
 		$('#loiColorPicker').colorpicker();
 		$('#aoiColorPicker').colorpicker();
@@ -301,32 +300,45 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 			$scope.keepAttributes = true;
 			$scope.keepMissingValues = true;
 
+            $scope.onChangeConverter();
+            $scope.onChangeDatasourceType();
+
 			setTimeout(() => {
 				$scope.$digest();	
 			}, 250);
 		};
 
 		$scope.onChangeConverter = function(){
-			$scope.schema = $scope.converter.schemas ? $scope.converter.schemas[0] : undefined;
-			$scope.mimeType = $scope.converter.mimeTypes[0];
+		    if ($scope.converter) {
+                $scope.schema = $scope.converter.schemas ? $scope.converter.schemas[0] : undefined;
+                $scope.mimeType = $scope.converter.mimeTypes[0];
 
-            // update available datasourcetypes for this specific converter
-            $scope.availableDatasourceTypes = [];
-            for(var datasourceType of kommonitorImporterHelperService.availableDatasourceTypes){
-                for(var availableType of $scope.converter.datasources) {
-                    if (datasourceType.type === availableType){
-                        $scope.availableDatasourceTypes.push(datasourceType);
+                // update available datasourcetypes for this specific converter
+                $scope.availableDatasourceTypes = [];
+                for(var datasourceType of kommonitorImporterHelperService.availableDatasourceTypes){
+                    for(var availableType of $scope.converter.datasources) {
+                        if (datasourceType.type === availableType){
+                            $scope.availableDatasourceTypes.push(datasourceType);
+                        }
                     }
+                }
+
+                if ($scope.availableDatasourceTypes.length == 1) {
+                    $scope.datasourceType = $scope.availableDatasourceTypes[0];
+                    $scope.onChangeDatasourceType();
                 }
             }
 		};
 
-        $scope.onChangeDatasourceType = function(){
+        $scope.onChangeDatasourceType = function(ds){
             if ($scope.datasourceType && $scope.datasourceType.type == "OGCAPI_FEATURES") {
                 $scope.availableSpatialUnits = [ ...kommonitorDataExchangeService.availableSpatialUnits_map.values() ]
                 // console.log($scope.availableSpatialUnits)
             }
         };
+
+        $scope.onChangeConverter();
+        $scope.onChangeDatasourceType();
 
 		$scope.onChangeMimeType = function(mimeType){
 			$scope.mimeType = mimeType;

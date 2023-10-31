@@ -280,7 +280,7 @@
 												<div class="form-group">
 													<label>Datenquelltyp*</label>
 													<select ng-model="datasourceType"
-															ng-options="datasourceType as datasourceType.type for datasourceType in availableDatasourceTypes track by datasourceType.name"
+															ng-options="datasourceType as datasourceType.type for datasourceType in availableDatasourceTypes track by datasourceType.type"
 															ng-change="onChangeDatasourceType()"
 															class="form-control" required>
 														<option disabled selected value> -- Quelltyp w&auml;hlen -- </option>
