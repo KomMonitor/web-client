@@ -1731,20 +1731,19 @@ angular.module('kommonitorMap').component(
         };
 
         var createCustomMarker = function(poiFeature, poiSymbolColor, poiMarkerColor, poiSymbolBootstrap3Name, metadataObject){
-          var customMarker;
-          try {
-            customMarker = L.AwesomeMarkers.icon({
-              icon: poiSymbolBootstrap3Name,
-              iconColor: poiSymbolColor,
-              markerColor: poiMarkerColor
-            });
-          } catch (err) {
-            customMarker = L.AwesomeMarkers.icon({
-              icon: 'home', // default back to home
-              iconColor: poiSymbolColor,
-              markerColor: poiMarkerColor
-            });
-          }
+          var customMarker = L.VectorMarkers.icon({
+            viewBox: '0 0 32 52',
+            iconSize: [30 * kommonitorDataExchangeService.selectedPOISize.scaleFactor, 50 * kommonitorDataExchangeService.selectedPOISize.scaleFactor],
+            iconAnchor: [ 15 * kommonitorDataExchangeService.selectedPOISize.scaleFactor, 50 * kommonitorDataExchangeService.selectedPOISize.scaleFactor ],
+            shadowSize: [0, 0], // ausgeschaltete Schatten
+            // um Schatten einzuschalten: //shadowSize:   [36 * kommonitorDataExchangeService.selectedPOISize.scaleFactor, 16 * kommonitorDataExchangeService.selectedPOISize.scaleFactor ],
+            // um Schatten einzuschalten: //shadowAnchor: [35 * kommonitorDataExchangeService.selectedPOISize.scaleFactor, 10 * kommonitorDataExchangeService.selectedPOISize.scaleFactor],
+            icon: poiSymbolBootstrap3Name,
+            prefix: 'glyphicon',
+            markerColor: poiMarkerColor,
+            iconColor: poiSymbolColor,
+            extraClasses: kommonitorDataExchangeService.selectedPOISize.iconClassName
+          });
 
           var newMarker;
 

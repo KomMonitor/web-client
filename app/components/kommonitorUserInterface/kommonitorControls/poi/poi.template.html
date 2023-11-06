@@ -30,6 +30,19 @@
 					<span class="switchslider round"></span>
 				</label>
 
+				<br />
+
+				<label>
+					<b title="Auswahl zur Größe der POI-Marker">Größe der Points
+						of Interest</b>
+					&nbsp;
+					<select 
+						ng-options="item as item.label for item in $ctrl.kommonitorDataExchangeServiceInstance.POISizes track by item.id" 
+						ng-model="$ctrl.kommonitorDataExchangeServiceInstance.selectedPOISize"
+						ng-change="refreshPoiLayers()">
+					</select>
+				</label>
+
 				<hr>
 				<br />
 

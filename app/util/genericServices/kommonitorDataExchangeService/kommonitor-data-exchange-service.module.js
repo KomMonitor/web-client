@@ -383,6 +383,29 @@ angular
           this.classifyUsingWholeTimeseries = __env.classifyUsingWholeTimeseries;
           this.useNoDataToggle = __env.useNoDataToggle;
 
+          this.POISizes = [{
+            id: 0,
+            label: 'sehr klein',
+            iconClassName: 'vector-marker-icon-extra-small',
+            scaleFactor: 0.4
+          }, {
+            id: 1,
+            label: 'klein',
+            iconClassName: 'vector-marker-icon-small',
+            scaleFactor: 0.6
+          }, {
+            id: 2,
+            label: 'mittel',
+            iconClassName: 'vector-marker-icon-middlesized',
+            scaleFactor: 0.75
+          }, {
+            id: 3,
+            label: 'groß',
+            iconClassName: '',
+            scaleFactor: 1
+          }];
+          this.selectedPOISize = this.POISizes[3];
+
           this.getUpdateIntervalDisplayValue = function(apiValue){
             for (const updateIntervalOption of this.updateIntervalOptions) {
               if(updateIntervalOption.apiName === apiValue){
