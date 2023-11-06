@@ -79,51 +79,51 @@
 							<br/> -->
 
 						<!-- <div class="btn-group btn-group-justified"> -->
-						<table class="table" style="width:100%;">
+						<table class="table" style="width:100%;" ng-if="(enabledGeoresourcesInfrastructure.length + enabledGeoresourcesGeoservices.length) > 1">
 							<tr>
-								<th colspan="3" class="text-center"><b>Infrastruktur</b></th>
-								<th colspan="2" class="text-center"><b>Geodaten-Dienste</b></th>
+                                <th ng-if="enabledGeoresourcesInfrastructure.length > 0" colspan="{{enabledGeoresourcesInfrastructure.length}}" class="text-center"><b>Infrastruktur</b></th>
+                                <th ng-if="enabledGeoresourcesGeoservices.length > 0" colspan="{{enabledGeoresourcesGeoservices.length}}" class="text-center"><b>Geodaten-Dienste</b></th>
 							</tr>
 							<tr>
-								<th class="text-center"><b>Punktdaten</b></th>
-								<th class="text-center"><b>Liniendaten</b></th>
-								<th class="text-center"><b>Fl&auml;chendaten</b></th>
-								<th class="text-center"><b>WMS-Daten</b></th>
-								<th class="text-center"><b>WFS-Daten</b></th>
+                                <th ng-if="isGeoresourceInfrastructureEnabled('poi')" class="text-center"><b>Punktdaten</b></th>
+                                <th ng-if="isGeoresourceInfrastructureEnabled('loi')" class="text-center"><b>Liniendaten</b></th>
+                                <th ng-if="isGeoresourceInfrastructureEnabled('aoi')" class="text-center"><b>Fl&auml;chendaten</b></th>
+                                <th ng-if="isGeoresourceGeoserviceEnabled('wms')" class="text-center"><b>WMS-Daten</b></th>
+                                <th ng-if="isGeoresourceGeoserviceEnabled('wfs')" class="text-center"><b>WFS-Daten</b></th>
 							</tr>
 							<tr>
-								<td class="text-center">
+								<td class="text-center" ng-if="isGeoresourceInfrastructureEnabled('poi')">
 									<label class="switch">
 										<input type="checkbox" ng-model="showPOI" checked
-											ng-change="$ctrl.kommonitorDataExchangeServiceInstance.onChangeGeoresourceKeywordFilter(georesourceNameFilter.value, showPOI, showLOI, showAOI, showWMS, showWFS)">
+											ng-change="onChangeGeoresourceKeywordFilter(georesourceNameFilter.value, showPOI, showLOI, showAOI, showWMS, showWFS)">
 										<span class="switchslider round"></span>
 									</label>
 								</td>
-								<td class="text-center">
+								<td class="text-center" ng-if="isGeoresourceInfrastructureEnabled('loi')">
 									<label class="switch">
 										<input type="checkbox" ng-model="showLOI" checked
-											ng-change="$ctrl.kommonitorDataExchangeServiceInstance.onChangeGeoresourceKeywordFilter(georesourceNameFilter.value, showPOI, showLOI, showAOI, showWMS, showWFS)">
+											ng-change="onChangeGeoresourceKeywordFilter(georesourceNameFilter.value, showPOI, showLOI, showAOI, showWMS, showWFS)">
 										<span class="switchslider round"></span>
 									</label>
 								</td>
-								<td class="text-center">
+								<td class="text-center" ng-if="isGeoresourceInfrastructureEnabled('aoi')">
 									<label class="switch">
 										<input type="checkbox" ng-model="showAOI" checked
-											ng-change="$ctrl.kommonitorDataExchangeServiceInstance.onChangeGeoresourceKeywordFilter(georesourceNameFilter.value, showPOI, showLOI, showAOI, showWMS, showWFS)">
+											ng-change="onChangeGeoresourceKeywordFilter(georesourceNameFilter.value, showPOI, showLOI, showAOI, showWMS, showWFS)">
 										<span class="switchslider round"></span>
 									</label>
 								</td>
-								<td class="text-center">
+								<td class="text-center" ng-if="isGeoresourceGeoserviceEnabled('wms')">
 									<label class="switch">
 										<input type="checkbox" ng-model="showWMS" checked
-											ng-change="$ctrl.kommonitorDataExchangeServiceInstance.onChangeGeoresourceKeywordFilter(georesourceNameFilter.value, showPOI, showLOI, showAOI, showWMS, showWFS)">
+											ng-change="onChangeGeoresourceKeywordFilter(georesourceNameFilter.value, showPOI, showLOI, showAOI, showWMS, showWFS)">
 										<span class="switchslider round"></span>
 									</label>
 								</td>
-								<td class="text-center">
+								<td class="text-center" ng-if="isGeoresourceGeoserviceEnabled('wfs')">
 									<label class="switch">
 										<input type="checkbox" ng-model="showWFS" checked
-											ng-change="$ctrl.kommonitorDataExchangeServiceInstance.onChangeGeoresourceKeywordFilter(georesourceNameFilter.value, showPOI, showLOI, showAOI, showWMS, showWFS)">
+											ng-change="onChangeGeoresourceKeywordFilter(georesourceNameFilter.value, showPOI, showLOI, showAOI, showWMS, showWFS)">
 										<span class="switchslider round"></span>
 									</label>
 								</td>
