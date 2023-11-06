@@ -264,7 +264,7 @@
 				
 					</uib-tab>
 
-					<uib-tab index="1" heading="Isochronen" disable="!$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend">
+					<uib-tab index="1" heading="Isochronen" disable="!$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend">
 
 						<div class="just-padding">
 							<div align="center">
@@ -292,7 +292,7 @@
 						</div>						
 					</uib-tab>
 
-					<uib-tab index="2" heading="Routing" disable="!$ctrl.kommonitorDataExchangeServiceInstance.routingLegend">
+					<uib-tab index="2" heading="Routing" disable="!$ctrl.kommonitorDataExchangeServiceInstance.routingLegend" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.routingLegend">
 
 						<div class="just-padding">
 							<div align="center">
@@ -344,7 +344,7 @@
 					
 					</uib-tab>
 
-					<uib-tab index="3" heading="WMS-Dienste">
+					<uib-tab index="3" heading="WMS-Dienste" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.wmsDatasets_keywordFiltered.length > 0">
 
 						<div class="just-padding">
 							<table class="table table-condensed " style="margin-bottom:0px;">
