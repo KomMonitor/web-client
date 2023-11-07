@@ -24,6 +24,7 @@ angular
 					$scope.wmsNameFilter = undefined;
 
 					$scope.customFileInputColor = `#00AABB`;
+					$scope.customFileInputMarkerColor = kommonitorDataExchangeService.availablePoiMarkerColors[0];
 
 					$scope.tmpKommonitorGeoresource_table;
 					$scope.tableProcessType;
@@ -60,6 +61,14 @@ angular
 
 					var numberOfDecimals = __env.numberOfDecimals;
 
+					$scope.onChangeCustomMarkerColor = function(markerColor){
+						$scope.customFileInputMarkerColor = markerColor;
+
+						// setTimeout(function () {
+						// 	$scope.$digest();
+						// }, 150);
+					}
+
 					$scope.addUniqueFileToMap = function (dataset) {
 						console.log("Toggle File Layer: " + dataset.datasetName);
 
@@ -70,6 +79,11 @@ angular
 
 						if($scope.fileWithSameNameAlreadyImported(clone)){
 							kommonitorToastHelperService.displayErrorToast_upperLeft("Datei mit gleichem Namen bereits vorhanden.", "Import der Datei abgebrochen.");
+							return;
+						}
+
+						if(dataset.geoJSON.features.length == 0){
+							kommonitorToastHelperService.displayErrorToast_upperLeft("Datensatz kann nicht als Layer geladen werden.", "Keine Features im Datensatz.");
 							return;
 						}
 
@@ -211,13 +225,18 @@ angular
 							$scope.tmpKommonitorGeoresource_table.dataRows_notGeocoded = $scope.identifyNonGeocodedDataRows($scope.tmpKommonitorGeoresource_table.dataRows, resultFeaturesArray);
 
 							$scope.tmpKommonitorGeoresource_table.isGeocodedDataset = true;
+							// set markerColor to orange --> guarantees, that gocode result are split up in two categories
+							// green = high accuracy; orange = medium accuracy
+							$scope.tmpKommonitorGeoresource_table.poiMarkerColor = "orange";
 
 							kommonitorToastHelperService.displaySuccessToast_upperLeft($scope.tmpKommonitorGeoresource_table.geoJSON.features.length + " von " + $scope.tmpKommonitorGeoresource_table.dataRows.length + " Adressen geokodiert",
 								"Objekteigenschaften 'geocoderank' und 'geocodedesc' bewerten Genauigkeit");
 
 							if($scope.tmpKommonitorGeoresource_table.dataRows_notGeocoded.length > 0){
 								kommonitorToastHelperService.displayWarningToast_upperLeft($scope.tmpKommonitorGeoresource_table.dataRows_notGeocoded.length + " von " + $scope.tmpKommonitorGeoresource_table.dataRows.length + " Adressen nicht geokodiert");
-							}
+							}							
+
+							$scope.loadingData = false;
 							
 							$scope.onChangeIdProperty($scope.tmpKommonitorGeoresource_table);
 							$scope.onChangeNameProperty($scope.tmpKommonitorGeoresource_table);
@@ -319,14 +338,14 @@ angular
 									// If dropped items aren't files, reject them
 									if (ev.dataTransfer.items[i].kind === 'file') {
 										var file = ev.dataTransfer.items[i].getAsFile();
-										kommonitorFileHelperService.transformFileToKomMonitorGeoressource(file, $scope.customFileInputColor);
+										kommonitorFileHelperService.transformFileToKomMonitorGeoressource(file, $scope.customFileInputColor, $scope.customFileInputMarkerColor);
 									}
 								}
 							} else {
 								// Use DataTransfer interface to access the file(s)
 								for (var i = 0; i < ev.dataTransfer.files.length; i++) {
 									var file = ev.dataTransfer.files[i];
-									kommonitorFileHelperService.transformFileToKomMonitorGeoressource(file, $scope.customFileInputColor);
+									kommonitorFileHelperService.transformFileToKomMonitorGeoressource(file, $scope.customFileInputColor, $scope.customFileInputMarkerColor);
 								}
 							}
 						} catch (e) {
@@ -354,6 +373,12 @@ angular
 						kommonitorMapService.adjustColorForFileLayer(dataset, color);
 					};
 
+					$scope.adjustFileLayerMarkerColor = function(dataset, markerColor){
+						dataset.poiMarkerColor = markerColor.colorName;
+
+						$scope.refreshDataLayer(dataset);
+					}
+
 					$scope.$on("onDropFile", function (ev, dropEvent) {
 						$scope.dropHandler(dropEvent);
 					});
@@ -377,7 +402,7 @@ angular
 
 						for (var i = 0; i < files.length; i++) {
 							var file = files[i];
-							kommonitorFileHelperService.transformFileToKomMonitorGeoressource(file, $scope.customFileInputColor);
+							kommonitorFileHelperService.transformFileToKomMonitorGeoressource(file, $scope.customFileInputColor, $scope.customFileInputMarkerColor);
 						}
 					});
 

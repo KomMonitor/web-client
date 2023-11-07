@@ -46,22 +46,22 @@ angular
         return schema;
       }
 
-      this.transformFileToKomMonitorGeoressource = function (file, customColor) {
+      this.transformFileToKomMonitorGeoressource = function (file, customColor, customMarkerColor) {
         let tmpKommonitorGeoresource;
 
         var fileEnding = file.name.split('.').pop();
 
         if (fileEnding.toUpperCase() === "json".toUpperCase() || fileEnding.toUpperCase() === "geojson".toUpperCase()) {
           console.log("Potential GeoJSON file identified")
-          tmpKommonitorGeoresource = this.processFileInput_geoJson(file, customColor);
+          tmpKommonitorGeoresource = this.processFileInput_geoJson(file, customColor, customMarkerColor);
         }
         else if (fileEnding.toUpperCase() === "zip".toUpperCase()) {
           console.log("Potential Shapefile file identified")
-          tmpKommonitorGeoresource = this.processFileInput_shape(file, customColor);
+          tmpKommonitorGeoresource = this.processFileInput_shape(file, customColor, customMarkerColor);
         }
         else if (fileEnding.toUpperCase() === "csv".toUpperCase()) {
           console.log("Potential CSV file identified")
-          tmpKommonitorGeoresource = this.processFileInput_csv(file, customColor);
+          tmpKommonitorGeoresource = this.processFileInput_csv(file, customColor, customMarkerColor);
         }
         else {
           let fileLayerError = "Dateiformat kann nicht verarbeitet werden";
@@ -71,7 +71,7 @@ angular
         return tmpKommonitorGeoresource;
       }
 
-      this.makeGeoresourceMetadata = function (file, customColor, type, geoJSON) {
+      this.makeGeoresourceMetadata = function (file, customColor, customMarkerColor, type, geoJSON) {
         let tmpKommonitorGeoresource = {
           "allowedRoles": [
 
@@ -102,8 +102,8 @@ angular
             "sridEPSG": 0,
             "updateInterval": "ARBITRARY"
           },
-          "poiMarkerColor": "orange",
-          "poiSymbolBootstrap3Name": "home",
+          "poiMarkerColor": customMarkerColor.colorName,
+          "poiSymbolBootstrap3Name": "pushpin",
           "poiSymbolColor": "white",
           "topicReference": "",
           "userPermissions": [
@@ -142,7 +142,7 @@ angular
         return tmpKommonitorGeoresource;
       }
 
-      this.makeGeoresourceMetadata_fromCsvRows = function (file, customColor, type, rows) {
+      this.makeGeoresourceMetadata_fromCsvRows = function (file, customColor, customMarkerColor, type, rows) {
         let tmpKommonitorGeoresource = {
           "allowedRoles": [
 
@@ -173,8 +173,8 @@ angular
             "sridEPSG": 0,
             "updateInterval": "ARBITRARY"
           },
-          "poiMarkerColor": "orange",
-          "poiSymbolBootstrap3Name": "home",
+          "poiMarkerColor": customMarkerColor.colorName,
+          "poiSymbolBootstrap3Name": "pushpin",
           "poiSymbolColor": "white",
           "topicReference": "",
           "userPermissions": [
@@ -210,13 +210,13 @@ angular
         return kommonitorGeoresource;
       }
 
-      this.processFileInput_geoJson = function (file, customColor) {
+      this.processFileInput_geoJson = function (file, customColor, customMarkerColor) {
         var fileReader = new FileReader();
 
         fileReader.onload = function (event) {
           var geoJSON = JSON.parse(event.target.result);
 
-          let tmpKommonitorGeoresource = self.makeGeoresourceMetadata(file, customColor, "GeoJSON", geoJSON);
+          let tmpKommonitorGeoresource = self.makeGeoresourceMetadata(file, customColor, customMarkerColor, "GeoJSON", geoJSON);
 
           $rootScope.$broadcast("GeoJSONFromFileFinished", tmpKommonitorGeoresource);
         };
@@ -242,7 +242,7 @@ angular
         );
       }
 
-      this.processFileInput_shape = function (file, customColor) {
+      this.processFileInput_shape = function (file, customColor, customMarkerColor) {
         var fileReader = new FileReader();
 
         fileReader.onload = async function (event) {
@@ -250,14 +250,14 @@ angular
 
           let geoJSON = await self.getGeoJSON_fromShape(arrayBuffer);
 
-          let tmpKommonitorGeoresource = self.makeGeoresourceMetadata(file, customColor, "GeoJSON", geoJSON);
+          let tmpKommonitorGeoresource = self.makeGeoresourceMetadata(file, customColor, customMarkerColor, "GeoJSON", geoJSON);
           $rootScope.$broadcast("GeoJSONFromFileFinished", tmpKommonitorGeoresource);
         };
 
         fileReader.readAsArrayBuffer(file);
       };
 
-      this.processFileInput_csv = function (file, customColor) {
+      this.processFileInput_csv = function (file, customColor, customMarkerColor) {
         var fileReader = new FileReader();
 
         fileReader.onload = function (event) {
@@ -267,7 +267,7 @@ angular
             skipEmptyLines: true,
           });
 
-          let tmpKommonitorGeoresource = self.makeGeoresourceMetadata_fromCsvRows(file, customColor, "CSV", results.data);
+          let tmpKommonitorGeoresource = self.makeGeoresourceMetadata_fromCsvRows(file, customColor, customMarkerColor, "CSV", results.data);
 
           $rootScope.$broadcast("CSVFromFileFinished", tmpKommonitorGeoresource);
         };

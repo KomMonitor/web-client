@@ -47,7 +47,7 @@
 			<div class="">
 
 				<div class="row vertical-align">
-					<div class="col-xs-10">
+					<div class="col-xs-8">
 						<div class="form-group">
 							<!-- DRAG/DROP Area to insert features from file  -->
 							<div id="drop_zone" droppable ng-click="openFileDialog()" drop="dropHandler(event);">
@@ -64,14 +64,54 @@
 					</div>
 					<div class="col-xs-2">
 						<div class="form-group">
-							<div id="customFileInputColorDiv" class="input-group colorpicker-component">
-								<!-- <label>Darstellungsfarbe festlegen</label> -->
-								<input type="text" style="display:none;" class="form-control input-sm"
-									ng-model="customFileInputColor" value="#00AABB" placeholder="Darstellungsfarbe"
-									required />
-								<span title="Klicken, um die Farbe anzupassen" style="border: 1px solid #ccc;"
-									class="input-group-addon"><i></i></span>
+							<div class="form-group" align="center">
+								<label>Punktmarker-Farbe</label>
+								<div class="dropdown customColorPicker">
+									<button type="button" class="btn btn-info dropdown-toggle"
+										data-toggle="dropdown">
+										<!-- <i style="background: {{customFileInputMarkerColor.colorValue}};"></i> -->
+										<div
+											class="awesome-marker-legend awesome-marker-legend-icon-{{customFileInputMarkerColor.colorName}}">
+											<span
+												style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:white;"
+												class="glyphicon glyphicon-pushpin" aria-hidden="true"></span>
+											<span class="caret"></span>
+										</div>
+
+									</button>
+									<ul class="dropdown-menu dropdown-menu-center">
+										<li ng-repeat="markerColor in $ctrl.kommonitorDataExchangeServiceInstance.availablePoiMarkerColors | filter:{colorName:'!white'}"
+											ng-click="onChangeCustomMarkerColor(markerColor)">
+											<a href="">
+												<div
+													class="awesome-marker-legend awesome-marker-legend-icon-{{::markerColor.colorName}}">
+													<span
+														style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:white;"
+														class="glyphicon glyphicon-pushpin" aria-hidden="true"></span>
+												</div>
+											</a>
+
+										</li>
+									</ul>
+									<div class="help-block with-errors"></div>
+								</div>
 							</div>
+						</div>
+					</div>
+					<div class="col-xs-2">
+						<div class="form-group">
+							<div class="form-group" align="center">
+								<label>Linien- oder Fl&auml;chen-Farbe</label>
+								<div id="customFileInputColorDiv" class="input-group colorpicker-component">
+									<!-- <label>Darstellungsfarbe festlegen</label> -->
+									<input type="text" style="display:none;" class="form-control input-sm"
+										ng-model="customFileInputColor" value="#00AABB" placeholder="Darstellungsfarbe"
+										required />
+									<span title="Klicken, um die Farbe anzupassen" style="border: 1px solid #ccc;"
+										class="input-group-addon"><i></i></span>
+								</div>
+							</div>
+
 						</div>
 					</div>
 				</div>
@@ -246,12 +286,42 @@
 										</div>
 										<div ng-show="dataset.isPOI">
 											<div align="center" ng-show="! dataset.isGeocodedDataset">
-												<div
+												<!-- <div
 													class="awesome-marker-legend awesome-marker-legend-icon-{{::dataset.poiMarkerColor}}">
 													<span
 														style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:{{::dataset.poiSymbolColor}};"
 														class="glyphicon glyphicon-{{::dataset.poiSymbolBootstrap3Name}}"
 														aria-hidden="true"></span>
+												</div> -->
+												<div class="dropdown customColorPicker">
+
+													<button type="button" class="btn btn-info dropdown-toggle"
+														data-toggle="dropdown">
+														<div
+															class="awesome-marker-legend awesome-marker-legend-icon-{{dataset.poiMarkerColor}}">
+															<span
+																style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:white;"
+																class="glyphicon glyphicon-{{dataset.poiSymbolBootstrap3Name}}"
+																aria-hidden="true"></span>
+															<span class="caret"></span>
+														</div>
+
+													</button>
+													<ul class="dropdown-menu dropdown-menu-center">
+														<li ng-repeat="markerColor in $ctrl.kommonitorDataExchangeServiceInstance.availablePoiMarkerColors | filter:{colorName:'!white'}"
+															ng-click="adjustFileLayerMarkerColor(dataset, markerColor)">
+															<a href="">
+																<div
+																	class="awesome-marker-legend awesome-marker-legend-icon-{{::markerColor.colorName}}">
+																	<span
+																		style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:white;"
+																		class="glyphicon glyphicon-pushpin"></span>
+																</div>
+															</a>
+
+														</li>
+													</ul>
+													<div class="help-block with-errors"></div>
 												</div>
 											</div>
 											<div align="center" ng-show="dataset.isGeocodedDataset">
