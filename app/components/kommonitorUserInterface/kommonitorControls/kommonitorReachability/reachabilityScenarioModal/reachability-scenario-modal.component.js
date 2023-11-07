@@ -31,6 +31,7 @@ angular.module('reachabilityScenarioModal').component('reachabilityScenarioModal
 
 				// create empty georesource dataset and geoJSON 
 				let emptyDataset = {
+					"georesourceId": uuidv4(),
 					"datasetName": $scope.emptyDatasetName,
 					"isNewReachabilityDataSource": true,
 					"isPOI": true,
@@ -39,7 +40,10 @@ angular.module('reachabilityScenarioModal').component('reachabilityScenarioModal
 							"startDate": undefined,
 							"endDate": undefined
 						}
-					]
+					],
+					"poiMarkerColor": "orange",
+					"poiSymbolBootstrap3Name": "pushpin",
+					"poiSymbolColor": "white",
 				};
 
 				emptyDataset.geoJSON_reachability = {

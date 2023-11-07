@@ -71,7 +71,7 @@
 						<tbody>
 
 							<tr
-								ng-repeat='poi in $ctrl.kommonitorDataExchangeServiceInstance.displayableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois() | filter:poiNameFilter_reachabilityAnalysis'>
+								ng-repeat='poi in $ctrl.kommonitorDataExchangeServiceInstance.displayableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois() | filter:poiNameFilter_reachabilityAnalysis | filter:{datasetName:"!-- leerer neuer Datensatz --"}'>
 								<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 								<td>
 									<label class='checkbox-inline'><input type="checkbox" value="poi.datasetName"
@@ -96,7 +96,7 @@
 									</div>
 								</td>
 								<td
-									ng-if="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.dateSelectionType.selectedDateType === $ctrl.kommonitorReachabilityHelperServiceInstance.settings.dateSelectionType_valuePerDataset">
+									ng-if="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.dateSelectionType.selectedDateType === $ctrl.kommonitorReachabilityHelperServiceInstance.settings.dateSelectionType_valuePerDataset && !poi.isTmpDataLayer">
 									<select style="font-size: 11px; width:135px; padding: 0px;"
 										ng-model="poi.selectedDate" ng-change="onChangeSelectedDate(poi)"
 										ng-options="date as date.startDate + ' - ' + date.endDate for date in poi.availablePeriodsOfValidity | orderBy: 'startDate'"

@@ -384,7 +384,7 @@ angular
       POI IN ISOCHRONES SECTION
       */
 
-      this.generatePoiMarkers = function (georesourceMetadataAndGeoJSON, useCluster) {
+      this.generatePoiMarkers = function (georesourceMetadataAndGeoJSON, useCluster, geojsonPropName) {
         // use leaflet.markercluster to cluster markers!
         var markers;
         if (useCluster) {
@@ -412,7 +412,7 @@ angular
           markers = L.layerGroup();
         }
 
-        georesourceMetadataAndGeoJSON.geoJSON.features.forEach(function (poiFeature) {
+        georesourceMetadataAndGeoJSON[geojsonPropName].features.forEach(function (poiFeature) {
           // index 0 should be longitude and index 1 should be latitude
           //.bindPopup( poiFeature.properties.name )
           var newMarker = kommonitorGenericMapHelperService.createCustomMarker(poiFeature, georesourceMetadataAndGeoJSON.poiSymbolColor, georesourceMetadataAndGeoJSON.poiMarkerColor, georesourceMetadataAndGeoJSON.poiSymbolBootstrap3Name, georesourceMetadataAndGeoJSON);
@@ -440,7 +440,7 @@ angular
           kommonitorGenericMapHelperService.removeLayerFromLayerControl(mapParts.layerControl, layer);
         }
 
-        let markers = this.generatePoiMarkers(georesourceMetadataAndGeoJSON, useCluster);
+        let markers = this.generatePoiMarkers(georesourceMetadataAndGeoJSON, useCluster, "geoJSON_poiInIsochrones");
 
         mapParts.isochroneLayers.poiInIsoLayers.set(georesourceMetadataAndGeoJSON.georesourceId, markers);
 
@@ -806,7 +806,7 @@ angular
       };
 
       this.generatePoiMarkers_indicatorStatistics = function (poiDataset, indicatorStatisticsCandidate) {
-        let markers = this.generatePoiMarkers(poiDataset, false);
+        let markers = this.generatePoiMarkers(poiDataset, false, "geoJSON");
 
         // now replace bindPopup method and add click interaction event
 

@@ -63,6 +63,11 @@ angular.module('reachabilityPoiInIso').component('reachabilityPoiInIso', {
 			//////////////////////////// SECTION FOR GORESOURCE AND INDICATOR ANALYSIS
 
 			$scope.getQueryDate = function (resource) {
+
+				if(resource.isTmpDataLayer || resource.isNewReachabilityDataSource){
+					return "tmpDataLayer";
+				}
+
 				if (kommonitorReachabilityHelperService.settings.dateSelectionType.selectedDateType === kommonitorReachabilityHelperService.settings.dateSelectionType_valueIndicator) {
 					return kommonitorDataExchangeService.selectedDate;
 				}
@@ -105,6 +110,16 @@ angular.module('reachabilityPoiInIso').component('reachabilityPoiInIso', {
 			};
 
 			$scope.fetchGeoJSONForDate = function (poiGeoresource) {
+
+				// if is an imported file data layer then no data can be retrieved from data management component
+				// instead use geoJSON of file contents
+				if(poiGeoresource.isTmpDataLayer || poiGeoresource.isNewReachabilityDataSource){
+					if (! poiGeoresource.geoJSON_poiInIsochrones){
+						poiGeoresource.geoJSON_poiInIsochrones = poiGeoresource.geoJSON_reachability || poiGeoresource.geoJSON;
+					}
+					return poiGeoresource;
+				}
+
 				var id = poiGeoresource.georesourceId;
 
 				var date = $scope.getQueryDate(poiGeoresource);
@@ -123,7 +138,7 @@ angular.module('reachabilityPoiInIso').component('reachabilityPoiInIso', {
 					// when the response is available
 					var geoJSON = response.data;
 
-					poiGeoresource.geoJSON = geoJSON;
+					poiGeoresource.geoJSON_poiInIsochrones = geoJSON;
 
 					return poiGeoresource;
 
@@ -172,14 +187,14 @@ angular.module('reachabilityPoiInIso').component('reachabilityPoiInIso', {
 				}
 
 				// map stores keys as string
-				poi.geoJSON = pointsPerIsochroneRangeMap.get("" + largestRange);
+				poi.geoJSON_poiInIsochrones = pointsPerIsochroneRangeMap.get("" + largestRange);
 
 				return poi;
 			}
 
 			$scope.computePoisWithinIsochrones = async function (poi) {
 				var pointsPerIsochroneRangeMap = $scope.initializeMapWithRangeKeys();
-				if (!poi.geoJSON) {
+				if (!poi.geoJSON_poiInIsochrones) {
 					poi = await $scope.fetchGeoJSONForDate(poi);
 				}
 
@@ -203,7 +218,7 @@ angular.module('reachabilityPoiInIso').component('reachabilityPoiInIso', {
 			$scope.computePoisWithinIsochrone = function (rangeValue, poi) {
 				// create clones of poi geoJSON and isochrone geoJSON
 				var isochrones_geoJSON_clone = JSON.parse(JSON.stringify(kommonitorReachabilityHelperService.currentIsochronesGeoJSON));
-				var poi_geoJSON_clone = JSON.parse(JSON.stringify(poi.geoJSON));
+				var poi_geoJSON_clone = JSON.parse(JSON.stringify(poi.geoJSON_poiInIsochrones));
 
 				// filter isochrone geoJSON clone by range value
 				isochrones_geoJSON_clone.features = isochrones_geoJSON_clone.features.filter(feature => {

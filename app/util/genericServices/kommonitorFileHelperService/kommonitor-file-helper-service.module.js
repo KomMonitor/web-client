@@ -84,7 +84,7 @@ angular
             }
           ],
           "datasetName": file.name,
-          "georesourceId": undefined,
+          "georesourceId": uuidv4(),
           "isAOI": false,
           "isLOI": false,
           "isPOI": false,
@@ -155,7 +155,7 @@ angular
             }
           ],
           "datasetName": file.name,
-          "georesourceId": undefined,
+          "georesourceId": uuidv4(),
           "isAOI": false,
           "isLOI": false,
           "isPOI": true,
