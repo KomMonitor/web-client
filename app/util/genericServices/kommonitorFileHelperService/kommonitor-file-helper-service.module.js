@@ -47,7 +47,6 @@ angular
       }
 
       this.transformFileToKomMonitorGeoressource = function (file, customColor) {
-        console.log('... file[' + i + '].name = ' + file.name);
         let tmpKommonitorGeoresource;
 
         var fileEnding = file.name.split('.').pop();

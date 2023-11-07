@@ -68,6 +68,8 @@ angular
 							clone.datasetName = clone.datasetName + "_" + $scope.tableProcessType.apiName;
 						}
 
+						kommonitorToastHelperService.displaySuccessToast_upperLeft("Datei erfolgreich importiert. Inhalt wird in Karte geladen", dataset.title);
+
 						$scope.toggleDataLayer(clone);
 					};
 
@@ -94,13 +96,19 @@ angular
 
 					$scope.$on("GeoJSONFromFileFinished", function (event, tmpKommonitorGeoresource) {
 
-						// init feature NAME and ID fields
-						tmpKommonitorGeoresource = $scope.initSpecialFields(tmpKommonitorGeoresource);
+						try {
+							// init feature NAME and ID fields
+							tmpKommonitorGeoresource = $scope.initSpecialFields(tmpKommonitorGeoresource);
 
-						$scope.onChangeIdProperty(tmpKommonitorGeoresource);
-						$scope.onChangeNameProperty(tmpKommonitorGeoresource);
+							$scope.onChangeIdProperty(tmpKommonitorGeoresource);
+							$scope.onChangeNameProperty(tmpKommonitorGeoresource);
 
-						$scope.addFileToMap(tmpKommonitorGeoresource);
+							$scope.addFileToMap(tmpKommonitorGeoresource);
+						} catch (error) {
+							console.error(error);
+							$scope.loadingData = false;
+							kommonitorToastHelperService.displayErrorToast_upperLeft("Fehler beim Laden der CSV-Datei", error);
+						}						
 					});
 
 					$scope.initSpecialFields = function (tmpKommonitorGeoresource) {
@@ -141,13 +149,19 @@ angular
 					}
 
 					$scope.$on("CSVFromFileFinished", function (event, tmpKommonitorGeoresource) {
-						tmpKommonitorGeoresource = $scope.initSpecialFields(tmpKommonitorGeoresource)
+						try {
+							tmpKommonitorGeoresource = $scope.initSpecialFields(tmpKommonitorGeoresource)
 
-						$scope.tmpKommonitorGeoresource_table = tmpKommonitorGeoresource;
+							$scope.tmpKommonitorGeoresource_table = tmpKommonitorGeoresource;
 
-						kommonitorToastHelperService.displayInfoToast_upperLeft("CSV-Datei erkannt", "Weitere Konfiguration erforderlich");
+							kommonitorToastHelperService.displayInfoToast_upperLeft("CSV-Datei erkannt", "Weitere Konfiguration erforderlich");
 
-						$scope.$digest();
+							$scope.$digest();
+						} catch (error) {
+							console.error(error);
+							$scope.loadingData = false;
+							kommonitorToastHelperService.displayErrorToast_upperLeft("Fehler beim Laden der CSV-Datei", error);
+						}						
 					});
 
 					$scope.loadCSV_latLon = function () {
@@ -384,8 +398,6 @@ angular
 								$('.input-group.colorpicker-component').colorpicker();
 							}, 350);
 						}, 350);
-
-						kommonitorToastHelperService.displaySuccessToast_upperLeft("Datei erfolgreich importiert", dataset.title);
 					});
 
 					$scope.removeDataLayer = function (dataset) {

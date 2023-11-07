@@ -1872,19 +1872,20 @@ angular.module('kommonitorMap').component(
         });
 
         $scope.showFileLayer = function (fileLayer, dataset) {
-          $scope.layerControl.addOverlay(fileLayer, dataset.datasetName, fileLayerGroupName);
-          fileLayer.addTo($scope.map);
+          try {
+            $scope.layerControl.addOverlay(fileLayer, dataset.datasetName, fileLayerGroupName);
+            fileLayer.addTo($scope.map);
 
-          console.log("Try to fit bounds on fileLayer");
-          $scope.map.fitBounds(fileLayer.getBounds());
+            $scope.map.fitBounds(fileLayer.getBounds());
 
-          console.log("Tried fit bounds on fileLayer");
+            $rootScope.$broadcast("FileLayerSuccess", dataset);
 
-          $rootScope.$broadcast("FileLayerSuccess", dataset);
+            $scope.updateSearchControl();
 
-          $scope.updateSearchControl();
-
-          $scope.map.invalidateSize(true);
+            $scope.map.invalidateSize(true);
+          } catch (error) {
+            $rootScope.$broadcast("FileLayerError", error, dataset);
+          }          
         };
 
         $scope.$on("adjustOpacityForFileLayer", function (event, dataset, opacity) {
