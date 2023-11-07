@@ -60,7 +60,7 @@ angular
 
 					var numberOfDecimals = __env.numberOfDecimals;
 
-					$scope.addFileToMap = function (dataset) {
+					$scope.addUniqueFileToMap = function (dataset) {
 						console.log("Toggle File Layer: " + dataset.datasetName);
 
 						let clone = JSON.parse(JSON.stringify(dataset));	
@@ -68,10 +68,25 @@ angular
 							clone.datasetName = clone.datasetName + "_" + $scope.tableProcessType.apiName;
 						}
 
-						kommonitorToastHelperService.displaySuccessToast_upperLeft("Datei erfolgreich importiert. Inhalt wird in Karte geladen", dataset.title);
+						if($scope.fileWithSameNameAlreadyImported(clone)){
+							kommonitorToastHelperService.displayErrorToast_upperLeft("Datei mit gleichem Namen bereits vorhanden.", "Import der Datei abgebrochen.");
+							return;
+						}
+
+						kommonitorToastHelperService.displaySuccessToast_upperLeft("Datei erfolgreich importiert. Inhalt wird in Karte geladen", clone.title);
 
 						$scope.toggleDataLayer(clone);
 					};
+
+					$scope.fileWithSameNameAlreadyImported = function(clone){
+						for (let i = 0; i < kommonitorDataExchangeService.fileDatasets.length; i++) {
+							if (kommonitorDataExchangeService.fileDatasets[i].datasetName == clone.datasetName) {
+								return true;
+							}
+						}
+
+						return false;
+					}
 
 					$scope.toggleDataLayer = function (dataset) {
 						if (dataset.isSelected) {
@@ -103,7 +118,7 @@ angular
 							$scope.onChangeIdProperty(tmpKommonitorGeoresource);
 							$scope.onChangeNameProperty(tmpKommonitorGeoresource);
 
-							$scope.addFileToMap(tmpKommonitorGeoresource);
+							$scope.addUniqueFileToMap(tmpKommonitorGeoresource);
 						} catch (error) {
 							console.error(error);
 							$scope.loadingData = false;
@@ -173,7 +188,7 @@ angular
 							$scope.onChangeIdProperty($scope.tmpKommonitorGeoresource_table);
 							$scope.onChangeNameProperty($scope.tmpKommonitorGeoresource_table);
 
-							$scope.addFileToMap($scope.tmpKommonitorGeoresource_table);
+							$scope.addUniqueFileToMap($scope.tmpKommonitorGeoresource_table);
 						} catch (error) {
 							console.error(error);
 							$scope.loadingData = false;
@@ -207,7 +222,7 @@ angular
 							$scope.onChangeIdProperty($scope.tmpKommonitorGeoresource_table);
 							$scope.onChangeNameProperty($scope.tmpKommonitorGeoresource_table);
 
-							$scope.addFileToMap($scope.tmpKommonitorGeoresource_table);
+							$scope.addUniqueFileToMap($scope.tmpKommonitorGeoresource_table);
 						} catch (error) {
 							console.error(error);
 							$scope.loadingData = false;
