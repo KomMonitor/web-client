@@ -197,6 +197,10 @@ angular
         return new L.TileLayer.Grayscale("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { minZoom: __env.minZoomLevel, maxZoom: __env.maxZoomLevel, attribution: "Map data © <a href='http://openstreetmap.org'>OpenStreetMap</a> contributors" });
       };
 
+      this.generateBackgroundMap_cartoDbPositron = function () {
+        return new L.TileLayer("https://b.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png", { minZoom: __env.minZoomLevel, maxZoom: __env.maxZoomLevel, attribution: "Map data © CartoDB Positron" });
+      };
+
       this.clearMap = function(map){
         if(map){
           map.off();
@@ -215,7 +219,8 @@ angular
         let layerControl, map, geosearchControl, backgroundLayer, drawControlObject;
 
         // backgroundLayer
-        backgroundLayer = this.generateBackgroundMap_osmGrayscale();
+        // backgroundLayer = this.generateBackgroundMap_osmGrayscale();
+        backgroundLayer = this.generateBackgroundMap_cartoDbPositron();
 
         map = L.map(domId, {
           center: [__env.initialLatitude, __env.initialLongitude],
