@@ -193,7 +193,7 @@ angular
         }
 
         kommonitorDataExchangeService.isochroneLegend = {
-          datasetName: datasetName,          
+          datasetName: datasetName,
           transitMode: transitModeValue,
           reachMode: reachModeValue,
           reachMode_apiValue: reachMode,
@@ -582,7 +582,25 @@ angular
 
       };
 
-      this.generateIndicatorLayer = async function (indicatorStatisticsCandidate) {
+      this.generateIndicatorLayer = async function (indicatorMetadataAndGeoJSON, indicatorPropertyName, defaultBrew) {
+
+        let outlierDetection_currentGLobalValue = kommonitorDataExchangeService.useOutlierDetectionOnIndicator;
+        kommonitorDataExchangeService.useOutlierDetectionOnIndicator = false;
+        let layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
+          style: function (feature) {
+            return kommonitorVisualStyleHelperService.styleDefault(feature, defaultBrew, undefined, undefined, indicatorPropertyName, true, false);
+          },
+          onEachFeature: function (feature, layer) {
+            return self.onEachFeatureIndicator(feature, layer, indicatorPropertyName);
+          }
+        });
+
+        kommonitorDataExchangeService.useOutlierDetectionOnIndicator = outlierDetection_currentGLobalValue;
+
+        return layer;
+      }
+
+      this.setupIndicator = async function (indicatorStatisticsCandidate) {
         /*  
           {
             indicator: {
@@ -607,24 +625,8 @@ angular
         let indicatorMetadataAndGeoJSON = kommonitorDataExchangeService.getIndicatorMetadataById(indicatorId);
         indicatorMetadataAndGeoJSON.geoJSON = await this.fetchIndicatorForSpatialUnit(indicatorId, spatialUnitId, timestamp);
         indicatorStatisticsCandidate.indicator.geoJSON = indicatorMetadataAndGeoJSON.geoJSON;
-        let indicatorPropertyName = __env.indicatorDatePrefix + timestamp;
 
-        let defaultBrew = kommonitorVisualStyleHelperService.setupDefaultBrew(indicatorMetadataAndGeoJSON.geoJSON, indicatorPropertyName, indicatorMetadataAndGeoJSON.defaultClassificationMapping.items.length, indicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName, kommonitorVisualStyleHelperService.classifyMethod);
-
-        let outlierDetection_currentGLobalValue = kommonitorDataExchangeService.useOutlierDetectionOnIndicator;
-        kommonitorDataExchangeService.useOutlierDetectionOnIndicator = false;
-        let layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
-          style: function (feature) {
-            return kommonitorVisualStyleHelperService.styleDefault(feature, defaultBrew, undefined, undefined, indicatorPropertyName, true, false);
-          },
-          onEachFeature: function (featuer, layer) {
-            return self.onEachFeatureIndicator(featuer, layer, indicatorPropertyName);
-          }
-        });
-
-        kommonitorDataExchangeService.useOutlierDetectionOnIndicator = outlierDetection_currentGLobalValue;
-
-        return layer;
+        return indicatorMetadataAndGeoJSON;
       }
 
       this.replaceReachabilityIndicatorStatisticsOnMap = async function (domId, poiDataset, original_nonDissolved_isochrones, indicatorStatisticsCandidate) {
@@ -632,7 +634,14 @@ angular
 
         this.removeOldLayers_reachabilityIndicatorStatistics(domId);
 
-        let indicatorLayer = await this.generateIndicatorLayer(indicatorStatisticsCandidate);
+        let indicatorMetadataAndGeoJSON = await this.setupIndicator(indicatorStatisticsCandidate);
+        let timestamp = indicatorStatisticsCandidate.timestamp;
+        let indicatorPropertyName = __env.indicatorDatePrefix + timestamp;
+        let defaultBrew = kommonitorVisualStyleHelperService.setupDefaultBrew(indicatorMetadataAndGeoJSON.geoJSON, indicatorPropertyName, indicatorMetadataAndGeoJSON.defaultClassificationMapping.items.length, indicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName, kommonitorVisualStyleHelperService.classifyMethod);
+
+        let indicatorLayer = await this.generateIndicatorLayer(indicatorMetadataAndGeoJSON, indicatorPropertyName, defaultBrew);
+        let indicatorLegendControl = this.generateIndicatorLegend(defaultBrew, indicatorMetadataAndGeoJSON);
+        indicatorLegendControl.addTo(mapParts.map);
 
         // generate poiLayer from POI geometries, original_undissolved isochrones per POI and isochrone prune Result per poi_and_undissolved_isochrone
         let poiLayer = this.generatePoiLayerForIndicatorStatistic(poiDataset, original_nonDissolved_isochrones, indicatorStatisticsCandidate);
@@ -666,6 +675,32 @@ angular
         // this.zoomToIsochroneLayer(domId);
 
         this.mapPartsMap.set(domId, mapParts);
+      }
+
+      this.generateIndicatorLegend = function (defaultBrew, indicatorMetadataAndGeoJSON) {
+        var legend = L.control({ position: 'bottomright' });
+
+        legend.onAdd = function (map) {
+
+          let grades = [];
+          for (const breakValue of defaultBrew.breaks) {
+            grades.push(kommonitorDataExchangeService.getIndicatorValue_asFormattedText(breakValue));
+          }
+
+          var div = L.DomUtil.create('div', 'reachabilityIndicatorInfo reachabilityIndicatorLegend'),
+            labels = [];
+
+          // loop through our density intervals and generate a label with a colored square for each interval
+          for (var i = 0; i < defaultBrew.colors.length; i++) {
+            div.innerHTML +=
+              '<i style="background:' + defaultBrew.colors[i] + '"></i> ' +
+              grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '<br>' : '+');
+          }
+
+          return div;
+        };
+
+        return legend;
       }
 
       this.getIndicatorFeature_forSpatialUnitFeatureId = function (indicatorGeoJSON, spatialUnitFeatureId) {
