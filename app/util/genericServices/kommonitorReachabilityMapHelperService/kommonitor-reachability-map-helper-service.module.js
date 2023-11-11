@@ -16,6 +16,7 @@ angular
           "layerControl": layerControl,
           "backgroundLayer": backgroundLayer,
           "geosearchControl": geosearchControl,
+          "screenshoter": screenshoter,
           "isochroneLayers": {
             "markerLayer": markerLayer,
             "isochroneLayer": isochroneLayer
@@ -39,7 +40,7 @@ angular
           kommonitorGenericMapHelperService.clearMap(mapParts.map);
 
         //function (domId, withLayerControl, withGeosearchControl, withDrawControl, drawResourceType, editMode)
-        mapParts = kommonitorGenericMapHelperService.initMap(domId, true, true, false, undefined, undefined);
+        mapParts = kommonitorGenericMapHelperService.initMap(domId, true, true, false, true, undefined, undefined);
         // response:
         /*
         {
@@ -66,6 +67,61 @@ angular
 
         for (let [key, value] of this.mapPartsMap) {
           self.invalidateMap(key);
+        }
+      };
+
+      this.takeScreenshot_image = async function (domId, overridedPluginOptions) {
+        let mapParts = this.mapPartsMap.get(domId);
+
+        let format = "image";
+        
+        if (!overridedPluginOptions) {
+          overridedPluginOptions = {
+
+          }
+        }
+        if (mapParts && mapParts.map && mapParts.screenshoter) {
+          return await mapParts.screenshoter.takeScreen(format, overridedPluginOptions).then(image => {
+            return image;
+          }).catch(e => {
+            console.error(e)
+          })
+        }
+      };
+
+      this.takeScreenshot_blob = async function (domId, overridedPluginOptions) {
+        let mapParts = this.mapPartsMap.get(domId);
+
+        let format = "blob";
+        if (!overridedPluginOptions) {
+          overridedPluginOptions = {
+
+          }
+        }
+        if (mapParts && mapParts.map && mapParts.screenshoter) {
+          return await mapParts.screenshoter.takeScreen(format, overridedPluginOptions).then(blob => {
+            return blob;
+          }).catch(e => {
+            console.error(e)
+          })
+        }
+      };
+
+      this.takeScreenshot_canvas = async function (domId, overridedPluginOptions) {
+        let mapParts = this.mapPartsMap.get(domId);
+
+        let format = "canvas";
+        if (!overridedPluginOptions) {
+          overridedPluginOptions = {
+
+          }
+        }
+        if (mapParts && mapParts.map && mapParts.screenshoter) {
+          return await mapParts.screenshoter.takeScreen(format, overridedPluginOptions).then(canvas => {
+            return canvas;
+          }).catch(e => {
+            console.error(e)
+          })
         }
       };
 
@@ -485,7 +541,7 @@ angular
           kommonitorGenericMapHelperService.clearMap(mapParts.map);
 
         //function (domId, withLayerControl, withGeosearchControl, withDrawControl, drawResourceType, editMode)
-        mapParts = kommonitorGenericMapHelperService.initMap(domId, true, true, false, undefined, undefined);
+        mapParts = kommonitorGenericMapHelperService.initMap(domId, true, true, false, true, undefined, undefined);
         // response:
         /*
         {

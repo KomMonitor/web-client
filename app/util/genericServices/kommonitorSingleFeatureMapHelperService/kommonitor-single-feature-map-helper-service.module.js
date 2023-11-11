@@ -23,6 +23,7 @@ angular
           "layerControl": layerControl,
           "backgroundLayer": backgroundLayer,
           "geosearchControl": geosearchControl,
+          "screenshoter": screenshoter,
           "drawControlObject": {
             "drawControl": drawControl,
             "featureLayer": featuerLayer
@@ -49,7 +50,7 @@ angular
         kommonitorGenericMapHelperService.clearMap(this.mapParts.map);
 
         //function (domId, withLayerControl, withGeosearchControl, withDrawControl, drawResourceType, editMode)
-        this.mapParts = kommonitorGenericMapHelperService.initMap(domId, false, true, true, resourceType, this.editMode);
+        this.mapParts = kommonitorGenericMapHelperService.initMap(domId, false, true, true, true, resourceType, this.editMode);
         // response:
         /*
         {

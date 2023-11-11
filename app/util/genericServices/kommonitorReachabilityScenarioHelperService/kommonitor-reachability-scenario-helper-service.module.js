@@ -20,6 +20,7 @@ angular
           "poiDataset": {
             "poiId": poiId,
             "poiName": poiName,
+            "poiDate": poiDate
           }
         }
         */
@@ -34,6 +35,7 @@ angular
           "poiDataset": {
             "poiId": "",
             "poiName": "",
+            "poiDate": "",
           }
       };
 
@@ -47,6 +49,7 @@ angular
             "poiDataset": {
               "poiId": "",
               "poiName": "",
+              "poiDate": "",
             }
         };
       }
@@ -55,6 +58,7 @@ angular
         this.tmpActiveScenario.poiDataset = {};
         this.tmpActiveScenario.poiDataset.poiId = poiDataset.georesourceId;
         this.tmpActiveScenario.poiDataset.poiName = poiDataset.datasetName;
+        this.tmpActiveScenario.poiDataset.poiDate = kommonitorReachabilityHelperService.settings.isochroneConfig.selectedDate.startDate || "tmpDataset";
       }
 
       this.setActiveScenario = function(scenarioDataset){

@@ -28,6 +28,7 @@ module.exports = function (grunt) {
             'app/util/genericServices/kommonitorToastHelperService/kommonitor-toast-helper-service.module.js', 
             'app/util/genericServices/kommonitorFileHelperService/kommonitor-file-helper-service.module.js',
             'app/util/genericServices/kommonitorGeocoderHelperService/kommonitor-geocoder-helper-service.module.js',
+            'app/util/genericServices/kommonitorReachabilityCoverageReportsHelperService/kommonitor-reachability-coverage-reports-helper-service.module.js',
             'app/components/common/singleFeatureEdit/single-feature-edit.module.js',
             'app/components/common/singleFeatureEdit/single-feature-edit.component.js',                      
             'app/components/kommonitorUserInterface/kommonitorControls/kommonitorDataSetup/kommonitor-data-setup.module.js',

@@ -3,15 +3,18 @@ angular.module('reachabilityIndicatorStatistics').component('reachabilityIndicat
 	controller: ['kommonitorDataExchangeService',
 		'$scope', '$rootScope', '$http', '__env', '$timeout', 'kommonitorReachabilityHelperService', 'kommonitorDiagramHelperService',
 		'kommonitorReachabilityMapHelperService', 'kommonitorSpatialDataProcessorHelperService', 'kommonitorReachabilityScenarioHelperService',
+		'kommonitorReachabilityCoverageReportsHelperService',
 		function reachabilityIndicatorStatisticsController(kommonitorDataExchangeService,
 			$scope, $rootScope, $http, __env, $timeout, kommonitorReachabilityHelperService, kommonitorDiagramHelperService,
-			kommonitorReachabilityMapHelperService, kommonitorSpatialDataProcessorHelperService, kommonitorReachabilityScenarioHelperService) {
+			kommonitorReachabilityMapHelperService, kommonitorSpatialDataProcessorHelperService, kommonitorReachabilityScenarioHelperService,
+			kommonitorReachabilityCoverageReportsHelperService) {
 
 			this.kommonitorReachabilityHelperServiceInstance = kommonitorReachabilityHelperService;
 			this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 			this.kommonitorDiagramHelperServiceInstance = kommonitorDiagramHelperService;
 			this.kommonitorSpatialDataProcessorHelperServiceInstance = kommonitorSpatialDataProcessorHelperService;
 			this.kommonitorReachabilityScenarioHelperServiceInstance = kommonitorReachabilityScenarioHelperService;
+			this.kommonitorReachabilityCoverageReportsHelperServiceInstance = kommonitorReachabilityCoverageReportsHelperService;
 
 			$scope.selectedIndicatorForStatistics = undefined;
 			$scope.selectedSpatialUnit = undefined;
@@ -43,11 +46,11 @@ angular.module('reachabilityIndicatorStatistics').component('reachabilityIndicat
 
 			$rootScope.$on("isochronesCalculationFinished", function (event, reinit) {
 
-				if(reinit){
+				if (reinit) {
 					$scope.init();
 
 					for (const indicatorStatistic of kommonitorReachabilityScenarioHelperService.tmpActiveScenario.indicatorStatistics) {
-						if (indicatorStatistic.active){
+						if (indicatorStatistic.active) {
 							$scope.displayIndicatorStatisticOnMap(indicatorStatistic);
 						}
 					}
@@ -70,15 +73,15 @@ angular.module('reachabilityIndicatorStatistics').component('reachabilityIndicat
 				// $scope.selectedIndicatorForStatistics;
 
 				$scope.selectedSpatialUnit = $scope.selectedIndicatorForStatistics.applicableSpatialUnits[$scope.selectedIndicatorForStatistics.applicableSpatialUnits.length - 1];
-				$scope.selectedIndicatorDate = $scope.selectedIndicatorForStatistics.applicableDates[$scope.selectedIndicatorForStatistics.applicableDates.length - 1];			
+				$scope.selectedIndicatorDate = $scope.selectedIndicatorForStatistics.applicableDates[$scope.selectedIndicatorForStatistics.applicableDates.length - 1];
 			};
 
 			$scope.onChangeSelectedSpatialUnit = function () {
 
 			};
 
-			$scope.queryJobStatus = function(jobId){
-				let jobCompletedOrFailed = false;				
+			$scope.queryJobStatus = function (jobId) {
+				let jobCompletedOrFailed = false;
 				// query every second
 				$timeout(async function () {
 					/*
@@ -88,7 +91,7 @@ angular.module('reachabilityIndicatorStatistics').component('reachabilityIndicat
 						failed - The job failed due to an error during process execution.
 					*/
 					let jobStatus = await kommonitorSpatialDataProcessorHelperService.getJobStatus(jobId);
-					if(jobStatus == undefined || jobStatus.status == undefined){
+					if (jobStatus == undefined || jobStatus.status == undefined) {
 						jobCompletedOrFailed = true;
 						$scope.modifyJobStatus(jobId, "failed");
 					}
@@ -102,7 +105,7 @@ angular.module('reachabilityIndicatorStatistics').component('reachabilityIndicat
 					}
 					$scope.modifyJobStatus(jobId, jobStatus.status);
 
-					if (! jobCompletedOrFailed){
+					if (!jobCompletedOrFailed) {
 						// query again
 						$scope.queryJobStatus(jobId);
 					}
@@ -129,9 +132,9 @@ angular.module('reachabilityIndicatorStatistics').component('reachabilityIndicat
 						indicatorStatisticsEntry.coverageResult = response.result[0];
 						indicatorStatisticsEntry.active = true;
 
-						$scope.$digest();						
+						$scope.$digest();
 
-						$scope.displayIndicatorStatisticOnMap(indicatorStatisticsEntry);						
+						$scope.displayIndicatorStatisticOnMap(indicatorStatisticsEntry);
 					}
 				}
 			}
@@ -158,33 +161,33 @@ angular.module('reachabilityIndicatorStatistics').component('reachabilityIndicat
 				kommonitorReachabilityScenarioHelperService.tmpActiveScenario.indicatorStatistics.push(newIsochroneStatisticsEntry);
 
 				// now trigger periodical query of job status
-				$scope.queryJobStatus(jobId);				
+				$scope.queryJobStatus(jobId);
 			}
 
-			$scope.removeIndicatorStatistic = function(indicatorStatisticsCandidate){
+			$scope.removeIndicatorStatistic = function (indicatorStatisticsCandidate) {
 
 				// remove from map if active
-				if(indicatorStatisticsCandidate.active){
+				if (indicatorStatisticsCandidate.active) {
 					kommonitorReachabilityMapHelperService.removeOldLayers_reachabilityIndicatorStatistics($scope.domId);
 				}
 
 				for (let index = 0; index < kommonitorReachabilityScenarioHelperService.tmpActiveScenario.indicatorStatistics.length; index++) {
 					const entry = kommonitorReachabilityScenarioHelperService.tmpActiveScenario.indicatorStatistics[index];
-					if(entry.jobId == indicatorStatisticsCandidate.jobId){						
+					if (entry.jobId == indicatorStatisticsCandidate.jobId) {
 						kommonitorReachabilityScenarioHelperService.tmpActiveScenario.indicatorStatistics.splice(index, 1);
 						break;
-					}					
+					}
 				}
 			};
 
-			$scope.displayIndicatorStatisticOnMap = function(indicatorStatisticsCandidate){
+			$scope.displayIndicatorStatisticOnMap = function (indicatorStatisticsCandidate) {
 				// property coverageResult stores isochrone prune result
 
 				// mark active list element
 				for (const indicatorStatisticsEntry of kommonitorReachabilityScenarioHelperService.tmpActiveScenario.indicatorStatistics) {
 					indicatorStatisticsEntry.active = false;
 					if (indicatorStatisticsEntry.jobId == indicatorStatisticsCandidate.jobId) {
-						indicatorStatisticsEntry.active = true;					
+						indicatorStatisticsEntry.active = true;
 					}
 				}
 
@@ -208,6 +211,8 @@ angular.module('reachabilityIndicatorStatistics').component('reachabilityIndicat
 
 				$scope.appendNewIsochroneStatistic(jobId);
 			};
+
+			
 
 			// init component
 			$scope.init();
