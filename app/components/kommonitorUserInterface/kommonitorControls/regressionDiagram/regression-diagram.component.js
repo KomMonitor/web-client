@@ -41,6 +41,8 @@ angular
 								$scope.selection.indicatorNameFilterForXAxis = undefined;
 								$scope.selection.indicatorNameFilterForYAxis = undefined;
 
+								$scope.enableScatterPlotRegression = __env.enableScatterPlotRegression;
+
 								const DATE_PREFIX = __env.indicatorDatePrefix;
 								var numberOfDecimals = __env.numberOfDecimals;
 								const defaultColorForFilteredValues = __env.defaultColorForFilteredValues;
@@ -519,6 +521,9 @@ angular
 
 										$scope.linearRegression = ecStat.regression('linear', data);
 
+										let titlePrefix = $scope.enableScatterPlotRegression ? 'Lineare Regression - ' : 'Streudiagramm - ';
+										let dataViewTitle =  $scope.enableScatterPlotRegression ? 'Datenansicht - lineare Regression' : 'Datenansicht - Streudiagramm';
+
 										$scope.regressionOption = {
 											grid: {
 											  left: '10%',
@@ -528,7 +533,7 @@ angular
 											  containLabel: true
 											},
 										    title: {
-										        text: 'Lineare Regression - ' + $scope.spatialUnitName + ' - ' + $scope.date,
+										        text: titlePrefix + $scope.spatialUnitName + ' - ' + $scope.date,
 										        left: 'center',
 														show: false
 										    },
@@ -553,31 +558,31 @@ angular
 														name: kommonitorDataExchangeService.formatIndicatorNameForLabel($scope.selection.selectedIndicatorForXAxis.indicatorMetadata.indicatorName + " - " + $scope.selection.selectedIndicatorForXAxis.selectedDate + " [" + $scope.selection.selectedIndicatorForXAxis.indicatorMetadata.unit + "]", 100),
 														nameLocation: 'center',
 														nameGap: 22,
-		                        scale: true,
-										        type: 'value',
-										        splitLine: {
-										            lineStyle: {
-										                type: 'dashed'
-										            }
-										        },
-										    },
+		                        						scale: true,
+										        		type: 'value',
+										        		splitLine: {
+										            		lineStyle: {
+										                		type: 'dashed'
+										            		}
+										        		},
+										    		},
 										    yAxis: {
 														name: kommonitorDataExchangeService.formatIndicatorNameForLabel($scope.selection.selectedIndicatorForYAxis.indicatorMetadata.indicatorName + " - " + $scope.selection.selectedIndicatorForYAxis.selectedDate + " [" + $scope.selection.selectedIndicatorForYAxis.indicatorMetadata.unit + "]", 75),
 														nameLocation: 'center',
 														nameGap: 50,
-										        type: 'value',
-										        splitLine: {
-										            lineStyle: {
-										                type: 'dashed'
-										            }
-										        },
-										    },
+										        		type: 'value',
+										        		splitLine: {
+										            		lineStyle: {
+										                		type: 'dashed'
+										            		}	
+										        		},
+										    		},
 												toolbox: {
 														show : true,
 														right: '15',
 														feature : {
 																// mark : {show: true},
-																dataView : {show: kommonitorDataExchangeService.showDiagramExportButtons, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - lineare Regression', 'schlie&szlig;en', 'refresh'], optionToContent: function(opt){
+																dataView : {show: kommonitorDataExchangeService.showDiagramExportButtons, readOnly: true, title: "Datenansicht", lang: [dataViewTitle, 'schlie&szlig;en', 'refresh'], optionToContent: function(opt){
 
 																// 	<table class="table table-condensed table-hover">
 																// 	<thead>
@@ -597,12 +602,20 @@ angular
 																// has properties "name" and "value"
 																// value: [Number(xAxisDataElement.toFixed(4)), Number(yAxisDataElement.toFixed(4))]
 																var scatterSeries = opt.series[0].data;
-																var lineSeries = opt.series[1].data;
+																var lineSeries;
+
+																if ($scope.enableScatterPlotRegression) {
+																	lineSeries = opt.series[1].data;
+																}
 
 																var dataTableId = "regressionDataTable";
 																var tableExportName = opt.title[0].text + " - Scatter Table";
 
-																var htmlString = "<p>Data View enth&auml;lt zwei nachstehende Tabellen, die Tabelle des Scatter Plots und die Tabelle der Punkte der Regressionsgeraden.</p><br/>";
+																var htmlString = $scope.enableScatterPlotRegression
+																				? 
+																				"<p>Data View enth&auml;lt zwei nachstehende Tabellen, die Tabelle der Datenpunkte des Streudiagramms und die Tabelle der Punkte der Regressionsgeraden.</p><br/>"
+																				:
+																				"<p>Data View enth&auml;lt die Tabelle der Datenpunkte des Streudiagramms.</p><br/>";
 																htmlString += '<h4>Scatter Plot Tabelle</h4>';
 																	htmlString += '<table id="' + dataTableId + '" class="table table-bordered table-condensed" style="width:100%;text-align:center;">';
 																	htmlString += "<thead>";
@@ -628,34 +641,40 @@ angular
 																	htmlString += "</tbody>";
 																	htmlString += "</table>";
 
-																	var lineTableId = "lineDataTable";
-																	var lineTableExportName = opt.title[0].text + " - Line Table";
+																	if ($scope.enableScatterPlotRegression) {
 
-																	htmlString += "<br/><h4>Referenzpunkte der Regressionsgraden '" + $scope.linearRegression.expression + "'</h4>";
+																		var lineTableId = "lineDataTable";
+																		var lineTableExportName = opt.title[0].text + " - Line Table";
 
-																	htmlString += '<table id="' + lineTableId + '" class="table table-bordered table-condensed" style="width:100%;text-align:center;">';
-																	htmlString += "<thead>";
-																	htmlString += "<tr>";
-																	htmlString += "<th style='text-align:center;'>X</th>";
-																	htmlString += "<th style='text-align:center;'>Y</th>";
-																	htmlString += "</tr>";
-																	htmlString += "</thead>";
+																		htmlString += "<br/><h4>Referenzpunkte der Regressionsgraden '" + $scope.linearRegression.expression + "'</h4>";
 
-																	htmlString += "<tbody>";
-
-																	for (var j=0; j<lineSeries.length; j++){
+																		htmlString += '<table id="' + lineTableId + '" class="table table-bordered table-condensed" style="width:100%;text-align:center;">';
+																		htmlString += "<thead>";
 																		htmlString += "<tr>";
-																		htmlString += "<td>" + kommonitorDataExchangeService.getIndicatorValue_asNumber(lineSeries[j][0]) + "</td>";
-																		htmlString += "<td>" + kommonitorDataExchangeService.getIndicatorValue_asNumber(lineSeries[j][1]) + "</td>";
+																		htmlString += "<th style='text-align:center;'>X</th>";
+																		htmlString += "<th style='text-align:center;'>Y</th>";
 																		htmlString += "</tr>";
-																	}
+																		htmlString += "</thead>";
 
-																	htmlString += "</tbody>";
-																	htmlString += "</table>";
+																		htmlString += "<tbody>";
+																	
+																		for (var j=0; j<lineSeries.length; j++){
+																			htmlString += "<tr>";
+																			htmlString += "<td>" + kommonitorDataExchangeService.getIndicatorValue_asNumber(lineSeries[j][0]) + "</td>";
+																			htmlString += "<td>" + kommonitorDataExchangeService.getIndicatorValue_asNumber(lineSeries[j][1]) + "</td>";
+																			htmlString += "</tr>";
+																		}
+																		
+																		htmlString += "</tbody>";
+																		htmlString += "</table>";
+																	}	
 
 																	$rootScope.$broadcast("AppendExportButtonsForTable", dataTableId, tableExportName);
-																	$rootScope.$broadcast("AppendExportButtonsForTable", lineTableId, lineTableExportName);
 
+																	if ($scope.enableScatterPlotRegression) {
+																		$rootScope.$broadcast("AppendExportButtonsForTable", lineTableId, lineTableExportName);
+																	}
+																	
 															    return htmlString;
 																}},
 																restore : {show: false, title: "Erneuern"},
@@ -686,35 +705,41 @@ angular
 															}
 														},
 										        data: $scope.dataWithLabels
-										    }, {
-										        name: 'line',
-										        type: 'line',
-										        showSymbol: false,
-										        data: $scope.linearRegression.points,
-										        markPoint: {
-										            itemStyle: {
-										                normal: {
-										                    color: 'transparent'
-										                }
-										            },
-										            label: {
-										                normal: {
-										                    show: true,
-										                    position: 'left',
-										                    formatter: $scope.linearRegression.expression,
-										                    textStyle: {
-										                        color: '#333',
-										                        fontSize: 14
-										                    }
-										                }
-										            },
-										            data: [{
-										                coord: $scope.linearRegression.points[$scope.linearRegression.points.length - 1]
-										            }]
-										        }
-										    }]
+										    }
+										]
 										};
 
+										if ($scope.enableScatterPlotRegression) {
+											$scope.regressionOption.series.push(
+												{
+										        	name: 'line',
+										        	type: 'line',
+										        	showSymbol: false,
+										        	data: $scope.linearRegression.points,
+										        	markPoint: {
+											            itemStyle: {
+											                normal: {
+											                    color: 'transparent'
+											                }
+											            },
+											            label: {
+											                normal: {
+											                    show: true,
+											                    position: 'left',
+											                    formatter: $scope.linearRegression.expression,
+											                    textStyle: {
+										    	                    color: '#333',
+										        	                fontSize: 14
+										            	        }
+										                	}
+										            	},
+										            	data: [{
+										                	coord: $scope.linearRegression.points[$scope.linearRegression.points.length - 1]
+										            	}]
+										        	}
+										    	}
+											)
+										}
 
 										$scope.regressionChart.setOption($scope.regressionOption);
 

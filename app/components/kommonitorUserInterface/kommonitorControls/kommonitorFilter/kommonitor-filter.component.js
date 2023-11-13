@@ -20,6 +20,8 @@ angular
 							// initialize any adminLTE box widgets
 							$('.box').boxWidget();
 
+							$scope.kommonitorFilterModes = __env.filterModes;
+
 							$scope.considerAllowedSpatialUnitsOfCurrentIndicator = true;
 							$scope.loadingData = false;
 
@@ -60,6 +62,10 @@ angular
 								button: {leftText: "Alle auswählen" , rightText: "Alle entfernen"},
 								selectedItems: []
 							};
+
+							$scope.isFilterModeActive = function(id) {
+								return $scope.kommonitorFilterModes.indexOf(id) !== -1;
+							}
 
 
 							$scope.setupSpatialUnitFilter = function(indicatorMetadataAndGeoJSON, spatialUnitName, date){
