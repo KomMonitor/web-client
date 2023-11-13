@@ -2030,7 +2030,7 @@
 					<div class="just-padding">
 
 						<!-- POINTS OF INTEREST -->
-						<div class="box box-primary collapsed-box">
+						<div class="box box-primary collapsed-box" ng-if="isGeoresourceInfrastructureEnabled('poi')">
 							<div class="box-header with-border">
 								<h3 class="box-title">Points of Interest</h3>
 
@@ -2139,7 +2139,7 @@
 
 
 						<!-- LINES OF INTEREST -->
-						<div class="box box-primary collapsed-box">
+						<div class="box box-primary collapsed-box" ng-if="isGeoresourceInfrastructureEnabled('loi')">
 							<div class="box-header with-border">
 								<h3 class="box-title">Lines of Interest</h3>
 
@@ -2239,7 +2239,7 @@
 
 
 						<!-- AREAS OF INTEREST -->
-						<div class="box box-primary collapsed-box">
+						<div class="box box-primary collapsed-box" ng-if="isGeoresourceInfrastructureEnabled('aoi')">
 							<div class="box-header with-border">
 								<h3 class="box-title">Areas of Interest</h3>
 
@@ -2339,7 +2339,7 @@
 
 
 						<!-- WMS -->
-						<div class="box box-primary collapsed-box">
+						<div class="box box-primary collapsed-box" ng-if="isGeoresourceGeoserviceEnabled('wms')">
 							<div class="box-header with-border">
 								<h3 class="box-title">Web Map Service (WMS)</h3>
 
@@ -2431,7 +2431,7 @@
 						<!-- /.box -->
 
 						<!-- WfS -->
-						<div class="box box-primary collapsed-box">
+						<div class="box box-primary collapsed-box" ng-if="isGeoresourceGeoserviceEnabled('wfs')">
 							<div class="box-header with-border">
 								<h3 class="box-title">Web Feature Service (WFS)</h3>
 
