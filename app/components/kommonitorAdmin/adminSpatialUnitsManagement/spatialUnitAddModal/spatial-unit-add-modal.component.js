@@ -801,6 +801,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
                             $scope.bboxType = "ref";
                             $("#datasourceTypeParameter_georesourceAdd_bboxRef").val(dsParameter.value)
                         } else {
+                            $scope.bboxType = "literal";
                             bbox = dsParameter.value.split(',');
                             $("#datasourceTypeParameter_georesourceAdd_bbox_minx").val(bbox[0])
                             $("#datasourceTypeParameter_georesourceAdd_bbox_miny").val(bbox[1])
