@@ -35,7 +35,7 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 		*/
 
 		//Date picker
-    $('#spatialUnitEditFeaturesDatepickerStart').datepicker(kommonitorDataExchangeService.datePickerOptions);
+        $('#spatialUnitEditFeaturesDatepickerStart').datepicker(kommonitorDataExchangeService.datePickerOptions);
 		$('#spatialUnitEditFeaturesDatepickerEnd').datepicker(kommonitorDataExchangeService.datePickerOptions);
 
 		$scope.spatialUnitFeaturesGeoJSON;
@@ -60,57 +60,70 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 		$scope.spatialUnitDataSourceIdProperty = undefined;
 		$scope.spatialUnitDataSourceNameProperty = undefined;
 
+        $scope.availableDatasourceTypes = [];
+        $scope.availableSpatialUnits = undefined;
+
 		$scope.converter = undefined;
 		$scope.schema = undefined;
 		$scope.mimeType = undefined;
-			$scope.datasourceType = undefined;
-			$scope.spatialUnitDataSourceIdProperty = undefined;
-			$scope.spatialUnitDataSourceNameProperty = undefined;
+        $scope.datasourceType = undefined;
+        $scope.spatialUnitDataSourceIdProperty = undefined;
+        $scope.spatialUnitDataSourceNameProperty = undefined;
 
-			$scope.converterDefinition = undefined;
-			$scope.datasourceTypeDefinition = undefined;
-			$scope.propertyMappingDefinition = undefined;
-			$scope.putBody_spatialUnits = undefined;
+        $scope.converterDefinition = undefined;
+        $scope.datasourceTypeDefinition = undefined;
+        $scope.propertyMappingDefinition = undefined;
+        $scope.putBody_spatialUnits = undefined;
 
-			$scope.validityEndDate_perFeature = undefined;
-			$scope.validityStartDate_perFeature = undefined;
+        $scope.validityEndDate_perFeature = undefined;
+        $scope.validityStartDate_perFeature = undefined;
 
-			$scope.attributeMapping_sourceAttributeName = undefined;
-			$scope.attributeMapping_destinationAttributeName = undefined;
-			$scope.attributeMapping_data = undefined;
-			$scope.attributeMapping_attributeType = kommonitorImporterHelperService.attributeMapping_attributeTypes[0];
-			$scope.attributeMappings_adminView = [];
-			$scope.keepAttributes = true;
-			$scope.keepMissingValues = true;
+        $scope.attributeMapping_sourceAttributeName = undefined;
+        $scope.attributeMapping_destinationAttributeName = undefined;
+        $scope.attributeMapping_data = undefined;
+        $scope.attributeMapping_attributeType = kommonitorImporterHelperService.attributeMapping_attributeTypes[0];
+        $scope.attributeMappings_adminView = [];
+        $scope.keepAttributes = true;
+        $scope.keepMissingValues = true;
 
-			$scope.importerErrors = undefined;
-			$scope.successMessagePart = undefined;
-			$scope.errorMessagePart = undefined;
+        $scope.importerErrors = undefined;
+        $scope.successMessagePart = undefined;
+        $scope.errorMessagePart = undefined;
 
 		$scope.$on("onEditSpatialUnitFeatures", function (event, spatialUnitDataset) {
+            kommonitorMultiStepFormHelperService.registerClickHandler();
+            if($scope.currentSpatialUnitDataset && $scope.currentSpatialUnitDataset.spatialUnitLevel === spatialUnitDataset.spatialUnitLevel) {
+                return;
+            } else {
+                $scope.currentSpatialUnitDataset = spatialUnitDataset;
 
-			kommonitorMultiStepFormHelperService.registerClickHandler();
+                // $scope.refreshSpatialUnitEditFeaturesOverviewTable();
 
-			if($scope.currentSpatialUnitDataset && $scope.currentSpatialUnitDataset.spatialUnitLevel === spatialUnitDataset.spatialUnitLevel){
-				return;
-			}
-			else{
-				$scope.currentSpatialUnitDataset = spatialUnitDataset;
-
-				// $scope.refreshSpatialUnitEditFeaturesOverviewTable();
-
-				$scope.resetSpatialUnitEditFeaturesForm();
-
-				kommonitorDataGridHelperService.buildDataGrid_featureTable_spatialResource("spatialUnitFeatureTable", [], []);
-			}
-
-			
-
+                $scope.resetSpatialUnitEditFeaturesForm();
+                kommonitorDataGridHelperService.buildDataGrid_featureTable_spatialResource("spatialUnitFeatureTable", [], []);
+            }
 		});
 
 		$scope.onChangeConverter = function(schema){
-			$scope.schema = $scope.converter.schemas ? $scope.converter.schemas[0] : undefined;
-			$scope.mimeType = $scope.converter.mimeTypes[0];
+		    if ($scope.converter) {
+                $scope.schema = $scope.converter.schemas ? $scope.converter.schemas[0] : undefined;
+                $scope.mimeType = $scope.converter.mimeTypes[0];
+
+                // update available datasourcetypes for this specific converter
+                $scope.availableDatasourceTypes = [];
+                for(var datasourceType of kommonitorImporterHelperService.availableDatasourceTypes){
+                    for(var availableType of $scope.converter.datasources) {
+                        if (datasourceType.type === availableType){
+                            $scope.availableDatasourceTypes.push(datasourceType);
+                        }
+                    }
+                }
+
+                if ($scope.availableDatasourceTypes.length == 1) {
+                    $scope.datasourceType = $scope.availableDatasourceTypes[0];
+                    $scope.onChangeDatasourceType();
+                }
+            }
 		};
 
 		$scope.onChangeMimeType = function(mimeType){
@@ -207,6 +220,16 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 			});
 		};
 
+        $scope.onChangeDatasourceType = function(ds){
+            if ($scope.datasourceType && $scope.datasourceType.type == "OGCAPI_FEATURES") {
+                $scope.availableSpatialUnits = [ ...kommonitorDataExchangeService.availableSpatialUnits_map.values() ]
+                // console.log($scope.availableSpatialUnits)
+            }
+        };
+
+        $scope.onChangeConverter();
+        $scope.onChangeDatasourceType();
+
 		$scope.resetSpatialUnitEditFeaturesForm = function(){
 
 			// reset edit banners
@@ -255,6 +278,9 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 			$scope.importerErrors = undefined;
 			$scope.successMessagePart = undefined;
 			$scope.errorMessagePart = undefined;
+
+            $scope.onChangeConverter();
+            $scope.onChangeDatasourceType();
 
 			$("#spatialUnitEditFeaturesSuccessAlert").hide();
 			$("#spatialUnitEditFeaturesErrorAlert").hide();
@@ -564,7 +590,7 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 				$scope.$digest();
 			}
 			
-			  $scope.converter = undefined;
+            $scope.converter = undefined;
 			for(var converter of kommonitorImporterHelperService.availableConverters){
 				if (converter.name === $scope.mappingConfigImportSettings.converter.name){
 					$scope.converter = converter;					
@@ -572,88 +598,103 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 				}
 			}	
 			
-				$scope.schema = undefined;
-				if ($scope.converter && $scope.converter.schemas && $scope.mappingConfigImportSettings.converter.schema){
-					for (var schema of $scope.converter.schemas) {
-						if (schema === $scope.mappingConfigImportSettings.converter.schema){
-							$scope.schema = schema;
-						}
-					}
-				}	
-				
-				$scope.mimeType = undefined;
-					if ($scope.converter && $scope.converter.mimeTypes && $scope.mappingConfigImportSettings.converter.mimeType){
-						for (var mimeType of $scope.converter.mimeTypes) {
-							if (mimeType === $scope.mappingConfigImportSettings.converter.mimeType){
-								$scope.mimeType = mimeType;
-							}
-						}
-					}
-				
-				$scope.datasourceType = undefined;
-				for(var datasourceType of kommonitorImporterHelperService.availableDatasourceTypes){
-					if (datasourceType.type === $scope.mappingConfigImportSettings.dataSource.type){
-						$scope.datasourceType = datasourceType;					
-						break;
-					}
-				}
+            $scope.schema = undefined;
+            if ($scope.converter && $scope.converter.schemas && $scope.mappingConfigImportSettings.converter.schema){
+                for (var schema of $scope.converter.schemas) {
+                    if (schema === $scope.mappingConfigImportSettings.converter.schema){
+                        $scope.schema = schema;
+                    }
+                }
+            }	
+            
+            $scope.mimeType = undefined;
+                if ($scope.converter && $scope.converter.mimeTypes && $scope.mappingConfigImportSettings.converter.mimeType){
+                    for (var mimeType of $scope.converter.mimeTypes) {
+                        if (mimeType === $scope.mappingConfigImportSettings.converter.mimeType){
+                            $scope.mimeType = mimeType;
+                        }
+                    }
+                }
+            
+            $scope.datasourceType = undefined;
+            for(var datasourceType of kommonitorImporterHelperService.availableDatasourceTypes){
+                if (datasourceType.type === $scope.mappingConfigImportSettings.dataSource.type){
+                    $scope.datasourceType = datasourceType;					
+                    break;
+                }
+            }
 
-				$scope.$digest();
+            $scope.onChangeConverter();
+            $scope.$digest();
 
-				// converter parameters
-				if ($scope.converter){
-					for (var convParameter of $scope.mappingConfigImportSettings.converter.parameters) {
-            			$("#converterParameter_spatialUnitEditFeatures_" + convParameter.name).val(convParameter.value);
-					}
-				}	
+            // converter parameters
+            if ($scope.converter){
+                for (var convParameter of $scope.mappingConfigImportSettings.converter.parameters) {
+                    $("#converterParameter_spatialUnitEditFeatures_" + convParameter.name).val(convParameter.value);
+                }
+            }	
 
-				// datasourceTypes parameters
-				if ($scope.datasourceType){
-					for (var dsParameter of $scope.mappingConfigImportSettings.dataSource.parameters) {
-            			$("#datasourceTypeParameter_spatialUnitEditFeatures_" + dsParameter.name).val(dsParameter.value);
-					}
-				}
-				
-				// property Mapping
-				$scope.spatialUnitDataSourceNameProperty = $scope.mappingConfigImportSettings.propertyMapping.nameProperty; 
-				$scope.spatialUnitDataSourceIdProperty = $scope.mappingConfigImportSettings.propertyMapping.identifierProperty; 
-				$scope.validityStartDate_perFeature  = $scope.mappingConfigImportSettings.propertyMapping.validStartDateProperty;
-				$scope.validityEndDate_perFeature  = $scope.mappingConfigImportSettings.propertyMapping.validEndDateProperty;
-				$scope.keepAttributes  = $scope.mappingConfigImportSettings.propertyMapping.keepAttributes;
-				$scope.keepMissingValues = $scope.mappingConfigImportSettings.propertyMapping.keepMissingOrNullValueAttributes;
-				$scope.attributeMappings_adminView = [];
+            // datasourceTypes parameters
+            if ($scope.datasourceType){
+                for (var dsParameter of $scope.mappingConfigImportSettings.dataSource.parameters) {
+                    if (dsParameter.name === "bbox") {
+                        if ($("#datasourceTypeParameter_spatialUnitEditFeatures_bboxType").val() == "ref") {
+                            $scope.bboxType = "ref";
+                            $("#datasourceTypeParameter_spatialUnitEditFeatures_bboxRef").val(dsParameter.value)
+                        } else {
+                            $scope.bboxType = "literal";
+                            bbox = dsParameter.value.split(',');
+                            $("#datasourceTypeParameter_spatialUnitEditFeatures_bbox_minx").val(bbox[0])
+                            $("#datasourceTypeParameter_spatialUnitEditFeatures_bbox_miny").val(bbox[1])
+                            $("#datasourceTypeParameter_spatialUnitEditFeatures_bbox_maxx").val(bbox[2])
+                            $("#datasourceTypeParameter_spatialUnitEditFeatures_bbox_maxy").val(bbox[3])
+                        }
+                    } else {
+                        $("#datasourceTypeParameter_spatialUnitEditFeatures_" + dsParameter.name).val(dsParameter.value);
+                    }
+                }
+            }
+            
+            // property Mapping
+            $scope.spatialUnitDataSourceNameProperty = $scope.mappingConfigImportSettings.propertyMapping.nameProperty; 
+            $scope.spatialUnitDataSourceIdProperty = $scope.mappingConfigImportSettings.propertyMapping.identifierProperty; 
+            $scope.validityStartDate_perFeature  = $scope.mappingConfigImportSettings.propertyMapping.validStartDateProperty;
+            $scope.validityEndDate_perFeature  = $scope.mappingConfigImportSettings.propertyMapping.validEndDateProperty;
+            $scope.keepAttributes  = $scope.mappingConfigImportSettings.propertyMapping.keepAttributes;
+            $scope.keepMissingValues = $scope.mappingConfigImportSettings.propertyMapping.keepMissingOrNullValueAttributes;
+            $scope.attributeMappings_adminView = [];
 
-				for (var attributeMapping of $scope.mappingConfigImportSettings.propertyMapping.attributes) {
-					var tmpEntry = {
-						"sourceName": attributeMapping.name,
-						"destinationName": attributeMapping.mappingName
-					};
+            for (var attributeMapping of $scope.mappingConfigImportSettings.propertyMapping.attributes) {
+                var tmpEntry = {
+                    "sourceName": attributeMapping.name,
+                    "destinationName": attributeMapping.mappingName
+                };
 
-					for (const dataType of kommonitorImporterHelperService.attributeMapping_attributeTypes) {
-						if (dataType.apiName === attributeMapping.type){
-							tmpEntry.dataType = dataType;
-						}
-					}
+                for (const dataType of kommonitorImporterHelperService.attributeMapping_attributeTypes) {
+                    if (dataType.apiName === attributeMapping.type){
+                        tmpEntry.dataType = dataType;
+                    }
+                }
 
-					$scope.attributeMappings_adminView.push(tmpEntry);
-				}
+                $scope.attributeMappings_adminView.push(tmpEntry);
+            }
 
-				if ($scope.mappingConfigImportSettings.periodOfValidity){
-					$scope.periodOfValidity = {};
-					$scope.periodOfValidity.startDate = $scope.mappingConfigImportSettings.periodOfValidity.startDate;
-					$scope.periodOfValidity.endDate = $scope.mappingConfigImportSettings.periodOfValidity.endDate;
-					$scope.periodOfValidityInvalid = false;
+            if ($scope.mappingConfigImportSettings.periodOfValidity){
+                $scope.periodOfValidity = {};
+                $scope.periodOfValidity.startDate = $scope.mappingConfigImportSettings.periodOfValidity.startDate;
+                $scope.periodOfValidity.endDate = $scope.mappingConfigImportSettings.periodOfValidity.endDate;
+                $scope.periodOfValidityInvalid = false;
 
-					// update datePickers
-					if ($scope.periodOfValidity.startDate){						
-						$("#spatialUnitEditFeaturesDatepickerStart").datepicker('setDate', $scope.periodOfValidity.startDate);
-					}
-					if ($scope.periodOfValidity.endDate){						
-						$("#spatialUnitEditFeaturesDatepickerEnd").datepicker('setDate', $scope.periodOfValidity.endDate);
-					}
-				}				
-				
-				$scope.$digest();
+                // update datePickers
+                if ($scope.periodOfValidity.startDate){						
+                    $("#spatialUnitEditFeaturesDatepickerStart").datepicker('setDate', $scope.periodOfValidity.startDate);
+                }
+                if ($scope.periodOfValidity.endDate){						
+                    $("#spatialUnitEditFeaturesDatepickerEnd").datepicker('setDate', $scope.periodOfValidity.endDate);
+                }
+            }				
+            
+            $scope.$digest();
 		};
 
 		$scope.onExportSpatialUnitEditFeaturesMappingConfig = async function(){
