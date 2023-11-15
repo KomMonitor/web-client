@@ -341,7 +341,8 @@
 											<div class="form-group">
 												<label>Datenquelltyp*</label>
 												<select ng-model="datasourceType"
-														ng-options="datasourceType as datasourceType.type for datasourceType in $ctrl.kommonitorImporterHelperServiceInstance.availableDatasourceTypes"
+														ng-options="datasourceType as datasourceType.type for datasourceType in availableDatasourceTypes track by datasourceType.type"
+														ng-change="onChangeDatasourceType(datasourceType)"
 													class="form-control" required>
 													<option disabled selected value> -- Quelltyp w&auml;hlen -- </option>
 												</select>
