@@ -745,12 +745,12 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 			}
 			
             $scope.converter = undefined;
-                for(var converter of kommonitorImporterHelperService.availableConverters){
-                if (converter.name === $scope.mappingConfigImportSettings.converter.name){
-                    $scope.converter = converter;
-                    break;
-                }
-            }
+			for(var converter of kommonitorImporterHelperService.availableConverters){
+				if ($scope.mappingConfigImportSettings.converter && converter.name === $scope.mappingConfigImportSettings.converter.name){
+					$scope.converter = converter;
+					break;
+				}
+			}
 			
             $scope.schema = undefined;
             if ($scope.converter && $scope.converter.schemas && $scope.mappingConfigImportSettings.converter.schema){
@@ -769,16 +769,19 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
                     }
                 }
             }
-				
+
             $scope.datasourceType = undefined;
-            for(var availableType of $scope.converter.datasources) {
-                for (var datasourceType of kommonitorImporterHelperService.availableDatasourceTypes) {
-                    if (datasourceType.type === availableType){
-                        $scope.availableDatasourceTypes.push(datasourceType);
-                        if ($scope.mappingConfigImportSettings.dataSource.type === availableType) {
-                            $scope.datasourceType = $scope.mappingConfigImportSettings.dataSource;
+			if ($scope.converter) {
+                for(var availableType of $scope.converter.datasources) {
+                    for (var datasourceType of kommonitorImporterHelperService.availableDatasourceTypes) {
+                        if (datasourceType.type === availableType){
+                            $scope.availableDatasourceTypes.push(datasourceType);
+                            var settings = $scope.mappingConfigImportSettings;
+                            if (settings.dataSource && settings.dataSource.type === availableType) {
+                                $scope.datasourceType = $scope.mappingConfigImportSettings.dataSource;
+                            }
+                            break;
                         }
-                        break;
                     }
                 }
             }
@@ -802,7 +805,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
                             $("#datasourceTypeParameter_georesourceAdd_bboxRef").val(dsParameter.value)
                         } else {
                             $scope.bboxType = "literal";
-                            bbox = dsParameter.value.split(',');
+                            var bbox = dsParameter.value.split(',');
                             $("#datasourceTypeParameter_georesourceAdd_bbox_minx").val(bbox[0])
                             $("#datasourceTypeParameter_georesourceAdd_bbox_miny").val(bbox[1])
                             $("#datasourceTypeParameter_georesourceAdd_bbox_maxx").val(bbox[2])

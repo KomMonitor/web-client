@@ -410,10 +410,10 @@ angular
                 if (bboxType === 'ref') {
                     value = $("#" + datasourceTypeParameterPrefix + "bboxRef").val()
                 } else {
-                    minx = $("#" + datasourceTypeParameterPrefix + "bbox_minx").val()
-                    miny = $("#" + datasourceTypeParameterPrefix + "bbox_miny").val()
-                    maxx= $("#" + datasourceTypeParameterPrefix + "bbox_maxx").val()
-                    maxy = $("#" + datasourceTypeParameterPrefix + "bbox_maxy").val()
+                    var minx = $("#" + datasourceTypeParameterPrefix + "bbox_minx").val();
+                    var miny = $("#" + datasourceTypeParameterPrefix + "bbox_miny").val();
+                    var maxx= $("#" + datasourceTypeParameterPrefix + "bbox_maxx").val();
+                    var maxy = $("#" + datasourceTypeParameterPrefix + "bbox_maxy").val();
                     value = minx + "," + miny + "," + maxx + "," + maxy
                 };
                 datasourceTypeDefinition.parameters.push({

@@ -873,13 +873,13 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 				$scope.$digest();
 			}
 			
-			  $scope.converter = undefined;
+            $scope.converter = undefined;
 			for(var converter of kommonitorImporterHelperService.availableConverters){
-				if (converter.name === $scope.mappingConfigImportSettings.converter.name){
-					$scope.converter = converter;					
+				if ($scope.mappingConfigImportSettings.converter && converter.name === $scope.mappingConfigImportSettings.converter.name){
+					$scope.converter = converter;
 					break;
 				}
-			}	
+			}
 			
             $scope.schema = undefined;
             if ($scope.converter && $scope.converter.schemas && $scope.mappingConfigImportSettings.converter.schema){
@@ -900,10 +900,18 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
             }
 
             $scope.datasourceType = undefined;
-            for(var datasourceType of kommonitorImporterHelperService.availableDatasourceTypes){
-                if (datasourceType.type === $scope.mappingConfigImportSettings.dataSource.type){
-                    $scope.datasourceType = datasourceType;
-                    break;
+            if ($scope.converter) {
+                for(var availableType of $scope.converter.datasources) {
+                    for (var datasourceType of kommonitorImporterHelperService.availableDatasourceTypes) {
+                        if (datasourceType.type === availableType){
+                            $scope.availableDatasourceTypes.push(datasourceType);
+                            var settings = $scope.mappingConfigImportSettings;
+                            if (settings.dataSource && settings.dataSource.type === availableType) {
+                                $scope.datasourceType = $scope.mappingConfigImportSettings.dataSource;
+                            }
+                            break;
+                        }
+                    }
                 }
             }
 
@@ -926,7 +934,7 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
                             $("#datasourceTypeParameter_georesourceEditFeatures_bboxRef").val(dsParameter.value)
                         } else {
                             $scope.bboxType = "literal";
-                            bbox = dsParameter.value.split(',');
+                            var bbox = dsParameter.value.split(',');
                             $("#datasourceTypeParameter_georesourceEditFeatures_bbox_minx").val(bbox[0])
                             $("#datasourceTypeParameter_georesourceEditFeatures_bbox_miny").val(bbox[1])
                             $("#datasourceTypeParameter_georesourceEditFeatures_bbox_maxx").val(bbox[2])
