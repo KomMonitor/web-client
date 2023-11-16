@@ -327,16 +327,19 @@ angular
           else{
             converterDefinition.schema = schema;
           }
-        }  
+        }
+
+        if (selectedConverter.name === "OGC API - Features") {
+            converterDefinition.parameters.push({
+              "name": "CRS",
+              "value": "EPSG:4326"
+            });
+        }
   
-        if(selectedConverter.parameters.length > 0){
+        if(selectedConverter.parameters && selectedConverter.parameters.length > 0){
           for (const parameter of selectedConverter.parameters) {
             var parameterName = parameter.name;
             var parameterValue = $("#" + converterParameterPrefix + parameterName).val();
-  
-            if(parameter.mandatory){
-
-            }
 
             if (parameter.mandatory && (parameterValue === undefined || parameterValue === null || parameterValue === "")){
               return null;
@@ -397,16 +400,38 @@ angular
           if(selectedDatasourceType.parameters.length > 0){
             for (const parameter of selectedDatasourceType.parameters) {
               var parameterName = parameter.name;
-              var parameterValue = $("#" + datasourceTypeParameterPrefix + parameterName).val();
-    
-              if (parameterValue === undefined || parameterValue === null){
-                return null;
-              }
-              else{
+              if (parameterName === "bbox") {
+                var bboxType = $("#" + datasourceTypeParameterPrefix + "bboxType").val();
                 datasourceTypeDefinition.parameters.push({
-                  "name": parameterName,
-                  "value": parameterValue
+                  "name": "bboxType",
+                  "value": bboxType
                 });
+                var value = undefined;
+                if (bboxType === 'ref') {
+                    value = $("#" + datasourceTypeParameterPrefix + "bboxRef").val()
+                } else {
+                    var minx = $("#" + datasourceTypeParameterPrefix + "bbox_minx").val();
+                    var miny = $("#" + datasourceTypeParameterPrefix + "bbox_miny").val();
+                    var maxx= $("#" + datasourceTypeParameterPrefix + "bbox_maxx").val();
+                    var maxy = $("#" + datasourceTypeParameterPrefix + "bbox_maxy").val();
+                    value = minx + "," + miny + "," + maxx + "," + maxy
+                };
+                datasourceTypeDefinition.parameters.push({
+                  "name": "bbox",
+                  "value": value
+                });
+              } else {
+                  var parameterValue = $("#" + datasourceTypeParameterPrefix + parameterName).val();
+
+                  if (parameterValue === undefined || parameterValue === null){
+                    return datasourceTypeDefinition;
+                  }
+                  else {
+                    datasourceTypeDefinition.parameters.push({
+                      "name": parameterName,
+                      "value": parameterValue
+                    });
+                  }
               }
             }
           }

@@ -341,23 +341,65 @@
 											<div class="form-group">
 												<label>Datenquelltyp*</label>
 												<select ng-model="datasourceType"
-													ng-options="datasourceType as datasourceType.type for datasourceType in $ctrl.kommonitorImporterHelperServiceInstance.availableDatasourceTypes"
+														ng-options="datasourceType as datasourceType.type for datasourceType in availableDatasourceTypes track by datasourceType.type"
+														ng-change="onChangeDatasourceType(datasourceType)"
 													class="form-control" required>
 													<option disabled selected value> -- Quelltyp w&auml;hlen -- </option>
 												</select>
-												<div class="help-block with-errors"></div>
+												<div class="help-block"></div>
 											</div>
 
 											<div ng-show="datasourceType.type === 'FILE'">
 												<label>Datei*</label>
 												<input type="file" class="form-control" id="georesourceDataSourceInput_editFeatures" required></input>
 											</div>
+											<div ng-show="(datasourceType.type === 'OGCAPI_FEATURES')">
+												<label>Räumlicher Filter*</label>
+												<select id="datasourceTypeParameter_georesourceEditFeatures_bboxType" ng-model="bboxType" class="form-control" required>
+													<option disabled selected value> -- Filter w&auml;hlen -- </option>
+													<option value="ref"> Referenzraumeinheit </option>
+													<option value="literal"> Manueller Begrenzungsrahmen </option>
+												</select>
+
+												<div ng-show="bboxType == 'ref'">
+													<!-- select available spatialUnits -->
+													<select id="datasourceTypeParameter_georesourceEditFeatures_bboxRef"
+															ng-model="bboxRefSpatialUnit"
+															ng-options="spatialUnit.spatialUnitLevel for spatialUnit in availableSpatialUnits track by spatialUnit.spatialUnitId"
+															class="form-control" ng-required="bboxType == 'ref'">
+														<option disabled selected value> -- Raumeinheit w&auml;hlen -- </option>
+													</select>
+													<div class="help-block">
+														<p>Raumeinheit aus welchem ein umschließendes Rechteck extrahiert wird</p>
+													</div>
+												</div>
+												<div ng-show="bboxType == 'literal'">
+													<label>Begrenzungsrahmen*</label>
+													<input id="datasourceTypeParameter_georesourceEditFeatures_bbox_minx" class="form-control" type="number" lang="us" placeholder="-180" ng-required="bboxType == 'literal'">
+													<div class="help-block">
+														<p>Minimale x-Koordinate</p>
+													</div>
+													<input id="datasourceTypeParameter_georesourceEditFeatures_bbox_miny" class="form-control" type="number" lang="us" placeholder="-90" ng-required="bboxType == 'literal'">
+													<div class="help-block">
+														<p>Minimale y-Koordinate</p>
+													</div>
+													<input id="datasourceTypeParameter_georesourceEditFeatures_bbox_maxx" class="form-control" type="number" lang="us" placeholder="180" ng-required="bboxType == 'literal'">
+													<div class="help-block">
+														<p>Maximale x-Koordinate</p>
+													</div>
+													<input id="datasourceTypeParameter_georesourceEditFeatures_bbox_maxy" class="form-control" type="number" lang="us" placeholder="90" ng-required="bboxType == 'literal'">
+													<div class="help-block">
+														<p>Maximale y-Koordinate</p>
+													</div>
+												</div>
+											</div>
 											<div ng-show="! (datasourceType.type === 'FILE')">
-												<div ng-repeat="parameter in datasourceType.parameters">
+												<div ng-repeat="parameter in datasourceType.parameters | filter: { name: '!bbox' } ">
 													<div class="form-group">
-														<label>{{parameter.name}}*</label>
+														<label ng-if="parameter.mandatory">{{parameter.name}}*</label>
+														<label ng-if="!parameter.mandatory">{{parameter.name}}</label>
 														<textarea rows="1" id="datasourceTypeParameter_georesourceEditFeatures_{{parameter.name}}"
-															class="form-control" placeholder="{{parameter.name}}" required></textarea>
+															class="form-control" placeholder="{{parameter.name}}" ng-required="parameter.mandatory"></textarea>
 														<div class="help-block">
 															<p>{{parameter.description}}</p>
 														</div>

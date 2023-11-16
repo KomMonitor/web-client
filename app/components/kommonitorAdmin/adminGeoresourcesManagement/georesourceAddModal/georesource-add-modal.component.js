@@ -149,25 +149,28 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 		$scope.converter = undefined;
 		$scope.schema = undefined;
 		$scope.mimeType = undefined;
-			$scope.datasourceType = undefined;
-			$scope.georesourceDataSourceIdProperty = undefined;
-			$scope.georesourceDataSourceNameProperty = undefined;
+        $scope.datasourceType = undefined;
+        $scope.georesourceDataSourceIdProperty = undefined;
+        $scope.georesourceDataSourceNameProperty = undefined;
 
-			$scope.converterDefinition = undefined;
-			$scope.datasourceTypeDefinition = undefined;
-			$scope.propertyMappingDefinition = undefined;
-			$scope.postBody_georesources = undefined;
+        $scope.availableDatasourceTypes = [];
+        $scope.availableSpatialUnits = undefined;
 
-			$scope.validityEndDate_perFeature = undefined;
-			$scope.validityStartDate_perFeature = undefined;
+        $scope.converterDefinition = undefined;
+        $scope.datasourceTypeDefinition = undefined;
+        $scope.propertyMappingDefinition = undefined;
+        $scope.postBody_georesources = undefined;
 
-			$scope.attributeMapping_sourceAttributeName = undefined;
-			$scope.attributeMapping_destinationAttributeName = undefined;
-			$scope.attributeMapping_data = undefined;
-			$scope.attributeMapping_attributeType = kommonitorImporterHelperService.attributeMapping_attributeTypes[0];
-			$scope.attributeMappings_adminView = [];
-			$scope.keepAttributes = true;
-			$scope.keepMissingValues = true;
+        $scope.validityEndDate_perFeature = undefined;
+        $scope.validityStartDate_perFeature = undefined;
+
+        $scope.attributeMapping_sourceAttributeName = undefined;
+        $scope.attributeMapping_destinationAttributeName = undefined;
+        $scope.attributeMapping_data = undefined;
+        $scope.attributeMapping_attributeType = kommonitorImporterHelperService.attributeMapping_attributeTypes[0];
+        $scope.attributeMappings_adminView = [];
+        $scope.keepAttributes = true;
+        $scope.keepMissingValues = true;
 
 		$scope.successMessagePart = undefined;
 		$scope.errorMessagePart = undefined;
@@ -213,7 +216,6 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 
 			$("#loiDashArrayDropdownButton_addGeoresource").html($scope.selectedLoiDashArrayObject.svgString);
 		},1000);
-
 
 
 		// initialize colorPickers
@@ -276,6 +278,9 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 			$scope.georesourceDataSourceIdProperty = undefined;
 			$scope.georesourceDataSourceNameProperty = undefined;
 
+			$scope.availableDatasourceTypes = [];
+			$scope.availableSpatialUnits = undefined;
+
 			$scope.converterDefinition = undefined;
 			$scope.datasourceTypeDefinition = undefined;
 			$scope.propertyMappingDefinition = undefined;
@@ -295,15 +300,45 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 			$scope.keepAttributes = true;
 			$scope.keepMissingValues = true;
 
+            $scope.onChangeConverter();
+            $scope.onChangeDatasourceType();
+
 			setTimeout(() => {
 				$scope.$digest();	
 			}, 250);
 		};
 
 		$scope.onChangeConverter = function(){
-			$scope.schema = $scope.converter.schemas ? $scope.converter.schemas[0] : undefined;
-			$scope.mimeType = $scope.converter.mimeTypes[0];
+		    if ($scope.converter) {
+                $scope.schema = $scope.converter.schemas ? $scope.converter.schemas[0] : undefined;
+                $scope.mimeType = $scope.converter.mimeTypes[0];
+
+                // update available datasourcetypes for this specific converter
+                $scope.availableDatasourceTypes = [];
+                for(var datasourceType of kommonitorImporterHelperService.availableDatasourceTypes){
+                    for(var availableType of $scope.converter.datasources) {
+                        if (datasourceType.type === availableType){
+                            $scope.availableDatasourceTypes.push(datasourceType);
+                        }
+                    }
+                }
+
+                if ($scope.availableDatasourceTypes.length == 1) {
+                    $scope.datasourceType = $scope.availableDatasourceTypes[0];
+                    $scope.onChangeDatasourceType();
+                }
+            }
 		};
+
+        $scope.onChangeDatasourceType = function(ds){
+            if ($scope.datasourceType && $scope.datasourceType.type == "OGCAPI_FEATURES") {
+                $scope.availableSpatialUnits = [ ...kommonitorDataExchangeService.availableSpatialUnits_map.values() ]
+                // console.log($scope.availableSpatialUnits)
+            }
+        };
+
+        $scope.onChangeConverter();
+        $scope.onChangeDatasourceType();
 
 		$scope.onChangeMimeType = function(mimeType){
 			$scope.mimeType = mimeType;
@@ -570,10 +605,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 					return;
 				}
 				else {
-
-
 					// TODO verify input
-
 					// TODO Create and perform POST Request with loading screen			
 
 					var newGeoresourceResponse_dryRun = undefined;
@@ -961,7 +993,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 		$scope.parseFromMappingConfigFile = function(event){
 			$scope.mappingConfigImportSettings = JSON.parse(event.target.result);
 
-			if(! $scope.mappingConfigImportSettings.converter || ! $scope.mappingConfigImportSettings.dataSource || ! $scope.mappingConfigImportSettings.propertyMapping){
+			if(! $scope.mappingConfigImportSettings.converter || ! $scope.mappingConfigImportSettings.dataSource || ! $scope.mappingConfigImportSettings.propertyMapping) {
 				console.error("uploaded MappingConfig File cannot be parsed - wrong structure.");
 				$scope.georesourceMetadataImportError = "Struktur der Datei stimmt nicht mit erwartetem Muster &uuml;berein.";
 				document.getElementById("georesourcesAddMappingConfigPre").innerHTML = $scope.georesourceMappingConfigStructure_pretty;
@@ -970,96 +1002,119 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 				$scope.$digest();
 			}
 			
-			  $scope.converter = undefined;
+            $scope.converter = undefined;
 			for(var converter of kommonitorImporterHelperService.availableConverters){
-				if (converter.name === $scope.mappingConfigImportSettings.converter.name){
+				if ($scope.mappingConfigImportSettings.converter && converter.name === $scope.mappingConfigImportSettings.converter.name){
 					$scope.converter = converter;					
 					break;
 				}
-			}	
+			}
 			
-				$scope.schema = undefined;
-				if ($scope.converter && $scope.converter.schemas && $scope.mappingConfigImportSettings.converter.schema){
-					for (var schema of $scope.converter.schemas) {
-						if (schema === $scope.mappingConfigImportSettings.converter.schema){
-							$scope.schema = schema;
-						}
-					}
-				}	
-				
-				$scope.mimeType = undefined;
-				if ($scope.converter && $scope.converter.mimeTypes && $scope.mappingConfigImportSettings.converter.mimeType){
-					for (var mimeType of $scope.converter.mimeTypes) {
-						if (mimeType === $scope.mappingConfigImportSettings.converter.mimeType){
-							$scope.mimeType = mimeType;
-						}
-					}
-				}	
-				
-				$scope.datasourceType = undefined;
-				for(var datasourceType of kommonitorImporterHelperService.availableDatasourceTypes){
-					if (datasourceType.type === $scope.mappingConfigImportSettings.dataSource.type){
-						$scope.datasourceType = datasourceType;					
-						break;
-					}
-				}
+            $scope.schema = undefined;
+            if ($scope.converter && $scope.converter.schemas && $scope.mappingConfigImportSettings.converter.schema){
+                for (var schema of $scope.converter.schemas) {
+                    if (schema === $scope.mappingConfigImportSettings.converter.schema){
+                        $scope.schema = schema;
+                    }
+                }
+            }
 
-				$scope.$digest();
+            $scope.mimeType = undefined;
+            if ($scope.converter && $scope.converter.mimeTypes && $scope.mappingConfigImportSettings.converter.mimeType){
+                for (var mimeType of $scope.converter.mimeTypes) {
+                    if (mimeType === $scope.mappingConfigImportSettings.converter.mimeType){
+                        $scope.mimeType = mimeType;
+                    }
+                }
+            }
 
-				// converter parameters
-				if ($scope.converter){
-					for (var convParameter of $scope.mappingConfigImportSettings.converter.parameters) {
-            			$("#converterParameter_georesourceAdd_" + convParameter.name).val(convParameter.value);
-					}
-				}	
+            $scope.datasourceType = undefined;
+            if ($scope.converter) {
+                for(var availableType of $scope.converter.datasources) {
+                    for (var datasourceType of kommonitorImporterHelperService.availableDatasourceTypes) {
+                        if (datasourceType.type === availableType){
+                            $scope.availableDatasourceTypes.push(datasourceType);
+                            var settings = $scope.mappingConfigImportSettings;
+                            if (settings.dataSource && settings.dataSource.type === availableType) {
+                                $scope.datasourceType = $scope.mappingConfigImportSettings.dataSource;
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
 
-				// datasourceTypes parameters
-				if ($scope.datasourceType){
-					for (var dsParameter of $scope.mappingConfigImportSettings.dataSource.parameters) {
-            			$("#datasourceTypeParameter_georesourceAdd_" + dsParameter.name).val(dsParameter.value);
-					}
-				}
-				
-				// property Mapping
-				$scope.georesourceDataSourceNameProperty = $scope.mappingConfigImportSettings.propertyMapping.nameProperty; 
-				$scope.georesourceDataSourceIdProperty = $scope.mappingConfigImportSettings.propertyMapping.identifierProperty; 
-				$scope.validityStartDate_perFeature  = $scope.mappingConfigImportSettings.propertyMapping.validStartDateProperty;
-				$scope.validityEndDate_perFeature  = $scope.mappingConfigImportSettings.propertyMapping.validEndDateProperty;
-				$scope.keepAttributes  = $scope.mappingConfigImportSettings.propertyMapping.keepAttributes;
-				$scope.keepMissingValues = $scope.mappingConfigImportSettings.propertyMapping.keepMissingOrNullValueAttributes;
-				$scope.attributeMappings_adminView = [];
+            $scope.onChangeConverter();
+            $scope.$digest();
 
-				for (var attributeMapping of $scope.mappingConfigImportSettings.propertyMapping.attributes) {
-					var tmpEntry = {
-						"sourceName": attributeMapping.name,
-						"destinationName": attributeMapping.mappingName
-					};
+            // converter parameters
+            if ($scope.converter){
+                for (var convParameter of $scope.mappingConfigImportSettings.converter.parameters) {
+                    $("#converterParameter_georesourceAdd_" + convParameter.name).val(convParameter.value);
+                }
+            }
 
-					for (const dataType of kommonitorImporterHelperService.attributeMapping_attributeTypes) {
-						if (dataType.apiName === attributeMapping.type){
-							tmpEntry.dataType = dataType;
-						}
-					}
+            // datasourceTypes parameters
+            if ($scope.datasourceType){
+                for (var dsParameter of $scope.mappingConfigImportSettings.dataSource.parameters) {
+                    if (dsParameter.name === "bbox") {
+                        if ($("#datasourceTypeParameter_georesourceAdd_bboxType").val() == "ref") {
+                            $scope.bboxType = "ref";
+                            $("#datasourceTypeParameter_georesourceAdd_bboxRef").val(dsParameter.value)
+                        } else {
+                            $scope.bboxType = "literal";
+                            var bbox = dsParameter.value.split(',');
+                            $("#datasourceTypeParameter_georesourceAdd_bbox_minx").val(bbox[0])
+                            $("#datasourceTypeParameter_georesourceAdd_bbox_miny").val(bbox[1])
+                            $("#datasourceTypeParameter_georesourceAdd_bbox_maxx").val(bbox[2])
+                            $("#datasourceTypeParameter_georesourceAdd_bbox_maxy").val(bbox[3])
+                        }
+                    } else {
+                        $("#datasourceTypeParameter_georesourceAdd_" + dsParameter.name).val(dsParameter.value);
+                    }
+                }
+            }
 
-					$scope.attributeMappings_adminView.push(tmpEntry);
-				}
+            // property Mapping
+            $scope.georesourceDataSourceNameProperty = $scope.mappingConfigImportSettings.propertyMapping.nameProperty;
+            $scope.georesourceDataSourceIdProperty = $scope.mappingConfigImportSettings.propertyMapping.identifierProperty;
+            $scope.validityStartDate_perFeature  = $scope.mappingConfigImportSettings.propertyMapping.validStartDateProperty;
+            $scope.validityEndDate_perFeature  = $scope.mappingConfigImportSettings.propertyMapping.validEndDateProperty;
+            $scope.keepAttributes  = $scope.mappingConfigImportSettings.propertyMapping.keepAttributes;
+            $scope.keepMissingValues = $scope.mappingConfigImportSettings.propertyMapping.keepMissingOrNullValueAttributes;
+            $scope.attributeMappings_adminView = [];
 
-				if ($scope.mappingConfigImportSettings.periodOfValidity){
-					$scope.periodOfValidity = {};
-					$scope.periodOfValidity.startDate = $scope.mappingConfigImportSettings.periodOfValidity.startDate;
-					$scope.periodOfValidity.endDate = $scope.mappingConfigImportSettings.periodOfValidity.endDate;
-					$scope.periodOfValidityInvalid = false;
+            for (var attributeMapping of $scope.mappingConfigImportSettings.propertyMapping.attributes) {
+                var tmpEntry = {
+                    "sourceName": attributeMapping.name,
+                    "destinationName": attributeMapping.mappingName
+                };
 
-					// update datePickers
-					if ($scope.periodOfValidity.startDate){						
-						$("#georesourceAddDatepickerStart").datepicker('setDate', $scope.periodOfValidity.startDate);
-					}
-					if ($scope.periodOfValidity.endDate){						
-						$("#georesourceAddDatepickerEnd").datepicker('setDate', $scope.periodOfValidity.endDate);
-					}
-				}				
-				
-				$scope.$digest();
+                for (const dataType of kommonitorImporterHelperService.attributeMapping_attributeTypes) {
+                    if (dataType.apiName === attributeMapping.type){
+                        tmpEntry.dataType = dataType;
+                    }
+                }
+
+                $scope.attributeMappings_adminView.push(tmpEntry);
+            }
+
+            if ($scope.mappingConfigImportSettings.periodOfValidity){
+                $scope.periodOfValidity = {};
+                $scope.periodOfValidity.startDate = $scope.mappingConfigImportSettings.periodOfValidity.startDate;
+                $scope.periodOfValidity.endDate = $scope.mappingConfigImportSettings.periodOfValidity.endDate;
+                $scope.periodOfValidityInvalid = false;
+
+                // update datePickers
+                if ($scope.periodOfValidity.startDate){
+                    $("#georesourceAddDatepickerStart").datepicker('setDate', $scope.periodOfValidity.startDate);
+                }
+                if ($scope.periodOfValidity.endDate){
+                    $("#georesourceAddDatepickerEnd").datepicker('setDate', $scope.periodOfValidity.endDate);
+                }
+            }
+
+            $scope.$digest();
 		};
 
 		$scope.onExportGeoresourceAddMappingConfig = async function(){
@@ -1103,23 +1158,23 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 
 
 
-			$scope.hideSuccessAlert = function(){
-				$("#georesourceAddSuccessAlert").hide();
-			};
+        $scope.hideSuccessAlert = function(){
+            $("#georesourceAddSuccessAlert").hide();
+        };
 
-			$scope.hideErrorAlert = function(){
-				$("#georesourceAddErrorAlert").hide();
-			};
+        $scope.hideErrorAlert = function(){
+            $("#georesourceAddErrorAlert").hide();
+        };
 
-			$scope.hideMetadataErrorAlert = function(){
-				$("#georesourceMetadataImportErrorAlert").hide();
-			};
+        $scope.hideMetadataErrorAlert = function(){
+            $("#georesourceMetadataImportErrorAlert").hide();
+        };
 
-			$scope.hideMappingConfigErrorAlert = function(){
-				$("#georesourceMappingConfigImportErrorAlert").hide();
-			};
+        $scope.hideMappingConfigErrorAlert = function(){
+            $("#georesourceMappingConfigImportErrorAlert").hide();
+        };
 
-			kommonitorMultiStepFormHelperService.registerClickHandler();
+        kommonitorMultiStepFormHelperService.registerClickHandler();
 
 	}
 ]});
