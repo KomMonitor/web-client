@@ -64,7 +64,7 @@ module.exports = {
             { from: nodeModulePathConstant + 'leaflet-measure/dist/assets', to: 'leaflet-measure/assets' },
             { from: nodeModulePathConstant + 'leaflet-simple-map-screenshoter/dist/leaflet-simple-map-screenshoter.js', to: 'leaflet-simple-map-screenshoter/leaflet-simple-map-screenshoter.js' },
             { from: './customizedExternalLibs/leaflet-wfst.src_custom.js', to: 'leaflet-wfst/' },
-            { from: './customizedExternalLibs/leaflet-vector-markers', to: 'leaflet-vector-markers/' },
+            { from: nodeModulePathConstant + 'Leaflet.vector-markers/dist', to: 'leaflet-vector-markers/' },
             { from: nodeModulePathConstant + 'bootstrap-colorpicker/dist', to: 'bootstrap-colorpicker/' },
             { from: './customizedExternalLibs/L.TileLayer.BetterWMS.js', to: 'leaflet-betterWMS/' },
             { from: nodeModulePathConstant + 'babel-polyfill/dist/polyfill.min.js', to: 'babel-polyfill/' },
