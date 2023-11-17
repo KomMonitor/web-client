@@ -7,6 +7,9 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 			this.kommonitorImporterHelperServiceInstance = kommonitorImporterHelperService;
 			this.kommonitorBatchUpdateHelperServiceInstance = kommonitorBatchUpdateHelperService;
 
+			const supportedDatasourceTypes = ["FILE", "INLINE", "HTTP"];
+			const supportedConverters = ["GeoJSON", "Shapefile (ZIP-Ordner mit .shp, .dbf, .prj)", "Tabelle_Geokodierung_Adresse_strukturierte_Einzelspalten", "Tabelle_Geokodierung_Strasse_Hausnummer_Stadt", "Tabelle_Geokodierung_beliebige_Zeichenkette", "Tabelle_XY_Koordinate_zu_Punkt", "WFS_v1"];
+
 			$scope.isFirstStart = true;
 			$scope.lastUpdateResponseObj;
 			$scope.keepMissingValues = true;
@@ -62,8 +65,31 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 				}
 			});
 
+			$scope.getSupportedDatasourceTypes = function() {
+				var result = [];
+				kommonitorImporterHelperService.availableDatasourceTypes.forEach((dt) => {
+					if (supportedDatasourceTypes.includes(dt.type)) {
+						result.push(dt);
+					}
+				});
+				return result;
+			}
+
+			$scope.getSupportedConverters = function() {
+				var result = [];
+				kommonitorImporterHelperService.availableConverters.forEach((c) => {
+					if (supportedConverters.includes(c.name)) {
+						result.push(c);
+					}
+				});
+				return result;
+			}
+
 			// initializes the modal
 			$scope.initialize = function() {
+
+				$scope.availableDatasourceTypes = $scope.getSupportedDatasourceTypes();
+				$scope.availableConverters = $scope.getSupportedConverters();
 
 				if($scope.isFirstStart) {
 					kommonitorBatchUpdateHelperService.addNewRowToBatchList("georesource", $scope.batchList)
