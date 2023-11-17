@@ -88,7 +88,7 @@
 											<!-- Datensatz-Quellformat -->
 											<td>
 												<select class="form-control" ng-model="indicator.selectedConverter"
-														ng-options="converter as converter.name for converter in $ctrl.kommonitorImporterHelperServiceInstance.availableConverters | filter:$ctrl.kommonitorImporterHelperServiceInstance.filterConverters('indicator')" required>
+														ng-options="converter as converter.name for converter in availableConverters" required>
 																<option disabled selected value> -- Datensatz-Quellformat w&auml;hlen -- </option>
 												</select>
 											</td>
@@ -152,7 +152,7 @@
 											<!-- Datenquelltyp -->
 											<td>
 												<select ng-model="indicator.selectedDatasourceType"
-														ng-options="datasourceType as datasourceType.type for datasourceType in $ctrl.kommonitorImporterHelperServiceInstance.availableDatasourceTypes"
+														ng-options="datasourceType as datasourceType.type for datasourceType in availableDatasourceTypes"
 														class="form-control" required>
 																<option disabled selected value> -- Quelltyp w&auml;hlen -- </option>
 												</select>
