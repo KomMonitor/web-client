@@ -639,7 +639,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 				let communeLogoSrc = ""; // base64 string
 				for(let [idx, page] of config.pages.entries()) {
 					for(let pageElement of page.pageElements) {
-						if(pageElement.type === "communeLogo-landscape" && idx === 0) {
+						if(pageElement.type.includes("communeLogo-") && idx === 0) {
 							if(pageElement.src && pageElement.src.length) {
 								communeLogoSrc = pageElement.src;
 							} else {
@@ -647,7 +647,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 							}
 						}
 
-						if(pageElement.type === "communeLogo-landscape" && idx > 0) {
+						if(pageElement.type.includes("communeLogo-") && idx > 0) {
 							pageElement.src = communeLogoSrc;
 						}
 					}
@@ -660,7 +660,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 				// register echarts maps
 				for(let section of $scope.config.templateSections) {
 					for(let mapName of section.echartsRegisteredMapNames) {
-						if($scope.config.template.name === "A4-landscape-reachability") {
+						if($scope.config.template.name.includes("reachability")) {
 							if(!mapName.includes(section.spatialUnitName)) {
 								continue;
 							}
@@ -725,7 +725,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 				// It is base64 encoded and adds quite a bit to the file size
 				for(let [idx, page] of jsonToExport.pages.entries()) {
 					for(let pageElement of page.pageElements) {
-						if(pageElement.type === "communeLogo-landscape" && idx > 0) {
+						if(pageElement.type.includes("communeLogo-") && idx > 0) {
 							pageElement.src = "";
 						}
 					}
@@ -733,7 +733,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 				
 				for(let section of jsonToExport.templateSections) {
 					let mapNames = [...new Set(section.echartsRegisteredMapNames)]
-					if($scope.config.template.name === "A4-landscape-reachability") {
+					if($scope.config.template.name.includes("reachability")) {
 						let mapAdded = false;
 						for(let [idx, name] of mapNames.entries()) {
 							if(!name.includes(section.spatialUnitName)) {
@@ -929,7 +929,8 @@ angular.module('reportingOverview').component('reportingOverview', {
 					
 					// TODO some cases could be merged, but it's better to do that later when stuff works
 					switch(pageElement.type) {
-						case "indicatorTitle-landscape": {
+						case "indicatorTitle-landscape":
+						case "indicatorTitle-portrait": {
 							// Css takes the top-left edge of the element by default.
 							// doc.text takes left-bottom, so we ass baseline "top" to achieve the same behavior in jspdf.
 							doc.setFont(fontName, "Bold")
@@ -937,7 +938,8 @@ angular.module('reportingOverview').component('reportingOverview', {
 							doc.setFont(fontName, "normal", "normal")
 							break;
 						}
-						case "communeLogo-landscape": {
+						case "communeLogo-landscape":
+						case "communeLogo-portrait": {
 							// only add logo if one was selected
 							if(pageElement.src && pageElement.src.length) {
 								doc.addImage(pageElement.src, "JPEG", pageElementDimensions.left, pageElementDimensions.top,
@@ -945,19 +947,23 @@ angular.module('reportingOverview').component('reportingOverview', {
 							}
 							break;
 						}
-						case "dataTimestamp-landscape": {
+						case "dataTimestamp-landscape":
+						case "dataTimestamp-portrait": {
 							doc.text(pageElement.text, pageElementDimensions.left, pageElementDimensions.top, { baseline: "top" })
 							break;
 						}
-						case "dataTimeseries-landscape": {
+						case "dataTimeseries-landscape":
+						case "dataTimeseries-portrait": {
 							doc.text(pageElement.text, pageElementDimensions.left, pageElementDimensions.top, { baseline: "top" })
 							break;
 						}
-						case "reachability-subtitle-landscape": {
+						case "reachability-subtitle-landscape":
+						case "reachability-subtitle-portrait": {
 							doc.text(pageElement.text, pageElementDimensions.left, pageElementDimensions.top, { baseline: "top" })
 							break;
 						}
-						case "footerHorizontalSpacer-landscape": {
+						case "footerHorizontalSpacer-landscape":
+						case "footerHorizontalSpacer-portrait": {
 							let x1, x2, y1, y2;
 							x1 = pageElementDimensions.left;
 							x2 = pageElementDimensions.left + pageElementDimensions.width;
@@ -966,11 +972,14 @@ angular.module('reportingOverview').component('reportingOverview', {
 							doc.line(x1, y1, x2, y2);
 							break;
 						}
-						case "footerCreationInfo-landscape": {
+						case "footerCreationInfo-landscape":
+						case "footerCreationInfo-portrait": {
+							console.log(pageElement);
 							doc.text(pageElement.text, pageElementDimensions.left, pageElementDimensions.top, { baseline: "top" })
 							break;
 						}
-						case "pageNumber-landscape": {
+						case "pageNumber-landscape":
+						case "pageNumber-portrait": {
 							let text = "Seite " + (idx+1);
 							doc.text(text, pageElementDimensions.left, pageElementDimensions.top, { baseline: "top" })
 							break;
@@ -980,7 +989,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 							let instance = echarts.getInstanceByDom(pElementDom)
 							let imageDataUrl = instance.getDataURL( {pixelRatio: $scope.echartsImgPixelRatio} )
 
-							if($scope.config.template.name === "A4-landscape-reachability") {
+							if($scope.config.template.name.includes("reachability")) {
 								try {
 									imageDataUrl = await $scope.createReachabilityMapImage(pageDom, pageElement, imageDataUrl)
 								} catch(error) {
@@ -1095,7 +1104,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 							pixelRatio: $scope.echartsImgPixelRatio
 						});
 
-						if($scope.config.template.name === "A4-landscape-reachability") {
+						if($scope.config.template.name.includes("reachability")) {
 							try {
 								imageDataUrl = await $scope.createReachabilityMapImage(pageDom, pageElement, imageDataUrl)
 							} catch(error) {
@@ -1146,7 +1155,8 @@ angular.module('reportingOverview').component('reportingOverview', {
 					let pageElementDimensionsEmu = calculateDimensions(pageElement.dimensions, "emu");
 
 					switch(pageElement.type) {
-						case "indicatorTitle-landscape": {
+						case "indicatorTitle-landscape":
+						case "indicatorTitle-portrait": {
 							let paragraph = new docx.Paragraph({
 								children: [
 									new docx.TextRun({
@@ -1177,7 +1187,8 @@ angular.module('reportingOverview').component('reportingOverview', {
 							paragraphs.push(paragraph);
 							break;
 						}
-						case "communeLogo-landscape": {
+						case "communeLogo-landscape":
+						case "communeLogo-portrait": {
 							// only add logo if one was selected
 							if(pageElement.src && pageElement.src.length) {
 								let paragraph = new docx.Paragraph({
@@ -1205,7 +1216,10 @@ angular.module('reportingOverview').component('reportingOverview', {
 						}
 						case "dataTimestamp-landscape":
 						case "dataTimeseries-landscape":
-						case "reachability-subtitle-landscape": {
+						case "reachability-subtitle-landscape":
+						case "dataTimestamp-portrait":
+						case "dataTimeseries-portrait":
+						case "reachability-subtitle-portrait": {
 							let paragraph = new docx.Paragraph({
 								children: [
 									new docx.TextRun({
@@ -1237,6 +1251,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 						}
 						
 						case "footerHorizontalSpacer-landscape":
+						case "footerHorizontalSpacer-portrait":
 							 // empty paragraph with border top
 							let paragraph = new docx.Paragraph({
 								children: [],
@@ -1267,7 +1282,8 @@ angular.module('reportingOverview').component('reportingOverview', {
 							});
 							paragraphs.push(paragraph);
 							break;
-						case "footerCreationInfo-landscape": {
+						case "footerCreationInfo-landscape":
+						case "footerCreationInfo-portrait": {
 							let paragraph = new docx.Paragraph({
 								children: [
 									new docx.TextRun({
@@ -1297,7 +1313,8 @@ angular.module('reportingOverview').component('reportingOverview', {
 							paragraphs.push(paragraph);
 							break;
 						}
-						case "pageNumber-landscape": {
+						case "pageNumber-landscape":
+						case "pageNumber-portrait": {
 							let paragraph = new docx.Paragraph({
 								children: [
 									new docx.TextRun({
@@ -1347,7 +1364,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 							 		pixelRatio: $scope.echartsImgPixelRatio
 							});
 
-							if($scope.config.template.name === "A4-landscape-reachability") {
+							if($scope.config.template.name.includes("reachability")) {
 								try {
 									imageDataUrl = await $scope.createReachabilityMapImage(pageDom, pageElement, imageDataUrl)
 								} catch(error) {
