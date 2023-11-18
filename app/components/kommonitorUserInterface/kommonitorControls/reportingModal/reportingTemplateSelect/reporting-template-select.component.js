@@ -32,6 +32,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 				"name": "A4-landscape-timestamp",
 				"displayName": "DIN A4, Querformat",
 				"categoryId": 1,
+				"orientation" : "landscape",
 				"pages": [
 					{
 						"orientation": "landscape",
@@ -273,9 +274,255 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 				]
 			},
 			{
+				"name": "A4-portrait-timestamp",
+				"displayName": "DIN A4, Hochformat",
+				"categoryId": 1,
+				"orientation": "portrait",
+				"pages": [
+					{
+						"orientation": "portrait",
+						"pageElements": [
+
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("indicatorTitle-portrait"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("communeLogo-portrait"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("dataTimestamp-portrait"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("footerHorizontalSpacer-portrait"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("footerCreationInfo-portrait"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("pageNumber-portrait"),
+
+							{
+								"type": "map",
+								"dimensions": {
+									"top": "90px",
+									"left": "15px",
+									"width": "550px",
+									"height": "650px"
+								},
+								"isPlaceholder": true,
+								"placeholderText": 
+									"Übersichtskarte ohne Klassifizierung.\
+									Selektierte Bereiche farblich markiert.\
+									Beschriftung: Quote/Anzahl pro Bereich.\
+									Keine Hintergrundkarte.",
+								"colorScheme": undefined,
+								"classify": false,
+								
+							},
+							{
+								"type": "overallAverage",
+								"dimensions": {
+									"top": "100px",
+									"left": "450px",
+									"width": "100px",
+									"height": "60px"
+								},
+								"isPlaceholder": true,
+								"placeholderText": "Durchschnitt Gesamtstadt"
+							},
+							{
+								"type": "selectionAverage",
+								"dimensions": {
+									"top": "180px",
+									"left": "450px",
+									"width": "100px",
+									"height": "60px"
+								},
+								"isPlaceholder": true,
+								"placeholderText": "Durchschnitt Selektion"
+							}
+						]
+					},
+					{
+						"orientation": "portrait",
+						"pageElements": [
+
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("indicatorTitle-portrait"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("communeLogo-portrait"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("dataTimestamp-portrait"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("footerHorizontalSpacer-portrait"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("footerCreationInfo-portrait"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("pageNumber-portrait"),
+
+							{
+								"type": "map",
+								"dimensions": {
+									"top": "90px",
+									"left": "15px",
+									"width": "550px",
+									"height": "650px"
+								},
+								"isPlaceholder": true,
+								"placeholderText": 
+									"Übersichtskarte klassifiziert.\
+									Beschriftung: Quote/Anzahl pro Bereich.\
+									Keine Hintergrundkarte.",
+								"colorScheme": undefined,
+								"classify": true,
+							},
+							{
+								"type": "overallAverage",
+								"dimensions": {
+									"top": "100px",
+									"left": "450px",
+									"width": "100px",
+									"height": "60px"
+								},
+								"isPlaceholder": true,
+								"placeholderText": "Durchschnitt Gesamtstadt"
+							},
+							{
+								"type": "selectionAverage",
+								"dimensions": {
+									"top": "180px",
+									"left": "450px",
+									"width": "100px",
+									"height": "60px"
+								},
+								"isPlaceholder": true,
+								"placeholderText": "Durchschnitt Selektion"
+							},
+							{
+								"type": "mapLegend",
+								"dimensions": {
+									"top": "600px",
+									"left": "450px",
+									"width": "100px",
+									"height": "120px"
+								},
+								"isPlaceholder": true,
+								"placeholderText": "Legende"
+							}
+						]
+					},
+					{
+						"orientation": "portrait",
+						"pageElements": [
+
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("indicatorTitle-portrait"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("communeLogo-portrait"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("dataTimestamp-portrait"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("footerHorizontalSpacer-portrait"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("footerCreationInfo-portrait"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("pageNumber-portrait"),
+
+							{
+								"type": "barchart",
+								"dimensions": {
+									"top": "90px",
+									"left": "15px",
+									"width": "550px",
+									"height": "650px"
+								},
+								"isPlaceholder": true,
+								"placeholderText": "Säulendiagramm. Eine Säule pro selektiertem Bereich + Durchschnitt der Gesamtstadt"
+							}
+						]
+					},
+					// one page for each selected area
+					{
+						"orientation": "portrait",
+						"area": "", // the area shown on this page or an empty string if it is a placeholder page
+						"pageElements": [
+
+							
+							// different placeholder so we don't use the default here
+							{
+								"type": "indicatorTitle-portrait",
+								"dimensions": {
+								  "top": "15px",
+								  "left": "15px",
+								  "width": "470px",
+								  "height": "30px"
+								},
+								"isPlaceholder": true,
+								"placeholderText": "Titel des Indikators [Einheit], Bereich (Diese Seite wird für jeden Bereich wiederholt)",
+								"text": "",
+								"css": "text-align: left; padding-left: 5px; font-weight: bold;"
+							},
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("communeLogo-portrait"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("dataTimestamp-portrait"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("footerHorizontalSpacer-portrait"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("footerCreationInfo-portrait"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("pageNumber-portrait"),
+
+							{
+								"type": "map",
+								"dimensions": {
+									"top": "90px",
+									"left": "15px",
+									"width": "550px",
+									"height": "400px"
+								},
+								"isPlaceholder": true,
+								"placeholderText": 
+									"Karte.\
+									Detailansicht des Bereichs.\
+									Keine Hintergrundkarte.",
+								"colorScheme": undefined,
+								"classify": true,
+							},
+							{
+								"type": "barchart",
+								"dimensions": {
+									"top": "500px",
+									"left": "15px",
+									"width": "550px",
+									"height": "160px"
+								},
+								"isPlaceholder": true,
+								"placeholderText": "Säulendiagramm. Vergleich des Bereichs mit dem Durchschnitt 1. aller selektierten Bereiche und 2. der Gesamtstadt."
+							},
+							{
+								"type": "textInput",
+								"dimensions": {
+									"top": "670px",
+									"left": "15px",
+									"width": "550px",
+									"height": "70px"
+								},
+								"isPlaceholder": true,
+								"placeholderText": "Freitext",
+								"css": "align-self: self-start; margin-bottom: auto; text-align: left;"
+							}
+						]
+					},
+					// end of area-specific part
+					// datatable might need multiple pages
+					{
+						"orientation": "portrait",
+						"pageElements": [
+
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("indicatorTitle-portrait"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("communeLogo-portrait"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("dataTimestamp-portrait"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("footerHorizontalSpacer-portrait"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("footerCreationInfo-portrait"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("pageNumber-portrait"),
+
+							{
+								"type": "datatable",
+								"dimensions": {
+									"top": "90px",
+									"left": "15px",
+									"width": "300px",
+									"height": "650px"
+								},
+								"isPlaceholder": true,
+								"placeholderText":
+									"Datentabelle (Spalten: Bereich, Wert).\
+									Ggf. über mehrere Seiten.",
+								"columnNames": [],
+								"tableData": []
+							}
+						]
+					}
+				]
+			},
+			{
 				"name": "A4-landscape-timeseries",
 				"displayName": "DIN A4, Querformat",
 				"categoryId": 2,
+				"orientation": "landscape",
 				"pages": [
 					{
 						"orientation": "landscape",
@@ -573,6 +820,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 				"name": "A4-landscape-reachability",
 				"displayName": "DIN A4, Querformat",
 				"categoryId": 3,
+				"orientation" : "landscape",
 				"pages": [
 					{
 						"orientation": "landscape",

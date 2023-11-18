@@ -2959,11 +2959,37 @@ angular
         "css": "text-align: left; padding-left: 5px; font-weight: bold;"
       },
       {
+        "type": "indicatorTitle-portrait",
+        "dimensions": {
+          "top": "15px",
+          "left": "15px",
+          "width": "470px",
+          "height": "30px"
+        },
+        "isPlaceholder": true,
+        "placeholderText": "Titel des Indikators [Einheit]",
+        "text": "",
+        "css": "text-align: left; padding-left: 5px; font-weight: bold;"
+      },
+      {
         "type": "dataTimestamp-landscape",
         "dimensions": {
           "top": "50px",
           "left": "15px",
           "width": "720px",
+          "height": "30px"
+        },
+        "isPlaceholder": true,
+        "placeholderText": "Datenstand",
+        "text": "",
+        "css": "text-align: left; padding-left: 5px;"
+      },
+      {
+        "type": "dataTimestamp-portrait",
+        "dimensions": {
+          "top": "50px",
+          "left": "15px",
+          "width": "470px",
           "height": "30px"
         },
         "isPlaceholder": true,
@@ -3010,11 +3036,33 @@ angular
         "src": ""
       },
       {
+        "type": "communeLogo-portrait",
+        "dimensions": {
+          "top": "15px",
+          "left": "490px",
+          "width": "75px",
+          "height": "65px"
+        },
+        "isPlaceholder": true,
+        "placeholderText": "Logo",
+        "src": ""
+      },
+      {
         "type": "footerHorizontalSpacer-landscape",
         "dimensions": {
           "top": "535px",
           "left": "15px",
           "width": "800px",
+          "height": "0px"
+        },
+        "css": "border-top: solid rgb(148, 148, 148) 1px;"
+      },
+      {
+        "type": "footerHorizontalSpacer-portrait",
+        "dimensions": {
+          "top": "750px",
+          "left": "15px",
+          "width": "550px",
           "height": "0px"
         },
         "css": "border-top: solid rgb(148, 148, 148) 1px;"
@@ -3033,10 +3081,34 @@ angular
         "css": "text-align: left; padding-left: 5px;"
       },
       {
+        "type": "footerCreationInfo-portrait",
+        "dimensions": {
+          "top": "760px",
+          "left": "15px",
+          "width": "470px",
+          "height": "30px"
+        },
+        "isPlaceholder": true,
+        "placeholderText": "Erstellt am [Datum] von [Name d. Bearbeiters], [Name d. Kommune]",
+        "css": "text-align: left; padding-left: 5px;"
+      },
+      {
         "type": "pageNumber-landscape",
         "dimensions": {
           "top": "545px",
           "left": "740px",
+          "width": "75px",
+          "height": "30px"
+        },
+        "isPlaceholder": true,
+        "placeholderText": "[Seitenzahl]",
+        "css": "text-align: right; padding-right: 5px;"
+      },
+      {
+        "type": "pageNumber-portrait",
+        "dimensions": {
+          "top": "760px",
+          "left": "490px",
           "width": "75px",
           "height": "30px"
         },

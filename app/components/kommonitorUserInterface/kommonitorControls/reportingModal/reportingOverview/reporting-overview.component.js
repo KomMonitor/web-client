@@ -889,7 +889,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 				margin: 0,	
 				unit: 'mm',
 				format: 'a4',
-				orientation: "landscape"
+				orientation: $scope.config.template.orientation
 			});
 
 			// general settings
@@ -900,7 +900,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 			for(let [idx, page] of $scope.config.pages.entries()) {
 
 				if(idx > 0) {
-					doc.addPage();
+					doc.addPage(null, page.orientation);
 				}
 				
 				let pageDom = document.querySelector("#reporting-overview-page-" + idx);
@@ -1670,7 +1670,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 								formatType: docx.NumberFormat.DECIMAL,
 							},
 							size: {
-								orientation: docx.PageOrientation.LANDSCAPE,
+								orientation: page.orientation,
 							},
 						},
 					},
