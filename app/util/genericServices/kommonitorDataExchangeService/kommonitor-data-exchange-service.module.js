@@ -404,7 +404,7 @@ angular
             iconClassName: '',
             scaleFactor: 1
           }];
-          this.selectedPOISize = this.POISizes[3];
+          this.selectedPOISize = this.POISizes[2];
 
           this.getUpdateIntervalDisplayValue = function(apiValue){
             for (const updateIntervalOption of this.updateIntervalOptions) {
