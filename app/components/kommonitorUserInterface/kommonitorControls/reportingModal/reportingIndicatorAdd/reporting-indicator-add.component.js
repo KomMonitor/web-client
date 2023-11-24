@@ -3036,18 +3036,12 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 							$scope.createPageElement_Change(page, pageElement, false);
 							let wrapper = pageDom.querySelector(".type-overallChange")
 							wrapper.style.border = "none";
-							wrapper.style.left = "670px";
-							wrapper.style.width = "130px";
-							wrapper.style.height = "100px";
 							break;
 						}
 						case "selectionChange": {
 							$scope.createPageElement_Change(page, pageElement, true);
 							let wrapper = pageDom.querySelector(".type-selectionChange")
 							wrapper.style.border = "none";
-							wrapper.style.left = "670px";
-							wrapper.style.width = "130px";
-							wrapper.style.height = "100px";
 							break;
 						}
 						case "barchart": {

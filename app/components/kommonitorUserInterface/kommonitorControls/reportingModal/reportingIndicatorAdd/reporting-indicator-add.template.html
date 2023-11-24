@@ -30,7 +30,7 @@
                         <li id="reporting-add-indicator-tab5" role="presentation" class="tab-disabled"
                             ng-show="template.name != 'A4-landscape-reachability'">
                             <a href="#time" aria-controls="time" role="tab" data-toggle="tab" tabindex="-1"
-                                ng-bind-html="template.name == 'A4-landscape-timeseries' ? 'Zeitserie' : 'Zeitpunkt'"></a>
+                                ng-bind-html="template.name.includes('-timeseries') ? 'Zeitserie' : 'Zeitpunkt'"></a>
                         </li>
                         <li id="reporting-add-indicator-tab6" role="presentation" class="tab-disabled">
                             <a href="#elements" aria-controls="elements" role="tab" data-toggle="tab" tabindex="-1">Elemente</a>
@@ -87,7 +87,7 @@
                                 <input type="text" class="form-control input-sm" placeholder="Stichwortfilter"
                                     ng-model="indicatorNameFilter" ng-model-options="{ debounce: 500, blur: 0 }">
                             </div>
-                            <div ng-if="template.name == 'A4-landscape-timeseries'">
+                            <div ng-if="template.name.includes('-timeseries')">
                                 <div id="reporting-indicator-select-box">
                                     <select size="30" class="form-control" required>
                                         <option disabled selected value> -- Indikator w&auml;hlen -- </option>
@@ -96,7 +96,7 @@
                                     </select>
                                 </div>
                             </div>
-                            <div ng-if="template.name != 'A4-landscape-timeseries'">
+                            <div ng-if="!template.name.includes('-timeseries')">
                                 <div id="reporting-indicator-select-box">
                                     <select size="30" class="form-control" required>
                                         <option disabled selected value> -- Indikator w&auml;hlen -- </option>
@@ -115,10 +115,10 @@
                                 <span ng-show="template.name == 'A4-landscape-timestamp'">
                                     Mindestens ein ausgewählter Zeitpunkt war für die neue Raumebene nicht verfügbar und wurde entfernt.
                                 </span>
-                                <span ng-show="template.name == 'A4-landscape-timeseries'">
+                                <span ng-show="template.name.includes('-timeseries')">
                                     Nach dem Wechsel der Raumeinheit enthält die Zeitserie andere Zeitpunkte. 
                                 </span>
-                                <span ng-show="template.name == 'A4-landscape-timeseries' && timeseriesAdjustedOnSpatialUnitChange">
+                                <span ng-show="template.name.includes('-timeseries') && timeseriesAdjustedOnSpatialUnitChange">
                                     Sie wurde auf den größtmöglichen Zeitraum gesetzt weil die ursprüngliche Einstellung nicht übernommen werden konnte.
                                 </span>
                             </div>
@@ -141,10 +141,10 @@
 						    <div class="loading-overlay-reporting" ng-show="loadingData">
 								<span class="glyphicon glyphicon-refresh icon-spin"></span>
 							</div>
-                            <div ng-hide="template.name == 'A4-landscape-timeseries'">
+                            <div ng-hide="template.name.includes('-timeseries')">
                                 <excalibur-dual-list id="reporting-indicator-add-timestamps-dual-list" ng-model='selectedTimestamps' options="dualListTimestampsOptions"></excalibur-dual-list>
                             </div>
-                            <div ng-show="template.name == 'A4-landscape-timeseries'">
+                            <div ng-show="template.name.includes('-timeseries')">
                                 <div id="reporting-dateSliderWrapper">
                                     <input id="reporting-dateSlider" type="text" class="js-range-slider" value=""></input>
                                 </div>

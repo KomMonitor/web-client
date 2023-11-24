@@ -293,17 +293,11 @@ angular.module('reportingOverview').component('reportingOverview', {
 							if(pageElement.type === "overallChange") {
 								let wrapper = pageDom.querySelector(".type-overallChange")
 								wrapper.style.border = "none";
-								wrapper.style.left = "670px";
-								wrapper.style.width = "130px";
-								wrapper.style.height = "100px";
 							}
 
 							if(pageElement.type === "selectionChange") {
 								let wrapper = pageDom.querySelector(".type-selectionChange")
 								wrapper.style.border = "none";
-								wrapper.style.left = "670px";
-								wrapper.style.width = "130px";
-								wrapper.style.height = "100px";
 							}
 
 							if(pageElement.type === "datatable") {
@@ -974,7 +968,6 @@ angular.module('reportingOverview').component('reportingOverview', {
 						}
 						case "footerCreationInfo-landscape":
 						case "footerCreationInfo-portrait": {
-							console.log(pageElement);
 							doc.text(pageElement.text, pageElementDimensions.left, pageElementDimensions.top, { baseline: "top" })
 							break;
 						}
@@ -1018,10 +1011,10 @@ angular.module('reportingOverview').component('reportingOverview', {
 						}
 						case "overallChange":
 						case "selectionChange": {
-							let x = pxToMilli(670);
+							let x = pageElementDimensions.left;
 							let y = pageElementDimensions.top;
-							let width = pxToMilli(130);
-							let height = pxToMilli(80);
+							let width = pageElementDimensions.width;
+							let height = pageElementDimensions.height;
 							doc.rect(x, y, width, height);
 							let changeType = pageElement.type === "overallChange" ? "Gesamtstadt" : "Selektion"
 							let text = "Durchschnittliche\nVeränderung\n" + changeType + ":\n" + pageElement.text.toString()

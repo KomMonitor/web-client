@@ -3011,6 +3011,19 @@ angular
         "css": "text-align: left; padding-left: 5px;"
       },
       {
+        "type": "dataTimeseries-portrait",
+        "dimensions": {
+          "top": "50px",
+          "left": "15px",
+          "width": "470px",
+          "height": "30px"
+        },
+        "isPlaceholder": true,
+        "placeholderText": "Zeitreihe von - bis",
+        "text": "",
+        "css": "text-align: left; padding-left: 5px;"
+      },
+      {
         "type": "reachability-subtitle-landscape",
         "dimensions": {
           "top": "50px",
