@@ -707,7 +707,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				});
 				// if any timestamp was deselected show a warning alert
 				// except for reachability template, it doesn't matter there
-				if(selectedTimestamps_old.length > $scope.selectedTimestamps.length && $scope.template.name != "A4-landscape-reachability") {
+				if(selectedTimestamps_old.length > $scope.selectedTimestamps.length && !$scope.template.name.includes("-reachability")) {
 					$("#reporting-spatialUnitChangeWarning").show();
 				}
 			} else {

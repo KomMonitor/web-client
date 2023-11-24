@@ -1,8 +1,8 @@
 <div class="container-fluid">
     <div class="row row-no-gutters">
         <div class="col-sm-12 text-center">
-            <h2 ng-show="template.name != 'A4-landscape-reachability'" class="fs-title">Indikator-Konfiguration</h2>
-            <h2 ng-show="template.name == 'A4-landscape-reachability'" class="fs-title">POI-Layer-Konfiguration</h2>
+            <h2 ng-show="!template.name.includes('-reachability')" class="fs-title">Indikator-Konfiguration</h2>
+            <h2 ng-show="template.name.includes('-reachability')" class="fs-title">POI-Layer-Konfiguration</h2>
         </div>
     </div>
     <div class="reporting-content-wrapper">
@@ -12,23 +12,23 @@
                 <div class="row" style="margin:0">
                     <ul class="nav nav-tabs" id="reporting-add-indicator-tab-list">
                         <li id="reporting-add-indicator-tab1" role="presentation"
-                            ng-attr-class="{{template.name == 'A4-landscape-reachability' ? 'active' : 'tab-disabled'}}"
-                            ng-show="template.name == 'A4-landscape-reachability'">
+                            ng-attr-class="{{template.name.includes('-reachability') ? 'active' : 'tab-disabled'}}"
+                            ng-show="template.name.includes('-reachability')">
                             <a href="#pois" aria-controls="pois" role="tab" data-toggle="tab">POIs</a>
                         </li>
                         <li id="reporting-add-indicator-tab2" role="presentation" class="tab-disabled"
-                            ng-show="template.name == 'A4-landscape-reachability'">
+                            ng-show="template.name.includes('-reachability')">
                             <a href="#isochrones" aria-controls="isochrones" role="tab" data-toggle="tab">Erreichbarkeit</a>
                         </li>
                         <li id="reporting-add-indicator-tab3" role="presentation" 
-                            ng-attr-class="{{template.name != 'A4-landscape-reachability' ? 'active' : 'tab-disabled'}}">
+                            ng-attr-class="{{!template.name.includes('-reachability') ? 'active' : 'tab-disabled'}}">
                             <a href="#indicators" aria-controls="indicators" role="tab" data-toggle="tab">Indikatoren</a>
                         </li>
                         <li id="reporting-add-indicator-tab4" role="presentation" class="tab-disabled">
                             <a href="#area" aria-controls="area" role="tab" data-toggle="tab"  tabindex="-1">Bereich</a>
                         </li>
                         <li id="reporting-add-indicator-tab5" role="presentation" class="tab-disabled"
-                            ng-show="template.name != 'A4-landscape-reachability'">
+                            ng-show="!template.name.includes('-reachability')">
                             <a href="#time" aria-controls="time" role="tab" data-toggle="tab" tabindex="-1"
                                 ng-bind-html="template.name.includes('-timeseries') ? 'Zeitserie' : 'Zeitpunkt'"></a>
                         </li>
@@ -41,7 +41,7 @@
 
                     <div id="reporting-add-indicator-tab-content" class="tab-content">
                         <div role="tabpanel" id="pois"
-                            ng-attr-class="{{template.name == 'A4-landscape-reachability' ? 'tab-pane active' : 'tab-pane'}}">
+                            ng-attr-class="{{template.name.includes('-reachability') ? 'tab-pane active' : 'tab-pane'}}">
 						    <div class="loading-overlay-reporting" ng-show="loadingData">
 								<span class="glyphicon glyphicon-refresh icon-spin"></span>
 							</div>
@@ -65,7 +65,7 @@
                                 <span class="glyphicon glyphicon-refresh icon-spin"></span>
                             </div>
                             <div id="reporting-isochrones-config">
-                                <div ng-if="template.name == 'A4-landscape-reachability'">
+                                <div ng-if="template.name.includes('-reachability')">
                                     <kommonitor-reachability></kommonitor-reachability>
                                 </div>
                                 <button type="button" class="btn btn-danger" style="margin-left: 1%; margin-top: 10px;" ng-click="resetIsochrones()" ng-show="showResetIsochronesBtn">Isochronen entfernen</button>                               
@@ -73,12 +73,12 @@
 						    
                         </div>
                         <div role="tabpanel" id="indicators"
-                            ng-attr-class="{{template.name != 'A4-landscape-reachability' ? 'tab-pane active' : 'tab-pane'}}">
+                            ng-attr-class="{{!template.name.includes('-reachability') ? 'tab-pane active' : 'tab-pane'}}">
 						    <div class="loading-overlay-reporting" ng-show="loadingData">
 								<span class="glyphicon glyphicon-refresh icon-spin"></span>
 							</div>
 
-                            <div ng-show="template.name == 'A4-landscape-reachability'" id="reporting-optional-indicator-info">
+                            <div ng-show="template.name.includes('-reachability')" id="reporting-optional-indicator-info">
                                 <button type="button" class="btn btn-danger" ng-click="resetOptionalIndicator()">Auswahl zurücksetzen</button>
                             </div>
                             
@@ -112,7 +112,7 @@
                                 <span class="glyphicon glyphicon-refresh icon-spin"></span>
                             </div>
                             <div id="reporting-spatialUnitChangeWarning" class="alert alert-warning collapse">
-                                <span ng-show="template.name == 'A4-landscape-timestamp'">
+                                <span ng-show="template.name.includes('-timestamp')">
                                     Mindestens ein ausgewählter Zeitpunkt war für die neue Raumebene nicht verfügbar und wurde entfernt.
                                 </span>
                                 <span ng-show="template.name.includes('-timeseries')">
@@ -282,8 +282,8 @@
                     
                     <button ng-disabled="!validateConfiguration()" type="button" class="btn btn-success pull-right" ng-click='onAddBtnClicked()'>
                         <i class="fa fa-plus"></i>
-                        <span ng-show="template.name == 'A4-landscape-reachability'">POI-Layer hinzufügen</span>
-                        <span ng-show="template.name != 'A4-landscape-reachability'">Indikator hinzufügen</span>
+                        <span ng-show="template.name.includes('-reachability')">POI-Layer hinzufügen</span>
+                        <span ng-show="!template.name.includes('-reachability')">Indikator hinzufügen</span>
                     </button>
                 </div>
             </div>

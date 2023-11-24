@@ -8,18 +8,18 @@
         <div class="row">
             <div class="col-sm-3" id="reporting-overview-sidebar">
                 <div id="reporting-overwiew-indicators-wrapper">
-                    <button ng-show="config.template.name != 'A4-landscape-reachability'" id="reporting-configureIndicatorBtn"
+                    <button ng-show="!config.template.name.includes('-reachability')" id="reporting-configureIndicatorBtn"
                         class="btn btn-success" ng-click='onConfigureNewIndicatorClicked()'>
                         <i class="fa fa-plus"></i>
                         <span >&nbsp;&nbsp;Indikator konfigurieren</span>
                     </button>
-                    <button ng-show="config.template.name == 'A4-landscape-reachability'" id="reporting-configurePoiLayerrBtn"
+                    <button ng-show="config.template.name.includes('-reachability')" id="reporting-configurePoiLayerrBtn"
                         class="btn btn-success" ng-click='onConfigureNewPoiLayerClicked()'>
                         <i class="fa fa-plus"></i>
                         <span>&nbsp;&nbsp;POI-Layer konfigurieren</span>
                     </button>
-                    <h3 ng-show="config.template.name != 'A4-landscape-reachability'">Hinzugefügte Indikatoren</h3>
-                    <h3 ng-show="config.template.name == 'A4-landscape-reachability'">Hinzugefügte POI-Layer</h3>
+                    <h3 ng-show="!config.template.name.includes('-reachability')">Hinzugefügte Indikatoren</h3>
+                    <h3 ng-show="config.template.name.includes('-reachability')">Hinzugefügte POI-Layer</h3>
                     <p>Die Reihenfolge kann über Drag-and-Drop verändert werden.</p>
                     <div class="list-group" ng-sortable="sortableConfig">
 
@@ -27,8 +27,8 @@
                             <hr class="reporting-hr-divider">
                             <div class="row row-no-gutters reporting-added-templateSections-row">
                                 <div class="col-sm-11">
-                                    <b ng-show="config.template.name != 'A4-landscape-reachability'">{{section.indicatorName}}</b>
-                                    <b ng-show="config.template.name == 'A4-landscape-reachability'">{{section.poiLayerName}}</b>
+                                    <b ng-show="!config.template.name.includes('-reachability')">{{section.indicatorName}}</b>
+                                    <b ng-show="config.template.name.includes('-reachability')">{{section.poiLayerName}}</b>
                                 </div>
                                 <div class="col-sm-1 text-right">
                                     <i class="reporting-templateSection-delete-symbol align-middle fa fa-trash-alt"
