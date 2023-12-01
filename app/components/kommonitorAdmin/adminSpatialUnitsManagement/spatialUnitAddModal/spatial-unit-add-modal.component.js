@@ -38,6 +38,29 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 		$('#spatialUnitAddDatepickerEnd').datepicker(kommonitorDataExchangeService.datePickerOptions);
 		$('#spatialUnitAddLastUpdateDatepicker').datepicker(kommonitorDataExchangeService.datePickerOptions);
 
+		// initialize colorPickers
+		$('#outlineColorPicker').colorpicker();
+		
+		$scope.outlineColor = "#bf3d2c";
+		$scope.outlineWidth = 3;
+
+		$scope.selectedOutlineDashArrayObject = kommonitorDataExchangeService.availableLoiDashArrayObjects[0];
+
+		// initialize loiDashArray dropdown
+		setTimeout(function(){
+			for(var i=0; i<kommonitorDataExchangeService.availableLoiDashArrayObjects.length; i++){
+				$("#outlineDashArrayDropdownItem-" + i).html(kommonitorDataExchangeService.availableLoiDashArrayObjects[i].svgString);
+			}
+
+			$("#outlineDashArrayDropdownButton_addSpatialUnit").html($scope.selectedOutlineDashArrayObject.svgString);
+		},1000);
+
+		$scope.onChangeOutlineDashArray = function(outlineDashArrayObject){
+			$scope.selectedOutlineDashArrayObject = outlineDashArrayObject;
+
+			$("#outlineDashArrayDropdownButton_addSpatialUnit").html(outlineDashArrayObject.svgString);
+		};
+
 		$scope.loadingData = false;
 
 		$scope.spatialUnitMetadataStructure = {
@@ -189,6 +212,11 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 
 			$scope.validityEndDate_perFeature = undefined;
 			$scope.validityStartDate_perFeature = undefined;
+
+			$scope.outlineColor = "#bf3d2c";
+			$scope.outlineWidth = 3;
+
+			$scope.selectedOutlineDashArrayObject = kommonitorDataExchangeService.availableLoiDashArrayObjects[0];
 
             $scope.onChangeConverter();
             $scope.onChangeDatasourceType();
@@ -409,7 +437,10 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 					"endDate": $scope.periodOfValidity.endDate,
 					"startDate": $scope.periodOfValidity.startDate
 				},
-				"nextUpperHierarchyLevel": $scope.nextUpperHierarchySpatialUnit ? $scope.nextUpperHierarchySpatialUnit.spatialUnitLevel : undefined
+				"nextUpperHierarchyLevel": $scope.nextUpperHierarchySpatialUnit ? $scope.nextUpperHierarchySpatialUnit.spatialUnitLevel : undefined,
+				"isOutlineLayer": $scope.isOutlineLayer,
+				"outlineColor": $scope.outlineColor,
+				"outlineDashArrayString": $scope.outlineDashArrayObject.dashArrayValue
 			};
 
 			let roleIds = kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid($scope.roleManagementTableOptions);
@@ -602,6 +633,15 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 					}
 				}
 
+				$scope.outlineColor = $scope.metadataImportSettings.outlineColor;
+				$scope.outlineWidth = $scope.metadataImportSettings.outlineWidth;
+				kommonitorDataExchangeService.availableLoiDashArrayObjects.forEach(function(option){
+					if(option.dashArrayValue === $scope.metadataImportSettings.outlineDashArrayString){
+						$scope.selectedOutlineDashArrayObject = option;
+						$scope.onChangeOutlineDashArray($scope.selectedOutlineDashArrayObject);
+					}
+				});
+
 				$scope.spatialUnitLevel = $scope.metadataImportSettings.spatialUnitLevel;
 
 				$scope.$digest();
@@ -661,6 +701,10 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 			else{
 				metadataExport.nextUpperHierarchyLevel = "";
 			}
+
+			metadataExport["outlineDashArrayString"] = $scope.selectedOutlineDashArrayObject.dashArrayValue;
+			metadataExport["outlineColor"] = $scope.outlineColor;
+			metadataExport["outlineWidth"] = $scope.outlineWidth;
 
 			var name = $scope.spatialUnitLevel;
 

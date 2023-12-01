@@ -37,6 +37,24 @@ angular.module('spatialUnitEditMetadataModal').component('spatialUnitEditMetadat
 		//Date picker
 		$('#spatialUnitEditMetadataLastUpdateDatepicker').datepicker(kommonitorDataExchangeService.datePickerOptions);
 
+		// initialize colorPickers
+		$('#outlineColorPicker').colorpicker();
+		
+		
+
+		// initialize loiDashArray dropdown
+		setTimeout(function(){
+			for(var i=0; i<kommonitorDataExchangeService.availableLoiDashArrayObjects.length; i++){
+				$("#outlineDashArrayDropdownItem-" + i).html(kommonitorDataExchangeService.availableLoiDashArrayObjects[i].svgString);
+			}
+		},1000);
+
+		$scope.onChangeOutlineDashArray = function(outlineDashArrayObject){
+			$scope.selectedOutlineDashArrayObject = outlineDashArrayObject;
+
+			$("#outlineDashArrayDropdownButton_editSpatialUnit").html(outlineDashArrayObject.svgString);
+		};
+
 		$scope.loadingData = false;
 
 		$scope.spatialUnitMetadataStructure = {
@@ -143,6 +161,18 @@ angular.module('spatialUnitEditMetadataModal').component('spatialUnitEditMetadat
 			}
 			$scope.hierarchyInvalid = false;
 
+			kommonitorDataExchangeService.availableLoiDashArrayObjects.forEach(function(option){
+				if(option.dashArrayValue === $scope.currentSpatialUnitDataset.outlineDashArrayString){
+					$scope.selectedLoiDashArrayObject = option;
+
+					$scope.onChangeLoiDashArray($scope.selectedLoiDashArrayObject);
+				}
+			});
+			$scope.outlineColor = $scope.currentGeoresourceDataset.loiColor;
+			$scope.outlineWidth = $scope.currentGeoresourceDataset.loiWidth || 3;			
+
+			$scope.selectedOutlineDashArrayObject = kommonitorDataExchangeService.availableLoiDashArrayObjects[0];
+
 			$scope.successMessagePart = undefined;
 			$scope.errorMessagePart = undefined;
 			$("#spatialUnitEditMetadataSuccessAlert").hide();
@@ -212,7 +242,10 @@ angular.module('spatialUnitEditMetadataModal').component('spatialUnitEditMetadat
 				},
 				"allowedRoles": [],
 				"nextLowerHierarchyLevel": $scope.nextLowerHierarchySpatialUnit ? $scope.nextLowerHierarchySpatialUnit.spatialUnitLevel : null,
-				"nextUpperHierarchyLevel": $scope.nextUpperHierarchySpatialUnit ? $scope.nextUpperHierarchySpatialUnit.spatialUnitLevel : null
+				"nextUpperHierarchyLevel": $scope.nextUpperHierarchySpatialUnit ? $scope.nextUpperHierarchySpatialUnit.spatialUnitLevel : null,
+				"isOutlineLayer": $scope.isOutlineLayer,
+				"outlineColor": $scope.outlineColor,
+				"outlineDashArrayString": $scope.outlineDashArrayObject.dashArrayValue
 			};
 
 			let roleIds = kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid($scope.roleManagementTableOptions);
@@ -356,6 +389,15 @@ angular.module('spatialUnitEditMetadataModal').component('spatialUnitEditMetadat
 
 				$scope.spatialUnitLevel = $scope.metadataImportSettings.spatialUnitLevel;
 
+				$scope.outlineColor = $scope.metadataImportSettings.outlineColor;
+				$scope.outlineWidth = $scope.metadataImportSettings.outlineWidth;
+				kommonitorDataExchangeService.availableLoiDashArrayObjects.forEach(function(option){
+					if(option.dashArrayValue === $scope.metadataImportSettings.outlineDashArrayString){
+						$scope.selectedOutlineDashArrayObject = option;
+						$scope.onChangeOutlineDashArray($scope.selectedOutlineDashArrayObject);
+					}
+				});
+
 				$scope.$digest();
 		}
 
@@ -413,6 +455,10 @@ angular.module('spatialUnitEditMetadataModal').component('spatialUnitEditMetadat
 			else{
 				metadataExport.nextUpperHierarchyLevel = "";
 			}
+
+			metadataExport["outlineDashArrayString"] = $scope.selectedOutlineDashArrayObject.dashArrayValue;
+			metadataExport["outlineColor"] = $scope.outlineColor;
+			metadataExport["outlineWidth"] = $scope.outlineWidth;
 
 			var name = $scope.spatialUnitLevel;
 
