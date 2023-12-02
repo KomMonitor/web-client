@@ -1254,6 +1254,147 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 					}
 					// end of area-specific part
 				]
+			},
+			{
+				"name": "A4-portrait-reachability",
+				"displayName": "DIN A4, Hochformat",
+				"categoryId": 3,
+				"orientation" : "portrait",
+				"pages": [
+					{
+						"orientation": "portrait",
+						"pageElements": [
+
+							// different placeholder so we don't use the default here
+							{
+								"type": "indicatorTitle-portrait",
+								"dimensions": {
+								  "top": "15px",
+									"left": "15px",
+									"width": "470px",
+									"height": "30px"
+								},
+								"isPlaceholder": true,
+								"placeholderText": "Entfernungen für [Name POI]",
+								"text": "",
+								"css": "text-align: left; padding-left: 5px; font-weight: bold;"
+							},
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("communeLogo-portrait"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("reachability-subtitle-portrait"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("footerHorizontalSpacer-portrait"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("footerCreationInfo-portrait"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("pageNumber-portrait"),
+
+							{
+								// isochrones, only show main roads if possible
+								"type": "map",
+								"dimensions": {
+									"top": "90px",
+									"left": "15px",
+									"width": "550px",
+									"height": "650px"
+								},
+								"isPlaceholder": true,
+								"placeholderText": "Karte Gesamtstadt mit Isochronen, Grenzen der gewählten Bereiche farblich hervorgehoben. Kartenhintergrund: nur Hauptstraßen.",
+								"colorScheme": undefined,
+								"classify": false,
+							},
+							{
+								"type": "mapLegend",
+								"dimensions": {
+									// used for the placeholder only
+									"top": "600px",
+									"left": "450px",
+									"width": "100px",
+									"height": "120px"
+								},
+								"isPlaceholder": true,
+								"placeholderText": "Legende"
+							},
+							{
+								"type": "mapAttribution",
+								"dimensions": {
+									// used for the placeholder only
+									"top": "700px",
+									"left": "25px",
+									"width": "125px",
+									"height": "25px"
+								},
+								"isPlaceholder": true,
+								"placeholderText": "Copyrightvermerk"
+							}
+							
+						]
+					},
+					// one page for each selected area
+					{
+						"orientation": "portrait",
+						"area": "",
+						"pageElements": [
+
+							
+							// different placeholder so we don't use the default here
+							{
+								"type": "indicatorTitle-portrait",
+								"dimensions": {
+								  "top": "15px",
+									"left": "15px",
+									"width": "470px",
+									"height": "30px"
+								},
+								"isPlaceholder": true,
+								"placeholderText": "Entfernungen für [Name POI], Bereich (Diese Seite wird für jeden Bereich wiederholt)",
+								"text": "",
+								"css": "text-align: left; padding-left: 5px; font-weight: bold;"
+							},
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("communeLogo-portrait"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("reachability-subtitle-portrait"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("footerHorizontalSpacer-portrait"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("footerCreationInfo-portrait"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("pageNumber-portrait"),
+							
+							{
+								// isochrones, background map in grayscale 
+								"type": "map",
+								"dimensions": {
+									"top": "90px",
+									"left": "15px",
+									"width": "550px",
+									"height": "650px"
+								},
+								"isPlaceholder": true,
+								"placeholderText": "Karte Detailansicht Bereich mit Isochronen, Hintergrund OSM-Karte in Graustufen",
+								"colorScheme": undefined,
+								"classify": false,
+							},
+							{
+								"type": "mapLegend",
+								"dimensions": {
+									// used for the placeholder only
+									"top": "600px",
+									"left": "450px",
+									"width": "100px",
+									"height": "120px"
+								},
+								"isPlaceholder": true,
+								"placeholderText": "Legende"
+							},
+							{
+								"type": "mapAttribution",
+								"dimensions": {
+									// used for the placeholder only
+									"top": "700px",
+									"left": "25px",
+									"width": "125px",
+									"height": "25px"
+								},
+								"isPlaceholder": true,
+								"placeholderText": "Copyrightvermerk"
+							}
+						]
+					}
+					// end of area-specific part
+				]
 			}
 		]
 	

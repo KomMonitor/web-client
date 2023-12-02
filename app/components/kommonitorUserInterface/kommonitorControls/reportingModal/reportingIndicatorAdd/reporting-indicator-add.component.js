@@ -1183,7 +1183,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 							// and area/timestamp/timeseries changes are done after that
 						}
 
-						if(el.type === "reachability-subtitle-landscape") {
+						if(el.type.includes("reachability-subtitle-")) {
 							el.text = $scope.selectedTimestamps[0].name;
 							if($scope.isochrones)
 								el.text += ", " + $scope.isochronesTypeOfMovementMapping[$scope.typeOfMovement];
@@ -1951,7 +1951,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			let dateElement;
 			if($scope.template.name.includes("reachability")) {
 				dateElement = page.pageElements.find( el => {
-					return el.type === "reachability-subtitle-landscape";
+					return el.type.includes("reachability-subtitle-");
 				});
 				timestamp = dateElement.text.split(",")[0];
 			} else {
