@@ -36,16 +36,13 @@ angular.module('spatialUnitEditMetadataModal').component('spatialUnitEditMetadat
 
 		//Date picker
 		$('#spatialUnitEditMetadataLastUpdateDatepicker').datepicker(kommonitorDataExchangeService.datePickerOptions);
-
-		// initialize colorPickers
-		$('#outlineColorPicker').colorpicker();
 		
 		
 
 		// initialize loiDashArray dropdown
 		setTimeout(function(){
 			for(var i=0; i<kommonitorDataExchangeService.availableLoiDashArrayObjects.length; i++){
-				$("#outlineDashArrayDropdownItem-" + i).html(kommonitorDataExchangeService.availableLoiDashArrayObjects[i].svgString);
+				$("#outlineDashArrayDropdownItem-editMetadata-" + i).html(kommonitorDataExchangeService.availableLoiDashArrayObjects[i].svgString);
 			}
 		},1000);
 
@@ -163,15 +160,25 @@ angular.module('spatialUnitEditMetadataModal').component('spatialUnitEditMetadat
 
 			kommonitorDataExchangeService.availableLoiDashArrayObjects.forEach(function(option){
 				if(option.dashArrayValue === $scope.currentSpatialUnitDataset.outlineDashArrayString){
-					$scope.selectedLoiDashArrayObject = option;
-
-					$scope.onChangeLoiDashArray($scope.selectedLoiDashArrayObject);
+					$scope.selectedoutlineDashArrayObject = option;
 				}
 			});
-			$scope.outlineColor = $scope.currentGeoresourceDataset.loiColor;
-			$scope.outlineWidth = $scope.currentGeoresourceDataset.loiWidth || 3;			
+			if(! $scope.selectedoutlineDashArrayObject){
+				$scope.selectedoutlineDashArrayObject = kommonitorDataExchangeService.availableLoiDashArrayObjects[0];
+			}
+			$scope.onChangeOutlineDashArray($scope.selectedoutlineDashArrayObject);
 
-			$scope.selectedOutlineDashArrayObject = kommonitorDataExchangeService.availableLoiDashArrayObjects[0];
+			$scope.isOutlineLayer = $scope.currentSpatialUnitDataset.isOutlineLayer;
+			$scope.outlineColor = $scope.currentSpatialUnitDataset.outlineColor || "#000000";
+			$scope.outlineWidth = $scope.currentSpatialUnitDataset.outlineWidth || 3;	
+			
+			// initialize colorPickers
+			if($scope.colorPicker){
+				$('#outlineColorPicker_editSpatialUnit').colorpicker('destroy');
+			}
+			$scope.colorPicker = $('#outlineColorPicker_editSpatialUnit').colorpicker({"color": $scope.outlineColor});
+
+			$scope.selectedOutlineDashArrayObject = $scope.currentSpatialUnitDataset.outlineDashArrayString || kommonitorDataExchangeService.availableLoiDashArrayObjects[0];
 
 			$scope.successMessagePart = undefined;
 			$scope.errorMessagePart = undefined;
@@ -245,7 +252,8 @@ angular.module('spatialUnitEditMetadataModal').component('spatialUnitEditMetadat
 				"nextUpperHierarchyLevel": $scope.nextUpperHierarchySpatialUnit ? $scope.nextUpperHierarchySpatialUnit.spatialUnitLevel : null,
 				"isOutlineLayer": $scope.isOutlineLayer,
 				"outlineColor": $scope.outlineColor,
-				"outlineDashArrayString": $scope.outlineDashArrayObject.dashArrayValue
+				"outlineWidth": $scope.outlineWidth,
+				"outlineDashArrayString": $scope.selectedOutlineDashArrayObject.dashArrayValue
 			};
 
 			let roleIds = kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid($scope.roleManagementTableOptions);
@@ -389,6 +397,7 @@ angular.module('spatialUnitEditMetadataModal').component('spatialUnitEditMetadat
 
 				$scope.spatialUnitLevel = $scope.metadataImportSettings.spatialUnitLevel;
 
+				$scope.isOutlineLayer = $scope.metadataImportSettings.isOutlineLayer;
 				$scope.outlineColor = $scope.metadataImportSettings.outlineColor;
 				$scope.outlineWidth = $scope.metadataImportSettings.outlineWidth;
 				kommonitorDataExchangeService.availableLoiDashArrayObjects.forEach(function(option){
@@ -456,6 +465,7 @@ angular.module('spatialUnitEditMetadataModal').component('spatialUnitEditMetadat
 				metadataExport.nextUpperHierarchyLevel = "";
 			}
 
+			metadataExport["isOutlineLayer"] = $scope.isOutlineLayer;
 			metadataExport["outlineDashArrayString"] = $scope.selectedOutlineDashArrayObject.dashArrayValue;
 			metadataExport["outlineColor"] = $scope.outlineColor;
 			metadataExport["outlineWidth"] = $scope.outlineWidth;

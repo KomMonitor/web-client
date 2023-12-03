@@ -36,13 +36,13 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 		//Date picker
     $('#spatialUnitAddDatepickerStart').datepicker(kommonitorDataExchangeService.datePickerOptions);
 		$('#spatialUnitAddDatepickerEnd').datepicker(kommonitorDataExchangeService.datePickerOptions);
-		$('#spatialUnitAddLastUpdateDatepicker').datepicker(kommonitorDataExchangeService.datePickerOptions);
+		$('#spatialUnitAddLastUpdateDatepicker').datepicker(kommonitorDataExchangeService.datePickerOptions);		
+		
+		$scope.outlineColor = "#000000";
+		$scope.outlineWidth = 3;
 
 		// initialize colorPickers
-		$('#outlineColorPicker').colorpicker();
-		
-		$scope.outlineColor = "#bf3d2c";
-		$scope.outlineWidth = 3;
+		$('#outlineColorPicker').colorpicker({"color": $scope.outlineColor});
 
 		$scope.selectedOutlineDashArrayObject = kommonitorDataExchangeService.availableLoiDashArrayObjects[0];
 
@@ -213,7 +213,8 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 			$scope.validityEndDate_perFeature = undefined;
 			$scope.validityStartDate_perFeature = undefined;
 
-			$scope.outlineColor = "#bf3d2c";
+			$scope.isOutlineLayer = false;
+			$scope.outlineColor = "#000000";
 			$scope.outlineWidth = 3;
 
 			$scope.selectedOutlineDashArrayObject = kommonitorDataExchangeService.availableLoiDashArrayObjects[0];
@@ -440,6 +441,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 				"nextUpperHierarchyLevel": $scope.nextUpperHierarchySpatialUnit ? $scope.nextUpperHierarchySpatialUnit.spatialUnitLevel : undefined,
 				"isOutlineLayer": $scope.isOutlineLayer,
 				"outlineColor": $scope.outlineColor,
+				"outlineWidth": $scope.outlineWidth,
 				"outlineDashArrayString": $scope.outlineDashArrayObject.dashArrayValue
 			};
 
@@ -633,6 +635,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 					}
 				}
 
+				$scope.isOutlineLayer = $scope.metadataImportSettings.isOutlineLayer;
 				$scope.outlineColor = $scope.metadataImportSettings.outlineColor;
 				$scope.outlineWidth = $scope.metadataImportSettings.outlineWidth;
 				kommonitorDataExchangeService.availableLoiDashArrayObjects.forEach(function(option){
@@ -702,8 +705,9 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 				metadataExport.nextUpperHierarchyLevel = "";
 			}
 
+			metadataExport["isOutlineLayer"] = $scope.isOutlineLayer;
 			metadataExport["outlineDashArrayString"] = $scope.selectedOutlineDashArrayObject.dashArrayValue;
-			metadataExport["outlineColor"] = $scope.outlineColor;
+			metadataExport["outlineColor"] = $scope.outlineColor;			
 			metadataExport["outlineWidth"] = $scope.outlineWidth;
 
 			var name = $scope.spatialUnitLevel;

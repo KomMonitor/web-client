@@ -262,6 +262,7 @@ angular.module('kommonitorMap').component(
         const wmsLayerGroupName = "Web Map Services (WMS)";
         const wfsLayerGroupName = "Web Feature Services (WFS)";
         const fileLayerGroupName = "Dateilayer";
+        const spatialUnitOutlineLayerGroupName = "Raumeinheiten Umringe";
 
         // create classyBrew object
         $scope.defaultBrew = new classyBrew();
@@ -341,7 +342,50 @@ angular.module('kommonitorMap').component(
 
         L.tileLayer.grayscale = function (url, options) {
           return new L.TileLayer.Grayscale(url, options);
+        };        
+
+        let initSpatialUnitOutlineLayer = function(){
+          for (const spatialUnit of kommonitorDataExchangeService.availableSpatialUnits) {
+            if(spatialUnit.isOutlineLayer){
+
+              let url = kommonitorDataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() +
+									"/spatial-units/" + spatialUnit.spatialUnitId + "/allFeatures";
+
+								$http({
+									url: url,
+									method: "GET"
+								}).then(function successCallback(response) { //TODO add error callback for the case that the combination of indicator and nextUpperHierarchyLevel doesn't exist
+									let geoJSON = response.data;
+
+									let layer = L.geoJSON(geoJSON, {
+                    style: function (feature) {
+                      return {
+                        color: spatialUnit.outlineColor,
+                        weight: spatialUnit.outlineWidth,
+                        opacity: 1,
+                        fillOpacity: 0,
+                        fill: false,
+                        dashArray: spatialUnit.outlineDashArrayString
+                      };
+                    },
+                    onEachFeature: onEachFeatureSpatialUnit
+                  });
+        
+                  // layer.StyledLayerControl = {
+                  // 	removable : true,
+                  // 	visible : true
+                  // };
+        
+                  $scope.layerControl.addOverlay(layer, spatialUnit.spatialUnitLevel + "_Umringe", spatialUnitOutlineLayerGroupName);
+                  $scope.updateSearchControl();
+								});
+            }
+          }
         };
+
+        $rootScope.$on("initialMetadataLoadingCompleted", function(){
+          initSpatialUnitOutlineLayer();
+        });
 
         this.initializeMap = function () {
 
@@ -402,7 +446,7 @@ angular.module('kommonitorMap').component(
 
           baseLayerDefinitionsMap.forEach(function(value, key, map){
             $scope.baseMaps[key] = value;
-          });
+          });          
 
           $scope.groupedOverlays = {
             indicatorLayerGroupName: {
@@ -427,6 +471,9 @@ angular.module('kommonitorMap').component(
 
             },
             reachabilityLayerGroupName: {
+
+            },
+            spatialUnitOutlineLayerGroupName: {
 
             }
           };

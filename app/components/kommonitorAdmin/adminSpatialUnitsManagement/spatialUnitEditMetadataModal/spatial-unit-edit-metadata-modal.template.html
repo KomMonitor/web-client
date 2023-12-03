@@ -132,9 +132,9 @@
 								<div class="col-md-3 col-sm-6 col-xs-12" >
 									<div ng-show="isOutlineLayer" class="form-group" align="center">
 										<label>Linienfarbe (Umringslayer)</label>
-										<div id="outlineColorPicker" class="input-group" style="width: 50px;">
+										<div id="outlineColorPicker_editSpatialUnit" class="input-group" style="width: 50px;">
 											<input type="text" style="display:none;" class="form-control input-sm"
-												ng-model="loiColor" placeholder="Line of Interest Farbauswahl"
+												ng-model="outlineColor" placeholder="Umringsfarbwahl"
 												value="#bf3d2c" />
 											<span title="Klicken, um die Farbe anzupassen"
 												style="border: 1px solid #ccc; width: 100%"
@@ -166,7 +166,7 @@
 												<li ng-repeat="outlineDashArrayObject in $ctrl.kommonitorDataExchangeServiceInstance.availableLoiDashArrayObjects"
 													ng-click="onChangeOutlineDashArray(outlineDashArrayObject)">
 													<a href="">
-														<div id="outlineDashArrayDropdownItem-{{$index}}">
+														<div id="outlineDashArrayDropdownItem-editMetadata-{{$index}}">
 														</div>
 													</a>
 												</li>
