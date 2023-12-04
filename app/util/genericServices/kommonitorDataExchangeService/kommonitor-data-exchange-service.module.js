@@ -537,6 +537,17 @@ angular
               wmsData: this.wmsDatasets_keywordFiltered,
               wfsData: this.wfsDatasets_keywordFiltered
             };
+
+            var enabledGeoresources = __env.enabledGeoresourcesInfrastructure.concat(__env.enabledGeoresourcesGeoservices);
+
+            var showPOI = enabledGeoresources.indexOf('poi') !== -1;
+            var showLOI = enabledGeoresources.indexOf('loi') !== -1;
+            var showAOI = enabledGeoresources.indexOf('aoi') !== -1;
+            var showWMS = enabledGeoresources.indexOf('wms') !== -1;
+            var showWFS = enabledGeoresources.indexOf('wfs') !== -1;
+
+            this.onChangeGeoresourceKeywordFilter(undefined, showPOI, showLOI, showAOI, showWMS, showWFS);
+
 					};
 
           this.addSingleGeoresourceMetadata = function(georesourceMetadata){

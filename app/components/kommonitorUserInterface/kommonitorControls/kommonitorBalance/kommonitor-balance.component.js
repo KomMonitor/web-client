@@ -31,6 +31,8 @@ angular
 							trendComputationType: "linear"
 						};
 
+						$scope.enableBilanceTrend = __env.enableBilanceTrend;
+
 						$scope.$on("DisableBalance", function (event) {
 							kommonitorDataExchangeService.isBalanceChecked = false;
 							if($scope.rangeSliderForBalance){
@@ -165,7 +167,7 @@ angular
 							}
 
 							// use configuration item and data specified to show chart
-							$scope.trendOption = kommonitorDiagramHelperService.makeTrendChartOptions_forAllFeatures(indicatorMetadata, fromDateAsPropertyString, toDateAsPropertyString, $scope.trendConfig_allFeatures.showMinMax, $scope.trendConfig_allFeatures.showCompleteTimeseries, $scope.trendConfig_allFeatures.trendComputationType);
+							$scope.trendOption = kommonitorDiagramHelperService.makeTrendChartOptions_forAllFeatures(indicatorMetadata, fromDateAsPropertyString, toDateAsPropertyString, $scope.trendConfig_allFeatures.showMinMax, $scope.trendConfig_allFeatures.showCompleteTimeseries, $scope.trendConfig_allFeatures.trendComputationType, $scope.enableBilanceTrend);
 							$scope.trendChart_allFeatures.setOption($scope.trendOption);
 
 							$scope.trendChart_allFeatures.hideLoading();

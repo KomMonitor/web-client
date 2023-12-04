@@ -24,6 +24,24 @@ try {
   window.__env.isAdvancedMode = true; // controls if advanced mode is activated on startup
   window.__env.showAdvancedModeSwitch = true; // controls if toggle switch is at all displayed for toggling basinc/advanced mode  
 
+  // enable/disable certain tools and functions
+
+  // controls, which filter modes should be active
+  // possible values: ["kommonitorRangeFilter", "kommonitorSpatialFilter", "kommonitorThresholdFilter"]
+  window.__env.filterModes = ["kommonitorRangeFilter", "kommonitorSpatialFilter", "kommonitorThresholdFilter"];
+
+  // controls whether the bilance tool should visualize temporal trends or not
+  window.__env.enableBilanceTrend = true;
+
+  // controls whether the scatter plot should include a bivariate regression line or not
+  window.__env.enableScatterPlotRegression = true;
+
+  // controls, which types of georesources should be included
+  // possible values for infrastructure georesources: ["aoi", "loi", "poi"]
+  window.__env.enabledGeoresourcesInfrastructure = ["aoi", "poi", "loi"];
+  // possible values for geoservice georesources: ["wfs", "wms"]
+  window.__env.enabledGeoresourcesGeoservices = ["wfs", "wms"];
+
   // encrypted data transfer from Data Management API settings
   window.__env.encryption = {
     enabled: false,

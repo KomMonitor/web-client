@@ -9,6 +9,7 @@ angular
 							'kommonitorDataExchangeService', 'kommonitorMapService', '$scope', '$rootScope', '$http', '__env', '$timeout',
 							function indicatorRadarController(
 									kommonitorDataExchangeService, kommonitorMapService, $scope, $rootScope, $http, __env, $timeout) {
+
 								/*
 								 * reference to kommonitorDataExchangeService instances
 								 */
@@ -34,14 +35,36 @@ angular
 								$scope.selectedDate_manual = undefined;
 								$('#manualDateDatepicker').datepicker(kommonitorDataExchangeService.datePickerOptions);
 
-								$scope.showPOI = true;
-								$scope.showLOI = true;
-								$scope.showAOI = true;
-								$scope.showWMS = true;
-								$scope.showWFS = true;
+								
+								$scope.enabledGeoresourcesInfrastructure = __env.enabledGeoresourcesInfrastructure;
+                                $scope.enabledGeoresourcesGeoservices = __env.enabledGeoresourcesGeoservices;
+
+
+								$scope.isGeoresourceInfrastructureEnabled = function(id) {
+                                    return $scope.enabledGeoresourcesInfrastructure.indexOf(id) !== -1;
+                                }
+
+                                $scope.isGeoresourceGeoserviceEnabled = function(id) {
+                                    return $scope.enabledGeoresourcesGeoservices.indexOf(id) !== -1;
+                                }
+
+								$scope.showPOI = $scope.isGeoresourceInfrastructureEnabled('poi');
+								$scope.showLOI = $scope.isGeoresourceInfrastructureEnabled('loi');
+								$scope.showAOI = $scope.isGeoresourceInfrastructureEnabled('aoi');
+								$scope.showWMS = $scope.isGeoresourceGeoserviceEnabled('wms');
+								$scope.showWFS = $scope.isGeoresourceGeoserviceEnabled('wfs');
 
 								$scope.showAllForTopic_null = false;
 
+								$scope.onChangeGeoresourceKeywordFilter = function(georesourceNameFilter, showPOI, showLOI, showAOI, showWMS, showWFS){     
+									$scope.showPOI = showPOI;
+									$scope.showLOI = showLOI;
+									$scope.showAOI = showAOI;
+									$scope.showWMS = showWMS;
+									$scope.showWFS = showWFS;
+									kommonitorDataExchangeService.onChangeGeoresourceKeywordFilter(georesourceNameFilter, showPOI, showLOI, showAOI, showWMS, showWFS);
+								}						
+								
 
 								// initialize any adminLTE box widgets
 								$timeout(function(){

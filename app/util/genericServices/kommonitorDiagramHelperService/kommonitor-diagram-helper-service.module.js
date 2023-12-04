@@ -1736,7 +1736,7 @@ angular
         return eChartOptions;
       };
 
-      this.makeTrendChartOptions_forAllFeatures = function(indicatorMetadataAndGeoJSON, fromDateAsPropertyString, toDateAsPropertyString, showMinMax, showCompleteTimeseries, computationType){
+      this.makeTrendChartOptions_forAllFeatures = function(indicatorMetadataAndGeoJSON, fromDateAsPropertyString, toDateAsPropertyString, showMinMax, showCompleteTimeseries, computationType, trendEnabled){
           // we may base on the the precomputed timeseries lineOptions and modify that from a cloned instance
 
           var timeseriesOptions = JSON.parse(JSON.stringify(this.getLineChartOptions()));
@@ -1821,64 +1821,66 @@ angular
           }
 
           // add regression line according to option          
-
-          var trendLine; 
-          if (computationType.includes("linear")){
-            trendLine = ecStat.regression('linear', trendData);
-          }
-          else if (computationType.includes("exponential")){
-            trendLine = ecStat.regression('exponential', trendData);
-          }
-          else if (computationType.includes("polynomial_3")){
-            trendLine = ecStat.regression('polynomial', trendData, 3);
-          }
-          else{
-            trendLine = ecStat.regression('linear', trendData);
-          }
-
-          timeseriesOptions.legend.data.push("Trendlinie");
-
-          timeseriesOptions.series.push({
-            name: 'Trendlinie',
-            type: 'line',
-            showSymbol: false,
-            data: trendLine.points,
-            lineStyle: {
-              normal: {
-                color: 'red',
-                width: 4,
-                type: 'dashed'
-              }
-            },
-            itemStyle: {
-              normal: {
-                borderWidth: 3,
-                color: 'red',
-                opacity: 0
-              }
-            },
-            markPoint: {
-                itemStyle: {
-                    normal: {
-                        color: 'transparent'
-                    }
-                },
-                // label: {
-                //     normal: {
-                //         show: true,
-                //         position: 'left',
-                //         formatter: trendLine.expression,
-                //         textStyle: {
-                //             color: '#333',
-                //             fontSize: 14
-                //         }
-                //     }
-                // },
-                data: [{
-                    coord: trendLine.points[trendLine.points.length - 1]
-                }]
+          if (trendEnabled) {
+            var trendLine; 
+            if (computationType.includes("linear")){
+              trendLine = ecStat.regression('linear', trendData);
             }
-        });
+            else if (computationType.includes("exponential")){
+              trendLine = ecStat.regression('exponential', trendData);
+            }
+            else if (computationType.includes("polynomial_3")){
+              trendLine = ecStat.regression('polynomial', trendData, 3);
+            }
+            else{
+              trendLine = ecStat.regression('linear', trendData);
+            }
+
+            timeseriesOptions.legend.data.push("Trendlinie");
+
+            timeseriesOptions.series.push({
+              name: 'Trendlinie',
+              type: 'line',
+              showSymbol: false,
+              data: trendLine.points,
+              lineStyle: {
+                normal: {
+                  color: 'red',
+                  width: 4,
+                  type: 'dashed'
+                }
+              },
+              itemStyle: {
+                normal: {
+                  borderWidth: 3,
+                  color: 'red',
+                  opacity: 0
+                }
+              },
+              markPoint: {
+                  itemStyle: {
+                      normal: {
+                          color: 'transparent'
+                      }
+                  },
+                  // label: {
+                  //     normal: {
+                  //         show: true,
+                  //         position: 'left',
+                  //         formatter: trendLine.expression,
+                  //         textStyle: {
+                  //             color: '#333',
+                  //             fontSize: 14
+                  //         }
+                  //     }
+                  // },
+                  data: [{
+                      coord: trendLine.points[trendLine.points.length - 1]
+                  }]
+              }
+            });
+          }
+          
 
         if(! showMinMax){
           timeseriesOptions.series.splice(1, 1);
