@@ -116,6 +116,67 @@
 								</div>
 							</div>
 
+							<div class="row vertical-align">
+								<div class="col-md-3 col-sm-6 col-xs-12">
+									<div class="form-group">
+										<label>als Umringslayer markieren?</label>
+										<label class="switch">
+											<input type="checkbox" value="isOutlineLayer" ng-model="isOutlineLayer">
+											<span class="switchslider round"></span>
+										</label>
+										<div class="help-block">
+											<p>wenn markiert, dann wird in der Kartenapplikation in der Layersteuerung ein entsprechender Eintrag zur Darstellung der Raumeinheitsumringe angeboten</p>
+										</div>
+									</div>
+								</div>
+								<div class="col-md-3 col-sm-6 col-xs-12" >
+									<div ng-show="isOutlineLayer" class="form-group" align="center">
+										<label>Linienfarbe (Umringslayer)</label>
+										<div id="outlineColorPicker_editSpatialUnit" class="input-group" style="width: 50px;">
+											<input type="text" style="display:none;" class="form-control input-sm"
+												ng-model="outlineColor" placeholder="Umringsfarbwahl"
+												value="#bf3d2c" />
+											<span title="Klicken, um die Farbe anzupassen"
+												style="border: 1px solid #ccc; width: 100%"
+												class="input-group-addon btn btn-info btn-sm"><i></i></span>
+										</div>
+										<div class="help-block with-errors"></div>
+
+									</div>
+								</div>
+								<div class="col-md-3 col-sm-6 col-xs-12" >
+									<div ng-show="isOutlineLayer" class="form-group" align="center">
+										<label>Linienbreite (Umringslayer)</label>
+										<br/>
+										<input style="width: auto;" type="number" ng-model="outlineWidth" min="1" max="5" step="1">
+										<div class="help-block with-errors"></div>
+									</div>
+								</div>
+								<div class="col-md-3 col-sm-6 col-xs-12" >
+									<div ng-show="isOutlineLayer" class="form-group" align="center">
+										<label>Linienmuster (Umringslayer)</label>
+										<div class="dropdown">
+											<button type="button" width="200px" class="btn btn-info dropdown-toggle"
+												data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+												<div id="outlineDashArrayDropdownButton_editSpatialUnit">
+
+												</div> <span class="caret"></span>
+											</button>
+											<ul class="dropdown-menu dropdown-menu-center">
+												<li ng-repeat="outlineDashArrayObject in $ctrl.kommonitorDataExchangeServiceInstance.availableLoiDashArrayObjects"
+													ng-click="onChangeOutlineDashArray(outlineDashArrayObject)">
+													<a href="">
+														<div id="outlineDashArrayDropdownItem-editMetadata-{{$index}}">
+														</div>
+													</a>
+												</li>
+											</ul>
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+								</div>
+							</div>
+
 							<input type="button" name="next" class="next next_editSpatialUnit action-button" value="N&auml;chster Schritt"/>
 
 						</fieldset>	
