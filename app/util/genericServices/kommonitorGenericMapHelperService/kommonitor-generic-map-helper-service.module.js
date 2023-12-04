@@ -1,10 +1,10 @@
-angular.module('kommonitorGenericMapHelper', []);
+angular.module('kommonitorGenericMapHelper', ['kommonitorDataExchange']);
 
 angular
   .module('kommonitorGenericMapHelper', [])
   .service(
-    'kommonitorGenericMapHelperService', ['$rootScope', '__env', '$timeout',
-    function ($rootScope, __env, $timeout) {
+    'kommonitorGenericMapHelperService', ['$rootScope', '__env', '$timeout', 'kommonitorDataExchangeService', 
+    function ($rootScope, __env, $timeout, kommonitorDataExchangeService) {
 
       var self = this;
 
@@ -494,27 +494,36 @@ angular
 
       this.createCustomMarker = function(poiFeature, poiSymbolColor, poiMarkerColor, poiSymbolBootstrap3Name, metadataObject){
         var customMarker;
-        try {
-          customMarker = L.AwesomeMarkers.icon({
-            icon: poiSymbolBootstrap3Name,
-            iconColor: poiSymbolColor,
-            markerColor: poiMarkerColor
-          });
-        } catch (err) {
-          customMarker = L.AwesomeMarkers.icon({
-            icon: 'home', // default back to home
-            iconColor: poiSymbolColor,
-            markerColor: poiMarkerColor
-          });
-        }
+
+        var customMarker = L.VectorMarkers.icon({
+          viewBox: '0 0 32 52',
+          iconSize: [30 * kommonitorDataExchangeService.selectedPOISize.scaleFactor, 50 * kommonitorDataExchangeService.selectedPOISize.scaleFactor],
+          iconAnchor: [ 15 * kommonitorDataExchangeService.selectedPOISize.scaleFactor, 50 * kommonitorDataExchangeService.selectedPOISize.scaleFactor ],
+          shadowSize: [0, 0], // ausgeschaltete Schatten
+          // um Schatten einzuschalten: //shadowSize:   [36 * kommonitorDataExchangeService.selectedPOISize.scaleFactor, 16 * kommonitorDataExchangeService.selectedPOISize.scaleFactor ],
+          // um Schatten einzuschalten: //shadowAnchor: [35 * kommonitorDataExchangeService.selectedPOISize.scaleFactor, 10 * kommonitorDataExchangeService.selectedPOISize.scaleFactor],
+          icon: poiSymbolBootstrap3Name,
+          prefix: 'glyphicon',
+          markerColor: poiMarkerColor,
+          iconColor: poiSymbolColor,
+          extraClasses: kommonitorDataExchangeService.selectedPOISize.iconClassName
+        });
 
         // special treatment for geocoded results
         if(metadataObject.isGeocodedDataset){
           if (poiFeature.properties["geocoder_geocoderank"] == 2){
-            customMarker = L.AwesomeMarkers.icon({
+            customMarker = L.VectorMarkers.icon({
+              markerColor: "green",
+              viewBox: '0 0 32 52',
+              iconSize: [30 * kommonitorDataExchangeService.selectedPOISize.scaleFactor, 50 * kommonitorDataExchangeService.selectedPOISize.scaleFactor],
+              iconAnchor: [ 15 * kommonitorDataExchangeService.selectedPOISize.scaleFactor, 50 * kommonitorDataExchangeService.selectedPOISize.scaleFactor ],
+              shadowSize: [0, 0], // ausgeschaltete Schatten
+              // um Schatten einzuschalten: //shadowSize:   [36 * kommonitorDataExchangeService.selectedPOISize.scaleFactor, 16 * kommonitorDataExchangeService.selectedPOISize.scaleFactor ],
+              // um Schatten einzuschalten: //shadowAnchor: [35 * kommonitorDataExchangeService.selectedPOISize.scaleFactor, 10 * kommonitorDataExchangeService.selectedPOISize.scaleFactor],
               icon: poiSymbolBootstrap3Name,
+              prefix: 'glyphicon',
               iconColor: poiSymbolColor,
-              markerColor: "green"
+              extraClasses: kommonitorDataExchangeService.selectedPOISize.iconClassName
             });
           }          
         }

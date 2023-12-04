@@ -21,6 +21,7 @@ angular
       this.defaultBrew = undefined;
       this.measureOfValueBrew = undefined;
       this.dynamicBrew = undefined;
+      this.manualBrew = undefined;
 
       //allowesValues: equal_interval, quantile, jenks
       this.classifyMethods = [{
@@ -33,6 +34,8 @@ angular
         name: "Quantile",
         value: "quantile"
         }];
+
+      this.manualMOVBreaks = undefined;
     
       this.classifyMethod = __env.defaultClassifyMethod || "jenks";
 
@@ -216,12 +219,43 @@ angular
         return values;
       };
 
+      this.setupManualBrew = function (numClasses, colorCode, breaks) {
+        this.resetFeaturesPerColorObjects();
+
+        var colorBrewerInstance = new classyBrew();
+        numClasses = breaks.length-1;
+
+        if(numClasses >= 3) {
+          colorBrewerInstance.colors = colorBrewerInstance.colorSchemes[colorCode][numClasses];
+        }
+        else {
+          colorBrewerInstance.colors = colorBrewerInstance.colorSchemes[colorCode][3];
+          if(numClasses == 2) {
+            colorBrewerInstance.colors.shift();
+          }
+          if(numClasses == 1) {
+            colorBrewerInstance.colors.shift();
+            colorBrewerInstance.colors.shift();
+          }
+          if(numClasses == 0) {
+            colorBrewerInstance.colors = [];
+          }
+        }
+        
+        colorBrewerInstance.numClasses = numClasses;
+        colorBrewerInstance.colorCode = colorCode;
+
+        colorBrewerInstance.breaks = breaks;
+        
+        return colorBrewerInstance;
+      };
+
       /**
        * Returns and array of color brewer instances for greater and lesser than measure of value colors
        *
        * [gtMeasureOfValueBrew, ltMeasureOfValueBrew]
        */
-      this.setupMeasureOfValueBrew = function (geoJSON, propertyName, colorCodeForGreaterThanValues, colorCodeForLesserThanValues, classifyMethod, measureOfValue) {
+      this.setupMeasureOfValueBrew = function (geoJSON, propertyName, colorCodeForGreaterThanValues, colorCodeForLesserThanValues, classifyMethod, measureOfValue, breaks, numClasses) {
 
         /*
         * Idea: Analyse the complete geoJSON property array for each feature and make conclusion about how to build the legend
@@ -248,9 +282,27 @@ angular
           this.setupMovBrewValues_singleTimestamp(geoJSON, propertyName, measureOfValue);
         }        
 
-        var gtMeasureOfValueBrew = this.setupGtMeasureOfValueBrew(this.greaterThanValues, colorCodeForGreaterThanValues, classifyMethod);
-        var ltMeasureOfValueBrew = this.setupLtMeasureOfValueBrew(this.lesserThanValues, colorCodeForLesserThanValues, classifyMethod);
+        var gtMeasureOfValueBrew = this.setupGtMeasureOfValueBrew(this.greaterThanValues, colorCodeForGreaterThanValues, classifyMethod, Math.ceil(numClasses / 2));
+        var ltMeasureOfValueBrew = this.setupLtMeasureOfValueBrew(this.lesserThanValues, colorCodeForLesserThanValues, classifyMethod, Math.floor(numClasses / 2));
+        
+        if(classifyMethod == "manual") {
+          if (!breaks) {
+            breaks = [];
+            breaks[0] = gtMeasureOfValueBrew.breaks;
+            breaks[1] = ltMeasureOfValueBrew.breaks;
+          }
+  
+          var manualBreaksMatchMeasureOfValue = 
+            (breaks[1][breaks[1].length-1] <= measureOfValue) &&
+            (measureOfValue <= breaks[0][0]);
 
+          if (manualBreaksMatchMeasureOfValue) {
+            gtMeasureOfValueBrew = this.setupManualBrew(breaks[0].length -1, colorCodeForGreaterThanValues, breaks[0]);
+            ltMeasureOfValueBrew = this.setupManualBrew(breaks[1].length -1, colorCodeForLesserThanValues, breaks[1]);
+            ltMeasureOfValueBrew.colors = ltMeasureOfValueBrew.colors.reverse();
+          }
+        }
+        
         this.measureOfValueBrew = [gtMeasureOfValueBrew, ltMeasureOfValueBrew];
         return this.measureOfValueBrew;
       };
@@ -310,6 +362,16 @@ angular
 
           colorBrewerInstance.colors = tempBrew.getColors();
           colorBrewerInstance.breaks = tempBrew.getBreaks();
+
+          if(tempBrew.numClasses == 2) {
+            colorBrewerInstance.colors = tempBrew.colorSchemes[colorCode]['3'];
+            colorBrewerInstance.colors.shift();
+          }
+          if(tempBrew.numClasses == 1) {
+            colorBrewerInstance.colors = tempBrew.colorSchemes[colorCode]['3'];
+            colorBrewerInstance.colors.shift();
+            colorBrewerInstance.colors.shift();
+          }
         }
 
         else if (valuesArray.length === 4) {
@@ -357,15 +419,15 @@ angular
         return colorBrewerInstance;
       }
 
-      this.setupGtMeasureOfValueBrew = function (greaterThanValues, colorCodeForGreaterThanValues, classifyMethod) {        
+      this.setupGtMeasureOfValueBrew = function (greaterThanValues, colorCodeForGreaterThanValues, classifyMethod, numClasses) {        
 
-        return setupClassyBrew_usingFeatureCount(greaterThanValues, colorCodeForGreaterThanValues, classifyMethod, 3);
+        return setupClassyBrew_usingFeatureCount(greaterThanValues, colorCodeForGreaterThanValues, classifyMethod, numClasses);
 
       };
 
-      this.setupLtMeasureOfValueBrew = function (lesserThanValues, colorCodeForLesserThanValues, classifyMethod) {
+      this.setupLtMeasureOfValueBrew = function (lesserThanValues, colorCodeForLesserThanValues, classifyMethod, numClasses) {
 
-        var brew = setupClassyBrew_usingFeatureCount(lesserThanValues, colorCodeForLesserThanValues, classifyMethod, 3);
+        var brew = setupClassyBrew_usingFeatureCount(lesserThanValues, colorCodeForLesserThanValues, classifyMethod, numClasses);
         if(brew && brew.colors && brew.colors.length > 1){        
           brew.colors = brew.colors.reverse();
         }
@@ -377,7 +439,7 @@ angular
        *
        * [dynamicIncreaseBrew, dynamicDecreaseBrew]
        */
-      this.setupDynamicIndicatorBrew = function (geoJSON, propertyName, colorCodeForPositiveValues, colorCodeForNegativeValues, classifyMethod) {
+      this.setupDynamicIndicatorBrew = function (geoJSON, propertyName, colorCodeForPositiveValues, colorCodeForNegativeValues, classifyMethod, numClasses, breaks) {
 
         /*
         * Idea: Analyse the complete geoJSON property array for each feature and make conclusion about how to build the legend
@@ -404,8 +466,19 @@ angular
           this.setupDynamicBrewValues_singleTimestamp(geoJSON, propertyName);
         }
 
-        var dynamicIncreaseBrew = setupDynamicIncreaseBrew(this.positiveValues, colorCodeForPositiveValues, classifyMethod);
-        var dynamicDecreaseBrew = setupDynamicDecreaseBrew(this.negativeValues, colorCodeForNegativeValues, classifyMethod);
+        var dynamicIncreaseBrew = setupDynamicIncreaseBrew(this.positiveValues, colorCodeForPositiveValues, classifyMethod, Math.ceil(numClasses / 2));
+        var dynamicDecreaseBrew = setupDynamicDecreaseBrew(this.negativeValues, colorCodeForNegativeValues, classifyMethod, Math.floor(numClasses / 2));
+
+        if(classifyMethod == "manual") {
+          if (!breaks) {
+            breaks = [];
+            breaks[0] = dynamicIncreaseBrew.breaks;
+            breaks[1] = dynamicDecreaseBrew.breaks;
+          }
+          dynamicIncreaseBrew = this.setupManualBrew(breaks[0].length -1, colorCodeForPositiveValues, breaks[0]);
+          dynamicDecreaseBrew = this.setupManualBrew(breaks[1].length -1, colorCodeForNegativeValues, breaks[1]);
+          dynamicDecreaseBrew.colors = dynamicDecreaseBrew.colors.reverse();
+        }
 
         this.dynamicBrew = [dynamicIncreaseBrew, dynamicDecreaseBrew]; 
         return this.dynamicBrew;
@@ -447,12 +520,12 @@ angular
         }
       };
 
-      function setupDynamicIncreaseBrew(positiveValues, colorCodeForPositiveValues, classifyMethod) {
-        return setupClassyBrew_usingFeatureCount(positiveValues, colorCodeForPositiveValues, classifyMethod, 3);
+      function setupDynamicIncreaseBrew(positiveValues, colorCodeForPositiveValues, classifyMethod, numClasses) {
+        return setupClassyBrew_usingFeatureCount(positiveValues, colorCodeForPositiveValues, classifyMethod, numClasses);
       }
 
-      function setupDynamicDecreaseBrew(negativeValues, colorCodeForNegativeValues, classifyMethod) {
-        var brew = setupClassyBrew_usingFeatureCount(negativeValues, colorCodeForNegativeValues, classifyMethod, 3);
+      function setupDynamicDecreaseBrew(negativeValues, colorCodeForNegativeValues, classifyMethod, numClasses) {
+        var brew = setupClassyBrew_usingFeatureCount(negativeValues, colorCodeForNegativeValues, classifyMethod, numClasses);
         if(brew && brew.colors && brew.colors.length > 1){        
           brew.colors = brew.colors.reverse();
         }

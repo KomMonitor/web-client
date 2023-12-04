@@ -202,7 +202,9 @@ module.exports = function (grunt) {
             'app/app.js'
         ],
         kommonitor_styles: [
-            'app/app.css'
+            'app/app.css',
+            'app/components/kommonitorUserInterface/kommonitorControls/kommonitorLegend/kommonitor-legend.css',
+            'app/components/kommonitorUserInterface/kommonitorControls/kommonitorClassification/kommonitor-classification.css'
         ],
         copy_files: [
             //the path prefix 'app/' will be set in the copy-command itself! Thus is omitted here.

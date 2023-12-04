@@ -252,12 +252,33 @@
 
 								<br />
 
-								<!-- default values -->
-								<div class="row" style="margin-right: 0px;" ng-repeat="color in $ctrl.kommonitorVisualStyleHelperServiceInstance.defaultBrew.colors">
-									<div class="col-md-3 "><i style="background:{{color}}; opacity: {{$ctrl.kommonitorVisualStyleHelperServiceInstance.currentIndicatorOpacity}};"></i> </div>
-									<div class="col-md-6 " ng-if="$ctrl.kommonitorVisualStyleHelperServiceInstance.defaultBrew.breaks[$index + 1]" >{{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText($ctrl.kommonitorVisualStyleHelperServiceInstance.defaultBrew.breaks[$index])}} &dash; &lt; {{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText($ctrl.kommonitorVisualStyleHelperServiceInstance.defaultBrew.breaks[$index + 1])}}</div>
-									<div class="col-md-6 " ng-if="! $ctrl.kommonitorVisualStyleHelperServiceInstance.defaultBrew.breaks[$index + 1]" >{{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText($ctrl.kommonitorVisualStyleHelperServiceInstance.defaultBrew.breaks[$index])}}</div>
-									<div class="col-md-3 ">{{$ctrl.kommonitorVisualStyleHelperServiceInstance.featuresPerColorMap.get(color) || 0}}</div>
+								<div ng-switch="$ctrl.kommonitorVisualStyleHelperServiceInstance.classifyMethod">
+									<div ng-switch-when="manual">
+										<!-- manual classification -->
+										<div class="row" style="margin-right: 0px;" ng-repeat="(i, color) in $ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.colors track by $index">
+											<div class="col-md-3 ">
+												<i style="background:{{color}}; opacity: {{$ctrl.kommonitorVisualStyleHelperServiceInstance.currentIndicatorOpacity}};">
+												</i> 
+											</div>
+											<div class="col-md-6 " ng-if="$ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks[$index + 1]" >
+												{{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText($ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks[$index])}} &dash; &lt; 
+												{{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText($ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks[$index + 1])}}
+											</div>
+											<div class="col-md-6 " ng-if="! $ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks[$index + 1]" >
+												{{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText($ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks[$index])}}
+											</div>
+											<div class="col-md-3 ">{{$ctrl.kommonitorVisualStyleHelperServiceInstance.featuresPerColorMap.get(color) || 0}}</div>
+										</div>
+									</div>
+									<div ng-switch-default>
+										<!-- default values -->
+										<div class="row" style="margin-right: 0px;" ng-repeat="color in $ctrl.kommonitorVisualStyleHelperServiceInstance.defaultBrew.colors">
+											<div class="col-md-3 "><i style="background:{{color}}; opacity: {{$ctrl.kommonitorVisualStyleHelperServiceInstance.currentIndicatorOpacity}};"></i> </div>
+											<div class="col-md-6 " ng-if="$ctrl.kommonitorVisualStyleHelperServiceInstance.defaultBrew.breaks[$index + 1]" >{{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText($ctrl.kommonitorVisualStyleHelperServiceInstance.defaultBrew.breaks[$index])}} &dash; &lt; {{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText($ctrl.kommonitorVisualStyleHelperServiceInstance.defaultBrew.breaks[$index + 1])}}</div>
+											<div class="col-md-6 " ng-if="! $ctrl.kommonitorVisualStyleHelperServiceInstance.defaultBrew.breaks[$index + 1]" >{{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText($ctrl.kommonitorVisualStyleHelperServiceInstance.defaultBrew.breaks[$index])}}</div>
+											<div class="col-md-3 ">{{$ctrl.kommonitorVisualStyleHelperServiceInstance.featuresPerColorMap.get(color) || 0}}</div>
+										</div>
+									</div>
 								</div>
 							</div>
 						</div>
@@ -311,61 +332,19 @@
 		</div>
 		<!-- /.box -->
 
-		<!-- classification  -->
+		<!-- classification -->
 		<div id="kommonitorIndicatorClassification" class="box box-primary collapsed-box">
 			<div class="box-header with-border">
 				<h3 class="box-title">Klassifikation anpassen</h3>
-
 				<div class="box-tools pull-right">
 					<button id="indicatorClassificationCollapse" type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
 					</button>
 				</div>
 			</div>
 			<div class="box-body boxedLegend">
-
-				<strong
-					title="Hier können Sie die Klassifizierungsmethode ändern. Das Herüberfahren des Mauszeigers über eine der Optionen öffnet einen Tooltip mit Informationen zu den Methoden. In Zukunft sollen auch manuelle Klassifikationen möglich gemacht werden.">Klassifizierungsmethode:</strong>
-				<form>
-					<div> 
-						<label
-							title="Bei Jenks (Natürliche Unterbrechungen) werden Klassengrenzen identifiziert, die ähnliche Werte möglichst gut gruppieren und zugleich die Unterschiede zwischen den Klassen maximieren."
-							class="radio-inline"><input id="radiojenks" type="radio" ng-model="$ctrl.kommonitorVisualStyleHelperServiceInstance.classifyMethod" ng-checked="$ctrl.kommonitorVisualStyleHelperServiceInstance.classifyMethod == 'jenks'" name="classifyMethod">Jenks</label> 
-						<label
-							title="Mit der Methode Gleiches Intervall wird der Bereich der Attributwerte in gleich große Teilbereiche unterteilt."
-							class="radio-inline"><input id="radioequal_interval" type="radio" ng-model="$ctrl.kommonitorVisualStyleHelperServiceInstance.classifyMethod" ng-checked="$ctrl.kommonitorVisualStyleHelperServiceInstance.classifyMethod == 'equal_interval'" name="classifyMethod"
-								checked="">Gleiches Intervall</label> 
-						<label
-							title="Bei der Quantil-Methode enthält jede Klasse die gleiche Anzahl von Features."
-							class="radio-inline"><input id="radioquantile" type="radio" ng-model="$ctrl.kommonitorVisualStyleHelperServiceInstance.classifyMethod" ng-checked="$ctrl.kommonitorVisualStyleHelperServiceInstance.classifyMethod == 'quantile'" name="classifyMethod">Quantile</label>
-					</div>
-				</form>
-				<br>
-
-				<div class="classificationBoxToogleSlidersWrapper">
-					<span class="classificationBoxToogleSlidersLbl"><strong>Klassifizierung &uuml;ber die gesamte Zeitreihe</strong> &nbsp;</span>
-					<label class="switch" title="Klassifizierung &uuml;ber die gesamte Zeitreihe"><input id="controlIndicatorClassifyOption_wholeTimeseries" type="checkbox" value="useWholeTimeseriesClassification" ng-model="$ctrl.kommonitorDataExchangeServiceInstance.classifyUsingWholeTimeseries" ng-checked="$ctrl.kommonitorDataExchangeServiceInstance.classifyUsingWholeTimeseries"><span class="switchslider round"></span></label>
-				</div>
-
-				<div class="classificationBoxToogleSlidersWrapper" ng-if="containsZeroValues">
-					<span class="classificationBoxToogleSlidersLbl"><strong>Wert "0" als separate Klasse darstellen</strong> &nbsp;</span>
-					<label class="switch" title="0 als separate Klasse darstellen"><input id="controlIndicatorZeroClassifyOption" type="checkbox" value="useSeparateZeroClass" ng-model="$ctrl.kommonitorDataExchangeServiceInstance.classifyZeroSeparately" ng-checked="$ctrl.kommonitorDataExchangeServiceInstance.classifyZeroSeparately"><span class="switchslider round"></span></label>
-				</div>
-
-				<div class="classificationBoxToogleSlidersWrapper" ng-if="containsOutliers_high || containsOutliers_low">
-					<span class="classificationBoxToogleSlidersLbl"><strong>Ausrei&szlig;er gesondert markieren</strong> &nbsp;</span>
-					<label class="switch" title="Ausrei&szlig;er gesondert markieren"><input id="controlIndicatorOutlierDetection" type="checkbox" value="useOutlierDetection" ng-model="$ctrl.kommonitorDataExchangeServiceInstance.useOutlierDetectionOnIndicator" ng-checked="$ctrl.kommonitorDataExchangeServiceInstance.useOutlierDetectionOnIndicator"><span class="switchslider round"></span></label>
-				</div>
-
-				<div class="classificationBoxToogleSlidersWrapper">
-					<span class="classificationBoxToogleSlidersLbl"><strong>NoData-Werte tempor&auml;r aus Datensatz entfernen</strong> &nbsp;</span>
-					<label class="switch" title="NoData-Werte tempor&auml;r aus Datensatz entfernen"><input id="controlNoDataDisplay" type="checkbox" value="useNoDataToggle" ng-model="$ctrl.kommonitorDataExchangeServiceInstance.useNoDataToggle" ng-checked="$ctrl.kommonitorDataExchangeServiceInstance.useNoDataToggle"><span class="switchslider round"></span></label>
-				</div>
-				
-				
+				<kommonitor-classification></kommonitor-classification>
 			</div>
-			<!-- /.box-body -->
 		</div>
-		<!-- /.box -->
 
 		<div id="kommonitorsStatisticalValues" class="box box-primary">
 			<div class="box-header with-border">

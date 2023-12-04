@@ -401,6 +401,7 @@ angular
 
 								if(kommonitorDataExchangeService.measureOfValue >= $scope.movMinValue && kommonitorDataExchangeService.measureOfValue <= $scope.movMaxValue){
 									$scope.inputNotValid = false;
+									$rootScope.$broadcast("changeMOV", kommonitorDataExchangeService.measureOfValue);
 									kommonitorMapService.restyleCurrentLayer();
 								}
 								else{
@@ -420,6 +421,7 @@ angular
 									$scope.movRangeSlider.update({
 							        from: kommonitorDataExchangeService.measureOfValue
 							    });
+									$rootScope.$broadcast("changeMOV", kommonitorDataExchangeService.measureOfValue);
 									kommonitorMapService.restyleCurrentLayer();
 								}
 								else{

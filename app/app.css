@@ -785,6 +785,67 @@ pre.CodeMirror-line {
 	background-color: rgba(47,47,47,0.6);
 }
 
+.vector-marker-icon-middlesized {
+	font-size: 10px !important;
+}
+
+.vector-marker-icon-small {
+	font-size: 8px !important;
+}
+
+.vector-marker-icon-extra-small {
+	font-size: 5px !important;
+	width: 11px !important;
+	top: 5px !important;
+}
+
+.vector-marker-icon-big {
+	font-size: 18px !important;
+}
+
+.vector-marker-shadow-small {
+	margin-left: -26px;
+  margin-top: -18px;
+  width: 22px;
+  height: 33px;
+}
+
+.vector-marker-icon-red svg path {
+	fill: rgb(205, 59, 40);
+}
+
+.vector-marker-icon-orange svg path {
+	fill: rgb(235,144,46);
+}
+
+.vector-marker-icon-beige svg path {
+	fill: rgb(255,198,138);
+}
+
+.vector-marker-icon-green svg path {
+	fill: rgb(108,166,36);
+}
+
+.vector-marker-icon-blue svg path {
+	fill: rgb(53,161,209);
+}
+
+.vector-marker-icon-purple svg path {
+	fill: rgb(198,77,175);
+}
+
+.vector-marker-icon-pink svg path {
+	fill: rgb(255,138,232);
+}
+
+.vector-marker-icon-gray svg path {
+	fill: rgb(163,163,163);
+}
+
+.vector-marker-icon-black svg path {
+	fill: rgb(47,47,47);
+}
+
 /* .marker-cluster div{
 	width: 30px;
 	height: 30px;
