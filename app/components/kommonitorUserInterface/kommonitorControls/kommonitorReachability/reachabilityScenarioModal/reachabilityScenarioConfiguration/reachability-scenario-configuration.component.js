@@ -90,6 +90,11 @@ angular.module('reachabilityScenarioConfiguration').component('reachabilityScena
 				$scope.$digest();
 			})
 
+			$scope.$on("switchReportingMode", function(event, isUsedInReporting){
+				$scope.isUsedInReporting = isUsedInReporting;
+				$scope.$digest();
+			});
+
 			$scope.$on("reportingPoiLayerSelected", function (event, data) {
 				$scope.isUsedInReporting = true;
 				kommonitorReachabilityHelperService.settings.selectedStartPointLayer = data;
@@ -99,8 +104,14 @@ angular.module('reachabilityScenarioConfiguration').component('reachabilityScena
 			$scope.domId = "reachabilityScenarioIsochroneGeoMap";
 
 			$scope.init = function () {
-				$scope.mapParts = kommonitorReachabilityMapHelperService.initReachabilityGeoMap($scope.domId);
+				$scope.mapParts = kommonitorReachabilityMapHelperService.initReachabilityGeoMap($scope.domId);				
 			};
+
+			$scope.$on("onManageReachabilityScenario", function (event, scenarioDataset) {
+
+				$scope.isUsedInReporting = false;
+
+			});
 
 			$scope.init();
 

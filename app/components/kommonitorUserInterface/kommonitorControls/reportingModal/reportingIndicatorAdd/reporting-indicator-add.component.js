@@ -73,11 +73,11 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				return !page.hasOwnProperty("area")
 			});
 
-			if($scope.template.name === "A4-landscape-timestamp")
+			if($scope.template.name.includes("timestamp"))
 				$scope.updateAreasForTimestampTemplates(newVal)
-			if($scope.template.name === "A4-landscape-timeseries")
+			if($scope.template.name.includes("timeseries"))
 				$scope.updateAreasForTimeseriesTemplates(newVal)
-			if($scope.template.name === "A4-landscape-reachability")
+			if($scope.template.name.includes("reachability"))
 				$scope.updateAreasForReachabilityTemplates(newVal)
 
 			let updateDiagramsInterval_areas;
@@ -100,9 +100,9 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 						$scope.isFirstUpdateOnIndicatorOrPoiLayerSelection = false;
 						justChanged = true;
 					} 
-					if($scope.template.name == "A4-landscape-reachability" || ($scope.isFirstUpdateOnIndicatorOrPoiLayerSelection == false && justChanged == false)) {
+					if($scope.template.name.includes("reachability") || ($scope.isFirstUpdateOnIndicatorOrPoiLayerSelection == false && justChanged == false)) {
 						await $scope.initializeAllDiagrams();
-						if($scope.template.name !== "A4-landscape-reachability") {
+						if(!$scope.template.name.includes("reachability")) {
 							// in reachability template we have to update leaflet maps, too
 							$scope.loadingData = false;
 						}
@@ -140,7 +140,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					// pagesForTimestamp is the template-section for that timestamp
 					let pagesForTimestamp = $scope.template.pages.filter( page => {
 						let dateEl = page.pageElements.find( el => {
-							return el.type === "dataTimestamp-landscape"
+							return el.type.includes("dataTimestamp-")
 						});
 						
 						return dateEl.text === timestamp.name
@@ -155,7 +155,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					for(let pageToInsert of pagesToInsertPerTimestamp) {
 
 						let titleEl = pageToInsert.pageElements.find( el => {
-							return el.type === "indicatorTitle-landscape"
+							return el.type.includes("indicatorTitle-")
 						});
 						titleEl.text = $scope.selectedIndicator.indicatorName + " [" + $scope.selectedIndicator.unit + "]";
 						if(pageToInsert.area) {
@@ -164,7 +164,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 						titleEl.isPlaceholder = false;
 
 						let dateEl = pageToInsert.pageElements.find( el => {
-							return el.type === "dataTimestamp-landscape"
+							return el.type.includes("dataTimestamp-")
 						});
 
 						dateEl.text = timestamp.name;
@@ -218,7 +218,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			for(let pageToInsert of pagesToInsert) {
 
 				let titleEl = pageToInsert.pageElements.find( el => {
-					return el.type === "indicatorTitle-landscape"
+					return el.type.includes("indicatorTitle-")
 				});
 				titleEl.text = $scope.selectedIndicator.indicatorName + " [" + $scope.selectedIndicator.unit + "]";
 				if(pageToInsert.area) {
@@ -227,7 +227,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				titleEl.isPlaceholder = false;
 
 				let dateEl = pageToInsert.pageElements.find( el => {
-					return el.type === "dataTimeseries-landscape"
+					return el.type.includes("dataTimeseries-")
 				});
 				let includeInBetweenValues = false
 				let dsValues = $scope.getFormattedDateSliderValues(includeInBetweenValues);
@@ -269,7 +269,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				for(let pageToInsert of pagesToInsert) {
 
 					let titleEl = pageToInsert.pageElements.find( el => {
-						return el.type === "indicatorTitle-landscape"
+						return el.type.includes("indicatorTitle-")
 					});
 					titleEl.text = "Entfernungen für " + $scope.selectedPoiLayer.datasetName;
 					if(pageToInsert.area) {
@@ -278,7 +278,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					titleEl.isPlaceholder = false;
 
 					let subtitleEl = pageToInsert.pageElements.find( el => {
-						return el.type === "reachability-subtitle-landscape"
+						return el.type.includes("reachability-subtitle-")
 					});
 					subtitleEl.text = $scope.selectedTimestamps[0].name;
 					if($scope.isochrones)
@@ -321,7 +321,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					// no need to insert pages, we just replace the placeholder timestamp
 					for(let page of $scope.template.pages) {
 						for(let pageElement of page.pageElements) {
-							if(pageElement.type === "dataTimestamp-landscape") {
+							if(pageElement.type.includes("dataTimestamp-")) {
 								pageElement.text = difference[0].name;
 								pageElement.isPlaceholder = false;
 							}
@@ -360,7 +360,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 						for(let pageToInsert of pagesToInsert) {
 							for(let pageElement of pageToInsert.pageElements) {
 
-								if(pageElement.type === "indicatorTitle-landscape") {
+								if(pageElement.type.includes("indicatorTitle-")) {
 									pageElement.text = $scope.selectedIndicator.indicatorName + " [" + $scope.selectedIndicator.unit + "]";
 									if(pageToInsert.area) {
 										pageElement.text += ", " + pageToInsert.area
@@ -368,7 +368,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 									pageElement.isPlaceholder = false;
 								}
 
-								if(pageElement.type === "dataTimestamp-landscape") {
+								if(pageElement.type.includes("dataTimestamp-")) {
 									pageElement.text = timestampToInsert.name;
 									pageElement.isPlaceholder = false;
 								}
@@ -382,7 +382,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 							let page = $scope.template.pages[i];
 
 							for(let pElement of page.pageElements) {
-								if(pElement.type === "dataTimestamp-landscape") {
+								if(pElement.type.includes("dataTimestamp-")) {
 									// compare timestamps
 									let date1 = timestampToInsert.name;
 									let date2 = pElement.text;
@@ -416,7 +416,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					for(let i=$scope.template.pages.length-1; i>=0; i--) { //iterate in reverse because we might extend the array while iterating
 						let page = $scope.template.pages[i];
 						for(let pElement of page.pageElements) {
-							if(pElement.type === "dataTimestamp-landscape") {
+							if(pElement.type.includes("dataTimestamp-")) {
 								if(pElement.isPlaceholder) {
 									$scope.template.pages.splice(i, 1);
 								}
@@ -440,7 +440,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					for(let timestampToRemove of difference) {
 						$scope.template.pages = $scope.template.pages.filter( page => {
 							let timestampEl = page.pageElements.find( el => {
-								return el.type === "dataTimestamp-landscape"
+								return el.type.includes("dataTimestamp-")
 							})
 
 							return timestampEl.text != timestampToRemove.name;
@@ -455,7 +455,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				// simply update the timestamp on all pages
 				for(let page of $scope.template.pages) {
 					for(let pageElement of page.pageElements) {
-						if(pageElement.type === "reachability-subtitle-landscape") {
+						if(pageElement.type.includes("reachability-subtitle-")) {
 							pageElement.text = newVal[0].name;
 							if($scope.isochrones)
 								pageElement.text += ", " + $scope.isochronesTypeOfMovementMapping[$scope.typeOfMovement];
@@ -492,7 +492,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 						}
 
 						await $scope.initializeAllDiagrams();
-						if($scope.template.name !== "A4-landscape-reachability") {
+						if(!$scope.template.name.includes("reachability")) {
 							// in reachability template we have to update leaflet maps, too
 							$scope.loadingData = false;
 						}
@@ -524,11 +524,11 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			}
 			$scope.template = template;
 
-			if($scope.template.name === "A4-landscape-timestamp")
+			if($scope.template.name.includes("timestamp"))
 				$scope.indexOfFirstAreaSpecificPage = 3;
-			if($scope.template.name === "A4-landscape-timeseries")
+			if($scope.template.name.includes("timeseries"))
 				$scope.indexOfFirstAreaSpecificPage = 4;
-			if($scope.template.name === "A4-landscape-reachability")
+			if($scope.template.name.includes("reachability"))
 				$scope.indexOfFirstAreaSpecificPage = 1;
 
 			// disable tabs to force user to pick a poi-layer / indicator first
@@ -537,8 +537,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			let tabChildren = Array.from(tabList.children)
 			for(let [idx, tab] of tabChildren.entries()) {
 				let id = tab.id.at(-1);
-				if( ($scope.template.name === "A4-landscape-reachability" && id==1) || // pois
-						($scope.template.name !== "A4-landscape-reachability" && id==3) ) { // indicators
+				if( ($scope.template.name.includes("reachability") && id==1) || // pois
+						(!$scope.template.name.includes("reachability") && id==3) ) { // indicators
 					tab.classList.add("active");
 					tabPanes[idx].classList.add("active");
 				} else {
@@ -549,7 +549,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 			$scope.initializeDualLists();
 
-			if($scope.template.name === "A4-landscape-reachability") {
+			if($scope.template.name.includes("reachability")) {
 				$scope.resetIsochrones();
 				Promise.all([
 					$scope.queryGeoresources(),
@@ -709,7 +709,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				});
 				// if any timestamp was deselected show a warning alert
 				// except for reachability template, it doesn't matter there
-				if(selectedTimestamps_old.length > $scope.selectedTimestamps.length && $scope.template.name != "A4-landscape-reachability") {
+				if(selectedTimestamps_old.length > $scope.selectedTimestamps.length && !$scope.template.name.includes("-reachability")) {
 					$("#reporting-spatialUnitChangeWarning").show();
 				}
 			} else {
@@ -718,7 +718,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				validTimestamps.push(mostRecentTimestampName)
 			}
 			
-			if($scope.template.name === "A4-landscape-timeseries") {
+			if($scope.template.name.includes("timeseries")) {
 				// Similar procedure as with timestamps
 				let oldTimeseries = $scope.getFormattedDateSliderValues(true);
 				
@@ -778,7 +778,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			// we have the wrong geometries set at this point, causing area selection to fail.
 			// echarts requires properties.name to be present, create it from properties.NAME unless it exists
 			let features;
-			if($scope.template.name == "A4-landscape-reachability") {
+			if($scope.template.name.includes("reachability")) {
 				if($scope.selectedIndicator) {
 					features = $scope.availableFeaturesBySpatialUnit[ $scope.selectedSpatialUnit.spatialUnitName ];
 				} else {
@@ -801,9 +801,9 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				// User selects a poi layer first and we set the most recent timestamp programmatically, triggering this function without selected Indicator
 				// We only need an echarts geoMap to show isochrones, POIs and spatial unit borders
 				if($scope.selectedIndicator) {
-					if($scope.template.name === "A4-landscape-reachability") {
+					if($scope.template.name.includes("reachability")) {
 						$scope.reachabilityTemplateGeoMapOptions = $scope.prepareReachabilityEchartsMap();
-					} else if ($scope.template.name === "A4-landscape-timeseries") {
+					} else if ($scope.template.name.includes("timeseries")) {
 						let values = $scope.getFormattedDateSliderValues(true);
 						let classifyUsingWholeTimeseries = false;
 						let isTimeseries = true;
@@ -824,7 +824,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				}
 
 				await $scope.initializeAllDiagrams();
-				if($scope.template.name !== "A4-landscape-reachability") {
+				if(!$scope.template.name.includes("reachability")) {
 					// in reachability template we have to update leaflet maps, too
 					$scope.loadingData = false;
 				}
@@ -1131,6 +1131,12 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		}
 		
 
+		$('#reporting-modal').on('show.bs.modal', function (e) {
+			$scope.$broadcast("switchReportingMode", true);
+		})
+		$('#reporting-modal').on('hidden.bs.modal', function (e) {
+			$scope.$broadcast("switchReportingMode", false);
+		})
 
 		$scope.onPoiLayerSelected = async function(poiLayer) {
 
@@ -1139,7 +1145,9 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				$scope.diagramsPrepared = false;
 				$scope.isFirstUpdateOnIndicatorOrPoiLayerSelection = true;
 				$scope.selectedPoiLayer = poiLayer;
-				$scope.selectedPoiLayer.geoJSON = await $scope.queryMostRecentGeoresourceFeatures($scope.selectedPoiLayer)
+				$scope.selectedPoiLayer.geoJSON = await $scope.queryMostRecentGeoresourceFeatures($scope.selectedPoiLayer);
+				// reachability config requires this new property
+				$scope.selectedPoiLayer.geoJSON_reachability = $scope.selectedPoiLayer.geoJSON;
 			
 				$scope.$broadcast("reportingPoiLayerSelected", $scope.selectedPoiLayer);
 
@@ -1178,14 +1186,14 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				// update information in preview
 				for(let page of $scope.template.pages) {
 					for(let el of page.pageElements) {
-						if(el.type === "indicatorTitle-landscape") {
+						if(el.type.includes("indicatorTitle-")) {
 							el.text = "Entfernungen für " + $scope.selectedPoiLayer.datasetName;
 							el.isPlaceholder = false;
 							// no area-specific pages in template since diagrams are not prepared yet
 							// and area/timestamp/timeseries changes are done after that
 						}
 
-						if(el.type === "reachability-subtitle-landscape") {
+						if(el.type.includes("reachability-subtitle-")) {
 							el.text = $scope.selectedTimestamps[0].name;
 							if($scope.isochrones)
 								el.text += ", " + $scope.isochronesTypeOfMovementMapping[$scope.typeOfMovement];
@@ -1309,7 +1317,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 						});
 					}
 
-					if(pageElement.type === "reachability-subtitle-landscape") {
+					if(pageElement.type.includes("reachability-subtitle-")) {
 						pageElement.text = $scope.selectedTimestamps[0].name;
 						if($scope.isochrones) {
 							pageElement.text += ", " + $scope.isochronesTypeOfMovementMapping[$scope.typeOfMovement];
@@ -1357,7 +1365,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 						});
 					}
 
-					if(pageElement.type === "reachability-subtitle-landscape") {
+					if(pageElement.type.includes("reachability-subtitle-")) {
 						pageElement.text = $scope.selectedTimestamps[0].name;
 						if($scope.isochrones) {
 							pageElement.text += ", " + $scope.isochronesTypeOfMovementMapping[$scope.typeOfMovement];
@@ -1377,7 +1385,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		$scope.onIndicatorSelected = async function(indicator) {
 			try {
 				$scope.loadingData = true;
-				if($scope.template.name === "A4-landscape-reachability") {
+				if($scope.template.name.includes("reachability")) {
 					$scope.handleIndicatorSelectForReachability(indicator);
 					return;
 				}
@@ -1438,25 +1446,25 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					return el.properties.NAME === mostRecentTimestampName;
 				})
 				
-				if($scope.template.name === "A4-landscape-timeseries") {
+				if($scope.template.name.includes("timeseries")) {
 					$scope.dateSlider = $scope.initializeDateRangeSlider( timestampsForSelectedSpatialUnit );
 				}
 				// update information in preview
 				for(let page of $scope.template.pages) {
 					for(let el of page.pageElements) {
-						if(el.type === "indicatorTitle-landscape") {
+						if(el.type.includes("indicatorTitle-")) {
 							el.text = indicator.indicatorName + " [" + indicator.unit + "]";
 							el.isPlaceholder = false;
 							// no area-specific pages in template since diagrams are not prepared yet
 							// and area/timestamp/timeseries changes are done after that
 						}
 
-						if(el.type === "dataTimestamp-landscape") {
+						if(el.type.includes("dataTimestamp-")) {
 							el.text = mostRecentTimestampName;
 							el.isPlaceholder = false
 						}
 
-						if(el.type === "dataTimeseries-landscape") {
+						if(el.type.includes("dataTimeseries-")) {
 							let dsValues = $scope.getFormattedDateSliderValues()
 							el.text = dsValues.from + " - " + dsValues.to
 							el.isPlaceholder = false
@@ -1480,7 +1488,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				// We have to update time and areas. Usually both of these would result in a diagram update.
 				// We want to skip the first one and only update diagrams once everything is ready for better performance.
 				$scope.isFirstUpdateOnIndicatorOrPoiLayerSelection = true;
-				if($scope.template.name === "A4-landscape-timeseries") {
+				if($scope.template.name.includes("timeseries")) {
 					// This is an exception from the process above
 					$scope.isFirstUpdateOnIndicatorOrPoiLayerSelection = false;
 					classifyUsingWholeTimeseries = false;
@@ -1607,7 +1615,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			$scope.template.echartsRegisteredMapNames = [...new Set($scope.echartsRegisteredMapNames)];
 			$scope.template.isochronesRangeType = $scope.isochronesRangeType;
 			$scope.template.isochronesRangeUnits = $scope.isochronesRangeUnits;
-			if($scope.template.name !== "A4-landscape-reachability") {
+			if(!$scope.template.name.includes("reachability")) {
 				$scope.$emit('reportingAddNewIndicatorClicked', [$scope.selectedIndicator, $scope.template])
 			} else {
 				$scope.$emit('reportingAddNewPoiLayerClicked', [$scope.selectedPoiLayer, $scope.selectedIndicator, $scope.template])
@@ -1941,7 +1949,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		 */
 		$scope.createPageElement_Map = async function(wrapper, page, pageElement) {
 
-			if($scope.template.name === "A4-landscape-reachability") {
+			if($scope.template.name.includes("reachability")) {
 				let map = await $scope.createMapForReachability(wrapper, page, pageElement);
 				return map;
 			}
@@ -1952,9 +1960,9 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			
 			// get the timestamp from pageElement, not from dom because dom might not be up to date yet
 			let dateElement;
-			if($scope.template.name === "A4-landscape-reachability") {
+			if($scope.template.name.includes("reachability")) {
 				dateElement = page.pageElements.find( el => {
-					return el.type === "reachability-subtitle-landscape";
+					return el.type.includes("reachability-subtitle-");
 				});
 				timestamp = dateElement.text.split(",")[0];
 			} else {
@@ -1962,7 +1970,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				dateElement = page.pageElements.find( el => {
 					// pageElement references the map here
 					// do the comparison like this because we have maps with dataTimestamp and dataTimeseries in the timeseries template
-					return el.type === (pageElement.isTimeseries ? "dataTimeseries-landscape" : "dataTimestamp-landscape");
+					return el.type.includes(pageElement.isTimeseries ? "dataTimeseries-" : "dataTimestamp-");
 				})
 				
 				if(pageElement.isTimeseries) {
@@ -1972,7 +1980,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				}
 			}
 			
-			if($scope.template.name === "A4-landscape-reachability") {
+			if($scope.template.name.includes("reachability")) {
 				mapName = $scope.selectedIndicator.indicatorId + "_" + timestamp + "_" + $scope.selectedSpatialUnit.spatialUnitName;
 			} else {
 				mapName = $scope.selectedIndicator.indicatorId + "_" + dateElement.text + "_" + $scope.selectedSpatialUnit.spatialUnitName;
@@ -2207,7 +2215,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			// get the timestamp from pageElement, not from dom because dom might not be up to date yet
 			// no timeseries possible for this type of element
 			let dateElement = page.pageElements.find( el => {
-				return el.type === "dataTimestamp-landscape";
+				return el.type.includes("dataTimestamp-");
 			});
 			let timestamp = dateElement.text;
 
@@ -2233,7 +2241,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			// get timestamp from pageElement, not from dom because dom might not be up to date yet
 			// barcharts are only used in timestamp templates so we don't have to check for timeseries for now
 			let dateElement = page.pageElements.find( el => {
-				return el.type === "dataTimestamp-landscape";
+				return el.type.includes("dataTimestamp-");
 			});
 			let timestamp = dateElement.text;
 
@@ -2516,15 +2524,15 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			let timestamp = undefined;
 			let timeseries = undefined;
 
-			if($scope.template.name === "A4-landscape-timestamp") {
+			if($scope.template.name.includes("timestamp")) {
 				// get the timestamp from pageElement, not from dom because dom might not be up to date yet
 				let dateElement = page.pageElements.find( el => {
-					return el.type === "dataTimestamp-landscape";
+					return el.type.includes("dataTimestamp-");
 				});
 				timestamp = dateElement.text;
 			}
 
-			if($scope.template.name === "A4-landscape-timeseries") {
+			if($scope.template.name.includes("timeseries")) {
 				let inBetweenValues = true;
 				timeseries = $scope.getFormattedDateSliderValues(inBetweenValues);
 			}
@@ -2541,10 +2549,10 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				if( !isSelected )
 					continue;
 
-				if($scope.template.name === "A4-landscape-timestamp") {
+				if($scope.template.name.includes("timestamp")) {
 					// get the timestamp from pageElement, not from dom because dom might not be up to date yet
 					let dateElement = page.pageElements.find( el => {
-						return el.type === "dataTimestamp-landscape";
+						return el.type.includes("dataTimestamp-");
 					});
 					let timestamp = dateElement.text;
 					// prepare data to insert later
@@ -2558,7 +2566,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					});
 				}
 
-				if($scope.template.name === "A4-landscape-timeseries") {
+				if($scope.template.name.includes("timeseries")) {
 					for(let timestamp of timeseries.dates) {
 						let value = feature.properties["DATE_" + timestamp];
 						if(typeof(value) == 'number')
@@ -2576,7 +2584,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			rowsData.sort((a, b) => a.name.localeCompare(b.name))
 
 			// append average as last row if needed
-			if($scope.template.name === "A4-landscape-timestamp") {
+			if($scope.template.name.includes("timestamp")) {
 				rowsData.push({
 					name: "Durchschnitt Selektion",
 					value:  $scope.calculateAvg($scope.selectedIndicator, timestamp, true)
@@ -2599,18 +2607,18 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					// setup new page
 					for(let pageElement of newPage.pageElements) {
 	
-						if(pageElement.type === "indicatorTitle-landscape") {
+						if(pageElement.type.includes("indicatorTitle-")) {
 							pageElement.text = $scope.selectedIndicator.indicatorName + " [" + $scope.selectedIndicator.unit + "]"
 							pageElement.isPlaceholder = false;
 						}
 	
-						if(pageElement.type === "dataTimestamp-landscape") {
+						if(pageElement.type.includes("dataTimestamp-")) {
 							pageElement.text = timestamp;
 							pageElement.isPlaceholder = false;
 						}
 	
 						// exists only on timeseries template (instead of dataTimestamp-landscape), so we don't need another if...else here
-						if(pageElement.type === "dataTimeseries-landscape") {
+						if(pageElement.type.includes("dataTimeseries-")) {
 							pageElement.text = timeseries.from + " - " + timeseries.to;
 							pageElement.isPlaceholder = false;
 						}
@@ -2643,7 +2651,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				wrapper.style.justifyContent = "flex-start"; // align table at top instead of center
 
 				let columnNames;
-				if($scope.template.name === "A4-landscape-timeseries") {
+				if($scope.template.name.includes("timeseries")) {
 					columnNames  = ["Bereich", "Zeitpunkt", "Wert"]
 				} else {
 					columnNames  = ["Bereich", "Wert"]
@@ -2840,7 +2848,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			// setup brew
 			let defaultBrew = kommonitorVisualStyleHelperService.setupDefaultBrew(indicator.geoJSON, timestampPrefix, numClasses, colorCodeStandard, classifyMethod, true, selectedIndicator);
 			//let manualBrew = kommonitorVisualStyleHelperService.setupManualBrew(indicator.geoJSON, timestampPrefix, numClasses, colorCodeStandard, classifyMethod, true, selectedIndicator);
-			let dynamicBrewsArray = kommonitorVisualStyleHelperService.setupDynamicIndicatorBrew(indicator.geoJSON, timestampPrefix, colorCodePositiveValues, colorCodeNegativeValues, classifyMethod);
+			let dynamicBrewsArray = kommonitorVisualStyleHelperService.setupDynamicIndicatorBrew(indicator.geoJSON, timestampPrefix, colorCodePositiveValues, colorCodeNegativeValues, classifyMethod, numClasses);
 			let dynamicIncreaseBrew = dynamicBrewsArray[0];
 			let dynamicDecreaseBrew = dynamicBrewsArray[1];
 
@@ -2952,7 +2960,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		$scope.initializeAllDiagrams = async function() {
 			if(!$scope.template)
 				return;
-			if($scope.template.name === "A4-landscape-timestamp" && $scope.selectedTimestamps.length === 0) {
+			if($scope.template.name.includes("timestamp") && $scope.selectedTimestamps.length === 0) {
 				return;
 			}
 			if(!$scope.diagramsPrepared) {
@@ -3039,18 +3047,12 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 							$scope.createPageElement_Change(page, pageElement, false);
 							let wrapper = pageDom.querySelector(".type-overallChange")
 							wrapper.style.border = "none";
-							wrapper.style.left = "670px";
-							wrapper.style.width = "130px";
-							wrapper.style.height = "100px";
 							break;
 						}
 						case "selectionChange": {
 							$scope.createPageElement_Change(page, pageElement, true);
 							let wrapper = pageDom.querySelector(".type-selectionChange")
 							wrapper.style.border = "none";
-							wrapper.style.left = "670px";
-							wrapper.style.width = "130px";
-							wrapper.style.height = "100px";
 							break;
 						}
 						case "barchart": {
@@ -3232,13 +3234,13 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			// set dates on all pages according to new slider values
 			for(let page of $scope.template.pages) {
 				let dateEl = page.pageElements.find( el => {
-					return el.type === "dataTimestamp-landscape" || el.type === "dataTimeseries-landscape"
+					return el.type.includes("dataTimestamp-") || el.type.includes("dataTimeseries-")
 				});
 
-				if(dateEl.type === "dataTimestamp-landscape") {
+				if(dateEl.type.includes("dataTimestamp-")) {
 					dateEl.text = values.to;
 				}
-				if(dateEl.type === "dataTimeseries-landscape") {
+				if(dateEl.type.includes("dataTimeseries-")) {
 					dateEl.text = values.from + " - " + values.to;
 				}
 			}
@@ -3390,19 +3392,19 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				return false;
 			}
 
-			if($scope.selectedIndicator || $scope.template.name === "A4-landscape-reachability") {
+			if($scope.selectedIndicator || $scope.template.name.includes("reachability")) {
 				isIndicatorSelected = true;
 			}
-			if($scope.selectedAreas.length >= 1  || $scope.template.name === "A4-landscape-reachability") {
+			if($scope.selectedAreas.length >= 1  || $scope.template.name.includes("reachability")) {
 				isAreaSelected = true;
 			}
 
-			if( ($scope.template.name === "A4-landscape-timestamp" || $scope.template.name === "A4-landscape-reachability" ) && 
+			if( ($scope.template.name.includes("timestamp") || $scope.template.name.includes("reachability") ) && 
 				$scope.selectedTimestamps.length >= 1) {
 				isTimestampSelected = true;
 			}
 
-			if($scope.template.name === "A4-landscape-timeseries") {
+			if($scope.template.name.includes("timeseries")) {
 				if(!$scope.dateSlider) {
 					return false;
 				}

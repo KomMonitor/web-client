@@ -1,6 +1,6 @@
 <div class="row vertical-align">
 	<!-- reachability config -->
-	<div class="col-md-4 col-sm-4 col-xs-12">
+	<div ng-class="{'col-md-4 col-sm-4 col-xs-12': !isUsedInReporting, 'col-md-6 col-sm-6 col-xs-12': isUsedInReporting}">
 
 		<div id="reachabilityConfigForm" style="height: 57vh; overflow-y: auto;">
 
@@ -233,7 +233,7 @@
 	</div>
 
 	<!-- interactive Map to display rechability isochrones -->
-	<div class="col-md-8 col-sm-8 col-xs-12">
+	<div class="col-md-8 col-sm-8 col-xs-12" ng-show="!isUsedInReporting">
 		<!-- geometry with interactive map and geocoder functionality -->
 		<!-- together with special helperService that is used to manage map and data -->
 
