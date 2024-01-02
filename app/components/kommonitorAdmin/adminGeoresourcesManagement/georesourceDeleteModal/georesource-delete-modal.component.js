@@ -43,14 +43,15 @@ angular.module('georesourceDeleteModal').component('georesourceDeleteModal', {
 
 			kommonitorDataExchangeService.availableProcessScripts.forEach(function(script){
 				var requiredGeoresourceIds = script.requiredGeoresourceIds;
-
-				for(var i=0; i<requiredGeoresourceIds.length; i++){
-					var georesourceId = requiredGeoresourceIds[i];
-					for(var k=0; k < $scope.datasetsToDelete.length; k++){
-						var datasetToDelete = $scope.datasetsToDelete[k];
-						if(georesourceId === datasetToDelete.georesourceId){
-							$scope.affectedScripts.push(script);
-							break;
+				if(requiredGeoresourceIds) {
+					for(var i=0; i<requiredGeoresourceIds.length; i++){
+						var georesourceId = requiredGeoresourceIds[i];
+						for(var k=0; k < $scope.datasetsToDelete.length; k++){
+							var datasetToDelete = $scope.datasetsToDelete[k];
+							if(georesourceId === datasetToDelete.georesourceId){
+								$scope.affectedScripts.push(script);
+								break;
+							}
 						}
 					}
 				}
@@ -64,17 +65,18 @@ angular.module('georesourceDeleteModal').component('georesourceDeleteModal', {
 
 			kommonitorDataExchangeService.availableIndicators.forEach(function(indicator){
 				var georesourceReferences = indicator.referencedGeoresources;
-
-				for(var i=0; i<georesourceReferences.length; i++){
-					var georesourceReference = georesourceReferences[i];
-					for(var k=0; k < $scope.datasetsToDelete.length; k++){
-						var datasetToDelete = $scope.datasetsToDelete[k];
-						if(georesourceReference.referencedGeoresourceId === datasetToDelete.georesourceId){
-							$scope.affectedIndicatorReferences.push({
-								"indicatorMetadata": indicator,
-								"georesourceReference": georesourceReference
-							});
-							break;
+				if (georesourceReference) {
+					for(var i=0; i<georesourceReferences.length; i++){
+						var georesourceReference = georesourceReferences[i];
+						for(var k=0; k < $scope.datasetsToDelete.length; k++){
+							var datasetToDelete = $scope.datasetsToDelete[k];
+							if(georesourceReference.referencedGeoresourceId === datasetToDelete.georesourceId){
+								$scope.affectedIndicatorReferences.push({
+									"indicatorMetadata": indicator,
+									"georesourceReference": georesourceReference
+								});
+								break;
+							}
 						}
 					}
 				}
