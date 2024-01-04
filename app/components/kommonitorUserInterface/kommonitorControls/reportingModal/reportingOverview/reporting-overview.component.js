@@ -725,10 +725,21 @@ angular.module('reportingOverview').component('reportingOverview', {
 
 		$scope.filterPagesToShow = function() {
 			let pagesToShow = [];
+			let skipNextPage = false;
 			for (let i = 0; i < $scope.config.pages.length; i ++) {
 				let page = $scope.config.pages[i];
-				if (i % 2 == 0 || $scope.pageContainsDatatable(i)) {
+				if ($scope.pageContainsDatatable(i)) {
 					pagesToShow.push(page);
+					skipNextPage = false;
+				}
+				else {
+					if(skipNextPage == false) {
+						pagesToShow.push(page);
+						skipNextPage = true;
+					}
+					else {
+						skipNextPage = false;
+					}
 				}
 			}
 			return pagesToShow;

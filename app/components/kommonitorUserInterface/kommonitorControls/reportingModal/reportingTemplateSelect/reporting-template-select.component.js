@@ -2655,10 +2655,21 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 
 		$scope.filterPagesToShow = function() {
 			let pagesToShow = [];
+			let skipNextPage = false;
 			for (let i = 0; i < $scope.selectedTemplate.pages.length; i ++) {
 				let page = $scope.selectedTemplate.pages[i];
-				if (i % 2 == 0 || $scope.pageContainsDatatable(i)) {
+				if ($scope.pageContainsDatatable(i)) {
 					pagesToShow.push(page);
+					skipNextPage = false;
+				}
+				else {
+					if(skipNextPage == false) {
+						pagesToShow.push(page);
+						skipNextPage = true;
+					}
+					else {
+						skipNextPage = false;
+					}
 				}
 			}
 			return pagesToShow;
