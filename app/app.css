@@ -2617,6 +2617,13 @@ input:checked + .switchslider:before {
 #reporting-overview-bot-btn-row-2 button:not(:last-child) {
 	margin-right: 10px;
 }
+
+.orientationChangeBtn {
+	position: absolute;
+	z-index: 10000;
+	left: -60px;
+}
+
 .hiddenPage {
 	display: none;
 }

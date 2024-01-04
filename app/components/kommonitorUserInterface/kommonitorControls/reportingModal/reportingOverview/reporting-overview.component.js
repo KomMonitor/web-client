@@ -59,6 +59,12 @@ angular.module('reportingOverview').component('reportingOverview', {
 			$scope.initialize(data);
 		})
 
+		$scope.onPageTurnClicked = function(orientation, index) {
+			let temp = $scope.config.pages[index];
+			$scope.config.pages[index] = $scope.config.pages[index + 1];
+			$scope.config.pages[index + 1] = temp;
+		}
+
 		$scope.onConfigureNewIndicatorClicked = function() {
 			$scope.$emit('reportingConfigureNewIndicatorClicked', [$scope.config.template]);
 		}

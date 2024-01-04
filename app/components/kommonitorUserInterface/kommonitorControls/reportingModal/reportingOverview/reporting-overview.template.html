@@ -51,6 +51,9 @@
                             ng-class="{hiddenPage: !showThisPage(page)}"
                             ng-attr-class="reporting-page reporting-page-{{page.orientation}}""
                             ng-attr-id="reporting-overview-page-{{$index}}">
+                            <button class="orientationChangeBtn" 
+                                ng-if="!pageContainsDatatable($index) && !config.template.name.includes('-reachability')"
+                                ng-click="onPageTurnClicked(page.orientation, $index)">drehen</button>
                             <div ng-repeat="pageElement in page.pageElements"
                                 ng-attr-class="type-{{pageElement.type}}"
                                 ng-attr-id="reporting-overview-page-{{$parent.$index}}-{{pageElement.type}}"
