@@ -117,7 +117,7 @@
 
                                 <span ng-show="pageElement.type.includes('pageNumber-') && pageElement.isPlaceholder == false"
                                     ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
-                                    Seite {{$parent.$index+1}}
+                                    Seite {{ getPageNumber($parent.$index) }}
                                 </span>
 
                                 <span ng-show="pageElement.type == 'textInput' && pageElement.isPlaceholder == false"

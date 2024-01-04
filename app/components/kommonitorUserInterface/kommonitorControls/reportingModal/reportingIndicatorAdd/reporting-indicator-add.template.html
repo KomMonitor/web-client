@@ -198,7 +198,7 @@
                                 <!-- do different things depending on type once the placeholder is replaced (pageElement.isPlaceholder == false) -->
                                 <span ng-show="pageElement.type.includes('pageNumber-') && pageElement.isPlaceholder == false"
                                     ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
-                                    Seite {{$parent.$index+1}}
+                                    Seite {{getPageNumber($parent.$index)}}
                                 </span>
 
                                 <span ng-show="pageElement.type.includes('indicatorTitle-') && pageElement.isPlaceholder == false"

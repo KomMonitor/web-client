@@ -713,6 +713,16 @@ angular.module('reportingOverview').component('reportingOverview', {
 			return pageWillBeShown;
 		}
 
+		$scope.getPageNumber = function(index) {
+			let pageNumber = 1;
+			for(let i = 0; i < index; i ++) {
+				if ($scope.showThisPage($scope.config.pages[i])) {
+					pageNumber ++;
+				}
+			}
+			return pageNumber;
+		}
+
 		$scope.filterPagesToShow = function() {
 			let pagesToShow = [];
 			for (let i = 0; i < $scope.config.pages.length; i ++) {
@@ -1016,7 +1026,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 						}
 						case "pageNumber-landscape":
 						case "pageNumber-portrait": {
-							let text = "Seite " + (idx+1);
+							let text = "Seite " + $scope.getPageNumber(idx);
 							doc.text(text, pageElementDimensions.left, pageElementDimensions.top, { baseline: "top" })
 							break;
 						}
@@ -1358,7 +1368,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 							let paragraph = new docx.Paragraph({
 								children: [
 									new docx.TextRun({
-										text: "Seite " + (idx+1),
+										text: "Seite " + $scope.getPageNumber(idx),
 										font: font,
 										size: 32  // 16pt
 									},
@@ -1706,7 +1716,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 								left: 0,
 							},
 							pageNumbers: {
-								start: (idx+1),
+								start: $scope.getPageNumber(idx),
 								formatType: docx.NumberFormat.DECIMAL,
 							},
 							size: {

@@ -3133,6 +3133,16 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			return pageContainsDatatable;
 		}
 
+		$scope.getPageNumber = function(index) {
+			let pageNumber = 1;
+			for(let i = 0; i < index; i ++) {
+				if ($scope.showThisPage($scope.template.pages[i])) {
+					pageNumber ++;
+				}
+			}
+			return pageNumber;
+		}
+
 		/**
 		 * 
 		 * @param {*} geoJsonFeatures 
