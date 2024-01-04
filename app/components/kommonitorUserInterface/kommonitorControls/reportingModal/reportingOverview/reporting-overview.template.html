@@ -47,7 +47,9 @@
                 </div>
                 <div class="row" style="margin:0">
                     <div id="reporting-overview-preview-area">
-                        <div ng-repeat="page in config.pages" ng-attr-class="reporting-page reporting-page-{{page.orientation}}""
+                        <div ng-repeat="page in config.pages" 
+                            ng-class="{hiddenPage: !showThisPage(page)}"
+                            ng-attr-class="reporting-page reporting-page-{{page.orientation}}""
                             ng-attr-id="reporting-overview-page-{{$index}}">
                             <div ng-repeat="pageElement in page.pageElements"
                                 ng-attr-class="type-{{pageElement.type}}"

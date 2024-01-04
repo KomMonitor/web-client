@@ -2617,6 +2617,9 @@ input:checked + .switchslider:before {
 #reporting-overview-bot-btn-row-2 button:not(:last-child) {
 	margin-right: 10px;
 }
+.hiddenPage {
+	display: none;
+}
 
 #reporting-template-categories-wrapper,
 #reporting-overwiew-indicators-wrapper,

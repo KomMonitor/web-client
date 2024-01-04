@@ -697,6 +697,39 @@ angular.module('reportingOverview').component('reportingOverview', {
 			}
 		}
 
+		$scope.showThisPage = function(page) {
+			let pageWillBeShown = false;
+			for(let visiblePage of $scope.filterPagesToShow()){
+				if(visiblePage == page) {
+					pageWillBeShown = true;
+				}
+			}
+			return pageWillBeShown;
+		}
+
+		$scope.filterPagesToShow = function() {
+			let pagesToShow = [];
+			for (let i = 0; i < $scope.config.pages.length; i ++) {
+				let page = $scope.config.pages[i];
+				if (i % 2 == 0 || $scope.pageContainsDatatable(i)) {
+					pagesToShow.push(page);
+				}
+			}
+			return pagesToShow;
+		}
+
+		$scope.pageContainsDatatable = function(pageID) {
+			let page = $scope.config.pages[pageID];
+			let pageContainsDatatable = false;
+			for(let pageElement of page.pageElements) {
+				if(pageElement.type == "datatable") {
+					pageContainsDatatable = true;
+				}
+			}
+			return pageContainsDatatable;
+		}
+
+
 		$scope.exportConfig = function() {
 			try {
 				let jsonToExport = {};
@@ -883,7 +916,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 				margin: 0,	
 				unit: 'mm',
 				format: 'a4',
-				orientation: $scope.config.template.orientation
+				orientation: $scope.config.pages[0].orientation
 			});
 
 			// general settings
@@ -892,6 +925,10 @@ angular.module('reportingOverview').component('reportingOverview', {
 			doc.setFont(fontName, "normal", "normal"); // name, normal/italic, fontweight
 			
 			for(let [idx, page] of $scope.config.pages.entries()) {
+
+				if(!$scope.showThisPage(page)) {
+					continue;
+				}
 
 				if(idx > 0) {
 					doc.addPage(null, page.orientation);
@@ -1138,6 +1175,10 @@ angular.module('reportingOverview').component('reportingOverview', {
 			let font = "Calibri";
 			
 			for(let [idx, page] of $scope.config.pages.entries()) {
+
+				if(!$scope.showThisPage(page)) {
+					continue;
+				}
 
 				let paragraphs = [];
 				let pageDom = document.querySelector("#reporting-overview-page-" + idx);
