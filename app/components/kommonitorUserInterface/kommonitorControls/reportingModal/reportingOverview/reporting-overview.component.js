@@ -59,6 +59,12 @@ angular.module('reportingOverview').component('reportingOverview', {
 			$scope.initialize(data);
 		})
 
+		$scope.onPageTurnClicked = function(orientation, index) {
+			let temp = $scope.config.pages[index];
+			$scope.config.pages[index] = $scope.config.pages[index + 1];
+			$scope.config.pages[index + 1] = temp;
+		}
+
 		$scope.onConfigureNewIndicatorClicked = function() {
 			$scope.$emit('reportingConfigureNewIndicatorClicked', [$scope.config.template]);
 		}
@@ -697,6 +703,60 @@ angular.module('reportingOverview').component('reportingOverview', {
 			}
 		}
 
+		$scope.showThisPage = function(page) {
+			let pageWillBeShown = false;
+			for(let visiblePage of $scope.filterPagesToShow()){
+				if(visiblePage == page) {
+					pageWillBeShown = true;
+				}
+			}
+			return pageWillBeShown;
+		}
+
+		$scope.getPageNumber = function(index) {
+			let pageNumber = 1;
+			for(let i = 0; i < index; i ++) {
+				if ($scope.showThisPage($scope.config.pages[i])) {
+					pageNumber ++;
+				}
+			}
+			return pageNumber;
+		}
+
+		$scope.filterPagesToShow = function() {
+			let pagesToShow = [];
+			let skipNextPage = false;
+			for (let i = 0; i < $scope.config.pages.length; i ++) {
+				let page = $scope.config.pages[i];
+				if ($scope.pageContainsDatatable(i)) {
+					pagesToShow.push(page);
+					skipNextPage = false;
+				}
+				else {
+					if(skipNextPage == false) {
+						pagesToShow.push(page);
+						skipNextPage = true;
+					}
+					else {
+						skipNextPage = false;
+					}
+				}
+			}
+			return pagesToShow;
+		}
+
+		$scope.pageContainsDatatable = function(pageID) {
+			let page = $scope.config.pages[pageID];
+			let pageContainsDatatable = false;
+			for(let pageElement of page.pageElements) {
+				if(pageElement.type == "datatable") {
+					pageContainsDatatable = true;
+				}
+			}
+			return pageContainsDatatable;
+		}
+
+
 		$scope.exportConfig = function() {
 			try {
 				let jsonToExport = {};
@@ -883,7 +943,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 				margin: 0,	
 				unit: 'mm',
 				format: 'a4',
-				orientation: $scope.config.template.orientation
+				orientation: $scope.config.pages[0].orientation
 			});
 
 			// general settings
@@ -892,6 +952,10 @@ angular.module('reportingOverview').component('reportingOverview', {
 			doc.setFont(fontName, "normal", "normal"); // name, normal/italic, fontweight
 			
 			for(let [idx, page] of $scope.config.pages.entries()) {
+
+				if(!$scope.showThisPage(page)) {
+					continue;
+				}
 
 				if(idx > 0) {
 					doc.addPage(null, page.orientation);
@@ -973,7 +1037,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 						}
 						case "pageNumber-landscape":
 						case "pageNumber-portrait": {
-							let text = "Seite " + (idx+1);
+							let text = "Seite " + $scope.getPageNumber(idx);
 							doc.text(text, pageElementDimensions.left, pageElementDimensions.top, { baseline: "top" })
 							break;
 						}
@@ -1138,6 +1202,10 @@ angular.module('reportingOverview').component('reportingOverview', {
 			let font = "Calibri";
 			
 			for(let [idx, page] of $scope.config.pages.entries()) {
+
+				if(!$scope.showThisPage(page)) {
+					continue;
+				}
 
 				let paragraphs = [];
 				let pageDom = document.querySelector("#reporting-overview-page-" + idx);
@@ -1311,7 +1379,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 							let paragraph = new docx.Paragraph({
 								children: [
 									new docx.TextRun({
-										text: "Seite " + (idx+1),
+										text: "Seite " + $scope.getPageNumber(idx),
 										font: font,
 										size: 32  // 16pt
 									},
@@ -1659,7 +1727,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 								left: 0,
 							},
 							pageNumbers: {
-								start: (idx+1),
+								start: $scope.getPageNumber(idx),
 								formatType: docx.NumberFormat.DECIMAL,
 							},
 							size: {

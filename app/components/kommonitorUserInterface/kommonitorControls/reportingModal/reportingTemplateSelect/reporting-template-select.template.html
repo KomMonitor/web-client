@@ -94,7 +94,9 @@
             <div class="col-sm-9">
                 <div class="row" style="margin:0">
                     <div id="reporting-template-preview-area">
-                        <div ng-repeat="page in selectedTemplate.pages" ng-attr-class="reporting-page reporting-page-{{page.orientation}}">
+                        <div ng-repeat="page in selectedTemplate.pages" 
+                            ng-class="{hiddenPage: !showThisPage(page)}"
+                            ng-attr-class="reporting-page reporting-page-{{page.orientation}}">
                             <div ng-repeat="pageElement in page.pageElements"
                                 ng-attr-style="position: absolute;
                                     top: {{pageElement.dimensions.top}};
@@ -115,7 +117,7 @@
 
                                 <span ng-show="pageElement.type.includes('pageNumber-') && pageElement.isPlaceholder == false"
                                     ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
-                                    Seite {{$parent.$index+1}}
+                                    Seite {{ getPageNumber($parent.$index) }}
                                 </span>
 
                                 <span ng-show="pageElement.type == 'textInput' && pageElement.isPlaceholder == false"

@@ -121,6 +121,11 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				pageToInsert.area = area.name;
 				pageToInsert.id = $scope.templatePageIdCounter++;
 				pagesToInsertPerTimestamp.push(pageToInsert);
+
+				pageToInsert = angular.fromJson($scope.untouchedTemplateAsString).pages[ $scope.indexOfFirstAreaSpecificPage + 1];
+				pageToInsert.area = area.name;
+				pageToInsert.id = $scope.templatePageIdCounter++;
+				pagesToInsertPerTimestamp.push(pageToInsert);
 			}
 
 			// sort alphabetically by area name
@@ -197,8 +202,13 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		$scope.updateAreasForTimeseriesTemplates = function(newVal) {
 			let pagesToInsert = [];
 			for(let area of newVal) {
-				// get page to insert from untouched template
+				// get pages to insert from untouched template
 				let pageToInsert = angular.fromJson($scope.untouchedTemplateAsString).pages[ $scope.indexOfFirstAreaSpecificPage ];
+				pageToInsert.area = area.name;
+				pageToInsert.id = $scope.templatePageIdCounter++;
+				pagesToInsert.push(pageToInsert);
+
+				pageToInsert = angular.fromJson($scope.untouchedTemplateAsString).pages[ $scope.indexOfFirstAreaSpecificPage + 1 ];
 				pageToInsert.area = area.name;
 				pageToInsert.id = $scope.templatePageIdCounter++;
 				pagesToInsert.push(pageToInsert);
@@ -248,8 +258,13 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			// we only have one timestamp here (the most recent one)
 			let pagesToInsert = [];
 			for(let area of newVal) {
-				// get page to insert from untouched template
+				// get pages to insert from untouched template
 				let pageToInsert = angular.fromJson($scope.untouchedTemplateAsString).pages[ $scope.indexOfFirstAreaSpecificPage ];
+				pageToInsert.area = area.name;
+				pageToInsert.id = $scope.templatePageIdCounter++;
+				pagesToInsert.push(pageToInsert);
+
+				pageToInsert = angular.fromJson($scope.untouchedTemplateAsString).pages[ $scope.indexOfFirstAreaSpecificPage + 1 ];
 				pageToInsert.area = area.name;
 				pageToInsert.id = $scope.templatePageIdCounter++;
 				pagesToInsert.push(pageToInsert);
@@ -525,11 +540,11 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			$scope.template = template;
 
 			if($scope.template.name.includes("timestamp"))
-				$scope.indexOfFirstAreaSpecificPage = 3;
+				$scope.indexOfFirstAreaSpecificPage = 6;
 			if($scope.template.name.includes("timeseries"))
-				$scope.indexOfFirstAreaSpecificPage = 4;
+				$scope.indexOfFirstAreaSpecificPage = 8;
 			if($scope.template.name.includes("reachability"))
-				$scope.indexOfFirstAreaSpecificPage = 1;
+				$scope.indexOfFirstAreaSpecificPage = 2;
 
 			// disable tabs to force user to pick a poi-layer / indicator first
 			let tabList = document.querySelector("#reporting-add-indicator-tab-list");
@@ -3084,6 +3099,59 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					}
 				}
 			}
+		}
+
+		$scope.showThisPage = function(page) {
+			let pageWillBeShown = false;
+			for(let visiblePage of $scope.filterPagesToShow()){
+				if(visiblePage.id == page.id) {
+					pageWillBeShown = true;
+				}
+			}
+			return pageWillBeShown;
+		}
+
+		$scope.filterPagesToShow = function() {
+			let pagesToShow = [];
+			let skipNextPage = false;
+			for (let i = 0; i < $scope.template.pages.length; i ++) {
+				let page = $scope.template.pages[i];
+				if ($scope.pageContainsDatatable(i)) {
+					pagesToShow.push(page);
+					skipNextPage = false;
+				}
+				else {
+					if(skipNextPage == false) {
+						pagesToShow.push(page);
+						skipNextPage = true;
+					}
+					else {
+						skipNextPage = false;
+					}
+				}
+			}
+			return pagesToShow;
+		}
+
+		$scope.pageContainsDatatable = function(pageID) {
+			let page = $scope.template.pages[pageID];
+			let pageContainsDatatable = false;
+			for(let pageElement of page.pageElements) {
+				if(pageElement.type == "datatable") {
+					pageContainsDatatable = true;
+				}
+			}
+			return pageContainsDatatable;
+		}
+
+		$scope.getPageNumber = function(index) {
+			let pageNumber = 1;
+			for(let i = 0; i < index; i ++) {
+				if ($scope.showThisPage($scope.template.pages[i])) {
+					pageNumber ++;
+				}
+			}
+			return pageNumber;
 		}
 
 		/**

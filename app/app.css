@@ -2789,6 +2789,16 @@ input:checked + .switchslider:before {
 	margin-right: 10px;
 }
 
+.orientationChangeBtn {
+	position: absolute;
+	z-index: 10000;
+	left: -60px;
+}
+
+.hiddenPage {
+	display: none;
+}
+
 #reporting-template-categories-wrapper,
 #reporting-overwiew-indicators-wrapper,
 #reporting-template-customization-wrapper {

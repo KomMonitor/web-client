@@ -47,8 +47,13 @@
                 </div>
                 <div class="row" style="margin:0">
                     <div id="reporting-overview-preview-area">
-                        <div ng-repeat="page in config.pages" ng-attr-class="reporting-page reporting-page-{{page.orientation}}""
+                        <div ng-repeat="page in config.pages" 
+                            ng-class="{hiddenPage: !showThisPage(page)}"
+                            ng-attr-class="reporting-page reporting-page-{{page.orientation}}""
                             ng-attr-id="reporting-overview-page-{{$index}}">
+                            <button class="orientationChangeBtn" 
+                                ng-if="!pageContainsDatatable($index) && !config.template.name.includes('-reachability')"
+                                ng-click="onPageTurnClicked(page.orientation, $index)">drehen</button>
                             <div ng-repeat="pageElement in page.pageElements"
                                 ng-attr-class="type-{{pageElement.type}}"
                                 ng-attr-id="reporting-overview-page-{{$parent.$index}}-{{pageElement.type}}"
@@ -67,7 +72,7 @@
                                 <!-- do different things depending on type once the placeholder is replaced (pageElement.isPlaceholder == false) -->
                                 <span ng-show="pageElement.type.includes('pageNumber-') && pageElement.isPlaceholder == false"
                                     ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
-                                    Seite {{$parent.$index+1}}
+                                    Seite {{getPageNumber($parent.$index)}}
                                 </span>
 
                                 <span ng-show="pageElement.type.includes('footerCreationInfo-') && pageElement.isPlaceholder == false"
