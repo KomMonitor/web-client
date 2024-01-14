@@ -1736,7 +1736,8 @@ angular.module('reportingOverview').component('reportingOverview', {
 			pageElement.leafletMap.getContainer().style.left = "0px"
 
 			// wait for print process to finish
-			var node = document.getElementById(domId);
+			// var node = document.getElementById(pageDom);
+			var node = pageElement.leafletMap["_container"];
 
 			let leafletMapScreenshot = await domtoimage
               .toJpeg(node, { quality: 1.0 })

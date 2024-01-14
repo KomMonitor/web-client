@@ -172,7 +172,7 @@ angular
         let weightStrategyExplanationText = "";
         if (indicatorStatistic.weightStrategy == "residential_areas") {
           weightStrategyText += "versorgte Wohnfläche";
-          weightStrategyExplanation += "Pro Raumeinheit wird nur die Wohnfläche mit den Einzugsgebieten eines Punktes räumlich verschnitten. Die geschätzte Gesamtversorgung einer Raumeinheit ergibt sich dann aus dem durch die Punkteinzugsgebiete insgesamt überlappenden Anteil an der Wohnfläche innerhalb der Raumeinheit. Dieses Verfahren berücksichtigt demnach nur die Wohnfläche und liefert daher einen genaueren Schätzwert als der einfache Gesamtflächenanteil. Da keine Einzelpersonen im Verfahren verücksichtigt werden, ist das Ergebnis ausdrücklich als Schätzwert zu interpretieren.";
+          weightStrategyExplanationText += "Pro Raumeinheit wird nur die Wohnfläche mit den Einzugsgebieten eines Punktes räumlich verschnitten. Die geschätzte Gesamtversorgung einer Raumeinheit ergibt sich dann aus dem durch die Punkteinzugsgebiete insgesamt überlappenden Anteil an der Wohnfläche innerhalb der Raumeinheit. Dieses Verfahren berücksichtigt demnach nur die Wohnfläche und liefert daher einen genaueren Schätzwert als der einfache Gesamtflächenanteil. Da keine Einzelpersonen im Verfahren verücksichtigt werden, ist das Ergebnis ausdrücklich als Schätzwert zu interpretieren.";
         }
         else {
           weightStrategyText += "einfacher Gesamtflächenanteil";
@@ -272,64 +272,8 @@ angular
 
         let leafletMapScreenshot = await kommonitorReachabilityMapHelperService.takeScreenshot_image("reachabilityScenarioIsochroneStatisticsGeoMap", null);
 
-        // // Create <img> element to render img data
-        // var img = new Image();
-
-        // img.onload = () => {
-        //   // Create canvas to process image data
-        //   const canvas = document.createElement("canvas");
-        //   const ctx = canvas.getContext("2d");
-
-        //   // Set canvas size to the size of your resultant image
-        //   canvas.width = imageSize.x;
-        //   canvas.height = imageSize.y;
-
-        //   // Draw just the portion of the whole map image that contains
-        //   // your feature to the canvas
-        //   ctx.drawImage(
-        //     img,
-        //     topLeft.x,
-        //     topLeft.y,
-        //     imageSize.x,
-        //     imageSize.y,
-        //     0,
-        //     0,
-        //     imageSize.x,
-        //     imageSize.y
-        //   );
-
-        //   // Create URL for resultant png
-        //   var imageurl = canvas.toDataURL("image/png");
-
-        //   const resultantImage = new Image();
-        //   resultantImage.style = "border: 1px solid black";
-        //   resultantImage.src = imageurl;
-
-        //   // Append new image to body for nice visual in this example answer
-        //   document.body.appendChild(canvas);
-
-        //   canvas.toBlob(function (blob) {
-        //     // saveAs function installed as part of leaflet snapshot package
-        //     saveAs(blob, "greek_border.png");
-        //   });
-        // }
-
-        // // set the image source to what the snapshotter captured
-        // // img.onload will fire AFTER this
-        // img.src = image;
-
         doc.addImage(leafletMapScreenshot, "PNG", initX, nextLineY,
           180, remainingSpaceY - 5, "", 'MEDIUM');
-
-        // await html2canvas(document.querySelector("#reachabilityScenarioIsochroneStatisticsGeoMap")).then(canvas => {
-        //   // document.body.appendChild(canvas)
-
-        //   imgData = canvas.toDataURL('image/png');
-
-        //   doc.addImage(imgData, "PNG", initX, nextLineY,
-        //     205, remainingSpaceY - 5, "", 'MEDIUM');
-
-        // })
 
         return doc;
 
@@ -337,7 +281,9 @@ angular
 
       this.generateFeatureCoverageSection_focusPoiCoverage = async function (doc, indicatorStatistic) {
 
-        // doc.addPage();
+        doc.addPage();
+
+        
         return doc;
       };
 
