@@ -81,47 +81,17 @@ angular
           }
         }
         if (mapParts && mapParts.map && mapParts.screenshoter) {
-          return await mapParts.screenshoter.takeScreen(format, overridedPluginOptions).then(image => {
-            return image;
-          }).catch(e => {
-            console.error(e)
-          })
-        }
-      };
 
-      this.takeScreenshot_blob = async function (domId, overridedPluginOptions) {
-        let mapParts = this.mapPartsMap.get(domId);
+          var node = document.getElementById(domId);
 
-        let format = "blob";
-        if (!overridedPluginOptions) {
-          overridedPluginOptions = {
-
-          }
-        }
-        if (mapParts && mapParts.map && mapParts.screenshoter) {
-          return await mapParts.screenshoter.takeScreen(format, overridedPluginOptions).then(blob => {
-            return blob;
-          }).catch(e => {
-            console.error(e)
-          })
-        }
-      };
-
-      this.takeScreenshot_canvas = async function (domId, overridedPluginOptions) {
-        let mapParts = this.mapPartsMap.get(domId);
-
-        let format = "canvas";
-        if (!overridedPluginOptions) {
-          overridedPluginOptions = {
-
-          }
-        }
-        if (mapParts && mapParts.map && mapParts.screenshoter) {
-          return await mapParts.screenshoter.takeScreen(format, overridedPluginOptions).then(canvas => {
-            return canvas;
-          }).catch(e => {
-            console.error(e)
-          })
+          return await domtoimage
+              .toJpeg(node, { quality: 1.0 })
+              .then(function (dataUrl) {
+                return dataUrl;
+              })
+              .catch(function (error) {
+                  console.error('oops, something went wrong!', error);
+              });
         }
       };
 

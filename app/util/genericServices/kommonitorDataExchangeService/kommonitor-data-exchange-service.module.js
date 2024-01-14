@@ -2367,11 +2367,16 @@ angular
             var imgHeight;
 
             if(indicator.processDescription && indicator.processDescription.includes("$")){
-              await html2canvas(document.querySelector("#indicatorProcessDescription")).then(canvas => {
-                // document.body.appendChild(canvas)
-  
-                imgData = canvas.toDataURL('image/png');
-            
+
+              let node = document.querySelector("#indicatorProcessDescription");
+
+              await domtoimage
+              .toJpeg(node, { quality: 1.0 })
+              .then(function (dataUrl) {
+                imgData = dataUrl;
+              })
+              .catch(function (error) {
+                  console.error(error);
               });
 
               var dimensions = await getImageDimensions(imgData);
