@@ -39,6 +39,11 @@ angular
         1: { fontStyle: 'normal' }
       };
 
+      let weightStrategyText = "";
+      let weightStrategyExplanationText = "";
+
+      let nextLineY = initY;
+
       this.generateReachabilityIndicatorStatisticsReport_focusSpatialUnitCoverage = function (indicatorStatistic) {
         // write pdf report with several sections:
         // 1. first page with general information and total overview (map of whole indicator area and all isochrones and all points)
@@ -91,6 +96,35 @@ angular
 
         // create pdf document
         // 210 mm x 297 mm
+        let doc = this.setupDoc();        
+
+        //insert logo
+        doc = this.insertLogo(doc);
+
+        // general settings
+        doc.setDrawColor(148, 148, 148);
+        doc.setFont(fontName, "normal", "normal"); // name, normal/italic, fontweight
+        doc.setFontSize(fontSize_default);
+
+        doc = await this.generateTotalCoverageSection_focusPoiCoverage(doc, reachabilityScenario, indicatorStatistic);
+
+        // doc = await this.generateFeatureCoverageSection_focusPoiCoverage(doc, reachabilityScenario, indicatorStatistic);
+
+        // doc = await this.generateCoverageDataTableSection_focusPoiCoverage(doc, reachabilityScenario, indicatorStatistic);
+
+        doc.save("KomMonitor-Report_Erreichbarkeits_Coverage.pdf");
+      }
+
+      this.insertLogo = function(doc){        
+        var img = new Image();
+        var subPath = location.pathname;
+        img.src = subPath + 'logos/KM_Logo1.png';
+        doc.addImage(img, 'PNG', 193, 5, 12, 12);
+
+        return doc;
+      }
+
+      this.setupDoc = function(){
         let doc = new jsPDF({
           margin: 0,
           unit: 'mm',
@@ -106,128 +140,35 @@ angular
           creator: 'KomMonitor'
         });
 
-        //insert logo
-        var img = new Image();
-        var subPath = location.pathname;
-        img.src = subPath + 'logos/KM_Logo1.png';
-        doc.addImage(img, 'PNG', 193, 5, 12, 12);
-
-        // general settings
-
-        doc.setDrawColor(148, 148, 148);
-        doc.setFont(fontName, "normal", "normal"); // name, normal/italic, fontweight
-        doc.setFontSize(fontSize_default);
-
-        doc = await this.generateTotalCoverageSection_focusPoiCoverage(doc, reachabilityScenario, indicatorStatistic);
-
-        doc = await this.generateFeatureCoverageSection_focusPoiCoverage(doc, reachabilityScenario, indicatorStatistic);
-
-        doc = await this.generateCoverageDataTableSection_focusPoiCoverage(doc, reachabilityScenario, indicatorStatistic);
-
-        doc.save("KomMonitor-Report_Erreichbarkeits_Coverage.pdf");
+        return doc;
       }
 
       this.generateTotalCoverageSection_focusPoiCoverage = async function (doc, reachabilityScenario, indicatorStatistic) {
 
+        nextLineY = initY;
+
         // TITLE
-        // Css takes the top-left edge of the element by default.
-        // doc.text takes left-bottom, so we add baseline "top" to achieve the same behavior in jspdf.
-        doc.setFont(fontName, 'bolditalic');
-        doc.setFontSize(14);
-        let titleArray = doc.splitTextToSize("Geschätzte Versorgung durch Punkteinzugsgebiete", 180);
-        doc.text(titleArray, initX, initY, { baseline: "top" });
-        doc.setFont(fontName, "normal", "normal");
-        doc.setFontSize(fontSize_default);
-
-        let nextLineY = initY;
-
-        for (const item of titleArray) {
-          nextLineY += 10;
-        }
-
-        // // SUBTITLE POI
-        // doc.setFont(fontName, 'bold');
-        // doc.setFontSize(12);
-        // let subtitlePoi = doc.splitTextToSize("Punktdatensatz: " + reachabilityScenario.poiDataset.poiName + " - " + reachabilityScenario.poiDataset.poiDate, 180);
-        // doc.text(subtitlePoi, initX, nextLineY, { baseline: "top" });
-
-        // for (const item of subtitlePoi) {
-        //   nextLineY += 5;
-        // }
-
-        // // SUBTITLE INDICATOR
-        // doc.setFont(fontName, 'bold');
-        // doc.setFontSize(12);
-        // let subtitleIndicator = doc.splitTextToSize("Indikator: " + indicatorStatistic.indicator.indicatorName + " [ " + indicatorStatistic.indicator.unit + " ]" + " - " + indicatorStatistic.spatialUnit.spatialUnitName + " - " + indicatorStatistic.timestamp, 180);
-        // doc.text(subtitleIndicator, initX, nextLineY, { baseline: "top" });
-
-        // for (const item of subtitleIndicator) {
-        //   nextLineY += 5;
-        // }
-
-        // // SUBTITLE COVERAGE TYPE (simple area or residential areas)
-        // doc.setFont(fontName, 'bold');
-        // doc.setFontSize(12);
-        let weightStrategyText = "";
-        let weightStrategyExplanationText = "";
-        if (indicatorStatistic.weightStrategy == "residential_areas") {
-          weightStrategyText += "versorgte Wohnfläche";
-          weightStrategyExplanationText += "Pro Raumeinheit wird nur die Wohnfläche mit den Einzugsgebieten eines Punktes räumlich verschnitten. Die geschätzte Gesamtversorgung einer Raumeinheit ergibt sich dann aus dem durch die Punkteinzugsgebiete insgesamt überlappenden Anteil an der Wohnfläche innerhalb der Raumeinheit. Dieses Verfahren berücksichtigt demnach nur die Wohnfläche und liefert daher einen genaueren Schätzwert als der einfache Gesamtflächenanteil. Da keine Einzelpersonen im Verfahren verücksichtigt werden, ist das Ergebnis ausdrücklich als Schätzwert zu interpretieren.";
-        }
-        else {
-          weightStrategyText += "einfacher Gesamtflächenanteil";
-          weightStrategyExplanationText += "Pro Raumeinheit wird die Gesamtfläche mit den Einzugsgebieten eines Punktes räumlich verschnitten. Die geschätzte Gesamtversorgung einer Raumeinheit ergibt sich dann aus dem durch die Punkteinzugsgebiete insgesamt überlappenden Anteil an der Gesamtfläche der Raumeinheit. Da keine Einzelpersonen im Verfahren verücksichtigt werden, ist das Ergebnis ausdrücklich als Schätzwert zu interpretieren.";
-        }
-        // let weightStrategy = doc.splitTextToSize(weightStrategyText, 180);
-        // doc.text(weightStrategy, initX, nextLineY, { baseline: "top" });
-
-        // for (const item of weightStrategy) {
-        //   nextLineY += 5;
-        // }
-
-        // doc.setFont(fontName, 'italic');
-        // doc.setFontSize(10);
-        // let weightStrategyExplanation = doc.splitTextToSize(weightStrategyExplanationText, 180);
-        // doc.text(weightStrategyExplanation, initX, nextLineY, { baseline: "top" });
-
-        // for (const item of weightStrategyExplanation) {
-        //   nextLineY += 5;
-        // }
-
+        doc = this.insertTitle(doc);        
 
         // disclaimer accuracy regarding coverage type --> always insecure. best guess based on selected coverage type
 
-        doc.autoTable({
-          head: [['Eingangsdaten', 'Name', 'Zeitschnitt']],
-          body: [
-            ["Punktdatensatz", reachabilityScenario.poiDataset.poiName, reachabilityScenario.poiDataset.poiDate],
-            ["Indikator", indicatorStatistic.indicator.indicatorName + " [ " + indicatorStatistic.indicator.unit + " ]" + "\n - \n" + indicatorStatistic.spatialUnit.spatialUnitName, indicatorStatistic.timestamp]
-          ],
-          theme: 'grid',
-          headStyles: headStyles,
-          bodyStyles: bodyStyles,
-          startY: nextLineY
-        });
+        doc = this.insertTable_indicator_poi_information(doc, reachabilityScenario, indicatorStatistic, false);        
 
-        doc.autoTable({
-          head: [['Gewichtungstyp', 'Hinweis zu Berechnung']],
-          body: [
-            [weightStrategyText, weightStrategyExplanationText],
-          ],
-          theme: 'grid',
-          headStyles: headStyles,
-          bodyStyles: bodyStyles,
-          startY: doc.autoTable.previous.finalY + 5,
-        });
-
-        nextLineY = doc.autoTable.previous.finalY + 5;
+        // // SUBTITLE COVERAGE TYPE (simple area or residential areas)
+        doc = this.insertCoverageType(doc, indicatorStatistic);
+        
 
         // SECTION LINE
-        doc.line(initX, nextLineY, 180, nextLineY, null);
-
-        nextLineY += 5;
+        doc = this.insertSectionSeparator(doc);        
 
         // TOTAL COVERAGE
+        doc = await this.addCoverageInformation_totalCoverage(doc, reachabilityScenario, indicatorStatistic);        
+
+        return doc;
+
+      }
+
+      this.addCoverageInformation_totalCoverage = async function(doc, reachabilityScenario, indicatorStatistic){
         doc.setFont(fontName, 'bolditalic');
         doc.setFontSize(12);
         let totalCoverageTitle = doc.splitTextToSize("Gesamtergebnis - Versorgung über alle Raumeinheiten", 180);
@@ -276,16 +217,136 @@ angular
           180, remainingSpaceY - 5, "", 'MEDIUM');
 
         return doc;
+      }
 
+      this.insertSectionSeparator = function(doc){
+        doc.line(initX, nextLineY, 180, nextLineY, null);
+        nextLineY += 5;
+
+        return doc;
+      }
+
+      this.insertTitle = function(doc){
+        // Css takes the top-left edge of the element by default.
+        // doc.text takes left-bottom, so we add baseline "top" to achieve the same behavior in jspdf.
+        doc.setFont(fontName, 'bolditalic');
+        doc.setFontSize(14);
+        let titleArray = doc.splitTextToSize("Geschätzte Versorgung durch Punkteinzugsgebiete", 180);
+        doc.text(titleArray, initX, initY, { baseline: "top" });
+        doc.setFont(fontName, "normal", "normal");
+        doc.setFontSize(fontSize_default);
+
+        nextLineY = initY;
+
+        for (const item of titleArray) {
+          nextLineY += 10;
+        }
+
+        return doc;
+      }
+
+      this.insertTable_indicator_poi_information = function(doc, reachabilityScenario, indicatorStatistic, insertCoverageTypeShortInformation){
+
+        let headerArray = ['Eingangsdaten', 'Name', 'Zeitschnitt'];
+
+        let bodyArray = [
+          ["Punktdatensatz", reachabilityScenario.poiDataset.poiName, reachabilityScenario.poiDataset.poiDate],
+          ["Indikator", indicatorStatistic.indicator.indicatorName + " [ " + indicatorStatistic.indicator.unit + " ]" + "\n - \n" + indicatorStatistic.spatialUnit.spatialUnitName, indicatorStatistic.timestamp]
+        ];
+
+        if(insertCoverageTypeShortInformation){
+          bodyArray.push("Gewichtungstyp", weightStrategyText, "-");
+        }
+        
+        doc.autoTable({
+          head: [headerArray],
+          body: bodyArray,
+          theme: 'grid',
+          headStyles: headStyles,
+          bodyStyles: bodyStyles,
+          startY: nextLineY
+        });
+
+        return doc;
+      }
+
+      this.setWeightStrategyTexts = function(indicatorStatistic){
+        weightStrategyText = "";
+        weightStrategyExplanationText = "";
+        if (indicatorStatistic.weightStrategy == "residential_areas") {
+          weightStrategyText += "versorgte Wohnfläche";
+          weightStrategyExplanationText += "Pro Raumeinheit wird nur die Wohnfläche mit den Einzugsgebieten eines Punktes räumlich verschnitten. Die geschätzte Gesamtversorgung einer Raumeinheit ergibt sich dann aus dem durch die Punkteinzugsgebiete insgesamt überlappenden Anteil an der Wohnfläche innerhalb der Raumeinheit. Dieses Verfahren berücksichtigt demnach nur die Wohnfläche und liefert daher einen genaueren Schätzwert als der einfache Gesamtflächenanteil. Da keine Einzelpersonen im Verfahren verücksichtigt werden, ist das Ergebnis ausdrücklich als Schätzwert zu interpretieren.";
+        }
+        else {
+          weightStrategyText += "einfacher Gesamtflächenanteil";
+          weightStrategyExplanationText += "Pro Raumeinheit wird die Gesamtfläche mit den Einzugsgebieten eines Punktes räumlich verschnitten. Die geschätzte Gesamtversorgung einer Raumeinheit ergibt sich dann aus dem durch die Punkteinzugsgebiete insgesamt überlappenden Anteil an der Gesamtfläche der Raumeinheit. Da keine Einzelpersonen im Verfahren verücksichtigt werden, ist das Ergebnis ausdrücklich als Schätzwert zu interpretieren.";
+        }
+      }
+
+      this.insertCoverageType = function(doc, indicatorStatistic){
+        // doc.setFont(fontName, 'bold');
+        // doc.setFontSize(12);
+        this.setWeightStrategyTexts(indicatorStatistic);        
+
+        doc.autoTable({
+          head: [['Gewichtungstyp', 'Hinweis zu Berechnung']],
+          body: [
+            [weightStrategyText, weightStrategyExplanationText],
+          ],
+          theme: 'grid',
+          headStyles: headStyles,
+          bodyStyles: bodyStyles,
+          startY: doc.autoTable.previous.finalY + 5,
+        });
+
+        nextLineY = doc.autoTable.previous.finalY + 5;
+
+        return doc;
       }
 
       this.generateFeatureCoverageSection_focusPoiCoverage = async function (doc, indicatorStatistic) {
 
         doc.addPage();
 
-        
-        return doc;
+        // TITLE
+        doc = this.insertTitle(doc);        
+
+        // disclaimer accuracy regarding coverage type --> always insecure. best guess based on selected coverage type
+
+        doc = this.insertTable_indicator_poi_information(doc, reachabilityScenario, indicatorStatistic, true);        
+
+        // SECTION LINE
+        doc = this.insertSectionSeparator(doc);        
+
+        // TOTAL COVERAGE
+        doc = await this.addCoverageInformation_poiIndividualCoverage(doc, reachabilityScenario, indicatorStatistic);        
+
+        return doc;        
       };
+
+      this.addCoverageInformation_poiIndividualCoverage = async function(doc, reachabilityScenario, indicatorStatistic){
+        // init / clone leaflet map to focus each point by its isochrones BBOX
+        let leafletMapDomId = "leaflet_map_poi_individual_indicator_coverage";
+        let divContainer = document.createElement('div');
+        divContainer.setAttribute("id", leafletMapDomId);
+
+        // sort / clone POIs by their total coverage
+
+        // for each POI
+
+          // highlight and zoom to POI isochrones and make screenshot
+
+          // add screenshot to pdf
+
+          // add coverage information to pdf 
+          
+            // for each cutoff value
+
+              // first add total coverage over whole area  
+            
+              // then for each affected spatial unit (sorted by coverage)
+                // add spatial unit coverage 
+      }; 
 
       this.generateCoverageDataTableSection_focusPoiCoverage = async function (doc, indicatorStatistic) {
 
