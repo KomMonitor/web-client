@@ -3,27 +3,10 @@
   ng-mouseup="onClassificationMouseUp()">
   <div class="classification-container">
     <div title="Hier können Sie die Klassifizierungsmethode ändern.">
-      <div style="font-weight: bold;">Methode</div>
-      <div 
-        id="method-select-selected" 
-        class="form-control"
-        ng-click="showMethodSelection = !showMethodSelection">
-        {{methodName}}
-      </div>
-      <div ng-show="showMethodSelection" id="method-select-selection" class="select-border"> 
-        <div 
-          id="method-select-method"
-          ng-click="onMethodSelected(method)" 
-          ng-repeat="method in methods">
-          <div class="method-select-method-symbol">
-            <div style="background-image: url('{{ method.imgPath }}')"></div>
-          </div>
-          <div class="method-select-method-text">
-            <div class="method-select-method-name">{{method.name}}</div>
-            <div class="method-select-method-description">{{method.description}}</div>
-          </div>
-        </div>
-      </div>
+      <classification-method-select 
+        on-method-selected="onMethodSelected(method)"
+        default-method-id="{{$ctrl.kommonitorVisualStyleHelperServiceInstance.classifyMethod}}">
+      </classification-method-select>
     </div>
 
     <!-- number of classes -->

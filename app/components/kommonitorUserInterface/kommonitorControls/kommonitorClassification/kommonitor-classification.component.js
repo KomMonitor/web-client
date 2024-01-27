@@ -21,36 +21,7 @@ angular
 
 						kommonitorVisualStyleHelperService.numClasses = 5;
 
-						$scope.methods = [
-							{
-								name: 'Jenks', 
-								id: 'jenks',
-								imgPath: 'icons/classificationMethods/neu/jenks.svg',
-								description: 'Bei Jenks (Natürliche Unterbrechungen) werden Klassengrenzen identifiziert, die ähnliche Werte möglichst gut gruppieren und zugleich die Unterschiede zwischen den Klassen maximieren.'
-							},
-							{
-								name: 'Gleiches Intervall', 
-								id: 'equal_interval', 
-								imgPath: 'icons/classificationMethods/neu/gleichesIntervall.svg',
-								description: 'Mit der Methode Gleiches Intervall wird der Bereich der Attributwerte in gleich große Teilbereiche unterteilt.'},
-							{
-								name: 'Quantile', 
-								id: 'quantile', 
-								imgPath: 'icons/classificationMethods/neu/quantile_grau.svg',
-								description: 'Bei der Quantil-Methode enthält jede Klasse die gleiche Anzahl von Features.'},
-							{
-								name: 'Manuell', 
-								id: 'manual', 
-								imgPath: 'icons/classificationMethods/neu/manuell.svg',
-								description: 'Bei der manuellen Klassifizierung lassen sich die Klassengrenzen nach Bedarf einstellen.'}
-						];
-
 						kommonitorVisualStyleHelperService.classifyMethod = __env.defaultClassifyMethod || "jenks";
-						$scope.methods.forEach((method) => {
-							if (method.id == kommonitorVisualStyleHelperService.classifyMethod) {
-								$scope.methodName = method.name;
-							}
-						});
 
 						$scope.onMethodSelected = function (method) {
 							$scope.methodName = method.name;
