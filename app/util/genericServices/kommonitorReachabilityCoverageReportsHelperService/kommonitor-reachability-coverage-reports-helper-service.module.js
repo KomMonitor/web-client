@@ -33,6 +33,26 @@ angular
         valign: "middle"
       };
 
+      let bodyStyles_spatialUnitPoiCoverage = {
+        0: {
+          fontStyle: 'normal',
+          fontSize: 11,
+          // auto or wrap or number
+          cellWidth: 'auto',
+          halign: "center",
+          valign: "middle"
+        },
+        1: {
+          fontStyle: 'normal',
+          fontSize: 11,
+          // auto or wrap or number
+          cellWidth: 'auto',
+          halign: "right",
+          valign: "middle"
+        }
+
+      };
+
       // first column with fixed width
       let columnStyles = {
         0: { cellWidth: 45, fontStyle: 'bold' },
@@ -96,7 +116,7 @@ angular
 
         // create pdf document
         // 210 mm x 297 mm
-        let doc = this.setupDoc();        
+        let doc = this.setupDoc();
 
         //insert logo
         doc = this.insertLogo(doc);
@@ -108,14 +128,14 @@ angular
 
         doc = await this.generateTotalCoverageSection_focusPoiCoverage(doc, reachabilityScenario, indicatorStatistic);
 
-        // doc = await this.generateFeatureCoverageSection_focusPoiCoverage(doc, reachabilityScenario, indicatorStatistic);
+        doc = await this.generateFeatureCoverageSection_focusPoiCoverage(doc, reachabilityScenario, indicatorStatistic);
 
         // doc = await this.generateCoverageDataTableSection_focusPoiCoverage(doc, reachabilityScenario, indicatorStatistic);
 
         doc.save("KomMonitor-Report_Erreichbarkeits_Coverage.pdf");
       }
 
-      this.insertLogo = function(doc){        
+      this.insertLogo = function (doc) {
         var img = new Image();
         var subPath = location.pathname;
         img.src = subPath + 'logos/KM_Logo1.png';
@@ -124,7 +144,7 @@ angular
         return doc;
       }
 
-      this.setupDoc = function(){
+      this.setupDoc = function () {
         let doc = new jsPDF({
           margin: 0,
           unit: 'mm',
@@ -148,27 +168,30 @@ angular
         nextLineY = initY;
 
         // TITLE
-        doc = this.insertTitle(doc);        
+        doc = this.insertTitle(doc);
 
         // disclaimer accuracy regarding coverage type --> always insecure. best guess based on selected coverage type
 
-        doc = this.insertTable_indicator_poi_information(doc, reachabilityScenario, indicatorStatistic, false);        
+        doc = this.insertTable_indicator_poi_information(doc, reachabilityScenario, indicatorStatistic, false);
+
+        nextLineY = doc.autoTable.previous.finalY + 5;
 
         // // SUBTITLE COVERAGE TYPE (simple area or residential areas)
         doc = this.insertCoverageType(doc, indicatorStatistic);
-        
+
+        nextLineY = doc.autoTable.previous.finalY + 5;
 
         // SECTION LINE
-        doc = this.insertSectionSeparator(doc);        
+        doc = this.insertSectionSeparator(doc);
 
         // TOTAL COVERAGE
-        doc = await this.addCoverageInformation_totalCoverage(doc, reachabilityScenario, indicatorStatistic);        
+        doc = await this.addCoverageInformation_totalCoverage(doc, reachabilityScenario, indicatorStatistic);
 
         return doc;
 
       }
 
-      this.addCoverageInformation_totalCoverage = async function(doc, reachabilityScenario, indicatorStatistic){
+      this.addCoverageInformation_totalCoverage = async function (doc, reachabilityScenario, indicatorStatistic) {
         doc.setFont(fontName, 'bolditalic');
         doc.setFontSize(12);
         let totalCoverageTitle = doc.splitTextToSize("Gesamtergebnis - Versorgung über alle Raumeinheiten", 180);
@@ -219,14 +242,14 @@ angular
         return doc;
       }
 
-      this.insertSectionSeparator = function(doc){
+      this.insertSectionSeparator = function (doc) {
         doc.line(initX, nextLineY, 180, nextLineY, null);
         nextLineY += 5;
 
         return doc;
       }
 
-      this.insertTitle = function(doc){
+      this.insertTitle = function (doc) {
         // Css takes the top-left edge of the element by default.
         // doc.text takes left-bottom, so we add baseline "top" to achieve the same behavior in jspdf.
         doc.setFont(fontName, 'bolditalic');
@@ -245,7 +268,7 @@ angular
         return doc;
       }
 
-      this.insertTable_indicator_poi_information = function(doc, reachabilityScenario, indicatorStatistic, insertCoverageTypeShortInformation){
+      this.insertTable_indicator_poi_information = function (doc, reachabilityScenario, indicatorStatistic, insertCoverageTypeShortInformation) {
 
         let headerArray = ['Eingangsdaten', 'Name', 'Zeitschnitt'];
 
@@ -254,10 +277,10 @@ angular
           ["Indikator", indicatorStatistic.indicator.indicatorName + " [ " + indicatorStatistic.indicator.unit + " ]" + "\n - \n" + indicatorStatistic.spatialUnit.spatialUnitName, indicatorStatistic.timestamp]
         ];
 
-        if(insertCoverageTypeShortInformation){
-          bodyArray.push("Gewichtungstyp", weightStrategyText, "-");
+        if (insertCoverageTypeShortInformation) {
+          bodyArray.push(["Gewichtungstyp", weightStrategyText, "-"]);
         }
-        
+
         doc.autoTable({
           head: [headerArray],
           body: bodyArray,
@@ -270,7 +293,7 @@ angular
         return doc;
       }
 
-      this.setWeightStrategyTexts = function(indicatorStatistic){
+      this.setWeightStrategyTexts = function (indicatorStatistic) {
         weightStrategyText = "";
         weightStrategyExplanationText = "";
         if (indicatorStatistic.weightStrategy == "residential_areas") {
@@ -283,10 +306,10 @@ angular
         }
       }
 
-      this.insertCoverageType = function(doc, indicatorStatistic){
+      this.insertCoverageType = function (doc, indicatorStatistic) {
         // doc.setFont(fontName, 'bold');
         // doc.setFontSize(12);
-        this.setWeightStrategyTexts(indicatorStatistic);        
+        this.setWeightStrategyTexts(indicatorStatistic);
 
         doc.autoTable({
           head: [['Gewichtungstyp', 'Hinweis zu Berechnung']],
@@ -296,57 +319,254 @@ angular
           theme: 'grid',
           headStyles: headStyles,
           bodyStyles: bodyStyles,
-          startY: doc.autoTable.previous.finalY + 5,
-        });
-
-        nextLineY = doc.autoTable.previous.finalY + 5;
+          startY: nextLineY,
+        });        
 
         return doc;
       }
 
-      this.generateFeatureCoverageSection_focusPoiCoverage = async function (doc, indicatorStatistic) {
+      this.generateFeatureCoverageSection_focusPoiCoverage = async function (doc, reachabilityScenario, indicatorStatistic) {
+
+        // init / clone leaflet map to focus each point by its isochrones BBOX
+        let leafletMapDomId = "leaflet_map_poi_individual_indicator_coverage";
+
+        this.appendLeafletContainer(leafletMapDomId);
+
+        await this.initPoiIndividualLeafletMap(leafletMapDomId, reachabilityScenario, indicatorStatistic);
+
+        // sort / clone POIs by their total coverage
+        let mapParts = kommonitorReachabilityMapHelperService.getMapParts_byDomId(leafletMapDomId);
+        let poiLayer = mapParts.indicatorStatistics.poiLayer;
+
+        // for each POI
+        // highlight and zoom to POI isochrones and make screenshot
+
+        // add screenshot to pdf
+
+        // add coverage information to pdf 
+
+        // for each cutoff value
+
+        // first add total coverage over whole area  
+
+        // then for each affected spatial unit (sorted by coverage)
+        // add spatial unit coverage 
+        for (const poiLayerKey in poiLayer._layers) {
+          if (Object.hasOwnProperty.call(poiLayer._layers, poiLayerKey)) {
+            const markerLayer = poiLayer._layers[poiLayerKey];
+            
+            doc = await self.insertPoiIndividualPage(doc, reachabilityScenario, indicatorStatistic, markerLayer, leafletMapDomId);
+          }
+        }
+
+
+        this.removeLeafletContainer(leafletMapDomId);
+
+        return doc;
+      };
+
+      this.insertPoiIndividualPage = async function (doc, reachabilityScenario, indicatorStatistic, marker, domId) {
+
+        let feature = marker.feature;
+        let poiIsochroneLayer = kommonitorReachabilityMapHelperService.generateSinglePoiIsochroneLayer(feature);
+        kommonitorReachabilityMapHelperService.removeSinglePoiIsochroneLayer(domId);
+        kommonitorReachabilityMapHelperService.addSinglePoiIsochroneLayer(domId, feature, poiIsochroneLayer, true);
+
+        // maybe wait a bit to ensure that leaflet container is properly rendered.
+        await new Promise(resolve => setTimeout(resolve, 350));
+
+        // let popupContent = self.generatePoiPopupContent(feature, indicatorStatisticsCandidate);
+        // marker.bindPopup("");
+
+        // //fire event 'click' on target layer 
+        // marker.fireEvent('click');
+        // marker.closePopup();
 
         doc.addPage();
 
+        //insert logo
+        doc = this.insertLogo(doc);
+
         // TITLE
-        doc = this.insertTitle(doc);        
+        doc = this.insertTitle(doc);
 
         // disclaimer accuracy regarding coverage type --> always insecure. best guess based on selected coverage type
 
-        doc = this.insertTable_indicator_poi_information(doc, reachabilityScenario, indicatorStatistic, true);        
+        doc = this.insertTable_indicator_poi_information(doc, reachabilityScenario, indicatorStatistic, true);
+
+        nextLineY = doc.autoTable.previous.finalY + 5;
 
         // SECTION LINE
-        doc = this.insertSectionSeparator(doc);        
+        doc = this.insertSectionSeparator(doc);
 
-        // TOTAL COVERAGE
-        doc = await this.addCoverageInformation_poiIndividualCoverage(doc, reachabilityScenario, indicatorStatistic);        
+        // POI individual info
+        doc = await this.addCoverageInformation_poiIndividualCoverage(doc, reachabilityScenario, indicatorStatistic, marker, domId)
 
-        return doc;        
-      };
+        return doc;
+      }
 
-      this.addCoverageInformation_poiIndividualCoverage = async function(doc, reachabilityScenario, indicatorStatistic){
-        // init / clone leaflet map to focus each point by its isochrones BBOX
-        let leafletMapDomId = "leaflet_map_poi_individual_indicator_coverage";
+      this.addCoverageInformation_poiIndividualCoverage = async function (doc, reachabilityScenario, indicatorStatistic, marker, domId) {
+        doc.setFont(fontName, 'bolditalic');
+        doc.setFontSize(12);
+        let poiCoverageTitle = doc.splitTextToSize('Versorgung durch Punkt "' + marker.feature.properties[__env.FEATURE_NAME_PROPERTY_NAME] + '"', 180);
+        doc.text(poiCoverageTitle, initX, nextLineY, { baseline: "top" });
+        doc.setFont(fontName, "normal", "normal");
+        doc.setFontSize(fontSize_default);
+
+        nextLineY += 10;
+
+        /*
+          ISOCHRONE PRUNE RESULT EXAMPLE
+          {
+            "poiFeatureId": "35_5",
+            "overallCoverage": [
+              {
+                "date": "2023-01-01",
+                "absoluteCoverage": 6.3172536,
+                "relativeCoverage": 0.0020464053
+              }
+            ],
+            "spatialUnitCoverage": [
+              {
+                "spatialUnitFeatureId": "7",
+                "coverage": [
+                  {
+                    "date": "2023-01-01",
+                    "absoluteCoverage": 6.3172536,
+                    "relativeCoverage": 0.0186901
+                  }
+                ]
+              }
+            ]
+          },
+        */
+        let poiIsochroneStatistics = marker.feature.properties.individualIsochronePruneResults;
+
+        let poiCoverage_tableArray = []
+        let spatialUnitPoiCoverage_tableArray = []
+
+        // overall section
+
+        for (const poiIsochroneStatistic of poiIsochroneStatistics) {
+          let range = poiIsochroneStatistic.poiFeatureId.split("_")[1];
+          if (kommonitorReachabilityHelperService.settings.focus == 'time') {
+            // range = Number(range) / 60 + " [Minuten]";
+            range = Number(range) + " [Minuten]";
+          }
+          else {
+            range = range + " [Meter]"
+          }
+
+          let coverage_total_absolute = kommonitorDataExchangeService.getIndicatorValue_asFormattedText(poiIsochroneStatistic.overallCoverage[0].absoluteCoverage) + " von " + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(indicatorStatistic.coverageResult.timeseries[0].value) + " [" + indicatorStatistic.indicator.unit + "]";
+          let coverage_total_relative = kommonitorDataExchangeService.getIndicatorValue_asFormattedText(poiIsochroneStatistic.overallCoverage[0].relativeCoverage * 100) + " [%]";
+
+
+          poiCoverage_tableArray.push([
+            range, coverage_total_absolute, coverage_total_relative
+          ]);
+
+          // spatial unit wise section
+          let coverage_spatialUnit_range = "";
+          for (const spatialUnitCoverageEntry of poiIsochroneStatistic.spatialUnitCoverage) {
+            let indicatorGeoJSON = indicatorStatistic.indicator.geoJSON;
+            let spatialUnitFeatureId = spatialUnitCoverageEntry.spatialUnitFeatureId;
+            let indicatorFeature = kommonitorReachabilityMapHelperService.getIndicatorFeature_forSpatialUnitFeatureId(indicatorGeoJSON, spatialUnitFeatureId);
+            let spatialUnitFeatureName = indicatorFeature.properties[__env.FEATURE_NAME_PROPERTY_NAME];
+
+            // rechtsorientiert einfuegen
+            coverage_spatialUnit_range += spatialUnitFeatureName + "\n" + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(spatialUnitCoverageEntry.coverage[0].absoluteCoverage) + " von " + indicatorFeature.properties[__env.indicatorDatePrefix + indicatorStatistic.timestamp] + " [" + indicatorStatistic.indicator.unit + "]"
+              + "  =>  entspricht " + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(spatialUnitCoverageEntry.coverage[0].relativeCoverage * 100) + " [%]"
+              + "\n\n";
+
+          }
+
+          coverage_spatialUnit_range = coverage_spatialUnit_range.slice(0, -2); // Remove the last 2 characters
+          spatialUnitPoiCoverage_tableArray.push([
+            range, coverage_spatialUnit_range
+          ]);
+
+        }
+
+        doc.autoTable({
+          head: [['Einzugsgebiet', 'geschätzte absolute Versorgung', 'geschätzter Anteil']],
+          body: poiCoverage_tableArray,
+          theme: 'grid',
+          headStyles: headStyles,
+          bodyStyles: bodyStyles,
+          startY: nextLineY,
+        });
+
+        nextLineY = doc.autoTable.previous.finalY + 5;
+
+        doc.autoTable({
+          head: [['Einzugsgebiet', 'anteilig versorgte Raumeinheiten']],
+          body: spatialUnitPoiCoverage_tableArray,
+          theme: 'grid',
+          headStyles: headStyles,
+          bodyStyles: bodyStyles_spatialUnitPoiCoverage,
+          startY: nextLineY,
+        });
+
+        // screenshot of leaflet map
+        nextLineY = doc.autoTable.previous.finalY + 5;
+        let remainingSpaceY = 297 - nextLineY;
+
+        let leafletMapScreenshot = await kommonitorReachabilityMapHelperService.takeScreenshot_image(domId, null);
+
+        doc.addImage(leafletMapScreenshot, "PNG", initX, nextLineY,
+          180, remainingSpaceY - 5, "", 'MEDIUM');
+
+        return doc;
+      }
+
+      this.initPoiIndividualLeafletMap = async function (leafletMapDomId, reachabilityScenario, indicatorStatistic) {
+        kommonitorReachabilityMapHelperService.initReachabilityIndicatorStatisticsGeoMap(leafletMapDomId);
+
+        /*
+          {
+              "reachabilitySettings": reachabilitySettings, // settings from rechability helper service for isochrone config
+              "scenarioName": "name", // unique scenario name
+              "indicatorStatistics": indicatorStatistics, // array of all calculated indicator statistics
+              "isochrones_dissolved": isochrones_dissolved, // kommonitorReachabilityHelperService.currentIsochronesGeoJSON 
+              "isochrones_perPoint": isochrones_perPoint, //kommonitorReachabilityHelperService.original_nonDissolved_isochrones 
+              "poiDataset": {
+                "poiId": poiId,
+                "poiName": poiName,
+                "poiDate": poiDate
+              }
+            }
+
+            from this information kommonitorReachabilityHelperService.settings were already set
+            hence we can derive the information from there as well 
+        */
+        kommonitorReachabilityMapHelperService
+          .replaceIsochroneGeoJSON(
+            leafletMapDomId,
+            kommonitorReachabilityHelperService.settings.selectedStartPointLayer.datasetName,
+            kommonitorReachabilityHelperService.currentIsochronesGeoJSON,
+            kommonitorReachabilityHelperService.settings.transitMode,
+            kommonitorReachabilityHelperService.settings.focus,
+            kommonitorReachabilityHelperService.settings.rangeArray,
+            kommonitorReachabilityHelperService.settings.useMultipleStartPoints,
+            kommonitorReachabilityHelperService.settings.dissolveIsochrones);
+
+        let poiDataset = kommonitorReachabilityHelperService.settings.selectedStartPointLayer;
+        let original_nonDissolved_isochrones = kommonitorReachabilityHelperService.original_nonDissolved_isochrones;
+        await kommonitorReachabilityMapHelperService.replaceReachabilityIndicatorStatisticsOnMap(leafletMapDomId, poiDataset, original_nonDissolved_isochrones, indicatorStatistic);
+
+      }
+
+      this.appendLeafletContainer = function (domId) {
         let divContainer = document.createElement('div');
-        divContainer.setAttribute("id", leafletMapDomId);
+        divContainer.setAttribute("id", domId);
+        divContainer.setAttribute("style", "height: 600px; width: 1000px;");
 
-        // sort / clone POIs by their total coverage
+        document.body.appendChild(divContainer);
+      }
 
-        // for each POI
-
-          // highlight and zoom to POI isochrones and make screenshot
-
-          // add screenshot to pdf
-
-          // add coverage information to pdf 
-          
-            // for each cutoff value
-
-              // first add total coverage over whole area  
-            
-              // then for each affected spatial unit (sorted by coverage)
-                // add spatial unit coverage 
-      }; 
+      this.removeLeafletContainer = function (domId) {
+        document.getElementById(domId).remove();
+      }
 
       this.generateCoverageDataTableSection_focusPoiCoverage = async function (doc, indicatorStatistic) {
 

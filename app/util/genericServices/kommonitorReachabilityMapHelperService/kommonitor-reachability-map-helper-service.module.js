@@ -32,6 +32,10 @@ angular
         */
       this.mapPartsMap = new Map();
 
+      this.getMapParts_byDomId = function(domId){
+        return this.mapPartsMap.get(domId);
+      }
+
       this.initReachabilityGeoMap = function (domId) {
         // init leaflet map
         let mapParts = this.mapPartsMap.get(domId);
@@ -85,7 +89,7 @@ angular
           var node = document.getElementById(domId);
 
           return await domtoimage
-              .toJpeg(node, { quality: 1.0 })
+              .toJpeg(node, { quality: 0.95 })
               .then(function (dataUrl) {
                 return dataUrl;
               })
@@ -655,6 +659,10 @@ angular
         return indicatorMetadataAndGeoJSON;
       }
 
+      this.getMapsParts_byDomId = function(domId){
+        return this.mapPartsMap.get(domId);
+      }
+
       this.replaceReachabilityIndicatorStatisticsOnMap = async function (domId, poiDataset, original_nonDissolved_isochrones, indicatorStatisticsCandidate) {
         let mapParts = this.mapPartsMap.get(domId);
 
@@ -822,19 +830,46 @@ angular
         return html;
       };
 
-      this.onClickPoiMarker_indicatorStatistics = function (event) {
+      this.onClickPoiMarker_indicatorStatistics = function (event) {        
 
-        let mapParts = self.mapPartsMap.get(self.domId_indicatorStatistics);
+        self.removeSinglePoiIsochroneLayer(self.domId_indicatorStatistics);      
+
+        let feature = event.target.feature;        
+
+        let poiIsochroneLayer = self.generateSinglePoiIsochroneLayer(feature);        
+
+        self.addSinglePoiIsochroneLayer(self.domId_indicatorStatistics, feature, poiIsochroneLayer, true)
+      };
+
+      this.removeSinglePoiIsochroneLayer = function(domId){
+        let mapParts = self.mapPartsMap.get(domId);
 
         //remove any old layer
         if (mapParts && mapParts.indicatorStatistics && mapParts.indicatorStatistics.poiIsochroneLayer && mapParts.layerControl) {
           mapParts.layerControl.removeLayer(mapParts.indicatorStatistics.poiIsochroneLayer);
           mapParts.map.removeLayer(mapParts.indicatorStatistics.poiIsochroneLayer);
+        }   
+        self.mapPartsMap.set(domId, mapParts);
+      };
+
+      this.addSinglePoiIsochroneLayer = function(domId, feature, poiIsochroneLayer, zoomToLayer) {
+        let mapParts = self.mapPartsMap.get(domId);
+
+        mapParts.indicatorStatistics.poiIsochroneLayer = poiIsochroneLayer;
+
+        mapParts.layerControl.addOverlay(mapParts.indicatorStatistics.poiIsochroneLayer, "Isochronen um Punkt '" + feature.properties[__env.FEATURE_NAME_PROPERTY_NAME] + "'");
+        mapParts.indicatorStatistics.poiIsochroneLayer.addTo(mapParts.map);
+
+        if(zoomToLayer) {
+          mapParts.map.fitBounds(mapParts.indicatorStatistics.poiIsochroneLayer.getBounds());
         }
 
-        mapParts.indicatorStatistics.poiIsochroneLayer = L.featureGroup();
+        self.invalidateMap(domId);
+        self.mapPartsMap.set(domId, mapParts);
+      };
 
-        let feature = event.target.feature;
+      this.generateSinglePoiIsochroneLayer = function(feature){
+        poiIsochroneLayer = L.featureGroup();
         // array of GeoJSON features
         let isochrones = feature.properties.individualIsochrones;
 
@@ -855,16 +890,11 @@ angular
           L.geoJSON(isochrones[index], {
             style: style,
             onEachFeature: self.onEachFeature_isochrones
-          }).addTo(mapParts.indicatorStatistics.poiIsochroneLayer);
+          }).addTo(poiIsochroneLayer);
         }
 
-        mapParts.layerControl.addOverlay(mapParts.indicatorStatistics.poiIsochroneLayer, "Isochronen um Punkt '" + feature.properties[__env.FEATURE_NAME_PROPERTY_NAME] + "'");
-        mapParts.indicatorStatistics.poiIsochroneLayer.addTo(mapParts.map);
-
-        self.invalidateMap(self.domId_indicatorStatistics);
-
-        self.mapPartsMap.set(self.domId_indicatorStatistics, mapParts);
-      };
+        return poiIsochroneLayer;
+      }
 
       this.generatePoiMarkers_indicatorStatistics = function (poiDataset, indicatorStatisticsCandidate) {
         let markers = this.generatePoiMarkers(poiDataset, false, "geoJSON");
