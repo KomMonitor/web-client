@@ -19,7 +19,6 @@ angular.module('roleDeleteModal').component('roleDeleteModal', {
 		$scope.affectedIndicators = [];
 
 		$scope.$on("onDeleteOrganizationalUnit", function (event, datasets) {
-			$scope.resetRolesDeleteForm();
 			const original_size = datasets.length;
 			datasets = datasets.filter(org => org.name != "public" && org.name != "kommonitor")
 			if (datasets.length < original_size) {
@@ -27,6 +26,8 @@ angular.module('roleDeleteModal').component('roleDeleteModal', {
 				$("#rolesDeleteErrorAlert").show();
 			}
 			$scope.elementsToDelete = datasets;
+
+			$scope.resetRolesDeleteForm();
 		});
 
 
@@ -48,7 +49,10 @@ angular.module('roleDeleteModal').component('roleDeleteModal', {
 				var allowedRoles = spatialUnit.allowedRoles;
 
 				for (const datasetToDelete of $scope.elementsToDelete) {
-					if (allowedRoles.includes(datasetToDelete.organizationalUnitId)) {
+
+					var userRoles = datasetToDelete.roles.map(e => e.roleId);
+					
+					if(allowedRoles.some(i => userRoles.includes(i))) {
 						$scope.affectedSpatialUnits.push(spatialUnit);
 						break;
 					}
@@ -60,12 +64,15 @@ angular.module('roleDeleteModal').component('roleDeleteModal', {
 
 		$scope.gatherAffectedGeoresources = function () {
 			$scope.affectedGeoresources = [];
-
+			
 			kommonitorDataExchangeService.availableGeoresources.forEach(function (georesource) {
 				var allowedRoles = georesource.allowedRoles;
 
 				for (const datasetToDelete of $scope.elementsToDelete) {
-					if (allowedRoles.includes(datasetToDelete.organizationalUnitId)) {
+					
+					var userRoles = datasetToDelete.roles.map(e => e.roleId);
+
+					if(allowedRoles.some(i => userRoles.includes(i))) {
 						$scope.affectedGeoresources.push(georesource);
 						break;
 					}
@@ -82,12 +89,16 @@ angular.module('roleDeleteModal').component('roleDeleteModal', {
 				var allowedRoles_metadata = indicator.allowedRoles;
 
 				for (const datasetToDelete of $scope.elementsToDelete) {
-					if (allowedRoles_metadata.includes(datasetToDelete.organizationalUnitId)) {
+
+					var userRoles = datasetToDelete.roles.map(e => e.roleId);
+
+					if(allowedRoles_metadata.some(i => userRoles.includes(i))) {
 						$scope.affectedIndicators.push(indicator);
 						break;
 					}
 
 					var applicableSpatialUnits = indicator.applicableSpatialUnits;
+					console.log(applicableSpatialUnits)
 					for (const applicableSpatialUnit of applicableSpatialUnits) {
 						if (applicableSpatialUnit.allowedRoles.includes(datasetToDelete.organizationalUnitId)) {
 							$scope.affectedIndicators.push(indicator);
