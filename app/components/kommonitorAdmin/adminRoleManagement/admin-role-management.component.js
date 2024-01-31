@@ -129,7 +129,7 @@ angular.module('adminRoleManagement').component('adminRoleManagement', {
 			$scope.loadingData = true;
 
 			var markedEntriesForDeletion = kommonitorDataGridHelperService.getSelectedAccessControlMetadata();	
-
+			
 			// submit selected spatial units to modal controller
 			$rootScope.$broadcast("onDeleteOrganizationalUnit", markedEntriesForDeletion);
 
