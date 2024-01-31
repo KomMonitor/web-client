@@ -17,8 +17,10 @@ angular.module('roleDeleteModal').component('roleDeleteModal', {
 		$scope.affectedSpatialUnits = [];
 		$scope.affectedGeoresources = [];
 		$scope.affectedIndicators = [];
+		$scope.affectedSpatialUnits = [];
 
 		$scope.$on("onDeleteOrganizationalUnit", function (event, datasets) {
+
 			const original_size = datasets.length;
 			datasets = datasets.filter(org => org.name != "public" && org.name != "kommonitor")
 			if (datasets.length < original_size) {
@@ -26,7 +28,6 @@ angular.module('roleDeleteModal').component('roleDeleteModal', {
 				$("#rolesDeleteErrorAlert").show();
 			}
 			$scope.elementsToDelete = datasets;
-
 			$scope.resetRolesDeleteForm();
 		});
 
@@ -47,12 +48,22 @@ angular.module('roleDeleteModal').component('roleDeleteModal', {
 
 			kommonitorDataExchangeService.availableSpatialUnits.forEach(function (spatialUnit) {
 				var allowedRoles = spatialUnit.allowedRoles;
-
+				
 				for (const datasetToDelete of $scope.elementsToDelete) {
 
 					var userRoles = datasetToDelete.roles.map(e => e.roleId);
 					
 					if(allowedRoles.some(i => userRoles.includes(i))) {
+
+						let connectedItems = [];
+						allowedRoles.forEach(role => {
+							
+							if(datasetToDelete.roles.filter(e => e.roleId==role).length==1)
+								connectedItems.push(`${datasetToDelete.name}-${datasetToDelete.roles.filter(e => e.roleId==role).map(e => { return e.permissionLevel})[0]}`);
+						});
+
+						spatialUnit.connectedItems = connectedItems.join(', ');
+
 						$scope.affectedSpatialUnits.push(spatialUnit);
 						break;
 					}
@@ -73,6 +84,16 @@ angular.module('roleDeleteModal').component('roleDeleteModal', {
 					var userRoles = datasetToDelete.roles.map(e => e.roleId);
 
 					if(allowedRoles.some(i => userRoles.includes(i))) {
+
+						let connectedItems = [];
+						allowedRoles.forEach(role => {
+							
+							if(datasetToDelete.roles.filter(e => e.roleId==role).length==1)
+								connectedItems.push(`${datasetToDelete.name}-${datasetToDelete.roles.filter(e => e.roleId==role).map(e => { return e.permissionLevel})[0]}`);
+						});
+
+						georesource.connectedItems = connectedItems.join(', ');
+
 						$scope.affectedGeoresources.push(georesource);
 						break;
 					}
@@ -88,28 +109,73 @@ angular.module('roleDeleteModal').component('roleDeleteModal', {
 			kommonitorDataExchangeService.availableIndicators.forEach(function (indicator) {
 				var allowedRoles_metadata = indicator.allowedRoles;
 
+				let temp_indicator = indicator;
+				let found = false;
 				for (const datasetToDelete of $scope.elementsToDelete) {
 
 					var userRoles = datasetToDelete.roles.map(e => e.roleId);
+					var applicableSpatialUnits = temp_indicator.applicableSpatialUnits;
 
+					let connectedItems = [];
 					if(allowedRoles_metadata.some(i => userRoles.includes(i))) {
-						$scope.affectedIndicators.push(indicator);
-						break;
+
+						allowedRoles_metadata.forEach(role => {
+							
+							if(datasetToDelete.roles.filter(e => e.roleId==role).length==1)
+								connectedItems.push(`${datasetToDelete.name}-${datasetToDelete.roles.filter(e => e.roleId==role).map(e => { return e.permissionLevel})[0]}`);
+						});
+
+						temp_indicator.connectedItems = connectedItems.join(', ');
+						found = true;
 					}
 
-					var applicableSpatialUnits = indicator.applicableSpatialUnits;
-					console.log(applicableSpatialUnits)
+
+					// spatial units and connected spatial units
+					let connectedSpatialUnits = [];
 					for (const applicableSpatialUnit of applicableSpatialUnits) {
-						if (applicableSpatialUnit.allowedRoles.includes(datasetToDelete.organizationalUnitId)) {
-							$scope.affectedIndicators.push(indicator);
-							break;
+
+						var allowedRoles = applicableSpatialUnit.allowedRoles;
+
+						if(allowedRoles.some(i => userRoles.includes(i))) {
+
+							let connectedSpatialItem = {
+								name: applicableSpatialUnit.spatialUnitName,
+								ids:[]
+							};
+
+							allowedRoles.forEach(role => {
+								
+								if(datasetToDelete.roles.filter(e => e.roleId==role).length==1) {
+									if(!found)
+										connectedItems.push(`${datasetToDelete.name}-${datasetToDelete.roles.filter(e => e.roleId==role).map(e => { return e.permissionLevel})[0]}`);
+
+									connectedSpatialItem.ids.push(`${datasetToDelete.name}-${datasetToDelete.roles.filter(e => e.roleId==role).map(e => { return e.permissionLevel})[0]}`);
+								}
+							});
+
+							// only if no entry in base indicator
+							if(!found) {
+								temp_indicator.connectedItems = connectedItems.join(', ');
+								found = true;
+							}
+
+							connectedSpatialUnits.push(connectedSpatialItem);
 						}
+					}
+
+					temp_indicator.connectedSpatialUnits = connectedSpatialUnits; 
+					
+					if(found) {
+						$scope.affectedIndicators.push(temp_indicator);
+						break; 
 					}
 				}
 			});
 
 			return $scope.affectedIndicators;
 		};
+
+		
 
 		$scope.deleteRoles = function () {
 
