@@ -124,14 +124,43 @@
 											<a href=""><i class="fa-solid fa-map-location-dot" title="Auf Karte darstellen" ng-click="displayIndicatorStatisticOnMap(indicatorStatisticsEntry)"></i></a>
 											<a href=""><i class="fa-solid fa-trash-can" title="Statistik-Eintrag entfernen" ng-click="removeIndicatorStatistic(indicatorStatisticsEntry)"></i></a>
 										</div> -->
-										<div>
-											<button class="btn btn-info btn-sm" title="Auf Karte darstellen" ng-disabled="indicatorStatisticsEntry.active" ng-click="displayIndicatorStatisticOnMap(indicatorStatisticsEntry)"><i class="fa-solid fa-map-location-dot" ></i></button>
-											<button class="btn btn-danger btn-sm" title="Statistik-Eintrag entfernen" ng-click="removeIndicatorStatistic(indicatorStatisticsEntry)"><i class="fa-solid fa-trash-can"></i></button>
-											<button class="btn btn-warning btn-sm" title="PDF-Report generieren" ng-click="$ctrl.kommonitorReachabilityCoverageReportsHelperServiceInstance.generateReachabilityIndicatorStatisticsReport_focusPoiCoverage($ctrl.kommonitorReachabilityScenarioHelperServiceInstance.tmpActiveScenario, indicatorStatisticsEntry)"><i class="fa-solid fa-file-pdf" ></i></button>											
-										</div>
 										<div ng-show="indicatorStatisticsEntry.active">
 											<i>(sichtbar in Karte)</i>
 										</div>
+										<div>
+											<button class="btn btn-info btn-sm" title="Auf Karte darstellen" ng-disabled="indicatorStatisticsEntry.active" ng-click="displayIndicatorStatisticOnMap(indicatorStatisticsEntry)"><i class="fa-solid fa-map-location-dot" ></i></button>
+											<button class="btn btn-danger btn-sm" title="Statistik-Eintrag entfernen" ng-click="removeIndicatorStatistic(indicatorStatisticsEntry)"><i class="fa-solid fa-trash-can"></i></button>
+											<br>											
+											<button class="btn btn-warning" style="margin-top: 5px;" title="PDF-Report - Gesamtregion" ng-disabled="$ctrl.kommonitorReachabilityCoverageReportsHelperServiceInstance.reportInProgress_totalCoverage" ng-click="$ctrl.kommonitorReachabilityCoverageReportsHelperServiceInstance.generateTotalCoverageReport_focusPoiCoverage($ctrl.kommonitorReachabilityScenarioHelperServiceInstance.tmpActiveScenario, indicatorStatisticsEntry)">
+												<i class="fa-solid fa-file-pdf"></i>
+												<i class="fa-solid fa-map"></i>
+												<span class="glyphicon glyphicon-refresh icon-spin" ng-show="$ctrl.kommonitorReachabilityCoverageReportsHelperServiceInstance.reportInProgress_totalCoverage"></span>
+											</button> 
+											<span style="font-size:9px;">&nbsp;(~ 1 Sekunde)</span>
+											<br>										
+											<button class="btn btn-warning" style="margin-top: 5px;" title="PDF-Report - Einzelpunkte mit Karte" ng-disabled="$ctrl.kommonitorReachabilityCoverageReportsHelperServiceInstance.reportInProgress_poiCoverage" ng-click="$ctrl.kommonitorReachabilityCoverageReportsHelperServiceInstance.generateFeatureCoverageReport_focusPoiCoverage($ctrl.kommonitorReachabilityScenarioHelperServiceInstance.tmpActiveScenario, indicatorStatisticsEntry)">
+												<i class="fa-solid fa-file-pdf"></i>
+												<i class="fa-solid fa-map-location-dot"></i>
+												<span class="glyphicon glyphicon-refresh icon-spin" ng-show="$ctrl.kommonitorReachabilityCoverageReportsHelperServiceInstance.reportInProgress_poiCoverage"></span>
+											</button>	
+											<span style="font-size:9px;">&nbsp;(~ 1 Sekunde pro Punkt)</span>
+											<br>
+											<!-- <button class="btn btn-warning btn-sm" title="PDF-Report - Datentabelle Punkte" ng-click="$ctrl.kommonitorReachabilityCoverageReportsHelperServiceInstance.generateCoverageDataTableReport_focusPoiCoverage($ctrl.kommonitorReachabilityScenarioHelperServiceInstance.tmpActiveScenario, indicatorStatisticsEntry)"><i class="fa-solid fa-map-location-dot"></i></button>											 -->
+											
+											<!-- a spatial unit wise report is more complicated -->
+											<!-- indtead we might want to offer users a spatial unit wise report of all intersecting POIs and use spatial unit as a filter
+											 -->
+											
+											 <!-- <button class="btn btn-warning" style="margin-top: 5px;" title="PDF-Report - Raumeinheiten mit Karte" 
+											ng-disabled="$ctrl.kommonitorReachabilityCoverageReportsHelperServiceInstance.reportInProgress_spatialUnitCoverage"
+											ng-click="$ctrl.kommonitorReachabilityCoverageReportsHelperServiceInstance.generateFeatureCoverageReport_focusSpatialUnitCoverage($ctrl.kommonitorReachabilityScenarioHelperServiceInstance.tmpActiveScenario, indicatorStatisticsEntry)">
+												<i class="fa-solid fa-file-pdf"></i>
+												<i class="fa-solid fa-layer-group"></i>
+												<span class="glyphicon glyphicon-refresh icon-spin" ng-show="$ctrl.kommonitorReachabilityCoverageReportsHelperServiceInstance.reportInProgress_spatialUnitCoverage"></span>
+											</button>	
+											<span style="font-size:9px;">&nbsp;(~ 1 Sekunde pro Raumeinheit)</span>											 -->
+										</div>
+										
 									</td>
 									<td>
 										{{::indicatorStatisticsEntry.spatialUnit.spatialUnitName}}

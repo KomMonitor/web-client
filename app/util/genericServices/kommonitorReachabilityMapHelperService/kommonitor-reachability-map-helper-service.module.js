@@ -120,6 +120,22 @@ angular
         }
       };
 
+      this.zoomToIndicatorFeature = function(domId, feature){
+        let mapParts = this.mapPartsMap.get(domId);
+        if (mapParts && mapParts.map && mapParts.indicatorStatistics && mapParts.indicatorStatistics.indicatorLayer) {
+          for (const layerKey in mapParts.indicatorStatistics.indicatorLayer._layers) {
+            if (Object.hasOwnProperty.call(mapParts.indicatorStatistics.indicatorLayer._layers, layerKey)) {
+              const layer = mapParts.indicatorStatistics.indicatorLayer._layers[layerKey];
+              
+              if(layer.feature.properties[__env.FEATURE_ID_PROPERTY_NAME] == feature.properties[__env.FEATURE_ID_PROPERTY_NAME]){
+                mapParts.map.fitBounds(layer.getBounds());
+                mapParts.map.invalidateSize(true);
+              }
+            }
+          }          
+        }
+      }
+
       this.zoomToMarkerLayer = function (domId) {
         let mapParts = this.mapPartsMap.get(domId);
         if (mapParts && mapParts.map && mapParts.isochroneLayers && mapParts.isochroneLayers.markerLayer) {
@@ -509,7 +525,9 @@ angular
         let mapParts = this.mapPartsMap.get(domId);
 
         // remember this domId in order to use it in an on click event for a leaflet point
-        this.domId_indicatorStatistics = domId;
+        if(domId != "leaflet_map_poi_individual_indicator_coverage"){
+          this.domId_indicatorStatistics = domId;
+        }        
 
         if (mapParts && mapParts.map)
           kommonitorGenericMapHelperService.clearMap(mapParts.map);
@@ -838,7 +856,7 @@ angular
 
         let poiIsochroneLayer = self.generateSinglePoiIsochroneLayer(feature);        
 
-        self.addSinglePoiIsochroneLayer(self.domId_indicatorStatistics, feature, poiIsochroneLayer, true)
+        self.addSinglePoiIsochroneLayer(self.domId_indicatorStatistics, feature, poiIsochroneLayer, false)
       };
 
       this.removeSinglePoiIsochroneLayer = function(domId){
