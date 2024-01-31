@@ -14,6 +14,7 @@ angular
 
       this.reportInProgress_totalCoverage = false;
       this.reportInProgress_poiCoverage = false;
+      this.progressText_poiCoverage = "";
       this.reportInProgress_spatialUnitCoverage = false;
 
 
@@ -332,6 +333,7 @@ angular
       this.generateFeatureCoverageReport_focusPoiCoverage = async function (reachabilityScenario, indicatorStatistic) {
 
         this.reportInProgress_poiCoverage = true;
+        this.progressText_poiCoverage = "";
         $timeout(function () {
           $rootScope.$digest();
         });
@@ -339,9 +341,6 @@ angular
         // create pdf document
         // 210 mm x 297 mm
         let doc = this.setupDoc();
-
-        //insert logo
-        doc = this.insertLogo(doc);
 
         // general settings
         doc.setDrawColor(148, 148, 148);
@@ -362,7 +361,7 @@ angular
         let poiLayer = mapParts.indicatorStatistics.poiLayer;
 
         //now an array
-        poiLayer = this.sortPoiLayer_byTotalCoverageDesc(poiLayer);
+        let poiLayer_array = this.sortPoiLayer_byTotalCoverageDesc(poiLayer);
 
         // for each POI
         // highlight and zoom to POI isochrones and make screenshot
@@ -377,8 +376,18 @@ angular
 
         // then for each affected spatial unit (sorted by coverage)
         // add spatial unit coverage 
-        for (const markerLayer of poiLayer) {
+        for (let index = 0; index < poiLayer_array.length; index++) {
+          const markerLayer = poiLayer_array[index];
           doc = await self.insertPoiIndividualPage(doc, reachabilityScenario, indicatorStatistic, markerLayer, leafletMapDomId);
+
+          this.progressText_poiCoverage = index + " / " + poiLayer_array.length;
+          $timeout(function () {
+            $rootScope.$digest();
+          });
+
+          if(index < poiLayer_array.length - 1){
+            doc.addPage();
+          }          
         }
 
 
@@ -424,8 +433,6 @@ angular
 
         // maybe wait a bit to ensure that leaflet container is properly rendered.
         await new Promise(resolve => setTimeout(resolve, 350));
-
-        doc.addPage();
 
         //insert logo
         doc = this.insertLogo(doc);
@@ -523,8 +530,6 @@ angular
         // //fire event 'click' on target layer 
         // marker.fireEvent('click');
         // marker.closePopup();
-
-        doc.addPage();
 
         //insert logo
         doc = this.insertLogo(doc);
@@ -797,8 +802,12 @@ angular
         // add coverage information to pdf 
 
         // for each cutoff value
-        for (const spatialUnitLayer of indicatorLayer_array) {
+        for (let index = 0; index < indicatorLayer_array.length; index++) {
+          const spatialUnitLayer = indicatorLayer_array[index];
           doc = await self.insertSpatialUnitIndividualPage(doc, reachabilityScenario, indicatorStatistic, spatialUnitLayer, leafletMapDomId);
+          if(index < indicatorLayer_array.length - 1){
+            doc.addPage();
+          }          
         }
 
 
