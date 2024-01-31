@@ -17,8 +17,8 @@ angular
       this.progressText_poiCoverage = "";
       this.reportInProgress_spatialUnitCoverage = false;
 
-      this.leafletContainer_height_px = 1000;
-      this.leafletContainer_width_px = 1000;
+      this.leafletContainer_height_px = 675;
+      this.leafletContainer_width_px = 675;
       this.leafletContainer_resolution = this.leafletContainer_width_px / this.leafletContainer_height_px;
 
       this.pdfLeafletImageWidth = 190;
@@ -56,23 +56,12 @@ angular
       };
 
       let bodyStyles_spatialUnitPoiCoverage = {
-        0: {
-          fontStyle: 'normal',
-          fontSize: 11,
-          // auto or wrap or number
-          cellWidth: 'auto',
-          halign: "center",
-          valign: "middle"
-        },
-        1: {
-          fontStyle: 'normal',
-          fontSize: 11,
-          // auto or wrap or number
-          cellWidth: 'auto',
-          halign: "right",
-          valign: "middle"
-        }
-
+        fontStyle: 'normal',
+        fontSize: 11,
+        // auto or wrap or number
+        cellWidth: 'auto',
+        halign: "right",
+        valign: "middle"
       };
 
       // first column with fixed width
@@ -258,7 +247,7 @@ angular
         await this.initTotalCoverageLeafletMap(leafletMapDomId, reachabilityScenario, indicatorStatistic);
 
         // maybe wait a bit to ensure that leaflet container is properly rendered.
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise(resolve => setTimeout(resolve, 750));
 
         nextLineY = doc.autoTable.previous.finalY + 5;
         let remainingSpaceY = 297 - nextLineY - 5;
@@ -479,7 +468,7 @@ angular
         kommonitorReachabilityMapHelperService.zoomToIndicatorFeature(domId, feature);
 
         // maybe wait a bit to ensure that leaflet container is properly rendered.
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise(resolve => setTimeout(resolve, 750));
 
         //insert logo
         doc = this.insertLogo(doc);
@@ -587,7 +576,7 @@ angular
         kommonitorReachabilityMapHelperService.addSinglePoiIsochroneLayer(domId, feature, poiIsochroneLayer, true);
 
         // maybe wait a bit to ensure that leaflet container is properly rendered.
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise(resolve => setTimeout(resolve, 750));
 
         // let popupContent = self.generatePoiPopupContent(feature, indicatorStatisticsCandidate);
         // marker.bindPopup("");

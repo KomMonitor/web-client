@@ -131,14 +131,18 @@
 											<button class="btn btn-info btn-sm" title="Auf Karte darstellen" ng-disabled="indicatorStatisticsEntry.active" ng-click="displayIndicatorStatisticOnMap(indicatorStatisticsEntry)"><i class="fa-solid fa-map-location-dot" ></i></button>
 											<button class="btn btn-danger btn-sm" title="Statistik-Eintrag entfernen" ng-click="removeIndicatorStatistic(indicatorStatisticsEntry)"><i class="fa-solid fa-trash-can"></i></button>
 											<br>											
-											<button class="btn btn-warning" style="margin-top: 5px;" title="PDF-Report - Gesamtregion" ng-disabled="$ctrl.kommonitorReachabilityCoverageReportsHelperServiceInstance.reportInProgress_totalCoverage" ng-click="$ctrl.kommonitorReachabilityCoverageReportsHelperServiceInstance.generateTotalCoverageReport_focusPoiCoverage($ctrl.kommonitorReachabilityScenarioHelperServiceInstance.tmpActiveScenario, indicatorStatisticsEntry)">
+											<button class="btn btn-warning" style="margin-top: 5px;" title="PDF-Report - Gesamtregion" 
+											ng-disabled="$ctrl.kommonitorReachabilityCoverageReportsHelperServiceInstance.reportInProgress_totalCoverage || (indicatorStatisticsEntry.progress != 'finished' && indicatorStatisticsEntry.progress != 'failed')" 
+											ng-click="$ctrl.kommonitorReachabilityCoverageReportsHelperServiceInstance.generateTotalCoverageReport_focusPoiCoverage($ctrl.kommonitorReachabilityScenarioHelperServiceInstance.tmpActiveScenario, indicatorStatisticsEntry)">
 												<i class="fa-solid fa-file-pdf"></i>
 												<i class="fa-solid fa-map"></i>
 												<span class="glyphicon glyphicon-refresh icon-spin" ng-show="$ctrl.kommonitorReachabilityCoverageReportsHelperServiceInstance.reportInProgress_totalCoverage"></span>
 											</button> 
 											<span style="font-size:9px;">&nbsp;(~ 1 Sekunde)</span>
 											<br>										
-											<button class="btn btn-warning" style="margin-top: 5px;" title="PDF-Report - Einzelpunkte mit Karte" ng-disabled="$ctrl.kommonitorReachabilityCoverageReportsHelperServiceInstance.reportInProgress_poiCoverage" ng-click="$ctrl.kommonitorReachabilityCoverageReportsHelperServiceInstance.generateFeatureCoverageReport_focusPoiCoverage($ctrl.kommonitorReachabilityScenarioHelperServiceInstance.tmpActiveScenario, indicatorStatisticsEntry)">
+											<button class="btn btn-warning" style="margin-top: 5px;" title="PDF-Report - Einzelpunkte mit Karte" 
+											ng-disabled="$ctrl.kommonitorReachabilityCoverageReportsHelperServiceInstance.reportInProgress_poiCoverage || (indicatorStatisticsEntry.progress != 'finished' && indicatorStatisticsEntry.progress != 'failed')" 
+											ng-click="$ctrl.kommonitorReachabilityCoverageReportsHelperServiceInstance.generateFeatureCoverageReport_focusPoiCoverage($ctrl.kommonitorReachabilityScenarioHelperServiceInstance.tmpActiveScenario, indicatorStatisticsEntry)">
 												<i class="fa-solid fa-file-pdf"></i>
 												<i class="fa-solid fa-map-location-dot"></i>
 												<span class="glyphicon glyphicon-refresh icon-spin" ng-show="$ctrl.kommonitorReachabilityCoverageReportsHelperServiceInstance.reportInProgress_poiCoverage"></span>
