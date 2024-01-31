@@ -53,6 +53,9 @@ MULTI STEP FORM
 .multiStepForm fieldset:not(:first-of-type) {
     display: none;
 }
+.multiStepForm fieldset:first-of-type {
+    display: block;
+}
 
 /*inputs*/
 .multiStepForm input, .multiStepForm textarea, .multiStepForm select {
