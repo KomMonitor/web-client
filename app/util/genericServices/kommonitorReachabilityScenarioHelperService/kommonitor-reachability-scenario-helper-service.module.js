@@ -58,7 +58,12 @@ angular
         this.tmpActiveScenario.poiDataset = {};
         this.tmpActiveScenario.poiDataset.poiId = poiDataset.georesourceId;
         this.tmpActiveScenario.poiDataset.poiName = poiDataset.datasetName;
-        this.tmpActiveScenario.poiDataset.poiDate = kommonitorReachabilityHelperService.settings.isochroneConfig.selectedDate.startDate || "tmpDataset";
+        if (kommonitorReachabilityHelperService.settings.isochroneConfig.selectedDate && kommonitorReachabilityHelperService.settings.isochroneConfig.selectedDate.startDate){
+          this.tmpActiveScenario.poiDataset.poiDate = kommonitorReachabilityHelperService.settings.isochroneConfig.selectedDate.startDate;
+        }
+        else{
+          this.tmpActiveScenario.poiDataset.poiDate = "tmpDataset";
+        } 
       }
 
       this.setActiveScenario = function(scenarioDataset){

@@ -915,7 +915,7 @@ angular
       }
 
       this.generatePoiMarkers_indicatorStatistics = function (poiDataset, indicatorStatisticsCandidate) {
-        let markers = this.generatePoiMarkers(poiDataset, false, "geoJSON");
+        let markers = this.generatePoiMarkers(poiDataset, false, "geoJSON_reachability");
 
         // now replace bindPopup method and add click interaction event
 
