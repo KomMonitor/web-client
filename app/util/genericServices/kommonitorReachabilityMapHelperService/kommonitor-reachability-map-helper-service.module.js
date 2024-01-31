@@ -81,7 +81,7 @@ angular
         
         if (!overridedPluginOptions) {
           overridedPluginOptions = {
-
+            quality: 0.95
           }
         }
         if (mapParts && mapParts.map && mapParts.screenshoter) {
@@ -89,7 +89,7 @@ angular
           var node = document.getElementById(domId);
 
           return await domtoimage
-              .toJpeg(node, { quality: 0.95 })
+              .toJpeg(node, overridedPluginOptions)
               .then(function (dataUrl) {
                 return dataUrl;
               })
@@ -117,6 +117,13 @@ angular
         let mapParts = this.mapPartsMap.get(domId);
         if (mapParts && mapParts.map && mapParts.isochroneLayers && mapParts.isochroneLayers.isochroneLayer) {
           kommonitorGenericMapHelperService.zoomToLayer(mapParts.map, mapParts.isochroneLayers.isochroneLayer);
+        }
+      };
+
+      this.zoomToIndicatorLayer = function (domId) {
+        let mapParts = this.mapPartsMap.get(domId);
+        if (mapParts && mapParts.map && mapParts.indicatorStatistics && mapParts.indicatorStatistics.indicatorLayer) {
+          kommonitorGenericMapHelperService.zoomToLayer(mapParts.map, mapParts.indicatorStatistics.indicatorLayer);
         }
       };
 

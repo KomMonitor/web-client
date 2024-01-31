@@ -255,8 +255,8 @@ angular
         map = L.map(domId, {
           center: [__env.initialLatitude, __env.initialLongitude],
           zoom: __env.initialZoomLevel,
-          zoomDelta: 0.5,
-          zoomSnap: 0.5,
+          zoomDelta: 0.25,
+          zoomSnap: 0.25,
           layers: [backgroundLayer]
         });
 

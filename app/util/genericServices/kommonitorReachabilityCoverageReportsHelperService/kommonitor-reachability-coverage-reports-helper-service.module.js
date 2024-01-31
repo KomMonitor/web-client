@@ -17,6 +17,19 @@ angular
       this.progressText_poiCoverage = "";
       this.reportInProgress_spatialUnitCoverage = false;
 
+      this.leafletContainer_height_px = 1000;
+      this.leafletContainer_width_px = 1000;
+      this.leafletContainer_resolution = this.leafletContainer_width_px / this.leafletContainer_height_px;
+
+      this.pdfLeafletImageWidth = 190;
+      this.pdfLeafletImageHeight = this.pdfLeafletImageWidth / this.leafletContainer_resolution;
+
+      this.domToImageMoreSettings = {
+        quality: 0.95, 
+        width: this.leafletContainer_width_px,
+        height: this.leafletContainer_height_px
+      }
+
 
       let fontName = "Helvetica";
       let fontSize_default = 12;
@@ -236,13 +249,46 @@ angular
         });
 
         // screenshot of leaflet map
-        nextLineY = doc.autoTable.previous.finalY + 5;
-        let remainingSpaceY = 297 - nextLineY;
 
-        let leafletMapScreenshot = await kommonitorReachabilityMapHelperService.takeScreenshot_image("reachabilityScenarioIsochroneStatisticsGeoMap", null);
+        // init / clone leaflet map to focus each point by its isochrones BBOX
+        let leafletMapDomId = "leaflet_map_total_indicator_coverage";
+
+        this.appendLeafletContainer(leafletMapDomId);
+
+        await this.initTotalCoverageLeafletMap(leafletMapDomId, reachabilityScenario, indicatorStatistic);
+
+        // maybe wait a bit to ensure that leaflet container is properly rendered.
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        nextLineY = doc.autoTable.previous.finalY + 5;
+        let remainingSpaceY = 297 - nextLineY - 5;
+
+        let leafletMapScreenshot = await kommonitorReachabilityMapHelperService.takeScreenshot_image(leafletMapDomId, this.domToImageMoreSettings);
+
+        // ideal image resolution
+        if (remainingSpaceY < this.pdfLeafletImageHeight) {
+          doc.addPage();
+
+          //insert logo
+          doc = this.insertLogo(doc);
+
+          // TITLE
+          doc = this.insertTitle(doc);
+
+          doc.setFont(fontName, 'bolditalic');
+          doc.setFontSize(12);
+          let totalCoverageTitle = doc.splitTextToSize("Gesamtergebnis - Versorgung über alle Raumeinheiten", 180);
+          doc.text(totalCoverageTitle, initX, nextLineY, { baseline: "top" });
+          doc.setFont(fontName, "normal", "normal");
+          doc.setFontSize(fontSize_default);
+
+          nextLineY += 10;
+        }
 
         doc.addImage(leafletMapScreenshot, "JPEG", initX, nextLineY,
-          190, remainingSpaceY - 5, "", 'MEDIUM');
+          this.pdfLeafletImageWidth, this.pdfLeafletImageHeight, "", 'MEDIUM');
+
+        this.removeLeafletContainer(leafletMapDomId);
 
         return doc;
       }
@@ -333,7 +379,8 @@ angular
       this.generateFeatureCoverageReport_focusPoiCoverage = async function (reachabilityScenario, indicatorStatistic) {
 
         this.reportInProgress_poiCoverage = true;
-        this.progressText_poiCoverage = "";
+        this.progressText_poiCoverage = "0 / " + kommonitorReachabilityHelperService.settings.selectedStartPointLayer.geoJSON_reachability.features.length;
+
         $timeout(function () {
           $rootScope.$digest();
         });
@@ -385,9 +432,9 @@ angular
             $rootScope.$digest();
           });
 
-          if(index < poiLayer_array.length - 1){
+          if (index < poiLayer_array.length - 1) {
             doc.addPage();
-          }          
+          }
         }
 
 
@@ -427,12 +474,12 @@ angular
         return poiArray_sorted;
       }
 
-      this.insertSpatialUnitIndividualPage = async function(doc, reachabilityScenario, indicatorStatistic, spatialUnitLayer, domId){
+      this.insertSpatialUnitIndividualPage = async function (doc, reachabilityScenario, indicatorStatistic, spatialUnitLayer, domId) {
         let feature = spatialUnitLayer.feature;
         kommonitorReachabilityMapHelperService.zoomToIndicatorFeature(domId, feature);
 
         // maybe wait a bit to ensure that leaflet container is properly rendered.
-        await new Promise(resolve => setTimeout(resolve, 350));
+        await new Promise(resolve => setTimeout(resolve, 500));
 
         //insert logo
         doc = this.insertLogo(doc);
@@ -502,14 +549,32 @@ angular
 
         // screenshot of leaflet map
         nextLineY = doc.autoTable.previous.finalY + 5;
-        let remainingSpaceY = 297 - nextLineY;
+        let remainingSpaceY = 297 - nextLineY - 5;
 
-        let leafletMapScreenshot = await kommonitorReachabilityMapHelperService.takeScreenshot_image(domId, null);
+        let leafletMapScreenshot = await kommonitorReachabilityMapHelperService.takeScreenshot_image(domId, this.domToImageMoreSettings);
 
         // ideal image resolution 
+        if (remainingSpaceY < this.pdfLeafletImageHeight) {
+          doc.addPage();
 
-          doc.addImage(leafletMapScreenshot, "JPEG", initX, nextLineY,
-            190, remainingSpaceY - 5, "", 'MEDIUM');
+          //insert logo
+          doc = this.insertLogo(doc);
+
+          // TITLE
+          doc = this.insertTitle(doc);
+
+          doc.setFont(fontName, 'bolditalic');
+          doc.setFontSize(12);
+          let poiCoverageTitle = doc.splitTextToSize('Versorgung der Raumeinheit "' + spatialUnitLayer.feature.properties[__env.FEATURE_NAME_PROPERTY_NAME] + '"', 180);
+          doc.text(poiCoverageTitle, initX, nextLineY, { baseline: "top" });
+          doc.setFont(fontName, "normal", "normal");
+          doc.setFontSize(fontSize_default);
+
+          nextLineY += 10;
+        }
+
+        doc.addImage(leafletMapScreenshot, "JPEG", initX, nextLineY,
+          this.pdfLeafletImageWidth, this.pdfLeafletImageHeight, "", 'MEDIUM');
 
         return doc;
       }
@@ -522,7 +587,7 @@ angular
         kommonitorReachabilityMapHelperService.addSinglePoiIsochroneLayer(domId, feature, poiIsochroneLayer, true);
 
         // maybe wait a bit to ensure that leaflet container is properly rendered.
-        await new Promise(resolve => setTimeout(resolve, 350));
+        await new Promise(resolve => setTimeout(resolve, 500));
 
         // let popupContent = self.generatePoiPopupContent(feature, indicatorStatisticsCandidate);
         // marker.bindPopup("");
@@ -656,17 +721,73 @@ angular
 
         // screenshot of leaflet map
         nextLineY = doc.autoTable.previous.finalY + 5;
-        let remainingSpaceY = 297 - nextLineY;
+        let remainingSpaceY = 297 - nextLineY - 5;
 
-        let leafletMapScreenshot = await kommonitorReachabilityMapHelperService.takeScreenshot_image(domId, null);
+        let leafletMapScreenshot = await kommonitorReachabilityMapHelperService.takeScreenshot_image(domId, this.domToImageMoreSettings);
 
-        // ideal image resolution 
+        // ideal image resolution
+        if (remainingSpaceY < this.pdfLeafletImageHeight) {
+          doc.addPage();
 
-          doc.addImage(leafletMapScreenshot, "JPEG", initX, nextLineY,
-            190, remainingSpaceY - 5, "", 'MEDIUM');
+          //insert logo
+          doc = this.insertLogo(doc);
+
+          // TITLE
+          doc = this.insertTitle(doc);
+
+          doc.setFont(fontName, 'bolditalic');
+          doc.setFontSize(12);
+          let poiCoverageTitle = doc.splitTextToSize('Versorgung durch Punkt "' + marker.feature.properties[__env.FEATURE_NAME_PROPERTY_NAME] + '"', 180);
+          doc.text(poiCoverageTitle, initX, nextLineY, { baseline: "top" });
+          doc.setFont(fontName, "normal", "normal");
+          doc.setFontSize(fontSize_default);
+
+          nextLineY += 10;
+        }
+
+        doc.addImage(leafletMapScreenshot, "JPEG", initX, nextLineY,
+          this.pdfLeafletImageWidth, this.pdfLeafletImageHeight, "", 'MEDIUM');
 
         return doc;
       }
+
+      this.initTotalCoverageLeafletMap = async function(leafletMapDomId, reachabilityScenario, indicatorStatistic){
+        kommonitorReachabilityMapHelperService.initReachabilityIndicatorStatisticsGeoMap(leafletMapDomId);
+
+        /*
+          {
+              "reachabilitySettings": reachabilitySettings, // settings from rechability helper service for isochrone config
+              "scenarioName": "name", // unique scenario name
+              "indicatorStatistics": indicatorStatistics, // array of all calculated indicator statistics
+              "isochrones_dissolved": isochrones_dissolved, // kommonitorReachabilityHelperService.currentIsochronesGeoJSON 
+              "isochrones_perPoint": isochrones_perPoint, //kommonitorReachabilityHelperService.original_nonDissolved_isochrones 
+              "poiDataset": {
+                "poiId": poiId,
+                "poiName": poiName,
+                "poiDate": poiDate
+              }
+            }
+
+            from this information kommonitorReachabilityHelperService.settings were already set
+            hence we can derive the information from there as well 
+        */
+        kommonitorReachabilityMapHelperService
+          .replaceIsochroneGeoJSON(
+            leafletMapDomId,
+            kommonitorReachabilityHelperService.settings.selectedStartPointLayer.datasetName,
+            kommonitorReachabilityHelperService.currentIsochronesGeoJSON,
+            kommonitorReachabilityHelperService.settings.transitMode,
+            kommonitorReachabilityHelperService.settings.focus,
+            kommonitorReachabilityHelperService.settings.rangeArray,
+            kommonitorReachabilityHelperService.settings.useMultipleStartPoints,
+            kommonitorReachabilityHelperService.settings.dissolveIsochrones);
+
+        let poiDataset = kommonitorReachabilityHelperService.settings.selectedStartPointLayer;
+        let original_nonDissolved_isochrones = kommonitorReachabilityHelperService.original_nonDissolved_isochrones;
+        await kommonitorReachabilityMapHelperService.replaceReachabilityIndicatorStatisticsOnMap(leafletMapDomId, poiDataset, original_nonDissolved_isochrones, indicatorStatistic);
+
+        kommonitorReachabilityMapHelperService.zoomToIndicatorLayer(leafletMapDomId);
+      };
 
       this.initPoiIndividualLeafletMap = async function (leafletMapDomId, reachabilityScenario, indicatorStatistic) {
         kommonitorReachabilityMapHelperService.initReachabilityIndicatorStatisticsGeoMap(leafletMapDomId);
@@ -745,7 +866,7 @@ angular
       this.appendLeafletContainer = function (domId) {
         let divContainer = document.createElement('div');
         divContainer.setAttribute("id", domId);
-        divContainer.setAttribute("style", "height: 600px; width: 1000px;");
+        divContainer.setAttribute("style", "height: " + this.leafletContainer_height_px + "px; width: " + this.leafletContainer_width_px + "px;");
 
         document.body.appendChild(divContainer);
       }
@@ -805,9 +926,9 @@ angular
         for (let index = 0; index < indicatorLayer_array.length; index++) {
           const spatialUnitLayer = indicatorLayer_array[index];
           doc = await self.insertSpatialUnitIndividualPage(doc, reachabilityScenario, indicatorStatistic, spatialUnitLayer, leafletMapDomId);
-          if(index < indicatorLayer_array.length - 1){
+          if (index < indicatorLayer_array.length - 1) {
             doc.addPage();
-          }          
+          }
         }
 
 
@@ -847,11 +968,11 @@ angular
           }
         }
 
-        indicatorArray.sort(function(a, b){
-          if(! a.feature.properties.overallCoverages){
+        indicatorArray.sort(function (a, b) {
+          if (!a.feature.properties.overallCoverages) {
             return -1;
           }
-          if (! b.feature.properties.overallCoverages){
+          if (!b.feature.properties.overallCoverages) {
             return 0;
           }
 
@@ -890,24 +1011,24 @@ angular
             for (const spatialUnitCoverageEntry of poiIsochroneStatistic.spatialUnitCoverage) {
               let spatialUnitFeatureId = spatialUnitCoverageEntry.spatialUnitFeatureId;
 
-              if (spatialUnitFeatureId == indicatorFeature.properties[__env.FEATURE_ID_PROPERTY_NAME]){                
+              if (spatialUnitFeatureId == indicatorFeature.properties[__env.FEATURE_ID_PROPERTY_NAME]) {
                 // accumulate total and relative coverages
-                if(indicatorFeature.properties.overallCoverages[range]){
+                if (indicatorFeature.properties.overallCoverages[range]) {
                   indicatorFeature.properties.overallCoverages[range].absoluteCoverage += spatialUnitCoverageEntry.coverage[0].absoluteCoverage;
-                  indicatorFeature.properties.overallCoverages[range].relativeCoverage += spatialUnitCoverageEntry.coverage[0].relativeCoverage;                  
-                  if (! indicatorFeature.properties.overallCoverages[range].poiFeatureIds.includes(poiFeature.properties[__env.FEATURE_ID_PROPERTY_NAME])){
+                  indicatorFeature.properties.overallCoverages[range].relativeCoverage += spatialUnitCoverageEntry.coverage[0].relativeCoverage;
+                  if (!indicatorFeature.properties.overallCoverages[range].poiFeatureIds.includes(poiFeature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
                     indicatorFeature.properties.overallCoverages[range].poiFeatureIds.push(poiFeature.properties[__env.FEATURE_ID_PROPERTY_NAME]);
                   }
                 }
-                else{
+                else {
                   indicatorFeature.properties.overallCoverages[range] = {
                     absoluteCoverage: spatialUnitCoverageEntry.coverage[0].absoluteCoverage,
                     relativeCoverage: spatialUnitCoverageEntry.coverage[0].relativeCoverage,
                     range: range,
-                    poiFeatureIds: [poiFeature.properties[__env.FEATURE_ID_PROPERTY_NAME]]                   
+                    poiFeatureIds: [poiFeature.properties[__env.FEATURE_ID_PROPERTY_NAME]]
                   }
                 }
-                
+
               }
 
             }
