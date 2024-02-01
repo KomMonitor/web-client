@@ -594,6 +594,9 @@ angular
           kommonitorGenericMapHelperService.removeLayerFromMap(mapParts.map, indicatorLayer);
           kommonitorGenericMapHelperService.removeLayerFromLayerControl(mapParts.layerControl, indicatorLayer);
         }
+        if (mapParts && mapParts.indicatorLegendControl) {
+          kommonitorGenericMapHelperService.removeControlFromMap(mapParts.map, mapParts.indicatorLegendControl);
+        }
       };
 
       this.fetchIndicatorForSpatialUnit = async function (indicatorId, spatialUnitId, timestamp) {
@@ -701,6 +704,7 @@ angular
         let indicatorLayer = await this.generateIndicatorLayer(indicatorMetadataAndGeoJSON, indicatorPropertyName, defaultBrew);
         let indicatorLegendControl = this.generateIndicatorLegend(defaultBrew, indicatorMetadataAndGeoJSON);
         indicatorLegendControl.addTo(mapParts.map);
+        mapParts.indicatorLegendControl = indicatorLegendControl;
 
         // generate poiLayer from POI geometries, original_undissolved isochrones per POI and isochrone prune Result per poi_and_undissolved_isochrone
         let poiLayer = this.generatePoiLayerForIndicatorStatistic(poiDataset, original_nonDissolved_isochrones, indicatorStatisticsCandidate);

@@ -584,5 +584,9 @@ angular
         return markers;
     };
 
+    this.removeControlFromMap = function(map, control){
+      map.removeControl(control);
+    }
+
 
     }]);
