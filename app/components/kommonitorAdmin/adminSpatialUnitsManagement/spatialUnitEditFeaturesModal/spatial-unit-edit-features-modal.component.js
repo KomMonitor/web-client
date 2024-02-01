@@ -78,6 +78,8 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
         $scope.validityEndDate_perFeature = undefined;
         $scope.validityStartDate_perFeature = undefined;
 
+		$scope.isPartialUpdate = false;
+
         $scope.attributeMapping_sourceAttributeName = undefined;
         $scope.attributeMapping_destinationAttributeName = undefined;
         $scope.attributeMapping_data = undefined;
@@ -266,6 +268,8 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 
 			$scope.validityEndDate_perFeature = undefined;
 			$scope.validityStartDate_perFeature = undefined;
+
+			$scope.isPartialUpdate = false;
 
 			$scope.attributeMapping_sourceAttributeName = undefined;
 			$scope.attributeMapping_destinationAttributeName = undefined;

@@ -3062,6 +3062,10 @@ input:checked + .switchslider:before {
 	margin-bottom: 10px;
 }
 
+.spatial-unit-list-item {
+	display: table-row;
+}
+
 /* The snackbar - position it at the bottom and in the middle of the screen */
 #snackbar {
 	visibility: hidden; /* Hidden by default. Visible on click */
