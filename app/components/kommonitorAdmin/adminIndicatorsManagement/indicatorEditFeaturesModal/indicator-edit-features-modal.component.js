@@ -118,7 +118,7 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 			$scope.timeseriesMappingReference; // gets updated by a broadcast whenever $scope.timeseries mapping in indicatorEditTimeseriesMapping component changes
 	
 			$scope.$on("onEditIndicatorFeatures", function (event, indicatorDataset) {
-				kommonitorMultiStepFormHelperService.registerClickHandler();
+				kommonitorMultiStepFormHelperService.registerClickHandler("indicatorEditFeaturesForm");
 				if($scope.currentIndicatorDataset && $scope.currentIndicatorDataset.indicatorId === indicatorDataset.indicatorId){
 					return;
 				}

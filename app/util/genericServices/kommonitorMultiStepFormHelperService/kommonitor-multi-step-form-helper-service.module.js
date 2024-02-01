@@ -20,15 +20,15 @@ angular
 
       let self = this;
 
-      this.registerClickHandler = function(){
+      this.registerClickHandler = function(domId){
         this.registerNextButtonClick();
         this.registerPreviousButtonClick();
-        this.registerProgressBarItemClick();
+        this.registerProgressBarItemClick(domId);
       };
 
-      this.registerProgressBarItemClick = function(){
+      this.registerProgressBarItemClick = function(domId){
         $timeout(function(){
-          let progressBar_listItems = $("#progressbar > li");
+          let progressBar_listItems = $("#" + domId + " #progressbar > li");
           progressBar_listItems.click(function(event){
             let newIndex = progressBar_listItems.index(this);
             let oldIndex;
@@ -36,8 +36,9 @@ angular
             let activeFs;
 
             for (const fsCandidate of allFs) {
-              if(fsCandidate.style["display"] && fsCandidate.style["display"] != "none"){
-                activeFs = fsCandidate;                
+              if($(fsCandidate).is(":visible")){
+                activeFs = fsCandidate;
+                fsCandidate.style["display"] = "block";
               }
               else{
                 fsCandidate.style["display"] = "none"

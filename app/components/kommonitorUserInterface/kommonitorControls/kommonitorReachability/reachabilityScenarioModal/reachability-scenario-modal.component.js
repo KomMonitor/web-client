@@ -79,7 +79,7 @@ angular.module('reachabilityScenarioModal').component('reachabilityScenarioModal
 
 			$scope.$on("onManageReachabilityScenario", function (event, scenarioDataset) {
 
-				kommonitorMultiStepFormHelperService.registerClickHandler();
+				kommonitorMultiStepFormHelperService.registerClickHandler("reachabilityScenarioForm");
 				if (scenarioDataset) {						
 
 					if (kommonitorReachabilityScenarioHelperService.tmpActiveScenario.scenarioName && kommonitorReachabilityScenarioHelperService.tmpActiveScenario.scenarioName == scenarioDataset.scenarioName) {
@@ -191,6 +191,11 @@ angular.module('reachabilityScenarioModal').component('reachabilityScenarioModal
 
 				if (kommonitorReachabilityHelperService.settings.selectedStartPointLayer.isNewReachabilityDataSource || kommonitorReachabilityHelperService.settings.selectedStartPointLayer.isTmpDataLayer) {
 					isReachabilityDatasetOnly = true;
+					// check if geoJSON is available
+					// is required by editFeature component
+					if(!kommonitorReachabilityHelperService.settings.selectedStartPointLayer.geoJSON){
+						kommonitorReachabilityHelperService.settings.selectedStartPointLayer.geoJSON = kommonitorReachabilityHelperService.settings.selectedStartPointLayer.geoJSON_reachability
+					}
 				}
 
 				$rootScope.$broadcast("onEditGeoresourceFeatures", kommonitorReachabilityHelperService.settings.selectedStartPointLayer, isReachabilityDatasetOnly);

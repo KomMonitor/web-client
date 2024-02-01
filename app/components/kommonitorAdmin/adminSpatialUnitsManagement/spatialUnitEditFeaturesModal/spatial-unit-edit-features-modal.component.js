@@ -91,7 +91,7 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
         $scope.errorMessagePart = undefined;
 
 		$scope.$on("onEditSpatialUnitFeatures", function (event, spatialUnitDataset) {
-            kommonitorMultiStepFormHelperService.registerClickHandler();
+            kommonitorMultiStepFormHelperService.registerClickHandler("spatialUnitEditFeaturesForm");
             if($scope.currentSpatialUnitDataset && $scope.currentSpatialUnitDataset.spatialUnitLevel === spatialUnitDataset.spatialUnitLevel) {
                 return;
             } else {

@@ -1035,7 +1035,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 				$("#indicatorAddMetadataImportErrorAlert").hide();
 			};
 
-			kommonitorMultiStepFormHelperService.registerClickHandler();
+			kommonitorMultiStepFormHelperService.registerClickHandler("indicatorAddForm");
 
 	}
 ]});

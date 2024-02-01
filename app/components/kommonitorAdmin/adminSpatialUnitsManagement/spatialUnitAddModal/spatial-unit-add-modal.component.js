@@ -964,7 +964,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 			};
 
 
-			kommonitorMultiStepFormHelperService.registerClickHandler();			
+			kommonitorMultiStepFormHelperService.registerClickHandler("spatialUnitAddForm");			
 
 	}
 ]});
