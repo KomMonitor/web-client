@@ -318,6 +318,7 @@ angular
         ];
 
         if (insertCoverageTypeShortInformation) {
+          this.setWeightStrategyTexts(indicatorStatistic);
           bodyArray.push(["Gewichtungstyp", weightStrategyText, "-"]);
         }
 
