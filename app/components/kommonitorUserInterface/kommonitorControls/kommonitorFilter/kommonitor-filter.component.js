@@ -246,7 +246,7 @@ angular
 
 								$scope.inputLowerFilterValue = value;
 
-								if(($scope.inputLowerFilterValue >= $scope.valueRangeMinValue) && ($scope.inputLowerFilterValue <= $scope.valueRangeMaxValue) && ($scope.inputLowerFilterValue <= $scope.currentHigherFilterValue)){	
+								if(($scope.inputLowerFilterValue >= $scope.valueRangeMinValue) && ($scope.inputLowerFilterValue <= $scope.valueRangeMaxValue) && ($scope.inputLowerFilterValue <= $scope.inputHigherFilterValue)){	
 									$scope.currentLowerFilterValue = $scope.inputLowerFilterValue;
 									$scope.lowerFilterInputNotValid = false;
 									$scope.rangeSliderForFilter.update({
@@ -265,9 +265,7 @@ angular
 
 								$scope.inputHigherFilterValue = value;
 
-								console.log(value,$scope.inputHigherFilterValue,$scope.valueRangeMaxValue);
-
-								if(($scope.inputHigherFilterValue <= $scope.valueRangeMaxValue) && ($scope.inputHigherFilterValue >= $scope.valueRangeMinValue) && ($scope.inputHigherFilterValue <= $scope.currentHigherFilterValue)){
+								if(($scope.inputHigherFilterValue <= $scope.valueRangeMaxValue) && ($scope.inputHigherFilterValue >= $scope.valueRangeMinValue) && ($scope.inputLowerFilterValue <= $scope.inputHigherFilterValue)){
 									$scope.currentHigherFilterValue = $scope.inputHigherFilterValue;
 									$scope.higherFilterInputNotValid = false;
 									$scope.rangeSliderForFilter.update({
