@@ -30,11 +30,9 @@
 						<span class="input-group-addon">
 							<b>untere Grenze</b>
 						</span>
-						<input ng-model="currentLowerFilterValue" ng-model-options="{debounce: 500, blur: 0}"
-							ng-change="onChangeLowerFilterValue()" string-to-number type="number"
-							min="{{valueRangeMinValue}}" max="{{valueRangeMaxValue}}" step="0.01"
-							class="form-control input-sm">
-
+						<input id="inputLowerValue" ng-model="inputLowerFilterValue" ng-model-options="{debounce: 500, blur: 0}"
+							ng-change="onChangeLowerFilterValue(inputLowerFilterValue)" string-to-number type="number"
+							step="0.01" class="form-control input-sm">
 					</div>
 					<!-- /input-group -->
 					<p></p>
@@ -55,11 +53,9 @@
 						<span class="input-group-addon">
 							<b>obere Grenze</b>
 						</span>
-						<input ng-model="currentHigherFilterValue" ng-model-options="{debounce: 500, blur: 0}"
-							ng-change="onChangeHigherFilterValue()" string-to-number type="number"
-							min="{{valueRangeMinValue}}" max="{{valueRangeMaxValue}}" step="0.01"
-							class="form-control input-sm">
-
+						<input id="inputHigherValue" ng-model="inputHigherFilterValue" ng-model-options="{debounce: 500, blur: 0}"
+							ng-change="onChangeHigherFilterValue(inputHigherFilterValue)" string-to-number type="number"
+							step="0.01" class="form-control input-sm">
 					</div>
 					<!-- /input-group -->
 
