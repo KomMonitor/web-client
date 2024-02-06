@@ -27,6 +27,7 @@ angular
       this.dataGridOptions_georesources_aoi;
       this.dataGridOptions_spatialUnits;
       this.dataGridOptions_accessControl;
+      this.reducedRoleManagement = false;
 
       function getCurrentTimestampString(){
         let date = new Date();
@@ -2886,12 +2887,11 @@ angular
 
       this.buildRoleManagementGridColumnConfig = function(){
         let columnDefs = [];
-
         return columnDefs.concat([
           { headerName: 'Organisationseinheit', field: "name", minWidth: 200 },
           { headerName: 'lesen', field: "roles", filter: false, sortable: false, maxWidth: 100, cellRenderer: 'checkboxRenderer_viewer', },
           { headerName: 'editieren', field: "roles", filter: false, sortable: false, maxWidth: 100, cellRenderer: 'checkboxRenderer_editor', },
-          { headerName: 'löschen', field: "roles", filter: false, sortable: false, maxWidth: 100, cellRenderer: 'checkboxRenderer_creator', }          
+          (!this.reducedRoleManagement?{ headerName: 'löschen', field: "roles", filter: false, sortable: false, maxWidth: 100, cellRenderer: 'checkboxRenderer_creator', }:{})          
         ]);
       };
 
@@ -2899,11 +2899,18 @@ angular
         let columnDefs = this.buildRoleManagementGridColumnConfig();
           let rowData = this.buildRoleManagementGridRowData(accessControlMetadata, selectedRoleIds);
   
-          let components = {
-            checkboxRenderer_viewer: CheckboxRenderer_viewer,
-            checkboxRenderer_editor: CheckboxRenderer_editor,
-            checkboxRenderer_creator: CheckboxRenderer_creator
-          };
+          let components = {};
+          if(this.reducedRoleManagement)
+            components = {
+              checkboxRenderer_viewer: CheckboxRenderer_viewer,
+              checkboxRenderer_editor: CheckboxRenderer_editor
+            };
+          else
+            components = {
+              checkboxRenderer_viewer: CheckboxRenderer_viewer,
+              checkboxRenderer_editor: CheckboxRenderer_editor,
+              checkboxRenderer_creator: CheckboxRenderer_creator
+            };
 
           let gridOptions = {
             defaultColDef: {
@@ -2967,7 +2974,10 @@ angular
           return gridOptions;
       };
 
-      this.buildRoleManagementGrid = function(tableDOMId, currentTableOptionsObject, accessControlMetadata, selectedRoleIds){
+      this.buildRoleManagementGrid = function(tableDOMId, currentTableOptionsObject, accessControlMetadata, selectedRoleIds, reducedRoleManagement = false){
+        
+        this.reducedRoleManagement = reducedRoleManagement;
+        
         if (currentTableOptionsObject && currentTableOptionsObject.api) {
 
           let newRowData = this.buildRoleManagementGridRowData(accessControlMetadata, selectedRoleIds);
