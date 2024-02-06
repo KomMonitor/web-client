@@ -67,7 +67,9 @@ angular
 							};
 
 							$scope.isFilterModeActive = function(id) {
-								return $scope.kommonitorFilterModes.indexOf(id) !== -1;
+								// hier
+								//return $scope.kommonitorFilterModes.indexOf(id) !== -1;
+								return true;
 							}
 
 
@@ -485,6 +487,7 @@ angular
 								if (selectionType === "byFeature" && upperSpatialUnitId)
 									url = kommonitorDataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() +
 									"/spatial-units/" + upperSpatialUnitId + "/" + datePath;
+
 								//send request
 								console.log(url);
 								await $http({
@@ -511,7 +514,10 @@ angular
 								});
 							};
 
-							$scope.onChangeShowManualSelection = async function() {
+							$scope.onChangeShowManualSelection = async function(checked) {
+
+								$scope.showManualSelectionSpatialFilter = checked;
+
 								// return if toggle was deactivated
 								if(!$scope.showManualSelectionSpatialFilter)
 									$scope.onManualSelectionSpatialFilterResetBtnPressed();						
@@ -521,7 +527,10 @@ angular
 								}
 							};
 
-							$scope.onChangeShowSelectionByFeature = async function() {
+							$scope.onChangeShowSelectionByFeature = async function(checked) {
+
+								$scope.showSelectionByFeatureSpatialFilter = checked;
+
 								// return if toggle was deactivated
 								if(!$scope.showSelectionByFeatureSpatialFilter)
 									$scope.onSelectionByFeatureSpatialFilterResetBtnPressed();
@@ -531,8 +540,11 @@ angular
 								}
 							};
 
-							$scope.onChangeSelectedSpatialUnitForFilter = function(){
-								if ($scope.showSelectionByFeatureSpatialFilter)
+							$scope.onChangeSelectedSpatialUnitForFilter = function(selectedSpatialUnit){
+
+								$scope.selectedSpatialUnitForFilter = selectedSpatialUnit;
+
+								if ($scope.showSelectionByFeatureSpatialFilter) 
 									$scope.updateSelectableAreas("byFeature");
 
 								if($scope.showManualSelectionSpatialFilter){
