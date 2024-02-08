@@ -987,6 +987,10 @@ pre.CodeMirror-line {
 	height: 45vh !important;
 }
 
+.user-roles-public {
+	font-weight: bold;
+}
+
 .ag-cell { 
 	font-size: 12px;
 	white-space: normal ;

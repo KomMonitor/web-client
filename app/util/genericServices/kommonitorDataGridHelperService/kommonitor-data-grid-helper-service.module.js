@@ -1985,7 +1985,15 @@ angular
 
         return columnDefs.concat([
           //{ headerName: 'Id', field: "organizationalUnitId", minWidth: 400 },
-          { headerName: 'Organisationseinheit', field: "name", minWidth: 300 },
+          { 
+            headerName: 'Organisationseinheit', 
+            field: "name", 
+            minWidth: 300,
+            cellClassRules: {
+              'user-roles-normal': row => row.data.contact != 'public',
+              'user-roles-public': row => row.data.contact == 'public',
+            } 
+          },
           { headerName: 'Rollen', field: "roleString", minWidth: 300 },
           { headerName: 'Beschreibung', field: "description", minWidth: 400 },
           { headerName: 'Kontakt', field: "contact", minWidth: 400 },
@@ -2857,6 +2865,10 @@ angular
       this.buildRoleManagementGridRowData = function(accessControlMetadata, selectedRoleIds){
         let data = JSON.parse(JSON.stringify(accessControlMetadata));
         for (let elem of data) {
+
+          if(elem.name=='public')
+            elem.name = 'Organisationseinheit für den öffentlichen Zugriff auf die entstprechende Resource (public)';
+
           for (let role of elem.roles) {
             role.isChecked = false;
             if (selectedRoleIds && selectedRoleIds.includes(role.roleId)){
@@ -2882,13 +2894,23 @@ angular
 
         array = array.concat(data);
 
+        console.log(array);
+
         return array;
       };
 
       this.buildRoleManagementGridColumnConfig = function(){
         let columnDefs = [];
         return columnDefs.concat([
-          { headerName: 'Organisationseinheit', field: "name", minWidth: 200 },
+          { 
+            headerName: 'Organisationseinheit', 
+            field: "name", 
+            minWidth: 200,
+            cellClassRules: {
+              'user-roles-normal': row => row.data.contact != 'public',
+              'user-roles-public': row => row.data.contact == 'public',
+            } 
+          },
           { headerName: 'lesen', field: "roles", filter: false, sortable: false, maxWidth: 100, cellRenderer: 'checkboxRenderer_viewer', },
           { headerName: 'editieren', field: "roles", filter: false, sortable: false, maxWidth: 100, cellRenderer: 'checkboxRenderer_editor', },
           (!this.reducedRoleManagement?{ headerName: 'löschen', field: "roles", filter: false, sortable: false, maxWidth: 100, cellRenderer: 'checkboxRenderer_creator', }:{})          
