@@ -2893,9 +2893,6 @@ angular
         });
 
         array = array.concat(data);
-
-        console.log(array);
-
         return array;
       };
 
