@@ -869,6 +869,13 @@ angular
 
       };
 
+      // TODO FIXME 
+      // currently this method's implementation makes false assumptions
+      // the idea is to sum up coverage for each spatial unit feature
+      // but the POI oriented data for indicator statistic accumulates indicator values for each POI
+      // if multiple near POI isochrones overlap for a large area, then indicator values are accumulated for each POI
+      // hence indicator values are taken into account multiple times --> leading to false sum values
+      // a different approach must be implemented to achieve this goal
       this.generateFeatureCoverageReport_focusSpatialUnitCoverage = async function (reachabilityScenario, indicatorStatistic) {
 
         this.reportInProgress_spatialUnitCoverage = true;

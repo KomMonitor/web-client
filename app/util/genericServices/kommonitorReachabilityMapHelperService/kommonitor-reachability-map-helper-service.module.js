@@ -624,7 +624,7 @@ angular
       * binds the popup of a clicked output
       * to layer.feature.properties.popupContent
       */
-      this.onEachFeatureIndicator = function (feature, layer, indicatorProperty) {
+      this.onEachFeatureIndicator = function (feature, layer, indicatorProperty, indicatorStatisticsCandidate) {
         var indicatorValue = feature.properties[indicatorProperty];
         var indicatorValueText;
         if (kommonitorDataExchangeService.indicatorValueIsNoData(indicatorValue)) {
@@ -634,13 +634,33 @@ angular
           indicatorValueText = kommonitorDataExchangeService.getIndicatorValue_asFormattedText(indicatorValue);
         }
         var tooltipHtml = "<b>" + feature.properties[__env.FEATURE_NAME_PROPERTY_NAME] + "</b><br/>" + indicatorValueText + " [" + kommonitorDataExchangeService.selectedIndicator.unit + "]";
+
+        // tooltipHtml += "<br><br>Report aller schneidenden Einzugsgebiete <br> durch anklicken der Raumeinheit aufrufbar";
         layer.bindTooltip(tooltipHtml, {
           sticky: false // If true, the tooltip will follow the mouse instead of being fixed at the feature center.
         });
 
+        // let popupHtml = "<b>" + feature.properties[__env.FEATURE_NAME_PROPERTY_NAME] + "</b><br/>" + indicatorValueText + " [" + kommonitorDataExchangeService.selectedIndicator.unit + "]";
+        // popupHtml += `
+        
+        // <button class="btn btn-warning" style="margin-top: 5px;" title="PDF-Report - Einzelpunkte mit Karte" 
+        //  id="spatialUnitIndicatorCoverageFilterButton" 
+        //  `;
+        // // popupHtml += `onclick="onclickSpatialUnitIndicatorCoverageFilterButton('spatialUnitIndicatorCoverageFilterButton', ` + feature.properties[__env.FEATURE_ID_PROPERTY_NAME] + `)">`
+        // // popupHtml += `onclick="onclick_spatialUnitIndicatorCoverageFilterButton('spatialUnitIndicatorCoverageFilterButton', feature, indicatorStatisticsCandidate)">`
+        // popupHtml += ` <i class="fa-solid fa-file-pdf"></i>
+        //   <i class="fa-solid fa-map-location-dot"></i>
+        //   <span class="glyphicon glyphicon-refresh icon-spin" ng-show="$ctrl.kommonitorReachabilityCoverageReportsHelperServiceInstance.reportInProgress_poiCoverage"></span>
+        // </button>	
+        // <span style="font-size:9px;" >&nbsp;(~ 1,5 Sekunden pro Punkt)</span>
+        
+        // `;
+
+        // layer.bindPopup(popupHtml);
+
       };
 
-      this.generateIndicatorLayer = async function (indicatorMetadataAndGeoJSON, indicatorPropertyName, defaultBrew) {
+      this.generateIndicatorLayer = async function (indicatorMetadataAndGeoJSON, indicatorPropertyName, defaultBrew, indicatorStatisticsCandidate) {
 
         let outlierDetection_currentGLobalValue = kommonitorDataExchangeService.useOutlierDetectionOnIndicator;
         kommonitorDataExchangeService.useOutlierDetectionOnIndicator = false;
@@ -649,7 +669,7 @@ angular
             return kommonitorVisualStyleHelperService.styleDefault(feature, defaultBrew, undefined, undefined, indicatorPropertyName, true, false);
           },
           onEachFeature: function (feature, layer) {
-            return self.onEachFeatureIndicator(feature, layer, indicatorPropertyName);
+            return self.onEachFeatureIndicator(feature, layer, indicatorPropertyName, indicatorStatisticsCandidate);
           }
         });
 
@@ -696,12 +716,27 @@ angular
 
         this.removeOldLayers_reachabilityIndicatorStatistics(domId);
 
+        // // register click handler on spatialUnitIndicatorCoverageFilterButton
+        // // and poiIndicatorCoverageFilterButton
+        // mapParts.map.on('popupopen', function(e) {
+        //   var spatialUnitLayer = e.popup._source;
+        //   // popup maybe either for an indicator feature 
+        //   // or for an isochrone starting point marker
+
+        //   $("#spatialUnitIndicatorCoverageFilterButton").on("click", function(event){        
+        //     spatialUnitLayer.feature.properties[__env.FEATURE_ID_PROPERTY_NAME];
+        //     console.log("ID: " + spatialUnitLayer.feature.properties[__env.FEATURE_ID_PROPERTY_NAME]);
+
+        //     kommonitorReachabilityCoverageReportsHelperService.generateFeatureCoverageReport_focusPoiCoverage_forSpatialUnit(kommonitorReachabilityScenarioHelperService.tmpActiveScenario, indicatorStatisticsCandidate, spatialUnitLayer.feature.properties[__env.FEATURE_ID_PROPERTY_NAME]);
+        //   })
+        // });
+
         let indicatorMetadataAndGeoJSON = await this.setupIndicator(indicatorStatisticsCandidate);
         let timestamp = indicatorStatisticsCandidate.timestamp;
         let indicatorPropertyName = __env.indicatorDatePrefix + timestamp;
         let defaultBrew = kommonitorVisualStyleHelperService.setupDefaultBrew(indicatorMetadataAndGeoJSON.geoJSON, indicatorPropertyName, indicatorMetadataAndGeoJSON.defaultClassificationMapping.items.length, indicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName, kommonitorVisualStyleHelperService.classifyMethod);
 
-        let indicatorLayer = await this.generateIndicatorLayer(indicatorMetadataAndGeoJSON, indicatorPropertyName, defaultBrew);
+        let indicatorLayer = await this.generateIndicatorLayer(indicatorMetadataAndGeoJSON, indicatorPropertyName, defaultBrew, indicatorStatisticsCandidate);
         let indicatorLegendControl = this.generateIndicatorLegend(defaultBrew, indicatorMetadataAndGeoJSON);
         indicatorLegendControl.addTo(mapParts.map);
         mapParts.indicatorLegendControl = indicatorLegendControl;
