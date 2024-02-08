@@ -933,7 +933,7 @@ angular
       };
 
       this.generateSinglePoiIsochroneLayer = function(feature){
-        poiIsochroneLayer = L.featureGroup();
+        let poiIsochroneLayer = L.featureGroup();
         // array of GeoJSON features
         let isochrones = feature.properties.individualIsochrones;
 
