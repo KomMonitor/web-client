@@ -30,11 +30,9 @@
 						<span class="input-group-addon">
 							<b>untere Grenze</b>
 						</span>
-						<input ng-model="currentLowerFilterValue" ng-model-options="{debounce: 500, blur: 0}"
-							ng-change="onChangeLowerFilterValue()" string-to-number type="number"
-							min="{{valueRangeMinValue}}" max="{{valueRangeMaxValue}}" step="0.01"
-							class="form-control input-sm">
-
+						<input id="inputLowerValue" ng-model="inputLowerFilterValue" ng-model-options="{debounce: 500, blur: 0}"
+							ng-change="onChangeLowerFilterValue(inputLowerFilterValue)" string-to-number type="number"
+							step="0.01" class="form-control input-sm">
 					</div>
 					<!-- /input-group -->
 					<p></p>
@@ -55,11 +53,9 @@
 						<span class="input-group-addon">
 							<b>obere Grenze</b>
 						</span>
-						<input ng-model="currentHigherFilterValue" ng-model-options="{debounce: 500, blur: 0}"
-							ng-change="onChangeHigherFilterValue()" string-to-number type="number"
-							min="{{valueRangeMinValue}}" max="{{valueRangeMaxValue}}" step="0.01"
-							class="form-control input-sm">
-
+						<input id="inputHigherValue" ng-model="inputHigherFilterValue" ng-model-options="{debounce: 500, blur: 0}"
+							ng-change="onChangeHigherFilterValue(inputHigherFilterValue)" string-to-number type="number"
+							step="0.01" class="form-control input-sm">
 					</div>
 					<!-- /input-group -->
 
@@ -115,7 +111,7 @@
 				<h4>Wähle untergeordnete Raumeinheiten innerhalb der selektierten Raumeinheit</h4>
 				<p>Durch Auswahl eines Gebiets der übergeordneten Raumeinheit (relativ zur momentan angezeigten) können alle darin enthaltenen Gebiete ausgewählt werden. Die Auswahl erfolgt über eine Zentroidberechnung.</p>
 				<label class="switch">
-					<input id="showSelectionByFeatureSpatialFilterToggle" type="checkbox" ng-change="onChangeShowSelectionByFeature()"
+					<input id="showSelectionByFeatureSpatialFilterToggle" type="checkbox" ng-change="onChangeShowSelectionByFeature(showSelectionByFeatureSpatialFilter)"
 						ng-model="showSelectionByFeatureSpatialFilter" 
 						ng-checked="showSelectionByFeatureSpatialFilter"></input>
 					<span class="switchslider round"></span>
@@ -161,8 +157,8 @@
 						<div class="col-sm-12 col-md-6 col-lg-6">
 							<select style="font-size: 12px;"
 								ng-model="selectedSpatialUnitForFilter"
-								ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in higherSpatialUnits"
-								class="form-control" ng-change="onChangeSelectedSpatialUnitForFilter()"
+								ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in higherSpatialUnits track by spatialUnit.spatialUnitId"
+								class="form-control" ng-change="onChangeSelectedSpatialUnitForFilter(selectedSpatialUnitForFilter)"
 								required>
 								<option disabled selected value> -- Raumeinheit w&auml;hlen --
 								</option>
@@ -189,7 +185,7 @@
 				<h4>Manuelle Selektion anzuzeigender Features</h4>
 				<p>Gebiete können über ihre Bezeichnung oder über die Karte ausgewählt werden.</p>
 				<label class="switch">
-					<input id="showManualSelectionSpatialFilterToggle" type="checkbox" ng-change="onChangeShowManualSelection()"
+					<input id="showManualSelectionSpatialFilterToggle" type="checkbox" ng-change="onChangeShowManualSelection(showManualSelectionSpatialFilter)"
 						ng-model="showManualSelectionSpatialFilter" 
 						ng-checked="showManualSelectionSpatialFilter"></input>
 					<span class="switchslider round"></span>
