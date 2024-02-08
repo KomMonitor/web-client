@@ -2795,7 +2795,10 @@ input:checked + .switchslider:before {
 .orientationChangeBtn {
 	position: absolute;
 	z-index: 10000;
-	left: -60px;
+	left: -50px;
+	height: 35px;
+	width: 35px;
+	padding: 3px;
 }
 
 .hiddenPage {
