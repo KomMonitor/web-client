@@ -1,6 +1,6 @@
 angular.module('kommonitorAdmin', ['kommonitorDataExchange', 'adminDashboardManagement', 'adminRoleManagement', 'adminTopicsManagement',
 'adminSpatialUnitsManagement','adminIndicatorsManagement', 'adminGeoresourcesManagement', 'adminScriptManagement', 'adminScriptExecution',
-'spatialUnitAddModal','spatialUnitEditMetadataModal', 'spatialUnitEditFeaturesModal','spatialUnitDeleteModal',
+'spatialUnitAddModal','spatialUnitEditMetadataModal', 'spatialUnitEditFeaturesModal','spatialUnitEditUserRolesModal', 'spatialUnitDeleteModal',
 'georesourceDeleteModal','georesourceAddModal', 'georesourceEditFeaturesModal', 'georesourceEditMetadataModal', 'georesourceBatchUpdateModal',
 'indicatorDeleteModal','indicatorAddModal', 'indicatorEditFeaturesModal', 'indicatorEditMetadataModal', 'indicatorBatchUpdateModal',
 'batchUpdateResultModal', 'indicatorEditTimeseriesMapping',

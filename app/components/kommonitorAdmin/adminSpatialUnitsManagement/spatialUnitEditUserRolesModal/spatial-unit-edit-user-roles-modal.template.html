@@ -1,0 +1,106 @@
+<div class="modal fade" id="modal-edit-spatial-unit-user-roles" role="dialog">
+	<div class="modal-dialog modal-xl">
+		<div class="modal-content">
+
+			<div align="center">
+				<div class="loading-overlay-admin-panel ng-hide" ng-show="loadingData">
+					<span class="glyphicon glyphicon-refresh icon-spin"></span>
+				</div>
+			</div>
+
+
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Rollenbasierter Zugriffsschutz für Features von Raumeineit <i><b>{{currentSpatialUnitDataset.spatialUnitLevel}}</b></i> editieren</h4>
+			</div>
+			<div class="modal-body">
+				
+				
+				<!-- MultiStep Form -->
+				<div class="row">
+					<div class="col-md-12">
+						<form class="multiStepForm form-group" id="indicatorEditIndicatorSpatialUnitRolesForm" role="form"
+							data-toggle="validator" data-disable="true" style="margin-bottom: 0px;">
+							<!-- progressbar -->
+							<ul id="progressbar">
+								<li style="width: 100%" class="active">Rollenbasierter Zugriffsschutz</li>
+							</ul>
+							<!-- fieldsets -->
+	
+							<fieldset>
+								<h2 class="fs-title">Rollenbasierter Feature-Zugriffsschutz f&uuml;r verknüpfte Raumeinheiten</h2>
+								<h3 class="fs-subtitle">Vergabe der Zugriffsrechte auf die Feature-Datens&auml;tze der einzelnen Raumeinheiten</h3>
+		
+								<p>Zugriffsrechte (lesen, editieren, l&ouml;schen) m&uuml;ssen explizit vergeben werden. Administratoren (Rolle <i>kommonitor-creator</i>) haben immer vollen Zugriff.</p>
+								<p><strong>lesender Zugriff auf die Indikator-Zeitreihe wird nur den Organisationseinheiten gew&auml;hrt, die auch lesenden Zugriff auf Metadaten der assoziierten Raumeinheit besitzen.</strong></p>
+	
+								
+								<div class="row vertical-align">
+									<!-- <div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Ziel-Raumebene*</label>
+											
+											<select ng-model="targetApplicableSpatialUnit" ng-options="spatialUnit as spatialUnit.spatialUnitName for spatialUnit in currentIndicatorDataset.applicableSpatialUnits"
+													class="form-control" ng-change="onChangeSelectedSpatialUnit(targetApplicableSpatialUnit)" required>
+													<option disabled selected value> -- Ziel-Raumebene w&auml;hlen -- </option>
+												</select>
+												<div class="help-block with-errors"></div>
+	
+										</div>
+									</div> -->
+
+								<!-- <div class="row">
+									<div class="col-md-3"></div>
+									<div class="col-md-6 col-sm-6 col-xs-12">
+											 
+										
+									</div>
+									<div class="col-md-3"></div>
+								</div>	 -->
+
+									<div class="col-md-9 col-sm-6 col-xs-12">
+										<div id="spatialUnitEditUserRolesManagementTable" style="height: 45vh" class="ag-theme-alpine"></div> 
+									</div>
+
+								</div>
+
+																						
+							</fieldset>
+
+						</form>
+					</div>
+				</div>
+
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Schlie&szlig;en</button>
+
+				<button type="button" class="btn btn-success"
+					ng-click="editIndicatorSpatialUnitRoles()">Rollenzugriff aktualisieren</button>
+				<button type="button" class="btn btn-danger"
+					ng-click="resetSpatialUnitEditUserRolesForm()">Zur&uuml;cksetzen</button>
+			</div>
+
+			<div id="spatialUnitEditUserRolesSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
+				class="alert alert-success alert-dismissable">
+				<button type="button" class="close" ng-click="hideSuccessAlert()" aria-hidden="true">&times;</button>
+				<h4><i class="icon fa fa-check"></i>Rollenzugriff aktualisiert</h4>
+				Der Rollenzugriff auf die Zeitreihendaten des Indikators '{{currentIndicatorDataset.indicatorName}}' für die verknüpfte Raumebene '{{targetApplicableSpatialUnit.spatialUnitName}}' wurde in KomMonitor aktualisiert.
+			</div>
+
+			<div id="spatialUnitEditUserRolesErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
+				class="alert alert-danger alert-dismissable">
+				<button type="button" class="close" ng-click="hideErrorAlert()" aria-hidden="true">&times;</button>
+				<h4><i class="icon fa fa-ban"></i>Aktualisierung gescheitert</h4>
+				Bei der Aktualisierung des Rollenzugriffs ist ein Fehler aufgetreten. Fehlermeldung:
+				<br />
+				<pre style="overflow:auto; max-height:500px;" ng-bind-html="errorMessagePart"></pre>
+			</div>
+
+		</div>
+		<!-- /.modal-content -->
+	</div>
+	<!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
