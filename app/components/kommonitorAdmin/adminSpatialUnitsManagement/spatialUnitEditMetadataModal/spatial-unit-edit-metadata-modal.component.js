@@ -86,9 +86,21 @@ angular.module('spatialUnitEditMetadataModal').component('spatialUnitEditMetadat
 		$scope.successMessagePart = undefined;
 		$scope.errorMessagePart = undefined;
 
+		$scope.isDatasetOwner = false;
+		$scope.targetResourceCreatorRole = undefined;
+
 		$scope.$on("onEditSpatialUnitMetadata", function (event, spatialUnitDataset) {
 
 			$scope.currentSpatialUnitDataset = spatialUnitDataset;
+
+			if(spatialUnitDataset.userPermissions.includes('creator')) {
+				$scope.isDatasetOwner = true;
+				$scope.availableRoles = redefineAvailableRoles();
+				$scope.$apply();
+			}
+				
+			console.log(spatialUnitDataset.userPermissions.includes('creator'));
+			console.log(kommonitorDataExchangeService.availableRoles);
 
 			$scope.resetSpatialUnitEditMetadataForm();
 
@@ -100,12 +112,31 @@ angular.module('spatialUnitEditMetadataModal').component('spatialUnitEditMetadat
 			refreshRoles();
 		});
 
+		$scope.onChangeSelectedTargetCreatorRole = function(targetResourceCreatorRole) {
+
+			$scope.targetResourceCreatorRole = targetResourceCreatorRole;
+		}
+
+		function redefineAvailableRoles() {
+
+			let tempRoles = [];
+			kommonitorDataExchangeService.availableRoles.forEach(role => {
+				if(role.permissionLevel == 'creator')
+					tempRoles.push(role);
+			});
+
+			return tempRoles;
+		}
+
 		function refreshRoles() {
 			let allowedRoles = $scope.currentSpatialUnitDataset ? $scope.currentSpatialUnitDataset.allowedRoles : [];
 			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('spatialUnitEditRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, allowedRoles);
 		}
 
 		$scope.resetSpatialUnitEditMetadataForm = function(){
+
+			$scope.targetResourceCreatorRole = undefined;
+			document.getElementById('targetUserRoleSelect').selectedIndex = 0;
 
 			$scope.spatialUnitLevel = $scope.currentSpatialUnitDataset.spatialUnitLevel;
 			$scope.spatialUnitLevelInvalid = false;
@@ -191,6 +222,10 @@ angular.module('spatialUnitEditMetadataModal').component('spatialUnitEditMetadat
 		};
 
 		$scope.editSpatialUnitMetadata = function(){
+
+			if($scope.targetResourceCreatorRole !== undefined)
+				if(!confirm('Sind Sie sicher, dass Sie den Eigentümerschaft an dieser Resource endgültig und unwiderruflich übertragen und damit abgeben wollen?'))
+					return;
 
 			let spatialUnitName_old = $scope.currentSpatialUnitDataset.spatialUnitLevel;
 			let spatialUnitName_new = $scope.spatialUnitLevel;
