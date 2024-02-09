@@ -249,6 +249,10 @@ angular
         // maybe wait a bit to ensure that leaflet container is properly rendered.
         await new Promise(resolve => setTimeout(resolve, 750));
 
+        kommonitorReachabilityMapHelperService.zoomToIndicatorLayer(leafletMapDomId);
+
+        await new Promise(resolve => setTimeout(resolve, 750));
+
         nextLineY = doc.autoTable.previous.finalY + 5;
         let remainingSpaceY = 297 - nextLineY - 5;
 
