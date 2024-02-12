@@ -26,6 +26,12 @@ angular.module('adminSpatialUnitsManagement').component('adminSpatialUnitsManage
 		});
 
 		$scope.initializeOrRefreshOverviewTable = function(){
+
+			/* console.log(kommonitorDataExchangeService.currentKomMonitorLoginRoleIds);
+			console.log(kommonitorDataExchangeService.currentKomMonitorLoginRoleNames);
+			console.log(kommonitorDataExchangeService.availableRoles);
+			console.log(kommonitorDataExchangeService); */
+
 			$scope.loadingData = true;
 			
 			kommonitorDataGridHelperService.buildDataGrid_spatialUnits(kommonitorDataExchangeService.availableSpatialUnits);
