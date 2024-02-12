@@ -74,7 +74,7 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 			
 			function refreshRoles() {
 				let allowedRoles = $scope.targetApplicableSpatialUnit ? $scope.targetApplicableSpatialUnit.allowedRoles : [];
-				$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorEditFeaturesRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, allowedRoles);
+				$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorEditFeaturesRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, allowedRoles, true);
 			}
 	
 			$scope.indicatorFeaturesJSON;
@@ -256,7 +256,7 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 					}					
 				}
 	
-				$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorEditFeaturesRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, kommonitorDataExchangeService.getCurrentKomMonitorLoginRoleIds());
+				$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorEditFeaturesRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, kommonitorDataExchangeService.getCurrentKomMonitorLoginRoleIds(), true);
 
 				$scope.spatialUnitRefKeyProperty = undefined;
 				$scope.targetSpatialUnitMetadata = undefined;
@@ -309,7 +309,7 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 					}
 				}
 				
-				$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorEditFeaturesRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, $scope.targetApplicableSpatialUnit.allowedRoles);
+				$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorEditFeaturesRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, $scope.targetApplicableSpatialUnit.allowedRoles, true);
 
 			};
 	
@@ -614,7 +614,7 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 						}	
 					}
 		
-					$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorEditFeaturesRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, $scope.mappingConfigImportSettings.allowedRoles);
+					$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorEditFeaturesRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, $scope.mappingConfigImportSettings.allowedRoles, true);
 
 					$scope.keepMissingValues = $scope.mappingConfigImportSettings.propertyMapping.keepMissingOrNullValueIndicator;
 					

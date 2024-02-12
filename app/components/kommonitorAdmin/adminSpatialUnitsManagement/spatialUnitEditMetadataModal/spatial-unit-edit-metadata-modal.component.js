@@ -117,7 +117,7 @@ angular.module('spatialUnitEditMetadataModal').component('spatialUnitEditMetadat
 
 		function refreshRoles() {
 			let allowedRoles = $scope.currentSpatialUnitDataset ? $scope.currentSpatialUnitDataset.allowedRoles : [];
-			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('spatialUnitEditRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, allowedRoles);
+			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('spatialUnitEditRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, allowedRoles, true);
 		}
 
 		$scope.resetSpatialUnitEditMetadataForm = function(){
@@ -135,7 +135,7 @@ angular.module('spatialUnitEditMetadataModal').component('spatialUnitEditMetadat
 			$scope.metadata.description = $scope.currentSpatialUnitDataset.metadata.description;
 
 			let allowedRoles = $scope.currentSpatialUnitDataset ? $scope.currentSpatialUnitDataset.allowedRoles : [];
-			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('spatialUnitEditRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, allowedRoles);
+			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('spatialUnitEditRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, allowedRoles, true);
 
 			$scope.metadata.lastUpdate = $scope.currentSpatialUnitDataset.metadata.lastUpdate;
 			// $('#spatialUnitEditMetadataLastUpdateDatepicker').data({date: $scope.currentSpatialUnitDataset.metadata.lastUpdate});
@@ -383,7 +383,7 @@ angular.module('spatialUnitEditMetadataModal').component('spatialUnitEditMetadat
 				$scope.metadata.description = $scope.metadataImportSettings.metadata.description;
 				$scope.metadata.databasis = $scope.metadataImportSettings.metadata.databasis;
 
-				$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('spatialUnitEditRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, $scope.metadataImportSettings.allowedRoles);
+				$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('spatialUnitEditRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, $scope.metadataImportSettings.allowedRoles, true);
 
 				for(var i=0; i<kommonitorDataExchangeService.availableSpatialUnits.length; i++){
 					var spatialUnit = kommonitorDataExchangeService.availableSpatialUnits[i];

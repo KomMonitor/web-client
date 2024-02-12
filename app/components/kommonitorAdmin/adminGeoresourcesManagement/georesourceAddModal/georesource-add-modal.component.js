@@ -112,7 +112,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 		});
 
 		function refreshRoles() {	
-			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('georesourceAddRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, kommonitorDataExchangeService.getCurrentKomMonitorLoginRoleIds());	
+			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('georesourceAddRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, kommonitorDataExchangeService.getCurrentKomMonitorLoginRoleIds(), true);	
 		}
 
 		$scope.georesourceTopic_mainTopic = undefined;
@@ -243,7 +243,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 			$scope.metadata.description = undefined;
 
 			console.log("resetGeoresourceAddForm");
-			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('georesourceAddRoleManagementTable', null, kommonitorDataExchangeService.accessControl, null);
+			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('georesourceAddRoleManagementTable', null, kommonitorDataExchangeService.accessControl, null, true);
 
 			$scope.georesourceTopic_mainTopic = undefined;
 			$scope.georesourceTopic_subTopic = undefined;
@@ -746,7 +746,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 
 				$scope.datasetName = $scope.metadataImportSettings.datasetName;
 
-				$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('georesourceAddRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, $scope.metadataImportSettings.allowedRoles);
+				$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('georesourceAddRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, $scope.metadataImportSettings.allowedRoles, true);
 
 				// georesource specific properties
 

@@ -137,7 +137,7 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 
 		function refreshRoles() {
 			let allowedRoles = $scope.currentGeoresourceDataset ? $scope.currentGeoresourceDataset.allowedRoles : [];
-			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('georesourceEditRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, allowedRoles);
+			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('georesourceEditRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, allowedRoles, true);
 		}
 
 		$('#poiSymbolEditPicker').iconpicker($scope.iconPickerOptions);
@@ -204,7 +204,7 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 				}
 			});
 
-			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('georesourceEditRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, $scope.currentGeoresourceDataset.allowedRoles);
+			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('georesourceEditRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, $scope.currentGeoresourceDataset.allowedRoles, true);
 
 			$scope.isPOI = $scope.currentGeoresourceDataset.isPOI;
 			$scope.isLOI = $scope.currentGeoresourceDataset.isLOI;
@@ -478,7 +478,7 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 
 				$scope.datasetName = $scope.metadataImportSettings.datasetName;
 		
-				$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('georesourceEditRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, $scope.metadataImportSettings.allowedRoles);
+				$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('georesourceEditRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, $scope.metadataImportSettings.allowedRoles, true);
 
 				// georesource specific properties
 
