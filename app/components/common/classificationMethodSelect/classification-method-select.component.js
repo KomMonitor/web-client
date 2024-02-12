@@ -3,7 +3,7 @@ angular
 	.component(
 			'classificationMethodSelect',
 			{
-				templateUrl : "components/kommonitorUserInterface/kommonitorControls/kommonitorClassification/classificationMethodSelect/classification-method-select.template.html",
+				templateUrl : "components/common/classificationMethodSelect/classification-method-select.template.html",
 				bindings: {
 					defaultMethodId: '@',
 					onMethodSelected: '&'
