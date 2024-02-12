@@ -3,6 +3,7 @@
   ng-mouseup="onClassificationMouseUp()">
   <div class="classification-container">
     <div title="Hier können Sie die Klassifizierungsmethode ändern.">
+      <div style="font-weight: bold;">Methode</div>
       <classification-method-select 
         on-method-selected="onMethodSelected(method)"
         default-method-id="{{$ctrl.kommonitorVisualStyleHelperServiceInstance.classifyMethod}}">
