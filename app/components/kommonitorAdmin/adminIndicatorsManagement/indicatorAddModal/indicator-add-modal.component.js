@@ -64,15 +64,13 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 						"lowestSpatialUnitForComputation": "lowestSpatialUnitForComputation",
 						"defaultClassificationMapping": {
 							"colorBrewerSchemeName": "colorBrewerSchemeName",
+							"numClasses": "number of Classes",
+							"classificationMethod": "Classification Method ID",
 							"items": [
-							{
-								"defaultCustomRating": "defaultCustomRating",
-								"defaultColorAsHex": "defaultColorAsHex"
-							},
-							{
-								"defaultCustomRating": "defaultCustomRating",
-								"defaultColorAsHex": "defaultColorAsHex"
-							}
+								{
+									"spatialUnit": "spatial unit id for manual classification",
+									"breaks": ['break']
+								}
 							]
 						}
 					}
@@ -123,10 +121,12 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			"lowestSpatialUnitForComputation": "the name of the lowest possible spatial unit for which an indicator of creationType=COMPUTATION may be computed. All other superior spatial units will be aggregated automatically",
 			"defaultClassificationMapping": {
 				"colorBrewerSchemeName": "schema name of colorBrewer colorPalette to use for classification",
+				"numClasses": "number of Classes",
+				"classificationMethod": "Classification Method ID",
 				"items": [
 					{
-						"defaultCustomRating": "a string to rate indicator values of this class",
-						"defaultColorAsHex": "color as hexadecimal value"
+						"spatialUnit": "spatial unit id for manual classification",
+						"breaks": ['break']
 					}
 				]
 			}
@@ -533,28 +533,9 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 				  "lowestSpatialUnitForComputation": $scope.indicatorLowestSpatialUnitMetadataObjectForComputation? $scope.indicatorLowestSpatialUnitMetadataObjectForComputation.spatialUnitLevel : null,
 				  "defaultClassificationMapping": {
 					"colorBrewerSchemeName": $scope.selectedColorBrewerPaletteEntry.paletteName,
-					"items": [
-						{
-						  "defaultColorAsHex": "#edf8e9",
-						  "defaultCustomRating": "sehr niedrig"
-						},
-						{
-						  "defaultColorAsHex": "#bae4b3",
-						  "defaultCustomRating": "niedrig"
-						},
-						{
-						  "defaultColorAsHex": "#74c476",
-						  "defaultCustomRating": "mittel"
-						},
-						{
-						  "defaultColorAsHex": "#31a354",
-						  "defaultCustomRating": "hoch"
-						},
-						{
-						  "defaultColorAsHex": "#006d2c",
-						  "defaultCustomRating": "sehr hoch"
-						}
-					  ]
+					"classificationMethod": $scope.classificationMethod,
+					"numClasses": $scope.numClassesPerSpatialUnit,
+					"items": $scope.spatialUnitClassification,
 				  }
 			};
 
@@ -1001,28 +982,9 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 
 				var defaultClassificationMapping = {
 					"colorBrewerSchemeName" : $scope.selectedColorBrewerPaletteEntry ? $scope.selectedColorBrewerPaletteEntry.paletteName : "Blues",
-					"items": [
-						{
-						  "defaultColorAsHex": "#edf8e9",
-						  "defaultCustomRating": "sehr niedrig"
-						},
-						{
-						  "defaultColorAsHex": "#bae4b3",
-						  "defaultCustomRating": "niedrig"
-						},
-						{
-						  "defaultColorAsHex": "#74c476",
-						  "defaultCustomRating": "mittel"
-						},
-						{
-						  "defaultColorAsHex": "#31a354",
-						  "defaultCustomRating": "hoch"
-						},
-						{
-						  "defaultColorAsHex": "#006d2c",
-						  "defaultCustomRating": "sehr hoch"
-						}
-					  ]
+					"classificationMethod": $scope.classificationMethod,
+					"numClasses": $scope.numClassesPerSpatialUnit,
+					"items": $scope.spatialUnitClassification
 				};
 
 				metadataExport.defaultClassificationMapping = defaultClassificationMapping;
