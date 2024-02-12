@@ -24,9 +24,17 @@
 						<form class="multiStepForm form-group" id="indicatorEditIndicatorSpatialUnitRolesForm" role="form"
 							data-toggle="validator" data-disable="true" style="margin-bottom: 0px;">
 							<!-- progressbar -->
-							<ul id="progressbar">
-								<li style="width: 100%" class="active">Rollenbasierter Zugriffsschutz</li>
-							</ul>
+							<div ng-if="!isDatasetOwner">
+								<ul id="progressbar">
+									<li style="width: 100%" class="active">Rollenbasierter Zugriffsschutz</li>
+								</ul>
+							</div>
+							<div ng-if="isDatasetOwner">
+								<ul id="progressbar">
+									<li style="width: 50%" class="active">Rollenbasierter Zugriffsschutz</li>
+									<li style="width: 50%">Eigent&uuml;merschaft</li>
+								</ul>
+							</div>
 							<!-- fieldsets -->
 	
 							<fieldset>
@@ -67,6 +75,25 @@
 								</div>
 
 																						
+							</fieldset>
+
+							<fieldset ng-if="isDatasetOwner">
+								<h2 class="fs-title">Eigentümerschaft eines Datensatzes</h2>
+									<h3 class="fs-subtitle">&Uuml;betragen der Eigentümerschaft von Datens&auml;tzen mit allen dazugeh&ouml;rigen Rechten</h3>
+									<div class="alert alert-danger">
+										Bitte beachten Sie, dass Sie beim &Uuml;bertragen einer Eigentümerschaft einer Resource unter Umst&auml;nden jegliche Rechte eben dieser verlieren.<br>Die Rechte werden unwiderruflich und sofort an den neuen Eigent&uuml;mer &uuml;bertragen.
+									</div>
+									<div class="row">
+										<div class="col-md-3"></div>
+										<div class="col-md-6 col-sm-6 col-xs-12">
+											<label for="targetUserRoleSelect"><b>Eigent&uuml;merschaft &uuml;bertragen an</b></label>
+											<select id="targetUserRoleSelect" ng-model="targetResourceCreatorRole" class="form-control" ng-change="onChangeSelectedTargetCreatorRole(targetResourceCreatorRole)" required>
+												<option selected value><b>Eigent&uuml;merschaft nicht &uuml;bertragen</b></option>
+												<option ng-repeat="role in availableRoles" value="{{role.roleId}}">{{role.organizationalUnit.name}}</option>
+											</select>
+										</div>
+										<div class="col-md-3"></div>
+									</div>
 							</fieldset>
 
 						</form>

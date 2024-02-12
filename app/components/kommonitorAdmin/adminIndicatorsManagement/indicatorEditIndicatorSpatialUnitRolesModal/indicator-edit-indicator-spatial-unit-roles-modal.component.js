@@ -13,10 +13,18 @@ angular.module('indicatorEditIndicatorSpatialUnitRolesModal').component('indicat
 		$scope.successMessagePart = undefined;
 		$scope.errorMessagePart = undefined;
 
+		$scope.isDatasetOwner = false;
+		$scope.targetResourceCreatorRole = undefined;
 
 		$scope.$on("onEditIndicatorSpatialUnitRoles", function (event, indicatorDataset) {
 
 			$scope.currentIndicatorDataset = indicatorDataset;
+
+			if(indicatorDataset.userPermissions.includes('creator')) {
+				$scope.isDatasetOwner = true;
+				$scope.availableRoles = redefineAvailableRoles();
+				$scope.$apply();
+			}
 
 			$scope.resetIndicatorEditIndicatorSpatialUnitRolesForm();
 			kommonitorMultiStepFormHelperService.registerClickHandler("indicatorEditIndicatorSpatialUnitRolesForm");
@@ -28,7 +36,27 @@ angular.module('indicatorEditIndicatorSpatialUnitRolesModal').component('indicat
 			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorEditIndicatorSpatialUnitsRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, allowedRoles, true);
 		});
 
+		$scope.onChangeSelectedTargetCreatorRole = function(targetResourceCreatorRole) {
+
+			$scope.targetResourceCreatorRole = targetResourceCreatorRole;
+			console.log("Target creator role selected to be:",$scope.targetResourceCreatorRole);
+		}
+
+		function redefineAvailableRoles() {
+
+			let tempRoles = [];
+			kommonitorDataExchangeService.availableRoles.forEach(role => {
+				if(role.permissionLevel == 'creator')
+					tempRoles.push(role);
+			});
+
+			return tempRoles;
+		}
+
 		$scope.resetIndicatorEditIndicatorSpatialUnitRolesForm = function () {
+
+			$scope.targetResourceCreatorRole = undefined;
+			document.getElementById('targetUserRoleSelect').selectedIndex = 0;
 
 			$scope.targetApplicableSpatialUnit = $scope.currentIndicatorDataset.applicableSpatialUnits[0];
 
@@ -64,6 +92,10 @@ angular.module('indicatorEditIndicatorSpatialUnitRolesModal').component('indicat
 		};
 
 		$scope.editIndicatorSpatialUnitRoles = function () {
+
+			if($scope.targetResourceCreatorRole !== undefined)
+				if(!confirm('Sind Sie sicher, dass Sie den Eigentümerschaft an dieser Resource endgültig und unwiderruflich übertragen und damit abgeben wollen?'))
+					return;
 
 			var patchBody = $scope.buildPatchBody_indicatorSpatialUnitRoles();
 

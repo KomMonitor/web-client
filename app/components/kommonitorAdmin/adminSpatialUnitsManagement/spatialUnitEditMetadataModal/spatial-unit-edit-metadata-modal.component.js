@@ -130,6 +130,7 @@ angular.module('spatialUnitEditMetadataModal').component('spatialUnitEditMetadat
 		$scope.onChangeSelectedTargetCreatorRole = function(targetResourceCreatorRole) {
 
 			$scope.targetResourceCreatorRole = targetResourceCreatorRole;
+			console.log("Target creator role selected to be ",$scope.targetResourceCreatorRole);
 		}
 
 		function redefineAvailableRoles() {
