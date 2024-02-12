@@ -2867,7 +2867,7 @@ angular
         for (let elem of data) {
 
           if(elem.name=='public')
-            elem.name = 'Organisationseinheit für den öffentlichen Zugriff auf die entstprechende Resource (public)';
+            elem.name = 'Öffentlicher Zugriff';
 
           for (let role of elem.roles) {
             role.isChecked = false;
