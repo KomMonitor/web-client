@@ -209,7 +209,10 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 
 			$scope.numClassesArray = [3,4,5,6,7,8];
 			$scope.numClasses = $scope.numClassesArray[2];
+			$scope.numClassesPerSpatialUnit = undefined;
+			$scope.classificationMethod = __env.defaultClassifyMethod || "jenks";
 			$scope.selectedColorBrewerPaletteEntry = undefined;
+			$scope.spatialUnitClassification = [];
 
 			$scope.postBody_indicators = undefined;
 
@@ -244,6 +247,29 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 		};
 
 		$scope.instantiateColorBrewerPalettes();
+
+		$scope.onClassificationMethodSelected = function(method){
+			$scope.classificationMethod = method.id;
+			if(method == 'manual'){
+				if ($scope.numClassesPerSpatialUnit) {
+					console.log($scope.numClassesPerSpatialUnit);
+					$scope.onNumClassesChanged($scope.numClassesPerSpatialUnit);
+				}
+			}
+		};
+
+		$scope.onNumClassesChanged = function(numClasses) {
+			$scope.numClassesPerSpatialUnit = numClasses;
+			for (let i = 0; i < kommonitorDataExchangeService.availableSpatialUnits.length; i++) {
+				let spatialUnit = kommonitorDataExchangeService.availableSpatialUnits[i];
+				$scope.spatialUnitClassification[i] = {};
+				$scope.spatialUnitClassification[i].spatialUnitId = spatialUnit.spatialUnitId;
+				$scope.spatialUnitClassification[i].breaks = [];
+				for (let classNr = 0; classNr < numClasses - 1; classNr++) {
+					$scope.spatialUnitClassification[i].breaks.push(null);
+				}
+			}
+		}
 
 		$scope.resetIndicatorAddForm = function(){
 
@@ -306,7 +332,10 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 
 			$scope.numClassesArray = [3,4,5,6,7,8];
 			$scope.numClasses = $scope.numClassesArray[2];
+			$scope.numClassesPerSpatialUnit = undefined;
+			$scope.classificationMethod = __env.defaultClassifyMethod || "jenks";
 			$scope.selectedColorBrewerPaletteEntry = $scope.colorbrewerPalettes[13];
+			$scope.spatialUnitClassification = [];
 
 			$scope.postBody_indicators = undefined;
 
