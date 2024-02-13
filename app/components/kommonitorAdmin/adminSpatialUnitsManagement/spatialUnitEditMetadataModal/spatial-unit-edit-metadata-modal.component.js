@@ -108,15 +108,6 @@ angular.module('spatialUnitEditMetadataModal').component('spatialUnitEditMetadat
 
 			$scope.currentSpatialUnitDataset = spatialUnitDataset;
 
-			if(spatialUnitDataset.userPermissions.includes('creator')) {
-				$scope.isDatasetOwner = true;
-				$scope.availableRoles = redefineAvailableRoles();
-				$scope.$apply();
-			}
-				
-			console.log(spatialUnitDataset.userPermissions.includes('creator'));
-			console.log(kommonitorDataExchangeService.availableRoles);
-
 			$scope.resetSpatialUnitEditMetadataForm();
 
 			kommonitorMultiStepFormHelperService.registerClickHandler("spatialUnitEditMetadataForm");
@@ -127,32 +118,12 @@ angular.module('spatialUnitEditMetadataModal').component('spatialUnitEditMetadat
 			refreshRoles();
 		});
 
-		$scope.onChangeSelectedTargetCreatorRole = function(targetResourceCreatorRole) {
-
-			$scope.targetResourceCreatorRole = targetResourceCreatorRole;
-			console.log("Target creator role selected to be ",$scope.targetResourceCreatorRole);
-		}
-
-		function redefineAvailableRoles() {
-
-			let tempRoles = [];
-			kommonitorDataExchangeService.availableRoles.forEach(role => {
-				if(role.permissionLevel == 'creator')
-					tempRoles.push(role);
-			});
-
-			return tempRoles;
-		}
-
 		function refreshRoles() {
 			let allowedRoles = $scope.currentSpatialUnitDataset ? $scope.currentSpatialUnitDataset.allowedRoles : [];
 			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('spatialUnitEditRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, allowedRoles, true);
 		}
 
 		$scope.resetSpatialUnitEditMetadataForm = function(){
-
-			$scope.targetResourceCreatorRole = undefined;
-			document.getElementById('targetUserRoleSelect').selectedIndex = 0;
 
 			$scope.spatialUnitLevel = $scope.currentSpatialUnitDataset.spatialUnitLevel;
 			$scope.spatialUnitLevelInvalid = false;

@@ -13,19 +13,40 @@ angular.module('spatialUnitEditUserRolesModal').component('spatialUnitEditUserRo
 		$scope.successMessagePart = undefined;
 		$scope.errorMessagePart = undefined;
 
+		$scope.targetResourceCreatorRole = undefined;
 
 		$scope.$on("onEditSpatialUnitUserRoles", function (event, spatialUnitDataset) {
 
 			$scope.currentSpatialUnitDataset = spatialUnitDataset;
 
-			$scope.resetSpatialUnitEditUserRolesForm();
-			kommonitorMultiStepFormHelperService.registerClickHandler();
+			$scope.availableRoles = redefineAvailableRoles();
+			$scope.$apply();
 
+			$scope.resetSpatialUnitEditUserRolesForm();
+			kommonitorMultiStepFormHelperService.registerClickHandler('spatialUnitEditUserRolesForm');
 		});
+
+		$scope.onChangeSelectedTargetCreatorRole = function(targetResourceCreatorRole) {
+
+			$scope.targetResourceCreatorRole = targetResourceCreatorRole;
+			console.log("Target creator role selected to be ",$scope.targetResourceCreatorRole);
+		}	
+		
+		function redefineAvailableRoles() {
+
+			let tempRoles = [];
+			kommonitorDataExchangeService.availableRoles.forEach(role => {
+				if(role.permissionLevel == 'creator')
+					tempRoles.push(role);
+			});
+
+			return tempRoles;
+		}
 
 		$scope.resetSpatialUnitEditUserRolesForm = function () {
 
-			
+			$scope.targetResourceCreatorRole = undefined;
+			document.getElementById('targetUserRoleSelect').selectedIndex = 0;
 
 			$scope.successMessagePart = undefined;
 			$scope.errorMessagePart = undefined;
@@ -37,7 +58,15 @@ angular.module('spatialUnitEditUserRolesModal').component('spatialUnitEditUserRo
 			}, 250);
 		};
 
-		
+		$scope.editSpatialUnitEditUserRolesForm = function(){
+
+			if($scope.targetResourceCreatorRole !== undefined)
+			if(!confirm('Sind Sie sicher, dass Sie den Eigentümerschaft an dieser Resource endgültig und unwiderruflich übertragen und damit abgeben wollen?'))
+				return;
+
+			// all other to go next
+		}
+
 		$scope.hideSuccessAlert = function () {
 			$("#spatialUnitEditUserRolesSuccessAlert").hide();
 		};

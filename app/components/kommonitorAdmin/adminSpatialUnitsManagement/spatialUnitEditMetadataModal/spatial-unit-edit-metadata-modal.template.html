@@ -42,19 +42,11 @@
 					<form role="form" class="multiStepForm form-group" id="spatialUnitEditMetadataForm" data-toggle="validator" style="margin-bottom: 0px;">
 						
 						<!-- progressbar -->
-						<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity && !isDatasetOwner">
+						<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity">
 							<ul id="progressbar">
 								<li style="width: 33.33%;" class="active">Metadaten der Raumeinheit</li>
 								<li style="width: 33.33%;">Allgemeine Metadaten</li>
 								<li style="width: 33.33%;">Rollenbasierter Zugriffsschutz</li>							
-							</ul>
-						</div>
-						<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity && isDatasetOwner">
-							<ul id="progressbar">
-								<li style="width: 25%;" class="active">Metadaten der Raumeinheit</li>
-								<li style="width: 25%;">Allgemeine Metadaten</li>
-								<li style="width: 25%;">Rollenbasierter Zugriffsschutz</li>							
-								<li style="width: 25%;">Eigentümerschaft</li>			
 							</ul>
 						</div>
 						<div ng-if="! $ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity">
@@ -295,25 +287,6 @@
 										</div>	
 								
 								<input type="button" name="previous" class="previous previous_editSpatialUnit action-button-previous" value="Voriger Schritt"/>
-							</fieldset>
-						
-							<fieldset ng-if="$ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity && isDatasetOwner">
-								<h2 class="fs-title">Eigentümerschaft eines Datensatzes</h2>
-									<h3 class="fs-subtitle">&Uuml;betragen der Eigentümerschaft von Datens&auml;tzen mit allen dazugeh&ouml;rigen Rechten</h3>
-									<div class="alert alert-danger">
-										Bitte beachten Sie, dass Sie beim &Uuml;bertragen einer Eigentümerschaft einer Resource unter Umst&auml;nden jegliche Rechte eben dieser verlieren.<br>Die Rechte werden unwiderruflich und sofort an den neuen Eigent&uuml;mer &uuml;bertragen.
-									</div>
-									<div class="row">
-										<div class="col-md-3"></div>
-										<div class="col-md-6 col-sm-6 col-xs-12">
-											<label for="targetUserRoleSelect"><b>Eigent&uuml;merschaft &uuml;bertragen an</b></label>
-											<select id="targetUserRoleSelect" ng-model="targetResourceCreatorRole" class="form-control" ng-change="onChangeSelectedTargetCreatorRole(targetResourceCreatorRole)" required>
-												<option selected value><b>Eigent&uuml;merschaft nicht &uuml;bertragen</b></option>
-												<option ng-repeat="role in availableRoles" value="{{role.roleId}}">{{role.organizationalUnit.name}}</option>
-											</select>
-										</div>
-										<div class="col-md-3"></div>
-									</div>
 							</fieldset>
 
 						</form>

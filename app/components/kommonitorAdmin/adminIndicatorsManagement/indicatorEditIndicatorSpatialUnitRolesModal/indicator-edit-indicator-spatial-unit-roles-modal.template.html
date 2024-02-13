@@ -24,12 +24,7 @@
 						<form class="multiStepForm form-group" id="indicatorEditIndicatorSpatialUnitRolesForm" role="form"
 							data-toggle="validator" data-disable="true" style="margin-bottom: 0px;">
 							<!-- progressbar -->
-							<div ng-if="!isDatasetOwner">
-								<ul id="progressbar">
-									<li style="width: 100%" class="active">Rollenbasierter Zugriffsschutz</li>
-								</ul>
-							</div>
-							<div ng-if="isDatasetOwner">
+							<div>
 								<ul id="progressbar">
 									<li style="width: 50%" class="active">Rollenbasierter Zugriffsschutz</li>
 									<li style="width: 50%">Eigent&uuml;merschaft</li>
@@ -77,7 +72,7 @@
 																						
 							</fieldset>
 
-							<fieldset ng-if="isDatasetOwner">
+							<fieldset>
 								<h2 class="fs-title">Eigentümerschaft eines Datensatzes</h2>
 									<h3 class="fs-subtitle">&Uuml;betragen der Eigentümerschaft von Datens&auml;tzen mit allen dazugeh&ouml;rigen Rechten</h3>
 									<div class="alert alert-danger">

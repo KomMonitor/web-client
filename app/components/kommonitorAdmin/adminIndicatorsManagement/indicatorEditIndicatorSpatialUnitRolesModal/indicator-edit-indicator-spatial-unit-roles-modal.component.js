@@ -13,18 +13,14 @@ angular.module('indicatorEditIndicatorSpatialUnitRolesModal').component('indicat
 		$scope.successMessagePart = undefined;
 		$scope.errorMessagePart = undefined;
 
-		$scope.isDatasetOwner = false;
 		$scope.targetResourceCreatorRole = undefined;
 
 		$scope.$on("onEditIndicatorSpatialUnitRoles", function (event, indicatorDataset) {
 
 			$scope.currentIndicatorDataset = indicatorDataset;
 
-			if(indicatorDataset.userPermissions.includes('creator')) {
-				$scope.isDatasetOwner = true;
-				$scope.availableRoles = redefineAvailableRoles();
-				$scope.$apply();
-			}
+			$scope.availableRoles = redefineAvailableRoles();
+			$scope.$apply();
 
 			$scope.resetIndicatorEditIndicatorSpatialUnitRolesForm();
 			kommonitorMultiStepFormHelperService.registerClickHandler("indicatorEditIndicatorSpatialUnitRolesForm");
