@@ -1,0 +1,104 @@
+<div class="modal fade" id="modal-edit-georesources-user-roles" role="dialog">
+	<div class="modal-dialog modal-xl">
+		<div class="modal-content">
+
+			<div align="center">
+				<div class="loading-overlay-admin-panel ng-hide" ng-show="loadingData">
+					<span class="glyphicon glyphicon-refresh icon-spin"></span>
+				</div>
+			</div>
+
+
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Rollenbasierter Zugriffsschutz der Georesource <i><b>{{currentGeoresourceDataset.datasetName}}</b></i> editieren</h4>
+			</div>
+			<div class="modal-body">
+				
+				
+				<!-- MultiStep Form -->
+				<div class="row">
+					<div class="col-md-12">
+						<form role="form" class="multiStepForm form-group" id="georesourceEditUserRolesForm" data-toggle="validator" style="margin-bottom: 0px;">
+							<!-- progressbar -->
+							<div>
+								<ul id="progressbar">
+									<li style="width: 50%;" class="active">Rollenbasierter Zugriffsschutz</li>
+									<li style="width: 50%;">Eigentümerschaft</li>						
+								</ul>
+							</div>
+							<!-- fieldsets -->
+	
+							<fieldset>
+								<h2 class="fs-title">Rollenbasierter Feature-Zugriffsschutz f&uuml;r verknüpfte Raumeinheiten</h2>
+								<h3 class="fs-subtitle">Vergabe der Zugriffsrechte auf die Feature-Datens&auml;tze der einzelnen Raumeinheiten</h3>
+		
+								<p>Zugriffsrechte (lesen, editieren, l&ouml;schen) m&uuml;ssen explizit vergeben werden. Administratoren (Rolle <i>kommonitor-creator</i>) haben immer vollen Zugriff.</p>
+								<p><strong>lesender Zugriff auf die Indikator-Zeitreihe wird nur den Organisationseinheiten gew&auml;hrt, die auch lesenden Zugriff auf Metadaten der assoziierten Raumeinheit besitzen.</strong></p>
+	
+								
+								<div class="row vertical-align">
+									<div class="col-md-9 col-sm-6 col-xs-12">
+										<!-- Role Model Table -->
+									</div>
+								</div>
+
+																						
+							</fieldset>
+
+							<fieldset>
+								<h2 class="fs-title">Eigentümerschaft eines Datensatzes</h2>
+									<h3 class="fs-subtitle">&Uuml;betragen der Eigentümerschaft von Datens&auml;tzen mit allen dazugeh&ouml;rigen Rechten</h3>
+									<div class="alert alert-danger">
+										Bitte beachten Sie, dass Sie beim &Uuml;bertragen einer Eigentümerschaft einer Resource unter Umst&auml;nden jegliche Rechte eben dieser verlieren.<br>Die Rechte werden unwiderruflich und sofort an den neuen Eigent&uuml;mer &uuml;bertragen.
+									</div>
+									<div class="row">
+										<div class="col-md-3"></div>
+										<div class="col-md-6 col-sm-6 col-xs-12">
+											<label for="targetUserRoleSelect"><b>Eigent&uuml;merschaft &uuml;bertragen an</b></label>
+											<select id="targetUserRoleSelect" ng-model="targetResourceCreatorRole" class="form-control" ng-change="onChangeSelectedTargetCreatorRole(targetResourceCreatorRole)" required>
+												<option selected value><b>Eigent&uuml;merschaft nicht &uuml;bertragen</b></option>
+												<option ng-repeat="role in availableRoles" value="{{role.roleId}}">{{role.organizationalUnit.name}}</option>
+											</select>
+										</div>
+										<div class="col-md-3"></div>
+									</div>
+							</fieldset>
+
+						</form>
+					</div>
+				</div>
+
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Schlie&szlig;en</button>
+
+				<button type="button" class="btn btn-success"
+					ng-click="editGeoresourceEditUserRolesForm()">Rollenzugriff aktualisieren</button>
+				<button type="button" class="btn btn-danger"
+					ng-click="resetGeoresourceEditUserRolesForm()">Zur&uuml;cksetzen</button>
+			</div>
+
+			<div id="georesourceEditUserRolesSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
+				class="alert alert-success alert-dismissable">
+				<button type="button" class="close" ng-click="hideSuccessAlert()" aria-hidden="true">&times;</button>
+				<h4><i class="icon fa fa-check"></i>Rollenzugriff aktualisiert</h4>
+				Der Rollenzugriff auf die Zeitreihendaten des Indikators '{{currentIndicatorDataset.indicatorName}}' für die verknüpfte Raumebene '{{targetApplicableSpatialUnit.spatialUnitName}}' wurde in KomMonitor aktualisiert.
+			</div>
+
+			<div id="georesourceEditUserRolesErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
+				class="alert alert-danger alert-dismissable">
+				<button type="button" class="close" ng-click="hideErrorAlert()" aria-hidden="true">&times;</button>
+				<h4><i class="icon fa fa-ban"></i>Aktualisierung gescheitert</h4>
+				Bei der Aktualisierung des Rollenzugriffs ist ein Fehler aufgetreten. Fehlermeldung:
+				<br />
+				<pre style="overflow:auto; max-height:500px;" ng-bind-html="errorMessagePart"></pre>
+			</div>
+
+		</div>
+		<!-- /.modal-content -->
+	</div>
+	<!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->

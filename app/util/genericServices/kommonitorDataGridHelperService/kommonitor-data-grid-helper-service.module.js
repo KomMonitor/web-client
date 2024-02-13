@@ -96,10 +96,12 @@ angular
       var displayEditButtons_georesources = function (params) {
         let editMetadataButtonId = 'btn_georesource_editMetadata_' + params.data.georesourceId;
         let editFeaturesButtonId = 'btn_georesource_editFeatures_' + params.data.georesourceId;
+        let editUserRolesButtonId = 'btn_georesource_editUserRoles_' + params.data.georesourceId;
 
         let html = '<div class="btn-group btn-group-sm">';
         html += '<button id="'+ editMetadataButtonId +'" class="btn btn-warning btn-sm georesourceEditMetadataBtn" type="button" data-toggle="modal" data-target="#modal-edit-georesource-metadata" title="Metadaten editieren" '+ (params.data.userPermissions.includes("editor") ? '' : 'disabled') + '><i class="fas fa-pencil-alt" ></i></button>';
         html += '<button id="'+ editFeaturesButtonId + '" class="btn btn-warning btn-sm georesourceEditFeaturesBtn" type="button" data-toggle="modal" data-target="#modal-edit-georesource-features" title="Features fortf&uuml;hren" '+ (params.data.userPermissions.includes("editor") ? '' : 'disabled') + '><i class="fas fa-draw-polygon"></i></button>';
+        html += '<button id="'+ editUserRolesButtonId + '" class="btn btn-warning btn-sm georesourceEditUserRolesBtn" type="button" data-toggle="modal" data-target="#modal-edit-georesources-user-roles" title="Rollenbasierten Zugriffsschutz editieren"  '+ (params.data.userPermissions.includes("creator") ? '' : 'disabled') + '><i class="fas fa-user-lock"></i></button>'
         html += '<button id="btn_georesource_deleteGeoresource_' + params.data.georesourceId + '" class="btn btn-danger btn-sm georesourceDeleteBtn" type="button" data-toggle="modal" data-target="#modal-delete-georesources" title="Georessource entfernen"  '+ (params.data.userPermissions.includes("creator") ? '' : 'disabled') + '><i class="fas fa-trash"></i></button>'
         html += '</div>';
 
@@ -316,7 +318,7 @@ angular
 
       this.buildDataGridColumnConfig_georesources_poi = function (georesourceMetadataArray) {
         const columnDefs = [
-          { headerName: 'Editierfunktionen', pinned: 'left', maxWidth: 150, checkboxSelection: false,
+          { headerName: 'Editierfunktionen', pinned: 'left', maxWidth: 170, checkboxSelection: false,
           headerCheckboxSelection: false, 
           headerCheckboxSelectionFilteredOnly: true, 
           filter: false, 
@@ -899,6 +901,22 @@ angular
           let georesourceMetadata = kommonitorDataExchangeService.getGeoresourceMetadataById(georesourceId);
 
           $rootScope.$broadcast("onEditGeoresourceFeatures", georesourceMetadata);
+        });
+
+        
+        $(".georesourceEditUserRolesBtn").off();
+        $(".georesourceEditUserRolesBtn").on("click", function (event) {
+          // ensure that only the target button gets clicked
+          // manually open modal
+          event.stopPropagation();
+          let modalId = document.getElementById(this.id).getAttribute("data-target");
+          $(modalId).modal('show');
+          
+          let georesourceId = this.id.split("_")[3];
+
+          let georesourceMetadata = kommonitorDataExchangeService.getGeoresourceMetadataById(georesourceId);
+
+          $rootScope.$broadcast("onEditGeoresourcesUserRoles", georesourceMetadata);
         });
 
         $(".georesourceDeleteBtn").off();
