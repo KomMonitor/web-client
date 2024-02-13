@@ -111,6 +111,7 @@ angular
         let html = '<div class="btn-group btn-group-sm">';
         html += '<button id="btn_spatialUnit_editMetadata_' + params.data.spatialUnitId + '" class="btn btn-warning btn-sm spatialUnitEditMetadataBtn" type="button" data-toggle="modal" data-target="#modal-edit-spatial-unit-metadata" title="Metadaten editieren"  '+ (params.data.userPermissions.includes("editor") ? '' : 'disabled') + '><i class="fas fa-pencil-alt"></i></button>';
         html += '<button id="btn_spatialUnit_editFeatures_' + params.data.spatialUnitId + '" class="btn btn-warning btn-sm spatialUnitEditFeaturesBtn" type="button" data-toggle="modal" data-target="#modal-edit-spatial-unit-features" title="Features fortf&uuml;hren"  '+ (params.data.userPermissions.includes("editor") ? '' : 'disabled') + '><i class="fas fa-draw-polygon"></i></button>';
+        html += '<button id="btn_spatialUnit_editUserRoles_' + params.data.spatialUnitId + '" class="btn btn-warning btn-sm spatialUnitEditUserRolesBtn" type="button" data-toggle="modal" data-target="#modal-edit-spatial-unit-user-roles" title="Rollenbasierten Zugriffsschutz editieren"  '+ (params.data.userPermissions.includes("creator") ? '' : 'disabled') + '><i class="fas fa-user-lock"></i></button>'
         html += '<button id="btn_spatialUnit_deleteSpatialUnit_' + params.data.spatialUnitId + '" class="btn btn-danger btn-sm spatialUnitDeleteBtn" type="button" data-toggle="modal" data-target="#modal-delete-spatial-units" title="Raumeinheit entfernen"  '+ (params.data.userPermissions.includes("creator") ? '' : 'disabled') + '><i class="fas fa-trash"></i></button>'
         html += '</div>';
 
@@ -605,7 +606,7 @@ angular
 
       this.buildDataGridColumnConfig_spatialUnits = function (spatialUnitMetadataArray) {
         const columnDefs = [
-          { headerName: 'Editierfunktionen', pinned: 'left', maxWidth: 150, checkboxSelection: false, headerCheckboxSelection: false, 
+          { headerName: 'Editierfunktionen', pinned: 'left', maxWidth: 170, checkboxSelection: false, headerCheckboxSelection: false, 
           headerCheckboxSelectionFilteredOnly: true, filter: false, sortable: false, cellRenderer: 'displayEditButtons_spatialUnits' },
           { headerName: 'Id', field: "spatialUnitId", pinned: 'left', maxWidth: 125 },
           { headerName: 'Name', field: "spatialUnitLevel", pinned: 'left', minWidth: 300 },
@@ -1231,6 +1232,21 @@ angular
           let spatialUnitMetadata = kommonitorDataExchangeService.getSpatialUnitMetadataById(spatialUnitId);
 
           $rootScope.$broadcast("onEditSpatialUnitFeatures", spatialUnitMetadata);
+        });
+
+        $(".spatialUnitEditUserRolesBtn").off();
+        $(".spatialUnitEditUserRolesBtn").on("click", function (event) {
+          // ensure that only the target button gets clicked
+          // manually open modal
+          event.stopPropagation();
+          let modalId = document.getElementById(this.id).getAttribute("data-target");
+          $(modalId).modal('show');
+          
+          let spatialUnitId = this.id.split("_")[3];
+
+          let spatialUnitMetadata = kommonitorDataExchangeService.getSpatialUnitMetadataById(spatialUnitId);
+
+          $rootScope.$broadcast("onEditSpatialUnitUserRoles", spatialUnitMetadata);
         });
 
         $(".spatialUnitDeleteBtn").off();
