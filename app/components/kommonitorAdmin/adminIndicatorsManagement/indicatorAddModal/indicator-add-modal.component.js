@@ -214,6 +214,8 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			$scope.selectedColorBrewerPaletteEntry = undefined;
 			$scope.spatialUnitClassification = [];
 
+			$scope.tabClasses = [];
+
 			$scope.postBody_indicators = undefined;
 
 		$scope.successMessagePart = undefined;
@@ -265,10 +267,21 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 				$scope.spatialUnitClassification[i] = {};
 				$scope.spatialUnitClassification[i].spatialUnitId = spatialUnit.spatialUnitId;
 				$scope.spatialUnitClassification[i].breaks = [];
+				$scope.tabClasses[i] = '';
 				for (let classNr = 0; classNr < numClasses - 1; classNr++) {
 					$scope.spatialUnitClassification[i].breaks.push(null);
 				}
 			}
+		}
+
+		$scope.onBreaksChanged = function(tabIndex) {
+			let cssClass = 'tab-completed';
+			for(const classBreak of $scope.spatialUnitClassification[tabIndex].breaks) {
+				if (!classBreak) {
+					cssClass = '';
+				}
+			}
+			$scope.tabClasses[tabIndex] = cssClass;
 		}
 
 		$scope.resetIndicatorAddForm = function(){

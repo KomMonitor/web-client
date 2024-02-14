@@ -3063,6 +3063,10 @@ input:checked + .switchslider:before {
 	margin-bottom: 10px;
 }
 
+.tab-completed > a {
+	background-color: #dff0d8 !important;
+}
+
 /* The snackbar - position it at the bottom and in the middle of the screen */
 #snackbar {
 	visibility: hidden; /* Hidden by default. Visible on click */

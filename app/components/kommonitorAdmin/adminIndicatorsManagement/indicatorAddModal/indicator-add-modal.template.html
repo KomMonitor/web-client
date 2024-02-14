@@ -950,6 +950,7 @@
 										<uib-tab 
 											index="i" 
 											heading="{{spatialUnit.spatialUnitLevel}}"
+											class="{{tabClasses[i]}}"
 											ng-repeat="(i, spatialUnit) in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits">
 											<div class="form-group">
 												<label>Klassengrenzen für die Ebene {{spatialUnit.spatialUnitLevel}}</label>
@@ -957,7 +958,7 @@
 													ng-repeat="(j, b) in spatialUnitClassification[i].breaks track by $index"
 													type="number"
 													class="form-control"
-													ng-blur="onBreaksChanged()"
+													ng-blur="onBreaksChanged(i)"
 													ng-model="spatialUnitClassification[i].breaks[j]">
 											</div>
 										</uib-tab>
