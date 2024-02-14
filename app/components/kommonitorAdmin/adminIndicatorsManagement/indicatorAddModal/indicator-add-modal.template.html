@@ -882,48 +882,6 @@
 											</div> 
 										</div>									
 									</div>	
-									<div class="row vertical-align">
-										<div class="classificationMethodSelectContainer form-group">
-											<label>Klassifizierungsmethode</label>
-											<classification-method-select 
-												on-method-selected="onClassificationMethodSelected(method)"
-												default-method-id="{{classificationMethod}}">
-											</classification-method-select>
-										</div>
-									</div>
-									<div class="row vertical-align" ng-if="classificationMethod == 'manual'">
-										<div class="form-group">
-											<label>Anzahl Klassen pro Raumeinheit</label>
-											<select ng-model="numClassesPerSpatialUnit"
-												ng-change="onNumClassesChanged(numClassesPerSpatialUnit)"									
-												class="form-control" required>
-												<option disabled selected value> -- Anzahl Klassen w&auml;hlen -- </option>
-												<option ng-repeat="numClassesEntry in numClassesArray">{{::numClassesEntry}}</option>
-											</select>
-											<div class="help-block with-errors"></div>
-											<div class="help-block">
-												<p>Für jede Raumeinheit wird die gleiche Anzahl an Klassengrenzen vergeben </p>
-											</div>
-										</div>
-									</div>
-									<div class="row vertical-align" ng-if="(numClassesPerSpatialUnit > 0) && classificationMethod == 'manual'">
-										<uib-tabset active="0" class="col-md-4 col-sm-6 col-xs-12">
-											<uib-tab 
-												index="i" 
-												heading="{{spatialUnit.spatialUnitLevel}}"
-												ng-repeat="(i, spatialUnit) in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits">
-												<div class="form-group">
-													<label>Klassengrenzen für die Ebene {{spatialUnit.spatialUnitLevel}}</label>
-													<input
-														ng-repeat="(j, b) in spatialUnitClassification[i].breaks track by $index"
-														type="number"
-														class="form-control"
-														ng-blur="onBreaksChanged()"
-														ng-model="spatialUnitClassification[i].breaks[j]">
-												</div>
-											</uib-tab>
-										</uib-tabset>
-									</div>
 								</div>
 
 
@@ -961,6 +919,49 @@
 										</div>									
 									</div>	
 								
+								</div>
+
+								<div class="row vertical-align">
+									<div class="classificationMethodSelectContainer form-group">
+										<label>Klassifizierungsmethode</label>
+										<classification-method-select 
+											on-method-selected="onClassificationMethodSelected(method)"
+											default-method-id="{{classificationMethod}}">
+										</classification-method-select>
+									</div>
+								</div>
+								<div class="row vertical-align" ng-if="classificationMethod == 'manual'">
+									<div class="form-group">
+										<label>Anzahl Klassen pro Raumeinheit</label>
+										<select ng-model="numClassesPerSpatialUnit"
+											ng-change="onNumClassesChanged(numClassesPerSpatialUnit)"									
+											class="form-control" required>
+											<option disabled selected value> -- Anzahl Klassen w&auml;hlen -- </option>
+											<option ng-repeat="numClassesEntry in numClassesArray">{{::numClassesEntry}}</option>
+										</select>
+										<div class="help-block with-errors"></div>
+										<div class="help-block">
+											<p>Für jede Raumeinheit wird die gleiche Anzahl an Klassengrenzen vergeben </p>
+										</div>
+									</div>
+								</div>
+								<div class="row vertical-align" ng-if="(numClassesPerSpatialUnit > 0) && classificationMethod == 'manual'">
+									<uib-tabset active="0" class="col-md-4 col-sm-6 col-xs-12">
+										<uib-tab 
+											index="i" 
+											heading="{{spatialUnit.spatialUnitLevel}}"
+											ng-repeat="(i, spatialUnit) in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits">
+											<div class="form-group">
+												<label>Klassengrenzen für die Ebene {{spatialUnit.spatialUnitLevel}}</label>
+												<input
+													ng-repeat="(j, b) in spatialUnitClassification[i].breaks track by $index"
+													type="number"
+													class="form-control"
+													ng-blur="onBreaksChanged()"
+													ng-model="spatialUnitClassification[i].breaks[j]">
+											</div>
+										</uib-tab>
+									</uib-tabset>
 								</div>
 
 								<input type="button" name="previous" class="previous previous_addIndicator action-button-previous" value="Voriger Schritt"/>
