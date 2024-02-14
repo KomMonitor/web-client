@@ -2937,7 +2937,7 @@ angular
 
       this.buildRoleManagementGridColumnConfig = function(){
         let columnDefs = [];
-        return columnDefs.concat([
+        columnDefs = columnDefs.concat([
           { 
             headerName: 'Organisationseinheit', 
             field: "name", 
@@ -2947,10 +2947,15 @@ angular
               'user-roles-public': row => row.data.contact == 'public',
             } 
           },
-          { headerName: 'lesen', field: "roles", filter: false, sortable: false, maxWidth: 100, cellRenderer: 'checkboxRenderer_viewer', },
-          { headerName: 'editieren', field: "roles", filter: false, sortable: false, maxWidth: 100, cellRenderer: 'checkboxRenderer_editor', },
-          (!this.reducedRoleManagement?{ headerName: 'löschen', field: "roles", filter: false, sortable: false, maxWidth: 100, cellRenderer: 'checkboxRenderer_creator', }:{})          
+          { headerName: 'lesen', field: "roles", filter: false, sortable: false, maxWidth: 100, cellRenderer: 'checkboxRenderer_viewer'},
+          { headerName: 'editieren', field: "roles", filter: false, sortable: false, maxWidth: 100, cellRenderer: 'checkboxRenderer_editor'}                   
         ]);
+
+        if (!this.reducedRoleManagement){
+          columnDefs = columnDefs.concat({ headerName: 'löschen', field: "roles", filter: false, sortable: false, maxWidth: 100, cellRenderer: 'checkboxRenderer_creator'})
+        } 
+
+        return columnDefs;
       };
 
       this.buildRoleManagementGridOptions = function(accessControlMetadata, selectedRoleIds){
@@ -2977,7 +2982,7 @@ angular
               flex: 1,
               minWidth: 200,
               filter: true,
-              floatingFilter: false,
+              floatingFilter: true,
               // filterParams: {
               //   newRowsAction: 'keep'
               // },
@@ -3001,7 +3006,6 @@ angular
               },
             },
             components: components,
-            floatingFilter: false,
             columnDefs: columnDefs,
             rowData: rowData,
             rowHeight: 10,
