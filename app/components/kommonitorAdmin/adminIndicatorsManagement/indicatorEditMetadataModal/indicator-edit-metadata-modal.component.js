@@ -201,6 +201,12 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 			$scope.numClasses = $scope.numClassesArray[2];
 			$scope.selectedColorBrewerPaletteEntry = undefined;
 
+			$scope.numClassesPerSpatialUnit = undefined;
+			$scope.classificationMethod = __env.defaultClassifyMethod || "jenks";
+			$scope.spatialUnitClassification = [];
+
+			$scope.tabClasses = [];
+
 		$scope.successMessagePart = undefined;
 		$scope.errorMessagePart = undefined;
 
@@ -230,6 +236,48 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 		};
 
 		$scope.instantiateColorBrewerPalettes();
+
+		$scope.onClassificationMethodSelected = function(method){
+			$scope.classificationMethod = method.id;
+			if(method == 'manual'){
+				if ($scope.numClassesPerSpatialUnit) {
+					console.log($scope.numClassesPerSpatialUnit);
+					$scope.onNumClassesChanged($scope.numClassesPerSpatialUnit);
+				}
+			}
+		};
+
+		$scope.onNumClassesChanged = function(numClasses) {
+			$scope.numClassesPerSpatialUnit = numClasses;
+			for (let i = 0; i < kommonitorDataExchangeService.availableSpatialUnits.length; i++) {
+				let spatialUnit = kommonitorDataExchangeService.availableSpatialUnits[i];
+				$scope.spatialUnitClassification[i] = {};
+				$scope.spatialUnitClassification[i].spatialUnitId = spatialUnit.spatialUnitId;
+				$scope.spatialUnitClassification[i].breaks = [];
+				$scope.tabClasses[i] = '';
+				for (let classNr = 0; classNr < numClasses - 1; classNr++) {
+					$scope.spatialUnitClassification[i].breaks.push(null);
+				}
+			}
+		}
+
+		$scope.onBreaksChanged = function(tabIndex) {
+			let cssClass = 'tab-completed';
+			for(const classBreak of $scope.spatialUnitClassification[tabIndex].breaks) {
+				if (classBreak === null) {
+					cssClass = '';
+				}
+			}
+			
+			if (cssClass == 'tab-completed') {
+				for(let i = 0; i < $scope.spatialUnitClassification[tabIndex].breaks.length - 1; i ++) {
+					if ($scope.spatialUnitClassification[tabIndex].breaks[i] > $scope.spatialUnitClassification[tabIndex].breaks[i+1]) {
+						cssClass = 'tab-error';
+					}
+				}
+			}
+			$scope.tabClasses[tabIndex] = cssClass;
+		}
 
 		$scope.$on("onEditIndicatorMetadata", function (event, indicatorDataset) {
 
@@ -399,6 +447,10 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 
 				$scope.numClassesArray = [3,4,5,6,7,8];
 				$scope.numClasses = $scope.numClassesArray[2];
+
+				$scope.numClassesPerSpatialUnit = undefined;
+				$scope.classificationMethod = __env.defaultClassifyMethod || "jenks";
+				$scope.spatialUnitClassification = [];
 				
 				// instantiate with palette 'Blues'
 				$scope.selectedColorBrewerPaletteEntry = $scope.colorbrewerPalettes[13];
@@ -610,28 +662,9 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 				  "lowestSpatialUnitForComputation": $scope.indicatorLowestSpatialUnitMetadataObjectForComputation? $scope.indicatorLowestSpatialUnitMetadataObjectForComputation.spatialUnitLevel : null,
 				  "defaultClassificationMapping": {
 					"colorBrewerSchemeName": $scope.selectedColorBrewerPaletteEntry.paletteName,
-					"items": [
-						{
-						  "defaultColorAsHex": "#edf8e9",
-						  "defaultCustomRating": "sehr niedrig"
-						},
-						{
-						  "defaultColorAsHex": "#bae4b3",
-						  "defaultCustomRating": "niedrig"
-						},
-						{
-						  "defaultColorAsHex": "#74c476",
-						  "defaultCustomRating": "mittel"
-						},
-						{
-						  "defaultColorAsHex": "#31a354",
-						  "defaultCustomRating": "hoch"
-						},
-						{
-						  "defaultColorAsHex": "#006d2c",
-						  "defaultCustomRating": "sehr hoch"
-						}
-					  ]
+					"classificationMethod": $scope.classificationMethod,
+					"numClasses": $scope.numClassesPerSpatialUnit,
+					"items": $scope.spatialUnitClassification,
 				  }
 			};
 
@@ -1067,26 +1100,12 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 
 				var defaultClassificationMapping = {
 					"colorBrewerSchemeName" : $scope.selectedColorBrewerPaletteEntry ? $scope.selectedColorBrewerPaletteEntry.paletteName : "Blues",
+					"numClasses": "number of Classes",
+					"classificationMethod": "Classification Method ID",
 					"items": [
 						{
-						  "defaultColorAsHex": "#edf8e9",
-						  "defaultCustomRating": "sehr niedrig"
-						},
-						{
-						  "defaultColorAsHex": "#bae4b3",
-						  "defaultCustomRating": "niedrig"
-						},
-						{
-						  "defaultColorAsHex": "#74c476",
-						  "defaultCustomRating": "mittel"
-						},
-						{
-						  "defaultColorAsHex": "#31a354",
-						  "defaultCustomRating": "hoch"
-						},
-						{
-						  "defaultColorAsHex": "#006d2c",
-						  "defaultCustomRating": "sehr hoch"
+							"spatialUnit": "spatial unit id for manual classification",
+							"breaks": ['break']
 						}
 					  ]
 				};
