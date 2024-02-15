@@ -277,8 +277,16 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 		$scope.onBreaksChanged = function(tabIndex) {
 			let cssClass = 'tab-completed';
 			for(const classBreak of $scope.spatialUnitClassification[tabIndex].breaks) {
-				if (!classBreak) {
+				if (classBreak === null) {
 					cssClass = '';
+				}
+			}
+			
+			if (cssClass == 'tab-completed') {
+				for(let i = 0; i < $scope.spatialUnitClassification[tabIndex].breaks.length - 1; i ++) {
+					if ($scope.spatialUnitClassification[tabIndex].breaks[i] > $scope.spatialUnitClassification[tabIndex].breaks[i+1]) {
+						cssClass = 'tab-error';
+					}
 				}
 			}
 			$scope.tabClasses[tabIndex] = cssClass;
