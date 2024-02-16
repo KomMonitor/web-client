@@ -20,6 +20,10 @@ angular
 							$scope.selectedMethod = $scope.getMethod(ctrl.defaultMethodId);
 						};
 
+						ctrl.$onChanges = function(changesObj) {
+							$scope.selectedMethod = $scope.getMethod(ctrl.defaultMethodId);
+						}
+
 						ctrl.methodSelected = function(method) {
 							$scope.showMethodSelection = false;
 							$scope.selectedMethod = method;

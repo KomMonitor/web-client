@@ -974,6 +974,10 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 				$scope.numClasses = $scope.numClassesArray[2];
 				$scope.selectedColorBrewerPaletteEntry = undefined;
 
+				$scope.numClassesPerSpatialUnit = $scope.metadataImportSettings.defaultClassificationMapping.numClasses;
+				$scope.classificationMethod = $scope.metadataImportSettings.defaultClassificationMapping.classificationMethod;
+				$scope.spatialUnitClassification = $scope.metadataImportSettings.defaultClassificationMapping.items;
+
 				for (const colorbrewerPalette of $scope.colorbrewerPalettes) {
 					if (colorbrewerPalette.paletteName === $scope.metadataImportSettings.defaultClassificationMapping.colorBrewerSchemeName){
 						$scope.selectedColorBrewerPaletteEntry = colorbrewerPalette;
@@ -1100,14 +1104,9 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 
 				var defaultClassificationMapping = {
 					"colorBrewerSchemeName" : $scope.selectedColorBrewerPaletteEntry ? $scope.selectedColorBrewerPaletteEntry.paletteName : "Blues",
-					"numClasses": "number of Classes",
-					"classificationMethod": "Classification Method ID",
-					"items": [
-						{
-							"spatialUnit": "spatial unit id for manual classification",
-							"breaks": ['break']
-						}
-					  ]
+					"classificationMethod": $scope.classificationMethod,
+					"numClasses": $scope.numClassesPerSpatialUnit,
+					"items": $scope.spatialUnitClassification
 				};
 
 				metadataExport.defaultClassificationMapping = defaultClassificationMapping;

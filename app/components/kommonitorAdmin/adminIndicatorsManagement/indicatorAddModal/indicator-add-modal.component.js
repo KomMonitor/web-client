@@ -875,6 +875,11 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 
 				$scope.numClassesArray = [3,4,5,6,7,8];
 				$scope.numClasses = $scope.numClassesArray[2];
+
+				$scope.numClassesPerSpatialUnit = $scope.metadataImportSettings.defaultClassificationMapping.numClasses;
+				$scope.classificationMethod = $scope.metadataImportSettings.defaultClassificationMapping.classificationMethod;
+				$scope.spatialUnitClassification = $scope.metadataImportSettings.defaultClassificationMapping.items;
+
 				// instantiate with palette 'Blues'
 				$scope.selectedColorBrewerPaletteEntry = $scope.colorbrewerPalettes[13];
 
