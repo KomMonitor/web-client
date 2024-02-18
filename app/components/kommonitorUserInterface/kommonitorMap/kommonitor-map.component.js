@@ -2406,6 +2406,7 @@ angular.module('kommonitorMap').component(
           $scope.defaultBrew = new classyBrew();
           $scope.gtMeasureOfValueBrew = new classyBrew();
           $scope.ltMeasureOfValueBrew = new classyBrew();
+          $scope.manualBrew = new classyBrew();
 
           $scope.currentIndicatorMetadataAndGeoJSON = indicatorMetadataAndGeoJSON;
 
