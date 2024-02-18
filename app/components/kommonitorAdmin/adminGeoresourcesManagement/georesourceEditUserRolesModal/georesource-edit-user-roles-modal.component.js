@@ -13,6 +13,8 @@ angular.module('georesourceEditUserRolesModal').component('georesourceEditUserRo
 		$scope.successMessagePart = undefined;
 		$scope.errorMessagePart = undefined;
 
+		$scope.georesourcesTargetUserRoleFilter = undefined;
+
 		$scope.targetResourceCreatorRole = undefined;
 
 		$scope.$on("onEditGeoresourcesUserRoles", function (event, georesourceDataset) {
@@ -48,6 +50,8 @@ angular.module('georesourceEditUserRolesModal').component('georesourceEditUserRo
 
 			$scope.targetResourceCreatorRole = undefined;
 			document.getElementById('targetUserRoleSelect').selectedIndex = 0;
+
+			$scope.georesourcesTargetUserRoleFilter = undefined;
 
 			$scope.successMessagePart = undefined;
 			$scope.errorMessagePart = undefined;

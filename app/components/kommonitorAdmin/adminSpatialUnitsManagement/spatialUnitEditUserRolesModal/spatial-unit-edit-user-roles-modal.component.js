@@ -13,6 +13,8 @@ angular.module('spatialUnitEditUserRolesModal').component('spatialUnitEditUserRo
 		$scope.successMessagePart = undefined;
 		$scope.errorMessagePart = undefined;
 
+		$scope.spatialUnitTargetUserRoleFilter = undefined;
+
 		$scope.targetResourceCreatorRole = undefined;
 
 		$scope.$on("onEditSpatialUnitUserRoles", function (event, spatialUnitDataset) {
@@ -47,6 +49,8 @@ angular.module('spatialUnitEditUserRolesModal').component('spatialUnitEditUserRo
 
 			$scope.targetResourceCreatorRole = undefined;
 			document.getElementById('targetUserRoleSelect').selectedIndex = 0;
+
+			$scope.spatialUnitTargetUserRoleFilter = undefined
 
 			$scope.successMessagePart = undefined;
 			$scope.errorMessagePart = undefined;

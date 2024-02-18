@@ -102,7 +102,6 @@ angular.module('spatialUnitEditMetadataModal').component('spatialUnitEditMetadat
 		$scope.errorMessagePart = undefined;
 
 		$scope.isDatasetOwner = false;
-		$scope.targetResourceCreatorRole = undefined;
 
 		$scope.$on("onEditSpatialUnitMetadata", function (event, spatialUnitDataset) {
 
@@ -231,10 +230,6 @@ angular.module('spatialUnitEditMetadataModal').component('spatialUnitEditMetadat
 		};
 
 		$scope.editSpatialUnitMetadata = function(){
-
-			if($scope.targetResourceCreatorRole !== undefined)
-				if(!confirm('Sind Sie sicher, dass Sie den Eigentümerschaft an dieser Resource endgültig und unwiderruflich übertragen und damit abgeben wollen?'))
-					return;
 
 			let spatialUnitName_old = $scope.currentSpatialUnitDataset.spatialUnitLevel;
 			let spatialUnitName_new = $scope.spatialUnitLevel;
