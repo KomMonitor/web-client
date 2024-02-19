@@ -1,0 +1,23 @@
+<div id="classificationMethodSelect">
+  <div style="font-weight: bold;">Methode</div>
+  <div 
+    id="method-select-selected" 
+    class="form-control"
+    ng-click="showMethodSelection = !showMethodSelection">
+    {{selectedMethod.name}}
+  </div>
+  <div ng-show="showMethodSelection" id="method-select-selection" class="select-border"> 
+    <div 
+      id="method-select-method"
+      ng-click="$ctrl.methodSelected(method)" 
+      ng-repeat="method in methods">
+      <div class="method-select-method-symbol">
+        <div style="background-image: url('{{ method.imgPath }}')"></div>
+      </div>
+      <div class="method-select-method-text">
+        <div class="method-select-method-name">{{method.name}}</div>
+        <div class="method-select-method-description">{{method.description}}</div>
+      </div>
+    </div>
+  </div>
+</div>
