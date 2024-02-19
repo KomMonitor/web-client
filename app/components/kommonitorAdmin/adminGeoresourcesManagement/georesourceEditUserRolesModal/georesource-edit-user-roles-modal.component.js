@@ -13,6 +13,8 @@ angular.module('georesourceEditUserRolesModal').component('georesourceEditUserRo
 		$scope.successMessagePart = undefined;
 		$scope.errorMessagePart = undefined;
 
+		$scope.georesourcesTargetUserRoleFilter = undefined;
+
 		$scope.targetResourceCreatorRole = undefined;
 
 		$scope.$on("onEditGeoresourcesUserRoles", function (event, georesourceDataset) {
@@ -29,7 +31,7 @@ angular.module('georesourceEditUserRolesModal').component('georesourceEditUserRo
 
 		$scope.refreshRoleManagementTable = function() {
 			let allowedRoles = $scope.currentGeoresourceDataset ? $scope.currentGeoresourceDataset.allowedRoles : [];
-			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('georesourceEditUserRolesForm', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, allowedRoles, true);
+			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('georesourceEditRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, allowedRoles, true);
 		}
 
 		$scope.$on("availableRolesUpdate", function (event) {
@@ -59,6 +61,7 @@ angular.module('georesourceEditUserRolesModal').component('georesourceEditUserRo
 			document.getElementById('targetUserRoleSelect').selectedIndex = 0;
 
 			$scope.refreshRoleManagementTable();
+			$scope.georesourcesTargetUserRoleFilter = undefined;
 
 			$scope.successMessagePart = undefined;
 			$scope.errorMessagePart = undefined;

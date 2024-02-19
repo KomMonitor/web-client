@@ -14,6 +14,8 @@ angular.module('indicatorEditIndicatorSpatialUnitRolesModal').component('indicat
 		$scope.successMessagePart = undefined;
 		$scope.errorMessagePart = undefined;
 
+		$scope.indicatorTargetUserRoleFilter = undefined;
+
 		$scope.targetResourceCreatorRole = undefined;
 
 		$scope.$on("onEditIndicatorSpatialUnitRoles", function (event, indicatorDataset) {
@@ -43,10 +45,6 @@ angular.module('indicatorEditIndicatorSpatialUnitRolesModal').component('indicat
 		}
 
 		$scope.$on("availableRolesUpdate", function (event) {
-			$scope.refreshRoleManagementTable();
-		});
-
-		$scope.$on("availableRolesUpdate", function (event) {
 
 			$scope.refreshRoleManagementTable_indicatorMetadata();
 			$scope.refreshRoleManagementTable_indicatorSpatialUnitTimeseries();
@@ -74,7 +72,7 @@ angular.module('indicatorEditIndicatorSpatialUnitRolesModal').component('indicat
 			$scope.targetResourceCreatorRole = undefined;
 			document.getElementById('targetUserRoleSelect').selectedIndex = 0;
 
-			
+			$scope.indicatorTargetUserRoleFilter = undefined;
 
 			$scope.targetApplicableSpatialUnit = $scope.currentIndicatorDataset.applicableSpatialUnits[0];
 

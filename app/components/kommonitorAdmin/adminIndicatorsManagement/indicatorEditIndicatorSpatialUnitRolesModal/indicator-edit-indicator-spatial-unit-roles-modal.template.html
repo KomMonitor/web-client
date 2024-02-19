@@ -108,9 +108,13 @@
 										<div class="col-md-3"></div>
 										<div class="col-md-6 col-sm-6 col-xs-12">
 											<label for="targetUserRoleSelect"><b>Eigent&uuml;merschaft &uuml;bertragen an</b></label>
+											<div class="input-group">
+												<span class="input-group-addon"><i class="fas fa-filter"></i></span>
+												<input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model="indicatorTargetUserRoleFilter" ng-model-options="{debounce: 500, blur: 0}">
+											</div>
 											<select id="targetUserRoleSelect" ng-model="targetResourceCreatorRole" class="form-control" ng-change="onChangeSelectedTargetCreatorRole(targetResourceCreatorRole)" required>
 												<option selected value><b>Eigent&uuml;merschaft nicht &uuml;bertragen</b></option>
-												<option ng-repeat="role in availableRoles" value="{{role.roleId}}">{{role.organizationalUnit.name}}</option>
+												<option ng-repeat="role in availableRoles | filter:indicatorTargetUserRoleFilter" value="{{role.roleId}}">{{role.organizationalUnit.name}}</option>
 											</select>
 										</div>
 										<div class="col-md-3"></div>
