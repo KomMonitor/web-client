@@ -51,6 +51,15 @@ angular
 							}
 						}
 
+						$scope.addNewBreaks = function (site) {
+							if(!kommonitorDataExchangeService.isBalanceChecked && !kommonitorDataExchangeService.selectedIndicator.indicatorType.includes('DYNAMIC')) {
+								$scope.addNewBreak();
+							}
+							else {
+								$scope.addNewBreakDynamic(site);
+							}
+						}
+
 						$scope.addNewBreak = function () {
 							let histogram = document.querySelectorAll(".editableHistogram")[0];
 							if(kommonitorVisualStyleHelperService.manualBrew.breaks.length <  10) {
@@ -85,7 +94,7 @@ angular
 						}
 
 						$scope.deleteBreak = function (i, site) {
-							if(!kommonitorDataExchangeService.isBalanceChecked) {
+							if(!kommonitorDataExchangeService.isBalanceChecked && !kommonitorDataExchangeService.selectedIndicator.indicatorType.includes('DYNAMIC')) {
 								kommonitorVisualStyleHelperService.manualBrew.breaks.splice(i, 1);
 								$rootScope.$broadcast("changeBreaks", kommonitorVisualStyleHelperService.manualBrew.breaks);
 							}
@@ -112,7 +121,13 @@ angular
 								kommonitorVisualStyleHelperService.manualBrew.breaks.sort(function(a, b) {
 									return a - b;
 								});
-								$rootScope.$broadcast("changeBreaks", kommonitorVisualStyleHelperService.manualBrew.breaks);
+								
+								if(!kommonitorDataExchangeService.isBalanceChecked && !kommonitorDataExchangeService.selectedIndicator.indicatorType.includes('DYNAMIC')) {
+									$rootScope.$broadcast("changeBreaks", kommonitorVisualStyleHelperService.manualBrew.breaks);
+								}
+								else {
+									$rootScope.$broadcast("changeDynamicBreaks", [kommonitorVisualStyleHelperService.dynamicBrew[0].breaks, kommonitorVisualStyleHelperService.dynamicBrew[1].breaks]);
+								}
 							}
 						}
 
@@ -200,7 +215,7 @@ angular
 						};
 						$scope.getMaxValue = function (site)  {
 							let breaks = null;
-							if(!kommonitorDataExchangeService.isBalanceChecked) {
+							if(!kommonitorDataExchangeService.isBalanceChecked && !kommonitorDataExchangeService.selectedIndicator.indicatorType.includes('DYNAMIC')) {
 								breaks = kommonitorVisualStyleHelperService.manualBrew.breaks;
 							}
 							else {
@@ -209,8 +224,14 @@ angular
 							return breaks[breaks.length - 1]; 
 						}
 						$scope.getMinValue = function (site) {
-							if(!kommonitorDataExchangeService.isBalanceChecked) {
+							if(!kommonitorDataExchangeService.isBalanceChecked && !kommonitorDataExchangeService.selectedIndicator.indicatorType.includes('DYNAMIC')) {
 								return kommonitorVisualStyleHelperService.manualBrew.breaks[0];
+							}
+							if(site == 1 && (!kommonitorVisualStyleHelperService.dynamicBrew[1] || kommonitorVisualStyleHelperService.dynamicBrew[1].breaks.length < 1)) {
+								return kommonitorVisualStyleHelperService.dynamicBrew[0].breaks[0];
+							}
+							if(site == 0 && (!kommonitorVisualStyleHelperService.dynamicBrew[0] || kommonitorVisualStyleHelperService.dynamicBrew[0].breaks.length < 1)) {
+								return kommonitorVisualStyleHelperService.dynamicBrew[1].breaks[0];
 							}
 							return kommonitorVisualStyleHelperService.dynamicBrew[site].breaks[0];
 						}
@@ -222,6 +243,14 @@ angular
 						}
 						$scope.onClassificationMouseUp = function () {
 							$scope.isDraggingBreak = false;
+						}
+						$scope.onBreaksMouseMove = function (e, site) {
+							if(!kommonitorDataExchangeService.isBalanceChecked && !kommonitorDataExchangeService.selectedIndicator.indicatorType.includes('DYNAMIC')) {
+								$scope.onBreakMouseMove(e);
+							}
+							else {
+								$scope.onDynamicBreakMouseMove(e, site);
+							}
 						}
 						$scope.onBreakMouseMove = function (e) {
 							if ($scope.nrOfDraggingBreak != 0 && $scope.nrOfDraggingBreak != kommonitorVisualStyleHelperService.manualBrew.breaks.length-1) {

@@ -27,17 +27,17 @@
 
     <!-- manual breaks -->
     <div ng-if="$ctrl.kommonitorVisualStyleHelperServiceInstance.classifyMethod=='manual'">
-      <div ng-if="!$ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked && !$ctrl.kommonitorDataExchangeServiceInstance.isBalanceChecked" 
+      <div ng-if="($ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.indicatorType.includes('STATUS') && ! containsNegativeValues) && ! $ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked && ! $ctrl.kommonitorDataExchangeServiceInstance.isBalanceChecked" 
             class="histogramTabWrapper editableHistogram"
             ng-mousemove="toggleAddBtn($event, 0)">
         <div class="breaksArea"
-              ng-mousemove="onBreakMouseMove($event)">
+              ng-mousemove="onBreaksMouseMove($event, 0)">
           <!-- add btn -->
           <div class="addBtnWrapper breakWrapper"
                 style="top: {{addBtnHeight[0]}}px"
                 ng-if="showAddBtn[0]"
                 ng-mousover="toggleAddBtn($event, 0)">
-            <div class="addBtn" ng-click="addNewBreak()">+</div>
+            <div class="addBtn" ng-click="addNewBreaks(0)">+</div>
             <div class="line"></div>
           </div>
           <!-- measure of Value -->
@@ -91,19 +91,19 @@
             class="histogramTabWrapper editableHistogram"
             ng-mousemove="toggleAddBtn($event, 0)">
         <div class="breaksArea"
-              ng-mousemove="onBreakMouseMove($event)">
+              ng-mousemove="onBreaksMouseMove($event, 0)">
           <!-- add btn -->
           <div class="addBtnWrapper breakWrapper"
                 style="top: {{addBtnHeight[0]}}px"
                 ng-if="showAddBtn[0]"
                 ng-mousover="toggleAddBtn($event, 0)">
-            <div class="addBtn" ng-click="addNewBreak()">+</div>
+            <div class="addBtn" ng-click="addNewBreaks(0)">+</div>
             <div class="line"></div>
           </div>
           <!-- measure of Value -->
           <div class="breakWrapper measureOfValue"
                 style="top: {{getPercentage($ctrl.kommonitorDataExchangeServiceInstance.measureOfValue, 0)}}%"
-                ng-mousedown="onBreakMouseMove($event)">
+                ng-mousedown="onBreaksMouseMove($event, 0)">
             <div class ="break fixed">
               <!--<div class="colorBox"></div>-->
               <span>{{$ctrl.kommonitorDataExchangeServiceInstance.measureOfValue}}</span>
@@ -155,17 +155,21 @@
     </div>
 
     <!-- balance checked -- lower than values -->
-    <div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.isBalanceChecked && $ctrl.kommonitorVisualStyleHelperServiceInstance.dynamicBrew[1].breaks.length > 0"
+    <div ng-if="(($ctrl.kommonitorDataExchangeServiceInstance.isBalanceChecked 
+        || $ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.indicatorType.includes('DYNAMIC') 
+        || containsNegativeValues) 
+        && ! $ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked)
+        && $ctrl.kommonitorVisualStyleHelperServiceInstance.dynamicBrew[1].breaks.length > 0"
           class="histogramTabWrapper editableHistogram editableHistogramDynamic"
           ng-mousemove="toggleAddBtn($event, 1)">
       <div class="breaksArea"
-            ng-mousemove="onDynamicBreakMouseMove($event, 1)">
+            ng-mousemove="onBreaksMouseMove($event, 1)">
 
         <div class="addBtnWrapper breakWrapper"
               style="top: {{addBtnHeight[1]}}px"
               ng-if="showAddBtn[1]"
               ng-mousover="toggleAddBtn($event, 1)">
-          <div class="addBtn" ng-click="addNewBreakDynamic(1)">+</div>
+          <div class="addBtn" ng-click="addNewBreaks(1)">+</div>
           <div class="line"></div>
         </div>
 
@@ -204,17 +208,21 @@
 
 
     <!-- balance checked -- higher than values -->
-    <div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.isBalanceChecked && $ctrl.kommonitorVisualStyleHelperServiceInstance.dynamicBrew[0].breaks.length > 0" 
+    <div ng-if="(($ctrl.kommonitorDataExchangeServiceInstance.isBalanceChecked 
+        || $ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.indicatorType.includes('DYNAMIC') 
+        || containsNegativeValues) 
+        && ! $ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked)
+        && $ctrl.kommonitorVisualStyleHelperServiceInstance.dynamicBrew[0].breaks.length > 0" 
           class="histogramTabWrapper editableHistogram editableHistogramDynamic"
           ng-mousemove="toggleAddBtn($event, 0)">
       <div class="breaksArea"
-            ng-mousemove="onDynamicBreakMouseMove($event, 0)">
+            ng-mousemove="onBreaksMouseMove($event, 0)">
 
         <div class="addBtnWrapper breakWrapper"
               style="top: {{addBtnHeight[0]}}px"
               ng-if="showAddBtn[0]"
               ng-mousover="toggleAddBtn($event, 0)">
-          <div class="addBtn" ng-click="addNewBreakDynamic(0)">+</div>
+          <div class="addBtn" ng-click="addNewBreaks(0)">+</div>
           <div class="line"></div>
         </div>
 
