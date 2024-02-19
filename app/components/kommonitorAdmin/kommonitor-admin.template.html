@@ -75,10 +75,10 @@
         <li class="header">Administration</li>
         <!-- Optionally, you can add icons to the links -->
         <li id="adminDashboardNavItem" class="active" ng-click="onClickOtherAdminPanel('adminDashboardNavItem')"><a data-toggle="tab" data-target="#dashboardWrapper" href=""><i class="fas fa-tachometer-alt"></i> <span>&Uuml;bersicht</span></a></li>
-        <li id="adminUsersNavItem" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.checkAdminPermission()" ng-click="onClickOtherAdminPanel('adminUsersNavItem')"><a data-toggle="tab" data-target="#userWrapper" href=""><i class="fas fa-users"></i> <span>Zugriffskontrolle</span></a></li>
+        <li id="adminUsersNavItem" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.checkGroupsEditPermission()" ng-click="onClickOtherAdminPanel('adminUsersNavItem')"><a data-toggle="tab" data-target="#userWrapper" href=""><i class="fas fa-users"></i> <span>Gruppenverwaltung</span></a></li>
         <li id="adminRoleExplanationNavItem" ng-click="onClickOtherAdminPanel('adminRoleExplanationNavItem')"><a data-toggle="tab" data-target="#roleExplanationWrapper" href=""><i class="fa-solid fa-user-lock"></i> <span>Zugriffskontrolle-Konzept</span></a></li>        
-        <li id="adminTopicsNavItem" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.checkAdminPermission()" ng-click="onClickOtherAdminPanel('adminTopicsNavItem')"><a data-toggle="tab" data-target="#topicsWrapper" href=""><i class="fas fa-book"></i> <span>Themenverwaltung</span></a></li>
-        <li id="adminGeodataWrapperNavItem" class="treeview">
+        <li id="adminTopicsNavItem" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.checkThemesEditPermission()" ng-click="onClickOtherAdminPanel('adminTopicsNavItem')"><a data-toggle="tab" data-target="#topicsWrapper" href=""><i class="fas fa-book"></i> <span>Themenverwaltung</span></a></li>
+        <li id="adminGeodataWrapperNavItem" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.checkGeodataEditPermission()" class="treeview">
           <a data-toggle="tab" href="" ng-click="onClickGeodataWrapperItem()"><i class="fas fa-globe-americas"></i> <span>Geodatenverwaltung</span>
             <span class="pull-right-container">
                 <i class="fa fa-angle-left pull-right"></i>
