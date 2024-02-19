@@ -215,6 +215,8 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 		$scope.colorbreweSchemeName_dynamicDecrease = __env.defaultColorBrewerPaletteForBalanceDecreasingValues;
 		$scope.colorbrewerPalettes = [];
 
+		$scope.regionalReferenceValuesManagementTableOptions = undefined;
+
 
 		$scope.instantiateColorBrewerPalettes = function(){
 			for (const key in colorbrewer) {
@@ -279,6 +281,10 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 			$scope.tabClasses[tabIndex] = cssClass;
 		}
 
+		$scope.refreshReferenceValuesManagementTable = function() {
+			$scope.regionalReferenceValuesManagementTableOptions = kommonitorDataGridHelperService.buildReferenceValuesManagementGrid('indicatorRegionalReferenceValuesManagementTable', $scope.currentIndicatorDataset.applicableDates, $scope.currentIndicatorDataset.regionalReferenceValues);
+		}
+
 		$scope.$on("onEditIndicatorMetadata", function (event, indicatorDataset) {
 
 			$scope.currentIndicatorDataset = indicatorDataset;
@@ -325,6 +331,8 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 
 			let allowedRoles = $scope.currentIndicatorDataset ? $scope.currentIndicatorDataset.allowedRoles : [];
 			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorEditRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, allowedRoles);
+
+			$scope.refreshReferenceValuesManagementTable();
 
 			$scope.indicatorAbbreviation = $scope.currentIndicatorDataset.abbreviation;
 
@@ -645,6 +653,7 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 				},
 				"refrencesToOtherIndicators": [], // filled directly after
 				  "allowedRoles": [],
+				  "regionalReferenceValues": [],
 				  "datasetName": $scope.datasetName,
 				  "abbreviation": $scope.indicatorAbbreviation || null,
 				  "characteristicValue": $scope.indicatorCharacteristicValue || null,
@@ -671,6 +680,12 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 			let roleIds = kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid($scope.roleManagementTableOptions);
 			for (const roleId of roleIds) {
 				patchBody.allowedRoles.push(roleId);
+			}
+
+			// TODO implement regionalReferenceValues
+			let regionalReferenceValuesList = kommonitorDataGridHelperService.getReferenceValues_regionalReferenceValuesManagementGrid($scope.regionalReferenceValuesManagementTableOptions);
+			for (const referenceValueEntry of regionalReferenceValuesList) {
+				postBody.regionalReferenceValues.push(referenceValueEntry);
 			}
 
 			// TAGS
@@ -851,6 +866,8 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 
 				$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorEditRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, $scope.metadataImportSettings.allowedRoles);
 
+				$scope.regionalReferenceValuesManagementTableOptions = kommonitorDataGridHelperService.buildReferenceValuesManagementGrid('indicatorRegionalReferenceValuesManagementTable', $scope.currentIndicatorDataset.applicableDates, $scope.metadataImportSettings.regionalReferenceValues);
+
 				// indicator specific properties
 
 				$scope.indicatorAbbreviation = $scope.metadataImportSettings.abbreviation;
@@ -1030,6 +1047,12 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 			let roleIds = kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid($scope.roleManagementTableOptions);
 			for (const roleId of roleIds) {
 				metadataExport.allowedRoles.push(roleId);
+			}
+
+			metadataExport.regionalReferenceValues = [];
+			let regionalReferenceValuesList = kommonitorDataGridHelperService.getReferenceValues_regionalReferenceValuesManagementGrid($scope.regionalReferenceValuesManagementTableOptions);
+			for (const regionalReferenceValuesEntry of regionalReferenceValuesList) {
+				metadataExport.regionalReferenceValues.push(regionalReferenceValuesEntry);
 			}
 
 			if($scope.metadata.updateInterval){
