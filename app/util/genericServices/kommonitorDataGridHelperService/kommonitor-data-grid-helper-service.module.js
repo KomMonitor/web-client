@@ -86,7 +86,7 @@ angular
             html += 'disabled" disabled';
           }
 
-          html += ' type="button" data-toggle="modal" data-target="#modal-edit-indicator-spatial-unit-roles" title="Rollenbasierten Zugriffsschutz editieren"><i class="fas fa-user-lock"></i></button>';
+          html += ' type="button" data-toggle="modal" data-target="#modal-edit-indicator-spatial-unit-roles" title="Zugriffsschutz und Eigentümerschaft editieren"><i class="fas fa-user-lock"></i></button>';
         }
         html += '</div>';
 
@@ -101,7 +101,7 @@ angular
         let html = '<div class="btn-group btn-group-sm">';
         html += '<button id="'+ editMetadataButtonId +'" class="btn btn-warning btn-sm georesourceEditMetadataBtn" type="button" data-toggle="modal" data-target="#modal-edit-georesource-metadata" title="Metadaten editieren" '+ (params.data.userPermissions.includes("editor") ? '' : 'disabled') + '><i class="fas fa-pencil-alt" ></i></button>';
         html += '<button id="'+ editFeaturesButtonId + '" class="btn btn-warning btn-sm georesourceEditFeaturesBtn" type="button" data-toggle="modal" data-target="#modal-edit-georesource-features" title="Features fortf&uuml;hren" '+ (params.data.userPermissions.includes("editor") ? '' : 'disabled') + '><i class="fas fa-draw-polygon"></i></button>';
-        html += '<button id="'+ editUserRolesButtonId + '" class="btn btn-warning btn-sm georesourceEditUserRolesBtn" type="button" data-toggle="modal" data-target="#modal-edit-georesources-user-roles" title="Rollenbasierten Zugriffsschutz editieren"  '+ (params.data.userPermissions.includes("creator") ? '' : 'disabled') + '><i class="fas fa-user-lock"></i></button>'
+        html += '<button id="'+ editUserRolesButtonId + '" class="btn btn-warning btn-sm georesourceEditUserRolesBtn" type="button" data-toggle="modal" data-target="#modal-edit-georesources-user-roles" title="Zugriffsschutz und Eigentümerschaft editieren"  '+ (params.data.userPermissions.includes("creator") ? '' : 'disabled') + '><i class="fas fa-user-lock"></i></button>'
         html += '<button id="btn_georesource_deleteGeoresource_' + params.data.georesourceId + '" class="btn btn-danger btn-sm georesourceDeleteBtn" type="button" data-toggle="modal" data-target="#modal-delete-georesources" title="Georessource entfernen"  '+ (params.data.userPermissions.includes("creator") ? '' : 'disabled') + '><i class="fas fa-trash"></i></button>'
         html += '</div>';
 
@@ -113,7 +113,7 @@ angular
         let html = '<div class="btn-group btn-group-sm">';
         html += '<button id="btn_spatialUnit_editMetadata_' + params.data.spatialUnitId + '" class="btn btn-warning btn-sm spatialUnitEditMetadataBtn" type="button" data-toggle="modal" data-target="#modal-edit-spatial-unit-metadata" title="Metadaten editieren"  '+ (params.data.userPermissions.includes("editor") ? '' : 'disabled') + '><i class="fas fa-pencil-alt"></i></button>';
         html += '<button id="btn_spatialUnit_editFeatures_' + params.data.spatialUnitId + '" class="btn btn-warning btn-sm spatialUnitEditFeaturesBtn" type="button" data-toggle="modal" data-target="#modal-edit-spatial-unit-features" title="Features fortf&uuml;hren"  '+ (params.data.userPermissions.includes("editor") ? '' : 'disabled') + '><i class="fas fa-draw-polygon"></i></button>';
-        html += '<button id="btn_spatialUnit_editUserRoles_' + params.data.spatialUnitId + '" class="btn btn-warning btn-sm spatialUnitEditUserRolesBtn" type="button" data-toggle="modal" data-target="#modal-edit-spatial-unit-user-roles" title="Rollenbasierten Zugriffsschutz editieren"  '+ (params.data.userPermissions.includes("creator") ? '' : 'disabled') + '><i class="fas fa-user-lock"></i></button>'
+        html += '<button id="btn_spatialUnit_editUserRoles_' + params.data.spatialUnitId + '" class="btn btn-warning btn-sm spatialUnitEditUserRolesBtn" type="button" data-toggle="modal" data-target="#modal-edit-spatial-unit-user-roles" title="Zugriffsschutz und Eigentümerschaft editieren"  '+ (params.data.userPermissions.includes("creator") ? '' : 'disabled') + '><i class="fas fa-user-lock"></i></button>'
         html += '<button id="btn_spatialUnit_deleteSpatialUnit_' + params.data.spatialUnitId + '" class="btn btn-danger btn-sm spatialUnitDeleteBtn" type="button" data-toggle="modal" data-target="#modal-delete-spatial-units" title="Raumeinheit entfernen"  '+ (params.data.userPermissions.includes("creator") ? '' : 'disabled') + '><i class="fas fa-trash"></i></button>'
         html += '</div>';
 

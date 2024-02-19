@@ -12,7 +12,7 @@
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span></button>
-				<h4 class="modal-title">Rollenbasierter Zugriffsschutz für Raumeineit <i><b>{{currentSpatialUnitDataset.spatialUnitLevel}}</b></i> editieren</h4>
+				<h4 class="modal-title">Zugriffsschutz und Eigent&uuml;merschaft f&uuml;r Raumeineit <i><b>{{currentSpatialUnitDataset.spatialUnitLevel}}</b></i> editieren</h4>
 			</div>
 			<div class="modal-body">
 				
@@ -24,34 +24,36 @@
 							<!-- progressbar -->
 							<div>
 								<ul id="progressbar">
-									<li style="width: 50%;" class="active">Rollenbasierter Zugriffsschutz</li>
-									<li style="width: 50%;">Eigentümerschaft</li>						
+									<li style="width: 50%;" class="active">Zugriffsschutz</li>
+									<li style="width: 50%;">Eigent&uuml;merschaft</li>						
 								</ul>
 							</div>
 							<!-- fieldsets -->
-	
-							<fieldset>
-								<h2 class="fs-title">Rollenbasierter Feature-Zugriffsschutz f&uuml;r verknüpfte Raumeinheiten</h2>
-								<h3 class="fs-subtitle">Vergabe der Zugriffsrechte auf die Feature-Datens&auml;tze der einzelnen Raumeinheiten</h3>
-		
-								<p>Zugriffsrechte (lesen, editieren, l&ouml;schen) m&uuml;ssen explizit vergeben werden. Administratoren (Rolle <i>kommonitor-creator</i>) haben immer vollen Zugriff.</p>
-								<p><strong>lesender Zugriff auf die Indikator-Zeitreihe wird nur den Organisationseinheiten gew&auml;hrt, die auch lesenden Zugriff auf Metadaten der assoziierten Raumeinheit besitzen.</strong></p>
-	
-								
-								<div class="row vertical-align">
-									<div class="col-md-9 col-sm-6 col-xs-12">
-										<!-- Role Model Table -->
-									</div>
-								</div>
 
-																						
+							<fieldset>
+								<h2 class="fs-title">Zugriffsschutz</h2>
+									<h3 class="fs-subtitle">Vergabe der Zugriffsrechte auf Datensatz-Metadaten und -Features pro Organisationseinheit</h3>
+		
+									<p>Zugriffsrechte (lesen, editieren) m&uuml;ssen explizit vergeben werden</p>
+							
+										<div class="row">
+											<div class="col-md-3"></div>
+											<div class="col-md-6 col-sm-6 col-xs-12">
+													<!-- <div id="georesourceAddRoleManagementTable" style="height: 40vh; overflow-y: auto;" class="ag-theme-alpine"></div>     -->
+													<div id="spatialUnitEditRoleManagementTable" style="height: 45vh" class="ag-theme-alpine"></div>  
+												
+											</div>
+											<div class="col-md-3"></div>
+										</div>	
+								
+										<input type="button" name="next" class="next next_editSpatialUnitRoles action-button" value="N&auml;chster Schritt"/>
 							</fieldset>
 
 							<fieldset>
-								<h2 class="fs-title">Eigentümerschaft eines Datensatzes</h2>
-									<h3 class="fs-subtitle">&Uuml;betragen der Eigentümerschaft von Datens&auml;tzen mit allen dazugeh&ouml;rigen Rechten</h3>
+								<h2 class="fs-title">Eigent&uuml;merschaft eines Datensatzes</h2>
+									<h3 class="fs-subtitle">&Uuml;betragen der Eigent&uuml;merschaft von Datens&auml;tzen mit allen dazugeh&ouml;rigen Rechten</h3>
 									<div class="alert alert-danger">
-										Bitte beachten Sie, dass Sie beim &Uuml;bertragen einer Eigentümerschaft einer Resource unter Umst&auml;nden jegliche Rechte eben dieser verlieren.<br>Die Rechte werden unwiderruflich und sofort an den neuen Eigent&uuml;mer &uuml;bertragen.
+										Bitte beachten Sie, dass Sie beim &Uuml;bertragen einer Eigent&uuml;merschaft einer Resource unter Umst&auml;nden jegliche Rechte eben dieser verlieren.<br>Die Rechte werden unwiderruflich und sofort an den neuen Eigent&uuml;mer &uuml;bertragen.
 									</div>
 									<div class="row">
 										<div class="col-md-3"></div>
@@ -64,6 +66,8 @@
 										</div>
 										<div class="col-md-3"></div>
 									</div>
+
+									<input type="button" name="previous" class="previous next_editSpatialUnitRoles action-button-previous" value="Voriger Schritt"/>
 							</fieldset>
 
 						</form>
@@ -75,7 +79,7 @@
 				<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Schlie&szlig;en</button>
 
 				<button type="button" class="btn btn-success"
-					ng-click="editSpatialUnitEditUserRolesForm()">Rollenzugriff aktualisieren</button>
+					ng-click="editSpatialUnitEditUserRolesForm()">Aktualisieren</button>
 				<button type="button" class="btn btn-danger"
 					ng-click="resetSpatialUnitEditUserRolesForm()">Zur&uuml;cksetzen</button>
 			</div>
@@ -83,15 +87,15 @@
 			<div id="spatialUnitEditUserRolesSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
 				class="alert alert-success alert-dismissable">
 				<button type="button" class="close" ng-click="hideSuccessAlert()" aria-hidden="true">&times;</button>
-				<h4><i class="icon fa fa-check"></i>Rollenzugriff aktualisiert</h4>
-				Der Rollenzugriff auf die Zeitreihendaten des Indikators '{{currentIndicatorDataset.indicatorName}}' für die verknüpfte Raumebene '{{targetApplicableSpatialUnit.spatialUnitName}}' wurde in KomMonitor aktualisiert.
+				<h4><i class="icon fa fa-check"></i>Zugriffsschutz und Eigent&uuml;merschaft aktualisiert</h4>
+				Erfolgreiche Aktualisierung des Zugriffsschutzes und der Eigent&uuml;merschaft f&uuml;r die Raumeinheit '{{currentSpatialUnitDataset.spatialUnitLevel}}'
 			</div>
 
 			<div id="spatialUnitEditUserRolesErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
 				class="alert alert-danger alert-dismissable">
 				<button type="button" class="close" ng-click="hideErrorAlert()" aria-hidden="true">&times;</button>
 				<h4><i class="icon fa fa-ban"></i>Aktualisierung gescheitert</h4>
-				Bei der Aktualisierung des Rollenzugriffs ist ein Fehler aufgetreten. Fehlermeldung:
+				Bei der Aktualisierung des Zugriffsschutzes und der Eigent&uuml;merschaft ist ein Fehler aufgetreten. Fehlermeldung:
 				<br />
 				<pre style="overflow:auto; max-height:500px;" ng-bind-html="errorMessagePart"></pre>
 			</div>

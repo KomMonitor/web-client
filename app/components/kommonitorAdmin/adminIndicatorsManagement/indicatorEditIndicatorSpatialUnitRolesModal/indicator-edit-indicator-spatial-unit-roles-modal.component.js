@@ -8,7 +8,8 @@ angular.module('indicatorEditIndicatorSpatialUnitRolesModal').component('indicat
 
 		$scope.currentIndicatorDataset;
 
-		$scope.roleManagementTableOptions = undefined;
+		$scope.roleManagementTableOptions_indicatorMetadata = undefined;
+		$scope.roleManagementTableOptions_indicatorSpatialUnitTimeseries = undefined;
 
 		$scope.successMessagePart = undefined;
 		$scope.errorMessagePart = undefined;
@@ -27,9 +28,28 @@ angular.module('indicatorEditIndicatorSpatialUnitRolesModal').component('indicat
 
 		});
 
+		$scope.refreshRoleManagementTable_indicatorMetadata = function() {
+			let allowedRoles = $scope.currentGeoresourceDataset ? $scope.currentGeoresourceDataset.allowedRoles : [];
+			$scope.roleManagementTableOptions_indicatorMetadata = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorEditRoleManagementTable', $scope.roleManagementTableOptions_indicatorMetadata, kommonitorDataExchangeService.accessControl, allowedRoles, true);
+		}
+
+		$scope.refreshRoleManagementTable_indicatorSpatialUnitTimeseries = function(){
+			if ($scope.targetApplicableSpatialUnit && $scope.targetApplicableSpatialUnit.allowedRoles) {
+				$scope.roleManagementTableOptions_indicatorSpatialUnitTimeseries = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorEditIndicatorSpatialUnitsRoleManagementTable', $scope.roleManagementTableOptions_indicatorSpatialUnitTimeseries, kommonitorDataExchangeService.accessControl, $scope.targetApplicableSpatialUnit.allowedRoles, true);
+			}
+			else {
+				$scope.roleManagementTableOptions_indicatorSpatialUnitTimeseries = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorEditIndicatorSpatialUnitsRoleManagementTable', $scope.roleManagementTableOptions_indicatorSpatialUnitTimeseries, kommonitorDataExchangeService.accessControl, kommonitorDataExchangeService.getCurrentKomMonitorLoginRoleIds(), true);
+			}
+		}
+
 		$scope.$on("availableRolesUpdate", function (event) {
-			let allowedRoles = $scope.targetApplicableSpatialUnit ? $scope.targetApplicableSpatialUnit.allowedRoles : [];
-			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorEditIndicatorSpatialUnitsRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, allowedRoles, true);
+			$scope.refreshRoleManagementTable();
+		});
+
+		$scope.$on("availableRolesUpdate", function (event) {
+
+			$scope.refreshRoleManagementTable_indicatorMetadata();
+			$scope.refreshRoleManagementTable_indicatorSpatialUnitTimeseries();
 		});
 
 		$scope.onChangeSelectedTargetCreatorRole = function(targetResourceCreatorRole) {
@@ -54,14 +74,12 @@ angular.module('indicatorEditIndicatorSpatialUnitRolesModal').component('indicat
 			$scope.targetResourceCreatorRole = undefined;
 			document.getElementById('targetUserRoleSelect').selectedIndex = 0;
 
+			
+
 			$scope.targetApplicableSpatialUnit = $scope.currentIndicatorDataset.applicableSpatialUnits[0];
 
-			if ($scope.targetApplicableSpatialUnit && $scope.targetApplicableSpatialUnit.allowedRoles) {
-				$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorEditIndicatorSpatialUnitsRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, $scope.targetApplicableSpatialUnit.allowedRoles, true);
-			}
-			else {
-				$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorEditIndicatorSpatialUnitsRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, kommonitorDataExchangeService.getCurrentKomMonitorLoginRoleIds(), true);
-			}
+			$scope.refreshRoleManagementTable_indicatorMetadata();
+			$scope.refreshRoleManagementTable_indicatorSpatialUnitTimeseries();
 
 			$scope.successMessagePart = undefined;
 			$scope.errorMessagePart = undefined;
@@ -79,7 +97,7 @@ angular.module('indicatorEditIndicatorSpatialUnitRolesModal').component('indicat
 				"allowedRoles": []
 			}
 
-			let roleIds = kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid($scope.roleManagementTableOptions);
+			let roleIds = kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid($scope.roleManagementTableOptions_indicatorSpatialUnitTimeseries);
 			for (const roleId of roleIds) {
 				patchBody.allowedRoles.push(roleId);
 			}
@@ -87,12 +105,37 @@ angular.module('indicatorEditIndicatorSpatialUnitRolesModal').component('indicat
 			return patchBody;
 		};
 
+		$scope.buildPatchBody_indicatorMetadataRoles = function(){
+			var patchBody =
+			{
+				"allowedRoles": []
+			}
+
+			let roleIds = kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid($scope.roleManagementTableOptions_indicatorMetadata);
+			for (const roleId of roleIds) {
+				patchBody.allowedRoles.push(roleId);
+			}
+
+			return patchBody;
+		}
+
 		$scope.editIndicatorSpatialUnitRoles = function () {
 
 			if($scope.targetResourceCreatorRole !== undefined)
 				if(!confirm('Sind Sie sicher, dass Sie den Eigentümerschaft an dieser Resource endgültig und unwiderruflich übertragen und damit abgeben wollen?'))
 					return;
 
+			$scope.executeRequest_indicatorMetadataRoles();
+
+			$scope.executeRequest_indicatorSpatialUnitRoles();			
+		};
+
+		$scope.executeRequest_indicatorMetadataRoles = function(){
+			//TODO FIXME
+			console.log("TODO implement API call to modify indicator metadata access and ownership");
+		}
+
+		$scope.executeRequest_indicatorSpatialUnitRoles = function(){
 			var patchBody = $scope.buildPatchBody_indicatorSpatialUnitRoles();
 
 			// TODO verify input
@@ -131,16 +174,11 @@ angular.module('indicatorEditIndicatorSpatialUnitRolesModal').component('indicat
 				// 		$("#indicatorEditMetadataSuccessAlert").hide();
 				// }, 3000);
 			});
-		};
+		}
 
 		$scope.onChangeSelectedSpatialUnit = function (targetApplicableSpatialUnit) {
 
-			if ($scope.targetApplicableSpatialUnit && $scope.targetApplicableSpatialUnit.allowedRoles) {
-				$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorEditIndicatorSpatialUnitsRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, $scope.targetApplicableSpatialUnit.allowedRoles, true);
-			}
-			else {
-				$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorEditIndicatorSpatialUnitsRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, kommonitorDataExchangeService.getCurrentKomMonitorLoginRoleIds(), true);
-			}
+			$scope.refreshRoleManagementTable_indicatorSpatialUnitTimeseries();
 			
 		};
 

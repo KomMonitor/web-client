@@ -12,8 +12,8 @@
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span></button>
-				<h4 class="modal-title">Rollenbasierter Zugriffsschutz für Indikator
-					<i><b>{{currentIndicatorDataset.indicatorName}}</b></i> und verknüpfter Raumeinheit <i><b>{{targetApplicableSpatialUnit.spatialUnitName}}</b></i> editieren</h4>
+				<h4 class="modal-title">Zugriffsschutz und Eigent&uuml;merschaft für Indikator
+					<i><b>{{currentIndicatorDataset.indicatorName}}</b></i> und dessen verknüpfte Raumeinheiten editieren</h4>
 			</div>
 			<div class="modal-body">
 				
@@ -26,18 +26,40 @@
 							<!-- progressbar -->
 							<div>
 								<ul id="progressbar">
-									<li style="width: 50%" class="active">Rollenbasierter Zugriffsschutz</li>
-									<li style="width: 50%">Eigent&uuml;merschaft</li>
+									<li style="width: 33.33%" class="active">Zugriffsschutz Indikator-Metadaten</li>
+									<li style="width: 33.33%">Zugriffsschutz Indikator-Zeitreihe pro Raumeinheit</li>
+									<li style="width: 33.33%">Eigent&uuml;merschaft</li>
 								</ul>
 							</div>
 							<!-- fieldsets -->
+
+							<fieldset>
+								<h2 class="fs-title">Zugriffsschutz Indikator-Metadaten</h2>
+								<h3 class="fs-subtitle">Vergabe der Zugriffsrechte auf Indikator-Metadaten pro Organisationseinheit. Hiermit legen Sie fest, 
+									welche Organisationseinheiten den Indikator lesen und/oder editieren d&uuml;rfen</h3>
+	
+								<p>Zugriffsrechte (lesen, editieren) m&uuml;ssen explizit vergeben werden</p>
+	
+								<div class="row">
+									<div class="col-md-3"></div>
+									<div class="col-md-6 col-sm-6 col-xs-12">
+											<!-- <div id="georesourceAddRoleManagementTable" style="height: 40vh; overflow-y: auto;" class="ag-theme-alpine"></div>     -->
+											<div id="indicatorEditRoleManagementTable" style="height: 45vh" class="ag-theme-alpine"></div>  
+										
+									</div>
+									<div class="col-md-3"></div>
+								</div>	
+								
+								
+								<input type="button" name="next" class="next next_editIndicatorRoles action-button" value="N&auml;chster Schritt"/>							
+							</fieldset>	
 	
 							<fieldset>
-								<h2 class="fs-title">Rollenbasierter Zeitreihen-Zugriffsschutz f&uuml;r verknüpfte Raumebenen</h2>
-								<h3 class="fs-subtitle">Vergabe der Zugriffsrechte auf die Datensatz-Zeitreihen der einzelnen Raumebenen</h3>
+								<h2 class="fs-title">Zeitreihen-Zugriffsschutz f&uuml;r verknüpfte Raumebenen</h2>
+								<h3 class="fs-subtitle">Vergabe der Zugriffsrechte auf die Indikator-Zeitreihen der einzelnen Raumebenen. Zus&uuml;tzlich zu den Metadaten
+									muss der Zugriff auf die Zeitreihe einer verkn&uuml;pften Raumeinheit explizit f&uuml; authorisierte Organisationseinheiten freigegeben werden.</h3>
 		
-								<p>Zugriffsrechte (lesen, editieren, l&ouml;schen) m&uuml;ssen explizit vergeben werden. Administratoren (Rolle <i>kommonitor-creator</i>) haben immer vollen Zugriff.</p>
-								<p><strong>lesender Zugriff auf die Indikator-Zeitreihe wird nur den Organisationseinheiten gew&auml;hrt, die auch lesenden Zugriff auf Metadaten der assoziierten Raumeinheit besitzen.</strong></p>
+								<p>Zugriffsrechte (lesen, editieren, l&ouml;schen) m&uuml;ssen explizit vergeben werden</p>
 	
 								
 								<div class="row vertical-align">
@@ -69,7 +91,11 @@
 
 								</div>
 
-																						
+								<input type="button" name="next" class="next next_editIndicatorRoles action-button" value="N&auml;chster Schritt"/>	
+
+								<input type="button" name="previous"
+									class="previous previous_editIndicatorRoles action-button-previous"
+									value="Voriger Schritt" />											
 							</fieldset>
 
 							<fieldset>
@@ -89,6 +115,10 @@
 										</div>
 										<div class="col-md-3"></div>
 									</div>
+
+									<input type="button" name="previous"
+									class="previous previous_editIndicatorRoles action-button-previous"
+									value="Voriger Schritt" />
 							</fieldset>
 
 						</form>
@@ -100,7 +130,7 @@
 				<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Schlie&szlig;en</button>
 
 				<button type="button" class="btn btn-success"
-					ng-click="editIndicatorSpatialUnitRoles()">Rollenzugriff aktualisieren</button>
+					ng-click="editIndicatorSpatialUnitRoles()">Aktualisieren</button>
 				<button type="button" class="btn btn-danger"
 					ng-click="resetIndicatorEditIndicatorSpatialUnitRolesForm()">Zur&uuml;cksetzen</button>
 			</div>
@@ -108,15 +138,19 @@
 			<div id="indicatorEditIndicatorSpatialUnitRolesSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
 				class="alert alert-success alert-dismissable">
 				<button type="button" class="close" ng-click="hideSuccessAlert()" aria-hidden="true">&times;</button>
-				<h4><i class="icon fa fa-check"></i>Rollenzugriff aktualisiert</h4>
-				Der Rollenzugriff auf die Zeitreihendaten des Indikators '{{currentIndicatorDataset.indicatorName}}' für die verknüpfte Raumebene '{{targetApplicableSpatialUnit.spatialUnitName}}' wurde in KomMonitor aktualisiert.
+				<h4><i class="icon fa fa-check"></i>Zugriffsschutz und Eigent&uuml;merschaft aktualisiert</h4>
+				Erfolgreiche Aktualisierung des Zugriffsschutzes und der Eigent&uuml;merschaft f&uuml;r Indikator '{{currentIndicatorDataset.indicatorName}}'.
+				<br>
+				sowie
+				<br>
+				Erfolgreiche Aktualisierung des Zugriffsschutzes f&uuml;r verknüpfte Raumebene '{{targetApplicableSpatialUnit.spatialUnitName}}'
 			</div>
 
 			<div id="indicatorEditMetadataErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
 				class="alert alert-danger alert-dismissable">
 				<button type="button" class="close" ng-click="hideErrorAlert()" aria-hidden="true">&times;</button>
 				<h4><i class="icon fa fa-ban"></i>Aktualisierung gescheitert</h4>
-				Bei der Aktualisierung des Rollenzugriffs ist ein Fehler aufgetreten. Fehlermeldung:
+				Bei der Aktualisierung des Zugriffsschutzes und der Eigent&uuml;merschaft ist ein Fehler aufgetreten. Fehlermeldung:
 				<br />
 				<pre style="overflow:auto; max-height:500px;" ng-bind-html="errorMessagePart"></pre>
 			</div>

@@ -27,6 +27,15 @@ angular.module('georesourceEditUserRolesModal').component('georesourceEditUserRo
 			kommonitorMultiStepFormHelperService.registerClickHandler('georesourceEditUserRolesForm');
 		});
 
+		$scope.refreshRoleManagementTable = function() {
+			let allowedRoles = $scope.currentGeoresourceDataset ? $scope.currentGeoresourceDataset.allowedRoles : [];
+			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('georesourceEditUserRolesForm', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, allowedRoles, true);
+		}
+
+		$scope.$on("availableRolesUpdate", function (event) {
+			$scope.refreshRoleManagementTable();
+		});
+
 		$scope.onChangeSelectedTargetCreatorRole = function(targetResourceCreatorRole) {
 
 			$scope.targetResourceCreatorRole = targetResourceCreatorRole;
@@ -49,6 +58,8 @@ angular.module('georesourceEditUserRolesModal').component('georesourceEditUserRo
 			$scope.targetResourceCreatorRole = undefined;
 			document.getElementById('targetUserRoleSelect').selectedIndex = 0;
 
+			$scope.refreshRoleManagementTable();
+
 			$scope.successMessagePart = undefined;
 			$scope.errorMessagePart = undefined;
 			$("#RolesSuccessAlert").hide();
@@ -64,6 +75,13 @@ angular.module('georesourceEditUserRolesModal').component('georesourceEditUserRo
 			if($scope.targetResourceCreatorRole !== undefined)
 			if(!confirm('Sind Sie sicher, dass Sie den Eigentümerschaft an dieser Resource endgültig und unwiderruflich übertragen und damit abgeben wollen?'))
 				return;
+
+			// TODO FIXME prepare request to update role-based access
+			let patchBody = {};
+			let roleIds = kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid($scope.roleManagementTableOptions);
+			for (const roleId of roleIds) {
+				patchBody.allowedRoles.push(roleId);
+			}
 
 			// all other to go next
 		}
