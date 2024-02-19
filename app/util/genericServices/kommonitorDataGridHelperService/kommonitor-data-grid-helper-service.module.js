@@ -3008,7 +3008,7 @@ angular
           { headerName: 'Zeitpunkt', field: "referenceDate", pinned: 'left', cellDataType: 'text', editable: false, cellClass: "grid-non-editable", maxWidth: 150
           },
           { headerName: 'regionale Gesamtsumme', field: "regionalSum", cellDataType: 'number', maxWidth: 200 },
-          { headerName: 'regionaler Durchschnittswert', field: "regionalAverage", cellDataType: 'number', maxWidth: 200 }, 
+          { headerName: 'regionaler Mittelwert', field: "regionalAverage", cellDataType: 'number', maxWidth: 200 }, 
         ];
 
         return columnDefs;

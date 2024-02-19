@@ -53,15 +53,15 @@ angular
 
         if (fileEnding.toUpperCase() === "json".toUpperCase() || fileEnding.toUpperCase() === "geojson".toUpperCase()) {
           console.log("Potential GeoJSON file identified")
-          tmpKommonitorGeoresource = this.processFileInput_geoJson(file, customColor, customMarkerColor);
+          tmpKommonitorGeoresource = this.processFileInput_georesource_geoJson(file, customColor, customMarkerColor);
         }
         else if (fileEnding.toUpperCase() === "zip".toUpperCase()) {
           console.log("Potential Shapefile file identified")
-          tmpKommonitorGeoresource = this.processFileInput_shape(file, customColor, customMarkerColor);
+          tmpKommonitorGeoresource = this.processFileInput_georesource_shape(file, customColor, customMarkerColor);
         }
         else if (fileEnding.toUpperCase() === "csv".toUpperCase()) {
           console.log("Potential CSV file identified")
-          tmpKommonitorGeoresource = this.processFileInput_csv(file, customColor, customMarkerColor);
+          tmpKommonitorGeoresource = this.processFileInput_georesource_csv(file, customColor, customMarkerColor);
         }
         else {
           let fileLayerError = "Dateiformat kann nicht verarbeitet werden";
@@ -210,7 +210,7 @@ angular
         return kommonitorGeoresource;
       }
 
-      this.processFileInput_geoJson = function (file, customColor, customMarkerColor) {
+      this.processFileInput_georesource_geoJson = function (file, customColor, customMarkerColor) {
         var fileReader = new FileReader();
 
         fileReader.onload = function (event) {
@@ -242,7 +242,7 @@ angular
         );
       }
 
-      this.processFileInput_shape = function (file, customColor, customMarkerColor) {
+      this.processFileInput_georesource_shape = function (file, customColor, customMarkerColor) {
         var fileReader = new FileReader();
 
         fileReader.onload = async function (event) {
@@ -257,7 +257,7 @@ angular
         fileReader.readAsArrayBuffer(file);
       };
 
-      this.processFileInput_csv = function (file, customColor, customMarkerColor) {
+      this.processFileInput_georesource_csv = function (file, customColor, customMarkerColor) {
         var fileReader = new FileReader();
 
         fileReader.onload = function (event) {
@@ -273,6 +273,48 @@ angular
         };
 
         fileReader.readAsText(file);
+      }
+
+      this.makeIndicatorReferenceValuesObjects = function(rows){
+        let indicatorRegionalReferenceValuesObject = {
+          "dataRows": rows,
+          "featureSchema": this.getFeatureSchema_indicatorRegionalReferenceValues(rows)
+        };
+
+        return indicatorRegionalReferenceValuesObject;
+      };
+
+      this.transformFileToKomMonitorIndicatorRegionalReferenceValuesObject = function(file){
+        var fileReader = new FileReader();
+
+        fileReader.onload = function (event) {
+          // Key data by field name instead of index/position
+          let results = Papa.parse(event.target.result, {
+            header: true,
+            skipEmptyLines: true,
+          });
+
+          let indicatorRegionalReferenceValuesObject = self.makeIndicatorReferenceValuesObjects(results.data);
+
+          $rootScope.$broadcast("CSVFromFileFinished_indicatorRegionalReferenceValues", indicatorRegionalReferenceValuesObject);
+        };
+
+        fileReader.readAsText(file);
+      }
+
+      this.getFeatureSchema_indicatorRegionalReferenceValues = function (rows) {
+        // if there are any existing properties, then use the first entry
+        let schema = [];
+        if (rows && rows[0]) {
+          for (var property in rows[0]) {
+            schema.push(
+              property
+            );
+
+          }
+        }
+
+        return schema;
       }
 
     }]);

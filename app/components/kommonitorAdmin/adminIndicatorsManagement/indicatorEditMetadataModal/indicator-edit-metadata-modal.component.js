@@ -1,9 +1,9 @@
 angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataModal', {
 	templateUrl : "components/kommonitorAdmin/adminIndicatorsManagement/indicatorEditMetadataModal/indicator-edit-metadata-modal.template.html",
 	controller : ['kommonitorDataExchangeService', '$scope', '$rootScope', '$http', '__env', '$timeout', 'kommonitorMultiStepFormHelperService',
-		'kommonitorDataGridHelperService', 
+		'kommonitorDataGridHelperService', 'kommonitorFileHelperService', 'kommonitorToastHelperService',
 		function IndicatorEditMetadataModalController(kommonitorDataExchangeService, $scope, $rootScope, $http, __env, $timeout, 
-			kommonitorMultiStepFormHelperService, kommonitorDataGridHelperService) {
+			kommonitorMultiStepFormHelperService, kommonitorDataGridHelperService, kommonitorFileHelperService, kommonitorToastHelperService) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 
@@ -216,6 +216,8 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 		$scope.colorbrewerPalettes = [];
 
 		$scope.regionalReferenceValuesManagementTableOptions = undefined;
+
+		$scope.tmpIndicatorRegionalReferenceValuesObject = undefined;
 
 
 		$scope.instantiateColorBrewerPalettes = function(){
@@ -1158,6 +1160,193 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 
 			a.remove();
 		};
+
+		$scope.dropHandler = function (ev) {
+
+			try {
+				// Prevent default behavior (Prevent file from being opened)
+				ev.preventDefault();
+
+				if (ev.dataTransfer.items) {
+					// Use DataTransferItemList interface to access the file(s)
+					for (var i = 0; i < ev.dataTransfer.items.length; i++) {
+						// If dropped items aren't files, reject them
+						if (ev.dataTransfer.items[i].kind === 'file') {
+							var file = ev.dataTransfer.items[i].getAsFile();
+							kommonitorFileHelperService.transformFileToKomMonitorIndicatorRegionalReferenceValuesObject(file);
+						}
+					}
+				} else {
+					// Use DataTransfer interface to access the file(s)
+					for (var i = 0; i < ev.dataTransfer.files.length; i++) {
+						var file = ev.dataTransfer.files[i];
+						kommonitorFileHelperService.transformFileToKomMonitorIndicatorRegionalReferenceValuesObject(file);
+					}
+				}
+			} catch (e) {
+				$scope.fileLayerError = e;
+				$scope.loadingData = false;
+				console.error(e);
+				kommonitorToastHelperService.displayErrorToast_upperLeft("Fehler in Dateiverarbeitung", $scope.fileLayerError);
+			} finally {
+
+			}
+
+		};
+
+
+		$scope.$on("onDropFile_importRegionalReferenceValues", function (ev, dropEvent) {
+			$scope.dropHandler(dropEvent);
+		});
+
+		// $scope.dragOverHandler = function(ev) {
+		//   console.log('File(s) in drop zone');
+		//
+		//   // Prevent default behavior (Prevent file from being opened)
+		//   ev.preventDefault();
+		// };
+
+		$scope.openFileDialog = function () {
+			// $("#fileUploadInput_importRegionalReferenceValues").trigger("click");
+			document.getElementById("fileUploadInput_importRegionalReferenceValues").click();
+		};
+
+		$(document).on('change', '#fileUploadInput_importRegionalReferenceValues', function () {
+
+			// get the file
+			var files = document.getElementById('fileUploadInput_importRegionalReferenceValues').files;
+
+			for (var i = 0; i < files.length; i++) {
+				var file = files[i];
+				kommonitorFileHelperService.transformFileToKomMonitorIndicatorRegionalReferenceValuesObject(file);
+			}
+		});
+
+		$scope.initSpecialFields = function (indicatorRegionalReferenceValuesObject) {
+			// init feature NAME and ID fields
+			indicatorRegionalReferenceValuesObject.TIMESTAMP_ATTRIBUTE = indicatorRegionalReferenceValuesObject.featureSchema[0];
+			indicatorRegionalReferenceValuesObject.REGIONAL_SUM_ATTRIBUTE = indicatorRegionalReferenceValuesObject.featureSchema[0];
+			indicatorRegionalReferenceValuesObject.REGIONAL_MEAN_ATTRIBUTE = indicatorRegionalReferenceValuesObject.featureSchema[0];
+
+			for (const property of indicatorRegionalReferenceValuesObject.featureSchema) {
+				if (property.toLowerCase().includes("zeit") || property.toLowerCase().includes("date") || property.toLowerCase().includes("jahr")) {
+					indicatorRegionalReferenceValuesObject.TIMESTAMP_ATTRIBUTE = property;
+				}			
+				if (property.toLowerCase().includes("sum")) {
+					indicatorRegionalReferenceValuesObject.REGIONAL_SUM_ATTRIBUTE = property;
+				}
+				if (property.toLowerCase().includes("mit") || property.toLowerCase().includes("durch") || property.toLowerCase().includes("mean") || property.toLowerCase().includes("avg") || property.toLowerCase().includes("ave")) {
+					indicatorRegionalReferenceValuesObject.REGIONAL_MEAN_ATTRIBUTE = property;
+				}				
+			}
+
+			return indicatorRegionalReferenceValuesObject;
+		}
+
+		$scope.$on("CSVFromFileFinished_indicatorRegionalReferenceValues", function (event, indicatorRegionalReferenceValuesObject) {
+			try {
+				indicatorRegionalReferenceValuesObject = $scope.initSpecialFields(indicatorRegionalReferenceValuesObject)
+
+				$scope.tmpIndicatorRegionalReferenceValuesObject = indicatorRegionalReferenceValuesObject;
+
+				kommonitorToastHelperService.displayInfoToast_upperRight("CSV-Datei erkannt", "Weitere Konfiguration erforderlich");
+
+				$scope.$digest();
+			} catch (error) {
+				console.error(error);
+				$scope.loadingData = false;
+				kommonitorToastHelperService.displayErrorToast_upperRight("Fehler beim Laden der CSV-Datei", error);
+			}						
+		});
+
+		$scope.makeIndicatorRegionalReferenceValues_fromCsv = function(tmpIndicatorRegionalReferenceValuesObject){
+			let indicatorRegionalReferenceValuesObject = [];
+
+			for (const tmpIndicatorRegionalReferenceValuesEntry of tmpIndicatorRegionalReferenceValuesObject.dataRows) {
+
+				let dateValue = tmpIndicatorRegionalReferenceValuesEntry[tmpIndicatorRegionalReferenceValuesObject.TIMESTAMP_ATTRIBUTE];
+				let sumValue = tmpIndicatorRegionalReferenceValuesEntry[tmpIndicatorRegionalReferenceValuesObject.REGIONAL_SUM_ATTRIBUTE];
+				let meanValue = tmpIndicatorRegionalReferenceValuesEntry[tmpIndicatorRegionalReferenceValuesObject.REGIONAL_MEAN_ATTRIBUTE];
+
+				let dateValueInvalid = false;
+				let sumValueInvalid = false;
+				let meanValueInvalid = false;
+				let containsEmptyValues = false;
+
+				if (!dateValue || dateValue.split("-").length != 3){
+					 
+					dateValueInvalid = true;
+					kommonitorToastHelperService.displayErrorToast_upperRight("Ungültige Zeitwerte Definition in angegebener Zeitspalte '" +
+					tmpIndicatorRegionalReferenceValuesObject.TIMESTAMP_ATTRIBUTE + "'", "Konkreter Wert ist '" + dateValue + "'");															
+				
+				}
+
+				//SUMVALUE
+				if (!sumValue){
+					sumValue = NaN;
+					containsEmptyValues = true;
+				}
+				else if ( typeof(sumValue) == "String"){
+					sumValueInvalid = true;
+					sumValue = NaN;
+				}
+				else{
+					sumValue = Number(sumValue);
+				}
+
+				//MEANVALUE
+				//SUMVALUE
+				if (!meanValue){
+					meanValue = NaN;
+					containsEmptyValues = true;
+				}
+				else if ( typeof(meanValue) == "String"){
+					meanValueInvalid = true;
+					meanValue = NaN;
+				}
+				else{
+					meanValue = Number(meanValue);
+				}
+
+				// validations / warning / errors
+
+				// if(dateValueInvalid || sumValueInvalid || meanValueInvalid){
+				// 	kommonitorToastHelperService.displayErrorToast_upperRight("Datei enthält ungültige Definitionen", "Bitte prüfen und vergleichen Sie die Tabelleneinträge mit der Original-Datei");															
+				// }
+				if(containsEmptyValues || sumValueInvalid || meanValueInvalid){
+					kommonitorToastHelperService.displayWarningToast_upperRight("Datei enthält leere oder ungültige Zahlenwerte für Summe oder Mittelwert", "Leerwerte und ungültige werden als ungültige Zahlenwerte interpretiert.");
+				}
+				
+				// object building
+				if(! dateValueInvalid && !sumValueInvalid && !meanValueInvalid){
+					 
+					indicatorRegionalReferenceValuesObject.push({					
+						"referenceDate": dateValue,
+						"regionalSum": sumValue,
+						"regionalAverage": meanValue					
+					});
+				}
+				
+			}
+
+			return indicatorRegionalReferenceValuesObject;
+		}
+
+		$scope.loadCSV_indicatorRegionalReferenceValues = function () {
+			try {
+				let tmpIndicatorRegionalReferenceValues = $scope.makeIndicatorRegionalReferenceValues_fromCsv($scope.tmpIndicatorRegionalReferenceValuesObject);
+
+				$scope.regionalReferenceValuesManagementTableOptions = kommonitorDataGridHelperService.buildReferenceValuesManagementGrid('indicatorRegionalReferenceValuesManagementTable', $scope.currentIndicatorDataset.applicableDates, tmpIndicatorRegionalReferenceValues);
+
+				kommonitorToastHelperService.displaySuccessToast_upperRight(tmpIndicatorRegionalReferenceValues.length + " Vergleichswerte erfolgreich in Tabelle eingetragen", "");
+				kommonitorToastHelperService.displayWarningToast_upperRight("Erst durch Aktualisieren der Metadaten werden die Vergleichswerte in die Datenbank importiert", "");
+
+			} catch (error) {
+				console.error(error);
+				$scope.loadingData = false;
+				kommonitorToastHelperService.displayErrorToast_upperRight("Fehler beim Laden der CSV-Datei", error);
+			}
+		}
 
 			$scope.hideSuccessAlert = function(){
 				$("#indicatorEditMetadataSuccessAlert").hide();
