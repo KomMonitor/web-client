@@ -882,24 +882,14 @@
 											</div> 
 										</div>									
 									</div>	
-								
 								</div>
+
+
 
 								<div ng-show="indicatorType.apiName.includes('DYNAMIC')">									
 									<h3 class="fs-subtitle">Da ein dynamischer Indikatorentyp ('{{indicatorType.displayName}}') konfiguriert wurde, ist hier keine Angabe erforderlich. Es wird folgende zweifarbige Standard-Klassifizierung verwendet</h3>
 
 									<div class="row vertical-align">
-										<!-- <div class="col-md-5 col-sm-6 col-xs-12">
-											<div class="form-group">
-												<label>Anzahl Klassen*</label>
-												<select ng-model="numClasses"											
-													class="form-control" required>
-													<option disabled selected value> -- Anzahl Klassen w&auml;hlen -- </option>
-													<option ng-repeat="numClassesEntry in numClassesArray">{{::numClassesEntry}}</option>
-												</select>
-												<div class="help-block with-errors"></div>
-											</div>
-										</div> -->
 										<div class="col-md-4 col-sm-6 col-xs-12">
 											<div class="form-group">
 
@@ -929,6 +919,54 @@
 										</div>									
 									</div>	
 								
+								</div>
+
+								<div class="row vertical-align">
+									<div class="classificationMethodSelectContainer form-group">
+										<label>Klassifizierungsmethode</label>
+										<classification-method-select 
+											on-method-selected="onClassificationMethodSelected(method)"
+											default-method-id="{{classificationMethod}}">
+										</classification-method-select>
+									</div>
+								</div>
+								<div class="row vertical-align">
+									<div class="form-group">
+										<label>Anzahl Klassen pro Raumeinheit</label>
+										<select ng-model="numClassesPerSpatialUnit"
+											ng-change="onNumClassesChanged(numClassesPerSpatialUnit)"									
+											class="form-control" required>
+											<option disabled selected value> -- Anzahl Klassen w&auml;hlen -- </option>
+											<option ng-repeat="numClassesEntry in numClassesArray">{{::numClassesEntry}}</option>
+										</select>
+										<div class="help-block with-errors"></div>
+										<div class="help-block">
+											<p>Für jede Raumeinheit wird die gleiche Anzahl an Klassengrenzen vergeben </p>
+										</div>
+									</div>
+								</div>
+								<div class="row vertical-align" ng-if="(numClassesPerSpatialUnit > 0) && classificationMethod == 'manual'">
+									<uib-tabset active="0" class="col-md-4 col-sm-6 col-xs-12">
+										<uib-tab 
+											index="i" 
+											heading="{{spatialUnit.spatialUnitLevel}}"
+											class="{{tabClasses[i]}}"
+											ng-repeat="(i, spatialUnit) in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits">
+											<div class="form-group">
+												<label>Klassengrenzen für die Ebene {{spatialUnit.spatialUnitLevel}}</label>
+												<input
+													ng-repeat="(j, b) in spatialUnitClassification[i].breaks track by $index"
+													type="number"
+													class="form-control"
+													ng-blur="onBreaksChanged(i)"
+													ng-model="spatialUnitClassification[i].breaks[j]">
+											</div>
+											<div class="help-block">
+												<p>Vollständig ausgefüllte Tabs werden grün hervorgehoben.</p>
+												<p>Fehlerhaft ausgefüllte Tabs werden rot hervorgehoben. Die Klassengrenzen sollten von niedrig nach hoch sortiert sein. </p>
+											</div>
+										</uib-tab>
+									</uib-tabset>
 								</div>
 
 								<input type="button" name="previous" class="previous previous_addIndicator action-button-previous" value="Voriger Schritt"/>

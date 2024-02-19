@@ -237,7 +237,7 @@ angular
             colorBrewerInstance.colors.shift();
             colorBrewerInstance.colors.shift();
           }
-          if(numClasses == 0) {
+          if(numClasses <= 0) {
             colorBrewerInstance.colors = [];
           }
         }
@@ -441,6 +441,7 @@ angular
        */
       this.setupDynamicIndicatorBrew = function (geoJSON, propertyName, colorCodeForPositiveValues, colorCodeForNegativeValues, classifyMethod, numClasses, breaks) {
 
+        kommonitorDataExchangeService.isBalanceChecked = true;
         /*
         * Idea: Analyse the complete geoJSON property array for each feature and make conclusion about how to build the legend
 
@@ -472,8 +473,8 @@ angular
         if(classifyMethod == "manual") {
           if (!breaks) {
             breaks = [];
-            breaks[0] = dynamicIncreaseBrew.breaks;
-            breaks[1] = dynamicDecreaseBrew.breaks;
+            breaks[0] = dynamicIncreaseBrew ? dynamicIncreaseBrew.breaks : [];
+            breaks[1] = dynamicDecreaseBrew ? dynamicDecreaseBrew.breaks : [];
           }
           dynamicIncreaseBrew = this.setupManualBrew(breaks[0].length -1, colorCodeForPositiveValues, breaks[0]);
           dynamicDecreaseBrew = this.setupManualBrew(breaks[1].length -1, colorCodeForNegativeValues, breaks[1]);

@@ -3,7 +3,7 @@ angular
 	.component(
 			'classificationMethodSelect',
 			{
-				templateUrl : "components/kommonitorUserInterface/kommonitorControls/kommonitorClassification/classificationMethodSelect/classification-method-select.template.html",
+				templateUrl : "components/common/classificationMethodSelect/classification-method-select.template.html",
 				bindings: {
 					defaultMethodId: '@',
 					onMethodSelected: '&'
@@ -19,6 +19,10 @@ angular
 						ctrl.$onInit = function() {
 							$scope.selectedMethod = $scope.getMethod(ctrl.defaultMethodId);
 						};
+
+						ctrl.$onChanges = function(changesObj) {
+							$scope.selectedMethod = $scope.getMethod(ctrl.defaultMethodId);
+						}
 
 						ctrl.methodSelected = function(method) {
 							$scope.showMethodSelection = false;

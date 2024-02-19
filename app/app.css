@@ -3060,6 +3060,10 @@ input:checked + .switchslider:before {
 	vertical-align: middle;
 }
 
+.classificationMethodSelectContainer {
+	width: 300px;
+}
+
 
 #infoModalTabs {
 	margin-bottom: 10px;
@@ -3067,6 +3071,14 @@ input:checked + .switchslider:before {
 
 .spatial-unit-list-item {
 	display: table-row;
+}
+
+.tab-completed > a {
+	background-color: #dff0d8 !important;
+}
+
+.tab-error > a {
+	background-color: #f0d8d8 !important;
 }
 
 /* The snackbar - position it at the bottom and in the middle of the screen */

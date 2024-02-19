@@ -3,6 +3,7 @@
   ng-mouseup="onClassificationMouseUp()">
   <div class="classification-container">
     <div title="Hier können Sie die Klassifizierungsmethode ändern.">
+      <div style="font-weight: bold;">Methode</div>
       <classification-method-select 
         on-method-selected="onMethodSelected(method)"
         default-method-id="{{$ctrl.kommonitorVisualStyleHelperServiceInstance.classifyMethod}}">
@@ -154,7 +155,7 @@
     </div>
 
     <!-- balance checked -- lower than values -->
-    <div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.isBalanceChecked" 
+    <div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.isBalanceChecked && $ctrl.kommonitorVisualStyleHelperServiceInstance.dynamicBrew[1].breaks.length > 0"
           class="histogramTabWrapper editableHistogram editableHistogramDynamic"
           ng-mousemove="toggleAddBtn($event, 1)">
       <div class="breaksArea"
@@ -203,7 +204,7 @@
 
 
     <!-- balance checked -- higher than values -->
-    <div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.isBalanceChecked" 
+    <div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.isBalanceChecked && $ctrl.kommonitorVisualStyleHelperServiceInstance.dynamicBrew[0].breaks.length > 0" 
           class="histogramTabWrapper editableHistogram editableHistogramDynamic"
           ng-mousemove="toggleAddBtn($event, 0)">
       <div class="breaksArea"
