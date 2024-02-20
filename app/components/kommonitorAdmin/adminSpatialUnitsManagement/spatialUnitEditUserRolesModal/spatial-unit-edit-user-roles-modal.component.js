@@ -105,7 +105,7 @@ angular.module('spatialUnitEditUserRolesModal').component('spatialUnitEditUserRo
 
 					$scope.successMessagePart = $scope.currentSpatialUnitDataset.spatialUnitLevel;
 
-					$rootScope.$broadcast("refreshSpatialUnitOverviewTable");
+					$rootScope.$broadcast("refreshSpatialUnitOverviewTable", "edit", $scope.currentSpatialUnitDataset.spatialUnitId);
 								
 					$("#spatialUnitEditUserRolesSuccessAlert").show();
 					$timeout(function(){

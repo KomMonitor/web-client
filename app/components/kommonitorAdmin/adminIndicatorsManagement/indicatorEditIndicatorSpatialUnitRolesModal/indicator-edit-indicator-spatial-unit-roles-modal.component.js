@@ -32,7 +32,7 @@ angular.module('indicatorEditIndicatorSpatialUnitRolesModal').component('indicat
 		});
 
 		$scope.refreshRoleManagementTable_indicatorMetadata = function() {
-			let allowedRoles = $scope.currentGeoresourceDataset ? $scope.currentGeoresourceDataset.allowedRoles : [];
+			let allowedRoles = $scope.currentIndicatorDataset ? $scope.currentIndicatorDataset.allowedRoles : [];
 			$scope.roleManagementTableOptions_indicatorMetadata = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorEditRoleManagementTable', $scope.roleManagementTableOptions_indicatorMetadata, kommonitorDataExchangeService.accessControl, allowedRoles, true);
 		}
 
@@ -107,7 +107,7 @@ angular.module('indicatorEditIndicatorSpatialUnitRolesModal').component('indicat
 			$scope.loadingData = true;
 
 			let putBody = {
-				allowedRoles: kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid($scope.roleManagementTableOptions)
+				allowedRoles: kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid($scope.roleManagementTableOptions_indicatorMetadata)
 			}
 
 			$http({
