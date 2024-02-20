@@ -2968,6 +2968,59 @@ angular
       return false;
     }
 
+    this.getRoleTitles = function(){
+
+      return this.currentKeycloakLoginRoles.filter(role => role.split('.')[role.split('.').length-1]).map(e => e);
+    }
+
+    this.checkGroupsEditPermission = function() {
+
+      if(this.checkAdminPermission)
+        return true;
+
+      let splitRoles = this.getRoleTitles();
+      let ret = false;
+
+      __env.keycloakKomMonitorGroupsEditRoleNames.forEach(targetRole => {
+        if(splitRoles.includes(targetRole))
+          ret = true;
+      });
+
+      return ret;
+    }
+
+    this.checkThemesEditPermission = function() {
+
+      if(this.checkAdminPermission)
+        return true;
+
+      let splitRoles = this.getRoleTitles();
+      let ret = false;
+
+      __env.keycloakKomMonitorThemesEditRoleNames.forEach(targetRole => {
+        if(splitRoles.includes(targetRole))
+          ret = true;
+      });
+
+      return ret;
+    }
+
+    this.checkGeodataEditPermission = function() {
+      
+      if(this.checkAdminPermission)
+        return true;
+
+      let splitRoles = this.getRoleTitles();
+      let ret = false;
+
+      __env.keycloakKomMonitorGeodataEditRoleNames.forEach(targetRole => {
+        if(splitRoles.includes(targetRole))
+          ret = true;
+      });
+
+      return ret;
+    }
+
 
     $rootScope.$on("onAddedFeatureToSelection", function (event, selectedIndicatorFeatureIds) {
       let propertyName = buildIndicatorPropertyName();
