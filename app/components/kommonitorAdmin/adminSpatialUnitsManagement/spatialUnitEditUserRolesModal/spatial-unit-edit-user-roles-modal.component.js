@@ -79,13 +79,54 @@ angular.module('spatialUnitEditUserRolesModal').component('spatialUnitEditUserRo
 				return;
 
 			// TODO FIXME prepare request to update role-based access
-			let patchBody = {};
+			/* let patchBody = {};
 			let roleIds = kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid($scope.roleManagementTableOptions);
 			for (const roleId of roleIds) {
 				patchBody.allowedRoles.push(roleId);
-			}
+			} */
 
-			// TODO all other to go next
+			if($scope.targetResourceCreatorRole !== undefined) {
+
+				var putBody =
+				{
+					"ownerId": $scope.targetResourceCreatorRole
+				};
+
+				$scope.loadingData = true;
+
+				$http({
+					url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/spatial-units/" + $scope.currentSpatialUnitDataset.spatialUnitId + "/ownership",
+					method: "PUT",
+					data: putBody
+				}).then(function successCallback(response) {
+
+						$rootScope.$broadcast("refreshSpatialUnitOverviewTable");
+						// if the name has changed, then indicator metadata must be fetched as well
+						$("#spatialUnitEditMetadataSuccessAlert").show();
+						$timeout(function(){
+					
+							$scope.loadingData = false;
+						});	
+
+					}, function errorCallback(error) {
+						if(error.data){							
+							$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
+						}
+						else{
+							$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error);
+						}
+
+						$("#spatialUnitEditUserRolesErrorAlert").show();
+						$timeout(function(){
+					
+							$scope.loadingData = false;
+						});	
+
+						// setTimeout(function() {
+						// 		$("#spatialUnitEditMetadataSuccessAlert").hide();
+						// }, 3000);
+				});
+			}
 		}
 
 		$scope.hideSuccessAlert = function () {
