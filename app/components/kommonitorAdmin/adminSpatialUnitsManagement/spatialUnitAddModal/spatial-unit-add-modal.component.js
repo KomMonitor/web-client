@@ -103,6 +103,38 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 		$scope.metadata.lastUpdate = undefined;
 		$scope.metadata.description = undefined;
 
+		$scope.spatialUnitTargetCreatorRole = undefined;
+
+		function getAvailableCreatorRoles() {
+
+			let roles = [];
+			kommonitorDataExchangeService.currentKomMonitorLoginRoleNames.forEach(function(roleName, index) {
+
+				let parts = roleName.split('-');
+
+				if(parts[parts.length-1]=='creator') {
+
+					roleName = parts[0];
+
+					if(parts[0].search('.') > -1) 
+						roleName = parts[0].split('.')[0];
+
+					roles.push({
+						name: roleName,
+						roleId: kommonitorDataExchangeService.currentKomMonitorLoginRoleIds[index]
+					});
+				}
+			});
+
+			return roles;
+		}
+
+		$scope.onChangeSelectedSpatialunitTargetCreatorRole = function(role) {
+
+			if(role)
+				$('#spatialUnitRoleForm').css('display','block');
+		}
+
 		$scope.roleManagementTableOptions = undefined;	
 
 		$scope.$on("availableRolesUpdate", function (event) {
@@ -111,6 +143,11 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 
 		// make sure that initial fetching of availableRoles has happened
 		$scope.$on("initialMetadataLoadingCompleted", function (event) {
+			$scope.availableCreatorRoles = getAvailableCreatorRoles();
+
+			if($scope.availableCreatorRoles.length>1) 
+				$('#spatialUnitRoleForm').css('display','none');
+
 			refreshRoles();
 		});
 		
