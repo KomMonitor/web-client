@@ -171,7 +171,7 @@ angular
 						}
 
 						$scope.getWidthForHistogramBar = function (i) {
-							let colors = kommonitorVisualStyleHelperService.manualBrew.colors;
+							let colors = kommonitorVisualStyleHelperService.manualBrew.colors ? kommonitorVisualStyleHelperService.manualBrew.colors : [];
 							let countArray = [];
 							colors.forEach(function (color) {
 								countArray.push(kommonitorVisualStyleHelperService.featuresPerColorMap.get(color) || 0);
@@ -179,7 +179,10 @@ angular
 							return (countArray[i] / Math.max(...countArray)) * 100 || 0;
 						};
 						$scope.getWidthForHistogramBarMOV = function (side, i) {
-							let colors = [...kommonitorVisualStyleHelperService.measureOfValueBrew[0].colors, ...kommonitorVisualStyleHelperService.measureOfValueBrew[1].colors];
+							let colors = [];
+							colors[0] = kommonitorVisualStyleHelperService.measureOfValueBrew[0] ? kommonitorVisualStyleHelperService.measureOfValueBrew[0].colors : [];
+							colors[1] = kommonitorVisualStyleHelperService.measureOfValueBrew[1] ? kommonitorVisualStyleHelperService.measureOfValueBrew[1].colors : [];
+
 							let countArray = [];
 							colors.forEach(function (color) {
 								countArray.push(kommonitorVisualStyleHelperService.featuresPerColorMap.get(color) || 0);
@@ -219,13 +222,16 @@ angular
 								breaks = kommonitorVisualStyleHelperService.manualBrew.breaks;
 							}
 							else {
-								breaks = kommonitorVisualStyleHelperService.dynamicBrew[site].breaks;
+								breaks = kommonitorVisualStyleHelperService.dynamicBrew ? kommonitorVisualStyleHelperService.dynamicBrew[site].breaks : [];
 							}
 							return breaks[breaks.length - 1]; 
 						}
 						$scope.getMinValue = function (site) {
 							if(!kommonitorDataExchangeService.isBalanceChecked && !kommonitorDataExchangeService.selectedIndicator.indicatorType.includes('DYNAMIC')) {
 								return kommonitorVisualStyleHelperService.manualBrew.breaks[0];
+							}
+							if (!kommonitorVisualStyleHelperService.dynamicBrew) {
+								return 0;
 							}
 							if(site == 1 && (!kommonitorVisualStyleHelperService.dynamicBrew[1] || kommonitorVisualStyleHelperService.dynamicBrew[1].breaks.length < 1)) {
 								return kommonitorVisualStyleHelperService.dynamicBrew[0].breaks[0];

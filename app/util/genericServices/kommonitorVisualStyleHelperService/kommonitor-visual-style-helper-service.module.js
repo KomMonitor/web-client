@@ -470,7 +470,7 @@ angular
         var dynamicDecreaseBrew = setupDynamicDecreaseBrew(this.negativeValues, colorCodeForNegativeValues, classifyMethod, Math.floor(numClasses / 2));
 
         if(classifyMethod == "manual") {
-          if (!breaks) {
+          if (!breaks || breaks.length == 0) {
             breaks = [];
             breaks[0] = dynamicIncreaseBrew ? dynamicIncreaseBrew.breaks : [];
             breaks[1] = dynamicDecreaseBrew ? dynamicDecreaseBrew.breaks : [];
