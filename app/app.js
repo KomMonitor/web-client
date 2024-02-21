@@ -256,15 +256,7 @@ function initAngularComponents(){
   appModule.
     config(['$routeProvider',
       function config($routeProvider) {
-        $routeProvider.
-          when('/', {
-            template: '<kommonitor-user-interface></kommonitor-user-interface>',
-            resolve: {
-              controlsServiceName: function(ControlsConfigService){
-                return ControlsConfigService.promise;
-              }
-            }
-          }).
+        $routeProvider.          
           when('/administration', {
             template: '<kommonitor-admin></kommonitor-admin>',
             resolve: {
@@ -293,6 +285,14 @@ function initAngularComponents(){
   
                 }
                 
+              }
+            }
+          }).
+          when('/', {
+            template: '<kommonitor-user-interface></kommonitor-user-interface>',
+            resolve: {
+              controlsServiceName: function(ControlsConfigService){
+                return ControlsConfigService.promise;
               }
             }
           }).

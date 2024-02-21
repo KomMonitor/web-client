@@ -138,7 +138,7 @@ angular.module('adminRoleManagement').component('adminRoleManagement', {
 
 		$scope.onClickEditMetadata = function (roleDataset) {
 			// submit selected spatial unit to modal controller
-			$rootScope.$broadcast("onEditRoleMetadata", roleDataset);
+			$rootScope.$broadcast("onEditOrganizationalUnitMetadata", roleDataset);
 		};
 
 	}

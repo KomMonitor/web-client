@@ -1,4 +1,4 @@
-<div class="modal fade" id="modal-add-role" role="dialog">
+<div class="modal fade" id="modal-add-ou" role="dialog">
 	<div class="modal-dialog modal-xl">
 		<div class="modal-content">
 
@@ -19,7 +19,7 @@
 				<!-- MultiStep Form -->
 				<div class="row">
 					<div class="col-md-12">
-						<form class="multiStepForm form-group" id="roleAddForm" role="form" data-toggle="validator"
+						<form class="multiStepForm form-group" id="ouAddForm" role="form" data-toggle="validator"
 							data-disable="true" style="margin-bottom: 0px;">
 							<!-- div required for click logic -->
 							<div> 
@@ -35,26 +35,60 @@
 								<p><b><i>* = Pflichtfeld</i></b></p>
 
 								<div class="row vertical-align">
-									<div class="col-md-5">
+									<div class="col-md-4">
 										<label>Name*</label>
 										<input style="width:100%;" class="form-control" type="text"
 											placeholder="Rollenname" ng-model="newOrganizationalUnit.name"
-											ng-change="checkRoleName()" required></input>
+											ng-change="checkOrganizationalUnitName()" required></input>
 										<div class="help-block with-errors"></div>
 										<div ng-if="nameInvalid" style="color: red;">
 											<p>Eingabe ung&uuml;ltig. Es existiert bereits eine andere Organisationseinheit mit gleichem Namen.</p>
 										</div>
 									</div>
-									<div class="col-md-5">
+									<div class="col-md-4">
 										<label>Beschreibung*</label>
-										<input style="width:100%;" class="form-control" type="text"
-											placeholder="Abteilung 52" ng-model="newOrganizationalUnit.description" required></input>
+										<textarea style="width:100%;" class="form-control" type="text" rows="4"
+											placeholder="Abteilung 52" ng-model="newOrganizationalUnit.description" required></textarea>
 									</div>
-									<div class="col-md-5">
+									<div class="col-md-4">
 										<label>Kontakt*</label>
-										<input style="width:100%;" class="form-control" type="text"
-											placeholder="sekretariat@kommonitor.de" ng-model="newOrganizationalUnit.contact" required></input>
-									</div>			
+										<textarea style="width:100%;" class="form-control" type="text" rows="4"
+											placeholder="sekretariat@kommonitor.de" ng-model="newOrganizationalUnit.contact" required></textarea>
+									</div>
+								</div>
+								<div class="row vertical-align">
+									<div class="col-md-4">
+										<div class="form-group">
+											<label>Mandant*</label>
+											<label class="switch">
+												<input type="checkbox" ng-model="newOrganizationalUnit.mandant">
+												<span class="switchslider round"></span>
+											</label>
+											<div class="help-block">
+												<p>Mandanten besitzen alle Rechte sich und Ihre Daten selbst zu verwalten. Als Mandant markierte Organisationseinheiten haben die M&ouml;glichkeit, eigene Themenb&auml;me, Raumeinheiten und User zu verwalten.
+													Sind sie hierarchisch anderen Organisationseinheiten untergeordnet, k&ouml;nnen auch &uuml;bergeordnete Organisationseinheiten diesen Mandanten mitverwalten, wenn dieser es in Keycloak explizit erlaubt.
+												</p>
+											</div>
+										</div>
+									</div>	
+									<div class="col-md-4">
+										<label for="parentOrganizationalUnitSelect"><b>Hierarchische Einordnung - Angabe der &uuml;bergeordneten Organisationseinheit</b></label>
+											<div class="input-group">
+												<span class="input-group-addon"><i class="fas fa-filter"></i></span>
+												<input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model="parentOrganizationalUnitFilter" ng-model-options="{debounce: 500, blur: 0}">
+											</div>
+											<select id="parentOrganizationalUnitSelect" size="5" ng-model="parentOrganizationalUnit" 
+												class="form-control" ng-change="onChangeParentOrganizationalUnit()" 
+												ng-options="organizationalUnitItem as organizationalUnitItem.name for organizationalUnitItem in $ctrl.kommonitorDataExchangeServiceInstance.accessControl | filter:parentOrganizationalUnitFilter | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterChildOrSelfOrganizationalUnits()"
+												required>
+												<option selected value><b>keine - neuer Wurzelknoten</b></option>			
+											</select>
+											<div class="help-block">
+												<p>wird keine &uuml;bergeordneten Organisationseinheit festgelegt, so ist die neue Organisationseinheit auf oberster Ebene der Hierarchie angesiedelt. 
+													Die Hierarchiebeziehung kann nachtr&auml;glich angepasst werden.  
+												</p>
+											</div>
+									</div>		
 								</div>
 								<br/>					
 							</fieldset>
@@ -68,21 +102,21 @@
 			<div class="modal-footer">
 				<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Schlie&szlig;en</button>
 
-				<button type="button" class="btn btn-success" type="submit" ng-click="addRole()"
+				<button type="button" class="btn btn-success" type="submit" ng-click="addOrganizationalUnit()"
 					ng-disabled="!newOrganizationalUnit.name || !newOrganizationalUnit.description || !newOrganizationalUnit.contact || nameInvalid">Rolle registrieren</button>
-				<button type="button" class="btn btn-danger" ng-click="resetRoleAddForm()">Zur&uuml;cksetzen</button>
+				<button type="button" class="btn btn-danger" ng-click="resetOrganizationalUnitAddForm()">Zur&uuml;cksetzen</button>
 			</div>
 
-			<div id="roleAddSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
+			<div id="ouAddSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
 				class="alert alert-success alert-dismissable">
 				<button type="button" class="close" ng-click="hideSuccessAlert()" aria-hidden="true">&times;</button>
-				<h4><i class="icon fa fa-check"></i>Rolle in KomMonitor Datenbank registriert</h4>
+				<h4><i class="icon fa fa-check"></i>Organisationseinheit in KomMonitor Datenbank registriert</h4>
 				<p>Eine neue Einheit mit Namen {{newOrganizationalUnit.name}} wurde in KomMonitor registriert und in die
 					&Uuml;bersichtstabelle eingetragen.
 				</p>
 			</div>
 
-			<div id="roleAddErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
+			<div id="ouAddErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
 				class="alert alert-danger alert-dismissable">
 				<button type="button" class="close" ng-click="hideErrorAlert()" aria-hidden="true">&times;</button>
 				<h4><i class="icon fa fa-ban"></i>Registrierung in KomMonitor Datenbank gescheitert</h4>
@@ -93,16 +127,16 @@
 				<br />
 			</div>
 
-			<div id="keycloakRoleAddSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
+			<div id="keycloakGroupAddSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
 				class="alert alert-success alert-dismissable">
 				<button type="button" class="close" ng-click="hideKeycloakSuccessAlert()" aria-hidden="true">&times;</button>
-				<h4><i class="icon fa fa-check"></i>Rolle in Keycloak registriert</h4>
-				<p>Neue Rollen für die Einheit {{newOrganizationalUnit.name}} wurden in Keycloak registriert. Dort k&ouml;nnen nun Nutzer verkn&uuml;pt werden.
+				<h4><i class="icon fa fa-check"></i>Gruppe in Keycloak registriert</h4>
+				<p>{{newOrganizationalUnit.name}} wurde in Keycloak als Gruppe registriert. Weiterhin wurden gruppen-spezifische Administratorrollen in Keycloak angelegt, die mit Usern oder Gruppen verkn&uuml;pft werden k&ouml;nnen. In Keycloak k&ouml;nnen nun User verkn&uuml;pt werden.
 					<a ng-href="{{$ctrl.kommonitorKeycloakHelperServiceInstance.targetUrlToKeycloakInstance}}" target="_blank" rel="noopener noreferrer">{{$ctrl.kommonitorKeycloakHelperServiceInstance.targetUrlToKeycloakInstance}}</a>
 				</p>
 			</div>
 
-			<div id="keycloakRoleAddErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
+			<div id="keycloakGroupAddErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
 				class="alert alert-danger alert-dismissable">
 				<button type="button" class="close" ng-click="hideKeycloakErrorAlert()" aria-hidden="true">&times;</button>
 				<h4><i class="icon fa fa-ban"></i>Registrierung in Keycloak gescheitert</h4>
@@ -111,7 +145,7 @@
 				<pre style="overflow:auto; max-height:500px;" ng-bind-html="keycloakErrorMessagePart"></pre>
 				<br />
 				<br />
-				Die Rolle kann auch direkt in der Keycloak Administrationsseite angelegt werden. Besuchen Sie dazu				
+				Die Gruppe kann auch direkt in der Keycloak Administrationsseite angelegt werden. Besuchen Sie dazu				
 					<a ng-href="{{$ctrl.kommonitorKeycloakHelperServiceInstance.targetUrlToKeycloakInstance}}" target="_blank" rel="noopener noreferrer">{{$ctrl.kommonitorKeycloakHelperServiceInstance.targetUrlToKeycloakInstance}}</a>
 					Dort k&ouml;nnen dann auch Nutzer mit der Rolle verkn&uuml;pt werden.
 			</div>
