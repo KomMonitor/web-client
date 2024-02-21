@@ -939,19 +939,35 @@
 								<fieldset ng-if="$ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity">
 									<h2 class="fs-title">Zugriffsschutz und Eigent&uuml;merschaft</h2>
 									<h3 class="fs-subtitle">Vergabe der Zugriffsrechte auf Indikatoren-Metadaten pro Organisationseinheit</h3>
-		
-									<p>Zugriffsrechte (lesen, editieren, l&ouml;schen) m&uuml;ssen explizit vergeben werden. Administratoren (Rolle <i>kommonitor-creator</i>) haben immer vollen Zugriff.</p>
-	
-									<p><strong>Bei Indikatoren muss zus&auml;tzlich zu den Metadaten f&uuml;r jede verkn&uuml;pfte Raumebene der Zugriff auf die Raumeinheit und deren Zeitreihen-Daten freigegeben werden. Dazu nutzen Sie bitte das Raumeinheiten-Metadaten-Men&uuml; sowie das Indikatoren Feature-Fortf&uuml;hren-Men&uuml;.</strong></p>
-		
 									<div class="row">
 										<div class="col-md-3"></div>
 										<div class="col-md-6 col-sm-6 col-xs-12">
-												<div id="indicatorAddRoleManagementTable" style="height: 45vh" class="ag-theme-alpine"></div>  
-											
+											<div class="alert alert-danger">
+												Bitte w&auml;hlen Sie zun&auml;chnst die Organisationseinheit aus, unter welcher Sie den Datensatz anlegen m&ouml;chten
+											</div>
+											<label for="addIndicatorUserRoleSelect">Eigent&uuml;mer-Organisationseinheit</label>
+											<select id="addIndicatorUserRoleSelect" ng-model="indicatorTargetCreatorRole" class="form-control" ng-change="onChangeSelectedIndicatorTargetCreatorRole(indicatorTargetCreatorRole)" required>
+												<option ng-repeat="role in availableCreatorRoles" value="{{role.roleId}}">{{role.name}}</option>
+											</select>		
+											<p></p>
 										</div>
 										<div class="col-md-3"></div>
 									</div>	
+
+									<div id="indicatorRoleForm">
+										<p>Zugriffsrechte (lesen, editieren, l&ouml;schen) m&uuml;ssen explizit vergeben werden. Administratoren (Rolle <i>kommonitor-creator</i>) haben immer vollen Zugriff.</p>
+		
+										<p><strong>Bei Indikatoren muss zus&auml;tzlich zu den Metadaten f&uuml;r jede verkn&uuml;pfte Raumebene der Zugriff auf die Raumeinheit und deren Zeitreihen-Daten freigegeben werden. Dazu nutzen Sie bitte das Raumeinheiten-Metadaten-Men&uuml; sowie das Indikatoren Feature-Fortf&uuml;hren-Men&uuml;.</strong></p>
+			
+										<div class="row">
+											<div class="col-md-3"></div>
+											<div class="col-md-6 col-sm-6 col-xs-12">
+													<div id="indicatorAddRoleManagementTable" style="height: 45vh" class="ag-theme-alpine"></div>  
+												
+											</div>
+											<div class="col-md-3"></div>
+										</div>	
+									</div>
 									
 									<input type="button" name="previous" class="previous previous_addIndicator action-button-previous" value="Voriger Schritt"/>								
 								</fieldset>

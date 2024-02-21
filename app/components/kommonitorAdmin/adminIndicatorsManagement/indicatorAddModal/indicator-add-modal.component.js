@@ -156,12 +156,49 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 
 		$scope.roleManagementTableOptions = undefined;
 
+		$scope.indicatorTargetCreatorRole = undefined;
+
+		function getAvailableCreatorRoles() {
+
+			let roles = [];
+			kommonitorDataExchangeService.currentKomMonitorLoginRoleNames.forEach(function(roleName, index) {
+
+				let parts = roleName.split('-');
+
+				if(parts[parts.length-1]=='creator') {
+
+					roleName = parts[0];
+
+					if(parts[0].search('.') > -1) 
+						roleName = parts[0].split('.')[0];
+
+					roles.push({
+						name: roleName,
+						roleId: kommonitorDataExchangeService.currentKomMonitorLoginRoleIds[index]
+					});
+				}
+			});
+
+			return roles;
+		}
+
+		$scope.onChangeSelectedIndicatorTargetCreatorRole = function(role) {
+
+			if(role)
+				$('#indicatorRoleForm').css('display','block');
+		}
+
 		$scope.$on("availableRolesUpdate", function (event) {
 			refreshRoles();
 		});
 
 		// make sure that initial fetching of availableRoles has happened
 		$scope.$on("initialMetadataLoadingCompleted", function (event) {
+			$scope.availableCreatorRoles = getAvailableCreatorRoles();
+
+			if($scope.availableCreatorRoles.length>1) 
+				$('#indicatorRoleForm').css('display','none');
+			
 			refreshRoles();
 		});
 
