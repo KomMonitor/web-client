@@ -1,8 +1,9 @@
 angular.module('georesourceEditUserRolesModal').component('georesourceEditUserRolesModal', {
 	templateUrl: "components/kommonitorAdmin/adminGeoresourcesManagement/georesourceEditUserRolesModal/georesource-edit-user-roles-modal.template.html",
-	controller: ['kommonitorDataExchangeService', '$scope', '$rootScope', '$http', '__env', 'kommonitorMultiStepFormHelperService', 'kommonitorDataGridHelperService',
+	controller: ['kommonitorDataExchangeService', '$scope', '$rootScope', '$http', '__env', 'kommonitorMultiStepFormHelperService', 
+	'kommonitorDataGridHelperService', '$timeout', 
 		function GeoresourceEditUserRolesModalController(kommonitorDataExchangeService, $scope, $rootScope, 
-				$http, __env, kommonitorMultiStepFormHelperService, kommonitorDataGridHelperService) {
+				$http, __env, kommonitorMultiStepFormHelperService, kommonitorDataGridHelperService, $timeout) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 
@@ -79,14 +80,60 @@ angular.module('georesourceEditUserRolesModal').component('georesourceEditUserRo
 			if(!confirm('Sind Sie sicher, dass Sie den Eigentümerschaft an dieser Resource endgültig und unwiderruflich übertragen und damit abgeben wollen?'))
 				return;
 
-			// TODO FIXME prepare request to update role-based access
-			let patchBody = {};
-			let roleIds = kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid($scope.roleManagementTableOptions);
-			for (const roleId of roleIds) {
-				patchBody.allowedRoles.push(roleId);
+			$scope.putUserRoles();
+
+			$scope.putOwnership();
+		}
+
+		$scope.putUserRoles = function(){
+
+			$scope.loadingData = true;
+
+			let putBody = {
+				allowedRoles: kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid($scope.roleManagementTableOptions)
 			}
 
-			// all other to go next
+			$http({
+				url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/georesources/" + $scope.currentGeoresourceDataset.georesourceId + "/permissions",
+				method: "PUT",
+				data: putBody,
+				headers: {
+				   'Content-Type': "application/json"
+				}
+			}).then(function successCallback(response) {
+					// this callback will be called asynchronously
+					// when the response is available
+
+					$scope.successMessagePart = $scope.currentGeoresourceDataset.datasetName;
+
+					$rootScope.$broadcast("refreshGeoresourceOverviewTable", "edit", $scope.currentGeoresourceDataset.georesourceId);
+								
+					$("#georesourceEditUserRolesSuccessAlert").show();
+					$timeout(function(){
+				
+						$scope.loadingData = false;
+					});	
+
+				}, function errorCallback(error) {
+					$scope.errorMessagePart = "Fehler beim Aktualisieren der Zugriffsrechte. Fehler lautet: \n\n";
+					if(error.data){							
+						$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
+					}
+					else{
+						$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error);
+					}
+
+					$("#georesourceEditUserRolesErrorAlert").show();
+					$timeout(function(){
+				
+						$scope.loadingData = false;
+					});	
+			});
+		}
+
+		$scope.putOwnership = function(){
+
+			console.log("not yet implemented");
 		}
 
 		$scope.hideSuccessAlert = function () {

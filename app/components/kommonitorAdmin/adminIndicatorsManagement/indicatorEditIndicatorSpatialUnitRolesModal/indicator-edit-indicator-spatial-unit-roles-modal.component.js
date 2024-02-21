@@ -1,8 +1,9 @@
 angular.module('indicatorEditIndicatorSpatialUnitRolesModal').component('indicatorEditIndicatorSpatialUnitRolesModal', {
 	templateUrl: "components/kommonitorAdmin/adminIndicatorsManagement/indicatorEditIndicatorSpatialUnitRolesModal/indicator-edit-indicator-spatial-unit-roles-modal.template.html",
-	controller: ['kommonitorDataExchangeService', '$scope', '$rootScope', '$http', '__env', 'kommonitorMultiStepFormHelperService', 'kommonitorDataGridHelperService',
+	controller: ['kommonitorDataExchangeService', '$scope', '$rootScope', '$http', '__env', 'kommonitorMultiStepFormHelperService', 
+	'kommonitorDataGridHelperService', '$timeout',
 		function IndicatorEditIndicatorSpatialUnitRolesModalController(kommonitorDataExchangeService, $scope, $rootScope, 
-				$http, __env, kommonitorMultiStepFormHelperService, kommonitorDataGridHelperService) {
+				$http, __env, kommonitorMultiStepFormHelperService, kommonitorDataGridHelperService, $timeout) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 
@@ -31,7 +32,7 @@ angular.module('indicatorEditIndicatorSpatialUnitRolesModal').component('indicat
 		});
 
 		$scope.refreshRoleManagementTable_indicatorMetadata = function() {
-			let allowedRoles = $scope.currentGeoresourceDataset ? $scope.currentGeoresourceDataset.allowedRoles : [];
+			let allowedRoles = $scope.currentIndicatorDataset ? $scope.currentIndicatorDataset.allowedRoles : [];
 			$scope.roleManagementTableOptions_indicatorMetadata = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorEditRoleManagementTable', $scope.roleManagementTableOptions_indicatorMetadata, kommonitorDataExchangeService.accessControl, allowedRoles, true);
 		}
 
@@ -89,34 +90,6 @@ angular.module('indicatorEditIndicatorSpatialUnitRolesModal').component('indicat
 			}, 250);
 		};
 
-		$scope.buildPatchBody_indicatorSpatialUnitRoles = function () {
-			var patchBody =
-			{
-				"allowedRoles": []
-			}
-
-			let roleIds = kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid($scope.roleManagementTableOptions_indicatorSpatialUnitTimeseries);
-			for (const roleId of roleIds) {
-				patchBody.allowedRoles.push(roleId);
-			}
-
-			return patchBody;
-		};
-
-		$scope.buildPatchBody_indicatorMetadataRoles = function(){
-			var patchBody =
-			{
-				"allowedRoles": []
-			}
-
-			let roleIds = kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid($scope.roleManagementTableOptions_indicatorMetadata);
-			for (const roleId of roleIds) {
-				patchBody.allowedRoles.push(roleId);
-			}
-
-			return patchBody;
-		}
-
 		$scope.editIndicatorSpatialUnitRoles = function () {
 
 			if($scope.targetResourceCreatorRole !== undefined)
@@ -125,27 +98,73 @@ angular.module('indicatorEditIndicatorSpatialUnitRolesModal').component('indicat
 
 			$scope.executeRequest_indicatorMetadataRoles();
 
+			$scope.executeRequest_indicatorOwnership();
+
 			$scope.executeRequest_indicatorSpatialUnitRoles();			
 		};
 
 		$scope.executeRequest_indicatorMetadataRoles = function(){
-			//TODO FIXME
-			console.log("TODO implement API call to modify indicator metadata access and ownership");
+			$scope.loadingData = true;
+
+			let putBody = {
+				allowedRoles: kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid($scope.roleManagementTableOptions_indicatorMetadata)
+			}
+
+			$http({
+				url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/indicators/" + $scope.currentIndicatorDataset.indicatorId + "/permissions",
+				method: "PUT",
+				data: putBody,
+				headers: {
+				   'Content-Type': "application/json"
+				}
+			}).then(function successCallback(response) {
+					// this callback will be called asynchronously
+					// when the response is available
+
+					$scope.successMessagePart = $scope.currentIndicatorDataset.indicatorName;
+
+					$rootScope.$broadcast("refreshIndicatorOverviewTable", "edit", $scope.currentIndicatorDataset.indicatorId);
+								
+					$("#indicatorEditIndicatorSpatialUnitRolesSuccessAlert").show();
+					$timeout(function(){
+				
+						$scope.loadingData = false;
+					});	
+
+				}, function errorCallback(error) {
+					$scope.errorMessagePart = "Fehler beim Aktualisieren der Metadaten-Zugriffsrechte. Fehler lautet: \n\n";
+					if(error.data){							
+						$scope.errorMessagePart += kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
+					}
+					else{
+						$scope.errorMessagePart += kommonitorDataExchangeService.syntaxHighlightJSON(error);
+					}
+
+					$("#indicatorEditIndicatorSpatialUnitRolesErrorAlert").show();
+					$timeout(function(){
+				
+						$scope.loadingData = false;
+					});	
+			});
+		}
+
+		$scope.executeRequest_indicatorOwnership = function(){
+			console.log("not yet implemented");
 		}
 
 		$scope.executeRequest_indicatorSpatialUnitRoles = function(){
-			var patchBody = $scope.buildPatchBody_indicatorSpatialUnitRoles();
-
-			// TODO verify input
-
-			// TODO Create and perform POST Request with loading screen
+			
+			var putBody =
+			{
+				"allowedRoles": kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid($scope.roleManagementTableOptions_indicatorSpatialUnitTimeseries)
+			};
 
 			$scope.loadingData = true;
 
 			$http({
-				url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/indicators/" + $scope.currentIndicatorDataset.indicatorId + "/" + $scope.targetApplicableSpatialUnit.spatialUnitId,
-				method: "PATCH",
-				data: patchBody
+				url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/indicators/" + $scope.currentIndicatorDataset.indicatorId + "/" + $scope.targetApplicableSpatialUnit.spatialUnitId + "/permissions",
+				method: "PUT",
+				data: putBody
 				// headers: {
 				//    'Content-Type': undefined
 				// }
@@ -158,11 +177,12 @@ angular.module('indicatorEditIndicatorSpatialUnitRolesModal').component('indicat
 				$scope.loadingData = false;
 
 			}, function errorCallback(error) {
+				$scope.errorMessagePart = "Fehler beim Aktualisieren der Zugriffsrechte auf Zeitreihe der Raumeinheit " + $scope.targetApplicableSpatialUnit.spatialUnitName + ". Fehler lautet: \n\n";
 				if (error.data) {
-					$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
+					$scope.errorMessagePart += kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
 				}
 				else {
-					$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error);
+					$scope.errorMessagePart += kommonitorDataExchangeService.syntaxHighlightJSON(error);
 				}
 
 				$("#indicatorEditIndicatorSpatialUnitRolesErrorAlert").show();
