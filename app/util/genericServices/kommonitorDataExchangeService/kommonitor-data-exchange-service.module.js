@@ -89,8 +89,8 @@ angular
           this.setCurrentKomMonitorLoginRoleNames = function() {
             var possibleRoles = ["manage-realm"]
             this.accessControl.forEach(organizationalUnit => {
-              organizationalUnit.roles.forEach(role => {
-                possibleRoles.push(organizationalUnit.name + "-" + role.permissionLevel)
+              organizationalUnit.permissions.forEach(permission => {
+                possibleRoles.push(organizationalUnit.name + "-" + permission.permissionLevel)
               });
             });
             this.currentKomMonitorLoginRoleNames = this.currentKeycloakLoginRoles.filter(role => possibleRoles.includes(role));
@@ -110,9 +110,9 @@ angular
 
             // now iterate once over all possible KomMonitor roles and check if they are within previous map
             this.accessControl.forEach(organizationalUnit => {
-              organizationalUnit.roles.forEach(role => {
-                if(roleNameMap_loggedIn.has(organizationalUnit.name + "-" + role.permissionLevel)){
-                  this.currentKomMonitorLoginRoleIds.push(role.roleId);
+              organizationalUnit.permissions.forEach(permission => {
+                if(roleNameMap_loggedIn.has(organizationalUnit.name + "-" + permission.permissionLevel)){
+                  this.currentKomMonitorLoginRoleIds.push(permission.permissionId);
                 }
               });
             });
@@ -1768,7 +1768,7 @@ angular
           this.updateAvailableRoles = function() {
             this.availableRoles = [];
             for (let elem of this.accessControl) {
-              for (let role of elem.roles) {
+              for (let role of elem.permissions) {
                 let available = {...role, ...{"organizationalUnit": elem, "roleName": elem.name + "-" + role.permissionLevel}};
                 this.availableRoles.push(available);
               }
@@ -1780,6 +1780,42 @@ angular
           this.getAccessControlById = function(id){
             return this.accessControl_map.get(id);
           };
+
+          this.filterChildOrSelfOrganizationalUnits = function(organizationalUnitReferenceItem) {
+
+            return function (organizationalUnit) {
+
+              if(! organizationalUnitReferenceItem){
+                return true;
+              }
+
+              if(organizationalUnit.organizationalUnitId === organizationalUnitReferenceItem.organizationalUnitId)
+                return false;
+              if(organizationalUnitReferenceItem.children && organizationalUnitReferenceItem.children.length > 0){
+                return ! self.isDescendantOfReferenceItem(organizationalUnitReferenceItem, organizationalUnit);						
+              }
+              
+              return true;
+            };
+          };
+    
+          this.isDescendantOfReferenceItem = function(organizationalUnitReferenceItem, organizationalUnitCandidate){
+
+            if (organizationalUnitReferenceItem.children.includes(organizationalUnitCandidate.organizationalUnitId)){
+              return true;
+            }
+
+            // if not then check all further descendants
+            for (const childOrganizationalUnitId of organizationalUnitReferenceItem.children) {
+              let childOrganizationalUnit = self.getAccessControlById(childOrganizationalUnitId);
+
+              if(childOrganizationalUnit.children && childOrganizationalUnit.children.length > 0){
+                return this.isDescendantOfReferenceItem(childOrganizationalUnit, organizationalUnitCandidate);
+              }
+            }
+            
+            return false;
+          }
 
           this.fetchTopicsMetadata = async function(keycloakRolesArray){
             self.setTopics(await kommonitorCacheHelperService.fetchTopicsMetadata(keycloakRolesArray));

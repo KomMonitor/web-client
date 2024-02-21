@@ -1,11 +1,12 @@
-angular.module('kommonitorDataGridHelper', ['kommonitorDataExchange']);
+angular.module('kommonitorDataGridHelper', ['kommonitorDataExchange', 'kommonitorKeycloakHelper']);
 
 angular
   .module('kommonitorDataGridHelper', [])
   .service(
-    'kommonitorDataGridHelperService', ['kommonitorDataExchangeService', '$rootScope', '$timeout', '$http', '$httpParamSerializerJQLike', '__env',
+    'kommonitorDataGridHelperService', ['kommonitorDataExchangeService', '$rootScope', '$timeout', '$http', 
+    '$httpParamSerializerJQLike', '__env', 'kommonitorKeycloakHelperService', 
     function (kommonitorDataExchangeService, $rootScope, $timeout,
-      $http, $httpParamSerializerJQLike, __env) {
+      $http, $httpParamSerializerJQLike, __env, kommonitorKeycloakHelperService) {
 
       var self = this;
       this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
@@ -2014,7 +2015,7 @@ angular
         let columnDefs = [];
         // Only show edit column if user is Realm Admin
         if (isRealmAdmin) {
-          columnDefs.push({ headerName: 'Editierfunktionen', maxWidth: 200, checkboxSelection: (row) => {return row.data.name != "public" && row.data.name != "kommonitor"}, filter: false, sortable: false, cellRenderer: 'displayEditButtons_accessControl' });
+          columnDefs.push({ headerName: 'Editierfunktionen', pinned: 'left', maxWidth: 150, checkboxSelection: (row) => {return row.data.name != "public" && row.data.name != "kommonitor"}, filter: false, sortable: false, cellRenderer: 'displayEditButtons_accessControl' });
         }
 
         return columnDefs.concat([
@@ -2022,28 +2023,44 @@ angular
           { 
             headerName: 'Organisationseinheit', 
             field: "name", 
-            minWidth: 300,
+            pinned: 'left', 
+            minWidth: 250,
             cellClassRules: {
               'user-roles-normal': row => row.data.contact != 'public',
               'user-roles-public': row => row.data.contact == 'public',
             } 
-          },
-          { headerName: 'Rollen', field: "roleString", minWidth: 300 },
-          { headerName: 'Beschreibung', field: "description", minWidth: 400 },
-          { headerName: 'Kontakt', field: "contact", minWidth: 400 },
+          }, 
+          { headerName: 'Hierarchie - übergeordnete Organisationseinheit', field: "parentName",  maxWidth: 250 }, 
+          { headerName: 'Hierarchie - direkt untergeordnete Organisationseinheiten', 
+              cellRenderer: function(param){                
+                return param.data.ownChildGroupsCount + " direkte Untergruppe(n)<br/><br/>" + param.data.ownChildGroupNames;
+              }, 
+            maxWidth: 250 },        
+          { headerName: 'Beschreibung', field: "description", maxWidth: 300 },
+          { headerName: 'Kontakt', field: "contact", maxWidth: 300 },
+          { headerName: 'Mandant', field: "mandant", cellDataType: 'boolean', maxWidth: 125 }
+          
         ]);
       };
 
       this.buildDataGridRowData_accessControl = function(dataArray){
-        let data = JSON.parse(JSON.stringify(dataArray));
-        for (let elem of data) {
-          elem.roleString = "";
-          for (let role of elem.roles) {
-            elem.roleString += role.permissionLevel + ", ";
-          }
-          elem.roleString = elem.roleString.substring(0, elem.roleString.length - 2);
-        }
-        return data;
+        return dataArray.map(dataItem => {
+          // add geometry and database record ID to properties to be available within data grid object
+          let parentId = dataItem.parentId;
+          let parentName = "";
+          let parentObject = dataArray.filter(item => item.organizationalUnitId == parentId)[0];
+          if(parentObject && parentObject.name){
+            parentName = parentObject.name;
+          }          
+          dataItem.parentName = parentName;
+          
+          dataItem.ownChildGroupsCount = kommonitorKeycloakHelperService.getOwnChildGroupsCount(dataItem.keycloakId);
+
+          let organizationalUnitChildrenUnits = dataItem.children.map(id => kommonitorDataExchangeService.getAccessControlById(id));
+          dataItem.ownChildGroupNames = kommonitorKeycloakHelperService.getOwnChildGroupNames(organizationalUnitChildrenUnits);
+          return dataItem;
+         }
+        );
       };
 
       this.buildDataGridOptions_accessControl = function(accessControlArray){
@@ -2133,7 +2150,7 @@ angular
 
           let roleMetadata = kommonitorDataExchangeService.getAccessControlById(id);
 
-          $rootScope.$broadcast("onEditRoleMetadata", roleMetadata);
+          $rootScope.$broadcast("onEditOrganizationalUnitMetadata", roleMetadata);
         });
       };  
 

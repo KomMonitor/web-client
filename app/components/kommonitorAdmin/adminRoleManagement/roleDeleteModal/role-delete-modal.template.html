@@ -138,8 +138,8 @@
 						<div class="form-group">
 							<label>Gleichnamige Keycloak-Rolle mit l&ouml;schen?*</label>
 							<label class="switch">
-								<input type="checkbox" value="deleteCorrespondingKeycloakRole"
-									ng-model="deleteCorrespondingKeycloakRole">
+								<input type="checkbox" value="deleteCorrespondingKeycloakGroup"
+									ng-model="deleteCorrespondingKeycloakGroup">
 								<span class="switchslider round"></span>
 							</label>
 
@@ -155,11 +155,11 @@
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Schlie&szlig;en</button>
-				<button type="button" class="btn btn-danger" ng-click="deleteRoles()"
+				<button type="button" class="btn btn-danger" ng-click="deleteOrganizationalUnits()"
 					ng-disabled="! elementsToDelete.length > 0">Unwiderruflich l&ouml;schen</button>
 			</div>
 
-			<div id="rolesDeleteSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
+			<div id="ouDeleteSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
 				class="alert alert-success alert-dismissable">
 				<button type="button" class="close" ng-click="hideSuccessAlert()" aria-hidden="true">&times;</button>
 				<h4><i class="icon fa fa-check"></i>Folgende Organisationseinheiten wurde erfolgreich gel&ouml;scht</h4>
@@ -168,7 +168,7 @@
 				</ul>
 			</div>
 
-			<div id="rolesDeleteErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
+			<div id="ouDeleteErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
 				class="alert alert-danger alert-dismissable">
 				<button type="button" class="close" ng-click="hideErrorAlert()" aria-hidden="true">&times;</button>
 				<h4><i class="icon fa fa-ban"></i>L&ouml;schen fehlgeschlagen</h4>
