@@ -62,7 +62,7 @@ angular
           this.currentKeycloakLoginRoles = [];
           this.currentKomMonitorLoginRoleNames = [];
           this.currentKeycloakLoginGroups = [];
-          this.currentKomMonitorLoginGroupNames = [];
+          this.currentKomMonitorLoginOrganizationalUnits = [];
           this.currentKeycloakUser;
 
           // MAP objects for available resource metadata in order to have quick access to datasets by ID
@@ -104,30 +104,18 @@ angular
             this.currentKomMonitorLoginRoleNames = this.currentKeycloakLoginRoles.filter(role => possibleRoles.includes(role));
           }
 
-          this.setCurrentKomMonitorLoginRoleIds = function() {
-            this.currentKomMonitorLoginRoleIds = [];
+          this.setCurrentKomMonitorLoginOrganizationalUnits = function() {                        
 
-            // make a map of all role names currently logged in user according to pattern 
-            // <organization>-<permissionLevel> 
-            let roleNameMap_loggedIn = new Map();
-
-            for (const roleName of this.currentKeycloakLoginRoles) {
-              // roleName consists of <organization>-<permission-level>
-              roleNameMap_loggedIn.set(roleName, "");              
-            }
-
-            // now iterate once over all possible KomMonitor roles and check if they are within previous map
+            // now iterate once over all possible KomMonitor orgas and check if user belongs to this orga via its keycloak group
             this.accessControl.forEach(organizationalUnit => {
-              organizationalUnit.permissions.forEach(permission => {
-                if(roleNameMap_loggedIn.has(organizationalUnit.name + "-" + permission.permissionLevel)){
-                  this.currentKomMonitorLoginRoleIds.push(permission.permissionId);
-                }
-              });
+              if(self.currentKeycloakLoginGroupNames.includes(organizationalUnit.name)){
+                self.currentKomMonitorLoginOrganizationalUnits.push(organizationalUnit);
+              }              
             });
           };
 
-          this.getCurrentKomMonitorLoginRoleIds = function() {
-            return this.currentKomMonitorLoginRoleIds;
+          this.getCurrentKomMonitorLoginOrganizationalUnits = function() {
+            return this.currentKomMonitorLoginOrganizationalUnits;
           };
 
 
@@ -1110,8 +1098,11 @@ angular
                     self.isRealmAdmin = true;
                     // self.currentKeycloakLoginRoles = self.currentKeycloakLoginRoles.concat(Auth.keycloak.tokenParsed.resource_access["realm-management"].roles);
                   }
+                  self.currentKeycloakLoginGroups = Auth.keycloak.tokenParsed.groups;
+                  self.currentKeycloakLoginGroupNames = self.currentKeycloakLoginGroups.map(groupPath => groupPath.split("/")[groupPath.split("/").length - 1]);
                 } else {
                   self.currentKeycloakLoginRoles = [];
+                  self.currentKeycloakLoginGroups = [];
                 }
 
                 // set token expiration
@@ -1738,7 +1729,8 @@ angular
           this.fetchAccessControlMetadata = async function(keycloakRolesArray){
             self.setAccessControl(await kommonitorCacheHelperService.fetchAccessControlMetadata(keycloakRolesArray));
             self.setCurrentKomMonitorLoginRoleNames();
-            self.setCurrentKomMonitorLoginRoleIds();
+            self.setCurrentKomMonitorLoginOrganizationalUnits();
+            self.current
           };
 
           this.replaceSingleAccessControlMetadata = function(targetRoleMetadata){
@@ -2127,7 +2119,7 @@ angular
           //   self.roleMetadataForCurrentKeycloakLoginRoles = self.availableRoles.filter(role => self.currentKeycloakLoginRoles.includes(role.roleName));                       
             
           //   var filteredApplicableUnits = indicatorMetadata.applicableSpatialUnits.filter(function (applicableSpatialUnit) {
-          //     return applicableSpatialUnit.allowedRoles.length == 0 || applicableSpatialUnit.allowedRoles.some(allowedRoleId => self.roleMetadataForCurrentKeycloakLoginRoles.some(roleMetadata => roleMetadata.roleId === allowedRoleId) );                
+          //     return applicableSpatialUnit.permissions.length == 0 || applicableSpatialUnit.permissions.some(allowedRoleId => self.roleMetadataForCurrentKeycloakLoginRoles.some(roleMetadata => roleMetadata.roleId === allowedRoleId) );                
           //   });
 
           //   return filteredApplicableUnits.length > 0;
@@ -2961,15 +2953,15 @@ angular
     };
 
     this.getAllowedRolesString = function(allowedRoleIds){
-      var allowedRoles = [];
+      var permissions = [];
       for(const organizationalUnit of this.accessControl){
         for(const role of organizationalUnit.roles){
           if(allowedRoleIds.includes(role.roleId)){
-            allowedRoles.push(organizationalUnit.name + "-" + role.permissionLevel)
+            permissions.push(organizationalUnit.name + "-" + role.permissionLevel)
           }
         }
       }
-      return allowedRoles.join(", ");
+      return permissions.join(", ");
     }
 
     this.checkDeletePermission = function(){

@@ -33,7 +33,9 @@
 							<span style="word-break: break-all;"><b>E-Mail:</b><i>{{$ctrl.kommonitorDataExchangeServiceInstance.currentKeycloakUser.email}}</i></span>
 						</div>
 						<br/>
-						<span><b>zugewiesene Rollen:</b></span> <i>{{$ctrl.kommonitorDataExchangeServiceInstance.currentKomMonitorLoginRoleNames}}</i>             
+						<span><b>Rollen:</b></span> <i>{{$ctrl.kommonitorDataExchangeServiceInstance.currentKomMonitorLoginRoleNames}}</i>             
+						<br/>
+						<span><b>Gruppen (Hierarchie):</b></span> <i>{{$ctrl.kommonitorDataExchangeServiceInstance.currentKeycloakLoginGroups}}</i>						
 						<br/>
 						<br/>
 						<span><b>Session G&uuml;ltigkeit:</b> {{$ctrl.kommonitorDataExchangeServiceInstance.keycloakTokenExpirationInfo}} Minuten</span>
