@@ -436,9 +436,9 @@ angular.element(document).ready(function ($http) {
 
 var urlRequiresKeycloakAuthHeader = function(url){
   // /admin/ is used to make admin requests against keycloak
-  if (url.includes("/admin/")){
-    return false;
-  }
+  // if (url.includes("/admin/")){
+  //   return false;
+  // }
   // ORS isochrones and directions requests
   if (url.includes("isochrones")){
     return false;
