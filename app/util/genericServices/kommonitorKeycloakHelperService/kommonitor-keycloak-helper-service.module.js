@@ -476,7 +476,7 @@ angular
 
         return await $http({
           url: this.targetUrlToKeycloakInstance + "admin/realms/" + this.realm + "/groups/" + groupBody.id,
-          method: 'POST',
+          method: 'PUT',
           data: groupBody,
           headers: {
             'Content-Type': 'application/json',
