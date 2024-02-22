@@ -250,7 +250,7 @@
 								<fieldset ng-if="$ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity">
 									<h2 class="fs-title">Zugriffsschutz und Eigent&uuml;merschaft</h2>
 									<h3 class="fs-subtitle">Vergabe der Zugriffsrechte auf Datensatz-Metadaten und -Features pro Organisationseinheit</h3>
-									<div class="row">
+									<div class="row" ng-if="availableCreatorRoles.length>1">
 										<div class="col-md-3"></div>
 										<div class="col-md-6 col-sm-6 col-xs-12">
 											<div class="alert alert-danger">
@@ -258,7 +258,7 @@
 											</div>
 											<label for="addSpatialUnitUserRoleSelect">Eigent&uuml;mer-Organisationseinheit</label>
 											<select id="addSpatialUnitUserRoleSelect" ng-model="spatialUnitTargetCreatorRole" class="form-control" ng-change="onChangeSelectedSpatialunitTargetCreatorRole(spatialUnitTargetCreatorRole)" required>
-												<option ng-repeat="role in availableCreatorRoles" value="{{role.roleId}}">{{role.name}}</option>
+												<option ng-repeat="role in availableCreatorRoles" value="{{role.unitId}}">{{role.name}}</option>
 											</select>		
 											<p></p>
 										</div>

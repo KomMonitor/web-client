@@ -23,7 +23,7 @@ angular.module('georesourceEditUserRolesModal').component('georesourceEditUserRo
 			$scope.currentGeoresourceDataset = georesourceDataset;
 			console.log($scope.currentGeoresourceDataset)
 
-			$scope.availableRoles = redefineAvailableRoles();
+			$scope.availableRoles = getAvailableCreatorRoles();
 			$scope.$apply();
 
 			$scope.resetGeoresourceEditUserRolesForm();
@@ -45,15 +45,21 @@ angular.module('georesourceEditUserRolesModal').component('georesourceEditUserRo
 			console.log("Target creator role selected to be ",$scope.targetResourceCreatorRole);
 		}	
 		
-		function redefineAvailableRoles() {
+		function getAvailableCreatorRoles() {
 
-			let tempRoles = [];
-			kommonitorDataExchangeService.availableRoles.forEach(role => {
-				if(role.permissionLevel == 'creator')
-					tempRoles.push(role);
+			let roles = [];
+			kommonitorDataExchangeService.accessControl.forEach(unit => {
+				unit.permissions.forEach(permission => {
+					if(permission.permissionLevel=='creator') {
+						roles.push({
+							name: unit.name,
+							unitId: unit.organizationalUnitId
+						});
+					}
+				});
 			});
 
-			return tempRoles;
+			return roles;
 		}
 
 		$scope.resetGeoresourceEditUserRolesForm = function () {

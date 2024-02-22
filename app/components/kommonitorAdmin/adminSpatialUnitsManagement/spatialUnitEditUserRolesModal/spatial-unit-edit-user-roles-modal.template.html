@@ -65,7 +65,7 @@
 											</div>
 											<select id="targetUserRoleSelect" ng-model="targetResourceCreatorRole" class="form-control" ng-change="onChangeSelectedTargetCreatorRole(targetResourceCreatorRole)" required>
 												<option selected value><b>Eigent&uuml;merschaft nicht &uuml;bertragen</b></option>
-												<option ng-repeat="role in availableRoles | filter:spatialUnitTargetUserRoleFilter" value="{{role.roleId}}">{{role.organizationalUnit.name}}</option>
+												<option ng-repeat="role in availableRoles | filter:spatialUnitTargetUserRoleFilter" value="{{role.unitId}}">{{role.name}}</option>
 											</select>
 										</div>
 										<div class="col-md-3"></div>

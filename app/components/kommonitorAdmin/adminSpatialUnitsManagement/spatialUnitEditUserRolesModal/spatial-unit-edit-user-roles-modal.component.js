@@ -22,7 +22,7 @@ angular.module('spatialUnitEditUserRolesModal').component('spatialUnitEditUserRo
 
 			$scope.currentSpatialUnitDataset = spatialUnitDataset;
 
-			$scope.availableRoles = redefineAvailableRoles();
+			$scope.availableRoles = getAvailableCreatorRoles();
 			$scope.$apply();
 
 			$scope.resetSpatialUnitEditUserRolesForm();
@@ -44,17 +44,23 @@ angular.module('spatialUnitEditUserRolesModal').component('spatialUnitEditUserRo
 			console.log("Target creator role selected to be ",$scope.targetResourceCreatorRole);
 		}	
 		
-		function redefineAvailableRoles() {
+		function getAvailableCreatorRoles() {
 
-			let tempRoles = [];
-			kommonitorDataExchangeService.availableRoles.forEach(role => {
-				if(role.permissionLevel == 'creator')
-					tempRoles.push(role);
+			let roles = [];
+			kommonitorDataExchangeService.accessControl.forEach(unit => {
+				unit.permissions.forEach(permission => {
+					if(permission.permissionLevel=='creator') {
+						roles.push({
+							name: unit.name,
+							unitId: unit.organizationalUnitId
+						});
+					}
+				});
 			});
 
-			return tempRoles;
+			return roles;
 		}
-
+		
 		$scope.resetSpatialUnitEditUserRolesForm = function () {
 
 			$scope.targetResourceCreatorRole = undefined;

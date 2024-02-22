@@ -108,22 +108,15 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 		function getAvailableCreatorRoles() {
 
 			let roles = [];
-			kommonitorDataExchangeService.currentKomMonitorLoginRoleNames.forEach(function(roleName, index) {
-
-				let parts = roleName.split('-');
-
-				if(parts[parts.length-1]=='creator') {
-
-					roleName = parts[0];
-
-					if(parts[0].search('.') > -1) 
-						roleName = parts[0].split('.')[0];
-
-					roles.push({
-						name: roleName,
-						roleId: kommonitorDataExchangeService.currentKomMonitorLoginRoleIds[index]
-					});
-				}
+			kommonitorDataExchangeService.accessControl.forEach(unit => {
+				unit.permissions.forEach(permission => {
+					if(permission.permissionLevel=='creator') {
+						roles.push({
+							name: unit.name,
+							unitId: unit.organizationalUnitId
+						});
+					}
+				});
 			});
 
 			return roles;

@@ -939,7 +939,7 @@
 								<fieldset ng-if="$ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity">
 									<h2 class="fs-title">Zugriffsschutz und Eigent&uuml;merschaft</h2>
 									<h3 class="fs-subtitle">Vergabe der Zugriffsrechte auf Indikatoren-Metadaten pro Organisationseinheit</h3>
-									<div class="row">
+									<div class="row" ng-if="availableCreatorRoles.length>1">
 										<div class="col-md-3"></div>
 										<div class="col-md-6 col-sm-6 col-xs-12">
 											<div class="alert alert-danger">
@@ -947,7 +947,7 @@
 											</div>
 											<label for="addIndicatorUserRoleSelect">Eigent&uuml;mer-Organisationseinheit</label>
 											<select id="addIndicatorUserRoleSelect" ng-model="indicatorTargetCreatorRole" class="form-control" ng-change="onChangeSelectedIndicatorTargetCreatorRole(indicatorTargetCreatorRole)" required>
-												<option ng-repeat="role in availableCreatorRoles" value="{{role.roleId}}">{{role.name}}</option>
+												<option ng-repeat="role in availableCreatorRoles" value="{{role.unitId}}">{{role.name}}</option>
 											</select>		
 											<p></p>
 										</div>
