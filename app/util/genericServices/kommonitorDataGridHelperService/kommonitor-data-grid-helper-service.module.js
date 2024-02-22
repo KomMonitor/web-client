@@ -2056,9 +2056,6 @@ angular
           
           dataItem.ownChildGroupsCount = kommonitorKeycloakHelperService.getOwnChildGroupsCount(dataItem.keycloakId);
 
-          // hier
-          dataItem.children = [];
-
           let organizationalUnitChildrenUnits = dataItem.children.map(id => kommonitorDataExchangeService.getAccessControlById(id));
           dataItem.ownChildGroupNames = kommonitorKeycloakHelperService.getOwnChildGroupNames(organizationalUnitChildrenUnits);
           return dataItem;

@@ -1775,42 +1775,8 @@ angular
 
           this.updateAvailableRoles = function() {
             this.availableRoles = [];
-            //console.log(this.accessControl)
+
             for (let elem of this.accessControl) {
-
-              // HIER
-              if(elem.name=='kommonitor' || elem.name=='TestOrga')
-              elem.permissions =  [
-                    {
-                        "id": "edb29cfc-9d34-4df0-b059-575f213d381",
-                        "permissionLevel": "creator",
-                        "roleId": "fbc7194b-1272-4734-90d9-2f86721fc896"
-                    },
-                    {
-                        "id": "215bbe29-31d2-4ef3-b46f-c1ce701a4fde",
-                        "permissionLevel": "publisher",
-                        "roleId": "702f2140-eb72-405a-af5a-ddcbb2734ff6"
-                    },
-                    {
-                        "id": "d741fb19-963b-44df-b920-81a0381fc2c6",
-                        "permissionLevel": "viewer",
-                        "roleId": "71bd1c0d-bd0d-4bb9-ab57-3ec9ed36f76a"
-                    },
-                    {
-                        "id": "271702f2-7b2d-463a-9497-14b8877d96e6",
-                        "permissionLevel": "viewer",
-                        "roleId": "71bd1c0d-bd0d-4bb9-ab57-3ec9ed36f76a"
-                    }
-                ];
-              else
-              elem.permissions =  [
-                    {
-                        "id": "271702f2-7b2d-463a-9497-14b8877d96e6",
-                        "permissionLevel": "viewer",
-                        "roleId": "71bd1c0d-bd0d-4bb9-ab57-3ec9ed36f76a"
-                    }
-                ];
-
               for (let role of elem.permissions) {
                 let available = {...role, ...{"organizationalUnit": elem, "roleName": elem.name + "-" + role.permissionLevel}};
                 this.availableRoles.push(available);
