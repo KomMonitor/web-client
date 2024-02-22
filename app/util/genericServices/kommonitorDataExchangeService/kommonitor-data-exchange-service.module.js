@@ -61,6 +61,8 @@ angular
           this.enableKeycloakSecurity = __env.enableKeycloakSecurity;
           this.currentKeycloakLoginRoles = [];
           this.currentKomMonitorLoginRoleNames = [];
+          this.currentKeycloakLoginGroups = [];
+          this.currentKomMonitorLoginGroupNames = [];
           this.currentKeycloakUser;
 
           // MAP objects for available resource metadata in order to have quick access to datasets by ID
@@ -87,11 +89,17 @@ angular
 
           // Filter out roles unrelated to kommonitor
           this.setCurrentKomMonitorLoginRoleNames = function() {
-            var possibleRoles = ["manage-realm"]
+            /*
+              window.__env.keycloakKomMonitorGroupsEditRoleNames = ["client-users-creator", "unit-users-creator"];
+              window.__env.keycloakKomMonitorThemesEditRoleNames = ["client-themes-creator", "unit-themes-creator"];
+              window.__env.keycloakKomMonitorGeodataEditRoleNames = ["client-resources-creator", "unit-resources-creator"];
+            */
+            let roleSuffixes = __env.keycloakKomMonitorGroupsEditRoleNames.concat(__env.keycloakKomMonitorThemesEditRoleNames).concat(__env.keycloakKomMonitorGeodataEditRoleNames);
+            var possibleRoles = ["manage-realm"];
             this.accessControl.forEach(organizationalUnit => {
-              organizationalUnit.permissions.forEach(permission => {
-                possibleRoles.push(organizationalUnit.name + "-" + permission.permissionLevel)
-              });
+              for (const roleSuffix of roleSuffixes) {
+                possibleRoles.push(organizationalUnit.name + "." + roleSuffix); 
+              }              
             });
             this.currentKomMonitorLoginRoleNames = this.currentKeycloakLoginRoles.filter(role => possibleRoles.includes(role));
           }
