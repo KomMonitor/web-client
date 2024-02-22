@@ -356,6 +356,9 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 
 				let roleIds = kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid($scope.roleManagementTableOptions);
 
+				// TODO FIXME currently set owner the same as indicator metadata
+				// is there a use case where different indicator spatial units timeseries may have different owners?  
+
 				var scopeProperties = {
 					"targetSpatialUnitMetadata": {
 						"spatialUnitLevel": $scope.targetSpatialUnitMetadata.spatialUnitLevel,	
@@ -363,7 +366,8 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 					"currentIndicatorDataset": {
 						"defaultClassificationMapping": $scope.currentIndicatorDataset.defaultClassificationMapping
 					},
-					"permissions": roleIds
+					"permissions": roleIds,
+					"ownerId": $scope.currentIndicatorDataset.ownerId
 				}
 				$scope.putBody_indicators = kommonitorImporterHelperService.buildPutBody_indicators(scopeProperties);
 	

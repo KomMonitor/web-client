@@ -14,16 +14,16 @@ angular.module('georesourceEditUserRolesModal').component('georesourceEditUserRo
 		$scope.successMessagePart = undefined;
 		$scope.errorMessagePart = undefined;
 
-		$scope.georesourcesTargetUserRoleFilter = undefined;
+		$scope.ownerOrgFilter = undefined;
 
-		$scope.targetResourceCreatorRole = undefined;
+		$scope.ownerOrganization = undefined;
 
 		$scope.$on("onEditGeoresourcesUserRoles", function (event, georesourceDataset) {
 
 			$scope.currentGeoresourceDataset = georesourceDataset;
 			console.log($scope.currentGeoresourceDataset)
 
-			$scope.availableRoles = getAvailableCreatorRoles();
+			
 			$scope.$apply();
 
 			$scope.resetGeoresourceEditUserRolesForm();
@@ -39,36 +39,19 @@ angular.module('georesourceEditUserRolesModal').component('georesourceEditUserRo
 			$scope.refreshRoleManagementTable();
 		});
 
-		$scope.onChangeSelectedTargetCreatorRole = function(targetResourceCreatorRole) {
+		$scope.onChangeOwner = function(ownerOrganization) {
 
-			$scope.targetResourceCreatorRole = targetResourceCreatorRole;
-			console.log("Target creator role selected to be ",$scope.targetResourceCreatorRole);
+			$scope.ownerOrganization = ownerOrganization;
+			console.log("Target creator role selected to be ",$scope.ownerOrganization);
 		}	
-		
-		function getAvailableCreatorRoles() {
-
-			let roles = [];
-			kommonitorDataExchangeService.accessControl.forEach(unit => {
-				unit.permissions.forEach(permission => {
-					if(permission.permissionLevel=='creator') {
-						roles.push({
-							name: unit.name,
-							unitId: unit.organizationalUnitId
-						});
-					}
-				});
-			});
-
-			return roles;
-		}
 
 		$scope.resetGeoresourceEditUserRolesForm = function () {
 
-			$scope.targetResourceCreatorRole = undefined;
+			$scope.ownerOrganization = undefined;
 			document.getElementById('targetUserRoleSelect').selectedIndex = 0;
 
 			$scope.refreshRoleManagementTable();
-			$scope.georesourcesTargetUserRoleFilter = undefined;
+			$scope.ownerOrgFilter = undefined;
 
 			$scope.successMessagePart = undefined;
 			$scope.errorMessagePart = undefined;
@@ -82,7 +65,7 @@ angular.module('georesourceEditUserRolesModal').component('georesourceEditUserRo
 
 		$scope.editGeoresourceEditUserRolesForm = function(){
 
-			if($scope.targetResourceCreatorRole !== undefined)
+			if($scope.ownerOrganization !== undefined)
 			if(!confirm('Sind Sie sicher, dass Sie den Eigentümerschaft an dieser Resource endgültig und unwiderruflich übertragen und damit abgeben wollen?'))
 				return;
 
@@ -139,7 +122,48 @@ angular.module('georesourceEditUserRolesModal').component('georesourceEditUserRo
 
 		$scope.putOwnership = function(){
 
-			console.log("not yet implemented");
+			$scope.loadingData = true;
+
+			let putBody = {
+				"ownerId": $scope.ownerOrganization
+			}
+
+			$http({
+				url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/georesources/" + $scope.currentGeoresourceDataset.georesourceId + "/ownership",
+				method: "PUT",
+				data: putBody,
+				headers: {
+				   'Content-Type': "application/json"
+				}
+			}).then(function successCallback(response) {
+					// this callback will be called asynchronously
+					// when the response is available
+
+					$scope.successMessagePart = $scope.currentGeoresourceDataset.datasetName;
+
+					$rootScope.$broadcast("refreshGeoresourceOverviewTable", "edit", $scope.currentGeoresourceDataset.georesourceId);
+								
+					$("#georesourceEditUserRolesSuccessAlert").show();
+					$timeout(function(){
+				
+						$scope.loadingData = false;
+					});	
+
+				}, function errorCallback(error) {
+					$scope.errorMessagePart = "Fehler beim Aktualisieren der Eigentümerschaft. Fehler lautet: \n\n";
+					if(error.data){							
+						$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
+					}
+					else{
+						$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error);
+					}
+
+					$("#georesourceEditUserRolesErrorAlert").show();
+					$timeout(function(){
+				
+						$scope.loadingData = false;
+					});	
+			});
 		}
 
 		$scope.hideSuccessAlert = function () {

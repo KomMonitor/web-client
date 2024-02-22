@@ -102,26 +102,10 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 
 		$scope.roleManagementTableOptions = undefined;
 		
-		$scope.georesourceTargetCreatorRole = undefined;
+		$scope.ownerOrganization = undefined;
 
-		function getAvailableCreatorRoles() {
-
-			let roles = [];
-			kommonitorDataExchangeService.accessControl.forEach(unit => {
-				unit.permissions.forEach(permission => {
-					if(permission.permissionLevel=='creator') {
-						roles.push({
-							name: unit.name,
-							unitId: unit.organizationalUnitId
-						});
-					}
-				});
-			});
-
-			return roles;
-		}
-
-		$scope.onChangeSelectedGeoresourceTargetCreatorRole = function(orgUnitId) {
+		$scope.onChangeOwner = function(orgUnitId) {
+			$scope.ownerOrganization = orgUnitId;
 
 			refreshRoles(orgUnitId);
 
@@ -135,17 +119,19 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 
 		// make sure that initial fetching of availableRoles has happened
 		$scope.$on("initialMetadataLoadingCompleted", function (event) {
-			$scope.availableCreatorRoles = getAvailableCreatorRoles();
 
-			if($scope.availableCreatorRoles.length>1) 
-				$('#georesourceRoleForm').css('display','none');
+			$('#georesourceRoleForm').css('display','none');
 
 			refreshRoles();
+
+			setTimeout(() => {
+				$scope.$digest();	
+			}, 250);
 		});
 
 		function refreshRoles(orgUnitId) {				
-			let permissionId_ownerUnit = orgUnitId ? kommonitorDataExchangeService.getAccessControlById(orgUnitId).permissions.filter(permission => permission.permissionLevel == "viewer").map(permission => permission.permissionId)[0] : []; 
-			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('georesourceAddRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, [permissionId_ownerUnit], true);
+			let permissionIds_ownerUnit = orgUnitId ? kommonitorDataExchangeService.getAccessControlById(orgUnitId).permissions.filter(permission => permission.permissionLevel == "viewer" || permission.permissionLevel == "editor").map(permission => permission.permissionId) : []; 
+			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('georesourceAddRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, permissionIds_ownerUnit, true);
 		}
 
 		$scope.georesourceTopic_mainTopic = undefined;
@@ -550,7 +536,8 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 			  "isAOI": $scope.isAOI,
 				"isLOI": $scope.isLOI,
 				"isPOI": $scope.isPOI,
-			  "topicReference": null
+			  "topicReference": null,
+			  "ownerId": $scope.ownerOrganization
 			};
 
 			let roleIds = kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid($scope.roleManagementTableOptions);
@@ -829,6 +816,8 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 					$scope.georesourceTopic_subsubsubTopic = topicHierarchy[3];
 				}
 
+				$scope.ownerOrganization = $scope.metadataImportSettings.ownerId;
+
 				setTimeout(function(){
 					$("#poiSymbolPicker").val("").iconpicker('setIcon', 'glyphicon-' + $scope.metadataImportSettings.poiSymbolBootstrap3Name);
 					// $("#poiSymbolPicker i").css('glyphicon glyphicon-' + $scope.metadataImportSettings.poiSymbolBootstrap3Name);
@@ -939,6 +928,8 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 			else {
 				metadataExport.topicReference = "";
 			}
+
+			metadataExport.ownerId = $scope.ownerOrganization;
 
 
 			var metadataJSON = JSON.stringify(metadataExport);

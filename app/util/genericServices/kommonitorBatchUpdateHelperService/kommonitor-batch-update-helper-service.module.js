@@ -202,7 +202,8 @@ angular
 									"currentIndicatorDataset": {
 										"defaultClassificationMapping": row.name.defaultClassificationMapping
 									},
-									"permissions": allowedRoleIds
+									"permissions": allowedRoleIds,
+									"ownerId": $scope.currentIndicatorDataset.ownerId
 								};
 								 var putBody_indicators = kommonitorImporterHelperService.buildPutBody_indicators(scopeProperties);
 								 //console.log("putBody_indicators of row " + i + ": ", putBody_indicators);

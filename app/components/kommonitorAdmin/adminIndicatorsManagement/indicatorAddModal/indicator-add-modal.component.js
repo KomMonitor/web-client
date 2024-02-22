@@ -156,26 +156,10 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 
 		$scope.roleManagementTableOptions = undefined;
 
-		$scope.indicatorTargetCreatorRole = undefined;
+		$scope.ownerOrganization = undefined;
 
-		function getAvailableCreatorRoles() {
-
-			let roles = [];
-			kommonitorDataExchangeService.accessControl.forEach(unit => {
-				unit.permissions.forEach(permission => {
-					if(permission.permissionLevel=='creator') {
-						roles.push({
-							name: unit.name,
-							unitId: unit.organizationalUnitId
-						});
-					}
-				});
-			});
-
-			return roles;
-		}
-
-		$scope.onChangeSelectedIndicatorTargetCreatorRole = function(orgUnitId) {
+		$scope.onChangeOwner = function(orgUnitId) {
+			$scope.ownerOrganization = orgUnitId;
 
 			refreshRoles(orgUnitId);
 
@@ -189,17 +173,18 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 
 		// make sure that initial fetching of availableRoles has happened
 		$scope.$on("initialMetadataLoadingCompleted", function (event) {
-			$scope.availableCreatorRoles = getAvailableCreatorRoles();
-
-			if($scope.availableCreatorRoles.length>1) 
-				$('#indicatorRoleForm').css('display','none');
+			
+			$('#indicatorRoleForm').css('display','none');
 			
 			refreshRoles();
+			setTimeout(() => {
+				$scope.$digest();	
+			}, 250);
 		});
 
 		function refreshRoles(orgUnitId) {
-			let permissionId_ownerUnit = orgUnitId ? kommonitorDataExchangeService.getAccessControlById(orgUnitId).permissions.filter(permission => permission.permissionLevel == "viewer").map(permission => permission.permissionId)[0] : []; 
-			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorAddRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, [permissionId_ownerUnit], true);
+			let permissionIds_ownerUnit = orgUnitId ? kommonitorDataExchangeService.getAccessControlById(orgUnitId).permissions.filter(permission => permission.permissionLevel == "viewer" || permission.permissionLevel == "editor").map(permission => permission.permissionId) : []; 
+			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorAddRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, permissionIds_ownerUnit, true);
 		}
 
 		$scope.datasetName = undefined;
@@ -560,7 +545,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 						}
 					  ]
 				  },
-				  "ownerId": $scope.indicatorTargetCreatorRole
+				  "ownerId": $scope.ownerOrganization
 			};
 
 			let roleIds = kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid($scope.roleManagementTableOptions);
@@ -887,6 +872,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 						break;
 					}
 				}
+				$scope.ownerOrganization = $scope.metadataImportSettings.ownerId;
 
 				$scope.$digest();
 		};
@@ -1031,6 +1017,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 				};
 
 				metadataExport.defaultClassificationMapping = defaultClassificationMapping;
+				metadataExport.ownerId = $scope.ownerOrganization;
 			
 
 			var metadataJSON = JSON.stringify(metadataExport);

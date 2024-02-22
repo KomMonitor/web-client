@@ -103,26 +103,10 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 		$scope.metadata.lastUpdate = undefined;
 		$scope.metadata.description = undefined;
 
-		$scope.spatialUnitTargetCreatorRole = undefined;
+		$scope.ownerOrganization = undefined;
 
-		function getAvailableCreatorRoles() {
-
-			let roles = [];
-			kommonitorDataExchangeService.accessControl.forEach(unit => {
-				unit.permissions.forEach(permission => {
-					if(permission.permissionLevel=='creator') {
-						roles.push({
-							name: unit.name,
-							unitId: unit.organizationalUnitId
-						});
-					}
-				});
-			});
-
-			return roles;
-		}
-
-		$scope.onChangeSelectedSpatialunitTargetCreatorRole = function(orgUnitId) {			
+		$scope.onChangeOwner = function(orgUnitId) {	
+			$scope.ownerOrganization = orgUnitId;		
 
 			refreshRoles(orgUnitId);
 
@@ -139,17 +123,17 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 
 		// make sure that initial fetching of availableRoles has happened
 		$scope.$on("initialMetadataLoadingCompleted", function (event) {
-			$scope.availableCreatorRoles = getAvailableCreatorRoles();
-
-			if($scope.availableCreatorRoles.length>1) 
-				$('#spatialUnitRoleForm').css('display','none');
+			$('#spatialUnitRoleForm').css('display','none');
 
 			refreshRoles();
+			setTimeout(() => {
+				$scope.$digest();	
+			}, 250);
 		});
 		
 		function refreshRoles(orgUnitId) {			
-			let permissionId_ownerUnit = orgUnitId ? kommonitorDataExchangeService.getAccessControlById(orgUnitId).permissions.filter(permission => permission.permissionLevel == "viewer").map(permission => permission.permissionId)[0] : []; 
-			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('spatialUnitAddRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, [permissionId_ownerUnit], true);	
+			let permissionIds_ownerUnit = orgUnitId ? kommonitorDataExchangeService.getAccessControlById(orgUnitId).permissions.filter(permission => permission.permissionLevel == "viewer" || permission.permissionLevel == "editor").map(permission => permission.permissionId) : []; 
+			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('spatialUnitAddRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, permissionIds_ownerUnit, true);	
 		}
 
 		$scope.nextLowerHierarchySpatialUnit = undefined;
@@ -476,7 +460,8 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 				"isOutlineLayer": $scope.isOutlineLayer,
 				"outlineColor": $scope.outlineColor,
 				"outlineWidth": $scope.outlineWidth,
-				"outlineDashArrayString": $scope.selectedOutlineDashArrayObject.dashArrayValue
+				"outlineDashArrayString": $scope.selectedOutlineDashArrayObject.dashArrayValue,
+				"ownerId": $scope.ownerOrganization
 			};
 
 			let roleIds = kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid($scope.roleManagementTableOptions);
@@ -681,6 +666,8 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 
 				$scope.spatialUnitLevel = $scope.metadataImportSettings.spatialUnitLevel;
 
+				$scope.ownerOrganization = $scope.metadataImportSettings.ownerId;
+
 				$scope.$digest();
 		};
 
@@ -743,6 +730,8 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 			metadataExport["outlineDashArrayString"] = $scope.selectedOutlineDashArrayObject.dashArrayValue;
 			metadataExport["outlineColor"] = $scope.outlineColor;			
 			metadataExport["outlineWidth"] = $scope.outlineWidth;
+
+			metadataExport.ownerId = $scope.ownerOrganization;
 
 			var name = $scope.spatialUnitLevel;
 

@@ -104,14 +104,11 @@ angular
             this.currentKomMonitorLoginRoleNames = this.currentKeycloakLoginRoles.filter(role => possibleRoles.includes(role));
           }
 
-          this.setCurrentKomMonitorLoginOrganizationalUnits = function() {                        
-
+          this.setCurrentKomMonitorLoginOrganizationalUnits = function() {  
+            
             // now iterate once over all possible KomMonitor orgas and check if user belongs to this orga via its keycloak group
-            this.accessControl.forEach(organizationalUnit => {
-              if(self.currentKeycloakLoginGroupNames.includes(organizationalUnit.name)){
-                self.currentKomMonitorLoginOrganizationalUnits.push(organizationalUnit);
-              }              
-            });
+            this.currentKomMonitorLoginOrganizationalUnits = this.accessControl.filter(org => self.currentKeycloakLoginGroupNames.includes(org.name));
+            console.log(this.currentKomMonitorLoginOrganizationalUnits);
           };
 
           this.getCurrentKomMonitorLoginOrganizationalUnits = function() {
@@ -1729,8 +1726,7 @@ angular
           this.fetchAccessControlMetadata = async function(keycloakRolesArray){
             self.setAccessControl(await kommonitorCacheHelperService.fetchAccessControlMetadata(keycloakRolesArray));
             self.setCurrentKomMonitorLoginRoleNames();
-            self.setCurrentKomMonitorLoginOrganizationalUnits();
-            self.current
+            self.setCurrentKomMonitorLoginOrganizationalUnits();            
           };
 
           this.replaceSingleAccessControlMetadata = function(targetRoleMetadata){

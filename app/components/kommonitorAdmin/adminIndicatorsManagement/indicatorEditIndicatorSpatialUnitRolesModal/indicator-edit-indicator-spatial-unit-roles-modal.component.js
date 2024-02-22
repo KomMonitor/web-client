@@ -15,15 +15,15 @@ angular.module('indicatorEditIndicatorSpatialUnitRolesModal').component('indicat
 		$scope.successMessagePart = undefined;
 		$scope.errorMessagePart = undefined;
 
-		$scope.indicatorTargetUserRoleFilter = undefined;
+		$scope.ownerOrgFilter = undefined;
 
-		$scope.targetResourceCreatorRole = undefined;
+		$scope.ownerOrganization = undefined;
 
 		$scope.$on("onEditIndicatorSpatialUnitRoles", function (event, indicatorDataset) {
 
 			$scope.currentIndicatorDataset = indicatorDataset;
 
-			$scope.availableRoles = getAvailableCreatorRoles();
+			
 			$scope.$apply();
 
 			$scope.resetIndicatorEditIndicatorSpatialUnitRolesForm();
@@ -51,35 +51,18 @@ angular.module('indicatorEditIndicatorSpatialUnitRolesModal').component('indicat
 			$scope.refreshRoleManagementTable_indicatorSpatialUnitTimeseries();
 		});
 
-		$scope.onChangeSelectedTargetCreatorRole = function(targetResourceCreatorRole) {
+		$scope.onChangeOwner = function(ownerOrganization) {
 
-			$scope.targetResourceCreatorRole = targetResourceCreatorRole;
-			console.log("Target creator role selected to be:",$scope.targetResourceCreatorRole);
-		}
-
-		function getAvailableCreatorRoles() {
-
-			let roles = [];
-			kommonitorDataExchangeService.accessControl.forEach(unit => {
-				unit.permissions.forEach(permission => {
-					if(permission.permissionLevel=='creator') {
-						roles.push({
-							name: unit.name,
-							unitId: unit.organizationalUnitId
-						});
-					}
-				});
-			});
-
-			return roles;
+			$scope.ownerOrganization = ownerOrganization;
+			console.log("Target creator role selected to be:",$scope.ownerOrganization);
 		}
 
 		$scope.resetIndicatorEditIndicatorSpatialUnitRolesForm = function () {
 
-			$scope.targetResourceCreatorRole = undefined;
+			$scope.ownerOrganization = undefined;
 			document.getElementById('targetUserRoleSelect').selectedIndex = 0;
 
-			$scope.indicatorTargetUserRoleFilter = undefined;
+			$scope.ownerOrgFilter = undefined;
 
 			$scope.targetApplicableSpatialUnit = $scope.currentIndicatorDataset.applicableSpatialUnits[0];
 
@@ -98,7 +81,7 @@ angular.module('indicatorEditIndicatorSpatialUnitRolesModal').component('indicat
 
 		$scope.editIndicatorSpatialUnitRoles = function () {
 
-			if($scope.targetResourceCreatorRole !== undefined)
+			if($scope.ownerOrganization !== undefined)
 				if(!confirm('Sind Sie sicher, dass Sie den Eigentümerschaft an dieser Resource endgültig und unwiderruflich übertragen und damit abgeben wollen?'))
 					return;
 
@@ -155,7 +138,48 @@ angular.module('indicatorEditIndicatorSpatialUnitRolesModal').component('indicat
 		}
 
 		$scope.executeRequest_indicatorOwnership = function(){
-			console.log("not yet implemented");
+			$scope.loadingData = true;
+
+			let putBody = {
+				"ownerId": $scope.ownerOrganization
+			}
+
+			$http({
+				url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/indicators/" + $scope.currentIndicatorDataset.indicatorId + "/ownership",
+				method: "PUT",
+				data: putBody,
+				headers: {
+				   'Content-Type': "application/json"
+				}
+			}).then(function successCallback(response) {
+					// this callback will be called asynchronously
+					// when the response is available
+
+					$scope.successMessagePart = $scope.currentIndicatorDataset.indicatorName;
+
+					$rootScope.$broadcast("refreshIndicatorOverviewTable", "edit", $scope.currentIndicatorDataset.indicatorId);
+								
+					$("#indicatorEditIndicatorSpatialUnitRolesSuccessAlert").show();
+					$timeout(function(){
+				
+						$scope.loadingData = false;
+					});	
+
+				}, function errorCallback(error) {
+					$scope.errorMessagePart = "Fehler beim Aktualisieren der Metadaten-Eigentümerschaft. Fehler lautet: \n\n";
+					if(error.data){							
+						$scope.errorMessagePart += kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
+					}
+					else{
+						$scope.errorMessagePart += kommonitorDataExchangeService.syntaxHighlightJSON(error);
+					}
+
+					$("#indicatorEditIndicatorSpatialUnitRolesErrorAlert").show();
+					$timeout(function(){
+				
+						$scope.loadingData = false;
+					});	
+			});
 		}
 
 		$scope.executeRequest_indicatorSpatialUnitRoles = function(){

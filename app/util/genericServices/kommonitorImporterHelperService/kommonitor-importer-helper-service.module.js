@@ -462,7 +462,8 @@ angular
           "indicatorValues": [],
           "applicableSpatialUnit": scopeProperties.targetSpatialUnitMetadata.spatialUnitLevel,
           "defaultClassificationMapping": scopeProperties.currentIndicatorDataset.defaultClassificationMapping,
-          "permissions": scopeProperties.permissions
+          "permissions": scopeProperties.permissions,
+          "ownerId": scopeProperties.ownerId
           };
 
         return putBody;

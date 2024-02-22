@@ -14,15 +14,15 @@ angular.module('spatialUnitEditUserRolesModal').component('spatialUnitEditUserRo
 		$scope.successMessagePart = undefined;
 		$scope.errorMessagePart = undefined;
 
-		$scope.spatialUnitTargetUserRoleFilter = undefined;
+		$scope.ownerOrgFilter = undefined;
 
-		$scope.targetResourceCreatorRole = undefined;
+		$scope.ownerOrganization = undefined;
 
 		$scope.$on("onEditSpatialUnitUserRoles", function (event, spatialUnitDataset) {
 
 			$scope.currentSpatialUnitDataset = spatialUnitDataset;
 
-			$scope.availableRoles = getAvailableCreatorRoles();
+			
 			$scope.$apply();
 
 			$scope.resetSpatialUnitEditUserRolesForm();
@@ -38,36 +38,19 @@ angular.module('spatialUnitEditUserRolesModal').component('spatialUnitEditUserRo
 			$scope.refreshRoleManagementTable();
 		});
 
-		$scope.onChangeSelectedTargetCreatorRole = function(targetResourceCreatorRole) {
+		$scope.onChangeOwner = function(ownerOrganization) {
 
-			$scope.targetResourceCreatorRole = targetResourceCreatorRole;
-			console.log("Target creator role selected to be ",$scope.targetResourceCreatorRole);
+			$scope.ownerOrganization = ownerOrganization;
+			console.log("Target creator role selected to be ",$scope.ownerOrganization);
 		}	
-		
-		function getAvailableCreatorRoles() {
-
-			let roles = [];
-			kommonitorDataExchangeService.accessControl.forEach(unit => {
-				unit.permissions.forEach(permission => {
-					if(permission.permissionLevel=='creator') {
-						roles.push({
-							name: unit.name,
-							unitId: unit.organizationalUnitId
-						});
-					}
-				});
-			});
-
-			return roles;
-		}
 		
 		$scope.resetSpatialUnitEditUserRolesForm = function () {
 
-			$scope.targetResourceCreatorRole = undefined;
+			$scope.ownerOrganization = undefined;
 			document.getElementById('targetUserRoleSelect').selectedIndex = 0;
 
 			$scope.refreshRoleManagementTable();
-			$scope.spatialUnitTargetUserRoleFilter = undefined;
+			$scope.ownerOrgFilter = undefined;
 
 			$scope.successMessagePart = undefined;
 			$scope.errorMessagePart = undefined;
@@ -81,7 +64,7 @@ angular.module('spatialUnitEditUserRolesModal').component('spatialUnitEditUserRo
 
 		$scope.editSpatialUnitEditUserRolesForm = function(){
 
-			if($scope.targetResourceCreatorRole !== undefined)
+			if($scope.ownerOrganization !== undefined)
 			if(!confirm('Sind Sie sicher, dass Sie den Eigentümerschaft an dieser Resource endgültig und unwiderruflich übertragen und damit abgeben wollen?'))
 				return;
 
