@@ -30,8 +30,8 @@ angular.module('spatialUnitEditUserRolesModal').component('spatialUnitEditUserRo
 		});
 
 		$scope.refreshRoleManagementTable = function() {
-			let allowedRoles = $scope.currentSpatialUnitDataset ? $scope.currentSpatialUnitDataset.allowedRoles : [];
-			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('spatialUnitEditRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, allowedRoles, true);
+			let permissions = $scope.currentSpatialUnitDataset ? $scope.currentSpatialUnitDataset.permissions : [];
+			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('spatialUnitEditRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, permissions, true);
 		}
 
 		$scope.$on("availableRolesUpdate", function (event) {
@@ -95,7 +95,7 @@ angular.module('spatialUnitEditUserRolesModal').component('spatialUnitEditUserRo
 			$scope.loadingData = true;
 
 			let putBody = {
-				allowedRoles: kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid($scope.roleManagementTableOptions)
+				permissions: kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid($scope.roleManagementTableOptions)
 			}
 
 			$http({

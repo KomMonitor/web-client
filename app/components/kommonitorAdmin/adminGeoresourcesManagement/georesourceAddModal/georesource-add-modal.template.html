@@ -29,9 +29,9 @@
 					    "description": "description",
 					    "databasis": "databasis"
 					  },
-					  "allowedRoles": [
-					    "allowedRoles",
-					    "allowedRoles"
+					  "permissions": [
+					    "permissions",
+					    "permissions"
 					  ],
 					  "datasetName": "datasetName",
 					  "poiSymbolBootstrap3Name": "poiSymbolBootstrap3Name",
@@ -436,7 +436,7 @@
 									<div class="row" ng-if="availableCreatorRoles.length>1">
 										<div class="col-md-3"></div>
 										<div class="col-md-6 col-sm-6 col-xs-12">
-											<div class="alert alert-danger">
+											<div class="alert alert-info">
 												Bitte w&auml;hlen Sie zun&auml;chnst die Organisationseinheit aus, unter welcher Sie den Datensatz anlegen m&ouml;chten
 											</div>
 											<label for="addGeoresourceUserRoleSelect">Eigent&uuml;mer-Organisationseinheit</label>
@@ -451,14 +451,18 @@
 									<div id="georesourceRoleForm">
 										<p>Zugriffsrechte (lesen, editieren, l&ouml;schen) m&uuml;ssen explizit vergeben werden. Administratoren (Rolle <i>kommonitor-creator</i>) haben immer vollen Zugriff.</p>
 							
-										<div class="row">
+										<div class="row vertical-align">
 											<div class="col-md-3"></div>
 											<div class="col-md-6 col-sm-6 col-xs-12">
 													<!-- <div id="georesourceAddRoleManagementTable" style="height: 40vh; overflow-y: auto;" class="ag-theme-alpine"></div>     -->
 													<div id="georesourceAddRoleManagementTable" style="height: 45vh" class="ag-theme-alpine"></div>  
 												
 											</div>
-											<div class="col-md-3"></div>
+											<div class="col-md-3">
+												<div class="alert alert-info">
+													Als Eigent&uuml;mer-Organisation des Datensatzes k&ouml;nnen Sie Lese- und Editier-Rechte an die eigene und weitere Organisationseinheiten vergeben. 
+												</div>
+											</div>
 										</div>	
 									</div>
 									

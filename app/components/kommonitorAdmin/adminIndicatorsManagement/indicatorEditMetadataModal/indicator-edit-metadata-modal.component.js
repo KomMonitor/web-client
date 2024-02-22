@@ -33,9 +33,9 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 							"description": "description",
 							"databasis": "databasis"
 						},
-						"allowedRoles": [
-							"allowedRoles",
-							"allowedRoles"
+						"permissions": [
+							"permissions",
+							"permissions"
 						],
 						"datasetName": "datasetName",
 						"applicableSpatialUnit": "applicableSpatialUnit",
@@ -581,7 +581,7 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 					"databasis": $scope.metadata.databasis || null
 				},
 				"refrencesToOtherIndicators": [], // filled directly after
-				  "allowedRoles": [],
+				  "permissions": [],
 				  "datasetName": $scope.datasetName,
 				  "abbreviation": $scope.indicatorAbbreviation || null,
 				  "characteristicValue": $scope.indicatorCharacteristicValue || null,

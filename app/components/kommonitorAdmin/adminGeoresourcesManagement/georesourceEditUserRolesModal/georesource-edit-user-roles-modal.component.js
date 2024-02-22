@@ -31,8 +31,8 @@ angular.module('georesourceEditUserRolesModal').component('georesourceEditUserRo
 		});
 
 		$scope.refreshRoleManagementTable = function() {
-			let allowedRoles = $scope.currentGeoresourceDataset ? $scope.currentGeoresourceDataset.allowedRoles : [];
-			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('georesourceEditRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, allowedRoles, true);
+			let permissions = $scope.currentGeoresourceDataset ? $scope.currentGeoresourceDataset.permissions : [];
+			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('georesourceEditRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, permissions, true);
 		}
 
 		$scope.$on("availableRolesUpdate", function (event) {
@@ -96,7 +96,7 @@ angular.module('georesourceEditUserRolesModal').component('georesourceEditUserRo
 			$scope.loadingData = true;
 
 			let putBody = {
-				allowedRoles: kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid($scope.roleManagementTableOptions)
+				permissions: kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid($scope.roleManagementTableOptions)
 			}
 
 			$http({

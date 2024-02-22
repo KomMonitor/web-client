@@ -301,10 +301,10 @@ angular
               return "" + params.data.metadata.contact;
             }
           },
-          { headerName: 'Rollen', minWidth: 400, cellRenderer: function (params) { return kommonitorDataExchangeService.getAllowedRolesString(params.data.allowedRoles); },
+          { headerName: 'Rollen', minWidth: 400, cellRenderer: function (params) { return kommonitorDataExchangeService.getAllowedRolesString(params.data.permissions); },
           filter: 'agTextColumnFilter', 
           filterValueGetter: (params) => {
-              return "" +  kommonitorDataExchangeService.getAllowedRolesString(params.data.allowedRoles);
+              return "" +  kommonitorDataExchangeService.getAllowedRolesString(params.data.permissions);
             } 
           }
         ];
@@ -393,10 +393,10 @@ angular
               return "" + params.data.metadata.contact;
             }
           },
-          { headerName: 'Rollen', minWidth: 400, cellRenderer: function (params) { return kommonitorDataExchangeService.getAllowedRolesString(params.data.allowedRoles); },
+          { headerName: 'Rollen', minWidth: 400, cellRenderer: function (params) { return kommonitorDataExchangeService.getAllowedRolesString(params.data.permissions); },
           filter: 'agTextColumnFilter', 
           filterValueGetter: (params) => {
-              return "" +  kommonitorDataExchangeService.getAllowedRolesString(params.data.allowedRoles);
+              return "" +  kommonitorDataExchangeService.getAllowedRolesString(params.data.permissions);
             } 
           }
         ];
@@ -471,10 +471,10 @@ angular
               return "" + params.data.metadata.contact;
             }
           },
-          { headerName: 'Rollen', minWidth: 400, cellRenderer: function (params) { return kommonitorDataExchangeService.getAllowedRolesString(params.data.allowedRoles); },
+          { headerName: 'Rollen', minWidth: 400, cellRenderer: function (params) { return kommonitorDataExchangeService.getAllowedRolesString(params.data.permissions); },
           filter: 'agTextColumnFilter', 
           filterValueGetter: (params) => {
-              return "" +  kommonitorDataExchangeService.getAllowedRolesString(params.data.allowedRoles);
+              return "" +  kommonitorDataExchangeService.getAllowedRolesString(params.data.permissions);
             } 
           }
         ];
@@ -547,10 +547,10 @@ angular
               return "" + params.data.metadata.contact;
             }
           },
-          { headerName: 'Rollen', minWidth: 400, cellRenderer: function (params) { return kommonitorDataExchangeService.getAllowedRolesString(params.data.allowedRoles); },
+          { headerName: 'Rollen', minWidth: 400, cellRenderer: function (params) { return kommonitorDataExchangeService.getAllowedRolesString(params.data.permissions); },
           filter: 'agTextColumnFilter', 
           filterValueGetter: (params) => {
-              return "" +  kommonitorDataExchangeService.getAllowedRolesString(params.data.allowedRoles);
+              return "" +  kommonitorDataExchangeService.getAllowedRolesString(params.data.permissions);
             } 
           }
         ];
@@ -667,10 +667,10 @@ angular
               return "" + params.data.metadata.contact;
             }
           },
-          { headerName: 'Rollen', minWidth: 400, cellRenderer: function (params) { return kommonitorDataExchangeService.getAllowedRolesString(params.data.allowedRoles); },
+          { headerName: 'Rollen', minWidth: 400, cellRenderer: function (params) { return kommonitorDataExchangeService.getAllowedRolesString(params.data.permissions); },
           filter: 'agTextColumnFilter', 
           filterValueGetter: (params) => {
-              return "" +  kommonitorDataExchangeService.getAllowedRolesString(params.data.allowedRoles);
+              return "" +  kommonitorDataExchangeService.getAllowedRolesString(params.data.permissions);
             } 
           }
         ];
@@ -2712,25 +2712,25 @@ angular
         }
       };
 
-      function anyHigherRoleIsChecked(roles, roleSuffix){
-        let filteresRoles = [];
+      function anyHigherPermissionIsChecked(permissions, permissionSuffix){
+        let filteresPermissions = [];
         
-        if(roleSuffix == "viewer"){
-          filteresRoles = roles.filter(function(role){
-            if (role.isChecked && (role.permissionLevel == "editor" || role.permissionLevel == "creator")){
+        if(permissionSuffix == "viewer"){
+          filteresPermissions = permissions.filter(function(permission){
+            if (permission.isChecked && (permission.permissionLevel == "editor" || permission.permissionLevel == "creator")){
               return true;
             }
           });
         }
-        else if (roleSuffix == "editor"){
-          filteresRoles = roles.filter(function(role){
-            if (role.isChecked && role.permissionLevel == "creator"){
+        else if (permissionSuffix == "editor"){
+          filteresPermissions = permissions.filter(function(permission){
+            if (permission.isChecked && permission.permissionLevel == "creator"){
               return true;
             }
           });
         }
         
-        return filteresRoles.length > 0;
+        return filteresPermissions.length > 0;
       };
 
       function CheckboxRenderer_viewer() {}
@@ -2741,11 +2741,11 @@ angular
         let isChecked = false;
         let exists = false;
         let className;
-        for (const role of params.data.roles) {
-          if (role.permissionLevel == "viewer"){
+        for (const permission of params.data.permissions) {
+          if (permission.permissionLevel == "viewer"){
             exists = true;
-            isChecked = role.isChecked;
-            className = role.roleId;
+            isChecked = permission.isChecked;
+            className = permission.permissionId;
             break;
           }
         }  
@@ -2759,7 +2759,7 @@ angular
           this.checkedHandler = this.checkedHandler.bind(this);
           this.eGui.addEventListener('click', this.checkedHandler);
           // if higher role rights are checked as well 
-          if(isChecked && anyHigherRoleIsChecked(params.data.roles, "viewer")){
+          if(isChecked && anyHigherPermissionIsChecked(params.data.permissions, "viewer")){
             this.eGui.disabled = true;
           }                    
         }
@@ -2768,9 +2768,9 @@ angular
       CheckboxRenderer_viewer.prototype.checkedHandler = function(e) {
         let checked = e.target.checked;
 
-        for (const role of this.params.data.roles) {
-          if (role.permissionLevel == "viewer"){            
-            role.isChecked = checked;
+        for (const permission of this.params.data.permissions) {
+          if (permission.permissionLevel == "viewer"){            
+            permission.isChecked = checked;
             break;
           }
         }  
@@ -2794,11 +2794,11 @@ angular
         let isChecked = false;
         let exists = false;
         let className;
-        for (const role of params.data.roles) {
-          if (role.permissionLevel == "editor"){
+        for (const permission of params.data.permissions) {
+          if (permission.permissionLevel == "editor"){
             exists = true;
-            isChecked = role.isChecked;
-            className = role.roleId;
+            isChecked = permission.isChecked;
+            className = permission.permissionId;
             break;
           }
         }  
@@ -2812,7 +2812,7 @@ angular
           this.checkedHandler = this.checkedHandler.bind(this);
           this.eGui.addEventListener('click', this.checkedHandler);
           // if higher role rights are checked as well 
-          if(isChecked && anyHigherRoleIsChecked(params.data.roles, "editor")){
+          if(isChecked && anyHigherPermissionIsChecked(params.data.permissions, "editor")){
             this.eGui.disabled = true;
           } 
         }
@@ -2820,19 +2820,19 @@ angular
 
       CheckboxRenderer_editor.prototype.checkedHandler = function(e) {
         let checked = e.target.checked;
-        for (const role of this.params.data.roles) {
-          if (role.permissionLevel == "viewer"){    
+        for (const permission of this.params.data.permissions) {
+          if (permission.permissionLevel == "viewer"){    
             if (checked){
-              role.isChecked = true;
-              $('.' + role.roleId).attr('disabled', true);
-              $('.' + role.roleId).prop("checked", true);
+              permission.isChecked = true;
+              $('.' + permission.permissionId).attr('disabled', true);
+              $('.' + permission.permissionId).prop("checked", true);
             }                    
             else{
-              $('.' + role.roleId).attr('disabled', false);
+              $('.' + permission.permissionId).attr('disabled', false);
             }
           }
-          else if (role.permissionLevel == "editor"){            
-            role.isChecked = checked;
+          else if (permission.permissionLevel == "editor"){            
+            permission.isChecked = checked;
           }
         }  
       };
@@ -2855,11 +2855,11 @@ angular
         let isChecked = false;
         let exists = false;
         let className;
-        for (const role of params.data.roles) {
-          if (role.permissionLevel == "creator"){
+        for (const permission of params.data.permissions) {
+          if (permission.permissionLevel == "creator"){
             exists = true;
-            isChecked = role.isChecked;
-            className = role.roleId;
+            isChecked = permission.isChecked;
+            className = permission.permissionId;
             break;
           }
         }  
@@ -2877,33 +2877,33 @@ angular
 
       CheckboxRenderer_creator.prototype.checkedHandler = function(e) {
         let checked = e.target.checked;
-        for (const role of this.params.data.roles) {
-          if (role.permissionLevel == "publisher"){            
+        for (const permission of this.params.data.permissions) {
+          if (permission.permissionLevel == "publisher"){            
             if(!checked)
-              role.isChecked = false;
+              permission.isChecked = false;
           }
-          else if (role.permissionLevel == "editor"){            
+          else if (permission.permissionLevel == "editor"){            
             if (checked){
-              role.isChecked = true;
-              $('.' + role.roleId).attr('disabled', true);
-              $('.' + role.roleId).prop("checked", true);
+              permission.isChecked = true;
+              $('.' + permission.permissionId).attr('disabled', true);
+              $('.' + permission.permissionId).prop("checked", true);
             }                    
             else{
-              $('.' + role.roleId).attr('disabled', false);
+              $('.' + permission.permissionId).attr('disabled', false);
             }
           }
-          else if (role.permissionLevel == "viewer"){            
+          else if (permission.permissionLevel == "viewer"){            
             if (checked){
-              role.isChecked = true;
-              $('.' + role.roleId).attr('disabled', true);
-              $('.' + role.roleId).prop("checked", true);
+              permission.isChecked = true;
+              $('.' + permission.permissionId).attr('disabled', true);
+              $('.' + permission.permissionId).prop("checked", true);
             }                    
             else{
-              $('.' + role.roleId).attr('disabled', true);
+              $('.' + permission.permissionId).attr('disabled', true);
             }
           }
-          else if (role.permissionLevel == "creator" || role.permissionLevel == "editor" || role.permissionLevel == "viewer"){            
-            role.isChecked = checked;
+          else if (permission.permissionLevel == "creator" || permission.permissionLevel == "editor" || permission.permissionLevel == "viewer"){            
+            permission.isChecked = checked;
           }
         }  
       };
@@ -2918,17 +2918,17 @@ angular
         }  
       };
 
-      this.buildRoleManagementGridRowData = function(accessControlMetadata, selectedRoleIds){
+      this.buildRoleManagementGridRowData = function(accessControlMetadata, permissionIds){
         let data = JSON.parse(JSON.stringify(accessControlMetadata));
         for (let elem of data) {
 
           if(elem.name=='public')
             elem.name = 'Öffentlicher Zugriff';
 
-          for (let role of elem.roles) {
-            role.isChecked = false;
-            if (selectedRoleIds && selectedRoleIds.includes(role.roleId)){
-              role.isChecked = true;
+          for (let permission of elem.permissions) {
+            permission.isChecked = false;
+            if (permissionIds && permissionIds.includes(permission.permissionId)){
+              permission.isChecked = true;
             }
           }
         }
@@ -2964,20 +2964,20 @@ angular
               'user-roles-public': row => row.data.contact == 'public',
             } 
           },
-          { headerName: 'lesen', field: "roles", filter: false, sortable: false, maxWidth: 100, cellRenderer: 'checkboxRenderer_viewer'},
-          { headerName: 'editieren', field: "roles", filter: false, sortable: false, maxWidth: 100, cellRenderer: 'checkboxRenderer_editor'}                   
+          { headerName: 'lesen', field: "permissions", filter: false, sortable: false, maxWidth: 100, cellRenderer: 'checkboxRenderer_viewer'},
+          { headerName: 'editieren', field: "permissions", filter: false, sortable: false, maxWidth: 100, cellRenderer: 'checkboxRenderer_editor'}                   
         ]);
 
         if (!this.reducedRoleManagement){
-          columnDefs = columnDefs.concat({ headerName: 'löschen', field: "roles", filter: false, sortable: false, maxWidth: 100, cellRenderer: 'checkboxRenderer_creator'})
+          columnDefs = columnDefs.concat({ headerName: 'löschen', field: "permissions", filter: false, sortable: false, maxWidth: 100, cellRenderer: 'checkboxRenderer_creator'})
         } 
 
         return columnDefs;
       };
 
-      this.buildRoleManagementGridOptions = function(accessControlMetadata, selectedRoleIds){
+      this.buildRoleManagementGridOptions = function(accessControlMetadata, selectedPermissionIds){
         let columnDefs = this.buildRoleManagementGridColumnConfig();
-          let rowData = this.buildRoleManagementGridRowData(accessControlMetadata, selectedRoleIds);
+          let rowData = this.buildRoleManagementGridRowData(accessControlMetadata, selectedPermissionIds);
   
           let components = {};
           if(this.reducedRoleManagement)
@@ -3053,17 +3053,17 @@ angular
           return gridOptions;
       };
 
-      this.buildRoleManagementGrid = function(tableDOMId, currentTableOptionsObject, accessControlMetadata, selectedRoleIds, reducedRoleManagement = false){
+      this.buildRoleManagementGrid = function(tableDOMId, currentTableOptionsObject, accessControlMetadata, selectedPermissionIds, reducedRoleManagement = false){
         
         this.reducedRoleManagement = reducedRoleManagement;
         
         if (currentTableOptionsObject && currentTableOptionsObject.api) {
 
-          let newRowData = this.buildRoleManagementGridRowData(accessControlMetadata, selectedRoleIds);
+          let newRowData = this.buildRoleManagementGridRowData(accessControlMetadata, selectedPermissionIds);
           currentTableOptionsObject.api.setRowData(newRowData);
         }
         else {
-          currentTableOptionsObject = this.buildRoleManagementGridOptions(accessControlMetadata, selectedRoleIds);
+          currentTableOptionsObject = this.buildRoleManagementGridOptions(accessControlMetadata, selectedPermissionIds);
           let gridDiv = document.querySelector('#' + tableDOMId);
           new agGrid.Grid(gridDiv, currentTableOptionsObject);
         }
@@ -3075,9 +3075,9 @@ angular
         if (roleManagementTableOptions && roleManagementTableOptions.api){
 
           roleManagementTableOptions.api.forEachNode(function(node, index){
-            for (const role of node.data.roles) {
-              if(role && role.isChecked){
-                ids.push(role.roleId);
+            for (const permission of node.data.permissions) {
+              if(permission && permission.isChecked){
+                ids.push(permission.permissionId);
               }
             }
           })               

@@ -75,7 +75,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 				"description": "description about spatial unit dataset",
 				"databasis": "text about data basis",
 			},
-			"allowedRoles": ['roleId'],
+			"permissions": ['roleId'],
 			"nextLowerHierarchyLevel": "Name of lower hierarchy level",
 			"spatialUnitLevel": "Name of spatial unit dataset",
 			"nextUpperHierarchyLevel": "Name of upper hierarchy level"
@@ -122,10 +122,13 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 			return roles;
 		}
 
-		$scope.onChangeSelectedSpatialunitTargetCreatorRole = function(role) {
+		$scope.onChangeSelectedSpatialunitTargetCreatorRole = function(orgUnitId) {			
 
-			if(role)
+			refreshRoles(orgUnitId);
+
+			if(orgUnitId)
 				$('#spatialUnitRoleForm').css('display','block');
+
 		}
 
 		$scope.roleManagementTableOptions = undefined;	
@@ -144,8 +147,9 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 			refreshRoles();
 		});
 		
-		function refreshRoles() {
-			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('spatialUnitAddRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, kommonitorDataExchangeService.getCurrentKomMonitorLoginRoleIds(), true);	
+		function refreshRoles(orgUnitId) {			
+			let permissionId_ownerUnit = orgUnitId ? kommonitorDataExchangeService.getAccessControlById(orgUnitId).permissions.filter(permission => permission.permissionLevel == "viewer").map(permission => permission.permissionId)[0] : []; 
+			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('spatialUnitAddRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, [permissionId_ownerUnit], true);	
 		}
 
 		$scope.nextLowerHierarchySpatialUnit = undefined;
@@ -206,7 +210,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 			$scope.metadata.lastUpdate = undefined;
 			$scope.metadata.description = undefined;
 
-			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('spatialUnitAddRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, kommonitorDataExchangeService.getCurrentKomMonitorLoginRoleIds(), true);	
+			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('spatialUnitAddRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, [], true);	
 
 			$scope.nextLowerHierarchySpatialUnit = undefined;
 			$scope.nextUpperHierarchySpatialUnit = undefined;
@@ -461,7 +465,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 					"databasis": $scope.metadata.databasis
 				},
 				"jsonSchema": undefined,
-				"allowedRoles": [],
+				"permissions": [],
 				"nextLowerHierarchyLevel": $scope.nextLowerHierarchySpatialUnit ? $scope.nextLowerHierarchySpatialUnit.spatialUnitLevel : undefined,
 				"spatialUnitLevel": $scope.spatialUnitLevel,
 				"periodOfValidity": {
@@ -477,7 +481,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 
 			let roleIds = kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid($scope.roleManagementTableOptions);
 			for (const roleId of roleIds) {
-				postBody.allowedRoles.push(roleId);
+				postBody.permissions.push(roleId);
 			}
 
 			return postBody;
@@ -653,7 +657,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 				$scope.metadata.description = $scope.metadataImportSettings.metadata.description;
 				$scope.metadata.databasis = $scope.metadataImportSettings.metadata.databasis;
 
-				$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('spatialUnitAddRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, $scope.metadataImportSettings.allowedRoles, true);	
+				$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('spatialUnitAddRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, $scope.metadataImportSettings.permissions, true);	
 
 				for(var i=0; i<kommonitorDataExchangeService.availableSpatialUnits.length; i++){
 					var spatialUnit = kommonitorDataExchangeService.availableSpatialUnits[i];
@@ -713,10 +717,10 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 			metadataExport.metadata.databasis = $scope.metadata.databasis || "";
 			metadataExport.spatialUnitLevel = $scope.spatialUnitLevel || "";
 
-			metadataExport.allowedRoles = [];
+			metadataExport.permissions = [];
 			let roleIds = kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid($scope.roleManagementTableOptions);
 			for (const roleId of roleIds) {
-				metadataExport.allowedRoles.push(roleId);
+				metadataExport.permissions.push(roleId);
 			}
 
 			if($scope.metadata.updateInterval){

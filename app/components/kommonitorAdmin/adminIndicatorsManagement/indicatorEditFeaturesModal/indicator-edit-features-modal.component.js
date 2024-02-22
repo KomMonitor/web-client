@@ -40,7 +40,7 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 						}
 					],
 					"applicableSpatialUnit": "applicableSpatialUnit",
-					"allowedRoles": [
+					"permissions": [
 						
 					]
 					"defaultClassificationMapping": {
@@ -73,8 +73,8 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 			});
 			
 			function refreshRoles() {
-				let allowedRoles = $scope.targetApplicableSpatialUnit ? $scope.targetApplicableSpatialUnit.allowedRoles : [];
-				$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorEditFeaturesRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, allowedRoles, true);
+				let permissions = $scope.targetApplicableSpatialUnit ? $scope.targetApplicableSpatialUnit.permissions : [];
+				$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorEditFeaturesRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, permissions, true);
 			}
 	
 			$scope.indicatorFeaturesJSON;
@@ -256,7 +256,7 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 					}					
 				}
 	
-				$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorEditFeaturesRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, kommonitorDataExchangeService.getCurrentKomMonitorLoginRoleIds(), true);
+				$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorEditFeaturesRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, [], true);
 
 				$scope.spatialUnitRefKeyProperty = undefined;
 				$scope.targetSpatialUnitMetadata = undefined;
@@ -309,7 +309,7 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 					}
 				}
 				
-				$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorEditFeaturesRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, $scope.targetApplicableSpatialUnit.allowedRoles, true);
+				$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorEditFeaturesRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, $scope.targetApplicableSpatialUnit.permissions, true);
 
 			};
 	
@@ -363,7 +363,7 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 					"currentIndicatorDataset": {
 						"defaultClassificationMapping": $scope.currentIndicatorDataset.defaultClassificationMapping
 					},
-					"allowedRoles": roleIds
+					"permissions": roleIds
 				}
 				$scope.putBody_indicators = kommonitorImporterHelperService.buildPutBody_indicators(scopeProperties);
 	
@@ -614,7 +614,7 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 						}	
 					}
 		
-					$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorEditFeaturesRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, $scope.mappingConfigImportSettings.allowedRoles, true);
+					$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorEditFeaturesRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, $scope.mappingConfigImportSettings.permissions, true);
 
 					$scope.keepMissingValues = $scope.mappingConfigImportSettings.propertyMapping.keepMissingOrNullValueIndicator;
 					
@@ -631,14 +631,14 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 					"dataSource": datasourceTypeDefinition,
 					"propertyMapping": propertyMappingDefinition,
 					"targetSpatialUnitName": $scope.targetSpatialUnitMetadata.spatialUnitLevel,
-					"allowedRoles": []
+					"permissions": []
 				};
 
-				mappingConfigExport.allowedRoles = [];
+				mappingConfigExport.permissions = [];
 
 				let roleIds = kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid($scope.roleManagementTableOptions);
 				for (const roleId of roleIds) {
-					mappingConfigExport.allowedRoles.push(roleId);
+					mappingConfigExport.permissions.push(roleId);
 				}
 	
 				mappingConfigExport.periodOfValidity = $scope.periodOfValidity;

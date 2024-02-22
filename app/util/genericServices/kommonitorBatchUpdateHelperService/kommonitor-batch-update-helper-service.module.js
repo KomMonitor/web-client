@@ -191,7 +191,7 @@ angular
 
 								for (const applicableSpatialUnit of indicatorMetadata.applicableSpatialUnits) {
 									if (applicableSpatialUnit.spatialUnitId === row.selectedTargetSpatialUnit.spatialUnitId){
-										allowedRoleIds = applicableSpatialUnit.allowedRoles;
+										allowedRoleIds = applicableSpatialUnit.permissions;
 									}
 								}
 	
@@ -202,7 +202,7 @@ angular
 									"currentIndicatorDataset": {
 										"defaultClassificationMapping": row.name.defaultClassificationMapping
 									},
-									"allowedRoles": allowedRoleIds
+									"permissions": allowedRoleIds
 								};
 								 var putBody_indicators = kommonitorImporterHelperService.buildPutBody_indicators(scopeProperties);
 								 //console.log("putBody_indicators of row " + i + ": ", putBody_indicators);

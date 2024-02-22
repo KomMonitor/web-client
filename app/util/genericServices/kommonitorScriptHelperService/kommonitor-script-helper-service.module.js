@@ -264,7 +264,7 @@ angular
               "databasis": targetIndicatorMetadata.metadata.databasis || null
             },
             "refrencesToOtherIndicators": [], // filled directly after
-              "allowedRoles": targetIndicatorMetadata.allowedRoles,
+              "permissions": targetIndicatorMetadata.permissions,
               "datasetName": targetIndicatorMetadata.indicatorName,
               "abbreviation": targetIndicatorMetadata.abbreviation || null,
               "characteristicValue": targetIndicatorMetadata.characteristicValue || null,

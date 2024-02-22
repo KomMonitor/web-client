@@ -31,9 +31,9 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 							"description": "description",
 							"databasis": "databasis"
 						},
-						"allowedRoles": [
-							"allowedRoles",
-							"allowedRoles"
+						"permissions": [
+							"permissions",
+							"permissions"
 						],
 						"datasetName": "datasetName",
 						"abbreviation": "abbreviation",
@@ -93,7 +93,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 				"description": "description about spatial unit dataset",
 				"databasis": "text about data basis",
 			},
-			"allowedRoles": ['roleId'],
+			"permissions": ['roleId'],
 			"refrencesToOtherIndicators": [
 				{
 				  "referenceDescription": "description about the reference",
@@ -175,9 +175,11 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			return roles;
 		}
 
-		$scope.onChangeSelectedIndicatorTargetCreatorRole = function(role) {
+		$scope.onChangeSelectedIndicatorTargetCreatorRole = function(orgUnitId) {
 
-			if(role)
+			refreshRoles(orgUnitId);
+
+			if(orgUnitId)
 				$('#indicatorRoleForm').css('display','block');
 		}
 
@@ -195,8 +197,9 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			refreshRoles();
 		});
 
-		function refreshRoles() {
-			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorAddRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, kommonitorDataExchangeService.getCurrentKomMonitorLoginRoleIds(), true);
+		function refreshRoles(orgUnitId) {
+			let permissionId_ownerUnit = orgUnitId ? kommonitorDataExchangeService.getAccessControlById(orgUnitId).permissions.filter(permission => permission.permissionLevel == "viewer").map(permission => permission.permissionId)[0] : []; 
+			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorAddRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, [permissionId_ownerUnit], true);
 		}
 
 		$scope.datasetName = undefined;
@@ -294,7 +297,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			$scope.metadata.lastUpdate = undefined;
 			$scope.metadata.description = undefined;
 
-			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorAddRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, kommonitorDataExchangeService.getCurrentKomMonitorLoginRoleIds(), true);			
+			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorAddRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, [], true);			
 
 			$scope.datasetName = undefined;
 			$scope.indicatorAbbreviation = undefined;
@@ -516,7 +519,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 					"databasis": $scope.metadata.databasis || null
 				},
 				"refrencesToOtherIndicators": [], // filled directly after
-				  "allowedRoles": [],
+				  "permissions": [],
 				  "datasetName": $scope.datasetName,
 				  "abbreviation": $scope.indicatorAbbreviation || null,
 				  "characteristicValue": $scope.indicatorCharacteristicValue || null,
@@ -556,12 +559,13 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 						  "defaultCustomRating": "sehr hoch"
 						}
 					  ]
-				  }
+				  },
+				  "ownerId": $scope.indicatorTargetCreatorRole
 			};
 
 			let roleIds = kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid($scope.roleManagementTableOptions);
 			for (const roleId of roleIds) {
-				postBody.allowedRoles.push(roleId);
+				postBody.permissions.push(roleId);
 			}
 
 			// TAGS
@@ -749,7 +753,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 
 				$scope.datasetName = $scope.metadataImportSettings.datasetName;
 			
-				$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorAddRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, $scope.metadataImportSettings.allowedRoles, true);
+				$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorAddRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, $scope.metadataImportSettings.permissions, true);
 
 
 				// indicator specific properties
@@ -923,11 +927,11 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			metadataExport.referenceDateNote = $scope.indicatorReferenceDateNote || "";
 			metadataExport.displayOrder = $scope.displayOrder || 0;
 
-			metadataExport.allowedRoles = [];
+			metadataExport.permissions = [];
 
 			let roleIds = kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid($scope.roleManagementTableOptions);
 			for (const roleId of roleIds) {
-				metadataExport.allowedRoles.push(roleId);
+				metadataExport.permissions.push(roleId);
 			}
 
 			if($scope.metadata.updateInterval){

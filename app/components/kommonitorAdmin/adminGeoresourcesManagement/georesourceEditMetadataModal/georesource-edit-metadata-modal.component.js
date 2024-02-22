@@ -23,9 +23,9 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 		"description": "description",
 		"databasis": "databasis"
 		},
-		"allowedRoles": [
-		"allowedRoles",
-		"allowedRoles"
+		"permissions": [
+		"permissions",
+		"permissions"
 		],
 		"datasetName": "datasetName",
 		"poiSymbolBootstrap3Name": "poiSymbolBootstrap3Name",
@@ -284,7 +284,7 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 					"databasis": $scope.metadata.databasis,
 					"sridEPSG": 4326
 				},
-				"allowedRoles": [],
+				"permissions": [],
 				"datasetName": $scope.datasetName,
 			  "isAOI": $scope.isAOI,
 				"isLOI": $scope.isLOI,

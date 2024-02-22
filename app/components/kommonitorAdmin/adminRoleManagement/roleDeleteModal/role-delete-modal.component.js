@@ -47,16 +47,16 @@ angular.module('roleDeleteModal').component('roleDeleteModal', {
 			$scope.affectedSpatialUnits = [];
 
 			kommonitorDataExchangeService.availableSpatialUnits.forEach(function (spatialUnit) {
-				var allowedRoles = spatialUnit.allowedRoles;
+				var permissions = spatialUnit.permissions;
 				
 				for (const datasetToDelete of $scope.elementsToDelete) {
 
 					var userRoles = datasetToDelete.roles.map(e => e.roleId);
 					
-					if(allowedRoles.some(i => userRoles.includes(i))) {
+					if(permissions.some(i => userRoles.includes(i))) {
 
 						let connectedItems = [];
-						allowedRoles.forEach(role => {
+						permissions.forEach(role => {
 							
 							if(datasetToDelete.roles.filter(e => e.roleId==role).length==1)
 								connectedItems.push(`${datasetToDelete.name}-${datasetToDelete.roles.filter(e => e.roleId==role).map(e => { return e.permissionLevel})[0]}`);
@@ -77,16 +77,16 @@ angular.module('roleDeleteModal').component('roleDeleteModal', {
 			$scope.affectedGeoresources = [];
 			
 			kommonitorDataExchangeService.availableGeoresources.forEach(function (georesource) {
-				var allowedRoles = georesource.allowedRoles;
+				var permissions = georesource.permissions;
 
 				for (const datasetToDelete of $scope.elementsToDelete) {
 					
 					var userRoles = datasetToDelete.roles.map(e => e.roleId);
 
-					if(allowedRoles.some(i => userRoles.includes(i))) {
+					if(permissions.some(i => userRoles.includes(i))) {
 
 						let connectedItems = [];
-						allowedRoles.forEach(role => {
+						permissions.forEach(role => {
 							
 							if(datasetToDelete.roles.filter(e => e.roleId==role).length==1)
 								connectedItems.push(`${datasetToDelete.name}-${datasetToDelete.roles.filter(e => e.roleId==role).map(e => { return e.permissionLevel})[0]}`);
@@ -107,7 +107,7 @@ angular.module('roleDeleteModal').component('roleDeleteModal', {
 			$scope.affectedIndicators = [];
 
 			kommonitorDataExchangeService.availableIndicators.forEach(function (indicator) {
-				var allowedRoles_metadata = indicator.allowedRoles;
+				var permissions_metadata = indicator.permissions;
 
 				let temp_indicator = indicator;
 				let found = false;
@@ -117,9 +117,9 @@ angular.module('roleDeleteModal').component('roleDeleteModal', {
 					var applicableSpatialUnits = temp_indicator.applicableSpatialUnits;
 
 					let connectedItems = [];
-					if(allowedRoles_metadata.some(i => userRoles.includes(i))) {
+					if(permissions_metadata.some(i => userRoles.includes(i))) {
 
-						allowedRoles_metadata.forEach(role => {
+						permissions_metadata.forEach(role => {
 							
 							if(datasetToDelete.roles.filter(e => e.roleId==role).length==1)
 								connectedItems.push(`${datasetToDelete.name}-${datasetToDelete.roles.filter(e => e.roleId==role).map(e => { return e.permissionLevel})[0]}`);
@@ -134,16 +134,16 @@ angular.module('roleDeleteModal').component('roleDeleteModal', {
 					let connectedSpatialUnits = [];
 					for (const applicableSpatialUnit of applicableSpatialUnits) {
 
-						var allowedRoles = applicableSpatialUnit.allowedRoles;
+						var permissions = applicableSpatialUnit.permissions;
 
-						if(allowedRoles.some(i => userRoles.includes(i))) {
+						if(permissions.some(i => userRoles.includes(i))) {
 
 							let connectedSpatialItem = {
 								name: applicableSpatialUnit.spatialUnitName,
 								ids:[]
 							};
 
-							allowedRoles.forEach(role => {
+							permissions.forEach(role => {
 								
 								if(datasetToDelete.roles.filter(e => e.roleId==role).length==1) {
 									if(!found)
