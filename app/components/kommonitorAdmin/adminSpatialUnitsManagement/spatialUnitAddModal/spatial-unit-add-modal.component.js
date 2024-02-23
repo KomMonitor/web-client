@@ -104,6 +104,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 		$scope.metadata.description = undefined;
 
 		$scope.ownerOrganization = undefined;
+		$scope.isPublic = false;
 
 		$scope.onChangeOwner = function(orgUnitId) {	
 			$scope.ownerOrganization = orgUnitId;		
@@ -193,6 +194,9 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 			$scope.metadata.contact = undefined;
 			$scope.metadata.lastUpdate = undefined;
 			$scope.metadata.description = undefined;
+
+			$scope.ownerOrganization = undefined;
+			$scope.isPublic = false;
 
 			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('spatialUnitAddRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, [], true);	
 
@@ -461,7 +465,8 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 				"outlineColor": $scope.outlineColor,
 				"outlineWidth": $scope.outlineWidth,
 				"outlineDashArrayString": $scope.selectedOutlineDashArrayObject.dashArrayValue,
-				"ownerId": $scope.ownerOrganization
+				"ownerId": $scope.ownerOrganization,
+				"isPublic": $scope.isPublic
 			};
 
 			let roleIds = kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid($scope.roleManagementTableOptions);
@@ -667,6 +672,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 				$scope.spatialUnitLevel = $scope.metadataImportSettings.spatialUnitLevel;
 
 				$scope.ownerOrganization = $scope.metadataImportSettings.ownerId;
+				$scope.isPublic = $scope.metadataImportSettings.isPublic;
 
 				$scope.$digest();
 		};
@@ -732,6 +738,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 			metadataExport["outlineWidth"] = $scope.outlineWidth;
 
 			metadataExport.ownerId = $scope.ownerOrganization;
+			metadataExport.isPublic = $scope.isPublic;
 
 			var name = $scope.spatialUnitLevel;
 

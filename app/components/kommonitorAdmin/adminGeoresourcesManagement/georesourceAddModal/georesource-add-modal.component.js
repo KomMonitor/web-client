@@ -98,11 +98,12 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 		$scope.metadata.databasis = undefined;
 		$scope.metadata.contact = undefined;
 		$scope.metadata.lastUpdate = undefined;
-		$scope.metadata.description = undefined;
+		$scope.metadata.description = undefined;		
 
 		$scope.roleManagementTableOptions = undefined;
 		
 		$scope.ownerOrganization = undefined;
+		$scope.isPublic = false;
 
 		$scope.onChangeOwner = function(orgUnitId) {
 			$scope.ownerOrganization = orgUnitId;
@@ -281,6 +282,9 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 			$scope.aoiColor = "#bf3d2c";
 			$scope.selectedPoiIconName = "home";
 			$("#poiSymbolPicker").val("").iconpicker('setIcon', 'glyphicon-' + $scope.selectedPoiIconName);
+
+			$scope.ownerOrganization = undefined;
+			$scope.isPublic = false;
 
 			$scope.periodOfValidity = {};
 			$scope.periodOfValidity.startDate = undefined;
@@ -537,7 +541,8 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 				"isLOI": $scope.isLOI,
 				"isPOI": $scope.isPOI,
 			  "topicReference": null,
-			  "ownerId": $scope.ownerOrganization
+			  "ownerId": $scope.ownerOrganization,
+			  "isPublic": $scope.isPublic
 			};
 
 			let roleIds = kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid($scope.roleManagementTableOptions);
@@ -817,6 +822,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 				}
 
 				$scope.ownerOrganization = $scope.metadataImportSettings.ownerId;
+				$scope.isPublic = $scope.metadataImportSettings.isPublic;
 
 				setTimeout(function(){
 					$("#poiSymbolPicker").val("").iconpicker('setIcon', 'glyphicon-' + $scope.metadataImportSettings.poiSymbolBootstrap3Name);
@@ -930,6 +936,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 			}
 
 			metadataExport.ownerId = $scope.ownerOrganization;
+			metadataExport.isPublic = $scope.isPublic;
 
 
 			var metadataJSON = JSON.stringify(metadataExport);

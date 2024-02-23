@@ -96,7 +96,8 @@ angular.module('indicatorEditIndicatorSpatialUnitRolesModal').component('indicat
 			$scope.loadingData = true;
 
 			let putBody = {
-				permissions: kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid($scope.roleManagementTableOptions_indicatorMetadata)
+				"permissions": kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid($scope.roleManagementTableOptions_indicatorMetadata),
+				"isPublic": $scope.currentIndicatorDataset.isPublic
 			}
 
 			$http({
@@ -186,7 +187,8 @@ angular.module('indicatorEditIndicatorSpatialUnitRolesModal').component('indicat
 			
 			var putBody =
 			{
-				"permissions": kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid($scope.roleManagementTableOptions_indicatorSpatialUnitTimeseries)
+				"permissions": kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid($scope.roleManagementTableOptions_indicatorSpatialUnitTimeseries),
+				"isPublic": $scope.targetApplicableSpatialUnit.isPublic
 			};
 
 			$scope.loadingData = true;

@@ -37,13 +37,28 @@
 									<p>Zugriffsrechte (lesen, editieren) m&uuml;ssen explizit vergeben werden</p>
 							
 										<div class="row">
-											<div class="col-md-3"></div>
+											<div class="col-md-3">
+												<label>&Ouml;ffentliche Lesefreigabe*</label>
+												<label class="switch">
+													<input type="checkbox" ng-model="isPublic">
+													<span class="switchslider round"></span>
+												</label>
+												<div class="help-block">
+													<p>
+														&Ouml;ffentlich freigegebene Datens&auml;tze k&ouml;nnen ohne Login abgerufen werden.
+													</p>
+												</div>
+											</div>
 											<div class="col-md-6 col-sm-6 col-xs-12">
 													<!-- <div id="georesourceAddRoleManagementTable" style="height: 40vh; overflow-y: auto;" class="ag-theme-alpine"></div>     -->
 													<div id="spatialUnitEditRoleManagementTable" style="height: 45vh" class="ag-theme-alpine"></div>  
 												
 											</div>
-											<div class="col-md-3"></div>
+											<div class="col-md-3">
+												<div class="alert alert-info">
+													Als Eigent&uuml;mer-Organisation des Datensatzes k&ouml;nnen Sie Lese- und Editier-Rechte an die eigene und weitere Organisationseinheiten vergeben. 
+												</div>
+											</div>
 										</div>	
 								
 										<input type="button" name="next" class="next next_editSpatialUnitRoles action-button" value="N&auml;chster Schritt"/>

@@ -129,7 +129,9 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 						"defaultColorAsHex": "color as hexadecimal value"
 					}
 				]
-			}
+			},
+			"ownerId": "ownerId",
+			"isPublic": false
 		};
 
 		$scope.indicatorMetadataStructure_pretty = kommonitorDataExchangeService.syntaxHighlightJSON($scope.indicatorMetadataStructure);
@@ -157,6 +159,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 		$scope.roleManagementTableOptions = undefined;
 
 		$scope.ownerOrganization = undefined;
+		$scope.isPublic = false;
 
 		$scope.onChangeOwner = function(orgUnitId) {
 			$scope.ownerOrganization = orgUnitId;
@@ -325,6 +328,9 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			$scope.numClassesArray = [3,4,5,6,7,8];
 			$scope.numClasses = $scope.numClassesArray[2];
 			$scope.selectedColorBrewerPaletteEntry = $scope.colorbrewerPalettes[13];
+
+			$scope.isPublic = false;
+			$scope.ownerOrganization = undefined;
 
 			$scope.postBody_indicators = undefined;
 
@@ -545,7 +551,8 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 						}
 					  ]
 				  },
-				  "ownerId": $scope.ownerOrganization
+				  "ownerId": $scope.ownerOrganization,
+				  "isPublic": $scope.isPublic
 			};
 
 			let roleIds = kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid($scope.roleManagementTableOptions);
@@ -873,6 +880,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 					}
 				}
 				$scope.ownerOrganization = $scope.metadataImportSettings.ownerId;
+				$scope.isPublic = $scope.metadataImportSettings.isPublic;
 
 				$scope.$digest();
 		};
@@ -1018,6 +1026,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 
 				metadataExport.defaultClassificationMapping = defaultClassificationMapping;
 				metadataExport.ownerId = $scope.ownerOrganization;
+				metadataExport.isPublic = $scope.isPublic;
 			
 
 			var metadataJSON = JSON.stringify(metadataExport);

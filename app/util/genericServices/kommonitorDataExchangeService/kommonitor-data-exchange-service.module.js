@@ -366,7 +366,7 @@ angular
 
           this.fileDatasets = [];
 
-          this.availableRoles = [];
+          this.availablePermissions = [];
           this.availableUsers = [];
 					this.availableProcessScripts = [];
           this.isochroneLegend;
@@ -1765,8 +1765,8 @@ angular
             this.availableRoles = [];
 
             for (let elem of this.accessControl) {
-              for (let role of elem.permissions) {
-                let available = {...role, ...{"organizationalUnit": elem, "roleName": elem.name + "-" + role.permissionLevel}};
+              for (let permission of elem.permissions) {
+                let available = {...permission, ...{"organizationalUnit": elem, "roleName": elem.name + "-" + permission.permissionLevel}};
                 this.availableRoles.push(available);
               }
             }
@@ -2920,40 +2920,13 @@ angular
         
         return duallistRoleOptions;
     };
-    
-    this.getRoleMetadataForRoleName = function(roleName){
-      for (const roleMetadata of this.availableRoles) {
-        if(roleMetadata.roleName === roleName){
-          return roleMetadata;
-        }
-      }
-    };
 
-    this.getRoleMetadataForRoleId = function(roleId){
-      for (const roleMetadata of this.availableRoles) {
-        if(roleMetadata.roleId === roleId){
-          return roleMetadata;
-        }
-      }
-    };
-
-    this.getRoleMetadataForRoleIds = function(roleIdsArray){
-      var rolesMetadata = [];
-      for (const roleMetadata of this.availableRoles) {
-        if(roleIdsArray.includes(roleMetadata.roleId)){
-          rolesMetadata.push(roleMetadata);
-        }
-      }
-
-      return rolesMetadata;
-    };
-
-    this.getAllowedRolesString = function(allowedRoleIds){
+    this.getAllowedRolesString = function(allowedPermissionIds){
       var permissions = [];
       for(const organizationalUnit of this.accessControl){
-        for(const role of organizationalUnit.roles){
-          if(allowedRoleIds.includes(role.roleId)){
-            permissions.push(organizationalUnit.name + "-" + role.permissionLevel)
+        for(const permission of organizationalUnit.permissions){
+          if(allowedPermissionIds.includes(permission.permissionId)){
+            permissions.push(organizationalUnit.name + "-" + permission.permissionLevel)
           }
         }
       }

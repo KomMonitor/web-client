@@ -17,6 +17,7 @@ angular.module('spatialUnitEditUserRolesModal').component('spatialUnitEditUserRo
 		$scope.ownerOrgFilter = undefined;
 
 		$scope.ownerOrganization = undefined;
+		$scope.isPublic = false; 
 
 		$scope.$on("onEditSpatialUnitUserRoles", function (event, spatialUnitDataset) {
 
@@ -46,8 +47,9 @@ angular.module('spatialUnitEditUserRolesModal').component('spatialUnitEditUserRo
 		
 		$scope.resetSpatialUnitEditUserRolesForm = function () {
 
-			$scope.ownerOrganization = undefined;
-			document.getElementById('targetUserRoleSelect').selectedIndex = 0;
+			$scope.ownerOrganization = $scope.currentSpatialUnitDataset.ownerId;
+
+			$scope.isPublic = false; 
 
 			$scope.refreshRoleManagementTable();
 			$scope.ownerOrgFilter = undefined;
@@ -78,7 +80,8 @@ angular.module('spatialUnitEditUserRolesModal').component('spatialUnitEditUserRo
 			$scope.loadingData = true;
 
 			let putBody = {
-				permissions: kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid($scope.roleManagementTableOptions)
+				"permissions": kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid($scope.roleManagementTableOptions),
+				"isPublic": $scope.isPublic
 			}
 
 			$http({
@@ -121,7 +124,48 @@ angular.module('spatialUnitEditUserRolesModal').component('spatialUnitEditUserRo
 
 		$scope.putOwnership = function(){
 
-			console.log("not yet implemented");
+			$scope.loadingData = true;
+
+			let putBody = {
+				"ownerId": $scope.ownerOrganization,
+			}
+
+			$http({
+				url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/spatial-units/" + $scope.currentSpatialUnitDataset.spatialUnitId + "/ownership",
+				method: "PUT",
+				data: putBody,
+				headers: {
+				   'Content-Type': "application/json"
+				}
+			}).then(function successCallback(response) {
+					// this callback will be called asynchronously
+					// when the response is available
+
+					$scope.successMessagePart = $scope.currentSpatialUnitDataset.spatialUnitLevel;
+
+					$rootScope.$broadcast("refreshSpatialUnitOverviewTable", "edit", $scope.currentSpatialUnitDataset.spatialUnitId);
+								
+					$("#spatialUnitEditUserRolesSuccessAlert").show();
+					$timeout(function(){
+				
+						$scope.loadingData = false;
+					});	
+
+				}, function errorCallback(error) {
+					$scope.errorMessagePart = "Fehler beim Aktualisieren der Zugriffsrechte. Fehler lautet: \n\n";
+					if(error.data){							
+						$scope.errorMessagePart += kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
+					}
+					else{
+						$scope.errorMessagePart += kommonitorDataExchangeService.syntaxHighlightJSON(error);
+					}
+
+					$("#spatialUnitEditUserRolesErrorAlert").show();
+					$timeout(function(){
+				
+						$scope.loadingData = false;
+					});	
+			});
 		}
 
 		$scope.hideSuccessAlert = function () {

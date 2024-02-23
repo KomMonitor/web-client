@@ -41,13 +41,28 @@
 								<p>Zugriffsrechte (lesen, editieren) m&uuml;ssen explizit vergeben werden</p>
 	
 								<div class="row">
-									<div class="col-md-3"></div>
+									<div class="col-md-3">
+										<label>&Ouml;ffentliche Lesefreigabe*</label>
+												<label class="switch">
+													<input type="checkbox" ng-model="currentIndicatorDataset.isPublic">
+													<span class="switchslider round"></span>
+												</label>
+												<div class="help-block">
+													<p>
+														&Ouml;ffentlich freigegebene Datens&auml;tze k&ouml;nnen ohne Login abgerufen werden.
+													</p>
+												</div>
+									</div>
 									<div class="col-md-6 col-sm-6 col-xs-12">
 											<!-- <div id="georesourceAddRoleManagementTable" style="height: 40vh; overflow-y: auto;" class="ag-theme-alpine"></div>     -->
 											<div id="indicatorEditRoleManagementTable" style="height: 45vh" class="ag-theme-alpine"></div>  
 										
 									</div>
-									<div class="col-md-3"></div>
+									<div class="col-md-3">
+										<div class="alert alert-info">
+											Als Eigent&uuml;mer-Organisation des Datensatzes k&ouml;nnen Sie Lese- und Editier-Rechte an die eigene und weitere Organisationseinheiten vergeben. 
+										</div>
+									</div>
 								</div>	
 								
 								
@@ -59,8 +74,7 @@
 								<h3 class="fs-subtitle">Vergabe der Zugriffsrechte auf die Indikator-Zeitreihen der einzelnen Raumebenen. Zus&uuml;tzlich zu den Metadaten
 									muss der Zugriff auf die Zeitreihe einer verkn&uuml;pften Raumeinheit explizit f&uuml; authorisierte Organisationseinheiten freigegeben werden.</h3>
 		
-								<p>Zugriffsrechte (lesen, editieren, l&ouml;schen) m&uuml;ssen explizit vergeben werden</p>
-	
+								
 								
 								<div class="row vertical-align">
 									<div class="col-md-3 col-sm-6 col-xs-12">
@@ -76,16 +90,26 @@
 										</div>
 									</div>
 
-								<div class="row">
+								<!-- <div class="row">
 									<div class="col-md-3"></div>
 									<div class="col-md-6 col-sm-6 col-xs-12">
 											 
 										
 									</div>
 									<div class="col-md-3"></div>
-								</div>	
+								</div>	 -->
 
 									<div class="col-md-9 col-sm-6 col-xs-12">
+										<label>&Ouml;ffentliche Lesefreigabe*</label>
+												<label class="switch">
+													<input type="checkbox" ng-model="targetApplicableSpatialUnit.isPublic">
+													<span class="switchslider round"></span>
+												</label>
+												<div class="help-block">
+													<p>
+														&Ouml;ffentlich freigegebene Datens&auml;tze k&ouml;nnen ohne Login abgerufen werden.
+													</p>
+												</div>
 										<div id="indicatorEditIndicatorSpatialUnitsRoleManagementTable" style="height: 45vh" class="ag-theme-alpine"></div> 
 									</div>
 
