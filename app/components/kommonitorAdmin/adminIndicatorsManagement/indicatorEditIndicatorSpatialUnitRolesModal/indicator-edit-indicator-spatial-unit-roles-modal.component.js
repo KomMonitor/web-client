@@ -54,12 +54,12 @@ angular.module('indicatorEditIndicatorSpatialUnitRolesModal').component('indicat
 		$scope.onChangeOwner = function(ownerOrganization) {
 
 			$scope.ownerOrganization = ownerOrganization;
-			console.log("Target creator role selected to be:",$scope.ownerOrganization);
+			console.log("Target creator role selected to be:", $scope.ownerOrganization);
 		}
 
 		$scope.resetIndicatorEditIndicatorSpatialUnitRolesForm = function () {
 
-			$scope.ownerOrganization = undefined;
+			$scope.ownerOrganization = $scope.currentIndicatorDataset.ownerId;
 			document.getElementById('targetUserRoleSelect').selectedIndex = 0;
 
 			$scope.ownerOrgFilter = undefined;
@@ -142,7 +142,7 @@ angular.module('indicatorEditIndicatorSpatialUnitRolesModal').component('indicat
 			$scope.loadingData = true;
 
 			let putBody = {
-				"ownerId": $scope.ownerOrganization
+				"ownerId": $scope.ownerOrganization === undefined ? $scope.currentIndicatorDataset.ownerId : $scope.ownerOrganization
 			}
 
 			$http({

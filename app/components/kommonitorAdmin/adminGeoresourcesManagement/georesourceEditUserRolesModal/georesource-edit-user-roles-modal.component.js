@@ -49,9 +49,9 @@ angular.module('georesourceEditUserRolesModal').component('georesourceEditUserRo
 
 		$scope.resetGeoresourceEditUserRolesForm = function () {
 
-			$scope.ownerOrganization = undefined;
 			document.getElementById('targetUserRoleSelect').selectedIndex = 0;
 
+			$scope.ownerOrganization = $scope.currentGeoresourceDataset.ownerId;
 			$scope.isPublic = $scope.currentGeoresourceDataset.isPublic;
 
 			$scope.refreshRoleManagementTable();
@@ -130,7 +130,7 @@ angular.module('georesourceEditUserRolesModal').component('georesourceEditUserRo
 			$scope.loadingData = true;
 
 			let putBody = {
-				"ownerId": $scope.ownerOrganization
+				"ownerId": $scope.ownerOrganization === undefined ? $scope.currentGeoresourceDataset.ownerId : $scope.ownerOrganization
 			}
 
 			$http({

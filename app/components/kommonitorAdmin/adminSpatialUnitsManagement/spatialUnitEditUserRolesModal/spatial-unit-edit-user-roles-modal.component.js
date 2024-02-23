@@ -127,8 +127,9 @@ angular.module('spatialUnitEditUserRolesModal').component('spatialUnitEditUserRo
 			$scope.loadingData = true;
 
 			let putBody = {
-				"ownerId": $scope.ownerOrganization,
+				"ownerId": $scope.ownerOrganization === undefined ? $scope.currentSpatialUnitDataset.ownerId : $scope.ownerOrganization
 			}
+			
 
 			$http({
 				url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/spatial-units/" + $scope.currentSpatialUnitDataset.spatialUnitId + "/ownership",
