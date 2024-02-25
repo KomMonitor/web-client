@@ -96,11 +96,11 @@ angular.module('roleAddModal').component('roleAddModal', {
 						"mandant": $scope.newOrganizationalUnit.mandant,
 						"keycloakId": keycloakGroupId,
 						"parentId": $scope.newOrganizationalUnit.parentId
-					};
+					};					
 
 					$scope.loadingData = true;
 
-					$http({
+					await $http({
 						url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/organizationalUnits",
 						method: "POST",
 						data: postBody,
@@ -110,6 +110,14 @@ angular.module('roleAddModal').component('roleAddModal', {
 					}).then(async function successCallback(response) {
 						// this callback will be called asynchronously
 						// when the response is available
+
+						await kommonitorDataExchangeService.fetchAccessControlMetadata(kommonitorDataExchangeService.currentKeycloakLoginRoles);
+						let newPersistedOrg = kommonitorDataExchangeService.getAccessControlByName($scope.newOrganizationalUnit.name);
+						
+						// update keycloak group and roles with ID of kommonitor organization
+						await kommonitorKeycloakHelperService.updateExistingGroup(newPersistedOrg, newPersistedOrg.name, $scope.parentOrganizationalUnit);
+						await kommonitorKeycloakHelperService.fetchAndSetKeycloakRoles();
+						await kommonitorKeycloakHelperService.fetchAndSetKeycloakGroups();
 
 						$("#ouAddSuccessAlert").show();
 						

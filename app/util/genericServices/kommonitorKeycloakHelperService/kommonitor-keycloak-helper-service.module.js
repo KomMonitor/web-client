@@ -94,10 +94,13 @@ angular
         });
       };
 
-      this.renameExistingRole_withToken = async function (bearerToken, oldRoleName, newRoleName) {
+      this.renameExistingRole_withToken = async function (bearerToken, oldRoleName, newRoleName, organizationalUnit) {
         let keycloakRole = this.getKeycloakRoleNyName(oldRoleName);
         var rolesBody = {
-          "name": newRoleName
+          "name": newRoleName,
+          "attributes": {
+            "kommonitorOrganizationalUnitId": [organizationalUnit.organizationalUnitId]
+          }
         };
 
         return await $http({
@@ -203,13 +206,13 @@ angular
         });
       }
 
-      this.renameExistingRoles = async function (oldOrganizationalUnitName, newOrganizationalUnitName) {
+      this.renameExistingRoles = async function (oldOrganizationalUnitName, newOrganizationalUnitName, organizationalUnit) {
         try {
           // first get auth token to make admin requests
           var bearerToken = Auth.keycloak.token;
 
           for (let suffix of this.roleSuffixes) {
-            await this.renameExistingRole_withToken(bearerToken, oldOrganizationalUnitName + "-" + suffix, newOrganizationalUnitName + "-" + suffix);
+            await this.renameExistingRole_withToken(bearerToken, oldOrganizationalUnitName + "-" + suffix, newOrganizationalUnitName + "-" + suffix, organizationalUnit);
           }
         } catch (error) {
           console.error(error);
@@ -280,6 +283,7 @@ angular
             "name": organizationalUnit.name, 
             "attributes": {
               "mandant": [organizationalUnit.mandant]
+              //"kommonitorOrganizationalUnitId": [organizationalUnit.organizationalUnitId]   // we post keycloak group before creating kommonitor org.
             }
           };
 
@@ -465,7 +469,8 @@ angular
           "id": organizationalUnit.keycloakId,
           "name": organizationalUnit.name, 
           "attributes": {
-            "mandant": [organizationalUnit.mandant]
+            "mandant": [organizationalUnit.mandant],
+            "kommonitorOrganizationalUnitId": [organizationalUnit.organizationalUnitId]
           }
         };
 
@@ -479,7 +484,7 @@ angular
         // post individual roles
         for (let suffix of this.adminRoleSuffixes) {
           // post individual role
-          await this.renameExistingRole_withToken(bearerToken, oldName + "." + suffix, organizationalUnit.name + "." + suffix);
+          await this.renameExistingRole_withToken(bearerToken, oldName + "." + suffix, organizationalUnit.name + "." + suffix, organizationalUnit);
         }
       }
 

@@ -1778,6 +1778,14 @@ angular
             return this.accessControl_map.get(id);
           };
 
+          this.getAccessControlByName = function(name){
+            for (const org of this.accessControl) {
+              if (org.name == name){
+                return org;
+              }            
+            }
+          };
+
           this.filterChildOrSelfOrganizationalUnits = function(organizationalUnitReferenceItem) {
 
             return function (organizationalUnit) {
