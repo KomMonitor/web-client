@@ -83,7 +83,15 @@
 												<option ng-repeat="org in $ctrl.kommonitorDataExchangeServiceInstance.accessControl | filter:ownerOrgFilter" value="{{org.organizationalUnitId}}">{{org.name}}</option>
 											</select>
 										</div>
-										<div class="col-md-3"></div>
+										<div class="col-md-3">
+											<label>aktuelle Eigent&uuml;mer-Organisationseinheit</label>
+											<p>{{$ctrl.kommonitorDataExchangeServiceInstance.getAccessControlById(currentSpatialUnitDataset.ownerId).name}}</p>
+											<div class="help-block" style="color: red" ng-if="ownerOrganization != currentSpatialUnitDataset.ownerId">
+												<p>
+													ACHTUNG: Sie sind dabei, die Eigent&uuml;merschaft an diesem Datensatz zu &auml;ndern.
+												</p>
+											</div>
+										</div>
 									</div>
 
 									<input type="button" name="previous" class="previous next_editSpatialUnitRoles action-button-previous" value="Voriger Schritt"/>

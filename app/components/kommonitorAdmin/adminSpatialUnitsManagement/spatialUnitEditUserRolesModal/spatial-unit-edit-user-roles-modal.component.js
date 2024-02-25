@@ -63,9 +63,9 @@ angular.module('spatialUnitEditUserRolesModal').component('spatialUnitEditUserRo
 
 		$scope.editSpatialUnitEditUserRolesForm = function(){
 
-			if($scope.ownerOrganization !== undefined)
-			if(!confirm('Sind Sie sicher, dass Sie den Eigentümerschaft an dieser Resource endgültig und unwiderruflich übertragen und damit abgeben wollen?'))
-				return;
+			if($scope.ownerOrganization !== undefined && $scope.ownerOrganization != $scope.currentSpatialUnitDataset.ownerId)
+				if(!confirm('Sind Sie sicher, dass Sie den Eigentümerschaft an dieser Resource endgültig und unwiderruflich übertragen und damit abgeben wollen?'))
+					return;
 
 			$scope.putUserRoles();
 

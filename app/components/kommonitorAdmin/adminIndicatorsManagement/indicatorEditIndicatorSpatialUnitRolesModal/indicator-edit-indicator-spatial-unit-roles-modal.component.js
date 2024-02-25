@@ -81,7 +81,7 @@ angular.module('indicatorEditIndicatorSpatialUnitRolesModal').component('indicat
 
 		$scope.editIndicatorSpatialUnitRoles = function () {
 
-			if($scope.ownerOrganization !== undefined)
+			if($scope.ownerOrganization !== undefined && $scope.ownerOrganization != $scope.currentIndicatorDataset.ownerId)
 				if(!confirm('Sind Sie sicher, dass Sie den Eigentümerschaft an dieser Resource endgültig und unwiderruflich übertragen und damit abgeben wollen?'))
 					return;
 
