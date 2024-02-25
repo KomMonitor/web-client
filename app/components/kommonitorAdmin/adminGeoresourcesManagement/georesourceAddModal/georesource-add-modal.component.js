@@ -113,6 +113,10 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 			if(orgUnitId)
 				$('#georesourceRoleForm').css('display','block');
 		}
+
+		$scope.onChangeIsPublic = function(isPublic){
+			$scope.isPublic = isPublic;
+		}
 		
 		$scope.$on("availableRolesUpdate", function (event) {
 			refreshRoles();

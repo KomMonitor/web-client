@@ -495,6 +495,11 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			});
 		};
 
+		$scope.onChangeIsPublic = function(isPublic){
+			$scope.isPublic = isPublic;
+			console.log($scope.isPublic);
+		}
+
 		$scope.buildPostBody_indicators = function(){
 			var postBody =
 			{

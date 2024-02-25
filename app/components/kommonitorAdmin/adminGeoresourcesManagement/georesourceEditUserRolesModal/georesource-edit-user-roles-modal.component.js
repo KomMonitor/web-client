@@ -18,8 +18,6 @@ angular.module('georesourceEditUserRolesModal').component('georesourceEditUserRo
 
 		$scope.ownerOrganization = undefined;
 
-		$scope.isPublic = false; 
-
 		$scope.$on("onEditGeoresourcesUserRoles", function (event, georesourceDataset) {
 
 			$scope.currentGeoresourceDataset = georesourceDataset;
@@ -52,7 +50,6 @@ angular.module('georesourceEditUserRolesModal').component('georesourceEditUserRo
 			document.getElementById('targetUserRoleSelect').selectedIndex = 0;
 
 			$scope.ownerOrganization = $scope.currentGeoresourceDataset.ownerId;
-			$scope.isPublic = $scope.currentGeoresourceDataset.isPublic;
 
 			$scope.refreshRoleManagementTable();
 			$scope.ownerOrgFilter = undefined;
@@ -84,7 +81,7 @@ angular.module('georesourceEditUserRolesModal').component('georesourceEditUserRo
 
 			let putBody = {
 				"permissions": kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid($scope.roleManagementTableOptions),
-				"isPublic": $scope.isPublic
+				"isPublic": $scope.currentGeoresourceDataset.isPublic
 			}
 
 			$http({

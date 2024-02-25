@@ -17,7 +17,6 @@ angular.module('spatialUnitEditUserRolesModal').component('spatialUnitEditUserRo
 		$scope.ownerOrgFilter = undefined;
 
 		$scope.ownerOrganization = undefined;
-		$scope.isPublic = false; 
 
 		$scope.$on("onEditSpatialUnitUserRoles", function (event, spatialUnitDataset) {
 
@@ -49,8 +48,6 @@ angular.module('spatialUnitEditUserRolesModal').component('spatialUnitEditUserRo
 
 			$scope.ownerOrganization = $scope.currentSpatialUnitDataset.ownerId;
 
-			$scope.isPublic = false; 
-
 			$scope.refreshRoleManagementTable();
 			$scope.ownerOrgFilter = undefined;
 
@@ -81,7 +78,7 @@ angular.module('spatialUnitEditUserRolesModal').component('spatialUnitEditUserRo
 
 			let putBody = {
 				"permissions": kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid($scope.roleManagementTableOptions),
-				"isPublic": $scope.isPublic
+				"isPublic": $scope.currentSpatialUnitDataset.isPublic
 			}
 
 			$http({

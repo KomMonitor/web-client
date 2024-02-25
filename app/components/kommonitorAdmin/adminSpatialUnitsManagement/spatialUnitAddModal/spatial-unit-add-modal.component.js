@@ -116,6 +116,10 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 
 		}
 
+		$scope.onChangeIsPublic = function(isPublic){
+			$scope.isPublic = isPublic;
+		}
+
 		$scope.roleManagementTableOptions = undefined;	
 
 		$scope.$on("availableRolesUpdate", function (event) {
