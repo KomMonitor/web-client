@@ -95,12 +95,13 @@ angular
       };
 
       this.renameExistingRole_withToken = async function (bearerToken, oldRoleName, newRoleName) {
+        let keycloakRole = this.getKeycloakRoleNyName(oldRoleName);
         var rolesBody = {
           "name": newRoleName
         };
 
         return await $http({
-          url: this.targetUrlToKeycloakInstance + "admin/realms/" + this.realm + "/roles/" + oldRoleName,
+          url: this.targetUrlToKeycloakInstance + "admin/realms/" + this.realm + "/roles-by-id/" + keycloakRole.id,
           method: 'PUT',
           data: rolesBody,
           headers: {
@@ -126,8 +127,10 @@ angular
 
       this.deleteRole_withToken = async function (bearerToken, roleName) {
 
+        let keycloakRole = this.getKeycloakRoleNyName(roleName);
+
         return await $http({
-          url: this.targetUrlToKeycloakInstance + "admin/realms/" + this.realm + "/roles/" + roleName,
+          url: this.targetUrlToKeycloakInstance + "admin/realms/" + this.realm + "/roles-by-id/" + keycloakRole.id,
           method: 'DELETE',
           headers: {
             'Authorization': "Bearer " + bearerToken // Note the appropriate header
@@ -246,6 +249,14 @@ angular
       this.setAvailableKeycloakRoles = function (roles) {
         this.availableKeycloakRoles = roles;
       };
+
+      this.getKeycloakRoleNyName = function(roleName){
+        for (const role of this.availableKeycloakRoles) {
+          if (role.name == roleName){
+            return role;
+          }
+        }
+      }
 
       this.fetchAndSetKeycloakRoles = async function (username, password) {
         this.setAvailableKeycloakRoles(await this.getAllRoles(username, password));
