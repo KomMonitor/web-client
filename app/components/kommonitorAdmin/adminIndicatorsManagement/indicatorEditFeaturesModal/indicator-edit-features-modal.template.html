@@ -47,8 +47,9 @@
 								<div class="col-md-4 col-sm-4 col-xs-12">
 									<div class="form-group">
 										<label >Raumeinheit w&auml;hlen</label>
-										<select ng-model="overviewTableTargetSpatialUnitMetadata" ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits | filter:filterOverviewTargetSpatialUnits()"
-												class="form-control" required>
+										<select ng-model="overviewTableTargetSpatialUnitMetadata" 
+										ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits | filter:filterOverviewTargetSpatialUnits()"												
+										class="form-control" required>
 												<option disabled selected value> -- Ziel-Raumebene w&auml;hlen -- </option>
 											</select>
 
@@ -253,13 +254,32 @@
 								<p><strong>lesender Zugriff auf die Indikator-Zeitreihe wird nur den Organisationseinheiten gew&auml;hrt, die auch lesenden Zugriff auf Metadaten der assoziierten Raumeinheit besitzen.</strong></p>
 		
 
-								<div class="row">
-									<div class="col-md-3"></div>
+								<div class="row vertical-align">
+									<div class="col-md-3">
+										<label>&Ouml;ffentliche Lesefreigabe*</label>
+										<label class="switch">
+											<input type="checkbox" ng-model="isPublic" ng-change="onChangeIsPublic(isPublic)">
+											<span class="switchslider round"></span>
+										</label>
+										<div class="help-block">
+											<p>
+												&Ouml;ffentlich freigegebene Datens&auml;tze k&ouml;nnen ohne Login abgerufen werden.
+											</p>
+										</div>
+									</div>
 									<div class="col-md-6 col-sm-6 col-xs-12">
 											<div id="indicatorEditFeaturesRoleManagementTable" style="height: 45vh" class="ag-theme-alpine"></div>  
 										
 									</div>
-									<div class="col-md-3"></div>
+									<div class="col-md-3">
+										<div class="alert alert-info">
+											Als Eigent&uuml;mer-Organisation des Datensatzes k&ouml;nnen Sie Lese- und Editier-Rechte an die eigene und weitere Organisationseinheiten vergeben. 
+										</div>
+										<br/>
+										<div class="alert alert-warning">
+											Lese- und Editierrechte wurden anhand der selektierten Raumeinheit und f&uuml;r die von Eigent&uuml;mer-Organisationseinheit vorab markiert. 
+										</div>
+									</div>
 								</div>								
 
 							<br/>

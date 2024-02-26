@@ -74,6 +74,8 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 			
 			function refreshRoles() {
 				let permissions = $scope.targetApplicableSpatialUnit ? $scope.targetApplicableSpatialUnit.permissions : [];
+				let permissionIds_ownerUnit = kommonitorDataExchangeService.getAccessControlById($scope.currentIndicatorDataset.ownerId).permissions.filter(permission => permission.permissionLevel == "viewer" || permission.permissionLevel == "editor").map(permission => permission.permissionId); 
+				permissions = permissions.concat(permissionIds_ownerUnit);
 				$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorEditFeaturesRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, permissions, true);
 			}
 	
@@ -86,6 +88,7 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 			$scope.indicatorsEditFeaturesMappingConfigPre = kommonitorDataExchangeService.syntaxHighlightJSON(kommonitorImporterHelperService.mappingConfigStructure_indicator);
 
 
+			$scope.isPublic = false;
 			$scope.overviewTableTargetSpatialUnitMetadata = undefined;
 	
 			$scope.spatialUnitRefKeyProperty = undefined;
@@ -134,6 +137,11 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 				}
 	
 			});
+
+			$scope.onChangeIsPublic = function(isPublic){
+				$scope.isPublic = isPublic;
+				console.log($scope.isPublic);
+			}
 
 			// called if indicator was edited - then we must make sure that the view is refreshed
 			// i.e. if a new spatial unit was setup the first time via edit menu, then we must ensure that this new spatial unit is actually 
@@ -241,6 +249,8 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 	
 			$scope.resetIndicatorEditFeaturesForm = function(){
 
+				$scope.isPublic = false;
+
 				// reset edit banners
 				kommonitorDataGridHelperService.featureTable_indicator_lastUpdate_timestamp_success = undefined;
 				kommonitorDataGridHelperService.featureTable_indicator_lastUpdate_timestamp_failure = undefined;
@@ -309,8 +319,7 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 					}
 				}
 				
-				$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorEditFeaturesRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, $scope.targetApplicableSpatialUnit.permissions, true);
-
+				refreshRoles();
 			};
 	
 			$scope.onChangeConverter = function(){
@@ -367,7 +376,8 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 						"defaultClassificationMapping": $scope.currentIndicatorDataset.defaultClassificationMapping
 					},
 					"permissions": roleIds,
-					"ownerId": $scope.currentIndicatorDataset.ownerId
+					"ownerId": $scope.currentIndicatorDataset.ownerId,
+					"isPublic": $scope.isPublic
 				}
 				$scope.putBody_indicators = kommonitorImporterHelperService.buildPutBody_indicators(scopeProperties);
 	
@@ -622,6 +632,9 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 
 					$scope.keepMissingValues = $scope.mappingConfigImportSettings.propertyMapping.keepMissingOrNullValueIndicator;
 					
+					$scope.isPublic = $scope.mappingConfigImportSettings.isPublic;
+					$scope.currentIndicatorDataset.ownerId = $scope.mappingConfigImportSettings.ownerId;
+
 					$scope.$digest();
 			};
 	
@@ -646,6 +659,9 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 				}
 	
 				mappingConfigExport.periodOfValidity = $scope.periodOfValidity;
+
+				mappingConfigExport.isPublic = $scope.isPublic;
+				mappingConfigExport.ownerId = $scope.currentIndicatorDataset.ownerId;
 	
 				var name = $scope.datasetName;
 	
