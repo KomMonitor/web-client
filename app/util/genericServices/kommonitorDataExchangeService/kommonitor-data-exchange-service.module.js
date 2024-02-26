@@ -62,7 +62,7 @@ angular
           this.currentKeycloakLoginRoles = [];
           this.currentKomMonitorLoginRoleNames = [];
           this.currentKeycloakLoginGroups = [];
-          this.currentKomMonitorLoginGroupNames = [];
+          this.currentKomMonitorLoginOrganizationalUnits = [];
           this.currentKeycloakUser;
 
           // MAP objects for available resource metadata in order to have quick access to datasets by ID
@@ -104,30 +104,15 @@ angular
             this.currentKomMonitorLoginRoleNames = this.currentKeycloakLoginRoles.filter(role => possibleRoles.includes(role));
           }
 
-          this.setCurrentKomMonitorLoginRoleIds = function() {
-            this.currentKomMonitorLoginRoleIds = [];
-
-            // make a map of all role names currently logged in user according to pattern 
-            // <organization>-<permissionLevel> 
-            let roleNameMap_loggedIn = new Map();
-
-            for (const roleName of this.currentKeycloakLoginRoles) {
-              // roleName consists of <organization>-<permission-level>
-              roleNameMap_loggedIn.set(roleName, "");              
-            }
-
-            // now iterate once over all possible KomMonitor roles and check if they are within previous map
-            this.accessControl.forEach(organizationalUnit => {
-              organizationalUnit.permissions.forEach(permission => {
-                if(roleNameMap_loggedIn.has(organizationalUnit.name + "-" + permission.permissionLevel)){
-                  this.currentKomMonitorLoginRoleIds.push(permission.permissionId);
-                }
-              });
-            });
+          this.setCurrentKomMonitorLoginOrganizationalUnits = function() {  
+            
+            // now iterate once over all possible KomMonitor orgas and check if user belongs to this orga via its keycloak group
+            this.currentKomMonitorLoginOrganizationalUnits = this.accessControl.filter(org => self.currentKeycloakLoginGroupNames.includes(org.name));
+            console.log(this.currentKomMonitorLoginOrganizationalUnits);
           };
 
-          this.getCurrentKomMonitorLoginRoleIds = function() {
-            return this.currentKomMonitorLoginRoleIds;
+          this.getCurrentKomMonitorLoginOrganizationalUnits = function() {
+            return this.currentKomMonitorLoginOrganizationalUnits;
           };
 
 
@@ -381,7 +366,7 @@ angular
 
           this.fileDatasets = [];
 
-          this.availableRoles = [];
+          this.availablePermissions = [];
           this.availableUsers = [];
 					this.availableProcessScripts = [];
           this.isochroneLegend;
@@ -1110,8 +1095,11 @@ angular
                     self.isRealmAdmin = true;
                     // self.currentKeycloakLoginRoles = self.currentKeycloakLoginRoles.concat(Auth.keycloak.tokenParsed.resource_access["realm-management"].roles);
                   }
+                  self.currentKeycloakLoginGroups = Auth.keycloak.tokenParsed.groups;
+                  self.currentKeycloakLoginGroupNames = self.currentKeycloakLoginGroups.map(groupPath => groupPath.split("/")[groupPath.split("/").length - 1]);
                 } else {
                   self.currentKeycloakLoginRoles = [];
+                  self.currentKeycloakLoginGroups = [];
                 }
 
                 // set token expiration
@@ -1738,7 +1726,7 @@ angular
           this.fetchAccessControlMetadata = async function(keycloakRolesArray){
             self.setAccessControl(await kommonitorCacheHelperService.fetchAccessControlMetadata(keycloakRolesArray));
             self.setCurrentKomMonitorLoginRoleNames();
-            self.setCurrentKomMonitorLoginRoleIds();
+            self.setCurrentKomMonitorLoginOrganizationalUnits();            
           };
 
           this.replaceSingleAccessControlMetadata = function(targetRoleMetadata){
@@ -1775,10 +1763,10 @@ angular
 
           this.updateAvailableRoles = function() {
             this.availableRoles = [];
-            
+
             for (let elem of this.accessControl) {
-              for (let role of elem.permissions) {
-                let available = {...role, ...{"organizationalUnit": elem, "roleName": elem.name + "-" + role.permissionLevel}};
+              for (let permission of elem.permissions) {
+                let available = {...permission, ...{"organizationalUnit": elem, "roleName": elem.name + "-" + permission.permissionLevel}};
                 this.availableRoles.push(available);
               }
             }
@@ -1791,13 +1779,11 @@ angular
           };
 
           this.getAccessControlByName = function(name){
-
-            let tempMap = this.accessControl.filter(e => e.name==name).map(e => e);
-
-            if(tempMap) 
-              return tempMap[0];
-
-            return [];
+            for (const org of this.accessControl) {
+              if (org.name == name){
+                return org;
+              }            
+            }
           };
 
           this.filterChildOrSelfOrganizationalUnits = function(organizationalUnitReferenceItem) {
@@ -2137,7 +2123,7 @@ angular
           //   self.roleMetadataForCurrentKeycloakLoginRoles = self.availableRoles.filter(role => self.currentKeycloakLoginRoles.includes(role.roleName));                       
             
           //   var filteredApplicableUnits = indicatorMetadata.applicableSpatialUnits.filter(function (applicableSpatialUnit) {
-          //     return applicableSpatialUnit.allowedRoles.length == 0 || applicableSpatialUnit.allowedRoles.some(allowedRoleId => self.roleMetadataForCurrentKeycloakLoginRoles.some(roleMetadata => roleMetadata.roleId === allowedRoleId) );                
+          //     return applicableSpatialUnit.permissions.length == 0 || applicableSpatialUnit.permissions.some(allowedRoleId => self.roleMetadataForCurrentKeycloakLoginRoles.some(roleMetadata => roleMetadata.roleId === allowedRoleId) );                
           //   });
 
           //   return filteredApplicableUnits.length > 0;
@@ -2942,44 +2928,17 @@ angular
         
         return duallistRoleOptions;
     };
-    
-    this.getRoleMetadataForRoleName = function(roleName){
-      for (const roleMetadata of this.availableRoles) {
-        if(roleMetadata.roleName === roleName){
-          return roleMetadata;
-        }
-      }
-    };
 
-    this.getRoleMetadataForRoleId = function(roleId){
-      for (const roleMetadata of this.availableRoles) {
-        if(roleMetadata.roleId === roleId){
-          return roleMetadata;
-        }
-      }
-    };
-
-    this.getRoleMetadataForRoleIds = function(roleIdsArray){
-      var rolesMetadata = [];
-      for (const roleMetadata of this.availableRoles) {
-        if(roleIdsArray.includes(roleMetadata.roleId)){
-          rolesMetadata.push(roleMetadata);
-        }
-      }
-
-      return rolesMetadata;
-    };
-
-    this.getAllowedRolesString = function(allowedRoleIds){
-      var allowedRoles = [];
+    this.getAllowedRolesString = function(allowedPermissionIds){
+      var permissions = [];
       for(const organizationalUnit of this.accessControl){
-        for(const role of organizationalUnit.roles){
-          if(allowedRoleIds.includes(role.roleId)){
-            allowedRoles.push(organizationalUnit.name + "-" + role.permissionLevel)
+        for(const permission of organizationalUnit.permissions){
+          if(allowedPermissionIds.includes(permission.permissionId)){
+            permissions.push(organizationalUnit.name + "-" + permission.permissionLevel)
           }
         }
       }
-      return allowedRoles.join(", ");
+      return permissions.join(", ");
     }
 
     this.checkDeletePermission = function(){
