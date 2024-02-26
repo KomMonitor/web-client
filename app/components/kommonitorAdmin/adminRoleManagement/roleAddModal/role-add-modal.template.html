@@ -38,7 +38,7 @@
 									<div class="col-md-4">
 										<label>Name*</label>
 										<input style="width:100%;" class="form-control" type="text"
-											placeholder="Rollenname" ng-model="newOrganizationalUnit.name"
+											placeholder="z.B. Fachbereich 52" ng-model="newOrganizationalUnit.name"
 											ng-change="checkOrganizationalUnitName()" required></input>
 										<div class="help-block with-errors"></div>
 										<div ng-if="nameInvalid" style="color: red;">
@@ -48,12 +48,12 @@
 									<div class="col-md-4">
 										<label>Beschreibung*</label>
 										<textarea style="width:100%;" class="form-control" type="text" rows="4"
-											placeholder="Abteilung 52" ng-model="newOrganizationalUnit.description" required></textarea>
+											placeholder="z.B. Abteilung 52 von Musterstadt" ng-model="newOrganizationalUnit.description" required></textarea>
 									</div>
 									<div class="col-md-4">
 										<label>Kontakt*</label>
 										<textarea style="width:100%;" class="form-control" type="text" rows="4"
-											placeholder="sekretariat@kommonitor.de" ng-model="newOrganizationalUnit.contact" required></textarea>
+											placeholder="z.B. sekretariat@kommonitor.de" ng-model="newOrganizationalUnit.contact" required></textarea>
 									</div>
 								</div>
 								<div class="row vertical-align">

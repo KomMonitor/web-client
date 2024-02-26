@@ -284,7 +284,6 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 					"databasis": $scope.metadata.databasis,
 					"sridEPSG": 4326
 				},
-				"permissions": [],
 				"datasetName": $scope.datasetName,
 			  "isAOI": $scope.isAOI,
 				"isLOI": $scope.isLOI,

@@ -557,7 +557,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 					  ]
 				  },
 				  "ownerId": $scope.ownerOrganization,
-				  "isPublic": $scope.isPublic
+				  "isPublic": $scope.isPublic ? true : false
 			};
 
 			let roleIds = kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid($scope.roleManagementTableOptions);

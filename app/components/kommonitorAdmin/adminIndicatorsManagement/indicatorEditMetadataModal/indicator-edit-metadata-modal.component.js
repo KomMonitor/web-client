@@ -581,7 +581,6 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 					"databasis": $scope.metadata.databasis || null
 				},
 				"refrencesToOtherIndicators": [], // filled directly after
-				  "permissions": [],
 				  "datasetName": $scope.datasetName,
 				  "abbreviation": $scope.indicatorAbbreviation || null,
 				  "characteristicValue": $scope.indicatorCharacteristicValue || null,
