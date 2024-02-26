@@ -51,10 +51,11 @@ angular.module('roleAddModal').component('roleAddModal', {
 			}
 
 			$scope.addOrganizationalUnit = async function () {
+
 				$scope.errorMessagePart = undefined;
 				$scope.keycloakErrorMessagePart = undefined;
 
-				// first add new grpoup in keycloak
+				// first add new group in keycloak
 
 				// only if that works, then use it's keycloak group id to register organizationalUnit in KomMonitor
 
@@ -110,15 +111,20 @@ angular.module('roleAddModal').component('roleAddModal', {
 					}).then(async function successCallback(response) {
 						// this callback will be called asynchronously
 						// when the response is available
-
+						
 						await kommonitorDataExchangeService.fetchAccessControlMetadata(kommonitorDataExchangeService.currentKeycloakLoginRoles);
 						let newPersistedOrg = kommonitorDataExchangeService.getAccessControlByName($scope.newOrganizationalUnit.name);
 						
 						// update keycloak group and roles with ID of kommonitor organization
+
+						/* 
+							26.02.24 - disabled due to not beeing used for prototype.
+							If re-activate, check "updateExistingGroup()", POST beeing made resulting in error, seems as if API trying to create new group. Maybe change to PUT/PATCH ?!
+
 						await kommonitorKeycloakHelperService.updateExistingGroup(newPersistedOrg, newPersistedOrg.name, $scope.parentOrganizationalUnit);
 						await kommonitorKeycloakHelperService.fetchAndSetKeycloakRoles();
-						await kommonitorKeycloakHelperService.fetchAndSetKeycloakGroups();
-
+						await kommonitorKeycloakHelperService.fetchAndSetKeycloakGroups(); */
+						
 						$("#ouAddSuccessAlert").show();
 						
 

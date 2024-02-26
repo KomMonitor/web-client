@@ -9,6 +9,7 @@ angular
       var self = this;
       this.availableKeycloakRoles = [];
       this.availableKeycloakGroups = [];
+      this.availableKeycloakGroupsAndSubgroups = [];
       this.targetUrlToKeycloakInstance = "";
       this.targetRealmUrlToKeycloakInstance = "";
       this.realm = "";
@@ -440,8 +441,25 @@ angular
         this.availableKeycloakGroups = groups;
       };
 
+      this.setAvailableKeycloakGroupAndSubgroups = function (groups) {
+
+        let tempGroups = [];
+
+        groups.forEach(parent => {
+          tempGroups.push(parent);
+          if(parent.subGroups.length>0) {
+            parent.subGroups.forEach(child => {
+              tempGroups.push(child);
+            });
+          }
+        });
+
+        this.availableKeycloakGroupsAndSubgroups = tempGroups;
+      };
+
       this.fetchAndSetKeycloakGroups = async function (username, password) {
         this.setAvailableKeycloakGroups(await this.getAllGroups(username, password));
+        this.setAvailableKeycloakGroupAndSubgroups(await this.getAllGroups(username, password));
       };
 
       this.isGroupInKeycloak = function (groupName) {
@@ -454,7 +472,7 @@ angular
       };
 
       this.getGroupId = function(organizationalUnit){
-        for (const keycloakGroup of this.availableKeycloakGroups) {
+        for (const keycloakGroup of this.availableKeycloakGroupsAndSubgroups) {
           if (keycloakGroup.name === organizationalUnit.name){
             return keycloakGroup.id;
           } 
