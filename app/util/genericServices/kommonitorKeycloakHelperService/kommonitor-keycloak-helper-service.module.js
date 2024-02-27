@@ -601,25 +601,22 @@ angular
       }
 
       this.getOwnChildGroupsCount = function(groupId){
+
         let group = this.availableKeycloakGroups.filter(item => item.id == groupId)[0];
 
-        if(group && group.subGroupCount){
-          return group.subGroupCount;
+        if(group && group.subGroups.length>0){
+          return group.subGroups.length;
         }
         return 0;
       }
 
       this.getOwnChildGroupNames = function(childOrganizationalUnits){
-
+        
         if(!childOrganizationalUnits || childOrganizationalUnits.length == 0){
           return "";
         }
-        
-        let childOrganizationalUnitKeycloakIds = childOrganizationalUnits.map(item => item.keycloakId);
 
-        let associatedKeycloakGroups = this.availableKeycloakGroups.filter(item => childOrganizationalUnitKeycloakIds.includes(item.id) );
-
-        return JSON.stringify(associatedKeycloakGroups.map(item => item.name));
+        return  JSON.stringify(childOrganizationalUnits.map(item => item.name));
       }
 
       var self = this;
