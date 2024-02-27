@@ -180,13 +180,13 @@ angular
         });
       };
 
-      this.addCompositeRole_withToken = async function (bearerToken, baseRole, composite) {
+      this.addCompositeRole_withToken = async function (bearerToken, baseRoleName, composite) {
         let data = [{
           "id": composite.id,
           "name": composite.name
         }];
         return await $http({
-          url: this.targetUrlToKeycloakInstance + "admin/realms/" + this.realm + "/roles/" + baseRole.name + "/composites",
+          url: this.targetUrlToKeycloakInstance + "admin/realms/" + this.realm + "/roles/" + baseRoleName + "/composites",
           method: 'POST',
           data: data,
           headers: {
@@ -274,6 +274,35 @@ angular
         return false;
       };
 
+      this.getClientViewUsersRole = async function(){
+        let realmManagementClientId = await this.getRealmManagementClientId();
+
+        var bearerToken = Auth.keycloak.token;
+
+        return await $http({
+          url: this.targetUrlToKeycloakInstance + "admin/realms/" + this.realm + "/clients/" + realmManagementClientId + "/roles?search=view-users",
+          method: 'GET',
+          headers: {
+            'Authorization': "Bearer " + bearerToken // Note the appropriate header
+          }
+        }).then(function successCallback(response) {
+          // this callback will be called asynchronously
+          // when the response is available
+
+         return response.data[0];          
+
+        }, function errorCallback(error) {
+          // called asynchronously if an error occurs
+          // or server returns response with an error status.
+          
+          console.error("Error while fetching roles from keycloak.");
+          console.error(error);
+          throw error;
+
+        });
+
+      }
+
       this.postNewGroup = async function (organizationalUnit, parentOrganizationalUnit) {
         try {
           // get auth token to make admin requests
@@ -294,11 +323,29 @@ angular
             await this.postNewTopTierGroup_withToken(bearerToken, groupBody);
           }
           
+          // fetch view-users client-role
+          // to make each new role a composite role
+          // thus enabling any person with those roles to view all users
+          // TODO FIXME only issue is, that with client-role view-users the person can see all other groups as well, which is not desired
+          let role_client_view_users = await this.getClientViewUsersRole(); 
 
           // post individual roles
           for (let suffix of this.adminRoleSuffixes) {
             // post individual role
-            await this.postNewRole_withToken(bearerToken, { "name": organizationalUnit.name + "." + suffix });
+            let roleBody = { 
+              "name": organizationalUnit.name + "." + suffix,              
+            }
+            // if (suffix.includes("users")){
+            //   roleBody.composite = true;
+            //   roleBody.composites = [{
+            //     "id": role_client_view_users.id,
+            //     "name": role_client_view_users.name
+            //   }]
+            // }
+            await this.postNewRole_withToken(bearerToken, roleBody);
+            if(suffix.includes("users")){
+              await this.addCompositeRole_withToken(bearerToken, organizationalUnit.name + "." + suffix, role_client_view_users);
+            }            
           }
           // const allRoles = await this.getAllRoles_withToken(bearerToken);
           // var roleMap = allRoles.filter(role => role.name.startsWith(organizationalUnit.name + "."))
