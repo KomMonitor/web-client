@@ -2035,7 +2035,7 @@ angular
               cellRenderer: function(param){                
                 return param.data.ownChildGroupsCount + " direkte Untergruppe(n)<br/><br/>" + param.data.ownChildGroupNames;
               }, 
-            maxWidth: 250 },        
+            maxWidth: 250,  filter: false},        
           { headerName: 'Beschreibung', field: "description", maxWidth: 300 },
           { headerName: 'Kontakt', field: "contact", maxWidth: 300 },
           { headerName: 'Mandant', field: "mandant", cellDataType: 'boolean', maxWidth: 125 }
@@ -2054,10 +2054,10 @@ angular
           }          
           dataItem.parentName = parentName;
           
-          dataItem.ownChildGroupsCount = kommonitorKeycloakHelperService.getOwnChildGroupsCount(dataItem.keycloakId);
+          dataItem.ownChildGroupsCount = dataItem.children.length;
 
-          let organizationalUnitChildrenUnits = dataItem.children.map(id => kommonitorDataExchangeService.getAccessControlById(id));
-          dataItem.ownChildGroupNames = kommonitorKeycloakHelperService.getOwnChildGroupNames(organizationalUnitChildrenUnits);
+          let organizationalUnitChildrenUnits = dataItem.children.map(id => kommonitorDataExchangeService.getAccessControlById(id)).map(o => o.name);
+          dataItem.ownChildGroupNames = organizationalUnitChildrenUnits;
           return dataItem;
          }
         );
