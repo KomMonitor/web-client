@@ -1116,6 +1116,11 @@ angular.module('kommonitorMap').component(
         });
 
         $scope.$on("changeBreaks", function (event, breaks) {
+          breaks = [...new Set(breaks)];
+          breaks.sort(function(a, b) {
+            return a - b;
+          });
+
           kommonitorVisualStyleHelperService.manualBrew.breaks = breaks; 
           $scope.updateManualMOVBreaksFromDefaultManualBreaks();
 
@@ -1129,28 +1134,35 @@ angular.module('kommonitorMap').component(
         });
 
         $scope.$on("changeDynamicBreaks", function (event, breaks) {
-          kommonitorVisualStyleHelperService.dynamicBrewBreaks = breaks;
-          kommonitorVisualStyleHelperService.dynamicBrew[1].breaks = breaks[1];
-          kommonitorVisualStyleHelperService.dynamicBrew[0].breaks = breaks[0];
+          breaks[0] = [...new Set(breaks[0])];
+          breaks[0].sort(function(a, b) {
+            return a - b;
+          });
+          breaks[1] = [...new Set(breaks[1])];
+          breaks[1].sort(function(a, b) {
+            return a - b;
+          });
 
+
+          kommonitorVisualStyleHelperService.dynamicBrewBreaks = breaks;
+          if (kommonitorVisualStyleHelperService.dynamicBrew[1]) {
+            kommonitorVisualStyleHelperService.dynamicBrew[1].breaks = breaks[1];
+          }
+          if (kommonitorVisualStyleHelperService.dynamicBrew[0]) {
+            kommonitorVisualStyleHelperService.dynamicBrew[0].breaks = breaks[0];
+          }
+          
           $timeout(function(){ 
             kommonitorVisualStyleHelperService.dynamicBrewBreaks = breaks;
-            kommonitorVisualStyleHelperService.dynamicBrew[1].breaks = breaks[1];
-            kommonitorVisualStyleHelperService.dynamicBrew[0].breaks = breaks[0];
+            if (kommonitorVisualStyleHelperService.dynamicBrew[1]) {
+              kommonitorVisualStyleHelperService.dynamicBrew[1].breaks = breaks[1];
+            }
+            if (kommonitorVisualStyleHelperService.dynamicBrew[0]) {
+              kommonitorVisualStyleHelperService.dynamicBrew[0].breaks = breaks[0];
+            }
             $rootScope.$apply();
           }, 350);
           $scope.updateManualMOVBreaksFromDefaultManualBreaks();
-
-          $rootScope.$broadcast("restyleCurrentLayer", false);
-        });
-
-        $scope.$on("changeMOVBreaks", function (event, breaks) {
-          kommonitorVisualStyleHelperService.manualMOVBreaks = breaks;
-
-          $timeout(function(){ 
-            kommonitorVisualStyleHelperService.manualMOVBreaks = breaks;
-            $rootScope.$apply();
-          }, 350);
 
           $rootScope.$broadcast("restyleCurrentLayer", false);
         });
@@ -2531,9 +2543,12 @@ angular.module('kommonitorMap').component(
                 defaultColorBrewerPaletteForBalanceDecreasingValues, 
                 kommonitorVisualStyleHelperService.classifyMethod,
                 kommonitorVisualStyleHelperService.numClasses,
-                kommonitorVisualStyleHelperService.dynamicBrewBreaks);
+                []);
               $scope.dynamicIncreaseBrew = dynamicIndicatorBrewArray[0];
               $scope.dynamicDecreaseBrew = dynamicIndicatorBrewArray[1];
+              kommonitorVisualStyleHelperService.dynamicIncreaseBrew = dynamicIndicatorBrewArray[0];
+              kommonitorVisualStyleHelperService.dynamicDecreaseBrew = dynamicIndicatorBrewArray[1];
+              $scope.updateDefaultManualBreaksFromMOVManualBreaks();
             }
 
           }
@@ -2841,7 +2856,7 @@ angular.module('kommonitorMap').component(
 
           if ($scope.indicatorTypeOfCurrentLayer.includes('DYNAMIC')) {
             let decreaseBreaks = [];
-            let increaseBreaks =  [];
+            let increaseBreaks = [];
             gtBreaks.forEach((br) => {
               if (br < 0) {
                 decreaseBreaks.push(br);
@@ -2858,8 +2873,6 @@ angular.module('kommonitorMap').component(
                 increaseBreaks.push(br);
               }
             });
-            $scope.dynamicDecreaseBrew.breaks = decreaseBreaks;
-            $scope.dynamicIncreaseBrew.breaks = increaseBreaks;
             kommonitorVisualStyleHelperService.dynamicBrewBreaks = [[...increaseBreaks], [...decreaseBreaks]];
           }
 
