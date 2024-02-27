@@ -204,6 +204,7 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 			$scope.numClassesPerSpatialUnit = undefined;
 			$scope.classificationMethod = __env.defaultClassifyMethod || "jenks";
 			$scope.spatialUnitClassification = [];
+			$scope.classBreaksInvalid = false;
 
 			$scope.tabClasses = [];
 
@@ -262,6 +263,7 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 		}
 
 		$scope.onBreaksChanged = function(tabIndex) {
+			$scope.classBreaksInvalid = false;
 			let cssClass = 'tab-completed';
 			for(const classBreak of $scope.spatialUnitClassification[tabIndex].breaks) {
 				if (classBreak === null) {
@@ -273,6 +275,7 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 				for(let i = 0; i < $scope.spatialUnitClassification[tabIndex].breaks.length - 1; i ++) {
 					if ($scope.spatialUnitClassification[tabIndex].breaks[i] > $scope.spatialUnitClassification[tabIndex].breaks[i+1]) {
 						cssClass = 'tab-error';
+						$scope.classBreaksInvalid = true;
 					}
 				}
 			}
@@ -451,6 +454,7 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 				$scope.numClassesPerSpatialUnit = undefined;
 				$scope.classificationMethod = __env.defaultClassifyMethod || "jenks";
 				$scope.spatialUnitClassification = [];
+				$scope.classBreaksInvalid = false;
 				
 				// instantiate with palette 'Blues'
 				$scope.selectedColorBrewerPaletteEntry = $scope.colorbrewerPalettes[13];

@@ -213,6 +213,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			$scope.classificationMethod = __env.defaultClassifyMethod || "jenks";
 			$scope.selectedColorBrewerPaletteEntry = undefined;
 			$scope.spatialUnitClassification = [];
+			$scope.classBreaksInvalid = false;
 
 			$scope.tabClasses = [];
 
@@ -275,6 +276,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 		}
 
 		$scope.onBreaksChanged = function(tabIndex) {
+			$scope.classBreaksInvalid = false;
 			let cssClass = 'tab-completed';
 			for(const classBreak of $scope.spatialUnitClassification[tabIndex].breaks) {
 				if (classBreak === null) {
@@ -286,6 +288,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 				for(let i = 0; i < $scope.spatialUnitClassification[tabIndex].breaks.length - 1; i ++) {
 					if ($scope.spatialUnitClassification[tabIndex].breaks[i] > $scope.spatialUnitClassification[tabIndex].breaks[i+1]) {
 						cssClass = 'tab-error';
+						$scope.classBreaksInvalid = true;
 					}
 				}
 			}
@@ -357,6 +360,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			$scope.classificationMethod = __env.defaultClassifyMethod || "jenks";
 			$scope.selectedColorBrewerPaletteEntry = $scope.colorbrewerPalettes[13];
 			$scope.spatialUnitClassification = [];
+			$scope.classBreaksInvalid = false;
 
 			$scope.postBody_indicators = undefined;
 
