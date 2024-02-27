@@ -460,6 +460,8 @@ angular
       this.fetchAndSetKeycloakGroups = async function (username, password) {
         this.setAvailableKeycloakGroups(await this.getAllGroups(username, password));
         this.setAvailableKeycloakGroupAndSubgroups(await this.getAllGroups(username, password));
+
+        console.log(this.availableKeycloakGroups)
       };
 
       this.isGroupInKeycloak = function (groupName) {

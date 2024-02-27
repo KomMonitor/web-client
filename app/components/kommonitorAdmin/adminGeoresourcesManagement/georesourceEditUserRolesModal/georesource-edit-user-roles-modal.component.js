@@ -32,6 +32,12 @@ angular.module('georesourceEditUserRolesModal').component('georesourceEditUserRo
 
 		$scope.refreshRoleManagementTable = function() {
 			let permissions = $scope.currentGeoresourceDataset ? $scope.currentGeoresourceDataset.permissions : [];
+
+			// set datasetOwner to disable checkboxes for owned datasets in permissions-table
+			kommonitorDataExchangeService.accessControl.forEach(item => {
+				if(item.organizationalUnitId==$scope.currentGeoresourceDataset.ownerId)
+					item.datasetOwner = true;
+			});
 			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('georesourceEditRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, permissions, true);
 		}
 
