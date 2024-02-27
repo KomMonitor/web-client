@@ -770,11 +770,11 @@ angular
       }
 
       this.getSingleParentClientUserRolePolicy = async function(realmManagementClientId, parentOrganizationalUnit){
-        // fetch the client-user-creator role policy of the parent org
+        // fetch the client-users-creator role policy of the parent org
 
         var bearerToken = Auth.keycloak.token;
 
-        let parentClientUserCreatorPolicyName = parentOrganizationalUnit.name + ".client-user-creator";
+        let parentClientUserCreatorPolicyName = parentOrganizationalUnit.name + ".client-users-creator";
 
         return await $http({
           url: this.targetUrlToKeycloakInstance + "admin/realms/" + this.realm + "/clients/" + realmManagementClientId + "/authz/resource-server/policy?name=" + parentClientUserCreatorPolicyName,
@@ -820,9 +820,9 @@ angular
 
         if (organizationalUnit.parentId){         
           let parentOrganizationalUnit = allOrganizationalUnitsMap.get(organizationalUnit.parentId);
-          parentRolePolicies.push(this.getSingleParentClientUserRolePolicy(realmManagementClientId, parentOrganizationalUnit));
+          parentRolePolicies.push(await this.getSingleParentClientUserRolePolicy(realmManagementClientId, parentOrganizationalUnit));
 
-          parentRolePolicies = parentRolePolicies.concat(this.getAllParentClientUserRolePolicies(realmManagementClientId, parentOrganizationalUnit, allOrganizationalUnitsMap));
+          parentRolePolicies = parentRolePolicies.concat(await this.getAllParentClientUserRolePolicies(realmManagementClientId, parentOrganizationalUnit, allOrganizationalUnitsMap));
         }
 
         //remove duplicates
@@ -949,7 +949,7 @@ angular
 
           // 1. enable fine grain permissions on new group 
           // --> permission resource
-          // 2. create policies for new associated group (unit-user-creator and client-user-creator)
+          // 2. create policies for new associated group (unit-users-creator and client-users-creator)
           // --> array of policies
           // 3. set policies for new group to enable group and subgroup management for admins with associated roles
 
@@ -959,7 +959,7 @@ angular
           // --> permission resource
           let fineGrainPermissionResource = await this.enableFineGrainedPermissionsForGroup(organizationalUnit.keycloakId);
 
-          // 2. create policies for new associated group (unit-user-creator and client-user-creator)
+          // 2. create policies for new associated group (unit-users-creator and client-users-creator)
           // --> array of policies
           let rolePoliciesArray = await this.generateRolePolicies(realmManagementClientId, organizationalUnit);
 

@@ -126,7 +126,7 @@ angular.module('roleAddModal').component('roleAddModal', {
 						await kommonitorKeycloakHelperService.fetchAndSetKeycloakGroups(); */
 
 						// create policies for restricted group management
-						await kommonitorKeycloakHelperService.setKeycloakPoliciesForKomMonitorOrganization(newPersistedOrg, kommonitorDataExchangeService.accessControl);
+						await kommonitorKeycloakHelperService.setKeycloakPoliciesForKomMonitorOrganization(newPersistedOrg, kommonitorDataExchangeService.accessControl_map);
 						
 						$("#ouAddSuccessAlert").show();						
 
