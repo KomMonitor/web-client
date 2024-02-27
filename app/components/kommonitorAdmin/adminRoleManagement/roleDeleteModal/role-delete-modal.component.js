@@ -269,7 +269,7 @@ angular.module('roleDeleteModal').component('roleDeleteModal', {
 			try {	
 				kommonitorKeycloakHelperService.deleteGroup(organizationalUnit);
 				await kommonitorKeycloakHelperService.fetchAndSetKeycloakRoles();
-				await kommonitorKeycloakHelperService.fetchAndSetKeycloakGroups();
+				// await kommonitorKeycloakHelperService.fetchAndSetKeycloakGroups();
 			} catch (error) {
 				if (error.data) {
 					$scope.failedDatasetsAndErrors.push([dataset, kommonitorDataExchangeService.syntaxHighlightJSON(error.data)]);

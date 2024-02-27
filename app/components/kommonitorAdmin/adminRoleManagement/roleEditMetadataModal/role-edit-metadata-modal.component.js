@@ -100,7 +100,7 @@ angular.module('roleEditMetadataModal').component('roleEditMetadataModal', {
 					await kommonitorKeycloakHelperService.updateExistingGroup($scope.current, $scope.old.name, $scope.parentOrganizationalUnit);					
 
 					await kommonitorKeycloakHelperService.fetchAndSetKeycloakRoles();
-					await kommonitorKeycloakHelperService.fetchAndSetKeycloakGroups();	
+					// await kommonitorKeycloakHelperService.fetchAndSetKeycloakGroups();	
 
 					// on successful update within keycloak explicitly set old name to current name
 					// otherwise subsequent edit requests will be erronous 

@@ -124,9 +124,11 @@ angular.module('roleAddModal').component('roleAddModal', {
 						await kommonitorKeycloakHelperService.updateExistingGroup(newPersistedOrg, newPersistedOrg.name, $scope.parentOrganizationalUnit);
 						await kommonitorKeycloakHelperService.fetchAndSetKeycloakRoles();
 						await kommonitorKeycloakHelperService.fetchAndSetKeycloakGroups(); */
+
+						// create policies for restricted group management
+						await kommonitorKeycloakHelperService.setKeycloakPoliciesForKomMonitorOrganization(newPersistedOrg, kommonitorDataExchangeService.accessControl);
 						
-						$("#ouAddSuccessAlert").show();
-						
+						$("#ouAddSuccessAlert").show();						
 
 						$rootScope.$broadcast("refreshAccessControlTable");
 						$scope.checkOrganizationalUnitName();

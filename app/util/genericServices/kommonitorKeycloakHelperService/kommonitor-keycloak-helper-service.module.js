@@ -9,7 +9,6 @@ angular
       var self = this;
       this.availableKeycloakRoles = [];
       this.availableKeycloakGroups = [];
-      this.availableKeycloakGroupsAndSubgroups = [];
       this.targetUrlToKeycloakInstance = "";
       this.targetRealmUrlToKeycloakInstance = "";
       this.realm = "";
@@ -441,25 +440,8 @@ angular
         this.availableKeycloakGroups = groups;
       };
 
-      this.setAvailableKeycloakGroupAndSubgroups = function (groups) {
-
-        let tempGroups = [];
-
-        groups.forEach(parent => {
-          tempGroups.push(parent);
-          if(parent.subGroups.length>0) {
-            parent.subGroups.forEach(child => {
-              tempGroups.push(child);
-            });
-          }
-        });
-
-        this.availableKeycloakGroupsAndSubgroups = tempGroups;
-      };
-
       this.fetchAndSetKeycloakGroups = async function (username, password) {
         this.setAvailableKeycloakGroups(await this.getAllGroups(username, password));
-        this.setAvailableKeycloakGroupAndSubgroups(await this.getAllGroups(username, password));
       };
 
       this.isGroupInKeycloak = function (groupName) {
@@ -472,7 +454,7 @@ angular
       };
 
       this.getGroupId = function(organizationalUnit){
-        for (const keycloakGroup of this.availableKeycloakGroupsAndSubgroups) {
+        for (const keycloakGroup of this.availableKeycloakGroups) {
           if (keycloakGroup.name === organizationalUnit.name){
             return keycloakGroup.id;
           } 
@@ -621,6 +603,375 @@ angular
 
         return JSON.stringify(associatedKeycloakGroups.map(item => item.name));
       }
+
+      this.getRealmManagementClientId = async function () {
+        var bearerToken = Auth.keycloak.token;
+
+        return await $http({
+          url: this.targetUrlToKeycloakInstance + "admin/realms/" + this.realm + "/clients?search=true&clientId=realm-management",
+          method: 'GET',
+          headers: {
+            'Authorization': "Bearer " + bearerToken // Note the appropriate header
+          }
+        }).then(function successCallback(response) {
+          // this callback will be called asynchronously
+          // when the response is available
+
+          /*
+            [
+              {
+                  "id": "ab58087d-9911-4a76-9d70-89a422e4f644",
+                  "clientId": "realm-management",
+                  ...
+              }
+            ]
+          */
+         console.log("realm management client id response ");
+         console.log(response);
+         return response.data[0].id;          
+
+        }, function errorCallback(error) {
+          // called asynchronously if an error occurs
+          // or server returns response with an error status.
+          
+          console.error("Error while fetching roles from keycloak.");
+          console.error(error);
+          throw error;
+
+        });
+      }
+
+      this.enableFineGrainedPermissionsForGroup = async function (groupId) {
+        var bearerToken = Auth.keycloak.token;
+
+        let body = {
+          "enabled":true
+        }
+
+        return await $http({
+          url: this.targetUrlToKeycloakInstance + "admin/realms/" + this.realm + "/groups/" + groupId + "/management/permissions",
+          method: 'PUT',
+          data: body,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': "Bearer " + bearerToken // Note the appropriate header
+          }
+        }).then(function successCallback(response) {
+          // this callback will be called asynchronously
+          // when the response is available
+
+          /*
+            {
+              "enabled": true,
+              "resource": "${resource.uuid}",
+              "scopePermissions": {
+                  "view": "${scopePermission.uuid}",
+                  "manage": "${scopePermission.uuid}",
+                  "view-members": "${scopePermission.uuid}",
+                  "manage-members": "${scopePermission.uuid}",
+                  "manage-membership": "${scopePermission.uuid}"
+              }
+            }
+          */
+         console.log("fine grained permissions enablement response");
+         console.log(response);
+         return response.data;          
+
+        }, function errorCallback(error) {
+          // called asynchronously if an error occurs
+          // or server returns response with an error status.
+          
+          console.error("Error while fetching roles from keycloak.");
+          console.error(error);
+          throw error;
+
+        });
+      }
+
+      this.postPolicyForRole = async function (keycloakRole, realmManagementClientId) {
+        var bearerToken = Auth.keycloak.token;
+
+        let body = {
+          "name": "member-of-" + keycloakRole.name,
+          "description": "memberOf(" + keycloakRole.name + ")",
+          "roles": [
+            {
+              "id": keycloakRole.id,
+              "required": true
+            }
+          ],
+          "logic": "POSITIVE"
+         }
+
+        return await $http({
+          url: this.targetUrlToKeycloakInstance + "admin/realms/" + this.realm + "/clients/" + realmManagementClientId + "/authz/resource-server/policy/role",
+          method: 'POST',
+          data: body,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': "Bearer " + bearerToken // Note the appropriate header
+          }
+        }).then(function successCallback(response) {
+          // this callback will be called asynchronously
+          // when the response is available
+
+          /*
+            {
+              "id": "${policy.uuid}",
+              "name": "member-of-<orga_name>.<client-themes-creator>",
+              "description": "memberOf(<orga_name>.<client-themes-creator>)",
+              "type": "role",
+              "logic": "POSITIVE",
+              "decisionStrategy": "UNANIMOUS",
+              "roles": [
+                  {
+                      "id": "${role.uuid}",
+                      "required": false
+                  }
+              ]
+            }
+          */
+         console.log("policy response");
+         console.log(response);
+         return response.data;          
+
+        }, function errorCallback(error) {
+          // called asynchronously if an error occurs
+          // or server returns response with an error status.
+          
+          console.error("Error while fetching roles from keycloak.");
+          console.error(error);
+          throw error;
+
+        });
+      }
+
+      this.generateRolePolicies = async function(realmManagementClientId, organizationalUnit){
+        // create a policy for each user-creator role of this orga
+        let policyArray = [];
+
+        // individual role policies
+        let userSuffixes = this.adminRoleSuffixes.filter(suffix => suffix.includes("user"));
+        let userAdminRoles = this.availableKeycloakRoles.filter(role => {
+          for (const userSuffix of userSuffixes) {
+            if (role.name == organizationalUnit.name + "." + userSuffix){
+              return true;
+            }
+          }
+          
+          return false;          
+        });
+        for (let userAdminRole of userAdminRoles) {
+          policyArray.push(await this.postPolicyForRole(userAdminRole, realmManagementClientId));
+        }
+
+        return policyArray;
+        
+      }
+
+      this.getSingleParentClientUserRolePolicy = async function(realmManagementClientId, parentOrganizationalUnit){
+        // fetch the client-user-creator role policy of the parent org
+
+        var bearerToken = Auth.keycloak.token;
+
+        let parentClientUserCreatorPolicyName = parentOrganizationalUnit.name + ".client-user-creator";
+
+        return await $http({
+          url: this.targetUrlToKeycloakInstance + "admin/realms/" + this.realm + "/clients/" + realmManagementClientId + "/authz/resource-server/policy?name=" + parentClientUserCreatorPolicyName,
+          method: 'GET',
+          headers: {
+            'Authorization': "Bearer " + bearerToken // Note the appropriate header
+          }
+        }).then(function successCallback(response) {
+          // this callback will be called asynchronously
+          // when the response is available
+
+          /*
+            [
+              {
+                  "id": "1fa8c0b6-7378-4fd1-aa51-8cf84b1a9459",
+                  "name": "asdf",
+                  "description": "asdf",
+                  "type": "role",
+                  "logic": "POSITIVE",
+                  "decisionStrategy": "UNANIMOUS",
+                  "config": {
+                      "roles": "[{\"id\":\"e7418caa-688b-4ff2-b313-c5e9c8d78ab3\",\"required\":true}]"
+                  }
+              },
+            ]
+          */
+         console.log(response);
+         return response.data[0];          
+
+        }, function errorCallback(error) {
+          // called asynchronously if an error occurs
+          // or server returns response with an error status.
+          
+          console.error("Error while fetching roles from keycloak.");
+          console.error(error);
+          throw error;
+
+        });
+      }
+
+      this.getAllParentClientUserRolePolicies = async function(realmManagementClientId, organizationalUnit, allOrganizationalUnitsMap){
+        let parentRolePolicies = [];
+
+        if (organizationalUnit.parentId){         
+          let parentOrganizationalUnit = allOrganizationalUnitsMap.get(organizationalUnit.parentId);
+          parentRolePolicies.push(this.getSingleParentClientUserRolePolicy(realmManagementClientId, parentOrganizationalUnit));
+
+          parentRolePolicies = parentRolePolicies.concat(this.getAllParentClientUserRolePolicies(realmManagementClientId, parentOrganizationalUnit, allOrganizationalUnitsMap));
+        }
+
+        //remove duplicates
+        return [... new Set(parentRolePolicies)];
+      }
+
+      this.postRolePoliciesForKeycloakGroup = async function(realmManagementClientId, fineGrainPermissionResource, groupId, rolePoliciesArray){
+        // multiple scopes exist within fineGrainPermissionResource
+        // we must register a similar policy for each scope
+
+        /*
+          {
+            "enabled": true,
+            "resource": "${resource.uuid}",
+            "scopePermissions": {
+                "view": "${scopePermission.uuid}",
+                "manage": "${scopePermission.uuid}",
+                "view-members": "${scopePermission.uuid}",
+                "manage-members": "${scopePermission.uuid}",
+                "manage-membership": "${scopePermission.uuid}"
+            }
+          }
+        */
+        for (const scopePermissionName in fineGrainPermissionResource.scopePermissions) {
+          let scopeUUID = fineGrainPermissionResource.scopePermissions[scopePermissionName];           
+          await this.postRolePolicyForKeycloakGroupResourceScope(realmManagementClientId, fineGrainPermissionResource.resource, scopeUUID, scopePermissionName, groupId, rolePoliciesArray);          
+        }
+      }
+
+      this.getScopeResourceId = async function(realmManagementClientId, scopeUUID){
+        // http://keycloak:8080/admin/realms/kommonitor/clients/ab58087d-9911-4a76-9d70-89a422e4f644/authz/resource-server/policy/7e1274c7-6b40-4e53-baad-9009f0633e3c/scopes
+        var bearerToken = Auth.keycloak.token;
+
+        return await $http({
+          url: this.targetUrlToKeycloakInstance + "admin/realms/" + this.realm + "/clients/" + realmManagementClientId + "/authz/resource-server/policy/" + scopeUUID + "/scopes",
+          method: 'GET',
+          headers: {
+            'Authorization': "Bearer " + bearerToken // Note the appropriate header
+          }
+        }).then(function successCallback(response) {
+          // this callback will be called asynchronously
+          // when the response is available
+
+          /*
+            [{"id":"941f1a39-3f76-40b3-a941-6811fa19c910","name":"view"}]
+          */
+         return response.data[0].id;          
+
+        }, function errorCallback(error) {
+          // called asynchronously if an error occurs
+          // or server returns response with an error status.
+          
+          console.error("Error while fetching roles from keycloak.");
+          console.error(error);
+          throw error;
+
+        });
+     
+      }
+
+      this.postRolePolicyForKeycloakGroupResourceScope = async function(realmManagementClientId, fineGrainPermissionResourceUUID, scopeUUID, scopePermissionName, groupId, rolePoliciesArray){
+        var bearerToken = Auth.keycloak.token;
+
+        /*
+          {
+            "id": "${scopePermission.uuid}",
+            "name": "manage.permission.group.${group.uuid}",
+            "type": "scope",
+            "logic": "POSITIVE",
+            "decisionStrategy": "UNANIMOUS",
+            "resources": ["${resource.uuid}"],
+            "policies": ["${policy.uuid}"],
+            "scopes": ["${scope.uuid}"],
+            "description": ""
+          }
+
+        */
+       let policyIds = rolePoliciesArray.map(policy => policy.id); 
+
+       let scopeResourceId = await this.getScopeResourceId(realmManagementClientId, scopeUUID); 
+        let body = {
+          "id": scopeUUID,
+          "name": scopePermissionName + ".permission.group." + groupId,
+          "type": "scope",
+          "logic": "POSITIVE",
+          "decisionStrategy": "AFFIRMATIVE", // at least one policy is true
+          "resources": [fineGrainPermissionResourceUUID],
+          "policies": policyIds,
+          "scopes": [scopeResourceId],
+          "description": ""
+        };
+
+        return await $http({
+          url: this.targetUrlToKeycloakInstance + "admin/realms/" + this.realm + "/clients/" + realmManagementClientId + "/authz/resource-server/permission/scope/" + scopeUUID,
+          method: 'PUT',
+          data: body,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': "Bearer " + bearerToken // Note the appropriate header
+          }
+        }).then(function successCallback(response) {
+          // this callback will be called asynchronously
+          // when the response is available
+
+         return response.data;          
+
+        }, function errorCallback(error) {
+          // called asynchronously if an error occurs
+          // or server returns response with an error status.
+          
+          console.error("Error while fetching roles from keycloak.");
+          console.error(error);
+          throw error;
+
+        });
+      };
+      
+      this.setKeycloakPoliciesForKomMonitorOrganization = async function (organizationalUnit, allOrganizationalUnits) {
+        // get auth token to make admin requests
+        var bearerToken = Auth.keycloak.token;
+
+        try {
+
+
+          // 1. enable fine grain permissions on new group 
+          // --> permission resource
+          // 2. create policies for new associated group (unit-user-creator and client-user-creator)
+          // --> array of policies
+          // 3. set policies for new group to enable group and subgroup management for admins with associated roles
+
+          let realmManagementClientId = await this.getRealmManagementClientId();
+
+          // 1. enable fine grain permissions on new group 
+          // --> permission resource
+          let fineGrainPermissionResource = await this.enableFineGrainedPermissionsForGroup(organizationalUnit.keycloakId);
+
+          // 2. create policies for new associated group (unit-user-creator and client-user-creator)
+          // --> array of policies
+          let rolePoliciesArray = await this.generateRolePolicies(realmManagementClientId, organizationalUnit);
+
+          rolePoliciesArray = rolePoliciesArray.concat(await this.getAllParentClientUserRolePolicies(realmManagementClientId, organizationalUnit, allOrganizationalUnits));
+
+          // 3. set policies for new group to enable group and subgroup management for admins with associated roles
+          await this.postRolePoliciesForKeycloakGroup(realmManagementClientId, fineGrainPermissionResource, organizationalUnit.keycloakId, rolePoliciesArray);
+        } catch (error) {
+          console.error(error);
+          throw error;
+        }
+      };
 
       var self = this;
       this.init();
