@@ -876,7 +876,7 @@ angular
         return [... new Set(parentRolePolicies)];
       }
 
-      this.postRolePoliciesForKeycloakGroup = async function(realmManagementClientId, fineGrainPermissionResource, groupId, rolePoliciesArray){
+      this.putRolePoliciesForKeycloakGroup = async function(realmManagementClientId, fineGrainPermissionResource, groupId, rolePoliciesArray){
         // multiple scopes exist within fineGrainPermissionResource
         // we must register a similar policy for each scope
 
@@ -895,7 +895,7 @@ angular
         */
         for (const scopePermissionName in fineGrainPermissionResource.scopePermissions) {
           let scopeUUID = fineGrainPermissionResource.scopePermissions[scopePermissionName];           
-          await this.postRolePolicyForKeycloakGroupResourceScope(realmManagementClientId, fineGrainPermissionResource.resource, scopeUUID, scopePermissionName, groupId, rolePoliciesArray);          
+          await this.putRolePolicyForKeycloakGroupResourceScope(realmManagementClientId, fineGrainPermissionResource.resource, scopeUUID, scopePermissionName, groupId, rolePoliciesArray);          
         }
       }
 
@@ -930,7 +930,7 @@ angular
      
       }
 
-      this.postRolePolicyForKeycloakGroupResourceScope = async function(realmManagementClientId, fineGrainPermissionResourceUUID, scopeUUID, scopePermissionName, groupId, rolePoliciesArray){
+      this.putRolePolicyForKeycloakGroupResourceScope = async function(realmManagementClientId, fineGrainPermissionResourceUUID, scopeUUID, scopePermissionName, groupId, rolePoliciesArray){
         var bearerToken = Auth.keycloak.token;
 
         /*
@@ -999,12 +999,13 @@ angular
           // 2. create policies for new associated group (unit-users-creator and client-users-creator)
           // --> array of policies
           // 3. set policies for new group to enable group and subgroup management for admins with associated roles
+          // 4. set same policies for associated user-creator roles for scope map-role
 
           let realmManagementClientId = await this.getRealmManagementClientId();
 
           // 1. enable fine grain permissions on new group 
           // --> permission resource
-          let fineGrainPermissionResource = await this.enableFineGrainedPermissionsForGroup(organizationalUnit.keycloakId);
+          let fineGrainPermissionResource_group = await this.enableFineGrainedPermissionsForGroup(organizationalUnit.keycloakId);
 
           // 2. create policies for new associated group (unit-users-creator and client-users-creator)
           // --> array of policies
@@ -1013,12 +1014,144 @@ angular
           rolePoliciesArray = rolePoliciesArray.concat(await this.getAllParentClientUserRolePolicies(realmManagementClientId, organizationalUnit, allOrganizationalUnits));
 
           // 3. set policies for new group to enable group and subgroup management for admins with associated roles
-          await this.postRolePoliciesForKeycloakGroup(realmManagementClientId, fineGrainPermissionResource, organizationalUnit.keycloakId, rolePoliciesArray);
+          await this.putRolePoliciesForKeycloakGroup(realmManagementClientId, fineGrainPermissionResource_group, organizationalUnit.keycloakId, rolePoliciesArray);
+        
+          // 4. set same policies for associated user-creator roles for scope map-role
+          await this.postRolePoliciesForKeycloakUserCreatorRealmRoles(realmManagementClientId, organizationalUnit, rolePoliciesArray);
         } catch (error) {
           console.error(error);
           throw error;
         }
       };
+
+      this.postRolePoliciesForKeycloakUserCreatorRealmRoles = async function(realmManagementClientId, organizationalUnit, rolePoliciesArray){
+        
+        for (let suffix of this.adminRoleSuffixes) {
+          await this.postRolePoliciesForKeycloakUserCreatorRealmRole(realmManagementClientId, organizationalUnit.name + "." + suffix, rolePoliciesArray);
+        }
+      };
+
+      this.postRolePoliciesForKeycloakUserCreatorRealmRole = async function(realmManagementClientId, roleName, rolePoliciesArray){
+
+        let role = await this.getRoleByName(roleName);
+        
+        let fineGrainPermissionResource_role = await this.enableFineGrainedPermissionsForRole(role);
+
+        var bearerToken = Auth.keycloak.token;
+
+       let policyIds = rolePoliciesArray.map(policy => policy.id); 
+       let scopeUUID = fineGrainPermissionResource_role.scopePermissions["map-role"];
+
+       let scopeResourceId = await this.getScopeResourceId(realmManagementClientId, scopeUUID); 
+
+        let body = {
+          "id": scopeUUID,
+          "name": "map-role.permission." + role.id,
+          "type": "scope",
+          "logic": "POSITIVE",
+          "decisionStrategy": "AFFIRMATIVE", // at least one policy is true
+          "resources": [fineGrainPermissionResource_role.resource],
+          "policies": policyIds,
+          "scopes": [scopeResourceId],
+          "description": ""
+        };
+
+        return await $http({
+          url: this.targetUrlToKeycloakInstance + "admin/realms/" + this.realm + "/clients/" + realmManagementClientId + "/authz/resource-server/permission/scope/" + scopeUUID,
+          method: 'PUT',
+          data: body,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': "Bearer " + bearerToken // Note the appropriate header
+          }
+        }).then(function successCallback(response) {
+          // this callback will be called asynchronously
+          // when the response is available
+
+         return response.data;          
+
+        }, function errorCallback(error) {
+          // called asynchronously if an error occurs
+          // or server returns response with an error status.
+          
+          console.error("Error while fetching roles from keycloak.");
+          console.error(error);
+          throw error;
+
+        });
+      };
+
+      this.getRoleByName = async function(roleName){
+
+        var bearerToken = Auth.keycloak.token;
+
+        return await $http({
+          url: this.targetUrlToKeycloakInstance + "admin/realms/" + this.realm + "/roles/" + roleName,
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': "Bearer " + bearerToken // Note the appropriate header
+          }
+        }).then(function successCallback(response) {
+          // this callback will be called asynchronously
+          // when the response is available
+         return response.data;          
+
+        }, function errorCallback(error) {
+          // called asynchronously if an error occurs
+          // or server returns response with an error status.
+          
+          console.error("Error while fetching roles from keycloak.");
+          console.error(error);
+          throw error;
+
+        });
+      }
+
+      this.enableFineGrainedPermissionsForRole = async function (role) {
+        var bearerToken = Auth.keycloak.token;
+
+        let body = {
+          "enabled":true
+        }
+
+        return await $http({
+          url: this.targetUrlToKeycloakInstance + "admin/realms/" + this.realm + "/roles-by-id/" + role.id + "/management/permissions",
+          method: 'PUT',
+          data: body,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': "Bearer " + bearerToken // Note the appropriate header
+          }
+        }).then(function successCallback(response) {
+          // this callback will be called asynchronously
+          // when the response is available
+
+          /*
+            {
+              "enabled": true,
+              "resource": "a9cbcfc7-9ca9-4a6f-9707-464e5979e322",
+              "scopePermissions": {
+                  "map-role": "4e46a22a-a0ca-4c5d-9445-cf9a8ef4e378",
+                  "map-role-client-scope": "1f64f4e7-a599-4a73-997c-ff896c3071a6",
+                  "map-role-composite": "1d0cda08-97af-4365-ad73-96eff67b68e5"
+              }
+            }
+          */
+         console.log("fine grained permissions enablement response");
+         console.log(response);
+         return response.data;          
+
+        }, function errorCallback(error) {
+          // called asynchronously if an error occurs
+          // or server returns response with an error status.
+          
+          console.error("Error while fetching roles from keycloak.");
+          console.error(error);
+          throw error;
+
+        });
+      }
 
       var self = this;
       this.init();
