@@ -1769,9 +1769,61 @@ angular.module('kommonitorMap').component(
             console.error("NO POI object: instead got feature of type " + poiFeature.geometry.type);
           }
           
+          var poiText = "A";
+          var poiStyle = "symbol";
+          // poiStyle = "text" | "symbol"
+
+          if(poiStyle == "text") {
+            newMarker = $scope.bindPOITextStyleTooltip(newMarker, poiText, poiSymbolColor);
+          }
+          
           return newMarker;
 
         };
+
+        $scope.bindPOITextStyleTooltip = function (marker, poiText, poiSymbolColor) {
+          marker.options.icon.options.icon = "";
+          marker.options.icon.options.icon = "";
+          let fontSize = "13px;"
+          let offset = [0, -25];
+
+          if (kommonitorDataExchangeService.selectedPOISize.label == "sehr klein") {
+            offset = [0, -12];
+            if(poiText.length == 1) { fontSize = "9px"; }
+            else if(poiText.length == 2) { fontSize = "6px"; }
+            else if(poiText.length == 3) { fontSize = "4px"; }
+          }
+          else if (kommonitorDataExchangeService.selectedPOISize.label == "klein") {
+            offset = [0, -20];
+            if(poiText.length == 1) { fontSize = "11px"; }
+            else if(poiText.length == 2) { fontSize = "8px"; }
+            else if(poiText.length == 3) { fontSize = "5px"; }
+          }
+          else if (kommonitorDataExchangeService.selectedPOISize.label == "mittel") {
+            offset = [0, -25];
+            if(poiText.length == 1) { fontSize = "13px"; }
+            else if(poiText.length == 2) { fontSize = "11px"; }
+            else if(poiText.length == 3) { fontSize = "9px"; }
+          }
+          else if (kommonitorDataExchangeService.selectedPOISize.label == "groß") {
+            offset = [0, -32];
+            if(poiText.length == 1) { fontSize = "20px"; }
+            else if(poiText.length == 2) { fontSize = "15px"; }
+            else if(poiText.length == 3) { fontSize = "10px"; }
+          }
+        
+          marker.bindTooltip(
+            "<div style='color:" + poiSymbolColor 
+            +"; font-size: " + fontSize + "'>" 
+            + poiText + "</div>", {
+            permanent: true,
+            direction: 'center',
+            className: "poi-text-tooltip",
+            offset: offset
+          });
+
+          return marker;
+        }
 
         $scope.$on("addPoiGeoresourceAsGeoJSON", function (event, georesourceMetadataAndGeoJSON, date, useCluster) {
 
