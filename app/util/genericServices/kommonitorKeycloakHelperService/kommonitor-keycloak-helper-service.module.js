@@ -33,10 +33,11 @@ angular
             });
           }
 
-          await this.fetchAndSetKeycloakGroups();
+          // await this.fetchAndSetKeycloakGroups();
           await this.fetchAndSetKeycloakRoles();
         } catch (error) {
           console.error("Error while initializing kommonitorKeycloakHelperService. Error while fetching and interpreting config file. Error is: " + error);
+          throw error;
         }
       };
 
@@ -500,11 +501,82 @@ angular
         return false;
       };
 
-      this.getGroupId = function(organizationalUnit){
-        for (const keycloakGroup of this.availableKeycloakGroups) {
-          if (keycloakGroup.name === organizationalUnit.name){
-            return keycloakGroup.id;
+      this.getGroupDetails_rootGroup = async function(organizationalUnit, bearerToken){
+        return await $http({
+          url: this.targetUrlToKeycloakInstance + "admin/realms/" + this.realm + "/groups/?search=" + organizationalUnit.name,
+          method: 'GET',
+          headers: {
+            'Authorization': "Bearer " + bearerToken // Note the appropriate header
+          }
+        }).then(function successCallback(response) {
+          // this callback will be called asynchronously
+          // when the response is available
+
+          return response.data[0];          
+
+        }, function errorCallback(error) {
+          // called asynchronously if an error occurs
+          // or server returns response with an error status.
+          
+          console.error("Error while fetching sub groups from keycloak.");
+          console.error(error);
+          throw error;
+
+        });
+      }
+
+      this.getGroupDetails_subGroup = async function(organizationalUnit, parentOrganizationalUnit, bearerToken){
+        return await $http({
+          url: this.targetUrlToKeycloakInstance + "admin/realms/" + this.realm + "/groups/" + parentOrganizationalUnit.keycloakId,
+          method: 'GET',
+          headers: {
+            'Authorization': "Bearer " + bearerToken // Note the appropriate header
+          }
+        }).then(async function successCallback(response) {
+          // this callback will be called asynchronously
+          // when the response is available
+
+          // depending on keycloak version
+          // the response may have subGroups with all sub group detail (keycloka v 21)
+          // or an subGroupCount attribute (keycloak > v23)
+
+          let subgroups;
+
+          if (response.data.subGroupCount && response.data.subGroupCount > 0){
+            subgroups = await self.fetchSubGroups(response.data, bearerToken)
+          }
+          else{
+            subgroups = response.data.subGroups;
           } 
+          
+          for (const subGroup of subgroups) {
+            if (subGroup.name == organizationalUnit.name){
+              return subGroup;
+            }
+          }
+
+        }, function errorCallback(error) {
+          // called asynchronously if an error occurs
+          // or server returns response with an error status.
+          
+          console.error("Error while fetching sub groups from keycloak.");
+          console.error(error);
+          throw error;
+
+        });
+      }
+
+      this.getGroupDetails = async function(organizationalUnit, parentOrganizationalUnit){
+
+        var bearerToken = Auth.keycloak.token;
+
+        // differentiate between root tier and sub tier
+
+        if (organizationalUnit.parentId && organizationalUnit.parentId != ""){
+          return await this.getGroupDetails_subGroup(organizationalUnit, parentOrganizationalUnit, bearerToken);
+        }
+        else{
+          return await this.getGroupDetails_rootGroup(organizationalUnit, bearerToken);
         }
       }
 

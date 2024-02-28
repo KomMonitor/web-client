@@ -65,11 +65,13 @@ angular.module('roleAddModal').component('roleAddModal', {
 
 					await kommonitorKeycloakHelperService.postNewGroup($scope.newOrganizationalUnit, $scope.parentOrganizationalUnit);
 					await kommonitorKeycloakHelperService.fetchAndSetKeycloakRoles();
-					await kommonitorKeycloakHelperService.fetchAndSetKeycloakGroups();
+					// await kommonitorKeycloakHelperService.fetchAndSetKeycloakGroups();
 
-					keycloakGroupId = kommonitorKeycloakHelperService.getGroupId($scope.newOrganizationalUnit);
+					let keycloakGroup = await kommonitorKeycloakHelperService.getGroupDetails($scope.newOrganizationalUnit, $scope.parentOrganizationalUnit);
+					keycloakGroupId = keycloakGroup.id;
 					$("#keycloakGroupAddSuccessAlert").show();
 				} catch (error) {
+					console.error(error);
 					if (error.data) {
 						$scope.keycloakErrorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
 					}
