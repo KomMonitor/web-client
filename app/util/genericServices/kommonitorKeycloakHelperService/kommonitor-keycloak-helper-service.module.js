@@ -275,13 +275,42 @@ angular
         return false;
       };
 
-      this.getClientViewUsersRole = async function(){
+      this.getClientQueryUsersRole = async function(){
         let realmManagementClientId = await this.getRealmManagementClientId();
 
         var bearerToken = Auth.keycloak.token;
 
         return await $http({
-          url: this.targetUrlToKeycloakInstance + "admin/realms/" + this.realm + "/clients/" + realmManagementClientId + "/roles?search=view-users",
+          url: this.targetUrlToKeycloakInstance + "admin/realms/" + this.realm + "/clients/" + realmManagementClientId + "/roles?search=query-users",
+          method: 'GET',
+          headers: {
+            'Authorization': "Bearer " + bearerToken // Note the appropriate header
+          }
+        }).then(function successCallback(response) {
+          // this callback will be called asynchronously
+          // when the response is available
+
+         return response.data[0];          
+
+        }, function errorCallback(error) {
+          // called asynchronously if an error occurs
+          // or server returns response with an error status.
+          
+          console.error("Error while fetching roles from keycloak.");
+          console.error(error);
+          throw error;
+
+        });
+
+      }
+
+      this.getClientQueryGroupsRole = async function(){
+        let realmManagementClientId = await this.getRealmManagementClientId();
+
+        var bearerToken = Auth.keycloak.token;
+
+        return await $http({
+          url: this.targetUrlToKeycloakInstance + "admin/realms/" + this.realm + "/clients/" + realmManagementClientId + "/roles?search=query-groups",
           method: 'GET',
           headers: {
             'Authorization': "Bearer " + bearerToken // Note the appropriate header
@@ -328,7 +357,8 @@ angular
           // to make each new role a composite role
           // thus enabling any person with those roles to view all users
           // TODO FIXME only issue is, that with client-role view-users the person can see all other groups as well, which is not desired
-          let role_client_view_users = await this.getClientViewUsersRole(); 
+          let role_client_query_users = await this.getClientQueryUsersRole();
+          let role_client_query_groups = await this.getClientQueryGroupsRole(); 
 
           // post individual roles
           for (let suffix of this.adminRoleSuffixes) {
@@ -345,7 +375,8 @@ angular
             // }
             await this.postNewRole_withToken(bearerToken, roleBody);
             if(suffix.includes("users")){
-              await this.addCompositeRole_withToken(bearerToken, organizationalUnit.name + "." + suffix, role_client_view_users);
+              await this.addCompositeRole_withToken(bearerToken, organizationalUnit.name + "." + suffix, role_client_query_groups);
+              await this.addCompositeRole_withToken(bearerToken, organizationalUnit.name + "." + suffix, role_client_query_users);
             }            
           }
           // const allRoles = await this.getAllRoles_withToken(bearerToken);
