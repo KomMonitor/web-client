@@ -1052,10 +1052,12 @@ angular
         */
        let policyIds = rolePoliciesArray.map(policy => policy.id); 
 
+       // we must replace permission names including "-" with "." in order to make keycloak internal join true
+       // otherwise the policies are not attached to the specific scope 
        let scopeResourceId = await this.getScopeResourceId(realmManagementClientId, scopeUUID); 
         let body = {
           "id": scopeUUID,
-          "name": scopePermissionName + ".permission.group." + groupId,
+          "name": scopePermissionName.replace("-", ".") + ".permission.group." + groupId,
           "type": "scope",
           "logic": "POSITIVE",
           "decisionStrategy": "AFFIRMATIVE", // at least one policy is true
