@@ -2956,8 +2956,9 @@ angular
     this.checkCreatePermission = function(){      
       for(const role of this.currentKeycloakLoginRoles){
         let roleNameParts = role.split("-");
-        const permissionLevel = roleNameParts[roleNameParts.length - 1]; //e.g. kommonitor-creator
-        if(permissionLevel == "publisher" || permissionLevel == "creator"){
+        const permissionLevel = roleNameParts[roleNameParts.length - 1];
+        const resourceType = roleNameParts[roleNameParts.length - 2]; //e.g. kommonitor-creator
+        if(resourceType == "resources" && permissionLevel == "creator"){
           return true;
         }
       }
