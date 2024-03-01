@@ -1,2 +1,2 @@
-angular.module('kommonitorClassification', ['kommonitorDataExchange', 'kommonitorDiagramHelper', 'kommonitorVisualStyleHelper',
+angular.module('kommonitorClassification', ['classificationMethodSelect','kommonitorDataExchange', 'kommonitorDiagramHelper', 'kommonitorVisualStyleHelper',
 'kommonitorMap', 'kommonitorElementVisibilityHelper', 'kommonitorFilterHelper', 'kommonitorShareHelper']);

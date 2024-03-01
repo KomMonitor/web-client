@@ -237,7 +237,7 @@ angular
             colorBrewerInstance.colors.shift();
             colorBrewerInstance.colors.shift();
           }
-          if(numClasses == 0) {
+          if(numClasses <= 0) {
             colorBrewerInstance.colors = [];
           }
         }
@@ -284,12 +284,12 @@ angular
 
         var gtMeasureOfValueBrew = this.setupGtMeasureOfValueBrew(this.greaterThanValues, colorCodeForGreaterThanValues, classifyMethod, Math.ceil(numClasses / 2));
         var ltMeasureOfValueBrew = this.setupLtMeasureOfValueBrew(this.lesserThanValues, colorCodeForLesserThanValues, classifyMethod, Math.floor(numClasses / 2));
-        
+
         if(classifyMethod == "manual") {
-          if (!breaks) {
+          if (!breaks || breaks.length == 0) {
             breaks = [];
-            breaks[0] = gtMeasureOfValueBrew.breaks;
-            breaks[1] = ltMeasureOfValueBrew.breaks;
+            breaks[0] = gtMeasureOfValueBrew ? gtMeasureOfValueBrew.breaks : [];
+            breaks[1] = ltMeasureOfValueBrew ? ltMeasureOfValueBrew.breaks : [];
           }
   
           var manualBreaksMatchMeasureOfValue = 
@@ -470,10 +470,10 @@ angular
         var dynamicDecreaseBrew = setupDynamicDecreaseBrew(this.negativeValues, colorCodeForNegativeValues, classifyMethod, Math.floor(numClasses / 2));
 
         if(classifyMethod == "manual") {
-          if (!breaks) {
+          if (!breaks || breaks.length == 0) {
             breaks = [];
-            breaks[0] = dynamicIncreaseBrew.breaks;
-            breaks[1] = dynamicDecreaseBrew.breaks;
+            breaks[0] = dynamicIncreaseBrew ? dynamicIncreaseBrew.breaks : [];
+            breaks[1] = dynamicDecreaseBrew ? dynamicDecreaseBrew.breaks : [];
           }
           dynamicIncreaseBrew = this.setupManualBrew(breaks[0].length -1, colorCodeForPositiveValues, breaks[0]);
           dynamicDecreaseBrew = this.setupManualBrew(breaks[1].length -1, colorCodeForNegativeValues, breaks[1]);
