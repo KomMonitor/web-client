@@ -253,12 +253,6 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 
 		$scope.onClassificationMethodSelected = function(method){
 			$scope.classificationMethod = method.id;
-			if(method == 'manual'){
-				if ($scope.numClassesPerSpatialUnit) {
-					console.log($scope.numClassesPerSpatialUnit);
-					$scope.onNumClassesChanged($scope.numClassesPerSpatialUnit);
-				}
-			}
 		};
 
 		$scope.onNumClassesChanged = function(numClasses) {

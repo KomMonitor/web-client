@@ -1437,7 +1437,8 @@ select {
 	background: white;
 	/* background: rgba(255,255,255,1); */
 	color: #555;
-  	overflow: auto;
+	overflow: auto;
+	text-align: left;
 }
 
 .boxedLegend i {
