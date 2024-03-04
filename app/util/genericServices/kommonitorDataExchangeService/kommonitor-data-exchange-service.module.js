@@ -2942,23 +2942,29 @@ angular
     }
 
     this.checkDeletePermission = function(){
+      if(this.checkAdminPermission()) {
+        return true;
+      }
+        
       for(const role of this.currentKeycloakLoginRoles){
-        let roleNameParts = role.split("-");
-
-        const permissionLevel = roleNameParts[roleNameParts.length - 1]; //e.g. kommonitor-creator
-        if(permissionLevel == "creator"){
+        let roleNameParts = role.split(".");
+        const permissionLevel = roleNameParts[roleNameParts.length - 1];
+        if(permissionLevel === "client-resources-creator" || permissionLevel === "unit-resources-creator"){
           return true;
         }
       }
       return false;
     }
 
-    this.checkCreatePermission = function(){      
+    this.checkCreatePermission = function(){    
+      if(this.checkAdminPermission()) {
+        return true;
+      }
+      
       for(const role of this.currentKeycloakLoginRoles){
-        let roleNameParts = role.split("-");
+        let roleNameParts = role.split(".");
         const permissionLevel = roleNameParts[roleNameParts.length - 1];
-        const resourceType = roleNameParts[roleNameParts.length - 2]; //e.g. kommonitor-creator
-        if(resourceType == "resources" && permissionLevel == "creator"){
+        if(permissionLevel === "client-resources-creator" || permissionLevel === "unit-resources-creator"){
           return true;
         }
       }
@@ -2966,10 +2972,15 @@ angular
     }
 
     this.checkEditorPermission = function(){
+      if(this.checkAdminPermission()) {
+        return true;
+      }
+        
+
       for(const role of this.currentKeycloakLoginRoles){
-        let roleNameParts = role.split("-");
-        const permissionLevel = roleNameParts[roleNameParts.length - 1]; //e.g. kommonitor-creator
-        if(permissionLevel == "editor" || permissionLevel == "creator" || permissionLevel == "publisher"){
+        let roleNameParts = role.split(".");
+        const permissionLevel = roleNameParts[roleNameParts.length - 1];
+        if(permissionLevel === "client-resources-creator" || permissionLevel === "unit-resources-creator"){
           return true;
         }
       }
