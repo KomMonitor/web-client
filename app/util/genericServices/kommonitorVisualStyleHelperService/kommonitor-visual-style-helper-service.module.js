@@ -284,12 +284,12 @@ angular
 
         var gtMeasureOfValueBrew = this.setupGtMeasureOfValueBrew(this.greaterThanValues, colorCodeForGreaterThanValues, classifyMethod, Math.ceil(numClasses / 2));
         var ltMeasureOfValueBrew = this.setupLtMeasureOfValueBrew(this.lesserThanValues, colorCodeForLesserThanValues, classifyMethod, Math.floor(numClasses / 2));
-        
+
         if(classifyMethod == "manual") {
-          if (!breaks) {
+          if (!breaks || breaks.length == 0) {
             breaks = [];
-            breaks[0] = gtMeasureOfValueBrew.breaks;
-            breaks[1] = ltMeasureOfValueBrew.breaks;
+            breaks[0] = gtMeasureOfValueBrew ? gtMeasureOfValueBrew.breaks : [];
+            breaks[1] = ltMeasureOfValueBrew ? ltMeasureOfValueBrew.breaks : [];
           }
   
           var manualBreaksMatchMeasureOfValue = 
@@ -441,7 +441,6 @@ angular
        */
       this.setupDynamicIndicatorBrew = function (geoJSON, propertyName, colorCodeForPositiveValues, colorCodeForNegativeValues, classifyMethod, numClasses, breaks) {
 
-        kommonitorDataExchangeService.isBalanceChecked = true;
         /*
         * Idea: Analyse the complete geoJSON property array for each feature and make conclusion about how to build the legend
 
@@ -471,7 +470,7 @@ angular
         var dynamicDecreaseBrew = setupDynamicDecreaseBrew(this.negativeValues, colorCodeForNegativeValues, classifyMethod, Math.floor(numClasses / 2));
 
         if(classifyMethod == "manual") {
-          if (!breaks) {
+          if (!breaks || breaks.length == 0) {
             breaks = [];
             breaks[0] = dynamicIncreaseBrew ? dynamicIncreaseBrew.breaks : [];
             breaks[1] = dynamicDecreaseBrew ? dynamicDecreaseBrew.breaks : [];

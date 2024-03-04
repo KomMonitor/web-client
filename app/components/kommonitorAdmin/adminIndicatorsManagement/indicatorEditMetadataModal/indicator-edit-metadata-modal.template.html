@@ -932,27 +932,46 @@
 									</div>
 								</div>
 								<div class="row vertical-align" ng-if="(numClassesPerSpatialUnit > 0) && classificationMethod == 'manual'">
-									<uib-tabset active="0" class="col-md-4 col-sm-6 col-xs-12">
+									<uib-tabset active="0">
 										<uib-tab 
 											index="i" 
 											heading="{{spatialUnit.spatialUnitLevel}}"
 											class="{{tabClasses[i]}}"
 											ng-repeat="(i, spatialUnit) in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits">
-											<div class="form-group">
-												<label>Klassengrenzen für die Ebene {{spatialUnit.spatialUnitLevel}}</label>
-												<input
-													ng-repeat="(j, b) in spatialUnitClassification[i].breaks track by $index"
-													type="number"
-													class="form-control"
-													ng-blur="onBreaksChanged(i)"
-													ng-model="spatialUnitClassification[i].breaks[j]">
-											</div>
-											<div class="help-block">
-												<p>Vollständig ausgefüllte Tabs werden grün hervorgehoben.</p>
-												<p>Fehlerhaft ausgefüllte Tabs werden rot hervorgehoben. Die Klassengrenzen sollten von niedrig nach hoch sortiert sein. </p>
+											<div class="just-padding">
+												<div class="col-md-6 col-sm-6 col-xs-12">
+													<div class="form-group">
+														<label>Klassengrenzen für die Ebene {{spatialUnit.spatialUnitLevel}}</label>
+														<input
+															ng-repeat="(j, b) in spatialUnitClassification[i].breaks track by $index"
+															type="number"
+															class="form-control"
+															ng-blur="onBreaksChanged(i)"
+															ng-model="spatialUnitClassification[i].breaks[j]">
+													</div>
+												</div>
+												<div class="col-md-6 col-sm-6 col-xs-12 boxedLegend">
+													<p><b>Legende</b></p>
+													<div class="row" style="margin-right: 0px;">
+														<div class="col-md-3"><b>Symbolik</b></div>
+														<div class="col-md-9"><b>Wertebereich</b></div>
+													</div>
+													<div class="row" 
+														style="margin-right: 0px;" 
+														ng-repeat="color in selectedColorBrewerPaletteEntry.paletteArrayObject[numClassesPerSpatialUnit.toString()]">
+														<div class="col-md-3 "><i style="background:{{color}};"></i> </div>
+														<div class="col-md-9 " ng-if="$index == 0" >Niedrigster Wert &dash; &lt; {{spatialUnitClassification[i].breaks[$index] || "[bitte eingeben]"}}</div>
+														<div class="col-md-9 " ng-if="$index != 0 && $index != spatialUnitClassification[i].breaks.length" >{{spatialUnitClassification[i].breaks[$index - 1] || "[bitte eingeben]"}} &dash; &lt; {{spatialUnitClassification[i].breaks[$index] || "[bitte eingeben]"}}</div>
+														<div class="col-md-9 " ng-if="$index == spatialUnitClassification[i].breaks.length" >{{spatialUnitClassification[i].breaks[$index-1] || "[bitte eingeben]"}} &dash; &lt; Höchster Wert</div>
+													</div>
+												</div>
 											</div>
 										</uib-tab>
 									</uib-tabset>
+								</div>
+								<div class="help-block row" ng-if="(numClassesPerSpatialUnit > 0) && classificationMethod == 'manual'">
+									<p>Vollständig ausgefüllte Tabs werden grün hervorgehoben.</p>
+									<p>Fehlerhaft ausgefüllte Tabs werden rot hervorgehoben. Die Klassengrenzen sollten von niedrig nach hoch sortiert sein. </p>
 								</div>
 
 								<input type="button" name="previous" class="previous previous_editIndicatorMetadata action-button-previous" value="Voriger Schritt"/>
@@ -1077,7 +1096,7 @@
 						
 
 				<button type="button" class="btn btn-success"
-					ng-disabled="!datasetName || !metadata.description || !metadata.datasource || !metadata.contact || !metadata.updateInterval || !metadata.lastUpdate || !indicatorType|| !indicatorCreationType || !indicatorInterpretation || !indicatorTopic_mainTopic || datasetNameInvalid || !indicatorUnit"
+					ng-disabled="!datasetName || !metadata.description || !metadata.datasource || !metadata.contact || !metadata.updateInterval || !metadata.lastUpdate || !indicatorType|| !indicatorCreationType || !indicatorInterpretation || !indicatorTopic_mainTopic || datasetNameInvalid || !indicatorUnit || classBreaksInvalid"
 					ng-click="editIndicatorMetadata()">Metadaten aktualisieren</button>
 				<button type="button" class="btn btn-danger"
 					ng-click="resetIndicatorEditMetadataForm()">Zur&uuml;cksetzen</button>
