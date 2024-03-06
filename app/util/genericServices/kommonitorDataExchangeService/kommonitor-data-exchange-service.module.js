@@ -2996,12 +2996,12 @@ angular
 
     this.getRoleTitles = function(){
 
-      return this.currentKeycloakLoginRoles.filter(role => role.split('.')[role.split('.').length-1]).map(e => e);
+      return this.currentKeycloakLoginRoles.map(role => role.split('.')[role.split('.').length-1]);
     }
 
     this.checkGroupsEditPermission = function() {
 
-      if(this.checkAdminPermission)
+      if(this.checkAdminPermission())
         return true;
 
       let splitRoles = this.getRoleTitles();
@@ -3017,7 +3017,7 @@ angular
 
     this.checkThemesEditPermission = function() {
 
-      if(this.checkAdminPermission)
+      if(this.checkAdminPermission())
         return true;
 
       let splitRoles = this.getRoleTitles();
@@ -3031,9 +3031,9 @@ angular
       return ret;
     }
 
-    this.checkGeodataEditPermission = function() {
+    this.checkResourcesEditPermission = function() {
       
-      if(this.checkAdminPermission)
+      if(this.checkAdminPermission())
         return true;
 
       let splitRoles = this.getRoleTitles();
