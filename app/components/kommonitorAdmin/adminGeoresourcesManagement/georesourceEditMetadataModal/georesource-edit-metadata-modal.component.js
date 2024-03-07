@@ -175,7 +175,7 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 
 			$scope.resetGeoresourceEditMetadataForm();
 
-			kommonitorMultiStepFormHelperService.registerClickHandler();
+			kommonitorMultiStepFormHelperService.registerClickHandler("georesourceEditMetadataForm");
 
 		});
 

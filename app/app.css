@@ -53,6 +53,9 @@ MULTI STEP FORM
 .multiStepForm fieldset:not(:first-of-type) {
     display: none;
 }
+.multiStepForm fieldset:first-of-type {
+    display: block;
+}
 
 /*inputs*/
 .multiStepForm input, .multiStepForm textarea, .multiStepForm select {
@@ -1322,7 +1325,7 @@ select {
 
 /* Mouse-over effects */
 .slider:hover {
-    opacity: 1; /* Fully shown on mouse-over */
+    opacity: 1; /* Fully shown on mouse-over */	
 }
 
 /* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
@@ -2793,7 +2796,10 @@ input:checked + .switchslider:before {
 .orientationChangeBtn {
 	position: absolute;
 	z-index: 10000;
-	left: -60px;
+	left: -50px;
+	height: 35px;
+	width: 35px;
+	padding: 3px;
 }
 
 .hiddenPage {
@@ -3062,6 +3068,10 @@ input:checked + .switchslider:before {
 
 #infoModalTabs {
 	margin-bottom: 10px;
+}
+
+.spatial-unit-list-item {
+	display: table-row;
 }
 
 .tab-completed > a {

@@ -159,7 +159,7 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 				$("#indicatorMetadataEditErrorAlert").hide();
 			};
 
-			kommonitorMultiStepFormHelperService.registerClickHandler();
+			kommonitorMultiStepFormHelperService.registerClickHandler("scriptAddForm");
 
 		}
 	]

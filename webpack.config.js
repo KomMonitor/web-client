@@ -75,7 +75,6 @@ module.exports = {
             { from: './customizedExternalLibs/bootstrap-iconpicker', to: 'bootstrap-iconpicker/' },
             { from: './customizedExternalLibs/Excalibur-Dual-List/dist', to: 'excalibur-duallist/' },
             { from: './customizedExternalLibs/Excalibur-Dual-List/excalibur-duallist.html', to: 'excalibur-duallist/excalibur-duallist.html' },
-            { from: nodeModulePathConstant + 'html2canvas/dist', to: 'html2canvas/' },
             { from: nodeModulePathConstant + 'html2pdf.js/dist', to: 'html2pdf/' },
             { from: nodeModulePathConstant + 'jquery.easing/jquery.easing.min.js', to: 'jquery.easing/' },
             { from: './customizedExternalLibs/colorbrewer.js', to: 'colorbrewer/' },
@@ -96,6 +95,7 @@ module.exports = {
             { from: nodeModulePathConstant + 'docx/build/index.js', to: 'docx/' },
             { from: nodeModulePathConstant + 'toastr/build', to: 'toastr/' },
             { from: nodeModulePathConstant + 'papaparse/papaparse.min.js', to: 'papaparse/papaparse.min.js' },
+            { from: nodeModulePathConstant + 'dom-to-image-more/dist/dom-to-image-more.min.js', to: 'dom-to-image-more/dom-to-image-more.min.js' },
           
 
       ]})

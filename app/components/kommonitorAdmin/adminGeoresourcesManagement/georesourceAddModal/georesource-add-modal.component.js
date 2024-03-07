@@ -1174,7 +1174,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
             $("#georesourceMappingConfigImportErrorAlert").hide();
         };
 
-        kommonitorMultiStepFormHelperService.registerClickHandler();
+        kommonitorMultiStepFormHelperService.registerClickHandler("georesourceAddForm");
 
 	}
 ]});

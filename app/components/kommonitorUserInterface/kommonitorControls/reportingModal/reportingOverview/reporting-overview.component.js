@@ -431,37 +431,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 					// prevents leaflet form snapping to closest pre-defined zoom level.
 					// In other words, it allows us to set exact map extend by a (echarts) bounding box
 					zoomSnap: 0 
-				});
-
-				// from the docs, most of it is probably not needed
-				let screenshotterOptions = {
-					cropImageByInnerWH: true, // crop blank opacity from image borders
-					hidden: true, // hide screen icon
-					preventDownload: true, // prevent download on button click
-					domtoimageOptions: {}, // see options for dom-to-image
-					position: 'topleft', // position of take screen icon
-					screenName: 'screen', // string or function
-					hideElementsWithSelectors: ['.leaflet-control-container'], // by default hide map controls All els must be child of _map._container
-					mimeType: 'image/png', // used if format == image,
-					caption: null, // string or function, added caption to bottom of screen
-					captionFontSize: 15,
-					captionFont: 'Arial',
-					captionColor: 'black',
-					captionBgColor: 'white',
-					captionOffset: 5,
-					// callback for manually edit map if have warn: "May be map size very big on that zoom level, we have error"
-					// and screenshot not created
-					onPixelDataFail: async function({ node, plugin, error, mapPane, domtoimageOptions }) {
-						// Solutions:
-						// decrease size of map
-						// or decrease zoom level
-						// or remove elements with big distanses
-						// and after that return image in Promise - plugin._getPixelDataOfNormalMap
-						return plugin._getPixelDataOfNormalMap(domtoimageOptions)
-					}
-				}
-				 
-				leafletMap.simpleMapScreenshoter = L.simpleMapScreenshoter(screenshotterOptions).addTo(leafletMap)
+				});			
 
 				// manually create a field for attribution so we can control the z-index.
 				let prevAttributionDiv = pageDom.querySelector(".map-attribution")
@@ -1766,11 +1736,18 @@ angular.module('reportingOverview').component('reportingOverview', {
 			pageElement.leafletMap.getContainer().style.left = "0px"
 
 			// wait for print process to finish
-			let format = 'image'
-			let overridedPluginOptions = {
-				mimeType: 'image/jpeg'
-			}
-			let leafletMapScreenshot = await pageElement.leafletMap.simpleMapScreenshoter.takeScreen(format, overridedPluginOptions)
+			// var node = document.getElementById(pageDom);
+			var node = pageElement.leafletMap["_container"];
+
+			let leafletMapScreenshot = await domtoimage
+              .toJpeg(node, { quality: 1.0 })
+              .then(function (dataUrl) {
+                return dataUrl;
+              })
+              .catch(function (error) {
+                  console.error('oops, something went wrong!', error);
+              });
+
 			pageElement.leafletMap.getContainer().style.top = "90px"
 			pageElement.leafletMap.getContainer().style.left = "15px"
 			

@@ -60,7 +60,7 @@
 								<tr ng-repeat="entry in affectedSpatialUnits">
 									<td>{{entry.spatialUnitId}}</td>
 									<td>{{entry.spatialUnitLevel}}</td>
-									<td>{{entry.allowedRoles}}</td>
+									<td>{{entry.connectedItems}}</td>
 								</tr>
 
 							</tbody>
@@ -86,7 +86,7 @@
 								<tr ng-repeat="entry in affectedGeoresources">
 									<td>{{entry.georesourceId}}</td>
 									<td>{{entry.datasetName}}</td>
-									<td>{{entry.allowedRoles}}</td>
+									<td>{{entry.connectedItems}}</td>
 								</tr>
 
 							</tbody>
@@ -113,8 +113,15 @@
 								<tr ng-repeat="entry in affectedIndicators">
 									<td>{{entry.indicatorId}}</td>
 									<td>{{entry.indicatorName}}</td>
-									<td>{{entry.allowedRoles}}</td>
-									<td ng-bind-html="entry.applicableSpatialUnits | formatJson"></td>
+									<td>{{entry.connectedItems}}</td>
+									<td>
+										<div ng-if="entry.connectedSpatialUnits.length > 0">
+											<span ng-repeat="spatialUnit in entry.connectedSpatialUnits" class="spatial-unit-list-item">
+												{{spatialUnit.name}}: {{spatialUnit.ids.join(', ')}}
+											</span><br>
+										</div>
+									</td>
+									<!-- <td ng-bind-html="entry.connectedSpatialUnits | formatJson"></td> -->
 								</tr>
 
 							</tbody>

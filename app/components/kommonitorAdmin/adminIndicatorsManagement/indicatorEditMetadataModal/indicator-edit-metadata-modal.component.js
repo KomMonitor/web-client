@@ -289,7 +289,7 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 			$scope.currentIndicatorDataset = indicatorDataset;
 
 			$scope.resetIndicatorEditMetadataForm();
-			kommonitorMultiStepFormHelperService.registerClickHandler();
+			kommonitorMultiStepFormHelperService.registerClickHandler("indicatorEditMetadataForm");
 
 		});
 

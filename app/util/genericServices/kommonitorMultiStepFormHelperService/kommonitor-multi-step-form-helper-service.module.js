@@ -20,29 +20,33 @@ angular
 
       let self = this;
 
-      this.registerClickHandler = function(){
+      this.registerClickHandler = function(domId){
         this.registerNextButtonClick();
         this.registerPreviousButtonClick();
-        this.registerProgressBarItemClick();
+        this.registerProgressBarItemClick(domId);
       };
 
-      this.registerProgressBarItemClick = function(){
+      this.registerProgressBarItemClick = function(domId){
         $timeout(function(){
-          $("#progressbar > li").click(function(){
-            let newIndex = $("#progressbar > li").index(this);
+          let progressBar_listItems = $("#" + domId + " #progressbar > li");
+          progressBar_listItems.click(function(event){
+            let newIndex = progressBar_listItems.index(this);
             let oldIndex;
             let allFs = $($(this).parent().parent().parent().children("fieldset"));
             let activeFs;
 
             for (const fsCandidate of allFs) {
-              if(fsCandidate.style["display"] != "none"){
+              if($(fsCandidate).is(":visible")){
                 activeFs = fsCandidate;
-                break;
+                fsCandidate.style["display"] = "block";
+              }
+              else{
+                fsCandidate.style["display"] = "none"
               }
             }
-            oldIndex = $("fieldset").index(activeFs);
+            oldIndex = allFs.index(activeFs);
   
-            self.current_fs = $($("fieldset").get(oldIndex));
+            self.current_fs = $(allFs.get(oldIndex));
         
             
             if(newIndex == oldIndex){
@@ -50,11 +54,11 @@ angular
             }
             else if(newIndex < oldIndex){
               
-              self.previous_fs = $($("fieldset").get(newIndex));
+              self.previous_fs = $(allFs.get(newIndex));
               
               //de-activate current step on progressbar
-              for (let index = oldIndex; index > newIndex; index--) {
-                $($("#progressbar > li").get(index)).removeClass("active");						
+              for (let index = JSON.parse(JSON.stringify(oldIndex)); index > newIndex; index--) {
+                $(progressBar_listItems.get(index)).removeClass("active");						
               }
               
               //show the previous fieldset
@@ -71,11 +75,11 @@ angular
             }
             else {
               self.animating = true;					
-              self.next_fs = $($("fieldset").get(newIndex));
+              self.next_fs = $(allFs.get(newIndex));
               
               //activate next step on progressbar using the index of self.next_fs
-              for (let index = oldIndex; index <= newIndex; index++) {		
-                $($("#progressbar > li").get(index)).addClass("active");		
+              for (let index = JSON.parse(JSON.stringify(oldIndex)); index <= newIndex; index++) {		
+                $(progressBar_listItems.get(index)).addClass("active");		
               }			
               
               //show the next fieldset
@@ -97,6 +101,8 @@ angular
 
             kommonitorReachabilityMapHelperService.invalidateMaps();
             kommonitorReachabilityMapHelperService.zoomToIsochroneLayers();
+
+            event.stopImmediatePropagation();
           });
 
         }, 500);

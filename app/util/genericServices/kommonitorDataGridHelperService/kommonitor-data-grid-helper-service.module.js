@@ -2707,6 +2707,7 @@ angular
 
       CheckboxRenderer_viewer.prototype.checkedHandler = function(e) {
         let checked = e.target.checked;
+
         for (const role of this.params.data.roles) {
           if (role.permissionLevel == "viewer"){            
             role.isChecked = checked;
@@ -2817,7 +2818,11 @@ angular
       CheckboxRenderer_creator.prototype.checkedHandler = function(e) {
         let checked = e.target.checked;
         for (const role of this.params.data.roles) {
-          if (role.permissionLevel == "editor"){            
+          if (role.permissionLevel == "publisher"){            
+            if(!checked)
+              role.isChecked = false;
+          }
+          else if (role.permissionLevel == "editor"){            
             if (checked){
               role.isChecked = true;
               $('.' + role.roleId).attr('disabled', true);

@@ -34,6 +34,9 @@ angular
 							$scope.higherFilterInputNotValid = false;
 							$scope.indicatorMetadataAndGeoJSON;
 
+							$scope.inputLowerFilterValue;
+							$scope.inputHigherFilterValue;
+
 							//measureOfValue stuff
 							$scope.movMinValue;
 							$scope.movMaxValue;
@@ -64,7 +67,9 @@ angular
 							};
 
 							$scope.isFilterModeActive = function(id) {
-								return $scope.kommonitorFilterModes.indexOf(id) !== -1;
+								// hier
+								//return $scope.kommonitorFilterModes.indexOf(id) !== -1;
+								return true;
 							}
 
 
@@ -212,6 +217,9 @@ angular
 								$scope.currentLowerFilterValue = $scope.valueRangeMinValue;
 								$scope.currentHigherFilterValue = $scope.valueRangeMaxValue;
 
+								$scope.inputLowerFilterValue = $scope.valueRangeMinValue;
+								$scope.inputHigherFilterValue = $scope.valueRangeMaxValue;
+
 								$("#rangeSliderForFiltering").ionRangeSlider({
 										skin: "big",
 						        type: "double",
@@ -236,8 +244,12 @@ angular
 
 							};
 
-							$scope.onChangeLowerFilterValue = function(){
-								if(($scope.currentLowerFilterValue >= $scope.valueRangeMinValue) && ($scope.currentLowerFilterValue <= $scope.valueRangeMaxValue) && ($scope.currentLowerFilterValue <= $scope.currentHigherFilterValue)){
+							$scope.onChangeLowerFilterValue = function(value){
+
+								$scope.inputLowerFilterValue = value;
+
+								if(($scope.inputLowerFilterValue >= $scope.valueRangeMinValue) && ($scope.inputLowerFilterValue <= $scope.valueRangeMaxValue) && ($scope.inputLowerFilterValue <= $scope.inputHigherFilterValue)){	
+									$scope.currentLowerFilterValue = $scope.inputLowerFilterValue;
 									$scope.lowerFilterInputNotValid = false;
 									$scope.rangeSliderForFilter.update({
 											from: $scope.currentLowerFilterValue,
@@ -251,8 +263,12 @@ angular
 								}
 							};
 
-							$scope.onChangeHigherFilterValue = function(){
-								if(($scope.currentHigherFilterValue <= $scope.valueRangeMaxValue) && ($scope.currentHigherFilterValue >= $scope.valueRangeMinValue) && ($scope.currentLowerFilterValue <= $scope.currentHigherFilterValue)){
+							$scope.onChangeHigherFilterValue = function(value){
+
+								$scope.inputHigherFilterValue = value;
+
+								if(($scope.inputHigherFilterValue <= $scope.valueRangeMaxValue) && ($scope.inputHigherFilterValue >= $scope.valueRangeMinValue) && ($scope.inputLowerFilterValue <= $scope.inputHigherFilterValue)){
+									$scope.currentHigherFilterValue = $scope.inputHigherFilterValue;
 									$scope.higherFilterInputNotValid = false;
 									$scope.rangeSliderForFilter.update({
 											from: $scope.currentLowerFilterValue,
@@ -274,7 +290,14 @@ angular
 								$scope.higherFilterInputNotValid = false;
 
 								$scope.currentLowerFilterValue = data.from;
+								$scope.inputLowerFilterValue = data.from;
+
+								document.getElementById('inputLowerValue').value = $scope.inputLowerFilterValue;
+
 								$scope.currentHigherFilterValue = data.to;
+								$scope.inputHigherFilterValue = data.to;
+
+								document.getElementById('inputHigherValue').value = $scope.inputHigherFilterValue;
 
 								$scope.applyRangeFilter();
 							};
@@ -466,6 +489,7 @@ angular
 								if (selectionType === "byFeature" && upperSpatialUnitId)
 									url = kommonitorDataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() +
 									"/spatial-units/" + upperSpatialUnitId + "/" + datePath;
+
 								//send request
 								console.log(url);
 								await $http({
@@ -492,7 +516,10 @@ angular
 								});
 							};
 
-							$scope.onChangeShowManualSelection = async function() {
+							$scope.onChangeShowManualSelection = async function(checked) {
+
+								$scope.showManualSelectionSpatialFilter = checked;
+
 								// return if toggle was deactivated
 								if(!$scope.showManualSelectionSpatialFilter)
 									$scope.onManualSelectionSpatialFilterResetBtnPressed();						
@@ -502,7 +529,10 @@ angular
 								}
 							};
 
-							$scope.onChangeShowSelectionByFeature = async function() {
+							$scope.onChangeShowSelectionByFeature = async function(checked) {
+
+								$scope.showSelectionByFeatureSpatialFilter = checked;
+
 								// return if toggle was deactivated
 								if(!$scope.showSelectionByFeatureSpatialFilter)
 									$scope.onSelectionByFeatureSpatialFilterResetBtnPressed();
@@ -512,8 +542,11 @@ angular
 								}
 							};
 
-							$scope.onChangeSelectedSpatialUnitForFilter = function(){
-								if ($scope.showSelectionByFeatureSpatialFilter)
+							$scope.onChangeSelectedSpatialUnitForFilter = function(selectedSpatialUnit){
+
+								$scope.selectedSpatialUnitForFilter = selectedSpatialUnit;
+
+								if ($scope.showSelectionByFeatureSpatialFilter) 
 									$scope.updateSelectableAreas("byFeature");
 
 								if($scope.showManualSelectionSpatialFilter){

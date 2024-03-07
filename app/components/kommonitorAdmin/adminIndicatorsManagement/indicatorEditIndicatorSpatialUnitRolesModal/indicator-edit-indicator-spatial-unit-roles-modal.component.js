@@ -19,7 +19,7 @@ angular.module('indicatorEditIndicatorSpatialUnitRolesModal').component('indicat
 			$scope.currentIndicatorDataset = indicatorDataset;
 
 			$scope.resetIndicatorEditIndicatorSpatialUnitRolesForm();
-			kommonitorMultiStepFormHelperService.registerClickHandler();
+			kommonitorMultiStepFormHelperService.registerClickHandler("indicatorEditIndicatorSpatialUnitRolesForm");
 
 		});
 

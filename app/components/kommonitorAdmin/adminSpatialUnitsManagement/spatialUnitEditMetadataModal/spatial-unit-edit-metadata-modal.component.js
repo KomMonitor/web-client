@@ -107,7 +107,7 @@ angular.module('spatialUnitEditMetadataModal').component('spatialUnitEditMetadat
 
 			$scope.resetSpatialUnitEditMetadataForm();
 
-			kommonitorMultiStepFormHelperService.registerClickHandler();
+			kommonitorMultiStepFormHelperService.registerClickHandler("spatialUnitEditMetadataForm");
 
 		});
 

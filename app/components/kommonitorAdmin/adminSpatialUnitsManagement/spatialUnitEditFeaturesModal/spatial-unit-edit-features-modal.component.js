@@ -78,6 +78,8 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
         $scope.validityEndDate_perFeature = undefined;
         $scope.validityStartDate_perFeature = undefined;
 
+		$scope.isPartialUpdate = false;
+
         $scope.attributeMapping_sourceAttributeName = undefined;
         $scope.attributeMapping_destinationAttributeName = undefined;
         $scope.attributeMapping_data = undefined;
@@ -91,7 +93,7 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
         $scope.errorMessagePart = undefined;
 
 		$scope.$on("onEditSpatialUnitFeatures", function (event, spatialUnitDataset) {
-            kommonitorMultiStepFormHelperService.registerClickHandler();
+            kommonitorMultiStepFormHelperService.registerClickHandler("spatialUnitEditFeaturesForm");
             if($scope.currentSpatialUnitDataset && $scope.currentSpatialUnitDataset.spatialUnitLevel === spatialUnitDataset.spatialUnitLevel) {
                 return;
             } else {
@@ -266,6 +268,8 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 
 			$scope.validityEndDate_perFeature = undefined;
 			$scope.validityStartDate_perFeature = undefined;
+
+			$scope.isPartialUpdate = false;
 
 			$scope.attributeMapping_sourceAttributeName = undefined;
 			$scope.attributeMapping_destinationAttributeName = undefined;

@@ -32,6 +32,10 @@ angular
         */
       this.mapPartsMap = new Map();
 
+      this.getMapParts_byDomId = function(domId){
+        return this.mapPartsMap.get(domId);
+      }
+
       this.initReachabilityGeoMap = function (domId) {
         // init leaflet map
         let mapParts = this.mapPartsMap.get(domId);
@@ -77,51 +81,21 @@ angular
         
         if (!overridedPluginOptions) {
           overridedPluginOptions = {
-
+            quality: 0.95
           }
         }
         if (mapParts && mapParts.map && mapParts.screenshoter) {
-          return await mapParts.screenshoter.takeScreen(format, overridedPluginOptions).then(image => {
-            return image;
-          }).catch(e => {
-            console.error(e)
-          })
-        }
-      };
 
-      this.takeScreenshot_blob = async function (domId, overridedPluginOptions) {
-        let mapParts = this.mapPartsMap.get(domId);
+          var node = document.getElementById(domId);
 
-        let format = "blob";
-        if (!overridedPluginOptions) {
-          overridedPluginOptions = {
-
-          }
-        }
-        if (mapParts && mapParts.map && mapParts.screenshoter) {
-          return await mapParts.screenshoter.takeScreen(format, overridedPluginOptions).then(blob => {
-            return blob;
-          }).catch(e => {
-            console.error(e)
-          })
-        }
-      };
-
-      this.takeScreenshot_canvas = async function (domId, overridedPluginOptions) {
-        let mapParts = this.mapPartsMap.get(domId);
-
-        let format = "canvas";
-        if (!overridedPluginOptions) {
-          overridedPluginOptions = {
-
-          }
-        }
-        if (mapParts && mapParts.map && mapParts.screenshoter) {
-          return await mapParts.screenshoter.takeScreen(format, overridedPluginOptions).then(canvas => {
-            return canvas;
-          }).catch(e => {
-            console.error(e)
-          })
+          return await domtoimage
+              .toJpeg(node, overridedPluginOptions)
+              .then(function (dataUrl) {
+                return dataUrl;
+              })
+              .catch(function (error) {
+                  console.error('oops, something went wrong!', error);
+              });
         }
       };
 
@@ -145,6 +119,29 @@ angular
           kommonitorGenericMapHelperService.zoomToLayer(mapParts.map, mapParts.isochroneLayers.isochroneLayer);
         }
       };
+
+      this.zoomToIndicatorLayer = function (domId) {
+        let mapParts = this.mapPartsMap.get(domId);
+        if (mapParts && mapParts.map && mapParts.indicatorStatistics && mapParts.indicatorStatistics.indicatorLayer) {
+          kommonitorGenericMapHelperService.zoomToLayer(mapParts.map, mapParts.indicatorStatistics.indicatorLayer);
+        }
+      };
+
+      this.zoomToIndicatorFeature = function(domId, feature){
+        let mapParts = this.mapPartsMap.get(domId);
+        if (mapParts && mapParts.map && mapParts.indicatorStatistics && mapParts.indicatorStatistics.indicatorLayer) {
+          for (const layerKey in mapParts.indicatorStatistics.indicatorLayer._layers) {
+            if (Object.hasOwnProperty.call(mapParts.indicatorStatistics.indicatorLayer._layers, layerKey)) {
+              const layer = mapParts.indicatorStatistics.indicatorLayer._layers[layerKey];
+              
+              if(layer.feature.properties[__env.FEATURE_ID_PROPERTY_NAME] == feature.properties[__env.FEATURE_ID_PROPERTY_NAME]){
+                mapParts.map.fitBounds(layer.getBounds());
+                mapParts.map.invalidateSize(true);
+              }
+            }
+          }          
+        }
+      }
 
       this.zoomToMarkerLayer = function (domId) {
         let mapParts = this.mapPartsMap.get(domId);
@@ -535,7 +532,9 @@ angular
         let mapParts = this.mapPartsMap.get(domId);
 
         // remember this domId in order to use it in an on click event for a leaflet point
-        this.domId_indicatorStatistics = domId;
+        if(domId != "leaflet_map_poi_individual_indicator_coverage"){
+          this.domId_indicatorStatistics = domId;
+        }        
 
         if (mapParts && mapParts.map)
           kommonitorGenericMapHelperService.clearMap(mapParts.map);
@@ -595,6 +594,9 @@ angular
           kommonitorGenericMapHelperService.removeLayerFromMap(mapParts.map, indicatorLayer);
           kommonitorGenericMapHelperService.removeLayerFromLayerControl(mapParts.layerControl, indicatorLayer);
         }
+        if (mapParts && mapParts.indicatorLegendControl) {
+          kommonitorGenericMapHelperService.removeControlFromMap(mapParts.map, mapParts.indicatorLegendControl);
+        }
       };
 
       this.fetchIndicatorForSpatialUnit = async function (indicatorId, spatialUnitId, timestamp) {
@@ -622,7 +624,7 @@ angular
       * binds the popup of a clicked output
       * to layer.feature.properties.popupContent
       */
-      this.onEachFeatureIndicator = function (feature, layer, indicatorProperty) {
+      this.onEachFeatureIndicator = function (feature, layer, indicatorProperty, indicatorStatisticsCandidate) {
         var indicatorValue = feature.properties[indicatorProperty];
         var indicatorValueText;
         if (kommonitorDataExchangeService.indicatorValueIsNoData(indicatorValue)) {
@@ -632,13 +634,33 @@ angular
           indicatorValueText = kommonitorDataExchangeService.getIndicatorValue_asFormattedText(indicatorValue);
         }
         var tooltipHtml = "<b>" + feature.properties[__env.FEATURE_NAME_PROPERTY_NAME] + "</b><br/>" + indicatorValueText + " [" + kommonitorDataExchangeService.selectedIndicator.unit + "]";
+
+        // tooltipHtml += "<br><br>Report aller schneidenden Einzugsgebiete <br> durch anklicken der Raumeinheit aufrufbar";
         layer.bindTooltip(tooltipHtml, {
           sticky: false // If true, the tooltip will follow the mouse instead of being fixed at the feature center.
         });
 
+        // let popupHtml = "<b>" + feature.properties[__env.FEATURE_NAME_PROPERTY_NAME] + "</b><br/>" + indicatorValueText + " [" + kommonitorDataExchangeService.selectedIndicator.unit + "]";
+        // popupHtml += `
+        
+        // <button class="btn btn-warning" style="margin-top: 5px;" title="PDF-Report - Einzelpunkte mit Karte" 
+        //  id="spatialUnitIndicatorCoverageFilterButton" 
+        //  `;
+        // // popupHtml += `onclick="onclickSpatialUnitIndicatorCoverageFilterButton('spatialUnitIndicatorCoverageFilterButton', ` + feature.properties[__env.FEATURE_ID_PROPERTY_NAME] + `)">`
+        // // popupHtml += `onclick="onclick_spatialUnitIndicatorCoverageFilterButton('spatialUnitIndicatorCoverageFilterButton', feature, indicatorStatisticsCandidate)">`
+        // popupHtml += ` <i class="fa-solid fa-file-pdf"></i>
+        //   <i class="fa-solid fa-map-location-dot"></i>
+        //   <span class="glyphicon glyphicon-refresh icon-spin" ng-show="$ctrl.kommonitorReachabilityCoverageReportsHelperServiceInstance.reportInProgress_poiCoverage"></span>
+        // </button>	
+        // <span style="font-size:9px;" >&nbsp;(~ 1,5 Sekunden pro Punkt)</span>
+        
+        // `;
+
+        // layer.bindPopup(popupHtml);
+
       };
 
-      this.generateIndicatorLayer = async function (indicatorMetadataAndGeoJSON, indicatorPropertyName, defaultBrew) {
+      this.generateIndicatorLayer = async function (indicatorMetadataAndGeoJSON, indicatorPropertyName, defaultBrew, indicatorStatisticsCandidate) {
 
         let outlierDetection_currentGLobalValue = kommonitorDataExchangeService.useOutlierDetectionOnIndicator;
         kommonitorDataExchangeService.useOutlierDetectionOnIndicator = false;
@@ -647,7 +669,7 @@ angular
             return kommonitorVisualStyleHelperService.styleDefault(feature, defaultBrew, undefined, undefined, indicatorPropertyName, true, false);
           },
           onEachFeature: function (feature, layer) {
-            return self.onEachFeatureIndicator(feature, layer, indicatorPropertyName);
+            return self.onEachFeatureIndicator(feature, layer, indicatorPropertyName, indicatorStatisticsCandidate);
           }
         });
 
@@ -685,19 +707,39 @@ angular
         return indicatorMetadataAndGeoJSON;
       }
 
+      this.getMapsParts_byDomId = function(domId){
+        return this.mapPartsMap.get(domId);
+      }
+
       this.replaceReachabilityIndicatorStatisticsOnMap = async function (domId, poiDataset, original_nonDissolved_isochrones, indicatorStatisticsCandidate) {
         let mapParts = this.mapPartsMap.get(domId);
 
         this.removeOldLayers_reachabilityIndicatorStatistics(domId);
+
+        // // register click handler on spatialUnitIndicatorCoverageFilterButton
+        // // and poiIndicatorCoverageFilterButton
+        // mapParts.map.on('popupopen', function(e) {
+        //   var spatialUnitLayer = e.popup._source;
+        //   // popup maybe either for an indicator feature 
+        //   // or for an isochrone starting point marker
+
+        //   $("#spatialUnitIndicatorCoverageFilterButton").on("click", function(event){        
+        //     spatialUnitLayer.feature.properties[__env.FEATURE_ID_PROPERTY_NAME];
+        //     console.log("ID: " + spatialUnitLayer.feature.properties[__env.FEATURE_ID_PROPERTY_NAME]);
+
+        //     kommonitorReachabilityCoverageReportsHelperService.generateFeatureCoverageReport_focusPoiCoverage_forSpatialUnit(kommonitorReachabilityScenarioHelperService.tmpActiveScenario, indicatorStatisticsCandidate, spatialUnitLayer.feature.properties[__env.FEATURE_ID_PROPERTY_NAME]);
+        //   })
+        // });
 
         let indicatorMetadataAndGeoJSON = await this.setupIndicator(indicatorStatisticsCandidate);
         let timestamp = indicatorStatisticsCandidate.timestamp;
         let indicatorPropertyName = __env.indicatorDatePrefix + timestamp;
         let defaultBrew = kommonitorVisualStyleHelperService.setupDefaultBrew(indicatorMetadataAndGeoJSON.geoJSON, indicatorPropertyName, indicatorMetadataAndGeoJSON.defaultClassificationMapping.items.length, indicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName, kommonitorVisualStyleHelperService.classifyMethod);
 
-        let indicatorLayer = await this.generateIndicatorLayer(indicatorMetadataAndGeoJSON, indicatorPropertyName, defaultBrew);
+        let indicatorLayer = await this.generateIndicatorLayer(indicatorMetadataAndGeoJSON, indicatorPropertyName, defaultBrew, indicatorStatisticsCandidate);
         let indicatorLegendControl = this.generateIndicatorLegend(defaultBrew, indicatorMetadataAndGeoJSON);
         indicatorLegendControl.addTo(mapParts.map);
+        mapParts.indicatorLegendControl = indicatorLegendControl;
 
         // generate poiLayer from POI geometries, original_undissolved isochrones per POI and isochrone prune Result per poi_and_undissolved_isochrone
         let poiLayer = this.generatePoiLayerForIndicatorStatistic(poiDataset, original_nonDissolved_isochrones, indicatorStatisticsCandidate);
@@ -852,19 +894,46 @@ angular
         return html;
       };
 
-      this.onClickPoiMarker_indicatorStatistics = function (event) {
+      this.onClickPoiMarker_indicatorStatistics = function (event) {        
 
-        let mapParts = self.mapPartsMap.get(self.domId_indicatorStatistics);
+        self.removeSinglePoiIsochroneLayer(self.domId_indicatorStatistics);      
+
+        let feature = event.target.feature;        
+
+        let poiIsochroneLayer = self.generateSinglePoiIsochroneLayer(feature);        
+
+        self.addSinglePoiIsochroneLayer(self.domId_indicatorStatistics, feature, poiIsochroneLayer, false)
+      };
+
+      this.removeSinglePoiIsochroneLayer = function(domId){
+        let mapParts = self.mapPartsMap.get(domId);
 
         //remove any old layer
         if (mapParts && mapParts.indicatorStatistics && mapParts.indicatorStatistics.poiIsochroneLayer && mapParts.layerControl) {
           mapParts.layerControl.removeLayer(mapParts.indicatorStatistics.poiIsochroneLayer);
           mapParts.map.removeLayer(mapParts.indicatorStatistics.poiIsochroneLayer);
+        }   
+        self.mapPartsMap.set(domId, mapParts);
+      };
+
+      this.addSinglePoiIsochroneLayer = function(domId, feature, poiIsochroneLayer, zoomToLayer) {
+        let mapParts = self.mapPartsMap.get(domId);
+
+        mapParts.indicatorStatistics.poiIsochroneLayer = poiIsochroneLayer;
+
+        mapParts.layerControl.addOverlay(mapParts.indicatorStatistics.poiIsochroneLayer, "Isochronen um Punkt '" + feature.properties[__env.FEATURE_NAME_PROPERTY_NAME] + "'");
+        mapParts.indicatorStatistics.poiIsochroneLayer.addTo(mapParts.map);
+
+        if(zoomToLayer) {
+          mapParts.map.fitBounds(mapParts.indicatorStatistics.poiIsochroneLayer.getBounds());
         }
 
-        mapParts.indicatorStatistics.poiIsochroneLayer = L.featureGroup();
+        self.invalidateMap(domId);
+        self.mapPartsMap.set(domId, mapParts);
+      };
 
-        let feature = event.target.feature;
+      this.generateSinglePoiIsochroneLayer = function(feature){
+        let poiIsochroneLayer = L.featureGroup();
         // array of GeoJSON features
         let isochrones = feature.properties.individualIsochrones;
 
@@ -885,19 +954,14 @@ angular
           L.geoJSON(isochrones[index], {
             style: style,
             onEachFeature: self.onEachFeature_isochrones
-          }).addTo(mapParts.indicatorStatistics.poiIsochroneLayer);
+          }).addTo(poiIsochroneLayer);
         }
 
-        mapParts.layerControl.addOverlay(mapParts.indicatorStatistics.poiIsochroneLayer, "Isochronen um Punkt '" + feature.properties[__env.FEATURE_NAME_PROPERTY_NAME] + "'");
-        mapParts.indicatorStatistics.poiIsochroneLayer.addTo(mapParts.map);
-
-        self.invalidateMap(self.domId_indicatorStatistics);
-
-        self.mapPartsMap.set(self.domId_indicatorStatistics, mapParts);
-      };
+        return poiIsochroneLayer;
+      }
 
       this.generatePoiMarkers_indicatorStatistics = function (poiDataset, indicatorStatisticsCandidate) {
-        let markers = this.generatePoiMarkers(poiDataset, false, "geoJSON");
+        let markers = this.generatePoiMarkers(poiDataset, false, "geoJSON_reachability");
 
         // now replace bindPopup method and add click interaction event
 

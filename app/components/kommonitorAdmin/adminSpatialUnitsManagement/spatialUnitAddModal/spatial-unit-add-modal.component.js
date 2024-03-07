@@ -442,7 +442,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 				"isOutlineLayer": $scope.isOutlineLayer,
 				"outlineColor": $scope.outlineColor,
 				"outlineWidth": $scope.outlineWidth,
-				"outlineDashArrayString": $scope.outlineDashArrayObject.dashArrayValue
+				"outlineDashArrayString": $scope.selectedOutlineDashArrayObject.dashArrayValue
 			};
 
 			let roleIds = kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid($scope.roleManagementTableOptions);
@@ -964,7 +964,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 			};
 
 
-			kommonitorMultiStepFormHelperService.registerClickHandler();			
+			kommonitorMultiStepFormHelperService.registerClickHandler("spatialUnitAddForm");			
 
 	}
 ]});

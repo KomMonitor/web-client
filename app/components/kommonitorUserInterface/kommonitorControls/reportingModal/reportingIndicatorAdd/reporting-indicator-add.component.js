@@ -5,14 +5,16 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 	function ReportingIndicatorAddController($scope, $http, $timeout, $interval, __env, kommonitorDataExchangeService, kommonitorDiagramHelperService, 
 		kommonitorVisualStyleHelperService, kommonitorReachabilityHelperService) {
 
+		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
+
 		$scope.template = undefined;
 		$scope.untouchedTemplateAsString = "";
 		
 		$scope.indicatorNameFilter = "";
 		$scope.poiNameFilter = "";
-		$scope.availableIndicators = [];
 		$scope.selectedIndicator = undefined;
 		$scope.selectedPoiLayer = undefined;
+		$scope.availablePoiLayers = [];
 
 		$scope.availableFeaturesBySpatialUnit = {};
 		$scope.selectedSpatialUnit = undefined;
@@ -527,7 +529,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			$scope.initialize(data);
 		});
 
-		$scope.initialize = async function(data) {
+		$scope.initialize = function(data) {
 			$scope.loadingData = true;
 			let template = data[0];
 			// deep copy template before any changes are made.
@@ -564,29 +566,9 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 			$scope.initializeDualLists();
 
-			if($scope.template.name.includes("reachability")) {
-				$scope.resetIsochrones();
-				Promise.all([
-					$scope.queryGeoresources(),
-					$scope.queryIndicators()
-				]).then( () => {
-					$scope.loadingData = false;
-					$timeout( () => {
-						$timeout(function(){
-							$scope.$digest();
-						});
-					});
-				})
-			} else {
-				await $scope.queryIndicators();
-				$scope.loadingData = false;
-				$timeout( () => {
-					$timeout(function(){
-						$scope.$digest();
-					});
-				})
-				
-			}
+			$scope.availablePoiLayers = kommonitorDataExchangeService.availableGeoresources.filter(georesource => georesource.isPOI);
+
+			$scope.loadingData = false;
 		}
 
 		$scope.initializeDualLists = function() {
@@ -615,52 +597,6 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			};
 		}
 
-		/**
-		 * Queries DataManagement API to get all available indicators
-		 */
-		$scope.queryIndicators = async function() {
-			
-			// build request
-			// query public endpoint for now, this might change once user role administration is added to reporting
-			let url = kommonitorDataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/indicators"
-			
-			// send request
-			await $http({
-				url: url,
-				method: "GET"
-			}).then(function successCallback(response) {
-					// save to scope
-					$scope.availableIndicators = response.data;
-				}, function errorCallback(error) {
-					$scope.loadingData = false;
-					kommonitorDataExchangeService.displayMapApplicationError(error);
-					console.error(error);
-			});
-			return Promise.resolve();
-		};
-
-		$scope.queryGeoresources = async function() {
-			
-			// build request
-			// query public endpoint for now, this might change once user role administration is added to reporting
-			let url = kommonitorDataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/georesources"
-			// send request
-			await $http({
-				url: url,
-				method: "GET"
-			}).then(function successCallback(response) {
-					// save to scope
-					$scope.availablePoiLayers = response.data.filter( georesource => {
-						return georesource.isPOI;
-					});
-				}, function errorCallback(error) {
-					$scope.loadingData = false;
-					kommonitorDataExchangeService.displayMapApplicationError(error);
-					console.error(error);
-			});
-			return Promise.resolve();
-		};
-
 		$scope.queryMostRecentGeoresourceFeatures = async function(georesource) {
 			// Most likely this is only a temporary method
 			// It checks the availablePeriodsOfValidity and takes the most recent one to query features.
@@ -678,25 +614,6 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				url: url,
 				method: "GET"
 			}).then(function successCallback(response) {
-					return response.data;
-				}, function errorCallback(error) {
-					$scope.loadingData = false;
-					kommonitorDataExchangeService.displayMapApplicationError(error);
-					console.error(error);
-			});
-		}
-
-		$scope.queryAllSpatialUnits = async function() {
-			// build request
-			// query public endpoint for now, this might change once user role administration is added to reporting
-			let url = kommonitorDataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/spatial-units"
-			
-			// send request
-			return await $http({
-				url: url,
-				method: "GET"
-			}).then(function successCallback(response) {
-					// save to scope
 					return response.data;
 				}, function errorCallback(error) {
 					$scope.loadingData = false;
@@ -1172,7 +1089,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				// Indicator might not be selected at this point
 				// We get information about all available spatial units (instead of applicable ones)
 				// Then we select the highest one by default
-				let spatialUnits = await $scope.queryAllSpatialUnits();
+				let spatialUnits = kommonitorDataExchangeService.availableSpatialUnits;
 				$scope.allSpatialUnitsForReachability = spatialUnits; // needed for spatial unit selection in 3rd tab
 				let highestSpatialUnit = spatialUnits.filter( unit => {
 					return unit.nextUpperHierarchyLevel === null;
@@ -1425,7 +1342,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				$scope.template = $scope.getCleanTemplate();
 				
 				// set spatial unit to highest available one
-				let spatialUnits = await $scope.queryAllSpatialUnits();
+				let spatialUnits = kommonitorDataExchangeService.availableSpatialUnits;
 				// go from highest to lowest spatial unit and check if it is available.
 				for(let spatialUnit of spatialUnits) {
 					let applicableSpatialUnitsFiltered = $scope.selectedIndicator.applicableSpatialUnits.filter( (unit) => {
@@ -1548,7 +1465,6 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			$scope.untouchedTemplateAsString = "";
 			$scope.indicatorNameFilter = "";
 			$scope.poiNameFilter = "";
-			$scope.availableIndicators = [];
 			$scope.selectedIndicator = undefined;
 			$scope.availableFeaturesBySpatialUnit = {};
 			$scope.selectedSpatialUnit = undefined;

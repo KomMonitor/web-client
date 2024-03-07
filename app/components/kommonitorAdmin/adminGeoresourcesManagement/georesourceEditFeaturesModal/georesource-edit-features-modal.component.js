@@ -80,7 +80,7 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 		$scope.importerErrors = undefined;
 
 		$scope.$on("onEditGeoresourceFeatures", function (event, georesourceDataset) {
-			kommonitorMultiStepFormHelperService.registerClickHandler();	
+			kommonitorMultiStepFormHelperService.registerClickHandler("georesourceEditFeaturesForm");	
 			if($scope.currentGeoresourceDataset && $scope.currentGeoresourceDataset.datasetName === georesourceDataset.datasetName){
 				return;
 			}
