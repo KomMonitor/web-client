@@ -273,6 +273,14 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 					}
 				}
 			}
+			else {
+				for(const classBreak of $scope.spatialUnitClassification[tabIndex].breaks) {
+					if (classBreak !== null) {
+						cssClass = 'tab-error';
+						$scope.classBreaksInvalid = true;
+					}
+				}
+			}
 			$scope.tabClasses[tabIndex] = cssClass;
 		}
 
