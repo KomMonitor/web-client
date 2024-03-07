@@ -1,35 +1,67 @@
 angular.module('topicEditModal').component('topicEditModal', {
 	templateUrl : "components/kommonitorAdmin/adminTopicsManagement/topicEditModal/topic-edit-modal.template.html",
-	controller : ['kommonitorDataExchangeService', '$scope', '$rootScope', '$http', '__env', '$timeout',function TopicEditModalController(kommonitorDataExchangeService, $scope, $rootScope, $http, __env, $timeout) {
+	controller : ['kommonitorDataExchangeService', '$scope', '$rootScope', '$http', '__env', 
+	'kommonitorMultiStepFormHelperService', 'kommonitorDataGridHelperService','$timeout',
+	function TopicEditModalController(kommonitorDataExchangeService, $scope, $rootScope, $http, __env, 
+		kommonitorMultiStepFormHelperService, kommonitorDataGridHelperService, $timeout) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 
 		$scope.currentTopic;
+		$scope.metadata = [];
+		$scope.metadata.topicId = undefined;
+		$scope.metadata.name = undefined;
+		$scope.metadata.description = undefined;
+		$scope.metadata.topicType = undefined;
+		$scope.metadata.topicResource = undefined;
+		$scope.metadata.subTopics = undefined;
+		$scope.metadata.isPublic = false;
 
 		$scope.loadingData = false;
 
 		$scope.errorMessagePart = undefined;
+		$scope.roleManagementTableOptions = undefined;	
 
 		$scope.$on("onEditTopic", function (event, topic) {
 
 			$scope.currentTopic = topic;
+
+			$scope.metadata.topicId = $scope.currentTopic.topicId;
+			$scope.metadata.name = $scope.currentTopic.topicName;
+			$scope.metadata.description = $scope.currentTopic.topicDescription;
+			$scope.metadata.topicType = $scope.currentTopic.topicType;
+			$scope.metadata.topicResource = $scope.currentTopic.topicResource;
+			$scope.metadata.subTopics = $scope.currentTopic.subTopics;
+
+			refreshRoles();
 		});
 
-		$scope.updateTopic = function(topic){
+		function refreshRoles() {			
+
+			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('topicEditRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, [], true);	
+		}
+
+		$scope.updateTopic = function(){
 			$scope.loadingData = true;
 
-			var topicId = topic.topicId;
 
 			var putBody = {
-			  "topicName": topic.topicName,
-			  "topicDescription": topic.topicDescription,
-			  "topicType": topic.topicType,
-			  "topicResource": topic.topicResource,
-			  "subTopics": topic.subTopics
-			};
+				"topicName": $scope.metadata.name,
+				"topicDescription": $scope.metadata.dscription,
+				"topicType": $scope.metadata.topicType,
+				"topicResource": $scope.metadata.topicResource,
+				"subTopics": $scope.metadata.subTopics,
+				"resourcePermissions": [],
+				"isPublic": $scope.metadata.isPublic
+			  };
+
+			let roleIds = kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid($scope.roleManagementTableOptions);
+			for (const roleId of roleIds) {
+				putBody.resourcePermissions.push(roleId);
+			}
 
 			$http({
-				url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/topics/" + topicId,
+				url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/topics/" + $scope.metadata.topicId,
 				method: "PUT",
 				data: putBody
 				// headers: {
@@ -68,13 +100,25 @@ angular.module('topicEditModal').component('topicEditModal', {
 			});
 		};
 
-			$scope.hideSuccessAlert = function(){
-				$("#topicEditMetadataSuccessAlert").hide();
-			};
+		$scope.resetTopicEditForm = function() {
+			
+			$scope.errorMessagePart = undefined;
+			$scope.metadata.name = $scope.currentTopic.topicName;
+			$scope.metadata.description = $scope.currentTopic.topicDescription;
+			
+			refreshRoles();
+			//todo: beim anlegen eines topics hinweis, dass standard-rechte vergeben werden können
+		}
 
-			$scope.hideErrorAlert = function(){
-				$("#topicEditMetadataErrorAlert").hide();
-			};
+		$scope.hideSuccessAlert = function(){
+			$("#topicEditMetadataSuccessAlert").hide();
+		};
 
+		$scope.hideErrorAlert = function(){
+			$("#topicEditMetadataErrorAlert").hide();
+		};
+
+			
+		kommonitorMultiStepFormHelperService.registerClickHandler("topicEditForm");		
 	}
 ]});
