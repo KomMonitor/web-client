@@ -43,6 +43,7 @@ angular
 							var dateComponents = selectedDate.split("-");
 							$scope.dateAsDate = new Date(Number(dateComponents[0]), Number(dateComponents[1]) - 1, Number(dateComponents[2]));
 							
+							$rootScope.$broadcast("updateClassificationComponent", $scope.containsZeroValues, $scope.containsNegativeValues, $scope.containsNoData, $scope.containsOutliers_high, $scope.containsOutliers_low, $scope.outliers_low, $scope.outliers_high, kommonitorDataExchangeService.selectedDate);
 						});
 
 						$scope.onChangeIndicatorDatepickerDate = function(){

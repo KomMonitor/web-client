@@ -1125,7 +1125,7 @@ angular.module('kommonitorMap').component(
               kommonitorVisualStyleHelperService.dynamicBrew[0].breaks = breaks[0];
             }
             $rootScope.$apply();
-          }, 350);
+          }, 1);
           $scope.updateManualMOVBreaksFromDefaultManualBreaks();
 
           $rootScope.$broadcast("restyleCurrentLayer", false);
@@ -2818,7 +2818,8 @@ angular.module('kommonitorMap').component(
           ltBreaks.shift()
           gtBreaks.pop();
 
-          if ($scope.indicatorTypeOfCurrentLayer.includes('DYNAMIC')) {
+          if ($scope.indicatorTypeOfCurrentLayer.includes('DYNAMIC')
+            || $scope.datasetContainsNegativeValues) {
             let decreaseBreaks = [];
             let increaseBreaks = [];
             gtBreaks.forEach((br) => {
@@ -2848,7 +2849,7 @@ angular.module('kommonitorMap').component(
           let ltBreaks = [];
           let breaks = [];
 
-          if ($scope.indicatorTypeOfCurrentLayer.includes('DYNAMIC')) {
+          if ($scope.indicatorTypeOfCurrentLayer.includes('DYNAMIC') || $scope.datasetContainsNegativeValues) {
             let decreaseBreaks = $scope.dynamicDecreaseBrew ? $scope.dynamicDecreaseBrew.breaks : [];
             let increaseBreaks = $scope.dynamicIncreaseBrew ? $scope.dynamicIncreaseBrew.breaks : [];
             breaks = [...decreaseBreaks, ...increaseBreaks]

@@ -19,9 +19,17 @@ angular
 						$scope.nrOfDraggingBreak = null;
 						$scope.dynamicDraggingSite = 0;
 
+						$scope.containsZeroValues = false;
+						$scope.containsNegativeValues = false;
+
 						kommonitorVisualStyleHelperService.numClasses = 5;
 
 						kommonitorVisualStyleHelperService.classifyMethod = __env.defaultClassifyMethod || "jenks";
+
+						$rootScope.$on("updateClassificationComponent", function(event, containsZeroValues, containsNegativeValues, containsNoData, containsOutliers_high, containsOutliers_low, outliers_low, outliers_high, selectedDate) {
+							$scope.containsZeroValues = containsZeroValues;
+							$scope.containsNegativeValues = containsNegativeValues;
+						});
 
 						$scope.onMethodSelected = function (method) {
 							$scope.methodName = method.name;
@@ -53,7 +61,8 @@ angular
 
 						$scope.addNewBreaks = function (site) {
 							if((!kommonitorDataExchangeService.isBalanceChecked 
-								&& !kommonitorDataExchangeService.selectedIndicator.indicatorType.includes('DYNAMIC')) 
+								&& !kommonitorDataExchangeService.selectedIndicator.indicatorType.includes('DYNAMIC')
+								&& !$scope.containsNegativeValues) 
 								|| kommonitorDataExchangeService.isMeasureOfValueChecked) {
 								$scope.addNewBreak();
 							}
@@ -80,7 +89,8 @@ angular
 									}
 
 									if((kommonitorDataExchangeService.isBalanceChecked 
-										|| kommonitorDataExchangeService.selectedIndicator.indicatorType.includes('DYNAMIC')) 
+										|| kommonitorDataExchangeService.selectedIndicator.indicatorType.includes('DYNAMIC')
+										|| $scope.containsNegativeValues)
 										&& kommonitorDataExchangeService.isMeasureOfValueChecked) {
 										$scope.updateDynamicBreaksFromManualBreaks();
 									}
@@ -126,7 +136,8 @@ angular
 						}
 
 						$scope.breakIsUnalterable = function (br) {
-							if(kommonitorDataExchangeService.selectedIndicator.indicatorType.includes('DYNAMIC')){
+							if(kommonitorDataExchangeService.selectedIndicator.indicatorType.includes('DYNAMIC')
+								|| $scope.containsNegativeValues){
 								if(kommonitorVisualStyleHelperService.dynamicBrewBreaks) {
 									if(kommonitorVisualStyleHelperService.dynamicBrewBreaks[1]) {
 										if(br == kommonitorVisualStyleHelperService.dynamicBrewBreaks[1][0]){
@@ -151,7 +162,8 @@ angular
 
 						$scope.deleteBreak = function (i, site) {
 							if((kommonitorDataExchangeService.isBalanceChecked 
-								|| kommonitorDataExchangeService.selectedIndicator.indicatorType.includes('DYNAMIC'))) {
+								|| kommonitorDataExchangeService.selectedIndicator.indicatorType.includes('DYNAMIC')
+								|| $scope.containsNegativeValues)) {
 								if(kommonitorDataExchangeService.isMeasureOfValueChecked) {
 									kommonitorVisualStyleHelperService.manualBrew.breaks.splice(i, 1);
 									$rootScope.$broadcast("changeBreaks", kommonitorVisualStyleHelperService.manualBrew.breaks);
@@ -193,7 +205,8 @@ angular
 								$rootScope.$broadcast("changeBreaks", kommonitorVisualStyleHelperService.manualBrew.breaks);
 								
 								if((kommonitorDataExchangeService.isBalanceChecked 
-									|| kommonitorDataExchangeService.selectedIndicator.indicatorType.includes('DYNAMIC')) 
+									|| kommonitorDataExchangeService.selectedIndicator.indicatorType.includes('DYNAMIC')
+									|| $scope.containsNegativeValues)
 									&& kommonitorDataExchangeService.isMeasureOfValueChecked) {
 									$scope.updateDynamicBreaksFromManualBreaks();
 								}
@@ -224,7 +237,8 @@ angular
 
 						$scope.onBreakDblClick = function (e, i, site) { // todo
 							if((!kommonitorDataExchangeService.isBalanceChecked 
-								&& !kommonitorDataExchangeService.selectedIndicator.indicatorType.includes('DYNAMIC'))
+								&& !kommonitorDataExchangeService.selectedIndicator.indicatorType.includes('DYNAMIC')
+								&& !$scope.containsNegativeValues)
 								|| kommonitorDataExchangeService.isMeasureOfValueChecked) {
 								if (i == 0 || i == kommonitorVisualStyleHelperService.manualBrew.breaks.length-1 || $scope.breakIsUnalterable(kommonitorVisualStyleHelperService.manualBrew.breaks[i])) {
 									return;
@@ -302,7 +316,8 @@ angular
 						$scope.getMaxValue = function (site)  {
 							let breaks = null;
 							if((!kommonitorDataExchangeService.isBalanceChecked 
-								&& !kommonitorDataExchangeService.selectedIndicator.indicatorType.includes('DYNAMIC'))
+								&& !kommonitorDataExchangeService.selectedIndicator.indicatorType.includes('DYNAMIC')
+								&& !$scope.containsNegativeValues)
 								|| kommonitorDataExchangeService.isMeasureOfValueChecked) {
 								breaks = kommonitorVisualStyleHelperService.manualBrew.breaks;
 							}
@@ -325,7 +340,8 @@ angular
 						}
 						$scope.getMinValue = function (site) {
 							if((!kommonitorDataExchangeService.isBalanceChecked 
-								&& !kommonitorDataExchangeService.selectedIndicator.indicatorType.includes('DYNAMIC'))
+								&& !kommonitorDataExchangeService.selectedIndicator.indicatorType.includes('DYNAMIC')
+								&& !$scope.containsNegativeValues)
 								|| kommonitorDataExchangeService.isMeasureOfValueChecked) {
 								return kommonitorVisualStyleHelperService.manualBrew.breaks[0];
 							}
@@ -354,7 +370,8 @@ angular
 						}
 						$scope.onBreaksMouseMove = function (e, site) {
 							if((!kommonitorDataExchangeService.isBalanceChecked 
-								&& !kommonitorDataExchangeService.selectedIndicator.indicatorType.includes('DYNAMIC'))
+								&& !kommonitorDataExchangeService.selectedIndicator.indicatorType.includes('DYNAMIC')
+								&& !$scope.containsNegativeValues)
 								|| kommonitorDataExchangeService.isMeasureOfValueChecked) {
 								$scope.onBreakMouseMove(e);
 							}
@@ -384,7 +401,8 @@ angular
 											});
 											$rootScope.$broadcast("changeBreaks", kommonitorVisualStyleHelperService.manualBrew.breaks);
 											if((kommonitorDataExchangeService.isBalanceChecked 
-												|| kommonitorDataExchangeService.selectedIndicator.indicatorType.includes('DYNAMIC')) 
+												|| kommonitorDataExchangeService.selectedIndicator.indicatorType.includes('DYNAMIC')
+												|| $scope.containsNegativeValues) 
 												&& kommonitorDataExchangeService.isMeasureOfValueChecked) {
 												$scope.updateDynamicBreaksFromManualBreaks();
 											}
