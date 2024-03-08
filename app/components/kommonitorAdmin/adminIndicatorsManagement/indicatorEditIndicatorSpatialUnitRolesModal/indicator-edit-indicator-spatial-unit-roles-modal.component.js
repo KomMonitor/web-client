@@ -90,6 +90,8 @@ angular.module('indicatorEditIndicatorSpatialUnitRolesModal').component('indicat
 			$scope.executeRequest_indicatorOwnership();
 
 			$scope.executeRequest_indicatorSpatialUnitRoles();			
+
+			$scope.executeRequest_indicatorSpatialUnitOwnership();
 		};
 
 		$scope.executeRequest_indicatorMetadataRoles = function(){
@@ -181,6 +183,56 @@ angular.module('indicatorEditIndicatorSpatialUnitRolesModal').component('indicat
 						$scope.loadingData = false;
 					});	
 			});
+		}
+
+		$scope.executeRequest_indicatorSpatialUnitOwnership = function(){
+			$scope.loadingData = true;
+
+			if($scope.currentIndicatorDataset.applicableSpatialUnits && $scope.currentIndicatorDataset.applicableSpatialUnits.length>0) {
+				$scope.currentIndicatorDataset.applicableSpatialUnits.forEach(indicatorSpatialUnit => {
+
+					let putBody = {
+						"ownerId": $scope.ownerOrganization === undefined ? $scope.currentIndicatorDataset.ownerId : $scope.ownerOrganization
+					}
+
+					$http({
+						url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/indicators/" + $scope.currentIndicatorDataset.indicatorId + "/" + indicatorSpatialUnit.spatialUnitId + "/ownership",
+						method: "PUT",
+						data: putBody,
+						headers: {
+						'Content-Type': "application/json"
+						}
+					}).then(function successCallback(response) {
+							// this callback will be called asynchronously
+							// when the response is available
+
+							$scope.successMessagePart = $scope.currentIndicatorDataset.indicatorName;
+
+							$rootScope.$broadcast("refreshIndicatorOverviewTable", "edit", $scope.currentIndicatorDataset.indicatorId);
+										
+							$("#indicatorEditIndicatorSpatialUnitRolesSuccessAlert").show();
+							$timeout(function(){
+						
+								$scope.loadingData = false;
+							});	
+
+						}, function errorCallback(error) {
+							$scope.errorMessagePart = "Fehler beim Aktualisieren der Metadaten-Eigentümerschaft. Fehler lautet: \n\n";
+							if(error.data){							
+								$scope.errorMessagePart += kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
+							}
+							else{
+								$scope.errorMessagePart += kommonitorDataExchangeService.syntaxHighlightJSON(error);
+							}
+
+							$("#indicatorEditIndicatorSpatialUnitRolesErrorAlert").show();
+							$timeout(function(){
+						
+								$scope.loadingData = false;
+							});	
+					});
+				});
+			}
 		}
 
 		$scope.executeRequest_indicatorSpatialUnitRoles = function(){
