@@ -742,6 +742,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 			fileReader.readAsText(file);
 		};
 
+		// hier
 		$scope.parseFromMetadataFile = function(event){
 			// $scope.geoJsonString = event.target.result;
 			$scope.metadataImportSettings = JSON.parse(event.target.result);
@@ -826,6 +827,10 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 				}
 
 				$scope.ownerOrganization = $scope.metadataImportSettings.ownerId;
+
+				if($scope.metadataImportSettings.ownerId)
+					$('#georesourceRoleForm').css('display','block');
+
 				$scope.isPublic = $scope.metadataImportSettings.isPublic;
 
 				setTimeout(function(){
