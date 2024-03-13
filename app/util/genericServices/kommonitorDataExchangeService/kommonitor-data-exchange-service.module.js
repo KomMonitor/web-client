@@ -73,6 +73,9 @@ angular
 
           this.accessControl = [];
           this.accessControl_map = new Map();
+
+          this.allowedAccessControl = [];
+          this.allowedAccessControl_map = new Map();
           
           // Define translations, settings for dropdown-multiselect 
           this.multiselectDropdownTranslations = {	checkAll: 'Alle auswählen', uncheckAll: 'Nichts auswählen', dynamicButtonTextSuffix: 'Werte ausgewählt',
@@ -1716,12 +1719,36 @@ angular
 
           this.setAccessControl = function(input){
             this.accessControl = input;
+            this.allowedAccessControl = this.filterAllowedAccessControl(this.accessControl);
             this.accessControl_map = new Map();
             for (const entry of input) {
               this.accessControl_map.set(entry.organizationalUnitId, entry);
             }
             this.updateAvailableRoles();
           };
+
+          this.filterAllowedAccessControl = function(acArray) {
+            if (this.checkAdminPermission()) {
+              return acArray;
+            }
+            var clientUserRoles = this.filterClientUserAdminRoles();
+            var filtered = [];
+
+            acArray.forEach(orga => {
+              while (orga) {
+                clientUserRoles.forEach(role => {
+                  let roleNameParts = role.split(".");
+                  const orgaName = roleNameParts[roleNameParts.length - 2];
+                  if (orgaName === orga.name) {
+                    filtered.push(orga);
+                  }
+                });
+                orga = this.accessControl_map[orga.parentId];
+              }
+              return false;
+            });
+            return filtered;
+          }
 
           this.fetchAccessControlMetadata = async function(keycloakRolesArray){
             self.setAccessControl(await kommonitorCacheHelperService.fetchAccessControlMetadata(keycloakRolesArray));
@@ -2954,6 +2981,32 @@ angular
         }
       }
       return false;
+    }
+
+    this.checkGroupCreatePermission = function(){    
+      if(this.checkAdminPermission()) {
+        return true;
+      }
+      
+      for(const role of this.currentKeycloakLoginRoles){
+        let roleNameParts = role.split(".");
+        const permissionLevel = roleNameParts[roleNameParts.length - 1];
+        if(permissionLevel === "client-users-creator" || permissionLevel === "unit-users-creator"){
+          return true;
+        }
+      }
+      return false;
+    }
+
+    this.filterClientUserAdminRoles = function() {
+      return this.currentKeycloakLoginRoles.filter(role => {
+        let roleNameParts = role.split(".");
+        const permissionLevel = roleNameParts[roleNameParts.length - 1];
+        if(permissionLevel === "client-users-creator"){
+          return true;
+        }
+        return false;
+      });
     }
 
     this.checkCreatePermission = function(){    

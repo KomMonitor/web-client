@@ -7,8 +7,8 @@
 		</h1>
 
 		<div class="adminTableButtonWrapper"
-			ng-show="$ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity && $ctrl.kommonitorDataExchangeServiceInstance.isRealmAdmin">
-			<button ng-disabled="!$ctrl.kommonitorDataExchangeServiceInstance.isRealmAdmin" class="btn btn-success btn-sm" type="button" data-toggle="modal" data-target="#modal-add-ou"><i
+			ng-show="$ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity && $ctrl.kommonitorDataExchangeServiceInstance.checkGroupCreatePermission()">
+			<button ng-disabled="!$ctrl.kommonitorDataExchangeServiceInstance.checkGroupCreatePermission()" class="btn btn-success btn-sm" type="button" data-toggle="modal" data-target="#modal-add-ou"><i
 					class="fas fa-plus"></i>&nbsp;&nbsp;Erstellen</button>
 
 			<!-- delete selected completely -->

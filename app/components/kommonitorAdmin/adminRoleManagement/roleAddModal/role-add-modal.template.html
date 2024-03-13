@@ -79,9 +79,9 @@
 											</div>
 											<select id="parentOrganizationalUnitSelect" size="5" ng-model="parentOrganizationalUnit" 
 												class="form-control" ng-change="onChangeParentOrganizationalUnit()" 
-												ng-options="organizationalUnitItem as organizationalUnitItem.name for organizationalUnitItem in $ctrl.kommonitorDataExchangeServiceInstance.accessControl | filter:parentOrganizationalUnitFilter | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterChildOrSelfOrganizationalUnits()"
+												ng-options="organizationalUnitItem as organizationalUnitItem.name for organizationalUnitItem in $ctrl.kommonitorDataExchangeServiceInstance.allowedAccessControl | filter:parentOrganizationalUnitFilter | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterChildOrSelfOrganizationalUnits()"
 												required>
-												<option selected value><b>keine - neuer Wurzelknoten</b></option>			
+												<option selected value ng-if="$ctrl.kommonitorDataExchangeServiceInstance.isRealmAdmin"><b>keine - neuer Wurzelknoten</b></option>		
 											</select>
 											<div class="help-block">
 												<p>wird keine &uuml;bergeordneten Organisationseinheit festgelegt, so ist die neue Organisationseinheit auf oberster Ebene der Hierarchie angesiedelt. 
