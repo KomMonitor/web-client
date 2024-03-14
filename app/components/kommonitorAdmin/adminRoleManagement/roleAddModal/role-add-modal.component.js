@@ -61,35 +61,35 @@ angular.module('roleAddModal').component('roleAddModal', {
 
 				let keycloakGroupId;
 
+				// try {
+
+				// 	await kommonitorKeycloakHelperService.postNewGroup($scope.newOrganizationalUnit, $scope.parentOrganizationalUnit);
+				// 	await kommonitorKeycloakHelperService.fetchAndSetKeycloakRoles();
+				// 	await kommonitorKeycloakHelperService.fetchAndSetKeycloakGroups();
+
+				// 	let keycloakGroup = await kommonitorKeycloakHelperService.getGroupDetails($scope.newOrganizationalUnit, $scope.parentOrganizationalUnit);
+				// 	keycloakGroupId = keycloakGroup.id;
+				// 	$("#keycloakGroupAddSuccessAlert").show();
+				// } catch (error) {
+				// 	console.error(error);
+				// 	if (error.data) {
+				// 		$scope.keycloakErrorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
+				// 	}
+				// 	else {
+				// 		$scope.keycloakErrorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error);
+				// 	}
+
+				// 	$timeout(function () {
+
+				// 		$("#keycloakGroupAddErrorAlert").show();
+				// 		$scope.loadingData = false;
+				// 	});
+				// }
+
 				try {
-
-					await kommonitorKeycloakHelperService.postNewGroup($scope.newOrganizationalUnit, $scope.parentOrganizationalUnit);
-					await kommonitorKeycloakHelperService.fetchAndSetKeycloakRoles();
-					// await kommonitorKeycloakHelperService.fetchAndSetKeycloakGroups();
-
-					let keycloakGroup = await kommonitorKeycloakHelperService.getGroupDetails($scope.newOrganizationalUnit, $scope.parentOrganizationalUnit);
-					keycloakGroupId = keycloakGroup.id;
-					$("#keycloakGroupAddSuccessAlert").show();
-				} catch (error) {
-					console.error(error);
-					if (error.data) {
-						$scope.keycloakErrorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
-					}
-					else {
-						$scope.keycloakErrorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error);
-					}
-
-					$timeout(function () {
-
-						$("#keycloakGroupAddErrorAlert").show();
-						$scope.loadingData = false;
-					});
-				}
-
-				try {
-					if(! keycloakGroupId){
-						throw new Error("Gruppe kann nicht in KomMonitor angelegt werden, da die Registrierung in keycloak fehlgeschlagen ist.");
-					}
+					// if(! keycloakGroupId){
+					// 	throw new Error("Gruppe kann nicht in KomMonitor angelegt werden, da die Registrierung in keycloak fehlgeschlagen ist.");
+					// }
 
 					var postBody =
 					{
@@ -97,7 +97,7 @@ angular.module('roleAddModal').component('roleAddModal', {
 						"description": $scope.newOrganizationalUnit.description,
 						"contact": $scope.newOrganizationalUnit.contact,
 						"mandant": $scope.newOrganizationalUnit.mandant,
-						"keycloakId": keycloakGroupId,
+						// "keycloakId": keycloakGroupId,
 						"parentId": $scope.newOrganizationalUnit.parentId
 					};					
 
@@ -115,7 +115,8 @@ angular.module('roleAddModal').component('roleAddModal', {
 						// when the response is available
 						
 						await kommonitorDataExchangeService.fetchAccessControlMetadata(kommonitorDataExchangeService.currentKeycloakLoginRoles);
-						let newPersistedOrg = kommonitorDataExchangeService.getAccessControlByName($scope.newOrganizationalUnit.name);
+						await kommonitorKeycloakHelperService.fetchAndSetKeycloakRoles();
+						// let newPersistedOrg = kommonitorDataExchangeService.getAccessControlByName($scope.newOrganizationalUnit.name);
 						
 						// update keycloak group and roles with ID of kommonitor organization
 
@@ -128,7 +129,7 @@ angular.module('roleAddModal').component('roleAddModal', {
 						await kommonitorKeycloakHelperService.fetchAndSetKeycloakGroups(); */
 
 						// create policies for restricted group management
-						await kommonitorKeycloakHelperService.setKeycloakPoliciesForKomMonitorOrganization(newPersistedOrg, kommonitorDataExchangeService.accessControl_map);
+						// await kommonitorKeycloakHelperService.setKeycloakPoliciesForKomMonitorOrganization(newPersistedOrg, kommonitorDataExchangeService.accessControl_map);
 						
 						$("#ouAddSuccessAlert").show();						
 

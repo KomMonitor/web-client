@@ -252,7 +252,9 @@ angular.module('roleDeleteModal').component('roleDeleteModal', {
 
 				// delete role in keycloak
 				if($scope.deleteCorrespondingKeycloakGroup){
-					$scope.tryDeleteKeycloakGroup(dataset);
+					// Data Management API deletes group and roles, so nothing to do here, anymore
+					// However, Data Management API maybe later provides a query parameter to control Keycloak entity handling
+					// $scope.tryDeleteKeycloakGroup(dataset);
 				}
 
 			}, function errorCallback(error) {

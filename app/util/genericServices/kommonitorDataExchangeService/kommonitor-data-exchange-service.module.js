@@ -1098,7 +1098,9 @@ angular
                     self.isRealmAdmin = true;
                     // self.currentKeycloakLoginRoles = self.currentKeycloakLoginRoles.concat(Auth.keycloak.tokenParsed.resource_access["realm-management"].roles);
                   }
-                  self.currentKeycloakLoginGroups = Auth.keycloak.tokenParsed.groups;
+                  if (Auth.keycloak.tokenParsed.groups) {
+                    self.currentKeycloakLoginGroups = Auth.keycloak.tokenParsed.groups;
+                  }
                   self.currentKeycloakLoginGroupNames = self.currentKeycloakLoginGroups.map(groupPath => groupPath.split("/")[groupPath.split("/").length - 1]);
                 } else {
                   self.currentKeycloakLoginRoles = [];
@@ -1719,12 +1721,12 @@ angular
 
           this.setAccessControl = function(input){
             this.accessControl = input;
-            this.allowedAccessControl = this.filterAllowedAccessControl(this.accessControl);
             this.accessControl_map = new Map();
             for (const entry of input) {
               this.accessControl_map.set(entry.organizationalUnitId, entry);
             }
             this.updateAvailableRoles();
+            this.allowedAccessControl = this.filterAllowedAccessControl(this.accessControl);
           };
 
           this.filterAllowedAccessControl = function(acArray) {
@@ -1735,17 +1737,17 @@ angular
             var filtered = [];
 
             acArray.forEach(orga => {
+              const currentOrga = orga;
               while (orga) {
                 clientUserRoles.forEach(role => {
                   let roleNameParts = role.split(".");
                   const orgaName = roleNameParts[roleNameParts.length - 2];
                   if (orgaName === orga.name) {
-                    filtered.push(orga);
+                    filtered.push(currentOrga);
                   }
                 });
-                orga = this.accessControl_map[orga.parentId];
+                orga = this.accessControl_map.get(orga.parentId);
               }
-              return false;
             });
             return filtered;
           }
