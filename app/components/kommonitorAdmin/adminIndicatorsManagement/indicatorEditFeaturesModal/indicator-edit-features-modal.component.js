@@ -564,14 +564,14 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 					$scope.$digest();
 				}
 				
-				  $scope.converter = undefined;
-				for(var converter of kommonitorImporterHelperService.availableConverters){
-					if (converter.name === $scope.mappingConfigImportSettings.converter.name){
-						$scope.converter = converter;					
-						break;
-					}
-				}	
-				
+				  	$scope.converter = undefined;
+					for(var converter of kommonitorImporterHelperService.availableConverters){
+						if (converter.name === $scope.mappingConfigImportSettings.converter.name){
+							$scope.converter = converter;					
+							break;
+						}
+					}	
+
 					$scope.schema = undefined;
 					if ($scope.converter && $scope.converter.schemas && $scope.mappingConfigImportSettings.converter.schema){
 						for (var schema of $scope.converter.schemas) {
@@ -632,8 +632,13 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 
 					$scope.keepMissingValues = $scope.mappingConfigImportSettings.propertyMapping.keepMissingOrNullValueIndicator;
 					
-					$scope.isPublic = $scope.mappingConfigImportSettings.isPublic;
-					$scope.currentIndicatorDataset.ownerId = $scope.mappingConfigImportSettings.ownerId;
+					if($scope.mappingConfigImportSettings.isPublic)
+						$scope.isPublic = $scope.mappingConfigImportSettings.isPublic;
+					else
+						$scope.isPublic = $scope.currentIndicatorDataset.isPublic;
+
+					if($scope.mappingConfigImportSettings.ownerId)						
+						$scope.currentIndicatorDataset.ownerId = $scope.mappingConfigImportSettings.ownerId;
 
 					$scope.$digest();
 			};
