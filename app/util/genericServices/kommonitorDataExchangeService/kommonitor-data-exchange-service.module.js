@@ -111,7 +111,6 @@ angular
             
             // now iterate once over all possible KomMonitor orgas and check if user belongs to this orga via its keycloak group
             this.currentKomMonitorLoginOrganizationalUnits = this.accessControl.filter(org => self.currentKeycloakLoginGroupNames.includes(org.name));
-            console.log(this.currentKomMonitorLoginOrganizationalUnits);
           };
 
           this.getCurrentKomMonitorLoginOrganizationalUnits = function() {

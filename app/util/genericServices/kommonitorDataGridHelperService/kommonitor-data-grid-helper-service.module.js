@@ -2737,7 +2737,7 @@ angular
 
       CheckboxRenderer_viewer.prototype.init = function(params) {
         this.params = params;
-
+        
         let isChecked = false;
         let exists = false;
         let className;
@@ -2755,6 +2755,9 @@ angular
           this.eGui.className = className;
           this.eGui.type = 'checkbox';
           this.eGui.checked = isChecked;
+          
+          if(this.params.data.datasetOwner===true)
+            this.eGui.disabled = true;
 
           this.checkedHandler = this.checkedHandler.bind(this);
           this.eGui.addEventListener('click', this.checkedHandler);
@@ -2808,6 +2811,9 @@ angular
           this.eGui.className = className;
           this.eGui.type = 'checkbox';
           this.eGui.checked = isChecked;
+
+          if(this.params.data.datasetOwner===true)
+            this.eGui.disabled = true;
 
           this.checkedHandler = this.checkedHandler.bind(this);
           this.eGui.addEventListener('click', this.checkedHandler);
@@ -2869,6 +2875,9 @@ angular
           this.eGui.className = className;
           this.eGui.type = 'checkbox';
           this.eGui.checked = isChecked;
+
+          if(this.params.data.datasetOwner===true)
+            this.eGui.disabled = true;
 
           this.checkedHandler = this.checkedHandler.bind(this);
           this.eGui.addEventListener('click', this.checkedHandler);
@@ -3056,6 +3065,7 @@ angular
       this.buildRoleManagementGrid = function(tableDOMId, currentTableOptionsObject, accessControlMetadata, selectedPermissionIds, reducedRoleManagement = false){
         
         this.reducedRoleManagement = reducedRoleManagement;
+        //8552b0c5-003c-4879-8ae7-ef223d5d14a7 52N Admins
         
         if (currentTableOptionsObject && currentTableOptionsObject.api) {
 

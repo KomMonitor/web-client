@@ -33,6 +33,12 @@ angular.module('indicatorEditIndicatorSpatialUnitRolesModal').component('indicat
 
 		$scope.refreshRoleManagementTable_indicatorMetadata = function() {
 			let permissions = $scope.currentIndicatorDataset ? $scope.currentIndicatorDataset.permissions : [];
+
+			// set datasetOwner to disable checkboxes for owned datasets in permissions-table
+			kommonitorDataExchangeService.accessControl.forEach(item => {
+				if(item.organizationalUnitId==$scope.currentIndicatorDataset.ownerId)
+					item.datasetOwner = true;
+			});
 			$scope.roleManagementTableOptions_indicatorMetadata = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorEditRoleManagementTable', $scope.roleManagementTableOptions_indicatorMetadata, kommonitorDataExchangeService.accessControl, permissions, true);
 		}
 

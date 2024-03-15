@@ -21,7 +21,6 @@ angular.module('spatialUnitEditUserRolesModal').component('spatialUnitEditUserRo
 		$scope.$on("onEditSpatialUnitUserRoles", function (event, spatialUnitDataset) {
 
 			$scope.currentSpatialUnitDataset = spatialUnitDataset;
-
 			
 			$scope.$apply();
 
@@ -31,6 +30,12 @@ angular.module('spatialUnitEditUserRolesModal').component('spatialUnitEditUserRo
 
 		$scope.refreshRoleManagementTable = function() {
 			let permissions = $scope.currentSpatialUnitDataset ? $scope.currentSpatialUnitDataset.permissions : [];
+
+			// set datasetOwner to disable checkboxes for owned datasets in permissions-table
+			kommonitorDataExchangeService.accessControl.forEach(item => {
+				if(item.organizationalUnitId==$scope.currentSpatialUnitDataset.ownerId)
+					item.datasetOwner = true;
+			});
 			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('spatialUnitEditRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, permissions, true);
 		}
 
