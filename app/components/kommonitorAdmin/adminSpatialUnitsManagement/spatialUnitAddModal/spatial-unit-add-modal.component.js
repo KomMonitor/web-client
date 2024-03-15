@@ -137,7 +137,15 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 		});
 		
 		function refreshRoles(orgUnitId) {			
+
 			let permissionIds_ownerUnit = orgUnitId ? kommonitorDataExchangeService.getAccessControlById(orgUnitId).permissions.filter(permission => permission.permissionLevel == "viewer" || permission.permissionLevel == "editor").map(permission => permission.permissionId) : []; 
+			
+			// set datasetOwner to disable checkboxes for owned datasets in permissions-table
+			kommonitorDataExchangeService.accessControl.forEach(item => {
+				if(item.organizationalUnitId==orgUnitId)
+					item.datasetOwner = true;
+			});
+			
 			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('spatialUnitAddRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, permissionIds_ownerUnit, true);	
 		}
 
