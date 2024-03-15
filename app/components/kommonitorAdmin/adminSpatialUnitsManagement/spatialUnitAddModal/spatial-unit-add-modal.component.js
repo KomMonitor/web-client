@@ -676,6 +676,10 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 				$scope.spatialUnitLevel = $scope.metadataImportSettings.spatialUnitLevel;
 
 				$scope.ownerOrganization = $scope.metadataImportSettings.ownerId;
+
+				if($scope.metadataImportSettings.ownerId)
+					$('#spatialUnitRoleForm').css('display','block');
+
 				$scope.isPublic = $scope.metadataImportSettings.isPublic;
 
 				$scope.$digest();

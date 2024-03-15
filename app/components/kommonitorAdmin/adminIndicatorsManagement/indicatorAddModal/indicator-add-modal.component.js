@@ -885,6 +885,10 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 					}
 				}
 				$scope.ownerOrganization = $scope.metadataImportSettings.ownerId;
+
+				if($scope.metadataImportSettings.ownerId)
+					$('#indicatorRoleForm').css('display','block');
+
 				$scope.isPublic = $scope.metadataImportSettings.isPublic;
 
 				$scope.$digest();
