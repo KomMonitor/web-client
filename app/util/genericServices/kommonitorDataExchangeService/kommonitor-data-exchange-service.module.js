@@ -98,7 +98,7 @@ angular
               window.__env.keycloakKomMonitorGeodataEditRoleNames = ["client-resources-creator", "unit-resources-creator"];
             */
             let roleSuffixes = __env.keycloakKomMonitorGroupsEditRoleNames.concat(__env.keycloakKomMonitorThemesEditRoleNames).concat(__env.keycloakKomMonitorGeodataEditRoleNames);
-            var possibleRoles = ["manage-realm"];
+            var possibleRoles = ["kommonitor-creator"];
             this.accessControl.forEach(organizationalUnit => {
               for (const roleSuffix of roleSuffixes) {
                 possibleRoles.push(organizationalUnit.name + "." + roleSuffix); 
