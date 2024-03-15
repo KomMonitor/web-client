@@ -33,9 +33,10 @@ angular.module('spatialUnitEditUserRolesModal').component('spatialUnitEditUserRo
 
 			// set datasetOwner to disable checkboxes for owned datasets in permissions-table
 			kommonitorDataExchangeService.accessControl.forEach(item => {
-				if(item.organizationalUnitId==$scope.currentSpatialUnitDataset.ownerId)
+				if(item.organizationalUnitId==$scope.currentSpatialUnitDataset?.ownerId)
 					item.datasetOwner = true;
 			});
+
 			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('spatialUnitEditRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, permissions, true);
 		}
 
