@@ -103,6 +103,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 		$scope.roleManagementTableOptions = undefined;
 		
 		$scope.ownerOrganization = undefined;
+		$scope.ownerOrgFilter = undefined;
 		$scope.isPublic = false;
 
 		$scope.onChangeOwner = function(orgUnitId) {
@@ -288,6 +289,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 			$("#poiSymbolPicker").val("").iconpicker('setIcon', 'glyphicon-' + $scope.selectedPoiIconName);
 
 			$scope.ownerOrganization = undefined;
+			$scope.ownerOrgFilter = undefined;
 			$scope.isPublic = false;
 
 			$scope.periodOfValidity = {};
