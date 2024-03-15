@@ -74,8 +74,10 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 			
 			function refreshRoles() {
 				let permissions = $scope.targetApplicableSpatialUnit ? $scope.targetApplicableSpatialUnit.permissions : [];
-				let permissionIds_ownerUnit = kommonitorDataExchangeService.getAccessControlById($scope.currentIndicatorDataset.ownerId).permissions.filter(permission => permission.permissionLevel == "viewer" || permission.permissionLevel == "editor").map(permission => permission.permissionId); 
-				permissions = permissions.concat(permissionIds_ownerUnit);
+				if($scope.currentIndicatorDataset) {
+					let permissionIds_ownerUnit = kommonitorDataExchangeService.getAccessControlById($scope.currentIndicatorDataset.ownerId).permissions.filter(permission => permission.permissionLevel == "viewer" || permission.permissionLevel == "editor").map(permission => permission.permissionId); 
+					permissions = permissions.concat(permissionIds_ownerUnit);
+				}
 				$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorEditFeaturesRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, permissions, true);
 			}
 	
