@@ -159,6 +159,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 		$scope.roleManagementTableOptions = undefined;
 
 		$scope.ownerOrganization = undefined;
+		$scope.ownerOrgFilter = undefined;
 		$scope.isPublic = false;
 
 		$scope.onChangeOwner = function(orgUnitId) {
@@ -331,6 +332,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 
 			$scope.isPublic = false;
 			$scope.ownerOrganization = undefined;
+			$scope.ownerOrgFilter = undefined;
 
 			$scope.postBody_indicators = undefined;
 

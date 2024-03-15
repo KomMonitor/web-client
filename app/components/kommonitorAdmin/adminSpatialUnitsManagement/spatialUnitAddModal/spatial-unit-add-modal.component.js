@@ -104,6 +104,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 		$scope.metadata.description = undefined;
 
 		$scope.ownerOrganization = undefined;
+		$scope.ownerOrgFilter = undefined;
 		$scope.isPublic = false;
 
 		$scope.onChangeOwner = function(orgUnitId) {	
@@ -200,6 +201,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 			$scope.metadata.description = undefined;
 
 			$scope.ownerOrganization = undefined;
+			$scope.ownerOrgFilter = undefined;
 			$scope.isPublic = false;
 
 			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('spatialUnitAddRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, [], true);	
