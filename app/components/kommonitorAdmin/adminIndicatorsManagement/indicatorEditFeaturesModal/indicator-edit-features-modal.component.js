@@ -83,8 +83,10 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 
 				// set datasetOwner to disable checkboxes for owned datasets in permissions-table
 				kommonitorDataExchangeService.accessControl.forEach(item => {
-					if(item.organizationalUnitId==$scope.currentIndicatorDataset?.ownerId)
-						item.datasetOwner = true;
+					if($scope.currentIndicatorDataset) {
+						if(item.organizationalUnitId==$scope.currentIndicatorDataset.ownerId)
+							item.datasetOwner = true;
+					}
 				});
 
 				$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorEditFeaturesRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, permissions, true);
