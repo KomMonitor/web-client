@@ -112,7 +112,7 @@
 								</div>
 
 								<div ng-show="georesourceType === 'poi'" class="row vertical-align">
-									<div class="col-md-4 col-sm-6 col-xs-12">
+									<div class="col-md-3 col-sm-6 col-xs-12">
 										<div class="form-group" align="center">
 											<label>Farbe des Punktmarkers*</label>
 											<div class="dropdown customColorPicker">
@@ -132,7 +132,27 @@
 											</div>
 										</div>
 									</div>
-									<div class="col-md-4 col-sm-6 col-xs-12">
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group" align="center">
+											<label>Art*</label>
+											<div class="dropdown customColorPicker">
+												<button type="button" class="btn btn-info dropdown-toggle"
+													data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+													{{selectedPoiMarkerStyle.charAt(0).toUpperCase() + selectedPoiMarkerStyle.slice(1)}} <span class="caret"></span>
+												</button>
+												<ul class="dropdown-menu dropdown-menu-center">
+													<li ng-click="onChangeMarkerStyle('symbol')">
+														<a href="">Symbol</a>
+													</li>
+													<li ng-click="onChangeMarkerStyle('text')">
+														<a href="">Text</a>
+													</li>
+												</ul>
+												<div class="help-block with-errors"></div>
+											</div>
+										</div>
+									</div>
+									<div class="col-md-3 col-sm-6 col-xs-12" ng-show="selectedPoiMarkerStyle == 'symbol'">
 										<div class="form-group" align="center">
 											<label>Symbol*</label>
 											<br />
@@ -142,9 +162,22 @@
 											<div class="help-block with-errors"></div>
 										</div>
 									</div>
-									<div class="col-md-4 col-sm-6 col-xs-12">
+									<div class="col-md-3 col-sm-6 col-xs-12" ng-show="selectedPoiMarkerStyle == 'text'">
 										<div class="form-group" align="center">
-											<label>Farbe des Punktsymbols*</label>
+											<label>Text*</label>
+											<br />
+											<input type="text" class="form-control" ng-model="poiMarkerText"
+												ng-change="checkPoiMarkerText()" placeholder="" maxlength="3"
+												required></input>
+											<div class="help-block with-errors">
+												0-3 Zeichen
+											</div>
+										</div>
+									</div>
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group" align="center">
+											<label ng-if="selectedPoiMarkerStyle == 'symbol'">Farbe des Punktsymbols*</label>
+											<label ng-if="selectedPoiMarkerStyle == 'text'">Textfarbe*</label>
 											<div class="dropdown customColorPicker">
 												<button type="button" class="btn btn-info dropdown-toggle"
 													data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -821,7 +854,7 @@
 
 
 				<button type="button" class="btn btn-success"				
-					ng-disabled="!datasetName || !metadata.description || !metadata.datasource || !metadata.contact || !metadata.updateInterval || !metadata.lastUpdate || !georesourceDataSourceIdProperty || !georesourceDataSourceNameProperty || !periodOfValidity.startDate || datasetNameInvalid || periodOfValidityInvalid || !converter || !datasourceType"
+					ng-disabled="!datasetName || !metadata.description || !metadata.datasource || !metadata.contact || !metadata.updateInterval || !metadata.lastUpdate || !georesourceDataSourceIdProperty || !georesourceDataSourceNameProperty || !periodOfValidity.startDate || datasetNameInvalid || poiMarkerTextInvalid || periodOfValidityInvalid || !converter || !datasourceType"
 					ng-click="addGeoresource()">Georessource registrieren</button>
 				<button type="button" class="btn btn-danger"
 					ng-click="resetGeoresourceAddForm()">Zur&uuml;cksetzen</button>

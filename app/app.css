@@ -849,6 +849,14 @@ pre.CodeMirror-line {
 	fill: rgb(47,47,47);
 }
 
+.leaflet-tooltip.poi-text-tooltip {
+  background-color: transparent;
+  border: transparent;
+  box-shadow: none;
+  font-weight: bold;
+}
+
+
 /* .marker-cluster div{
 	width: 30px;
 	height: 30px;
