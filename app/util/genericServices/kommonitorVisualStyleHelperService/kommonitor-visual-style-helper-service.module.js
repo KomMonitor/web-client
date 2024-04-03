@@ -159,8 +159,10 @@ angular
         }
       };
 
-      this.getFillColorForZero = function(){
-        this.featuresPerZero ++;
+      this.getFillColorForZero = function(incrementFeatures){
+        if (incrementFeatures) {
+          this.featuresPerZero ++;
+        }
         return defaultColorForZeroValues;
       };
 
@@ -532,20 +534,26 @@ angular
         return brew;
       }
 
-      this.styleNoData = function(feature) {
-        this.featuresPerNoData ++;
+      this.styleNoData = function(feature, incrementFeatures) {
+        if (incrementFeatures) {
+          this.featuresPerNoData ++;
+        }
         return this.noDataStyle;
       };
 
-      this.styleOutlier = function(feature) {
+      this.styleOutlier = function(feature, incrementFeatures) {
         if ((feature.properties[outlierPropertyName] === outlierPropertyValue_low_soft) || (feature.properties[outlierPropertyName] === outlierPropertyValue_low_extreme)) {
 
-          this.featuresPerOutlierLow ++;
+          if (incrementFeatures) {
+            this.featuresPerOutlierLow ++;
+          }
           return this.outlierStyle_low;
         }
         else {
 
-          this.featuresPerOutlierHigh ++;
+          if (incrementFeatures) {
+            this.featuresPerOutlierHigh ++;
+          }
           return this.outlierStyle_high;
         }
       };
@@ -574,16 +582,16 @@ angular
       };
 
       // style function to return
-      this.styleDefault = function(feature, defaultBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, propertyName, useTransparencyOnIndicator, datasetContainsNegativeValues) {
+      this.styleDefault = function(feature, defaultBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, propertyName, useTransparencyOnIndicator, datasetContainsNegativeValues, incrementFeatures) {
 
         // check if feature is NoData
         if (kommonitorDataExchangeService.indicatorValueIsNoData(feature.properties[propertyName])) {
-          return this.styleNoData(feature);
+          return this.styleNoData(feature, incrementFeatures);
         }
 
         // check if feature is outlier
         if ((feature.properties[outlierPropertyName] !== outlierPropertyValue_no) && kommonitorDataExchangeService.useOutlierDetectionOnIndicator) {
-          return this.styleOutlier(feature);
+          return this.styleOutlier(feature, incrementFeatures);
         }
 
         var fillOpacity = 1;
@@ -593,7 +601,7 @@ angular
 
         var fillColor;
         if (kommonitorDataExchangeService.classifyZeroSeparately && (feature.properties[propertyName] == 0 || feature.properties[propertyName] == "0")) {
-          fillColor = this.getFillColorForZero();
+          fillColor = this.getFillColorForZero(incrementFeatures);
           if (useTransparencyOnIndicator) {
             fillOpacity = defaultFillOpacityForZeroFeatures;
           }
@@ -603,13 +611,13 @@ angular
           if (datasetContainsNegativeValues) {
             if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) >= 0) {
               if (kommonitorDataExchangeService.classifyZeroSeparately && (feature.properties[propertyName] == 0 || feature.properties[propertyName] == "0")) {
-                fillColor = this.getFillColorForZero();
+                fillColor = this.getFillColorForZero(incrementFeatures);
                 if (useTransparencyOnIndicator) {
                   fillOpacity = defaultFillOpacityForZeroFeatures;
                 }
               }
               else {
-                fillColor = this.findColorInRange(feature, propertyName, dynamicIncreaseBrew);
+                fillColor = this.findColorInRange(feature, propertyName, dynamicIncreaseBrew, incrementFeatures);
               }
 
               return {
@@ -625,14 +633,14 @@ angular
             else {
 
               if (kommonitorDataExchangeService.classifyZeroSeparately && (feature.properties[propertyName] == 0 || feature.properties[propertyName] == "0")) {
-                fillColor = this.getFillColorForZero();
+                fillColor = this.getFillColorForZero(incrementFeatures);
                 if (useTransparencyOnIndicator) {
                   fillOpacity = defaultFillOpacityForZeroFeatures;
                 }
               }
               else {
                 // invert colors, so that lowest values will become strong colored!
-                fillColor = this.findColorInRange(feature, propertyName, dynamicDecreaseBrew);
+                fillColor = this.findColorInRange(feature, propertyName, dynamicDecreaseBrew, incrementFeatures);
               }
 
               return {
@@ -647,7 +655,7 @@ angular
             }
           }
           else {
-            fillColor = this.findColorInRange(feature, propertyName, defaultBrew);            
+            fillColor = this.findColorInRange(feature, propertyName, defaultBrew, incrementFeatures);            
           }
         }
 
@@ -662,7 +670,7 @@ angular
         };
       };
 
-      this.findColorInRange = function(feature, propertyName, colorBrewInstance){
+      this.findColorInRange = function(feature, propertyName, colorBrewInstance, incrementFeatures){
         var color;
 
         for (var index = 0; index < colorBrewInstance.breaks.length; index++) {
@@ -691,8 +699,10 @@ angular
           }
         }
 
-        this.incrementFeaturesPerColor(color);
-
+        if(incrementFeatures) {
+          this.incrementFeaturesPerColor(color);
+        }
+        
         return color;
       };
 
@@ -730,17 +740,17 @@ angular
       //   return color;
       // };
 
-      this.styleMeasureOfValue = function(feature, gtMeasureOfValueBrew, ltMeasureOfValueBrew, propertyName, useTransparencyOnIndicator) {
+      this.styleMeasureOfValue = function(feature, gtMeasureOfValueBrew, ltMeasureOfValueBrew, propertyName, useTransparencyOnIndicator, incrementFeatures) {
 
 
         // check if feature is NoData
         if (kommonitorDataExchangeService.indicatorValueIsNoData(feature.properties[propertyName])) {
-          return this.styleNoData(feature);
+          return this.styleNoData(feature, incrementFeatures);
         }
 
         // check if feature is outlier
         if ((feature.properties[outlierPropertyName] !== outlierPropertyValue_no) && kommonitorDataExchangeService.useOutlierDetectionOnIndicator) {
-          return this.styleOutlier(feature);
+          return this.styleOutlier(feature, incrementFeatures);
         }
 
         var fillOpacity = 1;
@@ -752,14 +762,14 @@ angular
         if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) >= kommonitorDataExchangeService.measureOfValue) {
 
           if (kommonitorDataExchangeService.classifyZeroSeparately && (feature.properties[propertyName] == 0 || feature.properties[propertyName] == "0")) {
-            fillColor = this.getFillColorForZero();
+            fillColor = this.getFillColorForZero(incrementFeatures);
             if (useTransparencyOnIndicator) {
               fillOpacity = defaultFillOpacityForZeroFeatures;
             }
           }
           else {
 
-            fillColor = this.findColorInRange(feature, propertyName, gtMeasureOfValueBrew);
+            fillColor = this.findColorInRange(feature, propertyName, gtMeasureOfValueBrew, incrementFeatures);
           }
 
           return {
@@ -774,14 +784,14 @@ angular
         }
         else {
           if (kommonitorDataExchangeService.classifyZeroSeparately && (feature.properties[propertyName] == 0 || feature.properties[propertyName] == "0")) {
-            fillColor = this.getFillColorForZero();
+            fillColor = this.getFillColorForZero(incrementFeatures);
             if (useTransparencyOnIndicator) {
               fillOpacity = defaultFillOpacityForZeroFeatures;
             }
           }
           else {
             // invert colors, so that lowest values will become strong colored!
-            fillColor = this.findColorInRange(feature, propertyName, ltMeasureOfValueBrew);
+            fillColor = this.findColorInRange(feature, propertyName, ltMeasureOfValueBrew, incrementFeatures);
           }
 
           return {
@@ -797,18 +807,18 @@ angular
 
       };
 
-      this.styleDynamicIndicator = function(feature, dynamicIncreaseBrew, dynamicDecreaseBrew, propertyName, useTransparencyOnIndicator) {
+      this.styleDynamicIndicator = function(feature, dynamicIncreaseBrew, dynamicDecreaseBrew, propertyName, useTransparencyOnIndicator, incrementFeatures) {
 
 
 
         // check if feature is NoData
         if (kommonitorDataExchangeService.indicatorValueIsNoData(feature.properties[propertyName])) {
-          return this.styleNoData(feature);
+          return this.styleNoData(feature, incrementFeatures);
         }
 
         // check if feature is outlier
         if ((feature.properties[outlierPropertyName] !== outlierPropertyValue_no) && kommonitorDataExchangeService.useOutlierDetectionOnIndicator) {
-          return this.styleOutlier(feature);
+          return this.styleOutlier(feature, incrementFeatures);
         }
 
         var fillOpacity = 1;
@@ -820,13 +830,13 @@ angular
         if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) >= 0) {
 
           if (kommonitorDataExchangeService.classifyZeroSeparately && (feature.properties[propertyName] == 0 || feature.properties[propertyName] == "0")) {
-            fillColor = this.getFillColorForZero();
+            fillColor = this.getFillColorForZero(incrementFeatures);
             if (useTransparencyOnIndicator) {
               fillOpacity = defaultFillOpacityForZeroFeatures;
             }
           }
           else {
-            fillColor = this.findColorInRange(feature, propertyName, dynamicIncreaseBrew);
+            fillColor = this.findColorInRange(feature, propertyName, dynamicIncreaseBrew, incrementFeatures);
           }
 
           return {
@@ -841,14 +851,14 @@ angular
         }
         else {
           if (kommonitorDataExchangeService.classifyZeroSeparately && (feature.properties[propertyName] == 0 || feature.properties[propertyName] == "0")) {
-            fillColor = this.getFillColorForZero();
+            fillColor = this.getFillColorForZero(incrementFeatures);
             if (useTransparencyOnIndicator) {
               fillOpacity = defaultFillOpacityForZeroFeatures;
             }
           }
           else {
             // invert colors, so that lowest values will become strong colored!
-            fillColor = this.findColorInRange(feature, propertyName, dynamicDecreaseBrew);
+            fillColor = this.findColorInRange(feature, propertyName, dynamicDecreaseBrew, incrementFeatures);
           }
 
           return {

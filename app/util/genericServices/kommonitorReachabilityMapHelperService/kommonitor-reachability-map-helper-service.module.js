@@ -666,7 +666,7 @@ angular
         kommonitorDataExchangeService.useOutlierDetectionOnIndicator = false;
         let layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
           style: function (feature) {
-            return kommonitorVisualStyleHelperService.styleDefault(feature, defaultBrew, undefined, undefined, indicatorPropertyName, true, false);
+            return kommonitorVisualStyleHelperService.styleDefault(feature, defaultBrew, undefined, undefined, indicatorPropertyName, true, false, true);
           },
           onEachFeature: function (feature, layer) {
             return self.onEachFeatureIndicator(feature, layer, indicatorPropertyName, indicatorStatisticsCandidate);
