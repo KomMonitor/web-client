@@ -30,7 +30,9 @@ module.exports = function (grunt) {
             'app/util/genericServices/kommonitorGeocoderHelperService/kommonitor-geocoder-helper-service.module.js',
             'app/util/genericServices/kommonitorReachabilityCoverageReportsHelperService/kommonitor-reachability-coverage-reports-helper-service.module.js',
             'app/components/common/singleFeatureEdit/single-feature-edit.module.js',
-            'app/components/common/singleFeatureEdit/single-feature-edit.component.js',                      
+            'app/components/common/singleFeatureEdit/single-feature-edit.component.js', 
+            'app/components/common/classificationMethodSelect/classification-method-select.module.js',
+            'app/components/common/classificationMethodSelect/classification-method-select.component.js',                     
             'app/components/kommonitorUserInterface/kommonitorControls/kommonitorDataSetup/kommonitor-data-setup.module.js',
             'app/components/kommonitorUserInterface/kommonitorControls/kommonitorDataSetup/kommonitor-data-setup.component.js',
             'app/components/kommonitorAdmin/adminDashboardManagement/admin-dashboard-management.module.js',
@@ -206,6 +208,7 @@ module.exports = function (grunt) {
         kommonitor_styles: [
             'app/app.css',
             'app/components/kommonitorUserInterface/kommonitorControls/kommonitorLegend/kommonitor-legend.css',
+            'app/components/common/classificationMethodSelect/classification-method-select.css',  
             'app/components/kommonitorUserInterface/kommonitorControls/kommonitorClassification/kommonitor-classification.css'
         ],
         copy_files: [
