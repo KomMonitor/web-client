@@ -560,9 +560,9 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 				  "lowestSpatialUnitForComputation": $scope.indicatorLowestSpatialUnitMetadataObjectForComputation? $scope.indicatorLowestSpatialUnitMetadataObjectForComputation.spatialUnitLevel : null,
 				  "defaultClassificationMapping": {
 					"colorBrewerSchemeName": $scope.selectedColorBrewerPaletteEntry.paletteName,
-					"classificationMethod": $scope.classificationMethod,
-					"numClasses": $scope.numClassesPerSpatialUnit,
-					"items": $scope.spatialUnitClassification,
+					"classificationMethod": $scope.classificationMethod.toUpperCase(),
+					"numClasses": $scope.numClassesPerSpatialUnit ? Number($scope.numClassesPerSpatialUnit) : 5,
+					"items": $scope.spatialUnitClassification.filter(entry => ! entry.breaks.includes(null)),
 				  }
 			};
 

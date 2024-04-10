@@ -9,7 +9,7 @@
     <div 
       id="method-select-method"
       ng-click="$ctrl.methodSelected(method)" 
-      ng-repeat="method in methods">
+      ng-repeat="method in methods | filter:$ctrl.filterHiddenMethods()">
       <div class="method-select-method-symbol">
         <div style="background-image: url('{{ method.imgPath }}')"></div>
       </div>

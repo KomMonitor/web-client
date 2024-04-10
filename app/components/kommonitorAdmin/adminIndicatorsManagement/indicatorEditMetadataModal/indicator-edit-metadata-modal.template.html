@@ -910,7 +910,8 @@
 										<label>Klassifizierungsmethode</label>
 										<classification-method-select 
 											on-method-selected="onClassificationMethodSelected(method)"
-											default-method-id="{{classificationMethod}}">
+											default-method-id="{{classificationMethod}}"
+											hidden-method-ids="['manual']">
 										</classification-method-select>
 									</div>
 								</div>
@@ -929,7 +930,7 @@
 										</div>
 									</div>
 								</div>
-								<div class="row vertical-align" ng-if="(numClassesPerSpatialUnit > 0) && classificationMethod == 'manual'">
+								<div class="row vertical-align" ng-if="(numClassesPerSpatialUnit > 0) && classificationMethod == 'regional_default'">
 									<uib-tabset active="0">
 										<uib-tab 
 											index="i" 
@@ -967,7 +968,7 @@
 										</uib-tab>
 									</uib-tabset>
 								</div>
-								<div class="help-block row" ng-if="(numClassesPerSpatialUnit > 0) && classificationMethod == 'manual'">
+								<div class="help-block row" ng-if="(numClassesPerSpatialUnit > 0) && classificationMethod == 'regional_default'">
 									<p>Vollständig ausgefüllte Tabs werden grün hervorgehoben.</p>
 									<p>Fehlerhaft ausgefüllte Tabs werden rot hervorgehoben. Die Klassengrenzen sollten von niedrig nach hoch sortiert sein. </p>
 								</div>
