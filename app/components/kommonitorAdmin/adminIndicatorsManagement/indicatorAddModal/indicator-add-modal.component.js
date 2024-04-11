@@ -154,7 +154,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 		$scope.metadata.lastUpdate = undefined;
 		$scope.metadata.description = undefined;
 
-		$scope.roleManagementTableOptions = undefined;
+		$scope.roleManagementTableOptions = undefined;		
 
 		$scope.$on("availableRolesUpdate", function (event) {
 			refreshRoles();
@@ -316,7 +316,8 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			$scope.metadata.lastUpdate = undefined;
 			$scope.metadata.description = undefined;
 
-			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorAddRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, kommonitorDataExchangeService.getCurrentKomMonitorLoginRoleIds());			
+			$scope.refreshReferenceValuesManagementTable();
+			$scope.refreshRoles();
 
 			$scope.datasetName = undefined;
 			$scope.indicatorAbbreviation = undefined;
@@ -757,8 +758,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 				$scope.datasetName = $scope.metadataImportSettings.datasetName;
 			
 				$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorAddRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, $scope.metadataImportSettings.allowedRoles);
-
-
+				
 				// indicator specific properties
 
 				

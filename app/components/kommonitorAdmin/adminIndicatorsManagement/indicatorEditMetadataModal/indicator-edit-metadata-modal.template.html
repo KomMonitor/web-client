@@ -93,21 +93,23 @@
 							<!-- progressbar -->
 							<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity">
 								<ul id="progressbar">
+									<li style="width: 14.28%;" class="active">Metadaten des Indikators</li>
+									<li style="width: 14.28%;" >Allgemeine Metadaten</li>
+									<li style="width: 14.28%;">Themenhierarchie</li>
+									<li style="width: 14.28%;">Referenzen zu Indikatoren/Georessourcen</li>
+									<li style="width: 14.28%;">Klassifizierungsoptionen</li>
+									<li style="width: 14.28%;">regionale Vergleichswerte</li>
+									<li style="width: 14.28%">Rollenbasierter Zugriffsschutz</li>
+								</ul>
+							</div>
+							<div ng-if="! $ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity">
+								<ul id="progressbar">
 									<li style="width: 16.66%;" class="active">Metadaten des Indikators</li>
 									<li style="width: 16.66%;" >Allgemeine Metadaten</li>
 									<li style="width: 16.66%;">Themenhierarchie</li>
 									<li style="width: 16.66%;">Referenzen zu Indikatoren/Georessourcen</li>
 									<li style="width: 16.66%;">Klassifizierungsoptionen</li>
-									<li style="width: 16.66%">Rollenbasierter Zugriffsschutz</li>
-								</ul>
-							</div>
-							<div ng-if="! $ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity">
-								<ul id="progressbar">
-									<li style="width: 20%;" class="active">Metadaten des Indikators</li>
-									<li style="width: 20%;" >Allgemeine Metadaten</li>
-									<li style="width: 20%;">Themenhierarchie</li>
-									<li style="width: 20%;">Referenzen zu Indikatoren/Georessourcen</li>
-									<li style="width: 20%;">Klassifizierungsoptionen</li>
+									<li style="width: 16.66%;">regionale Vergleichswerte</li>
 								</ul>
 							</div>
 							
@@ -976,6 +978,83 @@
 								<input type="button" name="previous" class="previous previous_editIndicatorMetadata action-button-previous" value="Voriger Schritt"/>
 								<input type="button" name="next" class="next next_editIndicatorMetadata action-button" value="N&auml;chster Schritt" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity"/>
 
+							</fieldset>
+
+							<fieldset>
+								<h2 class="fs-title">Vergleichswerte (optional)</h2>
+								<h3 class="fs-subtitle">optionale Vergabe gesamtregionaler Vergleichswerte. 
+									Hier&uuml;ber sind regionale Gesamtwerte als Summe oder Mittelwerte hinterlegbar.</h3>
+
+								<h4>Zur Wahrung der Datenkonsistenz k&ouml;nnen Vergleichswerte ausschlie&szlig;lich f&uuml;r bereits verf&uuml;gbare Zeitschnitte hinterlegt werden.</h4>
+
+								<div class="row">
+									<div class="col-md-2"></div>
+									<div class="col-md-5 col-sm-6 col-xs-12">
+
+										<div id="indicatorRegionalReferenceValuesManagementTable" style="height: 60vh" class="ag-theme-alpine"></div> 
+
+									</div>
+									<div class="col-md-5">
+										<div class="form-group">
+											<!-- DRAG/DROP Area to insert CSV file with timestamp and regionalSum, regionalMean columns  -->
+											<div class="drop_zone" droppable2 ng-click="openFileDialog()" drop="dropHandler(event);">
+												<input type="file" id="fileUploadInput_importRegionalReferenceValues" style="display: none"
+													accept=".csv" />
+												<i style="font-size:4em; margin:5px; " class="fas fa-file-upload"></i>
+												<h4 style="vertical-align: middle;  margin-bottom:10px;">Hochladen einer CSV-Datei mit folgenden Spalten:
+													<ul>
+														<li>Zeitstempel (YYYY-MM-DD)*</li>
+														<li>gesamtregionaler Summenwert</li>
+														<li>gesamtregionaler Mittelwert</li>
+													</ul>
+													* = Pflichtfeld
+												</h4>												
+											</div>
+										</div>
+
+										<div class="row vertical-align">
+											<div class="col-xs-3">
+					
+												<label>Spaltenname Zeitstempel</label>
+												<select style="font-size: 11px; " ng-model="tmpIndicatorRegionalReferenceValuesObject.TIMESTAMP_ATTRIBUTE"
+													ng-options="property as property for property in tmpIndicatorRegionalReferenceValuesObject.featureSchema"
+													class="form-control" required>
+												</select>
+											</div>
+											<div class="col-xs-3" >
+					
+												<label>Spaltenname Summenwert</label>
+												<select style="font-size: 11px; " ng-model="tmpIndicatorRegionalReferenceValuesObject.REGIONAL_SUM_ATTRIBUTE"
+													ng-options="property as property for property in tmpIndicatorRegionalReferenceValuesObject.featureSchema"
+													class="form-control" required>
+												</select>
+											</div>
+
+											<div class="col-xs-3" >
+					
+												<label>Spaltenname Mittelwert</label>
+												<select style="font-size: 11px; " ng-model="tmpIndicatorRegionalReferenceValuesObject.REGIONAL_MEAN_ATTRIBUTE"
+													ng-options="property as property for property in tmpIndicatorRegionalReferenceValuesObject.featureSchema"
+													class="form-control" required>
+												</select>
+											</div>
+											<div class="col-xs-3" >
+					
+												<button type="button" class="btn btn-success" ng-click="loadCSV_indicatorRegionalReferenceValues()"><i
+														class="fa-solid fa-plus"></i>&nbsp;&nbsp;laden
+												</button>
+					
+											</div>
+											
+										</div>
+					
+									</div>
+									
+								</div>	
+								
+								<input type="button" name="previous" class="previous previous_editIndicatorMetadata action-button-previous" value="Voriger Schritt"/>								
+								<input type="button" name="next" class="next next_editIndicatorMetadata action-button" value="N&auml;chster Schritt" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity"/>
+								
 							</fieldset>
 
 								<fieldset ng-if="$ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity">

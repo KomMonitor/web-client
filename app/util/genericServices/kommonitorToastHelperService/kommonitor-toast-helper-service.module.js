@@ -23,10 +23,10 @@ angular
         "positionClass": "toast-top-right",
         "preventDuplicates": false,
         "onclick": null,
-        "showDuration": "2000",
-        "hideDuration": "2000",
-        "timeOut": "5000",
-        "extendedTimeOut": "2000",
+        "showDuration": "4000",
+        "hideDuration": "3000",
+        "timeOut": "7000",
+        "extendedTimeOut": "3000",
         "showEasing": "swing",
         "hideEasing": "linear",
         "showMethod": "fadeIn",
@@ -63,5 +63,21 @@ angular
 
       this.displayErrorToast_upperLeft = function(toastTitle, toastContent){
         toastr.error(toastContent, toastTitle, {positionClass: "toast-top-left"});
+      }
+
+      this.displaySuccessToast_upperRight = function(toastTitle, toastContent){
+        toastr.success(toastContent, toastTitle, {positionClass: "toast-top-right"});
+      }
+
+      this.displayInfoToast_upperRight = function(toastTitle, toastContent){
+        toastr.info(toastContent, toastTitle, {positionClass: "toast-top-right"});
+      }
+
+      this.displayWarningToast_upperRight = function(toastTitle, toastContent){
+        toastr.warning(toastContent, toastTitle, {positionClass: "toast-top-right"});
+      }
+
+      this.displayErrorToast_upperRight = function(toastTitle, toastContent){
+        toastr.error(toastContent, toastTitle, {positionClass: "toast-top-right"});
       }
     }]);
