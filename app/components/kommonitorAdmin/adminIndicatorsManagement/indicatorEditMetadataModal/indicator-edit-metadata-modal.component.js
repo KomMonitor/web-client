@@ -661,7 +661,7 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 				},
 				"refrencesToOtherIndicators": [], // filled directly after
 				  "allowedRoles": [],
-				  "regionalReferenceValues": [],
+				//   "regionalReferenceValues": [],
 				  "datasetName": $scope.datasetName,
 				  "abbreviation": $scope.indicatorAbbreviation || null,
 				  "characteristicValue": $scope.indicatorCharacteristicValue || null,
@@ -691,10 +691,10 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 			}
 
 			// TODO implement regionalReferenceValues
-			let regionalReferenceValuesList = kommonitorDataGridHelperService.getReferenceValues_regionalReferenceValuesManagementGrid($scope.regionalReferenceValuesManagementTableOptions);
-			for (const referenceValueEntry of regionalReferenceValuesList) {
-				postBody.regionalReferenceValues.push(referenceValueEntry);
-			}
+			// let regionalReferenceValuesList = kommonitorDataGridHelperService.getReferenceValues_regionalReferenceValuesManagementGrid($scope.regionalReferenceValuesManagementTableOptions);
+			// for (const referenceValueEntry of regionalReferenceValuesList) {
+			// 	patchBody.regionalReferenceValues.push(referenceValueEntry);
+			// }
 
 			// TAGS
 			if($scope.indicatorTagsString_withCommas){
