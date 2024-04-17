@@ -466,7 +466,7 @@ angular
 									else if($scope.dateSelectionType.selectedDateType === $scope.dateSelectionType_valueManual){
 										return $scope.selectedDate_manual;
 									}
-									else if($scope.dateSelectionType.selectedDateType === $scope.dateSelectionType_valuePerDataset){
+									else if($scope.dateSelectionType.selectedDateType === $scope.dateSelectionType_valuePerDataset && resource.selectedDate){
 										return resource.selectedDate.startDate;
 									}
 									else{
