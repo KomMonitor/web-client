@@ -127,10 +127,12 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 			"displayOrder": 0,
 			"defaultClassificationMapping": {
 				"colorBrewerSchemeName": "schema name of colorBrewer colorPalette to use for classification",
+				"numClasses": "number of Classes",
+				"classificationMethod": "Classification Method ID",
 				"items": [
 					{
-						"defaultCustomRating": "a string to rate indicator values of this class",
-						"defaultColorAsHex": "color as hexadecimal value"
+						"spatialUnit": "spatial unit id for manual classification",
+						"breaks": ['break']
 					}
 				]
 			}
@@ -198,7 +200,6 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 			$scope.georesourceReferences_apiRequest = [];
 
 			$scope.numClassesArray = [3,4,5,6,7,8];
-			$scope.numClasses = $scope.numClassesArray[2];
 			$scope.selectedColorBrewerPaletteEntry = undefined;
 
 			$scope.numClassesPerSpatialUnit = undefined;
@@ -451,12 +452,29 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 				}			
 
 				$scope.numClassesArray = [3,4,5,6,7,8];
-				$scope.numClasses = $scope.numClassesArray[2];
 
 				$scope.numClassesPerSpatialUnit = undefined;
 				$scope.classificationMethod = __env.defaultClassifyMethod || "jenks";
 				$scope.spatialUnitClassification = [];
 				$scope.classBreaksInvalid = false;
+
+				if ($scope.currentIndicatorDataset.defaultClassificationMapping.classificationMethod) {
+					$scope.classificationMethod = $scope.currentIndicatorDataset.defaultClassificationMapping.classificationMethod.toLowerCase();
+				}
+				if ($scope.currentIndicatorDataset.defaultClassificationMapping.numClasses) {
+					$scope.numClassesPerSpatialUnit = $scope.currentIndicatorDataset.defaultClassificationMapping.numClasses;
+					$scope.onNumClassesChanged($scope.numClassesPerSpatialUnit);
+					
+					// apply breaks for spatial units:
+					for (let i = 0; i < $scope.spatialUnitClassification.length; i++) {
+						for (item of $scope.currentIndicatorDataset.defaultClassificationMapping.items) {
+							if(item.spatialUnitId == $scope.spatialUnitClassification[i].spatialUnitId) {
+								$scope.spatialUnitClassification[i] = item;
+								$scope.onBreaksChanged(i);
+							}
+						}
+					}
+				}
 				
 				// instantiate with palette 'Blues'
 				$scope.selectedColorBrewerPaletteEntry = $scope.colorbrewerPalettes[13];
@@ -977,7 +995,6 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 				}			
 
 				$scope.numClassesArray = [3,4,5,6,7,8];
-				$scope.numClasses = $scope.numClassesArray[2];
 				$scope.selectedColorBrewerPaletteEntry = undefined;
 
 				$scope.numClassesPerSpatialUnit = $scope.metadataImportSettings.defaultClassificationMapping.numClasses;
