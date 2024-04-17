@@ -6,7 +6,8 @@ angular
 				templateUrl : "components/common/classificationMethodSelect/classification-method-select.template.html",
 				bindings: {
 					defaultMethodId: '@',
-					onMethodSelected: '&'
+					onMethodSelected: '&',
+					hiddenMethodIds: '@' 
 				},
 				controller : [ '$scope', '$rootScope', '$timeout', 'kommonitorVisualStyleHelperService', 'kommonitorDataExchangeService',
 					function classificationMethodSelect($scope, $rootScope, $timeout, kommonitorVisualStyleHelperService, kommonitorDataExchangeService) {
@@ -42,6 +43,11 @@ angular
 
 						$scope.methods = [
 							{
+								name: 'Regionaler Standard', 
+								id: 'regional_default', 
+								imgPath: 'icons/classificationMethods/neu/manuell.svg',
+								description: 'Bei der regionalen Standard-Klassifizierung sind die Klassengrenzen vorgegeben (kann in Administrationsebene angepasst werden).'},
+							{
 								name: 'Jenks', 
 								id: 'jenks',
 								imgPath: 'icons/classificationMethods/neu/jenks.svg',
@@ -63,6 +69,21 @@ angular
 								imgPath: 'icons/classificationMethods/neu/manuell.svg',
 								description: 'Bei der manuellen Klassifizierung lassen sich die Klassengrenzen nach Bedarf einstellen.'}
 						];
+
+						ctrl.filterHiddenMethods = function(){
+							return function( item ) {
+				
+							  try{
+								if(ctrl.hiddenMethodIds.includes(item.id)){
+									return false;
+								}
+								return true;
+							  }
+							  catch(error){
+								return true;
+							  }
+							};
+						  };
           }
         ]
       }

@@ -543,7 +543,7 @@ pre.CodeMirror-line {
 	/* overflow: hidden; */
 }
 
-#drop_zone {
+.drop_zone {
   border: 5px solid #333333;
 	border-radius: 10px;
 	border-style: dashed;
@@ -557,7 +557,7 @@ pre.CodeMirror-line {
 	opacity: 0.7;
 }
 
-#drop_zone:hover {
+.drop_zone:hover {
 	opacity: 1;
 }
 
