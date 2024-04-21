@@ -1,5 +1,5 @@
 angular.module('kommonitorMap', ['kommonitorDataExchange', 'kommonitorVisualStyleHelper', 'kommonitorInfoLegendHelper', 
-'kommonitorFilterHelper', 'kommonitorGenericMapHelper']);
+'kommonitorFilterHelper', 'kommonitorToastHelper', 'kommonitorGenericMapHelper']);
 /**
  * a common serviceInstance that holds all needed properties and methods for
  * interacting with a map (openlayers).

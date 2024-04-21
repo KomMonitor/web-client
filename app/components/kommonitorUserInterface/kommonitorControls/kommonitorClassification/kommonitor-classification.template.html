@@ -7,13 +7,14 @@
       <classification-method-select 
         on-method-selected="onMethodSelected(method)"
         default-method-id="{{$ctrl.kommonitorVisualStyleHelperServiceInstance.classifyMethod}}"
-        hidden-method-ids="[]">
+        hidden-method-ids="{{hiddenMethodIds}}">
       </classification-method-select>
     </div>
 
     <!-- number of classes -->
     <form class="nrClassSelection" 
-          ng-show="$ctrl.kommonitorVisualStyleHelperServiceInstance.classifyMethod !== 'manual'">
+          ng-show="$ctrl.kommonitorVisualStyleHelperServiceInstance.classifyMethod !== 'manual'
+                && $ctrl.kommonitorVisualStyleHelperServiceInstance.classifyMethod !== 'regional_default'">
       <label>
         Anzahl Klassen 
         <input 

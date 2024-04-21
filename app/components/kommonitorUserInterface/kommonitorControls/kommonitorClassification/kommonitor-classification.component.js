@@ -22,6 +22,8 @@ angular
 						$scope.containsZeroValues = false;
 						$scope.containsNegativeValues = false;
 
+						$scope.hiddenMethodIds = [];
+
 						kommonitorVisualStyleHelperService.numClasses = 5;
 
 						kommonitorVisualStyleHelperService.classifyMethod = __env.defaultClassifyMethod || "jenks";
@@ -29,6 +31,19 @@ angular
 						$rootScope.$on("updateClassificationComponent", function(event, containsZeroValues, containsNegativeValues, containsNoData, containsOutliers_high, containsOutliers_low, outliers_low, outliers_high, selectedDate) {
 							$scope.containsZeroValues = containsZeroValues;
 							$scope.containsNegativeValues = containsNegativeValues;
+						});
+
+						$rootScope.$on("updateShowRegionalDefaultOption", function(event, show) {
+							if(show){
+								if($scope.hiddenMethodIds.includes('regional_default')) {
+									$scope.hiddenMethodIds.splice($scope.hiddenMethodIds.indexOf('regional_default'), 1);
+								}
+							}
+							else {
+								if(!$scope.hiddenMethodIds.includes('regional_default')) {
+									$scope.hiddenMethodIds.push('regional_default');
+								}
+							}
 						});
 
 						$scope.onMethodSelected = function (method) {
