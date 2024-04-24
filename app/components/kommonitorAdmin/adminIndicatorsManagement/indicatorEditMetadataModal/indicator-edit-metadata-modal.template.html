@@ -921,10 +921,10 @@
 									<div class="form-group">
 										<label>Anzahl Klassen pro Raumeinheit</label>
 										<select ng-model="numClassesPerSpatialUnit"
-											ng-change="onNumClassesChanged(numClassesPerSpatialUnit)"									
+											ng-change="onNumClassesChanged(numClassesPerSpatialUnit)"	
+											ng-options="numClassesEntry for numClassesEntry in numClassesArray"								
 											class="form-control" required>
 											<option disabled selected value> -- Anzahl Klassen w&auml;hlen -- </option>
-											<option ng-repeat="numClassesEntry in numClassesArray">{{::numClassesEntry}}</option>
 										</select>
 										<div class="help-block with-errors"></div>
 										<div class="help-block">

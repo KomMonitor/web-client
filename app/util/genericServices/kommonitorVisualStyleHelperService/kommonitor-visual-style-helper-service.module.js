@@ -257,7 +257,7 @@ angular
        *
        * [gtMeasureOfValueBrew, ltMeasureOfValueBrew]
        */
-      this.setupMeasureOfValueBrew = function (geoJSON, propertyName, colorCodeForGreaterThanValues, colorCodeForLesserThanValues, classifyMethod, measureOfValue, breaks, numClasses) {
+      this.setupMeasureOfValueBrew = function (geoJSON, propertyName, colorCodeForGreaterThanValues, colorCodeForLesserThanValues, classifyMethod, measureOfValue, manualBreaks, regionalDefaultMOVBreaks, numClasses) {
 
         /*
         * Idea: Analyse the complete geoJSON property array for each feature and make conclusion about how to build the legend
@@ -287,20 +287,25 @@ angular
         var gtMeasureOfValueBrew = this.setupGtMeasureOfValueBrew(this.greaterThanValues, colorCodeForGreaterThanValues, classifyMethod, Math.ceil(numClasses / 2));
         var ltMeasureOfValueBrew = this.setupLtMeasureOfValueBrew(this.lesserThanValues, colorCodeForLesserThanValues, classifyMethod, Math.floor(numClasses / 2));
 
-        if(classifyMethod == "manual") {
-          if (!breaks || breaks.length == 0) {
-            breaks = [];
-            breaks[0] = gtMeasureOfValueBrew ? gtMeasureOfValueBrew.breaks : [];
-            breaks[1] = ltMeasureOfValueBrew ? ltMeasureOfValueBrew.breaks : [];
+        if(classifyMethod == "regional_default" && regionalDefaultMOVBreaks[0] && regionalDefaultMOVBreaks[1]) {
+          gtMeasureOfValueBrew = this.setupManualBrew(regionalDefaultMOVBreaks[0].length -1, colorCodeForGreaterThanValues, regionalDefaultMOVBreaks[0]);
+          ltMeasureOfValueBrew = this.setupManualBrew(regionalDefaultMOVBreaks[1].length -1, colorCodeForLesserThanValues, regionalDefaultMOVBreaks[1]);
+          ltMeasureOfValueBrew.colors = ltMeasureOfValueBrew.colors.reverse();
+        }
+        else if(classifyMethod == "manual") {
+          if (!manualBreaks || manualBreaks.length == 0) {
+            manualBreaks = [];
+            manualBreaks[0] = gtMeasureOfValueBrew ? gtMeasureOfValueBrew.breaks : [];
+            manualBreaks[1] = ltMeasureOfValueBrew ? ltMeasureOfValueBrew.breaks : [];
           }
   
           var manualBreaksMatchMeasureOfValue = 
-            (breaks[1][breaks[1].length-1] <= measureOfValue) &&
-            (measureOfValue <= breaks[0][0]);
+            (manualBreaks[1][manualBreaks[1].length-1] <= measureOfValue) &&
+            (measureOfValue <= manualBreaks[0][0]);
 
           if (manualBreaksMatchMeasureOfValue) {
-            gtMeasureOfValueBrew = this.setupManualBrew(breaks[0].length -1, colorCodeForGreaterThanValues, breaks[0]);
-            ltMeasureOfValueBrew = this.setupManualBrew(breaks[1].length -1, colorCodeForLesserThanValues, breaks[1]);
+            gtMeasureOfValueBrew = this.setupManualBrew(manualBreaks[0].length -1, colorCodeForGreaterThanValues, manualBreaks[0]);
+            ltMeasureOfValueBrew = this.setupManualBrew(manualBreaks[1].length -1, colorCodeForLesserThanValues, manualBreaks[1]);
             ltMeasureOfValueBrew.colors = ltMeasureOfValueBrew.colors.reverse();
           }
         }
@@ -347,6 +352,9 @@ angular
       };
 
       function setupClassyBrew_usingFeatureCount(valuesArray, colorCode, classifyMethod, maxNumberOfClasses){
+        if(!maxNumberOfClasses) {
+          maxNumberOfClasses = 5;
+        }
 
         var tempBrew = new classyBrew();
         var colorBrewerInstance = new classyBrew();
@@ -693,7 +701,9 @@ angular
           }
           else {
             if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) < kommonitorDataExchangeService.getIndicatorValue_asNumber(colorBrewInstance.breaks[index + 1])) {
-              color = colorBrewInstance.colors[index];
+              if (colorBrewInstance.colors && colorBrewInstance.colors[index]) {
+                color = colorBrewInstance.colors[index];
+              }
               break;
             }
           }

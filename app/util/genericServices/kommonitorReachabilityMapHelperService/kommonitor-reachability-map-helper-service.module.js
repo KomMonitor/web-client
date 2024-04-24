@@ -734,7 +734,7 @@ angular
         let indicatorMetadataAndGeoJSON = await this.setupIndicator(indicatorStatisticsCandidate);
         let timestamp = indicatorStatisticsCandidate.timestamp;
         let indicatorPropertyName = __env.indicatorDatePrefix + timestamp;
-        let defaultBrew = kommonitorVisualStyleHelperService.setupDefaultBrew(indicatorMetadataAndGeoJSON.geoJSON, indicatorPropertyName, indicatorMetadataAndGeoJSON.defaultClassificationMapping.items.length, indicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName, kommonitorVisualStyleHelperService.classifyMethod);
+        let defaultBrew = kommonitorVisualStyleHelperService.setupDefaultBrew(indicatorMetadataAndGeoJSON.geoJSON, indicatorPropertyName, indicatorMetadataAndGeoJSON.defaultClassificationMapping.numClasses, indicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName, kommonitorVisualStyleHelperService.classifyMethod);
 
         let indicatorLayer = await this.generateIndicatorLayer(indicatorMetadataAndGeoJSON, indicatorPropertyName, defaultBrew, indicatorStatisticsCandidate);
         let indicatorLegendControl = this.generateIndicatorLegend(defaultBrew, indicatorMetadataAndGeoJSON);

@@ -2770,7 +2770,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			
 			
 			let timestampPrefix = __env.indicatorDatePrefix + timestampName;
-			let numClasses = indicator.defaultClassificationMapping.items.length;
+			let numClasses = indicator.defaultClassificationMapping.numClasses ? indicator.defaultClassificationMapping.numClasses : 5;
 			let colorCodeStandard = indicator.defaultClassificationMapping.colorBrewerSchemeName;
 			let colorCodePositiveValues = __env.defaultColorBrewerPaletteForBalanceIncreasingValues;
 			let colorCodeNegativeValues = __env.defaultColorBrewerPaletteForBalanceDecreasingValues;
