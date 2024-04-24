@@ -69,8 +69,8 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 			"poiSymbolColor": "'white'|'red'|'orange'|'beige'|'green'|'blue'|'purple'|'pink'|'gray'|'black'",
 			"loiDashArrayString": "dash array string value - e.g. 20 20",
 			"poiMarkerColor": "'white'|'red'|'orange'|'beige'|'green'|'blue'|'purple'|'pink'|'gray'|'black'",
-			// "poiMarkerStyle": "'symbol'|'text'",
-			// "poiMarkerText": "0-3 letters to use for a POI marker when poiMarkerStyle = text",
+			"poiMarkerStyle": "'symbol'|'text'",
+			"poiMarkerText": "0-3 letters to use for a POI marker when poiMarkerStyle = text",
 			"loiColor": "color for lines of interest dataset",
 			"loiWidth": "width for lines of interest dataset",
 			"aoiColor": "color for area of interest dataset"
@@ -334,8 +334,8 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 				patchBody["poiSymbolColor"] = $scope.selectedPoiSymbolColor.colorName;
 				patchBody["poiMarkerColor"] = $scope.selectedPoiMarkerColor.colorName;
 
-				// patchBody["poiMarkerStyle"] = $scope.selectedPoiMarkerStyle;
-				// patchBody["poiMarkerText"] = $scope.poiMarkerText;
+				patchBody["poiMarkerStyle"] = $scope.selectedPoiMarkerStyle;
+				patchBody["poiMarkerText"] = $scope.poiMarkerText;
 
 				patchBody["loiDashArrayString"] = null;
 				patchBody["loiColor"] = null;
@@ -348,8 +348,8 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 				patchBody["poiSymbolColor"] = null;
 				patchBody["poiMarkerColor"] = null;
 
-				// patchBody["poiMarkerStyle"] = null;
-				// patchBody["poiMarkerText"] = null;
+				patchBody["poiMarkerStyle"] = null;
+				patchBody["poiMarkerText"] = null;
 
 				patchBody["loiDashArrayString"] = $scope.selectedLoiDashArrayObject.dashArrayValue;
 				patchBody["loiColor"] = $scope.loiColor;
@@ -362,8 +362,8 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 				patchBody["poiSymbolColor"] = null;
 				patchBody["poiMarkerColor"] = null;
 
-				// patchBody["poiMarkerStyle"] = null;
-				// patchBody["poiMarkerText"] = null;
+				patchBody["poiMarkerStyle"] = null;
+				patchBody["poiMarkerText"] = null;
 
 				patchBody["loiDashArrayString"] = null;
 				patchBody["loiColor"] = null;
@@ -530,8 +530,8 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 					}
 				});
 
-				// $scope.selectedPoiMarkerStyle = $scope.metadataImportSettings.poiMarkerStyle;
-				// $scope.poiMarkerText = $scope.metadataImportSettings.poiMarkerText;
+				$scope.selectedPoiMarkerStyle = $scope.metadataImportSettings.poiMarkerStyle;
+				$scope.poiMarkerText = $scope.metadataImportSettings.poiMarkerText;
 
 				kommonitorDataExchangeService.availableLoiDashArrayObjects.forEach(function(option){
 					if(option.dashArrayValue === $scope.metadataImportSettings.loiDashArrayString){
@@ -628,8 +628,8 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 				metadataExport["poiSymbolColor"] = $scope.selectedPoiSymbolColor.colorName;
 				metadataExport["poiMarkerColor"] = $scope.selectedPoiMarkerColor.colorName;
 
-				// metadataExport["poiMarkerStyle"] = $scope.selectedPoiMarkerStyle;
-				// metadataExport["poiMarkerText"] = $scope.poiMarkerText;
+				metadataExport["poiMarkerStyle"] = $scope.selectedPoiMarkerStyle;
+				metadataExport["poiMarkerText"] = $scope.poiMarkerText;
 
 				metadataExport["loiDashArrayString"] = "";
 				metadataExport["loiColor"] = "";
@@ -642,8 +642,8 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 				metadataExport["poiSymbolColor"] = "";
 				metadataExport["poiMarkerColor"] = "";
 
-				// metadataExport["poiMarkerStyle"] = "";
-				// metadataExport["poiMarkerText"] = "";
+				metadataExport["poiMarkerStyle"] = "";
+				metadataExport["poiMarkerText"] = "";
 
 				metadataExport["loiDashArrayString"] = $scope.selectedLoiDashArrayObject.dashArrayValue;
 				metadataExport["loiColor"] = $scope.loiColor;
@@ -656,8 +656,8 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 				metadataExport["poiSymbolColor"] = "";
 				metadataExport["poiMarkerColor"] = "";
 
-				// metadataExport["poiMarkerStyle"] = "";
-				// metadataExport["poiMarkerText"] = "";
+				metadataExport["poiMarkerStyle"] = "";
+				metadataExport["poiMarkerText"] = "";
 
 				metadataExport["loiDashArrayString"] = "";
 				metadataExport["loiColor"] = "";

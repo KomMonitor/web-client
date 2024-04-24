@@ -299,8 +299,8 @@ angular
 							colors[1].forEach(function (color) {
 								countArray.push(kommonitorVisualStyleHelperService.featuresPerColorMap.get(color) || 0);
 							})
-							color = kommonitorVisualStyleHelperService.measureOfValueBrew[side].colors[i];
-							count = kommonitorVisualStyleHelperService.featuresPerColorMap.get(color);
+							let color = kommonitorVisualStyleHelperService.measureOfValueBrew[side].colors[i];
+							let count = kommonitorVisualStyleHelperService.featuresPerColorMap.get(color);
 							return (count / Math.max(...countArray)) * 100 || 0;
 						};
 						$scope.getWidthForHistogramBarDynamic = function (side, i) {
@@ -309,8 +309,8 @@ angular
 							colors.forEach(function (color) {
 								countArray.push(kommonitorVisualStyleHelperService.featuresPerColorMap.get(color) || 0);
 							})
-							color = kommonitorVisualStyleHelperService.dynamicBrew[side].colors[i];
-							count = kommonitorVisualStyleHelperService.featuresPerColorMap.get(color);
+							let color = kommonitorVisualStyleHelperService.dynamicBrew[side].colors[i];
+							let count = kommonitorVisualStyleHelperService.featuresPerColorMap.get(color);
 							return (count / Math.max(...countArray)) * 100 || 0;
 						};
 						$scope.getHeightForBar = function (i) {
