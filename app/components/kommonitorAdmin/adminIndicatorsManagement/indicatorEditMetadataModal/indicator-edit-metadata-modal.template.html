@@ -988,15 +988,14 @@
 								<h4>Zur Wahrung der Datenkonsistenz k&ouml;nnen Vergleichswerte ausschlie&szlig;lich f&uuml;r bereits verf&uuml;gbare Zeitschnitte hinterlegt werden.</h4>
 
 								<div class="row">
-									<div class="col-md-2"></div>
-									<div class="col-md-5 col-sm-6 col-xs-12">
+									<div class="col-md-7 col-sm-8 col-xs-12">
 
 										<div id="indicatorRegionalReferenceValuesManagementTable" style="height: 60vh" class="ag-theme-alpine"></div> 
 
 									</div>
 									<div class="col-md-5">
 										<div class="form-group">
-											<!-- DRAG/DROP Area to insert CSV file with timestamp and regionalSum, regionalMean columns  -->
+											<!-- DRAG/DROP Area to insert CSV file with timestamp and regionalSum, regionalAverage columns  -->
 											<div class="drop_zone" droppable2 ng-click="openFileDialog()" drop="dropHandler(event);">
 												<input type="file" id="fileUploadInput_importRegionalReferenceValues" style="display: none"
 													accept=".csv" />
@@ -1040,12 +1039,29 @@
 											</div>
 											<div class="col-xs-3" >
 					
+												<label>Spaltenname r&auml;umlich nicht zuordenbar</label>
+												<select style="font-size: 11px; " ng-model="tmpIndicatorRegionalReferenceValuesObject.SPATIALLY_UNASSIGNABLE"
+													ng-options="property as property for property in tmpIndicatorRegionalReferenceValuesObject.featureSchema"
+													class="form-control" required>
+												</select>
+											</div>
+											
+											
+										</div>
+										<div class="row vertical-align">
+											<div class="col-xs-4" >
+					
+											</div>
+											<div class="col-xs-4" >
+					
 												<button type="button" class="btn btn-success" ng-click="loadCSV_indicatorRegionalReferenceValues()"><i
 														class="fa-solid fa-plus"></i>&nbsp;&nbsp;laden
 												</button>
 					
 											</div>
-											
+											<div class="col-xs-4" >
+					
+											</div>
 										</div>
 					
 									</div>
