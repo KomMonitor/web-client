@@ -197,6 +197,15 @@ angular
 								};
 
 								$scope.handleShowAllOnTopic = function(topic){
+									for (poi of topic.poiData) {
+										poi.isSelected = topic.isSelected;
+									}
+									for (loi of topic.loiData) {
+										loi.isSelected = topic.isSelected;
+									}
+									for (aoi of topic.aoiData) {
+										aoi.isSelected = topic.isSelected;
+									}
 									// if (topic.isSelected){
 									// 	topic.isSelected = false;
 									// }
@@ -271,28 +280,26 @@ angular
 
 									else if(topic.isSelected){
 										relevantDatasets.forEach(element => {
-											if(! element.isSelected){
-												element.isSelected = true;
+											element.isSelected = true;
 
-												if (element.isPOI){
-													$scope.handlePoiOnMap(element);
-												}
-												else if (element.isLOI){
-													$scope.handleLoiOnMap(element);
-												}
-												else if (element.isAOI){
-													$scope.handleAoiOnMap(element);
-												}
-												else if (element.layerName){
-													$scope.handleWmsOnMap(element);
-												}
-												else if (element.featureTypeName){
-													$scope.handleWfsOnMap(element);
-												}
-												else{
-													console.error("unknown dataset: " + element);
-												}
-											}										
+											if (element.isPOI){
+												$scope.handlePoiOnMap(element);
+											}
+											else if (element.isLOI){
+												$scope.handleLoiOnMap(element);
+											}
+											else if (element.isAOI){
+												$scope.handleAoiOnMap(element);
+											}
+											else if (element.layerName){
+												$scope.handleWmsOnMap(element);
+											}
+											else if (element.featureTypeName){
+												$scope.handleWfsOnMap(element);
+											}
+											else{
+												console.error("unknown dataset: " + element);
+											}								
 									
 										});
 									}
@@ -481,6 +488,12 @@ angular
 										$scope.addPoiLayerToMap(poi, $scope.useCluster);
 									}
 									else{
+										// unselect topic
+										for (var i = 0; i < kommonitorDataExchangeService.topicGeoresourceHierarchy.length; i++) {
+											if(kommonitorDataExchangeService.topicGeoresourceHierarchy[i].topicId === poi.topicReference){
+												kommonitorDataExchangeService.topicGeoresourceHierarchy[i].isSelected = false;
+											}
+										}
 										//remove POI layer from map
 										$scope.removePoiLayerFromMap(poi);
 									}
@@ -603,6 +616,12 @@ angular
 										$scope.addAoiLayerToMap(aoi);
 									}
 									else{
+										// unselect topic
+										for (var i = 0; i < kommonitorDataExchangeService.topicGeoresourceHierarchy.length; i++) {
+											if(kommonitorDataExchangeService.topicGeoresourceHierarchy[i].topicId === aoi.topicReference){
+												kommonitorDataExchangeService.topicGeoresourceHierarchy[i].isSelected = false;
+											}
+										}
 										//remove POI layer from map
 										$scope.removeAoiLayerFromMap(aoi);
 									}
@@ -708,6 +727,12 @@ angular
 											$scope.addLoiLayerToMap(loi);
 										}
 										else{
+											// unselect topic
+											for (var i = 0; i < kommonitorDataExchangeService.topicGeoresourceHierarchy.length; i++) {
+												if(kommonitorDataExchangeService.topicGeoresourceHierarchy[i].topicId === loi.topicReference){
+													kommonitorDataExchangeService.topicGeoresourceHierarchy[i].isSelected = false;
+												}
+											}
 											//remove POI layer from map
 											$scope.removeLoiLayerFromMap(loi);
 										}
