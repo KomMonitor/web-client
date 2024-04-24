@@ -74,8 +74,8 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 			"poiSymbolColor": "'white'|'red'|'orange'|'beige'|'green'|'blue'|'purple'|'pink'|'gray'|'black'",
 			"loiDashArrayString": "dash array string value - e.g. 20 20",
 			"poiMarkerColor": "'white'|'red'|'orange'|'beige'|'green'|'blue'|'purple'|'pink'|'gray'|'black'",
-			// "poiMarkerStyle": "'symbol'|'text'",
-			// "poiMarkerText": "0-3 letters to use for a POI marker when poiMarkerStyle = text",
+			"poiMarkerStyle": "'symbol'|'text'",
+			"poiMarkerText": "0-3 letters to use for a POI marker when poiMarkerStyle = text",
 			"loiColor": "color for lines of interest dataset",
 			"loiWidth": "width for lines of interest dataset",
 			"aoiColor": "color for area of interest dataset"
@@ -546,8 +546,8 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 				postBody["poiSymbolColor"] = $scope.selectedPoiSymbolColor.colorName;
 				postBody["poiMarkerColor"] = $scope.selectedPoiMarkerColor.colorName;
 
-				// postBody["poiMarkerStyle"] = $scope.selectedPoiMarkerStyle;
-				// postBody["poiMarkerText"] = $scope.poiMarkerText;
+				postBody["poiMarkerStyle"] = $scope.selectedPoiMarkerStyle;
+				postBody["poiMarkerText"] = $scope.poiMarkerText;
 
 				postBody["loiDashArrayString"] = null;
 				postBody["loiColor"] = null;
@@ -560,8 +560,8 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 				postBody["poiSymbolColor"] = null;
 				postBody["poiMarkerColor"] = null;
 
-				// postBody["poiMarkerStyle"] = null;
-				// postBody["poiMarkerText"] = null;
+				postBody["poiMarkerStyle"] = null;
+				postBody["poiMarkerText"] = null;
 
 				postBody["loiDashArrayString"] = $scope.selectedLoiDashArrayObject.dashArrayValue;
 				postBody["loiColor"] = $scope.loiColor;
@@ -574,8 +574,8 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 				postBody["poiSymbolColor"] = null;
 				postBody["poiMarkerColor"] = null;
 
-				// postBody["poiMarkerStyle"] = null;
-				// postBody["poiMarkerText"] = null;
+				postBody["poiMarkerStyle"] = null;
+				postBody["poiMarkerText"] = null;
 
 				postBody["loiDashArrayString"] = null;
 				postBody["loiColor"] = null;
@@ -795,8 +795,8 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 						$scope.selectedPoiSymbolColor = option;
 					}
 				});
-				// $scope.selectedPoiMarkerStyle = $scope.metadataImportSettings.poiMarkerStyle;
-				// $scope.poiMarkerText = $scope.metadataImportSettings.poiMarkerText;
+				$scope.selectedPoiMarkerStyle = $scope.metadataImportSettings.poiMarkerStyle;
+				$scope.poiMarkerText = $scope.metadataImportSettings.poiMarkerText;
 				kommonitorDataExchangeService.availableLoiDashArrayObjects.forEach(function(option){
 					if(option.dashArrayValue === $scope.metadataImportSettings.loiDashArrayString){
 						$scope.selectedLoiDashArrayObject = option;
@@ -888,8 +888,8 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 				metadataExport["poiSymbolColor"] = $scope.selectedPoiSymbolColor.colorName;
 				metadataExport["poiMarkerColor"] = $scope.selectedPoiMarkerColor.colorName;
 
-				// metadataExport["poiMarkerStyle"] = $scope.selectedPoiMarkerStyle;
-				// metadataExport["poiMarkerText"] = $scope.poiMarkerText;
+				metadataExport["poiMarkerStyle"] = $scope.selectedPoiMarkerStyle;
+				metadataExport["poiMarkerText"] = $scope.poiMarkerText;
 
 				metadataExport["loiDashArrayString"] = "";
 				metadataExport["loiColor"] = "";
@@ -902,8 +902,8 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 				metadataExport["poiSymbolColor"] = "";
 				metadataExport["poiMarkerColor"] = "";
 
-				// metadataExport["poiMarkerStyle"] = "";
-				// metadataExport["poiMarkerText"] = "";
+				metadataExport["poiMarkerStyle"] = "";
+				metadataExport["poiMarkerText"] = "";
 
 				metadataExport["loiDashArrayString"] = $scope.selectedLoiDashArrayObject.dashArrayValue;
 				metadataExport["loiColor"] = $scope.loiColor;
@@ -917,8 +917,8 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 				metadataExport["poiSymbolColor"] = "";
 				metadataExport["poiMarkerColor"] = "";
 
-				// metadataExport["poiMarkerStyle"] = "";
-				// metadataExport["poiMarkerText"] = "";
+				metadataExport["poiMarkerStyle"] = "";
+				metadataExport["poiMarkerText"] = "";
 
 				metadataExport["loiDashArrayString"] = "";
 				metadataExport["loiColor"] = "";
