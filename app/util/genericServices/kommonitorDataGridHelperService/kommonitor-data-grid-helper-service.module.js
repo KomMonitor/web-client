@@ -3007,8 +3007,10 @@ angular
         const columnDefs = [
           { headerName: 'Zeitpunkt', field: "referenceDate", pinned: 'left', cellDataType: 'text', editable: false, cellClass: "grid-non-editable", maxWidth: 150
           },
-          { headerName: 'regionale Gesamtsumme', field: "regionalSum", cellDataType: 'number', maxWidth: 200 },
-          { headerName: 'regionaler Mittelwert', field: "regionalAverage", cellDataType: 'number', maxWidth: 200 }, 
+          { headerName: 'regionale Gesamtsumme', field: "regionalSum", cellDataType: 'number', maxWidth: 175 },
+          { headerName: 'regionaler Mittelwert', field: "regionalAverage", cellDataType: 'number', maxWidth: 175 },
+          { headerName: 'räumlich nicht zuordenbar', field: "spatiallyUnassignable", cellDataType: 'number', maxWidth: 175 }, 
+          
         ];
 
         return columnDefs;
@@ -3022,12 +3024,14 @@ angular
               {
                   "referenceDate": "2021-12-31",
                   "regionalSum": 3000,
-                  "regionalAverage": 144
+                  "regionalAverage": 144,
+                  "spatiallyUnassignable": 0
               },
               {
                   "referenceDate": "2022-12-31",
                   "regionalSum": 3500,
-                  "regionalAverage": 148
+                  "regionalAverage": 148,
+                  "spatiallyUnassignable", 0
               }
             ]
         */
@@ -3040,7 +3044,8 @@ angular
             let item = {
               "referenceDate": availableDate,
               "regionalSum": undefined,
-              "regionalMean": undefined,
+              "regionalAverage": undefined,
+              "spatiallyUnassignable": undefined
             };
 
             if(regionalReferenceValuesList && regionalReferenceValuesList.length > 0){
@@ -3148,6 +3153,8 @@ angular
             gridDiv.removeChild(gridDiv.firstChild);
           }
           new agGrid.Grid(gridDiv, dataGridOptions_regionalReferenceValues);
+
+          return dataGridOptions_regionalReferenceValues;
       };
 
       this.getReferenceValues_regionalReferenceValuesManagementGrid = function(regionalReferenceValuesManagementTableOptions){
@@ -3161,11 +3168,13 @@ angular
                     "referenceDate": "2021-12-31",
                     "regionalSum": 3000,
                     "regionalAverage": 144
+                    "spatiallyUnassignable": 0
                 },
                 {
                     "referenceDate": "2022-12-31",
                     "regionalSum": 3500,
-                    "regionalAverage": 148
+                    "regionalAverage": 148,
+                    "spatiallyUnassignable": 0
                 }
               ]
               

@@ -66,18 +66,24 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 						"processDescription": "processDescription",
 						"lowestSpatialUnitForComputation": "lowestSpatialUnitForComputation",
 						"defaultClassificationMapping": {
-							"colorBrewerSchemeName": "colorBrewerSchemeName",
+							"colorBrewerSchemeName": "schema name of colorBrewer colorPalette to use for classification",
+							"numClasses": "number of Classes",
+							"classificationMethod": "Classification Method ID",
 							"items": [
-							{
-								"defaultCustomRating": "defaultCustomRating",
-								"defaultColorAsHex": "defaultColorAsHex"
-							},
-							{
-								"defaultCustomRating": "defaultCustomRating",
-								"defaultColorAsHex": "defaultColorAsHex"
-							}
+								{
+									"spatialUnit": "spatial unit id for manual classification",
+									"breaks": ['break']
+								}
 							]
-						}
+						},
+						"regionalReferenceValues": [
+							{
+							"referenceDate": "2024-04-23",
+							"regionalSum": 0,
+							"regionalAverage": 0,
+							"spatiallyUnassignable": 0
+							}
+						],
 						}
 		*/
 
@@ -135,7 +141,15 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 						"breaks": ['break']
 					}
 				]
-			}
+			},
+			"regionalReferenceValues": [
+				{
+				  "referenceDate": "2024-04-23",
+				  "regionalSum": 0,
+				  "regionalAverage": 0,
+				  "spatiallyUnassignable": 0
+				}
+			  ],
 		};
 
 		$scope.indicatorMetadataStructure_pretty = kommonitorDataExchangeService.syntaxHighlightJSON($scope.indicatorMetadataStructure);
@@ -679,7 +693,7 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 				},
 				"refrencesToOtherIndicators": [], // filled directly after
 				  "allowedRoles": [],
-				//   "regionalReferenceValues": [],
+				  "regionalReferenceValues": [],
 				  "datasetName": $scope.datasetName,
 				  "abbreviation": $scope.indicatorAbbreviation || null,
 				  "characteristicValue": $scope.indicatorCharacteristicValue || null,
@@ -708,11 +722,11 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 				patchBody.allowedRoles.push(roleId);
 			}
 
-			// TODO implement regionalReferenceValues
-			// let regionalReferenceValuesList = kommonitorDataGridHelperService.getReferenceValues_regionalReferenceValuesManagementGrid($scope.regionalReferenceValuesManagementTableOptions);
-			// for (const referenceValueEntry of regionalReferenceValuesList) {
-			// 	patchBody.regionalReferenceValues.push(referenceValueEntry);
-			// }
+			// regionalReferenceValues
+			let regionalReferenceValuesList = kommonitorDataGridHelperService.getReferenceValues_regionalReferenceValuesManagementGrid($scope.regionalReferenceValuesManagementTableOptions);
+			for (const referenceValueEntry of regionalReferenceValuesList) {
+				patchBody.regionalReferenceValues.push(referenceValueEntry);
+			}
 
 			// TAGS
 			if($scope.indicatorTagsString_withCommas){
@@ -1250,6 +1264,7 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 			indicatorRegionalReferenceValuesObject.TIMESTAMP_ATTRIBUTE = indicatorRegionalReferenceValuesObject.featureSchema[0];
 			indicatorRegionalReferenceValuesObject.REGIONAL_SUM_ATTRIBUTE = indicatorRegionalReferenceValuesObject.featureSchema[0];
 			indicatorRegionalReferenceValuesObject.REGIONAL_MEAN_ATTRIBUTE = indicatorRegionalReferenceValuesObject.featureSchema[0];
+			indicatorRegionalReferenceValuesObject.SPATIALLY_UNASSIGNABLE = indicatorRegionalReferenceValuesObject.featureSchema[0];
 
 			for (const property of indicatorRegionalReferenceValuesObject.featureSchema) {
 				if (property.toLowerCase().includes("zeit") || property.toLowerCase().includes("date") || property.toLowerCase().includes("jahr")) {
@@ -1260,6 +1275,9 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 				}
 				if (property.toLowerCase().includes("mit") || property.toLowerCase().includes("durch") || property.toLowerCase().includes("mean") || property.toLowerCase().includes("avg") || property.toLowerCase().includes("ave")) {
 					indicatorRegionalReferenceValuesObject.REGIONAL_MEAN_ATTRIBUTE = property;
+				}	
+				if (property.toLowerCase().includes("nicht") || property.toLowerCase().includes("zuord") || property.toLowerCase().includes("zuzu") || property.toLowerCase().includes("ord")) {
+					indicatorRegionalReferenceValuesObject.SPATIALLY_UNASSIGNABLE = property;
 				}				
 			}
 
@@ -1290,10 +1308,12 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 				let dateValue = tmpIndicatorRegionalReferenceValuesEntry[tmpIndicatorRegionalReferenceValuesObject.TIMESTAMP_ATTRIBUTE];
 				let sumValue = tmpIndicatorRegionalReferenceValuesEntry[tmpIndicatorRegionalReferenceValuesObject.REGIONAL_SUM_ATTRIBUTE];
 				let meanValue = tmpIndicatorRegionalReferenceValuesEntry[tmpIndicatorRegionalReferenceValuesObject.REGIONAL_MEAN_ATTRIBUTE];
+				let spatiallyUnassignableValue = tmpIndicatorRegionalReferenceValuesEntry[tmpIndicatorRegionalReferenceValuesObject.SPATIALLY_UNASSIGNABLE];
 
 				let dateValueInvalid = false;
 				let sumValueInvalid = false;
 				let meanValueInvalid = false;
+				let spatiallyUnassignableValueInvalid = false;
 				let containsEmptyValues = false;
 
 				if (!dateValue || dateValue.split("-").length != 3){
@@ -1331,22 +1351,36 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 					meanValue = Number(meanValue);
 				}
 
+				//SPATIALLYUNASSIGNABLEVALUE
+				if (!spatiallyUnassignableValue){
+					spatiallyUnassignableValue = NaN;
+					containsEmptyValues = true;
+				}
+				else if ( typeof(spatiallyUnassignableValue) == "String"){
+					spatiallyUnassignableValueInvalid = true;
+					spatiallyUnassignableValue = NaN;
+				}
+				else{
+					spatiallyUnassignableValue = Number(spatiallyUnassignableValue);
+				}
+
 				// validations / warning / errors
 
 				// if(dateValueInvalid || sumValueInvalid || meanValueInvalid){
 				// 	kommonitorToastHelperService.displayErrorToast_upperRight("Datei enthält ungültige Definitionen", "Bitte prüfen und vergleichen Sie die Tabelleneinträge mit der Original-Datei");															
 				// }
-				if(containsEmptyValues || sumValueInvalid || meanValueInvalid){
-					kommonitorToastHelperService.displayWarningToast_upperRight("Datei enthält leere oder ungültige Zahlenwerte für Summe oder Mittelwert", "Leerwerte und ungültige werden als ungültige Zahlenwerte interpretiert.");
+				if(containsEmptyValues || sumValueInvalid || meanValueInvalid || spatiallyUnassignableValueInvalid){
+					kommonitorToastHelperService.displayWarningToast_upperRight("Datei enthält leere oder ungültige Zahlenwerte für Summe, Mittelwert oder räumlich nicht zuordenbare Elemente", "Leerwerte und ungültige werden als ungültige Zahlenwerte interpretiert.");
 				}
 				
 				// object building
-				if(! dateValueInvalid && !sumValueInvalid && !meanValueInvalid){
+				if(! dateValueInvalid && !sumValueInvalid && !meanValueInvalid && !spatiallyUnassignableValue){
 					 
 					indicatorRegionalReferenceValuesObject.push({					
 						"referenceDate": dateValue,
 						"regionalSum": sumValue,
-						"regionalAverage": meanValue					
+						"regionalAverage": meanValue,
+						"spatiallyUnassignable": spatiallyUnassignableValue					
 					});
 				}
 				
