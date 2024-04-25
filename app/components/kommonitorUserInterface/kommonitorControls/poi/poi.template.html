@@ -259,9 +259,16 @@
 																		<div
 																			class="awesome-marker-legend awesome-marker-legend-icon-{{::poi.poiMarkerColor}}">
 																			<span
+																				ng-if="poi.poiMarkerStyle == 'symbol'"
 																				style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:{{::poi.poiSymbolColor}};"
 																				class="glyphicon glyphicon-{{::poi.poiSymbolBootstrap3Name}}"
 																				aria-hidden="true"></span>
+																			<span> {{poi.poiMarkerStyle}} </span>
+																			<span 
+																				ng-else
+																				style="font-size:0.9em; color:{{::poi.poiSymbolColor}};">
+																				{{ poi.poiMarkerText }}
+																			</span>
 																		</div>
 																	</div>
 																</td>
@@ -554,9 +561,15 @@
 																	<div
 																		class="awesome-marker-legend awesome-marker-legend-icon-{{::poi.poiMarkerColor}}">
 																		<span
+																			ng-if="poi.poiMarkerStyle == 'symbol'"
 																			style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:{{::poi.poiSymbolColor}};"
 																			class="glyphicon glyphicon-{{::poi.poiSymbolBootstrap3Name}}"
 																			aria-hidden="true"></span>
+																		<span 
+																			ng-else
+																			style="font-size:0.9em; color:{{::poi.poiSymbolColor}};">
+																			{{ poi.poiMarkerText }}
+																		</span>
 																	</div>
 																</div>
 															</td>
@@ -848,9 +861,15 @@
 																<div
 																	class="awesome-marker-legend awesome-marker-legend-icon-{{::poi.poiMarkerColor}}">
 																	<span
+																		ng-if="poi.poiMarkerStyle == 'symbol'"
 																		style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:{{::poi.poiSymbolColor}};"
 																		class="glyphicon glyphicon-{{::poi.poiSymbolBootstrap3Name}}"
 																		aria-hidden="true"></span>
+																	<span 
+																		ng-else
+																		style="font-size:0.9em; color:{{::poi.poiSymbolColor}};">
+																		{{ poi.poiMarkerText }}
+																	</span>
 																</div>
 															</div>
 														</td>
@@ -1136,9 +1155,15 @@
 															<div
 																class="awesome-marker-legend awesome-marker-legend-icon-{{::poi.poiMarkerColor}}">
 																<span
+																	ng-if="poi.poiMarkerStyle == 'symbol'"
 																	style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:{{::poi.poiSymbolColor}};"
 																	class="glyphicon glyphicon-{{::poi.poiSymbolBootstrap3Name}}"
 																	aria-hidden="true"></span>
+																<span 
+																	ng-else
+																	style="font-size:0.9em; color:{{::poi.poiSymbolColor}};">
+																	{{ poi.poiMarkerText }}
+																</span>
 															</div>
 														</div>
 													</td>
@@ -1438,9 +1463,15 @@
 														<div
 															class="awesome-marker-legend awesome-marker-legend-icon-{{::poi.poiMarkerColor}}">
 															<span
+																ng-if="poi.poiMarkerStyle == 'symbol'"
 																style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:{{::poi.poiSymbolColor}};"
 																class="glyphicon glyphicon-{{::poi.poiSymbolBootstrap3Name}}"
 																aria-hidden="true"></span>
+															<span 
+																ng-else
+																style="font-size:0.9em; color:{{::poi.poiSymbolColor}};">
+																{{ poi.poiMarkerText }}
+															</span>
 														</div>
 													</div>
 												</td>
@@ -1742,9 +1773,15 @@
 															<div
 																class="awesome-marker-legend awesome-marker-legend-icon-{{::poi.poiMarkerColor}}">
 																<span
+																	ng-if="poi.poiMarkerStyle == 'symbol'"
 																	style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:{{::poi.poiSymbolColor}};"
 																	class="glyphicon glyphicon-{{::poi.poiSymbolBootstrap3Name}}"
 																	aria-hidden="true"></span>
+																<span 
+																	ng-else
+																	style="font-size:0.9em; color:{{::poi.poiSymbolColor}};">
+																	{{ poi.poiMarkerText }}
+																</span>
 															</div>
 														</div>
 													</td>
