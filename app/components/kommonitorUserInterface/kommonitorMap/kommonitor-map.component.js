@@ -2913,6 +2913,15 @@ angular.module('kommonitorMap').component(
 
             if(kommonitorVisualStyleHelperService.classifyMethod == "regional_default" 
               && kommonitorDataExchangeService.isMeasureOfValueChecked) {
+              if(kommonitorVisualStyleHelperService.regionalDefaultBreaks.length == 0) {
+                $scope.defaultBrew = kommonitorVisualStyleHelperService.setupDefaultBrew(
+                  $scope.currentGeoJSONOfCurrentLayer, 
+                  $scope.indicatorPropertyName, 
+                  kommonitorVisualStyleHelperService.numClasses, 
+                  $scope.currentIndicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName, 
+                  kommonitorVisualStyleHelperService.classifyMethod);
+                $scope.applyRegionalDefaultClassification($scope.currentIndicatorMetadataAndGeoJSON);
+              }
               kommonitorVisualStyleHelperService.regionalDefaultMOVBreaks = $scope.calcMOVBreaks(
                 kommonitorVisualStyleHelperService.regionalDefaultBreaks,
                 kommonitorDataExchangeService.measureOfValue
