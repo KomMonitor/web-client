@@ -272,6 +272,7 @@ try {
   // classification
   //allowesValues: equal_interval, quantile, jenks
   window.__env.defaultClassifyMethod = "equal_interval";
+  window.__env.disableManualClassification = false;
 
   // array of indicator name substring that shal be used to filter out / hide certain indicators by their name
   // e.g. set ["entwicklung"] to hide all indicators whose name contains the substring "entwicklung"
