@@ -1011,6 +1011,21 @@
 											</div>
 										</div>
 
+										<div class="row vertical-align">											
+											<div class="col-xs-12" >
+					
+												<div ng-if="file_regionalReferenceValuesImport">
+													<b>Angegebene Datei</b>: <i>{{file_regionalReferenceValuesImport.name}}</i>
+												</div>
+												<div ng-if="! file_regionalReferenceValuesImport">
+													<b>Angegebene Datei</b>: <i>-- keine --</i>
+												</div>												 
+					
+											</div>
+										</div>
+
+										<br>
+
 										<div class="row vertical-align">
 											<div class="col-xs-3">
 					
@@ -1054,7 +1069,8 @@
 											</div>
 											<div class="col-xs-4" >
 					
-												<button type="button" class="btn btn-success" ng-click="loadCSV_indicatorRegionalReferenceValues()"><i
+												<button type="button" class="btn btn-success" ng-click="loadCSV_indicatorRegionalReferenceValues()"
+														ng-disabled="! tmpIndicatorRegionalReferenceValuesObject.TIMESTAMP_ATTRIBUTE"><i
 														class="fa-solid fa-plus"></i>&nbsp;&nbsp;laden
 												</button>
 					

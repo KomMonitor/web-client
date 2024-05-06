@@ -234,6 +234,8 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 		$scope.regionalReferenceValuesManagementTableOptions = undefined;
 
 		$scope.tmpIndicatorRegionalReferenceValuesObject = undefined;
+		$scope.noneColumnValue = "-- keine --";
+		$scope.file_regionalReferenceValuesImport;
 
 
 		$scope.instantiateColorBrewerPalettes = function(){
@@ -1254,12 +1256,19 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 			var files = document.getElementById('fileUploadInput_importRegionalReferenceValues').files;
 
 			for (var i = 0; i < files.length; i++) {
-				var file = files[i];
-				kommonitorFileHelperService.transformFileToKomMonitorIndicatorRegionalReferenceValuesObject(file);
+				$scope.file_regionalReferenceValuesImport = files[i];
+				
+				kommonitorFileHelperService.transformFileToKomMonitorIndicatorRegionalReferenceValuesObject($scope.file_regionalReferenceValuesImport);
+				$scope.$digest();
 			}
 		});
 
 		$scope.initSpecialFields = function (indicatorRegionalReferenceValuesObject) {
+
+			// add special entry for NO selection to allow users to mark certain colors as not existant in dataset
+			// only timestamp is necessary			
+			indicatorRegionalReferenceValuesObject.featureSchema.splice(0, 0, $scope.noneColumnValue);
+
 			// init feature NAME and ID fields
 			indicatorRegionalReferenceValuesObject.TIMESTAMP_ATTRIBUTE = indicatorRegionalReferenceValuesObject.featureSchema[0];
 			indicatorRegionalReferenceValuesObject.REGIONAL_SUM_ATTRIBUTE = indicatorRegionalReferenceValuesObject.featureSchema[0];
