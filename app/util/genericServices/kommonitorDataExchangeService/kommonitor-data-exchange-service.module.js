@@ -2281,13 +2281,16 @@ angular
   
             var linkedIndicatorsString = "";
   
-            for (var [index, linkedIndicator] of indicator.referencedIndicators.entries()) {
+            if (indicator.referencedIndicators && indicator.referencedIndicators.length > 0){
+              for (var [index, linkedIndicator] of indicator.referencedIndicators.entries()) {
               linkedIndicatorsString += linkedIndicator.referencedIndicatorName + " - \n   " + linkedIndicator.referencedIndicatorDescription;
   
               if (index < indicator.referencedIndicators.length - 1) {
                 linkedIndicatorsString += "\n\n";
               }
             }
+            }
+            
   
             if (linkedIndicatorsString === "") {
               linkedIndicatorsString = "-";
@@ -2295,13 +2298,16 @@ angular
   
             var linkedGeoresourcesString = "";
   
-            for (var [k, linkedGeoresource] of indicator.referencedGeoresources.entries()) {
+            if (indicator.referencedGeoresources && indicator.referencedGeoresources.length > 0){
+              for (var [k, linkedGeoresource] of indicator.referencedGeoresources.entries()) {
               linkedGeoresourcesString += linkedGeoresource.referencedGeoresourceName + " - \n   " + linkedGeoresource.referencedGeoresourceDescription;
   
               if (k < indicator.referencedGeoresources.length - 1) {
                 linkedGeoresourcesString += "\n\n";
               }
             }
+            }
+            
   
             if (linkedGeoresourcesString === "") {
               linkedGeoresourcesString = "-";
