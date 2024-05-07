@@ -618,6 +618,12 @@ pre.CodeMirror-line {
 
 }
 
+.tour-tour-27 {
+	z-index: 20000 !important;
+	top: unset !important;
+	bottom: 0 !important;
+}
+
 #feedbackForm {
 	padding: 5px;
 	overflow: auto;
