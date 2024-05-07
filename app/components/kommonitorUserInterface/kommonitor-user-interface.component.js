@@ -623,6 +623,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				onPrev: function(tour){
 					if($scope.sidebarLegendClass === "disappear"){
 							$("#sidebarLegendCollapse").click();
+							$("#indicatorClassificationCollapse").click();
 					}
 				}
 			},
@@ -955,27 +956,47 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				element: "#kommonitorReachability",
 				title: "Erreichbarkeitsanalysen",
 				placement: "right",
-				content: "Als GIS-basiertes Werkzeug soll KomMonitor ausgew&auml;hlte <b>r&auml;umliche Analysen</b> unterst&uuml;tzen. " +
+				content: "Als GIS-basiertes Werkzeug unterstützt KomMonitor ausgew&auml;hlte <b>r&auml;umliche Analysen</b>. " +
 				"Insbesondere stehen <b>Erreichbarkeitsanalysen</b> im Fokus, bei denen, neben reinen <i>Puffer-basierten Ans&auml;tzen</i>, " +
 				"<b>Erreichbarkeiten anhand tats&auml;chlicher Wegenetze</b> f&uuml;r verschiedene <b>Transportmittel (z.B. Fußg&auml;nger, Fahrrad, Auto)</b> "+
-				"berechnet werden k&ouml;nnen. Konkret soll hierbei sowohl ein <b>Routing</b> zwischen einzelnen Punkten sowie " +
-				"die Berechnung von <b>Isochronen (&Auml;quidistanzen und zeitliches Abbruchkriterium)</b> angeboten werden.<br/><br/> " +
-				"<b>Auswahl der Startpunkte</b><br/> " + 
-				"Die Auswahl der Startpunkte kann entweder &uuml;ber die Selektion eines vorhandenen Punktdatensatzes vorgenommen werden oder mittels Einzeichnen eigener beliebiger Punkte in die Karte.<br/><br/> " +
-				"<b>Ergebnisdarstellung</b><br/> " +
-				"Sowohl Isochronen- als auch Routingergebnisse werden der Karte als neuer, eigener Layer hinzugef&uuml;gt. " + 
-				"Die jeweilige Legende über jeweiligen Reiter des rechten Legendenmenüs einsehbar.<br/><br/> "+
-				"<b>Punkt in Isochronen Analyse</b><br/> " + 
-				"Nachdem eine Isochronenberechnung erfolgt ist, können vorhandene Punktdatensätze r&auml;umlich mit den Isochronen verschnitten werden, bspw. um eine Umfeldanalyse für relevante Einrichtungen durchzuf&uuml;hren.",
+				"berechnet werden k&ouml;nnen. Konkret wird hierbei " +
+				"die Berechnung von <b>Isochronen (&Auml;quidistanzen und zeitliches Abbruchkriterium)</b> angeboten.<br/><br/> " +
+				"<b>Erreichbarkeits-Szenarien verwalten</b></br>" +
+				"Eine bestimmte Kombination aus Punktdaten und Voreinstellungen zur Isochronenberechnung lässt sich als Szenario speichern. " +
+				"Ein Klick auf den Button <i>Szenario anlegen</i> öffnet das Modal zur Szenarienverwaltung. </br></br>" +
+				"<i>Im nächsten Schritt wird das Modal Erreichbarkeitsszenario verwalten automatisch geöffnet"
+				,
 				onNext: function(tour){
-					if($scope.sidebarReachabilityClass !== "disappear"){
-							$("#sidebarReachabilityCollapse").click();
-					}
+					$("#openReachabilityScenarioModalBtn").click();
 				},
 				onPrev: function(tour){
 					if($scope.sidebarReachabilityClass !== "disappear"){
 							$("#sidebarReachabilityCollapse").click();
 					}
+				}
+			},
+			{
+				element: "#reachabilityScenarioModalContainer",
+				title: "Erreichbarkeits-Szenario verwalten",
+				placement: "bottom",
+				content: 
+				"<b>Schritt 1:</b> " + 
+				"Szenario benennen und die Punktdatenquelle auswählen<br/> " +
+				"<b>Schritt 2 (optional):</b> Hier können die Punkte bearbeitet werden. Um einen Punkt hinzuzufügen, muss er mit <i class=\"fas fa-map-marker-alt\"></i> auf der Karte markiert werden. <br/>" +
+				"<b>Schritt 3:</b> Fortbewegungsmittel und die Distanz / Zeit, sowie die Isochronengrenzen festlegen<br/>" +
+				"<b>Schritt 4 (optional):</b> Hier kann geprüft werden, welche Punkte aus relevanten Punktlayern im Einzugsgebiet liegen. <br/>" +
+				"<b>Schritt 5 (optional):</b> Hier können die Isochronen mit Indikatoren verschnitten werden, um den Grad der Versorgung festzustellen. <br/>" ,
+				onNext: function(tour){
+					$("#manageReachabilityCloseBtn").click();
+					if($scope.sidebarReachabilityClass !== "disappear"){
+							$("#sidebarReachabilityCollapse").click();
+					}
+				},
+				onPrev: function(tour){
+					$("#manageReachabilityCloseBtn").click();
+					if($scope.sidebarReachabilityClass == "disappear"){
+						$("#sidebarReachabilityCollapse").click();
+				}
 				}
 			},
 			{
@@ -986,6 +1007,9 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				"bei der ersten Orientierung helfen und die zukünftige Nutzung erleichtern!</br></br> " +
 				"Kritik, Anregungen oder Fragen sind jederzeit willkommen.</b> <i>(siehe Begrüßungsfenster für den Kontakt).</br></br> " + 
 				"<b>Viel Spaß bei der Nutzung von KomMonitor! </b>",
+				onPrev: function(tour){
+					$("#openReachabilityScenarioModalBtn").click();
+				},
 				onNext: function(tour){
 					kommonitorDataExchangeService.guidedTour = undefined;	// ends the tour				
 				}
