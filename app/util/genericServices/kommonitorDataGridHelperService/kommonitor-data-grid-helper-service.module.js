@@ -1432,9 +1432,7 @@ angular
   
           let gridOptions = {
             defaultColDef: {
-              editable: true,
-              // enables the fill handle
-              enableFillHandle: false,              
+              editable: true,            
               cellEditor: 'agLargeTextCellEditor',
               onCellValueChanged: function(newValueParams){
                 /* https://www.ag-grid.com/javascript-data-grid/cell-editing/ 
@@ -1760,9 +1758,7 @@ angular
   
           let gridOptions = {
             defaultColDef: {
-              editable: true,
-              // enables the fill handle
-              enableFillHandle: false,              
+              editable: true,            
               cellEditor: 'agLargeTextCellEditor',
               onCellValueChanged: function(newValueParams){
                 /* https://www.ag-grid.com/javascript-data-grid/cell-editing/ 
@@ -3072,9 +3068,7 @@ angular
   
           let gridOptions = {
             defaultColDef: {
-              editable: true,
-              // enables the fill handle
-              enableFillHandle: false,              
+              editable: true,            
               cellEditor: 'agNumberCellEditor',
               cellEditorParams: {
                 precision: 2,

@@ -1276,7 +1276,7 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 			indicatorRegionalReferenceValuesObject.SPATIALLY_UNASSIGNABLE = indicatorRegionalReferenceValuesObject.featureSchema[0];
 
 			for (const property of indicatorRegionalReferenceValuesObject.featureSchema) {
-				if (property.toLowerCase().includes("zeit") || property.toLowerCase().includes("date") || property.toLowerCase().includes("jahr")) {
+				if (property.toLowerCase().includes("zeit") || property.toLowerCase().includes("dat") || property.toLowerCase().includes("jahr")) {
 					indicatorRegionalReferenceValuesObject.TIMESTAMP_ATTRIBUTE = property;
 				}			
 				if (property.toLowerCase().includes("sum")) {
@@ -1311,6 +1311,7 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 
 		$scope.makeIndicatorRegionalReferenceValues_fromCsv = function(tmpIndicatorRegionalReferenceValuesObject){
 			let indicatorRegionalReferenceValuesObject = [];
+			let containsEmptyValues = false;
 
 			for (const tmpIndicatorRegionalReferenceValuesEntry of tmpIndicatorRegionalReferenceValuesObject.dataRows) {
 
@@ -1323,7 +1324,7 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 				let sumValueInvalid = false;
 				let meanValueInvalid = false;
 				let spatiallyUnassignableValueInvalid = false;
-				let containsEmptyValues = false;
+				
 
 				if (!dateValue || dateValue.split("-").length != 3){
 					 
@@ -1339,8 +1340,13 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 					containsEmptyValues = true;
 				}
 				else if ( typeof(sumValue) == "String"){
-					sumValueInvalid = true;
-					sumValue = NaN;
+					try {
+						sumValue = Number(sumValue);
+					} catch (error) {
+						sumValueInvalid = true;
+						sumValue = NaN;
+					}
+					
 				}
 				else{
 					sumValue = Number(sumValue);
@@ -1353,8 +1359,12 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 					containsEmptyValues = true;
 				}
 				else if ( typeof(meanValue) == "String"){
-					meanValueInvalid = true;
-					meanValue = NaN;
+					try {
+						meanValue = Number(meanValue);
+					} catch (error) {
+						meanValueInvalid = true;
+						meanValue = NaN;
+					}
 				}
 				else{
 					meanValue = Number(meanValue);
@@ -1366,24 +1376,21 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 					containsEmptyValues = true;
 				}
 				else if ( typeof(spatiallyUnassignableValue) == "String"){
-					spatiallyUnassignableValueInvalid = true;
-					spatiallyUnassignableValue = NaN;
+					try {
+						spatiallyUnassignableValue = Number(spatiallyUnassignableValue);
+					} catch (error) {
+						spatiallyUnassignableValueInvalid = true;
+						spatiallyUnassignableValue = NaN;
+					}
 				}
 				else{
 					spatiallyUnassignableValue = Number(spatiallyUnassignableValue);
 				}
 
-				// validations / warning / errors
-
-				// if(dateValueInvalid || sumValueInvalid || meanValueInvalid){
-				// 	kommonitorToastHelperService.displayErrorToast_upperRight("Datei enthält ungültige Definitionen", "Bitte prüfen und vergleichen Sie die Tabelleneinträge mit der Original-Datei");															
-				// }
-				if(containsEmptyValues || sumValueInvalid || meanValueInvalid || spatiallyUnassignableValueInvalid){
-					kommonitorToastHelperService.displayWarningToast_upperRight("Datei enthält leere oder ungültige Zahlenwerte für Summe, Mittelwert oder räumlich nicht zuordenbare Elemente", "Leerwerte und ungültige werden als ungültige Zahlenwerte interpretiert.");
-				}
+				
 				
 				// object building
-				if(! dateValueInvalid && !sumValueInvalid && !meanValueInvalid && !spatiallyUnassignableValue){
+				if(! dateValueInvalid){
 					 
 					indicatorRegionalReferenceValuesObject.push({					
 						"referenceDate": dateValue,
@@ -1395,16 +1402,44 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 				
 			}
 
+			// validations / warning / errors
+
+				// if(dateValueInvalid || sumValueInvalid || meanValueInvalid){
+				// 	kommonitorToastHelperService.displayErrorToast_upperRight("Datei enthält ungültige Definitionen", "Bitte prüfen und vergleichen Sie die Tabelleneinträge mit der Original-Datei");															
+				// }
+				if(containsEmptyValues){
+					kommonitorToastHelperService.displayWarningToast_upperRight("Datei enthält leere oder ungültige Zahlenwerte für Summe, Mittelwert oder räumlich nicht zuordenbare Elemente", "Leerwerte und ungültige werden als ungültige Zahlenwerte interpretiert.");
+				}
+
 			return indicatorRegionalReferenceValuesObject;
 		}
 
 		$scope.loadCSV_indicatorRegionalReferenceValues = function () {
 			try {
 				let tmpIndicatorRegionalReferenceValues = $scope.makeIndicatorRegionalReferenceValues_fromCsv($scope.tmpIndicatorRegionalReferenceValuesObject);
+				let applicableIndicatorRegionalReferenceValues = [];
+				let nonApplicableIndicatorRegionalReferenceValues = [];
 
-				$scope.regionalReferenceValuesManagementTableOptions = kommonitorDataGridHelperService.buildReferenceValuesManagementGrid('indicatorRegionalReferenceValuesManagementTable', $scope.currentIndicatorDataset.applicableDates, tmpIndicatorRegionalReferenceValues);
+				if($scope.currentIndicatorDataset.applicableDates && $scope.currentIndicatorDataset.applicableDates.length > 0){
 
-				kommonitorToastHelperService.displaySuccessToast_upperRight(tmpIndicatorRegionalReferenceValues.length + " Vergleichswerte erfolgreich in Tabelle eingetragen", "");
+					for (const tmpIndicatorRegionalReferenceValuesEntry of tmpIndicatorRegionalReferenceValues) {
+		  
+						if($scope.currentIndicatorDataset.applicableDates.includes(tmpIndicatorRegionalReferenceValuesEntry.referenceDate)){
+							applicableIndicatorRegionalReferenceValues.push(tmpIndicatorRegionalReferenceValuesEntry);
+						}
+						else{
+							nonApplicableIndicatorRegionalReferenceValues.push(tmpIndicatorRegionalReferenceValuesEntry);
+						}					  
+					}
+					
+				  }
+
+				$scope.regionalReferenceValuesManagementTableOptions = kommonitorDataGridHelperService.buildReferenceValuesManagementGrid('indicatorRegionalReferenceValuesManagementTable', $scope.currentIndicatorDataset.applicableDates, applicableIndicatorRegionalReferenceValues);
+
+				kommonitorToastHelperService.displaySuccessToast_upperRight(applicableIndicatorRegionalReferenceValues.length + " Vergleichswerte erfolgreich in Tabelle eingetragen", "");
+				if (nonApplicableIndicatorRegionalReferenceValues.length > 0){
+					kommonitorToastHelperService.displayErrorToast_upperRight(nonApplicableIndicatorRegionalReferenceValues.length + " Vergleichswerte der Datei konnten nicht zu einem Indikatoren-Zeitpunkt zugeordnet werden", "");				
+				}
 				kommonitorToastHelperService.displayWarningToast_upperRight("Erst durch Aktualisieren der Metadaten werden die Vergleichswerte in die Datenbank importiert", "");
 
 			} catch (error) {
