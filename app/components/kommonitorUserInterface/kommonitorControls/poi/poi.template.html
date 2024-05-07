@@ -1410,9 +1410,10 @@
 								style="background: #2171b5; color: white;" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.topicGeoresourceHierarchy_unmappedEntries.totalCount > 0">
 								<a id="noHierarchyGeoresourceDatasets" href=""
 									ng-attr-title="Georessourcen-Daten ohne Themenbezug" class="collapseTrigger"
-									style="color: white;" ng-click="isCollapsed_noTopic = !isCollapsed_noTopic"
-									ng-init="isCollapsed_noTopic=true"><i
-										class="glyphicon glyphicon-chevron-right"></i>ohne Themenbezug
+									style="color: white;" 
+									ng-init="isCollapsed_noTopic=true"
+									ng-click="toggleNoTopicHierarchy()">
+										<i	class="glyphicon glyphicon-chevron-right"></i>ohne Themenbezug
 									({{$ctrl.kommonitorDataExchangeServiceInstance.topicGeoresourceHierarchy_unmappedEntries.totalCount}})</a>
 								&nbsp;&nbsp; <input type="checkbox" value="showAllForTopic_null"
 									ng-model="showAllForTopic_null" ng-change="handleShowAllOnTopic(null)">
@@ -1423,7 +1424,7 @@
 
 								<div class="georesourceInputForm"
 									ng-if="$ctrl.kommonitorDataExchangeServiceInstance.topicGeoresourceHierarchy_unmappedEntries.totalCount > 0">
-
+									
 									<table class="table table-condensed" style="margin-bottom:0px;">
 										<thead>
 											<tr>

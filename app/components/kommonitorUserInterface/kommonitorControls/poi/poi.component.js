@@ -19,6 +19,8 @@ angular
 								$scope.loadingData = false;
 								$scope.date;
 
+								$scope.isCollapsed_noTopic = true;
+
 								$scope.poiNameFilter = undefined;
 								$scope.loiNameFilter = undefined;
 								$scope.aoiNameFilter = undefined;
@@ -909,6 +911,13 @@ angular
 								$scope.zoomToLayer = function(georesourceMetadata){
 									$rootScope.$broadcast("zoomToGeoresourceLayer", georesourceMetadata);
 								};
+
+								$scope.toggleNoTopicHierarchy = function(){
+
+									$scope.isCollapsed_noTopic = ! $scope.isCollapsed_noTopic;
+
+									$scope.digest();
+								}
 
 
 							} ]
