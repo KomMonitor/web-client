@@ -359,7 +359,7 @@ angular
             value: indicatorValue,
             name: featureName,
             itemStyle: {
-              color: color
+              color: color,
               // borderWidth: 1,
               // borderColor: 'black'
             }
@@ -686,6 +686,26 @@ angular
             opacity: 0.8,     
             max: 0,           
             color: defaultColorForZeroValues
+          });
+        }
+
+        let outliers = indicatorMetadataAndGeoJSON.geoJSON.features.filter(feature => feature.properties["outlier"] !== undefined);
+
+        if (kommonitorDataExchangeService.useOutlierDetectionOnIndicator && outliers.length > 0){
+          outliers.sort(compareFeaturesByIndicatorValue);
+          let smallestValue = outliers[0].properties[self.indicatorPropertyName];
+          let highestValue = outliers[outliers.length - 1].properties[self.indicatorPropertyName];
+
+          pieces.push({
+            min: smallestValue,  
+            opacity: 0.8,                          
+            color: defaultColorForOutliers_low
+          });
+
+          pieces.push({
+            max: highestValue,  
+            opacity: 0.8,                          
+            color: defaultColorForOutliers_high
           });
         }
 
