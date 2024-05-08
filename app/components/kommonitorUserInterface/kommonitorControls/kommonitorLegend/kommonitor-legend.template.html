@@ -3,46 +3,18 @@
 	<p></p>
 
 	<!-- Indicator information  -->
-		<div id="kommonitorIndicatorBasicMetadata" class="box box-primary">
+		<div id="kommonitorIndicatorBasicMetadata" class="box box-primary collapsed-box">
 			<div class="box-header with-border">
-				<h3 class="box-title" ng-bind-html="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.indicatorName"></h3>
+				<h3 class="box-title">Raumebene und Export</h3>
 
 				<div class="box-tools pull-right">
-					<button id="indicatorBasicMetadataCollapse" type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+					<button id="indicatorBasicMetadataCollapse" type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
 					</button>
 				</div>
 			</div>
 			<div class="box-body boxedLegend">
 				<div >
-					<div>
-						<h5 ng-if="$ctrl.kommonitorVisualStyleHelperServiceInstance.isCustomComputation">&nbsp;-&nbsp; <i>individuelles Berechnungsergebnis</i></h5>
-						<br />
-						<b>Beschreibung: </b> 
-						<p ng-bind-html="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.metadata.description"></p>
-						<b>Fortf&uuml;hrungsintervall: </b> 
-						<p ng-bind-html="$ctrl.kommonitorDataExchangeServiceInstance.getUpdateIntervalDisplayValue($ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.metadata.updateInterval)"></p>
-						<!-- <br /> -->
-						<!-- <b>Datenquelle: </b> 
-						<p ng-bind-html="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.metadata.datasource"></p> -->
-						<!-- <div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.processDescription && $ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.processDescription != ''">
-							<b>Methodikhinweise: </b> 
-							<p mathjax-bind="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.processDescription"></p>
-						</div>						 -->
-						<br />
-						<!-- <div class="row" style="margin-right: 0px;">
-							<div class="col-sm-3">
-								<div class="text-left"><label>Raumebene: </label></div>
-							</div>
-							<div class="col-sm-9">
-								<select ng-model="$ctrl.kommonitorDataExchangeServiceInstance.selectedSpatialUnit"
-									ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits | filter:filterSpatialUnits()"
-									class="form-control" ng-change="onChangeSelectedSpatialUnit()" required>
-									<option disabled selected value> -- Raumeinheit w&auml;hlen --
-									</option>
-								</select>
-							</div>
-						</div><br> -->
-
+					<div>						
 						<div class="row" style="margin-right: 0px;">
 							<div class="col-sm-7">
 								<div class="text-left"><label>Raumebene</label><a ng-show="$ctrl.envInstance.enableSpatialUnitNotificationButton" data-toggle="modal" ng-click="showSpatialUnitNotificationModalIfEnabled()" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%; cursor:pointer;" title="Information zu Raumeinheiten&nbsp;&nbsp;"><span class="glyphicon glyphicon-info-sign"></span></a></div>
@@ -116,7 +88,11 @@
 					<uib-tab index="0" heading="Indikator">
 
 						<div class="just-padding">
-							<h4>{{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorStringFromIndicatorType($ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.indicatorType)}}</h4>
+							
+							<h4>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.indicatorName}}</h4>
+							<h5 ng-if="$ctrl.kommonitorVisualStyleHelperServiceInstance.isCustomComputation">&nbsp;-&nbsp; <i>individuelles Berechnungsergebnis</i></h5>
+							<p ng-bind-html="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.metadata.description"></p>							
+							
 							<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.indicatorType.includes('STATUS') && ! $ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked && !$ctrl.kommonitorDataExchangeServiceInstance.isBalanceChecked">
 								<em>Darstellung der Indikatorenwerte {{$ctrl.kommonitorDataExchangeServiceInstance.tsToDate_withOptionalUpdateInterval($ctrl.kommonitorDataExchangeServiceInstance.dateToTS(dateAsDate, $ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.metadata.updateInterval))}}</em>
 								<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.referenceDateNote">
@@ -136,9 +112,7 @@
 							</div>
 							
 							<br />
-							
-							<label>Einheit: </label> 
-							<p ng-bind-html="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.unit"></p>	
+			
 							<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.interpretation && $ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.interpretation != ''">
 								<label>Interpretationshilfe:</label>
 								<p ng-bind-html="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.interpretation"></p>	
@@ -148,7 +122,7 @@
 
 							<div class="row" style="margin-right: 0px;">
 								<div class="col-md-3"><b>Symbolik</b></div>
-								<div class="col-md-6"><b>Wertebereich</b></div>
+								<div class="col-md-6"><b>Wertebereich</b> [{{$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.unit}}]</div>
 								<div class="col-md-3"><b>Fallzahl</b></div><br>
 							</div>
 							<div ng-if="containsNoData">
@@ -332,26 +306,12 @@
 		</div>
 		<!-- /.box -->
 
-		<!-- classification -->
-		<div id="kommonitorIndicatorClassification" class="box box-primary collapsed-box">
+		<div id="kommonitorsStatisticalValues" class="box box-primary collapsed-box">
 			<div class="box-header with-border">
-				<h3 class="box-title">Klassifikation anpassen</h3>
-				<div class="box-tools pull-right">
-					<button id="indicatorClassificationCollapse" type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
-					</button>
-				</div>
-			</div>
-			<div class="box-body boxedLegend">
-				<kommonitor-classification></kommonitor-classification>
-			</div>
-		</div>
-
-		<div id="kommonitorsStatisticalValues" class="box box-primary">
-			<div class="box-header with-border">
-				<h3 class="box-title">Statistische Merkmale</h3>
+				<h3 class="box-title">Indikatoren-Statistik</h3>
 
 				<div class="box-tools pull-right">
-					<button id="statisticalValuesCollapse" type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+					<button id="statisticalValuesCollapse" type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
 					</button>
 				</div>
 			</div>
@@ -376,19 +336,19 @@
 							<td>{{$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesSum}}</td>
 							<td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedFeaturesSum}}</td>
 						</tr>
-       		            <tr>
-       		                <td>{{$ctrl.kommonitorDataExchangeServiceInstance.labelMean}}</td>
-       		                <td>{{$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesMean}}</td>
+						   <tr>
+							   <td>{{$ctrl.kommonitorDataExchangeServiceInstance.labelMean}}</td>
+							   <td>{{$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesMean}}</td>
 							<td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedFeaturesMean}}</td>
-       		            </tr>
-       		            <tr>
-       		                <td>{{$ctrl.kommonitorDataExchangeServiceInstance.labelMin}}</td>
-       		                <td>{{$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesMin}}</td>
+						   </tr>
+						   <tr>
+							   <td>{{$ctrl.kommonitorDataExchangeServiceInstance.labelMin}}</td>
+							   <td>{{$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesMin}}</td>
 							<td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedFeaturesMin}}</td>
-       		            </tr>
+						   </tr>
 						<tr>
 							<td>{{$ctrl.kommonitorDataExchangeServiceInstance.labelMax}}</td>
-       		                <td>{{$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesMax}}</td>
+							   <td>{{$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesMax}}</td>
 							<td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedFeaturesMax}}</td>
 						</tr>
 					</tbody>
@@ -398,5 +358,251 @@
 		</div>
 		<!-- /.box -->
 
+		<div class="box box-primary collapsed-box">
+			<div class="box-header with-border">
+				<h3 class="box-title">weitere Indikatoren-Informationen</h3>
+		
+				<div class="box-tools pull-right">
+					<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+					</button>
+				</div>
+			</div>
+			<!-- /.box-header -->
+			<!-- form start -->
+			<div class="box-body">
+		
+				<div class="box box-info collapsed-box">
+					<div class="box-header with-border">
+						<h3 class="box-title">Indikatoren-Metadaten</h3>
+		
+						<div class="box-tools pull-right">
+							<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+							</button>
+						</div>
+					</div>
+					<!-- /.box-header -->
+					<!-- form start -->
+					<div class="box-body">
+		
+						<div id="indicatorMetadataOverview" text-align="center" align="center" class="">
+		
+							<table class="table table-condensed">
+								<!-- <thead>
+													<tr>
+														<th>Name des Metadatums</th>
+														<th>Beschreibung des Metadatums</th>
+													</tr>
+												</thead> -->
+								<tbody>
+									<tr>
+										<td><b>Name</b></td>
+										<td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.indicatorName}}</td>
+									</tr>
+									<tr>
+										<td><b>Kategorie</b></td>
+										<td
+											ng-if="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.isHeadlineIndicator">
+											Leitindikator</td>
+										<td
+											ng-if="! $ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.isHeadlineIndicator">
+											Basisindikator</td>
+									</tr>
+									<tr>
+										<td><b>Typ</b></td>
+										<td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.indicatorType}}</td>
+									</tr>
+									<!-- we hide characteristicValue parameter as it is and old relic not used any longer. 
+													-> deprecated -->
+		
+									<!-- <tr ng-if="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.characteristicValue">
+														<td><b>Merkmalsauspr&auml;gung</b></td>
+														<td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.characteristicValue}}</td>
+													</tr> -->
+									<tr>
+										<td><b>Kennzeichen/K&uuml;rzel</b></td>
+										<td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.abbreviation}}</td>
+									</tr>
+									<tr>
+										<td><b>Beschreibung</b></td>
+										<td
+											ng-bind-html="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.metadata.description">
+										</td>
+									</tr>
+									<tr>
+										<td><b>Maßeinheit</b></td>
+										<td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.unit}}</td>
+									</tr>
+									<tr>
+										<td><b>Methodik</b></td>
+										<td
+											mathjax-bind="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.processDescription">
+										</td>
+									</tr>
+									<tr>
+										<td><b>Interpretation</b></td>
+										<td
+											ng-bind-html="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.interpretation">
+										</td>
+									</tr>
+									<tr>
+										<td><b>Datengrundlage</b></td>
+										<td
+											ng-bind-html="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.metadata.databasis">
+										</td>
+									</tr>
+									<tr>
+										<td><b>Datenquelle</b></td>
+										<td
+											ng-bind-html="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.metadata.datasource">
+										</td>
+									</tr>
+									<tr>
+										<td><b>Datenhalter und Kontakt</b></td>
+										<td
+											ng-bind-html="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.metadata.contact">
+										</td>
+									</tr>
+									<tr>
+										<td><b>Bemerkung</b></td>
+										<td
+											ng-bind-html="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.metadata.note">
+										</td>
+									</tr>
+									<tr>
+										<td><b>Fortführungsintervall</b></td>
+										<td
+											ng-bind-html="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.metadata.updateInterval">
+										</td>
+									</tr>
+								</tbody>
+							</table>
+		
+						</div>
+		
+					</div>
+					<!-- /.box-body -->
+				</div>
+				<!-- /.box -->
+		
+				<div 
+					class="box box-info collapsed-box">
+					<div class="box-header with-border">
+						<h3 class="box-title">Verkn&uuml;pfte Indikatoren</h3>
+		
+						<div class="box-tools pull-right">
+							<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+							</button>
+						</div>
+					</div>
+					<!-- /.box-header -->
+					<!-- form start -->
+					<div class="box-body">
+
+						<div ng-show="!($ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.referencedIndicators.length > 0)">
+							-- keine --
+						</div>
+						<div ng-show="($ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.referencedIndicators.length > 0)">
+							<div id="referencedIndicatorOverview" text-align="center" align="center" class=""
+							ng-if="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.referencedIndicators.length > 0">
+		
+							<table class="table table-condensed">
+								<thead>
+									<tr>
+										<th>Name des Indikators</th>
+										<th>K&uuml;rzel/Kennziffer</th>
+										<th>Beschreibung der Verkn&uuml;pfung</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr
+										ng-repeat="indicator in $ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.referencedIndicators">
+										<td>{{indicator.referencedIndicatorName}}</td>
+										<td
+											ng-bind="$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorAbbreviationFromIndicatorId(indicator.referencedIndicatorId)">
+										</td>
+										<td>{{indicator.referencedIndicatorDescription}}</td>
+									</tr>
+								</tbody>
+							</table>
+		
+						</div>
+						</div>
+		
+						
+		
+					</div>
+					<!-- /.box-body -->
+				</div>
+				<!-- /.box -->
+		
+		
+				<div 
+					style="margin-bottom: 0px;" class="box box-info collapsed-box">
+					<div class="box-header with-border">
+						<h3 class="box-title">Verkn&uuml;pfte Georessourcen</h3>
+		
+						<div class="box-tools pull-right">
+							<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+							</button>
+						</div>
+					</div>
+					<!-- /.box-header -->
+					<!-- form start -->
+					<div class="box-body">
+
+						<div ng-show="! ($ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.referencedGeoresources.length > 0)">
+							-- keine --
+						</div>
+						<div ng-show="($ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.referencedGeoresources.length > 0)">
+							<div id="referencedGeoresourcesOverview" text-align="center" align="center" class=""
+							ng-if="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.referencedGeoresources.length > 0">
+							<h4>Verkn&uuml;pfte Georessourcen</h4>
+		
+							<table class="table table-condensed">
+								<thead>
+									<tr>
+										<th>Name der Georessource</th>
+										<th>Beschreibung der Verkn&uuml;pfung</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr
+										ng-repeat="georesource in $ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.referencedGeoresources">
+										<td>{{georesource.referencedGeoresourceName}}</td>
+										<td>{{georesource.referencedGeoresourceDescription}}</td>
+									</tr>
+								</tbody>
+							</table>
+		
+						</div>
+						</div>
+		
+						
+		
+					</div>
+					<!-- /.box-body -->
+				</div>
+				<!-- /.box -->
+		
+			</div>
+			<!-- box body end -->
+		</div>
+		<!-- box end -->
+
+		
+
+		<!-- classification -->
+		<div id="kommonitorIndicatorClassification" class="box box-primary collapsed-box">
+			<div class="box-header with-border">
+				<h3 class="box-title">Klassifikation anpassen</h3>
+				<div class="box-tools pull-right">
+					<button id="indicatorClassificationCollapse" type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+					</button>
+				</div>
+			</div>
+			<div class="box-body boxedLegend">
+				<kommonitor-classification></kommonitor-classification>
+			</div>
+		</div>
 
 </div>
