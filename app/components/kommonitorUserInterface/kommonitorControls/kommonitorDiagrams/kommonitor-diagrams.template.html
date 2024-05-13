@@ -26,14 +26,24 @@
 						<h3 ng-if="date" class="box-title">Feature-Vergleich - {{spatialUnitName}} - {{date}}</h3>
 						<h3 ng-if="fromDate && toDate" class="box-title">Feature-Vergleich - {{spatialUnitName}} - Bilanz {{fromDate}} - {{toDate}}</h3>
 						
-						<!-- <div class="box-tools pull-right">
+						<div class="box-tools pull-right">
 							<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
 							</button>
-						</div> -->
+						</div> 
 					</div>
 					<div class="box-body">
 						<div class="chart">
-							<div  id="barDiagram" style="width:100%; min-height:35vh;"></div>
+							<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesRegionalSum">
+								<b>{{$ctrl.kommonitorDataExchangeServiceInstance.labelSum_regional}}</b> {{$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesRegionalSum}}								
+							</div>
+							<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesRegionalMean">
+								<b>{{$ctrl.kommonitorDataExchangeServiceInstance.labelMean_regional}}</b> {{$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesRegionalMean}}								
+							</div>
+							<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesRegionalSpatiallyUnassignable">
+								<b>{{$ctrl.kommonitorDataExchangeServiceInstance.labelSpatiallyUnassignable_regional}}</b> {{$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesRegionalSpatiallyUnassignable || 0}}								
+							</div>
+							<br />
+							<div  id="barDiagram" style="width:100%; min-height:30vh;"></div>
 						</div>
 					</div>
 					<!-- /.box-body -->
@@ -45,10 +55,10 @@
 						<div class="box-header with-border">
 							<h3 class="box-title">Zeitreihe - {{spatialUnitName}}</h3>
 
-							<!-- <div class="box-tools pull-right">
+							<div class="box-tools pull-right">
 								<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
 								</button>
-							</div> -->
+							</div> 
 						</div>
 						<div class="box-body">
 							<div class="chart">
