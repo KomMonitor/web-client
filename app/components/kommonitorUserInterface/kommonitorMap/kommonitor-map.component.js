@@ -618,12 +618,22 @@ angular.module('kommonitorMap').component(
         }; // end initialize map
 
 
+        function filterForScreenshot (node) {
+          return (
+            node.tagName !== 'BUTTON' && 
+            node.tagName !== 'A' && ( 
+              node.className instanceof SVGAnimatedString || 
+              !node.className.includes('leaflet-control')
+            )
+          );
+        }
+
         $scope.$on("exportMap", function (event) {
 
            var node = document.getElementById("map");
 
           return domtoimage
-              .toBlob(node, {"quality": 1.0})
+              .toBlob(node, {"quality": 1.0, filter: filterForScreenshot})
               .then(function (blob) {
                 // FileSaver saveAs method
                 saveAs(blob, 'KomMonitor-Screenshot.png');
