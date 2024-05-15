@@ -394,9 +394,12 @@ angular
         var indicatorTimeSeriesRegionalSpatiallyUnassignableArray = new Array(indicatorTimeSeriesDatesArray.length);
         let regionalReferencesMap = new Map();
 
-        for (const entry of indicatorMetadataAndGeoJSON.regionalReferenceValues) {
-          regionalReferencesMap.set(entry.referenceDate, entry);
+        if (indicatorMetadataAndGeoJSON.regionalReferenceValues){
+          for (const entry of indicatorMetadataAndGeoJSON.regionalReferenceValues) {
+            regionalReferencesMap.set(entry.referenceDate, entry);
+          }
         }
+        
 
         // initialize timeSeries arrays
         for (var i = 0; i < indicatorTimeSeriesDatesArray.length; i++) {

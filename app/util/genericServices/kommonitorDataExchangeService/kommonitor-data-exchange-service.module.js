@@ -1973,13 +1973,16 @@ angular
             this.allFeaturesRegionalMean = undefined;
             this.allFeaturesRegionalSpatiallyUnassignable = undefined;
 
-            for (const regionalReferenceValuesEntry of indicatorMetadataAndGeoJSON.regionalReferenceValues) {
-              if (regionalReferenceValuesEntry.referenceDate && regionalReferenceValuesEntry.referenceDate == thisService.selectedDate){
-                this.allFeaturesRegionalSum = regionalReferenceValuesEntry.regionalSum;
-                this.allFeaturesRegionalMean = regionalReferenceValuesEntry.regionalAverage;
-                this.allFeaturesRegionalSpatiallyUnassignable = regionalReferenceValuesEntry.spatiallyUnassignable;
+            if (indicatorMetadataAndGeoJSON.regionalReferenceValues){
+              for (const regionalReferenceValuesEntry of indicatorMetadataAndGeoJSON.regionalReferenceValues) {
+                if (regionalReferenceValuesEntry.referenceDate && regionalReferenceValuesEntry.referenceDate == thisService.selectedDate){
+                  this.allFeaturesRegionalSum = regionalReferenceValuesEntry.regionalSum;
+                  this.allFeaturesRegionalMean = regionalReferenceValuesEntry.regionalAverage;
+                  this.allFeaturesRegionalSpatiallyUnassignable = regionalReferenceValuesEntry.spatiallyUnassignable;
+                }
               }
             }
+            
           };
 
           
