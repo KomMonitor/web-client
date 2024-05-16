@@ -390,6 +390,17 @@ angular
         var indicatorTimeSeriesMinArray = new Array(indicatorTimeSeriesDatesArray.length);
         var indicatorTimeSeriesCountArray = new Array(indicatorTimeSeriesDatesArray.length);
 
+        var indicatorTimeSeriesRegionalMeanArray = new Array(indicatorTimeSeriesDatesArray.length);
+        var indicatorTimeSeriesRegionalSpatiallyUnassignableArray = new Array(indicatorTimeSeriesDatesArray.length);
+        let regionalReferencesMap = new Map();
+
+        if (indicatorMetadataAndGeoJSON.regionalReferenceValues){
+          for (const entry of indicatorMetadataAndGeoJSON.regionalReferenceValues) {
+            regionalReferencesMap.set(entry.referenceDate, entry);
+          }
+        }
+        
+
         // initialize timeSeries arrays
         for (var i = 0; i < indicatorTimeSeriesDatesArray.length; i++) {
           indicatorTimeSeriesAverageArray[i] = 0;
@@ -432,6 +443,33 @@ angular
                   indicatorTimeSeriesMaxArray[i] = indicatorFeature.properties[datePropertyName];
                 }
               }
+
+              // regional reference values
+              // als map auslagern und dann hier prüfen, ob ein element in der map drin ist.
+              // falls nicht, dann null setzen, 
+              if (regionalReferencesMap.has(indicatorTimeSeriesDatesArray[i])){
+                let regionalAverage = regionalReferencesMap.get(indicatorTimeSeriesDatesArray[i]).regionalAverage;
+                if (regionalAverage && typeof(regionalAverage) == "number"){
+                  indicatorTimeSeriesRegionalMeanArray[i] = regionalAverage;
+                }
+                else{
+                  indicatorTimeSeriesRegionalMeanArray[i] = null;
+                }
+
+                let regionalSpatiallyUnassignable = regionalReferencesMap.get(indicatorTimeSeriesDatesArray[i]).spatiallyUnassignable;
+                if (regionalSpatiallyUnassignable && typeof(regionalSpatiallyUnassignable) == "number"){
+                  indicatorTimeSeriesRegionalSpatiallyUnassignableArray[i] = regionalSpatiallyUnassignable;
+                }
+                else{
+                  indicatorTimeSeriesRegionalSpatiallyUnassignableArray[i] = null;
+                }
+                
+              }
+              else{
+                indicatorTimeSeriesRegionalMeanArray[i] = null;
+                indicatorTimeSeriesRegionalSpatiallyUnassignableArray[i] = null;
+              }
+
             }
           }
         }
@@ -443,7 +481,7 @@ angular
 
         // setHistogramChartOptions(indicatorMetadataAndGeoJSON, indicatorValueArray, spatialUnitName, date);
 
-        setLineChartOptions(indicatorMetadataAndGeoJSON, indicatorTimeSeriesDatesArray, indicatorTimeSeriesAverageArray, indicatorTimeSeriesMaxArray, indicatorTimeSeriesMinArray, spatialUnitName, date);
+        setLineChartOptions(indicatorMetadataAndGeoJSON, indicatorTimeSeriesDatesArray, indicatorTimeSeriesAverageArray, indicatorTimeSeriesMaxArray, indicatorTimeSeriesMinArray, indicatorTimeSeriesRegionalMeanArray, indicatorTimeSeriesRegionalSpatiallyUnassignableArray, spatialUnitName, date);
 
         setBarChartOptions(indicatorMetadataAndGeoJSON, featureNamesArray, indicatorValueBarChartArray, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue);
 
@@ -1066,7 +1104,7 @@ angular
       };
 
 
-      var setLineChartOptions = function (indicatorMetadataAndGeoJSON, indicatorTimeSeriesDatesArray, indicatorTimeSeriesAverageArray, indicatorTimeSeriesMaxArray, indicatorTimeSeriesMinArray, spatialUnitName, date) {
+      var setLineChartOptions = function (indicatorMetadataAndGeoJSON, indicatorTimeSeriesDatesArray, indicatorTimeSeriesAverageArray, indicatorTimeSeriesMaxArray, indicatorTimeSeriesMinArray, indicatorTimeSeriesRegionalMeanArray, indicatorTimeSeriesRegionalSpatiallyUnassignableArray, spatialUnitName, date) {
 
         var lineOption = {
           // grid get rid of whitespace around chart
@@ -1178,7 +1216,7 @@ angular
           legend: {
             type: "scroll",
             bottom: 0,
-            data: ['Arithmetisches Mittel']
+            data: ['rechnerisches arithmetisches Mittel']
           },
           xAxis: {
             name: indicatorMetadataAndGeoJSON.indicatorName,
@@ -1206,7 +1244,7 @@ angular
           },
           series: [          
           {
-            name: "Arithmetisches Mittel",
+            name: "rechnerisches arithmetisches Mittel",
             type: 'line',
             data: indicatorTimeSeriesAverageArray,
             lineStyle: {
@@ -1222,7 +1260,57 @@ angular
                 color: 'gray'
               }
             }
-          }]
+          }
+          ]
+        };
+
+
+        let regionalMeanLine = {
+          name: "gesamtregionaler Vergleichsdurchschnitt",
+          type: 'line',
+          data: indicatorTimeSeriesRegionalMeanArray,
+          lineStyle: {
+            normal: {
+              color: 'red',
+              width: 2,
+              type: 'dashed'
+            }
+          },
+          itemStyle: {
+            normal: {
+              borderWidth: 3,
+              color: 'red'
+            }
+          }
+        };
+        // only add regional mean line if it contains at least one meaningful entry
+        if(indicatorTimeSeriesRegionalMeanArray.some(el => el !== null)){
+          lineOption.series.push(regionalMeanLine);
+          lineOption.legend.data.push("gesamtregionaler Vergleichsdurchschnitt");
+        };
+        
+        let regionalSpatiallyUnassignableLine = {
+          name: "räumlich nicht zuordenbare",
+          type: 'line',
+          data: indicatorTimeSeriesRegionalSpatiallyUnassignableArray,
+          lineStyle: {
+            normal: {
+              color: 'green',
+              width: 2,
+              type: 'dashed'
+            }
+          },
+          itemStyle: {
+            normal: {
+              borderWidth: 3,
+              color: 'green'
+            }
+          }
+        };
+        // only add regional spatially unassignable line if it contains at least one meaningful entry
+        if(indicatorTimeSeriesRegionalSpatiallyUnassignableArray.some(el => el !== null)){
+          lineOption.series.push(regionalSpatiallyUnassignableLine);
+          lineOption.legend.data.push("räumlich nicht zuordenbare");
         };
 
         // SETTING FOR MIN AND MAX STACK

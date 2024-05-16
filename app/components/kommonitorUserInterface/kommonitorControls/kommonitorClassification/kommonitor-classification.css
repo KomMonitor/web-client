@@ -106,7 +106,7 @@ select {
 #method-select-selection {
   cursor: pointer;
   user-select: none;
-  position: absolute;
+  position: relative;
   background-color: white;
   z-index: 10;
   box-shadow: 2px 2px 9px 0px #66666661;

@@ -1919,8 +1919,11 @@ angular
           this.labelFilteredFeatures = "gefilterte Features";
           this.labelSelectedFeatures = "selektierte Features";
           this.labelNumberOfFeatures = "Anzahl:"
-          this.labelSum = "Summe:"
-          this.labelMean = "arith. Mittel:"
+          this.labelSum = "rechnerische Summe:"
+          this.labelMean = "rechnerisches arith. Mittel:"
+          this.labelSum_regional = "gesamtregionale Vergleichssumme:"
+          this.labelSpatiallyUnassignable_regional = "räumlich nicht zuordenbare:"
+          this.labelMean_regional = "gesamtregionaler Vergleichsmittelwert:"
           this.labelMin = "Minimalwert:"
           this.labelMax = "Maximalwert"
 
@@ -1934,6 +1937,9 @@ angular
           this.selectedFeaturesMean;
           this.selectedFeaturesMin;
           this.selectedFeaturesMax;
+          this.allFeaturesRegionalSum;
+          this.allFeaturesRegionalMean;
+          this.allFeaturesRegionalSpatiallyUnassignable;
           this.allFeaturesPropertyUnit;
 
           this.setAllFeaturesProperty = function(indicatorMetadataAndGeoJSON, propertyName){
@@ -1961,7 +1967,22 @@ angular
             else 
               this.allFeaturesMean = 0;
             this.allFeaturesMin = this.getIndicatorValue_asFormattedText(min);
-            this.allFeaturesMax = this.getIndicatorValue_asFormattedText(max)
+            this.allFeaturesMax = this.getIndicatorValue_asFormattedText(max);
+
+            this.allFeaturesRegionalSum = undefined;
+            this.allFeaturesRegionalMean = undefined;
+            this.allFeaturesRegionalSpatiallyUnassignable = undefined;
+
+            if (indicatorMetadataAndGeoJSON.regionalReferenceValues){
+              for (const regionalReferenceValuesEntry of indicatorMetadataAndGeoJSON.regionalReferenceValues) {
+                if (regionalReferenceValuesEntry.referenceDate && regionalReferenceValuesEntry.referenceDate == thisService.selectedDate){
+                  this.allFeaturesRegionalSum = regionalReferenceValuesEntry.regionalSum;
+                  this.allFeaturesRegionalMean = regionalReferenceValuesEntry.regionalAverage;
+                  this.allFeaturesRegionalSpatiallyUnassignable = regionalReferenceValuesEntry.spatiallyUnassignable;
+                }
+              }
+            }
+            
           };
 
           

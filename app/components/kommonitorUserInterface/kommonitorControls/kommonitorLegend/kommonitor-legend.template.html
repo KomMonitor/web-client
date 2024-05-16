@@ -316,6 +316,7 @@
 				</div>
 			</div>
 			<div class="box-body">
+				<em>Referenzzeitpunkt {{$ctrl.kommonitorDataExchangeServiceInstance.tsToDate_withOptionalUpdateInterval($ctrl.kommonitorDataExchangeServiceInstance.dateToTS(dateAsDate, $ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.metadata.updateInterval))}}</em>
 				<table id="statisticalValuesDisplayTable" class="table">
 					<thead>
 						<tr>
@@ -331,16 +332,29 @@
 							<td>{{$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesNumberOfFeatures}}</td>
 							<td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedFeaturesNumberOfFeatures}}</td>
 						</tr>
-						<tr>
+						<tr ng-if="! $ctrl.kommonitorDataExchangeServiceInstance.allFeaturesRegionalSum">
 							<td>{{$ctrl.kommonitorDataExchangeServiceInstance.labelSum}}</td>
 							<td>{{$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesSum}}</td>
 							<td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedFeaturesSum}}</td>
 						</tr>
+						<tr ng-if="$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesRegionalSum">
+							<td>{{$ctrl.kommonitorDataExchangeServiceInstance.labelSum_regional}}</td>
+							<td>{{$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesRegionalSum}}</td>
+							<td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedFeaturesSum}}</td>
+						</tr>
+						
+						
 						   <tr>
 							   <td>{{$ctrl.kommonitorDataExchangeServiceInstance.labelMean}}</td>
 							   <td>{{$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesMean}}</td>
-							<td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedFeaturesMean}}</td>
+								<td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedFeaturesMean}}</td>
 						   </tr>
+						   <tr ng-if="$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesRegionalMean">
+								<td>{{$ctrl.kommonitorDataExchangeServiceInstance.labelMean_regional}}</td>
+								<td>{{$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesRegionalMean}}</td>
+								<td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedFeaturesMean}}</td>
+							</tr>
+						   
 						   <tr>
 							   <td>{{$ctrl.kommonitorDataExchangeServiceInstance.labelMin}}</td>
 							   <td>{{$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesMin}}</td>
@@ -350,6 +364,12 @@
 							<td>{{$ctrl.kommonitorDataExchangeServiceInstance.labelMax}}</td>
 							   <td>{{$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesMax}}</td>
 							<td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedFeaturesMax}}</td>
+						</tr>
+
+						<tr>
+							<td>{{$ctrl.kommonitorDataExchangeServiceInstance.labelSpatiallyUnassignable_regional}}</td>
+							   <td>{{$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesRegionalSpatiallyUnassignable || 0}}</td>
+							<td>-</td>
 						</tr>
 					</tbody>
 				</table>
