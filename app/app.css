@@ -924,12 +924,12 @@ pre.CodeMirror-line {
 	background: rgb(236,240,245);
 	z-index: 1003;
 	border-bottom: 2px solid gray;
-	max-height: 5vh !important;
-	height: 5vh !important;
+	max-height: 6vh !important;
+	height: 6vh !important;
 }
 
 #map {
-	height: 95vh;
+	height: 94vh;
 	position: relative;
 }
 
@@ -1698,8 +1698,8 @@ color: #777;
 	  display: -webkit-flex;
 	  display: -ms-flexbox;
 	  display: flex;
-	max-height: 95vh !important;
-	height: 95vh !important;
+	max-height: 94vh !important;
+	height: 94vh !important;
 }
 
 aside{
