@@ -255,6 +255,25 @@
 									</div>
 								</div>
 							</div>
+							<div 
+								ng-model="classificationCollapsed" 
+								ng-click="classificationCollapsed=!classificationCollapsed"
+								style="font-size:1.5em; cursor:pointer; margin-top: 16px;">
+								<span class="fas fa-cogs"></span>
+							</div>
+							<div ng-show="classificationCollapsed" 
+								class="box boxedLegend with-border"
+								style="border-top: 1px solid #d2d6de;">
+								<div class="box-header with-border">
+									<h3 class="box-title">Klassifikation anpassen</h3>
+									<div class="box-tools pull-right">
+										<button type="button" class="close" ng-click="classificationCollapsed=!classificationCollapsed">×</button>
+									</div>
+								</div>
+								<div class="box-body">
+									<kommonitor-classification></kommonitor-classification>
+								</div>
+							</div>
 						</div>
 				
 					</uib-tab>
@@ -608,21 +627,5 @@
 			<!-- box body end -->
 		</div>
 		<!-- box end -->
-
-		
-
-		<!-- classification -->
-		<div id="kommonitorIndicatorClassification" class="box box-primary collapsed-box">
-			<div class="box-header with-border">
-				<h3 class="box-title">Klassifikation anpassen</h3>
-				<div class="box-tools pull-right">
-					<button id="indicatorClassificationCollapse" type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
-					</button>
-				</div>
-			</div>
-			<div class="box-body boxedLegend">
-				<kommonitor-classification></kommonitor-classification>
-			</div>
-		</div>
 
 </div>
