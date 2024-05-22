@@ -19,7 +19,6 @@ angular.module('roleDeleteModal').component('roleDeleteModal', {
 		$scope.affectedSpatialUnits = [];
 		$scope.affectedGeoresources = [];
 		$scope.affectedIndicators = [];
-		$scope.affectedSpatialUnits = [];
 
 		$scope.$on("onDeleteOrganizationalUnit", function (event, datasets) {
 
@@ -184,9 +183,9 @@ angular.module('roleDeleteModal').component('roleDeleteModal', {
 								
 								if(datasetToDelete.permissions.filter(e => e.permissionId==permission).length==1) {
 									if(!found)
-										connectedItems.push(`${datasetToDelete.name}-${datasetToDelete.permissions.filter(e => e.permissionId==role).map(e => { return e.permissionLevel})[0]}`);
+										connectedItems.push(`${datasetToDelete.name}-${datasetToDelete.permissions.filter(e => e.permissionId==permission).map(e => { return e.permissionLevel})[0]}`);
 
-									connectedSpatialItem.ids.push(`${datasetToDelete.name}-${datasetToDelete.permissions.filter(e => e.permissionId==role).map(e => { return e.permissionLevel})[0]}`);
+									connectedSpatialItem.ids.push(`${datasetToDelete.name}-${datasetToDelete.permissions.filter(e => e.permissionId==permission).map(e => { return e.permissionLevel})[0]}`);
 								}
 							});
 
@@ -212,7 +211,16 @@ angular.module('roleDeleteModal').component('roleDeleteModal', {
 			return $scope.affectedIndicators;
 		};
 
-		
+		$scope.isDeleteDisabled = function() {
+
+            if($scope.elementsToDelete.length == 0 || 
+                $scope.affectedSpatialUnits.length > 0 || 
+                $scope.affectedGeoresources.length > 0 || 
+                $scope.affectedIndicators.length > 0)
+                    return true;
+
+            return false;
+        }
 
 		$scope.deleteOrganizationalUnits = function () {
 
