@@ -36,6 +36,8 @@ angular.module('roleDeleteModal').component('roleDeleteModal', {
 
         $scope.fetchOrganizationalChildren = function(datasets) {
 
+            $scope.organizationalChildrenEffected = false;
+
             datasets.forEach(parent => {
                 if(parent.children) {
                     parent.children.forEach(child => {

@@ -19,39 +19,41 @@
 				<h4><b>Sollen die folgenden Organisationseinheiten wirklich gel&ouml;scht werden?</b></h4>
 
                 <div class="alert alert-danger" ng-if="organizationalChildrenEffected">
-                    Bitte beachten Sie, dass diese Organisationseinheit &uuml;ber Untergruppen verf&uuml;gt, welche ebenfalls gel&ouml;scht werden w&uuml;rden.<br>
-                    Mit Untergruppen verkn&uuml;pfte Resourcen sind farblich hervorgehoben.
+                    Bitte beachten Sie, dass diese Organisationseinheit &uuml;ber Untergruppen verf&uuml;gt, welche ebenfalls gel&ouml;scht werden w&uuml;rden.
                 </div>
 
-				<p>Eventuelle Zugriffsregeln dieser Einheiten auf KomMonitor-Ressourcen werden dabei entfernt.</p>
-
 				<div ng-if="elementsToDelete.length > 0">
-					<ul>
-						<li ng-repeat="dataset in elementsToDelete" ng-if="!dataset.subGroup"><b>{{dataset.name}}</b>, {{dataset.organizationalUnitId}}</li>
-						<li ng-repeat="dataset in elementsToDelete" ng-if="dataset.subGroup"><span class="organizationalUnit-subGroup-item"><b>{{dataset.name}}</b></span>, {{dataset.organizationalUnitId}}</li>
-					</ul>
+                    <table class="table table-bordered table-condensed"
+							style="overflow:auto; font-size: 11px;">
+							<thead>
+								<tr>
+									<th>Name</th>
+									<th>Organisations-ID</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr ng-repeat="dataset in elementsToDelete">
+									<td><span ng-class="{'organizationalUnit-subGroup-item' : dataset.subGroup }"><b>{{dataset.name}}</b></span></td>
+									<td>{{dataset.organizationalUnitId}}</td>
+								</tr>
+
+							</tbody>
+						</table>
 				</div>
 
 				<div ng-if="! elementsToDelete.length > 0">
 					<pre>kein Datensatz zum L&ouml;schen markiert. Mindestens ein Datensatz muss markiert werden.</pre>
 				</div>
 
-				<div ng-if="elementsToDelete.length > 0">
-					<h3>ACHTUNG!</h3>
-					<p>
-						Sollten Ressourcen noch durch die zu l&ouml;schende(n) Organisationseinheite(n) abgesichert sein, so
-						schl&auml;gt die L&ouml;sch-Operation
-						m&ouml;glicherweise fehl. So soll verhindert werden, dass gesch&uuml;tzte Ressourcen durch
-						L&ouml;schen der verkn&uuml;pften Organisationseinheite(n) frei zug&auml;nglich werden.
-
-						Administratoren m&uuml;ssten vorab die unten gelisteten Verkn&uuml;pfungen zuerst aufheben, um
-						die Organisationseinheite(n) tats&auml;chlich l&ouml;schen zu k&ouml;nnen.
-
-					<h4>Betroffene Raumeinheiten</h4>
-					<div ng-if="! affectedSpatialUnits.length > 0">
-						<p>keine</p>
-					</div>
+				<div ng-if="elementsToDelete.length > 0 && (affectedGeoresources.length > 0 || affectedIndicators.length > 0 || affectedSpatialUnits.length > 0)">
+					<div class="alert alert-danger">
+                        <h3>ACHTUNG!</h3>
+                        Es existieren Resourcen, welche durch diese Organisationseinheit(en) abgesichert sind. Solange diese Verkn&uuml;pfungen existieren, ist ein L&ouml;schen der entsprechende Organisationseinheit(en) nicht m&ouml;glich. <br>
+                        Bitte l&ouml;sen Sie zuerst die im folgenden aufgef&uuml;hrten Verkn&uuml;pfungen.
+                    </div>
+                    
 					<div ng-if="affectedSpatialUnits.length > 0">
+                        <h4>Betroffene Raumeinheiten</h4>
 						<table class="table table-bordered table-condensed"
 							style="width:100%; overflow:auto; font-size: 11px;">
 							<thead>
@@ -78,11 +80,8 @@
 						</table>
 					</div>
 
-					<h4>Betroffene Georessourcen</h4>
-					<div ng-if="! affectedGeoresources.length > 0">
-						<p>keine</p>
-					</div>
 					<div ng-if="affectedGeoresources.length > 0">
+                        <h4>Betroffene Georessourcen</h4>
 						<table class="table table-bordered table-condensed"
 							style="width:100%; overflow:auto; font-size: 11px;">
 							<thead>
@@ -109,11 +108,8 @@
 						</table>
 					</div>
 
-					<h4>Betroffene Indikatoren</h4>
-					<div ng-if="! affectedIndicators.length > 0">
-						<p>keine</p>
-					</div>
 					<div ng-if="affectedIndicators.length > 0">
+                        <h4>Betroffene Indikatoren</h4>
 						<table class="table table-bordered table-condensed"
 							style="width:100%; overflow:auto; font-size: 11px;">
 							<thead>
