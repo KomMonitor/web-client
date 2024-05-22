@@ -75,44 +75,39 @@
 									muss der Zugriff auf die Zeitreihe einer verkn&uuml;pften Raumeinheit explizit f&uuml; authorisierte Organisationseinheiten freigegeben werden.</h3>
 		
 								
-								
-								<div class="row vertical-align">
-									<div class="col-md-3 col-sm-6 col-xs-12">
-										<div class="form-group">
-											<label>Ziel-Raumebene*</label>
-											
-											<select ng-model="targetApplicableSpatialUnit" ng-options="spatialUnit as spatialUnit.spatialUnitName for spatialUnit in currentIndicatorDataset.applicableSpatialUnits"
-													class="form-control" ng-change="onChangeSelectedSpatialUnit(targetApplicableSpatialUnit)" required>
-													<option disabled selected value> -- Ziel-Raumebene w&auml;hlen -- </option>
-												</select>
-												<div class="help-block with-errors"></div>
-	
-										</div>
-									</div>
+                                <div ng-if="currentIndicatorDataset.applicableSpatialUnits.length == 0">
+                                    <div class="alert alert-danger">
+                                        Keine verkn&uuml;pften Raumebenen vorhanden! F&uuml;gen Sie bitte zuerst entsprechende Raumeinheiten hinzu und verkn&uuml;pfen Sie diese mit den entsprechenden Indikator-Zeitreihen.<br>Anschlie&szlig;end k&ouml;nnen die Zugriffsrechte hier entsprechend bearbeitet werden. 
+                                    </div>
+                                </div>
 
-								<!-- <div class="row">
-									<div class="col-md-3"></div>
-									<div class="col-md-6 col-sm-6 col-xs-12">
-											 
-										
-									</div>
-									<div class="col-md-3"></div>
-								</div>	 -->
-
-									<div class="col-md-9 col-sm-6 col-xs-12">
-										<label>&Ouml;ffentliche Lesefreigabe*</label>
-												<label class="switch">
-													<input type="checkbox" ng-model="targetApplicableSpatialUnit.isPublic">
-													<span class="switchslider round"></span>
-												</label>
-												<div class="help-block">
-													<p>
-														&Ouml;ffentlich freigegebene Datens&auml;tze k&ouml;nnen ohne Login abgerufen werden.
-													</p>
-												</div>
-										<div id="indicatorEditIndicatorSpatialUnitsRoleManagementTable" style="height: 45vh" class="ag-theme-alpine"></div> 
-									</div>
-
+								<div class="row vertical-align" ng-style="currentIndicatorDataset.applicableSpatialUnits.length == 0 && {'visibility': 'hidden'}">
+                                    
+                                    <div class="col-md-3 col-sm-6 col-xs-12">
+                                        <div class="form-group">
+                                            <label>Ziel-Raumebene*</label>
+                                            
+                                            <select ng-model="targetApplicableSpatialUnit" ng-options="spatialUnit as spatialUnit.spatialUnitName for spatialUnit in currentIndicatorDataset.applicableSpatialUnits"
+                                                    class="form-control" ng-change="onChangeSelectedSpatialUnit(targetApplicableSpatialUnit)" required>
+                                                    <option disabled selected value> -- Ziel-Raumebene w&auml;hlen -- </option>
+                                                </select>
+                                                <div class="help-block with-errors"></div>
+    
+                                        </div>
+                                    </div>
+                                    <div class="col-md-9 col-sm-6 col-xs-12">
+                                        <label>&Ouml;ffentliche Lesefreigabe*</label>
+                                                <label class="switch">
+                                                    <input type="checkbox" ng-model="targetApplicableSpatialUnit.isPublic">
+                                                    <span class="switchslider round"></span>
+                                                </label>
+                                                <div class="help-block">
+                                                    <p>
+                                                        &Ouml;ffentlich freigegebene Datens&auml;tze k&ouml;nnen ohne Login abgerufen werden.
+                                                    </p>
+                                                </div>
+                                        <div id="indicatorEditIndicatorSpatialUnitsRoleManagementTable" style="height: 45vh" class="ag-theme-alpine"></div> 
+                                    </div>
 								</div>
 
 								<input type="button" name="next" class="next next_editIndicatorRoles action-button" value="N&auml;chster Schritt"/>	

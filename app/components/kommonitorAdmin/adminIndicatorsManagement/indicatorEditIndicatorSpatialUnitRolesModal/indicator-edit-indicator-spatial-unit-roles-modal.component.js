@@ -98,9 +98,11 @@ angular.module('indicatorEditIndicatorSpatialUnitRolesModal').component('indicat
 
 			$scope.executeRequest_indicatorOwnership();
 
-			$scope.executeRequest_indicatorSpatialUnitRoles();			
+            if($scope.targetApplicableSpatialUnit) {
+                $scope.executeRequest_indicatorSpatialUnitRoles();			
 
-			$scope.executeRequest_indicatorSpatialUnitOwnership();
+                $scope.executeRequest_indicatorSpatialUnitOwnership();
+            }
 		};
 
 		$scope.executeRequest_indicatorMetadataRoles = function(){
