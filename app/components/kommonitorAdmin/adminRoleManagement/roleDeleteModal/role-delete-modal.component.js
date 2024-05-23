@@ -37,17 +37,20 @@ angular.module('roleDeleteModal').component('roleDeleteModal', {
         $scope.fetchOrganizationalChildren = function(datasets) {
 
             $scope.organizationalChildrenEffected = false;
+            let selectedOrgaIds = datasets.map(e => e.organizationalUnitId);
 
             datasets.forEach(parent => {
                 if(parent.children) {
                     parent.children.forEach(child => {
-                        let child_datasets = kommonitorDataExchangeService.accessControl.filter(e => e.organizationalUnitId == child);
+                        let child_datasets = kommonitorDataExchangeService.accessControl.filter(e => (e.organizationalUnitId == child && !selectedOrgaIds.includes(e.organizationalUnitId)));
 
                         child_datasets.forEach(elem => {
 
                             elem.subGroup = true;
                             
                             datasets.push(elem);
+                            selectedOrgaIds.push(elem.organizationalUnitId);
+
                             $scope.organizationalChildrenEffected = true;
                         });
                     });
