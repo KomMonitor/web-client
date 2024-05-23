@@ -2969,6 +2969,12 @@ angular
       return permissions.join(", ");
     }
 
+    this.getRoleTitle = function(organizationalUnitId){
+        let orga = this.accessControl.filter(e => e.organizationalUnitId==organizationalUnitId)[0];
+
+        return orga.name;
+      }
+
     this.checkDeletePermission = function(){
       if(this.checkAdminPermission()) {
         return true;

@@ -306,6 +306,18 @@ angular
           filterValueGetter: (params) => {
               return "" +  kommonitorDataExchangeService.getAllowedRolesString(params.data.permissions);
             } 
+          },
+          { headerName: 'Öffentlich sichtbar', minWidth: 400, cellRenderer: function (params) { return params.data.isPublic ? 'ja' : 'nein'; },
+          filter: 'agTextColumnFilter', 
+          filterValueGetter: (params) => {
+              return "" + (params.data.isPublic ? 'ja' : 'nein');
+            } 
+          },
+          { headerName: 'Eigentümer', minWidth: 400, cellRenderer: function (params) { return kommonitorDataExchangeService.getRoleTitle(params.data.ownerId); },
+          filter: 'agTextColumnFilter', 
+          filterValueGetter: (params) => {
+              return "" + kommonitorDataExchangeService.getRoleTitle(params.data.ownerId);
+            } 
           }
         ];
 
@@ -398,6 +410,18 @@ angular
           filterValueGetter: (params) => {
               return "" +  kommonitorDataExchangeService.getAllowedRolesString(params.data.permissions);
             } 
+          },
+          { headerName: 'Öffentlich sichtbar', minWidth: 400, cellRenderer: function (params) { return params.data.isPublic ? 'ja' : 'nein'; },
+          filter: 'agTextColumnFilter', 
+          filterValueGetter: (params) => {
+              return "" + (params.data.isPublic ? 'ja' : 'nein');
+            } 
+          },
+          { headerName: 'Eigentümer', minWidth: 400, cellRenderer: function (params) { return kommonitorDataExchangeService.getRoleTitle(params.data.ownerId); },
+          filter: 'agTextColumnFilter', 
+          filterValueGetter: (params) => {
+              return "" + kommonitorDataExchangeService.getRoleTitle(params.data.ownerId);
+            } 
           }
         ];
 
@@ -476,6 +500,18 @@ angular
           filterValueGetter: (params) => {
               return "" +  kommonitorDataExchangeService.getAllowedRolesString(params.data.permissions);
             } 
+          },
+          { headerName: 'Öffentlich sichtbar', minWidth: 400, cellRenderer: function (params) { return params.data.isPublic ? 'ja' : 'nein'; },
+          filter: 'agTextColumnFilter', 
+          filterValueGetter: (params) => {
+              return "" + (params.data.isPublic ? 'ja' : 'nein');
+            } 
+          },
+          { headerName: 'Eigentümer', minWidth: 400, cellRenderer: function (params) { return kommonitorDataExchangeService.getRoleTitle(params.data.ownerId); },
+          filter: 'agTextColumnFilter', 
+          filterValueGetter: (params) => {
+              return "" + kommonitorDataExchangeService.getRoleTitle(params.data.ownerId);
+            } 
           }
         ];
 
@@ -551,6 +587,18 @@ angular
           filter: 'agTextColumnFilter', 
           filterValueGetter: (params) => {
               return "" +  kommonitorDataExchangeService.getAllowedRolesString(params.data.permissions);
+            } 
+          },
+          { headerName: 'Öffentlich sichtbar', minWidth: 400, cellRenderer: function (params) { return params.data.isPublic ? 'ja' : 'nein'; },
+          filter: 'agTextColumnFilter', 
+          filterValueGetter: (params) => {
+              return "" + (params.data.isPublic ? 'ja' : 'nein');
+            } 
+          },
+          { headerName: 'Eigentümer', minWidth: 400, cellRenderer: function (params) { return kommonitorDataExchangeService.getRoleTitle(params.data.ownerId); },
+          filter: 'agTextColumnFilter', 
+          filterValueGetter: (params) => {
+              return "" + kommonitorDataExchangeService.getRoleTitle(params.data.ownerId);
             } 
           }
         ];
@@ -671,6 +719,18 @@ angular
           filter: 'agTextColumnFilter', 
           filterValueGetter: (params) => {
               return "" +  kommonitorDataExchangeService.getAllowedRolesString(params.data.permissions);
+            } 
+          },
+          { headerName: 'Öffentlich sichtbar', minWidth: 400, cellRenderer: function (params) { return params.data.isPublic ? 'ja' : 'nein'; },
+          filter: 'agTextColumnFilter', 
+          filterValueGetter: (params) => {
+              return "" + (params.data.isPublic ? 'ja' : 'nein');
+            } 
+          },
+          { headerName: 'Eigentümer', minWidth: 400, cellRenderer: function (params) { return kommonitorDataExchangeService.getRoleTitle(params.data.ownerId); },
+          filter: 'agTextColumnFilter', 
+          filterValueGetter: (params) => {
+              return "" + kommonitorDataExchangeService.getRoleTitle(params.data.ownerId);
             } 
           }
         ];
