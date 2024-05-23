@@ -4,6 +4,9 @@ angular.module('adminSpatialUnitsManagement').component('adminSpatialUnitsManage
 	function SpatialUnitsManagementController(kommonitorDataExchangeService, kommonitorCacheHelperService, kommonitorDataGridHelperService, $scope, $timeout, $rootScope, __env, $http) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
+
+        $scope.tableViewSwitcher = false;
+
 		// initialize any adminLTE box widgets
 	  $('.box').boxWidget();
 
@@ -25,22 +28,29 @@ angular.module('adminSpatialUnitsManagement').component('adminSpatialUnitsManage
 
 		});
 
+        $scope.onTableViewSwitch = function() {
+            $scope.initializeOrRefreshOverviewTable();
+        }
+
 		$scope.initializeOrRefreshOverviewTable = function(){
 
-			/* console.log(kommonitorDataExchangeService.currentKomMonitorLoginRoleIds);
-			console.log(kommonitorDataExchangeService.currentKomMonitorLoginRoleNames);
-			console.log(kommonitorDataExchangeService.availableRoles);
-			console.log(kommonitorDataExchangeService); */
-
 			$scope.loadingData = true;
-			
-			kommonitorDataGridHelperService.buildDataGrid_spatialUnits(kommonitorDataExchangeService.availableSpatialUnits);
+
+			kommonitorDataGridHelperService.buildDataGrid_spatialUnits($scope.initSpatialUnits());
 
 			$timeout(function(){
 				
 				$scope.loadingData = false;
 			});	
 		};
+
+        $scope.initSpatialUnits = function() {
+
+            if($scope.tableViewSwitcher)
+                return kommonitorDataExchangeService.availableSpatialUnits.filter(e => !(e.userPermissions.length==1 && e.userPermissions.includes('viewer')));
+            else
+                return kommonitorDataExchangeService.availableSpatialUnits;
+        }
 
 		$scope.$on("refreshSpatialUnitOverviewTable", function (event, crudType, targetSpatialUnitId) {
 			$scope.loadingData = true;

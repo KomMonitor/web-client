@@ -14,6 +14,15 @@
 			</h1>
 
 			<div class="adminTableButtonWrapper">
+                <div class="verticalAlign">
+                    <span>Nur zu bearbeitende Datens&auml;tze anzeigen</span>
+                    <div>
+                        <label class="switch">
+                            <input type="checkbox" ng-model="tableViewSwitcher" ng-change="onTableViewSwitch()"></input>
+                            <span class="switchslider round"></span>
+                        </label>
+                    </div>
+                </div>
 				<button ng-disabled="!$ctrl.kommonitorDataExchangeServiceInstance.checkCreatePermission()" class="btn btn-success btn-sm" type="button" data-toggle="modal" data-target="#modal-add-spatial-unit"><i class="fas fa-plus"></i>&nbsp;&nbsp;Erstellen</button>
 				<!-- edit metadata -->
 
