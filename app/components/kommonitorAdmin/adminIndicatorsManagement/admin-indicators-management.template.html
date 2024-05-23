@@ -14,6 +14,15 @@
 		</h1>
 
 		<div class="adminTableButtonWrapper">
+            <div class="verticalAlign">
+                <span>Nur zu bearbeitende Datens&auml;tze anzeigen</span>
+                <div>
+                    <label class="switch">
+                        <input type="checkbox" ng-model="tableViewSwitcher" ng-change="onTableViewSwitch()"></input>
+                        <span class="switchslider round"></span>
+                    </label>
+                </div>
+            </div>
 			<!-- batch update indicators -->
 			<button id="button-batch-update-indicators" class="btn btn-success btn-sm" type="button" ng-disabled="!$ctrl.kommonitorDataExchangeServiceInstance.checkEditorPermission()"
 				data-toggle="modal" data-target="#modal-batch-update-indicators"><i class="fas fa-refresh"></i>&nbsp;&nbsp;Batch-Update</button>
