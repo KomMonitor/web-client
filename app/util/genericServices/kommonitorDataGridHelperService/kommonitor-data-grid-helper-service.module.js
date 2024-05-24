@@ -3003,9 +3003,27 @@ angular
         const columnDefs = [
           { headerName: 'Zeitpunkt', field: "referenceDate", pinned: 'left', cellDataType: 'text', editable: false, cellClass: "grid-non-editable", maxWidth: 150
           },
-          { headerName: 'regionale Gesamtsumme', field: "regionalSum", cellDataType: 'number', maxWidth: 175 },
-          { headerName: 'regionaler Mittelwert', field: "regionalAverage", cellDataType: 'number', maxWidth: 175 },
-          { headerName: 'räumlich nicht zuordenbar', field: "spatiallyUnassignable", cellDataType: 'number', maxWidth: 175 }, 
+          { headerName: 'regionale Gesamtsumme', field: "regionalSum", cellDataType: 'number', 
+            cellEditor: 'agNumberCellEditor', cellEditorParams: {
+              precision: 2,
+              step: 0.01,
+              showStepperButtons: true
+            }, 
+            tooltipValueGetter: (p) =>
+              "mit Enter bestätigen", maxWidth: 175 },
+          { headerName: 'regionaler Mittelwert', field: "regionalAverage", cellDataType: 'number', cellEditor: 'agNumberCellEditor', cellEditorParams: {
+            precision: 2,
+            step: 0.01,
+            showStepperButtons: true
+          }, tooltipValueGetter: (p) =>
+            "mit Enter bestätigen",
+          maxWidth: 175 },
+          { headerName: 'räumlich nicht zuordenbar', field: "spatiallyUnassignable", cellDataType: 'number', cellEditor: 'agNumberCellEditor', cellEditorParams: {
+            precision: 2,
+            step: 0.01,
+            showStepperButtons: true
+          }, tooltipValueGetter: (p) =>
+            "mit Enter bestätigen", maxWidth: 175 }, 
           
         ];
 
