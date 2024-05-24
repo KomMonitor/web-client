@@ -1241,7 +1241,7 @@ angular
           legend: {
             type: "scroll",
             bottom: 0,
-            data: ['rechnerisches arithmetisches Mittel']
+            data: []
           },
           xAxis: {
             name: indicatorMetadataAndGeoJSON.indicatorName,
@@ -1268,35 +1268,20 @@ angular
             // }
           },
           series: [          
-          {
-            name: "rechnerisches arithmetisches Mittel",
-            type: 'line',
-            data: indicatorTimeSeriesAverageArray,
-            lineStyle: {
-              normal: {
-                color: 'gray',
-                width: 2,
-                type: 'dashed'
-              }
-            },
-            itemStyle: {
-              normal: {
-                borderWidth: 3,
-                color: 'gray'
-              }
-            }
-          }
+          
           ]
         };
 
 
-        let regionalMeanLine = {
-          name: "gesamtregionaler Vergleichsdurchschnitt",
+        let meanLine = {
+          name: "rechnerisches arithmetisches Mittel",
           type: 'line',
-          data: indicatorTimeSeriesRegionalMeanArray,
+          data: indicatorTimeSeriesAverageArray,
+          symbolSize: 6,
+          symbol: "emptyCircle",
           lineStyle: {
             normal: {
-              color: 'red',
+              color: 'gray',
               width: 2,
               type: 'dashed'
             }
@@ -1304,7 +1289,28 @@ angular
           itemStyle: {
             normal: {
               borderWidth: 3,
-              color: 'red'
+              color: 'gray'
+            }
+          }
+        };
+
+        let regionalMeanLine = {
+          name: "gesamtregionaler Vergleichsdurchschnitt",
+          type: 'line',
+          symbolSize: 8,
+          symbol: "circle",
+          data: indicatorTimeSeriesRegionalMeanArray,
+          lineStyle: {
+            normal: {
+              color: 'gray',
+              width: 2,
+              type: 'dashed'
+            }
+          },
+          itemStyle: {
+            normal: {
+              borderWidth: 3,
+              color: 'gray'
             }
           }
         };
@@ -1312,15 +1318,21 @@ angular
         if(indicatorTimeSeriesRegionalMeanArray.some(el => el !== null)){
           lineOption.series.push(regionalMeanLine);
           lineOption.legend.data.push("gesamtregionaler Vergleichsdurchschnitt");
-        };
+        }
+        else{
+          lineOption.series.push(meanLine);
+          lineOption.legend.data.push("rechnerischer Durchschnitt");
+        }
         
         let regionalSpatiallyUnassignableLine = {
           name: "räumlich nicht zuordenbare",
           type: 'line',
+          symbol: "diamond",
+          symbolSize: 10,
           data: indicatorTimeSeriesRegionalSpatiallyUnassignableArray,
           lineStyle: {
             normal: {
-              color: 'green',
+              color: 'gray',
               width: 2,
               type: 'dashed'
             }
@@ -1328,7 +1340,7 @@ angular
           itemStyle: {
             normal: {
               borderWidth: 3,
-              color: 'green'
+              color: 'gray'
             }
           }
         };
