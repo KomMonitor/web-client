@@ -255,15 +255,27 @@
 									</div>
 								</div>
 							</div>
+							<div>
+								<br/>
+								<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesRegionalMean">
+									<b>{{$ctrl.kommonitorDataExchangeServiceInstance.labelMean_regional}}</b>
+									{{$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesRegionalMean}}
+								</div>
+								<div ng-if="! $ctrl.kommonitorDataExchangeServiceInstance.allFeaturesRegionalMean">
+									<b>{{$ctrl.kommonitorDataExchangeServiceInstance.labelMean}}</b>
+									{{$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesMean}}
+								</div>
+							</div>
 							<div 
 								ng-model="classificationCollapsed" 
 								ng-click="classificationCollapsed=!classificationCollapsed"
-								style="font-size:1.5em; cursor:pointer; margin-top: 16px;">
+								style="font-size:1.5em; cursor:pointer; margin-top: 16px;"
+								title="Klassifikation anpassen">
 								<span class="fas fa-cogs"></span>
 							</div>
 							<div ng-show="classificationCollapsed" 
 								class="box boxedLegend with-border"
-								style="border-top: 1px solid #d2d6de;">
+								style="border-top: 1px solid #d2d6de; margin-top: 5px;">								
 								<div class="box-header with-border">
 									<h3 class="box-title">Klassifikation anpassen</h3>
 									<div class="box-tools pull-right">
