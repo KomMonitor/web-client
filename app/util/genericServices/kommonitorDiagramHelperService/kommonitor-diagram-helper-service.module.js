@@ -526,6 +526,14 @@ angular
                   ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked,
                   measureOfValue);
 
+        let meanLineLabel = "rechnerischer Durchschnitt";
+        let meanLineValue = parseFloat(kommonitorDataExchangeService.allFeaturesMean); 
+        
+        if(kommonitorDataExchangeService.allFeaturesRegionalMean){
+          meanLineLabel = "gesamtregionaler Durchschnitt";
+          meanLineValue = parseFloat(kommonitorDataExchangeService.allFeaturesRegionalMean); 
+        }
+
         var barOption = {
           // grid get rid of whitespace around chart
           grid: {
@@ -638,8 +646,25 @@ angular
                 borderColor: defaultColorForClickedFeatures
               }
             },
-            data: indicatorValueBarChartArray
-          }],
+            data: indicatorValueBarChartArray,
+            markLine: {
+              // data: [{ type: 'average', name: meanLineLabel }],
+              // data: [meanLineValue],
+              name: meanLineLabel,
+              data: [
+                {yAxis: meanLineValue, name: meanLineLabel}
+              ],
+              label: {
+                position: 'insideStartTop',
+                name: meanLineLabel,
+                formatter: meanLineValue,              
+              }
+            }
+            },
+            {
+
+            }
+          ],
           visualMap: [{
               left: 'left',
               type: "piecewise",
