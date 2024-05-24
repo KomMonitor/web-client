@@ -44,6 +44,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 				$scope.config.template = JSON.parse(JSON.stringify(data));
 				$scope.config.pages = $scope.config.template.pages;
 			}
+			$scope.config.templateSections = [];
 			let deviceScreenDpi = calculateScreenDpi();
 			$scope.pxPerMilli = deviceScreenDpi / 25.4 // /2.54 --> cm, /10 --> mm
 		}
