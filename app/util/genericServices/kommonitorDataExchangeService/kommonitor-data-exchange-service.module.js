@@ -31,6 +31,8 @@ angular
 
               this.showDiagramExportButtons = true;
               this.showGeoresourceExportButtons = true;
+              this.showBarChartLabel = __env.showBarChartLabel;
+              this.showBarChartAverageLine = __env.showBarChartAverageLine;
 
 							var numberOfDecimals = __env.numberOfDecimals;
 							const DATE_PREFIX = __env.indicatorDatePrefix;

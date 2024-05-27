@@ -42,6 +42,10 @@ try {
   // possible values for geoservice georesources: ["wfs", "wms"]
   window.__env.enabledGeoresourcesGeoservices = ["wfs", "wms"];
 
+  // show bar chart label 
+  window.__env.showBarChartLabel = false;
+  window.__env.showBarChartAverageLine = true;
+
   // encrypted data transfer from Data Management API settings
   window.__env.encryption = {
     enabled: false,

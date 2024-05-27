@@ -499,15 +499,13 @@ angular
       var setBarChartOptions = function (indicatorMetadataAndGeoJSON, featureNamesArray, indicatorValueBarChartArray, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue) {
 
         // specify chart configuration item and data
-        var labelOption = {
-          normal: {
-            show: true,
+        var labelOption_singleBars = {
+          show: kommonitorDataExchangeService.showBarChartLabel,
             position: 'insideBottom',
             align: 'left',
             verticalAlign: 'middle',
             rotate: 90,
-            formatter: '{c}',
-          }
+            formatter: '{b}',
         };
 
         // default fontSize of echarts
@@ -611,8 +609,12 @@ angular
             }
           },
           // legend: {
-          // 		//data:[indicatorMetadataAndGeoJSON.indicatorName]
+          // 		data:[{
+          //       type: 'plain',
+          //       name: meanLineLabel
+          //     }]
           // },
+
           xAxis: {
             name: indicatorMetadataAndGeoJSON.indicatorName,
             nameLocation: 'center',
@@ -637,6 +639,7 @@ angular
             //     show: true
             // }
           },
+          label: labelOption_singleBars,
           series: [{
             // name: indicatorMetadataAndGeoJSON.indicatorName,
             type: 'bar',
@@ -656,6 +659,9 @@ angular
               ],
               label: {
                 position: 'insideStartTop',
+                rotate: 0,
+                fontStyle: 'italic',
+                fontWeight: 'bold',
                 name: meanLineLabel,
                 formatter: "Durchschnitt: " + meanLineValue,              
               },
@@ -663,9 +669,6 @@ angular
                 color: 'gray'
               }
             }
-            },
-            {
-
             }
           ],
           visualMap: [{

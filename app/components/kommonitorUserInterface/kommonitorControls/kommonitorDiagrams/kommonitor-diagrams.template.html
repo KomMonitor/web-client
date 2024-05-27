@@ -33,13 +33,34 @@
 					</div>
 					<div class="box-body">
 						<div class="chart">
-							<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesRegionalSum">
-								<b>{{$ctrl.kommonitorDataExchangeServiceInstance.labelSum_regional}}</b> {{$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesRegionalSum}}								
-							</div>
-							<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesRegionalSpatiallyUnassignable">
-								<b>{{$ctrl.kommonitorDataExchangeServiceInstance.labelSpatiallyUnassignable_regional}}</b> {{$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesRegionalSpatiallyUnassignable || 0}}								
-							</div>
-							<br />
+							<div class="row">
+								<div class="col-md-6">
+									<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesRegionalSum">
+										<b>{{$ctrl.kommonitorDataExchangeServiceInstance.labelSum_regional}}</b> {{$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesRegionalSum}}								
+									</div>
+									<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesRegionalSpatiallyUnassignable">
+										<b>{{$ctrl.kommonitorDataExchangeServiceInstance.labelSpatiallyUnassignable_regional}}</b> {{$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesRegionalSpatiallyUnassignable || 0}}								
+									</div>
+								</div>
+								<div class="col-md-6">
+									<b title="Checkbox zur Wahl, ob Label der Raumeinheiten im Diagramm angezeigt werden sollen">Namen der Raumeinheiten darstellen?</b>
+									&nbsp;
+									<label class="switch">
+										<input type="checkbox" value="$ctrl.kommonitorDataExchangeServiceInstance.showBarChartLabel" ng-model="$ctrl.kommonitorDataExchangeServiceInstance.showBarChartLabel" ng-change="onChangeShowBarChartLabel()"
+											checked>
+										<span class="switchslider round"></span>
+									</label>
+
+									<b title="Checkbox zur Wahl, ob Durchschnittslinie im Diagramm angezeigt werden sollen">Durchschnittslinie darstellen?</b>
+									&nbsp;
+									<label class="switch">
+										<input type="checkbox" value="$ctrl.kommonitorDataExchangeServiceInstance.showBarChartAverageLine" ng-model="$ctrl.kommonitorDataExchangeServiceInstance.showBarChartAverageLine" ng-change="onChangeShowBarChartAverageLine()"
+											checked>
+										<span class="switchslider round"></span>
+									</label>
+								</div>
+							</div>				
+																					
 							<div  id="barDiagram" style="width:100%; min-height:30vh;"></div>
 						</div>
 					</div>

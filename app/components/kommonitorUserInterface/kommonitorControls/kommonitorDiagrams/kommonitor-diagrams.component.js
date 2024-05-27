@@ -91,6 +91,24 @@ angular
 							$scope.lineChart.showLoading();
 					};
 
+					$scope.onChangeShowBarChartLabel = function(){
+						if (kommonitorDataExchangeService.showBarChartLabel){
+							updateBarChart(true, kommonitorDataExchangeService.showBarChartAverageLine);
+						}
+						else{
+							updateBarChart(false, kommonitorDataExchangeService.showBarChartAverageLine);
+						}						
+					}
+
+					$scope.onChangeShowBarChartAverageLine = function(){
+						if (kommonitorDataExchangeService.showBarChartAverageLine){
+							updateBarChart(kommonitorDataExchangeService.showBarChartLabel, true);
+						}
+						else{
+							updateBarChart(kommonitorDataExchangeService.showBarChartLabel, false);
+						}		
+					}
+
 					$scope.$on("updateDiagrams", function (event, indicatorMetadataAndGeoJSON, spatialUnitName, spatialUnitId, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, justRestyling) {
 
 						// console.log("Updating diagrams!");
@@ -108,7 +126,7 @@ angular
 
 						updateLineChart();
 
-						updateBarChart();
+						updateBarChart(kommonitorDataExchangeService.showBarChartLabel, kommonitorDataExchangeService.showBarChartAverageLine);
 						$scope.loadingData = false;
 					});
 
@@ -137,7 +155,7 @@ angular
 
 					// BAR CHART FUNCTION
 
-					var updateBarChart = function (indicatorMetadataAndGeoJSON, featureNamesArray, indicatorValueBarChartArray) {
+					var updateBarChart = function (showBarChartLabel, showBarChartAverageLine) {
 						// based on prepared DOM, initialize echarts instance
 						$scope.eventsRegistered = false;
 
@@ -150,7 +168,20 @@ angular
 						}
 
 						// use configuration item and data specified to show chart
-						$scope.barOption = kommonitorDiagramHelperService.getBarChartOptions();
+						$scope.barOption = JSON.parse(JSON.stringify(kommonitorDiagramHelperService.getBarChartOptions()));
+						if (showBarChartLabel){
+							$scope.barOption.label.show = true;
+						}
+						else{
+							$scope.barOption.label.show = false;
+						}
+						if (showBarChartAverageLine){
+							// do nothing as we simply overtake the action
+						}
+						else{
+							// replace markLineConfig by empty object
+							$scope.barOption.series[0].markLine = {};
+						}
 						$scope.barChart.setOption($scope.barOption);
 
 						$scope.barChart.hideLoading();
