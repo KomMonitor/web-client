@@ -1,1 +1,1 @@
-angular.module('roleAddModal', ['kommonitorImporterHelper', 'kommonitorKeycloakHelper']);
+angular.module('roleAddModal', ['kommonitorDataGridHelper', 'kommonitorMultiStepFormHelper', 'kommonitorImporterHelper', 'kommonitorKeycloakHelper']);
