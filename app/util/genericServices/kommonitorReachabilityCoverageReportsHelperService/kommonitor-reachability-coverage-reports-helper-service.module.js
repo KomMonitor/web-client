@@ -341,7 +341,7 @@ angular
       this.setWeightStrategyTexts = function (indicatorStatistic) {
         weightStrategyText = "";
         weightStrategyExplanationText = "";
-        if (indicatorStatistic.weightStrategy == "residential_areas") {
+        if (indicatorStatistic.weightStrategy.apiName == "residential_areas") {
           weightStrategyText += "versorgte Wohnfläche";
           weightStrategyExplanationText += "Pro Raumeinheit wird nur die Wohnfläche mit den Einzugsgebieten eines Punktes räumlich verschnitten. Die geschätzte Gesamtversorgung einer Raumeinheit ergibt sich dann aus dem durch die Punkteinzugsgebiete insgesamt überlappenden Anteil an der Wohnfläche innerhalb der Raumeinheit. Dieses Verfahren berücksichtigt demnach nur die Wohnfläche und liefert daher einen genaueren Schätzwert als der einfache Gesamtflächenanteil. Da keine Einzelpersonen im Verfahren verücksichtigt werden, ist das Ergebnis ausdrücklich als Schätzwert zu interpretieren.";
         }
