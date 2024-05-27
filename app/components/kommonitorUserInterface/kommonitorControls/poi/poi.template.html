@@ -43,31 +43,35 @@
 					</select>
 				</label>
 
-				<hr>
-				<br />
+				
 
-				<label>Art der Datumsdefinition zum Abruf eines Datensatzes</label>
-				<div class="form-group">
-					<label class="radio-inline"><input type="radio" name="dateSelectionType"
-							ng-value="dateSelectionType_valueIndicator" ng-model="dateSelectionType.selectedDateType"
-							ng-click="onClickUseIndicatorTimestamp()">Datum des aktuellen Indikators</label>
-					<label class="radio-inline"><input type="radio" name="dateSelectionType"
-							ng-value="dateSelectionType_valueManual"
-							ng-model="dateSelectionType.selectedDateType">manuelles Datum
-						<div ng-hide="!(dateSelectionType.selectedDateType === dateSelectionType_valueManual)"
-							class="input-group date">
-							<div class="input-group-addon">
-								<i class="far fa-calendar-alt"></i>
+				<!-- for now hide menu to change date selection for georesourcs as it might be more confusing than helpful -->
+				<!-- <div>
+					<hr>
+					<br />
+					<label>Art der Datumsdefinition zum Abruf eines Datensatzes</label>
+					<div class="form-group">
+						<label class="radio-inline"><input type="radio" name="dateSelectionType"
+								ng-value="dateSelectionType_valueIndicator" ng-model="dateSelectionType.selectedDateType"
+								ng-click="onClickUseIndicatorTimestamp()">Datum des aktuellen Indikators</label>
+						<label class="radio-inline"><input type="radio" name="dateSelectionType"
+								ng-value="dateSelectionType_valueManual"
+								ng-model="dateSelectionType.selectedDateType">manuelles Datum
+							<div ng-hide="!(dateSelectionType.selectedDateType === dateSelectionType_valueManual)"
+								class="input-group date">
+								<div class="input-group-addon">
+									<i class="far fa-calendar-alt"></i>
+								</div>
+								<input type="text" ng-model="selectedDate_manual" ng-change="onChangeManualDate()"
+									class="form-control pull-right" placeholder="YYYY-MM-DD" id="manualDateDatepicker"
+									required>
 							</div>
-							<input type="text" ng-model="selectedDate_manual" ng-change="onChangeManualDate()"
-								class="form-control pull-right" placeholder="YYYY-MM-DD" id="manualDateDatepicker"
-								required>
-						</div>
-					</label>
-					<label class="radio-inline"><input type="radio" name="dateSelectionType"
-							ng-value="dateSelectionType_valuePerDataset"
-							ng-model="dateSelectionType.selectedDateType">pro Datensatz</label>
-				</div>
+						</label>
+						<label class="radio-inline"><input type="radio" name="dateSelectionType"
+								ng-value="dateSelectionType_valuePerDataset"
+								ng-model="dateSelectionType.selectedDateType">pro Datensatz</label>
+					</div>
+				</div>			 -->
 
 			</div>
 
