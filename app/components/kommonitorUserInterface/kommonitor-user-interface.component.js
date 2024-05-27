@@ -567,7 +567,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				element: "#kommonitorLegendSymbology",
 				title: "Kartenlegenden und Interpretation",
 				placement: "left",
-				content: "Dieser Bereich beinhaltet eine <b>Farblegende mit Klassen</b> f&uuml;r den angezeigten Indikator sowie die <b>Wertebereiche und Fallzahlen je Klasse</b></br> " +
+				content: "Dieser Bereich beinhaltet eine <b>Farblegende mit Klassen</b> f&uuml;r den angezeigten Indikator sowie die <b>Wertebereiche und Anzahl Raumeinheiten je Klasse</b></br> " +
 				"Als erg&auml;nzende Informationen werden der <b>Indikatortyp</b>, der <b>Stichtag</b>, die <b>Einheit</b> sowie eine kurze <b>Interpretationshilfe angezeigt.</b></br>" +
 				"Die einzelnen Reiter ganz oben erm&ouml;glichen den Wechsel zwischen verschiedenen Legenden, sofern zus&auml;tzlich zu einem <i>Indikator</i> </br>" +
 				"auch die Legende f&uuml;r einen eingebundenen <i>WMS-Dienst</i> angezeigt werden sollen.",				
