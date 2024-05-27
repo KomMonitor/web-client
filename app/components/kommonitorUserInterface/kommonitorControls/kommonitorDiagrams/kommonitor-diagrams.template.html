@@ -34,7 +34,7 @@
 					<div class="box-body">
 						<div class="chart">
 							<div class="row">
-								<div class="col-md-6">
+								<div class="col-md-6" style="text-align: left;">
 									<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesRegionalSum">
 										<b>{{$ctrl.kommonitorDataExchangeServiceInstance.labelSum_regional}}</b> {{$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesRegionalSum}}								
 									</div>
@@ -42,7 +42,7 @@
 										<b>{{$ctrl.kommonitorDataExchangeServiceInstance.labelSpatiallyUnassignable_regional}}</b> {{$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesRegionalSpatiallyUnassignable || 0}}								
 									</div>
 								</div>
-								<div class="col-md-6">
+								<div class="col-md-6" style="text-align: right;">
 									<b title="Checkbox zur Wahl, ob Label der Raumeinheiten im Diagramm angezeigt werden sollen">Namen der Raumeinheiten darstellen?</b>
 									&nbsp;
 									<label class="switch">
