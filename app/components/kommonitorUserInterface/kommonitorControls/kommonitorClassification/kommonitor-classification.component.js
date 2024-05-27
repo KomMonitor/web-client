@@ -32,6 +32,58 @@ angular
 
 						kommonitorVisualStyleHelperService.classifyMethod = __env.defaultClassifyMethod || "jenks";
 
+						$scope.colorbrewerSchemes = colorbrewer;
+						$scope.colorbrewerPalettes = [];
+
+						$scope.instantiateColorBrewerPalettes = function(){
+							for (const key in colorbrewer) {
+								if (colorbrewer.hasOwnProperty(key)) {
+									const colorPalettes = colorbrewer[key];
+									
+									var paletteEntry = {
+										"paletteName": key,
+										"paletteArrayObject": colorPalettes
+									};
+				
+									$scope.colorbrewerPalettes.push(paletteEntry);
+								}
+							}
+				
+							// instantiate with palette 'Blues'
+							$scope.selectedColorBrewerPaletteEntry = $scope.colorbrewerPalettes[13];
+
+							for (const colorbrewerPalette of $scope.colorbrewerPalettes) {
+								if (colorbrewerPalette.paletteName === kommonitorDataExchangeService.selectedIndicator.defaultClassificationMapping.colorBrewerSchemeName){
+									$scope.selectedColorBrewerPaletteEntry = colorbrewerPalette;
+									break;
+								}
+							}
+				
+						};
+
+						$scope.$on("onChangeSelectedIndicator", function(event){
+							for (const colorbrewerPalette of $scope.colorbrewerPalettes) {
+								if (colorbrewerPalette.paletteName === kommonitorDataExchangeService.selectedIndicator.defaultClassificationMapping.colorBrewerSchemeName){
+									$scope.selectedColorBrewerPaletteEntry = colorbrewerPalette;
+									break;
+								}
+							}
+						});
+
+						$scope.onClickColorBrewerEntry = function(colorPaletteEntry){
+							$scope.selectedColorBrewerPaletteEntry = colorPaletteEntry;
+
+							kommonitorDataExchangeService.selectedIndicator.defaultClassificationMapping.colorBrewerSchemeName = $scope.selectedColorBrewerPaletteEntry.paletteName;
+				
+							$rootScope.$broadcast("restyleCurrentLayer", false);
+
+							setTimeout(() => {
+								$scope.$digest();
+							}, 250);
+						};
+
+						$scope.instantiateColorBrewerPalettes();
+
 						$rootScope.$on("updateClassificationComponent", function(event, containsZeroValues, containsNegativeValues, containsNoData, containsOutliers_high, containsOutliers_low, outliers_low, outliers_high, selectedDate) {
 							$scope.containsZeroValues = containsZeroValues;
 							$scope.containsNegativeValues = containsNegativeValues;
