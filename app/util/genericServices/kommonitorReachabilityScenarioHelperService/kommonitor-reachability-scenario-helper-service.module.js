@@ -187,7 +187,7 @@ angular
       };
   
       this.parseFromFile = function(event){
-        this.reachabilityScenarios = JSON.parse(event.target.result);
+        this.reachabilityScenarios = this.reachabilityScenarios.concat(JSON.parse(event.target.result));
         $rootScope.$digest();
       }
 
