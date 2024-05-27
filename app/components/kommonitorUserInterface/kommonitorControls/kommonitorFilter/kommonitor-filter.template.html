@@ -2,6 +2,145 @@
 
 	<p></p>
 
+	<!-- RÄUMLICHE FILTER -->
+	<div class="box box-primary" id="kommonitorSpatialFilter" ng-if="isFilterModeActive('kommonitorSpatialFilter')">
+		<div class="box-header with-border">
+			<h3 class="box-title">R&auml;umliche Filter</h3>
+
+			<div class="box-tools pull-right">
+				<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+				</button>
+			</div>
+		</div>
+		<div class="box-body">
+
+			<strong>gefilterte Features tempor&auml;r aus Datensatz entfernen</strong>
+			&nbsp;
+			<label class="switch">
+				<input id="controlFilterBehaviourToggle" type="checkbox" ng-change="$ctrl.kommonitorFilterHelperServiceInstance.onChangeFilterBehaviourToggle()"
+					ng-model="$ctrl.kommonitorFilterHelperServiceInstance.completelyRemoveFilteredFeaturesFromDisplay" 
+					ng-checked="$ctrl.kommonitorFilterHelperServiceInstance.completelyRemoveFilteredFeaturesFromDisplay"></input>
+				<span class="switchslider round"></span>
+			</label>
+
+			<br/>
+			<hr>
+
+			<div align="middle">
+				<h4>Selektion anhand &uuml;bergeordneter Raumeinheit</h4>
+				<p>Durch Auswahl eines Gebiets der &uuml;bergeordneten Raumeinheit (relativ zur momentan angezeigten) k&ouml;nnen alle darin enthaltenen Gebiete ausgew&auml;hlt werden. Die Auswahl erfolgt &uuml;ber eine Zentroidberechnung.</p>
+				<label class="switch">
+					<input id="showSelectionByFeatureSpatialFilterToggle" type="checkbox" ng-change="onChangeShowSelectionByFeature(showSelectionByFeatureSpatialFilter)"
+						ng-model="showSelectionByFeatureSpatialFilter" 
+						ng-checked="showSelectionByFeatureSpatialFilter"></input>
+					<span class="switchslider round"></span>
+				</label>
+
+				<div id="selectionByFeatureSpatialFilter" ng-show="showSelectionByFeatureSpatialFilter">					
+
+					<div align="center">
+						<div class="loading-overlay-sidebar ng-hide" ng-show="loadingData">
+									<span class="glyphicon glyphicon-refresh icon-spin"></span>
+						</div>
+					</div>
+
+					<br>
+					<br>
+
+					<div ng-show="! selectedSpatialUnitForFilter">
+						Auswahl bei derzeitig visualisierter Raumebene nicht m&ouml;glich - keine &uuml;bergeordneten Raumebenen vorhanden
+					</div>
+
+					<div class="row">						
+						<div class="col-sm-12 col-md-7 col-lg-7">
+							<label>nur Raumeinheiten des aktuellen Indikators ber&uuml;cksichtigen</label>
+							
+						</div>
+						<div class="col-sm-12 col-md-2 col-lg-2">
+							<label class="switch">
+								<input id="considerAllowedSpatialUnitsOfCurrentIndicatorToggle" type="checkbox" ng-change="onChangeShowSelectionByFeature()"
+									ng-model="considerAllowedSpatialUnitsOfCurrentIndicator" 
+									ng-checked="considerAllowedSpatialUnitsOfCurrentIndicator"></input>
+								<span class="switchslider round"></span>					
+							</label>
+						</div>
+						<div class="col-sm-12 col-md-3 col-lg-3">
+							
+						</div>
+					</div>
+
+					<div class="row">						
+						<div class="col-sm-12 col-md-3 col-lg-3">
+							<label>Raumebene</label>							
+						</div>
+						<div class="col-sm-12 col-md-6 col-lg-6">
+							<select style="font-size: 12px;"
+								ng-model="selectedSpatialUnitForFilter"
+								ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in higherSpatialUnits track by spatialUnit.spatialUnitId"
+								class="form-control" ng-change="onChangeSelectedSpatialUnitForFilter(selectedSpatialUnitForFilter)"
+								required>
+								<option disabled selected value> -- Raumeinheit w&auml;hlen --
+								</option>
+							</select>
+						</div>
+						<div class="col-sm-12 col-md-3 col-lg-3">
+							
+						</div>
+					</div>
+
+					<excalibur-dual-list class="spatialFilterDuallist" ng-model='selectionByFeatureSpatialFilterSelectedFeatures'
+						options="selectionByFeatureSpatialFilterDuallistOptions"></excalibur-dual-list>
+					<button class="btn btn-primary" ng-click="onSelectionByFeatureSpatialFilterSelectBtnPressed()"
+						ng-disabled="!selectionByFeatureSpatialFilterDuallistOptions || selectionByFeatureSpatialFilterDuallistOptions.selectedItems.length == 0">
+							Selektion durchf&uuml;hren
+					</button> 
+					<br/>
+					<button id="selectionByFeatureSpatialFilterResetSelectionBtn" class="btn btn-danger" 
+						ng-click="onSelectionByFeatureSpatialFilterResetBtnPressed()">Selektion zur&uuml;cksetzen</button>
+				</div>
+
+				<hr>
+
+				<h4>Manuelle Selektion anzuzeigender Raumeinheiten</h4>
+				<p>Gebiete k&ouml;nnen &uuml;ber ihre Bezeichnung oder &uuml;ber die Karte ausgew&auml;hlt werden.</p>
+				<label class="switch">
+					<input id="showManualSelectionSpatialFilterToggle" type="checkbox" ng-change="onChangeShowManualSelection(showManualSelectionSpatialFilter)"
+						ng-model="showManualSelectionSpatialFilter" 
+						ng-checked="showManualSelectionSpatialFilter"></input>
+					<span class="switchslider round"></span>
+				</label>
+				<div id="manualSelectionSpatialFilter" ng-show="showManualSelectionSpatialFilter">
+					<excalibur-dual-list class="spatialFilterDuallist" ng-model='manualSelectionSpatialFilterSelectedFeatures'
+						options="manualSelectionSpatialFilterDuallistOptions"></excalibur-dual-list>
+					
+					<!-- selection via any drawable item on map - hidden for now -->
+						<!-- <div>
+						<p>Selektion &uuml;ber Kartenbild</p>
+						<label class="switch">
+							<input id="manualSelectionSpatialFilterSelectByMapToggle" type="checkbox" ng-change="onChangeManualSelectionSpatialFilterSelectByMapToggle()"
+								ng-model="manualSelectionSpatialFilterSelectByMap" 
+								ng-checked="manualSelectionSpatialFilterSelectByMap"></input>
+							<span class="switchslider round"></span>
+						</label><br />
+						<div id="manualSelectionSpatialFilterSelectByMapBtn" > 
+							<button class="btn btn-primary" ng-disabled="!manualSelectionSpatialFilterSelectByMap" ng-click="manualSelectionSpatialFilterSelectByMapBtnClicked()">Selektionsbereich zeichnen</button>
+						</div>
+					</div>						 -->					
+					<button class="btn btn-primary" ng-click="onManualSelectionSpatialFilterSelectBtnPressed()">Selektion durchf&uuml;hren</button>
+					<button class="btn btn-danger"
+					ng-click="onManualSelectionSpatialFilterResetBtnPressed()">Selektion zur&uuml;cksetzen</button>
+
+					<br/>
+					<br/>
+					<button class="btn btn-primary" ng-disabled="$ctrl.kommonitorFilterHelperServiceInstance.selectedIndicatorFeatureIds.size == 0" ng-click="onManualSelectionBySelectedMapFeaturesBtnPressed()">{{$ctrl.kommonitorFilterHelperServiceInstance.selectedIndicatorFeatureIds.size}} aktuell gew&auml;hlte Kartenobjekte filtern</button>
+					
+				</div>
+			</div>
+
+		</div>
+	</div>
+	<!-- /.box -->
+
 	<!-- DARSTELLUNGSFILTER -->
 	<div class="box box-primary" id="kommonitorRangeFilter" ng-if="isFilterModeActive('kommonitorRangeFilter')">
 		<div class="box-header with-border">
@@ -78,147 +217,6 @@
 
 		</div>
 		<!-- /.box-body -->
-	</div>
-	<!-- /.box -->
-
-
-
-	<!-- RÄUMLICHE FILTER -->
-	<div class="box box-primary" id="kommonitorSpatialFilter" ng-if="isFilterModeActive('kommonitorSpatialFilter')">
-		<div class="box-header with-border">
-			<h3 class="box-title">R&auml;umliche Filter</h3>
-
-			<div class="box-tools pull-right">
-				<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
-				</button>
-			</div>
-		</div>
-		<div class="box-body">
-
-			<strong>gefilterte Features tempor&auml;r aus Datensatz entfernen</strong>
-			&nbsp;
-			<label class="switch">
-				<input id="controlFilterBehaviourToggle" type="checkbox" ng-change="$ctrl.kommonitorFilterHelperServiceInstance.onChangeFilterBehaviourToggle()"
-					ng-model="$ctrl.kommonitorFilterHelperServiceInstance.completelyRemoveFilteredFeaturesFromDisplay" 
-					ng-checked="$ctrl.kommonitorFilterHelperServiceInstance.completelyRemoveFilteredFeaturesFromDisplay"></input>
-				<span class="switchslider round"></span>
-			</label>
-
-			<br/>
-			<hr>
-
-			<div align="middle">
-				<h4>Wähle untergeordnete Raumeinheiten innerhalb der selektierten Raumeinheit</h4>
-				<p>Durch Auswahl eines Gebiets der übergeordneten Raumeinheit (relativ zur momentan angezeigten) können alle darin enthaltenen Gebiete ausgewählt werden. Die Auswahl erfolgt über eine Zentroidberechnung.</p>
-				<label class="switch">
-					<input id="showSelectionByFeatureSpatialFilterToggle" type="checkbox" ng-change="onChangeShowSelectionByFeature(showSelectionByFeatureSpatialFilter)"
-						ng-model="showSelectionByFeatureSpatialFilter" 
-						ng-checked="showSelectionByFeatureSpatialFilter"></input>
-					<span class="switchslider round"></span>
-				</label>
-
-				<div id="selectionByFeatureSpatialFilter" ng-show="showSelectionByFeatureSpatialFilter">					
-
-					<div align="center">
-						<div class="loading-overlay-sidebar ng-hide" ng-show="loadingData">
-									<span class="glyphicon glyphicon-refresh icon-spin"></span>
-						</div>
-					</div>
-
-					<br>
-					<br>
-
-					<div ng-show="! selectedSpatialUnitForFilter">
-						Auswahl bei derzeitig visualisierter Raumebene nicht m&ouml;glich - keine &uuml;bergeordneten Raumebenen vorhanden
-					</div>
-
-					<div class="row">						
-						<div class="col-sm-12 col-md-7 col-lg-7">
-							<label>nur Raumeinheiten des aktuellen Indikators ber&uuml;cksichtigen</label>
-							
-						</div>
-						<div class="col-sm-12 col-md-2 col-lg-2">
-							<label class="switch">
-								<input id="considerAllowedSpatialUnitsOfCurrentIndicatorToggle" type="checkbox" ng-change="onChangeShowSelectionByFeature()"
-									ng-model="considerAllowedSpatialUnitsOfCurrentIndicator" 
-									ng-checked="considerAllowedSpatialUnitsOfCurrentIndicator"></input>
-								<span class="switchslider round"></span>					
-							</label>
-						</div>
-						<div class="col-sm-12 col-md-3 col-lg-3">
-							
-						</div>
-					</div>
-
-					<div class="row">						
-						<div class="col-sm-12 col-md-3 col-lg-3">
-							<label>Raumebene</label>							
-						</div>
-						<div class="col-sm-12 col-md-6 col-lg-6">
-							<select style="font-size: 12px;"
-								ng-model="selectedSpatialUnitForFilter"
-								ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in higherSpatialUnits track by spatialUnit.spatialUnitId"
-								class="form-control" ng-change="onChangeSelectedSpatialUnitForFilter(selectedSpatialUnitForFilter)"
-								required>
-								<option disabled selected value> -- Raumeinheit w&auml;hlen --
-								</option>
-							</select>
-						</div>
-						<div class="col-sm-12 col-md-3 col-lg-3">
-							
-						</div>
-					</div>
-
-					<excalibur-dual-list class="spatialFilterDuallist" ng-model='selectionByFeatureSpatialFilterSelectedFeatures'
-						options="selectionByFeatureSpatialFilterDuallistOptions"></excalibur-dual-list>
-					<button class="btn btn-primary" ng-click="onSelectionByFeatureSpatialFilterSelectBtnPressed()"
-						ng-disabled="!selectionByFeatureSpatialFilterDuallistOptions || selectionByFeatureSpatialFilterDuallistOptions.selectedItems.length == 0">
-							Selektion durchführen
-					</button> 
-					<br/>
-					<button id="selectionByFeatureSpatialFilterResetSelectionBtn" class="btn btn-danger" 
-						ng-click="onSelectionByFeatureSpatialFilterResetBtnPressed()">Selektion zurücksetzen</button>
-				</div>
-
-				<hr>
-
-				<h4>Manuelle Selektion anzuzeigender Features</h4>
-				<p>Gebiete können über ihre Bezeichnung oder über die Karte ausgewählt werden.</p>
-				<label class="switch">
-					<input id="showManualSelectionSpatialFilterToggle" type="checkbox" ng-change="onChangeShowManualSelection(showManualSelectionSpatialFilter)"
-						ng-model="showManualSelectionSpatialFilter" 
-						ng-checked="showManualSelectionSpatialFilter"></input>
-					<span class="switchslider round"></span>
-				</label>
-				<div id="manualSelectionSpatialFilter" ng-show="showManualSelectionSpatialFilter">
-					<excalibur-dual-list class="spatialFilterDuallist" ng-model='manualSelectionSpatialFilterSelectedFeatures'
-						options="manualSelectionSpatialFilterDuallistOptions"></excalibur-dual-list>
-					
-					<!-- selection via any drawable item on map - hidden for now -->
-						<!-- <div>
-						<p>Selektion über Kartenbild</p>
-						<label class="switch">
-							<input id="manualSelectionSpatialFilterSelectByMapToggle" type="checkbox" ng-change="onChangeManualSelectionSpatialFilterSelectByMapToggle()"
-								ng-model="manualSelectionSpatialFilterSelectByMap" 
-								ng-checked="manualSelectionSpatialFilterSelectByMap"></input>
-							<span class="switchslider round"></span>
-						</label><br />
-						<div id="manualSelectionSpatialFilterSelectByMapBtn" > 
-							<button class="btn btn-primary" ng-disabled="!manualSelectionSpatialFilterSelectByMap" ng-click="manualSelectionSpatialFilterSelectByMapBtnClicked()">Selektionsbereich zeichnen</button>
-						</div>
-					</div>						 -->					
-					<button class="btn btn-primary" ng-click="onManualSelectionSpatialFilterSelectBtnPressed()">Selektion durchführen</button>
-					<button class="btn btn-danger"
-					ng-click="onManualSelectionSpatialFilterResetBtnPressed()">Selektion zurücksetzen</button>
-
-					<br/>
-					<br/>
-					<button class="btn btn-primary" ng-disabled="$ctrl.kommonitorFilterHelperServiceInstance.selectedIndicatorFeatureIds.size == 0" ng-click="onManualSelectionBySelectedMapFeaturesBtnPressed()">{{$ctrl.kommonitorFilterHelperServiceInstance.selectedIndicatorFeatureIds.size}} aktuell gew&auml;hlte Kartenobjekte filtern</button>
-					
-				</div>
-			</div>
-
-		</div>
 	</div>
 	<!-- /.box -->
 
