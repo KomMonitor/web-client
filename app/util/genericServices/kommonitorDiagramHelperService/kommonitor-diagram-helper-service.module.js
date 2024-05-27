@@ -657,7 +657,10 @@ angular
               label: {
                 position: 'insideStartTop',
                 name: meanLineLabel,
-                formatter: meanLineValue,              
+                formatter: "Durchschnitt: " + meanLineValue,              
+              },
+              lineStyle: {
+                color: 'gray'
               }
             }
             },
