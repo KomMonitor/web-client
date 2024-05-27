@@ -183,6 +183,18 @@ angular
         this.mapParts.dataLayer = kommonitorGenericMapHelperService.addDataLayer(geoJSON, this.mapParts.map, undefined, "", this.onEachFeature, this.pointToLayer, this.style);
       };
 
+      this.makeIsochroneMarkerLayer = function(lonLatArray){
+        let markerLayer = L.featureGroup();
+
+        lonLatArray.forEach(function (lonLat) {
+          var layer = L.marker([lonLat[1], lonLat[0]]);
+          layer.bindPopup("Startpunkt der Isochronenberechnung");
+          layer.addTo(markerLayer);
+        });
+
+        return markerLayer;
+      };
+
       this.replaceIsochroneMarker = function (domId, lonLatArray) {
 
         let mapParts = this.mapPartsMap.get(domId);
@@ -192,13 +204,7 @@ angular
           mapParts.map.removeLayer(mapParts.isochroneLayers.markerLayer);
         }
 
-        mapParts.isochroneLayers.markerLayer = L.featureGroup();
-
-        lonLatArray.forEach(function (lonLat) {
-          var layer = L.marker([lonLat[1], lonLat[0]]);
-          layer.bindPopup("Startpunkt der Isochronenberechnung");
-          layer.addTo(mapParts.isochroneLayers.markerLayer);
-        });
+        mapParts.isochroneLayers.markerLayer = this.makeIsochroneMarkerLayer(lonLatArray);
 
         mapParts.layerControl.addOverlay(mapParts.isochroneLayers.markerLayer, "Startpunkte für Isochronenberechnung");
         mapParts.isochroneLayers.markerLayer.addTo(mapParts.map);
@@ -209,16 +215,8 @@ angular
         this.mapPartsMap.set(domId, mapParts);
       };
 
-      this.replaceIsochroneGeoJSON = function (domId, datasetName, geoJSON, transitMode, reachMode, cutOffValues, useMultipleStartPoints, dissolveIsochrones) {
-
-        let mapParts = this.mapPartsMap.get(domId);
-
-        if (mapParts && mapParts.isochroneLayers && mapParts.isochroneLayers.isochroneLayer && mapParts.layerControl) {
-          mapParts.layerControl.removeLayer(mapParts.isochroneLayers.isochroneLayer);
-          mapParts.map.removeLayer(mapParts.isochroneLayers.isochroneLayer);
-        }
-
-        mapParts.isochroneLayers.isochroneLayer = L.featureGroup();
+      this.makeIsochroneLayer = function(datasetName, geoJSON, transitMode, reachMode, cutOffValues, useMultipleStartPoints, dissolveIsochrones){
+        let isochroneLayer = L.featureGroup();
 
         var cutOffUnitValue = "Meter";
         var reachModeValue = "Distanz";
@@ -375,10 +373,25 @@ angular
           L.geoJSON(geoJSON.features[index], {
             style: style,
             onEachFeature: self.onEachFeature_isochrones
-          }).addTo(mapParts.isochroneLayers.isochroneLayer);
+          }).addTo(isochroneLayer);
         }
 
-        mapParts.layerControl.addOverlay(mapParts.isochroneLayers.isochroneLayer, "Erreichbarkeits-Isochronen_" + transitModeValue);
+        return isochroneLayer;
+      };         
+            
+
+      this.replaceIsochroneGeoJSON = function (domId, datasetName, geoJSON, transitMode, reachMode, cutOffValues, useMultipleStartPoints, dissolveIsochrones) {
+
+        let mapParts = this.mapPartsMap.get(domId);
+
+        if (mapParts && mapParts.isochroneLayers && mapParts.isochroneLayers.isochroneLayer && mapParts.layerControl) {
+          mapParts.layerControl.removeLayer(mapParts.isochroneLayers.isochroneLayer);
+          mapParts.map.removeLayer(mapParts.isochroneLayers.isochroneLayer);
+        }
+
+        mapParts.isochroneLayers.isochroneLayer = this.makeIsochroneLayer(datasetName, geoJSON, transitMode, reachMode, cutOffValues, useMultipleStartPoints, dissolveIsochrones);      
+
+        mapParts.layerControl.addOverlay(mapParts.isochroneLayers.isochroneLayer, "Erreichbarkeits-Isochronen_" + transitMode);
         mapParts.isochroneLayers.isochroneLayer.addTo(mapParts.map);
 
         this.invalidateMap(domId);

@@ -15,8 +15,10 @@ angular.module('kommonitorMap').component(
       'kommonitorToastHelperService',
       'kommonitorGenericMapHelperService',
       '__env',
+      'kommonitorReachabilityMapHelperService',
       function MapController($rootScope, $http, $scope, $timeout, kommonitorMapService, kommonitorDataExchangeService, kommonitorVisualStyleHelperService, 
-        kommonitorInfoLegendHelperService, kommonitorFilterHelperService, kommonitorToastHelperService, kommonitorGenericMapHelperService, __env) {
+        kommonitorInfoLegendHelperService, kommonitorFilterHelperService, kommonitorToastHelperService, kommonitorGenericMapHelperService, __env,
+        kommonitorReachabilityMapHelperService) {
 
           /*
            
@@ -3309,6 +3311,47 @@ angular.module('kommonitorMap').component(
           });
         });
 
+        $scope.$on("replaceReachabilityScenarioOnMainMap", function (event, reachabilityScenario){
+
+          if ($scope.markerLayer) {
+            $scope.layerControl.removeLayer($scope.markerLayer);
+            $scope.map.removeLayer($scope.markerLayer);
+          }
+          if ($scope.isochroneLayer) {
+            $scope.layerControl.removeLayer($scope.isochroneLayer);
+            $scope.map.removeLayer($scope.isochroneLayer);
+          }
+
+          let poiDataset = reachabilityScenario.reachabilitySettings.selectedStartPointLayer;
+          let locationsArray = [];
+
+          poiDataset.geoJSON.features.forEach(function (feature) {
+						locationsArray.push(feature.geometry.coordinates);						
+					});
+          
+          $scope.markerLayer = kommonitorReachabilityMapHelperService.makeIsochroneMarkerLayer(locationsArray);
+          
+          $scope.isochroneLayer = kommonitorReachabilityMapHelperService
+          .makeIsochroneLayer(            
+            reachabilityScenario.reachabilitySettings.selectedStartPointLayer.datasetName,
+            reachabilityScenario.isochrones_dissolved,
+            reachabilityScenario.reachabilitySettings.transitMode,
+            reachabilityScenario.reachabilitySettings.focus,
+            reachabilityScenario.reachabilitySettings.rangeArray,
+            reachabilityScenario.reachabilitySettings.useMultipleStartPoints,
+            reachabilityScenario.reachabilitySettings.dissolveIsochrones);
+
+            $scope.layerControl.addOverlay($scope.markerLayer, "Startpunkte der Isochronenberechnung - " + poiDataset.datasetName, reachabilityLayerGroupName);
+            $scope.layerControl.addOverlay($scope.isochroneLayer, "Erreichbarkeits-Isochronen_" + reachabilityScenario.reachabilitySettings.transitMode + "_" + poiDataset.datasetName, reachabilityLayerGroupName);
+            
+            $scope.markerLayer.addTo($scope.map);
+            $scope.isochroneLayer.addTo($scope.map);
+
+            $scope.map.invalidateSize(true);
+            $scope.map.fitBounds($scope.isochroneLayer.getBounds()); 
+        });
+       
+      
       }
     ]
   });
