@@ -514,12 +514,16 @@ pre.CodeMirror-line {
 	z-index: 9999999
 }
 
+.dropdown-menu {
+	box-shadow: 0 3px 10px rgb(0 0 0 / 0.2);
+}
+
 .dropdown-menu-center {
   left: 50% !important;
   right: auto !important;  
   text-align: center !important;
   transform: translate(-50%, 0) !important;
-  min-width: fit-content;
+  min-width: fit-content;  
 }
 
 /* .customColorPicker ul li a {
