@@ -59,7 +59,8 @@
 								<div class="col-md-4 col-sm-4 col-xs-12">
 									<div class="form-group">
 										<label >Datenbank-Features holen</label>
-										<button class="btn btn-info" ng-click="refreshIndicatorEditFeaturesOverviewTable()"><i class="fas fa-sync-alt"></i>&nbsp;Zeige alle Features</button>
+										<button class="btn btn-info" ng-click="refreshIndicatorEditFeaturesOverviewTable()"
+										ng-disabled="! overviewTableTargetSpatialUnitMetadata"><i class="fas fa-sync-alt"></i>&nbsp;Zeige alle Features</button>
 	   
 										<div class="help-block"><p>Das Anzeigen aller Features des Indikators kann je nach Anzahl und Komplexit&auml;t der Objekte einige Zeit in Anspruch nehmen</p>
 											<p>Editieren einzelner Zellwerte via Doppelklick. Best&auml;tigen der Editierung durch Enter oder Klicken in eine andere Zelle</p>
