@@ -3,12 +3,12 @@
 	<p></p>
 
 	<!-- Indicator information  -->
-		<div id="kommonitorIndicatorBasicMetadata" class="box box-primary collapsed-box">
+		<div id="kommonitorIndicatorExportAndSpatialUnitSwitch" class="box box-primary collapsed-box">
 			<div class="box-header with-border">
 				<h3 class="box-title">Raumebene und Export</h3>
 
 				<div class="box-tools pull-right">
-					<button id="indicatorBasicMetadataCollapse" type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+					<button id="kommonitorIndicatorExportAndSpatialUnitSwitchCollapse" type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
 					</button>
 				</div>
 			</div>
@@ -266,7 +266,9 @@
 									{{$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesMean}}
 								</div>
 							</div>
-							<div 
+							<div id="kommonitorIndicatorClassification">
+								<div 
+								id="indicatorClassificationCollapse"
 								ng-model="classificationCollapsed" 
 								ng-click="classificationCollapsed=!classificationCollapsed"
 								style="font-size:1.5em; cursor:pointer; margin-top: 16px;"
@@ -286,6 +288,8 @@
 									<kommonitor-classification></kommonitor-classification>
 								</div>
 							</div>
+							</div>
+							
 						</div>
 				
 					</uib-tab>

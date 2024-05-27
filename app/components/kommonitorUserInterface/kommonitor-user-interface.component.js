@@ -527,14 +527,14 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				element: "#kommonitorLegend",
 				title: "Indikatorenlegende und Klassifizierung",
 				placement: "left",
-				content: "Dieses Element ist in vier Teilbereiche untergliedert, welche "+
-				"</br>1. die wichtigsten <b>Metadaten</b> des dargestellten Indikator abbilden, </br>" +
-				"2. <b>Kartenlegenden</b> zur Interpretation der Karteninhalte anbieten,</br>"+
-				" 3. weitergehende M&ouml;glichkeiten zur <b>Klassifizierung</b> bieten und </br>"+
-				" 4. <b>Statistische Merkmale</b> über den gesamten Bereich sowie über ausgewählte Gebiete anzeigen.",				
+				content: "Dieses Element ist in drei Teilbereiche untergliedert, welche "+
+				"</br>1. M&ouml;glichkeiten zum <b>Wechseln der Raumeinheit und Datenexport</b> des dargestellten Indikator abbilden, </br>" +
+				"2. <b>Kartenlegenden</b> zur Interpretation der Karteninhalte sowie der <b>Klassifizierung</b> anbieten,</br>"+				
+				"3. <b>Statistische Merkmale</b> über den gesamten Bereich sowie über ausgewählte Gebiete anzeigen.",				
 				onNext: function(tour){
 					if($scope.sidebarLegendClass !== "disappear"){
 							$("#legendSymbologyCollapse").click();
+							$("#kommonitorIndicatorExportAndSpatialUnitSwitchCollapse").click();
 					}
 				},
 				onPrev: function(tour){
@@ -544,22 +544,22 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				}
 			},
 			{
-				element: "#kommonitorIndicatorBasicMetadata",
-				title: "Indikator-Metadaten, Einstellung- und Exportmöglichkeiten",
+				element: "#kommonitorIndicatorExportAndSpatialUnitSwitch",
+				title: "Indikator-Raumeinheitswechsel und Exportmöglichkeiten",
 				placement: "left",
-				content: "Im oberen Bereich sind der <b>Name</b>, eine kurze <b>Beschreibung</b> sowie das <b>Fortf&uuml;hrungsintervall</b> des angezeigten Indikators zu finden. </br>" +
-				"Im mittleren Bereich kann die angezeigte <b>Raumebene per Dropdown-Liste gewechselt</b> und der <b>Zeitpunkt per Kalenderauswahl gewählt</b> werden </br>" +
+				content: 
+				"Hier kann die angezeigte <b>Raumebene per Dropdown-Liste gewechselt</b> und der <b>Zeitpunkt per Kalenderauswahl gewählt</b> werden </br>" +
 				"Der untere Bereich bietet <b>Exportm&ouml;glichkeiten</b> f&uuml;r die angezeigten Daten in den Formaten <i>GeoJSON, ESRI Shapefile sowie CSV</i>. </br>" +
 				"Zudem kann ein <b>Metadatenblatt</b> aller Metadaten des dargestellten Indikators als <i>PDF-Datei</i> heruntergeladen werden.",				
 				onNext: function(tour){
-					if($scope.sidebarLegendClass !== "disappear"){
-							$("#indicatorBasicMetadataCollapse").click();
+					if($scope.sidebarLegendClass !== "disappear"){							
 							$("#legendSymbologyCollapse").click();
 					}
 				},
 				onPrev: function(tour){
 					if($scope.sidebarLegendClass !== "disappear"){
 							$("#legendSymbologyCollapse").click();
+							$("#kommonitorIndicatorExportAndSpatialUnitSwitchCollapse").click();
 					}
 				}
 			},
@@ -567,20 +567,22 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				element: "#kommonitorLegendSymbology",
 				title: "Kartenlegenden und Interpretation",
 				placement: "left",
-				content: "Dieser Bereich beinhaltet eine <b>Farblegende mit Klassen</b> f&uuml;r den angezeigten Indikator sowie die <b>Wertebereiche und Anzahl Raumeinheiten je Klasse</b></br> " +
-				"Als erg&auml;nzende Informationen werden der <b>Indikatortyp</b>, der <b>Stichtag</b>, die <b>Einheit</b> sowie eine kurze <b>Interpretationshilfe angezeigt.</b></br>" +
+				content: "Im oberen Bereich sind der <b>Name</b>, eine kurze <b>Beschreibung</b> sowie das <b>Fortf&uuml;hrungsintervall</b> des angezeigten Indikators zu finden. </br>" + 				
+				"Als erg&auml;nzende Informationen werden der <b>Stichtag</b>, die <b>Einheit</b> sowie eine kurze <b>Interpretationshilfe angezeigt.</b></br>" +
+				"Es folgt eine <b>Farblegende mit Klassen</b> f&uuml;r den angezeigten Indikator sowie die <b>Wertebereiche und Anzahl Raumeinheiten je Klasse</b></br> " +
 				"Die einzelnen Reiter ganz oben erm&ouml;glichen den Wechsel zwischen verschiedenen Legenden, sofern zus&auml;tzlich zu einem <i>Indikator</i> </br>" +
-				"auch die Legende f&uuml;r einen eingebundenen <i>WMS-Dienst</i> angezeigt werden sollen.",				
+				"erg&auml;nzende Metadaten oder eingebundene <i>WMS-Dienste</i> angezeigt werden sollen.",				
 				onNext: function(tour){
 					if($scope.sidebarLegendClass !== "disappear"){
-							$("#legendSymbologyCollapse").click();
-							$("#indicatorClassificationCollapse").click();
+							// $("#legendSymbologyCollapse").click();
+							$("#indicatorClassificationCollapse").click();			
 					}
+					
 				},
 				onPrev: function(tour){
 					if($scope.sidebarLegendClass !== "disappear"){
 							$("#legendSymbologyCollapse").click();
-							$("#indicatorBasicMetadataCollapse").click();
+							$("#kommonitorIndicatorExportAndSpatialUnitSwitchCollapse").click();
 					}
 				}
 			},
@@ -588,7 +590,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				element: "#kommonitorIndicatorClassification",
 				title: "Klassifikationsoptionen",
 				placement: "left",
-				content: "Hier kann zwischen den <b>Klassifizierungsmethoden</b> <i>Jenks, Gleiches Intervall und Quantile</i> gew&auml;hlt werden. </br> " +
+				content: "Über das Zahnrad-Symbol kann die Indikatoren-Klassifikation angepasst werden. Neben der <b>Farbpalette</b> kann zwischen den g&auml;ngigen <b>Klassifizierungsmethoden</b> <i>Jenks, Gleiches Intervall und Quantilen</i> gew&auml;hlt werden. </br> " +
 				"Liegt für den ausgewählten Indikator eine <b>regionale Standard-Klassifikation</b> vor, ist diese standardmäßig ausgewählt und erscheint zusätzlich als Auswahlmöglichkeit.</br> " +
 				"</br>Außerdem gibt es die Auswahlmöglichkeit <b>Manuell</b>, bei der die Klassengrenzen händisch eingetragen werden können. </br>" + 
 				" Ist die Option <i>Manuell</i> ausgewählt, erscheint " +
@@ -609,7 +611,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				},
 				onPrev: function(tour){
 					if($scope.sidebarLegendClass !== "disappear"){
-							$("#legendSymbologyCollapse").click();
+							// $("#legendSymbologyCollapse").click();
 							$("#indicatorClassificationCollapse").click();
 					}
 				}
@@ -704,8 +706,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				"selbst bei bei vielen Punkten eine übersichtliche Darstellung zu gewährleisten. " + 
 				"&Uuml;ber eine entsprechende <i>Auswahloption</i> k&ouml;nnen jedoch bei jeder Zoomstufe wahlweise auch <b>alle Einzelpunkte angezeigt</b> werden. " + 
 				"<br/><br/><b>Hinweis zum Zeitbezug der darzustellenden Daten:</b><br/>Der Abruf eines Punkt-, Linien- oder Flächendatensatzes bezieht sich immer auf ein Datum. " + 
-				"Standardm&auml;&szlig;ig wird der aktuelle Zeitpunkt des dargestellten Indikators verwendet. Diese Option kann jedoch auf eine " + 
-				"listenbasierte Auswahl verf&uuml;gbarer Zeitpunkte jedes Datensatzes abge&auml;ndert werden.",
+				"KomMonitor erlaubt es, auch f&uuml;r Geodaten eine zeitliche Entwicklung abzubilden.",
 				onNext: function(tour){
 					if($scope.sidebarPoiClass !== "disappear"){
 							$("#sidebarPoiCollapse").click();
