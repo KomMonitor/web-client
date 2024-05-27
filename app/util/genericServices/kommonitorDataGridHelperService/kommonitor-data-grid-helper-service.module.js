@@ -2733,6 +2733,18 @@ angular
         return filteresPermissions.length > 0;
       };
 
+      function anyHigherAdvancedPermissionIsChecked(permissions, permissionTypeSuffix){
+        let filteresPermissions = [];
+        
+          filteresPermissions = permissions.filter(function(permission){
+            if (permission.isChecked && permission.permissionLevel == "creator" && permission.permissionType == permissionTypeSuffix){
+              return true;
+            }
+          });
+        
+        return filteresPermissions.length > 0;
+      };
+
       function CheckboxRenderer_viewer() {}
 
       CheckboxRenderer_viewer.prototype.init = function(params) {
@@ -2957,7 +2969,7 @@ angular
           this.checkedHandler = this.checkedHandler.bind(this);
           this.eGui.addEventListener('click', this.checkedHandler);
           // if higher role rights are checked as well 
-          if(isChecked && anyHigherPermissionIsChecked(params.data.permissions, "viewer")){
+          if(isChecked && anyHigherAdvancedPermissionIsChecked(params.data.permissions, "client-users")){
             this.eGui.disabled = true;
           }                    
         }
@@ -3005,10 +3017,6 @@ angular
 
           this.checkedHandler = this.checkedHandler.bind(this);
           this.eGui.addEventListener('click', this.checkedHandler);
-          // if higher role rights are checked as well 
-         /*  if(isChecked && anyHigherPermissionIsChecked(params.data.permissions, "viewer")){
-            this.eGui.disabled = true;
-          }    */                 
         }
       };
 
@@ -3071,7 +3079,7 @@ angular
           this.checkedHandler = this.checkedHandler.bind(this);
           this.eGui.addEventListener('click', this.checkedHandler);
           // if higher role rights are checked as well 
-          if(isChecked && anyHigherPermissionIsChecked(params.data.permissions, "viewer")){
+          if(isChecked && anyHigherAdvancedPermissionIsChecked(params.data.permissions, "client-resources")){
             this.eGui.disabled = true;
           }                    
         }
@@ -3119,10 +3127,6 @@ angular
 
           this.checkedHandler = this.checkedHandler.bind(this);
           this.eGui.addEventListener('click', this.checkedHandler);
-          // if higher role rights are checked as well 
-         /*  if(isChecked && anyHigherPermissionIsChecked(params.data.permissions, "viewer")){
-            this.eGui.disabled = true;
-          }    */                 
         }
       };
 
@@ -3187,7 +3191,7 @@ angular
           this.checkedHandler = this.checkedHandler.bind(this);
           this.eGui.addEventListener('click', this.checkedHandler);
           // if higher role rights are checked as well 
-          if(isChecked && anyHigherPermissionIsChecked(params.data.permissions, "viewer")){
+          if(isChecked && anyHigherAdvancedPermissionIsChecked(params.data.permissions, "client-themes")){
             this.eGui.disabled = true;
           }                    
         }
@@ -3235,10 +3239,6 @@ angular
 
           this.checkedHandler = this.checkedHandler.bind(this);
           this.eGui.addEventListener('click', this.checkedHandler);
-          // if higher role rights are checked as well 
-         /*  if(isChecked && anyHigherPermissionIsChecked(params.data.permissions, "viewer")){
-            this.eGui.disabled = true;
-          }    */                 
         }
       };
 
