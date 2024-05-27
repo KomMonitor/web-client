@@ -158,7 +158,8 @@ angular.module('reachabilityIndicatorStatistics').component('reachabilityIndicat
 					active: false
 				}
 
-				kommonitorReachabilityScenarioHelperService.tmpActiveScenario.indicatorStatistics.push(newIsochroneStatisticsEntry);
+				// insert at first place to emphasize where the new computation is happening
+				kommonitorReachabilityScenarioHelperService.tmpActiveScenario.indicatorStatistics.splice(0, 0, newIsochroneStatisticsEntry);
 
 				// now trigger periodical query of job status
 				$scope.queryJobStatus(jobId);
