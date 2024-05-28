@@ -134,7 +134,11 @@
 									<td>
 										<div ng-if="entry.connectedSpatialUnits.length > 0">
 											<span ng-repeat="spatialUnit in entry.connectedSpatialUnits" class="spatial-unit-list-item">
-												{{spatialUnit.name}}: {{spatialUnit.ids.join(', ')}}
+												{{spatialUnit.name}}:
+                                                <span ng-repeat="spatialUnitIds in spatialUnit.ids">
+                                                    <div ng-if="!spatialUnitIds.subGroup"><b>{{spatialUnitIds.name}}</b>-{{spatialUnitIds.permission}}</div>
+                                                    <div ng-if="spatialUnitIds.subGroup"><span class="organizationalUnit-subGroup-item"><b>{{spatialUnitIds.name}}</b></span>-{{spatialUnitIds.permission}}</div>
+                                                </span>
 											</span><br>
 										</div>
 									</td>

@@ -3070,7 +3070,8 @@ input:checked + .switchslider:before {
 }
 
 .spatial-unit-list-item {
-	display: table-row;
+	padding-bottom: 1em;
+    display: block;
 }
 
 .organizationalUnit-subGroup-item {

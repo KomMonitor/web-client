@@ -187,16 +187,27 @@ angular.module('roleDeleteModal').component('roleDeleteModal', {
 							permissions.forEach(permission => {
 								
 								if(datasetToDelete.permissions.filter(e => e.permissionId==permission).length==1) {
-									if(!found)
-										connectedItems.push(`${datasetToDelete.name}-${datasetToDelete.permissions.filter(e => e.permissionId==permission).map(e => { return e.permissionLevel})[0]}`);
+									if(!found) {
+                                        connectedItems.push({
+                                            name: datasetToDelete.name,
+                                            permission: datasetToDelete.permissions.filter(e => e.permissionId==permission).map(e => { return e.permissionLevel})[0],
+                                            subGroup: datasetToDelete.subGroup
+                                        });
+                                    }
 
-									connectedSpatialItem.ids.push(`${datasetToDelete.name}-${datasetToDelete.permissions.filter(e => e.permissionId==permission).map(e => { return e.permissionLevel})[0]}`);
-								}
+									//connectedSpatialItem.ids.push(`${datasetToDelete.name}-${datasetToDelete.permissions.filter(e => e.permissionId==permission).map(e => { return e.permissionLevel})[0]}`);
+								
+                                    connectedSpatialItem.ids.push({
+                                        name: datasetToDelete.name,
+                                        permission: datasetToDelete.permissions.filter(e => e.permissionId==permission).map(e => { return e.permissionLevel})[0],
+                                        subGroup: datasetToDelete.subGroup
+                                    });
+                                }
 							});
 
 							// only if no entry in base indicator
 							if(!found) {
-								temp_indicator.connectedItems = connectedItems.join(', ');
+								temp_indicator.connectedItems = connectedItems;
 								found = true;
 							}
 
