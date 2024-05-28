@@ -134,7 +134,9 @@ angular.module('roleAddModal').component('roleAddModal', {
 						$("#ouAddSuccessAlert").show();						
 
 						$rootScope.$broadcast("refreshAccessControlTable");
-						$scope.checkOrganizationalUnitName();
+                        
+                        $scope.resetOrganizationalUnitAddForm();
+
 						$timeout(function () {
 							$scope.loadingData = false;
 						});
