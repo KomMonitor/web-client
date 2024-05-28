@@ -125,6 +125,7 @@ angular
 
         let html = '<div class="btn-group btn-group-sm">';
         html += '<button id="btn_role_editMetadata_' + params.data.organizationalUnitId + '" class="btn btn-warning btn-sm roleEditMetadataBtn" type="button" data-toggle="modal" data-target="#modal-edit-role-metadata" title="Metadaten editieren"><i class="fas fa-pencil-alt"></i></button>';
+        html += '<button id="btn_role_editGroupRight_' + params.data.organizationalUnitId + '" class="btn btn-warning btn-sm roleEditGroupRightsBtn" type="button" data-toggle="modal" data-target="#modal-edit-role-group-rights" title="Gruppenspezifische Rechte editieren"><i class="fas fa-user-lock"></i></button>'
         html += '</div>';
 
         return html;
@@ -2151,6 +2152,21 @@ angular
           let roleMetadata = kommonitorDataExchangeService.getAccessControlById(id);
 
           $rootScope.$broadcast("onEditOrganizationalUnitMetadata", roleMetadata);
+        }); 
+        
+        $(".roleEditGroupRightsBtn").off();
+        $(".roleEditGroupRightsBtn").on("click", function (event) {
+          // ensure that only the target button gets clicked
+          // manually open modal
+          event.stopPropagation();
+          let modalId = document.getElementById(this.id).getAttribute("data-target");
+          $(modalId).modal('show');
+          
+          let id = this.id.split("_")[3];
+
+          let roleId = kommonitorDataExchangeService.getAccessControlById(id);
+
+          $rootScope.$broadcast("onEditOrganizationalUnitGroupRights", roleId);
         });
       };  
 

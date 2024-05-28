@@ -43,6 +43,8 @@ module.exports = function (grunt) {
             'app/components/kommonitorAdmin/adminRoleManagement/roleAddModal/role-add-modal.component.js',
             'app/components/kommonitorAdmin/adminRoleManagement/roleEditMetadataModal/role-edit-metadata-modal.module.js',
             'app/components/kommonitorAdmin/adminRoleManagement/roleEditMetadataModal/role-edit-metadata-modal.component.js',
+            'app/components/kommonitorAdmin/adminRoleManagement/roleEditGroupRightsModal/role-edit-group-rights-modal.module.js',
+            'app/components/kommonitorAdmin/adminRoleManagement/roleEditGroupRightsModal/role-edit-group-rights-modal.component.js',
             'app/components/kommonitorAdmin/adminRoleManagement/roleDeleteModal/role-delete-modal.module.js',
             'app/components/kommonitorAdmin/adminRoleManagement/roleDeleteModal/role-delete-modal.component.js',
             'app/components/kommonitorAdmin/adminTopicsManagement/admin-topics-management.module.js',

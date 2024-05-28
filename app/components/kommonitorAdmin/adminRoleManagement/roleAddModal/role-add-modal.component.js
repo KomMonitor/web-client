@@ -110,8 +110,6 @@ angular.module('roleAddModal').component('roleAddModal', {
                         }
                     ]});
 
-                console.log(access)
-
 			    $scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildAdvancedRoleManagementGrid('addRoleEditGroupRoleManagementTable', $scope.roleManagementTableOptions, access, permissions);
             });
 
