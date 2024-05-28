@@ -12,9 +12,7 @@ angular.module('roleEditMetadataModal').component('roleEditMetadataModal', {
 
 		$scope.loadingData = false;
 
-		$scope.parentOrganizationalUnitFilter = undefined;
 		$scope.parentOrganizationalUnit = undefined;
-		$scope.parentOrganizationalUnit_current = undefined;
 
 		$scope.successMessagePart = undefined;
 		$scope.errorMessagePart = undefined;
@@ -23,7 +21,7 @@ angular.module('roleEditMetadataModal').component('roleEditMetadataModal', {
 
 			$scope.current = organizationalUnit;
 			$scope.old.name = organizationalUnit.name;
-
+            
 			$scope.resetOrganizationalUnitEditMetadataForm();
 		});
 
@@ -45,12 +43,9 @@ angular.module('roleEditMetadataModal').component('roleEditMetadataModal', {
 			$scope.successMessagePart = undefined;
 			$scope.errorMessagePart = undefined;
 
-			$scope.parentOrganizationalUnitFilter = undefined;
 			$scope.parentOrganizationalUnit = undefined;
-			$scope.parentOrganizationalUnit_current = undefined;
 			if ($scope.current.parentId && $scope.current.parentId != ""){
 				$scope.parentOrganizationalUnit = kommonitorDataExchangeService.getAccessControlById($scope.current.parentId);
-				$scope.parentOrganizationalUnit_current = JSON.parse(JSON.stringify($scope.parentOrganizationalUnit));
 			}
 
 			$("#editOuMetadataSuccessAlert").hide();
@@ -106,7 +101,6 @@ angular.module('roleEditMetadataModal').component('roleEditMetadataModal', {
 					// otherwise subsequent edit requests will be erronous 
 					$scope.old.name = $scope.current.name;
 					$scope.current.parentId = $scope.parentOrganizationalUnit ? $scope.parentOrganizationalUnit.organizationalUnitId : undefined;
-					$scope.parentOrganizationalUnit_current = $scope.parentOrganizationalUnit;
 			
 					$("#keycloakGroupEditSuccessAlert").show();
 				} catch (error) {
