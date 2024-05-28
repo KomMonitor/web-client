@@ -9,36 +9,189 @@
 				</div>
 			</div>
 			<div class="box-body">
+
+				Version 3 von KomMonitor bietet eine in vielen Punkten überarbeitete und erweiterte Kartenapp 
+				sowie diverse neue Konfigurationsmöglichkeiten der integrierten Geo- und Sachdaten.
 	
 				<ul>
 					<li>
 						Anpassungen in der <b>Admin-Ansicht</b>
 						<ul>
 							<li>
-								<b>Geodatenverwaltung</b>
+								<b>Klassifikation pro Indikator</b>
 								<br>
-								Für die Indikatoren kann eine Standard-Klassifizierung festgelegt werden. <br>
+								Für jeden Indikator kann eine individuelle Standard-Klassifizierung festgelegt werden, inklusive Anzahl Klassen,
+								und Klassifikationsmethode. Auch können dabei pro Raumeinheit eigene Klassengrenzen vorgegeben werden.<br>
 								Für POI Georessourcen kann ein Text anstelle eines Symbols festgelegt werden.
+							</li>
+							<li>
+								<b>Gesamtregionale Vergleichswerte pro Indikator</b>
+								<br>
+								Jedem Indikator können gesamtregionale Vergleichswerte (Gesamtsumme, Durchschnittswert, räumlich nicht zuordenbare) 
+								im Metadaten-Bearbeiten Menü zugewiesen werden.
+								Die Eingabe ist auf bereits integrierte Zeitreihenschritte begrenzt, um Datenkonsistenz zu wahren.
+								Möglich sind manuelle Eingabe oder der Import aus einer CSV-Datei. 
+							</li>	
+							<li>
+								<b>Raumeinheiten als Umringslayer </b>
+								<br>
+								Pro Raumeinheit kann konfiguriert werden, ob sie in der Kartenapp als Umringslayer in der Layersteuerung erscheint. <br/>
+								Dies ermöglicht es, die Grenzverläufe der Raumeinheit in die Karte als Orientierungshilfe einblenden zu lassen. Dies kann nützlich sein, 
+								um bspw. punkthafte Georessourcen optisch mit Raumeinheiten-Grenzen zu überblenden. 
+							</li>						
+							<li>
+								<b>Textuelle POIs (punkthafte Georessourcen) </b>
+								<br>
+								Punkthafte Georessourcen erlauben auch statt eines Symbols eine textuelle Unterscheidung mit bis zu drei Zeichen.
+							</li>
+							<li>
+								<b>aufgeräumte Farbpaletten in Klassifikation</b>
+								<br>
+								Die verfügbaren Farbpaletten des <a href="https://colorbrewer2.org/" target="_blank" rel="noreferrer noopener">ColorBrewer</a> wurden auf sequentielle beschränkt. Divergierende oder qualitative Paletten wurden entfernt. 
+							</li>
+							<li>
+								<b>Fehlerbehebungen in Feature-Tabellen</b>
+								<br>
+								Für alle Geodatentypen wurden ein Fehler behoben, der das interaktive Editieren der Einzelzellen verhindert hat. 
+							</li>
+							<li>
+								<b>neue Konfigurationsparameter</b>
+								<br>
+								zur Konfiguration neuer/erweiterter Funktionalitäten wurden neue Konfigurationsparameter ergänzt. Konkret:
+								<ul>
+									<li>
+										Parameter zur Steuerung, ob im Säulendiagramm eine Durchschnittslinie sowie Namen der Raumeinheiten
+										angezeigt werden sollen
+										<code>
+											// show bar chart label and average line
+											window.__env.showBarChartLabel = false;
+											window.__env.showBarChartAverageLine = true;
+										</code>										
+									</li>
+									<li>
+										Für die erweiterte szenarienbasierte Erreichbarkeitsanalyse muss eine neue Software-Komponente im 
+										KomMonitor-Ökosystem konfiguriert werden. Im Client ist hierzu die URL sowie der Prozessname gesetzt werden
+										<code>
+											// KomMonitor Spatial Data Processor
+											window.__env.targetUrlToSpatialDataProcessorInstance = 'http://localhost:8090/';
+											window.__env.spatialDataProcessor_processName_indicatorReachabilityStatistics = "isochrone-prune";
+										</code>										
+									</li>
+								</ul>
 							</li>
 						</ul>
 					</li>
 					<li>
 						Anpassungen in der <b>Kartenapp</b>
 						<ul>
+							
 							<li>
-								<b>Fehlerbehebungen</b>
-								<br> 
-								bei der Schwellwertklassifizierung und der Auswahl von Georessourcen
+								<b>NEU - erweiterte szenarienbasierte Erreichbarkeitsanalyse inkl. Indikatoren-Statistik-Verschneidung</b>
+								<br>
+								die bishergie Erreichbarkeitsanalyse wurde stark ausgebaut zu einem Szenarienwerkzeug. 
+								Wesentliche Neuerungen:
+								<ul>
+									<li>
+										Es können mehrere Erreichbarkeiten nacheinander angelegt 
+										und in der aktuellen Sitzung gespeichert werden.
+									</li>
+									<li>Import und Export angelegter Szenarien</li>
+									<li>Anlegen und Bearbeiten eines Szenarios in einem eigenen Schritt-basierten Menü</li>
+									<li>genutzte Punktquelle kann beliebig editiert werden, um Szenarien zu erzeugen (neue Punkte setzen, vorhandene verschieben oder löschen)</li>
+									<li>Indikatoren-Statistik-Verschneidung: räumliche Verschneidung zwischen Einzugsgebieten und kleinräumigen Indikatoren-Statistiken für Fragestellungen wie <i>Wie viele Personen 0-18 Jahren werden durch verfügbare Jugendhäuser erreicht/versorgt?</i>. Beachten Sie folgende Hinweise:
+										<ol type="1">
+											<li>
+												Berechnung der Schätzwerte erfolgt durch Überdeckung zwischen Einzugsgebieten und flächigen Indikatoren-Statistiken
+											</li>
+											<li>Ausgabe/Analyse über gesamtes Untersuchungsgebiet und Einzelpunkte inklusive PDF-Reports</li>											
+											<li>
+												es werden immer nur Schätzwerte berechnet und keine Einzelpersonendaten herangezogen
+											</li>
+											<li>je kleinräumiger ein Indikator eingeht, umso realistischer werden die Schätzwerte</li>
+										</ol>
+									</li>
+								</ul>
+							</li>
+							<li>
+								<b>NEU - spontaner Import von Geo- oder Adressdaten</b>
+								<br>
+								Im neuen Datenimport-Menu (links unterhalb Georessourcen) können Daten spontan eingeladen werden, die zuvor nicht in KomMonitor eingepflegt wurden.
+								<br/>
+								Bei <b>Adressdaten</b> aus CSV-Dateien (aus Excel lässt sich CSV prima erzeugen) versucht KomMonitor, die Adressen in Punktkoordinaten zu übertragen (sogenannte Geokodierung aus Basis von OpenStreetMap Daten und Nominatim).
+								Dabei können drei Fälle eintreten:
+								<ol type="a">
+									<li>genaues Ergebnis: Ort, PLZ, Straße und Hausnummer wurden vermeintlich genau gefunden</li>
+									<li>ungenaues Ergebnis: Ort, PLZ passen, aber Straße zumeist ohne Hausnummer. Somit wurde eine ungenaue Koordinate bestimmt aber kein Fehler geworfen (tatsächlicher Punkt kann wenige oder viele Meter entfernt sein - je nach Straßengröße)</li>
+									<li>ohne Ergebnis: Adresse konnte gar nicht verortet werden (Prüfen des Datensatzes auf Schreibfehler, doppelte oder fehlende Adresseinträge)</li>
+								</ol>
+								Mittels geeigneter Smybolisierung sowie Funktionsbuttons erlaubt KomMonitor anschließend eine genaue Betrachtung des Imports.
+
+								<br/>
+								<br/>
+								<b>Geodaten</b> müssen für den Import gegenwärtig im Format <i>GeoJSON</i> oder <i>ESRI-Shape</i> und im Koordinatensystem WGS84 (EPSG:4326) vorliegen.
+								In künftigen Versionen können auch andere Koordinatensysteme und Projektionen unterstützt werden.
+								
+							</li>
+							<li>
+								<b>neu strukturierte Legende</b>
+								<br>
+								Am rechten Bildschirmrand wurde das Informations- und Legendenfenster neu angeordnet.
+								Im obersten Menü kann wie gewohnt die Raumeinheit gewechselt werden oder der Indikatorendatensatz exportiert werden.
+								<br/>
+									Die Legende enthält nun weitere Reiter für ergänzende Indikatoren-Metadaten (ehemals verortet bei der Auswahl der Indikatoren)
+									sowie Optionen zur spontanen Anpassung der Klassifikation über das Zahnradsymbol. 
+								<br/>
+									Die Indikatoren-Statistik Funktion ist nun sichtbarer und wurde gesamtregionale Vergleichswerte erweitert (sofern diese für den 
+									aktuellen Indikator angegeben wurden)
+								
 							</li>
 							<li>
 								<b>Klassifizierung</b>
 								<br>
-								Regionaler Standard und manuelle Klassifizierung
+								Regionaler Standard und manuelle Klassifizierung sowie spontane Wahl der Farbpalette
+							</li>
+							<li>
+								<b>Durchschnittslinie und Label in Ranking-Diagramm</b>
+								<br>
+								Namen der Raumeinheiten sowie eine Querlinie des Durchschnittswerts können im Ranking-Diagramm spontan ein- und ausgeblendet werden.
+							</li>
+							<li>
+								<b>Layersteuerung mit Transparenzregler und Raumeinheiten-Umringslayer</b>
+								<br>
+								Die Layersteuerung der interaktiven Karte muss nun aktiv angeklickt werden, um sie zu öffnen oder zu schließen.
+								<br/>
+								Zudem wurde sie um Transprenzregler für jeden Datensatz (Layer) erweitert.
+								<br/>
+								Sind für Raumeinheiten Umringslayer konfiguriert, so lassen sie sich via der Layersteuerung in das Kartenbild integrieren.
+							</li>
+							<li>
+								<b>Geworessourcen POI Größe</b>
+								<br>
+								punkthafte Georessourcen erlauben eine einstellbare Größe (klein, mittel, groß) im oberen Teil des Georessourcen-Menus
 							</li>
 							<li>
 								<b>Reporting</b>
 								<br>
 								Hochformat auswählbar
+							</li>
+							<li>
+								<b>Fehlerbehebungen</b>
+								<br> 
+								<ul>
+									<li>
+										bei der Schwellwertklassifizierung und der Auswahl von Georessourcen (Mehrfachselektion)
+									</li>
+									<li>
+										Export der Kartendarstellung
+									</li>
+									<li>
+										Georessourcen ohne Themenbezug lassen sich ein- und ausklappen
+									</li>
+									<li>
+										Reporting
+									</li>
+								</ul>
+								
 							</li>
 						</ul>
 					</li>

@@ -42,7 +42,7 @@ try {
   // possible values for geoservice georesources: ["wfs", "wms"]
   window.__env.enabledGeoresourcesGeoservices = ["wfs", "wms"];
 
-  // show bar chart label 
+  // show bar chart label and average line
   window.__env.showBarChartLabel = false;
   window.__env.showBarChartAverageLine = true;
 
