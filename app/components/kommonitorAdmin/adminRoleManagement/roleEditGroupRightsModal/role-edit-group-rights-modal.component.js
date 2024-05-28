@@ -1,21 +1,14 @@
 angular.module('roleEditGroupRightsModal').component('roleEditGroupRightsModal', {
 	templateUrl: "components/kommonitorAdmin/adminRoleManagement/roleEditGroupRightsModal/role-edit-group-rights-modal.template.html",
-	controller: ['kommonitorDataExchangeService', 'kommonitorKeycloakHelperService', '$scope', '$rootScope', '$timeout', '$http', '__env', 
-    function RoleEditGroupRightsModalController(kommonitorDataExchangeService, kommonitorKeycloakHelperService, $scope, $rootScope, $timeout, $http, __env) {
+	controller: ['kommonitorDataGridHelperService', 'kommonitorDataExchangeService', 'kommonitorKeycloakHelperService', '$scope', '$rootScope', '$timeout', '$http', '__env', 
+    function RoleEditGroupRightsModalController(kommonitorDataGridHelperService, kommonitorDataExchangeService, kommonitorKeycloakHelperService, $scope, $rootScope, $timeout, $http, __env) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 		this.kommonitorKeycloakHelperServiceInstance = kommonitorKeycloakHelperService;
 
 		$scope.current = {};
-		$scope.old = {};
-		$scope.old.name = undefined;
-		$scope.nameInvalid = false;
 
 		$scope.loadingData = false;
-
-		$scope.parentOrganizationalUnitFilter = undefined;
-		$scope.parentOrganizationalUnit = undefined;
-		$scope.parentOrganizationalUnit_current = undefined;
 
 		$scope.successMessagePart = undefined;
 		$scope.errorMessagePart = undefined;
@@ -23,50 +16,98 @@ angular.module('roleEditGroupRightsModal').component('roleEditGroupRightsModal',
 		$scope.$on("onEditOrganizationalUnitGroupRights", function (event, organizationalUnit) {
 
 			$scope.current = organizationalUnit;
-			$scope.old.name = organizationalUnit.name;
 
-			$scope.resetOrganizationalUnitEditMetadataForm();
+            let permissions = [
+                "b2af5972-d08f-4838-9285-a1a8cb6f900f", // unit-users
+                "ee2f31f6-363e-4acb-8802-c6f933b73e8c" // client-users
+            ];
+
+            let access = kommonitorDataExchangeService.accessControl;
+
+            access.forEach(elem => {
+
+                elem.permissions = [
+                    { 
+                        permissionLevel: "creator", 
+                        permissionType: "unit-users", 
+                        permissionId: "ee2f3"+Math.random(100)+"1f6-363e-4acb-8802-c6f933b73e8c"
+                    },
+                    { 
+                        permissionLevel: "creator", 
+                        permissionType: "client-users", 
+                        permissionId: "ee2f3"+Math.random(100)+"1f6-363e-4acb-8802-c6f933b73e8c"
+                    },
+                    { 
+                        permissionLevel: "creator", 
+                        permissionType: "unit-resources", 
+                        permissionId: "ee2f3"+Math.random(100)+"1f6-363e-4acb-8802-c6f933b73e8c"
+                    },
+                    { 
+                        permissionLevel: "creator", 
+                        permissionType: "client-resources", 
+                        permissionId: "ee2f3"+Math.random(100)+"1f6-363e-4acb-8802-c6f933b73e8c"
+                    },
+                    { 
+                        permissionLevel: "creator", 
+                        permissionType: "unit-themes", 
+                        permissionId: "ee2f3"+Math.random(100)+"1f6-363e-4acb-8802-c6f933b73e8c"
+                    },
+                    { 
+                        permissionLevel: "creator", 
+                        permissionType: "client-themes", 
+                        permissionId: "ee2f3"+Math.random(100)+"1f6-363e-4acb-8802-c6f933b73e8c"
+                    }
+                ]
+            });
+
+            access.push({
+                children: [ "8552b0c5-003c-4879-8ae7-ef223d5d14a7" ],
+                contact: "s.drost@52north.org",
+                description: "123452°North",
+                keycloakId: "abcdefg-ca48-4225-8a28-4e3e04dce15a",
+                mandant: true,
+                name: "123452N",
+                organizationalUnitId: "abcdfeg-e72e-4c1a-90ac-511e70d9fd79",
+                parentId: null,
+                permissions: [
+                    { 
+                        permissionLevel: "creator", 
+                        permissionType: "unit-users", 
+                        permissionId: "ee2fsd3sdsds1f6-363e-4acb-8802-c6f933b73e8c"
+                    },
+                    { 
+                        permissionLevel: "creator", 
+                        permissionType: "client-users", 
+                        permissionId: "ee2fsdsd31f6-363e-4acb-8802-c6f933b73e8c"
+                    },
+                    { 
+                        permissionLevel: "creator", 
+                        permissionType: "unit-resources", 
+                        permissionId: "ee2f3dffgghgh1f6-363e-4acb-8802-c6f933b73e8c"
+                    },
+                    { 
+                        permissionLevel: "creator", 
+                        permissionType: "client-resources", 
+                        permissionId: "ee2f3jkklö1f6-363e-4acb-8802-c6f933b73e8c"
+                    },
+                    { 
+                        permissionLevel: "creator", 
+                        permissionType: "unit-themes", 
+                        permissionId: "ee2f3fgjkj1f6-363e-4acb-8802-c6f933b73e8c"
+                    },
+                    { 
+                        permissionLevel: "creator", 
+                        permissionType: "client-themes", 
+                        permissionId: "ee2f3ghiiio1f6-363e-4acb-8802-c6f933b73e8c"
+                    }
+                ]});
+
+            $scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildAdvancedRoleManagementGrid('editRoleEditGroupRoleManagementTable', $scope.roleManagementTableOptions, access, permissions);
 		});
 
-		// Checks for duplicate names
-		// Disallowed to prevent confusion
-		$scope.checkOrganizationalUnitName = function(){
-			$scope.nameInvalid = false;
-			kommonitorDataExchangeService.accessControl.forEach(function(ou){
-				if (ou.name === $scope.current.name && ou.organizationalUnitId != $scope.current.organizationalUnitId){
-					$scope.nameInvalid = true;
-					return;
-				}
-			});
-		};
-
-
-		$scope.resetOrganizationalUnitEditMetadataForm = function () {
-
-			$scope.successMessagePart = undefined;
-			$scope.errorMessagePart = undefined;
-
-			$scope.parentOrganizationalUnitFilter = undefined;
-			$scope.parentOrganizationalUnit = undefined;
-			$scope.parentOrganizationalUnit_current = undefined;
-			if ($scope.current.parentId && $scope.current.parentId != ""){
-				$scope.parentOrganizationalUnit = kommonitorDataExchangeService.getAccessControlById($scope.current.parentId);
-				$scope.parentOrganizationalUnit_current = JSON.parse(JSON.stringify($scope.parentOrganizationalUnit));
-			}
-
-			$("#editOuMetadataSuccessAlert").hide();
-			$("#editOuMetadataErrorAlert").hide();
-
-			setTimeout(() => {
-				$scope.$digest();
-			}, 250);
-		};
-
-		$scope.onChangeParentOrganizationalUnit = function(){
-			// let parentId = $scope.parentOrganizationalUnit ? $scope.parentOrganizationalUnit.organizationalUnitId : "";			
-		}
-
-		$scope.editRoleMetadata = function () {
+		
+	
+		/* $scope.editRoleMetadata = function () {
 
 			var putBody =
 			{
@@ -137,7 +178,7 @@ angular.module('roleEditGroupRightsModal').component('roleEditGroupRightsModal',
 				$("#editOuMetadataErrorAlert").show();
 				$scope.loadingData = false;
 			});
-		};
+		}; */
 
 
 		$scope.hideSuccessAlert = function () {
@@ -155,7 +196,6 @@ angular.module('roleEditGroupRightsModal').component('roleEditGroupRightsModal',
 		$scope.hideKeycloakErrorAlert = function () {
 			$("#keycloakGroupEditErrorAlert").hide();
 		};
-
 
 	}
 	]
