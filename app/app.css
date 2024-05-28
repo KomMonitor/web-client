@@ -3086,7 +3086,12 @@ input:checked + .switchslider:before {
 }
 
 .spatial-unit-list-item {
-	display: table-row;
+	padding-bottom: 1em;
+    display: block;
+}
+
+.organizationalUnit-subGroup-item {
+    color: darkgray;
 }
 
 /* The snackbar - position it at the bottom and in the middle of the screen */
