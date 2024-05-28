@@ -525,11 +525,12 @@ angular
                   measureOfValue);
 
         let meanLineLabel = "rechnerischer Durchschnitt";
-        let meanLineValue = parseFloat(kommonitorDataExchangeService.allFeaturesMean); 
+        // replace formatted string like "12.506,32" to 12506.32 in order to parse the correct number
+        let meanLineValue = parseFloat(kommonitorDataExchangeService.allFeaturesMean.replace(/\./g, '').replace(/,/g, '.')); 
         
         if(kommonitorDataExchangeService.allFeaturesRegionalMean){
           meanLineLabel = "gesamtregionaler Durchschnitt";
-          meanLineValue = parseFloat(kommonitorDataExchangeService.allFeaturesRegionalMean); 
+          meanLineValue = parseFloat(kommonitorDataExchangeService.allFeaturesRegionalMean.replace(/\./g, '').replace(/,/g, '.')); 
         }
 
         var barOption = {
