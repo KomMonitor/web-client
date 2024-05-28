@@ -86,29 +86,13 @@
 										</div>
 									</div>	
 									<div class="col-md-4">
-										<label for="parentOrganizationalUnitSelect"><b>Hierarchische Einordnung - Angabe der &uuml;bergeordneten Organisationseinheit</b></label>
-											<div class="input-group">
-												<span class="input-group-addon"><i class="fas fa-filter"></i></span>
-												<input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model="parentOrganizationalUnitFilter" ng-model-options="{debounce: 500, blur: 0}">
-											</div>
-											<select id="parentOrganizationalUnitSelect" size="5" ng-model="parentOrganizationalUnit" 
-												class="form-control" ng-change="onChangeParentOrganizationalUnit()" 
-												ng-options="organizationalUnitItem as organizationalUnitItem.name for organizationalUnitItem in $ctrl.kommonitorDataExchangeServiceInstance.accessControl | filter:parentOrganizationalUnitFilter | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterChildOrSelfOrganizationalUnits(current)"
-												required>
-												<option selected value><b>keine - neuer Wurzelknoten</b></option>
-											</select>
-											<div class="help-block">
-												<p>wird keine &uuml;bergeordneten Organisationseinheit festgelegt, so ist die neue Organisationseinheit auf oberster Ebene der Hierarchie angesiedelt. 
-													Die Hierarchiebeziehung kann nachtr&auml;glich angepasst werden.  
-												</p>
-											</div>
-									</div>	
-									<div class="col-md-4">
 										<label><b>derzeit gesetzte &uuml;bergeordnete Organisationseinheit</b></label>
-										<p ng-if="parentOrganizationalUnit_current">{{parentOrganizationalUnit_current.name}}</p>
-										<p ng-if="! parentOrganizationalUnit_current">keine</p>
-										<p style="color:red;" ng-if="parentOrganizationalUnit_current.name != parentOrganizationalUnit.name">Sie sind dabei, die Hierarchiebeziehung der aktuellen Organisationseinheit zu &auml;ndern.</p>
-									</div>	
+										<p ng-if="parentOrganizationalUnit">{{parentOrganizationalUnit.name}}</p>
+										<p ng-if="! parentOrganizationalUnit">keine</p>
+									
+									</div>		
+									<div class="col-md-4">
+									</div>		
 								</div>
 								<br />
 
