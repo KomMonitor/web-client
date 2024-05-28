@@ -1126,12 +1126,28 @@ pre.CodeMirror-line {
 }
 
 .adminTableButtonWrapper {
+    display: flex;
 	float: right;
 	background: transparent;
 	font-size: 12px;
 	position: absolute;
 	top: 15px;
 	right: 15px;
+}
+
+.verticalAlign {
+    display: table;
+}
+
+.verticalAlign * {
+    display: table-cell;
+    vertical-align: middle;  
+    padding-right: 1em; 
+}
+
+.verticalAlign div {
+    position: relative;
+    top: .2em;
 }
 
 #dateSliderWrapper{
