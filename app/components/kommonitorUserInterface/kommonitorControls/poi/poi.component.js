@@ -199,13 +199,13 @@ angular
 								};
 
 								$scope.handleShowAllOnTopic = function(topic){
-									for (poi of topic.poiData) {
+									for (let poi of topic.poiData) {
 										poi.isSelected = topic.isSelected;
 									}
-									for (loi of topic.loiData) {
+									for (let loi of topic.loiData) {
 										loi.isSelected = topic.isSelected;
 									}
-									for (aoi of topic.aoiData) {
+									for (let aoi of topic.aoiData) {
 										aoi.isSelected = topic.isSelected;
 									}
 									// if (topic.isSelected){
