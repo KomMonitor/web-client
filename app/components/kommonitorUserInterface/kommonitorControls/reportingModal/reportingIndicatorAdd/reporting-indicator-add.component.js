@@ -25,6 +25,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		$scope.dateSlider = undefined;
 		$scope.absoluteLabelPositions = [];
 		$scope.showMapLabels = true;
+		$scope.showRankingMeanLine = true;
 		$scope.echartsOptions = {
 			map: {
 				// "2017-12-31": ...
@@ -3360,6 +3361,31 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				});
 			}
 		}
+
+		$scope.onChangeShowRankingMeanLine = function() {
+
+			for(let i=0; i<$scope.template.pages.length; i++) {
+				let barChart = document.querySelector("#reporting-addIndicator-page-" + i +"-barchart")
+				if(!barChart) {
+					continue; // no map on current page
+				}
+
+				let instance = echarts.getInstanceByDom(barChart);
+				let options = instance.getOption();				
+				if (! $scope.showRankingMeanLine){
+					options.series[0].markLine_backup = options.series[0].markLine;
+					options.series[0].markLine = {};
+				}
+				else{
+					options.series[0].markLine = options.series[0].markLine_backup;
+				}				
+				instance.setOption(options, {
+					replaceMerge: ['series']
+				});
+			}
+		}
+
+		
 
 		$scope.validateConfiguration = function() {
 			// indicator has to be selected (unless template is reachability)

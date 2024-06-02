@@ -479,11 +479,26 @@ angular
           indicatorTimeSeriesAverageArray[i] = kommonitorDataExchangeService.getIndicatorValue_asNumber(indicatorTimeSeriesAverageArray[i] / indicatorTimeSeriesCountArray[i]);
         }
 
+        let meanLineLabel = "rechnerischer Durchschnitt";
+        let arithmMeanValueIndex = indicatorTimeSeriesDatesArray.indexOf(date);
+        // replace formatted string like "12.506,32" to 12506.32 in order to parse the correct number
+        let meanLineValue = parseFloat(indicatorTimeSeriesAverageArray[arithmMeanValueIndex]); 
+
+        if (indicatorMetadataForTimeseries.regionalReferenceValues){
+          for (const regionalReferenceValuesEntry of indicatorMetadataForTimeseries.regionalReferenceValues) {
+            if (regionalReferenceValuesEntry.referenceDate && regionalReferenceValuesEntry.referenceDate == date){              
+              meanLineValue = regionalReferenceValuesEntry.regionalAverage;
+              // meanLineValue = parseFloat(kommonitorDataExchangeService.allFeaturesRegionalMean.replace(/\./g, '').replace(/,/g, '.')); 
+              meanLineLabel = "gesamtregionaler Durchschnitt";
+            }
+          }
+        }
+
         // setHistogramChartOptions(indicatorMetadataAndGeoJSON, indicatorValueArray, spatialUnitName, date);
 
         setLineChartOptions(indicatorMetadataAndGeoJSON, indicatorTimeSeriesDatesArray, indicatorTimeSeriesAverageArray, indicatorTimeSeriesMaxArray, indicatorTimeSeriesMinArray, indicatorTimeSeriesRegionalMeanArray, indicatorTimeSeriesRegionalSpatiallyUnassignableArray, spatialUnitName, date);
 
-        setBarChartOptions(indicatorMetadataAndGeoJSON, featureNamesArray, indicatorValueBarChartArray, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue);
+        setBarChartOptions(indicatorMetadataAndGeoJSON, featureNamesArray, indicatorValueBarChartArray, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, meanLineLabel, meanLineValue);
 
         setGeoMapChartOptions(indicatorMetadataAndGeoJSON, featureNamesArray, indicatorValueBarChartArray, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue);
       };
@@ -496,7 +511,7 @@ angular
         return 0;
       };
 
-      var setBarChartOptions = function (indicatorMetadataAndGeoJSON, featureNamesArray, indicatorValueBarChartArray, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue) {
+      var setBarChartOptions = function (indicatorMetadataAndGeoJSON, featureNamesArray, indicatorValueBarChartArray, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, meanLineLabel, meanLineValue) {
 
         // specify chart configuration item and data
         var labelOption_singleBars = {
@@ -523,15 +538,6 @@ angular
                   indicatorValueBarChartArray, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew,
                   ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked,
                   measureOfValue);
-
-        let meanLineLabel = "rechnerischer Durchschnitt";
-        // replace formatted string like "12.506,32" to 12506.32 in order to parse the correct number
-        let meanLineValue = parseFloat(kommonitorDataExchangeService.allFeaturesMean.replace(/\./g, '').replace(/,/g, '.')); 
-        
-        if(kommonitorDataExchangeService.allFeaturesRegionalMean){
-          meanLineLabel = "gesamtregionaler Durchschnitt";
-          meanLineValue = parseFloat(kommonitorDataExchangeService.allFeaturesRegionalMean.replace(/\./g, '').replace(/,/g, '.')); 
-        }
 
         var barOption = {
           // grid get rid of whitespace around chart
@@ -642,7 +648,7 @@ angular
           },
           label: labelOption_singleBars,
           series: [{
-            // name: indicatorMetadataAndGeoJSON.indicatorName,
+            name: "Ranking",
             type: 'bar',
             emphasis: {
               itemStyle: {
@@ -652,8 +658,6 @@ angular
             },
             data: indicatorValueBarChartArray,
             markLine: {
-              // data: [{ type: 'average', name: meanLineLabel }],
-              // data: [meanLineValue],
               name: meanLineLabel,
               data: [
                 {yAxis: meanLineValue, name: meanLineLabel}
