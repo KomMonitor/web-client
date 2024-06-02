@@ -49,21 +49,38 @@
 
 		<div class="box-body">
 
-			<div>
-				<button id="openReachabilityScenarioModalBtn" class="btn btn-success " ng-click="openReachabilityScenarioModal()" type="button"
+			<div class="row">
+				<div class="col-md-3">
+					<button id="openReachabilityScenarioModalBtn" class="btn btn-success " ng-click="openReachabilityScenarioModal()" type="button"
 					data-toggle="modal" data-target="#modal-manage-reachability-scenario"><i
 						class="fas fa-plus"></i>&nbsp;&nbsp;Szenario anlegen</button>
-				<button type="button" class="btn btn-info " style="margin-left: 6px;"
+				</div>
+				<div class="col-md-3">
+					<button type="button" class="btn btn-info " 
 					ng-click="$ctrl.kommonitorReachabilityScenarioHelperServiceInstance.onImportScenariosFile()"
 					title="Importieren der Szenarien aus einer Datei"><i
 						class="fas fa-file-import"></i>&nbsp;&nbsp;Szenarien-Import</button>
-				<input style="display:none;" type="file" class="form-control"
-					id="reachabilityScenariosImportFile" accept=".json,"></input>
-				<button type="button" style="margin-left: 6px;" class="btn btn-info "
+					<input style="display:none;" type="file" class="form-control"
+						id="reachabilityScenariosImportFile" accept=".json,"></input>
+				</div>
+				<div class="col-md-3">
+					<button type="button"  class="btn btn-info "
 					ng-disabled="$ctrl.kommonitorReachabilityScenarioHelperServiceInstance.reachabilityScenarios.length == 0"
 					ng-click="$ctrl.kommonitorReachabilityScenarioHelperServiceInstance.exportScenarios()"
 					title="Exportieren der Szenarien in eine Datei"><i
 						class="fas fa-file-export"></i>&nbsp;&nbsp;Szenarien-Export</button>
+				</div>				
+						
+			</div>
+			<br/>
+			<div class="row">
+				<div class="col-md-4">
+					<button type="button"  class="btn btn-danger "
+					ng-disabled="! $ctrl.kommonitorDataExchangeServiceInstance.reachabilityScenarioOnMainMap"
+					ng-click="removeReachabilityScenarioFromMainMap()"
+					title="Entfernen eines Erreichbarkeits-Szenarios von der Hauptkarte"><i
+						class="fas fa-trash-can"></i>&nbsp;&nbsp;von Karte entfernen</button>	
+				</div>
 			</div>
 
 			<br/>

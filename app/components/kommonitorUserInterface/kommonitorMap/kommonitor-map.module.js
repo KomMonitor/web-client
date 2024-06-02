@@ -496,4 +496,8 @@ angular.module('kommonitorMap').service(
 						$rootScope.$broadcast("replaceReachabilityScenarioOnMainMap", reachabilityScenario)
 					}
 
+					this.removeReachabilityScenarioFromMainMap = function(){
+						$rootScope.$broadcast("removeReachabilityScenarioFromMainMap")
+					}
+
 		}]);

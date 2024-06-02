@@ -3311,6 +3311,19 @@ angular.module('kommonitorMap').component(
           });
         });
 
+        $scope.$on("removeReachabilityScenarioFromMainMap", function (event, reachabilityScenario){
+          if ($scope.markerLayer) {
+            $scope.layerControl.removeLayer($scope.markerLayer);
+            $scope.map.removeLayer($scope.markerLayer);
+          }
+          if ($scope.isochroneLayer) {
+            $scope.layerControl.removeLayer($scope.isochroneLayer);
+            $scope.map.removeLayer($scope.isochroneLayer);
+          }
+
+          kommonitorDataExchangeService.reachabilityScenarioOnMainMap = false;
+        });
+
         $scope.$on("replaceReachabilityScenarioOnMainMap", function (event, reachabilityScenario){
 
           if ($scope.markerLayer) {
@@ -3330,6 +3343,8 @@ angular.module('kommonitorMap').component(
 					});
           
           $scope.markerLayer = kommonitorReachabilityMapHelperService.makeIsochroneMarkerLayer(locationsArray);
+
+          kommonitorDataExchangeService.reachabilityScenarioOnMainMap = true;
           
           $scope.isochroneLayer = kommonitorReachabilityMapHelperService
           .makeIsochroneLayer(            
