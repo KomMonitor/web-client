@@ -65,6 +65,9 @@ angular
           this.currentKomMonitorLoginRoleNames = [];
           this.currentKeycloakUser;
 
+          this.enableScatterPlotRegression = __env.enableScatterPlotRegression;
+          this.enableBilanceTrend = __env.enableBilanceTrend;
+
           // MAP objects for available resource metadata in order to have quick access to datasets by ID
           this.availableIndicators_map = new Map();
           this.availableGeoresources_map = new Map();
