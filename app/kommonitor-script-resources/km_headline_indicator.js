@@ -97,7 +97,7 @@ async function computeIndicator(targetDate, targetSpatialUnit_geoJSON, baseIndic
     KmHelper.log("Iterate over array ranked map objects and create an array of min-max normalized map objects");
     var index;
     var minMaxNormalizedIndicator_idValueMap_array = [];
-    for (index = 0;  index < rankedIndicator_idValueMap_array.length; index++) {
+    for (let index = 0;  index < rankedIndicator_idValueMap_array.length; index++) {
       var polarity = computationPolarity_array[index];
       if (polarity === "regular") {
         minMaxNormalizedIndicator_idValueMap_array.push(KmHelper.minMaxNormalization_fromIdValueMap(rankedIndicator_idValueMap_array[index]));

@@ -493,7 +493,7 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 					
 					// apply breaks for spatial units:
 					for (let i = 0; i < $scope.spatialUnitClassification.length; i++) {
-						for (item of $scope.currentIndicatorDataset.defaultClassificationMapping.items) {
+						for (let item of $scope.currentIndicatorDataset.defaultClassificationMapping.items) {
 							if(item.spatialUnitId == $scope.spatialUnitClassification[i].spatialUnitId) {
 								$scope.spatialUnitClassification[i] = item;
 								$scope.onBreaksChanged(i);
