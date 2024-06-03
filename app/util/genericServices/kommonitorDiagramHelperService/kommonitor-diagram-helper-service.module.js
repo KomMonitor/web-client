@@ -635,6 +635,11 @@ angular
           yAxis: {
             type: 'value',
             name: indicatorMetadataAndGeoJSON.unit,
+            axisLabel: {
+              formatter: function (value, index) {
+                return kommonitorDataExchangeService.getIndicatorValue_asFormattedText(value);
+              }
+            }
             // splitArea: {
             //     show: true
             // }
@@ -1266,6 +1271,12 @@ angular
           yAxis: {
             type: 'value',
             name: indicatorMetadataAndGeoJSON.unit,
+            axisLabel: {
+              formatter: function (value, index) {
+                return kommonitorDataExchangeService.getIndicatorValue_asFormattedText(value);
+              }
+            }
+            
             // splitArea: {
             //     show: true
             // }
@@ -1562,6 +1573,11 @@ angular
           }],
           yAxis: {
             name: 'Anzahl Features',
+            axisLabel: {
+              formatter: function (value, index) {
+                return kommonitorDataExchangeService.getIndicatorValue_asFormattedText(value);
+              }
+            }
             // nameGap: 35,
             // nameLocation: 'center',
             // nameRotate: 90,
