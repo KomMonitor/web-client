@@ -1336,33 +1336,7 @@ angular
         else{
           lineOption.series.push(meanLine);
           lineOption.legend.data.push("rechnerischer Durchschnitt");
-        }
-        
-        let regionalSpatiallyUnassignableLine = {
-          name: "räumlich nicht zuordenbare",
-          type: 'line',
-          symbol: "diamond",
-          symbolSize: 10,
-          data: indicatorTimeSeriesRegionalSpatiallyUnassignableArray,
-          lineStyle: {
-            normal: {
-              color: 'gray',
-              width: 2,
-              type: 'dashed'
-            }
-          },
-          itemStyle: {
-            normal: {
-              borderWidth: 3,
-              color: 'gray'
-            }
-          }
-        };
-        // only add regional spatially unassignable line if it contains at least one meaningful entry
-        if(indicatorTimeSeriesRegionalSpatiallyUnassignableArray.some(el => el !== null)){
-          lineOption.series.push(regionalSpatiallyUnassignableLine);
-          lineOption.legend.data.push("räumlich nicht zuordenbare");
-        };
+        }        
 
         // SETTING FOR MIN AND MAX STACK
 
@@ -1452,6 +1426,33 @@ angular
         lineOption.series.push(maxLine);
         lineOption.series.push(minStack);
         lineOption.series.push(maxStack);
+
+        // spatially unassignable
+        let regionalSpatiallyUnassignableLine = {
+          name: "räumlich nicht zuordenbare",
+          type: 'line',
+          symbol: "diamond",
+          symbolSize: 10,
+          data: indicatorTimeSeriesRegionalSpatiallyUnassignableArray,
+          lineStyle: {
+            normal: {
+              color: 'gray',
+              width: 2,
+              type: 'dashed'
+            }
+          },
+          itemStyle: {
+            normal: {
+              borderWidth: 3,
+              color: 'gray'
+            }
+          }
+        };
+        // only add regional spatially unassignable line if it contains at least one meaningful entry
+        if(indicatorTimeSeriesRegionalSpatiallyUnassignableArray.some(el => el !== null)){
+          lineOption.series.push(regionalSpatiallyUnassignableLine);
+          lineOption.legend.data.push("räumlich nicht zuordenbare");
+        };
         
 
         // use configuration item and data specified to show chart
@@ -1903,10 +1904,10 @@ angular
       this.makeTrendChartOptions_forAllFeatures = function(indicatorMetadataAndGeoJSON, fromDateAsPropertyString, toDateAsPropertyString, showMinMax, showCompleteTimeseries, computationType, trendEnabled){
           // we may base on the the precomputed timeseries lineOptions and modify that from a cloned instance
 
-          var timeseriesOptions = JSON.parse(JSON.stringify(this.getLineChartOptions()));
+          var timeseriesOptions = jQuery.extend(true, {}, this.getLineChartOptions())
 
           // remove any additional lines for concrete features
-          timeseriesOptions.series.length = 3;
+          timeseriesOptions.series.length = 5;
 
           // add markedAreas for periods out of scope
 
@@ -2002,11 +2003,27 @@ angular
 
             timeseriesOptions.legend.data.push("Trendlinie");
 
+            // make array of numeric values for series
+            let trendLineNumbers = [];
+            let trendLinePointsMap = new Map();
+            for (const trendLineItem of trendLine.points) {
+              trendLinePointsMap.set(trendLineItem[0], trendLineItem[1]);
+            }
+            for (let index = 0; index < timeseriesData.length; index++) {
+              if(trendLinePointsMap.has(index)){
+                trendLineNumbers.push(trendLinePointsMap.get(index));
+              }
+              else{
+                trendLineNumbers.push(NaN);
+              }
+            }
+            
+
             timeseriesOptions.series.push({
               name: 'Trendlinie',
               type: 'line',
               showSymbol: false,
-              data: trendLine.points,
+              data: trendLineNumbers,
               lineStyle: {
                 normal: {
                   color: 'red',
@@ -2047,8 +2064,7 @@ angular
           
 
         if(! showMinMax){
-          timeseriesOptions.series.splice(1, 1);
-          timeseriesOptions.series.splice(1, 1);
+          timeseriesOptions.series.splice(1, 4);
         }
 
           return timeseriesOptions;

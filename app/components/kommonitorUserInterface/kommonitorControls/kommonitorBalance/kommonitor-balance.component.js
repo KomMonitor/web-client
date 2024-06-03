@@ -31,8 +31,6 @@ angular
 							trendComputationType: "linear"
 						};
 
-						$scope.enableBilanceTrend = __env.enableBilanceTrend;
-
 						$scope.$on("DisableBalance", function (event) {
 							kommonitorDataExchangeService.isBalanceChecked = false;
 							if($scope.rangeSliderForBalance){
@@ -168,7 +166,7 @@ angular
 							}
 
 							// use configuration item and data specified to show chart
-							$scope.trendOption = kommonitorDiagramHelperService.makeTrendChartOptions_forAllFeatures(indicatorMetadata, fromDateAsPropertyString, toDateAsPropertyString, $scope.trendConfig_allFeatures.showMinMax, $scope.trendConfig_allFeatures.showCompleteTimeseries, $scope.trendConfig_allFeatures.trendComputationType, $scope.enableBilanceTrend);
+							$scope.trendOption = kommonitorDiagramHelperService.makeTrendChartOptions_forAllFeatures(indicatorMetadata, fromDateAsPropertyString, toDateAsPropertyString, $scope.trendConfig_allFeatures.showMinMax, $scope.trendConfig_allFeatures.showCompleteTimeseries, $scope.trendConfig_allFeatures.trendComputationType, kommonitorDataExchangeService.enableBilanceTrend);
 							$scope.trendChart_allFeatures.setOption($scope.trendOption);
 
 							$scope.trendChart_allFeatures.hideLoading();
@@ -178,14 +176,9 @@ angular
 
 							var trendData = [];
 							var timeseriesData; 
-							if($scope.trendConfig_allFeatures.showMinMax){
-								timeseriesData = $scope.trendOption.series[2].data;
-							}
-							else{
-								timeseriesData = $scope.trendOption.series[0].data;
-							}
+							timeseriesData = $scope.trendOption.series[0].data;
 
-							if($scope.trendConfig_allFeatures.showCompleteTimeseries){
+							if(! $scope.trendConfig_allFeatures.showCompleteTimeseries){
 								for (let index = 0; index < timeseriesData.length; index++) {
 									var dateCandidate = new Date(indicatorMetadata.applicableDates[index]);
 									if(dateCandidate >= fromDate_date && dateCandidate <= toDate_date){
@@ -213,12 +206,12 @@ angular
 							}
 
 							$scope.trendAnalysis_allFeatures = {
-								min: kommonitorDataExchangeService.getIndicatorValue_asFormattedText(ecStat.statistics.min(trendData)),
-								max: kommonitorDataExchangeService.getIndicatorValue_asFormattedText(ecStat.statistics.max(trendData)),
-								deviation: kommonitorDataExchangeService.getIndicatorValue_asFormattedText(ecStat.statistics.deviation(trendData)),
-								variance: kommonitorDataExchangeService.getIndicatorValue_asFormattedText(ecStat.statistics.sampleVariance(trendData)),
-								mean: kommonitorDataExchangeService.getIndicatorValue_asFormattedText(ecStat.statistics.mean(trendData)),
-								median: kommonitorDataExchangeService.getIndicatorValue_asFormattedText(ecStat.statistics.median(trendData)),
+								min: kommonitorDataExchangeService.getIndicatorValue_asFormattedText(jStat.min(trendData)),
+								max: kommonitorDataExchangeService.getIndicatorValue_asFormattedText(jStat.max(trendData)),
+								deviation: kommonitorDataExchangeService.getIndicatorValue_asFormattedText(jStat.stdev(trendData)),
+								variance: kommonitorDataExchangeService.getIndicatorValue_asFormattedText(jStat.variance(trendData)),
+								mean: kommonitorDataExchangeService.getIndicatorValue_asFormattedText(jStat.mean(trendData)),
+								median: kommonitorDataExchangeService.getIndicatorValue_asFormattedText(jStat.median(trendData)),
 								balance: balanceValue,
 								trend: trendValue
 							};
@@ -496,6 +489,14 @@ angular
 									$scope.updateTrendChart(kommonitorDataExchangeService.selectedIndicator, data);	
 								});
 						};
+
+						$scope.onChangeEnableBilanceTrend = function(){
+							var data = $scope.rangeSliderForBalance.result;
+								$timeout(function(){
+								
+									$scope.updateTrendChart(kommonitorDataExchangeService.selectedIndicator, data);	
+								});
+						}
 
 					}]
 				});
