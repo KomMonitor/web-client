@@ -88,7 +88,7 @@
     "jsonlint": "^1.6.3",
     "jspdf": "^2.5.1",
     "jspdf-autotable": "^3.8.2",
-    "jstat": "^1.7.1",
+    "jstat": "^1.9.6",
     "jszip": "^3.7.1",
     "keycloak-js": "20.0.0",
     "leaflet": "1.7.1",
