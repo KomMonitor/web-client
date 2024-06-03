@@ -59,7 +59,7 @@
 					</select>
 				</div>
 				<div class="col-sm-5">
-					<div class="text-left"><label>Gewichtung geschnittener Raumebenen</label></div>
+					<div class="text-left" title="Berechnung der Sch&auml;tzwerte erfolgt durch &Uuml;berdeckung zwischen Einzugsgebieten und fl&auml;chigen Indikatoren-Statistiken. &Uuml;berlappende Wohngebiete ist zeitlich aufwendiger, ber&uuml;cksichtigt aber nur &Uuml;berlagerungen von Einzugsgebieten mit Siedlungsfl&auml;chen zur genaueren Sch&auml;tzung versorgter Personengruppen."><label>Gewichtung geschnittener Raumebenen</label>&nbsp;<i style="font-size:1.3em;" class="fa-solid fa-circle-question"></i></div>
 					<select id="weightingStrategy_reachabilityStatistic"
 						style="font-size: 12px;" ng-model="weightStrategy" ng-init="weightStrategy = weightStrategyOptions[0]"
 						ng-options="weight.displayName for weight in weightStrategyOptions"
