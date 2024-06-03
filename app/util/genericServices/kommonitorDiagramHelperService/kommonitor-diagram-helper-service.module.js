@@ -560,7 +560,7 @@ angular
           tooltip: {
             trigger: 'item',
             confine: 'true',
-            formatter: function (params) {
+            formatter: function (params, ticket, callback) {
               var value = kommonitorDataExchangeService.getIndicatorValue_asFormattedText(params.value);
               return "" + params.name + ": " + value + " [" + indicatorMetadataAndGeoJSON.unit + "]";
             },
@@ -615,13 +615,6 @@ angular
               saveAsImage: { show: true, title: "Export", pixelRatio: 4 }
             }
           },
-          // legend: {
-          // 		data:[{
-          //       type: 'plain',
-          //       name: meanLineLabel
-          //     }]
-          // },
-
           xAxis: {
             name: indicatorMetadataAndGeoJSON.indicatorName,
             nameLocation: 'center',
@@ -655,7 +648,7 @@ angular
                 borderWidth: 4,
                 borderColor: defaultColorForClickedFeatures
               }
-            },
+            },            
             data: indicatorValueBarChartArray,
             markLine: {
               name: meanLineLabel,
@@ -667,8 +660,7 @@ angular
                 rotate: 0,
                 fontStyle: 'italic',
                 fontWeight: 'bold',
-                name: meanLineLabel,
-                formatter: "Durchschnitt: " + meanLineValue,              
+                name: meanLineLabel          
               },
               lineStyle: {
                 color: 'gray'

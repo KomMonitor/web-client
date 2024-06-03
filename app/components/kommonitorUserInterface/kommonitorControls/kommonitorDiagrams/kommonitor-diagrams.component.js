@@ -168,7 +168,8 @@ angular
 						}
 
 						// use configuration item and data specified to show chart
-						$scope.barOption = JSON.parse(JSON.stringify(kommonitorDiagramHelperService.getBarChartOptions()));
+						// $scope.barOption = JSON.parse(JSON.stringify(kommonitorDiagramHelperService.getBarChartOptions()));
+						$scope.barOption = kommonitorDiagramHelperService.getBarChartOptions();
 						if (showBarChartLabel){
 							$scope.barOption.label.show = true;
 						}
@@ -177,9 +178,13 @@ angular
 						}
 						if (showBarChartAverageLine){
 							// do nothing as we simply overtake the action
+							if($scope.barOption.series[0].markLine_backup){
+								$scope.barOption.series[0].markLine = $scope.barOption.series[0].markLine_backup;
+							}							
 						}
 						else{
 							// replace markLineConfig by empty object
+							$scope.barOption.series[0].markLine_backup = $scope.barOption.series[0].markLine;
 							$scope.barOption.series[0].markLine = {};
 						}
 						$scope.barChart.setOption($scope.barOption);
