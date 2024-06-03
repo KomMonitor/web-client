@@ -10,8 +10,8 @@
 			</div>
 			<div class="box-body">
 
-				Version 3 von KomMonitor bietet eine in vielen Punkten überarbeitete und erweiterte Kartenapp 
-				sowie diverse neue Konfigurationsmöglichkeiten der integrierten Geo- und Sachdaten.
+				Version 3 von KomMonitor bietet eine in vielen Punkten &uuml;berarbeitete und erweiterte Kartenapp 
+				sowie diverse neue Konfigurationsm&öuml;glichkeiten der integrierten Geo- und Sachdaten.
 	
 				<ul>
 					<li>
@@ -20,23 +20,23 @@
 							<li>
 								<b>Klassifikation pro Indikator</b>
 								<br>
-								Für jeden Indikator kann eine individuelle Standard-Klassifizierung festgelegt werden, inklusive Anzahl Klassen,
-								und Klassifikationsmethode. Auch können dabei pro Raumeinheit eigene Klassengrenzen vorgegeben werden.<br>
+								F&uuml;r jeden Indikator kann eine individuelle Standard-Klassifizierung festgelegt werden, inklusive Anzahl Klassen,
+								und Klassifikationsmethode. Auch k&öuml;nnen dabei pro Raumeinheit eigene Klassengrenzen vorgegeben werden.<br>
 							</li>
 							<li>
 								<b>Gesamtregionale Vergleichswerte pro Indikator</b>
 								<br>
-								Jedem Indikator können gesamtregionale Vergleichswerte (Gesamtsumme, Durchschnittswert, räumlich nicht zuordenbare) 
-								im Metadaten-Bearbeiten Menü zugewiesen werden.
+								Jedem Indikator k&öuml;nnen gesamtregionale Vergleichswerte (Gesamtsumme, Durchschnittswert, r&auml;umlich nicht zuordenbare) 
+								im Metadaten-Bearbeiten Men&uuml; zugewiesen werden.
 								Die Eingabe ist auf bereits integrierte Zeitreihenschritte begrenzt, um Datenkonsistenz zu wahren.
-								Möglich sind manuelle Eingabe oder der Import aus einer CSV-Datei. 
+								M&öuml;glich sind manuelle Eingabe oder der Import aus einer CSV-Datei. 
 							</li>	
 							<li>
 								<b>Raumeinheiten als Umringslayer </b>
 								<br>
 								Pro Raumeinheit kann konfiguriert werden, ob sie in der Kartenapp als Umringslayer in der Layersteuerung erscheint. <br/>
-								Dies ermöglicht es, die Grenzverläufe der Raumeinheit in die Karte als Orientierungshilfe einblenden zu lassen. Dies kann nützlich sein, 
-								um bspw. punkthafte Georessourcen optisch mit Raumeinheiten-Grenzen zu überblenden. 
+								Dies erm&öuml;glicht es, die Grenzverl&auml;ufe der Raumeinheit in die Karte als Orientierungshilfe einblenden zu lassen. Dies kann n&uuml;tzlich sein, 
+								um bspw. punkthafte Georessourcen optisch mit Raumeinheiten-Grenzen zu &uuml;berblenden. 
 							</li>						
 							<li>
 								<b>Textuelle POIs (punkthafte Georessourcen) </b>
@@ -44,22 +44,22 @@
 								Punkthafte Georessourcen erlauben auch statt eines Symbols eine textuelle Unterscheidung mit bis zu drei Zeichen.
 							</li>
 							<li>
-								<b>aufgeräumte Farbpaletten in Klassifikation</b>
+								<b>aufger&auml;umte Farbpaletten in Klassifikation</b>
 								<br>
-								Die verfügbaren Farbpaletten des <a href="https://colorbrewer2.org/" target="_blank" rel="noreferrer noopener">ColorBrewer</a> wurden auf sequentielle beschränkt. Divergierende oder qualitative Paletten wurden entfernt. 
+								Die verf&uuml;gbaren Farbpaletten des <a href="https://colorbrewer2.org/" target="_blank" rel="noreferrer noopener">ColorBrewer</a> wurden auf sequentielle beschr&auml;nkt. Divergierende oder qualitative Paletten wurden entfernt. 
 							</li>
 							<li>
 								<b>Fehlerbehebungen in Feature-Tabellen</b>
 								<br>
-								Für alle Geodatentypen wurde ein Fehler behoben, der das interaktive Editieren der Einzelzellen verhindert hat. 
+								F&uuml;r alle Geodatentypen wurde ein Fehler behoben, der das interaktive Editieren der Einzelzellen verhindert hat. 
 							</li>
 							<li>
 								<b>neue Konfigurationsparameter</b>
 								<br>
-								Zur Konfiguration neuer/erweiterter Funktionalitäten wurden neue Konfigurationsparameter ergänzt. Konkret:
+								Zur Konfiguration neuer/erweiterter Funktionalit&auml;ten wurden neue Konfigurationsparameter erg&auml;nzt. Konkret:
 								<ul>
 									<li>
-										Parameter zur Steuerung, ob im Säulendiagramm eine Durchschnittslinie sowie Namen der Raumeinheiten
+										Parameter zur Steuerung, ob im S&auml;ulendiagramm eine Durchschnittslinie sowie Namen der Raumeinheiten
 										angezeigt werden sollen
 										<code>
 											// show bar chart label and average line
@@ -68,8 +68,8 @@
 										</code>										
 									</li>
 									<li>
-										Für die erweiterte szenarienbasierte Erreichbarkeitsanalyse muss eine neue Software-Komponente im 
-										KomMonitor-Ökosystem konfiguriert werden. Im Client muss hierzu die URL sowie der Prozessname gesetzt werden
+										F&uuml;r die erweiterte szenarienbasierte Erreichbarkeitsanalyse muss eine neue Software-Komponente im 
+										KomMonitor-&Öuml;kosystem konfiguriert werden. Im Client muss hierzu die URL sowie der Prozessname gesetzt werden
 										<code>
 											// KomMonitor Spatial Data Processor
 											window.__env.targetUrlToSpatialDataProcessorInstance = 'http://localhost:8090/';
@@ -91,22 +91,22 @@
 								Wesentliche Neuerungen:
 								<ul>
 									<li>
-										Es können mehrere Erreichbarkeiten nacheinander angelegt 
+										Es k&öuml;nnen mehrere Erreichbarkeiten nacheinander angelegt 
 										und in der aktuellen Sitzung gespeichert werden.
 									</li>
 									<li>Import und Export angelegter Szenarien</li>
-									<li>Anlegen und Bearbeiten eines Szenarios in einem eigenen Schritt-basierten Menü</li>
-									<li>genutzte Punktquelle kann beliebig editiert werden, um Szenarien zu erzeugen (neue Punkte setzen, vorhandene verschieben oder löschen)</li>
-									<li>Indikatoren-Statistik-Verschneidung: räumliche Verschneidung zwischen Einzugsgebieten und kleinräumigen Indikatoren-Statistiken für Fragestellungen wie <i>Wie viele Personen von 0-18 Jahren werden durch verfügbare Jugendhäuser erreicht/versorgt?</i>. Beachten Sie folgende Hinweise:
+									<li>Anlegen und Bearbeiten eines Szenarios in einem eigenen Schritt-basierten Men&uuml;</li>
+									<li>genutzte Punktquelle kann beliebig editiert werden, um Szenarien zu erzeugen (neue Punkte setzen, vorhandene verschieben oder l&öuml;schen)</li>
+									<li>Indikatoren-Statistik-Verschneidung: r&auml;umliche Verschneidung zwischen Einzugsgebieten und kleinr&auml;umigen Indikatoren-Statistiken f&uuml;r Fragestellungen wie <i>Wie viele Personen von 0-18 Jahren werden durch verf&uuml;gbare Jugendh&auml;user erreicht/versorgt?</i>. Beachten Sie folgende Hinweise:
 										<ol type="1">
 											<li>
-												Berechnung der Schätzwerte erfolgt durch Überdeckung zwischen Einzugsgebieten und flächigen Indikatoren-Statistiken
+												Berechnung der Sch&auml;tzwerte erfolgt durch &Uuml;berdeckung zwischen Einzugsgebieten und fl&auml;chigen Indikatoren-Statistiken
 											</li>
-											<li>Ausgabe/Analyse über gesamtes Untersuchungsgebiet und Einzelpunkte inklusive PDF-Reports</li>											
+											<li>Ausgabe/Analyse &uuml;ber gesamtes Untersuchungsgebiet und Einzelpunkte inklusive PDF-Reports</li>											
 											<li>
-												es werden immer nur Schätzwerte berechnet und keine Einzelpersonendaten herangezogen
+												es werden immer nur Sch&auml;tzwerte berechnet und keine Einzelpersonendaten herangezogen
 											</li>
-											<li>je kleinräumiger ein Indikator eingeht, umso realistischer werden die Schätzwerte</li>
+											<li>je kleinr&auml;umiger ein Indikator eingeht, umso realistischer werden die Sch&auml;tzwerte</li>
 										</ol>
 									</li>
 								</ul>
@@ -114,33 +114,33 @@
 							<li>
 								<b>NEU - spontaner Import von Geo- oder Adressdaten</b>
 								<br>
-								Im neuen Datenimport-Menu (links unterhalb Georessourcen) können Daten spontan eingeladen werden, die zuvor nicht in KomMonitor eingepflegt wurden.
+								Im neuen Datenimport-Menu (links unterhalb Georessourcen) k&öuml;nnen Daten spontan eingeladen werden, die zuvor nicht in KomMonitor eingepflegt wurden.
 								<br/>
-								Bei <b>Adressdaten</b> aus CSV-Dateien (aus Excel lässt sich CSV prima erzeugen) versucht KomMonitor, die Adressen in Punktkoordinaten zu übertragen (sogenannte Geokodierung aus Basis von OpenStreetMap Daten und Nominatim).
-								Dabei können drei Fälle eintreten:
+								Bei <b>Adressdaten</b> aus CSV-Dateien (aus Excel l&auml;sst sich CSV prima erzeugen) versucht KomMonitor, die Adressen in Punktkoordinaten zu &uuml;bertragen (sogenannte Geokodierung aus Basis von OpenStreetMap Daten und Nominatim).
+								Dabei k&öuml;nnen drei F&auml;lle eintreten:
 								<ol type="a">
-									<li>genaues Ergebnis: Ort, PLZ, Straße und Hausnummer wurden vermeintlich genau gefunden</li>
-									<li>ungenaues Ergebnis: Ort, PLZ passen, aber Straße zumeist ohne Hausnummer. Somit wurde eine ungenaue Koordinate bestimmt aber kein Fehler geworfen (tatsächlicher Punkt kann wenige oder viele Meter entfernt sein - je nach Straßengröße)</li>
-									<li>ohne Ergebnis: Adresse konnte gar nicht verortet werden (Prüfen des Datensatzes auf Schreibfehler, doppelte oder fehlende Adresseinträge)</li>
+									<li>genaues Ergebnis: Ort, PLZ, Stra&szlig;e und Hausnummer wurden vermeintlich genau gefunden</li>
+									<li>ungenaues Ergebnis: Ort, PLZ passen, aber Stra&szlig;e zumeist ohne Hausnummer. Somit wurde eine ungenaue Koordinate bestimmt aber kein Fehler geworfen (tats&auml;chlicher Punkt kann wenige oder viele Meter entfernt sein - je nach Stra&szlig;engr&öuml;&szlig;e)</li>
+									<li>ohne Ergebnis: Adresse konnte gar nicht verortet werden (Pr&uuml;fen des Datensatzes auf Schreibfehler, doppelte oder fehlende Adresseintr&auml;ge)</li>
 								</ol>
-								Mittels geeigneter Smybolisierung sowie Funktionsbuttons erlaubt KomMonitor anschließend eine genaue Betrachtung des Imports.
+								Mittels geeigneter Smybolisierung sowie Funktionsbuttons erlaubt KomMonitor anschlie&szlig;end eine genaue Betrachtung des Imports.
 
 								<br/>
 								<br/>
-								<b>Geodaten</b> müssen für den Import gegenwärtig im Format <i>GeoJSON</i> oder <i>ESRI-Shape</i> und im Koordinatensystem WGS84 (EPSG:4326) vorliegen.
-								In künftigen Versionen können auch andere Koordinatensysteme und Projektionen unterstützt werden.
+								<b>Geodaten</b> m&uuml;ssen f&uuml;r den Import gegenw&auml;rtig im Format <i>GeoJSON</i> oder <i>ESRI-Shape</i> und im Koordinatensystem WGS84 (EPSG:4326) vorliegen.
+								In k&uuml;nftigen Versionen k&öuml;nnen auch andere Koordinatensysteme und Projektionen unterst&uuml;tzt werden.
 								
 							</li>
 							<li>
 								<b>neu strukturierte Legende</b>
 								<br>
 								Am rechten Bildschirmrand wurde das Informations- und Legendenfenster neu angeordnet.
-								Im obersten Menü kann wie gewohnt die Raumeinheit gewechselt werden oder der Indikatorendatensatz exportiert werden.
+								Im obersten Men&uuml; kann wie gewohnt die Raumeinheit gewechselt werden oder der Indikatorendatensatz exportiert werden.
 								<br/>
-									Die Legende enthält nun weitere Reiter für ergänzende Indikatoren-Metadaten (ehemals verortet bei der Auswahl der Indikatoren)
-									sowie Optionen zur spontanen Anpassung der Klassifikation über das Zahnradsymbol. 
+									Die Legende enth&auml;lt nun weitere Reiter f&uuml;r erg&auml;nzende Indikatoren-Metadaten (ehemals verortet bei der Auswahl der Indikatoren)
+									sowie Optionen zur spontanen Anpassung der Klassifikation &uuml;ber das Zahnradsymbol. 
 								<br/>
-									Die Indikatoren-Statistik-Funktion ist nun sichtbarer und wurde um gesamtregionale Vergleichswerte erweitert (sofern diese für den 
+									Die Indikatoren-Statistik-Funktion ist nun sichtbarer und wurde um gesamtregionale Vergleichswerte erweitert (sofern diese f&uuml;r den 
 									aktuellen Indikator angegeben wurden).
 								
 							</li>
@@ -152,26 +152,26 @@
 							<li>
 								<b>Durchschnittslinie und Label in Ranking-Diagramm</b>
 								<br>
-								Namen der Raumeinheiten sowie eine Querlinie des Durchschnittswerts können im Ranking-Diagramm spontan ein- und ausgeblendet werden.
+								Namen der Raumeinheiten sowie eine Querlinie des Durchschnittswerts k&öuml;nnen im Ranking-Diagramm spontan ein- und ausgeblendet werden.
 							</li>
 							<li>
 								<b>Layersteuerung mit Transparenzregler und Raumeinheiten-Umringslayer</b>
 								<br>
-								Die Layersteuerung der interaktiven Karte muss nun aktiv angeklickt werden, um sie zu öffnen oder zu schließen.
+								Die Layersteuerung der interaktiven Karte muss nun aktiv angeklickt werden, um sie zu &öuml;ffnen oder zu schlie&szlig;en.
 								<br/>
-								Zudem wurde sie um Transprenzregler für jeden Datensatz (Layer) erweitert.
+								Zudem wurde sie um Transprenzregler f&uuml;r jeden Datensatz (Layer) erweitert.
 								<br/>
-								Sind für Raumeinheiten Umringslayer konfiguriert, so lassen sie sich via Layersteuerung in das Kartenbild integrieren.
+								Sind f&uuml;r Raumeinheiten Umringslayer konfiguriert, so lassen sie sich via Layersteuerung in das Kartenbild integrieren.
 							</li>
 							<li>
-								<b>Georessourcen POI Größe</b>
+								<b>Georessourcen POI Gr&öuml;&szlig;e</b>
 								<br>
-								Punkthafte Georessourcen erlauben eine einstellbare Größe (klein, mittel, groß) im oberen Teil des Georessourcen-Menüs.
+								Punkthafte Georessourcen erlauben eine einstellbare Gr&öuml;&szlig;e (klein, mittel, gro&szlig;) im oberen Teil des Georessourcen-Men&uuml;s.
 							</li>
 							<li>
 								<b>Reporting</b>
 								<br>
-								Hochformat auswählbar
+								Hochformat ausw&auml;hlbar
 							</li>
 							<li>
 								<b>Fehlerbehebungen</b>
@@ -536,7 +536,7 @@
 					Anpassungen in der <b>Kartenapp</b>
 					<ul>
 						<li>
-							<b>Umstellung der Isochronen-Anfragen zur Unterstützung neuer Open Route Service
+							<b>Umstellung der Isochronen-Anfragen zur Unterst&uuml;tzung neuer Open Route Service
 								Versionen</b>
 						</li>
 					</ul>
@@ -568,7 +568,7 @@
 							<br>
 							Beim Anlegen neuer Ressourcen werden nun standardm&auml;&szlig;ig die Rollen des
 							eingeloggten Nutzers verwendet,
-							um die daraus verknüpften Organisationen und Rechtestufen vorauszuf&uuml;llen.
+							um die daraus verkn&uuml;pften Organisationen und Rechtestufen vorauszuf&uuml;llen.
 							Dies stellt sicher, dass eingeloggte User den Zugriff auf die Ressource bekommen.
 						</li>
 					</ul>
