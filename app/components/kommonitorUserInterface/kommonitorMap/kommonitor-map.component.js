@@ -1092,6 +1092,12 @@ angular.module('kommonitorMap').component(
           $rootScope.$broadcast("restyleCurrentLayer", false);
         });
 
+        $scope.$on("changeColorScheme", function (event, colorSchemeName) {
+          $scope.currentIndicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName = colorSchemeName; 
+
+          $rootScope.$broadcast("restyleCurrentLayer", false);
+        });
+
         $scope.$on("changeBreaks", function (event, breaks) {
           breaks = [...new Set(breaks)];
           breaks.sort(function(a, b) {

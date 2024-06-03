@@ -75,7 +75,8 @@ angular
 
 							kommonitorDataExchangeService.selectedIndicator.defaultClassificationMapping.colorBrewerSchemeName = $scope.selectedColorBrewerPaletteEntry.paletteName;
 				
-							$rootScope.$broadcast("restyleCurrentLayer", false);
+							// $rootScope.$broadcast("restyleCurrentLayer", true);
+							$rootScope.$broadcast("changeColorScheme", kommonitorDataExchangeService.selectedIndicator.defaultClassificationMapping.colorBrewerSchemeName);
 
 							setTimeout(() => {
 								$scope.$digest();
