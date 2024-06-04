@@ -55,7 +55,13 @@ angular
 
         var element = ControlsConfigService.getControlsConfig().filter(element => element.id === id)[0];
 
-        if(element.roles === undefined || element.roles.length === 0) {
+        var domElement = document.getElementById(id);
+        if (domElement && domElement.style){
+          domElement.style.display = 'block';
+        }
+        
+
+        if(element.roles === undefined || element.roles.length === 0) {          
           return true;
         }
         if(self.isAdvancedMode && element.roles && element.roles.includes(self.advancedModeRoleName)){
@@ -83,6 +89,14 @@ angular
             kommonitorDataExchangeService.showGeoresourceExportButtons = false;
           }
 
+          if (! hasAllowedRole){
+            var domElement = document.getElementById(id);
+            if (domElement && domElement.style){
+              domElement.style.display = 'none';
+            }
+            // $("#" + id).remove();
+          }
+
           return hasAllowedRole;
         } else {
           if(! kommonitorDataExchangeService.enableKeycloakSecurity){
@@ -97,6 +111,11 @@ angular
                 kommonitorDataExchangeService.showGeoresourceExportButtons = false;
               }
 
+              var domElement = document.getElementById(id);
+              if (domElement && domElement.style){
+                domElement.style.display = 'none';
+              }
+              // $("#" + id).remove();
               return false;
             }
             return true;
@@ -110,6 +129,11 @@ angular
             if(element.id === "georesourceExportButtons"){
               kommonitorDataExchangeService.showGeoresourceExportButtons = false;
             }
+
+            var domElement = document.getElementById(id);
+              if (domElement && domElement.style){
+                domElement.style.display = 'none';
+              }
 
             return false;
           }				
