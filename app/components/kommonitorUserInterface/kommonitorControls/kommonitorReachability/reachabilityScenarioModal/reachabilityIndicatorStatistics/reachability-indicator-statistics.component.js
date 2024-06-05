@@ -3,11 +3,11 @@ angular.module('reachabilityIndicatorStatistics').component('reachabilityIndicat
 	controller: ['kommonitorDataExchangeService',
 		'$scope', '$rootScope', '$http', '__env', '$timeout', 'kommonitorReachabilityHelperService', 'kommonitorDiagramHelperService',
 		'kommonitorReachabilityMapHelperService', 'kommonitorSpatialDataProcessorHelperService', 'kommonitorReachabilityScenarioHelperService',
-		'kommonitorReachabilityCoverageReportsHelperService',
+		'kommonitorReachabilityCoverageReportsHelperService', 'kommonitorToastHelperService', 
 		function reachabilityIndicatorStatisticsController(kommonitorDataExchangeService,
 			$scope, $rootScope, $http, __env, $timeout, kommonitorReachabilityHelperService, kommonitorDiagramHelperService,
 			kommonitorReachabilityMapHelperService, kommonitorSpatialDataProcessorHelperService, kommonitorReachabilityScenarioHelperService,
-			kommonitorReachabilityCoverageReportsHelperService) {
+			kommonitorReachabilityCoverageReportsHelperService, kommonitorToastHelperService) {
 
 			this.kommonitorReachabilityHelperServiceInstance = kommonitorReachabilityHelperService;
 			this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
@@ -91,15 +91,19 @@ angular.module('reachabilityIndicatorStatistics').component('reachabilityIndicat
 						failed - The job failed due to an error during process execution.
 					*/
 					let jobStatus = await kommonitorSpatialDataProcessorHelperService.getJobStatus(jobId);
-					if (jobStatus == undefined || jobStatus.status == undefined) {
+					if (jobStatus == undefined || jobStatus.status == undefined || jobStatus.status == "failed") {
 						jobCompletedOrFailed = true;
 						$scope.modifyJobStatus(jobId, "failed");
+						kommonitorToastHelperService.displayErrorToast_upperLeft("Fehler in Indikatoren-Statistik-Berechnung", "Versuchen Sie es bitte erneut. Probieren Sie, falls möglich, andere Raumeinheiten oder Indikatoren. Wenden Sie sich bei anhaltenden Problemen an das KomMonitor-Team");
+						$scope.$digest();
+						return;
 					}
-					if (jobStatus.status == "finished" || jobStatus.status == "failed") {
+					else if (jobStatus.status == "finished") {
 						jobCompletedOrFailed = true;
 
 						// trigger result retrieval
 						if (jobStatus.status == "finished") {
+							kommonitorToastHelperService.displaySuccessToast_upperLeft("Indikatoren-Statistik-Berechnung erfolgreich", "Ergebnisse wurden in die Tabelle eingetragen");						
 							$scope.retrieveJobResult(jobId);
 						}
 					}

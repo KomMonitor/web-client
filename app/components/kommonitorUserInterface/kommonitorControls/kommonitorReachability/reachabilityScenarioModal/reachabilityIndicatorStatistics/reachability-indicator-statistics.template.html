@@ -13,7 +13,7 @@
 				<input type="text" class="form-control input-sm"
 					placeholder="Stichwortfilter" ng-model="indicatorNameFilter"
 					ng-model-options="{debounce: 500, blur: 0}"
-					ng-change="$ctrl.kommonitorDataExchangeServiceInstance.onChangeIndicatorKeywordFilter(indicatorNameFilter)">
+					>
 			</div>
 
 			<div class="just-padding">
@@ -23,7 +23,7 @@
 					size="5" class="form-control" required>
 					<option disabled selected value> -- Indikator w&auml;hlen -- </option>
 					<option ng-value="indicatorMetadata"
-						ng-repeat="indicatorMetadata in ($ctrl.kommonitorDataExchangeServiceInstance.displayableIndicators_keywordFiltered | filter:{indicatorType:'STATUS_ABSOLUTE'}) track by indicatorMetadata.indicatorId">
+						ng-repeat="indicatorMetadata in ($ctrl.kommonitorDataExchangeServiceInstance.displayableIndicators | filter:indicatorNameFilter | filter:{indicatorType:'STATUS_ABSOLUTE'}) track by indicatorMetadata.indicatorId">
 						{{::indicatorMetadata.indicatorName}} [{{::indicatorMetadata.unit}}]
 					</option>
 				</select>
@@ -128,11 +128,11 @@
 											<i>(sichtbar in Karte)</i>
 										</div>
 										<div>
-											<button class="btn btn-info btn-sm" title="Auf Karte darstellen" ng-disabled="indicatorStatisticsEntry.active" ng-click="displayIndicatorStatisticOnMap(indicatorStatisticsEntry)"><i class="fa-solid fa-map-location-dot" ></i></button>
+											<button class="btn btn-info btn-sm" title="Auf Karte darstellen" ng-disabled="indicatorStatisticsEntry.progress == 'failed' || indicatorStatisticsEntry.active" ng-click="displayIndicatorStatisticOnMap(indicatorStatisticsEntry)"><i class="fa-solid fa-map-location-dot" ></i></button>
 											<button class="btn btn-danger btn-sm" title="Statistik-Eintrag entfernen" ng-click="removeIndicatorStatistic(indicatorStatisticsEntry)"><i class="fa-solid fa-trash-can"></i></button>
 											<br>											
 											<button class="btn btn-warning" style="margin-top: 5px;" title="PDF-Report - Gesamtregion" 
-											ng-disabled="$ctrl.kommonitorReachabilityCoverageReportsHelperServiceInstance.reportInProgress_totalCoverage || (indicatorStatisticsEntry.progress != 'finished' && indicatorStatisticsEntry.progress != 'failed')" 
+											ng-disabled="indicatorStatisticsEntry.progress == 'failed' || $ctrl.kommonitorReachabilityCoverageReportsHelperServiceInstance.reportInProgress_totalCoverage || (indicatorStatisticsEntry.progress != 'finished' && indicatorStatisticsEntry.progress != 'failed')" 
 											ng-click="$ctrl.kommonitorReachabilityCoverageReportsHelperServiceInstance.generateTotalCoverageReport_focusPoiCoverage($ctrl.kommonitorReachabilityScenarioHelperServiceInstance.tmpActiveScenario, indicatorStatisticsEntry)">
 												<i class="fa-solid fa-file-pdf"></i>
 												<i class="fa-solid fa-map"></i>
@@ -141,7 +141,7 @@
 											<span style="font-size:9px;">&nbsp;(~ 2 Sekunden)</span>
 											<br>										
 											<button class="btn btn-warning" style="margin-top: 5px;" title="PDF-Report - Einzelpunkte mit Karte" 
-											ng-disabled="$ctrl.kommonitorReachabilityCoverageReportsHelperServiceInstance.reportInProgress_poiCoverage || (indicatorStatisticsEntry.progress != 'finished' && indicatorStatisticsEntry.progress != 'failed')" 
+											ng-disabled="indicatorStatisticsEntry.progress == 'failed' || $ctrl.kommonitorReachabilityCoverageReportsHelperServiceInstance.reportInProgress_poiCoverage || (indicatorStatisticsEntry.progress != 'finished' && indicatorStatisticsEntry.progress != 'failed')" 
 											ng-click="$ctrl.kommonitorReachabilityCoverageReportsHelperServiceInstance.generateFeatureCoverageReport_focusPoiCoverage($ctrl.kommonitorReachabilityScenarioHelperServiceInstance.tmpActiveScenario, indicatorStatisticsEntry)">
 												<i class="fa-solid fa-file-pdf"></i>
 												<i class="fa-solid fa-map-location-dot"></i>
@@ -179,6 +179,7 @@
 									</td>
 									<td>
 										<span class="glyphicon glyphicon-refresh icon-spin" ng-show="indicatorStatisticsEntry.progress != 'finished' && indicatorStatisticsEntry.progress != 'failed'"></span>
+										<div ng-if="indicatorStatisticsEntry.progress == 'failed'">Berechnung fehlgeschlagen</div>
 										<div ng-repeat="overallCoverageEntry in indicatorStatisticsEntry.coverageResult.overallCoverage">
 											<div ng-if="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.focus == 'time'">
 												<b>{{::overallCoverageEntry.range / 60}} [Minuten]</b>

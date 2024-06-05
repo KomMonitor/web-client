@@ -1,4 +1,4 @@
 
 angular.module('reachabilityIndicatorStatistics', ['kommonitorDataExchange', 
 'kommonitorReachabilityHelper', 'kommonitorDiagramHelper', 'kommonitorReachabilityMapHelper', 'kommonitorSpatialDataProcessorHelper', 
-'kommonitorReachabilityScenarioHelper', 'kommonitorReachabilityCoverageReportsHelper']);
+'kommonitorReachabilityScenarioHelper', 'kommonitorReachabilityCoverageReportsHelper', 'kommonitorToastHelper']);
