@@ -937,10 +937,10 @@
 									<div class="form-group">
 										<label>Anzahl Klassen pro Raumeinheit</label>
 										<select ng-model="numClassesPerSpatialUnit"
-											ng-change="onNumClassesChanged(numClassesPerSpatialUnit)"									
+											ng-change="onNumClassesChanged(numClassesPerSpatialUnit)"
+											ng-options="numClassesEntry for numClassesEntry in numClassesArray"									
 											class="form-control" required>
 											<option disabled selected value> -- Anzahl Klassen w&auml;hlen -- </option>
-											<option ng-repeat="numClassesEntry in numClassesArray">{{::numClassesEntry}}</option>
 										</select>
 										<div class="help-block with-errors"></div>
 										<div class="help-block">
@@ -1045,7 +1045,7 @@
 				<button type="button" style="margin-left: 6px;" class="btn btn-info pull-left" ng-disabled=""
 					ng-click="onExportIndicatorAddMetadata()" title="Exportieren der Metadaten in eine Datei"><i
 						class="fas fa-file-export"></i>&nbsp;&nbsp;Metadaten-Export</button>
-				<button type="button" style="margin-left: 6px;" class="btn btn-info pull-left" ng-disabled="" ng-click="onExportIndicatorAddMetadataTemplate()" title="Exportieren einer Metadaten-Vorlage in eine Datei"><i class="fas fa-file-export"></i>&nbsp;&nbsp;Metadaten-Export Vorlage</button>
+				<!-- <button type="button" style="margin-left: 6px;" class="btn btn-info pull-left" ng-disabled="" ng-click="onExportIndicatorAddMetadataTemplate()" title="Exportieren einer Metadaten-Vorlage in eine Datei"><i class="fas fa-file-export"></i>&nbsp;&nbsp;Metadaten-Export Vorlage</button> -->
 				
 
 				<button type="button" class="btn btn-success"				

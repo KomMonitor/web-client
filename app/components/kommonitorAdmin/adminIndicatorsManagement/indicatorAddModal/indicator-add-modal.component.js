@@ -208,8 +208,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			$scope.georesourceReferences_apiRequest = [];
 
 			$scope.numClassesArray = [3,4,5,6,7,8];
-			$scope.numClasses = $scope.numClassesArray[2];
-			$scope.numClassesPerSpatialUnit = undefined;
+			$scope.numClassesPerSpatialUnit = $scope.numClassesArray[2];
 			$scope.classificationMethod = __env.defaultClassifyMethod || "jenks";
 			$scope.selectedColorBrewerPaletteEntry = undefined;
 			$scope.spatialUnitClassification = [];
@@ -316,7 +315,6 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			$scope.metadata.lastUpdate = undefined;
 			$scope.metadata.description = undefined;
 
-			$scope.refreshReferenceValuesManagementTable();
 			$scope.refreshRoles();
 
 			$scope.datasetName = undefined;
@@ -358,8 +356,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			$scope.georesourceReferences_apiRequest = [];
 
 			$scope.numClassesArray = [3,4,5,6,7,8];
-			$scope.numClasses = $scope.numClassesArray[2];
-			$scope.numClassesPerSpatialUnit = undefined;
+			$scope.numClassesPerSpatialUnit = $scope.numClassesArray[2];;
 			$scope.classificationMethod = __env.defaultClassifyMethod || "jenks";
 			$scope.selectedColorBrewerPaletteEntry = $scope.colorbrewerPalettes[13];
 			$scope.spatialUnitClassification = [];
@@ -880,10 +877,16 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 				}			
 
 				$scope.numClassesArray = [3,4,5,6,7,8];
-				$scope.numClasses = $scope.numClassesArray[2];
+				$scope.numClassesPerSpatialUnit = $scope.numClassesArray[2];
 
-				$scope.numClassesPerSpatialUnit = $scope.metadataImportSettings.defaultClassificationMapping.numClasses;
-				$scope.classificationMethod = $scope.metadataImportSettings.defaultClassificationMapping.classificationMethod;
+				for (const numClassesEntry of $scope.numClassesArray) {
+					if (numClassesEntry == $scope.metadataImportSettings.defaultClassificationMapping.numClasses){
+						$scope.numClassesPerSpatialUnit = numClassesEntry;
+						break;	
+					}
+				}
+				$scope.onNumClassesChanged($scope.numClassesPerSpatialUnit);
+				$scope.classificationMethod = $scope.metadataImportSettings.defaultClassificationMapping.classificationMethod || __env.defaultClassifyMethod;
 				$scope.spatialUnitClassification = $scope.metadataImportSettings.defaultClassificationMapping.items;
 
 				// instantiate with palette 'Blues'

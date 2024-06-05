@@ -1032,8 +1032,16 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 				$scope.numClassesArray = [3,4,5,6,7,8];
 				$scope.selectedColorBrewerPaletteEntry = undefined;
 
-				$scope.numClassesPerSpatialUnit = $scope.metadataImportSettings.defaultClassificationMapping.numClasses;
-				$scope.classificationMethod = $scope.metadataImportSettings.defaultClassificationMapping.classificationMethod;
+				$scope.numClassesPerSpatialUnit = $scope.numClassesArray[2];
+
+				for (const numClassesEntry of $scope.numClassesArray) {
+					if (numClassesEntry == $scope.metadataImportSettings.defaultClassificationMapping.numClasses){
+						$scope.numClassesPerSpatialUnit = numClassesEntry;
+						break;	
+					}
+				}
+
+				$scope.classificationMethod = $scope.metadataImportSettings.defaultClassificationMapping.classificationMethod || __env.defaultClassifyMethod;
 				$scope.spatialUnitClassification = $scope.metadataImportSettings.defaultClassificationMapping.items;
 
 				for (const colorbrewerPalette of $scope.colorbrewerPalettes) {
