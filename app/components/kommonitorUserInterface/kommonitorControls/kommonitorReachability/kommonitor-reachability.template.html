@@ -130,6 +130,46 @@
 
 			</div>
 
+			<div class="row" ng-show="$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend">
+
+				<div class="col-md-2"></div>
+
+				<div class="col-md-8 col-sm-6 col-xs-12">
+					<!-- Legend -->
+					<div class="just-padding">									
+
+						<div ng-show="$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend">
+							<div align="center">
+								<div class="legend" align="left">
+									<label>Punktdatenquelle:
+									</label>&nbsp;
+									{{$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend.datasetName}}
+									<br />
+									<label>Fortbewegungsart:
+									</label>&nbsp;
+									{{$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend.transitMode}}
+									<br />
+									<label>Abbruchkriterium: </label>&nbsp;
+									{{$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend.reachMode}}
+									<br />
+									<label>Einheit: </label>&nbsp;
+									{{$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend.cutOffUnit}}
+									<br />
+									<div
+										ng-repeat="entry in $ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend.colorValueEntries">
+										<i style="background: {{entry.color}}; opacity: 0.3;"></i>
+										{{entry.value}}
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="col-md-2"></div>
+				
+			</div>
+
 		</div>
 		<!-- /.box-body -->
 
