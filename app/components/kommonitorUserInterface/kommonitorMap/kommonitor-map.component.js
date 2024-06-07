@@ -1337,6 +1337,12 @@ angular.module('kommonitorMap').component(
           });
         }
 
+        $scope.$on("updateSpatialFilterIsApplied", function (event) {
+          kommonitorDataExchangeService.spatialFilterIsApplied = false;
+          if (kommonitorFilterHelperService.filteredIndicatorFeatureIds.size > 0) {
+            kommonitorDataExchangeService.spatialFilterIsApplied = true;
+          }
+        })
 
         $scope.$on("addSpatialUnitAsGeopackage", function (event) {
 
@@ -2753,6 +2759,8 @@ angular.module('kommonitorMap').component(
 
           $rootScope.$broadcast("updateDiagrams", $scope.currentIndicatorMetadataAndGeoJSON, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitId, date, $scope.defaultBrew, $scope.gtMeasureOfValueBrew, $scope.ltMeasureOfValueBrew, $scope.dynamicIncreaseBrew, $scope.dynamicDecreaseBrew, kommonitorDataExchangeService.isMeasureOfValueChecked, kommonitorDataExchangeService.measureOfValue, justRestyling);          
           $rootScope.$broadcast("indicatortMapDisplayFinished");
+
+          $rootScope.$broadcast("updateSpatialFilterIsApplied");
 
           $scope.map.invalidateSize(true);
         });
