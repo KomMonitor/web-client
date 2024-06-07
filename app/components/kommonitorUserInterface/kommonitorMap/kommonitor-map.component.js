@@ -1424,7 +1424,19 @@ angular.module('kommonitorMap').component(
           $scope.map.invalidateSize(true);
         });        
 
-        $scope.$on("addPoiGeoresourceAsGeoJSON", function (event, georesourceMetadataAndGeoJSON, date, useCluster) {
+        $scope.$on("addPoiGeoresourceAsGeoJSON", function (event, georesourceMetadataAndGeoJSON, date, useCluster, useSpatialFilterForGeoressources) {
+
+          // apply spatial filters
+          if (useSpatialFilterForGeoressources) {
+            let indicatorGeoJSON = JSON.parse(JSON.stringify(kommonitorDataExchangeService.selectedIndicator.geoJSON));
+            let filteredIndicatorFeatures = indicatorGeoJSON.features.filter(feature => !kommonitorFilterHelperService.filteredIndicatorFeatureIds.has("" + feature.properties[__env.FEATURE_ID_PROPERTY_NAME]));
+            indicatorGeoJSON.features = filteredIndicatorFeatures;
+            let filteredPoints= turf.pointsWithinPolygon(
+              georesourceMetadataAndGeoJSON.geoJSON, 
+              indicatorGeoJSON
+            );
+            georesourceMetadataAndGeoJSON.geoJSON = filteredPoints;
+          }
 
           // use leaflet.markercluster to cluster markers!
           var markers;

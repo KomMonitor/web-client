@@ -16,6 +16,7 @@ angular
 								this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 								this.kommonitorMapServiceInstance = kommonitorMapService;
 								$scope.useCluster = true;
+								$scope.useSpatialFilterForGeoressources = false;
 								$scope.loadingData = false;
 								$scope.date;
 
@@ -414,6 +415,18 @@ angular
 									}, 250);							
 								});
 
+								$scope.$on("onAddedFeatureToSelection", function (event, selectedIndicatorFeatureIds) {
+									$scope.refreshPoiLayers();
+								});
+
+								$scope.$on("indicatortMapDisplayFinished", function(){
+									$scope.refreshPoiLayers();
+								});
+
+								$scope.$on("onRemovedFeatureFromSelection", function (event, selectedIndicatorFeatureIds) {
+									$scope.refreshPoiLayers();
+								});
+
 								$scope.refreshSelectedGeoresources = function(){
 									for (const georesource of kommonitorDataExchangeService.displayableGeoresources_keywordFiltered) {
 										if (georesource.isSelected){
@@ -452,7 +465,7 @@ angular
 										// depending on type we must call different methods
 										if (georesourceDataset.isPOI){
 											$scope.removePoiLayerFromMap(georesourceDataset);
-											$scope.addPoiLayerToMap(georesourceDataset, $scope.useCluster);
+											$scope.addPoiLayerToMap(georesourceDataset, $scope.useCluster, $scope.useSpatialFilterForGeoressources);
 										}
 										else if (georesourceDataset.isLOI){
 											$scope.removeLoiLayerFromMap(georesourceDataset);
@@ -487,7 +500,7 @@ angular
 
 									if(poi.isSelected){
 										//display on Map
-										$scope.addPoiLayerToMap(poi, $scope.useCluster);
+										$scope.addPoiLayerToMap(poi, $scope.useCluster, $scope.useSpatialFilterForGeoressources);
 									}
 									else{
 										// unselect topic
@@ -502,7 +515,7 @@ angular
 
 								};
 
-								$scope.addPoiLayerToMap = async function(poiGeoresource, useCluster) {
+								$scope.addPoiLayerToMap = async function(poiGeoresource, useCluster, useSpatialFilterForGeoressources) {
 									$scope.loadingData = true;
 									$rootScope.$broadcast("showLoadingIconOnMap");
 
@@ -526,7 +539,7 @@ angular
 
 											poiGeoresource.geoJSON = geoJSON;
 
-											kommonitorMapService.addPoiGeoresourceGeoJSON(poiGeoresource, date, useCluster);
+											kommonitorMapService.addPoiGeoresourceGeoJSON(poiGeoresource, date, useCluster, useSpatialFilterForGeoressources);
 											$scope.loadingData = false;
 											$rootScope.$broadcast("hideLoadingIconOnMap");
 
@@ -559,7 +572,7 @@ angular
 											$scope.removePoiLayerFromMap(poi);
 
 											// remove layer and add layer again
-											await $scope.addPoiLayerToMap(poi, $scope.useCluster);
+											await $scope.addPoiLayerToMap(poi, $scope.useCluster, $scope.useSpatialFilterForGeoressources);
 										}
 									}
 

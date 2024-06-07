@@ -24,7 +24,7 @@
 				<b title="Checkbox zur Wahl, ob die einzelnen Punkte eines POI Layers geclustered werden sollen">Points
 					of Interest clustern</b> (Zusammenfassung mehrerer Punkte je nach Zoomstufe)
 				&nbsp;
-				<label class="switch">
+				<label class="switch" style="top: -5px; margin-top: 5px;">
 					<input type="checkbox" value="useCluster" ng-model="useCluster" ng-change="refreshPoiLayers()"
 						checked>
 					<span class="switchslider round"></span>
@@ -32,7 +32,7 @@
 
 				<br />
 
-				<label>
+				<label style="margin-bottom: 10px;">
 					<b title="Auswahl zur Größe der POI-Marker">Größe der Points
 						of Interest</b>
 					&nbsp;
@@ -41,6 +41,17 @@
 						ng-model="$ctrl.kommonitorDataExchangeServiceInstance.selectedPOISize"
 						ng-change="refreshPoiLayers()">
 					</select>
+				</label>
+
+				<br />
+
+				<b title="Checkbox zur Wahl, ob die gesetzten räumlichen Filter auf die POI angewendet werden sollen">
+					Räumliche Filter anwenden</b>
+				&nbsp;
+				<label class="switch" style="top: -5px; margin-top: 5px;">
+					<input type="checkbox" value="useSpatialFilterForGeoressources" ng-model="useSpatialFilterForGeoressources" ng-change="refreshPoiLayers()"
+						checked>
+					<span class="switchslider round"></span>
 				</label>
 
 				
