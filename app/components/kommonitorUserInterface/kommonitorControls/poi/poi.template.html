@@ -45,12 +45,19 @@
 
 				<br />
 
-				<b title="Checkbox zur Wahl, ob die gesetzten räumlichen Filter auf die POI angewendet werden sollen">
-					Räumliche Filter anwenden</b>
+				<b ng-if="!$ctrl.kommonitorDataExchangeServiceInstance.spatialFilterIsApplied"
+					 title="Checkbox zur Wahl, ob die gesetzten räumlichen Filter auf die POI angewendet werden sollen"
+					 style="color: #777">
+					Räumliche Filter anwenden
+				</b>
+				<b ng-if="$ctrl.kommonitorDataExchangeServiceInstance.spatialFilterIsApplied" 
+					 title="Checkbox zur Wahl, ob die gesetzten räumlichen Filter auf die POI angewendet werden sollen">
+					Räumliche Filter anwenden
+				</b>
 				&nbsp;
 				<label class="switch" style="top: -5px; margin-top: 5px;">
 					<input type="checkbox" value="useSpatialFilterForGeoressources" ng-model="useSpatialFilterForGeoressources" ng-change="refreshPoiLayers()"
-						checked>
+						 ng-disabled="!$ctrl.kommonitorDataExchangeServiceInstance.spatialFilterIsApplied">
 					<span class="switchslider round"></span>
 				</label>
 
