@@ -2584,6 +2584,10 @@ input:checked + .switchslider {
   background-color: rgb(51,122,183);
 }
 
+input:checked + .switchsliderOrange {
+	background-color: rgb(247, 147, 30);
+}
+
 input:focus + .switchslider {
   box-shadow: 0 0 1px rgb(51,122,183);
 }

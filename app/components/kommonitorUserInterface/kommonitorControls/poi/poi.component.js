@@ -427,6 +427,10 @@ angular
 									$scope.refreshPoiLayers();
 								});
 
+								$scope.$on("removeAllSpatialFilters", function(event){
+									$scope.useSpatialFilterForGeoressources = false;
+								});
+
 								$scope.refreshSelectedGeoresources = function(){
 									for (const georesource of kommonitorDataExchangeService.displayableGeoresources_keywordFiltered) {
 										if (georesource.isSelected){
