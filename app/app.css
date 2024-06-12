@@ -950,6 +950,13 @@ pre.CodeMirror-line {
   position: absolute;
 }
 
+#filterStatusButton{
+	position: absolute;
+	left: 280px;
+	top: 10px;
+	z-index: 3;
+}
+
 #sideBarButtons{
     margin-top: 200px;
   width: 90px;

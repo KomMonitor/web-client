@@ -244,6 +244,11 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 
 		}
 
+		$scope.openFilterSidebar = function(){
+			$scope.sidebarFilterClass = "disappear";
+			$scope.onSidebarFilterButtonClick();
+		}
+
 		$scope.onSidebarFilterButtonClick = function(){
 			$scope.undockButtons();
 
@@ -448,6 +453,10 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 
 		$scope.onToggleLegendControlButtonClick = function(){
 			$rootScope.$broadcast("toggleLegendControl");
+		}
+
+		$scope.onSpatialFilterCloseButtonClick = function() {
+			$rootScope.$broadcast("removeAllSpatialFilters");
 		}
 
 		$scope.$on("startGuidedTour", function(event){

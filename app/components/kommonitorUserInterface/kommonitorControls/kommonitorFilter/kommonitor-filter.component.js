@@ -600,6 +600,11 @@ angular
 								$scope.onManualSelectionSpatialFilterSelectBtnPressed();
 							};
 
+							$scope.$on("removeAllSpatialFilters", function(event){
+								$scope.updateSelectableAreas("byFeature");
+								$scope.onManualSelectionSpatialFilterResetBtnPressed();
+							});
+
 							$scope.manageManualDualList_fromMapSelection = function(){
 								$scope.manualSelectionSpatialFilterDuallistOptions.items = $scope.manualSelectionSpatialFilterDuallistOptions.items.concat($scope.manualSelectionSpatialFilterDuallistOptions.selectedItems);
 								$scope.manualSelectionSpatialFilterDuallistOptions.selectedItems = [];
