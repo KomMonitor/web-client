@@ -2474,6 +2474,8 @@ angular.module('kommonitorMap').component(
 
           console.log('replaceIndicatorAsGeoJSON was called');
 
+          $rootScope.$broadcast("updateSpatialFilterIsApplied");
+
           kommonitorVisualStyleHelperService.isCustomComputation = false;
           if (isCustomComputation){
             kommonitorVisualStyleHelperService.isCustomComputation = true;
@@ -2759,8 +2761,6 @@ angular.module('kommonitorMap').component(
 
           $rootScope.$broadcast("updateDiagrams", $scope.currentIndicatorMetadataAndGeoJSON, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitId, date, $scope.defaultBrew, $scope.gtMeasureOfValueBrew, $scope.ltMeasureOfValueBrew, $scope.dynamicIncreaseBrew, $scope.dynamicDecreaseBrew, kommonitorDataExchangeService.isMeasureOfValueChecked, kommonitorDataExchangeService.measureOfValue, justRestyling);          
           $rootScope.$broadcast("indicatortMapDisplayFinished");
-
-          $rootScope.$broadcast("updateSpatialFilterIsApplied");
 
           $scope.map.invalidateSize(true);
         });
