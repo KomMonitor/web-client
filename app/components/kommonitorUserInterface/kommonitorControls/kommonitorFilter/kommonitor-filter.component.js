@@ -513,7 +513,6 @@ angular
 										$scope.selectionByFeatureSpatialFilterDuallistOptions.items = dataArray;
 									}
 									$scope.loadingData = false;
-									$scope.$digest();
 								});
 							};
 
