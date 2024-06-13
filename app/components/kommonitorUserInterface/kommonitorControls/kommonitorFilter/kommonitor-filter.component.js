@@ -110,8 +110,9 @@ angular
 								}
 
 								// $scope.higherSpatialUnits.splice(targetIndex);
-								$scope.selectedSpatialUnitForFilter = $scope.higherSpatialUnits[$scope.higherSpatialUnits.length - 1];
-
+								if(!$scope.selectedSpatialUnitForFilter) {
+									$scope.selectedSpatialUnitForFilter = $scope.higherSpatialUnits[$scope.higherSpatialUnits.length - 1];
+								}
 								$scope.loadingData = false;
 							};
 
