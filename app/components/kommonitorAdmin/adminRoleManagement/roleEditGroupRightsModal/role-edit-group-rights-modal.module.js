@@ -1,1 +1,1 @@
-angular.module('roleEditGroupRightsModal', ['kommonitorDataGridHelper', 'kommonitorKeycloakHelper']);
+angular.module('roleEditGroupRightsModal', ['kommonitorMultiStepFormHelper', 'kommonitorDataGridHelper', 'kommonitorKeycloakHelper']);

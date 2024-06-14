@@ -2865,9 +2865,10 @@ input:checked + .switchslider:before {
 	margin: 10px 0px 10px 0px;
 }
 
-
-
-
+.table-td-all-centered {
+    vertical-align: middle !important;
+    text-align: left;
+}
 
 .batch-list-table-wrapper {
 	max-height: 75vh !important;

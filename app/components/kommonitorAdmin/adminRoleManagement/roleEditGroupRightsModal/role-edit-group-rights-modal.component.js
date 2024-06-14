@@ -1,7 +1,7 @@
 angular.module('roleEditGroupRightsModal').component('roleEditGroupRightsModal', {
 	templateUrl: "components/kommonitorAdmin/adminRoleManagement/roleEditGroupRightsModal/role-edit-group-rights-modal.template.html",
-	controller: ['kommonitorDataGridHelperService', 'kommonitorDataExchangeService', 'kommonitorKeycloakHelperService', '$scope', '$rootScope', '$timeout', '$http', '__env', 
-    function RoleEditGroupRightsModalController(kommonitorDataGridHelperService, kommonitorDataExchangeService, kommonitorKeycloakHelperService, $scope, $rootScope, $timeout, $http, __env) {
+	controller: ['kommonitorMultiStepFormHelperService', 'kommonitorDataGridHelperService', 'kommonitorDataExchangeService', 'kommonitorKeycloakHelperService', '$scope', '$rootScope', '$timeout', '$http', '__env', 
+    function RoleEditGroupRightsModalController(kommonitorMultiStepFormHelperService, kommonitorDataGridHelperService, kommonitorDataExchangeService, kommonitorKeycloakHelperService, $scope, $rootScope, $timeout, $http, __env) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 		this.kommonitorKeycloakHelperServiceInstance = kommonitorKeycloakHelperService;
@@ -13,9 +13,43 @@ angular.module('roleEditGroupRightsModal').component('roleEditGroupRightsModal',
 		$scope.successMessagePart = undefined;
 		$scope.errorMessagePart = undefined;
 
+        $scope.roleAuthorities = undefined;
+        $scope.roleDelegates = undefined;
+
 		$scope.$on("onEditOrganizationalUnitGroupRights", function (event, organizationalUnit) {
 
 			$scope.current = organizationalUnit;
+
+            // replace "replacer" in BOTH get url to "$scope.current.organizationalUnitId"
+            let replacer = "adff03a0-e72e-4c1a-90ac-511e70d9fd79";
+
+            // ret all roles this orgaUnit has authorities over
+            $http({
+				url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/organizationalUnits/" + replacer + "/role-authorities",
+				method: "GET"
+			}).then(function successCallback(response) {
+
+                $scope.roleAuthorities = response.data.authorityRoles;
+
+                $scope.roleAuthorities.forEach(elem => {
+
+                    elem.orgaUnitName = kommonitorDataExchangeService.accessControl.filter(item => item.organizationalUnitId == elem.organizationalUnitId)[0].name;
+                });
+			});
+
+            // ret all roles other orgaUnits have over this orgaUnit
+            $http({
+				url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/organizationalUnits/" + replacer + "/role-delegates",
+				method: "GET"
+			}).then(function successCallback(response) {
+
+                $scope.roleDelegates = response.data.roleDelegates;
+                
+                $scope.roleDelegates.forEach(elem => {
+
+                    elem.orgaUnitName = kommonitorDataExchangeService.accessControl.filter(item => item.organizationalUnitId == elem.organizationalUnitId)[0].name;
+                });
+			});
 
             let permissions = [
                 "b2af5972-d08f-4838-9285-a1a8cb6f900f", // unit-users
@@ -103,6 +137,7 @@ angular.module('roleEditGroupRightsModal').component('roleEditGroupRightsModal',
                 ]});
 
             $scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildAdvancedRoleManagementGrid('editRoleEditGroupRoleManagementTable', $scope.roleManagementTableOptions, access, permissions);
+			kommonitorMultiStepFormHelperService.registerClickHandler("roleEditGroupRightsMultistepForm");
 		});
 
 		
