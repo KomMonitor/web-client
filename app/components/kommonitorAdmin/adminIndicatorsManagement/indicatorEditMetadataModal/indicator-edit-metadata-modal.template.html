@@ -961,9 +961,25 @@
 														style="margin-right: 0px;" 
 														ng-repeat="color in selectedColorBrewerPaletteEntry.paletteArrayObject[numClassesPerSpatialUnit.toString()]">
 														<div class="col-md-3 "><i style="background:{{color}};"></i> </div>
-														<div class="col-md-9 " ng-if="$index == 0" >Niedrigster Wert &dash; &lt; {{spatialUnitClassification[i].breaks[$index] || "[bitte eingeben]"}}</div>
-														<div class="col-md-9 " ng-if="$index != 0 && $index != spatialUnitClassification[i].breaks.length" >{{spatialUnitClassification[i].breaks[$index - 1] || "[bitte eingeben]"}} &dash; &lt; {{spatialUnitClassification[i].breaks[$index] || "[bitte eingeben]"}}</div>
-														<div class="col-md-9 " ng-if="$index == spatialUnitClassification[i].breaks.length" >{{spatialUnitClassification[i].breaks[$index-1] || "[bitte eingeben]"}} &dash; &lt; Höchster Wert</div>
+														<div class="col-md-9 " ng-if="$index == 0" >
+															Niedrigster Wert 
+															&dash; &lt; 
+															<span ng-if="spatialUnitClassification[i].breaks[$index] !== null">{{spatialUnitClassification[i].breaks[$index]}}</span>
+															<span ng-if="spatialUnitClassification[i].breaks[$index] === null">[bitte eingeben]</span>
+														</div>
+														<div class="col-md-9 " ng-if="$index != 0 && $index != spatialUnitClassification[i].breaks.length" >
+															<span ng-if="spatialUnitClassification[i].breaks[$index-1] !== null">{{spatialUnitClassification[i].breaks[$index-1]}}</span>
+															<span ng-if="spatialUnitClassification[i].breaks[$index-1] === null">[bitte eingeben]</span> 
+															&dash; &lt; 
+															<span ng-if="spatialUnitClassification[i].breaks[$index] !== null">{{spatialUnitClassification[i].breaks[$index]}}</span>
+															<span ng-if="spatialUnitClassification[i].breaks[$index] === null">[bitte eingeben]</span>
+														</div>
+														<div class="col-md-9 " ng-if="$index == spatialUnitClassification[i].breaks.length" >
+															<span ng-if="spatialUnitClassification[i].breaks[$index-1] !== null">{{spatialUnitClassification[i].breaks[$index-1]}}</span>
+															<span ng-if="spatialUnitClassification[i].breaks[$index-1] === null">[bitte eingeben]</span>  
+															&dash; &lt; 
+															Höchster Wert
+														</div>
 													</div>
 												</div>
 											</div>
