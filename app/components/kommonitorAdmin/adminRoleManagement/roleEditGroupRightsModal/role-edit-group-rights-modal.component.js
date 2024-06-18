@@ -13,8 +13,9 @@ angular.module('roleEditGroupRightsModal').component('roleEditGroupRightsModal',
 		$scope.successMessagePart = undefined;
 		$scope.errorMessagePart = undefined;
 
-        $scope.roleAuthorities = undefined;
-        $scope.roleDelegates = undefined;
+        $scope.authorityRoleIDs = [];
+        $scope.authorityAccess = undefined;
+        $scope.authorityPermissions = [];
 
         $scope.delegatedRoleIDs = [];
         $scope.delegatedAccess = undefined;
@@ -55,12 +56,20 @@ angular.module('roleEditGroupRightsModal').component('roleEditGroupRightsModal',
 				method: "GET"
 			}).then(function successCallback(response) {
 
-                $scope.roleAuthorities = response.data.authorityRoles;
+                let roleAuthorities = response.data.authorityRoles;
+                
+                roleAuthorities.forEach(elem => {
 
-                $scope.roleAuthorities.forEach(elem => {
+                    $scope.authorityRoleIDs.push(elem.organizationalUnitId);
 
-                    elem.orgaUnitName = kommonitorDataExchangeService.accessControl.filter(item => item.organizationalUnitId == elem.organizationalUnitId)[0].name;
+                    elem.adminRoles.forEach(role => {
+                        $scope.authorityPermissions.push(elem.organizationalUnitId + "-" + role);
+                    });
                 });
+                
+                $scope.authorityAccess = $scope.access.filter(elem => $scope.authorityRoleIDs.includes(elem.organizationalUnitId));
+
+                $scope.buildAuthorityRolesTable();
 			});
 
             // get all roles other orgaUnits have over this orgaUnit
@@ -90,6 +99,11 @@ angular.module('roleEditGroupRightsModal').component('roleEditGroupRightsModal',
             $scope.buildDelegatedRolesTable();
         }
 
+        $scope.buildAuthorityRolesTable = function() {
+           
+            $scope.authorityRoleManagementTableOptions = kommonitorDataGridHelperService.buildAdvancedRoleManagementGrid('editAuthorityGroupRoleManagementTable', $scope.authorityRoleManagementTableOptions, $scope.authorityAccess, $scope.authorityPermissions, true);
+        }
+
         $scope.buildDelegatedRolesTable = function() {
             // hide (non-)applicable groups
             if($scope.activeDelegatedRolesOnly)
@@ -97,7 +111,7 @@ angular.module('roleEditGroupRightsModal').component('roleEditGroupRightsModal',
             else 
                 $scope.delegatedAccess = $scope.access.filter(elem => elem.organizationalUnitId!=$scope.current.organizationalUnitId);
 
-            $scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildAdvancedRoleManagementGrid('editRoleEditGroupRoleManagementTable', $scope.roleManagementTableOptions, $scope.delegatedAccess, $scope.delegatedPermissions);
+            $scope.delegatedRoleManagementTableOptions = kommonitorDataGridHelperService.buildAdvancedRoleManagementGrid('editDelegatedGroupRoleManagementTable', $scope.delegatedRoleManagementTableOptions, $scope.delegatedAccess, $scope.delegatedPermissions);
         }
 	
 		/* $scope.editRoleMetadata = function () {

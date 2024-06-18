@@ -2978,7 +2978,9 @@ angular
           this.eGui.className = className;
           this.eGui.type = 'checkbox';
           this.eGui.checked = isChecked;
-          
+
+          this.eGui.disabled = params.data.disabled;
+
           if(this.params.data.datasetOwner===true)
             this.eGui.disabled = true;
 
@@ -3028,6 +3030,8 @@ angular
           this.eGui.type = 'checkbox';
           this.eGui.checked = isChecked;
           
+          this.eGui.disabled = params.data.disabled;
+
           if(this.params.data.datasetOwner===true)
             this.eGui.disabled = true;
 
@@ -3089,6 +3093,8 @@ angular
           this.eGui.type = 'checkbox';
           this.eGui.checked = isChecked;
           
+          this.eGui.disabled = params.data.disabled;
+
           if(this.params.data.datasetOwner===true)
             this.eGui.disabled = true;
 
@@ -3138,6 +3144,8 @@ angular
           this.eGui.type = 'checkbox';
           this.eGui.checked = isChecked;
           
+          this.eGui.disabled = params.data.disabled;
+
           if(this.params.data.datasetOwner===true)
             this.eGui.disabled = true;
 
@@ -3201,6 +3209,8 @@ angular
           this.eGui.type = 'checkbox';
           this.eGui.checked = isChecked;
           
+          this.eGui.disabled = params.data.disabled;
+
           if(this.params.data.datasetOwner===true)
             this.eGui.disabled = true;
 
@@ -3249,6 +3259,8 @@ angular
           this.eGui.className = className;
           this.eGui.type = 'checkbox';
           this.eGui.checked = isChecked;
+          
+          this.eGui.disabled = params.data.disabled;
           
           if(this.params.data.datasetOwner===true)
             this.eGui.disabled = true;
@@ -3427,7 +3439,6 @@ angular
       this.buildRoleManagementGrid = function(tableDOMId, currentTableOptionsObject, accessControlMetadata, selectedPermissionIds, reducedRoleManagement = false){
         
         this.reducedRoleManagement = reducedRoleManagement;
-        //8552b0c5-003c-4879-8ae7-ef223d5d14a7 52N Admins
         
         if (currentTableOptionsObject && currentTableOptionsObject.api) {
 
@@ -3444,7 +3455,7 @@ angular
       // end
 
       // "Advanced" Role Management Grid 
-      this.buildAdvancedRoleManagementGridRowData = function(accessControlMetadata, permissionIds){
+      this.buildAdvancedRoleManagementGridRowData = function(accessControlMetadata, permissionIds, disabled){
         let data = JSON.parse(JSON.stringify(accessControlMetadata));
         for (let elem of data) {
 
@@ -3453,7 +3464,10 @@ angular
             if (permissionIds && permissionIds.includes(permission.permissionId)){
               permission.isChecked = true;
             }
+
           }
+
+          elem.disabled = disabled;
         }
 
         let array = [];
@@ -3543,9 +3557,9 @@ angular
         return columnDefs;
       };
 
-      this.buildAdvancedRoleManagementGridOptions = function(accessControlMetadata, selectedPermissionIds){
+      this.buildAdvancedRoleManagementGridOptions = function(accessControlMetadata, selectedPermissionIds, disabled){
         let columnDefs = this.buildAdvancedRoleManagementGridColumnConfig();
-          let rowData = this.buildAdvancedRoleManagementGridRowData(accessControlMetadata, selectedPermissionIds);
+          let rowData = this.buildAdvancedRoleManagementGridRowData(accessControlMetadata, selectedPermissionIds, disabled);
   
           let components = {};
           components = {
@@ -3618,17 +3632,15 @@ angular
           return gridOptions;
       };
 
-      this.buildAdvancedRoleManagementGrid = function(tableDOMId, currentTableOptionsObject, accessControlMetadata, selectedPermissionIds){
-        
-        //8552b0c5-003c-4879-8ae7-ef223d5d14a7 52N Admins
-        
+      this.buildAdvancedRoleManagementGrid = function(tableDOMId, currentTableOptionsObject, accessControlMetadata, selectedPermissionIds, disabled = false){
+
         if (currentTableOptionsObject && currentTableOptionsObject.api) {
 
-          let newRowData = this.buildAdvancedRoleManagementGridRowData(accessControlMetadata, selectedPermissionIds);
+          let newRowData = this.buildAdvancedRoleManagementGridRowData(accessControlMetadata, selectedPermissionIds, disabled);
           currentTableOptionsObject.api.setRowData(newRowData);
         }
         else {
-          currentTableOptionsObject = this.buildAdvancedRoleManagementGridOptions(accessControlMetadata, selectedPermissionIds);
+          currentTableOptionsObject = this.buildAdvancedRoleManagementGridOptions(accessControlMetadata, selectedPermissionIds, disabled);
           let gridDiv = document.querySelector('#' + tableDOMId);
           new agGrid.Grid(gridDiv, currentTableOptionsObject);
         }

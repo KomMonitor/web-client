@@ -36,47 +36,11 @@
 								<h2 class="fs-title">Vorhandene gruppenspezifische Rechte</h2>
 								<h3 class="fs-subtitle">Rechte der eigenen und Gruppen und solche anderer an der eigenen Gruppe</h3>
 		
-								<div class="row vertical-align">
+								<div class="row">
 
-									<div class="col-md-6 col-sm-6 col-xs-6 align-top">
-                                        <div class="alert alert-success"><b>Rechte dieser Organisationseinheit</b></div>
-                                        <table class="table table-bordered table-condensed"
-                                        style="width:100%; overflow:auto; font-size: 11px;">
-                                            <thead>
-                                                <tr>
-                                                    <th>Organisationseinheit</th>
-                                                    <th>Rolle</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr ng-repeat="item in roleAuthorities">
-                                                    <td class="table-td-all-centered">{{item.orgaUnitName}}</td>
-                                                    <td class="table-td-all-centered"><div ng-repeat="roles in item.adminRoles">{{roles}}</div></td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-									<div class="col-md-6 col-sm-6 col-xs-6 align-top">
-                                        <div class="alert alert-danger"><b>Rechte anderer an dieser Organisationseinheit</b></div>
-                                        <table class="table table-bordered table-condensed"
-                                        style="width:100%; overflow:auto; font-size: 11px;">
-                                            <thead>
-                                                <tr>
-                                                    <th>Organisationseinheit</th>
-                                                    <th>Rolle</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr ng-repeat="item in roleDelegates">
-                                                    <td class="table-td-all-centered">{{item.orgaUnitName}}</td>
-                                                    <td class="table-td-all-centered"><div ng-repeat="roles in item.adminRoles">{{roles}}</div></td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-									<!-- <div class="col-md-12 col-sm-12 col-xs-12">
-                                        <div id="editRoleEditGroupRoleManagementTable" style="height: 45vh" class="ag-theme-alpine"></div>
-									</div> -->
+                                    <div class="col-md-12 col-sm-12 col-xs-12">
+                                        <div id="editAuthorityGroupRoleManagementTable" style="height: 45vh" class="ag-theme-alpine"></div>
+									</div>
 
 								</div>
 
@@ -100,7 +64,7 @@
                                         </div>
                                     </div>
                                     <div class="col-md-12 col-sm-12 col-xs-12">
-                                        <div id="editRoleEditGroupRoleManagementTable" style="height: 45vh" class="ag-theme-alpine"></div>
+                                        <div id="editDelegatedGroupRoleManagementTable" style="height: 45vh" class="ag-theme-alpine"></div>
 									</div>
 
 								</div>
