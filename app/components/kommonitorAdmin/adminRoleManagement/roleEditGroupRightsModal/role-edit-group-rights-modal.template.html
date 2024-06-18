@@ -27,8 +27,8 @@
 							<div> 
 								<!-- progressbar -->
 								<ul id="progressbar">
-									<li style="width: 50%;" class="active">Vorhandene Rechte</li>
-									<li style="width: 50%;">Rechte editieren</li>
+									<li style="width: 50%;" class="active">Eigene Rechte</li>
+									<li style="width: 50%;">Rechte anderer</li>
 								</ul>
 							</div>
 
@@ -83,14 +83,23 @@
 							</fieldset>
 
 							<fieldset>
-								<h2 class="fs-title">Gruppenspezifische Rechte editieren</h2>
-								<h3 class="fs-subtitle">Freigabe der gruppenspezifischen Rechte an die eigene und/oder andere Gruppen</h3>
+								<h2 class="fs-title">Rechte anderer an dieser Organisationseinheit</h2>
+								<h3 class="fs-subtitle">Freigabe der gruppenspezifischen Rechte an der eigenen Organisationseinheit</h3>
 		
 								
 								
-								<div class="row vertical-align">
+								<div class="row">
 
 									<div class="col-md-12 col-sm-12 col-xs-12">
+                                        <div class="form-group vertical-align">
+                                            <label class="margin-right">Zeige nur zugewiesene Rechte</label>
+                                            <label class="switch">
+                                                <input type="checkbox" value="activeDelegatedRolesOnly" ng-model="activeDelegatedRolesOnly" ng-change="onActiveDelegatedRolesOnlyChange()">
+                                                <span class="switchslider round"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 col-sm-12 col-xs-12">
                                         <div id="editRoleEditGroupRoleManagementTable" style="height: 45vh" class="ag-theme-alpine"></div>
 									</div>
 

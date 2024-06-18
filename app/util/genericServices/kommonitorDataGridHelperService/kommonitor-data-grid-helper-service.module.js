@@ -2749,11 +2749,11 @@ angular
         return filteresPermissions.length > 0;
       };
 
-      function anyHigherAdvancedPermissionIsChecked(permissions, permissionTypeSuffix){
+      function anyHigherAdvancedPermissionIsChecked(permissions, permissionType){
         let filteresPermissions = [];
         
           filteresPermissions = permissions.filter(function(permission){
-            if (permission.isChecked && permission.permissionLevel == "creator" && permission.permissionType == permissionTypeSuffix){
+            if (permission.isChecked && permission.permissionType == permissionType){
               return true;
             }
           });
@@ -2965,7 +2965,7 @@ angular
         let exists = false;
         let className;
         for (const permission of params.data.permissions) {
-          if (permission.permissionLevel == "creator" && permission.permissionType == "unit-users"){
+          if (permission.permissionLevel == "unit-users-creator"){
             exists = true;
             isChecked = permission.isChecked;
             className = permission.permissionId;
@@ -2985,7 +2985,7 @@ angular
           this.checkedHandler = this.checkedHandler.bind(this);
           this.eGui.addEventListener('click', this.checkedHandler);
           // if higher role rights are checked as well 
-          if(isChecked && anyHigherAdvancedPermissionIsChecked(params.data.permissions, "client-users")){
+          if(isChecked && anyHigherAdvancedPermissionIsChecked(params.data.permissions, "client-users-creator")){
             this.eGui.disabled = true;
           }                    
         }
@@ -3014,7 +3014,7 @@ angular
         let exists = false;
         let className;
         for (const permission of params.data.permissions) {
-          if (permission.permissionLevel == "creator" && permission.permissionType == "client-users"){
+          if (permission.permissionLevel == "client-users-creator"){
             exists = true;
             isChecked = permission.isChecked;
             className = permission.permissionId;
@@ -3039,7 +3039,7 @@ angular
       CheckboxRenderer_UM_subGroup.prototype.checkedHandler = function(e) {
         let checked = e.target.checked;
         for (const permission of this.params.data.permissions) {
-          if (permission.permissionLevel == "creator" && permission.permissionType == "unit-users"){
+          if (permission.permissionLevel == "unit-users-creator"){
             if (checked){
               permission.isChecked = true;
               $('.' + permission.permissionId).attr('disabled', true);
@@ -3049,7 +3049,7 @@ angular
               $('.' + permission.permissionId).attr('disabled', false);
             }
           }
-          else if (permission.permissionLevel == "creator" && permission.permissionType == "client-users"){   
+          else if (permission.permissionLevel == "client-users-creator"){   
             permission.isChecked = checked;
           }
         }  
@@ -3075,7 +3075,7 @@ angular
         let exists = false;
         let className;
         for (const permission of params.data.permissions) {
-          if (permission.permissionLevel == "creator" && permission.permissionType == "unit-resources"){
+          if (permission.permissionLevel == "unit-resources-creator"){
             exists = true;
             isChecked = permission.isChecked;
             className = permission.permissionId;
@@ -3095,7 +3095,7 @@ angular
           this.checkedHandler = this.checkedHandler.bind(this);
           this.eGui.addEventListener('click', this.checkedHandler);
           // if higher role rights are checked as well 
-          if(isChecked && anyHigherAdvancedPermissionIsChecked(params.data.permissions, "client-resources")){
+          if(isChecked && anyHigherAdvancedPermissionIsChecked(params.data.permissions, "client-resources-creator")){
             this.eGui.disabled = true;
           }                    
         }
@@ -3124,7 +3124,7 @@ angular
         let exists = false;
         let className;
         for (const permission of params.data.permissions) {
-          if (permission.permissionLevel == "creator" && permission.permissionType == "client-resources"){
+          if (permission.permissionLevel == "client-resources-creator"){
             exists = true;
             isChecked = permission.isChecked;
             className = permission.permissionId;
@@ -3149,7 +3149,7 @@ angular
       CheckboxRenderer_RM_subGroup.prototype.checkedHandler = function(e) {
         let checked = e.target.checked;
         for (const permission of this.params.data.permissions) {
-          if (permission.permissionLevel == "creator" && permission.permissionType == "unit-resources"){
+          if (permission.permissionLevel == "unit-resources-creator"){
             if (checked){
               permission.isChecked = true;
               $('.' + permission.permissionId).attr('disabled', true);
@@ -3159,7 +3159,7 @@ angular
               $('.' + permission.permissionId).attr('disabled', false);
             }
           }
-          else if (permission.permissionLevel == "creator" && permission.permissionType == "client-resources"){   
+          else if (permission.permissionLevel == "client-resources-creator"){   
             permission.isChecked = checked;
           }
         }  
@@ -3187,7 +3187,7 @@ angular
         let exists = false;
         let className;
         for (const permission of params.data.permissions) {
-          if (permission.permissionLevel == "creator" && permission.permissionType == "unit-themes"){
+          if (permission.permissionLevel == "unit-themes-creator"){
             exists = true;
             isChecked = permission.isChecked;
             className = permission.permissionId;
@@ -3207,7 +3207,7 @@ angular
           this.checkedHandler = this.checkedHandler.bind(this);
           this.eGui.addEventListener('click', this.checkedHandler);
           // if higher role rights are checked as well 
-          if(isChecked && anyHigherAdvancedPermissionIsChecked(params.data.permissions, "client-themes")){
+          if(isChecked && anyHigherAdvancedPermissionIsChecked(params.data.permissions, "client-themes-creator")){
             this.eGui.disabled = true;
           }                    
         }
@@ -3236,7 +3236,7 @@ angular
         let exists = false;
         let className;
         for (const permission of params.data.permissions) {
-          if (permission.permissionLevel == "creator" && permission.permissionType == "client-themes"){
+          if (permission.permissionLevel == "client-themes-creator"){
             exists = true;
             isChecked = permission.isChecked;
             className = permission.permissionId;
@@ -3261,7 +3261,7 @@ angular
       CheckboxRenderer_TM_subGroup.prototype.checkedHandler = function(e) {
         let checked = e.target.checked;
         for (const permission of this.params.data.permissions) {
-          if (permission.permissionLevel == "creator" && permission.permissionType == "unit-themes"){
+          if (permission.permissionLevel == "unit-themes-creator"){
             if (checked){
               permission.isChecked = true;
               $('.' + permission.permissionId).attr('disabled', true);
@@ -3271,7 +3271,7 @@ angular
               $('.' + permission.permissionId).attr('disabled', false);
             }
           }
-          else if (permission.permissionLevel == "creator" && permission.permissionType == "client-themes"){   
+          else if (permission.permissionLevel == "client-themes-creator"){   
             permission.isChecked = checked;
           }
         }  

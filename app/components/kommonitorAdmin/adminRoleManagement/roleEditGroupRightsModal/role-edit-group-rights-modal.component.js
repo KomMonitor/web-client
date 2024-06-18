@@ -16,11 +16,37 @@ angular.module('roleEditGroupRightsModal').component('roleEditGroupRightsModal',
         $scope.roleAuthorities = undefined;
         $scope.roleDelegates = undefined;
 
+        $scope.delegatedRoleIDs = [];
+        $scope.delegatedAccess = undefined;
+        $scope.delegatedPermissions = [];
+        $scope.activeDelegatedRolesOnly = true;
+
 		$scope.$on("onEditOrganizationalUnitGroupRights", function (event, organizationalUnit) {
+
 
 			$scope.current = organizationalUnit;
 
-            // replace "replacer" in BOTH get url to "$scope.current.organizationalUnitId"
+           $scope.access = kommonitorDataExchangeService.accessControl;
+
+            // create permissions structure based on "unitIds-roleName"
+            let permissionStrings = [
+                "unit-users-creator",
+                "client-users-creator",
+                "unit-resources-creator",
+                "client-resources-creator",
+                "unit-themes-creator",
+                "client-themes-creator"];
+            $scope.access.forEach(elem => {
+
+                permissionStrings.forEach(role => {
+                    elem.permissions.push({ 
+                        permissionLevel: role, 
+                        permissionId: elem.organizationalUnitId + "-" + role
+                    });
+                });
+            });
+
+            // TODO: replace "replacer" in BOTH get url to "$scope.current.organizationalUnitId"
             let replacer = "adff03a0-e72e-4c1a-90ac-511e70d9fd79";
 
             // ret all roles this orgaUnit has authorities over
@@ -37,110 +63,42 @@ angular.module('roleEditGroupRightsModal').component('roleEditGroupRightsModal',
                 });
 			});
 
-            // ret all roles other orgaUnits have over this orgaUnit
+            // get all roles other orgaUnits have over this orgaUnit
             $http({
 				url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/organizationalUnits/" + replacer + "/role-delegates",
 				method: "GET"
 			}).then(function successCallback(response) {
 
-                $scope.roleDelegates = response.data.roleDelegates;
+                let roleDelegates = response.data.roleDelegates;
                 
-                $scope.roleDelegates.forEach(elem => {
+                roleDelegates.forEach(elem => {
 
-                    elem.orgaUnitName = kommonitorDataExchangeService.accessControl.filter(item => item.organizationalUnitId == elem.organizationalUnitId)[0].name;
+                    $scope.delegatedRoleIDs.push(elem.organizationalUnitId);
+
+                    elem.adminRoles.forEach(role => {
+                        $scope.delegatedPermissions.push(elem.organizationalUnitId + "-" + role);
+                    });
                 });
+                
+                $scope.buildDelegatedRolesTable();
 			});
 
-            let permissions = [
-                "b2af5972-d08f-4838-9285-a1a8cb6f900f", // unit-users
-                "ee2f31f6-363e-4acb-8802-c6f933b73e8c" // client-users
-            ];
-
-            let access = kommonitorDataExchangeService.accessControl;
-
-            access.forEach(elem => {
-
-                elem.permissions = [
-                    { 
-                        permissionLevel: "creator", 
-                        permissionType: "unit-users", 
-                        permissionId: "ee2f3"+Math.random(100)+"1f6-363e-4acb-8802-c6f933b73e8c"
-                    },
-                    { 
-                        permissionLevel: "creator", 
-                        permissionType: "client-users", 
-                        permissionId: "ee2f3"+Math.random(100)+"1f6-363e-4acb-8802-c6f933b73e8c"
-                    },
-                    { 
-                        permissionLevel: "creator", 
-                        permissionType: "unit-resources", 
-                        permissionId: "ee2f3"+Math.random(100)+"1f6-363e-4acb-8802-c6f933b73e8c"
-                    },
-                    { 
-                        permissionLevel: "creator", 
-                        permissionType: "client-resources", 
-                        permissionId: "ee2f3"+Math.random(100)+"1f6-363e-4acb-8802-c6f933b73e8c"
-                    },
-                    { 
-                        permissionLevel: "creator", 
-                        permissionType: "unit-themes", 
-                        permissionId: "ee2f3"+Math.random(100)+"1f6-363e-4acb-8802-c6f933b73e8c"
-                    },
-                    { 
-                        permissionLevel: "creator", 
-                        permissionType: "client-themes", 
-                        permissionId: "ee2f3"+Math.random(100)+"1f6-363e-4acb-8802-c6f933b73e8c"
-                    }
-                ]
-            });
-
-            access.push({
-                children: [ "8552b0c5-003c-4879-8ae7-ef223d5d14a7" ],
-                contact: "s.drost@52north.org",
-                description: "123452°North",
-                keycloakId: "abcdefg-ca48-4225-8a28-4e3e04dce15a",
-                mandant: true,
-                name: "123452N",
-                organizationalUnitId: "abcdfeg-e72e-4c1a-90ac-511e70d9fd79",
-                parentId: null,
-                permissions: [
-                    { 
-                        permissionLevel: "creator", 
-                        permissionType: "unit-users", 
-                        permissionId: "ee2fsd3sdsds1f6-363e-4acb-8802-c6f933b73e8c"
-                    },
-                    { 
-                        permissionLevel: "creator", 
-                        permissionType: "client-users", 
-                        permissionId: "ee2fsdsd31f6-363e-4acb-8802-c6f933b73e8c"
-                    },
-                    { 
-                        permissionLevel: "creator", 
-                        permissionType: "unit-resources", 
-                        permissionId: "ee2f3dffgghgh1f6-363e-4acb-8802-c6f933b73e8c"
-                    },
-                    { 
-                        permissionLevel: "creator", 
-                        permissionType: "client-resources", 
-                        permissionId: "ee2f3jkklö1f6-363e-4acb-8802-c6f933b73e8c"
-                    },
-                    { 
-                        permissionLevel: "creator", 
-                        permissionType: "unit-themes", 
-                        permissionId: "ee2f3fgjkj1f6-363e-4acb-8802-c6f933b73e8c"
-                    },
-                    { 
-                        permissionLevel: "creator", 
-                        permissionType: "client-themes", 
-                        permissionId: "ee2f3ghiiio1f6-363e-4acb-8802-c6f933b73e8c"
-                    }
-                ]});
-
-            $scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildAdvancedRoleManagementGrid('editRoleEditGroupRoleManagementTable', $scope.roleManagementTableOptions, access, permissions);
-			kommonitorMultiStepFormHelperService.registerClickHandler("roleEditGroupRightsMultistepForm");
+            kommonitorMultiStepFormHelperService.registerClickHandler("roleEditGroupRightsMultistepForm");
 		});
 
-		
+		$scope.onActiveDelegatedRolesOnlyChange = function() {
+            $scope.buildDelegatedRolesTable();
+        }
+
+        $scope.buildDelegatedRolesTable = function() {
+            // hide (non-)applicable groups
+            if($scope.activeDelegatedRolesOnly)
+                $scope.delegatedAccess = $scope.access.filter(elem => (elem.organizationalUnitId!=$scope.current.organizationalUnitId && $scope.delegatedRoleIDs.includes(elem.organizationalUnitId)));
+            else 
+                $scope.delegatedAccess = $scope.access.filter(elem => elem.organizationalUnitId!=$scope.current.organizationalUnitId);
+
+            $scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildAdvancedRoleManagementGrid('editRoleEditGroupRoleManagementTable', $scope.roleManagementTableOptions, $scope.delegatedAccess, $scope.delegatedPermissions);
+        }
 	
 		/* $scope.editRoleMetadata = function () {
 
