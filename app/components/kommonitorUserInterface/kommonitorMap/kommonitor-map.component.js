@@ -2414,18 +2414,62 @@ angular.module('kommonitorMap').component(
             kommonitorVisualStyleHelperService.numClasses = indicatorMetadataAndGeoJSON.defaultClassificationMapping.numClasses;
           }
 
-          let helpBreaks = [...$scope.defaultBrew.breaks]
+          let firstBreak;
+          let lastBreak;
+          if ($scope.defaultBrew.breaks) {
+            firstBreak = $scope.defaultBrew.breaks[0];
+            lastBreak = $scope.defaultBrew.breaks[$scope.defaultBrew.breaks.length-1];
+          }
+          else {
+            firstBreak = $scope.dynamicDecreaseBrew.breaks[0];
+            lastBreak = $scope.dynamicIncreaseBrew.breaks[$scope.dynamicIncreaseBrew.breaks.length-1];
+          }
 
           for (let item of indicatorMetadataAndGeoJSON.defaultClassificationMapping.items) {
             if(item.spatialUnitId == kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitId) {
               let regionalDefaultBreaks = [...item.breaks];
-              regionalDefaultBreaks.push(helpBreaks[helpBreaks.length-1]);
-              regionalDefaultBreaks.unshift(helpBreaks[0]);
-              regionalDefaultBreaks.sort(function(a, b) {
-                return a - b;
-              }); 
-              $scope.defaultBrew.breaks = regionalDefaultBreaks;
-              kommonitorVisualStyleHelperService.regionalDefaultBreaks = regionalDefaultBreaks;
+              if(firstBreak < regionalDefaultBreaks[0]){
+                regionalDefaultBreaks.unshift(firstBreak);
+              }
+              if(lastBreak > regionalDefaultBreaks[regionalDefaultBreaks.length-1]){
+                regionalDefaultBreaks.push(lastBreak);
+              }
+              if($scope.defaultBrew.breaks) {
+                let brew = kommonitorVisualStyleHelperService.setupManualBrew(
+                  indicatorMetadataAndGeoJSON.defaultClassificationMapping.numClasses, 
+                  indicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName, 
+                  regionalDefaultBreaks);
+                $scope.defaultBrew.breaks = regionalDefaultBreaks;
+                $scope.defaultBrew.colors = brew.colors;
+                kommonitorVisualStyleHelperService.regionalDefaultBreaks = regionalDefaultBreaks;
+              }
+              else {
+                let decreaseBreaks = regionalDefaultBreaks.filter(n => n < 0);
+                if ($scope.dynamicDecreaseBrew.breaks[$scope.dynamicDecreaseBrew.breaks.length-1] > decreaseBreaks[decreaseBreaks.length-1]) {
+                  decreaseBreaks.push($scope.dynamicDecreaseBrew.breaks[$scope.dynamicDecreaseBrew.breaks.length-1]);
+                }
+                let increaseBreaks = regionalDefaultBreaks.filter(n => n > 0);
+                if ($scope.dynamicIncreaseBrew.breaks[0] < increaseBreaks[0]) {
+                  increaseBreaks.unshift($scope.dynamicIncreaseBrew.breaks[0]);
+                }
+
+                console.log(indicatorMetadataAndGeoJSON);
+
+                let decreaseBrew = kommonitorVisualStyleHelperService.setupManualBrew(
+                  decreaseBreaks[0].length-1, 
+                  defaultColorBrewerPaletteForBalanceDecreasingValues, 
+                  decreaseBreaks);
+                let increaseBrew = kommonitorVisualStyleHelperService.setupManualBrew(
+                  increaseBreaks[0].length-1, 
+                  defaultColorBrewerPaletteForBalanceIncreasingValues, 
+                  increaseBreaks);
+
+                $scope.dynamicDecreaseBrew.breaks = decreaseBreaks;
+                $scope.dynamicIncreaseBrew.breaks = increaseBreaks;
+
+                $scope.dynamicDecreaseBrew.colors = decreaseBrew.colors;
+                $scope.dynamicIncreaseBrew.colors = increaseBrew.colors;
+              }
             }
           }
         }
@@ -2627,11 +2671,12 @@ angular.module('kommonitorMap').component(
               }
               else {
                 $scope.defaultBrew = kommonitorVisualStyleHelperService.setupDefaultBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, indicatorMetadataAndGeoJSON.defaultClassificationMapping.numClasses || 5, indicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName, kommonitorVisualStyleHelperService.classifyMethod);
-                if (kommonitorVisualStyleHelperService.classifyMethod == "regional_default") {
-                  $scope.applyRegionalDefaultClassification(indicatorMetadataAndGeoJSON);
-                }
-                kommonitorVisualStyleHelperService.manualBrew = $scope.defaultBrew;
               }
+              if (kommonitorVisualStyleHelperService.classifyMethod == "regional_default") {
+                $scope.applyRegionalDefaultClassification(indicatorMetadataAndGeoJSON);
+              }
+              kommonitorVisualStyleHelperService.manualBrew = $scope.defaultBrew;
+
               $scope.propertyName = INDICATOR_DATE_PREFIX + date;
 
               layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
@@ -2894,18 +2939,18 @@ angular.module('kommonitorMap').component(
                     kommonitorVisualStyleHelperService.numClasses, 
                     $scope.currentIndicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName, 
                     kommonitorVisualStyleHelperService.classifyMethod);
+                }
 
-                    if (kommonitorVisualStyleHelperService.classifyMethod == "regional_default") {
-                      $scope.applyRegionalDefaultClassification($scope.currentIndicatorMetadataAndGeoJSON);
-                    }
-                    else if(kommonitorVisualStyleHelperService.classifyMethod == 'manual') {
-                      $scope.manualBrew = kommonitorVisualStyleHelperService.setupManualBrew(
-                        kommonitorVisualStyleHelperService.numClasses, 
-                        $scope.currentIndicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName, 
-                        kommonitorVisualStyleHelperService.manualBrew.breaks);
-                      
-                      kommonitorVisualStyleHelperService.manualBrew = $scope.manualBrew;
-                    }
+                if (kommonitorVisualStyleHelperService.classifyMethod == "regional_default") {
+                  $scope.applyRegionalDefaultClassification($scope.currentIndicatorMetadataAndGeoJSON);
+                }
+                else if(kommonitorVisualStyleHelperService.classifyMethod == 'manual') {
+                  $scope.manualBrew = kommonitorVisualStyleHelperService.setupManualBrew(
+                    kommonitorVisualStyleHelperService.numClasses, 
+                    $scope.currentIndicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName, 
+                    kommonitorVisualStyleHelperService.manualBrew.breaks);
+                  
+                  kommonitorVisualStyleHelperService.manualBrew = $scope.manualBrew;
                 }
 
                 $scope.currentIndicatorLayer.eachLayer(function (layer) {
