@@ -1373,6 +1373,7 @@ angular
         this.updateAvailableRoles = function () {
             this.availableRoles = [];
             for (let elem of this.accessControl) {
+                elem.roles = []; // todo, replace with new role model or old data-management endpoints
                 for (let role of elem.roles) {
                     let available = { ...role, ...{ "organizationalUnit": elem, "roleName": elem.name + "-" + role.permissionLevel } };
                     this.availableRoles.push(available);

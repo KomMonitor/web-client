@@ -512,12 +512,9 @@ export class AppModule implements DoBootstrap {
       }).then(function (authenticated) {
         console.log(authenticated ? 'User is authenticated!' : 'User is not authenticated!');
         auth.keycloak = keycloakAdapter;
-        
-       /*  angular.module('kommonitorClient').factory('Auth', function () {
-            //hier
-            
+        angular.module('kommonitorClient').factory('Auth', function () {
           return auth;
-        }); */
+        });
         try {
           console.debug('Trying to bootstrap application.');
         }
