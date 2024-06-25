@@ -68,6 +68,7 @@ export class AppModule implements DoBootstrap {
 
     // init keycloak authentication
     await this.initKeycloak();
+    // error
 
     this.upgrade.bootstrap(document.documentElement, ['kommonitorClient']);
     // setUpLocationSync(this.upgrade);
@@ -113,12 +114,14 @@ export class AppModule implements DoBootstrap {
       console.log("local backup configs have been loaded in case config server is not reachable.");
 
       await self.ajaxCall_configServerFile();
+      // error
 
     }, async function () {
       // on fail
       console.log("all configs have been loaded - at least some from local backup values. See console log for details");
 
       await self.ajaxCall_configServerFile();
+      // error
     });
 
   };
@@ -509,9 +512,12 @@ export class AppModule implements DoBootstrap {
       }).then(function (authenticated) {
         console.log(authenticated ? 'User is authenticated!' : 'User is not authenticated!');
         auth.keycloak = keycloakAdapter;
-        angular.module('kommonitorClient').factory('Auth', function () {
+        
+       /*  angular.module('kommonitorClient').factory('Auth', function () {
+            //hier
+            
           return auth;
-        });
+        }); */
         try {
           console.debug('Trying to bootstrap application.');
         }
