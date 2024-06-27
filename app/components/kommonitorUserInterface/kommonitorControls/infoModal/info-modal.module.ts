@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+/* import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { InfoModalComponent } from './info-modal.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
@@ -12,4 +12,4 @@ exports:[InfoModalComponent]
 
 export class InfoModalModule{
 
-}
+} */

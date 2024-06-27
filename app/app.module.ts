@@ -1,4 +1,5 @@
-import { DoBootstrap, NgModule, Version } from '@angular/core';
+
+import { DoBootstrap, NgModule, Version, inject, Input, Inject } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { UpgradeModule } from '@angular/upgrade/static';
 import { downgradeComponent } from '@angular/upgrade/static';
@@ -15,6 +16,8 @@ import { VersionInfoComponent } from 'components/kommonitorUserInterface/kommoni
 // import { InfoModalModule } from 'components/kommonitorUserInterface/kommonitorControls/infoModal/info-modal.module';
 // import { VersionInfoModule } from 'components/kommonitorUserInterface/kommonitorControls/versionInfo/version-info.module';
 import { ajskommonitorCacheHelperServiceProvider,ajskommonitorBatchUpdateHelperServiceProvider,ajskommonitorConfigStorageServiceProvider,ajskommonitorDataExchangeServiceeProvider,ajskommonitorDataGridHelperServiceProvider,ajskommonitorDiagramHelperServiceProvider,ajskommonitorFilterHelperServiceProvider,ajskommonitorKeycloackHelperServiceProvider,ajskommonitorMultiStepFormHelperServiceProvider, ajskommonitorSingleFeatureMapServiceProvider } from 'app-upgraded-providers';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbdModalComponent } from 'components/Test/test-modal.component';
 
 
 // currently the AngularJS routing is still used as part of kommonitorClient module
@@ -27,7 +30,8 @@ declare var MathJax;
     BrowserModule,
     UpgradeModule,
     RouterModule.forRoot(routes , { useHash: true }),
-    VersionInfoComponent
+    VersionInfoComponent,
+    NgbdModalComponent
     // InfoModalModule,
     // VersionInfoModule
   ],
@@ -38,11 +42,10 @@ declare var MathJax;
     ajskommonitorMultiStepFormHelperServiceProvider,ajskommonitorDataExchangeServiceeProvider,
     ajskommonitorDataGridHelperServiceProvider,ajskommonitorSingleFeatureMapServiceProvider,
     ajskommonitorDiagramHelperServiceProvider,ajskommonitorFilterHelperServiceProvider,
+    NgbModule
   ],
- 
   declarations: [
-    InfoModalComponent,
-    
+    InfoModalComponent
   ]
 })
 
@@ -68,7 +71,6 @@ export class AppModule implements DoBootstrap {
 
     // init keycloak authentication
     await this.initKeycloak();
-    // error
 
     this.upgrade.bootstrap(document.documentElement, ['kommonitorClient']);
     // setUpLocationSync(this.upgrade);
@@ -82,11 +84,14 @@ export class AppModule implements DoBootstrap {
     //    --> this especially means all components, where the downgraded component is used within the HTML part as directive
     // 2. in order to prevent no module errors we must remove the old module reference within the .module file of the AngularJS modules/components 
     angular.module('kommonitorUserInterface')
-    .directive('infoModal',  downgradeComponent({ component: InfoModalComponent }) as angular.IDirectiveFactory);
+    .directive('ngbd-modal-component',  downgradeComponent({ component: NgbdModalComponent }) as angular.IDirectiveFactory);
 
     angular.module('kommonitorUserInterface')
-    .directive('versionInfo',  downgradeComponent({ component: VersionInfoComponent }) as angular.IDirectiveFactory);
+    .directive('infoModal',  downgradeComponent({ component: InfoModalComponent }) as angular.IDirectiveFactory);
 
+   /*  angular.module('kommonitorUserInterface')
+    .directive('versionInfo',  downgradeComponent({ component: VersionInfoComponent }) as angular.IDirectiveFactory);
+ */
     console.log("registered downgraded Angular components for AngularJS usage");
   }
 
