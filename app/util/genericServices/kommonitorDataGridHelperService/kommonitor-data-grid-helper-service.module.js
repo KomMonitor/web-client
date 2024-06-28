@@ -907,11 +907,11 @@ angular
           let modalId = document.getElementById(this.id).getAttribute("data-target");
           $(modalId).modal('show');
                  
-          let spatialUnitId = this.id.split("_")[3]; 
+          let georesourceId = this.id.split("_")[3]; 
 
-          let spatialUnitMetadata = kommonitorDataExchangeService.getGeoresourceMetadataById(spatialUnitId);
+          let georesourceMetadata = kommonitorDataExchangeService.getGeoresourceMetadataById(georesourceId);
 
-          $rootScope.$broadcast("onDeleteGeoresources", [spatialUnitMetadata]); //handler function takes an array
+          $rootScope.$broadcast("onDeleteGeoresources", [georesourceMetadata]); //handler function takes an array
         });
 
       };
