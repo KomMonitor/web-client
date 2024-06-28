@@ -335,7 +335,7 @@
     <label class="switch" title="0 als separate Klasse darstellen"><input id="controlIndicatorZeroClassifyOption" type="checkbox" value="useSeparateZeroClass" ng-model="$ctrl.kommonitorDataExchangeServiceInstance.classifyZeroSeparately" ng-checked="$ctrl.kommonitorDataExchangeServiceInstance.classifyZeroSeparately"><span class="switchslider round"></span></label>
   </div>
 
-  <div class="classificationBoxToogleSlidersWrapper" ng-if="containsOutliers_high || containsOutliers_low">
+  <div class="classificationBoxToogleSlidersWrapper" ng-if="(containsOutliers_high || containsOutliers_low) && $ctrl.kommonitorVisualStyleHelperServiceInstance.classifyMethod !== 'manual' && $ctrl.kommonitorVisualStyleHelperServiceInstance.classifyMethod !== 'regional_default'">
     <span class="classificationBoxToogleSlidersLbl"><strong>Ausrei&szlig;er gesondert markieren</strong> &nbsp;</span>
     <label class="switch" title="Ausrei&szlig;er gesondert markieren"><input id="controlIndicatorOutlierDetection" type="checkbox" value="useOutlierDetection" ng-model="$ctrl.kommonitorDataExchangeServiceInstance.useOutlierDetectionOnIndicator" ng-checked="$ctrl.kommonitorDataExchangeServiceInstance.useOutlierDetectionOnIndicator"><span class="switchslider round"></span></label>
   </div>

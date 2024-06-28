@@ -303,6 +303,18 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 				}
 			}
 			$scope.tabClasses[tabIndex] = cssClass;
+			$scope.updateDecreaseAndIncreaseBreaks(tabIndex);
+		}
+
+		$scope.updateDecreaseAndIncreaseBreaks = function(tabIndex) {
+			$scope.increaseBreaksLength = $scope.spatialUnitClassification[tabIndex].breaks.filter(val => val > 0).length;
+			$scope.decreaseBreaksLength = $scope.spatialUnitClassification[tabIndex].breaks.filter(val => val < 0).length;
+			if($scope.increaseBreaksLength < 3) {
+				$scope.increaseBreaksLength = 3;
+			}
+			if($scope.decreaseBreaksLength < 3) {
+				$scope.decreaseBreaksLength = 3;
+			}
 		}
 
 		$scope.refreshReferenceValuesManagementTable = function() {

@@ -954,16 +954,74 @@
 												<div class="col-md-6 col-sm-6 col-xs-12 boxedLegend">
 													<p><b>Legende</b></p>
 													<div class="row" style="margin-right: 0px;">
-														<div class="col-md-3"><b>Symbolik</b></div>
-														<div class="col-md-9"><b>Wertebereich</b></div>
+														<div class="col-md-2"><b>Symbolik</b></div>
+														<div class="col-md-5"><b>Wertebereich</b></div>
+														<div class="col-md-5"><b>Hinweis</b></div>
 													</div>
 													<div class="row" 
 														style="margin-right: 0px;" 
 														ng-repeat="color in selectedColorBrewerPaletteEntry.paletteArrayObject[numClassesPerSpatialUnit.toString()]">
-														<div class="col-md-3 "><i style="background:{{color}};"></i> </div>
-														<div class="col-md-9 " ng-if="$index == 0" >Niedrigster Wert &dash; &lt; {{spatialUnitClassification[i].breaks[$index] || "[bitte eingeben]"}}</div>
-														<div class="col-md-9 " ng-if="$index != 0 && $index != spatialUnitClassification[i].breaks.length" >{{spatialUnitClassification[i].breaks[$index - 1] || "[bitte eingeben]"}} &dash; &lt; {{spatialUnitClassification[i].breaks[$index] || "[bitte eingeben]"}}</div>
-														<div class="col-md-9 " ng-if="$index == spatialUnitClassification[i].breaks.length" >{{spatialUnitClassification[i].breaks[$index-1] || "[bitte eingeben]"}} &dash; &lt; Höchster Wert</div>
+														
+														<!-- non-zero breaks -->
+														<div ng-if="spatialUnitClassification[i].breaks[$index] != 0 && spatialUnitClassification[i].breaks[$index-1] != 0 && !(spatialUnitClassification[i].breaks[$index-1] < 0 && spatialUnitClassification[i].breaks[$index] > 0)">
+															<div class="col-md-2 " >
+																<i ng-if="spatialUnitClassification[i].breaks[0] >= 0" style="background:{{color}};"></i>
+																<i ng-if="spatialUnitClassification[i].breaks[0] < 0 && spatialUnitClassification[i].breaks[$index] < 0" style="background:{{colorbrewerSchemes[colorbreweSchemeName_dynamicDecrease][decreaseBreaksLength+1][decreaseBreaksLength-$index-1]}};"></i>
+																<i ng-if="spatialUnitClassification[i].breaks[0] < 0 && spatialUnitClassification[i].breaks[$index] > 0" style="background:{{colorbrewerSchemes[colorbreweSchemeName_dynamicIncrease][increaseBreaksLength+1][increaseBreaksLength-(spatialUnitClassification[i].breaks.length - $index)-1]}};"></i>
+																<i ng-if="spatialUnitClassification[i].breaks[0] < 0 && $index == spatialUnitClassification[i].breaks.length" style="background:{{colorbrewerSchemes[colorbreweSchemeName_dynamicIncrease][increaseBreaksLength+1][increaseBreaksLength-(spatialUnitClassification[i].breaks.length - $index)-1]}};"></i>
+															</div>
+															
+															<!-- lowest class -->
+															<div class="col-md-5 " ng-if="$index == 0" >
+																Niedrigster Wert 
+																&dash; &lt; 
+																<span ng-if="spatialUnitClassification[i].breaks[$index] !== null">{{spatialUnitClassification[i].breaks[$index]}}</span>
+																<span ng-if="spatialUnitClassification[i].breaks[$index] === null">[bitte eingeben]</span>
+															</div>
+															<div style="color: #737373" ng-if="$index == 0 && spatialUnitClassification[i].breaks[$index] !== null" class="col-md-5 ">
+																Klasse wird bei Werten unter {{spatialUnitClassification[i].breaks[$index]}} hinzugefügt
+															</div>
+														
+															<!-- classes in between -->
+															<div class="col-md-10 " ng-if="$index != 0 && $index != spatialUnitClassification[i].breaks.length" >
+																<span ng-if="spatialUnitClassification[i].breaks[$index-1] !== null">{{spatialUnitClassification[i].breaks[$index-1]}}</span>
+																<span ng-if="spatialUnitClassification[i].breaks[$index-1] === null">[bitte eingeben]</span> 
+																&dash; &lt; 
+																<span ng-if="spatialUnitClassification[i].breaks[$index] !== null">{{spatialUnitClassification[i].breaks[$index]}}</span>
+																<span ng-if="spatialUnitClassification[i].breaks[$index] === null">[bitte eingeben]</span>
+															</div>
+
+															<!-- highest class -->
+															<div class="col-md-5 " ng-if="$index == spatialUnitClassification[i].breaks.length" >
+																<span ng-if="spatialUnitClassification[i].breaks[$index-1] !== null">{{spatialUnitClassification[i].breaks[$index-1]}}</span>
+																<span ng-if="spatialUnitClassification[i].breaks[$index-1] === null">[bitte eingeben]</span>  
+																&dash; &lt; 
+																Höchster Wert
+															</div>
+															<div style="color: #737373" ng-if="$index == spatialUnitClassification[i].breaks.length && spatialUnitClassification[i].breaks[$index-1] !== null" class="col-md-5 ">
+																Klasse wird bei Werten über {{spatialUnitClassification[i].breaks[$index-1]}} hinzugefügt
+															</div>
+														</div>
+
+														<!-- zero -->
+														<div ng-if="spatialUnitClassification[i].breaks[$index] == 0 || (spatialUnitClassification[i].breaks[$index-1] < 0 && spatialUnitClassification[i].breaks[$index] > 0)">
+															<br>
+															<div class="col-md-2 " ><i style="background:#bababa; opacity: 0.7;"></i> </div>
+															<div class="col-md-5 ">
+																0
+															</div>
+															<div style="color: #737373" class="col-md-5 ">
+																<div ng-if="spatialUnitClassification[i].breaks[$index] == 0">
+																	Bei sonstigen Werten zwischen {{spatialUnitClassification[i].breaks[$index-1] || 0 }}
+																	und {{spatialUnitClassification[i].breaks[$index+1] || 0 }} werden weitere Klassen hinzugefügt
+																</div>
+																<div ng-if="spatialUnitClassification[i].breaks[$index] !== 0">
+																	Bei sonstigen Werten zwischen {{spatialUnitClassification[i].breaks[$index-1] || 0 }}
+																	und {{spatialUnitClassification[i].breaks[$index] || 0 }} werden weitere Klassen hinzugefügt
+																</div>
+															</div>
+															<br><br>
+														</div>
 													</div>
 												</div>
 											</div>

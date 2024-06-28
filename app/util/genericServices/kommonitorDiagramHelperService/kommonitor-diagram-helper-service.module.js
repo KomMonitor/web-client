@@ -486,10 +486,12 @@ angular
 
         if (indicatorMetadataForTimeseries.regionalReferenceValues){
           for (const regionalReferenceValuesEntry of indicatorMetadataForTimeseries.regionalReferenceValues) {
-            if (regionalReferenceValuesEntry.referenceDate && regionalReferenceValuesEntry.referenceDate == date){              
-              meanLineValue = regionalReferenceValuesEntry.regionalAverage;
-              // meanLineValue = parseFloat(kommonitorDataExchangeService.allFeaturesRegionalMean.replace(/\./g, '').replace(/,/g, '.')); 
-              meanLineLabel = "gesamtregionaler Durchschnitt";
+            if (regionalReferenceValuesEntry.referenceDate && regionalReferenceValuesEntry.referenceDate == date){    
+              if(regionalReferenceValuesEntry.regionalAverage && (typeof regionalReferenceValuesEntry.regionalAverage == 'number')){
+                meanLineValue = regionalReferenceValuesEntry.regionalAverage;
+                // meanLineValue = parseFloat(kommonitorDataExchangeService.allFeaturesRegionalMean.replace(/\./g, '').replace(/,/g, '.')); 
+                meanLineLabel = "gesamtregionaler Durchschnitt";
+              }                       
             }
           }
         }

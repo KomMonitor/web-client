@@ -163,6 +163,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 		// make sure that initial fetching of availableRoles has happened
 		$scope.$on("initialMetadataLoadingCompleted", function (event) {
 			refreshRoles();
+			$scope.onNumClassesChanged($scope.numClassesPerSpatialUnit);
 		});
 
 		function refreshRoles() {
@@ -294,6 +295,18 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 				}
 			}
 			$scope.tabClasses[tabIndex] = cssClass;
+			$scope.updateDecreaseAndIncreaseBreaks(tabIndex);
+		}
+
+		$scope.updateDecreaseAndIncreaseBreaks = function(tabIndex) {
+			$scope.increaseBreaksLength = $scope.spatialUnitClassification[tabIndex].breaks.filter(val => val > 0).length;
+			$scope.decreaseBreaksLength = $scope.spatialUnitClassification[tabIndex].breaks.filter(val => val < 0).length;
+			if($scope.increaseBreaksLength < 3) {
+				$scope.increaseBreaksLength = 3;
+			}
+			if($scope.decreaseBreaksLength < 3) {
+				$scope.decreaseBreaksLength = 3;
+			}
 		}
 
 		$scope.resetIndicatorAddForm = function(){
@@ -357,6 +370,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 
 			$scope.numClassesArray = [3,4,5,6,7,8];
 			$scope.numClassesPerSpatialUnit = $scope.numClassesArray[2];;
+			$scope.onNumClassesChanged($scope.numClassesPerSpatialUnit);
 			$scope.classificationMethod = __env.defaultClassifyMethod || "jenks";
 			$scope.selectedColorBrewerPaletteEntry = $scope.colorbrewerPalettes[13];
 			$scope.spatialUnitClassification = [];

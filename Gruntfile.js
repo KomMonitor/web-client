@@ -409,7 +409,35 @@ module.exports = function (grunt) {
                     }
                 ]
             }
+        },
+        // 'modules-graph': {
+        //     options: {
+        //         externalDependenciesColor:'red'
+        //     },
+        //     files: {
+        //         './dependency-graph.dot': ['app/app.js', 'app/util/**/*.js', 'app/components/**/*.js'],
+        //     },
+        // },
+        // graphviz: {
+        //     dependencies: {
+        //       files: {
+        //         'dependencies-graph.png': 'dependencies-graph.dot'
+        //       }
+        //     },
+        //   },
+        angular_architecture_graph: {
+            diagram: {
+                files: {
+                    "./dependencyGraph_adminApp": ['app/components/kommonitorAdmin/**/*.js'],  // admin app
+                    "./dependencyGraph_mapApp": ['app/components/kommonitorUserInterface/**/*.js'],   //  map app
+                    "./dependencyGraph_komMonitorMapComponent": ['app/components/kommonitorUserInterface/kommonitorMap/**/*.js']   //  map app
+                    // "architecture": [
+                    //     "<%= projectConfig.app %>/<%= projectConfig.project %>/**/*.js"
+                    // ]
+                }
+            }
         }
+        
     });
 
     // grunt.loadNpmTasks('grunt-contrib-uglify');
@@ -425,7 +453,13 @@ module.exports = function (grunt) {
 	grunt.loadNpmTasks('grunt-exec');
     grunt.loadNpmTasks('grunt-war');
     grunt.loadNpmTasks('grunt-babel');
+    grunt.loadNpmTasks('grunt-angular-modules-graph');
+    grunt.loadNpmTasks('grunt-graphviz');
 
+    grunt.loadNpmTasks('grunt-angular-architecture-graph');
+
+    // grunt.registerTask('generateDependenciesGraph', ['modules-graph', 'graphviz']);
+    grunt.registerTask('generateDependenciesGraph', ['angular_architecture_graph']);
     grunt.registerTask('test', ['jshint']);
     // grunt.registerTask('copy-all', ['copy:locals', 'copy:css', 'copy:fonts']);
     // grunt.registerTask('copy-css', ['copy:css']);

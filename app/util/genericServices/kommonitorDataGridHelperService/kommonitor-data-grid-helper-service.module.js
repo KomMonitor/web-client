@@ -907,11 +907,11 @@ angular
           let modalId = document.getElementById(this.id).getAttribute("data-target");
           $(modalId).modal('show');
                  
-          let spatialUnitId = this.id.split("_")[3]; 
+          let georesourceId = this.id.split("_")[3]; 
 
-          let spatialUnitMetadata = kommonitorDataExchangeService.getGeoresourceMetadataById(spatialUnitId);
+          let georesourceMetadata = kommonitorDataExchangeService.getGeoresourceMetadataById(georesourceId);
 
-          $rootScope.$broadcast("onDeleteGeoresources", [spatialUnitMetadata]); //handler function takes an array
+          $rootScope.$broadcast("onDeleteGeoresources", [georesourceMetadata]); //handler function takes an array
         });
 
       };
@@ -1786,7 +1786,16 @@ angular
                   // then build JSON and send modification request to data Management component
                   let json = JSON.parse(JSON.stringify(newValueParams.data));
 
-                  // now delete information - only ID and fid shall remain for indicator record update
+                  // now delete information - only ID, fid as datatabel recordId and all timestamp attributes starting with prefix 'DATE_' shall remain for indicator record update
+                  //
+                  let allowedProperties = [__env.FEATURE_ID_PROPERTY_NAME, 'fid'];
+                  for (const key in json) {
+                    if (Object.hasOwnProperty.call(json, key)) {
+                      if(! key.includes(__env.indicatorDatePrefix) && !allowedProperties.includes(key)){
+                        delete json[key];
+                      }                      
+                    }
+                  }
                   delete json[__env.VALID_START_DATE_PROPERTY_NAME];
                   delete json[__env.VALID_END_DATE_PROPERTY_NAME];
                   delete json[__env.FEATURE_NAME_PROPERTY_NAME]; 
