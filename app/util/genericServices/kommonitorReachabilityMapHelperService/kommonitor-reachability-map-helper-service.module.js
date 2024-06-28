@@ -893,7 +893,7 @@ angular
             html += "<h4><i>" + indicatorFeature.properties[__env.FEATURE_NAME_PROPERTY_NAME] + "</i></h4>";
             // we can directly query the first element of coverage array as we only query one indicator timestamp at a time
             html += "<i>" + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(spatialUnitCoverageEntry.coverage[0].absoluteCoverage) + " von "
-              + indicatorFeature.properties[__env.indicatorDatePrefix + indicatorStatisticsCandidate.timestamp]
+              + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(indicatorFeature.properties[__env.indicatorDatePrefix + indicatorStatisticsCandidate.timestamp])
               + " [" + indicatorStatisticsCandidate.indicator.unit + "]</i>";
             html += "<br/>";
             html += "entspricht <i>" + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(spatialUnitCoverageEntry.coverage[0].relativeCoverage * 100) + " [%]</i><br/><br/>";
