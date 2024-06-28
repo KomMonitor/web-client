@@ -950,11 +950,24 @@ pre.CodeMirror-line {
   position: absolute;
 }
 
-#filterStatusButton{
+#statusButtonContainer {
 	position: absolute;
 	left: 280px;
 	top: 10px;
 	z-index: 3;
+	display: flex;
+	flex-direction: row;
+	gap: 10px;
+}
+
+.btn-purple {
+	background-color: rgb(117,107,177);
+	border-color: rgb(98, 89, 148);
+	color: white !important;
+}
+
+.btn-purple:hover,.btn-purple:active,.btn-purple.hover {
+	background-color: rgb(98, 89, 148);
 }
 
 #sideBarButtons{

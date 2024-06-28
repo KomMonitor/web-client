@@ -273,6 +273,11 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 
 		}
 
+		$scope.openBalanceSidebar = function(){
+			$scope.sidebarBalanceClass = "disappear";
+			$scope.onSidebarBalanceButtonClick();
+		}
+
 		$scope.onSidebarBalanceButtonClick = function(){
 
 			// check if button is marked as disabled
@@ -457,6 +462,10 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 
 		$scope.onSpatialFilterCloseButtonClick = function() {
 			$rootScope.$broadcast("removeAllSpatialFilters");
+		}
+
+		$scope.onBalanceCloseButtonClick = function() {
+			$rootScope.$broadcast("disableBalance");
 		}
 
 		$scope.$on("startGuidedTour", function(event){

@@ -243,12 +243,22 @@
 					</button>
 				</div>
 
-				<div id="filterStatusButton">
-					<span ng-if="$ctrl.kommonitorDataExchangeServiceInstance.spatialFilterIsApplied" 
-								id="filterNoticeButton" class="btn btn-warning btn-xs" title="Filter aktiviert">
-						<span ng-click="openFilterSidebar()">Räuml. Filter aktiviert </span>
-						<i class="fas fa-close" ng-click="onSpatialFilterCloseButtonClick()" title="Filter entfernen"></i>
-					</span>
+				<div id="statusButtonContainer">
+					<div id="filterStatusButton">
+						<span ng-if="$ctrl.kommonitorDataExchangeServiceInstance.spatialFilterIsApplied" 
+									id="filterNoticeButton" class="btn btn-warning btn-xs" title="Filter aktiviert">
+							<span ng-click="openFilterSidebar()">Räuml. Filter aktiviert </span>
+							<i class="fas fa-close" ng-click="onSpatialFilterCloseButtonClick()" title="Filter entfernen"></i>
+						</span>
+					</div>
+	
+					<div id="balanceStatusButton">
+						<span ng-if="$ctrl.kommonitorDataExchangeServiceInstance.isBalanceChecked" 
+									id="balanceNoticeButton" class="btn btn-purple btn-xs" title="Bilanzierung aktiviert">
+							<span ng-click="openBalanceSidebar()">Bilanzierung aktiviert </span>
+							<i class="fas fa-close" ng-click="onBalanceCloseButtonClick()" title="Bilanzierung entfernen"></i>
+						</span>
+					</div>
 				</div>
 
 				<!-- Info and legend Control buttons -->				

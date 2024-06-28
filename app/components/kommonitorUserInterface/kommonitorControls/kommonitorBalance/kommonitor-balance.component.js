@@ -49,6 +49,11 @@ angular
 							}
 						});
 
+						$scope.$on("disableBalance", function (event) {
+							kommonitorDataExchangeService.isBalanceChecked = false;
+							$scope.onChangeUseBalance();
+						});
+
 						$scope.onChangeUseBalance = function(){
 
 							if(kommonitorDataExchangeService.isMeasureOfValueChecked){
