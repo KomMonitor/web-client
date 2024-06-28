@@ -21,6 +21,8 @@ angular
 
 						$scope.containsZeroValues = false;
 						$scope.containsNegativeValues = false;
+						$scope.containsOutliers_high = false;
+						$scope.containsOutliers_low = false;
 
 						$scope.hiddenMethodIds = [];
 
@@ -88,6 +90,8 @@ angular
 						$rootScope.$on("updateClassificationComponent", function(event, containsZeroValues, containsNegativeValues, containsNoData, containsOutliers_high, containsOutliers_low, outliers_low, outliers_high, selectedDate) {
 							$scope.containsZeroValues = containsZeroValues;
 							$scope.containsNegativeValues = containsNegativeValues;
+							$scope.containsOutliers_high = containsOutliers_high;
+							$scope.containsOutliers_low = containsOutliers_low;
 						});
 
 						$rootScope.$on("updateShowRegionalDefaultOption", function(event, show) {
