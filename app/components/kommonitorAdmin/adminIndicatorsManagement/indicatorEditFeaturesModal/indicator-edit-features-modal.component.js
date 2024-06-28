@@ -142,7 +142,9 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 				if($scope.currentIndicatorDataset){
 					$scope.currentIndicatorDataset = kommonitorDataExchangeService.getIndicatorMetadataById($scope.currentIndicatorDataset.indicatorId);
 
-					$scope.$digest();
+					$timeout(function(){
+						$scope.$digest();
+					}, 250);					
 				}
 				
 			});
