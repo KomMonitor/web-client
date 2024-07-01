@@ -84,6 +84,7 @@
     "admin-lte": "^2.4.15",
     "ag-grid-community": "^26.2.1",
     "angular": "1.5",
+    "angular-animations": "^0.11.0",
     "angular-legacy-sortablejs-maintained": "^0.6.2",
     "angular-resource": "1.5",
     "angular-route": "1.5",

@@ -18,7 +18,6 @@ import { VersionInfoComponent } from 'components/kommonitorUserInterface/kommoni
 import { ajskommonitorCacheHelperServiceProvider,ajskommonitorBatchUpdateHelperServiceProvider,ajskommonitorConfigStorageServiceProvider,ajskommonitorDataExchangeServiceeProvider,ajskommonitorDataGridHelperServiceProvider,ajskommonitorDiagramHelperServiceProvider,ajskommonitorFilterHelperServiceProvider,ajskommonitorKeycloackHelperServiceProvider,ajskommonitorMultiStepFormHelperServiceProvider, ajskommonitorSingleFeatureMapServiceProvider } from 'app-upgraded-providers';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgbdModalComponent } from 'components/Test/test-modal.component';
-import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 
 
 // currently the AngularJS routing is still used as part of kommonitorClient module

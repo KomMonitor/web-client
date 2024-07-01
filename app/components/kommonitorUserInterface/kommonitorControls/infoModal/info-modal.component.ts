@@ -62,7 +62,7 @@ export class InfoModalComponent implements OnInit {
 
   ngOnInit(): void {
     console.log("wdfgj")
-    this.modalService.open(NgbdModalContent); 
+    this.modalService.open(NgbdModalContent, {windowClass: 'modal-holder', centered: true}); 
 	//prevent bootrap modals tabs opened by a tag with href elements from adding their anchor location to 
     // URL
 	$("a[href^='#']").click(function(e) {

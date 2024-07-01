@@ -2917,3 +2917,12 @@ input:checked + .switchslider:before {
 	from {bottom: 60vh; opacity: 1;}
 	to {bottom: 0; opacity: 0;}
   }
+
+    /* override bootstrap modal as animations do not work properly */
+    .modal-holder.fade.show {
+        opacity: 1 !important;
+    }
+
+    .modal {
+        z-index: 1150 !important;
+    }
