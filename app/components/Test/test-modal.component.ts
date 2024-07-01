@@ -25,7 +25,6 @@ export class NgbdModalContent {
 
 @Component({
 	selector: 'ngbd-modal-component',
-    standalone: true,
 	templateUrl: './test-modal.component.html',
 })
 export class NgbdModalComponent {
