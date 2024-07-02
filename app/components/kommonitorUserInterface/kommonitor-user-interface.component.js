@@ -9,6 +9,9 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
             this.kommonitorElementVisibilityHelperServiceInstance = kommonitorElementVisibilityHelperService;
             kommonitorDataExchangeService.anySideBarIsShown = false;
             kommonitorDataExchangeService.currentKeycloakUser;
+
+            $scope.hero = false;
+
             $scope.password;
             $scope.showAdminLogin = false;
             $scope.init = async function () {
@@ -45,6 +48,8 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
             $scope.buttonPoiClass = "btn btn-custom btn-circle";
             $scope.buttonDataImportClass = "btn btn-custom btn-circle";
             $scope.buttonLegendClass = "btn btn-custom-docked-right btn-docked-right";
+
+            
             function sleep(ms) {
                 return new Promise(resolve => setTimeout(resolve, ms));
             }
@@ -101,6 +106,14 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
             $scope.openAdminUI = function () {
                 $location.path('/administration');
             };
+
+            $scope.openInfoModal = function() {
+                console.log("wefrgh");
+                
+                $scope.hero = true;
+            }
+
+
             $scope.undockButtons = function () {
                 $scope.buttonIndicatorConfigClass = "btn btn-custom btn-circle";
                 $scope.buttonDiagramsClass = "btn btn-custom btn-circle";

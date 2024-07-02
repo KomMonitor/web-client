@@ -1,15 +1,11 @@
-
 import { DomSanitizer, SafeHtml } from "@angular/platform-browser";
-import { Component, Inject, Input, OnInit, inject } from '@angular/core';
+import { Component, Input, OnChanges, OnInit, Renderer2, SimpleChanges, inject } from '@angular/core';
 import { NgbActiveModal, NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import { Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
-@Component({
-	selector: 'ngbd-modal-content',
-	standalone: true,
-	template: `
-		<div class="modal-header">
+
+/* <div class="modal-header">
 			<h4 class="modal-title">Hi there!</h4>
 			<button type="button" class="btn-close" aria-label="Close" (click)="activeModal.dismiss('Cross click')"></button>
 		</div>
@@ -18,24 +14,31 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 		</div>
 		<div class="modal-footer">
 			<button type="button" class="btn btn-outline-secondary" (click)="activeModal.close('Close click')">Close</button>
-		</div>
-	`,
+		</div>  */
+
+@Component({
+	selector: 'ngbd-modal-content',
+	standalone: true,
+	templateUrl: 'info-modal.component.html',
 })
 export class NgbdModalContent {
 	activeModal = inject(NgbActiveModal);
 
-	@Input() name!: string;
+    @Input() hero!: any;
+    @Input() customGreetingsContact_name!: string;
+    @Input() customGreetingsContact_organisation!: string;
+    @Input() customGreetingsContact_mail!: string;
+    @Input() customGreetingsTextInfoMessage!: string;
 }
-
-
 
 @Component({
   selector: 'infoModal',
   templateUrl: 'info-modal.template.html',
-  styleUrls: ['info-modal.component.css'],
-  providers: [NgbModal]
+  styleUrls: ['info-modal.component.css']
 })
-export class InfoModalComponent implements OnInit {
+export class InfoModalComponent implements OnInit, OnChanges {
+    
+  @Input() hero!: any;
 
   isHideGreetings: boolean = false;
  
@@ -46,7 +49,11 @@ export class InfoModalComponent implements OnInit {
     sanitizer: any;
 
 
-  constructor(private modalService: NgbModal, private router: Router) {
+  constructor(
+    private modalService: NgbModal, 
+    private router: Router,
+    private renderer:Renderer2
+) {
     // this.customGreetingsContact_name = this.sanitizer.bypassSecurityTrustHtml(''); 
     // this.customGreetingsContact_organisation = this.sanitizer.bypassSecurityTrustHtml(''); 
     // this.customGreetingsContact_mail = ''; 
@@ -57,17 +64,38 @@ export class InfoModalComponent implements OnInit {
     this.customGreetingsContact_mail = "Test"; 
     this.customGreetingsTextInfoMessage = "Test";
 
-  
   }
 
+  ngOnChanges(changes: SimpleChanges) {
+        
+        if(this.hero) {
+                    
+            const modalRef = this.modalService.open(NgbdModalContent, {windowClass: 'modal-holder', centered: true}); 
+            modalRef.componentInstance.customGreetingsContact_name = this.customGreetingsContact_name;
+            modalRef.componentInstance.customGreetingsContact_organisation = this.customGreetingsContact_organisation;
+            modalRef.componentInstance.customGreetingsContact_mail = this.customGreetingsContact_mail;
+            modalRef.componentInstance.customGreetingsTextInfoMessage = this.customGreetingsTextInfoMessage;
+            console.log("Try to open infoModal");
+
+            this.hero = false;
+        }
+    
+    }   
+
   ngOnInit(): void {
-    console.log("wdfgj")
-    this.modalService.open(NgbdModalContent, {windowClass: 'modal-holder', centered: true}); 
+
+    const modalRef = this.modalService.open(NgbdModalContent, {windowClass: 'modal-holder', centered: true}); 
+    modalRef.componentInstance.customGreetingsContact_name = this.customGreetingsContact_name;
+    modalRef.componentInstance.customGreetingsContact_organisation = this.customGreetingsContact_organisation;
+    modalRef.componentInstance.customGreetingsContact_mail = this.customGreetingsContact_mail;
+    modalRef.componentInstance.customGreetingsTextInfoMessage = this.customGreetingsTextInfoMessage;
+
 	//prevent bootrap modals tabs opened by a tag with href elements from adding their anchor location to 
     // URL
-	$("a[href^='#']").click(function(e) {
-		e.preventDefault();		
-	});  
+	/* $("a[href^='#']").click(function(e) {
+        console.log("wgh")
+		//e.preventDefault();		
+	});   */
 
     if (!(localStorage.getItem('hideKomMonitorAppGreeting') === 'true')) {
       this.isHideGreetings = false;
@@ -77,7 +105,17 @@ export class InfoModalComponent implements OnInit {
       this.isHideGreetings = true;
     }
 
+    this.renderer.listen('document','testIt',event => {
+        console.log("hidfdfdfd");
+    });
+
   }
+
+  testMe() {
+    console.log("wprks");
+  }
+
+
   dismissModal() {
     this.modalService.dismissAll();
   }
@@ -99,31 +137,3 @@ export class InfoModalComponent implements OnInit {
     this.router.navigate(['/feedback']);
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-function dismissModal() {
-    throw new Error("Function not implemented.");
-}
-
