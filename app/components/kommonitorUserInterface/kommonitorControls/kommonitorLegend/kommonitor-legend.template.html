@@ -259,11 +259,11 @@
 								<br/>
 								<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesRegionalMean">
 									<b>{{$ctrl.kommonitorDataExchangeServiceInstance.labelMean_regional}}</b>
-									{{$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesRegionalMean}}
+									{{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText($ctrl.kommonitorDataExchangeServiceInstance.allFeaturesRegionalMean)}}
 								</div>
 								<div ng-if="! $ctrl.kommonitorDataExchangeServiceInstance.allFeaturesRegionalMean">
 									<b>{{$ctrl.kommonitorDataExchangeServiceInstance.labelMean}}</b>
-									{{$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesMean}}
+									{{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText($ctrl.kommonitorDataExchangeServiceInstance.allFeaturesMean)}}
 								</div>
 							</div>
 							<div id="kommonitorIndicatorClassification">
@@ -543,36 +543,36 @@
 						</tr>
 						<tr ng-if="! $ctrl.kommonitorDataExchangeServiceInstance.allFeaturesRegionalSum">
 							<td>{{$ctrl.kommonitorDataExchangeServiceInstance.labelSum}}</td>
-							<td>{{$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesSum}}</td>
+							<td>{{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText($ctrl.kommonitorDataExchangeServiceInstance.allFeaturesSum)}}</td>
 							<td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedFeaturesSum}}</td>
 						</tr>
 						<tr ng-if="$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesRegionalSum">
 							<td>{{$ctrl.kommonitorDataExchangeServiceInstance.labelSum_regional}}</td>
-							<td>{{$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesRegionalSum}}</td>
-							<td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedFeaturesSum}}</td>
+							<td>{{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText($ctrl.kommonitorDataExchangeServiceInstance.allFeaturesRegionalSum)}}</td>
+							<td>{{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText($ctrl.kommonitorDataExchangeServiceInstance.selectedFeaturesSum)}}</td>
 						</tr>
 						
 						
 						   <tr>
 							   <td>{{$ctrl.kommonitorDataExchangeServiceInstance.labelMean}}</td>
-							   <td>{{$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesMean}}</td>
+							   <td>{{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText($ctrl.kommonitorDataExchangeServiceInstance.allFeaturesMean)}}</td>
 								<td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedFeaturesMean}}</td>
 						   </tr>
 						   <tr ng-if="$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesRegionalMean">
 								<td>{{$ctrl.kommonitorDataExchangeServiceInstance.labelMean_regional}}</td>
-								<td>{{$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesRegionalMean}}</td>
-								<td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedFeaturesMean}}</td>
+								<td>{{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText($ctrl.kommonitorDataExchangeServiceInstance.allFeaturesRegionalMean)}}</td>
+								<td>{{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText($ctrl.kommonitorDataExchangeServiceInstance.selectedFeaturesMean)}}</td>
 							</tr>
 						   
 						   <tr>
 							   <td>{{$ctrl.kommonitorDataExchangeServiceInstance.labelMin}}</td>
-							   <td>{{$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesMin}}</td>
-							<td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedFeaturesMin}}</td>
+							   <td>{{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText($ctrl.kommonitorDataExchangeServiceInstance.allFeaturesMin)}}</td>
+							<td>{{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText($ctrl.kommonitorDataExchangeServiceInstance.selectedFeaturesMin)}}</td>
 						   </tr>
 						<tr>
 							<td>{{$ctrl.kommonitorDataExchangeServiceInstance.labelMax}}</td>
-							   <td>{{$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesMax}}</td>
-							<td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedFeaturesMax}}</td>
+							   <td>{{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText($ctrl.kommonitorDataExchangeServiceInstance.allFeaturesMax)}}</td>
+							<td>{{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText($ctrl.kommonitorDataExchangeServiceInstance.selectedFeaturesMax)}}</td>
 						</tr>
 
 						<tr>

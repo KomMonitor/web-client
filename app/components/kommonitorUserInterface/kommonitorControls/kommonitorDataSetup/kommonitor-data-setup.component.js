@@ -532,7 +532,7 @@ angular
 
 										$scope.modifyExports(false);
 
-										if(document.getElementById('controlNoDataDisplay').checked)
+										if(kommonitorDataExchangeService.useNoDataToggle)
 											$rootScope.$broadcast('applyNoDataDisplay')
 
 										$scope.loadingData = false;
@@ -642,7 +642,7 @@ angular
 
 										$scope.modifyExports(false);
 
-										if(document.getElementById('controlNoDataDisplay').checked)
+										if(kommonitorDataExchangeService.useNoDataToggle)
 											$rootScope.$broadcast('applyNoDataDisplay')	
 
 										$scope.loadingData = false;
@@ -673,7 +673,7 @@ angular
 
 										$scope.modifyExports(false);
 
-										if(document.getElementById('controlNoDataDisplay').checked)
+										if(kommonitorDataExchangeService.useNoDataToggle)
 											$rootScope.$broadcast('applyNoDataDisplay');
 
 										$scope.loadingData = false;
@@ -732,7 +732,7 @@ angular
 										$rootScope.$broadcast("DisableBalance");
 										$scope.modifyExports(true);
 
-										if(document.getElementById('controlNoDataDisplay').checked)
+										if(kommonitorDataExchangeService.useNoDataToggle)
 											$rootScope.$broadcast('applyNoDataDisplay');
 
 										$scope.loadingData = false;
