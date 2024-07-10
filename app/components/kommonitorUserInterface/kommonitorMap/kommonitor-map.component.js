@@ -3082,7 +3082,7 @@ angular.module('kommonitorMap').component(
             breaks = [...decreaseBreaks, ...increaseBreaks]
           }
           else {
-            breaks = kommonitorVisualStyleHelperService.manualBrew.breaks;
+            breaks = kommonitorVisualStyleHelperService.manualBrew ? kommonitorVisualStyleHelperService.manualBrew.breaks : [];
           }
           breaks.forEach((br) => {
             if (br < kommonitorDataExchangeService.measureOfValue) {
