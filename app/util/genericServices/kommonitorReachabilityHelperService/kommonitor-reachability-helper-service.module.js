@@ -411,16 +411,16 @@ angular
 				// create Buffers for each input and range definition
 				if (self.settings.startPointsSource === "manual") {
 					// establish from drawn points
-					startingPoints_geoJSON = self.settings.manualStartPoints;
+					startingPoints_geoJSON = jQuery.extend(true, {}, self.settings.manualStartPoints);
 				}
 				else {
 					// establish from chosen layer
-					startingPoints_geoJSON = self.settings.selectedStartPointLayer.geoJSON_reachability;
+					startingPoints_geoJSON = jQuery.extend(true, {}, self.settings.selectedStartPointLayer.geoJSON_reachability);
 				}
 
 				// range in meters
 				for (const range of this.settings.rangeArray) {
-					var geoJSON_buffered = turf.buffer(startingPoints_geoJSON, Number(range) / 1000, { units: 'kilometers', steps: 12 });
+					var geoJSON_buffered = turf.buffer(jQuery.extend(true, {}, startingPoints_geoJSON), Number(range) / 1000, { units: 'kilometers', steps: 12 });
 
 					if (!geoJSON_buffered.features) {
 						// transform single feature to featureCollection
@@ -437,14 +437,14 @@ angular
 					}
 
 					if (!resultIsochrones) {
-						resultIsochrones = geoJSON_buffered;
+						resultIsochrones = jQuery.extend(true, {}, geoJSON_buffered);
 					}
 					else {
-						resultIsochrones.features = resultIsochrones.features.concat(geoJSON_buffered.features);
+						resultIsochrones.features = resultIsochrones.features.concat(jQuery.extend(true, {}, geoJSON_buffered).features);
 					}
 				}
 
-				this.original_nonDissolved_isochrones = resultIsochrones;
+				this.original_nonDissolved_isochrones = jQuery.extend(true, {}, resultIsochrones);
 				this.original_nonDissolved_isochrones = this.attachPoiFeatureIDsToIsochrones();
 
 				if (self.settings.dissolveIsochrones) {
