@@ -1504,9 +1504,30 @@ angular.module('kommonitorMap').component(
           });
         });
 
-        $scope.$on("addAoiGeoresourceAsGeoJSON", function (event, georesourceMetadataAndGeoJSON, date) {
+        $scope.$on("addAoiGeoresourceAsGeoJSON", function (event, georesourceMetadataAndGeoJSON, date, useSpatialFilterForGeoressources) {
 
           var color = georesourceMetadataAndGeoJSON.aoiColor;
+
+          // apply spatial filters
+          if (useSpatialFilterForGeoressources) {
+            let indicatorGeoJSON = JSON.parse(JSON.stringify(kommonitorDataExchangeService.selectedIndicator.geoJSON));
+            let filteredIndicatorFeatures = indicatorGeoJSON.features.filter(feature => !kommonitorFilterHelperService.filteredIndicatorFeatureIds.has("" + feature.properties[__env.FEATURE_ID_PROPERTY_NAME]));
+            indicatorGeoJSON.features = filteredIndicatorFeatures;
+            
+            let indicatorPolygons = turf.combine(indicatorGeoJSON).features[0];
+            if(indicatorGeoJSON.features.length >= 2) {
+              indicatorPolygons = turf.union(indicatorGeoJSON);
+            }
+            var buffered = turf.buffer(indicatorPolygons, -0.005, { units: "kilometers" });
+
+            let filteredAreas = [];
+            for (area of georesourceMetadataAndGeoJSON.geoJSON.features) {
+              if(turf.booleanIntersects(area, buffered)) {
+                filteredAreas.push(area);
+              }
+            }
+            georesourceMetadataAndGeoJSON.geoJSON.features = filteredAreas;
+          }
 
           var layer = L.geoJSON(georesourceMetadataAndGeoJSON.geoJSON, {
             style: function (feature) {
@@ -1546,7 +1567,7 @@ angular.module('kommonitorMap').component(
           });
         });
 
-        $scope.$on("addLoiGeoresourceAsGeoJSON", function (event, georesourceMetadataAndGeoJSON, date) {
+        $scope.$on("addLoiGeoresourceAsGeoJSON", function (event, georesourceMetadataAndGeoJSON, date, useSpatialFilterForGeoressources) {
 
           var color = georesourceMetadataAndGeoJSON.aoiColor;
 
@@ -1559,24 +1580,63 @@ angular.module('kommonitorMap').component(
             opacity: 1
           };
 
+          if (useSpatialFilterForGeoressources) {
+            let indicatorGeoJSON = JSON.parse(JSON.stringify(kommonitorDataExchangeService.selectedIndicator.geoJSON));
+            let filteredIndicatorFeatures = indicatorGeoJSON.features.filter(feature => !kommonitorFilterHelperService.filteredIndicatorFeatureIds.has("" + feature.properties[__env.FEATURE_ID_PROPERTY_NAME]));
+            indicatorGeoJSON.features = filteredIndicatorFeatures;
 
+            let polygons = turf.combine(indicatorGeoJSON).features[0];
+            if(indicatorGeoJSON.features.length >= 2) {
+              polygons = turf.union(indicatorGeoJSON);
+            }
+            var buffered = turf.buffer(polygons, -0.005, { units: "kilometers" });
+          }
 
           georesourceMetadataAndGeoJSON.geoJSON.features.forEach((item, i) => {
-            var type = item.geometry.type;
 
-            if (type === "Polygon" || type === "MultiPolygon"){
+            if(item.geometry.type === "LineString" && JSON.stringify(item.geometry.coordinates[0]) === JSON.stringify(item.geometry.coordinates[item.geometry.coordinates.length-1])) {
+              item = turf.lineToPolygon(item);
+            }
+
+            if (item.geometry.type === "Polygon" || item.geometry.type === "MultiPolygon"){
               var lines = turf.polygonToLine(item);
-
-              L.geoJSON(lines, {
-                style: style,
-                onEachFeature: onEachFeatureGeoresource
-              }).addTo(featureGroup);
+              if(!useSpatialFilterForGeoressources || turf.booleanIntersects(buffered, item)) {
+                L.geoJSON(lines, {
+                    style: style,
+                    onEachFeature: onEachFeatureGeoresource
+                  }).addTo(featureGroup);
+              }
             }
             else{
-              L.geoJSON(item, {
-                style: style,
-                onEachFeature: onEachFeatureGeoresource
-              }).addTo(featureGroup);
+              if(useSpatialFilterForGeoressources) {
+                for(var point of item.geometry.coordinates) {
+                  if(turf.booleanPointInPolygon(point, buffered)) {
+                    L.geoJSON(item, {
+                      style: style,
+                      onEachFeature: onEachFeatureGeoresource
+                    }).addTo(featureGroup);
+                    break;
+                  }
+                }
+              }
+              else {
+                L.geoJSON(item, {
+                  style: style,
+                  onEachFeature: onEachFeatureGeoresource
+                }).addTo(featureGroup);
+              }
+
+              
+              // alternative version with line/polygon intersection
+              /*
+              if(turf.booleanIntersects(buffered, item)){
+                L.geoJSON(item, {
+                  style: style,
+                  onEachFeature: onEachFeatureGeoresource
+                }).addTo(featureGroup);
+              } */
+              // self-intersection of the line is treated as an intersection too,
+              // could be fixed soon: https://github.com/Turfjs/turf/issues/2633
             }
           });
 
