@@ -134,7 +134,13 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 			$scope.buttonProcessingClass = "btn btn-custom btn-circle";
 			$scope.buttonRegressionDiagramClass = "btn btn-custom btn-circle";
 			$scope.buttonFilterClass = "btn btn-custom btn-circle";
+			if (kommonitorDataExchangeService.spatialFilterIsApplied) {
+				$scope.buttonFilterClass = "btn btn-custom btn-circle filterActive";
+			}
 			$scope.buttonBalanceClass = "btn btn-custom btn-circle";
+			if (kommonitorDataExchangeService.isBalanceChecked) {
+				$scope.buttonBalanceClass = "btn btn-custom btn-circle balanceActive";
+			}
 			$scope.buttonReachabilityClass = "btn btn-custom btn-circle";
 			$scope.buttonPoiClass = "btn btn-custom btn-circle";
 			$scope.buttonDataImportClass = "btn btn-custom btn-circle";
@@ -165,6 +171,9 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 			}
 			else{
 				$scope.buttonBalanceClass = "btn btn-custom btn-circle";
+				if (kommonitorDataExchangeService.isBalanceChecked) {
+					$scope.buttonBalanceClass = "btn btn-custom btn-circle balanceActive";
+				}
 			}
 		};
 
@@ -461,11 +470,14 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 		}
 
 		$scope.onSpatialFilterCloseButtonClick = function() {
+			$scope.buttonFilterClass = "btn btn-custom btn-circle";
 			$rootScope.$broadcast("removeAllSpatialFilters");
+			$rootScope.$broadcast("disableMeasureOfValue");
 		}
 
 		$scope.onBalanceCloseButtonClick = function() {
-			$rootScope.$broadcast("disableBalance");
+			$scope.buttonBalanceClass = "btn btn-custom btn-circle";
+			$rootScope.$broadcast("DisableBalance");
 		}
 
 		$scope.$on("startGuidedTour", function(event){

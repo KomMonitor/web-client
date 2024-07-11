@@ -2133,6 +2133,15 @@ transition: opacity 0.3s;
 	z-index: 1003;
 }
 
+.btn-custom.filterActive {
+	border: 5px solid #f39c12;
+	/*background-color: #f39c12;*/
+}
+
+.btn-custom.balanceActive {
+	border: 5px solid #f39c12;
+}
+
 .btn-custom:hover {
 	background-color: white;
 	color: black;

@@ -41,17 +41,14 @@ angular
 
 							// reanebalbe DateSlider on map
 							$rootScope.$broadcast("EnableDateSlider");
+
+							$scope.onChangeUseBalance();
 						});
 
 						$scope.$on("replaceBalancedIndicator", function (event) {
 							if(kommonitorDataExchangeService.isBalanceChecked){
 								$scope.onChangeUseBalance();
 							}
-						});
-
-						$scope.$on("disableBalance", function (event) {
-							kommonitorDataExchangeService.isBalanceChecked = false;
-							$scope.onChangeUseBalance();
 						});
 
 						$scope.onChangeUseBalance = function(){
