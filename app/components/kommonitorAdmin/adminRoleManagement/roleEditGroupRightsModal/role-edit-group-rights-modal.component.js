@@ -13,6 +13,8 @@ angular.module('roleEditGroupRightsModal').component('roleEditGroupRightsModal',
 		$scope.successMessagePart = undefined;
 		$scope.errorMessagePart = undefined;
 
+		$scope.delegatedRoleManagementTableOptions = undefined;
+
         $scope.authorityRoleIDs = [];
         $scope.authorityAccess = undefined;
         $scope.authorityPermissions = [];
@@ -21,13 +23,15 @@ angular.module('roleEditGroupRightsModal').component('roleEditGroupRightsModal',
         $scope.delegatedAccess = undefined;
         $scope.delegatedPermissions = [];
         $scope.activeDelegatedRolesOnly = true;
+        
+        // TODO: replace "replacer" in BOTH get url AND PUT to "$scope.current.organizationalUnitId"
+        let replacer = "adff03a0-e72e-4c1a-90ac-511e70d9fd79";
 
 		$scope.$on("onEditOrganizationalUnitGroupRights", function (event, organizationalUnit) {
+console.log("wefrghj");
+            $scope.current = organizationalUnit;
 
-
-			$scope.current = organizationalUnit;
-
-           $scope.access = kommonitorDataExchangeService.accessControl;
+            $scope.access = kommonitorDataExchangeService.accessControl;
 
             // create permissions structure based on "unitIds-roleName"
             let permissionStrings = [
@@ -47,12 +51,21 @@ angular.module('roleEditGroupRightsModal').component('roleEditGroupRightsModal',
                 });
             });
 
-            // TODO: replace "replacer" in BOTH get url to "$scope.current.organizationalUnitId"
-            let replacer = "adff03a0-e72e-4c1a-90ac-511e70d9fd79";
+            $scope.buildAuthorityRolesTable();
+            $scope.buildDelegatedRolesTable();
 
-            // ret all roles this orgaUnit has authorities over
+            kommonitorMultiStepFormHelperService.registerClickHandler("roleEditGroupRightsMultistepForm");
+		});
+
+		$scope.onActiveDelegatedRolesOnlyChange = function() {
+            $scope.buildDelegatedRolesTable();
+        }
+
+        $scope.buildAuthorityRolesTable = function() {
+           
+            // get all roles this orgaUnit has authorities over
             $http({
-				url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/organizationalUnits/" + replacer + "/role-authorities",
+				url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/organizationalUnits/" + $scope.current.organizationalUnitId + "/role-authorities",
 				method: "GET"
 			}).then(function successCallback(response) {
 
@@ -69,14 +82,20 @@ angular.module('roleEditGroupRightsModal').component('roleEditGroupRightsModal',
                 
                 $scope.authorityAccess = $scope.access.filter(elem => $scope.authorityRoleIDs.includes(elem.organizationalUnitId));
 
-                $scope.buildAuthorityRolesTable();
+                $scope.authorityRoleManagementTableOptions = kommonitorDataGridHelperService.buildAdvancedRoleManagementGrid('editAuthorityGroupRoleManagementTable', $scope.authorityRoleManagementTableOptions, $scope.authorityAccess, $scope.authorityPermissions, true);
 			});
+        }
+
+        $scope.buildDelegatedRolesTable = function() {
 
             // get all roles other orgaUnits have over this orgaUnit
             $http({
-				url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/organizationalUnits/" + replacer + "/role-delegates",
-				method: "GET"
-			}).then(function successCallback(response) {
+                url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/organizationalUnits/" + $scope.current.organizationalUnitId + "/role-delegates",
+                method: "GET"
+            }).then(function successCallback(response) {
+
+                $scope.delegatedRoleIDs = [];
+                $scope.delegatedPermissions = [];
 
                 let roleDelegates = response.data.roleDelegates;
                 
@@ -89,46 +108,58 @@ angular.module('roleEditGroupRightsModal').component('roleEditGroupRightsModal',
                     });
                 });
                 
-                $scope.buildDelegatedRolesTable();
-			});
+                if($scope.delegatedRoleIDs.length==0)
+                    $scope.activeDelegatedRolesOnly = false;
 
-            kommonitorMultiStepFormHelperService.registerClickHandler("roleEditGroupRightsMultistepForm");
-		});
-
-		$scope.onActiveDelegatedRolesOnlyChange = function() {
-            $scope.buildDelegatedRolesTable();
-        }
-
-        $scope.buildAuthorityRolesTable = function() {
-           
-            $scope.authorityRoleManagementTableOptions = kommonitorDataGridHelperService.buildAdvancedRoleManagementGrid('editAuthorityGroupRoleManagementTable', $scope.authorityRoleManagementTableOptions, $scope.authorityAccess, $scope.authorityPermissions, true);
-        }
-
-        $scope.buildDelegatedRolesTable = function() {
-            // hide (non-)applicable groups
-            if($scope.activeDelegatedRolesOnly)
-                $scope.delegatedAccess = $scope.access.filter(elem => (elem.organizationalUnitId!=$scope.current.organizationalUnitId && $scope.delegatedRoleIDs.includes(elem.organizationalUnitId)));
-            else 
                 $scope.delegatedAccess = $scope.access.filter(elem => elem.organizationalUnitId!=$scope.current.organizationalUnitId);
 
-            $scope.delegatedRoleManagementTableOptions = kommonitorDataGridHelperService.buildAdvancedRoleManagementGrid('editDelegatedGroupRoleManagementTable', $scope.delegatedRoleManagementTableOptions, $scope.delegatedAccess, $scope.delegatedPermissions);
+                // hide (non-)applicable groups
+                if($scope.delegatedRoleIDs.length>0 && $scope.activeDelegatedRolesOnly) {
+                    $scope.delegatedAccess = $scope.access.filter(elem => (elem.organizationalUnitId!=$scope.current.organizationalUnitId && $scope.delegatedRoleIDs.includes(elem.organizationalUnitId)));
+                } 
+                
+                $scope.delegatedRoleManagementTableOptions = kommonitorDataGridHelperService.buildAdvancedRoleManagementGrid('editDelegatedGroupRoleManagementTable', $scope.delegatedRoleManagementTableOptions, $scope.delegatedAccess, $scope.delegatedPermissions);
+            });
         }
 	
-		/* $scope.editRoleMetadata = function () {
+		$scope.editRoleDelegates = function () {
+            
+            // recreate json permission structure out of "unitIds-roleName"
+            const permissions = [];
+            $scope.delegatedRoleIDs = [];
+            kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid($scope.delegatedRoleManagementTableOptions).forEach(permission => {
+                
+                let parts = permission.split('-');
 
-			var putBody =
-			{
-				"name": $scope.current.name,
-				"description": $scope.current.description,
-				"contact": $scope.current.contact,
-				"mandant": $scope.current.mandant,
-				"keycloakId": $scope.current.keycloakId,
-				"parentId": $scope.parentOrganizationalUnit ? $scope.parentOrganizationalUnit.organizationalUnitId : undefined
-			};
+                let unitId = parts.slice(0,5).join('-');
+                let role = parts.slice(5,10).join('-');
+
+                if(!permissions[unitId])
+                    permissions[unitId] = [];
+
+                if(!permissions[unitId].includes(role)) {
+                    permissions[unitId].push(role);
+                    $scope.delegatedRoleIDs.push(unitId);
+                }
+            });
+
+            var putBody = [];
+            console.log(permissions)
+            for (var key in permissions) {
+
+                let orgUnit = $scope.access.filter(elem => elem.organizationalUnitId==key)[0];
+
+                putBody.push({
+                    "organizationalUnitId": key,
+                    "organizationalUnitName": orgUnit.name,
+                    "keycloakId": orgUnit.keycloakId,
+                    "adminRoles": permissions[key]
+                });
+            }
 
 			$scope.loadingData = true;
 			$http({
-				url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/organizationalUnits/" + $scope.current.organizationalUnitId,
+				url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/organizationalUnits/" + $scope.current.organizationalUnitId + "/role-delegates",
 				method: "PUT",
 				data: putBody
 			}).then(async function successCallback(response) {
@@ -136,43 +167,13 @@ angular.module('roleEditGroupRightsModal').component('roleEditGroupRightsModal',
 				// when the response is available
 
 				$scope.successMessagePart = $scope.current.name;
+                $scope.buildDelegatedRolesTable();
 				
-				$("#editOuMetadataSuccessAlert").show();
+				$("#editOuRoleDelegatesSuccessAlert").show();
 				$timeout(function(){
 				
 					$scope.loadingData = false;
 				});	
-
-				try {
-
-					//KEYCLOAK SYNC
-					await kommonitorKeycloakHelperService.updateExistingGroup($scope.current, $scope.old.name, $scope.parentOrganizationalUnit);					
-
-					await kommonitorKeycloakHelperService.fetchAndSetKeycloakRoles();
-					// await kommonitorKeycloakHelperService.fetchAndSetKeycloakGroups();	
-
-					// on successful update within keycloak explicitly set old name to current name
-					// otherwise subsequent edit requests will be erronous 
-					$scope.old.name = $scope.current.name;
-					$scope.current.parentId = $scope.parentOrganizationalUnit ? $scope.parentOrganizationalUnit.organizationalUnitId : undefined;
-					$scope.parentOrganizationalUnit_current = $scope.parentOrganizationalUnit;
-			
-					$("#keycloakGroupEditSuccessAlert").show();
-				} catch (error) {
-					if (error.data) {
-						$scope.keycloakErrorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
-					}
-					else {
-						$scope.keycloakErrorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error);
-					}
-
-					$timeout(function(){
-						$("#keycloakGroupEditErrorAlert").show();
-						$scope.loadingData = false;
-					});
-				}
-
-				$rootScope.$broadcast("refreshAccessControlTable", "edit", $scope.current.organizationalUnitId);
 
 			}, function errorCallback(error) {
 				if (error.data) {
@@ -182,26 +183,32 @@ angular.module('roleEditGroupRightsModal').component('roleEditGroupRightsModal',
 					$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error);
 				}
 
-				$("#editOuMetadataErrorAlert").show();
+				$("#editOuRoleDelegatesErrorAlert").show();
 				$scope.loadingData = false;
 			});
-		}; */
+		};
 
+        $scope.resetRoleDelegatesForm = function () {
+
+			$scope.successMessagePart = undefined;
+			$scope.errorMessagePart = undefined;
+
+            $scope.buildDelegatedRolesTable();
+
+			$("#editOuRoleDelegatesSuccessAlert").hide();
+			$("#editOuRoleDelegatesErrorAlert").hide();
+
+			setTimeout(() => {
+				$scope.$digest();
+			}, 250);
+		};
 
 		$scope.hideSuccessAlert = function () {
-			$("#editOuMetadataSuccessAlert").hide();
+			$("#editOuRoleDelegatesSuccessAlert").hide();
 		};
 
 		$scope.hideErrorAlert = function () {
-			$("#editOuMetadataErrorAlert").hide();
-		};
-
-		$scope.hideKeycloakSuccessAlert = function () {
-			$("#keycloakGroupEditSuccessAlert").hide();
-		};
-
-		$scope.hideKeycloakErrorAlert = function () {
-			$("#keycloakGroupEditErrorAlert").hide();
+			$("#editOuRoleDelegatesErrorAlert").hide();
 		};
 
 	}

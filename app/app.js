@@ -392,6 +392,7 @@ function bootstrapApplication(){
       console.log(authenticated ? 'User is authenticated!' : 'User is not authenticated!');
       auth.keycloak = keycloakAdapter;
       appModule.factory('Auth', function () {
+        console.log(auth);
         return auth;
       });
       try {

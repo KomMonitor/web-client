@@ -34,7 +34,7 @@
 
 							<fieldset>
 								<h2 class="fs-title">Vorhandene gruppenspezifische Rechte</h2>
-								<h3 class="fs-subtitle">Rechte der eigenen und Gruppen und solche anderer an der eigenen Gruppe</h3>
+								<h3 class="fs-subtitle">Rechte der eigenen Gruppe</h3>
 		
 								<div class="row">
 
@@ -58,7 +58,7 @@
                                         <div class="form-group vertical-align">
                                             <label class="margin-right">Zeige nur zugewiesene Rechte</label>
                                             <label class="switch">
-                                                <input type="checkbox" value="activeDelegatedRolesOnly" ng-model="activeDelegatedRolesOnly" ng-change="onActiveDelegatedRolesOnlyChange()">
+                                                <input type="checkbox" value="activeDelegatedRolesOnly" ng-model="activeDelegatedRolesOnly" ng-change="onActiveDelegatedRolesOnlyChange()" ng-disabled="delegatedRoleIDs.length==0">
                                                 <span class="switchslider round"></span>
                                             </label>
                                         </div>
@@ -84,12 +84,12 @@
 
 				<button type="button" class="btn btn-success"
 					ng-disabled="!current.name || !current.description || !current.contact || nameInvalid"
-					ng-click="editRoleMetadata()">Rechte aktualisieren</button>
+					ng-click="editRoleDelegates()">Rechte aktualisieren</button>
 				<button type="button" class="btn btn-danger"
-					ng-click="resetOrganizationalUnitEditMetadataForm()">Zur&uuml;cksetzen</button>
+					ng-click="resetRoleDelegatesForm()">Zur&uuml;cksetzen</button>
 			</div>
 
-			<div id="editOuMetadataSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
+			<div id="editOuRoleDelegatesSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
 				class="alert alert-success alert-dismissable">
 				<button type="button" class="close" ng-click="hideSuccessAlert()" aria-hidden="true">&times;</button>
 				<h4><i class="icon fa fa-check"></i>Rolle aktualisiert</h4>
@@ -97,35 +97,13 @@
 				&Uuml;bersichtstabelle eingetragen.
 			</div>
 
-			<div id="editOuMetadataErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
+			<div id="editRoleDelegatesErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
 				class="alert alert-danger alert-dismissable">
 				<button type="button" class="close" ng-click="hideErrorAlert()" aria-hidden="true">&times;</button>
 				<h4><i class="icon fa fa-ban"></i>Aktualisierung gescheitert</h4>
 				Bei der Aktualisierung der Metadaten der Rolle ist ein Fehler aufgetreten. Fehlermeldung:
 				<br />
 				<pre style="overflow:auto; max-height:500px;" ng-bind-html="errorMessagePart"></pre>
-			</div>
-
-			<div id="keycloakGroupEditSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
-				class="alert alert-success alert-dismissable">
-				<button type="button" class="close" ng-click="hideKeycloakSuccessAlert()" aria-hidden="true">&times;</button>
-				<h4><i class="icon fa fa-check"></i>Rolle in Keycloak editiert</h4>
-				<p>Die Rollen für die Einheit {{successMessagePart}} wurden in Keycloak editiert. Bestehende Verkn&uuml;pfungen mit Usern bleiben erhalten.
-				</p>
-			</div>
-
-			<div id="keycloakGroupEditErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
-				class="alert alert-danger alert-dismissable">
-				<button type="button" class="close" ng-click="hideKeycloakErrorAlert()" aria-hidden="true">&times;</button>
-				<h4><i class="icon fa fa-ban"></i>Editierung in Keycloak gescheitert</h4>
-				Bei der Editierung in Keycloak ist ein Fehler aufgetreten. Fehlermeldung:
-				<br />
-				<pre style="overflow:auto; max-height:500px;" ng-bind-html="keycloakErrorMessagePart"></pre>
-				<br />
-				<br />
-				Die Rolle kann auch direkt in der Keycloak Administrationsseite editiert werden. Besuchen Sie dazu				
-					<a ng-href="{{$ctrl.kommonitorKeycloakHelperServiceInstance.targetUrlToKeycloakInstance}}" target="_blank" rel="noopener noreferrer">{{$ctrl.kommonitorKeycloakHelperServiceInstance.targetUrlToKeycloakInstance}}</a>
-					Dort k&ouml;nnen dann auch Nutzer mit der Rolle verkn&uuml;pt werden.
 			</div>
 
 		</div>
