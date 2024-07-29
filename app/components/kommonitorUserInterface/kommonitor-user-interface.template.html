@@ -247,7 +247,8 @@
 					<div id="filterStatusButton">
 						<span ng-if="$ctrl.kommonitorDataExchangeServiceInstance.spatialFilterIsApplied" 
 									id="filterNoticeButton" class="btn btn-warning btn-xs" title="Filter aktiviert">
-							<span ng-click="openFilterSidebar()">Räuml. Filter aktiviert </span>
+							<i class="fas fa-filter"></i>
+							<span ng-click="openFilterSidebar()" style="margin: 3px;">Räuml. Filter aktiviert </span>
 							<i class="fas fa-close" ng-click="onSpatialFilterCloseButtonClick()" title="Filter entfernen"></i>
 						</span>
 					</div>
@@ -255,7 +256,8 @@
 					<div id="balanceStatusButton">
 						<span ng-if="$ctrl.kommonitorDataExchangeServiceInstance.isBalanceChecked" 
 									id="balanceNoticeButton" class="btn btn-warning btn-xs" title="Bilanzierung aktiviert">
-							<span ng-click="openBalanceSidebar()">Bilanzierung aktiviert </span>
+							<i class ="fas fa-chart-line"></i>
+							<span ng-click="openBalanceSidebar()" style="margin: 3px;">Bilanzierung aktiviert </span>
 							<i class="fas fa-close" ng-click="onBalanceCloseButtonClick()" title="Bilanzierung entfernen"></i>
 						</span>
 					</div>
