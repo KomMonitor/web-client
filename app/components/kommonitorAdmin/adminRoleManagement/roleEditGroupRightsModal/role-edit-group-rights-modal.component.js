@@ -112,11 +112,13 @@ angular.module('roleEditGroupRightsModal').component('roleEditGroupRightsModal',
                 if($scope.delegatedRoleIDs.length==0)
                     $scope.activeDelegatedRolesOnly = false;
 
-                $scope.delegatedAccess = $scope.access.filter(elem => elem.organizationalUnitId!=$scope.current.organizationalUnitId);
+                // $scope.delegatedAccess = $scope.access.filter(elem => elem.organizationalUnitId!=$scope.current.organizationalUnitId);
+                $scope.delegatedAccess = $scope.access;
 
                 // hide (non-)applicable groups
                 if($scope.delegatedRoleIDs.length>0 && $scope.activeDelegatedRolesOnly) {
-                    $scope.delegatedAccess = $scope.access.filter(elem => (elem.organizationalUnitId!=$scope.current.organizationalUnitId && $scope.delegatedRoleIDs.includes(elem.organizationalUnitId)));
+                    // $scope.delegatedAccess = $scope.access.filter(elem => (elem.organizationalUnitId!=$scope.current.organizationalUnitId && $scope.delegatedRoleIDs.includes(elem.organizationalUnitId)));
+                    $scope.delegatedAccess = $scope.access.filter(elem => ($scope.delegatedRoleIDs.includes(elem.organizationalUnitId)));
                 } 
                 
                 $scope.delegatedRoleManagementTableOptions = kommonitorDataGridHelperService.buildAdvancedRoleManagementGrid('editDelegatedGroupRoleManagementTable', $scope.delegatedRoleManagementTableOptions, $scope.delegatedAccess, $scope.delegatedPermissions);

@@ -124,8 +124,8 @@ angular
       var displayEditButtons_accessControl = function (params) {
 
         let html = '<div class="btn-group btn-group-sm">';
-        html += '<button id="btn_role_editMetadata_' + params.data.organizationalUnitId + '" class="btn btn-warning btn-sm roleEditMetadataBtn" type="button" data-toggle="modal" data-target="#modal-edit-role-metadata" title="Metadaten editieren"><i class="fas fa-pencil-alt"></i></button>';
-        html += '<button id="btn_role_editGroupRight_' + params.data.organizationalUnitId + '" class="btn btn-warning btn-sm roleEditGroupRightsBtn" type="button" data-toggle="modal" data-target="#modal-edit-role-group-rights" title="Gruppenspezifische Rechte editieren"><i class="fas fa-user-lock"></i></button>'
+        html += '<button id="btn_role_editMetadata_' + params.data.organizationalUnitId + '" class="btn btn-warning btn-sm roleEditMetadataBtn" type="button" data-toggle="modal" data-target="#modal-edit-role-metadata" title="Metadaten editieren" ' +  ((params.data.userAdminRoles.includes("client-users-creator") || (params.data.userAdminRoles.includes("unit-users-creator"))) ? '' : 'disabled') + '><i class="fas fa-pencil-alt"></i></button>';
+        html += '<button id="btn_role_editGroupRight_' + params.data.organizationalUnitId + '" class="btn btn-warning btn-sm roleEditGroupRightsBtn" type="button" data-toggle="modal" data-target="#modal-edit-role-group-rights" title="Gruppenspezifische Rechte editieren"' +  ((params.data.userAdminRoles.includes("client-users-creator") || (params.data.userAdminRoles.includes("unit-users-creator"))) ? '' : 'disabled') + '><i class="fas fa-user-lock"></i></button>'
         html += '</div>';
 
         return html;
@@ -2075,9 +2075,11 @@ angular
       this.buildDataGridColumnConfig_accessControl = function(isRealmAdmin){
         let columnDefs = [];
         // Only show edit column if user is Realm Admin
-        if (isRealmAdmin) {
-          columnDefs.push({ headerName: 'Editierfunktionen', pinned: 'left', maxWidth: 150, checkboxSelection: (row) => {return row.data.name != "public" && row.data.name != "kommonitor"}, filter: false, sortable: false, cellRenderer: 'displayEditButtons_accessControl' });
-        }
+        // if (isRealmAdmin) {
+        //   columnDefs.push({ headerName: 'Editierfunktionen', pinned: 'left', maxWidth: 150, checkboxSelection: (row) => {return row.data.name != "public" && row.data.name != "kommonitor"}, filter: false, sortable: false, cellRenderer: 'displayEditButtons_accessControl' });
+        // }
+
+        columnDefs.push({ headerName: 'Editierfunktionen', pinned: 'left', maxWidth: 150, checkboxSelection: (row) => {return row.data.name != "public" && row.data.name != "kommonitor"}, filter: false, sortable: false, cellRenderer: 'displayEditButtons_accessControl' });
 
         return columnDefs.concat([
           //{ headerName: 'Id', field: "organizationalUnitId", minWidth: 400 },
@@ -2129,11 +2131,13 @@ angular
           let rowData = this.buildDataGridRowData_accessControl(accessControlArray);
   
           let components = {};
-          if (kommonitorDataExchangeService.isRealmAdmin) {
-            components = {displayEditButtons_accessControl: displayEditButtons_accessControl};
-          } else {
-            components = {}
-          }
+          // if (kommonitorDataExchangeService.isRealmAdmin) {
+          //   components = {displayEditButtons_accessControl: displayEditButtons_accessControl};
+          // } else {
+          //   components = {}
+          // }
+
+          components = {displayEditButtons_accessControl: displayEditButtons_accessControl};
 
           let gridOptions = {
             defaultColDef: {
