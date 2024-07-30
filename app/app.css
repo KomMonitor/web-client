@@ -1493,6 +1493,10 @@ color: #777;
     margin: 0 auto;
 } */
 
+.margin-right {
+    margin-right: 1em !important;
+}
+
 .legendMap {
 		padding: 6px 8px;
 		font: 12px/14px Arial, Helvetica, sans-serif;
@@ -2881,9 +2885,10 @@ input:checked + .switchslider:before {
 	margin: 10px 0px 10px 0px;
 }
 
-
-
-
+.table-td-all-centered {
+    vertical-align: middle !important;
+    text-align: left;
+}
 
 .batch-list-table-wrapper {
 	max-height: 75vh !important;

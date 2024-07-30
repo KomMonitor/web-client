@@ -25,7 +25,8 @@
 							<div> 
 								<!-- progressbar -->
 								<ul id="progressbar">
-									<li style="width: 100%;" class="active">Basisinformationen</li>
+									<li style="width: 50%;" class="active">Basisinformationen</li>
+									<li style="width: 50%;">Gruppenspezifische Rechte</li>
 								</ul>
 							</div>							
 							<!-- fieldsets -->
@@ -90,7 +91,25 @@
 											</div>
 									</div>		
 								</div>
-								<br/>					
+                                
+								<input type="button" name="next" class="next next_addRole action-button" value="N&auml;chster Schritt"/>	
+
+							</fieldset>
+                            <fieldset>
+								<h2 class="fs-title">Gruppenspezifische Rechte</h2>
+								<h3 class="fs-subtitle">Freigabe der gruppenspezifischen Rechte f&uuml; anderen Gruppen</h3>
+		
+								<div class="row vertical-align">
+
+									<div class="col-md-12 col-sm-12 col-xs-12">
+                                        <div id="addRoleEditGroupRoleManagementTable" style="height: 45vh" class="ag-theme-alpine"></div>
+									</div>
+
+								</div>
+
+								<input type="button" name="previous"
+									class="previous previous_editIndicatorRoles action-button-previous"
+									value="Voriger Schritt" />											
 							</fieldset>
 
 						</form>

@@ -1,0 +1,114 @@
+<div class="modal fade" id="modal-edit-role-group-rights" role="dialog">
+	<div class="modal-dialog modal-xl">
+		<div class="modal-content">
+
+			<div align="center">
+				<div class="loading-overlay-admin-panel ng-hide" ng-show="loadingData">
+					<span class="glyphicon glyphicon-refresh icon-spin"></span>
+				</div>
+			</div>
+
+
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Gruppenspezifische Rechte der Organisationseinheit <i><b> {{$ctrl.old.name}} </b></i> editieren</h4>
+			</div>
+			<div class="modal-body">
+
+				<!-- MultiStep Form -->
+				<div class="row">
+					<div class="col-md-12">
+
+						<form class="multiStepForm form-group" id="roleEditGroupRightsMultistepForm" role="form"
+							data-toggle="validator" data-disable="true" style="margin-bottom: 0px;">
+
+							<!-- div required for click logic -->
+							<div> 
+								<!-- progressbar -->
+								<ul id="progressbar">
+									<li style="width: 50%;" class="active">Eigene Rechte</li>
+									<li style="width: 50%;">Rechte anderer</li>
+								</ul>
+							</div>
+
+							<fieldset>
+								<h2 class="fs-title">Vorhandene gruppenspezifische Rechte</h2>
+								<h3 class="fs-subtitle">Rechte der eigenen Gruppe</h3>
+		
+								<div class="row">
+
+                                    <div class="col-md-12 col-sm-12 col-xs-12">
+                                        <div id="editAuthorityGroupRoleManagementTable" style="height: 45vh" class="ag-theme-alpine"></div>
+									</div>
+
+								</div>
+
+							</fieldset>
+
+							<fieldset>
+								<h2 class="fs-title">Rechte anderer an dieser Organisationseinheit</h2>
+								<h3 class="fs-subtitle">Freigabe der gruppenspezifischen Rechte an der eigenen Organisationseinheit</h3>
+		
+								
+								
+								<div class="row">
+
+									<div class="col-md-12 col-sm-12 col-xs-12">
+                                        <div class="form-group vertical-align">
+                                            <label class="margin-right">Zeige nur zugewiesene Rechte</label>
+                                            <label class="switch">
+                                                <input type="checkbox" value="activeDelegatedRolesOnly" ng-model="activeDelegatedRolesOnly" ng-change="onActiveDelegatedRolesOnlyChange()" ng-disabled="delegatedRoleIDs.length==0">
+                                                <span class="switchslider round"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 col-sm-12 col-xs-12">
+                                        <div id="editDelegatedGroupRoleManagementTable" style="height: 45vh" class="ag-theme-alpine"></div>
+									</div>
+
+								</div>
+
+							</fieldset>
+
+
+						</form>
+
+					</div>
+				</div>
+				<!-- /.MultiStep Form -->
+
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Schlie&szlig;en</button>
+
+				<button type="button" class="btn btn-success"
+					ng-disabled="!current.name || !current.description || !current.contact || nameInvalid"
+					ng-click="editRoleDelegates()">Rechte aktualisieren</button>
+				<button type="button" class="btn btn-danger"
+					ng-click="resetRoleDelegatesForm()">Zur&uuml;cksetzen</button>
+			</div>
+
+			<div id="editOuRoleDelegatesSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
+				class="alert alert-success alert-dismissable">
+				<button type="button" class="close" ng-click="hideSuccessAlert()" aria-hidden="true">&times;</button>
+				<h4><i class="icon fa fa-check"></i>Rolle aktualisiert</h4>
+				Die Metadaten der Rolle mit Namen {{successMessagePart}} wurden in KomMonitor aktualisiert und in die
+				&Uuml;bersichtstabelle eingetragen.
+			</div>
+
+			<div id="editRoleDelegatesErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
+				class="alert alert-danger alert-dismissable">
+				<button type="button" class="close" ng-click="hideErrorAlert()" aria-hidden="true">&times;</button>
+				<h4><i class="icon fa fa-ban"></i>Aktualisierung gescheitert</h4>
+				Bei der Aktualisierung der Metadaten der Rolle ist ein Fehler aufgetreten. Fehlermeldung:
+				<br />
+				<pre style="overflow:auto; max-height:500px;" ng-bind-html="errorMessagePart"></pre>
+			</div>
+
+		</div>
+		<!-- /.modal-content -->
+	</div>
+	<!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->

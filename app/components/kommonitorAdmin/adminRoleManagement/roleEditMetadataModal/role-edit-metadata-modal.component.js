@@ -92,7 +92,7 @@ angular.module('roleEditMetadataModal').component('roleEditMetadataModal', {
 				try {
 
 					//KEYCLOAK SYNC
-					await kommonitorKeycloakHelperService.updateExistingGroup($scope.current, $scope.old.name, $scope.parentOrganizationalUnit);					
+					//await kommonitorKeycloakHelperService.updateExistingGroup($scope.current, $scope.old.name, $scope.parentOrganizationalUnit);					
 
 					await kommonitorKeycloakHelperService.fetchAndSetKeycloakRoles();
 					// await kommonitorKeycloakHelperService.fetchAndSetKeycloakGroups();	
