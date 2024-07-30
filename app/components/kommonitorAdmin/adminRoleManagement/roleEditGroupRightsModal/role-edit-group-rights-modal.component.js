@@ -60,6 +60,9 @@ angular.module('roleEditGroupRightsModal').component('roleEditGroupRightsModal',
         }
 
         $scope.buildAuthorityRolesTable = function() {
+
+            $scope.authorityPermissions = [];
+            $scope.authorityRoleIDs = [];
            
             // get all roles this orgaUnit has authorities over
             $http({
