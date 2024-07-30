@@ -119,15 +119,15 @@ angular.module('roleAddModal').component('roleAddModal', {
 						await kommonitorDataExchangeService.fetchAccessControlMetadata(kommonitorDataExchangeService.currentKeycloakLoginRoles);
 						await kommonitorKeycloakHelperService.fetchAndSetKeycloakRoles();
 						
-						$("#ouAddSuccessAlert").show();						
+						// $("#ouAddSuccessAlert").show();						
 
-						$rootScope.$broadcast("refreshAccessControlTable");
+						// $rootScope.$broadcast("refreshAccessControlTable");
                         
-                        $scope.resetOrganizationalUnitAddForm();
+                        // $scope.resetOrganizationalUnitAddForm();
 
-						$timeout(function () {
-							$scope.loadingData = false;
-						});
+						// $timeout(function () {
+						// 	$scope.loadingData = false;
+						// });
 
 						$scope.unitAddSuccess = true;
 
@@ -202,6 +202,7 @@ angular.module('roleAddModal').component('roleAddModal', {
 
 						$rootScope.$broadcast("refreshAccessControlTable");
 						$scope.checkOrganizationalUnitName();
+						$scope.resetOrganizationalUnitAddForm();
 						$timeout(function () {
 							$scope.loadingData = false;
 						});
