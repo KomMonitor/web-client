@@ -8,6 +8,15 @@
 
 		<div class="adminTableButtonWrapper"
 			ng-show="$ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity && $ctrl.kommonitorDataExchangeServiceInstance.checkGroupCreatePermission()">
+			<div class="verticalAlign">
+				<span>Nur editierbare Datensätze anzeigen</span>
+				<div>
+					<label class="switch">
+						<input type="checkbox" ng-model="tableViewSwitcher" ng-change="onTableViewSwitch()" class="ng-valid ng-dirty ng-valid-parse ng-touched ng-not-empty">
+						<span class="switchslider round"></span>
+					</label>
+				</div>
+			</div>
 			<button ng-disabled="!$ctrl.kommonitorDataExchangeServiceInstance.checkGroupCreatePermission()" class="btn btn-success btn-sm" type="button" data-toggle="modal" data-target="#modal-add-ou"><i
 					class="fas fa-plus"></i>&nbsp;&nbsp;Erstellen</button>
 
