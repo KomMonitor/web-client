@@ -14,6 +14,7 @@ angular.module('roleEditGroupRightsModal').component('roleEditGroupRightsModal',
 		$scope.errorMessagePart = undefined;
 
 		$scope.delegatedRoleManagementTableOptions = undefined;
+        $scope.authorityRoleManagementTableOptions = undefined;
 
         $scope.authorityRoleIDs = [];
         $scope.authorityAccess = undefined;
@@ -23,12 +24,9 @@ angular.module('roleEditGroupRightsModal').component('roleEditGroupRightsModal',
         $scope.delegatedAccess = undefined;
         $scope.delegatedPermissions = [];
         $scope.activeDelegatedRolesOnly = true;
-        
-        // TODO: replace "replacer" in BOTH get url AND PUT to "$scope.current.organizationalUnitId"
-        let replacer = "adff03a0-e72e-4c1a-90ac-511e70d9fd79";
 
 		$scope.$on("onEditOrganizationalUnitGroupRights", function (event, organizationalUnit) {
-console.log("wefrghj");
+
             $scope.current = organizationalUnit;
 
             $scope.access = kommonitorDataExchangeService.accessControl;
