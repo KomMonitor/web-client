@@ -142,7 +142,6 @@ angular.module('roleEditGroupRightsModal').component('roleEditGroupRightsModal',
             });
 
             var putBody = [];
-            console.log(permissions)
             for (var key in permissions) {
 
                 let orgUnit = $scope.access.filter(elem => elem.organizationalUnitId==key)[0];

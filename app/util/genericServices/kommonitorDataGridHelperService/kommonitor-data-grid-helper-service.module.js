@@ -3707,17 +3707,15 @@ angular
             
             if(node.data) {
                 for (const permission of node.data.permissions) {
-                    if(permission.permissionLevel=='unit-themes-creator') {
-                        console.log(permission);
+                    
+                    if(permission) {
+                        if(permission.isChecked){
+                            if(!deselectedIds.includes(permission.permissionId))
+                                ids.push(permission.permissionId);
+                        } else {
+                            deselectedIds.push(permission.permissionId);
+                        }
                     }
-                if(permission) {
-                    if(permission.isChecked){
-                        if(!deselectedIds.includes(permission.permissionId))
-                            ids.push(permission.permissionId);
-                    } else {
-                        deselectedIds.push(permission.permissionId);
-                    }
-                }
                 }
             }
           })               
