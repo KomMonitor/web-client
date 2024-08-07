@@ -1729,11 +1729,14 @@ angular
           };
 
           this.filterAllowedAccessControl = function(acArray) {
+
             if (this.checkAdminPermission()) {
               return acArray;
             }
+           
             var clientUserRoles = this.filterClientUserAdminRoles();
             var filtered = [];
+            var existingOrgaIds = [];
 
             acArray.forEach(orga => {
               const currentOrga = orga;
@@ -1741,8 +1744,10 @@ angular
                 clientUserRoles.forEach(role => {
                   let roleNameParts = role.split(".");
                   const orgaName = roleNameParts[roleNameParts.length - 2];
-                  if (orgaName === orga.name) {
+                  
+                  if (orgaName === orga.name && !existingOrgaIds.includes(currentOrga.organizationalUnitId)) {
                     filtered.push(currentOrga);
+                    existingOrgaIds.push(currentOrga.organizationalUnitId);
                   }
                 });
                 orga = this.accessControl_map.get(orga.parentId);
