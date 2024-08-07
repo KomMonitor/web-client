@@ -29,6 +29,8 @@ angular.module('roleAddModal').component('roleAddModal', {
 
                 $scope.access = kommonitorDataExchangeService.accessControl;
 
+                //console.log(kommonitorDataExchangeService.allowedAccessControl);
+
                 // create permissions structure based on "unitIds-roleName"
                 let permissionStrings = [
                     "unit-users-creator",
