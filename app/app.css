@@ -3118,6 +3118,15 @@ input:checked + .switchslider:before {
   .row {
 	margin-right: 0px;
   }
+
+  .box.box-simplified {
+    border-top: 0;
+  }
+
+  .box.box-simplified .box-header .box-title {
+    font-size: 14px;
+    font-weight: 700;
+  }
   
   /* Show the snackbar when clicking on a button (class added with JavaScript) */
   #snackbar.show {
