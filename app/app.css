@@ -223,7 +223,7 @@ MULTI STEP FORM
 
 #userLoginForm{
     display: block;
-	z-index: 1004;
+	  z-index: 1004;
 }
 
 #userLoginForm h4, span {
@@ -3121,6 +3121,8 @@ input:checked + .switchslider:before {
 
   .box.box-simplified {
     border-top: 0;
+    max-height: 30vh;
+    overflow-y: auto;
   }
 
   .box.box-simplified .box-header .box-title {
