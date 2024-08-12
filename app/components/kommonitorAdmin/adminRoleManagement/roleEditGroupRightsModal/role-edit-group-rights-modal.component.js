@@ -14,16 +14,16 @@ angular.module('roleEditGroupRightsModal').component('roleEditGroupRightsModal',
 		$scope.errorMessagePart = undefined;
 
 		$scope.delegatedRoleManagementTableOptions = undefined;
-        $scope.authorityRoleManagementTableOptions = undefined;
+    $scope.authorityRoleManagementTableOptions = undefined;
 
-        $scope.authorityRoleIDs = [];
-        $scope.authorityAccess = undefined;
-        $scope.authorityPermissions = [];
+    $scope.authorityRoleIDs = [];
+    $scope.authorityAccess = undefined;
+    $scope.authorityPermissions = [];
 
-        $scope.delegatedRoleIDs = [];
-        $scope.delegatedAccess = undefined;
-        $scope.delegatedPermissions = [];
-        $scope.activeDelegatedRolesOnly = true;
+    $scope.delegatedRoleIDs = [];
+    $scope.delegatedAccess = undefined;
+    $scope.delegatedPermissions = [];
+    $scope.activeDelegatedRolesOnly = true;
 
 		$scope.$on("onEditOrganizationalUnitGroupRights", function (event, organizationalUnit) {
 
@@ -169,7 +169,7 @@ angular.module('roleEditGroupRightsModal').component('roleEditGroupRightsModal',
 				// when the response is available
 
 				$scope.successMessagePart = $scope.current.name;
-                $scope.buildDelegatedRolesTable();
+        $scope.buildDelegatedRolesTable();
 				
 				$("#editOuRoleDelegatesSuccessAlert").show();
 				$timeout(function(){
@@ -190,7 +190,7 @@ angular.module('roleEditGroupRightsModal').component('roleEditGroupRightsModal',
 			});
 		};
 
-        $scope.resetRoleDelegatesForm = function () {
+    $scope.resetRoleDelegatesForm = function () {
 
 			$scope.successMessagePart = undefined;
 			$scope.errorMessagePart = undefined;
