@@ -37,6 +37,15 @@
 									<p>Zugriffsrechte (lesen, editieren) m&uuml;ssen explizit vergeben werden</p>
 							
 										<div class="row">
+                      <div class="col-md-12 col-sm-12 col-xs-12" ng-show="permissions.length!=0">
+                        <div class="form-group vertical-align">
+                            <label class="margin-right">Zeige nur zugewiesene Rechte</label>
+                            <label class="switch">
+                                <input type="checkbox" value="activeRolesOnly" ng-model="activeRolesOnly" ng-change="onActiveRolesOnlyChange()" ng-disabled="permissions.length==0">
+                                <span class="switchslider round"></span>
+                            </label>
+                        </div>
+                      </div>
 											<div class="col-md-3">
 												<label>&Ouml;ffentliche Lesefreigabe*</label>
 												<label class="switch">

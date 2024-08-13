@@ -15,8 +15,9 @@ angular.module('spatialUnitEditUserRolesModal').component('spatialUnitEditUserRo
 		$scope.errorMessagePart = undefined;
 
 		$scope.ownerOrgFilter = undefined;
-
 		$scope.ownerOrganization = undefined;
+    $scope.activeRolesOnly = true;
+    $scope.permissions = [];
 
 		$scope.$on("onEditSpatialUnitUserRoles", function (event, spatialUnitDataset) {
 
@@ -29,7 +30,7 @@ angular.module('spatialUnitEditUserRolesModal').component('spatialUnitEditUserRo
 		});
 
 		$scope.refreshRoleManagementTable = function() {
-			let permissions = $scope.currentSpatialUnitDataset ? $scope.currentSpatialUnitDataset.permissions : [];
+			$scope.permissions = $scope.currentSpatialUnitDataset ? $scope.currentSpatialUnitDataset.permissions : [];
 
 			// set datasetOwner to disable checkboxes for owned datasets in permissions-table
 			kommonitorDataExchangeService.accessControl.forEach(item => {
@@ -39,8 +40,23 @@ angular.module('spatialUnitEditUserRolesModal').component('spatialUnitEditUserRo
 				}
 			});
 
-			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('spatialUnitEditRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, permissions, true);
+      if($scope.permissions.length==0)
+        $scope.activeRolesOnly = false;
+
+      let access = kommonitorDataExchangeService.accessControl;
+      if($scope.permissions.length>0 && $scope.activeRolesOnly) {
+        access = kommonitorDataExchangeService.accessControl.filter(unit => {
+
+          return (unit.permissions.filter(unitPermission => $scope.permissions.includes(unitPermission.permissionId)).length>0 ? true : false);
+        });
+      }
+
+			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('spatialUnitEditRoleManagementTable', $scope.roleManagementTableOptions, access, $scope.permissions, true);
 		}
+    
+		$scope.onActiveRolesOnlyChange = function() {
+      $scope.refreshRoleManagementTable();
+    }
 
 		$scope.$on("availableRolesUpdate", function (event) {
 			$scope.refreshRoleManagementTable();

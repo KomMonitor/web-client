@@ -14,16 +14,16 @@ angular.module('roleEditGroupRightsModal').component('roleEditGroupRightsModal',
 		$scope.errorMessagePart = undefined;
 
 		$scope.delegatedRoleManagementTableOptions = undefined;
-        $scope.authorityRoleManagementTableOptions = undefined;
+    $scope.authorityRoleManagementTableOptions = undefined;
 
-        $scope.authorityRoleIDs = [];
-        $scope.authorityAccess = undefined;
-        $scope.authorityPermissions = [];
+    $scope.authorityRoleIDs = [];
+    $scope.authorityAccess = undefined;
+    $scope.authorityPermissions = [];
 
-        $scope.delegatedRoleIDs = [];
-        $scope.delegatedAccess = undefined;
-        $scope.delegatedPermissions = [];
-        $scope.activeDelegatedRolesOnly = true;
+    $scope.delegatedRoleIDs = [];
+    $scope.delegatedAccess = undefined;
+    $scope.delegatedPermissions = [];
+    $scope.activeDelegatedRolesOnly = true;
 
 		$scope.$on("onEditOrganizationalUnitGroupRights", function (event, organizationalUnit) {
 
@@ -56,8 +56,8 @@ angular.module('roleEditGroupRightsModal').component('roleEditGroupRightsModal',
 		});
 
 		$scope.onActiveDelegatedRolesOnlyChange = function() {
-            $scope.buildDelegatedRolesTable();
-        }
+      $scope.buildDelegatedRolesTable();
+    }
 
         $scope.buildAuthorityRolesTable = function() {
 

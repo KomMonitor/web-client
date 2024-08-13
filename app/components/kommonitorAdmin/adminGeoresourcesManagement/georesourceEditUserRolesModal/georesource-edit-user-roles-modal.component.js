@@ -15,15 +15,14 @@ angular.module('georesourceEditUserRolesModal').component('georesourceEditUserRo
 		$scope.errorMessagePart = undefined;
 
 		$scope.ownerOrgFilter = undefined;
-
 		$scope.ownerOrganization = undefined;
+    $scope.activeRolesOnly = true;
+    $scope.permissions = [];
 
 		$scope.$on("onEditGeoresourcesUserRoles", function (event, georesourceDataset) {
 
 			$scope.currentGeoresourceDataset = georesourceDataset;
-			console.log($scope.currentGeoresourceDataset)
 
-			
 			$scope.$apply();
 
 			$scope.resetGeoresourceEditUserRolesForm();
@@ -31,18 +30,39 @@ angular.module('georesourceEditUserRolesModal').component('georesourceEditUserRo
 		});
 
 		$scope.refreshRoleManagementTable = function() {
-			let permissions = $scope.currentGeoresourceDataset ? $scope.currentGeoresourceDataset.permissions : [];
-
+			$scope.permissions = $scope.currentGeoresourceDataset ? $scope.currentGeoresourceDataset.permissions : [];
+      
 			// set datasetOwner to disable checkboxes for owned datasets in permissions-table
 			kommonitorDataExchangeService.accessControl.forEach(item => {
 				if($scope.currentGeoresourceDataset) {
 					if(item.organizationalUnitId==$scope.currentGeoresourceDataset.ownerId)
 						item.datasetOwner = true;
 				}
-			});
+			}); 
 
-			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('georesourceEditRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, permissions, true);
+      if($scope.permissions.length==0)
+        $scope.activeRolesOnly = false;
+
+      let access = kommonitorDataExchangeService.accessControl;
+      if($scope.permissions.length>0 && $scope.activeRolesOnly) {
+        access = kommonitorDataExchangeService.accessControl.filter(unit => {
+
+          return (unit.permissions.filter(unitPermission => $scope.permissions.includes(unitPermission.permissionId)).length>0 ? true : false);
+        });
+      }
+
+			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('georesourceEditRoleManagementTable', $scope.roleManagementTableOptions, access, $scope.permissions, true);
 		}
+    
+		$scope.onActiveRolesOnlyChange = function() {
+
+      if($scope.activeRolesOnly)
+        $scope.activeRolesOnly = false;
+      else
+        $scope.activeRolesOnly = true;
+
+      $scope.refreshRoleManagementTable();
+    }
 
 		$scope.$on("availableRolesUpdate", function (event) {
 			$scope.refreshRoleManagementTable();

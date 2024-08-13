@@ -16,14 +16,15 @@ angular.module('indicatorEditIndicatorSpatialUnitRolesModal').component('indicat
 		$scope.errorMessagePart = undefined;
 
 		$scope.ownerOrgFilter = undefined;
-
 		$scope.ownerOrganization = undefined;
+    $scope.activeRolesOnly = true;
+    $scope.activeConnectedRolesOnly = true;
+    $scope.permissions = [];
 
 		$scope.$on("onEditIndicatorSpatialUnitRoles", function (event, indicatorDataset) {
 
 			$scope.currentIndicatorDataset = indicatorDataset;
 
-			
 			$scope.$apply();
 
 			$scope.resetIndicatorEditIndicatorSpatialUnitRolesForm();
@@ -32,7 +33,7 @@ angular.module('indicatorEditIndicatorSpatialUnitRolesModal').component('indicat
 		});
 
 		$scope.refreshRoleManagementTable_indicatorMetadata = function() {
-			let permissions = $scope.currentIndicatorDataset ? $scope.currentIndicatorDataset.permissions : [];
+			$scope.permissions = $scope.currentIndicatorDataset ? $scope.currentIndicatorDataset.permissions : [];
 
 			// set datasetOwner to disable checkboxes for owned datasets in permissions-table
 			kommonitorDataExchangeService.accessControl.forEach(item => {
@@ -42,17 +43,54 @@ angular.module('indicatorEditIndicatorSpatialUnitRolesModal').component('indicat
 				}
 			});
 
-			$scope.roleManagementTableOptions_indicatorMetadata = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorEditRoleManagementTable', $scope.roleManagementTableOptions_indicatorMetadata, kommonitorDataExchangeService.accessControl, permissions, true);
+      if($scope.permissions.length==0)
+        $scope.activeRolesOnly = false;
+
+      let access = kommonitorDataExchangeService.accessControl;
+      if($scope.permissions.length>0 && $scope.activeRolesOnly) {
+        access = kommonitorDataExchangeService.accessControl.filter(unit => {
+
+          return (unit.permissions.filter(unitPermission => $scope.permissions.includes(unitPermission.permissionId)).length>0 ? true : false);
+        });
+      }
+
+			$scope.roleManagementTableOptions_indicatorMetadata = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorEditRoleManagementTable', $scope.roleManagementTableOptions_indicatorMetadata, access, $scope.permissions, true);
 		}
 
 		$scope.refreshRoleManagementTable_indicatorSpatialUnitTimeseries = function(){
+
 			if ($scope.targetApplicableSpatialUnit && $scope.targetApplicableSpatialUnit.permissions) {
-				$scope.roleManagementTableOptions_indicatorSpatialUnitTimeseries = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorEditIndicatorSpatialUnitsRoleManagementTable', $scope.roleManagementTableOptions_indicatorSpatialUnitTimeseries, kommonitorDataExchangeService.accessControl, $scope.targetApplicableSpatialUnit.permissions, true);
-			}
-			else {
+
+        if($scope.targetApplicableSpatialUnit.permissions.length==0)
+          $scope.activeConnectedRolesOnly = false;
+  
+        let connectedAccess = kommonitorDataExchangeService.accessControl;
+        if($scope.targetApplicableSpatialUnit.permissions.length>0 && $scope.activeConnectedRolesOnly) {
+          connectedAccess = kommonitorDataExchangeService.accessControl.filter(unit => {
+  
+            return (unit.permissions.filter(unitPermission => $scope.targetApplicableSpatialUnit.permissions.includes(unitPermission.permissionId)).length>0 ? true : false);
+          });
+        }
+
+
+				$scope.roleManagementTableOptions_indicatorSpatialUnitTimeseries = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorEditIndicatorSpatialUnitsRoleManagementTable', $scope.roleManagementTableOptions_indicatorSpatialUnitTimeseries, connectedAccess, $scope.targetApplicableSpatialUnit.permissions, true);
+			} else {
+
+        $scope.activeConnectedRolesOnly = false;
+
 				$scope.roleManagementTableOptions_indicatorSpatialUnitTimeseries = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorEditIndicatorSpatialUnitsRoleManagementTable', $scope.roleManagementTableOptions_indicatorSpatialUnitTimeseries, kommonitorDataExchangeService.accessControl, [], true);
 			}
-		}
+		}	
+    
+    $scope.onActiveConnectedRolesOnlyChange = function() {
+
+      $scope.refreshRoleManagementTable_indicatorSpatialUnitTimeseries();
+    }
+    
+    $scope.onActiveRolesOnlyChange = function() {
+
+      $scope.refreshRoleManagementTable_indicatorMetadata();
+    }
 
 		$scope.$on("availableRolesUpdate", function (event) {
 
