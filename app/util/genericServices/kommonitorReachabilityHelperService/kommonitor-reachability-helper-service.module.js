@@ -418,7 +418,7 @@ angular
 					startingPoints_geoJSON = jQuery.extend(true, {}, self.settings.selectedStartPointLayer.geoJSON_reachability);
 				}
 
-				// range in meters
+				// range in meters				
 				for (const range of this.settings.rangeArray) {
 					var geoJSON_buffered = turf.buffer(jQuery.extend(true, {}, startingPoints_geoJSON), Number(range) / 1000, { units: 'kilometers', steps: 12 });
 
@@ -445,6 +445,9 @@ angular
 				}
 
 				this.original_nonDissolved_isochrones = jQuery.extend(true, {}, resultIsochrones);
+				// sort buffered isochrones before attaching featureIDs as that expects a certain order of the point buffers
+				// each point must have consecutive indices and increasing range!
+				this.original_nonDissolved_isochrones.features = this.original_nonDissolved_isochrones.features.sort(self.sortBuffers); 
 				this.original_nonDissolved_isochrones = this.attachPoiFeatureIDsToIsochrones();
 
 				if (self.settings.dissolveIsochrones) {
@@ -461,6 +464,29 @@ angular
 
 				return resultIsochrones;
 			};
+
+			this.sortBuffers = function(a, b){
+				if (a.properties[__env.FEATURE_ID_PROPERTY_NAME] == b.properties[__env.FEATURE_ID_PROPERTY_NAME]) {
+					// sort by ascending range
+					if (a.properties["value"] < b.properties["value"]) {
+						return -1;
+					  }
+					else if (a.properties["value"] > b.properties["value"]) {
+						return 1;
+					  } 
+					else{
+						return 0;
+					}
+				  } 
+				if (a.properties[__env.FEATURE_ID_PROPERTY_NAME] < b.properties[__env.FEATURE_ID_PROPERTY_NAME]) {
+					return -1;
+				  } 
+				else if (a.properties[__env.FEATURE_ID_PROPERTY_NAME] < b.properties[__env.FEATURE_ID_PROPERTY_NAME]) {
+					return 1;
+				  }
+				  // a must be equal to b
+				  return 0;
+			}
 
 			this.createIsochrones = async function () {
 				var resultIsochrones;
