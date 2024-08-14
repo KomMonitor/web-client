@@ -41,6 +41,15 @@
 								<p>Zugriffsrechte (lesen, editieren) m&uuml;ssen explizit vergeben werden</p>
 	
 								<div class="row">
+                  <div class="col-md-12 col-sm-12 col-xs-12" ng-show="permissions.length!=0">
+                    <div class="form-group vertical-align">
+                        <label class="margin-right">Zeige nur zugewiesene Rechte</label>
+                        <label class="switch">
+                            <input type="checkbox" value="activeRolesOnly" ng-model="activeRolesOnly" ng-change="onActiveRolesOnlyChange()" ng-disabled="permissions.length==0">
+                            <span class="switchslider round"></span>
+                        </label>
+                    </div>
+                  </div>
 									<div class="col-md-3">
 										<label>&Ouml;ffentliche Lesefreigabe*</label>
 												<label class="switch">
@@ -76,15 +85,37 @@
 		
 								
 								
-								<div class="row vertical-align">
+								<div class="row">
+                  <div class="col-md-12 col-sm-12 col-xs-12" ng-show="targetApplicableSpatialUnit.permissions.length!=0">
+                    <div class="form-group vertical-align">
+                        <label class="margin-right">Zeige nur zugewiesene Rechte</label>
+                        <label class="switch">
+                            <input type="checkbox" value="activeConnectedRolesOnly" ng-model="activeConnectedRolesOnly" ng-change="onActiveConnectedRolesOnlyChange()" ng-disabled="targetApplicableSpatialUnit.permissions.length==0">
+                            <span class="switchslider round"></span>
+                        </label>
+                    </div>
+                  </div>
+                </div>
+                <div class="row vertical-align">
 									<div class="col-md-3 col-sm-6 col-xs-12">
-										<div class="form-group">
 											<label>Ziel-Raumebene*</label>
 											
 											<select ng-model="targetApplicableSpatialUnit" ng-options="spatialUnit as spatialUnit.spatialUnitName for spatialUnit in currentIndicatorDataset.applicableSpatialUnits"
-													class="form-control" ng-change="onChangeSelectedSpatialUnit(targetApplicableSpatialUnit)" required>
-													<option disabled selected value> -- Ziel-Raumebene w&auml;hlen -- </option>
-												</select>
+                        class="form-control" ng-change="onChangeSelectedSpatialUnit(targetApplicableSpatialUnit)" required>
+                        <option disabled selected value> -- Ziel-Raumebene w&auml;hlen -- </option>
+                      </select>
+                      <br>
+                      <label>&Ouml;ffentliche Lesefreigabe*</label>
+                      <label class="switch">
+                        <input type="checkbox" ng-model="targetApplicableSpatialUnit.isPublic">
+                        <span class="switchslider round"></span>
+                      </label>
+                      <div class="help-block">
+                        <p>
+                          &Ouml;ffentlich freigegebene Datens&auml;tze k&ouml;nnen ohne Login abgerufen werden.
+                        </p>
+                      </div>
+                      <div class="form-group">
 												<div class="help-block with-errors"></div>
 	
 										</div>
@@ -100,16 +131,7 @@
 								</div>	 -->
 
 									<div class="col-md-9 col-sm-6 col-xs-12">
-										<label>&Ouml;ffentliche Lesefreigabe*</label>
-												<label class="switch">
-													<input type="checkbox" ng-model="targetApplicableSpatialUnit.isPublic">
-													<span class="switchslider round"></span>
-												</label>
-												<div class="help-block">
-													<p>
-														&Ouml;ffentlich freigegebene Datens&auml;tze k&ouml;nnen ohne Login abgerufen werden.
-													</p>
-												</div>
+										
 										<div id="indicatorEditIndicatorSpatialUnitsRoleManagementTable" style="height: 45vh" class="ag-theme-alpine"></div> 
 									</div>
 

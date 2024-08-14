@@ -56,8 +56,8 @@ angular.module('roleEditGroupRightsModal').component('roleEditGroupRightsModal',
 		});
 
 		$scope.onActiveDelegatedRolesOnlyChange = function() {
-            $scope.buildDelegatedRolesTable();
-        }
+      $scope.buildDelegatedRolesTable();
+    }
 
         $scope.buildAuthorityRolesTable = function() {
 
