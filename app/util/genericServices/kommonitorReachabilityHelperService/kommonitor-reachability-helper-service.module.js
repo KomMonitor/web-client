@@ -448,6 +448,12 @@ angular
 				// sort buffered isochrones before attaching featureIDs as that expects a certain order of the point buffers
 				// each point must have consecutive indices and increasing range!
 				this.original_nonDissolved_isochrones.features = this.original_nonDissolved_isochrones.features.sort(self.sortBuffers); 
+
+				// attach metadata/query/range property for feature collection which is used by spatial data processor in indicator statistics computation
+				this.original_nonDissolved_isochrones.metadata = {query: {
+					range: this.settings.rangeArray
+				}};
+
 				this.original_nonDissolved_isochrones = this.attachPoiFeatureIDsToIsochrones();
 
 				if (self.settings.dissolveIsochrones) {
