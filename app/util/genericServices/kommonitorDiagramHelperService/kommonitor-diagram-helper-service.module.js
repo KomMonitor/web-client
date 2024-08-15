@@ -1334,7 +1334,7 @@ angular
         let regionalMeanUsed = false;
 
         // only add regional mean line if it contains at least one meaningful entry
-        if(kommonitorDataExchangeService.configMeanDataDisplay == "preferRegionalMeanIfAvailable" && indicatorTimeSeriesRegionalMeanArray.some(el => el !== null)){
+        if(indicatorTimeSeriesRegionalMeanArray.some(el => el !== null)){
           lineOption.series.push(regionalMeanLine);
           lineOption.legend.data.push("gesamtregionaler Vergleichsdurchschnitt");
           regionalMeanUsed = true;
