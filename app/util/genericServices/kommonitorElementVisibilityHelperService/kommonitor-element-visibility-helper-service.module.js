@@ -99,28 +99,8 @@ angular
 
           return hasAllowedRole;
         } else {
-          if(! kommonitorDataExchangeService.enableKeycloakSecurity){
-            if(element.roles && element.roles.includes(self.advancedModeRoleName)){
+          if(element.roles && element.roles.includes(self.advancedModeRoleName)){
 
-              // special case for diagram export buttons
-              if(element.id === "diagramExportButtons"){
-                kommonitorDataExchangeService.showDiagramExportButtons = false;
-              }
-              // special case for georesource export buttons
-              if(element.id === "georesourceExportButtons"){
-                kommonitorDataExchangeService.showGeoresourceExportButtons = false;
-              }
-
-              var domElement = document.getElementById(id);
-              if (domElement && domElement.style){
-                domElement.style.display = 'none';
-              }
-              // $("#" + id).remove();
-              return false;
-            }
-            return true;
-          }
-          else{
             // special case for diagram export buttons
             if(element.id === "diagramExportButtons"){
               kommonitorDataExchangeService.showDiagramExportButtons = false;
@@ -131,12 +111,13 @@ angular
             }
 
             var domElement = document.getElementById(id);
-              if (domElement && domElement.style){
-                domElement.style.display = 'none';
-              }
-
+            if (domElement && domElement.style){
+              domElement.style.display = 'none';
+            }
+            // $("#" + id).remove();
             return false;
-          }				
+          }
+          return true;		
         }
       };
 
