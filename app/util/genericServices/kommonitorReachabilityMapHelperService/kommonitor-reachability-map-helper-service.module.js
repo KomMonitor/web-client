@@ -1,12 +1,12 @@
-angular.module('kommonitorReachabilityMapHelper', ['kommonitorDataExchange', 'kommonitorGenericMapHelper', 'kommonitorVisualStyleHelper']);
+angular.module('kommonitorReachabilityMapHelper', ['kommonitorDataExchange', 'kommonitorGenericMapHelper', 'kommonitorVisualStyleHelper', 'kommonitorReachabilityScenarioHelper']);
 
 angular
   .module('kommonitorReachabilityMapHelper')
   .service(
     'kommonitorReachabilityMapHelperService', ['$rootScope', '__env', '$timeout', '$http',
-    'kommonitorDataExchangeService', 'kommonitorGenericMapHelperService', 'kommonitorVisualStyleHelperService',
+    'kommonitorDataExchangeService', 'kommonitorGenericMapHelperService', 'kommonitorVisualStyleHelperService', 'kommonitorReachabilityScenarioHelperService',
     function ($rootScope, __env, $timeout, $http,
-      kommonitorDataExchangeService, kommonitorGenericMapHelperService, kommonitorVisualStyleHelperService) {
+      kommonitorDataExchangeService, kommonitorGenericMapHelperService, kommonitorVisualStyleHelperService, kommonitorReachabilityScenarioHelperService) {
 
       var self = this;
 
@@ -861,9 +861,9 @@ angular
         for (const isochronePruneResult of poiFeature.properties.individualIsochronePruneResults) {
           let range = isochronePruneResult.poiFeatureId.split("_")[1];
           let unit = "Minuten";
-          // if(kommonitorReachabilityHelperService.settings.focus == 'distance'){
-          //   unit = "Meter";
-          // } 
+          if(kommonitorReachabilityScenarioHelperService.tmpActiveScenario.reachabilitySettings.focus == 'distance'){
+            unit = "Meter";
+          } 
           html += "<h4>" + range + " [" + unit + "]</h4>";
           html += "<h4><i>Gesamtgebiet</i></h4>"
 

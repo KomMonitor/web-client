@@ -181,10 +181,11 @@
 										<span class="glyphicon glyphicon-refresh icon-spin" ng-show="indicatorStatisticsEntry.progress != 'finished' && indicatorStatisticsEntry.progress != 'failed'"></span>
 										<div ng-if="indicatorStatisticsEntry.progress == 'failed'">Berechnung fehlgeschlagen</div>
 										<div ng-repeat="overallCoverageEntry in indicatorStatisticsEntry.coverageResult.overallCoverage">
-											<div ng-if="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.focus == 'time'">
+											<div ng-if="$ctrl.kommonitorReachabilityScenarioHelperServiceInstance.tmpActiveScenario.reachabilitySettings.focus == 'time'">
+
 												<b>{{::overallCoverageEntry.range / 60}} [Minuten]</b>
 											</div>	
-											<div ng-if="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.focus == 'distance'">
+											<div ng-if="$ctrl.kommonitorReachabilityScenarioHelperServiceInstance.tmpActiveScenario.reachabilitySettings.focus == 'distance'">
 												<b>{{::overallCoverageEntry.range}} [Meter]</b>
 											</div>											
 											<!-- <br/> -->
