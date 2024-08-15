@@ -46,6 +46,15 @@ try {
   window.__env.showBarChartLabel = false;
   window.__env.showBarChartAverageLine = true;
 
+  // controls whether the mean values (arithmetic and regional) shall be displayed in legend and indicator statistics menus or not
+  window.__env.enableMeanDataDisplayInLegend = false;
+
+  // control additional average/mean lines in line chart, legend and statisticalValues 
+  // allowed options 
+  // 'both' --> both, arithmetic mean and regional mean will be displayed if available
+  // 'preferRegionalMeanIfAvailable'  --> only show one line at a time. regional mean will be preferred if available
+  window.__env.configMeanDataDisplay = 'preferRegionalMeanIfAvailable';
+
   // encrypted data transfer from Data Management API settings
   window.__env.encryption = {
     enabled: false,

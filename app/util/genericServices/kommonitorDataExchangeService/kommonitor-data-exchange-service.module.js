@@ -34,6 +34,10 @@ angular
               this.showBarChartLabel = __env.showBarChartLabel;
               this.showBarChartAverageLine = __env.showBarChartAverageLine;
 
+              this.enableMeanDataDisplayInLegend = __env.enableMeanDataDisplayInLegend;
+              this.configMeanDataDisplay = __env.configMeanDataDisplay;
+             
+
 							var numberOfDecimals = __env.numberOfDecimals;
 							const DATE_PREFIX = __env.indicatorDatePrefix;
               var defaultColorForZeroValues = __env.defaultColorForZeroValues;
@@ -1965,14 +1969,14 @@ angular
 
             this.allFeaturesPropertyUnit = indicatorMetadataAndGeoJSON.unit;
             this.allFeaturesNumberOfFeatures = count;
-            this.allFeaturesSum = this.getIndicatorValue_asFormattedText(sum);
+            this.allFeaturesSum = sum;
             // no division by zero
             if (count > 0) 
-              this.allFeaturesMean = this.getIndicatorValue_asFormattedText(sum / count);
+            this.allFeaturesMean = sum / count;
             else 
               this.allFeaturesMean = 0;
-            this.allFeaturesMin = this.getIndicatorValue_asFormattedText(min);
-            this.allFeaturesMax = this.getIndicatorValue_asFormattedText(max);
+            this.allFeaturesMin = min;
+            this.allFeaturesMax = max;
 
             this.allFeaturesRegionalSum = undefined;
             this.allFeaturesRegionalMean = undefined;
@@ -2015,14 +2019,14 @@ angular
             
 
             this.selectedFeaturesNumberOfFeatures = count;
-            this.selectedFeaturesSum = this.getIndicatorValue_asFormattedText(sum);
+            this.selectedFeaturesSum = sum;
             // no division by zero
             if (count > 0) 
-              this.selectedFeaturesMean = this.getIndicatorValue_asFormattedText(sum / count);
+              this.selectedFeaturesMean = sum / count;
             else 
               this.selectedFeaturesMean = 0;
-            this.selectedFeaturesMin = this.getIndicatorValue_asFormattedText(min);
-            this.selectedFeaturesMax = this.getIndicatorValue_asFormattedText(max);
+            this.selectedFeaturesMin = min;
+            this.selectedFeaturesMax = max;
           };
 
 

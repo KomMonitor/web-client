@@ -1329,16 +1329,21 @@ angular
               color: 'gray'
             }
           }
-        };
+        };           
+
+        let regionalMeanUsed = false;
+
         // only add regional mean line if it contains at least one meaningful entry
-        if(indicatorTimeSeriesRegionalMeanArray.some(el => el !== null)){
+        if(kommonitorDataExchangeService.configMeanDataDisplay == "preferRegionalMeanIfAvailable" && indicatorTimeSeriesRegionalMeanArray.some(el => el !== null)){
           lineOption.series.push(regionalMeanLine);
           lineOption.legend.data.push("gesamtregionaler Vergleichsdurchschnitt");
+          regionalMeanUsed = true;
         }
-        else{
+
+        if(kommonitorDataExchangeService.configMeanDataDisplay == "both" || regionalMeanUsed == false){
           lineOption.series.push(meanLine);
-          lineOption.legend.data.push("rechnerischer Durchschnitt");
-        }        
+          lineOption.legend.data.push("rechnerisches arithmetisches Mittel");
+        }     
 
         // SETTING FOR MIN AND MAX STACK
 
