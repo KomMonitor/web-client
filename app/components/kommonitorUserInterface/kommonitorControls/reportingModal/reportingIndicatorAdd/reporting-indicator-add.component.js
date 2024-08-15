@@ -1096,7 +1096,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					return unit.nextUpperHierarchyLevel === null;
 				});
 				if( !$scope.selectedSpatialUnit) {
-					$scope.selectedSpatialUnit = highestSpatialUnit[0];
+					$scope.selectedSpatialUnit = kommonitorDataExchangeService.availableSpatialUnits[0];
 				}
 				let mostRecentTimestampName
 				if($scope.selectedSpatialUnit.metadata) {
