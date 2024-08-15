@@ -10,9 +10,10 @@ angular
 					 */
 					controller : [
 							'kommonitorDataExchangeService', '$scope', 'kommonitorMapService', '$http', '$rootScope', '__env', 
-							'$timeout',
-							function kommonitorDataSetupController(kommonitorDataExchangeService, $scope, kommonitorMapService, $http, $rootScope, __env, 
-								$timeout) {
+							'$timeout', 'kommonitorElementVisibilityHelperService',
+							function kommonitorDataSetupController(kommonitorDataExchangeService, $scope, 
+								kommonitorMapService, $http, $rootScope, __env, 
+								$timeout, kommonitorElementVisibilityHelperService) {
 
 								const INDICATOR_DATE_PREFIX = __env.indicatorDatePrefix;
 
@@ -298,7 +299,8 @@ angular
 										return;
 									}
 
-									
+									//reinit visibility of elements due to fact that now some HTML elements are actually available
+									kommonitorElementVisibilityHelperService.initElementVisibility();
 								});
 
 								/**

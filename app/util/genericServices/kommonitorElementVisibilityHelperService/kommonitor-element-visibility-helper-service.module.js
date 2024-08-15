@@ -76,7 +76,8 @@ angular
           var hasAllowedRole = false;          
           for (var i = 0; i < element.roles.length; i++) {
             if(Auth.keycloak.tokenParsed.realm_access.roles.includes(element.roles[i])){
-              return true;
+              hasAllowedRole = true;
+              // return true;
             }	
           }
 
@@ -99,7 +100,6 @@ angular
 
           return hasAllowedRole;
         } else {
-          if(element.roles && element.roles.includes(self.advancedModeRoleName)){
 
             // special case for diagram export buttons
             if(element.id === "diagramExportButtons"){
@@ -115,12 +115,10 @@ angular
               domElement.style.display = 'none';
             }
             // $("#" + id).remove();
-            return false;
-          }
-          return true;		
+            return false;	
         }
       };
-
-      this.initElementVisibility();
+      
+      this.initElementVisibility();            
   
     }]);
