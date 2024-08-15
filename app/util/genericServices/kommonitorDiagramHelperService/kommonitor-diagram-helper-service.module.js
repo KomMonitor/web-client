@@ -522,7 +522,10 @@ angular
             align: 'left',
             verticalAlign: 'middle',
             rotate: 90,
-            formatter: '{b}',
+            formatter: function(params) {
+              return params.name + "  " + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(params.value);
+            }
+            // formatter: '{b} {c}'
         };
 
         // default fontSize of echarts
