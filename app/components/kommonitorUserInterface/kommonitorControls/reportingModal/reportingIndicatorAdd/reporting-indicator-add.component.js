@@ -1011,17 +1011,17 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 		$scope.$on("reportingIsochronesCalculationFinished", function(event, isochrones) {
 			$scope.isochrones = isochrones;
-			if(checkNestedPropExists($scope.isochrones, 'info', 'query', 'profile'))
-				$scope.typeOfMovement = $scope.isochrones.info.query.profile;
-			else
-				$scope.typeOfMovement = "buffer";
+				// $scope.typeOfMovement = $scope.isochrones.metadata.query.profile;
+			$scope.typeOfMovement = kommonitorReachabilityHelperService.settings.transitMode;
 
 			if($scope.typeOfMovement === "buffer") {
 				$scope.isochronesRangeType = "distance";
 				$scope.isochronesRangeUnits = "m";
 			} else {
-				$scope.isochronesRangeType = $scope.isochrones.info.query.range_type;
-				$scope.isochronesRangeUnits = $scope.isochrones.info.query.units;
+				// $scope.isochronesRangeType = $scope.isochrones.metadata.query.range_type;
+				// $scope.isochronesRangeUnits = $scope.isochrones.metadata.query.units;
+				$scope.isochronesRangeType = kommonitorReachabilityHelperService.settings.focus;
+				$scope.isochronesRangeUnits = $scope.isochronesRangeType == "distance" ? "m" : 's';
 			}
 			
 			// for type buffer the bbox field doesn't exist, so we have to create it.

@@ -141,7 +141,6 @@ angular
 				document.getElementById("focus_distance").click();
 				this.settings.startPointsSource = "fromLayer";
 
-				document.getElementById("startPointsSource_layer").click();
 				this.settings.selectedStartPointLayer = undefined;
 
 				this.settings.loadingData = false;
@@ -458,7 +457,7 @@ angular
 
 				if (self.settings.dissolveIsochrones) {
 					try {
-						geoJSON_buffered = turf.dissolve(geoJSON_buffered, { propertyName: 'value' });
+						resultIsochrones = turf.dissolve(resultIsochrones, { propertyName: 'value' });
 					} catch (e) {
 						console.error("Dissolving Isochrones failed with error: " + e);
 						console.error("Will return undissolved isochrones");
