@@ -53,6 +53,7 @@ try {
   // allowed options 
   // 'both' --> both, arithmetic mean and regional mean will be displayed if available
   // 'preferRegionalMeanIfAvailable'  --> only show one line at a time. regional mean will be preferred if available
+  // 'regionalMeanOrNone' --> never show arithmetic mean. show regional mean if available or nothing
   window.__env.configMeanDataDisplay = 'preferRegionalMeanIfAvailable';
 
   // encrypted data transfer from Data Management API settings

@@ -261,7 +261,7 @@
 									<b>{{$ctrl.kommonitorDataExchangeServiceInstance.labelMean_regional}}</b>
 									{{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText($ctrl.kommonitorDataExchangeServiceInstance.allFeaturesRegionalMean)}}
 								</div>
-								<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesMean && $ctrl.kommonitorDataExchangeServiceInstance.enableMeanDataDisplayInLegend && ($ctrl.kommonitorDataExchangeServiceInstance.configMeanDataDisplay == 'both' || !$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesRegionalMean)">
+								<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesMean && $ctrl.kommonitorDataExchangeServiceInstance.enableMeanDataDisplayInLegend && ($ctrl.kommonitorDataExchangeServiceInstance.configMeanDataDisplay == 'both' || (! $ctrl.kommonitorDataExchangeServiceInstance.allFeaturesRegionalMean && kommonitorDataExchangeService.configMeanDataDisplay == 'preferRegionalMeanIfAvailable'))">
 									<b>{{$ctrl.kommonitorDataExchangeServiceInstance.labelMean}}</b>
 									{{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText($ctrl.kommonitorDataExchangeServiceInstance.allFeaturesMean)}}
 								</div>
@@ -558,7 +558,7 @@
 								<td>{{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText($ctrl.kommonitorDataExchangeServiceInstance.allFeaturesRegionalMean)}}</td>
 								<td>{{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText($ctrl.kommonitorDataExchangeServiceInstance.selectedFeaturesMean)}}</td>
 							</tr>
-							<tr ng-if="$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesMean && ($ctrl.kommonitorDataExchangeServiceInstance.configMeanDataDisplay == 'both' || !$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesRegionalMean)">
+							<tr ng-if="$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesMean && ($ctrl.kommonitorDataExchangeServiceInstance.configMeanDataDisplay == 'both' || (! $ctrl.kommonitorDataExchangeServiceInstance.allFeaturesRegionalMean && kommonitorDataExchangeService.configMeanDataDisplay == 'preferRegionalMeanIfAvailable'))">
 								<td>{{$ctrl.kommonitorDataExchangeServiceInstance.labelMean}}</td>
 								<td>{{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText($ctrl.kommonitorDataExchangeServiceInstance.allFeaturesMean)}}</td>
 								 <td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedFeaturesMean}}</td>
