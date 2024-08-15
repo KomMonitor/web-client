@@ -2453,8 +2453,7 @@ angular
               didDrawCell: function(data) {
                 if (imgData && data.row.index === 2 && data.column.index === 1 && data.cell.section === 'body') {
                    var cellHeight = data.cell.height - data.cell.padding('vertical');
-                   var cellWidth = data.cell.width - data.cell.padding('horizontal');
-                   var textPos = data.cell.textPos;
+                   var cellWidth = data.cell.width - data.cell.padding('horizontal');                   
 
                    var imgScale = cellHeight / imgHeight;
                    var width = imgWidth * imgScale;
@@ -2462,7 +2461,7 @@ angular
                      width = cellWidth;
                    }
 
-                   jspdf.addImage(imgData, "PNG", textPos.x,  textPos.y, width, cellHeight);
+                   jspdf.addImage(imgData, "PNG", data.cell.x,  data.cell.y, width, cellHeight);
                 }
               }
             });

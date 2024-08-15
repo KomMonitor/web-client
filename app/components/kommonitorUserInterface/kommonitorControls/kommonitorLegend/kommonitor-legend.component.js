@@ -278,6 +278,9 @@ angular
 								else if (key.toLowerCase().includes("date_")) {
 								  // from DATE_2018-01-01
 								  // to 2018-01-01
+								  // indicator values should be replaced.
+								  // replace dot as decimal separator 
+								  properties[key] = kommonitorDataExchangeService.getIndicatorValue_asFormattedText(properties[key]);
 								  newKey = key.split("_")[1];
 								}
 								else if (key.toLowerCase().includes("startdate")) {
@@ -299,15 +302,28 @@ angular
 							  items.push(properties);
 							}
 				  
-							var headers = {};
+							// var headers = {};
 
-							for (const key in items[0]) {
-								if (Object.hasOwnProperty.call(items[0], key)) {
-									headers[key] = key;									
-								}
-							}
+							// for (const key in items[0]) {
+							// 	if (Object.hasOwnProperty.call(items[0], key)) {
+							// 		headers[key] = key;									
+							// 	}
+							// }
 
-							exportCSVFile(headers, items, fileName);
+							let csv = Papa.unparse(items, {
+								quotes: false, //or array of booleans
+								quoteChar: '"',
+								escapeChar: '"',
+								delimiter: ";",
+								header: true,
+								newline: "\r\n",
+								skipEmptyLines: false, //other option is 'greedy', meaning skip delimiters, quotes, and whitespace.
+								columns: null //or array of strings
+							});
+
+							kommonitorDataExchangeService.generateAndDownloadIndicatorZIP(csv, fileName, ".csv", {});
+
+							// exportCSVFile(headers, items, fileName);
 						  };
 
 						  function convertToCSV(objArray) {
