@@ -84,15 +84,19 @@ angular
 			}
 
       this.addReachabilityScenario = function(){
+        this.configureActiveScenario();
+
+        this.replaceOrAddScenario(jQuery.extend(true, {}, this.tmpActiveScenario)); 
+      
+      }
+
+      this.configureActiveScenario = function(){
         this.tmpActiveScenario.reachabilitySettings = kommonitorReachabilityHelperService.settings;
         this.tmpActiveScenario.isochrones_dissolved = kommonitorReachabilityHelperService.currentIsochronesGeoJSON;
         this.tmpActiveScenario.isochrones_perPoint = kommonitorReachabilityHelperService.original_nonDissolved_isochrones;
         // this.tmpActiveScenario.indicatorStatistics and this.tmpActiveScenario.scenarioName are already directly set within reachability components 
         
         this.setPoiDataset(this.tmpActiveScenario.reachabilitySettings.selectedStartPointLayer);
-
-        this.replaceOrAddScenario(jQuery.extend(true, {}, this.tmpActiveScenario)); 
-      
       }
 
       this.replaceOrAddScenario = function(scenario){        

@@ -857,13 +857,13 @@ angular
         let html = "<div style='max-height: 30vh; overflow:auto;'><h3>" + poiFeature.properties[__env.FEATURE_NAME_PROPERTY_NAME] + "</h3>";
 
         poiFeature.properties.individualIsochronePruneResults.sort((a, b) => {
-          let range_a = Number(a.poiFeatureId.split("_")[1]);
-          let range_b = Number(b.poiFeatureId.split("_")[1]);
+          let range_a = Number(a.poiFeatureId.split("_")[a.poiFeatureId.split("_").length - 1]);
+          let range_b = Number(b.poiFeatureId.split("_")[b.poiFeatureId.split("_").length - 1]);
           return range_a - range_b;
         });
 
         for (const isochronePruneResult of poiFeature.properties.individualIsochronePruneResults) {
-          let range = isochronePruneResult.poiFeatureId.split("_")[1];
+          let range = isochronePruneResult.poiFeatureId.split("_")[isochronePruneResult.poiFeatureId.split("_").length -1 ];
           let unit = "Minuten";
           if(kommonitorReachabilityScenarioHelperService.tmpActiveScenario.reachabilitySettings.focus == 'distance'){
             unit = "Meter";
@@ -1031,7 +1031,7 @@ angular
         for (const isochroneFeature of original_nonDissolved_isochrones.features) {
           // each feature ID consists of poiFeatureID and isochrone rangeValue separated by "_"
           // i.e. <id>_<range>
-          let poiFeatureID = isochroneFeature.properties[__env.FEATURE_ID_PROPERTY_NAME].split("_")[0]
+          let poiFeatureID = isochroneFeature.properties[__env.FEATURE_ID_PROPERTY_NAME].substr(0, isochroneFeature.properties[__env.FEATURE_ID_PROPERTY_NAME].lastIndexOf("_"));
 
           let poiFeature = poiMap.get(poiFeatureID);
 
@@ -1055,7 +1055,7 @@ angular
 
           // each feature ID consists of poiFeatureID and isochrone rangeValue separated by "_"
           // i.e. <id>_<range>
-          let poiFeatureID = poiCoverage_foreach_range["poiFeatureId"].split("_")[0]
+          let poiFeatureID = poiCoverage_foreach_range["poiFeatureId"].substr(0, poiCoverage_foreach_range["poiFeatureId"].lastIndexOf("_"));          
 
           let poiFeature = poiMap.get(poiFeatureID);
 

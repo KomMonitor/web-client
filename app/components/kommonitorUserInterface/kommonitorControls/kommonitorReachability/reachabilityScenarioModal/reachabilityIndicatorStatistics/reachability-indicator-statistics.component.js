@@ -204,6 +204,10 @@ angular.module('reachabilityIndicatorStatistics').component('reachabilityIndicat
 			$scope.computeReachabilityIndicatorStatistic = async function () {
 				// query spatial data processor in order to compute indicator statistics
 
+				// in order to make UI consistent and have the ability to compare current scenario against any changes done in the ui regarding
+				// recahbility config, we must set the current settings as activeScenario.
+				kommonitorReachabilityScenarioHelperService.configureActiveScenario();
+
 				let indicatorIdArray = [$scope.selectedIndicatorForStatistics.indicatorId];
 				// weighting options: residential_areas, simple
 				let weight = $scope.weightStrategy.apiName;
