@@ -747,6 +747,8 @@ angular
         let indicatorMetadataAndGeoJSON = await this.setupIndicator(indicatorStatisticsCandidate);
         let timestamp = indicatorStatisticsCandidate.timestamp;
         let indicatorPropertyName = __env.indicatorDatePrefix + timestamp;
+
+        kommonitorVisualStyleHelperService.backupCurrentBrewObjects_forMainMapIndicator();
         let defaultBrew = kommonitorVisualStyleHelperService.setupDefaultBrew(indicatorMetadataAndGeoJSON.geoJSON, indicatorPropertyName, indicatorMetadataAndGeoJSON.defaultClassificationMapping.numClasses, indicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName, kommonitorVisualStyleHelperService.classifyMethod, true, indicatorMetadataAndGeoJSON);
 
         let indicatorLayer = await this.generateIndicatorLayer(indicatorMetadataAndGeoJSON, indicatorPropertyName, defaultBrew, indicatorStatisticsCandidate);
@@ -786,6 +788,8 @@ angular
         // this.zoomToIsochroneLayer(domId);
 
         this.mapPartsMap.set(domId, mapParts);
+
+        kommonitorVisualStyleHelperService.resetCurrentBrewObjects_forMainMapIndicator();
       }
 
       this.generateIndicatorLegend = function (defaultBrew, indicatorMetadataAndGeoJSON) {

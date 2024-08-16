@@ -884,4 +884,20 @@ angular
 
       };
 
+      this.backupCurrentBrewObjects_forMainMapIndicator = function(){
+        // backup all current brew objects
+        this.defaultBrew_backup = jQuery.extend(true, {}, this.defaultBrew);
+        this.measureOfValueBrew_backup = jQuery.extend(true, {}, this.measureOfValueBrew);
+        this.dynamicBrew_backup = jQuery.extend(true, {}, this.dynamicBrew);
+        this.manualBrew_backup = jQuery.extend(true, {}, this.manualBrew);
+      }
+
+      this.resetCurrentBrewObjects_forMainMapIndicator = function(){
+        // backup all current brew objects
+        this.defaultBrew = jQuery.extend(true, {}, this.defaultBrew_backup);
+        this.measureOfValueBrew = jQuery.extend(true, {}, this.measureOfValueBrew_backup);
+        this.dynamicBrew = jQuery.extend(true, {}, this.dynamicBrew_backup);
+        this.manualBrew = jQuery.extend(true, {}, this.manualBrew_backup);
+      }
+
     }]);
