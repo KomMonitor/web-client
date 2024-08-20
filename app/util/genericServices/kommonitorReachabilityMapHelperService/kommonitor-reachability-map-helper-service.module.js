@@ -1020,7 +1020,7 @@ angular
           // ensure that each poi does not hold old information from another scenario
           delete poiFeature.properties.individualIsochrones;
           delete poiFeature.properties.individualIsochronePruneResults;
-          poiMap.set(poiFeature.properties[__env.FEATURE_ID_PROPERTY_NAME], poiFeature);
+          poiMap.set("" + poiFeature.properties[__env.FEATURE_ID_PROPERTY_NAME], poiFeature);
         }
 
         return poiMap;
@@ -1031,7 +1031,7 @@ angular
         for (const isochroneFeature of original_nonDissolved_isochrones.features) {
           // each feature ID consists of poiFeatureID and isochrone rangeValue separated by "_"
           // i.e. <id>_<range>
-          let poiFeatureID = isochroneFeature.properties[__env.FEATURE_ID_PROPERTY_NAME].substr(0, isochroneFeature.properties[__env.FEATURE_ID_PROPERTY_NAME].lastIndexOf("_"));
+          let poiFeatureID = isochroneFeature.properties[__env.FEATURE_ID_PROPERTY_NAME].substring(0, isochroneFeature.properties[__env.FEATURE_ID_PROPERTY_NAME].lastIndexOf("_"));
 
           let poiFeature = poiMap.get(poiFeatureID);
 
@@ -1055,7 +1055,7 @@ angular
 
           // each feature ID consists of poiFeatureID and isochrone rangeValue separated by "_"
           // i.e. <id>_<range>
-          let poiFeatureID = poiCoverage_foreach_range["poiFeatureId"].substr(0, poiCoverage_foreach_range["poiFeatureId"].lastIndexOf("_"));          
+          let poiFeatureID = poiCoverage_foreach_range["poiFeatureId"].substring(0, poiCoverage_foreach_range["poiFeatureId"].lastIndexOf("_"));          
 
           let poiFeature = poiMap.get(poiFeatureID);
 
