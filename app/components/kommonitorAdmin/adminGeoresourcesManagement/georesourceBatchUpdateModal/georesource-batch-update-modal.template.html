@@ -120,7 +120,7 @@
 											<!-- Geodaten-Quellformat -->
 											<td>
 												<select class="form-control" ng-model="georesource.selectedConverter"
-														ng-options="converter as converter.name for converter in $ctrl.kommonitorImporterHelperServiceInstance.availableConverters | filter:$ctrl.kommonitorImporterHelperServiceInstance.filterConverters('georesource')" required>
+														ng-options="converter as converter.name for converter in availableConverters" required>
 																<option disabled selected value> -- Geodaten-Quellformat w&auml;hlen -- </option>
 												</select>
 											</td>
@@ -233,7 +233,7 @@
 											<!-- Datenquelltyp -->
 											<td>
 												<select ng-model="georesource.selectedDatasourceType"
-														ng-options="datasourceType as datasourceType.type for datasourceType in $ctrl.kommonitorImporterHelperServiceInstance.availableDatasourceTypes"
+														ng-options="datasourceType as datasourceType.type for datasourceType in availableDatasourceTypes"
 														class="form-control" required>
 																<option disabled selected value> -- Quelltyp w&auml;hlen -- </option>
 												</select>

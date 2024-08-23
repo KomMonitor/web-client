@@ -6,6 +6,9 @@ angular.module('indicatorBatchUpdateModal').component('indicatorBatchUpdateModal
 			this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 			this.kommonitorImporterHelperServiceInstance = kommonitorImporterHelperService;
 			this.kommonitorBatchUpdateHelperServiceInstance = kommonitorBatchUpdateHelperService;
+
+			const supportedDatasourceTypes = ["FILE", "INLINE", "HTTP"];
+			const supportedConverters = ["GeoJSON", "Shapefile (ZIP-Ordner mit .shp, .dbf, .prj)", "Tabelle_Zeitreihe_zu_Indikator", "WFS_v1"];
 	
 			$scope.isFirstStart = true;
 			$scope.lastUpdateResponseObj;
@@ -61,9 +64,32 @@ angular.module('indicatorBatchUpdateModal').component('indicatorBatchUpdateModal
 				}
 			});
 
+			$scope.getSupportedDatasourceTypes = function() {
+				var result = [];
+				kommonitorImporterHelperService.availableDatasourceTypes.forEach((dt) => {
+					if (supportedDatasourceTypes.includes(dt.type)) {
+						result.push(dt);
+					}
+				});
+				return result;
+			}
+
+			$scope.getSupportedConverters = function() {
+				var result = [];
+				kommonitorImporterHelperService.availableConverters.forEach((c) => {
+					if (supportedConverters.includes(c.name)) {
+						result.push(c);
+					}
+				});
+				return result;
+			}
+
 
 			// initializes the modal
 			$scope.initialize = function() {
+
+				$scope.availableDatasourceTypes = $scope.getSupportedDatasourceTypes();
+				$scope.availableConverters = $scope.getSupportedConverters();
 	
 				if($scope.isFirstStart) {
 					kommonitorBatchUpdateHelperService.addNewRowToBatchList("indicator", $scope.batchList)
