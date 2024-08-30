@@ -2975,10 +2975,12 @@ angular
     }
 
     this.getRoleTitle = function(organizationalUnitId){
-        let orga = this.accessControl.filter(e => e.organizationalUnitId==organizationalUnitId)[0];
-
-        return orga.name;
+      var roles = this.accessControl.filter(e => e.organizationalUnitId==organizationalUnitId);
+      if(roles && roles.length > 0) {
+        return roles[0].name;
       }
+      return "";
+    }
 
     this.checkDeletePermission = function(){
       if(this.checkAdminPermission()) {
