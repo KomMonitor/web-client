@@ -106,6 +106,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 		$scope.ownerOrganization = undefined;
 		$scope.ownerOrgFilter = undefined;
 		$scope.isPublic = false;
+    $scope.resourcesCreatorRights = [];
 
 		$scope.onChangeOwner = function(orgUnitId) {	
 			$scope.ownerOrganization = orgUnitId;		
@@ -131,11 +132,32 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 		$scope.$on("initialMetadataLoadingCompleted", function (event) {
 			$('#spatialUnitRoleForm').css('display','none');
 
+      $scope.prepareCreatorList();
+      
 			refreshRoles();
 			setTimeout(() => {
 				$scope.$digest();	
 			}, 250);
 		});
+    
+    $scope.prepareCreatorList = function() {
+
+      if(kommonitorDataExchangeService.currentKomMonitorLoginRoleNames.length>0) {
+
+        let creatorRights = [];
+        kommonitorDataExchangeService.currentKomMonitorLoginRoleNames.forEach(roles => {
+          
+          let key = roles.split('.')[0];
+          let role = roles.split('.')[1];
+
+          if((role=='unit-resources-creator' || role=='client-resources-creator') && !$scope.resourcesCreatorRights.includes(key)) {
+            creatorRights.push(key);
+          }
+        });
+
+        $scope.resourcesCreatorRights = kommonitorDataExchangeService.accessControl.filter(elem => creatorRights.includes(elem.name));
+      }
+    }
 		
 		function refreshRoles(orgUnitId) {			
 

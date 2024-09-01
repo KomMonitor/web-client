@@ -448,7 +448,7 @@
 												<option ng-repeat="org in $ctrl.kommonitorDataExchangeServiceInstance.accessControl | filter:ownerOrgFilter" value="{{org.organizationalUnitId}}">{{org.name}}</option>
 											</select>		
 											<select ng-if="!$ctrl.kommonitorDataExchangeServiceInstance.checkAdminPermission()" id="addGeoresourceUserRoleSelect" ng-model="ownerOrganization" class="form-control" ng-change="onChangeOwner(ownerOrganization)" required>
-												<option ng-repeat="org in $ctrl.kommonitorDataExchangeServiceInstance.currentKomMonitorLoginOrganizationalUnits | filter:ownerOrgFilter" value="{{org.organizationalUnitId}}">{{org.name}}</option>
+												<option ng-repeat="org in resourcesCreatorRights | filter:ownerOrgFilter" value="{{org.organizationalUnitId}}">{{org.name}}</option>
 											</select>
 											<p></p>
 										</div>
