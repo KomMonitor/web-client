@@ -20,10 +20,13 @@ angular.module('indicatorEditIndicatorSpatialUnitRolesModal').component('indicat
     $scope.activeRolesOnly = true;
     $scope.activeConnectedRolesOnly = true;
     $scope.permissions = [];
+    $scope.resourcesCreatorRights = [];
 
 		$scope.$on("onEditIndicatorSpatialUnitRoles", function (event, indicatorDataset) {
 
 			$scope.currentIndicatorDataset = indicatorDataset;
+
+      $scope.prepareCreatorList();
 
 			$scope.$apply();
 
@@ -31,6 +34,25 @@ angular.module('indicatorEditIndicatorSpatialUnitRolesModal').component('indicat
 			kommonitorMultiStepFormHelperService.registerClickHandler("indicatorEditIndicatorSpatialUnitRolesForm");
 
 		});
+
+    $scope.prepareCreatorList = function() {
+
+      if(kommonitorDataExchangeService.currentKomMonitorLoginRoleNames.length>0) {
+
+        let creatorRights = [];
+        kommonitorDataExchangeService.currentKomMonitorLoginRoleNames.forEach(roles => {
+          
+          let key = roles.split('.')[0];
+          let role = roles.split('.')[1];
+
+          if((role=='unit-resources-creator' || role=='client-resources-creator') && !$scope.resourcesCreatorRights.includes(key)) {
+            creatorRights.push(key);
+          }
+        });
+
+        $scope.resourcesCreatorRights = kommonitorDataExchangeService.accessControl.filter(elem => creatorRights.includes(elem.name));
+      }
+    }
 
 		$scope.refreshRoleManagementTable_indicatorMetadata = function() {
 			$scope.permissions = $scope.currentIndicatorDataset ? $scope.currentIndicatorDataset.permissions : [];

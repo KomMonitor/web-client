@@ -18,16 +18,38 @@ angular.module('georesourceEditUserRolesModal').component('georesourceEditUserRo
 		$scope.ownerOrganization = undefined;
     $scope.activeRolesOnly = true;
     $scope.permissions = [];
+    $scope.resourcesCreatorRights = [];
 
 		$scope.$on("onEditGeoresourcesUserRoles", function (event, georesourceDataset) {
 
 			$scope.currentGeoresourceDataset = georesourceDataset;
+
+      $scope.prepareCreatorList();
 
 			$scope.$apply();
 
 			$scope.resetGeoresourceEditUserRolesForm();
 			kommonitorMultiStepFormHelperService.registerClickHandler('georesourceEditUserRolesForm');
 		});
+
+    $scope.prepareCreatorList = function() {
+
+      if(kommonitorDataExchangeService.currentKomMonitorLoginRoleNames.length>0) {
+
+        let creatorRights = [];
+        kommonitorDataExchangeService.currentKomMonitorLoginRoleNames.forEach(roles => {
+          
+          let key = roles.split('.')[0];
+          let role = roles.split('.')[1];
+
+          if((role=='unit-resources-creator' || role=='client-resources-creator') && !$scope.resourcesCreatorRights.includes(key)) {
+            creatorRights.push(key);
+          }
+        });
+
+        $scope.resourcesCreatorRights = kommonitorDataExchangeService.accessControl.filter(elem => creatorRights.includes(elem.name));
+      }
+    }
 
 		$scope.refreshRoleManagementTable = function() {
 			$scope.permissions = $scope.currentGeoresourceDataset ? $scope.currentGeoresourceDataset.permissions : [];

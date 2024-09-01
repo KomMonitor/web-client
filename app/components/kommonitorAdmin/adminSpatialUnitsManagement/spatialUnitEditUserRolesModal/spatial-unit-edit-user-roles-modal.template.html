@@ -89,7 +89,7 @@
 											</div>
 											<select id="targetUserRoleSelect" ng-model="ownerOrganization" class="form-control" ng-change="onChangeOwner(ownerOrganization)" required>
 												<option selected value><b>Eigent&uuml;merschaft nicht &uuml;bertragen</b></option>
-												<option ng-repeat="org in $ctrl.kommonitorDataExchangeServiceInstance.accessControl | filter:ownerOrgFilter" value="{{org.organizationalUnitId}}">{{org.name}}</option>
+												<option ng-repeat="org in resourcesCreatorRights | filter:ownerOrgFilter" value="{{org.organizationalUnitId}}">{{org.name}}</option>
 											</select>
 										</div>
 										<div class="col-md-3">
