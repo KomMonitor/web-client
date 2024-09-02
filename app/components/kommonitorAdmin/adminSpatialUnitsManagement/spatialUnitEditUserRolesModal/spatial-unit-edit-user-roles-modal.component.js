@@ -37,15 +37,31 @@ angular.module('spatialUnitEditUserRolesModal').component('spatialUnitEditUserRo
       if(kommonitorDataExchangeService.currentKomMonitorLoginRoleNames.length>0) {
 
         let creatorRights = [];
+        let creatorRightsChildren = [];
         kommonitorDataExchangeService.currentKomMonitorLoginRoleNames.forEach(roles => {
           
           let key = roles.split('.')[0];
           let role = roles.split('.')[1];
 
-          if((role=='unit-resources-creator' || role=='client-resources-creator') && !$scope.resourcesCreatorRights.includes(key)) {
+          // case unit-resources-creator
+          if(role=='unit-resources-creator' && !$scope.resourcesCreatorRights.includes(key)) {
             creatorRights.push(key);
           }
+
+          // case client-resources-creator, gather unit-ids first, then fetch all unit-data
+          if(role=='client-resources-creator' && !creatorRightsChildren.includes(key)) {
+            creatorRightsChildren.push(key);
+          }
         });
+
+        // gather all children
+        if(creatorRightsChildren.length>0) {
+          kommonitorDataExchangeService.accessControl.filter(elem => creatorRightsChildren.includes(elem.name)).map(res => res.children).forEach(child => {
+            kommonitorDataExchangeService.accessControl.filter(elem => elem.organizationalUnitId==child).forEach(childData => {
+              creatorRights.push(childData.name);
+            });
+          });
+        }
 
         $scope.resourcesCreatorRights = kommonitorDataExchangeService.accessControl.filter(elem => creatorRights.includes(elem.name));
       }
