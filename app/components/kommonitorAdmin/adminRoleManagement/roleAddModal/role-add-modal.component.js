@@ -21,6 +21,7 @@ angular.module('roleAddModal').component('roleAddModal', {
 
 			$scope.parentOrganizationalUnitFilter = undefined;
 			$scope.parentOrganizationalUnit = undefined;
+      $scope.parentSelected = false;
 
             $scope.unitAddSuccess = false;
 
@@ -80,11 +81,18 @@ angular.module('roleAddModal').component('roleAddModal', {
 				}, 250);
 			};
 
-			$scope.onChangeParentOrganizationalUnit = function(){
-				let parentId = $scope.parentOrganizationalUnit ? $scope.parentOrganizationalUnit.organizationalUnitId : "";
+			$scope.onChangeParentOrganizationalUnit = function(selectedOption){
+
+        if(selectedOption)
+          $scope.parentSelected = true;
+        else
+          $scope.parentSelected = false;
+
+				let parentId = selectedOption ? selectedOption.organizationalUnitId : "";
 				if (! parentId){
 					parentId = "";
 				}
+
 				$scope.newOrganizationalUnit.parentId = parentId;
 			}
 
@@ -149,14 +157,14 @@ angular.module('roleAddModal').component('roleAddModal', {
 				}
 
 
-                // add role delegates
-                try {
+        // add role delegates
+        try {
 
-                    let orgaUnit = kommonitorDataExchangeService.getAccessControlByName($scope.newOrganizationalUnit.name);
+          let orgaUnit = kommonitorDataExchangeService.getAccessControlByName($scope.newOrganizationalUnit.name);
 
 					if(!$scope.unitAddSuccess || !orgaUnit.organizationalUnitId){
 					 	throw new Error("Anlegen der Gruppe fehlgeschlagen.");
-				    }
+          }
 
                     // recreate json permission structure out of "unitIds-roleName"
                     const permissions = [];
@@ -220,8 +228,8 @@ angular.module('roleAddModal').component('roleAddModal', {
                         $("#ouAddErrorAlert").show();
                         $scope.loadingData = false;
                     });
-                } catch (error) {
-                    $scope.errorMessagePart = "Unable to update role authorities"
+        } catch (error) {
+            $scope.errorMessagePart = "Unable to update role authorities"
 
 					$("#ouAddErrorAlert").show();
 					$scope.loadingData = false;
