@@ -12,7 +12,7 @@ angular.module('roleAddModal').component('roleAddModal', {
 			$scope.loadingData = false;
 			$scope.newOrganizationalUnit = {
 				mandant: false,
-				parentId: ""
+				parentId: null
 			};
 
 			$scope.nameInvalid = false;
@@ -65,7 +65,7 @@ angular.module('roleAddModal').component('roleAddModal', {
 			$scope.resetOrganizationalUnitAddForm = function () {
 				$scope.newOrganizationalUnit = {
 					mandant: false,
-					parentId: ""
+					parentId: null
 				};
 
 				$scope.errorMessagePart = undefined;
@@ -83,14 +83,14 @@ angular.module('roleAddModal').component('roleAddModal', {
 
 			$scope.onChangeParentOrganizationalUnit = function(selectedOption){
 
-        if(selectedOption)
-          $scope.parentSelected = true;
-        else
-          $scope.parentSelected = false;
+        		if(selectedOption)
+          			$scope.parentSelected = true;
+        		else
+          			$scope.parentSelected = false;
 
 				let parentId = selectedOption ? selectedOption.organizationalUnitId : "";
 				if (! parentId){
-					parentId = "";
+					parentId = null;
 				}
 
 				$scope.newOrganizationalUnit.parentId = parentId;
