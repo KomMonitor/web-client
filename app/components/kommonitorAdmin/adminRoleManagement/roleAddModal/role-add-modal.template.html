@@ -57,9 +57,12 @@
 											placeholder="z.B. sekretariat@kommonitor.de" ng-model="newOrganizationalUnit.contact" required></textarea>
 									</div>
 								</div>
-								<div class="row vertical-align">
+								<div class="row vertical-align" style="height:20em">
 									<div class="col-md-4">
-										<div class="form-group">
+                    <div ng-if="parentSelected" class="alert alert-danger">
+                      Zum Anlegen eines Mandanten deselektieren Sie bitte die &uuml;bergeordnete Organisationseinheit
+                    </div>
+										<div class="form-group" ng-if="!parentSelected">
 											<label>Mandant*</label>
 											<label class="switch">
 												<input type="checkbox" ng-model="newOrganizationalUnit.mandant">
@@ -74,21 +77,26 @@
 									</div>	
 									<div class="col-md-4">
 										<label for="parentOrganizationalUnitSelect"><b>Hierarchische Einordnung - Angabe der &uuml;bergeordneten Organisationseinheit</b></label>
-											<div class="input-group">
-												<span class="input-group-addon"><i class="fas fa-filter"></i></span>
-												<input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model="parentOrganizationalUnitFilter" ng-model-options="{debounce: 500, blur: 0}">
-											</div>
-											<select id="parentOrganizationalUnitSelect" size="5" ng-model="parentOrganizationalUnit" 
-												class="form-control" ng-change="onChangeParentOrganizationalUnit()" 
-												ng-options="organizationalUnitItem as organizationalUnitItem.name for organizationalUnitItem in $ctrl.kommonitorDataExchangeServiceInstance.allowedAccessControl | filter:parentOrganizationalUnitFilter | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterChildOrSelfOrganizationalUnits()"
-												required>
-												<option selected value ng-if="$ctrl.kommonitorDataExchangeServiceInstance.isRealmAdmin"><b>keine - neuer Wurzelknoten</b></option>		
-											</select>
-											<div class="help-block">
-												<p>wird keine &uuml;bergeordneten Organisationseinheit festgelegt, so ist die neue Organisationseinheit auf oberster Ebene der Hierarchie angesiedelt. 
-													Die Hierarchiebeziehung kann nachtr&auml;glich angepasst werden.  
-												</p>
-											</div>
+                      <div ng-if="newOrganizationalUnit.mandant" class="alert alert-danger">
+                        Mandanten k&ouml;nnen keine &uuml;bergeordnete Organisationseinheit haben
+                      </div>
+                      <div ng-if="!newOrganizationalUnit.mandant">
+                        <div class="input-group">
+                          <span class="input-group-addon"><i class="fas fa-filter"></i></span>
+                          <input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model="parentOrganizationalUnitFilter" ng-model-options="{debounce: 500, blur: 0}">
+                        </div>
+                        <select id="parentOrganizationalUnitSelect" size="5" ng-model="parentOrganizationalUnit" 
+                          class="form-control" ng-change="onChangeParentOrganizationalUnit(parentOrganizationalUnit)" 
+                          ng-options="organizationalUnitItem as organizationalUnitItem.name for organizationalUnitItem in $ctrl.kommonitorDataExchangeServiceInstance.allowedAccessControl | filter:parentOrganizationalUnitFilter | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterChildOrSelfOrganizationalUnits()"
+                          required>
+                          <option selected value ng-if="$ctrl.kommonitorDataExchangeServiceInstance.isRealmAdmin"><b>keine - neuer Wurzelknoten</b></option>		
+                        </select>
+                        <div class="help-block">
+                          <p>wird keine &uuml;bergeordneten Organisationseinheit festgelegt, so ist die neue Organisationseinheit auf oberster Ebene der Hierarchie angesiedelt. 
+                            Die Hierarchiebeziehung kann nachtr&auml;glich angepasst werden.  
+                          </p>
+                        </div>
+                      </div>
 									</div>		
 								</div>
                                 
