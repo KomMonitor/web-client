@@ -960,6 +960,13 @@ pre.CodeMirror-line {
 	gap: 10px;
 }
 
+#filterStatusButtonContainer {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	align-items: flex-start;
+}
+
 .btn-purple {
 	background-color: rgb(117,107,177);
 	border-color: rgb(98, 89, 148);

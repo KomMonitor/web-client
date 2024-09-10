@@ -134,7 +134,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 			$scope.buttonProcessingClass = "btn btn-custom btn-circle";
 			$scope.buttonRegressionDiagramClass = "btn btn-custom btn-circle";
 			$scope.buttonFilterClass = "btn btn-custom btn-circle";
-			if (kommonitorDataExchangeService.spatialFilterIsApplied) {
+			if (kommonitorDataExchangeService.spatialFilterIsApplied || kommonitorDataExchangeService.rangeFilterIsApplied || kommonitorDataExchangeService.isMeasureOfValueChecked) {
 				$scope.buttonFilterClass = "btn btn-custom btn-circle filterActive";
 			}
 			$scope.buttonBalanceClass = "btn btn-custom btn-circle";
@@ -472,7 +472,16 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 		$scope.onSpatialFilterCloseButtonClick = function() {
 			$scope.buttonFilterClass = "btn btn-custom btn-circle";
 			$rootScope.$broadcast("removeAllSpatialFilters");
+		}
+
+		$scope.onMOVCloseButtonClick = function() {
+			$scope.buttonFilterClass = "btn btn-custom btn-circle";
 			$rootScope.$broadcast("disableMeasureOfValue");
+		}
+
+		$scope.onRangeFilterCloseButtonClick = function() {
+			$scope.buttonFilterClass = "btn btn-custom btn-circle";
+			$rootScope.$broadcast("removeRangeFilter");
 		}
 
 		$scope.onBalanceCloseButtonClick = function() {

@@ -166,7 +166,8 @@ angular
 
 							$scope.$on("updateIndicatorValueRangeFilter", function (event, date, indicatorMetadataAndGeoJSON) {
 
-									$scope.setupRangeSliderForFilter(date, indicatorMetadataAndGeoJSON);
+								kommonitorDataExchangeService.rangeFilterIsApplied = false;
+								$scope.setupRangeSliderForFilter(date, indicatorMetadataAndGeoJSON);
 
 							});
 
@@ -304,6 +305,10 @@ angular
 							};
 
 							$scope.applyRangeFilter = function(){
+								kommonitorDataExchangeService.rangeFilterIsApplied = false;
+								if($scope.inputHigherFilterValue < $scope.valueRangeMaxValue || $scope.inputLowerFilterValue > $scope.valueRangeMinValue) {
+									kommonitorDataExchangeService.rangeFilterIsApplied = true;
+								}
 
 								var dateProperty = INDICATOR_DATE_PREFIX + kommonitorDataExchangeService.selectedDate;
 
@@ -316,8 +321,14 @@ angular
 							// MeasureOfValue stuff
 							$scope.inputNotValid = false;
 
+							$scope.$on("disableMeasureOfValue", function(event){
+								kommonitorDataExchangeService.isMeasureOfValueChecked = false;
+								kommonitorMapService.restyleCurrentLayer();
+							});
+
 
 							this.onChangeUseMeasureOfValue = function(){
+								const useMeasureOfValue = kommonitorDataExchangeService.isMeasureOfValueChecked;
 								if(kommonitorDataExchangeService.isBalanceChecked){
 									$rootScope.$broadcast("DisableBalance");
 									$rootScope.$broadcast("updateIndicatorValueRangeFilter", kommonitorDataExchangeService.selectedDate, kommonitorDataExchangeService.selectedIndicator);
@@ -328,7 +339,7 @@ angular
 								else{
 									this.kommonitorMapServiceInstance.restyleCurrentLayer();
 								}
-
+								kommonitorDataExchangeService.isMeasureOfValueChecked = useMeasureOfValue;
 							};
 
 							$scope.$on("updateMeasureOfValueBar", function (event, date, indicatorMetadataAndGeoJSON) {
@@ -604,6 +615,19 @@ angular
 								$scope.updateSelectableAreas("byFeature");
 								$scope.onManualSelectionSpatialFilterResetBtnPressed();
 							});
+
+							$scope.$on("removeRangeFilter", function(event){
+								$scope.inputLowerFilterValue = $scope.valueRangeMinValue;
+								$scope.inputHigherFilterValue = $scope.valueRangeMaxValue;
+								$scope.lowerFilterInputNotValid = false;
+								$scope.higherFilterInputNotValid = false;
+									$scope.rangeSliderForFilter.update({
+											from: $scope.currentLowerFilterValue,
+											to: $scope.currentHigherFilterValue
+									});
+								$rootScope.$broadcast("updateIndicatorValueRangeFilter", kommonitorDataExchangeService.selectedDate, kommonitorDataExchangeService.selectedIndicator);
+								$scope.applyRangeFilter();
+							})
 
 							$scope.manageManualDualList_fromMapSelection = function(){
 								$scope.manualSelectionSpatialFilterDuallistOptions.items = $scope.manualSelectionSpatialFilterDuallistOptions.items.concat($scope.manualSelectionSpatialFilterDuallistOptions.selectedItems);
