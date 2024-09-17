@@ -244,13 +244,26 @@
 				</div>
 
 				<div id="statusButtonContainer">
-					<div id="filterStatusButton">
-						<span ng-if="$ctrl.kommonitorDataExchangeServiceInstance.spatialFilterIsApplied" 
+					<div id="filterStatusButtonContainer"
+						ng-if="$ctrl.kommonitorDataExchangeServiceInstance.spatialFilterIsApplied || $ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked || $ctrl.kommonitorDataExchangeServiceInstance.rangeFilterIsApplied">
+						<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.spatialFilterIsApplied" 
 									id="filterNoticeButton" class="btn btn-warning btn-xs" title="Filter aktiviert">
 							<i class="fas fa-filter"></i>
 							<span ng-click="openFilterSidebar()" style="margin: 3px;">Räuml. Filter aktiviert </span>
 							<i class="fas fa-close" ng-click="onSpatialFilterCloseButtonClick()" title="Filter entfernen"></i>
-						</span>
+						</div>
+						<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked" 
+									id="filterNoticeButton" class="btn btn-warning btn-xs" title="Schwellenwertklassifizierung aktiviert">
+							<i class="fas fa-filter"></i>
+							<span ng-click="openFilterSidebar()" style="margin: 3px;">Schwellenwert aktiviert </span>
+							<i class="fas fa-close" ng-click="onMOVCloseButtonClick()" title="Filter entfernen"></i>
+						</div>
+						<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.rangeFilterIsApplied" 
+									id="filterNoticeButton" class="btn btn-warning btn-xs" title="Wertebereichfilter aktiviert">
+							<i class="fas fa-filter"></i>
+							<span ng-click="openFilterSidebar()" style="margin: 3px;">Wertebereichfilter aktiviert </span>
+							<i class="fas fa-close" ng-click="onRangeFilterCloseButtonClick()" title="Filter entfernen"></i>
+						</div>
 					</div>
 	
 					<div id="balanceStatusButton">
