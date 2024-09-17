@@ -81,6 +81,8 @@ angular.module('georesourceEditUserRolesModal').component('georesourceEditUserRo
 				if($scope.currentGeoresourceDataset) {
 					if(item.organizationalUnitId==$scope.currentGeoresourceDataset.ownerId)
 						item.datasetOwner = true;
+					else
+						item.datasetOwner = false;
 				}
 			}); 
 

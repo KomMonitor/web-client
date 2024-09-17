@@ -86,6 +86,8 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 					if($scope.currentIndicatorDataset) {
 						if(item.organizationalUnitId==$scope.currentIndicatorDataset.ownerId)
 							item.datasetOwner = true;
+						else
+							item.datasetOwner = false;
 					}
 				});
 
@@ -645,6 +647,8 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 					kommonitorDataExchangeService.accessControl.forEach(item => {
 						if(item.organizationalUnitId==$scope.mappingConfigImportSettings.ownerId)
 							item.datasetOwner = true;
+						else
+							item.datasetOwner = false;
 					});
 		
 					$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorEditFeaturesRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, $scope.mappingConfigImportSettings.permissions, true);

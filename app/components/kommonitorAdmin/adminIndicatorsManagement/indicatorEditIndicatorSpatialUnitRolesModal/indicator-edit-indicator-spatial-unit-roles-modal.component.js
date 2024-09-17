@@ -84,6 +84,8 @@ angular.module('indicatorEditIndicatorSpatialUnitRolesModal').component('indicat
 				if($scope.currentIndicatorDataset) {
 					if(item.organizationalUnitId==$scope.currentIndicatorDataset.ownerId)
 						item.datasetOwner = true;
+					else
+						item.datasetOwner = false;
 				}
 			});
 

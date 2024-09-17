@@ -2865,6 +2865,8 @@ angular
           
           if(this.params.data.datasetOwner===true)
             this.eGui.disabled = true;
+          else
+            this.eGui.disabled = false;
 
           this.checkedHandler = this.checkedHandler.bind(this);
           this.eGui.addEventListener('click', this.checkedHandler);
@@ -2921,6 +2923,8 @@ angular
 
           if(this.params.data.datasetOwner===true)
             this.eGui.disabled = true;
+          else
+            this.eGui.disabled = false;
 
           this.checkedHandler = this.checkedHandler.bind(this);
           this.eGui.addEventListener('click', this.checkedHandler);
@@ -2985,6 +2989,8 @@ angular
 
           if(this.params.data.datasetOwner===true)
             this.eGui.disabled = true;
+          else
+            this.eGui.disabled = false;
 
           this.checkedHandler = this.checkedHandler.bind(this);
           this.eGui.addEventListener('click', this.checkedHandler);
@@ -3061,9 +3067,6 @@ angular
 
           this.eGui.disabled = params.data.disabled;
 
-          if(this.params.data.datasetOwner===true)
-            this.eGui.disabled = true;
-
           this.checkedHandler = this.checkedHandler.bind(this);
           this.eGui.addEventListener('click', this.checkedHandler);
           // if higher role rights are checked as well hier
@@ -3121,9 +3124,6 @@ angular
           this.eGui.checked = isChecked;
           
           this.eGui.disabled = params.data.disabled;
-
-          if(this.params.data.datasetOwner===true)
-            this.eGui.disabled = true;
 
           this.checkedHandler = this.checkedHandler.bind(this);
           this.eGui.addEventListener('click', this.checkedHandler);
@@ -3188,9 +3188,6 @@ angular
           
           this.eGui.disabled = params.data.disabled;
 
-          if(this.params.data.datasetOwner===true)
-            this.eGui.disabled = true;
-
           this.checkedHandler = this.checkedHandler.bind(this);
           this.eGui.addEventListener('click', this.checkedHandler);
           // if higher role rights are checked as well 
@@ -3249,9 +3246,6 @@ angular
           this.eGui.checked = isChecked;
           
           this.eGui.disabled = params.data.disabled;
-
-          if(this.params.data.datasetOwner===true)
-            this.eGui.disabled = true;
 
           this.checkedHandler = this.checkedHandler.bind(this);
           this.eGui.addEventListener('click', this.checkedHandler);
@@ -3318,9 +3312,6 @@ angular
           
           this.eGui.disabled = params.data.disabled;
 
-          if(this.params.data.datasetOwner===true)
-            this.eGui.disabled = true;
-
           this.checkedHandler = this.checkedHandler.bind(this);
           this.eGui.addEventListener('click', this.checkedHandler);
           // if higher role rights are checked as well 
@@ -3379,9 +3370,6 @@ angular
           this.eGui.checked = isChecked;
           
           this.eGui.disabled = params.data.disabled;
-          
-          if(this.params.data.datasetOwner===true)
-            this.eGui.disabled = true;
 
           this.checkedHandler = this.checkedHandler.bind(this);
           this.eGui.addEventListener('click', this.checkedHandler);

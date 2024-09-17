@@ -81,6 +81,8 @@ angular.module('spatialUnitEditUserRolesModal').component('spatialUnitEditUserRo
 				if($scope.currentSpatialUnitDataset) {
 					if(item.organizationalUnitId==$scope.currentSpatialUnitDataset.ownerId)
 						item.datasetOwner = true;
+					else
+						item.datasetOwner = false;
 				}
 			});
 

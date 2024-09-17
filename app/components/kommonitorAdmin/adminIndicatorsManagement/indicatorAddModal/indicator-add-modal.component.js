@@ -239,6 +239,8 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			kommonitorDataExchangeService.accessControl.forEach(item => {
 				if(item.organizationalUnitId==orgUnitId)
 					item.datasetOwner = true;
+				else
+					item.datasetOwner = false;
 			});
 			
 			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorAddRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, permissionIds_ownerUnit, true);
