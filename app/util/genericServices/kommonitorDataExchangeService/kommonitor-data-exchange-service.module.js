@@ -1855,7 +1855,7 @@ angular
 							value = "NoData";
 						}
 						else{
-							value = +Number(indicatorValue).toFixed(numberOfDecimals);
+							value = (+Number(indicatorValue)).toFixed(numberOfDecimals);
             }
             
             // if the original value is greater than zero but would be rounded as 0 then we must return the original result
@@ -1924,9 +1924,9 @@ angular
           };
 
           
-          this.labelAllFeatures = "alle Features";
-          this.labelFilteredFeatures = "gefilterte Features";
-          this.labelSelectedFeatures = "selektierte Features";
+          this.labelAllFeatures = "alle Raumeinheiten";
+          this.labelFilteredFeatures = "gefilterte Raumeinheiten";
+          this.labelSelectedFeatures = "selektierte Raumeinheiten";
           this.labelNumberOfFeatures = "Anzahl:"
           this.labelSum = "rechnerische Summe:"
           this.labelMean = "rechnerisches arith. Mittel:"
