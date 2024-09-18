@@ -2,12 +2,12 @@
 
 	<header id="header" class="main-header">
 
-		<div  style="position:absolute; left:40%;  padding-top: 7px;">
+		<div  style="position:absolute; left:40%;  padding-top: 4px;">
 
 			<h4 ng-bind-html="::$ctrl.kommonitorDataExchangeServiceInstance.appTitle"></h4>
 		</div>
 
-		<div style="padding-left: 10px; padding-top: 7px;">
+		<div style="padding-left: 10px; padding-top: 4px;">
 
 			 <a target="_blank" rel="noopener noreferrer" href="http://kommonitor.de"><img style="float: left; width: 35px; height: 35px; margin-right: 0.5%;" src="logos/KM_Logo1.svg"></img></a>
 			 <div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.customLogoURL && $ctrl.kommonitorDataExchangeServiceInstance.customLogoWidth">
@@ -131,8 +131,10 @@
 	<reporting-modal></reporting-modal>
 
 	<!-- Modal -->
-	<reachability-scenario-modal></reachability-scenario-modal>
-	
+	<div id="reachabilityScenarioModalContainer">
+		<reachability-scenario-modal></reachability-scenario-modal>
+	</div>
+
 	<!-- Modal -->
 	<wms-modal></wms-modal>
 
@@ -154,7 +156,7 @@
         <kommonitor-data-import></kommonitor-data-import>
     </aside>
 
-		<aside id="sidebarFilter" ng-class="sidebarFilterClass" ng-if="$ctrl.kommonitorElementVisibilityHelperServiceInstance.elementVisibility.filter">
+		<aside id="sidebarFilter" ng-class="sidebarFilterClass" ng-show="$ctrl.kommonitorElementVisibilityHelperServiceInstance.elementVisibility.filter">
         <kommonitor-filter></kommonitor-filter>
     </aside>
 

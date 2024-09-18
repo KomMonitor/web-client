@@ -31,6 +31,12 @@ angular
 
               this.showDiagramExportButtons = true;
               this.showGeoresourceExportButtons = true;
+              this.showBarChartLabel = __env.showBarChartLabel;
+              this.showBarChartAverageLine = __env.showBarChartAverageLine;
+
+              this.enableMeanDataDisplayInLegend = __env.enableMeanDataDisplayInLegend;
+              this.configMeanDataDisplay = __env.configMeanDataDisplay;
+             
 
 							var numberOfDecimals = __env.numberOfDecimals;
 							const DATE_PREFIX = __env.indicatorDatePrefix;
@@ -64,6 +70,9 @@ angular
           this.currentKeycloakLoginGroups = [];
           this.currentKomMonitorLoginOrganizationalUnits = [];
           this.currentKeycloakUser;
+
+          this.enableScatterPlotRegression = __env.enableScatterPlotRegression;
+          this.enableBilanceTrend = __env.enableBilanceTrend;
 
           // MAP objects for available resource metadata in order to have quick access to datasets by ID
           this.availableIndicators_map = new Map();
@@ -1993,8 +2002,11 @@ angular
           this.labelFilteredFeatures = "gefilterte Features";
           this.labelSelectedFeatures = "selektierte Features";
           this.labelNumberOfFeatures = "Anzahl:"
-          this.labelSum = "Summe:"
-          this.labelMean = "arith. Mittel:"
+          this.labelSum = "rechnerische Summe:"
+          this.labelMean = "rechnerisches arith. Mittel:"
+          this.labelSum_regional = "gesamtregionale Vergleichssumme:"
+          this.labelSpatiallyUnassignable_regional = "räumlich nicht zuordenbare:"
+          this.labelMean_regional = "gesamtregionaler Vergleichsmittelwert:"
           this.labelMin = "Minimalwert:"
           this.labelMax = "Maximalwert"
 
@@ -2008,6 +2020,9 @@ angular
           this.selectedFeaturesMean;
           this.selectedFeaturesMin;
           this.selectedFeaturesMax;
+          this.allFeaturesRegionalSum;
+          this.allFeaturesRegionalMean;
+          this.allFeaturesRegionalSpatiallyUnassignable;
           this.allFeaturesPropertyUnit;
 
           this.setAllFeaturesProperty = function(indicatorMetadataAndGeoJSON, propertyName){
@@ -2028,14 +2043,29 @@ angular
 
             this.allFeaturesPropertyUnit = indicatorMetadataAndGeoJSON.unit;
             this.allFeaturesNumberOfFeatures = count;
-            this.allFeaturesSum = this.getIndicatorValue_asFormattedText(sum);
+            this.allFeaturesSum = sum;
             // no division by zero
             if (count > 0) 
-              this.allFeaturesMean = this.getIndicatorValue_asFormattedText(sum / count);
+            this.allFeaturesMean = sum / count;
             else 
               this.allFeaturesMean = 0;
-            this.allFeaturesMin = this.getIndicatorValue_asFormattedText(min);
-            this.allFeaturesMax = this.getIndicatorValue_asFormattedText(max)
+            this.allFeaturesMin = min;
+            this.allFeaturesMax = max;
+
+            this.allFeaturesRegionalSum = undefined;
+            this.allFeaturesRegionalMean = undefined;
+            this.allFeaturesRegionalSpatiallyUnassignable = undefined;
+
+            if (indicatorMetadataAndGeoJSON.regionalReferenceValues){
+              for (const regionalReferenceValuesEntry of indicatorMetadataAndGeoJSON.regionalReferenceValues) {
+                if (regionalReferenceValuesEntry.referenceDate && regionalReferenceValuesEntry.referenceDate == thisService.selectedDate){
+                  this.allFeaturesRegionalSum = regionalReferenceValuesEntry.regionalSum;
+                  this.allFeaturesRegionalMean = regionalReferenceValuesEntry.regionalAverage;
+                  this.allFeaturesRegionalSpatiallyUnassignable = regionalReferenceValuesEntry.spatiallyUnassignable;
+                }
+              }
+            }
+            
           };
 
           
@@ -2063,14 +2093,14 @@ angular
             
 
             this.selectedFeaturesNumberOfFeatures = count;
-            this.selectedFeaturesSum = this.getIndicatorValue_asFormattedText(sum);
+            this.selectedFeaturesSum = sum;
             // no division by zero
             if (count > 0) 
-              this.selectedFeaturesMean = this.getIndicatorValue_asFormattedText(sum / count);
+              this.selectedFeaturesMean = sum / count;
             else 
               this.selectedFeaturesMean = 0;
-            this.selectedFeaturesMin = this.getIndicatorValue_asFormattedText(min);
-            this.selectedFeaturesMax = this.getIndicatorValue_asFormattedText(max);
+            this.selectedFeaturesMin = min;
+            this.selectedFeaturesMax = max;
           };
 
 
@@ -2355,13 +2385,16 @@ angular
   
             var linkedIndicatorsString = "";
   
-            for (var [index, linkedIndicator] of indicator.referencedIndicators.entries()) {
+            if (indicator.referencedIndicators && indicator.referencedIndicators.length > 0){
+              for (var [index, linkedIndicator] of indicator.referencedIndicators.entries()) {
               linkedIndicatorsString += linkedIndicator.referencedIndicatorName + " - \n   " + linkedIndicator.referencedIndicatorDescription;
   
               if (index < indicator.referencedIndicators.length - 1) {
                 linkedIndicatorsString += "\n\n";
               }
             }
+            }
+            
   
             if (linkedIndicatorsString === "") {
               linkedIndicatorsString = "-";
@@ -2369,13 +2402,16 @@ angular
   
             var linkedGeoresourcesString = "";
   
-            for (var [k, linkedGeoresource] of indicator.referencedGeoresources.entries()) {
+            if (indicator.referencedGeoresources && indicator.referencedGeoresources.length > 0){
+              for (var [k, linkedGeoresource] of indicator.referencedGeoresources.entries()) {
               linkedGeoresourcesString += linkedGeoresource.referencedGeoresourceName + " - \n   " + linkedGeoresource.referencedGeoresourceDescription;
   
               if (k < indicator.referencedGeoresources.length - 1) {
                 linkedGeoresourcesString += "\n\n";
               }
             }
+            }
+            
   
             if (linkedGeoresourcesString === "") {
               linkedGeoresourcesString = "-";
@@ -2491,8 +2527,7 @@ angular
               didDrawCell: function(data) {
                 if (imgData && data.row.index === 2 && data.column.index === 1 && data.cell.section === 'body') {
                    var cellHeight = data.cell.height - data.cell.padding('vertical');
-                   var cellWidth = data.cell.width - data.cell.padding('horizontal');
-                   var textPos = data.cell.textPos;
+                   var cellWidth = data.cell.width - data.cell.padding('horizontal');                   
 
                    var imgScale = cellHeight / imgHeight;
                    var width = imgWidth * imgScale;
@@ -2500,7 +2535,7 @@ angular
                      width = cellWidth;
                    }
 
-                   jspdf.addImage(imgData, "PNG", textPos.x,  textPos.y, width, cellHeight);
+                   jspdf.addImage(imgData, "PNG", data.cell.x,  data.cell.y, width, cellHeight);
                 }
               }
             });

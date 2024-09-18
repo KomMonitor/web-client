@@ -68,7 +68,7 @@
                                 <div ng-if="template.name.includes('-reachability')">
                                     <reachability-scenario-configuration></reachability-scenario-configuration>
                                 </div>
-                                <button type="button" class="btn btn-danger" style="margin-left: 1%; margin-top: 10px;" ng-click="resetIsochrones()" ng-show="showResetIsochronesBtn">Isochronen entfernen</button>                               
+                                <!-- <button type="button" class="btn btn-danger" style="margin-left: 1%; margin-top: 10px;" ng-click="resetIsochrones()" ng-show="showResetIsochronesBtn">Isochronen entfernen</button>                                -->
                             </div>
 						    
                         </div>
@@ -91,7 +91,7 @@
                                 <div id="reporting-indicator-select-box">
                                     <select size="30" class="form-control" required>
                                         <option disabled selected value> -- Indikator w&auml;hlen -- </option>
-                                        <option style="white-space: pre !important;" ng-repeat="indicator in availableIndicators | filter: indicatorNameFilter | filter: filterTimeseriesIndicator  | orderBy: 'indicatorName'"
+                                        <option style="white-space: pre !important;" ng-repeat="indicator in $ctrl.kommonitorDataExchangeServiceInstance.displayableIndicators | filter: indicatorNameFilter | filter: filterTimeseriesIndicator  | orderBy: 'indicatorName'"
                                             ng-click="onIndicatorSelected(indicator)">{{indicator.indicatorName}} [{{indicator.unit}}]</option>
                                     </select>
                                 </div>
@@ -100,7 +100,7 @@
                                 <div id="reporting-indicator-select-box">
                                     <select size="30" class="form-control" required>
                                         <option disabled selected value> -- Indikator w&auml;hlen -- </option>
-                                        <option style="white-space: pre !important;" ng-repeat="indicator in availableIndicators | filter: indicatorNameFilter | orderBy: 'indicatorName'"
+                                        <option style="white-space: pre !important;" ng-repeat="indicator in $ctrl.kommonitorDataExchangeServiceInstance.displayableIndicators | filter: indicatorNameFilter | orderBy: 'indicatorName'"
                                             ng-click="onIndicatorSelected(indicator)">{{indicator.indicatorName}} [{{indicator.unit}}]</option>
                                     </select>
                                 </div>
@@ -165,6 +165,19 @@
                                                     ng-model="showMapLabels"
                                                     ng-checked="showMapLabels"
                                                     ng-change="onChangeShowMapLabels()">
+                                                <span class="switchslider round"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="reporting-element-config-box">
+                                            <h5>Ranking-Chart</h5>
+                                            <p>Ranking-Durchschnittslinie anzeigen?</p>
+                                            <label class="switch" title="Ranking-Durchschnittslinie anzeigen">
+                                                <input type="checkbox"
+                                                    ng-model="showRankingMeanLine"
+                                                    ng-checked="showRankingMeanLine"
+                                                    ng-change="onChangeShowRankingMeanLine()">
                                                 <span class="switchslider round"></span>
                                             </label>
                                         </div>

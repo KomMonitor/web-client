@@ -41,8 +41,6 @@ angular
 								$scope.selection.indicatorNameFilterForXAxis = undefined;
 								$scope.selection.indicatorNameFilterForYAxis = undefined;
 
-								$scope.enableScatterPlotRegression = __env.enableScatterPlotRegression;
-
 								const DATE_PREFIX = __env.indicatorDatePrefix;
 								var numberOfDecimals = __env.numberOfDecimals;
 								const defaultColorForFilteredValues = __env.defaultColorForFilteredValues;
@@ -521,8 +519,8 @@ angular
 
 										$scope.linearRegression = ecStat.regression('linear', data);
 
-										let titlePrefix = $scope.enableScatterPlotRegression ? 'Lineare Regression - ' : 'Streudiagramm - ';
-										let dataViewTitle =  $scope.enableScatterPlotRegression ? 'Datenansicht - lineare Regression' : 'Datenansicht - Streudiagramm';
+										let titlePrefix = kommonitorDataExchangeService.enableScatterPlotRegression ? 'Lineare Regression - ' : 'Streudiagramm - ';
+										let dataViewTitle =  kommonitorDataExchangeService.enableScatterPlotRegression ? 'Datenansicht - lineare Regression' : 'Datenansicht - Streudiagramm';
 
 										$scope.regressionOption = {
 											grid: {
@@ -604,14 +602,14 @@ angular
 																var scatterSeries = opt.series[0].data;
 																var lineSeries;
 
-																if ($scope.enableScatterPlotRegression) {
+																if (kommonitorDataExchangeService.enableScatterPlotRegression) {
 																	lineSeries = opt.series[1].data;
 																}
 
 																var dataTableId = "regressionDataTable";
 																var tableExportName = opt.title[0].text + " - Scatter Table";
 
-																var htmlString = $scope.enableScatterPlotRegression
+																var htmlString = kommonitorDataExchangeService.enableScatterPlotRegression
 																				? 
 																				"<p>Data View enth&auml;lt zwei nachstehende Tabellen, die Tabelle der Datenpunkte des Streudiagramms und die Tabelle der Punkte der Regressionsgeraden.</p><br/>"
 																				:
@@ -641,7 +639,7 @@ angular
 																	htmlString += "</tbody>";
 																	htmlString += "</table>";
 
-																	if ($scope.enableScatterPlotRegression) {
+																	if (kommonitorDataExchangeService.enableScatterPlotRegression) {
 
 																		var lineTableId = "lineDataTable";
 																		var lineTableExportName = opt.title[0].text + " - Line Table";
@@ -671,7 +669,7 @@ angular
 
 																	$rootScope.$broadcast("AppendExportButtonsForTable", dataTableId, tableExportName);
 
-																	if ($scope.enableScatterPlotRegression) {
+																	if (kommonitorDataExchangeService.enableScatterPlotRegression) {
 																		$rootScope.$broadcast("AppendExportButtonsForTable", lineTableId, lineTableExportName);
 																	}
 																	
@@ -709,7 +707,7 @@ angular
 										]
 										};
 
-										if ($scope.enableScatterPlotRegression) {
+										if (kommonitorDataExchangeService.enableScatterPlotRegression) {
 											$scope.regressionOption.series.push(
 												{
 										        	name: 'line',
@@ -793,6 +791,10 @@ angular
 										$scope.eventsRegistered = true;
 									}
 								};
+
+								$scope.onChangeEnableScatterPlotRegression = function(){
+									$scope.onChangeSelectedIndicators();
+								}
 
 
 							} ]

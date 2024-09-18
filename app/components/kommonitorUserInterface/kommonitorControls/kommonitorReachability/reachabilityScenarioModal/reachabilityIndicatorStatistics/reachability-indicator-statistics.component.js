@@ -3,11 +3,11 @@ angular.module('reachabilityIndicatorStatistics').component('reachabilityIndicat
 	controller: ['kommonitorDataExchangeService',
 		'$scope', '$rootScope', '$http', '__env', '$timeout', 'kommonitorReachabilityHelperService', 'kommonitorDiagramHelperService',
 		'kommonitorReachabilityMapHelperService', 'kommonitorSpatialDataProcessorHelperService', 'kommonitorReachabilityScenarioHelperService',
-		'kommonitorReachabilityCoverageReportsHelperService',
+		'kommonitorReachabilityCoverageReportsHelperService', 'kommonitorToastHelperService', 
 		function reachabilityIndicatorStatisticsController(kommonitorDataExchangeService,
 			$scope, $rootScope, $http, __env, $timeout, kommonitorReachabilityHelperService, kommonitorDiagramHelperService,
 			kommonitorReachabilityMapHelperService, kommonitorSpatialDataProcessorHelperService, kommonitorReachabilityScenarioHelperService,
-			kommonitorReachabilityCoverageReportsHelperService) {
+			kommonitorReachabilityCoverageReportsHelperService, kommonitorToastHelperService) {
 
 			this.kommonitorReachabilityHelperServiceInstance = kommonitorReachabilityHelperService;
 			this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
@@ -91,15 +91,19 @@ angular.module('reachabilityIndicatorStatistics').component('reachabilityIndicat
 						failed - The job failed due to an error during process execution.
 					*/
 					let jobStatus = await kommonitorSpatialDataProcessorHelperService.getJobStatus(jobId);
-					if (jobStatus == undefined || jobStatus.status == undefined) {
+					if (jobStatus == undefined || jobStatus.status == undefined || jobStatus.status == "failed") {
 						jobCompletedOrFailed = true;
 						$scope.modifyJobStatus(jobId, "failed");
+						kommonitorToastHelperService.displayErrorToast_upperLeft("Fehler in Indikatoren-Statistik-Berechnung", "Versuchen Sie es bitte erneut. Probieren Sie, falls möglich, andere Raumeinheiten oder Indikatoren. Wenden Sie sich bei anhaltenden Problemen an das KomMonitor-Team");
+						$scope.$digest();
+						return;
 					}
-					if (jobStatus.status == "finished" || jobStatus.status == "failed") {
+					else if (jobStatus.status == "finished") {
 						jobCompletedOrFailed = true;
 
 						// trigger result retrieval
 						if (jobStatus.status == "finished") {
+							kommonitorToastHelperService.displaySuccessToast_upperLeft("Indikatoren-Statistik-Berechnung erfolgreich", "Ergebnisse wurden in die Tabelle eingetragen");						
 							$scope.retrieveJobResult(jobId);
 						}
 					}
@@ -158,7 +162,8 @@ angular.module('reachabilityIndicatorStatistics').component('reachabilityIndicat
 					active: false
 				}
 
-				kommonitorReachabilityScenarioHelperService.tmpActiveScenario.indicatorStatistics.push(newIsochroneStatisticsEntry);
+				// insert at first place to emphasize where the new computation is happening
+				kommonitorReachabilityScenarioHelperService.tmpActiveScenario.indicatorStatistics.splice(0, 0, newIsochroneStatisticsEntry);
 
 				// now trigger periodical query of job status
 				$scope.queryJobStatus(jobId);
@@ -198,6 +203,10 @@ angular.module('reachabilityIndicatorStatistics').component('reachabilityIndicat
 
 			$scope.computeReachabilityIndicatorStatistic = async function () {
 				// query spatial data processor in order to compute indicator statistics
+
+				// in order to make UI consistent and have the ability to compare current scenario against any changes done in the ui regarding
+				// recahbility config, we must set the current settings as activeScenario.
+				kommonitorReachabilityScenarioHelperService.configureActiveScenario();
 
 				let indicatorIdArray = [$scope.selectedIndicatorForStatistics.indicatorId];
 				// weighting options: residential_areas, simple

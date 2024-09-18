@@ -1,9 +1,9 @@
 angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataModal', {
 	templateUrl : "components/kommonitorAdmin/adminIndicatorsManagement/indicatorEditMetadataModal/indicator-edit-metadata-modal.template.html",
 	controller : ['kommonitorDataExchangeService', '$scope', '$rootScope', '$http', '__env', '$timeout', 'kommonitorMultiStepFormHelperService',
-		'kommonitorDataGridHelperService', 
+		'kommonitorDataGridHelperService', 'kommonitorFileHelperService', 'kommonitorToastHelperService',
 		function IndicatorEditMetadataModalController(kommonitorDataExchangeService, $scope, $rootScope, $http, __env, $timeout, 
-			kommonitorMultiStepFormHelperService, kommonitorDataGridHelperService) {
+			kommonitorMultiStepFormHelperService, kommonitorDataGridHelperService, kommonitorFileHelperService, kommonitorToastHelperService) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 
@@ -66,18 +66,24 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 						"processDescription": "processDescription",
 						"lowestSpatialUnitForComputation": "lowestSpatialUnitForComputation",
 						"defaultClassificationMapping": {
-							"colorBrewerSchemeName": "colorBrewerSchemeName",
+							"colorBrewerSchemeName": "schema name of colorBrewer colorPalette to use for classification",
+							"numClasses": "number of Classes",
+							"classificationMethod": "Classification Method ID",
 							"items": [
-							{
-								"defaultCustomRating": "defaultCustomRating",
-								"defaultColorAsHex": "defaultColorAsHex"
-							},
-							{
-								"defaultCustomRating": "defaultCustomRating",
-								"defaultColorAsHex": "defaultColorAsHex"
-							}
+								{
+									"spatialUnit": "spatial unit id for manual classification",
+									"breaks": ['break']
+								}
 							]
-						}
+						},
+						"regionalReferenceValues": [
+							{
+							"referenceDate": "2024-04-23",
+							"regionalSum": 0,
+							"regionalAverage": 0,
+							"spatiallyUnassignable": 0
+							}
+						],
 						}
 		*/
 
@@ -126,13 +132,23 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 			"displayOrder": 0,
 			"defaultClassificationMapping": {
 				"colorBrewerSchemeName": "schema name of colorBrewer colorPalette to use for classification",
+				"numClasses": "number of Classes",
+				"classificationMethod": "Classification Method ID",
 				"items": [
 					{
-						"defaultCustomRating": "a string to rate indicator values of this class",
-						"defaultColorAsHex": "color as hexadecimal value"
+						"spatialUnit": "spatial unit id for manual classification",
+						"breaks": ['break']
 					}
 				]
-			}
+			},
+			"regionalReferenceValues": [
+				{
+				  "referenceDate": "2024-04-23",
+				  "regionalSum": 0,
+				  "regionalAverage": 0,
+				  "spatiallyUnassignable": 0
+				}
+			  ],
 		};
 
 		$scope.indicatorMetadataStructure_pretty = kommonitorDataExchangeService.syntaxHighlightJSON($scope.indicatorMetadataStructure);
@@ -195,8 +211,14 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 			$scope.georesourceReferences_apiRequest = [];
 
 			$scope.numClassesArray = [3,4,5,6,7,8];
-			$scope.numClasses = $scope.numClassesArray[2];
 			$scope.selectedColorBrewerPaletteEntry = undefined;
+
+			$scope.numClassesPerSpatialUnit = undefined;
+			$scope.classificationMethod = __env.defaultClassifyMethod || "jenks";
+			$scope.spatialUnitClassification = [];
+			$scope.classBreaksInvalid = false;
+
+			$scope.tabClasses = [];
 
 		$scope.successMessagePart = undefined;
 		$scope.errorMessagePart = undefined;
@@ -205,6 +227,12 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 		$scope.colorbreweSchemeName_dynamicIncrease = __env.defaultColorBrewerPaletteForBalanceIncreasingValues;
 		$scope.colorbreweSchemeName_dynamicDecrease = __env.defaultColorBrewerPaletteForBalanceDecreasingValues;
 		$scope.colorbrewerPalettes = [];
+
+		$scope.regionalReferenceValuesManagementTableOptions = undefined;
+
+		$scope.tmpIndicatorRegionalReferenceValuesObject = undefined;
+		$scope.noneColumnValue = "-- keine --";
+		$scope.file_regionalReferenceValuesImport;
 
 
 		$scope.instantiateColorBrewerPalettes = function(){
@@ -227,6 +255,68 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 		};
 
 		$scope.instantiateColorBrewerPalettes();
+
+		$scope.onClassificationMethodSelected = function(method){
+			$scope.classificationMethod = method.id;
+		};
+
+		$scope.onNumClassesChanged = function(numClasses) {
+			$scope.numClassesPerSpatialUnit = numClasses;
+			for (let i = 0; i < kommonitorDataExchangeService.availableSpatialUnits.length; i++) {
+				let spatialUnit = kommonitorDataExchangeService.availableSpatialUnits[i];
+				$scope.spatialUnitClassification[i] = {};
+				$scope.spatialUnitClassification[i].spatialUnitId = spatialUnit.spatialUnitId;
+				$scope.spatialUnitClassification[i].breaks = [];
+				$scope.tabClasses[i] = '';
+				for (let classNr = 0; classNr < numClasses - 1; classNr++) {
+					$scope.spatialUnitClassification[i].breaks.push(null);
+				}
+			}
+		}
+
+		$scope.onBreaksChanged = function(tabIndex) {
+			$scope.classBreaksInvalid = false;
+			let cssClass = 'tab-completed';
+			for(const classBreak of $scope.spatialUnitClassification[tabIndex].breaks) {
+				if (classBreak === null) {
+					cssClass = '';
+				}
+			}
+			
+			if (cssClass == 'tab-completed') {
+				for(let i = 0; i < $scope.spatialUnitClassification[tabIndex].breaks.length - 1; i ++) {
+					if ($scope.spatialUnitClassification[tabIndex].breaks[i] > $scope.spatialUnitClassification[tabIndex].breaks[i+1]) {
+						cssClass = 'tab-error';
+						$scope.classBreaksInvalid = true;
+					}
+				}
+			}
+			else {
+				for(const classBreak of $scope.spatialUnitClassification[tabIndex].breaks) {
+					if (classBreak !== null) {
+						cssClass = 'tab-error';
+						$scope.classBreaksInvalid = true;
+					}
+				}
+			}
+			$scope.tabClasses[tabIndex] = cssClass;
+			$scope.updateDecreaseAndIncreaseBreaks(tabIndex);
+		}
+
+		$scope.updateDecreaseAndIncreaseBreaks = function(tabIndex) {
+			$scope.increaseBreaksLength = $scope.spatialUnitClassification[tabIndex].breaks.filter(val => val > 0).length;
+			$scope.decreaseBreaksLength = $scope.spatialUnitClassification[tabIndex].breaks.filter(val => val < 0).length;
+			if($scope.increaseBreaksLength < 3) {
+				$scope.increaseBreaksLength = 3;
+			}
+			if($scope.decreaseBreaksLength < 3) {
+				$scope.decreaseBreaksLength = 3;
+			}
+		}
+
+		$scope.refreshReferenceValuesManagementTable = function() {
+			$scope.regionalReferenceValuesManagementTableOptions = kommonitorDataGridHelperService.buildReferenceValuesManagementGrid('indicatorRegionalReferenceValuesManagementTable', $scope.currentIndicatorDataset.applicableDates, $scope.currentIndicatorDataset.regionalReferenceValues);
+		}
 
 		$scope.$on("onEditIndicatorMetadata", function (event, indicatorDataset) {
 
@@ -266,6 +356,8 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 					$scope.metadata.updateInterval = option;
 				}
 			});
+
+			$scope.refreshReferenceValuesManagementTable();
 
 			$scope.indicatorAbbreviation = $scope.currentIndicatorDataset.abbreviation;
 
@@ -387,7 +479,29 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 				}			
 
 				$scope.numClassesArray = [3,4,5,6,7,8];
-				$scope.numClasses = $scope.numClassesArray[2];
+
+				$scope.numClassesPerSpatialUnit = undefined;
+				$scope.classificationMethod = __env.defaultClassifyMethod || "jenks";
+				$scope.spatialUnitClassification = [];
+				$scope.classBreaksInvalid = false;
+
+				if ($scope.currentIndicatorDataset.defaultClassificationMapping.classificationMethod) {
+					$scope.classificationMethod = $scope.currentIndicatorDataset.defaultClassificationMapping.classificationMethod.toLowerCase();
+				}
+				if ($scope.currentIndicatorDataset.defaultClassificationMapping.numClasses) {
+					$scope.numClassesPerSpatialUnit = $scope.currentIndicatorDataset.defaultClassificationMapping.numClasses;
+					$scope.onNumClassesChanged($scope.numClassesPerSpatialUnit);
+					
+					// apply breaks for spatial units:
+					for (let i = 0; i < $scope.spatialUnitClassification.length; i++) {
+						for (let item of $scope.currentIndicatorDataset.defaultClassificationMapping.items) {
+							if(item.spatialUnitId == $scope.spatialUnitClassification[i].spatialUnitId) {
+								$scope.spatialUnitClassification[i] = item;
+								$scope.onBreaksChanged(i);
+							}
+						}
+					}
+				}
 				
 				// instantiate with palette 'Blues'
 				$scope.selectedColorBrewerPaletteEntry = $scope.colorbrewerPalettes[13];
@@ -581,6 +695,7 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 					"databasis": $scope.metadata.databasis || null
 				},
 				"refrencesToOtherIndicators": [], // filled directly after
+				  "regionalReferenceValues": [],
 				  "datasetName": $scope.datasetName,
 				  "abbreviation": $scope.indicatorAbbreviation || null,
 				  "characteristicValue": $scope.indicatorCharacteristicValue || null,
@@ -598,32 +713,19 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 				  "lowestSpatialUnitForComputation": $scope.indicatorLowestSpatialUnitMetadataObjectForComputation? $scope.indicatorLowestSpatialUnitMetadataObjectForComputation.spatialUnitLevel : null,
 				  "defaultClassificationMapping": {
 					"colorBrewerSchemeName": $scope.selectedColorBrewerPaletteEntry.paletteName,
-					"items": [
-						{
-						  "defaultColorAsHex": "#edf8e9",
-						  "defaultCustomRating": "sehr niedrig"
-						},
-						{
-						  "defaultColorAsHex": "#bae4b3",
-						  "defaultCustomRating": "niedrig"
-						},
-						{
-						  "defaultColorAsHex": "#74c476",
-						  "defaultCustomRating": "mittel"
-						},
-						{
-						  "defaultColorAsHex": "#31a354",
-						  "defaultCustomRating": "hoch"
-						},
-						{
-						  "defaultColorAsHex": "#006d2c",
-						  "defaultCustomRating": "sehr hoch"
-						}
-					  ]
+					"classificationMethod": $scope.classificationMethod.toUpperCase(),
+					"numClasses": $scope.numClassesPerSpatialUnit ? Number($scope.numClassesPerSpatialUnit) : 5,
+					"items": $scope.spatialUnitClassification.filter(entry => ! entry.breaks.includes(null)),
 				  }
 			};
 
 			
+
+			// regionalReferenceValues
+			let regionalReferenceValuesList = kommonitorDataGridHelperService.getReferenceValues_regionalReferenceValuesManagementGrid($scope.regionalReferenceValuesManagementTableOptions);
+			for (const referenceValueEntry of regionalReferenceValuesList) {
+				patchBody.regionalReferenceValues.push(referenceValueEntry);
+			}
 
 			// TAGS
 			if($scope.indicatorTagsString_withCommas){
@@ -801,6 +903,8 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 				$scope.indicatorReferenceDateNote = $scope.metadataImportSettings.referenceDateNote;
 				$scope.displayOrder = $scope.metadataImportSettings.displayOrder;
 
+				$scope.regionalReferenceValuesManagementTableOptions = kommonitorDataGridHelperService.buildReferenceValuesManagementGrid('indicatorRegionalReferenceValuesManagementTable', $scope.currentIndicatorDataset.applicableDates, $scope.metadataImportSettings.regionalReferenceValues);
+
 				// indicator specific properties
 
 				$scope.indicatorAbbreviation = $scope.metadataImportSettings.abbreviation;
@@ -921,8 +1025,19 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 				}			
 
 				$scope.numClassesArray = [3,4,5,6,7,8];
-				$scope.numClasses = $scope.numClassesArray[2];
 				$scope.selectedColorBrewerPaletteEntry = undefined;
+
+				$scope.numClassesPerSpatialUnit = $scope.numClassesArray[2];
+
+				for (const numClassesEntry of $scope.numClassesArray) {
+					if (numClassesEntry == $scope.metadataImportSettings.defaultClassificationMapping.numClasses){
+						$scope.numClassesPerSpatialUnit = numClassesEntry;
+						break;	
+					}
+				}
+
+				$scope.classificationMethod = $scope.metadataImportSettings.defaultClassificationMapping.classificationMethod || __env.defaultClassifyMethod;
+				$scope.spatialUnitClassification = $scope.metadataImportSettings.defaultClassificationMapping.items;
 
 				for (const colorbrewerPalette of $scope.colorbrewerPalettes) {
 					if (colorbrewerPalette.paletteName === $scope.metadataImportSettings.defaultClassificationMapping.colorBrewerSchemeName){
@@ -971,6 +1086,12 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 
 			metadataExport.referenceDateNote = $scope.indicatorReferenceDateNote;
 			metadataExport.displayOrder = $scope.displayOrder;
+
+			metadataExport.regionalReferenceValues = [];
+			let regionalReferenceValuesList = kommonitorDataGridHelperService.getReferenceValues_regionalReferenceValuesManagementGrid($scope.regionalReferenceValuesManagementTableOptions);
+			for (const regionalReferenceValuesEntry of regionalReferenceValuesList) {
+				metadataExport.regionalReferenceValues.push(regionalReferenceValuesEntry);
+			}
 
 			if($scope.metadata.updateInterval){
 					metadataExport.metadata.updateInterval = $scope.metadata.updateInterval.apiName;
@@ -1044,28 +1165,9 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 
 				var defaultClassificationMapping = {
 					"colorBrewerSchemeName" : $scope.selectedColorBrewerPaletteEntry ? $scope.selectedColorBrewerPaletteEntry.paletteName : "Blues",
-					"items": [
-						{
-						  "defaultColorAsHex": "#edf8e9",
-						  "defaultCustomRating": "sehr niedrig"
-						},
-						{
-						  "defaultColorAsHex": "#bae4b3",
-						  "defaultCustomRating": "niedrig"
-						},
-						{
-						  "defaultColorAsHex": "#74c476",
-						  "defaultCustomRating": "mittel"
-						},
-						{
-						  "defaultColorAsHex": "#31a354",
-						  "defaultCustomRating": "hoch"
-						},
-						{
-						  "defaultColorAsHex": "#006d2c",
-						  "defaultCustomRating": "sehr hoch"
-						}
-					  ]
+					"classificationMethod": $scope.classificationMethod,
+					"numClasses": $scope.numClassesPerSpatialUnit,
+					"items": $scope.spatialUnitClassification
 				};
 
 				metadataExport.defaultClassificationMapping = defaultClassificationMapping;
@@ -1094,6 +1196,255 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 
 			a.remove();
 		};
+
+		$scope.dropHandler = function (ev) {
+
+			try {
+				// Prevent default behavior (Prevent file from being opened)
+				ev.preventDefault();
+
+				if (ev.dataTransfer.items) {
+					// Use DataTransferItemList interface to access the file(s)
+					for (var i = 0; i < ev.dataTransfer.items.length; i++) {
+						// If dropped items aren't files, reject them
+						if (ev.dataTransfer.items[i].kind === 'file') {
+							var file = ev.dataTransfer.items[i].getAsFile();
+							kommonitorFileHelperService.transformFileToKomMonitorIndicatorRegionalReferenceValuesObject(file);
+						}
+					}
+				} else {
+					// Use DataTransfer interface to access the file(s)
+					for (var i = 0; i < ev.dataTransfer.files.length; i++) {
+						var file = ev.dataTransfer.files[i];
+						kommonitorFileHelperService.transformFileToKomMonitorIndicatorRegionalReferenceValuesObject(file);
+					}
+				}
+			} catch (e) {
+				$scope.fileLayerError = e;
+				$scope.loadingData = false;
+				console.error(e);
+				kommonitorToastHelperService.displayErrorToast_upperLeft("Fehler in Dateiverarbeitung", $scope.fileLayerError);
+			} finally {
+
+			}
+
+		};
+
+
+		$scope.$on("onDropFile_importRegionalReferenceValues", function (ev, dropEvent) {
+			$scope.dropHandler(dropEvent);
+		});
+
+		// $scope.dragOverHandler = function(ev) {
+		//   console.log('File(s) in drop zone');
+		//
+		//   // Prevent default behavior (Prevent file from being opened)
+		//   ev.preventDefault();
+		// };
+
+		$scope.openFileDialog = function () {
+			// $("#fileUploadInput_importRegionalReferenceValues").trigger("click");
+			document.getElementById("fileUploadInput_importRegionalReferenceValues").click();
+		};
+
+		$(document).on('change', '#fileUploadInput_importRegionalReferenceValues', function () {
+
+			// get the file
+			var files = document.getElementById('fileUploadInput_importRegionalReferenceValues').files;
+
+			for (var i = 0; i < files.length; i++) {
+				$scope.file_regionalReferenceValuesImport = files[i];
+				
+				kommonitorFileHelperService.transformFileToKomMonitorIndicatorRegionalReferenceValuesObject($scope.file_regionalReferenceValuesImport);
+				$scope.$digest();
+			}
+		});
+
+		$scope.initSpecialFields = function (indicatorRegionalReferenceValuesObject) {
+
+			// add special entry for NO selection to allow users to mark certain colors as not existant in dataset
+			// only timestamp is necessary			
+			indicatorRegionalReferenceValuesObject.featureSchema.splice(0, 0, $scope.noneColumnValue);
+
+			// init feature NAME and ID fields
+			indicatorRegionalReferenceValuesObject.TIMESTAMP_ATTRIBUTE = indicatorRegionalReferenceValuesObject.featureSchema[0];
+			indicatorRegionalReferenceValuesObject.REGIONAL_SUM_ATTRIBUTE = indicatorRegionalReferenceValuesObject.featureSchema[0];
+			indicatorRegionalReferenceValuesObject.REGIONAL_MEAN_ATTRIBUTE = indicatorRegionalReferenceValuesObject.featureSchema[0];
+			indicatorRegionalReferenceValuesObject.SPATIALLY_UNASSIGNABLE = indicatorRegionalReferenceValuesObject.featureSchema[0];
+
+			for (const property of indicatorRegionalReferenceValuesObject.featureSchema) {
+				if (property.toLowerCase().includes("zeit") || property.toLowerCase().includes("dat") || property.toLowerCase().includes("jahr")) {
+					indicatorRegionalReferenceValuesObject.TIMESTAMP_ATTRIBUTE = property;
+				}			
+				if (property.toLowerCase().includes("sum")) {
+					indicatorRegionalReferenceValuesObject.REGIONAL_SUM_ATTRIBUTE = property;
+				}
+				if (property.toLowerCase().includes("mit") || property.toLowerCase().includes("durch") || property.toLowerCase().includes("mean") || property.toLowerCase().includes("avg") || property.toLowerCase().includes("ave")) {
+					indicatorRegionalReferenceValuesObject.REGIONAL_MEAN_ATTRIBUTE = property;
+				}	
+				if (property.toLowerCase().includes("nicht") || property.toLowerCase().includes("zuord") || property.toLowerCase().includes("zuzu") || property.toLowerCase().includes("ord")) {
+					indicatorRegionalReferenceValuesObject.SPATIALLY_UNASSIGNABLE = property;
+				}				
+			}
+
+			return indicatorRegionalReferenceValuesObject;
+		}
+
+		$scope.$on("CSVFromFileFinished_indicatorRegionalReferenceValues", function (event, indicatorRegionalReferenceValuesObject) {
+			try {
+				indicatorRegionalReferenceValuesObject = $scope.initSpecialFields(indicatorRegionalReferenceValuesObject)
+
+				$scope.tmpIndicatorRegionalReferenceValuesObject = indicatorRegionalReferenceValuesObject;
+
+				kommonitorToastHelperService.displayInfoToast_upperRight("CSV-Datei erkannt", "Weitere Konfiguration erforderlich");
+
+				$scope.$digest();
+			} catch (error) {
+				console.error(error);
+				$scope.loadingData = false;
+				kommonitorToastHelperService.displayErrorToast_upperRight("Fehler beim Laden der CSV-Datei", error);
+			}						
+		});
+
+		$scope.makeIndicatorRegionalReferenceValues_fromCsv = function(tmpIndicatorRegionalReferenceValuesObject){
+			let indicatorRegionalReferenceValuesObject = [];
+			let containsEmptyValues = false;
+
+			for (const tmpIndicatorRegionalReferenceValuesEntry of tmpIndicatorRegionalReferenceValuesObject.dataRows) {
+
+				let dateValue = tmpIndicatorRegionalReferenceValuesEntry[tmpIndicatorRegionalReferenceValuesObject.TIMESTAMP_ATTRIBUTE];
+				let sumValue = tmpIndicatorRegionalReferenceValuesEntry[tmpIndicatorRegionalReferenceValuesObject.REGIONAL_SUM_ATTRIBUTE];
+				let meanValue = tmpIndicatorRegionalReferenceValuesEntry[tmpIndicatorRegionalReferenceValuesObject.REGIONAL_MEAN_ATTRIBUTE];
+				let spatiallyUnassignableValue = tmpIndicatorRegionalReferenceValuesEntry[tmpIndicatorRegionalReferenceValuesObject.SPATIALLY_UNASSIGNABLE];
+
+				let dateValueInvalid = false;
+				let sumValueInvalid = false;
+				let meanValueInvalid = false;
+				let spatiallyUnassignableValueInvalid = false;
+				
+
+				if (!dateValue || dateValue.split("-").length != 3){
+					 
+					dateValueInvalid = true;
+					kommonitorToastHelperService.displayErrorToast_upperRight("Ungültige Zeitwerte Definition in angegebener Zeitspalte '" +
+					tmpIndicatorRegionalReferenceValuesObject.TIMESTAMP_ATTRIBUTE + "'", "Konkreter Wert ist '" + dateValue + "'");															
+				
+				}
+
+				//SUMVALUE
+				if (!sumValue){
+					sumValue = NaN;
+					containsEmptyValues = true;
+				}
+				else if ( typeof(sumValue) == "String"){
+					try {
+						sumValue = Number(sumValue);
+					} catch (error) {
+						sumValueInvalid = true;
+						sumValue = NaN;
+					}
+					
+				}
+				else{
+					sumValue = Number(sumValue);
+				}
+
+				//MEANVALUE
+				//SUMVALUE
+				if (!meanValue){
+					meanValue = NaN;
+					containsEmptyValues = true;
+				}
+				else if ( typeof(meanValue) == "String"){
+					try {
+						meanValue = Number(meanValue);
+					} catch (error) {
+						meanValueInvalid = true;
+						meanValue = NaN;
+					}
+				}
+				else{
+					meanValue = Number(meanValue);
+				}
+
+				//SPATIALLYUNASSIGNABLEVALUE
+				if (!spatiallyUnassignableValue){
+					spatiallyUnassignableValue = NaN;
+					containsEmptyValues = true;
+				}
+				else if ( typeof(spatiallyUnassignableValue) == "String"){
+					try {
+						spatiallyUnassignableValue = Number(spatiallyUnassignableValue);
+					} catch (error) {
+						spatiallyUnassignableValueInvalid = true;
+						spatiallyUnassignableValue = NaN;
+					}
+				}
+				else{
+					spatiallyUnassignableValue = Number(spatiallyUnassignableValue);
+				}
+
+				
+				
+				// object building
+				if(! dateValueInvalid){
+					 
+					indicatorRegionalReferenceValuesObject.push({					
+						"referenceDate": dateValue,
+						"regionalSum": sumValue,
+						"regionalAverage": meanValue,
+						"spatiallyUnassignable": spatiallyUnassignableValue					
+					});
+				}
+				
+			}
+
+			// validations / warning / errors
+
+				// if(dateValueInvalid || sumValueInvalid || meanValueInvalid){
+				// 	kommonitorToastHelperService.displayErrorToast_upperRight("Datei enthält ungültige Definitionen", "Bitte prüfen und vergleichen Sie die Tabelleneinträge mit der Original-Datei");															
+				// }
+				if(containsEmptyValues){
+					kommonitorToastHelperService.displayWarningToast_upperRight("Datei enthält leere oder ungültige Zahlenwerte für Summe, Mittelwert oder räumlich nicht zuordenbare Elemente", "Leerwerte und ungültige werden als ungültige Zahlenwerte interpretiert.");
+				}
+
+			return indicatorRegionalReferenceValuesObject;
+		}
+
+		$scope.loadCSV_indicatorRegionalReferenceValues = function () {
+			try {
+				let tmpIndicatorRegionalReferenceValues = $scope.makeIndicatorRegionalReferenceValues_fromCsv($scope.tmpIndicatorRegionalReferenceValuesObject);
+				let applicableIndicatorRegionalReferenceValues = [];
+				let nonApplicableIndicatorRegionalReferenceValues = [];
+
+				if($scope.currentIndicatorDataset.applicableDates && $scope.currentIndicatorDataset.applicableDates.length > 0){
+
+					for (const tmpIndicatorRegionalReferenceValuesEntry of tmpIndicatorRegionalReferenceValues) {
+		  
+						if($scope.currentIndicatorDataset.applicableDates.includes(tmpIndicatorRegionalReferenceValuesEntry.referenceDate)){
+							applicableIndicatorRegionalReferenceValues.push(tmpIndicatorRegionalReferenceValuesEntry);
+						}
+						else{
+							nonApplicableIndicatorRegionalReferenceValues.push(tmpIndicatorRegionalReferenceValuesEntry);
+						}					  
+					}
+					
+				  }
+
+				$scope.regionalReferenceValuesManagementTableOptions = kommonitorDataGridHelperService.buildReferenceValuesManagementGrid('indicatorRegionalReferenceValuesManagementTable', $scope.currentIndicatorDataset.applicableDates, applicableIndicatorRegionalReferenceValues);
+
+				kommonitorToastHelperService.displaySuccessToast_upperRight(applicableIndicatorRegionalReferenceValues.length + " Vergleichswerte erfolgreich in Tabelle eingetragen", "");
+				if (nonApplicableIndicatorRegionalReferenceValues.length > 0){
+					kommonitorToastHelperService.displayErrorToast_upperRight(nonApplicableIndicatorRegionalReferenceValues.length + " Vergleichswerte der Datei konnten nicht zu einem Indikatoren-Zeitpunkt zugeordnet werden", "");				
+				}
+				kommonitorToastHelperService.displayWarningToast_upperRight("Erst durch Aktualisieren der Metadaten werden die Vergleichswerte in die Datenbank importiert", "");
+
+			} catch (error) {
+				console.error(error);
+				$scope.loadingData = false;
+				kommonitorToastHelperService.displayErrorToast_upperRight("Fehler beim Laden der CSV-Datei", error);
+			}
+		}
 
 			$scope.hideSuccessAlert = function(){
 				$("#indicatorEditMetadataSuccessAlert").hide();

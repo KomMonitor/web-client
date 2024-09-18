@@ -19,6 +19,8 @@ angular
 								$scope.loadingData = false;
 								$scope.date;
 
+								$scope.isCollapsed_noTopic = true;
+
 								$scope.poiNameFilter = undefined;
 								$scope.loiNameFilter = undefined;
 								$scope.aoiNameFilter = undefined;
@@ -197,6 +199,15 @@ angular
 								};
 
 								$scope.handleShowAllOnTopic = function(topic){
+									for (let poi of topic.poiData) {
+										poi.isSelected = topic.isSelected;
+									}
+									for (let loi of topic.loiData) {
+										loi.isSelected = topic.isSelected;
+									}
+									for (let aoi of topic.aoiData) {
+										aoi.isSelected = topic.isSelected;
+									}
 									// if (topic.isSelected){
 									// 	topic.isSelected = false;
 									// }
@@ -271,28 +282,26 @@ angular
 
 									else if(topic.isSelected){
 										relevantDatasets.forEach(element => {
-											if(! element.isSelected){
-												element.isSelected = true;
+											element.isSelected = true;
 
-												if (element.isPOI){
-													$scope.handlePoiOnMap(element);
-												}
-												else if (element.isLOI){
-													$scope.handleLoiOnMap(element);
-												}
-												else if (element.isAOI){
-													$scope.handleAoiOnMap(element);
-												}
-												else if (element.layerName){
-													$scope.handleWmsOnMap(element);
-												}
-												else if (element.featureTypeName){
-													$scope.handleWfsOnMap(element);
-												}
-												else{
-													console.error("unknown dataset: " + element);
-												}
-											}										
+											if (element.isPOI){
+												$scope.handlePoiOnMap(element);
+											}
+											else if (element.isLOI){
+												$scope.handleLoiOnMap(element);
+											}
+											else if (element.isAOI){
+												$scope.handleAoiOnMap(element);
+											}
+											else if (element.layerName){
+												$scope.handleWmsOnMap(element);
+											}
+											else if (element.featureTypeName){
+												$scope.handleWfsOnMap(element);
+											}
+											else{
+												console.error("unknown dataset: " + element);
+											}								
 									
 										});
 									}
@@ -466,7 +475,7 @@ angular
 									else if($scope.dateSelectionType.selectedDateType === $scope.dateSelectionType_valueManual){
 										return $scope.selectedDate_manual;
 									}
-									else if($scope.dateSelectionType.selectedDateType === $scope.dateSelectionType_valuePerDataset){
+									else if($scope.dateSelectionType.selectedDateType === $scope.dateSelectionType_valuePerDataset && resource.selectedDate){
 										return resource.selectedDate.startDate;
 									}
 									else{
@@ -481,6 +490,12 @@ angular
 										$scope.addPoiLayerToMap(poi, $scope.useCluster);
 									}
 									else{
+										// unselect topic
+										for (var i = 0; i < kommonitorDataExchangeService.topicGeoresourceHierarchy.length; i++) {
+											if(kommonitorDataExchangeService.topicGeoresourceHierarchy[i].topicId === poi.topicReference){
+												kommonitorDataExchangeService.topicGeoresourceHierarchy[i].isSelected = false;
+											}
+										}
 										//remove POI layer from map
 										$scope.removePoiLayerFromMap(poi);
 									}
@@ -603,6 +618,12 @@ angular
 										$scope.addAoiLayerToMap(aoi);
 									}
 									else{
+										// unselect topic
+										for (var i = 0; i < kommonitorDataExchangeService.topicGeoresourceHierarchy.length; i++) {
+											if(kommonitorDataExchangeService.topicGeoresourceHierarchy[i].topicId === aoi.topicReference){
+												kommonitorDataExchangeService.topicGeoresourceHierarchy[i].isSelected = false;
+											}
+										}
 										//remove POI layer from map
 										$scope.removeAoiLayerFromMap(aoi);
 									}
@@ -708,6 +729,12 @@ angular
 											$scope.addLoiLayerToMap(loi);
 										}
 										else{
+											// unselect topic
+											for (var i = 0; i < kommonitorDataExchangeService.topicGeoresourceHierarchy.length; i++) {
+												if(kommonitorDataExchangeService.topicGeoresourceHierarchy[i].topicId === loi.topicReference){
+													kommonitorDataExchangeService.topicGeoresourceHierarchy[i].isSelected = false;
+												}
+											}
 											//remove POI layer from map
 											$scope.removeLoiLayerFromMap(loi);
 										}
@@ -884,6 +911,13 @@ angular
 								$scope.zoomToLayer = function(georesourceMetadata){
 									$rootScope.$broadcast("zoomToGeoresourceLayer", georesourceMetadata);
 								};
+
+								$scope.toggleNoTopicHierarchy = function(){
+
+									$scope.isCollapsed_noTopic = ! $scope.isCollapsed_noTopic;
+
+									$scope.digest();
+								}
 
 
 							} ]

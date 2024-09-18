@@ -1,5 +1,9 @@
 /* app css stylesheet */
 
+body {
+	overflow-y: auto !important;
+}
+
 /* toastr library override of transparency */
 .toast { opacity: 0.8 }
 
@@ -510,12 +514,16 @@ pre.CodeMirror-line {
 	z-index: 9999999
 }
 
+.dropdown-menu {
+	box-shadow: 0 3px 10px rgb(0 0 0 / 0.2);
+}
+
 .dropdown-menu-center {
   left: 50% !important;
   right: auto !important;  
   text-align: center !important;
   transform: translate(-50%, 0) !important;
-  min-width: fit-content;
+  min-width: fit-content;  
 }
 
 /* .customColorPicker ul li a {
@@ -543,7 +551,7 @@ pre.CodeMirror-line {
 	/* overflow: hidden; */
 }
 
-#drop_zone {
+.drop_zone {
   border: 5px solid #333333;
 	border-radius: 10px;
 	border-style: dashed;
@@ -557,7 +565,7 @@ pre.CodeMirror-line {
 	opacity: 0.7;
 }
 
-#drop_zone:hover {
+.drop_zone:hover {
 	opacity: 1;
 }
 
@@ -616,6 +624,12 @@ pre.CodeMirror-line {
 	text-decoration: underline;
 	cursor: pointer;
 
+}
+
+.tour-tour-27 {
+	z-index: 20000 !important;
+	top: unset !important;
+	bottom: 0 !important;
 }
 
 #feedbackForm {
@@ -849,6 +863,14 @@ pre.CodeMirror-line {
 	fill: rgb(47,47,47);
 }
 
+.leaflet-tooltip.poi-text-tooltip {
+  background-color: transparent;
+  border: transparent;
+  box-shadow: none;
+  font-weight: bold;
+}
+
+
 /* .marker-cluster div{
 	width: 30px;
 	height: 30px;
@@ -906,6 +928,8 @@ pre.CodeMirror-line {
 	background: rgb(236,240,245);
 	z-index: 1003;
 	border-bottom: 2px solid gray;
+	max-height: 6vh !important;
+	height: 6vh !important;
 }
 
 #map {
@@ -1460,7 +1484,8 @@ select {
 	background: white;
 	/* background: rgba(255,255,255,1); */
 	color: #555;
-  	overflow: auto;
+	overflow: auto;
+	text-align: left;
 }
 
 .boxedLegend i {
@@ -1701,8 +1726,8 @@ color: #777;
 	  display: -webkit-flex;
 	  display: -ms-flexbox;
 	  display: flex;
-    height:94vh; /* fix IE11 */
-    min-height:100%; /* fix IE11 */
+	max-height: 94vh !important;
+	height: 94vh !important;
 }
 
 aside{
@@ -1718,8 +1743,7 @@ aside{
  		/* min-width: 35%; */
     max-width: 35%;
 		width:100%;
-		height: 94vh;
-		max-height: 94vh;
+		height: 100%;
 		/* min-height: 100vh; */
 		background: rgb(236,240,245);
 		transition: opacity 0.3s;
@@ -1735,8 +1759,7 @@ aside{
     /* min-width: 35%; */
     max-width: 35%;
 		width:100%;
-		height: 94vh;
-		max-height: 98%;
+		height: 100%;
 		/* min-height: 100vh; */
 		background: rgb(236,240,245);
 		transition: opacity 0.3s;
@@ -1753,8 +1776,7 @@ aside{
 	/* min-width: 35%; */
 	max-width: 35%;
 	width:100%;
-		height: 94vh;
-		/* min-height: 100vh; */
+	height: 100%;
 		background: rgb(236,240,245);
 		transition: opacity 0.3s;
 		overflow: auto;
@@ -1769,8 +1791,7 @@ aside{
 	/* min-width: 35%; */
 	max-width: 35%;
 	width:100%;
-		height: 94vh;
-		/* min-height: 100vh; */
+	height: 100%;
 		background: rgb(236,240,245);
 		transition: opacity 0.3s;
 		overflow: auto;
@@ -1785,8 +1806,7 @@ aside{
 	/* min-width: 42%; */
 	max-width: 42%;
 	width:100%;
-		/* min-height: 100vh; */
-		height: 94vh;
+	height: 100%;
 		background: rgb(236,240,245);
 		transition: opacity 0.3s;
 		overflow: auto;
@@ -1801,8 +1821,7 @@ aside{
 	/* min-width: 42%; */
 	max-width: 42%;
 	width:100%;
-		/* min-height: 100vh; */
-		height: 94vh;
+	height: 100%;
 		background: rgb(236,240,245);
 	transition: opacity 0.3s;
 		overflow: auto;
@@ -1817,8 +1836,7 @@ aside{
 	/* min-width: 35%; */
 	max-width: 35%;
 	width:100%;
-		/* min-height: 100vh; */
-		height: 94vh;
+	height: 100%;
 		background: rgb(236,240,245);
 transition: opacity 0.3s;
 		overflow: auto;
@@ -1833,8 +1851,7 @@ transition: opacity 0.3s;
 	/* min-width: 35%; */
 	max-width: 35%;
 	width:100%;
-		/* min-height: 100vh; */
-		height: 94vh;
+	height: 100%;
 		background: rgb(236,240,245);
 transition: opacity 0.3s;
 		overflow: auto;
@@ -1849,8 +1866,7 @@ transition: opacity 0.3s;
 	/* min-width: 42%; */
 	max-width: 42%;
 	width:100%;
-		/* min-height: 100vh; */
-		height: 94vh;
+	height: 100%;
 		background: rgb(236,240,245);
 transition: opacity 0.3s;
 		overflow: auto;
@@ -1866,8 +1882,7 @@ transition: opacity 0.3s;
 	max-width: 35%;
 	width:100%;
 	font-size: 11px;
-		/* min-height: 100vh; */
-		height: 94vh;
+	height: 100%;
 		background: rgb(236,240,245);
 		transition: opacity 0.3s;
 		overflow: auto;
@@ -2022,6 +2037,7 @@ transition: opacity 0.3s;
 	margin-left: 1%;
 	margin-right: 1%;
 	font-size: 11px;
+	padding-bottom: 30px;
 	/* margin-top: 1%; */
 	z-index: 1000;
 	height: 99%;
@@ -3085,6 +3101,10 @@ input:checked + .switchslider:before {
 	vertical-align: middle;
 }
 
+.classificationMethodSelectContainer {
+	width: 300px;
+}
+
 
 #infoModalTabs {
 	margin-bottom: 10px;
@@ -3097,6 +3117,14 @@ input:checked + .switchslider:before {
 
 .organizationalUnit-subGroup-item {
     color: darkgray;
+}
+
+.tab-completed > a {
+	background-color: #dff0d8 !important;
+}
+
+.tab-error > a {
+	background-color: #f0d8d8 !important;
 }
 
 /* The snackbar - position it at the bottom and in the middle of the screen */

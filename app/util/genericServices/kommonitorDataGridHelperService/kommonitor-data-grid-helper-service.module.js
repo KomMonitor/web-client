@@ -992,11 +992,11 @@ angular
           let modalId = document.getElementById(this.id).getAttribute("data-target");
           $(modalId).modal('show');
                  
-          let spatialUnitId = this.id.split("_")[3]; 
+          let georesourceId = this.id.split("_")[3]; 
 
-          let spatialUnitMetadata = kommonitorDataExchangeService.getGeoresourceMetadataById(spatialUnitId);
+          let georesourceMetadata = kommonitorDataExchangeService.getGeoresourceMetadataById(georesourceId);
 
-          $rootScope.$broadcast("onDeleteGeoresources", [spatialUnitMetadata]); //handler function takes an array
+          $rootScope.$broadcast("onDeleteGeoresources", [georesourceMetadata]); //handler function takes an array
         });
 
       };
@@ -1532,9 +1532,7 @@ angular
   
           let gridOptions = {
             defaultColDef: {
-              editable: true,
-              // enables the fill handle
-              enableFillHandle: false,              
+              editable: true,            
               cellEditor: 'agLargeTextCellEditor',
               onCellValueChanged: function(newValueParams){
                 /* https://www.ag-grid.com/javascript-data-grid/cell-editing/ 
@@ -1860,9 +1858,7 @@ angular
   
           let gridOptions = {
             defaultColDef: {
-              editable: true,
-              // enables the fill handle
-              enableFillHandle: false,              
+              editable: true,            
               cellEditor: 'agLargeTextCellEditor',
               onCellValueChanged: function(newValueParams){
                 /* https://www.ag-grid.com/javascript-data-grid/cell-editing/ 
@@ -1890,7 +1886,16 @@ angular
                   // then build JSON and send modification request to data Management component
                   let json = JSON.parse(JSON.stringify(newValueParams.data));
 
-                  // now delete information - only ID and fid shall remain for indicator record update
+                  // now delete information - only ID, fid as datatabel recordId and all timestamp attributes starting with prefix 'DATE_' shall remain for indicator record update
+                  //
+                  let allowedProperties = [__env.FEATURE_ID_PROPERTY_NAME, 'fid'];
+                  for (const key in json) {
+                    if (Object.hasOwnProperty.call(json, key)) {
+                      if(! key.includes(__env.indicatorDatePrefix) && !allowedProperties.includes(key)){
+                        delete json[key];
+                      }                      
+                    }
+                  }
                   delete json[__env.VALID_START_DATE_PROPERTY_NAME];
                   delete json[__env.VALID_END_DATE_PROPERTY_NAME];
                   delete json[__env.FEATURE_NAME_PROPERTY_NAME]; 
@@ -3776,6 +3781,207 @@ angular
           })               
         }
         return ids;
+      };
+
+      // INDICATOR REFERENCE VALUES
+
+      this.buildDataGridColumnConfig_regionalReferenceValues = function(applicableDates, regionalReferenceValuesList){
+        const columnDefs = [
+          { headerName: 'Zeitpunkt', field: "referenceDate", pinned: 'left', cellDataType: 'text', editable: false, cellClass: "grid-non-editable", maxWidth: 150
+          },
+          { headerName: 'regionale Gesamtsumme', field: "regionalSum", cellDataType: 'number', 
+            cellEditor: 'agNumberCellEditor', cellEditorParams: {
+              precision: 2,
+              step: 0.01,
+              showStepperButtons: true
+            }, 
+            tooltipValueGetter: (p) =>
+              "mit Enter bestätigen", maxWidth: 175 },
+          { headerName: 'regionaler Mittelwert', field: "regionalAverage", cellDataType: 'number', cellEditor: 'agNumberCellEditor', cellEditorParams: {
+            precision: 2,
+            step: 0.01,
+            showStepperButtons: true
+          }, tooltipValueGetter: (p) =>
+            "mit Enter bestätigen",
+          maxWidth: 175 },
+          { headerName: 'räumlich nicht zuordenbar', field: "spatiallyUnassignable", cellDataType: 'number', cellEditor: 'agNumberCellEditor', cellEditorParams: {
+            precision: 2,
+            step: 0.01,
+            showStepperButtons: true
+          }, tooltipValueGetter: (p) =>
+            "mit Enter bestätigen", maxWidth: 175 }, 
+          
+        ];
+
+        return columnDefs;
+      };
+
+      this.buildDataGridRowData_regionalReferenceValues = function(applicableDates, regionalReferenceValuesList){
+        
+        /*
+          regionalReferenceValuesList: 
+            [
+              {
+                  "referenceDate": "2021-12-31",
+                  "regionalSum": 3000,
+                  "regionalAverage": 144,
+                  "spatiallyUnassignable": 0
+              },
+              {
+                  "referenceDate": "2022-12-31",
+                  "regionalSum": 3500,
+                  "regionalAverage": 148,
+                  "spatiallyUnassignable", 0
+              }
+            ]
+        */
+
+          let dataArray = [];
+
+        if(applicableDates && applicableDates.length > 0){
+
+          for (const availableDate of applicableDates) {
+            let item = {
+              "referenceDate": availableDate,
+              "regionalSum": undefined,
+              "regionalAverage": undefined,
+              "spatiallyUnassignable": undefined
+            };
+
+            if(regionalReferenceValuesList && regionalReferenceValuesList.length > 0){
+              for (const regionalReferenceValuesListEntry of regionalReferenceValuesList) {
+                if(regionalReferenceValuesListEntry.referenceDate == availableDate){
+                  item = regionalReferenceValuesListEntry;
+                  break;
+                }
+              }
+            }
+            
+
+            dataArray.push(item);
+          }
+          
+        }
+        
+        return dataArray;
+      };
+
+      this.buildDataGridOptions_regionalReferenceValues = function(applicableDates, regionalReferenceValuesList){
+          let columnDefs = this.buildDataGridColumnConfig_regionalReferenceValues(applicableDates, regionalReferenceValuesList);
+          let rowData = this.buildDataGridRowData_regionalReferenceValues(applicableDates, regionalReferenceValuesList);
+  
+          let gridOptions = {
+            defaultColDef: {
+              editable: true,            
+              cellEditor: 'agNumberCellEditor',
+              cellEditorParams: {
+                precision: 2,
+                step: 0.25,
+                showStepperButtons: true
+              },              
+              sortable: true,
+              flex: 1,
+              minWidth: 200,
+              filter: true,
+              floatingFilter: false,
+              // filterParams: {
+              //   newRowsAction: 'keep'
+              // },
+              resizable: true,
+              wrapText: true,
+              autoHeight: true,
+              cellStyle: { 'font-size': '12px;', 'white-space': 'normal !important', "line-height": "20px !important", "word-break": "break-word !important", "padding-top": "17px", "padding-bottom": "17px" },
+              headerComponentParams: {
+                template:
+                  '<div class="ag-cell-label-container" role="presentation">' +
+                  '  <span ref="eMenu" class="ag-header-icon ag-header-cell-menu-button"></span>' +
+                  '  <div ref="eLabel" class="ag-header-cell-label" role="presentation">' +
+                  '    <span ref="eSortOrder" class="ag-header-icon ag-sort-order"></span>' +
+                  '    <span ref="eSortAsc" class="ag-header-icon ag-sort-ascending-icon"></span>' +
+                  '    <span ref="eSortDesc" class="ag-header-icon ag-sort-descending-icon"></span>' +
+                  '    <span ref="eSortNone" class="ag-header-icon ag-sort-none-icon"></span>' +
+                  '    <span ref="eText" class="ag-header-cell-text" role="columnheader" style="white-space: normal;"></span>' +
+                  '    <span ref="eFilter" class="ag-header-icon ag-filter-icon"></span>' +
+                  '  </div>' +
+                  '</div>',
+              },
+            },
+            columnDefs: columnDefs,
+            rowData: rowData,
+            // enables undo / redo
+            undoRedoCellEditing: true,
+            // restricts the number of undo / redo steps to 10
+            undoRedoCellEditingLimit: 10,
+            // enables flashing to help see cell changes
+            enableCellChangeFlash: true,
+            suppressRowClickSelection: true,
+            // rowSelection: 'multiple',
+            enableCellTextSelection: true,
+            ensureDomOrder: true,
+            pagination: true,
+            paginationPageSize: 10,
+            suppressColumnVirtualisation: true,          
+            // onFirstDataRendered: function () {
+            //   headerHeightSetter(this);
+            // },
+            // onColumnResized: function () {
+            //   headerHeightSetter(this);
+            // }
+            onRowDataChanged: function () {
+            },  
+            onModelUpdated: function () {
+              
+            }, 
+            onViewportChanged: function () {                  
+            },
+  
+          };
+  
+          return gridOptions;        
+      };
+
+      this.buildReferenceValuesManagementGrid = function (domElementId, applicableDates, regionalReferenceValuesList) {
+
+        let dataGridOptions_regionalReferenceValues;
+
+        dataGridOptions_regionalReferenceValues = this.buildDataGridOptions_regionalReferenceValues(applicableDates, regionalReferenceValuesList);
+        
+          let gridDiv = document.querySelector('#' + domElementId);
+          while (gridDiv.firstChild) {
+            gridDiv.removeChild(gridDiv.firstChild);
+          }
+          new agGrid.Grid(gridDiv, dataGridOptions_regionalReferenceValues);
+
+          return dataGridOptions_regionalReferenceValues;
+      };
+
+      this.getReferenceValues_regionalReferenceValuesManagementGrid = function(regionalReferenceValuesManagementTableOptions){
+        let regionalReferenceValuesList = [];
+        if (regionalReferenceValuesManagementTableOptions && regionalReferenceValuesManagementTableOptions.api){
+
+          /*
+              regionalReferenceValuesList: 
+              [
+                {
+                    "referenceDate": "2021-12-31",
+                    "regionalSum": 3000,
+                    "regionalAverage": 144
+                    "spatiallyUnassignable": 0
+                },
+                {
+                    "referenceDate": "2022-12-31",
+                    "regionalSum": 3500,
+                    "regionalAverage": 148,
+                    "spatiallyUnassignable": 0
+                }
+              ]
+              
+          */
+          regionalReferenceValuesManagementTableOptions.api.forEachNode(function(node, index){            
+            regionalReferenceValuesList.push(node.data);           
+          })               
+        }
+        return regionalReferenceValuesList;
       };
 
       this.saveGridStore = function (gridOptions) {

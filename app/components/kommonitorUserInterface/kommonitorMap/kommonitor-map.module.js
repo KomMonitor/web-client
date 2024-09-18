@@ -1,5 +1,5 @@
 angular.module('kommonitorMap', ['kommonitorDataExchange', 'kommonitorVisualStyleHelper', 'kommonitorInfoLegendHelper', 
-'kommonitorFilterHelper', 'kommonitorGenericMapHelper']);
+'kommonitorFilterHelper', 'kommonitorToastHelper', 'kommonitorGenericMapHelper', 'kommonitorReachabilityMapHelper']);
 /**
  * a common serviceInstance that holds all needed properties and methods for
  * interacting with a map (openlayers).
@@ -491,5 +491,13 @@ angular.module('kommonitorMap').service(
 
 						return coordinatesArray;
 					};
+
+					this.replaceReachabilityScenarioOnMainMap = function(reachabilityScenario){
+						$rootScope.$broadcast("replaceReachabilityScenarioOnMainMap", reachabilityScenario)
+					}
+
+					this.removeReachabilityScenarioFromMainMap = function(){
+						$rootScope.$broadcast("removeReachabilityScenarioFromMainMap")
+					}
 
 		}]);

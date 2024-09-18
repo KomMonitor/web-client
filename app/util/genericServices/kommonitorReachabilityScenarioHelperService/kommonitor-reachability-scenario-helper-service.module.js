@@ -55,9 +55,10 @@ angular
       }
 
       this.setPoiDataset = function(poiDataset){
+        let poiDatasetClone = jQuery.extend(true, {}, poiDataset);
         this.tmpActiveScenario.poiDataset = {};
-        this.tmpActiveScenario.poiDataset.poiId = poiDataset.georesourceId;
-        this.tmpActiveScenario.poiDataset.poiName = poiDataset.datasetName;
+        this.tmpActiveScenario.poiDataset.poiId = poiDatasetClone.georesourceId;
+        this.tmpActiveScenario.poiDataset.poiName = poiDatasetClone.datasetName;
         if (kommonitorReachabilityHelperService.settings.isochroneConfig.selectedDate && kommonitorReachabilityHelperService.settings.isochroneConfig.selectedDate.startDate){
           this.tmpActiveScenario.poiDataset.poiDate = kommonitorReachabilityHelperService.settings.isochroneConfig.selectedDate.startDate;
         }
@@ -67,11 +68,13 @@ angular
       }
 
       this.setActiveScenario = function(scenarioDataset){
-        this.tmpActiveScenario = scenarioDataset;
+        // deep clone object to persist this scenario as a whole
 
-        kommonitorReachabilityHelperService.settings = this.tmpActiveScenario.reachabilitySettings;
-        kommonitorReachabilityHelperService.currentIsochronesGeoJSON = this.tmpActiveScenario.isochrones_dissolved;
-        kommonitorReachabilityHelperService.original_nonDissolved_isochrones = this.tmpActiveScenario.isochrones_perPoint;
+        this.tmpActiveScenario = jQuery.extend(true, {}, scenarioDataset);
+
+        kommonitorReachabilityHelperService.settings = jQuery.extend(true, {}, this.tmpActiveScenario.reachabilitySettings);
+        kommonitorReachabilityHelperService.currentIsochronesGeoJSON = jQuery.extend(true, {}, this.tmpActiveScenario.isochrones_dissolved);
+        kommonitorReachabilityHelperService.original_nonDissolved_isochrones = jQuery.extend(true, {}, this.tmpActiveScenario.isochrones_perPoint);
       }
 
       this.loadActiveScenario = function(scenarioDataset){
@@ -81,15 +84,19 @@ angular
 			}
 
       this.addReachabilityScenario = function(){
+        this.configureActiveScenario();
+
+        this.replaceOrAddScenario(jQuery.extend(true, {}, this.tmpActiveScenario)); 
+      
+      }
+
+      this.configureActiveScenario = function(){
         this.tmpActiveScenario.reachabilitySettings = kommonitorReachabilityHelperService.settings;
         this.tmpActiveScenario.isochrones_dissolved = kommonitorReachabilityHelperService.currentIsochronesGeoJSON;
         this.tmpActiveScenario.isochrones_perPoint = kommonitorReachabilityHelperService.original_nonDissolved_isochrones;
         // this.tmpActiveScenario.indicatorStatistics and this.tmpActiveScenario.scenarioName are already directly set within reachability components 
         
         this.setPoiDataset(this.tmpActiveScenario.reachabilitySettings.selectedStartPointLayer);
-
-        this.replaceOrAddScenario(JSON.parse(JSON.stringify(this.tmpActiveScenario))); 
-      
       }
 
       this.replaceOrAddScenario = function(scenario){        
@@ -112,7 +119,8 @@ angular
       }
 
       this.cloneReachabilityScenario = function(scenario){
-        let clone = JSON.parse(JSON.stringify(scenario));
+        
+        let clone = jQuery.extend(true, {}, scenario);
 
         // remove angulraJS hashkey identifying the entry
         delete clone['$$hashKey']; 
@@ -187,7 +195,7 @@ angular
       };
   
       this.parseFromFile = function(event){
-        this.reachabilityScenarios = JSON.parse(event.target.result);
+        this.reachabilityScenarios = this.reachabilityScenarios.concat(JSON.parse(event.target.result));
         $rootScope.$digest();
       }
 

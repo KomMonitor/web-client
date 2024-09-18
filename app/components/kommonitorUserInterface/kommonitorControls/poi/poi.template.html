@@ -43,31 +43,35 @@
 					</select>
 				</label>
 
-				<hr>
-				<br />
+				
 
-				<label>Art der Datumsdefinition zum Abruf eines Datensatzes</label>
-				<div class="form-group">
-					<label class="radio-inline"><input type="radio" name="dateSelectionType"
-							ng-value="dateSelectionType_valueIndicator" ng-model="dateSelectionType.selectedDateType"
-							ng-click="onClickUseIndicatorTimestamp()">Datum des aktuellen Indikators</label>
-					<label class="radio-inline"><input type="radio" name="dateSelectionType"
-							ng-value="dateSelectionType_valueManual"
-							ng-model="dateSelectionType.selectedDateType">manuelles Datum
-						<div ng-hide="!(dateSelectionType.selectedDateType === dateSelectionType_valueManual)"
-							class="input-group date">
-							<div class="input-group-addon">
-								<i class="far fa-calendar-alt"></i>
+				<!-- for now hide menu to change date selection for georesourcs as it might be more confusing than helpful -->
+				<!-- <div>
+					<hr>
+					<br />
+					<label>Art der Datumsdefinition zum Abruf eines Datensatzes</label>
+					<div class="form-group">
+						<label class="radio-inline"><input type="radio" name="dateSelectionType"
+								ng-value="dateSelectionType_valueIndicator" ng-model="dateSelectionType.selectedDateType"
+								ng-click="onClickUseIndicatorTimestamp()">Datum des aktuellen Indikators</label>
+						<label class="radio-inline"><input type="radio" name="dateSelectionType"
+								ng-value="dateSelectionType_valueManual"
+								ng-model="dateSelectionType.selectedDateType">manuelles Datum
+							<div ng-hide="!(dateSelectionType.selectedDateType === dateSelectionType_valueManual)"
+								class="input-group date">
+								<div class="input-group-addon">
+									<i class="far fa-calendar-alt"></i>
+								</div>
+								<input type="text" ng-model="selectedDate_manual" ng-change="onChangeManualDate()"
+									class="form-control pull-right" placeholder="YYYY-MM-DD" id="manualDateDatepicker"
+									required>
 							</div>
-							<input type="text" ng-model="selectedDate_manual" ng-change="onChangeManualDate()"
-								class="form-control pull-right" placeholder="YYYY-MM-DD" id="manualDateDatepicker"
-								required>
-						</div>
-					</label>
-					<label class="radio-inline"><input type="radio" name="dateSelectionType"
-							ng-value="dateSelectionType_valuePerDataset"
-							ng-model="dateSelectionType.selectedDateType">pro Datensatz</label>
-				</div>
+						</label>
+						<label class="radio-inline"><input type="radio" name="dateSelectionType"
+								ng-value="dateSelectionType_valuePerDataset"
+								ng-model="dateSelectionType.selectedDateType">pro Datensatz</label>
+					</div>
+				</div>			 -->
 
 			</div>
 
@@ -259,9 +263,15 @@
 																		<div
 																			class="awesome-marker-legend awesome-marker-legend-icon-{{::poi.poiMarkerColor}}">
 																			<span
+																				ng-if="!poi.poiMarkerStyle || poi.poiMarkerStyle == 'symbol'"
 																				style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:{{::poi.poiSymbolColor}};"
 																				class="glyphicon glyphicon-{{::poi.poiSymbolBootstrap3Name}}"
 																				aria-hidden="true"></span>
+																			<span 
+																				ng-else
+																				style="font-size:0.9em; color:{{::poi.poiSymbolColor}};">
+																				{{ poi.poiMarkerText }}
+																			</span>
 																		</div>
 																	</div>
 																</td>
@@ -281,7 +291,7 @@
 																		title="Download Features as GeoJSON"><i
 																			class="fas fa-file-download fa-lg"></i></a>
 																			
-																	<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.downloadMetadataPDF_georesource(poi)"
+																	<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.downloadMetadataPDF_georesource(loi)"
 																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
 																	<!-- <a ng-href="getExportLinkForPoi(poi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 																</td>
@@ -329,7 +339,7 @@
 																		title="Download Features as GeoJSON"><i
 																			class="fas fa-file-download fa-lg"></i></a>
 
-																	<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.createMetadataPDF_georesource(loi)"
+																	<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.downloadMetadataPDF_georesource(loi)"
 																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
 																	<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 																</td>
@@ -376,7 +386,7 @@
 																		title="Download Features as GeoJSON"><i
 																			class="fas fa-file-download fa-lg"></i></a>
 
-																	<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.createMetadataPDF_georesource(aoi)"
+																	<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.downloadMetadataPDF_georesource(aoi)"
 																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
 																	<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 																</td>
@@ -554,9 +564,15 @@
 																	<div
 																		class="awesome-marker-legend awesome-marker-legend-icon-{{::poi.poiMarkerColor}}">
 																		<span
+																			ng-if="!poi.poiMarkerStyle || poi.poiMarkerStyle == 'symbol'"
 																			style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:{{::poi.poiSymbolColor}};"
 																			class="glyphicon glyphicon-{{::poi.poiSymbolBootstrap3Name}}"
 																			aria-hidden="true"></span>
+																		<span 
+																			ng-else
+																			style="font-size:0.9em; color:{{::poi.poiSymbolColor}};">
+																			{{ poi.poiMarkerText }}
+																		</span>
 																	</div>
 																</div>
 															</td>
@@ -576,7 +592,7 @@
 																	title="Download Features as GeoJSON"><i
 																		class="fas fa-file-download fa-lg"></i></a>
 
-																<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.createMetadataPDF_georesource(poi)"
+																<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.downloadMetadataPDF_georesource(poi)"
 																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
 																<!-- <a ng-href="getExportLinkForPoi(poi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 															</td>
@@ -624,7 +640,7 @@
 																	title="Download Features as GeoJSON"><i
 																		class="fas fa-file-download fa-lg"></i></a>
 
-																<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.createMetadataPDF_georesource(loi)"
+																<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.downloadMetadataPDF_georesource(loi)"
 																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
 																<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 															</td>
@@ -671,7 +687,7 @@
 																	title="Download Features as GeoJSON"><i
 																		class="fas fa-file-download fa-lg"></i></a>
 
-																<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.createMetadataPDF_georesource(aoi)"
+																<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.downloadMetadataPDF_georesource(aoi)"
 																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
 																<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 															</td>
@@ -848,9 +864,15 @@
 																<div
 																	class="awesome-marker-legend awesome-marker-legend-icon-{{::poi.poiMarkerColor}}">
 																	<span
+																		ng-if="!poi.poiMarkerStyle || poi.poiMarkerStyle == 'symbol'"
 																		style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:{{::poi.poiSymbolColor}};"
 																		class="glyphicon glyphicon-{{::poi.poiSymbolBootstrap3Name}}"
 																		aria-hidden="true"></span>
+																	<span 
+																		ng-else
+																		style="font-size:0.9em; color:{{::poi.poiSymbolColor}};">
+																		{{ poi.poiMarkerText }}
+																	</span>
 																</div>
 															</div>
 														</td>
@@ -869,7 +891,7 @@
 																title="Download Features as GeoJSON"><i
 																	class="fas fa-file-download fa-lg"></i></a>
 
-															<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.createMetadataPDF_georesource(poi)"
+															<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.downloadMetadataPDF_georesource(poi)"
 																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
 															<!-- <a ng-href="getExportLinkForPoi(poi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 														</td>
@@ -914,7 +936,7 @@
 																title="Download Features as GeoJSON"><i
 																	class="fas fa-file-download fa-lg"></i></a>
 
-															<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.createMetadataPDF_georesource(loi)"
+															<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.downloadMetadataPDF_georesource(loi)"
 																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
 															<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 														</td>
@@ -958,7 +980,7 @@
 																title="Download Features as GeoJSON"><i
 																	class="fas fa-file-download fa-lg"></i></a>
 
-															<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.createMetadataPDF_georesource(aoi)"
+															<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.downloadMetadataPDF_georesource(aoi)"
 																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
 															<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 														</td>
@@ -1136,9 +1158,15 @@
 															<div
 																class="awesome-marker-legend awesome-marker-legend-icon-{{::poi.poiMarkerColor}}">
 																<span
+																	ng-if="!poi.poiMarkerStyle || poi.poiMarkerStyle == 'symbol'"
 																	style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:{{::poi.poiSymbolColor}};"
 																	class="glyphicon glyphicon-{{::poi.poiSymbolBootstrap3Name}}"
 																	aria-hidden="true"></span>
+																<span 
+																	ng-else
+																	style="font-size:0.9em; color:{{::poi.poiSymbolColor}};">
+																	{{ poi.poiMarkerText }}
+																</span>
 															</div>
 														</div>
 													</td>
@@ -1157,7 +1185,7 @@
 															title="Download Features as GeoJSON"><i
 																class="fas fa-file-download fa-lg"></i></a>
 
-														<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.createMetadataPDF_georesource(poi)"
+														<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.downloadMetadataPDF_georesource(poi)"
 																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
 														<!-- <a ng-href="getExportLinkForPoi(poi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 													</td>
@@ -1202,7 +1230,7 @@
 															title="Download Features as GeoJSON"><i
 																class="fas fa-file-download fa-lg"></i></a>
 
-														<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.createMetadataPDF_georesource(loi)"
+														<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.downloadMetadataPDF_georesource(loi)"
 																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
 														<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 													</td>
@@ -1247,7 +1275,7 @@
 															title="Download Features as GeoJSON"><i
 																class="fas fa-file-download fa-lg"></i></a>
 
-														<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.createMetadataPDF_georesource(aoi)"
+														<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.downloadMetadataPDF_georesource(aoi)"
 																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
 														<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 													</td>
@@ -1385,9 +1413,10 @@
 								style="background: #2171b5; color: white;" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.topicGeoresourceHierarchy_unmappedEntries.totalCount > 0">
 								<a id="noHierarchyGeoresourceDatasets" href=""
 									ng-attr-title="Georessourcen-Daten ohne Themenbezug" class="collapseTrigger"
-									style="color: white;" ng-click="isCollapsed_noTopic = !isCollapsed_noTopic"
-									ng-init="isCollapsed_noTopic=true"><i
-										class="glyphicon glyphicon-chevron-right"></i>ohne Themenbezug
+									style="color: white;" 
+									ng-init="isCollapsed_noTopic=true"
+									ng-click="toggleNoTopicHierarchy()">
+										<i	class="glyphicon glyphicon-chevron-right"></i>ohne Themenbezug
 									({{$ctrl.kommonitorDataExchangeServiceInstance.topicGeoresourceHierarchy_unmappedEntries.totalCount}})</a>
 								&nbsp;&nbsp; <input type="checkbox" value="showAllForTopic_null"
 									ng-model="showAllForTopic_null" ng-change="handleShowAllOnTopic(null)">
@@ -1398,7 +1427,7 @@
 
 								<div class="georesourceInputForm"
 									ng-if="$ctrl.kommonitorDataExchangeServiceInstance.topicGeoresourceHierarchy_unmappedEntries.totalCount > 0">
-
+									
 									<table class="table table-condensed" style="margin-bottom:0px;">
 										<thead>
 											<tr>
@@ -1438,9 +1467,15 @@
 														<div
 															class="awesome-marker-legend awesome-marker-legend-icon-{{::poi.poiMarkerColor}}">
 															<span
+																ng-if="!poi.poiMarkerStyle || poi.poiMarkerStyle == 'symbol'"
 																style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:{{::poi.poiSymbolColor}};"
 																class="glyphicon glyphicon-{{::poi.poiSymbolBootstrap3Name}}"
 																aria-hidden="true"></span>
+															<span 
+																ng-else
+																style="font-size:0.9em; color:{{::poi.poiSymbolColor}};">
+																{{ poi.poiMarkerText }}
+															</span>
 														</div>
 													</div>
 												</td>
@@ -1459,7 +1494,7 @@
 														title="Download Features as GeoJSON"><i
 															class="fas fa-file-download fa-lg"></i></a>
 
-													<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.createMetadataPDF_georesource(poi)"
+													<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.downloadMetadataPDF_georesource(poi)"
 																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
 													<!-- <a ng-href="getExportLinkForPoi(poi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 												</td>
@@ -1505,7 +1540,7 @@
 														title="Download Features as GeoJSON"><i
 															class="fas fa-file-download fa-lg"></i></a>
 
-													<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.createMetadataPDF_georesource(loi)"
+													<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.downloadMetadataPDF_georesource(loi)"
 																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
 													<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 												</td>
@@ -1551,7 +1586,7 @@
 														title="Download Features as GeoJSON"><i
 															class="fas fa-file-download fa-lg"></i></a>
 
-													<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.createMetadataPDF_georesource(aoi)"
+													<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.downloadMetadataPDF_georesource(aoi)"
 																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
 													<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 												</td>
@@ -1742,9 +1777,15 @@
 															<div
 																class="awesome-marker-legend awesome-marker-legend-icon-{{::poi.poiMarkerColor}}">
 																<span
+																	ng-if="!poi.poiMarkerStyle || poi.poiMarkerStyle == 'symbol'"
 																	style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:{{::poi.poiSymbolColor}};"
 																	class="glyphicon glyphicon-{{::poi.poiSymbolBootstrap3Name}}"
 																	aria-hidden="true"></span>
+																<span 
+																	ng-else
+																	style="font-size:0.9em; color:{{::poi.poiSymbolColor}};">
+																	{{ poi.poiMarkerText }}
+																</span>
 															</div>
 														</div>
 													</td>
@@ -1763,7 +1804,7 @@
 															title="Download Features as GeoJSON"><i
 																class="fas fa-file-download fa-lg"></i></a>
 
-														<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.createMetadataPDF_georesource(poi)"
+														<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.downloadMetadataPDF_georesource(poi)"
 																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
 														<!-- <a ng-href="getExportLinkForPoi(poi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 													</td>
@@ -1853,7 +1894,7 @@
 															title="Download Features as GeoJSON"><i
 																class="fas fa-file-download fa-lg"></i></a>
 														
-														<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.createMetadataPDF_georesource(loi)"
+														<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.downloadMetadataPDF_georesource(loi)"
 																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
 														<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 													</td>
@@ -1939,7 +1980,7 @@
 															title="Download Features as GeoJSON"><i
 																class="fas fa-file-download fa-lg"></i></a>
 
-														<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.createMetadataPDF_georesource(aoi)"
+														<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.downloadMetadataPDF_georesource(aoi)"
 																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
 														<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 													</td>

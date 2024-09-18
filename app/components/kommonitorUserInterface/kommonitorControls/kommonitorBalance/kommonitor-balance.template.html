@@ -15,8 +15,8 @@
 			<div class="box-body">
 
 				<div align="center">
-					<p ng-if="enableBilanceTrend">Zeitliche Trendbetrachtung der Indikatorenentwicklung &uuml;ber eine definierbare Zeitperiode.</p>
-					<p ng-if="!enableBilanceTrend">Zeitliche Bilanzierung der Indikatorenentwicklung &uuml;ber eine definierbare Zeitperiode.</p>
+					<p ng-if="$ctrl.kommonitorDataExchangeServiceInstance.enableBilanceTrend">Zeitliche Trendbetrachtung der Indikatorenentwicklung &uuml;ber eine definierbare Zeitperiode.</p>
+					<p ng-if="!$ctrl.kommonitorDataExchangeServiceInstance.enableBilanceTrend">Zeitliche Bilanzierung der Indikatorenentwicklung &uuml;ber eine definierbare Zeitperiode.</p>
 				</div>
 
 				<br/>
@@ -65,8 +65,8 @@
 
 		<div style="margin-bottom: 0px;" class="box box-danger" ng-show="$ctrl.kommonitorDataExchangeServiceInstance.isBalanceChecked">
 			<div class="box-header with-border">
-				<h3 ng-if="enableBilanceTrend" class="box-title">Trenddarstellung &uuml;ber alle Features</h3>
-				<h3 ng-if="!enableBilanceTrend" class="box-title">Zeitreihendarstellung &uuml;ber alle Features</h3>
+				<h3 ng-if="$ctrl.kommonitorDataExchangeServiceInstance.enableBilanceTrend" class="box-title">Trenddarstellung &uuml;ber alle Features</h3>
+				<h3 ng-if="!$ctrl.kommonitorDataExchangeServiceInstance.enableBilanceTrend" class="box-title">Zeitreihendarstellung &uuml;ber alle Features</h3>
 
 				<div class="box-tools pull-right">
 					<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
@@ -87,7 +87,10 @@
 							<th class="text-center">
 								<b>Zeige gesamte Zeitreihe</b>
 							</th>
-							<th class="text-center" ng-if="enableBilanceTrend">
+							<th>
+								<b>Zeige Trendlinie</b>
+							</th>
+							<th class="text-center" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.enableBilanceTrend">
 								<b>Art der Trendberechnung</b>
 							</th>
 							
@@ -107,7 +110,14 @@
 									<span class="switchslider round"></span>
 								</label>
 							</td>
-							<td ng-if="enableBilanceTrend">
+							<td>				
+								<label class="switch">
+									<input type="checkbox" value="$ctrl.kommonitorDataExchangeServiceInstance.enableBilanceTrend" ng-model="$ctrl.kommonitorDataExchangeServiceInstance.enableBilanceTrend" ng-change="onChangeEnableBilanceTrend()"
+										checked>
+									<span class="switchslider round"></span>
+								</label>
+							</td>
+							<td ng-if="$ctrl.kommonitorDataExchangeServiceInstance.enableBilanceTrend">
 								<select style="font-size: 12px;"
 									ng-model="trendConfig_allFeatures.trendComputationType" ng-init="trendConfig_allFeatures.trendComputationType = 'linear'"
 									ng-change="onChangeTrendConfig()" class="form-control" required>
@@ -126,7 +136,7 @@
 					<div id="trendDiagram_allFeatures" style="width:100%; min-height:30vh;"></div>
 				</div>
 
-			<h4 >Statistische Merkmale</h4>
+			<h4 >Statistische Merkmale der Durchschnittslinie</h4>
 			<div>
 				<div class="row">
 					<div class="col-md-2">
@@ -148,7 +158,7 @@
 						<label>Bilanz: </label> <i>{{trendAnalysis_allFeatures.balance}}</i>
 						<!-- <br/>
 						<label >Trend: </label> <i>{{trendAnalysis_allFeatures.trend}}</i> -->
-						<span ng-if="enableBilanceTrend">
+						<span ng-if="$ctrl.kommonitorDataExchangeServiceInstance.enableBilanceTrend">
 							<br/>
 							<label >Trend: </label> <i>{{trendAnalysis_allFeatures.trend}}</i>
 						</span>

@@ -1,8 +1,9 @@
 <div id="versionInfo">
+
 	<!-- version info  -->
-	<div id="kommonitorIndicatorClassification" class="box box-primary collapsed-box">
+	<div id="" class="box box-primary collapsed-box">
 		<div class="box-header with-border">
-			<h3 class="box-title">Neuerungen in KomMonitor V3.0.0-beta.1</h3>
+			<h3 class="box-title">Neuerungen in KomMonitor V3.1.0</h3>
 			<div class="box-tools pull-right">
 				<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
 				</button>
@@ -12,14 +13,541 @@
 
 			<ul>
 				<li>
-					BETA TEST RELEASE mit zahlreichen Neuerungen und &Uuml;berarbeitungen
+					Anpassungen in der <b>Admin-Ansicht</b>
+					<ul>
+						<li>
+							<b>keine</b>	
+						</li>						
+					</ul>
+				</li>
+				<li>
+					Anpassungen in der <b>Kartenapp</b>
+					<ul>
+						<li>
+							<b>neue Konfigurationsoptionen zur Kontrolle der Anzeige von regionalen Vergleichswerten und rechnerischem Arithemitschem Mittel</b>
+							folgende neue Konfigurationsoptionen wurden erg&auml;nzt:
+							
+							<pre>
+								<code>
+// controls whether the mean values (arithmetic and regional) shall be displayed in legend and indicator statistics menus or not
+window.__env.enableMeanDataDisplayInLegend = false;
+								
+// control additional average/mean lines in line chart, legend and statisticalValues 
+// allowed options 
+// 'both' --> both, arithmetic mean and regional mean will be displayed if available
+// 'preferRegionalMeanIfAvailable'  --> only show one line at a time. regional mean will be preferred if available
+// 'regionalMeanOrNone' --> never show arithmetic mean. show regional mean if available or nothing
+window.__env.configMeanDataDisplay = 'preferRegionalMeanIfAvailable';
+								</code>
+							</pre>
+
+							Diese erm&ouml;glichen eine gezieltere Darstellung von regionalen Vergleichsmittelwerten und arithemtischem Mittel in Legende, Indikatoren-Statistiken und Zeitreihen- sowie Balkendiagrammen. 
+							In der Standardeinstellung wird in der Legende nun keine Information angezeigt. Mit <code>window.__env.enableMeanDataDisplayInLegend = true;</code> hingegen wird in der Legende eine Extra Zeile für den Vergleichswert eingeblendet.
+							<br>
+							Mittels <code>window.__env.configMeanDataDisplay = 'preferRegionalMeanIfAvailable';</code> wird bei Indikatoren, f&uuml;r die bereits regionale Vergleichswerte eingetragen wurden, immer nur bevorzugt der regionale Vergleichswert dargestellt, nicht das arithmetische Mittel (diese wird dann verwendet, falls kein regionaler Vergleichswert eingetragen wird - quasi als Backup).
+							Ist stattdessen <code>window.__env.configMeanDataDisplay = 'both';</code> eingestellt, so werden in Legende, Zeitreihendiagramm und Indikatorenstatistik immer sowohl das arithemtische Mittel als auch ein optional eingetragener regionaler Vergleichswert angezeigt.
+							Durch <code>window.__env.configMeanDataDisplay = 'regionalMeanOrNone';</code> wird das arithmetische Mittel vollst&auml;ndig entfernt, sodass nur optional eingetragene regionale Vergleichswerte verwendet werden.
+						</li>	
+						<li>
+							<b>Fehler bei Luftdistanz-Puffern in Erreichbarkeitsanalysen behoben</b>
+							Einfache Luftdistanzpuffer können jetzt für die Verschneidung mit Indikatorenstatistiken korrekt verwendet werden.
+						</li>
+						<li>
+							<b>korrigierte Anzeige des Erreichbarkeitsmodus (Distanz oder Zeit) bei Indikatorenstatistiken</b>
+						</li>
+						<li>
+							<b>Bessere Unterst&uuml;tzung fehlender Raumeinheiten sowie NoData Werte in Indikatorenstatistik</b>
+							Wenn beispielsweise in einem Kreisgebiet 24 Kommunen auf einer Raumeinheit "Kommunalebene" existieren, vier davon für einen Indikator NoData Werte aufweisen (Leerwerte in Datentabelle) und 12 Kommunen g&auml;nzlich fehlen (kein Eintrag in Datentabelle vorhanden), 
+							so werden Verschneidungen zwischen Isochronen und Indikatorenstatistiken ohne Fehler berechnet und Reportings werden fehlerfrei erzeugt.
+						</li>
+						<li>
+							<b>Version 1.0.3 der Spatial Data Processor Komponente behebt Indikatorenstatistik-Verschneidung im öffentlichen Modus</b>
+							Mit der neuen Version 1.0.3 der Spatial Data Processor Komponente, die bei der Verschneidung von Erreichbarkeits-Isochronen und Indikatorenstatistiken 
+							eingesetzt wird, ist nun auch die Berechnung im &ouml;ffentlichen (nicht angemeldeten) Modus m&ouml;glich. 
+						</li>	
+						<li>
+							<b>divergierende Farbpaletten des ColorBrewers wieder verf&uuml;gbar</b>							
+						</li>	
+						<li>
+							<b>Export/Download von Indikatoren als CSV verbessert - Excel-Integration direkt m&ouml;glich</b>
+							Ein Indikator, der als CSV exportiert wird, kann nun problemlos in Excel ge&ouml;ffnet werden, da die Zeitreihenwerte nun formatiert exportiert werden. 							
+						</li>	
+						<li>
+							<b>weitere HTML-Elemente in Widget Kontrolle hinterlegbar</b>
+							Um gezielt Elemente der KomMonitor-Oberfl&auml;che rollengebunden einblenden zu k&ouml;nnen, gen&uuml;gt ein Eintrag mit der entsprechenden ID des HTML Elements in der Widget-Kontrolle.
+							Neue Elemente sind: 
+							<ul>
+								<li><i>Indikatoren-Statistik</i> mit ID <code>kommonitorStatisticalValues</code></li>
+								<li><i>Indikatoren-Klassifizierungseinstellungen</i> mit ID <code>kommonitorIndicatorClassification</code></li>
+							</ul>  							
+							<b>Beispiel</b>: Um die Indikatoren-Statistik nur f&uuml;r User freizugeben, die die Rolle <i>kommonitor-viewer</i> besitzen, 
+							kann folgender Eintrag in der Widget-Konfiguration hinterlegt werden:
+							<pre>
+<code>
+{
+    "id": "kommonitorStatisticalValues",
+    "roles": [
+        "kommonitor-viewer"
+    ]
+}
+</code>
+							</pre>
+						</li>					
+					</ul>
+				</li>
+			</ul>
+
+		</div>
+	</div>
+
+	<!-- version info  -->
+	<div id="" class="box box-primary collapsed-box">
+		<div class="box-header with-border">
+			<h3 class="box-title">Neuerungen in KomMonitor V3.0.5</h3>
+			<div class="box-tools pull-right">
+				<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+				</button>
+			</div>
+		</div>
+		<div class="box-body">
+
+			<ul>
+				<li>
+					Anpassungen in der <b>Admin-Ansicht</b>
+					<ul>
+						<li>
+							<b>keine</b>	
+						</li>						
+					</ul>
+				</li>
+				<li>
+					Anpassungen in der <b>Kartenapp</b>
+					<ul>
+						<li>
+							<b>Lade-Fehler beim Handling von Leerwerten behoben</b>
+							Beinhaltet ein Indikatorenlayer auch Leerwerte oder sogar ausschlie&szlig;lich Leerwerte, wird nun sichergestellt, dass KomMonitor korrekt initialisiert wird.
+						</li>						
+					</ul>
+				</li>
+			</ul>
+
+		</div>
+	</div>
+
+	<!-- version info  -->
+	<div id="" class="box box-primary collapsed-box">
+		<div class="box-header with-border">
+			<h3 class="box-title">Neuerungen in KomMonitor V3.0.4</h3>
+			<div class="box-tools pull-right">
+				<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+				</button>
+			</div>
+		</div>
+		<div class="box-body">
+
+			<ul>
+				<li>
+					Anpassungen in der <b>Admin-Ansicht</b>
+					<ul>
+						<li>
+							<b>Fehler beim Bearbeiten der Indikatoren-Feature Tabelle behoben</b>	
+						</li>
+						<li>						
+							<b>Fehlerbehebungen und Verbesserungen bei der regionalen Standard-Klassifizierung</b> von Indikatoren<br>
+							<ul>
+								<li>Der Wert 0 wird in der Legende angezeigt </li>
+								<li>Die Farben bei negativen und positiven Wertebereichen werden in der Legende automatisch angepasst </li>
+								<li>Ein Hinweis zur tatsächlichen Klassenverteilung wird in der Legende angezeigt </li>
+							</ul>
+						</li>
+					</ul>
+				</li>
+				<li>
+					Anpassungen in der <b>Kartenapp</b>
+					<ul>
+						<li>
+							<b>Erreichbarkeitsanalysen</b>
+							Bei der Verschneidung von Isochronen und Indiaktoren-Statistiken Fehler wurde ein Fehler behoben, wenn der Indikator für eine bestimmtes Raumeinheits-Objekt einen Leerwert aufweist oder fehlt.
+						</li>
+						<li>
+							<b>Regional Vergleichswerte</b>
+							Sind zwar regionale Vergleichswerte eingetragen, jedoch nicht für den aktullen Indikatoren-Zeitschnitt verfügbar, so fror das linksseitige Diagramm Menü mit einem Fehler beim Ranking-Chart ein. Stattdessen wird nun der rechnerische Durchschnitt als horizontale Vergleichslinie eingetragen und der Fehler wird vermieden. 
+							<b>Fehlerbehebungen bei der Klassifikation</b>
+							<ul>
+								<li>Regionale Standard-Klassifizierung wird auch bei Indikatoren mit negativen Werten angewendet</li>
+								<li>Der Schalter <i>Ausrei&szlig;er gesondert markieren</i> ist wieder verfügbar, wenn keine manualle oder regionale Standard-Klassifizierung angewendet wird</li>
+							</ul>
+						</li>
+					</ul>
 				</li>
 			</ul>
 
 		</div>
 	</div>
 	<!-- version info  -->
-	<div id="kommonitorIndicatorClassification" class="box box-primary collapsed-box">
+	<div id="" class="box box-primary collapsed-box">
+		<div class="box-header with-border">
+			<h3 class="box-title">Neuerungen in KomMonitor V3.0.3</h3>
+			<div class="box-tools pull-right">
+				<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+				</button>
+			</div>
+		</div>
+		<div class="box-body">
+
+			<ul>
+				<li>
+					Anpassungen in der <b>Admin-Ansicht</b>
+					<ul>
+						<li>
+							<b>Metadaten-Import von Indikatoren behoben</b>							
+						</li>
+					</ul>
+				</li>
+				<li>
+					Anpassungen in der <b>Kartenapp</b>
+					<ul>
+						<li>
+							<b>besseres User Feedback bei Indikatoren-Statistik in Erreichbarkeitsszenarien</b>
+							User werden nun durch ein Popup benachrichtigt, ob eine Versorgungsstatistik-Analyse zwischen Einzugsgebieten und Indikatoren einer Raumeinheit
+							gelingen oder fehlschlagen.
+						</li>
+						<li>
+							<b>Einzugsgebiets-Legende auch neben Hauptkarte sichtbar</b>
+							Werden Einzugsgebiete eines Erreicharkeits-Szenarios auf der Hauptkarte dargestellt, so erscheint auch die Legende im linken Seiten-Men&uuml; der Erreichbarkeitsanalysen.
+						</li>
+					</ul>
+				</li>
+			</ul>
+
+		</div>
+	</div>
+	<!-- version info  -->
+	<div id="" class="box box-primary collapsed-box">
+		<div class="box-header with-border">
+			<h3 class="box-title">Neuerungen in KomMonitor V3.0.2</h3>
+			<div class="box-tools pull-right">
+				<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+				</button>
+			</div>
+		</div>
+		<div class="box-body">
+
+			<ul>
+				<li>
+					Anpassungen in der <b>Admin-Ansicht</b>
+					<ul>
+						<li>
+							<b>beliebige UI-Elemente versteckbar via Widget-Konfiguration</b>
+							&Uuml;ber die Widget-Konfiguration k&ouml;nnen beliebige weitere Eintr&auml;ge ergänzt
+							werden, die rollengebunden UI-Elemente anhand ihrer zugeh&ouml;rigen HTML-ID
+							freigeben/verstecken.
+							Sprechen Sie das KomMonitor-Team bei Bedarf an
+						</li>
+					</ul>
+				</li>
+				<li>
+					Anpassungen in der <b>Kartenapp</b>
+					<ul>
+						<li>
+							<b>keine</b>
+						</li>
+					</ul>
+				</li>
+			</ul>
+
+		</div>
+	</div>
+	<!-- version info  -->
+	<div id="" class="box box-primary collapsed-box">
+		<div class="box-header with-border">
+			<h3 class="box-title">Neuerungen in KomMonitor V3.0.1</h3>
+			<div class="box-tools pull-right">
+				<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+				</button>
+			</div>
+		</div>
+		<div class="box-body">
+
+			<ul>
+				<li>
+					Anpassungen in der <b>Admin-Ansicht</b>
+					<ul>
+						<li>
+							<b>Beta-Hinweis bei gesamtregionalesn Vergleichswerten entfernt</b>
+
+						</li>
+					</ul>
+				</li>
+				<li>
+					Anpassungen in der <b>Kartenapp</b>
+					<ul>
+						<li>
+							<b>keine</b>
+						</li>
+					</ul>
+				</li>
+			</ul>
+
+		</div>
+	</div>
+	<!-- version info  -->
+	<div id="" class="box box-primary collapsed-box">
+		<div class="box-header with-border">
+			<h3 class="box-title">Neuerungen in KomMonitor V3.0.0</h3>
+			<div class="box-tools pull-right">
+				<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+				</button>
+			</div>
+		</div>
+		<div class="box-body">
+
+			Version 3 von KomMonitor bietet eine in vielen Punkten &uuml;berarbeitete und erweiterte Kartenapp
+			sowie diverse neue Konfigurationsm&öuml;glichkeiten der integrierten Geo- und Sachdaten.
+
+			<ul>
+				<li>
+					Anpassungen in der <b>Admin-Ansicht</b>
+					<ul>
+						<li>
+							<b>Klassifikation pro Indikator</b>
+							<br>
+							F&uuml;r jeden Indikator kann eine individuelle Standard-Klassifizierung festgelegt werden,
+							inklusive Anzahl Klassen,
+							und Klassifikationsmethode. Auch k&öuml;nnen dabei pro Raumeinheit eigene Klassengrenzen
+							vorgegeben werden.<br>
+						</li>
+						<li>
+							<b>Gesamtregionale Vergleichswerte pro Indikator</b>
+							<br>
+							Jedem Indikator k&öuml;nnen gesamtregionale Vergleichswerte (Gesamtsumme, Durchschnittswert,
+							r&auml;umlich nicht zuordenbare)
+							im Metadaten-Bearbeiten Men&uuml; zugewiesen werden.
+							Die Eingabe ist auf bereits integrierte Zeitreihenschritte begrenzt, um Datenkonsistenz zu
+							wahren.
+							M&öuml;glich sind manuelle Eingabe oder der Import aus einer CSV-Datei.
+						</li>
+						<li>
+							<b>Raumeinheiten als Umringslayer </b>
+							<br>
+							Pro Raumeinheit kann konfiguriert werden, ob sie in der Kartenapp als Umringslayer in der
+							Layersteuerung erscheint. <br />
+							Dies erm&öuml;glicht es, die Grenzverl&auml;ufe der Raumeinheit in die Karte als
+							Orientierungshilfe einblenden zu lassen. Dies kann n&uuml;tzlich sein,
+							um bspw. punkthafte Georessourcen optisch mit Raumeinheiten-Grenzen zu &uuml;berblenden.
+						</li>
+						<li>
+							<b>Textuelle POIs (punkthafte Georessourcen) </b>
+							<br>
+							Punkthafte Georessourcen erlauben auch statt eines Symbols eine textuelle Unterscheidung mit
+							bis zu drei Zeichen.
+						</li>
+						<li>
+							<b>aufger&auml;umte Farbpaletten in Klassifikation</b>
+							<br>
+							Die verf&uuml;gbaren Farbpaletten des <a href="https://colorbrewer2.org/" target="_blank"
+								rel="noreferrer noopener">ColorBrewer</a> wurden auf sequentielle beschr&auml;nkt.
+							Divergierende oder qualitative Paletten wurden entfernt.
+						</li>
+						<li>
+							<b>Fehlerbehebungen in Feature-Tabellen</b>
+							<br>
+							F&uuml;r alle Geodatentypen wurde ein Fehler behoben, der das interaktive Editieren der
+							Einzelzellen verhindert hat.
+						</li>
+						<li>
+							<b>neue Konfigurationsparameter</b>
+							<br>
+							Zur Konfiguration neuer/erweiterter Funktionalit&auml;ten wurden neue
+							Konfigurationsparameter erg&auml;nzt. Konkret:
+							<ul>
+								<li>
+									Parameter zur Steuerung, ob im S&auml;ulendiagramm eine Durchschnittslinie sowie
+									Namen der Raumeinheiten
+									angezeigt werden sollen
+									<code>
+											// show bar chart label and average line
+											window.__env.showBarChartLabel = false;
+											window.__env.showBarChartAverageLine = true;
+										</code>
+								</li>
+								<li>
+									F&uuml;r die erweiterte szenarienbasierte Erreichbarkeitsanalyse muss eine neue
+									Software-Komponente im
+									KomMonitor-&Öuml;kosystem konfiguriert werden. Im Client muss hierzu die URL sowie
+									der Prozessname gesetzt werden
+									<code>
+											// KomMonitor Spatial Data Processor
+											window.__env.targetUrlToSpatialDataProcessorInstance = 'http://localhost:8090/';
+											window.__env.spatialDataProcessor_processName_indicatorReachabilityStatistics = "isochrone-prune";
+										</code>
+								</li>
+							</ul>
+						</li>
+					</ul>
+				</li>
+				<li>
+					Anpassungen in der <b>Kartenapp</b>
+					<ul>
+
+						<li>
+							<b>NEU - erweiterte szenarienbasierte Erreichbarkeitsanalyse inkl.
+								Indikatoren-Statistik-Verschneidung</b>
+							<br>
+							Die bishergie Erreichbarkeitsanalyse wurde stark ausgebaut zu einem Szenarienwerkzeug.
+							Wesentliche Neuerungen:
+							<ul>
+								<li>
+									Es k&öuml;nnen mehrere Erreichbarkeiten nacheinander angelegt
+									und in der aktuellen Sitzung gespeichert werden.
+								</li>
+								<li>Import und Export angelegter Szenarien</li>
+								<li>Anlegen und Bearbeiten eines Szenarios in einem eigenen Schritt-basierten Men&uuml;
+								</li>
+								<li>genutzte Punktquelle kann beliebig editiert werden, um Szenarien zu erzeugen (neue
+									Punkte setzen, vorhandene verschieben oder l&öuml;schen)</li>
+								<li>Indikatoren-Statistik-Verschneidung: r&auml;umliche Verschneidung zwischen
+									Einzugsgebieten und kleinr&auml;umigen Indikatoren-Statistiken f&uuml;r
+									Fragestellungen wie <i>Wie viele Personen von 0-18 Jahren werden durch
+										verf&uuml;gbare Jugendh&auml;user erreicht/versorgt?</i>. Beachten Sie folgende
+									Hinweise:
+									<ol type="1">
+										<li>
+											Berechnung der Sch&auml;tzwerte erfolgt durch &Uuml;berdeckung zwischen
+											Einzugsgebieten und fl&auml;chigen Indikatoren-Statistiken
+										</li>
+										<li>Ausgabe/Analyse &uuml;ber gesamtes Untersuchungsgebiet und Einzelpunkte
+											inklusive PDF-Reports</li>
+										<li>
+											es werden immer nur Sch&auml;tzwerte berechnet und keine Einzelpersonendaten
+											herangezogen
+										</li>
+										<li>je kleinr&auml;umiger ein Indikator eingeht, umso realistischer werden die
+											Sch&auml;tzwerte</li>
+									</ol>
+								</li>
+							</ul>
+						</li>
+						<li>
+							<b>NEU - spontaner Import von Geo- oder Adressdaten</b>
+							<br>
+							Im neuen Datenimport-Menu (links unterhalb Georessourcen) k&öuml;nnen Daten spontan
+							eingeladen werden, die zuvor nicht in KomMonitor eingepflegt wurden.
+							<br />
+							Bei <b>Adressdaten</b> aus CSV-Dateien (aus Excel l&auml;sst sich CSV prima erzeugen)
+							versucht KomMonitor, die Adressen in Punktkoordinaten zu &uuml;bertragen (sogenannte
+							Geokodierung aus Basis von OpenStreetMap Daten und Nominatim).
+							Dabei k&öuml;nnen drei F&auml;lle eintreten:
+							<ol type="a">
+								<li>genaues Ergebnis: Ort, PLZ, Stra&szlig;e und Hausnummer wurden vermeintlich genau
+									gefunden</li>
+								<li>ungenaues Ergebnis: Ort, PLZ passen, aber Stra&szlig;e zumeist ohne Hausnummer.
+									Somit wurde eine ungenaue Koordinate bestimmt aber kein Fehler geworfen
+									(tats&auml;chlicher Punkt kann wenige oder viele Meter entfernt sein - je nach
+									Stra&szlig;engr&öuml;&szlig;e)</li>
+								<li>ohne Ergebnis: Adresse konnte gar nicht verortet werden (Pr&uuml;fen des Datensatzes
+									auf Schreibfehler, doppelte oder fehlende Adresseintr&auml;ge)</li>
+							</ol>
+							Mittels geeigneter Smybolisierung sowie Funktionsbuttons erlaubt KomMonitor
+							anschlie&szlig;end eine genaue Betrachtung des Imports.
+
+							<br />
+							<br />
+							<b>Geodaten</b> m&uuml;ssen f&uuml;r den Import gegenw&auml;rtig im Format <i>GeoJSON</i>
+							oder <i>ESRI-Shape</i> und im Koordinatensystem WGS84 (EPSG:4326) vorliegen.
+							In k&uuml;nftigen Versionen k&öuml;nnen auch andere Koordinatensysteme und Projektionen
+							unterst&uuml;tzt werden.
+
+						</li>
+						<li>
+							<b>neu strukturierte Legende</b>
+							<br>
+							Am rechten Bildschirmrand wurde das Informations- und Legendenfenster neu angeordnet.
+							Im obersten Men&uuml; kann wie gewohnt die Raumeinheit gewechselt werden oder der
+							Indikatorendatensatz exportiert werden.
+							<br />
+							Die Legende enth&auml;lt nun weitere Reiter f&uuml;r erg&auml;nzende Indikatoren-Metadaten
+							(ehemals verortet bei der Auswahl der Indikatoren)
+							sowie Optionen zur spontanen Anpassung der Klassifikation &uuml;ber das Zahnradsymbol.
+							<br />
+							Die Indikatoren-Statistik-Funktion ist nun sichtbarer und wurde um gesamtregionale
+							Vergleichswerte erweitert (sofern diese f&uuml;r den
+							aktuellen Indikator angegeben wurden).
+
+						</li>
+						<li>
+							<b>Klassifizierung</b>
+							<br>
+							Regionaler Standard und manuelle Klassifizierung sowie spontane Wahl der Farbpalette
+						</li>
+						<li>
+							<b>Durchschnittslinie und Label in Ranking-Diagramm</b>
+							<br>
+							Namen der Raumeinheiten sowie eine Querlinie des Durchschnittswerts k&öuml;nnen im
+							Ranking-Diagramm spontan ein- und ausgeblendet werden.
+						</li>
+						<li>
+							<b>Trendberechnung in Bilanzierung konfigurierbar</b>
+							<br>
+							Die Berechnung und Darstellung der Trendlinie in der Bilanzierung kann spontan ein- und
+							ausgeblendet werden.
+						</li>
+						<li>
+							<b>Regression in Streudiagramm konfigurierbar</b>
+							<br>
+							Die Berechnung und Darstellung der der linearen Regressionsgeraden im Streudiagramm kann
+							spontan ein- und ausgeblendet werden.
+						</li>
+						<li>
+							<b>Layersteuerung mit Transparenzregler und Raumeinheiten-Umringslayer</b>
+							<br>
+							Die Layersteuerung der interaktiven Karte muss nun aktiv angeklickt werden, um sie zu
+							&öuml;ffnen oder zu schlie&szlig;en.
+							<br />
+							Zudem wurde sie um Transprenzregler f&uuml;r jeden Datensatz (Layer) erweitert.
+							<br />
+							Sind f&uuml;r Raumeinheiten Umringslayer konfiguriert, so lassen sie sich via Layersteuerung
+							in das Kartenbild integrieren.
+						</li>
+						<li>
+							<b>Georessourcen POI Gr&öuml;&szlig;e</b>
+							<br>
+							Punkthafte Georessourcen erlauben eine einstellbare Gr&öuml;&szlig;e (klein, mittel,
+							gro&szlig;) im oberen Teil des Georessourcen-Men&uuml;s.
+						</li>
+						<li>
+							<b>Reporting</b>
+							<br>
+							Hochformat ausw&auml;hlbar
+						</li>
+						<li>
+							<b>Fehlerbehebungen</b>
+							<br>
+							<ul>
+								<li>
+									bei der Schwellwertklassifizierung und der Auswahl von Georessourcen
+									(Mehrfachselektion)
+								</li>
+								<li>
+									Export der Kartendarstellung
+								</li>
+								<li>
+									Georessourcen ohne Themenbezug lassen sich ein- und ausklappen
+								</li>
+								<li>
+									Reporting
+								</li>
+							</ul>
+
+						</li>
+					</ul>
+				</li>
+			</ul>
+
+		</div>
+	</div>
+	<!-- version info  -->
+	<div id="" class="box box-primary collapsed-box">
 		<div class="box-header with-border">
 			<h3 class="box-title">Neuerungen in KomMonitor V2.2.2</h3>
 			<div class="box-tools pull-right">
@@ -60,7 +588,7 @@
 		</div>
 	</div>
 	<!-- version info  -->
-	<div id="kommonitorIndicatorClassification" class="box box-primary collapsed-box">
+	<div id="" class="box box-primary collapsed-box">
 		<div class="box-header with-border">
 			<h3 class="box-title">Neuerungen in KomMonitor V2.2.1</h3>
 			<div class="box-tools pull-right">
@@ -95,7 +623,7 @@
 		</div>
 	</div>
 	<!-- version info  -->
-	<div id="kommonitorIndicatorClassification" class="box box-primary collapsed-box">
+	<div id="" class="box box-primary collapsed-box">
 		<div class="box-header with-border">
 			<h3 class="box-title">Neuerungen in KomMonitor V2.2.0</h3>
 			<div class="box-tools pull-right">
@@ -133,7 +661,7 @@
 	</div>
 
 	<!-- version info  -->
-	<div id="kommonitorIndicatorClassification" class="box box-primary collapsed-box">
+	<div id="" class="box box-primary collapsed-box">
 		<div class="box-header with-border">
 			<h3 class="box-title">Neuerungen in KomMonitor V2.1.17</h3>
 			<div class="box-tools pull-right">
@@ -171,7 +699,7 @@
 	<!-- /.box -->
 
 	<!-- version info  -->
-	<div id="kommonitorIndicatorClassification" class="box box-primary collapsed-box">
+	<div id="" class="box box-primary collapsed-box">
 		<div class="box-header with-border">
 			<h3 class="box-title">Neuerungen in KomMonitor V2.1.16</h3>
 			<div class="box-tools pull-right">
@@ -235,7 +763,7 @@
 	<!-- /.box -->
 
 	<!-- version info  -->
-	<div id="kommonitorIndicatorClassification" class="box box-primary collapsed-box">
+	<div id="" class="box box-primary collapsed-box">
 		<div class="box-header with-border">
 			<h3 class="box-title">Neuerungen in KomMonitor V2.1.15</h3>
 			<div class="box-tools pull-right">
@@ -277,7 +805,7 @@
 
 
 	<!-- version info  -->
-	<div id="kommonitorIndicatorClassification" class="box box-primary collapsed-box">
+	<div id="" class="box box-primary collapsed-box">
 		<div class="box-header with-border">
 			<h3 class="box-title">Neuerungen in KomMonitor V2.1.14</h3>
 			<div class="box-tools pull-right">
@@ -333,7 +861,7 @@
 	<!-- /.box -->
 
 	<!-- version info  -->
-	<div id="kommonitorIndicatorClassification" class="box box-primary collapsed-box">
+	<div id="" class="box box-primary collapsed-box">
 		<div class="box-header with-border">
 			<h3 class="box-title">Neuerungen in KomMonitor V2.1.13</h3>
 			<div class="box-tools pull-right">
@@ -356,7 +884,7 @@
 					Anpassungen in der <b>Kartenapp</b>
 					<ul>
 						<li>
-							<b>Umstellung der Isochronen-Anfragen zur Unterstützung neuer Open Route Service
+							<b>Umstellung der Isochronen-Anfragen zur Unterst&uuml;tzung neuer Open Route Service
 								Versionen</b>
 						</li>
 					</ul>
@@ -369,7 +897,7 @@
 	<!-- /.box -->
 
 	<!-- version info  -->
-	<div id="kommonitorIndicatorClassification" class="box box-primary collapsed-box">
+	<div id="" class="box box-primary collapsed-box">
 		<div class="box-header with-border">
 			<h3 class="box-title">Neuerungen in KomMonitor V2.1.12</h3>
 			<div class="box-tools pull-right">
@@ -388,7 +916,7 @@
 							<br>
 							Beim Anlegen neuer Ressourcen werden nun standardm&auml;&szlig;ig die Rollen des
 							eingeloggten Nutzers verwendet,
-							um die daraus verknüpften Organisationen und Rechtestufen vorauszuf&uuml;llen.
+							um die daraus verkn&uuml;pften Organisationen und Rechtestufen vorauszuf&uuml;llen.
 							Dies stellt sicher, dass eingeloggte User den Zugriff auf die Ressource bekommen.
 						</li>
 					</ul>
@@ -409,7 +937,7 @@
 	<!-- /.box -->
 
 	<!-- version info  -->
-	<div id="kommonitorIndicatorClassification" class="box box-primary collapsed-box">
+	<div id="" class="box box-primary collapsed-box">
 		<div class="box-header with-border">
 			<h3 class="box-title">Neuerungen in KomMonitor V2.1.11</h3>
 			<div class="box-tools pull-right">
@@ -448,7 +976,7 @@
 	<!-- /.box -->
 
 	<!-- version info  -->
-	<div id="kommonitorIndicatorClassification" class="box box-primary collapsed-box">
+	<div id="" class="box box-primary collapsed-box">
 		<div class="box-header with-border">
 			<h3 class="box-title">Neuerungen in KomMonitor V2.1.10</h3>
 
@@ -489,7 +1017,7 @@
 	<!-- /.box -->
 
 	<!-- version info  -->
-	<div id="kommonitorIndicatorClassification" class="box box-primary collapsed-box">
+	<div id="" class="box box-primary collapsed-box">
 		<div class="box-header with-border">
 			<h3 class="box-title">Neuerungen in KomMonitor V2.1.9</h3>
 
@@ -531,7 +1059,7 @@
 	<!-- /.box -->
 
 	<!-- version info  -->
-	<div id="kommonitorIndicatorClassification" class="box box-primary collapsed-box">
+	<div id="" class="box box-primary collapsed-box">
 		<div class="box-header with-border">
 			<h3 class="box-title">Neuerungen in KomMonitor V2.1.8</h3>
 
@@ -571,7 +1099,7 @@
 	<!-- /.box -->
 
 	<!-- version info  -->
-	<div id="kommonitorIndicatorClassification" class="box box-primary collapsed-box">
+	<div id="" class="box box-primary collapsed-box">
 		<div class="box-header with-border">
 			<h3 class="box-title">Neuerungen in KomMonitor V2.1.7</h3>
 
@@ -625,7 +1153,7 @@
 	<!-- /.box -->
 
 	<!-- version info  -->
-	<div id="kommonitorIndicatorClassification" class="box box-primary collapsed-box">
+	<div id="" class="box box-primary collapsed-box">
 		<div class="box-header with-border">
 			<h3 class="box-title">Neuerungen in KomMonitor V2.1.6</h3>
 
@@ -657,7 +1185,7 @@
 	<!-- /.box -->
 
 	<!-- version info  -->
-	<div id="kommonitorIndicatorClassification" class="box box-primary collapsed-box">
+	<div id="" class="box box-primary collapsed-box">
 		<div class="box-header with-border">
 			<h3 class="box-title">Neuerungen in KomMonitor V2.1.5</h3>
 
@@ -686,7 +1214,7 @@
 	<!-- /.box -->
 
 	<!-- version info  -->
-	<div id="kommonitorIndicatorClassification" class="box box-primary collapsed-box">
+	<div id="" class="box box-primary collapsed-box">
 		<div class="box-header with-border">
 			<h3 class="box-title">Neuerungen in KomMonitor V2.1.4</h3>
 
@@ -711,7 +1239,7 @@
 	<!-- /.box -->
 
 	<!-- version info  -->
-	<div id="kommonitorIndicatorClassification" class="box box-primary collapsed-box">
+	<div id="" class="box box-primary collapsed-box">
 		<div class="box-header with-border">
 			<h3 class="box-title">Neuerungen in KomMonitor V2.1.3</h3>
 
@@ -735,7 +1263,7 @@
 	<!-- /.box -->
 
 	<!-- version info  -->
-	<div id="kommonitorIndicatorClassification" class="box box-primary collapsed-box">
+	<div id="" class="box box-primary collapsed-box">
 		<div class="box-header with-border">
 			<h3 class="box-title">Neuerungen in KomMonitor V2.1.2</h3>
 
@@ -762,7 +1290,7 @@
 	<!-- /.box -->
 
 	<!-- version info  -->
-	<div id="kommonitorIndicatorClassification" class="box box-primary collapsed-box">
+	<div id="" class="box box-primary collapsed-box">
 		<div class="box-header with-border">
 			<h3 class="box-title">Neuerungen in KomMonitor V2.1.1</h3>
 
@@ -786,7 +1314,7 @@
 	<!-- /.box -->
 
 	<!-- version info  -->
-	<div id="kommonitorIndicatorClassification" class="box box-primary collapsed-box">
+	<div id="" class="box box-primary collapsed-box">
 		<div class="box-header with-border">
 			<h3 class="box-title">Neuerungen in KomMonitor V2.1.0</h3>
 
@@ -871,7 +1399,7 @@
 
 
 	<!-- version info  -->
-	<div id="kommonitorIndicatorClassification" class="box box-primary collapsed-box">
+	<div id="" class="box box-primary collapsed-box">
 		<div class="box-header with-border">
 			<h3 class="box-title">Neuerungen in KomMonitor V2.0.1</h3>
 
@@ -895,7 +1423,7 @@
 	<!-- /.box -->
 
 	<!-- version info  -->
-	<div id="kommonitorIndicatorClassification" class="box box-primary collapsed-box">
+	<div id="" class="box box-primary collapsed-box">
 		<div class="box-header with-border">
 			<h3 class="box-title">Neuerungen in KomMonitor V2.0.0</h3>
 
@@ -1018,7 +1546,7 @@
 	<!-- /.box -->
 
 	<!-- version info  -->
-	<div id="kommonitorIndicatorClassification" class="box box-primary collapsed-box">
+	<div id="" class="box box-primary collapsed-box">
 		<div class="box-header with-border">
 			<h3 class="box-title">Upgradeempfehlung KomMonitor &lt; V2.0.0</h3>
 

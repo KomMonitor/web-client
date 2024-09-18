@@ -81,6 +81,11 @@ select {
 
 /* select option */
 
+#classificationMethodSelect {
+  text-align: left;
+  position: relative;
+}
+
 .select-border {
   border: 1px solid #ced4da;
   border-radius: 0.25rem;
@@ -101,10 +106,9 @@ select {
 #method-select-selection {
   cursor: pointer;
   user-select: none;
-  position: absolute;
+  position: relative;
   background-color: white;
   z-index: 10;
-  width: 94%;
   box-shadow: 2px 2px 9px 0px #66666661;
 }
 

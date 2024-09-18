@@ -26,7 +26,7 @@ angular
         this.queryParamMap = new Map();
 
         for (const key in $routeParams) {
-          if (Object.hasOwnProperty.call($routeParams, key)) {
+          if (Object.hasOwnProperty.call($routeParams, key) && key != "iss") {
             const value = $routeParams[key];
             this.queryParamMap.set(key, value);
           }
@@ -79,6 +79,8 @@ angular
       };
 
       this.generateCurrentShareLink = function(){
+
+        this.currentShareLink = "";
 
         this.setShareLinkParam_mapExtent();
         this.setShareLinkParam_currentIndicatorId();

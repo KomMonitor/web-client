@@ -30,7 +30,9 @@ module.exports = function (grunt) {
             'app/util/genericServices/kommonitorGeocoderHelperService/kommonitor-geocoder-helper-service.module.js',
             'app/util/genericServices/kommonitorReachabilityCoverageReportsHelperService/kommonitor-reachability-coverage-reports-helper-service.module.js',
             'app/components/common/singleFeatureEdit/single-feature-edit.module.js',
-            'app/components/common/singleFeatureEdit/single-feature-edit.component.js',                      
+            'app/components/common/singleFeatureEdit/single-feature-edit.component.js', 
+            'app/components/common/classificationMethodSelect/classification-method-select.module.js',
+            'app/components/common/classificationMethodSelect/classification-method-select.component.js',                     
             'app/components/kommonitorUserInterface/kommonitorControls/kommonitorDataSetup/kommonitor-data-setup.module.js',
             'app/components/kommonitorUserInterface/kommonitorControls/kommonitorDataSetup/kommonitor-data-setup.component.js',
             'app/components/kommonitorAdmin/adminDashboardManagement/admin-dashboard-management.module.js',
@@ -212,6 +214,7 @@ module.exports = function (grunt) {
         kommonitor_styles: [
             'app/app.css',
             'app/components/kommonitorUserInterface/kommonitorControls/kommonitorLegend/kommonitor-legend.css',
+            'app/components/common/classificationMethodSelect/classification-method-select.css',  
             'app/components/kommonitorUserInterface/kommonitorControls/kommonitorClassification/kommonitor-classification.css'
         ],
         copy_files: [
@@ -412,7 +415,35 @@ module.exports = function (grunt) {
                     }
                 ]
             }
+        },
+        // 'modules-graph': {
+        //     options: {
+        //         externalDependenciesColor:'red'
+        //     },
+        //     files: {
+        //         './dependency-graph.dot': ['app/app.js', 'app/util/**/*.js', 'app/components/**/*.js'],
+        //     },
+        // },
+        // graphviz: {
+        //     dependencies: {
+        //       files: {
+        //         'dependencies-graph.png': 'dependencies-graph.dot'
+        //       }
+        //     },
+        //   },
+        angular_architecture_graph: {
+            diagram: {
+                files: {
+                    "./dependencyGraph_adminApp": ['app/components/kommonitorAdmin/**/*.js'],  // admin app
+                    "./dependencyGraph_mapApp": ['app/components/kommonitorUserInterface/**/*.js'],   //  map app
+                    "./dependencyGraph_komMonitorMapComponent": ['app/components/kommonitorUserInterface/kommonitorMap/**/*.js']   //  map app
+                    // "architecture": [
+                    //     "<%= projectConfig.app %>/<%= projectConfig.project %>/**/*.js"
+                    // ]
+                }
+            }
         }
+        
     });
 
     // grunt.loadNpmTasks('grunt-contrib-uglify');
@@ -428,7 +459,13 @@ module.exports = function (grunt) {
 	grunt.loadNpmTasks('grunt-exec');
     grunt.loadNpmTasks('grunt-war');
     grunt.loadNpmTasks('grunt-babel');
+    grunt.loadNpmTasks('grunt-angular-modules-graph');
+    grunt.loadNpmTasks('grunt-graphviz');
 
+    grunt.loadNpmTasks('grunt-angular-architecture-graph');
+
+    // grunt.registerTask('generateDependenciesGraph', ['modules-graph', 'graphviz']);
+    grunt.registerTask('generateDependenciesGraph', ['angular_architecture_graph']);
     grunt.registerTask('test', ['jshint']);
     // grunt.registerTask('copy-all', ['copy:locals', 'copy:css', 'copy:fonts']);
     // grunt.registerTask('copy-css', ['copy:css']);

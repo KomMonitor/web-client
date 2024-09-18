@@ -64,15 +64,13 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 						"lowestSpatialUnitForComputation": "lowestSpatialUnitForComputation",
 						"defaultClassificationMapping": {
 							"colorBrewerSchemeName": "colorBrewerSchemeName",
+							"numClasses": "number of Classes",
+							"classificationMethod": "Classification Method ID",
 							"items": [
-							{
-								"defaultCustomRating": "defaultCustomRating",
-								"defaultColorAsHex": "defaultColorAsHex"
-							},
-							{
-								"defaultCustomRating": "defaultCustomRating",
-								"defaultColorAsHex": "defaultColorAsHex"
-							}
+								{
+									"spatialUnit": "spatial unit id for manual classification",
+									"breaks": ['break']
+								}
 							]
 						}
 					}
@@ -123,10 +121,12 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			"lowestSpatialUnitForComputation": "the name of the lowest possible spatial unit for which an indicator of creationType=COMPUTATION may be computed. All other superior spatial units will be aggregated automatically",
 			"defaultClassificationMapping": {
 				"colorBrewerSchemeName": "schema name of colorBrewer colorPalette to use for classification",
+				"numClasses": "number of Classes",
+				"classificationMethod": "Classification Method ID",
 				"items": [
 					{
-						"defaultCustomRating": "a string to rate indicator values of this class",
-						"defaultColorAsHex": "color as hexadecimal value"
+						"spatialUnit": "spatial unit id for manual classification",
+						"breaks": ['break']
 					}
 				]
 			},
@@ -156,7 +156,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 		$scope.metadata.lastUpdate = undefined;
 		$scope.metadata.description = undefined;
 
-		$scope.roleManagementTableOptions = undefined;
+		$scope.roleManagementTableOptions = undefined;		
 
 		$scope.ownerOrganization = undefined;
 		$scope.ownerOrgFilter = undefined;
@@ -184,6 +184,9 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
       $scope.prepareCreatorList();
 
 			refreshRoles();
+			
+			$scope.onNumClassesChanged($scope.numClassesPerSpatialUnit);
+
 			setTimeout(() => {
 				$scope.$digest();	
 			}, 250);
@@ -285,8 +288,13 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			$scope.georesourceReferences_apiRequest = [];
 
 			$scope.numClassesArray = [3,4,5,6,7,8];
-			$scope.numClasses = $scope.numClassesArray[2];
+			$scope.numClassesPerSpatialUnit = $scope.numClassesArray[2];
+			$scope.classificationMethod = __env.defaultClassifyMethod || "jenks";
 			$scope.selectedColorBrewerPaletteEntry = undefined;
+			$scope.spatialUnitClassification = [];
+			$scope.classBreaksInvalid = false;
+
+			$scope.tabClasses = [];
 
 			$scope.postBody_indicators = undefined;
 
@@ -322,6 +330,64 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 
 		$scope.instantiateColorBrewerPalettes();
 
+		$scope.onClassificationMethodSelected = function(method){
+			$scope.classificationMethod = method.id;
+		};
+
+		$scope.onNumClassesChanged = function(numClasses) {
+			$scope.numClassesPerSpatialUnit = numClasses;
+			for (let i = 0; i < kommonitorDataExchangeService.availableSpatialUnits.length; i++) {
+				let spatialUnit = kommonitorDataExchangeService.availableSpatialUnits[i];
+				$scope.spatialUnitClassification[i] = {};
+				$scope.spatialUnitClassification[i].spatialUnitId = spatialUnit.spatialUnitId;
+				$scope.spatialUnitClassification[i].breaks = [];
+				$scope.tabClasses[i] = '';
+				for (let classNr = 0; classNr < numClasses - 1; classNr++) {
+					$scope.spatialUnitClassification[i].breaks.push(null);
+				}
+			}
+		}
+
+		$scope.onBreaksChanged = function(tabIndex) {
+			$scope.classBreaksInvalid = false;
+			let cssClass = 'tab-completed';
+			for(const classBreak of $scope.spatialUnitClassification[tabIndex].breaks) {
+				if (classBreak === null) {
+					cssClass = '';
+				}
+			}
+			
+			if (cssClass == 'tab-completed') {
+				for(let i = 0; i < $scope.spatialUnitClassification[tabIndex].breaks.length - 1; i ++) {
+					if ($scope.spatialUnitClassification[tabIndex].breaks[i] > $scope.spatialUnitClassification[tabIndex].breaks[i+1]) {
+						cssClass = 'tab-error';
+						$scope.classBreaksInvalid = true;
+					}
+				}
+			}
+			else {
+				for(const classBreak of $scope.spatialUnitClassification[tabIndex].breaks) {
+					if (classBreak !== null) {
+						cssClass = 'tab-error';
+						$scope.classBreaksInvalid = true;
+					}
+				}
+			}
+			$scope.tabClasses[tabIndex] = cssClass;
+			$scope.updateDecreaseAndIncreaseBreaks(tabIndex);
+		}
+
+		$scope.updateDecreaseAndIncreaseBreaks = function(tabIndex) {
+			$scope.increaseBreaksLength = $scope.spatialUnitClassification[tabIndex].breaks.filter(val => val > 0).length;
+			$scope.decreaseBreaksLength = $scope.spatialUnitClassification[tabIndex].breaks.filter(val => val < 0).length;
+			if($scope.increaseBreaksLength < 3) {
+				$scope.increaseBreaksLength = 3;
+			}
+			if($scope.decreaseBreaksLength < 3) {
+				$scope.decreaseBreaksLength = 3;
+			}
+		}
+
 		$scope.resetIndicatorAddForm = function(){
 
 				$scope.successMessagePart = undefined;
@@ -342,6 +408,8 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			$scope.metadata.description = undefined;
 
 			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorAddRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, [], true);			
+			
+			$scope.refreshRoles();
 
 			$scope.datasetName = undefined;
 			$scope.indicatorAbbreviation = undefined;
@@ -382,8 +450,12 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			$scope.georesourceReferences_apiRequest = [];
 
 			$scope.numClassesArray = [3,4,5,6,7,8];
-			$scope.numClasses = $scope.numClassesArray[2];
+			$scope.numClassesPerSpatialUnit = $scope.numClassesArray[2];;
+			$scope.onNumClassesChanged($scope.numClassesPerSpatialUnit);
+			$scope.classificationMethod = __env.defaultClassifyMethod || "jenks";
 			$scope.selectedColorBrewerPaletteEntry = $scope.colorbrewerPalettes[13];
+			$scope.spatialUnitClassification = [];
+			$scope.classBreaksInvalid = false;
 
 			$scope.isPublic = false;
 			$scope.ownerOrganization = undefined;
@@ -590,28 +662,9 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 				  "lowestSpatialUnitForComputation": $scope.indicatorLowestSpatialUnitMetadataObjectForComputation? $scope.indicatorLowestSpatialUnitMetadataObjectForComputation.spatialUnitLevel : null,
 				  "defaultClassificationMapping": {
 					"colorBrewerSchemeName": $scope.selectedColorBrewerPaletteEntry.paletteName,
-					"items": [
-						{
-						  "defaultColorAsHex": "#edf8e9",
-						  "defaultCustomRating": "sehr niedrig"
-						},
-						{
-						  "defaultColorAsHex": "#bae4b3",
-						  "defaultCustomRating": "niedrig"
-						},
-						{
-						  "defaultColorAsHex": "#74c476",
-						  "defaultCustomRating": "mittel"
-						},
-						{
-						  "defaultColorAsHex": "#31a354",
-						  "defaultCustomRating": "hoch"
-						},
-						{
-						  "defaultColorAsHex": "#006d2c",
-						  "defaultCustomRating": "sehr hoch"
-						}
-					  ]
+					"classificationMethod": $scope.classificationMethod.toUpperCase(),
+					"numClasses": $scope.numClassesPerSpatialUnit ? Number($scope.numClassesPerSpatialUnit) : 5,
+					"items": $scope.spatialUnitClassification.filter(entry => ! entry.breaks.includes(null)),
 				  },
 				  "ownerId": $scope.ownerOrganization,
 				  "isPublic": $scope.isPublic ? true : false
@@ -809,9 +862,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			
 				$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorAddRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, $scope.metadataImportSettings.permissions, true);
 
-
 				// indicator specific properties
-
 				
 				$scope.indicatorAbbreviation = $scope.metadataImportSettings.abbreviation;
 
@@ -931,7 +982,18 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 				}			
 
 				$scope.numClassesArray = [3,4,5,6,7,8];
-				$scope.numClasses = $scope.numClassesArray[2];
+				$scope.numClassesPerSpatialUnit = $scope.numClassesArray[2];
+
+				for (const numClassesEntry of $scope.numClassesArray) {
+					if (numClassesEntry == $scope.metadataImportSettings.defaultClassificationMapping.numClasses){
+						$scope.numClassesPerSpatialUnit = numClassesEntry;
+						break;	
+					}
+				}
+				$scope.onNumClassesChanged($scope.numClassesPerSpatialUnit);
+				$scope.classificationMethod = $scope.metadataImportSettings.defaultClassificationMapping.classificationMethod || __env.defaultClassifyMethod;
+				$scope.spatialUnitClassification = $scope.metadataImportSettings.defaultClassificationMapping.items;
+
 				// instantiate with palette 'Blues'
 				$scope.selectedColorBrewerPaletteEntry = $scope.colorbrewerPalettes[13];
 
@@ -1066,28 +1128,9 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 
 				var defaultClassificationMapping = {
 					"colorBrewerSchemeName" : $scope.selectedColorBrewerPaletteEntry ? $scope.selectedColorBrewerPaletteEntry.paletteName : "Blues",
-					"items": [
-						{
-						  "defaultColorAsHex": "#edf8e9",
-						  "defaultCustomRating": "sehr niedrig"
-						},
-						{
-						  "defaultColorAsHex": "#bae4b3",
-						  "defaultCustomRating": "niedrig"
-						},
-						{
-						  "defaultColorAsHex": "#74c476",
-						  "defaultCustomRating": "mittel"
-						},
-						{
-						  "defaultColorAsHex": "#31a354",
-						  "defaultCustomRating": "hoch"
-						},
-						{
-						  "defaultColorAsHex": "#006d2c",
-						  "defaultCustomRating": "sehr hoch"
-						}
-					  ]
+					"classificationMethod": $scope.classificationMethod,
+					"numClasses": $scope.numClassesPerSpatialUnit,
+					"items": $scope.spatialUnitClassification
 				};
 
 				metadataExport.defaultClassificationMapping = defaultClassificationMapping;

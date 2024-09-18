@@ -55,7 +55,13 @@ angular
 
         var element = ControlsConfigService.getControlsConfig().filter(element => element.id === id)[0];
 
-        if(element.roles === undefined || element.roles.length === 0) {
+        var domElement = document.getElementById(id);
+        if (domElement && domElement.style){
+          domElement.style.display = 'block';
+        }
+        
+
+        if(element.roles === undefined || element.roles.length === 0) {          
           return true;
         }
         if(self.isAdvancedMode && element.roles && element.roles.includes(self.advancedModeRoleName)){
@@ -70,7 +76,8 @@ angular
           var hasAllowedRole = false;          
           for (var i = 0; i < element.roles.length; i++) {
             if(Auth.keycloak.tokenParsed.realm_access.roles.includes(element.roles[i])){
-              return true;
+              hasAllowedRole = true;
+              // return true;
             }	
           }
 
@@ -83,25 +90,17 @@ angular
             kommonitorDataExchangeService.showGeoresourceExportButtons = false;
           }
 
+          if (! hasAllowedRole){
+            var domElement = document.getElementById(id);
+            if (domElement && domElement.style){
+              domElement.style.display = 'none';
+            }
+            // $("#" + id).remove();
+          }
+
           return hasAllowedRole;
         } else {
-          if(! kommonitorDataExchangeService.enableKeycloakSecurity){
-            if(element.roles && element.roles.includes(self.advancedModeRoleName)){
 
-              // special case for diagram export buttons
-              if(element.id === "diagramExportButtons"){
-                kommonitorDataExchangeService.showDiagramExportButtons = false;
-              }
-              // special case for georesource export buttons
-              if(element.id === "georesourceExportButtons"){
-                kommonitorDataExchangeService.showGeoresourceExportButtons = false;
-              }
-
-              return false;
-            }
-            return true;
-          }
-          else{
             // special case for diagram export buttons
             if(element.id === "diagramExportButtons"){
               kommonitorDataExchangeService.showDiagramExportButtons = false;
@@ -111,11 +110,15 @@ angular
               kommonitorDataExchangeService.showGeoresourceExportButtons = false;
             }
 
-            return false;
-          }				
+            var domElement = document.getElementById(id);
+            if (domElement && domElement.style){
+              domElement.style.display = 'none';
+            }
+            // $("#" + id).remove();
+            return false;	
         }
       };
-
-      this.initElementVisibility();
+      
+      this.initElementVisibility();            
   
     }]);

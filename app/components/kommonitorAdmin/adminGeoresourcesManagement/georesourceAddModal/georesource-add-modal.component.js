@@ -34,6 +34,8 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 				"geoJsonString": "geoJsonString",
 				"topicReference": "topicReference",
 				"poiMarkerColor": "white",
+				"poiMarkerStyle": "symbol",
+				"poiMarkerText": "",
 				"jsonSchema": "jsonSchema",
 				"periodOfValidity": {
 					"endDate": "2000-01-23",
@@ -72,6 +74,8 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 			"poiSymbolColor": "'white'|'red'|'orange'|'beige'|'green'|'blue'|'purple'|'pink'|'gray'|'black'",
 			"loiDashArrayString": "dash array string value - e.g. 20 20",
 			"poiMarkerColor": "'white'|'red'|'orange'|'beige'|'green'|'blue'|'purple'|'pink'|'gray'|'black'",
+			"poiMarkerStyle": "'symbol'|'text'",
+			"poiMarkerText": "0-3 letters to use for a POI marker when poiMarkerStyle = text",
 			"loiColor": "color for lines of interest dataset",
 			"loiWidth": "width for lines of interest dataset",
 			"aoiColor": "color for area of interest dataset"
@@ -204,6 +208,9 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 		$scope.isAOI = false;
 		$scope.selectedPoiMarkerColor = kommonitorDataExchangeService.availablePoiMarkerColors[0];
 		$scope.selectedPoiSymbolColor = kommonitorDataExchangeService.availablePoiMarkerColors[1];
+		$scope.selectedPoiMarkerStyle = "symbol";
+		$scope.poiMarkerText = "";
+		$scope.poiMarkerTextInvalid = false;
 		$scope.selectedLoiDashArrayObject = kommonitorDataExchangeService.availableLoiDashArrayObjects[0];
 		$scope.loiColor = "#bf3d2c";
 		$scope.loiWidth = 3;
@@ -334,6 +341,8 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 			$scope.isAOI = false;
 			$scope.selectedPoiMarkerColor = kommonitorDataExchangeService.availablePoiMarkerColors[0];
 			$scope.selectedPoiSymbolColor = kommonitorDataExchangeService.availablePoiMarkerColors[1];
+			$scope.selectedPoiMarkerStyle = "symbol";
+			$scope.poiMarkerText = "";
 			$scope.selectedLoiDashArrayObject = kommonitorDataExchangeService.availableLoiDashArrayObjects[0];
 			$scope.loiColor = "#bf3d2c";
 			$scope.loiWidth = 3;
@@ -475,6 +484,13 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 			}
 		};
 
+		$scope.checkPoiMarkerText = function() {
+			$scope.poiMarkerTextInvalid = false;
+			if($scope.poiMarkerText.length > 3) {
+				$scope.poiMarkerTextInvalid = true;
+			}
+		}
+
 		$scope.onAddOrUpdateAttributeMapping = function(){
 			var tmpAttributeMapping_adminView = {
 				"sourceName": $scope.attributeMapping_sourceAttributeName,
@@ -614,6 +630,9 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 				postBody["poiSymbolColor"] = $scope.selectedPoiSymbolColor.colorName;
 				postBody["poiMarkerColor"] = $scope.selectedPoiMarkerColor.colorName;
 
+				postBody["poiMarkerStyle"] = $scope.selectedPoiMarkerStyle;
+				postBody["poiMarkerText"] = $scope.poiMarkerText;
+
 				postBody["loiDashArrayString"] = null;
 				postBody["loiColor"] = null;
 				postBody["loiWidth"] = 3;
@@ -625,6 +644,9 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 				postBody["poiSymbolColor"] = null;
 				postBody["poiMarkerColor"] = null;
 
+				postBody["poiMarkerStyle"] = null;
+				postBody["poiMarkerText"] = null;
+
 				postBody["loiDashArrayString"] = $scope.selectedLoiDashArrayObject.dashArrayValue;
 				postBody["loiColor"] = $scope.loiColor;
 				postBody["loiWidth"] = $scope.loiWidth;
@@ -635,6 +657,9 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 				postBody["poiSymbolBootstrap3Name"] = null;
 				postBody["poiSymbolColor"] = null;
 				postBody["poiMarkerColor"] = null;
+
+				postBody["poiMarkerStyle"] = null;
+				postBody["poiMarkerText"] = null;
 
 				postBody["loiDashArrayString"] = null;
 				postBody["loiColor"] = null;
@@ -855,6 +880,8 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 						$scope.selectedPoiSymbolColor = option;
 					}
 				});
+				$scope.selectedPoiMarkerStyle = $scope.metadataImportSettings.poiMarkerStyle;
+				$scope.poiMarkerText = $scope.metadataImportSettings.poiMarkerText;
 				kommonitorDataExchangeService.availableLoiDashArrayObjects.forEach(function(option){
 					if(option.dashArrayValue === $scope.metadataImportSettings.loiDashArrayString){
 						$scope.selectedLoiDashArrayObject = option;
@@ -953,6 +980,9 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 				metadataExport["poiSymbolColor"] = $scope.selectedPoiSymbolColor.colorName;
 				metadataExport["poiMarkerColor"] = $scope.selectedPoiMarkerColor.colorName;
 
+				metadataExport["poiMarkerStyle"] = $scope.selectedPoiMarkerStyle;
+				metadataExport["poiMarkerText"] = $scope.poiMarkerText;
+
 				metadataExport["loiDashArrayString"] = "";
 				metadataExport["loiColor"] = "";
 				metadataExport["loiWidth"] = "";
@@ -963,6 +993,9 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 				metadataExport["poiSymbolBootstrap3Name"] = "";
 				metadataExport["poiSymbolColor"] = "";
 				metadataExport["poiMarkerColor"] = "";
+
+				metadataExport["poiMarkerStyle"] = "";
+				metadataExport["poiMarkerText"] = "";
 
 				metadataExport["loiDashArrayString"] = $scope.selectedLoiDashArrayObject.dashArrayValue;
 				metadataExport["loiColor"] = $scope.loiColor;
@@ -975,6 +1008,9 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 				metadataExport["poiSymbolBootstrap3Name"] = "";
 				metadataExport["poiSymbolColor"] = "";
 				metadataExport["poiMarkerColor"] = "";
+
+				metadataExport["poiMarkerStyle"] = "";
+				metadataExport["poiMarkerText"] = "";
 
 				metadataExport["loiDashArrayString"] = "";
 				metadataExport["loiColor"] = "";
@@ -1029,6 +1065,10 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 
 		$scope.onChangeMarkerColor = function(markerColor){
 			$scope.selectedPoiMarkerColor = markerColor;
+		};
+
+		$scope.onChangeMarkerStyle = function(markerStyle){
+			$scope.selectedPoiMarkerStyle = markerStyle;
 		};
 
 		$scope.onChangeSymbolColor = function(symbolColor){

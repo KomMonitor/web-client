@@ -29,7 +29,8 @@ angular
 					//$("[data-toggle=tooltip]").tooltip();
 
 					this.kommonitorReachabilityHelperServiceInstance = kommonitorReachabilityHelperService;	
-					this.kommonitorReachabilityScenarioHelperServiceInstance = kommonitorReachabilityScenarioHelperService;					
+					this.kommonitorReachabilityScenarioHelperServiceInstance = kommonitorReachabilityScenarioHelperService;		
+					this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;		
 
 					// initialize any adminLTE box widgets
 					$('.box').boxWidget();
@@ -55,6 +56,14 @@ angular
 					var numberOfDecimals = __env.numberOfDecimals;
 
 					$scope.error = undefined;
+
+					$scope.displayReachabilityScenarioOnMainMap = function (reachabilityScenario) {		
+						kommonitorMapService.replaceReachabilityScenarioOnMainMap(reachabilityScenario);
+					};
+
+					$scope.removeReachabilityScenarioFromMainMap = function (){
+						kommonitorMapService.removeReachabilityScenarioFromMainMap();
+					}
 
 				}
 			]

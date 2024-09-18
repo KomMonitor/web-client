@@ -93,11 +93,12 @@
 							<!-- progressbar -->
 							<div>
 								<ul id="progressbar">
-									<li style="width: 20%;" class="active">Metadaten des Indikators</li>
-									<li style="width: 20%;" >Allgemeine Metadaten</li>
-									<li style="width: 20%;">Themenhierarchie</li>
-									<li style="width: 20%;">Referenzen zu Indikatoren/Georessourcen</li>
-									<li style="width: 20%;">Klassifizierungsoptionen</li>
+									<li style="width: 16.67%;" class="active">Metadaten des Indikators</li>
+									<li style="width: 16.67%;" >Allgemeine Metadaten</li>
+									<li style="width: 16.67%;">Themenhierarchie</li>
+									<li style="width: 16.67%;">Referenzen zu Indikatoren/Georessourcen</li>
+									<li style="width: 16.67%;">Klassifizierungsoptionen</li>
+									<li style="width: 16.67%;">regionale Vergleichswerte</li>
 								</ul>
 							</div>
 							
@@ -895,10 +896,245 @@
 								
 								</div>
 
+								<div class="row vertical-align">
+									<div class="classificationMethodSelectContainer form-group">
+										<label>Klassifizierungsmethode</label>
+										<classification-method-select 
+											on-method-selected="onClassificationMethodSelected(method)"
+											default-method-id="{{classificationMethod}}"
+											hidden-method-ids="['manual']">
+										</classification-method-select>
+									</div>
+								</div>
+								<div class="row vertical-align">
+									<div class="form-group">
+										<label>Anzahl Klassen pro Raumeinheit</label>
+										<select ng-model="numClassesPerSpatialUnit"
+											ng-change="onNumClassesChanged(numClassesPerSpatialUnit)"	
+											ng-options="numClassesEntry for numClassesEntry in numClassesArray"								
+											class="form-control" required>
+											<option disabled selected value> -- Anzahl Klassen w&auml;hlen -- </option>
+										</select>
+										<div class="help-block with-errors"></div>
+										<div class="help-block">
+											<p>Für jede Raumeinheit wird die gleiche Anzahl an Klassengrenzen vergeben </p>
+										</div>
+									</div>
+								</div>
+								<div class="row vertical-align" ng-if="(numClassesPerSpatialUnit > 0) && classificationMethod == 'regional_default'">
+									<uib-tabset active="0">
+										<uib-tab 
+											index="i" 
+											heading="{{spatialUnit.spatialUnitLevel}}"
+											class="{{tabClasses[i]}}"
+											ng-repeat="(i, spatialUnit) in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits">
+											<div class="just-padding">
+												<div class="col-md-6 col-sm-6 col-xs-12">
+													<div class="form-group">
+														<label>Klassengrenzen für die Ebene {{spatialUnit.spatialUnitLevel}}</label>
+														<input
+															ng-repeat="(j, b) in spatialUnitClassification[i].breaks track by $index"
+															type="number"
+															class="form-control"
+															ng-blur="onBreaksChanged(i)"
+															ng-model="spatialUnitClassification[i].breaks[j]">
+													</div>
+												</div>
+												<div class="col-md-6 col-sm-6 col-xs-12 boxedLegend">
+													<p><b>Legende</b></p>
+													<div class="row" style="margin-right: 0px;">
+														<div class="col-md-2"><b>Symbolik</b></div>
+														<div class="col-md-5"><b>Wertebereich</b></div>
+														<div class="col-md-5"><b>Hinweis</b></div>
+													</div>
+													<div class="row" 
+														style="margin-right: 0px;" 
+														ng-repeat="color in selectedColorBrewerPaletteEntry.paletteArrayObject[numClassesPerSpatialUnit.toString()]">
+														
+														<!-- non-zero breaks -->
+														<div ng-if="spatialUnitClassification[i].breaks[$index] != 0 && spatialUnitClassification[i].breaks[$index-1] != 0 && !(spatialUnitClassification[i].breaks[$index-1] < 0 && spatialUnitClassification[i].breaks[$index] > 0)">
+															<div class="col-md-2 " >
+																<i ng-if="spatialUnitClassification[i].breaks[0] >= 0" style="background:{{color}};"></i>
+																<i ng-if="spatialUnitClassification[i].breaks[0] < 0 && spatialUnitClassification[i].breaks[$index] < 0" style="background:{{colorbrewerSchemes[colorbreweSchemeName_dynamicDecrease][decreaseBreaksLength+1][decreaseBreaksLength-$index-1]}};"></i>
+																<i ng-if="spatialUnitClassification[i].breaks[0] < 0 && spatialUnitClassification[i].breaks[$index] > 0" style="background:{{colorbrewerSchemes[colorbreweSchemeName_dynamicIncrease][increaseBreaksLength+1][increaseBreaksLength-(spatialUnitClassification[i].breaks.length - $index)-1]}};"></i>
+																<i ng-if="spatialUnitClassification[i].breaks[0] < 0 && $index == spatialUnitClassification[i].breaks.length" style="background:{{colorbrewerSchemes[colorbreweSchemeName_dynamicIncrease][increaseBreaksLength+1][increaseBreaksLength-(spatialUnitClassification[i].breaks.length - $index)-1]}};"></i>
+															</div>
+															
+															<!-- lowest class -->
+															<div class="col-md-5 " ng-if="$index == 0" >
+																Niedrigster Wert 
+																&dash; &lt; 
+																<span ng-if="spatialUnitClassification[i].breaks[$index] !== null">{{spatialUnitClassification[i].breaks[$index]}}</span>
+																<span ng-if="spatialUnitClassification[i].breaks[$index] === null">[bitte eingeben]</span>
+															</div>
+															<div style="color: #737373" ng-if="$index == 0 && spatialUnitClassification[i].breaks[$index] !== null" class="col-md-5 ">
+																Klasse wird bei Werten unter {{spatialUnitClassification[i].breaks[$index]}} hinzugefügt
+															</div>
+														
+															<!-- classes in between -->
+															<div class="col-md-10 " ng-if="$index != 0 && $index != spatialUnitClassification[i].breaks.length" >
+																<span ng-if="spatialUnitClassification[i].breaks[$index-1] !== null">{{spatialUnitClassification[i].breaks[$index-1]}}</span>
+																<span ng-if="spatialUnitClassification[i].breaks[$index-1] === null">[bitte eingeben]</span> 
+																&dash; &lt; 
+																<span ng-if="spatialUnitClassification[i].breaks[$index] !== null">{{spatialUnitClassification[i].breaks[$index]}}</span>
+																<span ng-if="spatialUnitClassification[i].breaks[$index] === null">[bitte eingeben]</span>
+															</div>
+
+															<!-- highest class -->
+															<div class="col-md-5 " ng-if="$index == spatialUnitClassification[i].breaks.length" >
+																<span ng-if="spatialUnitClassification[i].breaks[$index-1] !== null">{{spatialUnitClassification[i].breaks[$index-1]}}</span>
+																<span ng-if="spatialUnitClassification[i].breaks[$index-1] === null">[bitte eingeben]</span>  
+																&dash; &lt; 
+																Höchster Wert
+															</div>
+															<div style="color: #737373" ng-if="$index == spatialUnitClassification[i].breaks.length && spatialUnitClassification[i].breaks[$index-1] !== null" class="col-md-5 ">
+																Klasse wird bei Werten über {{spatialUnitClassification[i].breaks[$index-1]}} hinzugefügt
+															</div>
+														</div>
+
+														<!-- zero -->
+														<div ng-if="spatialUnitClassification[i].breaks[$index] == 0 || (spatialUnitClassification[i].breaks[$index-1] < 0 && spatialUnitClassification[i].breaks[$index] > 0)">
+															<br>
+															<div class="col-md-2 " ><i style="background:#bababa; opacity: 0.7;"></i> </div>
+															<div class="col-md-5 ">
+																0
+															</div>
+															<div style="color: #737373" class="col-md-5 ">
+																<div ng-if="spatialUnitClassification[i].breaks[$index] == 0">
+																	Bei sonstigen Werten zwischen {{spatialUnitClassification[i].breaks[$index-1] || 0 }}
+																	und {{spatialUnitClassification[i].breaks[$index+1] || 0 }} werden weitere Klassen hinzugefügt
+																</div>
+																<div ng-if="spatialUnitClassification[i].breaks[$index] !== 0">
+																	Bei sonstigen Werten zwischen {{spatialUnitClassification[i].breaks[$index-1] || 0 }}
+																	und {{spatialUnitClassification[i].breaks[$index] || 0 }} werden weitere Klassen hinzugefügt
+																</div>
+															</div>
+															<br><br>
+														</div>
+													</div>
+												</div>
+											</div>
+										</uib-tab>
+									</uib-tabset>
+								</div>
+								<div class="help-block row" ng-if="(numClassesPerSpatialUnit > 0) && classificationMethod == 'regional_default'">
+									<p>Vollständig ausgefüllte Tabs werden grün hervorgehoben.</p>
+									<p>Fehlerhaft ausgefüllte Tabs werden rot hervorgehoben. Die Klassengrenzen sollten von niedrig nach hoch sortiert sein. </p>
+								</div>
+
 								<input type="button" name="previous" class="previous previous_editIndicatorMetadata action-button-previous" value="Voriger Schritt"/>
 								<input type="button" name="next" class="next next_editIndicatorMetadata action-button" value="N&auml;chster Schritt" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity"/>
 
-							</fieldset>					
+							</fieldset>
+
+							<fieldset>
+								<h2 class="fs-title">Vergleichswerte (optional)</h2>
+								<h3 class="fs-subtitle">optionale Vergabe gesamtregionaler Vergleichswerte. 
+									Hier&uuml;ber sind regionale Gesamtwerte als Summe oder Mittelwerte hinterlegbar.</h3>
+
+								<h4>Zur Wahrung der Datenkonsistenz k&ouml;nnen Vergleichswerte ausschlie&szlig;lich f&uuml;r bereits verf&uuml;gbare Zeitschnitte hinterlegt werden.</h4>
+
+								<div class="row">
+									<div class="col-md-7 col-sm-8 col-xs-12">
+
+										<div id="indicatorRegionalReferenceValuesManagementTable" style="height: 60vh" class="ag-theme-alpine"></div> 
+
+									</div>
+									<div class="col-md-5">
+										<div class="form-group">
+											<!-- DRAG/DROP Area to insert CSV file with timestamp and regionalSum, regionalAverage columns  -->
+											<div class="drop_zone" droppable2 ng-click="openFileDialog()" drop="dropHandler(event);">
+												<input type="file" id="fileUploadInput_importRegionalReferenceValues" style="display: none"
+													accept=".csv" />
+												<i style="font-size:4em; margin:5px; " class="fas fa-file-upload"></i>
+												<h4 style="vertical-align: middle;  margin-bottom:10px;">Hochladen einer CSV-Datei mit folgenden Spalten:
+													<ul style="width: 50%; margin-left: 25%; margin-top:10%">
+														<li>Zeitstempel (YYYY-MM-DD)*</li>
+														<li>gesamtregionaler Summenwert</li>
+														<li>gesamtregionaler Mittelwert</li>
+													</ul>
+													* = Pflichtfeld
+												</h4>												
+											</div>
+										</div>
+
+										<div class="row vertical-align">											
+											<div class="col-xs-12" >
+					
+												<div ng-if="file_regionalReferenceValuesImport">
+													<b>Angegebene Datei</b>: <i>{{file_regionalReferenceValuesImport.name}}</i>
+												</div>
+												<div ng-if="! file_regionalReferenceValuesImport">
+													<b>Angegebene Datei</b>: <i>-- keine --</i>
+												</div>												 
+					
+											</div>
+										</div>
+
+										<br>
+
+										<div class="row vertical-align">
+											<div class="col-xs-3">
+					
+												<label>Spaltenname Zeitstempel</label>
+												<select style="font-size: 11px; " ng-model="tmpIndicatorRegionalReferenceValuesObject.TIMESTAMP_ATTRIBUTE"
+													ng-options="property as property for property in tmpIndicatorRegionalReferenceValuesObject.featureSchema"
+													class="form-control" required>
+												</select>
+											</div>
+											<div class="col-xs-3" >
+					
+												<label>Spaltenname Summenwert</label>
+												<select style="font-size: 11px; " ng-model="tmpIndicatorRegionalReferenceValuesObject.REGIONAL_SUM_ATTRIBUTE"
+													ng-options="property as property for property in tmpIndicatorRegionalReferenceValuesObject.featureSchema"
+													class="form-control" required>
+												</select>
+											</div>
+
+											<div class="col-xs-3" >
+					
+												<label>Spaltenname Mittelwert</label>
+												<select style="font-size: 11px; " ng-model="tmpIndicatorRegionalReferenceValuesObject.REGIONAL_MEAN_ATTRIBUTE"
+													ng-options="property as property for property in tmpIndicatorRegionalReferenceValuesObject.featureSchema"
+													class="form-control" required>
+												</select>
+											</div>
+											<div class="col-xs-3" >
+					
+												<label>Spaltenname r&auml;umlich nicht zuordenbar</label>
+												<select style="font-size: 11px; " ng-model="tmpIndicatorRegionalReferenceValuesObject.SPATIALLY_UNASSIGNABLE"
+													ng-options="property as property for property in tmpIndicatorRegionalReferenceValuesObject.featureSchema"
+													class="form-control" required>
+												</select>
+											</div>
+											
+											
+										</div>
+										<div class="row vertical-align">
+											<div class="col-xs-4" >
+					
+											</div>
+											<div class="col-xs-4" >
+					
+												<button type="button" class="btn btn-success" ng-click="loadCSV_indicatorRegionalReferenceValues()"
+														ng-disabled="! tmpIndicatorRegionalReferenceValuesObject.TIMESTAMP_ATTRIBUTE"><i
+														class="fa-solid fa-plus"></i>&nbsp;&nbsp;laden
+												</button>
+					
+											</div>
+											<div class="col-xs-4" >
+					
+											</div>
+										</div>
+					
+									</div>
+									
+								</div>	
+								
+								<input type="button" name="previous" class="previous previous_editIndicatorMetadata action-button-previous" value="Voriger Schritt"/>								
+								<input type="button" name="next" class="next next_editIndicatorMetadata action-button" value="N&auml;chster Schritt" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity"/>
+								
+							</fieldset>
 
 						</form>
 					</div>
@@ -915,11 +1151,11 @@
 				<button type="button" style="margin-left: 6px;" class="btn btn-info pull-left" ng-disabled=""
 					ng-click="onExportIndicatorEditMetadata()" title="Exportieren der Metadaten in eine Datei"><i
 						class="fas fa-file-export"></i>&nbsp;&nbsp;Metadaten-Export</button>
-				<button type="button" style="margin-left: 6px;" class="btn btn-info pull-left" ng-disabled="" ng-click="onExportIndicatorEditMetadataTemplate()" title="Exportieren einer Metadaten-Vorlage in eine Datei"><i class="fas fa-file-export"></i>&nbsp;&nbsp;Metadaten-Export Vorlage</button>
+				<!-- <button type="button" style="margin-left: 6px;" class="btn btn-info pull-left" ng-disabled="" ng-click="onExportIndicatorEditMetadataTemplate()" title="Exportieren einer Metadaten-Vorlage in eine Datei"><i class="fas fa-file-export"></i>&nbsp;&nbsp;Metadaten-Export Vorlage</button> -->
 						
 
 				<button type="button" class="btn btn-success"
-					ng-disabled="!datasetName || !metadata.description || !metadata.datasource || !metadata.contact || !metadata.updateInterval || !metadata.lastUpdate || !indicatorType|| !indicatorCreationType || !indicatorInterpretation || !indicatorTopic_mainTopic || datasetNameInvalid || !indicatorUnit"
+					ng-disabled="!datasetName || !metadata.description || !metadata.datasource || !metadata.contact || !metadata.updateInterval || !metadata.lastUpdate || !indicatorType|| !indicatorCreationType || !indicatorInterpretation || !indicatorTopic_mainTopic || datasetNameInvalid || !indicatorUnit || classBreaksInvalid"
 					ng-click="editIndicatorMetadata()">Metadaten aktualisieren</button>
 				<button type="button" class="btn btn-danger"
 					ng-click="resetIndicatorEditMetadataForm()">Zur&uuml;cksetzen</button>

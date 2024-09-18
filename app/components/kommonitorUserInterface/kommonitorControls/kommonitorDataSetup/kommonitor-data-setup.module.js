@@ -1,1 +1,1 @@
-angular.module('kommonitorDataSetup', ['kommonitorDataExchange', 'kommonitorMap', 'kommonitorShareHelper']);
+angular.module('kommonitorDataSetup', ['kommonitorDataExchange', 'kommonitorMap', 'kommonitorShareHelper', 'kommonitorElementVisibilityHelper']);

@@ -47,6 +47,20 @@ try {
   // possible values for geoservice georesources: ["wfs", "wms"]
   window.__env.enabledGeoresourcesGeoservices = ["wfs", "wms"];
 
+  // show bar chart label and average line
+  window.__env.showBarChartLabel = false;
+  window.__env.showBarChartAverageLine = true;
+
+  // controls whether the mean values (arithmetic and regional) shall be displayed in legend and indicator statistics menus or not
+  window.__env.enableMeanDataDisplayInLegend = false;
+
+  // control additional average/mean lines in line chart, legend and statisticalValues 
+  // allowed options 
+  // 'both' --> both, arithmetic mean and regional mean will be displayed if available
+  // 'preferRegionalMeanIfAvailable'  --> only show one line at a time. regional mean will be preferred if available
+  // 'regionalMeanOrNone' --> never show arithmetic mean. show regional mean if available or nothing
+  window.__env.configMeanDataDisplay = 'preferRegionalMeanIfAvailable';
+
   // encrypted data transfer from Data Management API settings
   window.__env.encryption = {
     enabled: false,
@@ -277,6 +291,7 @@ try {
   // classification
   //allowesValues: equal_interval, quantile, jenks
   window.__env.defaultClassifyMethod = "equal_interval";
+  window.__env.disableManualClassification = false;
 
   // array of indicator name substring that shal be used to filter out / hide certain indicators by their name
   // e.g. set ["entwicklung"] to hide all indicators whose name contains the substring "entwicklung"

@@ -159,8 +159,10 @@ angular
         }
       };
 
-      this.getFillColorForZero = function(){
-        this.featuresPerZero ++;
+      this.getFillColorForZero = function(incrementFeatures){
+        if (incrementFeatures) {
+          this.featuresPerZero ++;
+        }
         return defaultColorForZeroValues;
       };
 
@@ -237,7 +239,7 @@ angular
             colorBrewerInstance.colors.shift();
             colorBrewerInstance.colors.shift();
           }
-          if(numClasses == 0) {
+          if(numClasses <= 0) {
             colorBrewerInstance.colors = [];
           }
         }
@@ -255,7 +257,7 @@ angular
        *
        * [gtMeasureOfValueBrew, ltMeasureOfValueBrew]
        */
-      this.setupMeasureOfValueBrew = function (geoJSON, propertyName, colorCodeForGreaterThanValues, colorCodeForLesserThanValues, classifyMethod, measureOfValue, breaks, numClasses) {
+      this.setupMeasureOfValueBrew = function (geoJSON, propertyName, colorCodeForGreaterThanValues, colorCodeForLesserThanValues, classifyMethod, measureOfValue, manualBreaks, regionalDefaultMOVBreaks, numClasses) {
 
         /*
         * Idea: Analyse the complete geoJSON property array for each feature and make conclusion about how to build the legend
@@ -284,21 +286,26 @@ angular
 
         var gtMeasureOfValueBrew = this.setupGtMeasureOfValueBrew(this.greaterThanValues, colorCodeForGreaterThanValues, classifyMethod, Math.ceil(numClasses / 2));
         var ltMeasureOfValueBrew = this.setupLtMeasureOfValueBrew(this.lesserThanValues, colorCodeForLesserThanValues, classifyMethod, Math.floor(numClasses / 2));
-        
-        if(classifyMethod == "manual") {
-          if (!breaks) {
-            breaks = [];
-            breaks[0] = gtMeasureOfValueBrew.breaks;
-            breaks[1] = ltMeasureOfValueBrew.breaks;
+
+        if(classifyMethod == "regional_default" && regionalDefaultMOVBreaks[0] && regionalDefaultMOVBreaks[1]) {
+          gtMeasureOfValueBrew = this.setupManualBrew(regionalDefaultMOVBreaks[0].length -1, colorCodeForGreaterThanValues, regionalDefaultMOVBreaks[0]);
+          ltMeasureOfValueBrew = this.setupManualBrew(regionalDefaultMOVBreaks[1].length -1, colorCodeForLesserThanValues, regionalDefaultMOVBreaks[1]);
+          ltMeasureOfValueBrew.colors = ltMeasureOfValueBrew.colors.reverse();
+        }
+        else if(classifyMethod == "manual") {
+          if (!manualBreaks || manualBreaks.length == 0) {
+            manualBreaks = [];
+            manualBreaks[0] = gtMeasureOfValueBrew ? gtMeasureOfValueBrew.breaks : [];
+            manualBreaks[1] = ltMeasureOfValueBrew ? ltMeasureOfValueBrew.breaks : [];
           }
   
           var manualBreaksMatchMeasureOfValue = 
-            (breaks[1][breaks[1].length-1] <= measureOfValue) &&
-            (measureOfValue <= breaks[0][0]);
+            (manualBreaks[1][manualBreaks[1].length-1] <= measureOfValue) &&
+            (measureOfValue <= manualBreaks[0][0]);
 
           if (manualBreaksMatchMeasureOfValue) {
-            gtMeasureOfValueBrew = this.setupManualBrew(breaks[0].length -1, colorCodeForGreaterThanValues, breaks[0]);
-            ltMeasureOfValueBrew = this.setupManualBrew(breaks[1].length -1, colorCodeForLesserThanValues, breaks[1]);
+            gtMeasureOfValueBrew = this.setupManualBrew(manualBreaks[0].length -1, colorCodeForGreaterThanValues, manualBreaks[0]);
+            ltMeasureOfValueBrew = this.setupManualBrew(manualBreaks[1].length -1, colorCodeForLesserThanValues, manualBreaks[1]);
             ltMeasureOfValueBrew.colors = ltMeasureOfValueBrew.colors.reverse();
           }
         }
@@ -345,6 +352,9 @@ angular
       };
 
       function setupClassyBrew_usingFeatureCount(valuesArray, colorCode, classifyMethod, maxNumberOfClasses){
+        if(!maxNumberOfClasses) {
+          maxNumberOfClasses = 5;
+        }
 
         var tempBrew = new classyBrew();
         var colorBrewerInstance = new classyBrew();
@@ -470,10 +480,10 @@ angular
         var dynamicDecreaseBrew = setupDynamicDecreaseBrew(this.negativeValues, colorCodeForNegativeValues, classifyMethod, Math.floor(numClasses / 2));
 
         if(classifyMethod == "manual") {
-          if (!breaks) {
+          if (!breaks || breaks.length == 0) {
             breaks = [];
-            breaks[0] = dynamicIncreaseBrew.breaks;
-            breaks[1] = dynamicDecreaseBrew.breaks;
+            breaks[0] = dynamicIncreaseBrew ? dynamicIncreaseBrew.breaks : [];
+            breaks[1] = dynamicDecreaseBrew ? dynamicDecreaseBrew.breaks : [];
           }
           dynamicIncreaseBrew = this.setupManualBrew(breaks[0].length -1, colorCodeForPositiveValues, breaks[0]);
           dynamicDecreaseBrew = this.setupManualBrew(breaks[1].length -1, colorCodeForNegativeValues, breaks[1]);
@@ -532,20 +542,26 @@ angular
         return brew;
       }
 
-      this.styleNoData = function(feature) {
-        this.featuresPerNoData ++;
+      this.styleNoData = function(feature, incrementFeatures) {
+        if (incrementFeatures) {
+          this.featuresPerNoData ++;
+        }
         return this.noDataStyle;
       };
 
-      this.styleOutlier = function(feature) {
+      this.styleOutlier = function(feature, incrementFeatures) {
         if ((feature.properties[outlierPropertyName] === outlierPropertyValue_low_soft) || (feature.properties[outlierPropertyName] === outlierPropertyValue_low_extreme)) {
 
-          this.featuresPerOutlierLow ++;
+          if (incrementFeatures) {
+            this.featuresPerOutlierLow ++;
+          }
           return this.outlierStyle_low;
         }
         else {
 
-          this.featuresPerOutlierHigh ++;
+          if (incrementFeatures) {
+            this.featuresPerOutlierHigh ++;
+          }
           return this.outlierStyle_high;
         }
       };
@@ -574,16 +590,16 @@ angular
       };
 
       // style function to return
-      this.styleDefault = function(feature, defaultBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, propertyName, useTransparencyOnIndicator, datasetContainsNegativeValues) {
+      this.styleDefault = function(feature, defaultBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, propertyName, useTransparencyOnIndicator, datasetContainsNegativeValues, incrementFeatures) {
 
         // check if feature is NoData
         if (kommonitorDataExchangeService.indicatorValueIsNoData(feature.properties[propertyName])) {
-          return this.styleNoData(feature);
+          return this.styleNoData(feature, incrementFeatures);
         }
 
         // check if feature is outlier
         if ((feature.properties[outlierPropertyName] !== outlierPropertyValue_no) && kommonitorDataExchangeService.useOutlierDetectionOnIndicator) {
-          return this.styleOutlier(feature);
+          return this.styleOutlier(feature, incrementFeatures);
         }
 
         var fillOpacity = 1;
@@ -593,7 +609,7 @@ angular
 
         var fillColor;
         if (kommonitorDataExchangeService.classifyZeroSeparately && (feature.properties[propertyName] == 0 || feature.properties[propertyName] == "0")) {
-          fillColor = this.getFillColorForZero();
+          fillColor = this.getFillColorForZero(incrementFeatures);
           if (useTransparencyOnIndicator) {
             fillOpacity = defaultFillOpacityForZeroFeatures;
           }
@@ -603,13 +619,13 @@ angular
           if (datasetContainsNegativeValues) {
             if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) >= 0) {
               if (kommonitorDataExchangeService.classifyZeroSeparately && (feature.properties[propertyName] == 0 || feature.properties[propertyName] == "0")) {
-                fillColor = this.getFillColorForZero();
+                fillColor = this.getFillColorForZero(incrementFeatures);
                 if (useTransparencyOnIndicator) {
                   fillOpacity = defaultFillOpacityForZeroFeatures;
                 }
               }
               else {
-                fillColor = this.findColorInRange(feature, propertyName, dynamicIncreaseBrew);
+                fillColor = this.findColorInRange(feature, propertyName, dynamicIncreaseBrew, incrementFeatures);
               }
 
               return {
@@ -625,14 +641,14 @@ angular
             else {
 
               if (kommonitorDataExchangeService.classifyZeroSeparately && (feature.properties[propertyName] == 0 || feature.properties[propertyName] == "0")) {
-                fillColor = this.getFillColorForZero();
+                fillColor = this.getFillColorForZero(incrementFeatures);
                 if (useTransparencyOnIndicator) {
                   fillOpacity = defaultFillOpacityForZeroFeatures;
                 }
               }
               else {
                 // invert colors, so that lowest values will become strong colored!
-                fillColor = this.findColorInRange(feature, propertyName, dynamicDecreaseBrew);
+                fillColor = this.findColorInRange(feature, propertyName, dynamicDecreaseBrew, incrementFeatures);
               }
 
               return {
@@ -647,7 +663,7 @@ angular
             }
           }
           else {
-            fillColor = this.findColorInRange(feature, propertyName, defaultBrew);            
+            fillColor = this.findColorInRange(feature, propertyName, defaultBrew, incrementFeatures);            
           }
         }
 
@@ -662,7 +678,7 @@ angular
         };
       };
 
-      this.findColorInRange = function(feature, propertyName, colorBrewInstance){
+      this.findColorInRange = function(feature, propertyName, colorBrewInstance, incrementFeatures){
         var color;
 
         for (var index = 0; index < colorBrewInstance.breaks.length; index++) {
@@ -685,14 +701,18 @@ angular
           }
           else {
             if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) < kommonitorDataExchangeService.getIndicatorValue_asNumber(colorBrewInstance.breaks[index + 1])) {
-              color = colorBrewInstance.colors[index];
+              if (colorBrewInstance.colors && colorBrewInstance.colors[index]) {
+                color = colorBrewInstance.colors[index];
+              }
               break;
             }
           }
         }
 
-        this.incrementFeaturesPerColor(color);
-
+        if(incrementFeatures) {
+          this.incrementFeaturesPerColor(color);
+        }
+        
         return color;
       };
 
@@ -730,17 +750,17 @@ angular
       //   return color;
       // };
 
-      this.styleMeasureOfValue = function(feature, gtMeasureOfValueBrew, ltMeasureOfValueBrew, propertyName, useTransparencyOnIndicator) {
+      this.styleMeasureOfValue = function(feature, gtMeasureOfValueBrew, ltMeasureOfValueBrew, propertyName, useTransparencyOnIndicator, incrementFeatures) {
 
 
         // check if feature is NoData
         if (kommonitorDataExchangeService.indicatorValueIsNoData(feature.properties[propertyName])) {
-          return this.styleNoData(feature);
+          return this.styleNoData(feature, incrementFeatures);
         }
 
         // check if feature is outlier
         if ((feature.properties[outlierPropertyName] !== outlierPropertyValue_no) && kommonitorDataExchangeService.useOutlierDetectionOnIndicator) {
-          return this.styleOutlier(feature);
+          return this.styleOutlier(feature, incrementFeatures);
         }
 
         var fillOpacity = 1;
@@ -752,14 +772,14 @@ angular
         if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) >= kommonitorDataExchangeService.measureOfValue) {
 
           if (kommonitorDataExchangeService.classifyZeroSeparately && (feature.properties[propertyName] == 0 || feature.properties[propertyName] == "0")) {
-            fillColor = this.getFillColorForZero();
+            fillColor = this.getFillColorForZero(incrementFeatures);
             if (useTransparencyOnIndicator) {
               fillOpacity = defaultFillOpacityForZeroFeatures;
             }
           }
           else {
 
-            fillColor = this.findColorInRange(feature, propertyName, gtMeasureOfValueBrew);
+            fillColor = this.findColorInRange(feature, propertyName, gtMeasureOfValueBrew, incrementFeatures);
           }
 
           return {
@@ -774,14 +794,14 @@ angular
         }
         else {
           if (kommonitorDataExchangeService.classifyZeroSeparately && (feature.properties[propertyName] == 0 || feature.properties[propertyName] == "0")) {
-            fillColor = this.getFillColorForZero();
+            fillColor = this.getFillColorForZero(incrementFeatures);
             if (useTransparencyOnIndicator) {
               fillOpacity = defaultFillOpacityForZeroFeatures;
             }
           }
           else {
             // invert colors, so that lowest values will become strong colored!
-            fillColor = this.findColorInRange(feature, propertyName, ltMeasureOfValueBrew);
+            fillColor = this.findColorInRange(feature, propertyName, ltMeasureOfValueBrew, incrementFeatures);
           }
 
           return {
@@ -797,18 +817,18 @@ angular
 
       };
 
-      this.styleDynamicIndicator = function(feature, dynamicIncreaseBrew, dynamicDecreaseBrew, propertyName, useTransparencyOnIndicator) {
+      this.styleDynamicIndicator = function(feature, dynamicIncreaseBrew, dynamicDecreaseBrew, propertyName, useTransparencyOnIndicator, incrementFeatures) {
 
 
 
         // check if feature is NoData
         if (kommonitorDataExchangeService.indicatorValueIsNoData(feature.properties[propertyName])) {
-          return this.styleNoData(feature);
+          return this.styleNoData(feature, incrementFeatures);
         }
 
         // check if feature is outlier
         if ((feature.properties[outlierPropertyName] !== outlierPropertyValue_no) && kommonitorDataExchangeService.useOutlierDetectionOnIndicator) {
-          return this.styleOutlier(feature);
+          return this.styleOutlier(feature, incrementFeatures);
         }
 
         var fillOpacity = 1;
@@ -820,13 +840,13 @@ angular
         if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) >= 0) {
 
           if (kommonitorDataExchangeService.classifyZeroSeparately && (feature.properties[propertyName] == 0 || feature.properties[propertyName] == "0")) {
-            fillColor = this.getFillColorForZero();
+            fillColor = this.getFillColorForZero(incrementFeatures);
             if (useTransparencyOnIndicator) {
               fillOpacity = defaultFillOpacityForZeroFeatures;
             }
           }
           else {
-            fillColor = this.findColorInRange(feature, propertyName, dynamicIncreaseBrew);
+            fillColor = this.findColorInRange(feature, propertyName, dynamicIncreaseBrew, incrementFeatures);
           }
 
           return {
@@ -841,14 +861,14 @@ angular
         }
         else {
           if (kommonitorDataExchangeService.classifyZeroSeparately && (feature.properties[propertyName] == 0 || feature.properties[propertyName] == "0")) {
-            fillColor = this.getFillColorForZero();
+            fillColor = this.getFillColorForZero(incrementFeatures);
             if (useTransparencyOnIndicator) {
               fillOpacity = defaultFillOpacityForZeroFeatures;
             }
           }
           else {
             // invert colors, so that lowest values will become strong colored!
-            fillColor = this.findColorInRange(feature, propertyName, dynamicDecreaseBrew);
+            fillColor = this.findColorInRange(feature, propertyName, dynamicDecreaseBrew, incrementFeatures);
           }
 
           return {
@@ -863,5 +883,21 @@ angular
         }
 
       };
+
+      this.backupCurrentBrewObjects_forMainMapIndicator = function(){
+        // backup all current brew objects
+        this.defaultBrew_backup = jQuery.extend(true, {}, this.defaultBrew);
+        this.measureOfValueBrew_backup = jQuery.extend(true, {}, this.measureOfValueBrew);
+        this.dynamicBrew_backup = jQuery.extend(true, {}, this.dynamicBrew);
+        this.manualBrew_backup = jQuery.extend(true, {}, this.manualBrew);
+      }
+
+      this.resetCurrentBrewObjects_forMainMapIndicator = function(){
+        // backup all current brew objects
+        this.defaultBrew = jQuery.extend(true, {}, this.defaultBrew_backup);
+        this.measureOfValueBrew = jQuery.extend(true, {}, this.measureOfValueBrew_backup);
+        this.dynamicBrew = jQuery.extend(true, {}, this.dynamicBrew_backup);
+        this.manualBrew = jQuery.extend(true, {}, this.manualBrew_backup);
+      }
 
     }]);

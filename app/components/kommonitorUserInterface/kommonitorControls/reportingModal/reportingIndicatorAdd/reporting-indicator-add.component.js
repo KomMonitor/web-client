@@ -5,14 +5,16 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 	function ReportingIndicatorAddController($scope, $http, $timeout, $interval, __env, kommonitorDataExchangeService, kommonitorDiagramHelperService, 
 		kommonitorVisualStyleHelperService, kommonitorReachabilityHelperService) {
 
+		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
+
 		$scope.template = undefined;
 		$scope.untouchedTemplateAsString = "";
 		
 		$scope.indicatorNameFilter = "";
 		$scope.poiNameFilter = "";
-		$scope.availableIndicators = [];
 		$scope.selectedIndicator = undefined;
 		$scope.selectedPoiLayer = undefined;
+		$scope.availablePoiLayers = [];
 
 		$scope.availableFeaturesBySpatialUnit = {};
 		$scope.selectedSpatialUnit = undefined;
@@ -23,6 +25,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		$scope.dateSlider = undefined;
 		$scope.absoluteLabelPositions = [];
 		$scope.showMapLabels = true;
+		$scope.showRankingMeanLine = true;
 		$scope.echartsOptions = {
 			map: {
 				// "2017-12-31": ...
@@ -527,7 +530,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			$scope.initialize(data);
 		});
 
-		$scope.initialize = async function(data) {
+		$scope.initialize = function(data) {
 			$scope.loadingData = true;
 			let template = data[0];
 			// deep copy template before any changes are made.
@@ -564,29 +567,9 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 			$scope.initializeDualLists();
 
-			if($scope.template.name.includes("reachability")) {
-				$scope.resetIsochrones();
-				Promise.all([
-					$scope.queryGeoresources(),
-					$scope.queryIndicators()
-				]).then( () => {
-					$scope.loadingData = false;
-					$timeout( () => {
-						$timeout(function(){
-							$scope.$digest();
-						});
-					});
-				})
-			} else {
-				await $scope.queryIndicators();
-				$scope.loadingData = false;
-				$timeout( () => {
-					$timeout(function(){
-						$scope.$digest();
-					});
-				})
-				
-			}
+			$scope.availablePoiLayers = kommonitorDataExchangeService.availableGeoresources.filter(georesource => georesource.isPOI);
+
+			$scope.loadingData = false;
 		}
 
 		$scope.initializeDualLists = function() {
@@ -615,52 +598,6 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			};
 		}
 
-		/**
-		 * Queries DataManagement API to get all available indicators
-		 */
-		$scope.queryIndicators = async function() {
-			
-			// build request
-			// query public endpoint for now, this might change once user role administration is added to reporting
-			let url = kommonitorDataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/indicators"
-			
-			// send request
-			await $http({
-				url: url,
-				method: "GET"
-			}).then(function successCallback(response) {
-					// save to scope
-					$scope.availableIndicators = response.data;
-				}, function errorCallback(error) {
-					$scope.loadingData = false;
-					kommonitorDataExchangeService.displayMapApplicationError(error);
-					console.error(error);
-			});
-			return Promise.resolve();
-		};
-
-		$scope.queryGeoresources = async function() {
-			
-			// build request
-			// query public endpoint for now, this might change once user role administration is added to reporting
-			let url = kommonitorDataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/georesources"
-			// send request
-			await $http({
-				url: url,
-				method: "GET"
-			}).then(function successCallback(response) {
-					// save to scope
-					$scope.availablePoiLayers = response.data.filter( georesource => {
-						return georesource.isPOI;
-					});
-				}, function errorCallback(error) {
-					$scope.loadingData = false;
-					kommonitorDataExchangeService.displayMapApplicationError(error);
-					console.error(error);
-			});
-			return Promise.resolve();
-		};
-
 		$scope.queryMostRecentGeoresourceFeatures = async function(georesource) {
 			// Most likely this is only a temporary method
 			// It checks the availablePeriodsOfValidity and takes the most recent one to query features.
@@ -678,25 +615,6 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				url: url,
 				method: "GET"
 			}).then(function successCallback(response) {
-					return response.data;
-				}, function errorCallback(error) {
-					$scope.loadingData = false;
-					kommonitorDataExchangeService.displayMapApplicationError(error);
-					console.error(error);
-			});
-		}
-
-		$scope.queryAllSpatialUnits = async function() {
-			// build request
-			// query public endpoint for now, this might change once user role administration is added to reporting
-			let url = kommonitorDataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/spatial-units"
-			
-			// send request
-			return await $http({
-				url: url,
-				method: "GET"
-			}).then(function successCallback(response) {
-					// save to scope
 					return response.data;
 				}, function errorCallback(error) {
 					$scope.loadingData = false;
@@ -1093,17 +1011,17 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 		$scope.$on("reportingIsochronesCalculationFinished", function(event, isochrones) {
 			$scope.isochrones = isochrones;
-			if(checkNestedPropExists($scope.isochrones, 'info', 'query', 'profile'))
-				$scope.typeOfMovement = $scope.isochrones.info.query.profile;
-			else
-				$scope.typeOfMovement = "buffer";
+				// $scope.typeOfMovement = $scope.isochrones.metadata.query.profile;
+			$scope.typeOfMovement = kommonitorReachabilityHelperService.settings.transitMode;
 
 			if($scope.typeOfMovement === "buffer") {
 				$scope.isochronesRangeType = "distance";
 				$scope.isochronesRangeUnits = "m";
 			} else {
-				$scope.isochronesRangeType = $scope.isochrones.info.query.range_type;
-				$scope.isochronesRangeUnits = $scope.isochrones.info.query.units;
+				// $scope.isochronesRangeType = $scope.isochrones.metadata.query.range_type;
+				// $scope.isochronesRangeUnits = $scope.isochrones.metadata.query.units;
+				$scope.isochronesRangeType = kommonitorReachabilityHelperService.settings.focus;
+				$scope.isochronesRangeUnits = $scope.isochronesRangeType == "distance" ? "m" : 's';
 			}
 			
 			// for type buffer the bbox field doesn't exist, so we have to create it.
@@ -1172,13 +1090,13 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				// Indicator might not be selected at this point
 				// We get information about all available spatial units (instead of applicable ones)
 				// Then we select the highest one by default
-				let spatialUnits = await $scope.queryAllSpatialUnits();
+				let spatialUnits = kommonitorDataExchangeService.availableSpatialUnits;
 				$scope.allSpatialUnitsForReachability = spatialUnits; // needed for spatial unit selection in 3rd tab
 				let highestSpatialUnit = spatialUnits.filter( unit => {
 					return unit.nextUpperHierarchyLevel === null;
 				});
 				if( !$scope.selectedSpatialUnit) {
-					$scope.selectedSpatialUnit = highestSpatialUnit[0];
+					$scope.selectedSpatialUnit = kommonitorDataExchangeService.availableSpatialUnits[0];
 				}
 				let mostRecentTimestampName
 				if($scope.selectedSpatialUnit.metadata) {
@@ -1425,7 +1343,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				$scope.template = $scope.getCleanTemplate();
 				
 				// set spatial unit to highest available one
-				let spatialUnits = await $scope.queryAllSpatialUnits();
+				let spatialUnits = kommonitorDataExchangeService.availableSpatialUnits;
 				// go from highest to lowest spatial unit and check if it is available.
 				for(let spatialUnit of spatialUnits) {
 					let applicableSpatialUnitsFiltered = $scope.selectedIndicator.applicableSpatialUnits.filter( (unit) => {
@@ -1548,7 +1466,6 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			$scope.untouchedTemplateAsString = "";
 			$scope.indicatorNameFilter = "";
 			$scope.poiNameFilter = "";
-			$scope.availableIndicators = [];
 			$scope.selectedIndicator = undefined;
 			$scope.availableFeaturesBySpatialUnit = {};
 			$scope.selectedSpatialUnit = undefined;
@@ -2854,7 +2771,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			
 			
 			let timestampPrefix = __env.indicatorDatePrefix + timestampName;
-			let numClasses = indicator.defaultClassificationMapping.items.length;
+			let numClasses = indicator.defaultClassificationMapping.numClasses ? indicator.defaultClassificationMapping.numClasses : 5;
 			let colorCodeStandard = indicator.defaultClassificationMapping.colorBrewerSchemeName;
 			let colorCodePositiveValues = __env.defaultColorBrewerPaletteForBalanceIncreasingValues;
 			let colorCodeNegativeValues = __env.defaultColorBrewerPaletteForBalanceDecreasingValues;
@@ -3444,6 +3361,31 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				});
 			}
 		}
+
+		$scope.onChangeShowRankingMeanLine = function() {
+
+			for(let i=0; i<$scope.template.pages.length; i++) {
+				let barChart = document.querySelector("#reporting-addIndicator-page-" + i +"-barchart")
+				if(!barChart) {
+					continue; // no map on current page
+				}
+
+				let instance = echarts.getInstanceByDom(barChart);
+				let options = instance.getOption();				
+				if (! $scope.showRankingMeanLine){
+					options.series[0].markLine_backup = options.series[0].markLine;
+					options.series[0].markLine = {};
+				}
+				else{
+					options.series[0].markLine = options.series[0].markLine_backup;
+				}				
+				instance.setOption(options, {
+					replaceMerge: ['series']
+				});
+			}
+		}
+
+		
 
 		$scope.validateConfiguration = function() {
 			// indicator has to be selected (unless template is reachability)

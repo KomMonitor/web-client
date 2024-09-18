@@ -2,33 +2,55 @@
 <div id="kommonitorClassification"
   ng-mouseup="onClassificationMouseUp()">
   <div class="classification-container">
+
+
+    <div ng-show="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.indicatorType.includes('STATUS') && ! $ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked && ! $ctrl.kommonitorDataExchangeServiceInstance.isBalanceChecked" class="row vertical-align">      
+        <div class="col-md-6 col-sm-6 col-xs-12">
+          <div class="dropdown">
+            <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Farbpalettenwahl
+            <span class="caret"></span></button>
+            <ul class="dropdown-menu " style="columns: 2; 	-webkit-columns: 2;	-moz-columns: 2;">
+            <li style="margin-right: 15px;" ng-repeat="colorPaletteEntry in colorbrewerPalettes">
+              <a href="" ng-click="onClickColorBrewerEntry(colorPaletteEntry)">
+                <div style="display: inline-block;">
+                  <svg width="100" height="20">
+                    
+                      <rect ng-repeat="color in colorPaletteEntry.paletteArrayObject['5']" ng-attr-fill="{{color}}" width="20" height="20" ng-attr-x="{{$index * 20}}"></rect>
+                                            
+                  </svg>
+                </div>
+              </a>
+            </li>
+            </ul>
+          </div>
+          <div class="help-block with-errors"></div>
+        </div>
+
+        <div class="col-md-6 col-sm-6 col-xs-12">
+
+            <div style="display: inline-block;">
+              <svg width="100" height="20">
+                
+                  <rect ng-repeat="color in selectedColorBrewerPaletteEntry.paletteArrayObject['5']" ng-attr-fill="{{color}}" width="20" height="20" ng-attr-x="{{$index * 20}}"></rect>
+                                        
+              </svg>
+            </div>
+      </div>	
+    </div>
+
     <div title="Hier können Sie die Klassifizierungsmethode ändern.">
       <div style="font-weight: bold;">Methode</div>
-      <div 
-        id="method-select-selected" 
-        class="form-control"
-        ng-click="showMethodSelection = !showMethodSelection">
-        {{methodName}}
-      </div>
-      <div ng-show="showMethodSelection" id="method-select-selection" class="select-border"> 
-        <div 
-          id="method-select-method"
-          ng-click="onMethodSelected(method)" 
-          ng-repeat="method in methods">
-          <div class="method-select-method-symbol">
-            <div style="background-image: url('{{ method.imgPath }}')"></div>
-          </div>
-          <div class="method-select-method-text">
-            <div class="method-select-method-name">{{method.name}}</div>
-            <div class="method-select-method-description">{{method.description}}</div>
-          </div>
-        </div>
-      </div>
+      <classification-method-select 
+        on-method-selected="onMethodSelected(method)"
+        default-method-id="{{$ctrl.kommonitorVisualStyleHelperServiceInstance.classifyMethod}}"
+        hidden-method-ids="{{hiddenMethodIds}}">
+      </classification-method-select>
     </div>
 
     <!-- number of classes -->
     <form class="nrClassSelection" 
-          ng-show="$ctrl.kommonitorVisualStyleHelperServiceInstance.classifyMethod !== 'manual'">
+          ng-show="$ctrl.kommonitorVisualStyleHelperServiceInstance.classifyMethod !== 'manual'
+                && $ctrl.kommonitorVisualStyleHelperServiceInstance.classifyMethod !== 'regional_default'">
       <label>
         Anzahl Klassen 
         <input 
@@ -43,17 +65,17 @@
 
     <!-- manual breaks -->
     <div ng-if="$ctrl.kommonitorVisualStyleHelperServiceInstance.classifyMethod=='manual'">
-      <div ng-if="!$ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked && !$ctrl.kommonitorDataExchangeServiceInstance.isBalanceChecked" 
+      <div ng-if="($ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.indicatorType.includes('STATUS') && ! containsNegativeValues) && ! $ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked && ! $ctrl.kommonitorDataExchangeServiceInstance.isBalanceChecked" 
             class="histogramTabWrapper editableHistogram"
             ng-mousemove="toggleAddBtn($event, 0)">
         <div class="breaksArea"
-              ng-mousemove="onBreakMouseMove($event)">
+              ng-mousemove="onBreaksMouseMove($event, 0)">
           <!-- add btn -->
           <div class="addBtnWrapper breakWrapper"
                 style="top: {{addBtnHeight[0]}}px"
                 ng-if="showAddBtn[0]"
                 ng-mousover="toggleAddBtn($event, 0)">
-            <div class="addBtn" ng-click="addNewBreak()">+</div>
+            <div class="addBtn" ng-click="addNewBreaks(0)">+</div>
             <div class="line"></div>
           </div>
           <!-- measure of Value -->
@@ -107,19 +129,19 @@
             class="histogramTabWrapper editableHistogram"
             ng-mousemove="toggleAddBtn($event, 0)">
         <div class="breaksArea"
-              ng-mousemove="onBreakMouseMove($event)">
+              ng-mousemove="onBreaksMouseMove($event, 0)">
           <!-- add btn -->
           <div class="addBtnWrapper breakWrapper"
                 style="top: {{addBtnHeight[0]}}px"
                 ng-if="showAddBtn[0]"
                 ng-mousover="toggleAddBtn($event, 0)">
-            <div class="addBtn" ng-click="addNewBreak()">+</div>
+            <div class="addBtn" ng-click="addNewBreaks(0)">+</div>
             <div class="line"></div>
           </div>
           <!-- measure of Value -->
           <div class="breakWrapper measureOfValue"
                 style="top: {{getPercentage($ctrl.kommonitorDataExchangeServiceInstance.measureOfValue, 0)}}%"
-                ng-mousedown="onBreakMouseMove($event)">
+                ng-mousedown="onBreaksMouseMove($event, 0)">
             <div class ="break fixed">
               <!--<div class="colorBox"></div>-->
               <span>{{$ctrl.kommonitorDataExchangeServiceInstance.measureOfValue}}</span>
@@ -132,21 +154,21 @@
                 style="top: {{getPercentage(b, 0)}}%"
                 ng-mousedown="onBreakMouseDown($event, i, 0)"
                 ng-dblclick="onBreakDblClick($event, i, 0)"
-                ng-class="{'fixed': i === 0 || i === $ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks.length-1}">
+                ng-class="{'fixed': i === 0 || i === $ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks.length-1 || breakIsUnalterable($ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks[i])}">
             <div class="break"
-                  ng-class="{'fixed': i === 0 || i === $ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks.length-1}">
+                  ng-class="{'fixed': i === 0 || i === $ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks.length-1 || breakIsUnalterable($ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks[i])}">
               <!--<div class="colorBox"></div>-->
               <input type="number" 
                       ng-blur="onBreaksChanged($event, i, 0)"
                       ng-model-options="{ updateOn: 'blur', allowInvalid: false }"
                       disabled
-                      ng-class="{'fixed': i === 0 || i === $ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks.length-1}"
+                      ng-class="{'fixed': i === 0 || i === $ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks.length-1 || breakIsUnalterable($ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks[i])}"
                       min="{{$ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks[0]}}"
                       max="{{$ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks[$ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks.length - 1]}}"
                       ng-model="$ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks[i]">
               <i class="fa-regular fa-trash-can"
                   ng-click="deleteBreak(i, 0)"
-                  ng-if="i != 0 && i != $ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks.length-1"></i>
+                  ng-if="i != 0 && i != $ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks.length-1 && !breakIsUnalterable($ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks[i])"></i>
             </div>
             <div class="line"></div>
           </div>
@@ -171,17 +193,21 @@
     </div>
 
     <!-- balance checked -- lower than values -->
-    <div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.isBalanceChecked" 
+    <div ng-if="(($ctrl.kommonitorDataExchangeServiceInstance.isBalanceChecked 
+        || $ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.indicatorType.includes('DYNAMIC') 
+        || containsNegativeValues) 
+        && ! $ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked)
+        && $ctrl.kommonitorVisualStyleHelperServiceInstance.dynamicBrew[1].breaks.length > 0"
           class="histogramTabWrapper editableHistogram editableHistogramDynamic"
           ng-mousemove="toggleAddBtn($event, 1)">
       <div class="breaksArea"
-            ng-mousemove="onDynamicBreakMouseMove($event, 1)">
+            ng-mousemove="onBreaksMouseMove($event, 1)">
 
         <div class="addBtnWrapper breakWrapper"
               style="top: {{addBtnHeight[1]}}px"
               ng-if="showAddBtn[1]"
               ng-mousover="toggleAddBtn($event, 1)">
-          <div class="addBtn" ng-click="addNewBreakDynamic(1)">+</div>
+          <div class="addBtn" ng-click="addNewBreaks(1)">+</div>
           <div class="line"></div>
         </div>
 
@@ -220,17 +246,21 @@
 
 
     <!-- balance checked -- higher than values -->
-    <div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.isBalanceChecked" 
+    <div ng-if="(($ctrl.kommonitorDataExchangeServiceInstance.isBalanceChecked 
+        || $ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.indicatorType.includes('DYNAMIC') 
+        || containsNegativeValues) 
+        && ! $ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked)
+        && $ctrl.kommonitorVisualStyleHelperServiceInstance.dynamicBrew[0].breaks.length > 0" 
           class="histogramTabWrapper editableHistogram editableHistogramDynamic"
           ng-mousemove="toggleAddBtn($event, 0)">
       <div class="breaksArea"
-            ng-mousemove="onDynamicBreakMouseMove($event, 0)">
+            ng-mousemove="onBreaksMouseMove($event, 0)">
 
         <div class="addBtnWrapper breakWrapper"
               style="top: {{addBtnHeight[0]}}px"
               ng-if="showAddBtn[0]"
               ng-mousover="toggleAddBtn($event, 0)">
-          <div class="addBtn" ng-click="addNewBreakDynamic(0)">+</div>
+          <div class="addBtn" ng-click="addNewBreaks(0)">+</div>
           <div class="line"></div>
         </div>
 
@@ -305,7 +335,7 @@
     <label class="switch" title="0 als separate Klasse darstellen"><input id="controlIndicatorZeroClassifyOption" type="checkbox" value="useSeparateZeroClass" ng-model="$ctrl.kommonitorDataExchangeServiceInstance.classifyZeroSeparately" ng-checked="$ctrl.kommonitorDataExchangeServiceInstance.classifyZeroSeparately"><span class="switchslider round"></span></label>
   </div>
 
-  <div class="classificationBoxToogleSlidersWrapper" ng-if="containsOutliers_high || containsOutliers_low">
+  <div class="classificationBoxToogleSlidersWrapper" ng-if="(containsOutliers_high || containsOutliers_low) && $ctrl.kommonitorVisualStyleHelperServiceInstance.classifyMethod !== 'manual' && $ctrl.kommonitorVisualStyleHelperServiceInstance.classifyMethod !== 'regional_default'">
     <span class="classificationBoxToogleSlidersLbl"><strong>Ausrei&szlig;er gesondert markieren</strong> &nbsp;</span>
     <label class="switch" title="Ausrei&szlig;er gesondert markieren"><input id="controlIndicatorOutlierDetection" type="checkbox" value="useOutlierDetection" ng-model="$ctrl.kommonitorDataExchangeServiceInstance.useOutlierDetectionOnIndicator" ng-checked="$ctrl.kommonitorDataExchangeServiceInstance.useOutlierDetectionOnIndicator"><span class="switchslider round"></span></label>
   </div>

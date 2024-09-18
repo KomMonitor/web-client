@@ -34,6 +34,14 @@ angular
             "weighting": "simple"
           }
           */
+
+          // remove any olf relics from isochrone geoJSON document
+          for (const poiFeature of isochroneGeoJson.features) {
+            // ensure that each poi does not hold old information from another scenario
+            delete poiFeature.properties.individualIsochrones;
+            delete poiFeature.properties.individualIsochronePruneResults;
+          }       
+
           let body = {
             "name": "isochrone-prune",
             "isochrones": JSON.stringify(isochroneGeoJson),

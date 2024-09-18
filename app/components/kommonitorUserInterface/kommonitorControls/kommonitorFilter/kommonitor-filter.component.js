@@ -569,7 +569,7 @@ angular
 
 								kommonitorFilterHelperService.clearFilteredFeatures();
 								kommonitorFilterHelperService.filterAndReplaceDataset();
-								if(document.getElementById('controlNoDataDisplay').checked)
+								if(kommonitorDataExchangeService.useNoDataToggle)
 									$rootScope.$broadcast('applyNoDataDisplay')	
 							};
 
@@ -588,7 +588,7 @@ angular
 
 								kommonitorFilterHelperService.clearFilteredFeatures();
 								kommonitorFilterHelperService.filterAndReplaceDataset();
-								if(document.getElementById('controlNoDataDisplay').checked)
+								if(kommonitorDataExchangeService.useNoDataToggle)
 									$rootScope.$broadcast('applyNoDataDisplay')	
 							};
 

@@ -49,21 +49,38 @@
 
 		<div class="box-body">
 
-			<div>
-				<button class="btn btn-success " ng-click="openReachabilityScenarioModal()" type="button"
+			<div class="row">
+				<div class="col-md-3">
+					<button id="openReachabilityScenarioModalBtn" class="btn btn-success " ng-click="openReachabilityScenarioModal()" type="button"
 					data-toggle="modal" data-target="#modal-manage-reachability-scenario"><i
 						class="fas fa-plus"></i>&nbsp;&nbsp;Szenario anlegen</button>
-				<button type="button" class="btn btn-info " style="margin-left: 6px;"
+				</div>
+				<div class="col-md-3">
+					<button type="button" class="btn btn-info " 
 					ng-click="$ctrl.kommonitorReachabilityScenarioHelperServiceInstance.onImportScenariosFile()"
 					title="Importieren der Szenarien aus einer Datei"><i
 						class="fas fa-file-import"></i>&nbsp;&nbsp;Szenarien-Import</button>
-				<input style="display:none;" type="file" class="form-control"
-					id="reachabilityScenariosImportFile" accept=".json,"></input>
-				<button type="button" style="margin-left: 6px;" class="btn btn-info "
+					<input style="display:none;" type="file" class="form-control"
+						id="reachabilityScenariosImportFile" accept=".json,"></input>
+				</div>
+				<div class="col-md-3">
+					<button type="button"  class="btn btn-info "
 					ng-disabled="$ctrl.kommonitorReachabilityScenarioHelperServiceInstance.reachabilityScenarios.length == 0"
 					ng-click="$ctrl.kommonitorReachabilityScenarioHelperServiceInstance.exportScenarios()"
 					title="Exportieren der Szenarien in eine Datei"><i
 						class="fas fa-file-export"></i>&nbsp;&nbsp;Szenarien-Export</button>
+				</div>				
+						
+			</div>
+			<br/>
+			<div class="row">
+				<div class="col-md-4">
+					<button type="button"  class="btn btn-danger "
+					ng-disabled="! $ctrl.kommonitorDataExchangeServiceInstance.reachabilityScenarioOnMainMap"
+					ng-click="removeReachabilityScenarioFromMainMap()"
+					title="Entfernen eines Erreichbarkeits-Szenarios von der Hauptkarte"><i
+						class="fas fa-trash-can"></i>&nbsp;&nbsp;von Karte entfernen</button>	
+				</div>
 			</div>
 
 			<br/>
@@ -98,6 +115,9 @@
 									&nbsp; &nbsp;
 									<i class="fa-solid fa-copy" style="cursor: pointer;" title="Duplizieren"
 										ng-click="$ctrl.kommonitorReachabilityScenarioHelperServiceInstance.cloneReachabilityScenario(reachabilityScenario)"></i>
+									&nbsp; &nbsp;
+									<i class="fa-solid fa-map-location-dot" style="cursor: pointer;" title="auf Hauptkarte anzeigen"
+										ng-click="displayReachabilityScenarioOnMainMap(reachabilityScenario)"></i>
 								</div>
 							</td>
 							<td>
@@ -108,6 +128,46 @@
 					</tbody>
 				</table>
 
+			</div>
+
+			<div class="row" ng-show="$ctrl.kommonitorDataExchangeServiceInstance.reachabilityScenarioOnMainMap">
+
+				<div class="col-md-2"></div>
+
+				<div class="col-md-8 col-sm-6 col-xs-12">
+					<!-- Legend -->
+					<div class="just-padding">									
+
+						<div ng-show="$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend">
+							<div align="center">
+								<div class="legend" align="left">
+									<label>Punktdatenquelle:
+									</label>&nbsp;
+									{{$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend.datasetName}}
+									<br />
+									<label>Fortbewegungsart:
+									</label>&nbsp;
+									{{$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend.transitMode}}
+									<br />
+									<label>Abbruchkriterium: </label>&nbsp;
+									{{$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend.reachMode}}
+									<br />
+									<label>Einheit: </label>&nbsp;
+									{{$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend.cutOffUnit}}
+									<br />
+									<div
+										ng-repeat="entry in $ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend.colorValueEntries">
+										<i style="background: {{entry.color}}; opacity: 0.3;"></i>
+										{{entry.value}}
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="col-md-2"></div>
+				
 			</div>
 
 		</div>

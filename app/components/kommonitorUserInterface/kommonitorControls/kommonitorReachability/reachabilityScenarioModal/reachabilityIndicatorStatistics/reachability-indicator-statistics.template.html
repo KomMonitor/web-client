@@ -13,7 +13,7 @@
 				<input type="text" class="form-control input-sm"
 					placeholder="Stichwortfilter" ng-model="indicatorNameFilter"
 					ng-model-options="{debounce: 500, blur: 0}"
-					ng-change="$ctrl.kommonitorDataExchangeServiceInstance.onChangeIndicatorKeywordFilter(indicatorNameFilter)">
+					>
 			</div>
 
 			<div class="just-padding">
@@ -23,7 +23,7 @@
 					size="5" class="form-control" required>
 					<option disabled selected value> -- Indikator w&auml;hlen -- </option>
 					<option ng-value="indicatorMetadata"
-						ng-repeat="indicatorMetadata in ($ctrl.kommonitorDataExchangeServiceInstance.displayableIndicators_keywordFiltered | filter:{indicatorType:'STATUS_ABSOLUTE'}) track by indicatorMetadata.indicatorId">
+						ng-repeat="indicatorMetadata in ($ctrl.kommonitorDataExchangeServiceInstance.displayableIndicators | filter:indicatorNameFilter | filter:{indicatorType:'STATUS_ABSOLUTE'}) track by indicatorMetadata.indicatorId">
 						{{::indicatorMetadata.indicatorName}} [{{::indicatorMetadata.unit}}]
 					</option>
 				</select>
@@ -59,7 +59,7 @@
 					</select>
 				</div>
 				<div class="col-sm-5">
-					<div class="text-left"><label>Gewichtung geschnittener Raumebenen</label></div>
+					<div class="text-left" title="Berechnung der Sch&auml;tzwerte erfolgt durch &Uuml;berdeckung zwischen Einzugsgebieten und fl&auml;chigen Indikatoren-Statistiken. &Uuml;berlappende Wohngebiete ist zeitlich aufwendiger, ber&uuml;cksichtigt aber nur &Uuml;berlagerungen von Einzugsgebieten mit Siedlungsfl&auml;chen zur genaueren Sch&auml;tzung versorgter Personengruppen."><label>Gewichtung geschnittener Raumebenen</label>&nbsp;<i style="font-size:1.3em;" class="fa-solid fa-circle-question"></i></div>
 					<select id="weightingStrategy_reachabilityStatistic"
 						style="font-size: 12px;" ng-model="weightStrategy" ng-init="weightStrategy = weightStrategyOptions[0]"
 						ng-options="weight.displayName for weight in weightStrategyOptions"
@@ -128,11 +128,11 @@
 											<i>(sichtbar in Karte)</i>
 										</div>
 										<div>
-											<button class="btn btn-info btn-sm" title="Auf Karte darstellen" ng-disabled="indicatorStatisticsEntry.active" ng-click="displayIndicatorStatisticOnMap(indicatorStatisticsEntry)"><i class="fa-solid fa-map-location-dot" ></i></button>
+											<button class="btn btn-info btn-sm" title="Auf Karte darstellen" ng-disabled="indicatorStatisticsEntry.progress == 'failed' || indicatorStatisticsEntry.active" ng-click="displayIndicatorStatisticOnMap(indicatorStatisticsEntry)"><i class="fa-solid fa-map-location-dot" ></i></button>
 											<button class="btn btn-danger btn-sm" title="Statistik-Eintrag entfernen" ng-click="removeIndicatorStatistic(indicatorStatisticsEntry)"><i class="fa-solid fa-trash-can"></i></button>
 											<br>											
 											<button class="btn btn-warning" style="margin-top: 5px;" title="PDF-Report - Gesamtregion" 
-											ng-disabled="$ctrl.kommonitorReachabilityCoverageReportsHelperServiceInstance.reportInProgress_totalCoverage || (indicatorStatisticsEntry.progress != 'finished' && indicatorStatisticsEntry.progress != 'failed')" 
+											ng-disabled="indicatorStatisticsEntry.progress == 'failed' || $ctrl.kommonitorReachabilityCoverageReportsHelperServiceInstance.reportInProgress_totalCoverage || (indicatorStatisticsEntry.progress != 'finished' && indicatorStatisticsEntry.progress != 'failed')" 
 											ng-click="$ctrl.kommonitorReachabilityCoverageReportsHelperServiceInstance.generateTotalCoverageReport_focusPoiCoverage($ctrl.kommonitorReachabilityScenarioHelperServiceInstance.tmpActiveScenario, indicatorStatisticsEntry)">
 												<i class="fa-solid fa-file-pdf"></i>
 												<i class="fa-solid fa-map"></i>
@@ -141,7 +141,7 @@
 											<span style="font-size:9px;">&nbsp;(~ 2 Sekunden)</span>
 											<br>										
 											<button class="btn btn-warning" style="margin-top: 5px;" title="PDF-Report - Einzelpunkte mit Karte" 
-											ng-disabled="$ctrl.kommonitorReachabilityCoverageReportsHelperServiceInstance.reportInProgress_poiCoverage || (indicatorStatisticsEntry.progress != 'finished' && indicatorStatisticsEntry.progress != 'failed')" 
+											ng-disabled="indicatorStatisticsEntry.progress == 'failed' || $ctrl.kommonitorReachabilityCoverageReportsHelperServiceInstance.reportInProgress_poiCoverage || (indicatorStatisticsEntry.progress != 'finished' && indicatorStatisticsEntry.progress != 'failed')" 
 											ng-click="$ctrl.kommonitorReachabilityCoverageReportsHelperServiceInstance.generateFeatureCoverageReport_focusPoiCoverage($ctrl.kommonitorReachabilityScenarioHelperServiceInstance.tmpActiveScenario, indicatorStatisticsEntry)">
 												<i class="fa-solid fa-file-pdf"></i>
 												<i class="fa-solid fa-map-location-dot"></i>
@@ -179,11 +179,13 @@
 									</td>
 									<td>
 										<span class="glyphicon glyphicon-refresh icon-spin" ng-show="indicatorStatisticsEntry.progress != 'finished' && indicatorStatisticsEntry.progress != 'failed'"></span>
+										<div ng-if="indicatorStatisticsEntry.progress == 'failed'">Berechnung fehlgeschlagen</div>
 										<div ng-repeat="overallCoverageEntry in indicatorStatisticsEntry.coverageResult.overallCoverage">
-											<div ng-if="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.focus == 'time'">
+											<div ng-if="$ctrl.kommonitorReachabilityScenarioHelperServiceInstance.tmpActiveScenario.reachabilitySettings.focus == 'time'">
+
 												<b>{{::overallCoverageEntry.range / 60}} [Minuten]</b>
 											</div>	
-											<div ng-if="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.focus == 'distance'">
+											<div ng-if="$ctrl.kommonitorReachabilityScenarioHelperServiceInstance.tmpActiveScenario.reachabilitySettings.focus == 'distance'">
 												<b>{{::overallCoverageEntry.range}} [Meter]</b>
 											</div>											
 											<!-- <br/> -->

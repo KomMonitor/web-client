@@ -359,7 +359,7 @@ angular
             value: indicatorValue,
             name: featureName,
             itemStyle: {
-              color: color
+              color: color,
               // borderWidth: 1,
               // borderColor: 'black'
             }
@@ -389,6 +389,17 @@ angular
         var indicatorTimeSeriesMaxArray = new Array(indicatorTimeSeriesDatesArray.length);
         var indicatorTimeSeriesMinArray = new Array(indicatorTimeSeriesDatesArray.length);
         var indicatorTimeSeriesCountArray = new Array(indicatorTimeSeriesDatesArray.length);
+
+        var indicatorTimeSeriesRegionalMeanArray = new Array(indicatorTimeSeriesDatesArray.length);
+        var indicatorTimeSeriesRegionalSpatiallyUnassignableArray = new Array(indicatorTimeSeriesDatesArray.length);
+        let regionalReferencesMap = new Map();
+
+        if (indicatorMetadataAndGeoJSON.regionalReferenceValues){
+          for (const entry of indicatorMetadataAndGeoJSON.regionalReferenceValues) {
+            regionalReferencesMap.set(entry.referenceDate, entry);
+          }
+        }
+        
 
         // initialize timeSeries arrays
         for (var i = 0; i < indicatorTimeSeriesDatesArray.length; i++) {
@@ -432,6 +443,33 @@ angular
                   indicatorTimeSeriesMaxArray[i] = indicatorFeature.properties[datePropertyName];
                 }
               }
+
+              // regional reference values
+              // als map auslagern und dann hier prüfen, ob ein element in der map drin ist.
+              // falls nicht, dann null setzen, 
+              if (regionalReferencesMap.has(indicatorTimeSeriesDatesArray[i])){
+                let regionalAverage = regionalReferencesMap.get(indicatorTimeSeriesDatesArray[i]).regionalAverage;
+                if (regionalAverage && typeof(regionalAverage) == "number"){
+                  indicatorTimeSeriesRegionalMeanArray[i] = regionalAverage;
+                }
+                else{
+                  indicatorTimeSeriesRegionalMeanArray[i] = null;
+                }
+
+                let regionalSpatiallyUnassignable = regionalReferencesMap.get(indicatorTimeSeriesDatesArray[i]).spatiallyUnassignable;
+                if (regionalSpatiallyUnassignable && typeof(regionalSpatiallyUnassignable) == "number"){
+                  indicatorTimeSeriesRegionalSpatiallyUnassignableArray[i] = regionalSpatiallyUnassignable;
+                }
+                else{
+                  indicatorTimeSeriesRegionalSpatiallyUnassignableArray[i] = null;
+                }
+                
+              }
+              else{
+                indicatorTimeSeriesRegionalMeanArray[i] = null;
+                indicatorTimeSeriesRegionalSpatiallyUnassignableArray[i] = null;
+              }
+
             }
           }
         }
@@ -441,11 +479,35 @@ angular
           indicatorTimeSeriesAverageArray[i] = kommonitorDataExchangeService.getIndicatorValue_asNumber(indicatorTimeSeriesAverageArray[i] / indicatorTimeSeriesCountArray[i]);
         }
 
+        let meanLineLabel = "rechnerischer Durchschnitt";
+        let arithmMeanValueIndex = indicatorTimeSeriesDatesArray.indexOf(date);
+        // replace formatted string like "12.506,32" to 12506.32 in order to parse the correct number
+        let meanLineValue = parseFloat(indicatorTimeSeriesAverageArray[arithmMeanValueIndex]); 
+        let regionalMeanValueUsed = false;
+        let enableHorizontalMeanLine = true;
+
+        if (indicatorMetadataForTimeseries.regionalReferenceValues){
+          for (const regionalReferenceValuesEntry of indicatorMetadataForTimeseries.regionalReferenceValues) {
+            if (regionalReferenceValuesEntry.referenceDate && regionalReferenceValuesEntry.referenceDate == date){    
+              if(regionalReferenceValuesEntry.regionalAverage && (typeof regionalReferenceValuesEntry.regionalAverage == 'number')){
+                meanLineValue = regionalReferenceValuesEntry.regionalAverage;
+                // meanLineValue = parseFloat(kommonitorDataExchangeService.allFeaturesRegionalMean.replace(/\./g, '').replace(/,/g, '.')); 
+                meanLineLabel = "gesamtregionaler Durchschnitt";
+                regionalMeanValueUsed = true;
+              }                       
+            }
+          }
+        }
+
+        if (! regionalMeanValueUsed && kommonitorDataExchangeService.configMeanDataDisplay == 'regionalMeanOrNone'){
+          enableHorizontalMeanLine = false;
+        }
+
         // setHistogramChartOptions(indicatorMetadataAndGeoJSON, indicatorValueArray, spatialUnitName, date);
 
-        setLineChartOptions(indicatorMetadataAndGeoJSON, indicatorTimeSeriesDatesArray, indicatorTimeSeriesAverageArray, indicatorTimeSeriesMaxArray, indicatorTimeSeriesMinArray, spatialUnitName, date);
+        setLineChartOptions(indicatorMetadataAndGeoJSON, indicatorTimeSeriesDatesArray, indicatorTimeSeriesAverageArray, indicatorTimeSeriesMaxArray, indicatorTimeSeriesMinArray, indicatorTimeSeriesRegionalMeanArray, indicatorTimeSeriesRegionalSpatiallyUnassignableArray, spatialUnitName, date);
 
-        setBarChartOptions(indicatorMetadataAndGeoJSON, featureNamesArray, indicatorValueBarChartArray, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue);
+        setBarChartOptions(indicatorMetadataAndGeoJSON, featureNamesArray, indicatorValueBarChartArray, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, meanLineLabel, meanLineValue, enableHorizontalMeanLine);
 
         setGeoMapChartOptions(indicatorMetadataAndGeoJSON, featureNamesArray, indicatorValueBarChartArray, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue);
       };
@@ -458,18 +520,19 @@ angular
         return 0;
       };
 
-      var setBarChartOptions = function (indicatorMetadataAndGeoJSON, featureNamesArray, indicatorValueBarChartArray, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue) {
+      var setBarChartOptions = function (indicatorMetadataAndGeoJSON, featureNamesArray, indicatorValueBarChartArray, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, meanLineLabel, meanLineValue, enableHorizontalMeanLine) {
 
         // specify chart configuration item and data
-        var labelOption = {
-          normal: {
-            show: true,
+        var labelOption_singleBars = {
+          show: kommonitorDataExchangeService.showBarChartLabel,
             position: 'insideBottom',
             align: 'left',
             verticalAlign: 'middle',
             rotate: 90,
-            formatter: '{c}',
-          }
+            formatter: function(params) {
+              return params.name + "  " + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(params.value);
+            }
+            // formatter: '{b} {c}'
         };
 
         // default fontSize of echarts
@@ -509,7 +572,7 @@ angular
           tooltip: {
             trigger: 'item',
             confine: 'true',
-            formatter: function (params) {
+            formatter: function (params, ticket, callback) {
               var value = kommonitorDataExchangeService.getIndicatorValue_asFormattedText(params.value);
               return "" + params.name + ": " + value + " [" + indicatorMetadataAndGeoJSON.unit + "]";
             },
@@ -564,9 +627,6 @@ angular
               saveAsImage: { show: true, title: "Export", pixelRatio: 4 }
             }
           },
-          // legend: {
-          // 		//data:[indicatorMetadataAndGeoJSON.indicatorName]
-          // },
           xAxis: {
             name: indicatorMetadataAndGeoJSON.indicatorName,
             nameLocation: 'center',
@@ -587,21 +647,28 @@ angular
           yAxis: {
             type: 'value',
             name: indicatorMetadataAndGeoJSON.unit,
+            axisLabel: {
+              formatter: function (value, index) {
+                return kommonitorDataExchangeService.getIndicatorValue_asFormattedText(value);
+              }
+            }
             // splitArea: {
             //     show: true
             // }
           },
+          label: labelOption_singleBars,
           series: [{
-            // name: indicatorMetadataAndGeoJSON.indicatorName,
+            name: "Ranking",
             type: 'bar',
             emphasis: {
               itemStyle: {
                 borderWidth: 4,
                 borderColor: defaultColorForClickedFeatures
               }
-            },
-            data: indicatorValueBarChartArray
-          }],
+            },            
+            data: indicatorValueBarChartArray          
+            }
+          ],
           visualMap: [{
               left: 'left',
               type: "piecewise",
@@ -610,6 +677,26 @@ angular
               show: false
           }]
         };
+
+        if (enableHorizontalMeanLine){
+          barOption.series[0].markLine = 
+            {
+              name: meanLineLabel,
+              data: [
+                {yAxis: meanLineValue, name: meanLineLabel}
+              ],
+              label: {
+                position: 'insideStartTop',
+                rotate: 0,
+                fontStyle: 'italic',
+                fontWeight: 'bold',
+                name: meanLineLabel          
+              },
+              lineStyle: {
+                color: 'gray'
+              }
+            }
+        }
 
         // if (indicatorMetadataAndGeoJSON.geoJSON.features.length > 50) {
         //   // barOption.xAxis.data = undefined;
@@ -686,6 +773,26 @@ angular
             opacity: 0.8,     
             max: 0,           
             color: defaultColorForZeroValues
+          });
+        }
+
+        let outliers = indicatorMetadataAndGeoJSON.geoJSON.features.filter(feature => feature.properties["outlier"] !== undefined);
+
+        if (kommonitorDataExchangeService.useOutlierDetectionOnIndicator && outliers.length > 0){
+          outliers.sort(compareFeaturesByIndicatorValue);
+          let smallestValue = outliers[0].properties[self.indicatorPropertyName];
+          let highestValue = outliers[outliers.length - 1].properties[self.indicatorPropertyName];
+
+          pieces.push({
+            min: smallestValue,  
+            opacity: 0.8,                          
+            color: defaultColorForOutliers_low
+          });
+
+          pieces.push({
+            max: highestValue,  
+            opacity: 0.8,                          
+            color: defaultColorForOutliers_high
           });
         }
 
@@ -1046,7 +1153,7 @@ angular
       };
 
 
-      var setLineChartOptions = function (indicatorMetadataAndGeoJSON, indicatorTimeSeriesDatesArray, indicatorTimeSeriesAverageArray, indicatorTimeSeriesMaxArray, indicatorTimeSeriesMinArray, spatialUnitName, date) {
+      var setLineChartOptions = function (indicatorMetadataAndGeoJSON, indicatorTimeSeriesDatesArray, indicatorTimeSeriesAverageArray, indicatorTimeSeriesMaxArray, indicatorTimeSeriesMinArray, indicatorTimeSeriesRegionalMeanArray, indicatorTimeSeriesRegionalSpatiallyUnassignableArray, spatialUnitName, date) {
 
         var lineOption = {
           // grid get rid of whitespace around chart
@@ -1158,7 +1265,7 @@ angular
           legend: {
             type: "scroll",
             bottom: 0,
-            data: ['Arithmetisches Mittel']
+            data: []
           },
           xAxis: {
             name: indicatorMetadataAndGeoJSON.indicatorName,
@@ -1180,30 +1287,77 @@ angular
           yAxis: {
             type: 'value',
             name: indicatorMetadataAndGeoJSON.unit,
+            axisLabel: {
+              formatter: function (value, index) {
+                return kommonitorDataExchangeService.getIndicatorValue_asFormattedText(value);
+              }
+            }
+            
             // splitArea: {
             //     show: true
             // }
           },
           series: [          
-          {
-            name: "Arithmetisches Mittel",
-            type: 'line',
-            data: indicatorTimeSeriesAverageArray,
-            lineStyle: {
-              normal: {
-                color: 'gray',
-                width: 2,
-                type: 'dashed'
-              }
-            },
-            itemStyle: {
-              normal: {
-                borderWidth: 3,
-                color: 'gray'
-              }
-            }
-          }]
+          
+          ]
         };
+
+
+        let meanLine = {
+          name: "rechnerisches arithmetisches Mittel",
+          type: 'line',
+          data: indicatorTimeSeriesAverageArray,
+          symbolSize: 6,
+          symbol: "emptyCircle",
+          lineStyle: {
+            normal: {
+              color: 'gray',
+              width: 2,
+              type: 'dashed'
+            }
+          },
+          itemStyle: {
+            normal: {
+              borderWidth: 3,
+              color: 'gray'
+            }
+          }
+        };
+
+        let regionalMeanLine = {
+          name: "gesamtregionaler Vergleichsdurchschnitt",
+          type: 'line',
+          symbolSize: 8,
+          symbol: "circle",
+          data: indicatorTimeSeriesRegionalMeanArray,
+          lineStyle: {
+            normal: {
+              color: 'gray',
+              width: 2,
+              type: 'dashed'
+            }
+          },
+          itemStyle: {
+            normal: {
+              borderWidth: 3,
+              color: 'gray'
+            }
+          }
+        };           
+
+        let regionalMeanUsed = false;
+
+        // only add regional mean line if it contains at least one meaningful entry
+        if(indicatorTimeSeriesRegionalMeanArray.some(el => el !== null)){
+          lineOption.series.push(regionalMeanLine);
+          lineOption.legend.data.push("gesamtregionaler Vergleichsdurchschnitt");
+          regionalMeanUsed = true;
+        }
+
+        if(kommonitorDataExchangeService.configMeanDataDisplay == "both" || (regionalMeanUsed == false && kommonitorDataExchangeService.configMeanDataDisplay == 'preferRegionalMeanIfAvailable')){
+          lineOption.series.push(meanLine);
+          lineOption.legend.data.push("rechnerisches arithmetisches Mittel");
+        }     
 
         // SETTING FOR MIN AND MAX STACK
 
@@ -1293,6 +1447,33 @@ angular
         lineOption.series.push(maxLine);
         lineOption.series.push(minStack);
         lineOption.series.push(maxStack);
+
+        // spatially unassignable
+        let regionalSpatiallyUnassignableLine = {
+          name: "räumlich nicht zuordenbare",
+          type: 'line',
+          symbol: "diamond",
+          symbolSize: 10,
+          data: indicatorTimeSeriesRegionalSpatiallyUnassignableArray,
+          lineStyle: {
+            normal: {
+              color: 'gray',
+              width: 2,
+              type: 'dashed'
+            }
+          },
+          itemStyle: {
+            normal: {
+              borderWidth: 3,
+              color: 'gray'
+            }
+          }
+        };
+        // only add regional spatially unassignable line if it contains at least one meaningful entry
+        if(indicatorTimeSeriesRegionalSpatiallyUnassignableArray.some(el => el !== null)){
+          lineOption.series.push(regionalSpatiallyUnassignableLine);
+          lineOption.legend.data.push("räumlich nicht zuordenbare");
+        };
         
 
         // use configuration item and data specified to show chart
@@ -1414,6 +1595,11 @@ angular
           }],
           yAxis: {
             name: 'Anzahl Features',
+            axisLabel: {
+              formatter: function (value, index) {
+                return kommonitorDataExchangeService.getIndicatorValue_asFormattedText(value);
+              }
+            }
             // nameGap: 35,
             // nameLocation: 'center',
             // nameRotate: 90,
@@ -1739,10 +1925,10 @@ angular
       this.makeTrendChartOptions_forAllFeatures = function(indicatorMetadataAndGeoJSON, fromDateAsPropertyString, toDateAsPropertyString, showMinMax, showCompleteTimeseries, computationType, trendEnabled){
           // we may base on the the precomputed timeseries lineOptions and modify that from a cloned instance
 
-          var timeseriesOptions = JSON.parse(JSON.stringify(this.getLineChartOptions()));
+          var timeseriesOptions = jQuery.extend(true, {}, this.getLineChartOptions())
 
           // remove any additional lines for concrete features
-          timeseriesOptions.series.length = 3;
+          timeseriesOptions.series.length = 5;
 
           // add markedAreas for periods out of scope
 
@@ -1838,11 +2024,27 @@ angular
 
             timeseriesOptions.legend.data.push("Trendlinie");
 
+            // make array of numeric values for series
+            let trendLineNumbers = [];
+            let trendLinePointsMap = new Map();
+            for (const trendLineItem of trendLine.points) {
+              trendLinePointsMap.set(trendLineItem[0], trendLineItem[1]);
+            }
+            for (let index = 0; index < timeseriesData.length; index++) {
+              if(trendLinePointsMap.has(index)){
+                trendLineNumbers.push(trendLinePointsMap.get(index));
+              }
+              else{
+                trendLineNumbers.push(NaN);
+              }
+            }
+            
+
             timeseriesOptions.series.push({
               name: 'Trendlinie',
               type: 'line',
               showSymbol: false,
-              data: trendLine.points,
+              data: trendLineNumbers,
               lineStyle: {
                 normal: {
                   color: 'red',
@@ -1883,8 +2085,7 @@ angular
           
 
         if(! showMinMax){
-          timeseriesOptions.series.splice(1, 1);
-          timeseriesOptions.series.splice(1, 1);
+          timeseriesOptions.series.splice(1, 4);
         }
 
           return timeseriesOptions;

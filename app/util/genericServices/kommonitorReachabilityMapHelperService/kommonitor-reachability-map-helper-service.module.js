@@ -1,12 +1,12 @@
-angular.module('kommonitorReachabilityMapHelper', ['kommonitorDataExchange', 'kommonitorGenericMapHelper', 'kommonitorVisualStyleHelper']);
+angular.module('kommonitorReachabilityMapHelper', ['kommonitorDataExchange', 'kommonitorGenericMapHelper', 'kommonitorVisualStyleHelper', 'kommonitorReachabilityScenarioHelper']);
 
 angular
   .module('kommonitorReachabilityMapHelper')
   .service(
     'kommonitorReachabilityMapHelperService', ['$rootScope', '__env', '$timeout', '$http',
-    'kommonitorDataExchangeService', 'kommonitorGenericMapHelperService', 'kommonitorVisualStyleHelperService',
+    'kommonitorDataExchangeService', 'kommonitorGenericMapHelperService', 'kommonitorVisualStyleHelperService', 'kommonitorReachabilityScenarioHelperService',
     function ($rootScope, __env, $timeout, $http,
-      kommonitorDataExchangeService, kommonitorGenericMapHelperService, kommonitorVisualStyleHelperService) {
+      kommonitorDataExchangeService, kommonitorGenericMapHelperService, kommonitorVisualStyleHelperService, kommonitorReachabilityScenarioHelperService) {
 
       var self = this;
 
@@ -183,6 +183,18 @@ angular
         this.mapParts.dataLayer = kommonitorGenericMapHelperService.addDataLayer(geoJSON, this.mapParts.map, undefined, "", this.onEachFeature, this.pointToLayer, this.style);
       };
 
+      this.makeIsochroneMarkerLayer = function(lonLatArray){
+        let markerLayer = L.featureGroup();
+
+        lonLatArray.forEach(function (lonLat) {
+          var layer = L.marker([lonLat[1], lonLat[0]]);
+          layer.bindPopup("Startpunkt der Isochronenberechnung");
+          layer.addTo(markerLayer);
+        });
+
+        return markerLayer;
+      };
+
       this.replaceIsochroneMarker = function (domId, lonLatArray) {
 
         let mapParts = this.mapPartsMap.get(domId);
@@ -192,13 +204,7 @@ angular
           mapParts.map.removeLayer(mapParts.isochroneLayers.markerLayer);
         }
 
-        mapParts.isochroneLayers.markerLayer = L.featureGroup();
-
-        lonLatArray.forEach(function (lonLat) {
-          var layer = L.marker([lonLat[1], lonLat[0]]);
-          layer.bindPopup("Startpunkt der Isochronenberechnung");
-          layer.addTo(mapParts.isochroneLayers.markerLayer);
-        });
+        mapParts.isochroneLayers.markerLayer = this.makeIsochroneMarkerLayer(lonLatArray);
 
         mapParts.layerControl.addOverlay(mapParts.isochroneLayers.markerLayer, "Startpunkte für Isochronenberechnung");
         mapParts.isochroneLayers.markerLayer.addTo(mapParts.map);
@@ -209,16 +215,8 @@ angular
         this.mapPartsMap.set(domId, mapParts);
       };
 
-      this.replaceIsochroneGeoJSON = function (domId, datasetName, geoJSON, transitMode, reachMode, cutOffValues, useMultipleStartPoints, dissolveIsochrones) {
-
-        let mapParts = this.mapPartsMap.get(domId);
-
-        if (mapParts && mapParts.isochroneLayers && mapParts.isochroneLayers.isochroneLayer && mapParts.layerControl) {
-          mapParts.layerControl.removeLayer(mapParts.isochroneLayers.isochroneLayer);
-          mapParts.map.removeLayer(mapParts.isochroneLayers.isochroneLayer);
-        }
-
-        mapParts.isochroneLayers.isochroneLayer = L.featureGroup();
+      this.makeIsochroneLayer = function(datasetName, geoJSON, transitMode, reachMode, cutOffValues, useMultipleStartPoints, dissolveIsochrones){
+        let isochroneLayer = L.featureGroup();
 
         var cutOffUnitValue = "Meter";
         var reachModeValue = "Distanz";
@@ -375,10 +373,25 @@ angular
           L.geoJSON(geoJSON.features[index], {
             style: style,
             onEachFeature: self.onEachFeature_isochrones
-          }).addTo(mapParts.isochroneLayers.isochroneLayer);
+          }).addTo(isochroneLayer);
         }
 
-        mapParts.layerControl.addOverlay(mapParts.isochroneLayers.isochroneLayer, "Erreichbarkeits-Isochronen_" + transitModeValue);
+        return isochroneLayer;
+      };         
+            
+
+      this.replaceIsochroneGeoJSON = function (domId, datasetName, geoJSON, transitMode, reachMode, cutOffValues, useMultipleStartPoints, dissolveIsochrones) {
+
+        let mapParts = this.mapPartsMap.get(domId);
+
+        if (mapParts && mapParts.isochroneLayers && mapParts.isochroneLayers.isochroneLayer && mapParts.layerControl) {
+          mapParts.layerControl.removeLayer(mapParts.isochroneLayers.isochroneLayer);
+          mapParts.map.removeLayer(mapParts.isochroneLayers.isochroneLayer);
+        }
+
+        mapParts.isochroneLayers.isochroneLayer = this.makeIsochroneLayer(datasetName, geoJSON, transitMode, reachMode, cutOffValues, useMultipleStartPoints, dissolveIsochrones);      
+
+        mapParts.layerControl.addOverlay(mapParts.isochroneLayers.isochroneLayer, "Erreichbarkeits-Isochronen_" + transitMode);
         mapParts.isochroneLayers.isochroneLayer.addTo(mapParts.map);
 
         this.invalidateMap(domId);
@@ -468,7 +481,7 @@ angular
         georesourceMetadataAndGeoJSON[geojsonPropName].features.forEach(function (poiFeature) {
           // index 0 should be longitude and index 1 should be latitude
           //.bindPopup( poiFeature.properties.name )
-          var newMarker = kommonitorGenericMapHelperService.createCustomMarker(poiFeature, georesourceMetadataAndGeoJSON.poiSymbolColor, georesourceMetadataAndGeoJSON.poiMarkerColor, georesourceMetadataAndGeoJSON.poiSymbolBootstrap3Name, georesourceMetadataAndGeoJSON);
+          var newMarker = kommonitorGenericMapHelperService.createCustomMarker(poiFeature, georesourceMetadataAndGeoJSON.poiMarkerStyle, georesourceMetadataAndGeoJSON.poiMarkerText, georesourceMetadataAndGeoJSON.poiSymbolColor, georesourceMetadataAndGeoJSON.poiMarkerColor, georesourceMetadataAndGeoJSON.poiSymbolBootstrap3Name, georesourceMetadataAndGeoJSON);
 
           markers = kommonitorGenericMapHelperService.addPoiMarker(markers, newMarker);
         });
@@ -666,7 +679,7 @@ angular
         kommonitorDataExchangeService.useOutlierDetectionOnIndicator = false;
         let layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
           style: function (feature) {
-            return kommonitorVisualStyleHelperService.styleDefault(feature, defaultBrew, undefined, undefined, indicatorPropertyName, true, false);
+            return kommonitorVisualStyleHelperService.styleDefault(feature, defaultBrew, undefined, undefined, indicatorPropertyName, true, false, true);
           },
           onEachFeature: function (feature, layer) {
             return self.onEachFeatureIndicator(feature, layer, indicatorPropertyName, indicatorStatisticsCandidate);
@@ -734,7 +747,9 @@ angular
         let indicatorMetadataAndGeoJSON = await this.setupIndicator(indicatorStatisticsCandidate);
         let timestamp = indicatorStatisticsCandidate.timestamp;
         let indicatorPropertyName = __env.indicatorDatePrefix + timestamp;
-        let defaultBrew = kommonitorVisualStyleHelperService.setupDefaultBrew(indicatorMetadataAndGeoJSON.geoJSON, indicatorPropertyName, indicatorMetadataAndGeoJSON.defaultClassificationMapping.items.length, indicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName, kommonitorVisualStyleHelperService.classifyMethod);
+
+        kommonitorVisualStyleHelperService.backupCurrentBrewObjects_forMainMapIndicator();
+        let defaultBrew = kommonitorVisualStyleHelperService.setupDefaultBrew(indicatorMetadataAndGeoJSON.geoJSON, indicatorPropertyName, indicatorMetadataAndGeoJSON.defaultClassificationMapping.numClasses, indicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName, kommonitorVisualStyleHelperService.classifyMethod, true, indicatorMetadataAndGeoJSON);
 
         let indicatorLayer = await this.generateIndicatorLayer(indicatorMetadataAndGeoJSON, indicatorPropertyName, defaultBrew, indicatorStatisticsCandidate);
         let indicatorLegendControl = this.generateIndicatorLegend(defaultBrew, indicatorMetadataAndGeoJSON);
@@ -773,6 +788,8 @@ angular
         // this.zoomToIsochroneLayer(domId);
 
         this.mapPartsMap.set(domId, mapParts);
+
+        kommonitorVisualStyleHelperService.resetCurrentBrewObjects_forMainMapIndicator();
       }
 
       this.generateIndicatorLegend = function (defaultBrew, indicatorMetadataAndGeoJSON) {
@@ -840,17 +857,17 @@ angular
         let html = "<div style='max-height: 30vh; overflow:auto;'><h3>" + poiFeature.properties[__env.FEATURE_NAME_PROPERTY_NAME] + "</h3>";
 
         poiFeature.properties.individualIsochronePruneResults.sort((a, b) => {
-          let range_a = Number(a.poiFeatureId.split("_")[1]);
-          let range_b = Number(b.poiFeatureId.split("_")[1]);
+          let range_a = Number(a.poiFeatureId.split("_")[a.poiFeatureId.split("_").length - 1]);
+          let range_b = Number(b.poiFeatureId.split("_")[b.poiFeatureId.split("_").length - 1]);
           return range_a - range_b;
         });
 
         for (const isochronePruneResult of poiFeature.properties.individualIsochronePruneResults) {
-          let range = isochronePruneResult.poiFeatureId.split("_")[1];
+          let range = isochronePruneResult.poiFeatureId.split("_")[isochronePruneResult.poiFeatureId.split("_").length -1 ];
           let unit = "Minuten";
-          // if(kommonitorReachabilityHelperService.settings.focus == 'distance'){
-          //   unit = "Meter";
-          // } 
+          if(kommonitorReachabilityScenarioHelperService.tmpActiveScenario.reachabilitySettings.focus == 'distance'){
+            unit = "Meter";
+          } 
           html += "<h4>" + range + " [" + unit + "]</h4>";
           html += "<h4><i>Gesamtgebiet</i></h4>"
 
@@ -880,7 +897,7 @@ angular
             html += "<h4><i>" + indicatorFeature.properties[__env.FEATURE_NAME_PROPERTY_NAME] + "</i></h4>";
             // we can directly query the first element of coverage array as we only query one indicator timestamp at a time
             html += "<i>" + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(spatialUnitCoverageEntry.coverage[0].absoluteCoverage) + " von "
-              + indicatorFeature.properties[__env.indicatorDatePrefix + indicatorStatisticsCandidate.timestamp]
+              + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(indicatorFeature.properties[__env.indicatorDatePrefix + indicatorStatisticsCandidate.timestamp])
               + " [" + indicatorStatisticsCandidate.indicator.unit + "]</i>";
             html += "<br/>";
             html += "entspricht <i>" + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(spatialUnitCoverageEntry.coverage[0].relativeCoverage * 100) + " [%]</i><br/><br/>";
@@ -1003,7 +1020,7 @@ angular
           // ensure that each poi does not hold old information from another scenario
           delete poiFeature.properties.individualIsochrones;
           delete poiFeature.properties.individualIsochronePruneResults;
-          poiMap.set(poiFeature.properties[__env.FEATURE_ID_PROPERTY_NAME], poiFeature);
+          poiMap.set("" + poiFeature.properties[__env.FEATURE_ID_PROPERTY_NAME], poiFeature);
         }
 
         return poiMap;
@@ -1014,7 +1031,7 @@ angular
         for (const isochroneFeature of original_nonDissolved_isochrones.features) {
           // each feature ID consists of poiFeatureID and isochrone rangeValue separated by "_"
           // i.e. <id>_<range>
-          let poiFeatureID = isochroneFeature.properties[__env.FEATURE_ID_PROPERTY_NAME].split("_")[0]
+          let poiFeatureID = isochroneFeature.properties[__env.FEATURE_ID_PROPERTY_NAME].substring(0, isochroneFeature.properties[__env.FEATURE_ID_PROPERTY_NAME].lastIndexOf("_"));
 
           let poiFeature = poiMap.get(poiFeatureID);
 
@@ -1038,7 +1055,7 @@ angular
 
           // each feature ID consists of poiFeatureID and isochrone rangeValue separated by "_"
           // i.e. <id>_<range>
-          let poiFeatureID = poiCoverage_foreach_range["poiFeatureId"].split("_")[0]
+          let poiFeatureID = poiCoverage_foreach_range["poiFeatureId"].substring(0, poiCoverage_foreach_range["poiFeatureId"].lastIndexOf("_"));          
 
           let poiFeature = poiMap.get(poiFeatureID);
 
