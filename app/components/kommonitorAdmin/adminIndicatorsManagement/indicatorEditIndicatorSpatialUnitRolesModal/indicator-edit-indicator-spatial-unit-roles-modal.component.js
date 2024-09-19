@@ -124,7 +124,7 @@ angular.module('indicatorEditIndicatorSpatialUnitRolesModal').component('indicat
 
         $scope.activeConnectedRolesOnly = false;
 
-				$scope.roleManagementTableOptions_indicatorSpatialUnitTimeseries = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorEditIndicatorSpatialUnitsRoleManagementTable', $scope.roleManagementTableOptions_indicatorSpatialUnitTimeseries, kommonitorDataExchangeService.accessControl, [], true);
+				$scope.roleManagementTableOptions_indicatorSpatialUnitTimeseries = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorEditIndicatorSpatialUnitsRoleManagementTable',  $scope.roleManagementTableOptions_indicatorSpatialUnitTimeseries, kommonitorDataExchangeService.accessControl, [], true);
 			}
 		}	
     
@@ -148,6 +148,7 @@ angular.module('indicatorEditIndicatorSpatialUnitRolesModal').component('indicat
 
 			$scope.ownerOrganization = ownerOrganization;
 			console.log("Target creator role selected to be:", $scope.ownerOrganization);
+			refreshRoles($scope.ownerOrganization);
 		}
 
 		$scope.resetIndicatorEditIndicatorSpatialUnitRolesForm = function () {
@@ -185,7 +186,27 @@ angular.module('indicatorEditIndicatorSpatialUnitRolesModal').component('indicat
 			$scope.executeRequest_indicatorSpatialUnitRoles();			
 
 			$scope.executeRequest_indicatorSpatialUnitOwnership();
+
 		};
+
+		function refreshRoles(orgUnitId) {	
+
+			let permissionIds_ownerUnit = orgUnitId ? kommonitorDataExchangeService.getAccessControlById(orgUnitId).permissions.filter(permission => permission.permissionLevel == "viewer" || permission.permissionLevel == "editor").map(permission => permission.permissionId) : []; 
+
+			// set datasetOwner to disable checkboxes for owned datasets in permissions-table
+			kommonitorDataExchangeService.accessControl.forEach(item => {
+				if(item.organizationalUnitId==orgUnitId)
+					item.datasetOwner = true;
+				else
+					item.datasetOwner = false;
+			});
+
+			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorEditRoleManagementTable', $scope.roleManagementTableOptions_indicatorMetadata, kommonitorDataExchangeService.accessControl, permissionIds_ownerUnit, true);
+			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorEditIndicatorSpatialUnitsRoleManagementTable', $scope.roleManagementTableOptions_indicatorSpatialUnitTimeseries, kommonitorDataExchangeService.accessControl, permissionIds_ownerUnit, true);
+		}
+
+
+		
 
 		$scope.executeRequest_indicatorMetadataRoles = function(){
 			$scope.loadingData = true;
