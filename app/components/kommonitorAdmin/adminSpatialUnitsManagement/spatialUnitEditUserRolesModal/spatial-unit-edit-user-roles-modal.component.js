@@ -63,7 +63,7 @@ angular.module('spatialUnitEditUserRolesModal').component('spatialUnitEditUserRo
 
 	function gatherCreatorRightsChildren(creatorRights, creatorRightsChildren) {
         if(creatorRightsChildren.length>0) {
-			kommonitorDataExchangeService.accessControl.filter(elem => creatorRightsChildren.includes(elem.name)).map(res => res.children).forEach(child => {
+			kommonitorDataExchangeService.accessControl.filter(elem => creatorRightsChildren.includes(elem.name)).flatMap(res => res.children).forEach(child => {
 			  kommonitorDataExchangeService.accessControl.filter(elem => elem.organizationalUnitId==child).forEach(childData => {
 				creatorRights.push(childData.name);
 				gatherCreatorRightsChildren(creatorRights, [childData.name]);

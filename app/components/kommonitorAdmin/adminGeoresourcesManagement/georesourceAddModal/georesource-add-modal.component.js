@@ -168,8 +168,8 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 
 	function gatherCreatorRightsChildren(creatorRights, creatorRightsChildren) {
         if(creatorRightsChildren.length>0) {
-			kommonitorDataExchangeService.accessControl.filter(elem => creatorRightsChildren.includes(elem.name)).map(res => res.children).forEach(child => {
-			  kommonitorDataExchangeService.accessControl.filter(elem => elem.organizationalUnitId==child).forEach(childData => {
+			kommonitorDataExchangeService.accessControl.filter(elem => creatorRightsChildren.includes(elem.name)).flatMap(res => res.children).forEach(c => {
+			  kommonitorDataExchangeService.accessControl.filter(elem => elem.organizationalUnitId==c).forEach(childData => {
 				creatorRights.push(childData.name);
 				gatherCreatorRightsChildren(creatorRights, [childData.name]);
 			  });
