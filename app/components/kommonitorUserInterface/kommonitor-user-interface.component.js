@@ -484,6 +484,10 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 			$rootScope.$broadcast("removeRangeFilter");
 		}
 
+		$scope.$on("removeRangeFilter", function() {
+			$scope.buttonFilterClass = "btn btn-custom btn-circle";
+		})
+
 		$scope.onBalanceCloseButtonClick = function() {
 			$scope.buttonBalanceClass = "btn btn-custom btn-circle";
 			$rootScope.$broadcast("DisableBalance");
