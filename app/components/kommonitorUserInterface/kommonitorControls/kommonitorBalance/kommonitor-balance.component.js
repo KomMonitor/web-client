@@ -59,6 +59,8 @@ angular
 
 							let indicatorMetadataAndGeoJSON = undefined;
 
+							$rootScope.$broadcast("removeRangeFilter");
+
 							if(kommonitorDataExchangeService.isBalanceChecked){
 								kommonitorDataExchangeService.isMeasureOfValueChecked = false;
 								kommonitorDataExchangeService.classifyUsingWholeTimeseries = false;
