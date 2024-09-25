@@ -2076,6 +2076,7 @@ angular
       // ROLE OVERVIEW TABLE
 
       this.buildDataGridColumnConfig_accessControl = function(isRealmAdmin){
+        let columnDefs = [];
 
         // Select button will only be rendered if user has edit rights for orga
         columnDefs.push({ headerName: 'Editierfunktionen', pinned: 'left', maxWidth: 150, checkboxSelection: (row) => {return row.data.userAdminRoles.includes("client-users-creator") || row.data.userAdminRoles.includes("unit-users-creator")}, filter: false, sortable: false, cellRenderer: 'displayEditButtons_accessControl' });
