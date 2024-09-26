@@ -731,13 +731,16 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 
 						}
 					} catch (error) {
-						if(error.data){							
+						console.error("Error while adding georesource.");
+						if(error.data.message) {							
+							$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data.message);
+						}
+						else if (error.data) {
 							$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
 						}
-						else{
+						else {
 							$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error);
 						}
-
 						if(newGeoresourceResponse_dryRun){
 							$scope.importerErrors = kommonitorImporterHelperService.getErrorsFromImporterResponse(newGeoresourceResponse_dryRun);
 						}						

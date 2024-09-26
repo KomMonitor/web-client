@@ -709,20 +709,23 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 						$scope.loadingData = false;
 		
 				}, function errorCallback(error) {
-				  console.error("Error while adding computable indicatorMetadata service.");
-				  if(error.data){							
-					$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
+					console.error("Error while adding indicator metadata.");
+					if(error.data.message) {							
+						$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data.message);
 					}
-					else{
+					else if (error.data) {
+						$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
+					}
+					else {
 						$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error);
 					}
 
-						$("#indicatorAddErrorAlert").show();
-						$scope.loadingData = false;
+					$("#indicatorAddErrorAlert").show();
+					$scope.loadingData = false;
 
-						setTimeout(() => {
-							$scope.$digest();
-						}, 250);
+					setTimeout(() => {
+						$scope.$digest();
+					}, 250);
 			  });
 
 		};

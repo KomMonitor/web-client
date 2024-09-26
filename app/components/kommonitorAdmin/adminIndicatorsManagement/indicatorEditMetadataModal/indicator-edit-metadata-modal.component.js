@@ -706,10 +706,14 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 					$scope.loadingData = false;
 
 				}, function errorCallback(error) {
-					if(error.data){							
+					console.error("Error while updating indicator metadata.");
+					if(error.data.message) {							
+						$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data.message);
+					}
+					else if (error.data) {
 						$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
 					}
-					else{
+					else {
 						$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error);
 					}
 

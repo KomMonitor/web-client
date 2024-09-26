@@ -610,10 +610,14 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 
 						}
 					} catch (error) {
-						if(error.data){							
+						console.error("Error while adding spatial unit.");
+						if(error.data.message) {							
+							$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data.message);
+						}
+						else if (error.data) {
 							$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
 						}
-						else{
+						else {
 							$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error);
 						}
 
