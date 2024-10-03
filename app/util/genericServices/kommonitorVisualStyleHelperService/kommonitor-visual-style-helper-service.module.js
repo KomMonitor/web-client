@@ -166,6 +166,17 @@ angular
         return defaultColorForZeroValues;
       };
 
+      let self = this;
+
+      this.createNewClassyBrewInstance = function(){
+        let classyBrewInstance = new classyBrew();
+        // must overwrite the color schemes of classybrew if there are any custom color palettes defined by KomMonitor users
+        // that are not part of official colorbrewer project
+        classyBrewInstance.colorSchemes = colorbrewer;
+
+        return classyBrewInstance;
+      }
+
       this.setupDefaultBrew = function (geoJSON, propertyName, numClasses, colorCode, classifyMethod, forceProvidedIndicator, indicator) {
         this.resetFeaturesPerColorObjects();
 
@@ -224,7 +235,7 @@ angular
       this.setupManualBrew = function (numClasses, colorCode, breaks) {
         this.resetFeaturesPerColorObjects();
 
-        var colorBrewerInstance = new classyBrew();
+        var colorBrewerInstance = this.createNewClassyBrewInstance(); 
         numClasses = breaks.length-1;
 
         if(numClasses >= 3) {
@@ -356,8 +367,8 @@ angular
           maxNumberOfClasses = 5;
         }
 
-        var tempBrew = new classyBrew();
-        var colorBrewerInstance = new classyBrew();
+        var tempBrew = self.createNewClassyBrewInstance();
+        var colorBrewerInstance = self.createNewClassyBrewInstance();
 
         if (valuesArray.length >= 5) {
           // pass array to our classyBrew series

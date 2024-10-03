@@ -283,12 +283,12 @@ angular.module('kommonitorMap').component(
         }        
 
         // create classyBrew object
-        $scope.defaultBrew = new classyBrew();
-        $scope.gtMeasureOfValueBrew = new classyBrew();
-        $scope.ltMeasureOfValueBrew = new classyBrew();
-        $scope.manualBrew = new classyBrew();
-        $scope.dynamicDecreaseBrew = new classyBrew();
-        $scope.dynamicIncreaseBrew = new classyBrew();
+        $scope.defaultBrew = undefined;
+        $scope.gtMeasureOfValueBrew = undefined;
+        $scope.ltMeasureOfValueBrew = undefined;
+        $scope.manualBrew = undefined;
+        $scope.dynamicDecreaseBrew = undefined;
+        $scope.dynamicIncreaseBrew = undefined;
 
         $scope.currentIndicatorMetadataAndGeoJSON;
         $scope.currentGeoJSONOfCurrentLayer;
@@ -2512,18 +2512,18 @@ angular.module('kommonitorMap').component(
           refreshOutliersStyle();
           refreshNoDataStyle();
 
-          $scope.defaultBrew = new classyBrew();
-          $scope.gtMeasureOfValueBrew = new classyBrew();
-          $scope.ltMeasureOfValueBrew = new classyBrew();
-          $scope.manualBrew = new classyBrew();
+          $scope.defaultBrew = undefined;
+          $scope.gtMeasureOfValueBrew = undefined;
+          $scope.ltMeasureOfValueBrew = undefined;
+          $scope.manualBrew = undefined;
 
           kommonitorVisualStyleHelperService.manualMOVBreaks = [];
           kommonitorVisualStyleHelperService.regionalDefaultMOVBreaks = [];
           kommonitorVisualStyleHelperService.regionalDefaultBreaks = [];
           kommonitorVisualStyleHelperService.measureOfValueBrewArray = [];
           kommonitorVisualStyleHelperService.measureOfValueBrew = [];
-          kommonitorVisualStyleHelperService.manualBrew = new classyBrew();
-          kommonitorVisualStyleHelperService.dynamicBrew = new classyBrew();
+          kommonitorVisualStyleHelperService.manualBrew = undefined;
+          kommonitorVisualStyleHelperService.dynamicBrew = undefined;
           kommonitorVisualStyleHelperService.dynamicBrewBreaks = [];
 
           $scope.currentIndicatorMetadataAndGeoJSON = indicatorMetadataAndGeoJSON;
@@ -2824,10 +2824,10 @@ angular.module('kommonitorMap').component(
           refreshOutliersStyle();
           refreshNoDataStyle();
 
-          $scope.defaultBrew = new classyBrew();
-          $scope.gtMeasureOfValueBrew = new classyBrew();
-          $scope.ltMeasureOfValueBrew = new classyBrew();
-          $scope.manualBrew = new classyBrew();
+          $scope.defaultBrew = undefined;
+          $scope.gtMeasureOfValueBrew = undefined;
+          $scope.ltMeasureOfValueBrew = undefined;
+          $scope.manualBrew = undefined;
 
 
           var style;
