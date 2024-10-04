@@ -39,6 +39,7 @@
 						<span><b>Session G&uuml;ltigkeit:</b> {{$ctrl.kommonitorDataExchangeServiceInstance.keycloakTokenExpirationInfo}} Minuten</span>
 					</div>
 					<input type="submit" ng-if="!authenticated" value="Login" id='input_submit' ng-click="tryLoginUser()" class='input_field' >
+          <p ng-if="!authenticated" ng-bind-html="::$ctrl.kommonitorDataExchangeServiceInstance.loginInfoText"></p>
 					<input type="submit" ng-if="authenticated" value="Logout" id='input_submit' ng-click="$ctrl.kommonitorDataExchangeServiceInstance.tryLogoutUser()" class='input_field input_authenticated' >
 					<input type="submit" ng-if="authenticated" value="Relogin" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.extendKeycloakSession()" class='input_field input_extend_session' >
 				</div>

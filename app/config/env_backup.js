@@ -4,6 +4,8 @@ try {
 
   window.__env.appTitle = "KomMonitor (Pilotversion)";
 
+  window.__env.loginInfoText = "";
+
   // a unique prefix for the respective KomMonitor instance
   // it is used to distuingish between various KomMonitor instances in order to write/read data to/from browser cache
   window.__env.localStoragePrefix = "kommonitor-develop";
