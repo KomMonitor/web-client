@@ -301,7 +301,33 @@ angular
           throw error;
 
         });
+      }
 
+      this.getMemberCountForGroup = async function(memberId){
+        
+        var bearerToken = Auth.keycloak.token;
+
+        return await $http({
+          url: this.targetUrlToKeycloakInstance + "admin/realms/" + this.realm + "/groups/" + memberId + "/members",
+          method: 'GET',
+          headers: {
+            'Authorization': "Bearer " + bearerToken // Note the appropriate header
+          }
+        }).then(function successCallback(response) {
+          // this callback will be called asynchronously
+          // when the response is available
+
+         return response.data.length;          
+
+        }, function errorCallback(error) {
+          // called asynchronously if an error occurs
+          // or server returns response with an error status.
+          
+          console.error("Error while fetching roles from keycloak.");
+          console.error(error);
+          throw error;
+
+        });
       }
 
       this.getClientQueryGroupsRole = async function(){

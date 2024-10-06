@@ -63,7 +63,7 @@ angular.module('georesourceEditUserRolesModal').component('georesourceEditUserRo
 
 	function gatherCreatorRightsChildren(creatorRights, creatorRightsChildren) {
         if(creatorRightsChildren.length>0) {
-			kommonitorDataExchangeService.accessControl.filter(elem => creatorRightsChildren.includes(elem.name)).map(res => res.children).forEach(child => {
+			kommonitorDataExchangeService.accessControl.filter(elem => creatorRightsChildren.includes(elem.name)).flatMap(res => res.children).forEach(child => {
 			  kommonitorDataExchangeService.accessControl.filter(elem => elem.organizationalUnitId==child).forEach(childData => {
 				creatorRights.push(childData.name);
 				gatherCreatorRightsChildren(creatorRights, [childData.name]);
@@ -118,7 +118,23 @@ angular.module('georesourceEditUserRolesModal').component('georesourceEditUserRo
 
 			$scope.ownerOrganization = ownerOrganization;
 			console.log("Target creator role selected to be ",$scope.ownerOrganization);
+			refreshRoles(ownerOrganization);
 		}	
+
+		function refreshRoles(orgUnitId) {	
+
+			let permissionIds_ownerUnit = orgUnitId ? kommonitorDataExchangeService.getAccessControlById(orgUnitId).permissions.filter(permission => permission.permissionLevel == "viewer" || permission.permissionLevel == "editor").map(permission => permission.permissionId) : []; 
+
+			// set datasetOwner to disable checkboxes for owned datasets in permissions-table
+			kommonitorDataExchangeService.accessControl.forEach(item => {
+				if(item.organizationalUnitId==orgUnitId)
+					item.datasetOwner = true;
+				else
+					item.datasetOwner = false;
+			});
+
+			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('georesourceEditRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, permissionIds_ownerUnit, true);
+		}
 
 		$scope.resetGeoresourceEditUserRolesForm = function () {
 

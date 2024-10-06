@@ -171,7 +171,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 
 	function gatherCreatorRightsChildren(creatorRights, creatorRightsChildren) {
         if(creatorRightsChildren.length>0) {
-			kommonitorDataExchangeService.accessControl.filter(elem => creatorRightsChildren.includes(elem.name)).map(res => res.children).forEach(child => {
+			kommonitorDataExchangeService.accessControl.filter(elem => creatorRightsChildren.includes(elem.name)).flatMap(res => res.children).forEach(child => {
 			  kommonitorDataExchangeService.accessControl.filter(elem => elem.organizationalUnitId==child).forEach(childData => {
 				creatorRights.push(childData.name);
 				gatherCreatorRightsChildren(creatorRights, [childData.name]);
@@ -610,10 +610,14 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 
 						}
 					} catch (error) {
-						if(error.data){							
+						console.error("Error while adding spatial unit.");
+						if(error.data.message) {							
+							$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data.message);
+						}
+						else if (error.data) {
 							$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
 						}
-						else{
+						else {
 							$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error);
 						}
 

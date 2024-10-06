@@ -235,6 +235,9 @@ angular.module('roleDeleteModal').component('roleDeleteModal', {
                 $scope.affectedIndicators.length > 0)
                     return true;
 
+			if($scope.organizationalChildrenEffected)
+				return true;
+
             return false;
         }
 

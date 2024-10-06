@@ -2082,15 +2082,11 @@ angular
 
       this.buildDataGridColumnConfig_accessControl = function(isRealmAdmin){
         let columnDefs = [];
-        // Only show edit column if user is Realm Admin
-        // if (isRealmAdmin) {
-        //   columnDefs.push({ headerName: 'Editierfunktionen', pinned: 'left', maxWidth: 150, checkboxSelection: (row) => {return row.data.name != "public" && row.data.name != "kommonitor"}, filter: false, sortable: false, cellRenderer: 'displayEditButtons_accessControl' });
-        // }
 
-        columnDefs.push({ headerName: 'Editierfunktionen', pinned: 'left', maxWidth: 150, checkboxSelection: (row) => {return row.data.name != "public" && row.data.name != "kommonitor"}, filter: false, sortable: false, cellRenderer: 'displayEditButtons_accessControl' });
-
+        // Select button will only be rendered if user has edit rights for orga
+        columnDefs.push({ headerName: 'Editierfunktionen', pinned: 'left', maxWidth: 150, checkboxSelection: (row) => {return row.data.userAdminRoles.includes("client-users-creator") || row.data.userAdminRoles.includes("unit-users-creator")}, filter: false, sortable: false, cellRenderer: 'displayEditButtons_accessControl' });
+        
         return columnDefs.concat([
-          //{ headerName: 'Id', field: "organizationalUnitId", minWidth: 400 },
           { 
             headerName: 'Organisationseinheit', 
             field: "name", 

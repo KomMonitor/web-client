@@ -21,7 +21,7 @@
 					class="fas fa-plus"></i>&nbsp;&nbsp;Erstellen</button>
 
 			<!-- delete selected completely -->
-			<button ng-disabled="!$ctrl.kommonitorDataExchangeServiceInstance.isRealmAdmin" class="btn btn-danger btn-sm" type="button" data-toggle="modal" data-target="#modal-delete-roles"
+			<button ng-disabled="!$ctrl.kommonitorDataExchangeServiceInstance.checkGroupsEditPermission()" class="btn btn-danger btn-sm" type="button" data-toggle="modal" data-target="#modal-delete-roles"
 				ng-click="onClickDeleteDatasets()"><i class="fas fa-trash"></i>&nbsp;&nbsp;L&ouml;schen</button>
 
 		</div>

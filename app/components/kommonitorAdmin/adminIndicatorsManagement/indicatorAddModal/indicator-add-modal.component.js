@@ -223,7 +223,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 
 	function gatherCreatorRightsChildren(creatorRights, creatorRightsChildren) {
         if(creatorRightsChildren.length>0) {
-			kommonitorDataExchangeService.accessControl.filter(elem => creatorRightsChildren.includes(elem.name)).map(res => res.children).forEach(child => {
+			kommonitorDataExchangeService.accessControl.filter(elem => creatorRightsChildren.includes(elem.name)).flatMap(res => res.children).forEach(child => {
 			  kommonitorDataExchangeService.accessControl.filter(elem => elem.organizationalUnitId==child).forEach(childData => {
 				creatorRights.push(childData.name);
 				gatherCreatorRightsChildren(creatorRights, [childData.name]);
@@ -762,20 +762,23 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 						$scope.loadingData = false;
 		
 				}, function errorCallback(error) {
-				  console.error("Error while adding computable indicatorMetadata service.");
-				  if(error.data){							
-					$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
+					console.error("Error while adding indicator metadata.");
+					if(error.data.message) {							
+						$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data.message);
 					}
-					else{
+					else if (error.data) {
+						$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
+					}
+					else {
 						$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error);
 					}
 
-						$("#indicatorAddErrorAlert").show();
-						$scope.loadingData = false;
+					$("#indicatorAddErrorAlert").show();
+					$scope.loadingData = false;
 
-						setTimeout(() => {
-							$scope.$digest();
-						}, 250);
+					setTimeout(() => {
+						$scope.$digest();
+					}, 250);
 			  });
 
 		};
