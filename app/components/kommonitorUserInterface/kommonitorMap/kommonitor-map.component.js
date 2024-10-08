@@ -2600,6 +2600,17 @@ angular.module('kommonitorMap').component(
 
           $scope.applyDefaultClassificationSettings(indicatorMetadataAndGeoJSON);
           $scope.checkAvailabilityOfRegionalDefault(indicatorMetadataAndGeoJSON);
+
+          if(kommonitorVisualStyleHelperService.classifyMethod == "regional_default") {
+            if (kommonitorDataExchangeService.classifyZeroSeparately_backup == undefined) {
+              kommonitorDataExchangeService.classifyZeroSeparately_backup = kommonitorDataExchangeService.classifyZeroSeparately;
+            }
+            kommonitorDataExchangeService.classifyZeroSeparately = false;
+          }
+          else {
+            kommonitorDataExchangeService.classifyZeroSeparately = kommonitorDataExchangeService.classifyZeroSeparately_backup != undefined ? kommonitorDataExchangeService.classifyZeroSeparately_backup : __env.classifyZeroSeparately;
+            kommonitorDataExchangeService.classifyZeroSeparately_backup = undefined;
+          }
           
           if (kommonitorDataExchangeService.isMeasureOfValueChecked) {       
             var measureOfValueBrewArray = kommonitorVisualStyleHelperService.setupMeasureOfValueBrew(
