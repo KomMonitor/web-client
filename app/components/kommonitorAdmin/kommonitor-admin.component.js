@@ -71,7 +71,7 @@ angular
 									// $('#adminGeodataWrapperNavItem').toggleClass("active");
 
 									setTimeout(function(){
-										if($scope.activeItemBackupId != 'adminAppConfigNavItem' && $scope.activeItemBackupId != 'adminKeycloakConfigNavItem' && $scope.activeItemBackupId != 'adminControlsConfigNavItem'){
+										if($scope.activeItemBackupId != 'adminAppConfigNavItem' && $scope.activeItemBackupId != 'adminKeycloakConfigNavItem' && $scope.activeItemBackupId != 'adminControlsConfigNavItem' && $scope.activeItemBackupId != 'adminFilterConfigNavItem'){
 											// $('#adminGeodataWrapperNavItem').toggleClass("active");
 											$('#'+$scope.activeItemBackupId).addClass("active");
 										}

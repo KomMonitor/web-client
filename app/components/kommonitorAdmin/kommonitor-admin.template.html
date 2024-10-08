@@ -103,6 +103,7 @@
             <!-- hide keycloak settings screen as those config must not be changed by any user directly -->
             <!-- <li id="adminKeycloakConfigNavItem"><a data-toggle="tab" data-target="#keycloakConfigWrapper" ng-click="onClickConfigAdminPanel('adminKeycloakConfigNavItem')" href=""><i class="fas fa-users-cog"></i> <span>Keycloak-Konfiguration</span></a></li> -->
             <li id="adminControlsConfigNavItem"><a data-toggle="tab" data-target="#controlsConfigWrapper" ng-click="onClickConfigAdminPanel('adminControlsConfigNavItem')" href=""><i class="far fa-eye-slash"></i> <span>Widget-Konfiguration</span></a></li>
+            <li id="adminFilterConfigNavItem"><a data-toggle="tab" data-target="#filterConfigWrapper" ng-click="onClickConfigAdminPanel('adminFilterConfigNavItem')" href=""><i class="fa fa-filter"></i> <span>Filter-Konfiguration</span></a></li>
           </ul>
         </li>
 
@@ -187,6 +188,12 @@
       <div id="controlsConfigWrapper" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.checkAdminPermission()" class="tab-pane fade in">
 
         <admin-controls-config></admin-controls-config>
+
+      </div>
+
+      <div id="filterConfigWrapper" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.checkAdminPermission()" class="tab-pane fade in">
+
+        <admin-filter-config></admin-filter-config>
 
       </div>
 
