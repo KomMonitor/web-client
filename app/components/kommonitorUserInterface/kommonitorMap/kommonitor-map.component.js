@@ -2893,7 +2893,7 @@ angular.module('kommonitorMap').component(
             }
             else {
 
-              if ($scope.indicatorTypeOfCurrentLayer.includes('DYNAMIC')) {
+              if ($scope.indicatorTypeOfCurrentLayer.includes('DYNAMIC') || $scope.datasetContainsNegativeValues) {
                 var dynamicIndicatorBrewArray = kommonitorVisualStyleHelperService.setupDynamicIndicatorBrew(
                   $scope.currentIndicatorMetadataAndGeoJSON.geoJSON, 
                   $scope.indicatorPropertyName, 
