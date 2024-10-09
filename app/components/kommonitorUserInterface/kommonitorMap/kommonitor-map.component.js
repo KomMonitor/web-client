@@ -2416,7 +2416,7 @@ angular.module('kommonitorMap').component(
 
           let firstBreak;
           let lastBreak;
-          if ($scope.defaultBrew.breaks) {
+          if ($scope.defaultBrew && $scope.defaultBrew.breaks) {
             firstBreak = $scope.defaultBrew.breaks[0];
             lastBreak = $scope.defaultBrew.breaks[$scope.defaultBrew.breaks.length-1];
           }
@@ -2434,7 +2434,7 @@ angular.module('kommonitorMap').component(
               if(lastBreak > regionalDefaultBreaks[regionalDefaultBreaks.length-1]){
                 regionalDefaultBreaks.push(lastBreak);
               }
-              if($scope.defaultBrew.breaks) {
+              if($scope.defaultBrew && $scope.defaultBrew.breaks) {
                 let brew = kommonitorVisualStyleHelperService.setupManualBrew(
                   indicatorMetadataAndGeoJSON.defaultClassificationMapping.numClasses, 
                   indicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName, 
@@ -2456,11 +2456,11 @@ angular.module('kommonitorMap').component(
                 console.log(indicatorMetadataAndGeoJSON);
 
                 let decreaseBrew = kommonitorVisualStyleHelperService.setupManualBrew(
-                  decreaseBreaks[0].length-1, 
+                  decreaseBreaks.length-1, 
                   defaultColorBrewerPaletteForBalanceDecreasingValues, 
                   decreaseBreaks);
                 let increaseBrew = kommonitorVisualStyleHelperService.setupManualBrew(
-                  increaseBreaks[0].length-1, 
+                  increaseBreaks.length-1, 
                   defaultColorBrewerPaletteForBalanceIncreasingValues, 
                   increaseBreaks);
 
@@ -2494,6 +2494,19 @@ angular.module('kommonitorMap').component(
             }
           }
           $rootScope.$broadcast("updateShowRegionalDefaultOption", breaksAvailableForSelectedSpatialUnit && !kommonitorDataExchangeService.isBalanceChecked);
+        }
+
+        $scope.setClassifyZeroForClassifyMethod = function(){
+          if(kommonitorVisualStyleHelperService.classifyMethod == "regional_default") {
+            if (kommonitorDataExchangeService.classifyZeroSeparately_backup == undefined) {
+              kommonitorDataExchangeService.classifyZeroSeparately_backup = kommonitorDataExchangeService.classifyZeroSeparately;
+            }
+            kommonitorDataExchangeService.classifyZeroSeparately = false;
+          }
+          else {
+            kommonitorDataExchangeService.classifyZeroSeparately = kommonitorDataExchangeService.classifyZeroSeparately_backup != undefined ? kommonitorDataExchangeService.classifyZeroSeparately_backup : kommonitorDataExchangeService.classifyZeroSeparately;
+            kommonitorDataExchangeService.classifyZeroSeparately_backup = undefined;
+          }
         }
 
         $scope.$on("replaceIndicatorAsGeoJSON", function (event, indicatorMetadataAndGeoJSON, spatialUnitName, date, justRestyling, isCustomComputation) {
@@ -2565,7 +2578,7 @@ angular.module('kommonitorMap').component(
           for (var i = 0; i < indicatorMetadataAndGeoJSON.geoJSON.features.length; i++) {
             var containsZero = false;
             var containsNoData = false;
-            if (indicatorMetadataAndGeoJSON.geoJSON.features[i].properties[$scope.indicatorPropertyName] === 0 || indicatorMetadataAndGeoJSON.geoJSON.features[i].properties[$scope.indicatorPropertyName] === "0") {
+            if (kommonitorDataExchangeService.getIndicatorValue_asNumber(indicatorMetadataAndGeoJSON.geoJSON.features[i].properties[$scope.indicatorPropertyName]) == 0) {
               $scope.currentIndicatorContainsZeroValues = true;
               containsZero = true;
             };
@@ -2601,16 +2614,7 @@ angular.module('kommonitorMap').component(
           $scope.applyDefaultClassificationSettings(indicatorMetadataAndGeoJSON);
           $scope.checkAvailabilityOfRegionalDefault(indicatorMetadataAndGeoJSON);
 
-          if(kommonitorVisualStyleHelperService.classifyMethod == "regional_default") {
-            if (kommonitorDataExchangeService.classifyZeroSeparately_backup == undefined) {
-              kommonitorDataExchangeService.classifyZeroSeparately_backup = kommonitorDataExchangeService.classifyZeroSeparately;
-            }
-            kommonitorDataExchangeService.classifyZeroSeparately = false;
-          }
-          else {
-            kommonitorDataExchangeService.classifyZeroSeparately = kommonitorDataExchangeService.classifyZeroSeparately_backup != undefined ? kommonitorDataExchangeService.classifyZeroSeparately_backup : __env.classifyZeroSeparately;
-            kommonitorDataExchangeService.classifyZeroSeparately_backup = undefined;
-          }
+          $scope.setClassifyZeroForClassifyMethod();          
           
           if (kommonitorDataExchangeService.isMeasureOfValueChecked) {       
             var measureOfValueBrewArray = kommonitorVisualStyleHelperService.setupMeasureOfValueBrew(
@@ -2840,6 +2844,7 @@ angular.module('kommonitorMap').component(
           $scope.ltMeasureOfValueBrew = undefined;
           $scope.manualBrew = undefined;
 
+          $scope.setClassifyZeroForClassifyMethod();
 
           var style;
           if ($scope.currentIndicatorLayer) {
@@ -2852,7 +2857,7 @@ angular.module('kommonitorMap').component(
             for (var i = 0; i < $scope.currentIndicatorMetadataAndGeoJSON.geoJSON.features.length; i++) {
               var containsZero = false;
               var containsNoData = false;
-              if ($scope.currentIndicatorMetadataAndGeoJSON.geoJSON.features[i].properties[$scope.indicatorPropertyName] === 0 || $scope.currentIndicatorMetadataAndGeoJSON.geoJSON.features[i].properties[$scope.indicatorPropertyName] === "0") {
+              if (kommonitorDataExchangeService.getIndicatorValue_asNumber($scope.currentIndicatorMetadataAndGeoJSON.geoJSON.features[i].properties[$scope.indicatorPropertyName]) == 0) {
                 $scope.currentIndicatorContainsZeroValues = true;
                 containsZero = true;
               };
