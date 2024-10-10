@@ -521,8 +521,15 @@ angular
 
 										let titlePrefix = kommonitorDataExchangeService.enableScatterPlotRegression ? 'Lineare Regression - ' : 'Streudiagramm - ';
 										let dataViewTitle =  kommonitorDataExchangeService.enableScatterPlotRegression ? 'Datenansicht - lineare Regression' : 'Datenansicht - Streudiagramm';
-
-										$scope.regressionOption = {
+                    
+                    //get custom fontFamily
+                    var elem = document.querySelector('#fontFamily-reference');
+                    var style = getComputedStyle(elem);
+										
+                    $scope.regressionOption = {
+                      textStyle: {
+                        fontFamily: style.fontFamily
+                      },
 											grid: {
 											  left: '10%',
 											  top: 10,

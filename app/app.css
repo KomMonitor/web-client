@@ -3169,3 +3169,8 @@ kommonitor-user-interface h3, kommonitor-user-interface h4 {
 kommonitor-user-interface .irs {
   font-family: var(--custom-font-family) !important;
 }
+
+#fontFamily-reference {
+  display: none;
+  font-family: var(--custom-font-family);
+}

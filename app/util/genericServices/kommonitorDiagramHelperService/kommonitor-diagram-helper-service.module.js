@@ -40,6 +40,15 @@ angular
       this.histogramChartOptions = {};
       this.radarChartOptions = {};
       this.regressionChartOptions = {};
+      
+      this.setCustomFontFamily = function() {
+        
+        var elem = document.querySelector('#fontFamily-reference');
+        var style = getComputedStyle(elem);
+        return style.fontFamily;
+      }
+
+      const customFontFamily = this.setCustomFontFamily(); 
 
       this.isCloserToTargetDate = function(date, closestDate, targetDate){
         var targetYear = targetDate.split("-")[0];
@@ -552,6 +561,9 @@ angular
                   measureOfValue);
 
         var barOption = {
+          textStyle: {
+            fontFamily: customFontFamily
+          },
           // grid get rid of whitespace around chart
           grid: {
             left: '4%',
@@ -1054,6 +1066,9 @@ angular
         ]
 
         var geoMapOption = {
+          textStyle: {
+            fontFamily: customFontFamily
+          },
           // grid get rid of whitespace around chart
           // grid: {
           //   left: '4%',
@@ -1156,6 +1171,9 @@ angular
       var setLineChartOptions = function (indicatorMetadataAndGeoJSON, indicatorTimeSeriesDatesArray, indicatorTimeSeriesAverageArray, indicatorTimeSeriesMaxArray, indicatorTimeSeriesMinArray, indicatorTimeSeriesRegionalMeanArray, indicatorTimeSeriesRegionalSpatiallyUnassignableArray, spatialUnitName, date) {
 
         var lineOption = {
+          textStyle: {
+            fontFamily: customFontFamily
+          },
           // grid get rid of whitespace around chart
           grid: {
             left: '4%',
@@ -1503,6 +1521,9 @@ angular
         }
 
         var histogramOption = {
+          textStyle: {
+            fontFamily: customFontFamily
+          },
           // grid get rid of whitespace around chart
           grid: {
             left: '4%',
@@ -1792,6 +1813,9 @@ angular
 
       this.createInitialReachabilityAnalysisPieOptions = function(poiGeoresource, geoJSONFeatureCollection, rangeValue, date){
         var option = {
+          textStyle: {
+            fontFamily: customFontFamily
+          },
           grid: {
             left: '4%',
 						top: 0,
