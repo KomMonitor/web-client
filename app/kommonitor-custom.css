@@ -5,3 +5,7 @@
 	background-color: #b62d23;
 }
 */
+:root {
+  --custom-font-family: "Comic Sans MS", "Comic Sans", cursive;
+  /* var(--custom-font-family); */
+}

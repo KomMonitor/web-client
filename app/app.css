@@ -986,6 +986,7 @@ pre.CodeMirror-line {
 
 .leaflet-container {
 	font-size: 12px !important;
+  font-family: var(--custom-font-family) !important;
 }
 
 .leaflet-control-layers {
@@ -1659,35 +1660,35 @@ color: #777;
 	/* height: auto !important;
 	max-height: 450px;
   overflow: auto; */
-	font: 12px/14px Arial, Helvetica, sans-serif;
+	font: 12px/14px var(--custom-font-family);
 }
 
 #georesourceHierarchySelection{
 	/* height: auto !important;
 	max-height: 750px;
   	overflow: auto; */
-	font: 12px/14px Arial, Helvetica, sans-serif;
+	font: 12px/14px var(--custom-font-family);
 }
 
 #indicatorMetadataOverview {
 	/* height: auto !important;
 	max-height: 400px;
   overflow: auto; */
-	font: 12px/14px Arial, Helvetica, sans-serif;
+	font: 12px/14px var(--custom-font-family) !important;
 }
 
 #referencedIndicatorOverview {
 	height: auto !important;
 	max-height: 300px;
   overflow: auto;
-	font: 12px/14px Arial, Helvetica, sans-serif;
+	font: 12px/14px var(--custom-font-family);
 }
 
 #referencedGeoresourcesOverview {
 	height: auto !important;
 	max-height: 300px;
   overflow: auto;
-	font: 12px/14px Arial, Helvetica, sans-serif;
+	font: 12px/14px var(--custom-font-family);
 }
 
 
@@ -3146,3 +3147,25 @@ input:checked + .switchslider:before {
 	from {bottom: 60vh; opacity: 1;}
 	to {bottom: 0; opacity: 0;}
   }
+
+  
+/* custom css adjustments */
+kommonitor-user-interface {
+  font-family: var(--custom-font-family) !important;
+}
+kommonitor-user-interface .ng-binding {
+  font-family: var(--custom-font-family) !important;
+}
+
+kommonitor-user-interface .boxedLegend {
+  font-family: var(--custom-font-family) !important;
+}
+
+kommonitor-user-interface h3, kommonitor-user-interface h4 {
+  font-family: var(--custom-font-family) !important;
+}
+
+/* range slider single values */
+kommonitor-user-interface .irs {
+  font-family: var(--custom-font-family) !important;
+}
