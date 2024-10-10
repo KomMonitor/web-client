@@ -14,7 +14,7 @@ angular.module('adminAppConfig').component('adminAppConfig', {
 		$scope.missingRequiredParameters = [];
 		$scope.missingRequiredParameters_string = "";
 
-		$scope.keywordsInConfig = ["window.__env", "window.__env.appTitle", "window.__env.loginInfoText", "window.__env.enableKeycloakSecurity", "window.__env.encryption", 
+		$scope.keywordsInConfig = ["window.__env", "window.__env.appTitle", "window.__env.enableKeycloakSecurity", "window.__env.encryption", 
 			"window.__env.FEATURE_ID_PROPERTY_NAME", "window.__env.FEATURE_NAME_PROPERTY_NAME", 
 			"window.__env.VALID_START_DATE_PROPERTY_NAME", "window.__env.VALID_END_DATE_PROPERTY_NAME", "window.__env.indicatorDatePrefix",
 			"window.__env.apiUrl", "window.__env.targetUrlToProcessingEngine", "window.__env.targetUrlToReachabilityService_ORS",
