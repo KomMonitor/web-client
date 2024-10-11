@@ -50,6 +50,14 @@ angular
 
       const customFontFamily = this.setCustomFontFamily(); 
 
+      this.prepCustomStyling = function(customFontFamilyEnabled, options) {
+
+        if(customFontFamilyEnabled===true)
+          options.textStyle = {fontFamily: customFontFamily};
+
+        return options;
+      }
+
       this.isCloserToTargetDate = function(date, closestDate, targetDate){
         var targetYear = targetDate.split("-")[0];
         var targetMonth = targetDate.split("-")[1];
@@ -308,20 +316,20 @@ angular
         return color;
       };
 
-      this.getBarChartOptions = function () {
-        return self.barChartOptions;
+      this.getBarChartOptions = function (customFontFamilyEnabled = false) {
+        return this.prepCustomStyling(customFontFamilyEnabled, self.barChartOptions);
       };
 
-      this.getGeoMapChartOptions = function () {
-        return self.geoMapChartOptions;
+      this.getGeoMapChartOptions = function (customFontFamilyEnabled = false) {
+        return this.prepCustomStyling(customFontFamilyEnabled, self.geoMapChartOptions);
       };
 
-      this.getHistogramChartOptions = function () {
-        return self.histogramChartOptions;
+      this.getHistogramChartOptions = function (customFontFamilyEnabled = false) {
+        return this.prepCustomStyling(customFontFamilyEnabled, self.histogramChartOptions);
       };
 
-      this.getLineChartOptions = function () {
-        return self.lineChartOptions;
+      this.getLineChartOptions = function (customFontFamilyEnabled = false) {
+        return this.prepCustomStyling(customFontFamilyEnabled, self.lineChartOptions);
       };
 
       this.prepareAllDiagramResources_forCurrentMapIndicator = function (indicatorMetadataAndGeoJSON, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, filterOutFutureDates) {        
@@ -561,9 +569,6 @@ angular
                   measureOfValue);
 
         var barOption = {
-          textStyle: {
-            fontFamily: customFontFamily
-          },
           // grid get rid of whitespace around chart
           grid: {
             left: '4%',
@@ -1066,9 +1071,6 @@ angular
         ]
 
         var geoMapOption = {
-          textStyle: {
-            fontFamily: customFontFamily
-          },
           // grid get rid of whitespace around chart
           // grid: {
           //   left: '4%',
@@ -1171,9 +1173,6 @@ angular
       var setLineChartOptions = function (indicatorMetadataAndGeoJSON, indicatorTimeSeriesDatesArray, indicatorTimeSeriesAverageArray, indicatorTimeSeriesMaxArray, indicatorTimeSeriesMinArray, indicatorTimeSeriesRegionalMeanArray, indicatorTimeSeriesRegionalSpatiallyUnassignableArray, spatialUnitName, date) {
 
         var lineOption = {
-          textStyle: {
-            fontFamily: customFontFamily
-          },
           // grid get rid of whitespace around chart
           grid: {
             left: '4%',
@@ -1521,9 +1520,6 @@ angular
         }
 
         var histogramOption = {
-          textStyle: {
-            fontFamily: customFontFamily
-          },
           // grid get rid of whitespace around chart
           grid: {
             left: '4%',
@@ -1813,9 +1809,6 @@ angular
 
       this.createInitialReachabilityAnalysisPieOptions = function(poiGeoresource, geoJSONFeatureCollection, rangeValue, date){
         var option = {
-          textStyle: {
-            fontFamily: customFontFamily
-          },
           grid: {
             left: '4%',
 						top: 0,
@@ -1946,10 +1939,10 @@ angular
         return eChartOptions;
       };
 
-      this.makeTrendChartOptions_forAllFeatures = function(indicatorMetadataAndGeoJSON, fromDateAsPropertyString, toDateAsPropertyString, showMinMax, showCompleteTimeseries, computationType, trendEnabled){
+      this.makeTrendChartOptions_forAllFeatures = function(indicatorMetadataAndGeoJSON, fromDateAsPropertyString, toDateAsPropertyString, showMinMax, showCompleteTimeseries, computationType, trendEnabled, customFontFamilyEnabled = false){
           // we may base on the the precomputed timeseries lineOptions and modify that from a cloned instance
 
-          var timeseriesOptions = jQuery.extend(true, {}, this.getLineChartOptions())
+          var timeseriesOptions = jQuery.extend(true, {}, this.getLineChartOptions(customFontFamilyEnabled));
 
           // remove any additional lines for concrete features
           timeseriesOptions.series.length = 5;
