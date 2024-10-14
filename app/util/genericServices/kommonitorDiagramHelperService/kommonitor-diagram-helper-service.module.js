@@ -233,7 +233,7 @@ angular
         else if(kommonitorFilterHelperService.featureIsCurrentlyFiltered(feature.properties[__env.FEATURE_ID_PROPERTY_NAME])){
           color = defaultColorForFilteredValues;
         }
-        else if(kommonitorDataExchangeService.classifyZeroSeparately && kommonitorDataExchangeService.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) === 0 ){
+        else if(kommonitorDataExchangeService.classifyZeroSeparately && kommonitorDataExchangeService.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) == 0 ){
           color = defaultColorForZeroValues;
         }
         else if(feature.properties["outlier"] !== undefined && feature.properties["outlier"].includes("low") && kommonitorDataExchangeService.useOutlierDetectionOnIndicator){
@@ -268,7 +268,7 @@ angular
 
             if(containsNegativeValues(indicatorMetadataAndGeoJSON.geoJSON, targetDate)){
               if(kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[targetDate]) >= 0){
-                if(kommonitorDataExchangeService.classifyZeroSeparately && (feature.properties[targetDate] == 0 || feature.properties[targetDate] == "0")){
+                if(kommonitorDataExchangeService.classifyZeroSeparately && (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[targetDate]) == 0)){
                   color = defaultColorForZeroValues;
                   // if(__env.useTransparencyOnIndicator){
                   //   fillOpacity = __env.defaultFillOpacityForZeroFeatures;
@@ -279,7 +279,7 @@ angular
                 }
               }
               else{
-                if(kommonitorDataExchangeService.classifyZeroSeparately && (feature.properties[targetDate] == 0 || feature.properties[targetDate] == "0")){
+                if(kommonitorDataExchangeService.classifyZeroSeparately && (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[targetDate]) == 0)){
                   color = defaultColorForZeroValues;
                   // if(__env.useTransparencyOnIndicator){
                   //   fillOpacity = __env.defaultFillOpacityForZeroFeatures;
