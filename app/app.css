@@ -1,5 +1,22 @@
 /* app css stylesheet */
 
+:root {
+	--kommonitor-primary: #337ab7;
+	--kommonitor-light: #b9d4ec;
+	--kommonitor-dark: #0962b0;
+	--body_gradient_left:#7200D0;
+	--body_gradient_right: #C800C1;
+	--form_bg: #ffffff;
+	--input_bg: #E5E5E5;
+	--input_hover:#eaeaea;
+	--submit_bg: #1FCC44;
+	--submit_hover: #40e263;
+	--logout_bg: rgb(216, 0, 0);
+	--extend_bg: rgb(235, 160, 0);
+	--logout_hover: #ff7373;
+	--icon_color:#d84a4a;
+}
+
 body {
 	overflow-y: auto !important;
 }
@@ -78,7 +95,7 @@ MULTI STEP FORM
     -moz-box-shadow: none !important;
     -webkit-box-shadow: none !important;
     box-shadow: none !important;
-    border: 1px solid #337ab7;
+    border: 1px solid var(--kommonitor-primary);
     outline-width: 0;
     transition: All 0.5s ease-in;
     -webkit-transition: All 0.5s ease-in;
@@ -90,7 +107,7 @@ MULTI STEP FORM
 
 .multiStepForm .action-button {
     width: auto;
-    background: #337ab7;
+    background: var(--kommonitor-primary);
     font-weight: bold;
     color: white;
     border: 0 none;
@@ -101,7 +118,7 @@ MULTI STEP FORM
 }
 
 .multiStepForm .action-button:hover, .multiStepForm .action-button:focus {
-    box-shadow: 0 0 0 2px white, 0 0 0 3px #337ab7;
+    box-shadow: 0 0 0 2px white, 0 0 0 3px var(--kommonitor-primary);
 }
 
 .multiStepForm .action-button-previous {
@@ -219,7 +236,7 @@ MULTI STEP FORM
 /*marking active/completed steps green*/
 /*The number of the step and the connector before it = green*/
 #progressbar li.active:before, #progressbar li.active:after {
-    background: #337ab7;
+    background: var(--kommonitor-primary);
 	color: white;
 }
 
@@ -241,20 +258,6 @@ MULTI STEP FORM
 #userLoginForm_withoutKeycloak h4, span {
     text-align: left;
 }
-
-:root {
-        --body_gradient_left:#7200D0;
-        --body_gradient_right: #C800C1;
-        --form_bg: #ffffff;
-        --input_bg: #E5E5E5;
-        --input_hover:#eaeaea;
-        --submit_bg: #1FCC44;
-		--submit_hover: #40e263;
-		--logout_bg: rgb(216, 0, 0);
-		--extend_bg: rgb(235, 160, 0);
-        --logout_hover: #ff7373;
-        --icon_color:#d84a4a;
-    }
 
 .userFormWrapper {
         width: 300px;
@@ -436,6 +439,11 @@ pre.CodeMirror-line {
 
 .list-group.list-group-root > .list-group-item:first-child {
     border-top-width: 0;
+}
+
+.list-group-item.active, .list-group-item.active:focus, .list-group-item.active:hover {
+    background-color: var(--kommonitor-primary);
+    border-color: var(--kommonitor-primary);
 }
 
 /* .list-group.list-group-root > .list-group > .list-group-item {
@@ -660,10 +668,38 @@ pre.CodeMirror-line {
 }
 
 .popover-title {
-	background-color: #3c8dbc;
+	background-color: var(--kommonitor-primary);
 	font-weight: bold;
 	color: #ffffff;
 }
+
+.box.box-primary {
+	border-top-color: var(--kommonitor-primary);
+}
+
+a.kommonitor-theme {
+	color: var(--kommonitor-primary);
+}
+
+div.kommonitor-theme {
+	background: var(--kommonitor-primary);
+	color: white;
+}
+
+div.kommonitor-theme-light {
+	background: var(--kommonitor-light);
+	color: white;
+}
+
+a.kommonitor-theme:hover, a.kommonitor-theme:active, a.kommonitor-theme:focus {
+    outline: none;
+    text-decoration: none;
+    filter: brightness(130%);
+}
+
+/* div.kommonitor-theme-border {
+	border: solid var(--kommonitor-primary) 1px;
+} */
 
 .popover-title span {
 	cursor: pointer;
@@ -1186,7 +1222,48 @@ pre.CodeMirror-line {
 
 #dateSliderWrapper .irs-single{
 	font-size: 16px;
+	background: var(--kommonitor-primary);
 	/* opacity: 0.8; */
+}
+
+.irs--big .irs-bar {
+    border: 1px solid var(--kommonitor-primary);
+    background: linear-gradient(to bottom, #ffffff 0%, var(--kommonitor-primary) 30%, var(--kommonitor-light) 100%);
+}
+
+#dateSliderWrapper .irs--big .irs-line {
+    border: 1px solid var(--kommonitor-primary);;
+    background: linear-gradient(to bottom, #ffffff 0%, var(--kommonitor-primary) 30%, var(--kommonitor-light) 100%);
+}
+
+
+.irs--big .irs-grid-pol {
+    background-color: var(--kommonitor-primary);
+}
+
+.irs--big .irs-from, .irs--big .irs-to, .irs--big .irs-single {
+    background-color: var(--kommonitor-light);
+    background: linear-gradient(to bottom, var(--kommonitor-light) 0%, var(--kommonitor-primary) 100%);
+}
+
+.irs--big .irs-grid-text {
+    color: var(--kommonitor-primary);
+}
+
+.nav-tabs > li > a {
+    color: var(--kommonitor-primary);
+}
+
+
+.skin-blue .main-header .navbar {
+	background-color: var(--kommonitor-primary);
+}
+
+.skin-blue .main-header .logo {
+    background-color: var(--kommonitor-primary);
+    color: #fff;
+    border-bottom: 0 solid transparent;
+	filter: brightness(85%);
 }
 
 .irs-handle:hover {
@@ -2107,7 +2184,7 @@ transition: opacity 0.3s;
 }
 
 .btn-custom {
-	background-color: #337ab7;
+	background-color: var(--kommonitor-primary);
 	color: white;
 	position: absolute;
 	z-index: 1003;
@@ -2116,17 +2193,47 @@ transition: opacity 0.3s;
 .btn-custom:hover {
 	background-color: white;
 	color: black;
-	border: 2px solid #337ab7;
+	border: 2px solid var(--kommonitor-primary);
 	position: absolute;
 	z-index: 1003;
 }
+
+.btn-primary {
+    background-color: var(--kommonitor-primary);
+    border-color: var(--kommonitor-dark);
+}
+
+.btn-primary:active, .btn-primary.active {
+    background-color: var(--kommonitor-dark);
+	border-color: var(--kommonitor-dark);
+}
+
+.btn-primary:active:hover,.btn-primary.active:hover,.open>.dropdown-toggle.btn-primary:hover,.btn-primary:active:focus,.btn-primary.active:focus,.open>.dropdown-toggle.btn-primary:focus,.btn-primary:active.focus,.btn-primary.active.focus,.open>.dropdown-toggle.btn-primary.focus {
+    color: #fff;
+    background-color: var(--kommonitor-dark);
+	border-color: var(--kommonitor-dark);
+	filter: brightness(85%);
+}
+
+.btn-primary:hover, .btn-primary:focus, .open>.dropdown-toggle.btn-primary {
+    background-color: var(--kommonitor-light);
+    border-color: var(--kommonitor-primary);
+	filter: brightness(85%);
+}
+
+.btn-primary.disabled:hover,.btn-primary[disabled]:hover,fieldset[disabled] .btn-primary:hover,.btn-primary.disabled:focus,.btn-primary[disabled]:focus,fieldset[disabled] .btn-primary:focus,.btn-primary.disabled.focus,.btn-primary[disabled].focus,fieldset[disabled] .btn-primary.focus {
+    background-color: var(--kommonitor-light);
+    border-color: var(--kommonitor-primary);
+	filter: brightness(85%);
+}
+
 
 .btn-custom:hover img{
 	filter: invert(0);
 }
 
 .btn-custom-right {
-	background-color: #337ab7;
+	background-color: var(--kommonitor-primary);
 	color: white;
 	z-index: 1003;
 	transition: 0.3s;
@@ -2135,7 +2242,7 @@ transition: opacity 0.3s;
 .btn-custom-right:hover {
 	background-color: white;
 	color: black;
-	border: 2px solid #337ab7;
+	border: 2px solid var(--kommonitor-primary);
 	z-index: 1003;
 }
 
@@ -2243,7 +2350,7 @@ input[type=range]::-webkit-slider-runnable-track {
   height: 8.4px;
   cursor: pointer;
   box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
-  background: #337ab7;
+  background: var(--kommonitor-primary);
   border-radius: 1.3px;
   border: 0.2px solid #010101;
 }
@@ -2257,7 +2364,7 @@ input[type=range]::-moz-range-track {
   height: 8.4px;
   cursor: pointer;
   box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
-  background: #337ab7;
+  background: var(--kommonitor-primary);
   border-radius: 1.3px;
   border: 0.2px solid #010101;
 }
@@ -2271,11 +2378,11 @@ input[type=range]::-ms-track {
   border-width: 16px 0;
   color: transparent; */
 
-	width: 100%;
+  width: 100%;
   height: 8.4px;
   cursor: pointer;
   box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
-  background: #337ab7;
+  background: var(--kommonitor-primary);
   border-radius: 1.3px;
   border: 0.2px solid #010101;
 }
@@ -2286,7 +2393,7 @@ input[type=range]::-ms-fill-lower {
   /* box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d; */
 }
 input[type=range]::-ms-fill-upper {
-  /* background: #337ab7; */
+  /* background: var(--kommonitor-primary); */
   border: 0.2px solid #010101;
   border-radius: 2.6px;
   /* box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d; */
@@ -2574,11 +2681,11 @@ hr {
 }
 
 input:checked + .switchslider {
-  background-color: rgb(51,122,183);
+  background-color: var(--kommonitor-primary);
 }
 
 input:focus + .switchslider {
-  box-shadow: 0 0 1px rgb(51,122,183);
+  box-shadow: 0 0 1px var(--kommonitor-primary);
 }
 
 input:checked + .switchslider:before {
@@ -2611,7 +2718,7 @@ input:checked + .switchslider:before {
 /* this overrides the css in the duallist component css file */
 .duallistLabelDiv {
 	color:white;
-	background-color:#337ab7;
+	background-color: var(--kommonitor-primary);
 	margin:0;
 	padding:0;
 }
@@ -2638,7 +2745,7 @@ input:checked + .switchslider:before {
 }
 
 .duallistButton {
-	background-color:#337ab7;
+	background-color: var(--kommonitor-primary);
 	color:white;
 	height: 2.5em;
 	margin: 1px;

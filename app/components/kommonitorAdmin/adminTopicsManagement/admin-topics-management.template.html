@@ -50,8 +50,7 @@
 
 						<div
 							ng-repeat="mainTopic in $ctrl.kommonitorDataExchangeServiceInstance.availableTopics | filter:{topicType:'main'} | filter:{topicResource:'indicator'}">
-							<div class="list-group-item list-group-item-default"
-								style="background: #2171b5; color: white;">
+							<div class="list-group-item list-group-item-default kommonitor-theme">
 								<a id="{{::mainTopic.topicId}}" href="" ng-attr-title="{{::mainTopic.topicDescription}}"
 									class="collapseTrigger" style="color: white;"
 									ng-click="isCollapsed_mainTopic = !isCollapsed_mainTopic"
@@ -74,8 +73,7 @@
 							<div class="list-group collapse" uib-collapse="isCollapsed_mainTopic">
 								<div ng-repeat="subTopic in mainTopic.subTopics">
 
-									<div class="list-group-item list-group-item-default"
-										style="background: #6baed6; color: white;">
+									<div class="list-group-item list-group-item-default kommonitor-theme-light">
 										<a id="{{::subTopic.topicId}}" class="collapseTrigger" style="color: white;"
 											ng-attr-title="{{::subTopic.topicDescription}}" href=""
 											ng-click="isCollapsed_subTopic = !isCollapsed_subTopic"
@@ -315,8 +313,8 @@
 
 						<div
 							ng-repeat="mainTopic in $ctrl.kommonitorDataExchangeServiceInstance.availableTopics | filter:{topicType:'main'} | filter:{topicResource:'georesource'}">
-							<div class="list-group-item list-group-item-default"
-								style="background: #2171b5; color: white;">
+							<div class="list-group-item list-group-item-default kommonitor-theme"
+								style="color: white;">
 								<a id="{{::mainTopic.topicId}}" href="" ng-attr-title="{{::mainTopic.topicDescription}}"
 									class="collapseTrigger" style="color: white;"
 									ng-click="isCollapsed_mainTopic = !isCollapsed_mainTopic"
@@ -340,8 +338,7 @@
 							<div class="list-group collapse" uib-collapse="isCollapsed_mainTopic">
 								<div ng-repeat="subTopic in mainTopic.subTopics">
 
-									<div class="list-group-item list-group-item-default"
-										style="background: #6baed6; color: white;">
+									<div class="list-group-item list-group-item-default kommonitor-theme-light">
 										<a id="{{::subTopic.topicId}}" class="collapseTrigger" style="color: white;"
 											ng-attr-title="{{::subTopic.topicDescription}}" href=""
 											ng-click="isCollapsed_subTopic = !isCollapsed_subTopic"

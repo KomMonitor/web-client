@@ -1,7 +1,15 @@
 /* Use this CSS file for custom layouts */
 
+/* Example for setting a custom color theme
+/* :root {
+	--kommonitor-primary: #017925;
+	--kommonitor-light: #85b794;
+	--kommonitor-dark: #02631f;
+} */
+
 /* Example for defining a custom color for buttons 
 .btn-custom {
 	background-color: #b62d23;
 }
 */
+

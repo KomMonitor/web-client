@@ -1856,7 +1856,8 @@ angular
 							value = "NoData";
 						}
 						else{
-							value = (+Number(indicatorValue)).toFixed(numberOfDecimals);
+              value = +Number(indicatorValue).toFixed(numberOfDecimals);
+							// value = (+Number(indicatorValue)).toFixed(numberOfDecimals);
             }
             
             // if the original value is greater than zero but would be rounded as 0 then we must return the original result
