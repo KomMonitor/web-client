@@ -92,6 +92,7 @@ angular
 							$scope.containsNegativeValues = containsNegativeValues;
 							$scope.containsOutliers_high = containsOutliers_high;
 							$scope.containsOutliers_low = containsOutliers_low;
+							$scope.containsNoData = containsNoData;
 						});
 
 						$rootScope.$on("updateShowRegionalDefaultOption", function(event, show) {
@@ -343,7 +344,7 @@ angular
 							}
 						}
 						
-						$scope.onWholeTimeseriesClassificationCheckboxChanged = function () {
+						$scope.restyleCurrentLayer = function () {
 							$rootScope.$broadcast("restyleCurrentLayer", false);
 						}
 
