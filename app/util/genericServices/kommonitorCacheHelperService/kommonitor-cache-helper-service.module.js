@@ -10,11 +10,11 @@ angular.module('kommonitorCacheHelper', []);
  * parameters for each WPS operation represented by different Angular components
  */
 angular
-  .module('kommonitorCacheHelper', [])
+  .module('kommonitorCacheHelper', ['kommonitorGlobalFilterHelper'])
   .service(
     'kommonitorCacheHelperService', [
-    '$http', '__env', 'Auth',
-    function ($http, __env, Auth) {
+    'kommonitorGlobalFilterHelperService', '$http', '__env', 'Auth',
+    function (kommonitorGlobalFilterHelperService, $http, __env, Auth) {
 
       this.lastDatabaseModificationInfo;
       this.baseUrlToKomMonitorDataAPI = __env.apiUrl + __env.basePath;
@@ -77,7 +77,7 @@ angular
         });
       };
 
-      this.fetchResource_fromCacheOrServer = async function (localStorageKey, resourceEndpoint, lastModificationResourceName, keycloakRolesArray) {
+      this.fetchResource_fromCacheOrServer = async function (localStorageKey, resourceEndpoint, lastModificationResourceName, keycloakRolesArray, filter) {
         // check if the last modification date within local storage is the same as on the server
 
         // if YES, then try to use data from cache
@@ -133,17 +133,37 @@ angular
         // persist last modification timestamp object as String in local storage
         localStorage.setItem(timestampKey, JSON.stringify(this.lastDatabaseModificationInfo[lastModificationResourceName]));
 
-        return await $http({
-          url: this.baseUrlToKomMonitorDataAPI + resourceEndpoint,
-          method: "GET"
-        }).then(function successCallback(response) {
-          // this callback will be called asynchronously
-          // when the response is available
-
-          localStorage.setItem(metadataKey, JSON.stringify(response.data));
-
-          return response.data;
-        });
+        if(filter) {
+          return await $http({
+            url: this.baseUrlToKomMonitorDataAPI + resourceEndpoint + '/filter',
+            method: "POST",
+            data: filter,
+            headers: {
+              'Content-Type': "application/json"
+            }
+          }).then(function successCallback(response) {
+            // this callback will be called asynchronously
+            // when the response is available
+  
+            localStorage.setItem(metadataKey, JSON.stringify(response.data));
+            console.log(kommonitorGlobalFilterHelperService.application.filter);
+  
+            return response.data;
+          });
+        } else {
+          return await $http({
+            url: this.baseUrlToKomMonitorDataAPI + resourceEndpoint,
+            method: "GET"
+          }).then(function successCallback(response) {
+            // this callback will be called asynchronously
+            // when the response is available
+  
+            localStorage.setItem(metadataKey, JSON.stringify(response.data));
+            console.log(kommonitorGlobalFilterHelperService.application.filter);
+  
+            return response.data;
+          });
+        }
       };
 
       this.fetchAccessControlMetadata = async function (keycloakRolesArray) {
@@ -159,11 +179,28 @@ angular
       };
 
       this.fetchIndicatorsMetadata = async function (keycloakRolesArray) {
-        return await this.fetchResource_fromCacheOrServer(localStorageKey_indicators, indicatorsEndpoint, "indicators", keycloakRolesArray);
+        if (kommonitorGlobalFilterHelperService.applicationFilter) {
+          const filter = {
+            topicIds: kommonitorGlobalFilterHelperService.applicationFilter.indicatorTopics,
+            ids: kommonitorGlobalFilterHelperService.applicationFilter.indicators
+          } 
+          return await this.fetchResource_fromCacheOrServer(localStorageKey_indicators, indicatorsEndpoint, "indicators", keycloakRolesArray, filter);
+        } else {
+          return await this.fetchResource_fromCacheOrServer(localStorageKey_indicators, indicatorsEndpoint, "indicators", keycloakRolesArray);
+        }
+        
       };
 
       this.fetchGeoresourceMetadata = async function (keycloakRolesArray) {
-        return await this.fetchResource_fromCacheOrServer(localStorageKey_georesources, georesourcesEndpoint, "georesources", keycloakRolesArray);
+        if (kommonitorGlobalFilterHelperService.applicationFilter) {
+          const filter = {
+            topicIds: kommonitorGlobalFilterHelperService.applicationFilter.georesourceTopics,
+            ids: kommonitorGlobalFilterHelperService.applicationFilter.georesources
+          } 
+          return await this.fetchResource_fromCacheOrServer(localStorageKey_georesources, georesourcesEndpoint, "georesources", keycloakRolesArray, filter);
+        } else {
+          return await this.fetchResource_fromCacheOrServer(localStorageKey_georesources, georesourcesEndpoint, "georesources", keycloakRolesArray);
+        }
       };
 
       this.fetchProcessScriptsMetadata = async function (keycloakRolesArray) {
