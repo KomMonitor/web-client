@@ -1092,7 +1092,7 @@ angular
           //   self.adminIsLoggedIn = false;
           // });
 
-          this.fetchAllMetadata = async function(){
+          this.fetchAllMetadata = async function(filter){
             console.log("fetching all metadata from management component");
             
             // var metadataPromises = [topicsPromise, usersPromise, rolesPromise, spatialUnitsPromise, georesourcesPromise, indicatorsPromise, scriptsPromise];
@@ -1126,11 +1126,11 @@ angular
             }
 
             //TODO revise metadata fecthing for protected endpoints        
-            var scriptsPromise = await this.fetchIndicatorScriptsMetadata(self.currentKeycloakLoginRoles);
-            var topicsPromise = await this.fetchTopicsMetadata(self.currentKeycloakLoginRoles);
-            var spatialUnitsPromise = await this.fetchSpatialUnitsMetadata(self.currentKeycloakLoginRoles);
-            var georesourcesPromise = await this.fetchGeoresourcesMetadata(self.currentKeycloakLoginRoles);
-            var indicatorsPromise = await this.fetchIndicatorsMetadata(self.currentKeycloakLoginRoles);
+            var scriptsPromise = await this.fetchIndicatorScriptsMetadata(self.currentKeycloakLoginRoles, filter);
+            var topicsPromise = await this.fetchTopicsMetadata(self.currentKeycloakLoginRoles, filter);
+            var spatialUnitsPromise = await this.fetchSpatialUnitsMetadata(self.currentKeycloakLoginRoles, filter);
+            var georesourcesPromise = await this.fetchGeoresourcesMetadata(self.currentKeycloakLoginRoles, filter);
+            var indicatorsPromise = await this.fetchIndicatorsMetadata(self.currentKeycloakLoginRoles, filter);
             metadataPromises.push(scriptsPromise);
             metadataPromises.push(topicsPromise);
             metadataPromises.push(spatialUnitsPromise);
@@ -1798,12 +1798,12 @@ angular
             self.setSpatialUnits(await kommonitorCacheHelperService.fetchSpatialUnitsMetadata(keycloakRolesArray));
           };
 
-          this.fetchGeoresourcesMetadata = async function(keycloakRolesArray){
-            self.setGeoresources(await kommonitorCacheHelperService.fetchGeoresourceMetadata(keycloakRolesArray));
+          this.fetchGeoresourcesMetadata = async function(keycloakRolesArray, filter){
+            self.setGeoresources(await kommonitorCacheHelperService.fetchGeoresourceMetadata(keycloakRolesArray, filter));
           };
 
-          this.fetchIndicatorsMetadata = async function(keycloakRolesArray){
-            self.setIndicators(await kommonitorCacheHelperService.fetchIndicatorsMetadata(keycloakRolesArray));
+          this.fetchIndicatorsMetadata = async function(keycloakRolesArray, filter){
+            self.setIndicators(await kommonitorCacheHelperService.fetchIndicatorsMetadata(keycloakRolesArray, filter));
           };
 
           this.fetchIndicatorScriptsMetadata = async function(keycloakRolesArray){

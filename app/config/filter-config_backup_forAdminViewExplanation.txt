@@ -1,0 +1,40 @@
+[   // COMMENTS NOT ALLOWED IN JSON, BUT USED HERE TO EXPLAIN PROPERTIES
+	{
+		"name": "Dashboard",
+		"indicatorTopics": [
+			"12456-14712-1484",
+			"68451-145988-1848"
+		],
+		"indicators": [
+			"12456-14712-1484",
+			"68451-145988-1848"
+		],
+		"georesourceTopics": [
+			"12456-14712-1484",
+			"68451-145988-1848"
+		],
+		"georesources": [
+			"12456-14712-1484",
+			"68451-145988-1848"
+		]
+	},
+	{
+		"name": "Prima.Klima",
+		"indicatorTopics": [
+			"12456-14712-1484",
+			"68451-145988-1848"
+		],
+		"indicators": [
+			"12456-14712-1484",
+			"68451-145988-1848"
+		],
+		"georesourceTopics": [
+			"12456-14712-1484",
+			"68451-145988-1848"
+		],
+		"georesources": [
+			"12456-14712-1484",
+			"68451-145988-1848"
+		]
+	}
+]

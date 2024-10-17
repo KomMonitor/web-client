@@ -1,7 +1,7 @@
 angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 	templateUrl : "components/kommonitorUserInterface/kommonitor-user-interface.template.html",
 	controller : ['kommonitorDataExchangeService', 'kommonitorKeycloakHelperService', 'kommonitorElementVisibilityHelperService', '$scope', 
-	'$rootScope', '$location', 'Auth', 'ControlsConfigService', '$compile', 'kommonitorShareHelperService', 'kommonitorGlobalFilterHelperService',  '__env',
+	'$rootScope', '$location', 'Auth', 'ControlsConfigService', '$compile', 'kommonitorShareHelperService', 'kommonitorGlobalFilterHelperService', '__env',
 	function UserInterfaceController(kommonitorDataExchangeService, kommonitorKeycloakHelperService, kommonitorElementVisibilityHelperService, 
 		$scope, $rootScope, $location, Auth, ControlsConfigService, $compile, kommonitorShareHelperService, kommonitorGlobalFilterHelperService, __env) {
 
@@ -27,8 +27,13 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 
 			kommonitorShareHelperService.init();
 			kommonitorGlobalFilterHelperService.init();
+			if(kommonitorGlobalFilterHelperService.applicationFilter) {
+				kommonitorDataExchangeService.fetchAllMetadata(kommonitorGlobalFilterHelperService.applicationFilter);
+			} else {
+				kommonitorDataExchangeService.fetchAllMetadata();
+			}
 
-			kommonitorDataExchangeService.fetchAllMetadata();
+
 		};
 
 		// initialize any adminLTE box widgets

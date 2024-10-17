@@ -15,7 +15,7 @@ angular
       this.currentShareLink = "";
 
       this.paramName_app = "application";
-      this.applicationFilterId;
+      this.applicationFilterId="";
       this.applicationFilter;
 
       this.applyQueryParams = function(){
