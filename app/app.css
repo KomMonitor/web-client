@@ -3153,6 +3153,7 @@ input:checked + .switchslider:before {
 kommonitor-user-interface {
   font-family: var(--custom-font-family) !important;
 }
+
 kommonitor-user-interface .ng-binding {
   font-family: var(--custom-font-family) !important;
 }
@@ -3170,6 +3171,7 @@ kommonitor-user-interface .irs {
   font-family: var(--custom-font-family) !important;
 }
 
+/* hidden element in root html to populate styling to 3rd party plugins/frameworks with non-editable css */
 #fontFamily-reference {
   display: none;
   font-family: var(--custom-font-family);
