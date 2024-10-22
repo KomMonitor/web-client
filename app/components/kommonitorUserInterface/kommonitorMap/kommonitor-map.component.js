@@ -3196,8 +3196,8 @@ angular.module('kommonitorMap').component(
                     text: "Abbrechen",
                   },
                   clearAll: {
-                    title: "Alle Features entfernen.",
-                    text: "Alle Features entfernen",
+                    title: "Alle Raumeinheiten entfernen.",
+                    text: "Alle Raumeinheiten entfernen",
                   },
                 },
                 buttons: {
@@ -3210,13 +3210,13 @@ angular.module('kommonitorMap').component(
               handlers: {
                 edit: {
                   tooltip: {
-                    text: "Bearbeitungspunkte oder Punktmarker ziehen, um Feature zu editieren.",
+                    text: "Bearbeitungspunkte oder Punktmarker ziehen, um Raumeinheit zu editieren.",
                     subtext: "Abbrechen klicken, um Bearbeitung zu verwefen.",
                   },
                 },
                 remove: {
                   tooltip: {
-                    text: "Feature anklicken, um es zu entfernen",
+                    text: "Raumeinheit anklicken, um es zu entfernen",
                   },
                 },
               }

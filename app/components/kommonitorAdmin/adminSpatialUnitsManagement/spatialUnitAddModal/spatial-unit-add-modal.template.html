@@ -249,7 +249,7 @@
 							
 								<fieldset ng-if="$ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity">
 									<h2 class="fs-title">Rollenbasierter Zugriffsschutz</h2>
-									<h3 class="fs-subtitle">Vergabe der Zugriffsrechte auf Datensatz-Metadaten und -Features pro Organisationseinheit</h3>
+									<h3 class="fs-subtitle">Vergabe der Zugriffsrechte auf Datensatz-Metadaten und -Raumeinheiten pro Organisationseinheit</h3>
 		
 									<p>Zugriffsrechte (lesen, editieren, l&ouml;schen) m&uuml;ssen explizit vergeben werden. Administratoren (Rolle <i>kommonitor-creator</i>) haben immer vollen Zugriff.</p>
 							
@@ -274,7 +274,7 @@
 									<button type="button" style="margin-left: 6px;" class="btn btn-info pull-left" ng-click="onExportSpatialUnitAddMappingConfig()" title="Exportieren der Mapping-Konfigurationen in eine Datei"><i class="fas fa-file-export"></i>&nbsp;&nbsp;Mapping-Export</button>								
 								</div>
 								<h2 class="fs-title">R&auml;umlicher Datensatz</h2>
-								<h3 class="fs-subtitle">Angaben &uuml;ber den r&auml;umlichen Datensatz, aus dem die Features importiert werden</h3>
+								<h3 class="fs-subtitle">Angaben &uuml;ber den r&auml;umlichen Datensatz, aus dem die Raumeinheiten importiert werden</h3>
 
 								<p><b><i>* = Pflichtfeld</i></b></p>
 
@@ -325,7 +325,7 @@
 													<p>{{parameter.description}}</p>
 												</div>
 												<div ng-if="parameter.name === 'CRS'" class="help-block with-errors" style="color: red;">
-													<p>CRS aufmerksam setzen. Falsche Angaben f&uuml;hren zur fehlerhaften Koordinaten der Features</p>
+													<p>CRS aufmerksam setzen. Falsche Angaben f&uuml;hren zur fehlerhaften Koordinaten der Raumeinheiten</p>
 												</div>
 												<div class="help-block with-errors"></div>
 											</div>
@@ -408,7 +408,7 @@
 													</div>
 												</div>
 											</div>
-											<!-- <div class="help-block"><p>Features m&uuml;ssen Informationen &uuml;ber eindutige ID und eindeutigen Namen in Attribut namens <code>ID</code> und <code>NAME</code> enthalten, um in KomMonitor verarbeitet werden zu k&ouml;nnen.</p></div> -->
+											<!-- <div class="help-block"><p>Raumeinheiten m&uuml;ssen Informationen &uuml;ber eindutige ID und eindeutigen Namen in Attribut namens <code>ID</code> und <code>NAME</code> enthalten, um in KomMonitor verarbeitet werden zu k&ouml;nnen.</p></div> -->
 
 											<div class="help-block with-errors"></div>
 											<div ng-if="spatialUnitDataSourceInputInvalid" style="color: red;">
@@ -421,7 +421,7 @@
 											<label>ID Attributname*</label>
 											<input type="text" class="form-control" ng-model="spatialUnitDataSourceIdProperty" required></input>
 											<div class="help-block">
-												<p>Name des Attributs, welches den eindeutigen Identifier des Features enth&auml;lt.</p>
+												<p>Name des Attributs, welches den eindeutigen Identifier des Raumeinheiten enth&auml;lt.</p>
 											</div>
 											<div class="help-block with-errors"></div>
 											<div ng-if="idPropertyNotFound" style="color: red;">
@@ -432,7 +432,7 @@
 											<label>NAME Attributname*</label>
 											<input type="text" class="form-control" ng-model="spatialUnitDataSourceNameProperty" required></input>
 											<div class="help-block">
-												<p>Name des Attributs, welches den eindeutigen Namen des Features enth&auml;lt.</p>
+												<p>Name des Attributs, welches den eindeutigen Namen des Raumeinheiten enth&auml;lt.</p>
 											</div>
 											<div class="help-block with-errors"></div>
 											<div ng-if="namePropertyNotFound" style="color: red;">
@@ -445,7 +445,7 @@
 											<label>Lebenszeit-Beginn Attributname</label>
 											<input type="text" ng-model="validityStartDate_perFeature" class="form-control pull-right">
 											<div class="help-block">
-												<p>Eintrag nur, falls die r&auml;umlichen Features &uuml;ber ein Attribut
+												<p>Eintrag nur, falls die r&auml;umlichen Raumeinheiten &uuml;ber ein Attribut
 													f&uuml;r den Lebenszeitraum (Beginn) verf&uuml;gen.</p>
 											</div>
 											<div class="help-block with-errors"></div>
@@ -454,7 +454,7 @@
 											<label>Lebenszeit-Ende Attributname</label>
 											<input type="text" ng-model="validityEndDate_perFeature" class="form-control pull-right">
 											<div class="help-block">
-												<p>Eintrag nur, falls die r&auml;umlichen Features &uuml;ber ein Attribut
+												<p>Eintrag nur, falls die r&auml;umlichen Raumeinheiten &uuml;ber ein Attribut
 													f&uuml;r den Lebenszeitraum (Ende) verf&uuml;gen.</p>
 											</div>
 											<div class="help-block with-errors"></div>
@@ -473,7 +473,7 @@
 													class="form-control pull-right" id="spatialUnitAddDatepickerStart"  placeholder="YYYY-MM-DD" required>
 											</div>
 											<div class="help-block">
-												<p>Eintrag ist immer erforderlich, selbst wenn die r&auml;umlichen Features &uuml;ber ein
+												<p>Eintrag ist immer erforderlich, selbst wenn die r&auml;umlichen Raumeinheiten &uuml;ber ein
 													Lebenszeitraum-Attribut
 													verf&uuml;gen.</p>
 											</div>
@@ -494,10 +494,10 @@
 													class="form-control pull-right" id="spatialUnitAddDatepickerEnd" placeholder="YYYY-MM-DD">
 											</div>
 											<div class="help-block">
-												<p>Eintrag ist erforderlich, falls die r&auml;umlichen Features nicht selbst &uuml;ber ein
+												<p>Eintrag ist erforderlich, falls die r&auml;umlichen Raumeinheiten nicht selbst &uuml;ber ein
 													Lebenszeitraum-Attribut
 													verf&uuml;gen. Enddatum darf leer sein, um anzuzeigen, dass es sich
-													um aktuell g&uuml;ltige Features handelt.</p>
+													um aktuell g&uuml;ltige Raumeinheiten handelt.</p>
 											</div>
 											<div class="help-block with-errors"></div>
 											<div ng-if="periodOfValidityInvalid" style="color: red;">
@@ -642,7 +642,7 @@
                 <h4><i class="icon fa fa-check"></i>Raumebene registriert</h4>
 				<p>Eine neue Raumebene mit Namen {{successMessagePart}} wurde in KomMonitor registriert und in die &Uuml;bersichtstabelle eingetragen.
 					<div ng-if="importedFeatures && importedFeatures.length > 0">
-						{{importedFeatures.length}} Features wurden dabei importiert.
+						{{importedFeatures.length}} Raumeinheiten wurden dabei importiert.
 					</div>
 				</p>
       </div>
@@ -657,7 +657,7 @@
 								<br/>
 
 								<div ng-show="importerErrors">
-									<p>Bei den {{importerErrors.length}} Features mit folgenden IDs scheitert der Import:</p>
+									<p>Bei den {{importerErrors.length}} Raumeinheiten mit folgenden IDs scheitert der Import:</p>
 									<pre style="overflow:auto; max-height:500px;">
 										<ul>
 											<li ng-repeat="error in importerErrors">{{error}}</li>

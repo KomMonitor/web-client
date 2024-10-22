@@ -618,7 +618,7 @@ angular
 																	htmlString += '<table id="' + dataTableId + '" class="table table-bordered table-condensed" style="width:100%;text-align:center;">';
 																	htmlString += "<thead>";
 																	htmlString += "<tr>";
-																	htmlString += "<th style='text-align:center;'>Feature-Name</th>";
+																	htmlString += "<th style='text-align:center;'>Raumeinheits-Name</th>";
 																	htmlString += "<th style='text-align:center;'>" + opt.xAxis[0].name + "</th>";
 																	htmlString += "<th style='text-align:center;'>" + opt.yAxis[0].name + "</th>";
 

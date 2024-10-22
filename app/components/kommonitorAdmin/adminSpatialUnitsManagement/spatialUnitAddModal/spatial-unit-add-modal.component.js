@@ -514,7 +514,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 						else{
 							// errors ocurred
 							// show them 
-							$scope.errorMessagePart = "Einige der zu importierenden Features des Datensatzes weisen kritische Fehler auf";
+							$scope.errorMessagePart = "Einige der zu importierenden Raumeinheiten des Datensatzes weisen kritische Fehler auf";
 							$scope.importerErrors = kommonitorImporterHelperService.getErrorsFromImporterResponse(newSpatialUnitResponse_dryRun);
 
 							$("#spatialUnitAddErrorAlert").show();
