@@ -506,7 +506,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				title: "Kartenfenster",
 				placement: "top",
 				content: "Die Standardansicht besteht aus einer <b>kartografischen Darstellung</b>, die bereits eine Hintergrundkarte und einen Indikator anzeigt. In dieser Darstellung k&ouml;nnen Sie in der " + 
-				"<b>Karte frei navigieren (zoomen, verschieben)</b> und beim <i>Her&uuml;berfahren mit dem Mauszeiger &uuml;ber eine der Raumeinheiten</i> werden der <b>Name</b>, der <b>Wert</b> und die <b>Einheit<b> des dargestellten Indikators angezeigt.",
+				"<b>Karte frei navigieren (zoomen, verschieben)</b> und beim <i>Her&uuml;berfahren mit dem Mauszeiger &uuml;ber eine der Raumebenen</i> werden der <b>Name</b>, der <b>Wert</b> und die <b>Einheit<b> des dargestellten Indikators angezeigt.",
 				// onNext: function(tour){
 				// 	// make sure that legend control is displayed
 
@@ -528,7 +528,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				title: "Indikatorenlegende und Klassifizierung",
 				placement: "left",
 				content: "Dieses Element ist in drei Teilbereiche untergliedert, welche "+
-				"</br>1. M&ouml;glichkeiten zum <b>Wechseln der Raumeinheit und Datenexport</b> des dargestellten Indikator abbilden, </br>" +
+				"</br>1. M&ouml;glichkeiten zum <b>Wechseln der Raumebene und Datenexport</b> des dargestellten Indikator abbilden, </br>" +
 				"2. <b>Kartenlegenden</b> zur Interpretation der Karteninhalte sowie der <b>Klassifizierung</b> anbieten,</br>"+				
 				"3. <b>Statistische Merkmale</b> über den gesamten Bereich sowie über ausgewählte Gebiete anzeigen.",				
 				onNext: function(tour){
@@ -545,7 +545,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 			},
 			{
 				element: "#kommonitorIndicatorExportAndSpatialUnitSwitch",
-				title: "Indikator-Raumeinheitswechsel und Exportmöglichkeiten",
+				title: "Indikator-Raumebenenwechsel und Exportmöglichkeiten",
 				placement: "left",
 				content: 
 				"Hier kann die angezeigte <b>Raumebene per Dropdown-Liste gewechselt</b> und der <b>Zeitpunkt per Kalenderauswahl gewählt</b> werden </br>" +
@@ -569,7 +569,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				placement: "left",
 				content: "Im oberen Bereich sind der <b>Name</b>, eine kurze <b>Beschreibung</b> sowie das <b>Fortf&uuml;hrungsintervall</b> des angezeigten Indikators zu finden. </br>" + 				
 				"Als erg&auml;nzende Informationen werden der <b>Stichtag</b>, die <b>Einheit</b> sowie eine kurze <b>Interpretationshilfe angezeigt.</b></br>" +
-				"Es folgt eine <b>Farblegende mit Klassen</b> f&uuml;r den angezeigten Indikator sowie die <b>Wertebereiche und Anzahl Raumeinheiten je Klasse</b></br> " +
+				"Es folgt eine <b>Farblegende mit Klassen</b> f&uuml;r den angezeigten Indikator sowie die <b>Wertebereiche und Anzahl Raumebenen je Klasse</b></br> " +
 				"Die einzelnen Reiter ganz oben erm&ouml;glichen den Wechsel zwischen verschiedenen Legenden, sofern zus&auml;tzlich zu einem <i>Indikator</i> </br>" +
 				"erg&auml;nzende Metadaten oder eingebundene <i>WMS-Dienste</i> angezeigt werden sollen.",				
 				onNext: function(tour){
@@ -767,10 +767,10 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				placement: "right",
 				// <br/><br/>Dar&uuml;ber hinaus k&ouml;nnen je nach Fragestellung die Raumebenen-Geometrien (z.B. Stadtteile) auf diejenigen eingeschr&auml;nkt werden, die zur Beantwortung der Fragestellung beitragen.
 				content: "Hier k&ouml;nnen verschiedene <b>Darstellungsfilter</b> angewendet werden, die sich auf die <i>kartografische Darstellung</i> auswirken. " + 
-				"&Uuml;ber den <b>Wertebereichsfilter</b> k&ouml;nnen die angezeigten Raumeinheiten anhand der Wertauspr&auml;gung des angezeigten Indikators gefiltert werden. " + 
+				"&Uuml;ber den <b>Wertebereichsfilter</b> k&ouml;nnen die angezeigten Raumebenen anhand der Wertauspr&auml;gung des angezeigten Indikators gefiltert werden. " + 
 				"Dazu kann der Schieberegler an dem minimalen und maximalen Werten nach rechts oder links geschoben werden. Alternativ kann die <b>untere und/oder obere Grenze</b> " + 
 				"auch als Zahlenwert eingetragen werden. </br>" +
-				"Mit den <b>Räumlichen Filtern</b> können bestimmte Gebiete manuell oder über ihre Raumeinheit ausgewählt werden. </br></br>" +
+				"Mit den <b>Räumlichen Filtern</b> können bestimmte Gebiete manuell oder über ihre Raumebene ausgewählt werden. </br></br>" +
 				"</br>Eine weitere Option ist die <b>dynamische Schwellenwertklassifizierung</b>, bei der ein spezifischer <b>Wert</b> definiert werden kann, " + 
 				"der die Indikator-Darstellung in <b>zwei Bereiche</b> unterteilt (oberhalb und unterhalb des Schwellenwerts) und entsprechend farbig darstellt.",
 				onNext: function(tour){
@@ -848,9 +848,9 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				title: "Statistische Diagramme",
 				placement: "right",
 				content: "Zus&auml;tzlich zur kartografischen Darstellung bieten grundlegende <b>statistische Diagramme</b> hilfreiche Zusatzinformationen zum gew&auml;hlten Indikator. " +
-				"<br/><br/>Ein <b>Ranking</b> der jeweiligen Raumeinheiten wird anhand eines <b>S&auml;ulendiagramms</b> dargestellt. " + 
+				"<br/><br/>Ein <b>Ranking</b> der jeweiligen Raumebenen wird anhand eines <b>S&auml;ulendiagramms</b> dargestellt. " + 
 				"<br/><br/>Das untere <b>Liniendiagramm</b> visualisiert die <b>zeitliche Entwicklung</b> des aktuellen Indikators &uuml;ber alle jeweils verf&uuml;gbaren Zeitschnitte. " + 
-				"Als Zusatzinformation wird hier der Durchschnittswert &uuml;ber alle Raumeinheiten dargestellt. " + 
+				"Als Zusatzinformation wird hier der Durchschnittswert &uuml;ber alle Raumebenen dargestellt. " + 
 				"<br/><br/>Um einzelne Elemente der gew&auml;hlten Raumebene im S&auml;ulen- und Liniendiagramm zu betrachten und <i>hervorzuheben</i>, " + 
 				"kann mit dem <i>Mauszeiger</i> entweder &uuml;ber die <i>S&auml;ule innerhalb des S&auml;ulendiagramms</i> oder &uuml;ber das jeweilige <i>Element in der Karte</i> gefahren werden. " + 
 				"Eine dauerhafte Selektion durch Klicken auf das kartografische Element oder die dazugeh&ouml;rige S&auml;ule erm&ouml;glicht das simultane Betrachten mehrerer Elemente. " + 
@@ -888,9 +888,9 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				placement: "right",
 				content: "Das <b>Indikatorenradar</b> eignet sich insbesondere f&uuml;r die <b>querschnittsorientierte Betrachtung mehrerer Indikatoren</b>. " + 
 				"<br/>F&uuml;r die Anzeige eines solchen Diagramms, <i>selektieren Sie bitte mindestens drei Indikatoren</i> aus der oben stehenden Liste. <br/><br/>" + 
-				"F&uuml;r jeden gew&auml;hlten Indikator wird im Diagramm eine Achse genutzt, auf der einzelne Raumeinheiten anhand ihrer Wertauspr&auml;gung abgetragen werden. " + 
+				"F&uuml;r jeden gew&auml;hlten Indikator wird im Diagramm eine Achse genutzt, auf der einzelne Raumebenen anhand ihrer Wertauspr&auml;gung abgetragen werden. " + 
 				"Jede Achse wird dabei durch <b>Minimum und Maximum</b> der Werte des betrachteten Indikators gebildet (daher ist die <b><i>Radarmitte ausdr&uuml;cklich nicht zwingend " + 
-				"mit dem Wert '0' gleichzusetzen, sondern mit dem Minimalwert des Indikators</i></b>). <br/><br/>Auch hier ist der Durchschnitt aller Raumeinheiten bereits vorberechnet und " +
+				"mit dem Wert '0' gleichzusetzen, sondern mit dem Minimalwert des Indikators</i></b>). <br/><br/>Auch hier ist der Durchschnitt aller Raumebenen bereits vorberechnet und " +
 				"einzelne Elemente k&ouml;nnen mittels Selektion innerhalb der Karte dem Radar hinzugef&uuml;gt werden. Die Indikatorenauswahl umfasst dabei nur solche Indikatoren, " + 
 				"die die gew&auml;hlte Raumebene und den aktuell gew&auml;hlten Zeitschnitt unterst&uuml;tzen.<br/><br/> Auch das Radardiagramm besitzt in der oberen rechte Ecke eine " + 
 				"<b>Toolbox</b>, &uuml;ber die das Diagramm entweder als <b>Bilddatei</b> oder im <b>Tabellenformat</b> <b>exportiert</b> werden kann",
@@ -925,7 +925,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				element: "#indicatorRegression",
 				title: "Regressionsdiagramm",
 				placement: "right",
-				content: "Als exemplarischen weiteren Diagrammtyp unterst&uuml;tzt KomMonitor die Berechnung einer <b>linearen Regression</b> zwischen zwei zu w&auml;hlenden Indikatoren, um insbesondere die <b>Korrelation</b> zwischen diesen zu betrachten. Nach Auswahl der Indikatoren werden die Regressionsgerade und alle Elemente der gew&auml;hlten Raumebene gem&auml;ß ihrer Wertauspr&auml;gungen entlang der Indikatorenachsen im Diagramm abgetragen. <br/><br/>Beim &Uuml;berfahren eines Datenpunkts mit der Maus im Diagramm oder einer in der Karte dargestellten Raumeinheit, wird das jeweilige Pendant visuell hervorgehoben.<br/><br/>Die Indikatorenauswahl umfasst dabei nur solche Indikatoren, die die gew&auml;hlte Raumebene und den aktuell gew&auml;hlten Zeitschnitt unterst&uuml;tzen.<br/><br/> Auch das Regressionsdiagramm besitzt in der oberen rechte Ecke eine <b>Toolbox</b>, &uuml;ber die das Diagramm entweder als <b>Bilddatei</b> oder im <b>Tabellenformat</b> <b>exportiert</b> werden kann.",
+				content: "Als exemplarischen weiteren Diagrammtyp unterst&uuml;tzt KomMonitor die Berechnung einer <b>linearen Regression</b> zwischen zwei zu w&auml;hlenden Indikatoren, um insbesondere die <b>Korrelation</b> zwischen diesen zu betrachten. Nach Auswahl der Indikatoren werden die Regressionsgerade und alle Elemente der gew&auml;hlten Raumebene gem&auml;ß ihrer Wertauspr&auml;gungen entlang der Indikatorenachsen im Diagramm abgetragen. <br/><br/>Beim &Uuml;berfahren eines Datenpunkts mit der Maus im Diagramm oder einer in der Karte dargestellten Raumebene, wird das jeweilige Pendant visuell hervorgehoben.<br/><br/>Die Indikatorenauswahl umfasst dabei nur solche Indikatoren, die die gew&auml;hlte Raumebene und den aktuell gew&auml;hlten Zeitschnitt unterst&uuml;tzen.<br/><br/> Auch das Regressionsdiagramm besitzt in der oberen rechte Ecke eine <b>Toolbox</b>, &uuml;ber die das Diagramm entweder als <b>Bilddatei</b> oder im <b>Tabellenformat</b> <b>exportiert</b> werden kann.",
 				onNext: function(tour){
 					if($scope.sidebarRegressionDiagramClass !== "disappear"){
 							$("#sidebarRegressionDiagramCollapse").click();

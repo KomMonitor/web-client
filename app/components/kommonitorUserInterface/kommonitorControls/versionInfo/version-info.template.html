@@ -56,8 +56,8 @@ window.__env.configMeanDataDisplay = 'preferRegionalMeanIfAvailable';
 							<b>korrigierte Anzeige des Erreichbarkeitsmodus (Distanz oder Zeit) bei Indikatorenstatistiken</b>
 						</li>
 						<li>
-							<b>Bessere Unterst&uuml;tzung fehlender Raumeinheiten sowie NoData Werte in Indikatorenstatistik</b>
-							Wenn beispielsweise in einem Kreisgebiet 24 Kommunen auf einer Raumeinheit "Kommunalebene" existieren, vier davon für einen Indikator NoData Werte aufweisen (Leerwerte in Datentabelle) und 12 Kommunen g&auml;nzlich fehlen (kein Eintrag in Datentabelle vorhanden), 
+							<b>Bessere Unterst&uuml;tzung fehlender Raumebenen sowie NoData Werte in Indikatorenstatistik</b>
+							Wenn beispielsweise in einem Kreisgebiet 24 Kommunen auf einer Raumebene "Kommunalebene" existieren, vier davon für einen Indikator NoData Werte aufweisen (Leerwerte in Datentabelle) und 12 Kommunen g&auml;nzlich fehlen (kein Eintrag in Datentabelle vorhanden), 
 							so werden Verschneidungen zwischen Isochronen und Indikatorenstatistiken ohne Fehler berechnet und Reportings werden fehlerfrei erzeugt.
 						</li>
 						<li>
@@ -167,7 +167,7 @@ window.__env.configMeanDataDisplay = 'preferRegionalMeanIfAvailable';
 					<ul>
 						<li>
 							<b>Erreichbarkeitsanalysen</b>
-							Bei der Verschneidung von Isochronen und Indiaktoren-Statistiken Fehler wurde ein Fehler behoben, wenn der Indikator für eine bestimmtes Raumeinheits-Objekt einen Leerwert aufweist oder fehlt.
+							Bei der Verschneidung von Isochronen und Indiaktoren-Statistiken Fehler wurde ein Fehler behoben, wenn der Indikator für eine bestimmtes Raumebenen-Objekt einen Leerwert aufweist oder fehlt.
 						</li>
 						<li>
 							<b>Regional Vergleichswerte</b>
@@ -209,7 +209,7 @@ window.__env.configMeanDataDisplay = 'preferRegionalMeanIfAvailable';
 					<ul>
 						<li>
 							<b>besseres User Feedback bei Indikatoren-Statistik in Erreichbarkeitsszenarien</b>
-							User werden nun durch ein Popup benachrichtigt, ob eine Versorgungsstatistik-Analyse zwischen Einzugsgebieten und Indikatoren einer Raumeinheit
+							User werden nun durch ein Popup benachrichtigt, ob eine Versorgungsstatistik-Analyse zwischen Einzugsgebieten und Indikatoren einer Raumebene
 							gelingen oder fehlschlagen.
 						</li>
 						<li>
@@ -314,7 +314,7 @@ window.__env.configMeanDataDisplay = 'preferRegionalMeanIfAvailable';
 							<br>
 							F&uuml;r jeden Indikator kann eine individuelle Standard-Klassifizierung festgelegt werden,
 							inklusive Anzahl Klassen,
-							und Klassifikationsmethode. Auch k&öuml;nnen dabei pro Raumeinheit eigene Klassengrenzen
+							und Klassifikationsmethode. Auch k&öuml;nnen dabei pro Raumebene eigene Klassengrenzen
 							vorgegeben werden.<br>
 						</li>
 						<li>
@@ -328,13 +328,13 @@ window.__env.configMeanDataDisplay = 'preferRegionalMeanIfAvailable';
 							M&öuml;glich sind manuelle Eingabe oder der Import aus einer CSV-Datei.
 						</li>
 						<li>
-							<b>Raumeinheiten als Umringslayer </b>
+							<b>Raumebenen als Umringslayer </b>
 							<br>
-							Pro Raumeinheit kann konfiguriert werden, ob sie in der Kartenapp als Umringslayer in der
+							Pro Raumebene kann konfiguriert werden, ob sie in der Kartenapp als Umringslayer in der
 							Layersteuerung erscheint. <br />
-							Dies erm&öuml;glicht es, die Grenzverl&auml;ufe der Raumeinheit in die Karte als
+							Dies erm&öuml;glicht es, die Grenzverl&auml;ufe der Raumebene in die Karte als
 							Orientierungshilfe einblenden zu lassen. Dies kann n&uuml;tzlich sein,
-							um bspw. punkthafte Georessourcen optisch mit Raumeinheiten-Grenzen zu &uuml;berblenden.
+							um bspw. punkthafte Georessourcen optisch mit Raumebenen-Grenzen zu &uuml;berblenden.
 						</li>
 						<li>
 							<b>Textuelle POIs (punkthafte Georessourcen) </b>
@@ -363,7 +363,7 @@ window.__env.configMeanDataDisplay = 'preferRegionalMeanIfAvailable';
 							<ul>
 								<li>
 									Parameter zur Steuerung, ob im S&auml;ulendiagramm eine Durchschnittslinie sowie
-									Namen der Raumeinheiten
+									Namen der Raumebenen
 									angezeigt werden sollen
 									<code>
 											// show bar chart label and average line
@@ -463,7 +463,7 @@ window.__env.configMeanDataDisplay = 'preferRegionalMeanIfAvailable';
 							<b>neu strukturierte Legende</b>
 							<br>
 							Am rechten Bildschirmrand wurde das Informations- und Legendenfenster neu angeordnet.
-							Im obersten Men&uuml; kann wie gewohnt die Raumeinheit gewechselt werden oder der
+							Im obersten Men&uuml; kann wie gewohnt die Raumebene gewechselt werden oder der
 							Indikatorendatensatz exportiert werden.
 							<br />
 							Die Legende enth&auml;lt nun weitere Reiter f&uuml;r erg&auml;nzende Indikatoren-Metadaten
@@ -483,7 +483,7 @@ window.__env.configMeanDataDisplay = 'preferRegionalMeanIfAvailable';
 						<li>
 							<b>Durchschnittslinie und Label in Ranking-Diagramm</b>
 							<br>
-							Namen der Raumeinheiten sowie eine Querlinie des Durchschnittswerts k&öuml;nnen im
+							Namen der Raumebenen sowie eine Querlinie des Durchschnittswerts k&öuml;nnen im
 							Ranking-Diagramm spontan ein- und ausgeblendet werden.
 						</li>
 						<li>
@@ -499,14 +499,14 @@ window.__env.configMeanDataDisplay = 'preferRegionalMeanIfAvailable';
 							spontan ein- und ausgeblendet werden.
 						</li>
 						<li>
-							<b>Layersteuerung mit Transparenzregler und Raumeinheiten-Umringslayer</b>
+							<b>Layersteuerung mit Transparenzregler und Raumebenen-Umringslayer</b>
 							<br>
 							Die Layersteuerung der interaktiven Karte muss nun aktiv angeklickt werden, um sie zu
 							&öuml;ffnen oder zu schlie&szlig;en.
 							<br />
 							Zudem wurde sie um Transprenzregler f&uuml;r jeden Datensatz (Layer) erweitert.
 							<br />
-							Sind f&uuml;r Raumeinheiten Umringslayer konfiguriert, so lassen sie sich via Layersteuerung
+							Sind f&uuml;r Raumebenen Umringslayer konfiguriert, so lassen sie sich via Layersteuerung
 							in das Kartenbild integrieren.
 						</li>
 						<li>
@@ -606,7 +606,7 @@ window.__env.configMeanDataDisplay = 'preferRegionalMeanIfAvailable';
 							<b>Geodatenverwaltung</b>
 							<br>
 							Probleme beim L&ouml;schen einzelner Georessourcen sowie beim partiellen Update von
-							Raumeinheiten wurden behoben.
+							Raumebenen wurden behoben.
 						</li>
 					</ul>
 				</li>
@@ -640,7 +640,7 @@ window.__env.configMeanDataDisplay = 'preferRegionalMeanIfAvailable';
 						<li>
 							<b>Geodatenverwaltung</b>
 							<br>
-							F&uuml;r den Import von Raumeinheiten, Georessourcen und Indikatoren wird nun auch die OGC
+							F&uuml;r den Import von Raumebenen, Georessourcen und Indikatoren wird nun auch die OGC
 							API - Features unterst&uuml;tzt.
 							Voraussetzung f&uuml;r die Nutzung ist die Anbindung an eine Instanz der Importer API ab
 							Version 3.2.0.
@@ -1168,11 +1168,11 @@ window.__env.configMeanDataDisplay = 'preferRegionalMeanIfAvailable';
 				<li>
 					r&auml;umliche Filter k&ouml;nnen nun dahingehend konfiguriert werden, ob alle verf&uuml;gbaren
 					hierarchisch
-					h&ouml;heren Raumeinheiten angezeigt werden, oder nur solche, die f&uuml;r den derzeitigen Indikator
+					h&ouml;heren Raumebenen angezeigt werden, oder nur solche, die f&uuml;r den derzeitigen Indikator
 					g&uuml;ltig sind.
 				</li>
 				<li>
-					bei r&auml;umlichen Filtern wird nun ein Ladebildschirm angezeigt, sobald die Raumeinheit selektiert
+					bei r&auml;umlichen Filtern wird nun ein Ladebildschirm angezeigt, sobald die Raumebene selektiert
 					wird, um die Augenblicke
 					zu &uuml;berbr&uuml;cken, die das Laden der m&ouml;glichen Feature-Namen beansprucht.
 				</li>
@@ -1198,10 +1198,10 @@ window.__env.configMeanDataDisplay = 'preferRegionalMeanIfAvailable';
 
 			<ul>
 				<li>
-					Raumeinheiten k&ouml;nnen nun in der Administrationsoberfl&auml;che umbenannt werden.
-					Die Defnition der Raumeinheitshierarchie wird konsistent mit aktualisiert.
+					Raumebenen k&ouml;nnen nun in der Administrationsoberfl&auml;che umbenannt werden.
+					Die Defnition der Raumebenenhierarchie wird konsistent mit aktualisiert.
 					In Version 2.1.4 wurden dabei noch die bereits integrierten Indikatoren-Daten f&uuml;r die
-					umbenannte Raumeinheit
+					umbenannte Raumebene
 					nicht konsistent mit aktualisiert, sodass sie nicht mehr dargestellt werden konnten. Dies wurde in
 					Version 2.1.5 behoben.
 				</li>
@@ -1227,8 +1227,8 @@ window.__env.configMeanDataDisplay = 'preferRegionalMeanIfAvailable';
 
 			<ul>
 				<li>
-					Raumeinheiten k&ouml;nnen nun in der Administrationsoberfl&auml;che umbenannt werden.
-					Die Defnition der Raumeinheitshierarchie wird konsistent mit aktualisiert.
+					Raumebenen k&ouml;nnen nun in der Administrationsoberfl&auml;che umbenannt werden.
+					Die Defnition der Raumebenenhierarchie wird konsistent mit aktualisiert.
 				</li>
 
 			</ul>
@@ -1484,7 +1484,7 @@ window.__env.configMeanDataDisplay = 'preferRegionalMeanIfAvailable';
 								Rollen/Rechtestufen</b>
 						</li>
 						<li><b>Editierbarkeit von Feature-Tabellen</b>. F&uuml;r
-							Indikatoren, Raumeinheiten und Georessourcen &uuml;ber das <i>Feature
+							Indikatoren, Raumebenen und Georessourcen &uuml;ber das <i>Feature
 								fortf&uuml;hren</i>-Men&uuml; lassen
 							sich die
 							einzelnen Datenzeilen in einer Feature-Tabelle anzeigen. Ein Doppelklick auf eine

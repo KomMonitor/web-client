@@ -2226,7 +2226,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 			// add data element for the overall average
 			let overallAvgValue = $scope.calculateAvg($scope.selectedIndicator, timestamp, false);
-			let overallAvgElementName = (page.area && page.area.length) ? "Durchschnitt\nder\nRaumeinheit" : "Durchschnitt der Raumeinheit";
+			let overallAvgElementName = (page.area && page.area.length) ? "Durchschnitt\nder\nRaumebene" : "Durchschnitt der Raumebene";
 			let dataObjOverallAvg = {
 				name: overallAvgElementName,
 				value: overallAvgValue,

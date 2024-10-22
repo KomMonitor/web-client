@@ -570,7 +570,7 @@ angular
 									var indicatorId = kommonitorDataExchangeService.selectedIndicator.indicatorId;
 
 									if(! ($scope.date && kommonitorDataExchangeService.selectedSpatialUnit && indicatorId)){
-										kommonitorDataExchangeService.displayMapApplicationError("Beim Versuch, einen Beispielindikator zu laden, ist ein Fehler aufgetreten. Der Datenbankeintrag scheint eine fehlerhafte Kombination aus Raumeinheit und Zeitschnitt zu enthalten.");
+										kommonitorDataExchangeService.displayMapApplicationError("Beim Versuch, einen Beispielindikator zu laden, ist ein Fehler aufgetreten. Der Datenbankeintrag scheint eine fehlerhafte Kombination aus Raumebene und Zeitschnitt zu enthalten.");
 										throw Error("Not all parameters have been set up yet.");
 									}										
 									//

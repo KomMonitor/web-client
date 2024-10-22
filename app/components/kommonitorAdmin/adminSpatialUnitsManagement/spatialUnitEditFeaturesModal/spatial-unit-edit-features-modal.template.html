@@ -12,7 +12,7 @@
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span></button>
-				<h4 class="modal-title">Features der Raumeinheit
+				<h4 class="modal-title">Features der Raumebene
 					<i><b>{{currentSpatialUnitDataset.spatialUnitLevel}}</b></i> fortf&uuml;hren</h4>
 			</div>
 			<div class="modal-body">
@@ -56,7 +56,7 @@
 													class="fas fa-sync-alt"></i>&nbsp;Zeige alle Features</button>
 
 											<div class="help-block">
-												<p>Das Anzeigen aller Features der Raumeinheit kann je nach Anzahl und
+												<p>Das Anzeigen aller Features der Raumebene kann je nach Anzahl und
 													Komplexität der Objekte einige
 													Zeit in Anspruch nehmen</p>
 												<p>Editieren einzelner Zellwerte via Doppelklick. Best&auml;tigen der Editierung durch Enter oder Klicken in eine andere Zelle</p>
@@ -80,7 +80,7 @@
 													class="fas fa-trash"></i>&nbsp;Lösche alle Features</button>
 
 											<div class="help-block">
-												<p>Das Löschen aller Features der Raumeinheit ist unwiderruflich. Der
+												<p>Das Löschen aller Features der Raumebene ist unwiderruflich. Der
 													Datensatz als solches (Metadaten)
 													bleibt dabei bestehen.</p>
 											</div>
@@ -200,7 +200,7 @@
 													<label>Räumlicher Filter*</label>
 													<select id="datasourceTypeParameter_spatialUnitEditFeatures_bboxType" ng-model="bboxType" class="form-control" required>
 														<option disabled selected value> -- Filter w&auml;hlen -- </option>
-														<option value="ref"> Referenzraumeinheit </option>
+														<option value="ref"> Referenzraumebene </option>
 														<option value="literal"> Manueller Begrenzungsrahmen </option>
 													</select>
 
@@ -210,10 +210,10 @@
 																ng-model="bboxRefSpatialUnit"
 																ng-options="spatialUnit.spatialUnitLevel for spatialUnit in availableSpatialUnits track by spatialUnit.spatialUnitId"
 																class="form-control" ng-required="bboxType == 'ref'">
-															<option disabled selected value> -- Raumeinheit w&auml;hlen -- </option>
+															<option disabled selected value> -- Raumebene w&auml;hlen -- </option>
 														</select>
 														<div class="help-block">
-															<p>Raumeinheit aus welchem ein umschließendes Rechteck extrahiert wird</p>
+															<p>Raumebene aus welchem ein umschließendes Rechteck extrahiert wird</p>
 														</div>
 													</div>
 													<div ng-show="bboxType == 'literal'">
@@ -507,7 +507,7 @@
 				class="alert alert-success alert-dismissable">
 				<button type="button" class="close" ng-click="hideSuccessAlert()" aria-hidden="true">&times;</button>
 				<h4><i class="icon fa fa-check"></i>Features erfolgreich fortgef&uuml;hrt</h4>
-				<p>Fortf&uuml;hren der Features der Raumeinheit mit Namen {{successMessagePart}} war erfolgreich.
+				<p>Fortf&uuml;hren der Features der Raumebene mit Namen {{successMessagePart}} war erfolgreich.
 					<div ng-if="importedFeatures && importedFeatures.length > 0">
 						{{importedFeatures.length}} Features wurden dabei importiert.
 					</div>

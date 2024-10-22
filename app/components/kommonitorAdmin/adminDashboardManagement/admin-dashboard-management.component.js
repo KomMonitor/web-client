@@ -329,7 +329,7 @@ angular.module('adminDashboardManagement').component('adminDashboardManagement',
 				// 	bottom: 55
 				// },
 					title: {
-							text: 'Indikatoren \npro Raumeinheit',
+							text: 'Indikatoren \npro Raumebene',
 							left: 'center',
 							show: true,
 							top: 15,
@@ -338,7 +338,7 @@ angular.module('adminDashboardManagement').component('adminDashboardManagement',
 					tooltip: $scope.pieChartTooltip,
 					series : [
 			        {
-			            name: 'Indikatoren pro Raumeinheit',
+			            name: 'Indikatoren pro Raumebene',
 			            type: 'pie',
 									//roseType: 'radius',
 			            radius : '90%',

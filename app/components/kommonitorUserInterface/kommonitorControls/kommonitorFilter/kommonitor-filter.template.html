@@ -27,8 +27,8 @@
 			<hr>
 
 			<div align="middle">
-				<h4>Selektion anhand &uuml;bergeordneter Raumeinheit</h4>
-				<p>Durch Auswahl eines Gebiets der &uuml;bergeordneten Raumeinheit (relativ zur momentan angezeigten) k&ouml;nnen alle darin enthaltenen Gebiete ausgew&auml;hlt werden. Die Auswahl erfolgt &uuml;ber eine Zentroidberechnung.</p>
+				<h4>Selektion anhand &uuml;bergeordneter Raumebene</h4>
+				<p>Durch Auswahl eines Gebiets der &uuml;bergeordneten Raumebene (relativ zur momentan angezeigten) k&ouml;nnen alle darin enthaltenen Gebiete ausgew&auml;hlt werden. Die Auswahl erfolgt &uuml;ber eine Zentroidberechnung.</p>
 				<label class="switch">
 					<input id="showSelectionByFeatureSpatialFilterToggle" type="checkbox" ng-change="onChangeShowSelectionByFeature(showSelectionByFeatureSpatialFilter)"
 						ng-model="showSelectionByFeatureSpatialFilter" 
@@ -53,7 +53,7 @@
 
 					<div class="row">						
 						<div class="col-sm-12 col-md-7 col-lg-7">
-							<label>nur Raumeinheiten des aktuellen Indikators ber&uuml;cksichtigen</label>
+							<label>nur Raumebenen des aktuellen Indikators ber&uuml;cksichtigen</label>
 							
 						</div>
 						<div class="col-sm-12 col-md-2 col-lg-2">
@@ -79,7 +79,7 @@
 								ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in higherSpatialUnits track by spatialUnit.spatialUnitId"
 								class="form-control" ng-change="onChangeSelectedSpatialUnitForFilter(selectedSpatialUnitForFilter)"
 								required>
-								<option disabled selected value> -- Raumeinheit w&auml;hlen --
+								<option disabled selected value> -- Raumebene w&auml;hlen --
 								</option>
 							</select>
 						</div>
@@ -101,7 +101,7 @@
 
 				<hr>
 
-				<h4>Manuelle Selektion anzuzeigender Raumeinheiten</h4>
+				<h4>Manuelle Selektion anzuzeigender Raumebenen</h4>
 				<p>Gebiete k&ouml;nnen &uuml;ber ihre Bezeichnung oder &uuml;ber die Karte ausgew&auml;hlt werden.</p>
 				<label class="switch">
 					<input id="showManualSelectionSpatialFilterToggle" type="checkbox" ng-change="onChangeShowManualSelection(showManualSelectionSpatialFilter)"
