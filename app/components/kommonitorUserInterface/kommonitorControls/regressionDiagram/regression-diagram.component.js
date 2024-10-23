@@ -563,18 +563,28 @@ angular
 										                		type: 'dashed'
 										            		}
 										        		},
-										    		},
+                            axisLabel: {
+                              formatter: function (value, index) {
+                                return kommonitorDataExchangeService.getIndicatorValue_asFormattedText(value);
+                              }
+                            }
+                        },
 										    yAxis: {
 														name: kommonitorDataExchangeService.formatIndicatorNameForLabel($scope.selection.selectedIndicatorForYAxis.indicatorMetadata.indicatorName + " - " + $scope.selection.selectedIndicatorForYAxis.selectedDate + " [" + $scope.selection.selectedIndicatorForYAxis.indicatorMetadata.unit + "]", 75),
 														nameLocation: 'center',
-														nameGap: 50,
-										        		type: 'value',
-										        		splitLine: {
-										            		lineStyle: {
-										                		type: 'dashed'
-										            		}	
-										        		},
-										    		},
+														nameGap: 80,
+                            type: 'value',
+                            splitLine: {
+                                lineStyle: {
+                                    type: 'dashed'
+                                }	
+                            },
+                            axisLabel: {
+                              formatter: function (value, index) {
+                                return kommonitorDataExchangeService.getIndicatorValue_asFormattedText(value);
+                              }
+                            }
+                        },
 												toolbox: {
 														show : true,
 														right: '15',
