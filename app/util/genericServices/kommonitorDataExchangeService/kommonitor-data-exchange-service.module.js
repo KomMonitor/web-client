@@ -38,7 +38,7 @@ angular
               this.configMeanDataDisplay = __env.configMeanDataDisplay;
              
 
-							var numberOfDecimals = __env.numberOfDecimals;
+							var defaultNumberOfDecimals = __env.numberOfDecimals;
 							const DATE_PREFIX = __env.indicatorDatePrefix;
               var defaultColorForZeroValues = __env.defaultColorForZeroValues;
               var defaultColorForNoDataValues = __env.defaultColorForNoDataValues;
@@ -1855,7 +1855,7 @@ angular
 							value = "NoData";
 						}
 						else{
-							value = (+Number(indicatorValue)).toFixed(numberOfDecimals);
+							value = (+Number(indicatorValue)).toFixed(defaultNumberOfDecimals);
             }
             
             // if the original value is greater than zero but would be rounded as 0 then we must return the original result
@@ -1867,17 +1867,24 @@ angular
 					};
 
 					this.getIndicatorValue_asFormattedText = function(indicatorValue){
+
+            var maximumNumberOfDecimals = defaultNumberOfDecimals;
+            var minimumNumberOfDecimals = undefined;
+            //if(this.selectedIndicator.howManyNachkommastellen)
+              maximumNumberOfDecimals = 3;
+              minimumNumberOfDecimals = maximumNumberOfDecimals;
+
 						var value;
 						if(this.indicatorValueIsNoData(indicatorValue)){
 							value = "NoData";
 						}
 						else{
-						 	value = Number(indicatorValue).toLocaleString('de-DE', {maximumFractionDigits: numberOfDecimals});
+						 	value = Number(indicatorValue).toLocaleString('de-DE', {minimumFractionDigits: minimumNumberOfDecimals, maximumFractionDigits: maximumNumberOfDecimals});
             }
             
             // if the original value is greater than zero but would be rounded as 0 then we must return the original result
             if(Number(value) == 0 && indicatorValue > 0){
-              value = Number(indicatorValue).toLocaleString('de-DE');
+              value = Number(indicatorValue).toLocaleString('de-DE', {minimumFractionDigits: minimumNumberOfDecimals, maximumFractionDigits: maximumNumberOfDecimals});
             } 
 
 						return value;
