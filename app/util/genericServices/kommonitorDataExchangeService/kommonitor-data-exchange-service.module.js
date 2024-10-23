@@ -1850,12 +1850,17 @@ angular
 					};
 
 					this.getIndicatorValue_asNumber = function(indicatorValue){
+
+            var maximumNumberOfDecimals = defaultNumberOfDecimals;
+            //if(this.selectedIndicator.howManyNachkommastellen)
+              maximumNumberOfDecimals = 3;
+
 						var value;
 						if(this.indicatorValueIsNoData(indicatorValue)){
 							value = "NoData";
 						}
 						else{
-							value = (+Number(indicatorValue)).toFixed(defaultNumberOfDecimals);
+							value = (+Number(indicatorValue)).toFixed(maximumNumberOfDecimals);
             }
             
             // if the original value is greater than zero but would be rounded as 0 then we must return the original result
