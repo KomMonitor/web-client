@@ -1105,11 +1105,9 @@ angular.module('kommonitorMap').component(
           });
 
           kommonitorVisualStyleHelperService.manualBrew.breaks = breaks; 
-          $scope.updateManualMOVBreaksFromDefaultManualBreaks();
 
           $timeout(function(){ 
             kommonitorVisualStyleHelperService.manualBrew.breaks = breaks;
-            $scope.updateManualMOVBreaksFromDefaultManualBreaks();
             $rootScope.$apply();
             $rootScope.$broadcast("restyleCurrentLayer", false);
           }, 1);
@@ -2415,8 +2413,6 @@ angular.module('kommonitorMap').component(
                   increaseBreaks.unshift($scope.dynamicIncreaseBrew.breaks[0]);
                 }
 
-                console.log(indicatorMetadataAndGeoJSON);
-
                 let decreaseBrew = kommonitorVisualStyleHelperService.setupManualBrew(
                   decreaseBreaks[0].length-1, 
                   defaultColorBrewerPaletteForBalanceDecreasingValues, 
@@ -2479,7 +2475,6 @@ angular.module('kommonitorMap').component(
           $scope.ltMeasureOfValueBrew = new classyBrew();
           $scope.manualBrew = new classyBrew();
 
-          kommonitorVisualStyleHelperService.manualMOVBreaks = [];
           kommonitorVisualStyleHelperService.regionalDefaultMOVBreaks = [];
           kommonitorVisualStyleHelperService.regionalDefaultBreaks = [];
           kommonitorVisualStyleHelperService.measureOfValueBrewArray = [];
@@ -2570,17 +2565,14 @@ angular.module('kommonitorMap').component(
               defaultColorBrewerPaletteForLtMovValues, 
               kommonitorVisualStyleHelperService.classifyMethod, 
               kommonitorDataExchangeService.measureOfValue,
-              kommonitorVisualStyleHelperService.manualMOVBreaks,
+              kommonitorVisualStyleHelperService.manualBrew.breaks,
               kommonitorVisualStyleHelperService.regionalDefaultMOVBreaks,
               kommonitorVisualStyleHelperService.numClasses
             );
             $scope.gtMeasureOfValueBrew = measureOfValueBrewArray[0];
             $scope.ltMeasureOfValueBrew = measureOfValueBrewArray[1];
 
-            kommonitorVisualStyleHelperService.manualMOVBreaks = [];
-            kommonitorVisualStyleHelperService.manualMOVBreaks[0] = measureOfValueBrewArray[0] ? measureOfValueBrewArray[0].breaks : [];
-            kommonitorVisualStyleHelperService.manualMOVBreaks[1] = measureOfValueBrewArray[1] ? measureOfValueBrewArray[1].breaks : [];
-            $scope.updateDefaultManualBreaksFromMOVManualBreaks();
+            kommonitorVisualStyleHelperService.manualBrew.breaks = [...measureOfValueBrewArray[1].breaks, ...measureOfValueBrewArray[0].breaks]
 
             $scope.propertyName = INDICATOR_DATE_PREFIX + date;
 
@@ -2678,7 +2670,6 @@ angular.module('kommonitorMap').component(
               // $scope.makeDynamicIndicatorLegend(isCustomComputation);
             }
 
-            $scope.updateManualMOVBreaksFromDefaultManualBreaks();
 
           }
 
@@ -2695,7 +2686,7 @@ angular.module('kommonitorMap').component(
               defaultColorBrewerPaletteForLtMovValues, 
               kommonitorVisualStyleHelperService.classifyMethod, 
               kommonitorDataExchangeService.measureOfValue,
-              kommonitorVisualStyleHelperService.manualMOVBreaks,
+              kommonitorVisualStyleHelperService.manualBrew.breaks,
               kommonitorVisualStyleHelperService.regionalDefaultMOVBreaks,
               kommonitorVisualStyleHelperService.numClasses
             );
@@ -2767,7 +2758,6 @@ angular.module('kommonitorMap').component(
         };
 
         $scope.$on("allIndicatorPropertiesForCurrentSpatialUnitAndTime setup begin", function (event) {
-          $scope.updateManualMOVBreaksFromDefaultManualBreaks();
           $scope.$broadcast("restyleCurrentLayer", false);
         });
 
@@ -2824,16 +2814,12 @@ angular.module('kommonitorMap').component(
                 defaultColorBrewerPaletteForLtMovValues, 
                 kommonitorVisualStyleHelperService.classifyMethod, 
                 kommonitorDataExchangeService.measureOfValue,
-                kommonitorVisualStyleHelperService.manualMOVBreaks,
+                kommonitorVisualStyleHelperService.manualBrew.breaks,
                 kommonitorVisualStyleHelperService.regionalDefaultMOVBreaks,
                 kommonitorVisualStyleHelperService.numClasses
               );
               $scope.gtMeasureOfValueBrew = measureOfValueBrewArray[0];
               $scope.ltMeasureOfValueBrew = measureOfValueBrewArray[1];
-
-              if(kommonitorVisualStyleHelperService.classifyMethod == 'manual') {
-                $scope.updateDefaultManualBreaksFromMOVManualBreaks();
-              }
 
               $scope.currentIndicatorLayer.eachLayer(function (layer) {
                 if (kommonitorFilterHelperService.featureIsCurrentlyFiltered(layer.feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
@@ -2935,7 +2921,6 @@ angular.module('kommonitorMap').component(
                   layer.setStyle(style);
                 });
 
-                $scope.updateManualMOVBreaksFromDefaultManualBreaks();
                 // $scope.makeDefaultLegend(kommonitorDataExchangeService.selectedIndicator.defaultClassificationMapping, $scope.datasetContainsNegativeValues);
               }
             }
@@ -2962,7 +2947,7 @@ angular.module('kommonitorMap').component(
                 defaultColorBrewerPaletteForLtMovValues, 
                 kommonitorVisualStyleHelperService.classifyMethod, 
                 kommonitorDataExchangeService.measureOfValue,
-                kommonitorVisualStyleHelperService.manualMOVBreaks,
+                kommonitorVisualStyleHelperService.manualBrew.breaks,
                 kommonitorVisualStyleHelperService.regionalDefaultMOVBreaks,
                 kommonitorVisualStyleHelperService.numClasses
               );
@@ -3003,67 +2988,6 @@ angular.module('kommonitorMap').component(
           $scope.map.invalidateSize(true);
 
         });
-
-        $scope.updateDefaultManualBreaksFromMOVManualBreaks = function (){
-          let ltBreaks = [...kommonitorVisualStyleHelperService.manualMOVBreaks[0]];
-          let gtBreaks = [...kommonitorVisualStyleHelperService.manualMOVBreaks[1]];
-
-          ltBreaks.shift()
-          gtBreaks.pop();
-
-          if ($scope.indicatorTypeOfCurrentLayer.includes('DYNAMIC')
-            || $scope.datasetContainsNegativeValues) {
-            let decreaseBreaks = [];
-            let increaseBreaks = [];
-            gtBreaks.forEach((br) => {
-              if (br < 0) {
-                decreaseBreaks.push(br);
-              }
-              else {
-                increaseBreaks.push(br);
-              }
-            });
-            ltBreaks.forEach((br) => {
-              if (br < 0) {
-                decreaseBreaks.push(br);
-              }
-              else {
-                increaseBreaks.push(br);
-              }
-            });
-            kommonitorVisualStyleHelperService.dynamicBrewBreaks = [[...increaseBreaks], [...decreaseBreaks]];
-          }
-
-          kommonitorVisualStyleHelperService.manualBrew.breaks = [...gtBreaks, ...ltBreaks];
-        };
-
-        $scope.updateManualMOVBreaksFromDefaultManualBreaks = function () {
-          let gtBreaks = [];
-          let ltBreaks = [];
-          let breaks = [];
-
-          if ($scope.indicatorTypeOfCurrentLayer.includes('DYNAMIC') || $scope.datasetContainsNegativeValues) {
-            let decreaseBreaks = $scope.dynamicDecreaseBrew ? $scope.dynamicDecreaseBrew.breaks : [];
-            let increaseBreaks = $scope.dynamicIncreaseBrew ? $scope.dynamicIncreaseBrew.breaks : [];
-            breaks = [...decreaseBreaks, ...increaseBreaks]
-          }
-          else {
-            breaks = kommonitorVisualStyleHelperService.manualBrew ? kommonitorVisualStyleHelperService.manualBrew.breaks : [];
-          }
-          breaks.forEach((br) => {
-            if (br < kommonitorDataExchangeService.measureOfValue) {
-              gtBreaks.push(br);
-            }
-            else {
-              ltBreaks.push(br);
-            }
-          });
-          gtBreaks.push(kommonitorDataExchangeService.measureOfValue);
-          ltBreaks.unshift(kommonitorDataExchangeService.measureOfValue);
-          kommonitorVisualStyleHelperService.manualMOVBreaks = [];
-          kommonitorVisualStyleHelperService.manualMOVBreaks[0] = ltBreaks;
-          kommonitorVisualStyleHelperService.manualMOVBreaks[1] = gtBreaks;
-        }
 
         $scope.$on("highlightFeatureOnMap", function (event, spatialFeatureName) {
 

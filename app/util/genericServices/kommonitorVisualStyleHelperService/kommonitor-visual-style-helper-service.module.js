@@ -35,7 +35,6 @@ angular
         value: "quantile"
         }];
 
-      this.manualMOVBreaks = undefined;
     
       this.classifyMethod = __env.defaultClassifyMethod || "jenks";
 
@@ -272,6 +271,11 @@ angular
         --> treat all other cases equally to measureOfValue
         */
 
+       let manualMOVBreaks = manualBreaks ? [
+        [kommonitorDataExchangeService.measureOfValue, ...manualBreaks.filter(val => val > kommonitorDataExchangeService.measureOfValue)],
+        [...manualBreaks.filter(val => val < kommonitorDataExchangeService.measureOfValue), kommonitorDataExchangeService.measureOfValue]
+       ] : [];
+
        this.resetFeaturesPerColorObjects();
 
        this.greaterThanValues = [];
@@ -293,19 +297,33 @@ angular
           ltMeasureOfValueBrew.colors = ltMeasureOfValueBrew.colors.reverse();
         }
         else if(classifyMethod == "manual") {
-          if (!manualBreaks || manualBreaks.length == 0) {
-            manualBreaks = [];
-            manualBreaks[0] = gtMeasureOfValueBrew ? gtMeasureOfValueBrew.breaks : [];
-            manualBreaks[1] = ltMeasureOfValueBrew ? ltMeasureOfValueBrew.breaks : [];
+          if (!manualMOVBreaks || manualMOVBreaks.length == 0) {
+            manualMOVBreaks = [];
+            manualMOVBreaks[0] = gtMeasureOfValueBrew ? gtMeasureOfValueBrew.breaks : [];
+            manualMOVBreaks[1] = ltMeasureOfValueBrew ? ltMeasureOfValueBrew.breaks : [];
+          }
+
+          // set max and min break correctly
+          if(manualMOVBreaks[1][0] < Math.min(...this.lesserThanValues)) {
+            manualMOVBreaks = manualMOVBreaks[1].filter(val => val >= Math.min(...this.lesserThanValues));
+          }
+          else if(manualMOVBreaks[1][0] > Math.min(...this.lesserThanValues)) {
+            manualMOVBreaks[1].unshift(Math.min(...this.lesserThanValues))
+          }
+          if(manualMOVBreaks[0][manualMOVBreaks[0].length-1] > Math.max(...this.greaterThanValues)) {
+            manualMOVBreaks = manualMOVBreaks[0].filter(val => val <= Math.max(...this.greaterThanValues));
+          }
+          else if(manualMOVBreaks[0][manualMOVBreaks[0].length-1] < Math.max(...this.greaterThanValues)) {
+            manualMOVBreaks[0].push(Math.max(...this.greaterThanValues))
           }
   
           var manualBreaksMatchMeasureOfValue = 
-            (manualBreaks[1][manualBreaks[1].length-1] <= measureOfValue) &&
-            (measureOfValue <= manualBreaks[0][0]);
+            (manualMOVBreaks[1][manualMOVBreaks[1].length-1] <= measureOfValue) &&
+            (measureOfValue <= manualMOVBreaks[0][0]);
 
           if (manualBreaksMatchMeasureOfValue) {
-            gtMeasureOfValueBrew = this.setupManualBrew(manualBreaks[0].length -1, colorCodeForGreaterThanValues, manualBreaks[0]);
-            ltMeasureOfValueBrew = this.setupManualBrew(manualBreaks[1].length -1, colorCodeForLesserThanValues, manualBreaks[1]);
+            gtMeasureOfValueBrew = this.setupManualBrew(manualMOVBreaks[0].length -1, colorCodeForGreaterThanValues, manualMOVBreaks[0]);
+            ltMeasureOfValueBrew = this.setupManualBrew(manualMOVBreaks[1].length -1, colorCodeForLesserThanValues, manualMOVBreaks[1]);
             ltMeasureOfValueBrew.colors = ltMeasureOfValueBrew.colors.reverse();
           }
         }
