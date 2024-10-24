@@ -301,6 +301,13 @@ angular
           filterValueGetter: (params) => {
               return "" +  kommonitorDataExchangeService.getAllowedRolesString(params.data.allowedRoles);
             } 
+          },
+          { headerName: 'Nachkommastellen', minWidth: 200, cellRenderer: function (params) { return '2' },
+          filter: 'agTextColumnFilter', 
+          filterValueGetter: (params) => {
+                                                                                   // NICHT VERGESSEN!!!
+              return "" +  params.data.allowedRoles;
+            } 
           }
         ];
 

@@ -166,7 +166,24 @@
 										</div>
 
 									</div>
-									<div class="col-md-3 col-sm-6 col-xs-12">
+                  <div class="col-md-3 col-sm-6 col-xs-12">
+                    <div class="form-group">
+                      <label>Nachkommastellen</label>
+                      <select ng-model="indicatorDezimalValue"
+                        class="form-control" required>
+                        <option>0</option>
+                        <option>1</option>
+                        <option selected>2</option>
+                        <option>3</option>
+                      </select>
+                      <div class="help-block with-errors"></div>
+                      <div class="help-block">
+                        <p>Anzahl der angezeigten Nachkommastellen in allen Bereichen der Benutzeroberfl&auml;che</p>
+                        </p>
+                      </div>
+                    </div>
+
+                  </div>
 										<!-- we hide characteristicValue parameter as it is and old relic not used any longer. 
 										-> deprecated -->
 										
@@ -181,7 +198,6 @@
 											</div>	
 											<div class="help-block with-errors"></div>
 										</div> -->
-									</div>
 								</div>
 
 								<div class="row vertical-align">
