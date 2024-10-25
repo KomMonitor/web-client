@@ -2625,11 +2625,8 @@ angular.module('kommonitorMap').component(
               }
               else {
                 $scope.defaultBrew = kommonitorVisualStyleHelperService.setupDefaultBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, indicatorMetadataAndGeoJSON.defaultClassificationMapping.numClasses || 5, indicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName, kommonitorVisualStyleHelperService.classifyMethod);
+                kommonitorVisualStyleHelperService.manualBrew = $scope.defaultBrew;
               }
-              if (kommonitorVisualStyleHelperService.classifyMethod == "regional_default") {
-                $scope.applyRegionalDefaultClassification(indicatorMetadataAndGeoJSON);
-              }
-              kommonitorVisualStyleHelperService.manualBrew = $scope.defaultBrew;
 
               $scope.propertyName = INDICATOR_DATE_PREFIX + date;
 
@@ -2933,7 +2930,6 @@ angular.module('kommonitorMap').component(
 
             if(kommonitorVisualStyleHelperService.classifyMethod == "regional_default" 
               && kommonitorDataExchangeService.isMeasureOfValueChecked) {
-              if(kommonitorVisualStyleHelperService.regionalDefaultBreaks.length == 0) {
                 $scope.defaultBrew = kommonitorVisualStyleHelperService.setupDefaultBrew(
                   $scope.currentGeoJSONOfCurrentLayer, 
                   $scope.indicatorPropertyName, 
@@ -2941,7 +2937,6 @@ angular.module('kommonitorMap').component(
                   $scope.currentIndicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName, 
                   kommonitorVisualStyleHelperService.classifyMethod);
                 $scope.applyRegionalDefaultClassification($scope.currentIndicatorMetadataAndGeoJSON);
-              }
               kommonitorVisualStyleHelperService.regionalDefaultMOVBreaks = $scope.calcMOVBreaks(
                 kommonitorVisualStyleHelperService.regionalDefaultBreaks,
                 kommonitorDataExchangeService.measureOfValue

@@ -275,6 +275,57 @@ angular
 						}
 						
 						$scope.onWholeTimeseriesClassificationCheckboxChanged = function () {
+							if(kommonitorVisualStyleHelperService.manualBrew.breaks) {
+
+								let defaultBreaks = [];
+								if ((kommonitorDataExchangeService.selectedIndicator.indicatorType.includes('DYNAMIC')
+								|| $scope.containsNegativeValues
+								|| kommonitorDataExchangeService.isBalanceChecked)
+								&& ! kommonitorDataExchangeService.isMeasureOfValueChecked ) {
+									defaultBreaks = [...kommonitorVisualStyleHelperService.dynamicBrew[1].breaks, ...kommonitorVisualStyleHelperService.dynamicBrew[0].breaks]
+								}
+								else if(kommonitorDataExchangeService.isMeasureOfValueChecked){
+									defaultBreaks = [...kommonitorVisualStyleHelperService.measureOfValueBrew[1].breaks, ...kommonitorVisualStyleHelperService.measureOfValueBrew[0].breaks]
+								}
+								else {
+									defaultBreaks = kommonitorVisualStyleHelperService.defaultBrew.breaks;
+								}
+
+								let manualBreaks = kommonitorVisualStyleHelperService.manualBrew.breaks;
+								if (!kommonitorDataExchangeService.classifyUsingWholeTimeseries) {
+									// remove breaks out of range
+									manualBreaks = manualBreaks.filter(val => val <= defaultBreaks[defaultBreaks.length-1]);
+									manualBreaks = manualBreaks.filter(val => val >= defaultBreaks[0]);
+								}
+								else {
+									if(defaultBreaks[0] < manualBreaks[0]) {
+										manualBreaks.shift();
+									}
+									if(defaultBreaks[defaultBreaks.length-1] > manualBreaks[manualBreaks.length-1]) {
+										manualBreaks.pop();
+									}
+								}
+								if(defaultBreaks[0] < manualBreaks[0]) {
+									manualBreaks.unshift(defaultBreaks[0]);
+								}
+								if(defaultBreaks[defaultBreaks.length-1] > manualBreaks[manualBreaks.length-1]) {
+									manualBreaks.push(defaultBreaks[defaultBreaks.length-1]);
+								}
+
+								kommonitorVisualStyleHelperService.manualBrew.breaks = [...manualBreaks];
+
+								if(kommonitorDataExchangeService.isMeasureOfValueChecked){
+									kommonitorVisualStyleHelperService.measureOfValueBrew[0].breaks = [kommonitorDataExchangeService.measureOfValue, ...manualBreaks.filter(val => val > kommonitorDataExchangeService.measureOfValue)];
+									kommonitorVisualStyleHelperService.measureOfValueBrew[1].breaks = [...manualBreaks.filter(val => val < kommonitorDataExchangeService.measureOfValue), kommonitorDataExchangeService.measureOfValue]
+								}
+								if ((kommonitorDataExchangeService.selectedIndicator.indicatorType.includes('DYNAMIC')
+									|| $scope.containsNegativeValues
+									|| kommonitorDataExchangeService.isBalanceChecked)
+									&& ! kommonitorDataExchangeService.isMeasureOfValueChecked ) {
+										kommonitorVisualStyleHelperService.dynamicBrew[1].breaks = [ ...manualBreaks.filter(val => val >= 0)];
+										kommonitorVisualStyleHelperService.dynamicBrew[0].breaks = [ ...manualBreaks.filter(val => val < 0)];
+								}
+							}
 							$rootScope.$broadcast("restyleCurrentLayer", false);
 						}
 
