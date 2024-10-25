@@ -467,7 +467,7 @@ angular
        *
        * [dynamicIncreaseBrew, dynamicDecreaseBrew]
        */
-      this.setupDynamicIndicatorBrew = function (geoJSON, propertyName, colorCodeForPositiveValues, colorCodeForNegativeValues, classifyMethod, numClasses, breaks) {
+      this.setupDynamicIndicatorBrew = function (geoJSON, propertyName, colorCodeForPositiveValues, colorCodeForNegativeValues, classifyMethod, numClasses, manualBreaks) {
 
         /*
         * Idea: Analyse the complete geoJSON property array for each feature and make conclusion about how to build the legend
@@ -481,6 +481,11 @@ angular
         --> implement special cases (0, 1 or 2 negative/positive values --> apply colors manually)
         --> treat all other cases equally to measureOfValue
         */
+
+        let manualDynamicBreaks = manualBreaks ? [
+          [...manualBreaks.filter(val => val >= 0)],
+          [...manualBreaks.filter(val => val < 0)]
+         ] : [];
 
        this.resetFeaturesPerColorObjects();
 
@@ -498,13 +503,28 @@ angular
         var dynamicDecreaseBrew = setupDynamicDecreaseBrew(this.negativeValues, colorCodeForNegativeValues, classifyMethod, Math.floor(numClasses / 2));
 
         if(classifyMethod == "manual") {
-          if (!breaks || breaks.length == 0) {
-            breaks = [];
-            breaks[0] = dynamicIncreaseBrew ? dynamicIncreaseBrew.breaks : [];
-            breaks[1] = dynamicDecreaseBrew ? dynamicDecreaseBrew.breaks : [];
+          if (!manualDynamicBreaks || manualDynamicBreaks.length == 0) {
+            manualDynamicBreaks = [];
+            manualDynamicBreaks[0] = dynamicIncreaseBrew ? dynamicIncreaseBrew.breaks : [];
+            manualDynamicBreaks[1] = dynamicDecreaseBrew ? dynamicDecreaseBrew.breaks : [];
           }
-          dynamicIncreaseBrew = this.setupManualBrew(breaks[0].length -1, colorCodeForPositiveValues, breaks[0]);
-          dynamicDecreaseBrew = this.setupManualBrew(breaks[1].length -1, colorCodeForNegativeValues, breaks[1]);
+
+          // set max and min break correctly
+          if(manualDynamicBreaks[1][0] < Math.min(...this.negativeValues)) {
+            manualDynamicBreaks[1] = manualDynamicBreaks[1].filter(val => val >= Math.min(...this.negativeValues));
+          }
+          else if(manualDynamicBreaks[1][0] > Math.min(...this.negativeValues)) {
+            manualDynamicBreaks[1].unshift(Math.min(...this.negativeValues))
+          }
+          if(manualDynamicBreaks[0][manualDynamicBreaks[0].length-1] > Math.max(...this.positiveValues)) {
+            manualDynamicBreaks[0] = manualDynamicBreaks[0].filter(val => val <= Math.max(...this.positiveValues));
+          }
+          else if(manualDynamicBreaks[0][manualDynamicBreaks[0].length-1] < Math.max(...this.positiveValues)) {
+            manualDynamicBreaks[0].push(Math.max(...this.positiveValues))
+          }
+
+          dynamicIncreaseBrew = this.setupManualBrew(manualDynamicBreaks[0].length -1, colorCodeForPositiveValues, manualDynamicBreaks[0]);
+          dynamicDecreaseBrew = this.setupManualBrew(manualDynamicBreaks[1].length -1, colorCodeForNegativeValues, manualDynamicBreaks[1]);
           dynamicDecreaseBrew.colors = dynamicDecreaseBrew.colors.reverse();
         }
 
