@@ -40,4 +40,32 @@ angular
         }
       };
 
+      this.applyFilterSelection = function(filterConfig) {
+
+        if(filterConfig.length) 
+          self.applicationFilter = this.merge(filterConfig);
+        else
+          self.applicationFilter = undefined;
+      }
+
+      this.merge = function(filterConfig) {
+
+        var mergedConfig = {
+          "indicatorTopics": [],
+          "indicators": [],
+          "georesourceTopics": [],
+          "georesources": []
+        };
+
+        filterConfig.forEach(current => {
+          for (var key in current) {
+            if(mergedConfig.hasOwnProperty(key)) {
+              mergedConfig[key] = [...new Set([...mergedConfig[key] ,...current[key]])];
+            }
+          }
+        });
+
+        return mergedConfig;
+      }
+
     }]);
