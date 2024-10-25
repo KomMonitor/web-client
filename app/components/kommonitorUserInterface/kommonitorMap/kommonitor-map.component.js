@@ -2652,9 +2652,15 @@ angular.module('kommonitorMap').component(
                 defaultColorBrewerPaletteForBalanceDecreasingValues, 
                 kommonitorVisualStyleHelperService.classifyMethod,
                 kommonitorVisualStyleHelperService.numClasses,
-                kommonitorVisualStyleHelperService.dynamicBrewBreaks);
+                kommonitorVisualStyleHelperService.manualBrew.breaks);
               $scope.dynamicIncreaseBrew = dynamicIndicatorBrewArray[0];
               $scope.dynamicDecreaseBrew = dynamicIndicatorBrewArray[1];
+
+              kommonitorVisualStyleHelperService.manualBrew.breaks = [...$scope.dynamicDecreaseBrew.breaks, ...$scope.dynamicIncreaseBrew.breaks];
+
+              if (kommonitorVisualStyleHelperService.classifyMethod == "regional_default") {
+                $scope.applyRegionalDefaultClassification(indicatorMetadataAndGeoJSON);
+              }
 
               $scope.propertyName = INDICATOR_DATE_PREFIX + date;
 
