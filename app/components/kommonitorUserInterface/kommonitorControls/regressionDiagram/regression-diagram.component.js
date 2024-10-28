@@ -646,8 +646,8 @@ angular
 																		htmlString += "<tr>";
 																		htmlString += "<td>" + scatterSeries[j].name + "</td>";
 
-																		htmlString += "<td>" + kommonitorDataExchangeService.getIndicatorValue_asNumber(scatterSeries[j].value[0]) + "</td>";
-																		htmlString += "<td>" + kommonitorDataExchangeService.getIndicatorValue_asNumber(scatterSeries[j].value[1]) + "</td>";
+																		htmlString += "<td>" + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(scatterSeries[j].value[0]) + "</td>";
+																		htmlString += "<td>" + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(scatterSeries[j].value[1]) + "</td>";
 																		htmlString += "</tr>";
 																	}
 
@@ -673,8 +673,8 @@ angular
 																	
 																		for (var j=0; j<lineSeries.length; j++){
 																			htmlString += "<tr>";
-																			htmlString += "<td>" + kommonitorDataExchangeService.getIndicatorValue_asNumber(lineSeries[j][0]) + "</td>";
-																			htmlString += "<td>" + kommonitorDataExchangeService.getIndicatorValue_asNumber(lineSeries[j][1]) + "</td>";
+																			htmlString += "<td>" + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(lineSeries[j][0]) + "</td>";
+																			htmlString += "<td>" + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(lineSeries[j][1]) + "</td>";
 																			htmlString += "</tr>";
 																		}
 																		
