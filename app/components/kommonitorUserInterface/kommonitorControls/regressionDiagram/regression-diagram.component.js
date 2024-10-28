@@ -539,7 +539,12 @@ angular
 										        trigger: 'item',
 														confine: 'true',
 										        axisPointer: {
-										            type: 'cross'
+										            type: 'cross',
+                                label: {
+                                  formatter: function (params, index) {
+                                    return kommonitorDataExchangeService.getIndicatorValue_asFormattedText(params.value);
+                                  }
+                                }
 										        },
 														formatter: function (params) {
 																			if(!(params && params.value && params.value[0] && params.value[1])){
@@ -556,13 +561,13 @@ angular
 														name: kommonitorDataExchangeService.formatIndicatorNameForLabel($scope.selection.selectedIndicatorForXAxis.indicatorMetadata.indicatorName + " - " + $scope.selection.selectedIndicatorForXAxis.selectedDate + " [" + $scope.selection.selectedIndicatorForXAxis.indicatorMetadata.unit + "]", 100),
 														nameLocation: 'center',
 														nameGap: 22,
-		                        						scale: true,
-										        		type: 'value',
-										        		splitLine: {
-										            		lineStyle: {
-										                		type: 'dashed'
-										            		}
-										        		},
+                            scale: true,
+                            type: 'value',
+                            splitLine: {
+                                lineStyle: {
+                                    type: 'dashed'
+                                }
+                            },
                             axisLabel: {
                               formatter: function (value, index) {
                                 return kommonitorDataExchangeService.getIndicatorValue_asFormattedText(value);
