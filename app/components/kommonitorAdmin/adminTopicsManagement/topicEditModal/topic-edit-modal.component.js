@@ -1,8 +1,10 @@
 angular.module('topicEditModal').component('topicEditModal', {
 	templateUrl : "components/kommonitorAdmin/adminTopicsManagement/topicEditModal/topic-edit-modal.template.html",
-	controller : ['kommonitorDataExchangeService', '$scope', '$rootScope', '$http', '__env', '$timeout',function TopicEditModalController(kommonitorDataExchangeService, $scope, $rootScope, $http, __env, $timeout) {
+	controller : ['kommonitorDataExchangeService', 'kommonitorConfigStorageService', '$scope', '$rootScope', '$http', '__env', '$timeout', 'kommonitorGlobalFilterHelperService',
+    function TopicEditModalController(kommonitorDataExchangeService, kommonitorConfigStorageService, $scope, $rootScope, $http, __env, $timeout, kommonitorGlobalFilterHelperService) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
+    this.kommonitorConfigStorageServiceInstance = kommonitorConfigStorageService;		
 
 		$scope.currentTopic;
 
@@ -13,10 +15,31 @@ angular.module('topicEditModal').component('topicEditModal', {
 		$scope.$on("onEditTopic", function (event, topic) {
 
 			$scope.currentTopic = topic;
+      $scope.loadGlobalFilters();
 		});
 
+    $scope.loadGlobalFilters = async function() {
+
+      $scope.globalFilters = await kommonitorConfigStorageService.getFilterConfig();
+    }
+
+    $scope.onChangeFilterSelection = function(index) {
+
+      var topicId = $scope.currentTopic.topicId;
+      kommonitorGlobalFilterHelperService.editGlobalFilterConfig($scope.globalFilters, index, 'indicatorTopics', topicId);
+      /* var topicId = $scope.currentTopic.topicId;
+
+      if($scope.globalFilters[index]['indicatorTopics'].indexOf(topicId)<0)
+        $scope.globalFilters[index]['indicatorTopics'].push(topicId);
+
+      console.log($scope.globalFilters[index]); */
+    }
+
 		$scope.updateTopic = function(topic){
-			$scope.loadingData = true;
+
+      console.log(topic.topicId, $scope.globalFilters.filter(e => e.checked===true));
+
+			/* $scope.loadingData = true;
 
 			var topicId = topic.topicId;
 
@@ -65,7 +88,7 @@ angular.module('topicEditModal').component('topicEditModal', {
 						$scope.loadingData = false;
 					});	
 
-			});
+			}); */
 		};
 
 			$scope.hideSuccessAlert = function(){

@@ -1,6 +1,7 @@
 angular.module('adminFilterConfig').component('adminFilterConfig', {
 	templateUrl: "components/kommonitorAdmin/adminConfig/adminFilterConfig/admin-filter-config.template.html",
-	controller: ['kommonitorDataExchangeService', 'kommonitorScriptHelperService', 'kommonitorConfigStorageService', '$scope', '$rootScope', '__env', '$http', '$timeout', function FilterConfigController(kommonitorDataExchangeService, kommonitorScriptHelperService, kommonitorConfigStorageService, $scope, $rootScope, __env, $http, $timeout) {
+	controller: ['kommonitorDataExchangeService', 'kommonitorScriptHelperService', 'kommonitorConfigStorageService', 'kommonitorDataGridHelperService', '$scope', '$rootScope', '__env', '$http', '$timeout', 
+    function FilterConfigController(kommonitorDataExchangeService, kommonitorScriptHelperService, kommonitorConfigStorageService, kommonitorDataGridHelperService, $scope, $rootScope, __env, $http, $timeout) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;	
 		this.kommonitorScriptHelperServiceInstance = kommonitorScriptHelperService;
@@ -40,7 +41,23 @@ angular.module('adminFilterConfig').component('adminFilterConfig', {
 
 			$scope.onChangeFilterConfig();
 
+			$timeout(function(){
+				
+				$scope.initializeOrRefreshOverviewTable();
+			}, 250);
+
 			$scope.$digest();
+		};
+
+		$scope.initializeOrRefreshOverviewTable = function(){
+			$scope.loadingData = true;
+			console.log(kommonitorDataExchangeService.availableSpatialUnits);
+			kommonitorDataGridHelperService.buildDataGrid_globalFilter(kommonitorDataExchangeService.availableSpatialUnits);
+
+			$timeout(function(){
+				
+				$scope.loadingData = false;
+			});	
 		};
 
 		$scope.initCodeEditor = function(){

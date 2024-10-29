@@ -28,6 +28,8 @@ angular
       this.dataGridOptions_spatialUnits;
       this.dataGridOptions_accessControl;
 
+      this.dataGridOptions_globalFilter;
+
       function getCurrentTimestampString(){
         let date = new Date();
         let hours = date.getHours();
@@ -106,6 +108,17 @@ angular
       };
 
       var displayEditButtons_spatialUnits = function (params) {
+
+        let html = '<div class="btn-group btn-group-sm">';
+        html += '<button id="btn_spatialUnit_editMetadata_' + params.data.spatialUnitId + '" class="btn btn-warning btn-sm spatialUnitEditMetadataBtn" type="button" data-toggle="modal" data-target="#modal-edit-spatial-unit-metadata" title="Metadaten editieren"  '+ (params.data.userPermissions.includes("editor") ? '' : 'disabled') + '><i class="fas fa-pencil-alt"></i></button>';
+        html += '<button id="btn_spatialUnit_editFeatures_' + params.data.spatialUnitId + '" class="btn btn-warning btn-sm spatialUnitEditFeaturesBtn" type="button" data-toggle="modal" data-target="#modal-edit-spatial-unit-features" title="Features fortf&uuml;hren"  '+ (params.data.userPermissions.includes("editor") ? '' : 'disabled') + '><i class="fas fa-draw-polygon"></i></button>';
+        html += '<button id="btn_spatialUnit_deleteSpatialUnit_' + params.data.spatialUnitId + '" class="btn btn-danger btn-sm spatialUnitDeleteBtn" type="button" data-toggle="modal" data-target="#modal-delete-spatial-units" title="Raumeinheit entfernen"  '+ (params.data.userPermissions.includes("creator") ? '' : 'disabled') + '><i class="fas fa-trash"></i></button>'
+        html += '</div>';
+
+        return html;
+      };
+
+      var displayEditButtons_globalFilter = function (params) {
 
         let html = '<div class="btn-group btn-group-sm">';
         html += '<button id="btn_spatialUnit_editMetadata_' + params.data.spatialUnitId + '" class="btn btn-warning btn-sm spatialUnitEditMetadataBtn" type="button" data-toggle="modal" data-target="#modal-edit-spatial-unit-metadata" title="Metadaten editieren"  '+ (params.data.userPermissions.includes("editor") ? '' : 'disabled') + '><i class="fas fa-pencil-alt"></i></button>';
@@ -1308,6 +1321,218 @@ angular
           new agGrid.Grid(gridDiv, this.dataGridOptions_spatialUnits);
         }
       };
+
+      // GLOBAL FILTER table
+      
+      this.buildDataGrid_globalFilter = function (spatialUnitMetadataArray) {
+        
+        if (this.dataGridOptions_globalFilter && this.dataGridOptions_globalFilter.api && document.querySelector('#globalFilterOverviewTable').childElementCount > 0) {
+
+          this.saveGridStore(this.dataGridOptions_globalFilter);
+          let newRowData = this.buildDataGridOptions_globalFilter(spatialUnitMetadataArray);
+          this.dataGridOptions_globalFilter.api.setRowData(newRowData);
+          this.restoreGridStore(this.dataGridOptions_globalFilter);
+        }
+        else {
+          this.dataGridOptions_globalFilter = this.buildDataGridOptions_globalFilter(spatialUnitMetadataArray);
+          let gridDiv = document.querySelector('#globalFilterOverviewTable');
+          new agGrid.Grid(gridDiv, this.dataGridOptions_globalFilter);
+        }
+      };
+
+      this.buildDataGridOptions_globalFilter = function (spatialUnitMetadataArray) {
+        let columnDefs = this.buildDataGridColumnConfig_globalFilter(spatialUnitMetadataArray);
+        let rowData = this.buildDataGridRowData_globalFilter(spatialUnitMetadataArray);
+
+        let gridOptions = {
+          defaultColDef: {
+            editable: false,
+            sortable: true,
+            flex: 1,
+            minWidth: 200,
+            filter: true,
+            floatingFilter: true,
+            // filterParams: {
+            //   newRowsAction: 'keep'
+            // },
+            resizable: true,
+            wrapText: true,
+            autoHeight: true,
+            cellStyle: { 'font-size': '12px;', 'white-space': 'normal !important', "line-height": "20px !important", "word-break": "break-word !important", "padding-top": "17px", "padding-bottom": "17px" },
+            headerComponentParams: {
+              template:
+                '<div class="ag-cell-label-container" role="presentation">' +
+                '  <span ref="eMenu" class="ag-header-icon ag-header-cell-menu-button"></span>' +
+                '  <div ref="eLabel" class="ag-header-cell-label" role="presentation">' +
+                '    <span ref="eSortOrder" class="ag-header-icon ag-sort-order"></span>' +
+                '    <span ref="eSortAsc" class="ag-header-icon ag-sort-ascending-icon"></span>' +
+                '    <span ref="eSortDesc" class="ag-header-icon ag-sort-descending-icon"></span>' +
+                '    <span ref="eSortNone" class="ag-header-icon ag-sort-none-icon"></span>' +
+                '    <span ref="eText" class="ag-header-cell-text" role="columnheader" style="white-space: normal;"></span>' +
+                '    <span ref="eFilter" class="ag-header-icon ag-filter-icon"></span>' +
+                '  </div>' +
+                '</div>',
+            },
+          },
+          components: {
+            displayEditButtons_globalFilter: displayEditButtons_globalFilter
+          },
+          columnDefs: columnDefs,
+          rowData: rowData,
+          suppressRowClickSelection: true,
+          rowSelection: 'multiple',
+          enableCellTextSelection: true,
+          ensureDomOrder: true,
+          pagination: true,
+          paginationPageSize: 10,
+          suppressColumnVirtualisation: true,          
+          onFirstDataRendered: function () {
+            headerHeightSetter(self.dataGridOptions_spatialUnits);
+          },
+          onColumnResized: function () {
+            headerHeightSetter(self.dataGridOptions_spatialUnits);
+          },        
+          onRowDataChanged: function () {
+            self.registerClickHandler_globalFilter(spatialUnitMetadataArray);
+          },   
+          onModelUpdated: function () {
+            self.registerClickHandler_globalFilter(spatialUnitMetadataArray);
+            
+          },
+          onViewportChanged: function () {
+            self.registerClickHandler_globalFilter(spatialUnitMetadataArray);                   
+          },
+
+        };
+
+        return gridOptions;
+      };
+
+      this.buildDataGridRowData_globalFilter = function (spatialUnitMetadataArray) {
+        return spatialUnitMetadataArray;
+      };
+
+      this.buildDataGridColumnConfig_globalFilter = function (spatialUnitMetadataArray) {
+        const columnDefs = [
+          { headerName: 'Editierfunktionen', pinned: 'left', maxWidth: 150, checkboxSelection: false, headerCheckboxSelection: false, 
+          headerCheckboxSelectionFilteredOnly: true, filter: false, sortable: false, cellRenderer: 'displayEditButtons_globalFilter' },
+          { headerName: 'Id', field: "spatialUnitId", pinned: 'left', maxWidth: 125 },
+          { headerName: 'Name', field: "spatialUnitLevel", pinned: 'left', minWidth: 300 },
+          { headerName: 'Beschreibung', minWidth: 400, cellRenderer: function (params) { return params.data.metadata.description; },
+            filter: 'agTextColumnFilter', 
+            filterValueGetter: (params) => {
+              return "" + params.data.metadata.description;
+            }
+          },
+          { headerName: 'Nächst niedrigere Raumebene', field: "nextLowerHierarchyLevel", minWidth: 250 },
+          { headerName: 'Nächst höhere Raumebene', field: "nextUpperHierarchyLevel", minWidth: 250 },          
+          {
+            headerName: 'Gültigkeitszeitraum', minWidth: 400,
+            cellRenderer: function (params) {
+              /*
+                <ul style="columns: 10; 	-webkit-columns: 10;	-moz-columns: 10;">
+												<li style="margin-right: 15px;" ng-repeat="periodOfValidity in poiDataset.availablePeriodsOfValidity">
+													<p ng-show="periodOfValidity.endDate">{{::periodOfValidity.startDate}} - {{::periodOfValidity.endDate}}</p>
+													<p ng-show="! periodOfValidity.endDate">{{::periodOfValidity.startDate}} - heute </p>
+												</li>
+											</ul>
+              */
+              let html = '<ul style="columns: 5; 	-webkit-columns: 5;	-moz-columns: 5; word-break: break-word !important;">';
+              for (const periodOfValidity of params.data.availablePeriodsOfValidity) {
+                html += '<li style="margin-right: 15px;">';
+
+                if(periodOfValidity.endDate){
+                  html += "<p>" + periodOfValidity.startDate + " &dash; " + periodOfValidity.endDate + "</p>" ;
+                }
+                else{
+                  html += "<p>" + periodOfValidity.startDate + " &dash; heute</p>";
+                }                
+                html += '</li>';
+              }
+              html += '</ul>';
+              return html;
+            },
+            filter: 'agTextColumnFilter', 
+            filterValueGetter: (params) => {
+              if (params.data.availablePeriodsOfValidity && params.data.availablePeriodsOfValidity.length > 1){
+                return "" + JSON.stringify(params.data.availablePeriodsOfValidity);
+              }
+              return params.data.availablePeriodsOfValidity;
+            }
+          },
+          { headerName: 'Datenquelle', minWidth: 400, cellRenderer: function (params) { return params.data.metadata.datasource; },
+            filter: 'agTextColumnFilter', 
+            filterValueGetter: (params) => {
+              return "" + params.data.metadata.datasource;
+            }
+          },
+          { headerName: 'Datenhalter und Kontakt', minWidth: 400, cellRenderer: function (params) { return params.data.metadata.contact; },
+            filter: 'agTextColumnFilter', 
+            filterValueGetter: (params) => {
+              return "" + params.data.metadata.contact;
+            }
+          },
+          { headerName: 'Rollen', minWidth: 400, cellRenderer: function (params) { return kommonitorDataExchangeService.getAllowedRolesString(params.data.allowedRoles); },
+          filter: 'agTextColumnFilter', 
+          filterValueGetter: (params) => {
+              return "" +  kommonitorDataExchangeService.getAllowedRolesString(params.data.allowedRoles);
+            } 
+          }
+        ];
+
+        return columnDefs;
+      };
+
+      this.registerClickHandler_globalFilter = function (spatialUnitMetadataArray) {
+
+        $(".spatialUnitEditMetadataBtn").off();
+        $(".spatialUnitEditMetadataBtn").on("click", function (event) {
+          // ensure that only the target button gets clicked
+          // manually open modal
+          event.stopPropagation();
+          let modalId = document.getElementById(this.id).getAttribute("data-target");
+          $(modalId).modal('show');
+          
+          let spatialUnitId = this.id.split("_")[3];
+
+          let spatialUnitMetadata = kommonitorDataExchangeService.getSpatialUnitMetadataById(spatialUnitId);
+
+          $rootScope.$broadcast("onEditSpatialUnitMetadata", spatialUnitMetadata);
+        });
+
+        $(".spatialUnitEditFeaturesBtn").off();
+        $(".spatialUnitEditFeaturesBtn").on("click", function (event) {
+          // ensure that only the target button gets clicked
+          // manually open modal
+          event.stopPropagation();
+          let modalId = document.getElementById(this.id).getAttribute("data-target");
+          $(modalId).modal('show');
+          
+          let spatialUnitId = this.id.split("_")[3];
+
+          let spatialUnitMetadata = kommonitorDataExchangeService.getSpatialUnitMetadataById(spatialUnitId);
+
+          $rootScope.$broadcast("onEditSpatialUnitFeatures", spatialUnitMetadata);
+        });
+
+        $(".spatialUnitDeleteBtn").off();
+        $(".spatialUnitDeleteBtn").on("click", function (event) { 
+          // ensure that only the target button gets clicked
+          // manually open modal
+          event.stopPropagation();
+          let modalId = document.getElementById(this.id).getAttribute("data-target");
+          $(modalId).modal('show');
+                
+          let spatialUnitId = this.id.split("_")[3]; 
+
+          let spatialUnitMetadata = kommonitorDataExchangeService.getSpatialUnitMetadataById(spatialUnitId);
+
+          $rootScope.$broadcast("onDeleteSpatialUnits", [spatialUnitMetadata]); //handler function takes an array
+        });
+
+      };
+
+      // END
 
       // FEATURE TABLES
 
