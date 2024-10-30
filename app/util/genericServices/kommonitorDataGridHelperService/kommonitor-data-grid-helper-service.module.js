@@ -3030,6 +3030,66 @@ angular
         }  
       };
 
+      function CheckboxRenderer_checked() {}
+
+      CheckboxRenderer_checked.prototype.init = function(params) {
+        this.params = params;
+
+        this.eGui = document.createElement('input');
+        this.eGui.type = 'checkbox';
+        this.eGui.checked = this.params.checked;
+
+        this.checkedHandler = this.checkedHandler.bind(this);
+        this.eGui.addEventListener('click', this.checkedHandler);
+      };
+
+      CheckboxRenderer_checked.prototype.checkedHandler = function(e) {
+
+        this.params.data.checked = e.target.checked;
+        console.log(this.params.data)
+/*
+        let checked = e.target.checked;
+         for (const role of this.params.data.roles) {
+          if (role.permissionLevel == "publisher"){            
+            if(!checked)
+              role.isChecked = false;
+          }
+          else if (role.permissionLevel == "editor"){            
+            if (checked){
+              role.isChecked = true;
+              $('.' + role.roleId).attr('disabled', true);
+              $('.' + role.roleId).prop("checked", true);
+            }                    
+            else{
+              $('.' + role.roleId).attr('disabled', false);
+            }
+          }
+          else if (role.permissionLevel == "viewer"){            
+            if (checked){
+              role.isChecked = true;
+              $('.' + role.roleId).attr('disabled', true);
+              $('.' + role.roleId).prop("checked", true);
+            }                    
+            else{
+              $('.' + role.roleId).attr('disabled', true);
+            }
+          }
+          else if (role.permissionLevel == "creator" || role.permissionLevel == "editor" || role.permissionLevel == "viewer"){            
+            role.isChecked = checked;
+          }
+        }   */
+      };
+
+      CheckboxRenderer_checked.prototype.getGui = function(params) {
+        return this.eGui;
+      };
+
+      CheckboxRenderer_checked.prototype.destroy = function(params) {
+        if(this.eGui){
+          this.eGui.removeEventListener('click', this.checkedHandler);
+        }  
+      };
+
       this.buildRoleManagementGridRowData = function(accessControlMetadata, selectedRoleIds){
         let data = JSON.parse(JSON.stringify(accessControlMetadata));
         for (let elem of data) {
@@ -3172,6 +3232,148 @@ angular
         }
         return ids;
       };
+
+      // SINGLE-SELECT TABLE
+
+      this.buildSingleSelectGridRowData = function(accessControlMetadata, selectedRoleIds){
+        let data = JSON.parse(JSON.stringify(accessControlMetadata));
+      /*   for (let elem of data) {
+          for (let role of elem.roles) {
+            role.isChecked = false;
+            if (selectedRoleIds && selectedRoleIds.includes(role.roleId)){
+              role.isChecked = true;
+            }
+          }
+        } */
+
+        let array = [];
+        array.push(data[0]);
+        array.push(data[1]);
+
+        data.splice(0,2);
+        data.sort(function (a, b) {
+          if (a.name < b.name) {
+            return -1;
+          }
+          if (a.name > b.name) {
+            return 1;
+          }
+          return 0;
+        });
+
+        array = array.concat(data);
+
+        return array;
+      };
+
+      this.buildSingleSelectGridColumnConfig = function(){
+        let columnDefs = [];
+
+        return columnDefs.concat([
+          { headerName: 'Name', field: "name", minWidth: 200 },
+          { headerName: 'ID', field: "id", minWidth: 150 },
+          { headerName: 'sichtbar', field: "checked", filter: false, sortable: false, maxWidth: 100, cellRenderer: 'checkboxRenderer_checked', }
+        ]);
+      };
+
+      this.buildSingleSelectGridOptions = function(accessControlMetadata, selectedRoleIds){
+        let columnDefs = this.buildSingleSelectGridColumnConfig();
+          let rowData = this.buildSingleSelectGridRowData(accessControlMetadata, selectedRoleIds);
+  
+          let components = {
+            checkboxRenderer_checked: CheckboxRenderer_checked,
+          };
+
+          let gridOptions = {
+            defaultColDef: {
+              editable: false,
+              sortable: true,
+              flex: 1,
+              minWidth: 200,
+              filter: true,
+              floatingFilter: false,
+              // filterParams: {
+              //   newRowsAction: 'keep'
+              // },
+              resizable: true,
+              wrapText: true,
+              autoHeight: true,
+              cellStyle: { 'font-size': '12px;', 'white-space': 'normal !important', "line-height": "20px !important", "word-break": "break-word !important", "padding-top": "17px", "padding-bottom": "17px" },
+              headerComponentParams: {
+                template:
+                  '<div class="ag-cell-label-container" role="presentation">' +
+                  '  <span ref="eMenu" class="ag-header-icon ag-header-cell-menu-button"></span>' +
+                  '  <div ref="eLabel" class="ag-header-cell-label" role="presentation">' +
+                  '    <span ref="eSortOrder" class="ag-header-icon ag-sort-order"></span>' +
+                  '    <span ref="eSortAsc" class="ag-header-icon ag-sort-ascending-icon"></span>' +
+                  '    <span ref="eSortDesc" class="ag-header-icon ag-sort-descending-icon"></span>' +
+                  '    <span ref="eSortNone" class="ag-header-icon ag-sort-none-icon"></span>' +
+                  '    <span ref="eText" class="ag-header-cell-text" role="columnheader" style="white-space: normal;"></span>' +
+                  '    <span ref="eFilter" class="ag-header-icon ag-filter-icon"></span>' +
+                  '  </div>' +
+                  '</div>',
+              },
+            },
+            components: components,
+            floatingFilter: false,
+            columnDefs: columnDefs,
+            rowData: rowData,
+            rowHeight: 10,
+            suppressRowClickSelection: true,
+            rowSelection: 'multiple',
+            enableCellTextSelection: false,
+            ensureDomOrder: true,
+            pagination: true,
+            paginationPageSize: 5,
+            suppressColumnVirtualisation: true,          
+            onFirstDataRendered: function () {
+            },
+            onColumnResized: function () {
+              self.registerClickHandler_accessControl(accessControlMetadata);
+            },        
+            onRowDataChanged: function () {
+              self.registerClickHandler_accessControl(accessControlMetadata);
+            },   
+            onModelUpdated: function () {
+              self.registerClickHandler_accessControl(accessControlMetadata);
+            },   
+            onViewportChanged: function () {   
+              self.registerClickHandler_accessControl(accessControlMetadata);    
+            },
+  
+          };
+  
+          return gridOptions;
+      };
+
+      this.buildSingleSelectGrid = function(tableDOMId, currentTableOptionsObject, accessControlMetadata, selectedRoleIds){
+        if (currentTableOptionsObject && currentTableOptionsObject.api) {
+
+          let newRowData = this.buildSingleSelectGridRowData(accessControlMetadata, selectedRoleIds);
+          currentTableOptionsObject.api.setRowData(newRowData);
+        }
+        else {
+          currentTableOptionsObject = this.buildSingleSelectGridOptions(accessControlMetadata, selectedRoleIds);
+          let gridDiv = document.querySelector('#' + tableDOMId);
+          new agGrid.Grid(gridDiv, currentTableOptionsObject);
+        }
+        return currentTableOptionsObject;
+      };
+
+      this.getSelectedIds_singleSelectGrid = function(roleManagementTableOptions){
+        let ids = [];
+        if (roleManagementTableOptions && roleManagementTableOptions.api){
+
+          roleManagementTableOptions.api.forEachNode(function(node, index){
+            if(node.data.checked){
+                ids.push(node.data.id);
+            } 
+          })               
+        }
+        return ids;
+      };
+
+      // END
 
       // INDICATOR REFERENCE VALUES
 
