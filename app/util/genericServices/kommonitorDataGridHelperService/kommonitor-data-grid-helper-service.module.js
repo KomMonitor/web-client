@@ -121,9 +121,8 @@ angular
       var displayEditButtons_globalFilter = function (params) {
 
         let html = '<div class="btn-group btn-group-sm">';
-        html += '<button id="btn_spatialUnit_editMetadata_' + params.data.spatialUnitId + '" class="btn btn-warning btn-sm spatialUnitEditMetadataBtn" type="button" data-toggle="modal" data-target="#modal-edit-spatial-unit-metadata" title="Metadaten editieren"  '+ (params.data.userPermissions.includes("editor") ? '' : 'disabled') + '><i class="fas fa-pencil-alt"></i></button>';
-        html += '<button id="btn_spatialUnit_editFeatures_' + params.data.spatialUnitId + '" class="btn btn-warning btn-sm spatialUnitEditFeaturesBtn" type="button" data-toggle="modal" data-target="#modal-edit-spatial-unit-features" title="Features fortf&uuml;hren"  '+ (params.data.userPermissions.includes("editor") ? '' : 'disabled') + '><i class="fas fa-draw-polygon"></i></button>';
-        html += '<button id="btn_spatialUnit_deleteSpatialUnit_' + params.data.spatialUnitId + '" class="btn btn-danger btn-sm spatialUnitDeleteBtn" type="button" data-toggle="modal" data-target="#modal-delete-spatial-units" title="Raumeinheit entfernen"  '+ (params.data.userPermissions.includes("creator") ? '' : 'disabled') + '><i class="fas fa-trash"></i></button>'
+        html += '<button id="btn_globalFilter_editFilter_' + params.data.filterId + '" class="btn btn-warning btn-sm globalFilterEditBtn" type="button" data-toggle="modal" data-target="#modal-edit-global-filter" title="Filter editieren"><i class="fas fa-pencil-alt"></i></button>';
+        html += '<button id="btn_globalFilter_deleteFilter_' + params.data.filterId + '" class="btn btn-danger btn-sm globalFilterDeleteBtn" type="button" data-toggle="modal" data-target="#modal-delete-global-filter" title="Filter entfernen"><i class="fas fa-trash"></i></button>'
         html += '</div>';
 
         return html;
@@ -1387,10 +1386,10 @@ angular
           paginationPageSize: 10,
           suppressColumnVirtualisation: true,          
           onFirstDataRendered: function () {
-            headerHeightSetter(self.dataGridOptions_spatialUnits);
+            headerHeightSetter(self.dataGridOptions_globalFilter);
           },
           onColumnResized: function () {
-            headerHeightSetter(self.dataGridOptions_spatialUnits);
+            headerHeightSetter(self.dataGridOptions_globalFilter);
           },        
           onRowDataChanged: function () {
             self.registerClickHandler_globalFilter(spatialUnitMetadataArray);
@@ -1416,68 +1415,11 @@ angular
         const columnDefs = [
           { headerName: 'Editierfunktionen', pinned: 'left', maxWidth: 150, checkboxSelection: false, headerCheckboxSelection: false, 
           headerCheckboxSelectionFilteredOnly: true, filter: false, sortable: false, cellRenderer: 'displayEditButtons_globalFilter' },
-          { headerName: 'Id', field: "spatialUnitId", pinned: 'left', maxWidth: 125 },
-          { headerName: 'Name', field: "spatialUnitLevel", pinned: 'left', minWidth: 300 },
-          { headerName: 'Beschreibung', minWidth: 400, cellRenderer: function (params) { return params.data.metadata.description; },
-            filter: 'agTextColumnFilter', 
-            filterValueGetter: (params) => {
-              return "" + params.data.metadata.description;
-            }
-          },
-          { headerName: 'Nächst niedrigere Raumebene', field: "nextLowerHierarchyLevel", minWidth: 250 },
-          { headerName: 'Nächst höhere Raumebene', field: "nextUpperHierarchyLevel", minWidth: 250 },          
-          {
-            headerName: 'Gültigkeitszeitraum', minWidth: 400,
-            cellRenderer: function (params) {
-              /*
-                <ul style="columns: 10; 	-webkit-columns: 10;	-moz-columns: 10;">
-												<li style="margin-right: 15px;" ng-repeat="periodOfValidity in poiDataset.availablePeriodsOfValidity">
-													<p ng-show="periodOfValidity.endDate">{{::periodOfValidity.startDate}} - {{::periodOfValidity.endDate}}</p>
-													<p ng-show="! periodOfValidity.endDate">{{::periodOfValidity.startDate}} - heute </p>
-												</li>
-											</ul>
-              */
-              let html = '<ul style="columns: 5; 	-webkit-columns: 5;	-moz-columns: 5; word-break: break-word !important;">';
-              for (const periodOfValidity of params.data.availablePeriodsOfValidity) {
-                html += '<li style="margin-right: 15px;">';
-
-                if(periodOfValidity.endDate){
-                  html += "<p>" + periodOfValidity.startDate + " &dash; " + periodOfValidity.endDate + "</p>" ;
-                }
-                else{
-                  html += "<p>" + periodOfValidity.startDate + " &dash; heute</p>";
-                }                
-                html += '</li>';
-              }
-              html += '</ul>';
-              return html;
-            },
-            filter: 'agTextColumnFilter', 
-            filterValueGetter: (params) => {
-              if (params.data.availablePeriodsOfValidity && params.data.availablePeriodsOfValidity.length > 1){
-                return "" + JSON.stringify(params.data.availablePeriodsOfValidity);
-              }
-              return params.data.availablePeriodsOfValidity;
-            }
-          },
-          { headerName: 'Datenquelle', minWidth: 400, cellRenderer: function (params) { return params.data.metadata.datasource; },
-            filter: 'agTextColumnFilter', 
-            filterValueGetter: (params) => {
-              return "" + params.data.metadata.datasource;
-            }
-          },
-          { headerName: 'Datenhalter und Kontakt', minWidth: 400, cellRenderer: function (params) { return params.data.metadata.contact; },
-            filter: 'agTextColumnFilter', 
-            filterValueGetter: (params) => {
-              return "" + params.data.metadata.contact;
-            }
-          },
-          { headerName: 'Rollen', minWidth: 400, cellRenderer: function (params) { return kommonitorDataExchangeService.getAllowedRolesString(params.data.allowedRoles); },
-          filter: 'agTextColumnFilter', 
-          filterValueGetter: (params) => {
-              return "" +  kommonitorDataExchangeService.getAllowedRolesString(params.data.allowedRoles);
-            } 
-          }
+          { headerName: 'Name', field: "name", pinned: 'left', minWidth: 300 },
+          { headerName: 'Indikatoren', field: "indicators", minWidth: 250 },
+          { headerName: 'Indikator-Themen', field: "indicatorTopics", minWidth: 250 },    
+          { headerName: 'Georesourcen', field: "georesources", minWidth: 250 },
+          { headerName: 'Georesource-Themen', field: "georesourceTopics", minWidth: 250 },   
         ];
 
         return columnDefs;

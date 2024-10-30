@@ -43,22 +43,35 @@ angular.module('adminFilterConfig').component('adminFilterConfig', {
 
 			$timeout(function(){
 				
+        $scope.prepGlobalFilterData();
 				$scope.initializeOrRefreshOverviewTable();
-			}, 250);
+			}, 1000);
 
 			$scope.$digest();
 		};
 
 		$scope.initializeOrRefreshOverviewTable = function(){
 			$scope.loadingData = true;
-			console.log(kommonitorDataExchangeService.availableSpatialUnits);
-			kommonitorDataGridHelperService.buildDataGrid_globalFilter(kommonitorDataExchangeService.availableSpatialUnits);
+			kommonitorDataGridHelperService.buildDataGrid_globalFilter(__env.filterConfig);
 
 			$timeout(function(){
 				
 				$scope.loadingData = false;
 			});	
 		};
+
+    $scope.prepGlobalFilterData = function() {
+
+      let mergedConfig = __env.filterConfig;
+      mergedConfig.forEach((filter, filterIndex) => {
+        filter.indicators.forEach((indicatorElement, indicatorIndex) => {
+          mergedConfig[filterIndex].indicators[indicatorIndex] = kommonitorDataExchangeService.availableIndicators.filter(e => e.indicatorId==indicatorElement).map(e => e.indicatorName)[0];
+        });
+        filter.georesources.forEach((georesourceElement, georesourceIndex) => {
+          mergedConfig[filterIndex].georesources[georesourceIndex] = kommonitorDataExchangeService.availableGeoresources.filter(e => e.georesourceId==georesourceElement).map(e => e.datasetName)[0];
+        });
+      });
+    }
 
 		$scope.initCodeEditor = function(){
 			$scope.codeMirrorEditor = CodeMirror.fromTextArea(document.getElementById("filterConfigEditor"), {
