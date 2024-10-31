@@ -151,7 +151,7 @@ angular
 											 message: undefined
 										 });
 										 
-										 responses[i].message = "Einige der zu importierenden Features des Datensatzes weisen kritische Fehler auf.\n";
+										 responses[i].message = "Einige der zu importierenden Raumeinheiten des Datensatzes weisen kritische Fehler auf.\n";
 										 responses[i].message += kommonitorImporterHelperService.getErrorsFromImporterResponse(updateGeoresourceResponse_dryRun);
 									 }
 								 } catch (error) {
@@ -239,7 +239,7 @@ angular
 											 message: undefined
 										 });
 										 
-										 responses[i].message = "Einige der zu importierenden Features des Datensatzes weisen kritische Fehler auf.\n";
+										 responses[i].message = "Einige der zu importierenden Raumeinheiten des Datensatzes weisen kritische Fehler auf.\n";
 										 responses[i].message += kommonitorImporterHelperService.getErrorsFromImporterResponse(updateIndicatorResponse_dryRun);
 									 }
 								 } catch (error) {

@@ -259,7 +259,7 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 					else{
 						// errors ocurred
 						// show them 
-						$scope.errorMessagePart = "Das zu importierende Feature des Datensatzes weist kritische Fehler auf";
+						$scope.errorMessagePart = "Die zu importierende Raumeinheit des Datensatzes weist kritische Fehler auf";
 						$scope.importerErrors = kommonitorImporterHelperService.getErrorsFromImporterResponse(updateGeoresourceResponse_dryRun);
 
 						$("#georesourceEditFeaturesErrorAlert").show();
@@ -698,7 +698,7 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 						else{
 							// errors ocurred
 							// show them 
-							$scope.errorMessagePart = "Einige der zu importierenden Features des Datensatzes weisen kritische Fehler auf";
+							$scope.errorMessagePart = "Einige der zu importierenden Raumeinheiten des Datensatzes weisen kritische Fehler auf";
 							$scope.importerErrors = kommonitorImporterHelperService.getErrorsFromImporterResponse(updateGeoresourceResponse_dryRun);
 
 							$("#georesourceEditFeaturesErrorAlert").show();

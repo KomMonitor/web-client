@@ -292,7 +292,7 @@ angular
 												var htmlString = '<table id="' + dataTableId + '" class="table table-bordered table-condensed" style="width:100%;text-align:center;">';
 												htmlString += "<thead>";
 												htmlString += "<tr>";
-												htmlString += "<th style='text-align:center;'>Feature-Name</th>";
+												htmlString += "<th style='text-align:center;'>Raumeinheits-Name</th>";
 
 												for (var i = 0; i < indicators.length; i++) {
 													htmlString += "<th style='text-align:center;'>" + indicators[i].name + " [" + indicators[i].unit + "]</th>";

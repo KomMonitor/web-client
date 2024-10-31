@@ -660,7 +660,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 						else{
 							// errors ocurred
 							// show them 
-							$scope.errorMessagePart = "Einige der zu importierenden Features des Datensatzes weisen kritische Fehler auf";
+							$scope.errorMessagePart = "Einige der zu importierenden Raumeinheiten des Datensatzes weisen kritische Fehler auf";
 							$scope.importerErrors = kommonitorImporterHelperService.getErrorsFromImporterResponse(newGeoresourceResponse_dryRun);
 
 							$("#georesourceAddErrorAlert").show();

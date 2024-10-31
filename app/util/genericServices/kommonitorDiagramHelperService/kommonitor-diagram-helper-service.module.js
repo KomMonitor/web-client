@@ -606,7 +606,7 @@ angular
             feature: {
               // mark : {show: true},
               dataView: {
-                show: kommonitorDataExchangeService.showDiagramExportButtons, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - Feature-Vergleich', 'schlie&szlig;en', 'refresh'], optionToContent: function (opt) {
+                show: kommonitorDataExchangeService.showDiagramExportButtons, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - Raumeinheits-Vergleich', 'schlie&szlig;en', 'refresh'], optionToContent: function (opt) {
 
                   var barData = opt.series[0].data;
                   var featureNames = opt.xAxis[0].data;
@@ -617,7 +617,7 @@ angular
                   var htmlString = '<table id="' + dataTableId + '" class="table table-bordered table-condensed" style="width:100%;text-align:center;">';
                   htmlString += "<thead>";
                   htmlString += "<tr>";
-                  htmlString += "<th style='text-align:center;'>Feature-Name</th>";
+                  htmlString += "<th style='text-align:center;'>Raumeinheits-Name</th>";
                   htmlString += "<th style='text-align:center;'>" + opt.xAxis[0].name + " [" + opt.yAxis[0].name + "]</th>";
                   htmlString += "</tr>";
                   htmlString += "</thead>";
@@ -1112,7 +1112,7 @@ angular
                   var htmlString = '<table id="' + dataTableId + '" class="table table-bordered table-condensed" style="width:100%;text-align:center;">';
                   htmlString += "<thead>";
                   htmlString += "<tr>";
-                  htmlString += "<th style='text-align:center;'>Feature-Name</th>";
+                  htmlString += "<th style='text-align:center;'>Raumeinheits-Name</th>";
                   htmlString += "<th style='text-align:center;'>" + indicatorMetadataAndGeoJSON.indicatorName + " [" + indicatorMetadataAndGeoJSON.indicatorName + "]</th>";
                   htmlString += "</tr>";
                   htmlString += "</thead>";
@@ -1611,7 +1611,7 @@ angular
             scale: true,
           }],
           yAxis: {
-            name: 'Anzahl Features',
+            name: 'Anzahl Raumeinheiten',
             axisLabel: {
               formatter: function (value, index) {
                 return kommonitorDataExchangeService.getIndicatorValue_asFormattedText(value);
@@ -1689,7 +1689,7 @@ angular
         //         }],
         //         yAxis: {
         // 					type: 'value',
-        // 					name: 'Anzahl Features',
+        // 					name: 'Anzahl Raumeinheiten',
         // 					nameGap: 22,
         // 					nameLocation: 'center',
         // 					nameRotate: 90,

@@ -213,7 +213,7 @@ angular.module('singleFeatureEdit').component('singleFeatureEdit', {
 						$scope.georesourceFeaturesGeoJSON = response.data;
 
 					}, function errorCallback(error) {
-						$scope.featureInfoText_singleFeatureAddMenu = "Keine Features im Datensatz vorhanden oder Fehler bei Abruf";
+						$scope.featureInfoText_singleFeatureAddMenu = "Keine Raumeinheiten im Datensatz vorhanden oder Fehler bei Abruf";
 					}).finally(function () {
 
 					});
@@ -230,7 +230,7 @@ angular.module('singleFeatureEdit').component('singleFeatureEdit', {
 
 				kommonitorSingleFeatureMapHelperService.addDataLayertoSingleFeatureGeoMap($scope.georesourceFeaturesGeoJSON);
 
-				$scope.featureInfoText_singleFeatureAddMenu = "" + $scope.georesourceFeaturesGeoJSON.features.length + " Features im Datensatz vorhanden";
+				$scope.featureInfoText_singleFeatureAddMenu = "" + $scope.georesourceFeaturesGeoJSON.features.length + " Raumeinheiten im Datensatz vorhanden";
 
 				//once the dataset features are fetched we may make a proposal for the ID of a new Feature
 				$scope.featureIdValue = $scope.generateIdProposalFromExistingFeatures();

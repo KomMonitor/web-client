@@ -62,7 +62,7 @@ angular
 								name: 'Quantile', 
 								id: 'quantile', 
 								imgPath: 'icons/classificationMethods/neu/quantile_grau.svg',
-								description: 'Bei der Quantil-Methode enthält jede Klasse die gleiche Anzahl von Features.'},
+								description: 'Bei der Quantil-Methode enthält jede Klasse die gleiche Anzahl von Raumeinheiten.'},
 							{
 								name: 'Manuell', 
 								id: 'manual', 
