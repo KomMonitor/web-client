@@ -26,12 +26,12 @@ angular.module('reachabilityIndicatorStatistics').component('reachabilityIndicat
 				{
 					apiName: "simple",
 					displayName: "überlappende Fläche",
-					tooltip: "einfache Gewichtung anhand der geschnittenen Fläche pro Raumeinheit"
+					tooltip: "einfache Gewichtung anhand der geschnittenen Fläche pro Raumebene"
 				},
 				{
 					apiName: "residential_areas",
 					displayName: "überlappende Wohngebiete",
-					tooltip: "beücksichtigt nur geschnittene Wohnflächen pro Raumeinheit"
+					tooltip: "beücksichtigt nur geschnittene Wohnflächen pro Raumebene"
 				}
 			];
 			$scope.weightStrategy = $scope.weightStrategyOptions[0];
@@ -94,7 +94,7 @@ angular.module('reachabilityIndicatorStatistics').component('reachabilityIndicat
 					if (jobStatus == undefined || jobStatus.status == undefined || jobStatus.status == "failed") {
 						jobCompletedOrFailed = true;
 						$scope.modifyJobStatus(jobId, "failed");
-						kommonitorToastHelperService.displayErrorToast_upperLeft("Fehler in Indikatoren-Statistik-Berechnung", "Versuchen Sie es bitte erneut. Probieren Sie, falls möglich, andere Raumeinheiten oder Indikatoren. Wenden Sie sich bei anhaltenden Problemen an das KomMonitor-Team");
+						kommonitorToastHelperService.displayErrorToast_upperLeft("Fehler in Indikatoren-Statistik-Berechnung", "Versuchen Sie es bitte erneut. Probieren Sie, falls möglich, andere Raumebenen oder Indikatoren. Wenden Sie sich bei anhaltenden Problemen an das KomMonitor-Team");
 						$scope.$digest();
 						return;
 					}

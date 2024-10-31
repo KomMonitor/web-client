@@ -297,7 +297,7 @@
 											<select ng-model="indicatorLowestSpatialUnitMetadataObjectForComputation"
 												ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits"																							
 												class="form-control">
-												<option disabled selected value> -- Raumeinheit w&auml;hlen --
+												<option disabled selected value> -- Raumebene w&auml;hlen --
 												</option>
 											</select>
 
@@ -919,7 +919,7 @@
 								</div>
 								<div class="row vertical-align">
 									<div class="form-group">
-										<label>Anzahl Klassen pro Raumeinheit</label>
+										<label>Anzahl Klassen pro Raumebene</label>
 										<select ng-model="numClassesPerSpatialUnit"
 											ng-change="onNumClassesChanged(numClassesPerSpatialUnit)"	
 											ng-options="numClassesEntry for numClassesEntry in numClassesArray"								
@@ -928,7 +928,7 @@
 										</select>
 										<div class="help-block with-errors"></div>
 										<div class="help-block">
-											<p>Für jede Raumeinheit wird die gleiche Anzahl an Klassengrenzen vergeben </p>
+											<p>Für jede Raumebene wird die gleiche Anzahl an Klassengrenzen vergeben </p>
 										</div>
 									</div>
 								</div>

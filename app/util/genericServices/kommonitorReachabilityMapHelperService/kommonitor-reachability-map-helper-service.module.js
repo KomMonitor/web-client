@@ -648,7 +648,7 @@ angular
         }
         var tooltipHtml = "<b>" + feature.properties[__env.FEATURE_NAME_PROPERTY_NAME] + "</b><br/>" + indicatorValueText + " [" + kommonitorDataExchangeService.selectedIndicator.unit + "]";
 
-        // tooltipHtml += "<br><br>Report aller schneidenden Einzugsgebiete <br> durch anklicken der Raumeinheit aufrufbar";
+        // tooltipHtml += "<br><br>Report aller schneidenden Einzugsgebiete <br> durch anklicken der Raumebene aufrufbar";
         layer.bindTooltip(tooltipHtml, {
           sticky: false // If true, the tooltip will follow the mouse instead of being fixed at the feature center.
         });

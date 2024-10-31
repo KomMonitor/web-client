@@ -46,7 +46,7 @@
 							<div class="row vertical-align">
 								<div class="col-md-4 col-sm-4 col-xs-12">
 									<div class="form-group">
-										<label >Raumeinheit w&auml;hlen</label>
+										<label >Raumebene w&auml;hlen</label>
 										<select ng-model="overviewTableTargetSpatialUnitMetadata" ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits | filter:filterOverviewTargetSpatialUnits()"
 												class="form-control" required>
 												<option disabled selected value> -- Ziel-Raumebene w&auml;hlen -- </option>
@@ -219,7 +219,7 @@
 								</div>
 								<div class="col-md-3 col-sm-6 col-xs-12">
 									<div class="form-group">
-										<label>ID Attributname der Raumeinheiten-Features*</label>
+										<label>ID Attributname der Raumebenen-Features*</label>
 										<input type="text" class="form-control" ng-model="spatialUnitRefKeyProperty" required></input>
 										<div class="help-block">
 											<p>Name des Attributs, welches den eindeutigen Identifier des Features enth&auml;lt. Dieser muss identisch sein mit den Feature-IDs der selektierten Raumebene</p>
@@ -252,7 +252,7 @@
 								<h4>Vergabe der Zugriffsrechte auf die Datensatz-Zeitreihe f&uuml;r Raumebene {{targetSpatialUnitMetadata.spatialUnitLevel}}</h4>
 
 								<p>Zugriffsrechte (lesen, editieren, l&ouml;schen) m&uuml;ssen explizit vergeben werden. Administratoren (Rolle <i>kommonitor-creator</i>) haben immer vollen Zugriff.</p>
-								<p><strong>lesender Zugriff auf die Indikator-Zeitreihe wird nur den Organisationseinheiten gew&auml;hrt, die auch lesenden Zugriff auf Metadaten der assoziierten Raumeinheit besitzen.</strong></p>
+								<p><strong>lesender Zugriff auf die Indikator-Zeitreihe wird nur den Organisationseinheiten gew&auml;hrt, die auch lesenden Zugriff auf Metadaten der assoziierten Raumebene besitzen.</strong></p>
 		
 
 								<div class="row">

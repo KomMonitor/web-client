@@ -178,7 +178,7 @@ angular.module('scriptGeoresourceStatistics').component('scriptGeoresourceStatis
 			$scope.resetComputationFormulaAndLegend = function(){
 				kommonitorScriptHelperService.scriptFormulaHTML = "";
 
-				var formulaHTML = "<b>Geodatenanalyse: Statistische Berechnung <i>'" + $scope.compMethod.displayName + "' anhand Objekteigenschaft '" + $scope.numericPropertyName + "'</i> f&uuml;r alle Punktobjekte des Datensatzes G<sub>1</sub> innerhalb des jeweiligen Raumeinheits-Features</i>";
+				var formulaHTML = "<b>Geodatenanalyse: Statistische Berechnung <i>'" + $scope.compMethod.displayName + "' anhand Objekteigenschaft '" + $scope.numericPropertyName + "'</i> f&uuml;r alle Punktobjekte des Datensatzes G<sub>1</sub> innerhalb des jeweiligen Raumebenen-Features</i>";
 				var legendItemsHTML = "<b>Legende zur Geodatenanalyse</b><br/>G<sub>1</sub>: " + $scope.georesourceSelection.datasetName;
 
 				kommonitorScriptHelperService.scriptFormulaHTML = formulaHTML + "<br/><br/>" + legendItemsHTML;

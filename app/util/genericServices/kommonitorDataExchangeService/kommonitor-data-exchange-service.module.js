@@ -1928,9 +1928,9 @@ angular
           };
 
           
-          this.labelAllFeatures = "alle Raumeinheiten";
-          this.labelFilteredFeatures = "gefilterte Raumeinheiten";
-          this.labelSelectedFeatures = "selektierte Raumeinheiten";
+          this.labelAllFeatures = "alle Raumebenen";
+          this.labelFilteredFeatures = "gefilterte Raumebenen";
+          this.labelSelectedFeatures = "selektierte Raumebenen";
           this.labelNumberOfFeatures = "Anzahl:"
           this.labelSum = "rechnerische Summe:"
           this.labelMean = "rechnerisches arith. Mittel:"

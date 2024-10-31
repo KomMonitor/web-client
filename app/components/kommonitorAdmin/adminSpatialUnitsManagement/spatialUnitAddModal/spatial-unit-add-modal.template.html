@@ -12,7 +12,7 @@
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span></button>
-				<h4 class="modal-title">Neue Raumeinheit registrieren</h4>
+				<h4 class="modal-title">Neue Raumebene registrieren</h4>
 			</div>
 			<div class="modal-body">
 
@@ -23,14 +23,14 @@
 							<!-- progressbar -->
 							<div ng-if="! $ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity">
 								<ul id="progressbar">
-									<li style="width: 33.33%;" class="active">Metadaten der Raumeinheit</li>
+									<li style="width: 33.33%;" class="active">Metadaten der Raumebene</li>
 									<li style="width: 33.33%;">Allgemeine Metadaten</li>
 									<li style="width: 33.33%;">R&auml;umlicher Datensatz</li>
 								</ul>
 							</div>
 							<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity">
 								<ul id="progressbar">
-									<li style="width: 25%;" class="active">Metadaten der Raumeinheit</li>
+									<li style="width: 25%;" class="active">Metadaten der Raumebene</li>
 									<li style="width: 25%;">Allgemeine Metadaten</li>
 									<li style="width: 25%;">Rollenbasierter Zugriffsschutz</li>
 									<li style="width: 25%;">R&auml;umlicher Datensatz</li>
@@ -39,19 +39,19 @@
 							
 							<!-- fieldsets -->
 							<fieldset>
-								<h2 class="fs-title">Metadaten der Raumeinheit</h2>
-								<h3 class="fs-subtitle">Angaben &uuml;ber die neue Raumeinheit</h3>
+								<h2 class="fs-title">Metadaten der Raumebene</h2>
+								<h3 class="fs-subtitle">Angaben &uuml;ber die neue Raumebene</h3>
 								<p><b><i>* = Pflichtfeld</i></b></p>
 
 								<div class="row vertical-align">
 									<div class="col-md-4 col-sm-6 col-xs-12">
 										<div class="form-group">
-											<label>Name der Raumeinheit*</label>
+											<label>Name der Raumebene*</label>
 											<input type="text" class="form-control" ng-model="spatialUnitLevel" ng-change="checkSpatialUnitName()"
 												placeholder="eindeutiger Name" required></input>
 											<div class="help-block with-errors"></div>
 											<div ng-if="spatialUnitLevelInvalid" style="color: red;">
-												<p>Eingabe ung&uuml;ltig. Es existiert bereits eine Raumeinheit mit gleichem Namen.</p>
+												<p>Eingabe ung&uuml;ltig. Es existiert bereits eine Raumebene mit gleichem Namen.</p>
 											</div>
 										</div>
 									</div>
@@ -60,7 +60,7 @@
 											<label>Hierarchie: n&auml;chst niedrigere Ebene</label>
 											<select ng-model="nextLowerHierarchySpatialUnit" ng-change="checkSpatialUnitHierarchy()"
 												class="form-control">
-												<option disabled selected value> -- Raumeinheit w&auml;hlen -- </option>
+												<option disabled selected value> -- Raumebene w&auml;hlen -- </option>
 												<option value> -- keine (neue unterste Ebene) -- </option>
 												<option ng-repeat="value in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits"
 													ng-value="value"> {{value.spatialUnitLevel}} </option>
@@ -79,7 +79,7 @@
 											<label>Hierarchie: n&auml;chst h&ouml;here Ebene</label>
 											<select ng-model="nextUpperHierarchySpatialUnit" ng-change="checkSpatialUnitHierarchy()"
 												class="form-control">
-												<option disabled selected value> -- Raumeinheit w&auml;hlen -- </option>
+												<option disabled selected value> -- Raumebene w&auml;hlen -- </option>
 												<option value> -- keine (neue oberste Ebene) -- </option>
 												<option ng-repeat="value in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits"
 													ng-value="value"> {{value.spatialUnitLevel}} </option>
@@ -104,7 +104,7 @@
 												<span class="switchslider round"></span>
 											</label>
 											<div class="help-block">
-												<p>wenn markiert, dann wird in der Kartenapplikation in der Layersteuerung ein entsprechender Eintrag zur Darstellung der Raumeinheitsumringe angeboten</p>
+												<p>wenn markiert, dann wird in der Kartenapplikation in der Layersteuerung ein entsprechender Eintrag zur Darstellung der Raumebenenumringe angeboten</p>
 											</div>
 										</div>
 									</div>
@@ -357,7 +357,7 @@
 													<label>Räumlicher Filter*</label>
 													<select id="datasourceTypeParameter_spatialUnitAdd_bboxType" ng-model="bboxType" class="form-control" required>
 														<option disabled selected value> -- Filter w&auml;hlen -- </option>
-														<option value="ref"> Referenzraumeinheit </option>
+														<option value="ref"> Referenzraumebene </option>
 														<option value="literal"> Manueller Begrenzungsrahmen </option>
 													</select>
 
@@ -367,10 +367,10 @@
 																ng-model="bboxRefSpatialUnit"
 																ng-options="spatialUnit.spatialUnitLevel for spatialUnit in availableSpatialUnits track by spatialUnit.spatialUnitId"
 																class="form-control" ng-required="bboxType == 'ref'">
-															<option disabled selected value> -- Raumeinheit w&auml;hlen -- </option>
+															<option disabled selected value> -- Raumebene w&auml;hlen -- </option>
 														</select>
 														<div class="help-block">
-															<p>Raumeinheit aus welchem ein umschließendes Rechteck extrahiert wird</p>
+															<p>Raumebene aus welchem ein umschließendes Rechteck extrahiert wird</p>
 														</div>
 													</div>
 													<div ng-show="bboxType == 'literal'">
@@ -633,14 +633,14 @@
 				
 
 				
-				<button type="button" class="btn btn-success" type="submit" ng-click="addSpatialUnit()" ng-disabled="!spatialUnitLevel || !metadata.description || !metadata.datasource || !metadata.contact || !metadata.updateInterval || !metadata.lastUpdate || !spatialUnitDataSourceIdProperty || !spatialUnitDataSourceNameProperty || !periodOfValidity.startDate || spatialUnitLevelInvalid || periodOfValidityInvalid || hierarchyInvalid || !converter || !datasourceType">Raumeinheit registrieren</button>
+				<button type="button" class="btn btn-success" type="submit" ng-click="addSpatialUnit()" ng-disabled="!spatialUnitLevel || !metadata.description || !metadata.datasource || !metadata.contact || !metadata.updateInterval || !metadata.lastUpdate || !spatialUnitDataSourceIdProperty || !spatialUnitDataSourceNameProperty || !periodOfValidity.startDate || spatialUnitLevelInvalid || periodOfValidityInvalid || hierarchyInvalid || !converter || !datasourceType">Raumebene registrieren</button>
 				<button type="button" class="btn btn-danger" ng-click="resetSpatialUnitAddForm()">Zur&uuml;cksetzen</button>
 			</div>
 
 			<div id="spatialUnitAddSucessAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden class="alert alert-success alert-dismissable">
                 <button type="button" class="close" ng-click="hideSuccessAlert()" aria-hidden="true">&times;</button>
-                <h4><i class="icon fa fa-check"></i>Raumeinheit registriert</h4>
-				<p>Eine neue Raumeinheit mit Namen {{successMessagePart}} wurde in KomMonitor registriert und in die &Uuml;bersichtstabelle eingetragen.
+                <h4><i class="icon fa fa-check"></i>Raumebene registriert</h4>
+				<p>Eine neue Raumebene mit Namen {{successMessagePart}} wurde in KomMonitor registriert und in die &Uuml;bersichtstabelle eingetragen.
 					<div ng-if="importedFeatures && importedFeatures.length > 0">
 						{{importedFeatures.length}} Features wurden dabei importiert.
 					</div>
@@ -650,7 +650,7 @@
 			<div id="spatialUnitAddErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden class="alert alert-danger alert-dismissable">
                 <button type="button" class="close" ng-click="hideErrorAlert()" aria-hidden="true">&times;</button>
                 <h4><i class="icon fa fa-ban"></i>Registrierung gescheitert</h4>
-                Bei der Registrierung der Raumeinheit ist ein Fehler aufgetreten. Fehlermeldung:
+                Bei der Registrierung der Raumebene ist ein Fehler aufgetreten. Fehlermeldung:
 								<br/>
 								<pre style="overflow:auto; max-height:500px;" ng-bind-html="errorMessagePart"></pre>
 								<br/>

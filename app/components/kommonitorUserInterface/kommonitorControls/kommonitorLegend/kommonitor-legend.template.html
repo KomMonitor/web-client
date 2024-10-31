@@ -17,11 +17,11 @@
 					<div>						
 						<div class="row" style="margin-right: 0px;">
 							<div class="col-sm-7">
-								<div class="text-left"><label>Raumebene</label><a ng-show="$ctrl.envInstance.enableSpatialUnitNotificationButton" data-toggle="modal" ng-click="showSpatialUnitNotificationModalIfEnabled()" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%; cursor:pointer;" title="Information zu Raumeinheiten&nbsp;&nbsp;"><span class="glyphicon glyphicon-info-sign"></span></a></div>
+								<div class="text-left"><label>Raumebene</label><a ng-show="$ctrl.envInstance.enableSpatialUnitNotificationButton" data-toggle="modal" ng-click="showSpatialUnitNotificationModalIfEnabled()" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%; cursor:pointer;" title="Information zu Raumebenen&nbsp;&nbsp;"><span class="glyphicon glyphicon-info-sign"></span></a></div>
 								<select id="spatialUnitSelectionInput" style="font-size: 12px;" ng-model="$ctrl.kommonitorDataExchangeServiceInstance.selectedSpatialUnit"
 									ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits | filter:filterSpatialUnits()"
 									class="form-control" ng-change="onChangeSelectedSpatialUnit()" required>
-									<option disabled selected value> -- Raumeinheit w&auml;hlen --
+									<option disabled selected value> -- Raumebene w&auml;hlen --
 									</option>
 								</select>
 							</div>
@@ -123,7 +123,7 @@
 							<div class="row" style="margin-right: 0px;">
 								<div class="col-md-3"><b>Symbolik</b></div>
 								<div class="col-md-6"><b>Wertebereich</b> [{{$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.unit}}]</div>
-								<div class="col-md-3"><b>Anzahl Raumeinheiten</b></div><br>
+								<div class="col-md-3"><b>Anzahl Raumebenen</b></div><br>
 							</div>
 							<div ng-if="containsNoData">
 								<div class="row" style="margin-right: 0px;">
