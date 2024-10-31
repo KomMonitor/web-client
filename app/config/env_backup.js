@@ -47,6 +47,10 @@ try {
   // show bar chart label and average line
   window.__env.showBarChartLabel = false;
   window.__env.showBarChartAverageLine = true;
+  
+  // custom report styling
+  // value: number
+  window.__env.customReportFontSize = undefined;
 
   // controls whether the mean values (arithmetic and regional) shall be displayed in legend and indicator statistics menus or not
   window.__env.enableMeanDataDisplayInLegend = false;

@@ -35,6 +35,8 @@ angular
               this.showBarChartLabel = __env.showBarChartLabel;
               this.showBarChartAverageLine = __env.showBarChartAverageLine;
 
+              this.customReportFontSize = __env.customReportFontSize;
+
               this.enableMeanDataDisplayInLegend = __env.enableMeanDataDisplayInLegend;
               this.configMeanDataDisplay = __env.configMeanDataDisplay;
              
