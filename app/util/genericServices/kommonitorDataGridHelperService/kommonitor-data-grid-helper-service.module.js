@@ -3044,40 +3044,7 @@ angular
       };
 
       CheckboxRenderer_checked.prototype.checkedHandler = function(e) {
-
         this.params.data.checked = e.target.checked;
-        console.log(this.params.data)
-/*
-        let checked = e.target.checked;
-         for (const role of this.params.data.roles) {
-          if (role.permissionLevel == "publisher"){            
-            if(!checked)
-              role.isChecked = false;
-          }
-          else if (role.permissionLevel == "editor"){            
-            if (checked){
-              role.isChecked = true;
-              $('.' + role.roleId).attr('disabled', true);
-              $('.' + role.roleId).prop("checked", true);
-            }                    
-            else{
-              $('.' + role.roleId).attr('disabled', false);
-            }
-          }
-          else if (role.permissionLevel == "viewer"){            
-            if (checked){
-              role.isChecked = true;
-              $('.' + role.roleId).attr('disabled', true);
-              $('.' + role.roleId).prop("checked", true);
-            }                    
-            else{
-              $('.' + role.roleId).attr('disabled', true);
-            }
-          }
-          else if (role.permissionLevel == "creator" || role.permissionLevel == "editor" || role.permissionLevel == "viewer"){            
-            role.isChecked = checked;
-          }
-        }   */
       };
 
       CheckboxRenderer_checked.prototype.getGui = function(params) {
@@ -3272,6 +3239,7 @@ angular
         return columnDefs.concat([
           { headerName: 'Name', field: "name", minWidth: 200 },
           { headerName: 'ID', field: "id", minWidth: 150 },
+          { headerName: 'Beschreibung', field: "description", minWidth: 300 },
           { headerName: 'sichtbar', field: "checked", filter: false, sortable: false, maxWidth: 100, cellRenderer: 'checkboxRenderer_checked', }
         ]);
       };

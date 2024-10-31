@@ -11,6 +11,8 @@ angular.module('adminFilterAddModal').component('adminFilterAddModal', {
 		$scope.loadingData = false;
 
 		$scope.addIndicatorTableOptions = undefined;	
+		$scope.addGeoresourceTableOptions = undefined;	
+    $scope.selectedIndicatorIds = [];
 
 		/* $scope.$on("availableRolesUpdate", function (event) {
 			refreshRoles();
@@ -18,24 +20,45 @@ angular.module('adminFilterAddModal').component('adminFilterAddModal', {
 
 		// make sure that initial fetching of availableRoles has happened
 		$scope.$on("initialMetadataLoadingCompleted", function (event) {
-			refreshRoles();
+			refreshIndicatorsTable();
+      refreshGeoresourcesTable();
 		}); 
 		
-		function refreshRoles() {
+    function refreshGeoresourcesTable() {
 
-      console.log(kommonitorDataExchangeService.availableIndicators);
-
-      let test = [];
-      kommonitorDataExchangeService.availableIndicators.forEach((element,index) => {
-        test[index] = {
-          id: element.indicatorId,
-          name: element.indicatorName,
+      let preppedGeoresourceData = [];
+      kommonitorDataExchangeService.availableGeoresources.forEach((element,index) => {
+        preppedGeoresourceData[index] = {
+          id: element.georesourceId,
+          name: element.datasetName,
+          description: element.metadata.description,
           checked: false
         }
       });
 
-			$scope.addIndicatorTableOptions = kommonitorDataGridHelperService.buildSingleSelectGrid('adminFilterAddIndicatorsTable', $scope.addIndicatorTableOptions, test, []);	
+			$scope.addGeoresourceTableOptions = kommonitorDataGridHelperService.buildSingleSelectGrid('adminFilterAddGeoresourcesTable', $scope.addGeoresourceTableOptions, preppedGeoresourceData, []);	
 		}
+
+		function refreshIndicatorsTable() {
+
+      let preppedIndicatorData = [];
+      kommonitorDataExchangeService.availableIndicators.forEach((element,index) => {
+        preppedIndicatorData[index] = {
+          id: element.indicatorId,
+          name: element.indicatorName,
+          description: element.metadata.description,
+          checked: false
+        }
+      });
+
+			$scope.addIndicatorTableOptions = kommonitorDataGridHelperService.buildSingleSelectGrid('adminFilterAddIndicatorsTable', $scope.addIndicatorTableOptions, preppedIndicatorData, []);	
+		}
+
+    $scope.test = function() {
+
+      $scope.selectedIndicatorIds = kommonitorDataGridHelperService.getSelectedIds_singleSelectGrid($scope.addIndicatorTableOptions);
+      console.log($scope.selectedIndicatorIds)
+    }
 
 
 	/* 	$scope.resetSpatialUnitAddForm = function(){
