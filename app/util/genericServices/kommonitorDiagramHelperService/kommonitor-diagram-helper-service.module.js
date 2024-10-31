@@ -40,6 +40,23 @@ angular
       this.histogramChartOptions = {};
       this.radarChartOptions = {};
       this.regressionChartOptions = {};
+      
+      this.setCustomFontFamily = function() {
+        
+        var elem = document.querySelector('#fontFamily-reference');
+        var style = getComputedStyle(elem);
+        return style.fontFamily;
+      }
+
+      const customFontFamily = this.setCustomFontFamily(); 
+
+      this.prepCustomStyling = function(customFontFamilyEnabled, options) {
+
+        if(customFontFamilyEnabled===true)
+          options.textStyle = {fontFamily: customFontFamily};
+
+        return options;
+      }
 
       this.isCloserToTargetDate = function(date, closestDate, targetDate){
         var targetYear = targetDate.split("-")[0];
@@ -299,20 +316,20 @@ angular
         return color;
       };
 
-      this.getBarChartOptions = function () {
-        return self.barChartOptions;
+      this.getBarChartOptions = function (customFontFamilyEnabled = false) {
+        return this.prepCustomStyling(customFontFamilyEnabled, self.barChartOptions);
       };
 
-      this.getGeoMapChartOptions = function () {
-        return self.geoMapChartOptions;
+      this.getGeoMapChartOptions = function (customFontFamilyEnabled = false) {
+        return this.prepCustomStyling(customFontFamilyEnabled, self.geoMapChartOptions);
       };
 
-      this.getHistogramChartOptions = function () {
-        return self.histogramChartOptions;
+      this.getHistogramChartOptions = function (customFontFamilyEnabled = false) {
+        return this.prepCustomStyling(customFontFamilyEnabled, self.histogramChartOptions);
       };
 
-      this.getLineChartOptions = function () {
-        return self.lineChartOptions;
+      this.getLineChartOptions = function (customFontFamilyEnabled = false) {
+        return this.prepCustomStyling(customFontFamilyEnabled, self.lineChartOptions);
       };
 
       this.prepareAllDiagramResources_forCurrentMapIndicator = function (indicatorMetadataAndGeoJSON, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, filterOutFutureDates) {        
@@ -1922,10 +1939,10 @@ angular
         return eChartOptions;
       };
 
-      this.makeTrendChartOptions_forAllFeatures = function(indicatorMetadataAndGeoJSON, fromDateAsPropertyString, toDateAsPropertyString, showMinMax, showCompleteTimeseries, computationType, trendEnabled){
+      this.makeTrendChartOptions_forAllFeatures = function(indicatorMetadataAndGeoJSON, fromDateAsPropertyString, toDateAsPropertyString, showMinMax, showCompleteTimeseries, computationType, trendEnabled, customFontFamilyEnabled = false){
           // we may base on the the precomputed timeseries lineOptions and modify that from a cloned instance
 
-          var timeseriesOptions = jQuery.extend(true, {}, this.getLineChartOptions())
+          var timeseriesOptions = jQuery.extend(true, {}, this.getLineChartOptions(customFontFamilyEnabled));
 
           // remove any additional lines for concrete features
           timeseriesOptions.series.length = 5;

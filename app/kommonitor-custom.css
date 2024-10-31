@@ -5,6 +5,7 @@
 	--kommonitor-primary: #017925;
 	--kommonitor-light: #85b794;
 	--kommonitor-dark: #02631f;
+	--custom-font-family: "Comic Sans MS", "Comic Sans", cursive;
 } */
 
 /* Example for defining a custom color for buttons 
@@ -12,4 +13,3 @@
 	background-color: #b62d23;
 }
 */
-

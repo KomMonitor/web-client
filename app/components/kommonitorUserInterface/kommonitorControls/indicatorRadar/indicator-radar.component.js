@@ -224,8 +224,15 @@ angular
 							// 	$scope.radarChart.dispose();
 							// 	$scope.radarChart = echarts.init(document.getElementById('radarDiagram'));
 							// }
+              
+              //get custom fontFamily
+              var elem = document.querySelector('#fontFamily-reference');
+              var style = getComputedStyle(elem);
 
 							$scope.radarOption = {
+                textStyle: {
+                  fontFamily: style.fontFamily
+                },
 								grid: {
 									left: '4%',
 									top: 0,
