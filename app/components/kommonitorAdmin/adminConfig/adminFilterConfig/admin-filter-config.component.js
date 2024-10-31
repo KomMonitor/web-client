@@ -41,21 +41,20 @@ angular.module('adminFilterConfig').component('adminFilterConfig', {
 
 			$scope.onChangeFilterConfig();
 
-			$timeout(function(){
-				
-        $scope.prepGlobalFilterData();
-				$scope.initializeOrRefreshOverviewTable();
-			}, 1000);
-
 			$scope.$digest();
 		};
+
+    // make sure that initial fetching of availableRoles has happened
+		$scope.$on("initialMetadataLoadingCompleted", function (event) {
+      $scope.prepGlobalFilterData();
+      $scope.initializeOrRefreshOverviewTable();
+		}); 
 
 		$scope.initializeOrRefreshOverviewTable = function(){
 			$scope.loadingData = true;
 			kommonitorDataGridHelperService.buildDataGrid_globalFilter(__env.filterConfig);
 
 			$timeout(function(){
-				
 				$scope.loadingData = false;
 			});	
 		};
