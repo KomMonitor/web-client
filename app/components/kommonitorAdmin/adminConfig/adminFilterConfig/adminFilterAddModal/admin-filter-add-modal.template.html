@@ -46,12 +46,28 @@
 							</fieldset>
 
 							<fieldset>
-								<h2 class="fs-title">Allgemeine Metadaten</h2>
-								<h3 class="fs-subtitle">Angaben &uuml;ber allgemeine Metadaten in KomMonitor</h3>
-								<p><b><i>* = Pflichtfeld</i></b></p>
+								<h2 class="fs-title">Indikator-Themen</h2>
+								<h3 class="fs-subtitle">Auswahl der Indicator-spezifischen Themen</h3>
 
 								<div class="row vertical-align">
-                  
+                  <div class="list-group list-group-root well" style="text-align: left; width:50vw;">
+                
+                    <script type="text/ng-template" id="indicatorTree">
+                      <div class="list-group-item list-group-item-default list-group-item-level-{{category.level}}">
+                        <a ng-if="category.subTopics.length>0" id="{{category.topicId}}" href="" ng-attr-title="{{category.topicDescription}}"
+                          class="collapseTrigger" style="color: white;">
+                          <i class="glyphicon glyphicon-chevron-right"></i>{{category.topicName}}</a>
+                        <p ng-if="category.subTopics.length==0">{{category.topicName}}</p>
+                        <input type="checkbox" id="checkbox-{{category.topicId}}" ng-model="category.selected" ng-change="onSelectedIndicatorItemsChange(category.topicId,category.selected)">
+                        
+                        <div style="display: none" id="subTopic-{{category.topicId}}">
+                          <div ng-if="category.subTopics" ng-repeat="category in category.subTopics" ng-include="'indicatorTree'"></div>
+                        </div>
+                      </div>
+                    </script>
+
+                    <div ng-repeat="category in indicatorTopicsTree | filter:{topicType:'main'}" ng-include="'indicatorTree'"></div>
+                  </div>
 								</div>
 
 								
@@ -75,24 +91,34 @@
                 <input type="button" name="next" class="next next_addAdminFilter action-button" value="N&auml;chster Schritt"/>
               </fieldset>						
 
-							<fieldset>
-								<div style="position: absolute;">
-									<button type="button" class="btn btn-info pull-left" ng-click="onImportSpatialUnitAddMappingConfig()" title="Importieren der Mapping-Konfigurationen aus einer Datei"><i class="fas fa-file-import"></i>&nbsp;&nbsp;Mapping-Import</button>
-									<input style="display:none;" class="pull-left" type="file" class="form-control" id="spatialUnitMappingConfigAddImportFile" accept=".json,"></input>
-									<button type="button" style="margin-left: 6px;" class="btn btn-info pull-left" ng-click="onExportSpatialUnitAddMappingConfig()" title="Exportieren der Mapping-Konfigurationen in eine Datei"><i class="fas fa-file-export"></i>&nbsp;&nbsp;Mapping-Export</button>								
-								</div>
-								<h2 class="fs-title">R&auml;umlicher Datensatz</h2>
-								<h3 class="fs-subtitle">Angaben &uuml;ber den r&auml;umlichen Datensatz, aus dem die Features importiert werden</h3>
-
-								<p><b><i>* = Pflichtfeld</i></b></p>
-
+              <fieldset>
+								<h2 class="fs-title">Georesource-Themen</h2>
+								<h3 class="fs-subtitle">Auswahl der Georesource-spezifischen Themen</h3>
 
 								<div class="row vertical-align">
-									
+                  <div class="list-group list-group-root well" style="text-align: left; width:50vw;">
+                
+                    <script type="text/ng-template" id="georesourceTree">
+                      <div class="list-group-item list-group-item-default list-group-item-level-{{category.level}}">
+                        <a ng-if="category.subTopics.length>0" id="{{category.topicId}}" href="" ng-attr-title="{{category.topicDescription}}"
+                          class="collapseTrigger" style="color: white;">
+                          <i class="glyphicon glyphicon-chevron-right"></i>{{category.topicName}}</a>
+                        <p ng-if="category.subTopics.length==0">{{category.topicName}}</p>
+                        <input type="checkbox" id="checkbox-{{category.topicId}}" ng-model="category.selected" ng-change="onSelectedGeoresourceItemsChange(category.topicId,category.selected)">
+                        
+                        <div style="display: none" id="subTopic-{{category.topicId}}">
+                          <div ng-if="category.subTopics" ng-repeat="category in category.subTopics" ng-include="'georesourceTree'"></div>
+                        </div>
+                      </div>
+                    </script>
+
+                    <div ng-repeat="category in georesourceTopicsTree | filter:{topicType:'main'}" ng-include="'georesourceTree'"></div>
+                  </div>
 								</div>
 
-								<input type="button" name="previous" class="previous previous_addAdminFilter action-button-previous" value="Voriger Schritt"/>
 								
+								<input type="button" name="previous" class="previous previous_addAdminFilter action-button-previous" value="Voriger Schritt"/>
+								<input type="button" name="next" class="next next_addAdminFilter action-button" value="N&auml;chster Schritt"/>
 							</fieldset>
 						</form>
 					</div>

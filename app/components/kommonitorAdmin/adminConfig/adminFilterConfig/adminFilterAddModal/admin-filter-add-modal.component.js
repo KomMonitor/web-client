@@ -18,11 +18,142 @@ angular.module('adminFilterAddModal').component('adminFilterAddModal', {
 			refreshRoles();
 		});*/
 
+    $scope.indicatorTopicsTree = [];
+    $scope.selectedIndicatorTopicIds = [];
+
+    $scope.georesourceTopicsTree = [];
+    $scope.selectedGeoresourceTopicIds = [];
+
+		// initialize any adminLTE box widgets
+	  $('.box').boxWidget();
+
+		var addClickListenerToEachCollapseTrigger = function(){
+			setTimeout(function(){
+				$('.list-group-item > .collapseTrigger').on('click', function() {
+			    $('.glyphicon', this)
+			      .toggleClass('glyphicon-chevron-right')
+			      .toggleClass('glyphicon-chevron-down');
+
+						// manage entries
+						var clickedTopicId = $(this).attr('id');
+            if(document.getElementById('subTopic-'+clickedTopicId).style.display=='none')
+              document.getElementById('subTopic-'+clickedTopicId).style.display = 'block';
+            else
+              document.getElementById('subTopic-'+clickedTopicId).style.display = 'none';
+			  });
+			}, 500);
+		};
+
 		// make sure that initial fetching of availableRoles has happened
 		$scope.$on("initialMetadataLoadingCompleted", function (event) {
+
+      $scope.indicatorTopicsTree = prepTopicsTree(kommonitorDataExchangeService.availableTopics.filter(e => e.topicResource=='indicator'),0);
+      $scope.georesourceTopicsTree = prepTopicsTree(kommonitorDataExchangeService.availableTopics.filter(e => e.topicResource=='georesource'),0);
+			addClickListenerToEachCollapseTrigger();
+
 			refreshIndicatorsTable();
       refreshGeoresourcesTable();
 		}); 
+
+    // georesource tree
+    $scope.onSelectedGeoresourceItemsChange = function(id,selected) {
+
+      if(selected===true) {
+        if(!$scope.selectedGeoresourceTopicIds.includes(id))
+          $scope.selectedGeoresourceTopicIds.push(id);
+      } else
+        $scope.selectedGeoresourceTopicIds = $scope.selectedGeoresourceTopicIds.filter(e => e!=id);
+
+      searchGeoresourceItemRecursive($scope.georesourceTopicsTree, id, selected);
+      console.log("geo", id, $scope.selectedGeoresourceTopicIds);
+    }
+
+    function searchGeoresourceItemRecursive(tree, id, selected) {
+
+      tree.forEach(entry => {
+        if(entry.topicId==id) {
+          checkGeoresourceItemsRecursive(entry.subTopics, selected);
+        } else 
+          searchGeoresourceItemRecursive(entry.subTopics, id, selected);
+      });
+    }
+
+    function checkGeoresourceItemsRecursive(tree, selected) {
+      tree.forEach(entry => {
+
+        if(selected===true) {
+          document.getElementById('checkbox-'+entry.topicId).checked = true;
+          document.getElementById('checkbox-'+entry.topicId).disabled = true;
+        } else {
+          document.getElementById('checkbox-'+entry.topicId).checked = false;
+          document.getElementById('checkbox-'+entry.topicId).disabled = false;
+        }
+        
+        // delete all downlevel items if they exists, just in case a level higher up has been checked afterwards  
+        $scope.selectedGeoresourceTopicIds = $scope.selectedGeoresourceTopicIds.filter(e => e!=entry.topicId);
+
+        if(entry.subTopics.length>0)
+          checkGeoresourceItemsRecursive(entry.subTopics, selected);
+      })
+    }
+    // end
+
+    // indicator tree
+    $scope.onSelectedIndicatorItemsChange = function(id,selected) {
+
+      if(selected===true) {
+        if(!$scope.selectedIndicatorTopicIds.includes(id))
+          $scope.selectedIndicatorTopicIds.push(id);
+      } else
+        $scope.selectedIndicatorTopicIds = $scope.selectedIndicatorTopicIds.filter(e => e!=id);
+
+      searchIndicatorItemRecursive($scope.indicatorTopicsTree, id, selected);
+      console.log("indi", id, $scope.selectedIndicatorTopicIds);
+    }
+
+    function searchIndicatorItemRecursive(tree, id, selected) {
+
+      tree.forEach(entry => {
+        if(entry.topicId==id) {
+          checkIndicatorItemsRecursive(entry.subTopics, selected);
+        } else 
+          searchIndicatorItemRecursive(entry.subTopics, id, selected);
+      });
+    }
+
+    function checkIndicatorItemsRecursive(tree, selected) {
+      tree.forEach(entry => {
+
+        if(selected===true) {
+          document.getElementById('checkbox-'+entry.topicId).checked = true;
+          document.getElementById('checkbox-'+entry.topicId).disabled = true;
+        } else {
+          document.getElementById('checkbox-'+entry.topicId).checked = false;
+          document.getElementById('checkbox-'+entry.topicId).disabled = false;
+        }
+        
+        // delete all downlevel items if they exists, just in case a level higher up has been checked afterwards  
+        $scope.selectedIndicatorTopicIds = $scope.selectedIndicatorTopicIds.filter(e => e!=entry.topicId);
+
+        if(entry.subTopics.length>0)
+          checkIndicatorItemsRecursive(entry.subTopics, selected);
+      })
+    }
+    // end
+
+    function prepTopicsTree(tree, level) {
+      tree.forEach(entry => {
+        entry.level = level;
+        entry.selected = false;
+
+        if(entry.subTopics.length>0) {
+          let newLevel = level+1;
+          entry.subTopics = prepTopicsTree(entry.subTopics, newLevel);
+        }
+      });
+
+      return tree;
+    }
 		
     function refreshGeoresourcesTable() {
 
