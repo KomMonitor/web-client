@@ -21,6 +21,7 @@ angular.module('adminFilterConfig').component('adminFilterConfig', {
 		$scope.filterConfigTmp = undefined;
 		$scope.filterConfigCurrent = undefined;
 		$scope.filterConfigNew = undefined;
+    
 
 		$scope.configSettingInvalid = false;
 
@@ -36,6 +37,7 @@ angular.module('adminFilterConfig').component('adminFilterConfig', {
 			$scope.filterConfigCurrent = JSON.stringify(__env.filterConfig, null, "    ");
 			$scope.filterConfigNew = JSON.stringify(__env.filterConfig, null, "    ");
 			kommonitorScriptHelperService.prettifyScriptCodePreview("filterConfig_current");	
+      $scope.mergedFilterConfig = await kommonitorConfigStorageService.getFilterConfig();
 			
 			$scope.initCodeEditor();
 
@@ -52,22 +54,30 @@ angular.module('adminFilterConfig').component('adminFilterConfig', {
 
 		$scope.initializeOrRefreshOverviewTable = function(){
 			$scope.loadingData = true;
-			kommonitorDataGridHelperService.buildDataGrid_globalFilter(__env.filterConfig);
+			kommonitorDataGridHelperService.buildDataGrid_globalFilter($scope.mergedFilterConfig);
 
 			$timeout(function(){
 				$scope.loadingData = false;
 			});	
 		};
 
+    $scope.$on("refreshAdminFilterOverviewTable", async function (event) {
+      console.log("refresh");
+      $scope.mergedFilterConfig = await kommonitorConfigStorageService.getFilterConfig();
+      setTimeout(() => {
+        $scope.prepGlobalFilterData();
+        $scope.initializeOrRefreshOverviewTable();
+      }, 250);
+		}); 
+
     $scope.prepGlobalFilterData = function() {
 
-      let mergedConfig = __env.filterConfig;
-      mergedConfig.forEach((filter, filterIndex) => {
+      $scope.mergedFilterConfig.forEach((filter, filterIndex) => {
         filter.indicators.forEach((indicatorElement, indicatorIndex) => {
-          mergedConfig[filterIndex].indicators[indicatorIndex] = kommonitorDataExchangeService.availableIndicators.filter(e => e.indicatorId==indicatorElement).map(e => e.indicatorName)[0];
+          $scope.mergedFilterConfig[filterIndex].indicators[indicatorIndex] = kommonitorDataExchangeService.availableIndicators.filter(e => e.indicatorId==indicatorElement).map(e => e.indicatorName)[0];
         });
         filter.georesources.forEach((georesourceElement, georesourceIndex) => {
-          mergedConfig[filterIndex].georesources[georesourceIndex] = kommonitorDataExchangeService.availableGeoresources.filter(e => e.georesourceId==georesourceElement).map(e => e.datasetName)[0];
+          $scope.mergedFilterConfig[filterIndex].georesources[georesourceIndex] = kommonitorDataExchangeService.availableGeoresources.filter(e => e.georesourceId==georesourceElement).map(e => e.datasetName)[0];
         });
       });
     }

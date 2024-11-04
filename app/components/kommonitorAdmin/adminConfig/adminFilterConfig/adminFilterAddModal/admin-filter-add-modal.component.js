@@ -1,18 +1,22 @@
 angular.module('adminFilterAddModal').component('adminFilterAddModal', {
 	templateUrl : "components/kommonitorAdmin/adminConfig/adminFilterConfig/adminFilterAddModal/admin-filter-add-modal.template.html",
 	controller : ['kommonitorDataExchangeService', 'kommonitorImporterHelperService', '$scope', '$rootScope', 
-		'$timeout', '$http', '__env', 'kommonitorMultiStepFormHelperService', 'kommonitorDataGridHelperService',
+		'$timeout', '$http', '__env', 'kommonitorMultiStepFormHelperService', 'kommonitorDataGridHelperService', 'kommonitorConfigStorageService',
 		function AdminFilterAddModalController(kommonitorDataExchangeService, kommonitorImporterHelperService, 
-			$scope, $rootScope, $timeout, $http, __env, kommonitorMultiStepFormHelperService, kommonitorDataGridHelperService) {
+			$scope, $rootScope, $timeout, $http, __env, kommonitorMultiStepFormHelperService, kommonitorDataGridHelperService, kommonitorConfigStorageService) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 		this.kommonitorImporterHelperServiceInstance = kommonitorImporterHelperService;
 
 		$scope.loadingData = false;
 
+    $scope.filterName = undefined;
+
 		$scope.addIndicatorTableOptions = undefined;	
 		$scope.addGeoresourceTableOptions = undefined;	
-    $scope.selectedIndicatorIds = [];
+
+    $scope.preppedGeoresourceData = [];
+    $scope.preppedIndicatorData = [];
 
 		/* $scope.$on("availableRolesUpdate", function (event) {
 			refreshRoles();
@@ -71,6 +75,7 @@ angular.module('adminFilterAddModal').component('adminFilterAddModal', {
     function searchGeoresourceItemRecursive(tree, id, selected) {
 
       tree.forEach(entry => {
+        
         if(entry.topicId==id) {
           checkGeoresourceItemsRecursive(entry.subTopics, selected);
         } else 
@@ -154,12 +159,22 @@ angular.module('adminFilterAddModal').component('adminFilterAddModal', {
 
       return tree;
     }
-		
+
+    function resetTreeSelection(tree) {
+      tree.forEach(entry => {
+        
+        document.getElementById('checkbox-'+entry.topicId).checked = false;
+        document.getElementById('checkbox-'+entry.topicId).disabled = false;
+
+        if(entry.subTopics.length>0) 
+          resetTreeSelection(entry.subTopics);
+      });
+    }
+
     function refreshGeoresourcesTable() {
 
-      let preppedGeoresourceData = [];
       kommonitorDataExchangeService.availableGeoresources.forEach((element,index) => {
-        preppedGeoresourceData[index] = {
+        $scope.preppedGeoresourceData[index] = {
           id: element.georesourceId,
           name: element.datasetName,
           description: element.metadata.description,
@@ -167,14 +182,13 @@ angular.module('adminFilterAddModal').component('adminFilterAddModal', {
         }
       });
 
-			$scope.addGeoresourceTableOptions = kommonitorDataGridHelperService.buildSingleSelectGrid('adminFilterAddGeoresourcesTable', $scope.addGeoresourceTableOptions, preppedGeoresourceData, []);	
+			$scope.addGeoresourceTableOptions = kommonitorDataGridHelperService.buildSingleSelectGrid('adminFilterAddGeoresourcesTable', $scope.addGeoresourceTableOptions, $scope.preppedGeoresourceData, []);	
 		}
 
 		function refreshIndicatorsTable() {
 
-      let preppedIndicatorData = [];
       kommonitorDataExchangeService.availableIndicators.forEach((element,index) => {
-        preppedIndicatorData[index] = {
+        $scope.preppedIndicatorData[index] = {
           id: element.indicatorId,
           name: element.indicatorName,
           description: element.metadata.description,
@@ -182,85 +196,144 @@ angular.module('adminFilterAddModal').component('adminFilterAddModal', {
         }
       });
 
-			$scope.addIndicatorTableOptions = kommonitorDataGridHelperService.buildSingleSelectGrid('adminFilterAddIndicatorsTable', $scope.addIndicatorTableOptions, preppedIndicatorData, []);	
+			$scope.addIndicatorTableOptions = kommonitorDataGridHelperService.buildSingleSelectGrid('adminFilterAddIndicatorsTable', $scope.addIndicatorTableOptions, $scope.preppedIndicatorData, []);	
 		}
 
-    $scope.test = function() {
+    $scope.addAdminFilter = async function () {
 
-      $scope.selectedIndicatorIds = kommonitorDataGridHelperService.getSelectedIds_singleSelectGrid($scope.addIndicatorTableOptions);
-      console.log($scope.selectedIndicatorIds)
-    }
+      var selectedIndicatorIds = kommonitorDataGridHelperService.getSelectedIds_singleSelectGrid($scope.addIndicatorTableOptions);
+      var selectedGeoresourceIds = kommonitorDataGridHelperService.getSelectedIds_singleSelectGrid($scope.addGeoresourceTableOptions);
+
+      if(!$scope.filterName)
+          return;
+
+      if(selectedGeoresourceIds.length==0 && selectedIndicatorIds.length==0 && $scope.selectedIndicatorTopicIds.length==0 && $scope.selectedGeoresourceTopicIds.length==0) {
+        if(!confirm("Sie haben weder Indikator- noch Georesource Daten zur späteren Ansicht ausgewählt. Trotzdem fortfahren?"))
+          return;
+      }
+
+      let filterConfig = __env.filterConfig;      
+
+      if(filterConfig.some(e => e.name==$scope.filterName)) {
+        alert('Es existiert bereits ein Filter mit dem selben Namen!');
+        return;
+      }
+
+      /* $timeout(function(){
+        $scope.loadingData = true;
+      }); */
+
+      $scope.successMessagePart = undefined;
+      $scope.errorMessagePart = undefined;
+
+      let filterBody = {
+        "name": $scope.filterName,
+        "indicatorTopics": $scope.selectedIndicatorTopicIds,
+        "indicators": selectedIndicatorIds,
+        "georesourceTopics": $scope.selectedGeoresourceTopicIds,
+        "georesources": selectedGeoresourceIds
+      };
+
+      filterConfig.push(filterBody);
+
+/*       filterConfig = [
+        {
+            "name": "DemoApp",
+            "indicatorTopics": [
+                "61040cc0-b9c0-420f-92dd-fc6016ba1b22",
+                "db2fda25-6259-4950-bf1c-584b5af3a0f8"
+            ],
+            "indicators": [
+                "c2ae1c42-6d6c-4f5a-8b83-b8e3d50dd301",
+                "7acae0d9-d56e-47ef-986c-562036189be2"
+            ],
+            "georesourceTopics": [
+                "c839a9d4-41fd-4989-888e-e0a3d7949c9c"
+            ],
+            "georesources": [
+            "edb29cfc-9d34-4df0-b059-575f213d381e"
+            ]
+        },
+        {
+            "name": "Demo 2",
+            "indicatorTopics": [
+                "f78d9a95-3b69-48a3-8076-d0d052426d03"
+            ],
+            "indicators": [
+                "392273a0-d506-4b05-b7fa-7f492ed97c33"
+            ],
+            "georesourceTopics": [],
+            "georesources": []
+        }
+    ]; */
+
+      var addConfigResponse = await kommonitorConfigStorageService.postFilterConfig(JSON.stringify(filterConfig, null, "    "));	
+      
+      $("#globalFilterAddSucessAlert").show();
+      $scope.loadingData = false;
+
+      $timeout(function(){
+        $rootScope.$broadcast("refreshAdminFilterOverviewTable");
+      }, 500);
+
+      setTimeout(() => {
+        $scope.$digest();
+      }, 250);
+
+   /*    [
+        {
+            "name": "DemoApp",
+            "indicatorTopics": [
+                "61040cc0-b9c0-420f-92dd-fc6016ba1b22",
+                "db2fda25-6259-4950-bf1c-584b5af3a0f8"
+            ],
+            "indicators": [
+                "c2ae1c42-6d6c-4f5a-8b83-b8e3d50dd301",
+                "7acae0d9-d56e-47ef-986c-562036189be2"
+            ],
+            "georesourceTopics": [
+                "c839a9d4-41fd-4989-888e-e0a3d7949c9c"
+            ],
+            "georesources": [
+            "edb29cfc-9d34-4df0-b059-575f213d381e"
+            ]
+        },
+        {
+            "name": "Demo 2",
+            "indicatorTopics": [
+                "f78d9a95-3b69-48a3-8076-d0d052426d03"
+            ],
+            "indicators": [
+                "392273a0-d506-4b05-b7fa-7f492ed97c33"
+            ],
+            "georesourceTopics": [],
+            "georesources": []
+        }
+    ] */
+
+    };
 
 
-	/* 	$scope.resetSpatialUnitAddForm = function(){
-			$scope.importerErrors = undefined;
-			$scope.successMessagePart = undefined;
-			$scope.errorMessagePart = undefined;
+		$scope.resetAdminFilterAddForm = function(){
 
-			$scope.spatialUnitLevel = undefined;
-			$scope.spatialUnitLevelInvalid = false;
+      $scope.filterName = undefined;
+      
+      $scope.addGeoresourceTableOptions = kommonitorDataGridHelperService.buildSingleSelectGrid('adminFilterAddGeoresourcesTable', $scope.addGeoresourceTableOptions, $scope.preppedGeoresourceData, []);	
+			$scope.addIndicatorTableOptions = kommonitorDataGridHelperService.buildSingleSelectGrid('adminFilterAddIndicatorsTable', $scope.addIndicatorTableOptions, $scope.preppedIndicatorData, []);	
 
-			$scope.metadata = {};
-			$scope.metadata.note = undefined;
-			$scope.metadata.literature = undefined;
-			$scope.metadata.updateInterval = undefined;
-			$scope.metadata.sridEPSG = 4326;
-			$scope.metadata.datasource = undefined;
-			$scope.metadata.databasis = undefined;
-			$scope.metadata.contact = undefined;
-			$scope.metadata.lastUpdate = undefined;
-			$scope.metadata.description = undefined;
+      $scope.successMessagePart = undefined;
+      $scope.errorMessagePart = undefined;
 
-			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('spatialUnitAddRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, kommonitorDataExchangeService.getCurrentKomMonitorLoginRoleIds());	
+      resetTreeSelection($scope.indicatorTopicsTree);
+      resetTreeSelection($scope.georesourceTopicsTree);
 
-			$scope.nextLowerHierarchySpatialUnit = undefined;
-			$scope.nextUpperHierarchySpatialUnit = undefined;
-			$scope.hierarchyInvalid = false;
-
-			$scope.periodOfValidity = {};
-			$scope.periodOfValidity.startDate = undefined;
-			$scope.periodOfValidity.endDate = undefined;
-			$scope.periodOfValidityInvalid = false;
-
-			$scope.availableDatasourceTypes = [];
-			$scope.availableSpatialUnits = undefined;
-
-			$scope.converter = undefined;
-			$scope.schema = undefined;
-			$scope.mimeType = undefined;
-			$scope.datasourceType = undefined;
-			$scope.spatialUnitDataSourceIdProperty = undefined;
-			$scope.spatialUnitDataSourceNameProperty = undefined;
-
-			$scope.converterDefinition = undefined;
-			$scope.datasourceTypeDefinition = undefined;
-			$scope.propertyMappingDefinition = undefined;
-			$scope.postBody_spatialUnits = undefined;
-
-			$scope.attributeMapping_sourceAttributeName = undefined;
-			$scope.attributeMapping_destinationAttributeName = undefined;
-			$scope.attributeMapping_data = undefined;
-			$scope.attributeMapping_attributeType = kommonitorImporterHelperService.attributeMapping_attributeTypes[0];
-			$scope.attributeMappings_adminView = [];
-			$scope.keepAttributes = true;
-			$scope.keepMissingValues = true;
-
-			$scope.validityEndDate_perFeature = undefined;
-			$scope.validityStartDate_perFeature = undefined;
-
-			$scope.isOutlineLayer = false;
-			$scope.outlineColor = "#000000";
-			$scope.outlineWidth = 3;
-
-			$scope.selectedOutlineDashArrayObject = kommonitorDataExchangeService.availableLoiDashArrayObjects[0];
-
-            $scope.onChangeConverter();
-            $scope.onChangeDatasourceType();
+      $scope.selectedIndicatorTopicIds = [];
+      $scope.selectedGeoresourceTopicIds = [];
 
 			setTimeout(() => {
 				$scope.$digest();	
 			}, 250);
-		}; */
+		};
 /* 
 
 			$scope.addSpatialUnit = async function () {
@@ -356,21 +429,12 @@ angular.module('adminFilterAddModal').component('adminFilterAddModal', {
  */
 
 			$scope.hideSuccessAlert = function(){
-				$("#spatialUnitAddSucessAlert").hide();
+				$("#globalFilterAddSucessAlert").hide();
 			};
 
 			$scope.hideErrorAlert = function(){
-				$("#spatialUnitAddErrorAlert").hide();
+				$("#globalFilterAddErrorAlert").hide();
 			};
-
-			$scope.hideMetadataErrorAlert = function(){
-				$("#spatialUnitMetadataImportErrorAlert").hide();
-			};
-
-			$scope.hideMappingConfigErrorAlert = function(){
-				$("#spatialUnitMappingConfigImportErrorAlert").hide();
-			};
-
 
 			kommonitorMultiStepFormHelperService.registerClickHandler("adminFilterAddForm");			
 

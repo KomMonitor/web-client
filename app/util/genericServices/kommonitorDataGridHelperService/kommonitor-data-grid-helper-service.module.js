@@ -1322,13 +1322,13 @@ angular
       };
 
       // GLOBAL FILTER table
-      
+
       this.buildDataGrid_globalFilter = function (spatialUnitMetadataArray) {
         
         if (this.dataGridOptions_globalFilter && this.dataGridOptions_globalFilter.api && document.querySelector('#globalFilterOverviewTable').childElementCount > 0) {
 
           this.saveGridStore(this.dataGridOptions_globalFilter);
-          let newRowData = this.buildDataGridOptions_globalFilter(spatialUnitMetadataArray);
+          let newRowData = this.buildDataGridRowData_globalFilter(spatialUnitMetadataArray);
           this.dataGridOptions_globalFilter.api.setRowData(newRowData);
           this.restoreGridStore(this.dataGridOptions_globalFilter);
         }
