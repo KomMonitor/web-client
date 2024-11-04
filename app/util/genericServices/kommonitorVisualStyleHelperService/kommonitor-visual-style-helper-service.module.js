@@ -172,7 +172,8 @@ angular
         let classyBrewInstance = new classyBrew();
         // must overwrite the color schemes of classybrew if there are any custom color palettes defined by KomMonitor users
         // that are not part of official colorbrewer project
-        classyBrewInstance.colorSchemes = colorbrewer;
+        // deep clone colorbrewer content in case some methods use .shift method on color palette arrays
+        classyBrewInstance.colorSchemes = jQuery.extend(true, {}, colorbrewer);
 
         return classyBrewInstance;
       }
@@ -198,7 +199,7 @@ angular
           if (kommonitorDataExchangeService.indicatorValueIsNoData(geoJSON.features[i].properties[propertyName]))
             continue;
 
-          if(kommonitorDataExchangeService.classifyZeroSeparately && (geoJSON.features[i].properties[propertyName] == 0 || geoJSON.features[i].properties[propertyName] == "0")){
+          if(kommonitorDataExchangeService.classifyZeroSeparately && (kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]) == 0)){
             continue;
           }  
 
@@ -331,7 +332,7 @@ angular
           if (kommonitorDataExchangeService.indicatorValueIsNoData(geoJSON.features[i].properties[propertyName]))
             continue;
 
-          if(kommonitorDataExchangeService.classifyZeroSeparately && (geoJSON.features[i].properties[propertyName] == 0 || geoJSON.features[i].properties[propertyName] == "0")){
+          if(kommonitorDataExchangeService.classifyZeroSeparately && (kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]) == 0)){
             continue;
           }
 
@@ -519,7 +520,7 @@ angular
           if (kommonitorDataExchangeService.indicatorValueIsNoData(geoJSON.features[i].properties[propertyName]))
             continue;
 
-          if(kommonitorDataExchangeService.classifyZeroSeparately && (geoJSON.features[i].properties[propertyName] == 0 || geoJSON.features[i].properties[propertyName] == "0")){
+          if(kommonitorDataExchangeService.classifyZeroSeparately && (kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]) == 0)){
             continue;
           }
 
@@ -619,7 +620,7 @@ angular
         }
 
         var fillColor;
-        if (kommonitorDataExchangeService.classifyZeroSeparately && (feature.properties[propertyName] == 0 || feature.properties[propertyName] == "0")) {
+        if (kommonitorDataExchangeService.classifyZeroSeparately && (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0)) {
           fillColor = this.getFillColorForZero(incrementFeatures);
           if (useTransparencyOnIndicator) {
             fillOpacity = defaultFillOpacityForZeroFeatures;
@@ -629,7 +630,7 @@ angular
         else {
           if (datasetContainsNegativeValues) {
             if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) >= 0) {
-              if (kommonitorDataExchangeService.classifyZeroSeparately && (feature.properties[propertyName] == 0 || feature.properties[propertyName] == "0")) {
+              if (kommonitorDataExchangeService.classifyZeroSeparately && (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0)) {
                 fillColor = this.getFillColorForZero(incrementFeatures);
                 if (useTransparencyOnIndicator) {
                   fillOpacity = defaultFillOpacityForZeroFeatures;
@@ -651,7 +652,7 @@ angular
             }
             else {
 
-              if (kommonitorDataExchangeService.classifyZeroSeparately && (feature.properties[propertyName] == 0 || feature.properties[propertyName] == "0")) {
+              if (kommonitorDataExchangeService.classifyZeroSeparately && (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0)) {
                 fillColor = this.getFillColorForZero(incrementFeatures);
                 if (useTransparencyOnIndicator) {
                   fillOpacity = defaultFillOpacityForZeroFeatures;
@@ -782,7 +783,7 @@ angular
         var fillColor;
         if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) >= kommonitorDataExchangeService.measureOfValue) {
 
-          if (kommonitorDataExchangeService.classifyZeroSeparately && (feature.properties[propertyName] == 0 || feature.properties[propertyName] == "0")) {
+          if (kommonitorDataExchangeService.classifyZeroSeparately && (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0)) {
             fillColor = this.getFillColorForZero(incrementFeatures);
             if (useTransparencyOnIndicator) {
               fillOpacity = defaultFillOpacityForZeroFeatures;
@@ -804,7 +805,7 @@ angular
           };
         }
         else {
-          if (kommonitorDataExchangeService.classifyZeroSeparately && (feature.properties[propertyName] == 0 || feature.properties[propertyName] == "0")) {
+          if (kommonitorDataExchangeService.classifyZeroSeparately && (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0)) {
             fillColor = this.getFillColorForZero(incrementFeatures);
             if (useTransparencyOnIndicator) {
               fillOpacity = defaultFillOpacityForZeroFeatures;
@@ -850,7 +851,7 @@ angular
         var fillColor;
         if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) >= 0) {
 
-          if (kommonitorDataExchangeService.classifyZeroSeparately && (feature.properties[propertyName] == 0 || feature.properties[propertyName] == "0")) {
+          if (kommonitorDataExchangeService.classifyZeroSeparately && (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0)) {
             fillColor = this.getFillColorForZero(incrementFeatures);
             if (useTransparencyOnIndicator) {
               fillOpacity = defaultFillOpacityForZeroFeatures;
@@ -871,7 +872,7 @@ angular
           };
         }
         else {
-          if (kommonitorDataExchangeService.classifyZeroSeparately && (feature.properties[propertyName] == 0 || feature.properties[propertyName] == "0")) {
+          if (kommonitorDataExchangeService.classifyZeroSeparately && (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0)) {
             fillColor = this.getFillColorForZero(incrementFeatures);
             if (useTransparencyOnIndicator) {
               fillOpacity = defaultFillOpacityForZeroFeatures;

@@ -444,7 +444,7 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 				// array for API request (has less information per item)
 				$scope.indicatorReferences_apiRequest = [];
 				if($scope.currentIndicatorDataset.referencedIndicators && $scope.currentIndicatorDataset.referencedIndicators.length > 0){
-					for (const indicatorReference of $scope.currentIndicatorDataset.referencedIndicators) {
+					for (const indicatorReference of $scope.currentIndicatorDataset.referencedIndicators.filter(item => item != null && item != undefined)) {
 						var indicatorMetadata = kommonitorDataExchangeService.getIndicatorMetadataById(indicatorReference.referencedIndicatorId);
 						var referenceEntry = {
 							"referencedIndicatorName": indicatorMetadata.indicatorName,

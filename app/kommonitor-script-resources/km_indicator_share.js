@@ -93,7 +93,7 @@ async function computeIndicator(targetDate, targetSpatialUnit_geoJSON, baseIndic
         if(referenceValue === undefined || referenceValue === null){
           KmHelper.log("WARNING: the feature with featureID '" + featureId + "' does not contain a time series value for targetDate '" + targetDate + "'");
           KmHelper.log("WARNING: process will return");
-          referenceValue = 0;
+          referenceValue = null;
         }
 		// modify map object (i.e. set value initially, or perform calculations and store modified value)
         // key should be unique featureId of the spatial unit feature
@@ -101,7 +101,7 @@ async function computeIndicator(targetDate, targetSpatialUnit_geoJSON, baseIndic
             var mapObject = {
                 featureId: featureId,
                 indicatorValue: undefined,
-                refValue: 0,
+                refValue: null,
 				intermediateValue: 0
                 };
  
