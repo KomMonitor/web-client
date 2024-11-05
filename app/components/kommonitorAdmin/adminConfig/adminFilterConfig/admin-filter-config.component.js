@@ -37,7 +37,8 @@ angular.module('adminFilterConfig').component('adminFilterConfig', {
 			$scope.filterConfigCurrent = JSON.stringify(__env.filterConfig, null, "    ");
 			$scope.filterConfigNew = JSON.stringify(__env.filterConfig, null, "    ");
 			kommonitorScriptHelperService.prettifyScriptCodePreview("filterConfig_current");	
-      $scope.mergedFilterConfig = await kommonitorConfigStorageService.getFilterConfig();
+      $scope.origConfig = await kommonitorConfigStorageService.getFilterConfig();
+      $scope.mergedFilterConfig = $scope.origConfig;
 			
 			$scope.initCodeEditor();
 
@@ -60,10 +61,40 @@ angular.module('adminFilterConfig').component('adminFilterConfig', {
 				$scope.loadingData = false;
 			});	
 		};
+    
+    $scope.$on("onGlobalFilterDelete", async function (event, itemId) {
+      console.log("delete", itemId);
+
+      $scope.origConfig = await kommonitorConfigStorageService.getFilterConfig();
+
+      let item = $scope.mergedFilterConfig.filter(e => e.filterId==itemId);
+      if(item.length==1) {
+        
+        if(confirm("Wollen Sie den Filter "+item[0].name+" sicher dauerhaft löschen?")) {
+          
+          let configNew = $scope.origConfig.filter((e,i) => i!=itemId).map(e => { 
+            delete e.filterId; 
+            return e;
+          });
+          var addConfigResponse = await kommonitorConfigStorageService.postFilterConfig(JSON.stringify(configNew, null, "    "));	
+          
+          $scope.origConfig = await kommonitorConfigStorageService.getFilterConfig();
+          $scope.mergedFilterConfig = configNew;
+         
+          setTimeout(() => {
+            $scope.prepGlobalFilterData();
+            $scope.initializeOrRefreshOverviewTable();
+          }, 250);
+        }
+      } else 
+        console.log("Filter id not found");
+
+		}); 
 
     $scope.$on("refreshAdminFilterOverviewTable", async function (event) {
-      console.log("refresh");
-      $scope.mergedFilterConfig = await kommonitorConfigStorageService.getFilterConfig();
+
+      $scope.origConfig = await kommonitorConfigStorageService.getFilterConfig();
+      $scope.mergedFilterConfig = $scope.origConfig;
       setTimeout(() => {
         $scope.prepGlobalFilterData();
         $scope.initializeOrRefreshOverviewTable();
@@ -73,13 +104,39 @@ angular.module('adminFilterConfig').component('adminFilterConfig', {
     $scope.prepGlobalFilterData = function() {
 
       $scope.mergedFilterConfig.forEach((filter, filterIndex) => {
+        $scope.mergedFilterConfig[filterIndex].filterId = filterIndex;
+
         filter.indicators.forEach((indicatorElement, indicatorIndex) => {
           $scope.mergedFilterConfig[filterIndex].indicators[indicatorIndex] = kommonitorDataExchangeService.availableIndicators.filter(e => e.indicatorId==indicatorElement).map(e => e.indicatorName)[0];
         });
         filter.georesources.forEach((georesourceElement, georesourceIndex) => {
           $scope.mergedFilterConfig[filterIndex].georesources[georesourceIndex] = kommonitorDataExchangeService.availableGeoresources.filter(e => e.georesourceId==georesourceElement).map(e => e.datasetName)[0];
         });
+
+        filter.indicatorTopics.forEach((indicatorTopicElement, indicatorTopicIndex) => {
+          $scope.mergedFilterConfig[filterIndex].indicatorTopics[indicatorTopicIndex] = searchTopicRecursive(kommonitorDataExchangeService.availableTopics.filter(e => e.topicResource=='indicator'), indicatorTopicElement);
+        });
+        filter.georesourceTopics.forEach((georesourceTopicElement, georesourceTopicIndex) => {
+          $scope.mergedFilterConfig[filterIndex].georesourceTopics[georesourceTopicIndex] = searchTopicRecursive(kommonitorDataExchangeService.availableTopics.filter(e => e.topicResource=='georesource'), georesourceTopicElement);
+        });
       });
+
+      console.log($scope.mergedFilterConfig);
+    }
+
+    function searchTopicRecursive(topicsTree, itemId) {
+
+      for(const elem of topicsTree) {
+        if(elem.topicId==itemId) {
+          return elem.topicName;
+        } else {
+          if(elem.subTopics.length>0) {
+            const found = searchTopicRecursive(elem.subTopics, itemId);
+            if(found)
+              return found;
+          }
+        }
+      };
     }
 
 		$scope.initCodeEditor = function(){

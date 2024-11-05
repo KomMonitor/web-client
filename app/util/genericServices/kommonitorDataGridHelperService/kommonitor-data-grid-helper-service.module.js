@@ -122,7 +122,7 @@ angular
 
         let html = '<div class="btn-group btn-group-sm">';
         html += '<button id="btn_globalFilter_editFilter_' + params.data.filterId + '" class="btn btn-warning btn-sm globalFilterEditBtn" type="button" data-toggle="modal" data-target="#modal-edit-global-filter" title="Filter editieren"><i class="fas fa-pencil-alt"></i></button>';
-        html += '<button id="btn_globalFilter_deleteFilter_' + params.data.filterId + '" class="btn btn-danger btn-sm globalFilterDeleteBtn" type="button" data-toggle="modal" data-target="#modal-delete-global-filter" title="Filter entfernen"><i class="fas fa-trash"></i></button>'
+        html += '<button id="btn_globalFilter_deleteFilter_' + params.data.filterId + '" class="btn btn-danger btn-sm globalFilterDeleteBtn" type="button" title="Filter entfernen"><i class="fas fa-trash"></i></button>'
         html += '</div>';
 
         return html;
@@ -1427,49 +1427,29 @@ angular
 
       this.registerClickHandler_globalFilter = function (spatialUnitMetadataArray) {
 
-        $(".spatialUnitEditMetadataBtn").off();
-        $(".spatialUnitEditMetadataBtn").on("click", function (event) {
+        $(".globalFilterEditBtn").off();
+        $(".globalFilterEditBtn").on("click", function (event) {
           // ensure that only the target button gets clicked
           // manually open modal
           event.stopPropagation();
           let modalId = document.getElementById(this.id).getAttribute("data-target");
           $(modalId).modal('show');
           
-          let spatialUnitId = this.id.split("_")[3];
+          let adminFilterId = this.id.split("_")[3];
 
-          let spatialUnitMetadata = kommonitorDataExchangeService.getSpatialUnitMetadataById(spatialUnitId);
+          //let spatialUnitMetadata = kommonitorDataExchangeService.getSpatialUnitMetadataById(spatialUnitId);
 
-          $rootScope.$broadcast("onEditSpatialUnitMetadata", spatialUnitMetadata);
+          $rootScope.$broadcast("onGlobalFilterEdit", adminFilterId);
         });
 
-        $(".spatialUnitEditFeaturesBtn").off();
-        $(".spatialUnitEditFeaturesBtn").on("click", function (event) {
+        $(".globalFilterDeleteBtn").off();
+        $(".globalFilterDeleteBtn").on("click", function (event) {
           // ensure that only the target button gets clicked
-          // manually open modal
           event.stopPropagation();
-          let modalId = document.getElementById(this.id).getAttribute("data-target");
-          $(modalId).modal('show');
           
-          let spatialUnitId = this.id.split("_")[3];
+          let adminFilterId = this.id.split("_")[3];
 
-          let spatialUnitMetadata = kommonitorDataExchangeService.getSpatialUnitMetadataById(spatialUnitId);
-
-          $rootScope.$broadcast("onEditSpatialUnitFeatures", spatialUnitMetadata);
-        });
-
-        $(".spatialUnitDeleteBtn").off();
-        $(".spatialUnitDeleteBtn").on("click", function (event) { 
-          // ensure that only the target button gets clicked
-          // manually open modal
-          event.stopPropagation();
-          let modalId = document.getElementById(this.id).getAttribute("data-target");
-          $(modalId).modal('show');
-                
-          let spatialUnitId = this.id.split("_")[3]; 
-
-          let spatialUnitMetadata = kommonitorDataExchangeService.getSpatialUnitMetadataById(spatialUnitId);
-
-          $rootScope.$broadcast("onDeleteSpatialUnits", [spatialUnitMetadata]); //handler function takes an array
+          $rootScope.$broadcast("onGlobalFilterDelete", adminFilterId);
         });
 
       };

@@ -212,7 +212,7 @@ angular.module('adminFilterAddModal').component('adminFilterAddModal', {
           return;
       }
 
-      let filterConfig = __env.filterConfig;      
+      let filterConfig = await kommonitorConfigStorageService.getFilterConfig();      
 
       if(filterConfig.some(e => e.name==$scope.filterName)) {
         alert('Es existiert bereits ein Filter mit dem selben Namen!');
@@ -274,43 +274,12 @@ angular.module('adminFilterAddModal').component('adminFilterAddModal', {
 
       $timeout(function(){
         $rootScope.$broadcast("refreshAdminFilterOverviewTable");
+        $scope.resetAdminFilterAddForm();
       }, 500);
 
       setTimeout(() => {
         $scope.$digest();
       }, 250);
-
-   /*    [
-        {
-            "name": "DemoApp",
-            "indicatorTopics": [
-                "61040cc0-b9c0-420f-92dd-fc6016ba1b22",
-                "db2fda25-6259-4950-bf1c-584b5af3a0f8"
-            ],
-            "indicators": [
-                "c2ae1c42-6d6c-4f5a-8b83-b8e3d50dd301",
-                "7acae0d9-d56e-47ef-986c-562036189be2"
-            ],
-            "georesourceTopics": [
-                "c839a9d4-41fd-4989-888e-e0a3d7949c9c"
-            ],
-            "georesources": [
-            "edb29cfc-9d34-4df0-b059-575f213d381e"
-            ]
-        },
-        {
-            "name": "Demo 2",
-            "indicatorTopics": [
-                "f78d9a95-3b69-48a3-8076-d0d052426d03"
-            ],
-            "indicators": [
-                "392273a0-d506-4b05-b7fa-7f492ed97c33"
-            ],
-            "georesourceTopics": [],
-            "georesources": []
-        }
-    ] */
-
     };
 
 
