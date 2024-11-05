@@ -121,7 +121,7 @@ angular
       var displayEditButtons_globalFilter = function (params) {
 
         let html = '<div class="btn-group btn-group-sm">';
-        html += '<button id="btn_globalFilter_editFilter_' + params.data.filterId + '" class="btn btn-warning btn-sm globalFilterEditBtn" type="button" data-toggle="modal" data-target="#modal-edit-global-filter" title="Filter editieren"><i class="fas fa-pencil-alt"></i></button>';
+        html += '<button id="btn_globalFilter_editFilter_' + params.data.filterId + '" class="btn btn-warning btn-sm globalFilterEditBtn" type="button" data-toggle="modal" data-target="#modal-edit-admin-filter" title="Filter editieren"><i class="fas fa-pencil-alt"></i></button>';
         html += '<button id="btn_globalFilter_deleteFilter_' + params.data.filterId + '" class="btn btn-danger btn-sm globalFilterDeleteBtn" type="button" title="Filter entfernen"><i class="fas fa-trash"></i></button>'
         html += '</div>';
 
@@ -1436,8 +1436,6 @@ angular
           $(modalId).modal('show');
           
           let adminFilterId = this.id.split("_")[3];
-
-          //let spatialUnitMetadata = kommonitorDataExchangeService.getSpatialUnitMetadataById(spatialUnitId);
 
           $rootScope.$broadcast("onGlobalFilterEdit", adminFilterId);
         });

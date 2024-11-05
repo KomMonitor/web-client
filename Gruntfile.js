@@ -148,6 +148,8 @@ module.exports = function (grunt) {
             'app/components/kommonitorAdmin/adminConfig/adminFilterConfig/admin-filter-config.component.js',
             'app/components/kommonitorAdmin/adminConfig/adminFilterConfig/adminFilterAddModal/admin-filter-add-modal.module.js',
             'app/components/kommonitorAdmin/adminConfig/adminFilterConfig/adminFilterAddModal/admin-filter-add-modal.component.js',
+            'app/components/kommonitorAdmin/adminConfig/adminFilterConfig/adminFilterEditModal/admin-filter-edit-modal.module.js',
+            'app/components/kommonitorAdmin/adminConfig/adminFilterConfig/adminFilterEditModal/admin-filter-edit-modal.component.js',
             'app/components/kommonitorAdmin/adminConfig/adminKeycloakConfig/admin-keycloak-config.module.js',
             'app/components/kommonitorAdmin/adminConfig/adminKeycloakConfig/admin-keycloak-config.component.js',
             'app/components/kommonitorAdmin/kommonitor-admin.module.js',

@@ -120,8 +120,6 @@ angular.module('adminFilterConfig').component('adminFilterConfig', {
           $scope.mergedFilterConfig[filterIndex].georesourceTopics[georesourceTopicIndex] = searchTopicRecursive(kommonitorDataExchangeService.availableTopics.filter(e => e.topicResource=='georesource'), georesourceTopicElement);
         });
       });
-
-      console.log($scope.mergedFilterConfig);
     }
 
     function searchTopicRecursive(topicsTree, itemId) {
