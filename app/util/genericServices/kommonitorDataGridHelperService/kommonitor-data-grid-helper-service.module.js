@@ -3011,11 +3011,12 @@ angular
       function CheckboxRenderer_checked() {}
 
       CheckboxRenderer_checked.prototype.init = function(params) {
+
         this.params = params;
 
         this.eGui = document.createElement('input');
         this.eGui.type = 'checkbox';
-        this.eGui.checked = this.params.checked;
+        this.eGui.checked = this.params.data.checked;
 
         this.checkedHandler = this.checkedHandler.bind(this);
         this.eGui.addEventListener('click', this.checkedHandler);
@@ -3180,17 +3181,13 @@ angular
 
       // SINGLE-SELECT TABLE
 
-      this.buildSingleSelectGridRowData = function(accessControlMetadata, selectedRoleIds){
+      this.buildSingleSelectGridRowData = function(accessControlMetadata, selectedIds){
         let data = JSON.parse(JSON.stringify(accessControlMetadata));
-      /*   for (let elem of data) {
-          for (let role of elem.roles) {
-            role.isChecked = false;
-            if (selectedRoleIds && selectedRoleIds.includes(role.roleId)){
-              role.isChecked = true;
-            }
-          }
-        } */
-
+       /*  for (let elem of data) {
+          if(selectedIds.includes(elem.id))
+              elem.isChecked = true;
+        }
+ */
         let array = [];
         array.push(data[0]);
         array.push(data[1]);
@@ -3222,9 +3219,9 @@ angular
         ]);
       };
 
-      this.buildSingleSelectGridOptions = function(accessControlMetadata, selectedRoleIds){
+      this.buildSingleSelectGridOptions = function(accessControlMetadata, selectedIds){
         let columnDefs = this.buildSingleSelectGridColumnConfig();
-          let rowData = this.buildSingleSelectGridRowData(accessControlMetadata, selectedRoleIds);
+          let rowData = this.buildSingleSelectGridRowData(accessControlMetadata, selectedIds);
   
           let components = {
             checkboxRenderer_checked: CheckboxRenderer_checked,
@@ -3292,14 +3289,15 @@ angular
           return gridOptions;
       };
 
-      this.buildSingleSelectGrid = function(tableDOMId, currentTableOptionsObject, accessControlMetadata, selectedRoleIds){
+      this.buildSingleSelectGrid = function(tableDOMId, currentTableOptionsObject, accessControlMetadata, selectedIds){
+
         if (currentTableOptionsObject && currentTableOptionsObject.api) {
 
-          let newRowData = this.buildSingleSelectGridRowData(accessControlMetadata, selectedRoleIds);
+          let newRowData = this.buildSingleSelectGridRowData(accessControlMetadata, selectedIds);
           currentTableOptionsObject.api.setRowData(newRowData);
         }
         else {
-          currentTableOptionsObject = this.buildSingleSelectGridOptions(accessControlMetadata, selectedRoleIds);
+          currentTableOptionsObject = this.buildSingleSelectGridOptions(accessControlMetadata, selectedIds);
           let gridDiv = document.querySelector('#' + tableDOMId);
           new agGrid.Grid(gridDiv, currentTableOptionsObject);
         }

@@ -22,7 +22,7 @@
 				<!-- MultiStep Form -->
 				<div class="row">
 					<div class="col-md-12">
-						<form class="multiStepForm form-group" id="adminFilterAddForm" role="form" data-toggle="validator" data-disable="true" style="margin-bottom: 0px;">
+						<form class="multiStepForm form-group" id="adminFilterEditForm" role="form" data-toggle="validator" data-disable="true" style="margin-bottom: 0px;">
 							<!-- progressbar -->
 							<div>
 								<ul id="progressbar">
@@ -41,11 +41,11 @@
 								<div class="row">
                   <div class="col-md-2"></div>
                   <div class="col-md-8 col-xs-12">
-                      <div id="adminFilterAddIndicatorsTable" style="height: 45vh" class="ag-theme-alpine"></div>  
+                      <div id="adminFilterEditIndicatorsTable" style="height: 45vh" class="ag-theme-alpine"></div>  
                   </div>
                   <div class="col-md-2"></div>
                 </div>	
-								<input type="button" name="next" class="next next_addAdminFilter action-button" value="N&auml;chster Schritt"/>
+								<input type="button" name="next" class="next next_editAdminFilter action-button" value="N&auml;chster Schritt"/>
 							</fieldset>
 
 							<fieldset>
@@ -55,27 +55,27 @@
 								<div class="row vertical-align">
                   <div class="list-group list-group-root well" style="text-align: left; width:50vw;">
                 
-                    <script type="text/ng-template" id="indicatorTree">
+                    <script type="text/ng-template" id="indicatorEditTree">
                       <div class="list-group-item list-group-item-default list-group-item-level-{{category.level}}">
                         <a ng-if="category.subTopics.length>0" id="{{category.topicId}}" href="" ng-attr-title="{{category.topicDescription}}"
-                          class="collapseTrigger" style="color: white;">
+                          class="editCollapseTrigger" style="color: white;">
                           <i class="glyphicon glyphicon-chevron-right"></i>{{category.topicName}}</a>
                         <p ng-if="category.subTopics.length==0">{{category.topicName}}</p>
-                        <input type="checkbox" id="checkbox-{{category.topicId}}" ng-model="category.selected" ng-change="onSelectedIndicatorItemsChange(category.topicId,category.selected)">
+                        <input type="checkbox" id="editCheckbox-{{category.topicId}}" ng-model="category.selected" ng-change="onSelectedIndicatorEditItemsChange(category.topicId,category.selected)">
                         
-                        <div style="display: none" id="subTopic-{{category.topicId}}">
-                          <div ng-if="category.subTopics" ng-repeat="category in category.subTopics" ng-include="'indicatorTree'"></div>
+                        <div style="display: none" id="editSubTopic-{{category.topicId}}">
+                          <div ng-if="category.subTopics" ng-repeat="category in category.subTopics" ng-include="'indicatorEditTree'"></div>
                         </div>
                       </div>
                     </script>
 
-                    <div ng-repeat="category in indicatorTopicsTree | filter:{topicType:'main'}" ng-include="'indicatorTree'"></div>
+                    <div ng-repeat="category in indicatorTopicsTree | filter:{topicType:'main'}" ng-include="'indicatorEditTree'"></div>
                   </div>
 								</div>
 
 								
-								<input type="button" name="previous" class="previous previous_addAdminFilter action-button-previous" value="Voriger Schritt"/>
-								<input type="button" name="next" class="next next_addAdminFilter action-button" value="N&auml;chster Schritt"/>
+								<input type="button" name="previous" class="previous previous_editAdminFilter action-button-previous" value="Voriger Schritt"/>
+								<input type="button" name="next" class="next next_editAdminFilter action-button" value="N&auml;chster Schritt"/>
 							</fieldset>
 							
 							<fieldset>
@@ -85,13 +85,13 @@
 								<div class="row">
                   <div class="col-md-2"></div>
                   <div class="col-md-8 col-xs-12">
-                      <div id="adminFilterAddGeoresourcesTable" style="height: 45vh" class="ag-theme-alpine"></div>  
+                      <div id="adminFilterEditGeoresourcesTable" style="height: 45vh" class="ag-theme-alpine"></div>  
                   </div>
                   <div class="col-md-2"></div>
                 </div>	
                 
-                <input type="button" name="previous" class="previous previous_addAdminFilter action-button-previous" value="Voriger Schritt"/>
-                <input type="button" name="next" class="next next_addAdminFilter action-button" value="N&auml;chster Schritt"/>
+                <input type="button" name="previous" class="previous previous_editAdminFilter action-button-previous" value="Voriger Schritt"/>
+                <input type="button" name="next" class="next next_editAdminFilter action-button" value="N&auml;chster Schritt"/>
               </fieldset>						
 
               <fieldset>
@@ -101,25 +101,25 @@
 								<div class="row vertical-align">
                   <div class="list-group list-group-root well" style="text-align: left; width:50vw;">
                 
-                    <script type="text/ng-template" id="georesourceTree">
+                    <script type="text/ng-template" id="georesourceEditTree">
                       <div class="list-group-item list-group-item-default list-group-item-level-{{category.level}}">
                         <a ng-if="category.subTopics.length>0" id="{{category.topicId}}" href="" ng-attr-title="{{category.topicDescription}}"
-                          class="collapseTrigger" style="color: white;">
+                          class="editCollapseTrigger" style="color: white;">
                           <i class="glyphicon glyphicon-chevron-right"></i>{{category.topicName}}</a>
                         <p ng-if="category.subTopics.length==0">{{category.topicName}}</p>
-                        <input type="checkbox" id="checkbox-{{category.topicId}}" ng-model="category.selected" ng-change="onSelectedGeoresourceItemsChange(category.topicId,category.selected)">
+                        <input type="checkbox" id="editCheckbox-{{category.topicId}}" ng-model="category.selected" ng-change="onSelectedGeoresourceEditItemsChange(category.topicId,category.selected)">
                         
-                        <div style="display: none" id="subTopic-{{category.topicId}}">
-                          <div ng-if="category.subTopics" ng-repeat="category in category.subTopics" ng-include="'georesourceTree'"></div>
+                        <div style="display: none" id="editSubTopic-{{category.topicId}}">
+                          <div ng-if="category.subTopics" ng-repeat="category in category.subTopics" ng-include="'georesourceEditTree'"></div>
                         </div>
                       </div>
                     </script>
 
-                    <div ng-repeat="category in georesourceTopicsTree | filter:{topicType:'main'}" ng-include="'georesourceTree'"></div>
+                    <div ng-repeat="category in georesourceTopicsTree | filter:{topicType:'main'}" ng-include="'georesourceEditTree'"></div>
                   </div>
 								</div>
 
-								<input type="button" name="previous" class="previous previous_addAdminFilter action-button-previous" value="Voriger Schritt"/>
+								<input type="button" name="previous" class="previous previous_editAdminFilter action-button-previous" value="Voriger Schritt"/>
 							</fieldset>
 						</form>
 					</div>
@@ -130,18 +130,18 @@
 			<div class="modal-footer">
 				<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Schlie&szlig;en</button>
 	
-				<button type="button" class="btn btn-success" type="submit" ng-click="addAdminFilter()" ng-disabled="!filterName || filterName==''">Filter registieren</button>
-				<button type="button" class="btn btn-danger" ng-click="resetAdminFilterAddForm()">Zur&uuml;cksetzen</button>
+				<button type="button" class="btn btn-success" type="submit" ng-click="editAdminFilter()" ng-disabled="!filterName || filterName==''">Filter registieren</button>
+				<button type="button" class="btn btn-danger" ng-click="resetAdminFilterEditForm()">Zur&uuml;cksetzen</button>
 			</div>
 
-			<div id="globalFilterAddSucessAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden class="alert alert-success alert-dismissable">
+			<div id="globalFilterEditSucessAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden class="alert alert-success alert-dismissable">
                 <button type="button" class="close" ng-click="hideSuccessAlert()" aria-hidden="true">&times;</button>
                 <h4><i class="icon fa fa-check"></i>Filter registriert</h4>
 				<p>Ein neuer Filter mit Namen {{filterName}} wurde in KomMonitor registriert und in die &Uuml;bersichtstabelle eingetragen.
 				</p>
       </div>
 
-			<div id="globalFilterAddErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden class="alert alert-danger alert-dismissable">
+			<div id="globalFilterEditErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden class="alert alert-danger alert-dismissable">
                 <button type="button" class="close" ng-click="hideErrorAlert()" aria-hidden="true">&times;</button>
                 <h4><i class="icon fa fa-ban"></i>Registrierung gescheitert</h4>
                 Bei der Registrierung des Filter ist ein Fehler aufgetreten. Fehlermeldung:

@@ -17,11 +17,7 @@ angular.module('adminFilterAddModal').component('adminFilterAddModal', {
 
     $scope.preppedGeoresourceData = [];
     $scope.preppedIndicatorData = [];
-
-		/* $scope.$on("availableRolesUpdate", function (event) {
-			refreshRoles();
-		});*/
-
+    
     $scope.indicatorTopicsTree = [];
     $scope.selectedIndicatorTopicIds = [];
 
@@ -69,7 +65,6 @@ angular.module('adminFilterAddModal').component('adminFilterAddModal', {
         $scope.selectedGeoresourceTopicIds = $scope.selectedGeoresourceTopicIds.filter(e => e!=id);
 
       searchGeoresourceItemRecursive($scope.georesourceTopicsTree, id, selected);
-      console.log("geo", id, $scope.selectedGeoresourceTopicIds);
     }
 
     function searchGeoresourceItemRecursive(tree, id, selected) {
@@ -113,7 +108,6 @@ angular.module('adminFilterAddModal').component('adminFilterAddModal', {
         $scope.selectedIndicatorTopicIds = $scope.selectedIndicatorTopicIds.filter(e => e!=id);
 
       searchIndicatorItemRecursive($scope.indicatorTopicsTree, id, selected);
-      console.log("indi", id, $scope.selectedIndicatorTopicIds);
     }
 
     function searchIndicatorItemRecursive(tree, id, selected) {
