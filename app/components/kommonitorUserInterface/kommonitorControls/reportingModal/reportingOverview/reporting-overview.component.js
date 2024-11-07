@@ -35,6 +35,22 @@ angular.module('reportingOverview').component('reportingOverview', {
 		$scope.loadingData = false;
 		$scope.echartsImgPixelRatio = 2;
 
+    this.setCustomFontFamily = function() {
+        
+      var defaultFont = '"Source Sans Pro", "Helvetica Neue", Helvetica, Arial, sans-serif';
+
+      var elem = document.querySelector('#fontFamily-reference');
+      var style = getComputedStyle(elem);
+      var fontFamily = style.fontFamily.split(',')[0];
+
+      if(fontFamily!=defaultFont)
+        return fontFamily;
+      else
+        return undefined;
+    }
+
+    const customFontFamily = this.setCustomFontFamily(); 
+
 		$scope.initialize = function(data) {
 			let configFileSelected = data[0];
 			data = data[1];
@@ -918,7 +934,10 @@ angular.module('reportingOverview').component('reportingOverview', {
 			});
 
 			// general settings
-			let fontName = "Helvetica";
+      let fontName = "Helvetica";
+      if(customFontFamily!=undefined) {
+        fontName = customFontFamily.replace(/['"]+/g,'');
+      }
 			doc.setDrawColor(148, 148, 148);
 			doc.setFont(fontName, "normal", "normal"); // name, normal/italic, fontweight
 			
@@ -1171,7 +1190,9 @@ angular.module('reportingOverview').component('reportingOverview', {
 			// https://docx.js.org/#/?id=basic-usage
 
 			let font = "Calibri";
-			
+      if(customFontFamily!=undefined) {
+        font = customFontFamily.replace(/['"]+/g,'');
+      }
 			for(let [idx, page] of $scope.config.pages.entries()) {
 
 				if(!$scope.showThisPage(page)) {
