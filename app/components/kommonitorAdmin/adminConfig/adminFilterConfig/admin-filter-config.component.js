@@ -47,6 +47,10 @@ angular.module('adminFilterConfig').component('adminFilterConfig', {
 			$scope.$digest();
 		};
 
+    $scope.onAddFilter = function() {
+      $rootScope.$broadcast('onOpenAddFilterModal');
+    }
+
     // make sure that initial fetching of availableRoles has happened
 		$scope.$on("initialMetadataLoadingCompleted", function (event) {
       $scope.prepGlobalFilterData();

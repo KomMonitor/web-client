@@ -12,6 +12,8 @@ angular.module('adminFilterEditModal').component('adminFilterEditModal', {
 
     $scope.filterName = undefined;
 
+    $scope.selectedItem = undefined;
+
 		$scope.editIndicatorTableOptions = undefined;	
 		$scope.editGeoresourceTableOptions = undefined;	
 
@@ -21,11 +23,11 @@ angular.module('adminFilterEditModal').component('adminFilterEditModal', {
     $scope.preppedGeoresourceData = [];
     $scope.preppedIndicatorData = [];
 
-    $scope.indicatorTopicsTree = [];
-    $scope.selectedIndicatorTopicIds = [];
+    $scope.indicatorTopicsEditTree = [];
+    $scope.selectedIndicatorTopicEditIds = [];
 
-    $scope.georesourceTopicsTree = [];
-    $scope.selectedGeoresourceTopicIds = [];
+    $scope.georesourceTopicsEditTree = [];
+    $scope.selectedGeoresourceTopicEditIds = [];
 
     $scope.filterConfig = [];
 
@@ -52,17 +54,19 @@ angular.module('adminFilterEditModal').component('adminFilterEditModal', {
 		// make sure that initial fetching of availableRoles has happened
 		$scope.$on("initialMetadataLoadingCompleted", function (event) {
 
-      $scope.indicatorTopicsTree = prepTopicsTree(kommonitorDataExchangeService.availableTopics.filter(e => e.topicResource=='indicator'),0);
-      $scope.georesourceTopicsTree = prepTopicsTree(kommonitorDataExchangeService.availableTopics.filter(e => e.topicResource=='georesource'),0);
+      $scope.indicatorTopicsEditTree = prepTopicsTree(kommonitorDataExchangeService.availableTopics.filter(e => e.topicResource=='indicator'), 0, []);
+      $scope.georesourceTopicsEditTree = prepTopicsTree(kommonitorDataExchangeService.availableTopics.filter(e => e.topicResource=='georesource'), 0, []);
 			addClickListenerToEachCollapseTrigger();
 		}); 
 
     $scope.$on("onGlobalFilterEdit", async function (event, itemId) {
 
+      $scope.selectedItem = itemId;
+
       // reset
       $scope.filterName = undefined;
-      resetTreeSelection($scope.indicatorTopicsTree);
-      resetTreeSelection($scope.georesourceTopicsTree);
+      resetTreeSelection($scope.indicatorTopicsEditTree);
+      resetTreeSelection($scope.georesourceTopicsEditTree);
 
       $scope.filterConfig = await kommonitorConfigStorageService.getFilterConfig();
 
@@ -70,15 +74,18 @@ angular.module('adminFilterEditModal').component('adminFilterEditModal', {
         if(index==itemId) {
           $scope.filterName = elem.name;
 
-          $scope.selectedIndicatorTopicIds = elem.indicatorTopics;
-          $scope.selectedGeoresourceTopicIds = elem.georesourceTopics;
+          $scope.selectedIndicatorTopicEditIds = elem.indicatorTopics;
+          $scope.selectedGeoresourceTopicEditIds = elem.georesourceTopics;
 
-          $scope.selectedIndicatorTopicIds.forEach(e => {
-            searchIndicatorItemRecursive($scope.indicatorTopicsTree, e, true);
+          $scope.indicatorTopicsEditTree = prepTopicsTree(kommonitorDataExchangeService.availableTopics.filter(e => e.topicResource=='indicator'), 0, $scope.selectedIndicatorTopicEditIds);
+          $scope.georesourceTopicsEditTree = prepTopicsTree(kommonitorDataExchangeService.availableTopics.filter(e => e.topicResource=='georesource'),0, $scope.selectedGeoresourceTopicEditIds);
+
+          $scope.selectedIndicatorTopicEditIds.forEach(e => {
+            searchIndicatorItemRecursive($scope.indicatorTopicsEditTree, e, true);
           });
 
-          $scope.selectedGeoresourceTopicIds.forEach(e => {
-            searchGeoresourceItemRecursive($scope.georesourceTopicsTree, e, true);
+          $scope.selectedGeoresourceTopicEditIds.forEach(e => {
+            searchGeoresourceItemRecursive($scope.georesourceTopicsEditTree, e, true);
           });
           
           $scope.selectedIndicatorIds = elem.indicators;
@@ -96,33 +103,44 @@ angular.module('adminFilterEditModal').component('adminFilterEditModal', {
 
     // georesource tree
     $scope.onSelectedGeoresourceEditItemsChange = function(id,selected) {
-
+      
       if(selected===true) {
-        if(!$scope.selectedGeoresourceTopicIds.includes(id))
-          $scope.selectedGeoresourceTopicIds.push(id);
+        if(!$scope.selectedGeoresourceTopicEditIds.includes(id))
+          $scope.selectedGeoresourceTopicEditIds.push(id);
       } else
-        $scope.selectedGeoresourceTopicIds = $scope.selectedGeoresourceTopicIds.filter(e => e!=id);
+        $scope.selectedGeoresourceTopicEditIds = $scope.selectedGeoresourceTopicEditIds.filter(e => e!=id);
 
-      searchGeoresourceItemRecursive($scope.georesourceTopicsTree, id, selected);
+      searchGeoresourceItemRecursive($scope.georesourceTopicsEditTree, id, selected);
     }
 
     function searchGeoresourceItemRecursive(tree, id, selected) {
 
+      let ret = false;
+
       tree.forEach(entry => {
-        
         if(entry.topicId==id) {
-          document.getElementById('editCheckbox-'+id).checked = true;
-          document.getElementById('editSubTopic-'+id).style.display = 'block';
+          if(selected===true) {
+            document.getElementById('editCheckbox-'+id).checked = true;
+            document.getElementById('editSubTopic-'+id).style.display = 'block';
+          }
 
           checkGeoresourceItemsRecursive(entry.subTopics, selected);
-        } else 
-          searchGeoresourceItemRecursive(entry.subTopics, id, selected);
+
+          ret = true;
+        } else {
+          let itemFound = searchGeoresourceItemRecursive(entry.subTopics, id, selected);
+          if(itemFound===true) {
+            document.getElementById('editSubTopic-'+entry.topicId).style.display = 'block';
+            ret = true;
+          }
+        }
       });
+
+      return ret;
     }
 
     function checkGeoresourceItemsRecursive(tree, selected) {
       tree.forEach(entry => {
-
         if(selected===true) {
           document.getElementById('editCheckbox-'+entry.topicId).checked = true;
           document.getElementById('editCheckbox-'+entry.topicId).disabled = true;
@@ -132,7 +150,7 @@ angular.module('adminFilterEditModal').component('adminFilterEditModal', {
         }
         
         // delete all downlevel items if they exists, just in case a level higher up has been checked afterwards  
-        $scope.selectedGeoresourceTopicIds = $scope.selectedGeoresourceTopicIds.filter(e => e!=entry.topicId);
+        $scope.selectedGeoresourceTopicEditIds = $scope.selectedGeoresourceTopicEditIds.filter(e => e!=entry.topicId);
 
         if(entry.subTopics.length>0)
           checkGeoresourceItemsRecursive(entry.subTopics, selected);
@@ -144,25 +162,38 @@ angular.module('adminFilterEditModal').component('adminFilterEditModal', {
     $scope.onSelectedIndicatorEditItemsChange = function(id,selected) {
 
       if(selected===true) {
-        if(!$scope.selectedIndicatorTopicIds.includes(id))
-          $scope.selectedIndicatorTopicIds.push(id);
+        if(!$scope.selectedIndicatorTopicEditIds.includes(id))
+          $scope.selectedIndicatorTopicEditIds.push(id);
       } else
-        $scope.selectedIndicatorTopicIds = $scope.selectedIndicatorTopicIds.filter(e => e!=id);
+        $scope.selectedIndicatorTopicEditIds = $scope.selectedIndicatorTopicEditIds.filter(e => e!=id);
 
-      searchIndicatorItemRecursive($scope.indicatorTopicsTree, id, selected);
+      searchIndicatorItemRecursive($scope.indicatorTopicsEditTree, id, selected);
     }
 
     function searchIndicatorItemRecursive(tree, id, selected) {
 
+      let ret = false;
+
       tree.forEach(entry => {
         if(entry.topicId==id) {
-          document.getElementById('editCheckbox-'+id).checked = true;
-          document.getElementById('editSubTopic-'+id).style.display = 'block';
+          if(selected===true) {
+            document.getElementById('editCheckbox-'+id).checked = true;
+            document.getElementById('editSubTopic-'+id).style.display = 'block';
+          }
 
           checkIndicatorItemsRecursive(entry.subTopics, selected);
-        } else 
-          searchIndicatorItemRecursive(entry.subTopics, id, selected);
+
+          ret = true;
+        } else {
+          let itemFound = searchIndicatorItemRecursive(entry.subTopics, id, selected);
+          if(itemFound===true) {
+            document.getElementById('editSubTopic-'+entry.topicId).style.display = 'block';
+            ret = true;
+          }
+        }
       });
+
+      return ret;
     }
 
     function checkIndicatorItemsRecursive(tree, selected) {
@@ -177,7 +208,7 @@ angular.module('adminFilterEditModal').component('adminFilterEditModal', {
         }
         
         // delete all downlevel items if they exists, just in case a level higher up has been checked afterwards  
-        $scope.selectedIndicatorTopicIds = $scope.selectedIndicatorTopicIds.filter(e => e!=entry.topicId);
+        $scope.selectedIndicatorTopicEditIds = $scope.selectedIndicatorTopicEditIds.filter(e => e!=entry.topicId);
 
         if(entry.subTopics.length>0)
           checkIndicatorItemsRecursive(entry.subTopics, selected);
@@ -185,14 +216,14 @@ angular.module('adminFilterEditModal').component('adminFilterEditModal', {
     }
     // end
 
-    function prepTopicsTree(tree, level) {
+    function prepTopicsTree(tree, level, selectedItemIds) {
       tree.forEach(entry => {
         entry.level = level;
-        entry.selected = false;
+        entry.selected = selectedItemIds.includes(entry.topicId);
 
         if(entry.subTopics.length>0) {
           let newLevel = level+1;
-          entry.subTopics = prepTopicsTree(entry.subTopics, newLevel);
+          entry.subTopics = prepTopicsTree(entry.subTopics, newLevel, selectedItemIds);
         }
       });
 
@@ -248,65 +279,29 @@ angular.module('adminFilterEditModal').component('adminFilterEditModal', {
       if(!$scope.filterName)
           return;
 
-      if(selectedGeoresourceIds.length==0 && selectedIndicatorIds.length==0 && $scope.selectedIndicatorTopicIds.length==0 && $scope.selectedGeoresourceTopicIds.length==0) {
+      if(selectedGeoresourceIds.length==0 && selectedIndicatorIds.length==0 && $scope.selectedIndicatorTopicEditIds.length==0 && $scope.selectedGeoresourceTopicEditIds.length==0) {
         if(!confirm("Sie haben weder Indikator- noch Georesource Daten zur späteren Ansicht ausgewählt. Trotzdem fortfahren?"))
           return;
       }
 
       let filterConfig = await kommonitorConfigStorageService.getFilterConfig();      
 
-      if(filterConfig.some(e => e.name==$scope.filterName)) {
-        alert('Es existiert bereits ein Filter mit dem selben Namen!');
-        return;
-      }
-
-      /* $timeout(function(){
+      $timeout(function(){
         $scope.loadingData = true;
-      }); */
+      });
 
       $scope.successMessagePart = undefined;
       $scope.errorMessagePart = undefined;
 
       let filterBody = {
         "name": $scope.filterName,
-        "indicatorTopics": $scope.selectedIndicatorTopicIds,
+        "indicatorTopics": $scope.selectedIndicatorTopicEditIds,
         "indicators": selectedIndicatorIds,
-        "georesourceTopics": $scope.selectedGeoresourceTopicIds,
+        "georesourceTopics": $scope.selectedGeoresourceTopicEditIds,
         "georesources": selectedGeoresourceIds
       };
 
-      filterConfig.push(filterBody);
-
-/*       filterConfig = [
-        {
-            "name": "DemoApp",
-            "indicatorTopics": [
-                "61040cc0-b9c0-420f-92dd-fc6016ba1b22",
-                "db2fda25-6259-4950-bf1c-584b5af3a0f8"
-            ],
-            "indicators": [
-                "c2ae1c42-6d6c-4f5a-8b83-b8e3d50dd301",
-                "7acae0d9-d56e-47ef-986c-562036189be2"
-            ],
-            "georesourceTopics": [
-                "c839a9d4-41fd-4989-888e-e0a3d7949c9c"
-            ],
-            "georesources": [
-            "edb29cfc-9d34-4df0-b059-575f213d381e"
-            ]
-        },
-        {
-            "name": "Demo 2",
-            "indicatorTopics": [
-                "f78d9a95-3b69-48a3-8076-d0d052426d03"
-            ],
-            "indicators": [
-                "392273a0-d506-4b05-b7fa-7f492ed97c33"
-            ],
-            "georesourceTopics": [],
-            "georesources": []
-        }
-    ]; */
+      filterConfig[$scope.selectedItem] = filterBody;
 
       var editConfigResponse = await kommonitorConfigStorageService.postFilterConfig(JSON.stringify(filterConfig, null, "    "));	
       
@@ -315,7 +310,6 @@ angular.module('adminFilterEditModal').component('adminFilterEditModal', {
 
       $timeout(function(){
         $rootScope.$broadcast("refreshAdminFilterOverviewTable");
-        $scope.resetAdminFilterEditForm();
       }, 500);
 
       setTimeout(() => {
@@ -326,7 +320,42 @@ angular.module('adminFilterEditModal').component('adminFilterEditModal', {
 
 		$scope.resetAdminFilterEditForm = function(){
 
+      // reset
       $scope.filterName = undefined;
+      resetTreeSelection($scope.indicatorTopicsEditTree);
+      resetTreeSelection($scope.georesourceTopicsEditTree);
+
+      $scope.filterConfig.forEach((elem, index) => {
+        if(index==$scope.selectedItem) {
+          $scope.filterName = elem.name;
+
+          $scope.selectedIndicatorTopicEditIds = elem.indicatorTopics;
+          $scope.selectedGeoresourceTopicEditIds = elem.georesourceTopics;
+
+          $scope.indicatorTopicsEditTree = prepTopicsTree(kommonitorDataExchangeService.availableTopics.filter(e => e.topicResource=='indicator'), 0, $scope.selectedIndicatorTopicEditIds);
+          $scope.georesourceTopicsEditTree = prepTopicsTree(kommonitorDataExchangeService.availableTopics.filter(e => e.topicResource=='georesource'),0, $scope.selectedGeoresourceTopicEditIds);
+
+          $scope.selectedIndicatorTopicEditIds.forEach(e => {
+            searchIndicatorItemRecursive($scope.indicatorTopicsEditTree, e, true);
+          });
+
+          $scope.selectedGeoresourceTopicEditIds.forEach(e => {
+            searchGeoresourceItemRecursive($scope.georesourceTopicsEditTree, e, true);
+          });
+          
+          $scope.selectedIndicatorIds = elem.indicators;
+          $scope.selectedGeoresourceIds = elem.georesources;
+          
+          refreshIndicatorsTable();
+          refreshGeoresourcesTable();
+          
+          setTimeout(() => {
+            $scope.$digest();
+          }, 250);
+        }
+      });
+
+      /* $scope.filterName = undefined;
       
       $scope.editGeoresourceTableOptions = kommonitorDataGridHelperService.buildSingleSelectGrid('adminFilterEditGeoresourcesTable', $scope.editGeoresourceTableOptions, $scope.preppedGeoresourceData, []);	
 			$scope.editIndicatorTableOptions = kommonitorDataGridHelperService.buildSingleSelectGrid('adminFilterEditIndicatorsTable', $scope.editIndicatorTableOptions, $scope.preppedIndicatorData, []);	
@@ -334,15 +363,15 @@ angular.module('adminFilterEditModal').component('adminFilterEditModal', {
       $scope.successMessagePart = undefined;
       $scope.errorMessagePart = undefined;
 
-      resetTreeSelection($scope.indicatorTopicsTree);
-      resetTreeSelection($scope.georesourceTopicsTree);
+      resetTreeSelection($scope.indicatorTopicsEditTree);
+      resetTreeSelection($scope.georesourceTopicsEditTree);
 
-      $scope.selectedIndicatorTopicIds = [];
-      $scope.selectedGeoresourceTopicIds = [];
+      $scope.selectedIndicatorTopicEditIds = [];
+      $scope.selectedGeoresourceTopicEditIds = [];
 
 			setTimeout(() => {
 				$scope.$digest();	
-			}, 250);
+			}, 250); */
 		};
 /* 
 

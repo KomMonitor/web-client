@@ -56,7 +56,7 @@
                   <div class="list-group list-group-root well" style="text-align: left; width:50vw;">
                 
                     <script type="text/ng-template" id="indicatorEditTree">
-                      <div class="list-group-item list-group-item-default list-group-item-level-{{category.level}}">
+                      <div class="list-group-item list-group-item-default list-group-item-grid-centered list-group-item-level-{{category.level}}">
                         <a ng-if="category.subTopics.length>0" id="{{category.topicId}}" href="" ng-attr-title="{{category.topicDescription}}"
                           class="editCollapseTrigger" style="color: white;">
                           <i class="glyphicon glyphicon-chevron-right"></i>{{category.topicName}}</a>
@@ -69,7 +69,7 @@
                       </div>
                     </script>
 
-                    <div ng-repeat="category in indicatorTopicsTree | filter:{topicType:'main'}" ng-include="'indicatorEditTree'"></div>
+                    <div ng-repeat="category in indicatorTopicsEditTree | filter:{topicType:'main'}" ng-include="'indicatorEditTree'"></div>
                   </div>
 								</div>
 
@@ -102,7 +102,7 @@
                   <div class="list-group list-group-root well" style="text-align: left; width:50vw;">
                 
                     <script type="text/ng-template" id="georesourceEditTree">
-                      <div class="list-group-item list-group-item-default list-group-item-level-{{category.level}}">
+                      <div class="list-group-item list-group-item-default list-group-item-grid-centered list-group-item-level-{{category.level}}">
                         <a ng-if="category.subTopics.length>0" id="{{category.topicId}}" href="" ng-attr-title="{{category.topicDescription}}"
                           class="editCollapseTrigger" style="color: white;">
                           <i class="glyphicon glyphicon-chevron-right"></i>{{category.topicName}}</a>
@@ -115,7 +115,7 @@
                       </div>
                     </script>
 
-                    <div ng-repeat="category in georesourceTopicsTree | filter:{topicType:'main'}" ng-include="'georesourceEditTree'"></div>
+                    <div ng-repeat="category in georesourceTopicsEditTree | filter:{topicType:'main'}" ng-include="'georesourceEditTree'"></div>
                   </div>
 								</div>
 
@@ -130,7 +130,7 @@
 			<div class="modal-footer">
 				<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Schlie&szlig;en</button>
 	
-				<button type="button" class="btn btn-success" type="submit" ng-click="editAdminFilter()" ng-disabled="!filterName || filterName==''">Filter registieren</button>
+				<button type="button" class="btn btn-success" type="submit" ng-click="editAdminFilter()" ng-disabled="!filterName || filterName==''">Filter editieren</button>
 				<button type="button" class="btn btn-danger" ng-click="resetAdminFilterEditForm()">Zur&uuml;cksetzen</button>
 			</div>
 

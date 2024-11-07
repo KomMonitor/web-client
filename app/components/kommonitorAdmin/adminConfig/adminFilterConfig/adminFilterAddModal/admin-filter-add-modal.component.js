@@ -44,6 +44,13 @@ angular.module('adminFilterAddModal').component('adminFilterAddModal', {
 			}, 500);
 		};
 
+    
+		$scope.$on("onOpenAddFilterModal", function (event) {
+
+      resetTreeSelection($scope.indicatorTopicsTree);
+      resetTreeSelection($scope.georesourceTopicsTree);
+    });
+
 		// make sure that initial fetching of availableRoles has happened
 		$scope.$on("initialMetadataLoadingCompleted", function (event) {
 
@@ -213,9 +220,9 @@ angular.module('adminFilterAddModal').component('adminFilterAddModal', {
         return;
       }
 
-      /* $timeout(function(){
+      $timeout(function(){
         $scope.loadingData = true;
-      }); */
+      });
 
       $scope.successMessagePart = undefined;
       $scope.errorMessagePart = undefined;
@@ -400,6 +407,5 @@ angular.module('adminFilterAddModal').component('adminFilterAddModal', {
 			};
 
 			kommonitorMultiStepFormHelperService.registerClickHandler("adminFilterAddForm");			
-
 	}
 ]});
