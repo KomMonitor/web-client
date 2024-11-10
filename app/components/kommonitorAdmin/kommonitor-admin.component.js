@@ -68,6 +68,8 @@ angular
                       });
                     });
                   }
+
+				  $rootScope.$digest();
                 }
 
 								this.init();

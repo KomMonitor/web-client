@@ -65,6 +65,8 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				});
 			  });
 			}
+
+			$rootScope.$digest();
 		  }
 
 		// initialize any adminLTE box widgets
