@@ -87,18 +87,24 @@ angular.module('reachabilityScenarioConfiguration').component('reachabilityScena
 			// These are controlled by setting a variable and checking it when needed.
 			$('#reporting-modal').on('hidden.bs.modal', function (e) {
 				$scope.isUsedInReporting = false;
-				$scope.$digest();
+				$timeout(function () {
+					$scope.$digest();
+				});
 			})
 
 			$scope.$on("switchReportingMode", function(event, isUsedInReporting){
 				$scope.isUsedInReporting = isUsedInReporting;
-				$scope.$digest();
+				$timeout(function () {
+					$scope.$digest();
+				});
 			});
 
 			$scope.$on("reportingPoiLayerSelected", function (event, data) {
 				$scope.isUsedInReporting = true;
 				kommonitorReachabilityHelperService.settings.selectedStartPointLayer = data;
-				$scope.$digest();
+				$timeout(function () {
+					$scope.$digest();
+				});
 			});
 
 			$scope.domId = "reachabilityScenarioIsochroneGeoMap";
