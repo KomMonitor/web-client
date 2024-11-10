@@ -1304,7 +1304,7 @@ angular
 
 
         let meanLine = {
-          name: "rechnerisches arithmetisches Mittel",
+          name: kommonitorDataExchangeService.rankingChartAverageLabel,
           type: 'line',
           data: indicatorTimeSeriesAverageArray,
           symbolSize: 6,
@@ -1325,7 +1325,7 @@ angular
         };
 
         let regionalMeanLine = {
-          name: "gesamtregionaler Vergleichsdurchschnitt",
+          name: kommonitorDataExchangeService.rankingChartRegionalReferenceValueLabel,
           type: 'line',
           symbolSize: 8,
           symbol: "circle",
@@ -1350,13 +1350,13 @@ angular
         // only add regional mean line if it contains at least one meaningful entry
         if(indicatorTimeSeriesRegionalMeanArray.some(el => el !== null)){
           lineOption.series.push(regionalMeanLine);
-          lineOption.legend.data.push("gesamtregionaler Vergleichsdurchschnitt");
+          lineOption.legend.data.push(kommonitorDataExchangeService.rankingChartRegionalReferenceValueLabel);
           regionalMeanUsed = true;
         }
 
         if(kommonitorDataExchangeService.configMeanDataDisplay == "both" || (regionalMeanUsed == false && kommonitorDataExchangeService.configMeanDataDisplay == 'preferRegionalMeanIfAvailable')){
           lineOption.series.push(meanLine);
-          lineOption.legend.data.push("rechnerisches arithmetisches Mittel");
+          lineOption.legend.data.push(kommonitorDataExchangeService.rankingChartAverageLabel);
         }     
 
         // SETTING FOR MIN AND MAX STACK
