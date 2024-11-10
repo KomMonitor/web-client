@@ -52,11 +52,13 @@ angular
               const defaultFillOpacityForOutliers_high = __env.defaultFillOpacityForOutliers_high;
               const defaultColorForOutliers_low = __env.defaultColorForOutliers_low;
               const defaultBorderColorForOutliers_low = __env.defaultBorderColorForOutliers_low;
-              const defaultFillOpacityForOutliers_low = __env.defaultFillOpacityForOutliers_low;
-
+              const defaultFillOpacityForOutliers_low = __env.defaultFillOpacityForOutliers_low;          
               
 
           var self = this;
+
+          this.rankingChartAverageLabel = "rechnerisches arithmetisches Mittel";
+          this.rankingChartRegionalReferenceValueLabel = "gesamtregionaler Vergleichsdurchschnitt";
 
           this.headlineIndicatorHierarchy = [];
           this.computationIndicatorHierarchy = [];
