@@ -2313,7 +2313,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 			if(pageElement.showAverage) {
 				options.series = options.series.filter( series => {
-					return series.name === "Arithmetisches Mittel"
+					return series.name === kommonitorDataExchangeService.rankingChartAverageLabel || series.name === kommonitorDataExchangeService.rankingChartRegionalReferenceValueLabel 
 				});
 
 				for(let i=0; i<timestampsToRemoveCounter; i++) {

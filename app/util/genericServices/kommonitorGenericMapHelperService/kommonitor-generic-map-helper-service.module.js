@@ -294,7 +294,7 @@ angular
 
       this.initLayerControl = function (map, backgroundLayer) {
         let baseLayers = {
-          "OpenStreetMap Graustufen": backgroundLayer
+          "Hintergrundkarte (CartoDB Positron)": backgroundLayer
         };
         let overlays = {};
 
