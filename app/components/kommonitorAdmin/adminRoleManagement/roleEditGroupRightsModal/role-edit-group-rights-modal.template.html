@@ -27,14 +27,21 @@
 							<div> 
 								<!-- progressbar -->
 								<ul id="progressbar">
-									<li style="width: 50%;" class="active">Eigene Rechte</li>
-									<li style="width: 50%;">Rechte anderer</li>
+									<li style="width: 50%;" class="active">Eigene Rechte an anderen Gruppen</li>
+									<li style="width: 50%;">Rechte anderer Gruppen an gew&auml;hlter Gruppe</li>
 								</ul>
 							</div>
 
 							<fieldset>
-								<h2 class="fs-title">Vorhandene admnistrative Rechte</h2>
-								<h3 class="fs-subtitle">Die Tabelle zeigt administrativen Rechte, die die ausgewählte Gruppe für andere Gruppen besitzt.</h3>
+								<h2 class="fs-title">Zugewiesene admnistrative Rechte</h2>
+								<h3 class="fs-subtitle">Die Tabelle zeigt administrativen Rechte, die die ausgew&auml;hlte Gruppe f&uuml;r andere Gruppen besitzt.									
+									<br>
+									<br>
+									<i>Achtung: Die Tabelle ist nicht editierbar. Sie stellt dar, ob die gew&auml;hlte Gruppe &uuml;berhaupt administrative Aufgaben f&uuml;r sich selbst oder andere Gruppen &uuml;bernimmt.</i>
+									<br>
+									<br>
+									<i><b>Wenn Sie der gew&auml;hlten Gruppe Rechte geben wollen, so muss dies &uuml;ber das 'Rechte anderer Gruppen' Men&uuml; geschehen.</b></i>								
+								</h3>
 		
 								<div class="row">
 
@@ -48,9 +55,15 @@
 
 							<fieldset>
 								<h2 class="fs-title">Delegierte administrative Rechte</h2>
-								<h3 class="fs-subtitle">Die Tabelle zeigt administrative Rechte, die andere Gruppen für die ausgewählte Gruppe besitzen. Weitere administrative Rechte können hier an andere Gruppen übertragen werden.</h3>
-		
-								
+								<h3 class="fs-subtitle">Die Tabelle zeigt administrative Rechte, die andere Gruppen für die ausgew&auml;hlte Gruppe besitzen. Weitere administrative Rechte k&ouml;nnen hier durch entsprechende H&auml;kchen an andere Gruppen &uuml;bertragen werden.
+									<br>
+									<br>
+									<i><b>Achtung: Auch die Rechte der gew&auml;hlten Gruppe an sich selbst werden &uuml;ber dieses Men&uuml; kontrolliert. In diesem Fall ist die gew&auml;hlte Gruppe ebenfalls als 'andere Gruppe' zu betrachten, f&uuml;r die entsprechende administrative Aufgaben zugewiesen werden k&ouml;nnen.</b></i>															
+									<br>
+									<br>
+									<i><b>Unterschied Diese Gruppe / Untergruppen:</b> Diese Angabe kontrolliert, ob delegierte administrative Aufgaben nur f&uuml; die gew&auml;hlte Gruppe explizit erlaubt werden, oder ob sich die delegierte Administration auch auf die Untergruppen der gew&auml;hlten Gruppe erstreckt.
+										Beispiel: eine neue Gruppe 'Amt &Uuml;bergeordnet' (inkl. weiterer Untergruppen) wird erstellt und soll von einer bereits vorhandenen Gruppe 'Amt Globaladmin' verwaltet werden. Wenn nun administrative Rechte an 'Amt Globaladmin' zugewiesen werden, muss entschieden werden, ob 'Amt Globaladmin' nur die explizite Gruppe ('Amt &Uuml;bergeordnet') verwalten darf, oder auch alle Ihre etwaigen Untergruppen.</i>																							
+								</h3>								
 								
 								<div class="row">
 

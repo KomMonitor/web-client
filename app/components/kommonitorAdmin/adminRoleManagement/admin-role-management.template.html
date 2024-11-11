@@ -3,7 +3,7 @@
 	<section class="content-header">
 		<h1>
 			Zugriffskontrolle
-			<small>Rollen- und Zugriffs-Management via Keycloak</small>
+			<small>Zugriffs-Management via Keycloak</small>
 		</h1>
 
 		<div class="adminTableButtonWrapper"
@@ -41,9 +41,9 @@
 				<!-- /.box-header -->
 				<div class="box-body">
 
-					<p>KomMonitor nutzt die Open Source Software <b>Keycloak</b> zum Nutzer- und Rollenmanagement.
+					<p>KomMonitor nutzt die Open Source Software <b>Keycloak</b> zum Nutzer- und Rechtenmanagement.
 					</p>
-					<h4>In der Konfiguration ist der Rollen-basierte Zugriffsschutz jedoch deaktiviert. Es muss zuerst
+					<h4>In der Konfiguration ist der Zugriffsschutz jedoch deaktiviert. Es muss zuerst
 						aktiviert und mit einer validen Keycloak-Instanz konfiguriert werden bevor die Zugriffskontrolle verwaltet
 						werden k&ouml;nnen.</h4>
 				</div>
@@ -55,35 +55,39 @@
 		<div ng-show="$ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity">
 			<div class="box box-primary">
 				<div class="box-header">
-					<h3 class="box-title">Zugriffskontrolle</h3>
+					<h3 class="box-title">Mandantenspezifische Zugriffskontrolle</h3>
 				</div>
 				<!-- /.box-header -->
 				<div class="box-body">
-					<p>KomMonitor nutzt die Open Source Software <b>Keycloak</b> zum Nutzer- und Rollenmanagement.
-					Die Verwaltung der Nutzer sowie deren Zuordnung zu Rollen muss direkt &uuml;ber die
+					<h4>Seit <b>Version 4</b> erlaubt KomMonitor eine unabh&auml;ngige Verwaltung mehrerer <b>Mandanten</b> innerhalb der gleichen KomMonitor Instanz. 
+						Nur IT-Systemadministratoren, deren User Account mit der speziellen Rolle <i>kommonitor-creator</i> verbunden ist, d&uuml;rfen neue <b>Mandanten</b> einrichten. 
+						Mandanten verwalten sich anschlie&szlig;end eigenst&auml;ndig und unabh&auml;ngig von anderen Mandanten der gleichen Instanz (bspw. Kreisverwaltung und angeh&ouml;rige Kommune)</h4>
+					<p>KomMonitor nutzt die Open Source Software <b>Keycloak</b> zum Nutzer- und Rechtenmanagement.
+						 
+						Pro KomMonitor-Organisationseinheit wird eine analoge Gruppe in Keycloak hinterlegt, für die Zugriffsrechte auf Datens&auml;tze und weitere Eigenschaften vergeben werden.   
+					Die Verwaltung der Nutzer selbst sowie deren Zuordnung zu Gruppen muss direkt &uuml;ber die
 					Administrations-Oberfl&auml;che der folgenden Keycloak Instanz erfolgen:</p>
 					<h4>
 						<a ng-href="{{$ctrl.kommonitorKeycloakHelperServiceInstance.targetRealmUrlToKeycloakInstance}}" target="_blank" rel="noopener noreferrer">{{$ctrl.kommonitorKeycloakHelperServiceInstance.targetRealmUrlToKeycloakInstance}}</a>
 					</h4>
 					<div ng-show="$ctrl.kommonitorDataExchangeServiceInstance.isRealmAdmin">
-						<p>Die nachfolgend gelisteten Rollen-Metadaten werden aus der KomMonitor Datenbank abgerufen. Die
+						<p>Die nachfolgend gelisteten Organisationseinheiten werden aus der KomMonitor Datenbank abgerufen. 
+							<!-- Die
 							Administrations-Seiten des KomMonitor leiten die Befehle zum Erstellen, Modifizieren und
-							L&ouml;schen der Rollen per REST Request an die Keycloak-Instanz weiter. Beispielsweise wird
-							eine neue Rolle daher sowohl in der KomMonitor Datenbank angelegt, als auch automatisch
-							in Keycloak registriert. Dennoch haben Sie jederzeit die M&ouml;glichkeit, die
+							L&ouml;schen analoger Gruppen per REST Request an die Keycloak-Instanz weiter. Beispielsweise wird
+							eine neue Organisationseinheit daher sowohl in der KomMonitor Datenbank angelegt, als auch automatisch
+							in Keycloak als neue Gruppe registriert. Dennoch haben Sie jederzeit die M&ouml;glichkeit, die
 							Administrations-Seiten der Keycloak-Instanz &uuml;ber obigen Link aufzurufen, um dort
-							Anpassungen vorzunehmen.
+							Anpassungen vorzunehmen. -->
 						</p>
-						<p><i>Wichtiger Hinweis: Die identische Bennenung einer Rolle innerhalb der KomMonitor Datenbank und
-								in Keycloak ist die Grundvoraussetzung zur Absicherung einzelner KomMonitor Ressourcen.</i>
+						<p><i>Wichtiger Hinweis: Perspektivisch sollen weitere KomMonitor Men&uuml;s entwickelt werden, um den Systembruch nach Keycloak ganz zu vermeiden.</i>
 						</p>
-					<p>
-						Es gibt zwei vordefinierte System-Organisationen, die nicht gelöscht werden können:<br>
+					<!-- <p>
+						Es gibt eine vordefinierte System-Organisation, die nicht gelöscht werden kann:<br>
 						<ul>
-							<li>kommonitor - notwendige Standard Organisation angemeldeter Nutzer</li>
-							<li>public - anonyme Rolle</li>
+							<li>kommonitor - notwendige Standard Organisation angemeldeter Nutzer</li>							
 						</ul>
-					</p>
+					</p> -->
 				</div>
 				<hr>
 				<br/>
