@@ -169,7 +169,8 @@ angular.module('roleEditGroupRightsModal').component('roleEditGroupRightsModal',
 				// when the response is available
 
 				$scope.successMessagePart = $scope.current.name;
-        $scope.buildDelegatedRolesTable();
+                $scope.buildAuthorityRolesTable();
+                $scope.buildDelegatedRolesTable();
 				
 				$("#editOuRoleDelegatesSuccessAlert").show();
 				$timeout(function(){

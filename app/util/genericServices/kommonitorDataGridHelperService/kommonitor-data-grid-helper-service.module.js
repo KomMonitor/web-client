@@ -3578,10 +3578,7 @@ angular
         }
 
         let array = [];
-        array.push(data[0]);
-        array.push(data[1]);
-
-        data.splice(0,2);
+        
         data.sort(function (a, b) {
           if (a.name < b.name) {
             return -1;
