@@ -434,6 +434,16 @@ pre.CodeMirror-line {
     border-width: 1px 0 0 0;
 }
 
+.list-group.list-group-root .list-group-item .glyphicon.glyphicon-custom {
+  cursor: pointer;
+}
+
+.list-group .list-group-item.list-group-item-grid-layout,
+.list-group .list-group-item .list-group-item-grid-layout {
+  display: grid;
+  grid-template-columns: auto min-content;
+}
+
 .list-group.list-group-root > .list-group-item:first-child {
     border-top-width: 0;
 }

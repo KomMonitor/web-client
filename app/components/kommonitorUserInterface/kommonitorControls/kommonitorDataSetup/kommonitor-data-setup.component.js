@@ -62,7 +62,10 @@ angular
 								$scope.datePicker;
 								$scope.datesAsMs;
 
-								$scope.selectedDate;								
+								$scope.selectedDate;			
+
+                $scope.indicatorTopicFavItems = []; 
+                $scope.indicatorFavItems = [];
 
 								this.addGeopackage = function(){
 									this.kommonitorMapServiceInstance.addSpatialUnitGeopackage();
@@ -761,7 +764,81 @@ angular
 									$rootScope.$broadcast("selectedIndicatorDateHasChanged");
 								}
 
+                $scope.indicatorTopicFavSelected = function(topicId) {
+                    return $scope.indicatorTopicFavItems.includes(topicId);
+                }
 
+                $scope.indicatorFavSelected = function(topicId) {
+                    return $scope.indicatorFavItems.includes(topicId);
+                }
+
+                function searchIndicatorTopicFavItemsRecursive(tree, id, selected) {
+
+                  let ret = false;
+            
+                  tree.forEach(entry => {
+                    if(entry.topicId==id) {
+                      if(selected===true) {
+                        if(!$scope.indicatorTopicFavItems.includes(id))
+                          $scope.indicatorTopicFavItems.push(id);
+                      } else
+                        $scope.indicatorTopicFavItems = $scope.indicatorTopicFavItems.filter(e => e!=id);
+            
+                      if(entry.subTopics.length>0)
+                        checkIndicatorTopicFavItemsRecursive(entry.subTopics, selected);
+
+                      if(entry.indicatorData.length>0)
+                        checkIndicatorMetadataFavItems(entry.indicatorData, selected);
+            
+                      ret = true;
+                    } else {
+                      let itemFound = searchIndicatorTopicFavItemsRecursive(entry.subTopics, id, selected);
+                      if(itemFound===true) 
+                        ret = true;
+                    }
+                  });
+            
+                  return ret;
+                }
+            
+                function checkIndicatorTopicFavItemsRecursive(tree, selected) {
+                  tree.forEach(entry => {
+                    if(selected===true)
+                      $scope.indicatorTopicFavItems.push(entry.topicId);
+                    else
+                      $scope.indicatorTopicFavItems = $scope.indicatorTopicFavItems.filter(e => e!=entry.topicId);
+              
+                    if(entry.subTopics.length>0)
+                      checkIndicatorTopicFavItemsRecursive(entry.subTopics, selected);
+
+                    if(entry.indicatorData.length>0)
+                      checkIndicatorMetadataFavItems(entry.indicatorData, selected);
+                  });
+                }
+            
+                function checkIndicatorMetadataFavItems(tree, selected) {
+                  tree.forEach(entry => {
+                    if(selected===true) {
+                      $scope.indicatorFavItems.push(entry.indicatorId);
+                    } else {
+                      $scope.indicatorFavItems = $scope.indicatorFavItems.filter(e => e!=entry.indicatorId);
+                    }
+                  });
+                }
+
+                $scope.onIndicatorTopicFavClick = function(topicId) {
+                  if(!$scope.indicatorTopicFavItems.includes(topicId))
+                    searchIndicatorTopicFavItemsRecursive(kommonitorDataExchangeService.topicIndicatorHierarchy, topicId, true);
+                  else
+                    searchIndicatorTopicFavItemsRecursive(kommonitorDataExchangeService.topicIndicatorHierarchy, topicId, false);
+                }
+
+                $scope.onIndicatorFavClick = function(id) {
+                  if(!$scope.indicatorFavItems.includes(id))
+                    $scope.indicatorFavItems.push(id);
+                  else
+                    $scope.indicatorFavItems = $scope.indicatorFavItems.filter(e => e!=id);
+                }
 
 								$scope.modifyExports = function(changeIndicator){
 									kommonitorDataExchangeService.wmsUrlForSelectedIndicator = undefined;
