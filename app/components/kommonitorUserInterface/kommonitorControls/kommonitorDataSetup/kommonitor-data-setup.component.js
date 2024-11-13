@@ -66,6 +66,8 @@ angular
 
                 $scope.indicatorTopicFavItems = []; 
                 $scope.indicatorFavItems = [];
+                $scope.headlineIndicatorFavItems = [];
+                $scope.baseIndicatorFavItems = [];
 
 								this.addGeopackage = function(){
 									this.kommonitorMapServiceInstance.addSpatialUnitGeopackage();
@@ -772,6 +774,14 @@ angular
                     return $scope.indicatorFavItems.includes(topicId);
                 }
 
+                $scope.headlineIndicatorFavSelected = function(topicId) {
+                  return $scope.headlineIndicatorFavItems.includes(topicId);
+                }
+
+                $scope.baseIndicatorFavSelected = function(topicId) {
+                  return $scope.baseIndicatorFavItems.includes(topicId);
+                }
+
                 function searchIndicatorTopicFavItemsRecursive(tree, id, selected) {
 
                   let ret = false;
@@ -826,6 +836,21 @@ angular
                   });
                 }
 
+                function checkBaseIndicatorFavItems(id, selected) {
+                  kommonitorDataExchangeService.headlineIndicatorHierarchy.forEach(entry => {
+                    if(entry.headlineIndicator.indicatorId==id) {
+
+                      entry.baseIndicators.forEach(base => {
+                        if(selected===true) {
+                          $scope.baseIndicatorFavItems.push(base.indicatorId);
+                        } else {
+                          $scope.baseIndicatorFavItems = $scope.baseIndicatorFavItems.filter(e => e!=base.indicatorId);
+                        }
+                      });
+                    }
+                  });
+                }
+
                 $scope.onIndicatorTopicFavClick = function(topicId) {
                   if(!$scope.indicatorTopicFavItems.includes(topicId))
                     searchIndicatorTopicFavItemsRecursive(kommonitorDataExchangeService.topicIndicatorHierarchy, topicId, true);
@@ -834,10 +859,29 @@ angular
                 }
 
                 $scope.onIndicatorFavClick = function(id) {
+
+                  console.log(kommonitorDataExchangeService.headlineIndicatorHierarchy);
                   if(!$scope.indicatorFavItems.includes(id))
                     $scope.indicatorFavItems.push(id);
                   else
                     $scope.indicatorFavItems = $scope.indicatorFavItems.filter(e => e!=id);
+                }
+                
+                $scope.onHeadlineIndicatorFavClick = function(id) {
+                  if(!$scope.headlineIndicatorFavItems.includes(id)) {
+                    $scope.headlineIndicatorFavItems.push(id);
+                    checkBaseIndicatorFavItems(id, true);
+                  } else {
+                    $scope.headlineIndicatorFavItems = $scope.headlineIndicatorFavItems.filter(e => e!=id);
+                    checkBaseIndicatorFavItems(id, false);
+                  }
+                }
+
+                $scope.onBaseIndicatorFavClick = function(id) {
+                  if(!$scope.baseIndicatorFavItems.includes(id))
+                    $scope.baseIndicatorFavItems.push(id);
+                  else
+                    $scope.baseIndicatorFavItems = $scope.baseIndicatorFavItems.filter(e => e!=id);
                 }
 
 								$scope.modifyExports = function(changeIndicator){
