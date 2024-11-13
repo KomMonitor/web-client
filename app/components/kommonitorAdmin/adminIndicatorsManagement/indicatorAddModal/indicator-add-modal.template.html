@@ -1067,7 +1067,7 @@
 											<div class="alert alert-info">
 												Bitte w&auml;hlen Sie zun&auml;chnst die Organisationseinheit aus, unter welcher Sie den Datensatz anlegen m&ouml;chten
 											</div>
-											<label for="addIndicatorUserRoleSelect">Eigent&uuml;mer-Organisationseinheit</label>
+											<label for="addIndicatorUserRoleSelect">Eigent&uuml;mer-Organisationseinheit*</label>
 											<div class="input-group">
 												<span class="input-group-addon"><i class="fas fa-filter"></i></span>
 												<input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model="ownerOrgFilter" ng-model-options="{debounce: 500, blur: 0}">
@@ -1143,7 +1143,7 @@
 				
 
 				<button type="button" class="btn btn-success"				
-					ng-disabled="!datasetName || !metadata.description || !metadata.datasource || !metadata.contact || !metadata.updateInterval || !metadata.lastUpdate || !indicatorType|| !indicatorCreationType || !indicatorInterpretation || !indicatorTopic_mainTopic || datasetNameInvalid || !indicatorUnit || classBreaksInvalid"
+					ng-disabled="!datasetName || !metadata.description || !metadata.datasource || !metadata.contact || !metadata.updateInterval || !metadata.lastUpdate || !indicatorType|| !indicatorCreationType || !indicatorInterpretation || !indicatorTopic_mainTopic || datasetNameInvalid || !indicatorUnit || classBreaksInvalid || !ownerOrganization"
 					ng-click="addIndicator()">Indikator-Metadaten registrieren</button>
 				<button type="button" class="btn btn-danger"
 					ng-click="resetIndicatorAddForm()">Zur&uuml;cksetzen</button>

@@ -472,7 +472,7 @@
 											<div class="alert alert-info">
 												Bitte w&auml;hlen Sie zun&auml;chnst die Organisationseinheit aus, unter welcher Sie den Datensatz anlegen m&ouml;chten
 											</div>
-											<label for="addGeoresourceUserRoleSelect">Eigent&uuml;mer-Organisationseinheit</label>
+											<label for="addGeoresourceUserRoleSelect">Eigent&uuml;mer-Organisationseinheit*</label>
 											<div class="input-group">
 												<span class="input-group-addon"><i class="fas fa-filter"></i></span>
 												<input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model="ownerOrgFilter" ng-model-options="{debounce: 500, blur: 0}">
@@ -900,7 +900,7 @@
 
 
 				<button type="button" class="btn btn-success"				
-					ng-disabled="!datasetName || !metadata.description || !metadata.datasource || !metadata.contact || !metadata.updateInterval || !metadata.lastUpdate || !georesourceDataSourceIdProperty || !georesourceDataSourceNameProperty || !periodOfValidity.startDate || datasetNameInvalid || poiMarkerTextInvalid || periodOfValidityInvalid || !converter || !datasourceType"
+					ng-disabled="!datasetName || !metadata.description || !metadata.datasource || !metadata.contact || !metadata.updateInterval || !metadata.lastUpdate || !georesourceDataSourceIdProperty || !georesourceDataSourceNameProperty || !periodOfValidity.startDate || datasetNameInvalid || poiMarkerTextInvalid || periodOfValidityInvalid || !converter || !datasourceType || || !ownerOrganization"
 					ng-click="addGeoresource()">Georessource registrieren</button>
 				<button type="button" class="btn btn-danger"
 					ng-click="resetGeoresourceAddForm()">Zur&uuml;cksetzen</button>
