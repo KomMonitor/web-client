@@ -17,6 +17,11 @@ try {
 
   // keycloak super admin role name
   window.__env.keycloakKomMonitorAdminRoleName = "kommonitor-creator";
+  
+  // area-based user role permissions
+  window.__env.keycloakKomMonitorGroupsEditRoleNames = ["client-users-creator", "unit-users-creator"];
+  window.__env.keycloakKomMonitorThemesEditRoleNames = ["client-themes-creator", "unit-themes-creator"];
+  window.__env.keycloakKomMonitorGeodataEditRoleNames = ["client-resources-creator", "unit-resources-creator"];
 
   // enable and show/hide switch to toggle basic and advanced mode
   // this feature can hide certain app elements via ID if in basic mode

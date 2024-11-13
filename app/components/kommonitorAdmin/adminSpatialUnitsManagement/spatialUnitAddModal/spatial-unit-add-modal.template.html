@@ -32,7 +32,7 @@
 								<ul id="progressbar">
 									<li style="width: 25%;" class="active">Metadaten der Raumeinheit</li>
 									<li style="width: 25%;">Allgemeine Metadaten</li>
-									<li style="width: 25%;">Rollenbasierter Zugriffsschutz</li>
+									<li style="width: 25%;">Zugriffsschutz und Eigent&uuml;merschaft</li>
 									<li style="width: 25%;">R&auml;umlicher Datensatz</li>
 								</ul>
 							</div>
@@ -248,20 +248,66 @@
 							</fieldset>
 							
 								<fieldset ng-if="$ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity">
-									<h2 class="fs-title">Rollenbasierter Zugriffsschutz</h2>
+									<h2 class="fs-title">Zugriffsschutz und Eigent&uuml;merschaft</h2>
 									<h3 class="fs-subtitle">Vergabe der Zugriffsrechte auf Datensatz-Metadaten und -Features pro Organisationseinheit</h3>
-		
-									<p>Zugriffsrechte (lesen, editieren, l&ouml;schen) m&uuml;ssen explizit vergeben werden. Administratoren (Rolle <i>kommonitor-creator</i>) haben immer vollen Zugriff.</p>
-							
-										<div class="row">
-											<div class="col-md-3"></div>
+									<div class="row" >
+										<div class="col-md-3"></div>
+										<div class="col-md-6 col-sm-6 col-xs-12">
+											<div class="alert alert-info">
+												Bitte w&auml;hlen Sie zun&auml;chnst die Organisationseinheit aus, unter welcher Sie den Datensatz anlegen m&ouml;chten
+											</div>
+											<label for="addSpatialUnitUserRoleSelect">Eigent&uuml;mer-Organisationseinheit*</label>
+											<div class="input-group">
+												<span class="input-group-addon"><i class="fas fa-filter"></i></span>
+												<input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model="ownerOrgFilter" ng-model-options="{debounce: 500, blur: 0}">
+											</div>
+											<select ng-if="$ctrl.kommonitorDataExchangeServiceInstance.checkAdminPermission()" id="addSpatialUnitUserRoleSelect" ng-model="ownerOrganization" class="form-control" ng-change="onChangeOwner(ownerOrganization)" required>
+												<option ng-repeat="org in $ctrl.kommonitorDataExchangeServiceInstance.accessControl | filter:ownerOrgFilter" value="{{org.organizationalUnitId}}">{{org.name}}</option>
+											</select>		
+											<select ng-if="!$ctrl.kommonitorDataExchangeServiceInstance.checkAdminPermission()" id="addSpatialUnitUserRoleSelect" ng-model="ownerOrganization" class="form-control" ng-change="onChangeOwner(ownerOrganization)" required>
+												<option ng-repeat="org in resourcesCreatorRights | filter:ownerOrgFilter" value="{{org.organizationalUnitId}}">{{org.name}}</option>
+											</select>		
+											<p></p>
+										</div>
+										<div class="col-md-3"></div>
+									</div>	
+
+									<br>
+									<hr>
+                                                                        <br>
+
+									<div id="spatialUnitRoleForm">
+										
+										<label>Datensatz-Freigaben</label>
+										<div class="row vertical-align">
+											<div class="col-md-3">
+												<label>&Ouml;ffentliche Lesefreigabe*</label>
+													<label class="switch">
+														<input type="checkbox" ng-model="isPublic" ng-change="onChangeIsPublic(isPublic)">
+														<span class="switchslider round"></span>
+													</label>
+													<div class="help-block">
+														<p>
+															&Ouml;ffentlich freigegebene Datens&auml;tze k&ouml;nnen ohne Login abgerufen werden.
+														</p>
+													</div>
+											</div>
 											<div class="col-md-6 col-sm-6 col-xs-12">
 													<!-- <div id="spatialUnitAddRoleManagementTable" style="height: 40vh; overflow-y: auto;" class="ag-theme-alpine"></div>     -->
 													<div id="spatialUnitAddRoleManagementTable" style="height: 45vh" class="ag-theme-alpine"></div>  
 												
 											</div>
-											<div class="col-md-3"></div>
+											<div class="col-md-3">
+												<div class="alert alert-info">
+													Als Eigent&uuml;mer-Organisation des Datensatzes k&ouml;nnen Sie Lese- und Editier-Rechte an die eigene und weitere Organisationseinheiten vergeben. 
+												</div>
+												<br/>
+												<div class="alert alert-warning">
+													Lese- und Editierrechte wurden f&uuml;r die von Ihnen selektierte Eigent&uuml;mer-Organisationseinheit markiert. 
+												</div>
+											</div>
 										</div>	
+									</div>
 									
 									<input type="button" name="previous" class="previous previous_addSpatialUnit action-button-previous" value="Voriger Schritt"/>
 									<input type="button" name="next" class="next next_addSpatialUnit action-button" value="N&auml;chster Schritt"/>
@@ -633,7 +679,7 @@
 				
 
 				
-				<button type="button" class="btn btn-success" type="submit" ng-click="addSpatialUnit()" ng-disabled="!spatialUnitLevel || !metadata.description || !metadata.datasource || !metadata.contact || !metadata.updateInterval || !metadata.lastUpdate || !spatialUnitDataSourceIdProperty || !spatialUnitDataSourceNameProperty || !periodOfValidity.startDate || spatialUnitLevelInvalid || periodOfValidityInvalid || hierarchyInvalid || !converter || !datasourceType">Raumeinheit registrieren</button>
+				<button type="button" class="btn btn-success" type="submit" ng-click="addSpatialUnit()" ng-disabled="!spatialUnitLevel || !metadata.description || !metadata.datasource || !metadata.contact || !metadata.updateInterval || !metadata.lastUpdate || !spatialUnitDataSourceIdProperty || !spatialUnitDataSourceNameProperty || !periodOfValidity.startDate || spatialUnitLevelInvalid || periodOfValidityInvalid || hierarchyInvalid || !converter || !datasourceType || !ownerOrganization">Raumeinheit registrieren</button>
 				<button type="button" class="btn btn-danger" ng-click="resetSpatialUnitAddForm()">Zur&uuml;cksetzen</button>
 			</div>
 

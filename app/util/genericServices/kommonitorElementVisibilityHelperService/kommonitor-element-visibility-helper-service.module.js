@@ -23,7 +23,7 @@ angular
       this.isAdvancedMode = __env.isAdvancedMode;
       this.showAdvancedModeSwitch = __env.showAdvancedModeSwitch;
 
-      this.advancedModeRoleName = "fakeAdvancedModeRole"; 
+      this.advancedModeGroupName = "fakeAdvancedModeGroup"; 
 
       this.initElementVisibility = function () {
         kommonitorDataExchangeService.showDiagramExportButtons = true;
@@ -55,42 +55,54 @@ angular
 
         var element = ControlsConfigService.getControlsConfig().filter(element => element.id === id)[0];
 
+        /*
+          migration from v3 to v4
+          if there are old role entries, we can simply rename them to required groups          
+        */
+        if (element.roles){
+          element.groups = element.roles;
+        }
+
         var domElement = document.getElementById(id);
         if (domElement && domElement.style){
           domElement.style.display = 'block';
         }
         
 
-        if(element.roles === undefined || element.roles.length === 0) {          
+        if(element.groups === undefined || element.groups.length === 0) {          
           return true;
         }
-        if(self.isAdvancedMode && element.roles && element.roles.includes(self.advancedModeRoleName)){
+        if(self.isAdvancedMode && element.groups && element.groups.includes(self.advancedModeGroupName)){
           return true;
         }
         // authenticated access control
         if(Auth.keycloak.authenticated) {
           // admin role user always sees all data and widgets
+          // role kommonitor-creator still exists
           if(Auth.keycloak.tokenParsed.realm_access.roles.includes(__env.keycloakKomMonitorAdminRoleName)){
             return true;
           }
-          var hasAllowedRole = false;          
-          for (var i = 0; i < element.roles.length; i++) {
-            if(Auth.keycloak.tokenParsed.realm_access.roles.includes(element.roles[i])){
-              hasAllowedRole = true;
+          var hasAllowedGroup = false;          
+          for (var i = 0; i < element.groups.length; i++) {
+            // get groups and compare to each leaf node in group hierarchy.
+            // get group name by identifying last '/' from group hierarchy
+            let groupNames = Auth.keycloak.tokenParsed.groups.map(groupstring => groupstring.substring(groupstring.lastIndexOf("/") + 1));
+            if(groupNames.includes(element.groups[i])){
+              hasAllowedGroup = true;
               // return true;
             }	
           }
 
           // special case for diagram export buttons
-          if(! hasAllowedRole && element.id === "diagramExportButtons"){
+          if(! hasAllowedGroup && element.id === "diagramExportButtons"){
             kommonitorDataExchangeService.showDiagramExportButtons = false;
           }
           // special case for georesource export buttons
-          if(! hasAllowedRole && element.id === "georesourceExportButtons"){
+          if(! hasAllowedGroup && element.id === "georesourceExportButtons"){
             kommonitorDataExchangeService.showGeoresourceExportButtons = false;
           }
 
-          if (! hasAllowedRole){
+          if (! hasAllowedGroup){
             var domElement = document.getElementById(id);
             if (domElement && domElement.style){
               domElement.style.display = 'none';
@@ -98,7 +110,7 @@ angular
             // $("#" + id).remove();
           }
 
-          return hasAllowedRole;
+          return hasAllowedGroup;
         } else {
 
             // special case for diagram export buttons

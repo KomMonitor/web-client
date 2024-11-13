@@ -12,20 +12,22 @@ angular.module('roleEditMetadataModal').component('roleEditMetadataModal', {
 
 		$scope.loadingData = false;
 
+		$scope.parentOrganizationalUnit = undefined;
+
 		$scope.successMessagePart = undefined;
 		$scope.errorMessagePart = undefined;
 
-		$scope.$on("onEditRoleMetadata", function (event, organizationalUnit) {
+		$scope.$on("onEditOrganizationalUnitMetadata", function (event, organizationalUnit) {
 
 			$scope.current = organizationalUnit;
 			$scope.old.name = organizationalUnit.name;
-
-			$scope.resetRoleEditMetadataForm();
+            
+			$scope.resetOrganizationalUnitEditMetadataForm();
 		});
 
 		// Checks for duplicate names
 		// Disallowed to prevent confusion
-		$scope.checkRoleName = function(){
+		$scope.checkOrganizationalUnitName = function(){
 			$scope.nameInvalid = false;
 			kommonitorDataExchangeService.accessControl.forEach(function(ou){
 				if (ou.name === $scope.current.name && ou.organizationalUnitId != $scope.current.organizationalUnitId){
@@ -36,18 +38,27 @@ angular.module('roleEditMetadataModal').component('roleEditMetadataModal', {
 		};
 
 
-		$scope.resetRoleEditMetadataForm = function () {
+		$scope.resetOrganizationalUnitEditMetadataForm = function () {
 
 			$scope.successMessagePart = undefined;
 			$scope.errorMessagePart = undefined;
 
-			$("#editMetadataSuccessAlert").hide();
-			$("#editMetadataErrorAlert").hide();
+			$scope.parentOrganizationalUnit = undefined;
+			if ($scope.current.parentId && $scope.current.parentId != ""){
+				$scope.parentOrganizationalUnit = kommonitorDataExchangeService.getAccessControlById($scope.current.parentId);
+			}
+
+			$("#editOuMetadataSuccessAlert").hide();
+			$("#editOuMetadataErrorAlert").hide();
 
 			setTimeout(() => {
 				$scope.$digest();
 			}, 250);
 		};
+
+		$scope.onChangeParentOrganizationalUnit = function(){
+			// let parentId = $scope.parentOrganizationalUnit ? $scope.parentOrganizationalUnit.organizationalUnitId : "";			
+		}
 
 		$scope.editRoleMetadata = function () {
 
@@ -55,7 +66,10 @@ angular.module('roleEditMetadataModal').component('roleEditMetadataModal', {
 			{
 				"name": $scope.current.name,
 				"description": $scope.current.description,
-				"contact": $scope.current.contact
+				"contact": $scope.current.contact,
+				"mandant": $scope.current.mandant,
+				"keycloakId": $scope.current.keycloakId,
+				"parentId": $scope.parentOrganizationalUnit ? $scope.parentOrganizationalUnit.organizationalUnitId : undefined
 			};
 
 			$scope.loadingData = true;
@@ -69,19 +83,26 @@ angular.module('roleEditMetadataModal').component('roleEditMetadataModal', {
 
 				$scope.successMessagePart = $scope.current.name;
 				
-				$("#editMetadataSuccessAlert").show();
+				$("#editOuMetadataSuccessAlert").show();
 				$timeout(function(){
 				
 					$scope.loadingData = false;
 				});	
 
 				try {
-					await kommonitorKeycloakHelperService.renameExistingRoles($scope.old.name, $scope.current.name);
+
+					//KEYCLOAK SYNC
+					//await kommonitorKeycloakHelperService.updateExistingGroup($scope.current, $scope.old.name, $scope.parentOrganizationalUnit);					
+
+					await kommonitorKeycloakHelperService.fetchAndSetKeycloakRoles();
+					// await kommonitorKeycloakHelperService.fetchAndSetKeycloakGroups();	
+
 					// on successful update within keycloak explicitly set old name to current name
 					// otherwise subsequent edit requests will be erronous 
 					$scope.old.name = $scope.current.name;
-					await kommonitorKeycloakHelperService.fetchAndSetKeycloakRoles();	
-					$("#keycloakRoleEditSuccessAlert").show();
+					$scope.current.parentId = $scope.parentOrganizationalUnit ? $scope.parentOrganizationalUnit.organizationalUnitId : undefined;
+			
+					$("#keycloakGroupEditSuccessAlert").show();
 				} catch (error) {
 					if (error.data) {
 						$scope.keycloakErrorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
@@ -91,7 +112,7 @@ angular.module('roleEditMetadataModal').component('roleEditMetadataModal', {
 					}
 
 					$timeout(function(){
-						$("#keycloakRoleEditErrorAlert").show();
+						$("#keycloakGroupEditErrorAlert").show();
 						$scope.loadingData = false;
 					});
 				}
@@ -106,26 +127,26 @@ angular.module('roleEditMetadataModal').component('roleEditMetadataModal', {
 					$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error);
 				}
 
-				$("#editMetadataErrorAlert").show();
+				$("#editOuMetadataErrorAlert").show();
 				$scope.loadingData = false;
 			});
 		};
 
 
 		$scope.hideSuccessAlert = function () {
-			$("#editMetadataSuccessAlert").hide();
+			$("#editOuMetadataSuccessAlert").hide();
 		};
 
 		$scope.hideErrorAlert = function () {
-			$("#editMetadataErrorAlert").hide();
+			$("#editOuMetadataErrorAlert").hide();
 		};
 
 		$scope.hideKeycloakSuccessAlert = function () {
-			$("#keycloakRoleEditSuccessAlert").hide();
+			$("#keycloakGroupEditSuccessAlert").hide();
 		};
 
 		$scope.hideKeycloakErrorAlert = function () {
-			$("#keycloakRoleEditErrorAlert").hide();
+			$("#keycloakGroupEditErrorAlert").hide();
 		};
 
 

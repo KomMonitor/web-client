@@ -7,6 +7,7 @@ angular.module('adminRoleManagement').component('adminRoleManagement', {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;	
 		this.kommonitorKeycloakHelperServiceInstance = kommonitorKeycloakHelperService;		
+		
 		// initialize any adminLTE box widgets
 		$('.box').boxWidget();
 
@@ -14,6 +15,7 @@ angular.module('adminRoleManagement').component('adminRoleManagement', {
 
 		$scope.availableRoleDatasets;
 		$scope.selectAllEntriesInput = false;
+		$scope.tableViewSwitcher = false;
 
 		$scope.$on("initialMetadataLoadingCompleted", function (event) {
 			$timeout(function () {
@@ -25,14 +27,26 @@ angular.module('adminRoleManagement').component('adminRoleManagement', {
 			$scope.loadingData = false;
 		});
 
+		$scope.onTableViewSwitch = function() {
+            $scope.initializeOrRefreshOverviewTable();
+        }
+
 		$scope.initializeOrRefreshOverviewTable = function () {
 			$scope.loadingData = true;
 			$scope.accessControl = JSON.parse(JSON.stringify(kommonitorDataExchangeService.accessControl));
 			
-			kommonitorDataGridHelperService.buildDataGrid_accessControl($scope.accessControl);
+			kommonitorDataGridHelperService.buildDataGrid_accessControl($scope.filterAccessControl());
 
 			$scope.loadingData = false;
 		};
+
+		$scope.filterAccessControl = function() {
+
+            if($scope.tableViewSwitcher)
+                return $scope.accessControl.filter(e => (e.userAdminRoles.includes('unit-users-creator') || e.userAdminRoles.includes('client-users-creator')));
+            else
+                return $scope.accessControl;
+        }
 
 		$scope.$on("refreshAccessControlTable", function (event, crudType, targetRoleId) {
 			$scope.loadingData = true;
@@ -138,7 +152,7 @@ angular.module('adminRoleManagement').component('adminRoleManagement', {
 
 		$scope.onClickEditMetadata = function (roleDataset) {
 			// submit selected spatial unit to modal controller
-			$rootScope.$broadcast("onEditRoleMetadata", roleDataset);
+			$rootScope.$broadcast("onEditOrganizationalUnitMetadata", roleDataset);
 		};
 
 	}

@@ -69,6 +69,8 @@ angular
           this.enableKeycloakSecurity = __env.enableKeycloakSecurity;
           this.currentKeycloakLoginRoles = [];
           this.currentKomMonitorLoginRoleNames = [];
+          this.currentKeycloakLoginGroups = [];
+          this.currentKomMonitorLoginOrganizationalUnits = [];
           this.currentKeycloakUser;
 
           this.enableScatterPlotRegression = __env.enableScatterPlotRegression;
@@ -82,6 +84,9 @@ angular
 
           this.accessControl = [];
           this.accessControl_map = new Map();
+
+          this.allowedAccessControl = [];
+          this.allowedAccessControl_map = new Map();
           
           // Define translations, settings for dropdown-multiselect 
           this.multiselectDropdownTranslations = {	checkAll: 'Alle auswählen', uncheckAll: 'Nichts auswählen', dynamicButtonTextSuffix: 'Werte ausgewählt',
@@ -98,39 +103,29 @@ angular
 
           // Filter out roles unrelated to kommonitor
           this.setCurrentKomMonitorLoginRoleNames = function() {
-            var possibleRoles = ["manage-realm"]
+            /*
+              window.__env.keycloakKomMonitorGroupsEditRoleNames = ["client-users-creator", "unit-users-creator"];
+              window.__env.keycloakKomMonitorThemesEditRoleNames = ["client-themes-creator", "unit-themes-creator"];
+              window.__env.keycloakKomMonitorGeodataEditRoleNames = ["client-resources-creator", "unit-resources-creator"];
+            */
+            let roleSuffixes = __env.keycloakKomMonitorGroupsEditRoleNames.concat(__env.keycloakKomMonitorThemesEditRoleNames).concat(__env.keycloakKomMonitorGeodataEditRoleNames);
+            var possibleRoles = ["kommonitor-creator"];
             this.accessControl.forEach(organizationalUnit => {
-              organizationalUnit.roles.forEach(role => {
-                possibleRoles.push(organizationalUnit.name + "-" + role.permissionLevel)
-              });
+              for (const roleSuffix of roleSuffixes) {
+                possibleRoles.push(organizationalUnit.name + "." + roleSuffix); 
+              }              
             });
             this.currentKomMonitorLoginRoleNames = this.currentKeycloakLoginRoles.filter(role => possibleRoles.includes(role));
           }
 
-          this.setCurrentKomMonitorLoginRoleIds = function() {
-            this.currentKomMonitorLoginRoleIds = [];
-
-            // make a map of all role names currently logged in user according to pattern 
-            // <organization>-<permissionLevel> 
-            let roleNameMap_loggedIn = new Map();
-
-            for (const roleName of this.currentKeycloakLoginRoles) {
-              // roleName consists of <organization>-<permission-level>
-              roleNameMap_loggedIn.set(roleName, "");              
-            }
-
-            // now iterate once over all possible KomMonitor roles and check if they are within previous map
-            this.accessControl.forEach(organizationalUnit => {
-              organizationalUnit.roles.forEach(role => {
-                if(roleNameMap_loggedIn.has(organizationalUnit.name + "-" + role.permissionLevel)){
-                  this.currentKomMonitorLoginRoleIds.push(role.roleId);
-                }
-              });
-            });
+          this.setCurrentKomMonitorLoginOrganizationalUnits = function() {  
+            
+            // now iterate once over all possible KomMonitor orgas and check if user belongs to this orga via its keycloak group
+            this.currentKomMonitorLoginOrganizationalUnits = this.accessControl.filter(org => self.currentKeycloakLoginGroupNames.includes(org.name));
           };
 
-          this.getCurrentKomMonitorLoginRoleIds = function() {
-            return this.currentKomMonitorLoginRoleIds;
+          this.getCurrentKomMonitorLoginOrganizationalUnits = function() {
+            return this.currentKomMonitorLoginOrganizationalUnits;
           };
 
 
@@ -384,7 +379,7 @@ angular
 
           this.fileDatasets = [];
 
-          this.availableRoles = [];
+          this.availablePermissions = [];
           this.availableUsers = [];
 					this.availableProcessScripts = [];
           this.isochroneLegend;
@@ -1113,8 +1108,13 @@ angular
                     self.isRealmAdmin = true;
                     // self.currentKeycloakLoginRoles = self.currentKeycloakLoginRoles.concat(Auth.keycloak.tokenParsed.resource_access["realm-management"].roles);
                   }
+                  if (Auth.keycloak.tokenParsed.groups) {
+                    self.currentKeycloakLoginGroups = Auth.keycloak.tokenParsed.groups;
+                  }
+                  self.currentKeycloakLoginGroupNames = self.currentKeycloakLoginGroups.map(groupPath => groupPath.split("/")[groupPath.split("/").length - 1]);
                 } else {
                   self.currentKeycloakLoginRoles = [];
+                  self.currentKeycloakLoginGroups = [];
                 }
 
                 // set token expiration
@@ -1736,12 +1736,41 @@ angular
               this.accessControl_map.set(entry.organizationalUnitId, entry);
             }
             this.updateAvailableRoles();
+            this.allowedAccessControl = this.filterAllowedAccessControl(this.accessControl);
           };
+
+          this.filterAllowedAccessControl = function(acArray) {
+
+            if (this.checkAdminPermission()) {
+              return acArray;
+            }
+           
+            var clientUserRoles = this.filterClientUserAdminRoles();
+            var filtered = [];
+            var existingOrgaIds = [];
+
+            acArray.forEach(orga => {
+              const currentOrga = orga;
+              while (orga) {
+                clientUserRoles.forEach(role => {
+                  let roleNameParts = role.split(".");
+                  const orgaName = roleNameParts[roleNameParts.length - 2];
+                  
+                  if (orgaName === orga.name && !existingOrgaIds.includes(currentOrga.organizationalUnitId)) {
+                    filtered.push(currentOrga);
+                    existingOrgaIds.push(currentOrga.organizationalUnitId);
+                  }
+                });
+                orga = this.accessControl_map.get(orga.parentId);
+              }
+            });
+            return filtered;
+          }
 
           this.fetchAccessControlMetadata = async function(keycloakRolesArray){
             self.setAccessControl(await kommonitorCacheHelperService.fetchAccessControlMetadata(keycloakRolesArray));
             self.setCurrentKomMonitorLoginRoleNames();
-            self.setCurrentKomMonitorLoginRoleIds();
+            self.setCurrentKomMonitorLoginOrganizationalUnits();            
           };
 
           this.replaceSingleAccessControlMetadata = function(targetRoleMetadata){
@@ -1778,9 +1807,10 @@ angular
 
           this.updateAvailableRoles = function() {
             this.availableRoles = [];
+
             for (let elem of this.accessControl) {
-              for (let role of elem.roles) {
-                let available = {...role, ...{"organizationalUnit": elem, "roleName": elem.name + "-" + role.permissionLevel}};
+              for (let permission of elem.permissions) {
+                let available = {...permission, ...{"organizationalUnit": elem, "roleName": elem.name + "-" + permission.permissionLevel}};
                 this.availableRoles.push(available);
               }
             }
@@ -1791,6 +1821,50 @@ angular
           this.getAccessControlById = function(id){
             return this.accessControl_map.get(id);
           };
+
+          this.getAccessControlByName = function(name){
+            for (const org of this.accessControl) {
+              if (org.name == name){
+                return org;
+              }            
+            }
+          };
+
+          this.filterChildOrSelfOrganizationalUnits = function(organizationalUnitReferenceItem) {
+
+            return function (organizationalUnit) {
+
+              if(! organizationalUnitReferenceItem){
+                return true;
+              }
+
+              if(organizationalUnit.organizationalUnitId === organizationalUnitReferenceItem.organizationalUnitId)
+                return false;
+              if(organizationalUnitReferenceItem.children && organizationalUnitReferenceItem.children.length > 0){
+                return ! self.isDescendantOfReferenceItem(organizationalUnitReferenceItem, organizationalUnit);						
+              }
+              
+              return true;
+            };
+          };
+    
+          this.isDescendantOfReferenceItem = function(organizationalUnitReferenceItem, organizationalUnitCandidate){
+
+            if (organizationalUnitReferenceItem.children.includes(organizationalUnitCandidate.organizationalUnitId)){
+              return true;
+            }
+
+            // if not then check all further descendants
+            for (const childOrganizationalUnitId of organizationalUnitReferenceItem.children) {
+              let childOrganizationalUnit = self.getAccessControlById(childOrganizationalUnitId);
+
+              if(childOrganizationalUnit.children && childOrganizationalUnit.children.length > 0){
+                return this.isDescendantOfReferenceItem(childOrganizationalUnit, organizationalUnitCandidate);
+              }
+            }
+            
+            return false;
+          }
 
           this.fetchTopicsMetadata = async function(keycloakRolesArray){
             self.setTopics(await kommonitorCacheHelperService.fetchTopicsMetadata(keycloakRolesArray));
@@ -2114,7 +2188,7 @@ angular
           //   self.roleMetadataForCurrentKeycloakLoginRoles = self.availableRoles.filter(role => self.currentKeycloakLoginRoles.includes(role.roleName));                       
             
           //   var filteredApplicableUnits = indicatorMetadata.applicableSpatialUnits.filter(function (applicableSpatialUnit) {
-          //     return applicableSpatialUnit.allowedRoles.length == 0 || applicableSpatialUnit.allowedRoles.some(allowedRoleId => self.roleMetadataForCurrentKeycloakLoginRoles.some(roleMetadata => roleMetadata.roleId === allowedRoleId) );                
+          //     return applicableSpatialUnit.permissions.length == 0 || applicableSpatialUnit.permissions.some(allowedRoleId => self.roleMetadataForCurrentKeycloakLoginRoles.some(roleMetadata => roleMetadata.roleId === allowedRoleId) );                
           //   });
 
           //   return filteredApplicableUnits.length > 0;
@@ -2924,63 +2998,77 @@ angular
         
         return duallistRoleOptions;
     };
-    
-    this.getRoleMetadataForRoleName = function(roleName){
-      for (const roleMetadata of this.availableRoles) {
-        if(roleMetadata.roleName === roleName){
-          return roleMetadata;
-        }
-      }
-    };
 
-    this.getRoleMetadataForRoleId = function(roleId){
-      for (const roleMetadata of this.availableRoles) {
-        if(roleMetadata.roleId === roleId){
-          return roleMetadata;
-        }
-      }
-    };
-
-    this.getRoleMetadataForRoleIds = function(roleIdsArray){
-      var rolesMetadata = [];
-      for (const roleMetadata of this.availableRoles) {
-        if(roleIdsArray.includes(roleMetadata.roleId)){
-          rolesMetadata.push(roleMetadata);
-        }
-      }
-
-      return rolesMetadata;
-    };
-
-    this.getAllowedRolesString = function(allowedRoleIds){
-      var allowedRoles = [];
+    this.getAllowedRolesString = function(allowedPermissionIds){
+      var permissions = [];
       for(const organizationalUnit of this.accessControl){
-        for(const role of organizationalUnit.roles){
-          if(allowedRoleIds.includes(role.roleId)){
-            allowedRoles.push(organizationalUnit.name + "-" + role.permissionLevel)
+        for(const permission of organizationalUnit.permissions){
+          if(allowedPermissionIds.includes(permission.permissionId)){
+            permissions.push(organizationalUnit.name + "-" + permission.permissionLevel)
           }
         }
       }
-      return allowedRoles.join(", ");
+      return permissions.join(", ");
+    }
+
+    this.getRoleTitle = function(organizationalUnitId){
+      var roles = this.accessControl.filter(e => e.organizationalUnitId==organizationalUnitId);
+      if(roles && roles.length > 0) {
+        return roles[0].name;
+      }
+      return "";
     }
 
     this.checkDeletePermission = function(){
+      if(this.checkAdminPermission()) {
+        return true;
+      }
+        
       for(const role of this.currentKeycloakLoginRoles){
-        let roleNameParts = role.split("-");
-
-        const permissionLevel = roleNameParts[roleNameParts.length - 1]; //e.g. kommonitor-creator
-        if(permissionLevel == "creator"){
+        let roleNameParts = role.split(".");
+        const permissionLevel = roleNameParts[roleNameParts.length - 1];
+        if(permissionLevel === "client-resources-creator" || permissionLevel === "unit-resources-creator"){
           return true;
         }
       }
       return false;
     }
 
-    this.checkCreatePermission = function(){      
+    this.checkGroupCreatePermission = function(){    
+      if(this.checkAdminPermission()) {
+        return true;
+      }
+      
       for(const role of this.currentKeycloakLoginRoles){
-        let roleNameParts = role.split("-");
-        const permissionLevel = roleNameParts[roleNameParts.length - 1]; //e.g. kommonitor-creator
-        if(permissionLevel == "publisher" || permissionLevel == "creator"){
+        let roleNameParts = role.split(".");
+        const permissionLevel = roleNameParts[roleNameParts.length - 1];
+        if(permissionLevel === "client-users-creator" || permissionLevel === "unit-users-creator"){
+          return true;
+        }
+      }
+      return false;
+    }
+
+    this.filterClientUserAdminRoles = function() {
+      return this.currentKeycloakLoginRoles.filter(role => {
+        let roleNameParts = role.split(".");
+        const permissionLevel = roleNameParts[roleNameParts.length - 1];
+        if(permissionLevel === "client-users-creator"){
+          return true;
+        }
+        return false;
+      });
+    }
+
+    this.checkCreatePermission = function(){    
+      if(this.checkAdminPermission()) {
+        return true;
+      }
+      
+      for(const role of this.currentKeycloakLoginRoles){
+        let roleNameParts = role.split(".");
+        const permissionLevel = roleNameParts[roleNameParts.length - 1];
+        if(permissionLevel === "client-resources-creator" || permissionLevel === "unit-resources-creator"){
           return true;
         }
       }
@@ -2988,10 +3076,15 @@ angular
     }
 
     this.checkEditorPermission = function(){
+      if(this.checkAdminPermission()) {
+        return true;
+      }
+        
+
       for(const role of this.currentKeycloakLoginRoles){
-        let roleNameParts = role.split("-");
-        const permissionLevel = roleNameParts[roleNameParts.length - 1]; //e.g. kommonitor-creator
-        if(permissionLevel == "editor" || permissionLevel == "creator" || permissionLevel == "publisher"){
+        let roleNameParts = role.split(".");
+        const permissionLevel = roleNameParts[roleNameParts.length - 1];
+        if(permissionLevel === "client-resources-creator" || permissionLevel === "unit-resources-creator"){
           return true;
         }
       }
@@ -3003,6 +3096,59 @@ angular
         return true;
       }
       return false;
+    }
+
+    this.getRoleTitles = function(){
+
+      return this.currentKeycloakLoginRoles.map(role => role.split('.')[role.split('.').length-1]);
+    }
+
+    this.checkGroupsEditPermission = function() {
+
+      if(this.checkAdminPermission())
+        return true;
+
+      let splitRoles = this.getRoleTitles();
+      let ret = false;
+
+      __env.keycloakKomMonitorGroupsEditRoleNames.forEach(targetRole => {
+        if(splitRoles.includes(targetRole))
+          ret = true;
+      });
+
+      return ret;
+    }
+
+    this.checkThemesEditPermission = function() {
+
+      if(this.checkAdminPermission())
+        return true;
+
+      let splitRoles = this.getRoleTitles();
+      let ret = false;
+
+      __env.keycloakKomMonitorThemesEditRoleNames.forEach(targetRole => {
+        if(splitRoles.includes(targetRole))
+          ret = true;
+      });
+
+      return ret;
+    }
+
+    this.checkResourcesEditPermission = function() {
+      
+      if(this.checkAdminPermission())
+        return true;
+
+      let splitRoles = this.getRoleTitles();
+      let ret = false;
+
+      __env.keycloakKomMonitorGeodataEditRoleNames.forEach(targetRole => {
+        if(splitRoles.includes(targetRole))
+          ret = true;
+      });
+
+      return ret;
     }
 
 

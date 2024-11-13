@@ -2,17 +2,26 @@
 	<!-- Content Header (Page header) -->
 	<section class="content-header">
 		<h1>
-			Zugriffskontrolle
-			<small>Rollen- und Zugriffs-Management via Keycloak</small>
+			Mandanten- und Gruppenverwaltung
+			<small>Userverwaltung via Keycloak</small>
 		</h1>
 
 		<div class="adminTableButtonWrapper"
-			ng-show="$ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity && $ctrl.kommonitorDataExchangeServiceInstance.isRealmAdmin">
-			<button ng-disabled="!$ctrl.kommonitorDataExchangeServiceInstance.isRealmAdmin" class="btn btn-success btn-sm" type="button" data-toggle="modal" data-target="#modal-add-role"><i
+			ng-show="$ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity && $ctrl.kommonitorDataExchangeServiceInstance.checkGroupCreatePermission()">
+			<div class="verticalAlign">
+				<span>Nur editierbare Datensätze anzeigen</span>
+				<div>
+					<label class="switch">
+						<input type="checkbox" ng-model="tableViewSwitcher" ng-change="onTableViewSwitch()" class="ng-valid ng-dirty ng-valid-parse ng-touched ng-not-empty">
+						<span class="switchslider round"></span>
+					</label>
+				</div>
+			</div>
+			<button ng-disabled="!$ctrl.kommonitorDataExchangeServiceInstance.checkGroupCreatePermission()" class="btn btn-success btn-sm" type="button" data-toggle="modal" data-target="#modal-add-ou"><i
 					class="fas fa-plus"></i>&nbsp;&nbsp;Erstellen</button>
 
 			<!-- delete selected completely -->
-			<button ng-disabled="!$ctrl.kommonitorDataExchangeServiceInstance.isRealmAdmin" class="btn btn-danger btn-sm" type="button" data-toggle="modal" data-target="#modal-delete-roles"
+			<button ng-disabled="!$ctrl.kommonitorDataExchangeServiceInstance.checkGroupsEditPermission()" class="btn btn-danger btn-sm" type="button" data-toggle="modal" data-target="#modal-delete-roles"
 				ng-click="onClickDeleteDatasets()"><i class="fas fa-trash"></i>&nbsp;&nbsp;L&ouml;schen</button>
 
 		</div>
@@ -32,9 +41,9 @@
 				<!-- /.box-header -->
 				<div class="box-body">
 
-					<p>KomMonitor nutzt die Open Source Software <b>Keycloak</b> zum Nutzer- und Rollenmanagement.
+					<p>KomMonitor nutzt die Open Source Software <b>Keycloak</b> zum Nutzer- und Rechtenmanagement.
 					</p>
-					<h4>In der Konfiguration ist der Rollen-basierte Zugriffsschutz jedoch deaktiviert. Es muss zuerst
+					<h4>In der Konfiguration ist der Zugriffsschutz jedoch deaktiviert. Es muss zuerst
 						aktiviert und mit einer validen Keycloak-Instanz konfiguriert werden bevor die Zugriffskontrolle verwaltet
 						werden k&ouml;nnen.</h4>
 				</div>
@@ -46,41 +55,19 @@
 		<div ng-show="$ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity">
 			<div class="box box-primary">
 				<div class="box-header">
-					<h3 class="box-title">Zugriffskontrolle</h3>
+					<h3 class="box-title">Mandantenspezifische Gruppenverwaltung</h3>
 				</div>
 				<!-- /.box-header -->
 				<div class="box-body">
-					<p>KomMonitor nutzt die Open Source Software <b>Keycloak</b> zum Nutzer- und Rollenmanagement.
-					Die Verwaltung der Nutzer sowie deren Zuordnung zu Rollen muss direkt &uuml;ber die
-					Administrations-Oberfl&auml;che der folgenden Keycloak Instanz erfolgen:</p>
+					<i>Hinweise und Erl&auml;uterungen sind unter <b>Gruppen-/Rechtekonzept</b> zu finden</i>
 					<h4>
-						<a ng-href="{{$ctrl.kommonitorKeycloakHelperServiceInstance.targetRealmUrlToKeycloakInstance}}" target="_blank" rel="noopener noreferrer">{{$ctrl.kommonitorKeycloakHelperServiceInstance.targetRealmUrlToKeycloakInstance}}</a>
+						Zur <a ng-href="{{$ctrl.kommonitorKeycloakHelperServiceInstance.targetRealmUrlToKeycloakInstance}}" target="_blank" rel="noopener noreferrer">Userverwaltung via Keycloak</a>						
 					</h4>
-					<div ng-show="$ctrl.kommonitorDataExchangeServiceInstance.isRealmAdmin">
-						<p>Die nachfolgend gelisteten Rollen-Metadaten werden aus der KomMonitor Datenbank abgerufen. Die
-							Administrations-Seiten des KomMonitor leiten die Befehle zum Erstellen, Modifizieren und
-							L&ouml;schen der Rollen per REST Request an die Keycloak-Instanz weiter. Beispielsweise wird
-							eine neue Rolle daher sowohl in der KomMonitor Datenbank angelegt, als auch automatisch
-							in Keycloak registriert. Dennoch haben Sie jederzeit die M&ouml;glichkeit, die
-							Administrations-Seiten der Keycloak-Instanz &uuml;ber obigen Link aufzurufen, um dort
-							Anpassungen vorzunehmen.
-						</p>
-						<p><i>Wichtiger Hinweis: Die identische Bennenung einer Rolle innerhalb der KomMonitor Datenbank und
-								in Keycloak ist die Grundvoraussetzung zur Absicherung einzelner KomMonitor Ressourcen.</i>
-						</p>
-					<p>
-						Es gibt zwei vordefinierte System-Organisationen, die nicht gelöscht werden können:<br>
-						<ul>
-							<li>kommonitor - notwendige Standard Organisation angemeldeter Nutzer</li>
-							<li>public - anonyme Rolle</li>
-						</ul>
-					</p>
-				</div>
-				<hr>
+					<p>(Beim Neuanlegen von Usern m&uuml;ssen diese direkt einer oder mehrere Gruppen zugeteilt werden)</p>
 				<br/>
 
 				<div class="admin-table-wrapper">
-					<table id="roleOverviewTable" style="height: 45vh; width: 100%;" class="ag-theme-alpine"></table>
+					<table id="roleOverviewTable" style="height: 60vh; width: 100%;" class="ag-theme-alpine"></table>
 
 				</div>
 			</div>

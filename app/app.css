@@ -227,7 +227,7 @@ MULTI STEP FORM
 
 #userLoginForm{
     display: block;
-	z-index: 1004;
+	  z-index: 1004;
 }
 
 #userLoginForm h4, span {
@@ -1122,7 +1122,11 @@ pre.CodeMirror-line {
 }
 
 #roleOverviewTable .ag-root-wrapper.ag-layout-normal {
-	height: 45vh !important;
+	height: 65vh !important;
+}
+
+.user-roles-public {
+	font-weight: bold;
 }
 
 .ag-cell { 
@@ -1146,12 +1150,28 @@ pre.CodeMirror-line {
 }
 
 .adminTableButtonWrapper {
+    display: flex;
 	float: right;
 	background: transparent;
 	font-size: 12px;
 	position: absolute;
 	top: 15px;
 	right: 15px;
+}
+
+.verticalAlign {
+    display: table;
+}
+
+.verticalAlign * {
+    display: table-cell;
+    vertical-align: middle;  
+    padding-right: 1em; 
+}
+
+.verticalAlign div {
+    position: relative;
+    top: .2em;
 }
 
 #dateSliderWrapper{
@@ -1497,6 +1517,10 @@ color: #777;
     float: none;
     margin: 0 auto;
 } */
+
+.margin-right {
+    margin-right: 1em !important;
+}
 
 .legendMap {
 		padding: 6px 8px;
@@ -2877,9 +2901,10 @@ input:checked + .switchslider:before {
 	margin: 10px 0px 10px 0px;
 }
 
-
-
-
+.table-td-all-centered {
+    vertical-align: middle !important;
+    text-align: left;
+}
 
 .batch-list-table-wrapper {
 	max-height: 75vh !important;
@@ -3086,7 +3111,12 @@ input:checked + .switchslider:before {
 }
 
 .spatial-unit-list-item {
-	display: table-row;
+	padding-bottom: 1em;
+    display: block;
+}
+
+.organizationalUnit-subGroup-item {
+    color: darkgray;
 }
 
 .tab-completed > a {
@@ -3115,6 +3145,17 @@ input:checked + .switchslider:before {
 
   .row {
 	margin-right: 0px;
+  }
+
+  .box.box-simplified {
+    border-top: 0;
+    max-height: 30vh;
+    overflow-y: auto;
+  }
+
+  .box.box-simplified .box-header .box-title {
+    font-size: 14px;
+    font-weight: 700;
   }
   
   /* Show the snackbar when clicking on a button (class added with JavaScript) */

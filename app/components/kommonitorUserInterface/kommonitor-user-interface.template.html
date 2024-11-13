@@ -33,9 +33,58 @@
 							<span style="word-break: break-all;"><b>E-Mail:</b><i>{{$ctrl.kommonitorDataExchangeServiceInstance.currentKeycloakUser.email}}</i></span>
 						</div>
 						<br/>
-						<span><b>zugewiesene Rollen:</b></span> <i>{{$ctrl.kommonitorDataExchangeServiceInstance.currentKomMonitorLoginRoleNames}}</i>             
-						<br/>
-						<br/>
+						<div class="box box-simplified collapsed-box">
+							<div class="box-header with-border">
+							  <h3 class="box-title">Rollen</h3>
+					  
+							  <div class="box-tools pull-right">
+								<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+								</button>
+							  </div>
+							</div>
+							<!-- /.box-header -->
+							<div class="box-body">
+							  <table>
+								<tr ng-repeat="(key, value) in userRoleInformation">
+								  <td>
+									<table>
+									  <tr>
+										<th>{{key}}</th>
+									  </tr>
+									  </tr>
+										<td style="padding-left: 1em;"><p ng-repeat="role in value">{{role}}</p></td>
+									  </tr>
+									</table>
+								  </td>
+								</tr>
+							  </table>
+							</div>
+							<!-- /.box-body -->
+						  </div>
+						  <!-- /.box -->
+			
+						  <div class="box box-simplified collapsed-box">
+							<div class="box-header with-border">
+							  <h3 class="box-title">Gruppen (Hierarchie)</h3>
+					  
+							  <div class="box-tools pull-right">
+								<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+								</button>
+							  </div>
+							</div>
+							<!-- /.box-header -->
+							<div class="box-body">
+							  <table>
+								<tr ng-repeat="entry in userGroupInformation">
+								  <td>
+									<p ng-style="{margin: 0,'padding-left': '{{$index + 'em'}}'}" ng-repeat="group in entry track by $index">{{group}}</p>
+								  </td>
+								</tr>
+							  </table>
+							</div>
+							<!-- /.box-body -->
+						  </div>
+						  <!-- /.box --> 
 						<span><b>Session G&uuml;ltigkeit:</b> {{$ctrl.kommonitorDataExchangeServiceInstance.keycloakTokenExpirationInfo}} Minuten</span>
 					</div>
 					<input type="submit" ng-if="!authenticated" value="Login" id='input_submit' ng-click="tryLoginUser()" class='input_field' >

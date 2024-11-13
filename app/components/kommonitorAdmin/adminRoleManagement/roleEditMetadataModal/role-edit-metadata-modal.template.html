@@ -39,18 +39,18 @@
 								<p><b><i>* = Pflichtfeld</i></b></p>
 
 								<div class="row vertical-align">
-									<div class="col-md-5">
+									<!-- <div class="col-md-5">
 										<label>Id der Rolle</label>
 										<input style="width:100%;" class="form-control" type="text"
 											placeholder="Id" ng-model="current.organizationalUnitId"
 											disabled></input>
 										<div class="help-block with-errors"></div>
-									</div>
-									<div class="col-md-5">
+									</div> -->
+									<div class="col-md-4">
 										<label>Name*</label>
 										<input style="width:100%;" class="form-control" type="text"
 											placeholder="Rollenname" ng-model="current.name"
-											ng-change="checkRoleName()" required></input>
+											ng-change="checkOrganizationalUnitName()" required></input>
 										<div class="help-block with-errors"></div>
 										<div class="help-block">Eindeutiger Name der Rolle. Der identische Rollenname
 											muss auch in Keycloak definiert werden.</div>
@@ -59,16 +59,40 @@
 												gleichem Namen.</p>
 										</div>
 									</div>
-									<div class="col-md-5">
+									<div class="col-md-4">
 										<label>Beschreibung*</label>
-										<input style="width:100%;" class="form-control" type="text"
-											placeholder="Abteilung 52" ng-model="current.description" required></input>
+										<textarea style="width:100%;" class="form-control" type="text" rows="4"
+											placeholder="Abteilung 52" ng-model="current.description" required></textarea>
 									</div>
-									<div class="col-md-5">
+									<div class="col-md-4">
 										<label>Kontakt*</label>
-										<input style="width:100%;" class="form-control" type="text"
-											placeholder="sekretariat@kommonitor.de" ng-model="current.contact" required></input>
+										<textarea style="width:100%;" class="form-control" type="text" rows="4"
+											placeholder="sekretariat@kommonitor.de" ng-model="current.contact" required></textarea>
 									</div>
+								</div>
+								<div class="row vertical-align">
+									<div class="col-md-4">
+										<!-- <div class="form-group">
+											<label>Mandant*</label>
+											<label class="switch">
+												<input type="checkbox" ng-model="current.mandant">
+												<span class="switchslider round"></span>
+											</label>
+											<div class="help-block">
+												<p>Als Mandant markierte Organisationseinheiten haben die M&ouml;glichkeit, eigene Untergruppenhierarchien, Themenb&auml;me, Raumeinheiten und User zu verwalten, 
+													vollst&auml;ndig isoliert von weiteren Mandanten der gleichen KomMonitor Instanz.													
+												</p>
+											</div>
+										</div> -->
+									</div>	
+									<div class="col-md-4">
+										<label><b>derzeit gesetzte &uuml;bergeordnete Organisationseinheit</b></label>
+										<p ng-if="parentOrganizationalUnit">{{parentOrganizationalUnit.name}}</p>
+										<p ng-if="! parentOrganizationalUnit">keine</p>
+									
+									</div>		
+									<div class="col-md-4">
+									</div>		
 								</div>
 								<br />
 
@@ -89,10 +113,10 @@
 					ng-disabled="!current.name || !current.description || !current.contact || nameInvalid"
 					ng-click="editRoleMetadata()">Metadaten aktualisieren</button>
 				<button type="button" class="btn btn-danger"
-					ng-click="resetRoleEditMetadataForm()">Zur&uuml;cksetzen</button>
+					ng-click="resetOrganizationalUnitEditMetadataForm()">Zur&uuml;cksetzen</button>
 			</div>
 
-			<div id="editMetadataSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
+			<div id="editOuMetadataSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
 				class="alert alert-success alert-dismissable">
 				<button type="button" class="close" ng-click="hideSuccessAlert()" aria-hidden="true">&times;</button>
 				<h4><i class="icon fa fa-check"></i>Rolle aktualisiert</h4>
@@ -100,7 +124,7 @@
 				&Uuml;bersichtstabelle eingetragen.
 			</div>
 
-			<div id="editMetadataErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
+			<div id="editOuMetadataErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
 				class="alert alert-danger alert-dismissable">
 				<button type="button" class="close" ng-click="hideErrorAlert()" aria-hidden="true">&times;</button>
 				<h4><i class="icon fa fa-ban"></i>Aktualisierung gescheitert</h4>
@@ -109,7 +133,7 @@
 				<pre style="overflow:auto; max-height:500px;" ng-bind-html="errorMessagePart"></pre>
 			</div>
 
-			<div id="keycloakRoleEditSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
+			<div id="keycloakGroupEditSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
 				class="alert alert-success alert-dismissable">
 				<button type="button" class="close" ng-click="hideKeycloakSuccessAlert()" aria-hidden="true">&times;</button>
 				<h4><i class="icon fa fa-check"></i>Rolle in Keycloak editiert</h4>
@@ -117,7 +141,7 @@
 				</p>
 			</div>
 
-			<div id="keycloakRoleEditErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
+			<div id="keycloakGroupEditErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
 				class="alert alert-danger alert-dismissable">
 				<button type="button" class="close" ng-click="hideKeycloakErrorAlert()" aria-hidden="true">&times;</button>
 				<h4><i class="icon fa fa-ban"></i>Editierung in Keycloak gescheitert</h4>

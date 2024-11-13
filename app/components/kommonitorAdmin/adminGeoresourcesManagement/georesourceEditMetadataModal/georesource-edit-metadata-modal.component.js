@@ -23,9 +23,9 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 		"description": "description",
 		"databasis": "databasis"
 		},
-		"allowedRoles": [
-		"allowedRoles",
-		"allowedRoles"
+		"permissions": [
+		"permissions",
+		"permissions"
 		],
 		"datasetName": "datasetName",
 		"poiSymbolBootstrap3Name": "poiSymbolBootstrap3Name",
@@ -60,7 +60,6 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 				"description": "description about spatial unit dataset",
 				"databasis": "text about data basis",
 			},
-			"allowedRoles": ['roleId'],
 			"datasetName": "Name of georesource dataset",
 			"isPOI": "boolean parameter for point of interest dataset - only one of isPOI, isLOI, isAOI can be true",
 			"isLOI": "boolean parameter for lines of interest dataset - only one of isPOI, isLOI, isAOI can be true",
@@ -95,8 +94,6 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 		$scope.metadata.contact = undefined;
 		$scope.metadata.lastUpdate = undefined;
 		$scope.metadata.description = undefined;
-
-		$scope.roleManagementTableOptions = undefined;
 
 		$scope.georesourceTopic_mainTopic = undefined;
 		$scope.georesourceTopic_subTopic = undefined;
@@ -137,15 +134,6 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 	    selectedClass: 'btn-success',
 	    unselectedClass: ''
 		};
-
-		$scope.$on("availableRolesUpdate", function (event) {
-			refreshRoles();
-		});
-
-		function refreshRoles() {
-			let allowedRoles = $scope.currentGeoresourceDataset ? $scope.currentGeoresourceDataset.allowedRoles : [];
-			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('georesourceEditRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, allowedRoles);
-		}
 
 		$('#poiSymbolEditPicker').iconpicker($scope.iconPickerOptions);
 
@@ -210,8 +198,6 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 					$scope.metadata.updateInterval = option;
 				}
 			});
-
-			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('georesourceEditRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, $scope.currentGeoresourceDataset.allowedRoles);
 
 			$scope.isPOI = $scope.currentGeoresourceDataset.isPOI;
 			$scope.isLOI = $scope.currentGeoresourceDataset.isLOI;
@@ -316,18 +302,12 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 					"databasis": $scope.metadata.databasis,
 					"sridEPSG": 4326
 				},
-				"allowedRoles": [],
 				"datasetName": $scope.datasetName,
 			  "isAOI": $scope.isAOI,
 				"isLOI": $scope.isLOI,
 				"isPOI": $scope.isPOI,
 			  "topicReference": null
 			};
-
-			let roleIds = kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid($scope.roleManagementTableOptions);
-			for (const roleId of roleIds) {
-				patchBody.allowedRoles.push(roleId);
-			}
 
 			if($scope.isPOI){
 				patchBody["poiSymbolBootstrap3Name"] = $scope.selectedPoiIconName;
@@ -505,8 +485,6 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 
 				$scope.datasetName = $scope.metadataImportSettings.datasetName;
 		
-				$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('georesourceEditRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, $scope.metadataImportSettings.allowedRoles);
-
 				// georesource specific properties
 
 				$scope.isPOI = $scope.metadataImportSettings.isPOI;
@@ -604,13 +582,6 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 			metadataExport.metadata.description = $scope.metadata.description || "";
 			metadataExport.metadata.databasis = $scope.metadata.databasis || "";
 			metadataExport.datasetName = $scope.datasetName || "";
-
-			metadataExport.allowedRoles = [];
-
-			let roleIds = kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid($scope.roleManagementTableOptions);
-			for (const roleId of roleIds) {
-				metadataExport.allowedRoles.push(roleId);
-			}
 
 			if($scope.metadata.updateInterval){
 					metadataExport.metadata.updateInterval = $scope.metadata.updateInterval.apiName;

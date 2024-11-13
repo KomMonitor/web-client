@@ -256,15 +256,7 @@ function initAngularComponents(){
   appModule.
     config(['$routeProvider',
       function config($routeProvider) {
-        $routeProvider.
-          when('/', {
-            template: '<kommonitor-user-interface></kommonitor-user-interface>',
-            resolve: {
-              controlsServiceName: function(ControlsConfigService){
-                return ControlsConfigService.promise;
-              }
-            }
-          }).
+        $routeProvider.          
           when('/administration', {
             template: '<kommonitor-admin></kommonitor-admin>',
             resolve: {
@@ -293,6 +285,14 @@ function initAngularComponents(){
   
                 }
                 
+              }
+            }
+          }).
+          when('/', {
+            template: '<kommonitor-user-interface></kommonitor-user-interface>',
+            resolve: {
+              controlsServiceName: function(ControlsConfigService){
+                return ControlsConfigService.promise;
               }
             }
           }).
@@ -392,6 +392,7 @@ function bootstrapApplication(){
       console.log(authenticated ? 'User is authenticated!' : 'User is not authenticated!');
       auth.keycloak = keycloakAdapter;
       appModule.factory('Auth', function () {
+        console.log(auth);
         return auth;
       });
       try {
@@ -436,9 +437,9 @@ angular.element(document).ready(function ($http) {
 
 var urlRequiresKeycloakAuthHeader = function(url){
   // /admin/ is used to make admin requests against keycloak
-  if (url.includes("/admin/")){
-    return false;
-  }
+  // if (url.includes("/admin/")){
+  //   return false;
+  // }
   // ORS isochrones and directions requests
   if (url.includes("isochrones")){
     return false;

@@ -40,7 +40,7 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 						}
 					],
 					"applicableSpatialUnit": "applicableSpatialUnit",
-					"allowedRoles": [
+					"permissions": [
 						
 					]
 					"defaultClassificationMapping": {
@@ -69,12 +69,29 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 	
 			// make sure that initial fetching of availableRoles has happened
 			$scope.$on("initialMetadataLoadingCompleted", function (event) {
-				refreshRoles();
+
+				refreshRoles();	
 			});
 			
 			function refreshRoles() {
-				let allowedRoles = $scope.targetApplicableSpatialUnit ? $scope.targetApplicableSpatialUnit.allowedRoles : [];
-				$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorEditFeaturesRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, allowedRoles);
+
+				let permissions = $scope.targetApplicableSpatialUnit ? $scope.targetApplicableSpatialUnit.permissions : [];
+				if($scope.currentIndicatorDataset) {
+					let permissionIds_ownerUnit = kommonitorDataExchangeService.getAccessControlById($scope.currentIndicatorDataset.ownerId).permissions.filter(permission => permission.permissionLevel == "viewer" || permission.permissionLevel == "editor").map(permission => permission.permissionId); 
+					permissions = permissions.concat(permissionIds_ownerUnit);
+				}
+
+				// set datasetOwner to disable checkboxes for owned datasets in permissions-table
+				kommonitorDataExchangeService.accessControl.forEach(item => {
+					if($scope.currentIndicatorDataset) {
+						if(item.organizationalUnitId==$scope.currentIndicatorDataset.ownerId)
+							item.datasetOwner = true;
+						else
+							item.datasetOwner = false;
+					}
+				});
+
+				$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorEditFeaturesRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, permissions, true);
 			}
 	
 			$scope.indicatorFeaturesJSON;
@@ -86,6 +103,7 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 			$scope.indicatorsEditFeaturesMappingConfigPre = kommonitorDataExchangeService.syntaxHighlightJSON(kommonitorImporterHelperService.mappingConfigStructure_indicator);
 
 
+			$scope.isPublic = false;
 			$scope.overviewTableTargetSpatialUnitMetadata = undefined;
 	
 			$scope.spatialUnitRefKeyProperty = undefined;
@@ -134,6 +152,11 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 				}
 	
 			});
+
+			$scope.onChangeIsPublic = function(isPublic){
+				$scope.isPublic = isPublic;
+				console.log($scope.isPublic);
+			}
 
 			// called if indicator was edited - then we must make sure that the view is refreshed
 			// i.e. if a new spatial unit was setup the first time via edit menu, then we must ensure that this new spatial unit is actually 
@@ -243,6 +266,8 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 	
 			$scope.resetIndicatorEditFeaturesForm = function(){
 
+				$scope.isPublic = false;
+
 				// reset edit banners
 				kommonitorDataGridHelperService.featureTable_indicator_lastUpdate_timestamp_success = undefined;
 				kommonitorDataGridHelperService.featureTable_indicator_lastUpdate_timestamp_failure = undefined;
@@ -258,7 +283,7 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 					}					
 				}
 	
-				$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorEditFeaturesRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, kommonitorDataExchangeService.getCurrentKomMonitorLoginRoleIds());
+				$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorEditFeaturesRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, [], true);
 
 				$scope.spatialUnitRefKeyProperty = undefined;
 				$scope.targetSpatialUnitMetadata = undefined;
@@ -311,8 +336,7 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 					}
 				}
 				
-				$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorEditFeaturesRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, $scope.targetApplicableSpatialUnit.allowedRoles);
-
+				refreshRoles();
 			};
 	
 			$scope.onChangeConverter = function(){
@@ -358,6 +382,9 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 
 				let roleIds = kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid($scope.roleManagementTableOptions);
 
+				// TODO FIXME currently set owner the same as indicator metadata
+				// is there a use case where different indicator spatial units timeseries may have different owners?  
+
 				var scopeProperties = {
 					"targetSpatialUnitMetadata": {
 						"spatialUnitLevel": $scope.targetSpatialUnitMetadata.spatialUnitLevel,	
@@ -365,7 +392,9 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 					"currentIndicatorDataset": {
 						"defaultClassificationMapping": $scope.currentIndicatorDataset.defaultClassificationMapping
 					},
-					"allowedRoles": roleIds
+					"permissions": roleIds,
+					"ownerId": $scope.currentIndicatorDataset.ownerId,
+					"isPublic": $scope.isPublic
 				}
 				$scope.putBody_indicators = kommonitorImporterHelperService.buildPutBody_indicators(scopeProperties);
 	
@@ -552,14 +581,14 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 					$scope.$digest();
 				}
 				
-				  $scope.converter = undefined;
-				for(var converter of kommonitorImporterHelperService.availableConverters){
-					if (converter.name === $scope.mappingConfigImportSettings.converter.name){
-						$scope.converter = converter;					
-						break;
-					}
-				}	
-				
+				  	$scope.converter = undefined;
+					for(var converter of kommonitorImporterHelperService.availableConverters){
+						if (converter.name === $scope.mappingConfigImportSettings.converter.name){
+							$scope.converter = converter;					
+							break;
+						}
+					}	
+
 					$scope.schema = undefined;
 					if ($scope.converter && $scope.converter.schemas && $scope.mappingConfigImportSettings.converter.schema){
 						for (var schema of $scope.converter.schemas) {
@@ -615,11 +644,27 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 						
 						}	
 					}
+
+					// set datasetOwner to disable checkboxes for owned datasets in permissions-table
+					kommonitorDataExchangeService.accessControl.forEach(item => {
+						if(item.organizationalUnitId==$scope.mappingConfigImportSettings.ownerId)
+							item.datasetOwner = true;
+						else
+							item.datasetOwner = false;
+					});
 		
-					$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorEditFeaturesRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, $scope.mappingConfigImportSettings.allowedRoles);
+					$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorEditFeaturesRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, $scope.mappingConfigImportSettings.permissions, true);
 
 					$scope.keepMissingValues = $scope.mappingConfigImportSettings.propertyMapping.keepMissingOrNullValueIndicator;
 					
+					if($scope.mappingConfigImportSettings.isPublic)
+						$scope.isPublic = $scope.mappingConfigImportSettings.isPublic;
+					else
+						$scope.isPublic = $scope.currentIndicatorDataset.isPublic;
+
+					if($scope.mappingConfigImportSettings.ownerId)						
+						$scope.currentIndicatorDataset.ownerId = $scope.mappingConfigImportSettings.ownerId;
+
 					$scope.$digest();
 			};
 	
@@ -633,17 +678,20 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 					"dataSource": datasourceTypeDefinition,
 					"propertyMapping": propertyMappingDefinition,
 					"targetSpatialUnitName": $scope.targetSpatialUnitMetadata.spatialUnitLevel,
-					"allowedRoles": []
+					"permissions": []
 				};
 
-				mappingConfigExport.allowedRoles = [];
+				mappingConfigExport.permissions = [];
 
 				let roleIds = kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid($scope.roleManagementTableOptions);
 				for (const roleId of roleIds) {
-					mappingConfigExport.allowedRoles.push(roleId);
+					mappingConfigExport.permissions.push(roleId);
 				}
 	
 				mappingConfigExport.periodOfValidity = $scope.periodOfValidity;
+
+				mappingConfigExport.isPublic = $scope.isPublic;
+				mappingConfigExport.ownerId = $scope.currentIndicatorDataset.ownerId;
 	
 				var name = $scope.datasetName;
 	

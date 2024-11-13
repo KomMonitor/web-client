@@ -66,9 +66,9 @@
 							"description": "description",
 							"databasis": "databasis"
 						},
-						"allowedRoles": [
-							"allowedRoles",
-							"allowedRoles"
+						"permissions": [
+							"permissions",
+							"permissions"
 						],
 						"datasetName": "datasetName",
 						"applicableSpatialUnit": "applicableSpatialUnit",
@@ -126,19 +126,9 @@
 									<li style="width: 14.28%;">Referenzen zu Indikatoren/Georessourcen</li>
 									<li style="width: 14.28%;">Klassifizierungsoptionen</li>
 									<li style="width: 14.28%;">regionale Vergleichswerte</li>
-									<li style="width: 14.28%;">Rollenbasierter Zugriffsschutz</li>
+									<li style="width: 14.28%;">Zugriffsschutz und Eigent&uuml;merschaft</li>
 								</ul>
-							</div>
-							<div ng-if="! $ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity">
-								<ul id="progressbar">
-									<li style="width: 16.66%;" class="active">Metadaten des Indikators</li>
-									<li style="width: 16.66%;" >Allgemeine Metadaten</li>
-									<li style="width: 16.66%;">Themenhierarchie</li>
-									<li style="width: 16.66%;">Referenzen zu Indikatoren/Georessourcen</li>
-									<li style="width: 16.66%;">Klassifizierungsoptionen</li>
-									<li style="width: 16.66%;">regionale Vergleichswerte</li>
-								</ul>
-							</div>
+							</div>							
 							
 							<!-- fieldsets -->
 							
@@ -1069,21 +1059,67 @@
 							</fieldset>
 
 								<fieldset ng-if="$ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity">
-									<h2 class="fs-title">Rollenbasierter Zugriffsschutz</h2>
+									<h2 class="fs-title">Zugriffsschutz und Eigent&uuml;merschaft</h2>
 									<h3 class="fs-subtitle">Vergabe der Zugriffsrechte auf Indikatoren-Metadaten pro Organisationseinheit</h3>
-		
-									<p>Zugriffsrechte (lesen, editieren, l&ouml;schen) m&uuml;ssen explizit vergeben werden. Administratoren (Rolle <i>kommonitor-creator</i>) haben immer vollen Zugriff.</p>
-	
-									<p><strong>Bei Indikatoren muss zus&auml;tzlich zu den Metadaten f&uuml;r jede verkn&uuml;pfte Raumebene der Zugriff auf die Raumeinheit und deren Zeitreihen-Daten freigegeben werden. Dazu nutzen Sie bitte das Raumeinheiten-Metadaten-Men&uuml; sowie das Indikatoren Feature-Fortf&uuml;hren-Men&uuml;.</strong></p>
-		
-									<div class="row">
+									<div class="row" >
 										<div class="col-md-3"></div>
 										<div class="col-md-6 col-sm-6 col-xs-12">
-												<div id="indicatorAddRoleManagementTable" style="height: 45vh" class="ag-theme-alpine"></div>  
-											
+											<div class="alert alert-info">
+												Bitte w&auml;hlen Sie zun&auml;chnst die Organisationseinheit aus, unter welcher Sie den Datensatz anlegen m&ouml;chten
+											</div>
+											<label for="addIndicatorUserRoleSelect">Eigent&uuml;mer-Organisationseinheit*</label>
+											<div class="input-group">
+												<span class="input-group-addon"><i class="fas fa-filter"></i></span>
+												<input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model="ownerOrgFilter" ng-model-options="{debounce: 500, blur: 0}">
+											</div>
+											<select ng-if="$ctrl.kommonitorDataExchangeServiceInstance.checkAdminPermission()" id="addIndicatorUserRoleSelect" ng-model="ownerOrganization" class="form-control" ng-change="onChangeOwner(ownerOrganization)" required>
+												<option ng-repeat="org in $ctrl.kommonitorDataExchangeServiceInstance.accessControl | filter:ownerOrgFilter" value="{{org.organizationalUnitId}}">{{org.name}}</option>
+											</select>	
+											<select ng-if="!$ctrl.kommonitorDataExchangeServiceInstance.checkAdminPermission()" id="addIndicatorUserRoleSelect" ng-model="ownerOrganization" class="form-control" ng-change="onChangeOwner(ownerOrganization)" required>
+												<option ng-repeat="org in resourcesCreatorRights | filter:ownerOrgFilter" value="{{org.organizationalUnitId}}">{{org.name}}</option>
+											</select>		
+											<p></p>
 										</div>
 										<div class="col-md-3"></div>
 									</div>	
+
+									<br>
+									<hr>
+                                                                        <br>
+
+									<div id="indicatorRoleForm">
+										
+										<label>Datensatz-Freigaben (nur Indikatoren-Metadaten)</label>
+										<p><strong>Bei Indikatoren muss zus&auml;tzlich zu den Metadaten f&uuml;r jede verkn&uuml;pfte Raumebene der Zugriff auf die Raumeinheit und deren Zeitreihen-Daten freigegeben werden. Dazu nutzen Sie bitte das Raumeinheiten-Metadaten-Men&uuml; sowie das Indikatoren Feature-Fortf&uuml;hren-Men&uuml;.</strong></p>
+			
+										<div class="row vertical-align">
+											<div class="col-md-3">
+												<label>&Ouml;ffentliche Lesefreigabe*</label>
+												<label class="switch">
+													<input type="checkbox" ng-model="isPublic" ng-change="onChangeIsPublic(isPublic)">
+													<span class="switchslider round"></span>
+												</label>
+												<div class="help-block">
+													<p>
+														&Ouml;ffentlich freigegebene Datens&auml;tze k&ouml;nnen ohne Login abgerufen werden.
+													</p>
+												</div>
+											</div>
+											<div class="col-md-6 col-sm-6 col-xs-12">
+													<div id="indicatorAddRoleManagementTable" style="height: 45vh" class="ag-theme-alpine"></div>  
+												
+											</div>
+											<div class="col-md-3">
+												<div class="alert alert-info">
+													Als Eigent&uuml;mer-Organisation des Datensatzes k&ouml;nnen Sie Lese- und Editier-Rechte an die eigene und weitere Organisationseinheiten vergeben. 
+												</div>
+												<br/>
+												<div class="alert alert-warning">
+													Lese- und Editierrechte wurden f&uuml;r die von Ihnen selektierte Eigent&uuml;mer-Organisationseinheit markiert. 
+												</div>
+											</div>
+										</div>	
+									</div>
 									
 									<input type="button" name="previous" class="previous previous_addIndicator action-button-previous" value="Voriger Schritt"/>								
 								</fieldset>
@@ -1107,7 +1143,7 @@
 				
 
 				<button type="button" class="btn btn-success"				
-					ng-disabled="!datasetName || !metadata.description || !metadata.datasource || !metadata.contact || !metadata.updateInterval || !metadata.lastUpdate || !indicatorType|| !indicatorCreationType || !indicatorInterpretation || !indicatorTopic_mainTopic || datasetNameInvalid || !indicatorUnit || classBreaksInvalid"
+					ng-disabled="!datasetName || !metadata.description || !metadata.datasource || !metadata.contact || !metadata.updateInterval || !metadata.lastUpdate || !indicatorType|| !indicatorCreationType || !indicatorInterpretation || !indicatorTopic_mainTopic || datasetNameInvalid || !indicatorUnit || classBreaksInvalid || !ownerOrganization"
 					ng-click="addIndicator()">Indikator-Metadaten registrieren</button>
 				<button type="button" class="btn btn-danger"
 					ng-click="resetIndicatorAddForm()">Zur&uuml;cksetzen</button>

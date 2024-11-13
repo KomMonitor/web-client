@@ -2,8 +2,8 @@
 	<!-- Content Header (Page header) -->
 	<section class="content-header">
 		<h1>
-			Einstellungen zur Rollen-basierten Widget-Sichtbarkeit 
-			<small>Einschr&auml;nken der Sichtbarkeit bestimmter Widgets/Funktionalit&auml;ten von KomMonitor f&uuml;r bestimmte Rollen</small>
+			Einstellungen zur Gruppen-basierten Widget-Sichtbarkeit 
+			<small>Einschr&auml;nken der Sichtbarkeit bestimmter Widgets/Funktionalit&auml;ten von KomMonitor f&uuml;r bestimmte Gruppen</small>
 		</h1>
 		
 	</section>
@@ -41,16 +41,19 @@
 			<!-- /.box-header -->
 			<div class="box-body">
 
-				<p>Setzen Sie nachfolgend die relevanten Parameter zur Rollen-basierten Sichtbarkeit einzelner Widgets und speichern sie diese. 
-					Im Array unter 'roles' tragen Sie dazu bei jeder Komponente die Rollennamen ein, die Zugriff erhalten sollen. Ein leerer Array erlaubt die Nutzung des Widgets f&uuml;r jedermann, auch anonyme Nutzer ohne Login. 
-					Die Konfiguration wird im <b>Config Storage Service</b> von KomMonitor hinterlegt, von dem die Daten beim Start der Anwendung geladen werden.
+				<p>Setzen Sie nachfolgend die relevanten Parameter zur Gruppen-basierten Sichtbarkeit einzelner Widgets und speichern sie diese. 
+					Im Array unter 'groups' tragen Sie dazu bei jeder Komponente die Namen der Gruppen ein, die Zugriff erhalten sollen. Ein leerer Array erlaubt die Nutzung des Widgets f&uuml;r jedermann, auch anonyme Nutzer ohne Login. 
 					Setzen Sie die Werte daher sorgf&auml;ltig.
+					</p>
+
+					<p>
+						<i><b>Achtung: Mit Version 4 von KomMonitor wurde die Datenstruktur ge&auml;ndert. Beachten Sie die neue Vorlage und machen pro Widget Eintr&auml;ge im Unterpunkt <code>groups</code>. Veraltete Rolleneintr&auml;ge unter <code>roles</code> m&uuml;ssen daher aktualisiert werden.</b></i>
 					</p>
 
 					<label>Hinweis zu 'erweiterter Ansicht'</label>
 					<p>Wenn der Toggle-Button zum erweiterten Modus (der zwischen einer vereinfachten Ansicht mit wenig Funktionalit&auml;ten und einer 'Experten-Ansicht', mit allen Funktionen) genutzt wird, 
-						so kann mittels dem festgelegten Rollennamens <code>fakeAdvancedModeRole</code> bestimmt werden, welche Funktionen/Widgets im vereinfachten Modus ausgeblendet werden. Wenn eine Funktion nur
-						f&uuml;r Keycloak-Rollen freigegeben werden sollen, so darf kein Eintrag der <code>fakeAdvancedModeRole</code> zus&auml;tzlich enthalten sein.</p>
+						so kann mittels dem festgelegten Begriff <code>fakeAdvancedModeGroup</code> bestimmt werden, welche Funktionen/Widgets im vereinfachten Modus ausgeblendet werden. Wenn eine Funktion nur
+						f&uuml;r KomMonitor-Gruppen freigegeben werden sollen, so darf kein Eintrag der <code>fakeAdvancedModeGroup</code> zus&auml;tzlich enthalten sein.</p>
 
 					<hr>
 					<br/>

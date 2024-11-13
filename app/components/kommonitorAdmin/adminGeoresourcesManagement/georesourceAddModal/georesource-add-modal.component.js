@@ -22,9 +22,9 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 					"description": "description",
 					"databasis": "databasis"
 				},
-				"allowedRoles": [
-					"allowedRoles",
-					"allowedRoles"
+				"permissions": [
+					"permissions",
+					"permissions"
 				],
 				"datasetName": "datasetName",
 				"poiSymbolBootstrap3Name": "poiSymbolBootstrap3Name",
@@ -65,7 +65,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 				"description": "description about spatial unit dataset",
 				"databasis": "text about data basis",
 			},
-			"allowedRoles": ['roleId'],
+			"permissions": ['roleId'],
 			"datasetName": "Name of georesource dataset",
 			"isPOI": "boolean parameter for point of interest dataset - only one of isPOI, isLOI, isAOI can be true",
 			"isLOI": "boolean parameter for lines of interest dataset - only one of isPOI, isLOI, isAOI can be true",
@@ -102,9 +102,27 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 		$scope.metadata.databasis = undefined;
 		$scope.metadata.contact = undefined;
 		$scope.metadata.lastUpdate = undefined;
-		$scope.metadata.description = undefined;
+		$scope.metadata.description = undefined;		
 
 		$scope.roleManagementTableOptions = undefined;
+		
+		$scope.ownerOrganization = undefined;
+		$scope.ownerOrgFilter = undefined;
+		$scope.isPublic = false;
+    $scope.resourcesCreatorRights = [];
+
+		$scope.onChangeOwner = function(orgUnitId) {
+			$scope.ownerOrganization = orgUnitId;
+
+			refreshRoles(orgUnitId);
+
+			if(orgUnitId)
+				$('#georesourceRoleForm').css('display','block');
+		}
+
+		$scope.onChangeIsPublic = function(isPublic){
+			$scope.isPublic = isPublic;
+		}
 		
 		$scope.$on("availableRolesUpdate", function (event) {
 			refreshRoles();
@@ -112,11 +130,71 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 
 		// make sure that initial fetching of availableRoles has happened
 		$scope.$on("initialMetadataLoadingCompleted", function (event) {
-			refreshRoles();
-		});
 
-		function refreshRoles() {	
-			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('georesourceAddRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, kommonitorDataExchangeService.getCurrentKomMonitorLoginRoleIds());	
+			$('#georesourceRoleForm').css('display','none');
+
+      $scope.prepareCreatorList();
+
+			refreshRoles();
+
+			setTimeout(() => {
+				$scope.$digest();	
+			}, 250);
+		});
+     
+    $scope.prepareCreatorList = function() {
+
+      if(kommonitorDataExchangeService.currentKomMonitorLoginRoleNames.length>0) {
+
+        let creatorRights = [];
+        let creatorRightsChildren = [];
+        kommonitorDataExchangeService.currentKomMonitorLoginRoleNames.forEach(roles => {
+          
+          let key = roles.split('.')[0];
+          let role = roles.split('.')[1];
+
+          // case unit-resources-creator
+          if(role=='unit-resources-creator' && !$scope.resourcesCreatorRights.includes(key)) {
+            creatorRights.push(key);
+          }
+
+          // case client-resources-creator, gather unit-ids first, then fetch all unit-data
+          if(role=='client-resources-creator' && !creatorRightsChildren.includes(key)) {
+            creatorRightsChildren.push(key);
+          }
+        });
+
+        // gather all children
+		gatherCreatorRightsChildren(creatorRights, creatorRightsChildren);
+        $scope.resourcesCreatorRights = kommonitorDataExchangeService.accessControl.filter(elem => creatorRights.includes(elem.name));
+      }
+    }
+
+	function gatherCreatorRightsChildren(creatorRights, creatorRightsChildren) {
+        if(creatorRightsChildren.length>0) {
+			kommonitorDataExchangeService.accessControl.filter(elem => creatorRightsChildren.includes(elem.name)).flatMap(res => res.children).forEach(c => {
+			  kommonitorDataExchangeService.accessControl.filter(elem => elem.organizationalUnitId==c).forEach(childData => {
+				creatorRights.push(childData.name);
+				gatherCreatorRightsChildren(creatorRights, [childData.name]);
+			  });
+			  
+			});
+		}
+	}
+
+		function refreshRoles(orgUnitId) {	
+
+			let permissionIds_ownerUnit = orgUnitId ? kommonitorDataExchangeService.getAccessControlById(orgUnitId).permissions.filter(permission => permission.permissionLevel == "viewer" || permission.permissionLevel == "editor").map(permission => permission.permissionId) : []; 
+
+			// set datasetOwner to disable checkboxes for owned datasets in permissions-table
+			kommonitorDataExchangeService.accessControl.forEach(item => {
+				if(item.organizationalUnitId==orgUnitId)
+					item.datasetOwner = true;
+				else
+					item.datasetOwner = false;
+			});
+
+			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('georesourceAddRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, permissionIds_ownerUnit, true);
 		}
 
 		$scope.georesourceTopic_mainTopic = undefined;
@@ -250,7 +328,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 			$scope.metadata.description = undefined;
 
 			console.log("resetGeoresourceAddForm");
-			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('georesourceAddRoleManagementTable', null, kommonitorDataExchangeService.accessControl, null);
+			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('georesourceAddRoleManagementTable', null, kommonitorDataExchangeService.accessControl, null, true);
 
 			$scope.georesourceTopic_mainTopic = undefined;
 			$scope.georesourceTopic_subTopic = undefined;
@@ -271,6 +349,10 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 			$scope.aoiColor = "#bf3d2c";
 			$scope.selectedPoiIconName = "home";
 			$("#poiSymbolPicker").val("").iconpicker('setIcon', 'glyphicon-' + $scope.selectedPoiIconName);
+
+			$scope.ownerOrganization = undefined;
+			$scope.ownerOrgFilter = undefined;
+			$scope.isPublic = false;
 
 			$scope.periodOfValidity = {};
 			$scope.periodOfValidity.startDate = undefined;
@@ -512,7 +594,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 			var postBody =
 			{
 				"geoJsonString": $scope.geoJsonString,
-				"allowedRoles": [],
+				"permissions": [],
 				"metadata": {
 					"note": $scope.metadata.note,
 					"literature": $scope.metadata.literature,
@@ -533,12 +615,14 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 			  "isAOI": $scope.isAOI,
 				"isLOI": $scope.isLOI,
 				"isPOI": $scope.isPOI,
-			  "topicReference": null
+			  "topicReference": null,
+			  "ownerId": $scope.ownerOrganization,
+			  "isPublic": $scope.isPublic
 			};
 
 			let roleIds = kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid($scope.roleManagementTableOptions);
 			for (const roleId of roleIds) {
-				postBody.allowedRoles.push(roleId);
+				postBody.permissions.push(roleId);
 			}
 
 			if($scope.isPOI){
@@ -672,13 +756,16 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 
 						}
 					} catch (error) {
-						if(error.data){							
+						console.error("Error while adding georesource.");
+						if(error.data.message) {							
+							$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data.message);
+						}
+						else if (error.data) {
 							$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
 						}
-						else{
+						else {
 							$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error);
 						}
-
 						if(newGeoresourceResponse_dryRun){
 							$scope.importerErrors = kommonitorImporterHelperService.getErrorsFromImporterResponse(newGeoresourceResponse_dryRun);
 						}						
@@ -738,6 +825,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 			fileReader.readAsText(file);
 		};
 
+		// hier
 		$scope.parseFromMetadataFile = function(event){
 			// $scope.geoJsonString = event.target.result;
 			$scope.metadataImportSettings = JSON.parse(event.target.result);
@@ -771,7 +859,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 
 				$scope.datasetName = $scope.metadataImportSettings.datasetName;
 
-				$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('georesourceAddRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, $scope.metadataImportSettings.allowedRoles);
+				$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('georesourceAddRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, $scope.metadataImportSettings.permissions, true);
 
 				// georesource specific properties
 
@@ -823,6 +911,13 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 					$scope.georesourceTopic_subsubsubTopic = topicHierarchy[3];
 				}
 
+				$scope.ownerOrganization = $scope.metadataImportSettings.ownerId;
+
+				if($scope.metadataImportSettings.ownerId)
+					$('#georesourceRoleForm').css('display','block');
+
+				$scope.isPublic = $scope.metadataImportSettings.isPublic;
+
 				setTimeout(function(){
 					$("#poiSymbolPicker").val("").iconpicker('setIcon', 'glyphicon-' + $scope.metadataImportSettings.poiSymbolBootstrap3Name);
 					// $("#poiSymbolPicker i").css('glyphicon glyphicon-' + $scope.metadataImportSettings.poiSymbolBootstrap3Name);
@@ -865,11 +960,11 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 			metadataExport.metadata.databasis = $scope.metadata.databasis || "";
 			metadataExport.datasetName = $scope.datasetName || "";
 
-			metadataExport.allowedRoles = [];
+			metadataExport.permissions = [];
 
 			let roleIds = kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid($scope.roleManagementTableOptions);
 			for (const roleId of roleIds) {
-				metadataExport.allowedRoles.push(roleId);
+				metadataExport.permissions.push(roleId);
 			}
 
 			if($scope.metadata.updateInterval){
@@ -942,6 +1037,9 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 			else {
 				metadataExport.topicReference = "";
 			}
+
+			metadataExport.ownerId = $scope.ownerOrganization;
+			metadataExport.isPublic = $scope.isPublic;
 
 
 			var metadataJSON = JSON.stringify(metadataExport);

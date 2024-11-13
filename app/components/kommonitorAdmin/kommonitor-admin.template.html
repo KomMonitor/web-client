@@ -39,9 +39,59 @@
                 <span style="word-break: break-all;"><b>E-Mail:</b><i>{{$ctrl.kommonitorDataExchangeServiceInstance.currentKeycloakUser.email}}</i></span>
               </div>
               <br/>
-              <span><b>zugewiesene Rollen:</b></span> <i>{{$ctrl.kommonitorDataExchangeServiceInstance.currentKomMonitorLoginRoleNames}}</i>             
-              <br/>
-              <br/>
+
+              <div class="box box-simplified collapsed-box">
+                <div class="box-header with-border">
+                  <h3 class="box-title">Rollen</h3>
+          
+                  <div class="box-tools pull-right">
+                    <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+                    </button>
+                  </div>
+                </div>
+                <!-- /.box-header -->
+                <div class="box-body">
+                  <table>
+                    <tr ng-repeat="(key, value) in userRoleInformation">
+                      <td>
+                        <table>
+                          <tr>
+                            <th>{{key}}</th>
+                          </tr>
+                          </tr>
+                            <td style="padding-left: 1em;"><p ng-repeat="role in value">{{role}}</p></td>
+                          </tr>
+                        </table>
+                      </td>
+                    </tr>
+                  </table>
+                </div>
+                <!-- /.box-body -->
+              </div>
+              <!-- /.box -->
+
+              <div class="box box-simplified collapsed-box">
+                <div class="box-header with-border">
+                  <h3 class="box-title">Gruppen (Hierarchie)</h3>
+          
+                  <div class="box-tools pull-right">
+                    <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+                    </button>
+                  </div>
+                </div>
+                <!-- /.box-header -->
+                <div class="box-body">
+                  <table>
+                    <tr ng-repeat="entry in userGroupInformation">
+                      <td>
+                        <p ng-style="{margin: 0,'padding-left': '{{$index + 'em'}}'}" ng-repeat="group in entry track by $index">{{group}}</p>
+                      </td>
+                    </tr>
+                  </table>
+                </div>
+                <!-- /.box-body -->
+              </div>
+              <!-- /.box --> 
               <span><b>Session G&uuml;ltigkeit:</b> {{$ctrl.kommonitorDataExchangeServiceInstance.keycloakTokenExpirationInfo}} Minuten</span>
 
             </div>
@@ -75,10 +125,10 @@
         <li class="header">Administration</li>
         <!-- Optionally, you can add icons to the links -->
         <li id="adminDashboardNavItem" class="active" ng-click="onClickOtherAdminPanel('adminDashboardNavItem')"><a data-toggle="tab" data-target="#dashboardWrapper" href=""><i class="fas fa-tachometer-alt"></i> <span>&Uuml;bersicht</span></a></li>
-        <li id="adminUsersNavItem" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.checkAdminPermission()" ng-click="onClickOtherAdminPanel('adminUsersNavItem')"><a data-toggle="tab" data-target="#userWrapper" href=""><i class="fas fa-users"></i> <span>Zugriffskontrolle</span></a></li>
-        <li id="adminRoleExplanationNavItem" ng-click="onClickOtherAdminPanel('adminRoleExplanationNavItem')"><a data-toggle="tab" data-target="#roleExplanationWrapper" href=""><i class="fa-solid fa-user-lock"></i> <span>Zugriffskontrolle-Konzept</span></a></li>        
-        <li id="adminTopicsNavItem" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.checkAdminPermission()" ng-click="onClickOtherAdminPanel('adminTopicsNavItem')"><a data-toggle="tab" data-target="#topicsWrapper" href=""><i class="fas fa-book"></i> <span>Themenverwaltung</span></a></li>
-        <li id="adminGeodataWrapperNavItem" class="treeview">
+        <li id="adminUsersNavItem" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.checkGroupsEditPermission()" ng-click="onClickOtherAdminPanel('adminUsersNavItem')"><a data-toggle="tab" data-target="#userWrapper" href=""><i class="fas fa-users"></i> <span>Gruppenverwaltung</span></a></li>
+        <li id="adminRoleExplanationNavItem" ng-click="onClickOtherAdminPanel('adminRoleExplanationNavItem')"><a data-toggle="tab" data-target="#roleExplanationWrapper" href=""><i class="fa-solid fa-user-lock"></i> <span>Gruppen-/Rechtekonzept</span></a></li>        
+        <li id="adminTopicsNavItem" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.checkThemesEditPermission()" ng-click="onClickOtherAdminPanel('adminTopicsNavItem')"><a data-toggle="tab" data-target="#topicsWrapper" href=""><i class="fas fa-book"></i> <span>Themenverwaltung</span></a></li>
+        <li id="adminGeodataWrapperNavItem" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.checkResourcesEditPermission()" class="treeview">
           <a data-toggle="tab" href="" ng-click="onClickGeodataWrapperItem()"><i class="fas fa-globe-americas"></i> <span>Geodatenverwaltung</span>
             <span class="pull-right-container">
                 <i class="fa fa-angle-left pull-right"></i>
@@ -90,8 +140,8 @@
             <li id="adminGeoresourcesNavItem"><a data-toggle="tab" data-target="#georesourcesWrapper" ng-click="onClickGeodataAdminPanel('adminGeoresourcesNavItem')" href=""><i class="fas fa-map-marked-alt"></i> <span>Georessourcen</span></a></li>
           </ul>
         </li>
-        <li id="adminScriptsNavItem" ng-click="onClickOtherAdminPanel('adminScriptsNavItem')"><a data-toggle="tab" data-target="#scriptWrapper" href=""><i class="far fa-file-code"></i> <span>Skriptverwaltung</span></a></li>
-        <li id="adminScriptExecutionNavItem" ng-click="onClickOtherAdminPanel('adminScriptExecutionNavItem')"><a data-toggle="tab" data-target="#scriptExecutionWrapper" href=""><i class="far fa-file-code"></i> <span>Indikatorenberechnung</span></a></li>
+        <li id="adminScriptsNavItem" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.checkResourcesEditPermission()" ng-click="onClickOtherAdminPanel('adminScriptsNavItem')"><a data-toggle="tab" data-target="#scriptWrapper" href=""><i class="far fa-file-code"></i> <span>Skriptverwaltung</span></a></li>
+        <li id="adminScriptExecutionNavItem" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.checkResourcesEditPermission()" ng-click="onClickOtherAdminPanel('adminScriptExecutionNavItem')"><a data-toggle="tab" data-target="#scriptExecutionWrapper" href=""><i class="far fa-file-code"></i> <span>Indikatorenberechnung</span></a></li>
         <li id="adminConfigWrapperNavItem" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.checkAdminPermission()" class="treeview">
           <a data-toggle="tab" href="" ng-click="onClickConfigWrapperItem()"><i class="fas fa-tools"></i> <span>Einstellungen</span>
             <span class="pull-right-container">
@@ -129,43 +179,43 @@
 
       </div>
 
-      <div id="userWrapper" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.checkAdminPermission()" class="tab-pane fade in">
+      <div id="userWrapper" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.checkGroupsEditPermission()" class="tab-pane fade in">
 
         <admin-role-management></admin-role-management>
 
       </div>
 
-      <div id="topicsWrapper" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.checkAdminPermission()" class="tab-pane fade in">
+      <div id="topicsWrapper" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.checkThemesEditPermission()" class="tab-pane fade in">
 
         <admin-topics-management></admin-topics-management>
 
       </div>
 
-      <div id="spatialUnitsWrapper" class="tab-pane fade in">
+      <div id="spatialUnitsWrapper" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.checkResourcesEditPermission()" class="tab-pane fade in">
 
         <admin-spatial-units-management></admin-spatial-units-management>
 
       </div>
 
-      <div id="indicatorsWrapper" class="tab-pane fade in">
+      <div id="indicatorsWrapper" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.checkResourcesEditPermission()" class="tab-pane fade in">
 
         <admin-indicators-management></admin-indicators-management>
 
       </div>
 
-      <div id="georesourcesWrapper" class="tab-pane fade in">
+      <div id="georesourcesWrapper" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.checkResourcesEditPermission()" class="tab-pane fade in">
 
         <admin-georesources-management></admin-georesources-management>
 
       </div>
 
-      <div id="scriptWrapper" class="tab-pane fade in">
+      <div id="scriptWrapper" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.checkResourcesEditPermission()" class="tab-pane fade in">
 
         <admin-script-management></admin-script-management>
 
       </div>
 
-      <div id="scriptExecutionWrapper" class="tab-pane fade in">
+      <div id="scriptExecutionWrapper" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.checkResourcesEditPermission()" class="tab-pane fade in">
 
         <admin-script-execution></admin-script-execution>
 
@@ -200,8 +250,10 @@
       <spatial-unit-edit-features-modal></spatial-unit-edit-features-modal>
 
       <!-- Modal -->
-      <spatial-unit-delete-modal></spatial-unit-delete-modal>
+      <spatial-unit-edit-user-roles-modal></spatial-unit-edit-user-roles-modal>
 
+      <!-- Modal -->
+      <spatial-unit-delete-modal></spatial-unit-delete-modal>
       
       <!-- Modal -->
       <georesource-add-modal></georesource-add-modal>
@@ -214,6 +266,9 @@
 
       <!-- Modal -->
       <georesource-edit-metadata-modal></georesource-edit-metadata-modal>
+
+      <!-- Modal -->
+      <georesource-edit-user-roles-modal></georesource-edit-user-roles-modal>
 
       <!-- Modal -->
       <georesource-delete-modal></georesource-delete-modal>
@@ -255,6 +310,9 @@
 
       <!-- Modal -->
       <role-edit-metadata-modal></role-edit-metadata-modal>
+
+      <!-- Modal -->
+      <role-edit-group-rights-modal></role-edit-group-rights-modal>
 
       <!-- Modal -->
       <role-delete-modal></role-delete-modal>
