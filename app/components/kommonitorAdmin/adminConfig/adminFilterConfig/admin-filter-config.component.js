@@ -1,6 +1,7 @@
 angular.module('adminFilterConfig').component('adminFilterConfig', {
 	templateUrl: "components/kommonitorAdmin/adminConfig/adminFilterConfig/admin-filter-config.template.html",
-	controller: ['kommonitorDataExchangeService', 'kommonitorScriptHelperService', 'kommonitorConfigStorageService', '$scope', '$rootScope', '__env', '$http', '$timeout', function FilterConfigController(kommonitorDataExchangeService, kommonitorScriptHelperService, kommonitorConfigStorageService, $scope, $rootScope, __env, $http, $timeout) {
+	controller: ['kommonitorDataExchangeService', 'kommonitorScriptHelperService', 'kommonitorConfigStorageService', 'kommonitorDataGridHelperService', '$scope', '$rootScope', '__env', '$http', '$timeout', 
+    function FilterConfigController(kommonitorDataExchangeService, kommonitorScriptHelperService, kommonitorConfigStorageService, kommonitorDataGridHelperService, $scope, $rootScope, __env, $http, $timeout) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;	
 		this.kommonitorScriptHelperServiceInstance = kommonitorScriptHelperService;
@@ -20,6 +21,7 @@ angular.module('adminFilterConfig').component('adminFilterConfig', {
 		$scope.filterConfigTmp = undefined;
 		$scope.filterConfigCurrent = undefined;
 		$scope.filterConfigNew = undefined;
+    
 
 		$scope.configSettingInvalid = false;
 
@@ -35,6 +37,8 @@ angular.module('adminFilterConfig').component('adminFilterConfig', {
 			$scope.filterConfigCurrent = JSON.stringify(__env.filterConfig, null, "    ");
 			$scope.filterConfigNew = JSON.stringify(__env.filterConfig, null, "    ");
 			kommonitorScriptHelperService.prettifyScriptCodePreview("filterConfig_current");	
+      $scope.origConfig = await kommonitorConfigStorageService.getFilterConfig();
+      $scope.mergedFilterConfig = $scope.origConfig;
 			
 			$scope.initCodeEditor();
 
@@ -42,6 +46,100 @@ angular.module('adminFilterConfig').component('adminFilterConfig', {
 
 			$scope.$digest();
 		};
+
+    $scope.onAddFilter = function() {
+      $rootScope.$broadcast('onOpenAddFilterModal');
+    }
+
+    // make sure that initial fetching of availableRoles has happened
+		$scope.$on("initialMetadataLoadingCompleted", function (event) {
+      $scope.prepGlobalFilterData();
+      $scope.initializeOrRefreshOverviewTable();
+		}); 
+
+		$scope.initializeOrRefreshOverviewTable = function(){
+			$scope.loadingData = true;
+			kommonitorDataGridHelperService.buildDataGrid_globalFilter($scope.mergedFilterConfig);
+
+			$timeout(function(){
+				$scope.loadingData = false;
+			});	
+		};
+    
+    $scope.$on("onGlobalFilterDelete", async function (event, itemId) {
+      console.log("delete", itemId);
+
+      $scope.origConfig = await kommonitorConfigStorageService.getFilterConfig();
+
+      let item = $scope.mergedFilterConfig.filter(e => e.filterId==itemId);
+      if(item.length==1) {
+        
+        if(confirm("Wollen Sie den Filter "+item[0].name+" sicher dauerhaft löschen?")) {
+          
+          let configNew = $scope.origConfig.filter((e,i) => i!=itemId).map(e => { 
+            delete e.filterId; 
+            return e;
+          });
+          var addConfigResponse = await kommonitorConfigStorageService.postFilterConfig(JSON.stringify(configNew, null, "    "));	
+          
+          $scope.origConfig = await kommonitorConfigStorageService.getFilterConfig();
+          $scope.mergedFilterConfig = configNew;
+         
+          setTimeout(() => {
+            $scope.prepGlobalFilterData();
+            $scope.initializeOrRefreshOverviewTable();
+          }, 250);
+        }
+      } else 
+        console.log("Filter id not found");
+
+		}); 
+
+    $scope.$on("refreshAdminFilterOverviewTable", async function (event) {
+
+      $scope.origConfig = await kommonitorConfigStorageService.getFilterConfig();
+      $scope.mergedFilterConfig = $scope.origConfig;
+      setTimeout(() => {
+        $scope.prepGlobalFilterData();
+        $scope.initializeOrRefreshOverviewTable();
+      }, 250);
+		}); 
+
+    $scope.prepGlobalFilterData = function() {
+
+      $scope.mergedFilterConfig.forEach((filter, filterIndex) => {
+        $scope.mergedFilterConfig[filterIndex].filterId = filterIndex;
+
+        filter.indicators.forEach((indicatorElement, indicatorIndex) => {
+          $scope.mergedFilterConfig[filterIndex].indicators[indicatorIndex] = kommonitorDataExchangeService.availableIndicators.filter(e => e.indicatorId==indicatorElement).map(e => e.indicatorName)[0];
+        });
+        filter.georesources.forEach((georesourceElement, georesourceIndex) => {
+          $scope.mergedFilterConfig[filterIndex].georesources[georesourceIndex] = kommonitorDataExchangeService.availableGeoresources.filter(e => e.georesourceId==georesourceElement).map(e => e.datasetName)[0];
+        });
+
+        filter.indicatorTopics.forEach((indicatorTopicElement, indicatorTopicIndex) => {
+          $scope.mergedFilterConfig[filterIndex].indicatorTopics[indicatorTopicIndex] = searchTopicRecursive(kommonitorDataExchangeService.availableTopics.filter(e => e.topicResource=='indicator'), indicatorTopicElement);
+        });
+        filter.georesourceTopics.forEach((georesourceTopicElement, georesourceTopicIndex) => {
+          $scope.mergedFilterConfig[filterIndex].georesourceTopics[georesourceTopicIndex] = searchTopicRecursive(kommonitorDataExchangeService.availableTopics.filter(e => e.topicResource=='georesource'), georesourceTopicElement);
+        });
+      });
+    }
+
+    function searchTopicRecursive(topicsTree, itemId) {
+
+      for(const elem of topicsTree) {
+        if(elem.topicId==itemId) {
+          return elem.topicName;
+        } else {
+          if(elem.subTopics.length>0) {
+            const found = searchTopicRecursive(elem.subTopics, itemId);
+            if(found)
+              return found;
+          }
+        }
+      };
+    }
 
 		$scope.initCodeEditor = function(){
 			$scope.codeMirrorEditor = CodeMirror.fromTextArea(document.getElementById("filterConfigEditor"), {

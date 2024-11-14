@@ -67,5 +67,14 @@ angular
 
         return mergedConfig;
       }
+      
+      this.editGlobalFilterConfig = function(filterConfig, index, topicType, topicId) {
 
-    }]);
+        if(filterConfig[index].checked===true) {
+          if(filterConfig[index][topicType].indexOf(topicId)<0)
+            filterConfig[index][topicType].push(topicId);
+        } else
+          filterConfig[index][topicType] = filterConfig[index][topicType].filter(e => e!=topicId);
+      }
+    }
+  ]);
