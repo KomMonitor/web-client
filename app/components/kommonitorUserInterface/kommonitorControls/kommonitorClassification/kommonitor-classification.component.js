@@ -26,10 +26,6 @@ angular
 
 						$scope.hiddenMethodIds = [];
 
-						if(__env.disableManualClassification) {
-							$scope.hideManualClassification();
-						}
-
 						kommonitorVisualStyleHelperService.numClasses = 5;
 
 						kommonitorVisualStyleHelperService.classifyMethod = __env.defaultClassifyMethod || "jenks";
@@ -114,6 +110,9 @@ angular
 							}
 						}
 
+						if(__env.disableManualClassification) {
+							$scope.hideManualClassification();
+						}
 
 						$scope.onMethodSelected = function (method) {
 							$scope.methodName = method.name;
