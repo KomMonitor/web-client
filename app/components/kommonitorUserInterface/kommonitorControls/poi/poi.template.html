@@ -154,70 +154,90 @@
 
 							<div
 								ng-repeat="mainTopic in $ctrl.kommonitorDataExchangeServiceInstance.topicGeoresourceHierarchy" ng-if="::mainTopic.totalCount">
-								<div class="list-group-item list-group-item-default"
+								<div class="list-group-item list-group-item-default list-group-item-grid-layout"
 									style="background: #2171b5; color: white;">
-									<a id="{{::mainTopic.topicId}}" href=""
-										ng-attr-title="{{::mainTopic.topicDescription}}" class="collapseTrigger"
-										style="color: white;" ng-click="isCollapsed_mainTopic = !isCollapsed_mainTopic"
-										ng-init="isCollapsed_mainTopic=true"><i
-											class="glyphicon glyphicon-chevron-right"></i>{{::mainTopic.topicName}}
-										({{mainTopic.totalCount}})</a></a>
-									&nbsp;&nbsp; <input type="checkbox" ng-model="mainTopic.isSelected"
-										value="mainTopic.isSelected" id="showAllForTopic_{{::mainTopic.topicId}}"
-										ng-change="handleShowAllOnTopic(mainTopic)">
+                  <div>
+                    <a id="{{::mainTopic.topicId}}" href=""
+                      ng-attr-title="{{::mainTopic.topicDescription}}" class="collapseTrigger"
+                      style="color: white;" ng-click="isCollapsed_mainTopic = !isCollapsed_mainTopic"
+                      ng-init="isCollapsed_mainTopic=true"><i
+                        class="glyphicon glyphicon-chevron-right"></i>{{::mainTopic.topicName}}
+                      ({{mainTopic.totalCount}})</a></a>
+                    &nbsp;&nbsp; <input type="checkbox" ng-model="mainTopic.isSelected"
+                      value="mainTopic.isSelected" id="showAllForTopic_{{::mainTopic.topicId}}"
+                      ng-change="handleShowAllOnTopic(mainTopic)">
+                    </div>
+                    <div>
+                      <i class="glyphicon glyphicon-custom" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[georesourceTopicFavSelected(mainTopic.topicId)]" ng-click="onGeoresourceTopicFavClick(mainTopic.topicId)"></i>
+                    </div>
 								</div>
 
 								<div class="list-group collapse"
 								uib-collapse="isCollapsed_mainTopic">
 								<div ng-repeat="subTopic in ::mainTopic.subTopics" ng-if="::subTopic.totalCount">
 
-									<div class="list-group-item list-group-item-default"
+									<div class="list-group-item list-group-item-default list-group-item-grid-layout"
 										style="background: #6baed6; color: white;">
-										<a id="{{::subTopic.topicId}}" class="collapseTrigger" style="color: white;"
-											ng-attr-title="{{::subTopic.topicDescription}}" href=""
-											ng-click="isCollapsed_subTopic = !isCollapsed_subTopic"
-											ng-init="isCollapsed_subTopic=true"><i
-												class="glyphicon glyphicon-chevron-right"></i>{{::subTopic.topicName}}
-											({{subTopic.totalCount}})</a>
-										&nbsp;&nbsp; <input type="checkbox" ng-model="subTopic.isSelected"
-											value="subTopic.isSelected" id="showAllForTopic_{{::subTopic.topicId}}"
-											ng-change="handleShowAllOnTopic(subTopic)">
+                    <div>
+                      <a id="{{::subTopic.topicId}}" class="collapseTrigger" style="color: white;"
+                        ng-attr-title="{{::subTopic.topicDescription}}" href=""
+                        ng-click="isCollapsed_subTopic = !isCollapsed_subTopic"
+                        ng-init="isCollapsed_subTopic=true"><i
+                          class="glyphicon glyphicon-chevron-right"></i>{{::subTopic.topicName}}
+                        ({{subTopic.totalCount}})</a>
+                      &nbsp;&nbsp; <input type="checkbox" ng-model="subTopic.isSelected"
+                        value="subTopic.isSelected" id="showAllForTopic_{{::subTopic.topicId}}"
+                        ng-change="handleShowAllOnTopic(subTopic)">
+                    </div>
+                    <div>
+                      <i class="glyphicon glyphicon-custom" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[georesourceTopicFavSelected(subTopic.topicId)]" ng-click="onGeoresourceTopicFavClick(subTopic.topicId)"></i>
+                    </div>
 									</div>
 
 									<div class="list-group collapse"
 									uib-collapse="isCollapsed_subTopic">
 									<div ng-repeat="subsubTopic in ::subTopic.subTopics" ng-if="::subsubTopic.totalCount">
 
-										<div class="list-group-item list-group-item-default"
+										<div class="list-group-item list-group-item-default list-group-item-grid-layout"
 											style="background: #bdd7e7; color: white;">
-											<a id="{{::subsubTopic.topicId}}" class="collapseTrigger"
-												style="color: black;" ng-attr-title="{{::subsubTopic.topicDescription}}"
-												href="" ng-click="isCollapsed_subsubTopic = !isCollapsed_subsubTopic"
-												ng-init="isCollapsed_subsubTopic=true"><i
-													class="glyphicon glyphicon-chevron-right"></i>{{::subsubTopic.topicName}}
-												({{subsubTopic.totalCount}})</a>
-											&nbsp;&nbsp; <input type="checkbox" ng-model="subsubTopic.isSelected"
-												value="subsubTopic.isSelected"
-												id="showAllForTopic_{{::subsubTopic.topicId}}"
-												ng-change="handleShowAllOnTopic(subsubTopic)">
+                      <div>
+                        <a id="{{::subsubTopic.topicId}}" class="collapseTrigger"
+                          style="color: black;" ng-attr-title="{{::subsubTopic.topicDescription}}"
+                          href="" ng-click="isCollapsed_subsubTopic = !isCollapsed_subsubTopic"
+                          ng-init="isCollapsed_subsubTopic=true"><i
+                            class="glyphicon glyphicon-chevron-right"></i>{{::subsubTopic.topicName}}
+                          ({{subsubTopic.totalCount}})</a>
+                        &nbsp;&nbsp; <input type="checkbox" ng-model="subsubTopic.isSelected"
+                          value="subsubTopic.isSelected"
+                          id="showAllForTopic_{{::subsubTopic.topicId}}"
+                          ng-change="handleShowAllOnTopic(subsubTopic)">
+                      </div>
+                      <div>
+                        <i class="glyphicon glyphicon-custom" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[georesourceTopicFavSelected(subsubTopic.topicId)]" ng-click="onGeoresourceTopicFavClick(subsubTopic.topicId)" style="color: black;"></i>
+                      </div>
 										</div>
 
 										<div class="list-group collapse" uib-collapse="isCollapsed_subsubTopic">
 											<div ng-repeat="subsubsubTopic in ::subsubTopic.subTopics" ng-if="::subsubsubTopic.totalCount">
 
-											<div class="list-group-item list-group-item-default"
+											<div class="list-group-item list-group-item-default list-group-item-grid-layout"
 												style="background: #eff3ff; color: white;">
-												<a id="{{::subsubsubTopic.topicId}}" class="collapseTrigger"
-													style="color: black;"
-													ng-attr-title="{{::subsubsubTopic.topicDescription}}"
-													ng-click="isCollapsed_subsubsubTopic = !isCollapsed_subsubsubTopic"
-													ng-init="isCollapsed_subsubsubTopic=true"><i
-													class="glyphicon glyphicon-chevron-right"></i>{{::subsubsubTopic.topicName}}
-													({{subsubsubTopic.totalCount}})</a>
-												&nbsp;&nbsp; <input type="checkbox" ng-model="subsubsubTopic.isSelected"
-													value="subsubsubTopic.isSelected"
-													id="showAllForTopic_{{::subsubsubTopic.topicId}}"
-													ng-change="handleShowAllOnTopic(subsubsubTopic)">
+												<div>
+                          <a id="{{::subsubsubTopic.topicId}}" class="collapseTrigger"
+                            style="color: black;"
+                            ng-attr-title="{{::subsubsubTopic.topicDescription}}"
+                            ng-click="isCollapsed_subsubsubTopic = !isCollapsed_subsubsubTopic"
+                            ng-init="isCollapsed_subsubsubTopic=true"><i
+                            class="glyphicon glyphicon-chevron-right"></i>{{::subsubsubTopic.topicName}}
+                            ({{subsubsubTopic.totalCount}})</a>
+                          &nbsp;&nbsp; <input type="checkbox" ng-model="subsubsubTopic.isSelected"
+                            value="subsubsubTopic.isSelected"
+                            id="showAllForTopic_{{::subsubsubTopic.topicId}}"
+                            ng-change="handleShowAllOnTopic(subsubsubTopic)">
+                        </div>
+                        <div>
+                          <i class="glyphicon glyphicon-custom" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[georesourceTopicFavSelected(subsubsubTopic.topicId)]" ng-click="onGeoresourceTopicFavClick(subsubsubTopic.topicId)" style="color: black;"></i>
+                        </div>
 											</div>
 
 											<div class="list-group collapse" uib-collapse="isCollapsed_subsubsubTopic">
@@ -235,6 +255,7 @@
 																	ng-if="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
 																	Lebenszeit-Beginn</th>
 																<th ng-if="$ctrl.kommonitorDataExchangeServiceInstance.showGeoresourceExportButtons">Export</th>
+                                <th></th>
 															</tr>
 														</thead>
 
@@ -295,6 +316,9 @@
 																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
 																	<!-- <a ng-href="getExportLinkForPoi(poi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 																</td>
+                                <td>
+                                  <i class="glyphicon glyphicon-custom" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[poiFavSelected(poi.georesourceId)]" ng-click="onPoiFavClick(poi.georesourceId)" style="color: black;"></i>
+                                </td>
 															</tr>
 
 															<!-- LOIs -->
@@ -343,6 +367,9 @@
 																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
 																	<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 																</td>
+                                <td>
+                                  <i class="glyphicon glyphicon-custom" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[loiFavSelected(loi.georesourceId)]" ng-click="onLoiFavClick(loi.georesourceId)" style="color: black;"></i>
+                                </td>
 															</tr>
 
 															<!-- AOIs -->
@@ -390,6 +417,9 @@
 																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
 																	<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 																</td>
+                                <td>
+                                  <i class="glyphicon glyphicon-custom" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[aoiFavSelected(aoi.georesourceId)]" ng-click="onAoiFavClick(aoi.georesourceId)" style="color: black;"></i>
+                                </td>
 															</tr>
 
 															<!-- WMS -->
@@ -536,6 +566,7 @@
 																ng-if="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
 																Lebenszeit-Beginn</th>
 															<th ng-if="$ctrl.kommonitorDataExchangeServiceInstance.showGeoresourceExportButtons">Export</th>
+                              <th></th>
 														</tr>
 													</thead>
 
@@ -596,6 +627,9 @@
 																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
 																<!-- <a ng-href="getExportLinkForPoi(poi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 															</td>
+                              <td>
+                                <i class="glyphicon glyphicon-custom" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[poiFavSelected(poi.georesourceId)]" ng-click="onPoiFavClick(poi.georesourceId)" style="color: black;"></i>
+                              </td>
 														</tr>
 
 														<!-- LOIs -->
@@ -644,6 +678,9 @@
 																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
 																<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 															</td>
+                              <td>
+                                <i class="glyphicon glyphicon-custom" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[loiFavSelected(loi.georesourceId)]" ng-click="onLoiFavClick(loi.georesourceId)" style="color: black;"></i>
+                              </td>
 														</tr>
 
 														<!-- AOIs -->
@@ -691,6 +728,9 @@
 																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
 																<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 															</td>
+                              <td>
+                                <i class="glyphicon glyphicon-custom" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[aoiFavSelected(aoi.georesourceId)]" ng-click="onAoiFavClick(aoi.georesourceId)" style="color: black;"></i>
+                              </td>
 														</tr>
 
 														<!-- WMS -->
@@ -837,6 +877,7 @@
 															ng-if="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
 															Lebenszeit-Beginn</th>
 														<th ng-if="$ctrl.kommonitorDataExchangeServiceInstance.showGeoresourceExportButtons">Export</th>
+                            <th></th>
 													</tr>
 												</thead>
 
@@ -895,6 +936,9 @@
 																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
 															<!-- <a ng-href="getExportLinkForPoi(poi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 														</td>
+                            <td>
+                              <i class="glyphicon glyphicon-custom" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[poiFavSelected(poi.georesourceId)]" ng-click="onPoiFavClick(poi.georesourceId)" style="color: black;"></i>
+                            </td>
 													</tr>
 
 													<!-- LOIs -->
@@ -940,6 +984,9 @@
 																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
 															<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 														</td>
+                            <td>
+                              <i class="glyphicon glyphicon-custom" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[loiFavSelected(loi.georesourceId)]" ng-click="onLoiFavClick(loi.georesourceId)" style="color: black;"></i>
+                            </td>
 													</tr>
 
 													<!-- AOIs -->
@@ -984,6 +1031,9 @@
 																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
 															<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 														</td>
+                            <td>
+                              <i class="glyphicon glyphicon-custom" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[aoiFavSelected(aoi.georesourceId)]" ng-click="onAoiFavClick(aoi.georesourceId)" style="color: black;"></i>
+                            </td>
 													</tr>
 
 													<!-- WMS -->
@@ -1131,6 +1181,7 @@
 														ng-if="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
 														Lebenszeit-Beginn</th>
 													<th ng-if="$ctrl.kommonitorDataExchangeServiceInstance.showGeoresourceExportButtons">Export</th>
+                          <th></th>
 												</tr>
 											</thead>
 
@@ -1189,6 +1240,9 @@
 																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
 														<!-- <a ng-href="getExportLinkForPoi(poi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 													</td>
+                          <td>
+                            <i class="glyphicon glyphicon-custom" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[poiFavSelected(poi.georesourceId)]" ng-click="onPoiFavClick(poi.georesourceId)" style="color: black;"></i>
+                          </td>
 												</tr>
 
 												<!-- LOIs -->
@@ -1234,6 +1288,9 @@
 																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
 														<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 													</td>
+                          <td>
+                            <i class="glyphicon glyphicon-custom" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[loiFavSelected(loi.georesourceId)]" ng-click="onLoiFavClick(loi.georesourceId)" style="color: black;"></i>
+                          </td>
 												</tr>
 
 												<!-- AOIs -->
@@ -1279,6 +1336,9 @@
 																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
 														<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 													</td>
+                          <td>
+                            <i class="glyphicon glyphicon-custom" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[aoiFavSelected(aoi.georesourceId)]" ng-click="onAoiFavClick(aoi.georesourceId)" style="color: black;"></i>
+                          </td>
 												</tr>
 
 												<!-- WMS -->
@@ -1439,6 +1499,7 @@
 													ng-if="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
 													Lebenszeit-Beginn</th>
 												<th ng-if="$ctrl.kommonitorDataExchangeServiceInstance.showGeoresourceExportButtons">Export</th>
+                        <th></th>
 											</tr>
 										</thead>
 
@@ -1498,6 +1559,9 @@
 																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
 													<!-- <a ng-href="getExportLinkForPoi(poi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 												</td>
+                        <td>
+                          <i class="glyphicon glyphicon-custom" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[poiFavSelected(poi.georesourceId)]" ng-click="onPoiFavClick(poi.georesourceId)" style="color: black;"></i>
+                        </td>
 											</tr>
 
 											<!-- LOIs -->
@@ -1544,6 +1608,9 @@
 																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
 													<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 												</td>
+                        <td>
+                          <i class="glyphicon glyphicon-custom" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[loiFavSelected(loi.georesourceId)]" ng-click="onLoiFavClick(loi.georesourceId)" style="color: black;"></i>
+                        </td>
 											</tr>
 
 											<!-- AOIs -->
@@ -1590,6 +1657,9 @@
 																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
 													<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 												</td>
+                        <td>
+                          <i class="glyphicon glyphicon-custom" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[aoiFavSelected(aoi.georesourceId)]" ng-click="onAoiFavClick(aoi.georesourceId)" style="color: black;"></i>
+                        </td>
 											</tr>
 
 											<!-- WMS -->
@@ -1853,6 +1923,7 @@
 														ng-if="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
 														Lebenszeit-Beginn</th>
 													<th ng-if="$ctrl.kommonitorDataExchangeServiceInstance.showGeoresourceExportButtons">Export</th>
+                          <th></th>
 												</tr>
 											</thead>
 
@@ -1938,6 +2009,7 @@
 														ng-if="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
 														Lebenszeit-Beginn</th>
 													<th ng-if="$ctrl.kommonitorDataExchangeServiceInstance.showGeoresourceExportButtons">Export</th>
+                          <th></th>
 												</tr>
 											</thead>
 

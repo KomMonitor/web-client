@@ -813,9 +813,10 @@ angular
             
                 function checkIndicatorTopicFavItemsRecursive(tree, selected) {
                   tree.forEach(entry => {
-                    if(selected===true)
-                      $scope.indicatorTopicFavItems.push(entry.topicId);
-                    else
+                    if(selected===true) {
+                      if(!$scope.indicatorTopicFavItems.includes(entry.topicId))
+                        $scope.indicatorTopicFavItems.push(entry.topicId);
+                    } else
                       $scope.indicatorTopicFavItems = $scope.indicatorTopicFavItems.filter(e => e!=entry.topicId);
               
                     if(entry.subTopics.length>0)
@@ -829,7 +830,8 @@ angular
                 function checkIndicatorMetadataFavItems(tree, selected) {
                   tree.forEach(entry => {
                     if(selected===true) {
-                      $scope.indicatorFavItems.push(entry.indicatorId);
+                      if(!$scope.indicatorFavItems.includes(entry.indicatorId))
+                        $scope.indicatorFavItems.push(entry.indicatorId);
                     } else {
                       $scope.indicatorFavItems = $scope.indicatorFavItems.filter(e => e!=entry.indicatorId);
                     }
@@ -842,7 +844,8 @@ angular
 
                       entry.baseIndicators.forEach(base => {
                         if(selected===true) {
-                          $scope.baseIndicatorFavItems.push(base.indicatorId);
+                          if(!$scope.baseIndicatorFavItems.includes(entry.indicatorId))
+                            $scope.baseIndicatorFavItems.push(base.indicatorId);
                         } else {
                           $scope.baseIndicatorFavItems = $scope.baseIndicatorFavItems.filter(e => e!=base.indicatorId);
                         }
@@ -859,8 +862,6 @@ angular
                 }
 
                 $scope.onIndicatorFavClick = function(id) {
-
-                  console.log(kommonitorDataExchangeService.headlineIndicatorHierarchy);
                   if(!$scope.indicatorFavItems.includes(id))
                     $scope.indicatorFavItems.push(id);
                   else
