@@ -1,9 +1,9 @@
 angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 	templateUrl : "components/kommonitorUserInterface/kommonitor-user-interface.template.html",
 	controller : ['kommonitorDataExchangeService', 'kommonitorKeycloakHelperService', 'kommonitorElementVisibilityHelperService', '$scope', 
-	'$rootScope', '$location', 'Auth', 'ControlsConfigService', '$compile', 'kommonitorShareHelperService', 'kommonitorGlobalFilterHelperService', '__env',
+	'$rootScope', '$location', 'Auth', 'ControlsConfigService', '$compile', 'kommonitorShareHelperService', 'kommonitorGlobalFilterHelperService', 'kommonitorFavService', '__env',
 	function UserInterfaceController(kommonitorDataExchangeService, kommonitorKeycloakHelperService, kommonitorElementVisibilityHelperService, 
-		$scope, $rootScope, $location, Auth, ControlsConfigService, $compile, kommonitorShareHelperService, kommonitorGlobalFilterHelperService, __env) {
+		$scope, $rootScope, $location, Auth, ControlsConfigService, $compile, kommonitorShareHelperService, kommonitorGlobalFilterHelperService, kommonitorFavService, __env) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 		this.kommonitorKeycloakHelperServiceInstance = kommonitorKeycloakHelperService;
@@ -27,6 +27,8 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 
 			kommonitorShareHelperService.init();
 			kommonitorGlobalFilterHelperService.init();
+      kommonitorFavService.init();
+      
 			if(kommonitorGlobalFilterHelperService.applicationFilter) {
 				kommonitorDataExchangeService.fetchAllMetadata(kommonitorGlobalFilterHelperService.applicationFilter);
 			} else {

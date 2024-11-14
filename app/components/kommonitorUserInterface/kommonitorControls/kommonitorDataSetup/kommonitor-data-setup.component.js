@@ -10,10 +10,10 @@ angular
 					 */
 					controller : [
 							'kommonitorDataExchangeService', '$scope', 'kommonitorMapService', '$http', '$rootScope', '__env', 
-							'$timeout', 'kommonitorElementVisibilityHelperService',
+							'$timeout', 'kommonitorElementVisibilityHelperService', 'kommonitorFavService',
 							function kommonitorDataSetupController(kommonitorDataExchangeService, $scope, 
 								kommonitorMapService, $http, $rootScope, __env, 
-								$timeout, kommonitorElementVisibilityHelperService) {
+								$timeout, kommonitorElementVisibilityHelperService, kommonitorFavService) {
 
 								const INDICATOR_DATE_PREFIX = __env.indicatorDatePrefix;
 
@@ -859,6 +859,13 @@ angular
                     searchIndicatorTopicFavItemsRecursive(kommonitorDataExchangeService.topicIndicatorHierarchy, topicId, true);
                   else
                     searchIndicatorTopicFavItemsRecursive(kommonitorDataExchangeService.topicIndicatorHierarchy, topicId, false);
+
+                  setTimeout(function() {
+                    kommonitorFavService.handleFavSelection({
+                      indocatorTopics: $scope.indicatorTopicFavItems,
+                      indicators: $scope.indicatorFavItems
+                    });
+                  },200);
                 }
 
                 $scope.onIndicatorFavClick = function(id) {
