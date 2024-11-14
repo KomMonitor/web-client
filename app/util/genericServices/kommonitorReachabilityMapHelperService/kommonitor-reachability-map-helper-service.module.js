@@ -1049,6 +1049,12 @@ angular
 
       this.attachIndividualIsochronePruneResultsToPOIs = function (poiMap, isochronePruneResults) {
 
+        // instantiate empty pruneResults array
+        for (let [key, value] of poiMap) {
+          value.properties.individualIsochronePruneResults = [];
+          poiMap.set(key, value);
+      }
+
         // isochronePruneResults.result is per indicator --> but we only allow one indicator at the same time currently
         // hence we can directly go to first entry and ask its poiCoverage for each range
         for (const poiCoverage_foreach_range of isochronePruneResults.poiCoverage) {

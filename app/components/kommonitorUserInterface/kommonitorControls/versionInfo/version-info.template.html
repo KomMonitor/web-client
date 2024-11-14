@@ -3,6 +3,84 @@
 	<!-- version info  -->
 	<div id="" class="box box-primary collapsed-box">
 		<div class="box-header with-border">
+			<h3 class="box-title">Neuerungen in KomMonitor V3.1.6</h3>
+			<div class="box-tools pull-right">
+				<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+				</button>
+			</div>
+		</div>
+		<div class="box-body">
+
+			<ul>
+				<li>
+					Anpassungen in der <b>Admin-Ansicht</b>
+					<ul>
+						<li>
+							<b>neuer Parameter zur Konfiguration der manuellen Klassifikation</b>
+							In den <i>Allgemeinen Einstellungen</i> dient der neue Parameter <code>window.__env.disableManualClassification = false;</code>
+							dazu, die Nutzbarkeit der manuellen Klassifkation zu kontrollieren. Die EInstellung <code>window.__env.disableManualClassification = true;</code>
+							bewirkt, dass in der Kartenanwendung in der Indikatoren-Legende am rechten Bildschirmrand bei der Konfiguration der Klassifikation eine 
+							manuelle Klasseneinteilung nicht mehr m&ouml;glich ist.
+							
+						</li>
+					</ul>
+				</li>
+				<li>
+					Anpassungen in der <b>Kartenapp</b>
+					<ul>
+						<li>
+							<b>Bugfixes</b>
+							Fehlerbehebung in Reporting und Erreichbarkeitsanalysen
+						</li>
+					</ul>
+				</li>
+			</ul>
+
+		</div>
+	</div>
+
+	<!-- version info  -->
+	<div id="" class="box box-primary collapsed-box">
+		<div class="box-header with-border">
+			<h3 class="box-title">Neuerungen in KomMonitor V3.1.5</h3>
+			<div class="box-tools pull-right">
+				<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+				</button>
+			</div>
+		</div>
+		<div class="box-body">
+
+			<ul>
+				<li>
+					Anpassungen in der <b>Admin-Ansicht</b>
+					<ul>
+						<li>
+							<b>Leerwerte-Handling in Skriptbasierten Indikatorenberechnungen angepasst</b>
+							Wenn bei der Indikatorenberechnung Eingangsdaten Leerwerte enthalten, so setzt KomMonitor als Ergebniswert nun ebenfalls den Leerwert.
+							<i>Betroffene Skripte müssen manuell von Ihnen neu konfiguriert werden (löschen und neu anlegen), sofern Ihre Daten Leerwerte enthalten.</i>
+							Betroffene Skripte/Berechnungen: Anteil, proz. Anteil, Promille, Summe, Subtraktion  
+
+						</li>
+					</ul>
+				</li>
+				<li>
+					Anpassungen in der <b>Kartenapp</b>
+					<ul>
+						<li>
+							<b>Verbessertes Handling von "0"-Werten bei Indikatoren</b>
+							In der Regionalen Standard-Klassifizierung kann jetzt die Zahl "0" als Klassengrenze hinterlegt werden, um sie im Farbschema mit aufzunehmen. 
+							Bei den Klassifikationsmethoden Jenks, Quantile und Gleiche Intervalle ist es weiterhin m&ouml;glich, Raumeinheiten mit dem Indikatorenwert "0" als separate Klasse darzustellen.  
+						</li>
+					</ul>
+				</li>
+			</ul>
+
+		</div>
+	</div>
+
+	<!-- version info  -->
+	<div id="" class="box box-primary collapsed-box">
+		<div class="box-header with-border">
 			<h3 class="box-title">Neuerungen in KomMonitor V3.1.4</h3>
 			<div class="box-tools pull-right">
 				<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
@@ -217,11 +295,11 @@ window.__env.configMeanDataDisplay = 'preferRegionalMeanIfAvailable';
 								</code>
 							</pre>
 
-							Diese erm&ouml;glichen eine gezieltere Darstellung von regionalen Vergleichsmittelwerten und arithemtischem Mittel in Legende, Indikatoren-Statistiken und Zeitreihen- sowie Balkendiagrammen. 
+							Diese erm&ouml;glichen eine gezieltere Darstellung von regionalen Vergleichsmittelwerten und arithmetischem Mittel in Legende, Indikatoren-Statistiken und Zeitreihen- sowie Balkendiagrammen. 
 							In der Standardeinstellung wird in der Legende nun keine Information angezeigt. Mit <code>window.__env.enableMeanDataDisplayInLegend = true;</code> hingegen wird in der Legende eine Extra Zeile für den Vergleichswert eingeblendet.
 							<br>
 							Mittels <code>window.__env.configMeanDataDisplay = 'preferRegionalMeanIfAvailable';</code> wird bei Indikatoren, f&uuml;r die bereits regionale Vergleichswerte eingetragen wurden, immer nur bevorzugt der regionale Vergleichswert dargestellt, nicht das arithmetische Mittel (diese wird dann verwendet, falls kein regionaler Vergleichswert eingetragen wird - quasi als Backup).
-							Ist stattdessen <code>window.__env.configMeanDataDisplay = 'both';</code> eingestellt, so werden in Legende, Zeitreihendiagramm und Indikatorenstatistik immer sowohl das arithemtische Mittel als auch ein optional eingetragener regionaler Vergleichswert angezeigt.
+							Ist stattdessen <code>window.__env.configMeanDataDisplay = 'both';</code> eingestellt, so werden in Legende, Zeitreihendiagramm und Indikatorenstatistik immer sowohl das arithmetische Mittel als auch ein optional eingetragener regionaler Vergleichswert angezeigt.
 							Durch <code>window.__env.configMeanDataDisplay = 'regionalMeanOrNone';</code> wird das arithmetische Mittel vollst&auml;ndig entfernt, sodass nur optional eingetragene regionale Vergleichswerte verwendet werden.
 						</li>	
 						<li>
@@ -1259,7 +1337,7 @@ window.__env.configMeanDataDisplay = 'preferRegionalMeanIfAvailable';
 					Anpassungen in der <b>Kartenapp</b>
 					<ul>
 						<li>
-							<b>Fehlerbehbung im Regressionsdiagramm</b>
+							<b>Fehlerbehebung im Regressionsdiagramm</b>
 							<br>
 							Haben Indikatoren auf der X- und Y-Achse des Regressionsdiagramms eine unterschiedliche
 							Anzahl darstellbarer Raumobjekte,
@@ -1291,7 +1369,7 @@ window.__env.configMeanDataDisplay = 'preferRegionalMeanIfAvailable';
 					Anpassungen in der <b>Admin-Ansicht</b>
 					<ul>
 						<li>
-							<b>Fehlerbehbung im Batch Update von Indikatoren und Georessourcen</b>
+							<b>Fehlerbehebung im Batch Update von Indikatoren und Georessourcen</b>
 							<br>
 							Datens&auml;tze via HTTP URL oder als INLINE PAYLOAD werden nun korrekt verarbeitet und
 							exportiert.
@@ -1316,7 +1394,7 @@ window.__env.configMeanDataDisplay = 'preferRegionalMeanIfAvailable';
 							verf&uuml;gbar sind)
 						</li>
 						<li>
-							<b>Fehlerbehbung bei Datenexporten, wenn die KomMonitor-URL einen Kontextpfad
+							<b>Fehlerbehebung bei Datenexporten, wenn die KomMonitor-URL einen Kontextpfad
 								enth&auml;lt</b>
 						</li>
 					</ul>
