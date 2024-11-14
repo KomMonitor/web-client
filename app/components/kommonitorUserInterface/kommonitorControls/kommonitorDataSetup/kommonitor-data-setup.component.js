@@ -39,12 +39,25 @@ angular
 												// 	$scope.unCollapsedTopicIds.push(clickedTopicId);
 												// }
 									  });
+                    
+                    $('.list-group-item > .indicatorFavCollapseTrigger').on('click', function() {
+									    $('.glyphicon', this)
+									      .toggleClass('glyphicon-chevron-right')
+									      .toggleClass('glyphicon-chevron-down');
+
+                      // manage entries
+                      var clickedTopicId = $(this).attr('id');
+                      if(document.getElementById('indicatorFavSubTopic-'+clickedTopicId).style.display=='none')
+                        document.getElementById('indicatorFavSubTopic-'+clickedTopicId).style.display = 'block';
+                      else
+                        document.getElementById('indicatorFavSubTopic-'+clickedTopicId).style.display = 'none';
+									  });
 									}, 500);
 								};
 
 								$(document).ready(function() {
-
-									addClickListenerToEachCollapseTrigger();
+/* 
+									addClickListenerToEachCollapseTrigger(); */
 								});
 
 								// var rangeslide = require("rangeslide");
@@ -63,6 +76,8 @@ angular
 								$scope.datesAsMs;
 
 								$scope.selectedDate;			
+
+                $scope.indicatorFavTopicsTree = [];
 
                 $scope.indicatorTopicFavItems = []; 
                 $scope.indicatorFavItems = [];
@@ -86,6 +101,28 @@ angular
 								//     kommonitorDataExchangeService.selectedSpatialUnit = $scope.filteredSpatialUnits[0];
 								//   }
 								// }, true);
+
+                // make sure that initial fetching of availableRoles has happened
+                $scope.$on("initialMetadataLoadingCompleted", function (event) {
+
+                  $scope.indicatorFavTopicsTree = prepTopicsTree(kommonitorDataExchangeService.topicIndicatorHierarchy,0);
+                  console.log($scope.indicatorFavTopicsTree)
+									addClickListenerToEachCollapseTrigger();
+                }); 
+
+                function prepTopicsTree(tree, level) {
+                  tree.forEach(entry => {
+                    entry.level = level;
+                    entry.selected = false;
+            
+                    if(entry.subTopics.length>0) {
+                      let newLevel = level+1;
+                      entry.subTopics = prepTopicsTree(entry.subTopics, newLevel);
+                    }
+                  });
+            
+                  return tree;
+                }
 
 								this.onClickTheme = function(topicName){
 

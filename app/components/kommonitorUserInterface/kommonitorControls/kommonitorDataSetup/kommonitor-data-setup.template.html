@@ -41,7 +41,7 @@
 
 										<label>Datenkataloge:</label>
 
-										 <uib-tabset active="0">
+										 <uib-tabset active="3">
 									    <uib-tab index="0" heading="Themenhierarchie">
 
 												<div class="just-padding">
@@ -280,7 +280,35 @@
 													</select>
 												</div>
 											</uib-tab>
-											<!-- <uib-tab index="3" heading="Berechnungshierarchie">
+											<uib-tab index="3" heading="Favoriten">
+												<div class="just-padding">
+													<div class="list-group list-group-root well" style="text-align: left">
+                
+                            <script type="text/ng-template" id="topicTree">
+                              <div class="list-group-item list-group-item-default list-group-item-grid-centered list-group-item-level-{{topic.level}}">
+                                <a ng-if="topic.subTopics.length>0 || topic.indicatorData.length>0" id="{{topic.topicId}}" href="" ng-attr-title="{{topic.topicDescription}}"
+                                  class="indicatorFavCollapseTrigger" style="color: white;">
+                                  <i class="glyphicon glyphicon-chevron-right"></i>{{topic.topicName}}</a>
+                                <p ng-if="topic.subTopics.length==0 && topic.indicatorData.length==0">{{topic.topicName}}</p>
+                                <i class="glyphicon glyphicon-custom glyphicon-star"></i>
+                              
+                                <div style="display: none" id="indicatorFavSubTopic-{{topic.topicId}}" class="subTopic-block">
+                                  <div ng-if="topic.subTopics" ng-repeat="topic in topic.subTopics" ng-include="'topicTree'"></div>
+                                  <div ng-if="topic.indicatorData" ng-repeat="data in topic.indicatorData" class="indicator-element list-group-item-grid-layout">
+                                    <div>
+                                      <i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>{{data.indicatorName}}</b> [{{data.unit}}]
+                                    </div>
+                                    <i class="glyphicon glyphicon-custom glyphicon-star"></i>
+                                  </div>
+                                </div>
+                              </div>
+                            </script>
+        
+                            <div ng-repeat="topic in indicatorFavTopicsTree | filter:{topicType:'main'} | orderBy: 'topicName'" ng-include="'topicTree'" ng-if="::topic.indicatorCount"></div>
+                          </div>
+												</div>
+											</uib-tab>
+											<!-- <uib-tab index="4" heading="Berechnungshierarchie">
 												<div class="just-padding">
 
 													<div id="computationIndicatorHierarchySelection" class="list-group list-group-root well">
