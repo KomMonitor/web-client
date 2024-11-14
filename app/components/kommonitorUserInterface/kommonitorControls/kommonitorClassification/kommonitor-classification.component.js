@@ -26,7 +26,7 @@ angular
 
 						$scope.hiddenMethodIds = [];
 
-						if(__env.hideManualClassification) {
+						if(__env.disableManualClassification) {
 							$scope.hideManualClassification();
 						}
 
