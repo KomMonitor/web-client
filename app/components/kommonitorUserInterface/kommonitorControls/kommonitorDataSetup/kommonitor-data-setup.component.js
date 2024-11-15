@@ -106,7 +106,6 @@ angular
                 $scope.$on("initialMetadataLoadingCompleted", function (event) {
 
                   $scope.indicatorFavTopicsTree = prepTopicsTree(kommonitorDataExchangeService.topicIndicatorHierarchy,0);
-                  console.log($scope.indicatorFavTopicsTree)
 									addClickListenerToEachCollapseTrigger();
                 }); 
 
@@ -803,12 +802,34 @@ angular
 									$rootScope.$broadcast("selectedIndicatorDateHasChanged");
 								}
 
+                $scope.favTabShowTopic = function(topic) {
+                  return topicOrIndicatorInFavRecursive([topic]);
+                }
+
+                function topicOrIndicatorInFavRecursive(tree) {
+
+                  let ret = false;
+                  tree.forEach(elem => {
+
+                    if($scope.indicatorTopicFavItems.includes(elem.topicId) || $scope.indicatorFavItems.includes(elem.indicatorId))
+                      ret = true;
+
+                    if(elem.subTopics && elem.subTopics.length>0 && ret===false)
+                      ret = topicOrIndicatorInFavRecursive(elem.subTopics);
+
+                    if(elem.indicatorData && elem.indicatorData.length>0 && ret===false)
+                      ret = topicOrIndicatorInFavRecursive(elem.indicatorData);
+                  });
+
+                  return ret;
+                }
+
                 $scope.indicatorTopicFavSelected = function(topicId) {
-                    return $scope.indicatorTopicFavItems.includes(topicId);
+                  return $scope.indicatorTopicFavItems.includes(topicId);
                 }
 
                 $scope.indicatorFavSelected = function(topicId) {
-                    return $scope.indicatorFavItems.includes(topicId);
+                  return $scope.indicatorFavItems.includes(topicId);
                 }
 
                 $scope.headlineIndicatorFavSelected = function(topicId) {

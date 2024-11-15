@@ -463,18 +463,20 @@ pre.CodeMirror-line {
 .list-group.list-group-root .list-group-item.list-group-item-level-0 {
     background: #2171b5; 
     color: white;
-  
+    padding-right: 3px;
 }
 
 .list-group.list-group-root .list-group-item.list-group-item-level-1 {
     background: #6baed6; 
     color: white;
+    padding-right: 3px;
 }
 
 .list-group.list-group-root .list-group-item.list-group-item-level-2 {
     background: #bdd7e7; 
     color: white;
     margin-left: 0px;
+    padding-right: 3px;
 }
 
 .list-group.list-group-root .list-group-item.list-group-item-level-2 a,
@@ -486,6 +488,7 @@ pre.CodeMirror-line {
     background: #eff3ff; 
     color: white;
     margin-left: 0px;
+    padding-right: 3px;
 }
 
 .list-group.list-group-root .list-group-item.list-group-item-level-3 a,
