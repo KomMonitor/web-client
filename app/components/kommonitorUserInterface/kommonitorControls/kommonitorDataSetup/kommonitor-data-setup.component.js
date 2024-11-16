@@ -112,7 +112,6 @@ angular
                 function prepTopicsTree(tree, level) {
                   tree.forEach(entry => {
                     entry.level = level;
-                    entry.selected = false;
             
                     if(entry.subTopics.length>0) {
                       let newLevel = level+1;

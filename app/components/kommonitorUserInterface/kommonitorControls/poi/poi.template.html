@@ -2269,6 +2269,48 @@
 
 					</div>
 				</uib-tab>
+        <uib-tab index="2" heading="Favoriten">
+					<div class="just-padding">
+            
+            <div class="list-group list-group-root well" style="text-align: left">
+  
+              <script type="text/ng-template" id="georesourceTopicTree">
+                <div class="list-group-item list-group-item-default list-group-item-grid-centered list-group-item-level-{{topic.level}}" ng-if="favTabShowTopic(topic) && topic.totalCount>0">
+                  <a ng-if="topic.subTopics.length>0 || topic.poiData.length>0 || topic.aoiData.length>0 || topic.loiData.length>0" id="{{topic.topicId}}" href="" ng-attr-title="{{topic.topicDescription}}"
+                    class="indicatorFavCollapseTrigger" style="color: white;">
+                    <i class="glyphicon glyphicon-chevron-down"></i>{{topic.topicName}}</a>
+                  <p ng-if="topic.subTopics.length==0 && topic.poiData.length==0 && topic.aoiData.length==0 && topic.loiData.length==0">{{topic.topicName}}</p>
+                  <i class="glyphicon glyphicon-custom" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[georesourceTopicFavSelected(topic.topicId)]" ng-click="onGeoresourceTopicFavClick(topic.topicId)"></i>
+                  
+                  <div id="indicatorFavSubTopic-{{topic.topicId}}" class="subTopic-block">
+                    <div ng-if="topic.subTopics" ng-repeat="topic in topic.subTopics | orderBy: 'topicName'" ng-include="'georesourceTopicTree'"></div>
+                    <div ng-if="topic.poiData && poiFavSelected(poi.georesourceId)" ng-repeat="poi in topic.poiData | orderBy: 'datasetName'" class="indicator-element list-group-item-grid-layout">
+                      <div class="georesource-item-content-grid">
+                        <i class="fas fa-map-marker-alt"></i><b>{{poi.datasetName}}</b><p>{{poi.metadata.description}}</p>
+                      </div>
+                      <i class="glyphicon glyphicon-custom glyphicon-star" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[poiFavSelected(poi.georesourceId)]" ng-click="onPoiFavClick(poi.georesourceId)"></i>
+                    </div>
+                    <div ng-if="topic.aoiData && aoiFavSelected(aoi.georesourceId)" ng-repeat="aoi in topic.aoiData | orderBy: 'datasetName'" class="indicator-element list-group-item-grid-layout">
+                      <div class="georesource-item-content-grid">
+                        <i class="far fa-square"></i><b>{{aoi.datasetName}}</b><p>{{aoi.metadata.description}}</p>
+                      </div>
+                      <i class="glyphicon glyphicon-custom glyphicon-star" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[aoiFavSelected(aoi.georesourceId)]" ng-click="onAoiFavClick(aoi.georesourceId)"></i>
+                    </div>
+                    <div ng-if="topic.loiData && loiFavSelected(loi.georesourceId)" ng-repeat="loi in topic.loiData | orderBy: 'datasetName'" class="indicator-element list-group-item-grid-layout">
+                      <div class="georesource-item-content-grid">
+                        <i class="fas fa-minus"></i><b>{{loi.datasetName}}</b><p>{{loi.metadata.description}}</p>
+                      </div>
+                      <i class="glyphicon glyphicon-custom glyphicon-star" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[loiFavSelected(loi.georesourceId)]" ng-click="onLoiFavClick(loi.georesourceId)"></i>
+                    </div>
+                  </div>
+                </div>
+              </script>
+
+              <div ng-repeat="topic in georesourceFavTopicsTree | orderBy: 'topicName'" ng-include="'georesourceTopicTree'"></div>
+            </div>
+
+					</div>
+				</uib-tab>
 			</uib-tabset>
 
 		</div>

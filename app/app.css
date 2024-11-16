@@ -505,6 +505,11 @@ pre.CodeMirror-line {
   color: #000;
   padding: .6em;
 }
+.list-group .list-group-item .georesource-item-content-grid {
+  display: grid;
+  grid-template-columns: min-content 1fr 1fr min-content;
+  grid-gap: 1em;
+}
 
 .list-group.list-group-root > .list-group-item:first-child {
     border-top-width: 0;
