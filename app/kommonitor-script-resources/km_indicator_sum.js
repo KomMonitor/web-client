@@ -76,6 +76,8 @@ async function computeIndicator(targetDate, targetSpatialUnit_geoJSON, baseIndic
 
       KmHelper.log("Process computation indicator");
 
+      let containsNullValues = false;
+
       /**
       * iterate over each feature of the baseIndicator and use its indicator value to modify map object
       * NOTE use spatialUnitFeatureId as key to be able to identify entries by their unique feature id!
@@ -91,6 +93,7 @@ async function computeIndicator(targetDate, targetSpatialUnit_geoJSON, baseIndic
 				  KmHelper.log("WARNING: the feature with featureID '" + featureId + "' does not contain a time series value for targetDate '" + targetDate + "'");
 				  KmHelper.log("WARNING: the sum over all indicators thus cannot be computed and will be set to 'null'. computation will abort");
 				  partValue = null;
+          containsNullValues = true;
 				  }
 			  // modify map object (i.e. set value initially, or perform calculations and store modified value)
 			  // key should be unique featureId of the spatial unit feature
@@ -98,13 +101,13 @@ async function computeIndicator(targetDate, targetSpatialUnit_geoJSON, baseIndic
 				  var mapObject = {
 					  featureId: featureId,
 					  indicatorValue: undefined,                
-					  intermediateValue: null
+					  intermediateValue: 0
 					  };
 				  map.set(featureId, mapObject);					 
 				}
 				var mapEntry = map.get(featureId);
         // only compute if there are values != null
-        if(mapEntry.intermediateValue || mapEntry.partValue){
+        if(!containsNullValues){
           mapEntry.intermediateValue = mapEntry.intermediateValue + partValue;
 				  map.set(featureId, mapEntry);
         }
@@ -112,7 +115,7 @@ async function computeIndicator(targetDate, targetSpatialUnit_geoJSON, baseIndic
           mapEntry.intermediateValue = null;
           mapEntry.partValue = null;
           mapEntry.indicatorValue = null;
-          map.set(featureId, mapEntry);
+          map.set(featureId, mapEntry);          
         }
 				
 			});		
