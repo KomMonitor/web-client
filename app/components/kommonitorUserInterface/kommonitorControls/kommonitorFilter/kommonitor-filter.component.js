@@ -70,17 +70,16 @@ angular
 							};		
               
               $scope.$on("initialMetadataLoadingCompleted", function (event) {
-                $scope.loadGlobalFilters();
+                
+                if(!$scope.globalFilters)
+                  $scope.loadGlobalFilters();
               }); 
 
               $scope.loadGlobalFilters = async function() {
-
                 $scope.globalFilters = await kommonitorConfigStorageService.getFilterConfig();
               }
 
               $scope.onChangeFilterSelection = function() {
-
-                console.log($scope.globalFilters);
 
                 kommonitorGlobalFilterHelperService.applyFilterSelection($scope.globalFilters.filter(e => e.checked===true));
                 
