@@ -699,11 +699,6 @@ angular
 									$scope.onChangeSelectedIndicator(false);
 								};
 
-                // called by global filter selection in kommonitor-filter
-                $scope.$on("onChangeGlobalFilter", function (event) {
-									$scope.onChangeSelectedIndicator(false);
-                });
-
 								$scope.onChangeSelectedIndicator = async function(recenterMap){
 
 									$rootScope.$broadcast("onChangeSelectedIndicator");

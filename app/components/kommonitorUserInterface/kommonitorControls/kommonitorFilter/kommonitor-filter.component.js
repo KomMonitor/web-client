@@ -88,8 +88,8 @@ angular
                   kommonitorDataExchangeService.fetchAllMetadata(kommonitorGlobalFilterHelperService.applicationFilter);
                 else
                   kommonitorDataExchangeService.fetchAllMetadata();
-                
-                $rootScope.$broadcast("onChangeGlobalFilter");
+
+                $rootScope.$broadcast("onGlobalFilterChange");
               }
 
 							$scope.isFilterModeActive = function(id) {
