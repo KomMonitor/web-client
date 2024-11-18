@@ -9,11 +9,11 @@ angular
 					 * enabled tabs
 					 */
 					controller : [
-							'kommonitorDataExchangeService', 'kommonitorConfigStorageService', '$scope', 'kommonitorMapService', '$http', '$rootScope', '__env', 
-							'$timeout', 'kommonitorElementVisibilityHelperService', 'kommonitorGlobalFilterHelperService',
-							function kommonitorDataSetupController(kommonitorDataExchangeService, kommonitorConfigStorageService, $scope, 
+							'kommonitorDataExchangeService', '$scope', 'kommonitorMapService', '$http', '$rootScope', '__env', 
+							'$timeout', 'kommonitorElementVisibilityHelperService',
+							function kommonitorDataSetupController(kommonitorDataExchangeService, $scope, 
 								kommonitorMapService, $http, $rootScope, __env, 
-								$timeout, kommonitorElementVisibilityHelperService, kommonitorGlobalFilterHelperService) {
+								$timeout, kommonitorElementVisibilityHelperService) {
 
 								const INDICATOR_DATE_PREFIX = __env.indicatorDatePrefix;
 
@@ -45,7 +45,6 @@ angular
 								$(document).ready(function() {
 
 									addClickListenerToEachCollapseTrigger();
-                  $scope.loadGlobalFilters();
 								});
 
 								// var rangeslide = require("rangeslide");
@@ -55,7 +54,6 @@ angular
 								this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 								this.kommonitorDataExchangeServiceInstance.selectedServiceUrl = '';
 								this.kommonitorMapServiceInstance = kommonitorMapService;
-                this.kommonitorConfigStorageServiceInstance = kommonitorConfigStorageService;		
 
 								$scope.loadingData = true;
 								$scope.changeIndicatorWasClicked = false;
@@ -65,8 +63,6 @@ angular
 								$scope.datesAsMs;
 
 								$scope.selectedDate;					
-                
-                $scope.globalFilters = undefined;
 
 								this.addGeopackage = function(){
 									this.kommonitorMapServiceInstance.addSpatialUnitGeopackage();
@@ -74,23 +70,6 @@ angular
 								this.addGeoJSON = function(){
 									this.kommonitorMapServiceInstance.addSpatialUnitGeoJSON();
 								}
-
-                $scope.loadGlobalFilters = async function() {
-
-                  $scope.globalFilters = await kommonitorConfigStorageService.getFilterConfig();
-                }
-
-                $scope.onChangeFilterSelection = function() {
-
-                  kommonitorGlobalFilterHelperService.applyFilterSelection($scope.globalFilters.filter(e => e.checked===true));
-                  
-                  if(kommonitorGlobalFilterHelperService.applicationFilter)
-                    kommonitorDataExchangeService.fetchAllMetadata(kommonitorGlobalFilterHelperService.applicationFilter);
-                  else
-                    kommonitorDataExchangeService.fetchAllMetadata();
-                  
-                    $scope.onChangeSelectedIndicator(false);
-                }
 
 								$scope.onClickHierarchyIndicator = function(indicatorMetadata){
 									kommonitorDataExchangeService.selectedIndicator = indicatorMetadata;
@@ -719,6 +698,11 @@ angular
 									kommonitorDataExchangeService.selectedIndicator = indicatorMetadata;
 									$scope.onChangeSelectedIndicator(false);
 								};
+
+                // called by global filter selection in kommonitor-filter
+                $scope.$on("onChangeGlobalFilter", function (event) {
+									$scope.onChangeSelectedIndicator(false);
+                });
 
 								$scope.onChangeSelectedIndicator = async function(recenterMap){
 
