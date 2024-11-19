@@ -13,7 +13,7 @@ angular
 		.module('kommonitorDataExchange', ['kommonitorCacheHelper', 'angularjs-dropdown-multiselect'])
 		.service(
 				'kommonitorDataExchangeService', ['$rootScope', '$timeout', '$interval', 'kommonitorMapService', 'kommonitorKeycloakHelperService',
-        'kommonitorCacheHelperService', 
+        'kommonitorCacheHelperService',
         '$http', '__env', '$q', 'Auth',
 				function($rootScope, $timeout, $interval,
 						kommonitorMapService, kommonitorKeycloakHelperService, kommonitorCacheHelperService, $http, __env, $q, Auth,) {              
@@ -1094,7 +1094,7 @@ angular
           //   self.adminIsLoggedIn = false;
           // });
 
-          this.fetchAllMetadata = async function(){
+          this.fetchAllMetadata = async function(filter){
             console.log("fetching all metadata from management component");
             
             // var metadataPromises = [topicsPromise, usersPromise, rolesPromise, spatialUnitsPromise, georesourcesPromise, indicatorsPromise, scriptsPromise];
@@ -1128,11 +1128,11 @@ angular
             }
 
             //TODO revise metadata fecthing for protected endpoints        
-            var scriptsPromise = await this.fetchIndicatorScriptsMetadata(self.currentKeycloakLoginRoles);
-            var topicsPromise = await this.fetchTopicsMetadata(self.currentKeycloakLoginRoles);
-            var spatialUnitsPromise = await this.fetchSpatialUnitsMetadata(self.currentKeycloakLoginRoles);
-            var georesourcesPromise = await this.fetchGeoresourcesMetadata(self.currentKeycloakLoginRoles);
-            var indicatorsPromise = await this.fetchIndicatorsMetadata(self.currentKeycloakLoginRoles);
+            var scriptsPromise = await this.fetchIndicatorScriptsMetadata(self.currentKeycloakLoginRoles, filter);
+            var topicsPromise = await this.fetchTopicsMetadata(self.currentKeycloakLoginRoles, filter);
+            var spatialUnitsPromise = await this.fetchSpatialUnitsMetadata(self.currentKeycloakLoginRoles, filter);
+            var georesourcesPromise = await this.fetchGeoresourcesMetadata(self.currentKeycloakLoginRoles, filter);
+            var indicatorsPromise = await this.fetchIndicatorsMetadata(self.currentKeycloakLoginRoles, filter);
             metadataPromises.push(scriptsPromise);
             metadataPromises.push(topicsPromise);
             metadataPromises.push(spatialUnitsPromise);
@@ -1148,7 +1148,7 @@ angular
                   self.topicIndicatorHierarchy_forOrderView = JSON.parse(JSON.stringify(self.topicIndicatorHierarchy));
                   self.buildComputationIndicatorHierarchy();
 
-                  self.buildTopicGeoresourceHierarchy();
+                  self.buildTopicGeoresourceHierarchy(filter);
 
                   console.log("Metadata fetched. Call initialize event.");
       						onMetadataLoadingCompleted();
@@ -1252,7 +1252,7 @@ angular
             return topicsMap;
           };
 
-          this.buildTopicGeoresourceHierarchy = function(){
+          this.buildTopicGeoresourceHierarchy = function(filter = undefined){
 
             var georesourceTopics = JSON.parse(JSON.stringify(this.availableTopics)).filter(topic => topic.topicResource === "georesource");
             /*
@@ -1318,10 +1318,12 @@ angular
             // PROCESS WMS and WFS
             for (const wmsMetadata of this.wmsDatasets_keywordFiltered) {
               if (topicsMap.has(wmsMetadata.topicReference)){
-                var georesourceDatasets = topicsMap.get(wmsMetadata.topicReference);                
-                georesourceDatasets.wmsDatasets.push(wmsMetadata);              
+                if(!filter || (filter && filter.georesourceTopics.includes(wmsMetadata.topicReference))) {
+                  var georesourceDatasets = topicsMap.get(wmsMetadata.topicReference);                
+                  georesourceDatasets.wmsDatasets.push(wmsMetadata);              
 
-                topicsMap.set(wmsMetadata.topicReference, georesourceDatasets);
+                  topicsMap.set(wmsMetadata.topicReference, georesourceDatasets);
+                }
               }
               else{
                 var georesourceDatasets_unmapped = topicsMap.get(this.georesourceMapKey_forUnmappedTopicReferences);
@@ -1335,10 +1337,12 @@ angular
             // PROCESS WMS and WFS
             for (const wfsMetadata of this.wfsDatasets_keywordFiltered) {
               if (topicsMap.has(wfsMetadata.topicReference)){
-                var georesourceDatasets = topicsMap.get(wfsMetadata.topicReference);                
-                georesourceDatasets.wfsDatasets.push(wfsMetadata);              
+                if(!filter || (filter && filter.georesourceTopics.includes(wfsMetadata.topicReference))) {
+                  var georesourceDatasets = topicsMap.get(wfsMetadata.topicReference);                
+                  georesourceDatasets.wfsDatasets.push(wfsMetadata);              
 
-                topicsMap.set(wfsMetadata.topicReference, georesourceDatasets);
+                  topicsMap.set(wfsMetadata.topicReference, georesourceDatasets);
+                }
               }
               else{
                 var georesourceDatasets_unmapped = topicsMap.get(this.georesourceMapKey_forUnmappedTopicReferences);
@@ -1800,12 +1804,12 @@ angular
             self.setSpatialUnits(await kommonitorCacheHelperService.fetchSpatialUnitsMetadata(keycloakRolesArray));
           };
 
-          this.fetchGeoresourcesMetadata = async function(keycloakRolesArray){
-            self.setGeoresources(await kommonitorCacheHelperService.fetchGeoresourceMetadata(keycloakRolesArray));
+          this.fetchGeoresourcesMetadata = async function(keycloakRolesArray, filter){
+            self.setGeoresources(await kommonitorCacheHelperService.fetchGeoresourceMetadata(keycloakRolesArray, filter));
           };
 
-          this.fetchIndicatorsMetadata = async function(keycloakRolesArray){
-            self.setIndicators(await kommonitorCacheHelperService.fetchIndicatorsMetadata(keycloakRolesArray));
+          this.fetchIndicatorsMetadata = async function(keycloakRolesArray, filter){
+            self.setIndicators(await kommonitorCacheHelperService.fetchIndicatorsMetadata(keycloakRolesArray, filter));
           };
 
           this.fetchIndicatorScriptsMetadata = async function(keycloakRolesArray){

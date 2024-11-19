@@ -434,6 +434,52 @@ pre.CodeMirror-line {
     border-width: 1px 0 0 0;
 }
 
+.list-group.list-group-root .list-group-item.list-group-item-grid-centered {
+    display: grid;
+    grid-template-columns: 1fr auto;
+}
+
+.list-group.list-group-root .list-group-item.list-group-item-grid-centered a,
+.list-group.list-group-root .list-group-item.list-group-item-grid-centered p,
+.list-group.list-group-root .list-group-item.list-group-item-grid-centered input {
+  margin-top: .2em;
+  margin-bottom: .2em;
+}
+
+.list-group.list-group-root .list-group-item.list-group-item-level-0 {
+    background: #2171b5; 
+    color: white;
+  
+}
+
+.list-group.list-group-root .list-group-item.list-group-item-level-1 {
+    background: #6baed6; 
+    color: white;
+}
+
+.list-group.list-group-root .list-group-item.list-group-item-level-2 {
+    background: #bdd7e7; 
+    color: white;
+    margin-left: 0px;
+}
+
+.list-group.list-group-root .list-group-item.list-group-item-level-2 a,
+.list-group.list-group-root .list-group-item.list-group-item-level-2 p {
+    color: black
+}
+
+.list-group.list-group-root .list-group-item.list-group-item-level-3 {
+    background: #eff3ff; 
+    color: white;
+    margin-left: 0px;
+}
+
+.list-group.list-group-root .list-group-item.list-group-item-level-3 a,
+.list-group.list-group-root .list-group-item.list-group-item-level-3 p {
+    color: black
+}
+
+
 .list-group.list-group-root > .list-group-item:first-child {
     border-top-width: 0;
 }
@@ -1151,7 +1197,7 @@ pre.CodeMirror-line {
 	font-size: 12px;
 	position: absolute;
 	top: 15px;
-	right: 15px;
+	right: 40px;
 }
 
 #dateSliderWrapper{
