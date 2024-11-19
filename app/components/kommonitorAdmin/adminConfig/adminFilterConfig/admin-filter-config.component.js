@@ -89,13 +89,17 @@ angular.module('adminFilterConfig').component('adminFilterConfig', {
             $scope.prepGlobalFilterData();
             $scope.initializeOrRefreshOverviewTable();
           }, 250);
+
+          setTimeout(() => {
+            $scope.reloadCodeEditor();
+          },1000);
         }
       } else 
         console.log("Filter id not found");
 
 		}); 
 
-    $scope.$on("refreshAdminFilterOverviewTable", async function (event) {
+    $scope.$on("refreshAdminFilterOverview", async function (event) {
 
       $scope.origConfig = await kommonitorConfigStorageService.getFilterConfig();
       $scope.mergedFilterConfig = $scope.origConfig;
@@ -103,6 +107,10 @@ angular.module('adminFilterConfig').component('adminFilterConfig', {
         $scope.prepGlobalFilterData();
         $scope.initializeOrRefreshOverviewTable();
       }, 250);
+
+      setTimeout(() => {
+        $scope.reloadCodeEditor();
+      },1000);
 		}); 
 
     $scope.prepGlobalFilterData = function() {
@@ -140,6 +148,22 @@ angular.module('adminFilterConfig').component('adminFilterConfig', {
         }
       };
     }
+
+    $scope.reloadCodeEditor = async function(){
+	
+      let confNew = await kommonitorConfigStorageService.getFilterConfig();
+			//$scope.filterConfigCurrent = JSON.stringify(confNew, null, "    ");
+	
+      document.getElementById('filterConfig_current').innerHTML = 
+        PR.prettyPrintOne(JSON.stringify(confNew, null, "    "),
+        'javascript', true);
+    
+      $scope.codeMirrorEditor.setValue(JSON.stringify(confNew, null, "    "));
+
+			$scope.onChangeFilterConfig();
+
+			$scope.$digest();
+		};
 
 		$scope.initCodeEditor = function(){
 			$scope.codeMirrorEditor = CodeMirror.fromTextArea(document.getElementById("filterConfigEditor"), {
@@ -258,6 +282,12 @@ angular.module('adminFilterConfig').component('adminFilterConfig', {
 				$scope.loadingData = false;
 
 				setTimeout(() => {
+          $scope.origConfig = newCurrentConfig;
+          $scope.mergedFilterConfig = $scope.origConfig;
+
+          $scope.prepGlobalFilterData();
+          $scope.initializeOrRefreshOverviewTable();
+
 					$scope.$digest();
 				}, 250);
 			} catch (error) {

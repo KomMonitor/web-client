@@ -309,7 +309,7 @@ angular.module('adminFilterEditModal').component('adminFilterEditModal', {
       $scope.loadingData = false;
 
       $timeout(function(){
-        $rootScope.$broadcast("refreshAdminFilterOverviewTable");
+        $rootScope.$broadcast("refreshAdminFilterOverview");
       }, 500);
 
       setTimeout(() => {

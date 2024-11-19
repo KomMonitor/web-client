@@ -34,9 +34,14 @@
 	</div> -->
 
 	<div>
-    <div class="box box-primary">
+    <div class="box box-primary" id="globalFilterTableView">
 			<div class="box-header">
-				<h3 class="box-title">Globale Filter</h3>
+				<h3 class="box-title">Globale Filter - Tabellenansicht</h3>
+
+				<div class="box-tools pull-right">
+					<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+					</button>
+				</div>
 			</div>
 			<!-- /.box-header -->
 			<div class="box-body">
@@ -48,35 +53,23 @@
           <button class="btn btn-success btn-sm" type="button" data-toggle="modal" data-target="#modal-add-admin-filter" ng-click="onAddFilter()"><i class="fas fa-plus"></i>&nbsp;&nbsp;Erstellen</button>
         </div>
 				<hr><br/>
-        <div id="globalFilterOverviewTable" style="height: 70vh;" class="ag-theme-alpine"></div>	   
+        <div id="globalFilterOverviewTable" style="height: 50vh;" class="ag-theme-alpine"></div>	   
 			</div>
 			<!-- /.box-body -->
-
-			<div id="filterConfigEditSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
-				class="alert alert-success alert-dismissable">
-				<button type="button" class="close" ng-click="hideSuccessAlert()" aria-hidden="true">&times;</button>
-				<h4><i class="icon fa fa-check"></i>Filter-Konfiguration in Config Storage Server gespeichert</h4>
-				<p>Die neue Parametrisierung wird beim n&auml;chsten Start der Anwendung vom Config Storage Server geladen und verwendet.
-				</p>
-			</div>
-
-			<div id="filterConfigEditErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
-				class="alert alert-danger alert-dismissable">
-				<button type="button" class="close" ng-click="hideErrorAlert()" aria-hidden="true">&times;</button>
-				<h4><i class="icon fa fa-ban"></i>Speichern der Filter-Konfiguration in Config Storage Server gescheitert</h4>
-				Fehlermeldung:
-				<br />
-				<pre style="overflow:auto; max-height:500px;" ng-bind-html="errorMessagePart"></pre>
-			</div>
 		</div>
 		<!-- /.box -->
 
 
 
 
-		<div class="box box-primary">
+		<div class="box box-primary" id="globalFilterEditorView">
 			<div class="box-header">
-				<h3 class="box-title">Globale Filter</h3>
+				<h3 class="box-title">Globale Filter - Konfigurationsdatei</h3>
+
+				<div class="box-tools pull-right">
+					<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+					</button>
+				</div>
 			</div>
 			<!-- /.box-header -->
 			<div class="box-body">

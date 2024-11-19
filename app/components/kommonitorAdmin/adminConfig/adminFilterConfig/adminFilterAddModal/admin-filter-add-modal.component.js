@@ -274,7 +274,7 @@ angular.module('adminFilterAddModal').component('adminFilterAddModal', {
       $scope.loadingData = false;
 
       $timeout(function(){
-        $rootScope.$broadcast("refreshAdminFilterOverviewTable");
+        $rootScope.$broadcast("refreshAdminFilterOverview");
         $scope.resetAdminFilterAddForm();
       }, 500);
 
