@@ -1,17 +1,23 @@
 <div id="kommonitorFilter">
 
+	<div align="center">
+		<div class="loading-overlay-sidebar-small ng-hide" ng-show="loadingData">
+					<span class="glyphicon glyphicon-refresh icon-spin"></span>
+		</div>
+	</div>
 	<p></p>
-	<!-- GLOBALE FILTER -->
-  <div class="box box-primary" ng-if="globalFilters" id="box-globalFilter">
-    <div class="box-header with-border">
-      <h3 class="box-title">Globale Filter</h3>
 
-      <div class="box-tools pull-right">
-        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
-        </button>
-      </div>
-    </div>
-    <div class="box-body">	
+	<!-- GLOBALE FILTER -->
+  <div class="box box-primary" id="globalFilterBox" ng-show="globalFiltersActive()">
+		<div class="box-header with-border">
+			<h3 class="box-title">Globale Filter</h3>
+
+			<div class="box-tools pull-right">
+				<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+				</button>
+			</div>
+		</div>
+		<div class="box-body">
 
       Eingrenzung der Indikatoren-Auswahl anhand von voreingestellten globalen Filtern.
 

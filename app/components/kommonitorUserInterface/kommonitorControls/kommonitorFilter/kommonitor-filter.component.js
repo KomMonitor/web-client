@@ -81,6 +81,7 @@ angular
 
               $scope.onChangeFilterSelection = function() {
 
+								$scope.loadingData = true;
                 kommonitorGlobalFilterHelperService.applyFilterSelection($scope.globalFilters.filter(e => e.checked===true));
                 
                 if(kommonitorGlobalFilterHelperService.applicationFilter)
@@ -89,6 +90,18 @@ angular
                   kommonitorDataExchangeService.fetchAllMetadata();
 
                 $rootScope.$broadcast("onGlobalFilterChange");
+
+                // "hide" for meta-data loading to not allow successive clicks on multiple items. let the metadata load succeed before selecting any other item
+                setTimeout(function() {
+                  $scope.loadingData = false;
+                },500);
+              }
+
+              $scope.globalFiltersActive = function() {
+                if($scope.globalFilters.length>0)
+                  return true;
+
+                return false;
               }
 
 							$scope.isFilterModeActive = function(id) {
