@@ -98,7 +98,7 @@ angular
               }
 
               $scope.globalFiltersActive = function() {
-                if($scope.globalFilters.length>0)
+                if($scope.globalFilters && !kommonitorGlobalFilterHelperService.isFilterParamSet())
                   return true;
 
                 return false;

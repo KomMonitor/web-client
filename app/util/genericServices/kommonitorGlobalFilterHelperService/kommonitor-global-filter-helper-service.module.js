@@ -17,6 +17,7 @@ angular
       this.paramName_app = "application";
       this.applicationFilterId="";
       this.applicationFilter;
+      this.filterParamSet = false;
 
       this.applyQueryParams = function(){
         if ($routeParams[this.paramName_app]){
@@ -28,16 +29,18 @@ angular
               return true;
             }
           });
-        }
+        } 
       };
 
       this.init = function(){
 
         // No need to parse sharing params if sharing is not true
         if ($routeParams[this.paramName_app]) {
+          this.filterParamSet = true;
           // set config and data options from params
           this.applyQueryParams();
-        }
+        } else
+          this.filterParamSet = false;
       };
 
       this.applyFilterSelection = function(filterConfig) {
@@ -75,6 +78,10 @@ angular
             filterConfig[index][topicType].push(topicId);
         } else
           filterConfig[index][topicType] = filterConfig[index][topicType].filter(e => e!=topicId);
+      }
+
+      this.isFilterParamSet = function() {
+        return this.filterParamSet;
       }
     }
   ]);
