@@ -1324,7 +1324,9 @@ angular
       // GLOBAL FILTER table
 
       this.buildDataGrid_globalFilter = function (spatialUnitMetadataArray) {
-        
+        console.log("Data to build grid for");
+        console.log(spatialUnitMetadataArray);
+                
         if (this.dataGridOptions_globalFilter && this.dataGridOptions_globalFilter.api && document.querySelector('#globalFilterOverviewTable').childElementCount > 0) {
 
           this.saveGridStore(this.dataGridOptions_globalFilter);
