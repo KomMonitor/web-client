@@ -3175,4 +3175,5 @@ kommonitor-user-interface .irs {
 #fontFamily-reference {
   display: none;
   font-family: var(--custom-font-family);
+  content: var(--custom-font-file);
 }

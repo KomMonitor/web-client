@@ -35,7 +35,10 @@ angular.module('reportingOverview').component('reportingOverview', {
 		$scope.loadingData = false;
 		$scope.echartsImgPixelRatio = 2;
 
-    this.setCustomFontFamily = function() {
+    $scope.customFontFamily = undefined;
+    $scope.customFontFile = undefined
+
+    setCustomFont = function() {
         
       var defaultFont = '"Source Sans Pro", "Helvetica Neue", Helvetica, Arial, sans-serif';
 
@@ -43,13 +46,23 @@ angular.module('reportingOverview').component('reportingOverview', {
       var style = getComputedStyle(elem);
       var fontFamily = style.fontFamily.split(',')[0];
 
-      if(fontFamily!=defaultFont)
-        return fontFamily;
-      else
-        return undefined;
-    }
+      if(fontFamily!=defaultFont) 
+        $scope.customFontFamily = fontFamily;
 
-    const customFontFamily = this.setCustomFontFamily(); 
+      if(style.content!='normal') {
+
+        let fontFile = style.content.replace(/['"]+/g,'');
+
+        // check for local ttf
+        $http.get(`fonts/${fontFile}`).then(() => {
+            console.log("Custom font file found internal");
+            $scope.customFontFile = `fonts/${fontFile}`;
+        }).catch(() => {
+            console.log("Custom font external");
+            $scope.customFontFile = fontFile;
+        });
+      }
+    }
 
 		$scope.initialize = function(data) {
 			let configFileSelected = data[0];
@@ -63,6 +76,8 @@ angular.module('reportingOverview').component('reportingOverview', {
 			$scope.config.templateSections = [];
 			let deviceScreenDpi = calculateScreenDpi();
 			$scope.pxPerMilli = deviceScreenDpi / 25.4 // /2.54 --> cm, /10 --> mm
+
+      setCustomFont(); 
 		}
 
 		$scope.sortableConfig = {
@@ -208,9 +223,6 @@ angular.module('reportingOverview').component('reportingOverview', {
 				$scope.config.pages = sorted;
 			}
 		});
-
-		
-
 
 		$scope.setupNewPages = function(templateSection) {
 
@@ -933,11 +945,20 @@ angular.module('reportingOverview').component('reportingOverview', {
 				orientation: $scope.config.pages[0].orientation
 			});
 
-			// general settings
       let fontName = "Helvetica";
-      if(customFontFamily!=undefined) {
-        fontName = customFontFamily.replace(/['"]+/g,'');
+
+      if($scope.customFontFile) {
+          doc.addFont($scope.customFontFile, 'Comic', 'normal');
+          fontName = 'Comic';
       }
+     /* 
+      doc.addFont('fonts/Comic_Sans_internal.ttf', 'Comic', 'normal');
+      doc.addFont('https://fonts.gstatic.com/s/lobster/v30/neILzCirqoswsqX9_oWsMqEzSJQ.ttf', 'Tester', 'normal'); */
+      
+			// general settings
+      /* if($scope.customFontFamily!=undefined) {
+        fontName = $scope.customFontFamily.replace(/['"]+/g,'');
+      } */
 			doc.setDrawColor(148, 148, 148);
 			doc.setFont(fontName, "normal", "normal"); // name, normal/italic, fontweight
 			
@@ -1033,7 +1054,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 						}
 						// template-specific elements
 						case "map": {
-							let instance = echarts.getInstanceByDom(pElementDom)
+							/* let instance = echarts.getInstanceByDom(pElementDom)
 							let imageDataUrl = instance.getDataURL( {pixelRatio: $scope.echartsImgPixelRatio} )
 
 							if($scope.config.template.name.includes("reachability")) {
@@ -1046,7 +1067,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 								}
 							}
 							doc.addImage(imageDataUrl, "PNG", pageElementDimensions.left, pageElementDimensions.top,
-								pageElementDimensions.width, pageElementDimensions.height, "", 'MEDIUM');
+								pageElementDimensions.width, pageElementDimensions.height, "", 'MEDIUM'); */
 							break;
 						}
 						// case "mapLegend" can be ignored since it is included in the map if needed
@@ -1059,8 +1080,8 @@ angular.module('reportingOverview').component('reportingOverview', {
 							height = pageElementDimensions.height;
 							doc.rect(x, y, width, height);
 							let avgType = pageElement.type === "overallAverage" ? "Gesamtstadt" : "Selektion"
-							let text = "Durchschnitt\n" + avgType + ":\n" + pageElement.text.toString()
-							doc.text(text, pageElementDimensions.left + pxToMilli(5), pageElementDimensions.top + pxToMilli(5), { baseline: "top" });
+							/* let text = "Durchschnitt\n" + avgType + ":\n" + pageElement.text.toString() */
+							doc.text('ddfdfdf', pageElementDimensions.left + pxToMilli(5), pageElementDimensions.top + pxToMilli(5), { baseline: "top" });
 							break;
 						}
 						case "overallChange":
@@ -1077,16 +1098,16 @@ angular.module('reportingOverview').component('reportingOverview', {
 						}
 						case "barchart": {
 							let instance = echarts.getInstanceByDom(pElementDom)
-							let base64String = instance.getDataURL( {pixelRatio: $scope.echartsImgPixelRatio} )
+						/* 	let base64String = instance.getDataURL( {pixelRatio: $scope.echartsImgPixelRatio} )
 							doc.addImage(base64String, "PNG", pageElementDimensions.left, pageElementDimensions.top,
-									pageElementDimensions.width, pageElementDimensions.height, "", 'MEDIUM');
+									pageElementDimensions.width, pageElementDimensions.height, "", 'MEDIUM'); */
 							break;
 						}
 						case "linechart": {
-							let instance = echarts.getInstanceByDom(pElementDom)
+							/* let instance = echarts.getInstanceByDom(pElementDom)
 							let base64String = instance.getDataURL( {pixelRatio: $scope.echartsImgPixelRatio} )
 							doc.addImage(base64String, "PNG", pageElementDimensions.left, pageElementDimensions.top,
-									pageElementDimensions.width, pageElementDimensions.height, "", 'MEDIUM');
+									pageElementDimensions.width, pageElementDimensions.height, "", 'MEDIUM'); */
 							break;
 						}
 						case "textInput": {
@@ -1190,8 +1211,8 @@ angular.module('reportingOverview').component('reportingOverview', {
 			// https://docx.js.org/#/?id=basic-usage
 
 			let font = "Calibri";
-      if(customFontFamily!=undefined) {
-        font = customFontFamily.replace(/['"]+/g,'');
+      if($scope.customFontFamily!=undefined) {
+        font = $scope.customFontFamily.replace(/['"]+/g,'');
       }
 			for(let [idx, page] of $scope.config.pages.entries()) {
 
