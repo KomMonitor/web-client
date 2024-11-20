@@ -1324,7 +1324,7 @@ angular
       // GLOBAL FILTER table
 
       this.buildDataGrid_globalFilter = function (spatialUnitMetadataArray) {
-        console.log("Data to build grid for");
+        console.log("Data to build grid for (buildDataGrid_globalFilter)");
         console.log(spatialUnitMetadataArray);
                 
         if (this.dataGridOptions_globalFilter && this.dataGridOptions_globalFilter.api && document.querySelector('#globalFilterOverviewTable').childElementCount > 0) {
@@ -1342,6 +1342,8 @@ angular
       };
 
       this.buildDataGridOptions_globalFilter = function (spatialUnitMetadataArray) {
+        console.log("Data to build grid for (buildDataGridOptions_globalFilter)");
+        console.log(spatialUnitMetadataArray);
         let columnDefs = this.buildDataGridColumnConfig_globalFilter(spatialUnitMetadataArray);
         let rowData = this.buildDataGridRowData_globalFilter(spatialUnitMetadataArray);
 
