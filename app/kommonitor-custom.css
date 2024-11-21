@@ -15,17 +15,12 @@
 
   /* 
     Custom font family for PDF export, as this does not support the build-in font families and needs to be imported separately 
-    Supporting both internal and external ttf
+    Supporting internal ttf files only
     
     Internal fonts need to be placed as ttf in 'app/components/fonts/' without special chars and white spaces
     Working example for file "Comic_Sans_internal.ttf":
       --custom-font-file: "Comic_Sans_internal.ttf";
     
-    External fonts can be imported by full url
-    Working example:
-      --custom-font-file: "https://some.url.com/ext/Comic_Sans_internal.ttf";
-
-    NOTE: The url needs to point to an existing ttf file. Font-builders like google fonts e.g. are not supported
   */
-  --custom-font-file: "https://fonts.gstatic.com/s/lobster/v30/neILzCirqoswsqX9_oWsMqssdEzSJQ.ttf";
+  --custom-font-file: "Comic_Sans_internal.ttf";
 }

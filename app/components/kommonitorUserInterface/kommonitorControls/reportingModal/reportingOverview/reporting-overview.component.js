@@ -57,9 +57,6 @@ angular.module('reportingOverview').component('reportingOverview', {
         $http.get(`fonts/${fontFile}`).then(() => {
             console.log("Custom font file found internal");
             $scope.customFontFile = `fonts/${fontFile}`;
-        }).catch(() => {
-            console.log("Custom font external");
-            $scope.customFontFile = fontFile;
         });
       }
     }
@@ -945,22 +942,20 @@ angular.module('reportingOverview').component('reportingOverview', {
 				orientation: $scope.config.pages[0].orientation
 			});
 
-      let fontName = "Helvetica";
+      let fontName = "Helvetica"; // standard
 
       if($scope.customFontFile) {
-          doc.addFont($scope.customFontFile, 'Comic', 'normal');
-          fontName = 'Comic';
+        fontName = 'CustomInternal';
+        doc.addFont($scope.customFontFile, fontName, 'normal');
       }
+
+      // external working as well, but unable to check for validity beforehand. Thus resulting in an critical error if invalid at rendering 
      /* 
       doc.addFont('fonts/Comic_Sans_internal.ttf', 'Comic', 'normal');
       doc.addFont('https://fonts.gstatic.com/s/lobster/v30/neILzCirqoswsqX9_oWsMqEzSJQ.ttf', 'Tester', 'normal'); */
       
-			// general settings
-      /* if($scope.customFontFamily!=undefined) {
-        fontName = $scope.customFontFamily.replace(/['"]+/g,'');
-      } */
 			doc.setDrawColor(148, 148, 148);
-			doc.setFont(fontName, "normal", "normal"); // name, normal/italic, fontweight
+			doc.setFont(fontName, "normal", "normal"); 
 			
 			for(let [idx, page] of $scope.config.pages.entries()) {
 
@@ -1054,7 +1049,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 						}
 						// template-specific elements
 						case "map": {
-							/* let instance = echarts.getInstanceByDom(pElementDom)
+							let instance = echarts.getInstanceByDom(pElementDom)
 							let imageDataUrl = instance.getDataURL( {pixelRatio: $scope.echartsImgPixelRatio} )
 
 							if($scope.config.template.name.includes("reachability")) {
@@ -1067,7 +1062,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 								}
 							}
 							doc.addImage(imageDataUrl, "PNG", pageElementDimensions.left, pageElementDimensions.top,
-								pageElementDimensions.width, pageElementDimensions.height, "", 'MEDIUM'); */
+								pageElementDimensions.width, pageElementDimensions.height, "", 'MEDIUM');
 							break;
 						}
 						// case "mapLegend" can be ignored since it is included in the map if needed
@@ -1080,8 +1075,8 @@ angular.module('reportingOverview').component('reportingOverview', {
 							height = pageElementDimensions.height;
 							doc.rect(x, y, width, height);
 							let avgType = pageElement.type === "overallAverage" ? "Gesamtstadt" : "Selektion"
-							/* let text = "Durchschnitt\n" + avgType + ":\n" + pageElement.text.toString() */
-							doc.text('ddfdfdf', pageElementDimensions.left + pxToMilli(5), pageElementDimensions.top + pxToMilli(5), { baseline: "top" });
+							let text = "Durchschnitt\n" + avgType + ":\n" + pageElement.text.toString()
+							doc.text(text, pageElementDimensions.left + pxToMilli(5), pageElementDimensions.top + pxToMilli(5), { baseline: "top" });
 							break;
 						}
 						case "overallChange":
@@ -1098,16 +1093,16 @@ angular.module('reportingOverview').component('reportingOverview', {
 						}
 						case "barchart": {
 							let instance = echarts.getInstanceByDom(pElementDom)
-						/* 	let base64String = instance.getDataURL( {pixelRatio: $scope.echartsImgPixelRatio} )
+							let base64String = instance.getDataURL( {pixelRatio: $scope.echartsImgPixelRatio} )
 							doc.addImage(base64String, "PNG", pageElementDimensions.left, pageElementDimensions.top,
-									pageElementDimensions.width, pageElementDimensions.height, "", 'MEDIUM'); */
+									pageElementDimensions.width, pageElementDimensions.height, "", 'MEDIUM');
 							break;
 						}
 						case "linechart": {
-							/* let instance = echarts.getInstanceByDom(pElementDom)
+							let instance = echarts.getInstanceByDom(pElementDom)
 							let base64String = instance.getDataURL( {pixelRatio: $scope.echartsImgPixelRatio} )
 							doc.addImage(base64String, "PNG", pageElementDimensions.left, pageElementDimensions.top,
-									pageElementDimensions.width, pageElementDimensions.height, "", 'MEDIUM'); */
+									pageElementDimensions.width, pageElementDimensions.height, "", 'MEDIUM');
 							break;
 						}
 						case "textInput": {
