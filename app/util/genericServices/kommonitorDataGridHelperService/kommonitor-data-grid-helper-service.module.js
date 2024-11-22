@@ -3313,7 +3313,7 @@ angular
         if (roleManagementTableOptions && roleManagementTableOptions.api){
 
           roleManagementTableOptions.api.forEachNode(function(node, index){
-            if(node.data.checked){
+            if(node.data && node.data.checked) {
                 ids.push(node.data.id);
             } 
           })               
