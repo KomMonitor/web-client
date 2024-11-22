@@ -331,6 +331,16 @@
 				<br />
 				<pre ng-bind-html="$ctrl.kommonitorDataExchangeServiceInstance.errorMessage"></pre>
 	    </div>
+
+    <div style="position: absolute; left: 12%; top: 200px; width: 75%;" hidden
+      class="alert alert-warning alert-dismissable adminWarningAlert">
+      <button type="button" class="close" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.hideWarningAlert()"
+        aria-hidden="true">&times;</button>
+      <h4><i class="icon fa fa-ban"></i>Achtung</h4>
+      Sie haben eine fehlerhafte Eingabe vorgenommen. Die Fehlermeldung lautet:
+      <br />
+      <pre ng-bind-html="$ctrl.kommonitorDataExchangeServiceInstance.warningMessage"></pre>
+    </div>
       
     </div>
   </div>

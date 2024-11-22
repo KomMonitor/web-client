@@ -491,6 +491,31 @@ angular
               }, 1000);
 
           };
+
+          this.warningMessage = undefined;
+          this.hideWarningAlert = function(){
+            $(".adminWarningAlert").hide();
+          };
+
+          this.displayAdminWarning = function(warning){
+            $timeout(function () {
+                if(warning.data){							
+                  self.warningMessage = self.syntaxHighlightJSON(warning.data);
+                }
+                if(warning.message){							
+                  self.warningMessage = self.syntaxHighlightJSON(warning.message);
+                }
+                else{
+                  self.warningMessage = self.syntaxHighlightJSON(warning);
+                }
+    
+                // $rootScope.$apply();
+                $rootScope.$broadcast("hideLoadingIconOnMap");
+    
+                $(".adminWarningAlert").show();
+              }, 500);
+
+          };
           
           // SPATIAL UNITS
 

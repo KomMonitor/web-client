@@ -9,6 +9,10 @@ angular
 				let thisService = this; // to enable access to service methods from inside other functions (e. g. $timeout) where 'this' references something else
 				let timeseriesMappingReference;
 
+				const unsupportedDatasourceWarningMessage = "Nicht unterstützte Datenquelle: Die in der Mappintabelle angegebene Datenquelle wird für ein Batch-Update noch nicht unterstützt. Bitte geben Sie eine andere Datenquelle an!";
+				const unsupportedConverterWarningMessage = "Nicht unterstützter Converter: Der in der Mappintabelle angegebene Converter wird für ein Batch-Update noch nicht unterstützt. Bitte geben Sie einen anderen Converter an!";
+				const invalidMappingTableErrorMessage = "Die Mappingtabelle konnte nicht gelesen werden oder hat ein fehlerhaftes Format.";
+
 				// Maps the values of the "name" property in the converter's parameter array to the property names used in the batch update
 				// We can't use the parameters array directly because we have to bind angularjs variables to object properties, not array elements
 				// Used in converterParametersArrayToProperties and converterPropertiesToParametersArray 
@@ -597,7 +601,11 @@ angular
 
 					// Remove all properties that are not part of the selected converter.
 					// This is usually needed when the user switches to a different converter.
-					let paramNames = selectedConverter.parameters.map(obj => obj.name);
+					let paramNames = [];
+					if(selectedConverter.parameters) {
+						paramNames = selectedConverter.parameters.map(obj => obj.name);
+					}
+					
 					for(var i=oldConverter.parameters.length-1; i>=0; i--) {
 						if(!paramNames.includes(oldConverter.parameters[i].name)) {
 							oldConverter.parameters.splice(i, 1);
@@ -1058,62 +1066,82 @@ angular
 
 				this.onMappingTableSelected = function(resourceType, event, rowIndex, file, batchList) {
 				
-					let mappingObj = JSON.parse(event.target.result);
+					let mappingObj;
+					try {
+						mappingObj = JSON.parse(event.target.result);			
 
-					batchList[rowIndex].mappingTableName = file.name;
-			
-					mappingObj.converter = this.converterParametersArrayToProperties(mappingObj.converter);
-					mappingObj.dataSource = this.dataSourceParametersArrayToProperty(mappingObj.dataSource);
-				
-					// set value of column "Datensatz-Quellformat*" by converter name
-					let converterName = mappingObj.converter.name
-					for(let i=0; i<kommonitorImporterHelperService.availableConverters.length; i++) {
-						let avConverterName = kommonitorImporterHelperService.availableConverters[i].name
-						if(converterName == avConverterName) {
-							$timeout(function() {
-								batchList[rowIndex].selectedConverter = kommonitorImporterHelperService.availableConverters[i];
-							});
-							break;
+						if (mappingObj.dataSource.type === "OGCAPI_FEATURES") {
+							kommonitorDataExchangeService.displayAdminWarning(unsupportedDatasourceWarningMessage);
+							return;
 						}
-					}
-				
-					// set value of column "Datenquelltyp*" by dataSource type
-					if(mappingObj.dataSource) {
-						let dataSourceType = mappingObj.dataSource.type;
-						for(let i=0; i<kommonitorImporterHelperService.availableDatasourceTypes.length; i++) {
-							let avDataSourceType = kommonitorImporterHelperService.availableDatasourceTypes[i].type
-							if(dataSourceType == avDataSourceType) {
+
+						if (mappingObj.converter.name === "Geopackage (*.gpkg)") {
+							kommonitorDataExchangeService.displayAdminWarning(unsupportedConverterWarningMessage);
+							return;
+						}
+					
+
+						batchList[rowIndex].mappingTableName = file.name;
+
+						mappingObj.converter = this.converterParametersArrayToProperties(mappingObj.converter);
+						mappingObj.dataSource = this.dataSourceParametersArrayToProperty(mappingObj.dataSource);
+					
+						// set value of column "Datensatz-Quellformat*" by converter name
+						let converterName = mappingObj.converter.name
+						for(let i=0; i<kommonitorImporterHelperService.availableConverters.length; i++) {
+							let avConverterName = kommonitorImporterHelperService.availableConverters[i].name
+							if(converterName == avConverterName) {
 								$timeout(function() {
-									batchList[rowIndex].selectedDatasourceType = kommonitorImporterHelperService.availableDatasourceTypes[i];
+									batchList[rowIndex].selectedConverter = kommonitorImporterHelperService.availableConverters[i];
 								});
 								break;
 							}
 						}
+					
+						// set value of column "Datenquelltyp*" by dataSource type
+						if(mappingObj.dataSource) {
+							let dataSourceType = mappingObj.dataSource.type;
+							for(let i=0; i<kommonitorImporterHelperService.availableDatasourceTypes.length; i++) {
+								let avDataSourceType = kommonitorImporterHelperService.availableDatasourceTypes[i].type
+								if(dataSourceType == avDataSourceType) {
+									$timeout(function() {
+										batchList[rowIndex].selectedDatasourceType = kommonitorImporterHelperService.availableDatasourceTypes[i];
+									});
+									break;
+								}
+							}
+						}
+						
+
+						if(resourceType === "indicator") {
+							// set value of column "Ziel-Raumebene*" by target spatial unit name
+							let targetSpatialUnitName = mappingObj.targetSpatialUnitName;
+							let spatialUnitObject = this.getSpatialUnitObjectByName(targetSpatialUnitName);
+							$timeout(function() {
+								batchList[rowIndex].selectedTargetSpatialUnit = spatialUnitObject;
+							});
+						}
+					
+						// do not import file name
+						if(mappingObj.dataSource) {
+							if(mappingObj.dataSource.type == "FILE") {
+								mappingObj.dataSource.name = "";
+							}
+						}
+					
+						//apply to scope
+						$timeout(function() {
+							batchList[rowIndex].mappingObj = mappingObj;
+							if(resourceType === "georesource")
+								thisService.initializeGeoresourceDatepickerFields(batchList);
+						});
+				
+					}
+					catch(error) {
+						kommonitorDataExchangeService.displayMapApplicationError(invalidMappingTableErrorMessage);
+						console.error(error);
 					}
 					
-
-					if(resourceType === "indicator") {
-						// set value of column "Ziel-Raumebene*" by target spatial unit name
-						let targetSpatialUnitName = mappingObj.targetSpatialUnitName;
-						let spatialUnitObject = this.getSpatialUnitObjectByName(targetSpatialUnitName);
-						$timeout(function() {
-							batchList[rowIndex].selectedTargetSpatialUnit = spatialUnitObject;
-						});
-					}
-				
-					// do not import file name
-					if(mappingObj.dataSource) {
-						if(mappingObj.dataSource.type == "FILE") {
-							mappingObj.dataSource.name = "";
-						}
-					}
-				
-					//apply to scope
-					$timeout(function() {
-						batchList[rowIndex].mappingObj = mappingObj;
-						if(resourceType === "georesource")
-							thisService.initializeGeoresourceDatepickerFields(batchList);
-					});
 				}
 
 				this.onClickSaveColDefaultValue = function(resourceType, selectedCol, newValue, replaceAll, batchList) {
