@@ -3017,7 +3017,10 @@ angular
         this.eGui = document.createElement('input');
         this.eGui.type = 'checkbox';
 
-        this.eGui.checked = this.params.data.checked ? this.params.data.checked: false;
+        if(this.params.data && this.params.data.checked)
+          this.eGui.checked = this.params.data.checked;
+        else
+          this.eGui.checked = false;
 
         this.checkedHandler = this.checkedHandler.bind(this);
         this.eGui.addEventListener('click', this.checkedHandler);

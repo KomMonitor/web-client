@@ -58,8 +58,10 @@ angular.module('adminFilterAddModal').component('adminFilterAddModal', {
       $scope.georesourceTopicsTree = prepTopicsTree(kommonitorDataExchangeService.availableTopics.filter(e => e.topicResource=='georesource'),0);
 			addClickListenerToEachCollapseTrigger();
 
-			refreshIndicatorsTable();
-      refreshGeoresourcesTable();
+      setTimeout(() => {
+        refreshIndicatorsTable();
+        refreshGeoresourcesTable();
+      },500);
 		}); 
 
     // georesource tree
