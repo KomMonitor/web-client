@@ -1,0 +1,86 @@
+{
+  "id": "pointsInPolygon",
+  "version": "1.0.0",
+  "title": "Anzahl Punktobjekte pro Gebietsk&ouml;rperschaft",
+  "description": "Auswahl einer punktbasierten Georessource, für die eine Punkt-in-Polygon Analyse durchgef&uuml;hrt wird, um die Anzahl der Punkte pro Raumeinheits-Feature zu erhalten. Optional k&ouml;nnen die Punktdaten anhand einer Objekteigenschaft sowie einem Filterwert dieser Objekteigenschaft gefiltert werden (z. B. Objekteigenschaft: Schulform, Filterwert: Grundschule, Operatoren: gleich/ungleich/enth&auml;lt). Für numerische Werte lassen sich zudem Wertebereiche spezifizieren (z. B. Objekteigenschaft: Anzahl, Filterwert: 50, Operatoren: <, <=, =, >, >=, !=, Wertebereich)",
+  "additionalParameters": {
+    "parameters": [
+      {
+        "name": "calculation_info",
+        "value": "Summe aller Punkte innerhalb jedes Raumeinheits-Features."
+      },
+      {
+        "name": "optional_info",
+        "value": "Anwenden eines Filters anhand einer Objekteigenschaft"
+      }
+    ]
+  },
+  "inputs": {
+    "compGeoId": {
+      "title": "compGeoId",
+      "description": "Georessourcen ID des Punktdatensatzes.",
+      "additionalParameters": {
+        "parameters": [
+          {
+            "name": "input_group",
+            "value": "compGeoId"
+          }
+        ]
+      },
+      "schema": { 
+        "type": "string",
+        "default": "8c637fbd-abb1-41d6-990a-8b3d8f6e4215"
+      }
+    },
+    "compFilterProp": {
+      "title": "compFilterProp",
+      "description": "Georessourcen Attributname.",
+      "additionalParameters": {
+        "parameters": [
+          {
+            "name": "input_group",
+            "value": "compFilter"
+          }
+        ]
+      },
+      "schema": { 
+        "type": "string"
+      }
+    },
+    "compFilterOperator": {
+      "title": "compFilterOperator",
+      "description": "Vergleichsoperator",
+      "additionalParameters": {
+        "parameters": [
+          {
+            "name": "input_group",
+            "value": "compFilter"
+          }
+        ]
+      },
+      "schema": { 
+        "type": "string"
+      }
+    },
+    "compFilterPropVal": {
+      "title": "compFilterPropVal",
+      "description": "Filterwert.",
+      "additionalParameters": {
+        "parameters": [
+          {
+            "name": "input_group",
+            "value": "compFilter"
+          }
+        ]
+      },
+      "schema": { 
+        "type": "string"
+      }
+    }
+  },
+  "outputs": {
+    // ...
+  },
+  "jobControlOptions": [],
+  "outputTransmission": []
+}

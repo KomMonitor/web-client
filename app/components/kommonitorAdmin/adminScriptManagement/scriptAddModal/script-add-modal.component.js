@@ -53,6 +53,89 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 
 			$scope.loadingData = false;
 
+			kommonitorScriptHelperService.scriptData = {
+				"id": "changeAbsolute",
+				"version": "1.0.0",
+				"title": "Absolute Veränderung bezogen auf Zeitspanne",
+				"description": "Berechnet die prozentuale Ver&auml;nderung zwischen zwei Zeitpunkten eines Indikators.",
+				"additionalParameters": {
+					"parameters": [
+						{
+							"name": "formula",
+							"value": "$ I_{N} - I_{M} $"
+						},
+						{
+							"name": "legend",
+							"value": "<br/>$N$ = Ziel-Zeitpunkt<br/>$M$ = fester Referenz-Zeitpunkt<script>alert('hack')</script>"
+						}
+					]
+				},
+				"inputs": {
+					"computation_id": {
+						"title": "COMPUTATION_ID",
+						"description": "Indikatoren-ID des Basisindikators.",
+						"additionalParameters": {
+							"parameters": [
+								{
+									"name": "input_group",
+									"value": "computation_id"
+								}
+							]
+						},
+						"schema": { 
+							"type": "string",
+							"default": "72b9b6ec-f4e0-4d58-a1b4-c49045532403"
+						}
+					},
+					"number_of_temporal_items": {
+						"title": "NUMBER_OF_TEMPORAL_ITEMS",
+						"description": "Anzahl der Zeiteinheiten. Standard ist '1'.",
+						"additionalParameters": {
+							"parameters": [
+								{
+									"name": "input_group",
+									"value": "temporal_options"
+								}
+							]
+						},
+						"schema": { 
+							"type": "integer", 
+							"minimum": 1, 
+							"maximum": 100000,
+							"default": 1
+						}
+					},
+					"temporal_type": {
+						"title": "TEMPORAL_TYPE",
+						"description": "Angabe des Zeitbezug-Typs. Standard ist 'Jahre'.",
+						"additionalParameters": {
+							"parameters": [
+								{
+									"name": "input_group",
+									"value": "temporal_options"
+								}
+							]
+						},
+						"schema": { 
+							"type": "string", 
+							"enum": ["DAYS", "MONTHS", "YEARS"],
+							"default": "YEARS"
+						}
+					}
+				},
+				"outputs": {
+					// ...
+				},
+				"jobControlOptions": [],
+				"outputTransmission": []
+			}
+
+
+			kommonitorScriptHelperService.scriptData.additionalParameters.parameters = kommonitorScriptHelperService.scriptData.additionalParameters.parameters.reduce((acc, param) => {
+				acc[param.name] = param.value;
+				return acc;
+			}, {});
+
 			$scope.resetScriptAddForm = function () {
 
 				$scope.successMessagePart = undefined;

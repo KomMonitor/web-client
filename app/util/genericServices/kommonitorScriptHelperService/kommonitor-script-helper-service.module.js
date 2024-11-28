@@ -31,6 +31,10 @@ angular
       ];
 
       this.availableScriptTypeOptions = [
+        {
+					"displayName": "Test Dynamischer Skripttyp",
+					"apiName": "test"
+				},
 				{
 					"displayName": "Generische Definition",
 					"apiName": "generic"

@@ -317,6 +317,10 @@
 								</div>
 
 								<!-- ACTUAL SCRIPT FIELDS DEPENDING ON SELECTION OF SCRIPT TYPE; AS ANGULAR MODULES -->
+								<div ng-if="selectedScriptType.apiName === 'test'">
+									<script-test></script-test>
+								</div>
+								
 								<div ng-if="selectedScriptType.apiName === 'generic'">
 									<script-generic></script-generic>
 								</div>
