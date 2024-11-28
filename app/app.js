@@ -195,12 +195,20 @@ function initAngularComponents(){
         "$attrs",
         function ($scope, $element, $attrs) {
           $scope.$watch($attrs.mathjaxBind, function (texExpression) {
-            $element.html(texExpression);
-            // only if texExpression contains the special character '$' which is used to mark tex code
-            // then call MathJax function
-            if(texExpression && texExpression.includes("$")){
-              MathJax.typesetPromise([$element[0]]);
-            }            
+            if (texExpression) {
+              const sanitizedExpression = DOMPurify.sanitize(texExpression, {
+                FORBID_TAGS: ['script', 'style'],
+              });
+  
+              // Setze den bereinigten Inhalt
+              $element.html(sanitizedExpression);
+  
+              // only if texExpression contains the special character '$' which is used to mark tex code
+              // then call MathJax function
+              if (sanitizedExpression.includes("$")){
+                MathJax.typesetPromise([$element[0]]);
+              }
+            }
           });
         },
       ],

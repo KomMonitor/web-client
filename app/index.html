@@ -66,7 +66,13 @@
         <script>
           MathJax = {
             tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]},
-            skipStartupTypeset: true
+            skipStartupTypeset: true,
+            options: {
+              skipHtmlTags: ["script", "style"],
+              safeOptions: {
+                allow: false
+              }
+            }
           };
         </script>
         
@@ -142,6 +148,7 @@
         <script src="dependencies/codemirror/addon/display/autorefresh.js"></script>        
         <script src="dependencies/jshint/jshint.js"></script>
         <script src="dependencies/jsonlint/jsonlint.js"></script>
+        <script src="dependencies/dompurify/purify.min.js"></script>
         <script src="dependencies/mathjax/tex-chtml.js"></script>
         <script src="dependencies/code-prettify/run_prettify.js?skin=desert" crossorigin="anonymous"></script>
         <script src="dependencies/toastr/toastr.min.js"></script>
