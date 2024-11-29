@@ -404,6 +404,11 @@ angular.module('kommonitorMap').component(
           }
         };
 
+        $scope.$on("onGlobalFilterChange",function() {
+          // reset custom layers when global filters change. otherwise douplicates might be added
+          $scope.layerControl._layers = $scope.layerControl._layers.filter(e => e.overlay===undefined);
+        });
+
         $rootScope.$on("initialMetadataLoadingCompleted", function(){
           initSpatialUnitOutlineLayer();
         });
