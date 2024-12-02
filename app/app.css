@@ -575,6 +575,12 @@ pre.CodeMirror-line {
     margin-right: 5px;
 }
 
+.favoritesToast {
+  background-color: red;
+  padding: 1em;
+  cursor: pointer;
+}
+
 .iconpicker-popover {
   z-index: 9999999 !important;
 }

@@ -107,6 +107,10 @@ angular
 
                   $scope.indicatorFavTopicsTree = prepTopicsTree(kommonitorDataExchangeService.topicIndicatorHierarchy,0);
 									addClickListenerToEachCollapseTrigger();
+
+                  var userInfo = kommonitorFavService.getUserInfo();
+                  $scope.indicatorFavItems = userInfo.indicatorFavourites;
+                  $scope.indicatorTopicFavItems = userInfo.indicatorTopicFavourites;
                 }); 
 
                 function prepTopicsTree(tree, level) {
@@ -917,12 +921,7 @@ angular
                   else
                     searchIndicatorTopicFavItemsRecursive(kommonitorDataExchangeService.topicIndicatorHierarchy, topicId, false);
 
-                  setTimeout(function() {
-                    kommonitorFavService.handleFavSelection({
-                      indocatorTopics: $scope.indicatorTopicFavItems,
-                      indicators: $scope.indicatorFavItems
-                    });
-                  },200);
+                  $scope.onHandleFavSelection();
                 }
 
                 $scope.onIndicatorFavClick = function(id) {
@@ -930,6 +929,8 @@ angular
                     $scope.indicatorFavItems.push(id);
                   else
                     $scope.indicatorFavItems = $scope.indicatorFavItems.filter(e => e!=id);
+
+                  $scope.onHandleFavSelection();
                 }
                 
                 $scope.onHeadlineIndicatorFavClick = function(id) {
@@ -940,6 +941,8 @@ angular
                     $scope.headlineIndicatorFavItems = $scope.headlineIndicatorFavItems.filter(e => e!=id);
                     checkBaseIndicatorFavItems(id, false);
                   }
+
+                  $scope.onHandleFavSelection();
                 }
 
                 $scope.onBaseIndicatorFavClick = function(id) {
@@ -947,6 +950,19 @@ angular
                     $scope.baseIndicatorFavItems.push(id);
                   else
                     $scope.baseIndicatorFavItems = $scope.baseIndicatorFavItems.filter(e => e!=id);
+
+                  $scope.onHandleFavSelection();
+                }
+
+                $scope.onHandleFavSelection = function() {
+                  kommonitorFavService.handleFavSelection({
+                    indicatorTopicFavourites: $scope.indicatorTopicFavItems,
+                    indicatorFavourites: $scope.indicatorFavItems
+                  });
+                }
+
+                $scope.onSaveFavSelection = function() {
+                  kommonitorFavService.storeFavSelection();
                 }
 
 								$scope.modifyExports = function(changeIndicator){
