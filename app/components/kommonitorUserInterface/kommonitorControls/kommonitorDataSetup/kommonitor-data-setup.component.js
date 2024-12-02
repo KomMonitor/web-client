@@ -836,11 +836,11 @@ angular
                 }
 
                 $scope.headlineIndicatorFavSelected = function(topicId) {
-                  return $scope.headlineIndicatorFavItems.includes(topicId);
+                  return $scope.indicatorFavItems.includes(topicId);
                 }
 
                 $scope.baseIndicatorFavSelected = function(topicId) {
-                  return $scope.baseIndicatorFavItems.includes(topicId);
+                  return $scope.indicatorFavItems.includes(topicId);
                 }
 
                 function searchIndicatorTopicFavItemsRecursive(tree, id, selected) {
@@ -905,10 +905,10 @@ angular
 
                       entry.baseIndicators.forEach(base => {
                         if(selected===true) {
-                          if(!$scope.baseIndicatorFavItems.includes(entry.indicatorId))
-                            $scope.baseIndicatorFavItems.push(base.indicatorId);
+                          if(!$scope.indicatorFavItems.includes(entry.indicatorId))
+                            $scope.indicatorFavItems.push(base.indicatorId);
                         } else {
-                          $scope.baseIndicatorFavItems = $scope.baseIndicatorFavItems.filter(e => e!=base.indicatorId);
+                          $scope.indicatorFavItems = $scope.indicatorFavItems.filter(e => e!=base.indicatorId);
                         }
                       });
                     }
@@ -934,11 +934,11 @@ angular
                 }
                 
                 $scope.onHeadlineIndicatorFavClick = function(id) {
-                  if(!$scope.headlineIndicatorFavItems.includes(id)) {
-                    $scope.headlineIndicatorFavItems.push(id);
+                  if(!$scope.indicatorFavItems.includes(id)) {
+                    $scope.indicatorFavItems.push(id);
                     checkBaseIndicatorFavItems(id, true);
                   } else {
-                    $scope.headlineIndicatorFavItems = $scope.headlineIndicatorFavItems.filter(e => e!=id);
+                    $scope.indicatorFavItems = $scope.indicatorFavItems.filter(e => e!=id);
                     checkBaseIndicatorFavItems(id, false);
                   }
 
@@ -946,10 +946,10 @@ angular
                 }
 
                 $scope.onBaseIndicatorFavClick = function(id) {
-                  if(!$scope.baseIndicatorFavItems.includes(id))
-                    $scope.baseIndicatorFavItems.push(id);
+                  if(!$scope.indicatorFavItems.includes(id))
+                    $scope.indicatorFavItems.push(id);
                   else
-                    $scope.baseIndicatorFavItems = $scope.baseIndicatorFavItems.filter(e => e!=id);
+                    $scope.indicatorFavItems = $scope.indicatorFavItems.filter(e => e!=id);
 
                   $scope.onHandleFavSelection();
                 }
