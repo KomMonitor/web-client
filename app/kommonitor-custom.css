@@ -13,3 +13,25 @@
 	background-color: #b62d23;
 }
 */
+<<<<<<< HEAD
+=======
+:root {
+  /* 
+    Custom font family for UserInterface. 
+    Working examples:
+      --custom-font-family: "Comic Sans MS", "Comic Sans", cursive;
+  */
+  --custom-font-family: "Comic Sans MS"; 
+
+  /* 
+    Custom font family for PDF export, as this does not support the build-in font families and needs to be imported separately 
+    Supporting internal ttf files only
+    
+    Internal fonts need to be placed as ttf in 'app/components/fonts/' without special chars and white spaces
+    Working example for file "Comic_Sans_internal.ttf":
+      --custom-font-file: "Comic_Sans_internal.ttf";
+    
+  */
+  --custom-font-file: "Comic_Sans_internal.ttf";
+}
+>>>>>>> origin/feature/298
