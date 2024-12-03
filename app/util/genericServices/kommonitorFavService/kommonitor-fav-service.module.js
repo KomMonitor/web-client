@@ -38,7 +38,6 @@ angular
 
       this.handleFavSelection = function(favorites) {
         self.favObject = this.prepBody(favorites, !self.userInfoExists);
-        console.log(self.favObject);
       }
 
       this.getUserInfo = function() {
@@ -62,7 +61,7 @@ angular
         } else {
           // userInfo does not exist yet, make initial post call
 
-        /*   $http({
+          $http({
             url: `${this.baseUrlToKomMonitorDataAPI}/userInfos`,
             method: "POST",
             data: self.favObject
@@ -72,7 +71,7 @@ angular
             console.log("userInfo data initialized");
             }, function errorCallback(error) {
               console.log("Unable to store userInfo data");
-          });  */
+          }); 
         }
       }
 
@@ -84,10 +83,6 @@ angular
             self.userInfo = response.data;
           }
         });
-
-       /*  .catch(function (response) {
-					console.log("fail", response);
-        }) */
       };
 
     }]);

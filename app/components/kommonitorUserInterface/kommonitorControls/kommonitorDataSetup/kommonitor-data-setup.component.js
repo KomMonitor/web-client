@@ -83,6 +83,11 @@ angular
                 $scope.indicatorFavItems = [];
                 $scope.headlineIndicatorFavItems = [];
                 $scope.baseIndicatorFavItems = [];
+                $scope.favSelectionToastStatus = 0;
+
+                $scope.favSelectionToastText = ['',
+                  'Favoriten-Auswahl nicht gesichert. Zum speichern hier klicken',
+                  'Auswahl erfolgreich gespeichert'];
 
 								this.addGeopackage = function(){
 									this.kommonitorMapServiceInstance.addSpatialUnitGeopackage();
@@ -955,6 +960,8 @@ angular
                 }
 
                 $scope.onHandleFavSelection = function() {
+                  $scope.handleToastStatus(1);
+
                   kommonitorFavService.handleFavSelection({
                     indicatorTopicFavourites: $scope.indicatorTopicFavItems,
                     indicatorFavourites: $scope.indicatorFavItems
@@ -963,6 +970,18 @@ angular
 
                 $scope.onSaveFavSelection = function() {
                   kommonitorFavService.storeFavSelection();
+                  $scope.handleToastStatus(2);
+                }
+
+                $scope.handleToastStatus = function(type) {
+                  
+                  $scope.favSelectionToastStatus = type;
+
+                  if(type==2) {
+                    setTimeout(() => {
+                      $scope.favSelectionToastStatus = 0;
+                    },1000);
+                  }
                 }
 
 								$scope.modifyExports = function(changeIndicator){

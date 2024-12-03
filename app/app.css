@@ -576,9 +576,22 @@ pre.CodeMirror-line {
 }
 
 .favoritesToast {
-  background-color: red;
   padding: 1em;
   cursor: pointer;
+  border-radius: .3em;
+  color: #fff;
+}
+
+.favoritesToast.disabled {
+  display: none;
+}
+
+.favoritesToast.notSaved {
+  background-color: rgb(216, 0,0);
+}
+
+.favoritesToast.saved {
+  background-color: green;
 }
 
 .iconpicker-popover {

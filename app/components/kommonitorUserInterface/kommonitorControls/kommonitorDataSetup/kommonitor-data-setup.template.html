@@ -40,7 +40,7 @@
 										<br/>
 
 										<label>Datenkataloge:</label>
-
+                      
 										 <uib-tabset active="0">
 									    <uib-tab index="0" heading="Themenhierarchie">
 
@@ -200,7 +200,6 @@
 
 
 													</div>
-                          <div class="favoritesToast" ng-click="onSaveFavSelection()">Speichern</div>
 											</div>
 
 											</uib-tab>									    
@@ -362,7 +361,7 @@
 
 											</uib-tab> -->
 									  </uib-tabset>
-
+                    <div class="favoritesToast" id="favoritesToast" ng-click="onSaveFavSelection()" ng-class="{'disabled': favSelectionToastStatus==0, 'notSaved': favSelectionToastStatus==1, 'saved': favSelectionToastStatus==2}">{{favSelectionToastText[favSelectionToastStatus]}}</div>
 								</div>
 								<!-- /.box-body -->
 						</div>
