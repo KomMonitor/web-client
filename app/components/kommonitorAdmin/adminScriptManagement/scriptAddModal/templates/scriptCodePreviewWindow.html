@@ -1,0 +1,46 @@
+<div class="row vertical-align">
+	<div class="col-md-10 col-sm-12 col-xs-12">
+		<!-- <div style="text-align: left;"> -->
+		<div class="box box-danger collapsed-box" style="background: #ebf0fd;">
+			<div class="box-header">
+				<h3 class="box-title">Skript Code - Vorschaufenster ({{$ctrl.kommonitorScriptHelperServiceInstance.scriptData.additionalParameters.parameters.titleShort}})</h3>
+
+				<div class="box-tools pull-right">
+					<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+					</button>
+				</div>
+			</div>
+			<!-- /.box-header -->
+			<div class="box-body">
+
+				<div class="row vertical-align">
+					<div class="col-md-10 col-sm-10 col-xs-12">
+						<p>Der Skript Code ist vordefiniert und kann nicht editiert werden. Dieses Fenster dient lediglich der Vorschau und Nachvollziehbarkeit der Berechnungsschritte.</p>
+					</div>
+				</div>
+
+				<div class="row vertical-align">
+					<div class="col-md-12 col-sm-12 col-xs-12">
+						<div class="form-group">
+							<label>Vorschaufenster des Skript-Codes*</label>
+							<br/>
+							<br/>
+							<pre ng-show="scriptCode_readableString_forPreview" class="prettyprint linenums" style="max-height: 450px; overflow: auto; text-align: left;" id="scriptCodePreview"><code class="language-javascript" ng-bind-html="scriptCode_readableString_forPreview"></code></pre>
+						</div>
+					</div>
+				</div>
+
+
+			</div>
+			<!-- Box Body -->
+		</div>
+		<!-- Box -->
+
+		<!-- </div>	 -->
+
+	</div>
+</div>	
+
+<script>
+  $('.box').boxWidget();
+</script>

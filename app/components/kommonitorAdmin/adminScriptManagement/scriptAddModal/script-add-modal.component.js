@@ -61,12 +61,24 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 				"additionalParameters": {
 					"parameters": [
 						{
+							"name": "titleShort",
+							"value": "Veränderung absolut"
+						},
+						{
+							"name": "apiName",
+							"value": "indicator_change_absolute"
+						},
+						{
 							"name": "formula",
 							"value": "$ I_{N} - I_{M} $"
 						},
 						{
 							"name": "legend",
 							"value": "<br/>$N$ = Ziel-Zeitpunkt<br/>$M$ = fester Referenz-Zeitpunkt<script>alert('hack')</script>"
+						},
+						{
+							"name": "dynamicLegend",
+							"value": "<br/> $A$: ${indicatorName} [ ${unit} ]<br/> $N$: Ziel-Zeitpunkt<br/> $M$: Ziel-Zeitpunkt minus ${numberOfTemporalItems} ${temporalOptionDisplayName}"
 						}
 					]
 				},
@@ -124,7 +136,6 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 					}
 				},
 				"outputs": {
-					// ...
 				},
 				"jobControlOptions": [],
 				"outputTransmission": []

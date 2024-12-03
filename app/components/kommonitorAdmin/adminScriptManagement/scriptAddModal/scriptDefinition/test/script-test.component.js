@@ -143,14 +143,25 @@ angular.module('scriptTest').component('scriptTest', {
 					return;
 				}
 
-					var formulaHTML = "<b>Berechnung gem&auml;&szlig; Formel<br/> $ A_{N} - A_{M} $";
-					var legendItemsHTML = "<b>Legende zur Formel</b>";				
-			
-					legendItemsHTML+="<br/> $A$: " + $scope.compIndicatorSelection.indicatorName + " [" + $scope.compIndicatorSelection.unit +  "]";
-					legendItemsHTML+="<br/> $N$: Ziel-Zeitpunkt";
-					legendItemsHTML+="<br/> $M$: Ziel-Zeitpunkt minus " + $scope.numberOfTemporalItems + " " + $scope.temporalOption.displayName ;
+					var formulaHTML = "<b>Berechnung gem&auml;&szlig; Formel<br/> " + kommonitorScriptHelperService.scriptData.additionalParameters.parameters.formula;
+					var dynamicLegendStr = kommonitorScriptHelperService.scriptData.additionalParameters.parameters.dynamicLegend;
+					var legendValues = {
+						indicatorName : $scope.compIndicatorSelection.indicatorName,
+						unit : $scope.compIndicatorSelection.unit,
+						numberOfTemporalItems : $scope.numberOfTemporalItems,
+						temporalOptionDisplayName : $scope.temporalOption.displayName
+					}
+					
+					// parse with regEx to avoid 'eval' or similar unsecure methods
+					function parseStringTemplate(str, obj) {
+						let parts = str.split(/\$\{(?!\d)[\wæøåÆØÅ]*\}/);
+						let args = str.match(/[^{\}]+(?=})/g) || [];
+						let parameters = args.map(argument => obj[argument] || (obj[argument] === undefined ? "" : obj[argument]));
+						return String.raw({ raw: parts }, ...parameters);
+					}
+					var legendText = parseStringTemplate(dynamicLegendStr, legendValues)
 
-					kommonitorScriptHelperService.scriptFormulaHTML = formulaHTML + "<br/><br/>" + legendItemsHTML;
+					kommonitorScriptHelperService.scriptFormulaHTML = formulaHTML + "<br/><br/>" + "<b>Legende zur Formel</b>" + legendText;
 				
 			};
 	
