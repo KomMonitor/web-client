@@ -18,26 +18,28 @@ angular
         "georesourceTopicFavourites": [],
         "indicatorTopicFavourites": []
       };
-      this.favObject = this.bodyTemplate;
+      this.favObject = self.bodyTemplate;
   
       this.prepBody = function(favorites, fullBody = false) {
         
-        var returnBody = this.bodyTemplate;
-        Object.keys(returnBody).forEach(function(key) {
-
+        //assign items
+        Object.keys(self.bodyTemplate).forEach(function(key) {
           if(favorites[key] !== undefined)
-            returnBody[key] = favorites[key];
-          else {
-            if(fullBody===false)
-              delete(returnBody[key]);
-          }
+            self.favObject[key] = favorites[key];
         });
 
-        return returnBody;
+        // delete empty ones for patch
+        if(fullBody===false) {
+          Object.keys(self.favObject).forEach(function(key) {
+            if(self.favObject[key].length==0)
+              delete(self.favObject[key]); 
+          });
+        }
       }
 
       this.handleFavSelection = function(favorites) {
-        self.favObject = this.prepBody(favorites, !self.userInfoExists);
+        this.prepBody(favorites, !self.userInfoExists);
+        console.log(self.favObject);
       }
 
       this.getUserInfo = function() {

@@ -114,8 +114,11 @@ angular
 									addClickListenerToEachCollapseTrigger();
 
                   var userInfo = kommonitorFavService.getUserInfo();
-                  $scope.indicatorFavItems = userInfo.indicatorFavourites;
-                  $scope.indicatorTopicFavItems = userInfo.indicatorTopicFavourites;
+                  if(userInfo.indicatorFavourites)
+                    $scope.indicatorFavItems = userInfo.indicatorFavourites;
+                  
+                  if(userInfo.indicatorFavourites)
+                    $scope.indicatorTopicFavItems = userInfo.indicatorTopicFavourites;
                 }); 
 
                 function prepTopicsTree(tree, level) {

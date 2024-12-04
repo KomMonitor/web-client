@@ -6,9 +6,9 @@ angular
 					templateUrl : "components/kommonitorUserInterface/kommonitorControls/poi/poi.template.html",
 
 					controller : [
-							'kommonitorDataExchangeService', 'kommonitorMapService', '$scope', '$rootScope', '$http', '__env', '$timeout',
+							'kommonitorDataExchangeService', 'kommonitorMapService', '$scope', '$rootScope', '$http', '__env', '$timeout', 'kommonitorFavService',
 							function indicatorRadarController(
-									kommonitorDataExchangeService, kommonitorMapService, $scope, $rootScope, $http, __env, $timeout) {
+									kommonitorDataExchangeService, kommonitorMapService, $scope, $rootScope, $http, __env, $timeout, kommonitorFavService) {
 
 								/*
 								 * reference to kommonitorDataExchangeService instances
@@ -38,8 +38,13 @@ angular
 
                 $scope.georesourceTopicFavItems = [];
                 $scope.poiFavItems = [];
-                $scope.aoiFavItems = [];
-                $scope.loiFavItems = [];
+         /*        $scope.aoiFavItems = [];
+                $scope.loiFavItems = []; */
+                $scope.favSelectionToastStatus = 0;
+
+                $scope.favSelectionToastText = ['',
+                  'Favoriten-Auswahl nicht gesichert. Zum speichern hier klicken',
+                  'Auswahl erfolgreich gespeichert'];
 
 								$scope.selectedDate_manual = undefined;
 								$('#manualDateDatepicker').datepicker(kommonitorDataExchangeService.datePickerOptions);
@@ -126,6 +131,13 @@ angular
                   $scope.georesourceFavTopicsTree = prepTopicsTree(kommonitorDataExchangeService.topicGeoresourceHierarchy,0);
                   console.log($scope.georesourceFavTopicsTree);
 									addClickListenerToEachCollapseTrigger();
+
+                  var userInfo = kommonitorFavService.getUserInfo();
+                  if(userInfo.georesourceFavourites)
+                    $scope.poiFavItems = userInfo.georesourceFavourites;
+                  
+                  if(userInfo.georesourceTopicFavourites)
+                    $scope.georesourceTopicFavItems = userInfo.georesourceTopicFavourites;
                 }); 
 
                 function prepTopicsTree(tree, level) {
@@ -953,26 +965,30 @@ angular
                   return $scope.poiFavItems.includes(id);
                 }
 
-                $scope.aoiFavSelected = function(id) {
+             /*    $scope.aoiFavSelected = function(id) {
                   return $scope.aoiFavItems.includes(id);
                 }
 
                 $scope.loiFavSelected = function(id) {
                   return $scope.loiFavItems.includes(id);
-                }
+                } */
 
                 $scope.onPoiFavClick = function(id) {
                   if(!$scope.poiFavItems.includes(id))
                     $scope.poiFavItems.push(id);
                   else
                     $scope.poiFavItems = $scope.poiFavItems.filter(e => e!=id);
+
+                  $scope.onHandleFavSelection();
                 }
 
-                $scope.onAoiFavClick = function(id) {
+              /*   $scope.onAoiFavClick = function(id) {
                   if(!$scope.aoiFavItems.includes(id))
                     $scope.aoiFavItems.push(id);
                   else
                     $scope.aoiFavItems = $scope.aoiFavItems.filter(e => e!=id);
+
+                  $scope.onHandleFavSelection();
                 }
 
                 $scope.onLoiFavClick = function(id) {
@@ -980,13 +996,44 @@ angular
                     $scope.loiFavItems.push(id);
                   else
                     $scope.loiFavItems = $scope.loiFavItems.filter(e => e!=id);
-                }
+
+                  $scope.onHandleFavSelection();
+                } */
 
                 $scope.onGeoresourceTopicFavClick = function(topicId) {
                   if(!$scope.georesourceTopicFavItems.includes(topicId))
                     searchGeoresourceTopicFavItemsRecursive(kommonitorDataExchangeService.topicGeoresourceHierarchy, topicId, true);
                   else
-                    searchGeoresourceTopicFavItemsRecursive(kommonitorDataExchangeService.topicGeoresourceHierarchy, topicId, false);
+                    searchGeoresourceTopicFavItemsRecursive(kommonitorDataExchangeService.topicGeoresourceHierarchy, topicId, false);                  
+                  
+                  $scope.onHandleFavSelection();
+                }
+
+                $scope.onHandleFavSelection = function() {
+                  $scope.handleToastStatus(1);
+
+                  /* var georesourcesCombinedItems = [...$scope.poiFavItems,...$scope.aoiFavItems,...$scope.loiFavItems]; */
+
+                  kommonitorFavService.handleFavSelection({
+                    georesourceTopicFavourites: $scope.georesourceTopicFavItems,
+                    georesourceFavourites: $scope.poiFavItems
+                  });
+                }
+                
+                $scope.onSaveFavSelection = function() {
+                  kommonitorFavService.storeFavSelection();
+                  $scope.handleToastStatus(2);
+                }
+
+                $scope.handleToastStatus = function(type) {
+                  
+                  $scope.favSelectionToastStatus = type;
+
+                  if(type==2) {
+                    setTimeout(() => {
+                      $scope.favSelectionToastStatus = 0;
+                    },1000);
+                  }
                 }
 
                 function searchGeoresourceTopicFavItemsRecursive(tree, id, selected) {
@@ -1068,8 +1115,8 @@ angular
 
                     if($scope.georesourceTopicFavItems.includes(elem.topicId) || 
                       georesourceInFavItems(elem.poiData, $scope.poiFavItems) || 
-                      georesourceInFavItems(elem.aoiData, $scope.aoiFavItems) || 
-                      georesourceInFavItems(elem.loiData, $scope.loiFavItems))
+                      georesourceInFavItems(elem.aoiData, $scope.poiFavItems) || 
+                      georesourceInFavItems(elem.loiData, $scope.poiFavItems))
                         ret = true;
 
                     if(elem.subTopics && elem.subTopics.length>0 && ret===false)
