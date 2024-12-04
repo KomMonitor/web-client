@@ -6,9 +6,10 @@ angular
 					templateUrl : "components/kommonitorUserInterface/kommonitorControls/poi/poi.template.html",
 
 					controller : [
-							'kommonitorDataExchangeService', 'kommonitorMapService', '$scope', '$rootScope', '$http', '__env', '$timeout', 'kommonitorFavService',
+							'kommonitorDataExchangeService', 'kommonitorMapService', '$scope', '$rootScope', '$http', '__env', '$timeout', 'kommonitorElementVisibilityHelperService', 'kommonitorFavService',
 							function indicatorRadarController(
-									kommonitorDataExchangeService, kommonitorMapService, $scope, $rootScope, $http, __env, $timeout, kommonitorFavService) {
+									kommonitorDataExchangeService, kommonitorMapService, $scope, $rootScope, $http, __env, $timeout, 
+                  kommonitorElementVisibilityHelperService, kommonitorFavService) {
 
 								/*
 								 * reference to kommonitorDataExchangeService instances
@@ -41,6 +42,7 @@ angular
          /*        $scope.aoiFavItems = [];
                 $scope.loiFavItems = []; */
                 $scope.favSelectionToastStatus = 0;
+                $scope.showFavSelection = false;
 
                 $scope.favSelectionToastText = ['',
                   'Favoriten-Auswahl nicht gesichert. Zum speichern hier klicken',
@@ -119,6 +121,19 @@ angular
 												// 	$scope.unCollapsedTopicIds.push(clickedTopicId);
 												// }
 									  });
+                    
+                    $('.list-group-item > .georesourcesFavCollapseTrigger').on('click', function() {
+									    $('.glyphicon', this)
+									      .toggleClass('glyphicon-chevron-right')
+									      .toggleClass('glyphicon-chevron-down');
+
+                      // manage entries
+                      var clickedTopicId = $(this).attr('id');
+                      if(document.getElementById('georesourcesFavSubTopic-'+clickedTopicId).style.display=='none')
+                        document.getElementById('georesourcesFavSubTopic-'+clickedTopicId).style.display = 'block';
+                      else
+                        document.getElementById('georesourcesFavSubTopic-'+clickedTopicId).style.display = 'none';
+									  });
 									}, 500);
 								};
 
@@ -129,7 +144,7 @@ angular
 
                 $scope.$on("initialMetadataLoadingCompleted", function (event) {
                   $scope.georesourceFavTopicsTree = prepTopicsTree(kommonitorDataExchangeService.topicGeoresourceHierarchy,0);
-                  console.log($scope.georesourceFavTopicsTree);
+                  
 									addClickListenerToEachCollapseTrigger();
 
                   var userInfo = kommonitorFavService.getUserInfo();
@@ -138,6 +153,9 @@ angular
                   
                   if(userInfo.georesourceTopicFavourites)
                     $scope.georesourceTopicFavItems = userInfo.georesourceTopicFavourites;
+
+                  if(kommonitorElementVisibilityHelperService.elementVisibility.favSelection===true)
+                    $scope.showFavSelection = true;
                 }); 
 
                 function prepTopicsTree(tree, level) {
@@ -1072,10 +1090,10 @@ angular
                       typeFav: 'poiFavItems'},
                     { 
                       typeName:'aoiData',
-                      typeFav: 'aoiFavItems'},
+                      typeFav: 'poiFavItems'},
                     { 
                       typeName:'loiData',
-                      typeFav: 'loiFavItems'}];
+                      typeFav: 'poiFavItems'}];
 
                   types.forEach(type => {
                     entry[type.typeName].forEach(typeElem => {

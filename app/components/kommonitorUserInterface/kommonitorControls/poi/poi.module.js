@@ -1,1 +1,1 @@
-angular.module('poi', [ 'kommonitorDataExchange', 'kommonitorMap', 'ngSanitize', 'kommonitorFavService']);
+angular.module('poi', [ 'kommonitorDataExchange', 'kommonitorMap', 'ngSanitize', 'kommonitorElementVisibilityHelper', 'kommonitorFavService']);

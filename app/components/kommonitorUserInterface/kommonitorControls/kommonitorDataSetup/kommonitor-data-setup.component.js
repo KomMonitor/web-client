@@ -18,6 +18,7 @@ angular
 								const INDICATOR_DATE_PREFIX = __env.indicatorDatePrefix;
 
 								$scope.indicatorNameFilter = undefined;
+                $scope.kommonitorElementVisibilityHelperServiceInstance = kommonitorElementVisibilityHelperService;
 
 								// initialize any adminLTE box widgets
 								$('.box').boxWidget();
@@ -84,6 +85,7 @@ angular
                 $scope.headlineIndicatorFavItems = [];
                 $scope.baseIndicatorFavItems = [];
                 $scope.favSelectionToastStatus = 0;
+                $scope.showFavSelection = false;
 
                 $scope.favSelectionToastText = ['',
                   'Favoriten-Auswahl nicht gesichert. Zum speichern hier klicken',
@@ -119,6 +121,9 @@ angular
                   
                   if(userInfo.indicatorFavourites)
                     $scope.indicatorTopicFavItems = userInfo.indicatorTopicFavourites;
+
+                  if(kommonitorElementVisibilityHelperService.elementVisibility.favSelection===true)
+                    $scope.showFavSelection = true;
                 }); 
 
                 function prepTopicsTree(tree, level) {

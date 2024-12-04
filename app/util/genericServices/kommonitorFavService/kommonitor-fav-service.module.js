@@ -39,7 +39,6 @@ angular
 
       this.handleFavSelection = function(favorites) {
         this.prepBody(favorites, !self.userInfoExists);
-        console.log(self.favObject);
       }
 
       this.getUserInfo = function() {
