@@ -46,7 +46,7 @@
 <div class="row ">
 	<div class="col-md-6 col-sm-6 col-xs-12">
 
-		<label>Attribute gem&auml;&szlig; Raumeinheits-Schema f&uuml;r <i>{{currentGeoresourceDataset.datasetName}}</i></label>
+		<label>Attribute gem&auml;&szlig; Feature-Schema f&uuml;r <i>{{currentGeoresourceDataset.datasetName}}</i></label>
 		<div style="max-height: 40vh; overflow: auto;">
 
 			<table class="table table-condensed">
@@ -59,10 +59,10 @@
 				<tbody>
 					<tr>
 						<td>
-							<b>Raumeinheits-ID *</b>
+							<b>Feature-ID *</b>
 							<br>
 							<i>Beispiele: {{featureIdExampleString}}</i>
-							<div ng-show="! featureIdIsUnique" style="color:red;"><b>Eingegebene Raumeinheits-ID
+							<div ng-show="! featureIdIsUnique" style="color:red;"><b>Eingegebene Feature-ID
 									schon vergeben oder ung&uuml;ltig</b></div>
 						</td>
 						<td>
@@ -74,7 +74,7 @@
 					</tr>
 					<tr>
 						<td>
-							<b>Raumeinheits-NAME *</b>
+							<b>Feature-NAME *</b>
 						</td>
 						<td>
 							<input type="text" class="form-control" ng-model="featureNameValue"
@@ -156,19 +156,19 @@
 		ng-show="$ctrl.kommonitorSingleFeatureMapHelperServiceInstance.editMode == 'create'"
 		ng-disabled="!featureGeometryValue || !featureNameValue || featureIdValue == undefined || featureIdValue == null || !featureIdIsUnique || !featureStartDateValue"
 		ng-click="addSingleGeoresourceFeature()"><i
-		class="fa-solid fa-plus"></i>&nbsp;&nbsp;Einzel-Raumeinheit erstellen
+		class="fa-solid fa-plus"></i>&nbsp;&nbsp;Einzel-Feature erstellen
 	</button>
 	<button type="button" class="btn btn-warning"
 		ng-show="$ctrl.kommonitorSingleFeatureMapHelperServiceInstance.editMode == 'edit'"
 		ng-disabled="!featureGeometryValue || !featureNameValue || featureIdValue == undefined || featureIdValue == null || !featureStartDateValue"
 		ng-click="editSingleGeoresourceFeature()"><i
-		class="fa-solid fa-pen"></i>&nbsp;&nbsp;Einzel-Raumeinheit editieren
+		class="fa-solid fa-pen"></i>&nbsp;&nbsp;Einzel-Feature editieren
 	</button>
 	<button type="button" class="btn btn-danger"
 		ng-show="$ctrl.kommonitorSingleFeatureMapHelperServiceInstance.editMode == 'delete'"
 		ng-disabled="!featureGeometryValue || !featureNameValue || featureIdValue == undefined || featureIdValue == null || !featureStartDateValue"
 		ng-click="deleteSingleGeoresourceFeature()"><i
-		class="fa-solid fa-trash"></i>&nbsp;&nbsp;Einzel-Raumeinheit entfernen
+		class="fa-solid fa-trash"></i>&nbsp;&nbsp;Einzel-Feature entfernen
 	</button>
 	&nbsp; &nbsp; &nbsp;
 	<button type="button" class="btn btn-info"

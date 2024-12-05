@@ -57,8 +57,8 @@ angular
                 text: "Abbrechen",
               },
               clearAll: {
-                title: "Alle Raumeinheiten entfernen.",
-                text: "Alle Raumeinheiten entfernen",
+                title: "Alle Features entfernen.",
+                text: "Alle Features entfernen",
               },
             },
             buttons: {
@@ -71,13 +71,13 @@ angular
           handlers: {
             edit: {
               tooltip: {
-                text: "Bearbeitungspunkte oder Punktmarker ziehen, um Raumeinheit zu editieren.",
+                text: "Bearbeitungspunkte oder Punktmarker ziehen, um Feature zu editieren.",
                 subtext: "Abbrechen klicken, um Bearbeitung zu verwefen.",
               },
             },
             remove: {
               tooltip: {
-                text: "Raumeinheit anklicken, um diese zu entfernen",
+                text: "Feature anklicken, um es zu entfernen",
               },
             },
           }

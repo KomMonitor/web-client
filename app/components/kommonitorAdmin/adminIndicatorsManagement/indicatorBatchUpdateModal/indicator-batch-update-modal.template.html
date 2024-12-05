@@ -46,7 +46,7 @@
 											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedDatasourceTypeIsFile(batchList)">Datei*</th>
 											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedDatasourceTypeIsHttp(batchList)">URL*</th>
 											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedDatasourceTypeIsInline(batchList)">Payload*</th>
-											<th>ID Attributname der Raumebenen-Raumeinheiten*</th>
+											<th>ID Attributname der Raumeinheiten*</th>
 											<th>Ziel-Raumebene*</th>
 											<th>Mappingtabelle speichern</th>
 										</tr>
@@ -176,7 +176,7 @@
 												ng-disabled="!indicator.selectedDatasourceType.type.includes('INLINE')" required>
 											</td>
 
-											<!-- ID Attributname der Raumebenen-Raumeinheiten* -->
+											<!-- ID Attributname der Raumebenen-Features* -->
 											<td>
 												<input class="form-control" ng-model="indicator.mappingObj.propertyMapping.spatialReferenceKeyProperty" type="text" required>
 											</td>
@@ -216,7 +216,7 @@
 											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedDatasourceTypeIsFile(batchList)">Datei*</th>
 											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedDatasourceTypeIsHttp(batchList)">URL*</th>
 											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedDatasourceTypeIsInline(batchList)">Payload*</th>
-											<th>ID Attributname der Raumebenen-Raumeinheiten*</th>
+											<th>ID Attributname der Raumeinheiten*</th>
 											<th>Ziel-Raumebene*</th>
 											<th>Mappingtabelle speichern</th>
 										</tr>
@@ -262,7 +262,7 @@
 										<!-- File is not supported here -->
 										<option value="mappingObj.dataSource.URL">URL*</option>
 										<option value="mappingObj.dataSource.payload">Payload*</option>
-										<option value="mappingObj.propertyMapping.spatialReferenceKeyProperty">ID Attributname der Raumebenen-Raumeinheiten*</option>
+										<option value="mappingObj.propertyMapping.spatialReferenceKeyProperty">ID Attributname der Raumeinheiten*</option>
 										<option value="selectedTargetSpatialUnit">Ziel-Raumebene*</option>
 									</select>
 									<label>Wert:</label>
@@ -341,7 +341,7 @@
 										ng-model="colDefaultFunctionNewValue" ng-disabled="!$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedDatasourceTypeIsInline(batchList)">
 									</input>
 
-									<!-- ID Attributname der Raumebenen-Raumeinheiten* -->
+									<!-- ID Attributname der Raumebenen-Features* -->
 									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.propertyMapping.spatialReferenceKeyProperty'" type="text" class="form-control"
 										ng-model="colDefaultFunctionNewValue">
 									</input>

@@ -83,7 +83,7 @@ angular
 						}
 
 						if(dataset.geoJSON.features.length == 0){
-							kommonitorToastHelperService.displayErrorToast_upperLeft("Datensatz kann nicht als Layer geladen werden.", "Keine Raumeinheiten im Datensatz.");
+							kommonitorToastHelperService.displayErrorToast_upperLeft("Datensatz kann nicht als Layer geladen werden.", "Keine Features im Datensatz.");
 							return;
 						}
 
