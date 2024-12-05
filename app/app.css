@@ -452,6 +452,17 @@ pre.CodeMirror-line {
   grid-template-columns: auto min-content;
 }
 
+.list-group .list-group-item.list-group-item-grid-layout div:first-child,
+.list-group .list-group-item .list-group-item-grid-layout div:first-child {
+  cursor: pointer;
+}
+
+.list-group .list-group-item.list-group-item-grid-layout.selectedIndicator,
+.list-group .list-group-item .list-group-item-grid-layout.selectedIndicator {
+  background: #337ab7 !important;
+	color: white !important;
+}
+
 .list-group.list-group-root .list-group-item.list-group-item-grid-centered {
     display: grid;
     grid-template-columns: 1fr auto;
@@ -3093,7 +3104,8 @@ input:checked + .switchslider:before {
 }
 
 .style-headline-indicator {
-	background-color: rgb(247,147,30);
+	background-color: rgb(247,147,30) !important;
+  color: #fff !important;
 }
 
 .style-computation-indicator {

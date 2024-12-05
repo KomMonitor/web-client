@@ -113,6 +113,7 @@ angular
                 $scope.$on("initialMetadataLoadingCompleted", function (event) {
 
                   $scope.indicatorFavTopicsTree = prepTopicsTree(kommonitorDataExchangeService.topicIndicatorHierarchy,0);
+                  console.log($scope.indicatorFavTopicsTree);
 									addClickListenerToEachCollapseTrigger();
 
                   var userInfo = kommonitorFavService.getUserInfo();

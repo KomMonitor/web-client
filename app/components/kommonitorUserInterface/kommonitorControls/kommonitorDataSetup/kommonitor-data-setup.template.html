@@ -293,8 +293,9 @@
                                 
                                 <div id="indicatorFavSubTopic-{{topic.topicId}}" class="subTopic-block">
                                   <div ng-if="topic.subTopics" ng-repeat="topic in topic.subTopics | orderBy: 'topicName'" ng-include="'indicatorTopicTree'"></div>
-                                  <div ng-if="topic.indicatorData && indicatorFavSelected(data.indicatorId)" ng-repeat="data in topic.indicatorData | orderBy: 'indicatorName'" class="indicator-element list-group-item-grid-layout">
-                                    <div>
+                                  <div ng-if="topic.indicatorData && indicatorFavSelected(data.indicatorId)" ng-repeat="data in topic.indicatorData | orderBy: 'indicatorName'" class="indicator-element list-group-item-grid-layout" 
+                                    ng-class="{'style-headline-indicator': data.isHeadlineIndicator, 'selectedIndicator': $ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.indicatorId==data.indicatorId}">
+                                    <div ng-click="onClickHierarchyIndicator(data)">
                                       <i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>{{data.indicatorName}}</b> [{{data.unit}}]
                                     </div>
                                     <i ng-show="showFavSelection" class="glyphicon glyphicon-custom glyphicon-star" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[indicatorFavSelected(data.indicatorId)]" ng-click="onIndicatorFavClick(data.indicatorId)"></i>
