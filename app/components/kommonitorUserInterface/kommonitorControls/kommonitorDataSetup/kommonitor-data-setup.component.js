@@ -24,6 +24,7 @@ angular
 								$('.box').boxWidget();
 
 								var addClickListenerToEachCollapseTrigger = function(){
+
 									setTimeout(function(){
 										$('.list-group-item > .collapseTrigger').on('click', function() {
 									    $('.glyphicon', this)
@@ -41,13 +42,15 @@ angular
 												// }
 									  });
                     
-                    $('.list-group-item > .indicatorFavCollapseTrigger').on('click', function() {
+                    // addClass "clickBound" sets indicator, that listener has been added, not:.clickBound filters for that. otherwise multiple listeners will be added
+                    $('.list-group-item > .indicatorFavCollapseTrigger:not(.clickBound)').addClass('clickBound').on('click', function() {
 									    $('.glyphicon', this)
 									      .toggleClass('glyphicon-chevron-right')
 									      .toggleClass('glyphicon-chevron-down');
 
                       // manage entries
                       var clickedTopicId = $(this).attr('id');
+                      console.log(document.getElementById('indicatorFavSubTopic-'+clickedTopicId))
                       if(document.getElementById('indicatorFavSubTopic-'+clickedTopicId).style.display=='none')
                         document.getElementById('indicatorFavSubTopic-'+clickedTopicId).style.display = 'block';
                       else
@@ -975,6 +978,8 @@ angular
                     indicatorTopicFavourites: $scope.indicatorTopicFavItems,
                     indicatorFavourites: $scope.indicatorFavItems
                   });
+
+									addClickListenerToEachCollapseTrigger();
                 }
 
                 $scope.onSaveFavSelection = function() {

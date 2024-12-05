@@ -284,14 +284,16 @@
 													<div class="list-group list-group-root well" style="text-align: left">
                 
                             <script type="text/ng-template" id="indicatorTopicTree">
-                              <div class="list-group-item list-group-item-default list-group-item-grid-centered list-group-item-level-{{topic.level}}" ng-if="favTabShowTopic(topic) && topic.indicatorCount>0">
-                                <a ng-if="topic.subTopics.length>0 || topic.indicatorData.length>0" id="{{topic.topicId}}" href="" ng-attr-title="{{topic.topicDescription}}"
-                                  class="indicatorFavCollapseTrigger" style="color: white;">
-                                  <i class="glyphicon glyphicon-chevron-down"></i>{{topic.topicName}}</a>
-                                <p ng-if="topic.subTopics.length==0 && topic.indicatorData.length==0">{{topic.topicName}}</p>
-                                <i ng-show="showFavSelection" class="glyphicon glyphicon-custom" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[indicatorTopicFavSelected(topic.topicId)]" ng-click="onIndicatorTopicFavClick(topic.topicId)"></i>
+                              <div ng-if="favTabShowTopic(topic) && topic.indicatorCount>0">
+                                <div class="list-group-item list-group-item-default list-group-item-grid-centered list-group-item-level-{{topic.level}}">
+                                  <a ng-if="topic.subTopics.length>0 || topic.indicatorData.length>0" id="{{topic.topicId}}" href="" ng-attr-title="{{topic.topicDescription}}"
+                                    class="indicatorFavCollapseTrigger" style="color: white;">
+                                  <i class="glyphicon glyphicon-chevron-right"></i>{{topic.topicName}}</a>
+                                  <p ng-if="topic.subTopics.length==0 && topic.indicatorData.length==0">{{topic.topicName}}</p>
+                                  <i ng-show="showFavSelection" class="glyphicon glyphicon-custom" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[indicatorTopicFavSelected(topic.topicId)]" ng-click="onIndicatorTopicFavClick(topic.topicId)"></i>
+                                </div>
                                 
-                                <div id="indicatorFavSubTopic-{{topic.topicId}}" class="subTopic-block">
+                                <div id="indicatorFavSubTopic-{{topic.topicId}}" class="subTopic-block sub-topic-wrapper-level-{{topic.level}}" style="display:none">
                                   <div ng-if="topic.subTopics" ng-repeat="topic in topic.subTopics | orderBy: 'topicName'" ng-include="'indicatorTopicTree'"></div>
                                   <div ng-if="topic.indicatorData && indicatorFavSelected(data.indicatorId)" ng-repeat="data in topic.indicatorData | orderBy: 'indicatorName'" class="indicator-element list-group-item-grid-layout" 
                                     ng-class="{'style-headline-indicator': data.isHeadlineIndicator, 'selectedIndicator': $ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.indicatorId==data.indicatorId}">

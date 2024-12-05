@@ -434,7 +434,7 @@ pre.CodeMirror-line {
     border-width: 1px 0 0 0;
 }
 
-.list-group.list-group-root .list-group-item .glyphicon.glyphicon-custom {
+.list-group.list-group-root .glyphicon.glyphicon-custom {
   cursor: pointer;
 }
 
@@ -446,19 +446,16 @@ pre.CodeMirror-line {
   top: 4px !important;
 }
 
-.list-group .list-group-item.list-group-item-grid-layout,
-.list-group .list-group-item .list-group-item-grid-layout {
+.list-group .list-group-item-grid-layout {
   display: grid;
   grid-template-columns: auto min-content;
 }
 
-.list-group .list-group-item.list-group-item-grid-layout div:first-child,
-.list-group .list-group-item .list-group-item-grid-layout div:first-child {
+.list-group .list-group-item-grid-layout div:first-child {
   cursor: pointer;
 }
 
-.list-group .list-group-item.list-group-item-grid-layout.selectedIndicator,
-.list-group .list-group-item .list-group-item-grid-layout.selectedIndicator {
+.list-group .list-group-item-grid-layout.selectedIndicator {
   background: #337ab7 !important;
 	color: white !important;
 }
@@ -485,6 +482,7 @@ pre.CodeMirror-line {
     background: #6baed6; 
     color: white;
     padding-right: 3px;
+    margin-left: 15px;
 }
 
 .list-group.list-group-root .list-group-item.list-group-item-level-2 {
@@ -492,6 +490,7 @@ pre.CodeMirror-line {
     color: white;
     margin-left: 0px;
     padding-right: 3px;
+    margin-left: 15px;
 }
 
 .list-group.list-group-root .list-group-item.list-group-item-level-2 a,
@@ -504,6 +503,7 @@ pre.CodeMirror-line {
     color: white;
     margin-left: 0px;
     padding-right: 3px;
+    margin-left: 15px;
 }
 
 .list-group.list-group-root .list-group-item.list-group-item-level-3 a,
@@ -515,11 +515,46 @@ pre.CodeMirror-line {
   margin-top: .3em;
 }
 
-.list-group.list-group-root .list-group-item .indicator-element {
+.list-group.list-group-root .sub-topic-wrapper-level-1 {
+  margin-left: 15px;
+}
+
+.list-group.list-group-root .sub-topic-wrapper-level-2 {
+  margin-left: 15px;
+}
+
+.list-group.list-group-root .sub-topic-wrapper-level-3 {
+  margin-left: 15px;
+}
+
+.list-group.list-group-root .sub-topic-wrapper-level-0 .indicator-element {
+  margin-left: 15px;  
+  border-top: 1px solid #ddd;
+}
+
+.list-group.list-group-root .sub-topic-wrapper-level-1 .indicator-element {
+  margin-left: 15px;
+  border-top: 1px solid #ddd;
+}
+
+.list-group.list-group-root .sub-topic-wrapper-level-2 .indicator-element {
+  margin-left: 15px;
+  border-top: 1px solid #ddd;
+}
+
+.list-group.list-group-root .sub-topic-wrapper-level-3 .indicator-element {
+  margin-left: 15px;
+  border-top: 1px solid #ddd;
+}
+
+.list-group.list-group-root .list-group-item .indicator-element,
+.list-group.list-group-root .indicator-element {
   background-color: white;
   color: #000;
   padding: .6em;
 }
+
+
 .list-group .list-group-item .georesource-item-content-grid {
   display: grid;
   grid-template-columns: min-content 1fr 1fr min-content;
@@ -3105,6 +3140,10 @@ input:checked + .switchslider:before {
 
 .style-headline-indicator {
 	background-color: rgb(247,147,30) !important;
+  color: #fff !important;
+}
+
+.style-headline-indicator .glyphicon.glyphicon-star {
   color: #fff !important;
 }
 
