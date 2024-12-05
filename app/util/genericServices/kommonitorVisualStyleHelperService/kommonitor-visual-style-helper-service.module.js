@@ -58,6 +58,7 @@ angular
       var defaultBorderColorForNoDataValues = __env.defaultBorderColorForNoDataValues;
       var defaultColorForNoDataValues = __env.defaultColorForNoDataValues;
       var defaultFillOpacityForNoDataValues = __env.defaultFillOpacityForNoDataValues;
+      var customColorSchemes = __env.customColorSchemes;
 
       this.indicatorTransparency = 1 - __env.defaultFillOpacity;
       this.currentIndicatorOpacity = __env.defaultFillOpacity;
@@ -170,6 +171,12 @@ angular
 
       this.createNewClassyBrewInstance = function(){
         let classyBrewInstance = new classyBrew();
+
+        // Add custom color themes from configuration properties
+        if(customColorSchemes) {
+          colorbrewer = Object.assign(customColorSchemes, colorbrewer);
+        }
+
         // must overwrite the color schemes of classybrew if there are any custom color palettes defined by KomMonitor users
         // that are not part of official colorbrewer project
         // deep clone colorbrewer content in case some methods use .shift method on color palette arrays

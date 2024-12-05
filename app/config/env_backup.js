@@ -289,6 +289,19 @@ try {
   window.__env.defaultColorBrewerPaletteForGtMovValues = "YlOrBr";
   window.__env.defaultColorBrewerPaletteForLtMovValues = "Blues";
 
+    // Custom color schemes
+    // window.__env.customColorSchemes = {
+    //   Dunkelblau: {
+    //       3: ["#E2EDFF", "#818BEC", "#25328A"],
+    //       4: ["#B0BBFF", "#818BEC", "#535EB6", "#25328A"],
+    //       5: ["#E2EDFF", "#B0BBFF", "#818BEC", "#535EB6", "#25328A"],
+    //       6: ["#E2EDFF", "#B0BBFF", "#818BEC", "#535EB6", "#25328A", "#001d36"],
+    //       7: ["#f4fbff", "#E2EDFF", "#B0BBFF", "#818BEC", "#535EB6", "#25328A", "#001d36"],
+    //       8: ["#f4fbff", "#E2EDFF", "#B0BBFF", "#818BEC", "#535EB6", "#25328A", "#002C58", "#001d36"],
+    //       9: ["#F7FCFF", "#f4fbff", "#E2EDFF", "#B0BBFF", "#818BEC", "#535EB6", "#25328A", "#002C58", "#001d36"]
+    //   }
+    // };
+
   // classification
   //allowesValues: equal_interval, quantile, jenks
   window.__env.defaultClassifyMethod = "equal_interval";
