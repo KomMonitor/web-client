@@ -48,7 +48,7 @@ angular
         self.clientId = keycloakConfig['resource'];
 
         // https://<keycloak.url>/auth/admin/<realm-name>/console
-        self.targetRealmUrlToKeycloakInstance = self.targetUrlToKeycloakInstance + "admin/" + self.realm + "/console";
+        self.targetRealmUrlToKeycloakInstance = self.targetUrlToKeycloakInstance + "admin/" + self.realm + "/console/";
       };
 
       this.fetchRoles = async function () {
