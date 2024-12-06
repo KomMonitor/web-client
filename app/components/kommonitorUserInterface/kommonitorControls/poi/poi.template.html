@@ -2275,34 +2275,196 @@
             <div class="list-group list-group-root well" style="text-align: left">
   
               <script type="text/ng-template" id="georesourceTopicTree">
-                <div class="list-group-item list-group-item-default list-group-item-grid-centered list-group-item-level-{{topic.level}}" ng-if="favTabShowTopic(topic) && topic.totalCount>0">
-                  <a ng-if="topic.subTopics.length>0 || topic.poiData.length>0 || topic.aoiData.length>0 || topic.loiData.length>0" id="{{topic.topicId}}" href="" ng-attr-title="{{topic.topicDescription}}"
-                    class="georesourcesFavCollapseTrigger" style="color: white;">
-                    <i class="glyphicon glyphicon-chevron-down"></i>{{topic.topicName}}</a>
-                  <p ng-if="topic.subTopics.length==0 && topic.poiData.length==0 && topic.aoiData.length==0 && topic.loiData.length==0">{{topic.topicName}}</p>
-                  <i ng-show="showFavSelection" class="glyphicon glyphicon-custom" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[georesourceTopicFavSelected(topic.topicId)]" ng-click="onGeoresourceTopicFavClick(topic.topicId)"></i>
-                  
-                  <div id="georesourcesFavSubTopic-{{topic.topicId}}" class="subTopic-block">
-                    <div ng-if="topic.subTopics" ng-repeat="topic in topic.subTopics | orderBy: 'topicName'" ng-include="'georesourceTopicTree'"></div>
-                    <div ng-if="topic.poiData && poiFavSelected(poi.georesourceId)" ng-repeat="poi in topic.poiData | orderBy: 'datasetName'" class="indicator-element list-group-item-grid-layout">
-                      <div class="georesource-item-content-grid">
-                        <i class="fas fa-map-marker-alt"></i><b>{{poi.datasetName}}</b><p>{{poi.metadata.description}}</p>
-                      </div>
-                      <i ng-show="showFavSelection" class="glyphicon glyphicon-custom glyphicon-star" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[poiFavSelected(poi.georesourceId)]" ng-click="onPoiFavClick(poi.georesourceId)"></i>
-                    </div>
-                    <div ng-if="topic.aoiData && poiFavSelected(aoi.georesourceId)" ng-repeat="aoi in topic.aoiData | orderBy: 'datasetName'" class="indicator-element list-group-item-grid-layout">
-                      <div class="georesource-item-content-grid">
-                        <i class="far fa-square"></i><b>{{aoi.datasetName}}</b><p>{{aoi.metadata.description}}</p>
-                      </div>
-                      <i ng-show="showFavSelection" class="glyphicon glyphicon-custom glyphicon-star" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[poiFavSelected(aoi.georesourceId)]" ng-click="onPoiFavClick(aoi.georesourceId)"></i>
-                    </div>
-                    <div ng-if="topic.loiData && poiFavSelected(loi.georesourceId)" ng-repeat="loi in topic.loiData | orderBy: 'datasetName'" class="indicator-element list-group-item-grid-layout">
-                      <div class="georesource-item-content-grid">
-                        <i class="fas fa-minus"></i><b>{{loi.datasetName}}</b><p>{{loi.metadata.description}}</p>
-                      </div>
-                      <i ng-show="showFavSelection" class="glyphicon glyphicon-custom glyphicon-star" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[poiFavSelected(loi.georesourceId)]" ng-click="onPoiFavClick(loi.georesourceId)"></i>
-                    </div>
+                <div ng-if="favTabShowTopic(topic) && topic.totalCount>0">
+                  <div class="list-group-item list-group-item-default list-group-item-grid-centered-georesources georesources-grid-item list-group-item-level-{{topic.level}}">
+                    <a ng-if="topic.subTopics.length>0 || topic.poiData.length>0 || topic.aoiData.length>0 || topic.loiData.length>0" id="{{topic.topicId}}" href="" ng-attr-title="{{topic.topicDescription}}"
+                      class="georesourcesFavCollapseTrigger" style="color: white;">
+                      <i class="glyphicon glyphicon-chevron-right"></i>{{topic.topicName}}</a>
+                    <p ng-if="topic.subTopics.length==0 && topic.poiData.length==0 && topic.aoiData.length==0 && topic.loiData.length==0">{{topic.topicName}}</p>
+                    <input type="checkbox" ng-model="topic.isSelected"
+                      value="topic.isSelected" id="showAllForTopic_{{::topic.topicId}}"
+                      ng-change="handleShowAllOnTopic(topic)">
+                    <i ng-show="showFavSelection" class="glyphicon glyphicon-custom" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[georesourceTopicFavSelected(topic.topicId)]" ng-click="onGeoresourceTopicFavClick(topic.topicId)"></i>
                   </div>
+
+                  <div id="georesourcesFavSubTopic-{{topic.topicId}}" class="subTopic-block sub-topic-wrapper-level-{{topic.level}}" style="display:none">
+                    <div ng-if="topic.subTopics" ng-repeat="topic in topic.subTopics | orderBy: 'topicName'" ng-include="'georesourceTopicTree'"></div>
+ 
+                  <div ng-if="(topic.poiData && poiFavSelected(topic.poiData)) || (topic.aoiData && poiFavSelected(topic.aoiData)) || (topic.loiData && poiFavSelected(topic.loiData))" class="georesource-fav-details-wrapper">
+                    <table class="table table-condensed " style="margin-bottom:0px;">
+                      <thead>
+                        <tr>
+                          <th>Typ</th>
+                          <th>Datensatz</th>
+                          <th>Beschreibung</th>
+                          <th>Legende</th>
+                          <th
+                            ng-if="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
+                            Lebenszeit-Beginn</th>
+                          <th ng-if="$ctrl.kommonitorDataExchangeServiceInstance.showGeoresourceExportButtons">Export</th>
+                          <th></th>
+                        </tr>
+                      </thead>
+                    
+                      <tbody>
+                        <!-- POI -->
+                        <tr ng-repeat="poi in topic.poiData">
+                          <td>
+                            <i class="fas fa-map-marker-alt"></i>
+                          </td>
+                          <td>
+                            <label class='checkbox-inline'><input
+                                type="checkbox" value="poi.datasetName"
+                                ng-model="poi.isSelected"
+                                ng-change="handlePoiOnMap(poi)">
+                    
+                              <b>&nbsp;&nbsp;{{::poi.datasetName}}</b> <a href="" ng-show="poi.isSelected" title="Auf Layer zoomen" ng-click="zoomToLayer(poi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></a>
+                            </label>
+                          </td>
+                          <td>
+                            <p>{{::poi.metadata.description}}</p>
+                          </td>
+                          <td class="text-center">
+                            <div align="center">
+                              <div
+                                class="awesome-marker-legend awesome-marker-legend-icon-{{::poi.poiMarkerColor}}">
+                                <span
+                                  ng-if="!poi.poiMarkerStyle || poi.poiMarkerStyle == 'symbol'"
+                                  style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:{{::poi.poiSymbolColor}};"
+                                  class="glyphicon glyphicon-{{::poi.poiSymbolBootstrap3Name}}"
+                                  aria-hidden="true"></span>
+                                <span 
+                                  ng-else
+                                  style="font-size:0.9em; color:{{::poi.poiSymbolColor}};">
+                                  {{ poi.poiMarkerText }}
+                                </span>
+                              </div>
+                            </div>
+                          </td>
+                          <td
+                            ng-if="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
+                            <select
+                              style="font-size: 11px; width:135px; padding: 0px;"
+                              ng-model="poi.selectedDate"
+                              ng-change="onChangeSelectedDate(poi)"
+                              ng-options="date as date.startDate for date in poi.availablePeriodsOfValidity | orderBy: 'startDate' | unique: 'startDate'"
+                              ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]"
+                              class="form-control" required>
+                            </select>
+                          </td>
+                          <td ng-if="$ctrl.kommonitorDataExchangeServiceInstance.showGeoresourceExportButtons" class="text-center">
+                            <a href="" ng-click="getExportLinkForPoi(poi)"
+                              title="Download Features as GeoJSON"><i
+                                class="fas fa-file-download fa-lg"></i></a>
+                                
+                            <a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.downloadMetadataPDF_georesource(loi)"
+                              title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
+                          </td>
+                          <td>
+                            <i ng-show="showFavSelection" class="glyphicon glyphicon-custom" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[poiFavSelected(poi.georesourceId)]" ng-click="onPoiFavClick(poi.georesourceId)" style="color: black;"></i>
+                          </td>
+                        </tr>
+
+                        <!-- LOI -->
+                        <tr ng-repeat='loi in topic.loiData'>
+                          <td>
+                            <i class="fas fa-minus"></i>
+                          </td>
+                          <td>
+                            <label class='checkbox-inline'><input
+                                type="checkbox" value="loi.datasetName"
+                                ng-model="loi.isSelected"
+                                ng-change="handleLoiOnMap(loi)">
+                    
+                              <b>&nbsp;&nbsp;{{::loi.datasetName}}</b> <a href="" ng-show="loi.isSelected" title="Auf Layer zoomen" ng-click="zoomToLayer(loi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></a>
+                            </label>
+                          </td>
+                          <td>
+                            <p>{{::loi.metadata.description}}</p>
+                          </td>
+                          <td class="text-center">
+                            <div align="center">
+                              <i
+                                style="width:15px; height:15px; background:{{::loi.loiColor}}; display:inherit;">
+                              </i>
+                            </div>
+                    
+                          </td>
+                          <td
+                            ng-if="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
+                            <select
+                              style="font-size: 11px; width:135px; padding: 0px;"
+                              ng-model="loi.selectedDate"
+                              ng-change="onChangeSelectedDate(loi)"
+                              ng-options="date as date.startDate for date in loi.availablePeriodsOfValidity | orderBy: 'startDate' | unique: 'startDate'"
+                              ng-init="loi.selectedDate = loi.availablePeriodsOfValidity[loi.availablePeriodsOfValidity.length - 1]"
+                              class="form-control" required>
+                            </select>
+                          </td>
+                          <td ng-if="$ctrl.kommonitorDataExchangeServiceInstance.showGeoresourceExportButtons" class="text-center">
+                            <a href="" ng-click="getExportLinkForLoi(loi)"
+                              title="Download Features as GeoJSON"><i
+                                class="fas fa-file-download fa-lg"></i></a>
+                    
+                            <a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.downloadMetadataPDF_georesource(loi)"
+                              title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
+                          </td>
+                          <td>
+                            <i ng-show="showFavSelection" class="glyphicon glyphicon-custom" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[poiFavSelected(loi.georesourceId)]" ng-click="onPoiFavClick(loi.georesourceId)" style="color: black;"></i>
+                          </td>
+                        </tr>
+                    
+                        <!-- AOI -->
+                        <tr ng-repeat='aoi in in topic.aoiData'>
+                          <td>
+                            <i class="far fa-square"></i>
+                          </td>
+                          <td>
+                            <label class='checkbox-inline'><input
+                                type="checkbox" value="aoi.datasetName"
+                                ng-model="aoi.isSelected"
+                                ng-change="handleAoiOnMap(aoi)">
+                    
+                              <b>&nbsp;&nbsp;{{::aoi.datasetName}}</b> <a href="" ng-show="aoi.isSelected" title="Auf Layer zoomen" ng-click="zoomToLayer(aoi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></a>
+                            </label>
+                          </td>
+                          <td>
+                            <p>{{::aoi.metadata.description}}</p>
+                          </td>
+                          <td class="text-center">
+                            <div align="center">
+                              <i
+                                style="width:15px; height:15px; background:{{::aoi.aoiColor}}; display:inherit;">
+                              </i>
+                            </div>
+                          </td>
+                          <td
+                            ng-if="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
+                            <select
+                              style="font-size: 11px; width:135px; padding: 0px;"
+                              ng-model="aoi.selectedDate"
+                              ng-change="onChangeSelectedDate(aoi)"
+                              ng-options="date as date.startDate for date in aoi.availablePeriodsOfValidity | orderBy: 'startDate' | unique: 'startDate'"
+                              ng-init="aoi.selectedDate = aoi.availablePeriodsOfValidity[aoi.availablePeriodsOfValidity.length - 1]"
+                              class="form-control" required>
+                            </select>
+                          </td>
+                          <td ng-if="$ctrl.kommonitorDataExchangeServiceInstance.showGeoresourceExportButtons" class="text-center">
+                            <a href="" ng-click="getExportLinkForAoi(aoi)"
+                              title="Download Features as GeoJSON"><i
+                                class="fas fa-file-download fa-lg"></i></a>
+                    
+                            <a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.downloadMetadataPDF_georesource(aoi)"
+                              title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
+                          </td>
+                          <td>
+                            <i ng-show="showFavSelection" class="glyphicon glyphicon-custom" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[poiFavSelected(aoi.georesourceId)]" ng-click="onPoiFavClick(aoi.georesourceId)" style="color: black;"></i>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
                 </div>
               </script>
 

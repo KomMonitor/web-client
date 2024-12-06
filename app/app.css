@@ -438,6 +438,10 @@ pre.CodeMirror-line {
   cursor: pointer;
 }
 
+.list-group.list-group-root .georesource-fav-details-wrapper {
+  overflow-x: scroll;
+}
+
 .glyphicon-star {
   color: var(--extend_bg) !important;
 }
@@ -465,6 +469,24 @@ pre.CodeMirror-line {
     grid-template-columns: 1fr auto;
 }
 
+.list-group.list-group-root .list-group-item.list-group-item-grid-centered-georesources {
+  display: grid;
+  grid-template-columns: min-content min-content auto;
+}
+
+.list-group.list-group-root .list-group-item.list-group-item-grid-centered-georesources *:first-child{
+  text-wrap: nowrap;
+  padding-right: .6em;
+}
+
+.list-group.list-group-root .list-group-item.list-group-item-grid-centered-georesources input[type="checkbox"] {
+  margin: 0 !important;
+} 
+
+.list-group.list-group-root .list-group-item.list-group-item-grid-centered-georesources .glyphicon.glyphicon-star,
+.list-group.list-group-root .list-group-item.list-group-item-grid-centered-georesources .glyphicon.glyphicon-star-empty {
+  text-align: right;
+}
 /* .list-group.list-group-root .list-group-item.list-group-item-grid-layout a,
 .list-group.list-group-root .list-group-item.list-group-item-grid-layout p,
 .list-group.list-group-root .list-group-item.list-group-item-grid-layout input {
@@ -555,7 +577,7 @@ pre.CodeMirror-line {
 }
 
 
-.list-group .list-group-item .georesource-item-content-grid {
+.list-group .georesource-item-content-grid {
   display: grid;
   grid-template-columns: min-content 1fr 1fr min-content;
   grid-gap: 1em;

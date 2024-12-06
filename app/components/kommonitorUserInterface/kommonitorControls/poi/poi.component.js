@@ -122,7 +122,8 @@ angular
 												// }
 									  });
                     
-                    $('.list-group-item > .georesourcesFavCollapseTrigger').on('click', function() {
+                    // addClass "clickBound" sets trigger, that listener has been added, not:.clickBound filters for that. otherwise multiple listeners will be added
+                    $('.list-group-item > .georesourcesFavCollapseTrigger:not(.clickBound)').addClass('clickBound').on('click', function() {
 									    $('.glyphicon', this)
 									      .toggleClass('glyphicon-chevron-right')
 									      .toggleClass('glyphicon-chevron-down');
@@ -980,7 +981,11 @@ angular
                 }
 
                 $scope.poiFavSelected = function(id) {
-                  return $scope.poiFavItems.includes(id);
+
+                  if(Array.isArray(id))
+                    return id.some(e => $scope.poiFavItems.includes(e.georesourceId));
+                  else
+                    return $scope.poiFavItems.includes(id);
                 }
 
              /*    $scope.aoiFavSelected = function(id) {
@@ -1036,6 +1041,8 @@ angular
                     georesourceTopicFavourites: $scope.georesourceTopicFavItems,
                     georesourceFavourites: $scope.poiFavItems
                   });
+
+									addClickListenerToEachCollapseTrigger();
                 }
                 
                 $scope.onSaveFavSelection = function() {

@@ -42,7 +42,7 @@ angular
 												// }
 									  });
                     
-                    // addClass "clickBound" sets indicator, that listener has been added, not:.clickBound filters for that. otherwise multiple listeners will be added
+                    // addClass "clickBound" sets trigger, that listener has been added, not:.clickBound filters for that. otherwise multiple listeners will be added
                     $('.list-group-item > .indicatorFavCollapseTrigger:not(.clickBound)').addClass('clickBound').on('click', function() {
 									    $('.glyphicon', this)
 									      .toggleClass('glyphicon-chevron-right')
@@ -50,7 +50,6 @@ angular
 
                       // manage entries
                       var clickedTopicId = $(this).attr('id');
-                      console.log(document.getElementById('indicatorFavSubTopic-'+clickedTopicId))
                       if(document.getElementById('indicatorFavSubTopic-'+clickedTopicId).style.display=='none')
                         document.getElementById('indicatorFavSubTopic-'+clickedTopicId).style.display = 'block';
                       else
@@ -116,7 +115,6 @@ angular
                 $scope.$on("initialMetadataLoadingCompleted", function (event) {
 
                   $scope.indicatorFavTopicsTree = prepTopicsTree(kommonitorDataExchangeService.topicIndicatorHierarchy,0);
-                  console.log($scope.indicatorFavTopicsTree);
 									addClickListenerToEachCollapseTrigger();
 
                   var userInfo = kommonitorFavService.getUserInfo();
