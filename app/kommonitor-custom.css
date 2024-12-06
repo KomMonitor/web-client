@@ -1,37 +1,25 @@
 /* Use this CSS file for custom layouts */
 
-/* Example for setting a custom color theme
-/* :root {
+/* :root { 
+  Setting a custom color theme in different shades 
 	--kommonitor-primary: #017925;
 	--kommonitor-light: #85b794;
 	--kommonitor-dark: #02631f;
-	--custom-font-family: "Comic Sans MS", "Comic Sans", cursive;
-} */
+	
+  
+  Custom font family for UserInterface. 
+  Working examples: --custom-font-family: "Comic Sans MS", "Comic Sans";
+  
+  --custom-font-family: "Comic Sans MS", "Comic Sans"; 
 
-/* Example for defining a custom color for buttons 
-.btn-custom {
-	background-color: #b62d23;
-}
-*/
-<<<<<<< HEAD
-=======
-:root {
-  /* 
-    Custom font family for UserInterface. 
-    Working examples:
-      --custom-font-family: "Comic Sans MS", "Comic Sans", cursive;
-  */
-  --custom-font-family: "Comic Sans MS"; 
+  
+  Custom font family for PDF export, as this does not support the build-in font families and needs to be imported separately 
+  Supporting internal ttf files only
+    
+  Internal fonts need to be placed as ttf in 'app/components/fonts/' without special chars and white spaces
+  Working example for file "Comic_Sans_internal.ttf": --custom-font-file: "Comic_Sans_internal.ttf";
+    
+  
+  --custom-font-file: "Roboto-Regular.ttf";
+}  */
 
-  /* 
-    Custom font family for PDF export, as this does not support the build-in font families and needs to be imported separately 
-    Supporting internal ttf files only
-    
-    Internal fonts need to be placed as ttf in 'app/components/fonts/' without special chars and white spaces
-    Working example for file "Comic_Sans_internal.ttf":
-      --custom-font-file: "Comic_Sans_internal.ttf";
-    
-  */
-  --custom-font-file: "Comic_Sans_internal.ttf";
-}
->>>>>>> origin/feature/298
