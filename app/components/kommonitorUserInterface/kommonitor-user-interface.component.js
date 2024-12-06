@@ -569,7 +569,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				placement: "left",
 				content: "Im oberen Bereich sind der <b>Name</b>, eine kurze <b>Beschreibung</b> sowie das <b>Fortf&uuml;hrungsintervall</b> des angezeigten Indikators zu finden. </br>" + 				
 				"Als erg&auml;nzende Informationen werden der <b>Stichtag</b>, die <b>Einheit</b> sowie eine kurze <b>Interpretationshilfe angezeigt.</b></br>" +
-				"Es folgt eine <b>Farblegende mit Klassen</b> f&uuml;r den angezeigten Indikator sowie die <b>Wertebereiche und Anzahl Raumebenen je Klasse</b></br> " +
+				"Es folgt eine <b>Farblegende mit Klassen</b> f&uuml;r den angezeigten Indikator sowie die <b>Wertebereiche und Anzahl Raumeinheiten je Klasse</b></br> " +
 				"Die einzelnen Reiter ganz oben erm&ouml;glichen den Wechsel zwischen verschiedenen Legenden, sofern zus&auml;tzlich zu einem <i>Indikator</i> </br>" +
 				"erg&auml;nzende Metadaten oder eingebundene <i>WMS-Dienste</i> angezeigt werden sollen.",				
 				onNext: function(tour){
@@ -850,7 +850,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				content: "Zus&auml;tzlich zur kartografischen Darstellung bieten grundlegende <b>statistische Diagramme</b> hilfreiche Zusatzinformationen zum gew&auml;hlten Indikator. " +
 				"<br/><br/>Ein <b>Ranking</b> der jeweiligen Raumebenen wird anhand eines <b>S&auml;ulendiagramms</b> dargestellt. " + 
 				"<br/><br/>Das untere <b>Liniendiagramm</b> visualisiert die <b>zeitliche Entwicklung</b> des aktuellen Indikators &uuml;ber alle jeweils verf&uuml;gbaren Zeitschnitte. " + 
-				"Als Zusatzinformation wird hier der Durchschnittswert &uuml;ber alle Raumebenen dargestellt. " + 
+				"Als Zusatzinformation wird hier der Durchschnittswert &uuml;ber alle Raumeinheiten dargestellt. " + 
 				"<br/><br/>Um einzelne Elemente der gew&auml;hlten Raumebene im S&auml;ulen- und Liniendiagramm zu betrachten und <i>hervorzuheben</i>, " + 
 				"kann mit dem <i>Mauszeiger</i> entweder &uuml;ber die <i>S&auml;ule innerhalb des S&auml;ulendiagramms</i> oder &uuml;ber das jeweilige <i>Element in der Karte</i> gefahren werden. " + 
 				"Eine dauerhafte Selektion durch Klicken auf das kartografische Element oder die dazugeh&ouml;rige S&auml;ule erm&ouml;glicht das simultane Betrachten mehrerer Elemente. " + 

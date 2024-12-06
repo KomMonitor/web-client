@@ -201,7 +201,7 @@ angular
       this.addCoverageInformation_totalCoverage = async function (doc, reachabilityScenario, indicatorStatistic) {
         doc.setFont(fontName, 'bolditalic');
         doc.setFontSize(12);
-        let totalCoverageTitle = doc.splitTextToSize("Gesamtergebnis - Versorgung über alle Raumebenen", 180);
+        let totalCoverageTitle = doc.splitTextToSize("Gesamtergebnis - Versorgung über alle Raumeinheiten", 180);
         doc.text(totalCoverageTitle, initX, nextLineY, { baseline: "top" });
         doc.setFont(fontName, "normal", "normal");
         doc.setFontSize(fontSize_default);
@@ -270,7 +270,7 @@ angular
 
           doc.setFont(fontName, 'bolditalic');
           doc.setFontSize(12);
-          let totalCoverageTitle = doc.splitTextToSize("Gesamtergebnis - Versorgung über alle Raumebenen", 180);
+          let totalCoverageTitle = doc.splitTextToSize("Gesamtergebnis - Versorgung über alle Raumeinheiten", 180);
           doc.text(totalCoverageTitle, initX, nextLineY, { baseline: "top" });
           doc.setFont(fontName, "normal", "normal");
           doc.setFontSize(fontSize_default);
