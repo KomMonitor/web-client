@@ -10,7 +10,7 @@ angular
       var self = this;
       this.baseUrlToKomMonitorDataAPI = __env.apiUrl + __env.basePath;
       this.userInfoExists = false;
-      this.userInfo = {};
+      this.userInfoId = undefined;
 
       this.bodyTemplate = {
         "georesourceFavourites": [],
@@ -27,14 +27,6 @@ angular
           if(favorites[key] !== undefined)
             self.favObject[key] = favorites[key];
         });
-
-        // delete empty ones for patch
-        if(fullBody===false) {
-          Object.keys(self.favObject).forEach(function(key) {
-            if(self.favObject[key].length==0)
-              delete(self.favObject[key]); 
-          });
-        }
       }
 
       this.handleFavSelection = function(favorites) {
@@ -42,20 +34,24 @@ angular
       }
 
       this.getUserInfo = function() {
-        return self.userInfo;
+        return self.favObject;
       }
 
       this.storeFavSelection = function() {
 
         if(self.userInfoExists===true) {
 
+          var body = self.favObject;
+          delete(body.userInfoId);
+          delete(body.keycloakId);
+
           $http({
-            url: `${this.baseUrlToKomMonitorDataAPI}/userInfos/${self.userInfo.userInfoId}`,
-            method: "PATCH",
-            data: self.favObject
+            url: `${this.baseUrlToKomMonitorDataAPI}/userInfos/${self.userInfoId}`,
+            method: "PUT",
+            data: body
           }).then(async function successCallback(response) {			
             console.log("userInfo data patched");
-            self.userInfo = response.data;
+            self.favObject = response.data;
             }, function errorCallback(error) {
               console.log("Unable to store userInfo data");
           }); 
@@ -65,10 +61,10 @@ angular
           $http({
             url: `${this.baseUrlToKomMonitorDataAPI}/userInfos`,
             method: "POST",
-            data: self.favObject
+            data: body
           }).then(async function successCallback(response) {			
             self.userInfoExists = true;
-            self.userInfo = response.data;
+            self.favObject = response.data;
             console.log("userInfo data initialized");
             }, function errorCallback(error) {
               console.log("Unable to store userInfo data");
@@ -81,7 +77,8 @@ angular
         $http.get(`${this.baseUrlToKomMonitorDataAPI}/userInfos/user`, {'responseType': 'text'}).then(function (response) {
           if(response.data.userInfoId) {
             self.userInfoExists = true;
-            self.userInfo = response.data;
+            self.userInfoId = response.data.userInfoId;
+            self.favObject = response.data;
           }
         });
       };
