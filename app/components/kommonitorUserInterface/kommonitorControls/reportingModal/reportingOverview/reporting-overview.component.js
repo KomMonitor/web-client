@@ -997,7 +997,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 						case "indicatorTitle-portrait": {
 							// Css takes the top-left edge of the element by default.
 							// doc.text takes left-bottom, so we ass baseline "top" to achieve the same behavior in jspdf.
-							doc.setFont(fontName, "Bold")
+							doc.setFont(fontName, "normal", "normal")
 							doc.text(pageElement.text, pageElementDimensions.left, pageElementDimensions.top, { baseline: "top" });
 							doc.setFont(fontName, "normal", "normal")
 							break;
