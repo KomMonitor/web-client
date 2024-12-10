@@ -39,6 +39,15 @@
 								<h3 class="fs-subtitle">Auswahl der sichtbaren Indikatoren</h3>
 
 								<div class="row">
+                  <div class="col-md-12 col-sm-12 col-xs-12" ng-show="permissions.length!=0">
+                    <div class="form-group vertical-align">
+                        <label class="margin-right">Zeige nur zugewiesene Indikatoren</label>
+                        <label class="switch">
+                            <input type="checkbox" value="showSelectedIndicatorsOnly" ng-model="showSelectedIndicatorsOnly" ng-change="onShowSelectedIndicatorsOnly()" ng-disabled="selectedIndicatorIds.length==0">
+                            <span class="switchslider round"></span>
+                        </label>
+                    </div>
+                  </div>
                   <div class="col-md-2"></div>
                   <div class="col-md-8 col-xs-12">
                       <div id="adminFilterEditIndicatorsTable" style="height: 45vh" class="ag-theme-alpine"></div>  
@@ -83,6 +92,15 @@
 								<h3 class="fs-subtitle">Auswahl der sichtbaren Georesourcen</h3>
 
 								<div class="row">
+                  <div class="col-md-12 col-sm-12 col-xs-12" ng-show="permissions.length!=0">
+                    <div class="form-group vertical-align">
+                        <label class="margin-right">Zeige nur zugewiesene Georesourcen</label>
+                        <label class="switch">
+                            <input type="checkbox" value="showSelectedGeoresourcesOnly" ng-model="showSelectedGeoresourcesOnly" ng-change="onShowSelectedGeoresourcesOnly()" ng-disabled="selectedGeoresourceIds.length==0">
+                            <span class="switchslider round"></span>
+                        </label>
+                    </div>
+                  </div>
                   <div class="col-md-2"></div>
                   <div class="col-md-8 col-xs-12">
                       <div id="adminFilterEditGeoresourcesTable" style="height: 45vh" class="ag-theme-alpine"></div>  

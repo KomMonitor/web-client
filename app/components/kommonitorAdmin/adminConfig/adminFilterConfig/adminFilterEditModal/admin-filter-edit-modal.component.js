@@ -29,6 +29,9 @@ angular.module('adminFilterEditModal').component('adminFilterEditModal', {
     $scope.georesourceTopicsEditTree = [];
     $scope.selectedGeoresourceTopicEditIds = [];
 
+    $scope.showSelectedIndicatorsOnly = true;
+    $scope.showSelectedGeoresourcesOnly = true;
+    
     $scope.filterConfig = [];
 
 		// initialize any adminLTE box widgets
@@ -111,6 +114,13 @@ angular.module('adminFilterEditModal').component('adminFilterEditModal', {
         $scope.selectedGeoresourceTopicEditIds = $scope.selectedGeoresourceTopicEditIds.filter(e => e!=id);
 
       searchGeoresourceItemRecursive($scope.georesourceTopicsEditTree, id, selected);
+    }
+
+    $scope.onShowSelectedIndicatorsOnly = function() {
+      refreshIndicatorsTable();
+    }
+    $scope.onShowSelectedGeoresourcesOnly = function() {
+      refreshGeoresourcesTable();
     }
 
     function searchGeoresourceItemRecursive(tree, id, selected) {
@@ -254,6 +264,9 @@ angular.module('adminFilterEditModal').component('adminFilterEditModal', {
         }
       });
 
+      if($scope.showSelectedGeoresourcesOnly)
+        $scope.preppedGeoresourceData = $scope.preppedGeoresourceData.filter(e => e.checked===true);
+
 			$scope.editGeoresourceTableOptions = kommonitorDataGridHelperService.buildSingleSelectGrid('adminFilterEditGeoresourcesTable', $scope.editGeoresourceTableOptions, $scope.preppedGeoresourceData, []);	
 		}
 
@@ -267,6 +280,9 @@ angular.module('adminFilterEditModal').component('adminFilterEditModal', {
           checked: $scope.selectedIndicatorIds.includes(element.indicatorId)
         }
       });
+
+      if($scope.showSelectedIndicatorsOnly)
+        $scope.preppedIndicatorData = $scope.preppedIndicatorData.filter(e => e.checked===true);
 
 			$scope.editIndicatorTableOptions = kommonitorDataGridHelperService.buildSingleSelectGrid('adminFilterEditIndicatorsTable', $scope.editIndicatorTableOptions, $scope.preppedIndicatorData, []);	
 		}
