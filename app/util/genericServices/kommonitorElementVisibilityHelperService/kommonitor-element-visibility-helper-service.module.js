@@ -36,7 +36,7 @@ angular
         });
 
         
-        if(Auth.keycloak.authenticated)
+        if(Auth.keycloak.authenticated && __env.showFavoriteSelection)
           self.elementVisibility['favSelection'] = true;
         else
           self.elementVisibility['favSelection'] = false;
