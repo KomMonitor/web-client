@@ -1031,7 +1031,8 @@ angular
                 }
                 
                 $scope.onSaveFavSelection = function(broadcast = true) {
-                  kommonitorFavService.storeFavSelection();       
+                  if(broadcast===true)
+                    kommonitorFavService.storeFavSelection();
 
                   $scope.FavTabGeoresourceTopicFavItems = $scope.georesourceTopicFavItems;
                   $scope.FavTabPoiFavItems = $scope.poiFavItems;

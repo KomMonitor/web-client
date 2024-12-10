@@ -1001,7 +1001,8 @@ angular
                 }
 
                 $scope.onSaveFavSelection = function(broadcast = true) {
-                  kommonitorFavService.storeFavSelection();
+                  if(broadcast===true)
+                    kommonitorFavService.storeFavSelection();
 
                   $scope.FavTabIndicatorTopicFavItems = $scope.indicatorTopicFavItems;
                   $scope.FavTabIndicatorFavItems = $scope.indicatorFavItems;

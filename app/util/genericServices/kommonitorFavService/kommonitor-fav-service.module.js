@@ -39,11 +39,22 @@ angular
 
       this.storeFavSelection = function() {
 
-        if(self.userInfoExists===true) {
+      /*   $http({
+          url: `${this.baseUrlToKomMonitorDataAPI}/userInfos/${self.userInfoId}`,
+          method: "DELETE"
+        }).then(async function successCallback(response) {			
+          self.userInfoExists = true;
+          self.favObject = response.data;
+          console.log("userInfo data initialized");
+          }, function errorCallback(error) {
+            console.log("Unable to store userInfo data");
+        });  */
 
-          var body = self.favObject;
-          delete(body.userInfoId);
-          delete(body.keycloakId);
+        var body = self.favObject;
+        delete(body.userInfoId);
+        delete(body.keycloakId);
+
+        if(self.userInfoExists===true) {
 
           $http({
             url: `${this.baseUrlToKomMonitorDataAPI}/userInfos/${self.userInfoId}`,
@@ -64,6 +75,7 @@ angular
             data: body
           }).then(async function successCallback(response) {			
             self.userInfoExists = true;
+            self.userInfoId = response.data.userInfoId;
             self.favObject = response.data;
             console.log("userInfo data initialized");
             }, function errorCallback(error) {
