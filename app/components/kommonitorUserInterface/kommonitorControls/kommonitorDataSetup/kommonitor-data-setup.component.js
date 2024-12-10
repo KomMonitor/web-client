@@ -84,6 +84,11 @@ angular
 
                 $scope.indicatorTopicFavItems = []; 
                 $scope.indicatorFavItems = [];
+                
+                // own temp list as fav items should remain visible in fav-tab even if deleted, until save/reload
+                $scope.FavTabIndicatorTopicFavItems = []; 
+                $scope.FavTabIndicatorFavItems = [];
+
                 $scope.headlineIndicatorFavItems = [];
                 $scope.baseIndicatorFavItems = [];
                 $scope.favSelectionToastStatus = 0;
@@ -118,11 +123,15 @@ angular
 									addClickListenerToEachCollapseTrigger();
 
                   var userInfo = kommonitorFavService.getUserInfo();
-                  if(userInfo.indicatorFavourites)
+                  if(userInfo.indicatorFavourites) {
                     $scope.indicatorFavItems = userInfo.indicatorFavourites;
+                    $scope.FavTabIndicatorFavItems = userInfo.indicatorFavourites;
+                  }
                   
-                  if(userInfo.indicatorFavourites)
+                  if(userInfo.indicatorFavourites) {
                     $scope.indicatorTopicFavItems = userInfo.indicatorTopicFavourites;
+                    $scope.FavTabIndicatorTopicFavItems = userInfo.indicatorTopicFavourites;
+                  }
 
                   if(kommonitorElementVisibilityHelperService.elementVisibility.favSelection===true)
                     $scope.showFavSelection = true;
@@ -824,12 +833,16 @@ angular
                   return topicOrIndicatorInFavRecursive([topic]);
                 }
 
+                $scope.favTabShowIndicator = function(topicId) {
+                  return $scope.FavTabIndicatorFavItems.includes(topicId);
+                }
+
                 function topicOrIndicatorInFavRecursive(tree) {
 
                   let ret = false;
                   tree.forEach(elem => {
 
-                    if($scope.indicatorTopicFavItems.includes(elem.topicId) || $scope.indicatorFavItems.includes(elem.indicatorId))
+                    if($scope.FavTabIndicatorTopicFavItems.includes(elem.topicId) || $scope.FavTabIndicatorFavItems.includes(elem.indicatorId))
                       ret = true;
 
                     if(elem.subTopics && elem.subTopics.length>0 && ret===false)
@@ -931,22 +944,22 @@ angular
                   });
                 }
 
-                $scope.onIndicatorTopicFavClick = function(topicId) {
+                $scope.onIndicatorTopicFavClick = function(topicId, favTab = false) {
                   if(!$scope.indicatorTopicFavItems.includes(topicId))
                     searchIndicatorTopicFavItemsRecursive(kommonitorDataExchangeService.topicIndicatorHierarchy, topicId, true);
                   else
                     searchIndicatorTopicFavItemsRecursive(kommonitorDataExchangeService.topicIndicatorHierarchy, topicId, false);
 
-                  $scope.onHandleFavSelection();
+                  $scope.onHandleFavSelection(favTab);
                 }
 
-                $scope.onIndicatorFavClick = function(id) {
+                $scope.onIndicatorFavClick = function(id, favTab = false) {
                   if(!$scope.indicatorFavItems.includes(id))
                     $scope.indicatorFavItems.push(id);
                   else
                     $scope.indicatorFavItems = $scope.indicatorFavItems.filter(e => e!=id);
 
-                  $scope.onHandleFavSelection();
+                  $scope.onHandleFavSelection(favTab);
                 }
                 
                 $scope.onHeadlineIndicatorFavClick = function(id) {
@@ -970,7 +983,13 @@ angular
                   $scope.onHandleFavSelection();
                 }
 
-                $scope.onHandleFavSelection = function() {
+                $scope.onHandleFavSelection = function(favTab = false) {
+
+                  if(favTab===false) {
+                    $scope.FavTabIndicatorTopicFavItems = $scope.indicatorTopicFavItems;
+                    $scope.FavTabIndicatorFavItems = $scope.indicatorFavItems;
+                  }
+
                   $scope.handleToastStatus(1);
 
                   kommonitorFavService.handleFavSelection({
@@ -981,10 +1000,21 @@ angular
 									addClickListenerToEachCollapseTrigger();
                 }
 
-                $scope.onSaveFavSelection = function() {
+                $scope.onSaveFavSelection = function(broadcast = true) {
                   kommonitorFavService.storeFavSelection();
+
+                  $scope.FavTabIndicatorTopicFavItems = $scope.indicatorTopicFavItems;
+                  $scope.FavTabIndicatorFavItems = $scope.indicatorFavItems;
+
                   $scope.handleToastStatus(2);
+
+                  if(broadcast===true)
+                    $rootScope.$broadcast("favItemsStored");
                 }
+
+                $scope.$on("favItemsStored", function (event) {
+                  $scope.onSaveFavSelection(false);
+                });
 
                 $scope.handleToastStatus = function(type) {
                   

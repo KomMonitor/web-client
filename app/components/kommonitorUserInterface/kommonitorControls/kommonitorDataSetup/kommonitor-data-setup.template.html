@@ -290,17 +290,17 @@
                                     class="indicatorFavCollapseTrigger" style="color: white;">
                                   <i class="glyphicon glyphicon-chevron-right"></i>{{topic.topicName}}</a>
                                   <p ng-if="topic.subTopics.length==0 && topic.indicatorData.length==0">{{topic.topicName}}</p>
-                                  <i ng-show="showFavSelection" class="glyphicon glyphicon-custom" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[indicatorTopicFavSelected(topic.topicId)]" ng-click="onIndicatorTopicFavClick(topic.topicId)"></i>
+                                  <i ng-show="showFavSelection" class="glyphicon glyphicon-custom" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[indicatorTopicFavSelected(topic.topicId)]" ng-click="onIndicatorTopicFavClick(topic.topicId,true)"></i>
                                 </div>
                                 
                                 <div id="indicatorFavSubTopic-{{topic.topicId}}" class="subTopic-block sub-topic-wrapper-level-{{topic.level}}" style="display:none">
                                   <div ng-if="topic.subTopics" ng-repeat="topic in topic.subTopics | orderBy: 'topicName'" ng-include="'indicatorTopicTree'"></div>
-                                  <div ng-if="topic.indicatorData && indicatorFavSelected(data.indicatorId)" ng-repeat="data in topic.indicatorData | orderBy: 'indicatorName'" class="indicator-element list-group-item-grid-layout" 
+                                  <div ng-if="topic.indicatorData && favTabShowIndicator(data.indicatorId)" ng-repeat="data in topic.indicatorData | orderBy: 'indicatorName'" class="indicator-element list-group-item-grid-layout" 
                                     ng-class="{'style-headline-indicator': data.isHeadlineIndicator, 'selectedIndicator': $ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.indicatorId==data.indicatorId}">
                                     <div ng-click="onClickHierarchyIndicator(data)">
                                       <i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>{{data.indicatorName}}</b> [{{data.unit}}]
                                     </div>
-                                    <i ng-show="showFavSelection" class="glyphicon glyphicon-custom glyphicon-star" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[indicatorFavSelected(data.indicatorId)]" ng-click="onIndicatorFavClick(data.indicatorId)"></i>
+                                    <i ng-show="showFavSelection" class="glyphicon glyphicon-custom glyphicon-star" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[indicatorFavSelected(data.indicatorId)]" ng-click="onIndicatorFavClick(data.indicatorId,true)"></i>
                                   </div>
                                 </div>
                               </div>

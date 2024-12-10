@@ -39,8 +39,11 @@ angular
 
                 $scope.georesourceTopicFavItems = [];
                 $scope.poiFavItems = [];
-         /*        $scope.aoiFavItems = [];
-                $scope.loiFavItems = []; */
+
+                // own temp list as fav items should remain visible in fav-tab even if deleted, until save/reload
+                $scope.FavTabGeoresourceTopicFavItems = []; 
+                $scope.FavTabPoiFavItems = [];
+
                 $scope.favSelectionToastStatus = 0;
                 $scope.showFavSelection = false;
 
@@ -149,11 +152,15 @@ angular
 									addClickListenerToEachCollapseTrigger();
 
                   var userInfo = kommonitorFavService.getUserInfo();
-                  if(userInfo.georesourceFavourites)
+                  if(userInfo.georesourceFavourites) {
                     $scope.poiFavItems = userInfo.georesourceFavourites;
+                    $scope.FavTabPoiFavItems = userInfo.georesourceFavourites;
+                  }
                   
-                  if(userInfo.georesourceTopicFavourites)
+                  if(userInfo.georesourceTopicFavourites) {
                     $scope.georesourceTopicFavItems = userInfo.georesourceTopicFavourites;
+                    $scope.FavTabGeoresourceTopicFavItems = userInfo.georesourceTopicFavourites;
+                  }
 
                   if(kommonitorElementVisibilityHelperService.elementVisibility.favSelection===true)
                     $scope.showFavSelection = true;
@@ -988,25 +995,31 @@ angular
                     return $scope.poiFavItems.includes(id);
                 }
 
-                $scope.onPoiFavClick = function(id) {
+                $scope.onPoiFavClick = function(id, favTab = false) {
                   if(!$scope.poiFavItems.includes(id))
                     $scope.poiFavItems.push(id);
                   else
                     $scope.poiFavItems = $scope.poiFavItems.filter(e => e!=id);
 
-                  $scope.onHandleFavSelection();
+                  $scope.onHandleFavSelection(favTab);
                 }
 
-                $scope.onGeoresourceTopicFavClick = function(topicId) {
+                $scope.onGeoresourceTopicFavClick = function(topicId, favTab = false) {
                   if(!$scope.georesourceTopicFavItems.includes(topicId))
                     searchGeoresourceTopicFavItemsRecursive(kommonitorDataExchangeService.topicGeoresourceHierarchy, topicId, true);
                   else
                     searchGeoresourceTopicFavItemsRecursive(kommonitorDataExchangeService.topicGeoresourceHierarchy, topicId, false);                  
                   
-                  $scope.onHandleFavSelection();
+                  $scope.onHandleFavSelection(favTab);
                 }
 
-                $scope.onHandleFavSelection = function() {
+                $scope.onHandleFavSelection = function(favTab = false) {
+                  
+                  if(favTab===false) {
+                    $scope.FavTabGeoresourceTopicFavItems = $scope.georesourceTopicFavItems;
+                    $scope.FavTabPoiFavItems = $scope.poiFavItems;
+                  }
+
                   $scope.handleToastStatus(1);
 
                   kommonitorFavService.handleFavSelection({
@@ -1017,10 +1030,21 @@ angular
 									addClickListenerToEachCollapseTrigger();
                 }
                 
-                $scope.onSaveFavSelection = function() {
-                  kommonitorFavService.storeFavSelection();
+                $scope.onSaveFavSelection = function(broadcast = true) {
+                  kommonitorFavService.storeFavSelection();       
+
+                  $scope.FavTabGeoresourceTopicFavItems = $scope.georesourceTopicFavItems;
+                  $scope.FavTabPoiFavItems = $scope.poiFavItems;
+
                   $scope.handleToastStatus(2);
+                  
+                  if(broadcast===true)
+                    $rootScope.$broadcast("favItemsStored");
                 }
+                
+                $scope.$on("favItemsStored", function (event) {
+                  $scope.onSaveFavSelection(false);
+                });
 
                 $scope.handleToastStatus = function(type) {
                   
@@ -1106,15 +1130,23 @@ angular
                   return topicOrGeoresourceInFavRecursive([topic]);
                 }
 
+                $scope.FavTabShowPoi = function(id) {
+
+                  if(Array.isArray(id))
+                    return id.some(e => $scope.FavTabPoiFavItems.includes(e.georesourceId));
+                  else
+                    return $scope.FavTabPoiFavItems.includes(id);
+                }
+
                 function topicOrGeoresourceInFavRecursive(tree) {
 
                   let ret = false;
                   tree.forEach(elem => {
 
-                    if($scope.georesourceTopicFavItems.includes(elem.topicId) || 
-                      georesourceInFavItems(elem.poiData, $scope.poiFavItems) || 
-                      georesourceInFavItems(elem.aoiData, $scope.poiFavItems) || 
-                      georesourceInFavItems(elem.loiData, $scope.poiFavItems))
+                    if($scope.FavTabGeoresourceTopicFavItems.includes(elem.topicId) || 
+                      georesourceInFavItems(elem.poiData, $scope.FavTabPoiFavItems) || 
+                      georesourceInFavItems(elem.aoiData, $scope.FavTabPoiFavItems) || 
+                      georesourceInFavItems(elem.loiData, $scope.FavTabPoiFavItems))
                         ret = true;
 
                     if(elem.subTopics && elem.subTopics.length>0 && ret===false)

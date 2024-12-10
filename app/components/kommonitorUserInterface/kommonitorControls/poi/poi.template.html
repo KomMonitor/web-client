@@ -2284,13 +2284,13 @@
                     <input type="checkbox" ng-model="topic.isSelected"
                       value="topic.isSelected" id="showAllForTopic_{{::topic.topicId}}"
                       ng-change="handleShowAllOnTopic(topic)">
-                    <i ng-show="showFavSelection" class="glyphicon glyphicon-custom" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[georesourceTopicFavSelected(topic.topicId)]" ng-click="onGeoresourceTopicFavClick(topic.topicId)"></i>
+                    <i ng-show="showFavSelection" class="glyphicon glyphicon-custom" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[georesourceTopicFavSelected(topic.topicId)]" ng-click="onGeoresourceTopicFavClick(topic.topicId,true)"></i>
                   </div>
 
                   <div id="georesourcesFavSubTopic-{{topic.topicId}}" class="subTopic-block sub-topic-wrapper-level-{{topic.level}}" style="display:none">
                     <div ng-if="topic.subTopics" ng-repeat="topic in topic.subTopics | orderBy: 'topicName'" ng-include="'georesourceTopicTree'"></div>
  
-                  <div ng-if="(topic.poiData && poiFavSelected(topic.poiData)) || (topic.aoiData && poiFavSelected(topic.aoiData)) || (topic.loiData && poiFavSelected(topic.loiData))" class="georesource-fav-details-wrapper">
+                  <div ng-if="(topic.poiData && FavTabShowPoi(topic.poiData)) || (topic.aoiData && FavTabShowPoi(topic.aoiData)) || (topic.loiData && FavTabShowPoi(topic.loiData))" class="georesource-fav-details-wrapper">
                     <table class="table table-condensed " style="margin-bottom:0px;">
                       <thead>
                         <tr>
@@ -2308,7 +2308,7 @@
                     
                       <tbody>
                         <!-- POI -->
-                        <tr ng-repeat="poi in topic.poiData" ng-if="poiFavSelected(poi.georesourceId)">
+                        <tr ng-repeat="poi in topic.poiData" ng-if="FavTabShowPoi(poi.georesourceId)">
                           <td>
                             <i class="fas fa-map-marker-alt"></i>
                           </td>
@@ -2361,12 +2361,12 @@
                               title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
                           </td>
                           <td>
-                            <i ng-show="showFavSelection" class="glyphicon glyphicon-custom" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[poiFavSelected(poi.georesourceId)]" ng-click="onPoiFavClick(poi.georesourceId)" style="color: black;"></i>
+                            <i ng-show="showFavSelection" class="glyphicon glyphicon-custom" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[poiFavSelected(poi.georesourceId)]" ng-click="onPoiFavClick(poi.georesourceId, true)" style="color: black;"></i>
                           </td>
                         </tr>
 
                         <!-- LOI -->
-                        <tr ng-repeat='loi in topic.loiData' ng-if="poiFavSelected(loi.georesourceId)">
+                        <tr ng-repeat='loi in topic.loiData' ng-if="FavTabShowPoi(loi.georesourceId)">
                           <td>
                             <i class="fas fa-minus"></i>
                           </td>
@@ -2410,12 +2410,12 @@
                               title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
                           </td>
                           <td>
-                            <i ng-show="showFavSelection" class="glyphicon glyphicon-custom" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[poiFavSelected(loi.georesourceId)]" ng-click="onPoiFavClick(loi.georesourceId)" style="color: black;"></i>
+                            <i ng-show="showFavSelection" class="glyphicon glyphicon-custom" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[poiFavSelected(loi.georesourceId)]" ng-click="onPoiFavClick(loi.georesourceId,true)" style="color: black;"></i>
                           </td>
                         </tr>
                     
                         <!-- AOI -->
-                        <tr ng-repeat='aoi in in topic.aoiData' ng-if="poiFavSelected(poi.georesourceId)">
+                        <tr ng-repeat='aoi in in topic.aoiData' ng-if="FavTabShowPoi(poi.georesourceId)">
                           <td>
                             <i class="far fa-square"></i>
                           </td>
@@ -2458,7 +2458,7 @@
                               title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
                           </td>
                           <td>
-                            <i ng-show="showFavSelection" class="glyphicon glyphicon-custom" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[poiFavSelected(aoi.georesourceId)]" ng-click="onPoiFavClick(aoi.georesourceId)" style="color: black;"></i>
+                            <i ng-show="showFavSelection" class="glyphicon glyphicon-custom" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[poiFavSelected(aoi.georesourceId)]" ng-click="onPoiFavClick(aoi.georesourceId, true)" style="color: black;"></i>
                           </td>
                         </tr>
                       </tbody>
