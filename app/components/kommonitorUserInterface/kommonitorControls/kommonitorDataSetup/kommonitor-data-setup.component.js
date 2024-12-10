@@ -870,11 +870,12 @@ angular
                       } else
                         $scope.indicatorTopicFavItems = $scope.indicatorTopicFavItems.filter(e => e!=id);
             
-                      if(entry.subTopics.length>0)
+                     // recursive selection of topics / indicators
+                     /*  if(entry.subTopics.length>0)
                         checkIndicatorTopicFavItemsRecursive(entry.subTopics, selected);
 
                       if(entry.indicatorData.length>0)
-                        checkIndicatorMetadataFavItems(entry.indicatorData, selected);
+                        checkIndicatorMetadataFavItems(entry.indicatorData, selected); */
             
                       ret = true;
                     } else {

@@ -988,14 +988,6 @@ angular
                     return $scope.poiFavItems.includes(id);
                 }
 
-             /*    $scope.aoiFavSelected = function(id) {
-                  return $scope.aoiFavItems.includes(id);
-                }
-
-                $scope.loiFavSelected = function(id) {
-                  return $scope.loiFavItems.includes(id);
-                } */
-
                 $scope.onPoiFavClick = function(id) {
                   if(!$scope.poiFavItems.includes(id))
                     $scope.poiFavItems.push(id);
@@ -1004,24 +996,6 @@ angular
 
                   $scope.onHandleFavSelection();
                 }
-
-              /*   $scope.onAoiFavClick = function(id) {
-                  if(!$scope.aoiFavItems.includes(id))
-                    $scope.aoiFavItems.push(id);
-                  else
-                    $scope.aoiFavItems = $scope.aoiFavItems.filter(e => e!=id);
-
-                  $scope.onHandleFavSelection();
-                }
-
-                $scope.onLoiFavClick = function(id) {
-                  if(!$scope.loiFavItems.includes(id))
-                    $scope.loiFavItems.push(id);
-                  else
-                    $scope.loiFavItems = $scope.loiFavItems.filter(e => e!=id);
-
-                  $scope.onHandleFavSelection();
-                } */
 
                 $scope.onGeoresourceTopicFavClick = function(topicId) {
                   if(!$scope.georesourceTopicFavItems.includes(topicId))
@@ -1034,8 +1008,6 @@ angular
 
                 $scope.onHandleFavSelection = function() {
                   $scope.handleToastStatus(1);
-
-                  /* var georesourcesCombinedItems = [...$scope.poiFavItems,...$scope.aoiFavItems,...$scope.loiFavItems]; */
 
                   kommonitorFavService.handleFavSelection({
                     georesourceTopicFavourites: $scope.georesourceTopicFavItems,
@@ -1073,11 +1045,12 @@ angular
                       } else
                         $scope.georesourceTopicFavItems = $scope.georesourceTopicFavItems.filter(e => e!=id);
             
-                      if(entry.subTopics.length>0)
+                      // recursive selection of topics / georesources
+                      /* if(entry.subTopics.length>0)
                         checkGeoresourceTopicFavItemsRecursive(entry.subTopics, selected);
 
                       if(entry.poiData.length>0 || entry.aoiData.length>0 || entry.loiData.length>0)
-                        checkGeoresourceDataFavItems(entry, selected);
+                        checkGeoresourceDataFavItems(entry, selected); */
             
                       ret = true;
                     } else {
