@@ -29,6 +29,11 @@ angular.module('adminFilterEditModal').component('adminFilterEditModal', {
     $scope.georesourceTopicsEditTree = [];
     $scope.selectedGeoresourceTopicEditIds = [];
 
+    $scope.showSelectedIndicatorsOnly = false;
+    $scope.showSelectedGeoresourcesOnly = false;
+    $scope.showSelectedIndicatorsTopicsOnly = false;
+    $scope.showSelectedGeoresourcesTopicsOnly = false;
+    
     $scope.filterConfig = [];
 
 		// initialize any adminLTE box widgets
@@ -110,7 +115,17 @@ angular.module('adminFilterEditModal').component('adminFilterEditModal', {
       } else
         $scope.selectedGeoresourceTopicEditIds = $scope.selectedGeoresourceTopicEditIds.filter(e => e!=id);
 
+      if($scope.selectedGeoresourceTopicEditIds.length==0)
+        $scope.showSelectedGeoresourcesTopicsOnly = false;
+
       searchGeoresourceItemRecursive($scope.georesourceTopicsEditTree, id, selected);
+    }
+
+    $scope.onShowSelectedIndicatorsOnly = function() {
+      refreshIndicatorsTable();
+    }
+    $scope.onShowSelectedGeoresourcesOnly = function() {
+      refreshGeoresourcesTable();
     }
 
     function searchGeoresourceItemRecursive(tree, id, selected) {
@@ -119,7 +134,7 @@ angular.module('adminFilterEditModal').component('adminFilterEditModal', {
 
       tree.forEach(entry => {
         if(entry.topicId==id) {
-          if(selected===true) {
+          if(selected===true && document.getElementById('editCheckbox-'+id)) {
             document.getElementById('editCheckbox-'+id).checked = true;
             document.getElementById('editSubTopic-'+id).style.display = 'block';
           }
@@ -129,7 +144,7 @@ angular.module('adminFilterEditModal').component('adminFilterEditModal', {
           ret = true;
         } else {
           let itemFound = searchGeoresourceItemRecursive(entry.subTopics, id, selected);
-          if(itemFound===true) {
+          if(itemFound===true && document.getElementById('editSubTopic-'+entry.topicId)) {
             document.getElementById('editSubTopic-'+entry.topicId).style.display = 'block';
             ret = true;
           }
@@ -141,12 +156,15 @@ angular.module('adminFilterEditModal').component('adminFilterEditModal', {
 
     function checkGeoresourceItemsRecursive(tree, selected) {
       tree.forEach(entry => {
-        if(selected===true) {
-          document.getElementById('editCheckbox-'+entry.topicId).checked = true;
-          document.getElementById('editCheckbox-'+entry.topicId).disabled = true;
-        } else {
-          document.getElementById('editCheckbox-'+entry.topicId).checked = false;
-          document.getElementById('editCheckbox-'+entry.topicId).disabled = false;
+
+        if(document.getElementById('editCheckbox-'+entry.topicId)) {
+          if(selected===true) {
+            document.getElementById('editCheckbox-'+entry.topicId).checked = true;
+            document.getElementById('editCheckbox-'+entry.topicId).disabled = true;
+          } else {
+            document.getElementById('editCheckbox-'+entry.topicId).checked = false;
+            document.getElementById('editCheckbox-'+entry.topicId).disabled = false;
+          }
         }
         
         // delete all downlevel items if they exists, just in case a level higher up has been checked afterwards  
@@ -167,6 +185,9 @@ angular.module('adminFilterEditModal').component('adminFilterEditModal', {
       } else
         $scope.selectedIndicatorTopicEditIds = $scope.selectedIndicatorTopicEditIds.filter(e => e!=id);
 
+      if($scope.selectedIndicatorTopicEditIds.length==0)
+        $scope.showSelectedIndicatorsTopicsOnly = false;
+
       searchIndicatorItemRecursive($scope.indicatorTopicsEditTree, id, selected);
     }
 
@@ -176,7 +197,7 @@ angular.module('adminFilterEditModal').component('adminFilterEditModal', {
 
       tree.forEach(entry => {
         if(entry.topicId==id) {
-          if(selected===true) {
+          if(selected===true && document.getElementById('editCheckbox-'+id)) {
             document.getElementById('editCheckbox-'+id).checked = true;
             document.getElementById('editSubTopic-'+id).style.display = 'block';
           }
@@ -186,7 +207,7 @@ angular.module('adminFilterEditModal').component('adminFilterEditModal', {
           ret = true;
         } else {
           let itemFound = searchIndicatorItemRecursive(entry.subTopics, id, selected);
-          if(itemFound===true) {
+          if(itemFound===true && document.getElementById('editSubTopic-'+entry.topicId)) {
             document.getElementById('editSubTopic-'+entry.topicId).style.display = 'block';
             ret = true;
           }
@@ -199,12 +220,14 @@ angular.module('adminFilterEditModal').component('adminFilterEditModal', {
     function checkIndicatorItemsRecursive(tree, selected) {
       tree.forEach(entry => {
 
-        if(selected===true) {
-          document.getElementById('editCheckbox-'+entry.topicId).checked = true;
-          document.getElementById('editCheckbox-'+entry.topicId).disabled = true;
-        } else {
-          document.getElementById('editCheckbox-'+entry.topicId).checked = false;
-          document.getElementById('editCheckbox-'+entry.topicId).disabled = false;
+        if(document.getElementById('editCheckbox-'+entry.topicId)) {
+          if(selected===true) {
+            document.getElementById('editCheckbox-'+entry.topicId).checked = true;
+            document.getElementById('editCheckbox-'+entry.topicId).disabled = true;
+          } else {
+            document.getElementById('editCheckbox-'+entry.topicId).checked = false;
+            document.getElementById('editCheckbox-'+entry.topicId).disabled = false;
+          }
         }
         
         // delete all downlevel items if they exists, just in case a level higher up has been checked afterwards  
@@ -230,16 +253,69 @@ angular.module('adminFilterEditModal').component('adminFilterEditModal', {
       return tree;
     }
 
+    $scope.checkGeoresourcesTopicsTreeVisibility = function(entry) {
+
+      if($scope.showSelectedGeoresourcesTopicsOnly===false)
+        return true;
+
+      if(entry.selected)
+        return true;
+      else {
+        if(entry.subTopics.length>0)
+          return checkTopicsTreeVisibilityRecursive(entry.subTopics);
+        else
+          return false;
+      }
+    }
+
+    $scope.checkIndicatorTopicsTreeVisibility = function(entry) {
+
+      if($scope.showSelectedIndicatorsTopicsOnly===false)
+        return true;
+
+      if(entry.selected)
+        return true;
+      else {
+        if(entry.subTopics.length>0)
+          return checkTopicsTreeVisibilityRecursive(entry.subTopics);
+        else
+          return false;
+      }
+    }
+
+    function checkTopicsTreeVisibilityRecursive(entries) {
+
+      var ret = false;
+
+      entries.forEach(entry => {
+        if(entry.selected)
+          ret = true;
+        else {
+          if(entry.subTopics.length>0) {
+            var subRet = checkTopicsTreeVisibilityRecursive(entry.subTopics);
+
+            if(ret===false)
+              ret = subRet;
+          } else
+            return false;
+        }
+      });
+
+      return ret;
+    }
+
     function resetTreeSelection(tree) {
       tree.forEach(entry => {
         
-        document.getElementById('editCheckbox-'+entry.topicId).checked = false;
-        document.getElementById('editCheckbox-'+entry.topicId).disabled = false;
+        if(document.getElementById('editCheckbox-'+entry.topicId)) {
+          document.getElementById('editCheckbox-'+entry.topicId).checked = false;
+          document.getElementById('editCheckbox-'+entry.topicId).disabled = false;
 
-        document.getElementById('editSubTopic-'+entry.topicId).style.display = 'none';
+          document.getElementById('editSubTopic-'+entry.topicId).style.display = 'none';
 
-        if(entry.subTopics.length>0) 
-          resetTreeSelection(entry.subTopics);
+          if(entry.subTopics.length>0) 
+            resetTreeSelection(entry.subTopics);
+        }
       });
     }
 
@@ -253,6 +329,12 @@ angular.module('adminFilterEditModal').component('adminFilterEditModal', {
           checked: $scope.selectedGeoresourceIds.includes(element.georesourceId)
         }
       });
+
+      if($scope.selectedGeoresourceIds.length==0)
+        $scope.showSelectedGeoresourcesOnly = false;
+
+      if($scope.showSelectedGeoresourcesOnly)
+        $scope.preppedGeoresourceData = $scope.preppedGeoresourceData.filter(e => e.checked===true);
 
 			$scope.editGeoresourceTableOptions = kommonitorDataGridHelperService.buildSingleSelectGrid('adminFilterEditGeoresourcesTable', $scope.editGeoresourceTableOptions, $scope.preppedGeoresourceData, []);	
 		}
@@ -268,6 +350,12 @@ angular.module('adminFilterEditModal').component('adminFilterEditModal', {
         }
       });
 
+      if($scope.selectedIndicatorIds.length==0)
+        $scope.showSelectedIndicatorsOnly = false;
+
+      if($scope.showSelectedIndicatorsOnly)
+        $scope.preppedIndicatorData = $scope.preppedIndicatorData.filter(e => e.checked===true);
+
 			$scope.editIndicatorTableOptions = kommonitorDataGridHelperService.buildSingleSelectGrid('adminFilterEditIndicatorsTable', $scope.editIndicatorTableOptions, $scope.preppedIndicatorData, []);	
 		}
 
@@ -275,6 +363,9 @@ angular.module('adminFilterEditModal').component('adminFilterEditModal', {
 
       var selectedIndicatorIds = kommonitorDataGridHelperService.getSelectedIds_singleSelectGrid($scope.editIndicatorTableOptions);
       var selectedGeoresourceIds = kommonitorDataGridHelperService.getSelectedIds_singleSelectGrid($scope.editGeoresourceTableOptions);
+
+      $scope.selectedIndicatorIds = selectedIndicatorIds;
+      $scope.selectedGeoresourceIds = selectedGeoresourceIds;
 
       if(!$scope.filterName)
           return;
@@ -307,6 +398,9 @@ angular.module('adminFilterEditModal').component('adminFilterEditModal', {
       
       $("#globalFilterEditSucessAlert").show();
       $scope.loadingData = false;
+
+      refreshIndicatorsTable();
+      refreshGeoresourcesTable();
 
       $timeout(function(){
         $rootScope.$broadcast("refreshAdminFilterOverview");
