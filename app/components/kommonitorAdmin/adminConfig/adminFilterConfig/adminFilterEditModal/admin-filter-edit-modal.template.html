@@ -61,7 +61,18 @@
 								<h2 class="fs-title">Indikator-Themen</h2>
 								<h3 class="fs-subtitle">Auswahl der Indikator-spezifischen Themen</h3>
 
-								<div class="row vertical-align">
+								<div class="row">
+                  <div class="col-md-12 col-sm-12 col-xs-12" ng-show="permissions.length!=0">
+                    <div class="form-group vertical-align">
+                        <label class="margin-right">Zeige nur zugewiesene Themen</label>
+                        <label class="switch">
+                            <input type="checkbox" value="showSelectedIndicatorsTopicsOnly" ng-model="showSelectedIndicatorsTopicsOnly" ng-disabled="selectedIndicatorTopicEditIds.length==0">
+                            <span class="switchslider round"></span>
+                        </label>
+                    </div>
+                  </div>
+                </div>
+                <div class="row vertical-align">
                   <div class="list-group list-group-root well" style="text-align: left; width:50vw;">
                 
                     <script type="text/ng-template" id="indicatorEditTree">
@@ -78,10 +89,9 @@
                       </div>
                     </script>
 
-                    <div ng-repeat="category in indicatorTopicsEditTree | filter:{topicType:'main'}" ng-include="'indicatorEditTree'"></div>
+                    <div ng-repeat="category in indicatorTopicsEditTree | filter:{topicType:'main'}" ng-include="'indicatorEditTree'" ng-style="checkIndicatorTopicsTreeVisibility(category) && category.level==0 && {'display':'block'} || {'display':'none'}"></div>
                   </div>
 								</div>
-
 								
 								<input type="button" name="previous" class="previous previous_editAdminFilter action-button-previous" value="Voriger Schritt"/>
 								<input type="button" name="next" class="next next_editAdminFilter action-button" value="N&auml;chster Schritt"/>
@@ -116,6 +126,17 @@
 								<h2 class="fs-title">Georesource-Themen</h2>
 								<h3 class="fs-subtitle">Auswahl der Georesource-spezifischen Themen</h3>
 
+                <div class="row">
+                  <div class="col-md-12 col-sm-12 col-xs-12" ng-show="permissions.length!=0">
+                    <div class="form-group vertical-align">
+                        <label class="margin-right">Zeige nur zugewiesene Themen</label>
+                        <label class="switch">
+                            <input type="checkbox" value="showSelectedGeoresourcesTopicsOnly" ng-model="showSelectedGeoresourcesTopicsOnly" ng-disabled="selectedGeoresourceTopicEditIds.length==0">
+                            <span class="switchslider round"></span>
+                        </label>
+                    </div>
+                  </div>
+                </div>
 								<div class="row vertical-align">
                   <div class="list-group list-group-root well" style="text-align: left; width:50vw;">
                 
@@ -133,7 +154,7 @@
                       </div>
                     </script>
 
-                    <div ng-repeat="category in georesourceTopicsEditTree | filter:{topicType:'main'}" ng-include="'georesourceEditTree'"></div>
+                    <div ng-repeat="category in georesourceTopicsEditTree | filter:{topicType:'main'}" ng-include="'georesourceEditTree'" ng-style="checkGeoresourcesTopicsTreeVisibility(category) && category.level==0 && {'display':'block'} || {'display':'none'}"></div>
                   </div>
 								</div>
 
