@@ -295,7 +295,7 @@
                                 
                                 <div id="indicatorFavSubTopic-{{topic.topicId}}" class="subTopic-block sub-topic-wrapper-level-{{topic.level}}" style="display:none">
                                   <div ng-if="topic.subTopics" ng-repeat="topic in topic.subTopics | orderBy: 'topicName'" ng-include="'indicatorTopicTree'"></div>
-                                  <div ng-if="topic.indicatorData && favTabShowIndicator(data.indicatorId)" ng-repeat="data in topic.indicatorData | orderBy: 'indicatorName'" class="indicator-element list-group-item-grid-layout" 
+                                  <div ng-if="topic.indicatorData && favTabShowIndicator(data.indicatorId, topic)" ng-repeat="data in topic.indicatorData | orderBy: 'indicatorName'" class="indicator-element list-group-item-grid-layout" 
                                     ng-class="{'style-headline-indicator': data.isHeadlineIndicator, 'selectedIndicator': $ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.indicatorId==data.indicatorId}">
                                     <div ng-click="onClickHierarchyIndicator(data)">
                                       <i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>{{data.indicatorName}}</b> [{{data.unit}}]
