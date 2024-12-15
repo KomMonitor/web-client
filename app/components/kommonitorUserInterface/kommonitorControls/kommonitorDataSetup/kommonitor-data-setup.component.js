@@ -849,6 +849,10 @@ angular
 
                   var parentNext = topic.parent;
                   var ret = false;
+
+                  if($scope.FavTabIndicatorTopicFavItems.includes(topic.topicId))
+                    ret = true;
+                  
                   while(parentNext!==undefined && ret===false) {
                     ret = parentInFavRecursive($scope.indicatorFavTopicsTree, parentNext);
                     if(ret===false)
