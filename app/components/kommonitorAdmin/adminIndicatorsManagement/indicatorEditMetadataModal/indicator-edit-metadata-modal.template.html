@@ -169,17 +169,23 @@
                   <div class="col-md-3 col-sm-6 col-xs-12">
                     <div class="form-group">
                       <label>Nachkommastellen</label>
-                      <select ng-model="indicatorDezimalValue"
-                        class="form-control" required>
-                        <option>0</option>
-                        <option>1</option>
-                        <option selected>2</option>
-                        <option>3</option>
-                      </select>
-                      <div class="help-block with-errors"></div>
-                      <div class="help-block">
-                        <p>Anzahl der angezeigten Nachkommastellen in allen Bereichen der Benutzeroberfl&auml;che</p>
-                        </p>
+                      <div class="form-group vertical-align">
+                        <label class="margin-right" style="font-weight: normal;">Individuelle Anzeige aktivieren</label>
+                        <label class="switch">
+                            <input type="checkbox" ng-model="showCustomCommaValue">
+                            <span class="switchslider round"></span>
+                        </label>
+                      </div>
+                      <div ng-show="showCustomCommaValue">
+                        <select class="form-control"
+                          ng-model="indicatorPrecision"
+                          ng-init="indicatorPrecision = indicatorPrecision || option"
+                          ng-options="option for option in [0,1,2,3,4]">
+                        </select>
+                        <div class="help-block">
+                          <p>Anzahl der angezeigten Nachkommastellen in allen Bereichen der Benutzeroberfl&auml;che</p>
+                          </p>
+                        </div>
                       </div>
                     </div>
 
