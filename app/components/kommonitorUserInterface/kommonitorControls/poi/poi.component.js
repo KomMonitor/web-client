@@ -1185,17 +1185,20 @@ angular
                   return parentNext;
                 }
 
-                $scope.FavTabShowPoi = function(topic) {
-
-                /*   if(Array.isArray(id))
-                    return id.some(e => $scope.FavTabPoiFavItems.includes(e.georesourceId));
-                  else
-                    return $scope.FavTabPoiFavItems.includes(id); */
+                $scope.FavTabShowPOIHeader = function(topic) {
 
                   if(topic.poiData.some(e => $scope.FavTabPoiFavItems.includes(e.georesourceId)) || 
                       topic.aoiData.some(e => $scope.FavTabPoiFavItems.includes(e.georesourceId)) || 
                       topic.loiData.some(e => $scope.FavTabPoiFavItems.includes(e.georesourceId)) || 
                       topicInFavTopBottom(topic))
+                    return true;
+
+                  return false;
+                }
+
+                $scope.FavTabShowPoi = function(topic,georesourceId) {
+
+                  if($scope.FavTabPoiFavItems.includes(georesourceId) || topicInFavTopBottom(topic))
                     return true;
 
                   return false;

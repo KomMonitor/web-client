@@ -2290,7 +2290,7 @@
                   <div id="georesourcesFavSubTopic-{{topic.topicId}}" class="subTopic-block sub-topic-wrapper-level-{{topic.level}}" style="display:none">
                     <div ng-if="topic.subTopics" ng-repeat="topic in topic.subTopics | orderBy: 'topicName'" ng-include="'georesourceTopicTree'"></div>
  
-                    <div ng-if="(topic.poiData || topic.aoiData || topic.loiData) && FavTabShowPoi(topic)" class="georesource-fav-details-wrapper">
+                    <div ng-if="(topic.poiData || topic.aoiData || topic.loiData) && FavTabShowPOIHeader(topic)" class="georesource-fav-details-wrapper">
                       <table class="table table-condensed " style="margin-bottom:0px;">
                         <thead>
                           <tr>
@@ -2308,7 +2308,7 @@
                       
                         <tbody>
                           <!-- POI -->
-                          <tr ng-repeat="poi in topic.poiData" ng-if="FavTabShowPoi(topic)">
+                          <tr ng-repeat="poi in topic.poiData" ng-if="FavTabShowPoi(topic,poi.georesourceId)">
                             <td>
                               <i class="fas fa-map-marker-alt"></i>
                             </td>
@@ -2366,7 +2366,7 @@
                           </tr>
 
                           <!-- LOI -->
-                          <tr ng-repeat='loi in topic.loiData' ng-if="FavTabShowPoi(topic)">
+                          <tr ng-repeat='loi in topic.loiData' ng-if="FavTabShowPoi(topic,loi.georesourceId)">
                             <td>
                               <i class="fas fa-minus"></i>
                             </td>
@@ -2415,7 +2415,7 @@
                           </tr>
                       
                           <!-- AOI -->
-                          <tr ng-repeat='aoi in in topic.aoiData' ng-if="FavTabShowPoi(topic)">
+                          <tr ng-repeat='aoi in in topic.aoiData' ng-if="FavTabShowPoi(topic,aoi.georesourceId)">
                             <td>
                               <i class="far fa-square"></i>
                             </td>

@@ -839,7 +839,7 @@ angular
 
                 $scope.favTabShowIndicator = function(indicatorId, topic) {
 
-                  if(topic.indicatorData.some(e => $scope.FavTabIndicatorFavItems.includes(e.indicatorId)) || topicInFavTopBottom(topic))
+                  if($scope.FavTabIndicatorFavItems.includes(indicatorId) || topicInFavTopBottom(topic))
                     return true;
                   
                   return false;
