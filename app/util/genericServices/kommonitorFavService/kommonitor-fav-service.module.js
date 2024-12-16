@@ -92,7 +92,9 @@ angular
             self.userInfoId = response.data.userInfoId;
             self.favObject = response.data;
           }
-        });
+        }, function errorCallback(error) {
+          console.log("Unable to read userInfo data. User may not have registered himself.");
+      });
       };
 
     }]);
