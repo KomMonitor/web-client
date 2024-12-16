@@ -147,7 +147,7 @@ angular
 								}); */
 
                 $scope.$on("initialMetadataLoadingCompleted", function (event) {
-                  $scope.georesourceFavTopicsTree = prepTopicsTree(kommonitorDataExchangeService.topicGeoresourceHierarchy,0);
+                  $scope.georesourceFavTopicsTree = prepTopicsTree(kommonitorDataExchangeService.topicGeoresourceHierarchy,0,undefined);
                   
 									addClickListenerToEachCollapseTrigger();
 
@@ -166,13 +166,14 @@ angular
                     $scope.showFavSelection = true;
                 }); 
 
-                function prepTopicsTree(tree, level) {
+                function prepTopicsTree(tree, level, parent) {
                   tree.forEach(entry => {
                     entry.level = level;
+                    entry.parent = parent;
             
                     if(entry.subTopics.length>0) {
                       let newLevel = level+1;
-                      entry.subTopics = prepTopicsTree(entry.subTopics, newLevel);
+                      entry.subTopics = prepTopicsTree(entry.subTopics, newLevel, entry.topicId);
                     }
                   });
             
@@ -1128,15 +1129,76 @@ angular
                 }
 
                 $scope.favTabShowTopic = function(topic) {
-                  return topicOrGeoresourceInFavRecursive([topic]);
+
+                  if(topicOrGeoresourceInFavRecursive([topic]) || topicInFavTopBottom(topic))
+                    return true;
+
+                  return false;
                 }
 
-                $scope.FavTabShowPoi = function(id) {
+                function topicInFavTopBottom(topic) {
 
-                  if(Array.isArray(id))
+                  var parentNext = topic.parent;
+                  var ret = false;
+
+                  if($scope.FavTabGeoresourceTopicFavItems.includes(topic.topicId))
+                    ret = true;
+
+                  while(parentNext!==undefined && ret===false) {
+                    // hier
+                    ret = parentInFavRecursive($scope.georesourceFavTopicsTree, parentNext);
+                    if(ret===false) 
+                      parentNext = findParentNextRecursive($scope.georesourceFavTopicsTree, parentNext);
+                  }
+
+                  return ret;
+                }
+
+                function parentInFavRecursive(tree, parentId) {
+
+                  var ret = false;
+                  tree.forEach(elem => {
+                    
+                    if(elem.topicId==parentId && $scope.FavTabGeoresourceTopicFavItems.includes(parentId))
+                        ret = true;
+
+                    if(elem.subTopics && elem.subTopics.length>0 && ret===false) 
+                      ret = parentInFavRecursive(elem.subTopics, parentId);
+                  });
+
+                  return ret;
+                }
+
+                function findParentNextRecursive(tree, parent) {
+
+                  var parentNext = undefined;
+                  tree.forEach(elem => {
+
+                    if(elem.topicId==parent) {
+                      parentNext = elem.parent;
+                    }
+
+                    if(elem.subTopics && elem.subTopics.length>0 && parentNext===undefined)
+                      parentNext = findParentNextRecursive(elem.subTopics, parent);
+                  });
+
+                  return parentNext;
+                }
+
+                $scope.FavTabShowPoi = function(topic) {
+
+                /*   if(Array.isArray(id))
                     return id.some(e => $scope.FavTabPoiFavItems.includes(e.georesourceId));
                   else
-                    return $scope.FavTabPoiFavItems.includes(id);
+                    return $scope.FavTabPoiFavItems.includes(id); */
+
+                  if(topic.poiData.some(e => $scope.FavTabPoiFavItems.includes(e.georesourceId)) || 
+                      topic.aoiData.some(e => $scope.FavTabPoiFavItems.includes(e.georesourceId)) || 
+                      topic.loiData.some(e => $scope.FavTabPoiFavItems.includes(e.georesourceId)) || 
+                      topicInFavTopBottom(topic))
+                    return true;
+
+                  return false;
                 }
 
                 function topicOrGeoresourceInFavRecursive(tree) {

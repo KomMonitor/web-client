@@ -119,7 +119,7 @@ angular
                 // make sure that initial fetching of availableRoles has happened
                 $scope.$on("initialMetadataLoadingCompleted", function (event) {
 
-                  $scope.indicatorFavTopicsTree = prepTopicsTree(kommonitorDataExchangeService.topicIndicatorHierarchy,0);
+                  $scope.indicatorFavTopicsTree = prepTopicsTree(kommonitorDataExchangeService.topicIndicatorHierarchy,0,undefined);
 									addClickListenerToEachCollapseTrigger();
 
                   var userInfo = kommonitorFavService.getUserInfo();
@@ -137,13 +137,14 @@ angular
                     $scope.showFavSelection = true;
                 }); 
 
-                function prepTopicsTree(tree, level) {
+                function prepTopicsTree(tree, level, parent) {
                   tree.forEach(entry => {
                     entry.level = level;
+                    entry.parent = parent
             
                     if(entry.subTopics.length>0) {
                       let newLevel = level+1;
-                      entry.subTopics = prepTopicsTree(entry.subTopics, newLevel);
+                      entry.subTopics = prepTopicsTree(entry.subTopics, newLevel, entry.topicId);
                     }
                   });
             
@@ -830,11 +831,66 @@ angular
 								}
 
                 $scope.favTabShowTopic = function(topic) {
-                  return topicOrIndicatorInFavRecursive([topic]);
+                  if(topicOrIndicatorInFavRecursive([topic]) || topicInFavTopBottom(topic))
+                    return true;
+
+                  return false;
                 }
 
-                $scope.favTabShowIndicator = function(topicId) {
-                  return $scope.FavTabIndicatorFavItems.includes(topicId);
+                $scope.favTabShowIndicator = function(indicatorId, topic) {
+
+                  if(topic.indicatorData.some(e => $scope.FavTabIndicatorFavItems.includes(e.indicatorId)) || topicInFavTopBottom(topic))
+                    return true;
+                  
+                  return false;
+                }
+
+                function topicInFavTopBottom(topic) {
+
+                  var parentNext = topic.parent;
+                  var ret = false;
+
+                  if($scope.FavTabIndicatorTopicFavItems.includes(topic.topicId))
+                    ret = true;
+                  
+                  while(parentNext!==undefined && ret===false) {
+                    ret = parentInFavRecursive($scope.indicatorFavTopicsTree, parentNext);
+                    if(ret===false)
+                      parentNext = findParentNextRecursive($scope.indicatorFavTopicsTree, parentNext);
+                  }
+
+                  return ret;
+                }
+
+                function parentInFavRecursive(tree, parentId) {
+                  
+                  var ret = false;
+                  tree.forEach(elem => {
+
+                    if(elem.topicId==parentId && $scope.FavTabIndicatorTopicFavItems.includes(parentId))
+                        ret = true;
+
+                    if(elem.subTopics && elem.subTopics.length>0 && ret===false) 
+                      ret = parentInFavRecursive(elem.subTopics, parentId);
+                  });
+
+                  return ret;
+                }
+
+                function findParentNextRecursive(tree, parent) {
+
+                  var parentNext = undefined;
+                  tree.forEach(elem => {
+
+                    if(elem.topicId==parent) {
+                      parentNext = elem.parent;
+                    }
+
+                    if(elem.subTopics && elem.subTopics.length>0 && parentNext===undefined)
+                      parentNext = findParentNextRecursive(elem.subTopics, parent);
+                  });
+
+                  return parentNext;
                 }
 
                 function topicOrIndicatorInFavRecursive(tree) {
