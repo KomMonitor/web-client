@@ -6,9 +6,10 @@ angular
 					templateUrl : "components/kommonitorUserInterface/kommonitorControls/poi/poi.template.html",
 
 					controller : [
-							'kommonitorDataExchangeService', 'kommonitorMapService', '$scope', '$rootScope', '$http', '__env', '$timeout',
+							'kommonitorDataExchangeService', 'kommonitorMapService', '$scope', '$rootScope', '$http', '__env', '$timeout', 'kommonitorElementVisibilityHelperService', 'kommonitorFavService',
 							function indicatorRadarController(
-									kommonitorDataExchangeService, kommonitorMapService, $scope, $rootScope, $http, __env, $timeout) {
+									kommonitorDataExchangeService, kommonitorMapService, $scope, $rootScope, $http, __env, $timeout, 
+                  kommonitorElementVisibilityHelperService, kommonitorFavService) {
 
 								/*
 								 * reference to kommonitorDataExchangeService instances
@@ -33,6 +34,22 @@ angular
 								$scope.dateSelectionType = {
 									selectedDateType: $scope.dateSelectionType_valuePerDataset
 								};
+                
+                $scope.georesourceFavTopicsTree = [];
+
+                $scope.georesourceTopicFavItems = [];
+                $scope.poiFavItems = [];
+
+                // own temp list as fav items should remain visible in fav-tab even if deleted, until save/reload
+                $scope.FavTabGeoresourceTopicFavItems = []; 
+                $scope.FavTabPoiFavItems = [];
+
+                $scope.favSelectionToastStatus = 0;
+                $scope.showFavSelection = false;
+
+                $scope.favSelectionToastText = ['',
+                  'Favoriten-Auswahl nicht gesichert. Zum speichern hier klicken',
+                  'Auswahl erfolgreich gespeichert'];
 
 								$scope.selectedDate_manual = undefined;
 								$('#manualDateDatepicker').datepicker(kommonitorDataExchangeService.datePickerOptions);
@@ -107,13 +124,60 @@ angular
 												// 	$scope.unCollapsedTopicIds.push(clickedTopicId);
 												// }
 									  });
+                    
+                    // addClass "clickBound" sets trigger, that listener has been added, not:.clickBound filters for that. otherwise multiple listeners will be added
+                    $('.list-group-item > .georesourcesFavCollapseTrigger:not(.clickBound)').addClass('clickBound').on('click', function() {
+									    $('.glyphicon', this)
+									      .toggleClass('glyphicon-chevron-right')
+									      .toggleClass('glyphicon-chevron-down');
+
+                      // manage entries
+                      var clickedTopicId = $(this).attr('id');
+                      if(document.getElementById('georesourcesFavSubTopic-'+clickedTopicId).style.display=='none')
+                        document.getElementById('georesourcesFavSubTopic-'+clickedTopicId).style.display = 'block';
+                      else
+                        document.getElementById('georesourcesFavSubTopic-'+clickedTopicId).style.display = 'none';
+									  });
 									}, 500);
 								};
 
-								$(document).ready(function() {
+							/* 	$(document).ready(function() {
 
 									addClickListenerToEachCollapseTrigger();
-								});
+								}); */
+
+                $scope.$on("initialMetadataLoadingCompleted", function (event) {
+                  $scope.georesourceFavTopicsTree = prepTopicsTree(kommonitorDataExchangeService.topicGeoresourceHierarchy,0);
+                  
+									addClickListenerToEachCollapseTrigger();
+
+                  var userInfo = kommonitorFavService.getUserInfo();
+                  if(userInfo.georesourceFavourites) {
+                    $scope.poiFavItems = userInfo.georesourceFavourites;
+                    $scope.FavTabPoiFavItems = userInfo.georesourceFavourites;
+                  }
+                  
+                  if(userInfo.georesourceTopicFavourites) {
+                    $scope.georesourceTopicFavItems = userInfo.georesourceTopicFavourites;
+                    $scope.FavTabGeoresourceTopicFavItems = userInfo.georesourceTopicFavourites;
+                  }
+
+                  if(kommonitorElementVisibilityHelperService.elementVisibility.favSelection===true)
+                    $scope.showFavSelection = true;
+                }); 
+
+                function prepTopicsTree(tree, level) {
+                  tree.forEach(entry => {
+                    entry.level = level;
+            
+                    if(entry.subTopics.length>0) {
+                      let newLevel = level+1;
+                      entry.subTopics = prepTopicsTree(entry.subTopics, newLevel);
+                    }
+                  });
+            
+                  return tree;
+                }
 
 								$scope.onChangeShowPOI = function(){
 									if ($scope.showPOI){
@@ -919,6 +983,186 @@ angular
 									$scope.digest();
 								}
 
+                $scope.georesourceTopicFavSelected = function(topicId) {
+                  return $scope.georesourceTopicFavItems.includes(topicId);
+                }
+
+                $scope.poiFavSelected = function(id) {
+
+                  if(Array.isArray(id))
+                    return id.some(e => $scope.poiFavItems.includes(e.georesourceId));
+                  else
+                    return $scope.poiFavItems.includes(id);
+                }
+
+                $scope.onPoiFavClick = function(id, favTab = false) {
+                  if(!$scope.poiFavItems.includes(id))
+                    $scope.poiFavItems.push(id);
+                  else
+                    $scope.poiFavItems = $scope.poiFavItems.filter(e => e!=id);
+
+                  $scope.onHandleFavSelection(favTab);
+                }
+
+                $scope.onGeoresourceTopicFavClick = function(topicId, favTab = false) {
+                  if(!$scope.georesourceTopicFavItems.includes(topicId))
+                    searchGeoresourceTopicFavItemsRecursive(kommonitorDataExchangeService.topicGeoresourceHierarchy, topicId, true);
+                  else
+                    searchGeoresourceTopicFavItemsRecursive(kommonitorDataExchangeService.topicGeoresourceHierarchy, topicId, false);                  
+                  
+                  $scope.onHandleFavSelection(favTab);
+                }
+
+                $scope.onHandleFavSelection = function(favTab = false) {
+                  
+                  if(favTab===false) {
+                    $scope.FavTabGeoresourceTopicFavItems = $scope.georesourceTopicFavItems;
+                    $scope.FavTabPoiFavItems = $scope.poiFavItems;
+                  }
+
+                  $scope.handleToastStatus(1);
+
+                  kommonitorFavService.handleFavSelection({
+                    georesourceTopicFavourites: $scope.georesourceTopicFavItems,
+                    georesourceFavourites: $scope.poiFavItems
+                  });
+
+									addClickListenerToEachCollapseTrigger();
+                }
+                
+                $scope.onSaveFavSelection = function(broadcast = true) {
+                  if(broadcast===true)
+                    kommonitorFavService.storeFavSelection();
+
+                  $scope.FavTabGeoresourceTopicFavItems = $scope.georesourceTopicFavItems;
+                  $scope.FavTabPoiFavItems = $scope.poiFavItems;
+
+                  $scope.handleToastStatus(2);
+                  
+                  if(broadcast===true)
+                    $rootScope.$broadcast("favItemsStored");
+                }
+                
+                $scope.$on("favItemsStored", function (event) {
+                  $scope.onSaveFavSelection(false);
+                });
+
+                $scope.handleToastStatus = function(type) {
+                  
+                  $scope.favSelectionToastStatus = type;
+
+                  if(type==2) {
+                    setTimeout(() => {
+                      $scope.favSelectionToastStatus = 0;
+                    },1000);
+                  }
+                }
+
+                function searchGeoresourceTopicFavItemsRecursive(tree, id, selected) {
+
+                  let ret = false;
+            
+                  tree.forEach(entry => {
+                    if(entry.topicId==id) {
+                      if(selected===true) {
+                        if(!$scope.georesourceTopicFavItems.includes(id))
+                          $scope.georesourceTopicFavItems.push(id);
+                      } else
+                        $scope.georesourceTopicFavItems = $scope.georesourceTopicFavItems.filter(e => e!=id);
+            
+                      // recursive selection of topics / georesources
+                      /* if(entry.subTopics.length>0)
+                        checkGeoresourceTopicFavItemsRecursive(entry.subTopics, selected);
+
+                      if(entry.poiData.length>0 || entry.aoiData.length>0 || entry.loiData.length>0)
+                        checkGeoresourceDataFavItems(entry, selected); */
+            
+                      ret = true;
+                    } else {
+                      let itemFound = searchGeoresourceTopicFavItemsRecursive(entry.subTopics, id, selected);
+                      if(itemFound===true) 
+                        ret = true;
+                    }
+                  });
+            
+                  return ret;
+                }
+
+                function checkGeoresourceDataFavItems(entry, selected) {
+
+                  let types = [{ 
+                      typeName:'poiData',
+                      typeFav: 'poiFavItems'},
+                    { 
+                      typeName:'aoiData',
+                      typeFav: 'poiFavItems'},
+                    { 
+                      typeName:'loiData',
+                      typeFav: 'poiFavItems'}];
+
+                  types.forEach(type => {
+                    entry[type.typeName].forEach(typeElem => {
+                      if(selected===true) {
+                        if(!$scope[type.typeFav].includes(typeElem.georesourceId))
+                          $scope[type.typeFav].push(typeElem.georesourceId);
+                      } else 
+                        $scope[type.typeFav] = $scope[type.typeFav].filter(e => e!=typeElem.georesourceId);
+                    });
+                  });
+                }
+            
+                function checkGeoresourceTopicFavItemsRecursive(tree, selected) {
+                  tree.forEach(entry => {
+                    if(selected===true) {
+                      if(!$scope.georesourceTopicFavItems.includes(entry.topicId))
+                        $scope.georesourceTopicFavItems.push(entry.topicId);
+                    } else
+                      $scope.georesourceTopicFavItems = $scope.georesourceTopicFavItems.filter(e => e!=entry.topicId);
+              
+                    if(entry.subTopics.length>0)
+                      checkGeoresourceTopicFavItemsRecursive(entry.subTopics, selected);
+
+                    if(entry.poiData.length>0 || entry.aoiData.length>0 || entry.loiData.length>0)
+                      checkGeoresourceDataFavItems(entry, selected);
+                  });
+                }
+
+                $scope.favTabShowTopic = function(topic) {
+                  return topicOrGeoresourceInFavRecursive([topic]);
+                }
+
+                $scope.FavTabShowPoi = function(id) {
+
+                  if(Array.isArray(id))
+                    return id.some(e => $scope.FavTabPoiFavItems.includes(e.georesourceId));
+                  else
+                    return $scope.FavTabPoiFavItems.includes(id);
+                }
+
+                function topicOrGeoresourceInFavRecursive(tree) {
+
+                  let ret = false;
+                  tree.forEach(elem => {
+
+                    if($scope.FavTabGeoresourceTopicFavItems.includes(elem.topicId) || 
+                      georesourceInFavItems(elem.poiData, $scope.FavTabPoiFavItems) || 
+                      georesourceInFavItems(elem.aoiData, $scope.FavTabPoiFavItems) || 
+                      georesourceInFavItems(elem.loiData, $scope.FavTabPoiFavItems))
+                        ret = true;
+
+                    if(elem.subTopics && elem.subTopics.length>0 && ret===false)
+                      ret = topicOrGeoresourceInFavRecursive(elem.subTopics);
+/* 
+                    if(elem.indicatorData && elem.indicatorData.length>0 && ret===false)
+                      ret = topicOrGeoresourceInFavRecursive(elem.indicatorData); */
+                  });
+
+                  return ret;
+                }
+
+                function georesourceInFavItems(elems, favItems) {
+                  return elems.filter(e => favItems.includes(e.georesourceId)).length>0 ? true : false;
+                }
 
 							} ]
 				});

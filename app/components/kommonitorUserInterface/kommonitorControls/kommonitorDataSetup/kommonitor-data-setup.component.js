@@ -10,19 +10,21 @@ angular
 					 */
 					controller : [
 							'kommonitorDataExchangeService', '$scope', 'kommonitorMapService', '$http', '$rootScope', '__env', 
-							'$timeout', 'kommonitorElementVisibilityHelperService',
+							'$timeout', 'kommonitorElementVisibilityHelperService', 'kommonitorFavService',
 							function kommonitorDataSetupController(kommonitorDataExchangeService, $scope, 
 								kommonitorMapService, $http, $rootScope, __env, 
-								$timeout, kommonitorElementVisibilityHelperService) {
+								$timeout, kommonitorElementVisibilityHelperService, kommonitorFavService) {
 
 								const INDICATOR_DATE_PREFIX = __env.indicatorDatePrefix;
 
 								$scope.indicatorNameFilter = undefined;
+                $scope.kommonitorElementVisibilityHelperServiceInstance = kommonitorElementVisibilityHelperService;
 
 								// initialize any adminLTE box widgets
 								$('.box').boxWidget();
 
 								var addClickListenerToEachCollapseTrigger = function(){
+
 									setTimeout(function(){
 										$('.list-group-item > .collapseTrigger').on('click', function() {
 									    $('.glyphicon', this)
@@ -39,12 +41,26 @@ angular
 												// 	$scope.unCollapsedTopicIds.push(clickedTopicId);
 												// }
 									  });
+                    
+                    // addClass "clickBound" sets trigger, that listener has been added, not:.clickBound filters for that. otherwise multiple listeners will be added
+                    $('.list-group-item > .indicatorFavCollapseTrigger:not(.clickBound)').addClass('clickBound').on('click', function() {
+									    $('.glyphicon', this)
+									      .toggleClass('glyphicon-chevron-right')
+									      .toggleClass('glyphicon-chevron-down');
+
+                      // manage entries
+                      var clickedTopicId = $(this).attr('id');
+                      if(document.getElementById('indicatorFavSubTopic-'+clickedTopicId).style.display=='none')
+                        document.getElementById('indicatorFavSubTopic-'+clickedTopicId).style.display = 'block';
+                      else
+                        document.getElementById('indicatorFavSubTopic-'+clickedTopicId).style.display = 'none';
+									  });
 									}, 500);
 								};
 
 								$(document).ready(function() {
-
-									addClickListenerToEachCollapseTrigger();
+/* 
+									addClickListenerToEachCollapseTrigger(); */
 								});
 
 								// var rangeslide = require("rangeslide");
@@ -62,7 +78,25 @@ angular
 								$scope.datePicker;
 								$scope.datesAsMs;
 
-								$scope.selectedDate;					
+								$scope.selectedDate;			
+
+                $scope.indicatorFavTopicsTree = [];
+
+                $scope.indicatorTopicFavItems = []; 
+                $scope.indicatorFavItems = [];
+                
+                // own temp list as fav items should remain visible in fav-tab even if deleted, until save/reload
+                $scope.FavTabIndicatorTopicFavItems = []; 
+                $scope.FavTabIndicatorFavItems = [];
+
+                $scope.headlineIndicatorFavItems = [];
+                $scope.baseIndicatorFavItems = [];
+                $scope.favSelectionToastStatus = 0;
+                $scope.showFavSelection = false;
+
+                $scope.favSelectionToastText = ['',
+                  'Favoriten-Auswahl nicht gesichert. Zum speichern hier klicken',
+                  'Auswahl erfolgreich gespeichert'];
 
 								this.addGeopackage = function(){
 									this.kommonitorMapServiceInstance.addSpatialUnitGeopackage();
@@ -81,6 +115,40 @@ angular
 								//     kommonitorDataExchangeService.selectedSpatialUnit = $scope.filteredSpatialUnits[0];
 								//   }
 								// }, true);
+
+                // make sure that initial fetching of availableRoles has happened
+                $scope.$on("initialMetadataLoadingCompleted", function (event) {
+
+                  $scope.indicatorFavTopicsTree = prepTopicsTree(kommonitorDataExchangeService.topicIndicatorHierarchy,0);
+									addClickListenerToEachCollapseTrigger();
+
+                  var userInfo = kommonitorFavService.getUserInfo();
+                  if(userInfo.indicatorFavourites) {
+                    $scope.indicatorFavItems = userInfo.indicatorFavourites;
+                    $scope.FavTabIndicatorFavItems = userInfo.indicatorFavourites;
+                  }
+                  
+                  if(userInfo.indicatorFavourites) {
+                    $scope.indicatorTopicFavItems = userInfo.indicatorTopicFavourites;
+                    $scope.FavTabIndicatorTopicFavItems = userInfo.indicatorTopicFavourites;
+                  }
+
+                  if(kommonitorElementVisibilityHelperService.elementVisibility.favSelection===true)
+                    $scope.showFavSelection = true;
+                }); 
+
+                function prepTopicsTree(tree, level) {
+                  tree.forEach(entry => {
+                    entry.level = level;
+            
+                    if(entry.subTopics.length>0) {
+                      let newLevel = level+1;
+                      entry.subTopics = prepTopicsTree(entry.subTopics, newLevel);
+                    }
+                  });
+            
+                  return tree;
+                }
 
 								this.onClickTheme = function(topicName){
 
@@ -761,7 +829,204 @@ angular
 									$rootScope.$broadcast("selectedIndicatorDateHasChanged");
 								}
 
+                $scope.favTabShowTopic = function(topic) {
+                  return topicOrIndicatorInFavRecursive([topic]);
+                }
 
+                $scope.favTabShowIndicator = function(topicId) {
+                  return $scope.FavTabIndicatorFavItems.includes(topicId);
+                }
+
+                function topicOrIndicatorInFavRecursive(tree) {
+
+                  let ret = false;
+                  tree.forEach(elem => {
+
+                    if($scope.FavTabIndicatorTopicFavItems.includes(elem.topicId) || $scope.FavTabIndicatorFavItems.includes(elem.indicatorId))
+                      ret = true;
+
+                    if(elem.subTopics && elem.subTopics.length>0 && ret===false)
+                      ret = topicOrIndicatorInFavRecursive(elem.subTopics);
+
+                    if(elem.indicatorData && elem.indicatorData.length>0 && ret===false)
+                      ret = topicOrIndicatorInFavRecursive(elem.indicatorData);
+                  });
+
+                  return ret;
+                }
+
+                $scope.indicatorTopicFavSelected = function(topicId) {
+                  return $scope.indicatorTopicFavItems.includes(topicId);
+                }
+
+                $scope.indicatorFavSelected = function(topicId) {
+                  return $scope.indicatorFavItems.includes(topicId);
+                }
+
+                $scope.headlineIndicatorFavSelected = function(topicId) {
+                  return $scope.indicatorFavItems.includes(topicId);
+                }
+
+                $scope.baseIndicatorFavSelected = function(topicId) {
+                  return $scope.indicatorFavItems.includes(topicId);
+                }
+
+                function searchIndicatorTopicFavItemsRecursive(tree, id, selected) {
+
+                  let ret = false;
+            
+                  tree.forEach(entry => {
+                    if(entry.topicId==id) {
+                      if(selected===true) {
+                        if(!$scope.indicatorTopicFavItems.includes(id))
+                          $scope.indicatorTopicFavItems.push(id);
+                      } else
+                        $scope.indicatorTopicFavItems = $scope.indicatorTopicFavItems.filter(e => e!=id);
+            
+                     // recursive selection of topics / indicators
+                     /*  if(entry.subTopics.length>0)
+                        checkIndicatorTopicFavItemsRecursive(entry.subTopics, selected);
+
+                      if(entry.indicatorData.length>0)
+                        checkIndicatorMetadataFavItems(entry.indicatorData, selected); */
+            
+                      ret = true;
+                    } else {
+                      let itemFound = searchIndicatorTopicFavItemsRecursive(entry.subTopics, id, selected);
+                      if(itemFound===true) 
+                        ret = true;
+                    }
+                  });
+            
+                  return ret;
+                }
+            
+                function checkIndicatorTopicFavItemsRecursive(tree, selected) {
+                  tree.forEach(entry => {
+                    if(selected===true) {
+                      if(!$scope.indicatorTopicFavItems.includes(entry.topicId))
+                        $scope.indicatorTopicFavItems.push(entry.topicId);
+                    } else
+                      $scope.indicatorTopicFavItems = $scope.indicatorTopicFavItems.filter(e => e!=entry.topicId);
+              
+                    if(entry.subTopics.length>0)
+                      checkIndicatorTopicFavItemsRecursive(entry.subTopics, selected);
+
+                    if(entry.indicatorData.length>0)
+                      checkIndicatorMetadataFavItems(entry.indicatorData, selected);
+                  });
+                }
+            
+                function checkIndicatorMetadataFavItems(tree, selected) {
+                  tree.forEach(entry => {
+                    if(selected===true) {
+                      if(!$scope.indicatorFavItems.includes(entry.indicatorId))
+                        $scope.indicatorFavItems.push(entry.indicatorId);
+                    } else {
+                      $scope.indicatorFavItems = $scope.indicatorFavItems.filter(e => e!=entry.indicatorId);
+                    }
+                  });
+                }
+
+                function checkBaseIndicatorFavItems(id, selected) {
+                  kommonitorDataExchangeService.headlineIndicatorHierarchy.forEach(entry => {
+                    if(entry.headlineIndicator.indicatorId==id) {
+
+                      entry.baseIndicators.forEach(base => {
+                        if(selected===true) {
+                          if(!$scope.indicatorFavItems.includes(entry.indicatorId))
+                            $scope.indicatorFavItems.push(base.indicatorId);
+                        } else {
+                          $scope.indicatorFavItems = $scope.indicatorFavItems.filter(e => e!=base.indicatorId);
+                        }
+                      });
+                    }
+                  });
+                }
+
+                $scope.onIndicatorTopicFavClick = function(topicId, favTab = false) {
+                  if(!$scope.indicatorTopicFavItems.includes(topicId))
+                    searchIndicatorTopicFavItemsRecursive(kommonitorDataExchangeService.topicIndicatorHierarchy, topicId, true);
+                  else
+                    searchIndicatorTopicFavItemsRecursive(kommonitorDataExchangeService.topicIndicatorHierarchy, topicId, false);
+
+                  $scope.onHandleFavSelection(favTab);
+                }
+
+                $scope.onIndicatorFavClick = function(id, favTab = false) {
+                  if(!$scope.indicatorFavItems.includes(id))
+                    $scope.indicatorFavItems.push(id);
+                  else
+                    $scope.indicatorFavItems = $scope.indicatorFavItems.filter(e => e!=id);
+
+                  $scope.onHandleFavSelection(favTab);
+                }
+                
+                $scope.onHeadlineIndicatorFavClick = function(id) {
+                  if(!$scope.indicatorFavItems.includes(id)) {
+                    $scope.indicatorFavItems.push(id);
+                    checkBaseIndicatorFavItems(id, true);
+                  } else {
+                    $scope.indicatorFavItems = $scope.indicatorFavItems.filter(e => e!=id);
+                    checkBaseIndicatorFavItems(id, false);
+                  }
+
+                  $scope.onHandleFavSelection();
+                }
+
+                $scope.onBaseIndicatorFavClick = function(id) {
+                  if(!$scope.indicatorFavItems.includes(id))
+                    $scope.indicatorFavItems.push(id);
+                  else
+                    $scope.indicatorFavItems = $scope.indicatorFavItems.filter(e => e!=id);
+
+                  $scope.onHandleFavSelection();
+                }
+
+                $scope.onHandleFavSelection = function(favTab = false) {
+
+                  if(favTab===false) {
+                    $scope.FavTabIndicatorTopicFavItems = $scope.indicatorTopicFavItems;
+                    $scope.FavTabIndicatorFavItems = $scope.indicatorFavItems;
+                  }
+
+                  $scope.handleToastStatus(1);
+
+                  kommonitorFavService.handleFavSelection({
+                    indicatorTopicFavourites: $scope.indicatorTopicFavItems,
+                    indicatorFavourites: $scope.indicatorFavItems
+                  });
+
+									addClickListenerToEachCollapseTrigger();
+                }
+
+                $scope.onSaveFavSelection = function(broadcast = true) {
+                  if(broadcast===true)
+                    kommonitorFavService.storeFavSelection();
+
+                  $scope.FavTabIndicatorTopicFavItems = $scope.indicatorTopicFavItems;
+                  $scope.FavTabIndicatorFavItems = $scope.indicatorFavItems;
+
+                  $scope.handleToastStatus(2);
+
+                  if(broadcast===true)
+                    $rootScope.$broadcast("favItemsStored");
+                }
+
+                $scope.$on("favItemsStored", function (event) {
+                  $scope.onSaveFavSelection(false);
+                });
+
+                $scope.handleToastStatus = function(type) {
+                  
+                  $scope.favSelectionToastStatus = type;
+
+                  if(type==2) {
+                    setTimeout(() => {
+                      $scope.favSelectionToastStatus = 0;
+                    },1000);
+                  }
+                }
 
 								$scope.modifyExports = function(changeIndicator){
 									kommonitorDataExchangeService.wmsUrlForSelectedIndicator = undefined;

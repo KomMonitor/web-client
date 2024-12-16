@@ -40,7 +40,7 @@
 										<br/>
 
 										<label>Datenkataloge:</label>
-
+                      
 										 <uib-tabset active="0">
 									    <uib-tab index="0" heading="Themenhierarchie">
 
@@ -65,38 +65,52 @@
 														<label> Themenorientierter Datenkatalog </label>
 
 														<div ng-repeat="mainTopic in $ctrl.kommonitorDataExchangeServiceInstance.topicIndicatorHierarchy | orderBy: 'topicName'" ng-if="::mainTopic.indicatorCount">
-															<div  class="list-group-item list-group-item-default" style="background: #2171b5; color: white;">
+															<div  class="list-group-item list-group-item-default list-group-item-grid-layout" style="background: #2171b5; color: white;">
 																<a href="" ng-attr-title="{{mainTopic.topicDescription}}" class="collapseTrigger" style="color: white;" ng-click="isCollapsed_mainTopic = !isCollapsed_mainTopic" ng-init="isCollapsed_mainTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>{{::mainTopic.topicName}}  ({{mainTopic.indicatorCount}})</a>
+                                <i ng-show="showFavSelection" class="glyphicon glyphicon-custom" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[indicatorTopicFavSelected(mainTopic.topicId)]" ng-click="onIndicatorTopicFavClick(mainTopic.topicId)"></i>
 															</div>
 
 															<div class="list-group collapse" uib-collapse="isCollapsed_mainTopic">
 																<div ng-repeat="subTopic in ::mainTopic.subTopics | orderBy: 'topicName'" ng-if="::subTopic.indicatorCount">
 
-																	<div  class="list-group-item list-group-item-default" style="background: #6baed6; color: white;">
+																	<div  class="list-group-item list-group-item-default list-group-item-grid-layout" style="background: #6baed6; color: white;">
 																		<a class="collapseTrigger" style="color: white;" ng-attr-title="{{::subTopic.topicDescription}}" href="" ng-click="isCollapsed_subTopic = !isCollapsed_subTopic" ng-init="isCollapsed_subTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>{{::subTopic.topicName}}  ({{subTopic.indicatorCount}})</a>
+                                    <i ng-show="showFavSelection" class="glyphicon glyphicon-custom" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[indicatorTopicFavSelected(subTopic.topicId)]" ng-click="onIndicatorTopicFavClick(subTopic.topicId)"></i>
 																	</div>	
 																	<div class="list-group collapse" uib-collapse="isCollapsed_subTopic">
 																		<div ng-repeat="subsubTopic in ::subTopic.subTopics | orderBy: 'topicName'" ng-if="::subsubTopic.indicatorCount">
 	
-																			<div  class="list-group-item list-group-item-default" style="background: #bdd7e7; color: white;">
+																			<div  class="list-group-item list-group-item-default list-group-item-grid-layout" style="background: #bdd7e7; color: white;">
 																				<a class="collapseTrigger" style="color: black;" ng-attr-title="{{::subsubTopic.topicDescription}}" href="" ng-click="isCollapsed_subsubTopic = !isCollapsed_subsubTopic" ng-init="isCollapsed_subsubTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>{{::subsubTopic.topicName}}   ({{subsubTopic.indicatorCount}})</a>
+                                        <i ng-show="showFavSelection" class="glyphicon glyphicon-custom" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[indicatorTopicFavSelected(subsubTopic.topicId)]" ng-click="onIndicatorTopicFavClick(subsubTopic.topicId)" style="color: black;"></i>
 																			</div>
 		
 																			<div class="list-group collapse" uib-collapse="isCollapsed_subsubTopic">
 																				<div ng-repeat="subsubsubTopic in ::subsubTopic.subTopics | orderBy: 'topicName'" ng-if="::subsubsubTopic.indicatorCount">
 		
-																					<div  class="list-group-item list-group-item-default" style="background: #eff3ff; color: white;">
+																					<div  class="list-group-item list-group-item-default list-group-item-grid-layout" style="background: #eff3ff; color: white;">
 																						<a class="collapseTrigger" style="color: black;" ng-attr-title="{{::subsubsubTopic.topicDescription}}" href="" ng-click="isCollapsed_subsubsubTopic = !isCollapsed_subsubsubTopic" ng-init="isCollapsed_subsubsubTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>{{::subsubsubTopic.topicName}}   ({{subsubsubTopic.indicatorCount}})</a>
+                                            <i ng-show="showFavSelection" class="glyphicon glyphicon-custom" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[indicatorTopicFavSelected(subsubsubTopic.topicId)]" ng-click="onIndicatorTopicFavClick(subsubsubTopic.topicId)" style="color: black;"></i>
 																					</div>
 			
 																						<div class="list-group collapse indicatorInputForm" uib-collapse="isCollapsed_subsubsubTopic">
 																							<div id="indicatorHierarchyElement-{{::indicatorMetadata.indicatorId}}" ng-class="{'style-headline-indicator': indicatorMetadata.isHeadlineIndicator , 'style-simple-indicator': ! indicatorMetadata.isHeadlineIndicator}" 
 																								ng-repeat="indicatorMetadata in subsubsubTopic.indicatorData track by indicatorMetadata.indicatorId" class="list-group-item list-group-item-default">
-																								<div ng-if="::indicatorMetadata.isHeadlineIndicator">
-																									<p style="cursor:pointer; color: white;" ng-attr-title="<b>{{::indicatorMetadata.indicatorName}}</b> [{{::indicatorMetadata.unit}}]" style="color: white;" ng-click="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-tachometer-alt"></i> &nbsp;&nbsp;<b>{{::indicatorMetadata.indicatorName}}</b> [{{::indicatorMetadata.unit}}]</p>																			
+																								<div ng-if="::indicatorMetadata.isHeadlineIndicator" class="list-group-item-grid-layout">
+																									<div>
+                                                    <p style="cursor:pointer; color: white;" ng-attr-title="<b>{{::indicatorMetadata.indicatorName}}</b> [{{::indicatorMetadata.unit}}]" style="color: white;" ng-click="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-tachometer-alt"></i> &nbsp;&nbsp;<b>{{::indicatorMetadata.indicatorName}}</b> [{{::indicatorMetadata.unit}}]</p>																			
+                                                  </div>
+                                                  <div>
+                                                    <i ng-show="showFavSelection" class="glyphicon glyphicon-custom" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[indicatorFavSelected(indicatorMetadata.indicatorId)]" ng-click="onIndicatorFavClick(indicatorMetadata.indicatorId)" style="color: black;"></i>
+                                                  </div>
 																								</div> 
-																								<div ng-if="::! indicatorMetadata.isHeadlineIndicator">
-																									<p style="cursor:pointer;" ng-attr-title="<b>{{::indicatorMetadata.indicatorName}}</b> [{{::indicatorMetadata.unit}}]" style="color: white;" ng-click="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>{{::indicatorMetadata.indicatorName}}</b> [{{::indicatorMetadata.unit}}]</p>																				
+																								<div ng-if="::! indicatorMetadata.isHeadlineIndicator" class="list-group-item-grid-layout">
+                                                  <div>
+                                                    <p style="cursor:pointer;" ng-attr-title="<b>{{::indicatorMetadata.indicatorName}}</b> [{{::indicatorMetadata.unit}}]" style="color: white;" ng-click="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>{{::indicatorMetadata.indicatorName}}</b> [{{::indicatorMetadata.unit}}]</p>																				
+                                                  </div>
+                                                  <div>
+                                                    <i ng-show="showFavSelection" class="glyphicon glyphicon-custom" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[indicatorFavSelected(indicatorMetadata.indicatorId)]" ng-click="onIndicatorFavClick(indicatorMetadata.indicatorId)" style="color: black;"></i>
+                                                  </div>
 																								</div>
 																								</div>
 																						</div>
@@ -106,13 +120,21 @@
 																				<div class="list-group indicatorInputForm" >
 																					<div id="indicatorHierarchyElement-{{::indicatorMetadata.indicatorId}}" ng-class="{'style-headline-indicator': indicatorMetadata.isHeadlineIndicator , 'style-simple-indicator': ! indicatorMetadata.isHeadlineIndicator}" 
 																						ng-repeat="indicatorMetadata in subsubTopic.indicatorData track by indicatorMetadata.indicatorId" class="list-group-item list-group-item-default">
-																						<div ng-if="::indicatorMetadata.isHeadlineIndicator">
-																							<p style="cursor:pointer; color: white;" ng-attr-title="<b>{{::indicatorMetadata.indicatorName}}</b> [{{::indicatorMetadata.unit}}]" style="color: white;" ng-click="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-tachometer-alt"></i> &nbsp;&nbsp;<b>{{::indicatorMetadata.indicatorName}}</b> [{{::indicatorMetadata.unit}}]</p>
-																					
+																						<div ng-if="::indicatorMetadata.isHeadlineIndicator" class="list-group-item-grid-layout">
+                                              <div>
+																							  <p style="cursor:pointer; color: white;" ng-attr-title="<b>{{::indicatorMetadata.indicatorName}}</b> [{{::indicatorMetadata.unit}}]" style="color: white;" ng-click="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-tachometer-alt"></i> &nbsp;&nbsp;<b>{{::indicatorMetadata.indicatorName}}</b> [{{::indicatorMetadata.unit}}]</p>
+                                              </div>
+                                              <div>
+                                                <i ng-show="showFavSelection" class="glyphicon glyphicon-custom" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[indicatorFavSelected(indicatorMetadata.indicatorId)]" ng-click="onIndicatorFavClick(indicatorMetadata.indicatorId)" style="color: black;"></i>
+                                              </div>
 																						</div> 
-																						<div ng-if="::! indicatorMetadata.isHeadlineIndicator">
-																							<p style="cursor:pointer;" ng-attr-title="<b>{{::indicatorMetadata.indicatorName}}</b> [{{::indicatorMetadata.unit}}]" style="color: white;" ng-click="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>{{::indicatorMetadata.indicatorName}}</b> [{{::indicatorMetadata.unit}}]</p>
-																					
+																						<div ng-if="::! indicatorMetadata.isHeadlineIndicator" class="list-group-item-grid-layout">
+                                              <div>
+                                                <p style="cursor:pointer;" ng-attr-title="<b>{{::indicatorMetadata.indicatorName}}</b> [{{::indicatorMetadata.unit}}]" style="color: white;" ng-click="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>{{::indicatorMetadata.indicatorName}}</b> [{{::indicatorMetadata.unit}}]</p>
+                                              </div>
+                                              <div>
+                                                <i ng-show="showFavSelection" class="glyphicon glyphicon-custom" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[indicatorFavSelected(indicatorMetadata.indicatorId)]" ng-click="onIndicatorFavClick(indicatorMetadata.indicatorId)" style="color: black;"></i>
+                                              </div>
 																						</div>
 																					</div>
 																				</div>
@@ -120,65 +142,64 @@
 																			
 																			<!-- end sub sub sub topics -->
 		
-		
-																				
-																			
-		
-		
 																		</div>
 																		<div class="list-group indicatorInputForm" >
 																			<div id="indicatorHierarchyElement-{{::indicatorMetadata.indicatorId}}" ng-class="{'style-headline-indicator': indicatorMetadata.isHeadlineIndicator , 'style-simple-indicator': ! indicatorMetadata.isHeadlineIndicator}"
 																				ng-repeat="indicatorMetadata in subTopic.indicatorData track by indicatorMetadata.indicatorId" class="list-group-item list-group-item-default">
-																				<div ng-if="::indicatorMetadata.isHeadlineIndicator">
-																					<p style="cursor:pointer; color: white;" ng-attr-title="<b>{{::indicatorMetadata.indicatorName}}</b> [{{::indicatorMetadata.unit}}]" ng-click="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-tachometer-alt"></i> &nbsp;&nbsp;<b>{{::indicatorMetadata.indicatorName}}</b> [{{::indicatorMetadata.unit}}]</p>
-																			
+																				<div ng-if="::indicatorMetadata.isHeadlineIndicator" class="list-group-item-grid-layout">
+																					<div>  
+                                            <p style="cursor:pointer; color: white;" ng-attr-title="<b>{{::indicatorMetadata.indicatorName}}</b> [{{::indicatorMetadata.unit}}]" ng-click="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-tachometer-alt"></i> &nbsp;&nbsp;<b>{{::indicatorMetadata.indicatorName}}</b> [{{::indicatorMetadata.unit}}]</p>
+                                          </div>
+                                          <div>
+                                            <i ng-show="showFavSelection" class="glyphicon glyphicon-custom" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[indicatorFavSelected(indicatorMetadata.indicatorId)]" ng-click="onIndicatorFavClick(indicatorMetadata.indicatorId)" style="color: black;"></i>
+                                          </div>
 																				</div> 
-																				<div ng-if="::! indicatorMetadata.isHeadlineIndicator">
-																					<p style="cursor:pointer;" style="color: white;" ng-attr-title="<b>{{::indicatorMetadata.indicatorName}}</b> [{{::indicatorMetadata.unit}}]" ng-click="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>{{::indicatorMetadata.indicatorName}}</b> [{{::indicatorMetadata.unit}}]</p>
-																			
+																				<div ng-if="::! indicatorMetadata.isHeadlineIndicator" class="list-group-item-grid-layout">
+                                          <div>
+                                            <p style="cursor:pointer;" style="color: white;" ng-attr-title="<b>{{::indicatorMetadata.indicatorName}}</b> [{{::indicatorMetadata.unit}}]" ng-click="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>{{::indicatorMetadata.indicatorName}}</b> [{{::indicatorMetadata.unit}}]</p>
+                                          </div>
+                                          <div>
+                                            <i ng-show="showFavSelection" class="glyphicon glyphicon-custom" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[indicatorFavSelected(indicatorMetadata.indicatorId)]" ng-click="onIndicatorFavClick(indicatorMetadata.indicatorId)" style="color: black;"></i>
+                                          </div>
 																				</div>
 																			</div>
 																		</div>
 																	</div>																	
 
 																	<!-- end sub sub opics -->
-																	
-	
-	
-																		
-																
-	
-	
-	
 	
 																</div>
 
 																<div class="list-group indicatorInputForm" >
 																	<div id="indicatorHierarchyElement-{{::indicatorMetadata.indicatorId}}" ng-class="{'style-headline-indicator': indicatorMetadata.isHeadlineIndicator, 'style-simple-indicator': !indicatorMetadata.isHeadlineIndicator }"
 																		ng-repeat="indicatorMetadata in mainTopic.indicatorData track by indicatorMetadata.indicatorId" class="list-group-item list-group-item-default">
-																		<div ng-if="::indicatorMetadata.isHeadlineIndicator">
-																			<p style="cursor:pointer; color: white;" ng-attr-title="<b>{{::indicatorMetadata.indicatorName}}</b> [{{::indicatorMetadata.unit}}]" ng-click="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-tachometer-alt"></i> &nbsp;&nbsp;<b>{{::indicatorMetadata.indicatorName}}</b> [{{::indicatorMetadata.unit}}]</p>
-																	
+																		<div ng-if="::indicatorMetadata.isHeadlineIndicator" class="list-group-item-grid-layout">
+                                      <div>
+                                        <p style="cursor:pointer; color: white;" ng-attr-title="<b>{{::indicatorMetadata.indicatorName}}</b> [{{::indicatorMetadata.unit}}]" ng-click="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-tachometer-alt"></i> &nbsp;&nbsp;<b>{{::indicatorMetadata.indicatorName}}</b> [{{::indicatorMetadata.unit}}]</p>
+                                      </div>
+                                      <div>
+                                        <i ng-show="showFavSelection" class="glyphicon glyphicon-custom" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[indicatorFavSelected(indicatorMetadata.indicatorId)]" ng-click="onIndicatorFavClick(indicatorMetadata.indicatorId)" style="color: black;"></i>
+                                      </div>
 																		</div> 
-																		<div ng-if="::! indicatorMetadata.isHeadlineIndicator">
-																			<p style="cursor:pointer;" style="color: white;" ng-attr-title="<b>{{::indicatorMetadata.indicatorName}}</b> [{{::indicatorMetadata.unit}}]" ng-click="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>{{::indicatorMetadata.indicatorName}}</b> [{{::indicatorMetadata.unit}}]</p>
-																	
+																		<div ng-if="::! indicatorMetadata.isHeadlineIndicator" class="list-group-item-grid-layout">
+                                      <div>
+                                        <p style="cursor:pointer;" style="color: white;" ng-attr-title="<b>{{::indicatorMetadata.indicatorName}}</b> [{{::indicatorMetadata.unit}}]" ng-click="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>{{::indicatorMetadata.indicatorName}}</b> [{{::indicatorMetadata.unit}}]</p>
+                                      </div>
+                                      <div>
+                                        <i ng-show="showFavSelection" class="glyphicon glyphicon-custom" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[indicatorFavSelected(indicatorMetadata.indicatorId)]" ng-click="onIndicatorFavClick(indicatorMetadata.indicatorId)" style="color: black;"></i>
+                                      </div>
 																		</div>
 																	</div>
 																</div>
 															</div>
 															
 															<!-- end sub topics -->
-																
-															
-															
 
 														</div>
 														<!-- end main Topics -->
 
 
 													</div>
-
 											</div>
 
 											</uib-tab>									    
@@ -206,25 +227,34 @@
 														<label> Leitindikatoren und ihre Basis-Indikatoren </label>
 
 														<div ng-repeat="headlineIndicatorHierarchyItem in $ctrl.kommonitorDataExchangeServiceInstance.headlineIndicatorHierarchy track by headlineIndicatorHierarchyItem.headlineIndicator.indicatorId">
-															<div  class="list-group-item list-group-item-default" style="background: #2171b5; color: white;">
+															<div  class="list-group-item list-group-item-default list-group-item-grid-layout" style="background: #2171b5; color: white;">
 																<a href="" ng-attr-title="{{::headlineIndicatorHierarchyItem.headlineIndicator.metadata.description}}" class="collapseTrigger" style="color: white;" ng-click="isCollapsed_headlineIndicatorHierarchyItem = !isCollapsed_headlineIndicatorHierarchyItem" ng-init="isCollapsed_headlineIndicatorHierarchyItem=true"><i class="glyphicon glyphicon-chevron-right"></i>{{::headlineIndicatorHierarchyItem.headlineIndicator.indicatorName}} </a>
+                                <i ng-show="showFavSelection" class="glyphicon glyphicon-custom" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[headlineIndicatorFavSelected(headlineIndicatorHierarchyItem.headlineIndicator.indicatorId)]" ng-click="onHeadlineIndicatorFavClick(headlineIndicatorHierarchyItem.headlineIndicator.indicatorId)"></i>
 															</div>
 
 															<div class="list-group collapse indicatorInputForm" uib-collapse="isCollapsed_headlineIndicatorHierarchyItem">
 																<div 
 																	class="list-group-item list-group-item-default style-headline-indicator">
-																	<div>
-																		<p style="cursor:pointer; color: white;" ng-attr-title="<b>{{::headlineIndicatorHierarchyItem.headlineIndicator.indicatorName}}</b> [{{::headlineIndicatorHierarchyItem.headlineIndicator.unit}}]" ng-click="onClickHierarchyIndicator(headlineIndicatorHierarchyItem.headlineIndicator)"><i class="fas fa-tachometer-alt"></i> &nbsp;&nbsp;<b>{{::headlineIndicatorHierarchyItem.headlineIndicator.indicatorName}}</b> [{{::headlineIndicatorHierarchyItem.headlineIndicator.unit}}]</p>
-																
+																	<div class="list-group-item-grid-layout">
+                                    <div>
+																		  <p style="cursor:pointer; color: white;" ng-attr-title="<b>{{::headlineIndicatorHierarchyItem.headlineIndicator.indicatorName}}</b> [{{::headlineIndicatorHierarchyItem.headlineIndicator.unit}}]" ng-click="onClickHierarchyIndicator(headlineIndicatorHierarchyItem.headlineIndicator)"><i class="fas fa-tachometer-alt"></i> &nbsp;&nbsp;<b>{{::headlineIndicatorHierarchyItem.headlineIndicator.indicatorName}}</b> [{{::headlineIndicatorHierarchyItem.headlineIndicator.unit}}]</p>
+                                    </div>
+                                    <div>
+                                      <i ng-show="showFavSelection" class="glyphicon glyphicon-custom" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[headlineIndicatorFavSelected(headlineIndicatorHierarchyItem.headlineIndicator.indicatorId)]" ng-click="onHeadlineIndicatorFavClick(headlineIndicatorHierarchyItem.headlineIndicator.indicatorId)"></i>
+                                    </div>
 																	</div> 
 																</div>
 
 																<div 
 																	class="list-group-item list-group-item-default style-simple-indicator"
 																	ng-repeat="baseIndicatorMetadata in ::headlineIndicatorHierarchyItem.baseIndicators track by baseIndicatorMetadata.indicatorId" >
-																	<div>
-																		<p style="cursor:pointer; color: black;" ng-attr-title="<b>{{::baseIndicatorMetadata.indicatorName}}</b> [{{::baseIndicatorMetadata.unit}}]" ng-click="onClickHierarchyIndicator(baseIndicatorMetadata)"><i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>{{::baseIndicatorMetadata.indicatorName}}</b> [{{::baseIndicatorMetadata.unit}}]</p>
-																
+																	<div class="list-group-item-grid-layout">
+                                    <div>
+																		  <p style="cursor:pointer; color: black;" ng-attr-title="<b>{{::baseIndicatorMetadata.indicatorName}}</b> [{{::baseIndicatorMetadata.unit}}]" ng-click="onClickHierarchyIndicator(baseIndicatorMetadata)"><i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>{{::baseIndicatorMetadata.indicatorName}}</b> [{{::baseIndicatorMetadata.unit}}]</p>
+                                    </div>
+                                    <div>
+                                      <i ng-show="showFavSelection" class="glyphicon glyphicon-custom" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[baseIndicatorFavSelected(baseIndicatorMetadata.indicatorId)]" ng-click="onBaseIndicatorFavClick(baseIndicatorMetadata.indicatorId)" style="color: black;"></i>
+                                    </div>
 																	</div> 
 																</div>
 															</div>
@@ -249,7 +279,38 @@
 													</select>
 												</div>
 											</uib-tab>
-											<!-- <uib-tab index="3" heading="Berechnungshierarchie">
+											<uib-tab index="3" heading="Favoriten" ng-show="showFavSelection">
+												<div class="just-padding">
+													<div class="list-group list-group-root well" style="text-align: left">
+                
+                            <script type="text/ng-template" id="indicatorTopicTree">
+                              <div ng-if="favTabShowTopic(topic) && topic.indicatorCount>0">
+                                <div class="list-group-item list-group-item-default list-group-item-grid-centered list-group-item-level-{{topic.level}}">
+                                  <a ng-if="topic.subTopics.length>0 || topic.indicatorData.length>0" id="{{topic.topicId}}" href="" ng-attr-title="{{topic.topicDescription}}"
+                                    class="indicatorFavCollapseTrigger" style="color: white;">
+                                  <i class="glyphicon glyphicon-chevron-right"></i>{{topic.topicName}}</a>
+                                  <p ng-if="topic.subTopics.length==0 && topic.indicatorData.length==0">{{topic.topicName}}</p>
+                                  <i ng-show="showFavSelection" class="glyphicon glyphicon-custom" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[indicatorTopicFavSelected(topic.topicId)]" ng-click="onIndicatorTopicFavClick(topic.topicId,true)"></i>
+                                </div>
+                                
+                                <div id="indicatorFavSubTopic-{{topic.topicId}}" class="subTopic-block sub-topic-wrapper-level-{{topic.level}}" style="display:none">
+                                  <div ng-if="topic.subTopics" ng-repeat="topic in topic.subTopics | orderBy: 'topicName'" ng-include="'indicatorTopicTree'"></div>
+                                  <div ng-if="topic.indicatorData && favTabShowIndicator(data.indicatorId)" ng-repeat="data in topic.indicatorData | orderBy: 'indicatorName'" class="indicator-element list-group-item-grid-layout" 
+                                    ng-class="{'style-headline-indicator': data.isHeadlineIndicator, 'selectedIndicator': $ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.indicatorId==data.indicatorId}">
+                                    <div ng-click="onClickHierarchyIndicator(data)">
+                                      <i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>{{data.indicatorName}}</b> [{{data.unit}}]
+                                    </div>
+                                    <i ng-show="showFavSelection" class="glyphicon glyphicon-custom glyphicon-star" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[indicatorFavSelected(data.indicatorId)]" ng-click="onIndicatorFavClick(data.indicatorId,true)"></i>
+                                  </div>
+                                </div>
+                              </div>
+                            </script>
+        
+                            <div ng-repeat="topic in indicatorFavTopicsTree | orderBy: 'topicName'" ng-include="'indicatorTopicTree'"></div>
+                          </div>
+												</div>
+											</uib-tab>
+											<!-- <uib-tab index="4" heading="Berechnungshierarchie">
 												<div class="just-padding">
 
 													<div id="computationIndicatorHierarchySelection" class="list-group list-group-root well">
@@ -303,7 +364,7 @@
 
 											</uib-tab> -->
 									  </uib-tabset>
-
+                    <div class="favoritesToast" id="favoritesToast" ng-click="onSaveFavSelection()" ng-class="{'disabled': favSelectionToastStatus==0, 'notSaved': favSelectionToastStatus==1, 'saved': favSelectionToastStatus==2}" ng-show="showFavSelection">{{favSelectionToastText[favSelectionToastStatus]}}</div>
 								</div>
 								<!-- /.box-body -->
 						</div>
