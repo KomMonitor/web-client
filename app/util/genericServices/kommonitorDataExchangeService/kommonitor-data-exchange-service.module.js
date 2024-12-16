@@ -635,13 +635,27 @@ angular
           this.updateInterval.set("QUARTERLY", "vierteljährlich");
 
 					this.setIndicators = function(indicatorsArray){
-						this.availableIndicators = indicatorsArray;
+						this.availableIndicators = self.modifyIndicators(indicatorsArray);
             this.availableIndicators_map = new Map();
             
             for (const indicatorMetadata of indicatorsArray) {
               this.availableIndicators_map.set(indicatorMetadata.indicatorId, indicatorMetadata);
             }
 					};
+
+          this.modifyIndicators = function(indicators) {
+
+            var decimalDefault = 2;
+            if(__env.numberOfDecimals)
+              decimalDefault = __env.numberOfDecimals;
+
+            indicators.forEach(elem => {
+              if(!elem.precision)
+                elem.precision = decimalDefault;
+            });
+
+            return indicators;
+          }
 
           this.addSingleIndicatorMetadata = function(indicatorMetadata){
             let tmpArray = [indicatorMetadata];

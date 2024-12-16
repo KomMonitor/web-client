@@ -302,11 +302,10 @@ angular
               return "" +  kommonitorDataExchangeService.getAllowedRolesString(params.data.allowedRoles);
             } 
           },
-          { headerName: 'Nachkommastellen', minWidth: 200, cellRenderer: function (params) { return (params.data.precision!=null) ? params.data.precision : __env.numberOfDecimals; },
+          { headerName: 'Nachkommastellen', minWidth: 200, cellRenderer: function (params) { return params.data.precision; },
           filter: 'agTextColumnFilter', 
           filterValueGetter: (params) => {
-                                                                                   // NICHT VERGESSEN!!!
-              return "" +  params.data.allowedRoles;
+              return "" +  params.data.precision;
             } 
           }
         ];
