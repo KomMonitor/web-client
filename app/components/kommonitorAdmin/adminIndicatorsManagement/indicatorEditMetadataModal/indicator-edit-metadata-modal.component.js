@@ -377,7 +377,7 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 
       $scope.indicatorPrecision = $scope.currentIndicatorDataset.precision;
 
-      if($scope.indicatorPrecision!=null)
+      if($scope.currentIndicatorDataset.defaultPrecision===false)
         $scope.showCustomCommaValue = true;
       else
         $scope.showCustomCommaValue = false;
@@ -937,7 +937,7 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 				// indicator specific properties
 
 				$scope.indicatorAbbreviation = $scope.metadataImportSettings.abbreviation;
-        $scope.indicatorPrecision = ($scope.metadataImportSettings.precision!="") ? $scope.metadataImportSettings.precision : null;
+        $scope.indicatorPrecision = ($scope.metadataImportSettings.precision!="") ? parseInt($scope.metadataImportSettings.precision) : null;
         
         if($scope.indicatorPrecision!=null)
           $scope.showCustomCommaValue = true;

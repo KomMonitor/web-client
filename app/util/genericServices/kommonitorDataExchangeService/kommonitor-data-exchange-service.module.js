@@ -650,15 +650,23 @@ angular
               decimalDefault = __env.numberOfDecimals;
 
             indicators.forEach(elem => {
-              if(!elem.precision)
+              if(elem.precision===null) {
                 elem.precision = decimalDefault;
+                elem.defaultPrecision = true;
+              } else 
+                elem.defaultPrecision = false;
             });
 
             return indicators;
           }
 
+          this.modifySingleIndicator = function(indicator) {
+            var temp = self.modifyIndicators([indicator]);
+            return temp[0];
+          }
+
           this.addSingleIndicatorMetadata = function(indicatorMetadata){
-            let tmpArray = [indicatorMetadata];
+            let tmpArray = self.modifyIndicators([indicatorMetadata]);
             Array.prototype.push.apply(tmpArray, this.availableIndicators);
             this.availableIndicators =  tmpArray;
             this.availableIndicators_map.set(indicatorMetadata.indicatorId, indicatorMetadata);
@@ -668,7 +676,7 @@ angular
             for (let index = 0; index < this.availableIndicators.length; index++) {
               let indicator = this.availableIndicators[index];
               if(indicator.indicatorId == indicatorMetadata.indicatorId){
-                this.availableIndicators[index] = indicatorMetadata;
+                this.availableIndicators[index] = self.modifySingleIndicator(indicatorMetadata);
                 break;
               }
             }
