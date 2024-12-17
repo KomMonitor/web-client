@@ -202,12 +202,14 @@
                             <span class="switchslider round"></span>
                         </label>
                       </div>
+                      <div ng-show="!showCustomCommaValue">
+                        Wird kein individueller Wert angegeben, so greift selbiger aus den Allgemeinen Einstellungen.</p>
+                        Zu finden unter <i>Einstellungen</i> - <i>Allgemeine Einstellungen</i> - <i>"numberOfDecimals"</i>
+                      </div>
                       <div ng-show="showCustomCommaValue">
-                        <select class="form-control"
+                        <input class="form-control" type="number" min="0" max="4"
                           ng-model="indicatorPrecision"
-                          ng-init="indicatorPrecision = indicatorPrecision || option"
-                          ng-options="option for option in [0,1,2,3,4]">
-                        </select>
+                          ng-init="indicatorPrecision = indicatorPrecision || option">
                         <div class="help-block">
                           <p>Anzahl der angezeigten Nachkommastellen in allen Bereichen der Benutzeroberfl&auml;che</p>
                           </p>
