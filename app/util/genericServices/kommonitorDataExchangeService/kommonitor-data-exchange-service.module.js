@@ -1842,7 +1842,7 @@ angular
 						return false;
 					};
 
-					this.getIndicatorValueFromArray_asNumber = function(propertiesArray, targetDateString){
+					this.getIndicatorValueFromArray_asNumber = function(propertiesArray, targetDateString, precision){
 						if(!targetDateString.includes(DATE_PREFIX)){
 							targetDateString = DATE_PREFIX + targetDateString;
 						}
@@ -1852,13 +1852,13 @@ angular
 							value = "NoData";
 						}
 						else{
-							value = this.getIndicatorValue_asNumber(indicatorValue);
+							value = this.getIndicatorValue_asNumber(indicatorValue, precision);
 						}
 
 						return value;
 					};
 
-					this.getIndicatorValueFromArray_asFormattedText = function(propertiesArray, targetDateString){
+					this.getIndicatorValueFromArray_asFormattedText = function(propertiesArray, targetDateString, precision){
 						if(!targetDateString.includes(DATE_PREFIX)){
 							targetDateString = DATE_PREFIX + targetDateString;
 						}
@@ -1868,24 +1868,29 @@ angular
 							value = "NoData";
 						}
 						else{
-						 	value = this.getIndicatorValue_asFormattedText(indicatorValue);
+						 	value = this.getIndicatorValue_asFormattedText(indicatorValue, precision);
 						}
 
 						return value;
 					};
 
-					this.getIndicatorValue_asNumber = function(indicatorValue){
+					this.getIndicatorValue_asNumber = function(indicatorValue, precision){
 
             var maximumDecimals = defaultNumberOfDecimals;
-            if(this.selectedIndicator && this.selectedIndicator.precision!==null)
-              maximumDecimals = this.selectedIndicator.precision;
+            if (precision) {
+              maximumDecimals = precision
+            } else {
+              if(this.selectedIndicator && this.selectedIndicator.precision!==null)
+                maximumDecimals = this.selectedIndicator.precision;
+            }
 
 						var value;
 						if(this.indicatorValueIsNoData(indicatorValue)){
 							value = "NoData";
 						}
 						else{
-							value = (+Number(indicatorValue)).toFixed(maximumDecimals);
+							value = +(Number(indicatorValue)).toFixed(maximumDecimals);
+              // value = +Number(indicatorValue).toFixed(numberOfDecimals);
             }
             
             // if the original value is greater than zero but would be rounded as 0 then we must return the original result
@@ -1896,14 +1901,21 @@ angular
 						return value;
 					};
 
-					this.getIndicatorValue_asFormattedText = function(indicatorValue){
+					this.getIndicatorValue_asFormattedText = function(indicatorValue, precision){
 
             var maximumDecimals = defaultNumberOfDecimals;
             var minimumDecimals = 0;
-            if(this.selectedIndicator && this.selectedIndicator.precision!==null) {
-              maximumDecimals = this.selectedIndicator.precision;
-              minimumDecimals = this.selectedIndicator.precision;
+            if (precision) {
+              maximumDecimals = precision;
+              minimumDecimals = precision;
             }
+            else {
+              if (this.selectedIndicator && this.selectedIndicator.precision!==null) {
+                maximumDecimals = this.selectedIndicator.precision;
+                minimumDecimals = this.selectedIndicator.precision;
+              }
+            }
+            
 
 						var value;
 						if(this.indicatorValueIsNoData(indicatorValue)){
