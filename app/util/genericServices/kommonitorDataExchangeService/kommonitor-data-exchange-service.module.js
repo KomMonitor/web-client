@@ -1889,12 +1889,20 @@ angular
 					};
 
 					this.getIndicatorValue_asFormattedText = function(indicatorValue){
+
+            var maximumDecimals = numberOfDecimals;
+            var minimumDecimals = 0;
+            if(this.selectedIndicator && this.selectedIndicator.precision!==null) {
+              maximumDecimals = this.selectedIndicator.precision;
+              minimumDecimals = this.selectedIndicator.precision;
+            }
+
 						var value;
 						if(this.indicatorValueIsNoData(indicatorValue)){
 							value = "NoData";
 						}
 						else{
-						 	value = Number(indicatorValue).toLocaleString('de-DE', {maximumFractionDigits: numberOfDecimals});
+						 	value = Number(indicatorValue).toLocaleString('de-DE', {maximumFractionDigits: maximumDecimals, minimumFractionDigits: minimumDecimals});
             }
             
             // if the original value is greater than zero but would be rounded as 0 then we must return the original result
