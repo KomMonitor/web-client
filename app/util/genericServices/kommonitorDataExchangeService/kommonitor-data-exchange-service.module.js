@@ -1873,16 +1873,16 @@ angular
 
 					this.getIndicatorValue_asNumber = function(indicatorValue){
 
-            var maximumNumberOfDecimals = defaultNumberOfDecimals;
-            //if(this.selectedIndicator.howManyNachkommastellen)
-              maximumNumberOfDecimals = 3;
+            var maximumDecimals = defaultNumberOfDecimals;
+            if(this.selectedIndicator && this.selectedIndicator.precision!==null)
+              maximumDecimals = this.selectedIndicator.precision;
 
 						var value;
 						if(this.indicatorValueIsNoData(indicatorValue)){
 							value = "NoData";
 						}
 						else{
-							value = (+Number(indicatorValue)).toFixed(maximumNumberOfDecimals);
+							value = (+Number(indicatorValue)).toFixed(maximumDecimals);
             }
             
             // if the original value is greater than zero but would be rounded as 0 then we must return the original result
@@ -1895,7 +1895,7 @@ angular
 
 					this.getIndicatorValue_asFormattedText = function(indicatorValue){
 
-            var maximumDecimals = numberOfDecimals;
+            var maximumDecimals = defaultNumberOfDecimals;
             var minimumDecimals = 0;
             if(this.selectedIndicator && this.selectedIndicator.precision!==null) {
               maximumDecimals = this.selectedIndicator.precision;
@@ -1912,7 +1912,7 @@ angular
             
             // if the original value is greater than zero but would be rounded as 0 then we must return the original result
             if(Number(value) == 0 && indicatorValue > 0){
-              value = Number(indicatorValue).toLocaleString('de-DE', {minimumFractionDigits: minimumNumberOfDecimals, maximumFractionDigits: maximumNumberOfDecimals});
+              value = Number(indicatorValue).toLocaleString('de-DE', {minimumFractionDigits: minimumDecimals, maximumFractionDigits: maximumDecimals});
             } 
 
 						return value;
