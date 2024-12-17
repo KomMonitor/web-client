@@ -309,7 +309,7 @@ angular
 													htmlString += "<tr>";
 													htmlString += "<td>" + radarSeries[j].name + "</td>";
 													for (var k = 0; k < indicators.length; k++) {
-														htmlString += "<td>" + kommonitorDataExchangeService.getIndicatorValue_asNumber(radarSeries[j].value[k]) + "</td>";
+														htmlString += "<td>" + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(radarSeries[j].value[k]) + "</td>";
 													}
 													htmlString += "</tr>";
 												}

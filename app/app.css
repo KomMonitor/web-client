@@ -1607,6 +1607,10 @@ color: #777;
     margin: 0 auto;
 } */
 
+.margin-right {
+  margin-right: 1em !important;
+}
+
 .legendMap {
 		padding: 6px 8px;
 		font: 12px/14px Arial, Helvetica, sans-serif;

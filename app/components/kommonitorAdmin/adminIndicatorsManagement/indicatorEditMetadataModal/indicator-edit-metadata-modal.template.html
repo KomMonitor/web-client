@@ -166,7 +166,32 @@
 										</div>
 
 									</div>
-									<div class="col-md-3 col-sm-6 col-xs-12">
+                  <div class="col-md-3 col-sm-6 col-xs-12">
+                    <div class="form-group">
+                      <label>Nachkommastellen</label>
+                      <div class="form-group vertical-align">
+                        <label class="margin-right" style="font-weight: normal;">Individuelle Anzeige aktivieren</label>
+                        <label class="switch">
+                            <input type="checkbox" ng-model="showCustomCommaValue">
+                            <span class="switchslider round"></span>
+                        </label>
+                      </div>
+                      <div ng-show="!showCustomCommaValue">
+                        Wird kein individueller Wert angegeben, so greift selbiger aus den Allgemeinen Einstellungen.</p>
+                        Zu finden unter <i>Einstellungen</i> - <i>Allgemeine Einstellungen</i> - <i>"numberOfDecimals"</i>
+                      </div>
+                      <div ng-show="showCustomCommaValue">
+                        <input class="form-control" type="number" min="0" max="4"
+                          ng-model="indicatorPrecision"
+                          ng-init="indicatorPrecision = indicatorPrecision || option">
+                        <div class="help-block">
+                          <p>Anzahl der angezeigten Nachkommastellen in allen Bereichen der Benutzeroberfl&auml;che</p>
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
 										<!-- we hide characteristicValue parameter as it is and old relic not used any longer. 
 										-> deprecated -->
 										
@@ -181,7 +206,6 @@
 											</div>	
 											<div class="help-block with-errors"></div>
 										</div> -->
-									</div>
 								</div>
 
 								<div class="row vertical-align">

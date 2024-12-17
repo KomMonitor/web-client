@@ -13,7 +13,7 @@ angular
 		.module('kommonitorDataExchange', ['kommonitorCacheHelper', 'angularjs-dropdown-multiselect'])
 		.service(
 				'kommonitorDataExchangeService', ['$rootScope', '$timeout', '$interval', 'kommonitorMapService', 'kommonitorKeycloakHelperService',
-        'kommonitorCacheHelperService', 
+        'kommonitorCacheHelperService',
         '$http', '__env', '$q', 'Auth',
 				function($rootScope, $timeout, $interval,
 						kommonitorMapService, kommonitorKeycloakHelperService, kommonitorCacheHelperService, $http, __env, $q, Auth,) {              
@@ -41,7 +41,7 @@ angular
               this.configMeanDataDisplay = __env.configMeanDataDisplay;
              
 
-							var numberOfDecimals = __env.numberOfDecimals;
+							var defaultNumberOfDecimals = __env.numberOfDecimals;
 							const DATE_PREFIX = __env.indicatorDatePrefix;
               var defaultColorForZeroValues = __env.defaultColorForZeroValues;
               var defaultColorForNoDataValues = __env.defaultColorForNoDataValues;
@@ -638,7 +638,7 @@ angular
           this.updateInterval.set("QUARTERLY", "vierteljährlich");
 
 					this.setIndicators = function(indicatorsArray){
-						this.availableIndicators = indicatorsArray;
+						this.availableIndicators = self.modifyIndicators(indicatorsArray);
             this.availableIndicators_map = new Map();
             
             for (const indicatorMetadata of indicatorsArray) {
@@ -646,8 +646,30 @@ angular
             }
 					};
 
+          this.modifyIndicators = function(indicators) {
+
+            var decimalDefault = 2;
+            if(__env.numberOfDecimals)
+              decimalDefault = __env.numberOfDecimals;
+
+            indicators.forEach(elem => {
+              if(elem.precision===null) {
+                elem.precision = decimalDefault;
+                elem.defaultPrecision = true;
+              } else 
+                elem.defaultPrecision = false;
+            });
+
+            return indicators;
+          }
+
+          this.modifySingleIndicator = function(indicator) {
+            var temp = self.modifyIndicators([indicator]);
+            return temp[0];
+          }
+
           this.addSingleIndicatorMetadata = function(indicatorMetadata){
-            let tmpArray = [indicatorMetadata];
+            let tmpArray = self.modifyIndicators([indicatorMetadata]);
             Array.prototype.push.apply(tmpArray, this.availableIndicators);
             this.availableIndicators =  tmpArray;
             this.availableIndicators_map.set(indicatorMetadata.indicatorId, indicatorMetadata);
@@ -657,7 +679,7 @@ angular
             for (let index = 0; index < this.availableIndicators.length; index++) {
               let indicator = this.availableIndicators[index];
               if(indicator.indicatorId == indicatorMetadata.indicatorId){
-                this.availableIndicators[index] = indicatorMetadata;
+                this.availableIndicators[index] = self.modifySingleIndicator(indicatorMetadata);
                 break;
               }
             }
@@ -1095,7 +1117,7 @@ angular
           //   self.adminIsLoggedIn = false;
           // });
 
-          this.fetchAllMetadata = async function(){
+          this.fetchAllMetadata = async function(filter){
             console.log("fetching all metadata from management component");
             
             // var metadataPromises = [topicsPromise, usersPromise, rolesPromise, spatialUnitsPromise, georesourcesPromise, indicatorsPromise, scriptsPromise];
@@ -1129,11 +1151,11 @@ angular
             }
 
             //TODO revise metadata fecthing for protected endpoints        
-            var scriptsPromise = await this.fetchIndicatorScriptsMetadata(self.currentKeycloakLoginRoles);
-            var topicsPromise = await this.fetchTopicsMetadata(self.currentKeycloakLoginRoles);
-            var spatialUnitsPromise = await this.fetchSpatialUnitsMetadata(self.currentKeycloakLoginRoles);
-            var georesourcesPromise = await this.fetchGeoresourcesMetadata(self.currentKeycloakLoginRoles);
-            var indicatorsPromise = await this.fetchIndicatorsMetadata(self.currentKeycloakLoginRoles);
+            var scriptsPromise = await this.fetchIndicatorScriptsMetadata(self.currentKeycloakLoginRoles, filter);
+            var topicsPromise = await this.fetchTopicsMetadata(self.currentKeycloakLoginRoles, filter);
+            var spatialUnitsPromise = await this.fetchSpatialUnitsMetadata(self.currentKeycloakLoginRoles, filter);
+            var georesourcesPromise = await this.fetchGeoresourcesMetadata(self.currentKeycloakLoginRoles, filter);
+            var indicatorsPromise = await this.fetchIndicatorsMetadata(self.currentKeycloakLoginRoles, filter);
             metadataPromises.push(scriptsPromise);
             metadataPromises.push(topicsPromise);
             metadataPromises.push(spatialUnitsPromise);
@@ -1801,12 +1823,12 @@ angular
             self.setSpatialUnits(await kommonitorCacheHelperService.fetchSpatialUnitsMetadata(keycloakRolesArray));
           };
 
-          this.fetchGeoresourcesMetadata = async function(keycloakRolesArray){
-            self.setGeoresources(await kommonitorCacheHelperService.fetchGeoresourceMetadata(keycloakRolesArray));
+          this.fetchGeoresourcesMetadata = async function(keycloakRolesArray, filter){
+            self.setGeoresources(await kommonitorCacheHelperService.fetchGeoresourceMetadata(keycloakRolesArray, filter));
           };
 
-          this.fetchIndicatorsMetadata = async function(keycloakRolesArray){
-            self.setIndicators(await kommonitorCacheHelperService.fetchIndicatorsMetadata(keycloakRolesArray));
+          this.fetchIndicatorsMetadata = async function(keycloakRolesArray, filter){
+            self.setIndicators(await kommonitorCacheHelperService.fetchIndicatorsMetadata(keycloakRolesArray, filter));
           };
 
           this.fetchIndicatorScriptsMetadata = async function(keycloakRolesArray){
@@ -1853,13 +1875,17 @@ angular
 					};
 
 					this.getIndicatorValue_asNumber = function(indicatorValue){
+
+            var maximumDecimals = defaultNumberOfDecimals;
+            if(this.selectedIndicator && this.selectedIndicator.precision!==null)
+              maximumDecimals = this.selectedIndicator.precision;
+
 						var value;
 						if(this.indicatorValueIsNoData(indicatorValue)){
 							value = "NoData";
 						}
 						else{
-              value = +Number(indicatorValue).toFixed(numberOfDecimals);
-							// value = (+Number(indicatorValue)).toFixed(numberOfDecimals);
+							value = (+Number(indicatorValue)).toFixed(maximumDecimals);
             }
             
             // if the original value is greater than zero but would be rounded as 0 then we must return the original result
@@ -1871,17 +1897,25 @@ angular
 					};
 
 					this.getIndicatorValue_asFormattedText = function(indicatorValue){
+
+            var maximumDecimals = defaultNumberOfDecimals;
+            var minimumDecimals = 0;
+            if(this.selectedIndicator && this.selectedIndicator.precision!==null) {
+              maximumDecimals = this.selectedIndicator.precision;
+              minimumDecimals = this.selectedIndicator.precision;
+            }
+
 						var value;
 						if(this.indicatorValueIsNoData(indicatorValue)){
 							value = "NoData";
 						}
 						else{
-						 	value = Number(indicatorValue).toLocaleString('de-DE', {maximumFractionDigits: numberOfDecimals});
+						 	value = Number(indicatorValue).toLocaleString('de-DE', {maximumFractionDigits: maximumDecimals, minimumFractionDigits: minimumDecimals});
             }
             
             // if the original value is greater than zero but would be rounded as 0 then we must return the original result
             if(Number(value) == 0 && indicatorValue > 0){
-              value = Number(indicatorValue).toLocaleString('de-DE');
+              value = Number(indicatorValue).toLocaleString('de-DE', {minimumFractionDigits: minimumDecimals, maximumFractionDigits: maximumDecimals});
             } 
 
 						return value;
@@ -1928,9 +1962,9 @@ angular
           };
 
           
-          this.labelAllFeatures = "alle Raumeinheiten";
-          this.labelFilteredFeatures = "gefilterte Raumeinheiten";
-          this.labelSelectedFeatures = "selektierte Raumeinheiten";
+          this.labelAllFeatures = "alle Features";
+          this.labelFilteredFeatures = "gefilterte Features";
+          this.labelSelectedFeatures = "selektierte Features";
           this.labelNumberOfFeatures = "Anzahl:"
           this.labelSum = "rechnerische Summe:"
           this.labelMean = "rechnerisches arith. Mittel:"

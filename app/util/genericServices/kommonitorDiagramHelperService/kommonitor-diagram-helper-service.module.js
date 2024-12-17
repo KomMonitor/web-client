@@ -625,7 +625,7 @@ angular
                   htmlString += "<tbody>";
 
                   for (var i = 0; i < barData.length; i++) {
-                    var value = kommonitorDataExchangeService.getIndicatorValue_asNumber(barData[i].value);
+                    var value = kommonitorDataExchangeService.getIndicatorValue_asFormattedText(barData[i].value);
                     htmlString += "<tr>";
                     htmlString += "<td>" + featureNames[i] + "</td>";
                     htmlString += "<td>" + value + "</td>";
@@ -1120,7 +1120,7 @@ angular
                   htmlString += "<tbody>";
 
                   for (var i = 0; i < seriesData.length; i++) {
-                    var value = kommonitorDataExchangeService.getIndicatorValue_asNumber(seriesData[i].value);
+                    var value = kommonitorDataExchangeService.getIndicatorValue_asFormattedText(seriesData[i].value);
                     htmlString += "<tr>";
                     htmlString += "<td>" + seriesData[i].name + "</td>";
                     htmlString += "<td>" + value + "</td>";
@@ -1261,7 +1261,7 @@ angular
                     htmlString += "<tr>";
                     htmlString += "<td>" + timestamps[j] + "</td>";
                     for (var k = 0; k < lineSeries.length; k++) {
-                      var value = kommonitorDataExchangeService.getIndicatorValue_asNumber(lineSeries[k].data[j]);
+                      var value = kommonitorDataExchangeService.getIndicatorValue_asFormattedText(lineSeries[k].data[j]);
                       htmlString += "<td>" + value + "</td>";
                     }
                     htmlString += "</tr>";
