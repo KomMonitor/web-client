@@ -539,7 +539,12 @@ angular
 										        trigger: 'item',
 														confine: 'true',
 										        axisPointer: {
-										            type: 'cross'
+										            type: 'cross',
+                                label: {
+                                  formatter: function (params, index) {
+                                    return kommonitorDataExchangeService.getIndicatorValue_asFormattedText(params.value);
+                                  }
+                                }
 										        },
 														formatter: function (params) {
 																			if(!(params && params.value && params.value[0] && params.value[1])){
@@ -556,25 +561,35 @@ angular
 														name: kommonitorDataExchangeService.formatIndicatorNameForLabel($scope.selection.selectedIndicatorForXAxis.indicatorMetadata.indicatorName + " - " + $scope.selection.selectedIndicatorForXAxis.selectedDate + " [" + $scope.selection.selectedIndicatorForXAxis.indicatorMetadata.unit + "]", 100),
 														nameLocation: 'center',
 														nameGap: 22,
-		                        						scale: true,
-										        		type: 'value',
-										        		splitLine: {
-										            		lineStyle: {
-										                		type: 'dashed'
-										            		}
-										        		},
-										    		},
+                            scale: true,
+                            type: 'value',
+                            splitLine: {
+                                lineStyle: {
+                                    type: 'dashed'
+                                }
+                            },
+                            axisLabel: {
+                              formatter: function (value, index) {
+                                return kommonitorDataExchangeService.getIndicatorValue_asFormattedText(value);
+                              }
+                            }
+                        },
 										    yAxis: {
 														name: kommonitorDataExchangeService.formatIndicatorNameForLabel($scope.selection.selectedIndicatorForYAxis.indicatorMetadata.indicatorName + " - " + $scope.selection.selectedIndicatorForYAxis.selectedDate + " [" + $scope.selection.selectedIndicatorForYAxis.indicatorMetadata.unit + "]", 75),
 														nameLocation: 'center',
-														nameGap: 50,
-										        		type: 'value',
-										        		splitLine: {
-										            		lineStyle: {
-										                		type: 'dashed'
-										            		}	
-										        		},
-										    		},
+														nameGap: 80,
+                            type: 'value',
+                            splitLine: {
+                                lineStyle: {
+                                    type: 'dashed'
+                                }	
+                            },
+                            axisLabel: {
+                              formatter: function (value, index) {
+                                return kommonitorDataExchangeService.getIndicatorValue_asFormattedText(value);
+                              }
+                            }
+                        },
 												toolbox: {
 														show : true,
 														right: '15',
@@ -631,8 +646,8 @@ angular
 																		htmlString += "<tr>";
 																		htmlString += "<td>" + scatterSeries[j].name + "</td>";
 
-																		htmlString += "<td>" + kommonitorDataExchangeService.getIndicatorValue_asNumber(scatterSeries[j].value[0]) + "</td>";
-																		htmlString += "<td>" + kommonitorDataExchangeService.getIndicatorValue_asNumber(scatterSeries[j].value[1]) + "</td>";
+																		htmlString += "<td>" + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(scatterSeries[j].value[0]) + "</td>";
+																		htmlString += "<td>" + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(scatterSeries[j].value[1]) + "</td>";
 																		htmlString += "</tr>";
 																	}
 
@@ -658,8 +673,8 @@ angular
 																	
 																		for (var j=0; j<lineSeries.length; j++){
 																			htmlString += "<tr>";
-																			htmlString += "<td>" + kommonitorDataExchangeService.getIndicatorValue_asNumber(lineSeries[j][0]) + "</td>";
-																			htmlString += "<td>" + kommonitorDataExchangeService.getIndicatorValue_asNumber(lineSeries[j][1]) + "</td>";
+																			htmlString += "<td>" + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(lineSeries[j][0]) + "</td>";
+																			htmlString += "<td>" + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(lineSeries[j][1]) + "</td>";
 																			htmlString += "</tr>";
 																		}
 																		

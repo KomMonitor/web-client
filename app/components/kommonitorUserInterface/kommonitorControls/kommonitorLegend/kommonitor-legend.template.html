@@ -245,7 +245,7 @@
 										</div>
 									</div>
 									<div ng-switch-default>
-										<!-- default values -->
+										<!-- default values hier -->
 										<div class="row" style="margin-right: 0px;" ng-repeat="color in $ctrl.kommonitorVisualStyleHelperServiceInstance.defaultBrew.colors">
 											<div class="col-md-3 "><i style="background:{{color}}; opacity: {{$ctrl.kommonitorVisualStyleHelperServiceInstance.currentIndicatorOpacity}};"></i> </div>
 											<div class="col-md-6 " ng-if="$ctrl.kommonitorVisualStyleHelperServiceInstance.defaultBrew.breaks[$index + 1]" >{{::$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText($ctrl.kommonitorVisualStyleHelperServiceInstance.defaultBrew.breaks[$index])}} &dash; &lt; {{::$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText($ctrl.kommonitorVisualStyleHelperServiceInstance.defaultBrew.breaks[$index + 1])}}</div>

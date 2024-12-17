@@ -13,7 +13,7 @@ angular
 		.module('kommonitorDataExchange', ['kommonitorCacheHelper', 'angularjs-dropdown-multiselect'])
 		.service(
 				'kommonitorDataExchangeService', ['$rootScope', '$timeout', '$interval', 'kommonitorMapService', 'kommonitorKeycloakHelperService',
-        'kommonitorCacheHelperService', 
+        'kommonitorCacheHelperService',
         '$http', '__env', '$q', 'Auth',
 				function($rootScope, $timeout, $interval,
 						kommonitorMapService, kommonitorKeycloakHelperService, kommonitorCacheHelperService, $http, __env, $q, Auth,) {              
@@ -38,7 +38,7 @@ angular
               this.configMeanDataDisplay = __env.configMeanDataDisplay;
              
 
-							var numberOfDecimals = __env.numberOfDecimals;
+							var defaultNumberOfDecimals = __env.numberOfDecimals;
 							const DATE_PREFIX = __env.indicatorDatePrefix;
               var defaultColorForZeroValues = __env.defaultColorForZeroValues;
               var defaultColorForNoDataValues = __env.defaultColorForNoDataValues;
@@ -1114,7 +1114,7 @@ angular
           //   self.adminIsLoggedIn = false;
           // });
 
-          this.fetchAllMetadata = async function(){
+          this.fetchAllMetadata = async function(filter){
             console.log("fetching all metadata from management component");
             
             // var metadataPromises = [topicsPromise, usersPromise, rolesPromise, spatialUnitsPromise, georesourcesPromise, indicatorsPromise, scriptsPromise];
@@ -1148,11 +1148,11 @@ angular
             }
 
             //TODO revise metadata fecthing for protected endpoints        
-            var scriptsPromise = await this.fetchIndicatorScriptsMetadata(self.currentKeycloakLoginRoles);
-            var topicsPromise = await this.fetchTopicsMetadata(self.currentKeycloakLoginRoles);
-            var spatialUnitsPromise = await this.fetchSpatialUnitsMetadata(self.currentKeycloakLoginRoles);
-            var georesourcesPromise = await this.fetchGeoresourcesMetadata(self.currentKeycloakLoginRoles);
-            var indicatorsPromise = await this.fetchIndicatorsMetadata(self.currentKeycloakLoginRoles);
+            var scriptsPromise = await this.fetchIndicatorScriptsMetadata(self.currentKeycloakLoginRoles, filter);
+            var topicsPromise = await this.fetchTopicsMetadata(self.currentKeycloakLoginRoles, filter);
+            var spatialUnitsPromise = await this.fetchSpatialUnitsMetadata(self.currentKeycloakLoginRoles, filter);
+            var georesourcesPromise = await this.fetchGeoresourcesMetadata(self.currentKeycloakLoginRoles, filter);
+            var indicatorsPromise = await this.fetchIndicatorsMetadata(self.currentKeycloakLoginRoles, filter);
             metadataPromises.push(scriptsPromise);
             metadataPromises.push(topicsPromise);
             metadataPromises.push(spatialUnitsPromise);
@@ -1820,12 +1820,12 @@ angular
             self.setSpatialUnits(await kommonitorCacheHelperService.fetchSpatialUnitsMetadata(keycloakRolesArray));
           };
 
-          this.fetchGeoresourcesMetadata = async function(keycloakRolesArray){
-            self.setGeoresources(await kommonitorCacheHelperService.fetchGeoresourceMetadata(keycloakRolesArray));
+          this.fetchGeoresourcesMetadata = async function(keycloakRolesArray, filter){
+            self.setGeoresources(await kommonitorCacheHelperService.fetchGeoresourceMetadata(keycloakRolesArray, filter));
           };
 
-          this.fetchIndicatorsMetadata = async function(keycloakRolesArray){
-            self.setIndicators(await kommonitorCacheHelperService.fetchIndicatorsMetadata(keycloakRolesArray));
+          this.fetchIndicatorsMetadata = async function(keycloakRolesArray, filter){
+            self.setIndicators(await kommonitorCacheHelperService.fetchIndicatorsMetadata(keycloakRolesArray, filter));
           };
 
           this.fetchIndicatorScriptsMetadata = async function(keycloakRolesArray){
@@ -1872,12 +1872,17 @@ angular
 					};
 
 					this.getIndicatorValue_asNumber = function(indicatorValue){
+
+            var maximumNumberOfDecimals = defaultNumberOfDecimals;
+            //if(this.selectedIndicator.howManyNachkommastellen)
+              maximumNumberOfDecimals = 3;
+
 						var value;
 						if(this.indicatorValueIsNoData(indicatorValue)){
 							value = "NoData";
 						}
 						else{
-							value = (+Number(indicatorValue)).toFixed(numberOfDecimals);
+							value = (+Number(indicatorValue)).toFixed(maximumNumberOfDecimals);
             }
             
             // if the original value is greater than zero but would be rounded as 0 then we must return the original result
@@ -1907,7 +1912,7 @@ angular
             
             // if the original value is greater than zero but would be rounded as 0 then we must return the original result
             if(Number(value) == 0 && indicatorValue > 0){
-              value = Number(indicatorValue).toLocaleString('de-DE');
+              value = Number(indicatorValue).toLocaleString('de-DE', {minimumFractionDigits: minimumNumberOfDecimals, maximumFractionDigits: maximumNumberOfDecimals});
             } 
 
 						return value;
@@ -1954,9 +1959,9 @@ angular
           };
 
           
-          this.labelAllFeatures = "alle Raumeinheiten";
-          this.labelFilteredFeatures = "gefilterte Raumeinheiten";
-          this.labelSelectedFeatures = "selektierte Raumeinheiten";
+          this.labelAllFeatures = "alle Features";
+          this.labelFilteredFeatures = "gefilterte Features";
+          this.labelSelectedFeatures = "selektierte Features";
           this.labelNumberOfFeatures = "Anzahl:"
           this.labelSum = "rechnerische Summe:"
           this.labelMean = "rechnerisches arith. Mittel:"
