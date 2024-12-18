@@ -70,6 +70,7 @@ angular.module('reportingModal').component('reportingModal', {
 		});
 
 		$scope.generateReport = function(format) {
+      generateReport('pptx');
 			$('#reporting-report-formats-selection').modal('hide')
 			$scope.$broadcast("reportingGenerateReport", format)
 		}

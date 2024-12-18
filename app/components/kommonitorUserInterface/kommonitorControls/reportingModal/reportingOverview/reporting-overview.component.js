@@ -909,23 +909,55 @@ angular.module('reportingOverview').component('reportingOverview', {
     $scope.generatePptxReport = async function() {
 
       console.log('pptx selected');
-      
-      let pres = new PptxGenJS();
+
+      let doc = new PptxGenJS();
+
+      // Font setting
+      doc.theme = { headFontFace: "Arial Light" };
+      doc.theme = { bodyFontFace: "Arial" };
+
+      for(let [idx, page] of $scope.config.pages.entries()) {
+
+          console.log(page)
+				if(!$scope.showThisPage(page)) {
+					continue;
+				}
+
+				for(let pageElement of page.pageElements) {
+          console.log(pageElement)
+        }
+      }
+
+      // Master slide def
+      doc.defineSlideMaster({
+        title: "TEMPLATE_SLIDE",
+        background: { color: "FFFFFF" },
+        objects: [
+          {
+            placeholder: {
+              options: { name: "slide_title", type: "title", x:0.1, y: 0.1, w: "80%", h: 2, bold: true, align: "left"},
+              text: "(page_title)",
+            },
+          }
+        ],
+        slideNumber: { x: "90%", y: "90%" },
+      });
 
       // 2. Add a Slide to the presentation
-      let slide = pres.addSlide();
+      let slide = doc.addSlide({ masterName: "TEMPLATE_SLIDE" });
 
       // 3. Add 1+ objects (Tables, Shapes, etc.) to the Slide
-      slide.addText("Hello World from PptxGenJS...", {
+      slide.addText("Entfernung für ...", { placeholder: "slide_title" });
+      /* slide.addText("Hello World from PptxGenJS...", {
           x: 1.5,
           y: 1.5,
           color: "363636",
           fill: { color: "F1F1F1" },
           align: pres.AlignH.center,
-      });
+      }); */
 
       // 4. Save the Presentation
-      pres.writeFile({ fileName: "Sample Presentation.pptx" });
+      doc.writeFile({ fileName: "Sample Presentation.pptx" });
     }
 
 		$scope.generatePdfReport = async function() {
