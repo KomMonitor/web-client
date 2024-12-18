@@ -894,19 +894,40 @@ angular.module('reportingOverview').component('reportingOverview', {
 		$scope.generateReport = async function(format) {
 			$scope.loadingData = true;
  
-
-
 			try {
 				format === "pdf" && await $scope.generatePdfReport();
 				format === "docx" && await $scope.generateWordReport();
 				format === "zip" && await $scope.generateZipFolder();
+				format === "pptx" && await $scope.generatePptxReport();
 			} catch (error) {
 				$scope.loadingData = false;
 				console.error(error);
 				kommonitorDataExchangeService.displayMapApplicationError(error.message);
 			}
 		}
-			
+		
+    $scope.generatePptxReport = async function() {
+
+      console.log('pptx selected');
+      
+      let pres = new PptxGenJS();
+
+      // 2. Add a Slide to the presentation
+      let slide = pres.addSlide();
+
+      // 3. Add 1+ objects (Tables, Shapes, etc.) to the Slide
+      slide.addText("Hello World from PptxGenJS...", {
+          x: 1.5,
+          y: 1.5,
+          color: "363636",
+          fill: { color: "F1F1F1" },
+          align: pres.AlignH.center,
+      });
+
+      // 4. Save the Presentation
+      pres.writeFile({ fileName: "Sample Presentation.pptx" });
+    }
+
 		$scope.generatePdfReport = async function() {
 			
 			// create pdf document
