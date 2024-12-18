@@ -337,10 +337,10 @@ angular
       };
 
       this.prepareAllDiagramResources_forReportingIndicator = function (indicatorMetadataAndGeoJSON, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, filterOutFutureDates) {
-        this.prepareAllDiagramResources(indicatorMetadataAndGeoJSON, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, filterOutFutureDates, true);      
+        this.prepareAllDiagramResources(indicatorMetadataAndGeoJSON, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, filterOutFutureDates, true, true);      
       };
 
-      this.prepareAllDiagramResources = function (indicatorMetadataAndGeoJSON, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, filterOutFutureDates, forceUseSubmittedIndicatorForTimeseries) {
+      this.prepareAllDiagramResources = function (indicatorMetadataAndGeoJSON, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, filterOutFutureDates, forceUseSubmittedIndicatorForTimeseries, fixedPrecision = false) {
 
         self.indicatorPropertyName = INDICATOR_DATE_PREFIX + date;
 
@@ -363,7 +363,10 @@ angular
             indicatorValue = null;
           }
           else {
-            indicatorValue = kommonitorDataExchangeService.getIndicatorValue_asNumber(cartographicFeature.properties[self.indicatorPropertyName]);  
+            if(!fixedPrecision)
+              indicatorValue = kommonitorDataExchangeService.getIndicatorValue_asNumber(cartographicFeature.properties[self.indicatorPropertyName]);  
+            else
+              indicatorValue = kommonitorDataExchangeService.getIndicatorValue_asFixedPrecisionNumber(cartographicFeature.properties[self.indicatorPropertyName],indicatorMetadataAndGeoJSON.precision);  
           }
 
           var featureName = cartographicFeature.properties[__env.FEATURE_NAME_PROPERTY_NAME]
@@ -1057,6 +1060,8 @@ angular
             value: featureValue
           });
         }
+
+        console.log(seriesData);
 
         // needed for reporting
         for(let feature of indicatorMetadataAndGeoJSON.geoJSON.features) {

@@ -1888,9 +1888,40 @@ angular
 						if(this.indicatorValueIsNoData(indicatorValue)){
 							value = "NoData";
 						}
-						else{
+						else{ 
 							value = +(Number(indicatorValue)).toFixed(maximumDecimals);
               // value = +Number(indicatorValue).toFixed(numberOfDecimals);
+            }
+            
+            // if the original value is greater than zero but would be rounded as 0 then we must return the original result
+            if(Number(value) == 0 && indicatorValue > 0){
+              value = Number(indicatorValue);
+            } 
+
+						return value;
+					};
+
+          this.getIndicatorValue_asFixedPrecisionNumber = function(indicatorValue, precision){
+
+            var maximumDecimals = defaultNumberOfDecimals;
+            var minimumDecimals = 0;
+            if (precision) {
+              maximumDecimals = precision;
+              minimumDecimals = precision;
+            } else {
+              if(this.selectedIndicator && this.selectedIndicator.precision!==null) {
+                maximumDecimals = this.selectedIndicator.precision;
+                minimumDecimals = this.selectedIndicator.precision;
+              }
+            }
+
+						var value;
+						if(this.indicatorValueIsNoData(indicatorValue)){
+							value = "NoData";
+						}
+						else{ 
+              // value = string with . as separator, without "," as thounsand-sep
+							value = indicatorValue.toLocaleString('en-GB', {maximumFractionDigits: maximumDecimals, minimumFractionDigits: minimumDecimals}).replace(',','');
             }
             
             // if the original value is greater than zero but would be rounded as 0 then we must return the original result
