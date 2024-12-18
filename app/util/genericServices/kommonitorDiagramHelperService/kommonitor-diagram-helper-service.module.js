@@ -690,7 +690,7 @@ angular
               left: 'left',
               type: "piecewise",
               pieces: legendConfig,
-              precision: 2,
+              precision: indicatorMetadataAndGeoJSON.precision,
               show: false
           }]
         };
@@ -1147,7 +1147,7 @@ angular
             type: "piecewise",
             pieces: legendConfig,
             // selectedMode: 'multiple',
-            precision: 2,
+            precision: indicatorMetadataAndGeoJSON.precision,
             show: true
         },
           series: [{
