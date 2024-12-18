@@ -1279,10 +1279,13 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			$scope.availableFeaturesBySpatialUnit[$scope.selectedSpatialUnit.spatialUnitName] = featureCollection.features;
 			$scope.selectedIndicator.geoJSON = featureCollection;
 			$scope.selectedIndicator.geoJSON.features = $scope.createLowerCaseNameProperty($scope.selectedIndicator.geoJSON.features);
-			for(let feature of $scope.selectedIndicator.geoJSON.features) {
-				let bbox = turf.bbox(feature); // calculate bbox for each feature
-				feature.properties.bbox = bbox;
+			if($scope.selectedIndicator.geoJSON.features[0] && !$scope.selectedIndicator.geoJSON.features[0].properties.bbox){
+				for(let feature of $scope.selectedIndicator.geoJSON.features) {
+					let bbox = turf.bbox(feature); // calculate bbox for each feature
+					feature.properties.bbox = bbox;
+				}
 			}
+			
 			
 			for(let page of $scope.template.pages) {
 				for(let pageElement of page.pageElements) {
@@ -1790,17 +1793,13 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				let northLat = boundingCoords[0][1];
 
 				if(page.area && page.area.length) {
-					for(let feature of $scope.geoJsonForReachability.features) {
-						if(feature.properties.NAME === page.area) {
-							// set bounding box to this feature
-							let featureBbox = feature.properties.bbox;
-							westLon = featureBbox[0];
-							southLat = featureBbox[1];
-							eastLon = featureBbox[2];
-							northLat = featureBbox[3];
-							break;
-						}
-					}
+					let feature = $scope.geoJsonForReachability_byFeatureName.get(page.area);
+					// set bounding box to this feature
+					let featureBbox = feature.properties.bbox;
+					westLon = featureBbox[0];
+					southLat = featureBbox[1];
+					eastLon = featureBbox[2];
+					northLat = featureBbox[3];
 				}
 
 				// Add 2% space on all sides
@@ -2660,14 +2659,13 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		}
 
 
-		$scope.filterMapByAreaName = function(echartsInstance, areaName, allFeatures) {
+		$scope.filterMapByAreaName = function(echartsInstance, areaName, targetFeature) {
 			let options = echartsInstance.getOption();
 			let mapName = options.series[0].map;
 			// filter shown areas if we are in the area-specific part of the template
 			// removing areas form the series doesn't work. We have to filter the geojson of the registered map.
-			let features = allFeatures.filter ( el => {
-				return el.properties.name === areaName
-			});
+			let features = [];
+			features.push(targetFeature);
 
 			echarts.registerMap(mapName, { features: features } )
 
@@ -2829,10 +2827,13 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 
 		$scope.prepareReachabilityEchartsMap = function() {
-			for(let feature of $scope.geoJsonForReachability.features) {
-				let bbox = turf.bbox(feature); // calculate bbox for each feature
-				feature.properties.bbox = bbox;
+			if($scope.geoJsonForReachability.features[0] && !$scope.geoJsonForReachability.features[0].properties.bbox){
+				for(let feature of $scope.geoJsonForReachability.features) {
+					let bbox = turf.bbox(feature); // calculate bbox for each feature
+					feature.properties.bbox = bbox;
+				}
 			}
+			
 			let overallBbox = calculateOverallBoundingBoxFromGeoJSON($scope.geoJsonForReachability.features)
 			// change format of bbox to match the format needed for echarts
 			overallBbox = [
@@ -2899,6 +2900,20 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				throw new Error("Diagrams can't be initialized since they were not prepared previously.")
 			}
 
+			// prepare O(1) access to geoJSON features used within each page
+			if($scope.selectedIndicator) {
+				$scope.geoJsonForSelectedIndicator_byFeatureName = new Map();
+				for(let feature of $scope.selectedIndicator.geoJSON.features) {
+					$scope.geoJsonForSelectedIndicator_byFeatureName.set(feature.properties.NAME, feature)
+				}
+			} else {
+				$scope.geoJsonForReachability_byFeatureName = new Map();
+
+				for(let feature of $scope.geoJsonForReachability.features) {
+					$scope.geoJsonForReachability_byFeatureName.set(feature.properties.NAME, feature)
+				}	
+			}	
+
 			// We need a separate counter for page index because we iterate over the pages array.
 			// This array might include additional datatable pages, which are not inserted in the dom
 			// Even though we do nothing for these pages, the index gets out of sync with the page ids (which we use to get the dom elements)
@@ -2922,10 +2937,9 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 						}
 						continue; // don't do anything for additional datatable pages. They are added in createPageElement_Datatable
 					}
-				}
-				
+				}				
 
-				let pageDom = document.querySelector("#reporting-addIndicator-page-" + pageIdx);
+				let pageDom = document.querySelector("#reporting-addIndicator-page-" + pageIdx);	
 
 				for(let pageElement of page.pageElements) {
 
@@ -2950,9 +2964,9 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 							// filter visible areas if needed
 							if(page.area && page.area.length) {
 								if($scope.selectedIndicator) {
-									$scope.filterMapByAreaName(map, page.area, $scope.selectedIndicator.geoJSON.features);
+									$scope.filterMapByAreaName(map, page.area, $scope.geoJsonForSelectedIndicator_byFeatureName.get(page.area));
 								} else {
-									$scope.filterMapByAreaName(map, page.area, $scope.geoJsonForReachability.features);
+									$scope.filterMapByAreaName(map, page.area, $scope.geoJsonForReachability_byFeatureName.get(page.area));
 								}
 								
 							}
