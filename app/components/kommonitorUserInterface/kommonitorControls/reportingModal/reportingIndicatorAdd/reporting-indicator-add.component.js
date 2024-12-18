@@ -1943,6 +1943,9 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			options.visualMap.axisLabel = { "fontSize": 10 };
 			options.toolbox.show = false;
 			options.visualMap.left = "right";
+			options.tooltip.formatter = function(params) {
+				return kommonitorDataExchangeService.getIndicatorValue_asFormattedText(params.value, $scope.selectedIndicator.precision);
+			  };
 			let series = options.series[0];
 			series.roam = false;
 			series.selectedMode = false;
@@ -1978,7 +1981,11 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				if(pageElement.classify === false) {
 					if( areaNames.includes(el.name) ) {
 						// show selected areas (don't classify color by value)
-						el.label.formatter = '{b}\n{c}';
+						// el.label.formatter = '{b}\n{c}';
+						el.label.formatter = function(params) {
+							let valueString = params.name + "\n" + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(params.value, $scope.selectedIndicator.precision);
+							return valueString;
+						  };
 						el.label.show = true;
 						el.label.textShadowColor = '#ffffff';
 						el.label.textShadowBlur = 2;
@@ -2000,7 +2007,10 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				
 					if( areaNames.includes(el.name) ) {
 						el.visualMap = true;
-						el.label.formatter = '{b}\n{c}';
+						el.label.formatter = function(params) {
+							let valueString = params.name + "\n" + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(params.value, $scope.selectedIndicator.precision);
+							return valueString;
+						  };
 						// get color from visual map to overwrite yellow color
 						let color = "rgba(0, 0, 0, 0.5)"; 
 						let opacity = 1;
@@ -2189,6 +2199,9 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			options.grid.top = 35;
 			options.grid.bottom = 5;
 			options.toolbox.show = false;
+			options.tooltip.formatter = function(params) {
+				return kommonitorDataExchangeService.getIndicatorValue_asFormattedText(params.value, $scope.selectedIndicator.precision);
+			  };
 			options.visualMap[0].show = false; // only needed to set the color for avg
 			options.xAxis.axisLabel.show = true;
 			options.yAxis.name = ""; // included in header of each page
@@ -2289,6 +2302,9 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			options.grid.bottom = 5;
 			options.title.show = true;
 			options.toolbox.show = false;
+			options.tooltip.formatter = function(params) {
+				return kommonitorDataExchangeService.getIndicatorValue_asFormattedText(params.value, $scope.selectedIndicator.precision);
+			  };
 			options.yAxis.name = ""; // included in header of each page
 			options.xAxis.name = ""; // always timestamps
 

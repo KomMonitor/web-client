@@ -1877,7 +1877,7 @@ angular
 					this.getIndicatorValue_asNumber = function(indicatorValue, precision){
 
             var maximumDecimals = defaultNumberOfDecimals;
-            if (precision) {
+            if (precision !== undefined) {
               maximumDecimals = precision
             } else {
               if(this.selectedIndicator && this.selectedIndicator.precision!==null)
@@ -1905,7 +1905,7 @@ angular
 
             var maximumDecimals = defaultNumberOfDecimals;
             var minimumDecimals = 0;
-            if (precision) {
+            if (precision !== undefined) {
               maximumDecimals = precision;
               minimumDecimals = precision;
             } else {
@@ -1936,11 +1936,10 @@ angular
 
             var maximumDecimals = defaultNumberOfDecimals;
             var minimumDecimals = 0;
-            if (precision) {
+            if (precision !== undefined) {
               maximumDecimals = precision;
               minimumDecimals = precision;
-            }
-            else {
+            } else {
               if (this.selectedIndicator && this.selectedIndicator.precision!==null) {
                 maximumDecimals = this.selectedIndicator.precision;
                 minimumDecimals = this.selectedIndicator.precision;
