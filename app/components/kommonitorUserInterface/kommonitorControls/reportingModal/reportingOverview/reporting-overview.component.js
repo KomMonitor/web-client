@@ -911,50 +911,275 @@ angular.module('reportingOverview').component('reportingOverview', {
       console.log('pptx selected');
 
       let doc = new PptxGenJS();
+      var fontSize = 12;
+      var fontFace = "Source Sans Pro";
+      var outerMargin = 5; // percent
 
       // Font setting
-      doc.theme = { headFontFace: "Arial Light" };
-      doc.theme = { bodyFontFace: "Arial" };
+      doc.theme = { headFontFace: fontFace };
+      doc.theme = { bodyFontFace: fontFace };
 
       for(let [idx, page] of $scope.config.pages.entries()) {
 
-          console.log(page)
 				if(!$scope.showThisPage(page)) {
 					continue;
 				}
 
+				let pageDom = document.querySelector("#reporting-overview-page-" + idx);
 				for(let pageElement of page.pageElements) {
-          console.log(pageElement)
-        }
-      }
+
+					let pElementDom;
+					if(pageElement.type === "linechart") {
+						let arr = pageDom.querySelectorAll(".type-linechart");
+						if(pageElement.showPercentageChangeToPrevTimestamp) {
+							pElementDom = arr[1];
+						} else {
+							pElementDom = arr[0];
+						}
+					} else {
+						pElementDom = pageDom.querySelector("#reporting-overview-page-" + idx + "-" + pageElement.type)
+					}
+					// convert dimensions to millimeters here
+					// that way we don't have to use pxToMilli everywhere we use coordinates in the pdf
+					/* let pageElementDimensions = {}
+					pageElementDimensions.top = pageElement.dimensions.top && pxToMilli(pageElement.dimensions.top);
+					pageElementDimensions.bottom = pageElement.dimensions.bottom && pxToMilli(pageElement.dimensions.bottom);
+					pageElementDimensions.left = pageElement.dimensions.left && pxToMilli(pageElement.dimensions.left);
+					pageElementDimensions.right = pageElement.dimensions.right && pxToMilli(pageElement.dimensions.right);
+					pageElementDimensions.width = pageElement.dimensions.width && pxToMilli(pageElement.dimensions.width);
+					pageElementDimensions.height = pageElement.dimensions.height && pxToMilli(pageElement.dimensions.height); */
+					
+					// TODO some cases could be merged, but it's better to do that later when stuff works
+					switch(pageElement.type) {
+						/* case "indicatorTitle-landscape":
+						case "indicatorTitle-portrait": {
+							// Css takes the top-left edge of the element by default.
+							// doc.text takes left-bottom, so we ass baseline "top" to achieve the same behavior in jspdf.
+							doc.setFont(fontName, "Bold")
+							doc.text(pageElement.text, pageElementDimensions.left, pageElementDimensions.top, { baseline: "top" });
+							doc.setFont(fontName, "normal", "normal")
+							break;
+						}
+						case "communeLogo-landscape":
+						case "communeLogo-portrait": {
+							// only add logo if one was selected
+							if(pageElement.src && pageElement.src.length) {
+								doc.addImage(pageElement.src, "JPEG", pageElementDimensions.left, pageElementDimensions.top,
+									pageElementDimensions.width, pageElementDimensions.height, "", 'MEDIUM');
+							}
+							break;
+						}
+						case "dataTimestamp-landscape":
+						case "dataTimestamp-portrait": {
+							doc.text(pageElement.text, pageElementDimensions.left, pageElementDimensions.top, { baseline: "top" })
+							break;
+						}
+						case "dataTimeseries-landscape":
+						case "dataTimeseries-portrait": {
+							doc.text(pageElement.text, pageElementDimensions.left, pageElementDimensions.top, { baseline: "top" })
+							break;
+						}
+						case "reachability-subtitle-landscape":
+						case "reachability-subtitle-portrait": {
+							doc.text(pageElement.text, pageElementDimensions.left, pageElementDimensions.top, { baseline: "top" })
+							break;
+						}
+						case "footerHorizontalSpacer-landscape":
+						case "footerHorizontalSpacer-portrait": {
+							let x1, x2, y1, y2;
+							x1 = pageElementDimensions.left;
+							x2 = pageElementDimensions.left + pageElementDimensions.width;
+							y1 = pageElementDimensions.top;
+							y2 = pageElementDimensions.top;
+							doc.line(x1, y1, x2, y2);
+							break;
+						}
+						case "footerCreationInfo-landscape":
+						case "footerCreationInfo-portrait": {
+							doc.text(pageElement.text, pageElementDimensions.left, pageElementDimensions.top, { baseline: "top" })
+							break;
+						}
+						case "pageNumber-landscape":
+						case "pageNumber-portrait": {
+							let text = "Seite " + $scope.getPageNumber(idx);
+							doc.text(text, pageElementDimensions.left, pageElementDimensions.top, { baseline: "top" })
+							break;
+						} */
+						// template-specific elements
+						case "map": {
+							let instance = echarts.getInstanceByDom(pElementDom)
+							let imageDataUrl = instance.getDataURL( {pixelRatio: $scope.echartsImgPixelRatio} )
+
+							if($scope.config.template.name.includes("reachability")) {
+								try {
+									imageDataUrl = await $scope.createReachabilityMapImage(pageDom, pageElement, imageDataUrl)
+								} catch(error) {
+									$scope.loadingData = false;
+									kommonitorDataExchangeService.displayMapApplicationError(error);
+									console.error(error);
+								}
+							}
+
+              console.log(imageDataUrl);
+							/* doc.addImage(imageDataUrl, "PNG", pageElementDimensions.left, pageElementDimensions.top,
+								pageElementDimensions.width, pageElementDimensions.height, "", 'MEDIUM'); */
+							break;
+						}
+					/* 	// case "mapLegend" can be ignored since it is included in the map if needed
+						case "overallAverage":
+						case "selectionAverage": {
+							let x, y, width, height;
+							x = pageElementDimensions.left;
+							y = pageElementDimensions.top;
+							width = pageElementDimensions.width;
+							height = pageElementDimensions.height;
+							doc.rect(x, y, width, height);
+							let avgType = pageElement.type === "overallAverage" ? "Gesamtstadt" : "Selektion"
+							let text = "Durchschnitt\n" + avgType + ":\n" + pageElement.text.toString()
+							doc.text(text, pageElementDimensions.left + pxToMilli(5), pageElementDimensions.top + pxToMilli(5), { baseline: "top" });
+							break;
+						}
+						case "overallChange":
+						case "selectionChange": {
+							let x = pageElementDimensions.left;
+							let y = pageElementDimensions.top;
+							let width = pageElementDimensions.width;
+							let height = pageElementDimensions.height;
+							doc.rect(x, y, width, height);
+							let changeType = pageElement.type === "overallChange" ? "Gesamtstadt" : "Selektion"
+							let text = "Durchschnittliche\nVeränderung\n" + changeType + ":\n" + pageElement.text.toString()
+							doc.text(text, x + pxToMilli(5), y + pxToMilli(5), { baseline: "top" });
+							break;
+						}
+						case "barchart": {
+							let instance = echarts.getInstanceByDom(pElementDom)
+							let base64String = instance.getDataURL( {pixelRatio: $scope.echartsImgPixelRatio} )
+							doc.addImage(base64String, "PNG", pageElementDimensions.left, pageElementDimensions.top,
+									pageElementDimensions.width, pageElementDimensions.height, "", 'MEDIUM');
+							break;
+						}
+						case "linechart": {
+							let instance = echarts.getInstanceByDom(pElementDom)
+							let base64String = instance.getDataURL( {pixelRatio: $scope.echartsImgPixelRatio} )
+							doc.addImage(base64String, "PNG", pageElementDimensions.left, pageElementDimensions.top,
+									pageElementDimensions.width, pageElementDimensions.height, "", 'MEDIUM');
+							break;
+						}
+						case "textInput": {
+							doc.text(pageElement.text, pageElementDimensions.left, pageElementDimensions.top, {
+								baseline: "top",
+								maxWidth: pageElementDimensions.width
+							})
+							break;
+						}
+						case "datatable": {
+							doc.autoTable({
+								html: "#reporting-overview-page-" + idx + "-" + pageElement.type + " table",
+								startY: pageElementDimensions.top,
+								tableWidth: "wrap",
+								margin: {left: pageElementDimensions.left},
+								theme: "grid",
+								//headStyles: {
+								//	fillColor: false, // transparent
+								//	textColor: [0, 0, 0],
+								//}
+							})
+							break;
+						} */
+					}
+				}
+			}
 
       // Master slide def
       doc.defineSlideMaster({
         title: "TEMPLATE_SLIDE",
         background: { color: "FFFFFF" },
         objects: [
-          {
+          { // title
             placeholder: {
-              options: { name: "slide_title", type: "title", x:0.1, y: 0.1, w: "80%", h: 2, bold: true, align: "left"},
+              options: { 
+                name: "slide_title", 
+                type: "title", 
+                x: `${outerMargin*0.5}%`, 
+                y: `${outerMargin*0.5}%`, 
+                w: "80%", 
+                h: 1, 
+                bold: true, 
+                align: "left",
+                fontSize: fontSize
+              },
               text: "(page_title)",
             },
-          }
+          },
+          { // subtitle
+            placeholder: {
+              options: { 
+                name: "slide_subtitle", 
+                type: "title", 
+                x: `${outerMargin*0.5}%`, 
+                y: 0.5, 
+                w: "80%", 
+                h: 1, 
+                align: "left",
+                fontSize: fontSize
+              },
+              text: "(page_subtitle)",
+            },
+          },
+          { // footer-line
+            rect: { 
+              x: `${outerMargin*0.5}%`, 
+              y: `${95-outerMargin}%`, 
+              w: `${100-outerMargin}%`,
+              h: 0.015, 
+              fill: { 
+                color: "000000" 
+              } 
+            }  
+          },
+          { // footer
+            placeholder: {
+              options: { 
+                name: "slide_footer", 
+                type: "title", 
+                x: `${outerMargin*0.5}%`, 
+                y: `${95-outerMargin}%`, 
+                w: "80%", 
+                h: 1, 
+                align: "left",
+                fontSize: fontSize
+              },
+              text: "(page_subtitle)",
+            },
+          },
+          { // "Seite" - text
+            text: { 
+              text: "Seite", 
+              options: { 
+                x: "90%", 
+                y: `${89-outerMargin}%`, 
+                w: 3, 
+                h: 1,
+                fontSize: fontSize
+              } 
+            } 
+          },
         ],
-        slideNumber: { x: "90%", y: "90%" },
+        slideNumber: { 
+          x: `${100-outerMargin}%`, 
+          y: `${95-outerMargin}%`, 
+          fontFace: fontFace, 
+          fontSize: fontSize
+        },
       });
 
       // 2. Add a Slide to the presentation
       let slide = doc.addSlide({ masterName: "TEMPLATE_SLIDE" });
 
       // 3. Add 1+ objects (Tables, Shapes, etc.) to the Slide
-      slide.addText("Entfernung für ...", { placeholder: "slide_title" });
-      /* slide.addText("Hello World from PptxGenJS...", {
-          x: 1.5,
-          y: 1.5,
-          color: "363636",
-          fill: { color: "F1F1F1" },
-          align: pres.AlignH.center,
-      }); */
+      slide.addText("Einwohner [Anzahl]", { placeholder: "slide_title" });
+      slide.addText("2022-12-31", { placeholder: "slide_subtitle" });
+      slide.addText("Erstellt am 2022-12-31 von M.Mustermann, Testkommune", { placeholder: "slide_footer" });
 
       // 4. Save the Presentation
       doc.writeFile({ fileName: "Sample Presentation.pptx" });
