@@ -1971,6 +1971,9 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			} else {
 				options.visualMap.show = false;
 			}
+			options.visualMap.formatter = function(value1, value2) {
+				return kommonitorDataExchangeService.getIndicatorValue_asFormattedText(value1, $scope.selectedIndicator.precision) + "-<" + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(value2, $scope.selectedIndicator.precision);
+			  };
 
 			series.data.forEach( el => {
 				el.itemStyle =  el.itemStyle ? el.itemStyle : {};
