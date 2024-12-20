@@ -8,9 +8,61 @@
 	mit 
 	<span mathjax-bind="$ctrl.kommonitorScriptHelperServiceInstance.scriptData.additionalParameters.parameters.legend"></span>
 </p>
+
+<div class="row vertical-align">
+	<div class="col-md-10 col-sm-12 col-xs-12">
+		<div ng-repeat="box in $ctrl.kommonitorScriptHelperServiceInstance.scriptData.additionalParameters.parameters.inputBoxes" class="input-box">
+			<!-- <div style="text-align: left;"> -->
+			<div class="box box-danger collapsed-box" style="background: #ebf0fd;">
+				<div class="box-header">
+					<h3 class="box-title">{{ box.title }}</h3>
+					<div class="box-tools pull-right">
+						<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+						</button>
+					</div>
+				</div>
+				<!-- /.box-header -->
+				<div class="box-body">
+					<p>{{ box.description }}</p>
+
+					<div class="row vertical-align" ng-show="box.id != 'computation_id'">
+					
+						<div ng-repeat="inputKey in box.contents" class="col-md-3 col-sm-3 col-xs-12">
+							<div class="form-group">
+								<label>{{ $ctrl.kommonitorScriptHelperServiceInstance.scriptData.inputs[inputKey].title }}</label>
+								<p>{{ $ctrl.kommonitorScriptHelperServiceInstance.scriptData.inputs[inputKey].description }}</p>
+								
+								<!-- String oder Integer Input -->
+								<input 
+										type="{{ $ctrl.kommonitorScriptHelperServiceInstance.scriptData.inputs[inputKey].schema.type === 'integer' ? 'number' : 'text' }}" 
+										ng-model="inputData[inputKey]" 
+										ng-init="inputData[inputKey] = $ctrl.kommonitorScriptHelperServiceInstance.scriptData.inputs[inputKey].schema.default" 
+										ng-min="$ctrl.kommonitorScriptHelperServiceInstance.scriptData.inputs[inputKey].schema.minimum" 
+										ng-max="$ctrl.kommonitorScriptHelperServiceInstance.scriptData.inputs[inputKey].schema.maximum" 
+										ng-if="!$ctrl.kommonitorScriptHelperServiceInstance.scriptData.inputs[inputKey].schema.enum" 
+										ng-change="onChangeInputData()"
+									/>
+								
+								<!-- Dropdown für Enums -->
+								<select 
+										ng-model="inputData[inputKey]" 
+										ng-init="inputData[inputKey] = $ctrl.kommonitorScriptHelperServiceInstance.scriptData.inputs[inputKey].schema.default" 
+										ng-options="option as option.displayName for option in $ctrl.kommonitorScriptHelperServiceInstance.scriptData.inputs[inputKey].schema.enum" 
+										ng-if="$ctrl.kommonitorScriptHelperServiceInstance.scriptData.inputs[inputKey].schema.enum"
+										ng-change="onChangeInputData()">
+								</select>
+								<div class="help-block with-errors"></div>
+							</div>
+						</div>
+					</div>
+					<ng-include ng-show="box.id == 'computation_id'" src="'components/kommonitorAdmin/adminScriptManagement/scriptAddModal/templates/computationIndicatorSelection.html'"></ng-include>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
 	 
-<ng-include ng-show="$ctrl.kommonitorScriptHelperServiceInstance.scriptData.inputs.computation_id" src="'components/kommonitorAdmin/adminScriptManagement/scriptAddModal/templates/computationIndicatorSelection.html'"></ng-include>
-<ng-include ng-show="$ctrl.kommonitorScriptHelperServiceInstance.scriptData.inputs.number_of_temporal_items" src="'components/kommonitorAdmin/adminScriptManagement/scriptAddModal/templates/temporalOptions.html'"></ng-include>
+
 
 <ng-include src="'components/kommonitorAdmin/adminScriptManagement/scriptAddModal/templates/scriptCodePreviewWindow.html'"></ng-include>
 

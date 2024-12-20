@@ -210,7 +210,7 @@ angular
         var scriptParameter = {
           "name": parameterName,
           "description": parameterDescription,
-          "dataType": parameterDataType.apiName,
+          "dataType": parameterDataType,
           "defaultValue": parameterDefaultValue,
           "minParameterValueForNumericInputs": parameterNumericMinValue || 0,
           "maxParameterValueForNumericInputs": parameterNumericMaxValue || 1

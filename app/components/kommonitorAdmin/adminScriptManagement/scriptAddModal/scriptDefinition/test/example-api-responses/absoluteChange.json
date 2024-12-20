@@ -19,42 +19,50 @@
       },
       {
         "name": "legend",
-        "value": "<br/>$N$ = Ziel-Zeitpunkt<br/>$M$ = fester Referenz-Zeitpunkt<script>alert('hack')</script>"
+        "value": "<br/>$N$ = Ziel-Zeitpunkt<br/>$M$ = fester Referenz-Zeitpunkt"
       },
       {
         "name": "dynamicLegend",
-        "value": "<br/> $A$: ${indicatorName} [ ${unit} ]<br/> $N$: Ziel-Zeitpunkt<br/> $M$: Ziel-Zeitpunkt minus ${numberOfTemporalItems} ${temporalOptionDisplayName}"
+        "value": "<br/> $A$: ${indicatorName} [ ${unit} ]<br/> $N$: Ziel-Zeitpunkt<br/> $M$: Ziel-Zeitpunkt minus ${number_of_temporal_items} ${temporal_type}"
+      },
+      {
+        "name": "inputBoxes",
+        "value": [
+          {
+            "id": "temporal_options",
+            "title": "Notwendiger zeitlicher Bezug",
+            "description": "",
+            "contents": [
+              "number_of_temporal_items",
+              "temporal_type"
+            ]
+          },
+          {
+            "id": "computation_id",
+            "title": "Notwendiger Basis-Indikator",
+            "description": "",
+            "contents": [
+              "computation_id"
+            ]
+          }
+        ]
       }
     ]
   },
   "inputs": {
     "computation_id": {
-      "title": "COMPUTATION_ID",
+      "id": "COMPUTATION_ID",
+      "title": "Auswahl des für die Berechnung erforderlichen Basis-Indikators",
       "description": "Indikatoren-ID des Basisindikators.",
-      "additionalParameters": {
-        "parameters": [
-          {
-            "name": "input_group",
-            "value": "computation_id"
-          }
-        ]
-      },
       "schema": { 
         "type": "string",
         "default": "72b9b6ec-f4e0-4d58-a1b4-c49045532403"
       }
     },
     "number_of_temporal_items": {
-      "title": "NUMBER_OF_TEMPORAL_ITEMS",
+      "id": "NUMBER_OF_TEMPORAL_ITEMS",
+      "title": "Anzahl",
       "description": "Anzahl der Zeiteinheiten. Standard ist '1'.",
-      "additionalParameters": {
-        "parameters": [
-          {
-            "name": "input_group",
-            "value": "temporal_options"
-          }
-        ]
-      },
       "schema": { 
         "type": "integer", 
         "minimum": 1, 
@@ -63,20 +71,29 @@
       }
     },
     "temporal_type": {
-      "title": "TEMPORAL_TYPE",
+      "id": "TEMPORAL_TYPE",
+      "title": "Art des zeitlichen Bezugs",
       "description": "Angabe des Zeitbezug-Typs. Standard ist 'Jahre'.",
-      "additionalParameters": {
-        "parameters": [
-          {
-            "name": "input_group",
-            "value": "temporal_options"
-          }
-        ]
-      },
       "schema": { 
         "type": "string", 
-        "enum": ["DAYS", "MONTHS", "YEARS"],
-        "default": "YEARS"
+        "enum": [
+          {
+            "apiName": "YEARS",
+            "displayName": "Jahr(e)"
+          },
+          {
+            "apiName": "MONTHS",
+            "displayName": "Monat(e)"
+          },
+          {
+            "apiName": "DAYS",
+            "displayName": "Tag(e)"
+          }
+        ],
+        "default": {
+          "apiName": "YEARS",
+          "displayName": "Jahr(e)"
+        }
       }
     }
   },

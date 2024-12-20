@@ -19,33 +19,18 @@ angular.module('scriptTest').component('scriptTest', {
 			$scope.compIndicatorSelection = undefined;
 			$scope.compIndicatorSelection_old = undefined;
 
+			$scope.inputData = {
+				// COMPUTATION_ID : ....
+				
+			}
+
 			//b
 			$scope.parameterName_computationIndicator = "COMPUTATION_ID";
 			$scope.parameterDescription_computationIndicator = "Indikatoren-ID des Basisindikators.";
 			$scope.parameterDefaultValue_computationIndicator = undefined;
 			$scope.parameterNumericMinValue_computationIndicator = 0;
 			$scope.parameterNumericMaxValue_computationIndicator = 1;
-
-			//b
-			$scope.temporalOption = kommonitorScriptHelperService.temporalOptions[0];	
 			
-			//a
-			$scope.numberOfTemporalItems = 1;
-
-			//b
-			$scope.parameterName_temporalOption = "TEMPORAL_TYPE";
-			$scope.parameterDescription_temporalOption = "Angabe des Zeitbezug-Typs. Standard ist 'Jahre'.";
-			$scope.parameterDefaultValue_temporalOption = "YEARS";
-			$scope.parameterNumericMinValue_temporalOption = 0;
-			$scope.parameterNumericMaxValue_temporalOption = 1;
-
-			//a
-			$scope.parameterName_numTemporalItems = "NUMBER_OF_TEMPORAL_ITEMS";
-			$scope.parameterDescription_numTemporalItems = "Anzahl der Zeiteinheiten. Standard ist '1'.";
-			$scope.parameterDefaultValue_numTemporalItems = 1;
-			$scope.parameterNumericMinValue_numTemporalItems = 1;
-			$scope.parameterNumericMaxValue_numTemporalItems = 100000;
-			$scope.parameterDataType_numTemporalItems = kommonitorScriptHelperService.availableScriptDataTypes[3];
 
 			/*
 				availableScriptDataTypes = [
@@ -96,6 +81,7 @@ angular.module('scriptTest').component('scriptTest', {
 			$scope.init();
 
 			$scope.onChangeComputationIndicator = function(compIndicatorSelection){
+				$scope.compIndicatorSelection = compIndicatorSelection;
 				// remove previous refIndicator from requiredIndicators and add new one
 				if($scope.compIndicatorSelection_old){
 					kommonitorScriptHelperService.removeBaseIndicator($scope.compIndicatorSelection_old);
@@ -104,13 +90,17 @@ angular.module('scriptTest').component('scriptTest', {
 
 				$scope.compIndicatorSelection_old = compIndicatorSelection;
 
+				$scope.inputData.computation_id = compIndicatorSelection.indicatorId;
+				$scope.inputData.indicatorName = compIndicatorSelection.indicatorName;
+				$scope.inputData.unit = compIndicatorSelection.unit;
+
 				$scope.resetScriptParameter();
 				$scope.resetComputationFormulaAndLegend();				
 
 			};
 
 			$scope.onChangeNumTemporalItems = function(){
-				$scope.numberOfTemporalItems = Math.round($scope.numberOfTemporalItems);
+				$scope.inputData.NUMBER_OF_TEMPORAL_ITEMS = Math.round($scope.inputData.NUMBER_OF_TEMPORAL_ITEMS);
 				$scope.resetScriptParameter();
 				$scope.resetComputationFormulaAndLegend();	
 			};
@@ -119,6 +109,11 @@ angular.module('scriptTest').component('scriptTest', {
 				$scope.resetScriptParameter();
 				$scope.resetComputationFormulaAndLegend();	
 			};
+
+			$scope.onChangeInputData = function(){
+				$scope.resetScriptParameter();
+				$scope.resetComputationFormulaAndLegend();	
+			}
 
 			//a
 			$scope.resetScriptParameter = function(){
@@ -130,9 +125,10 @@ angular.module('scriptTest').component('scriptTest', {
 					$scope.parameterDefaultValue_computationIndicator = $scope.compIndicatorSelection.indicatorId;
 				}
 
-				kommonitorScriptHelperService.addScriptParameter($scope.parameterName_computationIndicator, $scope.parameterDescription_computationIndicator, $scope.parameterDataType, $scope.parameterDefaultValue_computationIndicator, $scope.parameterNumericMinValue_computationIndicator, $scope.parameterNumericMaxValue_computationIndicator);
-				kommonitorScriptHelperService.addScriptParameter($scope.parameterName_numTemporalItems, $scope.parameterDescription_numTemporalItems, $scope.parameterDataType_numTemporalItems, $scope.numberOfTemporalItems, $scope.parameterNumericMinValue_numTemporalItems, $scope.parameterNumericMaxValue_numTemporalItems);
-				kommonitorScriptHelperService.addScriptParameter($scope.parameterName_temporalOption, $scope.parameterDescription_temporalOption, $scope.parameterDataType, $scope.temporalOption.apiName, $scope.parameterNumericMinValue_temporalOption, $scope.parameterNumericMaxValue_temporalOption);
+				Object.keys(kommonitorScriptHelperService.scriptData.inputs).forEach(inputId => {
+					let input = kommonitorScriptHelperService.scriptData.inputs[inputId];
+					kommonitorScriptHelperService.addScriptParameter(input.title, input.description, input.schema.type, input.schema.default, input.schema.minimum, input.schema.maximum)
+				});
 			};
 
 			//a
@@ -145,11 +141,17 @@ angular.module('scriptTest').component('scriptTest', {
 
 					var formulaHTML = "<b>Berechnung gem&auml;&szlig; Formel<br/> " + kommonitorScriptHelperService.scriptData.additionalParameters.parameters.formula;
 					var dynamicLegendStr = kommonitorScriptHelperService.scriptData.additionalParameters.parameters.dynamicLegend;
-					var legendValues = {
-						indicatorName : $scope.compIndicatorSelection.indicatorName,
-						unit : $scope.compIndicatorSelection.unit,
-						numberOfTemporalItems : $scope.numberOfTemporalItems,
-						temporalOptionDisplayName : $scope.temporalOption.displayName
+					var legendValues = structuredClone($scope.inputData);
+
+					// replace objects with displayName
+					for (let key in legendValues) {
+						if (legendValues.hasOwnProperty(key)) {
+							if (typeof legendValues[key] === 'object' && 
+								legendValues[key] !== null && 
+								legendValues[key].hasOwnProperty('displayName')) {
+								legendValues[key] = legendValues[key].displayName;
+							}
+						}
 					}
 					
 					// parse with regEx to avoid 'eval' or similar unsecure methods
