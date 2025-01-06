@@ -46,6 +46,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 			}
 			$scope.config.templateSections = [];
 			let deviceScreenDpi = calculateScreenDpi();
+      $scope.deviceScreenDpi = deviceScreenDpi;
 			$scope.pxPerMilli = deviceScreenDpi / 25.4 // /2.54 --> cm, /10 --> mm
 		}
 
@@ -911,7 +912,11 @@ angular.module('reportingOverview').component('reportingOverview', {
       console.log('pptx selected');
 
       let doc = new PptxGenJS();
-      var fontSize = 12;
+
+      doc.defineLayout({ name:'A4', width:28, height:21 });
+      doc.layout = 'A4'
+
+      var fontSize = 42;
       var fontFace = "Source Sans Pro";
       var outerMargin = 5; // percent
 
@@ -919,11 +924,104 @@ angular.module('reportingOverview').component('reportingOverview', {
       doc.theme = { headFontFace: fontFace };
       doc.theme = { bodyFontFace: fontFace };
 
+      // Master slide def
+      doc.defineSlideMaster({
+        title: "TEMPLATE_SLIDE",
+        background: { color: "FFFFFF" },
+        objects: [
+          { // title
+            placeholder: {
+              options: { 
+                name: "slide_title", 
+                type: "title", 
+                w: "80%", 
+                h: 1, 
+                bold: true, 
+                align: "left",
+                fontSize: fontSize
+              },
+              text: "(page_title)",
+            },
+          },
+          { // subtitle
+            placeholder: {
+              options: { 
+                name: "slide_subtitle", 
+                type: "title", 
+                w: "80%", 
+                h: 1, 
+                align: "left",
+                fontSize: fontSize
+              },
+              text: "(page_subtitle)",
+            },
+          },
+          { // footer-line
+            rect: { 
+              x: `${outerMargin*0.5}%`, 
+              y: `${95-outerMargin}%`, 
+              w: `${100-outerMargin}%`,
+              h: 0.015, 
+              fill: { 
+                color: "000000" 
+              } 
+            }  
+          },
+          { // footer
+            placeholder: {
+              options: { 
+                name: "slide_footer", 
+                type: "title", 
+                w: "80%", 
+                h: 1, 
+                align: "left",
+                fontSize: fontSize
+              },
+              text: "(page_subtitle)",
+            },
+          },
+          { // "Seite" - text
+            text: { 
+              text: "Seite", 
+              options: { 
+                x: "90%", 
+                y: `${89-outerMargin}%`, 
+                w: 3, 
+                h: 1,
+                fontSize: fontSize
+              } 
+            } 
+          },
+        ],
+        slideNumber: { 
+          x: `${100-outerMargin}%`, 
+          y: `${95-outerMargin}%`, 
+          fontFace: fontFace, 
+          fontSize: fontSize
+        },
+      });
+/* 
+      // 2. Add a Slide to the presentation
+      let slide = doc.addSlide({ masterName: "TEMPLATE_SLIDE" });
+
+      // 3. Add 1+ objects (Tables, Shapes, etc.) to the Slide
+      slide.addText("Einwohner [Anzahl]", { placeholder: "slide_title" });
+      slide.addText("2022-12-31", { placeholder: "slide_subtitle" });
+      slide.addText("Erstellt am 2022-12-31 von M.Mustermann, Testkommune", { placeholder: "slide_footer" }); */
+
+
+      // Pages
+
       for(let [idx, page] of $scope.config.pages.entries()) {
 
 				if(!$scope.showThisPage(page)) {
 					continue;
 				}
+        
+        // 2. Add a Slide to the presentation
+        let slide = doc.addSlide({ masterName: "TEMPLATE_SLIDE" });
+
+        let formatFactor = 3.4;
 
 				let pageDom = document.querySelector("#reporting-overview-page-" + idx);
 				for(let pageElement of page.pageElements) {
@@ -939,27 +1037,25 @@ angular.module('reportingOverview').component('reportingOverview', {
 					} else {
 						pElementDom = pageDom.querySelector("#reporting-overview-page-" + idx + "-" + pageElement.type)
 					}
-					// convert dimensions to millimeters here
-					// that way we don't have to use pxToMilli everywhere we use coordinates in the pdf
-					/* let pageElementDimensions = {}
-					pageElementDimensions.top = pageElement.dimensions.top && pxToMilli(pageElement.dimensions.top);
-					pageElementDimensions.bottom = pageElement.dimensions.bottom && pxToMilli(pageElement.dimensions.bottom);
-					pageElementDimensions.left = pageElement.dimensions.left && pxToMilli(pageElement.dimensions.left);
-					pageElementDimensions.right = pageElement.dimensions.right && pxToMilli(pageElement.dimensions.right);
-					pageElementDimensions.width = pageElement.dimensions.width && pxToMilli(pageElement.dimensions.width);
-					pageElementDimensions.height = pageElement.dimensions.height && pxToMilli(pageElement.dimensions.height); */
-					
+
+          console.log(pageElement.dimensions);
+          let pageElementDimensions = {}
+					pageElementDimensions.top = pageElement.dimensions.top && pxToInch(pageElement.dimensions.top)*formatFactor;
+					pageElementDimensions.bottom = pageElement.dimensions.bottom && pxToInch(pageElement.dimensions.bottom)*formatFactor;
+					pageElementDimensions.left = pageElement.dimensions.left && pxToInch(pageElement.dimensions.left)*formatFactor;
+					pageElementDimensions.right = pageElement.dimensions.right && pxToInch(pageElement.dimensions.right)*formatFactor;
+					pageElementDimensions.width = pageElement.dimensions.width && pxToInch(pageElement.dimensions.width)*formatFactor;
+					pageElementDimensions.height = pageElement.dimensions.height && pxToInch(pageElement.dimensions.height)*formatFactor;
+
 					// TODO some cases could be merged, but it's better to do that later when stuff works
 					switch(pageElement.type) {
-						/* case "indicatorTitle-landscape":
+						case "indicatorTitle-landscape":
 						case "indicatorTitle-portrait": {
-							// Css takes the top-left edge of the element by default.
-							// doc.text takes left-bottom, so we ass baseline "top" to achieve the same behavior in jspdf.
-							doc.setFont(fontName, "Bold")
-							doc.text(pageElement.text, pageElementDimensions.left, pageElementDimensions.top, { baseline: "top" });
-							doc.setFont(fontName, "normal", "normal")
+              slide.addText(pageElement.text, { x: pageElementDimensions.left, y: pageElementDimensions.top, placeholder: "slide_title" });
+console.log("title",pageElementDimensions);
 							break;
 						}
+            /* 
 						case "communeLogo-landscape":
 						case "communeLogo-portrait": {
 							// only add logo if one was selected
@@ -968,13 +1064,14 @@ angular.module('reportingOverview').component('reportingOverview', {
 									pageElementDimensions.width, pageElementDimensions.height, "", 'MEDIUM');
 							}
 							break;
-						}
+						}*/
 						case "dataTimestamp-landscape":
 						case "dataTimestamp-portrait": {
-							doc.text(pageElement.text, pageElementDimensions.left, pageElementDimensions.top, { baseline: "top" })
+              slide.addText(pageElement.text, { x: pageElementDimensions.left, y: pageElementDimensions.top, placeholder: "slide_subtitle" });
+              console.log("timestamp",pageElementDimensions);
 							break;
 						}
-						case "dataTimeseries-landscape":
+						/*case "dataTimeseries-landscape":
 						case "dataTimeseries-portrait": {
 							doc.text(pageElement.text, pageElementDimensions.left, pageElementDimensions.top, { baseline: "top" })
 							break;
@@ -983,22 +1080,20 @@ angular.module('reportingOverview').component('reportingOverview', {
 						case "reachability-subtitle-portrait": {
 							doc.text(pageElement.text, pageElementDimensions.left, pageElementDimensions.top, { baseline: "top" })
 							break;
-						}
+						}*/
 						case "footerHorizontalSpacer-landscape":
 						case "footerHorizontalSpacer-portrait": {
-							let x1, x2, y1, y2;
-							x1 = pageElementDimensions.left;
-							x2 = pageElementDimensions.left + pageElementDimensions.width;
-							y1 = pageElementDimensions.top;
-							y2 = pageElementDimensions.top;
-							doc.line(x1, y1, x2, y2);
+
+              slide.addShape("spacer",doc.shapes.LINE, {  x: pageElementDimensions.left, y: pageElementDimensions.top, w: pageElementDimensions.width, h: 0, line: { color: '#000000', width: 1 }});
 							break;
 						}
 						case "footerCreationInfo-landscape":
-						case "footerCreationInfo-portrait": {
-							doc.text(pageElement.text, pageElementDimensions.left, pageElementDimensions.top, { baseline: "top" })
+						case "footerCreationInfo-portrait": {  
+            
+              slide.addText(pageElement.text, { x: pageElementDimensions.left, y: pageElementDimensions.top, placeholder: "slide_footer" });
+              console.log("footer",pageElementDimensions);
 							break;
-						}
+						}/*  
 						case "pageNumber-landscape":
 						case "pageNumber-portrait": {
 							let text = "Seite " + $scope.getPageNumber(idx);
@@ -1020,7 +1115,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 								}
 							}
 
-              console.log(imageDataUrl);
+              slide.addImage({ x: pageElementDimensions.left, y: pageElementDimensions.top, w: pageElementDimensions.width, h: pageElementDimensions.height, data: imageDataUrl})
 							/* doc.addImage(imageDataUrl, "PNG", pageElementDimensions.left, pageElementDimensions.top,
 								pageElementDimensions.width, pageElementDimensions.height, "", 'MEDIUM'); */
 							break;
@@ -1089,97 +1184,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 					}
 				}
 			}
-
-      // Master slide def
-      doc.defineSlideMaster({
-        title: "TEMPLATE_SLIDE",
-        background: { color: "FFFFFF" },
-        objects: [
-          { // title
-            placeholder: {
-              options: { 
-                name: "slide_title", 
-                type: "title", 
-                x: `${outerMargin*0.5}%`, 
-                y: `${outerMargin*0.5}%`, 
-                w: "80%", 
-                h: 1, 
-                bold: true, 
-                align: "left",
-                fontSize: fontSize
-              },
-              text: "(page_title)",
-            },
-          },
-          { // subtitle
-            placeholder: {
-              options: { 
-                name: "slide_subtitle", 
-                type: "title", 
-                x: `${outerMargin*0.5}%`, 
-                y: 0.5, 
-                w: "80%", 
-                h: 1, 
-                align: "left",
-                fontSize: fontSize
-              },
-              text: "(page_subtitle)",
-            },
-          },
-          { // footer-line
-            rect: { 
-              x: `${outerMargin*0.5}%`, 
-              y: `${95-outerMargin}%`, 
-              w: `${100-outerMargin}%`,
-              h: 0.015, 
-              fill: { 
-                color: "000000" 
-              } 
-            }  
-          },
-          { // footer
-            placeholder: {
-              options: { 
-                name: "slide_footer", 
-                type: "title", 
-                x: `${outerMargin*0.5}%`, 
-                y: `${95-outerMargin}%`, 
-                w: "80%", 
-                h: 1, 
-                align: "left",
-                fontSize: fontSize
-              },
-              text: "(page_subtitle)",
-            },
-          },
-          { // "Seite" - text
-            text: { 
-              text: "Seite", 
-              options: { 
-                x: "90%", 
-                y: `${89-outerMargin}%`, 
-                w: 3, 
-                h: 1,
-                fontSize: fontSize
-              } 
-            } 
-          },
-        ],
-        slideNumber: { 
-          x: `${100-outerMargin}%`, 
-          y: `${95-outerMargin}%`, 
-          fontFace: fontFace, 
-          fontSize: fontSize
-        },
-      });
-
-      // 2. Add a Slide to the presentation
-      let slide = doc.addSlide({ masterName: "TEMPLATE_SLIDE" });
-
-      // 3. Add 1+ objects (Tables, Shapes, etc.) to the Slide
-      slide.addText("Einwohner [Anzahl]", { placeholder: "slide_title" });
-      slide.addText("2022-12-31", { placeholder: "slide_subtitle" });
-      slide.addText("Erstellt am 2022-12-31 von M.Mustermann, Testkommune", { placeholder: "slide_footer" });
+      // pages end
 
       // 4. Save the Presentation
       doc.writeFile({ fileName: "Sample Presentation.pptx" });
@@ -2080,6 +2085,17 @@ angular.module('reportingOverview').component('reportingOverview', {
 			// pxPerMillimeter cancels out there, so it doesn't matter.
 			let result = parseInt(px, 10) / 830 * 297;
 			result = Math.round(result * 100) / 100;
+			return result;
+		}
+
+		function pxToInch(px) {
+			// our preview is 830px wide
+			// px / 830  gives us the percentage from the left edge, which can then be stretched to fit the A4 page
+			// This is the short version of:
+			// px / pxPerMillimeter * pxPerMillimeter * 297 / 830, where pxPerMillimeter = (deviceScreenPpi / 2.54) * 10
+			// pxPerMillimeter cancels out there, so it doesn't matter.
+			let result = parseInt(px, 10);
+			result = Math.round((result/$scope.deviceScreenDpi) * 100) / 100;
 			return result;
 		}
 
