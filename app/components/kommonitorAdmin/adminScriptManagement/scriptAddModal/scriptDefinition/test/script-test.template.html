@@ -25,6 +25,8 @@
 				<div class="box-body">
 					<p>{{ box.description }}</p>
 
+					<ng-include ng-show="box.id == 'computation_id'" src="'components/kommonitorAdmin/adminScriptManagement/scriptAddModal/templates/computationIndicatorSelection.html'"></ng-include>
+
 					<div class="row vertical-align" ng-show="box.id != 'computation_id'">
 					
 						<div ng-repeat="inputKey in box.contents" class="col-md-3 col-sm-3 col-xs-12">
@@ -55,7 +57,6 @@
 							</div>
 						</div>
 					</div>
-					<ng-include ng-show="box.id == 'computation_id'" src="'components/kommonitorAdmin/adminScriptManagement/scriptAddModal/templates/computationIndicatorSelection.html'"></ng-include>
 				</div>
 			</div>
 		</div>

@@ -53,11 +53,11 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 
 			$scope.loadingData = false;
 
-			kommonitorScriptHelperService.scriptData = {
+			kommonitorScriptHelperService.scriptData ={
 				"id": "changeAbsolute",
 				"version": "1.0.0",
 				"title": "Absolute Veränderung bezogen auf Zeitspanne",
-				"description": "Berechnet die prozentuale Ver&auml;nderung zwischen zwei Zeitpunkten eines Indikators.",
+				"description": "Berechnet die absolute Veränderung zwischen zwei Zeitpunkten eines Indikators.",
 				"additionalParameters": {
 					"parameters": [
 						{
@@ -74,7 +74,7 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 						},
 						{
 							"name": "legend",
-							"value": "<br/>$N$ = Ziel-Zeitpunkt<br/>$M$ = fester Referenz-Zeitpunkt"
+							"value": "<br/>$N$ = Ziel-Zeitpunkt<br/>$M$ = Ziel-Zeitpunkt minus Anzahl Tage/Monate/Jahre "
 						},
 						{
 							"name": "dynamicLegend",
@@ -84,20 +84,20 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 							"name": "inputBoxes",
 							"value": [
 								{
+									"id": "computation_id",
+									"title": "Notwendiger Basis-Indikator",
+									"description": "",
+									"contents": [
+										"computation_id"
+									]
+								},
+								{
 									"id": "temporal_options",
 									"title": "Notwendiger zeitlicher Bezug",
 									"description": "",
 									"contents": [
 										"number_of_temporal_items",
 										"temporal_type"
-									]
-								},
-								{
-									"id": "computation_id",
-									"title": "Notwendiger Basis-Indikator",
-									"description": "",
-									"contents": [
-										"computation_id"
 									]
 								}
 							]
@@ -148,7 +148,7 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 							"default": {
 								"apiName": "YEARS",
 								"displayName": "Jahr(e)"
-							},
+							}
 						}
 					}
 				},
