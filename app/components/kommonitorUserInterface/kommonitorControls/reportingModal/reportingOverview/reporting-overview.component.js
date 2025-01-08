@@ -911,8 +911,10 @@ angular.module('reportingOverview').component('reportingOverview', {
 
       let doc = new PptxGenJS();
 
-      doc.defineLayout({ name:'A4', width:29.7, height:21 });
-      doc.layout = 'A4'
+      doc.defineLayout({ name:'A4-landscape', width:29.7, height:21 });
+      doc.defineLayout({ name:'A4-portrait', width:21, height:29.7 });
+
+      doc.layout = 'A4-'+$scope.config.pages[0].orientation;
 
       var fontSize = 42;
       var fontFace = "Source Sans Pro";
@@ -1118,7 +1120,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 							let text = "Durchschnittliche\nVeränderung\n" + changeType + ":\n" + pageElement.text.toString();
               
 	            slide.addShape(doc.shapes.RECTANGLE, { x: pageElementDimensions.left, y: pageElementDimensions.top, w: pageElementDimensions.width, h: pageElementDimensions.height, line: { color: '#000000', width: 1 } });
-              slide.addText(text, { x: pageElementDimensions.left+0.1, y: pageElementDimensions.top+1, fontSize: fontSize-3, fontFace: fontFace });
+              slide.addText(text, { x: pageElementDimensions.left+0.1, y: pageElementDimensions.top+1.4, fontSize: fontSize-3, fontFace: fontFace });
 							break;
 						}
 						case "barchart": {
@@ -1175,18 +1177,6 @@ angular.module('reportingOverview').component('reportingOverview', {
               }
 
               slide.addTable(data, { x: pageElementDimensions.left, y: pageElementDimensions.top, w: pageElementDimensions.width, rowH: 1, align: "left", border: { pt: "1", color: "#d6d6d6" }});
-
-							/* doc.autoTable({
-								html: "#reporting-overview-page-" + idx + "-" + pageElement.type + " table",
-								startY: pageElementDimensions.top,
-								tableWidth: "wrap",
-								margin: {left: pageElementDimensions.left},
-								theme: "grid",
-								//headStyles: {
-								//	fillColor: false, // transparent
-								//	textColor: [0, 0, 0],
-								//}
-							}) */
 							break;
 						} 
 					}
@@ -1195,7 +1185,13 @@ angular.module('reportingOverview').component('reportingOverview', {
       // pages end
 
       // 4. Save the Presentation
-      doc.writeFile({ fileName: "Sample Presentation.pptx" });
+
+      let now = getCurrentDateAndTime();
+      doc.writeFile({ fileName: now + "_KomMonitor-Report.pptx" });
+			$scope.loadingData = false;
+			$timeout(function(){
+				$scope.$digest();
+			});
     }
 
 		$scope.generatePdfReport = async function() {
