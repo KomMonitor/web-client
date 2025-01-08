@@ -1,1 +1,1 @@
-angular.module('topicEditModal', []);
+angular.module('topicEditModal', ['kommonitorConfigStorage']);

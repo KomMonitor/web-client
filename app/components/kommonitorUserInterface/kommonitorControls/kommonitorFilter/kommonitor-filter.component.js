@@ -8,9 +8,9 @@ angular
 					 * injected with a modules service method that manages
 					 * enabled tabs
 					 */
-					controller : ['$scope', '$rootScope', 'kommonitorMapService', 'kommonitorDataExchangeService', 'kommonitorFilterHelperService', 
-					'__env', '$http', function kommonitorFilterController($scope, $rootScope, kommonitorMapService, kommonitorDataExchangeService, 
-						kommonitorFilterHelperService, __env, $http) {
+					controller : ['$scope', '$rootScope', 'kommonitorMapService', 'kommonitorDataExchangeService', 'kommonitorConfigStorageService', 'kommonitorFilterHelperService', 'kommonitorGlobalFilterHelperService',
+					'__env', '$http', function kommonitorFilterController($scope, $rootScope, kommonitorMapService, kommonitorDataExchangeService, kommonitorConfigStorageService, 
+						kommonitorFilterHelperService, kommonitorGlobalFilterHelperService, __env, $http) {
 
 							const INDICATOR_DATE_PREFIX = __env.indicatorDatePrefix;
 							this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
@@ -50,6 +50,9 @@ angular
 							$scope.higherSpatialUnitFilterFeatureGeoJSON;
 							$scope.reappliedFilter = false;
 
+              // Global filter
+              $scope.globalFilters = undefined;
+
 							$scope.selectionByFeatureSpatialFilterDuallistOptions = {
 								title: {label: 'Gebiete', helpMessage: 'help'},
 								selectOptions: {initialText: "Gebiete"},
@@ -64,14 +67,48 @@ angular
 								items: [],
 								button: {leftText: "Alle auswählen" , rightText: "Alle entfernen"},
 								selectedItems: []
-							};
+							};		
+              
+              $scope.$on("initialMetadataLoadingCompleted", function (event) {
+                
+                if(!$scope.globalFilters)
+                  $scope.loadGlobalFilters();
+              }); 
+
+              $scope.loadGlobalFilters = async function() {
+                $scope.globalFilters = await kommonitorConfigStorageService.getFilterConfig();
+              }
+
+              $scope.onChangeFilterSelection = function() {
+
+								$scope.loadingData = true;
+                kommonitorGlobalFilterHelperService.applyFilterSelection($scope.globalFilters.filter(e => e.checked===true));
+                
+                if(kommonitorGlobalFilterHelperService.applicationFilter)
+                  kommonitorDataExchangeService.fetchAllMetadata(kommonitorGlobalFilterHelperService.applicationFilter);
+                else
+                  kommonitorDataExchangeService.fetchAllMetadata();
+
+                $rootScope.$broadcast("onGlobalFilterChange");
+
+                // "hide" for meta-data loading to not allow successive clicks on multiple items. let the metadata load succeed before selecting any other item
+                setTimeout(function() {
+                  $scope.loadingData = false;
+                },500);
+              }
+
+              $scope.globalFiltersActive = function() {
+                if($scope.globalFilters && !kommonitorGlobalFilterHelperService.isFilterParamSet())
+                  return true;
+
+                return false;
+              }
 
 							$scope.isFilterModeActive = function(id) {
 								// hier
 								//return $scope.kommonitorFilterModes.indexOf(id) !== -1;
 								return true;
 							}
-
 
 							$scope.setupSpatialUnitFilter = function(indicatorMetadataAndGeoJSON, spatialUnitName, date){
 								

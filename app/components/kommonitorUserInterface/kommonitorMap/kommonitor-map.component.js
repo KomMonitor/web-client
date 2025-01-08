@@ -404,6 +404,11 @@ angular.module('kommonitorMap').component(
           }
         };
 
+        $scope.$on("onGlobalFilterChange",function() {
+          // reset custom layers when global filters change. otherwise douplicates might be added
+          $scope.layerControl._layers = $scope.layerControl._layers.filter(e => e.overlay===undefined);
+        });
+
         $rootScope.$on("initialMetadataLoadingCompleted", function(){
           initSpatialUnitOutlineLayer();
         });
@@ -439,6 +444,10 @@ angular.module('kommonitorMap').component(
             zoomSnap: 0.5,
             layers: [baseLayerDefinitionsMap.get(__env.baseLayers[0].name)]
           });
+
+          __env.currentLatitude = $scope.latCenter;
+          __env.currentLongitude = $scope.lonCenter;
+          __env.currentZoomLevel = $scope.zoomLevel;
 
           // execute update search control on layer add and remove
           $scope.map.on('overlayadd', function (eo) {

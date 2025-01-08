@@ -26,6 +26,9 @@ try {
   window.__env.isAdvancedMode = true; // controls if advanced mode is activated on startup
   window.__env.showAdvancedModeSwitch = true; // controls if toggle switch is at all displayed for toggling basinc/advanced mode  
 
+  // enable show/hide of favorite selection within the indicator & georesource widget
+  window.__env.showFavoriteSelection = true;
+
   // enable/disable certain tools and functions
 
   // controls, which filter modes should be active

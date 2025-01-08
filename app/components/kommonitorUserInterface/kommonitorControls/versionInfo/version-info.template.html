@@ -1,4 +1,157 @@
 <div id="versionInfo">
+		<!-- version info  -->
+		<div id="" class="box box-primary collapsed-box">
+			<div class="box-header with-border">
+				<h3 class="box-title">Neuerungen in KomMonitor V3.2.0</h3>
+				<div class="box-tools pull-right">
+					<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+					</button>
+				</div>
+			</div>
+			<div class="box-body">
+	
+				<ul>
+					<li>
+						Anpassungen in der <b>Kartenapp</b>
+						<ul>
+							<li>
+								<b>Globale Filterung von Datens&auml;tzen</b>
+								Der Web Client unterst&uuml;tzt nun den Aufruf mit einem aktiven globalen Filter. Dieser sorgt daf&uuml;r, dass der Web Client nur mit einem
+								eingeschr&auml;nkten Satz an Indikatoren und Georessourcen geladen wird. F&uuml;r die Kartenanwendung kann außerdem spontan ein globaler Filter
+								aktiviert werden. Diese Funktion befindet sich unter dem <i>Filter-Button</i>.
+							</li>
+						</ul>
+					</li>
+					<li>
+						Anpassungen in der <b>Admin-Ansicht</b>
+						<ul>
+							<li>
+								<b>Management von globale Filtern f&uuml; Datens&auml;tze</b>
+								In den <i>Allgemeinen Einstellungen</i> wurde ein neuer Bereich <i>Filter-Konfiguration</i> hinzugef&uuml;gt. In diesem Bereich lassen sich globale
+								Filter für Datens&auml;tze erstellen und bearbeiten. Einem globalen Filter k&ouml;nnen sowohl einzelne Indikatoren und Georessourcen hinzugef&uuml;gt werden,
+								als auch ganze Indikatoren- und Georessourcen-Themen. &Uuml;ber die Kartenanwendung k&ouml;nnen diese Filter aktiviert werden, um nur einen Teil aller
+								verf&uuml;gbaren Indikatoren und Georessourcen zu laden.
+							</li>
+						</ul>
+					</li>
+				</ul>
+	
+			</div>
+		</div>
+
+	<!-- version info  -->
+	<div id="" class="box box-primary collapsed-box">
+		<div class="box-header with-border">
+			<h3 class="box-title">Neuerungen in KomMonitor V3.1.7/h3>
+			<div class="box-tools pull-right">
+				<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+				</button>
+			</div>
+		</div>
+		<div class="box-body">
+
+			<ul>
+				<li>
+					Anpassungen in der <b>Admin-Ansicht</b>
+					<ul>
+						<li>
+							<b>Fehler in Summen-Skript behoben</b>
+							<i>Betroffene Skripte m&uuml;ssen manuell von Ihnen neu konfiguriert werden (löschen und neu anlegen)</i>
+							
+						</li>
+					</ul>
+				</li>
+				<li>
+					Anpassungen in der <b>Kartenapp</b>
+					<ul>
+						<li>
+							<b>Bugfixes</b>
+							Fehlerbehebung in Reporting und Erreichbarkeitsanalysen
+						</li>
+					</ul>
+				</li>
+			</ul>
+
+		</div>
+	</div>
+
+	<!-- version info  -->
+	<div id="" class="box box-primary collapsed-box">
+		<div class="box-header with-border">
+			<h3 class="box-title">Neuerungen in KomMonitor V3.1.6</h3>
+			<div class="box-tools pull-right">
+				<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+				</button>
+			</div>
+		</div>
+		<div class="box-body">
+
+			<ul>
+				<li>
+					Anpassungen in der <b>Admin-Ansicht</b>
+					<ul>
+						<li>
+							<b>neuer Parameter zur Konfiguration der manuellen Klassifikation</b>
+							In den <i>Allgemeinen Einstellungen</i> dient der neue Parameter <code>window.__env.disableManualClassification = false;</code>
+							dazu, die Nutzbarkeit der manuellen Klassifkation zu kontrollieren. Die EInstellung <code>window.__env.disableManualClassification = true;</code>
+							bewirkt, dass in der Kartenanwendung in der Indikatoren-Legende am rechten Bildschirmrand bei der Konfiguration der Klassifikation eine 
+							manuelle Klasseneinteilung nicht mehr m&ouml;glich ist.
+							
+						</li>
+					</ul>
+				</li>
+				<li>
+					Anpassungen in der <b>Kartenapp</b>
+					<ul>
+						<li>
+							<b>Bugfixes</b>
+							Fehlerbehebung in Reporting und Erreichbarkeitsanalysen
+						</li>
+					</ul>
+				</li>
+			</ul>
+
+		</div>
+	</div>
+
+	<!-- version info  -->
+	<div id="" class="box box-primary collapsed-box">
+		<div class="box-header with-border">
+			<h3 class="box-title">Neuerungen in KomMonitor V3.1.5</h3>
+			<div class="box-tools pull-right">
+				<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+				</button>
+			</div>
+		</div>
+		<div class="box-body">
+
+			<ul>
+				<li>
+					Anpassungen in der <b>Admin-Ansicht</b>
+					<ul>
+						<li>
+							<b>Leerwerte-Handling in Skriptbasierten Indikatorenberechnungen angepasst</b>
+							Wenn bei der Indikatorenberechnung Eingangsdaten Leerwerte enthalten, so setzt KomMonitor als Ergebniswert nun ebenfalls den Leerwert.
+							<i>Betroffene Skripte müssen manuell von Ihnen neu konfiguriert werden (löschen und neu anlegen), sofern Ihre Daten Leerwerte enthalten.</i>
+							Betroffene Skripte/Berechnungen: Anteil, proz. Anteil, Promille, Summe, Subtraktion  
+
+						</li>
+					</ul>
+				</li>
+				<li>
+					Anpassungen in der <b>Kartenapp</b>
+					<ul>
+						<li>
+							<b>Verbessertes Handling von "0"-Werten bei Indikatoren</b>
+							In der Regionalen Standard-Klassifizierung kann jetzt die Zahl "0" als Klassengrenze hinterlegt werden, um sie im Farbschema mit aufzunehmen. 
+							Bei den Klassifikationsmethoden Jenks, Quantile und Gleiche Intervalle ist es weiterhin m&ouml;glich, Raumeinheiten mit dem Indikatorenwert "0" als separate Klasse darzustellen.  
+						</li>
+					</ul>
+				</li>
+			</ul>
+
+		</div>
+	</div>
 
 	<!-- version info  -->
 	<div id="" class="box box-primary collapsed-box">
@@ -1259,7 +1412,7 @@ window.__env.configMeanDataDisplay = 'preferRegionalMeanIfAvailable';
 					Anpassungen in der <b>Kartenapp</b>
 					<ul>
 						<li>
-							<b>Fehlerbehbung im Regressionsdiagramm</b>
+							<b>Fehlerbehebung im Regressionsdiagramm</b>
 							<br>
 							Haben Indikatoren auf der X- und Y-Achse des Regressionsdiagramms eine unterschiedliche
 							Anzahl darstellbarer Raumobjekte,
@@ -1291,7 +1444,7 @@ window.__env.configMeanDataDisplay = 'preferRegionalMeanIfAvailable';
 					Anpassungen in der <b>Admin-Ansicht</b>
 					<ul>
 						<li>
-							<b>Fehlerbehbung im Batch Update von Indikatoren und Georessourcen</b>
+							<b>Fehlerbehebung im Batch Update von Indikatoren und Georessourcen</b>
 							<br>
 							Datens&auml;tze via HTTP URL oder als INLINE PAYLOAD werden nun korrekt verarbeitet und
 							exportiert.
@@ -1316,7 +1469,7 @@ window.__env.configMeanDataDisplay = 'preferRegionalMeanIfAvailable';
 							verf&uuml;gbar sind)
 						</li>
 						<li>
-							<b>Fehlerbehbung bei Datenexporten, wenn die KomMonitor-URL einen Kontextpfad
+							<b>Fehlerbehebung bei Datenexporten, wenn die KomMonitor-URL einen Kontextpfad
 								enth&auml;lt</b>
 						</li>
 					</ul>

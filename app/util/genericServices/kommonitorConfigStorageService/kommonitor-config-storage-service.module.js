@@ -65,6 +65,35 @@ angular
         });  
       };
 
+      this.postFilterConfig = async function(jsonString){           
+	  
+        console.log("Trying to POST to config storage service to upload new filter config.");
+  
+        var formdata = new FormData();
+        formdata.append("appConfig", new Blob([jsonString], { type: "application/json"}));        
+    
+        return await $http({
+          url: __env.configStorageServerConfig.targetUrlToConfigStorageServer_filterConfig,
+          method: "POST",
+          data: formdata,
+          // must set header content-type to undefined in order to send as multipart-formdata
+          headers: {"Content-Type": undefined, "Accept": "text/plain" },
+          responseType: 'text'
+        }).then(function successCallback(response) {
+          // this callback will be called asynchronously
+          // when the response is available
+      
+          return response.data;
+      
+          }, function errorCallback(response) {
+          // called asynchronously if an error occurs
+          // or server returns response with an error status.
+          //$scope.error = response.statusText;
+          console.error("Error while posting to config storage service.");
+          throw response;
+        });  
+      };
+
       this.postAppConfig = async function(jsString){           
 	  
         console.log("Trying to POST to config storage service to upload new app config.");
@@ -117,6 +146,26 @@ angular
       this.getControlsConfig = async function(){
         return await $http({
           url: __env.configStorageServerConfig.targetUrlToConfigStorageServer_controlsConfig,
+          method: "GET",
+          responseType: 'json'
+        }).then(function successCallback(response) {
+          // this callback will be called asynchronously
+          // when the response is available
+      
+          return response.data;
+      
+          }, function errorCallback(response) {
+          // called asynchronously if an error occurs
+          // or server returns response with an error status.
+          //$scope.error = response.statusText;
+          console.error("Error while getting keycloak config from config storage service.");
+          throw response;
+        });  
+      };
+
+      this.getFilterConfig = async function(){
+        return await $http({
+          url: __env.configStorageServerConfig.targetUrlToConfigStorageServer_filterConfig,
           method: "GET",
           responseType: 'json'
         }).then(function successCallback(response) {

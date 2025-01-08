@@ -1173,7 +1173,7 @@ angular
                   self.topicIndicatorHierarchy_forOrderView = JSON.parse(JSON.stringify(self.topicIndicatorHierarchy));
                   self.buildComputationIndicatorHierarchy();
 
-                  self.buildTopicGeoresourceHierarchy();
+                  self.buildTopicGeoresourceHierarchy(filter);
 
                   console.log("Metadata fetched. Call initialize event.");
       						onMetadataLoadingCompleted();
@@ -1277,7 +1277,7 @@ angular
             return topicsMap;
           };
 
-          this.buildTopicGeoresourceHierarchy = function(){
+          this.buildTopicGeoresourceHierarchy = function(filter = undefined){
 
             var georesourceTopics = JSON.parse(JSON.stringify(this.availableTopics)).filter(topic => topic.topicResource === "georesource");
             /*
@@ -1343,10 +1343,12 @@ angular
             // PROCESS WMS and WFS
             for (const wmsMetadata of this.wmsDatasets_keywordFiltered) {
               if (topicsMap.has(wmsMetadata.topicReference)){
-                var georesourceDatasets = topicsMap.get(wmsMetadata.topicReference);                
-                georesourceDatasets.wmsDatasets.push(wmsMetadata);              
+                if(!filter || (filter && filter.georesourceTopics.includes(wmsMetadata.topicReference))) {
+                  var georesourceDatasets = topicsMap.get(wmsMetadata.topicReference);                
+                  georesourceDatasets.wmsDatasets.push(wmsMetadata);              
 
-                topicsMap.set(wmsMetadata.topicReference, georesourceDatasets);
+                  topicsMap.set(wmsMetadata.topicReference, georesourceDatasets);
+                }
               }
               else{
                 var georesourceDatasets_unmapped = topicsMap.get(this.georesourceMapKey_forUnmappedTopicReferences);
@@ -1360,10 +1362,12 @@ angular
             // PROCESS WMS and WFS
             for (const wfsMetadata of this.wfsDatasets_keywordFiltered) {
               if (topicsMap.has(wfsMetadata.topicReference)){
-                var georesourceDatasets = topicsMap.get(wfsMetadata.topicReference);                
-                georesourceDatasets.wfsDatasets.push(wfsMetadata);              
+                if(!filter || (filter && filter.georesourceTopics.includes(wfsMetadata.topicReference))) {
+                  var georesourceDatasets = topicsMap.get(wfsMetadata.topicReference);                
+                  georesourceDatasets.wfsDatasets.push(wfsMetadata);              
 
-                topicsMap.set(wfsMetadata.topicReference, georesourceDatasets);
+                  topicsMap.set(wfsMetadata.topicReference, georesourceDatasets);
+                }
               }
               else{
                 var georesourceDatasets_unmapped = topicsMap.get(this.georesourceMapKey_forUnmappedTopicReferences);

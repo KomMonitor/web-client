@@ -12,8 +12,7 @@ angular.module('kommonitorCacheHelper', []);
 angular
   .module('kommonitorCacheHelper', [])
   .service(
-    'kommonitorCacheHelperService', [
-    '$http', '__env', 'Auth',
+    'kommonitorCacheHelperService', ['$http', '__env', 'Auth',
     function ($http, __env, Auth) {
 
       this.lastDatabaseModificationInfo;
@@ -77,7 +76,7 @@ angular
         });
       };
 
-      this.fetchResource_fromCacheOrServer = async function (localStorageKey, resourceEndpoint, lastModificationResourceName, keycloakRolesArray) {
+      this.fetchResource_fromCacheOrServer = async function (localStorageKey, resourceEndpoint, lastModificationResourceName, keycloakRolesArray, filter) {
         // check if the last modification date within local storage is the same as on the server
 
         // if YES, then try to use data from cache
@@ -110,7 +109,7 @@ angular
 
         let lastModTimestamp_fromCache_string = localStorage.getItem(timestampKey);
 
-        if (lastModTimestamp_fromCache_string) {
+        if (lastModTimestamp_fromCache_string && !filter) {
           let lastModTimestamp_fromCache = JSON.parse(lastModTimestamp_fromCache_string);
 
           if (lastModTimestamp_fromCache) {
@@ -128,22 +127,42 @@ angular
           }
         }
 
-        // when code reaches this place we must overwrite/set timestamp and actual metadata
 
-        // persist last modification timestamp object as String in local storage
-        localStorage.setItem(timestampKey, JSON.stringify(this.lastDatabaseModificationInfo[lastModificationResourceName]));
+        if(filter) {
+          return await $http({
+            url: this.baseUrlToKomMonitorDataAPI + resourceEndpoint + '/filter',
+            method: "POST",
+            data: filter,
+            headers: {
+              'Content-Type': "application/json"
+            }
+          }).then(function successCallback(response) {
+            // this callback will be called asynchronously
+            // when the response is available
+  
+            return response.data;
+          });
+        } else {
+          // when code reaches this place we must overwrite/set timestamp and actual metadata
 
-        return await $http({
-          url: this.baseUrlToKomMonitorDataAPI + resourceEndpoint,
-          method: "GET"
-        }).then(function successCallback(response) {
-          // this callback will be called asynchronously
-          // when the response is available
+          // persist last modification timestamp object as String in local storage
+          localStorage.setItem(timestampKey, JSON.stringify(this.lastDatabaseModificationInfo[lastModificationResourceName]));
 
-          localStorage.setItem(metadataKey, JSON.stringify(response.data));
-
-          return response.data;
+          return await $http({
+            url: this.baseUrlToKomMonitorDataAPI + resourceEndpoint,
+            method: "GET"
+          }).then(function successCallback(response) {
+            // this callback will be called asynchronously
+            // when the response is available
+  
+            localStorage.setItem(metadataKey, JSON.stringify(response.data));
+  
+            return response.data;
+          }, function errorCallback(error) {
+            console.log("Unable to read OrgainzationalUnit data");
+            return [];
         });
+        }
       };
 
       this.fetchAccessControlMetadata = async function (keycloakRolesArray) {
@@ -158,12 +177,29 @@ angular
         return await this.fetchResource_fromCacheOrServer(localStorageKey_spatialUnits, spatialUnitsEndpoint, "spatial-units", keycloakRolesArray);
       };
 
-      this.fetchIndicatorsMetadata = async function (keycloakRolesArray) {
-        return await this.fetchResource_fromCacheOrServer(localStorageKey_indicators, indicatorsEndpoint, "indicators", keycloakRolesArray);
+      this.fetchIndicatorsMetadata = async function (keycloakRolesArray, filter) {
+        if (filter) {
+          const filterBody = {
+            topicIds: filter.indicatorTopics,
+            ids: filter.indicators
+          } 
+          return await this.fetchResource_fromCacheOrServer(localStorageKey_indicators, indicatorsEndpoint, "indicators", keycloakRolesArray, filterBody);
+        } else {
+          return await this.fetchResource_fromCacheOrServer(localStorageKey_indicators, indicatorsEndpoint, "indicators", keycloakRolesArray);
+        }
+        
       };
 
-      this.fetchGeoresourceMetadata = async function (keycloakRolesArray) {
-        return await this.fetchResource_fromCacheOrServer(localStorageKey_georesources, georesourcesEndpoint, "georesources", keycloakRolesArray);
+      this.fetchGeoresourceMetadata = async function (keycloakRolesArray, filter) {
+        if (filter) {
+          const filterBody = {
+            topicIds: filter.georesourceTopics,
+            ids: filter.georesources
+          } 
+          return await this.fetchResource_fromCacheOrServer(localStorageKey_georesources, georesourcesEndpoint, "georesources", keycloakRolesArray, filterBody);
+        } else {
+          return await this.fetchResource_fromCacheOrServer(localStorageKey_georesources, georesourcesEndpoint, "georesources", keycloakRolesArray);
+        }
       };
 
       this.fetchProcessScriptsMetadata = async function (keycloakRolesArray) {
