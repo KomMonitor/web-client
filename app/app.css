@@ -984,6 +984,11 @@ pre.CodeMirror-line {
 	z-index: 1003;
 }
 
+/* chrome might display feature Accessibility box on click ; see https://github.com/Leaflet/Leaflet/issues/8659 */
+.leaflet-container :focus:not(:focus-visible) {
+	outline: 0;
+  }
+
 .leaflet-container {
 	font-size: 12px !important;
 }
