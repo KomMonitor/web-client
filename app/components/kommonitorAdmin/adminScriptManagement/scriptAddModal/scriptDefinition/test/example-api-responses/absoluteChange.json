@@ -6,46 +6,33 @@
   "additionalParameters": {
     "parameters": [
       {
-        "name": "titleShort",
-        "value": "Veränderung absolut"
-      },
-      {
-        "name": "apiName",
-        "value": "indicator_change_absolute"
-      },
-      {
-        "name": "formula",
-        "value": "$ I_{N} - I_{M} $"
-      },
-      {
-        "name": "legend",
-        "value": "<br/>$N$ = Ziel-Zeitpunkt<br/>$M$ = Ziel-Zeitpunkt minus Anzahl Tage/Monate/Jahre "
-      },
-      {
-        "name": "dynamicLegend",
-        "value": "<br/> $A$: ${indicatorName} [ ${unit} ]<br/> $N$: Ziel-Zeitpunkt<br/> $M$: Ziel-Zeitpunkt minus ${number_of_temporal_items} ${temporal_type}"
-      },
-      {
-        "name": "inputBoxes",
-        "value": [
-          {
-            "id": "computation_id",
-            "title": "Notwendiger Basis-Indikator",
-            "description": "",
-            "contents": [
-              "computation_id"
-            ]
-          },
-          {
-            "id": "temporal_options",
-            "title": "Notwendiger zeitlicher Bezug",
-            "description": "",
-            "contents": [
-              "number_of_temporal_items",
-              "temporal_type"
-            ]
-          }
-        ]
+        "name": "kommonitorUiParams",
+        "value": {
+          "titleShort": "Veränderung absolut",
+          "apiName": "indicator_change_absolute",
+          "formula": "$ I_{N} - I_{M} $",
+          "legend": "<br/>$N$ = Ziel-Zeitpunkt<br/>$M$ = Ziel-Zeitpunkt minus Anzahl Tage/Monate/Jahre ",
+          "dynamicLegend": "<br/> $A$: ${indicatorName} [ ${unit} ]<br/> $N$: Ziel-Zeitpunkt<br/> $M$: Ziel-Zeitpunkt minus ${number_of_temporal_items} ${temporal_type}",
+          "inputBoxes": [
+            {
+              "id": "computation_id",
+              "title": "Notwendiger Basis-Indikator",
+              "description": "",
+              "contents": [
+                "computation_id"
+              ]
+            },
+            {
+              "id": "temporal_options",
+              "title": "Notwendiger zeitlicher Bezug",
+              "description": "",
+              "contents": [
+                "number_of_temporal_items",
+                "temporal_type"
+              ]
+            }
+          ]
+        }
       }
     ]
   },
