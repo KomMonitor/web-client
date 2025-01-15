@@ -50,17 +50,51 @@
     ]
   },
   "inputs": {
+    "target_indicator_id": {
+      "id": "target_indicator_id",
+      "schema": { 
+        "type": "string",
+        "default": null
+      }
+    },
+    "target_spatial_units": {
+      "id": "target_spatial_units",
+      "schema": { 
+        "type": "array",
+        "default": []
+      }
+    },
+    "target_time": {
+      "id": "target_time",
+      "schema": { 
+        "type": "object",
+        "default": {
+          "mode": "MISSING",
+          "includeDates" : [],
+          "excludeDates" : []
+        }
+      }
+    },
+    "execution_interval": {
+      "id": "execution_interval",
+      "schema": { 
+        "type": "object",
+        "default": {
+          "cron": "0 0 1 * *"
+        }
+      }
+    },
     "computation_id": {
       "id": "COMPUTATION_ID",
       "title": "Auswahl des für die Berechnung erforderlichen Basis-Indikators",
       "description": "Indikatoren-ID des Basisindikators.",
       "schema": { 
         "type": "string",
-        "default": "72b9b6ec-f4e0-4d58-a1b4-c49045532403"
+        "default": null
       }
     },
     "number_of_temporal_items": {
-      "id": "NUMBER_OF_TEMPORAL_ITEMS",
+      "id": "number_of_temporal_items",
       "title": "Anzahl",
       "description": "Anzahl der Zeiteinheiten. Standard ist '1'.",
       "schema": { 
@@ -71,7 +105,7 @@
       }
     },
     "temporal_type": {
-      "id": "TEMPORAL_TYPE",
+      "id": "temporal_type",
       "title": "Art des zeitlichen Bezugs",
       "description": "Angabe des Zeitbezug-Typs. Standard ist 'Jahre'.",
       "schema": { 
