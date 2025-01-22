@@ -3,6 +3,8 @@ import { Component, Input, OnChanges, OnInit, Renderer2, SimpleChanges, inject }
 import { NgbActiveModal, NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import { Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { ajskommonitorDataExchangeServiceeProvider } from "app-upgraded-providers";
+import { TestService } from "services/test.service";
 
 
 /* <div class="modal-header">
@@ -33,7 +35,7 @@ export class NgbdModalContent {
 
 @Component({
   selector: 'infoModal',
-  templateUrl: 'info-modal.template.html',
+  template: '',
   styleUrls: ['info-modal.component.css']
 })
 export class InfoModalComponent implements OnInit, OnChanges {
@@ -52,7 +54,8 @@ export class InfoModalComponent implements OnInit, OnChanges {
   constructor(
     private modalService: NgbModal, 
     private router: Router,
-    private renderer:Renderer2
+    private renderer:Renderer2,
+    private testService: TestService
 ) {
     // this.customGreetingsContact_name = this.sanitizer.bypassSecurityTrustHtml(''); 
     // this.customGreetingsContact_organisation = this.sanitizer.bypassSecurityTrustHtml(''); 
@@ -67,7 +70,7 @@ export class InfoModalComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-        
+        console.log(this.testService.testMethod());
         if(this.hero) {
                     
             const modalRef = this.modalService.open(NgbdModalContent, {windowClass: 'modal-holder', centered: true}); 
@@ -117,6 +120,7 @@ export class InfoModalComponent implements OnInit, OnChanges {
 
 
   dismissModal() {
+    this.hero = false;
     this.modalService.dismissAll();
   }
 

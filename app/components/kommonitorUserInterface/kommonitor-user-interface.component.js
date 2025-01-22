@@ -110,7 +110,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
             $scope.openInfoModal = function() {
                 console.log("wefrgh");
                 
-                $scope.hero = true;
+                $scope.hero++;
             }
 
 
