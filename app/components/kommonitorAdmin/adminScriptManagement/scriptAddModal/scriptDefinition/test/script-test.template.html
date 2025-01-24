@@ -3,15 +3,15 @@
 <p>{{$ctrl.kommonitorScriptHelperServiceInstance.scriptData.description}}</p>
 <p id="scriptFormulaExplanation" ng-model="$ctrl.kommonitorScriptHelperServiceInstance.scriptFormulaExplanation" ng-init="$ctrl.kommonitorScriptHelperServiceInstance.styleMathFormula_forExplanation('scriptFormulaExplanation')">
 	<b><i><u>Formel:</u></i></b>
-	<span mathjax-bind="$ctrl.kommonitorScriptHelperServiceInstance.scriptData.additionalParameters.parameters.formula"></span>
+	<span mathjax-bind="$ctrl.kommonitorScriptHelperServiceInstance.scriptData.additionalParameters.parameters.kommonitorUiParams.formula"></span>
 	<br/>
 	mit 
-	<span mathjax-bind="$ctrl.kommonitorScriptHelperServiceInstance.scriptData.additionalParameters.parameters.legend"></span>
+	<span mathjax-bind="$ctrl.kommonitorScriptHelperServiceInstance.scriptData.additionalParameters.parameters.kommonitorUiParams.legend"></span>
 </p>
 
 <div class="row vertical-align">
 	<div class="col-md-10 col-sm-12 col-xs-12">
-		<div ng-repeat="box in $ctrl.kommonitorScriptHelperServiceInstance.scriptData.additionalParameters.parameters.inputBoxes" class="input-box">
+		<div ng-repeat="box in $ctrl.kommonitorScriptHelperServiceInstance.scriptData.additionalParameters.parameters.kommonitorUiParams.inputBoxes" class="input-box">
 			<!-- <div style="text-align: left;"> -->
 			<div class="box box-danger collapsed-box" style="background: #ebf0fd;">
 				<div class="box-header">
@@ -26,8 +26,9 @@
 					<p>{{ box.description }}</p>
 
 					<ng-include ng-show="box.id == 'computation_id'" src="'components/kommonitorAdmin/adminScriptManagement/scriptAddModal/templates/computationIndicatorSelection.html'"></ng-include>
+					<ng-include ng-show="box.id == 'georesource_id'" src="'components/kommonitorAdmin/adminScriptManagement/scriptAddModal/templates/computationGeoresourceSelection.html'"></ng-include>
 
-					<div class="row vertical-align" ng-show="box.id != 'computation_id'">
+					<div class="row vertical-align" ng-show="!$ctrl.kommonitorScriptHelperServiceInstance.predefinedInputNames.includes(box.id)">
 					
 						<div ng-repeat="inputKey in box.contents" class="col-md-3 col-sm-3 col-xs-12">
 							<div class="form-group">
@@ -67,7 +68,7 @@
 
 <ng-include src="'components/kommonitorAdmin/adminScriptManagement/scriptAddModal/templates/scriptCodePreviewWindow.html'"></ng-include>
 
-<div class="row vertical-align" ng-show="!$ctrl.kommonitorScriptHelperServiceInstance.scriptData.additionalParameters.parameters.apiName.includes('generic')">
+<div class="row vertical-align" ng-show="!$ctrl.kommonitorScriptHelperServiceInstance.scriptData.additionalParameters.parameters.kommonitorUiParams.apiName.includes('generic')">
 	<div class="col-md-10 col-sm-12 col-xs-12">
 		<!-- <div style="text-align: left;"> -->
 		<div class="box box-info collapsed-box" style="background: #ebf0fd;">
@@ -95,7 +96,7 @@
 							<br/>
 							<textarea rows="4" ng-model="$ctrl.kommonitorScriptHelperServiceInstance.scriptFormulaHTML" ></textarea>
 						</div>
-						<div class="help-block" ng-show="$ctrl.kommonitorScriptHelperServiceInstance.scriptData.additionalParameters.parameters.apiName.includes('indicator_')">
+						<div class="help-block" ng-show="$ctrl.kommonitorScriptHelperServiceInstance.scriptData.additionalParameters.parameters.kommonitorUiParams.apiName.includes('indicator_')">
 							<p>Hinweis: KomMonitor nutzt <a target="_blank" rel="noopener noreferrer" href="https://www.mathjax.org/">MathJax und Tex-Syntax</a>, um Formeln darzustellen.
 								Gem&auml;&szlig; <a target="_blank" rel="noopener noreferrer" href="https://www.mathjax.org/#demo">MathJax Demo Seite</a> wird der Formel-Code von 
 								 <code>$$ ... $$</code> (Anzeige in neuer Zeile) oder <code>$ ... $</code> (Inline-Anzeige) Trennzeichen umschlossen.

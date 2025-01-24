@@ -139,8 +139,8 @@ angular.module('scriptTest').component('scriptTest', {
 					return;
 				}
 
-					var formulaHTML = "<b>Berechnung gem&auml;&szlig; Formel<br/> " + kommonitorScriptHelperService.scriptData.additionalParameters.parameters.formula;
-					var dynamicLegendStr = kommonitorScriptHelperService.scriptData.additionalParameters.parameters.dynamicLegend;
+					var formulaHTML = "<b>Berechnung gem&auml;&szlig; Formel<br/> " + kommonitorScriptHelperService.scriptData.additionalParameters.parameters.kommonitorUiParams.formula;
+					var dynamicLegendStr = kommonitorScriptHelperService.scriptData.additionalParameters.parameters.kommonitorUiParams.dynamicLegend;
 					var legendValues = structuredClone($scope.inputData);
 
 					// replace objects with displayName
