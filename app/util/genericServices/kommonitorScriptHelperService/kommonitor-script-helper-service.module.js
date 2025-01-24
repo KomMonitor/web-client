@@ -128,6 +128,30 @@ angular
 				}
 			];
 
+      this.predefinedInputNames = [
+        "computation_id",
+        "georesource_id",
+        "comp_filter",
+        "spatialUnitIds",
+        "executionInterval",
+        "associatedIndicatorId"
+      ];
+
+      this.targetTimeOptions = [
+        {
+          "apiName": "ALL",
+          "displayName": "Alle Zeitpunkte berechnen"
+        },
+        {
+          "apiName": "MISSING",
+          "displayName": "Fehlende Zeitpunkte berechnen"
+        },
+        {
+          "apiName": "DATES",
+          "displayName": "Zeitpunkte einzeln auswählen"
+        }
+      ];
+
       this.requiredIndicators_tmp = [];
       this.requiredGeoresources_tmp = [];
       this.requiredScriptParameters_tmp = [];

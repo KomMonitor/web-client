@@ -60,9 +60,10 @@
 							<div> 
 								<!-- progressbar -->
 								<ul id="progressbar">
-									<li style="width: 33.333%;" class="active">Einleitende Hinweise</li>
-									<li style="width: 33.333%;">Metadaten des Indikators-Skripts</li>
-									<li style="width: 33.333%;">Skriptinhalt und Parametrisierung</li>
+									<li style="width: 25%;" class="active">Einleitende Hinweise</li>
+									<li style="width: 25%;">Metadaten des Indikators-Skripts</li>
+									<li style="width: 25%;">Zielzeitpunkte und Ausführungszeit</li>
+									<li style="width: 25%;">Skriptinhalt und Parametrisierung</li>
 								</ul>
 							</div>							
 							<!-- fieldsets -->
@@ -192,7 +193,7 @@
 											<br />
 											<select ng-model="$ctrl.kommonitorScriptHelperServiceInstance.targetIndicator" size="5"
 												ng-options="indicatorMetadata as indicatorMetadata.indicatorName + ' [' + indicatorMetadata.unit + ']' for indicatorMetadata in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter: {creationType: 'COMPUTATION'} | filter:indicatorNameFilter"
-												class="form-control">
+												class="form-control" ng-change="resetApplicableDates()">
 												<option disabled selected value> -- Ziel-Indikator w&auml;hlen --
 												</option>
 											</select>
@@ -247,6 +248,88 @@
 
 										</div>
 										
+									</div>
+								</div>
+
+								<input type="button" name="previous"
+									class="previous previous_addScript action-button-previous"
+									value="Voriger Schritt" />
+
+								<input type="button" name="next" class="next next_addScript action-button"
+									value="N&auml;chster Schritt" />
+
+							</fieldset>
+
+							<fieldset>
+								<h2 class="fs-title">Zielzeitpunkte und Ausführungszeit</h2>
+								<h3 class="fs-subtitle">
+								</h3>
+								<p><b><i>* = Pflichtfeld</i></b></p>
+
+								<div class="row vertical-align">
+									<div class="form-group">
+										<label>Zeitpunkte, die berechnet werden sollen: </label>
+										<br />
+										<select ng-model="$ctrl.kommonitorScriptHelperServiceInstance.processParameters.targetTime.mode"
+											ng-options="targetTimeOption as targetTimeOption.displayName for targetTimeOption in $ctrl.kommonitorScriptHelperServiceInstance.targetTimeOptions"
+											ng-change="resetApplicableDates()">
+											<option disabled selected value> -- Zeitpunkte w&auml;hlen --
+											</option>
+										</select>
+										<div class="help-block with-errors"></div>
+									</div>
+								</div>
+
+								<div class="row vertical-align">
+									<div class="col-md-6 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<input id="notDates" type="checkbox"><label for="notDates">Nicht berechnen für: </label>
+											<ui-select width="max-content" multiple ng-model="$ctrl.kommonitorScriptHelperServiceInstance.processParameters.targetTime.excludeDates">
+												<ui-select-match placeholder="Daten auswählen">
+													{{$item}}
+												</ui-select-match>
+												<ui-select-choices repeat="date in applicableDates | filter: $select.search">
+														{{date}}
+												</ui-select-choices>
+											</ui-select>
+											<div class="help-block with-errors"></div>
+											<div class="help-block">
+												<p>Zeitpunkte, die von der Berechnung ausgeschlossen werden sollen</p>
+											</div>
+										</div>
+									</div>
+									<div class="col-md-6 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<input id="additionalDates" type="checkbox"><label for="additionalDates">Zusätzlich berechnen für: </label>
+											<ui-select width="max-content" multiple ng-model="$ctrl.kommonitorScriptHelperServiceInstance.processParameters.targetTime.includeDates">
+												<ui-select-match placeholder="Daten auswählen">
+													{{$item}}
+												</ui-select-match>
+												<ui-select-choices repeat="date in applicableDates | filter: $select.search">
+														{{date}}
+												</ui-select-choices>
+											</ui-select>
+											<div class="help-block with-errors"></div>
+											<div class="help-block">
+												<p>Zeitpunkte, die berechnet werden sollen, auch wenn sie bereits berechnet wurden</p>
+											</div>
+										</div>
+									</div>
+								</div>
+
+							</br><hr></br></br>
+
+								<div class="row vertical-align">
+									<div class="form-group">
+										<label>Ausführungsintervall </label>
+											<input type="text" class="form-control" ng-model="$ctrl.kommonitorScriptHelperServiceInstance.processParameters.execution_interval.cron"
+												placeholder="z.B. 0 0 1 * *" required></input>
+										<div class="help-block with-errors"></div>
+										<div class="help-block">
+											<p>Bitte ein Ausführungsintervall in einem Cron Ausdruck angeben
+												(-><a href="https://crontab.guru/" target="_blank">https://crontab.guru/</a>)
+											</p>
+										</div>
 									</div>
 								</div>
 
