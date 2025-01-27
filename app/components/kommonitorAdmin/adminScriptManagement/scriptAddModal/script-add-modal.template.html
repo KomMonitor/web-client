@@ -179,6 +179,8 @@
 
 								</div>
 
+								</br><hr></br></br>
+
 								<div class="row vertical-align">
 									<div class="col-md-6 col-sm-6 col-xs-12">
 										<div class="form-group">
@@ -193,7 +195,7 @@
 											<br />
 											<select ng-model="$ctrl.kommonitorScriptHelperServiceInstance.targetIndicator" size="5"
 												ng-options="indicatorMetadata as indicatorMetadata.indicatorName + ' [' + indicatorMetadata.unit + ']' for indicatorMetadata in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter: {creationType: 'COMPUTATION'} | filter:indicatorNameFilter"
-												class="form-control" ng-change="resetApplicableDates()">
+												class="form-control" ng-change="onTargetIndicatorChanged()">
 												<option disabled selected value> -- Ziel-Indikator w&auml;hlen --
 												</option>
 											</select>
@@ -248,6 +250,28 @@
 
 										</div>
 										
+									</div>
+								</div>
+
+								</br><hr></br></br>
+
+								<div class="row vertical-align">
+									<div class="col-md-6 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Raumeinheiten</label>
+											<ui-select width="max-content" multiple ng-model="$ctrl.kommonitorScriptHelperServiceInstance.processParameters.target_spatial_units">
+												<ui-select-match placeholder="Raumeinheiten auswählen">
+													{{$item.spatialUnitName}}
+												</ui-select-match>
+												<ui-select-choices repeat="spatialUnit.spatialUnitId as spatialUnit in applicableSpatialUnits | filter: $select.search">
+														{{spatialUnit.spatialUnitName}}
+												</ui-select-choices>
+											</ui-select>
+											<div class="help-block with-errors"></div>
+											<div class="help-block">
+												<p>Raumeinheiten, für die die Berechnung stattfinden soll</p>
+											</div>
+										</div>
 									</div>
 								</div>
 

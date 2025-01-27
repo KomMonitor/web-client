@@ -132,9 +132,10 @@ angular
         "computation_id",
         "georesource_id",
         "comp_filter",
-        "spatialUnitIds",
-        "executionInterval",
-        "associatedIndicatorId"
+        "target_spatial_units",
+        "execution_interval",
+        "target_time",
+        "target_indicator_id"
       ];
 
       this.targetTimeOptions = [
@@ -151,6 +152,8 @@ angular
           "displayName": "Zeitpunkte einzeln auswählen"
         }
       ];
+
+      this.processParameters = {};
 
       this.requiredIndicators_tmp = [];
       this.requiredGeoresources_tmp = [];
