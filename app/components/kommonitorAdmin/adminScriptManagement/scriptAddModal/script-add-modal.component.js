@@ -254,8 +254,10 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 
 			$scope.resetApplicableDates = function () {
 				$scope.applicableDates = kommonitorScriptHelperService.targetIndicator.applicableDates;
-				kommonitorScriptHelperService.processParameters.targetTime.excludeDates = [];
-				kommonitorScriptHelperService.processParameters.targetTime.includeDates = [];
+				if(kommonitorScriptHelperService.processParameters.target_time) {
+					kommonitorScriptHelperService.processParameters.target_time.value.excludeDates = [];
+					kommonitorScriptHelperService.processParameters.target_time.value.includeDates = [];
+				}
 			}
 
 			$scope.applicableDates = [];

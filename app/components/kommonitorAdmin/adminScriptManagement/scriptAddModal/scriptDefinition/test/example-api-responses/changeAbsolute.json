@@ -56,9 +56,11 @@
       "schema": { 
         "type": "object",
         "default": {
-          "mode": "MISSING",
-          "includeDates" : [],
-          "excludeDates" : []
+          "value":{
+            "mode": "MISSING",
+            "includeDates" : [],
+            "excludeDates" : []
+          }
         }
       }
     },
@@ -67,7 +69,9 @@
       "schema": { 
         "type": "object",
         "default": {
-          "cron": "0 0 1 * *"
+          "value": {
+            "cron": "0 0 1 * *"
+          }
         }
       }
     },

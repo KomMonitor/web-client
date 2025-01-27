@@ -3,14 +3,19 @@
   "processParameters": {
     "target_indicator_id" : "f436ccb2-866d-4ab8-928f-c1e831e05c3c",
     "target_time": {
-      "mode": "DATES", // "MISSING", "ALL", "DATES", "EXCLUDE"
-      "dates" : [ "2024-10-01", "2024-11-01"]
+      "value": {
+        "mode": "MISSING", // "MISSING", "ALL", "DATES"
+        "excludeDates" : [ "2024-10-01", "2024-11-01"],
+        "includeDates" : [ "2024-08-01", "2024-09-01"]
+      }
     },
     "target_spatial_units": [ 
       "b625c8aa-ecc0-4d26-9129-45beb0b6b299"
     ],
     "execution_interval": { 
-      "cron" : "0 1 8-14 * *"
+      "value": {
+        "cron" : "0 1 8-14 * *"
+      }
     },
     "number_of_temporal_items": 1,
     "temporal_type": "YEARS",

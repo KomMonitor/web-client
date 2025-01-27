@@ -294,7 +294,7 @@
 									<div class="form-group">
 										<label>Zeitpunkte, die berechnet werden sollen: </label>
 										<br />
-										<select ng-model="$ctrl.kommonitorScriptHelperServiceInstance.processParameters.targetTime.mode"
+										<select ng-model="$ctrl.kommonitorScriptHelperServiceInstance.processParameters.target_time.value.mode"
 											ng-options="targetTimeOption as targetTimeOption.displayName for targetTimeOption in $ctrl.kommonitorScriptHelperServiceInstance.targetTimeOptions"
 											ng-change="resetApplicableDates()">
 											<option disabled selected value> -- Zeitpunkte w&auml;hlen --
@@ -308,7 +308,7 @@
 									<div class="col-md-6 col-sm-6 col-xs-12">
 										<div class="form-group">
 											<input id="notDates" type="checkbox"><label for="notDates">Nicht berechnen für: </label>
-											<ui-select width="max-content" multiple ng-model="$ctrl.kommonitorScriptHelperServiceInstance.processParameters.targetTime.excludeDates">
+											<ui-select width="max-content" multiple ng-model="$ctrl.kommonitorScriptHelperServiceInstance.processParameters.target_time.value.excludeDates">
 												<ui-select-match placeholder="Daten auswählen">
 													{{$item}}
 												</ui-select-match>
@@ -325,7 +325,7 @@
 									<div class="col-md-6 col-sm-6 col-xs-12">
 										<div class="form-group">
 											<input id="additionalDates" type="checkbox"><label for="additionalDates">Zusätzlich berechnen für: </label>
-											<ui-select width="max-content" multiple ng-model="$ctrl.kommonitorScriptHelperServiceInstance.processParameters.targetTime.includeDates">
+											<ui-select width="max-content" multiple ng-model="$ctrl.kommonitorScriptHelperServiceInstance.processParameters.target_time.value.includeDates">
 												<ui-select-match placeholder="Daten auswählen">
 													{{$item}}
 												</ui-select-match>
@@ -346,7 +346,7 @@
 								<div class="row vertical-align">
 									<div class="form-group">
 										<label>Ausführungsintervall </label>
-											<input type="text" class="form-control" ng-model="$ctrl.kommonitorScriptHelperServiceInstance.processParameters.execution_interval.cron"
+											<input type="text" class="form-control" ng-model="$ctrl.kommonitorScriptHelperServiceInstance.processParameters.execution_interval.value.cron"
 												placeholder="z.B. 0 0 1 * *" required></input>
 										<div class="help-block with-errors"></div>
 										<div class="help-block">
