@@ -78,10 +78,11 @@ async function computeIndicator(targetDate, targetSpatialUnit_geoJSON, baseIndic
         var featureId = KmHelper.getSpatialUnitFeatureIdValue(feature);
         // get the time series value of the base indicator feature for the requested target date (with its required prefix!)
         var referenceValue = KmHelper.getIndicatorValue(feature, targetDate);
-        if (referenceValue === undefined || referenceValue === null) {
-            KmHelper.log("WARNING: the feature with featureID '" + featureId + "' does not contain a time series value for targetDate '" + targetDate + "'");
-            KmHelper.log("WARNING: process will return");
-            referenceValue = 0;
+
+        if(referenceValue === undefined || referenceValue === null){
+          KmHelper.log("WARNING: the feature with featureID '" + featureId + "' does not contain a time series value for targetDate '" + targetDate + "'");
+          KmHelper.log("WARNING: process will return");
+          referenceValue = null;
         }
         // modify map object (i.e. set value initially, or perform calculations and store modified value)
         // key should be unique featureId of the spatial unit feature
@@ -89,7 +90,7 @@ async function computeIndicator(targetDate, targetSpatialUnit_geoJSON, baseIndic
             var mapObject = {
                 featureId: featureId,
                 indicatorValue: undefined,
-                refValue: 0,
+                refValue: null,
                 intermediateValue: 0
             };
             map.set(featureId, mapObject);
@@ -97,48 +98,78 @@ async function computeIndicator(targetDate, targetSpatialUnit_geoJSON, baseIndic
         var mapEntry = map.get(featureId);
         mapEntry.refValue = referenceValue;
         map.set(featureId, mapEntry);
-    });
-    KmHelper.log("Process computation indicator");
-    /**
-    * iterate over each feature of the baseIndicator and use its indicator value to modify map object
-    * NOTE use spatialUnitFeatureId as key to be able to identify entries by their unique feature id!
-    */
-    computationGeoJSON_array.forEach(function (geoJSON) {
-        geoJSON.features.forEach(function (feature) {
-            // get the unique featureID of the spatial unit feature as String
-            var featureId = KmHelper.getSpatialUnitFeatureIdValue(feature);
-            // get the time series value of the base indicator feature for the requested target date (with its required prefix!)
-            var partValue = KmHelper.getIndicatorValue(feature, targetDate);
-            if (partValue === undefined || partValue === null) {
-                KmHelper.log("WARNING: the feature with featureID '" + featureId + "' does not contain a time series value for targetDate '" + targetDate + "'");
-                KmHelper.log("WARNING: the feature value will thus be set to '0' and computation will continue");
-                partValue = 0;
-            }
-            // modify map object (i.e. set value initially, or perform calculations and store modified value)
-            // key should be unique featureId of the spatial unit feature
-            if (!map.has(featureId)) {
-                KmHelper.log("Computation Indicator feature with id '" + featureId + "' was not computed from computation resources. Will set ref value to null.");
-                var mapObject = {
-                    featureId: featureId,
-                    indicatorValue: undefined,
-                    refValue: null,
-                    intermediateValue: 0
+        });		
+
+      KmHelper.log("Process computation indicator");
+
+      let containsNullValues = false;
+
+      /**
+      * iterate over each feature of the baseIndicator and use its indicator value to modify map object
+      * NOTE use spatialUnitFeatureId as key to be able to identify entries by their unique feature id!
+      */
+	  computationGeoJSON_array.forEach(function(geoJSON) {
+		
+		  geoJSON.features.forEach(function(feature) {
+
+        containsNullValues = false;
+
+			  // get the unique featureID of the spatial unit feature as String
+			  var featureId = KmHelper.getSpatialUnitFeatureIdValue(feature);
+			  // get the time series value of the base indicator feature for the requested target date (with its required prefix!)
+			  var partValue = KmHelper.getIndicatorValue(feature, targetDate);
+			  if(partValue === undefined || partValue === null){
+				  KmHelper.log("WARNING: the feature with featureID '" + featureId + "' does not contain a time series value for targetDate '" + targetDate + "'");
+				  KmHelper.log("WARNING: the feature value will thus be set to 'NULL' and computation will abort");
+				  partValue = null;
+          containsNullValues = true;
+				  }
+				  // modify map object (i.e. set value initially, or perform calculations and store modified value)
+          // key should be unique featureId of the spatial unit feature
+          
+          if (! map.has(featureId)){
+            KmHelper.log("Computation Indicator feature with id '" + featureId + "' was not computed from computation resources. Will set ref value to null.");				  
+            var mapObject = {
+                featureId: featureId,
+                indicatorValue: undefined,
+                refValue: null,
+				        intermediateValue: 0,
+                containsNullValues: containsNullValues
                 };
-                map.set(featureId, mapObject);
-            }
-            var mapEntry = map.get(featureId);
+ 
+            map.set(featureId, mapObject);    
+        }  
+
+				  var mapEntry = map.get(featureId);  
+				  if(containsNullValues){
+            mapEntry.containsNullValues = true;
+          }
+  
+          // only compute if there are values != null
+          if(!mapEntry.containsNullValues){
             mapEntry.intermediateValue = mapEntry.intermediateValue + partValue;
             map.set(featureId, mapEntry);
-        });
-    });
-    var numFeatures = targetSpatialUnit_geoJSON.features.length;
-    // now we compute the new indicator
-    KmHelper.log("Compute indicator for a total amount of " + numFeatures + " features");
-    // iterate once over target spatial unit features and compute indicator utilizing map entries
-    var spatialUnitIndex = 0;
-    // create progress log after each 10th percent of features
-    var logProgressIndexSeparator = Math.round(numFeatures / 100 * 10);
-    targetSpatialUnit_geoJSON.features.forEach(function (spatialUnitFeature) {
+          }
+          else{
+            mapEntry.intermediateValue = null;
+            mapEntry.partValue = null;
+            mapEntry.indicatorValue = null;
+            map.set(featureId, mapEntry);          
+          }
+				  });				 
+				  });
+      	
+      var numFeatures = targetSpatialUnit_geoJSON.features.length;
+
+      // now we compute the new indicator
+      KmHelper.log("Compute indicator for a total amount of " + numFeatures + " features");
+
+      // iterate once over target spatial unit features and compute indicator utilizing map entries
+      var spatialUnitIndex = 0;
+      // create progress log after each 10th percent of features
+      var logProgressIndexSeparator = Math.round(numFeatures / 100 * 10);
+      targetSpatialUnit_geoJSON.features.forEach(function(spatialUnitFeature) {
+
         // get spatialUnit feature id as string --> use it to get associated map entry
         var spatialUnitFeatureId = KmHelper.getSpatialUnitFeatureIdValue(spatialUnitFeature);
         if (!map.has(spatialUnitFeatureId)) {

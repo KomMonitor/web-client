@@ -19,7 +19,20 @@ module.exports = function (grunt) {
             'app/util/genericServices/kommonitorInfoLegendHelperService/kommonitor-info-legend-helper-service.module.js',
             'app/util/genericServices/kommonitorBatchUpdateHelperService/kommonitor-batch-update-helper-service.module.js',
             'app/util/genericServices/kommonitorFilterHelperService/kommonitor-filter-helper-service.module.js', 
-            'app/util/genericServices/kommonitorSingleFeatureMapHelperService/kommonitor-single-feature-map-helper-service.module.js',            
+            'app/util/genericServices/kommonitorGenericMapHelperService/kommonitor-generic-map-helper-service.module.js',
+            'app/util/genericServices/kommonitorSingleFeatureMapHelperService/kommonitor-single-feature-map-helper-service.module.js',
+            'app/util/genericServices/kommonitorReachabilityScenarioHelperService/kommonitor-reachability-scenario-helper-service.module.js',
+            'app/util/genericServices/kommonitorReachabilityMapHelperService/kommonitor-reachability-map-helper-service.module.js',
+            'app/util/genericServices/kommonitorReachabilityHelperService/kommonitor-reachability-helper-service.module.js',  
+            'app/util/genericServices/kommonitorSpatialDataProcessorHelperService/kommonitor-spatial-data-processor-helper-service.module.js',
+            'app/util/genericServices/kommonitorToastHelperService/kommonitor-toast-helper-service.module.js', 
+            'app/util/genericServices/kommonitorFileHelperService/kommonitor-file-helper-service.module.js',
+            'app/util/genericServices/kommonitorGeocoderHelperService/kommonitor-geocoder-helper-service.module.js',
+            'app/util/genericServices/kommonitorReachabilityCoverageReportsHelperService/kommonitor-reachability-coverage-reports-helper-service.module.js',
+            'app/components/common/singleFeatureEdit/single-feature-edit.module.js',
+            'app/components/common/singleFeatureEdit/single-feature-edit.component.js', 
+            'app/components/common/classificationMethodSelect/classification-method-select.module.js',
+            'app/components/common/classificationMethodSelect/classification-method-select.component.js',                     
             'app/components/kommonitorUserInterface/kommonitorControls/kommonitorDataSetup/kommonitor-data-setup.module.js',
             'app/components/kommonitorUserInterface/kommonitorControls/kommonitorDataSetup/kommonitor-data-setup.component.js',
             'app/components/kommonitorAdmin/adminDashboardManagement/admin-dashboard-management.module.js',
@@ -32,6 +45,8 @@ module.exports = function (grunt) {
             'app/components/kommonitorAdmin/adminRoleManagement/roleAddModal/role-add-modal.component.js',
             'app/components/kommonitorAdmin/adminRoleManagement/roleEditMetadataModal/role-edit-metadata-modal.module.js',
             'app/components/kommonitorAdmin/adminRoleManagement/roleEditMetadataModal/role-edit-metadata-modal.component.js',
+            'app/components/kommonitorAdmin/adminRoleManagement/roleEditGroupRightsModal/role-edit-group-rights-modal.module.js',
+            'app/components/kommonitorAdmin/adminRoleManagement/roleEditGroupRightsModal/role-edit-group-rights-modal.component.js',
             'app/components/kommonitorAdmin/adminRoleManagement/roleDeleteModal/role-delete-modal.module.js',
             'app/components/kommonitorAdmin/adminRoleManagement/roleDeleteModal/role-delete-modal.component.js',
             'app/components/kommonitorAdmin/adminTopicsManagement/admin-topics-management.module.js',
@@ -48,6 +63,8 @@ module.exports = function (grunt) {
             'app/components/kommonitorAdmin/adminSpatialUnitsManagement/spatialUnitEditMetadataModal/spatial-unit-edit-metadata-modal.component.js',
             'app/components/kommonitorAdmin/adminSpatialUnitsManagement/spatialUnitEditFeaturesModal/spatial-unit-edit-features-modal.module.js',
             'app/components/kommonitorAdmin/adminSpatialUnitsManagement/spatialUnitEditFeaturesModal/spatial-unit-edit-features-modal.component.js',
+            'app/components/kommonitorAdmin/adminSpatialUnitsManagement/spatialUnitEditUserRolesModal/spatial-unit-edit-user-roles-modal.module.js',
+            'app/components/kommonitorAdmin/adminSpatialUnitsManagement/spatialUnitEditUserRolesModal/spatial-unit-edit-user-roles-modal.component.js',
             'app/components/kommonitorAdmin/adminSpatialUnitsManagement/spatialUnitDeleteModal/spatial-unit-delete-modal.module.js',
             'app/components/kommonitorAdmin/adminSpatialUnitsManagement/spatialUnitDeleteModal/spatial-unit-delete-modal.component.js',
             'app/components/kommonitorAdmin/adminIndicatorsManagement/admin-indicators-management.module.js',
@@ -74,6 +91,8 @@ module.exports = function (grunt) {
             'app/components/kommonitorAdmin/adminGeoresourcesManagement/georesourceEditFeaturesModal/georesource-edit-features-modal.component.js',
             'app/components/kommonitorAdmin/adminGeoresourcesManagement/georesourceEditMetadataModal/georesource-edit-metadata-modal.module.js',
             'app/components/kommonitorAdmin/adminGeoresourcesManagement/georesourceEditMetadataModal/georesource-edit-metadata-modal.component.js',
+            'app/components/kommonitorAdmin/adminGeoresourcesManagement/georesourceEditUserRolesModal/georesource-edit-user-roles-modal.module.js',
+            'app/components/kommonitorAdmin/adminGeoresourcesManagement/georesourceEditUserRolesModal/georesource-edit-user-roles-modal.component.js',
             'app/components/kommonitorAdmin/adminGeoresourcesManagement/georesourceDeleteModal/georesource-delete-modal.module.js',
             'app/components/kommonitorAdmin/adminGeoresourcesManagement/georesourceDeleteModal/georesource-delete-modal.component.js',
             'app/components/kommonitorAdmin/adminMultiUseComponents/batchUpdateResultModal/batch-update-result-modal.module.js',
@@ -146,8 +165,18 @@ module.exports = function (grunt) {
             'app/components/kommonitorUserInterface/kommonitorControls/kommonitorFilter/kommonitor-filter.component.js',
             'app/components/kommonitorUserInterface/kommonitorControls/kommonitorBalance/kommonitor-balance.module.js',
             'app/components/kommonitorUserInterface/kommonitorControls/kommonitorBalance/kommonitor-balance.component.js',
+            'app/components/kommonitorUserInterface/kommonitorControls/kommonitorClassification/kommonitor-classification.module.js',
+            'app/components/kommonitorUserInterface/kommonitorControls/kommonitorClassification/kommonitor-classification.component.js',
             'app/components/kommonitorUserInterface/kommonitorControls/kommonitorLegend/kommonitor-legend.module.js',
             'app/components/kommonitorUserInterface/kommonitorControls/kommonitorLegend/kommonitor-legend.component.js',
+            'app/components/kommonitorUserInterface/kommonitorControls/kommonitorReachability/reachabilityScenarioModal/reachabilityIndicatorStatistics/reachability-indicator-statistics.module.js',
+            'app/components/kommonitorUserInterface/kommonitorControls/kommonitorReachability/reachabilityScenarioModal/reachabilityIndicatorStatistics/reachability-indicator-statistics.component.js',
+            'app/components/kommonitorUserInterface/kommonitorControls/kommonitorReachability/reachabilityScenarioModal/reachabilityScenarioConfiguration/reachability-scenario-configuration.module.js',  
+            'app/components/kommonitorUserInterface/kommonitorControls/kommonitorReachability/reachabilityScenarioModal/reachabilityScenarioConfiguration/reachability-scenario-configuration.component.js',
+            'app/components/kommonitorUserInterface/kommonitorControls/kommonitorReachability/reachabilityScenarioModal/reachabilityPoiInIso/reachability-poi-in-iso.module.js',
+            'app/components/kommonitorUserInterface/kommonitorControls/kommonitorReachability/reachabilityScenarioModal/reachabilityPoiInIso/reachability-poi-in-iso.component.js',
+            'app/components/kommonitorUserInterface/kommonitorControls/kommonitorReachability/reachabilityScenarioModal/reachability-scenario-modal.module.js',
+            'app/components/kommonitorUserInterface/kommonitorControls/kommonitorReachability/reachabilityScenarioModal/reachability-scenario-modal.component.js',
             'app/components/kommonitorUserInterface/kommonitorControls/kommonitorReachability/kommonitor-reachability.module.js',
             'app/components/kommonitorUserInterface/kommonitorControls/kommonitorReachability/kommonitor-reachability.component.js',
             'app/components/kommonitorUserInterface/kommonitorControls/poi/poi.module.js',
@@ -183,7 +212,10 @@ module.exports = function (grunt) {
             'app/app.js'
         ],
         kommonitor_styles: [
-            'app/app.css'
+            'app/app.css',
+            'app/components/kommonitorUserInterface/kommonitorControls/kommonitorLegend/kommonitor-legend.css',
+            'app/components/common/classificationMethodSelect/classification-method-select.css',  
+            'app/components/kommonitorUserInterface/kommonitorControls/kommonitorClassification/kommonitor-classification.css'
         ],
         copy_files: [
             //the path prefix 'app/' will be set in the copy-command itself! Thus is omitted here.
@@ -383,7 +415,35 @@ module.exports = function (grunt) {
                     }
                 ]
             }
+        },
+        // 'modules-graph': {
+        //     options: {
+        //         externalDependenciesColor:'red'
+        //     },
+        //     files: {
+        //         './dependency-graph.dot': ['app/app.js', 'app/util/**/*.js', 'app/components/**/*.js'],
+        //     },
+        // },
+        // graphviz: {
+        //     dependencies: {
+        //       files: {
+        //         'dependencies-graph.png': 'dependencies-graph.dot'
+        //       }
+        //     },
+        //   },
+        angular_architecture_graph: {
+            diagram: {
+                files: {
+                    "./dependencyGraph_adminApp": ['app/components/kommonitorAdmin/**/*.js'],  // admin app
+                    "./dependencyGraph_mapApp": ['app/components/kommonitorUserInterface/**/*.js'],   //  map app
+                    "./dependencyGraph_komMonitorMapComponent": ['app/components/kommonitorUserInterface/kommonitorMap/**/*.js']   //  map app
+                    // "architecture": [
+                    //     "<%= projectConfig.app %>/<%= projectConfig.project %>/**/*.js"
+                    // ]
+                }
+            }
         }
+        
     });
 
     // grunt.loadNpmTasks('grunt-contrib-uglify');
@@ -399,7 +459,13 @@ module.exports = function (grunt) {
 	grunt.loadNpmTasks('grunt-exec');
     grunt.loadNpmTasks('grunt-war');
     grunt.loadNpmTasks('grunt-babel');
+    grunt.loadNpmTasks('grunt-angular-modules-graph');
+    grunt.loadNpmTasks('grunt-graphviz');
 
+    grunt.loadNpmTasks('grunt-angular-architecture-graph');
+
+    // grunt.registerTask('generateDependenciesGraph', ['modules-graph', 'graphviz']);
+    grunt.registerTask('generateDependenciesGraph', ['angular_architecture_graph']);
     grunt.registerTask('test', ['jshint']);
     // grunt.registerTask('copy-all', ['copy:locals', 'copy:css', 'copy:fonts']);
     // grunt.registerTask('copy-css', ['copy:css']);

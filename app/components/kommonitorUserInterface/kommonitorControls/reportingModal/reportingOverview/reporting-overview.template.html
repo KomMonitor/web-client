@@ -8,18 +8,18 @@
         <div class="row">
             <div class="col-sm-3" id="reporting-overview-sidebar">
                 <div id="reporting-overwiew-indicators-wrapper">
-                    <button ng-show="config.template.name != 'A4-landscape-reachability'" id="reporting-configureIndicatorBtn"
+                    <button ng-show="!config.template.name.includes('-reachability')" id="reporting-configureIndicatorBtn"
                         class="btn btn-success" ng-click='onConfigureNewIndicatorClicked()'>
                         <i class="fa fa-plus"></i>
                         <span >&nbsp;&nbsp;Indikator konfigurieren</span>
                     </button>
-                    <button ng-show="config.template.name == 'A4-landscape-reachability'" id="reporting-configurePoiLayerrBtn"
+                    <button ng-show="config.template.name.includes('-reachability')" id="reporting-configurePoiLayerrBtn"
                         class="btn btn-success" ng-click='onConfigureNewPoiLayerClicked()'>
                         <i class="fa fa-plus"></i>
                         <span>&nbsp;&nbsp;POI-Layer konfigurieren</span>
                     </button>
-                    <h3 ng-show="config.template.name != 'A4-landscape-reachability'">Hinzugefügte Indikatoren</h3>
-                    <h3 ng-show="config.template.name == 'A4-landscape-reachability'">Hinzugefügte POI-Layer</h3>
+                    <h3 ng-show="!config.template.name.includes('-reachability')">Hinzugefügte Indikatoren</h3>
+                    <h3 ng-show="config.template.name.includes('-reachability')">Hinzugefügte POI-Layer</h3>
                     <p>Die Reihenfolge kann über Drag-and-Drop verändert werden.</p>
                     <div class="list-group" ng-sortable="sortableConfig">
 
@@ -27,8 +27,8 @@
                             <hr class="reporting-hr-divider">
                             <div class="row row-no-gutters reporting-added-templateSections-row">
                                 <div class="col-sm-11">
-                                    <b ng-show="config.template.name != 'A4-landscape-reachability'">{{section.indicatorName}}</b>
-                                    <b ng-show="config.template.name == 'A4-landscape-reachability'">{{section.poiLayerName}}</b>
+                                    <b ng-show="!config.template.name.includes('-reachability')">{{section.indicatorName}}</b>
+                                    <b ng-show="config.template.name.includes('-reachability')">{{section.poiLayerName}}</b>
                                 </div>
                                 <div class="col-sm-1 text-right">
                                     <i class="reporting-templateSection-delete-symbol align-middle fa fa-trash-alt"
@@ -47,8 +47,15 @@
                 </div>
                 <div class="row" style="margin:0">
                     <div id="reporting-overview-preview-area">
-                        <div ng-repeat="page in config.pages" ng-attr-class="reporting-page reporting-page-{{page.orientation}}""
+                        <div ng-repeat="page in config.pages" 
+                            ng-class="{hiddenPage: !showThisPage(page)}"
+                            ng-attr-class="reporting-page reporting-page-{{page.orientation}}""
                             ng-attr-id="reporting-overview-page-{{$index}}">
+                            <button class="orientationChangeBtn" 
+                                ng-if="!pageContainsDatatable($index) && !config.template.name.includes('-reachability')"
+                                ng-click="onPageTurnClicked(page.orientation, $index)">
+                                <img src="icons/swap.png" width="100%" height="100%"></img>
+                            </button>
                             <div ng-repeat="pageElement in page.pageElements"
                                 ng-attr-class="type-{{pageElement.type}}"
                                 ng-attr-id="reporting-overview-page-{{$parent.$index}}-{{pageElement.type}}"
@@ -57,7 +64,7 @@
                                     left: {{pageElement.dimensions.left}};
                                     width: {{pageElement.dimensions.width}};
                                     height: {{pageElement.dimensions.height}};
-                                    {{ pageElement.type != 'footerHorizontalSpacer-landscape' ? 'border: dashed gray 1px;' : pageElement.css }}
+                                    {{ !pageElement.type.includes('footerHorizontalSpacer-') ? 'border: dashed gray 1px;' : pageElement.css }}
                                     z-index: {{ pageElement.type == 'map' ? 20 : 1 }}">
                                 
                                 <span ng-show="pageElement.isPlaceholder == true"
@@ -65,12 +72,12 @@
                                     ng-bind-html="pageElement.placeholderText">
                                 </span>
                                 <!-- do different things depending on type once the placeholder is replaced (pageElement.isPlaceholder == false) -->
-                                <span ng-show="pageElement.type == 'pageNumber-landscape' && pageElement.isPlaceholder == false"
+                                <span ng-show="pageElement.type.includes('pageNumber-') && pageElement.isPlaceholder == false"
                                     ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
-                                    Seite {{$parent.$index+1}}
+                                    Seite {{getPageNumber($parent.$index)}}
                                 </span>
 
-                                <span ng-show="pageElement.type == 'footerCreationInfo-landscape' && pageElement.isPlaceholder == false"
+                                <span ng-show="pageElement.type.includes('footerCreationInfo-') && pageElement.isPlaceholder == false"
                                     ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
                                     {{pageElement.text}}
                                 </span>
@@ -80,25 +87,25 @@
                                     {{pageElement.text}}
                                 </span>
 
-                                <img ng-show="pageElement.type == 'communeLogo-landscape' && pageElement.isPlaceholder == false"
+                                <img ng-show="pageElement.type.includes('communeLogo-') && pageElement.isPlaceholder == false"
                                     ng-attr-src="{{pageElement.src}}">
 
-                                <span ng-show="pageElement.type == 'indicatorTitle-landscape' && pageElement.isPlaceholder == false"
+                                <span ng-show="pageElement.type.includes('indicatorTitle-') && pageElement.isPlaceholder == false"
                                     ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
                                     {{pageElement.text}}
                                 </span>
 
-                                <span ng-show="pageElement.type == 'dataTimestamp-landscape' && pageElement.isPlaceholder == false"
+                                <span ng-show="pageElement.type.includes('dataTimestamp-') && pageElement.isPlaceholder == false"
                                     ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
                                     {{pageElement.text}}
                                 </span>
 
-                                <span ng-show="pageElement.type == 'dataTimeseries-landscape' && pageElement.isPlaceholder == false"
+                                <span ng-show="pageElement.type.includes('dataTimeseries-') && pageElement.isPlaceholder == false"
                                     ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
                                     {{pageElement.text}}
                                 </span>
 
-                                <span ng-show="pageElement.type == 'reachability-subtitle-landscape' && pageElement.isPlaceholder == false"
+                                <span ng-show="pageElement.type.includes('reachability-subtitle-') && pageElement.isPlaceholder == false"
                                     ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
                                     {{pageElement.text}}
                                 </span>

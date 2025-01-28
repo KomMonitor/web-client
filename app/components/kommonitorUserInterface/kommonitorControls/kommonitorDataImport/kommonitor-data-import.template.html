@@ -1,137 +1,365 @@
 <div id="dataImport">
 
-	<div align="center">
-		<div class="loading-overlay-sidebar-small ng-hide" ng-show="loadingData">
-					<span class="glyphicon glyphicon-refresh icon-spin"></span>
-		</div>
-	</div>
-
 	<p></p>
+
+	<!-- IDEA: 
+
+				two separated menues for spatial data (point, line, area) and indicators (areas)
+				third submenu -> Geocoding from CSV/Excel -> make use of importer entries to create form
+
+
+			drag and drop any file into drop zone
+			try to auto guess it and understand format extension and/or coordinate system
+			use filename as layer name
+
+			maybe show guessed information
+
+			then create a workflow where file is uploaded to spatial data processor service and returned as WGS84 GeoJSON
+			-> job based mechanism. Hence display progress bar and status information per uploaded item
+
+			from the returned GeoJSON derive information about feature/geometry type and add layer into overview table(s) 
+			and make them available throughout the whole application
+			
+			keep required metainformation editable 
+
+			if CSV/Excel let user decide whether it is with coordinate colums (plus field for EPSG code) OR with address information
+			-> support both and 
+			
+			OR as third submenu -> Geocoding from CSV/Excel -> make use of importer entries to create form
 
 			
 
+		-->
 
-									<!-- CUSTOM DATA GEOJSON OR SHAPE -->
-										<div class="box box-primary">
-											<div class="box-header with-border">
-												<h3 class="box-title">Layer aus Datei importieren</h3>
 
-												<div class="box-tools pull-right">
-													<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+	<!-- CUSTOM DATA GEOJSON OR SHAPE -->
+	<div class="box box-primary">
+		<div class="box-header with-border">
+			<h3 class="box-title">Layer aus Datei importieren</h3>
+
+			<div class="box-tools pull-right">
+				<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+				</button>
+			</div>
+		</div>
+		<div class="box-body">
+
+			<div class="">
+
+				<div class="row vertical-align">
+					<div class="col-xs-8">
+						<div class="form-group">
+							<!-- DRAG/DROP Area to insert features from file  -->
+							<div class="drop_zone" droppable ng-click="openFileDialog()" drop="dropHandler(event);">
+								<input type="file" id="fileUploadInput" style="display: none"
+									accept=".json, .geojson, .zip, .csv" />
+								<i style="font-size:4em; margin:5px; " class="fas fa-file-upload"></i>
+								<h4 style="vertical-align: middle;  margin-bottom:10px;">GeoJSON (.json
+									oder .geojson) <br>Shapefile (ZIP-Archiv mit .shp, .dbf, ggf. .prj) <br>CSV (lat,
+									lon oder Adressbasiert)</h4>
+								<p style="vertical-align: middle;  margin-bottom:5px;">
+									Koordinatensystem muss WGS 84 sein (z.B. EPSG:4326)</p>
+							</div>
+						</div>
+					</div>
+					<div class="col-xs-2">
+						<div class="form-group">
+							<div class="form-group" align="center">
+								<label>Punktmarker-Farbe</label>
+								<div class="dropdown customColorPicker">
+									<button type="button" class="btn btn-info dropdown-toggle"
+										data-toggle="dropdown">
+										<!-- <i style="background: {{customFileInputMarkerColor.colorValue}};"></i> -->
+										<div
+											class="awesome-marker-legend awesome-marker-legend-icon-{{customFileInputMarkerColor.colorName}}">
+											<span
+												style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:white;"
+												class="glyphicon glyphicon-pushpin" aria-hidden="true"></span>
+											<span class="caret"></span>
+										</div>
+
+									</button>
+									<ul class="dropdown-menu dropdown-menu-center">
+										<li ng-repeat="markerColor in $ctrl.kommonitorDataExchangeServiceInstance.availablePoiMarkerColors | filter:{colorName:'!white'}"
+											ng-click="onChangeCustomMarkerColor(markerColor)">
+											<a href="">
+												<div
+													class="awesome-marker-legend awesome-marker-legend-icon-{{::markerColor.colorName}}">
+													<span
+														style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:white;"
+														class="glyphicon glyphicon-pushpin" aria-hidden="true"></span>
+												</div>
+											</a>
+
+										</li>
+									</ul>
+									<div class="help-block with-errors"></div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-xs-2">
+						<div class="form-group">
+							<div class="form-group" align="center">
+								<label>Linien- oder Fl&auml;chen-Farbe</label>
+								<div id="customFileInputColorDiv" class="input-group colorpicker-component">
+									<!-- <label>Darstellungsfarbe festlegen</label> -->
+									<input type="text" style="display:none;" class="form-control input-sm"
+										ng-model="customFileInputColor" value="#00AABB" placeholder="Darstellungsfarbe"
+										required />
+									<span title="Klicken, um die Farbe anzupassen" style="border: 1px solid #ccc;"
+										class="input-group-addon"><i></i></span>
+								</div>
+							</div>
+
+						</div>
+					</div>
+				</div>
+
+				<br />
+
+				<div ng-show="tmpKommonitorGeoresource_table.type == 'CSV'">
+
+					<hr>
+
+
+					<h4>CSV Datenquelle als Layer laden: <i>{{tmpKommonitorGeoresource_table.datasetName}}</i></h4>
+
+					<div class="row vertical-align">
+						<div class="col-xs-3">
+							<label>Import als</label>
+							<select style="font-size: 11px;" ng-model="tableProcessType"
+								ng-options="tableProcessType as tableProcessType.displayName for tableProcessType in tableProcessTypes"
+								ng-init="tableProcessType = tableProcessTypes[0]" class="form-control" required>
+							</select>
+						</div>
+						<div class="col-xs-3" ng-show="tableProcessType.apiName == 'latLon'">
+
+							<label>Spaltenname Longitude</label>
+							<select style="font-size: 11px; " ng-model="tmpKommonitorGeoresource_table.LON_ATTRIBUTE"
+								ng-options="property as property for property in tmpKommonitorGeoresource_table.featureSchema"
+								class="form-control" required>
+							</select>
+						</div>
+						<div class="col-xs-3" ng-show="tableProcessType.apiName == 'latLon'">
+
+							<label>Spaltenname Latitude</label>
+							<select style="font-size: 11px; " ng-model="tmpKommonitorGeoresource_table.LAT_ATTRIBUTE"
+								ng-options="property as property for property in tmpKommonitorGeoresource_table.featureSchema"
+								class="form-control" required>
+							</select>
+						</div>
+						<div class="col-xs-3" ng-show="tableProcessType.apiName == 'latLon'">
+
+							<button type="button" class="btn btn-success" ng-click="loadCSV_latLon()"><i
+									class="fa-solid fa-plus"></i>&nbsp;&nbsp;laden
+							</button>
+
+						</div>
+						<div class="col-xs-3" ng-show="tableProcessType.apiName == 'address'">
+
+							<label>Spaltenname Stadt</label>
+							<select style="font-size: 11px; " ng-model="tmpKommonitorGeoresource_table.CITY_ATTRIBUTE"
+								ng-options="property as property for property in tmpKommonitorGeoresource_table.featureSchema"
+								class="form-control" required>
+							</select>
+						</div>
+						<div class="col-xs-3" ng-show="tableProcessType.apiName == 'address'">
+
+							<label>Spaltenname Postleitzahl</label>
+							<select style="font-size: 11px; "
+								ng-model="tmpKommonitorGeoresource_table.POSTCODE_ATTRIBUTE"
+								ng-options="property as property for property in tmpKommonitorGeoresource_table.featureSchema"
+								class="form-control" required>
+							</select>
+						</div>
+						<div class="col-xs-3" ng-show="tableProcessType.apiName == 'address'">
+
+							<label>Spaltenname Strasse</label>
+							<select style="font-size: 11px; " ng-model="tmpKommonitorGeoresource_table.STREET_ATTRIBUTE"
+								ng-options="property as property for property in tmpKommonitorGeoresource_table.featureSchema"
+								class="form-control" required>
+							</select>
+						</div>
+						<div class="col-xs-3" ng-show="tableProcessType.apiName == 'address'">
+
+							<button type="button" class="btn btn-success"
+								ng-click="loadCSV_address_city_postcode_street()" ng-disabled="loadingData">
+								<i class="fa-solid fa-plus"></i>&nbsp;&nbsp;laden
+								<span class="glyphicon glyphicon-refresh icon-spin" ng-show="loadingData"></span>
+							</button>
+
+						</div>
+					</div>
+
+					<br>
+					<hr>
+					<br>
+					<br>
+
+				</div>
+
+				<div ng-show="$ctrl.kommonitorDataExchangeServiceInstance.fileDatasets.length > 0">
+					<h4>Geladene Datenlayer</h4>
+					<div class="input-group">
+						<span class="input-group-addon"><i class="fas fa-filter"></i></span>
+						<input type="text" class="form-control input-sm" placeholder="Stichwortfilter"
+							ng-model="fileNameFilter" ng-model-options="{debounce: 500, blur: 0}">
+					</div>
+
+					<br />
+
+					<div class="fileInputForm">
+
+						<table class="table table-condensed" style="margin-bottom:0px;">
+							<thead>
+								<tr>
+									<th>Dateiname</th>
+									<th>ID-Attribut</th>
+									<th>NAME-Attribut</th>
+									<th>Legende</th>
+								</tr>
+							</thead>
+
+							<tbody>
+
+								<tr
+									ng-repeat='dataset in $ctrl.kommonitorDataExchangeServiceInstance.fileDatasets | filter:fileNameFilter | orderBy:"datasetName"'>
+									<td>
+										<label class='checkbox-inline'><input type="checkbox"
+												value="dataset.datasetName" ng-model="dataset.isSelected"
+												ng-change="toggleDataLayer(dataset)">
+
+											<b ng-bind-html="dataset.datasetName"></b>
+										</label>
+										<br>
+										<div class="datasetButtonForm">
+											<i class="fa-solid fa-trash-can" style="cursor: pointer;" title="Entfernen"
+												ng-click="removeDataLayer(dataset)"></i>
+											&nbsp;&nbsp;
+											<i class="fa-solid fa-file-export" style="cursor: pointer;"
+												title="Download als GeoJSON" ng-click="downloadDataLayer(dataset)"></i>
+											&nbsp;&nbsp;
+											<i class="fa-solid fa-file-circle-check" style="cursor: pointer;"
+												title="Download nur der genauen geokodierten Daten als CSV"
+												ng-show="dataset.isGeocodedDataset"
+												ng-click="downloadGeocodedDataRowsAsGeoJSON_highAccuracy(dataset)"></i>
+											&nbsp;&nbsp;
+											<i class="fa-solid fa-file-circle-xmark" style="cursor: pointer;"
+												title="Download nicht geokodierter Datenzeilen als CSV"
+												ng-show="dataset.dataRows_notGeocoded.length > 0"
+												ng-click="downloadNonGeocodedDataRowsAsCSV(dataset)"></i>
+										</div>
+									</td>
+									<td>
+										<div>
+											<select style="font-size: 11px; width:135px; padding: 0px;"
+												ng-model="dataset.ID_ATTRIBUTE" ng-change="onChangeIdProperty(dataset)"
+												ng-options="property as property for property in dataset.featureSchema"
+												class="form-control" required>
+											</select>
+										</div>
+									</td>
+									<td>
+										<div>
+											<select style="font-size: 11px; width:135px; padding: 0px;"
+												ng-model="dataset.NAME_ATTRIBUTE"
+												ng-change="onChangeNameProperty(dataset)"
+												ng-options="property as property for property in dataset.featureSchema"
+												class="form-control" required>
+											</select>
+										</div>
+									</td>
+									<td>
+										<div ng-show="! dataset.isPOI">
+											<div class="input-group colorpicker-component">
+												<input type="text" style="display:none;" class="input-sm"
+													ng-model="dataset.displayColor"
+													ng-change="adjustFileLayerColor(dataset)"
+													placeholder="Darstellungsfarbe" required />
+												<span title="Klicken, um die Farbe anzupassen"
+													style="border: 1px solid #ccc;"
+													class="input-group-addon"><i></i></span>
+											</div>
+											<!-- value="{{dataset.displayColor}}" -->
+											<!-- <i style="background-color:{{dataset.displayColor}}; margin-left: 12px; width: 18px; height: 18px; float: left;"></i> -->
+										</div>
+										<div ng-show="dataset.isPOI">
+											<div align="center" ng-show="! dataset.isGeocodedDataset">
+												<!-- <div
+													class="awesome-marker-legend awesome-marker-legend-icon-{{::dataset.poiMarkerColor}}">
+													<span
+														style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:{{::dataset.poiSymbolColor}};"
+														class="glyphicon glyphicon-{{::dataset.poiSymbolBootstrap3Name}}"
+														aria-hidden="true"></span>
+												</div> -->
+												<div class="dropdown customColorPicker">
+
+													<button type="button" class="btn btn-info dropdown-toggle"
+														data-toggle="dropdown">
+														<div
+															class="awesome-marker-legend awesome-marker-legend-icon-{{dataset.poiMarkerColor}}">
+															<span
+																style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:white;"
+																class="glyphicon glyphicon-{{dataset.poiSymbolBootstrap3Name}}"
+																aria-hidden="true"></span>
+															<span class="caret"></span>
+														</div>
+
 													</button>
+													<ul class="dropdown-menu dropdown-menu-center">
+														<li ng-repeat="markerColor in $ctrl.kommonitorDataExchangeServiceInstance.availablePoiMarkerColors | filter:{colorName:'!white'}"
+															ng-click="adjustFileLayerMarkerColor(dataset, markerColor)">
+															<a href="">
+																<div
+																	class="awesome-marker-legend awesome-marker-legend-icon-{{::markerColor.colorName}}">
+																	<span
+																		style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:white;"
+																		class="glyphicon glyphicon-pushpin"></span>
+																</div>
+															</a>
+
+														</li>
+													</ul>
+													<div class="help-block with-errors"></div>
 												</div>
 											</div>
-											<div class="box-body">
-
-												<div class="" >
-<!--
-															<div align="center">
-																<p>Feature-Import aus lokalen Dateien. Gegenw&auml;rtig werden folgende Formate akzeptiert:</p>
-																<ul>
-																	<li>GeoJSON</li>
-																	<li>Shapefile (gezippt oder nur .SHP Datei)</li>
-																</ul>
-															</div> -->
-
-															<div id="fileSucessAlert" hidden class="alert alert-success">
-												                <!-- <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button> -->
-												                <h4><i class="icon fa fa-check"></i> Features aus Datei hinzugef&uuml;gt</h4>
-												                Es wurde eine neuer Kartenlayer <i>{{tmpDatasetName}}</i> erstellt.
-												      </div>
-
-															<div id="fileErrorAlert" hidden class="alert alert-danger ">
-												                <!-- <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button> -->
-												                <h4><i class="icon fa fa-check"></i> Fehler</h4>
-												                Es trat ein Fehler beim Verarbeiten der Datei <i>{{tmpDatasetName}}</i> auf. Fehlermeldung: <i>{{fileLayerError}}</i>
-												      </div>
-
-															<div class="row vertical-align">
-								                <div class="col-xs-10">
-																	<div class="form-group">
-																		<!-- DRAG/DROP Area to insert features from file  -->
-																		<div id="drop_zone" droppable ng-click="openFileDialog()" drop="dropHandler(event);">
-																			<input type="file" id="fileUploadInput" style="display: none" accept=".json, .geojson, .zip"/>
-																			<i style="font-size:4em; margin:5px; color: #d6d6d6;" class="fas fa-file-upload"></i>
-																			<h4 style="vertical-align: middle; color:#d6d6d6; margin-bottom:10px;">GeoJSON (.json oder .geojson) oder Shapefile (ZIP-Archiv mit .shp, .dbf, ggf. .prj)</h4>
-																			<p style="vertical-align: middle; color:#d6d6d6; margin-bottom:5px;">empfohlenes Koordinatensystem ist WGS 84 (EPSG:4326)</p>
-																		</div>
-																	</div>
-								                </div>
-								                <div class="col-xs-2">
-																	<div class="form-group">
-																		<div id="customFileInputColorDiv" class="input-group colorpicker-component">
-																				<!-- <label>Darstellungsfarbe festlegen</label> -->
-																				<input type="text" style="display:none;" class="form-control input-sm" ng-model="customFileInputColor" value="#00AABB" placeholder="Darstellungsfarbe"  required />
-																				<span title="Klicken, um die Farbe anzupassen" style="border: 1px solid #ccc;" class="input-group-addon"><i></i></span>
-																		</div>
-																	</div>
-								                </div>
-								              </div>
-
-															<br/>
-
-															<div ng-show="$ctrl.kommonitorDataExchangeServiceInstance.fileDatasets.length > 0">
-
-																<div class="input-group">
-																	<span class="input-group-addon"><i class="fas fa-filter"></i></span>
-																	<input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model="fileNameFilter" ng-model-options="{debounce: 500, blur: 0}">
-																</div>
-
-																<br/>
-
-																<div id="fileInputForm">
-
-																	<table class="table table-condensed" style="margin-bottom:0px;">
-																    <thead>
-																      <tr>
-																        <th>Dateiname</th>
-																				<th>Layer Transparenz</th>
-																				<th>Legende</th>
-																      </tr>
-																    </thead>
-
-																		<tbody>
-
-																			<tr ng-repeat='dataset in $ctrl.kommonitorDataExchangeServiceInstance.fileDatasets | filter:fileNameFilter | orderBy:"title"'>
-																				<td>
-																					<label class='checkbox-inline' ><input type="checkbox" value="dataset.title" ng-model="dataset.isSelected" ng-change="handleFileOnMap(dataset)">
-
-																						<b ng-bind-html="dataset.title"></b>
-																					</label>
-																				</td>
-																				<td>
-																					<div class="form-group" align="center">
-
-																						<input class=" input-sm" ng-model="dataset.transparency" ng-init="dataset.transparency=0" ng-change="adjustFileLayerTransparency(dataset)" type="range"  min="0" max="1" step="0.01">
-
-																						<br/>
-
-																						<label>{{dataset.transparency}}</label>
-																					</div>
-																				</td>
-																				<td>
-																					<div>
-																						<div class="input-group colorpicker-component">
-																						    <input type="text" style="display:none;" class="input-sm" ng-model="dataset.displayColor" ng-change="adjustFileLayerColor(dataset)" placeholder="Darstellungsfarbe"  required />
-																						    <span title="Klicken, um die Farbe anzupassen" style="border: 1px solid #ccc;" class="input-group-addon"><i></i></span>
-																						</div>
-																						<!-- value="{{dataset.displayColor}}" -->
-																						<!-- <i style="background-color:{{dataset.displayColor}}; margin-left: 12px; width: 18px; height: 18px; float: left;"></i> -->
-																					</div>
-																				</td>
-																			</tr>
-																		</tbody>
-																	</table>
-															</div>
-
-															</div>
-
+											<div align="center" ng-show="dataset.isGeocodedDataset">
+												hohe Genauigkeit
+												<div class="awesome-marker-legend awesome-marker-legend-icon-green">
+													<span
+														style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:{{::dataset.poiSymbolColor}};"
+														class="glyphicon glyphicon-{{::dataset.poiSymbolBootstrap3Name}}"
+														aria-hidden="true"></span>
 												</div>
 
-														</div>
-														<!-- /.box-body -->
-
+												<br>
+												<hr>
+												Niedrige Genauigkeit
+												<div
+													class="awesome-marker-legend awesome-marker-legend-icon-{{::dataset.poiMarkerColor}}">
+													<span
+														style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:{{::dataset.poiSymbolColor}};"
+														class="glyphicon glyphicon-{{::dataset.poiSymbolBootstrap3Name}}"
+														aria-hidden="true"></span>
 												</div>
-												<!-- /.box -->
+
+											</div>
+										</div>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+
+				</div>
+
+			</div>
+
+		</div>
+		<!-- /.box-body -->
+
+	</div>
+	<!-- /.box -->
 
 </div>

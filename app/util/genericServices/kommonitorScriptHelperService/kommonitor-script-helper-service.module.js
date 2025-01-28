@@ -137,9 +137,85 @@ angular
             this.scriptFormulaExplanation = undefined;
             this.targetIndicatorOldProcessDescription = undefined;
         };
-        this.addBaseIndicator = function (indicatorMetadata) {
-            if (!indicatorMetadata) {
-                return;
+				this.requiredScriptParameters_tmp.push(scriptParameter);
+      };
+
+      this.removeScriptParameter = function(scriptParameter){
+				for (let index = 0; index < this.requiredScriptParameters_tmp.length; index++) {
+				
+          if (this.requiredScriptParameters_tmp[index].name === scriptParameter.name){
+            // remove object
+            this.requiredScriptParameters_tmp.splice(index, 1);
+            break;
+          }
+        }	
+      };
+
+      this.removeScriptParameter_byName = function(scriptParameterName){
+				for (let index = 0; index < this.requiredScriptParameters_tmp.length; index++) {
+				
+          if (this.requiredScriptParameters_tmp[index].name === scriptParameterName){
+            // remove object
+            this.requiredScriptParameters_tmp.splice(index, 1);
+            break;
+          }
+        }	
+      };
+
+      this.prettifyScriptCodePreview = function(htmlDomElementId){
+
+        $timeout(function(){
+
+          $(htmlDomElementId).removeClass("prettyprinted");
+    
+          PR.prettyPrint();
+          
+        }, 250);
+
+      };
+
+      this.buildPatchBody_indicators = function(targetIndicatorMetadata){
+        var patchBody =
+          {
+            "metadata": {
+              "note": targetIndicatorMetadata.metadata.note || null,
+              "literature": targetIndicatorMetadata.metadata.literature || null,
+              "updateInterval": targetIndicatorMetadata.metadata.updateInterval,
+              "sridEPSG": targetIndicatorMetadata.metadata.sridEPSG || 4326,
+              "datasource": targetIndicatorMetadata.metadata.datasource,
+              "contact": targetIndicatorMetadata.metadata.contact,
+              "lastUpdate": targetIndicatorMetadata.metadata.lastUpdate,
+              "description": targetIndicatorMetadata.metadata.description || null,
+              "databasis": targetIndicatorMetadata.metadata.databasis || null
+            },
+            "refrencesToOtherIndicators": [], // filled directly after
+              "permissions": targetIndicatorMetadata.permissions,
+              "datasetName": targetIndicatorMetadata.indicatorName,
+              "abbreviation": targetIndicatorMetadata.abbreviation || null,
+              "characteristicValue": targetIndicatorMetadata.characteristicValue || null,
+              "tags": targetIndicatorMetadata.tags, 
+              "creationType": targetIndicatorMetadata.creationType,
+              "unit": targetIndicatorMetadata.unit,
+              "topicReference": targetIndicatorMetadata.topicReference,
+              "refrencesToGeoresources": [], // filled directly after
+              "indicatorType": targetIndicatorMetadata.indicatorType,
+              "interpretation": targetIndicatorMetadata.interpretation || "",
+              "isHeadlineIndicator": targetIndicatorMetadata.isHeadlineIndicator || false,
+              "processDescription": this.scriptFormulaHTML || targetIndicatorMetadata.processDescription,
+              "lowestSpatialUnitForComputation": targetIndicatorMetadata.lowestSpatialUnitForComputation,
+              "defaultClassificationMapping": targetIndicatorMetadata.defaultClassificationMapping
+          };
+
+          // REFERENCES
+
+          if(targetIndicatorMetadata.referencedIndicators && targetIndicatorMetadata.referencedIndicators.length > 0){
+            patchBody.refrencesToOtherIndicators = [];
+
+            for (const indicRef of targetIndicatorMetadata.referencedIndicators) {
+              patchBody.refrencesToOtherIndicators.push({
+                "indicatorId": indicRef.referencedIndicatorId,
+                "referenceDescription": indicRef.referencedIndicatorDescription
+              });
             }
             // for (const baseIndicator of this.requiredIndicators_tmp) {
             // 	if (baseIndicator.indicatorId === indicatorMetadata.indicatorId){

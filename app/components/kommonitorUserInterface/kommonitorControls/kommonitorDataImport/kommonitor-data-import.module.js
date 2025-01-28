@@ -1,14 +1,18 @@
-"use strict";
-angular.module('kommonitorDataImport', ['kommonitorDataExchange', 'kommonitorMap', 'ngSanitize']);
-angular.module('kommonitorDataImport').directive('droppable', ['$rootScope', function ($rootScope) {
-        return {
-            scope: {
-                drop: '&' // parent
-            },
-            link: function (scope, element) {
-                // again we need the native object
-                var el = element[0];
-                el.addEventListener('dragover', function (e) {
+angular.module('kommonitorDataImport', [ 'kommonitorDataExchange', 'kommonitorMap', 'ngSanitize', 
+'kommonitorToastHelper', 'kommonitorFileHelper', 'kommonitorGeocoderHelper']);
+
+angular.module('kommonitorDataImport').directive('droppable', ['$rootScope', function($rootScope) {
+    return {
+        scope: {
+            drop: '&' // parent
+        },
+        link: function(scope, element) {
+            // again we need the native object
+            var el = element[0];
+
+            el.addEventListener(
+                'dragover',
+                function(e) {
                     e.dataTransfer.dropEffect = 'move';
                     // allows us to drop
                     if (e.preventDefault)

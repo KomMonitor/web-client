@@ -39,17 +39,10 @@
 			 <div class="row">
 				<div class="col-md-12">
 
-					<form role="form" class="multiStepForm form-group" data-toggle="validator" style="margin-bottom: 0px;">
+					<form role="form" class="multiStepForm form-group" id="spatialUnitEditMetadataForm" data-toggle="validator" style="margin-bottom: 0px;">
 						
 						<!-- progressbar -->
-						<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity">
-							<ul id="progressbar">
-								<li style="width: 33.33%;" class="active">Metadaten der Raumeinheit</li>
-								<li style="width: 33.33%;">Allgemeine Metadaten</li>
-								<li style="width: 33.33%;">Rollenbasierter Zugriffsschutz</li>							
-							</ul>
-						</div>
-						<div ng-if="! $ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity">
+						<div >
 							<ul id="progressbar">
 								<li style="width: 50%;" class="active">Metadaten der Raumeinheit</li>
 								<li style="width: 50%;">Allgemeine Metadaten</li>						
@@ -111,6 +104,67 @@
 										<div class="help-block with-errors"></div>
 										<div ng-if="hierarchyInvalid" style="color: red;">
 											<p>Eingabe ung&uuml;ltig. Definierte Hierarchie ist nicht erlaubt.</p>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<div class="row vertical-align">
+								<div class="col-md-3 col-sm-6 col-xs-12">
+									<div class="form-group">
+										<label>als Umringslayer markieren?</label>
+										<label class="switch">
+											<input type="checkbox" value="isOutlineLayer" ng-model="isOutlineLayer">
+											<span class="switchslider round"></span>
+										</label>
+										<div class="help-block">
+											<p>wenn markiert, dann wird in der Kartenapplikation in der Layersteuerung ein entsprechender Eintrag zur Darstellung der Raumeinheitsumringe angeboten</p>
+										</div>
+									</div>
+								</div>
+								<div class="col-md-3 col-sm-6 col-xs-12" >
+									<div ng-show="isOutlineLayer" class="form-group" align="center">
+										<label>Linienfarbe (Umringslayer)</label>
+										<div id="outlineColorPicker_editSpatialUnit" class="input-group" style="width: 50px;">
+											<input type="text" style="display:none;" class="form-control input-sm"
+												ng-model="outlineColor" placeholder="Umringsfarbwahl"
+												value="#bf3d2c" />
+											<span title="Klicken, um die Farbe anzupassen"
+												style="border: 1px solid #ccc; width: 100%"
+												class="input-group-addon btn btn-info btn-sm"><i></i></span>
+										</div>
+										<div class="help-block with-errors"></div>
+
+									</div>
+								</div>
+								<div class="col-md-3 col-sm-6 col-xs-12" >
+									<div ng-show="isOutlineLayer" class="form-group" align="center">
+										<label>Linienbreite (Umringslayer)</label>
+										<br/>
+										<input style="width: auto;" type="number" ng-model="outlineWidth" min="1" max="5" step="1">
+										<div class="help-block with-errors"></div>
+									</div>
+								</div>
+								<div class="col-md-3 col-sm-6 col-xs-12" >
+									<div ng-show="isOutlineLayer" class="form-group" align="center">
+										<label>Linienmuster (Umringslayer)</label>
+										<div class="dropdown">
+											<button type="button" width="200px" class="btn btn-info dropdown-toggle"
+												data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+												<div id="outlineDashArrayDropdownButton_editSpatialUnit">
+
+												</div> <span class="caret"></span>
+											</button>
+											<ul class="dropdown-menu dropdown-menu-center">
+												<li ng-repeat="outlineDashArrayObject in $ctrl.kommonitorDataExchangeServiceInstance.availableLoiDashArrayObjects"
+													ng-click="onChangeOutlineDashArray(outlineDashArrayObject)">
+													<a href="">
+														<div id="outlineDashArrayDropdownItem-editMetadata-{{$index}}">
+														</div>
+													</a>
+												</li>
+											</ul>
+											<div class="help-block with-errors"></div>
 										</div>
 									</div>
 								</div>
@@ -206,28 +260,7 @@
 
 							
 							<input type="button" name="previous" class="previous previous_editSpatialUnit action-button-previous" value="Voriger Schritt"/>
-							<input type="button" name="next" class="next next_editSpatialUnit action-button" value="N&auml;chster Schritt" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity"/>
 						</fieldset>	
-
-							<fieldset ng-if="$ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity">
-								<h2 class="fs-title">Rollenbasierter Zugriffsschutz</h2>
-									<h3 class="fs-subtitle">Vergabe der Zugriffsrechte auf Datensatz-Metadaten und -Features pro Organisationseinheit</h3>
-		
-									<p>Zugriffsrechte (lesen, editieren, l&ouml;schen) m&uuml;ssen explizit vergeben werden. Administratoren (Rolle <i>kommonitor-creator</i>) haben immer vollen Zugriff.</p>
-							
-										<div class="row">
-											<div class="col-md-3"></div>
-											<div class="col-md-6 col-sm-6 col-xs-12">
-													<!-- <div id="georesourceAddRoleManagementTable" style="height: 40vh; overflow-y: auto;" class="ag-theme-alpine"></div>     -->
-													<div id="spatialUnitEditRoleManagementTable" style="height: 45vh" class="ag-theme-alpine"></div>  
-												
-											</div>
-											<div class="col-md-3"></div>
-										</div>	
-								
-								<input type="button" name="previous" class="previous previous_editSpatialUnit action-button-previous" value="Voriger Schritt"/>
-							</fieldset>
-						
 
 						</form>
 					
@@ -243,7 +276,7 @@
 				<button type="button" class="btn btn-info pull-left" ng-click="onImportSpatialUnitEditMetadata()" title="Importieren der Metadaten aus einer Datei"><i class="fas fa-file-import"></i>&nbsp;&nbsp;Metadaten-Import</button>
 				<input style="display:none;" class="pull-left" type="file" class="form-control" id="spatialUnitEditMetadataImportFile" accept=".json,"></input>
 				<button type="button" style="margin-left: 6px;" class="btn btn-info pull-left" ng-disabled="" ng-click="onExportSpatialUnitEditMetadata()" title="Exportieren der Metadaten in eine Datei"><i class="fas fa-file-export"></i>&nbsp;&nbsp;Metadaten-Export</button>
-				<button type="button" style="margin-left: 6px;" class="btn btn-info pull-left" ng-disabled="" ng-click="onExportSpatialUnitEditMetadataTemplate()" title="Exportieren einer Metadaten-Vorlage in eine Datei"><i class="fas fa-file-export"></i>&nbsp;&nbsp;Metadaten-Export Vorlage</button>
+				<!-- <button type="button" style="margin-left: 6px;" class="btn btn-info pull-left" ng-disabled="" ng-click="onExportSpatialUnitEditMetadataTemplate()" title="Exportieren einer Metadaten-Vorlage in eine Datei"><i class="fas fa-file-export"></i>&nbsp;&nbsp;Metadaten-Export Vorlage</button> -->
 				
 
 				<button type="button" class="btn btn-success" ng-disabled="!spatialUnitLevel || spatialUnitLevelInvalid || !metadata.description || !metadata.datasource || !metadata.contact || !metadata.updateInterval || !metadata.lastUpdate || hierarchyInvalid" ng-click="editSpatialUnitMetadata()">Metadaten aktualisieren</button>

@@ -32,7 +32,7 @@
 								<ul id="progressbar">
 									<li style="width: 25%;" class="active">Metadaten der Raumeinheit</li>
 									<li style="width: 25%;">Allgemeine Metadaten</li>
-									<li style="width: 25%;">Rollenbasierter Zugriffsschutz</li>
+									<li style="width: 25%;">Zugriffsschutz und Eigent&uuml;merschaft</li>
 									<li style="width: 25%;">R&auml;umlicher Datensatz</li>
 								</ul>
 							</div>
@@ -90,6 +90,67 @@
 											<div class="help-block with-errors"></div>
 											<div ng-if="hierarchyInvalid" style="color: red;">
 												<p>Eingabe ung&uuml;ltig. Definierte Hierarchie ist nicht erlaubt.</p>
+											</div>
+										</div>
+									</div>
+								</div>
+
+								<div class="row vertical-align">
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>als Umringslayer markieren?</label>
+											<label class="switch">
+												<input type="checkbox" value="isOutlineLayer" ng-model="isOutlineLayer">
+												<span class="switchslider round"></span>
+											</label>
+											<div class="help-block">
+												<p>wenn markiert, dann wird in der Kartenapplikation in der Layersteuerung ein entsprechender Eintrag zur Darstellung der Raumeinheitsumringe angeboten</p>
+											</div>
+										</div>
+									</div>
+									<div class="col-md-3 col-sm-6 col-xs-12" >
+										<div ng-show="isOutlineLayer" class="form-group" align="center">
+											<label>Linienfarbe (Umringslayer)</label>
+											<div id="outlineColorPicker" class="input-group" style="width: 50px;">
+												<input type="text" style="display:none;" class="form-control input-sm"
+													ng-model="loiColor" placeholder="Line of Interest Farbauswahl"
+													value="#bf3d2c" />
+												<span title="Klicken, um die Farbe anzupassen"
+													style="border: 1px solid #ccc; width: 100%"
+													class="input-group-addon btn btn-info btn-sm"><i></i></span>
+											</div>
+											<div class="help-block with-errors"></div>
+
+										</div>
+									</div>
+									<div class="col-md-3 col-sm-6 col-xs-12" >
+										<div ng-show="isOutlineLayer" class="form-group" align="center">
+											<label>Linienbreite (Umringslayer)</label>
+											<br/>
+											<input style="width: auto;" type="number" ng-model="outlineWidth" min="1" max="5" step="1">
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+									<div class="col-md-3 col-sm-6 col-xs-12" >
+										<div ng-show="isOutlineLayer" class="form-group" align="center">
+											<label>Linienmuster (Umringslayer)</label>
+											<div class="dropdown">
+												<button type="button" width="200px" class="btn btn-info dropdown-toggle"
+													data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+													<div id="outlineDashArrayDropdownButton_addSpatialUnit">
+
+													</div> <span class="caret"></span>
+												</button>
+												<ul class="dropdown-menu dropdown-menu-center">
+													<li ng-repeat="outlineDashArrayObject in $ctrl.kommonitorDataExchangeServiceInstance.availableLoiDashArrayObjects"
+														ng-click="onChangeOutlineDashArray(outlineDashArrayObject)">
+														<a href="">
+															<div id="outlineDashArrayDropdownItem-{{$index}}">
+															</div>
+														</a>
+													</li>
+												</ul>
+												<div class="help-block with-errors"></div>
 											</div>
 										</div>
 									</div>
@@ -187,20 +248,66 @@
 							</fieldset>
 							
 								<fieldset ng-if="$ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity">
-									<h2 class="fs-title">Rollenbasierter Zugriffsschutz</h2>
+									<h2 class="fs-title">Zugriffsschutz und Eigent&uuml;merschaft</h2>
 									<h3 class="fs-subtitle">Vergabe der Zugriffsrechte auf Datensatz-Metadaten und -Features pro Organisationseinheit</h3>
-		
-									<p>Zugriffsrechte (lesen, editieren, l&ouml;schen) m&uuml;ssen explizit vergeben werden. Administratoren (Rolle <i>kommonitor-creator</i>) haben immer vollen Zugriff.</p>
-							
-										<div class="row">
-											<div class="col-md-3"></div>
+									<div class="row" >
+										<div class="col-md-3"></div>
+										<div class="col-md-6 col-sm-6 col-xs-12">
+											<div class="alert alert-info">
+												Bitte w&auml;hlen Sie zun&auml;chnst die Organisationseinheit aus, unter welcher Sie den Datensatz anlegen m&ouml;chten
+											</div>
+											<label for="addSpatialUnitUserRoleSelect">Eigent&uuml;mer-Organisationseinheit*</label>
+											<div class="input-group">
+												<span class="input-group-addon"><i class="fas fa-filter"></i></span>
+												<input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model="ownerOrgFilter" ng-model-options="{debounce: 500, blur: 0}">
+											</div>
+											<select ng-if="$ctrl.kommonitorDataExchangeServiceInstance.checkAdminPermission()" id="addSpatialUnitUserRoleSelect" ng-model="ownerOrganization" class="form-control" ng-change="onChangeOwner(ownerOrganization)" required>
+												<option ng-repeat="org in $ctrl.kommonitorDataExchangeServiceInstance.accessControl | filter:ownerOrgFilter" value="{{org.organizationalUnitId}}">{{org.name}}</option>
+											</select>		
+											<select ng-if="!$ctrl.kommonitorDataExchangeServiceInstance.checkAdminPermission()" id="addSpatialUnitUserRoleSelect" ng-model="ownerOrganization" class="form-control" ng-change="onChangeOwner(ownerOrganization)" required>
+												<option ng-repeat="org in resourcesCreatorRights | filter:ownerOrgFilter" value="{{org.organizationalUnitId}}">{{org.name}}</option>
+											</select>		
+											<p></p>
+										</div>
+										<div class="col-md-3"></div>
+									</div>	
+
+									<br>
+									<hr>
+                                                                        <br>
+
+									<div id="spatialUnitRoleForm">
+										
+										<label>Datensatz-Freigaben</label>
+										<div class="row vertical-align">
+											<div class="col-md-3">
+												<label>&Ouml;ffentliche Lesefreigabe*</label>
+													<label class="switch">
+														<input type="checkbox" ng-model="isPublic" ng-change="onChangeIsPublic(isPublic)">
+														<span class="switchslider round"></span>
+													</label>
+													<div class="help-block">
+														<p>
+															&Ouml;ffentlich freigegebene Datens&auml;tze k&ouml;nnen ohne Login abgerufen werden.
+														</p>
+													</div>
+											</div>
 											<div class="col-md-6 col-sm-6 col-xs-12">
-													<!-- <div id="georesourceAddRoleManagementTable" style="height: 40vh; overflow-y: auto;" class="ag-theme-alpine"></div>     -->
+													<!-- <div id="spatialUnitAddRoleManagementTable" style="height: 40vh; overflow-y: auto;" class="ag-theme-alpine"></div>     -->
 													<div id="spatialUnitAddRoleManagementTable" style="height: 45vh" class="ag-theme-alpine"></div>  
 												
 											</div>
-											<div class="col-md-3"></div>
+											<div class="col-md-3">
+												<div class="alert alert-info">
+													Als Eigent&uuml;mer-Organisation des Datensatzes k&ouml;nnen Sie Lese- und Editier-Rechte an die eigene und weitere Organisationseinheiten vergeben. 
+												</div>
+												<br/>
+												<div class="alert alert-warning">
+													Lese- und Editierrechte wurden f&uuml;r die von Ihnen selektierte Eigent&uuml;mer-Organisationseinheit markiert. 
+												</div>
+											</div>
 										</div>	
+									</div>
 									
 									<input type="button" name="previous" class="previous previous_addSpatialUnit action-button-previous" value="Voriger Schritt"/>
 									<input type="button" name="next" class="next next_addSpatialUnit action-button" value="N&auml;chster Schritt"/>
@@ -280,23 +387,65 @@
 												<div class="form-group">
 													<label>Datenquelltyp*</label>
 													<select ng-model="datasourceType"
-														ng-options="datasourceType as datasourceType.type for datasourceType in $ctrl.kommonitorImporterHelperServiceInstance.availableDatasourceTypes"
-														class="form-control" required>
+															ng-options="datasourceType as datasourceType.type for datasourceType in availableDatasourceTypes track by datasourceType.type"
+															ng-change="onChangeDatasourceType(datasourceType)"
+															class="form-control" required>
 														<option disabled selected value> -- Quelltyp w&auml;hlen -- </option>
 													</select>
-													<div class="help-block with-errors"></div>
+													<div class="help-block"></div>
 												</div>
 
 												<div ng-show="datasourceType.type === 'FILE'">
 													<label>Datei*</label>
 													<input type="file" class="form-control" id="spatialUnitDataSourceInput" required></input>
 												</div>
+												<div ng-show="(datasourceType.type === 'OGCAPI_FEATURES')">
+													<label>Räumlicher Filter*</label>
+													<select id="datasourceTypeParameter_spatialUnitAdd_bboxType" ng-model="bboxType" class="form-control" required>
+														<option disabled selected value> -- Filter w&auml;hlen -- </option>
+														<option value="ref"> Referenzraumeinheit </option>
+														<option value="literal"> Manueller Begrenzungsrahmen </option>
+													</select>
+
+													<div ng-show="bboxType == 'ref'">
+														<!-- select available spatialUnits -->
+														<select id="datasourceTypeParameter_spatialUnitAdd_bboxRef"
+																ng-model="bboxRefSpatialUnit"
+																ng-options="spatialUnit.spatialUnitLevel for spatialUnit in availableSpatialUnits track by spatialUnit.spatialUnitId"
+																class="form-control" ng-required="bboxType == 'ref'">
+															<option disabled selected value> -- Raumeinheit w&auml;hlen -- </option>
+														</select>
+														<div class="help-block">
+															<p>Raumeinheit aus welchem ein umschließendes Rechteck extrahiert wird</p>
+														</div>
+													</div>
+													<div ng-show="bboxType == 'literal'">
+														<label>Begrenzungsrahmen*</label>
+														<input id="datasourceTypeParameter_spatialUnitAdd_bbox_minx" class="form-control" type="number" lang="us" placeholder="-180" ng-required="bboxType == 'literal'">
+														<div class="help-block">
+															<p>Minimale x-Koordinate</p>
+														</div>
+														<input id="datasourceTypeParameter_spatialUnitAdd_bbox_miny" class="form-control" type="number" lang="us" placeholder="-90" ng-required="bboxType == 'literal'">
+														<div class="help-block">
+															<p>Minimale y-Koordinate</p>
+														</div>
+														<input id="datasourceTypeParameter_spatialUnitAdd_bbox_maxx" class="form-control" type="number" lang="us" placeholder="180" ng-required="bboxType == 'literal'">
+														<div class="help-block">
+															<p>Maximale x-Koordinate</p>
+														</div>
+														<input id="datasourceTypeParameter_spatialUnitAdd_bbox_maxy" class="form-control" type="number" lang="us" placeholder="90" ng-required="bboxType == 'literal'">
+														<div class="help-block">
+															<p>Maximale y-Koordinate</p>
+														</div>
+													</div>
+												</div>
 												<div ng-show="! (datasourceType.type === 'FILE')">
-													<div ng-repeat="parameter in datasourceType.parameters">
+													<div ng-repeat="parameter in datasourceType.parameters | filter: { name: '!bbox' } ">
 														<div class="form-group">
-															<label>{{parameter.name}}*</label>
+															<label ng-if="parameter.mandatory">{{parameter.name}}*</label>
+															<label ng-if="!parameter.mandatory">{{parameter.name}}</label>
 															<textarea rows="1" id="datasourceTypeParameter_spatialUnitAdd_{{parameter.name}}"
-																class="form-control" placeholder="{{parameter.name}}" required></textarea>
+																	  class="form-control" placeholder="{{parameter.name}}" ng-required="parameter.mandatory"></textarea>
 															<div class="help-block">
 																<p>{{parameter.description}}</p>
 															</div>
@@ -526,11 +675,11 @@
 				<button type="button" class="btn btn-info pull-left" ng-click="onImportSpatialUnitAddMetadata()" title="Importieren der Metadaten aus einer Datei"><i class="fas fa-file-import"></i>&nbsp;&nbsp;Metadaten-Import</button>
 				<input style="display:none;" class="pull-left" type="file" class="form-control" id="spatialUnitMetadataImportFile" accept=".json,"></input>
 				<button type="button" style="margin-left: 6px;" class="btn btn-info pull-left" ng-disabled="" ng-click="onExportSpatialUnitAddMetadata()" title="Exportieren der Metadaten in eine Datei"><i class="fas fa-file-export"></i>&nbsp;&nbsp;Metadaten-Export</button>
-				<button type="button" style="margin-left: 6px;" class="btn btn-info pull-left" ng-disabled="" ng-click="onExportSpatialUnitAddMetadataTemplate()" title="Exportieren einer Metadaten-Vorlage in eine Datei"><i class="fas fa-file-export"></i>&nbsp;&nbsp;Metadaten-Export Vorlage</button>
+				<!-- <button type="button" style="margin-left: 6px;" class="btn btn-info pull-left" ng-disabled="" ng-click="onExportSpatialUnitAddMetadataTemplate()" title="Exportieren einer Metadaten-Vorlage in eine Datei"><i class="fas fa-file-export"></i>&nbsp;&nbsp;Metadaten-Export Vorlage</button> -->
 				
 
 				
-				<button type="button" class="btn btn-success" type="submit" ng-click="addSpatialUnit()" ng-disabled="!spatialUnitLevel || !metadata.description || !metadata.datasource || !metadata.contact || !metadata.updateInterval || !metadata.lastUpdate || !spatialUnitDataSourceIdProperty || !spatialUnitDataSourceNameProperty || !periodOfValidity.startDate || spatialUnitLevelInvalid || periodOfValidityInvalid || hierarchyInvalid || !converter || !datasourceType">Raumeinheit registrieren</button>
+				<button type="button" class="btn btn-success" type="submit" ng-click="addSpatialUnit()" ng-disabled="!spatialUnitLevel || !metadata.description || !metadata.datasource || !metadata.contact || !metadata.updateInterval || !metadata.lastUpdate || !spatialUnitDataSourceIdProperty || !spatialUnitDataSourceNameProperty || !periodOfValidity.startDate || spatialUnitLevelInvalid || periodOfValidityInvalid || hierarchyInvalid || !converter || !datasourceType || !ownerOrganization">Raumeinheit registrieren</button>
 				<button type="button" class="btn btn-danger" ng-click="resetSpatialUnitAddForm()">Zur&uuml;cksetzen</button>
 			</div>
 

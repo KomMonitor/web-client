@@ -74,22 +74,24 @@ async function computeIndicator(targetDate, targetSpatialUnit_geoJSON, baseIndic
         var featureId = KmHelper.getSpatialUnitFeatureIdValue(feature);
         // get the time series value of the base indicator feature for the requested target date (with its required prefix!)
         var numeratorValue = KmHelper.getIndicatorValue(feature, targetDate);
-        if (numeratorValue === undefined || numeratorValue === null) {
-            KmHelper.log("WARNING: the feature with featureID '" + featureId + "' does not contain a time series value for targetDate '" + targetDate + "'");
-            KmHelper.log("WARNING: the feature value will thus be set to '0' and computation will continue");
-            numeratorValue = 0;
-        }
-        // modify map object (i.e. set value initially, or perform calculations and store modified value)
+		
+		if(numeratorValue === undefined || numeratorValue === null){
+			KmHelper.log("WARNING: the feature with featureID '" + featureId + "' does not contain a time series value for targetDate '" + targetDate + "'");
+			KmHelper.log("WARNING: the feature value will thus be set to 'NULL' and computation will abort");
+			numeratorValue = null;
+			}
+		// modify map object (i.e. set value initially, or perform calculations and store modified value)
         // key should be unique featureId of the spatial unit feature
         if (!map.has(featureId)) {
             var mapObject = {
                 featureId: featureId,
                 indicatorValue: undefined,
-                numeratorValue: 0,
-                denominatorValue: 0
-            };
-            map.set(featureId, mapObject);
-        }
+                numeratorValue: null,
+				denominatorValue: null
+                };
+ 
+            map.set(featureId, mapObject);    
+        }	
         var mapEntry = map.get(featureId);
         mapEntry.numeratorValue = numeratorValue;
         map.set(featureId, mapEntry);
@@ -106,10 +108,22 @@ async function computeIndicator(targetDate, targetSpatialUnit_geoJSON, baseIndic
         var denominatorValue = KmHelper.getIndicatorValue(feature, targetDate);
         // modify map object (i.e. set value initially, or perform calculations and store modified value)
         // key should be unique featureId of the spatial unit feature
-        if (denominatorValue === undefined || denominatorValue === null) {
-            KmHelper.log("WARNING: the feature with featureID '" + featureId + "' does not contain a time series value for targetDate '" + targetDate + "'");
-            KmHelper.log("WARNING: the feature value will thus be set to '0' and computation will continue");
-            denominatorValue = 0;
+		if(denominatorValue === undefined || denominatorValue === null){
+			KmHelper.log("WARNING: the feature with featureID '" + featureId + "' does not contain a time series value for targetDate '" + targetDate + "'");
+			KmHelper.log("WARNING: the feature value will thus be set to 'NULL' and computation will abort");
+			denominatorValue = null;
+      }
+      
+      if (! map.has(featureId)){
+        KmHelper.log("numeratorValue Indicator feature with id '" + featureId + "' was not computed from computation resources. Will set denominatorValue to null.");				              
+        var mapObject = {
+            featureId: featureId,
+            indicatorValue: undefined,
+            numeratorValue: null,
+            denominatorValue: null
+          };
+
+            map.set(featureId, mapObject);    
         }
         if (!map.has(featureId)) {
             KmHelper.log("numeratorValue Indicator feature with id '" + featureId + "' was not computed from computation resources. Will set denominatorValue to null.");

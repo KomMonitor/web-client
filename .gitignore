@@ -12,3 +12,5 @@ tmp
 build
 dist
 .angular
+
+.vscode/settings.json

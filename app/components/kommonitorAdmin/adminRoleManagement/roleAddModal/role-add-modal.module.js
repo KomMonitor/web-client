@@ -1,3 +1,1 @@
-"use strict";
-angular.module('roleAddModal', ['kommonitorImporterHelper', 'kommonitorKeycloakHelper']);
-//# sourceMappingURL=role-add-modal.module.js.map
+angular.module('roleAddModal', ['kommonitorDataGridHelper', 'kommonitorMultiStepFormHelper', 'kommonitorImporterHelper', 'kommonitorKeycloakHelper']);

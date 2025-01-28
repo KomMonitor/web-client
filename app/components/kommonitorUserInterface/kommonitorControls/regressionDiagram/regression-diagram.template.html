@@ -11,8 +11,8 @@
 	<!-- REGRESSION CHART CONFIG -->
 				<div class="box box-primary">
 					<div class="box-header with-border">
-						<h3 class="box-title">Lineare Regression zwischen zwei Indikatoren</h3>
-
+						<h3 ng-if="$ctrl.kommonitorDiagramHelperServiceInstance.enableScatterPlotRegression" class="box-title">Lineare Regression zwischen zwei Indikatoren</h3>
+						<h3 ng-if="!$ctrl.kommonitorDiagramHelperServiceInstance.enableScatterPlotRegression" class="box-title">Streudiagramm für zwei Indikatoren</h3>
 						<div class="box-tools pull-right">
 							<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
 							</button>
@@ -362,7 +362,8 @@
 			<!-- REGRESSION CHART -->
 						<div style="margin-bottom: 0px;" ng-show="regressionChart" class="box box-success">
 							<div class="box-header with-border">
-								<h3 class="box-title">Lineare Regression - {{spatialUnitName}} - {{date}}</h3>
+								<h3 ng-if="$ctrl.kommonitorDiagramHelperServiceInstance.enableScatterPlotRegression" class="box-title">Lineare Regression - {{spatialUnitName}}</h3>
+								<h3 ng-if="!$ctrl.kommonitorDiagramHelperServiceInstance.enableScatterPlotRegression" class="box-title">Streudiagramm - {{spatialUnitName}}</h3>
 
 								<div class="box-tools pull-right">
 									<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
@@ -371,10 +372,29 @@
 							</div>
 							<div class="box-body">
 								<div class="chart">
+
+									<div class="row">
+										<div class="col-md-6" style="text-align: left;">
+											Das Streudiagramm kann bei Bedarf um eine lineare Regressionsanalyse erg&auml;nzt werden. 
+										</div>
+										<div class="col-md-6" style="text-align: right;">
+											<b title="Checkbox zur Wahl, ob lineare Regressionsanalyse sichtbar ist">lineare Regressionsanalyse darstellen?</b>
+											&nbsp;
+											<label class="switch">
+												<input type="checkbox" value="$ctrl.kommonitorDataExchangeServiceInstance.enableScatterPlotRegression" ng-model="$ctrl.kommonitorDataExchangeServiceInstance.enableScatterPlotRegression" ng-change="onChangeEnableScatterPlotRegression()"
+													checked>
+												<span class="switchslider round"></span>
+											</label>		
+										</div>
+									</div>	
+
 									<div id="regressionDiagram" style="width:100%; min-height:60vh;"></div>
 								</div>
 
-									<b>Korrelationskoeffizient nach Pearson:</b> {{correlation}}
+									<div ng-show="$ctrl.kommonitorDataExchangeServiceInstance.enableScatterPlotRegression">
+										<b>Korrelationskoeffizient nach Pearson:</b> {{correlation}}
+									</div>
+									
 
 							</div>
 							<!-- /.box-body -->

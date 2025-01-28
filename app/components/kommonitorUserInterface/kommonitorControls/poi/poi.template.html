@@ -30,31 +30,48 @@
 					<span class="switchslider round"></span>
 				</label>
 
-				<hr>
 				<br />
 
-				<label>Art der Datumsdefinition zum Abruf eines Datensatzes</label>
-				<div class="form-group">
-					<label class="radio-inline"><input type="radio" name="dateSelectionType"
-							ng-value="dateSelectionType_valueIndicator" ng-model="dateSelectionType.selectedDateType"
-							ng-click="onClickUseIndicatorTimestamp()">Datum des aktuellen Indikators</label>
-					<label class="radio-inline"><input type="radio" name="dateSelectionType"
-							ng-value="dateSelectionType_valueManual"
-							ng-model="dateSelectionType.selectedDateType">manuelles Datum
-						<div ng-hide="!(dateSelectionType.selectedDateType === dateSelectionType_valueManual)"
-							class="input-group date">
-							<div class="input-group-addon">
-								<i class="far fa-calendar-alt"></i>
+				<label>
+					<b title="Auswahl zur Größe der POI-Marker">Größe der Points
+						of Interest</b>
+					&nbsp;
+					<select 
+						ng-options="item as item.label for item in $ctrl.kommonitorDataExchangeServiceInstance.POISizes track by item.id" 
+						ng-model="$ctrl.kommonitorDataExchangeServiceInstance.selectedPOISize"
+						ng-change="refreshPoiLayers()">
+					</select>
+				</label>
+
+				
+
+				<!-- for now hide menu to change date selection for georesourcs as it might be more confusing than helpful -->
+				<!-- <div>
+					<hr>
+					<br />
+					<label>Art der Datumsdefinition zum Abruf eines Datensatzes</label>
+					<div class="form-group">
+						<label class="radio-inline"><input type="radio" name="dateSelectionType"
+								ng-value="dateSelectionType_valueIndicator" ng-model="dateSelectionType.selectedDateType"
+								ng-click="onClickUseIndicatorTimestamp()">Datum des aktuellen Indikators</label>
+						<label class="radio-inline"><input type="radio" name="dateSelectionType"
+								ng-value="dateSelectionType_valueManual"
+								ng-model="dateSelectionType.selectedDateType">manuelles Datum
+							<div ng-hide="!(dateSelectionType.selectedDateType === dateSelectionType_valueManual)"
+								class="input-group date">
+								<div class="input-group-addon">
+									<i class="far fa-calendar-alt"></i>
+								</div>
+								<input type="text" ng-model="selectedDate_manual" ng-change="onChangeManualDate()"
+									class="form-control pull-right" placeholder="YYYY-MM-DD" id="manualDateDatepicker"
+									required>
 							</div>
-							<input type="text" ng-model="selectedDate_manual" ng-change="onChangeManualDate()"
-								class="form-control pull-right" placeholder="YYYY-MM-DD" id="manualDateDatepicker"
-								required>
-						</div>
-					</label>
-					<label class="radio-inline"><input type="radio" name="dateSelectionType"
-							ng-value="dateSelectionType_valuePerDataset"
-							ng-model="dateSelectionType.selectedDateType">pro Datensatz</label>
-				</div>
+						</label>
+						<label class="radio-inline"><input type="radio" name="dateSelectionType"
+								ng-value="dateSelectionType_valuePerDataset"
+								ng-model="dateSelectionType.selectedDateType">pro Datensatz</label>
+					</div>
+				</div>			 -->
 
 			</div>
 
@@ -79,51 +96,51 @@
 							<br/> -->
 
 						<!-- <div class="btn-group btn-group-justified"> -->
-						<table class="table" style="width:100%;">
+						<table class="table" style="width:100%;" ng-if="(enabledGeoresourcesInfrastructure.length + enabledGeoresourcesGeoservices.length) > 1">
 							<tr>
-								<th colspan="3" class="text-center"><b>Infrastruktur</b></th>
-								<th colspan="2" class="text-center"><b>Geodaten-Dienste</b></th>
+                                <th ng-if="enabledGeoresourcesInfrastructure.length > 0" colspan="{{enabledGeoresourcesInfrastructure.length}}" class="text-center"><b>Infrastruktur</b></th>
+                                <th ng-if="enabledGeoresourcesGeoservices.length > 0" colspan="{{enabledGeoresourcesGeoservices.length}}" class="text-center"><b>Geodaten-Dienste</b></th>
 							</tr>
 							<tr>
-								<th class="text-center"><b>Punktdaten</b></th>
-								<th class="text-center"><b>Liniendaten</b></th>
-								<th class="text-center"><b>Fl&auml;chendaten</b></th>
-								<th class="text-center"><b>WMS-Daten</b></th>
-								<th class="text-center"><b>WFS-Daten</b></th>
+                                <th ng-if="isGeoresourceInfrastructureEnabled('poi')" class="text-center"><b>Punktdaten</b></th>
+                                <th ng-if="isGeoresourceInfrastructureEnabled('loi')" class="text-center"><b>Liniendaten</b></th>
+                                <th ng-if="isGeoresourceInfrastructureEnabled('aoi')" class="text-center"><b>Fl&auml;chendaten</b></th>
+                                <th ng-if="isGeoresourceGeoserviceEnabled('wms')" class="text-center"><b>WMS-Daten</b></th>
+                                <th ng-if="isGeoresourceGeoserviceEnabled('wfs')" class="text-center"><b>WFS-Daten</b></th>
 							</tr>
 							<tr>
-								<td class="text-center">
+								<td class="text-center" ng-if="isGeoresourceInfrastructureEnabled('poi')">
 									<label class="switch">
 										<input type="checkbox" ng-model="showPOI" checked
-											ng-change="$ctrl.kommonitorDataExchangeServiceInstance.onChangeGeoresourceKeywordFilter(georesourceNameFilter.value, showPOI, showLOI, showAOI, showWMS, showWFS)">
+											ng-change="onChangeGeoresourceKeywordFilter(georesourceNameFilter.value, showPOI, showLOI, showAOI, showWMS, showWFS)">
 										<span class="switchslider round"></span>
 									</label>
 								</td>
-								<td class="text-center">
+								<td class="text-center" ng-if="isGeoresourceInfrastructureEnabled('loi')">
 									<label class="switch">
 										<input type="checkbox" ng-model="showLOI" checked
-											ng-change="$ctrl.kommonitorDataExchangeServiceInstance.onChangeGeoresourceKeywordFilter(georesourceNameFilter.value, showPOI, showLOI, showAOI, showWMS, showWFS)">
+											ng-change="onChangeGeoresourceKeywordFilter(georesourceNameFilter.value, showPOI, showLOI, showAOI, showWMS, showWFS)">
 										<span class="switchslider round"></span>
 									</label>
 								</td>
-								<td class="text-center">
+								<td class="text-center" ng-if="isGeoresourceInfrastructureEnabled('aoi')">
 									<label class="switch">
 										<input type="checkbox" ng-model="showAOI" checked
-											ng-change="$ctrl.kommonitorDataExchangeServiceInstance.onChangeGeoresourceKeywordFilter(georesourceNameFilter.value, showPOI, showLOI, showAOI, showWMS, showWFS)">
+											ng-change="onChangeGeoresourceKeywordFilter(georesourceNameFilter.value, showPOI, showLOI, showAOI, showWMS, showWFS)">
 										<span class="switchslider round"></span>
 									</label>
 								</td>
-								<td class="text-center">
+								<td class="text-center" ng-if="isGeoresourceGeoserviceEnabled('wms')">
 									<label class="switch">
 										<input type="checkbox" ng-model="showWMS" checked
-											ng-change="$ctrl.kommonitorDataExchangeServiceInstance.onChangeGeoresourceKeywordFilter(georesourceNameFilter.value, showPOI, showLOI, showAOI, showWMS, showWFS)">
+											ng-change="onChangeGeoresourceKeywordFilter(georesourceNameFilter.value, showPOI, showLOI, showAOI, showWMS, showWFS)">
 										<span class="switchslider round"></span>
 									</label>
 								</td>
-								<td class="text-center">
+								<td class="text-center" ng-if="isGeoresourceGeoserviceEnabled('wfs')">
 									<label class="switch">
 										<input type="checkbox" ng-model="showWFS" checked
-											ng-change="$ctrl.kommonitorDataExchangeServiceInstance.onChangeGeoresourceKeywordFilter(georesourceNameFilter.value, showPOI, showLOI, showAOI, showWMS, showWFS)">
+											ng-change="onChangeGeoresourceKeywordFilter(georesourceNameFilter.value, showPOI, showLOI, showAOI, showWMS, showWFS)">
 										<span class="switchslider round"></span>
 									</label>
 								</td>
@@ -213,7 +230,6 @@
 																<th>Typ</th>
 																<th>Datensatz</th>
 																<th>Beschreibung</th>
-																<th>Layer Transparenz</th>
 																<th>Legende</th>
 																<th
 																	ng-if="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
@@ -242,29 +258,20 @@
 																<td>
 																	<p>{{::poi.metadata.description}}</p>
 																</td>
-																<td>
-																	<div class="form-group" align="center">
-
-
-																		<input class=" input-sm"
-																			ng-model="poi.transparency"
-																			ng-init="poi.transparency=0"
-																			ng-change="adjustPOILayerTransparency(poi)"
-																			type="range" min="0" max="1" step="0.01">
-
-																		<br />
-
-																		<label>{{poi.transparency}}</label>
-																	</div>
-																</td>
 																<td class="text-center">
 																	<div align="center">
 																		<div
 																			class="awesome-marker-legend awesome-marker-legend-icon-{{::poi.poiMarkerColor}}">
 																			<span
+																				ng-if="!poi.poiMarkerStyle || poi.poiMarkerStyle == 'symbol'"
 																				style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:{{::poi.poiSymbolColor}};"
 																				class="glyphicon glyphicon-{{::poi.poiSymbolBootstrap3Name}}"
 																				aria-hidden="true"></span>
+																			<span 
+																				ng-else
+																				style="font-size:0.9em; color:{{::poi.poiSymbolColor}};">
+																				{{ poi.poiMarkerText }}
+																			</span>
 																		</div>
 																	</div>
 																</td>
@@ -284,7 +291,7 @@
 																		title="Download Features as GeoJSON"><i
 																			class="fas fa-file-download fa-lg"></i></a>
 																			
-																	<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.downloadMetadataPDF_georesource(poi)"
+																	<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.downloadMetadataPDF_georesource(loi)"
 																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
 																	<!-- <a ng-href="getExportLinkForPoi(poi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 																</td>
@@ -307,21 +314,6 @@
 																</td>
 																<td>
 																	<p>{{::loi.metadata.description}}</p>
-																</td>
-																<td>
-																	<div class="form-group" align="center">
-
-
-																		<input class=" input-sm"
-																			ng-model="loi.transparency"
-																			ng-init="loi.transparency=0"
-																			ng-change="adjustLOILayerTransparency(loi)"
-																			type="range" min="0" max="1" step="0.01">
-
-																		<br />
-
-																		<label>{{loi.transparency}}</label>
-																	</div>
 																</td>
 																<td class="text-center">
 																	<div align="center">
@@ -347,7 +339,7 @@
 																		title="Download Features as GeoJSON"><i
 																			class="fas fa-file-download fa-lg"></i></a>
 
-																	<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.createMetadataPDF_georesource(loi)"
+																	<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.downloadMetadataPDF_georesource(loi)"
 																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
 																	<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 																</td>
@@ -370,20 +362,6 @@
 																</td>
 																<td>
 																	<p>{{::aoi.metadata.description}}</p>
-																</td>
-																<td>
-																	<div class="form-group" align="center">
-
-																		<input class=" input-sm"
-																			ng-model="aoi.transparency"
-																			ng-init="aoi.transparency=0.3"
-																			ng-change="adjustAOILayerTransparency(aoi)"
-																			type="range" min="0" max="1" step="0.01">
-
-																		<br />
-
-																		<label>{{aoi.transparency}}</label>
-																	</div>
 																</td>
 																<td class="text-center">
 																	<div align="center">
@@ -408,7 +386,7 @@
 																		title="Download Features as GeoJSON"><i
 																			class="fas fa-file-download fa-lg"></i></a>
 
-																	<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.createMetadataPDF_georesource(aoi)"
+																	<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.downloadMetadataPDF_georesource(aoi)"
 																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
 																	<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 																</td>
@@ -430,20 +408,6 @@
 																</td>
 																<td>
 																	<p ng-bind-html="::dataset.description"></p>
-																</td>
-																<td>
-																	<div class="form-group" align="center">
-
-																		<input class=" input-sm"
-																			ng-model="dataset.transparency"
-																			ng-init="dataset.transparency=0"
-																			ng-change="adjustWMSLayerTransparency(dataset)"
-																			type="range" min="0" max="1" step="0.01">
-
-																		<br />
-
-																		<label>{{dataset.transparency}}</label>
-																	</div>
 																</td>
 																<td class="text-center">
 																	<div ng-if="! dataset.showLegend">
@@ -484,21 +448,6 @@
 																</td>
 																<td>
 																	<p ng-bind-html="::dataset.description"></p>
-																</td>
-																<td>
-																	<div class="form-group" align="center">
-
-
-																		<input class=" input-sm"
-																			ng-model="dataset.transparency"
-																			ng-init="dataset.transparency=0"
-																			ng-change="adjustWFSLayerTransparency(dataset)"
-																			type="range" min="0" max="1" step="0.01">
-
-																		<br />
-
-																		<label>{{dataset.transparency}}</label>
-																	</div>
 																</td>
 																<!-- <td>
 																		<label class="switch">
@@ -582,7 +531,6 @@
 															<th>Typ</th>
 															<th>Datensatz</th>
 															<th>Beschreibung</th>
-															<th>Layer Transparenz</th>
 															<th>Legende</th>
 															<th
 																ng-if="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
@@ -611,28 +559,20 @@
 															<td>
 																<p>{{::poi.metadata.description}}</p>
 															</td>
-															<td>
-																<div class="form-group" align="center">
-
-
-																	<input class=" input-sm" ng-model="poi.transparency"
-																		ng-init="poi.transparency=0"
-																		ng-change="adjustPOILayerTransparency(poi)"
-																		type="range" min="0" max="1" step="0.01">
-
-																	<br />
-
-																	<label>{{poi.transparency}}</label>
-																</div>
-															</td>
 															<td class="text-center">
 																<div align="center">
 																	<div
 																		class="awesome-marker-legend awesome-marker-legend-icon-{{::poi.poiMarkerColor}}">
 																		<span
+																			ng-if="!poi.poiMarkerStyle || poi.poiMarkerStyle == 'symbol'"
 																			style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:{{::poi.poiSymbolColor}};"
 																			class="glyphicon glyphicon-{{::poi.poiSymbolBootstrap3Name}}"
 																			aria-hidden="true"></span>
+																		<span 
+																			ng-else
+																			style="font-size:0.9em; color:{{::poi.poiSymbolColor}};">
+																			{{ poi.poiMarkerText }}
+																		</span>
 																	</div>
 																</div>
 															</td>
@@ -652,7 +592,7 @@
 																	title="Download Features as GeoJSON"><i
 																		class="fas fa-file-download fa-lg"></i></a>
 
-																<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.createMetadataPDF_georesource(poi)"
+																<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.downloadMetadataPDF_georesource(poi)"
 																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
 																<!-- <a ng-href="getExportLinkForPoi(poi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 															</td>
@@ -675,20 +615,6 @@
 															</td>
 															<td>
 																<p>{{::loi.metadata.description}}</p>
-															</td>
-															<td>
-																<div class="form-group" align="center">
-
-
-																	<input class=" input-sm" ng-model="loi.transparency"
-																		ng-init="loi.transparency=0"
-																		ng-change="adjustLOILayerTransparency(loi)"
-																		type="range" min="0" max="1" step="0.01">
-
-																	<br />
-
-																	<label>{{loi.transparency}}</label>
-																</div>
 															</td>
 															<td class="text-center">
 																<div align="center">
@@ -714,7 +640,7 @@
 																	title="Download Features as GeoJSON"><i
 																		class="fas fa-file-download fa-lg"></i></a>
 
-																<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.createMetadataPDF_georesource(loi)"
+																<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.downloadMetadataPDF_georesource(loi)"
 																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
 																<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 															</td>
@@ -737,19 +663,6 @@
 															</td>
 															<td>
 																<p>{{::aoi.metadata.description}}</p>
-															</td>
-															<td>
-																<div class="form-group" align="center">
-
-																	<input class=" input-sm" ng-model="aoi.transparency"
-																		ng-init="aoi.transparency=0.3"
-																		ng-change="adjustAOILayerTransparency(aoi)"
-																		type="range" min="0" max="1" step="0.01">
-
-																	<br />
-
-																	<label>{{aoi.transparency}}</label>
-																</div>
 															</td>
 															<td class="text-center">
 																<div align="center">
@@ -774,7 +687,7 @@
 																	title="Download Features as GeoJSON"><i
 																		class="fas fa-file-download fa-lg"></i></a>
 
-																<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.createMetadataPDF_georesource(aoi)"
+																<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.downloadMetadataPDF_georesource(aoi)"
 																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
 																<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 															</td>
@@ -796,20 +709,6 @@
 															</td>
 															<td>
 																<p ng-bind-html="::dataset.description"></p>
-															</td>
-															<td>
-																<div class="form-group" align="center">
-
-																	<input class=" input-sm"
-																		ng-model="dataset.transparency"
-																		ng-init="dataset.transparency=0"
-																		ng-change="adjustWMSLayerTransparency(dataset)"
-																		type="range" min="0" max="1" step="0.01">
-
-																	<br />
-
-																	<label>{{dataset.transparency}}</label>
-																</div>
 															</td>
 															<td class="text-center">
 																<div ng-if="! dataset.showLegend">
@@ -850,21 +749,6 @@
 															</td>
 															<td>
 																<p ng-bind-html="::dataset.description"></p>
-															</td>
-															<td>
-																<div class="form-group" align="center">
-
-
-																	<input class=" input-sm"
-																		ng-model="dataset.transparency"
-																		ng-init="dataset.transparency=0"
-																		ng-change="adjustWFSLayerTransparency(dataset)"
-																		type="range" min="0" max="1" step="0.01">
-
-																	<br />
-
-																	<label>{{dataset.transparency}}</label>
-																</div>
 															</td>
 															<!-- <td>
 																		<label class="switch">
@@ -948,7 +832,6 @@
 														<th>Typ</th>
 														<th>Datensatz</th>
 														<th>Beschreibung</th>
-														<th>Layer Transparenz</th>
 														<th>Legende</th>
 														<th
 															ng-if="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
@@ -976,28 +859,20 @@
 														<td>
 															<p>{{::poi.metadata.description}}</p>
 														</td>
-														<td>
-															<div class="form-group" align="center">
-
-
-																<input class=" input-sm" ng-model="poi.transparency"
-																	ng-init="poi.transparency=0"
-																	ng-change="adjustPOILayerTransparency(poi)"
-																	type="range" min="0" max="1" step="0.01">
-
-																<br />
-
-																<label>{{poi.transparency}}</label>
-															</div>
-														</td>
 														<td class="text-center">
 															<div align="center">
 																<div
 																	class="awesome-marker-legend awesome-marker-legend-icon-{{::poi.poiMarkerColor}}">
 																	<span
+																		ng-if="!poi.poiMarkerStyle || poi.poiMarkerStyle == 'symbol'"
 																		style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:{{::poi.poiSymbolColor}};"
 																		class="glyphicon glyphicon-{{::poi.poiSymbolBootstrap3Name}}"
 																		aria-hidden="true"></span>
+																	<span 
+																		ng-else
+																		style="font-size:0.9em; color:{{::poi.poiSymbolColor}};">
+																		{{ poi.poiMarkerText }}
+																	</span>
 																</div>
 															</div>
 														</td>
@@ -1016,7 +891,7 @@
 																title="Download Features as GeoJSON"><i
 																	class="fas fa-file-download fa-lg"></i></a>
 
-															<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.createMetadataPDF_georesource(poi)"
+															<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.downloadMetadataPDF_georesource(poi)"
 																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
 															<!-- <a ng-href="getExportLinkForPoi(poi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 														</td>
@@ -1038,20 +913,6 @@
 														</td>
 														<td>
 															<p>{{::loi.metadata.description}}</p>
-														</td>
-														<td>
-															<div class="form-group" align="center">
-
-
-																<input class=" input-sm" ng-model="loi.transparency"
-																	ng-init="loi.transparency=0"
-																	ng-change="adjustLOILayerTransparency(loi)"
-																	type="range" min="0" max="1" step="0.01">
-
-																<br />
-
-																<label>{{loi.transparency}}</label>
-															</div>
 														</td>
 														<td class="text-center">
 															<div align="center">
@@ -1075,7 +936,7 @@
 																title="Download Features as GeoJSON"><i
 																	class="fas fa-file-download fa-lg"></i></a>
 
-															<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.createMetadataPDF_georesource(loi)"
+															<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.downloadMetadataPDF_georesource(loi)"
 																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
 															<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 														</td>
@@ -1098,19 +959,6 @@
 														<td>
 															<p>{{::aoi.metadata.description}}</p>
 														</td>
-														<td>
-															<div class="form-group" align="center">
-
-																<input class=" input-sm" ng-model="aoi.transparency"
-																	ng-init="aoi.transparency=0.3"
-																	ng-change="adjustAOILayerTransparency(aoi)"
-																	type="range" min="0" max="1" step="0.01">
-
-																<br />
-
-																<label>{{aoi.transparency}}</label>
-															</div>
-														</td>
 														<td class="text-center">
 															<div align="center">
 																<i
@@ -1132,7 +980,7 @@
 																title="Download Features as GeoJSON"><i
 																	class="fas fa-file-download fa-lg"></i></a>
 
-															<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.createMetadataPDF_georesource(aoi)"
+															<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.downloadMetadataPDF_georesource(aoi)"
 																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
 															<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 														</td>
@@ -1153,19 +1001,6 @@
 														</td>
 														<td>
 															<p ng-bind-html="::dataset.description"></p>
-														</td>
-														<td>
-															<div class="form-group" align="center">
-
-																<input class=" input-sm" ng-model="dataset.transparency"
-																	ng-init="dataset.transparency=0"
-																	ng-change="adjustWMSLayerTransparency(dataset)"
-																	type="range" min="0" max="1" step="0.01">
-
-																<br />
-
-																<label>{{dataset.transparency}}</label>
-															</div>
 														</td>
 
 														<td class="text-center">
@@ -1206,19 +1041,6 @@
 														</td>
 														<td>
 															<p ng-bind-html="::dataset.description"></p>
-														</td>
-														<td>
-															<div class="form-group" align="center">
-
-																<input class=" input-sm" ng-model="dataset.transparency"
-																	ng-init="dataset.transparency=0"
-																	ng-change="adjustWFSLayerTransparency(dataset)"
-																	type="range" min="0" max="1" step="0.01">
-
-																<br />
-
-																<label>{{dataset.transparency}}</label>
-															</div>
 														</td>
 														<!-- <td>
 																	<label class="switch">
@@ -1304,7 +1126,6 @@
 													<th>Typ</th>
 													<th>Datensatz</th>
 													<th>Beschreibung</th>
-													<th>Layer Transparenz</th>
 													<th>Legende</th>
 													<th
 														ng-if="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
@@ -1332,28 +1153,20 @@
 													<td>
 														<p>{{::poi.metadata.description}}</p>
 													</td>
-													<td>
-														<div class="form-group" align="center">
-
-
-															<input class=" input-sm" ng-model="poi.transparency"
-																ng-init="poi.transparency=0"
-																ng-change="adjustPOILayerTransparency(poi)" type="range"
-																min="0" max="1" step="0.01">
-
-															<br />
-
-															<label>{{poi.transparency}}</label>
-														</div>
-													</td>
 													<td class="text-center">
 														<div align="center">
 															<div
 																class="awesome-marker-legend awesome-marker-legend-icon-{{::poi.poiMarkerColor}}">
 																<span
+																	ng-if="!poi.poiMarkerStyle || poi.poiMarkerStyle == 'symbol'"
 																	style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:{{::poi.poiSymbolColor}};"
 																	class="glyphicon glyphicon-{{::poi.poiSymbolBootstrap3Name}}"
 																	aria-hidden="true"></span>
+																<span 
+																	ng-else
+																	style="font-size:0.9em; color:{{::poi.poiSymbolColor}};">
+																	{{ poi.poiMarkerText }}
+																</span>
 															</div>
 														</div>
 													</td>
@@ -1372,7 +1185,7 @@
 															title="Download Features as GeoJSON"><i
 																class="fas fa-file-download fa-lg"></i></a>
 
-														<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.createMetadataPDF_georesource(poi)"
+														<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.downloadMetadataPDF_georesource(poi)"
 																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
 														<!-- <a ng-href="getExportLinkForPoi(poi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 													</td>
@@ -1394,20 +1207,6 @@
 													</td>
 													<td>
 														<p>{{::loi.metadata.description}}</p>
-													</td>
-													<td>
-														<div class="form-group" align="center">
-
-
-															<input class=" input-sm" ng-model="loi.transparency"
-																ng-init="loi.transparency=0"
-																ng-change="adjustLOILayerTransparency(loi)" type="range"
-																min="0" max="1" step="0.01">
-
-															<br />
-
-															<label>{{loi.transparency}}</label>
-														</div>
 													</td>
 													<td class="text-center">
 														<div align="center">
@@ -1431,7 +1230,7 @@
 															title="Download Features as GeoJSON"><i
 																class="fas fa-file-download fa-lg"></i></a>
 
-														<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.createMetadataPDF_georesource(loi)"
+														<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.downloadMetadataPDF_georesource(loi)"
 																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
 														<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 													</td>
@@ -1453,19 +1252,6 @@
 													</td>
 													<td>
 														<p>{{::aoi.metadata.description}}</p>
-													</td>
-													<td>
-														<div class="form-group" align="center">
-
-															<input class=" input-sm" ng-model="aoi.transparency"
-																ng-init="aoi.transparency=0.3"
-																ng-change="adjustAOILayerTransparency(aoi)" type="range"
-																min="0" max="1" step="0.01">
-
-															<br />
-
-															<label>{{aoi.transparency}}</label>
-														</div>
 													</td>
 													<td class="text-center">
 														<div align="center">
@@ -1489,7 +1275,7 @@
 															title="Download Features as GeoJSON"><i
 																class="fas fa-file-download fa-lg"></i></a>
 
-														<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.createMetadataPDF_georesource(aoi)"
+														<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.downloadMetadataPDF_georesource(aoi)"
 																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
 														<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 													</td>
@@ -1510,19 +1296,6 @@
 													</td>
 													<td>
 														<p ng-bind-html="::dataset.description"></p>
-													</td>
-													<td>
-														<div class="form-group" align="center">
-
-															<input class=" input-sm" ng-model="dataset.transparency"
-																ng-init="dataset.transparency=0"
-																ng-change="adjustWMSLayerTransparency(dataset)"
-																type="range" min="0" max="1" step="0.01">
-
-															<br />
-
-															<label>{{dataset.transparency}}</label>
-														</div>
 													</td>
 
 													<td class="text-center">
@@ -1563,19 +1336,6 @@
 													</td>
 													<td>
 														<p ng-bind-html="::dataset.description"></p>
-													</td>
-													<td>
-														<div class="form-group" align="center">
-
-															<input class=" input-sm" ng-model="dataset.transparency"
-																ng-init="dataset.transparency=0"
-																ng-change="adjustWFSLayerTransparency(dataset)"
-																type="range" min="0" max="1" step="0.01">
-
-															<br />
-
-															<label>{{dataset.transparency}}</label>
-														</div>
 													</td>
 													<!-- <td>
 																<label class="switch">
@@ -1653,9 +1413,10 @@
 								style="background: #2171b5; color: white;" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.topicGeoresourceHierarchy_unmappedEntries.totalCount > 0">
 								<a id="noHierarchyGeoresourceDatasets" href=""
 									ng-attr-title="Georessourcen-Daten ohne Themenbezug" class="collapseTrigger"
-									style="color: white;" ng-click="isCollapsed_noTopic = !isCollapsed_noTopic"
-									ng-init="isCollapsed_noTopic=true"><i
-										class="glyphicon glyphicon-chevron-right"></i>ohne Themenbezug
+									style="color: white;" 
+									ng-init="isCollapsed_noTopic=true"
+									ng-click="toggleNoTopicHierarchy()">
+										<i	class="glyphicon glyphicon-chevron-right"></i>ohne Themenbezug
 									({{$ctrl.kommonitorDataExchangeServiceInstance.topicGeoresourceHierarchy_unmappedEntries.totalCount}})</a>
 								&nbsp;&nbsp; <input type="checkbox" value="showAllForTopic_null"
 									ng-model="showAllForTopic_null" ng-change="handleShowAllOnTopic(null)">
@@ -1666,15 +1427,13 @@
 
 								<div class="georesourceInputForm"
 									ng-if="$ctrl.kommonitorDataExchangeServiceInstance.topicGeoresourceHierarchy_unmappedEntries.totalCount > 0">
-
+									
 									<table class="table table-condensed" style="margin-bottom:0px;">
 										<thead>
 											<tr>
 												<th>Typ</th>
 												<th>Datensatz</th>
 												<th>Beschreibung</th>
-
-												<th>Layer Transparenz</th>
 												<th>Legende</th>
 												<th
 													ng-if="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
@@ -1703,29 +1462,20 @@
 												<td>
 													<p>{{::poi.metadata.description}}</p>
 												</td>
-
-												<td>
-													<div class="form-group" align="center">
-
-
-														<input class=" input-sm" ng-model="poi.transparency"
-															ng-init="poi.transparency=0"
-															ng-change="adjustPOILayerTransparency(poi)" type="range"
-															min="0" max="1" step="0.01">
-
-														<br />
-
-														<label>{{poi.transparency}}</label>
-													</div>
-												</td>
 												<td class="text-center">
 													<div align="center">
 														<div
 															class="awesome-marker-legend awesome-marker-legend-icon-{{::poi.poiMarkerColor}}">
 															<span
+																ng-if="!poi.poiMarkerStyle || poi.poiMarkerStyle == 'symbol'"
 																style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:{{::poi.poiSymbolColor}};"
 																class="glyphicon glyphicon-{{::poi.poiSymbolBootstrap3Name}}"
 																aria-hidden="true"></span>
+															<span 
+																ng-else
+																style="font-size:0.9em; color:{{::poi.poiSymbolColor}};">
+																{{ poi.poiMarkerText }}
+															</span>
 														</div>
 													</div>
 												</td>
@@ -1744,7 +1494,7 @@
 														title="Download Features as GeoJSON"><i
 															class="fas fa-file-download fa-lg"></i></a>
 
-													<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.createMetadataPDF_georesource(poi)"
+													<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.downloadMetadataPDF_georesource(poi)"
 																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
 													<!-- <a ng-href="getExportLinkForPoi(poi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 												</td>
@@ -1767,21 +1517,7 @@
 												</td>
 												<td>
 													<p>{{::loi.metadata.description}}</p>
-												</td>
-												<td>
-													<div class="form-group" align="center">
-
-
-														<input class=" input-sm" ng-model="loi.transparency"
-															ng-init="loi.transparency=0"
-															ng-change="adjustLOILayerTransparency(loi)" type="range"
-															min="0" max="1" step="0.01">
-
-														<br />
-
-														<label>{{loi.transparency}}</label>
-													</div>
-												</td>
+												</td>>
 												<td class="text-center">
 													<div align="center">
 														<i
@@ -1804,7 +1540,7 @@
 														title="Download Features as GeoJSON"><i
 															class="fas fa-file-download fa-lg"></i></a>
 
-													<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.createMetadataPDF_georesource(loi)"
+													<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.downloadMetadataPDF_georesource(loi)"
 																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
 													<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 												</td>
@@ -1828,19 +1564,6 @@
 												<td>
 													<p>{{::aoi.metadata.description}}</p>
 												</td>
-												<td>
-													<div class="form-group" align="center">
-
-														<input class=" input-sm" ng-model="aoi.transparency"
-															ng-init="aoi.transparency=0.3"
-															ng-change="adjustAOILayerTransparency(aoi)" type="range"
-															min="0" max="1" step="0.01">
-
-														<br />
-
-														<label>{{aoi.transparency}}</label>
-													</div>
-												</td>
 												<td class="text-center">
 													<div align="center">
 														<i
@@ -1863,7 +1586,7 @@
 														title="Download Features as GeoJSON"><i
 															class="fas fa-file-download fa-lg"></i></a>
 
-													<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.createMetadataPDF_georesource(aoi)"
+													<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.downloadMetadataPDF_georesource(aoi)"
 																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
 													<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 												</td>
@@ -1885,19 +1608,6 @@
 												</td>
 												<td>
 													<p ng-bind-html="::dataset.description"></p>
-												</td>
-												<td>
-													<div class="form-group" align="center">
-
-														<input class=" input-sm" ng-model="dataset.transparency"
-															ng-init="dataset.transparency=0"
-															ng-change="adjustWMSLayerTransparency(dataset)" type="range"
-															min="0" max="1" step="0.01">
-
-														<br />
-
-														<label>{{dataset.transparency}}</label>
-													</div>
 												</td>
 
 												<td class="text-center">
@@ -1939,19 +1649,6 @@
 												</td>
 												<td>
 													<p ng-bind-html="::dataset.description"></p>
-												</td>
-												<td>
-													<div class="form-group" align="center">
-
-														<input class=" input-sm" ng-model="dataset.transparency"
-															ng-init="dataset.transparency=0"
-															ng-change="adjustWFSLayerTransparency(dataset)" type="range"
-															min="0" max="1" step="0.01">
-
-														<br />
-
-														<label>{{dataset.transparency}}</label>
-													</div>
 												</td>
 												<!-- <td>
 												<label class="switch">
@@ -2030,7 +1727,7 @@
 					<div class="just-padding">
 
 						<!-- POINTS OF INTEREST -->
-						<div class="box box-primary collapsed-box">
+						<div class="box box-primary collapsed-box" ng-if="isGeoresourceInfrastructureEnabled('poi')">
 							<div class="box-header with-border">
 								<h3 class="box-title">Points of Interest</h3>
 
@@ -2051,7 +1748,6 @@
 												<tr>
 													<th>Datensatz</th>
 													<th>Beschreibung</th>
-													<th>Layer Transparenz</th>
 													<th>Legende</th>
 													<th
 														ng-if="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
@@ -2076,28 +1772,20 @@
 													<td>
 														<p>{{::poi.metadata.description}}</p>
 													</td>
-													<td>
-														<div class="form-group" align="center">
-
-
-															<input class=" input-sm" ng-model="poi.transparency"
-																ng-init="poi.transparency=0"
-																ng-change="adjustPOILayerTransparency(poi)" type="range"
-																min="0" max="1" step="0.01">
-
-															<br />
-
-															<label>{{poi.transparency}}</label>
-														</div>
-													</td>
 													<td class="text-center">
 														<div align="center">
 															<div
 																class="awesome-marker-legend awesome-marker-legend-icon-{{::poi.poiMarkerColor}}">
 																<span
+																	ng-if="!poi.poiMarkerStyle || poi.poiMarkerStyle == 'symbol'"
 																	style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:{{::poi.poiSymbolColor}};"
 																	class="glyphicon glyphicon-{{::poi.poiSymbolBootstrap3Name}}"
 																	aria-hidden="true"></span>
+																<span 
+																	ng-else
+																	style="font-size:0.9em; color:{{::poi.poiSymbolColor}};">
+																	{{ poi.poiMarkerText }}
+																</span>
 															</div>
 														</div>
 													</td>
@@ -2116,7 +1804,7 @@
 															title="Download Features as GeoJSON"><i
 																class="fas fa-file-download fa-lg"></i></a>
 
-														<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.createMetadataPDF_georesource(poi)"
+														<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.downloadMetadataPDF_georesource(poi)"
 																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
 														<!-- <a ng-href="getExportLinkForPoi(poi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 													</td>
@@ -2139,7 +1827,7 @@
 
 
 						<!-- LINES OF INTEREST -->
-						<div class="box box-primary collapsed-box">
+						<div class="box box-primary collapsed-box" ng-if="isGeoresourceInfrastructureEnabled('loi')">
 							<div class="box-header with-border">
 								<h3 class="box-title">Lines of Interest</h3>
 
@@ -2160,7 +1848,6 @@
 												<tr>
 													<th>Datensatz</th>
 													<th>Beschreibung</th>
-													<th>Layer Transparenz</th>
 													<th>Legende</th>
 													<th
 														ng-if="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
@@ -2185,20 +1872,6 @@
 													<td>
 														<p>{{::loi.metadata.description}}</p>
 													</td>
-													<td>
-														<div class="form-group" align="center">
-
-
-															<input class=" input-sm" ng-model="loi.transparency"
-																ng-init="loi.transparency=0"
-																ng-change="adjustLOILayerTransparency(loi)" type="range"
-																min="0" max="1" step="0.01">
-
-															<br />
-
-															<label>{{loi.transparency}}</label>
-														</div>
-													</td>
 													<td class="text-center">
 														<div align="center">
 															<i
@@ -2221,7 +1894,7 @@
 															title="Download Features as GeoJSON"><i
 																class="fas fa-file-download fa-lg"></i></a>
 														
-														<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.createMetadataPDF_georesource(loi)"
+														<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.downloadMetadataPDF_georesource(loi)"
 																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
 														<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 													</td>
@@ -2239,7 +1912,7 @@
 
 
 						<!-- AREAS OF INTEREST -->
-						<div class="box box-primary collapsed-box">
+						<div class="box box-primary collapsed-box" ng-if="isGeoresourceInfrastructureEnabled('aoi')">
 							<div class="box-header with-border">
 								<h3 class="box-title">Areas of Interest</h3>
 
@@ -2260,7 +1933,6 @@
 												<tr>
 													<th>Datensatz</th>
 													<th>Beschreibung</th>
-													<th>Layer Transparenz</th>
 													<th>Legende</th>
 													<th
 														ng-if="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
@@ -2286,19 +1958,6 @@
 													<td>
 														<p>{{::aoi.metadata.description}}</p>
 													</td>
-													<td>
-														<div class="form-group" align="center">
-
-															<input class=" input-sm" ng-model="aoi.transparency"
-																ng-init="aoi.transparency=0.3"
-																ng-change="adjustAOILayerTransparency(aoi)" type="range"
-																min="0" max="1" step="0.01">
-
-															<br />
-
-															<label>{{aoi.transparency}}</label>
-														</div>
-													</td>
 													<td class="text-center">
 														<div align="center">
 															<i
@@ -2321,7 +1980,7 @@
 															title="Download Features as GeoJSON"><i
 																class="fas fa-file-download fa-lg"></i></a>
 
-														<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.createMetadataPDF_georesource(aoi)"
+														<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.downloadMetadataPDF_georesource(aoi)"
 																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
 														<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 													</td>
@@ -2339,7 +1998,7 @@
 
 
 						<!-- WMS -->
-						<div class="box box-primary collapsed-box">
+						<div class="box box-primary collapsed-box" ng-if="isGeoresourceGeoserviceEnabled('wms')">
 							<div class="box-header with-border">
 								<h3 class="box-title">Web Map Service (WMS)</h3>
 
@@ -2358,7 +2017,6 @@
 											<tr>
 												<th>Datensatz</th>
 												<th>Beschreibung</th>
-												<th>Layer Transparenz</th>
 												<th>WMS URL</th>
 												<th>Legende</th>
 											</tr>
@@ -2379,19 +2037,6 @@
 												</td>
 												<td>
 													<p ng-bind-html="::dataset.description"></p>
-												</td>
-												<td>
-													<div class="form-group" align="center">
-
-														<input class=" input-sm" ng-model="dataset.transparency"
-															ng-init="dataset.transparency=0"
-															ng-change="adjustWMSLayerTransparency(dataset)" type="range"
-															min="0" max="1" step="0.01">
-
-														<br />
-
-														<label>{{dataset.transparency}}</label>
-													</div>
 												</td>
 												<td ng-if="$ctrl.kommonitorDataExchangeServiceInstance.showGeoresourceExportButtons" class="text-center">
 													<div align="center">
@@ -2431,7 +2076,7 @@
 						<!-- /.box -->
 
 						<!-- WfS -->
-						<div class="box box-primary collapsed-box">
+						<div class="box box-primary collapsed-box" ng-if="isGeoresourceGeoserviceEnabled('wfs')">
 							<div class="box-header with-border">
 								<h3 class="box-title">Web Feature Service (WFS)</h3>
 
@@ -2454,7 +2099,6 @@
 											<tr>
 												<th>Datensatz</th>
 												<th>Beschreibung</th>
-												<th>Layer Transparenz</th>
 												<th>auf aktuellen Raumausschnitt beschr&auml;nken</th>
 												<th>WFS URL</th>
 												<th>Legende</th>
@@ -2475,19 +2119,6 @@
 												</td>
 												<td>
 													<p ng-bind-html="::dataset.description"></p>
-												</td>
-												<td>
-													<div class="form-group" align="center">
-
-														<input class=" input-sm" ng-model="dataset.transparency"
-															ng-init="dataset.transparency=0"
-															ng-change="adjustWFSLayerTransparency(dataset)" type="range"
-															min="0" max="1" step="0.01">
-
-														<br />
-
-														<label>{{dataset.transparency}}</label>
-													</div>
 												</td>
 												<td>
 													<label class="switch">

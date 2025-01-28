@@ -2,12 +2,12 @@
 
 	<header id="header" class="main-header">
 
-		<div  style="position:absolute; left:40%;  padding-top: 7px;">
+		<div  style="position:absolute; left:40%;  padding-top: 4px;">
 
 			<h4 ng-bind-html="::$ctrl.kommonitorDataExchangeServiceInstance.appTitle"></h4>
 		</div>
 
-		<div style="padding-left: 10px; padding-top: 7px;">
+		<div style="padding-left: 10px; padding-top: 4px;">
 
 			 <a target="_blank" rel="noopener noreferrer" href="http://kommonitor.de"><img style="float: left; width: 35px; height: 35px; margin-right: 0.5%;" src="logos/KM_Logo1.svg"></img></a>
 			 <div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.customLogoURL && $ctrl.kommonitorDataExchangeServiceInstance.customLogoWidth">
@@ -33,9 +33,58 @@
 							<span style="word-break: break-all;"><b>E-Mail:</b><i>{{$ctrl.kommonitorDataExchangeServiceInstance.currentKeycloakUser.email}}</i></span>
 						</div>
 						<br/>
-						<span><b>zugewiesene Rollen:</b></span> <i>{{$ctrl.kommonitorDataExchangeServiceInstance.currentKomMonitorLoginRoleNames}}</i>             
-						<br/>
-						<br/>
+						<div class="box box-simplified collapsed-box">
+							<div class="box-header with-border">
+							  <h3 class="box-title">Rollen</h3>
+					  
+							  <div class="box-tools pull-right">
+								<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+								</button>
+							  </div>
+							</div>
+							<!-- /.box-header -->
+							<div class="box-body">
+							  <table>
+								<tr ng-repeat="(key, value) in userRoleInformation">
+								  <td>
+									<table>
+									  <tr>
+										<th>{{key}}</th>
+									  </tr>
+									  </tr>
+										<td style="padding-left: 1em;"><p ng-repeat="role in value">{{role}}</p></td>
+									  </tr>
+									</table>
+								  </td>
+								</tr>
+							  </table>
+							</div>
+							<!-- /.box-body -->
+						  </div>
+						  <!-- /.box -->
+			
+						  <div class="box box-simplified collapsed-box">
+							<div class="box-header with-border">
+							  <h3 class="box-title">Gruppen (Hierarchie)</h3>
+					  
+							  <div class="box-tools pull-right">
+								<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+								</button>
+							  </div>
+							</div>
+							<!-- /.box-header -->
+							<div class="box-body">
+							  <table>
+								<tr ng-repeat="entry in userGroupInformation">
+								  <td>
+									<p ng-style="{margin: 0,'padding-left': '{{$index + 'em'}}'}" ng-repeat="group in entry track by $index">{{group}}</p>
+								  </td>
+								</tr>
+							  </table>
+							</div>
+							<!-- /.box-body -->
+						  </div>
+						  <!-- /.box --> 
 						<span><b>Session G&uuml;ltigkeit:</b> {{$ctrl.kommonitorDataExchangeServiceInstance.keycloakTokenExpirationInfo}} Minuten</span>
 					</div>
 					<input type="submit" ng-if="!authenticated" value="Login" id='input_submit' ng-click="tryLoginUser()" class='input_field' >
@@ -79,7 +128,12 @@
 
 	<!-- Modal -->
 	<reporting-modal></reporting-modal>
-	
+
+	<!-- Modal -->
+	<div id="reachabilityScenarioModalContainer">
+		<reachability-scenario-modal></reachability-scenario-modal>
+	</div>
+
 	<!-- Modal -->
 	<wms-modal></wms-modal>
 
@@ -101,7 +155,7 @@
         <kommonitor-data-import></kommonitor-data-import>
     </aside>
 
-		<aside id="sidebarFilter" ng-class="sidebarFilterClass" ng-if="$ctrl.kommonitorElementVisibilityHelperServiceInstance.elementVisibility.filter">
+		<aside id="sidebarFilter" ng-class="sidebarFilterClass" ng-show="$ctrl.kommonitorElementVisibilityHelperServiceInstance.elementVisibility.filter">
         <kommonitor-filter></kommonitor-filter>
     </aside>
 
@@ -143,6 +197,11 @@
     <div id="content" style="height: 100%; width: 100%; position: relative;">
 
         <kommonitor-map style="height: 100%; width: 100%; position: absolute;"></kommonitor-map>
+		
+		<button type="button" id="sidebarLegendCollapse"
+		ng-click="onSidebarLegendButtonClick()" ng-class="buttonLegendClass" data-toggle="tooltip" title="Legenden- und Informationsfenster">
+		<i style="font-size:2.5vh;" class="fas fa-info"></i>
+	</button>
 
 				<!-- LEFT-HANDED SIDEBAR BUTTONS -->
 
@@ -159,10 +218,10 @@
 								<i style="font-size:2.5vh;" class="fas fa-map-marker-alt"></i>
 						</button>
 
-						<!-- <button type="button" style="display: block; position: relative; margin-top: 5px;" " id="sidebarDataImportCollapse"
+						 <button type="button" style="display: block; position: relative; margin-top: 5px;" " id="sidebarDataImportCollapse"
 							ng-click="onSidebarDataImportButtonClick()" ng-class="buttonDataImportClass"  ng-if="$ctrl.kommonitorElementVisibilityHelperServiceInstance.elementVisibility.dataImport" data-toggle="tooltip" title="Datenimport">
 								<i style="font-size:2.5vh;" class="fas fa-file-import"></i>
-						</button> -->
+						</button> 
 
 						<button type="button" style="display: block; position: relative; margin-top: 5px;" " id="sidebarFilterCollapse"
 							ng-click="onSidebarFilterButtonClick()" ng-class="buttonFilterClass" ng-if="$ctrl.kommonitorElementVisibilityHelperServiceInstance.elementVisibility.filter" data-toggle="tooltip" title="Darstellungsfilter">
@@ -206,10 +265,6 @@
 							<i style="font-size:2.5vh;" class="fas fa-sliders-h"></i>
 						</button> -->
 
-						<button type="button" id="sidebarLegendCollapse"
-							ng-click="onSidebarLegendButtonClick()" ng-class="buttonLegendClass" data-toggle="tooltip" title="Legenden- und Informationsfenster">
-							<i style="font-size:2.5vh;" class="fas fa-info"></i>
-						</button>
 				</div>
 
 				<!-- MAP UTIL BUTTONS -->
@@ -228,6 +283,11 @@
 					<button type="button" id="exportMapButton"
 						ng-click="onExportMapButtonClick()" class="btn btn-leaflet-custom" data-toggle="tooltip" title="aktuellen Kartenausschnitt exportieren">
 							<i style="font-size:1.5em;margin-left:-5px;" class="fas fa-download"></i>
+					</button>
+
+					<button type="button" id="openLayerControlButton" data-toggle="button"
+						ng-click="onOpenLayerControlButtonClick()" class="btn btn-leaflet-custom" data-toggle="tooltip" title="Layer Control anzeigen">
+							<i style="font-size:1.5em;margin-left:-5px;" class="fas fa-layer-group"></i>
 					</button>
 				</div>
 

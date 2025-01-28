@@ -2,93 +2,8 @@
 
 	<p></p>
 
-	<!-- DARSTELLUNGSFILTER -->
-	<div class="box box-primary">
-		<div class="box-header with-border">
-			<h3 class="box-title">Wertebereich Filter</h3>
-
-			<div class="box-tools pull-right">
-				<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
-				</button>
-			</div>
-		</div>
-		<div class="box-body">
-
-			<div align="middle">
-				<p>Einschr&auml;nken der dargestellten Features anhand des Indikatorenwertebereichs. Bewegen der
-					Schieberegler mit Hilfe der Maus oder den Pfeiltasten der Tastatur.</p>
-				<div id="rangeSliderForFilteringWrapper">
-					<input id="rangeSliderForFiltering" type="text" class="js-range-slider" value=""></input>
-				</div>
-			</div>
-
-			<p></p>
-
-			<div class="row">
-				<div class="col-lg-6">
-					<div class="input-group">
-						<span class="input-group-addon">
-							<b>untere Grenze</b>
-						</span>
-						<input ng-model="currentLowerFilterValue" ng-model-options="{debounce: 500, blur: 0}"
-							ng-change="onChangeLowerFilterValue()" string-to-number type="number"
-							min="{{valueRangeMinValue}}" max="{{valueRangeMaxValue}}" step="0.01"
-							class="form-control input-sm">
-
-					</div>
-					<!-- /input-group -->
-					<p></p>
-
-					<div ng-show="lowerFilterInputNotValid" class="alert alert-danger" style="margin-bottom:0px;">
-						<strong><i class="icon fas fa-ban"></i>Untere Filtergrenze ung&uuml;ltig!</strong>
-						<p></p>
-						<p>
-							<strong>Hinweis: </strong>Der Wert muss zwischen {{valueRangeMinValue}} und
-							{{valueRangeMaxValue}} liegen und kleiner als die aktuelle obere Filtergrenze
-							({{currentHigherFilterValue}}) sein.
-						</p>
-					</div>
-				</div>
-				<!-- /.col-lg-6 -->
-				<div class="col-lg-6">
-					<div class="input-group">
-						<span class="input-group-addon">
-							<b>obere Grenze</b>
-						</span>
-						<input ng-model="currentHigherFilterValue" ng-model-options="{debounce: 500, blur: 0}"
-							ng-change="onChangeHigherFilterValue()" string-to-number type="number"
-							min="{{valueRangeMinValue}}" max="{{valueRangeMaxValue}}" step="0.01"
-							class="form-control input-sm">
-
-					</div>
-					<!-- /input-group -->
-
-					<p></p>
-					<div ng-show="higherFilterInputNotValid" class="alert alert-danger" style="margin-bottom:0px;">
-						<strong><i class="icon fas fa-ban"></i>Obere Filtergrenze ung&uuml;ltig!</strong>
-
-						<p></p>
-
-						<p>
-							<strong>Hinweis: </strong>Der Wert muss zwischen {{valueRangeMinValue}} und
-							{{valueRangeMaxValue}} liegen und gr&ouml;ßer als die aktuelle untere Filtergrenze
-							({{currentLowerFilterValue}}) sein.
-						</p>
-					</div>
-				</div>
-				<!-- /.col-lg-6 -->
-			</div>
-			<!-- /.row -->
-
-		</div>
-		<!-- /.box-body -->
-	</div>
-	<!-- /.box -->
-
-
-
 	<!-- RÄUMLICHE FILTER -->
-	<div class="box box-primary">
+	<div class="box box-primary" id="kommonitorSpatialFilter" ng-if="isFilterModeActive('kommonitorSpatialFilter')">
 		<div class="box-header with-border">
 			<h3 class="box-title">R&auml;umliche Filter</h3>
 
@@ -112,10 +27,10 @@
 			<hr>
 
 			<div align="middle">
-				<h4>Wähle untergeordnete Raumeinheiten innerhalb der selektierten Raumeinheit</h4>
-				<p>Durch Auswahl eines Gebiets der übergeordneten Raumeinheit (relativ zur momentan angezeigten) können alle darin enthaltenen Gebiete ausgewählt werden. Die Auswahl erfolgt über eine Zentroidberechnung.</p>
+				<h4>Selektion anhand &uuml;bergeordneter Raumeinheit</h4>
+				<p>Durch Auswahl eines Gebiets der &uuml;bergeordneten Raumeinheit (relativ zur momentan angezeigten) k&ouml;nnen alle darin enthaltenen Gebiete ausgew&auml;hlt werden. Die Auswahl erfolgt &uuml;ber eine Zentroidberechnung.</p>
 				<label class="switch">
-					<input id="showSelectionByFeatureSpatialFilterToggle" type="checkbox" ng-change="onChangeShowSelectionByFeature()"
+					<input id="showSelectionByFeatureSpatialFilterToggle" type="checkbox" ng-change="onChangeShowSelectionByFeature(showSelectionByFeatureSpatialFilter)"
 						ng-model="showSelectionByFeatureSpatialFilter" 
 						ng-checked="showSelectionByFeatureSpatialFilter"></input>
 					<span class="switchslider round"></span>
@@ -161,8 +76,8 @@
 						<div class="col-sm-12 col-md-6 col-lg-6">
 							<select style="font-size: 12px;"
 								ng-model="selectedSpatialUnitForFilter"
-								ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in higherSpatialUnits"
-								class="form-control" ng-change="onChangeSelectedSpatialUnitForFilter()"
+								ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in higherSpatialUnits track by spatialUnit.spatialUnitId"
+								class="form-control" ng-change="onChangeSelectedSpatialUnitForFilter(selectedSpatialUnitForFilter)"
 								required>
 								<option disabled selected value> -- Raumeinheit w&auml;hlen --
 								</option>
@@ -177,19 +92,19 @@
 						options="selectionByFeatureSpatialFilterDuallistOptions"></excalibur-dual-list>
 					<button class="btn btn-primary" ng-click="onSelectionByFeatureSpatialFilterSelectBtnPressed()"
 						ng-disabled="!selectionByFeatureSpatialFilterDuallistOptions || selectionByFeatureSpatialFilterDuallistOptions.selectedItems.length == 0">
-							Selektion durchführen
+							Selektion durchf&uuml;hren
 					</button> 
 					<br/>
 					<button id="selectionByFeatureSpatialFilterResetSelectionBtn" class="btn btn-danger" 
-						ng-click="onSelectionByFeatureSpatialFilterResetBtnPressed()">Selektion zurücksetzen</button>
+						ng-click="onSelectionByFeatureSpatialFilterResetBtnPressed()">Selektion zur&uuml;cksetzen</button>
 				</div>
 
 				<hr>
 
-				<h4>Manuelle Selektion anzuzeigender Features</h4>
-				<p>Gebiete können über ihre Bezeichnung oder über die Karte ausgewählt werden.</p>
+				<h4>Manuelle Selektion anzuzeigender Raumeinheiten</h4>
+				<p>Gebiete k&ouml;nnen &uuml;ber ihre Bezeichnung oder &uuml;ber die Karte ausgew&auml;hlt werden.</p>
 				<label class="switch">
-					<input id="showManualSelectionSpatialFilterToggle" type="checkbox" ng-change="onChangeShowManualSelection()"
+					<input id="showManualSelectionSpatialFilterToggle" type="checkbox" ng-change="onChangeShowManualSelection(showManualSelectionSpatialFilter)"
 						ng-model="showManualSelectionSpatialFilter" 
 						ng-checked="showManualSelectionSpatialFilter"></input>
 					<span class="switchslider round"></span>
@@ -200,7 +115,7 @@
 					
 					<!-- selection via any drawable item on map - hidden for now -->
 						<!-- <div>
-						<p>Selektion über Kartenbild</p>
+						<p>Selektion &uuml;ber Kartenbild</p>
 						<label class="switch">
 							<input id="manualSelectionSpatialFilterSelectByMapToggle" type="checkbox" ng-change="onChangeManualSelectionSpatialFilterSelectByMapToggle()"
 								ng-model="manualSelectionSpatialFilterSelectByMap" 
@@ -211,9 +126,9 @@
 							<button class="btn btn-primary" ng-disabled="!manualSelectionSpatialFilterSelectByMap" ng-click="manualSelectionSpatialFilterSelectByMapBtnClicked()">Selektionsbereich zeichnen</button>
 						</div>
 					</div>						 -->					
-					<button class="btn btn-primary" ng-click="onManualSelectionSpatialFilterSelectBtnPressed()">Selektion durchführen</button>
+					<button class="btn btn-primary" ng-click="onManualSelectionSpatialFilterSelectBtnPressed()">Selektion durchf&uuml;hren</button>
 					<button class="btn btn-danger"
-					ng-click="onManualSelectionSpatialFilterResetBtnPressed()">Selektion zurücksetzen</button>
+					ng-click="onManualSelectionSpatialFilterResetBtnPressed()">Selektion zur&uuml;cksetzen</button>
 
 					<br/>
 					<br/>
@@ -226,9 +141,88 @@
 	</div>
 	<!-- /.box -->
 
+	<!-- DARSTELLUNGSFILTER -->
+	<div class="box box-primary" id="kommonitorRangeFilter" ng-if="isFilterModeActive('kommonitorRangeFilter')">
+		<div class="box-header with-border">
+			<h3 class="box-title">Wertebereich Filter</h3>
+
+			<div class="box-tools pull-right">
+				<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+				</button>
+			</div>
+		</div>
+		<div class="box-body">
+
+			<div align="middle">
+				<p>Einschr&auml;nken der dargestellten Features anhand des Indikatorenwertebereichs. Bewegen der
+					Schieberegler mit Hilfe der Maus oder den Pfeiltasten der Tastatur.</p>
+				<div id="rangeSliderForFilteringWrapper">
+					<input id="rangeSliderForFiltering" type="text" class="js-range-slider" value=""></input>
+				</div>
+			</div>
+
+			<p></p>
+
+			<div class="row">
+				<div class="col-lg-6">
+					<div class="input-group">
+						<span class="input-group-addon">
+							<b>untere Grenze</b>
+						</span>
+						<input id="inputLowerValue" ng-model="inputLowerFilterValue" ng-model-options="{debounce: 500, blur: 0}"
+							ng-change="onChangeLowerFilterValue(inputLowerFilterValue)" string-to-number type="number"
+							step="0.01" class="form-control input-sm">
+					</div>
+					<!-- /input-group -->
+					<p></p>
+
+					<div ng-show="lowerFilterInputNotValid" class="alert alert-danger" style="margin-bottom:0px;">
+						<strong><i class="icon fas fa-ban"></i>Untere Filtergrenze ung&uuml;ltig!</strong>
+						<p></p>
+						<p>
+							<strong>Hinweis: </strong>Der Wert muss zwischen {{valueRangeMinValue}} und
+							{{valueRangeMaxValue}} liegen und kleiner als die aktuelle obere Filtergrenze
+							({{currentHigherFilterValue}}) sein.
+						</p>
+					</div>
+				</div>
+				<!-- /.col-lg-6 -->
+				<div class="col-lg-6">
+					<div class="input-group">
+						<span class="input-group-addon">
+							<b>obere Grenze</b>
+						</span>
+						<input id="inputHigherValue" ng-model="inputHigherFilterValue" ng-model-options="{debounce: 500, blur: 0}"
+							ng-change="onChangeHigherFilterValue(inputHigherFilterValue)" string-to-number type="number"
+							step="0.01" class="form-control input-sm">
+					</div>
+					<!-- /input-group -->
+
+					<p></p>
+					<div ng-show="higherFilterInputNotValid" class="alert alert-danger" style="margin-bottom:0px;">
+						<strong><i class="icon fas fa-ban"></i>Obere Filtergrenze ung&uuml;ltig!</strong>
+
+						<p></p>
+
+						<p>
+							<strong>Hinweis: </strong>Der Wert muss zwischen {{valueRangeMinValue}} und
+							{{valueRangeMaxValue}} liegen und gr&ouml;ßer als die aktuelle untere Filtergrenze
+							({{currentLowerFilterValue}}) sein.
+						</p>
+					</div>
+				</div>
+				<!-- /.col-lg-6 -->
+			</div>
+			<!-- /.row -->
+
+		</div>
+		<!-- /.box-body -->
+	</div>
+	<!-- /.box -->
+
 
 	<!-- SCHWELLENWERT FILTER -->
-	<div style="margin-bottom: 0px;" class="box box-primary">
+	<div style="margin-bottom: 0px;" class="box box-primary" id="kommonitorThresholdFilter" ng-if="isFilterModeActive('kommonitorThresholdFilter')">
 		<div class="box-header with-border">
 			<h3 class="box-title">Dynamische Schwellenwertklassifizierung</h3>
 
@@ -243,7 +237,7 @@
 				<p>Dieses Tool bietet eine spezielle Form der Klassifizierung der dargestellten r&auml;mlichen Features.
 					Mit Hilfe eines Schwellenwertes werden die Features zun&auml;chst in zwei Kategorien unterteilt:</p>
 				<ul>
-					<li>Features, deren Indikatorwert unter dem Schwellenwert liegt (Violett-T&ouml;ne)</li>
+					<li>Features, deren Indikatorwert unter dem Schwellenwert liegt (Blau-T&ouml;ne)</li>
 					<li>Features, deren Indikatorwert &uuml;ber dem Schwellenwert liegt (Orange-T&ouml;ne)</li>
 				</ul>
 				<p>Jedes Feature wird anschließend gem&auml;&szlig; seiner Kategorie in eine von 1-5 Abstufungen
