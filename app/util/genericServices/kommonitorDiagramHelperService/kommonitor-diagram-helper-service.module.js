@@ -1,5 +1,6 @@
 "use strict";
 angular.module('kommonitorDiagramHelper', ['kommonitorMap', 'kommonitorDataExchange']);
+
 /**
  * a common serviceInstance that holds all needed properties for a WPS service.
  *
@@ -10,200 +11,193 @@ angular.module('kommonitorDiagramHelper', ['kommonitorMap', 'kommonitorDataExcha
  * parameters for each WPS operation represented by different Angular components
  */
 angular
-    .module('kommonitorDiagramHelper', ["kommonitorFilterHelper"])
-    .service('kommonitorDiagramHelperService', ['$rootScope', '$timeout', 'kommonitorMapService', 'kommonitorDataExchangeService',
+  .module('kommonitorDiagramHelper', ["kommonitorFilterHelper"])
+  .service(
+    'kommonitorDiagramHelperService', ['$rootScope', '$timeout', 'kommonitorMapService', 'kommonitorDataExchangeService', 
     'kommonitorFilterHelperService', '$http', '__env', '$q',
-    function ($rootScope, $timeout, kommonitorMapService, kommonitorDataExchangeService, kommonitorFilterHelperService, $http, __env, $q) {
-        const INDICATOR_DATE_PREFIX = __env.indicatorDatePrefix;
-        const defaultColorForHoveredFeatures = __env.defaultColorForHoveredFeatures;
-        const defaultColorForClickedFeatures = __env.defaultColorForClickedFeatures;
-        var numberOfDecimals = __env.numberOfDecimals;
-        var defaultColorForZeroValues = __env.defaultColorForZeroValues;
-        var defaultColorForNoDataValues = __env.defaultColorForNoDataValues;
-        var defaultColorForFilteredValues = __env.defaultColorForFilteredValues;
-        const defaultColorForOutliers_high = __env.defaultColorForOutliers_high;
-        const defaultBorderColorForOutliers_high = __env.defaultBorderColorForOutliers_high;
-        const defaultFillOpacityForOutliers_high = __env.defaultFillOpacityForOutliers_high;
-        const defaultColorForOutliers_low = __env.defaultColorForOutliers_low;
-        const defaultBorderColorForOutliers_low = __env.defaultBorderColorForOutliers_low;
-        const defaultFillOpacityForOutliers_low = __env.defaultFillOpacityForOutliers_low;
-        this.indicatorPropertyName = "";
-        this.barChartOptions = {};
-        this.lineChartOptions = {};
-        this.histogramChartOptions = {};
-        this.radarChartOptions = {};
-        this.regressionChartOptions = {};
-        this.isCloserToTargetDate = function (date, closestDate, targetDate) {
-            var targetYear = targetDate.split("-")[0];
-            var targetMonth = targetDate.split("-")[1];
-            var targetDay = targetDate.split("-")[2];
-            var closestDateComps = closestDate.split("-");
-            var closestDateYear = closestDateComps[0];
-            var closestDateMonth = closestDateComps[1];
-            var closestDateDay = closestDateComps[2];
-            var dateComps = date.split("-");
-            var year = dateComps[0];
-            var month = dateComps[1];
-            var day = dateComps[2];
-            var monthDiff_closestDate = Math.abs(targetMonth - closestDateMonth);
-            var monthDiff_date = Math.abs(targetMonth - month);
-            if (monthDiff_date <= monthDiff_closestDate) {
-                var dayDiff_closestDate = Math.abs(targetDay - closestDateDay);
-                var dayDiff_date = Math.abs(targetDay - day);
-                if (dayDiff_date < dayDiff_closestDate) {
-                    return true;
-                }
+    function ($rootScope, $timeout,
+      kommonitorMapService, kommonitorDataExchangeService, kommonitorFilterHelperService, $http, __env, $q) {
+
+      const INDICATOR_DATE_PREFIX = __env.indicatorDatePrefix;
+      const defaultColorForHoveredFeatures = __env.defaultColorForHoveredFeatures;
+      const defaultColorForClickedFeatures = __env.defaultColorForClickedFeatures;
+
+      var numberOfDecimals = __env.numberOfDecimals;
+      var defaultColorForZeroValues = __env.defaultColorForZeroValues;
+      var defaultColorForNoDataValues = __env.defaultColorForNoDataValues;
+      var defaultColorForFilteredValues = __env.defaultColorForFilteredValues;
+
+      const defaultColorForOutliers_high = __env.defaultColorForOutliers_high;
+      const defaultBorderColorForOutliers_high = __env.defaultBorderColorForOutliers_high;
+      const defaultFillOpacityForOutliers_high = __env.defaultFillOpacityForOutliers_high;
+      const defaultColorForOutliers_low = __env.defaultColorForOutliers_low;
+      const defaultBorderColorForOutliers_low = __env.defaultBorderColorForOutliers_low;
+      const defaultFillOpacityForOutliers_low = __env.defaultFillOpacityForOutliers_low;
+
+      this.indicatorPropertyName = "";
+
+      this.barChartOptions = {};
+      this.lineChartOptions = {};
+      this.histogramChartOptions = {};
+      this.radarChartOptions = {};
+      this.regressionChartOptions = {};
+
+      this.isCloserToTargetDate = function(date, closestDate, targetDate){
+        var targetYear = targetDate.split("-")[0];
+        var targetMonth = targetDate.split("-")[1];
+        var targetDay = targetDate.split("-")[2];
+
+        var closestDateComps = closestDate.split("-");
+        var closestDateYear = closestDateComps[0];
+        var closestDateMonth = closestDateComps[1];
+        var closestDateDay = closestDateComps[2];
+
+        var dateComps = date.split("-");
+        var year = dateComps[0];
+        var month = dateComps[1];
+        var day = dateComps[2];
+
+        var monthDiff_closestDate = Math.abs(targetMonth - closestDateMonth);
+        var monthDiff_date = Math.abs(targetMonth - month);
+
+        if(monthDiff_date <= monthDiff_closestDate){
+          var dayDiff_closestDate = Math.abs(targetDay - closestDateDay);
+          var dayDiff_date = Math.abs(targetDay - day);
+
+          if(dayDiff_date < dayDiff_closestDate){
+            return true;
+          }
+        }
+        return false;
+      };
+
+      this.findClostestTimestamForTargetDate = function(indicatorForRadar, targetDate){
+        var applicableDates = indicatorForRadar.indicatorMetadata.applicableDates;
+
+        var targetYear = targetDate.split("-")[0];
+        var targetMonth = targetDate.split("-")[1];
+        var targetDay = targetDate.split("-")[2];
+
+        var closestDate = undefined;
+
+        for (var date of applicableDates) {
+          var dateComps = date.split("-");
+          var year = dateComps[0];
+          var month = dateComps[1];
+          var day = dateComps[2];
+
+          if(targetDate.includes(year)){
+            if(! closestDate){
+              closestDate = date;
             }
-            return false;
-        };
-        this.findClostestTimestamForTargetDate = function (indicatorForRadar, targetDate) {
-            var applicableDates = indicatorForRadar.indicatorMetadata.applicableDates;
-            var targetYear = targetDate.split("-")[0];
-            var targetMonth = targetDate.split("-")[1];
-            var targetDay = targetDate.split("-")[2];
-            var closestDate = undefined;
-            for (var date of applicableDates) {
-                var dateComps = date.split("-");
-                var year = dateComps[0];
-                var month = dateComps[1];
-                var day = dateComps[2];
-                if (targetDate.includes(year)) {
-                    if (!closestDate) {
-                        closestDate = date;
-                    }
-                    else {
-                        if (this.isCloserToTargetDate(date, closestDate, targetDate)) {
-                            closestDate = date;
-                        }
-                    }
-                }
+            else{
+              if(this.isCloserToTargetDate(date, closestDate, targetDate)){
+                closestDate = date;
+              }
             }
-            return closestDate;
-        };
-        // an array of only the properties and metadata of all indicatorFeatures
-        this.indicatorPropertiesForCurrentSpatialUnitAndTime;
-        this.filterSameUnitAndSameTime = false;
-        this.setupIndicatorPropertiesForCurrentSpatialUnitAndTime = function (filterBySameUnitAndSameTime) {
-            $rootScope.$broadcast("allIndicatorPropertiesForCurrentSpatialUnitAndTime setup begin");
-            this.indicatorPropertiesForCurrentSpatialUnitAndTime = [];
-            kommonitorDataExchangeService.displayableIndicators.forEach(indicatorMetadata => {
-                var targetYear = kommonitorDataExchangeService.selectedDate.split("-")[0];
-                var indicatorCandidateYears = [];
-                indicatorMetadata.applicableDates.forEach((date, i) => {
-                    indicatorCandidateYears.push(date.split("-")[0]);
-                });
-                // if (indicatorCandidateYears.includes(targetYear) && indicatorMetadata.applicableSpatialUnits.some(o => o.spatialUnitName ===  kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel)) {
-                //   var selectableIndicatorEntry = {};
-                //   selectableIndicatorEntry.indicatorProperties = null;
-                //   // per default show no indicators on radar
-                //   selectableIndicatorEntry.isSelected = false;
-                //   selectableIndicatorEntry.indicatorMetadata = indicatorMetadata;
-                //   selectableIndicatorEntry.closestTimestamp = undefined;
-                //   this.indicatorPropertiesForCurrentSpatialUnitAndTime.push(selectableIndicatorEntry);
-                // }
-                if (indicatorMetadata.applicableSpatialUnits.some(o => o.spatialUnitName === kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel)) {
-                    var canBeAdded = true;
-                    if (filterBySameUnitAndSameTime) {
-                        if (indicatorCandidateYears.includes(targetYear)) {
-                            canBeAdded = true;
-                        }
-                        else {
-                            canBeAdded = false;
-                        }
-                    }
-                    if (canBeAdded) {
-                        var selectableIndicatorEntry = {};
-                        selectableIndicatorEntry.indicatorProperties = null;
-                        // per default show no indicators on radar
-                        selectableIndicatorEntry.isSelected = false;
-                        selectableIndicatorEntry.indicatorMetadata = indicatorMetadata;
-                        // selectableIndicatorEntry.closestTimestamp = undefined;
-                        this.indicatorPropertiesForCurrentSpatialUnitAndTime.push(selectableIndicatorEntry);
-                    }
-                }
-            });
-            $rootScope.$broadcast("allIndicatorPropertiesForCurrentSpatialUnitAndTime setup completed");
-        };
-        this.fetchIndicatorPropertiesIfNotExists = async function (index) {
-            if (this.indicatorPropertiesForCurrentSpatialUnitAndTime[index].indicatorProperties === null || this.indicatorPropertiesForCurrentSpatialUnitAndTime[index].indicatorProperties === undefined) {
-                // var dateComps = kommonitorDataExchangeService.selectedDate.split("-");
-                //
-                // 	var year = dateComps[0];
-                // 	var month = dateComps[1];
-                // 	var day = dateComps[2];
-                this.indicatorPropertiesForCurrentSpatialUnitAndTime[index].indicatorProperties = await this.fetchIndicatorProperties(this.indicatorPropertiesForCurrentSpatialUnitAndTime[index].indicatorMetadata, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitId);
+
+          }
+        }
+
+        return closestDate;
+      };
+
+      // an array of only the properties and metadata of all indicatorFeatures
+      this.indicatorPropertiesForCurrentSpatialUnitAndTime;
+
+      this.filterSameUnitAndSameTime = false;
+
+      this.setupIndicatorPropertiesForCurrentSpatialUnitAndTime = function (filterBySameUnitAndSameTime) {
+
+        $rootScope.$broadcast("allIndicatorPropertiesForCurrentSpatialUnitAndTime setup begin");
+
+        this.indicatorPropertiesForCurrentSpatialUnitAndTime = [];
+
+        kommonitorDataExchangeService.displayableIndicators.forEach(indicatorMetadata => {
+          var targetYear = kommonitorDataExchangeService.selectedDate.split("-")[0];
+          var indicatorCandidateYears = []
+          indicatorMetadata.applicableDates.forEach((date, i) => {
+            indicatorCandidateYears.push(date.split("-")[0]);
+          });
+
+
+          // if (indicatorCandidateYears.includes(targetYear) && indicatorMetadata.applicableSpatialUnits.some(o => o.spatialUnitName ===  kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel)) {
+          //   var selectableIndicatorEntry = {};
+          //   selectableIndicatorEntry.indicatorProperties = null;
+          //   // per default show no indicators on radar
+          //   selectableIndicatorEntry.isSelected = false;
+          //   selectableIndicatorEntry.indicatorMetadata = indicatorMetadata;
+          //   selectableIndicatorEntry.closestTimestamp = undefined;
+
+          //   this.indicatorPropertiesForCurrentSpatialUnitAndTime.push(selectableIndicatorEntry);
+          // }
+          
+          if (indicatorMetadata.applicableSpatialUnits.some(o => o.spatialUnitName === kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel)) {
+            var canBeAdded = true;
+
+            if(filterBySameUnitAndSameTime){
+              if(indicatorCandidateYears.includes(targetYear)){
+                canBeAdded = true;
+              }
+              else{
+                canBeAdded = false;
+              }
             }
-        };
-        this.fetchIndicatorProperties = function (indicatorMetadata, spatialUnitId) {
-            return $http({
-                url: kommonitorDataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/indicators/" + indicatorMetadata.indicatorId + "/" + spatialUnitId + "/without-geometry",
-                method: "GET"
-            }).then(function successCallback(response) {
-                // this callback will be called asynchronously
-                // when the response is available
-                return response.data;
-            }, function errorCallback(error) {
-                // called asynchronously if an error occurs
-                // or server returns response with an error status.
-                kommonitorDataExchangeService.displayMapApplicationError(error);
-            });
-        };
-        this.getColorFromBrewInstance = function (brewInstance, feature, targetDate) {
-            var color;
-            for (var index = 0; index < brewInstance.breaks.length; index++) {
-                if (kommonitorDataExchangeService.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) == kommonitorDataExchangeService.getIndicatorValue_asNumber(brewInstance.breaks[index])) {
-                    if (index < brewInstance.breaks.length - 1) {
-                        // min value
-                        color = brewInstance.colors[index];
-                        break;
-                    }
-                    else {
-                        //max value
-                        if (brewInstance.colors[index]) {
-                            color = brewInstance.colors[index];
-                        }
-                        else {
-                            color = brewInstance.colors[index - 1];
-                        }
-                        break;
-                    }
-                }
-                else {
-                    if (kommonitorDataExchangeService.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) < kommonitorDataExchangeService.getIndicatorValue_asNumber(brewInstance.breaks[index + 1])) {
-                        color = brewInstance.colors[index];
-                        break;
-                    }
-                }
+
+            if (canBeAdded){
+              var selectableIndicatorEntry = {};
+              selectableIndicatorEntry.indicatorProperties = null;
+              // per default show no indicators on radar
+              selectableIndicatorEntry.isSelected = false;
+              selectableIndicatorEntry.indicatorMetadata = indicatorMetadata;
+              // selectableIndicatorEntry.closestTimestamp = undefined;
+
+              this.indicatorPropertiesForCurrentSpatialUnitAndTime.push(selectableIndicatorEntry);
             }
-            return color;
-        };
-        this.getColorForFeature = function (feature, indicatorMetadataAndGeoJSON, targetDate, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue) {
-            var color;
-            if (!targetDate.includes(INDICATOR_DATE_PREFIX)) {
-                targetDate = INDICATOR_DATE_PREFIX + targetDate;
-            }
-            if (kommonitorDataExchangeService.indicatorValueIsNoData(feature.properties[targetDate])) {
-                color = defaultColorForNoDataValues;
-            }
-            else if (kommonitorFilterHelperService.featureIsCurrentlyFiltered(feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
-                color = defaultColorForFilteredValues;
-            }
-            else if (kommonitorDataExchangeService.classifyZeroSeparately && kommonitorDataExchangeService.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) === 0) {
-                color = defaultColorForZeroValues;
-            }
-            else if (feature.properties["outlier"] !== undefined && feature.properties["outlier"].includes("low") && kommonitorDataExchangeService.useOutlierDetectionOnIndicator) {
-                color = defaultColorForOutliers_low;
-            }
-            else if (feature.properties["outlier"] !== undefined && feature.properties["outlier"].includes("high") && kommonitorDataExchangeService.useOutlierDetectionOnIndicator) {
-                color = defaultColorForOutliers_high;
-            }
-            else if (isMeasureOfValueChecked) {
-                if (kommonitorDataExchangeService.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) >= +Number(measureOfValue).toFixed(numberOfDecimals)) {
-                    color = this.getColorFromBrewInstance(gtMeasureOfValueBrew, feature, targetDate);
-                }
-                else {
-                    color = this.getColorFromBrewInstance(ltMeasureOfValueBrew, feature, targetDate);
-                }
+            
+          }
+        });
+
+        $rootScope.$broadcast("allIndicatorPropertiesForCurrentSpatialUnitAndTime setup completed");
+      };
+
+      this.fetchIndicatorPropertiesIfNotExists = async function(index){
+        if(this.indicatorPropertiesForCurrentSpatialUnitAndTime[index].indicatorProperties === null || this.indicatorPropertiesForCurrentSpatialUnitAndTime[index].indicatorProperties === undefined){
+          // var dateComps = kommonitorDataExchangeService.selectedDate.split("-");
+          //
+					// 	var year = dateComps[0];
+					// 	var month = dateComps[1];
+					// 	var day = dateComps[2];
+
+          this.indicatorPropertiesForCurrentSpatialUnitAndTime[index].indicatorProperties = await this.fetchIndicatorProperties(this.indicatorPropertiesForCurrentSpatialUnitAndTime[index].indicatorMetadata, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitId);
+        }
+      };
+
+      this.fetchIndicatorProperties = function (indicatorMetadata, spatialUnitId) {
+        return $http({
+          url: kommonitorDataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/indicators/" + indicatorMetadata.indicatorId + "/" + spatialUnitId + "/without-geometry",
+          method: "GET"
+        }).then(function successCallback(response) {
+          // this callback will be called asynchronously
+          // when the response is available
+          return response.data;
+
+        }, function errorCallback(error) {
+          // called asynchronously if an error occurs
+          // or server returns response with an error status.
+					kommonitorDataExchangeService.displayMapApplicationError(error);
+        });
+      };
+
+      this.getColorFromBrewInstance = function(brewInstance, feature, targetDate){
+        var color;
+        for (var index=0; index < brewInstance.breaks.length; index++){
+
+          if(kommonitorDataExchangeService.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) == kommonitorDataExchangeService.getIndicatorValue_asNumber(brewInstance.breaks[index])){
+            if(index < brewInstance.breaks.length -1){
+              // min value
+              color =  brewInstance.colors[index];
+              break;
             }
             else {
               //max value
@@ -1254,6 +1248,15 @@ angular
                       var value = kommonitorDataExchangeService.getIndicatorValue_asNumber(lineSeries[k].data[j]);
                       htmlString += "<td>" + value + "</td>";
                     }
+                    htmlString += "</tr>";
+                  }
+
+                  htmlString += "</tbody>";
+                  htmlString += "</table>";
+
+                  $rootScope.$broadcast("AppendExportButtonsForTable", dataTableId, tableExportName);
+
+                  return htmlString;
                 }
               },
               restore: { show: false, title: "Erneuern" },
@@ -1580,6 +1583,9 @@ angular
 
                   return htmlString;
                 }
+              },
+              restore: { show: false, title: "Erneuern" },
+              saveAsImage: { show: true, title: "Export", pixelRatio: 4 }
             }
           },
           xAxis: [{
@@ -1839,23 +1845,9 @@ angular
 
                   return htmlString;
                 }
-                else {
-                    indicatorValue = kommonitorDataExchangeService.getIndicatorValue_asNumber(cartographicFeature.properties[self.indicatorPropertyName]);
-                }
-                var featureName = cartographicFeature.properties[__env.FEATURE_NAME_PROPERTY_NAME];
-                featureNamesArray.push(featureName);
-                indicatorValueArray.push(indicatorValue);
-                var color = this.getColorForFeature(cartographicFeature, indicatorMetadataAndGeoJSON, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue);
-                var seriesItem = {
-                    value: indicatorValue,
-                    name: featureName,
-                    itemStyle: {
-                        color: color
-                        // borderWidth: 1,
-                        // borderColor: 'black'
-                    }
-                };
-                indicatorValueBarChartArray.push(seriesItem);
+              },
+              restore: { show: false, title: "Erneuern" },
+              saveAsImage: { show: true, title: "Export", pixelRatio: 4 }
             }
           },
           tooltip: {
@@ -1964,12 +1956,35 @@ angular
                   xAxis: indicatorMetadataAndGeoJSON.applicableDates[indicatorMetadataAndGeoJSON.applicableDates.length - 1]
               }]]
             };
-            // default fontSize of echarts
-            var fontSize = 18;
-            var barChartTitel = 'Ranking - ' + spatialUnitName + ' - ';
-            if (indicatorMetadataAndGeoJSON.fromDate) {
-                barChartTitel += "Bilanz " + indicatorMetadataAndGeoJSON.fromDate + " - " + indicatorMetadataAndGeoJSON.toDate;
-                fontSize = 14;
+          }          
+
+          // hide data points
+          timeseriesOptions.series[0].itemStyle.normal.opacity = 0;
+          timeseriesOptions.series[0].lineStyle.normal.width = 3;
+          timeseriesOptions.series[0].lineStyle.normal.type = "solid";  
+          
+          var trendData = [];
+
+          var timeseriesData = timeseriesOptions.series[0].data;  
+          var minSeriesData = timeseriesOptions.series[1].data;  
+          var maxSeriesData = timeseriesOptions.series[2].data;           
+
+          if(! showCompleteTimeseries){
+            var xData = [];
+            var timeData = [];
+            var minData = [];
+            var maxData = [];
+            for (let index = 0; index < timeseriesData.length; index++) {
+              var date_candidate = new Date(indicatorMetadataAndGeoJSON.applicableDates[index]);
+              if(date_candidate >= fromDate_date && date_candidate <= toDate_date){
+                const value = timeseriesData[index];
+                // const date = indicatorMetadataAndGeoJSON.applicableDates[index];
+  
+                timeData.push(value);
+                xData.push(indicatorMetadataAndGeoJSON.applicableDates[index]);  
+                minData.push(minSeriesData[index]);
+                maxData.push(maxSeriesData[index]);             
+              }            
             }
 
             timeseriesOptions.series[0].data = timeData;
@@ -2174,190 +2189,94 @@ angular
                 if(isochroneEntry === entry) {
                   break;
                 }
-            });
-            if (!showMinMax) {
-                timeseriesOptions.series.splice(1, 1);
-                timeseriesOptions.series.splice(1, 1);
+                ctx.fillStyle = isochroneEntry.iconColor;
+                ctx.globalAlpha = isochroneEntry.iconOpacity;
+                ctx.fillRect(xPos, yPos + ( (12-entry.iconHeight) / 2), iconWidth, isochroneEntry.iconHeight)
+                ctx.globalAlpha = 1;
+              }
             }
-            return timeseriesOptions;
-        };
-        // Returns an image.
-        // Attribution has to be converted to an image anyway for report generation.
-        this.createReportingReachabilityMapAttribution = async function () {
-            let attributionText = "Leaflet | Map data @ OpenStreetMap contributors";
-            let canvas = document.createElement("canvas");
-            canvas.width = 800;
-            let ctx = canvas.getContext('2d');
-            ctx.font = "8pt Arial";
-            ctx.textBaseline = 'top';
-            ctx.fillStyle = "rgb(60, 60, 60)";
-            ctx.fillText(attributionText, 0, 0);
-            canvas = trimCanvas(canvas, 5);
-            let image = new Image(canvas.width, canvas.height);
-            image.style.backgroundColor = "white";
-            return await new Promise((resolve, reject) => {
-                image.onload = function () {
-                    resolve(image);
-                };
-                image.src = canvas.toDataURL();
-            });
-        };
-        // Returns an image.
-        // Legend has to be converted to an image anyway for report generation.
-        this.createReportingReachabilityMapLegend = async function (echartsOptions, selectedSpatialUnit, isochronesRangeType, isochronesRangeUnits) {
-            let legendEntries = [];
-            let isochronesHeadingAdded = false;
-            for (let i = 0; i < echartsOptions.series.length; i++) {
-                let series = echartsOptions.series[i];
-                if (series.name === "spatialUnitBoundaries") {
-                    legendEntries.push({
-                        label: selectedSpatialUnit.spatialUnitName ? selectedSpatialUnit.spatialUnitName : selectedSpatialUnit.spatialUnitLevel,
-                        iconColor: series.itemStyle.borderColor,
-                        iconHeight: 4,
-                        isGroupHeading: false
-                    });
-                }
-                if (series.name.includes("isochrones")) {
-                    if (!isochronesHeadingAdded) { // add heading above first isochrone entry
-                        legendEntries.push({
-                            label: "Erreichbarkeit",
-                            isGroupHeading: true
-                        });
-                        isochronesHeadingAdded = true;
-                    }
-                    let value = series.data[0].value;
-                    legendEntries.push({
-                        label: value,
-                        iconColor: series.data[0].itemStyle.areaColor,
-                        iconOpacity: series.data[0].itemStyle.opacity,
-                        iconHeight: 12,
-                        isGroupHeading: false,
-                        isIsochroneEntry: true
-                    });
-                }
-            }
-            let canvas = document.createElement("canvas");
-            canvas.width = 800;
-            canvas.height = 800;
-            let ctx = canvas.getContext('2d');
-            let fontStyle = "8pt Arial";
+
+            ctx.fillStyle = entry.iconColor;
+            ctx.globalAlpha = entry.iconOpacity ? entry.iconOpacity : 1;
+            ctx.fillRect(xPos, yPos + ( (12-entry.iconHeight) / 2), iconWidth, entry.iconHeight)
+            ctx.globalAlpha = 1;
+            // and label
             ctx.font = fontStyle;
-            let xPos = 5;
-            let yPos = 5;
-            let rowHeight = 20;
-            let iconWidth = 30;
-            for (let entry of legendEntries) {
-                if (entry.isGroupHeading) {
-                    let isochronesRangeTypeMapping = {
-                        "time": "Zeit",
-                        "distance": "Distanz"
-                    };
-                    // only draw label
-                    ctx.font = "bold " + fontStyle;
-                    ctx.fillStyle = "black";
-                    ctx.textBaseline = "top";
-                    let text = entry.label + " [" + isochronesRangeTypeMapping[isochronesRangeType] + "]";
-                    ctx.fillText(text, xPos, yPos);
-                    yPos += rowHeight;
-                }
-                else {
-                    // icon
-                    if (entry.isIsochroneEntry) {
-                        let isochroneEntries = legendEntries.filter(entry => {
-                            return entry.isIsochroneEntry;
-                        });
-                        // layer isochrone icons on top of each other unitl we reach the current one
-                        for (let isochroneEntry of isochroneEntries.reverse()) {
-                            if (isochroneEntry === entry) {
-                                break;
-                            }
-                            ctx.fillStyle = isochroneEntry.iconColor;
-                            ctx.globalAlpha = isochroneEntry.iconOpacity;
-                            ctx.fillRect(xPos, yPos + ((12 - entry.iconHeight) / 2), iconWidth, isochroneEntry.iconHeight);
-                            ctx.globalAlpha = 1;
-                        }
-                    }
-                    ctx.fillStyle = entry.iconColor;
-                    ctx.globalAlpha = entry.iconOpacity ? entry.iconOpacity : 1;
-                    ctx.fillRect(xPos, yPos + ((12 - entry.iconHeight) / 2), iconWidth, entry.iconHeight);
-                    ctx.globalAlpha = 1;
-                    // and label
-                    ctx.font = fontStyle;
-                    ctx.fillStyle = "black";
-                    ctx.textBaseline = "top";
-                    if (entry.isIsochroneEntry) {
-                        let text = entry.label + " " + isochronesRangeUnits;
-                        ctx.fillText(text, xPos + iconWidth + 5, yPos);
-                    }
-                    else {
-                        ctx.fillText(entry.label, xPos + iconWidth + 5, yPos);
-                    }
-                    yPos += rowHeight;
-                }
+            ctx.fillStyle = "black";
+            ctx.textBaseline = "top";
+            if(entry.isIsochroneEntry) {
+              let text = entry.label + " " + isochronesRangeUnits
+              ctx.fillText(text, xPos + iconWidth + 5, yPos)
+            } else {
+              ctx.fillText(entry.label, xPos + iconWidth + 5, yPos)
             }
-            canvas = trimCanvas(canvas, 5);
-            let image = new Image(canvas.width, canvas.height);
-            image.style.backgroundColor = "white";
-            return await new Promise((resolve, reject) => {
-                image.onload = function () {
-                    resolve(image);
-                };
-                image.src = canvas.toDataURL();
-            });
-        };
-        var calculateOverallBoundingBoxFromGeoJSON = function (features) {
-            let result = [];
-            for (var i = 0; i < features.length; i++) {
-                // check if we have to modify our overall bbox (result)
-                if (result.length === 0) { // for first feature
-                    result.push(...features[i].properties.bbox);
-                }
-                else {
-                    // all other features
-                    let bbox = features[i].properties.bbox;
-                    result[0] = (bbox[0] < result[0]) ? bbox[0] : result[0];
-                    result[1] = (bbox[1] < result[1]) ? bbox[1] : result[1];
-                    result[2] = (bbox[2] > result[2]) ? bbox[2] : result[2];
-                    result[3] = (bbox[3] > result[3]) ? bbox[3] : result[3];
-                }
+            yPos += rowHeight
+          }
+        }
+
+        canvas = trimCanvas(canvas, 5)
+        let image = new Image(canvas.width, canvas.height)
+        image.style.backgroundColor = "white";
+        return await new Promise( (resolve, reject) => {
+          image.onload = function() {
+            resolve(image);
+          }
+          image.src = canvas.toDataURL();
+        });
+      }
+
+      var calculateOverallBoundingBoxFromGeoJSON = function(features) {
+        let result = [];
+        for(var i=0; i<features.length; i++) {
+           // check if we have to modify our overall bbox (result)
+           if(result.length === 0) { // for first feature
+            result.push(...features[i].properties.bbox);
+          } else {
+            // all other features
+            let bbox = features[i].properties.bbox;
+            result[0] = (bbox[0] < result[0]) ? bbox[0] : result[0];
+            result[1] = (bbox[1] < result[1]) ? bbox[1] : result[1];
+            result[2] = (bbox[2] > result[2]) ? bbox[2] : result[2];
+            result[3] = (bbox[3] > result[3]) ? bbox[3] : result[3];
+          }
+        }
+        return result;
+      };
+
+      function trimCanvas(canvas, padding=0) {
+        function rowBlank(imageData, width, y) {
+            for (var x = 0; x < width; ++x) {
+                if (imageData.data[y * width * 4 + x * 4 + 3] !== 0) return false;
             }
-            return result;
-        };
-        function trimCanvas(canvas, padding = 0) {
-            function rowBlank(imageData, width, y) {
-                for (var x = 0; x < width; ++x) {
-                    if (imageData.data[y * width * 4 + x * 4 + 3] !== 0)
-                        return false;
-                }
-                return true;
+            return true;
+        }
+     
+        function columnBlank(imageData, width, x, top, bottom) {
+            for (var y = top; y < bottom; ++y) {
+                if (imageData.data[y * width * 4 + x * 4 + 3] !== 0) return false;
             }
-            function columnBlank(imageData, width, x, top, bottom) {
-                for (var y = top; y < bottom; ++y) {
-                    if (imageData.data[y * width * 4 + x * 4 + 3] !== 0)
-                        return false;
-                }
-                return true;
-            }
+            return true;
+        }
+     
+     
             var ctx = canvas.getContext("2d");
             var width = canvas.width;
             var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
             var top = 0, bottom = imageData.height, left = 0, right = imageData.width;
-            while (top < bottom && rowBlank(imageData, width, top))
-                ++top;
-            while (bottom - 1 > top && rowBlank(imageData, width, bottom - 1))
-                --bottom;
-            while (left < right && columnBlank(imageData, width, left, top, bottom))
-                ++left;
-            while (right - 1 > left && columnBlank(imageData, width, right - 1, top, bottom))
-                --right;
+     
+            while (top < bottom && rowBlank(imageData, width, top)) ++top;
+            while (bottom - 1 > top && rowBlank(imageData, width, bottom - 1)) --bottom;
+            while (left < right && columnBlank(imageData, width, left, top, bottom)) ++left;
+            while (right - 1 > left && columnBlank(imageData, width, right - 1, top, bottom)) --right;
+     
             var trimmed = ctx.getImageData(left, top, right - left, bottom - top);
             var copy = canvas.ownerDocument.createElement("canvas");
             var copyCtx = copy.getContext("2d");
-            copy.width = trimmed.width + padding * 2;
-            copy.height = trimmed.height + padding * 2;
+            copy.width = trimmed.width + padding*2;
+            copy.height = trimmed.height + padding*2;
             copyCtx.putImageData(trimmed, padding, padding);
+     
             return copy;
-        }
-        ;
+     };
+
     }]);
-//# sourceMappingURL=kommonitor-diagram-helper-service.module.js.map

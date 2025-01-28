@@ -1,5 +1,6 @@
 "use strict";
 angular.module('kommonitorVisualStyleHelper', ['kommonitorDataExchange']);
+
 /**
  * a common serviceInstance that holds all needed properties for a WPS service.
  *
@@ -146,6 +147,7 @@ angular
         this.featuresPerColorMap = new Map();
         this.featuresPerNoData = 0;
         this.featuresPerZero = 0;
+        this.featuresPerOutlierLow = 0;
         this.featuresPerOutlierHigh = 0;
       };
 
@@ -700,7 +702,14 @@ angular
               break;
             }
             else {
-                this.featuresPerColorMap.set(color, 1);
+              //max value
+              if (colorBrewInstance.colors[index]) {
+                color = colorBrewInstance.colors[index];
+              }
+              else {
+                color = colorBrewInstance.colors[index - 1];
+              }
+              break;
             }
           }
           else {
@@ -710,155 +719,7 @@ angular
               }
               break;
             }
-            else {
-                values = this.setupDefaultBrewValues_singleTimestamp(geoJSON, propertyName, values);
-            }
-            this.defaultBrew = setupClassyBrew_usingFeatureCount(values, colorCode, classifyMethod, numClasses);
-            return this.defaultBrew;
-        };
-        this.setupDefaultBrewValues_singleTimestamp = function (geoJSON, propertyName, values) {
-            for (var i = 0; i < geoJSON.features.length; i++) {
-                if (kommonitorDataExchangeService.indicatorValueIsNoData(geoJSON.features[i].properties[propertyName]))
-                    continue;
-                if (kommonitorDataExchangeService.classifyZeroSeparately && (geoJSON.features[i].properties[propertyName] == 0 || geoJSON.features[i].properties[propertyName] == "0")) {
-                    continue;
-                }
-                // check if is outlier, then do not use within classification, as it will be marked on map with special color
-                if (geoJSON.features[i].properties[outlierPropertyName] && geoJSON.features[i].properties[outlierPropertyName] !== outlierPropertyValue_no && kommonitorDataExchangeService.useOutlierDetectionOnIndicator) {
-                    continue;
-                }
-                if (!values.includes(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]))) {
-                    values.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]));
-                }
-            }
-            return values;
-        };
-        this.setupDefaultBrewValues_wholeTimeseries = function (geoJSON, values, forceProvidedIndicator, indicator) {
-            var indicatorTimeSeriesDatesArray;
-            if (forceProvidedIndicator) {
-                indicatorTimeSeriesDatesArray = indicator.applicableDates;
-            }
-            else {
-                indicatorTimeSeriesDatesArray = kommonitorDataExchangeService.selectedIndicator.applicableDates;
-            }
-            for (const date of indicatorTimeSeriesDatesArray) {
-                var propertyName = __env.indicatorDatePrefix + date;
-                values = this.setupDefaultBrewValues_singleTimestamp(geoJSON, propertyName, values);
-            }
-            return values;
-        };
-        /**
-         * Returns and array of color brewer instances for greater and lesser than measure of value colors
-         *
-         * [gtMeasureOfValueBrew, ltMeasureOfValueBrew]
-         */
-        this.setupMeasureOfValueBrew = function (geoJSON, propertyName, colorCodeForGreaterThanValues, colorCodeForLesserThanValues, classifyMethod, measureOfValue) {
-            /*
-            * Idea: Analyse the complete geoJSON property array for each feature and make conclusion about how to build the legend
-    
-            e.g. if there are only positive values then display only positive values within 5 categories - same for only negative values
-    
-            e.g. if there are equally many positive as negative values then display both using 3 categories each
-    
-            e.g. if there are way more positive than negative values, then display both with 2 (negative) and 4 (positive) classes
-    
-            --> implement special cases (0, 1 or 2 negative/positive values --> apply colors manually)
-            --> treat all other cases equally to measureOfValue
-            */
-            this.resetFeaturesPerColorObjects();
-            this.greaterThanValues = [];
-            this.lesserThanValues = [];
-            if (kommonitorDataExchangeService.classifyUsingWholeTimeseries) {
-                this.setupMovBrewValues_wholeTimeseries(geoJSON, measureOfValue);
-            }
-            else {
-                this.setupMovBrewValues_singleTimestamp(geoJSON, propertyName, measureOfValue);
-            }
-            var gtMeasureOfValueBrew = this.setupGtMeasureOfValueBrew(this.greaterThanValues, colorCodeForGreaterThanValues, classifyMethod);
-            var ltMeasureOfValueBrew = this.setupLtMeasureOfValueBrew(this.lesserThanValues, colorCodeForLesserThanValues, classifyMethod);
-            this.measureOfValueBrew = [gtMeasureOfValueBrew, ltMeasureOfValueBrew];
-            return this.measureOfValueBrew;
-        };
-        this.setupMovBrewValues_singleTimestamp = function (geoJSON, propertyName, measureOfValue) {
-            for (var i = 0; i < geoJSON.features.length; i++) {
-                if (kommonitorDataExchangeService.indicatorValueIsNoData(geoJSON.features[i].properties[propertyName]))
-                    continue;
-                if (kommonitorDataExchangeService.classifyZeroSeparately && (geoJSON.features[i].properties[propertyName] == 0 || geoJSON.features[i].properties[propertyName] == "0")) {
-                    continue;
-                }
-                // check if is outlier, then do not use within classification, as it will be marked on map with special color
-                if (geoJSON.features[i].properties[outlierPropertyName] && geoJSON.features[i].properties[outlierPropertyName] !== outlierPropertyValue_no && kommonitorDataExchangeService.useOutlierDetectionOnIndicator) {
-                    continue;
-                }
-                else if (kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]) >= kommonitorDataExchangeService.getIndicatorValue_asNumber(measureOfValue)) {
-                    if (!this.greaterThanValues.includes(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]))) {
-                        this.greaterThanValues.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]));
-                    }
-                }
-                else {
-                    if (!this.lesserThanValues.includes(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]))) {
-                        this.lesserThanValues.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]));
-                    }
-                }
-            }
-        };
-        this.setupMovBrewValues_wholeTimeseries = function (geoJSON, measureOfValue) {
-            var indicatorTimeSeriesDatesArray = kommonitorDataExchangeService.selectedIndicator.applicableDates;
-            for (const date of indicatorTimeSeriesDatesArray) {
-                var propertyName = __env.indicatorDatePrefix + date;
-                this.setupMovBrewValues_singleTimestamp(geoJSON, propertyName, measureOfValue);
-            }
-        };
-        function setupClassyBrew_usingFeatureCount(valuesArray, colorCode, classifyMethod, maxNumberOfClasses) {
-            var tempBrew = new classyBrew();
-            var colorBrewerInstance = new classyBrew();
-            if (valuesArray.length >= 5) {
-                // pass array to our classyBrew series
-                tempBrew.setSeries(valuesArray);
-                // define number of classes
-                tempBrew.setNumClasses(maxNumberOfClasses);
-                // set color ramp code
-                tempBrew.setColorCode(colorCode);
-                // classify by passing in statistical method
-                // i.e. equal_interval, jenks, quantile
-                tempBrew.classify(classifyMethod);
-                colorBrewerInstance.colors = tempBrew.getColors();
-                colorBrewerInstance.breaks = tempBrew.getBreaks();
-            }
-            else if (valuesArray.length === 4) {
-                valuesArray.sort((a, b) => a - b);
-                colorBrewerInstance.colors = tempBrew.colorSchemes[colorCode]['4'];
-                colorBrewerInstance.breaks = valuesArray;
-            }
-            else if (valuesArray.length === 3) {
-                valuesArray.sort((a, b) => a - b);
-                colorBrewerInstance.colors = tempBrew.colorSchemes[colorCode]['3'];
-                colorBrewerInstance.breaks = valuesArray;
-            }
-            else if (valuesArray.length === 2) {
-                valuesArray.sort((a, b) => a - b);
-                colorBrewerInstance.colors = tempBrew.colorSchemes[colorCode]['3'];
-                colorBrewerInstance.breaks = valuesArray;
-                colorBrewerInstance.colors.shift(); // remove first element of array
-            }
-            else if (valuesArray.length === 1) {
-                valuesArray.sort((a, b) => a - b);
-                colorBrewerInstance.colors = tempBrew.colorSchemes[colorCode]['3'];
-                colorBrewerInstance.breaks = valuesArray;
-                colorBrewerInstance.colors.shift(); // remove first element of array
-                colorBrewerInstance.colors.shift(); // remove first element of array
-            }
-            else {
-                // no positive values
-                colorBrewerInstance = undefined;
-            }
-            // round values 
-            if (colorBrewerInstance && colorBrewerInstance.breaks) {
-                for (let index = 0; index < colorBrewerInstance.breaks.length; index++) {
-                    colorBrewerInstance.breaks[index] = kommonitorDataExchangeService.getIndicatorValue_asNumber(colorBrewerInstance.breaks[index]);
-                }
-            }
-            return colorBrewerInstance;
+          }
         }
 
         if(incrementFeatures) {
@@ -926,7 +787,7 @@ angular
           if (kommonitorDataExchangeService.classifyZeroSeparately && (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0)) {
             fillColor = this.getFillColorForZero(incrementFeatures);
             if (useTransparencyOnIndicator) {
-                fillOpacity = defaultFillOpacity;
+              fillOpacity = defaultFillOpacityForZeroFeatures;
             }
           }
           else {
@@ -948,7 +809,7 @@ angular
           if (kommonitorDataExchangeService.classifyZeroSeparately && (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0)) {
             fillColor = this.getFillColorForZero(incrementFeatures);
             if (useTransparencyOnIndicator) {
-                fillOpacity = defaultFillOpacity;
+              fillOpacity = defaultFillOpacityForZeroFeatures;
             }
           }
           else {
@@ -994,7 +855,7 @@ angular
           if (kommonitorDataExchangeService.classifyZeroSeparately && (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0)) {
             fillColor = this.getFillColorForZero(incrementFeatures);
             if (useTransparencyOnIndicator) {
-                fillOpacity = defaultFillOpacity;
+              fillOpacity = defaultFillOpacityForZeroFeatures;
             }
           }
           else {
@@ -1053,4 +914,3 @@ angular
       }
 
     }]);
-//# sourceMappingURL=kommonitor-visual-style-helper-service.module.js.map

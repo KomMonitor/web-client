@@ -1,12 +1,27 @@
 "use strict";
 angular.module('kommonitorShareHelper', ['kommonitorDataExchange']);
 angular
-    .module('kommonitorShareHelper', [])
-    .service('kommonitorShareHelperService', [
+  .module('kommonitorShareHelper', [])
+  .service(
+    'kommonitorShareHelperService', [ 
     '$http', '__env', 'Auth', '$routeParams', '$location', 'kommonitorDataExchangeService',
     function ($http, __env, Auth, $routeParams, $location, kommonitorDataExchangeService) {
-        this.baseUrlToKomMonitorDataAPI = __env.apiUrl + __env.basePath;
-        let self = this;
+
+      this.baseUrlToKomMonitorDataAPI = __env.apiUrl + __env.basePath;
+      let self = this;
+
+      this.queryParamMap = new Map();
+      this.currentShareLink = "";
+
+      this.paramName_loginRequired = "login";
+      this.paramName_indicatorId = "ind";
+      this.paramName_spatialUnitName = "spu";
+      this.paramName_zoomLevel = "zoom";
+      this.paramName_latitude = "lat";
+      this.paramName_longitude = "lon";
+
+      this.initParamsMap = function(){
+        // set map content from params
         this.queryParamMap = new Map();
 
         for (const key in $routeParams) {
@@ -51,13 +66,9 @@ angular
               // }
             }
             else {
-                for (const spatialUnit of kommonitorDataExchangeService.selectedIndicator.applicableSpatialUnits) {
-                    if (spatialUnit.spatialUnitName == kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel) {
-                        if (spatialUnit.allowedRoles.length > 0) {
-                            this.setShareLinkParam(this.paramName_loginRequired, "true");
-                        }
-                    }
-                }
+              Auth.keycloak.login({
+                redirectUri: this.currentShareLink
+              });
             }
           }        
         }
@@ -105,6 +116,7 @@ angular
             if(spatialUnit.spatialUnitName == kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel){
               if (spatialUnit.permissions.length > 0){
                 this.setShareLinkParam(this.paramName_loginRequired, "true");
+              }
             }
           }
         }

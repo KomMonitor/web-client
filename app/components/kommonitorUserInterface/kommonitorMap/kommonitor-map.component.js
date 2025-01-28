@@ -1,5 +1,7 @@
 "use strict";
-angular.module('kommonitorMap').component('kommonitorMap', {
+angular.module('kommonitorMap').component(
+  'kommonitorMap',
+  {
     templateUrl: "components/kommonitorUserInterface/kommonitorMap/kommonitor-map.template.html",
     controller: [
       '$rootScope',
@@ -2581,589 +2583,25 @@ angular.module('kommonitorMap').component('kommonitorMap', {
               $scope.currentIndicatorContainsZeroValues = true;
               containsZero = true;
             };
-            $scope.$on("addPoiGeoresourceAsGeoJSON", function (event, georesourceMetadataAndGeoJSON, date, useCluster) {
-                // use leaflet.markercluster to cluster markers!
-                var markers;
-                if (useCluster) {
-                    markers = L.markerClusterGroup({
-                        iconCreateFunction: function (cluster) {
-                            var childCount = cluster.getChildCount();
-                            var c = 'cluster-';
-                            if (childCount < 10) {
-                                c += 'small';
-                            }
-                            else if (childCount < 30) {
-                                c += 'medium';
-                            }
-                            else {
-                                c += 'large';
-                            }
-                            var className = "marker-cluster " + c + " awesome-marker-legend-TransparentIcon-" + georesourceMetadataAndGeoJSON.poiMarkerColor;
-                            //'marker-cluster' + c + ' ' +
-                            return new L.DivIcon({ html: '<div class="awesome-marker-legend-icon-' + georesourceMetadataAndGeoJSON.poiMarkerColor + '" ><span>' + childCount + '</span></div>', className: className, iconSize: new L.Point(40, 40) });
-                        }
-                    });
-                }
-                else {
-                    markers = L.layerGroup();
-                }
-                georesourceMetadataAndGeoJSON.geoJSON.features.forEach(function (poiFeature) {
-                    // index 0 should be longitude and index 1 should be latitude
-                    //.bindPopup( poiFeature.properties.name )
-                    var newMarker = createCustomMarker(poiFeature, georesourceMetadataAndGeoJSON.poiSymbolColor, georesourceMetadataAndGeoJSON.poiMarkerColor, georesourceMetadataAndGeoJSON.poiSymbolBootstrap3Name, georesourceMetadataAndGeoJSON);
-                    markers = addPoiMarker(markers, newMarker);
-                });
-                // markers.StyledLayerControl = {
-                //   removable : false,
-                //   visible : true
-                // };
-                $scope.layerControl.addOverlay(markers, georesourceMetadataAndGeoJSON.datasetName + "_" + date, poiLayerGroupName);
-                markers.addTo($scope.map);
-                $scope.updateSearchControl();
-                // $scope.map.addLayer( markers );
-                $scope.map.invalidateSize(true);
-            });
-            $scope.$on("addPoiGeoresourceAsGeoJSON_reachabilityAnalysis", function (event, georesourceMetadataAndGeoJSON, date, useCluster) {
-                // use leaflet.markercluster to cluster markers!
-                var markers;
-                if (useCluster) {
-                    markers = L.markerClusterGroup({
-                        iconCreateFunction: function (cluster) {
-                            var childCount = cluster.getChildCount();
-                            var c = 'cluster-';
-                            if (childCount < 10) {
-                                c += 'small';
-                            }
-                            else if (childCount < 30) {
-                                c += 'medium';
-                            }
-                            else {
-                                c += 'large';
-                            }
-                            var className = "marker-cluster " + c + " awesome-marker-legend-TransparentIcon-" + georesourceMetadataAndGeoJSON.poiMarkerColor;
-                            //'marker-cluster' + c + ' ' +
-                            return new L.DivIcon({ html: '<div class="awesome-marker-legend-icon-' + georesourceMetadataAndGeoJSON.poiMarkerColor + '" ><span>' + childCount + '</span></div>', className: className, iconSize: new L.Point(40, 40) });
-                        }
-                    });
-                }
-                else {
-                    markers = L.layerGroup();
-                }
-                georesourceMetadataAndGeoJSON.geoJSON.features.forEach(function (poiFeature) {
-                    // index 0 should be longitude and index 1 should be latitude
-                    //.bindPopup( poiFeature.properties.name )
-                    var newMarker = createCustomMarker(poiFeature, georesourceMetadataAndGeoJSON.poiSymbolColor, georesourceMetadataAndGeoJSON.poiMarkerColor, georesourceMetadataAndGeoJSON.poiSymbolBootstrap3Name, georesourceMetadataAndGeoJSON);
-                    markers = addPoiMarker(markers, newMarker);
-                });
-                // markers.StyledLayerControl = {
-                //   removable : false,
-                //   visible : true
-                // };
-                $scope.layerControl.addOverlay(markers, georesourceMetadataAndGeoJSON.datasetName + "_" + date + "_inEinzugsgebiet", reachabilityLayerGroupName);
-                markers.addTo($scope.map);
-                $scope.updateSearchControl();
-                // $scope.map.addLayer( markers );
-                $scope.map.invalidateSize(true);
-            });
-            var addPoiMarker = function (markers, poiMarker) {
-                // var propertiesString = "<pre>" + JSON.stringify(poiMarker.feature.properties, null, ' ').replace(/[\{\}"]/g, '') + "</pre>";
-                var popupContent = '<div class="poiInfoPopupContent featurePropertyPopupContent"><table class="table table-condensed">';
-                for (var p in poiMarker.feature.properties) {
-                    popupContent += '<tr><td>' + p + '</td><td>' + poiMarker.feature.properties[p] + '</td></tr>';
-                }
-                popupContent += '</table></div>';
-                if (poiMarker.feature.properties.name) {
-                    poiMarker.bindPopup(poiMarker.feature.properties.name + "\n\n" + popupContent);
-                }
-                else if (poiMarker.feature.properties.NAME) {
-                    poiMarker.bindPopup(poiMarker.feature.properties.NAME + "\n\n" + popupContent);
-                }
-                else if (poiMarker.feature.properties[__env.FEATURE_NAME_PROPERTY_NAME]) {
-                    poiMarker.bindPopup(poiMarker.feature.properties[__env.FEATURE_NAME_PROPERTY_NAME] + "\n\n" + popupContent);
-                }
-                else {
-                    // poiMarker.bindPopup(propertiesString);
-                    poiMarker.bindPopup(popupContent);
-                }
-                markers.addLayer(poiMarker);
-                return markers;
+
+            if (kommonitorDataExchangeService.indicatorValueIsNoData(indicatorMetadataAndGeoJSON.geoJSON.features[i].properties[$scope.indicatorPropertyName])) {
+              $scope.currentIndicatorContainsNoDataValues = true;
+              containsNoData = true;
             };
-            $scope.$on("removePoiGeoresource", function (event, georesourceMetadataAndGeoJSON) {
-                var layerName = georesourceMetadataAndGeoJSON.datasetName;
-                $scope.layerControl._layers.forEach(function (layer) {
-                    if (layer.group.name === poiLayerGroupName && layer.name.includes(layerName + "_")) {
-                        $scope.layerControl.removeLayer(layer.layer);
-                        $scope.map.removeLayer(layer.layer);
-                        $scope.updateSearchControl();
-                    }
-                });
-            });
-            $scope.$on("removePoiGeoresource_reachabilityAnalysis", function (event, georesourceMetadataAndGeoJSON) {
-                var layerName = georesourceMetadataAndGeoJSON.datasetName;
-                $scope.layerControl._layers.forEach(function (layer) {
-                    if (layer.group.name === reachabilityLayerGroupName && layer.name.includes(layerName + "_")) {
-                        $scope.layerControl.removeLayer(layer.layer);
-                        $scope.map.removeLayer(layer.layer);
-                        $scope.updateSearchControl();
-                    }
-                });
-            });
-            $scope.$on("addAoiGeoresourceAsGeoJSON", function (event, georesourceMetadataAndGeoJSON, date) {
-                var color = georesourceMetadataAndGeoJSON.aoiColor;
-                var layer = L.geoJSON(georesourceMetadataAndGeoJSON.geoJSON, {
-                    style: function (feature) {
-                        return {
-                            fillColor: color,
-                            color: "black",
-                            weight: 1,
-                            opacity: 1,
-                            fillOpacity: 0.7
-                        };
-                    },
-                    onEachFeature: onEachFeatureGeoresource
-                });
-                // layer.StyledLayerControl = {
-                //   removable : false,
-                //   visible : true
-                // };
-                $scope.layerControl.addOverlay(layer, georesourceMetadataAndGeoJSON.datasetName + "_" + date, aoiLayerGroupName);
-                layer.addTo($scope.map);
-                $scope.updateSearchControl();
-                $scope.map.invalidateSize(true);
-            });
-            $scope.$on("removeAoiGeoresource", function (event, georesourceMetadataAndGeoJSON) {
-                var layerName = georesourceMetadataAndGeoJSON.datasetName;
-                $scope.layerControl._layers.forEach(function (layer) {
-                    if (layer.group.name === aoiLayerGroupName && layer.name.includes(layerName + "_")) {
-                        $scope.layerControl.removeLayer(layer.layer);
-                        $scope.map.removeLayer(layer.layer);
-                        $scope.updateSearchControl();
-                    }
-                });
-            });
-            $scope.$on("addLoiGeoresourceAsGeoJSON", function (event, georesourceMetadataAndGeoJSON, date) {
-                var color = georesourceMetadataAndGeoJSON.aoiColor;
-                var featureGroup = L.featureGroup();
-                var style = {
-                    color: georesourceMetadataAndGeoJSON.loiColor,
-                    dashArray: georesourceMetadataAndGeoJSON.loiDashArrayString,
-                    weight: georesourceMetadataAndGeoJSON.loiWidth || 3,
-                    opacity: 1
-                };
-                georesourceMetadataAndGeoJSON.geoJSON.features.forEach((item, i) => {
-                    var type = item.geometry.type;
-                    if (type === "Polygon" || type === "MultiPolygon") {
-                        var lines = turf.polygonToLine(item);
-                        L.geoJSON(lines, {
-                            style: style,
-                            onEachFeature: onEachFeatureGeoresource
-                        }).addTo(featureGroup);
-                    }
-                    else {
-                        L.geoJSON(item, {
-                            style: style,
-                            onEachFeature: onEachFeatureGeoresource
-                        }).addTo(featureGroup);
-                    }
-                });
-                // georesourceMetadataAndGeoJSON.geoJSON.features.forEach((loiFeature, i) => {
-                //   var latLngs =
-                //   var polyline = L.polyline(loiFeature.geometry.coordinates);
-                //
-                //   var geoJSON = polyline.toGeoJSON();
-                //
-                //   var geoJSON_line = L.geoJSON(geoJSON, {
-                //     style: style,
-                //     onEachFeature: onEachFeatureGeoresource
-                //   })
-                //
-                //   geoJSON_line.addTo(featureGroup);
-                // });
-                // layer.StyledLayerControl = {
-                //   removable : false,
-                //   visible : true
-                // };
-                $scope.layerControl.addOverlay(featureGroup, georesourceMetadataAndGeoJSON.datasetName + "_" + date, loiLayerGroupName);
-                featureGroup.addTo($scope.map);
-                $scope.updateSearchControl();
-                $scope.map.invalidateSize(true);
-            });
-            $scope.$on("removeLoiGeoresource", function (event, georesourceMetadataAndGeoJSON) {
-                var layerName = georesourceMetadataAndGeoJSON.datasetName;
-                $scope.layerControl._layers.forEach(function (layer) {
-                    if (layer.group.name === loiLayerGroupName && layer.name.includes(layerName + "_")) {
-                        $scope.layerControl.removeLayer(layer.layer);
-                        $scope.map.removeLayer(layer.layer);
-                        $scope.updateSearchControl();
-                    }
-                });
-            });
-            $scope.$on("adjustOpacityForIndicatorLayer", function (event, indicatorMetadata, opacity) {
-                // var layerName = indicatorMetadataAndGeoJSON.indicatorName;
-                //
-                // $scope.layerControl._layers.forEach(function(layer){
-                //   if(layer.group.name === indicatorLayerGroupName && layer.name.includes(layerName)){
-                //     layer.layer.setOpacity(opacity);
-                //     layer.layer.setStyle({
-                //       opacity: opacity
-                //     });
-                //   }
-                // });
-                opacity = opacity.toFixed(numberOfDecimals);
-                kommonitorVisualStyleHelperService.setOpacity(opacity);
-                $rootScope.$broadcast("restyleCurrentLayer", true);
-            });
-            $scope.$on("addWmsLayerToMap", function (event, dataset, opacity) {
-                var wmsLayer = L.tileLayer.betterWms(dataset.url, {
-                    layers: dataset.layerName,
-                    transparent: true,
-                    format: 'image/png',
-                    minZoom: __env.minZoomLevel,
-                    maxZoom: __env.maxZoomLevel,
-                    opacity: opacity
-                });
-                $scope.layerControl.addOverlay(wmsLayer, dataset.title, wmsLayerGroupName);
-                wmsLayer.addTo($scope.map);
-                $scope.updateSearchControl();
-                $scope.map.invalidateSize(true);
-            });
-            $scope.$on("adjustOpacityForWmsLayer", function (event, dataset, opacity) {
-                var layerName = dataset.title;
-                $scope.layerControl._layers.forEach(function (layer) {
-                    if (layer.group.name === wmsLayerGroupName && layer.name.includes(layerName)) {
-                        layer.layer.setOpacity(opacity);
-                    }
-                });
-            });
-            $scope.$on("adjustOpacityForAoiLayer", function (event, dataset, opacity) {
-                var layerName = dataset.datasetName;
-                $scope.layerControl._layers.forEach(function (layer) {
-                    if (layer.group.name === aoiLayerGroupName && layer.name.includes(layerName)) {
-                        layer.layer.setStyle({
-                            fillOpacity: opacity,
-                            opacity: opacity
-                        });
-                    }
-                });
-            });
-            $scope.$on("adjustOpacityForLoiLayer", function (event, dataset, opacity) {
-                var layerName = dataset.datasetName;
-                $scope.layerControl._layers.forEach(function (layer) {
-                    if (layer.group.name === loiLayerGroupName && layer.name.includes(layerName)) {
-                        layer.layer.setStyle({
-                            fillOpacity: opacity,
-                            opacity: opacity
-                        });
-                    }
-                });
-            });
-            $scope.$on("adjustOpacityForPoiLayer", function (event, dataset, opacity) {
-                var layerName = dataset.datasetName;
-                $scope.layerControl._layers.forEach(function (layer) {
-                    if (layer.group.name === poiLayerGroupName && layer.name.includes(layerName)) {
-                        if (layer.layer._layers) {
-                            for (var layerId in layer.layer._layers) {
-                                layer.layer._layers[layerId].setOpacity(opacity);
-                            }
-                        }
-                        else if (layer.layer._featureGroup) {
-                            for (var layerId in layer.layer._featureGroup._layers) {
-                                layer.layer._featureGroup._layers[layerId].setOpacity(opacity);
-                            }
-                        }
-                        else {
-                            layer.layer.setOpacity(opacity);
-                        }
-                    }
-                });
-            });
-            $scope.$on("removeWmsLayerFromMap", function (event, dataset) {
-                var layerName = dataset.title;
-                $scope.layerControl._layers.forEach(function (layer) {
-                    if (layer.group.name === wmsLayerGroupName && layer.name.includes(layerName)) {
-                        $scope.layerControl.removeLayer(layer.layer);
-                        $scope.map.removeLayer(layer.layer);
-                    }
-                });
-            });
-            var getWfsStyle = function (dataset, opacity) {
-                if (dataset.geometryType === "POI") {
-                    return {
-                        weight: 1,
-                        opacity: opacity,
-                        color: dataset.poiMarkerColor,
-                        dashArray: '',
-                        fillOpacity: opacity,
-                        fillColor: dataset.poiMarkerColor
-                    };
-                }
-                else if (dataset.geometryType === "LOI") {
-                    return {
-                        weight: dataset.loiWidth,
-                        opacity: opacity,
-                        color: dataset.loiColor,
-                        dashArray: dataset.loiDashArrayString,
-                        fillOpacity: opacity,
-                        fillColor: dataset.loiColor
-                    };
-                }
-                else {
-                    return {
-                        weight: 1,
-                        opacity: opacity,
-                        color: dataset.aoiColor,
-                        dashArray: '',
-                        fillOpacity: opacity,
-                        fillColor: dataset.aoiColor
-                    };
-                }
-            };
-            $scope.getFilterEncoding = function (dataset) {
-                var filterExpressions = [];
-                if (dataset.filterEncoding.PropertyIsEqualTo && dataset.filterEncoding.PropertyIsEqualTo.propertyName && dataset.filterEncoding.PropertyIsEqualTo.propertyValue) {
-                    filterExpressions.push(new L.Filter.EQ(dataset.filterEncoding.PropertyIsEqualTo.propertyName, dataset.filterEncoding.PropertyIsEqualTo.propertyValue));
-                }
-                if (dataset.filterFeaturesToMapBBOX) {
-                    filterExpressions.push(new L.Filter.BBox(dataset.featureTypeGeometryName, $scope.map.getBounds(), L.CRS.EPSG3857));
-                }
-                if (filterExpressions.length == 0) {
-                    return undefined;
-                }
-                if (filterExpressions.length < 2) {
-                    return filterExpressions;
-                }
-                else {
-                    // var stringifiedFilterExpressions = [];
-                    // for (const filterExpr of filterExpressions) {
-                    //   stringifiedFilterExpressions.push(L.XmlUtil.serializeXmlDocumentString(filterExpr.toGml()));
-                    // }
-                    // return new L.Filter.And(...stringifiedFilterExpressions);
-                    return new L.Filter.And(...filterExpressions);
-                }
-            };
-            $scope.$on("addWfsLayerToMap", function (event, dataset, opacity, useCluster) {
-                var wfsLayerOptions = {
-                    url: dataset.url,
-                    typeNS: dataset.featureTypeNamespace,
-                    namespaceUri: "http://mapserver.gis.umn.edu/mapserver",
-                    typeName: dataset.featureTypeName,
-                    geometryField: dataset.featureTypeGeometryName,
-                    // maxFeatures: null,
-                    style: getWfsStyle(dataset, opacity)
-                };
-                var filterEncoding = $scope.getFilterEncoding(dataset);
-                if (filterEncoding) {
-                    wfsLayerOptions.filter = filterEncoding;
-                }
-                var wfsLayer;
-                var poiMarkerLayer;
-                if (dataset.geometryType === "POI") {
-                    if (useCluster) {
-                        poiMarkerLayer = L.markerClusterGroup({
-                            iconCreateFunction: function (cluster) {
-                                var childCount = cluster.getChildCount();
-                                var c = 'cluster-';
-                                if (childCount < 10) {
-                                    c += 'small';
-                                }
-                                else if (childCount < 30) {
-                                    c += 'medium';
-                                }
-                                else {
-                                    c += 'large';
-                                }
-                                var className = "marker-cluster " + c + " awesome-marker-legend-TransparentIcon-" + dataset.poiMarkerColor;
-                                //'marker-cluster' + c + ' ' +
-                                return new L.DivIcon({ html: '<div class="awesome-marker-legend-icon-' + dataset.poiMarkerColor + '" ><span>' + childCount + '</span></div>', className: className, iconSize: new L.Point(40, 40) });
-                            }
-                        });
-                    }
-                    else {
-                        poiMarkerLayer = L.layerGroup();
-                    }
-                    wfsLayer = new L.WFS(wfsLayerOptions);
-                }
-                else {
-                    wfsLayer = new L.WFS(wfsLayerOptions);
-                }
-                try {
-                    wfsLayer.once('load', function () {
-                        if (dataset.geometryType === "POI") {
-                            poiMarkerLayer = createCustomMarkersFromWfsPoints(wfsLayer, poiMarkerLayer, dataset);
-                        }
-                        console.log("Try to fit bounds on wfsLayer");
-                        $scope.map.fitBounds(wfsLayer.getBounds());
-                        console.log("Tried fit bounds on wfsLayer");
-                        $scope.map.invalidateSize(true);
-                        // $scope.loadingData = false;
-                    });
-                    wfsLayer.on('click', function (event) {
-                        // var propertiesString = "<pre>" + JSON.stringify(event.layer.feature.properties, null, ' ').replace(/[\{\}"]/g, '') + "</pre>";
-                        var popupContent = '<div class="wfsInfoPopupContent featurePropertyPopupContent"><table class="table table-condensed">';
-                        for (var p in event.layer.feature.properties) {
-                            popupContent += '<tr><td>' + p + '</td><td>' + event.layer.feature.properties[p] + '</td></tr>';
-                        }
-                        popupContent += '</table></div>';
-                        var popup = L.popup();
-                        popup
-                            .setLatLng(event.latlng)
-                            .setContent(popupContent)
-                            .openOn($scope.map);
-                    });
-                    if (poiMarkerLayer) {
-                        $scope.layerControl.addOverlay(poiMarkerLayer, dataset.title, wfsLayerGroupName);
-                        poiMarkerLayer.addTo($scope.map);
-                    }
-                    else {
-                        $scope.layerControl.addOverlay(wfsLayer, dataset.title, wfsLayerGroupName);
-                        wfsLayer.addTo($scope.map);
-                    }
-                    $scope.updateSearchControl();
-                }
-                catch (error) {
-                    $scope.loadingData = false;
-                    kommonitorDataExchangeService.displayMapApplicationError(error);
-                }
-            });
-            $scope.$on("adjustOpacityForWfsLayer", function (event, dataset, opacity) {
-                var layerName = dataset.title;
-                $scope.layerControl._layers.forEach(function (layer) {
-                    if (layer.group.name === wfsLayerGroupName && layer.name.includes(layerName)) {
-                        // layer.layer.setOpacity(opacity);
-                        var newStyle = getWfsStyle(dataset, opacity);
-                        // layer.layer.options.style = newStyle;
-                        if (layer.layer._layers) {
-                            for (var layerId in layer.layer._layers) {
-                                if (dataset.geometryType === "POI") {
-                                    layer.layer._layers[layerId].setOpacity(opacity);
-                                }
-                                else {
-                                    layer.layer._layers[layerId].setStyle(newStyle);
-                                }
-                            }
-                        }
-                        else {
-                            if (dataset.geometryType === "POI") {
-                                layer.layer.setOpacity(opacity);
-                            }
-                            else {
-                                layer.layer.setStyle(newStyle);
-                            }
-                        }
-                    }
-                });
-            });
-            $scope.$on("adjustColorForWfsLayer", function (event, dataset, opacity) {
-                var layerName = dataset.title;
-                $scope.layerControl._layers.forEach(function (layer) {
-                    if (layer.group.name === wfsLayerGroupName && layer.name.includes(layerName)) {
-                        var newStyle = getWfsStyle(dataset, opacity);
-                        layer.layer.setStyle(newStyle);
-                    }
-                });
-            });
-            $scope.$on("removeWfsLayerFromMap", function (event, dataset) {
-                var layerName = dataset.title;
-                $scope.layerControl._layers.forEach(function (layer) {
-                    if (layer.group.name === wfsLayerGroupName && layer.name.includes(layerName)) {
-                        $scope.layerControl.removeLayer(layer.layer);
-                        $scope.map.removeLayer(layer.layer);
-                    }
-                });
-            });
-            $scope.$on("addFileLayerToMap", function (event, dataset, opacity) {
-                var fileLayer;
-                var style = {
-                    weight: 1,
-                    opacity: opacity,
-                    color: defaultBorderColor,
-                    dashArray: '',
-                    fillOpacity: 1,
-                    fillColor: dataset.displayColor
-                };
-                var fileType = dataset.type;
-                if (fileType.toUpperCase() === "geojson".toUpperCase()) {
-                    var geoJSON = dataset.content;
-                    if (isLinearGeoJSON(geoJSON)) {
-                        // when is line dataset then set the border color
-                        style.color = dataset.displayColor;
-                    }
-                    fileLayer = L.geoJSON(geoJSON, {
-                        style: style,
-                        onEachFeature: function (feature, layer) {
-                            layer.on({
-                                click: function () {
-                                    // var propertiesString = "<pre>" + JSON.stringify(feature.properties, null, ' ').replace(/[\{\}"]/g, '') + "</pre>";
-                                    var popupContent = '<div class="fileInfoPopupContent featurePropertyPopupContent"><table class="table table-condensed">';
-                                    for (var p in feature.properties) {
-                                        popupContent += '<tr><td>' + p + '</td><td>' + feature.properties[p] + '</td></tr>';
-                                    }
-                                    popupContent += '</table></div>';
-                                    if (popupContent)
-                                        layer.bindPopup(popupContent);
-                                }
-                            });
-                        }
-                    });
-                    $scope.showFileLayer(fileLayer, dataset);
-                }
-                else if (fileType.toUpperCase() === "shp".toUpperCase()) {
-                    // transform shape ZIP arrayBuffer to GeoJSON
-                    // var geoJSON = await shp(dataset.content).then(
-                    // var zip = shp.parseZip(dataset.content);
-                    shp(dataset.content).then(function (geojson) {
-                        console.log("Shapefile parsed successfully");
-                        if (isLinearGeoJSON(geojson)) {
-                            // when is line dataset then set the border color
-                            style.color = dataset.displayColor;
-                        }
-                        fileLayer = L.geoJSON(geojson, {
-                            style: style,
-                            onEachFeature: function (feature, layer) {
-                                layer.on({
-                                    click: function () {
-                                        // var propertiesString = "<pre>" + JSON.stringify(feature.properties, null, ' ').replace(/[\{\}"]/g, '') + "</pre>";
-                                        var popupContent = '<div class="fileInfoPopupContent featurePropertyPopupContent"><table class="table table-condensed">';
-                                        for (var p in feature.properties) {
-                                            popupContent += '<tr><td>' + p + '</td><td>' + feature.properties[p] + '</td></tr>';
-                                        }
-                                        popupContent += '</table></div>';
-                                        if (popupContent)
-                                            layer.bindPopup(popupContent);
-                                    }
-                                });
-                            }
-                        });
-                        $scope.showFileLayer(fileLayer, dataset);
-                    }, function (reason) {
-                        console.error("Error while parsing Shapefile");
-                        console.error(reason);
-                        $rootScope.$broadcast("FileLayerError", reason, dataset);
-                        throw reason;
-                    });
-                }
-            });
-            var isLinearGeoJSON = function (geoJSON) {
-                if (geoJSON.features) {
-                    // featureCollection
-                    if (geoJSON.features[0].geometry) {
-                        if (geoJSON.features[0].geometry.type === "LineString" || geoJSON.features[0].geometry.type === "MultiLineString") {
-                            return true;
-                        }
-                    }
-                }
-                else if (geoJSON.geometry) {
-                    // single object
-                    if (geoJSON.geometry.type === "LineString" || geoJSON.geometry.type === "MultiLineString") {
-                        return true;
-                    }
-                }
-                else if (geoJSON.geometries) {
-                    // geometryCollection
-                    if (geoJSON.geometries[0].type === "LineString" || geoJSON.geometries[0].type === "MultiLineString") {
-                        return true;
-                    }
-                }
+
+            if (containsZero && containsNoData) {
+              break;
+            }
+          }
+
+          /* ///////////////////////////////// RASTER SPECIAL TREATMENT
+          // improve Raster display by eliminiating NoData cells and 
+          // omitting display border in style
+          */
+
+          if(kommonitorDataExchangeService.selectedSpatialUnitIsRaster()){
+            indicatorMetadataAndGeoJSON.geoJSON.features = indicatorMetadataAndGeoJSON.geoJSON.features.filter(feature => {
+              if (kommonitorDataExchangeService.indicatorValueIsNoData(feature.properties[$scope.indicatorPropertyName])) {
                 return false;
               }
               return true;
@@ -3695,192 +3133,258 @@ angular.module('kommonitorMap').component('kommonitorMap', {
             if (!done && layer.feature) {
               if (layer.feature.properties[__env.FEATURE_NAME_PROPERTY_NAME] == spatialFeatureName) {
                 highlightFeatureForLayer(layer);
+                done = true;
+              }
             }
-            function highlightFeatureForLayer(layer) {
-                setTemporarilyHighlightedStyle(layer);
-                // update diagrams for hovered feature
-                $rootScope.$broadcast("updateDiagramsForHoveredFeature", layer.feature.properties);
-            }
-            function highlightClickedFeature(layer) {
-                setPermanentlyHighlightedStyle(layer);
-                // update diagrams for hovered feature
-                $rootScope.$broadcast("updateDiagramsForHoveredFeature", layer.feature.properties);
-            }
-            function setPermanentlyHighlightedStyle(layer) {
-                var fillOpacity = 1;
-                if ($scope.useTransparencyOnIndicator) {
-                    fillOpacity = defaultFillOpacityForHighlightedFeatures;
-                }
-                layer.setStyle({
-                    weight: 3,
-                    color: defaultColorForClickedFeatures,
-                    dashArray: '',
-                    fillOpacity: fillOpacity
-                });
-                if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
-                    layer.bringToFront();
-                    // also bring possible isochrone layer to front
-                    // so it will not disapper behing indicator layer
-                    if ($scope.isochronesLayer) {
-                        $scope.isochronesLayer.bringToFront();
-                    }
-                }
-            }
-            function setTemporarilyHighlightedStyle(layer) {
-                var fillOpacity = 1;
-                if ($scope.useTransparencyOnIndicator) {
-                    fillOpacity = defaultFillOpacity;
-                }
-                layer.setStyle({
-                    weight: 3,
-                    color: defaultColorForHoveredFeatures,
-                    dashArray: '',
-                    fillOpacity: fillOpacity
-                });
-                if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
-                    layer.bringToFront();
-                    // also bring possible isochrone layer to front
-                    // so it will not disapper behing indicator layer
-                    if ($scope.isochronesLayer) {
-                        $scope.isochronesLayer.bringToFront();
-                    }
-                }
-            }
-            function preserveHighlightedFeatures() {
-                $scope.map.eachLayer(function (layer) {
-                    if (layer.feature) {
-                        if (kommonitorFilterHelperService.featureIsCurrentlySelected(layer.feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
-                            setPermanentlyHighlightedStyle(layer);
-                            $rootScope.$broadcast("updateDiagramsForHoveredFeature", layer.feature.properties);
-                        }
-                    }
-                });
-            }
-            $scope.$on("preserveHighlightedFeatures", function (event) {
-                preserveHighlightedFeatures();
-            });
-            function resetHighlight(e) {
-                var layer = e.target;
+
+          });
+
+        });
+
+        $scope.$on("unhighlightFeatureOnMap", function (event, spatialFeatureName) {
+          if(!spatialFeatureName){
+            return;
+          }
+
+          // console.log("unhighlight feature on map for featureName " + spatialFeatureName);
+
+          var done = false;
+
+          $scope.map.eachLayer(function (layer) {
+            if (!done && layer.feature) {
+              if (layer.feature.properties[__env.FEATURE_NAME_PROPERTY_NAME] == spatialFeatureName) {
                 resetHighlightForLayer(layer);
-                if (!kommonitorFilterHelperService.featureIsCurrentlySelected(layer.feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
-                    layer.bringToBack();
-                }
-                //layer.bringToBack();
+                done = true;
+              }
             }
-            function resetHighlightForLayer(layer) {
-                var style;
-                // only restyle feature when not in list of clicked features
-                if (!kommonitorFilterHelperService.featureIsCurrentlySelected(layer.feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
-                    if (kommonitorFilterHelperService.featureIsCurrentlyFiltered(layer.feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
-                        layer.setStyle($scope.filteredStyle);
-                    }
-                    else if (!kommonitorDataExchangeService.isMeasureOfValueChecked) {
-                        //$scope.currentIndicatorLayer.resetStyle(layer);
-                        if ($scope.indicatorTypeOfCurrentLayer.includes('DYNAMIC')) {
-                            style = kommonitorVisualStyleHelperService.styleDynamicIndicator(layer.feature, $scope.dynamicIncreaseBrew, $scope.dynamicDecreaseBrew, $scope.propertyName, $scope.useTransparencyOnIndicator);
-                            layer.setStyle(style);
-                        }
-                        else {
-                            style = kommonitorVisualStyleHelperService.styleDefault(layer.feature, $scope.defaultBrew, $scope.dynamicIncreaseBrew, $scope.dynamicDecreaseBrew, $scope.propertyName, $scope.useTransparencyOnIndicator, $scope.datasetContainsNegativeValues);
-                            layer.setStyle(style);
-                        }
-                    }
-                    else {
-                        style = kommonitorVisualStyleHelperService.styleMeasureOfValue(layer.feature, $scope.gtMeasureOfValueBrew, $scope.ltMeasureOfValueBrew, $scope.propertyName, $scope.useTransparencyOnIndicator);
-                        layer.setStyle(style);
-                    }
-                }
-                else {
-                    setPermanentlyHighlightedStyle(layer);
-                }
-                //update diagrams for unhoveredFeature
-                $rootScope.$broadcast("updateDiagramsForUnhoveredFeature", layer.feature.properties);
+
+          });
+
+        });
+
+        $scope.$on("switchHighlightFeatureOnMap", function (event, spatialFeatureName) {
+          if(!spatialFeatureName){
+            return;
+          }
+
+          // console.log("switch highlight feature on map for featureName " + spatialFeatureName);
+
+          var done = false;
+
+          $scope.map.eachLayer(function (layer) {
+            if (!done && layer.feature) {
+              if (layer.feature.properties[__env.FEATURE_NAME_PROPERTY_NAME] == spatialFeatureName) {
+                switchHighlightFeature(layer);
+                done = true;
+              }
             }
-            function resetHighlightClickedFeature(layer) {
-                var style;
-                //$scope.currentIndicatorLayer.resetStyle(layer);
-                if (kommonitorFilterHelperService.featureIsCurrentlyFiltered(layer.feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
-                    layer.setStyle($scope.filteredStyle);
-                }
-                else if (!kommonitorDataExchangeService.isMeasureOfValueChecked) {
-                    //$scope.currentIndicatorLayer.resetStyle(layer);
-                    if ($scope.indicatorTypeOfCurrentLayer.includes('DYNAMIC')) {
-                        style = kommonitorVisualStyleHelperService.styleDynamicIndicator(layer.feature, $scope.dynamicIncreaseBrew, $scope.dynamicDecreaseBrew, $scope.propertyName, $scope.useTransparencyOnIndicator);
-                        layer.setStyle(style);
-                    }
-                    else {
-                        style = kommonitorVisualStyleHelperService.styleDefault(layer.feature, $scope.defaultBrew, $scope.dynamicIncreaseBrew, $scope.dynamicDecreaseBrew, $scope.propertyName, $scope.useTransparencyOnIndicator, $scope.datasetContainsNegativeValues);
-                        layer.setStyle(style);
-                    }
-                }
-                else {
-                    style = kommonitorVisualStyleHelperService.styleMeasureOfValue(layer.feature, $scope.gtMeasureOfValueBrew, $scope.ltMeasureOfValueBrew, $scope.propertyName, $scope.useTransparencyOnIndicator);
-                    layer.setStyle(style);
-                }
+
+          });
+
+        });
+
+        $scope.$on("unselectAllFeatures", function (event) {
+
+          kommonitorFilterHelperService.clearSelectedFeatures();
+          $rootScope.$broadcast("restyleCurrentLayer", false);
+        });
+
+        $scope.$on("removeAllDrawnPoints", function (event) {
+
+          if ($scope.drawnPointFeatures) {
+            $scope.drawnPointFeatures.clearLayers();
+            $rootScope.$broadcast("onUpdateDrawnPointFeatures");
+          }
+        });
+
+        $scope.$on("enablePointDrawTool", function (event) {
+
+          // FeatureGroup is to store editable layers
+          if (!$scope.drawnPointFeatures) {
+            $scope.drawnPointFeatures = new L.FeatureGroup();
+          }
+
+          L.drawLocal = {
+            edit: {
+              toolbar: {
+                actions: {
+                  save: {
+                    title: "Bearbeitung speichern.",
+                    text: "Speichern",
+                  },
+                  cancel: {
+                    title: "Bearbeitung verwerfen.",
+                    text: "Abbrechen",
+                  },
+                  clearAll: {
+                    title: "Alle Features entfernen.",
+                    text: "Alle Features entfernen",
+                  },
+                },
+                buttons: {
+                  edit: "Layer editieren.",
+                  editDisabled: "Keine Layer zum editieren vorhanden.",
+                  remove: "Layer entfernen.",
+                  removeDisabled: "Keine Layer zum entfernen vorhanden.",
+                },
+              },
+              handlers: {
+                edit: {
+                  tooltip: {
+                    text: "Bearbeitungspunkte oder Punktmarker ziehen, um Feature zu editieren.",
+                    subtext: "Abbrechen klicken, um Bearbeitung zu verwefen.",
+                  },
+                },
+                remove: {
+                  tooltip: {
+                    text: "Feature anklicken, um es zu entfernen",
+                  },
+                },
+              }
+            },
+            draw: {
+              toolbar: {
+                actions: {
+                  title: "Zeichnen abbrechen",
+                  text: "Abbrechen",
+                },
+                finish: {
+                  title: "Zeichnen beenden",
+                  text: "Beenden",
+                },
+                undo: {
+                  title: "Zuletzt gezeichneten Punkt entfernen",
+                  text: "Letzten Punkt entfernen",
+                },
+                buttons: {
+                  polyline: "Polylinie zeichnen",
+                  polygon: "Polygon zeichnen",
+                  rectangle: "Rechteck zeichnen",
+                  circle: "Kreis zeichnen",
+                  marker: "Punkt zeichnen",
+                  circlemarker: "Kreispunkt zeichnen",
+                },
+              },
+              handlers: {
+                circle: {
+                  tooltip: {
+                    start: "Klicken und halten, um Kreis zu zeichnen.",
+                  },
+                  radius: "Radius",
+                },
+                circlemarker: {
+                  tooltip: {
+                    start: "Klicken, um einen Punkt zu markieren.",
+                  },
+                },
+                marker: {
+                  tooltip: {
+                    start: "Klicken, um einen Punkt zu markieren.",
+                  },
+                },
+                polygon: {
+                  tooltip: {
+                    start: "Klicken, um ein Polygon zu beginnen.",
+                    cont: "Klicken, um das Polygon weiter zu zeichnen.",
+                    end: "Ersten Punkt anklicken, um Polygon zu beenden.",
+                  },
+                },
+                polyline: {
+                  error: "<strong>Fehler:</strong> Selbstueberschneidung!",
+                  tooltip: {
+                    start: "Klicken, um eine Polylinie zu beginnen.",
+                    cont: "Klicken, um die Polylinie weiter zu zeichnen.",
+                    end: "Letzten Punkt erneut anklicken, um Polylinie zu beenden.",
+                  },
+                },
+                rectangle: {
+                  tooltip: {
+                    start: "Klicken und halten, um Rechteck zu zeichnen.",
+                  },
+                },
+                simpleshape: {
+                  tooltip: {
+                    end: "Maus loslassen, um Zeichnung zu beenden.",
+                  },
+                },
+              }
             }
-            function resetHighlightCustom(e) {
-                $scope.currentCustomIndicatorLayer.resetStyle(e.target);
-                if (!kommonitorFilterHelperService.featureIsCurrentlySelected(e.target.feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
-                    e.target.bringToBack();
-                }
+
+          };
+
+          $scope.map.addLayer($scope.drawnPointFeatures);
+          $scope.drawPointControl = new L.Control.Draw({
+            edit: {
+              featureGroup: $scope.drawnPointFeatures
+            },
+            draw: {
+              polyline: false,
+              polygon: false,
+              rectangle: false,
+              circle: false,
+              circlemarker: false
+            },
+            position: 'bottomleft'
+
+          });
+
+          $scope.map.addControl($scope.drawPointControl);
+
+          $scope.map.on(L.Draw.Event.CREATED, function (event) {
+            var layer = event.layer;
+
+            $scope.drawnPointFeatures.addLayer(layer);
+
+            $rootScope.$broadcast("onUpdateDrawnPointFeatures", $scope.drawnPointFeatures);
+          });
+
+          $scope.map.on(L.Draw.Event.EDITED, function (event) {
+
+            $rootScope.$broadcast("onUpdateDrawnPointFeatures", $scope.drawnPointFeatures);
+          });
+
+          $scope.map.on(L.Draw.Event.DELETED, function (event) {
+
+            $rootScope.$broadcast("onUpdateDrawnPointFeatures", $scope.drawnPointFeatures);
+          });
+
+        });
+
+        $scope.$on("disablePointDrawTool", function (event) {
+
+          try {
+            $scope.drawPointControl = undefined;
+            $scope.map.removeLayer($scope.drawnPointFeatures);
+            $scope.map.removeControl($scope.drawPointControl);            
+          }
+          catch (error) {
+            // kommonitorDataExchangeService.displayMapApplicationError(error);
+          }
+
+        });
+
+        $scope.$on("zoomToGeoresourceLayer", async function (event, georesourceMetadata) {
+
+          let layerName = georesourceMetadata.datasetName;
+
+          let layerGroupName = undefined;
+
+          if (georesourceMetadata.isPOI){
+            layerGroupName = poiLayerGroupName;
+          }
+          else if(georesourceMetadata.isLOI){
+            layerGroupName = loiLayerGroupName;
+          }
+          else if(georesourceMetadata.isAOI){
+            layerGroupName = aoiLayerGroupName;
+          } 
+
+          $scope.layerControl._layers.forEach(function (layer) {
+            if (layerGroupName && layer.group.name === layerGroupName && layer.name.includes(layerName + "_")) {
+              $scope.map.fitBounds(layer.layer.getBounds());
             }
-            var wait = ms => new Promise((r, j) => setTimeout(r, ms));
-            $scope.recenterMap = function () {
-                $scope.map.invalidateSize(true);
-                fitBounds();
-            };
-            $scope.$on("recenterMapContent", function (event) {
-                $scope.recenterMap();
-            });
-            $scope.$on("invalidateMapSize", function (event) {
-                $timeout(function () {
-                    $scope.map.invalidateSize(true);
-                }, 500);
-            });
-            $scope.$on("recenterMapOnHideSideBar", async function (event) {
-                //wait due to animation of the sidebar
-                // make animation in 30 steps
-                // var waitForInMs = 30;
-                // for(var i=0; i<=300; i++){
-                //
-                //   i += waitForInMs;
-                //
-                //   await wait(waitForInMs);
-                //
-                //   $scope.map.invalidateSize(true);
-                //
-                //   panToCenterOnInActiveMenue(500);
-                //   // $scope.recenterMap();
-                // }
-                var waitForInMs = 100;
-                await wait(waitForInMs);
-                panToCenterOnInActiveMenue(500);
-            });
-            $scope.$on("recenterMapOnShowSideBar", async function (event) {
-                //wait due to animation of the sidebar
-                // make animation in 30 steps
-                // var waitForInMs = 30;
-                // for(var i=0; i<=300; i++){
-                //
-                //   i += waitForInMs;
-                //
-                //   await wait(waitForInMs);
-                //
-                //   $scope.map.invalidateSize(true);
-                //
-                //   panToCenterOnActiveMenue(500);
-                //   // $scope.recenterMap();
-                // }
-                var waitForInMs = 100;
-                await wait(waitForInMs);
-                panToCenterOnActiveMenue(500);
-            });
-            function panToCenterOnActiveMenue(numPixels) {
-                if ($scope.map) {
-                    $scope.map.invalidateSize(true);
-                    $scope.map.panBy(L.point(numPixels, 0));
-                    $scope.map.invalidateSize(true);
-                }
+            else if (layer.name.includes(layerName + "_")){
+              $scope.map.fitBounds(layer.layer.getBounds());
             }
           });
         });
@@ -3943,5 +3447,4 @@ angular.module('kommonitorMap').component('kommonitorMap', {
       
       }
     ]
-});
-//# sourceMappingURL=kommonitor-map.component.js.map
+  });
