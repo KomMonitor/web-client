@@ -94,10 +94,10 @@
           </div>
           <div class="tab-pane" id="infoModalTab2Content" role="tabpanel"
             aria-labelledby="infoModalTab2">
-      <!--  <version-info></version-info>  -->     
+            <versionInfo></versionInfo>
           </div>
           <div class="tab-pane" id="infoModalTab3Content" role="tabpanel"
-            aria-labelledby="infoModalTab3">
+            aria-labelledby="infoModalTab3" [innerHTML]="tab3Content | safeHtml">
           </div>
         </div>
 </div>

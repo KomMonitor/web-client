@@ -5,12 +5,13 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { CommonModule } from "@angular/common";
 import { DataExchangeService } from "services/data-exchange-service/data-exchange.service";
 import { SafeHtmlPipe } from 'pipes/safe-html.pipe';
+import { VersionInfoComponent } from 'components/kommonitorUserInterface/versionInfo/version-info/version-info.component';
 
 @Component({
 	selector: 'ngbd-modal-content',
 	standalone: true,
 	templateUrl: 'info-modal.component.html',
-  imports: [CommonModule, SafeHtmlPipe]
+  imports: [CommonModule, SafeHtmlPipe, VersionInfoComponent]
 })
 export class NgbdModalContent implements OnInit {
     activeModal = inject(NgbActiveModal);

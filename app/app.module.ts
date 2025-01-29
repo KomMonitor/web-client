@@ -11,12 +11,9 @@ import angular from "angular";
 import { RouterModule, Routes } from '@angular/router';
 import { HashLocationStrategy, LocationStrategy } from '@angular/common';
 
-import { InfoModalComponent } from 'components/kommonitorUserInterface/kommonitorControls/infoModal/info-modal.component';
-import { VersionInfoComponent } from 'components/kommonitorUserInterface/kommonitorControls/versionInfo/version-info.component';
-// import { InfoModalModule } from 'components/kommonitorUserInterface/kommonitorControls/infoModal/info-modal.module';
-// import { VersionInfoModule } from 'components/kommonitorUserInterface/kommonitorControls/versionInfo/version-info.module';
 import { ajskommonitorCacheHelperServiceProvider,ajskommonitorBatchUpdateHelperServiceProvider,ajskommonitorConfigStorageServiceProvider,ajskommonitorDataExchangeServiceeProvider,ajskommonitorDataGridHelperServiceProvider,ajskommonitorDiagramHelperServiceProvider,ajskommonitorFilterHelperServiceProvider,ajskommonitorKeycloackHelperServiceProvider,ajskommonitorMultiStepFormHelperServiceProvider, ajskommonitorSingleFeatureMapServiceProvider } from 'app-upgraded-providers';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { InfoModalComponent } from 'components/kommonitorUserInterface/kommonitorControls/infoModal/info-modal.component';
 
 
 // currently the AngularJS routing is still used as part of kommonitorClient module
@@ -28,10 +25,7 @@ declare var MathJax;
   imports: [
     BrowserModule,
     UpgradeModule,
-    RouterModule.forRoot(routes , { useHash: true }),
-    VersionInfoComponent
-    // InfoModalModule,
-    // VersionInfoModule
+    RouterModule.forRoot(routes , { useHash: true })
   ],
   providers:[
     {provide: LocationStrategy, useClass: HashLocationStrategy},
