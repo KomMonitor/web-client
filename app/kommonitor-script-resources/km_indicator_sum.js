@@ -82,9 +82,12 @@ async function computeIndicator(targetDate, targetSpatialUnit_geoJSON, baseIndic
       * iterate over each feature of the baseIndicator and use its indicator value to modify map object
       * NOTE use spatialUnitFeatureId as key to be able to identify entries by their unique feature id!
       */
-	  computationGeoJSON_array.forEach(function(geoJSON) {
+	  computationGeoJSON_array.forEach(function(geoJSON) {      
 		
 		  geoJSON.features.forEach(function(feature) {
+
+        containsNullValues = false;
+
 			  // get the unique featureID of the spatial unit feature as String
 			  var featureId = KmHelper.getSpatialUnitFeatureIdValue(feature);
 			  // get the time series value of the base indicator feature for the requested target date (with its required prefix!)
@@ -101,13 +104,19 @@ async function computeIndicator(targetDate, targetSpatialUnit_geoJSON, baseIndic
 				  var mapObject = {
 					  featureId: featureId,
 					  indicatorValue: undefined,                
-					  intermediateValue: 0
+					  intermediateValue: 0,
+            containsNullValues: containsNullValues
 					  };
 				  map.set(featureId, mapObject);					 
 				}
 				var mapEntry = map.get(featureId);
+
+        if(containsNullValues){
+          mapEntry.containsNullValues = true;
+        }
+
         // only compute if there are values != null
-        if(!containsNullValues){
+        if(!mapEntry.containsNullValues){
           mapEntry.intermediateValue = mapEntry.intermediateValue + partValue;
 				  map.set(featureId, mapEntry);
         }

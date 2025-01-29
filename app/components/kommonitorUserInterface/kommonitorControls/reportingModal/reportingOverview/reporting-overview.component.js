@@ -46,6 +46,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 			}
 			$scope.config.templateSections = [];
 			let deviceScreenDpi = calculateScreenDpi();
+      $scope.deviceScreenDpi = deviceScreenDpi;
 			$scope.pxPerMilli = deviceScreenDpi / 25.4 // /2.54 --> cm, /10 --> mm
 		}
 
@@ -894,19 +895,305 @@ angular.module('reportingOverview').component('reportingOverview', {
 		$scope.generateReport = async function(format) {
 			$scope.loadingData = true;
  
-
-
 			try {
 				format === "pdf" && await $scope.generatePdfReport();
 				format === "docx" && await $scope.generateWordReport();
 				format === "zip" && await $scope.generateZipFolder();
+				format === "pptx" && await $scope.generatePptxReport();
 			} catch (error) {
 				$scope.loadingData = false;
 				console.error(error);
 				kommonitorDataExchangeService.displayMapApplicationError(error.message);
 			}
 		}
-			
+		
+    $scope.generatePptxReport = async function() {
+
+      let doc = new PptxGenJS();
+
+      doc.defineLayout({ name:'A4-landscape', width:29.7, height:21 });
+      doc.defineLayout({ name:'A4-portrait', width:21, height:29.7 });
+
+      doc.layout = 'A4-'+$scope.config.pages[0].orientation;
+
+      var fontSize = 42;
+      var fontFace = "Source Sans Pro";
+
+      // Font setting
+      doc.theme = { headFontFace: fontFace };
+      doc.theme = { bodyFontFace: fontFace };
+
+      // Master slide def
+      doc.defineSlideMaster({
+        title: "TEMPLATE_SLIDE",
+        background: { color: "FFFFFF" },
+        objects: [
+          { // title
+            placeholder: {
+              options: { 
+                name: "slide_title", 
+                type: "title", 
+                w: "80%", 
+                h: 1, 
+                bold: true, 
+                align: "left",
+                fontSize: fontSize,
+                fontFace: fontFace
+              },
+              text: "(page_title)",
+            },
+          },
+          { // subtitle
+            placeholder: {
+              options: { 
+                name: "slide_subtitle", 
+                type: "title", 
+                w: "80%", 
+                h: 1, 
+                align: "left",
+                fontSize: fontSize,
+                fontFace: fontFace
+              },
+              text: "(page_subtitle)",
+            },
+          },
+          { // footer
+            placeholder: {
+              options: { 
+                name: "slide_footer", 
+                type: "title", 
+                w: "80%", 
+                h: 1, 
+                align: "left",
+                fontSize: fontSize,
+                fontFace: fontFace
+              },
+              text: "(page_subtitle)",
+            },
+          },
+          { // "Seite" - text
+            placeholder: {
+              options: { 
+                name: "slide_pageNumber", 
+                type: "title", 
+                w: 3, 
+                h: 1, 
+                align: "left",
+                fontSize: fontSize,
+                fontFace: fontFace
+              },
+              text: "(page_pageNumber)",
+            }
+          },
+        ]
+      });
+
+/* 
+      // 2. Add a Slide to the presentation
+      let slide = doc.addSlide({ masterName: "TEMPLATE_SLIDE" });
+
+      // 3. Add 1+ objects (Tables, Shapes, etc.) to the Slide
+      slide.addText("Einwohner [Anzahl]", { placeholder: "slide_title" });
+      slide.addText("2022-12-31", { placeholder: "slide_subtitle" });
+      slide.addText("Erstellt am 2022-12-31 von M.Mustermann, Testkommune", { placeholder: "slide_footer" }); */
+
+
+      // Pages
+
+      for(let [idx, page] of $scope.config.pages.entries()) {
+
+				if(!$scope.showThisPage(page)) {
+					continue;
+				}
+        
+        // 2. Add a Slide to the presentation
+        let slide = doc.addSlide({ masterName: "TEMPLATE_SLIDE" });
+
+        let formatFactor = 3.4;
+
+				let pageDom = document.querySelector("#reporting-overview-page-" + idx);
+				for(let pageElement of page.pageElements) {
+
+					let pElementDom;
+					if(pageElement.type === "linechart") {
+						let arr = pageDom.querySelectorAll(".type-linechart");
+						if(pageElement.showPercentageChangeToPrevTimestamp) {
+							pElementDom = arr[1];
+						} else {
+							pElementDom = arr[0];
+						}
+					} else {
+						pElementDom = pageDom.querySelector("#reporting-overview-page-" + idx + "-" + pageElement.type)
+					}
+
+          let pageElementDimensions = {}
+					pageElementDimensions.top = pageElement.dimensions.top && pxToInch(pageElement.dimensions.top)*formatFactor;
+					pageElementDimensions.bottom = pageElement.dimensions.bottom && pxToInch(pageElement.dimensions.bottom)*formatFactor;
+					pageElementDimensions.left = pageElement.dimensions.left && pxToInch(pageElement.dimensions.left)*formatFactor;
+					pageElementDimensions.right = pageElement.dimensions.right && pxToInch(pageElement.dimensions.right)*formatFactor;
+					pageElementDimensions.width = pageElement.dimensions.width && pxToInch(pageElement.dimensions.width)*formatFactor;
+					pageElementDimensions.height = pageElement.dimensions.height && pxToInch(pageElement.dimensions.height)*formatFactor;
+
+					switch(pageElement.type) {
+						case "indicatorTitle-landscape":
+						case "indicatorTitle-portrait": {
+              slide.addText(pageElement.text, { x: pageElementDimensions.left, y: pageElementDimensions.top, placeholder: "slide_title" });
+							break;
+						}
+            
+						case "communeLogo-landscape":
+						case "communeLogo-portrait": {
+							if(pageElement.src && pageElement.src.length) {
+
+                let img = new Image();
+                img.src = pageElement.src;
+                let imageWidth = img.width;
+                let imageHeight = img.height;
+
+                // create an image in width/size of the uploaded one (img object). Then shrink it down to pageElementDimensions, while containing imgRatio
+                slide.addImage({ x: pageElementDimensions.left, y: pageElementDimensions.top, w: imageWidth, h: imageHeight, path: pageElement.src, sizing: { type: "contain", w: pageElementDimensions.width, h: pageElementDimensions.height}});
+              }
+							break;
+						}
+						case "dataTimestamp-landscape":
+						case "dataTimestamp-portrait": {
+              slide.addText(pageElement.text, { x: pageElementDimensions.left, y: pageElementDimensions.top, placeholder: "slide_subtitle" });
+							break;
+						}
+						case "dataTimeseries-landscape":
+						case "dataTimeseries-portrait": {
+              slide.addText(pageElement.text, { x: pageElementDimensions.left, y: pageElementDimensions.top, fontSize: fontSize-3, fontFace: fontFace });
+							break;
+						}
+						case "reachability-subtitle-landscape":
+						case "reachability-subtitle-portrait": {
+              slide.addText(pageElement.text, { x: pageElementDimensions.left, y: pageElementDimensions.top, fontSize: fontSize-3, fontFace: fontFace });
+							break;
+						}
+						case "footerHorizontalSpacer-landscape":
+						case "footerHorizontalSpacer-portrait": {
+              slide.addShape(doc.shapes.LINE, { x: pageElementDimensions.left, y: pageElementDimensions.top, w: pageElementDimensions.width, h: 0.0, line: { color: '#000000', width: 1 } });
+              break;
+						}
+						case "footerCreationInfo-landscape":
+						case "footerCreationInfo-portrait": {  
+              slide.addText(pageElement.text, { x: pageElementDimensions.left, y: pageElementDimensions.top, placeholder: "slide_footer" });
+							break;
+						} 
+						case "pageNumber-landscape":
+						case "pageNumber-portrait": {
+							let text = "Seite " + $scope.getPageNumber(idx);
+              slide.addText(text, { x: pageElementDimensions.left, y: pageElementDimensions.top, placeholder: "slide_pageNumber" });
+							break;
+						}
+						// template-specific elements
+						case "map": {
+							let instance = echarts.getInstanceByDom(pElementDom)
+							let imageDataUrl = instance.getDataURL( {pixelRatio: $scope.echartsImgPixelRatio} )
+
+							if($scope.config.template.name.includes("reachability")) {
+								try {
+									imageDataUrl = await $scope.createReachabilityMapImage(pageDom, pageElement, imageDataUrl)
+								} catch(error) {
+									$scope.loadingData = false;
+									kommonitorDataExchangeService.displayMapApplicationError(error);
+									console.error(error);
+								}
+							}
+
+              slide.addImage({ x: pageElementDimensions.left, y: pageElementDimensions.top, w: pageElementDimensions.width, h: pageElementDimensions.height, data: imageDataUrl});
+							break;
+						}
+					 	// case "mapLegend" can be ignored since it is included in the map if needed
+						case "overallAverage":
+						case "selectionAverage": {
+							let avgType = pageElement.type === "overallAverage" ? "Gesamtstadt" : "Selektion"
+							let text = "Durchschnitt\n" + avgType + ":\n" + pageElement.text.toString();
+              
+	            slide.addShape(doc.shapes.RECTANGLE, { x: pageElementDimensions.left, y: pageElementDimensions.top, w: pageElementDimensions.width, h: pageElementDimensions.height, line: { color: '#000000', width: 1 } });
+              slide.addText(text, { x: pageElementDimensions.left+0.1, y: pageElementDimensions.top+1, fontSize: fontSize-3, fontFace: fontFace });
+							break;
+						}
+						case "overallChange":
+						case "selectionChange": {
+							let changeType = pageElement.type === "overallChange" ? "Gesamtstadt" : "Selektion"
+							let text = "Durchschnittliche\nVeränderung\n" + changeType + ":\n" + pageElement.text.toString();
+              
+	            slide.addShape(doc.shapes.RECTANGLE, { x: pageElementDimensions.left, y: pageElementDimensions.top, w: pageElementDimensions.width, h: pageElementDimensions.height, line: { color: '#000000', width: 1 } });
+              slide.addText(text, { x: pageElementDimensions.left+0.1, y: pageElementDimensions.top+1.4, fontSize: fontSize-3, fontFace: fontFace });
+							break;
+						}
+						case "barchart": {
+							let instance = echarts.getInstanceByDom(pElementDom);
+							let base64String = instance.getDataURL( {pixelRatio: $scope.echartsImgPixelRatio} );
+
+              slide.addImage({ x: pageElementDimensions.left, y: pageElementDimensions.top, w: pageElementDimensions.width, h: pageElementDimensions.height, data: base64String});
+							break;
+						}
+						case "linechart": {
+							let instance = echarts.getInstanceByDom(pElementDom);
+							let base64String = instance.getDataURL( {pixelRatio: $scope.echartsImgPixelRatio} );
+              
+              slide.addImage({ x: pageElementDimensions.left, y: pageElementDimensions.top, w: pageElementDimensions.width, h: pageElementDimensions.height, data: base64String});
+							break;
+						}
+						case "textInput": {
+              slide.addText(pageElement.text, { x: pageElementDimensions.left, y: pageElementDimensions.top, w: pageElementDimensions.width, fontSize: fontSize-3, fontFace: fontFace });
+							break;
+						}
+						case "datatable": {
+
+              let table = document.querySelector("#reporting-overview-page-" + idx + "-" + pageElement.type + " table");
+
+              let data = [];
+              if(table && table.rows.length>0) {
+                table.rows.forEach((row, rowIndex) => {
+                  
+                  let singleRowData = [];
+                  if(row.cells && row.cells.length>0) {
+                    row.cells.forEach((cell, cellIndex) => {
+
+                      let fillColour = '#dedede';
+                      if(rowIndex>0) {
+                        if(rowIndex% 2 == 0)
+                          fillColour = '#ffffff';
+                        else
+                          fillColour = '#f9f9f9';
+                      }
+
+                      singleRowData.push({
+                        text: cell.innerHTML,
+                        options: {
+                          align: ((cellIndex==1 && !rowIndex==0)?'right':'left'),
+                          fontFace: fontFace,
+                          fontSize: fontSize-3,
+                          bold: ((rowIndex>0)?false:true),
+                          fill: fillColour
+                        }});
+                    });
+                    data.push(singleRowData);
+                  }
+                });
+              }
+
+              slide.addTable(data, { x: pageElementDimensions.left, y: pageElementDimensions.top, w: pageElementDimensions.width, rowH: 1, align: "left", border: { pt: "1", color: "#d6d6d6" }});
+							break;
+						} 
+					}
+				}
+			}
+      // pages end
+
+      // 4. Save the Presentation
+
+      let now = getCurrentDateAndTime();
+      doc.writeFile({ fileName: now + "_KomMonitor-Report.pptx" });
+			$scope.loadingData = false;
+			$timeout(function(){
+				$scope.$digest();
+			});
+    }
+
 		$scope.generatePdfReport = async function() {
 			
 			// create pdf document
@@ -1802,6 +2089,17 @@ angular.module('reportingOverview').component('reportingOverview', {
 			// pxPerMillimeter cancels out there, so it doesn't matter.
 			let result = parseInt(px, 10) / 830 * 297;
 			result = Math.round(result * 100) / 100;
+			return result;
+		}
+
+		function pxToInch(px) {
+			// our preview is 830px wide
+			// px / 830  gives us the percentage from the left edge, which can then be stretched to fit the A4 page
+			// This is the short version of:
+			// px / pxPerMillimeter * pxPerMillimeter * 297 / 830, where pxPerMillimeter = (deviceScreenPpi / 2.54) * 10
+			// pxPerMillimeter cancels out there, so it doesn't matter.
+			let result = parseInt(px, 10);
+			result = Math.round((result/$scope.deviceScreenDpi) * 100) / 100;
 			return result;
 		}
 

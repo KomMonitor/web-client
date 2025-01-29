@@ -1,1 +1,1 @@
-angular.module('topicEditModal', ['kommonitorConfigStorage', 'kommonitorGlobalFilterHelper']);
+angular.module('topicEditModal', ['kommonitorConfigStorage']);

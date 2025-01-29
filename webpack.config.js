@@ -96,7 +96,7 @@ module.exports = {
             { from: nodeModulePathConstant + 'dom-to-image-more/dist/dom-to-image-more.min.js', to: 'dom-to-image-more/dom-to-image-more.min.js' },
             { from: nodeModulePathConstant + 'jspdf/dist/jspdf.umd.min.js', to: 'jspdf/jspdf.umd.min.js' },
             { from: nodeModulePathConstant + 'jspdf-autotable/dist', to: 'jspdf-autotable/' },
-
+            { from: nodeModulePathConstant + 'pptxgenjs/dist', to: 'pptxgenjs/' }
       ]})
     ]
 };
