@@ -12,6 +12,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 
 		kommonitorDataExchangeService.anySideBarIsShown = false;
 
+    $scope.infoModalTrigger = false;
 		
 		kommonitorDataExchangeService.currentKeycloakUser;
 		$scope.password;
@@ -166,6 +167,11 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 		$scope.openAdminUI = function () {
 			$location.path('/administration');
 		};
+    
+
+    $scope.openInfoModal = function() {
+      $scope.infoModalTrigger++;
+  }
 
 		$scope.undockButtons = function(){
 			$scope.buttonIndicatorConfigClass = "btn btn-custom btn-circle";

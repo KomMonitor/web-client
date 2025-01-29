@@ -1,6 +1,6 @@
 <div class="modal-header">
-    <h4 class="modal-title">Hi there!</h4>
-    <button type="button" class="btn-close" aria-label="Close" (click)="activeModal.dismiss('Cross click')"></button>
+  <button type="button" class="close" (click)="activeModal.close('Close click')">&times;</button>
+  <h4 class="modal-title"><b>Wichtige Informationen zu KomMonitor</b> - <i>Version 4.0.0-beta.1</i></h4>
 </div>
 <div class="modal-body">
 
@@ -8,17 +8,17 @@
     <div class="modal-body" style="text-align: justify">
   
         <ul class="nav nav-tabs" id="infoModalTabs" role="tablist">
-          <li class="nav-item">
+          <li class="nav-item active">
             <a class="nav-link active" id="infoModalTab1" data-toggle="tab" href="#infoModalTab1Content"
-              role="tab" aria-controls="infoModalTab1Content" aria-selected="true"></a>
+              role="tab" aria-controls="infoModalTab1Content" aria-selected="true">{{tab1Title}}</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" id="infoModalTab2" data-toggle="tab" href="#infoModalTab2Content" role="tab"
               aria-controls="infoModalTab2Content" aria-selected="false">Versionsinfo</a>
           </li>
-          <li class="nav-item">
+          <li class="nav-item" *ngIf="tab3Active">
             <a class="nav-link" id="infoModalTab3" data-toggle="tab" href="#infoModalTab3Content" role="tab"
-              aria-controls="infoModalTab3Content" aria-selected="false"></a>
+              aria-controls="infoModalTab3Content" aria-selected="false">{{tab3Title}}</a>
           </li>
         </ul>
         <div class="tab-content" id="infoModalTabContent">
@@ -54,18 +54,23 @@
  
     <tbody>
       <tr>
-        <td [innerHTML]="customGreetingsContact_name"></td>
-        <td [innerHTML]="customGreetingsContact_organisation"></td>
-        <td><a href="mailto:{{ customGreetingsContact_mail }}">{{ customGreetingsContact_mail }}</a></td>
+        <td>{{customGreetingsContact_name}}</td>
+        <td>{{customGreetingsContact_organisation}}</td>
+        <td><a href="mailto:{{customGreetingsContact_mail}}">{{customGreetingsContact_mail}}</a></td>
       </tr>
+      <tr>
+        <td >KomMonitor-Support</td>
+        <td>Hochschule Bochum</td>
+        <td><a href="mailto:kommonitor@hs-bochum.de">kommonitor&commat;hs-bochum.de</a></td>
+        </tr>
     </tbody>
   </table>
 </div>
 
-<div *ngIf="customGreetingsTextInfoMessage && customGreetingsTextInfoMessage != ''">
+<div *ngIf="customGreetingsTextInfoMessage">
   <br/>
   <b>Zusätzliche Hinweise</b>
-  <p [innerHTML]="customGreetingsTextInfoMessage"></p>
+  <p [innerHTML]="customGreetingsTextInfoMessage | safeHtml"></p>
 </div>
 
 <br/>
@@ -78,9 +83,12 @@
 
 <br/>
 
-<div align="center">
+<div style="text-align:center">
   <img src="logos/BMBF.svg">
   <img src="logos/FONA.svg">
+</div>
+<div style="text-align:center">
+  <img src="logos/eu_esf-nrw_mags_fh_4c-logo.png" style="width:100%">
 </div>
 
           </div>
@@ -92,10 +100,21 @@
             aria-labelledby="infoModalTab3">
           </div>
         </div>
-
-
-
 </div>
 <div class="modal-footer">
-    <button type="button" class="btn btn-outline-secondary" (click)="activeModal.close('Close click')">Close</button>
+  <div class="row">
+    <div class="col-md-8">						
+        <label>
+          Begr&uuml;&szlig;ungsfenster beim n&auml;chsten Aufruf verbergen								
+        </label>
+        <input type="checkbox" [checked]="hideGreeting" (change)="onHideGreetingChange($event)">
+    </div>
+    <div class="col-md-2">
+      <button type="button" id="callStartGuidedTourButton" class="btn btn-danger">Guided Tour&nbsp;&nbsp;<span class="glyphicon glyphicon-play"></span></button>				
+    </div>
+    <div class="col-md-2">
+      <button type="button" class="btn btn-outline-secondary" (click)="activeModal.close('Close click')">Schlie&szlig;en</button>
+    </div>
+
+  </div>
 </div>
