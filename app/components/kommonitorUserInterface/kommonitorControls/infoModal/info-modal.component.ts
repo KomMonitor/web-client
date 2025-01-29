@@ -5,7 +5,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { CommonModule } from "@angular/common";
 import { DataExchangeService } from "services/data-exchange-service/data-exchange.service";
 import { SafeHtmlPipe } from 'pipes/safe-html.pipe';
-import { VersionInfoComponent } from 'components/kommonitorUserInterface/versionInfo/version-info/version-info.component';
+import { VersionInfoComponent } from 'components/kommonitorUserInterface/versionInfo/version-info.component';
 
 @Component({
 	selector: 'ngbd-modal-content',
