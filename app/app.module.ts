@@ -14,6 +14,7 @@ import { HashLocationStrategy, LocationStrategy } from '@angular/common';
 import { ajskommonitorCacheHelperServiceProvider,ajskommonitorBatchUpdateHelperServiceProvider,ajskommonitorConfigStorageServiceProvider,ajskommonitorDataExchangeServiceeProvider,ajskommonitorDataGridHelperServiceProvider,ajskommonitorDiagramHelperServiceProvider,ajskommonitorFilterHelperServiceProvider,ajskommonitorKeycloackHelperServiceProvider,ajskommonitorMultiStepFormHelperServiceProvider, ajskommonitorSingleFeatureMapServiceProvider } from 'app-upgraded-providers';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { InfoModalComponent } from 'components/kommonitorUserInterface/kommonitorControls/infoModal/info-modal.component';
+import { KommonitorLegendComponent } from 'components/kommonitorUserInterface/kommonitorControls/kommonitor-legend/kommonitor-legend.component';
 
 
 // currently the AngularJS routing is still used as part of kommonitorClient module
@@ -37,7 +38,8 @@ declare var MathJax;
     NgbModule
   ],
   declarations: [
-    InfoModalComponent
+    InfoModalComponent,
+    KommonitorLegendComponent
   ]
 })
 
@@ -76,8 +78,15 @@ export class AppModule implements DoBootstrap {
     //    --> this especially means all components, where the downgraded component is used within the HTML part as directive
     // 2. in order to prevent no module errors we must remove the old module reference within the .module file of the AngularJS modules/components 
 
+    // IMPORTANT
+    // the directive identifier is changed to lower-case with a "-" between word. No idea why... 
+    // meaning "infoModal" must be called as <info-modal>.. , "komLegend" as <kom-legend>.... 
+
     angular.module('kommonitorUserInterface')
     .directive('infoModal',  downgradeComponent({ component: InfoModalComponent }) as angular.IDirectiveFactory);
+
+    angular.module('kommonitorUserInterface')
+    .directive('kommonitorLegendNew',  downgradeComponent({ component: KommonitorLegendComponent }) as angular.IDirectiveFactory);
 
    /*  angular.module('kommonitorUserInterface')
     .directive('versionInfo',  downgradeComponent({ component: VersionInfoComponent }) as angular.IDirectiveFactory);
