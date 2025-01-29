@@ -35,6 +35,12 @@ angular
           self.elementVisibility[element.id] = checkElementVisibility(element.id);
         });
 
+        
+        if(Auth.keycloak.authenticated && __env.showFavoriteSelection)
+          self.elementVisibility['favSelection'] = true;
+        else
+          self.elementVisibility['favSelection'] = false;
+
         $timeout(function(){
           $rootScope.$apply();
 

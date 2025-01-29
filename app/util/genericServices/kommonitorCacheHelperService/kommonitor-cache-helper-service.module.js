@@ -158,7 +158,10 @@ angular
             localStorage.setItem(metadataKey, JSON.stringify(response.data));
   
             return response.data;
-          });
+          }, function errorCallback(error) {
+            console.log("Unable to read OrgainzationalUnit data");
+            return [];
+        });
         }
       };
 
