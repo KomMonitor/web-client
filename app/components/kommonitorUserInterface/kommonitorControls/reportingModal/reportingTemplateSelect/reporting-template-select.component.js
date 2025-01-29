@@ -2730,7 +2730,9 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 					document.body.removeChild(img);
 					canvas.width = width;
 					canvas.height = width / ratio;
-					let ctx = canvas.getContext("2d");
+					let ctx = canvas.getContext("2d", {
+						willReadFrequently: true
+					  });
 					ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 					try {
 						let data = canvas.toDataURL('image/png');

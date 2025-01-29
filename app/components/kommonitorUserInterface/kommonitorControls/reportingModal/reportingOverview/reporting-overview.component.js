@@ -468,7 +468,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 				let bounds = L.latLngBounds(pageElement.leafletBbox._southWest, pageElement.leafletBbox._northEast);
 				leafletMap.fitBounds( bounds );
 				
-				let osmLayer = new L.TileLayer.Grayscale("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+				let osmLayer = new L.TileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
 					attribution: "Map data © <a href='http://openstreetmap.org'>OpenStreetMap</a> contributors",
 				});
 				osmLayer.addTo(leafletMap);
@@ -2041,7 +2041,9 @@ angular.module('reportingOverview').component('reportingOverview', {
 			
 			// combine images
 			let canvas = document.createElement('canvas');
-			let ctx = canvas.getContext('2d');
+			let ctx = canvas.getContext('2d', {
+				willReadFrequently: true
+			  });
 			let pageElementDimensionsPx = calculateDimensions(pageElement.dimensions, "px");
 			canvas.width = pageElementDimensionsPx.width;
 			canvas.height =  pageElementDimensionsPx.height;

@@ -2097,7 +2097,9 @@ angular
         let attributionText = "Leaflet | Map data @ OpenStreetMap contributors"
         let canvas = document.createElement("canvas")
         canvas.width = 800;
-        let ctx = canvas.getContext('2d')
+        let ctx = canvas.getContext('2d', {
+          willReadFrequently: true
+          })
         ctx.font = "8pt Arial";
         ctx.textBaseline = 'top';
         ctx.fillStyle = "rgb(60, 60, 60)";
@@ -2156,7 +2158,9 @@ angular
         let canvas = document.createElement("canvas")
         canvas.width = 800;
         canvas.height = 800;
-        let ctx = canvas.getContext('2d')
+        let ctx = canvas.getContext('2d', {
+          willReadFrequently: true
+          })
         let fontStyle = "8pt Arial"
         ctx.font = fontStyle
         let xPos = 5
@@ -2258,9 +2262,13 @@ angular
         }
      
      
-            var ctx = canvas.getContext("2d");
+            var ctx = canvas.getContext("2d", {
+              willReadFrequently: true
+              });
             var width = canvas.width;
-            var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height, {
+              willReadFrequently: true
+            });
             var top = 0, bottom = imageData.height, left = 0, right = imageData.width;
      
             while (top < bottom && rowBlank(imageData, width, top)) ++top;
@@ -2268,9 +2276,13 @@ angular
             while (left < right && columnBlank(imageData, width, left, top, bottom)) ++left;
             while (right - 1 > left && columnBlank(imageData, width, right - 1, top, bottom)) --right;
      
-            var trimmed = ctx.getImageData(left, top, right - left, bottom - top);
+            var trimmed = ctx.getImageData(left, top, right - left, bottom - top, {
+              willReadFrequently: true
+            });
             var copy = canvas.ownerDocument.createElement("canvas");
-            var copyCtx = copy.getContext("2d");
+            var copyCtx = copy.getContext("2d", {
+              willReadFrequently: true
+              });
             copy.width = trimmed.width + padding*2;
             copy.height = trimmed.height + padding*2;
             copyCtx.putImageData(trimmed, padding, padding);

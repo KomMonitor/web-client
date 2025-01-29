@@ -347,10 +347,14 @@ angular.module('kommonitorMap').component(
             var canvas = document.createElement("canvas");
             canvas.width = img.width;
             canvas.height = img.height;
-            var ctx = canvas.getContext("2d");
+            var ctx = canvas.getContext("2d", {
+              willReadFrequently: true
+              });
             ctx.drawImage(img, 0, 0);
 
-            var imgd = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            var imgd = ctx.getImageData(0, 0, canvas.width, canvas.height, {
+              willReadFrequently: true
+            });
             var pix = imgd.data;
             for (var i = 0, n = pix.length; i < n; i += 4) {
               pix[i] = pix[i + 1] = pix[i + 2] = (this.options.quotaRed * pix[i] + this.options.quotaGreen * pix[i + 1] + this.options.quotaBlue * pix[i + 2]) / this.options.quotaDivider();

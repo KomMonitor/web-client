@@ -1832,7 +1832,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				});
 				
 				// Attribution is handled in a custom element
-				let osmLayer = new L.TileLayer.Grayscale("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png");
+				let osmLayer = new L.TileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png");
 				osmLayer.addTo(leafletMap);
 
 				// add leaflet map to pageElement in case we need it again later
