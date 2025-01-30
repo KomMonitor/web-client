@@ -89,7 +89,7 @@ export class InfoModalComponent implements OnInit, OnChanges {
   ngOnInit(): void {
   
     // todo: activate if
-    //if(!localStorage.getItem('hideKomMonitorAppGreeting') || localStorage.getItem('hideKomMonitorAppGreeting') === 'false')
+    if(!localStorage.getItem('hideKomMonitorAppGreeting') || localStorage.getItem('hideKomMonitorAppGreeting') === 'false')
       this.openModal();
   }
 

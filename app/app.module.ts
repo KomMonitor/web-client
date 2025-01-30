@@ -11,10 +11,24 @@ import angular from "angular";
 import { RouterModule, Routes } from '@angular/router';
 import { HashLocationStrategy, LocationStrategy } from '@angular/common';
 
-import { ajskommonitorCacheHelperServiceProvider,ajskommonitorBatchUpdateHelperServiceProvider,ajskommonitorConfigStorageServiceProvider,ajskommonitorDataExchangeServiceeProvider,ajskommonitorDataGridHelperServiceProvider,ajskommonitorDiagramHelperServiceProvider,ajskommonitorFilterHelperServiceProvider,ajskommonitorKeycloackHelperServiceProvider,ajskommonitorMultiStepFormHelperServiceProvider, ajskommonitorSingleFeatureMapServiceProvider } from 'app-upgraded-providers';
+import { 
+  ajskommonitorCacheHelperServiceProvider,
+  ajskommonitorBatchUpdateHelperServiceProvider,
+  ajskommonitorConfigStorageServiceProvider,
+  ajskommonitorDataExchangeServiceeProvider,
+  ajskommonitorDataGridHelperServiceProvider,
+  ajskommonitorDiagramHelperServiceProvider,
+  ajskommonitorFilterHelperServiceProvider,
+  ajskommonitorKeycloackHelperServiceProvider,
+  ajskommonitorMultiStepFormHelperServiceProvider, 
+  ajskommonitorSingleFeatureMapServiceProvider,
+  ajskommonitorElementVisibilityHelperServiceProvider } from 'app-upgraded-providers';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { InfoModalComponent } from 'components/kommonitorUserInterface/kommonitorControls/infoModal/info-modal.component';
 import { KommonitorLegendComponent } from 'components/kommonitorUserInterface/kommonitorControls/kommonitor-legend/kommonitor-legend.component';
+import { NgbCalendar, NgbDatepickerModule, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import { FormsModule } from '@angular/forms';
+import { JsonPipe } from '@angular/common';
 
 
 // currently the AngularJS routing is still used as part of kommonitorClient module
@@ -26,7 +40,8 @@ declare var MathJax;
   imports: [
     BrowserModule,
     UpgradeModule,
-    RouterModule.forRoot(routes , { useHash: true })
+    RouterModule.forRoot(routes , { useHash: true }),
+    NgbDatepickerModule, FormsModule, JsonPipe
   ],
   providers:[
     {provide: LocationStrategy, useClass: HashLocationStrategy},
@@ -35,6 +50,7 @@ declare var MathJax;
     ajskommonitorMultiStepFormHelperServiceProvider,ajskommonitorDataExchangeServiceeProvider,
     ajskommonitorDataGridHelperServiceProvider,ajskommonitorSingleFeatureMapServiceProvider,
     ajskommonitorDiagramHelperServiceProvider,ajskommonitorFilterHelperServiceProvider,
+    ajskommonitorElementVisibilityHelperServiceProvider,
     NgbModule
   ],
   declarations: [

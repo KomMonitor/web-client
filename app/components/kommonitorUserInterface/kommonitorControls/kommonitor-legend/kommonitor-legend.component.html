@@ -1,3 +1,161 @@
-<div id="legendWrapper">
-  <p>kommonitor-legend works!</p>
+<div id="legendWrapper" *ngIf="exchangeData.selectedIndicator">
+
+    <p></p>
+  
+    <!-- Indicator information  -->
+      <div id="kommonitorIndicatorExportAndSpatialUnitSwitch" class="box box-primary">
+        <div class="box-header with-border">
+          <h3 class="box-title">Raumebene und Export</h3>
+  
+          <div class="box-tools pull-right">
+            <button id="kommonitorIndicatorExportAndSpatialUnitSwitchCollapse" type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+            </button>
+          </div>
+        </div>
+        <div class="box-body boxedLegend">
+
+          <div >
+            <div>						
+              <div class="row" style="margin-right: 0px;">
+                <div class="col-sm-7">
+                  <div class="text-left"><label>Raumebene</label><a *ngIf="env.enableSpatialUnitNotificationButton" data-toggle="modal" ng-click="showSpatialUnitNotificationModalIfEnabled()" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%; cursor:pointer;" title="Information zu Raumeinheiten&nbsp;&nbsp;"><span class="glyphicon glyphicon-info-sign"></span></a></div>
+                  <!-- <select id="spatialUnitSelectionInput" style="font-size: 12px;" ng-model="$ctrl.kommonitorDataExchangeServiceInstance.selectedSpatialUnit"
+                    ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits | filter:filterSpatialUnits()"
+                    class="form-control" ng-change="onChangeSelectedSpatialUnit()" required> -->
+                    <select (change)="onChangeSelectedSpatialUnit()">
+                      <option disabled selected value> -- Raumeinheit w&auml;hlen --</option>
+                      <option *ngFor="let item of filteredSpatialUnits()">{{item.spatialUnitLevel }}</option>
+                    </select>
+                </div>
+                <div class="col-sm-4">
+                  <div class="text-left"><label>Datum</label></div>
+                    <div class="col-12">
+                        <input
+                          class="form-control"
+                          placeholder="yyyy-mm-dd"
+                          name="dp"
+                          [(ngModel)]="exchangeData.selectedDate"
+                          ngbDatepicker
+                          #d="ngbDatepicker"
+                          (click)="d.toggle()"
+                          (change)="onChangeIndicatorDatepickerDate()"
+                          [disabled]="(exchangeData.disableIndicatorDatePicker===true ? true : false)"
+                        />
+                    </div>
+                </div>
+              </div><br>
+  
+        <!--  *ngIf="elementVisibilityData.elementVisibility?.indicatorLegendExportButtons" -->
+              <div class="btn-group"  id="indicatorLegendExportButtons">
+                <label><i class="fa fa-file-download"></i>&nbsp;&nbsp;&nbsp;Export</label>
+                <br />
+                <button id="downloadMetadata" (click)="onClickDownloadMetadata()" class="btn btn-default btn-xs">Metadatenblatt</button>
+                <button id="downloadGeoJSON" (click)="downloadIndicatorAsGeoJSON()" class="btn btn-primary btn-xs">GeoJSON</button>
+                <button id="downloadShape" ng-click="downloadIndicatorAsShape()" class="btn btn-primary btn-xs">ESRI
+                  Shape</button>
+                <button id="downloadCSV" ng-click="downloadIndicatorAsCSV()" class="btn btn-primary btn-xs">CSV</button>							
+               
+              </div>
+              <br>
+              <br>
+              <button title="Teilen Sie die aktuelle Indikatorenansicht mittels eines Links" id="shareLinkButton" ng-click="onClickShareLinkButton()" class="btn btn-info btn-xs"><i class="fas fa-share-alt"></i>aktuelle Ansicht teilen</button>
+              <div id="snackbar">Link zur aktuellen Indikatoren-Ansicht in Zwischenablage kopiert</div>	
+            </div>
+          </div>
+  
+  
+        </div>
+        <!-- /.box-body -->
+      </div>
+      <!-- /.box -->
+  
+      <!-- legend(s)  -->
+      <div id="kommonitorLegendSymbology" class="box box-primary">
+        <div class="box-header with-border">
+          <h3 class="box-title">Legenden</h3>
+  
+          <div class="box-tools pull-right">
+            <button id="legendSymbologyCollapse" type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+            </button>
+          </div>
+        </div>
+        <div class="box-body boxedLegend" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator">
+  
+        </div>
+        <!-- /.box-body -->
+      </div>
+      <!-- /.box -->
+  
+      <div id="kommonitorStatisticalValues" class="box box-primary collapsed-box">
+        <div class="box-header with-border">
+          <h3 class="box-title">Indikatoren-Statistik</h3>
+  
+          <div class="box-tools pull-right">
+            <button id="statisticalValuesCollapse" type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+            </button>
+          </div>
+        </div>
+        <div class="box-body">
+        <!--   <em>Referenzzeitpunkt {{$ctrl.kommonitorDataExchangeServiceInstance.tsToDate_withOptionalUpdateInterval($ctrl.kommonitorDataExchangeServiceInstance.dateToTS(dateAsDate, $ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.metadata.updateInterval))}}</em>
+          <table id="statisticalValuesDisplayTable" class="table">
+            <thead>
+              <tr>
+                <th></th>
+                <th ng-show="$ctrl.kommonitorFilterHelperServiceInstance.filteredIndicatorFeatureIds.size == 0">{{$ctrl.kommonitorDataExchangeServiceInstance.labelAllFeatures}}</th>
+                <th ng-show="$ctrl.kommonitorFilterHelperServiceInstance.filteredIndicatorFeatureIds.size > 0">{{$ctrl.kommonitorDataExchangeServiceInstance.labelFilteredFeatures}}</th>
+                <th>{{$ctrl.kommonitorDataExchangeServiceInstance.labelSelectedFeatures}}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>{{$ctrl.kommonitorDataExchangeServiceInstance.labelNumberOfFeatures}}</td>
+                <td>{{$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesNumberOfFeatures}}</td>
+                <td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedFeaturesNumberOfFeatures}}</td>
+              </tr>
+              <tr ng-if="! $ctrl.kommonitorDataExchangeServiceInstance.allFeaturesRegionalSum">
+                <td>{{$ctrl.kommonitorDataExchangeServiceInstance.labelSum}}</td>
+                <td>{{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText($ctrl.kommonitorDataExchangeServiceInstance.allFeaturesSum)}}</td>
+                <td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedFeaturesSum}}</td>
+              </tr>
+              <tr ng-if="$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesRegionalSum">
+                <td>{{$ctrl.kommonitorDataExchangeServiceInstance.labelSum_regional}}</td>
+                <td>{{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText($ctrl.kommonitorDataExchangeServiceInstance.allFeaturesRegionalSum)}}</td>
+                <td>{{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText($ctrl.kommonitorDataExchangeServiceInstance.selectedFeaturesSum)}}</td>
+              </tr>
+              
+              
+                 <tr ng-if="$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesRegionalMean">
+                  <td>{{$ctrl.kommonitorDataExchangeServiceInstance.labelMean_regional}}</td>
+                  <td>{{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText($ctrl.kommonitorDataExchangeServiceInstance.allFeaturesRegionalMean)}}</td>
+                  <td>{{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText($ctrl.kommonitorDataExchangeServiceInstance.selectedFeaturesMean)}}</td>
+                </tr>
+                <tr ng-if="$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesMean && ($ctrl.kommonitorDataExchangeServiceInstance.configMeanDataDisplay == 'both' || (! $ctrl.kommonitorDataExchangeServiceInstance.allFeaturesRegionalMean && kommonitorDataExchangeService.configMeanDataDisplay == 'preferRegionalMeanIfAvailable'))">
+                  <td>{{$ctrl.kommonitorDataExchangeServiceInstance.labelMean}}</td>
+                  <td>{{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText($ctrl.kommonitorDataExchangeServiceInstance.allFeaturesMean)}}</td>
+                   <td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedFeaturesMean}}</td>
+                </tr>
+                 
+                 <tr>
+                   <td>{{$ctrl.kommonitorDataExchangeServiceInstance.labelMin}}</td>
+                   <td>{{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText($ctrl.kommonitorDataExchangeServiceInstance.allFeaturesMin)}}</td>
+                <td>{{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText($ctrl.kommonitorDataExchangeServiceInstance.selectedFeaturesMin)}}</td>
+                 </tr>
+              <tr>
+                <td>{{$ctrl.kommonitorDataExchangeServiceInstance.labelMax}}</td>
+                   <td>{{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText($ctrl.kommonitorDataExchangeServiceInstance.allFeaturesMax)}}</td>
+                <td>{{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText($ctrl.kommonitorDataExchangeServiceInstance.selectedFeaturesMax)}}</td>
+              </tr>
+  
+              <tr>
+                <td>{{$ctrl.kommonitorDataExchangeServiceInstance.labelSpatiallyUnassignable_regional}}</td>
+                   <td>{{$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesRegionalSpatiallyUnassignable || "-"}}</td>
+                <td>-</td>
+              </tr>
+            </tbody>
+          </table> -->
+        </div>
+        <!-- /.box-body -->
+      </div>
+      <!-- /.box -->
+
 </div>

@@ -1,6 +1,6 @@
 import { Injector, Injectable } from '@angular/core';
-import { KommonitorElementVisibilityHelperService } from "util/genericServices/kommonitorElementVisibilityHelperService/kommonitor-element-visibility-helper-service.service";
-import { kommonitorCacheHelperService } from 'util/genericServices/kommonitorCacheHelperService/kommonitor-cache-helper-service.module';
+import {kommonitorElementVisibilityHelperService } from "util/genericServices/kommonitorElementVisibilityHelperService/kommonitor-element-visibility-helper-service.module";
+import {kommonitorCacheHelperService } from 'util/genericServices/kommonitorCacheHelperService/kommonitor-cache-helper-service.module';
 import {kommonitorBatchUpdateHelperService} from 'util/genericServices/kommonitorBatchUpdateHelperService/kommonitor-batch-update-helper-service.module';
 import {kommonitorConfigStorageService} from 'util/genericServices/kommonitorConfigStorageService/kommonitor-config-storage-service.module';
 import {kommonitorDataExchangeService} from 'util/genericServices/kommonitorDataExchangeService/kommonitor-data-exchange-service.module';
@@ -155,10 +155,18 @@ export const ajskommonitorVisualStyleHelperServiceProvider: any = {
     useFactory:kommonitorVisualStyleHelperServiceFactory,
   };
 
+  
+//element visibility helper
 
+export function kommonitorElementVisibilityHelperServiceFactory (injector:any){
+  return injector.get('kommonitorElementVisibilityHelperService')
+}
 
-
-
+export const ajskommonitorElementVisibilityHelperServiceProvider: any = {
+  deps: ['$injector'],
+  provide: 'kommonitorElementVisibilityHelperService',
+  useFactory:kommonitorElementVisibilityHelperServiceFactory,
+};
 
 
   export const serviceProviders: any[] = [
@@ -169,10 +177,11 @@ export const ajskommonitorVisualStyleHelperServiceProvider: any = {
     ajskommonitorDataGridHelperServiceProvider,
     ajskommonitorDiagramHelperServiceProvider,
     ajskommonitorFilterHelperServiceProvider,
-ajskommonitorKeycloackHelperServiceProvider,
-ajskommonitorMultiStepFormHelperServiceProvider,
-ajskommonitorScriptHelperServiceProvider,
-ajskommonitorShareHelperServiceProvider,
-ajskommonitorSingleFeatureMapServiceProvider,
-ajskommonitorVisualStyleHelperServiceProvider
+    ajskommonitorKeycloackHelperServiceProvider,
+    ajskommonitorMultiStepFormHelperServiceProvider,
+    ajskommonitorScriptHelperServiceProvider,
+    ajskommonitorShareHelperServiceProvider,
+    ajskommonitorSingleFeatureMapServiceProvider,
+    ajskommonitorVisualStyleHelperServiceProvider,
+    ajskommonitorElementVisibilityHelperServiceProvider
   ];

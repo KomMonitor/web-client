@@ -2605,7 +2605,7 @@ angular
                   return jspdf.output("blob", {filename: pdfName});
           };
       
-          this.generateIndicatorMetadataPdf = async function(indicatorMetadata, pdfName){																					
+          this.generateIndicatorMetadataPdf = async function(indicatorMetadata, pdfName, autosave = false){																					
             var jspdf = await this.createMetadataPDF_indicator(indicatorMetadata);
       
             jspdf.setProperties({
@@ -2615,6 +2615,10 @@ angular
             keywords: 'Indikator, Metadatenblatt',
             creator: 'KomMonitor'
             });
+
+            if(autosave)
+              jspdf.save(pdfName);
+            
             return jspdf;
           }; 
 
