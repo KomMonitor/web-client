@@ -293,12 +293,17 @@
                     <button class="btn btn-warning" ng-click='onBackToOverviewClicked()'>
                         <i class="fa fa-arrow-left"></i>
                         &nbsp;&nbsp;Zurück zur Übersicht
-                    </button>
+                    </button>                    
                     
-                    <button ng-disabled="!validateConfiguration()" type="button" class="btn btn-success pull-right" ng-click='onAddBtnClicked()'>
+                    <button ng-disabled="!validateConfiguration() || ! $ctrl.kommonitorLeafletScreenshotCacheHelperServiceInstance.screenshotsForCurrentSpatialUnitUpdate" type="button" class="btn btn-success pull-right" ng-click='onAddBtnClicked()'>
                         <i class="fa fa-plus"></i>
                         <span ng-show="template.name.includes('-reachability')">POI-Layer hinzufügen</span>
                         <span ng-show="!template.name.includes('-reachability')">Indikator hinzufügen</span>
+                    </button>
+
+                    <button ng-disabled="true" style="margin-right: 15px;" ng-show="$ctrl.kommonitorLeafletScreenshotCacheHelperServiceInstance.executedScreenshotMapKeys.size > 0 && $ctrl.kommonitorLeafletScreenshotCacheHelperServiceInstance.executedScreenshotMapKeys.size <= $ctrl.kommonitorLeafletScreenshotCacheHelperServiceInstance.targetNumberOfSpatialUnitFeatures" type="button" class="btn btn-info pull-right">
+                        <span class="glyphicon glyphicon-refresh icon-spin"></span>
+                        <span>Kartenbildaufbereitung: {{$ctrl.kommonitorLeafletScreenshotCacheHelperServiceInstance.executedScreenshotMapKeys.size}} von {{$ctrl.kommonitorLeafletScreenshotCacheHelperServiceInstance.targetNumberOfSpatialUnitFeatures}}</span>
                     </button>
                 </div>
             </div>

@@ -1,11 +1,12 @@
 angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 	templateUrl : "components/kommonitorUserInterface/kommonitorControls/reportingModal/reportingIndicatorAdd/reporting-indicator-add.template.html",
 	controller : ['$scope', '$http', '$timeout', '$interval', '__env', 'kommonitorDataExchangeService', 'kommonitorDiagramHelperService', 
-	'kommonitorVisualStyleHelperService', 'kommonitorReachabilityHelperService', 'kommonitorLeafletScreenshotCacheHelperService',
+	'kommonitorVisualStyleHelperService', 'kommonitorReachabilityHelperService', 'kommonitorLeafletScreenshotCacheHelperService', '$rootScope',
 	function ReportingIndicatorAddController($scope, $http, $timeout, $interval, __env, kommonitorDataExchangeService, kommonitorDiagramHelperService, 
-		kommonitorVisualStyleHelperService, kommonitorReachabilityHelperService, kommonitorLeafletScreenshotCacheHelperService) {
+		kommonitorVisualStyleHelperService, kommonitorReachabilityHelperService, kommonitorLeafletScreenshotCacheHelperService, $rootScope) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
+		this.kommonitorLeafletScreenshotCacheHelperServiceInstance = kommonitorLeafletScreenshotCacheHelperService;
 
 		$scope.template = undefined;
 		$scope.untouchedTemplateAsString = "";
@@ -623,14 +624,20 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			});
 		}
 
+		$rootScope.$on("screenshotsForCurrentSpatialUnitUpdate", function(event){
+			// update ui to enable button
+			$scope.$digest();
+		});
+
 
 		$scope.onSpatialUnitChanged = async function(selectedSpatialUnit) {
-			$scope.loadingData = true;
-			kommonitorLeafletScreenshotCacheHelperService.init();
+			$scope.loadingData = true;			
 
 			$("#reporting-spatialUnitChangeWarning").hide();
 			$scope.timeseriesAdjustedOnSpatialUnitChange = false;
-			await $scope.updateAreasInDualList()
+			await $scope.updateAreasInDualList() // after that spatialUnitFeatures are available
+
+			kommonitorLeafletScreenshotCacheHelperService.init($scope.availableFeaturesBySpatialUnit[selectedSpatialUnit.spatialUnitLevel].length);
 			let validTimestamps = []
 			// There might be different valid timestamps for the new spatial unit.
 			if($scope.selectedIndicator) {
@@ -1075,8 +1082,6 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 		$scope.onPoiLayerSelected = async function(poiLayer) {
 
-			kommonitorLeafletScreenshotCacheHelperService.init();
-
 			try {
 				$scope.absoluteLabelPositions = [];
 				$scope.diagramsPrepared = false;
@@ -1101,6 +1106,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				});
 				if( !$scope.selectedSpatialUnit) {
 					$scope.selectedSpatialUnit = kommonitorDataExchangeService.availableSpatialUnits[0];
+					await $scope.updateAreasInDualList(); // this populates $scope.availableFeaturesBySpatialUnit
+					kommonitorLeafletScreenshotCacheHelperService.init($scope.availableFeaturesBySpatialUnit[$scope.selectedSpatialUnit.spatialUnitLevel].length);
 				}
 				let mostRecentTimestampName
 				if($scope.selectedSpatialUnit.metadata) {
@@ -1115,9 +1122,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				$scope.selectedTimestamps = [{
 					category: mostRecentTimestampName,
 					name: mostRecentTimestampName
-				}];
-				
-				await $scope.updateAreasInDualList(); // this populates $scope.availableFeaturesBySpatialUnit
+				}];				
 
 				
 				// update information in preview
