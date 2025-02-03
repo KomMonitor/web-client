@@ -70,7 +70,7 @@
     "codemirror": "^5.65.18",
     "crypto-js": "^4.2.0",
     "docx": "^7.8.2",
-    "dom-to-image-more": "^3.5.0",
+    "dom-to-image-more": "^2.6.0",
     "echarts": "^5.5.1",
     "echarts-stat": "^1.2.0",
     "fastclick": "^1.0.6",

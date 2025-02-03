@@ -1,9 +1,9 @@
 angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 	templateUrl : "components/kommonitorUserInterface/kommonitorControls/reportingModal/reportingIndicatorAdd/reporting-indicator-add.template.html",
 	controller : ['$scope', '$http', '$timeout', '$interval', '__env', 'kommonitorDataExchangeService', 'kommonitorDiagramHelperService', 
-	'kommonitorVisualStyleHelperService', 'kommonitorReachabilityHelperService',
+	'kommonitorVisualStyleHelperService', 'kommonitorReachabilityHelperService', 'kommonitorLeafletScreenshotCacheHelperService',
 	function ReportingIndicatorAddController($scope, $http, $timeout, $interval, __env, kommonitorDataExchangeService, kommonitorDiagramHelperService, 
-		kommonitorVisualStyleHelperService, kommonitorReachabilityHelperService) {
+		kommonitorVisualStyleHelperService, kommonitorReachabilityHelperService, kommonitorLeafletScreenshotCacheHelperService) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 
@@ -626,6 +626,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 		$scope.onSpatialUnitChanged = async function(selectedSpatialUnit) {
 			$scope.loadingData = true;
+			kommonitorLeafletScreenshotCacheHelperService.init();
+
 			$("#reporting-spatialUnitChangeWarning").hide();
 			$scope.timeseriesAdjustedOnSpatialUnitChange = false;
 			await $scope.updateAreasInDualList()
@@ -1072,6 +1074,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		})
 
 		$scope.onPoiLayerSelected = async function(poiLayer) {
+
+			kommonitorLeafletScreenshotCacheHelperService.init();
 
 			try {
 				$scope.absoluteLabelPositions = [];
@@ -1729,7 +1733,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			})
 
 			// initialize the leaflet map beneath the transparent-background echarts map
-			await $timeout(async function(page, pageElement, echartsMap) {
+			$timeout(async function(page, pageElement, echartsMap) {
 				let pageIdx = $scope.template.pages.indexOf(page);
 				let id = "reporting-addPoiLayer-reachability-leaflet-map-container-" + pageIdx;
 				let pageDom = document.getElementById("reporting-addIndicator-page-" + pageIdx);
@@ -1792,8 +1796,11 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				let eastLon = boundingCoords[1][0];
 				let northLat = boundingCoords[0][1];
 
+				let spatialUnitFeatureId;
+
 				if(page.area && page.area.length) {
 					let feature = $scope.geoJsonForReachability_byFeatureName.get(page.area);
+					spatialUnitFeatureId = feature.properties[__env.FEATURE_ID_PROPERTY_NAME];
 					// set bounding box to this feature
 					let featureBbox = feature.properties.bbox;
 					westLon = featureBbox[0];
@@ -1833,7 +1840,21 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				
 				// Attribution is handled in a custom element
 				let osmLayer = new L.TileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png");
+				// use the "load" event of the tile layer to hook a function that is triggered once every visible tile is fully loaded
+				// here we ntend to make a screenshot of the leaflet image as a background task in order to boost up report preview generation 
+				// for all spatial unit features		
+				let domNode = leafletMap["_container"];						
 				osmLayer.addTo(leafletMap);
+				osmLayer.on("load", async function() { 
+					console.log("tile load event fired");
+					kommonitorLeafletScreenshotCacheHelperService.takeScreenshotAndStoreInCache($scope.selectedSpatialUnit.spatialUnitId, 
+					spatialUnitFeatureId, domNode);
+				});
+
+				// setTimeout(function(){
+				// 	console.log("trigger domToImage for leaflet map");
+				// 	kommonitorLeafletScreenshotCacheHelperService.takeScreenshotAndStoreInCache($scope.selectedSpatialUnit.spatialUnitId, 
+				// 	spatialUnitFeatureId, domNode) }, 1000);				
 
 				// add leaflet map to pageElement in case we need it again later
 				pageElement.leafletMap = leafletMap;
@@ -1867,7 +1888,9 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				if(pageIdx === $scope.template.pages.length-1) {
 					$scope.loadingData = false;
 				}
-			}, 0, true, page, pageElement, map)
+			}, 0, false, page, pageElement, map)
+
+			$scope.loadingData = false;
 
 			return map;
 		}

@@ -1,7 +1,10 @@
 angular.module('reportingOverview').component('reportingOverview', {
 	templateUrl : "components/kommonitorUserInterface/kommonitorControls/reportingModal/reportingOverview/reporting-overview.template.html",
-	controller : ['$scope', '__env', '$timeout', '$http', 'kommonitorDataExchangeService', 'kommonitorDiagramHelperService',
-	function ReportingOverviewController($scope, __env, $timeout, $http, kommonitorDataExchangeService, kommonitorDiagramHelperService) {
+	controller : ['$scope', '__env', '$timeout', '$http', 'kommonitorDataExchangeService', 'kommonitorDiagramHelperService', 
+		'kommonitorLeafletScreenshotCacheHelperService',
+	function ReportingOverviewController($scope, __env, $timeout, $http, kommonitorDataExchangeService, kommonitorDiagramHelperService,
+		kommonitorLeafletScreenshotCacheHelperService
+	) {
 
 		/*
 		{
@@ -353,6 +356,12 @@ angular.module('reportingOverview').component('reportingOverview', {
 						features = $scope.createLowerCaseNameProperty(featureCollection.features);
 						geoJSON = { features: features };
 
+						$scope.geoJsonForReachability_byFeatureName = new Map();
+
+						for(let feature of features) {
+							$scope.geoJsonForReachability_byFeatureName.set(feature.properties.NAME, feature)
+						}	
+
 					}
 				}
 
@@ -467,10 +476,26 @@ angular.module('reportingOverview').component('reportingOverview', {
 				// We create a new bounds object from the stored data
 				let bounds = L.latLngBounds(pageElement.leafletBbox._southWest, pageElement.leafletBbox._northEast);
 				leafletMap.fitBounds( bounds );
+
+				// store spatial unit and feature id to page in order to access it later when the screenshot is needed
+				page.spatialUnitId = spatialUnit.spatialUnitId;			
+				if(page.area){
+					let feature = $scope.geoJsonForReachability_byFeatureName.get(page.area);
+					spatialUnitFeatureId = feature.properties[__env.FEATURE_ID_PROPERTY_NAME];
+					page.spatialUnitFeatureId = spatialUnitFeatureId;
+				}						
 				
 				let osmLayer = new L.TileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
 					attribution: "Map data © <a href='http://openstreetmap.org'>OpenStreetMap</a> contributors",
 				});
+				// use the "load" event of the tile layer to hook a function that is triggered once every visible tile is fully loaded
+				// here we ntend to make a screenshot of the leaflet image as a background task in order to boost up report preview generation 
+				// for all spatial unit features		
+				// let domNode = leafletMap["_container"];		
+				// osmLayer.on("load", function() { kommonitorLeafletScreenshotCacheHelperService.takeScreenshotAndStoreInCache(spatialUnit.spatialUnitId, 
+				// 	spatialUnitFeatureId, domNode) });
+				// osmLayer.addTo(leafletMap);
+
 				osmLayer.addTo(leafletMap);
 
 				// add leaflet map to pageElement in case we need it again later
@@ -482,7 +507,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 				//let isochronesLayer = L.geoJSON( $scope.isochrones.features )
 				//isochronesLayer.addTo(leafletMap);
 
-			}, 0, true, page, pageElement, map, spatialUnit)
+			}, 0, false, page, pageElement, map, spatialUnit)
 		}
 
 		$scope.getSpatialUnitByName = async function(spatialUnitName) {
@@ -1093,7 +1118,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 
 							if($scope.config.template.name.includes("reachability")) {
 								try {
-									imageDataUrl = await $scope.createReachabilityMapImage(pageDom, pageElement, imageDataUrl)
+									imageDataUrl = await $scope.createReachabilityMapImage(page, pageDom, pageElement, imageDataUrl)
 								} catch(error) {
 									$scope.loadingData = false;
 									kommonitorDataExchangeService.displayMapApplicationError(error);
@@ -1306,7 +1331,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 
 							if($scope.config.template.name.includes("reachability")) {
 								try {
-									imageDataUrl = await $scope.createReachabilityMapImage(pageDom, pageElement, imageDataUrl)
+									imageDataUrl = await $scope.createReachabilityMapImage(page, pageDom, pageElement, imageDataUrl)
 								} catch(error) {
 									$scope.loadingData = false;
 									kommonitorDataExchangeService.displayMapApplicationError(error);
@@ -1421,7 +1446,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 
 						if($scope.config.template.name.includes("reachability")) {
 							try {
-								imageDataUrl = await $scope.createReachabilityMapImage(pageDom, pageElement, imageDataUrl)
+								imageDataUrl = await $scope.createReachabilityMapImage(page, pageDom, pageElement, imageDataUrl)
 							} catch(error) {
 								$scope.loadingData = false;
 								kommonitorDataExchangeService.displayMapApplicationError(error);
@@ -1685,7 +1710,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 
 							if($scope.config.template.name.includes("reachability")) {
 								try {
-									imageDataUrl = await $scope.createReachabilityMapImage(pageDom, pageElement, imageDataUrl)
+									imageDataUrl = await $scope.createReachabilityMapImage(page, pageDom, pageElement, imageDataUrl)
 								} catch(error) {
 									$scope.loadingData = false;
 									kommonitorDataExchangeService.displayMapApplicationError(error);
@@ -2016,7 +2041,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 			});
 		}
 
-		$scope.createReachabilityMapImage = async function(pageDom, pageElement, echartsImgSrc) {
+		$scope.createReachabilityMapImage = async function(page, pageDom, pageElement, echartsImgSrc) {
 			let result;
 			// screenshot leaflet map and merge it with echarts image
 			// remove page offset temporarily 
@@ -2027,14 +2052,20 @@ angular.module('reportingOverview').component('reportingOverview', {
 			// var node = document.getElementById(pageDom);
 			var node = pageElement.leafletMap["_container"];
 
-			let leafletMapScreenshot = await domtoimage
-              .toJpeg(node, { quality: 1.0 })
-              .then(function (dataUrl) {
-                return dataUrl;
-              })
-              .catch(function (error) {
-                  console.error('oops, something went wrong!', error);
-              });
+			/*
+				here we must check if the corresponding leaflet image has already been created and stored within cache
+				if not or it's too old, recreate it
+				if yes, simply use it to save a lot of time during report generation!
+			*/
+			let leafletMapScreenshot = kommonitorLeafletScreenshotCacheHelperService.getResourceFromCache(page.spatialUnitId, page.spatialUnitFeatureId);
+			// let leafletMapScreenshot = await domtoimage
+            //   .toJpeg(node, { quality: 1.0 })
+            //   .then(function (dataUrl) {
+            //     return dataUrl;
+            //   })
+            //   .catch(function (error) {
+            //       console.error('oops, something went wrong!', error);
+            //   });
 
 			pageElement.leafletMap.getContainer().style.top = "90px"
 			pageElement.leafletMap.getContainer().style.left = "15px"
