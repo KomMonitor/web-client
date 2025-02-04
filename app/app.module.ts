@@ -22,7 +22,9 @@ import {
   ajskommonitorKeycloackHelperServiceProvider,
   ajskommonitorMultiStepFormHelperServiceProvider, 
   ajskommonitorSingleFeatureMapServiceProvider,
-  ajskommonitorElementVisibilityHelperServiceProvider } from 'app-upgraded-providers';
+  ajskommonitorElementVisibilityHelperServiceProvider,
+  ajskommonitorShareHelperServiceProvider,
+  ajskommonitorVisualStyleHelperServiceProvider } from 'app-upgraded-providers';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { InfoModalComponent } from 'components/kommonitorUserInterface/kommonitorControls/infoModal/info-modal.component';
 import { KommonitorLegendComponent } from 'components/kommonitorUserInterface/kommonitorControls/kommonitor-legend/kommonitor-legend.component';
@@ -50,7 +52,8 @@ declare var MathJax;
     ajskommonitorMultiStepFormHelperServiceProvider,ajskommonitorDataExchangeServiceeProvider,
     ajskommonitorDataGridHelperServiceProvider,ajskommonitorSingleFeatureMapServiceProvider,
     ajskommonitorDiagramHelperServiceProvider,ajskommonitorFilterHelperServiceProvider,
-    ajskommonitorElementVisibilityHelperServiceProvider,
+    ajskommonitorElementVisibilityHelperServiceProvider, ajskommonitorShareHelperServiceProvider,
+    ajskommonitorVisualStyleHelperServiceProvider,
     NgbModule
   ],
   declarations: [

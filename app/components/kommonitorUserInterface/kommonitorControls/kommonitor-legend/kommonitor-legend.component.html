@@ -3,7 +3,7 @@
     <p></p>
   
     <!-- Indicator information  -->
-      <div id="kommonitorIndicatorExportAndSpatialUnitSwitch" class="box box-primary">
+      <div id="kommonitorIndicatorExportAndSpatialUnitSwitch" class="box box-primary collapsed-box">
         <div class="box-header with-border">
           <h3 class="box-title">Raumebene und Export</h3>
   
@@ -19,8 +19,8 @@
               <div class="row" style="margin-right: 0px;">
                 <div class="col-sm-7">
                   <div class="text-left"><label>Raumebene</label><a *ngIf="env.enableSpatialUnitNotificationButton" data-toggle="modal" ng-click="showSpatialUnitNotificationModalIfEnabled()" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%; cursor:pointer;" title="Information zu Raumeinheiten&nbsp;&nbsp;"><span class="glyphicon glyphicon-info-sign"></span></a></div>
-                  <!-- <select id="spatialUnitSelectionInput" style="font-size: 12px;" ng-model="$ctrl.kommonitorDataExchangeServiceInstance.selectedSpatialUnit"
-                    ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits | filter:filterSpatialUnits()"
+                  <!-- <select id="spatialUnitSelectionInput" style="font-size: 12px;" ng-model="exchangeData.selectedSpatialUnit"
+                    ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in exchangeData.availableSpatialUnits | filter:filterSpatialUnits()"
                     class="form-control" ng-change="onChangeSelectedSpatialUnit()" required> -->
                     <select (change)="onChangeSelectedSpatialUnit()">
                       <option disabled selected value> -- Raumeinheit w&auml;hlen --</option>
@@ -58,7 +58,7 @@
               </div>
               <br>
               <br>
-              <button title="Teilen Sie die aktuelle Indikatorenansicht mittels eines Links" id="shareLinkButton" ng-click="onClickShareLinkButton()" class="btn btn-info btn-xs"><i class="fas fa-share-alt"></i>aktuelle Ansicht teilen</button>
+              <button title="Teilen Sie die aktuelle Indikatorenansicht mittels eines Links" id="shareLinkButton" (click)="onClickShareLinkButton()" class="btn btn-info btn-xs"><i class="fas fa-share-alt"></i>aktuelle Ansicht teilen</button>
               <div id="snackbar">Link zur aktuellen Indikatoren-Ansicht in Zwischenablage kopiert</div>	
             </div>
           </div>
@@ -79,8 +79,408 @@
             </button>
           </div>
         </div>
-        <div class="box-body boxedLegend" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator">
+        <div class="box-body boxedLegend" *ngIf="exchangeData.selectedIndicator">
   
+          <ul class="nav nav-tabs" id="legendTabs" role="tablist">
+            <li class="nav-item active">
+              <a class="nav-link active" id="legendTab1" data-toggle="tab" href="#legendTab1Content"
+                role="tab" aria-controls="legendTab1Content" aria-selected="true">Indikator</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" id="legendTab2" data-toggle="tab" href="#legendTab2Content" role="tab"
+                aria-controls="legendTab2Content" aria-selected="false">Indikator-Metadaten</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" id="legendTab3" data-toggle="tab" href="#legendTab3Content" role="tab"
+                aria-controls="legendTab3Content" aria-selected="false">WMS-Dienste</a>
+            </li>
+          </ul>
+          <div class="tab-content" id="legendTabContent">
+            <div class="tab-pane active" id="legendTab1Content" role="tabpanel"
+              aria-labelledby="legendTab1">
+                
+              <div class="just-padding">
+                
+                <h4>{{exchangeData.selectedIndicator.indicatorName}}</h4>
+                <h5 *ngIf="visualStyleData.isCustomComputation">&nbsp;-&nbsp; <i>individuelles Berechnungsergebnis</i></h5>
+                <p [innerHTML]="exchangeData.selectedIndicator.metadata.description"></p>							
+                
+                <div *ngIf="exchangeData.selectedIndicator.indicatorType.includes('STATUS') && !exchangeData.isMeasureOfValueChecked && !exchangeData.isBalanceChecked">
+                  <em>Darstellung der Indikatorenwerte {{dataExchangeService.tsToDate_withOptionalUpdateInterval(dataExchangeService.dateToTS(dateAsDate, exchangeData.selectedIndicator.metadata.updateInterval))}}</em>
+                  <div *ngIf="exchangeData.selectedIndicator.referenceDateNote">
+                    <em><b>Hinweis Referenzdatum:</b> {{exchangeData.selectedIndicator.referenceDateNote}}</em>
+                  </div>
+                </div>
+                <div *ngIf="exchangeData.selectedIndicator.indicatorType.includes('DYNAMIC') && ! exchangeData.isMeasureOfValueChecked && !exchangeData.isBalanceChecked">
+                  <em>Darstellung der zeitlichen Entwicklung zum gew&auml;hlten Zeitpunkt {{dataExchangeService.tsToDate_withOptionalUpdateInterval(dataExchangeService.dateToTS(dateAsDate, exchangeData.selectedIndicator.metadata.updateInterval))}}</em>
+                </div>
+                <div *ngIf="exchangeData.isMeasureOfValueChecked">
+                  <em>Schwellwert-Klassifizierung</em>
+                  <em>Gew&auml;hlter Zeitpunkt: </em> {{dataExchangeService.tsToDate_withOptionalUpdateInterval(dataExchangeService.dateToTS(dateAsDate, exchangeData.selectedIndicator.metadata.updateInterval))}}
+                  <em>aktueller Schwellwert: </em> {{exchangeData.measureOfValue}}
+                </div>
+                <div *ngIf="exchangeData.isBalanceChecked">
+                  <em>Bilanzierung - {{exchangeData.indicatorAndMetadataAsBalance['fromDate']}} - {{exchangeData.indicatorAndMetadataAsBalance['toDate']}}</em>
+                </div>
+                
+                <br />
+        
+                <div *ngIf="exchangeData.selectedIndicator.interpretation && exchangeData.selectedIndicator.interpretation != ''">
+                  <label>Interpretationshilfe:</label>
+                  <p [innerHTML]="exchangeData.selectedIndicator.interpretation"></p>	
+                </div>						
+                <br />				
+                
+
+                <div class="row" style="margin-right: 0px;">
+                  <div class="col-md-3"><b>Symbolik</b></div>
+                  <div class="col-md-6"><b>Wertebereich</b> [{{exchangeData.selectedIndicator.unit}}]</div>
+                  <div class="col-md-3"><b>Anzahl Raumeinheiten</b></div><br>
+                </div>
+                <div *ngIf="containsNoData">
+                  <div class="row" style="margin-right: 0px;">
+                    <div class="col-md-3"><i [ngStyle]="{background: env.efaultColorForNoDataValues, border: '2px solid '+env.defaultBorderColorForNoDataValues, opacity: visualStyleData.currentIndicatorOpacity}"></i></div>
+                    <div class="col-md-6">Leerwert</div>
+                    <div class="col-md-3">{{visualStyleData.featuresPerNoData}}</div><br>
+                  </div>				
+                </div>
+                <div *ngIf="containsOutliers_low && exchangeData.useOutlierDetectionOnIndicator">
+                  <div class="row" style="margin-right: 0px;">
+                    <div class="col-md-3"><i ng-bind-html="svgString_outlierLow"></i></div>
+                    <div class="col-md-6">untere Ausrei&szlig;er {{makeOutliersLowLegendString(outliers_low)}}</div>
+                    <div class="col-md-3">{{visualStyleData.featuresPerOutlierLow}}</div><br>
+                  </div>				
+                </div>
+                <div *ngIf="containsOutliers_high && exchangeData.useOutlierDetectionOnIndicator">
+                  <div class="row" style="margin-right: 0px;">
+                    <div class="col-md-3"><i ng-bind-html="svgString_outlierHigh"></i></div>
+                    <div class="col-md-6">obere Ausrei&szlig;er {{makeOutliersHighLegendString(outliers_high)}}</div>
+                    <div class="col-md-3">{{visualStyleData.featuresPerOutlierHigh}}</div><br>
+                  </div>				
+                </div>
+                <div *ngIf="(filterHelperData.filteredIndicatorFeatureIds?.size > 0) && (!filterHelperData.completelyRemoveFilteredFeaturesFromDisplay)">
+                  <div class="row" style="margin-right: 0px;">
+                    <div class="col-md-3"><i [ngStyle]="{background: env.defaultColorForFilteredValues, border: '2px solid '+env.defaultBorderColorForFilteredValues, opacity: visualStyleData.currentIndicatorOpacity}"></i></div>
+                    <div class="col-md-6">gefilterte Features</div>
+                    <div class="col-md-3">{{visualStyleData.filteredIndicatorFeatureIds.size}}</div><br>
+                  </div>				
+                </div>
+                <br/>
+                <!-- Measure of Value legend items -->
+                <div *ngIf="exchangeData.isMeasureOfValueChecked">
+                  <!-- zero -->
+                  <div class="row" style="margin-right: 0px;" *ngIf="exchangeData.classifyZeroSeparately && containsZeroValues">
+                    <div class="col-md-3"><i [ngStyle]="{background: env.defaultColorForZeroValues, opacity: visualStyleData.currentIndicatorOpacity}"></i></div>
+                    <div class="col-md-6">0</div>
+                    <div class="col-md-3">{{visualStyleData.featuresPerZero}}</div><br>
+                  </div>	
+
+                  <br/>
+
+                  <!-- lesser than values -->
+                  <div class="row" style="margin-right: 0px;" *ngFor="let color of visualStyleData.measureOfValueBrew[1].colors; let i = index">
+                    <div class="col-md-3 "><i [ngStyle]="{background: color, opacity: visualStyleData.currentIndicatorOpacity}"></i> </div>
+                    <div class="col-md-6 " *ngIf="visualStyleData.measureOfValueBrew[1].breaks[i + 1]" >{{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleData.measureOfValueBrew[1].breaks[i])}} &dash; &lt; {{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleData.measureOfValueBrew[1].breaks[i + 1])}}</div>
+                    <div class="col-md-6 " *ngIf="! visualStyleData.measureOfValueBrew[1].breaks[i + 1]" >{{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleData.measureOfValueBrew[1].breaks[i])}}</div>
+                    <div class="col-md-3 ">{{visualStyleData.featuresPerColorMap.get(color) || 0}}</div>
+                  </div>
+
+                  <br/>
+
+                  <!-- higher than values -->
+                  <div class="row" style="margin-right: 0px;" *ngFor="let color of visualStyleData.measureOfValueBrew[0].colors; let i = index">
+                    <div class="col-md-3 "><i [ngStyle]="{background: color, opacity: visualStyleData.currentIndicatorOpacity}"></i> </div>
+                    <div class="col-md-6 " *ngIf="visualStyleData.measureOfValueBrew[0].breaks[i + 1]" >{{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleData.measureOfValueBrew[0].breaks[i])}} &dash; &lt; {{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleData.measureOfValueBrew[0].breaks[i + 1])}}</div>
+                    <div class="col-md-6 " *ngIf="! visualStyleData.measureOfValueBrew[0].breaks[i + 1]" >{{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleData.measureOfValueBrew[0].breaks[i])}}</div>
+                    <div class="col-md-3 ">{{visualStyleData.featuresPerColorMap.get(color) || 0}}</div>
+                  </div>
+
+                </div>
+                <!-- Dynamic legend items -->
+                <div *ngIf="(exchangeData.isBalanceChecked || exchangeData.selectedIndicator.indicatorType.includes('DYNAMIC') || containsNegativeValues) && ! exchangeData.isMeasureOfValueChecked">					
+
+                  <!-- < 0 values -->
+                  <div class="row" style="margin-right: 0px;" *ngFor="let color of visualStyleData.dynamicBrew[1].colors; let i = index">
+                    <div class="col-md-3 "><i [ngStyle]="{background: color, opacity: visualStyleData.currentIndicatorOpacity}"></i> </div>
+                    <div class="col-md-6 " *ngIf="visualStyleData.dynamicBrew[1].breaks[i + 1]" >{{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleData.dynamicBrew[1].breaks[i])}} &dash; &lt; {{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleData.dynamicBrew[1].breaks[i + 1])}}</div>
+                    <div class="col-md-6 " *ngIf="! visualStyleData.dynamicBrew[1].breaks[i + 1]" >{{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleData.dynamicBrew[1].breaks[i])}}</div>
+                    <div class="col-md-3 ">{{visualStyleData.featuresPerColorMap.get(color) || 0}}</div>
+                  </div>
+
+                  <br/>
+
+                  <!-- zero -->
+                  <div class="row" style="margin-right: 0px;" *ngIf="exchangeData.classifyZeroSeparately && containsZeroValues">
+                    <div class="col-md-3"><i [ngStyle]="{background: env.defaultColorForZeroValues, opacity: visualStyleData.currentIndicatorOpacity}"></i></div>
+                    <div class="col-md-6">0</div>
+                    <div class="col-md-3">{{visualStyleData.featuresPerZero}}</div><br>
+                  </div>	
+
+                  <br />
+
+                  <!-- > 0 values -->
+                  <div class="row" style="margin-right: 0px;" *ngFor="let color of visualStyleData.dynamicBrew[0].colors; let i = index">
+                    <div class="col-md-3 "><i [ngStyle]="{background: color, opacity: visualStyleData.currentIndicatorOpacity}"></i> </div>
+                    <div class="col-md-6 " *ngIf="visualStyleData.dynamicBrew[0].breaks[i + 1]" >{{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleData.dynamicBrew[0].breaks[i])}} &dash; &lt; {{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleData.dynamicBrew[0].breaks[i + 1])}}</div>
+                    <div class="col-md-6 " *ngIf="! visualStyleData.dynamicBrew[0].breaks[i + 1]" >{{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleData.dynamicBrew[0].breaks[i])}}</div>
+                    <div class="col-md-3 ">{{visualStyleData.featuresPerColorMap.get(color) || 0}}</div>
+                  </div>
+                </div>
+
+                <!-- Static/Status legend items -->
+                <div *ngIf="(exchangeData.selectedIndicator.indicatorType.includes('STATUS') && ! containsNegativeValues) && ! exchangeData.isMeasureOfValueChecked && ! exchangeData.isBalanceChecked">
+                  <!-- zero -->
+                  <div class="row" style="margin-right: 0px;" *ngIf="exchangeData.classifyZeroSeparately && containsZeroValues">
+                    <div class="col-md-3"><i [ngStyle]="{background: env.defaultColorForZeroValues, opacity: visualStyleData.currentIndicatorOpacity}"></i></div>
+                    <div class="col-md-6">0</div>
+                    <div class="col-md-3">{{visualStyleData.featuresPerZero}}</div><br>
+                  </div>	
+
+                  <br />
+
+                  <div ng-switch="visualStyleData.classifyMethod">
+                    <div ng-switch-when="manual">
+                      <!-- manual classification -->
+                      <div class="row" style="margin-right: 0px;" *ngFor="let color of visualStyleData.manualBrew?.colors; let i = index">
+                        <div class="col-md-3 ">
+                          <i [ngStyle]="{background: color, opacity: visualStyleData.currentIndicatorOpacity}">
+                          </i> 
+                        </div>
+                        <div class="col-md-6 " *ngIf="visualStyleData.manualBrew.breaks[i + 1]" >
+                          {{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleData.manualBrew.breaks[i])}} &dash; &lt; 
+                          {{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleData.manualBrew.breaks[i + 1])}}
+                        </div>
+                        <div class="col-md-6 " *ngIf="! visualStyleData.manualBrew.breaks[i + 1]" >
+                          {{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleData.manualBrew.breaks[i])}}
+                        </div>
+                        <div class="col-md-3 ">{{visualStyleData.featuresPerColorMap.get(color) || 0}}</div>
+                      </div>
+                    </div>
+                    <div ng-switch-default>
+                      <!-- default values -->
+                      <div class="row" style="margin-right: 0px;" *ngFor="let color of visualStyleData.defaultBrew?.colors; let i = index">
+                        <div class="col-md-3 "><i [ngStyle]="{background: color, opacity: visualStyleData.currentIndicatorOpacity}"></i> </div>
+                        <div class="col-md-6 " *ngIf="visualStyleData.defaultBrew.breaks[i + 1]" >{{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleData.defaultBrew.breaks[i])}} &dash; &lt; {{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleData.defaultBrew.breaks[i + 1])}}</div>
+                        <div class="col-md-6 " *ngIf="! visualStyleData.defaultBrew.breaks[i + 1]" >{{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleData.defaultBrew.breaks[i])}}</div>
+                        <div class="col-md-3 ">{{visualStyleData.featuresPerColorMap.get(color) || 0}}</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <br/>
+                  <div *ngIf="exchangeData.allFeaturesRegionalMean && exchangeData.enableMeanDataDisplayInLegend">
+                    <b>{{exchangeData.labelMean_regional}}</b>
+                    {{dataExchangeService.getIndicatorValue_asFormattedText(exchangeData.allFeaturesRegionalMean)}}
+                  </div>
+                  <div *ngIf="exchangeData.allFeaturesMean && exchangeData.enableMeanDataDisplayInLegend && (exchangeData.configMeanDataDisplay == 'both' || (! exchangeData.allFeaturesRegionalMean && exchangeData.configMeanDataDisplay == 'preferRegionalMeanIfAvailable'))">
+                    <b>{{exchangeData.labelMean}}</b>
+                    {{dataExchangeService.getIndicatorValue_asFormattedText(exchangeData.allFeaturesMean)}}
+                  </div>
+                </div>
+                <div id="kommonitorIndicatorClassification">
+                  <div 
+                  id="indicatorClassificationCollapse"
+                  ng-model="classificationCollapsed" 
+                  ng-click="classificationCollapsed=!classificationCollapsed"
+                  style="font-size:1.0em; cursor:pointer; margin-top: 16px;"
+                  title="Klassifikation anpassen">
+                  <span style="font-size:1.5em;" class="fas fa-cogs"></span> &nbsp; &nbsp;Klassifikation anpassen
+                </div>
+                <div ng-show="classificationCollapsed" 
+                  class="box boxedLegend with-border"
+                  style="border-top: 1px solid #d2d6de; margin-top: 5px;">								
+                  <div class="box-header with-border">
+                    <h3 class="box-title">Klassifikation anpassen</h3>
+                    <div class="box-tools pull-right">
+                      <button type="button" class="close" ng-click="classificationCollapsed=!classificationCollapsed">×</button>
+                    </div>
+                  </div>
+                  <div class="box-body">
+                    // todo
+                    <!-- <kommonitor-classification></kommonitor-classification> -->
+                  </div>
+                </div>
+                </div>
+                
+              </div>
+            </div>
+          </div>
+
+          <div class="tab-content" id="legendTabContent">
+            <div class="tab-pane active" id="legendTab2Content" role="tabpanel"
+              aria-labelledby="legendTab2">
+
+              <div id="indicatorMetadataOverview" text-align="center" align="center" class="">
+		
+								<table class="table table-condensed">
+									<!-- <thead>
+														<tr>
+															<th>Name des Metadatums</th>
+															<th>Beschreibung des Metadatums</th>
+														</tr>
+													</thead> -->
+									<tbody>
+										<tr>
+											<td><b>Name</b></td>
+											<td>{{exchangeData.selectedIndicator.indicatorName}}</td>
+										</tr>
+										<tr>
+											<td><b>Kategorie</b></td>
+											<td
+												ng-if="exchangeData.selectedIndicator.isHeadlineIndicator">
+												Leitindikator</td>
+											<td
+												ng-if="! exchangeData.selectedIndicator.isHeadlineIndicator">
+												Basisindikator</td>
+										</tr>
+										<tr>
+											<td><b>Typ</b></td>
+											<td>{{exchangeData.selectedIndicator.indicatorType}}</td>
+										</tr>
+										<!-- we hide characteristicValue parameter as it is and old relic not used any longer. 
+														-> deprecated -->
+			
+										<!-- <tr ng-if="exchangeData.selectedIndicator.characteristicValue">
+															<td><b>Merkmalsauspr&auml;gung</b></td>
+															<td>{{exchangeData.selectedIndicator.characteristicValue}}</td>
+														</tr> -->
+										<tr>
+											<td><b>Kennzeichen/K&uuml;rzel</b></td>
+											<td>{{exchangeData.selectedIndicator.abbreviation}}</td>
+										</tr>
+										<tr>
+											<td><b>Beschreibung</b></td>
+											<td
+												ng-bind-html="exchangeData.selectedIndicator.metadata.description">
+											</td>
+										</tr>
+										<tr>
+											<td><b>Maßeinheit</b></td>
+											<td>{{exchangeData.selectedIndicator.unit}}</td>
+										</tr>
+										<tr>
+											<td><b>Methodik</b></td>
+											<td
+												mathjax-bind="exchangeData.selectedIndicator.processDescription">
+											</td>
+										</tr>
+										<tr>
+											<td><b>Interpretation</b></td>
+											<td
+												ng-bind-html="exchangeData.selectedIndicator.interpretation">
+											</td>
+										</tr>
+										<tr>
+											<td><b>Datengrundlage</b></td>
+											<td
+												ng-bind-html="exchangeData.selectedIndicator.metadata.databasis">
+											</td>
+										</tr>
+										<tr>
+											<td><b>Datenquelle</b></td>
+											<td
+												ng-bind-html="exchangeData.selectedIndicator.metadata.datasource">
+											</td>
+										</tr>
+										<tr>
+											<td><b>Datenhalter und Kontakt</b></td>
+											<td
+												ng-bind-html="exchangeData.selectedIndicator.metadata.contact">
+											</td>
+										</tr>
+										<tr>
+											<td><b>Bemerkung</b></td>
+											<td
+												ng-bind-html="exchangeData.selectedIndicator.metadata.note">
+											</td>
+										</tr>
+										<tr>
+											<td><b>Fortführungsintervall</b></td>
+											<td
+												ng-bind-html="exchangeData.selectedIndicator.metadata.updateInterval">
+											</td>
+										</tr>
+									</tbody>
+								</table>
+			
+							</div>
+
+							<hr>
+							<br/>
+
+							<div>
+								<h4>Verkn&uuml;pfte Indikatoren</h4>
+								<div ng-show="!(exchangeData.selectedIndicator.referencedIndicators.length > 0)">
+									-- keine --
+								</div>
+								<div ng-show="(exchangeData.selectedIndicator.referencedIndicators.length > 0)">
+									<div id="referencedIndicatorOverview" text-align="center" align="center" class=""
+									ng-if="exchangeData.selectedIndicator.referencedIndicators.length > 0">
+				
+									<table class="table table-condensed">
+										<thead>
+											<tr>
+												<th>Name des Indikators</th>
+												<th>K&uuml;rzel/Kennziffer</th>
+												<th>Beschreibung der Verkn&uuml;pfung</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr *ngFor="let indicator of exchangeData.selectedIndicator.referencedIndicators">
+												<td>{{indicator.referencedIndicatorName}}</td>
+												<td
+													ng-bind="exchangeData.getIndicatorAbbreviationFromIndicatorId(indicator.referencedIndicatorId)">
+												</td>
+												<td>{{indicator.referencedIndicatorDescription}}</td>
+											</tr>
+										</tbody>
+									</table>
+				
+									</div>
+								</div>
+							</div>
+							
+							<hr>
+							<br/>
+
+							<div>
+								<h4>Verkn&uuml;pfte Georessourcen</h4>
+								<div ng-show="! (exchangeData.selectedIndicator.referencedGeoresources.length > 0)">
+									-- keine --
+								</div>
+								<div ng-show="(exchangeData.selectedIndicator.referencedGeoresources.length > 0)">
+									<div id="referencedGeoresourcesOverview" text-align="center" align="center" class=""
+									ng-if="exchangeData.selectedIndicator.referencedGeoresources.length > 0">
+									<h4>Verkn&uuml;pfte Georessourcen</h4>
+				
+									<table class="table table-condensed">
+										<thead>
+											<tr>
+												<th>Name der Georessource</th>
+												<th>Beschreibung der Verkn&uuml;pfung</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr *ngFor="let georesource of exchangeData.selectedIndicator.referencedGeoresources">
+												<td>{{georesource.referencedGeoresourceName}}</td>
+												<td>{{georesource.referencedGeoresourceDescription}}</td>
+											</tr>
+										</tbody>
+									</table>
+				
+								</div>
+								</div>
+							</div>
+
+            </div>
+          </div>
+          <div class="tab-content" id="legendTabContent">
+            <div class="tab-pane active" id="legendTab3Content" role="tabpanel"
+              aria-labelledby="legendTab3">
+            </div>
+          </div>
+
         </div>
         <!-- /.box-body -->
       </div>
@@ -96,59 +496,59 @@
           </div>
         </div>
         <div class="box-body">
-        <!--   <em>Referenzzeitpunkt {{$ctrl.kommonitorDataExchangeServiceInstance.tsToDate_withOptionalUpdateInterval($ctrl.kommonitorDataExchangeServiceInstance.dateToTS(dateAsDate, $ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.metadata.updateInterval))}}</em>
+        <!--   <em>Referenzzeitpunkt {{exchangeData.tsToDate_withOptionalUpdateInterval(exchangeData.dateToTS(dateAsDate, exchangeData.selectedIndicator.metadata.updateInterval))}}</em>
           <table id="statisticalValuesDisplayTable" class="table">
             <thead>
               <tr>
                 <th></th>
-                <th ng-show="$ctrl.kommonitorFilterHelperServiceInstance.filteredIndicatorFeatureIds.size == 0">{{$ctrl.kommonitorDataExchangeServiceInstance.labelAllFeatures}}</th>
-                <th ng-show="$ctrl.kommonitorFilterHelperServiceInstance.filteredIndicatorFeatureIds.size > 0">{{$ctrl.kommonitorDataExchangeServiceInstance.labelFilteredFeatures}}</th>
-                <th>{{$ctrl.kommonitorDataExchangeServiceInstance.labelSelectedFeatures}}</th>
+                <th ng-show="$ctrl.kommonitorFilterHelperServiceInstance.filteredIndicatorFeatureIds.size == 0">{{exchangeData.labelAllFeatures}}</th>
+                <th ng-show="$ctrl.kommonitorFilterHelperServiceInstance.filteredIndicatorFeatureIds.size > 0">{{exchangeData.labelFilteredFeatures}}</th>
+                <th>{{exchangeData.labelSelectedFeatures}}</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td>{{$ctrl.kommonitorDataExchangeServiceInstance.labelNumberOfFeatures}}</td>
-                <td>{{$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesNumberOfFeatures}}</td>
-                <td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedFeaturesNumberOfFeatures}}</td>
+                <td>{{exchangeData.labelNumberOfFeatures}}</td>
+                <td>{{exchangeData.allFeaturesNumberOfFeatures}}</td>
+                <td>{{exchangeData.selectedFeaturesNumberOfFeatures}}</td>
               </tr>
-              <tr ng-if="! $ctrl.kommonitorDataExchangeServiceInstance.allFeaturesRegionalSum">
-                <td>{{$ctrl.kommonitorDataExchangeServiceInstance.labelSum}}</td>
-                <td>{{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText($ctrl.kommonitorDataExchangeServiceInstance.allFeaturesSum)}}</td>
-                <td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedFeaturesSum}}</td>
+              <tr *ngIf="! exchangeData.allFeaturesRegionalSum">
+                <td>{{exchangeData.labelSum}}</td>
+                <td>{{exchangeData.getIndicatorValue_asFormattedText(exchangeData.allFeaturesSum)}}</td>
+                <td>{{exchangeData.selectedFeaturesSum}}</td>
               </tr>
-              <tr ng-if="$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesRegionalSum">
-                <td>{{$ctrl.kommonitorDataExchangeServiceInstance.labelSum_regional}}</td>
-                <td>{{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText($ctrl.kommonitorDataExchangeServiceInstance.allFeaturesRegionalSum)}}</td>
-                <td>{{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText($ctrl.kommonitorDataExchangeServiceInstance.selectedFeaturesSum)}}</td>
+              <tr *ngIf="exchangeData.allFeaturesRegionalSum">
+                <td>{{exchangeData.labelSum_regional}}</td>
+                <td>{{exchangeData.getIndicatorValue_asFormattedText(exchangeData.allFeaturesRegionalSum)}}</td>
+                <td>{{exchangeData.getIndicatorValue_asFormattedText(exchangeData.selectedFeaturesSum)}}</td>
               </tr>
               
               
-                 <tr ng-if="$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesRegionalMean">
-                  <td>{{$ctrl.kommonitorDataExchangeServiceInstance.labelMean_regional}}</td>
-                  <td>{{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText($ctrl.kommonitorDataExchangeServiceInstance.allFeaturesRegionalMean)}}</td>
-                  <td>{{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText($ctrl.kommonitorDataExchangeServiceInstance.selectedFeaturesMean)}}</td>
+                 <tr *ngIf="exchangeData.allFeaturesRegionalMean">
+                  <td>{{exchangeData.labelMean_regional}}</td>
+                  <td>{{exchangeData.getIndicatorValue_asFormattedText(exchangeData.allFeaturesRegionalMean)}}</td>
+                  <td>{{exchangeData.getIndicatorValue_asFormattedText(exchangeData.selectedFeaturesMean)}}</td>
                 </tr>
-                <tr ng-if="$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesMean && ($ctrl.kommonitorDataExchangeServiceInstance.configMeanDataDisplay == 'both' || (! $ctrl.kommonitorDataExchangeServiceInstance.allFeaturesRegionalMean && kommonitorDataExchangeService.configMeanDataDisplay == 'preferRegionalMeanIfAvailable'))">
-                  <td>{{$ctrl.kommonitorDataExchangeServiceInstance.labelMean}}</td>
-                  <td>{{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText($ctrl.kommonitorDataExchangeServiceInstance.allFeaturesMean)}}</td>
-                   <td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedFeaturesMean}}</td>
+                <tr *ngIf="exchangeData.allFeaturesMean && (exchangeData.configMeanDataDisplay == 'both' || (! exchangeData.allFeaturesRegionalMean && kommonitorDataExchangeService.configMeanDataDisplay == 'preferRegionalMeanIfAvailable'))">
+                  <td>{{exchangeData.labelMean}}</td>
+                  <td>{{exchangeData.getIndicatorValue_asFormattedText(exchangeData.allFeaturesMean)}}</td>
+                   <td>{{exchangeData.selectedFeaturesMean}}</td>
                 </tr>
                  
                  <tr>
-                   <td>{{$ctrl.kommonitorDataExchangeServiceInstance.labelMin}}</td>
-                   <td>{{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText($ctrl.kommonitorDataExchangeServiceInstance.allFeaturesMin)}}</td>
-                <td>{{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText($ctrl.kommonitorDataExchangeServiceInstance.selectedFeaturesMin)}}</td>
+                   <td>{{exchangeData.labelMin}}</td>
+                   <td>{{exchangeData.getIndicatorValue_asFormattedText(exchangeData.allFeaturesMin)}}</td>
+                <td>{{exchangeData.getIndicatorValue_asFormattedText(exchangeData.selectedFeaturesMin)}}</td>
                  </tr>
               <tr>
-                <td>{{$ctrl.kommonitorDataExchangeServiceInstance.labelMax}}</td>
-                   <td>{{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText($ctrl.kommonitorDataExchangeServiceInstance.allFeaturesMax)}}</td>
-                <td>{{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText($ctrl.kommonitorDataExchangeServiceInstance.selectedFeaturesMax)}}</td>
+                <td>{{exchangeData.labelMax}}</td>
+                   <td>{{exchangeData.getIndicatorValue_asFormattedText(exchangeData.allFeaturesMax)}}</td>
+                <td>{{exchangeData.getIndicatorValue_asFormattedText(exchangeData.selectedFeaturesMax)}}</td>
               </tr>
   
               <tr>
-                <td>{{$ctrl.kommonitorDataExchangeServiceInstance.labelSpatiallyUnassignable_regional}}</td>
-                   <td>{{$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesRegionalSpatiallyUnassignable || "-"}}</td>
+                <td>{{exchangeData.labelSpatiallyUnassignable_regional}}</td>
+                   <td>{{exchangeData.allFeaturesRegionalSpatiallyUnassignable || "-"}}</td>
                 <td>-</td>
               </tr>
             </tbody>

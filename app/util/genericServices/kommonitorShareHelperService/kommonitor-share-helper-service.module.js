@@ -108,13 +108,13 @@ angular
       this.setShareLinkParam_currentIndicatorId = function(){
         this.setShareLinkParam(this.paramName_indicatorId, kommonitorDataExchangeService.selectedIndicator.indicatorId);
 
-        if(kommonitorDataExchangeService.selectedIndicator.permissions.length > 0){
+        if(kommonitorDataExchangeService.selectedIndicator.permissions?.length > 0){
           this.setShareLinkParam(this.paramName_loginRequired, "true");
         }
         else{
           for (const spatialUnit of kommonitorDataExchangeService.selectedIndicator.applicableSpatialUnits) {
             if(spatialUnit.spatialUnitName == kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel){
-              if (spatialUnit.permissions.length > 0){
+              if (spatialUnit.permissions?.length > 0){
                 this.setShareLinkParam(this.paramName_loginRequired, "true");
               }
             }
@@ -125,7 +125,7 @@ angular
 
       this.setShareLinkParam_currentSpatialUnitName = function(){
         this.setShareLinkParam(this.paramName_spatialUnitName, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel);
-        if(kommonitorDataExchangeService.selectedSpatialUnit.permissions.length > 0){
+        if(kommonitorDataExchangeService.selectedSpatialUnit.permissions?.length > 0){
           this.setShareLinkParam(this.paramName_loginRequired, "true");
         }
       };

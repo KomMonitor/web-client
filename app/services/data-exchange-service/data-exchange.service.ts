@@ -13,6 +13,16 @@ export interface DataExchange {
   isBalanceChecked: boolean;
   indicatorAndMetadataAsBalance: any;
   indicatorDatePrefix: string;
+  measureOfValue: any;
+  isMeasureOfValueChecked: any;
+  useOutlierDetectionOnIndicator: any;
+  classifyZeroSeparately: any;
+  allFeaturesRegionalMean: any;
+  enableMeanDataDisplayInLegend: any;
+  labelMean_regional: any;
+  labelMean: any;
+  allFeaturesMean: any;
+  configMeanDataDisplay: any;
 }
 
 export interface SpatialUnit {
@@ -21,6 +31,18 @@ export interface SpatialUnit {
 
 export interface Indicator {
   indicatorName: string;
+  geoJSON: any;
+  referenceDateNote: any;
+  metadata: {
+    updateInterval: any;
+    description: string;
+  }
+  unit: any;
+  indicatorType: any;
+  interpretation: any;
+  abbreviation: string;
+  referencedIndicators: any;
+  referencedGeoresources: any;
 }
 
 @Injectable({
@@ -29,20 +51,16 @@ export interface Indicator {
 export class DataExchangeService {
 
   pipedData:DataExchange;
-  selectedIndicator: any;
 
   public constructor(
     @Inject('kommonitorDataExchangeService') private ajskommonitorDataExchangeServiceeProvider: any, // eslint-disable-line @typescript-eslint/no-explicit-any
   ) {
     this.pipedData = this.ajskommonitorDataExchangeServiceeProvider;
-    this.selectedIndicator = this.ajskommonitorDataExchangeServiceeProvider.selectedIndicator;
   }
 
   isAllowedSpatialUnitForCurrentIndicator(spatialUnitMetadata:any) {
 
-    this.selectedIndicator = this.ajskommonitorDataExchangeServiceeProvider.selectedIndicator;
-
-    if(!this.selectedIndicator){
+    if(!this.ajskommonitorDataExchangeServiceeProvider.selectedIndicator){
       return false;
     }
 
@@ -50,7 +68,7 @@ export class DataExchangeService {
       return false;
     }
 
-    var filteredApplicableUnits = this.selectedIndicator.applicableSpatialUnits.filter(function (applicableSpatialUnit:any) {
+    var filteredApplicableUnits = this.ajskommonitorDataExchangeServiceeProvider.selectedIndicator.applicableSpatialUnits.filter(function (applicableSpatialUnit:any) {
       if (applicableSpatialUnit.spatialUnitId ===  spatialUnitMetadata.spatialUnitId){
         return true;
       }
@@ -68,5 +86,17 @@ export class DataExchangeService {
 
   generateIndicatorMetadataPdf(indicatorMetadata, pdfName, autosave) {	
     this.ajskommonitorDataExchangeServiceeProvider.generateIndicatorMetadataPdf(indicatorMetadata, pdfName, autosave);
+  }
+
+  getIndicatorValue_asFormattedText(indicatorValue:any) {
+    return this.ajskommonitorDataExchangeServiceeProvider.getIndicatorValue_asFormattedText(indicatorValue);
+  }
+
+  tsToDate_withOptionalUpdateInterval(value: any) {
+    return this.ajskommonitorDataExchangeServiceeProvider.tsToDate_withOptionalUpdateInterval(value);
+  }
+
+  dateToTS(value: any, interval: any) {
+    return this.ajskommonitorDataExchangeServiceeProvider.dateToTS(value, interval);
   }
 }

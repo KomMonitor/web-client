@@ -8,7 +8,7 @@ export class ElementVisibilityHelperService {
   pipedData:any;
 
   public constructor(
-    @Inject('kommonitorDataExchangeService') private ajskommonitorElementVisibilityHelperServiceProvider: any, // eslint-disable-line @typescript-eslint/no-explicit-any
+    @Inject('kommonitorElementVisibilityHelperService') private ajskommonitorElementVisibilityHelperServiceProvider: any, // eslint-disable-line @typescript-eslint/no-explicit-any
   ) {
     this.pipedData = this.ajskommonitorElementVisibilityHelperServiceProvider;
   }
