@@ -1876,17 +1876,14 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				// here we ntend to make a screenshot of the leaflet image as a background task in order to boost up report preview generation 
 				// for all spatial unit features		
 				let domNode = leafletMap["_container"];	
-				let triggeredScreenshotOnce = false;	
 				osmLayer.on("load", function() { 
-					if(! triggeredScreenshotOnce){
-						triggeredScreenshotOnce = true;
-						console.log("Trigger Screenshot after 250 ms");
-						setTimeout(() => {
-							kommonitorLeafletScreenshotCacheHelperService.checkForScreenshot($scope.selectedSpatialUnit.spatialUnitId, 
-							spatialUnitFeatureId, page.orientation, domNode);	
-						}, 250);
-						
-					}					
+					// there are pages for two page orientations (landscape and portait)
+					// only trigger the screenshot for those pages, that are actually present
+					if(page.orientation == $scope.template.orientation){
+						kommonitorLeafletScreenshotCacheHelperService.checkForScreenshot($scope.selectedSpatialUnit.spatialUnitId, 
+							spatialUnitFeatureId, page.orientation, domNode);
+					}
+									
 				});					
 				osmLayer.addTo(leafletMap);							
 				console.log("added OSM layer with load event");
