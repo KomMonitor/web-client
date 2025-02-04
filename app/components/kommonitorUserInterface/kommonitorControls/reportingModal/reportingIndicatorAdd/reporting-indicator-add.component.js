@@ -77,6 +77,16 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				return !page.hasOwnProperty("area")
 			});
 
+			let numberOfTargetSpatialUnitFeatures = 0;
+			if(newVal && newVal.length){
+				numberOfTargetSpatialUnitFeatures = newVal.length;				
+			}			
+			// reset leaflet screenshot helper service according to new  number of selected areas
+			// add one page to display the total map of all selected spatial unit features
+			numberOfTargetSpatialUnitFeatures ++;				
+			kommonitorLeafletScreenshotCacheHelperService.resetCounter(numberOfTargetSpatialUnitFeatures);
+
+
 			if($scope.template.name.includes("timestamp"))
 				$scope.updateAreasForTimestampTemplates(newVal)
 			if($scope.template.name.includes("timeseries"))
@@ -628,7 +638,9 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 		$rootScope.$on("screenshotsForCurrentSpatialUnitUpdate", function(event){
 			// update ui to enable button
-			$scope.$digest();
+			$timeout(function() {
+				$scope.$digest();
+			})			
 		});
 
 
@@ -881,14 +893,17 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		$scope.updateDualList = function(options, data, selectedItems) {
 			options.selectedItems = [];
 
-			let numberOfTargetSpatialUnitFeatures = 0;
-			if(selectedItems && selectedItems.length){
-				numberOfTargetSpatialUnitFeatures = selectedItems.length;
+			if(options.label == "Bereiche"){
+				let numberOfTargetSpatialUnitFeatures = 0;
+				if(selectedItems && selectedItems.length){
+					numberOfTargetSpatialUnitFeatures = selectedItems.length;
+				}
+				// add one page to display the total map of all selected spatial unit features
+				numberOfTargetSpatialUnitFeatures ++;
+				
+				kommonitorLeafletScreenshotCacheHelperService.resetCounter(numberOfTargetSpatialUnitFeatures);
 			}
-			// add one page to display the total map of all selected spatial unit features
-			numberOfTargetSpatialUnitFeatures ++;
 			
-			kommonitorLeafletScreenshotCacheHelperService.resetCounter(numberOfTargetSpatialUnitFeatures);
 
 			let dualListInput = data.map( el => {
 				return {"name": el.properties.NAME} // we need this as an object for kommonitorDataExchangeService.createDualListInputArray
@@ -947,7 +962,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 						}
 					}
 				}
-			}, 500);
+			}, 150);
 		}
 
 		// availableFeaturesBySpatialUnit has to be populated before this method is called.
@@ -1885,8 +1900,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					}
 									
 				});					
-				osmLayer.addTo(leafletMap);							
-				console.log("added OSM layer with load event");
+				osmLayer.addTo(leafletMap);						
 
 				// add leaflet map to pageElement in case we need it again later
 				pageElement.leafletMap = leafletMap;

@@ -74,7 +74,6 @@ angular
           // for now we try to only execute one screenshot process for each spatial unit
           // thus we simply set an empty object for the current key to prevent multiple screenshot taking processes for the same item         
           setTimeout(function () {
-            console.log("trigger domToImage for leaflet map");
             let leafletMapScreenshot = domtoimage
               .toJpeg(domElement, { quality: 1 })
               .then(function (dataUrl) {
@@ -118,6 +117,8 @@ angular
 
         // create progress log after each 10th percent of features
         this.logProgressIndexSeparator = Math.round(targetNumberOfSpatialUnitFeatures / 100 * 10);
+
+        this.logProgress();
       }
 
 
