@@ -441,7 +441,10 @@ angular.module('reportingOverview').component('reportingOverview', {
 					attributionControl: false,
 					// prevents leaflet form snapping to closest pre-defined zoom level.
 					// In other words, it allows us to set exact map extend by a (echarts) bounding box
-					zoomSnap: 0 
+					zoomSnap: 0,
+					// disable any fade and zoom animation in order to get screenshots directly after layer event load was called
+					fadeAnimation: false,
+            		zoomAnimation: false,
 				});			
 
 				// manually create a field for attribution so we can control the z-index.
@@ -488,13 +491,6 @@ angular.module('reportingOverview').component('reportingOverview', {
 				let osmLayer = new L.TileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
 					attribution: "Map data © <a href='http://openstreetmap.org'>OpenStreetMap</a> contributors",
 				});
-				// use the "load" event of the tile layer to hook a function that is triggered once every visible tile is fully loaded
-				// here we ntend to make a screenshot of the leaflet image as a background task in order to boost up report preview generation 
-				// for all spatial unit features		
-				// let domNode = leafletMap["_container"];		
-				// osmLayer.on("load", function() { kommonitorLeafletScreenshotCacheHelperService.takeScreenshotAndStoreInCache(spatialUnit.spatialUnitId, 
-				// 	spatialUnitFeatureId, domNode) });
-				// osmLayer.addTo(leafletMap);
 
 				osmLayer.addTo(leafletMap);
 
@@ -2057,7 +2053,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 				if not or it's too old, recreate it
 				if yes, simply use it to save a lot of time during report generation!
 			*/
-			let leafletMapScreenshot = kommonitorLeafletScreenshotCacheHelperService.getResourceFromCache(page.spatialUnitId, page.spatialUnitFeatureId);
+			let leafletMapScreenshot = kommonitorLeafletScreenshotCacheHelperService.getResourceFromCache(page.spatialUnitId, page.spatialUnitFeatureId, page.orientation);
 			// let leafletMapScreenshot = await domtoimage
             //   .toJpeg(node, { quality: 1.0 })
             //   .then(function (dataUrl) {

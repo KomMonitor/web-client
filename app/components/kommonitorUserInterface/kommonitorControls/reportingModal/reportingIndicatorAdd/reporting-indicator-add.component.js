@@ -106,10 +106,11 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					} 
 					if($scope.template.name.includes("reachability") || ($scope.isFirstUpdateOnIndicatorOrPoiLayerSelection == false && justChanged == false)) {
 						await $scope.initializeAllDiagrams();
-						if(!$scope.template.name.includes("reachability")) {
-							// in reachability template we have to update leaflet maps, too
-							$scope.loadingData = false;
-						}
+						// if(!$scope.template.name.includes("reachability")) {
+						// 	// in reachability template we have to update leaflet maps, too
+						// 	$scope.loadingData = false;
+						// }
+						$scope.loadingData = false;
 					}
 			}
 				updateDiagramsInterval_areas = $interval(updateDiagrams, 0, 100)
@@ -511,10 +512,11 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 						}
 
 						await $scope.initializeAllDiagrams();
-						if(!$scope.template.name.includes("reachability")) {
-							// in reachability template we have to update leaflet maps, too
-							$scope.loadingData = false;
-						}
+						// if(!$scope.template.name.includes("reachability")) {
+						// 	// in reachability template we have to update leaflet maps, too
+						// 	$scope.loadingData = false;
+						// }
+						$scope.loadingData = false;
 					}
 				});
 				
@@ -636,8 +638,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			$("#reporting-spatialUnitChangeWarning").hide();
 			$scope.timeseriesAdjustedOnSpatialUnitChange = false;
 			await $scope.updateAreasInDualList() // after that spatialUnitFeatures are available
+			// kommonitorLeafletScreenshotCacheHelperService.clearScreenshotMap();
 
-			kommonitorLeafletScreenshotCacheHelperService.init($scope.availableFeaturesBySpatialUnit[selectedSpatialUnit.spatialUnitLevel].length);
 			let validTimestamps = []
 			// There might be different valid timestamps for the new spatial unit.
 			if($scope.selectedIndicator) {
@@ -766,10 +768,11 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				}
 
 				await $scope.initializeAllDiagrams();
-				if(!$scope.template.name.includes("reachability")) {
-					// in reachability template we have to update leaflet maps, too
-					$scope.loadingData = false;
-				}
+				// if(!$scope.template.name.includes("reachability")) {
+				// 	// in reachability template we have to update leaflet maps, too
+				// 	$scope.loadingData = false;
+				// }
+				$scope.loadingData = false;
 			});
 		}
 
@@ -877,6 +880,15 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		 */
 		$scope.updateDualList = function(options, data, selectedItems) {
 			options.selectedItems = [];
+
+			let numberOfTargetSpatialUnitFeatures = 0;
+			if(selectedItems && selectedItems.length){
+				numberOfTargetSpatialUnitFeatures = selectedItems.length;
+			}
+			// add one page to display the total map of all selected spatial unit features
+			numberOfTargetSpatialUnitFeatures ++;
+			
+			kommonitorLeafletScreenshotCacheHelperService.resetCounter(numberOfTargetSpatialUnitFeatures);
 
 			let dualListInput = data.map( el => {
 				return {"name": el.properties.NAME} // we need this as an object for kommonitorDataExchangeService.createDualListInputArray
@@ -1107,7 +1119,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				if( !$scope.selectedSpatialUnit) {
 					$scope.selectedSpatialUnit = kommonitorDataExchangeService.availableSpatialUnits[0];
 					await $scope.updateAreasInDualList(); // this populates $scope.availableFeaturesBySpatialUnit
-					kommonitorLeafletScreenshotCacheHelperService.init($scope.availableFeaturesBySpatialUnit[$scope.selectedSpatialUnit.spatialUnitLevel].length);
+					
 				}
 				let mostRecentTimestampName
 				if($scope.selectedSpatialUnit.metadata) {
@@ -1634,6 +1646,14 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			return result;
 		}
 
+		$scope.getReportingRechabilityMapAttribution = async function(){
+			if(!$scope.reportingReachabilityMapAttribution){
+				$scope.reportingReachabilityMapAttribution = await kommonitorDiagramHelperService.createReportingReachabilityMapAttribution();
+			} 
+
+			return $scope.reportingReachabilityMapAttribution;			
+		}
+
 		$scope.createMapForReachability = async function(wrapper, page, pageElement) {
 			
 			let options = JSON.parse(JSON.stringify( $scope.reachabilityTemplateGeoMapOptions ));
@@ -1738,7 +1758,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			})
 
 			// initialize the leaflet map beneath the transparent-background echarts map
-			$timeout(async function(page, pageElement, echartsMap) {
+			// $timeout(async function(page, pageElement, echartsMap) {
 				let pageIdx = $scope.template.pages.indexOf(page);
 				let id = "reporting-addPoiLayer-reachability-leaflet-map-container-" + pageIdx;
 				let pageDom = document.getElementById("reporting-addIndicator-page-" + pageIdx);
@@ -1756,7 +1776,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				div.style.height = pageElement.dimensions.height;
 				div.style.zIndex = 10;
 				pageDom.appendChild(div);
-				let echartsOptions = echartsMap.getOption();
+				// let echartsOptions = echartsMap.getOption();
+				let echartsOptions = map.getOption();				
 
 				let leafletMap = L.map(div.id, {
 					zoomControl: false,
@@ -1767,7 +1788,10 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					attributionControl: false,
 					// prevents leaflet form snapping to closest pre-defined zoom level.
 					// In other words, it allows us to set exact map extend by a (echarts) bounding box
-					zoomSnap: 0 
+					zoomSnap: 0,
+					// disable any fade and zoom animation in order to get screenshots directly after layer event load was called
+					fadeAnimation: false,
+            		zoomAnimation: false,
 				});
 				// manually create a field for attribution so we can control the z-index.
 				let prevAttributionDiv = pageDom.querySelector(".map-attribution")
@@ -1778,7 +1802,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				attrDiv.style.bottom = 0;
 				attrDiv.style.left = 0;
 				attrDiv.style.zIndex = 800;
-				let attrImg = await kommonitorDiagramHelperService.createReportingReachabilityMapAttribution();
+				let attrImg = await $scope.getReportingRechabilityMapAttribution(); 
 				attrDiv.appendChild(attrImg);
 				pageElementDom.appendChild(attrDiv);
 				// also create the legend manually
@@ -1839,7 +1863,10 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				echartsOptions.geo[0].aspectScale = 0.625
 				echartsOptions.geo[0].boundingCoords = boundingCoords
 
-				echartsMap.setOption(echartsOptions, {
+				// echartsMap.setOption(echartsOptions, {
+				// 	notMerge: true
+				// });
+				map.setOption(echartsOptions, {
 					notMerge: true
 				});
 				
@@ -1848,18 +1875,21 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				// use the "load" event of the tile layer to hook a function that is triggered once every visible tile is fully loaded
 				// here we ntend to make a screenshot of the leaflet image as a background task in order to boost up report preview generation 
 				// for all spatial unit features		
-				let domNode = leafletMap["_container"];						
-				osmLayer.addTo(leafletMap);
-				osmLayer.on("load", async function() { 
-					console.log("tile load event fired");
-					kommonitorLeafletScreenshotCacheHelperService.takeScreenshotAndStoreInCache($scope.selectedSpatialUnit.spatialUnitId, 
-					spatialUnitFeatureId, domNode);
-				});
-
-				// setTimeout(function(){
-				// 	console.log("trigger domToImage for leaflet map");
-				// 	kommonitorLeafletScreenshotCacheHelperService.takeScreenshotAndStoreInCache($scope.selectedSpatialUnit.spatialUnitId, 
-				// 	spatialUnitFeatureId, domNode) }, 1000);				
+				let domNode = leafletMap["_container"];	
+				let triggeredScreenshotOnce = false;	
+				osmLayer.on("load", function() { 
+					if(! triggeredScreenshotOnce){
+						triggeredScreenshotOnce = true;
+						console.log("Trigger Screenshot after 250 ms");
+						setTimeout(() => {
+							kommonitorLeafletScreenshotCacheHelperService.checkForScreenshot($scope.selectedSpatialUnit.spatialUnitId, 
+							spatialUnitFeatureId, page.orientation, domNode);	
+						}, 250);
+						
+					}					
+				});					
+				osmLayer.addTo(leafletMap);							
+				console.log("added OSM layer with load event");
 
 				// add leaflet map to pageElement in case we need it again later
 				pageElement.leafletMap = leafletMap;
@@ -1893,7 +1923,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				if(pageIdx === $scope.template.pages.length-1) {
 					$scope.loadingData = false;
 				}
-			}, 0, false, page, pageElement, map)
+			// }, 0, false, page, pageElement, map)
 
 			$scope.loadingData = false;
 

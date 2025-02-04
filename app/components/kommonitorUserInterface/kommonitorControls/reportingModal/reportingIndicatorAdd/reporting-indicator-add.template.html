@@ -301,7 +301,7 @@
                         <span ng-show="!template.name.includes('-reachability')">Indikator hinzufügen</span>
                     </button>
 
-                    <button ng-disabled="true" style="margin-right: 15px;" ng-show="$ctrl.kommonitorLeafletScreenshotCacheHelperServiceInstance.executedScreenshotMapKeys.size > 0 && $ctrl.kommonitorLeafletScreenshotCacheHelperServiceInstance.executedScreenshotMapKeys.size <= $ctrl.kommonitorLeafletScreenshotCacheHelperServiceInstance.targetNumberOfSpatialUnitFeatures" type="button" class="btn btn-info pull-right">
+                    <button ng-disabled="true" style="margin-right: 15px;" ng-show="! $ctrl.kommonitorLeafletScreenshotCacheHelperServiceInstance.screenshotsForCurrentSpatialUnitUpdate" type="button" class="btn btn-info pull-right">
                         <span class="glyphicon glyphicon-refresh icon-spin"></span>
                         <span>Kartenbildaufbereitung: {{$ctrl.kommonitorLeafletScreenshotCacheHelperServiceInstance.executedScreenshotMapKeys.size}} von {{$ctrl.kommonitorLeafletScreenshotCacheHelperServiceInstance.targetNumberOfSpatialUnitFeatures}}</span>
                     </button>
