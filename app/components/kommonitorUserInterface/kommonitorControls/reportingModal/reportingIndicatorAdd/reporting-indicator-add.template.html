@@ -167,6 +167,16 @@
                                                     ng-change="onChangeShowMapLabels()">
                                                 <span class="switchslider round"></span>
                                             </label>
+
+                                            <div>
+                                                <p>Hintergrundkarte?</p>
+                                                <select ng-model="selectedBaseMap"
+                                                    ng-options="baseMap as baseMap.layerConfig.name for baseMap in $ctrl.kommonitorDataExchangeServiceInstance.baseLayerDefinitionsArray | filter:filterBaseMaps()"
+                                                    class="form-control" ng-change="onChangeSelectedBaseMap()" required>
+                                                    <option disabled selected value> -- Hintergrundkarte w&auml;hlen --
+                                                    </option>
+                                                </select>
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="col-md-4">

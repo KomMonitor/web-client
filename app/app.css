@@ -2826,10 +2826,11 @@ input:checked + .switchslider:before {
 }
 
 .reporting-element-config-box {
-	height: 150px;
+	height: fit-content;
 	border: solid lightgray 1px;
 	padding:10px;
 	margin-bottom: 15px;
+	z-index: 99999;
 }
 
 .reporting-element-config-box > h5 {

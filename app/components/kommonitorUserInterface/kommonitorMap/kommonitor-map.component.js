@@ -423,21 +423,48 @@ angular.module('kommonitorMap').component(
 
           // initialize map referring to div element with id="map"
 
-          var baseLayerDefinitionsMap = new Map();
+          kommonitorDataExchangeService.baseLayerDefinitionsMap = new Map();
+
+          // add an empty map
+          kommonitorDataExchangeService.baseLayerDefinitionsMap.set("leere Karte", L.tileLayer(''));
+          kommonitorDataExchangeService.baseLayerDefinitionsArray = [{
+            "layerConfig": {
+              name: "leere Karte", 
+              url: "",
+              layerType: "TILE_LAYER", 
+              layerName_WMS: "", 
+              attribution_html: "", 
+              minZoomLevel: window.__env.minZoomLevel, 
+              maxZoomLevel: window.__env.maxZoomLevel 
+            },
+            "leafletLayer": L.tileLayer('')
+          }];
 
           for (const baseMapEntry of __env.baseLayers) {              
             
             if (baseMapEntry.layerType === "TILE_LAYER_GRAYSCALE"){
               var grayscaleLayer = new L.tileLayer.grayscale(baseMapEntry.url, { minZoom: baseMapEntry.minZoomLevel, maxZoom: baseMapEntry.maxZoomLevel, attribution: baseMapEntry.attribution_html });
-              baseLayerDefinitionsMap.set(baseMapEntry.name, grayscaleLayer);
+              kommonitorDataExchangeService.baseLayerDefinitionsMap.set(baseMapEntry.name, grayscaleLayer);
+              kommonitorDataExchangeService.baseLayerDefinitionsArray.push({
+                "layerConfig": baseMapEntry,
+                "leafletLayer": new L.tileLayer.grayscale(baseMapEntry.url)
+              });
             }
             else if (baseMapEntry.layerType === "TILE_LAYER"){
               var tileLayer = new L.tileLayer(baseMapEntry.url, { minZoom: baseMapEntry.minZoomLevel, maxZoom: baseMapEntry.maxZoomLevel, attribution: baseMapEntry.attribution_html });
-              baseLayerDefinitionsMap.set(baseMapEntry.name, tileLayer);
+              kommonitorDataExchangeService.baseLayerDefinitionsMap.set(baseMapEntry.name, tileLayer);
+              kommonitorDataExchangeService.baseLayerDefinitionsArray.push({
+                "layerConfig": baseMapEntry,
+                "leafletLayer": new L.tileLayer(baseMapEntry.url)
+              });
             }
             else if (baseMapEntry.layerType === "WMS"){
               var wmsLayer = new L.tileLayer.wms(baseMapEntry.url, { minZoom: baseMapEntry.minZoomLevel, maxZoom: baseMapEntry.maxZoomLevel, attribution: baseMapEntry.attribution_html, layers: baseMapEntry.layerName_WMS, format: 'image/png' });
-              baseLayerDefinitionsMap.set(baseMapEntry.name, wmsLayer);
+              kommonitorDataExchangeService.baseLayerDefinitionsMap.set(baseMapEntry.name, wmsLayer);
+              kommonitorDataExchangeService.baseLayerDefinitionsArray.push({
+                "layerConfig": baseMapEntry,
+                "leafletLayer": new L.tileLayer.wms(baseMapEntry.url, { layers: baseMapEntry.layerName_WMS, format: 'image/jpeg' })
+              });
             }
           }
 
@@ -446,7 +473,7 @@ angular.module('kommonitorMap').component(
             zoom: $scope.zoomLevel,
             zoomDelta: 0.5,
             zoomSnap: 0.5,
-            layers: [baseLayerDefinitionsMap.get(__env.baseLayers[0].name)]
+            layers: [kommonitorDataExchangeService.baseLayerDefinitionsMap.get(__env.baseLayers[0].name)]
           });
 
           __env.currentLatitude = $scope.latCenter;
@@ -478,7 +505,7 @@ angular.module('kommonitorMap').component(
           $scope.baseMaps = {
           };   
 
-          baseLayerDefinitionsMap.forEach(function(value, key, map){
+          kommonitorDataExchangeService.baseLayerDefinitionsMap.forEach(function(value, key, map){
             $scope.baseMaps[key] = value;
           });          
 

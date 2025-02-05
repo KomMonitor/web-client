@@ -121,5 +121,13 @@ angular
         this.logProgress();
       }
 
+      // reset will not empty the current map of screeshots, instead it just resets the counter
+      this.resetCounter_keepingCurrentTargetFeatures = function () {
+        this.executedScreenshotMapKeys = new Map();
+        this.screenshotsForCurrentSpatialUnitUpdate = false;
+
+        this.logProgress();
+      }
+
 
     }]);

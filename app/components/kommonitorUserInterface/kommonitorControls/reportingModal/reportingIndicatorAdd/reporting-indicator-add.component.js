@@ -53,6 +53,22 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			"buffer": "Puffer"
 		}
 
+		$scope.selectedBaseMap = kommonitorDataExchangeService.baseLayerDefinitionsArray[2];
+
+		$scope.onChangeSelectedBaseMap = async function(){
+			// reinitiate page building from the scratch as easiest solution
+			$timeout(function(){
+				$scope.loadingData = true; 
+			})
+
+			kommonitorLeafletScreenshotCacheHelperService.resetCounter_keepingCurrentTargetFeatures();
+			await $scope.initializeAllDiagrams();			
+
+			$timeout(function(){
+				$scope.loadingData = false; 
+			}) 
+		}
+
 		// used to track template pages instead of using $$hashkey
 		$scope.templatePageIdCounter = 1;
 
@@ -1886,12 +1902,22 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				});
 				
 				// Attribution is handled in a custom element
-				let osmLayer = new L.TileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png");
+				// let leafletLayer = new L.TileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png");
+				let leafletLayer; 
+				if ($scope.selectedBaseMap.layerConfig.layerType === "TILE_LAYER_GRAYSCALE"){
+					leafletLayer = new L.tileLayer.grayscale($scope.selectedBaseMap.url);
+				  }
+				  else if ($scope.selectedBaseMap.layerConfig.layerType === "TILE_LAYER"){
+					leafletLayer = new L.tileLayer($scope.selectedBaseMap.layerConfig.url);
+				  }
+				  else if ($scope.selectedBaseMap.layerConfig.layerType === "WMS"){
+					leafletLayer = new L.tileLayer.wms($scope.selectedBaseMap.layerConfig.url, { layers: $scope.selectedBaseMap.layerConfig.layerName_WMS, format: 'image/jpeg' })
+				  }				
 				// use the "load" event of the tile layer to hook a function that is triggered once every visible tile is fully loaded
 				// here we ntend to make a screenshot of the leaflet image as a background task in order to boost up report preview generation 
 				// for all spatial unit features		
 				let domNode = leafletMap["_container"];	
-				osmLayer.on("load", function() { 
+				leafletLayer.on("load", function() { 
 					// there are pages for two page orientations (landscape and portait)
 					// only trigger the screenshot for those pages, that are actually present
 					if(page.orientation == $scope.template.orientation){
@@ -1900,7 +1926,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					}
 									
 				});					
-				osmLayer.addTo(leafletMap);						
+				leafletLayer.addTo(leafletMap);						
 
 				// add leaflet map to pageElement in case we need it again later
 				pageElement.leafletMap = leafletMap;
@@ -1940,6 +1966,12 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 			return map;
 		}
+
+		$scope.filterBaseMaps = function(){
+			return function( baseMapEntry ) {
+				return baseMapEntry.layerConfig.layerType != "TILE_LAYER_GRAYSCALE";
+			};
+		  };
 
 		/**
 		 * Creates and returns an echarts geoMap object.
