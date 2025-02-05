@@ -305,179 +305,216 @@
                 
               </div>
             </div>
-          </div>
-
-          <div class="tab-content" id="legendTabContent">
-            <div class="tab-pane active" id="legendTab2Content" role="tabpanel"
+            <div class="tab-pane" id="legendTab2Content" role="tabpanel"
               aria-labelledby="legendTab2">
 
-              <div id="indicatorMetadataOverview" text-align="center" align="center" class="">
-		
-								<table class="table table-condensed">
-									<!-- <thead>
-														<tr>
-															<th>Name des Metadatums</th>
-															<th>Beschreibung des Metadatums</th>
-														</tr>
-													</thead> -->
-									<tbody>
-										<tr>
-											<td><b>Name</b></td>
-											<td>{{exchangeData.selectedIndicator.indicatorName}}</td>
-										</tr>
-										<tr>
-											<td><b>Kategorie</b></td>
-											<td
-												ng-if="exchangeData.selectedIndicator.isHeadlineIndicator">
-												Leitindikator</td>
-											<td
-												ng-if="! exchangeData.selectedIndicator.isHeadlineIndicator">
-												Basisindikator</td>
-										</tr>
-										<tr>
-											<td><b>Typ</b></td>
-											<td>{{exchangeData.selectedIndicator.indicatorType}}</td>
-										</tr>
-										<!-- we hide characteristicValue parameter as it is and old relic not used any longer. 
-														-> deprecated -->
+              <div class="just-padding">
+                <h4>&Uuml;bersicht Metadaten</h4>
+                <div id="indicatorMetadataOverview" text-align="center" align="center" class="">
+      
+                  <table class="table table-condensed">
+                    <!-- <thead>
+                              <tr>
+                                <th>Name des Metadatums</th>
+                                <th>Beschreibung des Metadatums</th>
+                              </tr>
+                            </thead> -->
+                    <tbody>
+                      <tr>
+                        <td><b>Name</b></td>
+                        <td>{{exchangeData.selectedIndicator.indicatorName}}</td>
+                      </tr>
+                      <tr>
+                        <td><b>Kategorie</b></td>
+                        <td
+                          *ngIf="exchangeData.selectedIndicator.isHeadlineIndicator">
+                          Leitindikator</td>
+                        <td
+                          *ngIf="!exchangeData.selectedIndicator.isHeadlineIndicator">
+                          Basisindikator</td>
+                      </tr>
+                      <tr>
+                        <td><b>Typ</b></td>
+                        <td>{{exchangeData.selectedIndicator.indicatorType}}</td>
+                      </tr>
+                      <!-- we hide characteristicValue parameter as it is and old relic not used any longer. 
+                              -> deprecated -->
+        
+                      <!-- <tr ng-if="exchangeData.selectedIndicator.characteristicValue">
+                                <td><b>Merkmalsauspr&auml;gung</b></td>
+                                <td>{{exchangeData.selectedIndicator.characteristicValue}}</td>
+                              </tr> -->
+                      <tr>
+                        <td><b>Kennzeichen/K&uuml;rzel</b></td>
+                        <td>{{exchangeData.selectedIndicator.abbreviation}}</td>
+                      </tr>
+                      <tr>
+                        <td><b>Beschreibung</b></td>
+                        <td
+                          ng-bind-html="exchangeData.selectedIndicator.metadata.description">
+                        </td>
+                      </tr>
+                      <tr>
+                        <td><b>Maßeinheit</b></td>
+                        <td>{{exchangeData.selectedIndicator.unit}}</td>
+                      </tr>
+                      <tr>
+                        <td><b>Methodik</b></td>
+                        <td
+                          mathjax-bind="exchangeData.selectedIndicator.processDescription">
+                        </td>
+                      </tr>
+                      <tr>
+                        <td><b>Interpretation</b></td>
+                        <td
+                          ng-bind-html="exchangeData.selectedIndicator.interpretation">
+                        </td>
+                      </tr>
+                      <tr>
+                        <td><b>Datengrundlage</b></td>
+                        <td
+                          ng-bind-html="exchangeData.selectedIndicator.metadata.databasis">
+                        </td>
+                      </tr>
+                      <tr>
+                        <td><b>Datenquelle</b></td>
+                        <td
+                          ng-bind-html="exchangeData.selectedIndicator.metadata.datasource">
+                        </td>
+                      </tr>
+                      <tr>
+                        <td><b>Datenhalter und Kontakt</b></td>
+                        <td
+                          ng-bind-html="exchangeData.selectedIndicator.metadata.contact">
+                        </td>
+                      </tr>
+                      <tr>
+                        <td><b>Bemerkung</b></td>
+                        <td
+                          ng-bind-html="exchangeData.selectedIndicator.metadata.note">
+                        </td>
+                      </tr>
+                      <tr>
+                        <td><b>Fortführungsintervall</b></td>
+                        <td
+                          ng-bind-html="exchangeData.selectedIndicator.metadata.updateInterval">
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
 			
-										<!-- <tr ng-if="exchangeData.selectedIndicator.characteristicValue">
-															<td><b>Merkmalsauspr&auml;gung</b></td>
-															<td>{{exchangeData.selectedIndicator.characteristicValue}}</td>
-														</tr> -->
-										<tr>
-											<td><b>Kennzeichen/K&uuml;rzel</b></td>
-											<td>{{exchangeData.selectedIndicator.abbreviation}}</td>
-										</tr>
-										<tr>
-											<td><b>Beschreibung</b></td>
-											<td
-												ng-bind-html="exchangeData.selectedIndicator.metadata.description">
-											</td>
-										</tr>
-										<tr>
-											<td><b>Maßeinheit</b></td>
-											<td>{{exchangeData.selectedIndicator.unit}}</td>
-										</tr>
-										<tr>
-											<td><b>Methodik</b></td>
-											<td
-												mathjax-bind="exchangeData.selectedIndicator.processDescription">
-											</td>
-										</tr>
-										<tr>
-											<td><b>Interpretation</b></td>
-											<td
-												ng-bind-html="exchangeData.selectedIndicator.interpretation">
-											</td>
-										</tr>
-										<tr>
-											<td><b>Datengrundlage</b></td>
-											<td
-												ng-bind-html="exchangeData.selectedIndicator.metadata.databasis">
-											</td>
-										</tr>
-										<tr>
-											<td><b>Datenquelle</b></td>
-											<td
-												ng-bind-html="exchangeData.selectedIndicator.metadata.datasource">
-											</td>
-										</tr>
-										<tr>
-											<td><b>Datenhalter und Kontakt</b></td>
-											<td
-												ng-bind-html="exchangeData.selectedIndicator.metadata.contact">
-											</td>
-										</tr>
-										<tr>
-											<td><b>Bemerkung</b></td>
-											<td
-												ng-bind-html="exchangeData.selectedIndicator.metadata.note">
-											</td>
-										</tr>
-										<tr>
-											<td><b>Fortführungsintervall</b></td>
-											<td
-												ng-bind-html="exchangeData.selectedIndicator.metadata.updateInterval">
-											</td>
-										</tr>
-									</tbody>
-								</table>
-			
-							</div>
+                </div>
 
-							<hr>
-							<br/>
+                <hr>
+                <br/>
 
-							<div>
-								<h4>Verkn&uuml;pfte Indikatoren</h4>
-								<div ng-show="!(exchangeData.selectedIndicator.referencedIndicators.length > 0)">
-									-- keine --
-								</div>
-								<div ng-show="(exchangeData.selectedIndicator.referencedIndicators.length > 0)">
-									<div id="referencedIndicatorOverview" text-align="center" align="center" class=""
-									ng-if="exchangeData.selectedIndicator.referencedIndicators.length > 0">
-				
-									<table class="table table-condensed">
-										<thead>
-											<tr>
-												<th>Name des Indikators</th>
-												<th>K&uuml;rzel/Kennziffer</th>
-												<th>Beschreibung der Verkn&uuml;pfung</th>
-											</tr>
-										</thead>
-										<tbody>
-											<tr *ngFor="let indicator of exchangeData.selectedIndicator.referencedIndicators">
-												<td>{{indicator.referencedIndicatorName}}</td>
-												<td
-													ng-bind="exchangeData.getIndicatorAbbreviationFromIndicatorId(indicator.referencedIndicatorId)">
-												</td>
-												<td>{{indicator.referencedIndicatorDescription}}</td>
-											</tr>
-										</tbody>
-									</table>
-				
-									</div>
-								</div>
-							</div>
-							
-							<hr>
-							<br/>
+                <div>
+                  <h4>Verkn&uuml;pfte Indikatoren</h4>
+                  <div *ngIf="!exchangeData.selectedIndicator.referencedIndicators || exchangeData.selectedIndicator.referencedIndicators.length==0">
+                    -- keine --
+                  </div>
+                  <div *ngIf="exchangeData.selectedIndicator.referencedIndicators?.length > 0">
+                    <div id="referencedIndicatorOverview" text-align="center" align="center" class=""
+                    ng-if="exchangeData.selectedIndicator.referencedIndicators.length > 0">
+          
+                    <table class="table table-condensed">
+                      <thead>
+                        <tr>
+                          <th>Name des Indikators</th>
+                          <th>K&uuml;rzel/Kennziffer</th>
+                          <th>Beschreibung der Verkn&uuml;pfung</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr *ngFor="let indicator of exchangeData.selectedIndicator.referencedIndicators">
+                          <td>{{indicator.referencedIndicatorName}}</td>
+                          <td
+                            ng-bind="exchangeData.getIndicatorAbbreviationFromIndicatorId(indicator.referencedIndicatorId)">
+                          </td>
+                          <td>{{indicator.referencedIndicatorDescription}}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+          
+                    </div>
+                  </div>
+                </div>
+                
+                <hr>
+                <br/>
 
-							<div>
-								<h4>Verkn&uuml;pfte Georessourcen</h4>
-								<div ng-show="! (exchangeData.selectedIndicator.referencedGeoresources.length > 0)">
-									-- keine --
-								</div>
-								<div ng-show="(exchangeData.selectedIndicator.referencedGeoresources.length > 0)">
-									<div id="referencedGeoresourcesOverview" text-align="center" align="center" class=""
-									ng-if="exchangeData.selectedIndicator.referencedGeoresources.length > 0">
-									<h4>Verkn&uuml;pfte Georessourcen</h4>
-				
-									<table class="table table-condensed">
-										<thead>
-											<tr>
-												<th>Name der Georessource</th>
-												<th>Beschreibung der Verkn&uuml;pfung</th>
-											</tr>
-										</thead>
-										<tbody>
-											<tr *ngFor="let georesource of exchangeData.selectedIndicator.referencedGeoresources">
-												<td>{{georesource.referencedGeoresourceName}}</td>
-												<td>{{georesource.referencedGeoresourceDescription}}</td>
-											</tr>
-										</tbody>
-									</table>
-				
-								</div>
-								</div>
-							</div>
+                <div>
+                  <h4>Verkn&uuml;pfte Georessourcen</h4>
+                  <div *ngIf="!exchangeData.selectedIndicator.referencedGeoresources || exchangeData.selectedIndicator.referencedGeoresources.length==0">
+                    -- keine --
+                  </div>
+                  <div *ngIf="exchangeData.selectedIndicator.referencedGeoresources?.length > 0">
+                    <div id="referencedGeoresourcesOverview" text-align="center" align="center" class=""
+                    ng-if="exchangeData.selectedIndicator.referencedGeoresources.length > 0">
+                    <h4>Verkn&uuml;pfte Georessourcen</h4>
+          
+                    <table class="table table-condensed">
+                      <thead>
+                        <tr>
+                          <th>Name der Georessource</th>
+                          <th>Beschreibung der Verkn&uuml;pfung</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr *ngFor="let georesource of exchangeData.selectedIndicator.referencedGeoresources">
+                          <td>{{georesource.referencedGeoresourceName}}</td>
+                          <td>{{georesource.referencedGeoresourceDescription}}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+          
+                  </div>
+                  </div>
+                </div>
+              </div>
 
             </div>
-          </div>
-          <div class="tab-content" id="legendTabContent">
-            <div class="tab-pane active" id="legendTab3Content" role="tabpanel"
+            <div class="tab-pane" id="legendTab3Content" role="tabpanel"
               aria-labelledby="legendTab3">
+
+              
+              <div class="just-padding">
+                <table class="table table-condensed " style="margin-bottom:0px;">
+                  <thead>
+                    <tr>
+                    <th>Datensatz</th>
+                    <th>Layer Transparenz</th>
+                    <th>Legende</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+
+                    <!--  | filter:{isSelected:'true'} -->
+                    <tr *ngFor="let dataset of keywordFilteredWmsDataset()">										
+                      <td>
+                        <label [innerHTML]="dataset.title">
+                        </label>
+                      </td>
+                      <td>
+                        <div class="form-group" align="center">
+<!-- 
+                          <input class=" input-sm" (value)="dataset.transparency" ng-init="dataset.transparency=0" (change)="dataExchangeService.adjustOpacityForWmsLayer(dataset, 1 - dataset.transparency);" type="range"  min="0" max="1" step="0.01">
+ -->
+                          <br/>
+
+                          <label>{{dataset.transparency}}</label>
+                        </div>
+                      </td>
+                      
+                      <td class="text-center">
+                        <img src="{{dataset.url}}service=WMS&REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&LAYER={{dataset.layerName}}">
+                      </td>
+                    </tr>
+
+                  </tbody>
+                </table>
+              </div>	
             </div>
           </div>
 
@@ -496,7 +533,7 @@
           </div>
         </div>
         <div class="box-body">
-        <!--   <em>Referenzzeitpunkt {{exchangeData.tsToDate_withOptionalUpdateInterval(exchangeData.dateToTS(dateAsDate, exchangeData.selectedIndicator.metadata.updateInterval))}}</em>
+          <em>Referenzzeitpunkt {{dataExchangeService.tsToDate_withOptionalUpdateInterval(dataExchangeService.dateToTS(dateAsDate, exchangeData.selectedIndicator.metadata.updateInterval))}}</em>
           <table id="statisticalValuesDisplayTable" class="table">
             <thead>
               <tr>
@@ -514,36 +551,36 @@
               </tr>
               <tr *ngIf="! exchangeData.allFeaturesRegionalSum">
                 <td>{{exchangeData.labelSum}}</td>
-                <td>{{exchangeData.getIndicatorValue_asFormattedText(exchangeData.allFeaturesSum)}}</td>
+                <td>{{dataExchangeService.getIndicatorValue_asFormattedText(exchangeData.allFeaturesSum)}}</td>
                 <td>{{exchangeData.selectedFeaturesSum}}</td>
               </tr>
               <tr *ngIf="exchangeData.allFeaturesRegionalSum">
                 <td>{{exchangeData.labelSum_regional}}</td>
-                <td>{{exchangeData.getIndicatorValue_asFormattedText(exchangeData.allFeaturesRegionalSum)}}</td>
-                <td>{{exchangeData.getIndicatorValue_asFormattedText(exchangeData.selectedFeaturesSum)}}</td>
+                <td>{{dataExchangeService.getIndicatorValue_asFormattedText(exchangeData.allFeaturesRegionalSum)}}</td>
+                <td>{{dataExchangeService.getIndicatorValue_asFormattedText(exchangeData.selectedFeaturesSum)}}</td>
               </tr>
               
               
                  <tr *ngIf="exchangeData.allFeaturesRegionalMean">
                   <td>{{exchangeData.labelMean_regional}}</td>
-                  <td>{{exchangeData.getIndicatorValue_asFormattedText(exchangeData.allFeaturesRegionalMean)}}</td>
-                  <td>{{exchangeData.getIndicatorValue_asFormattedText(exchangeData.selectedFeaturesMean)}}</td>
+                  <td>{{dataExchangeService.getIndicatorValue_asFormattedText(exchangeData.allFeaturesRegionalMean)}}</td>
+                  <td>{{dataExchangeService.getIndicatorValue_asFormattedText(exchangeData.selectedFeaturesMean)}}</td>
                 </tr>
-                <tr *ngIf="exchangeData.allFeaturesMean && (exchangeData.configMeanDataDisplay == 'both' || (! exchangeData.allFeaturesRegionalMean && kommonitorDataExchangeService.configMeanDataDisplay == 'preferRegionalMeanIfAvailable'))">
+                <tr *ngIf="exchangeData.allFeaturesMean && (exchangeData.configMeanDataDisplay == 'both' || (! exchangeData.allFeaturesRegionalMean && exchangeData.configMeanDataDisplay == 'preferRegionalMeanIfAvailable'))">
                   <td>{{exchangeData.labelMean}}</td>
-                  <td>{{exchangeData.getIndicatorValue_asFormattedText(exchangeData.allFeaturesMean)}}</td>
+                  <td>{{dataExchangeService.getIndicatorValue_asFormattedText(exchangeData.allFeaturesMean)}}</td>
                    <td>{{exchangeData.selectedFeaturesMean}}</td>
                 </tr>
                  
                  <tr>
                    <td>{{exchangeData.labelMin}}</td>
-                   <td>{{exchangeData.getIndicatorValue_asFormattedText(exchangeData.allFeaturesMin)}}</td>
-                <td>{{exchangeData.getIndicatorValue_asFormattedText(exchangeData.selectedFeaturesMin)}}</td>
+                   <td>{{dataExchangeService.getIndicatorValue_asFormattedText(exchangeData.allFeaturesMin)}}</td>
+                <td>{{dataExchangeService.getIndicatorValue_asFormattedText(exchangeData.selectedFeaturesMin)}}</td>
                  </tr>
               <tr>
                 <td>{{exchangeData.labelMax}}</td>
-                   <td>{{exchangeData.getIndicatorValue_asFormattedText(exchangeData.allFeaturesMax)}}</td>
-                <td>{{exchangeData.getIndicatorValue_asFormattedText(exchangeData.selectedFeaturesMax)}}</td>
+                   <td>{{dataExchangeService.getIndicatorValue_asFormattedText(exchangeData.allFeaturesMax)}}</td>
+                <td>{{dataExchangeService.getIndicatorValue_asFormattedText(exchangeData.selectedFeaturesMax)}}</td>
               </tr>
   
               <tr>
@@ -552,7 +589,7 @@
                 <td>-</td>
               </tr>
             </tbody>
-          </table> -->
+          </table>
         </div>
         <!-- /.box-body -->
       </div>

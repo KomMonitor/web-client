@@ -51,16 +51,16 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
       this.outliers_high = data.outliers_high;
       this.outliers_low = data.outliers_low;
       this.containsNoData = data.containsNoData;
-      var dateComponents = data.selectedDate.split("-");
-      this.dateAsDate = new Date(Number(dateComponents[0]), Number(dateComponents[1]) - 1, Number(dateComponents[2]));
 
-      console.log(this.visualStyleData)
+      if(data.selectedDate) {
+        var dateComponents = data.selectedDate.split("-");
+        this.dateAsDate = new Date(Number(dateComponents[0]), Number(dateComponents[1]) - 1, Number(dateComponents[2]));
+      }
     }
   }
 
   ngOnInit(): void {
       this.exchangeData = this.dataExchangeService.pipedData;
-      console.log(this.exchangeData.selectedIndicator)
       this.elementVisibilityData = this.elementVisibilityService.pipedData;
       this.visualStyleData = this.visualStyleService.pipedData;
       this.filterHelperData = this.filterHelperService.pipedData;
@@ -90,7 +90,6 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
   }
 
   onChangeIndicatorDatepickerDate() {
-    console.log(this.exchangeData.selectedDate);
     // todo
     /* $rootScope.$broadcast("changeIndicatorDate"); */
   }
@@ -294,7 +293,6 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
   onClickShareLinkButton() {
     
     this.shareHelperService.generateCurrentShareLink();
-    console.log(this.shareHelperService.currentShareLink)
 							
     /* Copy to clipboard */
     if(navigator && navigator.clipboard){
@@ -357,4 +355,8 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
     else
       return "(" + this.dataExchangeService.getIndicatorValue_asFormattedText(outliersArray[0]) + ")";
   };
+
+  keywordFilteredWmsDataset() {
+    return this.exchangeData.wmsDatasets_keywordFiltered.filter(e => e.isSelected===true);
+  }
 }

@@ -23,6 +23,27 @@ export interface DataExchange {
   labelMean: any;
   allFeaturesMean: any;
   configMeanDataDisplay: any;
+  wmsDatasets_keywordFiltered: any;
+  labelAllFeatures: any;
+  labelFilteredFeatures: any;
+  labelSelectedFeatures: any;
+  labelNumberOfFeatures: any;
+  allFeaturesNumberOfFeatures: any;
+  selectedFeaturesNumberOfFeatures: any;
+  labelSum: any;
+  allFeaturesSum: any;
+  labelSum_regional: any;
+  allFeaturesRegionalSum: any;
+  selectedFeaturesSum: any;
+  selectedFeaturesMean: any;
+  labelMin: any;
+  labelMax: any;
+  allFeaturesMin: any;
+  selectedFeaturesMin: any;
+  allFeaturesMax: any;
+  selectedFeaturesMax: any;
+  labelSpatiallyUnassignable_regional: any;
+  allFeaturesRegionalSpatiallyUnassignable: any;
 }
 
 export interface SpatialUnit {
@@ -43,6 +64,7 @@ export interface Indicator {
   abbreviation: string;
   referencedIndicators: any;
   referencedGeoresources: any;
+  isHeadlineIndicator: boolean;
 }
 
 @Injectable({
