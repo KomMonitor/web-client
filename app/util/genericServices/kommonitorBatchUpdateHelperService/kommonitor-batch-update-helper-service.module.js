@@ -187,11 +187,11 @@ angular
 								console.log("propertyMappingDefinition of row " + i + " with importerService: ", propertyMappingDefinition);
 
 								let indicatorMetadata = kommonitorDataExchangeService.getIndicatorMetadataById(resourceId);
-								let allowedRoleIds = [];
+								let permissions = [];
 
 								for (const applicableSpatialUnit of indicatorMetadata.applicableSpatialUnits) {
 									if (applicableSpatialUnit.spatialUnitId === row.selectedTargetSpatialUnit.spatialUnitId){
-										allowedRoleIds = applicableSpatialUnit.permissions;
+										permissions = applicableSpatialUnit.permissions;
 									}
 								}
 	
@@ -202,8 +202,9 @@ angular
 									"currentIndicatorDataset": {
 										"defaultClassificationMapping": row.name.defaultClassificationMapping
 									},
-									"permissions": allowedRoleIds,
-									"ownerId": $scope.currentIndicatorDataset.ownerId
+									"permissions": permissions,
+									"ownerId": indicatorMetadata.ownerId,
+									"isPublic": indicatorMetadata.isPublic
 								};
 								 var putBody_indicators = kommonitorImporterHelperService.buildPutBody_indicators(scopeProperties);
 								 //console.log("putBody_indicators of row " + i + ": ", putBody_indicators);
@@ -271,7 +272,7 @@ angular
 						console.error("An error occurred during the batch update: ", error);
 					} finally {
 						startBtn.removeAttribute("disabled");
-						startBtn.innerHTML = "Update starten";
+						startBtn.innerHTML = "Update ausf&uuml;hren";
 					}
 				};
 
