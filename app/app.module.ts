@@ -25,10 +25,9 @@ import {
   ajskommonitorElementVisibilityHelperServiceProvider,
   ajskommonitorShareHelperServiceProvider,
   ajskommonitorVisualStyleHelperServiceProvider } from 'app-upgraded-providers';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { InfoModalComponent } from 'components/ngComponents/userInterface/infoModal/info-modal.component';
-import { KommonitorLegendComponent } from 'components/ngComponents/userInterface/kommonitor-legend/kommonitor-legend.component';
-import { NgbCalendar, NgbDatepickerModule, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import { KommonitorLegendComponent } from 'components/ngComponents/userInterface/kommonitorLegend/kommonitor-legend.component';
+import { NgbCalendar, NgbDatepickerModule, NgbDateStruct, NgbAccordionModule, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
 import { JsonPipe } from '@angular/common';
 
@@ -43,7 +42,10 @@ declare var MathJax;
     BrowserModule,
     UpgradeModule,
     RouterModule.forRoot(routes , { useHash: true }),
-    NgbDatepickerModule, FormsModule, JsonPipe
+    NgbDatepickerModule, 
+    NgbAccordionModule,
+    FormsModule, 
+    JsonPipe
   ],
   providers:[
     {provide: LocationStrategy, useClass: HashLocationStrategy},
