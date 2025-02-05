@@ -53,7 +53,7 @@
                                     ng-model="poiNameFilter" ng-model-options="{ debounce: 500, blur: 0 }">
                             </div>
                             <div id="reporting-poi-select-box">
-                                <select size="30" class="form-control" required>
+                                <select size="10" class="form-control" required>
 									<option disabled selected value> -- POI-Layer w&auml;hlen -- </option>
 									<option style="white-space: pre !important;" ng-repeat="layer in availablePoiLayers | filter: poiNameFilter | orderBy: 'datasetName'"
                                         ng-click="onPoiLayerSelected(layer)">{{layer.datasetName}}</option>
@@ -89,7 +89,7 @@
                             </div>
                             <div ng-if="template.name.includes('-timeseries')">
                                 <div id="reporting-indicator-select-box">
-                                    <select size="30" class="form-control" required>
+                                    <select size="10" class="form-control" required>
                                         <option disabled selected value> -- Indikator w&auml;hlen -- </option>
                                         <option style="white-space: pre !important;" ng-repeat="indicator in $ctrl.kommonitorDataExchangeServiceInstance.displayableIndicators | filter: indicatorNameFilter | filter: filterTimeseriesIndicator  | orderBy: 'indicatorName'"
                                             ng-click="onIndicatorSelected(indicator)">{{indicator.indicatorName}} [{{indicator.unit}}]</option>
@@ -98,7 +98,7 @@
                             </div>
                             <div ng-if="!template.name.includes('-timeseries')">
                                 <div id="reporting-indicator-select-box">
-                                    <select size="30" class="form-control" required>
+                                    <select size="10" class="form-control" required>
                                         <option disabled selected value> -- Indikator w&auml;hlen -- </option>
                                         <option style="white-space: pre !important;" ng-repeat="indicator in $ctrl.kommonitorDataExchangeServiceInstance.displayableIndicators | filter: indicatorNameFilter | orderBy: 'indicatorName'"
                                             ng-click="onIndicatorSelected(indicator)">{{indicator.indicatorName}} [{{indicator.unit}}]</option>
