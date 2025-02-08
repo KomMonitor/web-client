@@ -221,6 +221,13 @@ angular.module('reportingOverview').component('reportingOverview', {
 								spatialUnit = await $scope.getSpatialUnitByIndicator(indicatorId, page.templateSection.spatialUnitName)
 								featureCollection = await $scope.queryFeatures(indicatorId, spatialUnit);
 								features = $scope.createLowerCaseNameProperty(featureCollection.features);
+
+								$scope.geoJsonForReachability_byFeatureName = new Map();
+
+								for(let feature of features) {
+									$scope.geoJsonForReachability_byFeatureName.set(feature.properties.NAME, feature)
+								}	
+								
 								geoJSON = { features: features };
 
 							}
@@ -284,8 +291,13 @@ angular.module('reportingOverview').component('reportingOverview', {
 											}	
 										}
 									}
+									
 								}
 								instance.setOption(pageElement.echartsOptions)
+
+								if(pageElement.type === "map") {
+									await $scope.initializeLeafletMap(page, pageElement, instance, spatialUnit)
+								}
 							}
 
 							if(pageElement.type === "overallAverage") {
@@ -414,7 +426,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 		$scope.initializeLeafletMap = async function(page, pageElement, map, spatialUnit) {
 			await $timeout(async function(page, pageElement, echartsMap, spatialUnit) {
 				let pageIdx = $scope.config.pages.indexOf(page);
-				let id = "reporting-overview-reachability-leaflet-map-container-" + pageIdx;
+				let id = "reporting-overview-leaflet-map-container-" + pageIdx;
 				let pageDom = document.getElementById("reporting-overview-page-" + pageIdx);
 				let pageElementDom = document.getElementById("reporting-overview-page-" + pageIdx + "-map");
 				let oldMapNode = document.getElementById(id);
@@ -459,20 +471,25 @@ angular.module('reportingOverview').component('reportingOverview', {
 				let attrImg = await kommonitorDiagramHelperService.createReportingReachabilityMapAttribution();
 				attrDiv.appendChild(attrImg);
 				pageElementDom.appendChild(attrDiv);
-				// also create the legend manually
-				let prevLegendDiv = pageDom.querySelector(".map-legend")
-				if(prevLegendDiv) prevLegendDiv.remove();
-				let legendDiv = document.createElement("div")
-				legendDiv.classList.add("map-legend")
-				legendDiv.style.position = "absolute";
-				legendDiv.style.bottom = 0;
-				legendDiv.style.right = 0;
-				legendDiv.style.zIndex = 800;
-				let isochronesRangeType = page.templateSection.isochronesRangeType;
-				let isochronesRangeUnits = page.templateSection.isochronesRangeUnits;
-				let legendImg = await kommonitorDiagramHelperService.createReportingReachabilityMapLegend(echartsOptions, spatialUnit, isochronesRangeType, isochronesRangeUnits);
-				legendDiv.appendChild(legendImg);
-				pageElementDom.appendChild(legendDiv)
+
+				if($scope.config.template.name.includes("reachability")){
+					// also create the legend manually
+					let prevLegendDiv = pageDom.querySelector(".map-legend")
+					if(prevLegendDiv) prevLegendDiv.remove();
+					let legendDiv = document.createElement("div")
+					legendDiv.classList.add("map-legend")
+					legendDiv.style.position = "absolute";
+					legendDiv.style.bottom = 0;
+					legendDiv.style.right = 0;
+					legendDiv.style.zIndex = 800;
+					let isochronesRangeType = page.templateSection.isochronesRangeType;
+					let isochronesRangeUnits = page.templateSection.isochronesRangeUnits;
+					let legendImg = await kommonitorDiagramHelperService.createReportingReachabilityMapLegend(echartsOptions, spatialUnit, isochronesRangeType, isochronesRangeUnits);
+					legendDiv.appendChild(legendImg);
+					pageElementDom.appendChild(legendDiv)
+				}
+
+				
 
 				// we have the bbox stored in config
 				// pageElement.leafletBbox is invalid after export and import. Maybe because the prototype object gets removed...
@@ -488,11 +505,23 @@ angular.module('reportingOverview').component('reportingOverview', {
 					page.spatialUnitFeatureId = spatialUnitFeatureId;
 				}						
 				
-				let osmLayer = new L.TileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-					attribution: "Map data © <a href='http://openstreetmap.org'>OpenStreetMap</a> contributors",
-				});
-
-				osmLayer.addTo(leafletMap);
+				// Attribution is handled in a custom element
+				// let leafletLayer = new L.TileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png");
+				let leafletLayer; 
+				if (pageElement.selectedBaseMap.layerConfig.layerType === "TILE_LAYER_GRAYSCALE"){
+					leafletLayer = new L.tileLayer.grayscale(pageElement.selectedBaseMap.url);
+				  }
+				  else if (pageElement.selectedBaseMap.layerConfig.layerType === "TILE_LAYER"){
+					leafletLayer = new L.tileLayer(pageElement.selectedBaseMap.layerConfig.url);
+				  }
+				  else if (pageElement.selectedBaseMap.layerConfig.layerType === "WMS"){
+					leafletLayer = new L.tileLayer.wms(pageElement.selectedBaseMap.layerConfig.url, { layers: pageElement.selectedBaseMap.layerConfig.layerName_WMS, format: 'image/jpeg' })
+				  }				
+				// use the "load" event of the tile layer to hook a function that is triggered once every visible tile is fully loaded
+				// here we ntend to make a screenshot of the leaflet image as a background task in order to boost up report preview generation 
+				// for all spatial unit features		
+				let domNode = leafletMap["_container"];					
+				leafletLayer.addTo(leafletMap);		
 
 				// add leaflet map to pageElement in case we need it again later
 				pageElement.leafletMap = leafletMap;
@@ -1111,16 +1140,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 						case "map": {
 							let instance = echarts.getInstanceByDom(pElementDom)
 							let imageDataUrl = instance.getDataURL( {pixelRatio: $scope.echartsImgPixelRatio} )
-
-							if($scope.config.template.name.includes("reachability")) {
-								try {
-									imageDataUrl = await $scope.createReachabilityMapImage(page, pageDom, pageElement, imageDataUrl)
-								} catch(error) {
-									$scope.loadingData = false;
-									kommonitorDataExchangeService.displayMapApplicationError(error);
-									console.error(error);
-								}
-							}
+							imageDataUrl = await $scope.createLeafletEChartsMapImage(page, pageDom, pageElement, imageDataUrl)
 
               slide.addImage({ x: pageElementDimensions.left, y: pageElementDimensions.top, w: pageElementDimensions.width, h: pageElementDimensions.height, data: imageDataUrl});
 							break;
@@ -1324,16 +1344,8 @@ angular.module('reportingOverview').component('reportingOverview', {
 						case "map": {
 							let instance = echarts.getInstanceByDom(pElementDom)
 							let imageDataUrl = instance.getDataURL( {pixelRatio: $scope.echartsImgPixelRatio} )
+							imageDataUrl = await $scope.createLeafletEChartsMapImage(page, pageDom, pageElement, imageDataUrl)
 
-							if($scope.config.template.name.includes("reachability")) {
-								try {
-									imageDataUrl = await $scope.createReachabilityMapImage(page, pageDom, pageElement, imageDataUrl)
-								} catch(error) {
-									$scope.loadingData = false;
-									kommonitorDataExchangeService.displayMapApplicationError(error);
-									console.error(error);
-								}
-							}
 							doc.addImage(imageDataUrl, "PNG", pageElementDimensions.left, pageElementDimensions.top,
 								pageElementDimensions.width, pageElementDimensions.height, "", 'MEDIUM');
 							break;
@@ -1439,16 +1451,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 							type: "png",
 							pixelRatio: $scope.echartsImgPixelRatio
 						});
-
-						if($scope.config.template.name.includes("reachability")) {
-							try {
-								imageDataUrl = await $scope.createReachabilityMapImage(page, pageDom, pageElement, imageDataUrl)
-							} catch(error) {
-								$scope.loadingData = false;
-								kommonitorDataExchangeService.displayMapApplicationError(error);
-								console.error(error);
-							}
-						}
+						imageDataUrl = await $scope.createLeafletEChartsMapImage(page, pageDom, pageElement, imageDataUrl)
 						
 						let filename = "Seite_" + (idx+1) + "_" + pageElement.type + ".png";
 						if(pageElement.type === "linechart" && pageElement.showPercentageChangeToPrevTimestamp) {
@@ -1704,15 +1707,8 @@ angular.module('reportingOverview').component('reportingOverview', {
 							 		pixelRatio: $scope.echartsImgPixelRatio
 							});
 
-							if($scope.config.template.name.includes("reachability")) {
-								try {
-									imageDataUrl = await $scope.createReachabilityMapImage(page, pageDom, pageElement, imageDataUrl)
-								} catch(error) {
-									$scope.loadingData = false;
-									kommonitorDataExchangeService.displayMapApplicationError(error);
-									console.error(error);
-								}
-							}
+							imageDataUrl = await $scope.createLeafletEChartsMapImage(page, pageDom, pageElement, imageDataUrl)
+
 							let blob = dataURItoBlob(imageDataUrl);
 
 							let paragraph = new docx.Paragraph({
@@ -2037,7 +2033,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 			});
 		}
 
-		$scope.createReachabilityMapImage = async function(page, pageDom, pageElement, echartsImgSrc) {
+		$scope.createLeafletEChartsMapImage = async function(page, pageDom, pageElement, echartsImgSrc) {
 			let result;
 			// screenshot leaflet map and merge it with echarts image
 			// remove page offset temporarily 
@@ -2104,8 +2100,10 @@ angular.module('reportingOverview').component('reportingOverview', {
 			ctx.fillRect(0, canvas.height - mapAttributionImg.height, mapAttributionImg.width, mapAttributionImg.height)
 			ctx.drawImage(mapAttributionImg, 0, canvas.height - mapAttributionImg.height);
 			let mapLegendImg = pageDom.querySelector(".map-legend > img")
-			ctx.fillRect(canvas.width - mapLegendImg.width, canvas.height - mapLegendImg.height, mapLegendImg.width, mapLegendImg.height)
-			ctx.drawImage(mapLegendImg, canvas.width - mapLegendImg.width, canvas.height - mapLegendImg.height);
+			if(mapLegendImg){
+				ctx.fillRect(canvas.width - mapLegendImg.width, canvas.height - mapLegendImg.height, mapLegendImg.width, mapLegendImg.height)
+				ctx.drawImage(mapLegendImg, canvas.width - mapLegendImg.width, canvas.height - mapLegendImg.height);
+			}		
 			result = canvas.toDataURL();
 			return result;
 		}

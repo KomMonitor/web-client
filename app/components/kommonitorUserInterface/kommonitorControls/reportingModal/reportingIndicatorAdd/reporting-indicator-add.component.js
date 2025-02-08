@@ -1788,10 +1788,17 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				replaceMerge: ['series', 'geo']
 			})
 
+			await $scope.initLeafletMapBeneathEchartsMap(page, pageElement, map);
+
+			$scope.loadingData = false;
+
+			return map;
+		}
+
+		$scope.initLeafletMapBeneathEchartsMap = async function(page, pageElement, map){
 			// initialize the leaflet map beneath the transparent-background echarts map
-			// $timeout(async function(page, pageElement, echartsMap) {
 				let pageIdx = $scope.template.pages.indexOf(page);
-				let id = "reporting-addPoiLayer-reachability-leaflet-map-container-" + pageIdx;
+				let id = "reporting-addPoiLayer-leaflet-map-container-" + pageIdx;
 				let pageDom = document.getElementById("reporting-addIndicator-page-" + pageIdx);
 				let pageElementDom = document.getElementById("reporting-addIndicator-page-" + pageIdx + "-map");
 				let oldMapNode = document.getElementById(id);
@@ -1836,18 +1843,22 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				let attrImg = await $scope.getReportingRechabilityMapAttribution(); 
 				attrDiv.appendChild(attrImg);
 				pageElementDom.appendChild(attrDiv);
-				// also create the legend manually
-				let prevLegendDiv = pageDom.querySelector(".map-legend")
-				if(prevLegendDiv) prevLegendDiv.remove();
-				let legendDiv = document.createElement("div")
-				legendDiv.classList.add("map-legend")
-				legendDiv.style.position = "absolute";
-				legendDiv.style.bottom = 0;
-				legendDiv.style.right = 0;
-				legendDiv.style.zIndex = 800;
-				let legendImg = await kommonitorDiagramHelperService.createReportingReachabilityMapLegend(echartsOptions, $scope.selectedSpatialUnit, $scope.isochronesRangeType, $scope.isochronesRangeUnits);
-				legendDiv.appendChild(legendImg);
-				pageElementDom.appendChild(legendDiv)
+
+				if($scope.template.name.includes("reachability")){
+					// also create the reachability specific legend manually
+					let prevLegendDiv = pageDom.querySelector(".map-legend")
+					if(prevLegendDiv) prevLegendDiv.remove();
+					let legendDiv = document.createElement("div")
+					legendDiv.classList.add("map-legend")
+					legendDiv.style.position = "absolute";
+					legendDiv.style.bottom = 0;
+					legendDiv.style.right = 0;
+					legendDiv.style.zIndex = 800;
+					let legendImg = await kommonitorDiagramHelperService.createReportingReachabilityMapLegend(echartsOptions, $scope.selectedSpatialUnit, $scope.isochronesRangeType, $scope.isochronesRangeUnits);
+					legendDiv.appendChild(legendImg);
+					pageElementDom.appendChild(legendDiv)
+				}
+				
 
 				// echarts uses [lon, lat], leaflet uses [lat, lon]
 				let boundingCoords = echartsOptions.series[0].boundingCoords;
@@ -1861,6 +1872,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				if(page.area && page.area.length) {
 					let feature = $scope.geoJsonForReachability_byFeatureName.get(page.area);
 					spatialUnitFeatureId = feature.properties[__env.FEATURE_ID_PROPERTY_NAME];
+
 					// set bounding box to this feature
 					let featureBbox = feature.properties.bbox;
 					westLon = featureBbox[0];
@@ -1888,11 +1900,15 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					series.aspectScale = 0.625
 					series.boundingCoords = boundingCoords
 				}
-				// also for the invisible geo component to update pois
-				echartsOptions.geo[0].top = 0;
-				echartsOptions.geo[0].bottom = 0;
-				echartsOptions.geo[0].aspectScale = 0.625
-				echartsOptions.geo[0].boundingCoords = boundingCoords
+
+				if($scope.template.name.includes("reachability")){
+					// also for the invisible geo component to update pois
+					echartsOptions.geo[0].top = 0;
+					echartsOptions.geo[0].bottom = 0;
+					echartsOptions.geo[0].aspectScale = 0.625
+					echartsOptions.geo[0].boundingCoords = boundingCoords
+				}
+				
 
 				// echartsMap.setOption(echartsOptions, {
 				// 	notMerge: true
@@ -1926,7 +1942,10 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					}
 									
 				});					
-				leafletLayer.addTo(leafletMap);						
+				leafletLayer.addTo(leafletMap);		
+				
+				// set selected base map in order to make it available in reporting overview
+				pageElement.selectedBaseMap = $scope.selectedBaseMap;
 
 				// add leaflet map to pageElement in case we need it again later
 				pageElement.leafletMap = leafletMap;
@@ -1956,15 +1975,6 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				// poiMarkerLayer.addTo(leafletMap);
 
 				pageElement.leafletBbox = bounds;
-
-				if(pageIdx === $scope.template.pages.length-1) {
-					$scope.loadingData = false;
-				}
-			// }, 0, false, page, pageElement, map)
-
-			$scope.loadingData = false;
-
-			return map;
 		}
 
 		$scope.filterBaseMaps = function(){
@@ -2146,6 +2156,9 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			options = enableManualLabelPositioningAcrossPages(page, options, map)
 			
 			map.setOption(options);
+
+			await $scope.initLeafletMapBeneathEchartsMap(page, pageElement, map);
+
 			return map;
 		}
 
@@ -3005,14 +3018,21 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			if($scope.selectedIndicator) {
 				$scope.geoJsonForSelectedIndicator_byFeatureName = new Map();
 				for(let feature of $scope.selectedIndicator.geoJSON.features) {
+					if(!feature.properties.bbox)
+						feature.properties.bbox = turf.bbox(feature);
+
 					$scope.geoJsonForSelectedIndicator_byFeatureName.set(feature.properties.NAME, feature)
 				}
+				$scope.geoJsonForReachability_byFeatureName = $scope.geoJsonForSelectedIndicator_byFeatureName;
 			} else {
 				$scope.geoJsonForReachability_byFeatureName = new Map();
 
 				for(let feature of $scope.geoJsonForReachability.features) {
+					if(!feature.properties.bbox)
+						feature.properties.bbox = turf.bbox(feature);
 					$scope.geoJsonForReachability_byFeatureName.set(feature.properties.NAME, feature)
 				}	
+				$scope.geoJsonForSelectedIndicator_byFeatureName = $scope.geoJsonForReachability_byFeatureName
 			}	
 
 			// We need a separate counter for page index because we iterate over the pages array.
