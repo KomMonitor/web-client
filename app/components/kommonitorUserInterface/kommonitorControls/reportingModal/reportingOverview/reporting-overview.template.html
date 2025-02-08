@@ -168,10 +168,15 @@
                         &nbsp;&nbsp;Einstellungen exportieren
                     </button>
                     <button type="button" class="btn btn-success pull-right" data-toggle="modal" data-target="#reporting-report-formats-selection"
-                        ng-disabled="loadingData || config.indicators.length == 0">
+                        ng-disabled="loadingData || config.indicators.length == 0 || ! $ctrl.kommonitorLeafletScreenshotCacheHelperServiceInstance.screenshotsForCurrentSpatialUnitUpdate">
                         <i class="fa fa-copy"></i>
                         &nbsp;&nbsp;Report erzeugen
                     </button> 
+
+                    <button ng-disabled="true" style="margin-right: 15px;" ng-show="! $ctrl.kommonitorLeafletScreenshotCacheHelperServiceInstance.screenshotsForCurrentSpatialUnitUpdate" type="button" class="btn btn-info pull-right">
+                        <span class="glyphicon glyphicon-refresh icon-spin"></span>
+                        <span>Kartenbildaufbereitung: {{$ctrl.kommonitorLeafletScreenshotCacheHelperServiceInstance.executedScreenshotMapKeys.size}} von {{$ctrl.kommonitorLeafletScreenshotCacheHelperServiceInstance.targetNumberOfSpatialUnitFeatures}}</span>
+                    </button>
                 </div>
             </div>
         </div>

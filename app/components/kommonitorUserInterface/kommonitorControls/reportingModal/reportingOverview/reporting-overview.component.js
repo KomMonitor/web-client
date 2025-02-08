@@ -1,9 +1,9 @@
 angular.module('reportingOverview').component('reportingOverview', {
 	templateUrl : "components/kommonitorUserInterface/kommonitorControls/reportingModal/reportingOverview/reporting-overview.template.html",
 	controller : ['$scope', '__env', '$timeout', '$http', 'kommonitorDataExchangeService', 'kommonitorDiagramHelperService', 
-		'kommonitorLeafletScreenshotCacheHelperService',
+		'kommonitorLeafletScreenshotCacheHelperService', '$rootScope',
 	function ReportingOverviewController($scope, __env, $timeout, $http, kommonitorDataExchangeService, kommonitorDiagramHelperService,
-		kommonitorLeafletScreenshotCacheHelperService
+		kommonitorLeafletScreenshotCacheHelperService, $rootScope
 	) {
 
 		/*
@@ -35,6 +35,9 @@ angular.module('reportingOverview').component('reportingOverview', {
 			pages: [],
 			template: {}
 		};
+
+		this.kommonitorLeafletScreenshotCacheHelperServiceInstance = kommonitorLeafletScreenshotCacheHelperService;
+
 		$scope.loadingData = false;
 		$scope.echartsImgPixelRatio = 2;
 
@@ -263,7 +266,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 								let instance = echarts.init( pElementDom );
 
 
-								if(pageElement.type === "map") {
+								if(pageElement.type === "map") {			
 									
 									if(page.area && page.area.length) {
 										// at this point we have not yet set echarts options, so we provide them as an extra parameter
@@ -423,6 +426,13 @@ angular.module('reportingOverview').component('reportingOverview', {
 			});
 		}
 
+		$rootScope.$on("screenshotsForCurrentSpatialUnitUpdate", function(event){
+			// update ui to enable button
+			$timeout(function() {
+				$scope.$digest();
+			})			
+		});
+
 		$scope.initializeLeafletMap = async function(page, pageElement, map, spatialUnit) {
 			await $timeout(async function(page, pageElement, echartsMap, spatialUnit) {
 				let pageIdx = $scope.config.pages.indexOf(page);
@@ -501,7 +511,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 				page.spatialUnitId = spatialUnit.spatialUnitId;			
 				if(page.area){
 					let feature = $scope.geoJsonForReachability_byFeatureName.get(page.area);
-					spatialUnitFeatureId = feature.properties[__env.FEATURE_ID_PROPERTY_NAME];
+					let spatialUnitFeatureId = feature.properties[__env.FEATURE_ID_PROPERTY_NAME];
 					page.spatialUnitFeatureId = spatialUnitFeatureId;
 				}						
 				
@@ -516,11 +526,25 @@ angular.module('reportingOverview').component('reportingOverview', {
 				  }
 				  else if (pageElement.selectedBaseMap.layerConfig.layerType === "WMS"){
 					leafletLayer = new L.tileLayer.wms(pageElement.selectedBaseMap.layerConfig.url, { layers: pageElement.selectedBaseMap.layerConfig.layerName_WMS, format: 'image/jpeg' })
-				  }				
+				  }	
+				  else{
+					// i.e. if on import no baseLayer was available
+					// backup: set empty layer
+					leafletLayer = new L.tileLayer("");
+				  }			
 				// use the "load" event of the tile layer to hook a function that is triggered once every visible tile is fully loaded
 				// here we ntend to make a screenshot of the leaflet image as a background task in order to boost up report preview generation 
 				// for all spatial unit features		
-				let domNode = leafletMap["_container"];					
+				let domNode = leafletMap["_container"];	
+				leafletLayer.on("load", function() { 
+					// there are pages for two page orientations (landscape and portait)
+					// only trigger the screenshot for those pages, that are actually present
+					if(page.orientation == $scope.config.template.orientation){
+						kommonitorLeafletScreenshotCacheHelperService.checkForScreenshot(spatialUnit.spatialUnitId, 
+							page.spatialUnitFeatureId, page.orientation, domNode);
+					}
+									
+				});					
 				leafletLayer.addTo(leafletMap);		
 
 				// add leaflet map to pageElement in case we need it again later
@@ -650,6 +674,22 @@ angular.module('reportingOverview').component('reportingOverview', {
 			pElementDom.appendChild(table);
 		}
 
+		$scope.getNumberOfMapElements = function(config){
+			let firstSection = config.templateSections[0];
+
+			if (firstSection){
+				let numberOfMapItems = firstSection.echartsRegisteredMapNames.length;
+				// -1 because city overview map might occur twice with separate names
+				if (! config.template.name.includes("reachability")){
+					numberOfMapItems --;
+				}
+				
+				return numberOfMapItems;
+			}
+			else{
+				return 0;
+			}
+		};
 
 		$scope.importConfig = function(config) {
 			$scope.loadingData = true;
@@ -657,6 +697,11 @@ angular.module('reportingOverview').component('reportingOverview', {
 				$scope.$digest();
 			});
 			try {
+
+				let numberOfMapElements = $scope.getNumberOfMapElements(config);		
+				// reset leaflet screenshot helper service according to new  number of selected areas
+				kommonitorLeafletScreenshotCacheHelperService.resetCounter(numberOfMapElements);						
+
 				// restore commune logo for every page, starting at the second
 				let communeLogoSrc = ""; // base64 string
 				for(let [idx, page] of config.pages.entries()) {
@@ -711,6 +756,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 						}
 					}
 				}
+				
 				$timeout(function(){
 					$scope.$digest();
 				});
@@ -718,6 +764,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 				for(let section of $scope.config.templateSections) {
 					$scope.setupNewPages(section);
 				}
+
 			} catch (error) {
 				console.error(error);
 				$scope.loadingData = false;
