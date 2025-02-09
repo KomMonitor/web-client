@@ -65,6 +65,7 @@ export interface Indicator {
   referencedIndicators: any;
   referencedGeoresources: any;
   isHeadlineIndicator: boolean;
+  defaultClassificationMapping: any;
 }
 
 @Injectable({

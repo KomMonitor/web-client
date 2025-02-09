@@ -30,6 +30,7 @@ import { KommonitorLegendComponent } from 'components/ngComponents/userInterface
 import { NgbCalendar, NgbDatepickerModule, NgbDateStruct, NgbAccordionModule, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
 import { JsonPipe } from '@angular/common';
+import { KommonitorClassificationComponent } from './components/ngComponents/userInterface/kommonitorClassification/kommonitor-classification.component';
 
 
 // currently the AngularJS routing is still used as part of kommonitorClient module
@@ -60,7 +61,8 @@ declare var MathJax;
   ],
   declarations: [
     InfoModalComponent,
-    KommonitorLegendComponent
+    KommonitorLegendComponent,
+    KommonitorClassificationComponent
   ]
 })
 

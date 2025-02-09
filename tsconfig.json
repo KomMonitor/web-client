@@ -24,7 +24,7 @@
         "dom"
       ],
       "allowSyntheticDefaultImports": true,
-      "types": ["jquery", "mathjax"],
+      "types": ["jquery", "mathjax"]
     },
     "angularCompilerOptions": {
       "enableI18nLegacyMessageIdFormat": false,
