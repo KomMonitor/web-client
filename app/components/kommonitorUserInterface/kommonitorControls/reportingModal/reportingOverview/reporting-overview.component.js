@@ -67,10 +67,66 @@ angular.module('reportingOverview').component('reportingOverview', {
 			$scope.initialize(data);
 		})
 
-		$scope.onPageTurnClicked = function(orientation, index) {
-			let temp = $scope.config.pages[index];
-			$scope.config.pages[index] = $scope.config.pages[index + 1];
-			$scope.config.pages[index + 1] = temp;
+		$scope.onPageTurnClicked = async function(orientation, index) {
+			let old_page = $scope.config.pages[index];
+			let new_page = $scope.config.pages[index + 1];
+			$scope.config.pages[index] = new_page;
+			$scope.config.pages[index + 1] = old_page;
+
+			$timeout(function(){
+				$scope.$digest();
+			});
+
+			setTimeout(async function(){
+				// reinit map component
+
+				// we must generate the new leaflet screenshot!
+				let mapElements = new_page.pageElements.filter(item => item.type == 'map');
+				for (const mapElement of mapElements) {
+					if(mapElement && mapElement.leafletMap){
+
+						if(new_page.area && new_page.area.length){
+							let feature = $scope.geoJsonForReachability_byFeatureName.get(new_page.area);
+							
+							// if(! feature.properties.bbox){
+							// 	feature.properties.bbox = turf.bbox(feature);
+							// }
+
+							let newBounds = L.geoJSON(feature).getBounds();
+							mapElement.leafletMap.fitBounds(newBounds);	
+						}
+						else{
+							let features = $scope.geoJsonForReachability_byFeatureName.get("undefined");
+
+							let newBounds = L.geoJSON(features).getBounds();
+							mapElement.leafletMap.fitBounds(newBounds, {animate: false});	
+						}
+
+						setTimeout(() => {
+							mapElement.leafletMap.invalidateSize();
+	
+							// let pElementDom = pageDom.querySelector("#reporting-overview-page-" + index + "-map");
+		
+							// let instance = echarts.getInstanceByDom(pElementDom);
+		
+							kommonitorLeafletScreenshotCacheHelperService.resetCounter(1);
+							let domNode = mapElement.leafletMap["_container"];	
+		
+							// await $scope.initializeLeafletMap(page, pageElement, instance, spatialUnit)
+		
+							kommonitorLeafletScreenshotCacheHelperService.checkForScreenshot(new_page.spatialUnitId, 
+								new_page.spatialUnitFeatureId, new_page.orientation, domNode);		
+								
+								$timeout(function(){
+									$scope.$digest();
+								});
+						}, 250);
+
+					}		
+				}
+					
+			}, 250)
+	
 		}
 
 		$scope.onConfigureNewIndicatorClicked = function() {
@@ -221,7 +277,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 							// We only need to query features on the first page that we add
 							if(isFirstPageToAdd) {
 								isFirstPageToAdd = false;
-								spatialUnit = await $scope.getSpatialUnitByIndicator(indicatorId, page.templateSection.spatialUnitName)
+								spatialUnit = await $scope.getSpatialUnitByIndicator(indicatorId, page.templateSection.spatialUnitName)						
 								featureCollection = await $scope.queryFeatures(indicatorId, spatialUnit);
 								features = $scope.createLowerCaseNameProperty(featureCollection.features);
 
@@ -230,6 +286,8 @@ angular.module('reportingOverview').component('reportingOverview', {
 								for(let feature of features) {
 									$scope.geoJsonForReachability_byFeatureName.set(feature.properties.NAME, feature)
 								}	
+
+								$scope.geoJsonForReachability_byFeatureName.set("undefined", features);
 								
 								geoJSON = { features: features };
 
@@ -376,6 +434,8 @@ angular.module('reportingOverview').component('reportingOverview', {
 						for(let feature of features) {
 							$scope.geoJsonForReachability_byFeatureName.set(feature.properties.NAME, feature)
 						}	
+						
+						$scope.geoJsonForReachability_byFeatureName.set("undefined", features);
 
 					}
 				}
@@ -504,8 +564,28 @@ angular.module('reportingOverview').component('reportingOverview', {
 				// we have the bbox stored in config
 				// pageElement.leafletBbox is invalid after export and import. Maybe because the prototype object gets removed...
 				// We create a new bounds object from the stored data
-				let bounds = L.latLngBounds(pageElement.leafletBbox._southWest, pageElement.leafletBbox._northEast);
-				leafletMap.fitBounds( bounds );
+				// let bounds = L.latLngBounds(pageElement.leafletBbox._southWest, pageElement.leafletBbox._northEast);
+
+					// boundingCoords = [ [bounds.getWest(), bounds.getNorth()], [bounds.getEast(), bounds.getSouth()]]
+					let boundingCoords = echartsOptions.series[0].boundingCoords;
+
+					// set bounding box to this feature
+					let westLon = boundingCoords[0][0];
+					let southLat = boundingCoords[1][1];
+					let eastLon = boundingCoords[1][0];
+					let northLat = boundingCoords[0][1];
+
+				// Add 2% space on all sides
+				// let divisor = 50;
+				// let bboxHeight = northLat - southLat;
+				// let bboxWidth = eastLon - westLon;
+				// northLat += bboxHeight/divisor;
+				// southLat -= bboxHeight/divisor;
+				// eastLon += bboxWidth/divisor;
+				// westLon -= bboxWidth/divisor;
+
+				leafletMap.fitBounds( [[southLat, westLon], [northLat, eastLon]] );
+				// leafletMap.fitBounds( bounds );
 
 				// store spatial unit and feature id to page in order to access it later when the screenshot is needed
 				page.spatialUnitId = spatialUnit.spatialUnitId;			

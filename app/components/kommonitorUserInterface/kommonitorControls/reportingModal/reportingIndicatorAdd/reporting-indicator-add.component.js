@@ -1882,18 +1882,19 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				}
 
 				// Add 2% space on all sides
-				let divisor = 50;
-				let bboxHeight = northLat - southLat;
-				let bboxWidth = eastLon - westLon;
-				northLat += bboxHeight/divisor;
-				southLat -= bboxHeight/divisor;
-				eastLon += bboxWidth/divisor;
-				westLon -= bboxWidth/divisor;
+				// let divisor = 50;
+				// let bboxHeight = northLat - southLat;
+				// let bboxWidth = eastLon - westLon;
+				// northLat += bboxHeight/divisor;
+				// southLat -= bboxHeight/divisor;
+				// eastLon += bboxWidth/divisor;
+				// westLon -= bboxWidth/divisor;
 
 				leafletMap.fitBounds( [[southLat, westLon], [northLat, eastLon]] );
 				let bounds = leafletMap.getBounds()
-				// now update every echarts series
-				boundingCoords = [ [bounds.getWest(), bounds.getNorth()], [bounds.getEast(), bounds.getSouth()]]
+				// // now update every echarts series
+				// boundingCoords = [ [bounds.getWest(), bounds.getNorth()], [bounds.getEast(), bounds.getSouth()]]
+				boundingCoords = [ [westLon, northLat], [eastLon, southLat]]
 				for(let series of echartsOptions.series) {
 					series.top = 0;
 					series.bottom = 0;
@@ -1901,13 +1902,17 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					series.boundingCoords = boundingCoords
 				}
 
-				if($scope.template.name.includes("reachability")){
-					// also for the invisible geo component to update pois
-					echartsOptions.geo[0].top = 0;
-					echartsOptions.geo[0].bottom = 0;
-					echartsOptions.geo[0].aspectScale = 0.625
-					echartsOptions.geo[0].boundingCoords = boundingCoords
-				}
+				// if($scope.template.name.includes("reachability")){
+				// 	// also for the invisible geo component to update pois
+				// 	echartsOptions.geo[0].top = 0;
+				// 	echartsOptions.geo[0].bottom = 0;
+				// 	echartsOptions.geo[0].aspectScale = 0.625
+				// 	echartsOptions.geo[0].boundingCoords = boundingCoords
+				// }
+				echartsOptions.geo[0].top = 0;
+				echartsOptions.geo[0].bottom = 0;
+				echartsOptions.geo[0].aspectScale = 0.625
+				echartsOptions.geo[0].boundingCoords = boundingCoords
 				
 
 				// echartsMap.setOption(echartsOptions, {
@@ -2056,8 +2061,18 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			let series = options.series[0];
 			series.roam = false;
 			series.selectedMode = false;
-			
-			
+
+			let overallBbox = calculateOverallBoundingBoxFromGeoJSON($scope.selectedIndicator.geoJSON.features)
+
+			options.geo = {
+				map: mapName,
+				z: 1,
+				itemStyle: {
+					opacity: 0
+				},
+				roam: false,
+				boundingCoords: overallBbox,
+			};
 
 			if(pageElement.isTimeseries) {
 				let includeInBetweenDates = true;
