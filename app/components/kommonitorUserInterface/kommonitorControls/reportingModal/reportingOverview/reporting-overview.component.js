@@ -85,42 +85,51 @@ angular.module('reportingOverview').component('reportingOverview', {
 				for (const mapElement of mapElements) {
 					if(mapElement && mapElement.leafletMap){
 
-						if(new_page.area && new_page.area.length){
-							let feature = $scope.geoJsonForReachability_byFeatureName.get(new_page.area);
+						kommonitorLeafletScreenshotCacheHelperService.resetCounter(1, false);
+						$timeout(function(){
+							$scope.$digest();
+						});
+						let domNode = mapElement.leafletMap["_container"];	
+
+						let pageDom = document.querySelector("#reporting-overview-page-" + index);
+						let pElementDom = pageDom.querySelector("#reporting-overview-page-" + index + "-map");
+						let instance = echarts.getInstanceByDom(pElementDom);
+						$scope.initializeLeafletMap(new_page, mapElement, instance, $scope.currentSpatialUnit, true)
+
+			// 			if(new_page.area && new_page.area.length){
+			// 				let feature = $scope.geoJsonForReachability_byFeatureName.get(new_page.area);
 							
-							// if(! feature.properties.bbox){
-							// 	feature.properties.bbox = turf.bbox(feature);
-							// }
+			// 				// if(! feature.properties.bbox){
+			// 				// 	feature.properties.bbox = turf.bbox(feature);
+			// 				// }
 
-							let newBounds = L.geoJSON(feature).getBounds();
-							mapElement.leafletMap.fitBounds(newBounds);	
-						}
-						else{
-							let features = $scope.geoJsonForReachability_byFeatureName.get("undefined");
+			// 				let newBounds = L.geoJSON(feature).getBounds();
+			// 				mapElement.leafletMap.fitBounds(newBounds);	
+			// 			}
+			// 			else{
+			// 				let features = $scope.geoJsonForReachability_byFeatureName.get("undefined");
 
-							let newBounds = L.geoJSON(features).getBounds();
-							mapElement.leafletMap.fitBounds(newBounds, {animate: false});	
-						}
+			// 				let newBounds = L.geoJSON(features).getBounds();
+			// 				mapElement.leafletMap.fitBounds(newBounds, {animate: false});	
+			// 			}
 
-						setTimeout(() => {
-							mapElement.leafletMap.invalidateSize();
-	
-							// let pElementDom = pageDom.querySelector("#reporting-overview-page-" + index + "-map");
+			// 			setTimeout(() => {
+			// 				mapElement.leafletMap.invalidateSize();
 		
-							// let instance = echarts.getInstanceByDom(pElementDom);
+							
 		
-							kommonitorLeafletScreenshotCacheHelperService.resetCounter(1);
-							let domNode = mapElement.leafletMap["_container"];	
+			// 				kommonitorLeafletScreenshotCacheHelperService.resetCounter(1, false);
+			// 				let domNode = mapElement.leafletMap["_container"];	
 		
-							// await $scope.initializeLeafletMap(page, pageElement, instance, spatialUnit)
+							
 		
-							kommonitorLeafletScreenshotCacheHelperService.checkForScreenshot(new_page.spatialUnitId, 
-								new_page.spatialUnitFeatureId, new_page.orientation, domNode);		
+			// 				kommonitorLeafletScreenshotCacheHelperService.checkForScreenshot(new_page.spatialUnitId, 
+			// 					new_page.spatialUnitFeatureId, new_page.orientation, domNode);		
 								
-								$timeout(function(){
-									$scope.$digest();
-								});
-						}, 250);
+			// 					$timeout(function(){
+			// 						$scope.$digest();
+			// 					});
+			// 			}, 250);
 
 					}		
 				}
@@ -277,7 +286,8 @@ angular.module('reportingOverview').component('reportingOverview', {
 							// We only need to query features on the first page that we add
 							if(isFirstPageToAdd) {
 								isFirstPageToAdd = false;
-								spatialUnit = await $scope.getSpatialUnitByIndicator(indicatorId, page.templateSection.spatialUnitName)						
+								spatialUnit = await $scope.getSpatialUnitByIndicator(indicatorId, page.templateSection.spatialUnitName)	
+								$scope.currentSpatialUnit = spatialUnit;					
 								featureCollection = await $scope.queryFeatures(indicatorId, spatialUnit);
 								features = $scope.createLowerCaseNameProperty(featureCollection.features);
 
@@ -357,7 +367,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 								instance.setOption(pageElement.echartsOptions)
 
 								if(pageElement.type === "map") {
-									await $scope.initializeLeafletMap(page, pageElement, instance, spatialUnit)
+									await $scope.initializeLeafletMap(page, pageElement, instance, spatialUnit, false)
 								}
 							}
 
@@ -476,7 +486,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 
 						instance.setOption( pageElement.echartsOptions )
 
-						await $scope.initializeLeafletMap(page, pageElement, instance, spatialUnit)
+						await $scope.initializeLeafletMap(page, pageElement, instance, spatialUnit, false)
 					}
 				}
 			}
@@ -493,7 +503,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 			})			
 		});
 
-		$scope.initializeLeafletMap = async function(page, pageElement, map, spatialUnit) {
+		$scope.initializeLeafletMap = async function(page, pageElement, map, spatialUnit, forceScreenshot) {
 			await $timeout(async function(page, pageElement, echartsMap, spatialUnit) {
 				let pageIdx = $scope.config.pages.indexOf(page);
 				let id = "reporting-overview-leaflet-map-container-" + pageIdx;
@@ -619,7 +629,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 				leafletLayer.on("load", function() { 
 					// there are pages for two page orientations (landscape and portait)
 					// only trigger the screenshot for those pages, that are actually present
-					if(page.orientation == $scope.config.template.orientation){
+					if(forceScreenshot || (page.orientation == $scope.config.template.orientation)){
 						kommonitorLeafletScreenshotCacheHelperService.checkForScreenshot(spatialUnit.spatialUnitId, 
 							page.spatialUnitFeatureId, page.orientation, domNode);
 					}
@@ -780,7 +790,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 
 				let numberOfMapElements = $scope.getNumberOfMapElements(config);		
 				// reset leaflet screenshot helper service according to new  number of selected areas
-				kommonitorLeafletScreenshotCacheHelperService.resetCounter(numberOfMapElements);						
+				kommonitorLeafletScreenshotCacheHelperService.resetCounter(numberOfMapElements, true);						
 
 				// restore commune logo for every page, starting at the second
 				let communeLogoSrc = ""; // base64 string

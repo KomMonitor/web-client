@@ -110,9 +110,12 @@ angular
       }
 
       // reset will not empty the current map of screeshots, instead it just resets the counter
-      this.resetCounter = function (targetNumberOfSpatialUnitFeatures) {
+      this.resetCounter = function (targetNumberOfSpatialUnitFeatures, clearCacheMap) {
         this.targetNumberOfSpatialUnitFeatures = targetNumberOfSpatialUnitFeatures;
         this.executedScreenshotMapKeys = new Map();
+        if (clearCacheMap){
+          this.cacheMap = new Map();
+        }
         this.screenshotsForCurrentSpatialUnitUpdate = false;
 
         // create progress log after each 10th percent of features
@@ -122,8 +125,11 @@ angular
       }
 
       // reset will not empty the current map of screeshots, instead it just resets the counter
-      this.resetCounter_keepingCurrentTargetFeatures = function () {
+      this.resetCounter_keepingCurrentTargetFeatures = function (clearCacheMap) {
         this.executedScreenshotMapKeys = new Map();
+        if (clearCacheMap){
+          this.cacheMap = new Map();
+        }
         this.screenshotsForCurrentSpatialUnitUpdate = false;
 
         this.logProgress();

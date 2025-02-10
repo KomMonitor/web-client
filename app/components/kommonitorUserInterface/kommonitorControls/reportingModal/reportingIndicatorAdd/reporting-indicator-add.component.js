@@ -61,7 +61,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				$scope.loadingData = true; 
 			})
 
-			kommonitorLeafletScreenshotCacheHelperService.resetCounter_keepingCurrentTargetFeatures();
+			kommonitorLeafletScreenshotCacheHelperService.resetCounter_keepingCurrentTargetFeatures(true);
 			await $scope.initializeAllDiagrams();			
 
 			$timeout(function(){
@@ -100,7 +100,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			// reset leaflet screenshot helper service according to new  number of selected areas
 			// add one page to display the total map of all selected spatial unit features
 			numberOfTargetSpatialUnitFeatures ++;				
-			kommonitorLeafletScreenshotCacheHelperService.resetCounter(numberOfTargetSpatialUnitFeatures);
+			kommonitorLeafletScreenshotCacheHelperService.resetCounter(numberOfTargetSpatialUnitFeatures, false);
 
 
 			if($scope.template.name.includes("timestamp"))
@@ -917,7 +917,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				// add one page to display the total map of all selected spatial unit features
 				numberOfTargetSpatialUnitFeatures ++;
 				
-				kommonitorLeafletScreenshotCacheHelperService.resetCounter(numberOfTargetSpatialUnitFeatures);
+				kommonitorLeafletScreenshotCacheHelperService.resetCounter(numberOfTargetSpatialUnitFeatures, false);
 			}
 			
 
