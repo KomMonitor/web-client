@@ -89,47 +89,11 @@ angular.module('reportingOverview').component('reportingOverview', {
 						$timeout(function(){
 							$scope.$digest();
 						});
-						let domNode = mapElement.leafletMap["_container"];	
 
 						let pageDom = document.querySelector("#reporting-overview-page-" + index);
 						let pElementDom = pageDom.querySelector("#reporting-overview-page-" + index + "-map");
 						let instance = echarts.getInstanceByDom(pElementDom);
 						$scope.initializeLeafletMap(new_page, mapElement, instance, $scope.currentSpatialUnit, true)
-
-			// 			if(new_page.area && new_page.area.length){
-			// 				let feature = $scope.geoJsonForReachability_byFeatureName.get(new_page.area);
-							
-			// 				// if(! feature.properties.bbox){
-			// 				// 	feature.properties.bbox = turf.bbox(feature);
-			// 				// }
-
-			// 				let newBounds = L.geoJSON(feature).getBounds();
-			// 				mapElement.leafletMap.fitBounds(newBounds);	
-			// 			}
-			// 			else{
-			// 				let features = $scope.geoJsonForReachability_byFeatureName.get("undefined");
-
-			// 				let newBounds = L.geoJSON(features).getBounds();
-			// 				mapElement.leafletMap.fitBounds(newBounds, {animate: false});	
-			// 			}
-
-			// 			setTimeout(() => {
-			// 				mapElement.leafletMap.invalidateSize();
-		
-							
-		
-			// 				kommonitorLeafletScreenshotCacheHelperService.resetCounter(1, false);
-			// 				let domNode = mapElement.leafletMap["_container"];	
-		
-							
-		
-			// 				kommonitorLeafletScreenshotCacheHelperService.checkForScreenshot(new_page.spatialUnitId, 
-			// 					new_page.spatialUnitFeatureId, new_page.orientation, domNode);		
-								
-			// 					$timeout(function(){
-			// 						$scope.$digest();
-			// 					});
-			// 			}, 250);
 
 					}		
 				}
