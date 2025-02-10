@@ -262,16 +262,16 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 
 			$scope.applicableDates = [];
 
-			$scope.resetApplicableSpatialUnits = function () {
-				$scope.applicableSpatialUnits = kommonitorScriptHelperService.targetIndicator.applicableSpatialUnits;
+			$scope.resetSelectableSpatialUnits = function () {
+				$scope.selectableSpatialUnits = kommonitorDataExchangeService.availableSpatialUnits;
 				kommonitorScriptHelperService.processParameters.target_spatial_units = [];
 			}
 
-			$scope.applicableSpatialUnits = [];
+			$scope.selectableSpatialUnits = [];
 
 			$scope.onTargetIndicatorChanged = function (){
 				$scope.resetApplicableDates();
-				$scope.resetApplicableSpatialUnits();
+				$scope.resetSelectableSpatialUnits();
 			}
 
 			

@@ -261,10 +261,10 @@
 											<label>Raumeinheiten</label>
 											<ui-select width="max-content" multiple ng-model="$ctrl.kommonitorScriptHelperServiceInstance.processParameters.target_spatial_units">
 												<ui-select-match placeholder="Raumeinheiten auswählen">
-													{{$item.spatialUnitName}}
+													{{$item.spatialUnitLevel}}
 												</ui-select-match>
-												<ui-select-choices repeat="spatialUnit.spatialUnitId as spatialUnit in applicableSpatialUnits | filter: $select.search">
-														{{spatialUnit.spatialUnitName}}
+												<ui-select-choices repeat="spatialUnit.spatialUnitId as spatialUnit in selectableSpatialUnits | filter: $select.search">
+														{{spatialUnit.spatialUnitLevel}}
 												</ui-select-choices>
 											</ui-select>
 											<div class="help-block with-errors"></div>
