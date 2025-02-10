@@ -8,6 +8,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 		this.kommonitorLeafletScreenshotCacheHelperServiceInstance = kommonitorLeafletScreenshotCacheHelperService;
 
+		const mercatorProjection_d3 = d3.geoMercator();
+
 		$scope.template = undefined;
 		$scope.untouchedTemplateAsString = "";
 		
@@ -1788,7 +1790,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				replaceMerge: ['series', 'geo']
 			})
 
-			await $scope.initLeafletMapBeneathEchartsMap(page, pageElement, map);
+			// await $scope.initLeafletMapBeneathEchartsMap(page, pageElement, map);
 
 			$scope.loadingData = false;
 
@@ -1867,18 +1869,9 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				let eastLon = boundingCoords[1][0];
 				let northLat = boundingCoords[0][1];
 
-				let spatialUnitFeatureId;
-
-				if(page.area && page.area.length) {
+				if(page.area && page.area.length){
 					let feature = $scope.geoJsonForReachability_byFeatureName.get(page.area);
-					spatialUnitFeatureId = feature.properties[__env.FEATURE_ID_PROPERTY_NAME];
-
-					// set bounding box to this feature
-					let featureBbox = feature.properties.bbox;
-					westLon = featureBbox[0];
-					southLat = featureBbox[1];
-					eastLon = featureBbox[2];
-					northLat = featureBbox[3];
+					page.spatialUnitFeatureId = feature.properties[__env.FEATURE_ID_PROPERTY_NAME];
 				}
 
 				// Add 2% space on all sides
@@ -1893,25 +1886,28 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				leafletMap.fitBounds( [[southLat, westLon], [northLat, eastLon]] );
 				let bounds = leafletMap.getBounds()
 				// // now update every echarts series
-				// boundingCoords = [ [bounds.getWest(), bounds.getNorth()], [bounds.getEast(), bounds.getSouth()]]
-				boundingCoords = [ [westLon, northLat], [eastLon, southLat]]
+				boundingCoords = [ [bounds.getWest(), bounds.getNorth()], [bounds.getEast(), bounds.getSouth()]]
 				for(let series of echartsOptions.series) {
+
+					series.left = 0;
 					series.top = 0;
+					series.right = 0;
 					series.bottom = 0;
-					series.aspectScale = 0.625
-					series.boundingCoords = boundingCoords
+					series.boundingCoords = boundingCoords,
+					series.projection = {
+						project: (point) => mercatorProjection_d3(point),
+						unproject: (point) => mercatorProjection_d3.invert(point)
+					}
 				}
 
-				// if($scope.template.name.includes("reachability")){
-				// 	// also for the invisible geo component to update pois
-				// 	echartsOptions.geo[0].top = 0;
-				// 	echartsOptions.geo[0].bottom = 0;
-				// 	echartsOptions.geo[0].aspectScale = 0.625
-				// 	echartsOptions.geo[0].boundingCoords = boundingCoords
-				// }
 				echartsOptions.geo[0].top = 0;
+				echartsOptions.geo[0].left = 0;
+				echartsOptions.geo[0].right = 0;
 				echartsOptions.geo[0].bottom = 0;
-				echartsOptions.geo[0].aspectScale = 0.625
+				echartsOptions.geo[0].projection = {
+					project: (point) => mercatorProjection_d3(point),
+        			unproject: (point) => mercatorProjection_d3.invert(point)
+				}				
 				echartsOptions.geo[0].boundingCoords = boundingCoords
 				
 
@@ -1943,7 +1939,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					// only trigger the screenshot for those pages, that are actually present
 					if(page.orientation == $scope.template.orientation){
 						kommonitorLeafletScreenshotCacheHelperService.checkForScreenshot($scope.selectedSpatialUnit.spatialUnitId, 
-							spatialUnitFeatureId, page.orientation, domNode);
+							page.spatialUnitFeatureId, page.orientation, domNode);
 					}
 									
 				});					
@@ -2172,7 +2168,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			
 			map.setOption(options);
 
-			await $scope.initLeafletMapBeneathEchartsMap(page, pageElement, map);
+			// await $scope.initLeafletMapBeneathEchartsMap(page, pageElement, map);
 
 			return map;
 		}
@@ -3106,6 +3102,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 								}
 								
 							}
+							await $scope.initLeafletMapBeneathEchartsMap(page, pageElement, map);
+
 							pageElement.isPlaceholder = false;
 							break;
 						}

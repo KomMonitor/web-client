@@ -69,6 +69,8 @@
     "code-prettify": "^0.1.0",
     "codemirror": "^5.65.18",
     "crypto-js": "^4.2.0",
+    "d3": "^7.9.0",
+    "d3-geo": "^3.1.1",
     "docx": "^7.8.2",
     "dom-to-image-more": "^2.6.0",
     "echarts": "^5.5.1",
