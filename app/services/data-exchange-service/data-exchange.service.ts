@@ -44,6 +44,8 @@ export interface DataExchange {
   selectedFeaturesMax: any;
   labelSpatiallyUnassignable_regional: any;
   allFeaturesRegionalSpatiallyUnassignable: any;
+  classifyUsingWholeTimeseries: any;
+  useNoDataToggle: any;
 }
 
 export interface SpatialUnit {

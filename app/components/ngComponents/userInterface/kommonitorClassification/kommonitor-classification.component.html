@@ -81,10 +81,10 @@
           <!-- measure of Value -->
           <!--<div class="breakWrapper measureOfValue"
                 style="top: {{getPercentage(kommonitorDataExchangeServiceInstance.measureOfValue)}}%"
-                ng-mousedown="onBreakMouseMove($event)">
+                (mousedown)="onBreakMouseMove($event)">
             <div class ="break">
               <input type="number" 
-                      ng-model="kommonitorDataExchangeServiceInstance.measureOfValue">
+                      [(ngModel)]="kommonitorDataExchangeServiceInstance.measureOfValue">
               <i class="fa-regular fa-trash-can"></i>
             </div>
             <div class="line"></div>
@@ -93,23 +93,23 @@
           <div class="breakWrapper"
                 *ngFor="let b of visualStyleData.manualBrew.breaks; let i = index"
                 [ngStyle]="{top: getPercentage(b, 0)+'%'}"
-                ng-mousedown="onBreakMouseDown($event, i, 0)"
-                ng-dblclick="onBreakDblClick($event, i, 0)"
-                ng-class="{'fixed': i === 0 || i === visualStyleData.manualBrew.breaks.length-1}">
+                (mousedown)="onBreakMouseDown($event, i, 0)"
+                (dblclick)="onBreakDblClick($event, i, 0)"
+                [ngClass]="{'fixed': i === 0 || i === visualStyleData.manualBrew.breaks.length-1}">
             <div class="break"
-                  ng-class="{'fixed': i === 0 || i === visualStyleData.manualBrew.breaks.length-1}">
+                  [ngClass]="{'fixed': i === 0 || i === visualStyleData.manualBrew.breaks.length-1}">
               <!--<div class="colorBox"></div>-->
               <input type="number"
-                      ng-blur="onBreaksChanged($event, i, 0)"
-                      ng-model-options="{ updateOn: 'blur', allowInvalid: false }"
+                      (blur)="onBreaksChanged($event, i, 0)"
+                      [ngModelOptions]="{ updateOn: 'blur' }"
                       disabled
-                      ng-class="{'fixed': i === 0 || i === visualStyleData.manualBrew.breaks.length-1}"
+                      [ngClass]="{'fixed': i === 0 || i === visualStyleData.manualBrew.breaks.length-1}"
                       min="{{visualStyleData.manualBrew.breaks[0]}}"
                       max="{{visualStyleData.manualBrew.breaks[visualStyleData.manualBrew.breaks.length - 1]}}"
-                      ng-model="visualStyleData.manualBrew.breaks[i]">
+                      [(ngModel)]="visualStyleData.manualBrew.breaks[i]">
               <i class="fa-regular fa-trash-can" 
-                  ng-click="deleteBreak(i, 0)"
-                  ng-if="i != 0 && i != visualStyleData.manualBrew.breaks.length-1"></i>
+                  (click)="deleteBreak(i, 0)"
+                  *ngIf="i != 0 && i != visualStyleData.manualBrew.breaks.length-1"></i>
             </div>
             <div class="line"></div>
           </div>
@@ -131,15 +131,15 @@
           <!-- add btn -->
           <div class="addBtnWrapper breakWrapper"
                 [ngStyle]="{top: addBtnHeight[0]+'px'}"
-                ng-if="showAddBtn[0]"
+                *ngIf="showAddBtn[0]"
                 (mouseover)="toggleAddBtn($event, 0)">
-            <div class="addBtn" ng-click="addNewBreaks(0)">+</div>
+            <div class="addBtn" (click)="addNewBreaks(0)">+</div>
             <div class="line"></div>
           </div>
           <!-- measure of Value -->
           <div class="breakWrapper measureOfValue"
                 [ngStyle]="{top: getPercentage(exchangeData.measureOfValue, 0)+'%'}"
-                ng-mousedown="onBreaksMouseMove($event, 0)">
+                (mousedown)="onBreaksMouseMove($event, 0)">
             <div class ="break fixed">
               <!--<div class="colorBox"></div>-->
               <span>{{exchangeData.measureOfValue}}</span>
@@ -149,22 +149,22 @@
           <!-- other breaks -->
           <div class="breakWrapper" *ngFor="let b of visualStyleData.manualBrew.breaks; let i = index"
                 [ngStyle]="{top: getPercentage(b, 0)+'%'}"
-                ng-mousedown="onBreakMouseDown($event, i, 0)"
-                ng-dblclick="onBreakDblClick($event, i, 0)"
-                ng-class="{'fixed': i === 0 || i === visualStyleData.manualBrew.breaks.length-1 || breakIsUnalterable(visualStyleData.manualBrew.breaks[i])}">
+                (mousedown)="onBreakMouseDown($event, i, 0)"
+                (cblclick)="onBreakDblClick($event, i, 0)"
+                [ngClass]="{'fixed': i === 0 || i === visualStyleData.manualBrew.breaks.length-1 || breakIsUnalterable(visualStyleData.manualBrew.breaks[i])}">
             <div class="break"
-                  ng-class="{'fixed': i === 0 || i === visualStyleData.manualBrew.breaks.length-1 || breakIsUnalterable(visualStyleData.manualBrew.breaks[i])}">
+                  [ngClass]="{'fixed': i === 0 || i === visualStyleData.manualBrew.breaks.length-1 || breakIsUnalterable(visualStyleData.manualBrew.breaks[i])}">
               <!--<div class="colorBox"></div>-->
               <input type="number" 
-                      ng-blur="onBreaksChanged($event, i, 0)"
-                      ng-model-options="{ updateOn: 'blur', allowInvalid: false }"
+                      (blur)="onBreaksChanged($event, i, 0)"
+                      [ngModelOptions]="{ updateOn: 'blur' }"
                       disabled
-                      ng-class="{'fixed': i === 0 || i === visualStyleData.manualBrew.breaks.length-1 || breakIsUnalterable(visualStyleData.manualBrew.breaks[i])}"
+                      [ngClass]="{'fixed': i === 0 || i === visualStyleData.manualBrew.breaks.length-1 || breakIsUnalterable(visualStyleData.manualBrew.breaks[i])}"
                       min="{{visualStyleData.manualBrew.breaks[0]}}"
                       max="{{visualStyleData.manualBrew.breaks[visualStyleData.manualBrew.breaks.length - 1]}}"
-                      ng-model="visualStyleData.manualBrew.breaks[i]">
+                      [(ngModel)]="visualStyleData.manualBrew.breaks[i]">
               <i class="fa-regular fa-trash-can"
-                  ng-click="deleteBreak(i, 0)"
+                  (click)="deleteBreak(i, 0)"
                   ng-if="i != 0 && i != visualStyleData.manualBrew.breaks.length-1 && !breakIsUnalterable(visualStyleData.manualBrew.breaks[i])"></i>
             </div>
             <div class="line"></div>
@@ -198,25 +198,25 @@
               [ngStyle]="{top: addBtnHeight[1]+'px'}"
               ng-if="showAddBtn[1]"
               (mouseover)="toggleAddBtn($event, 1)">
-          <div class="addBtn" ng-click="addNewBreaks(1)">+</div>
+          <div class="addBtn" (click)="addNewBreaks(1)">+</div>
           <div class="line"></div>
         </div>
 
         <div class="breakWrapper" *ngFor="let b of visualStyleData.dynamicBrew[1].breaks; let i = index"
               [ngStyle]="{top: getPercentage(b, 1)+'%'}"
-              ng-mousedown="onBreakMouseDown($event, i, 1)"
-              ng-dblclick="onBreakDblClick($event, i, 1)"
-              ng-class="{'fixed': i === 0 || i === visualStyleData.dynamicBrew[1].breaks.length-1}">
+              (mousedown)="onBreakMouseDown($event, i, 1)"
+              (click)="onBreakDblClick($event, i, 1)"
+              [ngClass]="{'fixed': i === 0 || i === visualStyleData.dynamicBrew[1].breaks.length-1}">
           <div class="break"
-                ng-class="{'fixed': i === 0 || i === visualStyleData.dynamicBrew[1].breaks.length-1}">
+                [ngClass]="{'fixed': i === 0 || i === visualStyleData.dynamicBrew[1].breaks.length-1}">
             <input type="number" 
-                    ng-blur="onBreaksChangedDynamic($event, i, 1)"
-                    ng-model-options="{ updateOn: 'blur', allowInvalid: false }"
+                    (blur)="onBreaksChangedDynamic($event, i, 1)"
+                    [ngModelOptions]="{ updateOn: 'blur' }"
                     disabled
-                    ng-class="{'fixed': i === 0 || i === visualStyleData.dynamicBrew[1].breaks.length-1}"
-                    ng-model="visualStyleData.dynamicBrew[1].breaks[i]">
+                    [ngClass]="{'fixed': i === 0 || i === visualStyleData.dynamicBrew[1].breaks.length-1}"
+                    [(ngModel)]="visualStyleData.dynamicBrew[1].breaks[i]">
             <i class="fa-regular fa-trash-can"
-                ng-click="deleteBreak(i, 1)"
+                (click)="deleteBreak(i, 1)"
                 ng-if="i != 0 && i != visualStyleData.dynamicBrew[1].breaks.length-1"></i>
           </div>
           <div class="line"></div>
@@ -248,26 +248,26 @@
               [ngStyle]="{top: addBtnHeight[0]+'px'}"
               ng-if="showAddBtn[0]"
               (mouseover)="toggleAddBtn($event, 0)">
-          <div class="addBtn" ng-click="addNewBreaks(0)">+</div>
+          <div class="addBtn" (click)="addNewBreaks(0)">+</div>
           <div class="line"></div>
         </div>
 
         <div class="breakWrapper"
               *ngFor="let b of visualStyleData.dynamicBrew[0].breaks; let i = index"
               [ngStyle]="{top: getPercentage(b, 0)+'%'}"
-              ng-mousedown="onBreakMouseDown($event, i, 0)"
-              ng-dblclick="onBreakDblClick($event, i, 0)"
-              ng-class="{'fixed': i === 0 || i === visualStyleData.dynamicBrew[0].breaks.length-1}">
+              (mousedown)="onBreakMouseDown($event, i, 0)"
+              (cblclick)="onBreakDblClick($event, i, 0)"
+              [ngClass]="{'fixed': i === 0 || i === visualStyleData.dynamicBrew[0].breaks.length-1}">
           <div class="break"
-                ng-class="{'fixed': i === 0 || i === visualStyleData.dynamicBrew[0].breaks.length-1}">
+                [ngClass]="{'fixed': i === 0 || i === visualStyleData.dynamicBrew[0].breaks.length-1}">
             <input type="number" 
-                    ng-blur="onBreaksChangedDynamic($event, i, 0)"
-                    ng-model-options="{ updateOn: 'blur', allowInvalid: false }"
+                    (blur)="onBreaksChangedDynamic($event, i, 0)"
+                    [ngModelOptions]="{ updateOn: 'blur' }"
                     disabled
-                    ng-class="{'fixed': i === 0 || i === visualStyleData.dynamicBrew[0].breaks.length-1}"
-                    ng-model="visualStyleData.dynamicBrew[0].breaks[i]">
+                    [ngClass]="{'fixed': i === 0 || i === visualStyleData.dynamicBrew[0].breaks.length-1}"
+                    [(ngModel)]="visualStyleData.dynamicBrew[0].breaks[i]">
             <i class="fa-regular fa-trash-can"
-                ng-click="deleteBreak(i, 0)"
+                (click)="deleteBreak(i, 0)"
                 ng-if="i != 0 && i != visualStyleData.dynamicBrew[0].breaks.length-1"></i>
           </div>
           <div class="line"></div>
@@ -310,7 +310,7 @@
         type="checkbox" 
         value="useWholeTimeseriesClassification"
         ng-change="restyleCurrentLayer()"
-        ng-model="exchangeData.classifyUsingWholeTimeseries" 
+        [(ngModel)]="exchangeData.classifyUsingWholeTimeseries" 
         ng-checked="exchangeData.classifyUsingWholeTimeseries">
         <span class="switchslider round"></span>
     </label>
@@ -318,18 +318,18 @@
 
   <div class="classificationBoxToogleSlidersWrapper" ng-if="containsZeroValues && visualStyleData.classifyMethod !== 'manual' && visualStyleData.classifyMethod !== 'regional_default'">
     <span class="classificationBoxToogleSlidersLbl"><strong>Wert "0" als separate Klasse darstellen</strong> &nbsp;</span>
-    <label class="switch" title="0 als separate Klasse darstellen"><input id="controlIndicatorZeroClassifyOption" type="checkbox" value="useSeparateZeroClass" ng-model="exchangeData.classifyZeroSeparately" ng-checked="exchangeData.classifyZeroSeparately" ng-change="restyleCurrentLayer()"><span class="switchslider round"></span></label>
+    <label class="switch" title="0 als separate Klasse darstellen"><input id="controlIndicatorZeroClassifyOption" type="checkbox" value="useSeparateZeroClass" [(ngModel)]="exchangeData.classifyZeroSeparately" ng-checked="exchangeData.classifyZeroSeparately" ng-change="restyleCurrentLayer()"><span class="switchslider round"></span></label>
   </div>
 
   <div class="classificationBoxToogleSlidersWrapper" ng-if="(containsOutliers_high || containsOutliers_low) && visualStyleData.classifyMethod !== 'manual' && visualStyleData.classifyMethod !== 'regional_default'">
     <span class="classificationBoxToogleSlidersLbl"><strong>Ausrei&szlig;er gesondert markieren</strong> &nbsp;</span>
-    <label class="switch" title="Ausrei&szlig;er gesondert markieren"><input id="controlIndicatorOutlierDetection" type="checkbox" value="useOutlierDetection" ng-model="exchangeData.useOutlierDetectionOnIndicator" ng-checked="exchangeData.useOutlierDetectionOnIndicator" ng-change="restyleCurrentLayer()"><span class="switchslider round"></span></label>
+    <label class="switch" title="Ausrei&szlig;er gesondert markieren"><input id="controlIndicatorOutlierDetection" type="checkbox" value="useOutlierDetection" [(ngModel)]="exchangeData.useOutlierDetectionOnIndicator" ng-checked="exchangeData.useOutlierDetectionOnIndicator" ng-change="restyleCurrentLayer()"><span class="switchslider round"></span></label>
   </div>
   <div class="classificationBoxToogleSlidersWrapper" ng-if="containsNoData">
     <span class="classificationBoxToogleSlidersLbl">
       <strong>NoData-Werte tempor&auml;r aus Datensatz entfernen</strong> &nbsp;</span>
     <label class="switch" title="NoData-Werte tempor&auml;r aus Datensatz entfernen">
-      <input id="controlNoDataDisplay" type="checkbox" value="useNoDataToggle" ng-model="exchangeData.useNoDataToggle" ng-checked="exchangeData.useNoDataToggle" ng-change="restyleCurrentLayer()">
+      <input id="controlNoDataDisplay" type="checkbox" value="useNoDataToggle" [(ngModel)]="exchangeData.useNoDataToggle" ng-checked="exchangeData.useNoDataToggle" ng-change="restyleCurrentLayer()">
       <span class="switchslider round"></span>
     </label>
   </div>

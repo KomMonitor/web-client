@@ -263,42 +263,45 @@ export class KommonitorClassificationComponent implements OnInit {
     }
     return false;
   }
-/*
- deleteBreak = function (i, site) {
+
+ deleteBreak(i, site) {
     if((this.exchangeData.isBalanceChecked 
       || this.exchangeData.selectedIndicator.indicatorType.includes('DYNAMIC')
-      ||containsNegativeValues)) {
+      || this.containsNegativeValues)) {
       if(this.exchangeData.isMeasureOfValueChecked) {
         this.visualStyleData.manualBrew.breaks.splice(i, 1);
-        $rootScope.$broadcast("changeBreaks", this.visualStyleData.manualBrew.breaks);
-       updateDynamicBreaksFromManualBreaks();
+        // todo 
+        // $rootScope.$broadcast("changeBreaks", this.visualStyleData.manualBrew.breaks);
+        this.updateDynamicBreaksFromManualBreaks();
       }
       else {
         this.visualStyleData.dynamicBrew[site].breaks.splice(i, 1);
         let increaseBreaks = this.visualStyleData.dynamicBrew[0] ? this.visualStyleData.dynamicBrew[0].breaks : [];
         let decreaseBreaks = this.visualStyleData.dynamicBrew[1] ? this.visualStyleData.dynamicBrew[1].breaks : [];
-        $rootScope.$broadcast("changeDynamicBreaks", [increaseBreaks, decreaseBreaks])
+        // todo
+        // $rootScope.$broadcast("changeDynamicBreaks", [increaseBreaks, decreaseBreaks])
       }
     }
 
     else {
       this.visualStyleData.manualBrew.breaks.splice(i, 1);
-      $rootScope.$broadcast("changeBreaks", this.visualStyleData.manualBrew.breaks);
+      // todo
+      // $rootScope.$broadcast("changeBreaks", this.visualStyleData.manualBrew.breaks);
     }
   }
 
- onBreaksChanged = function (e, i, site) {
+ onBreaksChanged(e, i, site) {
     e.currentTarget.disabled = true;
     
     let breaks = [...this.visualStyleData.manualBrew.breaks];
     if(e.currentTarget.value <= breaks[0] || e.currentTarget.value >= breaks[breaks.length - 1] || breaks.includes(Number(e.currentTarget.value))) {
       e.currentTarget.value = breaks[i];
-      setTimeout(function () {
-       $apply(function(){
+
+      // todo, wrap into timeout if necessary
+      //setTimeout(function () {
           e.currentTarget.value = breaks[i];
           this.visualStyleData.manualBrew.breaks[i] = breaks[i];
-        });
-      }, 10);
+      //}, 10);
     }
     else {
       this.visualStyleData.manualBrew.breaks[i] = Number(e.currentTarget.value);
@@ -306,50 +309,54 @@ export class KommonitorClassificationComponent implements OnInit {
         return a - b;
       });
 
-      $rootScope.$broadcast("changeBreaks", this.visualStyleData.manualBrew.breaks);
+      // todo
+      //$rootScope.$broadcast("changeBreaks", this.visualStyleData.manualBrew.breaks);
       
       if((this.exchangeData.isBalanceChecked 
         || this.exchangeData.selectedIndicator.indicatorType.includes('DYNAMIC')
-        ||containsNegativeValues)
+        || this.containsNegativeValues)
         && this.exchangeData.isMeasureOfValueChecked) {
-       updateDynamicBreaksFromManualBreaks();
+       this.updateDynamicBreaksFromManualBreaks();
       }
     }
   }
 
- onBreaksChangedDynamic = function (e, i, site) {
+ onBreaksChangedDynamic(e, i, site) {
     e.currentTarget.disabled = true;
     
     let breaks = [...this.visualStyleData.dynamicBrew[site].breaks];
     if(e.currentTarget.value <= breaks[0] || e.currentTarget.value >= breaks[breaks.length - 1] || breaks.includes(Number(e.currentTarget.value))) {
       e.currentTarget.value = breaks[i];
-      setTimeout(function () {
-       $apply(function(){
+
+      // todo, wrap in timeout if necessary
+      /* setTimeout(function () {
+       $apply(function(){ */
           e.currentTarget.value = breaks[i];
           this.visualStyleData.dynamicBrew[site].breaks[i] = breaks[i];
-        });
-      }, 10);
+    /*     });
+      }, 10); */
     }
     else {
       this.visualStyleData.dynamicBrew[site].breaks[i] = Number(e.currentTarget.value);
       this.visualStyleData.dynamicBrew[site].breaks.sort(function(a, b) {
         return a - b;
       });
-      $rootScope.$broadcast("changeDynamicBreaks", [this.visualStyleData.dynamicBrew[0].breaks, this.visualStyleData.dynamicBrew[1].breaks]);
+      // todo
+      //$rootScope.$broadcast("changeDynamicBreaks", [this.visualStyleData.dynamicBrew[0].breaks, this.visualStyleData.dynamicBrew[1].breaks]);
     }
   }
 
- onBreakDblClick = function (e, i, site) { // todo
+ onBreakDblClick(e, i, site) {
     if((!this.exchangeData.isBalanceChecked 
       && !this.exchangeData.selectedIndicator.indicatorType.includes('DYNAMIC')
-      && !$scope.containsNegativeValues)
+      && !this.containsNegativeValues)
       || this.exchangeData.isMeasureOfValueChecked) {
-      if (i == 0 || i == this.visualStyleData.manualBrew.breaks.length-1 ||breakIsUnalterable(this.visualStyleData.manualBrew.breaks[i])) {
+      if (i == 0 || i == this.visualStyleData.manualBrew.breaks.length-1 || this.breakIsUnalterable(this.visualStyleData.manualBrew.breaks[i])) {
         return;
       }
     }
     else {
-      if (i == 0 || i == this.visualStyleData.dynamicBrew[site].breaks.length-1 ||breakIsUnalterable(this.visualStyleData.dynamicBrew[site].breaks[i])) {
+      if (i == 0 || i == this.visualStyleData.dynamicBrew[site].breaks.length-1 || this.breakIsUnalterable(this.visualStyleData.dynamicBrew[site].breaks[i])) {
         return;
       }
     }
@@ -358,16 +365,17 @@ export class KommonitorClassificationComponent implements OnInit {
     input.focus();
 
     if (window.getSelection) {
-      window.getSelection().removeAllRanges();
-    } else if (document.selection) {
-        document.selection.empty();
+      window.getSelection()!.removeAllRanges();
+    } else if (document.getSelection()) {
+        document.getSelection()!.empty();
     }
   }
   
  restyleCurrentLayer = function () {
-    $rootScope.$broadcast("restyleCurrentLayer", false);
+  // todo
+    //$rootScope.$broadcast("restyleCurrentLayer", false);
   }
- */
+ 
  getWidthForHistogramBar(i) {
     let colors = this.visualStyleData.manualBrew.colors ? this.visualStyleData.manualBrew.colors : [];
     let countArray:any[] = [];
@@ -471,17 +479,18 @@ export class KommonitorClassificationComponent implements OnInit {
     }
     return this.visualStyleData.dynamicBrew[site].breaks[0];
   }
-  /*  
- onBreakMouseDown = function (e, i, site) {
-   isDraggingBreak = true;
-   draggingBreak = e.currentTarget;
-   nrOfDraggingBreak = i;
-   dynamicDraggingSite = site;
+   
+  onBreakMouseDown(e, i, site) {
+    this.isDraggingBreak = true;
+    this.draggingBreak = e.currentTarget;
+    this.nrOfDraggingBreak = i;
+    this.dynamicDraggingSite = site;
   }
- onClassificationMouseUp = function () {
-   isDraggingBreak = false;
+
+  onClassificationMouseUp() {
+    this.isDraggingBreak = false;
   }
-     */
+    
  onBreaksMouseMove(e, site) {
     if((!this.exchangeData.isBalanceChecked 
       && !this.exchangeData.selectedIndicator.indicatorType.includes('DYNAMIC')
