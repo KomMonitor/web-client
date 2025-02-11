@@ -2092,10 +2092,7 @@ angular
             field: "name", 
             pinned: 'left', 
             minWidth: 250,
-            cellClassRules: {
-              'user-roles-normal': row => row.data.contact != 'public',
-              'user-roles-public': row => row.data.contact == 'public',
-            } 
+            cellClass: 'user-roles-normal'
           }, 
           { headerName: 'Hierarchie - übergeordnete Organisationseinheit', field: "parentName",  maxWidth: 250 }, 
           { headerName: 'Hierarchie - direkt untergeordnete Organisationseinheiten', 
@@ -2849,15 +2846,17 @@ angular
         let isChecked = false;
         let exists = false;
         let className;
-        for (const permission of params.data.permissions) {
-          if (permission.permissionLevel == "viewer"){
-            exists = true;
-            isChecked = permission.isChecked;
-            className = permission.permissionId;
-            break;
-          }
-        }  
-
+        if (params && params.data) {
+          for (const permission of params.data.permissions) {
+            if (permission.permissionLevel == "viewer"){
+              exists = true;
+              isChecked = permission.isChecked;
+              className = permission.permissionId;
+              break;
+            }
+          }  
+        }
+        
         if(exists){
           this.eGui = document.createElement('input');
           this.eGui.className = className;
@@ -2907,14 +2906,16 @@ angular
         let isChecked = false;
         let exists = false;
         let className;
-        for (const permission of params.data.permissions) {
-          if (permission.permissionLevel == "editor"){
-            exists = true;
-            isChecked = permission.isChecked;
-            className = permission.permissionId;
-            break;
-          }
-        }  
+        if (params && params.data) {
+          for (const permission of params.data.permissions) {
+            if (permission.permissionLevel == "editor"){
+              exists = true;
+              isChecked = permission.isChecked;
+              className = permission.permissionId;
+              break;
+            }
+          }  
+        }
 
         if(exists){
           this.eGui = document.createElement('input');
@@ -3449,10 +3450,7 @@ angular
             headerName: 'Organisationseinheit', 
             field: "name", 
             minWidth: 200,
-            cellClassRules: {
-              'user-roles-normal': row => row.data.contact != 'public',
-              'user-roles-public': row => row.data.contact == 'public',
-            } 
+            cellClass: 'user-roles-normal'
           },
           { headerName: 'lesen', field: "permissions", filter: false, sortable: false, maxWidth: 100, cellRenderer: 'checkboxRenderer_viewer'},
           { headerName: 'editieren', field: "permissions", filter: false, sortable: false, maxWidth: 100, cellRenderer: 'checkboxRenderer_editor'}                   
@@ -3467,7 +3465,7 @@ angular
 
       this.buildRoleManagementGridOptions = function(accessControlMetadata, selectedPermissionIds){
         let columnDefs = this.buildRoleManagementGridColumnConfig();
-          let rowData = this.buildRoleManagementGridRowData(accessControlMetadata, selectedPermissionIds);
+        let rowData = this.buildRoleManagementGridRowData(accessControlMetadata, selectedPermissionIds);
   
           let components = {};
           if(this.reducedRoleManagement)
