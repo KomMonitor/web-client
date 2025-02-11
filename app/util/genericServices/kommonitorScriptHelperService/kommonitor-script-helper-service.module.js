@@ -140,12 +140,12 @@ angular
 
       this.targetTimeOptions = [
         {
-          "apiName": "ALL",
-          "displayName": "Alle Zeitpunkte berechnen"
-        },
-        {
           "apiName": "MISSING",
           "displayName": "Fehlende Zeitpunkte berechnen"
+        },
+        {
+          "apiName": "ALL",
+          "displayName": "Alle Zeitpunkte berechnen"
         },
         {
           "apiName": "DATES",

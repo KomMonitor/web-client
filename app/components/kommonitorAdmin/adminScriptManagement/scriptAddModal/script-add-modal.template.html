@@ -295,10 +295,8 @@
 										<label>Zeitpunkte, die berechnet werden sollen: </label>
 										<br />
 										<select ng-model="$ctrl.kommonitorScriptHelperServiceInstance.processParameters.target_time.value.mode"
-											ng-options="targetTimeOption as targetTimeOption.displayName for targetTimeOption in $ctrl.kommonitorScriptHelperServiceInstance.targetTimeOptions"
+											ng-options="targetTimeOption.apiName as targetTimeOption.displayName for targetTimeOption in $ctrl.kommonitorScriptHelperServiceInstance.targetTimeOptions"
 											ng-change="resetApplicableDates()">
-											<option disabled selected value> -- Zeitpunkte w&auml;hlen --
-											</option>
 										</select>
 										<div class="help-block with-errors"></div>
 									</div>
