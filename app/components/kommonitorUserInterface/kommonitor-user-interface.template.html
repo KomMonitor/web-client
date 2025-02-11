@@ -199,8 +199,8 @@
 
         <kommonitor-map style="height: 100%; width: 100%; position: absolute;"></kommonitor-map>
 		
-		<button type="button" id="sidebarLegendCollapse"
-		ng-click="onSidebarLegendButtonClick()" ng-class="buttonLegendClass" data-toggle="tooltip" title="Legenden- und Informationsfenster">
+		<button type="button" id="sidebarLegendCollapse" ng-click="onSidebarLegendButtonClick()" ng-class="buttonLegendClass"
+			data-toggle="tooltip" title="Legenden- und Informationsfenster" ng-show="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator">
 		<i style="font-size:2.5vh;" class="fas fa-info"></i>
 	</button>
 
