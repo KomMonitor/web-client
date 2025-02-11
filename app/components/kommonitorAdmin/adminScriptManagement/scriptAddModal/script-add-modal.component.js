@@ -158,9 +158,15 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 				"outputTransmission": []
 			}
 
-
+			// reduce "name" "value" pairs
 			kommonitorScriptHelperService.scriptData.additionalParameters.parameters = kommonitorScriptHelperService.scriptData.additionalParameters.parameters.reduce((acc, param) => {
 				acc[param.name] = param.value;
+				return acc;
+			}, {});
+
+			// save defaults for the inputs in processParameters
+			kommonitorScriptHelperService.processParameters = Object.keys(kommonitorScriptHelperService.scriptData.inputs).reduce((acc, key) => {
+				acc[key] = kommonitorScriptHelperService.scriptData.inputs[key].schema.default;
 				return acc;
 			}, {});
 
@@ -270,6 +276,7 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 			$scope.selectableSpatialUnits = [];
 
 			$scope.onTargetIndicatorChanged = function (){
+				kommonitorScriptHelperService.processParameters.target_indicator_id = kommonitorScriptHelperService.targetIndicator.indicatorId;
 				$scope.resetApplicableDates();
 				$scope.resetSelectableSpatialUnits();
 			}

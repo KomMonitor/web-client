@@ -24,6 +24,10 @@ angular.module('scriptTest').component('scriptTest', {
 				
 			}
 
+			$scope.legendValues = {
+
+			}
+
 			//b
 			$scope.parameterName_computationIndicator = "COMPUTATION_ID";
 			$scope.parameterDescription_computationIndicator = "Indikatoren-ID des Basisindikators.";
@@ -90,9 +94,8 @@ angular.module('scriptTest').component('scriptTest', {
 
 				$scope.compIndicatorSelection_old = compIndicatorSelection;
 
-				$scope.inputData.computation_id = compIndicatorSelection.indicatorId;
-				$scope.inputData.indicatorName = compIndicatorSelection.indicatorName;
-				$scope.inputData.unit = compIndicatorSelection.unit;
+				kommonitorScriptHelperService.processParameters.computation_id = compIndicatorSelection.indicatorId
+				$scope.legendValues = Object.assign($scope.legendValues, compIndicatorSelection);
 
 				$scope.resetScriptParameter();
 				$scope.resetComputationFormulaAndLegend();				
@@ -100,7 +103,7 @@ angular.module('scriptTest').component('scriptTest', {
 			};
 
 			$scope.onChangeNumTemporalItems = function(){
-				$scope.inputData.NUMBER_OF_TEMPORAL_ITEMS = Math.round($scope.inputData.NUMBER_OF_TEMPORAL_ITEMS);
+				kommonitorScriptHelperService.processParameters.number_of_temporal_items = Math.round(kommonitorScriptHelperService.processParameters.number_of_temporal_items);
 				$scope.resetScriptParameter();
 				$scope.resetComputationFormulaAndLegend();	
 			};
@@ -141,15 +144,15 @@ angular.module('scriptTest').component('scriptTest', {
 
 					var formulaHTML = "<b>Berechnung gem&auml;&szlig; Formel<br/> " + kommonitorScriptHelperService.scriptData.additionalParameters.parameters.kommonitorUiParams.formula;
 					var dynamicLegendStr = kommonitorScriptHelperService.scriptData.additionalParameters.parameters.kommonitorUiParams.dynamicLegend;
-					var legendValues = structuredClone($scope.inputData);
+					$scope.legendValues =  Object.assign($scope.legendValues, kommonitorScriptHelperService.processParameters);
 
 					// replace objects with displayName
-					for (let key in legendValues) {
-						if (legendValues.hasOwnProperty(key)) {
-							if (typeof legendValues[key] === 'object' && 
-								legendValues[key] !== null && 
-								legendValues[key].hasOwnProperty('displayName')) {
-								legendValues[key] = legendValues[key].displayName;
+					for (let key in $scope.legendValues) {
+						if ($scope.legendValues.hasOwnProperty(key)) {
+							if (typeof $scope.legendValues[key] === 'object' && 
+								$scope.legendValues[key] !== null && 
+								$scope.legendValues[key].hasOwnProperty('displayName')) {
+								$scope.legendValues[key] = $scope.legendValues[key].displayName;
 							}
 						}
 					}
@@ -161,7 +164,7 @@ angular.module('scriptTest').component('scriptTest', {
 						let parameters = args.map(argument => obj[argument] || (obj[argument] === undefined ? "" : obj[argument]));
 						return String.raw({ raw: parts }, ...parameters);
 					}
-					var legendText = parseStringTemplate(dynamicLegendStr, legendValues)
+					var legendText = parseStringTemplate(dynamicLegendStr, $scope.legendValues)
 
 					kommonitorScriptHelperService.scriptFormulaHTML = formulaHTML + "<br/><br/>" + "<b>Legende zur Formel</b>" + legendText;
 				
