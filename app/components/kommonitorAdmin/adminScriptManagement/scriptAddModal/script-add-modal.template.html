@@ -302,27 +302,88 @@
 									</div>
 								</div>
 
-								<div class="row vertical-align">
-									<div class="col-md-6 col-sm-6 col-xs-12">
-										<div class="form-group">
-											<input id="notDates" type="checkbox"><label for="notDates">Nicht berechnen für: </label>
-											<ui-select width="max-content" multiple ng-model="$ctrl.kommonitorScriptHelperServiceInstance.processParameters.target_time.value.excludeDates">
-												<ui-select-match placeholder="Daten auswählen">
-													{{$item}}
-												</ui-select-match>
-												<ui-select-choices repeat="date in applicableDates | filter: $select.search">
-														{{date}}
-												</ui-select-choices>
-											</ui-select>
-											<div class="help-block with-errors"></div>
-											<div class="help-block">
-												<p>Zeitpunkte, die von der Berechnung ausgeschlossen werden sollen</p>
+								<div class="row vertical-align" ng-show="$ctrl.kommonitorScriptHelperServiceInstance.processParameters.target_time.value.mode != 'DATES'">
+									<div class="col-md-10 col-sm-12 col-xs-12">
+										<!-- <div style="text-align: left;"> -->
+										<div class="box collapsed-box" style="background: #ebf0fd;">
+											<div class="box-header">
+												<h3 class="box-title">Ausnahmen hinzufügen</h3>
+								
+												<div class="box-tools pull-right">
+													<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+													</button>
+												</div>
+											</div>
+											<!-- /.box-header -->
+											<div class="box-body">
+												<div class="row vertical-align" ng-show="$ctrl.kommonitorScriptHelperServiceInstance.processParameters.target_time.value.mode == 'MISSING'">
+													<div class="col-md-6 col-sm-6 col-xs-12">
+														<div class="form-group">
+															<label>Nicht berechnen für: </label>
+															<ui-select width="max-content" multiple ng-model="$ctrl.kommonitorScriptHelperServiceInstance.processParameters.target_time.value.excludeDates">
+																<ui-select-match placeholder="Daten auswählen">
+																	{{$item}}
+																</ui-select-match>
+																<ui-select-choices repeat="date in applicableDates | filter: $select.search">
+																		{{date}}
+																</ui-select-choices>
+															</ui-select>
+															<div class="help-block with-errors"></div>
+															<div class="help-block">
+																<p>Zeitpunkte, die von der Berechnung ausgeschlossen werden sollen</p>
+															</div>
+														</div>
+													</div>
+													<div class="col-md-6 col-sm-6 col-xs-12">
+														<div class="form-group">
+															<label>Zusätzlich berechnen für: </label>
+															<ui-select width="max-content" multiple ng-model="$ctrl.kommonitorScriptHelperServiceInstance.processParameters.target_time.value.includeDates">
+																<ui-select-match placeholder="Daten auswählen">
+																	{{$item}}
+																</ui-select-match>
+																<ui-select-choices repeat="date in applicableDates | filter: $select.search">
+																		{{date}}
+																</ui-select-choices>
+															</ui-select>
+															<div class="help-block with-errors"></div>
+															<div class="help-block">
+																<p>Zeitpunkte, die berechnet werden sollen, auch wenn sie bereits berechnet wurden</p>
+															</div>
+														</div>
+													</div>
+												</div>
+				
+				
+												<div class="row vertical-align" ng-show="$ctrl.kommonitorScriptHelperServiceInstance.processParameters.target_time.value.mode == 'ALL'">
+													<div class="col-md-6 col-sm-6 col-xs-12">
+														<div class="form-group">
+															<label for="notDates">Nicht berechnen für: </label>
+															<ui-select width="max-content" multiple ng-model="$ctrl.kommonitorScriptHelperServiceInstance.processParameters.target_time.value.excludeDates">
+																<ui-select-match placeholder="Daten auswählen">
+																	{{$item}}
+																</ui-select-match>
+																<ui-select-choices repeat="date in applicableDates | filter: $select.search">
+																		{{date}}
+																</ui-select-choices>
+															</ui-select>
+															<div class="help-block with-errors"></div>
+															<div class="help-block">
+																<p>Zeitpunkte, die von der Berechnung ausgeschlossen werden sollen</p>
+															</div>
+														</div>
+													</div>
+												</div>
 											</div>
 										</div>
 									</div>
+								</div>
+
+								
+
+								<div class="row vertical-align" ng-show="$ctrl.kommonitorScriptHelperServiceInstance.processParameters.target_time.value.mode == 'DATES'">
 									<div class="col-md-6 col-sm-6 col-xs-12">
 										<div class="form-group">
-											<input id="additionalDates" type="checkbox"><label for="additionalDates">Zusätzlich berechnen für: </label>
+											<label>Berechnen für: </label>
 											<ui-select width="max-content" multiple ng-model="$ctrl.kommonitorScriptHelperServiceInstance.processParameters.target_time.value.includeDates">
 												<ui-select-match placeholder="Daten auswählen">
 													{{$item}}
@@ -333,13 +394,13 @@
 											</ui-select>
 											<div class="help-block with-errors"></div>
 											<div class="help-block">
-												<p>Zeitpunkte, die berechnet werden sollen, auch wenn sie bereits berechnet wurden</p>
+												<p>Bitte alle Zeitpunkte auswählen, die berechnet werden sollen</p>
 											</div>
 										</div>
 									</div>
 								</div>
 
-							</br><hr></br></br>
+								</br><hr></br></br>
 
 								<div class="row vertical-align">
 									<div class="form-group">
