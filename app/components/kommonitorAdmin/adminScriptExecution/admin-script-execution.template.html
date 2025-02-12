@@ -338,6 +338,12 @@
 					<table id="jobExecutionTable_customizedComputation" style="height: 75vh; width: 100%;" class="ag-theme-alpine"></table>
 
 				</div>
+
+				<div class="admin-table-wrapper">
+					
+					<table id="jobExecutionTable_customizedComputation_new" style="height: 75vh; width: 100%;" class="ag-theme-alpine"></table>
+
+				</div>
 			</div>
 			<!-- /.box-body -->
 		</div>
@@ -346,3 +352,12 @@
 	</section>
 	<!-- /.content -->
 </div>
+
+<script>
+  function handleChildCollapse(event) {
+    event.stopPropagation(); // Verhindert das Standardverhalten, aber propagiert das Event nicht weiter
+    const button = event.currentTarget;
+    const box = button.closest('.box');
+    $(box).boxWidget('toggle'); // Manuelles Triggern von AdminLTE's CardWidget
+  }
+</script>

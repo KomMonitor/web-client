@@ -2657,6 +2657,166 @@ angular
         }
       };
 
+            // CUSTOMIZED JOBS OVERVIEW TABLE (NEW)
+
+            this.buildDataGridColumnConfig_customizedJobs_new = function(){
+              const columnDefs = [
+                { headerName: 'Job-Id', field: "jobId", pinned: 'left', maxWidth: 125, checkboxSelection: true, headerCheckboxSelection: true, 
+                headerCheckboxSelectionFilteredOnly: true},
+                { headerName: 'Job-Status', field: "status", maxWidth: 125 },
+                { headerName: 'Job-Fortschritt', field: "progress", maxWidth: 125 },
+                /*{ headerName: 'Job-Zusammenfassungen pro Raumeinheit', minWidth: 500, cellRenderer: function (params) {
+                  console.log(params);
+                  return kommonitorDataExchangeService.syntaxHighlightJSON(params.data.jobSummary);
+                }, },*/
+                { headerName: 'Job-Zusammenfassungen nach Raumeinheit', field: "", minWidth: 1000, cellRenderer: function (params) {
+                      /*
+                        <table class="table table-condensed">
+                            <thead>
+                              <tr>
+                              <th>Name</th>
+                              <th>Beschreibung</th>
+                              <th>Datentyp</th>
+                              <th>Standard-Wert</th>
+                              <th>erlaubter Wertebereich</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr ng-repeat="processParameter in scriptDataset.variableProcessParameters">
+                              <td>{{::processParameter.name}}</td>
+                              <td>{{::processParameter.description}}</td>
+                              <td>{{::processParameter.dataType}}</td>
+                              <td>{{::processParameter.defaultValue}}</td>
+                              <td><div ng-show="processParameter.dataType == 'double' || processParameter.dataType == 'integer'"><b>erlaubter Wertebereich</b> {{::processParameter.minParameterValueForNumericInputs}} - {{::processParameter.maxParameterValueForNumericInputs}}</div></td>
+                              </tr>
+                            </tbody>
+                          </table>
+                      */
+                          if(params.data && params.data.jobSummary && params.data.jobSummary.length > 0){
+                            let html = '<table class="table table-condensed table-bordered table-striped"><thead><tr><th>Raumeinheit</th><th width="250px">Modifizierte Ressource</th><th>Anzahl integrierter Indikator-Features</th><th>Integrierte Zielzeitpunkte</th><th>Fehler</th></tr></thead><tbody>';
+            
+                            for (const job of params.data.jobSummary) {
+                              html += "<tr>";
+                              html += "<td>" + job.spatialUnitId + "</td>";
+                              html += "<td>" + job.modifiedResource + "</td>";
+                              html += "<td>" + job.numberOfIntegratedIndicatorFeatures + "</td>";
+                              html += "<td>" + job.integratedTargetDates + "</td>";
+                              html += "<td>";
+                              for (const error of job.errorsOccurred) {
+                                html += '<div class="box box-danger collapsed-box" style="width:200px;"><div class="box-header"><span class="box-title" style="font-size:12px">';
+                                html += error.type;
+                                html += '</span><div class="box-tools pull-right"><button type="button" class="btn btn-box-tool" data-widget="collapse" onclick="handleChildCollapse(event)"><i class="fa fa-plus"></i></button></div></div><div class="box-body">';
+                                html += kommonitorDataExchangeService.syntaxHighlightJSON(error);
+                                html += '</div></div>'
+                              }
+                              html += "</td>";
+                              html += "</tr>";
+                            }
+                            
+                            html += "</tbody></table>";
+                            return html;  
+                          }
+                          else{
+                            return "keine";
+                          }
+                    },
+                    filter: 'agTextColumnFilter', 
+                    filterValueGetter: (params) => {
+                      if(params.data && params.data.jobSummary && params.data.jobSummary.length > 0){
+                        return JSON.stringify(params.data.jobSummary);
+                      }
+                      else{
+                        return "keine";
+                      }
+                    } 
+                }
+                                
+              ];
+      
+              return columnDefs;
+            };
+      
+            this.buildDataGridRowData_customizedJobs_new = function(dataArray){
+              
+              dataArray.sort((a, b) => b.jobId - a.jobId);
+      
+              return dataArray;
+            };
+      
+            this.buildDataGridOptions_customizedJobs_new = function(jobsArray){
+                console.log("buildDataGridOptions_customizedJobs_new");
+                console.log(jobsArray);
+
+                let columnDefs = this.buildDataGridColumnConfig_customizedJobs_new();
+                let rowData = this.buildDataGridRowData_customizedJobs_new(jobsArray);
+        
+                let gridOptions = {
+                  defaultColDef: {
+                    editable: false,
+                    sortable: true,
+                    flex: 1,
+                    minWidth: 200,
+                    filter: true,
+                    floatingFilter: true,
+                    // filterParams: {
+                    //   newRowsAction: 'keep'
+                    // },
+                    resizable: true,
+                    wrapText: true,
+                    autoHeight: true,
+                    cellStyle: { 'font-size': '12px;', 'white-space': 'normal !important', "line-height": "20px !important", "word-break": "break-word !important", "padding-top": "17px", "padding-bottom": "17px" },
+                    headerComponentParams: {
+                      template:
+                        '<div class="ag-cell-label-container" role="presentation">' +
+                        '  <span ref="eMenu" class="ag-header-icon ag-header-cell-menu-button"></span>' +
+                        '  <div ref="eLabel" class="ag-header-cell-label" role="presentation">' +
+                        '    <span ref="eSortOrder" class="ag-header-icon ag-sort-order"></span>' +
+                        '    <span ref="eSortAsc" class="ag-header-icon ag-sort-ascending-icon"></span>' +
+                        '    <span ref="eSortDesc" class="ag-header-icon ag-sort-descending-icon"></span>' +
+                        '    <span ref="eSortNone" class="ag-header-icon ag-sort-none-icon"></span>' +
+                        '    <span ref="eText" class="ag-header-cell-text" role="columnheader" style="white-space: normal;"></span>' +
+                        '    <span ref="eFilter" class="ag-header-icon ag-filter-icon"></span>' +
+                        '  </div>' +
+                        '</div>',
+                    },
+                  },
+                  columnDefs: columnDefs,
+                  rowData: rowData,
+                  suppressRowClickSelection: true,
+                  rowSelection: 'multiple',
+                  enableCellTextSelection: true,
+                  ensureDomOrder: true,
+                  pagination: true,
+                  paginationPageSize: 10,
+                  suppressColumnVirtualisation: true,          
+                  onFirstDataRendered: function () {
+                    headerHeightSetter(self.dataGridOptions_scripts);
+                  },
+                  onColumnResized: function () {
+                    headerHeightSetter(self.dataGridOptions_scripts);
+                  }
+        
+                };
+        
+                return gridOptions;        
+            };
+      
+            this.buildDataGrid_customizedJobs_new = function (jobsArray) {
+              
+              if (this.dataGridOptions_customizedJobs_new && this.dataGridOptions_customizedJobs_new.api && document.querySelector('#jobExecutionTable_customizedComputation_new').childElementCount > 0) {
+      
+                this.saveGridStore(this.dataGridOptions_customizedJobs_new);
+                let newRowData = this.buildDataGridRowData_customizedJobs_new(jobsArray);
+                this.dataGridOptions_customizedJobs_new.api.setRowData(newRowData);
+                this.restoreGridStore(this.dataGridOptions_customizedJobs_new);
+              }
+              else {
+                this.dataGridOptions_customizedJobs_new = this.buildDataGridOptions_customizedJobs_new(jobsArray);
+                let gridDiv = document.querySelector('#jobExecutionTable_customizedComputation_new');
+                new agGrid.Grid(gridDiv, this.dataGridOptions_customizedJobs_new);
+              }
+            };
+
       function anyHigherRoleIsChecked(roles, roleSuffix){
         let filteresRoles = [];
         

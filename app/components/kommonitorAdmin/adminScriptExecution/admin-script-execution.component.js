@@ -15,6 +15,68 @@ angular.module('adminScriptExecution').component('adminScriptExecution', {
 		$scope.customizedComputationJobHealth;
 		$scope.selectAllEntriesInput = false;
 
+		$scope.jobDescriptions = [{
+			"jobSummary": [
+				{
+					"spatialUnitId": "stadtteile",
+					"modifiedResource": "https://kommonitor-data-management-api/indicators/<indicatotrId>/<spatialUnitId>/",
+					"numberOfIntegratedIndicatorFeatures": 50,            
+					"integratedTargetDates": ["2025-01-15", "2024-01-15"],
+					"errorsOccurred": [
+							{
+									"type": "missingTimestamp", 
+									"affectedResourceType": "indicator" | "georesource",
+									"affectedDatasetId": "indicatorId" | "georesourceId",
+									"affectedTimestamps" : ["2024-12-31", "2023-12-31"],
+									"affectedSpatialUnitFeatures": [],
+									"errorMessage": "string"
+							},
+							{
+									"type": "missingDataset", 
+									"affectedResourceType": "indicator" | "georesource",
+									"affectedDatasetId": "indicatorId" | "georesourceId",
+									"affectedTimestamps" : [],
+									"affectedSpatialUnitFeatures": [],
+									"errorMessage": "string"
+							},
+							{
+									"type": "missingSpatialUnit", 
+									"affectedResourceType": "indicator",
+									"affectedDatasetId": "indicatorId",
+									"affectedTimestamps" : [],
+									"affectedSpatialUnitFeatures": [],
+									"errorMessage": "string"
+							},
+							{
+									"type": "missingSpatialUnitFeature", 
+									"affectedResourceType": "indicator",
+									"affectedDatasetId": "indicatorId",
+									"affectedTimestamps" : [],
+									"affectedSpatialUnitFeatures": ["Kupferdreh_Id", "Kettwig_Id"],
+									"errorMessage": "string"
+							},
+							{
+									"type": "dataManagementApiError", // bei nicht vorhandenem Datenzugriff, sonstigen API Fehlern
+									"affectedResourceType": "string",
+									"dataManagementApiErrorCode": 401,
+									"affectedDatasetId": "string",
+									"affectedTimestamps" : [],
+									"affectedSpatialUnitFeatures": [],
+									"errorMessage": "Data-Management error message"
+							},
+							{
+									"type": "processingError", // tritt bei Fehlern innerhalb des eigentlichen Prozesses auf (teilen durch null, ungültige Geometrieoperationen)
+									"affectedResourceType": "indicator" | "georesource",
+									"affectedDatasetId": "indicatorId" | "georesourceId",
+									"affectedTimestamps" : [],
+									"affectedSpatialUnitFeatures": [],
+									"errorMessage": "string"
+							}
+					]
+				}
+			]  
+		}]
+
 		$scope.fetchDefaultIndicatorJobs = function(){
             return $http({
               url: __env.targetUrlToProcessingEngine + "script-engine/defaultIndicatorComputation",
@@ -94,6 +156,7 @@ angular.module('adminScriptExecution').component('adminScriptExecution', {
 
 			kommonitorDataGridHelperService.buildDataGrid_defaultJobs($scope.availableDefaultComputationJobDatasets);
 			kommonitorDataGridHelperService.buildDataGrid_customizedJobs($scope.availableCustomizedComputationJobDatasets);
+			kommonitorDataGridHelperService.buildDataGrid_customizedJobs_new($scope.jobDescriptions);
 
 			$scope.loadingData = false;
 		};
