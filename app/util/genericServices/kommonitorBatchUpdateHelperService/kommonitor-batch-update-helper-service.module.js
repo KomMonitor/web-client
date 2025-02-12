@@ -187,13 +187,20 @@ angular
 								console.log("propertyMappingDefinition of row " + i + " with importerService: ", propertyMappingDefinition);
 
 								let indicatorMetadata = kommonitorDataExchangeService.getIndicatorMetadataById(resourceId);
-								let permissions = [];
 
+								let applicableSpatialUnitEntry;
 								for (const applicableSpatialUnit of indicatorMetadata.applicableSpatialUnits) {
-									if (applicableSpatialUnit.spatialUnitId === row.selectedTargetSpatialUnit.spatialUnitId){
-										permissions = applicableSpatialUnit.permissions;
+									if (applicableSpatialUnit.spatialUnitId == targetSpatialUnitId || applicableSpatialUnit.spatialUnitName == targetSpatialUnitId){
+									applicableSpatialUnitEntry = applicableSpatialUnit;
+									break;
 									}
 								}
+
+								// data model since mandant upgrade
+								// if not yet avaible the settings for a new spatial unit will be taken from metadata object
+								let permissions = applicableSpatialUnitEntry ? applicableSpatialUnitEntry.permissions : indicatorMetadata.permissions;
+								let isPublic = applicableSpatialUnitEntry ? applicableSpatialUnitEntry.isPublic : indicatorMetadata.isPublic;  
+								let ownerId = applicableSpatialUnitEntry ? applicableSpatialUnitEntry.ownerId : indicatorMetadata.ownerId;
 	
 								var scopeProperties = {
 									"targetSpatialUnitMetadata": {
@@ -203,11 +210,10 @@ angular
 										"defaultClassificationMapping": row.name.defaultClassificationMapping
 									},
 									"permissions": permissions,
-									"ownerId": indicatorMetadata.ownerId,
-									"isPublic": indicatorMetadata.isPublic
+									"ownerId": ownerId,
+									"isPublic": isPublic
 								};
 								 var putBody_indicators = kommonitorImporterHelperService.buildPutBody_indicators(scopeProperties);
-								 //console.log("putBody_indicators of row " + i + ": ", putBody_indicators);
 		 
 								 // send post request and wait for it to complete
 								 var updateIndicatorResponse_dryRun = undefined;
