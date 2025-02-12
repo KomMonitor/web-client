@@ -186,14 +186,17 @@ angular
 	
 								console.log("propertyMappingDefinition of row " + i + " with importerService: ", propertyMappingDefinition);
 
-								let indicatorMetadata = kommonitorDataExchangeService.getIndicatorMetadataById(resourceId);
-								let allowedRoleIds = [];
+								let indicatorMetadata = kommonitorDataExchangeService.getIndicatorMetadataById(resourceId);								
 
+								let applicableSpatialUnitEntry;
 								for (const applicableSpatialUnit of indicatorMetadata.applicableSpatialUnits) {
-									if (applicableSpatialUnit.spatialUnitId === row.selectedTargetSpatialUnit.spatialUnitId){
-										allowedRoleIds = applicableSpatialUnit.allowedRoles;
+									if (applicableSpatialUnit.spatialUnitId == targetSpatialUnitId || applicableSpatialUnit.spatialUnitName == targetSpatialUnitId){
+									applicableSpatialUnitEntry = applicableSpatialUnit;
+									break;
 									}
 								}
+
+								let allowedRoleIds = applicableSpatialUnitEntry ? applicableSpatialUnitEntry.allowedRoles : indicatorMetadata.allowedRoles;
 	
 								var scopeProperties = {
 									"targetSpatialUnitMetadata": {
