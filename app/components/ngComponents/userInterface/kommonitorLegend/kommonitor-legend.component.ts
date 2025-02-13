@@ -1,4 +1,5 @@
 import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchange, DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { ElementVisibilityHelperService } from 'services/element-visibility-helper-service/element-visibility-helper.service';
 import { FilterHelperService } from 'services/filter-helper-service/filter-helper.service';
@@ -34,7 +35,8 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
     private elementVisibilityService: ElementVisibilityHelperService,
     private shareHelperService: ShareHelperService,
     private visualStyleService: VisualStyleHelperService,
-    private filterHelperService: FilterHelperService
+    private filterHelperService: FilterHelperService,
+    private broadcastService: BroadcastService
   ) {}
 
   ngOnChanges(changes: any): void {
@@ -60,6 +62,12 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
   }
 
   ngOnInit(): void {
+
+    
+      this.broadcastService.currentBroadcastMsg.subscribe(broadcastMsg => {
+        let title = broadcastMsg.msg;
+      });
+
       this.exchangeData = this.dataExchangeService.pipedData;
       this.elementVisibilityData = this.elementVisibilityService.pipedData;
       this.visualStyleData = this.visualStyleService.pipedData;
@@ -69,6 +77,7 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
       var dateComponents = this.exchangeData.selectedDate.split("-");
       this.dateAsDate = new Date(Number(dateComponents[0]), Number(dateComponents[1]) - 1, Number(dateComponents[2]));
 
+      // todo
      /*  $rootScope.$on( "updateLegendDisplay", function(event, containsZeroValues, containsNegativeValues, containsNoData, containsOutliers_high, containsOutliers_low, outliers_low, outliers_high, selectedDate) {
         $scope.containsZeroValues = containsZeroValues;
         $scope.containsNegativeValues = containsNegativeValues;

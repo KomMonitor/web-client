@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchange, DataExchangeService, IndicatorTopic } from 'services/data-exchange-service/data-exchange.service';
 
 @Component({
@@ -28,7 +29,8 @@ export class KommonitorDataSetupComponent implements OnInit {
   preppedIndicatorTopics: IndicatorTopic[] = [];
 
   constructor(
-    public dataExchangeService: DataExchangeService
+    private dataExchangeService: DataExchangeService,
+    private broadcastService: BroadcastService
   ) {}
 
   ngOnInit(): void {
@@ -749,12 +751,15 @@ export class KommonitorDataSetupComponent implements OnInit {
 
     // todo
     //$rootScope.$broadcast("onChangeSelectedIndicator");
+    this.broadcastService.broadcast('onChangeSelectedIndicator');
 
     if(this.exchangeData.selectedIndicator){
 
       this.loadingData = true;
       //todo
       // $rootScope.$broadcast("showLoadingIconOnMap");
+      this.broadcastService.broadcast('showLoadingIconOnMap');
+
       this.changeIndicatorWasClicked = true;
 
       this.markAssociatedHierarchyElement(this.exchangeData.selectedIndicator);
@@ -775,29 +780,36 @@ export class KommonitorDataSetupComponent implements OnInit {
         console.error(error);
         this.loadingData = false;
         // todo
-    // $rootScope.$broadcast("hideLoadingIconOnMap");
+        // $rootScope.$broadcast("hideLoadingIconOnMap");
+        this.broadcastService.broadcast('hideLoadingIconOnMap');
+
         this.dataExchangeService.displayMapApplicationError(error);
         return;
       }
 
        // todo
-    //$rootScope.$broadcast("DisableBalance");
+      //$rootScope.$broadcast("DisableBalance");
+      this.broadcastService.broadcast('DisableBalance');
+
       this.modifyExports(true);
 
       if(this.exchangeData.useNoDataToggle) {
          // todo
-    //$rootScope.$broadcast('applyNoDataDisplay');
-    }
+      //$rootScope.$broadcast('applyNoDataDisplay');
+      this.broadcastService.broadcast('applyNoDataDisplay');
+      }
 
       this.loadingData = false;
 
       if(recenterMap){
          // todo
-    //$rootScope.$broadcast("recenterMapContent");
+        //$rootScope.$broadcast("recenterMapContent");
+        this.broadcastService.broadcast('recenterMapContent');
       }
 
        // todo
-    //$rootScope.$broadcast("hideLoadingIconOnMap");
+      //$rootScope.$broadcast("hideLoadingIconOnMap");
+      this.broadcastService.broadcast('hideLoadingIconOnMap');
       this.changeIndicatorWasClicked = false;
 
      
@@ -814,6 +826,7 @@ export class KommonitorDataSetupComponent implements OnInit {
 
      // todo
     //$rootScope.$broadcast("selectedIndicatorDateHasChanged");
+    this.broadcastService.broadcast('selectedIndicatorDateHasChanged');
   }
 
 
@@ -848,4 +861,5 @@ modifyExports(changeIndicator){
                 $scope.$digest();
 
   }); */
+
 }
