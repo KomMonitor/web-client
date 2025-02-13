@@ -46,6 +46,22 @@ export interface DataExchange {
   allFeaturesRegionalSpatiallyUnassignable: any;
   classifyUsingWholeTimeseries: any;
   useNoDataToggle: any;
+  topicIndicatorHierarchy: IndicatorTopic[];
+  selectedIndicatorBackup: Indicator;
+  displayableIndicators: any;
+  wmsUrlForSelectedIndicator: any;
+  wfsUrlForSelectedIndicator: any;
+}
+
+export interface IndicatorTopic {
+  indicatorCount: number;
+  indicatorData: any;
+  subTopics: IndicatorTopic[];
+  topicDescription: string;
+  topicId: string;
+  topicName: string;
+  topicResource: string;
+  topicType: string;
 }
 
 export interface SpatialUnit {
@@ -68,6 +84,10 @@ export interface Indicator {
   referencedGeoresources: any;
   isHeadlineIndicator: boolean;
   defaultClassificationMapping: any;
+  applicableSpatialUnits: any;
+  indicatorId: any;
+  ogcServices: any;
+  applicableDates: any;
 }
 
 @Injectable({
@@ -117,11 +137,19 @@ export class DataExchangeService {
     return this.ajskommonitorDataExchangeServiceeProvider.getIndicatorValue_asFormattedText(indicatorValue);
   }
 
-  tsToDate_withOptionalUpdateInterval(value: any) {
-    return this.ajskommonitorDataExchangeServiceeProvider.tsToDate_withOptionalUpdateInterval(value);
+  tsToDate_withOptionalUpdateInterval(value: any, interval:any) {
+    return this.ajskommonitorDataExchangeServiceeProvider.tsToDate_withOptionalUpdateInterval(value, interval);
   }
 
-  dateToTS(value: any, interval: any) {
-    return this.ajskommonitorDataExchangeServiceeProvider.dateToTS(value, interval);
+  dateToTS(value: any) {
+    return this.ajskommonitorDataExchangeServiceeProvider.dateToTS(value);
+  }
+
+  displayMapApplicationError(error: any) {
+    this.ajskommonitorDataExchangeServiceeProvider.displayMapApplicationError(error);
+  }
+
+  getBaseUrlToKomMonitorDataAPI_spatialResource() {
+    return this.ajskommonitorDataExchangeServiceeProvider.getBaseUrlToKomMonitorDataAPI_spatialResource();
   }
 }

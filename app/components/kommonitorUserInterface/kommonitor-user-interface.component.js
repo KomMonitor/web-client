@@ -28,8 +28,6 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
       
       let vars = {event, containsZeroValues, containsNegativeValues, containsNoData, containsOutliers_high, containsOutliers_low, outliers_low, outliers_high, selectedDate};
       $scope.onUpdateLegendDisplayEmitterData = vars;
-      
-      console.log("Custom NG2 updateLegendDisplay emitted", vars);
     });
 
 		$scope.init = async function () {

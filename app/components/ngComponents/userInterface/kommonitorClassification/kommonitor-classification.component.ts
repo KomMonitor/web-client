@@ -41,7 +41,6 @@ export class KommonitorClassificationComponent implements OnInit {
   ) {
     this.exchangeData = dataExchangeService.pipedData;
     this.visualStyleData = visualStyleHelperService.pipedData;
-    console.log(this.visualStyleData);
   }
 
   ngOnInit(): void {

@@ -1,0 +1,374 @@
+<div id="indicatorSetup">
+	<!-- <h3 class="justify" align="center">Datenangebot</h3> -->
+
+	<!-- <p align="center">Bitte Layer gem&auml;&szlig; Kategorie zur Anzeige ausw&auml;hlen</p> -->
+
+	<div align="center">
+		<div class="loading-overlay-sidebar-small ng-hide" ng-show="loadingData">
+					<span class="glyphicon glyphicon-refresh icon-spin"></span>
+		</div>
+	</div>
+
+	<div class="box box-primary">
+            <div class="box-header with-border">
+              <h3 class="box-title">Indikatorenauswahl</h3>
+
+							<div class="box-tools pull-right">
+								<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+								</button>
+							</div>
+            </div>
+            <!-- /.box-header -->
+            <!-- form start -->
+
+              <div class="box-body">	
+
+
+								<!-- <div>
+									<img style="display: block; margin-left: auto; margin-right: auto;" src="./logos/Indikatorenframework_transparent.png" alt="Indikatorenframework" height="257" width="400">
+								<div >
+
+								<br/> -->
+
+
+
+											<div class="input-group">
+				                <span class="input-group-addon"><i class="fas fa-filter"></i></span>
+				                <input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model="indicatorNameFilter" ng-model-options="{debounce: 500, blur: 0}" ng-change="$ctrl.kommonitorDataExchangeServiceInstance.onChangeIndicatorKeywordFilter(indicatorNameFilter)">
+				              </div>
+
+										<br/>
+
+										<label>Datenkataloge:</label>
+
+                    <ul class="nav nav-tabs" id="legendTabs" role="tablist">
+                      <li class="nav-item active">
+                        <a class="nav-link active" id="dataCatalogueTab1" data-toggle="tab" href="#dataCatalogueTab1Content"
+                          role="tab" aria-controls="dataCatalogueTab1Content" aria-selected="true">Themenhierarchie</a>
+                      </li>
+                      <li class="nav-item">
+                        <a class="nav-link" id="dataCatalogueTab2" data-toggle="tab" href="#dataCatalogueTab2Content" role="tab"
+                          aria-controls="dataCatalogueTab2Content" aria-selected="false">Leitindikatoren-Hierarchie</a>
+                      </li>
+                      <li class="nav-item">
+                        <a class="nav-link" id="legendTab3" data-toggle="tab" href="#dataCatalogueTab3Content" role="tab"
+                          aria-controls="dataCatalogueTab3Content" aria-selected="false">Alphabetische Liste</a>
+                      </li>
+                    </ul>
+                    <div class="tab-content" id="dataCatalogueTab3">
+                      <div class="tab-pane active" id="dataCatalogueTab1Content" role="tabpanel"
+                        aria-labelledby="dataCatalogueTab1">
+
+                          <div class="just-padding">
+  
+                            <div id="indicatorHierarchySelection" class="list-group list-group-root well">
+  
+                              <label>Erl&auml;uterungen zur Symbolik </label>
+                              <div class="list-group-item list-group-item-default style-simple-indicator">
+                                <p style="cursor:pointer; color: black;"> <i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>Standardindikator (numerische Wertverteilung)</b>
+                                    [Einheitsbezeichnung]</p>
+                              </div>
+  
+                              <div class="list-group-item list-group-item-default style-headline-indicator">
+                                <p style="cursor:pointer; color: white;">
+                                    <i class="fas fa-tachometer-alt"></i> &nbsp;&nbsp;<b>Leitindikator (bewertende Aussage)</b>
+                                    [Einheitsbezeichnung]</p>
+                              </div>
+  
+                              <br/>
+  
+                              <label> Themenorientierter Datenkatalog </label>
+  
+                              <div *ngFor="let mainTopic of preppedIndicatorTopics">
+                                <div  class="list-group-item list-group-item-default" style="background: #2171b5; color: white;">
+                                  <a href="" title="{{mainTopic.topicDescription}}" class="collapseTrigger" style="color: white;" (click)="isCollapsed_mainTopic = !isCollapsed_mainTopic"><i class="glyphicon glyphicon-chevron-right"></i>{{mainTopic.topicName}}  ({{mainTopic.indicatorCount}})</a>
+                                </div>
+  
+                                <div class="list-group collapse" [ngClass]="{'in': isCollapsed_mainTopic}">
+                                  <div *ngFor="let subTopic of mainTopic.subTopics">
+  
+                                    <div  class="list-group-item list-group-item-default" style="background: #6baed6; color: white;">
+                                      <a class="collapseTrigger" style="color: white;" title="{{subTopic.topicDescription}}" href="" (click)="isCollapsed_subTopic = !isCollapsed_subTopic"><i class="glyphicon glyphicon-chevron-right"></i>{{subTopic.topicName}}  ({{subTopic.indicatorCount}})</a>
+                                    </div>	
+                                    <div class="list-group collapse" [ngClass]="{'in': isCollapsed_subTopic}">
+                                      <div *ngFor="let subsubTopic in subTopic.subTopics">
+    
+                                        <div  class="list-group-item list-group-item-default" style="background: #bdd7e7; color: white;">
+                                          <a class="collapseTrigger" style="color: black;" title="{{subsubTopic.topicDescription}}" href="" (click)="isCollapsed_subsubTopic = !isCollapsed_subsubTopic"><i class="glyphicon glyphicon-chevron-right"></i>{{subsubTopic.topicName}}   ({{subsubTopic.indicatorCount}})</a>
+                                        </div>
+      
+                                        <div class="list-group collapse" [ngClass]="{'in': isCollapsed_subsubTopic}">
+                                          <div *ngFor="let subsubsubTopic of subsubTopic.subTopics">
+      
+                                            <div  class="list-group-item list-group-item-default" style="background: #eff3ff; color: white;">
+                                              <a class="collapseTrigger" style="color: black;" title="{{subsubsubTopic.topicDescription}}" href="" (click)="isCollapsed_subsubsubTopic = !isCollapsed_subsubsubTopic"><i class="glyphicon glyphicon-chevron-right"></i>{{subsubsubTopic.topicName}}   ({{subsubsubTopic.indicatorCount}})</a>
+                                            </div>
+        
+                                              <div class="list-group collapse indicatorInputForm" [ngClass]="{'in': isCollapsed_subsubsubTopic}">
+                                                <div id="indicatorHierarchyElement-{{indicatorMetadata.indicatorId}}" [ngClass]="{'style-headline-indicator': indicatorMetadata.isHeadlineIndicator , 'style-simple-indicator': ! indicatorMetadata.isHeadlineIndicator}" 
+                                                  *ngFor="let indicatorMetadata of subsubsubTopic.indicatorData" class="list-group-item list-group-item-default">
+                                                  <div *ngIf="indicatorMetadata.isHeadlineIndicator">
+                                                    <p style="cursor:pointer; color: white;" title="<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]" style="color: white;" (click)="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-tachometer-alt"></i> &nbsp;&nbsp;<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]</p>																			
+                                                  </div> 
+                                                  <div *ngIf="! indicatorMetadata.isHeadlineIndicator">
+                                                    <p style="cursor:pointer;" title="<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]" style="color: white;" (click)="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]</p>																				
+                                                  </div>
+                                                  </div>
+                                              </div>
+        
+        
+                                          </div>
+                                          <div class="list-group indicatorInputForm" >
+                                            <div id="indicatorHierarchyElement-{{indicatorMetadata.indicatorId}}" [ngClass]="{'style-headline-indicator': indicatorMetadata.isHeadlineIndicator , 'style-simple-indicator': ! indicatorMetadata.isHeadlineIndicator}" 
+                                              *ngFor="let indicatorMetadata of subsubTopic.indicatorData" class="list-group-item list-group-item-default">
+                                              <div *ngIf="indicatorMetadata.isHeadlineIndicator">
+                                                <p style="cursor:pointer; color: white;" title="<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]" style="color: white;" (click)="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-tachometer-alt"></i> &nbsp;&nbsp;<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]</p>
+                                            
+                                              </div> 
+                                              <div *ngIf="! indicatorMetadata.isHeadlineIndicator">
+                                                <p style="cursor:pointer;" title="<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]" style="color: white;" (click)="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]</p>
+                                            
+                                              </div>
+                                            </div>
+                                          </div>
+                                        </div>
+      
+                                      </div>
+                                      <div class="list-group indicatorInputForm" >
+                                        <div id="indicatorHierarchyElement-{{indicatorMetadata.indicatorId}}" [ngClass]="{'style-headline-indicator': indicatorMetadata.isHeadlineIndicator , 'style-simple-indicator': ! indicatorMetadata.isHeadlineIndicator}"
+                                          *ngFor="let indicatorMetadata of subTopic.indicatorData" class="list-group-item list-group-item-default">
+                                          <div *ngIf="indicatorMetadata.isHeadlineIndicator">
+                                            <p style="cursor:pointer; color: white;" title="<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]" ng-click="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-tachometer-alt"></i> &nbsp;&nbsp;<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]</p>
+                                        
+                                          </div> 
+                                          <div *ngIf="! indicatorMetadata.isHeadlineIndicator">
+                                            <p style="cursor:pointer;" style="color: white;" title="<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]" ng-click="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]</p>
+                                        
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>										
+    
+    
+                                  </div>
+  
+                                 <!--  <div class="list-group indicatorInputForm" >
+                                    <div id="indicatorHierarchyElement-{{::indicatorMetadata.indicatorId}}" ng-class="{'style-headline-indicator': indicatorMetadata.isHeadlineIndicator, 'style-simple-indicator': !indicatorMetadata.isHeadlineIndicator }"
+                                      ng-repeat="indicatorMetadata in mainTopic.indicatorData track by indicatorMetadata.indicatorId" class="list-group-item list-group-item-default">
+                                      <div ng-if="::indicatorMetadata.isHeadlineIndicator">
+                                        <p style="cursor:pointer; color: white;" ng-attr-title="<b>{{::indicatorMetadata.indicatorName}}</b> [{{::indicatorMetadata.unit}}]" ng-click="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-tachometer-alt"></i> &nbsp;&nbsp;<b>{{::indicatorMetadata.indicatorName}}</b> [{{::indicatorMetadata.unit}}]</p>
+                                    
+                                      </div> 
+                                      <div ng-if="::! indicatorMetadata.isHeadlineIndicator">
+                                        <p style="cursor:pointer;" style="color: white;" ng-attr-title="<b>{{::indicatorMetadata.indicatorName}}</b> [{{::indicatorMetadata.unit}}]" ng-click="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>{{::indicatorMetadata.indicatorName}}</b> [{{::indicatorMetadata.unit}}]</p>
+                                    
+                                      </div>
+                                    </div>
+                                  </div> -->
+                                </div>
+                              </div>
+                            </div>
+  
+                        </div>
+
+                      </div>
+                      <div class="tab-pane" id="dataCatalogueTab2Content" role="tabpanel"
+                        aria-labelledby="dataCatalogueTab2">
+                        zwei
+                      </div>
+                      <div class="tab-pane" id="dataCatalogueTab3Content" role="tabpanel"
+                        aria-labelledby="dataCatalogueTab3">
+                        drei
+                      </div>
+                    </div>
+
+
+									<!-- 	 <uib-tabset active="0">
+									    <uib-tab index="0" heading="Themenhierarchie">
+
+												<div class="just-padding">
+
+													<div id="indicatorHierarchySelection" class="list-group list-group-root well">
+
+														<label>Erl&auml;uterungen zur Symbolik </label>
+														<div class="list-group-item list-group-item-default style-simple-indicator">
+															<p style="cursor:pointer; color: black;"> <i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>Standardindikator (numerische Wertverteilung)</b>
+																	[Einheitsbezeichnung]</p>
+														</div>
+
+														<div class="list-group-item list-group-item-default style-headline-indicator">
+															<p style="cursor:pointer; color: white;">
+																	<i class="fas fa-tachometer-alt"></i> &nbsp;&nbsp;<b>Leitindikator (bewertende Aussage)</b>
+																	[Einheitsbezeichnung]</p>
+														</div>
+
+														<br/>
+
+														<label> Themenorientierter Datenkatalog </label>
+
+														<div ng-repeat="mainTopic in $ctrl.kommonitorDataExchangeServiceInstance.topicIndicatorHierarchy | orderBy: 'topicName'" ng-if="::mainTopic.indicatorCount">
+															<div  class="list-group-item list-group-item-default" style="background: #2171b5; color: white;">
+																<a href="" ng-attr-title="{{mainTopic.topicDescription}}" class="collapseTrigger" style="color: white;" ng-click="isCollapsed_mainTopic = !isCollapsed_mainTopic" ng-init="isCollapsed_mainTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>{{::mainTopic.topicName}}  ({{mainTopic.indicatorCount}})</a>
+															</div>
+
+															<div class="list-group collapse" uib-collapse="isCollapsed_mainTopic">
+																<div ng-repeat="subTopic in ::mainTopic.subTopics | orderBy: 'topicName'" ng-if="::subTopic.indicatorCount">
+
+																	<div  class="list-group-item list-group-item-default" style="background: #6baed6; color: white;">
+																		<a class="collapseTrigger" style="color: white;" ng-attr-title="{{::subTopic.topicDescription}}" href="" ng-click="isCollapsed_subTopic = !isCollapsed_subTopic" ng-init="isCollapsed_subTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>{{::subTopic.topicName}}  ({{subTopic.indicatorCount}})</a>
+																	</div>	
+																	<div class="list-group collapse" uib-collapse="isCollapsed_subTopic">
+																		<div ng-repeat="subsubTopic in ::subTopic.subTopics | orderBy: 'topicName'" ng-if="::subsubTopic.indicatorCount">
+	
+																			<div  class="list-group-item list-group-item-default" style="background: #bdd7e7; color: white;">
+																				<a class="collapseTrigger" style="color: black;" ng-attr-title="{{::subsubTopic.topicDescription}}" href="" ng-click="isCollapsed_subsubTopic = !isCollapsed_subsubTopic" ng-init="isCollapsed_subsubTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>{{::subsubTopic.topicName}}   ({{subsubTopic.indicatorCount}})</a>
+																			</div>
+		
+																			<div class="list-group collapse" uib-collapse="isCollapsed_subsubTopic">
+																				<div ng-repeat="subsubsubTopic in ::subsubTopic.subTopics | orderBy: 'topicName'" ng-if="::subsubsubTopic.indicatorCount">
+		
+																					<div  class="list-group-item list-group-item-default" style="background: #eff3ff; color: white;">
+																						<a class="collapseTrigger" style="color: black;" ng-attr-title="{{::subsubsubTopic.topicDescription}}" href="" ng-click="isCollapsed_subsubsubTopic = !isCollapsed_subsubsubTopic" ng-init="isCollapsed_subsubsubTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>{{::subsubsubTopic.topicName}}   ({{subsubsubTopic.indicatorCount}})</a>
+																					</div>
+			
+																						<div class="list-group collapse indicatorInputForm" uib-collapse="isCollapsed_subsubsubTopic">
+																							<div id="indicatorHierarchyElement-{{::indicatorMetadata.indicatorId}}" ng-class="{'style-headline-indicator': indicatorMetadata.isHeadlineIndicator , 'style-simple-indicator': ! indicatorMetadata.isHeadlineIndicator}" 
+																								ng-repeat="indicatorMetadata in subsubsubTopic.indicatorData track by indicatorMetadata.indicatorId" class="list-group-item list-group-item-default">
+																								<div ng-if="::indicatorMetadata.isHeadlineIndicator">
+																									<p style="cursor:pointer; color: white;" ng-attr-title="<b>{{::indicatorMetadata.indicatorName}}</b> [{{::indicatorMetadata.unit}}]" style="color: white;" ng-click="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-tachometer-alt"></i> &nbsp;&nbsp;<b>{{::indicatorMetadata.indicatorName}}</b> [{{::indicatorMetadata.unit}}]</p>																			
+																								</div> 
+																								<div ng-if="::! indicatorMetadata.isHeadlineIndicator">
+																									<p style="cursor:pointer;" ng-attr-title="<b>{{::indicatorMetadata.indicatorName}}</b> [{{::indicatorMetadata.unit}}]" style="color: white;" ng-click="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>{{::indicatorMetadata.indicatorName}}</b> [{{::indicatorMetadata.unit}}]</p>																				
+																								</div>
+																								</div>
+																						</div>
+			
+			
+																				</div>
+																				<div class="list-group indicatorInputForm" >
+																					<div id="indicatorHierarchyElement-{{::indicatorMetadata.indicatorId}}" ng-class="{'style-headline-indicator': indicatorMetadata.isHeadlineIndicator , 'style-simple-indicator': ! indicatorMetadata.isHeadlineIndicator}" 
+																						ng-repeat="indicatorMetadata in subsubTopic.indicatorData track by indicatorMetadata.indicatorId" class="list-group-item list-group-item-default">
+																						<div ng-if="::indicatorMetadata.isHeadlineIndicator">
+																							<p style="cursor:pointer; color: white;" ng-attr-title="<b>{{::indicatorMetadata.indicatorName}}</b> [{{::indicatorMetadata.unit}}]" style="color: white;" ng-click="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-tachometer-alt"></i> &nbsp;&nbsp;<b>{{::indicatorMetadata.indicatorName}}</b> [{{::indicatorMetadata.unit}}]</p>
+																					
+																						</div> 
+																						<div ng-if="::! indicatorMetadata.isHeadlineIndicator">
+																							<p style="cursor:pointer;" ng-attr-title="<b>{{::indicatorMetadata.indicatorName}}</b> [{{::indicatorMetadata.unit}}]" style="color: white;" ng-click="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>{{::indicatorMetadata.indicatorName}}</b> [{{::indicatorMetadata.unit}}]</p>
+																					
+																						</div>
+																					</div>
+																				</div>
+																			</div>
+		
+																		</div>
+																		<div class="list-group indicatorInputForm" >
+																			<div id="indicatorHierarchyElement-{{::indicatorMetadata.indicatorId}}" ng-class="{'style-headline-indicator': indicatorMetadata.isHeadlineIndicator , 'style-simple-indicator': ! indicatorMetadata.isHeadlineIndicator}"
+																				ng-repeat="indicatorMetadata in subTopic.indicatorData track by indicatorMetadata.indicatorId" class="list-group-item list-group-item-default">
+																				<div ng-if="::indicatorMetadata.isHeadlineIndicator">
+																					<p style="cursor:pointer; color: white;" ng-attr-title="<b>{{::indicatorMetadata.indicatorName}}</b> [{{::indicatorMetadata.unit}}]" ng-click="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-tachometer-alt"></i> &nbsp;&nbsp;<b>{{::indicatorMetadata.indicatorName}}</b> [{{::indicatorMetadata.unit}}]</p>
+																			
+																				</div> 
+																				<div ng-if="::! indicatorMetadata.isHeadlineIndicator">
+																					<p style="cursor:pointer;" style="color: white;" ng-attr-title="<b>{{::indicatorMetadata.indicatorName}}</b> [{{::indicatorMetadata.unit}}]" ng-click="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>{{::indicatorMetadata.indicatorName}}</b> [{{::indicatorMetadata.unit}}]</p>
+																			
+																				</div>
+																			</div>
+																		</div>
+																	</div>										
+	
+	
+																</div>
+
+																<div class="list-group indicatorInputForm" >
+																	<div id="indicatorHierarchyElement-{{::indicatorMetadata.indicatorId}}" ng-class="{'style-headline-indicator': indicatorMetadata.isHeadlineIndicator, 'style-simple-indicator': !indicatorMetadata.isHeadlineIndicator }"
+																		ng-repeat="indicatorMetadata in mainTopic.indicatorData track by indicatorMetadata.indicatorId" class="list-group-item list-group-item-default">
+																		<div ng-if="::indicatorMetadata.isHeadlineIndicator">
+																			<p style="cursor:pointer; color: white;" ng-attr-title="<b>{{::indicatorMetadata.indicatorName}}</b> [{{::indicatorMetadata.unit}}]" ng-click="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-tachometer-alt"></i> &nbsp;&nbsp;<b>{{::indicatorMetadata.indicatorName}}</b> [{{::indicatorMetadata.unit}}]</p>
+																	
+																		</div> 
+																		<div ng-if="::! indicatorMetadata.isHeadlineIndicator">
+																			<p style="cursor:pointer;" style="color: white;" ng-attr-title="<b>{{::indicatorMetadata.indicatorName}}</b> [{{::indicatorMetadata.unit}}]" ng-click="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>{{::indicatorMetadata.indicatorName}}</b> [{{::indicatorMetadata.unit}}]</p>
+																	
+																		</div>
+																	</div>
+																</div>
+															</div>
+														</div>
+													</div>
+
+											</div>
+
+											</uib-tab>									    
+											
+											<uib-tab index="1" heading="Leitindikatoren-Hierarchie" disable="! $ctrl.kommonitorDataExchangeServiceInstance.headlineIndicatorHierarchy || $ctrl.kommonitorDataExchangeServiceInstance.headlineIndicatorHierarchy.length == 0">
+												<div class="just-padding">
+
+													<div id="headlineIndicatorHierarchySelection" class="list-group list-group-root well">
+
+														<label>Erl&auml;uterungen zur Symbolik </label>														
+
+														<div class="list-group-item list-group-item-default style-headline-indicator">
+															<p style="cursor:pointer; color: white;"
+																	style="color: white;" <i class="fas fa-tachometer-alt"></i> &nbsp;&nbsp;<b>Leitindikator (bewertende Aussage)</b>
+																	[Einheitsbezeichnung]</p>
+														</div>
+														<div class="list-group-item list-group-item-default style-simple-indicator">
+															<p style="cursor:pointer; color: black;" <i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>Basis-Indikator als Berechnungsgrundlage des Leitindikators</b>
+																	[Einheitsbezeichnung]</p>
+														</div>
+
+														<br/>
+
+														<label> Leitindikatoren und ihre Basis-Indikatoren </label>
+
+														<div ng-repeat="headlineIndicatorHierarchyItem in $ctrl.kommonitorDataExchangeServiceInstance.headlineIndicatorHierarchy track by headlineIndicatorHierarchyItem.headlineIndicator.indicatorId">
+															<div  class="list-group-item list-group-item-default" style="background: #2171b5; color: white;">
+																<a href="" ng-attr-title="{{::headlineIndicatorHierarchyItem.headlineIndicator.metadata.description}}" class="collapseTrigger" style="color: white;" ng-click="isCollapsed_headlineIndicatorHierarchyItem = !isCollapsed_headlineIndicatorHierarchyItem" ng-init="isCollapsed_headlineIndicatorHierarchyItem=true"><i class="glyphicon glyphicon-chevron-right"></i>{{::headlineIndicatorHierarchyItem.headlineIndicator.indicatorName}} </a>
+															</div>
+
+															<div class="list-group collapse indicatorInputForm" uib-collapse="isCollapsed_headlineIndicatorHierarchyItem">
+																<div 
+																	class="list-group-item list-group-item-default style-headline-indicator">
+																	<div>
+																		<p style="cursor:pointer; color: white;" ng-attr-title="<b>{{::headlineIndicatorHierarchyItem.headlineIndicator.indicatorName}}</b> [{{::headlineIndicatorHierarchyItem.headlineIndicator.unit}}]" ng-click="onClickHierarchyIndicator(headlineIndicatorHierarchyItem.headlineIndicator)"><i class="fas fa-tachometer-alt"></i> &nbsp;&nbsp;<b>{{::headlineIndicatorHierarchyItem.headlineIndicator.indicatorName}}</b> [{{::headlineIndicatorHierarchyItem.headlineIndicator.unit}}]</p>
+																
+																	</div> 
+																</div>
+
+																<div 
+																	class="list-group-item list-group-item-default style-simple-indicator"
+																	ng-repeat="baseIndicatorMetadata in ::headlineIndicatorHierarchyItem.baseIndicators track by baseIndicatorMetadata.indicatorId" >
+																	<div>
+																		<p style="cursor:pointer; color: black;" ng-attr-title="<b>{{::baseIndicatorMetadata.indicatorName}}</b> [{{::baseIndicatorMetadata.unit}}]" ng-click="onClickHierarchyIndicator(baseIndicatorMetadata)"><i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>{{::baseIndicatorMetadata.indicatorName}}</b> [{{::baseIndicatorMetadata.unit}}]</p>
+																
+																	</div> 
+																</div>
+															</div>
+
+														</div>
+													</div>
+
+												</div>
+
+											</uib-tab>
+
+											<uib-tab index="2" heading="Alphabetische Liste">
+												<div class="just-padding">
+													<select style="font-size: 12px;"
+														size="30" class="form-control" required>
+														<option disabled selected value> -- Indikator w&auml;hlen -- </option>
+														<option ng-repeat="indicatorMetadata in $ctrl.kommonitorDataExchangeServiceInstance.displayableIndicators_keywordFiltered track by indicatorMetadata.indicatorId"
+														ng-click="onChangeSelectedIndicator_fromAlphabeticalList(indicatorMetadata)"> {{::indicatorMetadata.indicatorName}} [{{::indicatorMetadata.unit}}] </option>
+													</select>
+												</div>
+											</uib-tab> -->
+
+								</div>
+								<!-- /.box-body -->
+						</div>
+						  <!-- /.box -->
+								  
+</div>
+
+
+	

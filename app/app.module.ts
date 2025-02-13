@@ -31,6 +31,8 @@ import { NgbCalendar, NgbDatepickerModule, NgbDateStruct, NgbAccordionModule, Ng
 import { FormsModule } from '@angular/forms';
 import { JsonPipe } from '@angular/common';
 import { KommonitorClassificationComponent } from './components/ngComponents/userInterface/kommonitorClassification/kommonitor-classification.component';
+import { KommonitorDataSetupComponent } from './components/ngComponents/userInterface/sidebar/kommonitorDataSetup/kommonitor-data-setup.component';
+import { SidebarComponent } from './components/ngComponents/userInterface/sidebar/sidebar.component';
 
 
 // currently the AngularJS routing is still used as part of kommonitorClient module
@@ -62,7 +64,9 @@ declare var MathJax;
   declarations: [
     InfoModalComponent,
     KommonitorLegendComponent,
-    KommonitorClassificationComponent
+    KommonitorClassificationComponent,
+    KommonitorDataSetupComponent,
+    SidebarComponent
   ]
 })
 
@@ -110,6 +114,10 @@ export class AppModule implements DoBootstrap {
 
     angular.module('kommonitorUserInterface')
     .directive('kommonitorLegendNew',  downgradeComponent({ component: KommonitorLegendComponent }) as angular.IDirectiveFactory);
+
+    angular.module('kommonitorUserInterface')
+    .directive('sidebarNew',  downgradeComponent({ component: SidebarComponent }) as angular.IDirectiveFactory);
+
 
    /*  angular.module('kommonitorUserInterface')
     .directive('versionInfo',  downgradeComponent({ component: VersionInfoComponent }) as angular.IDirectiveFactory);
