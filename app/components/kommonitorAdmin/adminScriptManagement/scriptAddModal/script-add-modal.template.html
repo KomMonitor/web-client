@@ -62,8 +62,8 @@
 								<ul id="progressbar">
 									<li style="width: 25%;" class="active">Einleitende Hinweise</li>
 									<li style="width: 25%;">Metadaten des Indikators-Skripts</li>
-									<li style="width: 25%;">Zielzeitpunkte und Ausführungszeit</li>
 									<li style="width: 25%;">Skriptinhalt und Parametrisierung</li>
+									<li style="width: 25%;">Zielzeitpunkte und Ausführungszeit</li>
 								</ul>
 							</div>							
 							<!-- fieldsets -->
@@ -285,6 +285,173 @@
 							</fieldset>
 
 							<fieldset>
+								<h2 class="fs-title">Skriptinhalt und Parametrisierung</h2>
+								<h3 class="fs-subtitle">Angaben &uuml;ber den Skript-Code und notwendige
+									Skript-Parameter</h3>
+
+								<p>Die Berechnung von Indikatoren erfolgt in KomMonitor mittels eines
+									<b>Skript-basierten
+										Ansatzes</b>, f&uuml;r den Angaben &uuml;ber notwendige
+									<i>(Basis-)Indikatoren</i> und/oder
+									<i>Georessourcen</i> sowie <i>variable Skript-Parameter</i> und den <i>Skript
+										Code</i> selbst erforderlich sind.
+								</p>
+
+								<p>Der Skript Code muss dabei einem festgelegten Template folgen. Das Template steht
+									unter folgendem Link bereit: <a
+										href="./kommonitor-script-resources/kommonitor-script-template.js"
+										rel='noopener noreferrer' target='_blank'>KomMonitor Skript Template</a>.
+									<br />
+									Hinweise zur Skript-Entwicklung befinden sich im github Repository der <a
+										href="https://github.com/KomMonitor/processing-engine/tree/master/resources"
+										rel='noopener noreferrer' target='_blank'>KomMonitor Processing Engine</a>
+								</p>
+
+								<!-- <p>Neben einer generischen Definition bietet diese Oberfl&auml;che f&uuml;r g&auml;ngige Berechnungsf&auml;lle vereinfachte Eingabemasken.</p> -->
+
+								<p><b><i>* = Pflichtfeld</i></b></p>
+
+
+
+								<div class="row vertical-align">
+									<div class="col-md-6 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Auswahl des Skript-Typen*</label>
+											<div class="input-group">
+												<span class="input-group-addon"><i class="fas fa-filter"></i></span>
+												<input type="text" class="form-control input-sm"
+													placeholder="Stichwortfilter" ng-model="scriptNameFilter" ng-model-options="{debounce: 500, blur: 0}"> 
+											</div>
+											<br />
+											<select ng-model="selectedScriptType" size="10"
+												ng-options="scriptType as scriptType.displayName for scriptType in $ctrl.kommonitorScriptHelperServiceInstance.availableScriptTypeOptions | orderBy: 'displayName' | filter:scriptNameFilter"
+												class="form-control">
+												<option disabled selected value> -- Skript-Typ w&auml;hlen --
+												</option>
+											</select>
+											<div class="help-block">
+												<p>Die Option <b>Generische Definition</b> bedarf der manuellen
+													Definition aller Skript-Daten. Die &uuml;brigen Auswahloptionen
+													bieten vereinfachte Eingabemasken, die im Hintergrund die
+													notwendigen Skript-Daten sowie den vordefinierten Skript-Code
+													automatisch setzen.</p>
+											</div>
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+								</div>
+
+								<!--
+								<div class="row vertical-align">
+									<div class="col-md-6 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Auswahl des Skript-Typen*</label>
+											<div class="input-group">
+												<span class="input-group-addon"><i class="fas fa-filter"></i></span>
+												<input type="text" class="form-control input-sm"
+													placeholder="Stichwortfilter" ng-model="scriptNameFilter" ng-model-options="{debounce: 500, blur: 0}"> 
+											</div>
+											<br />
+											<select ng-model="selectedScript" size="10"
+												ng-options="scriptType as scriptType.displayName for scriptType in $ctrl.kommonitorScriptHelperServiceInstance.availableScriptTypes | orderBy: 'displayName' | filter:scriptNameFilter"
+												ng-change="onScriptTypeChanged()"
+												class="form-control">
+												<option disabled selected value> -- Skript-Typ w&auml;hlen --
+												</option>
+											</select>
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+								</div>-->
+
+								<!-- ACTUAL SCRIPT FIELDS DEPENDING ON SELECTION OF SCRIPT TYPE; AS ANGULAR MODULES -->
+								<div ng-if="selectedScriptType.apiName === 'test'">
+									<script-test></script-test>
+								</div>
+								
+								<div ng-if="selectedScriptType.apiName === 'generic'">
+									<script-generic></script-generic>
+								</div>
+
+								<div ng-if="selectedScriptType.apiName === 'indicator_sum'">
+									<script-sum></script-sum>
+								</div>
+
+								<div ng-if="selectedScriptType.apiName === 'indicator_subtract'">
+									<script-subtract></script-subtract>
+								</div>
+
+								<div ng-if="selectedScriptType.apiName === 'indicator_promille'">
+									<script-promille></script-promille>
+								</div>
+
+								<div ng-if="selectedScriptType.apiName === 'indicator_percentage'">
+									<script-percentage></script-percentage>
+								</div>
+
+								<div ng-if="selectedScriptType.apiName === 'indicator_share'">
+									<script-share></script-share>
+								</div>
+
+								<div ng-if="selectedScriptType.apiName === 'indicator_division'">
+									<script-division></script-division>
+								</div>
+
+								<div ng-if="selectedScriptType.apiName === 'indicator_change_absolute'">
+									<script-change-absolute></script-change-absolute>
+								</div>
+
+								<div ng-if="selectedScriptType.apiName === 'indicator_change_absolute_refDate'">
+									<script-change-absolute-ref-date></script-change-absolute-ref-date>
+								</div>
+
+								<div ng-if="selectedScriptType.apiName === 'indicator_change_relative_refDate'">
+									<script-change-relative-ref-date></script-change-relative-ref-date>
+								</div>
+
+								<div ng-if="selectedScriptType.apiName === 'indicator_change_relative'">
+									<script-change-relative></script-change-relative>
+								</div>
+
+								<div ng-if="selectedScriptType.apiName === 'indicator_trend'">
+									<script-trend></script-trend>
+								</div>
+
+								<div ng-if="selectedScriptType.apiName === 'indicator_continuity'">
+									<script-continuity></script-continuity>
+								</div>
+
+								<div ng-if="selectedScriptType.apiName === 'indicator_headlineIndicator'">
+									<script-headline-indicator></script-headline-indicator>
+								</div>
+
+								<div ng-if="selectedScriptType.apiName === 'indicator_multiplication'">
+									<script-multiplication></script-multiplication>
+								</div>
+
+								<div ng-if="selectedScriptType.apiName === 'georesource_pointsInPolygon'">
+									<script-points-in-polygon></script-points-in-polygon>
+								</div>
+
+								<div ng-if="selectedScriptType.apiName === 'georesource_statistics'">
+									<script-georesource-statistics></script-georesource-statistics>
+								</div>
+
+								<div ng-if="selectedScriptType.apiName === 'georesource_subsetShare'">
+									<script-georesource-subset-share></script-georesource-subset-share>
+								</div>
+
+								<div ng-if="selectedScriptType.apiName === 'lineSegmentInPolygon'">
+									<script-line-segment-in-polygon></script-line-segment-in-polygon>
+								</div>
+
+								<input type="button" name="previous"
+									class="previous previous_addScript action-button-previous"
+									value="Voriger Schritt" />
+							</fieldset>
+
+
+							<fieldset>
 								<h2 class="fs-title">Zielzeitpunkte und Ausführungszeit</h2>
 								<h3 class="fs-subtitle">
 								</h3>
@@ -425,148 +592,6 @@
 
 							</fieldset>
 
-							<fieldset>
-								<h2 class="fs-title">Skriptinhalt und Parametrisierung</h2>
-								<h3 class="fs-subtitle">Angaben &uuml;ber den Skript-Code und notwendige
-									Skript-Parameter</h3>
-
-								<p>Die Berechnung von Indikatoren erfolgt in KomMonitor mittels eines
-									<b>Skript-basierten
-										Ansatzes</b>, f&uuml;r den Angaben &uuml;ber notwendige
-									<i>(Basis-)Indikatoren</i> und/oder
-									<i>Georessourcen</i> sowie <i>variable Skript-Parameter</i> und den <i>Skript
-										Code</i> selbst erforderlich sind.
-								</p>
-
-								<p>Der Skript Code muss dabei einem festgelegten Template folgen. Das Template steht
-									unter folgendem Link bereit: <a
-										href="./kommonitor-script-resources/kommonitor-script-template.js"
-										rel='noopener noreferrer' target='_blank'>KomMonitor Skript Template</a>.
-									<br />
-									Hinweise zur Skript-Entwicklung befinden sich im github Repository der <a
-										href="https://github.com/KomMonitor/processing-engine/tree/master/resources"
-										rel='noopener noreferrer' target='_blank'>KomMonitor Processing Engine</a>
-								</p>
-
-								<!-- <p>Neben einer generischen Definition bietet diese Oberfl&auml;che f&uuml;r g&auml;ngige Berechnungsf&auml;lle vereinfachte Eingabemasken.</p> -->
-
-								<p><b><i>* = Pflichtfeld</i></b></p>
-
-
-
-								<div class="row vertical-align">
-									<div class="col-md-6 col-sm-6 col-xs-12">
-										<div class="form-group">
-											<label>Auswahl des Skript-Typen*</label>
-											<div class="input-group">
-												<span class="input-group-addon"><i class="fas fa-filter"></i></span>
-												<input type="text" class="form-control input-sm"
-													placeholder="Stichwortfilter" ng-model="scriptNameFilter" ng-model-options="{debounce: 500, blur: 0}"> 
-											</div>
-											<br />
-											<select ng-model="selectedScriptType" size="10"
-												ng-options="scriptType as scriptType.displayName for scriptType in $ctrl.kommonitorScriptHelperServiceInstance.availableScriptTypeOptions | orderBy: 'displayName' | filter:scriptNameFilter"
-												class="form-control">
-												<option disabled selected value> -- Skript-Typ w&auml;hlen --
-												</option>
-											</select>
-											<div class="help-block">
-												<p>Die Option <b>Generische Definition</b> bedarf der manuellen
-													Definition aller Skript-Daten. Die &uuml;brigen Auswahloptionen
-													bieten vereinfachte Eingabemasken, die im Hintergrund die
-													notwendigen Skript-Daten sowie den vordefinierten Skript-Code
-													automatisch setzen.</p>
-											</div>
-											<div class="help-block with-errors"></div>
-										</div>
-									</div>
-								</div>
-
-								<!-- ACTUAL SCRIPT FIELDS DEPENDING ON SELECTION OF SCRIPT TYPE; AS ANGULAR MODULES -->
-								<div ng-if="selectedScriptType.apiName === 'test'">
-									<script-test></script-test>
-								</div>
-								
-								<div ng-if="selectedScriptType.apiName === 'generic'">
-									<script-generic></script-generic>
-								</div>
-
-								<div ng-if="selectedScriptType.apiName === 'indicator_sum'">
-									<script-sum></script-sum>
-								</div>
-
-								<div ng-if="selectedScriptType.apiName === 'indicator_subtract'">
-									<script-subtract></script-subtract>
-								</div>
-
-								<div ng-if="selectedScriptType.apiName === 'indicator_promille'">
-									<script-promille></script-promille>
-								</div>
-
-								<div ng-if="selectedScriptType.apiName === 'indicator_percentage'">
-									<script-percentage></script-percentage>
-								</div>
-
-								<div ng-if="selectedScriptType.apiName === 'indicator_share'">
-									<script-share></script-share>
-								</div>
-
-								<div ng-if="selectedScriptType.apiName === 'indicator_division'">
-									<script-division></script-division>
-								</div>
-
-								<div ng-if="selectedScriptType.apiName === 'indicator_change_absolute'">
-									<script-change-absolute></script-change-absolute>
-								</div>
-
-								<div ng-if="selectedScriptType.apiName === 'indicator_change_absolute_refDate'">
-									<script-change-absolute-ref-date></script-change-absolute-ref-date>
-								</div>
-
-								<div ng-if="selectedScriptType.apiName === 'indicator_change_relative_refDate'">
-									<script-change-relative-ref-date></script-change-relative-ref-date>
-								</div>
-
-								<div ng-if="selectedScriptType.apiName === 'indicator_change_relative'">
-									<script-change-relative></script-change-relative>
-								</div>
-
-								<div ng-if="selectedScriptType.apiName === 'indicator_trend'">
-									<script-trend></script-trend>
-								</div>
-
-								<div ng-if="selectedScriptType.apiName === 'indicator_continuity'">
-									<script-continuity></script-continuity>
-								</div>
-
-								<div ng-if="selectedScriptType.apiName === 'indicator_headlineIndicator'">
-									<script-headline-indicator></script-headline-indicator>
-								</div>
-
-								<div ng-if="selectedScriptType.apiName === 'indicator_multiplication'">
-									<script-multiplication></script-multiplication>
-								</div>
-
-								<div ng-if="selectedScriptType.apiName === 'georesource_pointsInPolygon'">
-									<script-points-in-polygon></script-points-in-polygon>
-								</div>
-
-								<div ng-if="selectedScriptType.apiName === 'georesource_statistics'">
-									<script-georesource-statistics></script-georesource-statistics>
-								</div>
-
-								<div ng-if="selectedScriptType.apiName === 'georesource_subsetShare'">
-									<script-georesource-subset-share></script-georesource-subset-share>
-								</div>
-
-								<div ng-if="selectedScriptType.apiName === 'lineSegmentInPolygon'">
-									<script-line-segment-in-polygon></script-line-segment-in-polygon>
-								</div>
-
-								<input type="button" name="previous"
-									class="previous previous_addScript action-button-previous"
-									value="Voriger Schritt" />
-							</fieldset>
 						</form>
 					</div>
 				</div>
