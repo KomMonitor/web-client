@@ -51,6 +51,8 @@ export interface DataExchange {
   displayableIndicators: any;
   wmsUrlForSelectedIndicator: any;
   wfsUrlForSelectedIndicator: any;
+  headlineIndicatorHierarchy: any;
+  displayableIndicators_keywordFiltered: any;
 }
 
 export interface IndicatorTopic {
@@ -151,5 +153,9 @@ export class DataExchangeService {
 
   getBaseUrlToKomMonitorDataAPI_spatialResource() {
     return this.ajskommonitorDataExchangeServiceeProvider.getBaseUrlToKomMonitorDataAPI_spatialResource();
+  }
+
+  onChangeIndicatorKeywordFilter(name) {
+    this.ajskommonitorDataExchangeServiceeProvider.onChangeIndicatorKeywordFilter(name);
   }
 }

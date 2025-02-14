@@ -12,10 +12,7 @@ export class KommonitorDataSetupComponent implements OnInit {
   exchangeData!:DataExchange;
   topicsCollapsed:string[] = [];
 
-  isCollapsed_mainTopic = true;
-  isCollapsed_subTopic = true;
-  isCollapsed_subsubTopic = true;
-  isCollapsed_subsubsubTopic = true;
+  isCollapsed_headlineIndicatorHierarchyItem = true;
 
   loadingData = true;
   changeIndicatorWasClicked = false;
@@ -34,7 +31,7 @@ export class KommonitorDataSetupComponent implements OnInit {
   preppedIndicatorTopics: IndicatorTopic[] = [];
 
   constructor(
-    private dataExchangeService: DataExchangeService,
+    public dataExchangeService: DataExchangeService,
     private broadcastService: BroadcastService
   ) {}
 
@@ -748,10 +745,10 @@ export class KommonitorDataSetupComponent implements OnInit {
     $("#indicatorHierarchyElement-" + selectedIndicatorId).addClass('active');
   };
 
-/*   $scope.onChangeSelectedIndicator_fromAlphabeticalList = function(indicatorMetadata){
-    kommonitorDataExchangeService.selectedIndicator = indicatorMetadata;
-    $scope.onChangeSelectedIndicator(false);
-  }; */
+  onChangeSelectedIndicator_fromAlphabeticalList(indicatorMetadata){
+    this.exchangeData.selectedIndicator = indicatorMetadata;
+    this.onChangeSelectedIndicator(false);
+  };
 
   onChangeSelectedIndicator(recenterMap){
 
