@@ -4,10 +4,12 @@ angular
 			'kommonitorClassification',
 			{
 				templateUrl : "components/kommonitorUserInterface/kommonitorControls/kommonitorClassification/kommonitor-classification.template.html",
-				controller : [ '$scope', '$rootScope', '$timeout', 'kommonitorVisualStyleHelperService', 'kommonitorDataExchangeService',
-					function KommonitorClassification($scope, $rootScope, $timeout, kommonitorVisualStyleHelperService, kommonitorDataExchangeService) {
+				controller : [ '$scope', '$rootScope', '$timeout', 'kommonitorVisualStyleHelperService', 'kommonitorDataExchangeService', '__env',
+					function KommonitorClassification($scope, $rootScope, $timeout, kommonitorVisualStyleHelperService, kommonitorDataExchangeService, __env) {
 						this.kommonitorVisualStyleHelperServiceInstance = kommonitorVisualStyleHelperService;
 						this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
+
+						var customColorSchemes = __env.customColorSchemes;
 
 						$scope.methodName = 'Klassifizierungsmethode auswählen';
 						$scope.showMethodSelection = false;
@@ -30,6 +32,11 @@ angular
 
 						kommonitorVisualStyleHelperService.classifyMethod = __env.defaultClassifyMethod || "jenks";
 
+						// Add custom color themes from configuration properties
+						if(customColorSchemes) {
+							colorbrewer = Object.assign(customColorSchemes, colorbrewer);
+						}
+						
 						$scope.colorbrewerSchemes = colorbrewer;
 						$scope.colorbrewerPalettes = [];
 

@@ -1,5 +1,5 @@
 <!-- <div class="container-fluid"> -->
-
+  <p id="fontFamily-reference"></p>
 	<header id="header" class="main-header">
 
 		<div  style="position:absolute; left:40%;  padding-top: 4px;">
@@ -17,7 +17,7 @@
 				
 			 </div> 			  
 
-			<a id="userLogin" ng-mouseover="showUserLogin = true" ng-init="showUserLogin = false" title="Useristration" style="font-size:1.2em; float: right; margin-right: 2%; margin-left: 2%; margin-top: 0.5%;"><i class="fas fa-user-cog"></i></a>
+			<a id="userLogin" ng-mouseover="showUserLogin = true" ng-init="showUserLogin = false" title="Useristration" style="font-size:1.2em; float: right; margin-right: 2%; margin-left: 2%; margin-top: 0.5%;" class="kommonitor-theme"><i class="fas fa-user-cog"></i></a>
 			<div id="userLoginForm" ng-show="showUserLogin && $ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity" ng-mouseleave="showUserLogin = false" class="userFormWrapper">
 				<div id="userForm">
 					<h4>User Login</h4>
@@ -39,17 +39,18 @@
 						<span><b>Session G&uuml;ltigkeit:</b> {{$ctrl.kommonitorDataExchangeServiceInstance.keycloakTokenExpirationInfo}} Minuten</span>
 					</div>
 					<input type="submit" ng-if="!authenticated" value="Login" id='input_submit' ng-click="tryLoginUser()" class='input_field' >
+          <p ng-if="!authenticated" ng-bind-html="::$ctrl.kommonitorDataExchangeServiceInstance.loginInfoText"></p>
 					<input type="submit" ng-if="authenticated" value="Logout" id='input_submit' ng-click="$ctrl.kommonitorDataExchangeServiceInstance.tryLogoutUser()" class='input_field input_authenticated' >
 					<input type="submit" ng-if="authenticated" value="Relogin" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.extendKeycloakSession()" class='input_field input_extend_session' >
 				</div>
 			</div>
-			<a ng-if="showAdminLogin" ng-click="openAdminUI()" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%; cursor:pointer;" title="Admin UI&nbsp;&nbsp;"><span class="fas fa-cogs"></span></a>
-			<a data-toggle="modal" data-target="#infoModal" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%; cursor:pointer;" title="Information&nbsp;&nbsp;"><span class="glyphicon glyphicon-info-sign"></span></a>
+			<a ng-if="showAdminLogin" ng-click="openAdminUI()" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%; cursor:pointer;" title="Admin UI&nbsp;&nbsp;" class="kommonitor-theme"><span class="fas fa-cogs"></span></a>
+			<a data-toggle="modal" data-target="#infoModal" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%; cursor:pointer;" title="Information&nbsp;&nbsp;" class="kommonitor-theme"><span class="glyphicon glyphicon-info-sign"></span></a>
 			<!-- <a data-toggle="modal" data-target="#feedbackModal" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%;  cursor:pointer;" title="Feedback&nbsp;&nbsp;"><span class="glyphicon glyphicon-envelope"></span></a> -->
-			<a ng-click="startGuidedTour()" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%;  cursor:pointer;" title="Guided Tour&nbsp;&nbsp;"><span class="glyphicon glyphicon-play"></span></a>
+			<a ng-click="startGuidedTour()" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%;  cursor:pointer;" title="Guided Tour&nbsp;&nbsp;" class="kommonitor-theme"><span class="glyphicon glyphicon-play"></span></a>
 			
 			<div id="reportingButton" ng-if="$ctrl.kommonitorElementVisibilityHelperServiceInstance.elementVisibility.reportingButton">
-				<a data-toggle="modal" data-target="#reporting-modal" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%; cursor:pointer;" title="Report erstellen&nbsp;&nbsp;">
+				<a data-toggle="modal" data-target="#reporting-modal" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%; cursor:pointer;" title="Report erstellen&nbsp;&nbsp;" class="kommonitor-theme">
 					<i class="fas fa-file-alt"></i>
 				</a>
 			</div>			
@@ -150,10 +151,9 @@
 
         <kommonitor-map style="height: 100%; width: 100%; position: absolute;"></kommonitor-map>
 		
-		<button type="button" id="sidebarLegendCollapse"
-		ng-click="onSidebarLegendButtonClick()" ng-class="buttonLegendClass" data-toggle="tooltip" title="Legenden- und Informationsfenster">
-		<i style="font-size:2.5vh;" class="fas fa-info"></i>
-	</button>
+		<button type="button" id="sidebarLegendCollapse" ng-click="onSidebarLegendButtonClick()" ng-class="buttonLegendClass" ng-show="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator" data-toggle="tooltip" title="Legenden- und Informationsfenster">
+			<i style="font-size:2.5vh;" class="fas fa-info"></i>
+		</button>
 
 				<!-- LEFT-HANDED SIDEBAR BUTTONS -->
 
@@ -228,7 +228,7 @@
 					</button>
 
 					<button type="button" id="unselectFeaturesButton"
-						ng-click="onUnselectFeaturesButtonClick()" class="btn btn-leaflet-custom" data-toggle="tooltip" title="Feature-Selektion aufheben">
+						ng-click="onUnselectFeaturesButtonClick()" class="btn btn-leaflet-custom" data-toggle="tooltip" title="Raumeinheits-Selektion aufheben">
 							<span style="font-size:1.5em;left:-5px;" class="glyphicon glyphicon-ban-circle" aria-hidden="true"></span>
 					</button>
 

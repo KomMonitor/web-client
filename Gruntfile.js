@@ -219,6 +219,9 @@ module.exports = function (grunt) {
             'app/components/common/classificationMethodSelect/classification-method-select.css',  
             'app/components/kommonitorUserInterface/kommonitorControls/kommonitorClassification/kommonitor-classification.css'
         ],
+        custom_styles: [
+            'app/kommonitor-custom.css'
+        ],
         copy_files: [
             //the path prefix 'app/' will be set in the copy-command itself! Thus is omitted here.
             'dependencies/**/*',
@@ -306,6 +309,14 @@ module.exports = function (grunt) {
                 },
                 src: ['<%= kommonitor_styles %>'],
                 dest: 'app/index.html'
+            },
+            build_custom_styles: {
+                options: {
+                    openTag: '<!-- start custom style tags -->',
+                    closeTag: '<!-- end custom style tags -->'
+                },
+                src: ['<%= custom_styles %>'],
+                dest: 'app/index.html'
             }
         },
         concat: {
@@ -320,7 +331,12 @@ module.exports = function (grunt) {
             styles: {
                 src: '<%= kommonitor_styles %>',
                 dest: 'dist/<%= name %>.css'
-            },
+            }
+            ,
+            custom: {
+                src: '<%= custom_styles %>',
+                dest: 'dist/kommonitor-custom.css'
+            }
             // libStyles: {
             //     src: '<%= lib_styles %>',
             //     dest: 'dist/css/deps.<%= name %>.css'

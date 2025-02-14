@@ -262,7 +262,7 @@ angular.module('kommonitorMap').component(
         $scope.showLegend = true;
         $scope.overlays = new Array();
         $scope.baseMaps = new Array();
-        const spatialUnitLayerGroupName = "Raumeinheiten";
+        const spatialUnitLayerGroupName = "Raumebenen";
         const georesourceLayerGroupName = "Georessourcen";
         const poiLayerGroupName = "Points of Interest";
         const loiLayerGroupName = "Lines of Interest";
@@ -272,7 +272,7 @@ angular.module('kommonitorMap').component(
         const wmsLayerGroupName = "Web Map Services (WMS)";
         const wfsLayerGroupName = "Web Feature Services (WFS)";
         const fileLayerGroupName = "Dateilayer";
-        const spatialUnitOutlineLayerGroupName = "Raumeinheiten Umringe";
+        const spatialUnitOutlineLayerGroupName = "Raumebenen Umringe";
 
         let sortableLayers = ["Web Map Services (WMS)"];
         if (__env.sortableLayers) {

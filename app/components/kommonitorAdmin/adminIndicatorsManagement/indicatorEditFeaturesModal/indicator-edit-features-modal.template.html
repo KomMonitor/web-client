@@ -12,7 +12,7 @@
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span></button>
-				<h4 class="modal-title">Features des Indikators <i><b>{{currentIndicatorDataset.indicatorName}}</b></i> fortf&uuml;hren</h4>
+				<h4 class="modal-title">Zeitreihen des Indikators <i><b>{{currentIndicatorDataset.indicatorName}}</b></i> fortf&uuml;hren</h4>
 			</div>
 			<div class="modal-body">
 
@@ -33,20 +33,20 @@
 						<div> 
 							<!-- progressbar -->
 							<ul id="progressbar">
-								<li style="width: 50%;" class="active">Feature &Uuml;bersicht</li>
+								<li style="width: 50%;" class="active">Zeitreihen &Uuml;bersicht</li>
 								<li style="width: 50%;">R&auml;umlicher Datensatz</li>
 							</ul>
 						</div>
 						
 						<!-- fieldsets -->
 						<fieldset>
-							<h2 class="fs-title">Feature &Uuml;bersicht</h2>
-							<h3 class="fs-subtitle">Optionale Anzeige der Feature-Details</h3>
+							<h2 class="fs-title">Zeitreihen &Uuml;bersicht</h2>
+							<h3 class="fs-subtitle">Optionale Anzeige der Zeitreihen-Details</h3>
 
 							<div class="row vertical-align">
 								<div class="col-md-4 col-sm-4 col-xs-12">
 									<div class="form-group">
-										<label >Raumeinheit w&auml;hlen</label>
+										<label >Raumebene w&auml;hlen</label>
 										<select ng-model="overviewTableTargetSpatialUnitMetadata" ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits | filter:filterOverviewTargetSpatialUnits()"
 												class="form-control" required>
 												<option disabled selected value> -- Ziel-Raumebene w&auml;hlen -- </option>
@@ -58,11 +58,11 @@
 								</div>
 								<div class="col-md-4 col-sm-4 col-xs-12">
 									<div class="form-group">
-										<label >Datenbank-Features holen</label>
+										<label >Datenbank-Zeitreihen abrufen</label>
 										<button class="btn btn-info" ng-click="refreshIndicatorEditFeaturesOverviewTable()"
-										ng-disabled="! overviewTableTargetSpatialUnitMetadata"><i class="fas fa-sync-alt"></i>&nbsp;Zeige alle Features</button>
+										ng-disabled="! overviewTableTargetSpatialUnitMetadata"><i class="fas fa-sync-alt"></i>&nbsp;Zeige alle Zeitreihen</button>
 	   
-										<div class="help-block"><p>Das Anzeigen aller Features des Indikators kann je nach Anzahl und Komplexit&auml;t der Objekte einige Zeit in Anspruch nehmen</p>
+										<div class="help-block"><p>Das Anzeigen aller Zeitreihen des Indikators kann je nach Anzahl und Komplexit&auml;t der Objekte einige Zeit in Anspruch nehmen</p>
 											<p>Editieren einzelner Zellwerte via Doppelklick. Best&auml;tigen der Editierung durch Enter oder Klicken in eine andere Zelle</p>
 										</div>
 										<div class="help-block with-errors"></div>
@@ -70,7 +70,7 @@
 								</div>
 								<div class="col-md-4 col-sm-4 col-xs-12">
 									<div class="form-group">
-										<label >Datenbank-Features bereinigen (Funktion muss zuerst aktiv eingeschaltet werden)</label>										
+										<label >Datenbank-Zeitreihen bereinigen (Funktion muss zuerst aktiv eingeschaltet werden)</label>										
 										<label class="switch">
 											<input class="elementCheckbox" type="checkbox"
 												ng-model="enableDeleteFeatures" ng-init="enableDeleteFeatures = false"
@@ -80,9 +80,9 @@
 
 										&nbsp;&nbsp;
 
-										<button class="btn btn-danger" ng-click="clearAllIndicatorFeatures()" ng-disabled="!enableDeleteFeatures"><i class="fas fa-trash"></i>&nbsp;L&ouml;sche Indikator-Features der selektierten Raumebene</button>
+										<button class="btn btn-danger" ng-click="clearAllIndicatorFeatures()" ng-disabled="!enableDeleteFeatures"><i class="fas fa-trash"></i>&nbsp;L&ouml;sche Indikator-Zeitreihen der selektierten Raumebene</button>
 	   
-										<div class="help-block"><p>Das L&ouml;schen aller Features des Indikators f&uuml;r die selektierte Raumebene ist unwiderruflich. Der Datensatz als solches (Metadaten) sowie die Indikatorendaten der sonstigen Raumebenen bleiben dabei bestehen.</p></div>
+										<div class="help-block"><p>Das L&ouml;schen aller Zeitreihen des Indikators f&uuml;r die selektierte Raumebene ist unwiderruflich. Der Datensatz als solches (Metadaten) sowie die Indikatorendaten der sonstigen Raumebenen bleiben dabei bestehen.</p></div>
 										<div class="help-block with-errors"></div>
 									</div>
 								</div>
@@ -168,7 +168,7 @@
 												<p>{{parameter.description}}</p>
 											</div>
 											<div ng-show="parameter.name === 'CRS'" class="help-block with-errors" style="color: red;">
-												<p>CRS aufmerksam setzen. Falsche Angaben f&uuml;hren zur fehlerhaften Koordinaten der Features</p>
+												<p>CRS aufmerksam setzen. Falsche Angaben f&uuml;hren zur fehlerhaften Koordinaten der räumlichen Features</p>
 											</div>
 											<div class="help-block with-errors"></div>
 										</div>
@@ -219,10 +219,10 @@
 								</div>
 								<div class="col-md-3 col-sm-6 col-xs-12">
 									<div class="form-group">
-										<label>ID Attributname der Raumeinheiten-Features*</label>
+										<label>ID Attributname der Raumeinheiten*</label>
 										<input type="text" class="form-control" ng-model="spatialUnitRefKeyProperty" required></input>
 										<div class="help-block">
-											<p>Name des Attributs, welches den eindeutigen Identifier des Features enth&auml;lt. Dieser muss identisch sein mit den Feature-IDs der selektierten Raumebene</p>
+											<p>Name des Attributs, welches den eindeutigen Identifier der Zeitreihe enth&auml;lt. Dieser muss identisch sein mit den Raumeinheiten-IDs der selektierten Raumebene</p>
 										</div>
 										<div class="help-block with-errors"></div>
 										<div ng-show="idPropertyNotFound" style="color: red;">
@@ -252,7 +252,7 @@
 								<h4>Vergabe der Zugriffsrechte auf die Datensatz-Zeitreihe f&uuml;r Raumebene {{targetSpatialUnitMetadata.spatialUnitLevel}}</h4>
 
 								<p>Zugriffsrechte (lesen, editieren, l&ouml;schen) m&uuml;ssen explizit vergeben werden. Administratoren (Rolle <i>kommonitor-creator</i>) haben immer vollen Zugriff.</p>
-								<p><strong>lesender Zugriff auf die Indikator-Zeitreihe wird nur den Organisationseinheiten gew&auml;hrt, die auch lesenden Zugriff auf Metadaten der assoziierten Raumeinheit besitzen.</strong></p>
+								<p><strong>lesender Zugriff auf die Indikator-Zeitreihe wird nur den Organisationseinheiten gew&auml;hrt, die auch lesenden Zugriff auf Metadaten der assoziierten Raumebene besitzen.</strong></p>
 		
 
 								<div class="row">
@@ -309,31 +309,31 @@
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Schlie&szlig;en</button>
-					<button type="button" class="btn btn-success" ng-disabled=" !converter || !datasourceType || !targetSpatialUnitMetadata || !spatialUnitRefKeyProperty" ng-click="editIndicatorFeatures()">Features fortf&uuml;hren</button>
+					<button type="button" class="btn btn-success" ng-disabled=" !converter || !datasourceType || !targetSpatialUnitMetadata || !spatialUnitRefKeyProperty" ng-click="editIndicatorFeatures()">Zeitreihen fortf&uuml;hren</button>
 					<button type="button" class="btn btn-danger" ng-click="resetIndicatorEditFeaturesForm()">Zur&uuml;cksetzen</button>
 			</div>
 
 			<div id="indicatorEditFeaturesSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden class="alert alert-success alert-dismissable">
                 <button type="button" class="close" ng-click="hideSuccessAlert()" aria-hidden="true">&times;</button>
-                <h4><i class="icon fa fa-check"></i>Features erfolgreich fortgef&uuml;hrt</h4>
-				<p>Fortf&uuml;hren der Features des Indikators mit Namen {{successMessagePart}} war erfolgreich.
+                <h4><i class="icon fa fa-check"></i>Zeitreihen erfolgreich fortgef&uuml;hrt</h4>
+				<p>Fortf&uuml;hren der Zeitreihen des Indikators mit Namen {{successMessagePart}} war erfolgreich.
 					<div ng-show="importedFeatures && importedFeatures.length > 0">
-						{{importedFeatures.length}} Features wurden dabei importiert.
+						{{importedFeatures.length}} Zeitreihen wurden dabei importiert.
 					</div>
 				</p>
       </div>
 
 			<div id="indicatorEditFeaturesErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden class="alert alert-danger alert-dismissable">
                 <button type="button" class="close" ng-click="hideErrorAlert()" aria-hidden="true">&times;</button>
-                <h4><i class="icon fa fa-ban"></i>Features fortf&uuml;hren gescheitert</h4>
-                Beim Fortf&uuml;hren der Features ist ein Fehler aufgetreten. Fehlermeldung:
+                <h4><i class="icon fa fa-ban"></i>Zeitreihen fortf&uuml;hren gescheitert</h4>
+                Beim Fortf&uuml;hren der Zeitreihen ist ein Fehler aufgetreten. Fehlermeldung:
 				<br/>
 				<pre style="overflow:auto; max-height:500px;" ng-bind-html="errorMessagePart"></pre>
 				<br/>
 				<br/>
 
 				<div ng-show="importerErrors">
-					<p>Bei den {{importerErrors.length}} Features mit folgenden IDs scheitert der Import:</p>
+					<p>Bei den {{importerErrors.length}} Zeitreihen mit folgenden IDs scheitert der Import:</p>
 					<pre style="overflow:auto; max-height:500px;">
 						<ul>
 							<li ng-repeat="error in importerErrors">{{error}}</li>
