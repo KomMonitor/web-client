@@ -10,6 +10,8 @@ import { DataExchange, DataExchangeService, IndicatorTopic } from 'services/data
 export class KommonitorDataSetupComponent implements OnInit {
 
   exchangeData!:DataExchange;
+  topicsCollapsed:string[] = [];
+
   isCollapsed_mainTopic = true;
   isCollapsed_subTopic = true;
   isCollapsed_subsubTopic = true;
@@ -23,6 +25,9 @@ export class KommonitorDataSetupComponent implements OnInit {
   dateSlider;
   datePicker;
   datesAsMs;
+  
+  indicatorNameFilter = undefined;
+  INDICATOR_DATE_PREFIX = window.__env.indicatorDatePrefix
 
   selectedDate;					
 
@@ -39,6 +44,7 @@ export class KommonitorDataSetupComponent implements OnInit {
     // todo like "initialMetadataLoadingCompleted"
     window.setTimeout( () => {
       this.preppedIndicatorTopics = this.prepareIndicatorTopicsRecursive(this.exchangeData.topicIndicatorHierarchy);
+      this.addClickListenerToEachCollapseTrigger();
     },2000);
   }
 
@@ -50,6 +56,9 @@ export class KommonitorDataSetupComponent implements OnInit {
 
     retTree.forEach( (elem:IndicatorTopic) => {
 
+      if(!this.topicsCollapsed.includes(elem.topicId))
+        this.topicsCollapsed.push(elem.topicId);
+
       if(elem.subTopics.length>0) {
         elem.subTopics = this.prepareIndicatorTopicsRecursive(elem.subTopics);
       }
@@ -58,19 +67,20 @@ export class KommonitorDataSetupComponent implements OnInit {
     return retTree;
   }
 
-  /* const INDICATOR_DATE_PREFIX = __env.indicatorDatePrefix;
+  onTopicClick(topicID:string) {
+    if(this.topicsCollapsed.includes(topicID))
+      this.topicsCollapsed = this.topicsCollapsed.filter(e => e!=topicID);
+    else
+      this.topicsCollapsed.push(topicID);
+  }
 
-  $scope.indicatorNameFilter = undefined;
-
-  // initialize any adminLTE box widgets
-  $('.box').boxWidget();
-
-  var addClickListenerToEachCollapseTrigger = function(){
+  addClickListenerToEachCollapseTrigger(){
     setTimeout(function(){
-      $('.list-group-item > .collapseTrigger').on('click', function() {
-        $('.glyphicon', this)
-          .toggleClass('glyphicon-chevron-right')
-          .toggleClass('glyphicon-chevron-down');
+      $('.list-group-item > .collapseTrigger').on('click', function(e) {
+        
+        $('.glyphicon', e)
+        .toggleClass('glyphicon-chevron-right')
+        .toggleClass('glyphicon-chevron-down');
 
           // manage uncollapsed entries
           // var clickedTopicId = $(this).attr('id');
@@ -85,11 +95,7 @@ export class KommonitorDataSetupComponent implements OnInit {
     }, 500);
   };
 
-  $(document).ready(function() {
-
-    addClickListenerToEachCollapseTrigger();
-  });
-
+/*
   // var rangeslide = require("rangeslide");
 
   this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
