@@ -190,7 +190,7 @@ angular
 
 								let applicableSpatialUnitEntry;
 								for (const applicableSpatialUnit of indicatorMetadata.applicableSpatialUnits) {
-									if (applicableSpatialUnit.spatialUnitId == targetSpatialUnitId || applicableSpatialUnit.spatialUnitName == targetSpatialUnitId){
+									if (applicableSpatialUnit.spatialUnitId == row.selectedTargetSpatialUnit.spatialUnitId || applicableSpatialUnit.spatialUnitName == row.selectedTargetSpatialUnit.spatialUnitId){
 									applicableSpatialUnitEntry = applicableSpatialUnit;
 									break;
 									}
