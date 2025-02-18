@@ -2010,9 +2010,9 @@ angular
           };
 
           
-          this.labelAllFeatures = "alle Features";
-          this.labelFilteredFeatures = "gefilterte Features";
-          this.labelSelectedFeatures = "selektierte Features";
+          this.labelAllFeatures = "alle Raumeinheiten";
+          this.labelFilteredFeatures = "gefilterte Raumeinheiten";
+          this.labelSelectedFeatures = "selektierte Raumeinheiten";
           this.labelNumberOfFeatures = "Anzahl:"
           this.labelSum = "rechnerische Summe:"
           this.labelMean = "rechnerisches arith. Mittel:"
