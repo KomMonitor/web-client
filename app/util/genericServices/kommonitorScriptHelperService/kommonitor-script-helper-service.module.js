@@ -68,8 +68,8 @@ angular
 					"apiName": "indicator_continuity"
         },
         {
-					"displayName": "Indikatoren - Veränderung absolut",
-					"apiName": "indicator_change_absolute"
+					"displayName": "(alt) Indikatoren - Veränderung absolut",
+					"apiName": "indicator_change_absolute_old"
         },
         {
 					"displayName": "Indikatoren - Veränderung absolut mit festem Referenz-Zeitpunkt",
@@ -96,8 +96,8 @@ angular
 					"apiName": "indicator_multiplication"
         },
         {
-					"displayName": "Georessourcen - Anzahl Punkte in Polygon",
-					"apiName": "georesource_pointsInPolygon"
+					"displayName": "(alt) Georessourcen - Anzahl Punkte in Polygon",
+					"apiName": "georesource_pointsInPolygon_old"
 				},
         {
 					"displayName": "Georessourcen - Statistiken anhand Objekteigenschaft (Punktdatensätze)",

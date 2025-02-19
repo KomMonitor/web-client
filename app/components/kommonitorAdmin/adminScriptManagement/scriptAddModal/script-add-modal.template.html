@@ -325,7 +325,8 @@
 											<br />
 											<select ng-model="selectedScriptType" size="10"
 												ng-options="scriptType as scriptType.displayName for scriptType in $ctrl.kommonitorScriptHelperServiceInstance.availableScriptTypeOptions | orderBy: 'displayName' | filter:scriptNameFilter"
-												class="form-control">
+												class="form-control"
+												ng-change="onScriptTypeChanged()">
 												<option disabled selected value> -- Skript-Typ w&auml;hlen --
 												</option>
 											</select>
@@ -365,7 +366,7 @@
 								</div>-->
 
 								<!-- ACTUAL SCRIPT FIELDS DEPENDING ON SELECTION OF SCRIPT TYPE; AS ANGULAR MODULES -->
-								<div ng-if="selectedScriptType.apiName === 'test'">
+								<div ng-if="selectedScriptType.apiName.includes('new')">
 									<script-test></script-test>
 								</div>
 								
@@ -397,7 +398,7 @@
 									<script-division></script-division>
 								</div>
 
-								<div ng-if="selectedScriptType.apiName === 'indicator_change_absolute'">
+								<div ng-if="selectedScriptType.apiName === 'indicator_change_absolute_old'">
 									<script-change-absolute></script-change-absolute>
 								</div>
 
@@ -429,7 +430,7 @@
 									<script-multiplication></script-multiplication>
 								</div>
 
-								<div ng-if="selectedScriptType.apiName === 'georesource_pointsInPolygon'">
+								<div ng-if="selectedScriptType.apiName === 'georesource_pointsInPolygon_old'">
 									<script-points-in-polygon></script-points-in-polygon>
 								</div>
 

@@ -53,122 +53,22 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 
 			$scope.loadingData = false;
 
-			kommonitorScriptHelperService.scriptData ={
-				"id": "changeAbsolute",
-				"version": "1.0.0",
-				"title": "Absolute Veränderung bezogen auf Zeitspanne",
-				"description": "Berechnet die absolute Veränderung zwischen zwei Zeitpunkten eines Indikators.",
-				"additionalParameters": {
-					"parameters": [
-						{
-							"name": "titleShort",
-							"value": "Veränderung absolut"
-						},
-						{
-							"name": "apiName",
-							"value": "indicator_change_absolute"
-						},
-						{
-							"name": "formula",
-							"value": "$ I_{N} - I_{M} $"
-						},
-						{
-							"name": "legend",
-							"value": "<br/>$N$ = Ziel-Zeitpunkt<br/>$M$ = Ziel-Zeitpunkt minus Anzahl Tage/Monate/Jahre "
-						},
-						{
-							"name": "dynamicLegend",
-							"value": "<br/> $A$: ${indicatorName} [ ${unit} ]<br/> $N$: Ziel-Zeitpunkt<br/> $M$: Ziel-Zeitpunkt minus ${number_of_temporal_items} ${temporal_type}"
-						},
-						{
-							"name": "inputBoxes",
-							"value": [
-								{
-									"id": "computation_id",
-									"title": "Notwendiger Basis-Indikator",
-									"description": "",
-									"contents": [
-										"computation_id"
-									]
-								},
-								{
-									"id": "temporal_options",
-									"title": "Notwendiger zeitlicher Bezug",
-									"description": "",
-									"contents": [
-										"number_of_temporal_items",
-										"temporal_type"
-									]
-								}
-							]
-						}
-					]
-				},
-				"inputs": {
-					"computation_id": {
-						"id": "COMPUTATION_ID",
-						"title": "Auswahl des für die Berechnung erforderlichen Basis-Indikators",
-						"description": "Indikatoren-ID des Basisindikators.",
-						"schema": { 
-							"type": "string",
-							"default": "72b9b6ec-f4e0-4d58-a1b4-c49045532403"
-						}
-					},
-					"number_of_temporal_items": {
-						"id": "NUMBER_OF_TEMPORAL_ITEMS",
-						"title": "Anzahl",
-						"description": "Anzahl der Zeiteinheiten. Standard ist '1'.",
-						"schema": { 
-							"type": "integer", 
-							"minimum": 1, 
-							"maximum": 100000,
-							"default": 1
-						}
-					},
-					"temporal_type": {
-						"id": "TEMPORAL_TYPE",
-						"title": "Art des zeitlichen Bezugs",
-						"description": "Angabe des Zeitbezug-Typs. Standard ist 'Jahre'.",
-						"schema": { 
-							"type": "string", 
-							"enum": [
-								{
-									"apiName": "YEARS",
-									"displayName": "Jahr(e)"
-								},
-								{
-									"apiName": "MONTHS",
-									"displayName": "Monat(e)"
-								},
-								{
-									"apiName": "DAYS",
-									"displayName": "Tag(e)"
-								}
-							],
-							"default": {
-								"apiName": "YEARS",
-								"displayName": "Jahr(e)"
-							}
-						}
-					}
-				},
-				"outputs": {
-				},
-				"jobControlOptions": [],
-				"outputTransmission": []
-			}
+			$scope.selectedScriptType = {};
 
-			// reduce "name" "value" pairs
-			kommonitorScriptHelperService.scriptData.additionalParameters.parameters = kommonitorScriptHelperService.scriptData.additionalParameters.parameters.reduce((acc, param) => {
-				acc[param.name] = param.value;
-				return acc;
-			}, {});
+			kommonitorScriptHelperService.availableScriptTypes = [
+        {
+					"displayName": "(neu)Indikatoren - Veränderung absolut",
+					"apiName": "indicator_change_absolute_new"
+        },
+        {
+					"displayName": "(neu)Georessourcen - Anzahl Punkte in Polygon",
+					"apiName": "georesource_pointsInPolygon_new"
+				}         
+			];
 
-			// save defaults for the inputs in processParameters
-			kommonitorScriptHelperService.processParameters = Object.keys(kommonitorScriptHelperService.scriptData.inputs).reduce((acc, key) => {
-				acc[key] = kommonitorScriptHelperService.scriptData.inputs[key].schema.default;
-				return acc;
-			}, {});
+			kommonitorScriptHelperService.availableScriptTypeOptions.push(...kommonitorScriptHelperService.availableScriptTypes);
+
+			kommonitorScriptHelperService.scriptData = {}
 
 			$scope.resetScriptAddForm = function () {
 
@@ -186,6 +86,267 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 					$scope.$digest();
 				}, 1000);
 			};
+
+			$scope.onScriptTypeChanged = function () {
+
+				// ToDo: make API call
+
+				if($scope.selectedScriptType.apiName.includes("old")){
+					return;
+				}
+
+				if ($scope.selectedScriptType.apiName == "indicator_change_absolute_new") {
+					kommonitorScriptHelperService.scriptData = {
+						"id": "changeAbsolute",
+						"version": "1.0.0",
+						"title": "[dynamisch erzeugt]Absolute Veränderung bezogen auf Zeitspanne",
+						"description": "Berechnet die absolute Veränderung zwischen zwei Zeitpunkten eines Indikators.",
+						"additionalParameters": {
+							"parameters": [
+								{
+									"name": "kommonitorUiParams",
+									"value": {
+										"titleShort": "Veränderung absolut",
+										"apiName": "indicator_change_absolute",
+										"formula": "$ I_{N} - I_{M} $",
+										"legend": "<br/>$N$ = Ziel-Zeitpunkt<br/>$M$ = Ziel-Zeitpunkt minus Anzahl Tage/Monate/Jahre ",
+										"dynamicLegend": "<br/> $A$: ${indicatorName} [ ${unit} ]<br/> $N$: Ziel-Zeitpunkt<br/> $M$: Ziel-Zeitpunkt minus ${number_of_temporal_items} ${temporal_type}",
+										"inputBoxes": [
+											{
+												"id": "computation_id",
+												"title": "Notwendiger Basis-Indikator",
+												"description": "",
+												"contents": [
+													"computation_id"
+												]
+											},
+											{
+												"id": "temporal_options",
+												"title": "Notwendiger zeitlicher Bezug",
+												"description": "",
+												"contents": [
+													"number_of_temporal_items",
+													"temporal_type"
+												]
+											}
+										]
+									}
+								}
+							]
+						},
+						"inputs": {
+							"target_indicator_id": {
+								"id": "target_indicator_id",
+								"schema": { 
+									"type": "string",
+									"default": null
+								}
+							},
+							"target_spatial_units": {
+								"id": "target_spatial_units",
+								"schema": { 
+									"type": "array",
+									"default": []
+								}
+							},
+							"target_time": {
+								"id": "target_time",
+								"schema": { 
+									"type": "object",
+									"default": {
+										"value":{
+											"mode": "MISSING",
+											"includeDates" : [],
+											"excludeDates" : []
+										}
+									}
+								}
+							},
+							"execution_interval": {
+								"id": "execution_interval",
+								"schema": { 
+									"type": "object",
+									"default": {
+										"value": {
+											"cron": "0 0 1 * *"
+										}
+									}
+								}
+							},
+							"computation_id": {
+								"id": "COMPUTATION_ID",
+								"title": "Auswahl des für die Berechnung erforderlichen Basis-Indikators",
+								"description": "Indikatoren-ID des Basisindikators.",
+								"schema": { 
+									"type": "string",
+									"default": null
+								}
+							},
+							"number_of_temporal_items": {
+								"id": "number_of_temporal_items",
+								"title": "Anzahl",
+								"description": "Anzahl der Zeiteinheiten. Standard ist '1'.",
+								"schema": { 
+									"type": "integer", 
+									"minimum": 1, 
+									"maximum": 100000,
+									"default": 1
+								}
+							},
+							"temporal_type": {
+								"id": "temporal_type",
+								"title": "Art des zeitlichen Bezugs",
+								"description": "Angabe des Zeitbezug-Typs. Standard ist 'Jahre'.",
+								"schema": { 
+									"type": "string", 
+									"enum": [
+										{
+											"apiName": "YEARS",
+											"displayName": "Jahr(e)"
+										},
+										{
+											"apiName": "MONTHS",
+											"displayName": "Monat(e)"
+										},
+										{
+											"apiName": "DAYS",
+											"displayName": "Tag(e)"
+										}
+									],
+									"default": {
+										"apiName": "YEARS",
+										"displayName": "Jahr(e)"
+									}
+								}
+							}
+						},
+						"outputs": {
+						},
+						"jobControlOptions": [],
+						"outputTransmission": []
+					}
+				}
+				if ($scope.selectedScriptType.apiName == "georesource_pointsInPolygon_new") {
+					kommonitorScriptHelperService.scriptData ={
+						"id": "pointsInPolygon",
+						"version": "1.0.0",
+						"title": "[dynamisch erzeugt] Anzahl Punktobjekte pro Gebietskörperschaft",
+						"description": "Auswahl einer punktbasierten Georessource, für die eine Punkt-in-Polygon Analyse durchgeführt wird, um die Anzahl der Punkte pro Raumeinheits-Feature zu erhalten. Optional können die Punktdaten anhand einer Objekteigenschaft sowie einem Filterwert dieser Objekteigenschaft gefiltert werden (z. B. Objekteigenschaft: Schulform, Filterwert: Grundschule, Operatoren: gleich/ungleich/enthält). Für numerische Werte lassen sich zudem Wertebereiche spezifizieren (z. B. Objekteigenschaft: Anzahl, Filterwert: 50, Operatoren: <, <=, =, >, >=, !=, Wertebereich)",
+						"additionalParameters": {
+							"parameters": [
+								{
+									"name": "kommonitorUiParams",
+									"value": {
+										"titleShort": "Anzahl Punkte in Polygon",
+										"apiName": "georesource_pointsInPolygon",
+										"dynamicLegend": "<br/> $A$: ${indicatorName} [ ${unit} ]<br/> $N$: Ziel-Zeitpunkt<br/> $M$: Ziel-Zeitpunkt minus ${number_of_temporal_items} ${temporal_type}",
+										"calculation_info": "Summe aller Punkte innerhalb jedes Raumeinheits-Features.",
+										"optional_info": "Anwenden eines Filters anhand einer Objekteigenschaft",
+										"inputBoxes": [
+											{
+												"id": "georesource_id",
+												"title": "Benötigte punktbasierte Georessource",
+												"description": "",
+												"contents": [
+													"georesource_id"
+												]
+											},
+											{
+												"id": "comp_filter",
+												"title": "Filter durch eine Objekteigenschaft (Optional)",
+												"description": "",
+												"contents": [
+													"comp_filter"
+												]
+											}
+										]
+									}
+								}
+							]
+						},
+						"inputs": {
+							"target_indicator_id": {
+								"id": "target_indicator_id",
+								"schema": { 
+									"type": "string",
+									"default": null
+								}
+							},
+							"target_spatial_units": {
+								"id": "target_spatial_units",
+								"schema": { 
+									"type": "array",
+									"default": []
+								}
+							},
+							"target_time": {
+								"id": "target_time",
+								"schema": { 
+									"type": "object",
+									"default": {
+										"value":{
+											"mode": "MISSING",
+											"includeDates" : [],
+											"excludeDates" : []
+										}
+									}
+								}
+							},
+							"execution_interval": {
+								"id": "execution_interval",
+								"schema": { 
+									"type": "object",
+									"default": {
+										"value": {
+											"cron": "0 0 1 * *"
+										}
+									}
+								}
+							},
+							"georesource_id": {
+								"id": "GEORESOURCE_ID",
+								"title": "Auswahl des für die Berechnung erforderlichen Basis-Indikators",
+								"description": "Georessourcen ID des Punktdatensatzes.",
+								"schema": { 
+									"type": "string",
+									"default": "4b68105a-bdf5-4c88-a86b-091ce8aeaf2a"
+								}
+							},
+							"comp_filter": {
+								"id": "COMP_FILTER",
+								"title": "Filter durch eine Objekteigenschaft",
+								"description": "",
+								"schema": { 
+									"type": "object",
+									"default": {
+										"value": {
+											"compFilterProp": null,
+											"compFilterOperator" : null,
+											"compFilterPropVal" : null
+										}
+									}
+								}
+							}
+						},
+						"outputs": {
+						},
+						"jobControlOptions": [],
+						"outputTransmission": []
+					}
+				}
+
+				// reduce "name" "value" pairs
+				kommonitorScriptHelperService.scriptData.additionalParameters.parameters = kommonitorScriptHelperService.scriptData.additionalParameters.parameters.reduce((acc, param) => {
+					acc[param.name] = param.value;
+					return acc;
+				}, {});
+
+				// save defaults for the inputs in processParameters
+				kommonitorScriptHelperService.processParameters = Object.keys(kommonitorScriptHelperService.scriptData.inputs).reduce((acc, key) => {
+					acc[key] = kommonitorScriptHelperService.scriptData.inputs[key].schema.default;
+					return acc;
+				}, {});
+			}
 
 			$scope.addScript = async function () {
 
