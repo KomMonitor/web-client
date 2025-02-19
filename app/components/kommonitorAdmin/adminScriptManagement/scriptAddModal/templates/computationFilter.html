@@ -1,0 +1,83 @@
+<div class="row vertical-align">
+  <div class="col-md-3 col-sm-2 col-xs-12">
+    <div class="form-group">
+      <label>Name der Objekteigenschaft</label>
+      <br />
+      <select class="form-control" ng-model="$parent.propertyName" 
+        ng-options="propertyOption for propertyOption in $parent.propertyOptions"
+        ng-change="$parent.onChangePropertyName(propertyName)">
+        <option disabled selected value> -- Objekteigenschaft w&auml;hlen --
+        </option>
+      </select>
+      <div class="help-block with-errors"></div>
+    </div>
+  </div>
+  <div class="col-md-3 col-sm-2 col-xs-12">
+    <div class="form-group">
+      <label>Operator</label>
+      <br />
+      <select class="form-control" ng-model="$parent.operator" 
+        ng-options="operatorOption as operatorOption.displayName for operatorOption in $parent.operatorOptions | orderBy: 'displayName'"
+        ng-change="$parent.onChangeOperatorOption(operatorOption)">
+        <option disabled selected value> -- Operator w&auml;hlen --
+        </option>
+      </select>
+      <div class="help-block with-errors"></div>
+    </div>
+  </div>
+  <div class="col-md-3 col-sm-2 col-xs-12" ng-show="operator.apiName!='Range' && operator.apiName!='Contains'">
+    <div class="form-group">
+      <label>Filterwert</label>
+      <br />
+      <select class="form-control" ng-model="$parent.propertyValue" 
+        ng-options="propertyValue for propertyValue in $parent.propertyValueOptions"
+        ng-change="$parent.onChangePropertyValue()">
+        <option disabled selected value> -- Filterwert w&auml;hlen --
+        </option>
+      </select>
+      <div class="help-block with-errors"></div>
+    </div>
+  </div>
+  <div class="col-md-3 col-sm-2 col-xs-12" ng-show="operator.apiName=='Contains'">
+    <div class="form-group">
+      <label>Filterwert</label>
+      <br />
+      <div ng-dropdown-multiselect="" options="propertyValueOptions" selected-model="$parent.propertyValueSelection" 
+        extra-settings="dropdownSettings", translation-texts="dropdownTranslations" events="dropdownEvents">
+         </div>
+      <div class="help-block with-errors"></div>
+    </div>
+  </div>
+  <div ng-show="operator.apiName=='Range'" class="col-md-5 col-sm-2 col-xs-12">
+    <div class="form-group">
+      <div class="input-group">
+        <div class="col-md-6 col-sm-2 col-xs-12">
+          <label>untere Grenze</label>
+          <br>
+          <select class="form-control input-sm ng-pristine ng-untouched ng-valid ng-empty" ng-model="$parent.propertyValueRange_from"
+            ng-options="propertyValue for propertyValue in $parent.propertyValueOptions" ng-change="$parent.onChangePropertyValueRange_range()">
+            <option disabled selected value> -- untere Grenze definieren --
+            </option>
+          </select>
+          <div class="help-block with-errors">
+          </div>
+        </div>						
+        <div class="col-md-6 col-sm-2 col-xs-12">
+          <label>obere Grenze</label>
+          <br>
+          <select class="form-control input-sm ng-pristine ng-untouched ng-valid ng-empty" ng-model="$parent.propertyValueRange_to"
+          ng-options="propertyValue for propertyValue in $parent.propertyValueOptions| filter: filterPropertyValueRange_toOptions()" ng-change="$parent.onChangePropertyValueRange_range()">
+          <option disabled selected value> -- obere Grenze definieren --
+          </option>
+          </select>									
+          <div class="help-block with-errors">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+	$('.box').boxWidget();
+</script>
