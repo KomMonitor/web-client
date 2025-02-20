@@ -167,7 +167,18 @@ export const ajskommonitorElementVisibilityHelperServiceProvider: any = {
   provide: 'kommonitorElementVisibilityHelperService',
   useFactory:kommonitorElementVisibilityHelperServiceFactory,
 };
+  
+// map service
 
+export function kommonitorMapServiceFactory (injector:any){
+  return injector.get('kommonitorMapService')
+}
+
+export const ajskommonitorMapServiceProvider: any = {
+  deps: ['$injector'],
+  provide: 'kommonitorMapService',
+  useFactory:kommonitorMapServiceFactory,
+};
 
   export const serviceProviders: any[] = [
     ajskommonitorCacheHelperServiceProvider,
@@ -183,5 +194,6 @@ export const ajskommonitorElementVisibilityHelperServiceProvider: any = {
     ajskommonitorShareHelperServiceProvider,
     ajskommonitorSingleFeatureMapServiceProvider,
     ajskommonitorVisualStyleHelperServiceProvider,
-    ajskommonitorElementVisibilityHelperServiceProvider
+    ajskommonitorElementVisibilityHelperServiceProvider,
+    ajskommonitorMapServiceProvider
   ];

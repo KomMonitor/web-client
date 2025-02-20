@@ -1,13 +1,37 @@
 :host {
+  
   display: block;
   max-width: 35%;
-  width: 100%;
   height: 100%;
   background: rgb(236,240,245);
   transition: opacity 0.3s;
-  overflow: auto;
   position: absolute;
   top: 100px;
   left: 0;
   z-index: 1001;
+
+  #sidebarContentWrapper {
+    
+    &.disabled {
+      display: none;
+    }
+  }
+
+  #buttonWrapper {
+    position: absolute;
+    right: -120px;
+    top:0;
+
+    ul {
+      list-style-type: none;
+
+      li button {
+        background-color: lightblue;
+        padding: .5em;
+        font-weight: bold;
+        border-radius: .4em;
+      }
+    }
+  }
+  
 }

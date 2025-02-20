@@ -24,7 +24,8 @@ import {
   ajskommonitorSingleFeatureMapServiceProvider,
   ajskommonitorElementVisibilityHelperServiceProvider,
   ajskommonitorShareHelperServiceProvider,
-  ajskommonitorVisualStyleHelperServiceProvider } from 'app-upgraded-providers';
+  ajskommonitorVisualStyleHelperServiceProvider, 
+  ajskommonitorMapServiceProvider} from 'app-upgraded-providers';
 import { InfoModalComponent } from 'components/ngComponents/userInterface/infoModal/info-modal.component';
 import { KommonitorLegendComponent } from 'components/ngComponents/userInterface/kommonitorLegend/kommonitor-legend.component';
 import { NgbCalendar, NgbDatepickerModule, NgbDateStruct, NgbAccordionModule, NgbModule } from '@ng-bootstrap/ng-bootstrap';
@@ -33,6 +34,8 @@ import { JsonPipe } from '@angular/common';
 import { KommonitorClassificationComponent } from './components/ngComponents/userInterface/kommonitorClassification/kommonitor-classification.component';
 import { KommonitorDataSetupComponent } from './components/ngComponents/userInterface/sidebar/kommonitorDataSetup/kommonitor-data-setup.component';
 import { SidebarComponent } from './components/ngComponents/userInterface/sidebar/sidebar.component';
+import { PoiComponent } from 'components/ngComponents/userInterface/sidebar/poi/poi/poi.component';
+
 
 
 // currently the AngularJS routing is still used as part of kommonitorClient module
@@ -58,7 +61,7 @@ declare var MathJax;
     ajskommonitorDataGridHelperServiceProvider,ajskommonitorSingleFeatureMapServiceProvider,
     ajskommonitorDiagramHelperServiceProvider,ajskommonitorFilterHelperServiceProvider,
     ajskommonitorElementVisibilityHelperServiceProvider, ajskommonitorShareHelperServiceProvider,
-    ajskommonitorVisualStyleHelperServiceProvider,
+    ajskommonitorVisualStyleHelperServiceProvider, ajskommonitorMapServiceProvider,
     NgbModule
   ],
   declarations: [
@@ -66,7 +69,8 @@ declare var MathJax;
     KommonitorLegendComponent,
     KommonitorClassificationComponent,
     KommonitorDataSetupComponent,
-    SidebarComponent
+    SidebarComponent,
+    PoiComponent
   ]
 })
 

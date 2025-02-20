@@ -53,6 +53,13 @@ export interface DataExchange {
   wfsUrlForSelectedIndicator: any;
   headlineIndicatorHierarchy: any;
   displayableIndicators_keywordFiltered: any;
+  POISizes: any;
+  topicGeoresourceHierarchy: any;
+  showGeoresourceExportButtons: any;
+  displayableGeoresources_keywordFiltered: any; 
+  wfsDatasets: any;
+  wmsLegendImage: any;
+  topicGeoresourceHierarchy_unmappedEntries: any;
 }
 
 export interface IndicatorTopic {
@@ -127,6 +134,10 @@ export class DataExchangeService {
     return filteredApplicableUnits.length > 0;
   }
 
+  downloadMetadataPDF_georesource(loi) {
+    this.ajskommonitorDataExchangeServiceeProvider.downloadMetadataPDF_georesource(loi);
+  }
+
   generateAndDownloadIndicatorZIP(indicatorData, fileName, fileEnding, jsZipOptions) {
     this.ajskommonitorDataExchangeServiceeProvider.generateAndDownloadIndicatorZIP(indicatorData, fileName, fileEnding, jsZipOptions);
   }
@@ -157,5 +168,21 @@ export class DataExchangeService {
 
   onChangeIndicatorKeywordFilter(name) {
     this.ajskommonitorDataExchangeServiceeProvider.onChangeIndicatorKeywordFilter(name);
+  }
+
+  onChangeGeoresourceKeywordFilter(georesourceNameFilterValue, showPOI, showLOI, showAOI, showWMS, showWFS) {
+    this.ajskommonitorDataExchangeServiceeProvider.onChangeGeoresourceKeywordFilter(georesourceNameFilterValue, showPOI, showLOI, showAOI, showWMS, showWFS);
+  }
+
+  getGeoresourceDatasets(topic, georesourceNameFilter, showPOI, showLOI, showAOI, showWMS, showWFS){
+    return this.ajskommonitorDataExchangeServiceeProvider.getGeoresourceDatasets(topic, georesourceNameFilter, showPOI, showLOI, showAOI, showWMS, showWFS);
+  }
+
+  referencedTopicIdExists(reference) {
+    return this.ajskommonitorDataExchangeServiceeProvider.referencedTopicIdExists(reference);
+  }
+
+  removeAoiGeoresource(aoiGeoresource) {
+    return this.ajskommonitorDataExchangeServiceeProvider.removeAoiGeoresource(aoiGeoresource);
   }
 }
