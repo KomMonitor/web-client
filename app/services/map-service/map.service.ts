@@ -1,4 +1,3 @@
-import { ajskommonitorMapServiceProvider } from './../../app-upgraded-providers';
 import { Inject, Injectable } from '@angular/core';
 
 @Injectable({
@@ -58,5 +57,9 @@ export class MapService {
 
   adjustColorForWfsLayer(dataset, opacity) {
     this.ajskommonitorMapServiceProvider.adjustColorForWfsLayer(dataset, opacity);
+  }
+
+  restyleCurrentLayer() {
+    this.ajskommonitorMapServiceProvider.restyleCurrentLayer();
   }
 }

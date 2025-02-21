@@ -62,6 +62,7 @@ export interface DataExchange {
   topicGeoresourceHierarchy_unmappedEntries: any;
   displayableGeoresources_keywordFiltered_forAlphabeticalDisplay: any;
   selectedPOISize: any;
+  rangeFilterData: any;
 }
 
 export interface IndicatorTopic {
@@ -77,6 +78,7 @@ export interface IndicatorTopic {
 
 export interface SpatialUnit {
   spatialUnitLevel: string;
+  spatialUnitId: any;
 }
 
 export interface Indicator {
@@ -186,5 +188,13 @@ export class DataExchangeService {
 
   removeAoiGeoresource(aoiGeoresource) {
     return this.ajskommonitorDataExchangeServiceeProvider.removeAoiGeoresource(aoiGeoresource);
+  }
+
+  indicatorValueIsNoData(feature) {
+    return this.ajskommonitorDataExchangeServiceeProvider.indicatorValueIsNoData(feature);
+  }
+
+  getIndicatorValue_asNumber(value) {
+    return this.ajskommonitorDataExchangeServiceeProvider.getIndicatorValue_asNumber(value);
   }
 }

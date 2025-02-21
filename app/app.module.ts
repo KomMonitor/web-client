@@ -1,5 +1,5 @@
 
-import { DoBootstrap, NgModule, Version, inject, Input, Inject } from '@angular/core';
+import { DoBootstrap, NgModule, Version, inject, Input, Inject, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { UpgradeModule } from '@angular/upgrade/static';
 import { downgradeComponent } from '@angular/upgrade/static';
@@ -34,8 +34,8 @@ import { JsonPipe } from '@angular/common';
 import { KommonitorClassificationComponent } from './components/ngComponents/userInterface/kommonitorClassification/kommonitor-classification.component';
 import { KommonitorDataSetupComponent } from './components/ngComponents/userInterface/sidebar/kommonitorDataSetup/kommonitor-data-setup.component';
 import { SidebarComponent } from './components/ngComponents/userInterface/sidebar/sidebar.component';
-import { PoiComponent } from 'components/ngComponents/userInterface/sidebar/poi/poi/poi.component';
-import { KommonitorFilterComponent } from './components/ngComponents/userInterface/sidebar/kommonitorFilter/kommonitor-filter/kommonitor-filter.component';
+import { PoiComponent } from 'components/ngComponents/userInterface/sidebar/poi/poi.component';
+import { KommonitorFilterComponent } from './components/ngComponents/userInterface/sidebar/kommonitorFilter/kommonitor-filter.component';
 
 
 
@@ -73,6 +73,9 @@ declare var MathJax;
     SidebarComponent,
     PoiComponent,
     KommonitorFilterComponent
+  ],
+  schemas: [
+    CUSTOM_ELEMENTS_SCHEMA
   ]
 })
 
