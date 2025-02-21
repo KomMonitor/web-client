@@ -1,11 +1,14 @@
 <div id="sidebarContentWrapper" [ngClass]="{'disabled': content===false}">
   <app-kommonitor-data-setup *ngIf="content===0"></app-kommonitor-data-setup>
   <app-poi *ngIf="content===1"></app-poi>
+  <app-kommonitor-filter *ngIf="content===3"></app-kommonitor-filter>
 </div>
 
 <div id="buttonWrapper">
   <ul>
     <li><button (click)="showContent(0)">Indicators</button></li>
     <li><button (click)="showContent(1)">Georesources</button></li>
+    <li><button>Import</button></li>
+    <li><button (click)="showContent(3)">Filter</button></li>
   </ul>
 </div>

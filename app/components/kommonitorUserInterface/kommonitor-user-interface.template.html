@@ -154,35 +154,35 @@
         <poi></poi>
     </aside>
 
-		<aside id="sidebarDataImport" ng-class="sidebarDataImportClass" ng-if="$ctrl.kommonitorElementVisibilityHelperServiceInstance.elementVisibility.dataImport">
+		<aside id="sidebarDataImport" ng-class="sidebarDataImportClass">
         <kommonitor-data-import></kommonitor-data-import>
     </aside>
 
-		<aside id="sidebarFilter" ng-class="sidebarFilterClass" ng-show="$ctrl.kommonitorElementVisibilityHelperServiceInstance.elementVisibility.filter">
+		<aside id="sidebarFilter" ng-class="sidebarFilterClass">
         <kommonitor-filter></kommonitor-filter>
     </aside>
 
-		<aside id="sidebarMeasureOfValueClassification" ng-class="sidebarMeasureOfValueClassificationClass" ng-if="$ctrl.kommonitorElementVisibilityHelperServiceInstance.elementVisibility.measureOfValueClassification">
+		<aside id="sidebarMeasureOfValueClassification" ng-class="sidebarMeasureOfValueClassificationClass">
         <measure-of-value-classification></measure-of-value-classification>
     </aside>
 
-		<aside id="sidebarBalance" ng-class="sidebarBalanceClass" ng-if="$ctrl.kommonitorElementVisibilityHelperServiceInstance.elementVisibility.balance">
+		<aside id="sidebarBalance" ng-class="sidebarBalanceClass">
         <kommonitor-balance></kommonitor-balance>
     </aside>
 
-		<aside id="sidebarDiagrams" ng-class="sidebarDiagramsClass" ng-if="$ctrl.kommonitorElementVisibilityHelperServiceInstance.elementVisibility.diagrams">
+		<aside id="sidebarDiagrams" ng-class="sidebarDiagramsClass">
         <kommonitor-diagrams></kommonitor-diagrams>
     </aside>
 
-		<aside id="sidebarRadarDiagram" ng-class="sidebarRadarDiagramClass" ng-if="$ctrl.kommonitorElementVisibilityHelperServiceInstance.elementVisibility.radarDiagram">
+		<aside id="sidebarRadarDiagram" ng-class="sidebarRadarDiagramClass">
         <indicator-radar></indicator-radar>
     </aside>
 
-		<aside id="sidebarRegressionDiagram" ng-class="sidebarRegressionDiagramClass" ng-if="$ctrl.kommonitorElementVisibilityHelperServiceInstance.elementVisibility.regressionDiagram">
+		<aside id="sidebarRegressionDiagram" ng-class="sidebarRegressionDiagramClass">
         <regression-diagram></regression-diagram>
     </aside>
 
-		<aside id="sidebarReachability" ng-class="sidebarReachabilityClass" ng-if="$ctrl.kommonitorElementVisibilityHelperServiceInstance.elementVisibility.reachability">
+		<aside id="sidebarReachability" ng-class="sidebarReachabilityClass">
         <kommonitor-reachability></kommonitor-reachability>
     </aside>
 
@@ -210,54 +210,54 @@
 
 				<div id="sideBarButtons">
 						<button type="button" style="display: block; position: relative; margin-top: 5px;" " id="sidebarIndicatorConfigCollapse"
-							ng-click="onSidebarIndicatorButtonClick()" ng-class="buttonIndicatorConfigClass" ng-if="$ctrl.kommonitorElementVisibilityHelperServiceInstance.elementVisibility.indicatorConfig" data-toggle="tooltip" title="Indikatorenauswahl">
+							ng-click="onSidebarIndicatorButtonClick()" ng-class="buttonIndicatorConfigClass" data-toggle="tooltip" title="Indikatorenauswahl">
 								<!-- <span style="font-size:2.5vh;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 								<i style="font-size:2.5vh;" class="fas fa-sitemap"></i>
 						</button>
 
 						<button type="button" style="display: block; position: relative; margin-top: 5px;" " id="sidebarPoiCollapse"
-							ng-click="onSidebarPoiButtonClick()" ng-class="buttonPoiClass" ng-if="$ctrl.kommonitorElementVisibilityHelperServiceInstance.elementVisibility.poi" data-toggle="tooltip" title="Infrastrukturdaten">
+							ng-click="onSidebarPoiButtonClick()" ng-class="buttonPoiClass" data-toggle="tooltip" title="Infrastrukturdaten">
 								<!-- <span style="font-size:2.5vh;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 								<i style="font-size:2.5vh;" class="fas fa-map-marker-alt"></i>
 						</button>
 
 						 <button type="button" style="display: block; position: relative; margin-top: 5px;" " id="sidebarDataImportCollapse"
-							ng-click="onSidebarDataImportButtonClick()" ng-class="buttonDataImportClass"  ng-if="$ctrl.kommonitorElementVisibilityHelperServiceInstance.elementVisibility.dataImport" data-toggle="tooltip" title="Datenimport">
+							ng-click="onSidebarDataImportButtonClick()" ng-class="buttonDataImportClass"  data-toggle="tooltip" title="Datenimport">
 								<i style="font-size:2.5vh;" class="fas fa-file-import"></i>
 						</button> 
 
 						<button type="button" style="display: block; position: relative; margin-top: 5px;" " id="sidebarFilterCollapse"
-							ng-click="onSidebarFilterButtonClick()" ng-class="buttonFilterClass" ng-if="$ctrl.kommonitorElementVisibilityHelperServiceInstance.elementVisibility.filter" data-toggle="tooltip" title="Darstellungsfilter">
+							ng-click="onSidebarFilterButtonClick()" ng-class="buttonFilterClass" data-toggle="tooltip" title="Darstellungsfilter">
 								<!-- <span style="font-size:2.5vh;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 								<i style="font-size:2.5vh;" class="fas fa-filter"></i>
 						</button>
 
 						<button type="button" style="display: block; position: relative; margin-top: 5px;" " id="sidebarBalanceCollapse"
-							ng-click="onSidebarBalanceButtonClick()" ng-class="buttonBalanceClass" ng-if="$ctrl.kommonitorElementVisibilityHelperServiceInstance.elementVisibility.balance" data-toggle="tooltip" title="zeitliche Bilanzierung">
+							ng-click="onSidebarBalanceButtonClick()" ng-class="buttonBalanceClass" data-toggle="tooltip" title="zeitliche Bilanzierung">
 								<!-- <span style="font-size:2.5vh;" class="glyphicon glyphicon-sort" aria-hidden="true"></span> -->
 								<i style="font-size:2.5vh;" class="fas fa-chart-line"></i>
 						</button>
 
-						<button type="button" style="display: block; position: relative; margin-top: 5px;" " id="sidebarDiagramsCollapse" ng-if="$ctrl.kommonitorElementVisibilityHelperServiceInstance.elementVisibility.diagrams"
+						<button type="button" style="display: block; position: relative; margin-top: 5px;" " id="sidebarDiagramsCollapse" 
 							ng-click="onSidebarDiagramsClick()" ng-class="buttonDiagramsClass" data-toggle="tooltip" title="statistische Diagramme">
 								<!-- <span style="font-size:2.5vh;" class="glyphicon glyphicon-stats" aria-hidden="true"></span> -->
 								<i style="font-size:2.5vh;" class="fas fa-chart-bar"></i>
 						</button>
 
 						<button type="button" style="display: block; position: relative; margin-top: 5px;" " id="sidebarRadarDiagramCollapse"
-							ng-click="onSidebarRadarDiagramClick()" ng-class="buttonRadarDiagramClass" ng-if="$ctrl.kommonitorElementVisibilityHelperServiceInstance.elementVisibility.radarDiagram" data-toggle="tooltip" title="Indikatorenradar">
+							ng-click="onSidebarRadarDiagramClick()" ng-class="buttonRadarDiagramClass" data-toggle="tooltip" title="Indikatorenradar">
 								<!-- <span style="font-size:2.5vh;" class="glyphicon glyphicon-star-empty" aria-hidden="true"></span> -->
 								<img src="icons/radarMap.svg"></img>
 						</button>
 
 						<button type="button" style="display: block; position: relative; margin-top: 5px;" " id="sidebarRegressionDiagramCollapse"
-							ng-click="onSidebarRegressionDiagramClick()" ng-class="buttonRegressionDiagramClass" ng-if="$ctrl.kommonitorElementVisibilityHelperServiceInstance.elementVisibility.regressionDiagram" data-toggle="tooltip" title="Regressionsdiagramm">
+							ng-click="onSidebarRegressionDiagramClick()" ng-class="buttonRegressionDiagramClass" data-toggle="tooltip" title="Regressionsdiagramm">
 								<!-- <span style="font-size:2.5vh;" class="glyphicon glyphicon-star-empty" aria-hidden="true"></span> -->
 								<img src="icons/scatterPlot.svg"></img>
 						</button>
 
 						<button type="button" style="display: block; position: relative; margin-top: 5px;" " id="sidebarReachabilityCollapse"
-							ng-click="onSidebarReachabilityButtonClick()" ng-class="buttonReachabilityClass" ng-if="$ctrl.kommonitorElementVisibilityHelperServiceInstance.elementVisibility.reachability" data-toggle="tooltip" title="Erreichbarkeitsanalyse">
+							ng-click="onSidebarReachabilityButtonClick()" ng-class="buttonReachabilityClass" data-toggle="tooltip" title="Erreichbarkeitsanalyse">
 							<i style="font-size:2.5vh;" class="fas fa-route"></i>
 								<!-- <span style="font-size:2.5vh;" class="glyphicon glyphicon-wrench" aria-hidden="true"></span> -->
 						</button>

@@ -12,6 +12,7 @@ export class PoiComponent implements OnInit{
   useCluster = true;
   loadingData = false;
   date:any;
+  topicsCollapsed:string[] = [];
 
   isCollapsed_noTopic = true;
 
@@ -43,11 +44,18 @@ export class PoiComponent implements OnInit{
   }
 
   ngOnInit(): void {
-    this.preppedTopicGeoresourceHierarchy = this.prepareTopicGeoresourceHierarchyRecursive(this.exchangeData.topicGeoresourceHierarchy);
+
+    window.setTimeout( () => {
+      this.preppedTopicGeoresourceHierarchy = this.prepareTopicGeoresourceHierarchyRecursive(this.exchangeData.topicGeoresourceHierarchy);
+       this.addClickListenerToEachCollapseTrigger();
+    },2000);
   }
 
-  onTopicClick(topicId) {
-    
+  onTopicClick(topicID:string) {
+    if(this.topicsCollapsed.includes(topicID))
+      this.topicsCollapsed = this.topicsCollapsed.filter(e => e!=topicID);
+    else
+      this.topicsCollapsed.push(topicID);
   }
 
   prepareTopicGeoresourceHierarchyRecursive(tree:any[]) {
@@ -56,8 +64,8 @@ export class PoiComponent implements OnInit{
   
     retTree.forEach( (elem:any) => {
 
-      /*  if(!this.topicsCollapsed.includes(elem.topicId))
-        this.topicsCollapsed.push(elem.topicId); */
+       if(!this.topicsCollapsed.includes(elem.topicId))
+        this.topicsCollapsed.push(elem.topicId);
 
       if(elem.subTopics.length>0) {
         elem.subTopics = this.prepareTopicGeoresourceHierarchyRecursive(elem.subTopics);
@@ -126,25 +134,26 @@ export class PoiComponent implements OnInit{
     // });
   }, 3000); */
 
-/*   var addClickListenerToEachCollapseTrigger(){
+  addClickListenerToEachCollapseTrigger(){
     setTimeout(function(){
-      $('.list-group-item > .collapseTrigger').on('click', function() {
-        $('.glyphicon', this)
-          .toggleClass('glyphicon-chevron-right')
-          .toggleClass('glyphicon-chevron-down');
+      $('.list-group-item > .collapseTrigger').on('click', function(e) {
+        
+        $('.glyphicon', e)
+        .toggleClass('glyphicon-chevron-right')
+        .toggleClass('glyphicon-chevron-down');
 
           // manage uncollapsed entries
           // var clickedTopicId = $(this).attr('id');
-          // if (this.unCollapsedTopicIds.includes(clickedTopicId)){
-          // 	var index = this.unCollapsedTopicIds.indexOf(clickedTopicId);
-          // 	this.unCollapsedTopicIds.splice(index, 1);
+          // if ($scope.unCollapsedTopicIds.includes(clickedTopicId)){
+          // 	var index = $scope.unCollapsedTopicIds.indexOf(clickedTopicId);
+          // 	$scope.unCollapsedTopicIds.splice(index, 1);
           // }
           // else{
-          // 	this.unCollapsedTopicIds.push(clickedTopicId);
+          // 	$scope.unCollapsedTopicIds.push(clickedTopicId);
           // }
       });
     }, 500);
-  }; */
+  };
 
 /*   $(document).ready(function() {
 

@@ -36,14 +36,9 @@
 					<b title="Auswahl zur Größe der POI-Marker">Größe der Points
 						of Interest</b>
 					&nbsp;
-					<!-- <select 
-						ng-options="item as item.label for item in exchangeData.POISizes track by item.id" 
-						[(ngModel)]="exchangeData.selectedPOISize"
-						(change)="refreshPoiLayers()">
-					</select> -->
 
-          <select>
-            <option *ngFor="let item of exchangeData.POISizes"></option>
+          <select [(ngModel)]="exchangeData.selectedPOISize" (change)="refreshPoiLayers()">
+            <option *ngFor="let item of exchangeData.POISizes">{{item.label}}</option>
           </select>
 				</label>
 
@@ -79,15 +74,15 @@
 
 						<table class="table" style="width:100%;" *ngIf="(enabledGeoresourcesInfrastructure.length + enabledGeoresourcesGeoservices.length) > 1">
 							<tr>
-                                <th *ngIf="enabledGeoresourcesInfrastructure.length > 0" [attr.colspan]="enabledGeoresourcesInfrastructure.length" class="text-center"><b>Infrastruktur</b></th>
-                                <th *ngIf="enabledGeoresourcesGeoservices.length > 0" [attr.colSpan]="enabledGeoresourcesGeoservices.length" class="text-center"><b>Geodaten-Dienste</b></th>
+                <th *ngIf="enabledGeoresourcesInfrastructure.length > 0" [attr.colspan]="enabledGeoresourcesInfrastructure.length" class="text-center"><b>Infrastruktur</b></th>
+                <th *ngIf="enabledGeoresourcesGeoservices.length > 0" [attr.colSpan]="enabledGeoresourcesGeoservices.length" class="text-center"><b>Geodaten-Dienste</b></th>
 							</tr>
 							<tr>
-                                <th *ngIf="isGeoresourceInfrastructureEnabled('poi')" class="text-center"><b>Punktdaten</b></th>
-                                <th *ngIf="isGeoresourceInfrastructureEnabled('loi')" class="text-center"><b>Liniendaten</b></th>
-                                <th *ngIf="isGeoresourceInfrastructureEnabled('aoi')" class="text-center"><b>Fl&auml;chendaten</b></th>
-                                <th *ngIf="isGeoresourceGeoserviceEnabled('wms')" class="text-center"><b>WMS-Daten</b></th>
-                                <th *ngIf="isGeoresourceGeoserviceEnabled('wfs')" class="text-center"><b>WFS-Daten</b></th>
+                <th *ngIf="isGeoresourceInfrastructureEnabled('poi')" class="text-center"><b>Punktdaten</b></th>
+                <th *ngIf="isGeoresourceInfrastructureEnabled('loi')" class="text-center"><b>Liniendaten</b></th>
+                <th *ngIf="isGeoresourceInfrastructureEnabled('aoi')" class="text-center"><b>Fl&auml;chendaten</b></th>
+                <th *ngIf="isGeoresourceGeoserviceEnabled('wms')" class="text-center"><b>WMS-Daten</b></th>
+                <th *ngIf="isGeoresourceGeoserviceEnabled('wfs')" class="text-center"><b>WFS-Daten</b></th>
 							</tr>
 							<tr>
 								<td class="text-center" *ngIf="isGeoresourceInfrastructureEnabled('poi')">
@@ -134,72 +129,72 @@
 						<div id="georesourceHierarchySelection" class="list-group list-group-root well">
 
 							<div *ngFor="let mainTopic of preppedTopicGeoresourceHierarchy">
-								<div class="list-group-item list-group-item-default"
+								<div class="list-group-item list-group-item-default list-group-grid-item"
 									style="background: #2171b5; color: white;">
-									<a id="{{mainTopic.topicId}}" href=""
+									<p id="{{mainTopic.topicId}}"
 										title="{{mainTopic.topicDescription}}" class="collapseTrigger"
 										style="color: white;" (click)="onTopicClick(mainTopic.topicId)"
 										ng-init="isCollapsed_mainTopic=true"><i
 											class="glyphicon glyphicon-chevron-right"></i>{{mainTopic.topicName}}
-										({{mainTopic.totalCount}})</a>
-									&nbsp;&nbsp; <input type="checkbox" [(ngModel)]="mainTopic.isSelected"
+										({{mainTopic.totalCount}})</p>
+                  <input type="checkbox" [(ngModel)]="mainTopic.isSelected"
 										value="mainTopic.isSelected" id="showAllForTopic_{{mainTopic.topicId}}"
 										(change)="handleShowAllOnTopic(mainTopic)">
 								</div>
 
-								<div class="list-group collapse"
+								<div class="list-group collapse" [ngClass]="{'in': !topicsCollapsed.includes(mainTopic.topicId)}"
 								uib-collapse="isCollapsed_mainTopic">
 								<div *ngFor="let subTopic of mainTopic.subTopics">
 
-									<div class="list-group-item list-group-item-default"
+									<div class="list-group-item list-group-item-default list-group-grid-item"
 										style="background: #6baed6; color: white;">
-										<a id="{{subTopic.topicId}}" class="collapseTrigger" style="color: white;"
-											title="{{subTopic.topicDescription}}" href="" (click)="onTopicClick(subTopic.topicId)"
+										<p id="{{subTopic.topicId}}" class="collapseTrigger" style="color: white;"
+											title="{{subTopic.topicDescription}}" (click)="onTopicClick(subTopic.topicId)"
 											ng-init="isCollapsed_subTopic=true"><i
 												class="glyphicon glyphicon-chevron-right"></i>{{subTopic.topicName}}
-											({{subTopic.totalCount}})</a>
-										&nbsp;&nbsp; <input type="checkbox" [(ngModel)]="subTopic.isSelected"
+											({{subTopic.totalCount}})</p>
+                    <input type="checkbox" [(ngModel)]="subTopic.isSelected"
 											value="subTopic.isSelected" id="showAllForTopic_{{subTopic.topicId}}"
 											(change)="handleShowAllOnTopic(subTopic)">
 									</div>
 
-									<div class="list-group collapse"
+									<div class="list-group collapse"  [ngClass]="{'in': !topicsCollapsed.includes(subTopic.topicId)}"
 									uib-collapse="isCollapsed_subTopic">
 									<div *ngFor="let subsubTopic of subTopic.subTopics">
 
-										<div class="list-group-item list-group-item-default"
+										<div class="list-group-item list-group-item-default list-group-grid-item"
 											style="background: #bdd7e7; color: white;">
-											<a id="{{subsubTopic.topicId}}" class="collapseTrigger"
+											<p id="{{subsubTopic.topicId}}" class="collapseTrigger"
 												style="color: black;" title="{{subsubTopic.topicDescription}}"
-												href="" (click)="onTopicClick(subsubTopic.topicId)"
+												(click)="onTopicClick(subsubTopic.topicId)"
 												ng-init="isCollapsed_subsubTopic=true"><i
 													class="glyphicon glyphicon-chevron-right"></i>{{subsubTopic.topicName}}
-												({{subsubTopic.totalCount}})</a>
-											&nbsp;&nbsp; <input type="checkbox" [(ngModel)]="subsubTopic.isSelected"
+												({{subsubTopic.totalCount}})</p>
+                      <input type="checkbox" [(ngModel)]="subsubTopic.isSelected"
 												value="subsubTopic.isSelected"
 												id="showAllForTopic_{{subsubTopic.topicId}}"
 												(change)="handleShowAllOnTopic(subsubTopic)">
 										</div>
 
-										<div class="list-group collapse" uib-collapse="isCollapsed_subsubTopic">
+										<div class="list-group collapse" [ngClass]="{'in': !topicsCollapsed.includes(subsubTopic.topicId)}">
 											<div *ngFor="let subsubsubTopic of subsubTopic.subTopics">
 
-											<div class="list-group-item list-group-item-default"
+											<div class="list-group-item list-group-item-default list-group-grid-item"
 												style="background: #eff3ff; color: white;">
-												<a id="{{subsubsubTopic.topicId}}" class="collapseTrigger"
+												<p id="{{subsubsubTopic.topicId}}" class="collapseTrigger"
 													style="color: black;"
 													title="{{subsubsubTopic.topicDescription}}"
 													(click)="onTopicClick(subsubsubTopic.topicId)"
 													ng-init="isCollapsed_subsubsubTopic=true"><i
 													class="glyphicon glyphicon-chevron-right"></i>{{subsubsubTopic.topicName}}
-													({{subsubsubTopic.totalCount}})</a>
+													({{subsubsubTopic.totalCount}})</p>
 												&nbsp;&nbsp; <input type="checkbox" [(ngModel)]="subsubsubTopic.isSelected"
 													value="subsubsubTopic.isSelected"
 													id="showAllForTopic_{{subsubsubTopic.topicId}}"
 													(change)="handleShowAllOnTopic(subsubsubTopic)">
 											</div>
 
-											<div class="list-group collapse" uib-collapse="isCollapsed_subsubsubTopic">
+											<div class="list-group collapse" [ngClass]="{'in': !topicsCollapsed.includes(subsubsubTopic.topicId)}">
 												<div *ngIf="subsubsubTopic.ownCount > 0"
 													class="list-group-item list-group-item-default georesourceInputForm">
 
@@ -260,10 +255,13 @@
 																		style="font-size: 11px; width:135px; padding: 0px;"
 																		[(ngModel)]="poi.selectedDate"
 																		(change)="onChangeSelectedDate(poi)"
-																		ng-options="date as date.startDate for date in poi.availablePeriodsOfValidity | orderBy: 'startDate' | unique: 'startDate'"
-																		ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]"
 																		class="form-control" required>
+                                    <option *ngFor="let date of poi.availablePeriodsOfValidity">{{date.startDate}}</option>
 																	</select>
+
+                                  <!-- 
+																		ng-options="date as date.startDate for date in poi.availablePeriodsOfValidity | orderBy: 'startDate' | unique: 'startDate'"
+																		ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]" -->
 																</td>
 																<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
 																	<a href="" (click)="getExportLinkForPoi(poi)"
@@ -277,7 +275,7 @@
 															</tr>
 
 															<!-- LOIs -->
-															<tr *ngFor='let loi in subsubsubTopic.loiData'>
+															<tr *ngFor='let loi of subsubsubTopic.loiData'>
 																<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 																<td>
 																	<i class="fas fa-minus"></i>
@@ -325,7 +323,7 @@
 															</tr>
 
 															<!-- AOIs -->
-															<tr *ngFor='let aoi in subsubsubTopic.aoiData'>
+															<tr *ngFor='let aoi of subsubsubTopic.aoiData'>
 																<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 																<td>
 																	<i class="far fa-square"></i>
@@ -521,7 +519,7 @@
 													<tbody>
 
 														<!-- POIs -->
-														<tr *ngFor='let poi in subsubTopic.poiData '>
+														<tr *ngFor='let poi of subsubTopic.poiData '>
 															<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 															<td>
 																<i class="fas fa-map-marker-alt"></i>
@@ -561,10 +559,13 @@
 																	style="font-size: 11px; width:135px; padding: 0px;"
 																	[(ngModel)]="poi.selectedDate"
 																	(change)="onChangeSelectedDate(poi)"
-																	ng-options="date as date.startDate for date in poi.availablePeriodsOfValidity | orderBy: 'startDate' | unique: 'startDate'"
-																	ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]"
 																	class="form-control" required>
+                                  <option *ngFor="let date of poi.availablePeriodsOfValidity">{{date.startDate}}</option>
 																</select>
+
+                                <!-- 
+																	ng-options="date as date.startDate for date in poi.availablePeriodsOfValidity | orderBy: 'startDate' | unique: 'startDate'"
+																	ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]" -->
 															</td>
 															<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
 																<a href="" (click)="getExportLinkForPoi(poi)"
@@ -578,7 +579,7 @@
 														</tr>
 
 														<!-- LOIs -->
-														<tr *ngFor='let loi in subsubTopic.loiData'>
+														<tr *ngFor='let loi of subsubTopic.loiData'>
 															<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 															<td>
 																<i class="fas fa-minus"></i>
@@ -626,7 +627,7 @@
 														</tr>
 
 														<!-- AOIs -->
-														<tr *ngFor='let aoi in subsubTopic.aoiData'>
+														<tr *ngFor='let aoi of subsubTopic.aoiData'>
 															<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 															<td>
 																<i class="far fa-square"></i>
@@ -822,7 +823,7 @@
 												<tbody>
 
 													<!-- POIs -->
-													<tr *ngFor='let poi in subTopic.poiData '>
+													<tr *ngFor='let poi of subTopic.poiData '>
 														<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 														<td>
 															<i class="fas fa-map-marker-alt"></i>
@@ -860,10 +861,12 @@
 															<select style="font-size: 11px; width:135px; padding: 0px;"
 																[(ngModel)]="poi.selectedDate"
 																(change)="onChangeSelectedDate(poi)"
-																ng-options="date as date.startDate for date in poi.availablePeriodsOfValidity | orderBy: 'startDate' | unique: 'startDate'"
-																ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]"
 																class="form-control" required>
+                                <option *ngFor="let date of poi.availablePeriodsOfValidity">{{date.startDate}}</option>
 															</select>
+                              <!-- 
+																ng-options="date as date.startDate for date in poi.availablePeriodsOfValidity | orderBy: 'startDate' | unique: 'startDate'"
+																ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]" -->
 														</td>
 														<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
 															<a href="" (click)="getExportLinkForPoi(poi)"
@@ -877,7 +880,7 @@
 													</tr>
 
 													<!-- LOIs -->
-													<tr *ngFor='let loi in subTopic.loiData'>
+													<tr *ngFor='let loi of subTopic.loiData'>
 														<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 														<td>
 															<i class="fas fa-minus"></i>
@@ -922,7 +925,7 @@
 													</tr>
 
 													<!-- AOIs -->
-													<tr *ngFor='let aoi in subTopic.aoiData '>
+													<tr *ngFor='let aoi of subTopic.aoiData '>
 														<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 														<td>
 															<i class="far fa-square"></i>
@@ -1116,7 +1119,7 @@
 											<tbody>
 
 												<!-- POIs -->
-												<tr *ngFor='let poi in mainTopic.poiData'>
+												<tr *ngFor='let poi of mainTopic.poiData'>
 													<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 													<td>
 														<i class="fas fa-map-marker-alt"></i>
@@ -1154,10 +1157,13 @@
 														<select style="font-size: 11px; width:135px; padding: 0px;"
 															[(ngModel)]="poi.selectedDate"
 															(change)="onChangeSelectedDate(poi)"
-															ng-options="date as date.startDate for date in poi.availablePeriodsOfValidity | orderBy: 'startDate' | unique: 'startDate'"
-															ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]"
 															class="form-control" required>
+                              <option *ngFor="let date of poi.availablePeriodsOfValidity">{{date.startDate}}</option>
 														</select>
+
+                            <!-- 
+															ng-options="date as date.startDate for date in poi.availablePeriodsOfValidity | orderBy: 'startDate' | unique: 'startDate'"
+															ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]" -->
 													</td>
 													<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
 														<a href="" (click)="getExportLinkForPoi(poi)"
@@ -1171,7 +1177,7 @@
 												</tr>
 
 												<!-- LOIs -->
-												<tr *ngFor='let loi in mainTopic.loiData '>
+												<tr *ngFor='let loi of mainTopic.loiData '>
 													<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 													<td>
 														<i class="fas fa-minus"></i>
@@ -1216,7 +1222,7 @@
 												</tr>
 
 												<!-- AOIs -->
-												<tr *ngFor='let aoi in mainTopic.aoiData'>
+												<tr *ngFor='let aoi of mainTopic.aoiData'>
 													<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 													<td>
 														<i class="far fa-square"></i>
@@ -1425,7 +1431,7 @@
 
 											<!-- POIs -->
 											<tr
-												*ngFor='let poi in exchangeData.topicGeoresourceHierarchy_unmappedEntries.poiData'>
+												*ngFor='let poi of exchangeData.topicGeoresourceHierarchy_unmappedEntries.poiData'>
 												<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 												<td>
 													<i class="fas fa-map-marker-alt"></i>
@@ -1463,10 +1469,13 @@
 													<select style="font-size: 11px; width:135px; padding: 0px;"
 														[(ngModel)]="poi.selectedDate"
 														(change)="onChangeSelectedDate(poi)"
-														ng-options="date as date.startDate for date in poi.availablePeriodsOfValidity | orderBy: 'startDate' | unique: 'startDate'"
-														ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]"
 														class="form-control" required>
+                            <option *ngFor="let date of poi.availablePeriodsOfValidity">{{date.startDate}}</option>
 													</select>
+
+                          <!-- 
+														ng-options="date as date.startDate for date in poi.availablePeriodsOfValidity | orderBy: 'startDate' | unique: 'startDate'"
+														ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]" -->
 												</td>
 												<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
 													<a href="" (click)="getExportLinkForPoi(poi)"
@@ -1481,7 +1490,7 @@
 
 											<!-- LOIs -->
 											<tr
-												*ngFor='let loi in exchangeData.topicGeoresourceHierarchy_unmappedEntries.loiData'>
+												*ngFor='let loi of exchangeData.topicGeoresourceHierarchy_unmappedEntries.loiData'>
 												<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 												<td>
 													<i class="fas fa-minus"></i>
@@ -1527,7 +1536,7 @@
 
 											<!-- AOIs -->
 											<tr
-												*ngFor='let aoi in exchangeData.topicGeoresourceHierarchy_unmappedEntries.aoiData'>
+												*ngFor='let aoi of exchangeData.topicGeoresourceHierarchy_unmappedEntries.aoiData'>
 												<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 												<td>
 													<i class="far fa-square"></i>
@@ -1741,7 +1750,7 @@
 											<tbody>
 
 												<tr
-													*ngFor='let poi in exchangeData.displayableGeoresources_keywordFiltered_forAlphabeticalDisplay.poiData'>
+													*ngFor='let poi of exchangeData.displayableGeoresources_keywordFiltered_forAlphabeticalDisplay.poiData'>
 													<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 													<td>
 														<label class='checkbox-inline'><input type="checkbox"
@@ -1776,10 +1785,12 @@
 														<select style="font-size: 11px; width:135px; padding: 0px;"
 															[(ngModel)]="poi.selectedDate"
 															(change)="onChangeSelectedDate(poi)"
-															ng-options="date as date.startDate for date in poi.availablePeriodsOfValidity | orderBy: 'startDate' | unique: 'startDate'"
-															ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]"
 															class="form-control" required>
+                              <option *ngFor="let date of poi.availablePeriodsOfValidity">{{date.startDate}}</option>
 														</select>
+                            <!-- 
+															ng-options="date as date.startDate for date in poi.availablePeriodsOfValidity | orderBy: 'startDate' | unique: 'startDate'"
+															ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]" -->
 													</td>
 													<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
 														<a href="" (click)="getExportLinkForPoi(poi)"
@@ -1840,8 +1851,7 @@
 
 											<tbody>
 
-												<tr
-													*ngFor='let loi in exchangeData.displayableGeoresources_keywordFiltered_forAlphabeticalDisplay.loiData'>
+												<tr *ngFor='let loi of exchangeData.displayableGeoresources_keywordFiltered_forAlphabeticalDisplay.loiData'>
 													<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 													<td>
 														<label class='checkbox-inline'><input type="checkbox"
@@ -1861,15 +1871,16 @@
 															</i>
 														</div>
 													</td>
-													<td
-														*ngIf="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
+													<td *ngIf="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
 														<select style="font-size: 11px; width:135px; padding: 0px;"
 															[(ngModel)]="loi.selectedDate"
 															(change)="onChangeSelectedDate(loi)"
-															ng-options="date as date.startDate for date in loi.availablePeriodsOfValidity | orderBy: 'startDate' | unique: 'startDate'"
-															ng-init="loi.selectedDate = loi.availablePeriodsOfValidity[loi.availablePeriodsOfValidity.length - 1]"
 															class="form-control" required>
+                              <option *ngFor="let date of loi.availablePeriodsOfValidity">{{date.startDate}}</option>
 														</select>
+
+                            <!-- ng-options="date as date.startDate for date in loi.availablePeriodsOfValidity | orderBy: 'startDate' | unique: 'startDate'"
+															ng-init="loi.selectedDate = loi.availablePeriodsOfValidity[loi.availablePeriodsOfValidity.length - 1]" -->
 													</td>
 													<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
 														<a href="" (click)="getExportLinkForLoi(loi)"
@@ -1925,8 +1936,7 @@
 
 											<tbody>
 
-												<tr
-													*ngFor='let aoi in exchangeData.displayableGeoresources_keywordFiltered_forAlphabeticalDisplay.aoiData'>
+												<tr *ngFor='let aoi of exchangeData.displayableGeoresources_keywordFiltered_forAlphabeticalDisplay.aoiData'>
 													<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 													<td>
 														<label class='checkbox-inline'><input type="checkbox"
@@ -1952,10 +1962,13 @@
 														<select style="font-size: 11px; width:135px; padding: 0px;"
 															[(ngModel)]="aoi.selectedDate"
 															(change)="onChangeSelectedDate(aoi)"
-															ng-options="date as date.startDate for date in aoi.availablePeriodsOfValidity | orderBy: 'startDate' | unique: 'startDate'"
-															ng-init="aoi.selectedDate = aoi.availablePeriodsOfValidity[aoi.availablePeriodsOfValidity.length - 1]"
 															class="form-control" required>
+                              <option *ngFor="let date of aoi.availablePeriodsOfValidity">{{date.startDate}}</option>
 														</select>
+
+                            <!-- 
+															ng-options="date as date.startDate for date in aoi.availablePeriodsOfValidity | orderBy: 'startDate' | unique: 'startDate'"
+															ng-init="aoi.selectedDate = aoi.availablePeriodsOfValidity[aoi.availablePeriodsOfValidity.length - 1]" -->
 													</td>
 													<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
 														<a href="" (click)="getExportLinkForAoi(aoi)"

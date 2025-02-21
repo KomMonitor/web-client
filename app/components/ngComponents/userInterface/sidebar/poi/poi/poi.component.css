@@ -1,0 +1,8 @@
+:host {
+
+  .list-group-grid-item {
+    display: grid;
+    grid-template-columns: auto auto;
+    cursor: pointer;
+  }
+}

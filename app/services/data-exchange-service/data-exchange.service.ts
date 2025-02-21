@@ -60,6 +60,8 @@ export interface DataExchange {
   wfsDatasets: any;
   wmsLegendImage: any;
   topicGeoresourceHierarchy_unmappedEntries: any;
+  displayableGeoresources_keywordFiltered_forAlphabeticalDisplay: any;
+  selectedPOISize: any;
 }
 
 export interface IndicatorTopic {

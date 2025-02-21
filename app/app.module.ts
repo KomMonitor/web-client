@@ -35,6 +35,7 @@ import { KommonitorClassificationComponent } from './components/ngComponents/use
 import { KommonitorDataSetupComponent } from './components/ngComponents/userInterface/sidebar/kommonitorDataSetup/kommonitor-data-setup.component';
 import { SidebarComponent } from './components/ngComponents/userInterface/sidebar/sidebar.component';
 import { PoiComponent } from 'components/ngComponents/userInterface/sidebar/poi/poi/poi.component';
+import { KommonitorFilterComponent } from './components/ngComponents/userInterface/sidebar/kommonitorFilter/kommonitor-filter/kommonitor-filter.component';
 
 
 
@@ -70,7 +71,8 @@ declare var MathJax;
     KommonitorClassificationComponent,
     KommonitorDataSetupComponent,
     SidebarComponent,
-    PoiComponent
+    PoiComponent,
+    KommonitorFilterComponent
   ]
 })
 

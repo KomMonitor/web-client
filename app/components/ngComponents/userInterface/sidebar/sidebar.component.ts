@@ -7,7 +7,7 @@ import { Component } from '@angular/core';
 })
 export class SidebarComponent {
 
-  content:number | boolean = 1; // default: false
+  content:number | boolean = 3; // default: false
 
   showContent(number) {
     if(this.content!==number)
