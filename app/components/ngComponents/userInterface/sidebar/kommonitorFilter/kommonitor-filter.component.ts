@@ -100,6 +100,7 @@ export class KommonitorFilterComponent {
 								});
 								
 								this.higherSpatialUnits = JSON.parse(JSON.stringify(this.exchangeData.availableSpatialUnits));
+                console.log(this.higherSpatialUnits);
 								
 								// only show those spatial units that are actually visible according to keycloak role
 								// and associated to the current indicator as well

@@ -26,7 +26,7 @@
 			<br/>
 			<hr>
 
-			<div style="text-align: middle">
+			<div style="text-align: center">
 				<h4>Selektion anhand &uuml;bergeordneter Raumeinheit</h4>
 				<p>Durch Auswahl eines Gebiets der &uuml;bergeordneten Raumeinheit (relativ zur momentan angezeigten) k&ouml;nnen alle darin enthaltenen Gebiete ausgew&auml;hlt werden. Die Auswahl erfolgt &uuml;ber eine Zentroidberechnung.</p>
 				<label class="switch">
@@ -82,6 +82,10 @@
 								<option disabled selected value> -- Raumeinheit w&auml;hlen --
 								</option>
 							</select> -->
+              <!-- todo -->
+              <select>
+                <option *ngFor="let item of higherSpatialUnits"></option>
+              </select>
 						</div>
 						<div class="col-sm-12 col-md-3 col-lg-3">
 							
