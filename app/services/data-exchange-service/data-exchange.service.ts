@@ -79,6 +79,7 @@ export interface IndicatorTopic {
 export interface SpatialUnit {
   spatialUnitLevel: string;
   spatialUnitId: any;
+  isOutlineLayer: any;
 }
 
 export interface Indicator {

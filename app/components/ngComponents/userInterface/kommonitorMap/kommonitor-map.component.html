@@ -1,0 +1,22 @@
+<div style="position:relative;">
+
+  <div align="center">
+    <div class="loading-overlay ng-hide" ng-show="loadingData">
+          <span class="glyphicon glyphicon-refresh icon-spin"></span>
+    </div>
+  </div>
+
+  <div style="max-width: 50%; z-index: 1; position: absolute;">
+    <p id="indicatorProcessDescription" mathjax-bind="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.processDescription"></p>
+  </div>
+
+  <div id="ngMap" style="z-index: 2;" ng-init="$ctrl.initializeMap()"></div>
+
+  <div id="dateSliderWrapper">
+    <input id="dateSlider" type="text" class="js-range-slider" value="">
+  </div>
+
+
+</div>
+
+    

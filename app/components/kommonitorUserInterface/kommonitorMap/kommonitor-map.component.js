@@ -433,13 +433,13 @@ angular.module('kommonitorMap').component(
             }
           }
 
-          $scope.map = L.map('map', {
+       /*    $scope.map = L.map('map', {
             center: [$scope.latCenter, $scope.lonCenter],
             zoom: $scope.zoomLevel,
             zoomDelta: 0.5,
             zoomSnap: 0.5,
             layers: [baseLayerDefinitionsMap.get(__env.baseLayers[0].name)]
-          });
+          }); */
 
           // execute update search control on layer add and remove
           $scope.map.on('overlayadd', function (eo) {

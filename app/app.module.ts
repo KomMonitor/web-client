@@ -36,6 +36,7 @@ import { KommonitorDataSetupComponent } from './components/ngComponents/userInte
 import { SidebarComponent } from './components/ngComponents/userInterface/sidebar/sidebar.component';
 import { PoiComponent } from 'components/ngComponents/userInterface/sidebar/poi/poi.component';
 import { KommonitorFilterComponent } from './components/ngComponents/userInterface/sidebar/kommonitorFilter/kommonitor-filter.component';
+import { KommonitorMapComponent } from './components/ngComponents/userInterface/kommonitorMap/kommonitor-map.component';
 
 
 
@@ -72,7 +73,8 @@ declare var MathJax;
     KommonitorDataSetupComponent,
     SidebarComponent,
     PoiComponent,
-    KommonitorFilterComponent
+    KommonitorFilterComponent,
+    KommonitorMapComponent
   ],
   schemas: [
     CUSTOM_ELEMENTS_SCHEMA
@@ -127,10 +129,9 @@ export class AppModule implements DoBootstrap {
     angular.module('kommonitorUserInterface')
     .directive('sidebarNew',  downgradeComponent({ component: SidebarComponent }) as angular.IDirectiveFactory);
 
+    angular.module('kommonitorUserInterface')
+    .directive('kommonitorMapNew',  downgradeComponent({ component: KommonitorMapComponent }) as angular.IDirectiveFactory);
 
-   /*  angular.module('kommonitorUserInterface')
-    .directive('versionInfo',  downgradeComponent({ component: VersionInfoComponent }) as angular.IDirectiveFactory);
- */
     console.log("registered downgraded Angular components for AngularJS usage");
   }
 
