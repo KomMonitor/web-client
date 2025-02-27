@@ -38,7 +38,7 @@ angular.module('reportingOverview').component('reportingOverview', {
     $scope.customFontFamily = undefined;
     $scope.customFontFile = undefined
 
-    setCustomFont = function() {
+    $scope.setCustomFont = function() {
         
       var defaultFont = '"Source Sans Pro", "Helvetica Neue", Helvetica, Arial, sans-serif';
 
@@ -74,7 +74,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 			let deviceScreenDpi = calculateScreenDpi();
 			$scope.pxPerMilli = deviceScreenDpi / 25.4 // /2.54 --> cm, /10 --> mm
 
-      setCustomFont(); 
+			$scope.setCustomFont(); 
 		}
 
 		$scope.sortableConfig = {
