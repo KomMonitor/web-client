@@ -8,7 +8,6 @@ angular.module('kommonitorMap').service(
 		'kommonitorMapService',
 		[ '$rootScope', '$http', function($rootScope, $http) {
 
-
 			// // central map object
 			// this.map;
 			//
@@ -108,6 +107,7 @@ angular.module('kommonitorMap').service(
 			};
 
       this.addWmsLayerToMap = function (dataset, opacity) {
+        console.log("addWmsLayerToMap");
         $rootScope.$broadcast("addWmsLayerToMap",
             dataset);
       };
@@ -138,6 +138,7 @@ angular.module('kommonitorMap').service(
       };
 
       this.addWfsLayerToMap = function (dataset, opacity, useCluster) {
+        console.log("addWfsLayerToMap");
         $rootScope.$broadcast("addWfsLayerToMap",
             dataset, opacity, useCluster);
       };

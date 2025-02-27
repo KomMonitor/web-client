@@ -40,4 +40,8 @@ export class FilterHelperService {
   onChangeFilterBehaviourToggle() {
     this.ajskommonitorFilterHelperServiceProvider.onChangeFilterBehaviourToggle();
   }
+
+  featureIsCurrentlyFiltered(properties) {
+    return this.ajskommonitorFilterHelperServiceProvider.featureIsCurrentlyFiltered(properties);
+  }
 }

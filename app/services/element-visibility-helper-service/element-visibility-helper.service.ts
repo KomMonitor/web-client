@@ -12,4 +12,8 @@ export class ElementVisibilityHelperService {
   ) {
     this.pipedData = this.ajskommonitorElementVisibilityHelperServiceProvider;
   }
+
+  initElementVisibility() {
+    this.ajskommonitorElementVisibilityHelperServiceProvider.initElementVisibility();
+  }
 }

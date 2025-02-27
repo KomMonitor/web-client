@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchange, DataExchangeService, IndicatorTopic } from 'services/data-exchange-service/data-exchange.service';
+import { ElementVisibilityHelperService } from 'services/element-visibility-helper-service/element-visibility-helper.service';
+import { MapService } from 'services/map-service/map.service';
 
 @Component({
   selector: 'app-kommonitor-data-setup',
@@ -32,7 +34,9 @@ export class KommonitorDataSetupComponent implements OnInit {
 
   constructor(
     public dataExchangeService: DataExchangeService,
-    private broadcastService: BroadcastService
+    private broadcastService: BroadcastService,
+    private elementVisibilityHelperService: ElementVisibilityHelperService,
+    private mapService: MapService
   ) {}
 
   ngOnInit(): void {
@@ -42,7 +46,90 @@ export class KommonitorDataSetupComponent implements OnInit {
     window.setTimeout( () => {
       this.preppedIndicatorTopics = this.prepareIndicatorTopicsRecursive(this.exchangeData.topicIndicatorHierarchy);
       this.addClickListenerToEachCollapseTrigger();
+
+      this.onInitialMetadataLoadingComplete();
+
     },2000);
+  }
+
+  onInitialMetadataLoadingComplete() {
+    console.log("Load an initial example indicator");
+
+    if (this.exchangeData.displayableIndicators == null || this.exchangeData.displayableIndicators == undefined || this.exchangeData.displayableIndicators.length === 0){
+      console.error("Kein darstellbarer Indikator konnte gefunden werden.");
+
+      this.dataExchangeService.displayMapApplicationError("Kein darstellbarer Indikator konnte gefunden werden.");										
+      this.loadingData = false;
+      //todo
+      // this.$broadcast("hideLoadingIconOnMap");
+
+      return;
+    }
+
+    try{
+      var indicatorIndex:any = undefined;
+
+      for (var index=0; index < this.exchangeData.displayableIndicators.length; index++){
+        if (this.exchangeData.displayableIndicators[index].indicatorId === window.__env.initialIndicatorId){
+          if(this.exchangeData.displayableIndicators[index].applicableDates.length > 0){
+            indicatorIndex = index;
+            break;
+          }											
+        }
+      }
+
+      if( indicatorIndex === undefined){
+          for(var t=0; t < 75; t++){
+            
+            var randIndex = this.getRandomInt(0, this.exchangeData.displayableIndicators.length - 1);
+            if (this.exchangeData.displayableIndicators[randIndex].applicableDates.length > 0){
+              indicatorIndex = randIndex;
+              break;
+            }													
+          }
+      }
+
+      if( indicatorIndex === undefined){
+        throw Error();
+      }
+
+      this.exchangeData.selectedIndicator = this.exchangeData.displayableIndicators[indicatorIndex];
+      // create Backup which is used when currently selected indicator is filtered out in select
+      this.exchangeData.selectedIndicatorBackup = this.exchangeData.selectedIndicator;
+
+      // set spatialUnit
+      for (var spatialUnitEntry of this.exchangeData.availableSpatialUnits){
+        if(spatialUnitEntry.spatialUnitLevel === window.__env.initialSpatialUnitName){
+          this.exchangeData.selectedSpatialUnit = spatialUnitEntry;
+          break;
+        }
+      }
+      if(!this.exchangeData.selectedSpatialUnit){
+          this.exchangeData.selectedSpatialUnit = this.getFirstSpatialUnitForSelectedIndicator();
+      }
+
+      if(! window.__env.centerMapInitially){
+        this.onChangeSelectedIndicator(false);	
+      }
+      else{
+        this.onChangeSelectedIndicator(true);	
+      }
+                        
+
+    }
+    catch(error){
+      console.error("Initiales Darstellen eines Indikators ist gescheitert.");
+
+      this.dataExchangeService.displayMapApplicationError("Initiales Darstellen eines Indikators ist gescheitert.");										
+      this.loadingData = false;
+      //todo
+      // $scope.$broadcast("hideLoadingIconOnMap");
+
+      return;
+    }
+
+    //reinit visibility of elements due to fact that now some HTML elements are actually available
+    this.elementVisibilityHelperService.initElementVisibility();
   }
 
   prepareIndicatorTopicsRecursive(tree:IndicatorTopic[]) {
@@ -347,13 +434,13 @@ export class KommonitorDataSetupComponent implements OnInit {
     kommonitorElementVisibilityHelperService.initElementVisibility();
   });
 
- 
-  function getRandomInt(min, max) {
+   */
+  getRandomInt(min, max) {
       min = Math.ceil(min);
       max = Math.floor(max);
       return Math.floor(Math.random() * (max - min + 1)) + min;
   }
-
+/*
   this.addSelectedSpatialUnitToMap = function() {
     $scope.loadingData = true;
     $rootScope.$broadcast("showLoadingIconOnMap");
@@ -450,21 +537,23 @@ export class KommonitorDataSetupComponent implements OnInit {
   };
   */
   addSelectedIndicatorToMap(changeIndicator) {
-
-    // todo
-   /*  if(changeIndicator){
-      $rootScope.$broadcast("DisableBalance");
-      kommonitorMapService.replaceIndicatorGeoJSON(kommonitorDataExchangeService.selectedIndicator, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel, $scope.selectedDate, false);
+    console.log("call me")
+    
+    if(changeIndicator){
+      //todo
+      // $rootScope.$broadcast("DisableBalance");
+      this.mapService.replaceIndicatorGeoJSON(this.exchangeData.selectedIndicator, this.exchangeData.selectedSpatialUnit.spatialUnitLevel, this.selectedDate, false);
     }
-    else{
+    else {
       // check if balance mode is active
-      if (kommonitorDataExchangeService.isBalanceChecked){
-        $rootScope.$broadcast("replaceBalancedIndicator");
+      if (this.exchangeData.isBalanceChecked){
+        //todo
+        // $rootScope.$broadcast("replaceBalancedIndicator");
       }
-      else{
-        kommonitorMapService.replaceIndicatorGeoJSON(kommonitorDataExchangeService.selectedIndicator, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel, $scope.selectedDate, false);
+      else {
+        this.mapService.replaceIndicatorGeoJSON(this.exchangeData.selectedIndicator, this.exchangeData.selectedSpatialUnit.spatialUnitLevel, this.selectedDate, false);
       }
-    } */
+    }
   };
 /*
   function prettifyDateSliderLabels (dateAsMs) {
@@ -766,18 +855,20 @@ export class KommonitorDataSetupComponent implements OnInit {
       this.changeIndicatorWasClicked = true;
 
       this.markAssociatedHierarchyElement(this.exchangeData.selectedIndicator);
-
+     
       this.exchangeData.selectedIndicatorBackup = this.exchangeData.selectedIndicator;
 
-      this.setupDateSliderForIndicator();
-      this.setupDatePickerForIndicator();
-
+      // todo
+      /* this.setupDateSliderForIndicator();
+      this.setupDatePickerForIndicator(); */
+      
       if(!this.exchangeData.selectedSpatialUnit || !this.exchangeData.selectedIndicator.applicableSpatialUnits.some(o => o.spatialUnitName === this.exchangeData.selectedSpatialUnit.spatialUnitLevel)){
         this.exchangeData.selectedSpatialUnit = this.getFirstSpatialUnitForSelectedIndicator();
       }
 
       try{
-        var selectedIndicator = this.tryUpdateMeasureOfValueBarForIndicator();
+        // todo
+        //var selectedIndicator = this.tryUpdateMeasureOfValueBarForIndicator();
       }
       catch(error){
         console.error(error);
@@ -835,6 +926,7 @@ export class KommonitorDataSetupComponent implements OnInit {
 
 
 modifyExports(changeIndicator){
+  console.log("mod exports");
     this.exchangeData.wmsUrlForSelectedIndicator = undefined;
     this.exchangeData.wfsUrlForSelectedIndicator = undefined;
     

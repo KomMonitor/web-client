@@ -1,4 +1,5 @@
 import { Inject, Injectable } from '@angular/core';
+import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 
 @Injectable({
   providedIn: 'root'
@@ -7,9 +8,10 @@ export class MapService {
 
   public constructor(
       @Inject('kommonitorMapService') private ajskommonitorMapServiceProvider: any, // eslint-disable-line @typescript-eslint/no-explicit-any
-    ) {
-      //this.pipedData = this.ajskommonitorDataExchangeServiceeProvider;
-    }
+      private broadcastService: BroadcastService
+  ) {
+    //this.pipedData = this.ajskommonitorDataExchangeServiceeProvider;
+  }
 
   removePoiGeoresource(reference) {
     return this.ajskommonitorMapServiceProvider.removePoiGeoresource(reference);
@@ -61,5 +63,10 @@ export class MapService {
 
   restyleCurrentLayer() {
     this.ajskommonitorMapServiceProvider.restyleCurrentLayer();
+  }
+
+  replaceIndicatorGeoJSON(indicatorMetadataAndGeoJSON, spatialUnitName, date, justRestyling, isCustomComputation=false) {
+    this.ajskommonitorMapServiceProvider.replaceIndicatorGeoJSON(indicatorMetadataAndGeoJSON, spatialUnitName, date, justRestyling, isCustomComputation);
+    this.broadcastService.broadcast("replaceIndicatorAsGeoJSON", {indicatorMetadataAndGeoJSON, spatialUnitName, date, justRestyling, isCustomComputation});
   }
 }

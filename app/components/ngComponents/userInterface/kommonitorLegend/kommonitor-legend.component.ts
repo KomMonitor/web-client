@@ -4,7 +4,7 @@ import { DataExchange, DataExchangeService } from 'services/data-exchange-servic
 import { ElementVisibilityHelperService } from 'services/element-visibility-helper-service/element-visibility-helper.service';
 import { FilterHelperService } from 'services/filter-helper-service/filter-helper.service';
 import { ShareHelperService } from 'services/share-helper-service/share-helper.service';
-import { VisualStyleHelperService } from 'services/visual-style-helper-service/visual-style-helper.service';
+import { VisualStyleHelperServiceNew } from 'services/visual-style-helper-service/visual-style-helper.service';
 
 @Component({
   selector: 'app-kommonitor-legend',
@@ -34,7 +34,7 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
     public dataExchangeService: DataExchangeService,
     private elementVisibilityService: ElementVisibilityHelperService,
     private shareHelperService: ShareHelperService,
-    private visualStyleService: VisualStyleHelperService,
+    private visualStyleService: VisualStyleHelperServiceNew,
     private filterHelperService: FilterHelperService,
     private broadcastService: BroadcastService
   ) {}

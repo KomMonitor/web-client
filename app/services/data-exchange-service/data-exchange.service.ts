@@ -63,6 +63,7 @@ export interface DataExchange {
   displayableGeoresources_keywordFiltered_forAlphabeticalDisplay: any;
   selectedPOISize: any;
   rangeFilterData: any;
+  classifyZeroSeparately_backup: any;
 }
 
 export interface IndicatorTopic {
@@ -200,5 +201,17 @@ export class DataExchangeService {
 
   getIndicatorValue_asNumber(value) {
     return this.ajskommonitorDataExchangeServiceeProvider.getIndicatorValue_asNumber(value);
+  }
+
+  setAllFeaturesProperty(indicatorMetadataAndGeoJSON, indicatorPropertyName) {
+    this.ajskommonitorDataExchangeServiceeProvider.setAllFeaturesProperty(indicatorMetadataAndGeoJSON, indicatorPropertyName);
+  }
+  
+  setSelectedFeatureProperty(selectedIndicatorFeatureIds, indicatorPropertyName) {
+    this.ajskommonitorDataExchangeServiceeProvider.setSelectedFeatureProperty(selectedIndicatorFeatureIds, indicatorPropertyName);
+  }
+  
+  selectedSpatialUnitIsRaster() {
+    return this.ajskommonitorDataExchangeServiceeProvider.selectedSpatialUnitIsRaster();
   }
 }

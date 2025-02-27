@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { DataExchange, DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
-import { VisualStyleHelperService } from 'services/visual-style-helper-service/visual-style-helper.service';
+import { VisualStyleHelperServiceNew } from 'services/visual-style-helper-service/visual-style-helper.service';
 import { colorbrewer } from './colors';
 
 @Component({
@@ -37,7 +37,7 @@ export class KommonitorClassificationComponent implements OnInit {
 
   constructor(
     private dataExchangeService: DataExchangeService,
-    private visualStyleHelperService: VisualStyleHelperService
+    private visualStyleHelperService: VisualStyleHelperServiceNew
   ) {
     this.exchangeData = dataExchangeService.pipedData;
     this.visualStyleData = visualStyleHelperService.pipedData;
