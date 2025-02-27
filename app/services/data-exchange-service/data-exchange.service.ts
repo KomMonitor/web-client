@@ -80,6 +80,9 @@ export interface SpatialUnit {
   spatialUnitLevel: string;
   spatialUnitId: any;
   isOutlineLayer: any;
+  outlineColor: any;
+  outlineWidth: any;
+  outlineDashArrayString: any;
 }
 
 export interface Indicator {

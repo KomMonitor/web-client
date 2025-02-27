@@ -1,3 +1,4 @@
+import { HttpClient, HttpClientModule } from '@angular/common/http';
 
 import { DoBootstrap, NgModule, Version, inject, Input, Inject, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
@@ -53,6 +54,7 @@ declare var MathJax;
     NgbDatepickerModule, 
     NgbAccordionModule,
     FormsModule, 
+    HttpClientModule,
     JsonPipe
   ],
   providers:[

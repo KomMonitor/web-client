@@ -575,7 +575,7 @@ angular.module('kommonitorMap').component(
 					}
 				}
 				 
-        $scope.simpleMapScreenshoter = L.simpleMapScreenshoter(screenshotterOptions).addTo($scope.map);
+        //$scope.simpleMapScreenshoter = L.simpleMapScreenshoter(screenshotterOptions).addTo($scope.map);
 				$scope.map.simpleMapScreenshoter = $scope.simpleMapScreenshoter;
 
         }; // end initialize map

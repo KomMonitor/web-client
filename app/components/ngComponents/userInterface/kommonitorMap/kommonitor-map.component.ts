@@ -1,9 +1,7 @@
+import { HttpClient } from '@angular/common/http';
 import { AfterViewInit, Component, Inject, OnInit } from '@angular/core';
 import L from 'leaflet';
 import { DataExchange, DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
-import { VisualStyleHelperService } from 'services/visual-style-helper-service/visual-style-helper.service';
-/* import { OpenStreetMapProvider } from 'leaflet-geosearch';
-import * as GeoSearch from 'leaflet-geosearch'; */
 
 @Component({
   selector: 'app-kommonitor-map',
@@ -138,7 +136,8 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   exchangeData:DataExchange;
 
   constructor(
-    private dataExchangeService: DataExchangeService
+    private dataExchangeService: DataExchangeService,
+    private http: HttpClient
   ) { 
     this.exchangeData = this.dataExchangeService.pipedData;
     this.exchangeData.useOutlierDetectionOnIndicator = this.useOutlierDetectionOnIndicator;
@@ -197,17 +196,23 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
     L.tileLayer.grayscale = function(url, options) {
       return new L.TileLayer.Grayscale(url, options);
-    };        
+    };
+    
+    setTimeout( () => {
+      this.initSpatialUnitOutlineLayer();
+    },2000);
   }
 
   ngAfterViewInit(): void {
-    this.initMap();
     
+    this.initMap();
+
     if (window.__env.sortableLayers) {
       this.sortableLayers = window.__env.sortableLayers;
     } else {
       this.sortableLayers = ["Web Map Services (WMS)"];
     }   
+
   }
 
   private initMap(): void {
@@ -297,8 +302,11 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
       }
     };
-                                                                                                                        // todo see old version
-    this.layerControl = L.control.groupedLayers(this.baseMaps, groupedOverlays, {collapsed: false, position: 'topleft', layers: this.sortableLayers });
+    
+    // todo see old version
+    //this.layerControl = L.control.groupedLayers(this.baseMaps, groupedOverlays, {collapsed: false, position: 'topleft', layers: this.sortableLayers });
+    
+    this.layerControl = L.control.layers(this.baseMaps, [], {position: 'topleft'}).addTo(this.map);
     this.map.addControl(this.layerControl);
 
     // Hide Leaflet layer control button in favor of a custom button for opening the layer control group
@@ -308,7 +316,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     }); */
 
     // Disable dragging when user's cursor enters the element
-    this.layerControl.getContainer().addEventListener('mouseover', () => {
+   /*  this.layerControl.getContainer().addEventListener('mouseover', () => {
       this.map.dragging.disable();
       this.map.touchZoom.disable();
       this.map.doubleClickZoom.disable();
@@ -321,12 +329,10 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       this.map.touchZoom.enable();
       this.map.doubleClickZoom.enable();
       this.map.scrollWheelZoom.enable();
-    });
+    }); */
 
-    this.scaleBar = L.control.scale();
+    this.scaleBar = L.control.scale({position: 'bottomleft'});
     this.scaleBar.addTo(this.map);
-
-
 
     // hatch patterns
     // diagonalPattern = new L.PatternPath({ d: "M-1,1 l2,-2 M0,4 l4,-4 M3,5 l2,-2" , fill: true });
@@ -347,6 +353,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
     // this.loadingData = false;
 
+    // todo leaflet-geosearch not working
     /////////////////////////////////////////////////////
     ///// LEAFLET GEOSEARCH SETUP
     /////////////////////////////////////////////////////
@@ -393,9 +400,9 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     ///// LEAFLET SEARCH SETUP
     /////////////////////////////////////////////////////
     // will be updated once example indicator layer is loaded
-  /*   this.searchControl = new this.MultipleResultsLeafletSearch({
+   /*  this.searchControl = new this.MultipleResultsLeafletSearch({
     });
-    this.searchControl.addTo(this.map);
+    this.searchControl.addTo(this.map); */
 
 
     /////////////////////////////////////////////////////
@@ -412,7 +419,8 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       thousandsSep: '.'
     };
 
-    let measureControl = new L.Control.Measure(measureOptions);
+    // todo
+    /* let measureControl = new L.Control.Measure(measureOptions);
     measureControl.addTo(this.map); */
   }
 
@@ -569,45 +577,39 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
    
 
   initSpatialUnitOutlineLayer(){
+
     for (let spatialUnit of this.exchangeData.availableSpatialUnits) {
       if(spatialUnit.isOutlineLayer){
 
         let url = this.dataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() +
             "/spatial-units/" + spatialUnit.spatialUnitId + "/allFeatures";
 
-            // todo
-         /*  $http({
-            url: url,
-            method: "GET"
-          }).then(function successCallback(response) { //TODO add error callback for the case that the combination of indicator and nextUpperHierarchyLevel doesn't exist
-            let geoJSON = response.data;
+            this.http.get(url).subscribe((response:any) => {
+              let geoJSON = response;
 
-            let layer = L.geoJSON(geoJSON, {
-              style: function (feature) {
-                return {
-                  color: spatialUnit.outlineColor,
-                  weight: spatialUnit.outlineWidth,
-                  opacity: 1,
-                  fillOpacity: 0,
-                  fill: false,
-                  dashArray: spatialUnit.outlineDashArrayString
-                };
-              },
-              onEachFeature: onEachFeatureSpatialUnit
+              let layer = L.geoJSON(geoJSON, {
+                style: function (feature) {
+                  return {
+                    color: spatialUnit.outlineColor,
+                    weight: spatialUnit.outlineWidth,
+                    opacity: 1,
+                    fillOpacity: 0,
+                    fill: false,
+                    dashArray: spatialUnit.outlineDashArrayString
+                  };
+                },
+                onEachFeature: this.onEachFeatureSpatialUnit
+              });
+    
+    
+              this.layerControl.addOverlay(layer, spatialUnit.spatialUnitLevel + "_Umringe", this.spatialUnitOutlineLayerGroupName);
+              this.updateSearchControl();
             });
-  
-            // layer.StyledLayerControl = {
-            // 	removable : true,
-            // 	visible : true
-            // };
-  
-            this.layerControl.addOverlay(layer, spatialUnit.spatialUnitLevel + "_Umringe", spatialUnitOutlineLayerGroupName);
-            this.updateSearchControl();
-          }); */
       }
     }
   };
 
+  // todo broadcast new 
  /*  $rootScope.$on("initialMetadataLoadingCompleted", function(){
     initSpatialUnitOutlineLayer();
   }); 
@@ -664,8 +666,8 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   }
  */
 
-/*   updateSearchControl() {
-
+   updateSearchControl() {
+/*
     setTimeout(() => {
       if (this.searchControl) {
         try {
@@ -783,7 +785,8 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         this.searchControl.addTo(this.map);
       }
     }, 200);
-  }; */
+    */
+  }; 
 
 /* 
   $scope.$on("showLoadingIconOnMap", function (event) {
@@ -1227,15 +1230,15 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
    * binds the popup of a clicked output
    * to layer.feature.properties.popupContent
    */
-/*   function onEachFeatureSpatialUnit(feature, layer) {
+  onEachFeatureSpatialUnit(feature, layer) {
     // does this feature have a property named popupContent?
     layer.on({
       click: function () {
 
         // propertiesString = "<pre>" + JSON.stringify(feature.properties, null, ' ').replace(/[\{\}"]/g, '') + "</pre>";
 
-        popupContent = '<div class="spatialUnitInfoPopupContent featurePropertyPopupContent"><table class="table table-condensed">';
-        for (p in feature.properties) {
+        let popupContent = '<div class="spatialUnitInfoPopupContent featurePropertyPopupContent"><table class="table table-condensed">';
+        for (let p in feature.properties) {
             popupContent += '<tr><td>' + p + '</td><td>'+ feature.properties[p] + '</td></tr>';
         }
         popupContent += '</table></div>';
@@ -1246,7 +1249,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         //   layer.bindPopup(propertiesString);
       }
     });
-  } */
+  }
 
   /**
    * binds the popup of a clicked output

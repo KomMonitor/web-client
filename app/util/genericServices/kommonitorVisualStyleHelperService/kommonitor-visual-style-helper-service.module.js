@@ -81,19 +81,22 @@ angular
       const outlierPropertyValue_low_extreme = "low-extreme";
       const outlierPropertyValue_no = "no";
 
-      this.outlierFillPattern_low = new L.StripePattern({ weight: 1, spaceweight: 1, patternTransform: "rotate(45)" });
+      //this.outlierFillPattern_low = new L.StripePattern({ weight: 1, spaceweight: 1, patternTransform: "rotate(45)" });
+      this.outlierFillPattern_low = [];
 
-      this.outlierFillPattern_high = new L.StripePattern({ weight: 1, spaceweight: 1, patternTransform: "rotate(-45)" });
+      //this.outlierFillPattern_high = new L.StripePattern({ weight: 1, spaceweight: 1, patternTransform: "rotate(-45)" });
+      this.outlierFillPattern_high = [];
 
-      var shape = new L.PatternCircle({
+      /* var shape = new L.PatternCircle({
         x: 5,
         y: 5,
         radius: 1,
         fill: true,
         color: kommonitorDataExchangeService.selectedSpatialUnitIsRaster() ? undefined : defaultColorForNoDataValues
-      });
-      this.noDataFillPattern = new L.Pattern({ width: 8, height: 8 });
-      this.noDataFillPattern.addShape(shape);
+      }); */
+      //this.noDataFillPattern = new L.Pattern({ width: 8, height: 8 });
+      //this.noDataFillPattern = [];
+      //this.noDataFillPattern.addShape(shape);
 
       var outliers_high = undefined;
       var outliers_low = undefined;

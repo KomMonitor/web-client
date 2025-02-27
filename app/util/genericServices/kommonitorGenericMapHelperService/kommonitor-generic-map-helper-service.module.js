@@ -276,7 +276,7 @@ angular
         }
 
         if(withScreenshoter){
-          screenshoter = L.simpleMapScreenshoter(this.screenshoterOptions).addTo(map);
+          //screenshoter = L.simpleMapScreenshoter(this.screenshoterOptions).addTo(map);
         }
 
         this.invalidateMap(map);

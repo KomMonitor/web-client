@@ -461,7 +461,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 					}
 				}
 				 
-				leafletMap.simpleMapScreenshoter = L.simpleMapScreenshoter(screenshotterOptions).addTo(leafletMap)
+				//leafletMap.simpleMapScreenshoter = L.simpleMapScreenshoter(screenshotterOptions).addTo(leafletMap)
 
 				// manually create a field for attribution so we can control the z-index.
 				let prevAttributionDiv = pageDom.querySelector(".map-attribution")
