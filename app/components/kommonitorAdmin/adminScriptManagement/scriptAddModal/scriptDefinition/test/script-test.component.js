@@ -15,9 +15,9 @@ angular.module('scriptTest').component('scriptTest', {
 			//b
 			$scope.tmpIndicatorSelection = undefined;
 
-			//b
 			$scope.compIndicatorSelection = undefined;
-			$scope.compIndicatorSelection_old = undefined;
+
+			$scope.baseIndicators = [];
 
 			$scope.inputData = {}
 			$scope.legendValues = {};
@@ -61,22 +61,56 @@ angular.module('scriptTest').component('scriptTest', {
 
 			$scope.init();
 
+			$scope.onChangeReferenceIndicator = function(refIndicatorSelection){
+				$scope.refIndicatorSelection = refIndicatorSelection;
+
+				kommonitorScriptHelperService.processParameters.reference_id = refIndicatorSelection.indicatorId;
+				$scope.legendValues = Object.assign($scope.legendValues, refIndicatorSelection);
+
+				$scope.resetComputationFormulaAndLegend();				
+			};
+
 			$scope.onChangeComputationIndicator = function(compIndicatorSelection){
 				$scope.compIndicatorSelection = compIndicatorSelection;
-				// remove previous refIndicator from requiredIndicators and add new one
-				if($scope.compIndicatorSelection_old){
-					kommonitorScriptHelperService.removeBaseIndicator($scope.compIndicatorSelection_old);
-				}				
-				kommonitorScriptHelperService.addBaseIndicator(compIndicatorSelection);
 
-				$scope.compIndicatorSelection_old = compIndicatorSelection;
-
-				kommonitorScriptHelperService.processParameters.computation_id = compIndicatorSelection.indicatorId
+				kommonitorScriptHelperService.processParameters.computation_id = compIndicatorSelection.indicatorId;
 				$scope.legendValues = Object.assign($scope.legendValues, compIndicatorSelection);
 
-				$scope.resetScriptParameter();
 				$scope.resetComputationFormulaAndLegend();				
+			};
 
+			$scope.addBaseIndicator = function(tmpIndicatorSelection){
+
+				$scope.baseIndicators.push(tmpIndicatorSelection);
+				if(!kommonitorScriptHelperService.processParameters.computation_ids) {
+					kommonitorScriptHelperService.processParameters.computation_ids = [];
+				}
+				kommonitorScriptHelperService.processParameters.computation_ids.push(tmpIndicatorSelection.indicatorId);
+				$scope.resetComputationFormulaAndLegend();
+
+				setTimeout(() => {
+					$scope.$digest();
+				});
+			};
+
+			$scope.removeBaseIndicator = function(baseIndicator){
+				var i;
+				for (let index = 0; index < $scope.baseIndicators.length; index++) {
+					const element = $scope.baseIndicators[index];
+					
+					if(baseIndicator.indicatorId == element.indicatorId){
+						i = index;
+						break;
+					}
+				}
+				$scope.baseIndicators.splice(i, 1);
+				kommonitorScriptHelperService.processParameters.computation_ids.splice(i, 1);
+
+				$scope.resetComputationFormulaAndLegend();
+				
+				setTimeout(() => {
+					$scope.$digest();
+				});
 			};
 
 			$scope.onChangeNumTemporalItems = function(){

@@ -1,0 +1,62 @@
+<div class="row vertical-align">
+  <div class="col-md-12 col-sm-12 col-xs-12">
+    <div class="form-group">
+      <label>Auswahl des f&uuml;r die Berechnung erforderlichen Referenzindikators</label>
+      <div class="input-group">
+        <span class="input-group-addon"><i class="fas fa-filter"></i></span>
+        <input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model-options="{debounce: 500, blur: 0}"
+          ng-model="$parent.indicatorNameFilter_refIndicator">
+      </div>
+      <br />
+      <select ng-model="$parent.refIndicatorSelection" size="5" ng-change="$parent.onChangeReferenceIndicator(refIndicatorSelection)"
+        ng-options="indicatorMetadata as indicatorMetadata.indicatorName for indicatorMetadata in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter:indicatorNameFilter_refIndicator"
+        class="form-control">
+        <option disabled selected value> -- Indikator als Berechnungsgrundlage w&auml;hlen --
+        </option>
+      </select>
+      <div class="help-block with-errors"></div>
+    </div>
+  </div>
+</div>
+
+<div class="row vertical-align">
+  <div class="col-md-6 col-sm-6 col-xs-12">
+    <div class="form-group">
+      <label>ID des selektierten Indikators</label>
+      <input type="text" class="form-control input-sm" disabled placeholder="IndikatorenId"
+        ng-model="$parent.refIndicatorSelection.indicatorId">
+      <div class="help-block with-errors"></div>
+    </div>
+  </div>
+  <div class="col-md-6 col-sm-6 col-xs-12">
+    <div class="form-group">
+      <label>Name des selektierten Indikators</label>
+      <input type="text" class="form-control input-sm" disabled placeholder="IndikatorenName"
+        ng-model="$parent.refIndicatorSelection.indicatorName">
+      <div class="help-block with-errors"></div>
+    </div>
+  </div>
+</div>
+
+<div class="row vertical-align">
+  <div class="col-md-6 col-sm-6 col-xs-12">
+    <div class="form-group">
+      <label>Beschreibung des selektierten Indikators</label>
+      <textarea rows="4" class="form-control input-sm" disabled placeholder="IndikatorenBeschreibung"
+        ng-model="$parent.refIndicatorSelection.metadata.description"></textarea>
+      <div class="help-block with-errors"></div>
+    </div>
+  </div>
+  <div class="col-md-6 col-sm-6 col-xs-12">
+    <div class="form-group">
+      <label>Einheit des selektierten Indikators</label>
+      <input type="text" class="form-control input-sm" disabled placeholder="IndikatorenEinheit"
+        ng-model="$parent.refIndicatorSelection.unit">
+      <div class="help-block with-errors"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+	$('.box').boxWidget();
+</script>

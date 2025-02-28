@@ -130,6 +130,8 @@ angular
 
       this.predefinedInputNames = [
         "computation_id",
+        "computation_ids",
+        "reference_id",
         "georesource_id",
         "comp_filter",
         "target_spatial_units",

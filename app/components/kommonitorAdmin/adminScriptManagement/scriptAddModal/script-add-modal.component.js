@@ -63,7 +63,11 @@ angular.module('scriptAddModal').component('scriptAddModal', {
         {
 					"displayName": "(neu)Georessourcen - Anzahl Punkte in Polygon",
 					"apiName": "georesource_pointsInPolygon_new"
-				}         
+				},
+				{
+					"displayName": "(neu)prozentualer Anteil (Quotient)",
+					"apiName": "percentage_new"
+				}       
 			];
 
 			kommonitorScriptHelperService.availableScriptTypeOptions.push(...kommonitorScriptHelperService.availableScriptTypes);
@@ -332,6 +336,107 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 						},
 						"jobControlOptions": [],
 						"outputTransmission": []
+					}
+				}
+				if ($scope.selectedScriptType.apiName == "percentage_new") {
+					kommonitorScriptHelperService.scriptData = {
+						
+							"id": "percentage",
+							"version": "1.0.0",
+							"title": "Prozentualer Anteil mehrerer Basisindikatoren von einem Referenzindikator",
+							"description": "Mindestens ein (Basis-)Indikator muss angegeben werden. Bei mehreren wird die Gesamtsumme der (Basis-)Indikatoren durch den Wert des Referenzindikators dividiert",
+							"additionalParameters": {
+								"parameters": [
+									{
+										"name": "kommonitorUiParams",
+										"value": {
+											"titleShort": "proz anteil",
+											"apiName": "percentage",
+											"calculation_info": "Quotient zwischen (Basis-)Indikatoren und dem Referenzindikator multipliziert mit 100",
+											"formula": "$$ \\frac{\\sum_{n=1}^{m} I_{n}}{I_{ref}} \\times 100 $$",
+											"legend": "<br/>$N$ = Ziel-Zeitpunkt<br/>$M$ = Ziel-Zeitpunkt minus Anzahl Tage/Monate/Jahre ",
+											"dynamicLegend": "<br/> $A$: ${indicatorName} [ ${unit} ]<br/> $N$: Ziel-Zeitpunkt<br/> $M$: Ziel-Zeitpunkt minus ${number_of_temporal_items} ${temporal_type}",
+											"inputBoxes": [
+												{
+													"id": "reference_id",
+													"title": "Notwendiger Referenzindikator (Divisor)",
+													"description": "",
+													"contents": [
+														"reference_id"
+													]
+												},
+												{
+													"id": "computation_ids",
+													"title": "Notwendige (Basis-)Indikatoren (Dividend)",
+													"description": "",
+													"contents": [
+														"computation_ids"
+													]
+												}
+											]
+										}
+									}
+								]
+							},
+							"inputs": {
+								"target_indicator_id": {
+									"id": "target_indicator_id",
+									"schema": { 
+										"type": "string",
+										"default": null
+									}
+								},
+								"target_spatial_units": {
+									"id": "target_spatial_units",
+									"schema": { 
+										"type": "array",
+										"default": []
+									}
+								},
+								"target_time": {
+									"id": "target_time",
+									"schema": { 
+										"type": "object",
+										"default": {
+											"value":{
+												"mode": "MISSING",
+												"includeDates" : [],
+												"excludeDates" : []
+											}
+										}
+									}
+								},
+								"execution_interval": {
+									"id": "execution_interval",
+									"schema": { 
+										"type": "object",
+										"default": {
+											"value": {
+												"cron": "0 0 1 * *"
+											}
+										}
+									}
+								},
+								"computation_ids": {
+									"id": "computation_ids",
+									"schema": { 
+										"type": "array",
+										"default": []
+									}
+								},
+								"reference_id": {
+									"id": "reference_id",
+									"schema": { 
+										"type": "string",
+										"default": null
+									}
+								}
+							},
+							"outputs": {
+							},
+							"jobControlOptions": [],
+							"outputTransmission": []
+						
 					}
 				}
 
