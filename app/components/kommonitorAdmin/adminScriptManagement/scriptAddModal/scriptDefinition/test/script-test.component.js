@@ -9,10 +9,6 @@ angular.module('scriptTest').component('scriptTest', {
 			// initialize any adminLTE box widgets
 			$('.box').boxWidget();
 
-			//a
-			$scope.pathToScriptResource = "./kommonitor-script-resources/km_indicator_absChange_nTemporalItems.js";
-
-			//b
 			$scope.tmpIndicatorSelection = undefined;
 
 			$scope.compIndicatorSelection = undefined;
@@ -45,18 +41,6 @@ angular.module('scriptTest').component('scriptTest', {
 			*/
 			$scope.init = function(){
 				kommonitorScriptHelperService.reset();
-
-				$scope.initFixedScriptCode();
-			};
-
-			$scope.initFixedScriptCode = function(){
-				$http.get($scope.pathToScriptResource, {'responseType': 'text'}).then(function (response) {
-					$scope.scriptCode_readableString_forPreview = response.data;
-						kommonitorScriptHelperService.scriptCode_readableString = response.data;
-						$scope.scriptCode_readableString_forPreview = response.data;
-
-						kommonitorScriptHelperService.prettifyScriptCodePreview($scope.scriptCodeDomElementId);
-				  });
 			};
 
 			$scope.init();
