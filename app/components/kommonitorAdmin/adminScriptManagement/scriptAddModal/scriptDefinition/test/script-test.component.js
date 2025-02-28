@@ -19,52 +19,26 @@ angular.module('scriptTest').component('scriptTest', {
 			$scope.compIndicatorSelection = undefined;
 			$scope.compIndicatorSelection_old = undefined;
 
-			$scope.inputData = {
-				// COMPUTATION_ID : ....
-				
-			}
+			$scope.inputData = {}
+			$scope.legendValues = {};
 
-			$scope.legendValues = {
+			$scope.compFilterData = {
+				operator: null,
+				operatorOptions: null,
+				propertySchema: {},
+				propertyOptions: [],
+				propertyName: null,
+				propertyValueOptions: null,
+				propertyValue: null,
+			};
 
-			}
-
-			//b
-			$scope.parameterName_computationIndicator = "COMPUTATION_ID";
-			$scope.parameterDescription_computationIndicator = "Indikatoren-ID des Basisindikators.";
-			$scope.parameterDefaultValue_computationIndicator = undefined;
-			$scope.parameterNumericMinValue_computationIndicator = 0;
-			$scope.parameterNumericMaxValue_computationIndicator = 1;
-
-
-			$scope.propertySchema = {};
-			
-
-			/*
-				availableScriptDataTypes = [
-					{
-								"displayName": "Textuell (String)",
-								"apiName": "string"
-							},
-							{
-								"displayName": "Wahrheitswert (Boolean)",
-								"apiName": "boolean"
-					},
-					{
-								"displayName": "Ganzzahl (Integer)",
-								"apiName": "integer"
-							},
-							{
-								"displayName": "Gleitkommazahl (Double)",
-								"apiName": "double"
-							}
-				];
-			*/
-			$scope.parameterDataType = kommonitorScriptHelperService.availableScriptDataTypes[0];
-
-			$scope.scriptCode_readableString_forPreview = undefined;
-			$scope.scriptCodeDomElementId = "#scriptCodePreview";
-
-			$scope.scriptFormulaHTML = undefined;
+			$scope.dropdownTranslations =  kommonitorDataExchangeService.multiselectDropdownTranslations;
+			$scope.dropdownSettings = kommonitorDataExchangeService.multiselectDropdownSettings;
+			$scope.dropdownEvents =  {
+				onSelectionChanged: function() {
+					$scope.onChangePropertyValue();
+				}
+			};
 
 			/*
 			* reset relevant things due to change of script type
@@ -122,77 +96,64 @@ angular.module('scriptTest').component('scriptTest', {
 			}
 
 			$scope.onChangeGeoresource = function(georesourceSelection){
-				// remove previous refIndicator from requiredIndicators and add new one
-				if($scope.georesourceSelection_old){
-					kommonitorScriptHelperService.removeBaseGeoresource($scope.georesourceSelection_old);	
+				kommonitorScriptHelperService.processParameters.georesource_id = georesourceSelection.georesourceId;
+
+				$scope.compFilterData = {
+					operator: null,
+					operatorOptions: null,
+					propertySchema: {},
+					propertyOptions: [],
+					propertyName: null,
+					propertyValueOptions: null,
+					propertyValue: null,
 				}
-				kommonitorScriptHelperService.addBaseGeoresource(georesourceSelection);
 
-				$scope.georesourceSelection_old = georesourceSelection;
-
-				//reset the one and only parameter in this case each time a base indicator is added
-				//$scope.resetGeoresourceParameter();
-				$scope.parameterDefaultValue_computationGeoresource = georesourceSelection.georesourceId;
 				$scope.resetPropertyOptions();
 				$scope.resetComputationFormulaAndLegend();				
 			};
 
 			$scope.onChangePropertyName = function(propertyName){
-				$scope.resetScriptParameter_filterPropertyName(propertyName);
+				kommonitorScriptHelperService.processParameters.comp_filter.value.compFilterProp = $scope.compFilterData.propertyName;
 				$scope.resetComputationFormulaAndLegend();
 				$scope.filterOperatorOptions();
 				$scope.resetPropertyValueOptions();
-				if ($scope.parameterDefaultValue_computationFilterOperator === 'Contains') {
-					$scope.propertyValueSelection = [];
+				if ($scope.compFilterData.operator && $scope.compFilterData.operator.apiName === 'Contains') {
+					$scope.compFilterData.propertyValueSelection = [];
 				}
 			};
 
 			$scope.onChangeOperatorOption = function(operatorOption){
-				if ($scope.parameterDefaultValue_computationFilterOperator !== 'Contains') {
-					$scope.propertyValueSelection = [];
+				if ($scope.compFilterData.operator) {
+					kommonitorScriptHelperService.processParameters.comp_filter.value.compFilterOperator = $scope.compFilterData.operator.apiName;
+					if ($scope.compFilterData.operator.apiName === 'Contains') {
+						$scope.compFilterData.propertyValueSelection = [];
+					}
 				}
-				$scope.resetScriptParameter_operator(operatorOption);
 				$scope.resetComputationFormulaAndLegend();
 			};
 
 			$scope.onChangePropertyValue = function(){
+				kommonitorScriptHelperService.processParameters.comp_filter.value.compFilterPropVal = $scope.compFilterData.propertyValue;
 				$scope.resetScriptParameter_filterPropertyValue();
 				$scope.resetComputationFormulaAndLegend();	
 			};
 
-			$scope.resetScriptParameter_computationGeoresource = function(georesourceMetadata){
-
-				return georesourceMetadata.georesourceId;
-			};
-
-			$scope.resetGeoresourceParameter = function(){
-				kommonitorScriptHelperService.removeScriptParameter_byName($scope.parameterName_computationGeoresource);
-				$scope.parameterDefaultValue_computationGeoresource = $scope.georesourceSelection.georesourceId;
-				kommonitorScriptHelperService.addScriptParameter($scope.parameterName_computationGeoresource, $scope.parameterDescription_computationGeoresource, $scope.parameterDataType, $scope.parameterDefaultValue_computationGeoresource, $scope.parameterNumericMinValue_computationGeoresource, $scope.parameterNumericMaxValue_computationGeoresource);
-			};
-
 			$scope.resetPropertyOptions = function(){
-				kommonitorCacheHelperService.fetchSingleGeoresourceSchema($scope.parameterDefaultValue_computationGeoresource)
+				kommonitorCacheHelperService.fetchSingleGeoresourceSchema(kommonitorScriptHelperService.processParameters.georesource_id)
 				.then((schema) => {
 					console.log(schema);
 					for (var prop in schema) {
 						if (schema[prop] !== 'Date') {
-							$scope.propertySchema[prop] = schema[prop];
+							$scope.compFilterData.propertySchema[prop] = schema[prop];
 						}
 					}
-					$scope.propertyOptions = Object.keys($scope.propertySchema);
+					$scope.compFilterData.propertyOptions = Object.keys($scope.compFilterData.propertySchema);
 				});
 			};
 
-			$scope.resetScriptParameter_filterPropertyName = function(propertyName){
-				kommonitorScriptHelperService.removeScriptParameter_byName(propertyName);
-				$scope.parameterDefaultValue_computationFilterProperty = propertyName;
-				kommonitorScriptHelperService.addScriptParameter($scope.parameterName_computationFilterProperty, $scope.parameterDescription_computationFilterProperty, $scope.parameterDataType, $scope.parameterDefaultValue_computationFilterProperty, $scope.parameterNumericMinValue_computationFilterProperty, $scope.parameterNumericMaxValue_computationFilterProperty);
-			};
-
 			$scope.filterOperatorOptions = function(){
-				if ($scope.propertySchema[$scope.parameterDefaultValue_computationFilterProperty] === "String"){
-					$scope.operatorOptions = [
+				if ($scope.compFilterData.propertySchema[$scope.compFilterData.propertyName] === "String"){
+					$scope.compFilterData.operatorOptions = [
 						{
 							"apiName": "Equal",
 							"displayName": "gleich (=)",
@@ -207,7 +168,7 @@ angular.module('scriptTest').component('scriptTest', {
 						}
 					];
 				} else {
-					$scope.operatorOptions = [
+					$scope.compFilterData.operatorOptions = [
 						{
 							"apiName": "Equal",
 							"displayName": "gleich (=)",
@@ -239,28 +200,20 @@ angular.module('scriptTest').component('scriptTest', {
 				}
 			};
 
-			$scope.resetScriptParameter_operator = function(operatorOption){
-				kommonitorScriptHelperService.removeScriptParameter_byName($scope.parameterName_computationFilterOperator);
-				if (operatorOption !== null) {
-					$scope.parameterDefaultValue_computationFilterOperator = operatorOption;
-				}				
-				kommonitorScriptHelperService.addScriptParameter($scope.parameterName_computationFilterOperator, $scope.parameterDescription_computationFilterOperator, $scope.parameterDataType, $scope.parameterDefaultValue_computationFilterOperator, $scope.parameterNumericMinValue_computationFilterOperator, $scope.parameterNumericMaxValue_computationFilterOperator);
-			};
-
 			$scope.resetPropertyValueOptions = function(){
-				kommonitorCacheHelperService.fetchSingleGeoresourceWithoutGeometry($scope.parameterDefaultValue_computationGeoresource)
+				kommonitorCacheHelperService.fetchSingleGeoresourceWithoutGeometry(kommonitorScriptHelperService.processParameters.georesource_id)
 				.then((dataTable) => {
 					var data = dataTable;
 					var tmpArray = data.map(item => {
-						let value = item[$scope.parameterDefaultValue_computationFilterProperty];
+						let value = item[$scope.compFilterData.propertyName];
 						return value;
 					});
-					if ($scope.propertySchema[$scope.parameterDefaultValue_computationFilterProperty] === "String" || $scope.propertySchema[$scope.parameterDefaultValue_computationFilterProperty] === "Boolean") {
+					if ($scope.compFilterData.propertySchema[$scope.compFilterData.propertyName] === "String" || $scope.compFilterData.propertySchema[$scope.compFilterData.propertyName] === "Boolean") {
 						// sort strings
-						$scope.propertyValueOptions = Array.from(new Set(tmpArray)).sort();
+						$scope.compFilterData.propertyValueOptions = Array.from(new Set(tmpArray)).sort();
 					} else {
 						// sort numbers
-						$scope.propertyValueOptions = Array.from(new Set(tmpArray)).sort(function(a,b){
+						$scope.compFilterData.propertyValueOptions = Array.from(new Set(tmpArray)).sort(function(a,b){
 							return a - b;
 						});
 					}
@@ -269,7 +222,7 @@ angular.module('scriptTest').component('scriptTest', {
 
 			$scope.filterPropertyValueRange_toOptions = function() {
 				return function(item) {
-					if (item > $scope.propertyValueRange_from) {
+					if (item > $scope.compFilterData.propertyValueRange_from) {
 						return true;
 					}
 					return false;
@@ -277,30 +230,19 @@ angular.module('scriptTest').component('scriptTest', {
 			};
 
 			$scope.resetScriptParameter_filterPropertyValue = function() {
-					kommonitorScriptHelperService.removeScriptParameter_byName($scope.parameterName_computationFilterPropertyValue);
-					if ($scope.parameterDefaultValue_computationFilterOperator !== "Contains") {
-						$scope.parameterDefaultValue_computationFilterPropertyValue = $scope.propertyValue;
+				if($scope.compFilterData.operator) {
+					if ($scope.compFilterData.operator.apiName !== "Contains") {
+						kommonitorScriptHelperService.processParameters.comp_filter.value.compFilterPropVal = $scope.compFilterData.propertyValue;
 					} else {
-						$scope.parameterDefaultValue_computationFilterPropertyValue = $scope.propertyValueSelection.join();
+						kommonitorScriptHelperService.processParameters.comp_filter.value.compFilterPropVal = $scope.compFilterData.propertyValueSelection.join();
 					}
-					kommonitorScriptHelperService.addScriptParameter($scope.parameterName_computationFilterPropertyValue, $scope.parameterDescription_computationFilterPropertyValue, $scope.parameterDataType, $scope.parameterDefaultValue_computationFilterPropertyValue, $scope.parameterNumericMinValue_computationFilterPropertyValue, $scope.parameterNumericMaxValue_computationFilterPropertyValue);
+				}
 			};
 
-
-			//a
-			$scope.resetScriptParameter = function(){
-				kommonitorScriptHelperService.requiredScriptParameters_tmp = [];
-
-				$scope.parameterDefaultValue_computationIndicator = undefined;
-
-				if($scope.compIndicatorSelection && $scope.compIndicatorSelection.indicatorId){
-					$scope.parameterDefaultValue_computationIndicator = $scope.compIndicatorSelection.indicatorId;
-				}
-
-				Object.keys(kommonitorScriptHelperService.scriptData.inputs).forEach(inputId => {
-					let input = kommonitorScriptHelperService.scriptData.inputs[inputId];
-					kommonitorScriptHelperService.addScriptParameter(input.title, input.description, input.schema.type, input.schema.default, input.schema.minimum, input.schema.maximum)
-				});
+			$scope.onChangePropertyValueRange_range = function() {
+				$scope.compFilterData.propertyValue = $scope.compFilterData.propertyValueRange_from + "-" + $scope.compFilterData.propertyValueRange_to;
+				$scope.resetScriptParameter_filterPropertyValue();
+				$scope.resetComputationFormulaAndLegend();	
 			};
 
 			//a
