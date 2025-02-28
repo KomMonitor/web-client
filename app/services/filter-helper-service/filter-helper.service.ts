@@ -8,7 +8,7 @@ export class FilterHelperService {
   pipedData: any;
 
   public constructor(
-    @Inject('kommonitorDataExchangeService') private ajskommonitorFilterHelperServiceProvider: any, // eslint-disable-line @typescript-eslint/no-explicit-any
+    @Inject('kommonitorFilterHelperService') private ajskommonitorFilterHelperServiceProvider: any, // eslint-disable-line @typescript-eslint/no-explicit-any
   ) {
     this.pipedData = this.ajskommonitorFilterHelperServiceProvider;
   }
@@ -43,5 +43,13 @@ export class FilterHelperService {
 
   featureIsCurrentlyFiltered(properties) {
     return this.ajskommonitorFilterHelperServiceProvider.featureIsCurrentlyFiltered(properties);
+  }
+
+  addFeatureToSelection(feature) {
+    this.ajskommonitorFilterHelperServiceProvider.addFeatureToSelection(feature);
+  }
+
+  removeFeatureFromSelection(feature) {
+    this.ajskommonitorFilterHelperServiceProvider.removeFeatureFromSelection(feature);
   }
 }
