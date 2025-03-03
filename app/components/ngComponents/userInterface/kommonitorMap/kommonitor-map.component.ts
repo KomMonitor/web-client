@@ -53,6 +53,9 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   outlierPropertyValue_low_extreme = "low-extreme";
   outlierPropertyValue_no = "no";
 
+  svgString_noData;
+  noDataStyle;
+
   containsOutliers_high = false;
   containsOutliers_low = false;
   outliers_high:any = undefined;
@@ -231,7 +234,19 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
       switch (title) {
         case 'replaceIndicatorAsGeoJSON': {
-          setTimeout(() => this.onReplaceIndicatorAsGeoJSON(values), 4000);
+          setTimeout(() => this.onReplaceIndicatorAsGeoJSON(values), 2000);
+        } break;
+        case 'changeSpatialUnit': {
+          this.onChangeSpatialUnit();
+        } break;
+        case 'recenterMapContent': {
+          this.recenterMap();
+        } break;
+        case 'showLoadingIconOnMap' : {
+          this.showLoadingIconOnMap();
+        } break;
+        case 'hideLoadingIconOnMap' : {
+          this.hideLoadingIconOnMap();
         } break;
        }
     });
@@ -572,14 +587,14 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   refreshNoDataStyle() {
 
     this.currentIndicatorContainsNoDataValues = false;
-   /*  this.svgString_noData = '<svg height="18" width="18">' +
+    this.svgString_noData = '<svg height="18" width="18">' +
       '<circle style="stroke-opacity: '  + this.defaultFillOpacityForNoDataValues + ';" cx="4" cy="4" r="1.5" stroke="'  + this.defaultBorderColorForNoDataValues + '" stroke-width="2" fill="'  + this.defaultColorForNoDataValues + '" />' +
       '<circle style="stroke-opacity: '  + this.defaultFillOpacityForNoDataValues + ';" cx="14" cy="4" r="1.5" stroke="'  + this.defaultBorderColorForNoDataValues + '" stroke-width="2" fill="'  + this.defaultColorForNoDataValues + '" />' +
       '<circle style="stroke-opacity: '  + this.defaultFillOpacityForNoDataValues + ';" cx="4" cy="14" r="1.5" stroke="'  + this.defaultBorderColorForNoDataValues + '" stroke-width="2" fill="'  + this.defaultColorForNoDataValues + '" />' +
       '<circle style="stroke-opacity: '  + this.defaultFillOpacityForNoDataValues + ';" cx="14" cy="14" r="1.5" stroke="'  + this.defaultBorderColorForNoDataValues + '" stroke-width="2" fill="'  + this.defaultColorForNoDataValues + '" />' +
       'Sorry, your browser does not support inline SVG.</svg>';
 
-    this.noDataStyle = kommonitorVisualStyleHelperService.noDataStyle; */
+    this.noDataStyle = this.visualData.noDataStyle;
   };
 
   refreshOutliersStyle () {
@@ -604,11 +619,8 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   };
 
   refreshFilteredStyle () {
-
     this.filteredStyle = this.visualData.filteredStyle;
   };
-
-   
 
   initSpatialUnitOutlineLayer(){
 
@@ -822,20 +834,20 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     */
   }; 
 
-/* 
-  $scope.$on("showLoadingIconOnMap", function (event) {
+ 
+  showLoadingIconOnMap() {
     // console.log("Show loading icon on map");
-    $scope.loadingData = true;
-  });
+    this.loadingData = true;
+  }
 
-  $scope.$on("hideLoadingIconOnMap", function (event) {
+  hideLoadingIconOnMap() {
     // console.log("Hide loading icon on map");
-    $timeout(function(){
-      $scope.loadingData = false;
+    setTimeout(() => {
+      this.loadingData = false;
     }, 250);
 
-  });
-
+  }
+/*
   $(document).on('click', '#selectSpatialUnitViaInfoControl li p', function () {
     spatialUnitName = $(this).text();
     $('#selectSpatialUnitViaInfoControl_text').text(spatialUnitName);
@@ -2240,19 +2252,17 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     }
   }
  */
- /*  wait = ms => new Promise((r, j) => setTimeout(r, ms))
+   //wait = ms => new Promise((r, j) => setTimeout(r, ms))
 
-  $scope.recenterMap () {
-    $scope.map.invalidateSize(true);
+  recenterMap () {
+    this.map.invalidateSize(true);
 
-    fitBounds();
+    this.fitBounds();
 
   };
 
-  $scope.$on("recenterMapContent", function (event) {
-    $scope.recenterMap();
-  });
 
+/*
   $scope.$on("invalidateMapSize", function (event) {
     $timeout(function(){
       $scope.map.invalidateSize(true);
@@ -2321,22 +2331,22 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       $scope.map.invalidateSize(true);
     }
   };
+*/
 
+  fitBounds() {
+    if (this.map && this.currentIndicatorLayer) {
 
-  function fitBounds() {
-    if ($scope.map && $scope.currentIndicatorLayer) {
-
-      $scope.map.invalidateSize(true);
-      // $scope.map.setView(L.latLng($scope.latCenter, $scope.lonCenter), $scope.zoomLevel);
-      $scope.map.fitBounds($scope.currentIndicatorLayer.getBounds());
+      this.map.invalidateSize(true);
+      // this.map.setView(L.latLng(this.latCenter, this.lonCenter), this.zoomLevel);
+      this.map.fitBounds(this.currentIndicatorLayer.getBounds());
     }
 
   }
 
-  function zoomToFeature(e) {
-    map.fitBounds(e.target.getBounds());
+  zoomToFeature(e) {
+    this.map.fitBounds(e.target.getBounds());
   }
-  */
+  
   markOutliers(indicatorMetadataAndGeoJSON, indicatorPropertyName) {
     // identify possible data outliers
     // mark them using a dedicated property
@@ -2414,6 +2424,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
   
   setNoDataValuesAsNull(indicatorMetadataAndGeoJSON) {
+
     indicatorMetadataAndGeoJSON.geoJSON.features.forEach((feature) => {
       if (this.dataExchangeService.indicatorValueIsNoData(feature.properties[this.indicatorPropertyName])) {
         feature.properties[this.indicatorPropertyName] = null;
@@ -2680,7 +2691,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       this.updateDefaultManualBreaksFromMOVManualBreaks();
 
       this.propertyName = this.INDICATOR_DATE_PREFIX + date;
-console.log("1")
+
       layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
         style: (feature) => {
           if (this.filterHelperService.featureIsCurrentlyFiltered(feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME])) {
@@ -2736,7 +2747,7 @@ console.log("1")
         this.visualData.manualBrew = this.defaultBrew;
 
         this.propertyName = this.INDICATOR_DATE_PREFIX + date;
-        console.log("2")
+
         layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
           style: (feature) => {
             if (this.filterHelperService.featureIsCurrentlyFiltered(feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME])) {
@@ -2838,7 +2849,7 @@ console.log("1")
 
     // justRestyling = false;
 
-    // fitBounds();
+    this.fitBounds();
 
     if (this.containsOutliers_low || this.containsOutliers_high) {
       this.showOutlierInfoAlert = true;
@@ -2849,6 +2860,7 @@ console.log("1")
     // $rootScope.$broadcast("indicatortMapDisplayFinished");
 
     this.map.invalidateSize(true);
+    this.hideLoadingIconOnMap();
   }
 
   containsNegativeValues (geoJSON) {
@@ -2864,10 +2876,11 @@ console.log("1")
 
     return containsNegativeValues;
   };
+
+  onChangeSpatialUnit() {
+    this.visualData.dynamicBrewBreaks = null;
+  }
 /* 
-  $scope.$on("changeSpatialUnit", function(event){
-    kommonitorVisualStyleHelperService.dynamicBrewBreaks = null;
-  });
 
   $scope.$on("allIndicatorPropertiesForCurrentSpatialUnitAndTime setup begin", function (event) {
     $scope.updateManualMOVBreaksFromDefaultManualBreaks();

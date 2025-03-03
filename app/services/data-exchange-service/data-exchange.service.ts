@@ -64,6 +64,8 @@ export interface DataExchange {
   selectedPOISize: any;
   rangeFilterData: any;
   classifyZeroSeparately_backup: any;
+  simplifyGeometriesParameterName:any;
+  simplifyGeometries:any;
 }
 
 export interface IndicatorTopic {

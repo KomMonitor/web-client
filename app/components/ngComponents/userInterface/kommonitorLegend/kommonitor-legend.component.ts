@@ -105,8 +105,7 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
 
   onChangeSelectedSpatialUnit() {
 
-    // todo
-   /*  $rootScope.$broadcast("changeSpatialUnit");*/
+   this.broadcastService.broadcast("changeSpatialUnit");
 
     if(this.env.enableSpatialUnitNotificationSelection) {
       if(localStorage.getItem("hideKomMonitorSpatialUnitNotification") && localStorage.getItem("hideKomMonitorSpatialUnitNotification")=== "true") {

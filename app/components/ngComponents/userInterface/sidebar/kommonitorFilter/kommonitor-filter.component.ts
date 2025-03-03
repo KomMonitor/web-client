@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchange, DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { FilterHelperService } from 'services/filter-helper-service/filter-helper.service';
 import { MapService } from 'services/map-service/map.service';
@@ -8,7 +9,7 @@ import { MapService } from 'services/map-service/map.service';
   templateUrl: './kommonitor-filter.component.html',
   styleUrls: ['./kommonitor-filter.component.css']
 })
-export class KommonitorFilterComponent {
+export class KommonitorFilterComponent implements OnInit {
 
   INDICATOR_DATE_PREFIX = window.__env.indicatorDatePrefix;
   /* kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
@@ -78,10 +79,25 @@ export class KommonitorFilterComponent {
   constructor(
     protected dataExchangeService: DataExchangeService,
     protected filterHelperService: FilterHelperService,
-    private mapService: MapService
+    private mapService: MapService,
+    private broadcastService: BroadcastService
   ) {
     this.exchangeData = this.dataExchangeService.pipedData;
     this.filterData = this.filterHelperService.pipedData;
+  }
+
+
+  ngOnInit(): void {
+      this.broadcastService.currentBroadcastMsg.subscribe(result => {
+        let msg = result.msg;
+        let val = result.values;
+
+        switch (msg) {
+          case 'onChangeSelectedIndicator': {
+            this.onOnChangeSelectedIndicator();
+          } break;
+        }
+      })
   }
 
 							isFilterModeActive(id) {
@@ -134,10 +150,10 @@ export class KommonitorFilterComponent {
 								this.loadingData = false;
 							};
 
-              // todo
-						/* 	$scope.$on("onChangeSelectedIndicator", function(event){
-								this.reappliedFilter = false;
-							});
+              onOnChangeSelectedIndicator() {
+                this.reappliedFilter = false;
+              }
+						/* 
 
 							$scope.$on("indicatortMapDisplayFinished", function(){
 								// trigger the continous display of current filter									

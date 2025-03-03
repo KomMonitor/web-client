@@ -1,4 +1,6 @@
+import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
+import { error } from 'jquery';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchange, DataExchangeService, IndicatorTopic } from 'services/data-exchange-service/data-exchange.service';
 import { ElementVisibilityHelperService } from 'services/element-visibility-helper-service/element-visibility-helper.service';
@@ -36,7 +38,8 @@ export class KommonitorDataSetupComponent implements OnInit {
     public dataExchangeService: DataExchangeService,
     private broadcastService: BroadcastService,
     private elementVisibilityHelperService: ElementVisibilityHelperService,
-    private mapService: MapService
+    private mapService: MapService,
+    private http: HttpClient
   ) {}
 
   ngOnInit(): void {
@@ -574,7 +577,8 @@ export class KommonitorDataSetupComponent implements OnInit {
   
   setupDateSliderForIndicator(){
 
-    if(this.dateSlider){
+    // todo
+    /* if(this.dateSlider){
         this.dateSlider.destroy();
     }
 
@@ -584,7 +588,7 @@ export class KommonitorDataSetupComponent implements OnInit {
       while (domNode!.hasChildNodes()) {
         domNode.removeChild(domNode.lastChild!);
       }
-    }
+    } */
 
     var availableDates = this.exchangeData.selectedIndicator.applicableDates;
     this.date = availableDates[availableDates.length - 1];
@@ -606,19 +610,20 @@ export class KommonitorDataSetupComponent implements OnInit {
         onChange: this.onChangeDateSliderItem
     }); */
 
-    this.dateSlider = $("#dateSlider").data("ionRangeSlider");
+    //todo
+    // this.dateSlider = $("#dateSlider").data("ionRangeSlider");
     // make sure that the handle is properly set to max value
-    this.dateSlider.update({
+   /*  this.dateSlider.update({
         from: this.datesAsMs.length -1 // index, not the date
-    });
+    }); */
   };
 
   setupDatePickerForIndicator(){
 
-    if(this.datePicker){
       // todo
-     /*  $('#indicatorDatePicker').datepicker('destroy');
-      this.datePicker = undefined; */
+  /*   if(this.datePicker){
+      $('#indicatorDatePicker').datepicker('destroy');
+      this.datePicker = undefined;
     }
 
     var domNode:HTMLElement | null = document.getElementById("indicatorDatePicker");
@@ -627,7 +632,7 @@ export class KommonitorDataSetupComponent implements OnInit {
       while (domNode.hasChildNodes()) {
         domNode.removeChild(domNode.lastChild!);
       }
-    }
+    } */
 
     var availableDates = this.exchangeData.selectedIndicator.applicableDates;
     this.date = availableDates[availableDates.length - 1];
@@ -718,32 +723,28 @@ export class KommonitorDataSetupComponent implements OnInit {
     var day = dateComps[2];
 
     // todo
-   /*  return await $http({
-      url: this.dataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/indicators/" + indicatorId + "/" + this.exchangeData.selectedSpatialUnit.spatialUnitId + "/" + year + "/" + month + "/" + day + "?" + this.exchangeData.simplifyGeometriesParameterName + "=" + this.exchangeData.simplifyGeometries,
-      method: "GET"
-    }).then(function successCallback(response) {
-        // this callback will be called asynchronously
-        // when the response is available
-        var geoJSON = response.data;
+
+    let url = this.dataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/indicators/" + indicatorId + "/" + this.exchangeData.selectedSpatialUnit.spatialUnitId + "/" + year + "/" + month + "/" + day + "?" + this.exchangeData.simplifyGeometriesParameterName + "=" + this.exchangeData.simplifyGeometries;
+    this.http.get(url).subscribe({
+      next: (response:any) => {
+        var geoJSON = response;
 
         this.exchangeData.selectedIndicator.geoJSON = geoJSON;
 
-        $rootScope.$broadcast("updateMeasureOfValueBar", this.date, this.exchangeData.selectedIndicator);
-
-        // this.updateMeasureOfValueBar(this.date);
+        this.broadcastService.broadcast('updateMeasureOfValueBar', [this.date, this.exchangeData.selectedIndicator]);
 
         return this.exchangeData.selectedIndicator;
-
-      }, function errorCallback(error) {
-        // called asynchronously if an error occurs
-        // or server returns response with an error status.
+      },
+      error: (error) => {
         this.loadingData = false;
-        kommonitorDataExchangeService.displayMapApplicationError(error);
-        // todo
-        // $rootScope.$broadcast("hideLoadingIconOnMap");
+        this.dataExchangeService.displayMapApplicationError(error);
+
+        this.broadcastService.broadcast('hideLoadingIconOnMap');
 
         return this.exchangeData.selectedIndicator;
-    }); */
+      }
+    });
+
   };
 
 /*  
@@ -841,15 +842,11 @@ export class KommonitorDataSetupComponent implements OnInit {
 
   onChangeSelectedIndicator(recenterMap){
 
-    // todo
-    //$rootScope.$broadcast("onChangeSelectedIndicator");
     this.broadcastService.broadcast('onChangeSelectedIndicator');
-
+    
     if(this.exchangeData.selectedIndicator){
 
       this.loadingData = true;
-      //todo
-      // $rootScope.$broadcast("showLoadingIconOnMap");
       this.broadcastService.broadcast('showLoadingIconOnMap');
 
       this.changeIndicatorWasClicked = true;
@@ -859,57 +856,41 @@ export class KommonitorDataSetupComponent implements OnInit {
       this.exchangeData.selectedIndicatorBackup = this.exchangeData.selectedIndicator;
 
       // todo
-      /* this.setupDateSliderForIndicator();
-      this.setupDatePickerForIndicator(); */
+      this.setupDateSliderForIndicator();
+      this.setupDatePickerForIndicator();
       
       if(!this.exchangeData.selectedSpatialUnit || !this.exchangeData.selectedIndicator.applicableSpatialUnits.some(o => o.spatialUnitName === this.exchangeData.selectedSpatialUnit.spatialUnitLevel)){
         this.exchangeData.selectedSpatialUnit = this.getFirstSpatialUnitForSelectedIndicator();
       }
 
       try{
-        // todo
-        //var selectedIndicator = this.tryUpdateMeasureOfValueBarForIndicator();
+        let selectedIndicator = this.tryUpdateMeasureOfValueBarForIndicator();
       }
       catch(error){
         console.error(error);
         this.loadingData = false;
-        // todo
-        // $rootScope.$broadcast("hideLoadingIconOnMap");
         this.broadcastService.broadcast('hideLoadingIconOnMap');
 
         this.dataExchangeService.displayMapApplicationError(error);
         return;
       }
 
-       // todo
-      //$rootScope.$broadcast("DisableBalance");
       this.broadcastService.broadcast('DisableBalance');
 
       this.modifyExports(true);
 
       if(this.exchangeData.useNoDataToggle) {
-         // todo
-      //$rootScope.$broadcast('applyNoDataDisplay');
-      this.broadcastService.broadcast('applyNoDataDisplay');
+        this.broadcastService.broadcast('applyNoDataDisplay');
       }
 
       this.loadingData = false;
 
       if(recenterMap){
-         // todo
-        //$rootScope.$broadcast("recenterMapContent");
         this.broadcastService.broadcast('recenterMapContent');
       }
 
-       // todo
-      //$rootScope.$broadcast("hideLoadingIconOnMap");
-      this.broadcastService.broadcast('hideLoadingIconOnMap');
+      //this.broadcastService.broadcast('hideLoadingIconOnMap');
       this.changeIndicatorWasClicked = false;
-
-     
-       // todo
-    //$rootScope.$apply();
-
 
     }
     else{
@@ -917,16 +898,11 @@ export class KommonitorDataSetupComponent implements OnInit {
         this.exchangeData.selectedIndicator = this.exchangeData.selectedIndicatorBackup;
       }
     }
-
-     // todo
-    //$rootScope.$broadcast("selectedIndicatorDateHasChanged");
     this.broadcastService.broadcast('selectedIndicatorDateHasChanged');
   }
 
+  modifyExports(changeIndicator){
 
-
-modifyExports(changeIndicator){
-  console.log("mod exports");
     this.exchangeData.wmsUrlForSelectedIndicator = undefined;
     this.exchangeData.wfsUrlForSelectedIndicator = undefined;
     
