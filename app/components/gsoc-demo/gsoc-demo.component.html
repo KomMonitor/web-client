@@ -1,0 +1,64 @@
+<div id="kommonitorNotifier">
+
+  <p></p>
+
+  <!-- NOTIFIER MENU -->
+  <div class="box box-primary" id="kommonitorSpatialFilter" ng-if="isFilterModeActive('kommonitorSpatialFilter')">
+    <div class="box-header with-border">
+      <h3 class="box-title">Configure Toast Notifications</h3>
+
+      <div class="box-tools pull-right">
+        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+        </button>
+      </div>
+    </div>
+    <div class="box-body">
+
+      <label for="toast-title" class="form-label">Toast Title</label>
+      <input type="text" id="toast-title" class="form-control" [(ngModel)]="toastConfig.title"
+        placeholder="Optional title" />
+
+      <br />
+
+      <label for="toast-message" class="form-label">Message</label>
+      <textarea id="toast-message" class="form-control" rows="3" [(ngModel)]="toastConfig.message"
+        placeholder="Enter your message here..." required></textarea>
+      <br />
+
+
+
+      <label for="toast-type" class="form-label">Toast Type</label>
+      <select id="toast-type" class="form-control" [(ngModel)]="toastConfig.type">
+        <option value="info">Info</option>
+        <option value="success">Success</option>
+        <option value="warning">Warning</option>
+        <option value="error">Error</option>
+      </select>
+
+      <br />
+
+
+
+
+      <label for="toast-position" class="form-label">Toast Position</label>
+      <select id="toast-position" class="form-control" [(ngModel)]="toastConfig.position">
+        <option [value]="'default'">Default</option>
+        <option [value]="'upperLeft'">Upper Left</option>
+        <option [value]="'upperRight'">Upper Right</option>
+      </select>
+
+      <br />
+
+
+
+
+
+      <button class="btn btn-primary" (click)="showToast()" [disabled]="!toastConfig.message.trim()">
+        Preview Toast
+      </button>
+      <button class="btn btn-secondary" (click)="closeModal()">Close</button>
+
+    </div>
+  </div>
+  <!-- /.box -->
+</div>

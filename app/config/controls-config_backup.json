@@ -9,11 +9,13 @@
     },
     {
         "id": "dataImport",
-        "roles": []
+        "roles": [
+            "schulung-viewer"
+        ]
     },
     {
         "id": "filter",
-        "roles": ["fakeAdvancedModeGroup"]
+        "roles": []
     },
     {
         "id": "measureOfValueClassification",
@@ -21,7 +23,7 @@
     },
     {
         "id": "balance",
-        "roles": ["fakeAdvancedModeGroup"]
+        "roles": []
     },
     {
         "id": "diagrams",
@@ -29,19 +31,25 @@
     },
     {
         "id": "radarDiagram",
-        "roles": ["fakeAdvancedModeGroup"]
+        "roles": []
     },
     {
         "id": "regressionDiagram",
-        "roles": ["fakeAdvancedModeGroup"]
+        "roles": [
+            "fakeAdvancedModeRole"
+        ]
     },
     {
         "id": "reachability",
-        "roles": ["fakeAdvancedModeGroup"]
+        "roles": [
+            "schulung-viewer"
+        ]
     },
     {
         "id": "processing",
-        "roles": ["fakeAdvancedModeGroup"]
+        "roles": [
+            "fakeAdvancedModeRole"
+        ]
     },
     {
         "id": "reportingButton",
@@ -49,22 +57,24 @@
     },
     {
         "id": "indicatorLegendExportButtons",
-        "roles": ["fakeAdvancedModeGroup"]
+        "roles": [
+            "fakeAdvancedModeRole"
+        ]
     },
     {
         "id": "diagramExportButtons",
-        "roles": ["fakeAdvancedModeGroup"]
+        "roles": [
+            "fakeAdvancedModeRole"
+        ]
     },
     {
         "id": "georesourceExportButtons",
-        "roles": ["fakeAdvancedModeGroup"]
+        "roles": [
+            "fakeAdvancedModeRole"
+        ]
     },
     {
-        "id": "kommonitorIndicatorClassification",
-        "groups": []
-    } ,
-    {
-        "id": "kommonitorStatisticalValues",
-        "groups": []
-    } 
+        "id": "notifier",
+        "roles": []
+    }
 ]

@@ -14,6 +14,7 @@ import {kommonitorScriptHelperService} from'util/genericServices/kommonitorScrip
 import {kommonitorShareHelperService} from 'util/genericServices/kommonitorShareHelperService/kommonitor-share-helper-service.module'
 import {kommonitorSingleFeatureMapHelperService} from 'util/genericServices/kommonitorSingleFeatureMapHelperService/kommonitor-single-feature-map-helper-service.module'
 import {kommonitorVisualStyleHelperService} from 'util/genericServices/kommonitorVisualStyleHelperService/kommonitor-visual-style-helper-service.module'
+import { kommonitorToastHelperService } from 'util/genericServices/kommonitorToastHelperService/kommonitor-toast-helper-service.module';
 
 export function kommonitorCacheHelperServiceFactory(injector:any){
     return injector.get('kommonitorCacheHelperService');
@@ -168,6 +169,17 @@ export const ajskommonitorElementVisibilityHelperServiceProvider: any = {
   useFactory:kommonitorElementVisibilityHelperServiceFactory,
 };
 
+// Toast Helper Service
+export function kommonitorToastHelperServiceFactory(injector: any) {
+  return injector.get('kommonitorToastHelperService')
+}
+
+export const ajskommonitorToastHelperServiceProvider: any = {
+  deps: ['$injector'],
+  provide: 'kommonitorToastHelperService',
+  useFactory: kommonitorToastHelperServiceFactory,
+};
+
 
   export const serviceProviders: any[] = [
     ajskommonitorCacheHelperServiceProvider,
@@ -183,5 +195,6 @@ export const ajskommonitorElementVisibilityHelperServiceProvider: any = {
     ajskommonitorShareHelperServiceProvider,
     ajskommonitorSingleFeatureMapServiceProvider,
     ajskommonitorVisualStyleHelperServiceProvider,
-    ajskommonitorElementVisibilityHelperServiceProvider
+    ajskommonitorElementVisibilityHelperServiceProvider,
+    ajskommonitorToastHelperServiceProvider
   ];

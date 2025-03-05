@@ -149,6 +149,10 @@
         <kommonitor-data-setup></kommonitor-data-setup>
     </aside>
 
+	 <aside id="sidebarNotifier" ng-class="sidebarNotifierClass" ng-if="$ctrl.kommonitorElementVisibilityHelperServiceInstance.elementVisibility.notifier">
+        <app-gsoc-demo></app-gsoc-demo>
+    </aside>
+
 		<aside id="sidebarPoi" ng-class="sidebarPoiClass" ng-if="$ctrl.kommonitorElementVisibilityHelperServiceInstance.elementVisibility.poi">
         <poi></poi>
     </aside>
@@ -208,6 +212,10 @@
 				<!-- LEFT-HANDED SIDEBAR BUTTONS -->
 
 				<div id="sideBarButtons">
+					<button type="button" style="display: block; position: relative; margin-top: 5px;" id="toggleGsocDemoButton"
+				ng-class="buttonNotifierClass" ng-click="onSidebarNotifierButtonClick()" data-toggle="tooltip" ng-if="$ctrl.kommonitorElementVisibilityHelperServiceInstance.elementVisibility.notifier" title="Toast Notifier Demo">
+					<i style="font-size:2.5vh;" class="fas fa-bell"></i>
+					</button>
 						<button type="button" style="display: block; position: relative; margin-top: 5px;" " id="sidebarIndicatorConfigCollapse"
 							ng-click="onSidebarIndicatorButtonClick()" ng-class="buttonIndicatorConfigClass" ng-if="$ctrl.kommonitorElementVisibilityHelperServiceInstance.elementVisibility.indicatorConfig" data-toggle="tooltip" title="Indikatorenauswahl">
 								<!-- <span style="font-size:2.5vh;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->

@@ -11,7 +11,7 @@ import angular from "angular";
 import { RouterModule, Routes } from '@angular/router';
 import { HashLocationStrategy, LocationStrategy } from '@angular/common';
 
-import { 
+import {
   ajskommonitorCacheHelperServiceProvider,
   ajskommonitorBatchUpdateHelperServiceProvider,
   ajskommonitorConfigStorageServiceProvider,
@@ -20,13 +20,16 @@ import {
   ajskommonitorDiagramHelperServiceProvider,
   ajskommonitorFilterHelperServiceProvider,
   ajskommonitorKeycloackHelperServiceProvider,
-  ajskommonitorMultiStepFormHelperServiceProvider, 
+  ajskommonitorMultiStepFormHelperServiceProvider,
   ajskommonitorSingleFeatureMapServiceProvider,
   ajskommonitorElementVisibilityHelperServiceProvider,
   ajskommonitorShareHelperServiceProvider,
-  ajskommonitorVisualStyleHelperServiceProvider } from 'app-upgraded-providers';
+  ajskommonitorVisualStyleHelperServiceProvider,
+  ajskommonitorToastHelperServiceProvider
+} from 'app-upgraded-providers';
 import { InfoModalComponent } from 'components/ngComponents/userInterface/infoModal/info-modal.component';
 import { KommonitorLegendComponent } from 'components/ngComponents/userInterface/kommonitorLegend/kommonitor-legend.component';
+import { GsocDemoComponent } from 'components/gsoc-demo/gsoc-demo.component';
 import { NgbCalendar, NgbDatepickerModule, NgbDateStruct, NgbAccordionModule, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
 import { JsonPipe } from '@angular/common';
@@ -43,9 +46,9 @@ declare var MathJax;
     BrowserModule,
     UpgradeModule,
     RouterModule.forRoot(routes , { useHash: true }),
-    NgbDatepickerModule, 
+    NgbDatepickerModule,
     NgbAccordionModule,
-    FormsModule, 
+    FormsModule,
     JsonPipe
   ],
   providers:[
@@ -56,13 +59,14 @@ declare var MathJax;
     ajskommonitorDataGridHelperServiceProvider,ajskommonitorSingleFeatureMapServiceProvider,
     ajskommonitorDiagramHelperServiceProvider,ajskommonitorFilterHelperServiceProvider,
     ajskommonitorElementVisibilityHelperServiceProvider, ajskommonitorShareHelperServiceProvider,
-    ajskommonitorVisualStyleHelperServiceProvider,
+    ajskommonitorVisualStyleHelperServiceProvider, ajskommonitorToastHelperServiceProvider,
     NgbModule
   ],
   declarations: [
     InfoModalComponent,
     KommonitorLegendComponent,
-    KommonitorClassificationComponent
+    KommonitorClassificationComponent,
+    GsocDemoComponent
   ]
 })
 
@@ -88,13 +92,13 @@ export class AppModule implements DoBootstrap {
 
     // init keycloak authentication
     await this.initKeycloak();
-  
+
     this.upgrade.bootstrap(document.documentElement, ['kommonitorClient']);
     // setUpLocationSync(this.upgrade);
 
   }
 
-  private downgradeDependencies(): void {  
+  private downgradeDependencies(): void {
 
     // to inject already upgraded KomMonitor Angular components into "old" AngluarJS components, we must do 2 things
     // 1. downgrade the new Angular component and register it as directive within each requiring AngularJS module/component
@@ -111,9 +115,11 @@ export class AppModule implements DoBootstrap {
     angular.module('kommonitorUserInterface')
     .directive('kommonitorLegendNew',  downgradeComponent({ component: KommonitorLegendComponent }) as angular.IDirectiveFactory);
 
-   /*  angular.module('kommonitorUserInterface')
-    .directive('versionInfo',  downgradeComponent({ component: VersionInfoComponent }) as angular.IDirectiveFactory);
- */
+    angular.module('kommonitorUserInterface')
+      .directive('appGsocDemo', downgradeComponent({ component: GsocDemoComponent }) as angular.IDirectiveFactory);
+    /*  angular.module('kommonitorUserInterface')
+     .directive('versionInfo',  downgradeComponent({ component: VersionInfoComponent }) as angular.IDirectiveFactory);
+  */
     console.log("registered downgraded Angular components for AngularJS usage");
   }
 
@@ -327,27 +333,27 @@ export class AppModule implements DoBootstrap {
 
     // custom unique filter
     angular.module('kommonitorClient').filter('unique', function () {
-        return function (collection, primaryKey) { //no need for secondary key
+      return function (collection, primaryKey) { //no need for secondary key
             var output :string[] = [],
                 keys :string[] = [];
-            var splitKeys = primaryKey.split('.'); //split by period
+        var splitKeys = primaryKey.split('.'); //split by period
 
 
-            angular.forEach(collection, function (item: string) {
+        angular.forEach(collection, function (item: string) {
                 let key :string = "";
-                angular.copy(item, key);
-                for (var i = 0; i < splitKeys.length; i++) {
-                    key = key[splitKeys[i]]; 
-                }
+          angular.copy(item, key);
+          for (var i = 0; i < splitKeys.length; i++) {
+            key = key[splitKeys[i]];
+          }
 
-                if (keys.indexOf(key) === -1) {
-                    keys.push(key);
-                    output.push(item);
-                }
-            });
+          if (keys.indexOf(key) === -1) {
+            keys.push(key);
+            output.push(item);
+          }
+        });
 
-            return output;
-        };
+        return output;
+      };
     });
 
     angular.module('kommonitorClient').service("ControlsConfigService", ['$http', function ($http) {
