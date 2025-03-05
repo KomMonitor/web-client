@@ -1,7 +1,7 @@
 <div id="sidebarContentWrapper" [ngClass]="{'disabled': content===false}">
-  <app-kommonitor-data-setup *ngIf="content===0"></app-kommonitor-data-setup>
-  <app-poi *ngIf="content===1"></app-poi>
-  <app-kommonitor-filter *ngIf="content===3"></app-kommonitor-filter>
+  <app-kommonitor-data-setup [hidden]="content!=0"></app-kommonitor-data-setup>
+  <app-poi [hidden]="content!=1"></app-poi>
+  <app-kommonitor-filter [hidden]="content!=3"></app-kommonitor-filter>
 </div>
 
 <div id="buttonWrapper">

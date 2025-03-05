@@ -63,8 +63,8 @@ export class KommonitorDataSetupComponent implements OnInit {
 
       this.dataExchangeService.displayMapApplicationError("Kein darstellbarer Indikator konnte gefunden werden.");										
       this.loadingData = false;
-      //todo
-      // this.$broadcast("hideLoadingIconOnMap");
+      
+      this.broadcastService.broadcast('hideLoadingIconOnMap');
 
       return;
     }
@@ -125,8 +125,7 @@ export class KommonitorDataSetupComponent implements OnInit {
 
       this.dataExchangeService.displayMapApplicationError("Initiales Darstellen eines Indikators ist gescheitert.");										
       this.loadingData = false;
-      //todo
-      // $scope.$broadcast("hideLoadingIconOnMap");
+      this.broadcastService.broadcast('hideLoadingIconOnMap');
 
       return;
     }
