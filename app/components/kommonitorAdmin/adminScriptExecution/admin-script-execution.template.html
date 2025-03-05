@@ -339,10 +339,153 @@
 
 				</div>
 
-				<div class="admin-table-wrapper">
-					
-					<table id="jobExecutionTable_customizedComputation_new" style="height: 75vh; width: 100%;" class="ag-theme-alpine"></table>
+				<div class="row vertical-align">
+					<div class="col-md-3 col-sm-6 col-xs-12">
+				
+						<!-- small box -->
+						<div class="small-box bg-primary">
+							<div class="inner">
+								<p>Status der Job-Ausf&uuml;hrung:</p>
+								<h3>{{customizedComputationJobHealth.queueStatus}}</h3>
+				
+								
+							</div>
+							<div class="icon">
+								<i class="fas fa-file-code"></i>
+							</div>
+							<a class="small-box-footer"></a>
+						</div>
+				
+					</div>
+					<!-- ./col -->
 
+					<div class="col-md-3 col-sm-6 col-xs-12">
+				
+						<!-- small box -->
+						<div class="small-box bg-primary">
+							<div class="inner">
+								<p>neueste Job-Id:</p>
+								<h3>{{customizedComputationJobHealth.newestJobId}}</h3>
+				
+								
+							</div>
+							<div class="icon">
+								<i class="fas fa-file-code"></i>
+							</div>
+							<a class="small-box-footer"></a>
+						</div>
+				
+					</div>
+					<!-- ./col -->
+					
+					<div class="col-md-3 col-sm-6 col-xs-12">
+				
+						<!-- small box -->
+						<div class="small-box bg-green" style="cursor: pointer" data-toggle="modal" data-target="#modal-job-table" ng-click="onJobStatusClicked('succeeded')">
+							<div class="inner">
+								<h3>{{getNumberForStatus('succeeded')}}</h3>
+				
+								<p>abgeschlossene Jobs</p>
+							</div>
+							<div class="icon">
+								<i class="fas fa-file-code"></i>
+							</div>
+							<a class="small-box-footer"></a>
+						</div>
+				
+					</div>
+					<!-- ./col -->
+					<div class="col-md-3 col-sm-6 col-xs-12">
+				
+						<!-- small box -->
+						<div class="small-box bg-red" style="cursor: pointer" data-toggle="modal" data-target="#modal-job-table" ng-click="onJobStatusClicked('failed')">
+							<div class="inner">
+								<h3>{{getNumberForStatus('failed')}}</h3>
+				
+								<p>gescheiterte Jobs</p>
+							</div>
+							<div class="icon">
+								<i class="fas fa-file-code"></i>
+							</div>
+							<a class="small-box-footer"></a>
+						</div>
+				
+					</div>
+					<!-- ./col -->
+
+				</div>
+				<!-- ./row -->
+
+				<div class="row vertical-align">
+					<div class="col-md-3 col-sm-6 col-xs-12">
+				
+						<!-- small box -->
+						<div class="small-box bg-aqua" style="cursor: pointer" data-toggle="modal" data-target="#modal-job-table" ng-click="onJobStatusClicked('active')">
+							<div class="inner">
+								<h3>{{getNumberForStatus('active')}}</h3>
+				
+								<p>laufende Jobs</p>
+							</div>
+							<div class="icon">
+								<i class="fas fa-file-code"></i>
+							</div>
+							<a class="small-box-footer"></a>
+						</div>
+				
+					</div>
+					<!-- ./col -->
+					<div class="col-md-3 col-sm-6 col-xs-12">
+				
+						<!-- small box -->
+						<div class="small-box bg-orange" style="cursor: pointer" data-toggle="modal" data-target="#modal-job-table" ng-click="onJobStatusClicked('waiting')">
+							<div class="inner">
+								<h3>{{getNumberForStatus('waiting')}}</h3>
+				
+								<p>wartende Jobs</p>
+							</div>
+							<div class="icon">
+								<i class="fas fa-file-code"></i>
+							</div>
+							<a class="small-box-footer"></a>
+						</div>
+				
+					</div>
+					<!-- ./col -->
+
+					<div class="col-md-3 col-sm-6 col-xs-12">
+				
+						<!-- small box -->
+						<div class="small-box bg-gray" style="cursor: pointer" data-toggle="modal" data-target="#modal-job-table" ng-click="onJobStatusClicked('delayed')">
+							<div class="inner">
+								<h3>{{getNumberForStatus('delayed')}}</h3>
+				
+								<p>wartende Jobs</p>
+							</div>
+							<div class="icon">
+								<i class="fas fa-file-code"></i>
+							</div>
+							<a class="small-box-footer"></a>
+						</div>
+				
+					</div>
+					<!-- ./col -->
+
+				</div>
+				<!-- ./row -->
+
+				<div class="modal fade" id="modal-job-table" role="dialog">
+					<div class="modal-dialog modal-xl">
+						<div class="modal-content">
+							<div class="modal-header" ng-class="statusDescriptions[selectedStatus].backgroundClass">
+								<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+									<span aria-hidden="true">&times;</span></button>
+								<h4 class="modal-title">{{statusDescriptions[selectedStatus].title}}</h4>
+							</div>
+							<div class="modal-body">
+								<table id="jobExecutionTable_customizedComputation_new" style="height: 75vh; width: 100%;" class="ag-theme-alpine"></table>
+							</div>
+						</div>
+					</div>
 				</div>
 			</div>
 			<!-- /.box-body -->

@@ -15,67 +15,118 @@ angular.module('adminScriptExecution').component('adminScriptExecution', {
 		$scope.customizedComputationJobHealth;
 		$scope.selectAllEntriesInput = false;
 
-		$scope.jobDescriptions = [{
-			"jobSummary": [
-				{
-					"spatialUnitId": "stadtteile",
-					"modifiedResource": "https://kommonitor-data-management-api/indicators/<indicatotrId>/<spatialUnitId>/",
-					"numberOfIntegratedIndicatorFeatures": 50,            
-					"integratedTargetDates": ["2025-01-15", "2024-01-15"],
-					"errorsOccurred": [
-							{
-									"type": "missingTimestamp", 
-									"affectedResourceType": "indicator" | "georesource",
-									"affectedDatasetId": "indicatorId" | "georesourceId",
-									"affectedTimestamps" : ["2024-12-31", "2023-12-31"],
-									"affectedSpatialUnitFeatures": [],
-									"errorMessage": "string"
-							},
-							{
-									"type": "missingDataset", 
-									"affectedResourceType": "indicator" | "georesource",
-									"affectedDatasetId": "indicatorId" | "georesourceId",
-									"affectedTimestamps" : [],
-									"affectedSpatialUnitFeatures": [],
-									"errorMessage": "string"
-							},
-							{
-									"type": "missingSpatialUnit", 
-									"affectedResourceType": "indicator",
-									"affectedDatasetId": "indicatorId",
-									"affectedTimestamps" : [],
-									"affectedSpatialUnitFeatures": [],
-									"errorMessage": "string"
-							},
-							{
-									"type": "missingSpatialUnitFeature", 
-									"affectedResourceType": "indicator",
-									"affectedDatasetId": "indicatorId",
-									"affectedTimestamps" : [],
-									"affectedSpatialUnitFeatures": ["Kupferdreh_Id", "Kettwig_Id"],
-									"errorMessage": "string"
-							},
-							{
-									"type": "dataManagementApiError", // bei nicht vorhandenem Datenzugriff, sonstigen API Fehlern
-									"affectedResourceType": "string",
-									"dataManagementApiErrorCode": 401,
-									"affectedDatasetId": "string",
-									"affectedTimestamps" : [],
-									"affectedSpatialUnitFeatures": [],
-									"errorMessage": "Data-Management error message"
-							},
-							{
-									"type": "processingError", // tritt bei Fehlern innerhalb des eigentlichen Prozesses auf (teilen durch null, ungültige Geometrieoperationen)
-									"affectedResourceType": "indicator" | "georesource",
-									"affectedDatasetId": "indicatorId" | "georesourceId",
-									"affectedTimestamps" : [],
-									"affectedSpatialUnitFeatures": [],
-									"errorMessage": "string"
-							}
-					]
-				}
-			]  
-		}]
+		$scope.jobDescriptions = [
+			{
+				"jobId": 5,
+				"status": "failed",
+				"progress": "",
+				"jobSummary": [
+					{
+						"spatialUnitId": "stadtteile",
+						"modifiedResource": "https://kommonitor-data-management-api/indicators/<indicatotrId>/<spatialUnitId>/",
+						"numberOfIntegratedIndicatorFeatures": 50,            
+						"integratedTargetDates": ["2025-01-15", "2024-01-15"],
+						"errorsOccurred": [
+								{
+										"type": "missingTimestamp", 
+										"affectedResourceType": "indicator" | "georesource",
+										"affectedDatasetId": "indicatorId" | "georesourceId",
+										"affectedTimestamps" : ["2024-12-31", "2023-12-31"],
+										"affectedSpatialUnitFeatures": [],
+										"errorMessage": "string"
+								},
+								{
+										"type": "missingDataset", 
+										"affectedResourceType": "indicator" | "georesource",
+										"affectedDatasetId": "indicatorId" | "georesourceId",
+										"affectedTimestamps" : [],
+										"affectedSpatialUnitFeatures": [],
+										"errorMessage": "string"
+								},
+								{
+										"type": "missingSpatialUnit", 
+										"affectedResourceType": "indicator",
+										"affectedDatasetId": "indicatorId",
+										"affectedTimestamps" : [],
+										"affectedSpatialUnitFeatures": [],
+										"errorMessage": "string"
+								},
+								{
+										"type": "missingSpatialUnitFeature", 
+										"affectedResourceType": "indicator",
+										"affectedDatasetId": "indicatorId",
+										"affectedTimestamps" : [],
+										"affectedSpatialUnitFeatures": ["Kupferdreh_Id", "Kettwig_Id"],
+										"errorMessage": "string"
+								},
+								{
+										"type": "dataManagementApiError", // bei nicht vorhandenem Datenzugriff, sonstigen API Fehlern
+										"affectedResourceType": "string",
+										"dataManagementApiErrorCode": 401,
+										"affectedDatasetId": "string",
+										"affectedTimestamps" : [],
+										"affectedSpatialUnitFeatures": [],
+										"errorMessage": "Data-Management error message"
+								},
+								{
+										"type": "processingError", // tritt bei Fehlern innerhalb des eigentlichen Prozesses auf (teilen durch null, ungültige Geometrieoperationen)
+										"affectedResourceType": "indicator" | "georesource",
+										"affectedDatasetId": "indicatorId" | "georesourceId",
+										"affectedTimestamps" : [],
+										"affectedSpatialUnitFeatures": [],
+										"errorMessage": "string"
+								}
+						]
+					}
+				]  
+			},
+			{
+				"jobId": 8,
+				"status": "waiting",
+				"progress": "",
+				"jobSummary": [
+					{
+						"spatialUnitId": "stadtteile",
+						"modifiedResource": "https://kommonitor-data-management-api/indicators/<indicatotrId>/<spatialUnitId>/",
+						"numberOfIntegratedIndicatorFeatures": 50,            
+						"integratedTargetDates": ["2025-01-15", "2024-01-15"],
+						"errorsOccurred": [
+								{
+										"type": "processingError", // tritt bei Fehlern innerhalb des eigentlichen Prozesses auf (teilen durch null, ungültige Geometrieoperationen)
+										"affectedResourceType": "indicator" | "georesource",
+										"affectedDatasetId": "indicatorId" | "georesourceId",
+										"affectedTimestamps" : [],
+										"affectedSpatialUnitFeatures": [],
+										"errorMessage": "string"
+								}
+						]
+					}
+				]  
+			},
+			{
+				"jobId": 42,
+				"status": "succeeded",
+				"progress": "",
+				"jobSummary": [
+					{
+						"spatialUnitId": "stadtteile",
+						"modifiedResource": "https://kommonitor-data-management-api/indicators/<indicatotrId>/<spatialUnitId>/",
+						"numberOfIntegratedIndicatorFeatures": 50,            
+						"integratedTargetDates": ["2025-01-15", "2024-01-15"],
+						"errorsOccurred": [
+								{
+										"type": "processingError", // tritt bei Fehlern innerhalb des eigentlichen Prozesses auf (teilen durch null, ungültige Geometrieoperationen)
+										"affectedResourceType": "indicator" | "georesource",
+										"affectedDatasetId": "indicatorId" | "georesourceId",
+										"affectedTimestamps" : [],
+										"affectedSpatialUnitFeatures": [],
+										"errorMessage": "string"
+								}
+						]
+					}
+				]  
+			},
+		]
 
 		$scope.fetchDefaultIndicatorJobs = function(){
             return $http({
@@ -161,6 +212,18 @@ angular.module('adminScriptExecution').component('adminScriptExecution', {
 			$scope.loadingData = false;
 		};
 
+		$scope.onJobStatusClicked = function (status){
+			$scope.selectedStatus = status;
+
+			$scope.filteredJobDescriptions = [];
+			for (job of $scope.jobDescriptions) {
+				if (job.status == status) {
+					$scope.filteredJobDescriptions.push(job);
+				}
+			}
+			kommonitorDataGridHelperService.buildDataGrid_customizedJobs_new($scope.filteredJobDescriptions);
+		}
+
 		$scope.$on("refreshJobOverviewTable", function (event) {
 			$scope.loadingData = true;
 			$scope.refreshJobOverviewTable();
@@ -195,6 +258,38 @@ angular.module('adminScriptExecution').component('adminScriptExecution', {
 			return kommonitorDataExchangeService.syntaxHighlightJSON(json);
 		};
 
+		$scope.getNumberForStatus = function(status){
+			let i = 0;
+			for (const job of $scope.jobDescriptions) {
+				if (job.status == status){
+					i++;
+				}
+			}
+			return i;
+		}
+
+		$scope.statusDescriptions = {
+			waiting: {
+				title: "wartende Jobs",
+				backgroundClass: "bg-orange",
+			},
+			delayed: {
+				title: "verzögerte Jobs",
+				backgroundClass: "bg-gray",
+			},
+			active: {
+				title: "laufende Jobs",
+				backgroundClass: "bg-aqua",
+			},
+			failed: {
+				title: "gescheiterte Jobs",
+				backgroundClass: "bg-red",
+			},
+			succeeded: {
+				title: "abgeschlossene Jobs",
+				backgroundClass: "bg-green",
+			}
+		}
 	}
 	]
 });

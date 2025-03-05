@@ -2661,7 +2661,7 @@ angular
 
             this.buildDataGridColumnConfig_customizedJobs_new = function(){
               const columnDefs = [
-                { headerName: 'Job-Id', field: "jobId", pinned: 'left', maxWidth: 125, checkboxSelection: true, headerCheckboxSelection: true, 
+                { headerName: 'Job-Id', field: "jobId", pinned: 'left', maxWidth: 125, checkboxSelection: false, headerCheckboxSelection: false, 
                 headerCheckboxSelectionFilteredOnly: true},
                 { headerName: 'Job-Status', field: "status", maxWidth: 125 },
                 { headerName: 'Job-Fortschritt', field: "progress", maxWidth: 125 },
@@ -2783,8 +2783,7 @@ angular
                   columnDefs: columnDefs,
                   rowData: rowData,
                   suppressRowClickSelection: true,
-                  rowSelection: 'multiple',
-                  enableCellTextSelection: true,
+                  enableCellTextSelection: false,
                   ensureDomOrder: true,
                   pagination: true,
                   paginationPageSize: 10,
