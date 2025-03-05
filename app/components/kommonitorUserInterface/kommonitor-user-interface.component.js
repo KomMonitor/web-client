@@ -95,6 +95,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 		$scope.sidebarReachabilityClass = "disappear";
 		$scope.sidebarPoiClass = "disappear";
 		$scope.sidebarDataImportClass = "disappear";
+		$scope.sidebarNotifierClass = "disappear";
 
 		$scope.sidebarLegendClass = "";
 
@@ -108,6 +109,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 		$scope.buttonReachabilityClass = "btn btn-custom btn-circle";
 		$scope.buttonPoiClass = "btn btn-custom btn-circle";
 		$scope.buttonDataImportClass = "btn btn-custom btn-circle";
+		$scope.buttonNotifierClass = "btn btn-custom btn-circle";
 
 		$scope.buttonLegendClass = "btn btn-custom-docked-right btn-docked-right";
 
@@ -195,6 +197,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 			$scope.buttonReachabilityClass = "btn btn-custom btn-circle";
 			$scope.buttonPoiClass = "btn btn-custom btn-circle";
 			$scope.buttonDataImportClass = "btn btn-custom btn-circle";
+			$scope.buttonNotifierClass = "btn btn-custom btn-circle";
 
 			// in addition check if balance menue and button are allowed for current indicator
 			// it is not allowed if indicator is of type "DYNAMIC"
@@ -212,6 +215,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 			$scope.sidebarReachabilityClass = "disappear";
 			$scope.sidebarPoiClass = "disappear";
 			$scope.sidebarDataImportClass = "disappear";
+			$scope.sidebarNotifierClass = "disappear";
 		};
 
 		$scope.checkBalanceButtonAndMenueState = function(){
@@ -228,6 +232,30 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 		$scope.$on("checkBalanceMenueAndButton", function(event){
 			$scope.checkBalanceButtonAndMenueState();
 		});
+
+		$scope.onSidebarNotifierButtonClick = function () {
+			$scope.undockButtons();
+
+			if ($scope.sidebarNotifierClass == "disappear") {
+				console.log("Hiding Sidebar...");
+				$scope.hideSidebars();
+				$scope.sidebarNotifierClass = "";  // Remove class to show sidebar
+				$scope.buttonNotifierClass = "btn btn-custom-docked btn-docked";
+
+				if (!kommonitorDataExchangeService.anySideBarIsShown) {
+					$rootScope.$broadcast("recenterMapOnShowSideBar");
+				}
+				kommonitorDataExchangeService.anySideBarIsShown = true;
+			} else {
+				
+				$scope.sidebarNotifierClass = "disappear";  // Add class to hide sidebar
+				$rootScope.$broadcast("recenterMapOnHideSideBar");
+				kommonitorDataExchangeService.anySideBarIsShown = false;
+			}
+
+			$rootScope.$broadcast("refreshIndicatorValueRangeSlider");
+			$rootScope.$broadcast("redrawGuidedTourElement");
+		};
 
 		$scope.onSidebarIndicatorButtonClick = function(){
 			$scope.undockButtons();
