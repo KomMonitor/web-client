@@ -216,4 +216,8 @@ export class DataExchangeService {
   selectedSpatialUnitIsRaster() {
     return this.ajskommonitorDataExchangeServiceeProvider.selectedSpatialUnitIsRaster();
   }
+
+  generateAndDownloadGeoresourceZIP(poi, geoJSON_string, fileName, extension, val) {
+    this.ajskommonitorDataExchangeServiceeProvider.generateAndDownloadGeoresourceZIP(poi, geoJSON_string, fileName, extension, val);
+  }
 }

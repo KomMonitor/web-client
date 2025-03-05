@@ -1,4 +1,6 @@
+import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
+import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchange, DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { MapService } from 'services/map-service/map.service';
 
@@ -38,7 +40,9 @@ export class PoiComponent implements OnInit{
 
   constructor(
     protected dataExchangeService: DataExchangeService,
-    private mapService: MapService
+    private mapService: MapService,
+    private broadcastService: BroadcastService,
+    private http: HttpClient
   ) {
     this.exchangeData = dataExchangeService.pipedData;
   }
@@ -49,6 +53,17 @@ export class PoiComponent implements OnInit{
       this.preppedTopicGeoresourceHierarchy = this.prepareTopicGeoresourceHierarchyRecursive(this.exchangeData.topicGeoresourceHierarchy);
        this.addClickListenerToEachCollapseTrigger();
     },2000);
+
+    this.broadcastService.currentBroadcastMsg.subscribe(broadcastMsg => {
+      let title = broadcastMsg.msg;
+      let values:any = broadcastMsg.values;
+
+      switch (title) {
+        case 'selectedIndicatorDateHasChanged': {
+          this.selectedIndicatorDateHasChanged();
+        } break;
+      }
+    });
   }
 
   onTopicClick(topicID:string) {
@@ -99,14 +114,14 @@ export class PoiComponent implements OnInit{
 
   showAllForTopic_null = false;
 
-  onChangeGeoresourceKeywordFilter(georesourceNameFilter, showPOI, showLOI, showAOI, showWMS, showWFS){     
-    showPOI = showPOI;
-    showLOI = showLOI;
-    showAOI = showAOI;
-    showWMS = showWMS;
-    showWFS = showWFS;
+  onChangeGeoresourceKeywordFilter(){    
 
-    this.dataExchangeService.onChangeGeoresourceKeywordFilter(georesourceNameFilter, showPOI, showLOI, showAOI, showWMS, showWFS);
+    this.dataExchangeService.onChangeGeoresourceKeywordFilter(this.georesourceNameFilter.value, this.showPOI, this.showLOI, this.showAOI, this.showWMS, this.showWFS);
+
+    window.setTimeout( () => {
+      this.preppedTopicGeoresourceHierarchy = this.prepareTopicGeoresourceHierarchyRecursive(this.exchangeData.topicGeoresourceHierarchy);
+       this.addClickListenerToEachCollapseTrigger();
+    },250);
   }						
   
 
@@ -424,8 +439,7 @@ export class PoiComponent implements OnInit{
 
   };
 
-  // todo
- /*  $scope.$on("selectedIndicatorDateHasChanged", function (event) {
+  selectedIndicatorDateHasChanged() {
 
     console.log("refresh selected georesource layers according to new date");
 
@@ -434,17 +448,17 @@ export class PoiComponent implements OnInit{
       return;
     }
 
-    $timeout(function(){
+    setTimeout(() => {
 
       this.loadingData = true;
-      // todo $rootScope.$broadcast("showLoadingIconOnMap");
+      this.broadcastService.broadcast('showLoadingIconOnMap');
     });
 
-    $timeout(function(){
+    setTimeout(() => {
 
       this.refreshSelectedGeoresources();
     }, 250);							
-  }); */
+  }
 
   refreshSelectedGeoresources(){
     for (const georesource of this.exchangeData.displayableGeoresources_keywordFiltered) {
@@ -479,8 +493,6 @@ export class PoiComponent implements OnInit{
 
   onChangeSelectedDate(georesourceDataset){
     // only if it s already selected, we must modify the shown dataset 
-
-
     if(georesourceDataset.isSelected){
       // depending on type we must call different methods
       if (georesourceDataset.isPOI){
@@ -537,8 +549,7 @@ export class PoiComponent implements OnInit{
 
   addPoiLayerToMap(poiGeoresource, useCluster) {
     this.loadingData = true;
-    // todo
-    // // todo $rootScope.$broadcast("showLoadingIconOnMap");
+    this.broadcastService.broadcast('showLoadingIconOnMap');
 
     var id = poiGeoresource.georesourceId;
 
@@ -550,43 +561,31 @@ export class PoiComponent implements OnInit{
     var month = dateComps[1];
     var day = dateComps[2];
 
-    // todo
-  /*   await $http({
-      url: kommonitorDataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/georesources/" + id + "/" + year + "/" + month + "/" + day,
-      method: "GET"
-    }).then(function successCallback(response) {
-        // this callback will be called asynchronously
-        // when the response is available
-        var geoJSON = response.data;
+    let url = this.dataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/georesources/" + id + "/" + year + "/" + month + "/" + day;
+    this.http.get(url).subscribe({
+      next: response => {
+        var geoJSON = response;
 
         poiGeoresource.geoJSON = geoJSON;
 
         this.mapService.addPoiGeoresourceGeoJSON(poiGeoresource, date, useCluster);
         this.loadingData = false;
-        // todo $rootScope.$broadcast("hideLoadingIconOnMap");
-
-      }, function errorCallback(error) {
-        // called asynchronously if an error occurs
-        // or server returns response with an error status.
+      },
+      error: error => {
         this.loadingData = false;
-        kommonitorDataExchangeService.displayMapApplicationError(error);
-        // todo $rootScope.$broadcast("hideLoadingIconOnMap");
-    }); */
-
+        this.dataExchangeService.displayMapApplicationError(error);
+      }
+    })
   };
 
   removePoiLayerFromMap(poiGeoresource) {
     this.loadingData = true;
-    // todo
-    // // todo $rootScope.$broadcast("showLoadingIconOnMap");
+    this.broadcastService.broadcast('showLoadingIconOnMap');
 
     poiGeoresource = poiGeoresource;
 
     this.mapService.removePoiGeoresource(poiGeoresource);
     this.loadingData = false;
-    //todo 
-    // // todo $rootScope.$broadcast("hideLoadingIconOnMap");
-
   };
 
   refreshPoiLayers(){
@@ -624,24 +623,22 @@ export class PoiComponent implements OnInit{
     var url = this.dataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/georesources/" + poi.georesourceId + "/" + year + "/" + month + "/" + day;
     var fileName = poi.datasetName + "-" + year + "-" + month + "-" + day;
 
-    // todo
-  /*   $http({
-      url: url,
-      method: "GET"
-    }).then(function successCallback(response) {
+    this.http.get(url).subscribe({
+      next: response => {
         // this callback will be called asynchronously
         // when the response is available
-        var geoJSON_string = JSON.stringify(response.data);
+        var geoJSON_string = JSON.stringify(response);
 
-        kommonitorDataExchangeService.generateAndDownloadGeoresourceZIP(poi, geoJSON_string, fileName, ".geojson", {});
-
-      }, function errorCallback(error) {
+        this.dataExchangeService.generateAndDownloadGeoresourceZIP(poi, geoJSON_string, fileName, ".geojson", {});
+      },
+      error: error => {
         // called asynchronously if an error occurs
         // or server returns response with an error status.
         this.loadingData = false;
-        kommonitorDataExchangeService.displayMapApplicationError(error);
+        this.dataExchangeService.displayMapApplicationError(error);
         // todo $rootScope.$broadcast("hideLoadingIconOnMap");
-    }); */
+      }
+    })
 
   };
 
@@ -670,8 +667,7 @@ export class PoiComponent implements OnInit{
 
   addAoiLayerToMap(aoiGeoresource) {
     this.loadingData = true;
-    // todo
-    // // todo $rootScope.$broadcast("showLoadingIconOnMap");
+    this.broadcastService.broadcast('showLoadingIconOnMap');
 
     var id = aoiGeoresource.georesourceId;
 
@@ -683,29 +679,26 @@ export class PoiComponent implements OnInit{
     var month = dateComps[1];
     var day = dateComps[2];
 
-    // todo
-   /*  await $http({
-      url: kommonitorDataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/georesources/" + id + "/" + year + "/" + month + "/" + day,
-      method: "GET"
-    }).then(function successCallback(response) {
+    let url = this.dataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/georesources/" + id + "/" + year + "/" + month + "/" + day;
+    this.http.get(url).subscribe({
+      next: response => {
         // this callback will be called asynchronously
         // when the response is available
-        var geoJSON = response.data;
+        var geoJSON = response;
 
         aoiGeoresource.geoJSON = geoJSON;
 
         this.mapService.addAoiGeoresourceGeoJSON(aoiGeoresource, date);
         this.loadingData = false;
-        // todo $rootScope.$broadcast("hideLoadingIconOnMap");
-
-      }, function errorCallback(error) {
+      },
+      error: error => {
         // called asynchronously if an error occurs
         // or server returns response with an error status.
         this.loadingData = false;
-        kommonitorDataExchangeService.displayMapApplicationError(error);
+        this.dataExchangeService.displayMapApplicationError(error);
         // todo $rootScope.$broadcast("hideLoadingIconOnMap");
-    }); */
-
+      }
+    })
   };
 
   removeAoiLayerFromMap(aoiGeoresource) {
@@ -715,7 +708,7 @@ export class PoiComponent implements OnInit{
 
     aoiGeoresource = aoiGeoresource;
 
-    this.dataExchangeService.removeAoiGeoresource(aoiGeoresource);
+    this.mapService.removeAoiGeoresource(aoiGeoresource);
     this.loadingData = false;
     // todo 
     // // todo $rootScope.$broadcast("hideLoadingIconOnMap");
@@ -734,14 +727,11 @@ export class PoiComponent implements OnInit{
     var url = this.dataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/georesources/" + aoi.georesourceId + "/" + year + "/" + month + "/" + day;
     var fileName = aoi.datasetName + "-" + year + "-" + month + "-" + day;
 
-    // todo
-  /*   $http({
-      url: url,
-      method: "GET"
-    }).then(function successCallback(response) {
+    this.http.get(url).subscribe({
+      next: response => {
         // this callback will be called asynchronously
         // when the response is available
-        var geoJSON = response.data;
+        var geoJSON = response;
 
         var element = document.createElement('a');
         element.setAttribute('href', 'data:application/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(geoJSON)));
@@ -753,14 +743,15 @@ export class PoiComponent implements OnInit{
         element.click();
 
         document.body.removeChild(element);
-
-      }, function errorCallback(error) {
+      },
+      error: error => {
         // called asynchronously if an error occurs
         // or server returns response with an error status.
         this.loadingData = false;
-        kommonitorDataExchangeService.displayMapApplicationError(error);
+        this.dataExchangeService.displayMapApplicationError(error);
         // todo $rootScope.$broadcast("hideLoadingIconOnMap");
-    }); */
+      }
+    })
 
   };
 
@@ -786,8 +777,7 @@ export class PoiComponent implements OnInit{
 
     addLoiLayerToMap(loiGeoresource) {
       this.loadingData = true;
-      // todo
-      // // todo $rootScope.$broadcast("showLoadingIconOnMap");
+      this.broadcastService.broadcast('showLoadingIconOnMap');
 
       var id = loiGeoresource.georesourceId;
 
@@ -799,42 +789,33 @@ export class PoiComponent implements OnInit{
       var month = dateComps[1];
       var day = dateComps[2];
 
-      // todo
-    /*   await $http({
-        url: kommonitorDataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/georesources/" + id + "/" + year + "/" + month + "/" + day,
-        method: "GET"
-      }).then(function successCallback(response) {
-          // this callback will be called asynchronously
-          // when the response is available
-          var geoJSON = response.data;
+      let url = this.dataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/georesources/" + id + "/" + year + "/" + month + "/" + day;
+      this.http.get(url).subscribe({
+        next: response => {
+          var geoJSON = response;
 
           loiGeoresource.geoJSON = geoJSON;
 
           this.mapService.addLoiGeoresourceGeoJSON(loiGeoresource, date);
           this.loadingData = false;
-          // todo $rootScope.$broadcast("hideLoadingIconOnMap");
-
-        }, function errorCallback(error) {
+        },
+        error: error => {
           // called asynchronously if an error occurs
           // or server returns response with an error status.
           this.loadingData = false;
-          kommonitorDataExchangeService.displayMapApplicationError(error);
-          // todo $rootScope.$broadcast("hideLoadingIconOnMap");
-      }); */
-
+          this.dataExchangeService.displayMapApplicationError(error);
+        }
+      });
     };
 
     removeLoiLayerFromMap(loiGeoresource) {
       this.loadingData = true;
-      // todo 
-      // // todo $rootScope.$broadcast("showLoadingIconOnMap");
+      this.broadcastService.broadcast('showLoadingIconOnMap');
 
       loiGeoresource = loiGeoresource;
 
       this.mapService.removeLoiGeoresource(loiGeoresource);
       this.loadingData = false;
-      // todo
-      // // todo $rootScope.$broadcast("hideLoadingIconOnMap");
 
     };
 
@@ -850,14 +831,11 @@ export class PoiComponent implements OnInit{
       var url = this.dataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/georesources/" + aoi.georesourceId + "/" + year + "/" + month + "/" + day;
       var fileName = aoi.datasetName + "-" + year + "-" + month + "-" + day;
 
-      // todo
-    /*   $http({
-        url: url,
-        method: "GET"
-      }).then(function successCallback(response) {
+      this.http.get(url).subscribe({
+        next: response => {
           // this callback will be called asynchronously
           // when the response is available
-          var geoJSON = response.data;
+          var geoJSON = response;
 
           var element = document.createElement('a');
           element.setAttribute('href', 'data:application/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(geoJSON)));
@@ -869,14 +847,15 @@ export class PoiComponent implements OnInit{
           element.click();
 
           document.body.removeChild(element);
-
-        }, function errorCallback(error) {
+        },
+        error: error => {
           // called asynchronously if an error occurs
           // or server returns response with an error status.
           this.loadingData = false;
-          kommonitorDataExchangeService.displayMapApplicationError(error);
+          this.dataExchangeService.displayMapApplicationError(error);
           // todo $rootScope.$broadcast("hideLoadingIconOnMap");
-      }); */
+        }
+      })
 
   };
 
@@ -894,7 +873,6 @@ export class PoiComponent implements OnInit{
     else{
       //remove WMS layer from map
       this.mapService.removeWmsLayerFromMap(dataset);
-
     }
   };
 

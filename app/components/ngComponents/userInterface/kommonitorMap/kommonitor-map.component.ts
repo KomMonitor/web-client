@@ -6,6 +6,8 @@ import { DataExchange, DataExchangeService } from 'services/data-exchange-servic
 import { FilterHelperService } from 'services/filter-helper-service/filter-helper.service';
 import { VisualStyleHelperServiceNew } from 'services/visual-style-helper-service/visual-style-helper.service';
 import jStat from 'jstat';
+import { GenericMapHelperService } from 'services/generic-map-helper-service/generic-map-helper.service';
+import * as turf from '@turf/turf';
 
 @Component({
   selector: 'app-kommonitor-map',
@@ -158,7 +160,8 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     private http: HttpClient,
     private broadcastService: BroadcastService,
     private visualStyleHelperService: VisualStyleHelperServiceNew,
-    private filterHelperService: FilterHelperService
+    private filterHelperService: FilterHelperService,
+    private genericMapHelperService: GenericMapHelperService
   ) { 
     this.exchangeData = this.dataExchangeService.pipedData;
     this.exchangeData.useOutlierDetectionOnIndicator = this.useOutlierDetectionOnIndicator;
@@ -247,6 +250,36 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         } break;
         case 'hideLoadingIconOnMap' : {
           this.hideLoadingIconOnMap();
+        } break;
+        case 'addPoiGeoresourceAsGeoJSON': {
+          this.addPoiGeoresourceAsGeoJSON(values);
+        } break;
+        case 'removePoiGeoresource' : {
+          this.removePoiGeoresource(values);
+        } break;  
+        case 'addWmsLayerToMap': {
+          this.addWmsLayerToMap(values);
+        } break;
+        case 'removeWmsLayerFromMap': {
+          this.removeWmsLayerFromMap(values);
+        } break;
+        case 'addWfsLayerToMap': {
+          this.addWfsLayerToMap(values);
+        } break;
+        case 'removeWfsLayerFromMap': {
+          this.removeWfsLayerFromMap(values)
+        } break;
+        case 'addLoiGeoresourceAsGeoJSON': {
+          this.addLoiGeoresourceAsGeoJSON(values);
+        } break;
+        case 'removeLoiGeoresource': {
+          this.removeLoiGeoresource(values);
+        } break;
+        case 'addAoiGeoresourceAsGeoJSON': {
+          this.addAoiGeoresourceAsGeoJSON(values);
+        } break;
+        case 'removeAoiGeoresource': {
+          this.removeAoiGeoresource(values);
         } break;
        }
     });
@@ -1301,13 +1334,13 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
    * binds the popup of a clicked output
    * to layer.feature.properties.popupContent
    */
- /*  function onEachFeatureGeoresource(feature, layer) {
+  onEachFeatureGeoresource(feature, layer) {
     // does this feature have a property named popupContent?
     layer.on({
-      click: function () {
+      click: () => {
 
-        popupContent = '<div class="georesourceInfoPopupContent featurePropertyPopupContent"><table class="table table-condensed">';
-        for (p in feature.properties) {
+        let popupContent = '<div class="georesourceInfoPopupContent featurePropertyPopupContent"><table class="table table-condensed">';
+        for (let p in feature.properties) {
             popupContent += '<tr><td>' + p + '</td><td>'+ feature.properties[p] + '</td></tr>';
         }
         popupContent += '</table></div>';
@@ -1320,7 +1353,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         //   layer.bindPopup(propertiesString);
       }
     });
-  } */
+  }
 
   /**
    * binds the popup of a clicked output
@@ -1467,17 +1500,19 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
     $scope.map.invalidateSize(true);
   });        
-
-  $scope.$on("addPoiGeoresourceAsGeoJSON", function (event, georesourceMetadataAndGeoJSON, date, useCluster) {
+  */
+  
+  addPoiGeoresourceAsGeoJSON([georesourceMetadataAndGeoJSON, date, useCluster]) {
 
     // use leaflet.markercluster to cluster markers!
-    markers;
-    if (useCluster) {
+    let markers:any;
+    // todo markerClusterGroup
+   /*  if (useCluster) {
       markers = L.markerClusterGroup({
         iconCreateFunction: function (cluster) {
-          childCount = cluster.getChildCount();
+          let childCount = cluster.getChildCount();
 
-          c = 'cluster-';
+          let c = 'cluster-';
           if (childCount < 10) {
             c += 'small';
           } else if (childCount < 30) {
@@ -1486,23 +1521,22 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
             c += 'large';
           }
 
-          className = "marker-cluster " + c + " awesome-marker-legend-TransparentIcon-" + georesourceMetadataAndGeoJSON.poiMarkerColor;
+          let className = "marker-cluster " + c + " awesome-marker-legend-TransparentIcon-" + georesourceMetadataAndGeoJSON.poiMarkerColor;
 
           //'marker-cluster' + c + ' ' +
           return new L.DivIcon({ html: '<div class="awesome-marker-legend-icon-' + georesourceMetadataAndGeoJSON.poiMarkerColor + '" ><span>' + childCount + '</span></div>', className: className, iconSize: new L.Point(40, 40) });
         }
       });
-    }
-    else {
+    } else { */
       markers = L.featureGroup();
-    }          
+   /*  } */       
 
-    georesourceMetadataAndGeoJSON.geoJSON.features.forEach(function (poiFeature) {
+    georesourceMetadataAndGeoJSON.geoJSON.features.forEach((poiFeature) => {
       // index 0 should be longitude and index 1 should be latitude
       //.bindPopup( poiFeature.properties.name )
-      newMarker = kommonitorGenericMapHelperService.createCustomMarker(poiFeature, georesourceMetadataAndGeoJSON.poiMarkerStyle, georesourceMetadataAndGeoJSON.poiMarkerText, georesourceMetadataAndGeoJSON.poiSymbolColor, georesourceMetadataAndGeoJSON.poiMarkerColor, georesourceMetadataAndGeoJSON.poiSymbolBootstrap3Name, georesourceMetadataAndGeoJSON);            
+      let newMarker = this.genericMapHelperService.createCustomMarker(poiFeature, georesourceMetadataAndGeoJSON.poiMarkerStyle, georesourceMetadataAndGeoJSON.poiMarkerText, georesourceMetadataAndGeoJSON.poiSymbolColor, georesourceMetadataAndGeoJSON.poiMarkerColor, georesourceMetadataAndGeoJSON.poiSymbolBootstrap3Name, georesourceMetadataAndGeoJSON);            
       
-      markers = kommonitorGenericMapHelperService.addPoiMarker(markers, newMarker);
+      markers = this.genericMapHelperService.addPoiMarker(markers, newMarker);
     });
 
     // markers.StyledLayerControl = {
@@ -1510,32 +1544,38 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     //   visible : true
     // };
 
-    $scope.layerControl.addOverlay(markers, georesourceMetadataAndGeoJSON.datasetName + "_" + date, poiLayerGroupName);
-    markers.addTo($scope.map);
-    $scope.updateSearchControl();
+    this.layerControl.addOverlay(markers, georesourceMetadataAndGeoJSON.datasetName + "_" + date, this.poiLayerGroupName);
+    markers.addTo(this.map);
+    this.updateSearchControl();
     // $scope.map.addLayer( markers );
-    $scope.map.invalidateSize(true);
-  });
+    this.map.invalidateSize(true);
 
-  $scope.$on("removePoiGeoresource", function (event, georesourceMetadataAndGeoJSON) {
+    this.hideLoadingIconOnMap();
+  }
 
-    layerName = georesourceMetadataAndGeoJSON.datasetName;
 
-    $scope.layerControl._layers.forEach(function (layer) {
-      if (layer.group.name === poiLayerGroupName && layer.name.includes(layerName + "_")) {
-        $scope.layerControl.removeLayer(layer.layer);
-        $scope.map.removeLayer(layer.layer);
-        $scope.updateSearchControl();
+  removePoiGeoresource(georesourceMetadataAndGeoJSON) {
+
+    let layerName = georesourceMetadataAndGeoJSON.datasetName;
+
+    this.layerControl._layers.forEach( (layer)  => {
+      //if (layer.group.name === poiLayerGroupName && layer.name.includes(layerName + "_")) {
+      if (layer.name.includes(layerName + "_")) {
+        this.layerControl.removeLayer(layer.layer);
+        this.map.removeLayer(layer.layer);
+        this.updateSearchControl();
       }
     });
-  });
+    
+    this.hideLoadingIconOnMap();
+  }
+  
+  addAoiGeoresourceAsGeoJSON([georesourceMetadataAndGeoJSON, date]) {
 
-  $scope.$on("addAoiGeoresourceAsGeoJSON", function (event, georesourceMetadataAndGeoJSON, date) {
+    let color = georesourceMetadataAndGeoJSON.aoiColor;
 
-    color = georesourceMetadataAndGeoJSON.aoiColor;
-
-    layer = L.geoJSON(georesourceMetadataAndGeoJSON.geoJSON, {
-      style: function (feature) {
+    let layer = L.geoJSON(georesourceMetadataAndGeoJSON.geoJSON, {
+      style: (feature) => {
         return {
           fillColor: color,
           color: "black",
@@ -1544,7 +1584,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
           fillOpacity: 0.7
         };
       },
-      onEachFeature: onEachFeatureGeoresource
+      onEachFeature: this.onEachFeatureGeoresource
     });
 
     // layer.StyledLayerControl = {
@@ -1552,56 +1592,60 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     //   visible : true
     // };
 
-    $scope.layerControl.addOverlay(layer, georesourceMetadataAndGeoJSON.datasetName + "_" + date, aoiLayerGroupName);
-    layer.addTo($scope.map);
-    $scope.updateSearchControl();
+    this.layerControl.addOverlay(layer, georesourceMetadataAndGeoJSON.datasetName + "_" + date, this.aoiLayerGroupName);
+    layer.addTo(this.map);
+    this.updateSearchControl();
 
-    $scope.map.invalidateSize(true);
-  });
+    this.map.invalidateSize(true);
+    
+    this.hideLoadingIconOnMap();
+  }
 
-  $scope.$on("removeAoiGeoresource", function (event, georesourceMetadataAndGeoJSON) {
+  removeAoiGeoresource([georesourceMetadataAndGeoJSON]) {
 
-    layerName = georesourceMetadataAndGeoJSON.datasetName;
+    let layerName = georesourceMetadataAndGeoJSON.datasetName;
 
-    $scope.layerControl._layers.forEach(function (layer) {
-      if (layer.group.name === aoiLayerGroupName && layer.name.includes(layerName + "_")) {
-        $scope.layerControl.removeLayer(layer.layer);
-        $scope.map.removeLayer(layer.layer);
-        $scope.updateSearchControl();
+    this.layerControl._layers.forEach( (layer) => {
+      // todo
+      //if (layer.group.name === aoiLayerGroupName && layer.name.includes(layerName + "_")) {
+      if (layer.name.includes(layerName + "_")) {
+        this.layerControl.removeLayer(layer.layer);
+        this.map.removeLayer(layer.layer);
+        this.updateSearchControl();
       }
     });
-  });
+    
+    this.hideLoadingIconOnMap();
+  }
 
-  $scope.$on("addLoiGeoresourceAsGeoJSON", function (event, georesourceMetadataAndGeoJSON, date) {
+  addLoiGeoresourceAsGeoJSON([georesourceMetadataAndGeoJSON, date]) {
 
-    color = georesourceMetadataAndGeoJSON.aoiColor;
+    let color = georesourceMetadataAndGeoJSON.aoiColor;
 
-    featureGroup = L.featureGroup();
+    let featureGroup = L.featureGroup();
 
-    style = {
+    let style = {
       color: georesourceMetadataAndGeoJSON.loiColor,
       dashArray: georesourceMetadataAndGeoJSON.loiDashArrayString,
       weight: georesourceMetadataAndGeoJSON.loiWidth || 3,
       opacity: 1
     };
 
-
-
     georesourceMetadataAndGeoJSON.geoJSON.features.forEach((item, i) => {
-      type = item.geometry.type;
+      let type = item.geometry.type;
 
       if (type === "Polygon" || type === "MultiPolygon"){
-        lines = turf.polygonToLine(item);
+        let lines = turf.polygonToLine(item);
 
         L.geoJSON(lines, {
           style: style,
-          onEachFeature: onEachFeatureGeoresource
+          onEachFeature: this.onEachFeatureGeoresource
         }).addTo(featureGroup);
       }
       else{
         L.geoJSON(item, {
           style: style,
-          onEachFeature: onEachFeatureGeoresource
+          onEachFeature: this.onEachFeatureGeoresource
         }).addTo(featureGroup);
       }
     });
@@ -1625,28 +1669,31 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     //   visible : true
     // };
 
-    $scope.layerControl.addOverlay(featureGroup, georesourceMetadataAndGeoJSON.datasetName + "_" + date, loiLayerGroupName);
-    featureGroup.addTo($scope.map);
-    $scope.updateSearchControl();
+    this.layerControl.addOverlay(featureGroup, georesourceMetadataAndGeoJSON.datasetName + "_" + date, this.loiLayerGroupName);
+    featureGroup.addTo(this.map);
+    this.updateSearchControl();
 
-    $scope.map.invalidateSize(true);
-  });
+    this.map.invalidateSize(true);
+  }
 
-  $scope.$on("removeLoiGeoresource", function (event, georesourceMetadataAndGeoJSON) {
+  removeLoiGeoresource(georesourceMetadataAndGeoJSON) {
 
-    layerName = georesourceMetadataAndGeoJSON.datasetName;
+    let layerName = georesourceMetadataAndGeoJSON.datasetName;
 
-    $scope.layerControl._layers.forEach(function (layer) {
-      if (layer.group.name === loiLayerGroupName && layer.name.includes(layerName + "_")) {
-        $scope.layerControl.removeLayer(layer.layer);
-        $scope.map.removeLayer(layer.layer);
-        $scope.updateSearchControl();
+    this.layerControl._layers.forEach( (layer) => {
+      if (layer.name.includes(layerName + "_")) {
+      //if (layer.group.name === loiLayerGroupName && layer.name.includes(layerName + "_")) {
+        this.layerControl.removeLayer(layer.layer);
+        this.map.removeLayer(layer.layer);
+        this.updateSearchControl();
       }
     });
-  });
+    this.hideLoadingIconOnMap();
+  }
+  
+  addWmsLayerToMap([dataset, opacity]) {
 
-  $scope.$on("addWmsLayerToMap", function (event, dataset, opacity) {
-    wmsLayer = L.tileLayer.betterWms(dataset.url, {
+    let wmsLayer = L.tileLayer.wms(dataset.url, {
       layers: dataset.layerName,
       transparent: true,
       format: 'image/png',
@@ -1655,12 +1702,23 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       opacity: opacity
     });
 
-    $scope.layerControl.addOverlay(wmsLayer, dataset.title, wmsLayerGroupName);
-    wmsLayer.addTo($scope.map);
-    $scope.updateSearchControl();
-    $scope.map.invalidateSize(true);
-  });
+    // todo betterWms
+   /*  let wmsLayer = L.tileLayer.betterWms(dataset.url, {
+      layers: dataset.layerName,
+      transparent: true,
+      format: 'image/png',
+      minZoom: window.__env.minZoomLevel,
+      maxZoom: window.__env.maxZoomLevel,
+      opacity: opacity
+    }); */
 
+    this.layerControl.addOverlay(wmsLayer, dataset.title, this.wmsLayerGroupName);
+    wmsLayer.addTo(this.map);
+    this.updateSearchControl();
+    this.map.invalidateSize(true);
+    this.hideLoadingIconOnMap();
+  }
+/*
   $scope.$on("adjustOpacityForWmsLayer", function (event, dataset, opacity) {
     layerName = dataset.title;
 
@@ -1719,18 +1777,21 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       }
     });
   });
+  */
+  removeWmsLayerFromMap([dataset]) {
 
-  $scope.$on("removeWmsLayerFromMap", function (event, dataset) {
+    let layerName = dataset.title;
 
-    layerName = dataset.title;
-
-    $scope.layerControl._layers.forEach(function (layer) {
-      if (layer.group.name === wmsLayerGroupName && layer.name.includes(layerName)) {
-        $scope.layerControl.removeLayer(layer.layer);
-        $scope.map.removeLayer(layer.layer);
+    this.layerControl._layers.forEach((layer) => {
+      
+      //if (layer.group.name === this.wmsLayerGroupName && layer.name.includes(layerName)) {
+      if (layer.name.includes(layerName)) {
+        this.layerControl.removeLayer(layer.layer);
+        this.map.removeLayer(layer.layer);
       }
     });
-  });
+    this.hideLoadingIconOnMap();
+  }
 
   getWfsStyle(dataset, opacity){
 
@@ -1769,16 +1830,16 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
   };
 
-  $scope.getFilterEncoding(dataset){
+  getFilterEncoding(dataset){
 
-    filterExpressions = [];
+    let filterExpressions:any[] = [];
 
     if(dataset.filterEncoding.PropertyIsEqualTo && dataset.filterEncoding.PropertyIsEqualTo.propertyName && dataset.filterEncoding.PropertyIsEqualTo.propertyValue){
       filterExpressions.push(new L.Filter.EQ(dataset.filterEncoding.PropertyIsEqualTo.propertyName, dataset.filterEncoding.PropertyIsEqualTo.propertyValue));
     }
 
     if (dataset.filterFeaturesToMapBBOX) {
-      filterExpressions.push(new L.Filter.BBox(dataset.featureTypeGeometryName, $scope.map.getBounds(), L.CRS.EPSG3857));
+      filterExpressions.push(new L.Filter.BBox(dataset.featureTypeGeometryName, this.map.getBounds(), L.CRS.EPSG3857));
     }
 
     if (filterExpressions.length == 0){
@@ -1800,35 +1861,36 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     }          
     
   };
-
-  $scope.$on("addWfsLayerToMap", function (event, dataset, opacity, useCluster) {
-    wfsLayerOptions = {
+  
+  addWfsLayerToMap([dataset, opacity, useCluster]) {
+    let wfsLayerOptions = {
       url: dataset.url,
       typeNS: dataset.featureTypeNamespace,
       namespaceUri: "http://mapserver.gis.umn.edu/mapserver",
       typeName: dataset.featureTypeName,
       geometryField: dataset.featureTypeGeometryName,
       // maxFeatures: null,
-      style: getWfsStyle(dataset, opacity)
+      style: this.getWfsStyle(dataset, opacity),
+      filter: undefined
     };
 
-    filterEncoding = $scope.getFilterEncoding(dataset);
+    let filterEncoding = this.getFilterEncoding(dataset); 
     if (filterEncoding){
       wfsLayerOptions.filter = filterEncoding;
     }
                
 
-    wfsLayer;
-    poiMarkerLayer;
+    let wfsLayer;
+    let poiMarkerLayer;
 
     if(dataset.geometryType === "POI"){
 
       if (useCluster) {
         poiMarkerLayer = L.markerClusterGroup({
           iconCreateFunction: function (cluster) {
-            childCount = cluster.getChildCount();
+            let childCount = cluster.getChildCount();
 
-            c = 'cluster-';
+            let c = 'cluster-';
             if (childCount < 10) {
               c += 'small';
             } else if (childCount < 30) {
@@ -1837,7 +1899,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
               c += 'large';
             }
 
-            className = "marker-cluster " + c + " awesome-marker-legend-TransparentIcon-" + dataset.poiMarkerColor;
+            let className = "marker-cluster " + c + " awesome-marker-legend-TransparentIcon-" + dataset.poiMarkerColor;
 
             //'marker-cluster' + c + ' ' +
             return new L.DivIcon({ html: '<div class="awesome-marker-legend-icon-' + dataset.poiMarkerColor + '" ><span>' + childCount + '</span></div>', className: className, iconSize: new L.Point(40, 40) });
@@ -1855,54 +1917,57 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     }
 
     try {
-      wfsLayer.once('load', function () {
+      wfsLayer.once('load', () => {
 
         if(dataset.geometryType === "POI"){
-          poiMarkerLayer = kommonitorGenericMapHelperService.createCustomMarkersFromWfsPoints(wfsLayer, poiMarkerLayer, dataset);
+          poiMarkerLayer = this.genericMapHelperService.createCustomMarkersFromWfsPoints(wfsLayer, poiMarkerLayer, dataset);
         }
 
         console.log("Try to fit bounds on wfsLayer");
-        $scope.map.fitBounds(wfsLayer.getBounds());
+        this.map.fitBounds(wfsLayer.getBounds());
 
         console.log("Tried fit bounds on wfsLayer");
 
-        $scope.map.invalidateSize(true);
+        this.map.invalidateSize(true);
         // $scope.loadingData = false;
       });
 
-      wfsLayer.on('click', function (event) {
+      wfsLayer.on('click', (event) => {
         // propertiesString = "<pre>" + JSON.stringify(event.layer.feature.properties, null, ' ').replace(/[\{\}"]/g, '') + "</pre>";
 
-        popupContent = '<div class="wfsInfoPopupContent featurePropertyPopupContent"><table class="table table-condensed">';
-        for (p in event.layer.feature.properties) {
+        let popupContent = '<div class="wfsInfoPopupContent featurePropertyPopupContent"><table class="table table-condensed">';
+        for (let p in event.layer.feature.properties) {
             popupContent += '<tr><td>' + p + '</td><td>'+ event.layer.feature.properties[p] + '</td></tr>';
         }
         popupContent += '</table></div>';
 
-        popup = L.popup();
+        let popup:any = L.popup();
         popup
           .setLatLng(event.latlng)
           .setContent(popupContent)
-          .openOn($scope.map);
+          .openOn(this.map);
       });
       if(poiMarkerLayer){
-        $scope.layerControl.addOverlay(poiMarkerLayer, dataset.title, wfsLayerGroupName);
-        poiMarkerLayer.addTo($scope.map);
+        this.layerControl.addOverlay(poiMarkerLayer, dataset.title, this.wfsLayerGroupName);
+        poiMarkerLayer.addTo(this.map);
       }
       else{
-        $scope.layerControl.addOverlay(wfsLayer, dataset.title, wfsLayerGroupName);
-        wfsLayer.addTo($scope.map);
+        this.layerControl.addOverlay(wfsLayer, dataset.title, this.wfsLayerGroupName);
+        wfsLayer.addTo(this.map);
       }            
-      $scope.updateSearchControl();
+      this.updateSearchControl();
 
     }
     catch (error) {
-      $scope.loadingData = false;
-      kommonitorDataExchangeService.displayMapApplicationError(error);
+      this.loadingData = false;
+      this.dataExchangeService.displayMapApplicationError(error);
     }
 
-  });
- */
+    
+    this.hideLoadingIconOnMap();
+
+  }
+ 
   /* $scope.$on("adjustOpacityForWfsLayer", function (event, dataset, opacity) {
     layerName = dataset.title;
 
@@ -1948,19 +2013,21 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       }
     });
   });
+  */
+  removeWfsLayerFromMap(dataset) {
 
-  $scope.$on("removeWfsLayerFromMap", function (event, dataset) {
+    let layerName = dataset.title;
 
-    layerName = dataset.title;
-
-    $scope.layerControl._layers.forEach(function (layer) {
-      if (layer.group.name === wfsLayerGroupName && layer.name.includes(layerName)) {
-        $scope.layerControl.removeLayer(layer.layer);
-        $scope.map.removeLayer(layer.layer);
+    this.layerControl._layers.forEach((layer) => {
+      //if (layer.group.name === wfsLayerGroupName && layer.name.includes(layerName)) {
+      if (layer.name.includes(layerName)) {
+        this.layerControl.removeLayer(layer.layer);
+        this.map.removeLayer(layer.layer);
       }
     });
-  });
-
+    this.hideLoadingIconOnMap();
+  }
+/*
   $scope.$on("addFileLayerToMap", function (event, dataset, opacity) {
     try {
       fileLayer;

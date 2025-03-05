@@ -495,7 +495,8 @@ angular
       this.createCustomMarker = function(poiFeature, poiMarkerStyle, poiMarkerText, poiSymbolColor, poiMarkerColor, poiSymbolBootstrap3Name, metadataObject){
         var customMarker;
 
-        var customMarker = L.VectorMarkers.icon({
+        // todo VectorMarkers
+        /* var customMarker = L.VectorMarkers.icon({
           viewBox: '0 0 32 52',
           iconSize: [30 * kommonitorDataExchangeService.selectedPOISize.scaleFactor, 50 * kommonitorDataExchangeService.selectedPOISize.scaleFactor],
           iconAnchor: [ 15 * kommonitorDataExchangeService.selectedPOISize.scaleFactor, 50 * kommonitorDataExchangeService.selectedPOISize.scaleFactor ],
@@ -526,13 +527,14 @@ angular
               extraClasses: kommonitorDataExchangeService.selectedPOISize.iconClassName
             });
           }          
-        }
+        } */
 
         var newMarker;
 
         if(poiFeature.geometry.type === "Point"){              
           // LAT LON order
-          newMarker = L.marker([Number(poiFeature.geometry.coordinates[1]), Number(poiFeature.geometry.coordinates[0])], { icon: customMarker });
+          //newMarker = L.marker([Number(poiFeature.geometry.coordinates[1]), Number(poiFeature.geometry.coordinates[0])], { icon: customMarker });
+          newMarker = L.marker([Number(poiFeature.geometry.coordinates[1]), Number(poiFeature.geometry.coordinates[0])]);
 
           //populate the original geoJSOn feature to the marker layer!
           newMarker.feature = poiFeature;
@@ -542,7 +544,8 @@ angular
 
           // simply take the first point as feature reference POI
           // LAT LON order
-          newMarker = L.marker([Number(poiFeature.geometry.coordinates[0][1]), Number(poiFeature.geometry.coordinates[0][0])], { icon: customMarker });
+          //newMarker = L.marker([Number(poiFeature.geometry.coordinates[0][1]), Number(poiFeature.geometry.coordinates[0][0])], { icon: customMarker });
+          newMarker = L.marker([Number(poiFeature.geometry.coordinates[0][1]), Number(poiFeature.geometry.coordinates[0][0])]);
 
           //populate the original geoJSOn feature to the marker layer!
           newMarker.feature = poiFeature;

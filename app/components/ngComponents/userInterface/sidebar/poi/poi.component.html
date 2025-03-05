@@ -88,35 +88,35 @@
 								<td class="text-center" *ngIf="isGeoresourceInfrastructureEnabled('poi')">
 									<label class="switch">
 										<input type="checkbox" [(ngModel)]="showPOI" checked
-											(change)="onChangeGeoresourceKeywordFilter(georesourceNameFilter.value, showPOI, showLOI, showAOI, showWMS, showWFS)">
+											(change)="onChangeGeoresourceKeywordFilter()">
 										<span class="switchslider round"></span>
 									</label>
 								</td>
 								<td class="text-center" *ngIf="isGeoresourceInfrastructureEnabled('loi')">
 									<label class="switch">
 										<input type="checkbox" [(ngModel)]="showLOI" checked
-											(change)="onChangeGeoresourceKeywordFilter(georesourceNameFilter.value, showPOI, showLOI, showAOI, showWMS, showWFS)">
+											(change)="onChangeGeoresourceKeywordFilter()">
 										<span class="switchslider round"></span>
 									</label>
 								</td>
 								<td class="text-center" *ngIf="isGeoresourceInfrastructureEnabled('aoi')">
 									<label class="switch">
 										<input type="checkbox" [(ngModel)]="showAOI" checked
-											(change)="onChangeGeoresourceKeywordFilter(georesourceNameFilter.value, showPOI, showLOI, showAOI, showWMS, showWFS)">
+											(change)="onChangeGeoresourceKeywordFilter()">
 										<span class="switchslider round"></span>
 									</label>
 								</td>
 								<td class="text-center" *ngIf="isGeoresourceGeoserviceEnabled('wms')">
 									<label class="switch">
 										<input type="checkbox" [(ngModel)]="showWMS" checked
-											(change)="onChangeGeoresourceKeywordFilter(georesourceNameFilter.value, showPOI, showLOI, showAOI, showWMS, showWFS)">
+											(change)="onChangeGeoresourceKeywordFilter()">
 										<span class="switchslider round"></span>
 									</label>
 								</td>
 								<td class="text-center" *ngIf="isGeoresourceGeoserviceEnabled('wfs')">
 									<label class="switch">
 										<input type="checkbox" [(ngModel)]="showWFS" checked
-											(change)="onChangeGeoresourceKeywordFilter(georesourceNameFilter.value, showPOI, showLOI, showAOI, showWMS, showWFS)">
+											(change)="onChangeGeoresourceKeywordFilter()">
 										<span class="switchslider round"></span>
 									</label>
 								</td>
@@ -226,7 +226,7 @@
 																			[(ngModel)]="poi.isSelected"
 																			(change)="handlePoiOnMap(poi)">
 
-																		<b>&nbsp;&nbsp;{{poi.datasetName}}</b> <a href="" *ngIf="poi.isSelected" title="Auf Layer zoomen" (click)="zoomToLayer(poi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></a>
+																		<b>&nbsp;&nbsp;{{poi.datasetName}}</b> <p *ngIf="poi.isSelected" title="Auf Layer zoomen" (click)="zoomToLayer(poi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></p>
 																	</label>
 																</td>
 																<td>
@@ -286,7 +286,7 @@
 																			[(ngModel)]="loi.isSelected"
 																			(change)="handleLoiOnMap(loi)">
 
-																		<b>&nbsp;&nbsp;{{loi.datasetName}}</b> <a href="" *ngif="loi.isSelected" title="Auf Layer zoomen" (click)="zoomToLayer(loi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></a>
+																		<b>&nbsp;&nbsp;{{loi.datasetName}}</b> <p *ngIf="loi.isSelected" title="Auf Layer zoomen" (click)="zoomToLayer(loi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></p>
 																	</label>
 																</td>
 																<td>
@@ -334,7 +334,7 @@
 																			[(ngModel)]="aoi.isSelected"
 																			(change)="handleAoiOnMap(aoi)">
 
-																		<b>&nbsp;&nbsp;{{aoi.datasetName}}</b> <a href="" *ngif="aoi.isSelected" title="Auf Layer zoomen" (click)="zoomToLayer(aoi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></a>
+																		<b>&nbsp;&nbsp;{{aoi.datasetName}}</b> <p *ngIf="aoi.isSelected" title="Auf Layer zoomen" (click)="zoomToLayer(aoi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></p>
 																	</label>
 																</td>
 																<td>
@@ -370,7 +370,7 @@
 															</tr>
 
 															<!-- WMS -->
-															<tr *ngFor='let dataset in subsubsubTopic.wmsData'>
+															<tr *ngFor='let dataset of subsubsubTopic.wmsData'>
 																<td>
 																	<b><i>WMS</i></b>
 																</td>
@@ -380,11 +380,11 @@
 																			[(ngModel)]="dataset.isSelected"
 																			(change)="handleWmsOnMap(dataset)">
 
-																		<b ng-bind-html="dataset.title"></b>
+																		<b>{{dataset.title}}</b>
 																	</label>
 																</td>
 																<td>
-																	<p ng-bind-html="dataset.description"></p>
+																	<p>{{dataset.description}}</p>
 																</td>
 																<td class="text-center">
 																	<div *ngIf="! dataset.showLegend">
@@ -410,7 +410,7 @@
 															</tr>
 
 															<!-- WFS -->
-															<tr *ngFor='let dataset in subsubsubTopic.wfsData '>
+															<tr *ngFor='let dataset of subsubsubTopic.wfsData '>
 																<td>
 																	<b><i>WFS</i></b>
 																</td>
@@ -420,11 +420,11 @@
 																			[(ngModel)]="dataset.isSelected"
 																			(change)="handleWfsOnMap(dataset)">
 
-																		<b ng-bind-html="dataset.title"></b>
+																		<b>{{dataset.title}}</b>
 																	</label>
 																</td>
 																<td>
-																	<p ng-bind-html="dataset.description"></p>
+																	<p>{{dataset.description}}</p>
 																</td>
 																<!-- <td>
 																		<label class="switch">
@@ -530,7 +530,7 @@
 																		[(ngModel)]="poi.isSelected"
 																		(change)="handlePoiOnMap(poi)">
 
-																	<b>&nbsp;&nbsp;{{poi.datasetName}}</b> <a href="" *ngif="poi.isSelected" title="Auf Layer zoomen" (click)="zoomToLayer(poi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></a>
+																	<b>&nbsp;&nbsp;{{poi.datasetName}}</b> <p *ngIf="poi.isSelected" title="Auf Layer zoomen" (click)="zoomToLayer(poi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></p>
 																</label>
 															</td>
 															<td>
@@ -590,7 +590,7 @@
 																		[(ngModel)]="loi.isSelected"
 																		(change)="handleLoiOnMap(loi)">
 
-																	<b>&nbsp;&nbsp;{{loi.datasetName}}</b> <a href="" *ngif="loi.isSelected" title="Auf Layer zoomen" (click)="zoomToLayer(loi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></a>
+																	<b>&nbsp;&nbsp;{{loi.datasetName}}</b> <p *ngIf="loi.isSelected" title="Auf Layer zoomen" (click)="zoomToLayer(loi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></p>
 																</label>
 															</td>
 															<td>
@@ -638,7 +638,7 @@
 																		[(ngModel)]="aoi.isSelected"
 																		(change)="handleAoiOnMap(aoi)">
 
-																	<b>&nbsp;&nbsp;{{aoi.datasetName}}</b> <a href="" *ngif="aoi.isSelected" title="Auf Layer zoomen" (click)="zoomToLayer(aoi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></a>
+																	<b>&nbsp;&nbsp;{{aoi.datasetName}}</b> <p *ngIf="aoi.isSelected" title="Auf Layer zoomen" (click)="zoomToLayer(aoi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></p>
 																</label>
 															</td>
 															<td>
@@ -674,7 +674,7 @@
 														</tr>
 
 														<!-- WMS -->
-														<tr *ngFor='let dataset in subsubTopic.wmsData'>
+														<tr *ngFor='let dataset of subsubTopic.wmsData'>
 															<td>
 																<b><i>WMS</i></b>
 															</td>
@@ -684,11 +684,11 @@
 																		[(ngModel)]="dataset.isSelected"
 																		(change)="handleWmsOnMap(dataset)">
 
-																	<b ng-bind-html="dataset.title"></b>
+																	<b>{{dataset.title}}</b>
 																</label>
 															</td>
 															<td>
-																<p ng-bind-html="dataset.description"></p>
+																<p>{{dataset.description}}</p>
 															</td>
 															<td class="text-center">
 																<div *ngIf="! dataset.showLegend">
@@ -714,7 +714,7 @@
 														</tr>
 
 														<!-- WFS -->
-														<tr *ngFor='let dataset in subsubTopic.wfsData '>
+														<tr *ngFor='let dataset of subsubTopic.wfsData '>
 															<td>
 																<b><i>WFS</i></b>
 															</td>
@@ -724,11 +724,11 @@
 																		[(ngModel)]="dataset.isSelected"
 																		(change)="handleWfsOnMap(dataset)">
 
-																	<b ng-bind-html="dataset.title"></b>
+																	<b>{{dataset.title}}</b>
 																</label>
 															</td>
 															<td>
-																<p ng-bind-html="dataset.description"></p>
+																<p>{{dataset.description}}</p>
 															</td>
 															<!-- <td>
 																		<label class="switch">
@@ -833,7 +833,7 @@
 																	value="poi.datasetName" [(ngModel)]="poi.isSelected"
 																	(change)="handlePoiOnMap(poi)">
 
-																<b>&nbsp;&nbsp;{{poi.datasetName}}</b> <a href="" *ngif="poi.isSelected" title="Auf Layer zoomen" (click)="zoomToLayer(poi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></a>
+																<b>&nbsp;&nbsp;{{poi.datasetName}}</b> <p *ngif="poi.isSelected" title="Auf Layer zoomen" (click)="zoomToLayer(poi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></p>
 															</label>
 														</td>
 														<td>
@@ -890,7 +890,7 @@
 																	value="loi.datasetName" [(ngModel)]="loi.isSelected"
 																	(change)="handleLoiOnMap(loi)">
 
-																<b>&nbsp;&nbsp;{{loi.datasetName}}</b> <a href="" *ngif="loi.isSelected" title="Auf Layer zoomen" (click)="zoomToLayer(loi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></a>
+																<b>&nbsp;&nbsp;{{loi.datasetName}}</b> <p *ngIf="loi.isSelected" title="Auf Layer zoomen" (click)="zoomToLayer(loi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></p>
 															</label>
 														</td>
 														<td>
@@ -935,7 +935,7 @@
 																	value="aoi.datasetName" [(ngModel)]="aoi.isSelected"
 																	(change)="handleAoiOnMap(aoi)">
 
-																<b>&nbsp;&nbsp;{{aoi.datasetName}}</b> <a href="" *ngif="aoi.isSelected" title="Auf Layer zoomen" (click)="zoomToLayer(aoi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></a>
+																<b>&nbsp;&nbsp;{{aoi.datasetName}}</b> <p *ngIf="aoi.isSelected" title="Auf Layer zoomen" (click)="zoomToLayer(aoi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></p>
 															</label>
 														</td>
 														<td>
@@ -969,7 +969,7 @@
 													</tr>
 
 													<!-- WMS -->
-													<tr *ngFor='let dataset in subTopic.wmsData'>
+													<tr *ngFor='let dataset of subTopic.wmsData'>
 														<td>
 															<b><i>WMS</i></b>
 														</td>
@@ -978,11 +978,11 @@
 																	value="dataset.title" [(ngModel)]="dataset.isSelected"
 																	(change)="handleWmsOnMap(dataset)">
 
-																<b ng-bind-html="dataset.title"></b>
+																<b>{{dataset.title}}</b>
 															</label>
 														</td>
 														<td>
-															<p ng-bind-html="dataset.description"></p>
+															<p>{{dataset.description}}</p>
 														</td>
 
 														<td class="text-center">
@@ -1009,7 +1009,7 @@
 													</tr>
 
 													<!-- WFS -->
-													<tr *ngFor='let dataset in subTopic.wfsData'>
+													<tr *ngFor='let dataset of subTopic.wfsData'>
 														<td>
 															<b><i>WFS</i></b>
 														</td>
@@ -1018,11 +1018,11 @@
 																	value="dataset.title" [(ngModel)]="dataset.isSelected"
 																	(change)="handleWfsOnMap(dataset)">
 
-																<b ng-bind-html="dataset.title"></b>
+																<b>{{dataset.title}}</b>
 															</label>
 														</td>
 														<td>
-															<p ng-bind-html="dataset.description"></p>
+															<p>{{dataset.description}}</p>
 														</td>
 														<!-- <td>
 																	<label class="switch">
@@ -1129,7 +1129,7 @@
 																value="poi.datasetName" [(ngModel)]="poi.isSelected"
 																(change)="handlePoiOnMap(poi)">
 
-															<b>&nbsp;&nbsp;{{poi.datasetName}}</b> <a href="" *ngif="poi.isSelected" title="Auf Layer zoomen" (click)="zoomToLayer(poi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></a>
+															<b>&nbsp;&nbsp;{{poi.datasetName}}</b> <p *ngIf="poi.isSelected" title="Auf Layer zoomen" (click)="zoomToLayer(poi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></p>
 														</label>
 													</td>
 													<td>
@@ -1187,7 +1187,7 @@
 																value="loi.datasetName" [(ngModel)]="loi.isSelected"
 																(change)="handleLoiOnMap(loi)">
 
-															<b>&nbsp;&nbsp;{{loi.datasetName}}</b> <a href="" *ngif="loi.isSelected" title="Auf Layer zoomen" (click)="zoomToLayer(loi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></a>
+															<b>&nbsp;&nbsp;{{loi.datasetName}}</b> <p *ngIf="loi.isSelected" title="Auf Layer zoomen" (click)="zoomToLayer(loi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></p>
 														</label>
 													</td>
 													<td>
@@ -1232,7 +1232,7 @@
 																value="aoi.datasetName" [(ngModel)]="aoi.isSelected"
 																(change)="handleAoiOnMap(aoi)">
 
-															<b>&nbsp;&nbsp;{{aoi.datasetName}}</b> <a href="" *ngif="aoi.isSelected" title="Auf Layer zoomen" (click)="zoomToLayer(aoi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></a>
+															<b>&nbsp;&nbsp;{{aoi.datasetName}}</b> <p *ngIf="aoi.isSelected" title="Auf Layer zoomen" (click)="zoomToLayer(aoi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></p>
 														</label>
 													</td>
 													<td>
@@ -1267,7 +1267,7 @@
 												</tr>
 
 												<!-- WMS -->
-												<tr *ngFor='let dataset in mainTopic.wmsData'>
+												<tr *ngFor='let dataset of mainTopic.wmsData'>
 													<td>
 														<b><i>WMS</i></b>
 													</td>
@@ -1276,11 +1276,11 @@
 																value="dataset.title" [(ngModel)]="dataset.isSelected"
 																(change)="handleWmsOnMap(dataset)">
 
-															<b ng-bind-html="dataset.title"></b>
+															<b>{{dataset.title}}</b>
 														</label>
 													</td>
 													<td>
-														<p ng-bind-html="dataset.description"></p>
+														<p>{{dataset.description}}</p>
 													</td>
 
 													<td class="text-center">
@@ -1307,7 +1307,7 @@
 												</tr>
 
 												<!-- WFS -->
-												<tr *ngFor='let dataset in mainTopic.wfsData'>
+												<tr *ngFor='let dataset of mainTopic.wfsData'>
 													<td>
 														<b><i>WFS</i></b>
 													</td>
@@ -1316,11 +1316,11 @@
 																value="dataset.title" [(ngModel)]="dataset.isSelected"
 																(change)="handleWfsOnMap(dataset)">
 
-															<b ng-bind-html="dataset.title"></b>
+															<b>{{dataset.title}}</b>
 														</label>
 													</td>
 													<td>
-														<p ng-bind-html="dataset.description"></p>
+														<p>{{dataset.description}}</p>
 													</td>
 													<!-- <td>
 																<label class="switch">
@@ -1389,7 +1389,7 @@
 								</div>
 								</div>
 
-								<!-- <div *ngFor="let georesourceMetadata in exchangeData.availableGeoresources  | filter:{topicReference:mainTopic.topicId} ">
+								<!-- <div *ngFor="let georesourceMetadata of exchangeData.availableGeoresources  | filter:{topicReference:mainTopic.topicId} ">
 									</div> -->
 							</div>
 							<!-- end main Topics -->
@@ -1441,7 +1441,7 @@
 															value="poi.datasetName" [(ngModel)]="poi.isSelected"
 															(change)="handlePoiOnMap(poi)">
 
-														<b>&nbsp;&nbsp;{{poi.datasetName}}</b> <a href="" *ngif="poi.isSelected" title="Auf Layer zoomen" (click)="zoomToLayer(poi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></a>
+														<b>&nbsp;&nbsp;{{poi.datasetName}}</b> <p *ngIf="poi.isSelected" title="Auf Layer zoomen" (click)="zoomToLayer(poi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></p>
 													</label>
 												</td>
 												<td>
@@ -1500,7 +1500,7 @@
 															value="loi.datasetName" [(ngModel)]="loi.isSelected"
 															(change)="handleLoiOnMap(loi)">
 
-														<b>&nbsp;&nbsp;{{loi.datasetName}}</b> <a href="" *ngif="loi.isSelected" title="Auf Layer zoomen" (click)="zoomToLayer(loi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></a>
+														<b>&nbsp;&nbsp;{{loi.datasetName}}</b> <p *ngIf="loi.isSelected" title="Auf Layer zoomen" (click)="zoomToLayer(loi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></p>
 													</label>
 												</td>
 												<td>
@@ -1546,7 +1546,7 @@
 															value="aoi.datasetName" [(ngModel)]="aoi.isSelected"
 															(change)="handleAoiOnMap(aoi)">
 
-														<b>&nbsp;&nbsp;{{aoi.datasetName}}</b> <a href="" *ngif="aoi.isSelected" title="Auf Layer zoomen" (click)="zoomToLayer(aoi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></a>
+														<b>&nbsp;&nbsp;{{aoi.datasetName}}</b> <p *ngIf="aoi.isSelected" title="Auf Layer zoomen" (click)="zoomToLayer(aoi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></p>
 													</label>
 												</td>
 												<td>
@@ -1582,7 +1582,7 @@
 
 											<!-- WMS -->
 											<tr
-												*ngFor='let dataset in exchangeData.topicGeoresourceHierarchy_unmappedEntries.wmsData'>
+												*ngFor='let dataset of exchangeData.topicGeoresourceHierarchy_unmappedEntries.wmsData'>
 												<td>
 													<b><i>WMS</i></b>
 												</td>
@@ -1591,11 +1591,11 @@
 															value="dataset.title" [(ngModel)]="dataset.isSelected"
 															(change)="handleWmsOnMap(dataset)">
 
-														<b ng-bind-html="dataset.title"></b>
+														<b>{{dataset.title}}</b>
 													</label>
 												</td>
 												<td>
-													<p ng-bind-html="dataset.description"></p>
+													<p>{{dataset.description}}</p>
 												</td>
 
 												<td class="text-center">
@@ -1623,7 +1623,7 @@
 
 											<!-- WFS -->
 											<tr
-												*ngFor='let dataset in exchangeData.topicGeoresourceHierarchy_unmappedEntries.wfsData'>
+												*ngFor='let dataset of exchangeData.topicGeoresourceHierarchy_unmappedEntries.wfsData'>
 												<td>
 													<b><i>WFS</i></b>
 												</td>
@@ -1632,11 +1632,11 @@
 															value="dataset.title" [(ngModel)]="dataset.isSelected"
 															(change)="handleWfsOnMap(dataset)">
 
-														<b ng-bind-html="dataset.title"></b>
+														<b>{{dataset.title}}</b>
 													</label>
 												</td>
 												<td>
-													<p ng-bind-html="dataset.description"></p>
+													<p>{{dataset.description}}</p>
 												</td>
 												<!-- <td>
 												<label class="switch">
@@ -1757,7 +1757,7 @@
 																value="poi.datasetName" [(ngModel)]="poi.isSelected"
 																(change)="handlePoiOnMap(poi)">
 
-															<b>&nbsp;&nbsp;{{poi.datasetName}}</b> <a href="" *ngif="poi.isSelected" title="Auf Layer zoomen" (click)="zoomToLayer(poi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></a>
+															<b>&nbsp;&nbsp;{{poi.datasetName}}</b> <p *ngIf="poi.isSelected" title="Auf Layer zoomen" (click)="zoomToLayer(poi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></p>
 														</label>
 													</td>
 													<td>
@@ -1858,7 +1858,7 @@
 																value="loi.datasetName" [(ngModel)]="loi.isSelected"
 																(change)="handleLoiOnMap(loi)">
 
-															<b>&nbsp;&nbsp;{{loi.datasetName}}</b> <a href="" *ngif="loi.isSelected" title="Auf Layer zoomen" (click)="zoomToLayer(loi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></a>
+															<b>&nbsp;&nbsp;{{loi.datasetName}}</b> <p *ngIf="loi.isSelected" title="Auf Layer zoomen" (click)="zoomToLayer(loi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></p>
 														</label>
 													</td>
 													<td>
@@ -1943,7 +1943,7 @@
 																value="aoi.datasetName" [(ngModel)]="aoi.isSelected"
 																(change)="handleAoiOnMap(aoi)">
 
-															<b>&nbsp;&nbsp;{{aoi.datasetName}}</b> <a href="" *ngif="aoi.isSelected" title="Auf Layer zoomen" (click)="zoomToLayer(aoi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></a>
+															<b>&nbsp;&nbsp;{{aoi.datasetName}}</b> <p *ngIf="aoi.isSelected" title="Auf Layer zoomen" (click)="zoomToLayer(aoi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></p>
 													
 														</label>
 													</td>
@@ -2020,18 +2020,18 @@
 										<tbody>
 
 											<tr
-												*ngFor='let dataset in exchangeData.displayableGeoresources_keywordFiltered_forAlphabeticalDisplay.wmsData'>
+												*ngFor='let dataset of exchangeData.displayableGeoresources_keywordFiltered_forAlphabeticalDisplay.wmsData'>
 												<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 												<td>
 													<label class='checkbox-inline'><input type="checkbox"
 															value="dataset.title" [(ngModel)]="dataset.isSelected"
 															(change)="handleWmsOnMap(dataset)">
 
-														<b ng-bind-html="dataset.title"></b>
+														<b>{{dataset.title}}</b>
 													</label>
 												</td>
 												<td>
-													<p ng-bind-html="dataset.description"></p>
+													<p>{{dataset.description}}</p>
 												</td>
 												<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
 													<div style="text-align: center">
@@ -2103,17 +2103,17 @@
 										<tbody>
 
 											<tr
-												*ngFor='let dataset in exchangeData.displayableGeoresources_keywordFiltered_forAlphabeticalDisplay.wfsData'>
+												*ngFor='let dataset of exchangeData.displayableGeoresources_keywordFiltered_forAlphabeticalDisplay.wfsData'>
 												<td>
 													<label class='checkbox-inline'><input type="checkbox"
 															value="dataset.title" [(ngModel)]="dataset.isSelected"
 															(change)="handleWfsOnMap(dataset)">
 
-														<b ng-bind-html="dataset.title"></b>
+														<b>{{dataset.title}}</b>
 													</label>
 												</td>
 												<td>
-													<p ng-bind-html="dataset.description"></p>
+													<p>{{dataset.description}}</p>
 												</td>
 												<td>
 													<label class="switch">

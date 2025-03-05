@@ -14,27 +14,29 @@ export class MapService {
   }
 
   removePoiGeoresource(reference) {
-    return this.ajskommonitorMapServiceProvider.removePoiGeoresource(reference);
+    this.broadcastService.broadcast('removePoiGeoresource', [reference]);
   }
 
   removeWfsLayerFromMap(wfs) {
-    this.ajskommonitorMapServiceProvider.removeWfsLayerFromMap(wfs);
+    this.broadcastService.broadcast("removeWfsLayerFromMap",[wfs]);
   }
 
   addWfsLayerToMap(wfs, opacity, useCluster) {
-    this.ajskommonitorMapServiceProvider.addWfsLayerToMap(wfs, opacity, useCluster);
+    console.log("addWfsLayerToMap");
+    this.broadcastService.broadcast("addWfsLayerToMap",[wfs, opacity, useCluster]);
   }
 
   removeLoiGeoresource(loiGeoresource) {
-    this.ajskommonitorMapServiceProvider.removeLoiGeoresource(loiGeoresource);
+    this.broadcastService.broadcast('removeLoiGeoresource', [loiGeoresource]);
   }
 
   addWmsLayerToMap(dataset, opacity) {
-    this.ajskommonitorMapServiceProvider.addWmsLayerToMap(dataset, opacity);
+    console.log("addWmsLayerToMap");
+    this.broadcastService.broadcast('addWmsLayerToMap', [dataset, opacity]);
   }
 
   removeWmsLayerFromMap(dataset) {
-    this.ajskommonitorMapServiceProvider.removeWmsLayerFromMap(dataset);
+    this.broadcastService.broadcast("removeWmsLayerFromMap", [dataset]);
   }
 
   adjustOpacityForWmsLayer(dataset, opacity) {
@@ -68,5 +70,21 @@ export class MapService {
   replaceIndicatorGeoJSON(indicatorMetadataAndGeoJSON, spatialUnitName, date, justRestyling, isCustomComputation=false) {
     this.ajskommonitorMapServiceProvider.replaceIndicatorGeoJSON(indicatorMetadataAndGeoJSON, spatialUnitName, date, justRestyling, isCustomComputation);
     this.broadcastService.broadcast("replaceIndicatorAsGeoJSON", {indicatorMetadataAndGeoJSON, spatialUnitName, date, justRestyling, isCustomComputation});
+  }
+
+  addPoiGeoresourceGeoJSON(poiGeoresource, date, useCluster) {
+    this.broadcastService.broadcast("addPoiGeoresourceAsGeoJSON", [poiGeoresource, date, useCluster]);
+  }
+
+  addAoiGeoresourceGeoJSON(aoiGeoresource, date) {
+    this.broadcastService.broadcast("addAoiGeoresourceAsGeoJSON", [aoiGeoresource, date]);
+  }
+
+  addLoiGeoresourceGeoJSON(loiGeoresource, date) {
+    this.broadcastService.broadcast("addLoiGeoresourceAsGeoJSON", [loiGeoresource, date]);
+  }
+
+  removeAoiGeoresource(aoiGeoresource) {
+    this.broadcastService.broadcast('removeAoiGeoresource', [aoiGeoresource]);
   }
 }
