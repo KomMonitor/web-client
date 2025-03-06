@@ -8,6 +8,8 @@ import { VisualStyleHelperServiceNew } from 'services/visual-style-helper-servic
 import jStat from 'jstat';
 import { GenericMapHelperService } from 'services/generic-map-helper-service/generic-map-helper.service';
 import * as turf from '@turf/turf';
+import domtoimage from 'dom-to-image-more';
+import { saveAs } from 'file-saver';
 
 @Component({
   selector: 'app-kommonitor-map',
@@ -54,6 +56,16 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   outlierPropertyValue_high_extreme = "high-extreme";
   outlierPropertyValue_low_extreme = "low-extreme";
   outlierPropertyValue_no = "no";
+
+  outlierFillPattern_low;
+  outlierFillPattern_high;
+  noDataFillPattern;
+  
+  outlierStyle_high;
+  outlierStyle_low;
+  
+  outlierMinValue;
+  outlierMaxValue;
 
   svgString_noData;
   noDataStyle;
@@ -281,6 +293,18 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         case 'removeAoiGeoresource': {
           this.removeAoiGeoresource(values);
         } break;
+        case 'exportMap' : {
+          this.exportMap();
+        } break;
+        case 'changeSpatialUnitViaInfoControl': {
+          this.changeSpatialUnitViaInfoControl();
+        } break;
+        case 'toggleInfoControl': {
+          this.toggleInfoControl();
+        } break;
+        case 'toggleLegendControl': {
+          this.toggleLegendControl();
+        } break;
        }
     });
   }
@@ -423,15 +447,14 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     // this.outlierFillPattern_high.addShape(diagonalPattern);
     // this.outlierFillPattern_high.addTo(this.map);
 
-    // todo
-   /*  this.outlierFillPattern_low = kommonitorVisualStyleHelperService.outlierFillPattern_low;
+    this.outlierFillPattern_low = this.visualData.outlierFillPattern_low;
     this.outlierFillPattern_low.addTo(this.map);
 
-    this.outlierFillPattern_high = kommonitorVisualStyleHelperService.outlierFillPattern_high;
+    this.outlierFillPattern_high = this.visualData.outlierFillPattern_high;
     this.outlierFillPattern_high.addTo(this.map);
 
-    this.noDataFillPattern = kommonitorVisualStyleHelperService.noDataFillPattern;
-    this.noDataFillPattern.addTo(this.map); */
+    this.noDataFillPattern = this.visualData.noDataFillPattern;
+    this.noDataFillPattern.addTo(this.map);
 
     // this.loadingData = false;
 
@@ -634,8 +657,8 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
     this.containsOutliers_high = false;
     this.containsOutliers_low = false;
-/*     this.outlierMinValue = undefined;
-    this.outlierMaxValue = undefined; */
+    this.outlierMinValue = undefined;
+    this.outlierMaxValue = undefined;
     this.showOutlierInfoAlert = false;
 
     this.svgString_outlierLow = '<svg height="18" width="18"><line x1="10" y1="0" x2="110" y2="100" style="stroke:'  + this.defaultColorForOutliers_low + ';stroke-width:2; stroke-opacity: '  + this.defaultFillOpacityForOutliers_low + ';" /><line x1="0" y1="0" x2="100" y2="100" style="stroke:'  + this.defaultColorForOutliers_low + ';stroke-width:2; stroke-opacity: '  + this.defaultFillOpacityForOutliers_low + ';" /><line x1="0" y1="10" x2="100" y2="110" style="stroke:'  + this.defaultColorForOutliers_low + ';stroke-width:2; stroke-opacity: '  + this.defaultFillOpacityForOutliers_low + ';" />Sorry, your browser does not support inline SVG.</svg>';
@@ -646,9 +669,8 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     //   fillOpacity_low = defaultFillOpacityForOutliers_low;
     // }
 
-  /*   this.outlierStyle_high = kommonitorVisualStyleHelperService.outlierStyle_high;
-
-    this.outlierStyle_low = kommonitorVisualStyleHelperService.outlierStyle_low; */
+    this.outlierStyle_high = this.visualData.outlierStyle_high;
+    this.outlierStyle_low = this.visualData.outlierStyle_low;
   };
 
   refreshFilteredStyle () {
@@ -688,12 +710,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     }
   };
 
-  // todo broadcast new 
- /*  $rootScope.$on("initialMetadataLoadingCompleted", function(){
-    initSpatialUnitOutlineLayer();
-  }); 
-
-  function filterForScreenshot (node) {
+  filterForScreenshot (node) {
     return (
       node.tagName !== 'BUTTON' && 
       node.tagName !== 'A' && ( 
@@ -703,26 +720,26 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     );
   }
 
-  $scope.$on("exportMap", function (event) {
+  exportMap() {
 
-     node = document.getElementById("map");
+    let node = document.getElementById("map");
 
     return domtoimage
-        .toBlob(node, {"quality": 1.0, filter: filterForScreenshot})
-        .then(function (blob) {
+        .toBlob(node, {"quality": 1.0, filter: this.filterForScreenshot})
+        .then( (blob) => {
           // FileSaver saveAs method
           saveAs(blob, 'KomMonitor-Screenshot.png');
         })
-        .catch(function (error) {
+        .catch( (error) => {
           console.log("Error while exporting map view.");
           console.error(error);
 
-          kommonitorDataExchangeService.displayMapApplicationError(error);
+          this.dataExchangeService.displayMapApplicationError;
         });
 
-  });
+  }
 
-  function isKomMonitorSpecificProperty(propertyKey){
+  isKomMonitorSpecificProperty(propertyKey){
     let isKomMonitorSpecificProperty = false;
 
     if(propertyKey == "outlier"){
@@ -743,7 +760,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
     return isKomMonitorSpecificProperty;
   }
- */
+
 
    updateSearchControl() {
 /*
@@ -880,14 +897,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     }, 250);
 
   }
-/*
-  $(document).on('click', '#selectSpatialUnitViaInfoControl li p', function () {
-    spatialUnitName = $(this).text();
-    $('#selectSpatialUnitViaInfoControl_text').text(spatialUnitName);
-
-    $rootScope.$broadcast("changeSpatialUnitViaInfoControl", spatialUnitName);
-  });
-
+  
   // $(document).on('change','#selectSimplifyGeometriesViaInfoControl',function(){
   //   selector = document.getElementById('selectSimplifyGeometriesViaInfoControl');
   //   simplifyGeometries = selector[selector.selectedIndex].value;
@@ -897,14 +907,12 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   //   $rootScope.$broadcast("changeSpatialUnit");
   // });
 
-  $scope.$on("changeSpatialUnitViaInfoControl", function (event, spatialUnitLevel) {
-
-    $rootScope.$broadcast("changeSpatialUnit");
-
-  });
+  changeSpatialUnitViaInfoControl() {
+    this.broadcastService.broadcast('changeSpatialUnit');
+  }
 
 
-  $scope.appendSpatialUnitOptions () {
+  appendSpatialUnitOptions () {
 
     // <form action="select.html">
     //   <label>Künstler(in):
@@ -949,15 +957,15 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     //   </ul>
     // </div>
 
-    innerHTMLString = '<div class="row" style="margin-right: 0px;">';
+    let innerHTMLString = '<div class="row" style="margin-right: 0px;">';
     innerHTMLString += "<div class='col-sm-3'><div class='text-left'><label>Raumebene:   </label></div></div>";
     innerHTMLString += "<div class='col-sm-9'><div class='text-left'><div id='selectSpatialUnitViaInfoControl' class='dropdown'>";
-    innerHTMLString += '<button class="btn btn-primary btn-xs dropdown-toggle" type="button" data-toggle="dropdown"><span id="selectSpatialUnitViaInfoControl_text">' + kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel + '&nbsp;&nbsp;&nbsp;</span><span class="caret"></span></button>';
+    innerHTMLString += '<button class="btn btn-primary btn-xs dropdown-toggle" type="button" data-toggle="dropdown"><span id="selectSpatialUnitViaInfoControl_text">' + this.exchangeData.selectedSpatialUnit.spatialUnitLevel + '&nbsp;&nbsp;&nbsp;</span><span class="caret"></span></button>';
     innerHTMLString += '<ul id="spatialUnitInfoControlDropdown" class="dropdown-menu">';
 
-    for (option of kommonitorDataExchangeService.availableSpatialUnits) {
+    for (let option of this.exchangeData.availableSpatialUnits) {
 
-      if (kommonitorDataExchangeService.isAllowedSpatialUnitForCurrentIndicator(option)) {
+      if (this.dataExchangeService.isAllowedSpatialUnitForCurrentIndicator(option)) {
         innerHTMLString += ' <li><p style="cursor: pointer; font-size:12px;">' + option.spatialUnitLevel;
         innerHTMLString += '</p></li>';
       }
@@ -967,7 +975,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     innerHTMLString += "</div>";
 
     return innerHTMLString;
-  }; */
+  };
 
   // $scope.appendSimplifyGeometriesOptions(){
   //
@@ -1003,16 +1011,16 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   //   return innerHTMLString;
   // };
 
- /*  toggleInfoControl () {
-    if ($scope.showInfoControl === true) { */
+  toggleInfoControl () {
+    if (this.showInfoControl === true) {
       /* use jquery to select your DOM elements that has the class 'legend' */
-   /*    $('.info').hide();
-      $scope.showInfoControl = false;
+       $('.info').hide();
+      this.showInfoControl = false;
 
       $('#toggleInfoControlButton').show();
     } else {
       $('.info').show();
-      $scope.showInfoControl = true;
+      this.showInfoControl = true;
 
       // button is defined in kommonitor-user-interface component
       $('#toggleInfoControlButton').hide();
@@ -1020,29 +1028,22 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   };
 
   toggleLegendControl () {
-    if ($scope.showLegendControl === true) { */
+    if (this.showLegendControl === true) {
       /* use jquery to select your DOM elements that has the class 'legend' */
-      /* $('.legendMap').hide();
-      $scope.showLegendControl = false;
+      $('.legendMap').hide();
+      this.showLegendControl = false;
 
       $('#toggleLegendControlButton').show();
     } else {
       $('.legendMap').show();
-      $scope.showLegendControl = true;
+      this.showLegendControl = true;
 
       // button is defined in kommonitor-user-interface component
       $('#toggleLegendControlButton').hide();
     }
   };
 
-  $scope.$on("toggleInfoControl", function (event) {
-    toggleInfoControl();
-  });
-
-  $scope.$on("toggleLegendControl", function (event) {
-    toggleLegendControl();
-  });
-
+/*
   $scope.appendInfoCloseButton () {
     return '<div id="info_close" class="btn btn-link" style="right: 0px; position: relative; float: right;" title="beenden"><span class="glyphicon glyphicon-remove"></span></div>';
   };
@@ -2631,7 +2632,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   // data-setup -> initMetadatLoadingComplete -> onChangeSelectedIndicator -> modifyExports -> addSelectedIndicatorToMap -> mapModule -> broadcast: replaceIndicatorAsGeoJSON 
   */
 
-  onReplaceIndicatorAsGeoJSON({indicatorMetadataAndGeoJSON, spatialUnitName, date, justRestyling, isCustomComputation}) {
+  onReplaceIndicatorAsGeoJSON([indicatorMetadataAndGeoJSON, spatialUnitName, date, justRestyling, isCustomComputation]) {
 
     this.visualData.isCustomComputation = false;
     if (isCustomComputation){

@@ -69,7 +69,7 @@ export class MapService {
 
   replaceIndicatorGeoJSON(indicatorMetadataAndGeoJSON, spatialUnitName, date, justRestyling, isCustomComputation=false) {
     this.ajskommonitorMapServiceProvider.replaceIndicatorGeoJSON(indicatorMetadataAndGeoJSON, spatialUnitName, date, justRestyling, isCustomComputation);
-    this.broadcastService.broadcast("replaceIndicatorAsGeoJSON", {indicatorMetadataAndGeoJSON, spatialUnitName, date, justRestyling, isCustomComputation});
+    this.broadcastService.broadcast("replaceIndicatorAsGeoJSON", [indicatorMetadataAndGeoJSON, spatialUnitName, date, justRestyling, isCustomComputation]);
   }
 
   addPoiGeoresourceGeoJSON(poiGeoresource, date, useCluster) {

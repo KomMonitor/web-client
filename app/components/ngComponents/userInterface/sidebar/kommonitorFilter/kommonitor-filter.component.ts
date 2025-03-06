@@ -38,6 +38,9 @@ export class KommonitorFilterComponent implements OnInit {
   showManualSelectionSpatialFilter;
   showSelectionByFeatureSpatialFilter; 
 
+  previouslySelectedIndicator:any;
+  previouslySelectedSpatialUnit:any;
+
   inputLowerFilterValue;
   inputHigherFilterValue;
 
@@ -90,11 +93,14 @@ export class KommonitorFilterComponent implements OnInit {
   ngOnInit(): void {
       this.broadcastService.currentBroadcastMsg.subscribe(result => {
         let msg = result.msg;
-        let val = result.values;
+        let val:any = result.values;
 
         switch (msg) {
           case 'onChangeSelectedIndicator': {
             this.onOnChangeSelectedIndicator();
+          } break;
+          case 'replaceIndicatorAsGeoJSON': {
+            this.replaceIndicatorAsGeoJSON(val);
           } break;
         }
       })
@@ -167,8 +173,8 @@ export class KommonitorFilterComponent implements OnInit {
 									}										
 								}	
 							});
-
-							$scope.$on("replaceIndicatorAsGeoJSON", function (event, indicatorMetadataAndGeoJSON, spatialUnitName, date, justRestyling, isCustomComputation) {
+  */
+							replaceIndicatorAsGeoJSON([indicatorMetadataAndGeoJSON, spatialUnitName, date, justRestyling, isCustomComputation]) {
 
 								this.setupSpatialUnitFilter(indicatorMetadataAndGeoJSON, spatialUnitName, date);
 
@@ -184,19 +190,19 @@ export class KommonitorFilterComponent implements OnInit {
 									// reset filter component
 									if (this.showSelectionByFeatureSpatialFilter)
 										this.updateSelectableAreas("byFeature");
-										kommonitorFilterHelperService.clearFilteredFeatures();
-										kommonitorFilterHelperService.clearSelectedFeatures();
+										this.filterHelperService.clearFilteredFeatures();
+										this.filterHelperService.clearSelectedFeatures();
 									if (this.showManualSelectionSpatialFilter)
 										this.updateSelectableAreas("manual");
-										kommonitorFilterHelperService.clearFilteredFeatures();
-										kommonitorFilterHelperService.clearSelectedFeatures();
+										this.filterHelperService.clearFilteredFeatures();
+										this.filterHelperService.clearSelectedFeatures();
 								}
 
 								this.previouslySelectedIndicator = this.exchangeData.selectedIndicator;
 								this.previouslySelectedSpatialUnit = this.exchangeData.selectedSpatialUnit;
 								
-							});
-
+							}
+/*
 							$scope.$on("updateIndicatorValueRangeFilter", function (event, date, indicatorMetadataAndGeoJSON) {
 
 									this.setupRangeSliderForFilter(date, indicatorMetadataAndGeoJSON);

@@ -52,4 +52,8 @@ export class FilterHelperService {
   removeFeatureFromSelection(feature) {
     this.ajskommonitorFilterHelperServiceProvider.removeFeatureFromSelection(feature);
   }
+
+  clearSelectedFeatures() {
+    this.ajskommonitorFilterHelperServiceProvider.clearSelectedFeatures();
+  }
 }
