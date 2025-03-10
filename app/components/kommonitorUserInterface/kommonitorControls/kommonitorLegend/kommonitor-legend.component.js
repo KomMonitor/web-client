@@ -23,12 +23,13 @@ angular
 						this.kommonitorFilterHelperServiceInstance = kommonitorFilterHelperService;
 						this.kommonitorShareHelperServiceInstance = kommonitorShareHelperService;
 						this.envInstance = __env;
+						this.globalFilterActivated = false;
 						
 						this.env = __env;
 						$scope.svgString_outlierLow = $sce.trustAsHtml('<svg height="18" width="18"><line x1="10" y1="0" x2="110" y2="100" style="stroke:' + __env.defaultColorForOutliers_low + ';stroke-width:2; stroke-opacity: ' + __env.defaultFillOpacityForOutliers_low + ';" /><line x1="0" y1="0" x2="100" y2="100" style="stroke:' + __env.defaultColorForOutliers_low + ';stroke-width:2; stroke-opacity: ' + __env.defaultFillOpacityForOutliers_low + ';" /><line x1="0" y1="10" x2="100" y2="110" style="stroke:' + __env.defaultColorForOutliers_low + ';stroke-width:2; stroke-opacity: ' + __env.defaultFillOpacityForOutliers_low + ';" />Sorry, your browser does not support inline SVG.</svg>');
         				$scope.svgString_outlierHigh = $sce.trustAsHtml('<svg height="18" width="18"><line x1="8" y1="18" x2="18" y2="8" style="stroke:' + __env.defaultColorForOutliers_high + ';stroke-width:2; stroke-opacity: ' + __env.defaultFillOpacityForOutliers_high + ';" /><line x1="0" y1="18" x2="18" y2="0" style="stroke:' + __env.defaultColorForOutliers_high + ';stroke-width:2; stroke-opacity: ' + __env.defaultFillOpacityForOutliers_high + ';" /><line x1="0" y1="10" x2="10" y2="0" style="stroke:' + __env.defaultColorForOutliers_high + ';stroke-width:2; stroke-opacity: ' + __env.defaultFillOpacityForOutliers_high + ';" />Sorry, your browser does not support inline SVG.</svg>');
                 
-            $scope.actualSelectedSpatialUnitId = undefined;
+            			$scope.actualSelectedSpatialUnitId = undefined;
 
 						// initialize any adminLTE box widgets
 						$('.box').boxWidget();
@@ -79,9 +80,10 @@ angular
 
             $scope.$on("onGlobalFilterChange",function() {
               $scope.actualSelectedSpatialUnitId = undefined;
+			  this.globalFilterActivated = true;
             });
 
-						$scope.onChangeSelectedSpatialUnit = function(){
+			$scope.onChangeSelectedSpatialUnit = function(){
 
               /* 
                 onChangeSelectedSpatialUnit changed to be called by on-click iso on-change
@@ -89,9 +91,10 @@ angular
                 on-click needed some workaround to cover the actual change of selection iso just the initial click or the change by the global filter
               */
 
-              if(!$scope.actualSelectedSpatialUnitId) {
+              if(!$scope.actualSelectedSpatialUnitId && this.globalFilterActivated) {
                 // initial click, no change yet. Define currently selected spatial unit
                 $scope.actualSelectedSpatialUnitId = kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitId;
+				this.globalFilterActivated = false;
               } else {
 
                 if(kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitId!=$scope.actualSelectedSpatialUnitId) {
@@ -109,7 +112,7 @@ angular
                   }
                 }
               }
-						};
+			};
 
 
 						$scope.showSpatialUnitNotificationModalIfEnabled = function() {
