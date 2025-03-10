@@ -97,7 +97,7 @@ angular
 				this.globalFilterActivated = false;
               } else {
 
-                if(kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitId!=$scope.actualSelectedSpatialUnitId) {
+                if(kommonitorDataExchangeService.selectedSpatialUnit && kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitId!=$scope.actualSelectedSpatialUnitId) {
 
                   $scope.actualSelectedSpatialUnitId = kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitId;
                   $rootScope.$broadcast("changeSpatialUnit");
