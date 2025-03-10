@@ -1,4 +1,6 @@
+import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
+import { dualListInput, item } from 'components/ngComponents/customElements/dual-list-box/dual-list-box.component';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchange, DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { FilterHelperService } from 'services/filter-helper-service/filter-helper.service';
@@ -53,23 +55,20 @@ export class KommonitorFilterComponent implements OnInit {
 
   // SPATIAL FILTER STUFF
   selectedSpatialUnitForFilter;
+  selectedSpatialUnitIdForFilter;
   higherSpatialUnits;
   higherSpatialUnitFilterFeatureGeoJSON;
   reappliedFilter = false;
 
   selectionByFeatureSpatialFilterDuallistOptions = {
-    title: {label: 'Gebiete', helpMessage: 'help'},
-    selectOptions: {initialText: "Gebiete"},
     items: [],
-    button: {leftText: "Alle auswählen" , rightText: "Alle entfernen"},
     selectedItems: []
   };
+  reloadList = false;
+  reloadManualList = false;
 
   manualSelectionSpatialFilterDuallistOptions = {
-    title: {label: 'Gebiete', helpMessage: 'help'},
-    selectOptions: {initialText: "Gebiete"},
     items: [],
-    button: {leftText: "Alle auswählen" , rightText: "Alle entfernen"},
     selectedItems: []
   };
   
@@ -83,7 +82,8 @@ export class KommonitorFilterComponent implements OnInit {
     protected dataExchangeService: DataExchangeService,
     protected filterHelperService: FilterHelperService,
     private mapService: MapService,
-    private broadcastService: BroadcastService
+    private broadcastService: BroadcastService,
+    private http: HttpClient
   ) {
     this.exchangeData = this.dataExchangeService.pipedData;
     this.filterData = this.filterHelperService.pipedData;
@@ -106,6 +106,14 @@ export class KommonitorFilterComponent implements OnInit {
       })
   }
 
+  onUpdatedSelectedItems(items:any) {
+    this.selectionByFeatureSpatialFilterDuallistOptions.selectedItems = items;  
+  }
+
+  onUpdatedManualSelectedItems(items:any) {
+    this.manualSelectionSpatialFilterDuallistOptions.selectedItems = items;  
+  }
+
 							isFilterModeActive(id) {
 								// hier
 								//return this.kommonitorFilterModes.indexOf(id) !== -1;
@@ -122,7 +130,6 @@ export class KommonitorFilterComponent implements OnInit {
 								});
 								
 								this.higherSpatialUnits = JSON.parse(JSON.stringify(this.exchangeData.availableSpatialUnits));
-                console.log(this.higherSpatialUnits);
 								
 								// only show those spatial units that are actually visible according to keycloak role
 								// and associated to the current indicator as well
@@ -499,6 +506,7 @@ export class KommonitorFilterComponent implements OnInit {
 							};
 
 							updateSelectableAreas(selectionType) {
+
 								this.loadingData = true;
 								//send request to datamanagement API
 								let selectedSpatialUnit = this.exchangeData.selectedSpatialUnit;
@@ -511,8 +519,8 @@ export class KommonitorFilterComponent implements OnInit {
 									return;
 								}
 
-								if (selectionType === "byFeature" && this.selectedSpatialUnitForFilter) {									
-									upperSpatialUnitId = this.selectedSpatialUnitForFilter.spatialUnitId;																		
+								if (selectionType === "byFeature" && this.selectedSpatialUnitForFilter) {	
+									upperSpatialUnitId = this.selectedSpatialUnitForFilter.spatialUnitId;				
 								}
 								let selectedIndicatorId = this.exchangeData.selectedIndicator.indicatorId;
 
@@ -536,30 +544,34 @@ export class KommonitorFilterComponent implements OnInit {
 									"/spatial-units/" + upperSpatialUnitId + "/" + datePath;
 
 								//send request
-								console.log(url);
-                // todo
-								/* await $http({
-									url: url,
-									method: "GET"
-								}).then(function successCallback(response) { //TODO add error callback for the case that the combination of indicator and nextUpperHierarchyLevel doesn't exist
-									let areaNames = [];
-									$(response.data.features).each( (id, obj) => {
-										areaNames.push({name: obj.properties[window.__env.FEATURE_NAME_PROPERTY_NAME], id: obj.properties[window.__env.FEATURE_ID_PROPERTY_NAME]});
-									});
-									if (selectionType === "manual") {
-										this.manualSelectionSpatialFilterDuallistOptions.selectedItems = [];
-										let dataArray = this.dataExchangeService.createDualListInputArray(areaNames, "name", "id");
-										this.manualSelectionSpatialFilterDuallistOptions.items = dataArray;
-									}
-									if (selectionType === "byFeature") {
-										this.higherSpatialUnitFilterFeatureGeoJSON = response.data;
-										this.selectionByFeatureSpatialFilterDuallistOptions.selectedItems = [];
-										let dataArray = this.dataExchangeService.createDualListInputArray(areaNames, "name", "id");
-										this.selectionByFeatureSpatialFilterDuallistOptions.items = dataArray;
-									}
-									this.loadingData = false;
-									this.$digest();
-								}); */
+                this.http.get(url).subscribe({
+                  next: response => {
+                    let areaNames:any[] = [];
+                    response['features'].forEach( (obj, id) => {
+                      areaNames.push({name: obj.properties[window.__env.FEATURE_NAME_PROPERTY_NAME], id: obj.properties[window.__env.FEATURE_ID_PROPERTY_NAME]});
+                    });
+
+                    if (selectionType === "manual") {
+                      this.manualSelectionSpatialFilterDuallistOptions.selectedItems = [];
+                      let dataArray = this.dataExchangeService.createDualListInputArray(areaNames, "name", "id");
+                      this.manualSelectionSpatialFilterDuallistOptions.items = dataArray;
+                    }
+
+                    if (selectionType === "byFeature") {
+                      this.higherSpatialUnitFilterFeatureGeoJSON = response;
+                      this.selectionByFeatureSpatialFilterDuallistOptions.selectedItems = [];
+                      let dataArray = this.dataExchangeService.createDualListInputArray(areaNames, "name", "id");
+                      this.selectionByFeatureSpatialFilterDuallistOptions.items = dataArray;
+                    }
+
+                    this.loadingData = false;
+                    this.reloadList = !this.reloadList;
+                  }, 
+                  error: error => {
+
+                  }
+                })
+               
 							};
 
 							onChangeShowManualSelection(checked) {
@@ -588,9 +600,9 @@ export class KommonitorFilterComponent implements OnInit {
 								}
 							};
 
-							onChangeSelectedSpatialUnitForFilter(selectedSpatialUnit){
+							onChangeSelectedSpatialUnitForFilter(){
 
-								this.selectedSpatialUnitForFilter = selectedSpatialUnit;
+								this.selectedSpatialUnitForFilter = this.higherSpatialUnits.filter(e => e.spatialUnitId==this.selectedSpatialUnitIdForFilter)[0];
 
 								if (this.showSelectionByFeatureSpatialFilter) 
 									this.updateSelectableAreas("byFeature");
@@ -602,10 +614,11 @@ export class KommonitorFilterComponent implements OnInit {
 
 							onSelectionByFeatureSpatialFilterSelectBtnPressed(){
 								if(this.selectionByFeatureSpatialFilterDuallistOptions.selectedItems && this.selectionByFeatureSpatialFilterDuallistOptions.selectedItems.length > 0){
+                  
 									// objects like {category: category, name:name}									
 									//this.selectionByFeatureSpatialFilterDuallistOptions.selectedItems
 									let targetFeatureNames = this.selectionByFeatureSpatialFilterDuallistOptions.selectedItems.map((object:any) => object.name);
-
+                  console.log(this.higherSpatialUnitFilterFeatureGeoJSON,targetFeatureNames)
 									this.filterHelperService.applySpatialFilter_higherSpatialUnitFeatures(this.higherSpatialUnitFilterFeatureGeoJSON, targetFeatureNames);
 								}
 							};

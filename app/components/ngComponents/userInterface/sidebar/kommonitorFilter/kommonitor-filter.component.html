@@ -74,34 +74,28 @@
 							<label>Raumebene</label>							
 						</div>
 						<div class="col-sm-12 col-md-6 col-lg-6">
-							<!-- <select style="font-size: 12px;"
-								[(ngModel)]="selectedSpatialUnitForFilter"
-								ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in higherSpatialUnits track by spatialUnit.spatialUnitId"
-								class="form-control" (change)="onChangeSelectedSpatialUnitForFilter(selectedSpatialUnitForFilter)"
-								required>
-								<option disabled selected value> -- Raumeinheit w&auml;hlen --
-								</option>
-							</select> -->
-              <!-- todo -->
-              <select [(ngModel)]="selectedSpatialUnitForFilter" (change)="onChangeSelectedSpatialUnitForFilter(selectedSpatialUnitForFilter)">
+              <select [(ngModel)]="selectedSpatialUnitIdForFilter" (change)="onChangeSelectedSpatialUnitForFilter()">
 								<option disabled selected value> -- Raumeinheit w&auml;hlen -- </option>
-                <option *ngFor="let item of higherSpatialUnits">{{item.metadata.description}}</option>
+                <option *ngFor="let item of higherSpatialUnits" [value]="item.spatialUnitId">{{item.metadata.description}}</option>
               </select>
 						</div>
 						<div class="col-sm-12 col-md-3 col-lg-3">
 							
 						</div>
 					</div>
-
-					<excalibur-dual-list class="spatialFilterDuallist" 
-						options="selectionByFeatureSpatialFilterDuallistOptions"></excalibur-dual-list>
-					<button class="btn btn-primary" (click)="onSelectionByFeatureSpatialFilterSelectBtnPressed()"
-						ng-disabled="!selectionByFeatureSpatialFilterDuallistOptions || selectionByFeatureSpatialFilterDuallistOptions.selectedItems.length == 0">
-							Selektion durchf&uuml;hren
-					</button> 
-					<br/>
-					<button id="selectionByFeatureSpatialFilterResetSelectionBtn" class="btn btn-danger" 
-						(click)="onSelectionByFeatureSpatialFilterResetBtnPressed()">Selektion zur&uuml;cksetzen</button>
+          
+          <app-dual-list-box [data]="selectionByFeatureSpatialFilterDuallistOptions" [reload]="reloadList" (selectedItems)="onUpdatedSelectedItems($event)"></app-dual-list-box>
+				<!-- 	<excalibur-dual-list class="spatialFilterDuallist" 
+						options="selectionByFeatureSpatialFilterDuallistOptions"></excalibur-dual-list> -->
+          <div style="margin-top: 4em;">
+            <button class="btn btn-primary" (click)="onSelectionByFeatureSpatialFilterSelectBtnPressed()"
+              ng-disabled="!selectionByFeatureSpatialFilterDuallistOptions || selectionByFeatureSpatialFilterDuallistOptions.selectedItems.length == 0">
+                Selektion durchf&uuml;hren
+            </button> 
+            <br/>
+            <button id="selectionByFeatureSpatialFilterResetSelectionBtn" class="btn btn-danger" 
+              (click)="onSelectionByFeatureSpatialFilterResetBtnPressed()">Selektion zur&uuml;cksetzen</button>
+            </div>
 				</div>
 
 				<hr>
@@ -115,8 +109,10 @@
 					<span class="switchslider round"></span>
 				</label>
 				<div id="manualSelectionSpatialFilter" *ngIf="showManualSelectionSpatialFilter">
+          <app-dual-list-box [data]="manualSelectionSpatialFilterDuallistOptions" [reload]="reloadManualList" (selectedItems)="onUpdatedManualSelectedItems($event)"></app-dual-list-box>
+				<!-- 
 					<excalibur-dual-list class="spatialFilterDuallist" 
-						options="manualSelectionSpatialFilterDuallistOptions"></excalibur-dual-list>
+						options="manualSelectionSpatialFilterDuallistOptions"></excalibur-dual-list> -->
 					
 					<!-- selection via any drawable item on map - hidden for now -->
 						<!-- <div>

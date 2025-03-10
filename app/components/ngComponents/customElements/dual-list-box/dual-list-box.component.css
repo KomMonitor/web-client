@@ -1,0 +1,40 @@
+:host {
+  .listWrapper {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-gap: 2em;
+
+    .selectBox {
+      height: 100%;
+
+      select {
+        border: 1px solid rgb(51,122,183);
+        border-radius: 0;
+        height: 100%;
+
+        option {
+          cursor: pointer;
+          padding: .8em 0 .8em 0;
+          border-bottom: 1px dotted #a4a4a4;
+        }
+      }
+    }
+
+    .header {
+      background-color: rgb(51,122,183);
+      text-align: center;
+      padding: .3em;
+      color: #ffffff;
+    }
+
+    .search {
+      input {
+        width: 100%;
+        border: 0;
+        border-left: 1px solid rgb(51,122,183);
+        border-right: 1px solid rgb(51,122,183);
+        border-radius: 0;
+      }
+    }
+  }
+}

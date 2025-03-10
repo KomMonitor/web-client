@@ -39,6 +39,7 @@ import { SidebarComponent } from './components/ngComponents/userInterface/sideba
 import { PoiComponent } from 'components/ngComponents/userInterface/sidebar/poi/poi.component';
 import { KommonitorFilterComponent } from './components/ngComponents/userInterface/sidebar/kommonitorFilter/kommonitor-filter.component';
 import { KommonitorMapComponent } from './components/ngComponents/userInterface/kommonitorMap/kommonitor-map.component';
+import { DualListBoxComponent } from './components/ngComponents/customElements/dual-list-box/dual-list-box.component';
 
 
 
@@ -77,7 +78,8 @@ declare var MathJax;
     SidebarComponent,
     PoiComponent,
     KommonitorFilterComponent,
-    KommonitorMapComponent
+    KommonitorMapComponent,
+    DualListBoxComponent
   ],
   schemas: [
     CUSTOM_ELEMENTS_SCHEMA

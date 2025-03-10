@@ -220,4 +220,8 @@ export class DataExchangeService {
   generateAndDownloadGeoresourceZIP(poi, geoJSON_string, fileName, extension, val) {
     this.ajskommonitorDataExchangeServiceeProvider.generateAndDownloadGeoresourceZIP(poi, geoJSON_string, fileName, extension, val);
   }
+
+  createDualListInputArray(areaNames, name, id) {
+    return this.ajskommonitorDataExchangeServiceeProvider.createDualListInputArray(areaNames, name, id);
+  }
 }
