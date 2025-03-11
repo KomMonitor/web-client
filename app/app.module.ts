@@ -40,6 +40,8 @@ import { PoiComponent } from 'components/ngComponents/userInterface/sidebar/poi/
 import { KommonitorFilterComponent } from './components/ngComponents/userInterface/sidebar/kommonitorFilter/kommonitor-filter.component';
 import { KommonitorMapComponent } from './components/ngComponents/userInterface/kommonitorMap/kommonitor-map.component';
 import { DualListBoxComponent } from './components/ngComponents/customElements/dual-list-box/dual-list-box.component';
+import { KommonitorBalanceComponent } from './components/ngComponents/userInterface/sidebar/kommonitorBalance/kommonitor-balance.component';
+import { NouisliderModule } from 'ng2-nouislider';
 
 
 
@@ -57,7 +59,8 @@ declare var MathJax;
     NgbAccordionModule,
     FormsModule, 
     HttpClientModule,
-    JsonPipe
+    JsonPipe,
+    NouisliderModule
   ],
   providers:[
     {provide: LocationStrategy, useClass: HashLocationStrategy},
@@ -79,7 +82,8 @@ declare var MathJax;
     PoiComponent,
     KommonitorFilterComponent,
     KommonitorMapComponent,
-    DualListBoxComponent
+    DualListBoxComponent,
+    KommonitorBalanceComponent
   ],
   schemas: [
     CUSTOM_ELEMENTS_SCHEMA

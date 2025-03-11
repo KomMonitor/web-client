@@ -2,6 +2,7 @@
   <app-kommonitor-data-setup [hidden]="content!=0"></app-kommonitor-data-setup>
   <app-poi [hidden]="content!=1"></app-poi>
   <app-kommonitor-filter [hidden]="content!=3"></app-kommonitor-filter>
+  <app-kommonitor-balance></app-kommonitor-balance>
 </div>
 
 <div id="buttonWrapper">
@@ -10,5 +11,6 @@
     <li><button (click)="showContent(1)">Georesources</button></li>
     <li><button>Import</button></li>
     <li><button (click)="showContent(3)">Filter</button></li>
+    <li><button (click)="showContent(4)">Bilanzierung</button></li>
   </ul>
 </div>

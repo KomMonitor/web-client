@@ -74,6 +74,8 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
       this.filterHelperData = this.filterHelperService.pipedData;
       this.env = window.__env;
       
+      
+      console.log("ids",this.exchangeData.selectedDate);
       var dateComponents = this.exchangeData.selectedDate.split("-");
       this.dateAsDate = new Date(Number(dateComponents[0]), Number(dateComponents[1]) - 1, Number(dateComponents[2]));
 

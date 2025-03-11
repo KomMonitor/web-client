@@ -66,6 +66,7 @@ export interface DataExchange {
   classifyZeroSeparately_backup: any;
   simplifyGeometriesParameterName:any;
   simplifyGeometries:any;
+  enableBilanceTrend: any;
 }
 
 export interface IndicatorTopic {

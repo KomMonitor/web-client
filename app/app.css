@@ -3208,3 +3208,22 @@ input:checked + .switchslider:before {
     .modal {
         z-index: 1150 !important;
     }
+
+    /* custom nouislider adjustments */
+
+    .noUi-horizontal {
+      height: 12px !important; 
+
+      .noUi-handle {
+        width: 22px !important;
+        height: 22px !important;
+        right: -12px !important;
+      }
+
+      .noUi-handle::before, .noUi-handle::after {
+        content: none !important;
+      }
+    }
+    .noUi-connect, .noUi-connects {
+      background-color: rgb(51,122,183) !important;
+    }

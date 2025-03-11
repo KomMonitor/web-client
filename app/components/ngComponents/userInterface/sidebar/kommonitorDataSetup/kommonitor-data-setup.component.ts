@@ -52,7 +52,7 @@ export class KommonitorDataSetupComponent implements OnInit {
 
       this.onInitialMetadataLoadingComplete();
 
-    },2000);
+    },1000);
   }
 
   onInitialMetadataLoadingComplete() {
@@ -917,6 +917,7 @@ export class KommonitorDataSetupComponent implements OnInit {
 
     //todo
     //7$rootScope.$broadcast("updateBalanceSlider", this.exchangeData.selectedDate);
+    this.broadcastService.broadcast("updateBalanceSlider", [this.exchangeData.selectedDate]);
     //$rootScope.$broadcast("updateIndicatorValueRangeFilter", this.exchangeData.selectedDate, this.exchangeData.selectedIndicator);
     this.addSelectedIndicatorToMap(changeIndicator);
 
