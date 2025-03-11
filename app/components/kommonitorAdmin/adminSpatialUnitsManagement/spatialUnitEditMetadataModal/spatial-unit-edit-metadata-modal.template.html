@@ -12,7 +12,7 @@
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span></button>
-				<h4 class="modal-title">Metadaten der Raumeinheit <i><b>{{currentSpatialUnitDataset.spatialUnitLevel}}</b></i> editieren</h4>
+				<h4 class="modal-title">Metadaten der Raumebene <i><b>{{currentSpatialUnitDataset.spatialUnitLevel}}</b></i> editieren</h4>
 			</div>
 			<div class="modal-body">
 
@@ -44,14 +44,14 @@
 						<!-- progressbar -->
 						<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity">
 							<ul id="progressbar">
-								<li style="width: 33.33%;" class="active">Metadaten der Raumeinheit</li>
+								<li style="width: 33.33%;" class="active">Metadaten der Raumebene</li>
 								<li style="width: 33.33%;">Allgemeine Metadaten</li>
 								<li style="width: 33.33%;">Rollenbasierter Zugriffsschutz</li>							
 							</ul>
 						</div>
 						<div ng-if="! $ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity">
 							<ul id="progressbar">
-								<li style="width: 50%;" class="active">Metadaten der Raumeinheit</li>
+								<li style="width: 50%;" class="active">Metadaten der Raumebene</li>
 								<li style="width: 50%;">Allgemeine Metadaten</li>						
 							</ul>
 						</div>
@@ -59,20 +59,20 @@
 
 						
 						<fieldset>
-							<h2 class="fs-title">Metadaten der Raumeinheit</h2>
-							<h3 class="fs-subtitle">Angaben &uuml;ber die neue Raumeinheit</h3>
+							<h2 class="fs-title">Metadaten der Raumebene</h2>
+							<h3 class="fs-subtitle">Angaben &uuml;ber die neue Raumebene</h3>
 
 							<p><b><i>* = Pflichtfeld</i></b></p>
 							
 							<div class="row vertical-align">
 								<div class="col-md-4 col-sm-6 col-xs-12">
 									<div class="form-group">
-										<label>Name der Raumeinheit*</label>
+										<label>Name der Raumebene*</label>
 										<input type="text" class="form-control" ng-model="spatialUnitLevel" ng-change="checkSpatialUnitName()"
 											placeholder="eindeutiger Name" required></input>
 										<div class="help-block with-errors"></div>
 										<div ng-if="spatialUnitLevelInvalid" style="color: red;">
-											<p>Eingabe ung&uuml;ltig. Es existiert bereits eine Raumeinheit mit gleichem Namen.</p>
+											<p>Eingabe ung&uuml;ltig. Es existiert bereits eine Raumebene mit gleichem Namen.</p>
 										</div>
 									</div>
 								</div>
@@ -81,7 +81,7 @@
 										<label>Hierarchie: n&auml;chst niedrigere Ebene</label>
 										<select ng-model="nextLowerHierarchySpatialUnit" ng-change="checkSpatialUnitHierarchy()"
 											class="form-control">
-											<option disabled selected value> -- Raumeinheit w&auml;hlen -- </option>
+											<option disabled selected value> -- Raumebene w&auml;hlen -- </option>
 											<option value> -- keine (neue unterste Ebene) -- </option>
 											<option ng-repeat="value in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits"
 												ng-value="value"> {{value.spatialUnitLevel}} </option>
@@ -100,7 +100,7 @@
 										<label>Hierarchie: n&auml;chst h&ouml;here Ebene</label>
 										<select ng-model="nextUpperHierarchySpatialUnit" ng-change="checkSpatialUnitHierarchy()"
 											class="form-control">
-											<option disabled selected value> -- Raumeinheit w&auml;hlen -- </option>
+											<option disabled selected value> -- Raumebene w&auml;hlen -- </option>
 											<option value> -- keine (neue oberste Ebene) -- </option>
 											<option ng-repeat="value in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits"
 												ng-value="value"> {{value.spatialUnitLevel}} </option>
@@ -125,7 +125,7 @@
 											<span class="switchslider round"></span>
 										</label>
 										<div class="help-block">
-											<p>wenn markiert, dann wird in der Kartenapplikation in der Layersteuerung ein entsprechender Eintrag zur Darstellung der Raumeinheitsumringe angeboten</p>
+											<p>wenn markiert, dann wird in der Kartenapplikation in der Layersteuerung ein entsprechender Eintrag zur Darstellung der Raumebenenumringe angeboten</p>
 										</div>
 									</div>
 								</div>
@@ -272,7 +272,7 @@
 
 							<fieldset ng-if="$ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity">
 								<h2 class="fs-title">Rollenbasierter Zugriffsschutz</h2>
-									<h3 class="fs-subtitle">Vergabe der Zugriffsrechte auf Datensatz-Metadaten und -Features pro Organisationseinheit</h3>
+									<h3 class="fs-subtitle">Vergabe der Zugriffsrechte auf Datensatz-Metadaten und -Raumeinheiten pro Organisationseinheit</h3>
 		
 									<p>Zugriffsrechte (lesen, editieren, l&ouml;schen) m&uuml;ssen explizit vergeben werden. Administratoren (Rolle <i>kommonitor-creator</i>) haben immer vollen Zugriff.</p>
 							
@@ -313,14 +313,14 @@
 
 			<div id="spatialUnitEditMetadataSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden class="alert alert-success alert-dismissable">
                 <button type="button" class="close" ng-click="hideSuccessAlert()" aria-hidden="true">&times;</button>
-                <h4><i class="icon fa fa-check"></i>Raumeinheit aktualisiert</h4>
-                Die Metadaten der Raumeinheit mit Namen {{successMessagePart}} wurden in KomMonitor aktualisiert und in die &Uuml;bersichtstabelle eingetragen.
+                <h4><i class="icon fa fa-check"></i>Raumebene aktualisiert</h4>
+                Die Metadaten der Raumebene mit Namen {{successMessagePart}} wurden in KomMonitor aktualisiert und in die &Uuml;bersichtstabelle eingetragen.
       </div>
 
 			<div id="spatialUnitEditMetadataErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden class="alert alert-danger alert-dismissable">
                 <button type="button" class="close" ng-click="hideErrorAlert()" aria-hidden="true">&times;</button>
                 <h4><i class="icon fa fa-ban"></i>Aktualisierung gescheitert</h4>
-                Bei der Aktualisierung der Metadaten der Raumeinheit ist ein Fehler aufgetreten. Fehlermeldung:
+                Bei der Aktualisierung der Metadaten der Raumebene ist ein Fehler aufgetreten. Fehlermeldung:
 								<br/>
 								<pre style="overflow:auto; max-height:500px;" ng-bind-html="errorMessagePart"></pre>
       </div>

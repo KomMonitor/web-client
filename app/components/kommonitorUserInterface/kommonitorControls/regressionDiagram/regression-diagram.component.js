@@ -312,7 +312,7 @@ angular
 									return color;
 								};
 
-								function mapRegressionData(indicatorPropertiesArray, timestamp, map, axisValueName){
+								function mapRegressionData(indicatorPropertiesArray, timestamp, map, axisValueName, axisPrecision){
 
 									for (const indicatorPropertiesEntry of indicatorPropertiesArray) {
 										let featureName = indicatorPropertiesEntry[__env.FEATURE_NAME_PROPERTY_NAME];
@@ -322,7 +322,7 @@ angular
 											indicatorValue = null;
 										}
 										else{
-											indicatorValue = kommonitorDataExchangeService.getIndicatorValue_asNumber(indicatorPropertiesEntry[DATE_PREFIX + timestamp]);
+											indicatorValue = kommonitorDataExchangeService.getIndicatorValue_asNumber(indicatorPropertiesEntry[DATE_PREFIX + timestamp], axisPrecision);
 										}
 
 										if(map.has(featureName)){
@@ -383,8 +383,11 @@ angular
 									//}
 									let xAxisName = "xValue";
 									let yAxisName = "yValue";
-									let dataCandidateMap = mapRegressionData(indicatorPropertiesArrayForXAxis, timestamp_xAxis, new Map(), xAxisName);
-									dataCandidateMap = mapRegressionData(indicatorPropertiesArrayForYAxis, timestamp_yAxis, dataCandidateMap, yAxisName);
+									let xAxisPrecision = $scope.selection.selectedIndicatorForXAxis.indicatorMetadata.precision;
+									let yAxisPrecision = $scope.selection.selectedIndicatorForYAxis.indicatorMetadata.precision;
+
+									let dataCandidateMap = mapRegressionData(indicatorPropertiesArrayForXAxis, timestamp_xAxis, new Map(), xAxisName, xAxisPrecision);
+									dataCandidateMap = mapRegressionData(indicatorPropertiesArrayForYAxis, timestamp_yAxis, dataCandidateMap, yAxisName, yAxisPrecision);
 
 									// now iterate over map and identify those objects that have both indicator axis values set
 									// put those into resulting lists 
@@ -521,8 +524,15 @@ angular
 
 										let titlePrefix = kommonitorDataExchangeService.enableScatterPlotRegression ? 'Lineare Regression - ' : 'Streudiagramm - ';
 										let dataViewTitle =  kommonitorDataExchangeService.enableScatterPlotRegression ? 'Datenansicht - lineare Regression' : 'Datenansicht - Streudiagramm';
-
-										$scope.regressionOption = {
+                    
+                    //get custom fontFamily
+                    var elem = document.querySelector('#fontFamily-reference');
+                    var style = getComputedStyle(elem);
+										
+                    $scope.regressionOption = {
+                      textStyle: {
+                        fontFamily: style.fontFamily
+                      },
 											grid: {
 											  left: '10%',
 											  top: 10,
@@ -539,7 +549,22 @@ angular
 										        trigger: 'item',
 														confine: 'true',
 										        axisPointer: {
-										            type: 'cross'
+										            type: 'cross',
+                                label: {
+                                  formatter: function (params, index) {
+									//y-axis
+									if (params.axisDimension === 'y') {
+										return kommonitorDataExchangeService.getIndicatorValue_asFormattedText(params.value,  $scope.selection.selectedIndicatorForYAxis.indicatorMetadata.precision);
+									}
+									//x-axis
+									else if (params.axisDimension === 'x') {
+										return kommonitorDataExchangeService.getIndicatorValue_asFormattedText(params.value,  $scope.selection.selectedIndicatorForXAxis.indicatorMetadata.precision);
+									}
+									else {
+										return kommonitorDataExchangeService.getIndicatorValue_asFormattedText(params.value);
+									}
+                                  }
+                                }
 										        },
 														formatter: function (params) {
 																			if(!(params && params.value && params.value[0] && params.value[1])){
@@ -547,8 +572,8 @@ angular
 																			}
 																				var string = "" + params.name + "<br/>";
 
-																				string += $scope.selection.selectedIndicatorForXAxis.indicatorMetadata.indicatorName + ": " + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(params.value[0]) + " [" + $scope.selection.selectedIndicatorForXAxis.indicatorMetadata.unit + "]<br/>";
-																				string += $scope.selection.selectedIndicatorForYAxis.indicatorMetadata.indicatorName + ": " + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(params.value[1]) + " [" + $scope.selection.selectedIndicatorForYAxis.indicatorMetadata.unit + "]<br/>";
+																				string += $scope.selection.selectedIndicatorForXAxis.indicatorMetadata.indicatorName + ": " + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(params.value[0], $scope.selection.selectedIndicatorForXAxis.indicatorMetadata.precision) + " [" + $scope.selection.selectedIndicatorForXAxis.indicatorMetadata.unit + "]<br/>";
+																				string += $scope.selection.selectedIndicatorForYAxis.indicatorMetadata.indicatorName + ": " + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(params.value[1], $scope.selection.selectedIndicatorForYAxis.indicatorMetadata.precision) + " [" + $scope.selection.selectedIndicatorForYAxis.indicatorMetadata.unit + "]<br/>";
 						                            return string;
 						                           }
 										    },
@@ -556,25 +581,35 @@ angular
 														name: kommonitorDataExchangeService.formatIndicatorNameForLabel($scope.selection.selectedIndicatorForXAxis.indicatorMetadata.indicatorName + " - " + $scope.selection.selectedIndicatorForXAxis.selectedDate + " [" + $scope.selection.selectedIndicatorForXAxis.indicatorMetadata.unit + "]", 100),
 														nameLocation: 'center',
 														nameGap: 22,
-		                        						scale: true,
-										        		type: 'value',
-										        		splitLine: {
-										            		lineStyle: {
-										                		type: 'dashed'
-										            		}
-										        		},
-										    		},
+                            scale: true,
+                            type: 'value',
+                            splitLine: {
+                                lineStyle: {
+                                    type: 'dashed'
+                                }
+                            },
+                            axisLabel: {
+                              formatter: function (value, index) {
+                                return kommonitorDataExchangeService.getIndicatorValue_asFormattedText(value, $scope.selection.selectedIndicatorForXAxis.indicatorMetadata.precision);
+                              }
+                            }
+                        },
 										    yAxis: {
 														name: kommonitorDataExchangeService.formatIndicatorNameForLabel($scope.selection.selectedIndicatorForYAxis.indicatorMetadata.indicatorName + " - " + $scope.selection.selectedIndicatorForYAxis.selectedDate + " [" + $scope.selection.selectedIndicatorForYAxis.indicatorMetadata.unit + "]", 75),
 														nameLocation: 'center',
-														nameGap: 50,
-										        		type: 'value',
-										        		splitLine: {
-										            		lineStyle: {
-										                		type: 'dashed'
-										            		}	
-										        		},
-										    		},
+														nameGap: 80,
+                            type: 'value',
+                            splitLine: {
+                                lineStyle: {
+                                    type: 'dashed'
+                                }	
+                            },
+                            axisLabel: {
+                              formatter: function (value, index) {
+                                return kommonitorDataExchangeService.getIndicatorValue_asFormattedText(value, $scope.selection.selectedIndicatorForYAxis.indicatorMetadata.precision);
+                              }
+                            }
+                        },
 												toolbox: {
 														show : true,
 														right: '15',
@@ -618,7 +653,7 @@ angular
 																	htmlString += '<table id="' + dataTableId + '" class="table table-bordered table-condensed" style="width:100%;text-align:center;">';
 																	htmlString += "<thead>";
 																	htmlString += "<tr>";
-																	htmlString += "<th style='text-align:center;'>Feature-Name</th>";
+																	htmlString += "<th style='text-align:center;'>Raumeinheits-Name</th>";
 																	htmlString += "<th style='text-align:center;'>" + opt.xAxis[0].name + "</th>";
 																	htmlString += "<th style='text-align:center;'>" + opt.yAxis[0].name + "</th>";
 
@@ -630,9 +665,9 @@ angular
 																	for (var j=0; j<scatterSeries.length; j++){
 																		htmlString += "<tr>";
 																		htmlString += "<td>" + scatterSeries[j].name + "</td>";
-
-																		htmlString += "<td>" + kommonitorDataExchangeService.getIndicatorValue_asNumber(scatterSeries[j].value[0]) + "</td>";
-																		htmlString += "<td>" + kommonitorDataExchangeService.getIndicatorValue_asNumber(scatterSeries[j].value[1]) + "</td>";
+																		
+																		htmlString += "<td>" + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(scatterSeries[j].value[0], $scope.selection.selectedIndicatorForXAxis.indicatorMetadata.precision) + "</td>";
+																		htmlString += "<td>" + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(scatterSeries[j].value[1], $scope.selection.selectedIndicatorForYAxis.indicatorMetadata.precision) + "</td>";
 																		htmlString += "</tr>";
 																	}
 
@@ -658,8 +693,8 @@ angular
 																	
 																		for (var j=0; j<lineSeries.length; j++){
 																			htmlString += "<tr>";
-																			htmlString += "<td>" + kommonitorDataExchangeService.getIndicatorValue_asNumber(lineSeries[j][0]) + "</td>";
-																			htmlString += "<td>" + kommonitorDataExchangeService.getIndicatorValue_asNumber(lineSeries[j][1]) + "</td>";
+																			htmlString += "<td>" + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(lineSeries[j][0], $scope.selection.selectedIndicatorForXAxis.indicatorMetadata.precision) + "</td>";
+																			htmlString += "<td>" + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(lineSeries[j][1], $scope.selection.selectedIndicatorForYAxis.indicatorMetadata.precision) + "</td>";
 																			htmlString += "</tr>";
 																		}
 																		

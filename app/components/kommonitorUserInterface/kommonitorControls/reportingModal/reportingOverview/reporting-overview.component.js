@@ -41,6 +41,32 @@ angular.module('reportingOverview').component('reportingOverview', {
 		$scope.loadingData = false;
 		$scope.echartsImgPixelRatio = 2;
 
+    $scope.customFontFamily = undefined;
+    $scope.customFontFile = undefined
+
+    $scope.setCustomFont = function() {
+        
+      var defaultFont = '"Source Sans Pro", "Helvetica Neue", Helvetica, Arial, sans-serif';
+
+      var elem = document.querySelector('#fontFamily-reference');
+      var style = getComputedStyle(elem);
+      var fontFamily = style.fontFamily.split(',')[0];
+
+      if(fontFamily!=defaultFont) 
+        $scope.customFontFamily = fontFamily;
+
+      if(style.content!='normal') {
+
+        let fontFile = style.content.replace(/['"]+/g,'');
+
+        // check for local ttf
+        $http.get(`fonts/${fontFile}`).then(() => {
+            console.log("Custom font file found internal");
+            $scope.customFontFile = `fonts/${fontFile}`;
+        });
+      }
+    }
+
 		$scope.initialize = function(data) {
 			let configFileSelected = data[0];
 			data = data[1];
@@ -54,6 +80,8 @@ angular.module('reportingOverview').component('reportingOverview', {
 			let deviceScreenDpi = calculateScreenDpi();
       $scope.deviceScreenDpi = deviceScreenDpi;
 			$scope.pxPerMilli = deviceScreenDpi / 25.4 // /2.54 --> cm, /10 --> mm
+
+			$scope.setCustomFont(); 
 		}
 
 		$scope.sortableConfig = {
@@ -228,9 +256,6 @@ angular.module('reportingOverview').component('reportingOverview', {
 				$scope.config.pages = sorted;
 			}
 		});
-
-		
-
 
 		$scope.setupNewPages = function(templateSection) {
 
@@ -1346,10 +1371,20 @@ angular.module('reportingOverview').component('reportingOverview', {
 				orientation: $scope.config.pages[0].orientation
 			});
 
-			// general settings
-			let fontName = "Helvetica";
+      let fontName = "Helvetica"; // standard
+
+      if($scope.customFontFile) {
+        fontName = 'CustomInternal';
+        doc.addFont($scope.customFontFile, fontName, 'normal');
+      }
+
+      // external working as well, but unable to check for validity beforehand. Thus resulting in an critical error if invalid at rendering 
+     /* 
+      doc.addFont('fonts/Comic_Sans_internal.ttf', 'Comic', 'normal');
+      doc.addFont('https://fonts.gstatic.com/s/lobster/v30/neILzCirqoswsqX9_oWsMqEzSJQ.ttf', 'Tester', 'normal'); */
+      
 			doc.setDrawColor(148, 148, 148);
-			doc.setFont(fontName, "normal", "normal"); // name, normal/italic, fontweight
+			doc.setFont(fontName, "normal", "normal"); 
 			
 			for(let [idx, page] of $scope.config.pages.entries()) {
 
@@ -1391,7 +1426,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 						case "indicatorTitle-portrait": {
 							// Css takes the top-left edge of the element by default.
 							// doc.text takes left-bottom, so we ass baseline "top" to achieve the same behavior in jspdf.
-							doc.setFont(fontName, "Bold")
+							doc.setFont(fontName, "normal", "normal")
 							doc.text(pageElement.text, pageElementDimensions.left, pageElementDimensions.top, { baseline: "top" });
 							doc.setFont(fontName, "normal", "normal")
 							break;
@@ -1583,7 +1618,9 @@ angular.module('reportingOverview').component('reportingOverview', {
 			// https://docx.js.org/#/?id=basic-usage
 
 			let font = "Calibri";
-			
+      if($scope.customFontFamily!=undefined) {
+        font = $scope.customFontFamily.replace(/['"]+/g,'');
+      }
 			for(let [idx, page] of $scope.config.pages.entries()) {
 
 				if(!$scope.showThisPage(page)) {

@@ -169,7 +169,7 @@ angular
 
 						// use configuration item and data specified to show chart
 						// $scope.barOption = JSON.parse(JSON.stringify(kommonitorDiagramHelperService.getBarChartOptions()));
-						$scope.barOption = kommonitorDiagramHelperService.getBarChartOptions();
+						$scope.barOption = kommonitorDiagramHelperService.getBarChartOptions(true);
 						if (showBarChartLabel){
 							$scope.barOption.label.show = true;
 						}
@@ -273,7 +273,7 @@ angular
 						}
 
 						// use configuration item and data specified to show chart
-						$scope.lineOption = kommonitorDiagramHelperService.getLineChartOptions();
+						$scope.lineOption = kommonitorDiagramHelperService.getLineChartOptions(true);
 						$scope.lineChart.setOption($scope.lineOption);
 
 						$scope.lineChart.hideLoading();

@@ -65,7 +65,7 @@
 														<label> Themenorientierter Datenkatalog </label>
 
 														<div ng-repeat="mainTopic in $ctrl.kommonitorDataExchangeServiceInstance.topicIndicatorHierarchy | orderBy: 'topicName'" ng-if="::mainTopic.indicatorCount">
-															<div  class="list-group-item list-group-item-default list-group-item-grid-layout" style="background: #2171b5; color: white;">
+															<div  class="list-group-item list-group-item-default list-group-item-grid-layout kommonitor-theme">
 																<a href="" ng-attr-title="{{mainTopic.topicDescription}}" class="collapseTrigger" style="color: white;" ng-click="isCollapsed_mainTopic = !isCollapsed_mainTopic" ng-init="isCollapsed_mainTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>{{::mainTopic.topicName}}  ({{mainTopic.indicatorCount}})</a>
                                 <i ng-show="showFavSelection" class="glyphicon glyphicon-custom" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[indicatorTopicFavSelected(mainTopic.topicId)]" ng-click="onIndicatorTopicFavClick(mainTopic.topicId)"></i>
 															</div>
@@ -73,14 +73,14 @@
 															<div class="list-group collapse" uib-collapse="isCollapsed_mainTopic">
 																<div ng-repeat="subTopic in ::mainTopic.subTopics | orderBy: 'topicName'" ng-if="::subTopic.indicatorCount">
 
-																	<div  class="list-group-item list-group-item-default list-group-item-grid-layout" style="background: #6baed6; color: white;">
+																	<div  class="list-group-item list-group-item-default list-group-item-grid-layout kommonitor-80">
 																		<a class="collapseTrigger" style="color: white;" ng-attr-title="{{::subTopic.topicDescription}}" href="" ng-click="isCollapsed_subTopic = !isCollapsed_subTopic" ng-init="isCollapsed_subTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>{{::subTopic.topicName}}  ({{subTopic.indicatorCount}})</a>
                                     <i ng-show="showFavSelection" class="glyphicon glyphicon-custom" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[indicatorTopicFavSelected(subTopic.topicId)]" ng-click="onIndicatorTopicFavClick(subTopic.topicId)"></i>
 																	</div>	
 																	<div class="list-group collapse" uib-collapse="isCollapsed_subTopic">
 																		<div ng-repeat="subsubTopic in ::subTopic.subTopics | orderBy: 'topicName'" ng-if="::subsubTopic.indicatorCount">
 	
-																			<div  class="list-group-item list-group-item-default list-group-item-grid-layout" style="background: #bdd7e7; color: white;">
+																			<div  class="list-group-item list-group-item-default list-group-item-grid-layout kommonitor-60">
 																				<a class="collapseTrigger" style="color: black;" ng-attr-title="{{::subsubTopic.topicDescription}}" href="" ng-click="isCollapsed_subsubTopic = !isCollapsed_subsubTopic" ng-init="isCollapsed_subsubTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>{{::subsubTopic.topicName}}   ({{subsubTopic.indicatorCount}})</a>
                                         <i ng-show="showFavSelection" class="glyphicon glyphicon-custom" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[indicatorTopicFavSelected(subsubTopic.topicId)]" ng-click="onIndicatorTopicFavClick(subsubTopic.topicId)" style="color: black;"></i>
 																			</div>
@@ -88,14 +88,14 @@
 																			<div class="list-group collapse" uib-collapse="isCollapsed_subsubTopic">
 																				<div ng-repeat="subsubsubTopic in ::subsubTopic.subTopics | orderBy: 'topicName'" ng-if="::subsubsubTopic.indicatorCount">
 		
-																					<div  class="list-group-item list-group-item-default list-group-item-grid-layout" style="background: #eff3ff; color: white;">
+																					<div  class="list-group-item list-group-item-default list-group-item-grid-layout kommonitor-40">
 																						<a class="collapseTrigger" style="color: black;" ng-attr-title="{{::subsubsubTopic.topicDescription}}" href="" ng-click="isCollapsed_subsubsubTopic = !isCollapsed_subsubsubTopic" ng-init="isCollapsed_subsubsubTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>{{::subsubsubTopic.topicName}}   ({{subsubsubTopic.indicatorCount}})</a>
                                             <i ng-show="showFavSelection" class="glyphicon glyphicon-custom" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[indicatorTopicFavSelected(subsubsubTopic.topicId)]" ng-click="onIndicatorTopicFavClick(subsubsubTopic.topicId)" style="color: black;"></i>
 																					</div>
 			
 																						<div class="list-group collapse indicatorInputForm" uib-collapse="isCollapsed_subsubsubTopic">
 																							<div id="indicatorHierarchyElement-{{::indicatorMetadata.indicatorId}}" ng-class="{'style-headline-indicator': indicatorMetadata.isHeadlineIndicator , 'style-simple-indicator': ! indicatorMetadata.isHeadlineIndicator}" 
-																								ng-repeat="indicatorMetadata in subsubsubTopic.indicatorData track by indicatorMetadata.indicatorId" class="list-group-item list-group-item-default">
+																								ng-repeat="indicatorMetadata in subsubsubTopic.indicatorData track by indicatorMetadata.indicatorId" class="list-group-item list-group-item-default kommonitor-theme">
 																								<div ng-if="::indicatorMetadata.isHeadlineIndicator" class="list-group-item-grid-layout">
 																									<div>
                                                     <p style="cursor:pointer; color: white;" ng-attr-title="<b>{{::indicatorMetadata.indicatorName}}</b> [{{::indicatorMetadata.unit}}]" style="color: white;" ng-click="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-tachometer-alt"></i> &nbsp;&nbsp;<b>{{::indicatorMetadata.indicatorName}}</b> [{{::indicatorMetadata.unit}}]</p>																			
@@ -227,7 +227,7 @@
 														<label> Leitindikatoren und ihre Basis-Indikatoren </label>
 
 														<div ng-repeat="headlineIndicatorHierarchyItem in $ctrl.kommonitorDataExchangeServiceInstance.headlineIndicatorHierarchy track by headlineIndicatorHierarchyItem.headlineIndicator.indicatorId">
-															<div  class="list-group-item list-group-item-default list-group-item-grid-layout" style="background: #2171b5; color: white;">
+															<div  class="list-group-item list-group-item-default list-group-item-grid-layout kommonitor-theme">
 																<a href="" ng-attr-title="{{::headlineIndicatorHierarchyItem.headlineIndicator.metadata.description}}" class="collapseTrigger" style="color: white;" ng-click="isCollapsed_headlineIndicatorHierarchyItem = !isCollapsed_headlineIndicatorHierarchyItem" ng-init="isCollapsed_headlineIndicatorHierarchyItem=true"><i class="glyphicon glyphicon-chevron-right"></i>{{::headlineIndicatorHierarchyItem.headlineIndicator.indicatorName}} </a>
                                 <i ng-show="showFavSelection" class="glyphicon glyphicon-custom" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[headlineIndicatorFavSelected(headlineIndicatorHierarchyItem.headlineIndicator.indicatorId)]" ng-click="onHeadlineIndicatorFavClick(headlineIndicatorHierarchyItem.headlineIndicator.indicatorId)"></i>
 															</div>
@@ -332,7 +332,7 @@
 														<label> von KomMonitor berechnete Ziel-Indikatoren und ihre Basis-Indikatoren </label>
 
 														<div ng-repeat="computationIndicatorHierarchyItem in $ctrl.kommonitorDataExchangeServiceInstance.computationIndicatorHierarchy track by computationIndicatorHierarchyItem.computationIndicator.indicatorId">
-															<div  class="list-group-item list-group-item-default" style="background: #2171b5; color: white;">
+															<div  class="list-group-item list-group-item-default komonitor-theme">
 																<a href="" ng-attr-title="{{::computationIndicatorHierarchyItem.computationIndicator.metadata.description}}" class="collapseTrigger" style="color: white;" ng-click="isCollapsed_computationIndicatorHierarchyItem = !isCollapsed_computationIndicatorHierarchyItem" ng-init="isCollapsed_computationIndicatorHierarchyItem=true"><i class="glyphicon glyphicon-chevron-right"></i>{{::computationIndicatorHierarchyItem.computationIndicator.indicatorName}} </a>
 															</div>
 

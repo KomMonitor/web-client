@@ -49,7 +49,7 @@
                     <div id="reporting-overview-preview-area">
                         <div ng-repeat="page in config.pages" 
                             ng-class="{hiddenPage: !showThisPage(page)}"
-                            ng-attr-class="reporting-page reporting-page-{{page.orientation}}""
+                            ng-attr-class="reporting-page reporting-page-{{page.orientation}} reporting-custom-css"
                             ng-attr-id="reporting-overview-page-{{$index}}">
                             <button class="orientationChangeBtn" 
                                 ng-if="!pageContainsDatatable($index) && !config.template.name.includes('-reachability')"

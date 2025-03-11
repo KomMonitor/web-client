@@ -464,7 +464,7 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 							else{
 								// errors ocurred
 								// show them 
-								$scope.errorMessagePart = "Einige der zu importierenden Features des Datensatzes weisen kritische Fehler auf";
+								$scope.errorMessagePart = "Einige der zu importierenden Zeitreihen des Datensatzes weisen kritische Fehler auf";
 								$scope.importerErrors = kommonitorImporterHelperService.getErrorsFromImporterResponse(updateIndicatorResponse_dryRun);
 	
 								$("#indicatorEditFeaturesErrorAlert").show();

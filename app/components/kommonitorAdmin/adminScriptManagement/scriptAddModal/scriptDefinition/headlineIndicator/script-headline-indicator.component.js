@@ -48,9 +48,9 @@ angular.module('scriptHeadlineIndicator').component('scriptHeadlineIndicator', {
 
 			$scope.fixProcessDescription = "<b><i><u>Berechnung:</u></i></b> Verkn&uuml;pfung der (Basis-)Indikatoren zu einem Leitindikator durch Verkettung der Berechnungsschritte <i>rank, Min-Max-Normalisierung (normal/invertiert), Aggregation (geometrisches" 
 				+ "Mittel, Mittelwert oder Minimalwert)</i> <br/> "
-				+ "Eine Normierung der (Basis-)Indikatoren wird durch die Vergabe von Rangpl&auml;tzen erreicht. Hierbei werden die Wertauspr&auml;gungen aller Raumeinheiten f&uuml;r jeden (Basis-)Indikator in eine Rangfolge gebracht. Die Raumeinheit mit der inhaltlich am schlechtesten zu wertenden "
-			    + "Auspr&auml;gung erh&auml;lt dabei den Rang 1, wohingegen die Raumeinheit mit der besten Wertauspr&auml;gung den "
-				+ "h&ouml;chsten Rang (n = Anzahl der Raumeinheiten) erh&auml;lt. Um einen standardisierten Wertebereich zu erzeugen, "
+				+ "Eine Normierung der (Basis-)Indikatoren wird durch die Vergabe von Rangpl&auml;tzen erreicht. Hierbei werden die Wertauspr&auml;gungen aller Raumebenen f&uuml;r jeden (Basis-)Indikator in eine Rangfolge gebracht. Die Raumebene mit der inhaltlich am schlechtesten zu wertenden "
+			    + "Auspr&auml;gung erh&auml;lt dabei den Rang 1, wohingegen die Raumebene mit der besten Wertauspr&auml;gung den "
+				+ "h&ouml;chsten Rang (n = Anzahl der Raumebenen) erh&auml;lt. Um einen standardisierten Wertebereich zu erzeugen, "
 				+ "werden die Werte der (Basis-)Indikator noch vor der Aggregation auf eine Skala von null bis 1 "
 				+ "normiert, wobei der schlechteste Wert jeweils eine null erh&auml;lt und der beste Wert eine 1 (Min/Max-Normierung). Anschließend k&ouml;nnen die Werte dann mit Hilfe des geeigneten Aggregationsverfahrens "
 				+ "(geometrisches Mittel, Mittelwert oder Minimalwert) zum Leitindikator 1. Ordnung verkn&uuml;pft werden. ";

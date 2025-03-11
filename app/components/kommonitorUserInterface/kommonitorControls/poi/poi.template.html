@@ -154,8 +154,7 @@
 
 							<div
 								ng-repeat="mainTopic in $ctrl.kommonitorDataExchangeServiceInstance.topicGeoresourceHierarchy" ng-if="::mainTopic.totalCount">
-								<div class="list-group-item list-group-item-default list-group-item-grid-layout"
-									style="background: #2171b5; color: white;">
+								<div class="list-group-item list-group-item-default list-group-item-grid-layout kommonitor-theme">
                   <div>
                     <a id="{{::mainTopic.topicId}}" href=""
                       ng-attr-title="{{::mainTopic.topicDescription}}" class="collapseTrigger"
@@ -176,8 +175,7 @@
 								uib-collapse="isCollapsed_mainTopic">
 								<div ng-repeat="subTopic in ::mainTopic.subTopics" ng-if="::subTopic.totalCount">
 
-									<div class="list-group-item list-group-item-default list-group-item-grid-layout"
-										style="background: #6baed6; color: white;">
+									<div class="list-group-item list-group-item-default list-group-item-grid-layout kommonitor-80">
                     <div>
                       <a id="{{::subTopic.topicId}}" class="collapseTrigger" style="color: white;"
                         ng-attr-title="{{::subTopic.topicDescription}}" href=""
@@ -198,8 +196,7 @@
 									uib-collapse="isCollapsed_subTopic">
 									<div ng-repeat="subsubTopic in ::subTopic.subTopics" ng-if="::subsubTopic.totalCount">
 
-										<div class="list-group-item list-group-item-default list-group-item-grid-layout"
-											style="background: #bdd7e7; color: white;">
+										<div class="list-group-item list-group-item-default list-group-item-grid-layout kommonitor-60">
                       <div>
                         <a id="{{::subsubTopic.topicId}}" class="collapseTrigger"
                           style="color: black;" ng-attr-title="{{::subsubTopic.topicDescription}}"
@@ -220,8 +217,7 @@
 										<div class="list-group collapse" uib-collapse="isCollapsed_subsubTopic">
 											<div ng-repeat="subsubsubTopic in ::subsubTopic.subTopics" ng-if="::subsubsubTopic.totalCount">
 
-											<div class="list-group-item list-group-item-default list-group-item-grid-layout"
-												style="background: #eff3ff; color: white;">
+											<div class="list-group-item list-group-item-default list-group-item-grid-layout kommonitor-40">
 												<div>
                           <a id="{{::subsubsubTopic.topicId}}" class="collapseTrigger"
                             style="color: black;"
@@ -1469,8 +1465,7 @@
 							</div>
 							<!-- end main Topics -->
 
-							<div class="list-group-item list-group-item-default"
-								style="background: #2171b5; color: white;" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.topicGeoresourceHierarchy_unmappedEntries.totalCount > 0">
+							<div class="list-group-item list-group-item-default kommonitor-theme" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.topicGeoresourceHierarchy_unmappedEntries.totalCount > 0">
 								<a id="noHierarchyGeoresourceDatasets" href=""
 									ng-attr-title="Georessourcen-Daten ohne Themenbezug" class="collapseTrigger"
 									style="color: white;" 

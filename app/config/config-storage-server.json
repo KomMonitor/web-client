@@ -1,6 +1,7 @@
 {
-  "targetUrlToConfigStorageServer_appConfig" : "https://demo.kommonitor.de.52north.org/client-config/config/client-app-config",
-  "targetUrlToConfigStorageServer_keycloakConfig" : "https://demo.kommonitor.de.52north.org/client-config/config/client-keycloak-config",
-  "targetUrlToConfigStorageServer_controlsConfig" : "http://localhost:8088/config/client-controls-config",
-  "targetUrlToConfigStorageServer_filterConfig" : "https://demo.kommonitor.de.52north.org/client-config/config/client-filter-config"
+    "targetUrlToConfigStorageServer_appConfig" : "http://localhost:8088/config/client-app-config",
+    "targetUrlToConfigStorageServer_keycloakConfig" : "http://localhost:8088/config/client-keycloak-config",
+    "targetUrlToConfigStorageServer_controlsConfig" : "http://localhost:8088/config/client-controls-config",
+    "targetUrlToConfigStorageServer_filterConfig" : "http://localhost:8088/config/client-filter-config"
 }
+

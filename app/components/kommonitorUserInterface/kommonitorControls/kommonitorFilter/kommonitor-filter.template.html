@@ -54,7 +54,7 @@
 		</div>
 		<div class="box-body">
 
-			<strong>gefilterte Features tempor&auml;r aus Datensatz entfernen</strong>
+			<strong>gefilterte Raumeinheiten tempor&auml;r aus Datensatz entfernen</strong>
 			&nbsp;
 			<label class="switch">
 				<input id="controlFilterBehaviourToggle" type="checkbox" ng-change="$ctrl.kommonitorFilterHelperServiceInstance.onChangeFilterBehaviourToggle()"
@@ -67,8 +67,8 @@
 			<hr>
 
 			<div align="middle">
-				<h4>Selektion anhand &uuml;bergeordneter Raumeinheit</h4>
-				<p>Durch Auswahl eines Gebiets der &uuml;bergeordneten Raumeinheit (relativ zur momentan angezeigten) k&ouml;nnen alle darin enthaltenen Gebiete ausgew&auml;hlt werden. Die Auswahl erfolgt &uuml;ber eine Zentroidberechnung.</p>
+				<h4>Selektion anhand &uuml;bergeordneter Raumebene</h4>
+				<p>Durch Auswahl eines Gebiets der &uuml;bergeordneten Raumebene (relativ zur momentan angezeigten) k&ouml;nnen alle darin enthaltenen Gebiete ausgew&auml;hlt werden. Die Auswahl erfolgt &uuml;ber eine Zentroidberechnung.</p>
 				<label class="switch">
 					<input id="showSelectionByFeatureSpatialFilterToggle" type="checkbox" ng-change="onChangeShowSelectionByFeature(showSelectionByFeatureSpatialFilter)"
 						ng-model="showSelectionByFeatureSpatialFilter" 
@@ -93,7 +93,7 @@
 
 					<div class="row">						
 						<div class="col-sm-12 col-md-7 col-lg-7">
-							<label>nur Raumeinheiten des aktuellen Indikators ber&uuml;cksichtigen</label>
+							<label>nur Raumebenen des aktuellen Indikators ber&uuml;cksichtigen</label>
 							
 						</div>
 						<div class="col-sm-12 col-md-2 col-lg-2">
@@ -119,7 +119,7 @@
 								ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in higherSpatialUnits track by spatialUnit.spatialUnitId"
 								class="form-control" ng-change="onChangeSelectedSpatialUnitForFilter(selectedSpatialUnitForFilter)"
 								required>
-								<option disabled selected value> -- Raumeinheit w&auml;hlen --
+								<option disabled selected value> -- Raumebene w&auml;hlen --
 								</option>
 							</select>
 						</div>
@@ -141,7 +141,7 @@
 
 				<hr>
 
-				<h4>Manuelle Selektion anzuzeigender Raumeinheiten</h4>
+				<h4>Manuelle Selektion anzuzeigender Raumebenen</h4>
 				<p>Gebiete k&ouml;nnen &uuml;ber ihre Bezeichnung oder &uuml;ber die Karte ausgew&auml;hlt werden.</p>
 				<label class="switch">
 					<input id="showManualSelectionSpatialFilterToggle" type="checkbox" ng-change="onChangeShowManualSelection(showManualSelectionSpatialFilter)"
@@ -194,7 +194,7 @@
 		<div class="box-body">
 
 			<div align="middle">
-				<p>Einschr&auml;nken der dargestellten Features anhand des Indikatorenwertebereichs. Bewegen der
+				<p>Einschr&auml;nken der dargestellten Raumeinheiten anhand des Indikatorenwertebereichs. Bewegen der
 					Schieberegler mit Hilfe der Maus oder den Pfeiltasten der Tastatur.</p>
 				<div id="rangeSliderForFilteringWrapper">
 					<input id="rangeSliderForFiltering" type="text" class="js-range-slider" value=""></input>
@@ -274,13 +274,13 @@
 		<div class="box-body">
 
 			<div align="justify">
-				<p>Dieses Tool bietet eine spezielle Form der Klassifizierung der dargestellten r&auml;mlichen Features.
-					Mit Hilfe eines Schwellenwertes werden die Features zun&auml;chst in zwei Kategorien unterteilt:</p>
+				<p>Dieses Tool bietet eine spezielle Form der Klassifizierung der dargestellten r&auml;mlichen Raumeinheiten.
+					Mit Hilfe eines Schwellenwertes werden die Raumeinheiten zun&auml;chst in zwei Kategorien unterteilt:</p>
 				<ul>
-					<li>Features, deren Indikatorwert unter dem Schwellenwert liegt (Blau-T&ouml;ne)</li>
-					<li>Features, deren Indikatorwert &uuml;ber dem Schwellenwert liegt (Orange-T&ouml;ne)</li>
+					<li>Raumeinheiten, deren Indikatorwert unter dem Schwellenwert liegt (Blau-T&ouml;ne)</li>
+					<li>Raumeinheiten, deren Indikatorwert &uuml;ber dem Schwellenwert liegt (Orange-T&ouml;ne)</li>
 				</ul>
-				<p>Jedes Feature wird anschließend gem&auml;&szlig; seiner Kategorie in eine von 1-5 Abstufungen
+				<p>Jede Raumeinheit wird anschließend gem&auml;&szlig; seiner Kategorie in eine von 1-5 Abstufungen
 					klassifiziert und entsprechend eingef&auml;rbt. Zum Aktivieren/Deaktivieren der
 					Schwellenwertklassifizierung bitte die unten stehende Checkbox nutzen.</p>
 			</div>
@@ -299,7 +299,7 @@
 
 				<div ng-show="$ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked">
 
-					<!-- <p>Verschieben des Schwellenwertes klassifiziert die dargestellten Indikatoren-Features unmittelbar neu. Ebenso passt sich die Anzahl an Klassen der beiden oben genannten Kategorien dynamisch an die Anzahl der zu klassifizierenden Features an.</p> -->
+					<!-- <p>Verschieben des Schwellenwertes klassifiziert die dargestellten Indikatoren-Raumeinheiten unmittelbar neu. Ebenso passt sich die Anzahl an Klassen der beiden oben genannten Kategorien dynamisch an die Anzahl der zu klassifizierenden Raumeinheiten an.</p> -->
 					<br />
 
 					<div class="slidecontainer" style="position:relative">

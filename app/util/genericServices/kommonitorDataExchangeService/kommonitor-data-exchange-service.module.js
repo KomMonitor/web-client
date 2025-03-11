@@ -20,6 +20,7 @@ angular
 
               let thisService = this;
               this.appTitle = __env.appTitle;
+              this.loginInfoText = __env.loginInfoText;
 
               this.customLogoURL = __env.customLogoURL;
               this.customLogo_onClickURL = __env.customLogo_onClickURL;
@@ -34,11 +35,13 @@ angular
               this.showBarChartLabel = __env.showBarChartLabel;
               this.showBarChartAverageLine = __env.showBarChartAverageLine;
 
+              this.customReportFontSize = __env.customReportFontSize;
+
               this.enableMeanDataDisplayInLegend = __env.enableMeanDataDisplayInLegend;
               this.configMeanDataDisplay = __env.configMeanDataDisplay;
              
 
-							var numberOfDecimals = __env.numberOfDecimals;
+							var defaultNumberOfDecimals = __env.numberOfDecimals;
 							const DATE_PREFIX = __env.indicatorDatePrefix;
               var defaultColorForZeroValues = __env.defaultColorForZeroValues;
               var defaultColorForNoDataValues = __env.defaultColorForNoDataValues;
@@ -637,7 +640,7 @@ angular
           this.updateInterval.set("QUARTERLY", "vierteljährlich");
 
 					this.setIndicators = function(indicatorsArray){
-						this.availableIndicators = indicatorsArray;
+						this.availableIndicators = self.modifyIndicators(indicatorsArray);
             this.availableIndicators_map = new Map();
             
             for (const indicatorMetadata of indicatorsArray) {
@@ -645,8 +648,30 @@ angular
             }
 					};
 
+          this.modifyIndicators = function(indicators) {
+
+            var decimalDefault = 2;
+            if(__env.numberOfDecimals)
+              decimalDefault = __env.numberOfDecimals;
+
+            indicators.forEach(elem => {
+              if(elem.precision===null) {
+                elem.precision = decimalDefault;
+                elem.defaultPrecision = true;
+              } else 
+                elem.defaultPrecision = false;
+            });
+
+            return indicators;
+          }
+
+          this.modifySingleIndicator = function(indicator) {
+            var temp = self.modifyIndicators([indicator]);
+            return temp[0];
+          }
+
           this.addSingleIndicatorMetadata = function(indicatorMetadata){
-            let tmpArray = [indicatorMetadata];
+            let tmpArray = self.modifyIndicators([indicatorMetadata]);
             Array.prototype.push.apply(tmpArray, this.availableIndicators);
             this.availableIndicators =  tmpArray;
             this.availableIndicators_map.set(indicatorMetadata.indicatorId, indicatorMetadata);
@@ -656,7 +681,7 @@ angular
             for (let index = 0; index < this.availableIndicators.length; index++) {
               let indicator = this.availableIndicators[index];
               if(indicator.indicatorId == indicatorMetadata.indicatorId){
-                this.availableIndicators[index] = indicatorMetadata;
+                this.availableIndicators[index] = self.modifySingleIndicator(indicatorMetadata);
                 break;
               }
             }
@@ -1823,7 +1848,7 @@ angular
 						return false;
 					};
 
-					this.getIndicatorValueFromArray_asNumber = function(propertiesArray, targetDateString){
+					this.getIndicatorValueFromArray_asNumber = function(propertiesArray, targetDateString, precision){
 						if(!targetDateString.includes(DATE_PREFIX)){
 							targetDateString = DATE_PREFIX + targetDateString;
 						}
@@ -1833,13 +1858,13 @@ angular
 							value = "NoData";
 						}
 						else{
-							value = this.getIndicatorValue_asNumber(indicatorValue);
+							value = this.getIndicatorValue_asNumber(indicatorValue, precision);
 						}
 
 						return value;
 					};
 
-					this.getIndicatorValueFromArray_asFormattedText = function(propertiesArray, targetDateString){
+					this.getIndicatorValueFromArray_asFormattedText = function(propertiesArray, targetDateString, precision){
 						if(!targetDateString.includes(DATE_PREFIX)){
 							targetDateString = DATE_PREFIX + targetDateString;
 						}
@@ -1849,19 +1874,29 @@ angular
 							value = "NoData";
 						}
 						else{
-						 	value = this.getIndicatorValue_asFormattedText(indicatorValue);
+						 	value = this.getIndicatorValue_asFormattedText(indicatorValue, precision);
 						}
 
 						return value;
 					};
 
-					this.getIndicatorValue_asNumber = function(indicatorValue){
+					this.getIndicatorValue_asNumber = function(indicatorValue, precision){
+
+            var maximumDecimals = defaultNumberOfDecimals;
+            if (precision !== undefined) {
+              maximumDecimals = precision
+            } else {
+              if(this.selectedIndicator && this.selectedIndicator.precision!==null)
+                maximumDecimals = this.selectedIndicator.precision;
+            }
+
 						var value;
 						if(this.indicatorValueIsNoData(indicatorValue)){
 							value = "NoData";
 						}
-						else{
-							value = +Number(indicatorValue).toFixed(numberOfDecimals);
+						else{ 
+							value = +(Number(indicatorValue)).toFixed(maximumDecimals);
+              // value = +Number(indicatorValue).toFixed(numberOfDecimals);
             }
             
             // if the original value is greater than zero but would be rounded as 0 then we must return the original result
@@ -1872,18 +1907,63 @@ angular
 						return value;
 					};
 
-					this.getIndicatorValue_asFormattedText = function(indicatorValue){
+          this.getIndicatorValue_asFixedPrecisionNumber = function(indicatorValue, precision){
+
+            var maximumDecimals = defaultNumberOfDecimals;
+            var minimumDecimals = 0;
+            if (precision !== undefined) {
+              maximumDecimals = precision;
+              minimumDecimals = precision;
+            } else {
+              if(this.selectedIndicator && this.selectedIndicator.precision!==null) {
+                maximumDecimals = this.selectedIndicator.precision;
+                minimumDecimals = this.selectedIndicator.precision;
+              }
+            }
+
+						var value;
+						if(this.indicatorValueIsNoData(indicatorValue)){
+							value = "NoData";
+						}
+						else{ 
+              // value = string with . as separator, without "," as thounsand-sep
+							value = indicatorValue.toLocaleString('en-GB', {maximumFractionDigits: maximumDecimals, minimumFractionDigits: minimumDecimals}).replace(',','');
+            }
+            
+            // if the original value is greater than zero but would be rounded as 0 then we must return the original result
+            if(Number(value) == 0 && indicatorValue > 0){
+              value = Number(indicatorValue);
+            } 
+
+						return value;
+					};
+
+					this.getIndicatorValue_asFormattedText = function(indicatorValue, precision){
+
+            var maximumDecimals = defaultNumberOfDecimals;
+            var minimumDecimals = 0;
+            if (precision !== undefined) {
+              maximumDecimals = precision;
+              minimumDecimals = precision;
+            } else {
+              if (this.selectedIndicator && this.selectedIndicator.precision!==null) {
+                maximumDecimals = this.selectedIndicator.precision;
+                minimumDecimals = this.selectedIndicator.precision;
+              }
+            }
+            
+
 						var value;
 						if(this.indicatorValueIsNoData(indicatorValue)){
 							value = "NoData";
 						}
 						else{
-						 	value = Number(indicatorValue).toLocaleString('de-DE', {maximumFractionDigits: numberOfDecimals});
+						 	value = Number(indicatorValue).toLocaleString('de-DE', {maximumFractionDigits: maximumDecimals, minimumFractionDigits: minimumDecimals});
             }
             
             // if the original value is greater than zero but would be rounded as 0 then we must return the original result
             if(Number(value) == 0 && indicatorValue > 0){
-              value = Number(indicatorValue).toLocaleString('de-DE');
+              value = Number(indicatorValue).toLocaleString('de-DE', {minimumFractionDigits: minimumDecimals, maximumFractionDigits: maximumDecimals});
             } 
 
 						return value;
@@ -1930,9 +2010,9 @@ angular
           };
 
           
-          this.labelAllFeatures = "alle Features";
-          this.labelFilteredFeatures = "gefilterte Features";
-          this.labelSelectedFeatures = "selektierte Features";
+          this.labelAllFeatures = "alle Raumeinheiten";
+          this.labelFilteredFeatures = "gefilterte Raumeinheiten";
+          this.labelSelectedFeatures = "selektierte Raumeinheiten";
           this.labelNumberOfFeatures = "Anzahl:"
           this.labelSum = "rechnerische Summe:"
           this.labelMean = "rechnerisches arith. Mittel:"

@@ -166,7 +166,32 @@
 										</div>
 
 									</div>
-									<div class="col-md-3 col-sm-6 col-xs-12">
+                  <div class="col-md-3 col-sm-6 col-xs-12">
+                    <div class="form-group">
+                      <label>Nachkommastellen</label>
+                      <div class="form-group vertical-align">
+                        <label class="margin-right" style="font-weight: normal;">Individuelle Anzeige aktivieren</label>
+                        <label class="switch">
+                            <input type="checkbox" ng-model="showCustomCommaValue">
+                            <span class="switchslider round"></span>
+                        </label>
+                      </div>
+                      <div ng-show="!showCustomCommaValue">
+                        Wird kein individueller Wert angegeben, so greift selbiger aus den Allgemeinen Einstellungen.</p>
+                        Zu finden unter <i>Einstellungen</i> - <i>Allgemeine Einstellungen</i> - <i>"numberOfDecimals"</i>
+                      </div>
+                      <div ng-show="showCustomCommaValue">
+                        <input class="form-control" type="number" min="0" max="4"
+                          ng-model="indicatorPrecision"
+                          ng-init="indicatorPrecision = indicatorPrecision || option">
+                        <div class="help-block">
+                          <p>Anzahl der angezeigten Nachkommastellen in allen Bereichen der Benutzeroberfl&auml;che</p>
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
 										<!-- we hide characteristicValue parameter as it is and old relic not used any longer. 
 										-> deprecated -->
 										
@@ -181,7 +206,6 @@
 											</div>	
 											<div class="help-block with-errors"></div>
 										</div> -->
-									</div>
 								</div>
 
 								<div class="row vertical-align">
@@ -297,7 +321,7 @@
 											<select ng-model="indicatorLowestSpatialUnitMetadataObjectForComputation"
 												ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits"																							
 												class="form-control">
-												<option disabled selected value> -- Raumeinheit w&auml;hlen --
+												<option disabled selected value> -- Raumebene w&auml;hlen --
 												</option>
 											</select>
 
@@ -919,7 +943,7 @@
 								</div>
 								<div class="row vertical-align">
 									<div class="form-group">
-										<label>Anzahl Klassen pro Raumeinheit</label>
+										<label>Anzahl Klassen pro Raumebene</label>
 										<select ng-model="numClassesPerSpatialUnit"
 											ng-change="onNumClassesChanged(numClassesPerSpatialUnit)"	
 											ng-options="numClassesEntry for numClassesEntry in numClassesArray"								
@@ -928,7 +952,7 @@
 										</select>
 										<div class="help-block with-errors"></div>
 										<div class="help-block">
-											<p>Für jede Raumeinheit wird die gleiche Anzahl an Klassengrenzen vergeben </p>
+											<p>Für jede Raumebene wird die gleiche Anzahl an Klassengrenzen vergeben </p>
 										</div>
 									</div>
 								</div>
@@ -1154,7 +1178,7 @@
 		
 									<p>Zugriffsrechte (lesen, editieren, l&ouml;schen) m&uuml;ssen explizit vergeben werden. Administratoren (Rolle <i>kommonitor-creator</i>) haben immer vollen Zugriff.</p>
 	
-									<p><strong>Bei Indikatoren muss zus&auml;tzlich zu den Metadaten f&uuml;r jede verkn&uuml;pfte Raumebene der Zugriff auf die Zeitreihen-Daten freigegeben werden. Dazu nutzen Sie bitte das Feature-Fortf&uuml;hren-Men&uuml;.</strong></p>
+									<p><strong>Bei Indikatoren muss zus&auml;tzlich zu den Metadaten f&uuml;r jede verkn&uuml;pfte Raumebene der Zugriff auf die Zeitreihen-Daten freigegeben werden. Dazu nutzen Sie bitte das Zeitreihen-Fortf&uuml;hren-Men&uuml;.</strong></p>
 		
 									<div class="row">
 										<div class="col-md-3"></div>
