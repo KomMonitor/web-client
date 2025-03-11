@@ -38,6 +38,8 @@ angular.module('reportingOverview').component('reportingOverview', {
 
 		this.kommonitorLeafletScreenshotCacheHelperServiceInstance = kommonitorLeafletScreenshotCacheHelperService;
 
+		const mercatorProjection_d3 = d3.geoMercator();
+
 		$scope.loadingData = false;
 		$scope.echartsImgPixelRatio = 2;
 
@@ -323,7 +325,32 @@ angular.module('reportingOverview').component('reportingOverview', {
 								let instance = echarts.init( pElementDom );
 
 
-								if(pageElement.type === "map") {			
+								if(pageElement.type === "map") {	
+									
+									for(let series of pageElement.echartsOptions.series) {
+
+										series.left = 0;
+										series.top = 0;
+										series.right = 0;
+										series.bottom = 0;
+										// series.boundingCoords = boundingCoords,
+										series.projection = {
+											project: (point) => mercatorProjection_d3(point),
+											unproject: (point) => mercatorProjection_d3.invert(point)
+										}
+									}
+					
+									if(pageElement.echartsOptions.geo){
+										pageElement.echartsOptions.geo[0].top = 0;
+										pageElement.echartsOptions.geo[0].left = 0;
+										pageElement.echartsOptions.geo[0].right = 0;
+										pageElement.echartsOptions.geo[0].bottom = 0;
+										pageElement.echartsOptions.geo[0].projection = {
+											project: (point) => mercatorProjection_d3(point),
+											unproject: (point) => mercatorProjection_d3.invert(point)
+										}				
+										// pageElement.echartsOptions.geo[0].boundingCoords = boundingCoords
+									}
 									
 									if(page.area && page.area.length) {
 										// at this point we have not yet set echarts options, so we provide them as an extra parameter
@@ -353,6 +380,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 									}
 									
 								}
+
 								instance.setOption(pageElement.echartsOptions)
 
 								if(pageElement.type === "map") {
@@ -445,6 +473,31 @@ angular.module('reportingOverview').component('reportingOverview', {
 
 					if(pageElement.type === "map") {
 						let instance = echarts.init( pElementDom );
+
+						for(let series of pageElement.echartsOptions.series) {
+
+							series.left = 0;
+							series.top = 0;
+							series.right = 0;
+							series.bottom = 0;
+							// series.boundingCoords = boundingCoords,
+							series.projection = {
+								project: (point) => mercatorProjection_d3(point),
+								unproject: (point) => mercatorProjection_d3.invert(point)
+							}
+						}
+		
+						if(pageElement.echartsOptions.geo){
+							pageElement.echartsOptions.geo[0].top = 0;
+							pageElement.echartsOptions.geo[0].left = 0;
+							pageElement.echartsOptions.geo[0].right = 0;
+							pageElement.echartsOptions.geo[0].bottom = 0;
+							pageElement.echartsOptions.geo[0].projection = {
+								project: (point) => mercatorProjection_d3(point),
+								unproject: (point) => mercatorProjection_d3.invert(point)
+							}				
+							// pageElement.echartsOptions.geo[0].boundingCoords = boundingCoords
+						}
 
 						if(page.area && page.area.length) {
 							// at this point we have not yet set echarts options, so we provide them as an extra parameter
@@ -586,6 +639,32 @@ angular.module('reportingOverview').component('reportingOverview', {
 				leafletMap.fitBounds( [[southLat, westLon], [northLat, eastLon]] );
 				// leafletMap.fitBounds( bounds );
 
+				// for(let series of echartsOptions.series) {
+
+				// 	series.left = 0;
+				// 	series.top = 0;
+				// 	series.right = 0;
+				// 	series.bottom = 0;
+				// 	// series.boundingCoords = boundingCoords,
+				// 	series.projection = {
+				// 		project: (point) => mercatorProjection_d3(point),
+				// 		unproject: (point) => mercatorProjection_d3.invert(point)
+				// 	}
+				// }
+
+				// if(echartsOptions.geo){
+				// 	echartsOptions.geo[0].top = 0;
+				// 	echartsOptions.geo[0].left = 0;
+				// 	echartsOptions.geo[0].right = 0;
+				// 	echartsOptions.geo[0].bottom = 0;
+				// 	echartsOptions.geo[0].projection = {
+				// 		project: (point) => mercatorProjection_d3(point),
+				// 		unproject: (point) => mercatorProjection_d3.invert(point)
+				// 	}				
+				// 	// echartsOptions.geo[0].boundingCoords = boundingCoords
+				// }
+				
+
 				// store spatial unit and feature id to page in order to access it later when the screenshot is needed
 				page.spatialUnitId = spatialUnit.spatialUnitId;			
 				if(page.area){
@@ -598,7 +677,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 				// let leafletLayer = new L.TileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png");
 				let leafletLayer; 
 				if (pageElement.selectedBaseMap.layerConfig.layerType === "TILE_LAYER_GRAYSCALE"){
-					leafletLayer = new L.tileLayer.grayscale(pageElement.selectedBaseMap.url);
+					leafletLayer = new L.tileLayer(pageElement.selectedBaseMap.layerConfig.url);
 				  }
 				  else if (pageElement.selectedBaseMap.layerConfig.layerType === "TILE_LAYER"){
 					leafletLayer = new L.tileLayer(pageElement.selectedBaseMap.layerConfig.url);
@@ -1841,11 +1920,14 @@ angular.module('reportingOverview').component('reportingOverview', {
 							}
 							let instance = echarts.getInstanceByDom(pElementDom);
 							let imageDataUrl = instance.getDataURL({
-							 		type: "png",
-							 		pixelRatio: $scope.echartsImgPixelRatio
-							});
+								type: "png",
+								pixelRatio: $scope.echartsImgPixelRatio
+							   });	
 
-							imageDataUrl = await $scope.createLeafletEChartsMapImage(page, pageDom, pageElement, imageDataUrl)
+							if(pageElement.type === "map"){
+								imageDataUrl = await $scope.createLeafletEChartsMapImage(page, pageDom, pageElement, imageDataUrl)
+							}
+							
 
 							let blob = dataURItoBlob(imageDataUrl);
 

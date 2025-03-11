@@ -1915,14 +1915,14 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				// 	notMerge: true
 				// });
 				map.setOption(echartsOptions, {
-					notMerge: true
-				});
+					notMerge: false
+				});				
 				
 				// Attribution is handled in a custom element
 				// let leafletLayer = new L.TileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png");
 				let leafletLayer; 
 				if ($scope.selectedBaseMap.layerConfig.layerType === "TILE_LAYER_GRAYSCALE"){
-					leafletLayer = new L.tileLayer.grayscale($scope.selectedBaseMap.url);
+					leafletLayer = new L.tileLayer($scope.selectedBaseMap.layerConfig.url);
 				  }
 				  else if ($scope.selectedBaseMap.layerConfig.layerType === "TILE_LAYER"){
 					leafletLayer = new L.tileLayer($scope.selectedBaseMap.layerConfig.url);
@@ -1976,6 +1976,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				// poiMarkerLayer.addTo(leafletMap);
 
 				pageElement.leafletBbox = bounds;
+				pageElement.echartsOptions = echartsOptions;
 		}
 
 		$scope.filterBaseMaps = function(){
