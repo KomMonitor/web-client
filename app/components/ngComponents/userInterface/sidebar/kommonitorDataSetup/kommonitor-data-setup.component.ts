@@ -52,7 +52,7 @@ export class KommonitorDataSetupComponent implements OnInit {
 
       this.onInitialMetadataLoadingComplete();
 
-    },1000);
+    },2000);
   }
 
   onInitialMetadataLoadingComplete() {
@@ -356,85 +356,7 @@ export class KommonitorDataSetupComponent implements OnInit {
 
   });
 
-  // load exemplar indicator
-  $scope.$on("initialMetadataLoadingCompleted", function (event) {
-
-    console.log("Load an initial example indicator");
-
-    if (kommonitorDataExchangeService.displayableIndicators == null || kommonitorDataExchangeService.displayableIndicators == undefined || kommonitorDataExchangeService.displayableIndicators.length === 0){
-      console.error("Kein darstellbarer Indikator konnte gefunden werden.");
-
-      kommonitorDataExchangeService.displayMapApplicationError("Kein darstellbarer Indikator konnte gefunden werden.");										
-      $scope.loadingData = false;
-      $scope.$broadcast("hideLoadingIconOnMap");
-
-      return;
-    }
-
-    try{
-      var indicatorIndex = undefined;
-
-      for (var index=0; index < kommonitorDataExchangeService.displayableIndicators.length; index++){
-        if (kommonitorDataExchangeService.displayableIndicators[index].indicatorId === __env.initialIndicatorId){
-          if(kommonitorDataExchangeService.displayableIndicators[index].applicableDates.length > 0){
-            indicatorIndex = index;
-            break;
-          }											
-        }
-      }
-
-      if( indicatorIndex === undefined){
-          for(var t=0; t < 75; t++){
-            
-            var randIndex = getRandomInt(0, kommonitorDataExchangeService.displayableIndicators.length - 1);
-            if (kommonitorDataExchangeService.displayableIndicators[randIndex].applicableDates.length > 0){
-              indicatorIndex = randIndex;
-              break;
-            }													
-          }
-      }
-
-      if( indicatorIndex === undefined){
-        throw Error();
-      }
-
-      kommonitorDataExchangeService.selectedIndicator = kommonitorDataExchangeService.displayableIndicators[indicatorIndex];
-      // create Backup which is used when currently selected indicator is filtered out in select
-      kommonitorDataExchangeService.selectedIndicatorBackup = kommonitorDataExchangeService.selectedIndicator;
-
-      // set spatialUnit
-      for (var spatialUnitEntry of kommonitorDataExchangeService.availableSpatialUnits){
-        if(spatialUnitEntry.spatialUnitLevel === __env.initialSpatialUnitName){
-          kommonitorDataExchangeService.selectedSpatialUnit = spatialUnitEntry;
-          break;
-        }
-      }
-      if(!kommonitorDataExchangeService.selectedSpatialUnit){
-          kommonitorDataExchangeService.selectedSpatialUnit = $scope.getFirstSpatialUnitForSelectedIndicator();
-      }
-
-      if(! __env.centerMapInitially){
-        $scope.onChangeSelectedIndicator(false);	
-      }
-      else{
-        $scope.onChangeSelectedIndicator(true);	
-      }
-                        
-
-    }
-    catch(error){
-      console.error("Initiales Darstellen eines Indikators ist gescheitert.");
-
-      kommonitorDataExchangeService.displayMapApplicationError("Initiales Darstellen eines Indikators ist gescheitert.");										
-      $scope.loadingData = false;
-      $scope.$broadcast("hideLoadingIconOnMap");
-
-      return;
-    }
-
-    //reinit visibility of elements due to fact that now some HTML elements are actually available
-    kommonitorElementVisibilityHelperService.initElementVisibility();
-  });
+  
 
    */
   getRandomInt(min, max) {
@@ -854,7 +776,6 @@ export class KommonitorDataSetupComponent implements OnInit {
      
       this.exchangeData.selectedIndicatorBackup = this.exchangeData.selectedIndicator;
 
-      // todo
       this.setupDateSliderForIndicator();
       this.setupDatePickerForIndicator();
       

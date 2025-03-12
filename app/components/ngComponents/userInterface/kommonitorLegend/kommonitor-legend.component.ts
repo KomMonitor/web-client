@@ -60,9 +60,10 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
       }
     }
   }
+  model;
 
   ngOnInit(): void {
-
+    
     
       this.broadcastService.currentBroadcastMsg.subscribe(broadcastMsg => {
         let title = broadcastMsg.msg;
@@ -74,11 +75,12 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
       this.filterHelperData = this.filterHelperService.pipedData;
       this.env = window.__env;
       
-      
-      console.log("ids",this.exchangeData.selectedDate);
-      var dateComponents = this.exchangeData.selectedDate.split("-");
-      this.dateAsDate = new Date(Number(dateComponents[0]), Number(dateComponents[1]) - 1, Number(dateComponents[2]));
-
+      // todo del timeout
+      setTimeout(()=> {
+        var dateComponents = this.exchangeData.selectedDate.split("-");
+        this.dateAsDate = new Date(Number(dateComponents[0]), Number(dateComponents[1]) - 1, Number(dateComponents[2]));
+        this.model = {year: this.dateAsDate.getFullYear(), month: this.dateAsDate.getMonth() + 1, day: this.dateAsDate.getDate()};
+      },2500);
       // todo
      /*  $rootScope.$on( "updateLegendDisplay", function(event, containsZeroValues, containsNegativeValues, containsNoData, containsOutliers_high, containsOutliers_low, outliers_low, outliers_high, selectedDate) {
         $scope.containsZeroValues = containsZeroValues;
