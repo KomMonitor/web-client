@@ -55,7 +55,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			"buffer": "Puffer"
 		}
 
-		$scope.selectedBaseMap = kommonitorDataExchangeService.baseLayerDefinitionsArray[2];
+		$scope.selectedBaseMap = kommonitorDataExchangeService.baseLayerDefinitionsArray[1];
 
 		$scope.onChangeSelectedBaseMap = async function(){
 			// reinitiate page building from the scratch as easiest solution
@@ -145,6 +145,17 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			
 		}
 
+		function removeCircularReferences(pages){			
+			for (const page of pages) {
+				for (const pageElement of page.pageElements) {
+					if(pageElement.type === "map"){
+						delete pageElement.leafletMap;
+					}
+				}
+			}
+
+			return pages;
+		}
 
 		$scope.updateAreasForTimestampTemplates = function(newVal) {
 			let pagesToInsertPerTimestamp = [];
@@ -187,6 +198,9 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					// this is where we want to start replacing pages later
 					idx = $scope.template.pages.indexOf( pagesForTimestamp[0] )
 					// create a deep copy so we can assign new ids
+					// we must remove leafletMap, as this causes CircularReference Errors
+					// it will be added again during page creation anyway
+					pagesForTimestamp = removeCircularReferences(pagesForTimestamp);
 					pagesForTimestamp = JSON.parse(JSON.stringify(pagesForTimestamp));
 					
 					// setup pages before inserting

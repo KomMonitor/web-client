@@ -69,6 +69,18 @@ angular.module('reportingOverview').component('reportingOverview', {
       }
     }
 
+	function removeCircularReferences(pages){			
+		for (const page of pages) {
+			for (const pageElement of page.pageElements) {
+				if(pageElement.type === "map"){
+					delete pageElement.leafletMap;
+				}
+			}
+		}
+
+		return pages;
+	}
+
 		$scope.initialize = function(data) {
 			let configFileSelected = data[0];
 			data = data[1];
@@ -988,6 +1000,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 			try {
 				let jsonToExport = {};
 				
+				$scope.config.pages = removeCircularReferences($scope.config.pages);
 				let temp = JSON.stringify( $scope.config.pages, function(key, value) {
 					// Leaflet map contains cyclic object references so we have to remove it.
 					// We have to initialize the map again on import based on the stored boundingbox

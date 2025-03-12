@@ -436,8 +436,7 @@ angular.module('kommonitorMap').component(
               attribution_html: "", 
               minZoomLevel: window.__env.minZoomLevel, 
               maxZoomLevel: window.__env.maxZoomLevel 
-            },
-            "leafletLayer": L.tileLayer('')
+            }
           }];
 
           for (const baseMapEntry of __env.baseLayers) {              
@@ -446,24 +445,21 @@ angular.module('kommonitorMap').component(
               var grayscaleLayer = new L.tileLayer.grayscale(baseMapEntry.url, { minZoom: baseMapEntry.minZoomLevel, maxZoom: baseMapEntry.maxZoomLevel, attribution: baseMapEntry.attribution_html });
               kommonitorDataExchangeService.baseLayerDefinitionsMap.set(baseMapEntry.name, grayscaleLayer);
               kommonitorDataExchangeService.baseLayerDefinitionsArray.push({
-                "layerConfig": baseMapEntry,
-                "leafletLayer": new L.tileLayer.grayscale(baseMapEntry.url)
+                "layerConfig": baseMapEntry
               });
             }
             else if (baseMapEntry.layerType === "TILE_LAYER"){
               var tileLayer = new L.tileLayer(baseMapEntry.url, { minZoom: baseMapEntry.minZoomLevel, maxZoom: baseMapEntry.maxZoomLevel, attribution: baseMapEntry.attribution_html });
               kommonitorDataExchangeService.baseLayerDefinitionsMap.set(baseMapEntry.name, tileLayer);
               kommonitorDataExchangeService.baseLayerDefinitionsArray.push({
-                "layerConfig": baseMapEntry,
-                "leafletLayer": new L.tileLayer(baseMapEntry.url)
+                "layerConfig": baseMapEntry
               });
             }
             else if (baseMapEntry.layerType === "WMS"){
               var wmsLayer = new L.tileLayer.wms(baseMapEntry.url, { minZoom: baseMapEntry.minZoomLevel, maxZoom: baseMapEntry.maxZoomLevel, attribution: baseMapEntry.attribution_html, layers: baseMapEntry.layerName_WMS, format: 'image/png' });
               kommonitorDataExchangeService.baseLayerDefinitionsMap.set(baseMapEntry.name, wmsLayer);
               kommonitorDataExchangeService.baseLayerDefinitionsArray.push({
-                "layerConfig": baseMapEntry,
-                "leafletLayer": new L.tileLayer.wms(baseMapEntry.url, { layers: baseMapEntry.layerName_WMS, format: 'image/jpeg' })
+                "layerConfig": baseMapEntry
               });
             }
           }
