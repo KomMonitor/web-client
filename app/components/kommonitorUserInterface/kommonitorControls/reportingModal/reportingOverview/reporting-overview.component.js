@@ -159,6 +159,9 @@ angular.module('reportingOverview').component('reportingOverview', {
 		$scope.$on("reportingIndicatorConfigurationCompleted", function(event, data) {
 			$scope.loadingData = true;
 			let [indicator, template] = data;
+
+			// apply submitted pageConfig to all sections of the selected template
+			$scope.config.pageConfig = template.pageConfig;
 			
 			let templateSection = {
 				indicatorName: indicator ? indicator.indicatorName : "",
@@ -1305,36 +1308,56 @@ angular.module('reportingOverview').component('reportingOverview', {
 					switch(pageElement.type) {
 						case "indicatorTitle-landscape":
 						case "indicatorTitle-portrait": {
-              slide.addText(pageElement.text, { x: pageElementDimensions.left, y: pageElementDimensions.top, placeholder: "slide_title" });
+							if (! $scope.config.pageConfig.showTitle){
+								// skip
+								continue;
+							}
+              				slide.addText(pageElement.text, { x: pageElementDimensions.left, y: pageElementDimensions.top, placeholder: "slide_title" });
 							break;
 						}
             
 						case "communeLogo-landscape":
 						case "communeLogo-portrait": {
+							if (! $scope.config.pageConfig.showLogo){
+								// skip
+								continue;
+							}
 							if(pageElement.src && pageElement.src.length) {
 
-                let img = new Image();
-                img.src = pageElement.src;
-                let imageWidth = img.width;
-                let imageHeight = img.height;
+								let img = new Image();
+								img.src = pageElement.src;
+								let imageWidth = img.width;
+								let imageHeight = img.height;
 
-                // create an image in width/size of the uploaded one (img object). Then shrink it down to pageElementDimensions, while containing imgRatio
-                slide.addImage({ x: pageElementDimensions.left, y: pageElementDimensions.top, w: imageWidth, h: imageHeight, path: pageElement.src, sizing: { type: "contain", w: pageElementDimensions.width, h: pageElementDimensions.height}});
-              }
+								// create an image in width/size of the uploaded one (img object). Then shrink it down to pageElementDimensions, while containing imgRatio
+								slide.addImage({ x: pageElementDimensions.left, y: pageElementDimensions.top, w: imageWidth, h: imageHeight, path: pageElement.src, sizing: { type: "contain", w: pageElementDimensions.width, h: pageElementDimensions.height}});
+							}
 							break;
 						}
 						case "dataTimestamp-landscape":
 						case "dataTimestamp-portrait": {
+							if (! $scope.config.pageConfig.showSubtitle){
+								// skip
+								continue;
+							}
               slide.addText(pageElement.text, { x: pageElementDimensions.left, y: pageElementDimensions.top, placeholder: "slide_subtitle" });
 							break;
 						}
 						case "dataTimeseries-landscape":
 						case "dataTimeseries-portrait": {
+							if (! $scope.config.pageConfig.showSubtitle){
+								// skip
+								continue;
+							}
               slide.addText(pageElement.text, { x: pageElementDimensions.left, y: pageElementDimensions.top, fontSize: fontSize-3, fontFace: fontFace });
 							break;
 						}
 						case "reachability-subtitle-landscape":
 						case "reachability-subtitle-portrait": {
+							if (! $scope.config.pageConfig.showSubtitle){
+								// skip
+								continue;
+							}
               slide.addText(pageElement.text, { x: pageElementDimensions.left, y: pageElementDimensions.top, fontSize: fontSize-3, fontFace: fontFace });
 							break;
 						}
@@ -1345,11 +1368,19 @@ angular.module('reportingOverview').component('reportingOverview', {
 						}
 						case "footerCreationInfo-landscape":
 						case "footerCreationInfo-portrait": {  
+							if (! $scope.config.pageConfig.showFooterCreationInfo){
+								// skip
+								continue;
+							}
               slide.addText(pageElement.text, { x: pageElementDimensions.left, y: pageElementDimensions.top, placeholder: "slide_footer" });
 							break;
 						} 
 						case "pageNumber-landscape":
 						case "pageNumber-portrait": {
+							if (! $scope.config.pageConfig.showPageNumber){
+								// skip
+								continue;
+							}
 							let text = "Seite " + $scope.getPageNumber(idx);
               slide.addText(text, { x: pageElementDimensions.left, y: pageElementDimensions.top, placeholder: "slide_pageNumber" });
 							break;
@@ -1516,6 +1547,10 @@ angular.module('reportingOverview').component('reportingOverview', {
 					switch(pageElement.type) {
 						case "indicatorTitle-landscape":
 						case "indicatorTitle-portrait": {
+							if (! $scope.config.pageConfig.showTitle){
+								// skip
+								continue;
+							}
 							// Css takes the top-left edge of the element by default.
 							// doc.text takes left-bottom, so we ass baseline "top" to achieve the same behavior in jspdf.
 							doc.setFont(fontName, "normal", "normal")
@@ -1525,6 +1560,10 @@ angular.module('reportingOverview').component('reportingOverview', {
 						}
 						case "communeLogo-landscape":
 						case "communeLogo-portrait": {
+							if (! $scope.config.pageConfig.showLogo){
+								// skip
+								continue;
+							}
 							// only add logo if one was selected
 							if(pageElement.src && pageElement.src.length) {
 								doc.addImage(pageElement.src, "JPEG", pageElementDimensions.left, pageElementDimensions.top,
@@ -1534,16 +1573,28 @@ angular.module('reportingOverview').component('reportingOverview', {
 						}
 						case "dataTimestamp-landscape":
 						case "dataTimestamp-portrait": {
+							if (! $scope.config.pageConfig.showSubtitle){
+								// skip
+								continue;
+							}
 							doc.text(pageElement.text, pageElementDimensions.left, pageElementDimensions.top, { baseline: "top" })
 							break;
 						}
 						case "dataTimeseries-landscape":
 						case "dataTimeseries-portrait": {
+							if (! $scope.config.pageConfig.showSubtitle){
+								// skip
+								continue;
+							}
 							doc.text(pageElement.text, pageElementDimensions.left, pageElementDimensions.top, { baseline: "top" })
 							break;
 						}
 						case "reachability-subtitle-landscape":
 						case "reachability-subtitle-portrait": {
+							if (! $scope.config.pageConfig.showSubtitle){
+								// skip
+								continue;
+							}
 							doc.text(pageElement.text, pageElementDimensions.left, pageElementDimensions.top, { baseline: "top" })
 							break;
 						}
@@ -1559,11 +1610,19 @@ angular.module('reportingOverview').component('reportingOverview', {
 						}
 						case "footerCreationInfo-landscape":
 						case "footerCreationInfo-portrait": {
+							if (! $scope.config.pageConfig.showFooterCreationInfo){
+								// skip
+								continue;
+							}
 							doc.text(pageElement.text, pageElementDimensions.left, pageElementDimensions.top, { baseline: "top" })
 							break;
 						}
 						case "pageNumber-landscape":
 						case "pageNumber-portrait": {
+							if (! $scope.config.pageConfig.showPageNumber){
+								// skip
+								continue;
+							}
 							let text = "Seite " + $scope.getPageNumber(idx);
 							doc.text(text, pageElementDimensions.left, pageElementDimensions.top, { baseline: "top" })
 							break;
@@ -1730,6 +1789,10 @@ angular.module('reportingOverview').component('reportingOverview', {
 					switch(pageElement.type) {
 						case "indicatorTitle-landscape":
 						case "indicatorTitle-portrait": {
+							if (! $scope.config.pageConfig.showTitle){
+								// skip
+								continue;
+							}
 							let paragraph = new docx.Paragraph({
 								children: [
 									new docx.TextRun({
@@ -1762,6 +1825,10 @@ angular.module('reportingOverview').component('reportingOverview', {
 						}
 						case "communeLogo-landscape":
 						case "communeLogo-portrait": {
+							if (! $scope.config.pageConfig.showLogo){
+								// skip
+								continue;
+							}
 							// only add logo if one was selected
 							if(pageElement.src && pageElement.src.length) {
 								let paragraph = new docx.Paragraph({
@@ -1793,6 +1860,10 @@ angular.module('reportingOverview').component('reportingOverview', {
 						case "dataTimestamp-portrait":
 						case "dataTimeseries-portrait":
 						case "reachability-subtitle-portrait": {
+							if (! $scope.config.pageConfig.showSubtitle){
+								// skip
+								continue;
+							}
 							let paragraph = new docx.Paragraph({
 								children: [
 									new docx.TextRun({
@@ -1857,6 +1928,11 @@ angular.module('reportingOverview').component('reportingOverview', {
 							break;
 						case "footerCreationInfo-landscape":
 						case "footerCreationInfo-portrait": {
+							if (! $scope.config.pageConfig.showFooterCreationInfo){
+								// skip
+								continue;
+							}
+
 							let paragraph = new docx.Paragraph({
 								children: [
 									new docx.TextRun({
@@ -1888,6 +1964,10 @@ angular.module('reportingOverview').component('reportingOverview', {
 						}
 						case "pageNumber-landscape":
 						case "pageNumber-portrait": {
+							if (! $scope.config.pageConfig.showPageNumber){
+								// skip
+								continue;
+							}
 							let paragraph = new docx.Paragraph({
 								children: [
 									new docx.TextRun({

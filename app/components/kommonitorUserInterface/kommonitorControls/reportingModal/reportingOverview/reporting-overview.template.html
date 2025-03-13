@@ -72,12 +72,12 @@
                                     ng-bind-html="pageElement.placeholderText">
                                 </span>
                                 <!-- do different things depending on type once the placeholder is replaced (pageElement.isPlaceholder == false) -->
-                                <span ng-show="pageElement.type.includes('pageNumber-') && pageElement.isPlaceholder == false"
+                                <span ng-show="config.pageConfig.showPageNumber && pageElement.type.includes('pageNumber-') && pageElement.isPlaceholder == false"
                                     ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
                                     Seite {{getPageNumber($parent.$index)}}
                                 </span>
 
-                                <span ng-show="pageElement.type.includes('footerCreationInfo-') && pageElement.isPlaceholder == false"
+                                <span ng-show="config.pageConfig.showFooterCreationInfo && pageElement.type.includes('footerCreationInfo-') && pageElement.isPlaceholder == false"
                                     ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
                                     {{pageElement.text}}
                                 </span>
@@ -87,25 +87,25 @@
                                     {{pageElement.text}}
                                 </span>
 
-                                <img ng-show="pageElement.type.includes('communeLogo-') && pageElement.isPlaceholder == false"
+                                <img ng-show="config.pageConfig.showLogo && pageElement.type.includes('communeLogo-') && pageElement.isPlaceholder == false"
                                     ng-attr-src="{{pageElement.src}}">
 
-                                <span ng-show="pageElement.type.includes('indicatorTitle-') && pageElement.isPlaceholder == false"
+                                <span ng-show="config.pageConfig.showTitle && pageElement.type.includes('indicatorTitle-') && pageElement.isPlaceholder == false"
                                     ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
                                     {{pageElement.text}}
                                 </span>
 
-                                <span ng-show="pageElement.type.includes('dataTimestamp-') && pageElement.isPlaceholder == false"
+                                <span ng-show="config.pageConfig.showSubtitle && pageElement.type.includes('dataTimestamp-') && pageElement.isPlaceholder == false"
                                     ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
                                     {{pageElement.text}}
                                 </span>
 
-                                <span ng-show="pageElement.type.includes('dataTimeseries-') && pageElement.isPlaceholder == false"
+                                <span ng-show="config.pageConfig.showSubtitle && pageElement.type.includes('dataTimeseries-') && pageElement.isPlaceholder == false"
                                     ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
                                     {{pageElement.text}}
                                 </span>
 
-                                <span ng-show="pageElement.type.includes('reachability-subtitle-') && pageElement.isPlaceholder == false"
+                                <span ng-show="config.pageConfig.showSubtitle && pageElement.type.includes('reachability-subtitle-') && pageElement.isPlaceholder == false"
                                     ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
                                     {{pageElement.text}}
                                 </span>

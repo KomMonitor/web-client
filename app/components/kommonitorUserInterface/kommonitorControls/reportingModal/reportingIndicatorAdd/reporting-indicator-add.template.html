@@ -33,7 +33,7 @@
                                 ng-bind-html="template.name.includes('-timeseries') ? 'Zeitserie' : 'Zeitpunkt'"></a>
                         </li>
                         <li id="reporting-add-indicator-tab6" role="presentation" class="tab-disabled">
-                            <a href="#elements" aria-controls="elements" role="tab" data-toggle="tab" tabindex="-1">Elemente</a>
+                            <a href="#elements" aria-controls="elements" role="tab" data-toggle="tab" tabindex="-1">Konfiguration</a>
                         </li>
                     </ul>
                     
@@ -158,18 +158,75 @@
                                 <div class="row">
                                     <div class="col-md-4">
                                         <div class="reporting-element-config-box">
-                                            <h5>Karte</h5>
-                                            <p>Label anzeigen?</p>
+                                            <h5>Kopf- und Fu&szlig;leiste</h5>                                            
+                                            <label class="switch" title="Titel anzeigen">
+                                                <input type="checkbox"
+                                                    ng-model="pageConfig.showTitle"
+                                                    ng-checked="pageConfig.showTitle"
+                                                    ng-change="onChangePageConfig()">
+                                                <span class="switchslider round"></span>
+                                            </label>
+                                            Titel? 
+
+                                            <br>
+                                            
+                                            <label class="switch" title="Untertitel anzeigen">
+                                                <input type="checkbox"
+                                                    ng-model="pageConfig.showSubtitle"
+                                                    ng-checked="pageConfig.showSubtitle"
+                                                    ng-change="onChangePageConfig()">
+                                                <span class="switchslider round"></span>
+                                            </label>
+                                            Untertitel? 
+
+                                            <br>
+                                            
+                                            <label class="switch" title="Logo anzeigen">
+                                                <input type="checkbox"
+                                                    ng-model="pageConfig.showLogo"
+                                                    ng-checked="pageConfig.showLogo"
+                                                    ng-change="onChangePageConfig()">
+                                                <span class="switchslider round"></span>
+                                            </label>
+                                            Logo? 
+
+                                            <br>
+                                            
+                                            <label class="switch" title="Erstelldetails anzeigen">
+                                                <input type="checkbox"
+                                                    ng-model="pageConfig.showFooterCreationInfo"
+                                                    ng-checked="pageConfig.showFooterCreationInfo"
+                                                    ng-change="onChangePageConfig()">
+                                                <span class="switchslider round"></span>
+                                            </label>
+                                            Erstelldetails?
+
+                                            <br>
+                                            
+                                            <label class="switch" title="Seitenzahl anzeigen">
+                                                <input type="checkbox"
+                                                    ng-model="pageConfig.showPageNumber"
+                                                    ng-checked="pageConfig.showPageNumber"
+                                                    ng-change="onChangePageConfig()">
+                                                <span class="switchslider round"></span>
+                                            </label>
+                                            Seitenzahl? 
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="reporting-element-config-box">
+                                            <h5>Karte</h5>                                            
                                             <label class="switch" title="Label anzeigen">
                                                 <input type="checkbox"
-                                                    ng-model="showMapLabels"
-                                                    ng-checked="showMapLabels"
+                                                    ng-model="pageConfig.showMapLabels"
+                                                    ng-checked="pageConfig.showMapLabels"
                                                     ng-change="onChangeShowMapLabels()">
                                                 <span class="switchslider round"></span>
                                             </label>
+                                            Label anzeigen?
 
                                             <div>
-                                                <p>Hintergrundkarte?</p>
+                                                Hintergrundkarte?
                                                 <select ng-model="selectedBaseMap"
                                                     ng-options="baseMap as baseMap.layerConfig.name for baseMap in $ctrl.kommonitorDataExchangeServiceInstance.baseLayerDefinitionsArray | filter:filterBaseMaps()"
                                                     class="form-control" ng-change="onChangeSelectedBaseMap()" required>
@@ -181,15 +238,15 @@
                                     </div>
                                     <div class="col-md-4">
                                         <div class="reporting-element-config-box">
-                                            <h5>Ranking-Chart</h5>
-                                            <p>Ranking-Durchschnittslinie anzeigen?</p>
+                                            <h5>Ranking-Chart</h5>                                            
                                             <label class="switch" title="Ranking-Durchschnittslinie anzeigen">
                                                 <input type="checkbox"
-                                                    ng-model="showRankingMeanLine"
-                                                    ng-checked="showRankingMeanLine"
+                                                    ng-model="pageConfig.showRankingMeanLine"
+                                                    ng-checked="pageConfig.showRankingMeanLine"
                                                     ng-change="onChangeShowRankingMeanLine()">
                                                 <span class="switchslider round"></span>
                                             </label>
+                                            Ranking-Durchschnittslinie?
                                         </div>
                                     </div>
                                 </div>
@@ -219,27 +276,27 @@
                                     ng-bind-html="pageElement.placeholderText">
                                 </span>
                                 <!-- do different things depending on type once the placeholder is replaced (pageElement.isPlaceholder == false) -->
-                                <span ng-show="pageElement.type.includes('pageNumber-') && pageElement.isPlaceholder == false"
+                                <span ng-show="pageConfig.showPageNumber && pageElement.type.includes('pageNumber-') && pageElement.isPlaceholder == false"
                                     ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
                                     Seite {{getPageNumber($parent.$index)}}
                                 </span>
 
-                                <span ng-show="pageElement.type.includes('indicatorTitle-') && pageElement.isPlaceholder == false"
+                                <span ng-show="pageConfig.showTitle && pageElement.type.includes('indicatorTitle-') && pageElement.isPlaceholder == false"
                                     ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
                                     {{pageElement.text}}
                                 </span>
 
-                                <span ng-show="pageElement.type.includes('dataTimestamp-') && pageElement.isPlaceholder == false"
+                                <span ng-show="pageConfig.showSubtitle && pageElement.type.includes('dataTimestamp-') && pageElement.isPlaceholder == false"
                                     ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
                                     {{pageElement.text}}
                                 </span>
 
-                                <span ng-show="pageElement.type.includes('dataTimeseries-') && pageElement.isPlaceholder == false"
+                                <span ng-show="pageConfig.showSubtitle && pageElement.type.includes('dataTimeseries-') && pageElement.isPlaceholder == false"
                                     ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
                                     {{pageElement.text}}
                                 </span>
 
-                                <span ng-show="pageElement.type.includes('reachability-subtitle-') && pageElement.isPlaceholder == false"
+                                <span ng-show="pageConfig.showSubtitle && pageElement.type.includes('reachability-subtitle-') && pageElement.isPlaceholder == false"
                                     ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
                                 {{pageElement.text}}
                                 </span>
@@ -276,7 +333,7 @@
                                     </span>
                                 </span>
 
-                                <span ng-show="pageElement.type.includes('footerCreationInfo-') && pageElement.isPlaceholder == false"
+                                <span ng-show="pageConfig.showFooterCreationInfo && pageElement.type.includes('footerCreationInfo-') && pageElement.isPlaceholder == false"
                                     ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
                                     {{pageElement.text}}
                                 </span>
@@ -286,7 +343,7 @@
                                     {{pageElement.text}}
                                 </span>
                                 
-                                <img ng-show="pageElement.type.includes('communeLogo-') && pageElement.isPlaceholder == false"
+                                <img ng-show="pageConfig.showLogo pageElement.type.includes('communeLogo-') && pageElement.isPlaceholder == false"
                                     ng-attr-src="{{pageElement.src}}">
                                 
                             </div>

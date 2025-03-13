@@ -27,8 +27,6 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		$scope.indexOfFirstAreaSpecificPage = undefined;
 		$scope.dateSlider = undefined;
 		$scope.absoluteLabelPositions = [];
-		$scope.showMapLabels = true;
-		$scope.showRankingMeanLine = true;
 		$scope.echartsOptions = {
 			map: {
 				// "2017-12-31": ...
@@ -53,6 +51,35 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			"cycling-regular": "Fahrrad",
 			"wheelchair": "Barrierefrei",
 			"buffer": "Puffer"
+		}
+
+		// page config is applied for the whole template and set within template.pageConfig later
+		// in order to apply config on overview page and report generation 
+		$scope.pageConfig = {
+			showMapLabels: true,
+			showRankingMeanLine: true,
+			showTitle: true,
+			showSubtitle: true,
+			showLogo: true,
+			showFooterCreationInfo: true,
+			showPageNumber: true
+		}
+
+		$scope.onChangePageConfig = async function(){
+			// just visual updates and make sure that config is set at selected template
+			// in order to apply this config in overview and for report generation!
+			$timeout(function(){
+				$scope.loadingData = true; 
+			})
+
+			$scope.template.pageConfig = $scope.pageConfig;
+
+			// kommonitorLeafletScreenshotCacheHelperService.resetCounter_keepingCurrentTargetFeatures(true);
+			// await $scope.initializeAllDiagrams();			
+
+			$timeout(function(){
+				$scope.loadingData = false; 
+			}) 
 		}
 
 		$scope.selectedBaseMap = kommonitorDataExchangeService.baseLayerDefinitionsArray[1];
@@ -1560,6 +1587,9 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		}
 
 		$scope.onAddBtnClicked = function() {
+
+			$scope.template.pageConfig = $scope.pageConfig;
+
 			// for each page: add echarts configuration objects to the template
 			for(let [idx, page] of $scope.template.pages.entries()) {
 				let pageDom = document.querySelector("#reporting-addIndicator-page-" + idx);
@@ -3572,13 +3602,13 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 				let instance = echarts.getInstanceByDom(map);
 				let options = instance.getOption();
-				options.series[0].label.show = $scope.showMapLabels;
-				options.series[0].select.label.show = $scope.showMapLabels;
+				options.series[0].label.show = $scope.pageConfig.showMapLabels;
+				options.series[0].select.label.show = $scope.pageConfig.showMapLabels;
 				for(let item of options.series[0].data) {
 					if(typeof item.label === "undefined") {
 						item.label = {};
 					}
-					item.label.show = $scope.showMapLabels;
+					item.label.show = $scope.pageConfig.showMapLabels;
 				}
 				instance.setOption(options, {
 					replaceMerge: ['series']
@@ -3596,7 +3626,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 				let instance = echarts.getInstanceByDom(barChart);
 				let options = instance.getOption();				
-				if (! $scope.showRankingMeanLine){
+				if (! $scope.pageConfig.showRankingMeanLine){
 					options.series[0].markLine_backup = options.series[0].markLine;
 					options.series[0].markLine = {};
 				}
