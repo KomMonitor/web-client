@@ -200,11 +200,13 @@
                 <div *ngIf="(exchangeData.isBalanceChecked || exchangeData.selectedIndicator.indicatorType.includes('DYNAMIC') || containsNegativeValues) && ! exchangeData.isMeasureOfValueChecked">					
 
                   <!-- < 0 values -->
-                  <div class="row" style="margin-right: 0px;" *ngFor="let color of visualStyleData.dynamicBrew[1].colors; let i = index">
-                    <div class="col-md-3 "><i [ngStyle]="{background: color, opacity: visualStyleData.currentIndicatorOpacity}"></i> </div>
-                    <div class="col-md-6 " *ngIf="visualStyleData.dynamicBrew[1].breaks[i + 1]" >{{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleData.dynamicBrew[1].breaks[i])}} &dash; &lt; {{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleData.dynamicBrew[1].breaks[i + 1])}}</div>
-                    <div class="col-md-6 " *ngIf="! visualStyleData.dynamicBrew[1].breaks[i + 1]" >{{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleData.dynamicBrew[1].breaks[i])}}</div>
-                    <div class="col-md-3 ">{{visualStyleData.featuresPerColorMap.get(color) || 0}}</div>
+                   <div *ngIf="visualStyleData.dynamicBrew && visualStyleData.dynamicBrew[1]">
+                    <div class="row" style="margin-right: 0px;" *ngFor="let color of visualStyleData.dynamicBrew[1].colors; let i = index">
+                      <div class="col-md-3 "><i [ngStyle]="{background: color, opacity: visualStyleData.currentIndicatorOpacity}"></i> </div>
+                      <div class="col-md-6 " *ngIf="visualStyleData.dynamicBrew[1].breaks[i + 1]" >{{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleData.dynamicBrew[1].breaks[i])}} &dash; &lt; {{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleData.dynamicBrew[1].breaks[i + 1])}}</div>
+                      <div class="col-md-6 " *ngIf="! visualStyleData.dynamicBrew[1].breaks[i + 1]" >{{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleData.dynamicBrew[1].breaks[i])}}</div>
+                      <div class="col-md-3 ">{{visualStyleData.featuresPerColorMap.get(color) || 0}}</div>
+                    </div>
                   </div>
 
                   <br/>
@@ -219,12 +221,14 @@
                   <br />
 
                   <!-- > 0 values -->
-                  <div class="row" style="margin-right: 0px;" *ngFor="let color of visualStyleData.dynamicBrew[0].colors; let i = index">
-                    <div class="col-md-3 "><i [ngStyle]="{background: color, opacity: visualStyleData.currentIndicatorOpacity}"></i> </div>
-                    <div class="col-md-6 " *ngIf="visualStyleData.dynamicBrew[0].breaks[i + 1]" >{{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleData.dynamicBrew[0].breaks[i])}} &dash; &lt; {{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleData.dynamicBrew[0].breaks[i + 1])}}</div>
-                    <div class="col-md-6 " *ngIf="! visualStyleData.dynamicBrew[0].breaks[i + 1]" >{{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleData.dynamicBrew[0].breaks[i])}}</div>
-                    <div class="col-md-3 ">{{visualStyleData.featuresPerColorMap.get(color) || 0}}</div>
-                  </div>
+                   <div *ngIf="visualStyleData.dynamicBrew && visualStyleData.dynamicBrew[0]">
+                    <div class="row" style="margin-right: 0px;" *ngFor="let color of visualStyleData.dynamicBrew[0].colors; let i = index">
+                      <div class="col-md-3 "><i [ngStyle]="{background: color, opacity: visualStyleData.currentIndicatorOpacity}"></i> </div>
+                      <div class="col-md-6 " *ngIf="visualStyleData.dynamicBrew[0].breaks[i + 1]" >{{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleData.dynamicBrew[0].breaks[i])}} &dash; &lt; {{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleData.dynamicBrew[0].breaks[i + 1])}}</div>
+                      <div class="col-md-6 " *ngIf="! visualStyleData.dynamicBrew[0].breaks[i + 1]" >{{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleData.dynamicBrew[0].breaks[i])}}</div>
+                      <div class="col-md-3 ">{{visualStyleData.featuresPerColorMap.get(color) || 0}}</div>
+                    </div>
+                   </div>
                 </div>
 
                 <!-- Static/Status legend items -->

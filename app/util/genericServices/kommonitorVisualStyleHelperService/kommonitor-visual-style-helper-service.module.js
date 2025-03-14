@@ -484,7 +484,7 @@ angular
 
         this.positiveValues = [];
         this.negativeValues = [];
-        
+       
         if(kommonitorDataExchangeService.classifyUsingWholeTimeseries){
           this.setupDynamicBrewValues_wholeTimeseries(geoJSON);
         }
@@ -507,6 +507,7 @@ angular
         }
 
         this.dynamicBrew = [dynamicIncreaseBrew, dynamicDecreaseBrew]; 
+ 
         return this.dynamicBrew;
       };
 

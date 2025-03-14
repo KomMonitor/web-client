@@ -34,10 +34,17 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
     public dataExchangeService: DataExchangeService,
     private elementVisibilityService: ElementVisibilityHelperService,
     private shareHelperService: ShareHelperService,
-    private visualStyleService: VisualStyleHelperServiceNew,
+    protected visualStyleService: VisualStyleHelperServiceNew,
     private filterHelperService: FilterHelperService,
     private broadcastService: BroadcastService
-  ) {}
+  ) {
+    
+    this.exchangeData = this.dataExchangeService.pipedData;
+    this.elementVisibilityData = this.elementVisibilityService.pipedData;
+    this.visualStyleData = this.visualStyleService.pipedData;
+    this.filterHelperData = this.filterHelperService.pipedData;
+    this.env = window.__env;
+  }
 
   ngOnChanges(changes: any): void {
 
@@ -63,17 +70,12 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
   model;
 
   ngOnInit(): void {
-    
+    console.log(this.visualStyleData)
     
       this.broadcastService.currentBroadcastMsg.subscribe(broadcastMsg => {
         let title = broadcastMsg.msg;
       });
 
-      this.exchangeData = this.dataExchangeService.pipedData;
-      this.elementVisibilityData = this.elementVisibilityService.pipedData;
-      this.visualStyleData = this.visualStyleService.pipedData;
-      this.filterHelperData = this.filterHelperService.pipedData;
-      this.env = window.__env;
       
       // todo del timeout
       setTimeout(()=> {
@@ -81,21 +83,31 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
         this.dateAsDate = new Date(Number(dateComponents[0]), Number(dateComponents[1]) - 1, Number(dateComponents[2]));
         this.model = {year: this.dateAsDate.getFullYear(), month: this.dateAsDate.getMonth() + 1, day: this.dateAsDate.getDate()};
       },2500);
-      // todo
-     /*  $rootScope.$on( "updateLegendDisplay", function(event, containsZeroValues, containsNegativeValues, containsNoData, containsOutliers_high, containsOutliers_low, outliers_low, outliers_high, selectedDate) {
-        $scope.containsZeroValues = containsZeroValues;
-        $scope.containsNegativeValues = containsNegativeValues;
-        $scope.containsOutliers_high = containsOutliers_high;
-        $scope.containsOutliers_low = containsOutliers_low;
-        $scope.outliers_high = outliers_high;
-        $scope.outliers_low = outliers_low;
-        $scope.containsNoData = containsNoData;
-        var dateComponents = selectedDate.split("-");
-        $scope.dateAsDate = new Date(Number(dateComponents[0]), Number(dateComponents[1]) - 1, Number(dateComponents[2]));
-        
-        $rootScope.$broadcast("updateClassificationComponent", $scope.containsZeroValues, $scope.containsNegativeValues, $scope.containsNoData, $scope.containsOutliers_high, $scope.containsOutliers_low, $scope.outliers_low, $scope.outliers_high, kommonitorDataExchangeService.selectedDate);
-      }); */
 
+      this.broadcastService.currentBroadcastMsg.subscribe(broadcastMsg => {
+        let title = broadcastMsg.msg;
+        let values:any = broadcastMsg.values;
+  
+        switch (title) {
+          case 'updateLegendDisplay': {
+             this.updateLegendDisplay(values);
+          } break;
+        }
+      });
+  }
+
+  updateLegendDisplay([containsZeroValues, containsNegativeValues, containsNoData, containsOutliers_high, containsOutliers_low, outliers_low, outliers_high, selectedDate]) {
+    this.containsZeroValues = containsZeroValues;
+    this.containsNegativeValues = containsNegativeValues;
+    this.containsOutliers_high = containsOutliers_high;
+    this.containsOutliers_low = containsOutliers_low;
+    this.outliers_high = outliers_high;
+    this.outliers_low = outliers_low;
+    this.containsNoData = containsNoData;
+    var dateComponents = selectedDate.split("-");
+    this.dateAsDate = new Date(Number(dateComponents[0]), Number(dateComponents[1]) - 1, Number(dateComponents[2]));
+    
+    this.broadcastService.broadcast("updateClassificationComponent", [this.containsZeroValues, this.containsNegativeValues, this.containsNoData, this.containsOutliers_high, this.containsOutliers_low, this.outliers_low, this.outliers_high, this.exchangeData.selectedDate]);
   }
 
   filteredSpatialUnits() {
@@ -103,8 +115,7 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
   }
 
   onChangeIndicatorDatepickerDate() {
-    // todo
-    /* $rootScope.$broadcast("changeIndicatorDate"); */
+    this.broadcastService.broadcast("changeIndicatorDate");
   }
 
   onChangeSelectedSpatialUnit() {
@@ -151,7 +162,6 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
   }
   
   downloadIndicatorAsShape() {
-    //todo
     
     var fileName = this.dataExchangeService.pipedData.selectedIndicator.indicatorName + "_" + this.dataExchangeService.pipedData.selectedSpatialUnit.spatialUnitLevel;
     var polygonName = this.dataExchangeService.pipedData.selectedIndicator.indicatorName + "_" + this.dataExchangeService.pipedData.selectedSpatialUnit.spatialUnitLevel;

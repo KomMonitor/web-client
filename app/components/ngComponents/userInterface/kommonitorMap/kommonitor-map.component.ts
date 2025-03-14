@@ -305,7 +305,28 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         case 'toggleLegendControl': {
           this.toggleLegendControl();
         } break;
-       }
+        case 'changeDynamicBreaks' : {
+          this.changeDynamicBreaks(values);
+        } break;
+        case 'allIndicatorPropertiesForCurrentSpatialUnitAndTime setup begin' : {
+          this.allIndicatorPropertiesForCurrentSpatialUnitAndTime_setup_begin();
+        } break;
+        case 'restyleCurrentLayer' : {
+          this.restyleCurrentLayer(values);
+        } break;
+        case 'preserveHighlightedFeatures' : {
+          this.preserveHighlightedFeatures();
+        } break;
+        case 'changeColorScheme' : {
+          this.changeColorScheme(values);
+        } break;
+        case 'changeBreaks' : {
+          this.changeBreaks(values);
+        } break;
+        case 'changeDynamicBreaks' : {
+          this.changeDynamicBreaks(values);
+        } break;
+      }
     });
   }
 
@@ -1074,7 +1095,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       transparencyDomString += '</div>';
       transparencyDomString += '<div class="col-sm-7">';
       transparencyDomString += '<div class="text-left">';
-      transparencyDomString += '<input style="width:100%;" id="indicatorTransparencyInput" type="range" value="' + (1 - kommonitorVisualStyleHelperService.getOpacity()).toFixed(numberOfDecimals) + '" min="0" max="1" step="0.01">';
+      transparencyDomString += '<input style="width:100%;" id="indicatorTransparencyInput" type="range" value="' + (1 - this.visualStyleHelperService.getOpacity()).toFixed(numberOfDecimals) + '" min="0" max="1" step="0.01">';
       transparencyDomString += '</div>';
       transparencyDomString += '</div>';
       transparencyDomString += '<div class="col-sm-2">';
@@ -1146,54 +1167,51 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     // ensure that highlighted features remain highlighted
     preserveHighlightedFeatures();
   });      
+*/
 
-  $scope.$on("changeClassifyMethod", function (event, method) {
-    kommonitorVisualStyleHelperService.classifyMethod = method;  
+ changeClassifyMethod([method]) {
+    this.visualData.classifyMethod = method;  
     
-    $timeout(function(){
-      kommonitorVisualStyleHelperService.classifyMethod = method;  
-      $rootScope.$apply();
+    setTimeout(() => {
+      this.visualData.classifyMethod = method;  
     }, 350);
 
-    $rootScope.$broadcast("restyleCurrentLayer", false);
-  });
+    this.broadcastService.broadcast("restyleCurrentLayer", [false]);
+  }
 
-  $scope.$on("changeNumClasses", function (event, num) {
-    kommonitorVisualStyleHelperService.numClasses = num;  
+  changeNumClasses([num]) {
+    this.visualData.numClasses = num;  
     
-    $timeout(function(){
-      kommonitorVisualStyleHelperService.numClasses = num;  
-      $rootScope.$apply();
+    setTimeout(() => {
+      this.visualData.numClasses = num;  
     }, 350);
 
-    $rootScope.$broadcast("restyleCurrentLayer", false);
-  });
+    this.broadcastService.broadcast("restyleCurrentLayer", [false]);
+  }
 
-  $scope.$on("changeColorScheme", function (event, colorSchemeName) {
-    $scope.currentIndicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName = colorSchemeName; 
+  changeColorScheme([colorSchemeName]) {
+    this.currentIndicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName = colorSchemeName; 
 
-    $rootScope.$broadcast("restyleCurrentLayer", false);
-  });
+    this.broadcastService.broadcast("restyleCurrentLayer", [false]);
+  }
 
-  $scope.$on("changeBreaks", function (event, breaks) {
+  changeBreaks([breaks]) {
     breaks = [...new Set(breaks)];
     breaks.sort(function(a, b) {
       return a - b;
     });
 
-    kommonitorVisualStyleHelperService.manualBrew.breaks = breaks; 
-    $scope.updateManualMOVBreaksFromDefaultManualBreaks();
+    this.visualData.manualBrew.breaks = breaks; 
+    this.updateManualMOVBreaksFromDefaultManualBreaks();
 
-    $timeout(function(){ 
-      kommonitorVisualStyleHelperService.manualBrew.breaks = breaks;
-      $scope.updateManualMOVBreaksFromDefaultManualBreaks();
-      $rootScope.$apply();
-      $rootScope.$broadcast("restyleCurrentLayer", false);
+    setTimeout(() => { 
+      this.visualData.manualBrew.breaks = breaks;
+      this.updateManualMOVBreaksFromDefaultManualBreaks();
+      this.broadcastService.broadcast("restyleCurrentLayer", false);
     }, 1);
-
-  });
-
-  $scope.$on("changeDynamicBreaks", function (event, breaks) {
+  }
+  
+  changeDynamicBreaks([breaks]) {
     breaks[0] = [...new Set(breaks[0])];
     breaks[0].sort(function(a, b) {
       return a - b;
@@ -1204,29 +1222,28 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     });
 
 
-    kommonitorVisualStyleHelperService.dynamicBrewBreaks = breaks;
-    if (kommonitorVisualStyleHelperService.dynamicBrew[1]) {
-      kommonitorVisualStyleHelperService.dynamicBrew[1].breaks = breaks[1];
+    this.visualData.dynamicBrewBreaks = breaks;
+    if (this.visualData.dynamicBrew[1]) {
+      this.visualData.dynamicBrew[1].breaks = breaks[1];
     }
-    if (kommonitorVisualStyleHelperService.dynamicBrew[0]) {
-      kommonitorVisualStyleHelperService.dynamicBrew[0].breaks = breaks[0];
+    if (this.visualData.dynamicBrew[0]) {
+      this.visualData.dynamicBrew[0].breaks = breaks[0];
     }
     
-    $timeout(function(){ 
-      kommonitorVisualStyleHelperService.dynamicBrewBreaks = breaks;
-      if (kommonitorVisualStyleHelperService.dynamicBrew[1]) {
-        kommonitorVisualStyleHelperService.dynamicBrew[1].breaks = breaks[1];
+    setTimeout(() => { 
+      this.visualData.dynamicBrewBreaks = breaks;
+      if (this.visualData.dynamicBrew[1]) {
+        this.visualData.dynamicBrew[1].breaks = breaks[1];
       }
-      if (kommonitorVisualStyleHelperService.dynamicBrew[0]) {
-        kommonitorVisualStyleHelperService.dynamicBrew[0].breaks = breaks[0];
+      if (this.visualData.dynamicBrew[0]) {
+        this.visualData.dynamicBrew[0].breaks = breaks[0];
       }
-      $rootScope.$apply();
     }, 1);
-    $scope.updateManualMOVBreaksFromDefaultManualBreaks();
+    this.updateManualMOVBreaksFromDefaultManualBreaks();
 
-    $rootScope.$broadcast("restyleCurrentLayer", false);
-  });
-
+    this.broadcastService.broadcast("restyleCurrentLayer", false);
+  }
+/*
   $scope.$on("changeMOV", function (event, mov) {
     $scope.updateManualMOVBreaksFromDefaultManualBreaks();
   });
@@ -1240,7 +1257,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       $scope.resetNoDataDisplay();
     }
 
-    $rootScope.$broadcast("restyleCurrentLayer", false);
+    this.broadcastService.broadcast("restyleCurrentLayer", false);
 
     // ensure that highlighted features remain highlighted
     preserveHighlightedFeatures();
@@ -2224,22 +2241,19 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       }
     }
   }
-/*
-  function preserveHighlightedFeatures() {
-    $scope.map.eachLayer(function (layer) {
+
+  preserveHighlightedFeatures() {
+    this.map.eachLayer((layer) => {
       if (layer.feature) {
-        if (kommonitorFilterHelperService.featureIsCurrentlySelected(layer.feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME])) {
-          setPermanentlyHighlightedStyle(layer);
-          $rootScope.$broadcast("updateDiagramsForHoveredFeature", layer.feature.properties);
+        if (this.filterHelperService.featureIsCurrentlySelected(layer.feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME])) {
+          this.setPermanentlyHighlightedStyle(layer);
+          this.broadcastService.broadcast("updateDiagramsForHoveredFeature", layer.feature.properties);
         }
       }
     });
   }
 
-  $scope.$on("preserveHighlightedFeatures", function (event) {
-    preserveHighlightedFeatures();
-  });
- */
+
  resetHighlight(e) {
     let layer = e.target;
     this.resetHighlightForLayer(layer);
@@ -2634,6 +2648,8 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
   onReplaceIndicatorAsGeoJSON([indicatorMetadataAndGeoJSON, spatialUnitName, date, justRestyling, isCustomComputation]) {
 
+    console.log('replaceIndicatorAsGeoJSON was called');
+    
     this.visualData.isCustomComputation = false;
     if (isCustomComputation){
       this.visualData.isCustomComputation = true;
@@ -2804,7 +2820,6 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
             this.visualData.dynamicBrewBreaks);
           this.dynamicIncreaseBrew = dynamicIndicatorBrewArray[0];
           this.dynamicDecreaseBrew = dynamicIndicatorBrewArray[1];
-
         }
         else {
           this.defaultBrew = this.visualStyleHelperService.setupDefaultBrew(indicatorMetadataAndGeoJSON.geoJSON, this.indicatorPropertyName, indicatorMetadataAndGeoJSON.defaultClassificationMapping.numClasses || 5, indicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName, this.visualData.classifyMethod);
@@ -2891,8 +2906,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
     this.currentIndicatorLayer = layer;
 
-    // todo
-    // $rootScope.$broadcast("updateLegendDisplay", this.currentIndicatorContainsZeroValues, this.datasetContainsNegativeValues, this.currentIndicatorContainsNoDataValues, this.containsOutliers_high, this.containsOutliers_low, this.outliers_low, this.outliers_high, this.exchangeData.selectedDate);
+    this.broadcastService.broadcast("updateLegendDisplay", [this.currentIndicatorContainsZeroValues, this.datasetContainsNegativeValues, this.currentIndicatorContainsNoDataValues, this.containsOutliers_high, this.containsOutliers_low, this.outliers_low, this.outliers_high, this.exchangeData.selectedDate]);
 
     // if(spatialUnitName.includes("raster") || spatialUnitName.includes("Raster") || spatialUnitName.includes("grid") || spatialUnitName.includes("Grid")){
     //   layer.style.color = undefined;
@@ -2948,14 +2962,13 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   onChangeSpatialUnit() {
     this.visualData.dynamicBrewBreaks = null;
   }
-/* 
 
-  $scope.$on("allIndicatorPropertiesForCurrentSpatialUnitAndTime setup begin", function (event) {
-    $scope.updateManualMOVBreaksFromDefaultManualBreaks();
-    $scope.$broadcast("restyleCurrentLayer", false);
-  });
+  allIndicatorPropertiesForCurrentSpatialUnitAndTime_setup_begin() {
+    this.updateManualMOVBreaksFromDefaultManualBreaks();
+    this.broadcastService.broadcast("restyleCurrentLayer", false);
+  }
 
-  $scope.$on("restyleCurrentLayer", function (event, skipDiagramRefresh) {
+  restyleCurrentLayer([skipDiagramRefresh]) {
 
     // transparency = document.getElementById("indicatorTransparencyInput").value;
     // opacity = 1 - transparency;
@@ -2966,31 +2979,31 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     this.refreshOutliersStyle();
     this.refreshNoDataStyle();
 
-    $scope.defaultBrew = undefined;
-    $scope.gtMeasureOfValueBrew = undefined;
-    $scope.ltMeasureOfValueBrew = undefined;
-    $scope.manualBrew = undefined;
+    this.defaultBrew = undefined;
+    this.gtMeasureOfValueBrew = undefined;
+    this.ltMeasureOfValueBrew = undefined;
+    this.manualBrew = undefined;
 
-    $scope.setClassifyZeroForClassifyMethod();
+    this.setClassifyZeroForClassifyMethod();
 
-    style;
-    if ($scope.currentIndicatorLayer) {
+    let style;
+    if (this.currentIndicatorLayer) {
 
-      $scope.currentIndicatorMetadataAndGeoJSON = markOutliers($scope.currentIndicatorMetadataAndGeoJSON, $scope.indicatorPropertyName);
-      $scope.currentGeoJSONOfCurrentLayer = $scope.currentIndicatorMetadataAndGeoJSON.geoJSON;
+      this.currentIndicatorMetadataAndGeoJSON = this.markOutliers(this.currentIndicatorMetadataAndGeoJSON, this.indicatorPropertyName);
+      this.currentGeoJSONOfCurrentLayer = this.currentIndicatorMetadataAndGeoJSON.geoJSON;
 
-      $scope.currentIndicatorContainsZeroValues = false;
+      this.currentIndicatorContainsZeroValues = false;
 
-      for (i = 0; i < $scope.currentIndicatorMetadataAndGeoJSON.geoJSON.features.length; i++) {
-        containsZero = false;
-        containsNoData = false;
-        if (kommonitorDataExchangeService.getIndicatorValue_asNumber($scope.currentIndicatorMetadataAndGeoJSON.geoJSON.features[i].properties[$scope.indicatorPropertyName]) == 0) {
-          $scope.currentIndicatorContainsZeroValues = true;
+      for (let i = 0; i < this.currentIndicatorMetadataAndGeoJSON.geoJSON.features.length; i++) {
+        let containsZero = false;
+        let containsNoData = false;
+        if (this.dataExchangeService.getIndicatorValue_asNumber(this.currentIndicatorMetadataAndGeoJSON.geoJSON.features[i].properties[this.indicatorPropertyName]) == 0) {
+          this.currentIndicatorContainsZeroValues = true;
           containsZero = true;
         };
 
-        if (kommonitorDataExchangeService.indicatorValueIsNoData($scope.currentIndicatorMetadataAndGeoJSON.geoJSON.features[i].properties[$scope.indicatorPropertyName])) {
-          $scope.currentIndicatorContainsNoDataValues = true;
+        if (this.dataExchangeService.indicatorValueIsNoData(this.currentIndicatorMetadataAndGeoJSON.geoJSON.features[i].properties[this.indicatorPropertyName])) {
+          this.currentIndicatorContainsNoDataValues = true;
           containsNoData = true;
         };
 
@@ -2999,163 +3012,163 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         }
       }
 
-      $scope.checkAvailabilityOfRegionalDefault($scope.currentIndicatorMetadataAndGeoJSON);
+      this.checkAvailabilityOfRegionalDefault(this.currentIndicatorMetadataAndGeoJSON);
 
-      if (kommonitorDataExchangeService.isMeasureOfValueChecked) {
-        measureOfValueBrewArray = kommonitorVisualStyleHelperService.setupMeasureOfValueBrew(
-          $scope.currentGeoJSONOfCurrentLayer, 
-          $scope.indicatorPropertyName, 
-          defaultColorBrewerPaletteForGtMovValues, 
-          defaultColorBrewerPaletteForLtMovValues, 
-          kommonitorVisualStyleHelperService.classifyMethod, 
-          kommonitorDataExchangeService.measureOfValue,
-          kommonitorVisualStyleHelperService.manualMOVBreaks,
-          kommonitorVisualStyleHelperService.regionalDefaultMOVBreaks,
-          kommonitorVisualStyleHelperService.numClasses
+      if (this.exchangeData.isMeasureOfValueChecked) {
+        let measureOfValueBrewArray = this.visualStyleHelperService.setupMeasureOfValueBrew(
+          this.currentGeoJSONOfCurrentLayer, 
+          this.indicatorPropertyName, 
+          this.defaultColorBrewerPaletteForGtMovValues, 
+          this.defaultColorBrewerPaletteForLtMovValues, 
+          this.visualData.classifyMethod, 
+          this.exchangeData.measureOfValue,
+          this.visualData.manualMOVBreaks,
+          this.visualData.regionalDefaultMOVBreaks,
+          this.visualData.numClasses
         );
-        $scope.gtMeasureOfValueBrew = measureOfValueBrewArray[0];
-        $scope.ltMeasureOfValueBrew = measureOfValueBrewArray[1];
+        this.gtMeasureOfValueBrew = measureOfValueBrewArray[0];
+        this.ltMeasureOfValueBrew = measureOfValueBrewArray[1];
 
-        if(kommonitorVisualStyleHelperService.classifyMethod == 'manual') {
-          $scope.updateDefaultManualBreaksFromMOVManualBreaks();
+        if(this.visualData.classifyMethod == 'manual') {
+          this.updateDefaultManualBreaksFromMOVManualBreaks();
         }
 
-        $scope.currentIndicatorLayer.eachLayer(function (layer) {
-          if (kommonitorFilterHelperService.featureIsCurrentlyFiltered(layer.feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME])) {
-            layer.setStyle($scope.filteredStyle);
+        this.currentIndicatorLayer.eachLayer((layer) => {
+          if (this.filterHelperService.featureIsCurrentlyFiltered(layer.feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME])) {
+            layer.setStyle(this.filteredStyle);
           }
           else {
-            style = kommonitorVisualStyleHelperService.styleMeasureOfValue(layer.feature, $scope.gtMeasureOfValueBrew, $scope.ltMeasureOfValueBrew, $scope.propertyName, $scope.useTransparencyOnIndicator, true);
+            style = this.visualData.styleMeasureOfValue(layer.feature, this.gtMeasureOfValueBrew, this.ltMeasureOfValueBrew, this.propertyName, this.useTransparencyOnIndicator, true);
 
             layer.setStyle(style);
           }
 
         });
 
-        // $scope.makeMeasureOfValueLegend();
+        // this.makeMeasureOfValueLegend();
       }
       else {
 
-        if ($scope.indicatorTypeOfCurrentLayer.includes('DYNAMIC') || $scope.datasetContainsNegativeValues) {
-          dynamicIndicatorBrewArray = kommonitorVisualStyleHelperService.setupDynamicIndicatorBrew(
-            $scope.currentIndicatorMetadataAndGeoJSON.geoJSON, 
-            $scope.indicatorPropertyName, 
-            defaultColorBrewerPaletteForBalanceIncreasingValues, 
-            defaultColorBrewerPaletteForBalanceDecreasingValues, 
-            kommonitorVisualStyleHelperService.classifyMethod,
-            kommonitorVisualStyleHelperService.numClasses,
-            kommonitorVisualStyleHelperService.dynamicBrewBreaks);
-          $scope.dynamicIncreaseBrew = dynamicIndicatorBrewArray[0];
-          $scope.dynamicDecreaseBrew = dynamicIndicatorBrewArray[1];
+        if (this.indicatorTypeOfCurrentLayer.includes('DYNAMIC') || this.datasetContainsNegativeValues) {
+          let dynamicIndicatorBrewArray = this.visualStyleHelperService.setupDynamicIndicatorBrew(
+            this.currentIndicatorMetadataAndGeoJSON.geoJSON, 
+            this.indicatorPropertyName, 
+            this.defaultColorBrewerPaletteForBalanceIncreasingValues, 
+            this.defaultColorBrewerPaletteForBalanceDecreasingValues, 
+            this.visualData.classifyMethod,
+            this.visualData.numClasses,
+            this.visualData.dynamicBrewBreaks);
+          this.dynamicIncreaseBrew = dynamicIndicatorBrewArray[0];
+          this.dynamicDecreaseBrew = dynamicIndicatorBrewArray[1];
 
-          if (kommonitorVisualStyleHelperService.classifyMethod == "regional_default") {
-            $scope.applyRegionalDefaultClassification($scope.currentIndicatorMetadataAndGeoJSON);
+          if (this.visualData.classifyMethod == "regional_default") {
+            this.applyRegionalDefaultClassification(this.currentIndicatorMetadataAndGeoJSON);
           }
 
-          $scope.currentIndicatorLayer.eachLayer(function (layer) {
-            if (kommonitorFilterHelperService.featureIsCurrentlyFiltered(layer.feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME])) {
-              layer.setStyle($scope.filteredStyle);
+          this.currentIndicatorLayer.eachLayer((layer) => {
+            if (this.filterHelperService.featureIsCurrentlyFiltered(layer.feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME])) {
+              layer.setStyle(this.filteredStyle);
             }
             else {
-              style = kommonitorVisualStyleHelperService.styleDynamicIndicator(layer.feature, $scope.dynamicIncreaseBrew, $scope.dynamicDecreaseBrew, $scope.propertyName, $scope.useTransparencyOnIndicator, true);
+              style = this.visualStyleHelperService.styleDynamicIndicator(layer.feature, this.dynamicIncreaseBrew, this.dynamicDecreaseBrew, this.propertyName, this.useTransparencyOnIndicator, true);
 
               layer.setStyle(style);
             }
 
           });
-          // $scope.makeDynamicIndicatorLegend();
+          // this.makeDynamicIndicatorLegend();
         }
         else {
-          $scope.datasetContainsNegativeValues = $scope.containsNegativeValues($scope.currentGeoJSONOfCurrentLayer);
-          if ($scope.datasetContainsNegativeValues) {
-            dynamicIndicatorBrewArray = kommonitorVisualStyleHelperService.setupDynamicIndicatorBrew(
-              $scope.currentIndicatorMetadataAndGeoJSON.geoJSON, 
-              $scope.indicatorPropertyName, 
-              defaultColorBrewerPaletteForBalanceIncreasingValues, 
-              defaultColorBrewerPaletteForBalanceDecreasingValues, 
-              kommonitorVisualStyleHelperService.classifyMethod,
-              kommonitorVisualStyleHelperService.numClasses,
-              kommonitorVisualStyleHelperService.dynamicBrewBreaks);
-            $scope.dynamicIncreaseBrew = dynamicIndicatorBrewArray[0];
-            $scope.dynamicDecreaseBrew = dynamicIndicatorBrewArray[1];
+          this.datasetContainsNegativeValues = this.containsNegativeValues(this.currentGeoJSONOfCurrentLayer);
+          if (this.datasetContainsNegativeValues) {
+            let dynamicIndicatorBrewArray = this.visualStyleHelperService.setupDynamicIndicatorBrew(
+              this.currentIndicatorMetadataAndGeoJSON.geoJSON, 
+              this.indicatorPropertyName, 
+              this.defaultColorBrewerPaletteForBalanceIncreasingValues, 
+              this.defaultColorBrewerPaletteForBalanceDecreasingValues, 
+              this.visualData.classifyMethod,
+              this.visualData.numClasses,
+              this.visualData.dynamicBrewBreaks);
+            this.dynamicIncreaseBrew = dynamicIndicatorBrewArray[0];
+            this.dynamicDecreaseBrew = dynamicIndicatorBrewArray[1];
           }
           else {
-            $scope.defaultBrew = kommonitorVisualStyleHelperService.setupDefaultBrew(
-              $scope.currentGeoJSONOfCurrentLayer, 
-              $scope.indicatorPropertyName, 
-              kommonitorVisualStyleHelperService.numClasses, 
-              $scope.currentIndicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName, 
-              kommonitorVisualStyleHelperService.classifyMethod);
+            this.defaultBrew = this.visualStyleHelperService.setupDefaultBrew(
+              this.currentGeoJSONOfCurrentLayer, 
+              this.indicatorPropertyName, 
+              this.visualData.numClasses, 
+              this.currentIndicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName, 
+              this.visualData.classifyMethod);
           }
 
-          if (kommonitorVisualStyleHelperService.classifyMethod == "regional_default") {
-            $scope.applyRegionalDefaultClassification($scope.currentIndicatorMetadataAndGeoJSON);
+          if (this.visualData.classifyMethod == "regional_default") {
+            this.applyRegionalDefaultClassification(this.currentIndicatorMetadataAndGeoJSON);
           }
-          else if(kommonitorVisualStyleHelperService.classifyMethod == 'manual') {
-            $scope.manualBrew = kommonitorVisualStyleHelperService.setupManualBrew(
-              kommonitorVisualStyleHelperService.numClasses, 
-              $scope.currentIndicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName, 
-              kommonitorVisualStyleHelperService.manualBrew.breaks);
+          else if(this.visualData.classifyMethod == 'manual') {
+            let manualBrew = this.visualStyleHelperService.setupManualBrew(
+              this.visualData.numClasses, 
+              this.currentIndicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName, 
+              this.visualData.manualBrew.breaks);
             
-            kommonitorVisualStyleHelperService.manualBrew = $scope.manualBrew;
+            this.visualData.manualBrew = manualBrew;
           }
 
-          $scope.currentIndicatorLayer.eachLayer(function (layer) {
+          this.currentIndicatorLayer.eachLayer((layer) => {
             let style;
-            if (kommonitorFilterHelperService.featureIsCurrentlyFiltered(layer.feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME])) {
-              style = $scope.filteredStyle;
+            if (this.filterHelperService.featureIsCurrentlyFiltered(layer.feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME])) {
+              style = this.filteredStyle;
             }
             else {
-              if (kommonitorVisualStyleHelperService.classifyMethod == 'manual') {
-                style = kommonitorVisualStyleHelperService.styleDefault(layer.feature, $scope.manualBrew, $scope.dynamicIncreaseBrew, $scope.dynamicDecreaseBrew, $scope.propertyName, $scope.useTransparencyOnIndicator, $scope.datasetContainsNegativeValues, true);
+              if (this.visualData.classifyMethod == 'manual') {
+                style = this.visualStyleHelperService.styleDefault(layer.feature, this.manualBrew, this.dynamicIncreaseBrew, this.dynamicDecreaseBrew, this.propertyName, this.useTransparencyOnIndicator, this.datasetContainsNegativeValues, true);
               }
               else {
-                style = kommonitorVisualStyleHelperService.styleDefault(layer.feature, $scope.defaultBrew, $scope.dynamicIncreaseBrew, $scope.dynamicDecreaseBrew, $scope.propertyName, $scope.useTransparencyOnIndicator, $scope.datasetContainsNegativeValues, true);
+                style = this.visualStyleHelperService.styleDefault(layer.feature, this.defaultBrew, this.dynamicIncreaseBrew, this.dynamicDecreaseBrew, this.propertyName, this.useTransparencyOnIndicator, this.datasetContainsNegativeValues, true);
               }
             }
             layer.setStyle(style);
           });
 
-          $scope.updateManualMOVBreaksFromDefaultManualBreaks();
-          // $scope.makeDefaultLegend(kommonitorDataExchangeService.selectedIndicator.defaultClassificationMapping, $scope.datasetContainsNegativeValues);
+          this.updateManualMOVBreaksFromDefaultManualBreaks();
+          // this.makeDefaultLegend(this.exchangeData.selectedIndicator.defaultClassificationMapping, this.datasetContainsNegativeValues);
         }
       }
 
-      if(kommonitorVisualStyleHelperService.classifyMethod == "regional_default" 
-        && kommonitorDataExchangeService.isMeasureOfValueChecked) {
-        if(kommonitorVisualStyleHelperService.regionalDefaultBreaks.length == 0) {
-          $scope.defaultBrew = kommonitorVisualStyleHelperService.setupDefaultBrew(
-            $scope.currentGeoJSONOfCurrentLayer, 
-            $scope.indicatorPropertyName, 
-            kommonitorVisualStyleHelperService.numClasses, 
-            $scope.currentIndicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName, 
-            kommonitorVisualStyleHelperService.classifyMethod);
-          $scope.applyRegionalDefaultClassification($scope.currentIndicatorMetadataAndGeoJSON);
+      if(this.visualData.classifyMethod == "regional_default" 
+        && this.exchangeData.isMeasureOfValueChecked) {
+        if(this.visualData.regionalDefaultBreaks.length == 0) {
+          this.defaultBrew = this.visualData.setupDefaultBrew(
+            this.currentGeoJSONOfCurrentLayer, 
+            this.indicatorPropertyName, 
+            this.visualData.numClasses, 
+            this.currentIndicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName, 
+            this.visualData.classifyMethod);
+          this.applyRegionalDefaultClassification(this.currentIndicatorMetadataAndGeoJSON);
         }
-        kommonitorVisualStyleHelperService.regionalDefaultMOVBreaks = $scope.calcMOVBreaks(
-          kommonitorVisualStyleHelperService.regionalDefaultBreaks,
-          kommonitorDataExchangeService.measureOfValue
+        this.visualData.regionalDefaultMOVBreaks = this.calcMOVBreaks(
+          this.visualData.regionalDefaultBreaks,
+          this.exchangeData.measureOfValue
         )
-        measureOfValueBrewArray = kommonitorVisualStyleHelperService.setupMeasureOfValueBrew(
-          $scope.currentGeoJSONOfCurrentLayer, 
-          $scope.indicatorPropertyName, 
-          defaultColorBrewerPaletteForGtMovValues, 
-          defaultColorBrewerPaletteForLtMovValues, 
-          kommonitorVisualStyleHelperService.classifyMethod, 
-          kommonitorDataExchangeService.measureOfValue,
-          kommonitorVisualStyleHelperService.manualMOVBreaks,
-          kommonitorVisualStyleHelperService.regionalDefaultMOVBreaks,
-          kommonitorVisualStyleHelperService.numClasses
+        let measureOfValueBrewArray = this.visualStyleHelperService.setupMeasureOfValueBrew(
+          this.currentGeoJSONOfCurrentLayer, 
+          this.indicatorPropertyName, 
+          this.defaultColorBrewerPaletteForGtMovValues, 
+          this.defaultColorBrewerPaletteForLtMovValues, 
+          this.visualData.classifyMethod, 
+          this.exchangeData.measureOfValue,
+          this.visualData.manualMOVBreaks,
+          this.visualData.regionalDefaultMOVBreaks,
+          this.visualData.numClasses
         );
-        $scope.gtMeasureOfValueBrew = measureOfValueBrewArray[0];
-        $scope.ltMeasureOfValueBrew = measureOfValueBrewArray[1];
+        this.gtMeasureOfValueBrew = measureOfValueBrewArray[0];
+        this.ltMeasureOfValueBrew = measureOfValueBrewArray[1];
 
-        $scope.currentIndicatorLayer.eachLayer(function (layer) {
-          if (kommonitorFilterHelperService.featureIsCurrentlyFiltered(layer.feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME])) {
-            layer.setStyle($scope.filteredStyle);
+        this.currentIndicatorLayer.eachLayer((layer) => {
+          if (this.filterHelperService.featureIsCurrentlyFiltered(layer.feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME])) {
+            layer.setStyle(this.filteredStyle);
           }
           else {
-            style = kommonitorVisualStyleHelperService.styleMeasureOfValue(layer.feature, $scope.gtMeasureOfValueBrew, $scope.ltMeasureOfValueBrew, $scope.propertyName, $scope.useTransparencyOnIndicator, true);
+            style = this.visualStyleHelperService.styleMeasureOfValue(layer.feature, this.gtMeasureOfValueBrew, this.ltMeasureOfValueBrew, this.propertyName, this.useTransparencyOnIndicator, true);
 
             layer.setStyle(style);
           }
@@ -3163,28 +3176,28 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         });
       }
 
-      $rootScope.$broadcast("updateLegendDisplay", $scope.currentIndicatorContainsZeroValues, $scope.datasetContainsNegativeValues, $scope.currentIndicatorContainsNoDataValues, $scope.containsOutliers_high, $scope.containsOutliers_low, $scope.outliers_low, $scope.outliers_high, kommonitorDataExchangeService.selectedDate);
+      this.broadcastService.broadcast("updateLegendDisplay", [this.currentIndicatorContainsZeroValues, this.datasetContainsNegativeValues, this.currentIndicatorContainsNoDataValues, this.containsOutliers_high, this.containsOutliers_low, this.outliers_low, this.outliers_high, this.exchangeData.selectedDate]);
 
       if (!skipDiagramRefresh) {
-        justRestyling = true;
+        let justRestyling = true;
 
-        if (kommonitorVisualStyleHelperService.classifyMethod == 'manual') {
-          $rootScope.$broadcast("updateDiagrams", $scope.currentIndicatorMetadataAndGeoJSON, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitId, $scope.date, $scope.manualBrew, $scope.gtMeasureOfValueBrew, $scope.ltMeasureOfValueBrew, $scope.dynamicIncreaseBrew, $scope.dynamicDecreaseBrew, kommonitorDataExchangeService.isMeasureOfValueChecked, kommonitorDataExchangeService.measureOfValue, justRestyling);
+        if (this.visualData.classifyMethod == 'manual') {
+          this.broadcastService.broadcast("updateDiagrams", [this.currentIndicatorMetadataAndGeoJSON, this.exchangeData.selectedSpatialUnit.spatialUnitLevel, this.exchangeData.selectedSpatialUnit.spatialUnitId, this.date, this.manualBrew, this.gtMeasureOfValueBrew, this.ltMeasureOfValueBrew, this.dynamicIncreaseBrew, this.dynamicDecreaseBrew, this.exchangeData.isMeasureOfValueChecked, this.exchangeData.measureOfValue, justRestyling]);
         }
         else {
-          $rootScope.$broadcast("updateDiagrams", $scope.currentIndicatorMetadataAndGeoJSON, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitId, $scope.date, $scope.defaultBrew, $scope.gtMeasureOfValueBrew, $scope.ltMeasureOfValueBrew, $scope.dynamicIncreaseBrew, $scope.dynamicDecreaseBrew, kommonitorDataExchangeService.isMeasureOfValueChecked, kommonitorDataExchangeService.measureOfValue, justRestyling);
+          this.broadcastService.broadcast("updateDiagrams", [this.currentIndicatorMetadataAndGeoJSON, this.exchangeData.selectedSpatialUnit.spatialUnitLevel, this.exchangeData.selectedSpatialUnit.spatialUnitId, this.date, this.defaultBrew, this.gtMeasureOfValueBrew, this.ltMeasureOfValueBrew, this.dynamicIncreaseBrew, this.dynamicDecreaseBrew, this.exchangeData.isMeasureOfValueChecked, this.exchangeData.measureOfValue, justRestyling]);
         }
         
       }
 
       //ensure that highlighted feature remain highlighted
-      preserveHighlightedFeatures();
+      this.preserveHighlightedFeatures();
     }
 
-    $scope.map.invalidateSize(true);
+    this.map.invalidateSize(true);
 
-  });
-  */
+  }
+  
 
   updateDefaultManualBreaksFromMOVManualBreaks (){
     let ltBreaks = [...this.visualData.manualMOVBreaks[0]];

@@ -139,6 +139,7 @@ export class KommonitorBalanceComponent implements OnInit {
                 this.broadcastService.broadcast('DisableDateSlider')
 								if(!this.exchangeData.indicatorAndMetadataAsBalance){
 									this.exchangeData.indicatorAndMetadataAsBalance = jQuery.extend(true, {}, this.exchangeData.selectedIndicator);
+                  
 									var indicatorType = this.exchangeData.selectedIndicator.indicatorType;
 									if(indicatorType.includes("ABSOLUTE")){
 										this.exchangeData.indicatorAndMetadataAsBalance.indicatorType = "DYNAMIC_ABSOLUTE";
@@ -173,6 +174,12 @@ export class KommonitorBalanceComponent implements OnInit {
 							// do not replace dataset directly, but check if any filter can be applied when changing balance mode for the current dataset
 							this.filterHelperService.filterAndReplaceDataset();
 						};
+
+            // hier onChangeUseBalance (1) -> filterAndReplaceDataset (2 new) -> replaceIndicatorGeoJSON -> replaceIndicatorAsGeoJSON (replaceIndi...) 
+             // --> da wird dynamicBrew auf undefined gesetzt, und scheinbar nicht neu definiert
+             // --> auskommentiert, bringt nix, ist scheinbar auch vorher nicht gesetzt, to check, wo und WANN wird das definiert?!
+
+             // setupDynamicIndicatorBrew
 
 
 						getFromDate_asPropertyString(datePeriodSliderData){
@@ -341,6 +348,7 @@ export class KommonitorBalanceComponent implements OnInit {
         getFormatedSliderReturn() {
 
           let data = this.slider.noUiSlider.get(true);
+          
           return {
             from: Math.round(data[0]),
             to: Math.round(data[1])
@@ -352,15 +360,28 @@ export class KommonitorBalanceComponent implements OnInit {
 
           this.slider.noUiSlider.updateOptions({
             range: {
-                'min': this.datesAsMs[0],
-                'max': this.datesAsMs[this.datesAsMs.length-1]
+                'min': 0, // index from
+                'max': this.datesAsMs.length-1 // index to
             },
-            start: [ this.datesAsMs[0], this.datesAsMs[this.datesAsMs.length-1]],
+            start: [ this.tsToDateString(this.datesAsMs[0]), this.tsToDateString(this.datesAsMs[this.datesAsMs.length-1])],
+            step: 1,
+            tooltips: true,
+            format: {
+              to: (value) => {
+                return this.tsToDateString(this.datesAsMs[Math.round(value)]);  
+              },
+              from: (value) => {
+                return this.datesAsMs.indexOf(value);
+              }
+            },
             pips: {
-              mode: 'steps',
-              density: 4,
+              mode: 'range',
+              density: 25,
               format: {
-                to: this.tsToDateString
+                to: (value) => {
+                  return this.tsToDateString(this.datesAsMs[Math.round(value)]);
+                },
+                from: this.tsToDateString
               }
             }
           });
@@ -419,6 +440,7 @@ export class KommonitorBalanceComponent implements OnInit {
         onChangeBalanceRange (data) {
           // create balance GeoJSON and broadcast "replaceIndicatorAsGeoJSON"
           // Called every time handle position is changed
+
           this.computeAndSetBalance(data);
         
           setTimeout(() => {
@@ -438,7 +460,7 @@ export class KommonitorBalanceComponent implements OnInit {
 
           // make another copy of selectedIndicator to ensure that feature order matches each other
           this.exchangeData.indicatorAndMetadataAsBalance = jQuery.extend(true, {}, this.exchangeData.selectedIndicator);
-
+// bis hier passt, wo aber replaceIndocatorASGeojson etc... wie in demo?
           var indicatorType = this.exchangeData.selectedIndicator.indicatorType;
           if(indicatorType.includes("ABSOLUTE")){
             this.exchangeData.indicatorAndMetadataAsBalance.indicatorType = "DYNAMIC_ABSOLUTE";
