@@ -158,6 +158,100 @@
                                 <div class="row">
                                     <div class="col-md-4">
                                         <div class="reporting-element-config-box">
+                                            <h5>Sektionen</h5>  
+                                            
+                                            <div ng-show="! template.name.includes('-reachability')">
+                                            
+                                                <label class="switch" title="Karte gesamt unklassifiziert">
+                                                    <input type="checkbox"
+                                                        ng-model="pageConfig.sections.showOverviewSection_unclassified"
+                                                        ng-checked="pageConfig.sections.showOverviewSection_unclassified"
+                                                        ng-change="onChangeShowPageSection()">
+                                                    <span class="switchslider round"></span>
+                                                </label>
+                                                Karte - nicht klassifiziert
+
+                                                <br/>
+
+                                                <label class="switch" title="Karte gesamt klassifiziert">
+                                                    <input type="checkbox"
+                                                        ng-model="pageConfig.sections.showOverviewSection_classified"
+                                                        ng-checked="pageConfig.sections.showOverviewSection_classified"
+                                                        ng-change="onChangeShowPageSection()">
+                                                    <span class="switchslider round"></span>
+                                                </label>
+                                                Karte - klassifiziert
+
+                                                <br/>
+
+                                                <label class="switch" title="Ranking-Diagramm">
+                                                    <input type="checkbox"
+                                                        ng-model="pageConfig.sections.showBarchartOverview"
+                                                        ng-checked="pageConfig.sections.showBarchartOverview"
+                                                        ng-change="onChangeShowPageSection()">
+                                                    <span class="switchslider round"></span>
+                                                </label>
+                                                Ranking-Diagramm - &Uuml;bersicht
+
+                                            </div>
+
+                                            <div ng-show="template.name.includes('-timeseries')">
+                                                <label class="switch" title="Zeitreihen-Diagramm">
+                                                    <input type="checkbox"
+                                                        ng-model="pageConfig.sections.showLinechartOverview"
+                                                        ng-checked="pageConfig.sections.showLinechartOverview"
+                                                        ng-change="onChangeShowPageSection()">
+                                                    <span class="switchslider round"></span>
+                                                </label>
+                                                Zeitreihen-Diagramm - &Uuml;bersicht
+
+                                                <br/>
+
+                                                <label class="switch" title="Boxplot-Diagramm">
+                                                    <input type="checkbox"
+                                                        ng-model="pageConfig.sections.showBoxplotchartOverview"
+                                                        ng-checked="pageConfig.sections.showBoxplotchartOverview"
+                                                        ng-change="onChangeShowPageSection()">
+                                                    <span class="switchslider round"></span>
+                                                </label>
+                                                Boxplot-Diagramm - &Uuml;bersicht
+                                            </div>
+
+                                            <div ng-show="template.name.includes('-reachability')">
+                                                <label class="switch" title="Karte Erreichbarkeit gesamt">
+                                                    <input type="checkbox"
+                                                        ng-model="pageConfig.sections.showOverviewSection_reachability"
+                                                        ng-checked="pageConfig.sections.showOverviewSection_reachability"
+                                                        ng-change="onChangeShowPageSection()">
+                                                    <span class="switchslider round"></span>
+                                                </label>
+                                                &Uuml;bersichtskarte - Erreichbarkeit
+                                            </div>
+
+                                            <label class="switch" title="Karte Erreichbarkeit gesamt">
+                                                <input type="checkbox"
+                                                    ng-model="pageConfig.sections.showAreaSpecific"
+                                                    ng-checked="pageConfig.sections.showAreaSpecific"
+                                                    ng-change="onChangeShowPageSection()">
+                                                <span class="switchslider round"></span>
+                                            </label>
+                                            Einzelseite pro Raumeinheit
+
+                                            <div ng-show="! template.name.includes('-reachability')">
+                                                <label class="switch" title="Datentabelle">
+                                                    <input type="checkbox"
+                                                        ng-model="pageConfig.sections.showDatatable"
+                                                        ng-checked="pageConfig.sections.showDatatable"
+                                                        ng-change="onChangeShowPageSection()">
+                                                    <span class="switchslider round"></span>
+                                                </label>
+                                                Datentabelle
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="reporting-element-config-box">
                                             <h5>Kopf- und Fu&szlig;leiste</h5>                                            
                                             <label class="switch" title="Titel anzeigen">
                                                 <input type="checkbox"
@@ -213,9 +307,11 @@
                                             Seitenzahl? 
                                         </div>
                                     </div>
-                                    <div class="col-md-4">
+                                    <div class="col-md-5">
                                         <div class="reporting-element-config-box">
-                                            <h5>Karte</h5>                                            
+                                            <h5>Sektionsinhalte</h5>   
+                                            <i>Kartendarstellungen</i> 
+                                            <br/>                                           
                                             <label class="switch" title="Label anzeigen">
                                                 <input type="checkbox"
                                                     ng-model="pageConfig.showMapLabels"
@@ -234,11 +330,10 @@
                                                     </option>
                                                 </select>
                                             </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="reporting-element-config-box">
-                                            <h5>Ranking-Chart</h5>                                            
+                                                                
+                                            <br/>
+                                            <i>Ranking Chart</i> 
+                                            <br/>
                                             <label class="switch" title="Ranking-Durchschnittslinie anzeigen">
                                                 <input type="checkbox"
                                                     ng-model="pageConfig.showRankingMeanLine"
@@ -256,7 +351,7 @@
 
                     <!-- not affected by tab changes -->
                     <div id="reporting-add-indicator-preview-area">
-                        <div ng-repeat="page in template.pages track by page.id" 
+                        <div ng-repeat="page in template.pages track by page.id"                              
                             ng-class="{hiddenPage: !showThisPage(page)}"
                             ng-attr-class="reporting-page reporting-page-{{page.orientation}} reporting-custom-css"
                             ng-attr-id="reporting-addIndicator-page-{{$index}}">
@@ -343,7 +438,7 @@
                                     {{pageElement.text}}
                                 </span>
                                 
-                                <img ng-show="pageConfig.showLogo pageElement.type.includes('communeLogo-') && pageElement.isPlaceholder == false"
+                                <img ng-show="pageConfig.showLogo && pageElement.type.includes('communeLogo-') && pageElement.isPlaceholder == false"
                                     ng-attr-src="{{pageElement.src}}">
                                 
                             </div>

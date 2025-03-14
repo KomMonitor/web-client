@@ -62,20 +62,77 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			showSubtitle: true,
 			showLogo: true,
 			showFooterCreationInfo: true,
-			showPageNumber: true
+			showPageNumber: true,
+			sections: {
+				showOverviewSection_unclassified: true,
+				showOverviewSection_classified: true,
+				showBarchartOverview: true,
+				showLinechartOverview: true,
+				showBoxplotchartOverview: true,
+				showAreaSpecific: true,
+				showOverviewSection_reachability: true,
+				showDatatable: true
+			}
 		}
 
-		$scope.onChangePageConfig = async function(){
+		$scope.onChangePageConfig = function(){
 			// just visual updates and make sure that config is set at selected template
 			// in order to apply this config in overview and for report generation!
 			$timeout(function(){
 				$scope.loadingData = true; 
 			})
 
-			$scope.template.pageConfig = $scope.pageConfig;
+			$scope.template.pageConfig = $scope.pageConfig;		
 
-			// kommonitorLeafletScreenshotCacheHelperService.resetCounter_keepingCurrentTargetFeatures(true);
-			// await $scope.initializeAllDiagrams();			
+			$timeout(function(){
+				$scope.loadingData = false; 
+			}) 
+		}
+
+		$scope.onChangeShowPageSection = function(){
+			$timeout(function(){
+				$scope.loadingData = true; 
+			})
+
+			// now iterate over pages and adjust visibility according to settings
+			// save that config at template level to adjust it in overview component and during export as well
+			 for (const page of $scope.template.pages) {
+				if(page.type == "map_overview_unclassified"){
+					page.hidden = ! $scope.pageConfig.sections.showOverviewSection_unclassified;
+					continue;
+				}
+				if(page.type == "map_overview_classified"){
+					page.hidden = ! $scope.pageConfig.sections.showOverviewSection_classified;
+					continue;
+				}
+				if(page.type == "barchart_overview"){
+					page.hidden = ! $scope.pageConfig.sections.showBarchartOverview;
+					continue;
+				}
+				if(page.type == "linechart_overview"){
+					page.hidden = ! $scope.pageConfig.sections.showLinechartOverview;
+					continue;
+				}
+				if(page.type == "boxplot_overview"){
+					page.hidden = ! $scope.pageConfig.sections.showBoxplotchartOverview;
+					continue;
+				}
+				if(page.type == "area_specific"){
+					page.hidden = ! $scope.pageConfig.sections.showAreaSpecific;
+					continue;
+				}
+				if(page.type == "map_overview_reachability"){
+					page.hidden = ! $scope.pageConfig.sections.showOverviewSection_reachability;
+					continue;
+				}
+				if(page.type == "datatable"){
+					page.hidden = ! $scope.pageConfig.sections.showDatatable;
+					continue;
+				}
+			 }
+
+
+			$scope.template.pageConfig = $scope.pageConfig;
 
 			$timeout(function(){
 				$scope.loadingData = false; 
@@ -3273,6 +3330,11 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		}
 
 		$scope.showThisPage = function(page) {
+
+			if (page.hidden){
+				return false;
+			}
+
 			let pageWillBeShown = false;
 			for(let visiblePage of $scope.filterPagesToShow()){
 				if(visiblePage.id == page.id) {

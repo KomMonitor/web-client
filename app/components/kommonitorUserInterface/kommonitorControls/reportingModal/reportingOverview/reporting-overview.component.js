@@ -495,7 +495,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 							series.top = 0;
 							series.right = 0;
 							series.bottom = 0;
-							// series.boundingCoords = boundingCoords,
+							// series.boundingCoords = newBounds,
 							series.projection = {
 								project: (point) => mercatorProjection_d3(point),
 								unproject: (point) => mercatorProjection_d3.invert(point)
@@ -511,7 +511,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 								project: (point) => mercatorProjection_d3(point),
 								unproject: (point) => mercatorProjection_d3.invert(point)
 							}				
-							// pageElement.echartsOptions.geo[0].boundingCoords = boundingCoords
+							// pageElement.echartsOptions.geo[0].boundingCoords = newBounds
 						}
 
 						if(page.area && page.area.length) {
@@ -560,7 +560,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 			})			
 		});
 
-		$scope.initializeLeafletMap = async function(page, pageElement, map, spatialUnit, forceScreenshot) {
+		$scope.initializeLeafletMap = async function(page, pageElement, echartsMap, spatialUnit, forceScreenshot) {
 			await $timeout(async function(page, pageElement, echartsMap, spatialUnit) {
 				let pageIdx = $scope.config.pages.indexOf(page);
 				let id = "reporting-overview-leaflet-map-container-" + pageIdx;
@@ -654,30 +654,34 @@ angular.module('reportingOverview').component('reportingOverview', {
 				leafletMap.fitBounds( [[southLat, westLon], [northLat, eastLon]] );
 				// leafletMap.fitBounds( bounds );
 
-				// for(let series of echartsOptions.series) {
+				// let bounds = leafletMap.getBounds()
+				// // now update every echarts series
+				// boundingCoords = [ [bounds.getWest(), bounds.getNorth()], [bounds.getEast(), bounds.getSouth()]]
 
-				// 	series.left = 0;
-				// 	series.top = 0;
-				// 	series.right = 0;
-				// 	series.bottom = 0;
-				// 	// series.boundingCoords = boundingCoords,
-				// 	series.projection = {
-				// 		project: (point) => mercatorProjection_d3(point),
-				// 		unproject: (point) => mercatorProjection_d3.invert(point)
-				// 	}
-				// }
+				for(let series of echartsOptions.series) {
 
-				// if(echartsOptions.geo){
-				// 	echartsOptions.geo[0].top = 0;
-				// 	echartsOptions.geo[0].left = 0;
-				// 	echartsOptions.geo[0].right = 0;
-				// 	echartsOptions.geo[0].bottom = 0;
-				// 	echartsOptions.geo[0].projection = {
-				// 		project: (point) => mercatorProjection_d3(point),
-				// 		unproject: (point) => mercatorProjection_d3.invert(point)
-				// 	}				
-				// 	// echartsOptions.geo[0].boundingCoords = boundingCoords
-				// }
+					series.left = 0;
+					series.top = 0;
+					series.right = 0;
+					series.bottom = 0;
+					series.boundingCoords = boundingCoords,
+					series.projection = {
+						project: (point) => mercatorProjection_d3(point),
+						unproject: (point) => mercatorProjection_d3.invert(point)
+					}
+				}
+
+				if(echartsOptions.geo){
+					echartsOptions.geo[0].top = 0;
+					echartsOptions.geo[0].left = 0;
+					echartsOptions.geo[0].right = 0;
+					echartsOptions.geo[0].bottom = 0;
+					echartsOptions.geo[0].projection = {
+						project: (point) => mercatorProjection_d3(point),
+						unproject: (point) => mercatorProjection_d3.invert(point)
+					}				
+					echartsOptions.geo[0].boundingCoords = boundingCoords
+				}
 				
 
 				// store spatial unit and feature id to page in order to access it later when the screenshot is needed
@@ -729,7 +733,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 				//let isochronesLayer = L.geoJSON( $scope.isochrones.features )
 				//isochronesLayer.addTo(leafletMap);
 
-			}, 0, false, page, pageElement, map, spatialUnit)
+			}, 0, false, page, pageElement, echartsMap, spatialUnit)
 		}
 
 		$scope.getSpatialUnitByName = async function(spatialUnitName) {
@@ -946,6 +950,11 @@ angular.module('reportingOverview').component('reportingOverview', {
 		}
 
 		$scope.showThisPage = function(page) {
+
+			if (page.hidden){
+				return false;
+			}
+
 			let pageWillBeShown = false;
 			for(let visiblePage of $scope.filterPagesToShow()){
 				if(visiblePage == page) {
