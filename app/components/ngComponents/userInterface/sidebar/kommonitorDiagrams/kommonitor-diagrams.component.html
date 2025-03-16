@@ -1,0 +1,92 @@
+<div style="text-align: center" id="indicatorDiagrams">
+	<!-- DIAGRAMS which will be automatically updated on changed indicator -->
+	<!-- preparing a DOM with width and height for ECharts -->
+
+	<div style="text-align: center">
+		<div class="loading-overlay-sidebar-small ng-hide" *ngIf="loadingData">
+					<span class="glyphicon glyphicon-refresh icon-spin"></span>
+		</div>
+	</div>
+
+	<p></p>
+
+	<div *ngIf="isTooManyFeatures">
+		<br/>
+		<br/>
+		<br/>
+		<h4>gew&auml;hlte Raumebene enth&auml;lt zu viele Features. Balkendiagramm kann nicht dargestellt werden.</h4>
+		<br/>
+		<br/>
+		<br/>
+	</div>
+
+	<!-- BAR CHART -->
+				<div *ngIf="!isTooManyFeatures" style="margin-bottom: 10px;" class="box box-success">
+					<div class="box-header with-border">
+						<h3 *ngIf="date" class="box-title">Feature-Vergleich - {{spatialUnitName}} - {{date}}</h3>
+						<!-- <h3 *ngIf="fromDate && toDate" class="box-title">Feature-Vergleich - {{spatialUnitName}} - Bilanz {{fromDate}} - {{toDate}}</h3> -->
+						
+						<div class="box-tools pull-right">
+							<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+							</button>
+						</div> 
+					</div>
+					<div class="box-body">
+						<div class="chart">
+							<div class="row">
+								<div class="col-md-6" style="text-align: left;">
+									<div *ngIf="exchangeData.allFeaturesRegionalSum">
+										<b>{{exchangeData.labelSum_regional}}</b> {{exchangeData.allFeaturesRegionalSum}}								
+									</div>
+									<div *ngIf="exchangeData.allFeaturesRegionalSpatiallyUnassignable">
+										<b>{{exchangeData.labelSpatiallyUnassignable_regional}}</b> {{exchangeData.allFeaturesRegionalSpatiallyUnassignable || 0}}								
+									</div>
+								</div>
+								<div class="col-md-6" style="text-align: right;">
+									<b title="Checkbox zur Wahl, ob Label der Raumeinheiten im Diagramm angezeigt werden sollen">Namen der Raumeinheiten darstellen?</b>
+									&nbsp;
+									<label class="switch">
+										<input type="checkbox" value="exchangeData.showBarChartLabel" ng-model="exchangeData.showBarChartLabel" ng-change="onChangeShowBarChartLabel()"
+											checked>
+										<span class="switchslider round"></span>
+									</label>
+
+									<br/>
+
+									<b title="Checkbox zur Wahl, ob Durchschnittslinie im Diagramm angezeigt werden sollen">Durchschnittslinie darstellen?</b>
+									&nbsp;
+									<label class="switch">
+										<input type="checkbox" value="exchangeData.showBarChartAverageLine" ng-model="exchangeData.showBarChartAverageLine" ng-change="onChangeShowBarChartAverageLine()"
+											checked>
+										<span class="switchslider round"></span>
+									</label>
+								</div>
+							</div>				
+																					
+							<div  id="barDiagram" style="width:100%; min-height:30vh;"></div>
+						</div>
+					</div>
+					<!-- /.box-body -->
+				</div>
+				<!-- /.box -->
+
+		<!-- LINE CHART -->
+					<div style="margin-bottom: 0px;" class="box box-success">
+						<div class="box-header with-border">
+							<h3 class="box-title">Zeitreihe - {{spatialUnitName}}</h3>
+
+							<div class="box-tools pull-right">
+								<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+								</button>
+							</div> 
+						</div>
+						<div class="box-body">
+							<div class="chart">
+								<div id="lineDiagram" style="width:100%; min-height:40vh;"></div>
+							</div>
+						</div>
+						<!-- /.box-body -->
+					</div>
+					<!-- /.box -->
+
+</div>

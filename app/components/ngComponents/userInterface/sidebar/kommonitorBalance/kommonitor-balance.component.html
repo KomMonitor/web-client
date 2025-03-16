@@ -48,7 +48,7 @@
 		</div>
 		<!-- /.box -->
 
-		<div style="margin-bottom: 0px;" class="box box-danger" [hidden]="exchangeData.isBalanceChecked">
+		<div style="margin-bottom: 0px;" class="box box-danger" [hidden]="!exchangeData.isBalanceChecked">
 			<div class="box-header with-border">
 				<h3 *ngIf="exchangeData.enableBilanceTrend" class="box-title">Trenddarstellung &uuml;ber alle Features</h3>
 				<h3 *ngIf="!exchangeData.enableBilanceTrend" class="box-title">Zeitreihendarstellung &uuml;ber alle Features</h3>

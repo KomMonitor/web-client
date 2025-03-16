@@ -17,4 +17,20 @@ export class DiagramHelperServiceService {
   makeTrendChartOptions_forAllFeatures(indicatorMetadata, fromDateAsPropertyString, toDateAsPropertyString, showMinMax, showCompleteTimeseries, trendComputationType, enableBilanceTrend) {
     return this.ajskommonitorDiagramHelperServiceProvider.makeTrendChartOptions_forAllFeatures(indicatorMetadata, fromDateAsPropertyString, toDateAsPropertyString, showMinMax, showCompleteTimeseries, trendComputationType, enableBilanceTrend);
   }
+
+  getHistogramChartOptions() {
+    return this.ajskommonitorDiagramHelperServiceProvider.getHistogramChartOptions();
+  }
+
+  getBarChartOptions() {
+    return this.ajskommonitorDiagramHelperServiceProvider.getBarChartOptions();
+  }
+
+  getLineChartOptions() {
+    return this.ajskommonitorDiagramHelperServiceProvider.getLineChartOptions();
+  }
+
+  prepareAllDiagramResources_forCurrentMapIndicator(indicatorMetadataAndGeoJSON, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, bolval) {
+    this.ajskommonitorDiagramHelperServiceProvider.prepareAllDiagramResources_forCurrentMapIndicator(indicatorMetadataAndGeoJSON, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, bolval);
+  }
 }

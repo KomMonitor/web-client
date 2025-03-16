@@ -67,6 +67,8 @@ export interface DataExchange {
   simplifyGeometriesParameterName:any;
   simplifyGeometries:any;
   enableBilanceTrend: any;
+  showBarChartLabel:any;
+  showBarChartAverageLine:any; 
 }
 
 export interface IndicatorTopic {

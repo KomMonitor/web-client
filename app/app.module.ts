@@ -42,6 +42,7 @@ import { KommonitorMapComponent } from './components/ngComponents/userInterface/
 import { DualListBoxComponent } from './components/ngComponents/customElements/dual-list-box/dual-list-box.component';
 import { KommonitorBalanceComponent } from './components/ngComponents/userInterface/sidebar/kommonitorBalance/kommonitor-balance.component';
 import { NouisliderModule } from 'ng2-nouislider';
+import { KommonitorDiagramsComponent } from './components/ngComponents/userInterface/sidebar/kommonitorDiagrams/kommonitor-diagrams.component';
 
 
 
@@ -83,7 +84,8 @@ declare var MathJax;
     KommonitorFilterComponent,
     KommonitorMapComponent,
     DualListBoxComponent,
-    KommonitorBalanceComponent
+    KommonitorBalanceComponent,
+    KommonitorDiagramsComponent
   ],
   schemas: [
     CUSTOM_ELEMENTS_SCHEMA
