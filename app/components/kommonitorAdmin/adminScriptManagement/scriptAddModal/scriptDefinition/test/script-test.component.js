@@ -281,6 +281,25 @@ angular.module('scriptTest').component('scriptTest', {
 					$scope.legendValues.list_baseIndicators = baseIndicators_legend;
 					formula = formula.replace("sum_baseIndicators", baseIndicators_formula);
 				}
+
+				if(formula.includes('prod_baseIndicators')) {
+					baseIndicators_formula = "";
+					baseIndicators_legend = "";
+					for (let index = 0; index < $scope.baseIndicators.length; index++) {
+						const indicatorMetadata = $scope.baseIndicators[index];
+						var letterValue = kommonitorScriptHelperService.getAlphabetLetterFromNumber(index);
+	
+						baseIndicators_formula+=letterValue;
+						baseIndicators_legend+="$" + letterValue + "$: " + indicatorMetadata.indicatorName  + " [" + indicatorMetadata.unit +  "]";
+						if(index < $scope.baseIndicators.length - 1){
+							baseIndicators_formula+=" \\times ";
+							baseIndicators_legend+="<br/>"; 
+						}
+					}
+					$scope.legendValues.list_baseIndicators = baseIndicators_legend;
+					formula = formula.replace("prod_baseIndicators", baseIndicators_formula);
+				}
+
 				return formula;
 			}
 
@@ -288,9 +307,9 @@ angular.module('scriptTest').component('scriptTest', {
 			$scope.resetComputationFormulaAndLegend = function(){
 				kommonitorScriptHelperService.scriptFormulaHTML = "";
 
-				if (!$scope.compIndicatorSelection && !$scope.refIndicatorSelection){
+				/*if (!$scope.compIndicatorSelection && !$scope.refIndicatorSelection){
 					return;
-				}
+				}*/
 
 				var formula = kommonitorScriptHelperService.scriptData.additionalParameters.parameters.kommonitorUiParams.formula;
 				

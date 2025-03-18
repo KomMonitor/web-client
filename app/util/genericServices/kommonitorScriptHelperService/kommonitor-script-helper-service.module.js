@@ -48,7 +48,7 @@ angular
 					"apiName": "indicator_subtract"
         },
         {
-					"displayName": "Indikatoren - Prozentualer Anteil (Quotient zwischen Basis-Indikatoren und einem Referenzindikator)",
+					"displayName": "(alt) Indikatoren - Prozentualer Anteil (Quotient zwischen Basis-Indikatoren und einem Referenzindikator)",
 					"apiName": "indicator_percentage"
         },
         {
@@ -92,7 +92,7 @@ angular
 					"apiName": "indicator_headlineIndicator"
         },
         {
-					"displayName": "Indikatoren - Produkt aller Indikatoren",
+					"displayName": "(alt) Indikatoren - Produkt aller Indikatoren",
 					"apiName": "indicator_multiplication"
         },
         {

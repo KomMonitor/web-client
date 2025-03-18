@@ -57,17 +57,21 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 
 			kommonitorScriptHelperService.availableScriptTypes = [
         {
-					"displayName": "(neu)Indikatoren - Veränderung absolut",
+					"displayName": "(neu) Indikatoren - Veränderung absolut",
 					"apiName": "indicator_change_absolute_new"
         },
         {
-					"displayName": "(neu)Georessourcen - Anzahl Punkte in Polygon",
+					"displayName": "(neu) Georessourcen - Anzahl Punkte in Polygon",
 					"apiName": "georesource_pointsInPolygon_new"
 				},
 				{
-					"displayName": "(neu)prozentualer Anteil (Quotient)",
+					"displayName": "(neu) Indikatoren - Prozentualer Anteil (Quotient zwischen Basis-Indikatoren und einem Referenzindikator)",
 					"apiName": "percentage_new"
-				}       
+				},
+				{
+					"displayName": "(neu) Indikatoren - Produkt aller Indikatoren",
+					"apiName": "multiplication_new"
+				}      
 			];
 
 			kommonitorScriptHelperService.availableScriptTypeOptions.push(...kommonitorScriptHelperService.availableScriptTypes);
@@ -438,6 +442,91 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 							"jobControlOptions": [],
 							"outputTransmission": []
 						
+					}
+				}
+				if ($scope.selectedScriptType.apiName == "multiplication_new") {
+					kommonitorScriptHelperService.scriptData = {		
+						"id": "multiplication",
+						"version": "1.0.0",
+						"title": "Produkt mehrerer Basisindikatoren",
+						"description": "Mindestens zwei (Basis-)Indikator m&uuml;ssen angegeben werden, aus dem sich der Ziel-Indikator ableitet. Beliebig viele sind m&ouml;glich.",
+						"additionalParameters": {
+							"parameters": [
+								{
+									"name": "kommonitorUiParams",
+									"value": {
+										"titleShort": "",
+										"apiName": "indicator_multiplication",
+										"calculation_info": "Produkt aller (Basis-)Indikatoren",
+										"formula": "$$ \\prod_{n=1}^{m} I_{n} $$",
+										"legend": "",
+										"dynamicFormula": "$$ prod_baseIndicators $$",
+										"dynamicLegend": "${list_baseIndicators}",
+										"inputBoxes": [
+											{
+												"id": "computation_ids",
+												"title": "Notwendige (Basis-)Indikatoren (Faktoren)",
+												"description": "",
+												"contents": [
+													"computation_ids"
+												]
+											}
+										]
+									}
+								}
+							]
+						},
+						"inputs": {
+							"target_indicator_id": {
+								"id": "target_indicator_id",
+								"schema": { 
+									"type": "string",
+									"default": null
+								}
+							},
+							"target_spatial_units": {
+								"id": "target_spatial_units",
+								"schema": { 
+									"type": "array",
+									"default": []
+								}
+							},
+							"target_time": {
+								"id": "target_time",
+								"schema": { 
+									"type": "object",
+									"default": {
+										"value":{
+											"mode": "MISSING",
+											"includeDates" : [],
+											"excludeDates" : []
+										}
+									}
+								}
+							},
+							"execution_interval": {
+								"id": "execution_interval",
+								"schema": { 
+									"type": "object",
+									"default": {
+										"value": {
+											"cron": "0 0 1 * *"
+										}
+									}
+								}
+							},
+							"computation_ids": {
+								"id": "computation_ids",
+								"schema": { 
+									"type": "array",
+									"default": []
+								}
+							}
+						},
+						"outputs": {
+						},
+						"jobControlOptions": [],
+						"outputTransmission": []
 					}
 				}
 
