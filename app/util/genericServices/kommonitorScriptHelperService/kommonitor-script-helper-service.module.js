@@ -400,7 +400,7 @@ angular
 						}
 			*/
 
-        var postBody = {
+        var postBody = { // old postBody:
           "name": scriptName,
           "description": description,
           "associatedIndicatorId": targetIndicatorMetadata.indicatorId,
@@ -408,7 +408,15 @@ angular
           "requiredGeoresourceIds": this.requiredGeoresources_tmp.map(georesourceMetadata => georesourceMetadata.georesourceId),
           "variableProcessParameters": this.requiredScriptParameters_tmp,
           "scriptCodeBase64": window.btoa(this.scriptCode_readableString)
-        };             
+        };            
+
+        if(this.processParameters.computation_id) {
+          this.processParameters.computation_ids = [this.processParameters.computation_id];
+          this.processParameters.computation_id = undefined;
+        }
+        
+        postBody = angular.toJson( this.processParameters ); // remove hash keys
+        
 
         return await $http({
           url: this.targetUrlToManagementService + "process-scripts",
