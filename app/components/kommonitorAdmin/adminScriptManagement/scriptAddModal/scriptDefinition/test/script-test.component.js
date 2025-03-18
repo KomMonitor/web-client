@@ -263,40 +263,69 @@ angular.module('scriptTest').component('scriptTest', {
 				$scope.resetComputationFormulaAndLegend();	
 			};
 
+			$scope.createDynamicFormula = function(formula) {
+				if(formula.includes('sum_baseIndicators')) {
+					baseIndicators_formula = "";
+					baseIndicators_legend = "";
+					for (let index = 0; index < $scope.baseIndicators.length; index++) {
+						const indicatorMetadata = $scope.baseIndicators[index];
+						var letterValue = kommonitorScriptHelperService.getAlphabetLetterFromNumber(index);
+
+						baseIndicators_formula+=letterValue;
+						baseIndicators_legend+="$" + letterValue + "$: " + indicatorMetadata.indicatorName + " [" + indicatorMetadata.unit +  "]";
+						if(index < $scope.baseIndicators.length - 1){
+							baseIndicators_formula+=" + ";
+							baseIndicators_legend+="<br/>"; 
+						}
+					}
+					$scope.legendValues.list_baseIndicators = baseIndicators_legend;
+					formula = formula.replace("sum_baseIndicators", baseIndicators_formula);
+				}
+				return formula;
+			}
+
 			//a
 			$scope.resetComputationFormulaAndLegend = function(){
 				kommonitorScriptHelperService.scriptFormulaHTML = "";
 
-				if (! $scope.compIndicatorSelection){
+				if (!$scope.compIndicatorSelection && !$scope.refIndicatorSelection){
 					return;
 				}
 
-					var formulaHTML = "<b>Berechnung gem&auml;&szlig; Formel<br/> " + kommonitorScriptHelperService.scriptData.additionalParameters.parameters.kommonitorUiParams.formula;
-					var dynamicLegendStr = kommonitorScriptHelperService.scriptData.additionalParameters.parameters.kommonitorUiParams.dynamicLegend;
-					$scope.legendValues =  Object.assign($scope.legendValues, kommonitorScriptHelperService.processParameters);
+				var formula = kommonitorScriptHelperService.scriptData.additionalParameters.parameters.kommonitorUiParams.formula;
+				
+				if(kommonitorScriptHelperService.scriptData.additionalParameters.parameters.kommonitorUiParams.dynamicFormula) {
+					formula = $scope.createDynamicFormula(kommonitorScriptHelperService.scriptData.additionalParameters.parameters.kommonitorUiParams.dynamicFormula);
+				}
 
-					// replace objects with displayName
-					for (let key in $scope.legendValues) {
-						if ($scope.legendValues.hasOwnProperty(key)) {
-							if (typeof $scope.legendValues[key] === 'object' && 
-								$scope.legendValues[key] !== null && 
-								$scope.legendValues[key].hasOwnProperty('displayName')) {
-								$scope.legendValues[key] = $scope.legendValues[key].displayName;
-							}
+				var formulaHTML = "<b>Berechnung gem&auml;&szlig; Formel<br/> " + formula;
+
+
+				var dynamicLegendStr = kommonitorScriptHelperService.scriptData.additionalParameters.parameters.kommonitorUiParams.dynamicLegend;
+				$scope.legendValues =  Object.assign($scope.legendValues, kommonitorScriptHelperService.processParameters);
+
+				// replace objects with displayName
+				for (let key in $scope.legendValues) {
+					if ($scope.legendValues.hasOwnProperty(key)) {
+						if (typeof $scope.legendValues[key] === 'object' && 
+							$scope.legendValues[key] !== null && 
+							$scope.legendValues[key].hasOwnProperty('displayName')) {
+							$scope.legendValues[key] = $scope.legendValues[key].displayName;
 						}
 					}
-					
-					// parse with regEx to avoid 'eval' or similar unsecure methods
-					function parseStringTemplate(str, obj) {
-						let parts = str.split(/\$\{(?!\d)[\wæøåÆØÅ]*\}/);
-						let args = str.match(/[^{\}]+(?=})/g) || [];
-						let parameters = args.map(argument => obj[argument] || (obj[argument] === undefined ? "" : obj[argument]));
-						return String.raw({ raw: parts }, ...parameters);
-					}
-					var legendText = parseStringTemplate(dynamicLegendStr, $scope.legendValues)
-
-					kommonitorScriptHelperService.scriptFormulaHTML = formulaHTML + "<br/><br/>" + "<b>Legende zur Formel</b>" + legendText;
+				}
 				
+				// parse with regEx to avoid 'eval' or similar unsecure methods
+				function parseStringTemplate(str, obj) {
+					let parts = str.split(/\$\{(?!\d)[\wæøåÆØÅ]*\}/);
+					let args = str.match(/(?<=\${)[^}]+(?=})/g) || [];
+					let parameters = args.map(argument => obj[argument] || (obj[argument] === undefined ? "" : obj[argument]));
+					return String.raw({ raw: parts }, ...parameters);
+				}
+				var legendText = parseStringTemplate(dynamicLegendStr, $scope.legendValues)
+
+				kommonitorScriptHelperService.scriptFormulaHTML = formulaHTML + "<br/><br/>" + "<b>Legende zur Formel</b><br/>" + legendText;
+			
 			};
 	
 		}

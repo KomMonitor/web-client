@@ -355,7 +355,8 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 											"calculation_info": "Quotient zwischen (Basis-)Indikatoren und dem Referenzindikator multipliziert mit 100",
 											"formula": "$$ \\frac{\\sum_{n=1}^{m} I_{n}}{I_{ref}} \\times 100 $$",
 											"legend": "<br/>$N$ = Ziel-Zeitpunkt<br/>$M$ = Ziel-Zeitpunkt minus Anzahl Tage/Monate/Jahre ",
-											"dynamicLegend": "<br/> $A$: ${indicatorName} [ ${unit} ]<br/> $N$: Ziel-Zeitpunkt<br/> $M$: Ziel-Zeitpunkt minus ${number_of_temporal_items} ${temporal_type}",
+											"dynamicFormula": "$$ \\frac{ sum_baseIndicators }{ I_{ref}} \\times 100 $$",
+											"dynamicLegend": "${list_baseIndicators} <br/>$ I_{ref} $: ${indicatorName} [ ${unit} ]<br/>",
 											"inputBoxes": [
 												{
 													"id": "reference_id",
