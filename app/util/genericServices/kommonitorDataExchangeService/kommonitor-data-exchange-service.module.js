@@ -651,7 +651,7 @@ angular
           this.modifyIndicators = function(indicators) {
 
             var decimalDefault = 2;
-            if(__env.numberOfDecimals)
+            if(__env.numberOfDecimals !== undefined)
               decimalDefault = __env.numberOfDecimals;
 
             indicators.forEach(elem => {
