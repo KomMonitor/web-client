@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { DataExchange, DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { InfoModal } from './infoModal/info-modal.component';
 
 @Component({
   selector: 'user-interface-new',
@@ -15,7 +17,8 @@ export class UserInterfaceComponent implements OnInit {
   showUserLogin = false;
 
   constructor(
-    private dataExchangeService: DataExchangeService
+    private dataExchangeService: DataExchangeService,
+    private modalService: NgbModal, 
   ) {
     this.exchangeData = this.dataExchangeService.pipedData;
   }
@@ -39,6 +42,10 @@ export class UserInterfaceComponent implements OnInit {
 			setTimeout(() => {
 				this.prepUserInformation();
 			}, 1000);
+
+      // open infoModal ico
+      if(!localStorage.getItem('hideKomMonitorAppGreeting') || localStorage.getItem('hideKomMonitorAppGreeting') === 'false')
+        this.openInfoModal();
   }
 
   /* 
@@ -160,8 +167,8 @@ export class UserInterfaceComponent implements OnInit {
 	        $scope.tryLoginUser();
 	    }
 		};
-
-		var checkAuthentication = async function () {	
+  */
+/* 		checkAuthentication = async function () {	
 			this.exchangeData.currentKeycloakLoginRoles = [];
 
 			if (Auth.keycloak.authenticated) {
@@ -174,13 +181,18 @@ export class UserInterfaceComponent implements OnInit {
 						$scope.showAdminLogin = true;
 				}
 			}
+		}; */
+
+		openAdminUI() {
+			document.location = '/administration';
 		};
 
-		$scope.openAdminUI = function () {
-			$location.path('/administration');
-		};
+    openInfoModal() {
+
+      const modalRef = this.modalService.open(InfoModal, {windowClass: 'modal-holder', centered: true});
+    }
     
-
+/*
 
 		$scope.checkBalanceButtonAndMenueState = function(){
 			// disable if indicator is dynamic or if indicator only contains 1 or less timeseries entries

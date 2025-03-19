@@ -88,8 +88,8 @@
         <input type="submit" ng-if="authenticated" value="Relogin" ng-click="exchangeData.extendKeycloakSession()" class='input_field input_extend_session' >
       </div>
     </div>
-    <a ng-if="showAdminLogin" ng-click="openAdminUI()" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%; cursor:pointer;" title="Admin UI&nbsp;&nbsp;"><span class="fas fa-cogs"></span></a>
-    <a ng-click="openInfoModal()" href="#infoModal" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%; cursor:pointer;" title="Information&nbsp;&nbsp;"><span class="glyphicon glyphicon-info-sign"></span></a>
+    <p ng-if="showAdminLogin" (click)="openAdminUI()" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%; cursor:pointer;" title="Admin UI&nbsp;&nbsp;"><span class="fas fa-cogs"></span></p>
+    <p (click)="openInfoModal()" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%; cursor:pointer;" title="Information&nbsp;&nbsp;"><span class="glyphicon glyphicon-info-sign"></span></p>
     <!-- <a data-toggle="modal" data-target="#feedbackModal" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%;  cursor:pointer;" title="Feedback&nbsp;&nbsp;"><span class="glyphicon glyphicon-envelope"></span></a> -->
     <a ng-click="startGuidedTour()" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%;  cursor:pointer;" title="Guided Tour&nbsp;&nbsp;"><span class="glyphicon glyphicon-play"></span></a>
     

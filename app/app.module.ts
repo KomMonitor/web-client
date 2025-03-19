@@ -28,7 +28,6 @@ import {
   ajskommonitorVisualStyleHelperServiceProvider, 
   ajskommonitorMapServiceProvider,
   ajskommonitorGenericMapHelperServiceProvider} from 'app-upgraded-providers';
-import { InfoModalComponent } from 'components/ngComponents/userInterface/infoModal/info-modal.component';
 import { KommonitorLegendComponent } from 'components/ngComponents/userInterface/kommonitorLegend/kommonitor-legend.component';
 import { NgbCalendar, NgbDatepickerModule, NgbDateStruct, NgbAccordionModule, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
@@ -78,7 +77,6 @@ declare var MathJax;
     NgbModule
   ],
   declarations: [
-    InfoModalComponent,
     KommonitorLegendComponent,
     KommonitorClassificationComponent,
     KommonitorDataSetupComponent,
@@ -138,8 +136,8 @@ export class AppModule implements DoBootstrap {
     angular.module('kommonitorUserInterface')
     .directive('userInterfaceNew',  downgradeComponent({ component: UserInterfaceComponent }) as angular.IDirectiveFactory);
 
-    angular.module('kommonitorUserInterface')
-    .directive('infoModal',  downgradeComponent({ component: InfoModalComponent }) as angular.IDirectiveFactory);
+    /* angular.module('kommonitorUserInterface')
+    .directive('infoModal',  downgradeComponent({ component: InfoModalComponent }) as angular.IDirectiveFactory); */
 
     angular.module('kommonitorUserInterface')
     .directive('kommonitorLegendNew',  downgradeComponent({ component: KommonitorLegendComponent }) as angular.IDirectiveFactory);

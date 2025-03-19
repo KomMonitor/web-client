@@ -11,9 +11,10 @@ import { VersionInfoComponent } from 'components/ngComponents/userInterface/vers
 	selector: 'ngbd-modal-content',
 	standalone: true,
 	templateUrl: 'info-modal.component.html',
+  styleUrls: ['info-modal.component.css'],
   imports: [CommonModule, SafeHtmlPipe, VersionInfoComponent]
 })
-export class NgbdModalContent implements OnInit {
+export class InfoModal implements OnInit {
     activeModal = inject(NgbActiveModal);
 
     tab1Title: string = '';
@@ -61,49 +62,4 @@ export class NgbdModalContent implements OnInit {
         localStorage.setItem('hideKomMonitorAppGreeting', 'false');
       }
     }
-}
-
-@Component({
-  selector: 'infoModal',
-  template: '',
-  styleUrls: ['info-modal.component.css']
-})
-export class InfoModalComponent implements OnInit, OnChanges {
-    
-  @Input() open!: any;
-
-  isHideGreetings: boolean = false;
-
-  constructor(
-    private modalService: NgbModal, 
-    private router: Router
-  ) {}
-
-  ngOnChanges(changes: SimpleChanges) {
-    if(this.open) {
-      this.openModal(); 
-      this.open = false;
-    }
-  }   
-
-  ngOnInit(): void {
-  
-    // todo: activate if
-    if(!localStorage.getItem('hideKomMonitorAppGreeting') || localStorage.getItem('hideKomMonitorAppGreeting') === 'false')
-      this.openModal();
-  }
-
-  openModal() {
-    const modalRef = this.modalService.open(NgbdModalContent, {windowClass: 'modal-holder', centered: true});
-  }
-
-  // todo
- /*  callStartGuidedTour(): void {
-    this.modalService.dismissAll('infoModal'); 
-    this.router.navigate(['/guided-tour']); 
-  }
-  showFeedbackForm(): void {
-    this.modalService.dismissAll('infoModal'); 
-    this.router.navigate(['/feedback']);
-  } */
 }

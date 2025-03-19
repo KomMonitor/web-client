@@ -78,6 +78,7 @@ export interface DataExchange {
   enableKeycloakSecurity: any;
   currentKomMonitorLoginRoleNames:any;
   currentKeycloakLoginGroups: any;
+  currentKeycloakLoginRoles: any;
 }
 
 export interface KeycloakUser {
