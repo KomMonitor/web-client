@@ -28,6 +28,12 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
   outliers_low!: any;
   containsNoData!: any;
 
+  legendVisible = true;
+
+  isExportCollapsed = true;
+  isLegendCollapsed = false;
+  isStatisticCollapsed = true;
+
   @Input() onupdatelegenddisplaydata!:any;
 
   constructor(

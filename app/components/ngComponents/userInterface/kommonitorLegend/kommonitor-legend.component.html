@@ -1,4 +1,7 @@
-<div id="legendWrapper" *ngIf="exchangeData.selectedIndicator">
+<button type="button" id="sidebarLegendCollapse" (click)="legendVisible = !legendVisible" class="buttonLegendClass" title="Legenden- und Informationsfenster">
+		<i style="font-size:2.5vh;" class="fas fa-info"></i>
+</button>
+<div id="legendWrapper" *ngIf="exchangeData.selectedIndicator" [hidden]="!legendVisible">
 
     <p></p>
   
@@ -8,11 +11,11 @@
           <h3 class="box-title">Raumebene und Export</h3>
   
           <div class="box-tools pull-right">
-            <button id="kommonitorIndicatorExportAndSpatialUnitSwitchCollapse" type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+            <button (click)="exportCollapse.toggle()" id="kommonitorIndicatorExportAndSpatialUnitSwitchCollapse" type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
             </button>
           </div>
         </div>
-        <div class="box-body boxedLegend">
+        <div class="box-body boxedLegend" #exportCollapse="ngbCollapse" [(ngbCollapse)]="isExportCollapsed">
 
           <div >
             <div>						
@@ -70,16 +73,16 @@
       <!-- /.box -->
   
       <!-- legend(s)  -->
-      <div id="kommonitorLegendSymbology" class="box box-primary">
+      <div id="kommonitorLegendSymbology" class="box box-primary" *ngIf="exchangeData.selectedIndicator">
         <div class="box-header with-border">
           <h3 class="box-title">Legenden</h3>
   
           <div class="box-tools pull-right">
-            <button id="legendSymbologyCollapse" type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+            <button (click)="legendCollapse.toggle()" id="legendSymbologyCollapse" type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
             </button>
           </div>
         </div>
-        <div class="box-body boxedLegend" *ngIf="exchangeData.selectedIndicator">
+        <div class="box-body boxedLegend" #legendCollapse="ngbCollapse" [(ngbCollapse)]="isLegendCollapsed">
   
           <ul class="nav nav-tabs" id="legendTabs" role="tablist">
             <li class="nav-item active">
@@ -531,11 +534,11 @@
           <h3 class="box-title">Indikatoren-Statistik</h3>
   
           <div class="box-tools pull-right">
-            <button id="statisticalValuesCollapse" type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+            <button (click)="statisticCollapse.toggle()" id="statisticalValuesCollapse" type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
             </button>
           </div>
         </div>
-        <div class="box-body">
+        <div class="box-body" #statisticCollapse="ngbCollapse" [(ngbCollapse)]="isStatisticCollapsed">
           <em>Referenzzeitpunkt {{dataExchangeService.tsToDate_withOptionalUpdateInterval(dateAsDate, exchangeData.selectedIndicator.metadata.updateInterval)}}</em>
           <table id="statisticalValuesDisplayTable" class="table">
             <thead>

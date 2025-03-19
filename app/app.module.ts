@@ -44,6 +44,7 @@ import { KommonitorBalanceComponent } from './components/ngComponents/userInterf
 import { NouisliderModule } from 'ng2-nouislider';
 import { KommonitorDiagramsComponent } from './components/ngComponents/userInterface/sidebar/kommonitorDiagrams/kommonitor-diagrams.component';
 import { UserInterfaceComponent } from './components/ngComponents/userInterface/user-interface.component';
+import { NgbCollapseModule } from '@ng-bootstrap/ng-bootstrap';
 
 
 
@@ -62,7 +63,8 @@ declare var MathJax;
     FormsModule, 
     HttpClientModule,
     JsonPipe,
-    NouisliderModule
+    NouisliderModule,
+    NgbCollapseModule
   ],
   providers:[
     {provide: LocationStrategy, useClass: HashLocationStrategy},

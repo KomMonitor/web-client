@@ -1,15 +1,26 @@
 :host {
-  min-width: 35%;
-  right: 50px;
+  right: 0;
   position: fixed;
   top: 70px;
   z-index: 1001;
-  max-width: 25%;
-  min-width: 25%;
   font-size: 11px;
-  max-height: 83vh;
-  min-height: 100vh;
-  background: rgb(236,240,245);
-  transition: opacity 0.3s;
-  overflow: auto;
+
+  #sidebarLegendCollapse {
+    position: absolute;
+    left:-32px;
+    background-color: #ecf0f5;
+    border-top-left-radius: 1em;
+    border-bottom-left-radius: 1em;
+    padding: .7em 1.2em;
+    border: none;
+  }
+
+  #legendWrapper {
+    background: rgb(236,240,245);
+    transition: opacity 0.3s;
+    overflow: auto;
+    padding: .5em;
+    height: 80vh;
+    overflow-y: auto;
+  }
 }
