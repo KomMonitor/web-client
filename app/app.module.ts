@@ -43,6 +43,7 @@ import { DualListBoxComponent } from './components/ngComponents/customElements/d
 import { KommonitorBalanceComponent } from './components/ngComponents/userInterface/sidebar/kommonitorBalance/kommonitor-balance.component';
 import { NouisliderModule } from 'ng2-nouislider';
 import { KommonitorDiagramsComponent } from './components/ngComponents/userInterface/sidebar/kommonitorDiagrams/kommonitor-diagrams.component';
+import { UserInterfaceComponent } from './components/ngComponents/userInterface/user-interface.component';
 
 
 
@@ -85,7 +86,8 @@ declare var MathJax;
     KommonitorMapComponent,
     DualListBoxComponent,
     KommonitorBalanceComponent,
-    KommonitorDiagramsComponent
+    KommonitorDiagramsComponent,
+    UserInterfaceComponent
   ],
   schemas: [
     CUSTOM_ELEMENTS_SCHEMA
@@ -130,6 +132,9 @@ export class AppModule implements DoBootstrap {
     // IMPORTANT
     // the directive identifier is changed to lower-case with a "-" between word. No idea why... 
     // meaning "infoModal" must be called as <info-modal>.. , "komLegend" as <kom-legend>.... 
+
+    angular.module('kommonitorUserInterface')
+    .directive('userInterfaceNew',  downgradeComponent({ component: UserInterfaceComponent }) as angular.IDirectiveFactory);
 
     angular.module('kommonitorUserInterface')
     .directive('infoModal',  downgradeComponent({ component: InfoModalComponent }) as angular.IDirectiveFactory);
