@@ -1,6 +1,10 @@
+
+<user-interface-new></user-interface-new>
+
+
 <!-- <div class="container-fluid"> -->
 
-	<header id="header" class="main-header">
+	<!-- <header id="header" class="main-header">
 
 		<div  style="position:absolute; left:40%;  padding-top: 4px;">
 
@@ -42,7 +46,6 @@
 								</button>
 							  </div>
 							</div>
-							<!-- /.box-header -->
 							<div class="box-body">
 							  <table>
 								<tr ng-repeat="(key, value) in userRoleInformation">
@@ -59,9 +62,7 @@
 								</tr>
 							  </table>
 							</div>
-							<!-- /.box-body -->
 						  </div>
-						  <!-- /.box -->
 			
 						  <div class="box box-simplified collapsed-box">
 							<div class="box-header with-border">
@@ -72,7 +73,6 @@
 								</button>
 							  </div>
 							</div>
-							<!-- /.box-header -->
 							<div class="box-body">
 							  <table>
 								<tr ng-repeat="entry in userGroupInformation">
@@ -82,9 +82,7 @@
 								</tr>
 							  </table>
 							</div>
-							<!-- /.box-body -->
 						  </div>
-						  <!-- /.box --> 
 						<span><b>Session G&uuml;ltigkeit:</b> {{$ctrl.kommonitorDataExchangeServiceInstance.keycloakTokenExpirationInfo}} Minuten</span>
 					</div>
 					<input type="submit" ng-if="!authenticated" value="Login" id='input_submit' ng-click="tryLoginUser()" class='input_field' >
@@ -94,7 +92,6 @@
 			</div>
 			<a ng-if="showAdminLogin" ng-click="openAdminUI()" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%; cursor:pointer;" title="Admin UI&nbsp;&nbsp;"><span class="fas fa-cogs"></span></a>
 			<a ng-click="openInfoModal()" href="#infoModal" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%; cursor:pointer;" title="Information&nbsp;&nbsp;"><span class="glyphicon glyphicon-info-sign"></span></a>
-			<!-- <a data-toggle="modal" data-target="#feedbackModal" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%;  cursor:pointer;" title="Feedback&nbsp;&nbsp;"><span class="glyphicon glyphicon-envelope"></span></a> -->
 			<a ng-click="startGuidedTour()" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%;  cursor:pointer;" title="Guided Tour&nbsp;&nbsp;"><span class="glyphicon glyphicon-play"></span></a>
 			
 			<div id="reportingButton" ng-if="$ctrl.kommonitorElementVisibilityHelperServiceInstance.elementVisibility.reportingButton">
@@ -115,38 +112,36 @@
 
 		</div>
 
-	</header>
+	</header> -->
 
 	<!-- new NG Components -->
   <!-- !!!!IMPORTANT: NO ThisIsMyVar as @Input var name, make it all lower case, "thisismyvar"..  -->
-	<info-modal [open]="infoModalTrigger"></info-modal>
+	<!-- <info-modal [open]="infoModalTrigger"></info-modal>
   <kommonitor-legend-new [onupdatelegenddisplaydata]="onUpdateLegendDisplayEmitterData"></kommonitor-legend-new>
-  <sidebar-new></sidebar-new>
-  <user-interface-new></user-interface-new>
+  <sidebar-new></sidebar-new> -->
 
-	<!-- Modal -->
+	<!-- 
 	<feedback-modal></feedback-modal>
 
-	<!-- Modal -->
+	
 	<spatial-unit-notification-modal></spatial-unit-notification-modal>
 
-	<!-- Modal -->
+	
 	<reporting-modal></reporting-modal>
 
-	<!-- Modal -->
+	
 	<div id="reachabilityScenarioModalContainer">
 		<reachability-scenario-modal></reachability-scenario-modal>
 	</div>
 
-	<!-- Modal -->
+	
 	<wms-modal></wms-modal>
 
-	<!-- Modal -->
+	
 	<wfs-modal></wfs-modal>
 
 	<div class="kmWrapper">
 
-    <!-- Sidebar -->
     <aside id="sidebarIndicatorConfig" ng-class="sidebarIndicatorConfigClass" ng-if="$ctrl.kommonitorElementVisibilityHelperServiceInstance.elementVisibility.indicatorConfig">
         <kommonitor-data-setup></kommonitor-data-setup>
     </aside>
@@ -187,38 +182,28 @@
         <kommonitor-reachability></kommonitor-reachability>
     </aside>
 
-		<!-- hide processing button and menu, as it must be greatly improved -->
-		<!-- <aside id="sidebarProcessing" ng-class="sidebarProcessingClass" ng-if="$ctrl.kommonitorElementVisibilityHelperServiceInstance.elementVisibility.processing">
-        <kommonitor-individual-indicator-computation></kommonitor-individual-indicator-computation>
-    </aside> -->
 
-	<!-- right side legend menu -->
 	<aside id="sidebarLegend" ng-class="sidebarLegendClass" >
         <kommonitor-legend></kommonitor-legend>
     </aside>
 
-    <!-- Page Content -->
-    <div id="content" style="height: 100%; width: 100%; position: relative;">
+    <div id="content" style="height: 100%; width: 100%; position: relative;"> -->
 <!--    <kommonitor-map style="height: 100%; width: 100%; position: absolute;"></kommonitor-map> -->
-        <kommonitor-map-new></kommonitor-map-new>
+      <!--   <kommonitor-map-new></kommonitor-map-new>
 		
 		<button type="button" id="sidebarLegendCollapse"
 		ng-click="onSidebarLegendButtonClick()" ng-class="buttonLegendClass" data-toggle="tooltip" title="Legenden- und Informationsfenster">
 		<i style="font-size:2.5vh;" class="fas fa-info"></i>
 	</button>
 
-				<!-- LEFT-HANDED SIDEBAR BUTTONS -->
-
 				<div id="sideBarButtons">
 						<button type="button" style="display: block; position: relative; margin-top: 5px;" " id="sidebarIndicatorConfigCollapse"
 							ng-click="onSidebarIndicatorButtonClick()" ng-class="buttonIndicatorConfigClass" data-toggle="tooltip" title="Indikatorenauswahl">
-								<!-- <span style="font-size:2.5vh;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 								<i style="font-size:2.5vh;" class="fas fa-sitemap"></i>
 						</button>
 
 						<button type="button" style="display: block; position: relative; margin-top: 5px;" " id="sidebarPoiCollapse"
 							ng-click="onSidebarPoiButtonClick()" ng-class="buttonPoiClass" data-toggle="tooltip" title="Infrastrukturdaten">
-								<!-- <span style="font-size:2.5vh;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 								<i style="font-size:2.5vh;" class="fas fa-map-marker-alt"></i>
 						</button>
 
@@ -229,49 +214,37 @@
 
 						<button type="button" style="display: block; position: relative; margin-top: 5px;" " id="sidebarFilterCollapse"
 							ng-click="onSidebarFilterButtonClick()" ng-class="buttonFilterClass" data-toggle="tooltip" title="Darstellungsfilter">
-								<!-- <span style="font-size:2.5vh;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 								<i style="font-size:2.5vh;" class="fas fa-filter"></i>
 						</button>
 
 						<button type="button" style="display: block; position: relative; margin-top: 5px;" " id="sidebarBalanceCollapse"
 							ng-click="onSidebarBalanceButtonClick()" ng-class="buttonBalanceClass" data-toggle="tooltip" title="zeitliche Bilanzierung">
-								<!-- <span style="font-size:2.5vh;" class="glyphicon glyphicon-sort" aria-hidden="true"></span> -->
 								<i style="font-size:2.5vh;" class="fas fa-chart-line"></i>
 						</button>
 
 						<button type="button" style="display: block; position: relative; margin-top: 5px;" " id="sidebarDiagramsCollapse" 
 							ng-click="onSidebarDiagramsClick()" ng-class="buttonDiagramsClass" data-toggle="tooltip" title="statistische Diagramme">
-								<!-- <span style="font-size:2.5vh;" class="glyphicon glyphicon-stats" aria-hidden="true"></span> -->
 								<i style="font-size:2.5vh;" class="fas fa-chart-bar"></i>
 						</button>
 
 						<button type="button" style="display: block; position: relative; margin-top: 5px;" " id="sidebarRadarDiagramCollapse"
 							ng-click="onSidebarRadarDiagramClick()" ng-class="buttonRadarDiagramClass" data-toggle="tooltip" title="Indikatorenradar">
-								<!-- <span style="font-size:2.5vh;" class="glyphicon glyphicon-star-empty" aria-hidden="true"></span> -->
 								<img src="icons/radarMap.svg"></img>
 						</button>
 
 						<button type="button" style="display: block; position: relative; margin-top: 5px;" " id="sidebarRegressionDiagramCollapse"
 							ng-click="onSidebarRegressionDiagramClick()" ng-class="buttonRegressionDiagramClass" data-toggle="tooltip" title="Regressionsdiagramm">
-								<!-- <span style="font-size:2.5vh;" class="glyphicon glyphicon-star-empty" aria-hidden="true"></span> -->
 								<img src="icons/scatterPlot.svg"></img>
 						</button>
 
 						<button type="button" style="display: block; position: relative; margin-top: 5px;" " id="sidebarReachabilityCollapse"
 							ng-click="onSidebarReachabilityButtonClick()" ng-class="buttonReachabilityClass" data-toggle="tooltip" title="Erreichbarkeitsanalyse">
 							<i style="font-size:2.5vh;" class="fas fa-route"></i>
-								<!-- <span style="font-size:2.5vh;" class="glyphicon glyphicon-wrench" aria-hidden="true"></span> -->
 						</button>
 
-						<!-- hide processing button and menu, as it must be greatly improved -->
-						<!-- <button type="button" style="display: block; position: relative; margin-top: 5px;" " id="sidebarProcessingCollapse"
-							ng-click="onSidebarProcessingClick()" ng-class="buttonProcessingClass" ng-if="$ctrl.kommonitorElementVisibilityHelperServiceInstance.elementVisibility.processing" data-toggle="tooltip" title="Individuelle Indikatorenberechnung">
-							<i style="font-size:2.5vh;" class="fas fa-sliders-h"></i>
-						</button> -->
 
 				</div>
 
-				<!-- MAP UTIL BUTTONS -->
 
 				<div id="mapUtilButtons">
 					<button type="button" id="recenterMapButton"
@@ -293,9 +266,7 @@
 						ng-click="onOpenLayerControlButtonClick()" class="btn btn-leaflet-custom" data-toggle="tooltip" title="Layer Control anzeigen">
 							<i style="font-size:1.5em;margin-left:-5px;" class="fas fa-layer-group"></i>
 					</button>
-				</div>
-
-				<!-- Info and legend Control buttons -->				
+				</div>		
 
 				<button type="button" style="top: 120px; right:10px; display:none;" id="toggleLegendControlButton"
 					ng-click="onToggleLegendControlButtonClick()" class="btn btn-leaflet-custom" data-toggle="tooltip" title="Legende einblenden">
@@ -315,3 +286,4 @@
 	</div>
 
 	</div>
+ -->

@@ -1,1 +1,120 @@
-<p>user-interface works!</p>
+<header id="header" class="main-header">
+
+  <div  style="position:absolute; left:40%;  padding-top: 4px;">
+
+    <h4>{{exchangeData.appTitle}}</h4>
+  </div>
+
+  <div style="padding-left: 10px; padding-top: 4px;">
+
+     <a target="_blank" rel="noopener noreferrer" href="http://kommonitor.de"><img style="float: left; width: 35px; height: 35px; margin-right: 0.5%;" src="logos/KM_Logo1.svg"></a>
+     <div ng-if="exchangeData.customLogoURL && exchangeData.customLogoWidth">
+      <a target="_blank" rel="noopener noreferrer" href="{{exchangeData.customLogo_onClickURL}}">
+        <img src="{{exchangeData.customLogoURL}}" [ngStyle]="{'float': 'left', 'width': exchangeData.customLogoWidth, 'height':' 35px', 'margin-right': '0.5%'}">
+      </a>
+      
+     </div> 			  
+
+    <a id="userLogin" ng-mouseover="showUserLogin = true" ng-init="showUserLogin = false" title="Useristration" style="font-size:1.2em; float: right; margin-right: 2%; margin-left: 2%; margin-top: 0.5%;"><i class="fas fa-user-cog"></i></a>
+    <div id="userLoginForm" *ngIf="showUserLogin && exchangeData.enableKeycloakSecurity" ng-mouseleave="showUserLogin = false" class="userFormWrapper">
+      <div id="userForm">
+        <h4>User Login</h4>
+        <div ng-if="authenticated" style="margin-bottom: 10px;">
+          <span><b>Nutzername:</b></span> <i>{{exchangeData.currentKeycloakUser.username}}</i>
+          <div ng-if="exchangeData.currentKeycloakUser.firstName && exchangeData.currentKeycloakUser.lastName">
+            <span style="word-break: break-all;"><b>Vor- und Nachname:</b><i> {{exchangeData.currentKeycloakUser.firstName}} {{exchangeData.currentKeycloakUser.lastName}}</i></span>
+          </div>
+          <div ng-if="! exchangeData.currentKeycloakUser.firstName && exchangeData.currentKeycloakUser.lastName">
+            <span style="word-break: break-all;"><b>Nachname:</b><i>({{exchangeData.currentKeycloakUser.lastName}}</i></span>
+          </div>
+          <div ng-if="exchangeData.currentKeycloakUser.email">
+            <span style="word-break: break-all;"><b>E-Mail:</b><i>{{exchangeData.currentKeycloakUser.email}}</i></span>
+          </div>
+          <br/>
+          <div class="box box-simplified collapsed-box">
+            <div class="box-header with-border">
+              <h3 class="box-title">Rollen</h3>
+          
+              <div class="box-tools pull-right">
+              <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+              </button>
+              </div>
+            </div>
+            <!-- /.box-header -->
+            <div class="box-body">
+              <table>
+              <tr *ngFor="let item of userRoleInformation | keyvalue">
+                <td>
+                <table>
+                  <tr>
+                  <th>{{item.key}}</th>
+                  <td style="padding-left: 1em;"><p ng-repeat="role in value">{{item.value}}</p></td>
+                  </tr>
+                </table>
+                </td>
+              </tr>
+              </table>
+            </div>
+            <!-- /.box-body -->
+            </div>
+            <!-- /.box -->
+    
+            <div class="box box-simplified collapsed-box">
+            <div class="box-header with-border">
+              <h3 class="box-title">Gruppen (Hierarchie)</h3>
+          
+              <div class="box-tools pull-right">
+              <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+              </button>
+              </div>
+            </div>
+            <!-- /.box-header -->
+            <div class="box-body">
+              <table>
+              <tr *ngFor="let entry of userGroupInformation">
+                <td>
+                <p [ngStyle]="{margin: 0,'padding-left': i + 'em'}" *ngFor="let group of entry; let i = index">{{group}}</p>
+                </td>
+              </tr>
+              </table>
+            </div>
+            <!-- /.box-body -->
+            </div>
+            <!-- /.box --> 
+          <span><b>Session G&uuml;ltigkeit:</b> {{exchangeData.keycloakTokenExpirationInfo}} Minuten</span>
+        </div>
+        <input type="submit" ng-if="!authenticated" value="Login" id='input_submit' ng-click="tryLoginUser()" class='input_field' >
+        <input type="submit" ng-if="authenticated" value="Logout" id='input_submit' ng-click="exchangeData.tryLogoutUser()" class='input_field input_authenticated' >
+        <input type="submit" ng-if="authenticated" value="Relogin" ng-click="exchangeData.extendKeycloakSession()" class='input_field input_extend_session' >
+      </div>
+    </div>
+    <a ng-if="showAdminLogin" ng-click="openAdminUI()" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%; cursor:pointer;" title="Admin UI&nbsp;&nbsp;"><span class="fas fa-cogs"></span></a>
+    <a ng-click="openInfoModal()" href="#infoModal" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%; cursor:pointer;" title="Information&nbsp;&nbsp;"><span class="glyphicon glyphicon-info-sign"></span></a>
+    <!-- <a data-toggle="modal" data-target="#feedbackModal" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%;  cursor:pointer;" title="Feedback&nbsp;&nbsp;"><span class="glyphicon glyphicon-envelope"></span></a> -->
+    <a ng-click="startGuidedTour()" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%;  cursor:pointer;" title="Guided Tour&nbsp;&nbsp;"><span class="glyphicon glyphicon-play"></span></a>
+    
+    <div id="reportingButton" ng-if="$ctrl.kommonitorElementVisibilityHelperServiceInstance.elementVisibility.reportingButton">
+      <a data-toggle="modal" data-target="#reporting-modal" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%; cursor:pointer;" title="Report erstellen&nbsp;&nbsp;">
+        <i class="fas fa-file-alt"></i>
+      </a>
+    </div>			
+    <div id="switchAdvancedMode" ng-if="$ctrl.kommonitorElementVisibilityHelperServiceInstance.showAdvancedModeSwitch" 
+    style="float: right; margin-right: 1%; margin-top: 0.5%; cursor: pointer">
+      <strong>Erweiterte Ansicht</strong> &nbsp;
+      <label class="switch" title="Ein- / Ausblenden von UI Elementen"><input type="checkbox" ng-model="$ctrl.kommonitorElementVisibilityHelperServiceInstance.isAdvancedMode" 
+        ng-checked="$ctrl.kommonitorElementVisibilityHelperServiceInstance.isAdvancedMode"
+        ng-change="$ctrl.kommonitorElementVisibilityHelperServiceInstance.onChangeIsAdvancedMode()" ><span class="switchslider round"></span></label>
+    </div>
+    <p style="clear: both;"></p>
+
+    
+
+  </div>
+
+</header>
+<div id="userInterface-content">
+  <app-sidebar></app-sidebar>
+  <app-kommonitor-map></app-kommonitor-map>
+</div>
+
+<app-kommonitor-legend></app-kommonitor-legend>

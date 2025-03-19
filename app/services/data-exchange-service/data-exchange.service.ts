@@ -69,6 +69,22 @@ export interface DataExchange {
   enableBilanceTrend: any;
   showBarChartLabel:any;
   showBarChartAverageLine:any; 
+  appTitle: string;
+  customLogo_onClickURL: any;
+  customLogoURL: any;
+  customLogoWidth: any;
+  currentKeycloakUser: KeycloakUser;
+  keycloakTokenExpirationInfo: any;
+  enableKeycloakSecurity: any;
+  currentKomMonitorLoginRoleNames:any;
+  currentKeycloakLoginGroups: any;
+}
+
+export interface KeycloakUser {
+  username: string;
+  firstName: string;
+  lastName: string;
+  email: string;
 }
 
 export interface IndicatorTopic {
@@ -146,6 +162,10 @@ export class DataExchangeService {
     });
    
     return filteredApplicableUnits.length > 0;
+  }
+
+  fetchAllMetadata() {
+    this.ajskommonitorDataExchangeServiceeProvider.fetchAllMetadata();
   }
 
   downloadMetadataPDF_georesource(loi) {

@@ -1,17 +1,16 @@
 :host {
-  
+
+  position: relative;
   display: block;
-  max-width: 35%;
+  width: 100%;
   height: 100%;
   background: rgb(236,240,245);
   transition: opacity 0.3s;
-  position: absolute;
-  top: 100px;
-  left: 0;
-  z-index: 1001;
 
   #sidebarContentWrapper {
     
+    width: 35vw;
+
     &.disabled {
       display: none;
     }
@@ -19,8 +18,9 @@
 
   #buttonWrapper {
     position: absolute;
-    right: -120px;
+    right: -150px;
     top:0;
+    z-index: 9999;
 
     ul {
       list-style-type: none;
