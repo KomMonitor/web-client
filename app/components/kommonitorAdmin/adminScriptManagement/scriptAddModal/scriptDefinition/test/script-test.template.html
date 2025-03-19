@@ -1,22 +1,24 @@
 <h4>{{$ctrl.kommonitorScriptHelperServiceInstance.scriptData.title}}</h4>
 
 <p>{{$ctrl.kommonitorScriptHelperServiceInstance.scriptData.description}}</p>
-<p ng-show="$ctrl.kommonitorScriptHelperServiceInstance.scriptData.additionalParameters.parameters.kommonitorUiParams.formula" 
-	id="scriptFormulaExplanation" 
-	ng-model="$ctrl.kommonitorScriptHelperServiceInstance.scriptFormulaExplanation" 
-	ng-init="$ctrl.kommonitorScriptHelperServiceInstance.styleMathFormula_forExplanation('scriptFormulaExplanation')">
-	<b><i><u>Formel:</u></i></b>
-	<span mathjax-bind="$ctrl.kommonitorScriptHelperServiceInstance.scriptData.additionalParameters.parameters.kommonitorUiParams.formula"></span>
-	<br/>
-	mit 
-	<span mathjax-bind="$ctrl.kommonitorScriptHelperServiceInstance.scriptData.additionalParameters.parameters.kommonitorUiParams.legend"></span>
-</p>
 <p>
 	<span ng-show="$ctrl.kommonitorScriptHelperServiceInstance.scriptData.additionalParameters.parameters.kommonitorUiParams.calculation_info">
 		<b><i><u>Berechnung:</u></i></b> {{$ctrl.kommonitorScriptHelperServiceInstance.scriptData.additionalParameters.parameters.kommonitorUiParams.calculation_info}}
 	</span>
 	<span ng-show="$ctrl.kommonitorScriptHelperServiceInstance.scriptData.additionalParameters.parameters.kommonitorUiParams.optional_info">
 		<b><i><u>Optional:</u></i></b> {{$ctrl.kommonitorScriptHelperServiceInstance.scriptData.additionalParameters.parameters.kommonitorUiParams.optional_info}}
+	</span>
+</p>
+<p ng-show="$ctrl.kommonitorScriptHelperServiceInstance.scriptData.additionalParameters.parameters.kommonitorUiParams.formula" 
+	id="scriptFormulaExplanation" 
+	ng-model="$ctrl.kommonitorScriptHelperServiceInstance.scriptFormulaExplanation" 
+	ng-init="$ctrl.kommonitorScriptHelperServiceInstance.styleMathFormula_forExplanation('scriptFormulaExplanation')">
+	<b><i><u>Formel:</u></i></b>
+	<span mathjax-bind="$ctrl.kommonitorScriptHelperServiceInstance.scriptData.additionalParameters.parameters.kommonitorUiParams.formula"></span>
+	<span ng-show="$ctrl.kommonitorScriptHelperServiceInstance.scriptData.additionalParameters.parameters.kommonitorUiParams.legend">
+		<br/>
+		mit 
+		<span mathjax-bind="$ctrl.kommonitorScriptHelperServiceInstance.scriptData.additionalParameters.parameters.kommonitorUiParams.legend"></span>
 	</span>
 </p>
 

@@ -354,11 +354,10 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 									{
 										"name": "kommonitorUiParams",
 										"value": {
-											"titleShort": "proz anteil",
+											"titleShort": "",
 											"apiName": "percentage",
 											"calculation_info": "Quotient zwischen (Basis-)Indikatoren und dem Referenzindikator multipliziert mit 100",
 											"formula": "$$ \\frac{\\sum_{n=1}^{m} I_{n}}{I_{ref}} \\times 100 $$",
-											"legend": "<br/>$N$ = Ziel-Zeitpunkt<br/>$M$ = Ziel-Zeitpunkt minus Anzahl Tage/Monate/Jahre ",
 											"dynamicFormula": "$$ \\frac{ sum_baseIndicators }{ I_{ref}} \\times 100 $$",
 											"dynamicLegend": "${list_baseIndicators} <br/>$ I_{ref} $: ${indicatorName} [ ${unit} ]<br/>",
 											"inputBoxes": [
@@ -449,7 +448,7 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 						"id": "multiplication",
 						"version": "1.0.0",
 						"title": "Produkt mehrerer Basisindikatoren",
-						"description": "Mindestens zwei (Basis-)Indikator m&uuml;ssen angegeben werden, aus dem sich der Ziel-Indikator ableitet. Beliebig viele sind m&ouml;glich.",
+						"description": "Mindestens zwei (Basis-)Indikator müssen angegeben werden, aus dem sich der Ziel-Indikator ableitet. Beliebig viele sind m&ouml;glich.",
 						"additionalParameters": {
 							"parameters": [
 								{
@@ -458,7 +457,7 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 										"titleShort": "",
 										"apiName": "indicator_multiplication",
 										"calculation_info": "Produkt aller (Basis-)Indikatoren",
-										"formula": "$$ \\prod_{n=1}^{m} I_{n} $$",
+										"formula": "$ \\prod_{n=1}^{m} I_{n} $",
 										"legend": "",
 										"dynamicFormula": "$$ prod_baseIndicators $$",
 										"dynamicLegend": "${list_baseIndicators}",

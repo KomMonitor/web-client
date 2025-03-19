@@ -2,7 +2,7 @@
   "id": "multiplication",
   "version": "1.0.0",
   "title": "Produkt mehrerer Basisindikatoren",
-  "description": "Mindestens zwei (Basis-)Indikator m&uuml;ssen angegeben werden, aus dem sich der Ziel-Indikator ableitet. Beliebig viele sind m&ouml;glich.",
+  "description": "Mindestens zwei (Basis-)Indikator müssen angegeben werden, aus dem sich der Ziel-Indikator ableitet. Beliebig viele sind m&ouml;glich.",
   "additionalParameters": {
     "parameters": [
       {
@@ -11,7 +11,7 @@
           "titleShort": "",
           "apiName": "indicator_multiplication",
           "calculation_info": "Produkt aller (Basis-)Indikatoren",
-          "formula": "$$ \\prod_{n=1}^{m} I_{n} $$",
+          "formula": "$ \\prod_{n=1}^{m} I_{n} $",
           "legend": "",
           "dynamicFormula": "$$ prod_baseIndicators $$",
           "dynamicLegend": "${list_baseIndicators}",
