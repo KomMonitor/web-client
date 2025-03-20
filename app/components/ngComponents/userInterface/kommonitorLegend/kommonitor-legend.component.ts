@@ -76,7 +76,6 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
   model;
 
   ngOnInit(): void {
-    console.log(this.visualStyleData)
     
       this.broadcastService.currentBroadcastMsg.subscribe(broadcastMsg => {
         let title = broadcastMsg.msg;

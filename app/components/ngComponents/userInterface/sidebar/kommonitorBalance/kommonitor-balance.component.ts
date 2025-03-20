@@ -77,6 +77,21 @@ export class KommonitorBalanceComponent implements OnInit {
       stepped: true
     }
   }
+
+  months = [
+    'Januar',
+    'Fabruar',
+    'März',
+    'April',
+    'Mai',
+    'Juni',
+    'Juli',
+    'August',
+    'September',
+    'Oktober',
+    'November',
+    'Dezember'
+  ];
   
  /*  {
     behaviour: 'drag',
@@ -355,6 +370,14 @@ export class KommonitorBalanceComponent implements OnInit {
           };
         }
 
+        dateStringToMs(dateStr) {
+          let parts = dateStr.split(' ');
+          let offset = new Date().getTimezoneOffset()*60*1000;
+         
+          let tms = new Date(parts[2]+'-'+(this.months.indexOf(parts[1])+1)+'-'+parts[0].replace('.','')+'T00:00:00Z').getTime();
+          return tms+offset;
+        }
+
         createNewBalanceInstance(){
           this.datesAsMs = this.createDatesFromIndicatorDates(this.exchangeData.selectedIndicator.applicableDates);
 
@@ -363,7 +386,7 @@ export class KommonitorBalanceComponent implements OnInit {
                 'min': 0, // index from
                 'max': this.datesAsMs.length-1 // index to
             },
-            start: [ this.tsToDateString(this.datesAsMs[0]), this.tsToDateString(this.datesAsMs[this.datesAsMs.length-1])],
+            start: [ this.tsToDateString(this.datesAsMs[1]), this.tsToDateString(this.datesAsMs[this.datesAsMs.length-2])],
             step: 1,
             tooltips: true,
             format: {
@@ -371,7 +394,7 @@ export class KommonitorBalanceComponent implements OnInit {
                 return this.tsToDateString(this.datesAsMs[Math.round(value)]);  
               },
               from: (value) => {
-                return this.datesAsMs.indexOf(value);
+                return this.datesAsMs.indexOf(this.dateStringToMs(value));
               }
             },
             pips: {
@@ -381,7 +404,9 @@ export class KommonitorBalanceComponent implements OnInit {
                 to: (value) => {
                   return this.tsToDateString(this.datesAsMs[Math.round(value)]);
                 },
-                from: this.tsToDateString
+                from: (value) => {
+                  return this.datesAsMs.indexOf(this.dateStringToMs(value));
+                }
               }
             }
           });
