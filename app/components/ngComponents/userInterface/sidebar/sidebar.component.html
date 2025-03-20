@@ -1,18 +1,7 @@
-<div id="sidebarContentWrapper" [ngClass]="{'disabled': content===false}">
-  <app-kommonitor-data-setup [hidden]="content!=0"></app-kommonitor-data-setup>
-  <app-poi [hidden]="content!=1"></app-poi>
-  <app-kommonitor-filter [hidden]="content!=3"></app-kommonitor-filter>
-  <app-kommonitor-balance [hidden]="content!=4"></app-kommonitor-balance>
-  <app-kommonitor-diagrams [hidden]="content!=5"></app-kommonitor-diagrams>
-</div>
-
-<div id="buttonWrapper">
-  <ul>
-    <li><button (click)="showContent(0)">Indicators</button></li>
-    <li><button (click)="showContent(1)">Georesources</button></li>
-    <li><button>Import</button></li>
-    <li><button (click)="showContent(3)">Filter</button></li>
-    <li><button (click)="showContent(4)">Bilanzierung</button></li>
-    <li><button (click)="showContent(5)">Diagramme</button></li>
-  </ul>
+<div id="sidebarContentWrapper" [ngClass]="{'disabled': (element===undefined || element=='')}">
+  <app-kommonitor-data-setup [hidden]="element!='sidebarIndicatorConfigCollapse'"></app-kommonitor-data-setup>
+  <app-poi [hidden]="element!='sidebarPoiCollapse'"></app-poi>
+  <app-kommonitor-filter [hidden]="element!='sidebarFilterCollapse'"></app-kommonitor-filter>
+  <app-kommonitor-balance [hidden]="element!='sidebarBalanceCollapse'"></app-kommonitor-balance>
+  <app-kommonitor-diagrams [hidden]="element!='sidebarDiagramsCollapse'"></app-kommonitor-diagrams>
 </div>

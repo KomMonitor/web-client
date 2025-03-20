@@ -83,15 +83,15 @@
             <!-- /.box --> 
           <span><b>Session G&uuml;ltigkeit:</b> {{exchangeData.keycloakTokenExpirationInfo}} Minuten</span>
         </div>
-        <input type="submit" ng-if="!authenticated" value="Login" id='input_submit' ng-click="tryLoginUser()" class='input_field' >
-        <input type="submit" ng-if="authenticated" value="Logout" id='input_submit' ng-click="exchangeData.tryLogoutUser()" class='input_field input_authenticated' >
-        <input type="submit" ng-if="authenticated" value="Relogin" ng-click="exchangeData.extendKeycloakSession()" class='input_field input_extend_session' >
+       <!--  <input type="submit" ng-if="!authenticated" value="Login" id='input_submit' (click)="tryLoginUser()" class='input_field' >
+        <input type="submit" ng-if="authenticated" value="Logout" id='input_submit' (click)="exchangeData.tryLogoutUser()" class='input_field input_authenticated' >
+        <input type="submit" ng-if="authenticated" value="Relogin" (click)="exchangeData.extendKeycloakSession()" class='input_field input_extend_session' > -->
       </div>
     </div>
     <p ng-if="showAdminLogin" (click)="openAdminUI()" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%; cursor:pointer;" title="Admin UI&nbsp;&nbsp;"><span class="fas fa-cogs"></span></p>
     <p (click)="openInfoModal()" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%; cursor:pointer;" title="Information&nbsp;&nbsp;"><span class="glyphicon glyphicon-info-sign"></span></p>
     <!-- <a data-toggle="modal" data-target="#feedbackModal" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%;  cursor:pointer;" title="Feedback&nbsp;&nbsp;"><span class="glyphicon glyphicon-envelope"></span></a> -->
-    <a ng-click="startGuidedTour()" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%;  cursor:pointer;" title="Guided Tour&nbsp;&nbsp;"><span class="glyphicon glyphicon-play"></span></a>
+    <a style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%;  cursor:pointer;" title="Guided Tour&nbsp;&nbsp;"><span class="glyphicon glyphicon-play"></span></a>
     
     <div id="reportingButton" ng-if="$ctrl.kommonitorElementVisibilityHelperServiceInstance.elementVisibility.reportingButton">
       <a data-toggle="modal" data-target="#reporting-modal" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%; cursor:pointer;" title="Report erstellen&nbsp;&nbsp;">
@@ -113,8 +113,58 @@
 
 </header>
 <div id="userInterface-content">
-  <app-sidebar></app-sidebar>
-  <app-kommonitor-map></app-kommonitor-map>
+  <app-sidebar [element]="sidebarElement"></app-sidebar>
+  <div>
+
+    <div id="sideBarButtons">
+      <button type="button" style="display: block; position: relative; margin-top: 5px;" id="sidebarIndicatorConfigCollapse"
+        (click)="onSidebarButtonClick($event)" [ngClass]="buttonIndicatorConfigClass" data-toggle="tooltip" title="Indikatorenauswahl">
+          <i style="font-size:2.5vh;" class="fas fa-sitemap"></i>
+      </button>
+
+      <button type="button" style="display: block; position: relative; margin-top: 5px;" id="sidebarPoiCollapse"
+        (click)="onSidebarButtonClick($event)" [ngClass]="buttonPoiClass" data-toggle="tooltip" title="Infrastrukturdaten">
+          <i style="font-size:2.5vh;" class="fas fa-map-marker-alt"></i>
+      </button>
+
+      <button type="button" style="display: block; position: relative; margin-top: 5px;" id="sidebarDataImportCollapse"
+        (click)="onSidebarButtonClick($event)" [ngClass]="buttonDataImportClass"  data-toggle="tooltip" title="Datenimport">
+          <i style="font-size:2.5vh;" class="fas fa-file-import"></i>
+      </button> 
+
+      <button type="button" style="display: block; position: relative; margin-top: 5px;" id="sidebarFilterCollapse"
+        (click)="onSidebarButtonClick($event)" [ngClass]="buttonFilterClass" data-toggle="tooltip" title="Darstellungsfilter">
+          <i style="font-size:2.5vh;" class="fas fa-filter"></i>
+      </button>
+
+      <button type="button" style="display: block; position: relative; margin-top: 5px;" id="sidebarBalanceCollapse"
+        (click)="onSidebarButtonClick($event)" [ngClass]="buttonBalanceClass" data-toggle="tooltip" title="zeitliche Bilanzierung">
+          <i style="font-size:2.5vh;" class="fas fa-chart-line"></i>
+      </button>
+
+      <button type="button" style="display: block; position: relative; margin-top: 5px;" id="sidebarDiagramsCollapse" 
+        (click)="onSidebarButtonClick($event)" [ngClass]="buttonDiagramsClass" data-toggle="tooltip" title="statistische Diagramme">
+          <i style="font-size:2.5vh;" class="fas fa-chart-bar"></i>
+      </button>
+
+      <button type="button" style="display: block; position: relative; margin-top: 5px;" id="sidebarRadarDiagramCollapse"
+        (click)="onSidebarButtonClick($event)" [ngClass]="buttonRadarDiagramClass" data-toggle="tooltip" title="Indikatorenradar">
+          <img src="icons/radarMap.svg">
+      </button>
+
+      <button type="button" style="display: block; position: relative; margin-top: 5px;" id="sidebarRegressionDiagramCollapse"
+        (click)="onSidebarButtonClick($event)" [ngClass]="buttonRegressionDiagramClass" data-toggle="tooltip" title="Regressionsdiagramm">
+          <img src="icons/scatterPlot.svg">
+      </button>
+
+      <button type="button" style="display: block; position: relative; margin-top: 5px;" id="sidebarReachabilityCollapse"
+        (click)="onSidebarButtonClick($event)" [ngClass]="buttonReachabilityClass" data-toggle="tooltip" title="Erreichbarkeitsanalyse">
+        <i style="font-size:2.5vh;" class="fas fa-route"></i>
+      </button>
+    </div>
+    
+    <app-kommonitor-map></app-kommonitor-map>
+  </div>
 </div>
 
 <app-kommonitor-legend></app-kommonitor-legend>

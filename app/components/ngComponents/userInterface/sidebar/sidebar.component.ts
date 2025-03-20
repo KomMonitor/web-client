@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 
 @Component({
   selector: 'app-sidebar',
@@ -9,10 +9,5 @@ export class SidebarComponent {
 
   content:number | boolean = false; // default: false
 
-  showContent(number) {
-    if(this.content!==number)
-      this.content = number;
-    else
-      this.content = false;
-  }
+  @Input() element:any = undefined;
 }

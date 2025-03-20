@@ -326,6 +326,9 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         case 'changeDynamicBreaks' : {
           this.changeDynamicBreaks(values);
         } break;
+        case 'recenterMapOnSidebarAction' : {
+          this.recenterMapOnSidebarAction(values);
+        } break
       }
     });
   }
@@ -2334,7 +2337,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     }
   }
  */
-   //wait = ms => new Promise((r, j) => setTimeout(r, ms))
+  wait = ms => new Promise((r, j) => setTimeout(r, ms))
 
   recenterMap () {
     this.map.invalidateSize(true);
@@ -2351,69 +2354,25 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     }, 500);          
   });
 
-  $scope.$on("recenterMapOnHideSideBar", async function (event) {
-    //wait due to animation of the sidebar
+  */
 
-    // make animation in 30 steps
-    // waitForInMs = 30;
-    // for(i=0; i<=300; i++){
-    //
-    //   i += waitForInMs;
-    //
-    //   await wait(waitForInMs);
-    //
-    //   $scope.map.invalidateSize(true);
-    //
-    //   panToCenterOnInActiveMenue(500);
-    //   // $scope.recenterMap();
-    // }
+  recenterMapOnSidebarAction([openState]) {
 
-    waitForInMs = 100;
-    await wait(waitForInMs);
-    panToCenterOnInActiveMenue(500);
-  });
+    let waitForInMs = 100;
+    this.wait(waitForInMs);
 
-  $scope.$on("recenterMapOnShowSideBar", async function (event) {
-    //wait due to animation of the sidebar
+    let numPixels = 500
+    if(!openState)
+      numPixels = -500;
+      
+    if (this.map) {
+      this.map.invalidateSize(true);
+      this.map.panBy(L.point(numPixels, 0));
 
-    // make animation in 30 steps
-    // waitForInMs = 30;
-    // for(i=0; i<=300; i++){
-    //
-    //   i += waitForInMs;
-    //
-    //   await wait(waitForInMs);
-    //
-    //   $scope.map.invalidateSize(true);
-    //
-    //   panToCenterOnActiveMenue(500);
-    //   // $scope.recenterMap();
-    // }
-
-    waitForInMs = 100;
-    await wait(waitForInMs);
-    panToCenterOnActiveMenue(500);
-
-  });
-
-  function panToCenterOnActiveMenue(numPixels) {
-    if ($scope.map) {
-      $scope.map.invalidateSize(true);
-      $scope.map.panBy(L.point(numPixels, 0));
-
-      $scope.map.invalidateSize(true);
+      this.map.invalidateSize(true);
     }
   };
 
-  function panToCenterOnInActiveMenue(numPixels) {
-    if ($scope.map) {
-      $scope.map.invalidateSize(true);
-      $scope.map.panBy(L.point(-numPixels, 0));
-
-      $scope.map.invalidateSize(true);
-    }
-  };
-*/
 
   fitBounds() {
     if (this.map && this.currentIndicatorLayer) {

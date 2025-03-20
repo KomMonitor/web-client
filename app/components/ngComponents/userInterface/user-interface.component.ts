@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { DataExchange, DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { InfoModal } from './infoModal/info-modal.component';
+import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 
 @Component({
   selector: 'user-interface-new',
@@ -16,9 +17,37 @@ export class UserInterfaceComponent implements OnInit {
 
   showUserLogin = false;
 
+  
+  sidebarIndicatorConfigClass = "disappear";
+  sidebarDiagramsClass = "disappear";
+  sidebarRadarDiagramClass = "disappear";
+  sidebarProcessingClass = "disappear";
+  sidebarRegressionDiagramClass = "disappear";
+  sidebarFilterClass = "disappear";
+  sidebarBalanceClass = "disappear";
+  sidebarReachabilityClass = "disappear";
+  sidebarPoiClass = "disappear";
+  sidebarDataImportClass = "disappear";
+
+  sidebarLegendClass = "";
+
+  buttonIndicatorConfigClass = "btn btn-custom btn-circle";
+  buttonDiagramsClass = "btn btn-custom btn-circle";
+  buttonRadarDiagramClass = "btn btn-custom btn-circle";
+  buttonProcessingClass = "btn btn-custom btn-circle";
+  buttonRegressionDiagramClass = "btn btn-custom btn-circle";
+  buttonFilterClass = "btn btn-custom btn-circle";
+  buttonBalanceClass = "btn btn-custom btn-circle";
+  buttonReachabilityClass = "btn btn-custom btn-circle";
+  buttonPoiClass = "btn btn-custom btn-circle";
+  buttonDataImportClass = "btn btn-custom btn-circle";
+
+  sidebarElement = "";
+
   constructor(
     private dataExchangeService: DataExchangeService,
     private modalService: NgbModal, 
+    private broadcastService: BroadcastService
   ) {
     this.exchangeData = this.dataExchangeService.pipedData;
   }
@@ -90,35 +119,7 @@ export class UserInterfaceComponent implements OnInit {
 			}
     }
  /*
-		// initialize any adminLTE box widgets
-		$('.box').boxWidget();
-
-		$scope.sidebarIndicatorConfigClass = "disappear";
-		$scope.sidebarDiagramsClass = "disappear";
-		$scope.sidebarRadarDiagramClass = "disappear";
-		$scope.sidebarProcessingClass = "disappear";
-		$scope.sidebarRegressionDiagramClass = "disappear";
-		$scope.sidebarFilterClass = "disappear";
-		$scope.sidebarBalanceClass = "disappear";
-		$scope.sidebarReachabilityClass = "disappear";
-		$scope.sidebarPoiClass = "disappear";
-		$scope.sidebarDataImportClass = "disappear";
-
-		$scope.sidebarLegendClass = "";
-
-		$scope.buttonIndicatorConfigClass = "btn btn-custom btn-circle";
-		$scope.buttonDiagramsClass = "btn btn-custom btn-circle";
-		$scope.buttonRadarDiagramClass = "btn btn-custom btn-circle";
-		$scope.buttonProcessingClass = "btn btn-custom btn-circle";
-		$scope.buttonRegressionDiagramClass = "btn btn-custom btn-circle";
-		$scope.buttonFilterClass = "btn btn-custom btn-circle";
-		$scope.buttonBalanceClass = "btn btn-custom btn-circle";
-		$scope.buttonReachabilityClass = "btn btn-custom btn-circle";
-		$scope.buttonPoiClass = "btn btn-custom btn-circle";
-		$scope.buttonDataImportClass = "btn btn-custom btn-circle";
-
-		$scope.buttonLegendClass = "btn btn-custom-docked-right btn-docked-right";
-
+	
 		function sleep(ms) {
 			return new Promise(resolve => setTimeout(resolve, ms));
 		}
@@ -190,6 +191,27 @@ export class UserInterfaceComponent implements OnInit {
     openInfoModal() {
 
       const modalRef = this.modalService.open(InfoModal, {windowClass: 'modal-holder', centered: true});
+    }
+
+    onSidebarButtonClick(event) {
+
+      let ident; 
+      if(event.target.id!="")
+        ident = event.target.id;
+      else
+        ident = event.srcElement.parentElement.id;
+
+      if(ident!=this.sidebarElement) {
+
+        if(this.sidebarElement=='')
+          this.broadcastService.broadcast("recenterMapOnSidebarAction",[true]);
+
+        this.sidebarElement = ident;
+      }
+      else {
+        this.sidebarElement = '';
+        this.broadcastService.broadcast("recenterMapOnSidebarAction",[false]);
+      }
     }
     
 /*

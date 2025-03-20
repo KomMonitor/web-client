@@ -6,6 +6,8 @@
   height: 100%;
   background: rgb(236,240,245);
   transition: opacity 0.3s;
+  overflow-y: auto;
+  overflow-x: hidden;
 
   #sidebarContentWrapper {
     

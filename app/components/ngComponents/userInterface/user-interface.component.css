@@ -1,7 +1,10 @@
 :host {
+
+
   #userInterface-content {
     width: 100%;
     display: grid;
     grid-template-columns: min-content auto;
+    height: 90vh;
   }
 }
