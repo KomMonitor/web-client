@@ -5,6 +5,8 @@
   z-index: 1001;
   font-size: 11px;
 
+  max-width: 35vw;
+
   #sidebarLegendCollapse {
     position: absolute;
     left:-32px;

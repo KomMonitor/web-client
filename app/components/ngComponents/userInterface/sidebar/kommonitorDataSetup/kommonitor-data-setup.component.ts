@@ -5,6 +5,7 @@ import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchange, DataExchangeService, IndicatorTopic } from 'services/data-exchange-service/data-exchange.service';
 import { ElementVisibilityHelperService } from 'services/element-visibility-helper-service/element-visibility-helper.service';
 import { MapService } from 'services/map-service/map.service';
+import * as noUiSlider from 'nouislider';
 
 @Component({
   selector: 'app-kommonitor-data-setup',
@@ -34,6 +35,39 @@ export class KommonitorDataSetupComponent implements OnInit {
 
   preppedIndicatorTopics: IndicatorTopic[] = [];
 
+  slider;
+  config: any  = {
+    behaviour: 'drag',
+    connect: true,
+    range: {
+        'min': 0,
+        'max': 100
+    },
+    start: [0],
+    keyboard: true, 
+    pips: {
+      mode: 'range',
+      density: 2,
+      values: 4,
+      stepped: true
+    }
+  };
+  
+  months = [
+    'Januar',
+    'Fabruar',
+    'März',
+    'April',
+    'Mai',
+    'Juni',
+    'Juli',
+    'August',
+    'September',
+    'Oktober',
+    'November',
+    'Dezember'
+  ];
+
   constructor(
     public dataExchangeService: DataExchangeService,
     private broadcastService: BroadcastService,
@@ -45,6 +79,8 @@ export class KommonitorDataSetupComponent implements OnInit {
   ngOnInit(): void {
     this.exchangeData = this.dataExchangeService.pipedData;
 
+    this.setupSlider();
+
     // todo like "initialMetadataLoadingCompleted"
     window.setTimeout( () => {
       this.preppedIndicatorTopics = this.prepareIndicatorTopicsRecursive(this.exchangeData.topicIndicatorHierarchy);
@@ -53,6 +89,11 @@ export class KommonitorDataSetupComponent implements OnInit {
       this.onInitialMetadataLoadingComplete();
 
     },2000);
+  }
+  
+  setupSlider() {
+    this.slider = document.getElementById('dateSlider');
+    noUiSlider.create(this.slider, this.config);
   }
 
   onInitialMetadataLoadingComplete() {
@@ -191,7 +232,6 @@ export class KommonitorDataSetupComponent implements OnInit {
   $scope.loadingData = true;
   $scope.changeIndicatorWasClicked = false;
 
-  $scope.dateSlider;
   $scope.datePicker;
   $scope.datesAsMs;
 
@@ -498,46 +538,76 @@ export class KommonitorDataSetupComponent implements OnInit {
   
   setupDateSliderForIndicator(){
 
-    // todo
-    /* if(this.dateSlider){
-        this.dateSlider.destroy();
-    }
-
-    var domNode:HTMLElement | null = document.getElementById("dateSlider");
-
-    if(domNode) {
-      while (domNode!.hasChildNodes()) {
-        domNode.removeChild(domNode.lastChild!);
-      }
-    } */
-
     var availableDates = this.exchangeData.selectedIndicator.applicableDates;
     this.date = availableDates[availableDates.length - 1];
     this.selectedDate = availableDates[availableDates.length - 1];
     this.exchangeData.selectedDate = availableDates[availableDates.length - 1];
 
     this.datesAsMs = this.createDatesFromIndicatorDates(this.exchangeData.selectedIndicator.applicableDates);
+   
 
-    // new Date() uses month between 0-11!
-    // todo
-   /*  $("#dateSlider").ionRangeSlider({
-        skin: "big",
-        type: "single",
-        grid: true,
-        values: this.datesAsMs,
-        from: this.datesAsMs.length -1, // index, not the date
-        force_edges: true,
-        prettify: prettifyDateSliderLabels,
-        onChange: this.onChangeDateSliderItem
-    }); */
-
-    //todo
-    // this.dateSlider = $("#dateSlider").data("ionRangeSlider");
-    // make sure that the handle is properly set to max value
-   /*  this.dateSlider.update({
-        from: this.datesAsMs.length -1 // index, not the date
-    }); */
+    this.slider.noUiSlider.updateOptions({
+      range: {
+          'min': 0, // index from
+          'max': this.datesAsMs.length-1 // index to
+      },
+      start: [ this.tsToDateString(this.datesAsMs[1])],
+      step: 1,
+      tooltips: true,
+      format: {
+        to: (value) => {
+          return this.tsToDateString(this.datesAsMs[Math.round(value)]);  
+        },
+        from: (value) => {
+          return this.datesAsMs.indexOf(this.dateStringToMs(value));
+        }
+      },
+      pips: {
+        mode: 'range',
+        density: 25,
+        format: {
+          to: (value) => {
+            return this.tsToDateString(this.datesAsMs[Math.round(value)]);
+          },
+          from: (value) => {
+            return this.datesAsMs.indexOf(this.dateStringToMs(value));
+          }
+        }
+      }
+    });
+  
+    this.slider.noUiSlider.on('set', () => {
+      this.onChangeDateSliderItem(this.getFormatedSliderReturn());
+    })
   };
+
+  getFormatedSliderReturn() {
+
+    let data = this.slider.noUiSlider.get(true);
+    
+    return {
+      from: Math.round(data)
+    };
+  }
+
+  dateStringToMs(dateStr) {
+    let parts = dateStr.split(' ');
+    let offset = new Date().getTimezoneOffset()*60*1000;
+   
+    let tms = new Date(parts[2]+'-'+(this.months.indexOf(parts[1])+1)+'-'+parts[0].replace('.','')+'T00:00:00Z').getTime();
+    return tms+offset;
+  }
+
+  tsToDateString (dateAsMs) {
+    var date = new Date(dateAsMs);
+    // return date.getFullYear();
+
+    return date.toLocaleDateString("de-DE", {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  }
 
   setupDatePickerForIndicator(){
 
@@ -564,47 +634,47 @@ export class KommonitorDataSetupComponent implements OnInit {
     //this.datePicker = $('#indicatorDatePicker').datepicker(this.dataExchangeService.getLimitedDatePickerOptions(availableDates));																		
     
   };
-/*
 
-  $scope.onChangeDateSliderItem = async function(data){
-
-    if(!$scope.changeIndicatorWasClicked && kommonitorDataExchangeService.selectedIndicator){
-      $scope.loadingData = true;
-      $rootScope.$broadcast("showLoadingIconOnMap");
+  onChangeDateSliderItem(data){
+console.log(data)
+    if(!this.changeIndicatorWasClicked && this.exchangeData.selectedIndicator){
+      this.loadingData = true;
+      this.broadcastService.broadcast("showLoadingIconOnMap");
 
       console.log("Change selected date");
 
       //data.from is index of date!
 
-      $scope.selectedDate = kommonitorDataExchangeService.selectedIndicator.applicableDates[data.from];
-      $scope.date = $scope.selectedDate;
-      kommonitorDataExchangeService.selectedDate = $scope.selectedDate;
+      this.selectedDate = this.exchangeData.selectedIndicator.applicableDates[data.from];
+      this.date = this.selectedDate;
+      this.exchangeData.selectedDate = this.selectedDate;
 
-      $('#indicatorDatePicker').datepicker('update', new Date(kommonitorDataExchangeService.selectedDate));
+      // todo
+      //$('#indicatorDatePicker').datepicker('update', new Date(this.exchangeData.selectedDate));
 
       try{
-        var selectedIndicator = await $scope.tryUpdateMeasureOfValueBarForIndicator();
+        var selectedIndicator = this.tryUpdateMeasureOfValueBarForIndicator();
       }
       catch(error){
         console.error(error);
-        $scope.loadingData = false;
-        $rootScope.$broadcast("hideLoadingIconOnMap");
-        kommonitorDataExchangeService.displayMapApplicationError(error);
+        this.loadingData = false;
+        this.broadcastService.broadcast("hideLoadingIconOnMap");
+        this.dataExchangeService.displayMapApplicationError(error);
         return;
       }
 
-      $scope.modifyExports(false);
+      this.modifyExports(false);
 
-      if(kommonitorDataExchangeService.useNoDataToggle)
-        $rootScope.$broadcast('applyNoDataDisplay')
+      if(this.exchangeData.useNoDataToggle)
+        this.broadcastService.broadcast('applyNoDataDisplay')
 
-      $scope.loadingData = false;
-      $rootScope.$broadcast("hideLoadingIconOnMap");
-      $rootScope.$broadcast("selectedIndicatorDateHasChanged");
-      $rootScope.$apply();
+      this.loadingData = false;
+      this.broadcastService.broadcast("hideLoadingIconOnMap");
+      this.broadcastService.broadcast("selectedIndicatorDateHasChanged");
     }
   };
 
+/*
   $scope.$on("DisableDateSlider", function (event) {
     if($scope.dateSlider){
       $scope.dateSlider.update({

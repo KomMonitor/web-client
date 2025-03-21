@@ -1,6 +1,6 @@
 <div style="position:relative;">
 
-  <div align="center">
+  <div style="text-align:center">
     <div class="loading-overlay" *ngIf="loadingData">
           <span class="glyphicon glyphicon-refresh icon-spin"></span>
     </div>
@@ -10,12 +10,7 @@
     <p id="indicatorProcessDescription" mathjax-bind="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.processDescription"></p>
   </div>
 
-  <div id="ngMap" style="z-index: 2;" ng-init="$ctrl.initializeMap()"></div>
-
-  <div id="dateSliderWrapper">
-    <input id="dateSlider" type="text" class="js-range-slider" value="">
-  </div>
-
+  <div id="ngMap" style="z-index: 2;"></div>
 
 </div>
 
