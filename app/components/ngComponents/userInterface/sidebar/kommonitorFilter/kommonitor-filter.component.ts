@@ -5,6 +5,7 @@ import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchange, DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { FilterHelperService } from 'services/filter-helper-service/filter-helper.service';
 import { MapService } from 'services/map-service/map.service';
+import * as noUiSlider from 'nouislider';
 
 @Component({
   selector: 'app-kommonitor-filter',
@@ -53,6 +54,24 @@ export class KommonitorFilterComponent implements OnInit {
   movStep;
   movRangeSlider;
 
+  slider;
+  config: any  = {
+    behaviour: 'drag',
+    connect: true,
+    range: {
+        'min': 0,
+        'max': 100
+    },
+    start: [0,100],
+    keyboard: true, 
+    pips: {
+      mode: 'range',
+      density: 2,
+      values: 4,
+      stepped: true
+    }
+  };
+
   // SPATIAL FILTER STUFF
   selectedSpatialUnitForFilter;
   selectedSpatialUnitIdForFilter;
@@ -76,7 +95,6 @@ export class KommonitorFilterComponent implements OnInit {
   inputNotValid = false;
 
   exchangeData:DataExchange;
-  filterData;
 
   constructor(
     protected dataExchangeService: DataExchangeService,
@@ -86,7 +104,6 @@ export class KommonitorFilterComponent implements OnInit {
     private http: HttpClient
   ) {
     this.exchangeData = this.dataExchangeService.pipedData;
-    this.filterData = this.filterHelperService.pipedData;
   }
 
 
@@ -102,8 +119,17 @@ export class KommonitorFilterComponent implements OnInit {
           case 'replaceIndicatorAsGeoJSON': {
             this.replaceIndicatorAsGeoJSON(val);
           } break;
+          case 'updateMeasureOfValueBar' :{
+            this.updateMeasureOfValueBar(val);
+          } break;
+          case 'updateIndicatorValueRangeFilter' : {
+            this.updateIndicatorValueRangeFilter(val);
+          } break;
         }
-      })
+      });
+
+      this.slider = document.getElementById('filterRangeSlider');
+      noUiSlider.create(this.slider, this.config);
   }
 
   onUpdatedSelectedItems(items:any) {
@@ -114,58 +140,58 @@ export class KommonitorFilterComponent implements OnInit {
     this.manualSelectionSpatialFilterDuallistOptions.selectedItems = items;  
   }
 
-							isFilterModeActive(id) {
-								// hier
-								//return this.kommonitorFilterModes.indexOf(id) !== -1;
-								return true;
-							}
+  isFilterModeActive(id) {
+    // hier
+    //return this.kommonitorFilterModes.indexOf(id) !== -1;
+    return true;
+  }
 
 
-							setupSpatialUnitFilter(indicatorMetadataAndGeoJSON, spatialUnitName, date){
-								
-								this.loadingData = true;
-								
-								let allowedSpatialUnitIds = indicatorMetadataAndGeoJSON.applicableSpatialUnits.map(spatialUnitEntry => {									
-									return spatialUnitEntry.spatialUnitId;									
-								});
-								
-								this.higherSpatialUnits = JSON.parse(JSON.stringify(this.exchangeData.availableSpatialUnits));
-								
-								// only show those spatial units that are actually visible according to keycloak role
-								// and associated to the current indicator as well
-								for (let index = 0; index < this.higherSpatialUnits.length; index++) {
-									const spatialUnitMetadata = this.higherSpatialUnits[index];
-									
-									// remove if it is not applicable for current indicator OR
-									// remove if it is the currently displayed spatial unit to show only hierarchically higher spatial units
-									if(this.considerAllowedSpatialUnitsOfCurrentIndicator && ! allowedSpatialUnitIds.includes(spatialUnitMetadata.spatialUnitId)){	
-										
-										// only remove the current element
-										// which represents a spatial unit that is 
-										// not supported by the current indicator 
-										this.higherSpatialUnits.splice(index, 1);
-									}
+    setupSpatialUnitFilter(indicatorMetadataAndGeoJSON, spatialUnitName, date){
+      
+      this.loadingData = true;
+      
+      let allowedSpatialUnitIds = indicatorMetadataAndGeoJSON.applicableSpatialUnits.map(spatialUnitEntry => {									
+        return spatialUnitEntry.spatialUnitId;									
+      });
+      
+      this.higherSpatialUnits = JSON.parse(JSON.stringify(this.exchangeData.availableSpatialUnits));
+      
+      // only show those spatial units that are actually visible according to keycloak role
+      // and associated to the current indicator as well
+      for (let index = 0; index < this.higherSpatialUnits.length; index++) {
+        const spatialUnitMetadata = this.higherSpatialUnits[index];
+        
+        // remove if it is not applicable for current indicator OR
+        // remove if it is the currently displayed spatial unit to show only hierarchically higher spatial units
+        if(this.considerAllowedSpatialUnitsOfCurrentIndicator && ! allowedSpatialUnitIds.includes(spatialUnitMetadata.spatialUnitId)){	
+          
+          // only remove the current element
+          // which represents a spatial unit that is 
+          // not supported by the current indicator 
+          this.higherSpatialUnits.splice(index, 1);
+        }
 
-									// since we query through a hierarchically sorted array of ALL spatial units
-									// we have to stop when we identify the currently displayed spatial unit
-									// in that case we have to remove that from the list of upper  
-									if (spatialUnitName == spatialUnitMetadata.spatialUnitLevel){
-										// remove current all all remaining elements from array
-										// (which are lower hierarchy spatial units)
-										this.higherSpatialUnits.splice(index);
-										break;
-									}
-								}
+        // since we query through a hierarchically sorted array of ALL spatial units
+        // we have to stop when we identify the currently displayed spatial unit
+        // in that case we have to remove that from the list of upper  
+        if (spatialUnitName == spatialUnitMetadata.spatialUnitLevel){
+          // remove current all all remaining elements from array
+          // (which are lower hierarchy spatial units)
+          this.higherSpatialUnits.splice(index);
+          break;
+        }
+      }
 
-								// this.higherSpatialUnits.splice(targetIndex);
-								this.selectedSpatialUnitForFilter = this.higherSpatialUnits[this.higherSpatialUnits.length - 1];
+      // this.higherSpatialUnits.splice(targetIndex);
+      this.selectedSpatialUnitForFilter = this.higherSpatialUnits[this.higherSpatialUnits.length - 1];
 
-								this.loadingData = false;
-							};
+      this.loadingData = false;
+    };
 
-              onOnChangeSelectedIndicator() {
-                this.reappliedFilter = false;
-              }
+    onOnChangeSelectedIndicator() {
+      this.reappliedFilter = false;
+    }
 						/* 
 
 							$scope.$on("indicatortMapDisplayFinished", function(){
@@ -209,14 +235,15 @@ export class KommonitorFilterComponent implements OnInit {
 								this.previouslySelectedSpatialUnit = this.exchangeData.selectedSpatialUnit;
 								
 							}
-/*
-							$scope.$on("updateIndicatorValueRangeFilter", function (event, date, indicatorMetadataAndGeoJSON) {
+
+							updateIndicatorValueRangeFilter([date, indicatorMetadataAndGeoJSON]) {
 
 									this.setupRangeSliderForFilter(date, indicatorMetadataAndGeoJSON);
 
-							});
- */
+							}
+
 							setupRangeSliderForFilter(date, indicatorMetadataAndGeoJSON){
+                // hier
 								date = this.INDICATOR_DATE_PREFIX + date;
 
 								if(this.rangeSliderForFilter){
@@ -270,6 +297,24 @@ export class KommonitorFilterComponent implements OnInit {
 								this.inputHigherFilterValue = this.valueRangeMaxValue;
 
                 // todo
+                this.slider.noUiSlider.updateOptions({
+                  range: {
+                      'min': this.valueRangeMinValue,
+                      'max': this.valueRangeMaxValue
+                  },
+                  start: [this.valueRangeMinValue, this.valueRangeMaxValue],
+                  step: 0.01,
+                  tooltips: true,
+                  pips: {
+                    mode: 'range',
+                    density: 25
+                  }
+                });
+              
+                this.slider.noUiSlider.on('set', () => {
+                  this.onChangeRangeFilter(this.getFormatedSliderReturn());
+                });
+
 							/* 	$("#rangeSliderForFiltering").ionRangeSlider({
 										skin: "big",
 						        type: "double",
@@ -285,14 +330,24 @@ export class KommonitorFilterComponent implements OnInit {
 										onChange: onChangeRangeFilter
 						    	}); */
 
-								this.rangeSliderForFilter = $("#rangeSliderForFiltering").data("ionRangeSlider");
+							/* 	this.rangeSliderForFilter = $("#rangeSliderForFiltering").data("ionRangeSlider");
 								// make sure that the handles are properly set to min and max values
 								this.rangeSliderForFilter.update({
 						        from: this.valueRangeMinValue,
 						        to: this.valueRangeMaxValue
-						    });
+						    }); */
 
 							};
+
+              getFormatedSliderReturn() {
+
+                let data = this.slider.noUiSlider.get(true);
+                
+                return {
+                  from: data[0],
+                  to: data[1]
+                };
+              }
 
 							onChangeLowerFilterValue(value){
 
@@ -383,7 +438,7 @@ export class KommonitorFilterComponent implements OnInit {
 
 							}); */
 
-							updateMeasureOfValueBar(date, indicatorMetadataAndGeoJSON){
+							updateMeasureOfValueBar([date, indicatorMetadataAndGeoJSON]){
 
 								//append date prefix to access correct property!
 								date = this.INDICATOR_DATE_PREFIX + date;

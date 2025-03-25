@@ -16,7 +16,6 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
   exchangeData!:DataExchange;
   elementVisibilityData: any;
   visualStyleData: any;
-  filterHelperData:any
   env!:any;
 
   dateAsDate!: Date;
@@ -41,14 +40,12 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
     private elementVisibilityService: ElementVisibilityHelperService,
     private shareHelperService: ShareHelperService,
     protected visualStyleService: VisualStyleHelperServiceNew,
-    private filterHelperService: FilterHelperService,
+    protected filterHelperService: FilterHelperService,
     private broadcastService: BroadcastService
   ) {
-    
     this.exchangeData = this.dataExchangeService.pipedData;
     this.elementVisibilityData = this.elementVisibilityService.pipedData;
     this.visualStyleData = this.visualStyleService.pipedData;
-    this.filterHelperData = this.filterHelperService.pipedData;
     this.env = window.__env;
   }
 

@@ -89,6 +89,26 @@ export class KommonitorDataSetupComponent implements OnInit {
       this.onInitialMetadataLoadingComplete();
 
     },2000);
+
+    $(document).ready(function() {
+      $(".nav li.disabled a").click(function() {
+        return false;
+      });
+    });
+
+    this.broadcastService.currentBroadcastMsg.subscribe(res => {
+      let msg = res.msg;
+      let values:any = res.values;
+
+      switch (msg) {
+        case 'DisableDateSlider' : {
+          this.DisableDateSlider();
+        } break;
+        case 'EnableDateSlider' : {
+          this.EnableDateSlider();
+        } break;
+      }
+    });
   }
   
   setupSlider() {
@@ -223,19 +243,7 @@ export class KommonitorDataSetupComponent implements OnInit {
   };
 
 /*
-  // var rangeslide = require("rangeslide");
-
-  this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
-  this.kommonitorDataExchangeServiceInstance.selectedServiceUrl = '';
-  this.kommonitorMapServiceInstance = kommonitorMapService;
-
-  $scope.loadingData = true;
-  $scope.changeIndicatorWasClicked = false;
-
-  $scope.datePicker;
-  $scope.datesAsMs;
-
-  $scope.selectedDate;								
+					
 
   this.addGeopackage = function(){
     this.kommonitorMapServiceInstance.addSpatialUnitGeopackage();
@@ -255,43 +263,7 @@ export class KommonitorDataSetupComponent implements OnInit {
   //   }
   // }, true);
 /*
-  this.onClickTheme = function(topicName){
-
-    for(const topic of this.kommonitorDataExchangeServiceInstance.availableTopics){
-      if(topic.topicName === topicName){
-        document.getElementById(topicName).setAttribute("class", "active");
-        this.kommonitorDataExchangeServiceInstance.selectedTopic = topic;
-      }
-      else {
-        if(document.getElementById(topic.topicName)){
-          document.getElementById(topic.topicName).setAttribute("class", "");
-        }
-      }
-    };
-
-    if(kommonitorDataExchangeService.selectedIndicator){
-      kommonitorDataExchangeService.selectedIndicatorBackup = kommonitorDataExchangeService.selectedIndicator;
-    }
-
-    // $scope.$digest();
-  };
-
-  this.unsetTopic = function(){
-    this.kommonitorDataExchangeServiceInstance.selectedTopic = null;
-
-    for(const topic of this.kommonitorDataExchangeServiceInstance.availableTopics){
-      if (document.getElementById(topic.topicName)){
-          document.getElementById(topic.topicName).setAttribute("class", "");
-      }
-    };
-
-    if(!kommonitorDataExchangeService.selectedIndicator){
-      kommonitorDataExchangeService.selectedIndicator = kommonitorDataExchangeService.selectedIndicatorBackup;
-    }
-
-    // $scope.$digest();
-  };
-
+ 
   $scope.filterGeoresourcesByIndicator = function() {
     return function( item ) {
 
@@ -581,6 +553,13 @@ export class KommonitorDataSetupComponent implements OnInit {
     })
   };
 
+  onChangeIndicatorFilter() {
+    this.dataExchangeService.onChangeIndicatorKeywordFilter(this.indicatorNameFilter);
+    
+    this.preppedIndicatorTopics = this.prepareIndicatorTopicsRecursive(this.exchangeData.topicIndicatorHierarchy);
+    this.addClickListenerToEachCollapseTrigger();
+  }
+
   getFormatedSliderReturn() {
 
     let data = this.slider.noUiSlider.get(true);
@@ -636,7 +615,7 @@ export class KommonitorDataSetupComponent implements OnInit {
   };
 
   onChangeDateSliderItem(data){
-console.log(data)
+
     if(!this.changeIndicatorWasClicked && this.exchangeData.selectedIndicator){
       this.loadingData = true;
       this.broadcastService.broadcast("showLoadingIconOnMap");
@@ -674,29 +653,23 @@ console.log(data)
     }
   };
 
-/*
-  $scope.$on("DisableDateSlider", function (event) {
-    if($scope.dateSlider){
-      $scope.dateSlider.update({
-          block: true
-      });
+
+  DisableDateSlider() {
+    if(this.slider){
+      this.slider.noUiSlider.disable();
     }
 
-    kommonitorDataExchangeService.disableIndicatorDatePicker = true;
-  });
+    this.exchangeData.disableIndicatorDatePicker = true;
+  }
 
-  $scope.$on("EnableDateSlider", function (event) {
-    if($scope.dateSlider){
-      $scope.dateSlider.update({
-          block: false
-      });
+  EnableDateSlider() {
+    if(this.slider){
+      this.slider.noUiSlider.enable();
     }
 
-    kommonitorDataExchangeService.disableIndicatorDatePicker = false;
-  });
+    this.exchangeData.disableIndicatorDatePicker = false;
+  }
 
-  var wait = ms => new Promise((r, j)=>setTimeout(r, ms));
-  */
   tryUpdateMeasureOfValueBarForIndicator(){
     var indicatorId = this.exchangeData.selectedIndicator.indicatorId;
 
@@ -906,10 +879,10 @@ console.log(data)
       }
     };
 
-    //todo
-    //7$rootScope.$broadcast("updateBalanceSlider", this.exchangeData.selectedDate);
     this.broadcastService.broadcast("updateBalanceSlider", [this.exchangeData.selectedDate]);
-    //$rootScope.$broadcast("updateIndicatorValueRangeFilter", this.exchangeData.selectedDate, this.exchangeData.selectedIndicator);
+    setTimeout(() => {
+      this.broadcastService.broadcast("updateIndicatorValueRangeFilter", [this.exchangeData.selectedDate, this.exchangeData.selectedIndicator]);
+    },2000);
     this.addSelectedIndicatorToMap(changeIndicator);
 
   }

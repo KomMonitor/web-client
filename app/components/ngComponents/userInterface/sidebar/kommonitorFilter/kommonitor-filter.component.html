@@ -18,8 +18,8 @@
 			&nbsp;
 			<label class="switch">
 				<input id="controlFilterBehaviourToggle" type="checkbox" (change)="filterHelperService.onChangeFilterBehaviourToggle()"
-					[(ngModel)]="filterData.completelyRemoveFilteredFeaturesFromDisplay" 
-					(checked)="filterData.completelyRemoveFilteredFeaturesFromDisplay">
+					[(ngModel)]="filterHelperService.completelyRemoveFilteredFeaturesFromDisplay" 
+					(checked)="filterHelperService.completelyRemoveFilteredFeaturesFromDisplay">
 				<span class="switchslider round"></span>
 			</label>
 
@@ -143,7 +143,7 @@
 	<!-- /.box -->
 
 	<!-- DARSTELLUNGSFILTER -->
-	<div class="box box-primary" id="kommonitorRangeFilter" *ngIf="isFilterModeActive('kommonitorRangeFilter')">
+	<div class="box box-primary" id="kommonitorRangeFilter">
 		<div class="box-header with-border">
 			<h3 class="box-title">Wertebereich Filter</h3>
 
@@ -158,7 +158,7 @@
 				<p>Einschr&auml;nken der dargestellten Features anhand des Indikatorenwertebereichs. Bewegen der
 					Schieberegler mit Hilfe der Maus oder den Pfeiltasten der Tastatur.</p>
 				<div id="rangeSliderForFilteringWrapper">
-					<input id="rangeSliderForFiltering" type="text" class="js-range-slider" value="">
+					<div id="filterRangeSlider"></div>
 				</div>
 			</div>
 
@@ -170,11 +170,10 @@
 						<span class="input-group-addon">
 							<b>untere Grenze</b>
 						</span>
-						<input id="inputLowerValue" [(ngModel)]="inputLowerFilterValue" [(ngModel)]-options="{debounce: 500, blur: 0}"
+						<input id="inputLowerValue" [(ngModel)]="inputLowerFilterValue"
 							(change)="onChangeLowerFilterValue(inputLowerFilterValue)" string-to-number type="number"
 							step="0.01" class="form-control input-sm">
 					</div>
-					<!-- /input-group -->
 					<p></p>
 
 					<div *ngIf="lowerFilterInputNotValid" class="alert alert-danger" style="margin-bottom:0px;">
@@ -187,17 +186,15 @@
 						</p>
 					</div>
 				</div>
-				<!-- /.col-lg-6 -->
 				<div class="col-lg-6">
 					<div class="input-group">
 						<span class="input-group-addon">
 							<b>obere Grenze</b>
 						</span>
-						<input id="inputHigherValue" [(ngModel)]="inputHigherFilterValue" [(ngModel)]-options="{debounce: 500, blur: 0}"
+						<input id="inputHigherValue" [(ngModel)]="inputHigherFilterValue"
 							(change)="onChangeHigherFilterValue(inputHigherFilterValue)" string-to-number type="number"
 							step="0.01" class="form-control input-sm">
 					</div>
-					<!-- /input-group -->
 
 					<p></p>
 					<div *ngIf="higherFilterInputNotValid" class="alert alert-danger" style="margin-bottom:0px;">
@@ -212,12 +209,10 @@
 						</p>
 					</div>
 				</div>
-				<!-- /.col-lg-6 -->
 			</div>
-			<!-- /.row -->
 
-		</div>
 		<!-- /.box-body -->
+		</div>
 	</div>
 	<!-- /.box -->
 
@@ -275,7 +270,7 @@
 						<br />
 						<label>Schwellenwert: </label><input
 							[(ngModel)]="exchangeData.measureOfValue"
-							(change)="onMeasureOfValueChangeByText()" [(ngModel)]-options="{debounce: 1500, blur: 0}"
+							(change)="onMeasureOfValueChangeByText()"
 							min="{{movMinValue}}" max="{{movMaxValue}}" step="0.01" string-to-number type="number"
 							style="width:175px;" class="form-control input-sm" id="measureOfValueTextInput">
 

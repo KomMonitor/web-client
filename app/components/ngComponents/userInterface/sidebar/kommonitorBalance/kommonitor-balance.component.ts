@@ -413,7 +413,7 @@ export class KommonitorBalanceComponent implements OnInit {
         
           this.slider.noUiSlider.on('set', () => {
             this.onChangeBalanceRange(this.getFormatedSliderReturn());
-          })
+          });
 
           if (!this.exchangeData.isBalanceChecked){
             // deactivate balance slider

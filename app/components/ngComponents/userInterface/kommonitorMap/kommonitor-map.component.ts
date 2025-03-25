@@ -165,7 +165,6 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
   exchangeData:DataExchange;
   visualData: any;
-  filterData: any;
 
   constructor(
     private dataExchangeService: DataExchangeService,
@@ -179,8 +178,6 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     this.exchangeData.useOutlierDetectionOnIndicator = this.useOutlierDetectionOnIndicator;
 
     this.visualData = this.visualStyleHelperService.pipedData;
-
-    this.filterData = this.filterHelperService.pipedData;
   }
 
   ngOnInit(): void {
@@ -2668,7 +2665,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     this.currentIndicatorMetadataAndGeoJSON = this.markOutliers(this.currentIndicatorMetadataAndGeoJSON, this.indicatorPropertyName);
 
     this.dataExchangeService.setAllFeaturesProperty(indicatorMetadataAndGeoJSON, this.indicatorPropertyName);
-    this.dataExchangeService.setSelectedFeatureProperty(this.filterData.selectedIndicatorFeatureIds, this.indicatorPropertyName);
+    this.dataExchangeService.setSelectedFeatureProperty(this.filterHelperService.selectedIndicatorFeatureIds, this.indicatorPropertyName);
 
     this.currentGeoJSONOfCurrentLayer = this.currentIndicatorMetadataAndGeoJSON.geoJSON;
 
@@ -2927,7 +2924,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   }
 
   restyleCurrentLayer([skipDiagramRefresh]) {
-
+console.log("restyle")
     // transparency = document.getElementById("indicatorTransparencyInput").value;
     // opacity = 1 - transparency;
     //
@@ -3153,7 +3150,6 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     }
 
     this.map.invalidateSize(true);
-
   }
   
 

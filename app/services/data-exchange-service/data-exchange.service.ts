@@ -248,4 +248,18 @@ export class DataExchangeService {
   createDualListInputArray(areaNames, name, id) {
     return this.ajskommonitorDataExchangeServiceeProvider.createDualListInputArray(areaNames, name, id);
   }
+
+  onRemovedFeatureFromSelection([selectedIndicatorFeatureIds]) {
+    let propertyName = this.buildIndicatorPropertyName();
+
+    setTimeout(() => {
+      this.setSelectedFeatureProperty(selectedIndicatorFeatureIds, propertyName);
+    });
+  }
+
+  buildIndicatorPropertyName() {
+    const INDICATOR_DATE_PREFIX = window.__env.indicatorDatePrefix;
+    let propertyName = INDICATOR_DATE_PREFIX + this.ajskommonitorDataExchangeServiceeProvider.selectedDate;
+    return propertyName;
+  }
 }

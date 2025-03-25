@@ -65,6 +65,7 @@ export class MapService {
 
   restyleCurrentLayer() {
     this.ajskommonitorMapServiceProvider.restyleCurrentLayer();
+    this.broadcastService.broadcast("restyleCurrentLayer",[false]);
   }
 
   replaceIndicatorGeoJSON(indicatorMetadataAndGeoJSON, spatialUnitName, date, justRestyling, isCustomComputation=false) {

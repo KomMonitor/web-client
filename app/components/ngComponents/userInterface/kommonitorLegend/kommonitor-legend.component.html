@@ -161,7 +161,7 @@
                     <div class="col-md-3">{{visualStyleData.featuresPerOutlierHigh}}</div><br>
                   </div>				
                 </div>
-                <div *ngIf="(filterHelperData.filteredIndicatorFeatureIds?.size > 0) && (!filterHelperData.completelyRemoveFilteredFeaturesFromDisplay)">
+                <div *ngIf="(filterHelperService.filteredIndicatorFeatureIds.size > 0) && (!filterHelperService.completelyRemoveFilteredFeaturesFromDisplay)">
                   <div class="row" style="margin-right: 0px;">
                     <div class="col-md-3"><i [ngStyle]="{background: env.defaultColorForFilteredValues, border: '2px solid '+env.defaultBorderColorForFilteredValues, opacity: visualStyleData.currentIndicatorOpacity}"></i></div>
                     <div class="col-md-6">gefilterte Features</div>
