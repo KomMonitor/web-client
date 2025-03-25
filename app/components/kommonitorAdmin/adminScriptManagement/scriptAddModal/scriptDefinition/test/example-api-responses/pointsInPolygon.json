@@ -37,21 +37,18 @@
   },
   "inputs": {
     "target_indicator_id": {
-      "id": "target_indicator_id",
       "schema": { 
         "type": "string",
         "default": null
       }
     },
     "target_spatial_units": {
-      "id": "target_spatial_units",
       "schema": { 
         "type": "array",
         "default": []
       }
     },
     "target_time": {
-      "id": "target_time",
       "schema": { 
         "type": "object",
         "default": {
@@ -64,7 +61,6 @@
       }
     },
     "execution_interval": {
-      "id": "execution_interval",
       "schema": { 
         "type": "object",
         "default": {
@@ -75,7 +71,6 @@
       }
     },
     "georesource_id": {
-      "id": "GEORESOURCE_ID",
       "title": "Auswahl des für die Berechnung erforderlichen Basis-Indikators",
       "description": "Georessourcen ID des Punktdatensatzes.",
       "schema": { 
@@ -84,7 +79,6 @@
       }
     },
     "comp_filter": {
-      "id": "COMP_FILTER",
       "title": "Filter durch eine Objekteigenschaft",
       "description": "",
       "schema": { 

@@ -38,21 +38,18 @@
   },
   "inputs": {
     "target_indicator_id": {
-      "id": "target_indicator_id",
       "schema": { 
         "type": "string",
         "default": null
       }
     },
     "target_spatial_units": {
-      "id": "target_spatial_units",
       "schema": { 
         "type": "array",
         "default": []
       }
     },
     "target_time": {
-      "id": "target_time",
       "schema": { 
         "type": "object",
         "default": {
@@ -65,7 +62,6 @@
       }
     },
     "execution_interval": {
-      "id": "execution_interval",
       "schema": { 
         "type": "object",
         "default": {
@@ -76,7 +72,6 @@
       }
     },
     "computation_id": {
-      "id": "COMPUTATION_ID",
       "title": "Auswahl des für die Berechnung erforderlichen Basis-Indikators",
       "description": "Indikatoren-ID des Basisindikators.",
       "schema": { 
@@ -85,7 +80,6 @@
       }
     },
     "number_of_temporal_items": {
-      "id": "number_of_temporal_items",
       "title": "Anzahl",
       "description": "Anzahl der Zeiteinheiten. Standard ist '1'.",
       "schema": { 
@@ -96,7 +90,6 @@
       }
     },
     "temporal_type": {
-      "id": "temporal_type",
       "title": "Art des zeitlichen Bezugs",
       "description": "Angabe des Zeitbezug-Typs. Standard ist 'Jahre'.",
       "schema": { 

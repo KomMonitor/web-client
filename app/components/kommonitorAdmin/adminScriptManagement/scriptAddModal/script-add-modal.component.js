@@ -144,21 +144,18 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 						},
 						"inputs": {
 							"target_indicator_id": {
-								"id": "target_indicator_id",
 								"schema": { 
 									"type": "string",
 									"default": null
 								}
 							},
 							"target_spatial_units": {
-								"id": "target_spatial_units",
 								"schema": { 
 									"type": "array",
 									"default": []
 								}
 							},
 							"target_time": {
-								"id": "target_time",
 								"schema": { 
 									"type": "object",
 									"default": {
@@ -171,7 +168,6 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 								}
 							},
 							"execution_interval": {
-								"id": "execution_interval",
 								"schema": { 
 									"type": "object",
 									"default": {
@@ -182,7 +178,6 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 								}
 							},
 							"computation_id": {
-								"id": "COMPUTATION_ID",
 								"title": "Auswahl des für die Berechnung erforderlichen Basis-Indikators",
 								"description": "Indikatoren-ID des Basisindikators.",
 								"schema": { 
@@ -191,7 +186,6 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 								}
 							},
 							"number_of_temporal_items": {
-								"id": "number_of_temporal_items",
 								"title": "Anzahl",
 								"description": "Anzahl der Zeiteinheiten. Standard ist '1'.",
 								"schema": { 
@@ -202,7 +196,6 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 								}
 							},
 							"temporal_type": {
-								"id": "temporal_type",
 								"title": "Art des zeitlichen Bezugs",
 								"description": "Angabe des Zeitbezug-Typs. Standard ist 'Jahre'.",
 								"schema": { 
@@ -274,21 +267,18 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 						},
 						"inputs": {
 							"target_indicator_id": {
-								"id": "target_indicator_id",
 								"schema": { 
 									"type": "string",
 									"default": null
 								}
 							},
 							"target_spatial_units": {
-								"id": "target_spatial_units",
 								"schema": { 
 									"type": "array",
 									"default": []
 								}
 							},
 							"target_time": {
-								"id": "target_time",
 								"schema": { 
 									"type": "object",
 									"default": {
@@ -301,7 +291,6 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 								}
 							},
 							"execution_interval": {
-								"id": "execution_interval",
 								"schema": { 
 									"type": "object",
 									"default": {
@@ -312,7 +301,6 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 								}
 							},
 							"georesource_id": {
-								"id": "GEORESOURCE_ID",
 								"title": "Auswahl des für die Berechnung erforderlichen Basis-Indikators",
 								"description": "Georessourcen ID des Punktdatensatzes.",
 								"schema": { 
@@ -321,7 +309,6 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 								}
 							},
 							"comp_filter": {
-								"id": "COMP_FILTER",
 								"title": "Filter durch eine Objekteigenschaft",
 								"description": "",
 								"schema": { 
@@ -384,21 +371,18 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 							},
 							"inputs": {
 								"target_indicator_id": {
-									"id": "target_indicator_id",
 									"schema": { 
 										"type": "string",
 										"default": null
 									}
 								},
 								"target_spatial_units": {
-									"id": "target_spatial_units",
 									"schema": { 
 										"type": "array",
 										"default": []
 									}
 								},
 								"target_time": {
-									"id": "target_time",
 									"schema": { 
 										"type": "object",
 										"default": {
@@ -411,7 +395,6 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 									}
 								},
 								"execution_interval": {
-									"id": "execution_interval",
 									"schema": { 
 										"type": "object",
 										"default": {
@@ -422,14 +405,12 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 									}
 								},
 								"computation_ids": {
-									"id": "computation_ids",
 									"schema": { 
 										"type": "array",
 										"default": []
 									}
 								},
 								"reference_id": {
-									"id": "reference_id",
 									"schema": { 
 										"type": "string",
 										"default": null
@@ -477,21 +458,18 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 						},
 						"inputs": {
 							"target_indicator_id": {
-								"id": "target_indicator_id",
 								"schema": { 
 									"type": "string",
 									"default": null
 								}
 							},
 							"target_spatial_units": {
-								"id": "target_spatial_units",
 								"schema": { 
 									"type": "array",
 									"default": []
 								}
 							},
 							"target_time": {
-								"id": "target_time",
 								"schema": { 
 									"type": "object",
 									"default": {
@@ -504,7 +482,6 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 								}
 							},
 							"execution_interval": {
-								"id": "execution_interval",
 								"schema": { 
 									"type": "object",
 									"default": {
@@ -515,7 +492,6 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 								}
 							},
 							"computation_ids": {
-								"id": "computation_ids",
 								"schema": { 
 									"type": "array",
 									"default": []
