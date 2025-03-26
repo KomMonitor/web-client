@@ -72,16 +72,16 @@ export class FilterHelperService {
   applySpatialFilter_higherSpatialUnitFeatures(higherSpatialUnitFilterFeatureGeoJSON, targetFeatureNames) {
     //this.ajskommonitorFilterHelperServiceProvider.applySpatialFilter_higherSpatialUnitFeatures(higherSpatialUnitFilterFeatureGeoJSON, targetFeatureNames);
 
-     // if(!this.filteredIndicatorFeatureIds){
-    // }
-    let filteredIndicatorFeatureIds = new Map();
+    if (!this.filteredIndicatorFeatureIds) {
+      this.filteredIndicatorFeatureIds = new Map();
+    }
     // manage map of filtered features
     let targetHigherSpatialUnitFilterFeatures = higherSpatialUnitFilterFeatureGeoJSON.features.filter(feature => targetFeatureNames.includes(feature.properties[window.__env.FEATURE_NAME_PROPERTY_NAME]));
     for (const feature of this.exchangeData.selectedIndicator.geoJSON.features) {
-        filteredIndicatorFeatureIds.set("" + feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME], feature);
+        this.filteredIndicatorFeatureIds.set("" + feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME], feature);
         for (const higherSpatialUnitFeature of targetHigherSpatialUnitFilterFeatures) {
             if (turf.booleanPointInPolygon(turf.pointOnFeature(feature), higherSpatialUnitFeature)) {
-                filteredIndicatorFeatureIds.delete("" + feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME]);
+                this.filteredIndicatorFeatureIds.delete("" + feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME]);
                 break;
             }
         }

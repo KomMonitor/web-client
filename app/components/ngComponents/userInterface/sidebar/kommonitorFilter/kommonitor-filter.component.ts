@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { dualListInput, item } from 'components/ngComponents/customElements/dual-list-box/dual-list-box.component';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchange, DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
@@ -12,7 +12,7 @@ import * as noUiSlider from 'nouislider';
   templateUrl: './kommonitor-filter.component.html',
   styleUrls: ['./kommonitor-filter.component.css']
 })
-export class KommonitorFilterComponent implements OnInit {
+export class KommonitorFilterComponent implements OnInit, AfterViewInit{
 
   INDICATOR_DATE_PREFIX = window.__env.indicatorDatePrefix;
   /* kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
@@ -55,7 +55,8 @@ export class KommonitorFilterComponent implements OnInit {
   movRangeSlider;
 
   slider;
-  config: any  = {
+  measureSlider;
+  sliderNormalConfig: any  = {
     behaviour: 'drag',
     connect: true,
     range: {
@@ -63,6 +64,23 @@ export class KommonitorFilterComponent implements OnInit {
         'max': 100
     },
     start: [0,100],
+    keyboard: true, 
+    pips: {
+      mode: 'range',
+      density: 2,
+      values: 4,
+      stepped: true
+    }
+  };
+  
+  sliderSingleConfig: any  = {
+    behaviour: 'drag',
+    connect: true,
+    range: {
+        'min': 0,
+        'max': 100
+    },
+    start: [50],
     keyboard: true, 
     pips: {
       mode: 'range',
@@ -127,9 +145,16 @@ export class KommonitorFilterComponent implements OnInit {
           } break;
         }
       });
+  }
 
-      this.slider = document.getElementById('filterRangeSlider');
-      noUiSlider.create(this.slider, this.config);
+  ngAfterViewInit(): void {
+      
+
+    this.slider = document.getElementById('filterRangeSlider');
+    noUiSlider.create(this.slider, this.sliderNormalConfig);
+    
+    this.measureSlider = document.getElementById('measureOfValueSlider');
+    noUiSlider.create(this.measureSlider, this.sliderSingleConfig);
   }
 
   onUpdatedSelectedItems(items:any) {
@@ -296,7 +321,6 @@ export class KommonitorFilterComponent implements OnInit {
 								this.inputLowerFilterValue = this.valueRangeMinValue;
 								this.inputHigherFilterValue = this.valueRangeMaxValue;
 
-                // todo
                 this.slider.noUiSlider.updateOptions({
                   range: {
                       'min': this.valueRangeMinValue,
@@ -315,28 +339,6 @@ export class KommonitorFilterComponent implements OnInit {
                   this.onChangeRangeFilter(this.getFormatedSliderReturn());
                 });
 
-							/* 	$("#rangeSliderForFiltering").ionRangeSlider({
-										skin: "big",
-						        type: "double",
-						        min: this.valueRangeMinValue,
-						        max: this.valueRangeMaxValue,
-						        from: this.valueRangeMinValue,
-						        to: this.valueRangeMaxValue,
-								   	force_edges: true,
-										step: 0.01,
-						        grid: true,
-										prettify_enabled: true,
-										prettify_separator: "",
-										onChange: onChangeRangeFilter
-						    	}); */
-
-							/* 	this.rangeSliderForFilter = $("#rangeSliderForFiltering").data("ionRangeSlider");
-								// make sure that the handles are properly set to min and max values
-								this.rangeSliderForFilter.update({
-						        from: this.valueRangeMinValue,
-						        to: this.valueRangeMaxValue
-						    }); */
-
 							};
 
               getFormatedSliderReturn() {
@@ -353,6 +355,8 @@ export class KommonitorFilterComponent implements OnInit {
 
 								this.inputLowerFilterValue = value;
 
+                this.updateFilterRangeSlideronInputChange();
+
 								if((this.inputLowerFilterValue >= this.valueRangeMinValue) && (this.inputLowerFilterValue <= this.valueRangeMaxValue) && (this.inputLowerFilterValue <= this.inputHigherFilterValue)){	
 									this.currentLowerFilterValue = this.inputLowerFilterValue;
 									this.lowerFilterInputNotValid = false;
@@ -368,9 +372,18 @@ export class KommonitorFilterComponent implements OnInit {
 								}
 							};
 
+              updateFilterRangeSlideronInputChange() {
+
+                this.slider.noUiSlider.updateOptions({
+                  start: [this.inputLowerFilterValue, this.inputHigherFilterValue]
+                });
+              }
+
 							onChangeHigherFilterValue(value){
 
 								this.inputHigherFilterValue = value;
+
+                this.updateFilterRangeSlideronInputChange();
 
 								if((this.inputHigherFilterValue <= this.valueRangeMaxValue) && (this.inputHigherFilterValue >= this.valueRangeMinValue) && (this.inputLowerFilterValue <= this.inputHigherFilterValue)){
 									this.currentHigherFilterValue = this.inputHigherFilterValue;
@@ -417,7 +430,32 @@ export class KommonitorFilterComponent implements OnInit {
 							}
 
 							onChangeUseMeasureOfValue(){
+
+                let middle = this.valueRangeMinValue + ((this.valueRangeMaxValue-this.valueRangeMinValue)/2);
+
+                this.measureSlider.noUiSlider.updateOptions({
+                  range: {
+                      'min': this.valueRangeMinValue,
+                      'max': this.valueRangeMaxValue
+                  },
+                  start: [middle],
+                  step: 0.01,
+                  tooltips: true,
+                  pips: {
+                    mode: 'range',
+                    density: 25
+                  }
+                });
+              
+                this.measureSlider.noUiSlider.on('set', () => {
+                  let data = this.measureSlider.noUiSlider.get(true);
+
+                  this.exchangeData.measureOfValue = data;
+                  this.onMeasureOfValueChangeByText();
+                });
+
 								if(this.exchangeData.isBalanceChecked){
+
                   // todo
 								/* 	$rootScope.$broadcast("DisableBalance");
 									$rootScope.$broadcast("updateIndicatorValueRangeFilter", this.exchangeData.selectedDate, this.exchangeData.selectedIndicator); */
@@ -494,28 +532,22 @@ export class KommonitorFilterComponent implements OnInit {
                     }
                   }
 								}
+                
+                let middle = this.movMinValue + ((this.movMaxValue-this.movMinValue)/2);
 
-								// rangeSLider
-                // todo
-							/* 	$("#measureOfValueInput").ionRangeSlider({
-										skin: "big",
-						        type: "single",
-						        min: this.movMinValue,
-						        max: this.movMaxValue,
-						        from: this.movMiddleValue,
-								   	force_edges: true,
-										step: 0.01,
-						        grid: true,
-										prettify_enabled: true,
-										prettify_separator: "",
-										onChange: this.onMeasureOfValueChange
-						    }); */
-
-								this.movRangeSlider = $("#measureOfValueInput").data("ionRangeSlider");
-								// make sure that the handles are properly set to min and max values
-								this.movRangeSlider.update({
-						        from: this.movMiddleValue
-						    });
+                this.measureSlider.noUiSlider.updateOptions({
+                  range: {
+                      'min': this.movMinValue,
+                      'max': this.movMaxValue
+                  },
+                  start: [middle],
+                  step: 0.01,
+                  tooltips: true,
+                  pips: {
+                    mode: 'range',
+                    density: 25
+                  }
+                });
 
 								this.inputNotValid = false;
 
@@ -547,10 +579,11 @@ export class KommonitorFilterComponent implements OnInit {
 
 								if(this.exchangeData.measureOfValue >= this.movMinValue && this.exchangeData.measureOfValue <= this.movMaxValue){
 									this.inputNotValid = false;
-									this.movRangeSlider.update({
-							        from: this.exchangeData.measureOfValue
-							    });
+                  
 									// todo 
+								/* 	this.movRangeSlider.update({
+							        from: this.exchangeData.measureOfValue
+							    }); */
                   // $rootScope.$broadcast("changeMOV", this.exchangeData.measureOfValue);
 									this.mapService.restyleCurrentLayer();
 								}

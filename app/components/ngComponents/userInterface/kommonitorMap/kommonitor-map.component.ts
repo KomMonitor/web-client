@@ -2924,7 +2924,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   }
 
   restyleCurrentLayer([skipDiagramRefresh]) {
-console.log("restyle")
+console.log("restyle", this.filterHelperService.filteredIndicatorFeatureIds)
     // transparency = document.getElementById("indicatorTransparencyInput").value;
     // opacity = 1 - transparency;
     //

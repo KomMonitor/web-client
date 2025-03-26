@@ -60,7 +60,7 @@ export class VisualStyleHelperServiceNew {
   }
 
   setupManualBrew(numClasses, colorBrewerSchemeName, regionalDefaultBreaks) {
-    this.ajskommonitorVisualStyleHelperServiceProvider.setupManualBrew(numClasses, colorBrewerSchemeName, regionalDefaultBreaks);
+    return this.ajskommonitorVisualStyleHelperServiceProvider.setupManualBrew(numClasses, colorBrewerSchemeName, regionalDefaultBreaks);
   }
 
   setupDefaultBrew(geoJSON, indicatorPropertyName, numClasses, colorBrewerSchemeName, classifyMethod) {

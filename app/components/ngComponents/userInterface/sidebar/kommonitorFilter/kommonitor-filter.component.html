@@ -241,8 +241,7 @@
 					Schwellenwertklassifizierung bitte die unten stehende Checkbox nutzen.</p>
 			</div>
 
-			<div style="text-align: center" class="form-group"
-				*ngIf="exchangeData.selectedIndicator">
+			<div style="text-align: center" class="form-group">
 
 				<strong>Schwellenwertklassifizierung aktivieren/deaktivieren</strong>
 				&nbsp;
@@ -253,14 +252,13 @@
 					<span class="switchslider round"></span>
 				</label>
 
-				<div *ngIf="exchangeData.isMeasureOfValueChecked">
+				<div [hidden]="!exchangeData.isMeasureOfValueChecked">
 
 					<!-- <p>Verschieben des Schwellenwertes klassifiziert die dargestellten Indikatoren-Features unmittelbar neu. Ebenso passt sich die Anzahl an Klassen der beiden oben genannten Kategorien dynamisch an die Anzahl der zu klassifizierenden Features an.</p> -->
 					<br />
 
 					<div class="slidecontainer" style="position:relative">
-						<input [(ngModel)]="exchangeData.measureOfValue"
-							id="measureOfValueInput" type="text" class="js-range-slider" value="">
+						<div id="measureOfValueSlider"></div>
 
 						<!-- <input [(ngModel)]="$ctrl.kommonitorDataExchangeServiceInstance.measureOfValue" type="number" style="width:100px;" class="form-control" id="measureOfValueTextInput">
 									<br/>
