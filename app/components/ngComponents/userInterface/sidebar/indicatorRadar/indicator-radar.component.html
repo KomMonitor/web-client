@@ -1,0 +1,222 @@
+<div id="indicatorRadar">
+
+	<div style="text-align:center">
+		<div class="loading-overlay-sidebar ng-hide" *ngIf="!setupCompleted">
+					<span class="glyphicon glyphicon-refresh icon-spin"></span>
+		</div>
+	</div>
+
+	<p></p>
+
+	<!-- RADAR CHART CONFIG -->
+	<div  class="box box-primary">
+		<div class="box-header with-border">
+			<h3 class="box-title">Auswahl der darzustellenden Indikatoren</h3>
+
+			<div class="box-tools pull-right">
+				<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+				</button>
+			</div>
+		</div>
+		<div class="box-body">
+
+			<div *ngIf="diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime">
+
+        <input type="checkbox" id="sameUnit" [(ngModel)]="diagramHelperData.filterSameUnitAndSameTime" (change)="onChangeFilterSameUnitAndSameTime()">
+				<label class="switch" for="sameUnit">
+          <strong>nur gleicher Zeitschnitt</strong>									
+        </label>
+
+				<p></p>
+
+				<div id="radarInputForm">
+
+					<uib-tabset active="activeTab">
+						<uib-tab index="0" heading="Alphabetische Liste">
+
+							<div class="just-padding">
+
+								<div class="input-group">
+									<span class="input-group-addon"><i class="fas fa-filter"></i></span>
+									<input type="text" class="form-control input-sm" placeholder="Stichwortfilter" [(ngModel)]="indicatorNameFilter">
+								</div>
+
+								<p></p>
+
+								<table class="table table-condensed " style="margin-bottom:0px;">
+									<thead>
+										<th>
+											Indikator											
+										</th>
+										<th>
+											Zeitschnitt
+										</th>
+									</thead>
+									<tbody> <!--   | filter:indicatorNameFilter -->
+										<tr *ngFor='let input of diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime'>
+											<td>
+												<label class='checkbox-inline input-sm' ><input type="checkbox" value="input.indicatorMetadata.indicatorName" [(ngModel)]="input.isSelected" (change)="filterDisplayedIndicatorsOnRadar()">{{input.indicatorMetadata.indicatorName}}  </label>											
+											</td>
+											<td>
+												<select style="font-size: 11px; width:135px; padding: 0px;"
+													[(ngModel)]="input.selectedDate" (change)="onChangeSelectedDate(input)" ng-options="date as date for date in input.indicatorMetadata.applicableDates" ng-init="input.selectedDate = input.indicatorMetadata.applicableDates[input.indicatorMetadata.applicableDates.length - 1]"
+													class="form-control" required>
+												</select>
+											</td>
+										
+										</tr>	
+									</tbody>												
+								
+							</table>
+							</div>
+
+						</uib-tab>
+						<uib-tab index="1" heading="Auswahl aktueller Indikator" disable="kommonitorDataExchangeServiceInstance.selectedIndicator.creationType != 'COMPUTATION'">
+							
+							<div class="just-padding">
+								<table class="table table-condensed " style="margin-bottom:0px;">
+									<thead>
+										<th>
+											Indikator											
+										</th>
+										<th>
+											Typ											
+										</th>
+										<th>
+											Zeitschnitt
+										</th>
+									</thead>
+									<tbody>                       <!--   | filter:kommonitorDataExchangeServiceInstance.filterCurrentlySelectedIndicator() -->
+										<tr *ngFor='let input of diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime'>
+											<td>
+												<label class='checkbox-inline input-sm' ><input type="checkbox" value="input.indicatorMetadata.indicatorName" [(ngModel)]="input.isSelected" ng-init="input.isSelected = true" (change)="filterDisplayedIndicatorsOnRadar()">{{input.indicatorMetadata.indicatorName}}  </label>											
+											</td>
+											<td>
+												Ziel-Indikator (systemseitig berechnet)
+											</td>
+											<td>
+												<select style="font-size: 11px; width:135px; padding: 0px;"
+													[(ngModel)]="input.selectedDate" (change)="onChangeSelectedDate(input)" ng-options="date as date for date in input.indicatorMetadata.applicableDates" ng-init="input.selectedDate = input.indicatorMetadata.applicableDates[input.indicatorMetadata.applicableDates.length - 1]"
+													class="form-control" required>
+												</select>
+											</td>
+										
+										</tr>                   <!--   | filter:kommonitorDataExchangeServiceInstance.filterBaseIndicatorsOfCurrentComputationIndicator()  -->
+										<tr *ngFor='let input of diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime'>
+											<td>
+												<label class='checkbox-inline input-sm' ><input type="checkbox" value="input.indicatorMetadata.indicatorName" [(ngModel)]="input.isSelected" ng-init="input.isSelected = true" (change)="filterDisplayedIndicatorsOnRadar()">{{input.indicatorMetadata.indicatorName}}  </label>											
+											</td>
+											<td>
+												Basisindikator (Berechnungsgrundlage des Ziel-Indikators)
+											</td>
+											<td>
+												<select style="font-size: 11px; width:135px; padding: 0px;"
+													[(ngModel)]="input.selectedDate" (change)="onChangeSelectedDate(input)" ng-options="date as date for date in input.indicatorMetadata.applicableDates" ng-init="input.selectedDate = input.indicatorMetadata.applicableDates[input.indicatorMetadata.applicableDates.length - 1]"
+													class="form-control" required>
+												</select>
+											</td>
+										
+										</tr>	
+									</tbody>												
+								
+								</table>
+							</div>
+							
+						</uib-tab>
+						<uib-tab index="2" heading="Auswahl aktueller Leitindikator" disable="!kommonitorDataExchangeServiceInstance.selectedIndicator.isHeadlineIndicator">
+
+							<div class="just-padding">
+								<table class="table table-condensed " style="margin-bottom:0px;">
+									<thead>
+										<th>
+											Indikator											
+										</th>
+										<th>
+											Typ											
+										</th>
+										<th>
+											Zeitschnitt
+										</th>
+									</thead>
+									<tbody><!--   | filter:kommonitorDataExchangeServiceInstance.filterCurrentlySelectedIndicator()  -->
+										<tr *ngFor='let input of diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime'>
+											<td>
+												<label class='checkbox-inline input-sm' ><input type="checkbox" value="input.indicatorMetadata.indicatorName" [(ngModel)]="input.isSelected" ng-init="input.isSelected = true" (change)="filterDisplayedIndicatorsOnRadar()">{{input.indicatorMetadata.indicatorName}}  </label>											
+											</td>
+											<td>
+												Leitindikator
+											</td>
+											<td>
+												<select style="font-size: 11px; width:135px; padding: 0px;"
+													[(ngModel)]="input.selectedDate" (change)="onChangeSelectedDate(input)" ng-options="date as date for date in input.indicatorMetadata.applicableDates" ng-init="input.selectedDate = input.indicatorMetadata.applicableDates[input.indicatorMetadata.applicableDates.length - 1]"
+													class="form-control" required>
+												</select>
+											</td>
+										
+										</tr><!--  | filter:kommonitorDataExchangeServiceInstance.filterBaseIndicatorsOfCurrentHeadlineIndicator()  -->
+										<tr *ngFor='let input of diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime'>
+											<td>
+												<label class='checkbox-inline input-sm' ><input type="checkbox" value="input.indicatorMetadata.indicatorName" [(ngModel)]="input.isSelected" ng-init="input.isSelected = true" (change)="filterDisplayedIndicatorsOnRadar()">{{input.indicatorMetadata.indicatorName}}  </label>											
+											</td>
+											<td>
+												Basisindikator (Berechnungsgrundlage des Leitindikators)
+											</td>
+											<td>
+												<select style="font-size: 11px; width:135px; padding: 0px;"
+													[(ngModel)]="input.selectedDate" (change)="onChangeSelectedDate(input)" ng-options="date as date for date in input.indicatorMetadata.applicableDates" ng-init="input.selectedDate = input.indicatorMetadata.applicableDates[input.indicatorMetadata.applicableDates.length - 1]"
+													class="form-control" required>
+												</select>
+											</td>
+										
+										</tr>	
+									</tbody>												
+								
+								</table>
+							</div>
+							
+						</uib-tab>
+					</uib-tabset>
+
+				</div>
+
+			</div>
+
+		</div>
+		<!-- /.box-body -->
+	</div>
+	<!-- /.box -->
+
+	<!-- RADAR CHART -->
+				<div *ngIf="radarChart" style="margin-bottom: 0px;" class="box box-success">
+					<div class="box-header with-border">
+						<h3 class="box-title">Indikatorenradar - {{spatialUnitName}}</h3>
+
+						<div class="box-tools pull-right">
+							<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+							</button>
+						</div>
+					</div>
+					<div class="box-body">
+						<div class="chart">
+							<div id="radarDiagram" style="width:100%; min-height:60vh;"></div>
+						</div>
+					</div>
+					<!-- /.box-body -->
+				</div>
+				<!-- /.box -->
+
+			<div *ngIf="!radarChart" style="width:100%; min-height:300px; height: 300px;">
+
+				<div text-style="text-align:center" style="text-align:center" class="hiddenTable">
+					<div class="hiddenTableCell">
+						<div text-style="text-align:center" style="text-align:center" class="hiddenTableContent">
+								<h4>Radardiagramm kann nur angezeigt werden, wenn mindestens ein Indikator gew&auml;hlt ist.</h4>
+						</div>
+					</div>
+				</div>
+
+			</div>
+
+			
+
+</div>

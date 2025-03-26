@@ -79,6 +79,7 @@ export interface DataExchange {
   currentKomMonitorLoginRoleNames:any;
   currentKeycloakLoginGroups: any;
   currentKeycloakLoginRoles: any;
+  showDiagramExportButtons:any;
 }
 
 export interface KeycloakUser {
@@ -128,6 +129,7 @@ export interface Indicator {
   indicatorId: any;
   ogcServices: any;
   applicableDates: any;
+  creationType: any;
 }
 
 @Injectable({
@@ -261,5 +263,13 @@ export class DataExchangeService {
     const INDICATOR_DATE_PREFIX = window.__env.indicatorDatePrefix;
     let propertyName = INDICATOR_DATE_PREFIX + this.ajskommonitorDataExchangeServiceeProvider.selectedDate;
     return propertyName;
+  }
+
+  getIndicatorValueFromArray_asNumber(indicatorPropertyInstance, selectedDate) {
+    return this.ajskommonitorDataExchangeServiceeProvider.getIndicatorValueFromArray_asNumber(indicatorPropertyInstance, selectedDate);
+  }
+
+  formatIndicatorNameForLabel(value, num) {
+    return this.ajskommonitorDataExchangeServiceeProvider.formatIndicatorNameForLabel(value, num);
   }
 }

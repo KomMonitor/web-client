@@ -44,6 +44,7 @@ import { NouisliderModule } from 'ng2-nouislider';
 import { KommonitorDiagramsComponent } from './components/ngComponents/userInterface/sidebar/kommonitorDiagrams/kommonitor-diagrams.component';
 import { UserInterfaceComponent } from './components/ngComponents/userInterface/user-interface.component';
 import { NgbCollapseModule } from '@ng-bootstrap/ng-bootstrap';
+import { IndicatorRadarComponent } from './components/ngComponents/userInterface/sidebar/indicatorRadar/indicator-radar.component';
 
 
 
@@ -87,7 +88,8 @@ declare var MathJax;
     DualListBoxComponent,
     KommonitorBalanceComponent,
     KommonitorDiagramsComponent,
-    UserInterfaceComponent
+    UserInterfaceComponent,
+    IndicatorRadarComponent
   ],
   schemas: [
     CUSTOM_ELEMENTS_SCHEMA
@@ -139,14 +141,14 @@ export class AppModule implements DoBootstrap {
     /* angular.module('kommonitorUserInterface')
     .directive('infoModal',  downgradeComponent({ component: InfoModalComponent }) as angular.IDirectiveFactory); */
 
-    angular.module('kommonitorUserInterface')
+   /*  angular.module('kommonitorUserInterface')
     .directive('kommonitorLegendNew',  downgradeComponent({ component: KommonitorLegendComponent }) as angular.IDirectiveFactory);
 
     angular.module('kommonitorUserInterface')
     .directive('sidebarNew',  downgradeComponent({ component: SidebarComponent }) as angular.IDirectiveFactory);
 
     angular.module('kommonitorUserInterface')
-    .directive('kommonitorMapNew',  downgradeComponent({ component: KommonitorMapComponent }) as angular.IDirectiveFactory);
+    .directive('kommonitorMapNew',  downgradeComponent({ component: KommonitorMapComponent }) as angular.IDirectiveFactory); */
 
     console.log("registered downgraded Angular components for AngularJS usage");
   }
