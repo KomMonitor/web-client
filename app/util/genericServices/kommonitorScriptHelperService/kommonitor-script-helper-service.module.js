@@ -185,35 +185,6 @@ angular
         this.getScriptTypes();
       };
 
-      this.getToken = async function name() {
-        console.log("Trying to POST to keycloak");
-
-        var postBody =
-        {
-          "grant_type": "password",
-          "username": "cdb",
-          "password": "test123",
-          "client_id": "kommonitor-importer",
-          "client_secret": "7e545435-e4f4-4a07-bc7b-8c18780fed70"
-        };
-
-        return await $http({
-          url: "https://keycloak.fbg-hsbo.de/realms/kommonitor-essen/protocol/openid-connect/token",
-          method: "POST",
-          data: postBody,
-          headers: {
-            'Content-Type': "application/x-www-form-urlencoded"
-          }
-        }).then(function successCallback(response) {
-            console.log(response.data);
-
-          }, function errorCallback(response) {
-            //$scope.error = response.statusText;
-            console.error("Error getting token.");
-            throw response;
-        });
-      }
-
       this.getScriptTypes = async function(){
           console.log("Trying to GET processes");
 
