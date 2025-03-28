@@ -217,22 +217,37 @@ angular
       this.getScriptTypes = async function(){
           console.log("Trying to GET processes");
 
-          this.getToken().then(async function(){
-            return await $http({
-              url: "http://localhost:8099/processes/",
-              method: "GET",
-              headers: {
-                'Authorization': "Bearer " + "..."
-              }
-            }).then(function successCallback(response) {
-                console.log(response.data);
+          await $http({
+            url: "http://localhost:8099/processes/",
+            method: "GET",
+            headers: {
+              'Authorization': "Bearer " + "..."
+            }
+          }).then(function successCallback(response) {
+              console.log(response.data);
+    
+            }, function errorCallback(response) {
+              //$scope.error = response.statusText;
+              console.error("Error getting script types.");
+              throw response;
+          });
+
+          // this.getToken().then(async function(){
+          //   return await $http({
+          //     url: "http://localhost:8099/processes/",
+          //     method: "GET",
+          //     headers: {
+          //       'Authorization': "Bearer " + "..."
+          //     }
+          //   }).then(function successCallback(response) {
+          //       console.log(response.data);
       
-              }, function errorCallback(response) {
-                //$scope.error = response.statusText;
-                console.error("Error getting script types.");
-                throw response;
-            });
-          })
+          //     }, function errorCallback(response) {
+          //       //$scope.error = response.statusText;
+          //       console.error("Error getting script types.");
+          //       throw response;
+          //   });
+          // })
       }
 
       this.addBaseIndicator = function(indicatorMetadata){
