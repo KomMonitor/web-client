@@ -30,88 +30,7 @@ angular
 				}
       ];
 
-      this.availableScriptTypeOptions = [
-        {
-					"displayName": "Test Dynamischer Skripttyp",
-					"apiName": "test"
-				},
-				{
-					"displayName": "Generische Definition",
-					"apiName": "generic"
-				},
-				{
-					"displayName": "Indikatoren - Summe aller Indikatoren",
-					"apiName": "indicator_sum"
-        },
-				{
-					"displayName": "Indikatoren - Subtraktion von Basis-Indikatoren von einem Referenzindikator",
-					"apiName": "indicator_subtract"
-        },
-        {
-					"displayName": "(alt) Indikatoren - Prozentualer Anteil (Quotient zwischen Basis-Indikatoren und einem Referenzindikator)",
-					"apiName": "indicator_percentage"
-        },
-        {
-					"displayName": "Indikatoren - Anteil (Quotient zwischen Basis-Indikatoren und einem Referenzindikator)",
-					"apiName": "indicator_share"
-        },
-        {
-					"displayName": "Indikatoren - Division (Quotient zweier Indikatoren)",
-					"apiName": "indicator_division"
-        },
-        {
-					"displayName": "Indikatoren - Trend (mittels linearer Regression)",
-					"apiName": "indicator_trend"
-        },
-        {
-					"displayName": "Indikatoren - Kontinuität (mittels Pearson Korrelation)",
-					"apiName": "indicator_continuity"
-        },
-        {
-					"displayName": "(alt) Indikatoren - Veränderung absolut",
-					"apiName": "indicator_change_absolute_old"
-        },
-        {
-					"displayName": "Indikatoren - Veränderung absolut mit festem Referenz-Zeitpunkt",
-					"apiName": "indicator_change_absolute_refDate"
-        },
-        {
-					"displayName": "Indikatoren - Veränderung prozentual mit festem Referenz-Zeitpunkt",
-					"apiName": "indicator_change_relative_refDate"
-        },
-        {
-					"displayName": "Indikatoren - Veränderung prozentual",
-					"apiName": "indicator_change_relative"
-        },
-        {
-					"displayName": "Indikatoren - Promille-Wert (Quotient zwischen Basis-Indikatoren und einem Referenzindikator)",
-					"apiName": "indicator_promille"
-        },        
-        {
-					"displayName": "Leitindikator - verkettete Berechnung (Rank, Min-Max-Normalisierung, Aggregation)",
-					"apiName": "indicator_headlineIndicator"
-        },
-        {
-					"displayName": "(alt) Indikatoren - Produkt aller Indikatoren",
-					"apiName": "indicator_multiplication"
-        },
-        {
-					"displayName": "(alt) Georessourcen - Anzahl Punkte in Polygon",
-					"apiName": "georesource_pointsInPolygon_old"
-				},
-        {
-					"displayName": "Georessourcen - Statistiken anhand Objekteigenschaft (Punktdatensätze)",
-					"apiName": "georesource_statistics"
-				},
-        {
-					"displayName": "Georessourcen - Prozentualer Anteil anhand Objekteigenschaft (Punktdatensätze)",
-					"apiName": "georesource_subsetShare"
-				},
-        {
-					"displayName": "Georessourcen - Summierte Linienlänge je Polygon",
-					"apiName": "lineSegmentInPolygon"
-				}             
-			];
+      this.availableScriptTypeOptions = [];
 
       this.temporalOptions = [
 				{
@@ -181,44 +100,42 @@ angular
         this.scriptFormulaHTML_overwriteTargetIndicatorMethod = false;
         this.scriptFormulaExplanation = undefined;
         this.targetIndicatorOldProcessDescription = undefined;
-
-        this.getScriptTypes();
       };
 
       this.getScriptTypes = async function(){
           console.log("Trying to GET processes");
 
-          await $http({
+          return await $http({
             url: "http://localhost:8099/processes/",
-            method: "GET",
-            headers: {
-              'Authorization': "Bearer " + "..."
-            }
+            method: "GET"
           }).then(function successCallback(response) {
-              console.log(response.data);
+              console.log(response.data.processes);
+              return response.data.processes;
     
             }, function errorCallback(response) {
-              //$scope.error = response.statusText;
               console.error("Error getting script types.");
               throw response;
           });
+      }
 
-          // this.getToken().then(async function(){
-          //   return await $http({
-          //     url: "http://localhost:8099/processes/",
-          //     method: "GET",
-          //     headers: {
-          //       'Authorization': "Bearer " + "..."
-          //     }
-          //   }).then(function successCallback(response) {
-          //       console.log(response.data);
-      
-          //     }, function errorCallback(response) {
-          //       //$scope.error = response.statusText;
-          //       console.error("Error getting script types.");
-          //       throw response;
-          //   });
-          // })
+      this.getProcessDescription = async function(processId) {
+        console.log("Trying to GET process description for " + processId);
+
+        var self = this;
+        await $http({
+          url: "http://localhost:8099/processes/"+ processId,
+          method: "GET",
+          data: {
+            'f': 'json'
+          }
+        }).then(function successCallback(response) {
+            console.log(response.data);
+            self.scriptData = response.data;
+            $rootScope.$broadcast("processDescriptionFetched");
+          }, function errorCallback(response) {
+            console.error("Error getting process description.");
+            throw response;
+        });
       }
 
       this.addBaseIndicator = function(indicatorMetadata){

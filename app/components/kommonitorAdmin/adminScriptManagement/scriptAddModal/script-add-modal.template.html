@@ -324,7 +324,7 @@
 											</div>
 											<br />
 											<select ng-model="selectedScriptType" size="10"
-												ng-options="scriptType as scriptType.displayName for scriptType in $ctrl.kommonitorScriptHelperServiceInstance.availableScriptTypeOptions | orderBy: 'displayName' | filter:scriptNameFilter"
+												ng-options="scriptType as scriptType.title for scriptType in $ctrl.kommonitorScriptHelperServiceInstance.availableScriptTypeOptions | orderBy: 'title' | filter:scriptNameFilter"
 												class="form-control"
 												ng-change="onScriptTypeChanged()">
 												<option disabled selected value> -- Skript-Typ w&auml;hlen --
@@ -366,7 +366,7 @@
 								</div>-->
 
 								<!-- ACTUAL SCRIPT FIELDS DEPENDING ON SELECTION OF SCRIPT TYPE; AS ANGULAR MODULES -->
-								<div ng-if="selectedScriptType.apiName.includes('new')">
+								<div ng-if="selectedScriptType.id">
 									<script-test></script-test>
 								</div>
 								
