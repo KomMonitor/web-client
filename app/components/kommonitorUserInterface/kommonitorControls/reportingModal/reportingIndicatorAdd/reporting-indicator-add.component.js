@@ -2488,7 +2488,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			});
 
 			// add data element for the overall average
-			let overallAvgValue = $scope.getFormattedAvg($scope.selectedIndicator, timestamp, false);
+			let overallAvgValue = $scope.calculateAvg($scope.selectedIndicator, timestamp, false);
 			let overallAvgElementName = (page.area && page.area.length) ? "Durchschnitt\nder\nRaumebene" : "Durchschnitt der Raumebene";
 			let dataObjOverallAvg = {
 				name: overallAvgElementName,
@@ -2509,7 +2509,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 			// same for selection average
 			// add more data elements for the overall and selection average
-			let selectionAvgValue = $scope.getFormattedAvg($scope.selectedIndicator, timestamp, true);
+			let selectionAvgValue = $scope.calculateAvg($scope.selectedIndicator, timestamp, true);
 			let selectionAvgElementName = (page.area && page.area.length) ? "Durchschnitt\nder\nSelektion" : "Durchschnitt der Selektion";
 			let dataObjSelectionAvg = {
 				name: selectionAvgElementName,
