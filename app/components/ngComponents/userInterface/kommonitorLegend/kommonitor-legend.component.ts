@@ -73,7 +73,13 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
   model;
 
   ngOnInit(): void {
-    
+      
+      $(document).ready(function() {
+        $(".nav li.disabled a").click(function() {
+          return false;
+        });
+      });
+
       this.broadcastService.currentBroadcastMsg.subscribe(broadcastMsg => {
         let title = broadcastMsg.msg;
       });

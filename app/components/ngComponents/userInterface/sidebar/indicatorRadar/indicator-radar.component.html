@@ -22,7 +22,7 @@
 
 			<div *ngIf="diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime">
 
-        <input type="checkbox" id="sameUnit" [(ngModel)]="diagramHelperData.filterSameUnitAndSameTime" (change)="onChangeFilterSameUnitAndSameTime()">
+        <input type="checkbox" id="sameUnit" [(ngModel)]="diagramHelperService.filterSameUnitAndSameTime" (change)="onChangeFilterSameUnitAndSameTime()">
 				<label class="switch" for="sameUnit">
           <strong>nur gleicher Zeitschnitt</strong>									
         </label>
@@ -59,8 +59,9 @@
 											</td>
 											<td>
 												<select style="font-size: 11px; width:135px; padding: 0px;"
-													[(ngModel)]="input.selectedDate" (change)="onChangeSelectedDate(input)" ng-options="date as date for date in input.indicatorMetadata.applicableDates" ng-init="input.selectedDate = input.indicatorMetadata.applicableDates[input.indicatorMetadata.applicableDates.length - 1]"
+													(ngModel)="input.selectedDate" (change)="onChangeSelectedDate(input)"
 													class="form-control" required>
+                          <option *ngFor="let date of input.indicatorMetadata.applicableDates" [attr.selected]="date==input.indicatorMetadata.applicableDates[input.indicatorMetadata.applicableDates.length - 1] ? 'selected' : null">{{date}}</option>
 												</select>
 											</td>
 										
@@ -71,7 +72,7 @@
 							</div>
 
 						</uib-tab>
-						<uib-tab index="1" heading="Auswahl aktueller Indikator" disable="kommonitorDataExchangeServiceInstance.selectedIndicator.creationType != 'COMPUTATION'">
+						<uib-tab index="1" heading="Auswahl aktueller Indikator" [hidden]="exchangeData.selectedIndicator.creationType != 'COMPUTATION'">
 							
 							<div class="just-padding">
 								<table class="table table-condensed " style="margin-bottom:0px;">
@@ -87,7 +88,7 @@
 										</th>
 									</thead>
 									<tbody>                       <!--   | filter:kommonitorDataExchangeServiceInstance.filterCurrentlySelectedIndicator() -->
-										<tr *ngFor='let input of diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime'>
+										<tr *ngFor='let input of propertiesForCurrentlySelectedIndicator'>
 											<td>
 												<label class='checkbox-inline input-sm' ><input type="checkbox" value="input.indicatorMetadata.indicatorName" [(ngModel)]="input.isSelected" ng-init="input.isSelected = true" (change)="filterDisplayedIndicatorsOnRadar()">{{input.indicatorMetadata.indicatorName}}  </label>											
 											</td>
@@ -102,7 +103,7 @@
 											</td>
 										
 										</tr>                   <!--   | filter:kommonitorDataExchangeServiceInstance.filterBaseIndicatorsOfCurrentComputationIndicator()  -->
-										<tr *ngFor='let input of diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime'>
+										<tr *ngFor='let input of propertiesForBaseIndicatorsOfCurrentHeadlineIndicator'>
 											<td>
 												<label class='checkbox-inline input-sm' ><input type="checkbox" value="input.indicatorMetadata.indicatorName" [(ngModel)]="input.isSelected" ng-init="input.isSelected = true" (change)="filterDisplayedIndicatorsOnRadar()">{{input.indicatorMetadata.indicatorName}}  </label>											
 											</td>
@@ -123,9 +124,9 @@
 							</div>
 							
 						</uib-tab>
-						<uib-tab index="2" heading="Auswahl aktueller Leitindikator" disable="!kommonitorDataExchangeServiceInstance.selectedIndicator.isHeadlineIndicator">
+						<uib-tab index="2" heading="Auswahl aktueller Leitindikator" [hidden]="!exchangeData.selectedIndicator.isHeadlineIndicator">
 
-							<div class="just-padding">
+							<div class="just-padding">  
 								<table class="table table-condensed " style="margin-bottom:0px;">
 									<thead>
 										<th>
@@ -139,7 +140,7 @@
 										</th>
 									</thead>
 									<tbody><!--   | filter:kommonitorDataExchangeServiceInstance.filterCurrentlySelectedIndicator()  -->
-										<tr *ngFor='let input of diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime'>
+										<tr *ngFor='let input of propertiesForCurrentlySelectedIndicator'>
 											<td>
 												<label class='checkbox-inline input-sm' ><input type="checkbox" value="input.indicatorMetadata.indicatorName" [(ngModel)]="input.isSelected" ng-init="input.isSelected = true" (change)="filterDisplayedIndicatorsOnRadar()">{{input.indicatorMetadata.indicatorName}}  </label>											
 											</td>
@@ -154,7 +155,7 @@
 											</td>
 										
 										</tr><!--  | filter:kommonitorDataExchangeServiceInstance.filterBaseIndicatorsOfCurrentHeadlineIndicator()  -->
-										<tr *ngFor='let input of diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime'>
+										<tr *ngFor='let input of propertiesForBaseIndicatorsOfCurrentHeadlineIndicator'>
 											<td>
 												<label class='checkbox-inline input-sm' ><input type="checkbox" value="input.indicatorMetadata.indicatorName" [(ngModel)]="input.isSelected" ng-init="input.isSelected = true" (change)="filterDisplayedIndicatorsOnRadar()">{{input.indicatorMetadata.indicatorName}}  </label>											
 											</td>
@@ -187,7 +188,7 @@
 	<!-- /.box -->
 
 	<!-- RADAR CHART -->
-				<div *ngIf="radarChart" style="margin-bottom: 0px;" class="box box-success">
+				<div [hidden]="!radarChart" style="margin-bottom: 0px;" class="box box-success">
 					<div class="box-header with-border">
 						<h3 class="box-title">Indikatorenradar - {{spatialUnitName}}</h3>
 

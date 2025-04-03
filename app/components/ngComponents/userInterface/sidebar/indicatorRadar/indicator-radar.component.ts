@@ -25,8 +25,10 @@ export class IndicatorRadarComponent implements OnInit {
   setupCompleted = true;
   radarOption:any;
 
-  diagramHelperData!:any;
   exchangeData!: DataExchange;
+
+  propertiesForCurrentlySelectedIndicator!:any;
+  propertiesForBaseIndicatorsOfCurrentHeadlineIndicator!: any;
 
   constructor(
     protected diagramHelperService: DiagramHelperServiceService,
@@ -34,11 +36,28 @@ export class IndicatorRadarComponent implements OnInit {
     private filterHelperService: FilterHelperService,
     private broadcastService: BroadcastService
   ) {
-    this.diagramHelperData = this.diagramHelperService.pipedData;
     this.exchangeData = this.dataExchangeService.pipedData;
   }
 
   ngOnInit(): void {
+
+    setTimeout(() => {
+      this.diagramHelperService.setupIndicatorPropertiesForCurrentSpatialUnitAndTime(true);
+
+      this.propertiesForCurrentlySelectedIndicator = this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime.filter(e => e.indicatorMetadata.indicatorId === this.exchangeData.selectedIndicator.indicatorId);
+      this.propertiesForBaseIndicatorsOfCurrentHeadlineIndicator = this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime.filter(e => {
+
+        var headlineIndicatorEntry = this.exchangeData.headlineIndicatorHierarchy.filter(element => element.headlineIndicator.indicatorId == this.exchangeData.selectedIndicator.indicatorId)[0];
+
+        if(headlineIndicatorEntry){
+          var baseIndicators_filtered = headlineIndicatorEntry.baseIndicators.filter(element => element.indicatorId == e.indicatorMetadata.indicatorId);
+          if (baseIndicators_filtered.length > 0){
+            return true;
+          }
+        }
+        return false;
+      });
+    },2000);
 
     this.broadcastService.currentBroadcastMsg.subscribe(result => {
       let msg = result.msg;
@@ -65,10 +84,6 @@ export class IndicatorRadarComponent implements OnInit {
         } break;
       }
     });
-
-    setTimeout(() => {
-      this.diagramHelperService.setupIndicatorPropertiesForCurrentSpatialUnitAndTime(true);
-    },1000)
   }
 
   // initialize any adminLTE box widgets
@@ -92,8 +107,8 @@ export class IndicatorRadarComponent implements OnInit {
           this.radarChart.dispose();
           this.radarChart = echarts.init(document.getElementById('radarDiagram'));
       }
-      this.diagramHelperData.indicatorPropertiesForCurrentSpatialUnitAndTime = [];
-      this.diagramHelperService.setupIndicatorPropertiesForCurrentSpatialUnitAndTime(this.diagramHelperData.filterSameUnitAndSameTime);
+      this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime = [];
+      this.diagramHelperService.setupIndicatorPropertiesForCurrentSpatialUnitAndTime(this.diagramHelperService.filterSameUnitAndSameTime);
   };
 
   onUpdateDiagrams([indicatorMetadataAndGeoJSON, spatialUnitName, spatialUnitId, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, justRestyling]) {
@@ -119,7 +134,7 @@ export class IndicatorRadarComponent implements OnInit {
           // explicitly kill and reinstantiate radar diagram to avoid zombie states on spatial unit change
           this.radarChart.dispose();
           this.radarChart = echarts.init(document.getElementById('radarDiagram'));
-          this.diagramHelperData.indicatorPropertiesForCurrentSpatialUnitAndTime = new Array();
+          this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime = new Array();
       }
       this.radarChart.showLoading();
       this.diagramHelperService.setupIndicatorPropertiesForCurrentSpatialUnitAndTime();
@@ -130,12 +145,12 @@ export class IndicatorRadarComponent implements OnInit {
       if (this.exchangeData.selectedIndicator.isHeadlineIndicator) {
           this.activeTab = 2;
       }
-      this.modifyRadarContent(this.diagramHelperData.indicatorPropertiesForCurrentSpatialUnitAndTime);
+      this.modifyRadarContent(this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime);
   };
 
   onChangeSelectedDate(input) {
       if (input.isSelected) {
-          this.modifyRadarContent(this.diagramHelperData.indicatorPropertiesForCurrentSpatialUnitAndTime);
+          this.modifyRadarContent(this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime);
       }
   };
 
@@ -160,6 +175,7 @@ export class IndicatorRadarComponent implements OnInit {
       var sampleProperties = null;
       for (var i = 0; i < indicatorsForRadar.length; i++) {
           if (indicatorsForRadar[i].isSelected) {
+            
               this.diagramHelperService.fetchIndicatorPropertiesIfNotExists(i);
               // make object to hold indicatorName, max value and average value
               var indicatorProperties = indicatorsForRadar[i].indicatorProperties;
@@ -436,11 +452,11 @@ export class IndicatorRadarComponent implements OnInit {
           borderWidth: 2
       };
       // for each indicator create series data entry for feature
-      for (var i = 0; i < this.diagramHelperData.indicatorPropertiesForCurrentSpatialUnitAndTime.length; i++) {
-          if (this.diagramHelperData.indicatorPropertiesForCurrentSpatialUnitAndTime[i].isSelected) {
+      for (var i = 0; i < this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime.length; i++) {
+          if (this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime[i].isSelected) {
               // make object to hold indicatorName, max value and average value
-              var indicatorProperties = this.diagramHelperData.indicatorPropertiesForCurrentSpatialUnitAndTime[i].indicatorProperties;
-              var date = this.diagramHelperData.indicatorPropertiesForCurrentSpatialUnitAndTime[i].selectedDate;
+              var indicatorProperties = this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime[i].indicatorProperties;
+              var date = this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime[i].selectedDate;
               for (var indicatorPropertyInstance of indicatorProperties) {
                   if (indicatorPropertyInstance[window.__env.FEATURE_NAME_PROPERTY_NAME] == featureProperties[window.__env.FEATURE_NAME_PROPERTY_NAME]) {
                       if (!this.dataExchangeService.indicatorValueIsNoData(indicatorPropertyInstance[this.DATE_PREFIX + date])) {
@@ -528,20 +544,20 @@ export class IndicatorRadarComponent implements OnInit {
 
   filterDisplayedIndicatorsOnRadar() {
       console.log("Filtering indicator radar");
-      this.modifyRadarContent(this.diagramHelperData.indicatorPropertiesForCurrentSpatialUnitAndTime);
+      this.modifyRadarContent(this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime);
   }
 
   selectAllIndicatorsForRadar() {
-      for (var indicator of this.diagramHelperData.indicatorPropertiesForCurrentSpatialUnitAndTime) {
+      for (var indicator of this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime) {
           indicator.isSelected = true;
       }
-      this.modifyRadarContent(this.diagramHelperData.indicatorPropertiesForCurrentSpatialUnitAndTime);
+      this.modifyRadarContent(this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime);
   }
 
   deselectAllIndicatorsForRadar() {
-      for (var indicator of this.diagramHelperData.indicatorPropertiesForCurrentSpatialUnitAndTime) {
+      for (var indicator of this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime) {
           indicator.isSelected = false;
       }
-      this.modifyRadarContent(this.diagramHelperData.indicatorPropertiesForCurrentSpatialUnitAndTime);
+      this.modifyRadarContent(this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime);
   };
 }

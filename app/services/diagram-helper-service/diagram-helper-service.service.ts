@@ -2,6 +2,7 @@ import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { ajskommonitorDiagramHelperServiceProvider } from './../../app-upgraded-providers';
 import { Inject, Injectable } from '@angular/core';
 import { DataExchange, DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root'
@@ -10,13 +11,15 @@ export class DiagramHelperServiceService {
   
   pipedData:any;
   indicatorPropertiesForCurrentSpatialUnitAndTime;
+  filterSameUnitAndSameTime = false;
 
   exchangeData!: DataExchange;
 
   public constructor(
     @Inject('kommonitorDiagramHelperService') private ajskommonitorDiagramHelperServiceProvider: any, // eslint-disable-line @typescript-eslint/no-explicit-any,
     private broadcastService: BroadcastService,
-    private dataExchangeService: DataExchangeService
+    private dataExchangeService: DataExchangeService,
+    private http: HttpClient
   ) {
     this.pipedData = this.ajskommonitorDiagramHelperServiceProvider;
     this.exchangeData = this.dataExchangeService.pipedData;
@@ -93,11 +96,31 @@ export class DiagramHelperServiceService {
         
       }
     });
-
    this.broadcastService.broadcast("allIndicatorPropertiesForCurrentSpatialUnitAndTime setup completed");
   }
   
-  fetchIndicatorPropertiesIfNotExists(i) {
-    this.ajskommonitorDiagramHelperServiceProvider.fetchIndicatorPropertiesIfNotExists(i);
+  fetchIndicatorPropertiesIfNotExists(index) {
+
+    if(this.indicatorPropertiesForCurrentSpatialUnitAndTime[index].indicatorProperties === null || this.indicatorPropertiesForCurrentSpatialUnitAndTime[index].indicatorProperties === undefined){
+      // var dateComps = kommonitorDataExchangeService.selectedDate.split("-");
+      //
+      // 	var year = dateComps[0];
+      // 	var month = dateComps[1];
+      // 	var day = dateComps[2];
+      this.indicatorPropertiesForCurrentSpatialUnitAndTime[index].indicatorProperties = this.fetchIndicatorProperties(this.indicatorPropertiesForCurrentSpatialUnitAndTime[index].indicatorMetadata, this.exchangeData.selectedSpatialUnit.spatialUnitId);
+    }
   }
+
+  fetchIndicatorProperties(indicatorMetadata, spatialUnitId) {
+
+    let url = this.dataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/indicators/" + indicatorMetadata.indicatorId + "/" + spatialUnitId + "/without-geometry";
+    this.http.get(url).subscribe({
+      next: (response:any) => {
+        return response;
+      },
+      error: error => {
+        this.dataExchangeService.displayMapApplicationError(error);
+      }
+    });
+  };
 }

@@ -245,8 +245,8 @@
 
                   <br />
 
-                  <div ng-switch="visualStyleData.classifyMethod">
-                    <div ng-switch-when="manual">
+                  <div [ngSwitch]="visualStyleData.classifyMethod">
+                    <div *ngSwitchCase="'manual'">
                       <!-- manual classification -->
                       <div class="row" style="margin-right: 0px;" *ngFor="let color of visualStyleData.manualBrew?.colors; let i = index">
                         <div class="col-md-3 ">
@@ -263,7 +263,7 @@
                         <div class="col-md-3 ">{{visualStyleData.featuresPerColorMap.get(color) || 0}}</div>
                       </div>
                     </div>
-                    <div ng-switch-default>
+                    <div *ngSwitchDefault>
                       <!-- default values -->
                       <div class="row" style="margin-right: 0px;" *ngFor="let color of visualStyleData.defaultBrew?.colors; let i = index">
                         <div class="col-md-3 "><i [ngStyle]="{background: color, opacity: visualStyleData.currentIndicatorOpacity}"></i> </div>
