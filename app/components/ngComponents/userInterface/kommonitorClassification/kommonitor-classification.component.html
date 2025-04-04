@@ -41,6 +41,7 @@
 
     <div title="Hier können Sie die Klassifizierungsmethode ändern.">
       <div style="font-weight: bold;">Methode</div>
+      <app-classification-method-select [defaultMethodId]="visualStyleData.classifyMethod" [hiddenMethodIds]="hiddenMethodIds" (onMethodSelect)="onMethodSelected($event)"></app-classification-method-select>
       <!-- todo  -->
       <!-- <classification-method-select 
         on-method-selected="onMethodSelected(method)"

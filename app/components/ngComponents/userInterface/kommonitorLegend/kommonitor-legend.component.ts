@@ -33,6 +33,8 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
   isLegendCollapsed = false;
   isStatisticCollapsed = true;
 
+  classificationCollapsed = true;
+
   @Input() onupdatelegenddisplaydata!:any;
 
   constructor(

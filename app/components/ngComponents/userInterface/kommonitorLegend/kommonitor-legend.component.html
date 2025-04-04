@@ -288,19 +288,18 @@
                 <div id="kommonitorIndicatorClassification">
                   <div 
                   id="indicatorClassificationCollapse"
-                  ng-model="classificationCollapsed" 
-                  ng-click="classificationCollapsed=!classificationCollapsed"
+                  (click)="classificationCollapsed=!classificationCollapsed"
                   style="font-size:1.0em; cursor:pointer; margin-top: 16px;"
                   title="Klassifikation anpassen">
                   <span style="font-size:1.5em;" class="fas fa-cogs"></span> &nbsp; &nbsp;Klassifikation anpassen
                 </div>
-                <div ng-show="classificationCollapsed" 
+                <div [hidden]="classificationCollapsed" 
                   class="box boxedLegend with-border"
                   style="border-top: 1px solid #d2d6de; margin-top: 5px;">								
                   <div class="box-header with-border">
                     <h3 class="box-title">Klassifikation anpassen</h3>
                     <div class="box-tools pull-right">
-                      <button type="button" class="close" ng-click="classificationCollapsed=!classificationCollapsed">×</button>
+                      <button type="button" class="close" (click)="classificationCollapsed=!classificationCollapsed">×</button>
                     </div>
                   </div>
                   <div class="box-body">

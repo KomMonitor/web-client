@@ -245,6 +245,9 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       let values:any = broadcastMsg.values;
 
       switch (title) {
+        case 'changeClassifyMethod': {
+          this.changeClassifyMethod(values);
+        } break;
         case 'changeNumClasses' : {
           this.changeNumClasses(values);
         } break;
@@ -3059,12 +3062,12 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
             this.applyRegionalDefaultClassification(this.currentIndicatorMetadataAndGeoJSON);
           }
           else if(this.visualData.classifyMethod == 'manual') {
-            let manualBrew = this.visualStyleHelperService.setupManualBrew(
+            this.manualBrew = this.visualStyleHelperService.setupManualBrew(
               this.visualData.numClasses, 
               this.currentIndicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName, 
               this.visualData.manualBrew.breaks);
             
-            this.visualData.manualBrew = manualBrew;
+            this.visualData.manualBrew = this.manualBrew;
           }
 
           this.currentIndicatorLayer.eachLayer((layer) => {

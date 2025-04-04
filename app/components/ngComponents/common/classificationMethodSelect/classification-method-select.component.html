@@ -1,1 +1,22 @@
-<p>classification-method-select works!</p>
+<div id="classificationMethodSelect">
+  <div 
+    id="method-select-selected" 
+    class="form-control"
+    (click)="showMethodSelection = !showMethodSelection">
+    {{selectedMethod.name}}
+  </div>
+  <div [hidden]="!showMethodSelection" id="method-select-selection" class="select-border"> 
+    <div 
+      id="method-select-method"
+      (click)="methodSelected(method)" 
+      *ngFor="let method of preppedMethods">
+      <div class="method-select-method-symbol">
+        <div style="background-image: url('{{ method.imgPath }}')"></div>
+      </div>
+      <div class="method-select-method-text">
+        <div class="method-select-method-name">{{method.name}}</div>
+        <div class="method-select-method-description">{{method.description}}</div>
+      </div>
+    </div>
+  </div>
+</div>
