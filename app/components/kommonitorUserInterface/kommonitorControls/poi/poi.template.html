@@ -160,8 +160,8 @@
                       ng-attr-title="{{::mainTopic.topicDescription}}" class="collapseTrigger"
                       style="color: white;" ng-click="isCollapsed_mainTopic = !isCollapsed_mainTopic"
                       ng-init="isCollapsed_mainTopic=true"><i
-                        class="glyphicon glyphicon-chevron-right"></i>{{::mainTopic.topicName}}
-                      ({{mainTopic.totalCount}})</a></a>
+                        class="glyphicon " ng-class="isCollapsed_mainTopic? 'glyphicon-chevron-right' : 'glyphicon-chevron-down'"></i>{{::mainTopic.topicName}}
+                      ({{mainTopic.totalCount}})</a>
                     &nbsp;&nbsp; <input type="checkbox" ng-model="mainTopic.isSelected"
                       value="mainTopic.isSelected" id="showAllForTopic_{{::mainTopic.topicId}}"
                       ng-change="handleShowAllOnTopic(mainTopic)">
@@ -181,7 +181,7 @@
                         ng-attr-title="{{::subTopic.topicDescription}}" href=""
                         ng-click="isCollapsed_subTopic = !isCollapsed_subTopic"
                         ng-init="isCollapsed_subTopic=true"><i
-                          class="glyphicon glyphicon-chevron-right"></i>{{::subTopic.topicName}}
+						class="glyphicon " ng-class="isCollapsed_subTopic? 'glyphicon-chevron-right' : 'glyphicon-chevron-down'"></i>{{::subTopic.topicName}}
                         ({{subTopic.totalCount}})</a>
                       &nbsp;&nbsp; <input type="checkbox" ng-model="subTopic.isSelected"
                         value="subTopic.isSelected" id="showAllForTopic_{{::subTopic.topicId}}"
@@ -202,7 +202,7 @@
                           style="color: black;" ng-attr-title="{{::subsubTopic.topicDescription}}"
                           href="" ng-click="isCollapsed_subsubTopic = !isCollapsed_subsubTopic"
                           ng-init="isCollapsed_subsubTopic=true"><i
-                            class="glyphicon glyphicon-chevron-right"></i>{{::subsubTopic.topicName}}
+						  class="glyphicon " ng-class="isCollapsed_subsubTopic? 'glyphicon-chevron-right' : 'glyphicon-chevron-down'"></i>{{::subsubTopic.topicName}}
                           ({{subsubTopic.totalCount}})</a>
                         &nbsp;&nbsp; <input type="checkbox" ng-model="subsubTopic.isSelected"
                           value="subsubTopic.isSelected"
@@ -224,7 +224,7 @@
                             ng-attr-title="{{::subsubsubTopic.topicDescription}}"
                             ng-click="isCollapsed_subsubsubTopic = !isCollapsed_subsubsubTopic"
                             ng-init="isCollapsed_subsubsubTopic=true"><i
-                            class="glyphicon glyphicon-chevron-right"></i>{{::subsubsubTopic.topicName}}
+                            class="glyphicon " ng-class="isCollapsed_subsubsubTopic? 'glyphicon-chevron-right' : 'glyphicon-chevron-down'"></i>{{::subsubsubTopic.topicName}}
                             ({{subsubsubTopic.totalCount}})</a>
                           &nbsp;&nbsp; <input type="checkbox" ng-model="subsubsubTopic.isSelected"
                             value="subsubsubTopic.isSelected"

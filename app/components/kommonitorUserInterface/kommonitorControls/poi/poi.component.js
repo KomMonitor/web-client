@@ -110,34 +110,35 @@ angular
 								var addClickListenerToEachCollapseTrigger = function(){
 									setTimeout(function(){
 										$('.list-group-item > .collapseTrigger').on('click', function() {
-									    $('.glyphicon', this)
-									      .toggleClass('glyphicon-chevron-right')
-									      .toggleClass('glyphicon-chevron-down');
+											$('.glyphicon', this)
+											.toggleClass('glyphicon-chevron-right')
+											.toggleClass('glyphicon-chevron-down')
+											.toggleClass('test');
 
-												// manage uncollapsed entries
-												// var clickedTopicId = $(this).attr('id');
-												// if ($scope.unCollapsedTopicIds.includes(clickedTopicId)){
-												// 	var index = $scope.unCollapsedTopicIds.indexOf(clickedTopicId);
-												// 	$scope.unCollapsedTopicIds.splice(index, 1);
-												// }
-												// else{
-												// 	$scope.unCollapsedTopicIds.push(clickedTopicId);
-												// }
-									  });
+													// manage uncollapsed entries
+													// var clickedTopicId = $(this).attr('id');
+													// if ($scope.unCollapsedTopicIds.includes(clickedTopicId)){
+													// 	var index = $scope.unCollapsedTopicIds.indexOf(clickedTopicId);
+													// 	$scope.unCollapsedTopicIds.splice(index, 1);
+													// }
+													// else{
+													// 	$scope.unCollapsedTopicIds.push(clickedTopicId);
+													// }
+										});
                     
-                    // addClass "clickBound" sets trigger, that listener has been added, not:.clickBound filters for that. otherwise multiple listeners will be added
-                    $('.list-group-item > .georesourcesFavCollapseTrigger:not(.clickBound)').addClass('clickBound').on('click', function() {
-									    $('.glyphicon', this)
-									      .toggleClass('glyphicon-chevron-right')
-									      .toggleClass('glyphicon-chevron-down');
+										// addClass "clickBound" sets trigger, that listener has been added, not:.clickBound filters for that. otherwise multiple listeners will be added
+										$('.list-group-item > .georesourcesFavCollapseTrigger:not(.clickBound)').addClass('clickBound').on('click', function() {
+															$('.glyphicon', this)
+															.toggleClass('glyphicon-chevron-right')
+															.toggleClass('glyphicon-chevron-down');
 
-                      // manage entries
-                      var clickedTopicId = $(this).attr('id');
-                      if(document.getElementById('georesourcesFavSubTopic-'+clickedTopicId).style.display=='none')
-                        document.getElementById('georesourcesFavSubTopic-'+clickedTopicId).style.display = 'block';
-                      else
-                        document.getElementById('georesourcesFavSubTopic-'+clickedTopicId).style.display = 'none';
-									  });
+										// manage entries
+										var clickedTopicId = $(this).attr('id');
+										if(document.getElementById('georesourcesFavSubTopic-'+clickedTopicId).style.display=='none')
+											document.getElementById('georesourcesFavSubTopic-'+clickedTopicId).style.display = 'block';
+										else
+											document.getElementById('georesourcesFavSubTopic-'+clickedTopicId).style.display = 'none';
+														});
 									}, 500);
 								};
 
@@ -147,9 +148,9 @@ angular
 								}); */
 
                 $scope.$on("initialMetadataLoadingCompleted", function (event) {
-                  $scope.georesourceFavTopicsTree = prepTopicsTree(kommonitorDataExchangeService.topicGeoresourceHierarchy,0,undefined);
-                  
-									addClickListenerToEachCollapseTrigger();
+                  $scope.georesourceFavTopicsTree = prepTopicsTree(kommonitorDataExchangeService.topicGeoresourceHierarchy,0,undefined); 
+				  
+				  addClickListenerToEachCollapseTrigger();
 
                   var userInfo = kommonitorFavService.getUserInfo();
                   if(userInfo.georesourceFavourites) {
@@ -913,6 +914,10 @@ angular
 										kommonitorMapService.removeWmsLayerFromMap(dataset);
 
 									}
+
+									// on WMS layer visibility change we must inform legend control 
+									// it decides if an additional WMS legend is displayed if at least one WMS layer is active
+									$rootScope.$broadcast("WMSLayerVisibilityChanged");
 								};
 
 								$scope.adjustWMSLayerTransparency = function(dataset){
@@ -981,7 +986,10 @@ angular
 
 									$scope.isCollapsed_noTopic = ! $scope.isCollapsed_noTopic;
 
-									$scope.digest();
+									$timeout(function(){
+										$scope.$digest();
+									});
+									
 								}
 
                 $scope.georesourceTopicFavSelected = function(topicId) {

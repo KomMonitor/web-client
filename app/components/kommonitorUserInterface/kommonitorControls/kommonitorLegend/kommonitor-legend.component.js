@@ -52,6 +52,16 @@ angular
 							$rootScope.$broadcast("changeIndicatorDate");
 						};
 
+						$scope.hasActiveWMSLayers = function(){
+							return kommonitorDataExchangeService.wmsDatasets.filter(item => item.isSelected).length > 0;
+						}
+
+						$rootScope.$on("WMSLayerVisibilityChanged", function(event){
+							$timeout(function(){
+								$scope.$digest();
+							})
+							
+						});
 						
 						$scope.filterSpatialUnits = function(){
 							return function( item ) {
