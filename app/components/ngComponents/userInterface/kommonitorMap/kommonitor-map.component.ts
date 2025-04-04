@@ -94,7 +94,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   currentGeoJSONOfCurrentLayer;
   currentIndicatorContainsZeroValues = false;
   currentIndicatorContainsNoDataValues = false;
-  indicatorTypeOfCurrentLayer;
+  indicatorTypeOfCurrentLayer:any[] = [];
   defaultColorForZeroValues = window.__env.defaultColorForZeroValues;
 
   customIndicatorPropertyName;
@@ -245,6 +245,9 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       let values:any = broadcastMsg.values;
 
       switch (title) {
+        case 'changeNumClasses' : {
+          this.changeNumClasses(values);
+        } break;
         case 'replaceIndicatorAsGeoJSON': {
           setTimeout(() => this.onReplaceIndicatorAsGeoJSON(values), 2000);
         } break;
@@ -319,9 +322,6 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         } break;
         case 'changeBreaks' : {
           this.changeBreaks(values);
-        } break;
-        case 'changeDynamicBreaks' : {
-          this.changeDynamicBreaks(values);
         } break;
         case 'recenterMapOnSidebarAction' : {
           this.recenterMapOnSidebarAction(values);
@@ -1207,7 +1207,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     setTimeout(() => { 
       this.visualData.manualBrew.breaks = breaks;
       this.updateManualMOVBreaksFromDefaultManualBreaks();
-      this.broadcastService.broadcast("restyleCurrentLayer", false);
+      this.broadcastService.broadcast("restyleCurrentLayer", [false]);
     }, 1);
   }
   
@@ -1241,7 +1241,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     }, 1);
     this.updateManualMOVBreaksFromDefaultManualBreaks();
 
-    this.broadcastService.broadcast("restyleCurrentLayer", false);
+    this.broadcastService.broadcast("restyleCurrentLayer", [false]);
   }
 /*
   $scope.$on("changeMOV", function (event, mov) {
@@ -2920,11 +2920,10 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
   allIndicatorPropertiesForCurrentSpatialUnitAndTime_setup_begin() {
     this.updateManualMOVBreaksFromDefaultManualBreaks();
-    this.broadcastService.broadcast("restyleCurrentLayer", false);
+    this.broadcastService.broadcast("restyleCurrentLayer", [false]);
   }
 
   restyleCurrentLayer([skipDiagramRefresh]) {
-console.log("restyle", this.filterHelperService.filteredIndicatorFeatureIds)
     // transparency = document.getElementById("indicatorTransparencyInput").value;
     // opacity = 1 - transparency;
     //

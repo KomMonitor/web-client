@@ -375,7 +375,8 @@ export class KommonitorBalanceComponent implements OnInit {
 
         dateStringToMs(dateStr) {
           let parts = dateStr.split(' ');
-          let offset = new Date().getTimezoneOffset()*60*1000;
+          // get timezoneOffset w/o daylight saving time by referencing a specific date
+          let offset = new Date('November 1, 2000 00:00:00').getTimezoneOffset()*60*1000;
          
           let tms = new Date(parts[2]+'-'+(this.months.indexOf(parts[1])+1)+'-'+parts[0].replace('.','')+'T00:00:00Z').getTime();
           return tms+offset;
@@ -383,7 +384,7 @@ export class KommonitorBalanceComponent implements OnInit {
 
         createNewBalanceInstance(){
           this.datesAsMs = this.createDatesFromIndicatorDates(this.exchangeData.selectedIndicator.applicableDates);
-
+ 
           this.slider.noUiSlider.updateOptions({
             range: {
                 'min': 0, // index from
@@ -413,10 +414,11 @@ export class KommonitorBalanceComponent implements OnInit {
               }
             }
           });
-        
-          this.slider.noUiSlider.on('set', () => {
+       
+          // fehler hier 
+         /*  this.slider.noUiSlider.on('set', () => {
             this.onChangeBalanceRange(this.getFormatedSliderReturn());
-          });
+          }); */
 
           if (!this.exchangeData.isBalanceChecked){
             // deactivate balance slider
@@ -442,22 +444,23 @@ export class KommonitorBalanceComponent implements OnInit {
           this.targetDate = date;
           this.targetIndicatorProperty = this.INDICATOR_DATE_PREFIX + date;
 
-          if(!this.rangeSliderForBalance){
+    // hier fehler
+           if(!this.slider){
             // create new instance
             this.createNewBalanceInstance();
           }
-          else {
+         else {
 
             if(this.exchangeData.indicatorAndMetadataAsBalance){
               if (this.exchangeData.selectedIndicator.indicatorName != this.exchangeData.indicatorAndMetadataAsBalance.indicatorName){
-                this.removeOldInstance();
+                //this.removeOldInstance();
 
                 // create new instance
                 this.createNewBalanceInstance();
               }
             }
             else{
-              this.removeOldInstance();
+              //this.removeOldInstance();
               this.createNewBalanceInstance();
             }
 

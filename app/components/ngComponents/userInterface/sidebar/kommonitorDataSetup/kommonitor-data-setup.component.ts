@@ -24,7 +24,6 @@ export class KommonitorDataSetupComponent implements OnInit {
   spatialUnitName!:any;
   date!:any;
 
-  dateSlider;
   datePicker;
   datesAsMs;
   
@@ -35,7 +34,7 @@ export class KommonitorDataSetupComponent implements OnInit {
 
   preppedIndicatorTopics: IndicatorTopic[] = [];
 
-  slider;
+  dateSlider;
   config: any  = {
     behaviour: 'drag',
     connect: true,
@@ -112,8 +111,8 @@ export class KommonitorDataSetupComponent implements OnInit {
   }
   
   setupSlider() {
-    this.slider = document.getElementById('dateSlider');
-    noUiSlider.create(this.slider, this.config);
+    this.dateSlider = document.getElementById('dateSlider');
+    noUiSlider.create(this.dateSlider, this.config);
   }
 
   onInitialMetadataLoadingComplete() {
@@ -473,7 +472,6 @@ export class KommonitorDataSetupComponent implements OnInit {
   };
   */
   addSelectedIndicatorToMap(changeIndicator) {
-    console.log("call me")
     
     if(changeIndicator){
       //todo
@@ -517,13 +515,12 @@ export class KommonitorDataSetupComponent implements OnInit {
 
     this.datesAsMs = this.createDatesFromIndicatorDates(this.exchangeData.selectedIndicator.applicableDates);
    
-
-    this.slider.noUiSlider.updateOptions({
+    this.dateSlider.noUiSlider.updateOptions({
       range: {
           'min': 0, // index from
           'max': this.datesAsMs.length-1 // index to
       },
-      start: [ this.tsToDateString(this.datesAsMs[1])],
+      start: [ this.tsToDateString(this.datesAsMs[this.datesAsMs.length-1])],
       step: 1,
       tooltips: true,
       format: {
@@ -548,7 +545,7 @@ export class KommonitorDataSetupComponent implements OnInit {
       }
     });
   
-    this.slider.noUiSlider.on('set', () => {
+    this.dateSlider.noUiSlider.on('set', () => {
       this.onChangeDateSliderItem(this.getFormatedSliderReturn());
     })
   };
@@ -562,7 +559,7 @@ export class KommonitorDataSetupComponent implements OnInit {
 
   getFormatedSliderReturn() {
 
-    let data = this.slider.noUiSlider.get(true);
+    let data = this.dateSlider.noUiSlider.get(true);
     
     return {
       from: Math.round(data)
@@ -571,7 +568,8 @@ export class KommonitorDataSetupComponent implements OnInit {
 
   dateStringToMs(dateStr) {
     let parts = dateStr.split(' ');
-    let offset = new Date().getTimezoneOffset()*60*1000;
+    // get timezoneOffset w/o daylight saving time by referencing a specific date
+    let offset = new Date('November 1, 2000 00:00:00').getTimezoneOffset()*60*1000;
    
     let tms = new Date(parts[2]+'-'+(this.months.indexOf(parts[1])+1)+'-'+parts[0].replace('.','')+'T00:00:00Z').getTime();
     return tms+offset;
@@ -655,16 +653,16 @@ export class KommonitorDataSetupComponent implements OnInit {
 
 
   DisableDateSlider() {
-    if(this.slider){
-      this.slider.noUiSlider.disable();
+    if(this.dateSlider){
+      this.dateSlider.noUiSlider.disable();
     }
 
     this.exchangeData.disableIndicatorDatePicker = true;
   }
 
   EnableDateSlider() {
-    if(this.slider){
-      this.slider.noUiSlider.enable();
+    if(this.dateSlider){
+      this.dateSlider.noUiSlider.enable();
     }
 
     this.exchangeData.disableIndicatorDatePicker = false;
@@ -685,8 +683,6 @@ export class KommonitorDataSetupComponent implements OnInit {
     var year = dateComps[0];
     var month = dateComps[1];
     var day = dateComps[2];
-
-    // todo
 
     let url = this.dataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/indicators/" + indicatorId + "/" + this.exchangeData.selectedSpatialUnit.spatialUnitId + "/" + year + "/" + month + "/" + day + "?" + this.exchangeData.simplifyGeometriesParameterName + "=" + this.exchangeData.simplifyGeometries;
     this.http.get(url).subscribe({
@@ -882,7 +878,7 @@ export class KommonitorDataSetupComponent implements OnInit {
     this.broadcastService.broadcast("updateBalanceSlider", [this.exchangeData.selectedDate]);
     setTimeout(() => {
       this.broadcastService.broadcast("updateIndicatorValueRangeFilter", [this.exchangeData.selectedDate, this.exchangeData.selectedIndicator]);
-    },2000);
+    },2000); 
     this.addSelectedIndicatorToMap(changeIndicator);
 
   }
