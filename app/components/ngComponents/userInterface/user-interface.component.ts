@@ -232,25 +232,25 @@ export class UserInterfaceComponent implements OnInit {
 		});
 
 
-		$scope.onRecenterMapButtonClick = function(){
-			$rootScope.$broadcast("recenterMapContent");
-		}
-
-		$scope.onExportMapButtonClick = function(){
-			$rootScope.$broadcast("exportMap");
-		}
-
-		$scope.onUnselectFeaturesButtonClick = function(){
-			$rootScope.$broadcast("unselectAllFeatures");
-		}
-
-		$scope.onOpenLayerControlButtonClick = function(){
-			$rootScope.$broadcast("openLayerControl");
-		}
-
-		$scope.onToggleInfoControlButtonClick = function(){
-			$rootScope.$broadcast("toggleInfoControl");
-		}
-
  */
+		onRecenterMapButtonClick(){
+			this.broadcastService.broadcast("recenterMapContent");
+		}
+
+		onExportMapButtonClick(){
+			this.broadcastService.broadcast("exportMap");
+		}
+
+		onUnselectFeaturesButtonClick(){
+			this.broadcastService.broadcast("unselectAllFeatures");
+		}
+
+/* 		onOpenLayerControlButtonClick(){
+			this.broadcastService.broadcast("openLayerControl");
+		} */
+
+		onToggleInfoControlButtonClick(){
+			this.broadcastService.broadcast("toggleInfoControl");
+		}
+
 }

@@ -96,6 +96,8 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
         var dateComponents = this.exchangeData.selectedDate.split("-");
         this.dateAsDate = new Date(Number(dateComponents[0]), Number(dateComponents[1]) - 1, Number(dateComponents[2]));
         this.datePickerDate = {year: this.dateAsDate.getFullYear(), month: this.dateAsDate.getMonth() + 1, day: this.dateAsDate.getDate()};
+
+        console.log(this.exchangeData.selectedSpatialUnit)
       },2500);
 
       this.broadcastService.currentBroadcastMsg.subscribe(broadcastMsg => {

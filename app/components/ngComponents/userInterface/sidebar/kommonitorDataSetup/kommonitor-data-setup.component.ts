@@ -110,6 +110,12 @@ export class KommonitorDataSetupComponent implements OnInit {
         case 'changeIndicatorDate': {
           this.changeIndicatorDate(values);
         } break;
+        case 'changeSpatialUnit': {
+          this.onChangeSelectedSpatialUnit();
+        } break;
+        case 'updateIndicatorOgcServices': {
+          this.updateIndicatorOgcServices(values);
+        } break;
       }
     });
   }
@@ -709,12 +715,6 @@ export class KommonitorDataSetupComponent implements OnInit {
 
   };
 
-/*  
-  $scope.$on("changeSpatialUnit", function(event){
-    $scope.onChangeSelectedSpatialUnit();
-  });
-  */
-
   datePickerToDateSlider(datePickerDate:NgbDateStruct) {
 
     return `${datePickerDate.day}. ${this.months[datePickerDate.month-1]} ${datePickerDate.year}`;
@@ -757,38 +757,35 @@ export class KommonitorDataSetupComponent implements OnInit {
     }
 
   }
-/*
-  $scope.onChangeSelectedSpatialUnit = async function(){
-    if(!$scope.changeIndicatorWasClicked && kommonitorDataExchangeService.selectedIndicator){
-      $scope.loadingData = true;
-      $rootScope.$broadcast("showLoadingIconOnMap");
+
+  onChangeSelectedSpatialUnit(){
+    if(!this.changeIndicatorWasClicked && this.exchangeData.selectedIndicator){
+      this.loadingData = true;
+      this.broadcastService.broadcast("showLoadingIconOnMap");
 
       console.log("Change spatial unit");
 
       try{
-        var selectedIndicator = await $scope.tryUpdateMeasureOfValueBarForIndicator();
+        var selectedIndicator = this.tryUpdateMeasureOfValueBarForIndicator();
       }
       catch(error){
         console.error(error);
-        $scope.loadingData = false;
-        $rootScope.$broadcast("hideLoadingIconOnMap");
-        kommonitorDataExchangeService.displayMapApplicationError(error);
+        this.loadingData = false;
+        this.broadcastService.broadcast("hideLoadingIconOnMap");
+        this.dataExchangeService.displayMapApplicationError(error);
         return;
       }
 
-      $scope.modifyExports(false);
+      this.modifyExports(false);
 
-      if(kommonitorDataExchangeService.useNoDataToggle)
-        $rootScope.$broadcast('applyNoDataDisplay');
+      if(this.exchangeData.useNoDataToggle)
+        this.broadcastService.broadcast('applyNoDataDisplay');
 
-      $scope.loadingData = false;
-      $rootScope.$broadcast("hideLoadingIconOnMap");
-      $scope.$digest();
+      this.loadingData = false;
+      this.broadcastService.broadcast("hideLoadingIconOnMap");
     }
   }
 
-  */
-  
   markAssociatedHierarchyElement(selectedIndicatorMetadata){
     var selectedIndicatorId = selectedIndicatorMetadata.indicatorId;
 
@@ -886,15 +883,13 @@ export class KommonitorDataSetupComponent implements OnInit {
     this.addSelectedIndicatorToMap(changeIndicator);
 
   }
-/*
-  $scope.$on("updateIndicatorOgcServices", function (event, indicatorWmsUrl, indicatorWfsUrl) {
 
-                console.log('updateIndicatorOgcServices was called');
+  updateIndicatorOgcServices([indicatorWmsUrl, indicatorWfsUrl]) {
 
-                kommonitorDataExchangeService.wmsUrlForSelectedIndicator = indicatorWmsUrl;
-                kommonitorDataExchangeService.wfsUrlForSelectedIndicator = indicatorWfsUrl;
-                $scope.$digest();
+    console.log('updateIndicatorOgcServices was called');
 
-  }); */
+    this.exchangeData.wmsUrlForSelectedIndicator = indicatorWmsUrl;
+    this.exchangeData.wfsUrlForSelectedIndicator = indicatorWfsUrl;
+  }
 
 }

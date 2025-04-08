@@ -328,7 +328,10 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         } break;
         case 'recenterMapOnSidebarAction' : {
           this.recenterMapOnSidebarAction(values);
-        } break
+        } break;
+        case 'unselectAllFeatures': {
+          this.unselectAllFeatures();
+        } break;
       }
     });
   }
@@ -746,7 +749,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
   exportMap() {
 
-    let node = document.getElementById("map");
+    let node = document.getElementById("ngMap");
 
     return domtoimage
         .toBlob(node, {"quality": 1.0, filter: this.filterForScreenshot})
@@ -3278,13 +3281,14 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     });
 
   });
+  */
+  unselectAllFeatures() {
 
-  $scope.$on("unselectAllFeatures", function (event) {
+    this.filterHelperService.clearSelectedFeatures();
+    this.broadcastService.broadcast("restyleCurrentLayer", [false]);
+  }
 
-    kommonitorFilterHelperService.clearSelectedFeatures();
-    $rootScope.$broadcast("restyleCurrentLayer", false);
-  });
-
+/*
   $scope.$on("removeAllDrawnPoints", function (event) {
 
     if ($scope.drawnPointFeatures) {

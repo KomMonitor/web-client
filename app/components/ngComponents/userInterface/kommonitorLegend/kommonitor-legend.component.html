@@ -25,9 +25,9 @@
                   <!-- <select id="spatialUnitSelectionInput" style="font-size: 12px;" ng-model="exchangeData.selectedSpatialUnit"
                     ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in exchangeData.availableSpatialUnits | filter:filterSpatialUnits()"
                     class="form-control" ng-change="onChangeSelectedSpatialUnit()" required> -->
-                    <select (change)="onChangeSelectedSpatialUnit()">
+                    <select (change)="onChangeSelectedSpatialUnit()" [ngModel]="exchangeData.selectedSpatialUnit">
                       <option disabled selected value> -- Raumeinheit w&auml;hlen --</option>
-                      <option *ngFor="let item of filteredSpatialUnits()">{{item.spatialUnitLevel }}</option>
+                      <option *ngFor="let item of filteredSpatialUnits()" [value]="item">{{item.spatialUnitLevel }}</option>
                     </select>
                 </div>
                 <div class="col-sm-4">
