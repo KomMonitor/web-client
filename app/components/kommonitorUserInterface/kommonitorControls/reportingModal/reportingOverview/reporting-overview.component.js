@@ -104,6 +104,78 @@ angular.module('reportingOverview').component('reportingOverview', {
 			}
 		};
 
+		$scope.checkVisibility = function(pageElement, page){
+			switch(pageElement.type) {
+				case "indicatorTitle-landscape":
+				case "indicatorTitle-portrait": {
+					return $scope.config.pageConfig.showTitle;
+				}
+	
+				case "communeLogo-landscape":
+				case "communeLogo-portrait": {
+					return $scope.config.pageConfig.showLogo;
+				}
+				case "dataTimestamp-landscape":
+				case "dataTimestamp-portrait": {
+					return $scope.config.pageConfig.showSubtitle;
+				}
+				case "dataTimeseries-landscape":
+				case "dataTimeseries-portrait": {
+					return $scope.config.pageConfig.showSubtitle;
+				}
+				case "reachability-subtitle-landscape":
+				case "reachability-subtitle-portrait": {
+					return $scope.config.pageConfig.showSubtitle;
+				}
+				case "footerHorizontalSpacer-landscape":
+				case "footerHorizontalSpacer-portrait": {
+					return $scope.config.pageConfig.showFooterCreationInfo;
+				}
+				case "footerCreationInfo-landscape":
+				case "footerCreationInfo-portrait": {  
+					return $scope.config.pageConfig.showFooterCreationInfo;
+				} 
+				case "pageNumber-landscape":
+				case "pageNumber-portrait": {
+					return $scope.config.pageConfig.showPageNumber;
+				}
+				// template-specific elements
+				case "map": {
+					return true;
+				}
+				 // case "mapLegend" can be ignored since it is included in the map if needed
+				case "overallAverage":
+				case "selectionAverage": {
+					return true;
+				}
+				case "overallChange":
+				case "selectionChange": {
+					return true;
+				}
+				case "barchart": {
+					if(page.type == 'area_specific'){
+						return $scope.config.pageConfig.showRankingChartPerArea;
+					}
+					return true;					
+				}
+				case "linechart": {
+					if(page.type == 'area_specific'){
+						return $scope.config.pageConfig.showLineChartPerArea;
+					}
+					return true;
+				}
+				case "textInput": {
+					return $scope.config.pageConfig.showFreeText;
+				}
+				case "datatable": {
+					return $scope.config.pageConfig.sections.showDatatable;
+				}
+				default:{
+					return true;
+				}
+			}
+		}
+
 		$scope.$on("reportingInitializeOverview", function(event, data) {
 			// data is a nested array at this point [ [ { template object } ] ]
 			$scope.initialize(data);
@@ -1372,6 +1444,10 @@ angular.module('reportingOverview').component('reportingOverview', {
 						}
 						case "footerHorizontalSpacer-landscape":
 						case "footerHorizontalSpacer-portrait": {
+							if (! $scope.config.pageConfig.showFooterCreationInfo){
+								// skip
+								continue;
+							}
               slide.addShape(doc.shapes.LINE, { x: pageElementDimensions.left, y: pageElementDimensions.top, w: pageElementDimensions.width, h: 0.0, line: { color: '#000000', width: 1 } });
               break;
 						}
@@ -1379,7 +1455,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 						case "footerCreationInfo-portrait": {  
 							if (! $scope.config.pageConfig.showFooterCreationInfo){
 								// skip
-								continue;
+								continue;								
 							}
               slide.addText(pageElement.text, { x: pageElementDimensions.left, y: pageElementDimensions.top, placeholder: "slide_footer" });
 							break;
@@ -1423,6 +1499,9 @@ angular.module('reportingOverview').component('reportingOverview', {
 							break;
 						}
 						case "barchart": {
+							if(page.type == 'area_specific' && ! $scope.config.pageConfig.showRankingChartPerArea){
+								continue;
+							}
 							let instance = echarts.getInstanceByDom(pElementDom);
 							let base64String = instance.getDataURL( {pixelRatio: $scope.echartsImgPixelRatio} );
 
@@ -1430,6 +1509,9 @@ angular.module('reportingOverview').component('reportingOverview', {
 							break;
 						}
 						case "linechart": {
+							if(page.type == 'area_specific' && ! $scope.config.pageConfig.showLineChartPerArea){
+								continue;
+							}
 							let instance = echarts.getInstanceByDom(pElementDom);
 							let base64String = instance.getDataURL( {pixelRatio: $scope.echartsImgPixelRatio} );
               
@@ -1437,10 +1519,14 @@ angular.module('reportingOverview').component('reportingOverview', {
 							break;
 						}
 						case "textInput": {
+							if (! $scope.config.pageConfig.showFreeText){
+								// skip
+								continue;
+							}
               slide.addText(pageElement.text, { x: pageElementDimensions.left, y: pageElementDimensions.top, w: pageElementDimensions.width, fontSize: fontSize-3, fontFace: fontFace });
 							break;
 						}
-						case "datatable": {
+						case "datatable": {							
 
               let table = document.querySelector("#reporting-overview-page-" + idx + "-" + pageElement.type + " table");
 
@@ -1609,6 +1695,10 @@ angular.module('reportingOverview').component('reportingOverview', {
 						}
 						case "footerHorizontalSpacer-landscape":
 						case "footerHorizontalSpacer-portrait": {
+							if (! $scope.config.pageConfig.showFooterCreationInfo){
+								// skip
+								continue;
+							}
 							let x1, x2, y1, y2;
 							x1 = pageElementDimensions.left;
 							x2 = pageElementDimensions.left + pageElementDimensions.width;
@@ -1673,6 +1763,9 @@ angular.module('reportingOverview').component('reportingOverview', {
 							break;
 						}
 						case "barchart": {
+							if(page.type == 'area_specific' && ! $scope.config.pageConfig.showRankingChartPerArea){
+								continue;
+							}
 							let instance = echarts.getInstanceByDom(pElementDom)
 							let base64String = instance.getDataURL( {pixelRatio: $scope.echartsImgPixelRatio} )
 							doc.addImage(base64String, "PNG", pageElementDimensions.left, pageElementDimensions.top,
@@ -1680,6 +1773,9 @@ angular.module('reportingOverview').component('reportingOverview', {
 							break;
 						}
 						case "linechart": {
+							if(page.type == 'area_specific' && ! $scope.config.pageConfig.showLineChartPerArea){
+								continue;
+							}
 							let instance = echarts.getInstanceByDom(pElementDom)
 							let base64String = instance.getDataURL( {pixelRatio: $scope.echartsImgPixelRatio} )
 							doc.addImage(base64String, "PNG", pageElementDimensions.left, pageElementDimensions.top,
@@ -1687,6 +1783,10 @@ angular.module('reportingOverview').component('reportingOverview', {
 							break;
 						}
 						case "textInput": {
+							if (! $scope.config.pageConfig.showFreeText){
+								// skip
+								continue;
+							}
 							doc.text(pageElement.text, pageElementDimensions.left, pageElementDimensions.top, {
 								baseline: "top",
 								maxWidth: pageElementDimensions.width
@@ -1905,6 +2005,10 @@ angular.module('reportingOverview').component('reportingOverview', {
 						
 						case "footerHorizontalSpacer-landscape":
 						case "footerHorizontalSpacer-portrait":
+							if (! $scope.config.pageConfig.showFooterCreationInfo){
+								// skip
+								continue;
+							}
 							 // empty paragraph with border top
 							let paragraph = new docx.Paragraph({
 								children: [],
@@ -2009,6 +2113,12 @@ angular.module('reportingOverview').component('reportingOverview', {
 						case "map":
 						case "barchart":
 						case "linechart": {
+							if(page.type == 'area_specific' && ! $scope.config.pageConfig.showLineChartPerArea && pageElement.type === "linechart" ){
+								continue;
+							}
+							if(page.type == 'area_specific' && ! $scope.config.pageConfig.showRankingChartPerArea && pageElement.type === "barchart" ){
+								continue;
+							}
 							let pElementDom;
 							if(pageElement.type === "linechart") {
 								let arr = pageDom.querySelectorAll(".type-linechart");
@@ -2202,6 +2312,10 @@ angular.module('reportingOverview').component('reportingOverview', {
 							break;
 						}
 						case "textInput": {
+							if (! $scope.config.pageConfig.showFreeText){
+								// skip
+								continue;
+							}
 							let paragraph = new docx.Paragraph({
 								children: [
 									new docx.TextRun({

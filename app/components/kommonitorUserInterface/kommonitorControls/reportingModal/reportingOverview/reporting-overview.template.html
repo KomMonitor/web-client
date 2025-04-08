@@ -57,6 +57,7 @@
                                 <img src="icons/swap.png" width="100%" height="100%"></img>
                             </button>
                             <div ng-repeat="pageElement in page.pageElements"
+                                ng-show="checkVisibility(pageElement, page)"
                                 ng-attr-class="type-{{pageElement.type}}"
                                 ng-attr-id="reporting-overview-page-{{$parent.$index}}-{{pageElement.type}}"
                                 ng-attr-style="position: absolute;
@@ -82,7 +83,7 @@
                                     {{pageElement.text}}
                                 </span>
 
-                                <span ng-show="pageElement.type == 'textInput' && pageElement.isPlaceholder == false"
+                                <span ng-show="config.pageConfig.showFreeText &&  pageElement.type == 'textInput' && pageElement.isPlaceholder == false"
                                     ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
                                     {{pageElement.text}}
                                 </span>

@@ -330,18 +330,65 @@
                                                     </option>
                                                 </select>
                                             </div>
-                                                                
+                                                
+                                            <div ng-show="template.name.includes('-timestamp')">
+
+                                                <br/>
+                                                <i>Ranking Chart</i> 
+                                                <br/>
+                                                
+                                                <label class="switch" title="Ranking Chart anzeigen">
+                                                    <input type="checkbox"
+                                                        ng-model="pageConfig.showRankingChartPerArea"
+                                                        ng-checked="pageConfig.showRankingChartPerArea"
+                                                        ng-change="onChangePageConfig()">
+                                                    <span class="switchslider round"></span>
+                                                </label>
+                                                Ranking Chart pro Raumeinheit?
+                                                
+
+                                                <br>
+
+                                                <label class="switch" title="Ranking-Durchschnittslinie anzeigen">
+                                                    <input type="checkbox"
+                                                        ng-model="pageConfig.showRankingMeanLine"
+                                                        ng-checked="pageConfig.showRankingMeanLine"
+                                                        ng-change="onChangeShowRankingMeanLine()">
+                                                    <span class="switchslider round"></span>
+                                                </label>
+                                                Ranking-Durchschnittslinie?
+
+                                            </div>
+                                            
+                                            <div ng-show="template.name.includes('-timeseries')">
+
+                                                <br/>
+                                                <i>Zeitreihen Chart</i> 
+                                                <br/>
+                                                
+                                                <label class="switch" title="Zeitreihen Chart anzeigen">
+                                                    <input type="checkbox"
+                                                        ng-model="pageConfig.showLineChartPerArea"
+                                                        ng-checked="pageConfig.showLineChartPerArea"
+                                                        ng-change="onChangePageConfig()">
+                                                    <span class="switchslider round"></span>
+                                                </label>
+                                                Zeitreihen Chart pro Raumeinheit?
+
+                                            </div>
+
                                             <br/>
-                                            <i>Ranking Chart</i> 
+                                            <i>Sonstiges</i> 
                                             <br/>
-                                            <label class="switch" title="Ranking-Durchschnittslinie anzeigen">
+
+                                            <label class="switch" title="Freitext anzeigen">
                                                 <input type="checkbox"
-                                                    ng-model="pageConfig.showRankingMeanLine"
-                                                    ng-checked="pageConfig.showRankingMeanLine"
-                                                    ng-change="onChangeShowRankingMeanLine()">
+                                                    ng-model="pageConfig.showFreeText"
+                                                    ng-checked="pageConfig.showFreeText"
+                                                    ng-change="onChangePageConfig()">
                                                 <span class="switchslider round"></span>
                                             </label>
-                                            Ranking-Durchschnittslinie?
+                                            Freitext?
                                         </div>
                                     </div>
                                 </div>
@@ -356,6 +403,7 @@
                             ng-attr-class="reporting-page reporting-page-{{page.orientation}} reporting-custom-css"
                             ng-attr-id="reporting-addIndicator-page-{{$index}}">
                             <div ng-repeat="pageElement in page.pageElements"
+                                ng-show="checkVisibility(pageElement, page)"
                                 ng-attr-class="type-{{pageElement.type}}"
                                 ng-attr-id="reporting-addIndicator-page-{{$parent.$index}}-{{pageElement.type}}"
                                 ng-attr-style="position: absolute;
@@ -433,7 +481,7 @@
                                     {{pageElement.text}}
                                 </span>
 
-                                <span ng-show="pageElement.type == 'textInput' && pageElement.isPlaceholder == false"
+                                <span ng-show="pageConfig.showFreeText && pageElement.type == 'textInput' && pageElement.isPlaceholder == false"
                                     ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
                                     {{pageElement.text}}
                                 </span>

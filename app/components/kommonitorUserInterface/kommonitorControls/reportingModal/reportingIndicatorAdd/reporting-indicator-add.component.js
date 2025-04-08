@@ -57,6 +57,9 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		// in order to apply config on overview page and report generation 
 		$scope.pageConfig = {
 			showMapLabels: true,
+			showRankingChartPerArea: true,
+			showLineChartPerArea: true,
+			showFreeText: true,
 			showRankingMeanLine: true,
 			showTitle: true,
 			showSubtitle: true,
@@ -72,6 +75,78 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				showAreaSpecific: true,
 				showOverviewSection_reachability: true,
 				showDatatable: true
+			}
+		}
+
+		$scope.checkVisibility = function(pageElement, page){
+			switch(pageElement.type) {
+				case "indicatorTitle-landscape":
+				case "indicatorTitle-portrait": {
+					return $scope.pageConfig.showTitle;
+				}
+	
+				case "communeLogo-landscape":
+				case "communeLogo-portrait": {
+					return $scope.pageConfig.showLogo;
+				}
+				case "dataTimestamp-landscape":
+				case "dataTimestamp-portrait": {
+					return $scope.pageConfig.showSubtitle;
+				}
+				case "dataTimeseries-landscape":
+				case "dataTimeseries-portrait": {
+					return $scope.pageConfig.showSubtitle;
+				}
+				case "reachability-subtitle-landscape":
+				case "reachability-subtitle-portrait": {
+					return $scope.pageConfig.showSubtitle;
+				}
+				case "footerHorizontalSpacer-landscape":
+				case "footerHorizontalSpacer-portrait": {
+					return $scope.pageConfig.showFooterCreationInfo;
+				}
+				case "footerCreationInfo-landscape":
+				case "footerCreationInfo-portrait": {  
+					return $scope.pageConfig.showFooterCreationInfo;
+				} 
+				case "pageNumber-landscape":
+				case "pageNumber-portrait": {
+					return $scope.pageConfig.showPageNumber;
+				}
+				// template-specific elements
+				case "map": {
+					return true;
+				}
+				 // case "mapLegend" can be ignored since it is included in the map if needed
+				case "overallAverage":
+				case "selectionAverage": {
+					return true;
+				}
+				case "overallChange":
+				case "selectionChange": {
+					return true;
+				}
+				case "barchart": {
+					if(page.type == 'area_specific'){
+						return $scope.pageConfig.showRankingChartPerArea;
+					}
+					return true;					
+				}
+				case "linechart": {
+					if(page.type == 'area_specific'){
+						return $scope.pageConfig.showLineChartPerArea;
+					}
+					return true;
+				}
+				case "textInput": {
+					return $scope.pageConfig.showFreeText;
+				}
+				case "datatable": {
+					return $scope.pageConfig.sections.showDatatable;
+				}
+				default:{
+					return true;
+				}
 			}
 		}
 
