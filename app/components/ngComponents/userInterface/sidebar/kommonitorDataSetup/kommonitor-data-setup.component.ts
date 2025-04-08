@@ -6,6 +6,7 @@ import { DataExchange, DataExchangeService, IndicatorTopic } from 'services/data
 import { ElementVisibilityHelperService } from 'services/element-visibility-helper-service/element-visibility-helper.service';
 import { MapService } from 'services/map-service/map.service';
 import * as noUiSlider from 'nouislider';
+import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-kommonitor-data-setup',
@@ -105,6 +106,9 @@ export class KommonitorDataSetupComponent implements OnInit {
         } break;
         case 'EnableDateSlider' : {
           this.EnableDateSlider();
+        } break;
+        case 'changeIndicatorDate': {
+          this.changeIndicatorDate(values);
         } break;
       }
     });
@@ -588,29 +592,27 @@ export class KommonitorDataSetupComponent implements OnInit {
 
   setupDatePickerForIndicator(){
 
-      // todo
-  /*   if(this.datePicker){
-      $('#indicatorDatePicker').datepicker('destroy');
-      this.datePicker = undefined;
-    }
-
-    var domNode:HTMLElement | null = document.getElementById("indicatorDatePicker");
-
-    if(domNode) {
-      while (domNode.hasChildNodes()) {
-        domNode.removeChild(domNode.lastChild!);
-      }
-    } */
-
     var availableDates = this.exchangeData.selectedIndicator.applicableDates;
     this.date = availableDates[availableDates.length - 1];
     this.selectedDate = availableDates[availableDates.length - 1];
     this.exchangeData.selectedDate = availableDates[availableDates.length - 1];
 
-    // todo
-    //this.datePicker = $('#indicatorDatePicker').datepicker(this.dataExchangeService.getLimitedDatePickerOptions(availableDates));																		
-    
+    let ngbDates = this.prepNgbDates(availableDates);
+    this.broadcastService.broadcast('updateDatePickerAvailableDates',[ngbDates]);																
   };
+
+  prepNgbDates(dates):NgbDateStruct[] {
+
+    let retDates:NgbDateStruct[] = [];
+
+    dates.forEach(date => {
+      let parts = date.split('-');
+
+      retDates.push({year:parseInt(parts[0]), month:parseInt(parts[1]), day:parseInt(parts[2])});
+    });
+
+    return retDates;
+  }
 
   onChangeDateSliderItem(data){
 
@@ -626,8 +628,8 @@ export class KommonitorDataSetupComponent implements OnInit {
       this.date = this.selectedDate;
       this.exchangeData.selectedDate = this.selectedDate;
 
-      // todo
-      //$('#indicatorDatePicker').datepicker('update', new Date(this.exchangeData.selectedDate));
+      let preppedDate = this.prepNgbDates([this.exchangeData.selectedDate])[0];
+      this.broadcastService.broadcast('updateDatePickerSelectedDate',[preppedDate]);
 
       try{
         var selectedIndicator = this.tryUpdateMeasureOfValueBarForIndicator();
@@ -711,49 +713,51 @@ export class KommonitorDataSetupComponent implements OnInit {
   $scope.$on("changeSpatialUnit", function(event){
     $scope.onChangeSelectedSpatialUnit();
   });
+  */
 
-  $scope.$on("changeIndicatorDate", async function(event){	
+  datePickerToDateSlider(datePickerDate:NgbDateStruct) {
+
+    return `${datePickerDate.day}. ${this.months[datePickerDate.month-1]} ${datePickerDate.year}`;
+  }
+
+  changeIndicatorDate([datePickerDate]){	
     
-    if(kommonitorDataExchangeService.selectedIndicator && kommonitorDataExchangeService.selectedDate){
-      $scope.loadingData = true;
-      $rootScope.$broadcast("showLoadingIconOnMap");
+    if(this.exchangeData.selectedIndicator && this.exchangeData.selectedDate){
+      this.loadingData = true;
+      this.broadcastService.broadcast("showLoadingIconOnMap");
 
       console.log("Change selected date");
 
-      //data.from is index of date!
-      var index = kommonitorDataExchangeService.selectedIndicator.applicableDates.indexOf(kommonitorDataExchangeService.selectedDate);									;
-
-      $scope.dateSlider.update({
-        from: index // index, not the date
+      this.dateSlider.noUiSlider.updateOptions({
+        start: [ this.datePickerToDateSlider(datePickerDate) ],
       });
 
-      $scope.date = kommonitorDataExchangeService.selectedDate;
-      $scope.selectedDate = kommonitorDataExchangeService.selectedDate;
+      this.date = this.exchangeData.selectedDate;
+      this.selectedDate = this.exchangeData.selectedDate;
 
       try{
-        var selectedIndicator = await $scope.tryUpdateMeasureOfValueBarForIndicator();
+        var selectedIndicator = this.tryUpdateMeasureOfValueBarForIndicator();
       }
       catch(error){
         console.error(error);
-        $scope.loadingData = false;
-        $rootScope.$broadcast("hideLoadingIconOnMap");
-        kommonitorDataExchangeService.displayMapApplicationError(error);
+        this.loadingData = false;
+        this.broadcastService.broadcast("hideLoadingIconOnMap");
+        this.dataExchangeService.displayMapApplicationError(error);
         return;
       }
 
-      $scope.modifyExports(false);
+      this.modifyExports(false);
 
-      if(kommonitorDataExchangeService.useNoDataToggle)
-        $rootScope.$broadcast('applyNoDataDisplay')	
+      if(this.exchangeData.useNoDataToggle)
+        this.broadcastService.broadcast('applyNoDataDisplay')	
 
-      $scope.loadingData = false;
-      $rootScope.$broadcast("hideLoadingIconOnMap");
-      $rootScope.$broadcast("selectedIndicatorDateHasChanged");
-      $rootScope.$apply();
+      this.loadingData = false;
+      this.broadcastService.broadcast("hideLoadingIconOnMap");
+      this.broadcastService.broadcast("selectedIndicatorDateHasChanged");
     }
 
-  });
-
+  }
+/*
   $scope.onChangeSelectedSpatialUnit = async function(){
     if(!$scope.changeIndicatorWasClicked && kommonitorDataExchangeService.selectedIndicator){
       $scope.loadingData = true;

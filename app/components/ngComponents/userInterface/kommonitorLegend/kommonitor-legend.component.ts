@@ -1,4 +1,5 @@
 import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { NgbDate, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchange, DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { ElementVisibilityHelperService } from 'services/element-visibility-helper-service/element-visibility-helper.service';
@@ -34,6 +35,9 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
   isStatisticCollapsed = true;
 
   classificationCollapsed = true;
+
+  isDisabledDate;
+  datePickerDate;
 
   @Input() onupdatelegenddisplaydata!:any;
 
@@ -72,10 +76,10 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
       }
     }
   }
-  model;
+  
 
   ngOnInit(): void {
-      
+
       $(document).ready(function() {
         $(".nav li.disabled a").click(function() {
           return false;
@@ -91,7 +95,7 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
       setTimeout(()=> {
         var dateComponents = this.exchangeData.selectedDate.split("-");
         this.dateAsDate = new Date(Number(dateComponents[0]), Number(dateComponents[1]) - 1, Number(dateComponents[2]));
-        this.model = {year: this.dateAsDate.getFullYear(), month: this.dateAsDate.getMonth() + 1, day: this.dateAsDate.getDate()};
+        this.datePickerDate = {year: this.dateAsDate.getFullYear(), month: this.dateAsDate.getMonth() + 1, day: this.dateAsDate.getDate()};
       },2500);
 
       this.broadcastService.currentBroadcastMsg.subscribe(broadcastMsg => {
@@ -102,8 +106,26 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
           case 'updateLegendDisplay': {
              this.updateLegendDisplay(values);
           } break;
+          case 'updateDatePickerAvailableDates': {
+            this.onUpdateDatePicker(values);
+          } break;
+          case 'updateDatePickerSelectedDate': {
+            this.onUpdateDatePickerSelectedDate(values);
+          } break;
         }
       });
+  }
+
+  onUpdateDatePicker([dates]) {
+
+    this.isDisabledDate=(date:NgbDateStruct,current: {month: number,year:number})=> {
+      return dates.find(x=>new NgbDate(x.year,x.month,x.day).equals(date))?
+        false:true;
+    }
+  }
+
+  onUpdateDatePickerSelectedDate([date]) {
+    this.datePickerDate = {year: date.year, month: date.month, day: date.day};
   }
 
   updateLegendDisplay([containsZeroValues, containsNegativeValues, containsNoData, containsOutliers_high, containsOutliers_low, outliers_low, outliers_high, selectedDate]) {
@@ -125,7 +147,8 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
   }
 
   onChangeIndicatorDatepickerDate() {
-    this.broadcastService.broadcast("changeIndicatorDate");
+    this.exchangeData.selectedDate = `${this.datePickerDate.year}-${this.datePickerDate.month}-${this.datePickerDate.day}`;
+    this.broadcastService.broadcast("changeIndicatorDate",[this.datePickerDate]);
   }
 
   onChangeSelectedSpatialUnit() {

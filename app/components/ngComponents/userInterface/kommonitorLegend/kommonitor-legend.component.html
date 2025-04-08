@@ -37,11 +37,12 @@
                           class="form-control"
                           placeholder="yyyy-mm-dd"
                           name="dp"
-                          [(ngModel)]="model"
+                          [(ngModel)]="datePickerDate"
+                          [markDisabled]="isDisabledDate"
                           ngbDatepicker
                           #d="ngbDatepicker"
                           (click)="d.toggle()"
-                          (change)="onChangeIndicatorDatepickerDate()"
+                          (ngModelChange)="onChangeIndicatorDatepickerDate()"
                           [disabled]="(exchangeData.disableIndicatorDatePicker===true ? true : false)"
                         />
                     </div>
@@ -543,8 +544,8 @@
             <thead>
               <tr>
                 <th></th>
-                <th ng-show="$ctrl.kommonitorFilterHelperServiceInstance.filteredIndicatorFeatureIds.size == 0">{{exchangeData.labelAllFeatures}}</th>
-                <th ng-show="$ctrl.kommonitorFilterHelperServiceInstance.filteredIndicatorFeatureIds.size > 0">{{exchangeData.labelFilteredFeatures}}</th>
+                <th *ngIf="filterHelperService.filteredIndicatorFeatureIds.size == 0">{{exchangeData.labelAllFeatures}}</th>
+                <th *ngIf="filterHelperService.filteredIndicatorFeatureIds.size > 0">{{exchangeData.labelFilteredFeatures}}</th>
                 <th>{{exchangeData.labelSelectedFeatures}}</th>
               </tr>
             </thead>
