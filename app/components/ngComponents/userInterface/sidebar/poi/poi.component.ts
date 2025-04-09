@@ -32,6 +32,7 @@ export class PoiComponent implements OnInit{
   };
 
   selectedDate_manual = undefined;
+  selectedPoiSize;
 
   timeout_manualdate;
 
@@ -45,6 +46,7 @@ export class PoiComponent implements OnInit{
     private http: HttpClient
   ) {
     this.exchangeData = dataExchangeService.pipedData;
+    this.selectedPoiSize = this.exchangeData.selectedPOISize.id;
   }
 
   ngOnInit(): void {
@@ -589,6 +591,8 @@ export class PoiComponent implements OnInit{
   };
 
   refreshPoiLayers(){
+
+    this.exchangeData.selectedPOISize = this.exchangeData.POISizes.filter(e => e.id==this.selectedPoiSize)[0];
     for (var poi of this.exchangeData.displayableGeoresources_keywordFiltered){
       if (poi.isSelected){
         //remove POI layer from map

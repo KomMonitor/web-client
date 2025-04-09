@@ -789,11 +789,13 @@ export class KommonitorDataSetupComponent implements OnInit {
   markAssociatedHierarchyElement(selectedIndicatorMetadata){
     var selectedIndicatorId = selectedIndicatorMetadata.indicatorId;
 
-    for (var indicator of this.exchangeData.displayableIndicators) {
-      $("#indicatorHierarchyElement-" + indicator.indicatorId).removeClass('active');
-    }
+    setTimeout(() => {
+      for (var indicator of this.exchangeData.displayableIndicators) {
+        $("#indicatorHierarchyElement-" + indicator.indicatorId).removeClass('active');
+      }
 
-    $("#indicatorHierarchyElement-" + selectedIndicatorId).addClass('active');
+      $("#indicatorHierarchyElement-" + selectedIndicatorId).addClass('active');
+    },500);
   };
 
   onChangeSelectedIndicator_fromAlphabeticalList(indicatorMetadata){

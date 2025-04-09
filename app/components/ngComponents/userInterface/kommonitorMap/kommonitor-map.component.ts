@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { AfterViewInit, Component, Inject, OnInit } from '@angular/core';
 import * as L from 'leaflet';
+import "leaflet.markercluster";
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchange, DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { FilterHelperService } from 'services/filter-helper-service/filter-helper.service';
@@ -1520,45 +1521,36 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   
   addPoiGeoresourceAsGeoJSON([georesourceMetadataAndGeoJSON, date, useCluster]) {
 
-    // use leaflet.markercluster to cluster markers!
     let markers:any;
-    // todo markerClusterGroup
-   /*  if (useCluster) {
-      markers = L.markerClusterGroup({
-        iconCreateFunction: function (cluster) {
-          let childCount = cluster.getChildCount();
+    if (useCluster) {
+        
+      markers = new L.markerClusterGroup();
 
-          let c = 'cluster-';
-          if (childCount < 10) {
-            c += 'small';
-          } else if (childCount < 30) {
-            c += 'medium';
-          } else {
-            c += 'large';
-          }
-
-          let className = "marker-cluster " + c + " awesome-marker-legend-TransparentIcon-" + georesourceMetadataAndGeoJSON.poiMarkerColor;
-
-          //'marker-cluster' + c + ' ' +
-          return new L.DivIcon({ html: '<div class="awesome-marker-legend-icon-' + georesourceMetadataAndGeoJSON.poiMarkerColor + '" ><span>' + childCount + '</span></div>', className: className, iconSize: new L.Point(40, 40) });
-        }
+      georesourceMetadataAndGeoJSON.geoJSON.features.forEach((poiFeature) => {
+        // index 0 should be longitude and index 1 should be latitude
+        //.bindPopup( poiFeature.properties.name )
+        let newMarker = this.genericMapHelperService.createCustomMarker(poiFeature, georesourceMetadataAndGeoJSON.poiMarkerStyle, georesourceMetadataAndGeoJSON.poiMarkerText, georesourceMetadataAndGeoJSON.poiSymbolColor, georesourceMetadataAndGeoJSON.poiMarkerColor, georesourceMetadataAndGeoJSON.poiSymbolBootstrap3Name, georesourceMetadataAndGeoJSON);            
+        
+        markers.addLayer(this.genericMapHelperService.addPoiMarker(markers, newMarker));
       });
-    } else { */
+    } else {
       markers = L.featureGroup();
-   /*  } */       
 
-    georesourceMetadataAndGeoJSON.geoJSON.features.forEach((poiFeature) => {
-      // index 0 should be longitude and index 1 should be latitude
-      //.bindPopup( poiFeature.properties.name )
-      let newMarker = this.genericMapHelperService.createCustomMarker(poiFeature, georesourceMetadataAndGeoJSON.poiMarkerStyle, georesourceMetadataAndGeoJSON.poiMarkerText, georesourceMetadataAndGeoJSON.poiSymbolColor, georesourceMetadataAndGeoJSON.poiMarkerColor, georesourceMetadataAndGeoJSON.poiSymbolBootstrap3Name, georesourceMetadataAndGeoJSON);            
-      
-      markers = this.genericMapHelperService.addPoiMarker(markers, newMarker);
-    });
+      georesourceMetadataAndGeoJSON.geoJSON.features.forEach((poiFeature) => {
+        // index 0 should be longitude and index 1 should be latitude
+        //.bindPopup( poiFeature.properties.name )
+        let newMarker = this.genericMapHelperService.createCustomMarker(poiFeature, georesourceMetadataAndGeoJSON.poiMarkerStyle, georesourceMetadataAndGeoJSON.poiMarkerText, georesourceMetadataAndGeoJSON.poiSymbolColor, georesourceMetadataAndGeoJSON.poiMarkerColor, georesourceMetadataAndGeoJSON.poiSymbolBootstrap3Name, georesourceMetadataAndGeoJSON);            
+        
+        markers = this.genericMapHelperService.addPoiMarker(markers, newMarker);
+      });
+    }       
+
 
     // markers.StyledLayerControl = {
     //   removable : false,
     //   visible : true
     // };
+
 
     this.layerControl.addOverlay(markers, georesourceMetadataAndGeoJSON.datasetName + "_" + date, this.poiLayerGroupName);
     markers.addTo(this.map);
@@ -1570,7 +1562,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   }
 
 
-  removePoiGeoresource(georesourceMetadataAndGeoJSON) {
+  removePoiGeoresource([georesourceMetadataAndGeoJSON]) {
 
     let layerName = georesourceMetadataAndGeoJSON.datasetName;
 

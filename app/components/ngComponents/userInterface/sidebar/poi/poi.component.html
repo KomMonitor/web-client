@@ -37,8 +37,8 @@
 						of Interest</b>
 					&nbsp;
 
-          <select [(ngModel)]="exchangeData.selectedPOISize" (change)="refreshPoiLayers()">
-            <option *ngFor="let item of exchangeData.POISizes">{{item.label}}</option>
+          <select (change)="refreshPoiLayers()" [(ngModel)]="selectedPoiSize">
+            <option *ngFor="let item of exchangeData.POISizes" [value]="item.id" [attr.selected]="(exchangeData.selectedPOISize.id==item.id) ? 'selected' : null">{{item.label}}</option>
           </select>
 				</label>
 
