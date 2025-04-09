@@ -1385,18 +1385,10 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
    */
 
    onEachFeatureIndicator(feature, layer) {
-    
-    let indicatorValue = feature.properties[this.INDICATOR_DATE_PREFIX + this.date];
-    let indicatorValueText;
-    // todo dataExchangeService not accessable in here
-    //if (this.dataExchangeService.indicatorValueIsNoData(indicatorValue)) {
-      indicatorValueText = "NoData";
-    /* }
-    else {
-      indicatorValueText = this.dataExchangeService.getIndicatorValue_asFormattedText(indicatorValue);
-    } */
-    //let tooltipHtml = "<b>" + feature.properties[window.__env.FEATURE_NAME_PROPERTY_NAME] + "</b><br/>" + indicatorValueText + " [" + this.exchangeData.selectedIndicator.unit + "]";
-    let tooltipHtml = "<b>" + feature.properties[window.__env.FEATURE_NAME_PROPERTY_NAME] + "</b><br/>" + indicatorValueText + " [todo]";
+
+    let indicatorValueText = feature.tempData.indicatorValueText;
+  
+    let tooltipHtml = "<b>" + feature.properties[window.__env.FEATURE_NAME_PROPERTY_NAME] + "</b><br/>" + indicatorValueText + " [" + feature.tempData.unitText + "]";
     layer.bindTooltip(tooltipHtml, {
       sticky: false // If true, the tooltip will follow the mouse instead of being fixed at the feature center.
     });
@@ -2740,6 +2732,9 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
       layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
         style: (feature) => {
+          
+          feature = this.prepFeatureModelForMapUse(feature);
+
           if (this.filterHelperService.featureIsCurrentlyFiltered(feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME])) {
             return this.filteredStyle;
           }
@@ -2795,6 +2790,9 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
         layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
           style: (feature) => {
+
+            feature = this.prepFeatureModelForMapUse(feature);
+            
             if (this.filterHelperService.featureIsCurrentlyFiltered(feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME])) {
               return this.filteredStyle;
             }
@@ -2820,6 +2818,9 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
         layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
           style: (feature) => {
+
+            feature = this.prepFeatureModelForMapUse(feature);
+
             if (this.filterHelperService.featureIsCurrentlyFiltered(feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME])) {
               return this.filteredStyle;
             }
@@ -2857,6 +2858,9 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
       layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
         style: (feature) => {
+
+          feature = this.prepFeatureModelForMapUse(feature);
+
           if (this.filterHelperService.featureIsCurrentlyFiltered(feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME])) {
             return this.filteredStyle;
           }
@@ -2904,6 +2908,20 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
     this.map.invalidateSize(true);
     this.hideLoadingIconOnMap();
+  }
+
+  prepFeatureModelForMapUse(feature) {
+    feature.tempData = {};
+    let indicatorValue = feature.properties[this.INDICATOR_DATE_PREFIX + this.date];
+    if (this.dataExchangeService.indicatorValueIsNoData(indicatorValue)) {
+      feature.tempData.indicatorValueText = "NoData";
+    } else {
+      feature.tempData.indicatorValueText = this.dataExchangeService.getIndicatorValue_asFormattedText(indicatorValue);
+    }
+
+    feature.tempData.unitText = this.exchangeData.selectedIndicator.unit;
+
+    return feature;
   }
 
   containsNegativeValues (geoJSON) {
