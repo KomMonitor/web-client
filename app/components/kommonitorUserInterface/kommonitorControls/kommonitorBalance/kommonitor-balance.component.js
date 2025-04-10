@@ -41,6 +41,8 @@ angular
 
 							// reanebalbe DateSlider on map
 							$rootScope.$broadcast("EnableDateSlider");
+
+							$scope.onChangeUseBalance();
 						});
 
 						$scope.$on("replaceBalancedIndicator", function (event) {
@@ -56,6 +58,8 @@ angular
 							}
 
 							let indicatorMetadataAndGeoJSON = undefined;
+
+							$rootScope.$broadcast("removeRangeFilter");
 
 							if(kommonitorDataExchangeService.isBalanceChecked){
 								kommonitorDataExchangeService.isMeasureOfValueChecked = false;

@@ -43,7 +43,7 @@
   </div>
 
 	<!-- RÄUMLICHE FILTER -->
-	<div class="box box-primary" id="kommonitorSpatialFilter" ng-if="isFilterModeActive('kommonitorSpatialFilter')">
+	<div class="box box-primary" id="kommonitorSpatialFilter" ng-show="isFilterModeActive('kommonitorSpatialFilter')">
 		<div class="box-header with-border">
 			<h3 class="box-title">R&auml;umliche Filter</h3>
 
@@ -166,7 +166,10 @@
 							<button class="btn btn-primary" ng-disabled="!manualSelectionSpatialFilterSelectByMap" ng-click="manualSelectionSpatialFilterSelectByMapBtnClicked()">Selektionsbereich zeichnen</button>
 						</div>
 					</div>						 -->					
-					<button class="btn btn-primary" ng-click="onManualSelectionSpatialFilterSelectBtnPressed()">Selektion durchf&uuml;hren</button>
+					<button class="btn btn-primary" ng-click="onManualSelectionSpatialFilterSelectBtnPressed()"
+						ng-disabled="!manualSelectionSpatialFilterDuallistOptions || manualSelectionSpatialFilterDuallistOptions.selectedItems.length == 0">
+						Selektion durchf&uuml;hren
+					</button>
 					<button class="btn btn-danger"
 					ng-click="onManualSelectionSpatialFilterResetBtnPressed()">Selektion zur&uuml;cksetzen</button>
 

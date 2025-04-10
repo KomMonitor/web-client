@@ -11,5 +11,5 @@ tmp
 .idea
 build
 dist
-
+.angular
 .vscode/settings.json

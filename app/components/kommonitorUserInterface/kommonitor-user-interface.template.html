@@ -243,6 +243,39 @@
 					</button>
 				</div>
 
+				<div id="statusButtonContainer">
+					<div id="filterStatusButtonContainer"
+						ng-if="$ctrl.kommonitorDataExchangeServiceInstance.spatialFilterIsApplied || $ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked || $ctrl.kommonitorDataExchangeServiceInstance.rangeFilterIsApplied">
+						<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.spatialFilterIsApplied" 
+									id="filterNoticeButton" class="btn btn-warning btn-xs" title="Filter aktiviert">
+							<i class="fas fa-filter"></i>
+							<span ng-click="openFilterSidebar()" style="margin: 3px;">Räuml. Filter aktiviert </span>
+							<i class="fas fa-close" ng-click="onSpatialFilterCloseButtonClick()" title="Filter entfernen"></i>
+						</div>
+						<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked" 
+									id="filterNoticeButton" class="btn btn-warning btn-xs" title="Schwellenwertklassifizierung aktiviert">
+							<i class="fas fa-filter"></i>
+							<span ng-click="openFilterSidebar()" style="margin: 3px;">Schwellenwert aktiviert </span>
+							<i class="fas fa-close" ng-click="onMOVCloseButtonClick()" title="Filter entfernen"></i>
+						</div>
+						<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.rangeFilterIsApplied" 
+									id="filterNoticeButton" class="btn btn-warning btn-xs" title="Wertebereichfilter aktiviert">
+							<i class="fas fa-filter"></i>
+							<span ng-click="openFilterSidebar()" style="margin: 3px;">Wertebereichfilter aktiviert </span>
+							<i class="fas fa-close" ng-click="onRangeFilterCloseButtonClick()" title="Filter entfernen"></i>
+						</div>
+					</div>
+	
+					<div id="balanceStatusButton">
+						<span ng-if="$ctrl.kommonitorDataExchangeServiceInstance.isBalanceChecked" 
+									id="balanceNoticeButton" class="btn btn-warning btn-xs" title="Bilanzierung aktiviert">
+							<i class ="fas fa-chart-line"></i>
+							<span ng-click="openBalanceSidebar()" style="margin: 3px;">Bilanzierung aktiviert </span>
+							<i class="fas fa-close" ng-click="onBalanceCloseButtonClick()" title="Bilanzierung entfernen"></i>
+						</span>
+					</div>
+				</div>
+
 				<!-- Info and legend Control buttons -->				
 
 				<button type="button" style="top: 120px; right:10px; display:none;" id="toggleLegendControlButton"

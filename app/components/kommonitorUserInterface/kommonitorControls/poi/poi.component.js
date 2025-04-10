@@ -17,6 +17,7 @@ angular
 								this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 								this.kommonitorMapServiceInstance = kommonitorMapService;
 								$scope.useCluster = true;
+								$scope.useSpatialFilterForGeoressources = false;
 								$scope.loadingData = false;
 								$scope.date;
 
@@ -480,6 +481,22 @@ angular
 									}, 250);							
 								});
 
+								$scope.$on("onAddedFeatureToSelection", function (event, selectedIndicatorFeatureIds) {
+									$scope.refreshPoiLayers();
+								});
+
+								$scope.$on("indicatortMapDisplayFinished", function(){
+									$scope.refreshGeoressourceLayers();
+								});
+
+								$scope.$on("onRemovedFeatureFromSelection", function (event, selectedIndicatorFeatureIds) {
+									$scope.refreshPoiLayers();
+								});
+
+								$scope.$on("removeAllSpatialFilters", function(event){
+									$scope.useSpatialFilterForGeoressources = false;
+								});
+
 								$scope.refreshSelectedGeoresources = function(){
 									for (const georesource of kommonitorDataExchangeService.displayableGeoresources_keywordFiltered) {
 										if (georesource.isSelected){
@@ -518,15 +535,15 @@ angular
 										// depending on type we must call different methods
 										if (georesourceDataset.isPOI){
 											$scope.removePoiLayerFromMap(georesourceDataset);
-											$scope.addPoiLayerToMap(georesourceDataset, $scope.useCluster);
+											$scope.addPoiLayerToMap(georesourceDataset, $scope.useCluster, $scope.useSpatialFilterForGeoressources);
 										}
 										else if (georesourceDataset.isLOI){
 											$scope.removeLoiLayerFromMap(georesourceDataset);
-											$scope.addLoiLayerToMap(georesourceDataset);
+											$scope.addLoiLayerToMap(georesourceDataset, $scope.useSpatialFilterForGeoressources);
 										}
 										else if (georesourceDataset.isAOI){
 											$scope.removeAoiLayerFromMap(georesourceDataset);
-											$scope.addAoiLayerToMap(georesourceDataset);
+											$scope.addAoiLayerToMap(georesourceDataset, $scope.useSpatialFilterForGeoressources);
 										}
 										else{
 											console.error("unknown dataset: " + georesourceDataset);
@@ -553,7 +570,7 @@ angular
 
 									if(poi.isSelected){
 										//display on Map
-										$scope.addPoiLayerToMap(poi, $scope.useCluster);
+										$scope.addPoiLayerToMap(poi, $scope.useCluster, $scope.useSpatialFilterForGeoressources);
 									}
 									else{
 										// unselect topic
@@ -568,7 +585,7 @@ angular
 
 								};
 
-								$scope.addPoiLayerToMap = async function(poiGeoresource, useCluster) {
+								$scope.addPoiLayerToMap = async function(poiGeoresource, useCluster, useSpatialFilterForGeoressources) {
 									$scope.loadingData = true;
 									$rootScope.$broadcast("showLoadingIconOnMap");
 
@@ -592,7 +609,7 @@ angular
 
 											poiGeoresource.geoJSON = geoJSON;
 
-											kommonitorMapService.addPoiGeoresourceGeoJSON(poiGeoresource, date, useCluster);
+											kommonitorMapService.addPoiGeoresourceGeoJSON(poiGeoresource, date, useCluster, useSpatialFilterForGeoressources);
 											$scope.loadingData = false;
 											$rootScope.$broadcast("hideLoadingIconOnMap");
 
@@ -618,6 +635,36 @@ angular
 
 								};
 
+								$scope.refreshGeoressourceLayers = async function(){
+									for (var el of kommonitorDataExchangeService.displayableGeoresources_keywordFiltered){
+										if (el.isSelected){
+											if(el.isPOI) {
+												$scope.removePoiLayerFromMap(el);
+												await $scope.addPoiLayerToMap(el, $scope.useCluster, $scope.useSpatialFilterForGeoressources);
+											}
+											else if (el.isLOI) {
+												$scope.removeLoiLayerFromMap(el);
+												await $scope.addLoiLayerToMap(el, $scope.useSpatialFilterForGeoressources);
+											}
+											else if (el.isAOI) {
+												$scope.removeAoiLayerFromMap(el);
+												await $scope.addAoiLayerToMap(el, $scope.useSpatialFilterForGeoressources);
+											}
+										}
+									}
+
+									for (var wfs of kommonitorDataExchangeService.wfsDatasets){
+										if (wfs.geometryType == 'POI' && wfs.isSelected){
+											//remove POI layer from map
+											kommonitorMapService.removeWfsLayerFromMap(wfs);
+
+											// remove layer and add layer again
+											var opacity = 1 - wfs.transparency;
+											await kommonitorMapService.addWfsLayerToMap(wfs, opacity, $scope.useCluster);											
+										}
+									}
+								};
+
 								$scope.refreshPoiLayers = async function(){
 									for (var poi of kommonitorDataExchangeService.displayableGeoresources_keywordFiltered){
 										if (poi.isSelected){
@@ -625,7 +672,7 @@ angular
 											$scope.removePoiLayerFromMap(poi);
 
 											// remove layer and add layer again
-											await $scope.addPoiLayerToMap(poi, $scope.useCluster);
+											await $scope.addPoiLayerToMap(poi, $scope.useCluster, $scope.useSpatialFilterForGeoressources);
 										}
 									}
 
@@ -720,7 +767,7 @@ angular
 
 											aoiGeoresource.geoJSON = geoJSON;
 
-											kommonitorMapService.addAoiGeoresourceGeoJSON(aoiGeoresource, date);
+											kommonitorMapService.addAoiGeoresourceGeoJSON(aoiGeoresource, date, $scope.useSpatialFilterForGeoressources);
 											$scope.loadingData = false;
 											$rootScope.$broadcast("hideLoadingIconOnMap");
 
@@ -792,7 +839,7 @@ angular
 
 										if(loi.isSelected){
 											//display on Map
-											$scope.addLoiLayerToMap(loi);
+											$scope.addLoiLayerToMap(loi, $scope.addLoiGeoresourceGeoJSON);
 										}
 										else{
 											// unselect topic
@@ -807,7 +854,7 @@ angular
 
 									};
 
-									$scope.addLoiLayerToMap = async function(loiGeoresource) {
+									$scope.addLoiLayerToMap = async function(loiGeoresource, useSpatialFilterForGeoressources) {
 										$scope.loadingData = true;
 										$rootScope.$broadcast("showLoadingIconOnMap");
 
@@ -831,7 +878,7 @@ angular
 
 												loiGeoresource.geoJSON = geoJSON;
 
-												kommonitorMapService.addLoiGeoresourceGeoJSON(loiGeoresource, date);
+												kommonitorMapService.addLoiGeoresourceGeoJSON(loiGeoresource, date, $scope.useSpatialFilterForGeoressources);
 												$scope.loadingData = false;
 												$rootScope.$broadcast("hideLoadingIconOnMap");
 

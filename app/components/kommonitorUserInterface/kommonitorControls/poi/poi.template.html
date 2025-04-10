@@ -24,7 +24,7 @@
 				<b title="Checkbox zur Wahl, ob die einzelnen Punkte eines POI Layers geclustered werden sollen">Points
 					of Interest clustern</b> (Zusammenfassung mehrerer Punkte je nach Zoomstufe)
 				&nbsp;
-				<label class="switch">
+				<label class="switch" style="top: -5px; margin-top: 5px;">
 					<input type="checkbox" value="useCluster" ng-model="useCluster" ng-change="refreshPoiLayers()"
 						checked>
 					<span class="switchslider round"></span>
@@ -32,7 +32,7 @@
 
 				<br />
 
-				<label>
+				<label style="margin-bottom: 10px;">
 					<b title="Auswahl zur Größe der POI-Marker">Größe der Points
 						of Interest</b>
 					&nbsp;
@@ -41,6 +41,24 @@
 						ng-model="$ctrl.kommonitorDataExchangeServiceInstance.selectedPOISize"
 						ng-change="refreshPoiLayers()">
 					</select>
+				</label>
+
+				<br />
+
+				<b ng-if="!$ctrl.kommonitorDataExchangeServiceInstance.spatialFilterIsApplied"
+					 title="Checkbox zur Wahl, ob die gesetzten räumlichen Filter auf die POI angewendet werden sollen"
+					 style="color: #777">
+					Räumliche Filter anwenden
+				</b>
+				<b ng-if="$ctrl.kommonitorDataExchangeServiceInstance.spatialFilterIsApplied" 
+					 title="Checkbox zur Wahl, ob die gesetzten räumlichen Filter auf die POI angewendet werden sollen">
+					Räumliche Filter anwenden
+				</b>
+				&nbsp;
+				<label class="switch" style="top: -5px; margin-top: 5px;">
+					<input type="checkbox" value="useSpatialFilterForGeoressources" ng-model="useSpatialFilterForGeoressources" ng-change="refreshGeoressourceLayers()"
+						 ng-disabled="!$ctrl.kommonitorDataExchangeServiceInstance.spatialFilterIsApplied">
+					<span class="switchslider round switchsliderOrange"></span>
 				</label>
 
 				
@@ -271,6 +289,7 @@
 
 																		<b>&nbsp;&nbsp;{{::poi.datasetName}}</b> <a href="" ng-show="poi.isSelected" title="Auf Layer zoomen" ng-click="zoomToLayer(poi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></a>
 																	</label>
+																	<div ng-include="'components/kommonitorUserInterface/kommonitorControls/poi/templates/poi-filter-notice.html'"></div>
 																</td>
 																<td>
 																	<p>{{::poi.metadata.description}}</p>
@@ -331,6 +350,7 @@
 
 																		<b>&nbsp;&nbsp;{{::loi.datasetName}}</b> <a href="" ng-show="loi.isSelected" title="Auf Layer zoomen" ng-click="zoomToLayer(loi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></a>
 																	</label>
+																	<div ng-include="'components/kommonitorUserInterface/kommonitorControls/poi/templates/loi-filter-notice.html'"></div>
 																</td>
 																<td>
 																	<p>{{::loi.metadata.description}}</p>
@@ -382,6 +402,7 @@
 
 																		<b>&nbsp;&nbsp;{{::aoi.datasetName}}</b> <a href="" ng-show="aoi.isSelected" title="Auf Layer zoomen" ng-click="zoomToLayer(aoi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></a>
 																	</label>
+																	<div ng-include="'components/kommonitorUserInterface/kommonitorControls/poi/templates/aoi-filter-notice.html'"></div>
 																</td>
 																<td>
 																	<p>{{::aoi.metadata.description}}</p>
@@ -582,6 +603,7 @@
 
 																	<b>&nbsp;&nbsp;{{::poi.datasetName}}</b> <a href="" ng-show="poi.isSelected" title="Auf Layer zoomen" ng-click="zoomToLayer(poi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></a>
 																</label>
+																<div ng-include="'components/kommonitorUserInterface/kommonitorControls/poi/templates/poi-filter-notice.html'"></div>
 															</td>
 															<td>
 																<p>{{::poi.metadata.description}}</p>
@@ -642,6 +664,7 @@
 
 																	<b>&nbsp;&nbsp;{{::loi.datasetName}}</b> <a href="" ng-show="loi.isSelected" title="Auf Layer zoomen" ng-click="zoomToLayer(loi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></a>
 																</label>
+																<div ng-include="'components/kommonitorUserInterface/kommonitorControls/poi/templates/loi-filter-notice.html'"></div>
 															</td>
 															<td>
 																<p>{{::loi.metadata.description}}</p>
@@ -693,6 +716,7 @@
 
 																	<b>&nbsp;&nbsp;{{::aoi.datasetName}}</b> <a href="" ng-show="aoi.isSelected" title="Auf Layer zoomen" ng-click="zoomToLayer(aoi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></a>
 																</label>
+																<div ng-include="'components/kommonitorUserInterface/kommonitorControls/poi/templates/aoi-filter-notice.html'"></div>
 															</td>
 															<td>
 																<p>{{::aoi.metadata.description}}</p>
@@ -892,6 +916,7 @@
 
 																<b>&nbsp;&nbsp;{{::poi.datasetName}}</b> <a href="" ng-show="poi.isSelected" title="Auf Layer zoomen" ng-click="zoomToLayer(poi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></a>
 															</label>
+															<div ng-include="'components/kommonitorUserInterface/kommonitorControls/poi/templates/poi-filter-notice.html'"></div>
 														</td>
 														<td>
 															<p>{{::poi.metadata.description}}</p>
@@ -950,6 +975,7 @@
 
 																<b>&nbsp;&nbsp;{{::loi.datasetName}}</b> <a href="" ng-show="loi.isSelected" title="Auf Layer zoomen" ng-click="zoomToLayer(loi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></a>
 															</label>
+															<div ng-include="'components/kommonitorUserInterface/kommonitorControls/poi/templates/loi-filter-notice.html'"></div>
 														</td>
 														<td>
 															<p>{{::loi.metadata.description}}</p>
@@ -998,6 +1024,7 @@
 
 																<b>&nbsp;&nbsp;{{::aoi.datasetName}}</b> <a href="" ng-show="aoi.isSelected" title="Auf Layer zoomen" ng-click="zoomToLayer(aoi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></a>
 															</label>
+															<div ng-include="'components/kommonitorUserInterface/kommonitorControls/poi/templates/aoi-filter-notice.html'"></div>
 														</td>
 														<td>
 															<p>{{::aoi.metadata.description}}</p>
@@ -1196,6 +1223,7 @@
 
 															<b>&nbsp;&nbsp;{{::poi.datasetName}}</b> <a href="" ng-show="poi.isSelected" title="Auf Layer zoomen" ng-click="zoomToLayer(poi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></a>
 														</label>
+														<div ng-include="'components/kommonitorUserInterface/kommonitorControls/poi/templates/poi-filter-notice.html'"></div>
 													</td>
 													<td>
 														<p>{{::poi.metadata.description}}</p>
@@ -1254,6 +1282,7 @@
 
 															<b>&nbsp;&nbsp;{{::loi.datasetName}}</b> <a href="" ng-show="loi.isSelected" title="Auf Layer zoomen" ng-click="zoomToLayer(loi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></a>
 														</label>
+														<div ng-include="'components/kommonitorUserInterface/kommonitorControls/poi/templates/loi-filter-notice.html'"></div>
 													</td>
 													<td>
 														<p>{{::loi.metadata.description}}</p>
@@ -1302,6 +1331,7 @@
 
 															<b>&nbsp;&nbsp;{{::aoi.datasetName}}</b> <a href="" ng-show="aoi.isSelected" title="Auf Layer zoomen" ng-click="zoomToLayer(aoi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></a>
 														</label>
+														<div ng-include="'components/kommonitorUserInterface/kommonitorControls/poi/templates/aoi-filter-notice.html'"></div>
 													</td>
 													<td>
 														<p>{{::aoi.metadata.description}}</p>
@@ -1514,6 +1544,7 @@
 
 														<b>&nbsp;&nbsp;{{::poi.datasetName}}</b> <a href="" ng-show="poi.isSelected" title="Auf Layer zoomen" ng-click="zoomToLayer(poi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></a>
 													</label>
+													<div ng-include="'components/kommonitorUserInterface/kommonitorControls/poi/templates/poi-filter-notice.html'"></div>
 												</td>
 												<td>
 													<p>{{::poi.metadata.description}}</p>
@@ -1573,6 +1604,7 @@
 
 														<b>&nbsp;&nbsp;{{::loi.datasetName}}</b> <a href="" ng-show="loi.isSelected" title="Auf Layer zoomen" ng-click="zoomToLayer(loi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></a>
 													</label>
+													<div ng-include="'components/kommonitorUserInterface/kommonitorControls/poi/templates/loi-filter-notice.html'"></div>
 												</td>
 												<td>
 													<p>{{::loi.metadata.description}}</p>
@@ -1622,6 +1654,7 @@
 
 														<b>&nbsp;&nbsp;{{::aoi.datasetName}}</b> <a href="" ng-show="aoi.isSelected" title="Auf Layer zoomen" ng-click="zoomToLayer(aoi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></a>
 													</label>
+													<div ng-include="'components/kommonitorUserInterface/kommonitorControls/poi/templates/aoi-filter-notice.html'"></div>
 												</td>
 												<td>
 													<p>{{::aoi.metadata.description}}</p>
@@ -1833,6 +1866,7 @@
 
 															<b>&nbsp;&nbsp;{{::poi.datasetName}}</b> <a href="" ng-show="poi.isSelected" title="Auf Layer zoomen" ng-click="zoomToLayer(poi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></a>
 														</label>
+														<div ng-include="'components/kommonitorUserInterface/kommonitorControls/poi/templates/poi-filter-notice.html'"></div>
 													</td>
 													<td>
 														<p>{{::poi.metadata.description}}</p>
@@ -1934,6 +1968,7 @@
 
 															<b>&nbsp;&nbsp;{{::loi.datasetName}}</b> <a href="" ng-show="loi.isSelected" title="Auf Layer zoomen" ng-click="zoomToLayer(loi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></a>
 														</label>
+														<div ng-include="'components/kommonitorUserInterface/kommonitorControls/poi/templates/loi-filter-notice.html'"></div>
 													</td>
 													<td>
 														<p>{{::loi.metadata.description}}</p>
@@ -2021,6 +2056,7 @@
 															<b>&nbsp;&nbsp;{{::aoi.datasetName}}</b> <a href="" ng-show="aoi.isSelected" title="Auf Layer zoomen" ng-click="zoomToLayer(aoi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></a>
 													
 														</label>
+														<div ng-include="'components/kommonitorUserInterface/kommonitorControls/poi/templates/aoi-filter-notice.html'"></div>
 													</td>
 													<td>
 														<p>{{::aoi.metadata.description}}</p>
