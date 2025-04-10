@@ -38,7 +38,7 @@
 					&nbsp;
 
           <select (change)="refreshPoiLayers()" [(ngModel)]="selectedPoiSize">
-            <option *ngFor="let item of exchangeData.POISizes" [value]="item.id" [attr.selected]="(exchangeData.selectedPOISize.id==item.id) ? 'selected' : null">{{item.label}}</option>
+            <option *ngFor="let item of exchangeData.POISizes" [value]="item.id">{{item.label}}</option>
           </select>
 				</label>
 
@@ -251,12 +251,12 @@
 																</td>
 																<td
 																	*ngIf="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
-																	<select
+                                  <select
 																		style="font-size: 11px; width:135px; padding: 0px;"
 																		[(ngModel)]="poi.selectedDate"
 																		(change)="onChangeSelectedDate(poi)"
 																		class="form-control" required>
-                                    <option *ngFor="let date of poi.availablePeriodsOfValidity">{{date.startDate}}</option>
+                                    <option *ngFor="let date of poi.availablePeriodsOfValidity" [value]="date">{{date.startDate}}</option>
 																	</select>
 
                                   <!-- 
@@ -560,7 +560,7 @@
 																	[(ngModel)]="poi.selectedDate"
 																	(change)="onChangeSelectedDate(poi)"
 																	class="form-control" required>
-                                  <option *ngFor="let date of poi.availablePeriodsOfValidity">{{date.startDate}}</option>
+                                  <option *ngFor="let date of poi.availablePeriodsOfValidity" [value]="date">{{date.startDate}}</option>
 																</select>
 
                                 <!-- 
@@ -862,7 +862,7 @@
 																[(ngModel)]="poi.selectedDate"
 																(change)="onChangeSelectedDate(poi)"
 																class="form-control" required>
-                                <option *ngFor="let date of poi.availablePeriodsOfValidity">{{date.startDate}}</option>
+                                <option *ngFor="let date of poi.availablePeriodsOfValidity" [value]="date">{{date.startDate}}</option>
 															</select>
                               <!-- 
 																ng-options="date as date.startDate for date in poi.availablePeriodsOfValidity | orderBy: 'startDate' | unique: 'startDate'"
@@ -1158,7 +1158,7 @@
 															[(ngModel)]="poi.selectedDate"
 															(change)="onChangeSelectedDate(poi)"
 															class="form-control" required>
-                              <option *ngFor="let date of poi.availablePeriodsOfValidity">{{date.startDate}}</option>
+                              <option *ngFor="let date of poi.availablePeriodsOfValidity" [value]="date">{{date.startDate}}</option>
 														</select>
 
                             <!-- 
@@ -1470,7 +1470,7 @@
 														[(ngModel)]="poi.selectedDate"
 														(change)="onChangeSelectedDate(poi)"
 														class="form-control" required>
-                            <option *ngFor="let date of poi.availablePeriodsOfValidity">{{date.startDate}}</option>
+                            <option *ngFor="let date of poi.availablePeriodsOfValidity" [value]="date">{{date.startDate}}</option>
 													</select>
 
                           <!-- 
@@ -1786,7 +1786,7 @@
 															[(ngModel)]="poi.selectedDate"
 															(change)="onChangeSelectedDate(poi)"
 															class="form-control" required>
-                              <option *ngFor="let date of poi.availablePeriodsOfValidity">{{date.startDate}}</option>
+                              <option *ngFor="let date of poi.availablePeriodsOfValidity" [value]="date">{{date.startDate}}</option>
 														</select>
                             <!-- 
 															ng-options="date as date.startDate for date in poi.availablePeriodsOfValidity | orderBy: 'startDate' | unique: 'startDate'"
@@ -1876,7 +1876,7 @@
 															[(ngModel)]="loi.selectedDate"
 															(change)="onChangeSelectedDate(loi)"
 															class="form-control" required>
-                              <option *ngFor="let date of loi.availablePeriodsOfValidity">{{date.startDate}}</option>
+                              <option *ngFor="let date of loi.availablePeriodsOfValidity" [value]="date">{{date.startDate}}</option>
 														</select>
 
                             <!-- ng-options="date as date.startDate for date in loi.availablePeriodsOfValidity | orderBy: 'startDate' | unique: 'startDate'"
@@ -1963,7 +1963,7 @@
 															[(ngModel)]="aoi.selectedDate"
 															(change)="onChangeSelectedDate(aoi)"
 															class="form-control" required>
-                              <option *ngFor="let date of aoi.availablePeriodsOfValidity">{{date.startDate}}</option>
+                              <option *ngFor="let date of aoi.availablePeriodsOfValidity" [value]="date">{{date.startDate}}</option>
 														</select>
 
                             <!-- 

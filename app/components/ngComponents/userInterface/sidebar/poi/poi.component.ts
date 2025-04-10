@@ -84,6 +84,22 @@ export class PoiComponent implements OnInit{
        if(!this.topicsCollapsed.includes(elem.topicId))
         this.topicsCollapsed.push(elem.topicId);
 
+      if(elem.poiData.length>0) {
+        elem.poiData.forEach(poiElem => {
+          poiElem.selectedDate = poiElem.availablePeriodsOfValidity[0];
+        });
+      }
+      if(elem.aoiData.length>0) {
+        elem.aoiData.forEach(aoiElem => {
+          aoiElem.selectedDate = aoiElem.availablePeriodsOfValidity[0];
+        });
+      }
+      if(elem.loiData.length>0) {
+        elem.loiData.forEach(loiElem => {
+          loiElem.selectedDate = loiElem.availablePeriodsOfValidity[0];
+        });
+      }
+
       if(elem.subTopics.length>0) {
         elem.subTopics = this.prepareTopicGeoresourceHierarchyRecursive(elem.subTopics);
       }
