@@ -245,7 +245,7 @@ export class KommonitorBalanceComponent implements OnInit {
 						}
 
 						updateTrendChart(indicatorMetadata, datePeriodSliderData){
-							
+							console.log("sdff")
 
 							var fromDateAsPropertyString = this.getFromDate_asPropertyString(datePeriodSliderData);
 							var toDateAsPropertyString = this.getToDate_asPropertyString(datePeriodSliderData);
@@ -416,9 +416,9 @@ export class KommonitorBalanceComponent implements OnInit {
           });
        
           // fehler hier 
-         /*  this.slider.noUiSlider.on('set', () => {
+          this.slider.noUiSlider.on('set', () => {
             this.onChangeBalanceRange(this.getFormatedSliderReturn());
-          }); */
+          });
 
           if (!this.exchangeData.isBalanceChecked){
             // deactivate balance slider

@@ -32,7 +32,7 @@
 				<label class="switch">
 					<input id="showSelectionByFeatureSpatialFilterToggle" type="checkbox" (change)="onChangeShowSelectionByFeature(showSelectionByFeatureSpatialFilter)"
 						[(ngModel)]="showSelectionByFeatureSpatialFilter" 
-						(checked)="showSelectionByFeatureSpatialFilter">
+						(checked)="showSelectionByFeatureSpatialFilter=!showSelectionByFeatureSpatialFilter">
 					<span class="switchslider round"></span>
 				</label>
 
@@ -105,7 +105,7 @@
 				<label class="switch">
 					<input id="showManualSelectionSpatialFilterToggle" type="checkbox" (change)="onChangeShowManualSelection(showManualSelectionSpatialFilter)"
 						[(ngModel)]="showManualSelectionSpatialFilter" 
-						(checked)="showManualSelectionSpatialFilter">
+						(checked)="showManualSelectionSpatialFilter=!showManualSelectionSpatialFilter">
 					<span class="switchslider round"></span>
 				</label>
 				<div id="manualSelectionSpatialFilter" *ngIf="showManualSelectionSpatialFilter">

@@ -28,7 +28,9 @@ export class KommonitorDiagramsComponent implements OnInit{
 
       switch (title) {
         case 'updateDiagrams': {
-          this.updateDiagrams(values);
+          setTimeout(() => {
+            this.updateDiagrams(values);
+          },1500);
         } break;
       }
     });
