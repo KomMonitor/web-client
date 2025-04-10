@@ -97,7 +97,7 @@
 			
 																						<div class="list-group collapse indicatorInputForm" uib-collapse="isCollapsed_subsubsubTopic">
 																							<div id="indicatorHierarchyElement-{{::indicatorMetadata.indicatorId}}" ng-class="{'style-headline-indicator': indicatorMetadata.isHeadlineIndicator , 'style-simple-indicator': ! indicatorMetadata.isHeadlineIndicator}" 
-																								ng-repeat="indicatorMetadata in subsubsubTopic.indicatorData track by indicatorMetadata.indicatorId" class="list-group-item list-group-item-default kommonitor-theme">
+																								ng-repeat="indicatorMetadata in subsubsubTopic.indicatorData track by indicatorMetadata.indicatorId" class="list-group-item list-group-item-default">
 																								<div ng-if="::indicatorMetadata.isHeadlineIndicator" class="list-group-item-grid-layout">
 																									<div>
                                                     <p style="cursor:pointer; color: white;" ng-attr-title="<b>{{::indicatorMetadata.indicatorName}}</b> [{{::indicatorMetadata.unit}}]" style="color: white;" ng-click="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-tachometer-alt"></i> &nbsp;&nbsp;<b>{{::indicatorMetadata.indicatorName}}</b> [{{::indicatorMetadata.unit}}]</p>																			
