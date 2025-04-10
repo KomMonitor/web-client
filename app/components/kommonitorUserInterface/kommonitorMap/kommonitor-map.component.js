@@ -1576,6 +1576,8 @@ angular.module('kommonitorMap').component(
             opacity: 1
           };
 
+          let filteredFeatures = [];
+
           if (useSpatialFilterForGeoressources) {
             let indicatorGeoJSON = JSON.parse(JSON.stringify(kommonitorDataExchangeService.selectedIndicator.geoJSON));
             let filteredIndicatorFeatures = indicatorGeoJSON.features.filter(feature => !kommonitorFilterHelperService.filteredIndicatorFeatureIds.has("" + feature.properties[__env.FEATURE_ID_PROPERTY_NAME]));
@@ -1601,6 +1603,8 @@ angular.module('kommonitorMap').component(
                     style: style,
                     onEachFeature: onEachFeatureGeoresource
                   }).addTo(featureGroup);
+
+                  filteredFeatures.push(item);
               }
             }
             else{
@@ -1611,6 +1615,7 @@ angular.module('kommonitorMap').component(
                       style: style,
                       onEachFeature: onEachFeatureGeoresource
                     }).addTo(featureGroup);
+                    filteredFeatures.push(item);
                     break;
                   }
                 }
@@ -1620,7 +1625,10 @@ angular.module('kommonitorMap').component(
                   style: style,
                   onEachFeature: onEachFeatureGeoresource
                 }).addTo(featureGroup);
+                filteredFeatures.push(item);
               }
+
+              georesourceMetadataAndGeoJSON.geoJSON.features = filteredFeatures;
 
               
               // alternative version with line/polygon intersection

@@ -30,6 +30,10 @@ body {
 	overflow-y: auto !important;
 }
 
+.kommonitorOrange{
+	color: rgb(247, 147, 30)
+}
+
 /* toastr library override of transparency */
 .toast { opacity: 0.8 }
 

@@ -688,6 +688,22 @@ angular
 									}
 								};
 
+								$scope.getExportLinkForFilteredGeoresource = function(georesource){
+									var date = $scope.getQueryDate(georesource);
+
+									var dateComps = date.split("-");
+
+									var year = dateComps[0];
+									var month = dateComps[1];
+									var day = dateComps[2];
+
+									var fileName = georesource.datasetName + "-" + year + "-" + month + "-" + day + "_gefiltert";
+
+									var geoJSON_string = JSON.stringify(georesource.geoJSON);
+
+									kommonitorDataExchangeService.generateAndDownloadGeoresourceZIP(georesource, geoJSON_string, fileName, ".geojson", {});
+								}
+
 								$scope.getExportLinkForPoi = function(poi){
 									var date = $scope.getQueryDate(poi);
 
