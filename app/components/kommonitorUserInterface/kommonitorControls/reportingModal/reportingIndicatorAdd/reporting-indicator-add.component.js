@@ -56,6 +56,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		// page config is applied for the whole template and set within template.pageConfig later
 		// in order to apply config on overview page and report generation 
 		$scope.pageConfig = {
+			mapLegendBackgroundColor: "rgba(255, 255, 255, 0.75)",
 			showMapLabels: true,
 			showRankingChartPerArea: true,
 			showLineChartPerArea: true,
@@ -2266,6 +2267,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 			if(pageElement.classify === true) {
 				options.visualMap.show = true;
+				options.visualMap.backgroundColor = $scope.pageConfig.mapLegendBackgroundColor;
 			} else {
 				options.visualMap.show = false;
 			}

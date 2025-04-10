@@ -158,7 +158,7 @@
                                 <div class="row">
                                     <div class="col-md-4">
                                         <div class="reporting-element-config-box">
-                                            <h5>Sektionen</h5>  
+                                            <h5>Abschnitte</h5>  
                                             
                                             <div ng-show="! template.name.includes('-reachability')">
                                             
@@ -169,7 +169,7 @@
                                                         ng-change="onChangeShowPageSection()">
                                                     <span class="switchslider round"></span>
                                                 </label>
-                                                Karte - nicht klassifiziert
+                                                Gesamtkarte - einheitliche Farbe
 
                                                 <br/>
 
@@ -180,7 +180,7 @@
                                                         ng-change="onChangeShowPageSection()">
                                                     <span class="switchslider round"></span>
                                                 </label>
-                                                Karte - klassifiziert
+                                                Gesamtkarte - farbklassifiziert
 
                                                 <br/>
 
@@ -260,7 +260,7 @@
                                                     ng-change="onChangePageConfig()">
                                                 <span class="switchslider round"></span>
                                             </label>
-                                            Titel? 
+                                            Titel
 
                                             <br>
                                             
@@ -271,7 +271,7 @@
                                                     ng-change="onChangePageConfig()">
                                                 <span class="switchslider round"></span>
                                             </label>
-                                            Untertitel? 
+                                            Untertitel
 
                                             <br>
                                             
@@ -282,7 +282,7 @@
                                                     ng-change="onChangePageConfig()">
                                                 <span class="switchslider round"></span>
                                             </label>
-                                            Logo? 
+                                            Logo
 
                                             <br>
                                             
@@ -293,7 +293,7 @@
                                                     ng-change="onChangePageConfig()">
                                                 <span class="switchslider round"></span>
                                             </label>
-                                            Erstelldetails?
+                                            Erstelldetails 
 
                                             <br>
                                             
@@ -304,12 +304,12 @@
                                                     ng-change="onChangePageConfig()">
                                                 <span class="switchslider round"></span>
                                             </label>
-                                            Seitenzahl? 
+                                            Seitenzahl
                                         </div>
                                     </div>
                                     <div class="col-md-5">
                                         <div class="reporting-element-config-box">
-                                            <h5>Sektionsinhalte</h5>   
+                                            <h5>Abschnittssinhalte</h5>   
                                             <i>Kartendarstellungen</i> 
                                             <br/>                                           
                                             <label class="switch" title="Label anzeigen">
@@ -319,10 +319,10 @@
                                                     ng-change="onChangeShowMapLabels()">
                                                 <span class="switchslider round"></span>
                                             </label>
-                                            Label anzeigen?
+                                            Label anzeigen
 
                                             <div>
-                                                Hintergrundkarte?
+                                                Hintergrundkarte
                                                 <select ng-model="selectedBaseMap"
                                                     ng-options="baseMap as baseMap.layerConfig.name for baseMap in $ctrl.kommonitorDataExchangeServiceInstance.baseLayerDefinitionsArray | filter:filterBaseMaps()"
                                                     class="form-control" ng-change="onChangeSelectedBaseMap()" required>
@@ -344,7 +344,7 @@
                                                         ng-change="onChangePageConfig()">
                                                     <span class="switchslider round"></span>
                                                 </label>
-                                                Ranking Chart pro Raumeinheit?
+                                                Ranking Chart pro Raumeinheit
                                                 
 
                                                 <br>
@@ -356,7 +356,7 @@
                                                         ng-change="onChangeShowRankingMeanLine()">
                                                     <span class="switchslider round"></span>
                                                 </label>
-                                                Ranking-Durchschnittslinie?
+                                                Ranking-Durchschnittslinie
 
                                             </div>
                                             
@@ -373,22 +373,25 @@
                                                         ng-change="onChangePageConfig()">
                                                     <span class="switchslider round"></span>
                                                 </label>
-                                                Zeitreihen Chart pro Raumeinheit?
+                                                Zeitreihen Chart pro Raumeinheit
 
                                             </div>
 
-                                            <br/>
-                                            <i>Sonstiges</i> 
-                                            <br/>
+                                            <div ng-show="! template.name.includes('-reachability')">
+                                                <br/>
+                                                <i>Sonstiges</i> 
+                                                <br/>
 
-                                            <label class="switch" title="Freitext anzeigen">
-                                                <input type="checkbox"
-                                                    ng-model="pageConfig.showFreeText"
-                                                    ng-checked="pageConfig.showFreeText"
-                                                    ng-change="onChangePageConfig()">
-                                                <span class="switchslider round"></span>
-                                            </label>
-                                            Freitext?
+                                                <label class="switch" title="Freitext anzeigen">
+                                                    <input type="checkbox"
+                                                        ng-model="pageConfig.showFreeText"
+                                                        ng-checked="pageConfig.showFreeText"
+                                                        ng-change="onChangePageConfig()">
+                                                    <span class="switchslider round"></span>
+                                                </label>
+                                                Freitextfeld
+                                            </div>
+                                            
                                         </div>
                                     </div>
                                 </div>
