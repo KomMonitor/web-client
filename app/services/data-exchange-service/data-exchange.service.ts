@@ -272,4 +272,8 @@ export class DataExchangeService {
   formatIndicatorNameForLabel(value, num) {
     return this.ajskommonitorDataExchangeServiceeProvider.formatIndicatorNameForLabel(value, num);
   }
+
+  filterIndicators() {
+    return this.ajskommonitorDataExchangeServiceeProvider.filterIndicators();
+  }
 }

@@ -47,6 +47,7 @@ import { NgbCollapseModule } from '@ng-bootstrap/ng-bootstrap';
 import { IndicatorRadarComponent } from './components/ngComponents/userInterface/sidebar/indicatorRadar/indicator-radar.component';
 import { ClassificationMethodSelectComponent } from './components/ngComponents/common/classificationMethodSelect/classification-method-select.component';
 import { IndicatorNameFilter } from 'pipes/titleFilter.pipe';
+import { RegressionDiagramComponent } from './components/ngComponents/userInterface/sidebar/regressionDiagram/regression-diagram.component';
 
 
 
@@ -93,7 +94,8 @@ declare var MathJax;
     UserInterfaceComponent,
     IndicatorRadarComponent,
     ClassificationMethodSelectComponent,
-    IndicatorNameFilter
+    IndicatorNameFilter,
+    RegressionDiagramComponent
   ],
   schemas: [
     CUSTOM_ELEMENTS_SCHEMA

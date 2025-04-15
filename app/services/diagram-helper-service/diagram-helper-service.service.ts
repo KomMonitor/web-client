@@ -134,4 +134,8 @@ export class DiagramHelperServiceService {
       }
     });
   };
+
+  getColorForFeature(feature, indicatorMetadataAndGeoJSON, indicatorPropertyName, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue) {
+    return this.ajskommonitorDiagramHelperServiceProvider.getColorForFeature(feature, indicatorMetadataAndGeoJSON, indicatorPropertyName, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue);
+  }
 }

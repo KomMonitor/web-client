@@ -50,7 +50,6 @@ export class KommonitorClassificationComponent implements OnInit {
       
     this.instantiateColorBrewerPalettes();
 
-    console.log(this.visualStyleData.classifyMethod, this.visualStyleData.hiddenMethodIds)
      // catch broadcast msgs
     this.broadcastService.currentBroadcastMsg.subscribe(broadcastMsg => {
       let title = broadcastMsg.msg;
