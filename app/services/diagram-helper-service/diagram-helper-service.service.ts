@@ -89,6 +89,7 @@ export class DiagramHelperServiceService {
           // per default show no indicators on radar
           selectableIndicatorEntry.isSelected = false;
           selectableIndicatorEntry.indicatorMetadata = indicatorMetadata;
+          selectableIndicatorEntry.selectedDate = indicatorMetadata.applicableDates[indicatorMetadata.applicableDates.length-1];
           // selectableIndicatorEntry.closestTimestamp = undefined;
 
           this.indicatorPropertiesForCurrentSpatialUnitAndTime.push(selectableIndicatorEntry);
@@ -100,21 +101,31 @@ export class DiagramHelperServiceService {
   }
   
   fetchIndicatorPropertiesIfNotExists(index) {
-
     if(this.indicatorPropertiesForCurrentSpatialUnitAndTime[index].indicatorProperties === null || this.indicatorPropertiesForCurrentSpatialUnitAndTime[index].indicatorProperties === undefined){
       // var dateComps = kommonitorDataExchangeService.selectedDate.split("-");
       //
       // 	var year = dateComps[0];
       // 	var month = dateComps[1];
       // 	var day = dateComps[2];
-      this.indicatorPropertiesForCurrentSpatialUnitAndTime[index].indicatorProperties = this.fetchIndicatorProperties(this.indicatorPropertiesForCurrentSpatialUnitAndTime[index].indicatorMetadata, this.exchangeData.selectedSpatialUnit.spatialUnitId);
+      this.setIndicatorProperties(index);
     }
   }
 
-  fetchIndicatorProperties(indicatorMetadata, spatialUnitId) {
+  setIndicatorProperties(index) {
+    let url = this.dataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/indicators/" + this.indicatorPropertiesForCurrentSpatialUnitAndTime[index].indicatorMetadata.indicatorId + "/" + this.exchangeData.selectedSpatialUnit.spatialUnitId + "/without-geometry";
+    return this.http.get(url).subscribe({
+      next: (response:any) => {
+        this.indicatorPropertiesForCurrentSpatialUnitAndTime[index].indicatorProperties = response;
+      },
+      error: error => {
+        this.dataExchangeService.displayMapApplicationError(error);
+      }
+    });
+  }
 
+  fetchIndicatorProperties(indicatorMetadata, spatialUnitId) {
     let url = this.dataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/indicators/" + indicatorMetadata.indicatorId + "/" + spatialUnitId + "/without-geometry";
-    this.http.get(url).subscribe({
+    return this.http.get(url).subscribe({
       next: (response:any) => {
         return response;
       },

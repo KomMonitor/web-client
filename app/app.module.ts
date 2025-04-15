@@ -46,6 +46,7 @@ import { UserInterfaceComponent } from './components/ngComponents/userInterface/
 import { NgbCollapseModule } from '@ng-bootstrap/ng-bootstrap';
 import { IndicatorRadarComponent } from './components/ngComponents/userInterface/sidebar/indicatorRadar/indicator-radar.component';
 import { ClassificationMethodSelectComponent } from './components/ngComponents/common/classificationMethodSelect/classification-method-select.component';
+import { IndicatorNameFilter } from 'pipes/titleFilter.pipe';
 
 
 
@@ -91,7 +92,8 @@ declare var MathJax;
     KommonitorDiagramsComponent,
     UserInterfaceComponent,
     IndicatorRadarComponent,
-    ClassificationMethodSelectComponent
+    ClassificationMethodSelectComponent,
+    IndicatorNameFilter
   ],
   schemas: [
     CUSTOM_ELEMENTS_SCHEMA

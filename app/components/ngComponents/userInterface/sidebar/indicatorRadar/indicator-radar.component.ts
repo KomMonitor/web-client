@@ -27,6 +27,7 @@ export class IndicatorRadarComponent implements OnInit {
 
   exchangeData!: DataExchange;
 
+  preppedIndicatorPropertiesForCurrentSpatialUnitAndTime!:any;
   propertiesForCurrentlySelectedIndicator!:any;
   propertiesForBaseIndicatorsOfCurrentHeadlineIndicator!: any;
 
@@ -94,6 +95,12 @@ export class IndicatorRadarComponent implements OnInit {
       }
   }); 
 */
+
+  filterAvailableIndicators(event:any) {
+    let value = event.target.value;
+    this.indicatorNameFilter = value;
+  }
+
   onResizeDiagrams(){
       setTimeout( () => {
           if (this.radarChart != null && this.radarChart != undefined) {
@@ -170,29 +177,40 @@ export class IndicatorRadarComponent implements OnInit {
   }
 
   modifyRadarContent(indicatorsForRadar) {
-      var indicatorArrayForRadarChart = new Array();
-      var defaultSeriesValueArray = new Array();
-      var sampleProperties = null;
-      for (var i = 0; i < indicatorsForRadar.length; i++) {
+
+    for (let i = 0; i < indicatorsForRadar.length; i++) {
+      if (indicatorsForRadar[i].isSelected) {
+        
+          this.diagramHelperService.fetchIndicatorPropertiesIfNotExists(i);
+      }
+    }
+
+    setTimeout(() => {
+
+      let indicatorArrayForRadarChart = new Array();
+      let defaultSeriesValueArray = new Array();
+      let sampleProperties = null;
+      
+      for (let i = 0; i < indicatorsForRadar.length; i++) {
           if (indicatorsForRadar[i].isSelected) {
             
-              this.diagramHelperService.fetchIndicatorPropertiesIfNotExists(i);
+
               // make object to hold indicatorName, max value and average value
-              var indicatorProperties = indicatorsForRadar[i].indicatorProperties;
+              let indicatorProperties = indicatorsForRadar[i].indicatorProperties;
               if (this.filterHelperService.completelyRemoveFilteredFeaturesFromDisplay && this.filterHelperService.filteredIndicatorFeatureIds.size > 0) {
                   indicatorProperties = indicatorProperties.filter(featureProperties => !this.filterHelperService.featureIsCurrentlyFiltered(featureProperties[window.window.__env.FEATURE_ID_PROPERTY_NAME]));
               }
               sampleProperties = indicatorsForRadar[i].indicatorProperties;
               // var closestApplicableTimestamp = kommonitorDiagramHelperService.findClostestTimestamForTargetDate(indicatorsForRadar[i], this.date);
               // indicatorsForRadar[i].closestTimestamp = closestApplicableTimestamp;
-              var sample = indicatorProperties[0];
-              var maxValue = sample[this.DATE_PREFIX + indicatorsForRadar[i].selectedDate];
-              var minValue = sample[this.DATE_PREFIX + indicatorsForRadar[i].selectedDate];
-              var valueSum = 0;
-              for (var indicatorPropertyInstance of indicatorProperties) {
+              let sample:any[] = indicatorProperties[0];
+              let maxValue = sample[this.DATE_PREFIX + indicatorsForRadar[i].selectedDate];
+              let minValue = sample[this.DATE_PREFIX + indicatorsForRadar[i].selectedDate];
+              let valueSum = 0;
+              for (let indicatorPropertyInstance of indicatorProperties) {
                   // for average only apply real numeric values
                   if (!this.dataExchangeService.indicatorValueIsNoData(indicatorPropertyInstance[this.DATE_PREFIX + indicatorsForRadar[i].selectedDate])) {
-                      var value = this.dataExchangeService.getIndicatorValueFromArray_asNumber(indicatorPropertyInstance, indicatorsForRadar[i].selectedDate);
+                    let value = this.dataExchangeService.getIndicatorValueFromArray_asNumber(indicatorPropertyInstance, indicatorsForRadar[i].selectedDate);
                       valueSum += value;
                       if (value > maxValue)
                           maxValue = value;
@@ -380,6 +398,8 @@ export class IndicatorRadarComponent implements OnInit {
           }, 350);
           this.registerEventsIfNecessary();
       }
+      
+    },1000);
   };
 
   appendSelectedFeaturesIfNecessary(sampleProperties) {

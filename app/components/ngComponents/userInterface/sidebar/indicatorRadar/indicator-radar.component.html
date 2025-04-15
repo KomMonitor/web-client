@@ -38,7 +38,7 @@
 
 								<div class="input-group">
 									<span class="input-group-addon"><i class="fas fa-filter"></i></span>
-									<input type="text" class="form-control input-sm" placeholder="Stichwortfilter" [(ngModel)]="indicatorNameFilter">
+									<input type="text" class="form-control input-sm" placeholder="Stichwortfilter" (keyup)="filterAvailableIndicators($event)">
 								</div>
 
 								<p></p>
@@ -53,15 +53,15 @@
 										</th>
 									</thead>
 									<tbody> <!--   | filter:indicatorNameFilter -->
-										<tr *ngFor='let input of diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime'>
+										<tr *ngFor='let input of diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime | indicatorNameFilter:indicatorNameFilter'>
 											<td>
 												<label class='checkbox-inline input-sm' ><input type="checkbox" value="input.indicatorMetadata.indicatorName" [(ngModel)]="input.isSelected" (change)="filterDisplayedIndicatorsOnRadar()">{{input.indicatorMetadata.indicatorName}}  </label>											
 											</td>
 											<td>
 												<select style="font-size: 11px; width:135px; padding: 0px;"
-													(ngModel)="input.selectedDate" (change)="onChangeSelectedDate(input)"
+													[(ngModel)]="input.selectedDate" (change)="onChangeSelectedDate(input)"
 													class="form-control" required>
-                          <option *ngFor="let date of input.indicatorMetadata.applicableDates" [attr.selected]="date==input.indicatorMetadata.applicableDates[input.indicatorMetadata.applicableDates.length - 1] ? 'selected' : null">{{date}}</option>
+                          <option *ngFor="let date of input.indicatorMetadata.applicableDates" [attr.selected]="(date==input.selectedDate) ? 'selected' : null">{{date}}</option>
 												</select>
 											</td>
 										
@@ -87,7 +87,7 @@
 											Zeitschnitt
 										</th>
 									</thead>
-									<tbody>                       <!--   | filter:kommonitorDataExchangeServiceInstance.filterCurrentlySelectedIndicator() -->
+									<tbody>                      
 										<tr *ngFor='let input of propertiesForCurrentlySelectedIndicator'>
 											<td>
 												<label class='checkbox-inline input-sm' ><input type="checkbox" value="input.indicatorMetadata.indicatorName" [(ngModel)]="input.isSelected" ng-init="input.isSelected = true" (change)="filterDisplayedIndicatorsOnRadar()">{{input.indicatorMetadata.indicatorName}}  </label>											
@@ -96,13 +96,13 @@
 												Ziel-Indikator (systemseitig berechnet)
 											</td>
 											<td>
-												<select style="font-size: 11px; width:135px; padding: 0px;"
-													[(ngModel)]="input.selectedDate" (change)="onChangeSelectedDate(input)" ng-options="date as date for date in input.indicatorMetadata.applicableDates" ng-init="input.selectedDate = input.indicatorMetadata.applicableDates[input.indicatorMetadata.applicableDates.length - 1]"
-													class="form-control" required>
-												</select>
+                        <select style="font-size: 11px; width:135px; padding: 0px;"
+                          [(ngModel)]="input.selectedDate" (change)="onChangeSelectedDate(input)" class="form-control" required>
+                          <option *ngFor="let date of input.indicatorMetadata.applicableDates" [attr.selected]="(date==input.selectedDate) ? 'selected' : null">{{date}}</option>
+                        </select>
 											</td>
 										
-										</tr>                   <!--   | filter:kommonitorDataExchangeServiceInstance.filterBaseIndicatorsOfCurrentComputationIndicator()  -->
+										</tr>                  
 										<tr *ngFor='let input of propertiesForBaseIndicatorsOfCurrentHeadlineIndicator'>
 											<td>
 												<label class='checkbox-inline input-sm' ><input type="checkbox" value="input.indicatorMetadata.indicatorName" [(ngModel)]="input.isSelected" ng-init="input.isSelected = true" (change)="filterDisplayedIndicatorsOnRadar()">{{input.indicatorMetadata.indicatorName}}  </label>											
@@ -111,10 +111,10 @@
 												Basisindikator (Berechnungsgrundlage des Ziel-Indikators)
 											</td>
 											<td>
-												<select style="font-size: 11px; width:135px; padding: 0px;"
-													[(ngModel)]="input.selectedDate" (change)="onChangeSelectedDate(input)" ng-options="date as date for date in input.indicatorMetadata.applicableDates" ng-init="input.selectedDate = input.indicatorMetadata.applicableDates[input.indicatorMetadata.applicableDates.length - 1]"
-													class="form-control" required>
-												</select>
+                        <select style="font-size: 11px; width:135px; padding: 0px;"
+                          [(ngModel)]="input.selectedDate" (change)="onChangeSelectedDate(input)" class="form-control" required>
+                          <option *ngFor="let date of input.indicatorMetadata.applicableDates" [attr.selected]="(date==input.selectedDate) ? 'selected' : null">{{date}}</option>
+                        </select>
 											</td>
 										
 										</tr>	
@@ -139,7 +139,7 @@
 											Zeitschnitt
 										</th>
 									</thead>
-									<tbody><!--   | filter:kommonitorDataExchangeServiceInstance.filterCurrentlySelectedIndicator()  -->
+									<tbody>
 										<tr *ngFor='let input of propertiesForCurrentlySelectedIndicator'>
 											<td>
 												<label class='checkbox-inline input-sm' ><input type="checkbox" value="input.indicatorMetadata.indicatorName" [(ngModel)]="input.isSelected" ng-init="input.isSelected = true" (change)="filterDisplayedIndicatorsOnRadar()">{{input.indicatorMetadata.indicatorName}}  </label>											
@@ -148,13 +148,13 @@
 												Leitindikator
 											</td>
 											<td>
-												<select style="font-size: 11px; width:135px; padding: 0px;"
-													[(ngModel)]="input.selectedDate" (change)="onChangeSelectedDate(input)" ng-options="date as date for date in input.indicatorMetadata.applicableDates" ng-init="input.selectedDate = input.indicatorMetadata.applicableDates[input.indicatorMetadata.applicableDates.length - 1]"
-													class="form-control" required>
-												</select>
+                        <select style="font-size: 11px; width:135px; padding: 0px;"
+                          [(ngModel)]="input.selectedDate" (change)="onChangeSelectedDate(input)" class="form-control" required>
+                          <option *ngFor="let date of input.indicatorMetadata.applicableDates" [attr.selected]="(date==input.selectedDate) ? 'selected' : null">{{date}}</option>
+                        </select>
 											</td>
 										
-										</tr><!--  | filter:kommonitorDataExchangeServiceInstance.filterBaseIndicatorsOfCurrentHeadlineIndicator()  -->
+										</tr>
 										<tr *ngFor='let input of propertiesForBaseIndicatorsOfCurrentHeadlineIndicator'>
 											<td>
 												<label class='checkbox-inline input-sm' ><input type="checkbox" value="input.indicatorMetadata.indicatorName" [(ngModel)]="input.isSelected" ng-init="input.isSelected = true" (change)="filterDisplayedIndicatorsOnRadar()">{{input.indicatorMetadata.indicatorName}}  </label>											
@@ -163,10 +163,10 @@
 												Basisindikator (Berechnungsgrundlage des Leitindikators)
 											</td>
 											<td>
-												<select style="font-size: 11px; width:135px; padding: 0px;"
-													[(ngModel)]="input.selectedDate" (change)="onChangeSelectedDate(input)" ng-options="date as date for date in input.indicatorMetadata.applicableDates" ng-init="input.selectedDate = input.indicatorMetadata.applicableDates[input.indicatorMetadata.applicableDates.length - 1]"
-													class="form-control" required>
-												</select>
+                        <select style="font-size: 11px; width:135px; padding: 0px;"
+                          [(ngModel)]="input.selectedDate" (change)="onChangeSelectedDate(input)" class="form-control" required>
+                          <option *ngFor="let date of input.indicatorMetadata.applicableDates" [attr.selected]="(date==input.selectedDate) ? 'selected' : null">{{date}}</option>
+                        </select>
 											</td>
 										
 										</tr>	
