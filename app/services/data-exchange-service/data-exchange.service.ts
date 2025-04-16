@@ -80,6 +80,7 @@ export interface DataExchange {
   currentKeycloakLoginGroups: any;
   currentKeycloakLoginRoles: any;
   showDiagramExportButtons:any;
+  computationIndicatorHierarchy:any[];
 }
 
 export interface KeycloakUser {

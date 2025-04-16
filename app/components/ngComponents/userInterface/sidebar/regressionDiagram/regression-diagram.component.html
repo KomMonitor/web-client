@@ -60,7 +60,7 @@
 	
 												<div class="input-group">
 													<span class="input-group-addon"><i class="fas fa-filter"></i></span>
-													<input type="text" class="form-control input-sm" placeholder="X-Achse - Stichwortfilter" ng-model="indicatorNameFilterForXAxis">
+													<input type="text" class="form-control input-sm" placeholder="X-Achse - Stichwortfilter" (keyup)="filterAvailableIndicatorsXAxis($event)">
 												</div>
 	
 												<p></p>
@@ -81,8 +81,8 @@
 																	Zeitschnitt
 																</th>
 															</thead>
-															<tbody> <!--   | filter:indicatorNameFilterForXAxis -->
-																<tr *ngFor='let input of diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime'>
+															<tbody> 
+																<tr *ngFor='let input of diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime | indicatorNameFilter:selection.indicatorNameFilterForXAxis'>
 																	<td>
 																		<div class="radio" style="margin-top: 0px; margin-bottom: 0px;">
 																			<label><input type="radio" name="regressionX_alphabetical" [value]="input" [(ngModel)]="selection.selectedIndicatorForXAxis" (change)="onChangeSelectedIndicators()">{{input.indicatorMetadata.indicatorName}}</label>
@@ -114,7 +114,7 @@
 	
 												<div class="input-group">
 													<span class="input-group-addon"><i class="fas fa-filter"></i></span>
-													<input type="text" class="form-control input-sm" placeholder="Y-Achse - Stichwortfilter" ng-model="indicatorNameFilterForYAxis">
+													<input type="text" class="form-control input-sm" placeholder="Y-Achse - Stichwortfilter" (keyup)="filterAvailableIndicatorsYAxis($event)">
 												</div>
 	
 												<p></p>
@@ -135,8 +135,8 @@
 																	Zeitschnitt
 																</th>
 															</thead>
-															<tbody><!--   | filter:indicatorNameFilterForYAxis -->
-																<tr *ngFor='let input of diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime'>
+															<tbody>
+																<tr *ngFor='let input of diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime | indicatorNameFilter:selection.indicatorNameFilterForYAxis'>
 																	<td>
 																		<div class="radio" style="margin-top: 0px; margin-bottom: 0px;">
 																			<label><input type="radio" name="regressionY_alphabetical" [value]="input" [(ngModel)]="selection.selectedIndicatorForYAxis" (change)="onChangeSelectedIndicators()">{{input.indicatorMetadata.indicatorName}}</label>
@@ -191,8 +191,8 @@
 																	Zeitschnitt
 																</th>
 															</thead>
-															<tbody> <!--   | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterCurrentlySelectedIndicator() -->
-																<tr *ngFor='let input of diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime'>
+															<tbody> 
+																<tr *ngFor='let input of diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime | currentlySelectedIndicatorFilter'>
 																	<td>
 																		<div class="radio" style="margin-top: 0px; margin-bottom: 0px;">
 																			<label><input type="radio" name="regressionX_computationIndicator" ng-value="input" [(ngModel)]="selection.selectedIndicatorForXAxis" ng-init="selection.selectedIndicatorForXAxis = input" (change)="onChangeSelectedIndicators()">{{input.indicatorMetadata.indicatorName}}</label>
@@ -239,8 +239,8 @@
 																	Zeitschnitt
 																</th>
 															</thead>
-															<tbody><!--   | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterBaseIndicatorsOfCurrentComputationIndicator() -->
-																<tr *ngFor='let input of diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime'>
+															<tbody>
+																<tr *ngFor='let input of diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime | baseIndicatorOfComputedIndicatorFilter'>
 																	<td>
 																		<div class="radio" style="margin-top: 0px; margin-bottom: 0px;">
 																			<label><input type="radio" name="regressionY_computationIndicator" ng-value="input" [(ngModel)]="selection.selectedIndicatorForYAxis" ng-init="selection.selectedIndicatorForYAxis = input" (change)="onChangeSelectedIndicators()">{{input.indicatorMetadata.indicatorName}}</label>
@@ -296,8 +296,8 @@
 																	Zeitschnitt
 																</th>
 															</thead>
-															<tbody><!--  | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterCurrentlySelectedIndicator() -->
-																<tr *ngFor='let input of diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime'>
+															<tbody>
+																<tr *ngFor='let input of diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime | currentlySelectedIndicatorFilter'>
 																	<td>
 																		<div class="radio" style="margin-top: 0px; margin-bottom: 0px;">
 																			<label><input type="radio" name="regressionX_headlineIndicator" ng-value="input" [(ngModel)]="selection.selectedIndicatorForXAxis" ng-init="selection.selectedIndicatorForXAxis = input" (change)="onChangeSelectedIndicators()">{{input.indicatorMetadata.indicatorName}}</label>
@@ -338,8 +338,8 @@
 																	Zeitschnitt
 																</th>
 															</thead>
-															<tbody><!--   | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterBaseIndicatorsOfCurrentHeadlineIndicator()  -->
-																<tr *ngFor='let input of diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime'>
+															<tbody>
+																<tr *ngFor='let input of diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime | baseIndicatorOfHeadlineIndicatorFilter'>
 																	<td>
 																		<div class="radio" style="margin-top: 0px; margin-bottom: 0px;">
 																			<label><input type="radio" name="regressionY_headlineIndicator" ng-value="input" [(ngModel)]="selection.selectedIndicatorForYAxis" ng-init="selection.selectedIndicatorForYAxis = input" (change)="onChangeSelectedIndicators()">{{input.indicatorMetadata.indicatorName}}</label>
@@ -376,7 +376,7 @@
 				<!-- /.box -->
 
 			<!-- REGRESSION CHART -->
-						<div style="margin-bottom: 0px;" ng-show="regressionChart" class="box box-success">
+						<div style="margin-bottom: 0px;" [hidden]="!regressionChart" class="box box-success">
 							<div class="box-header with-border">
 								<h3 *ngIf="diagramHelperData.enableScatterPlotRegression" class="box-title">Lineare Regression - {{spatialUnitName}}</h3>
 								<h3 *ngIf="diagramHelperData.enableScatterPlotRegression" class="box-title">Streudiagramm - {{spatialUnitName}}</h3>
@@ -407,7 +407,7 @@
 									<div id="regressionDiagram" style="width:100%; min-height:60vh;"></div>
 								</div>
 
-									<div ng-show="$ctrl.kommonitorDataExchangeServiceInstance.enableScatterPlotRegression">
+									<div *ngIf="exchangeData.enableScatterPlotRegression">
 										<b>Korrelationskoeffizient nach Pearson:</b> {{correlation}}
 									</div>
 									

@@ -40,6 +40,8 @@ export class RegressionDiagramComponent implements OnInit {
   defaultBorderColorForOutliers_low = window.__env.defaultBorderColorForOutliers_low;
   defaultFillOpacityForOutliers_low = window.__env.defaultFillOpacityForOutliers_low;
 
+  temp;
+
   indicatorPropertyName;
   indicatorMetadataAndGeoJSON;
   defaultBrew;
@@ -126,6 +128,16 @@ export class RegressionDiagramComponent implements OnInit {
       }
   });
 */
+
+  filterAvailableIndicatorsXAxis(event:any) {
+    let value = event.target.value;
+    this.selection.indicatorNameFilterForXAxis = value;
+  }
+
+  filterAvailableIndicatorsYAxis(event:any) {
+    let value = event.target.value;
+    this.selection.indicatorNameFilterForYAxis = value;
+  }
 
   resizeDiagrams() {
 
@@ -347,11 +359,7 @@ export class RegressionDiagramComponent implements OnInit {
   getPropertiesForIndicatorName(indicatorName){
     for (var [index, indicator] of this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime.entries()){
       if(indicator.indicatorMetadata.indicatorName == indicatorName){
-        this.diagramHelperService.fetchIndicatorPropertiesIfNotExists(index);
-
-        // var closestApplicableTimestamp = kommonitorDiagramHelperService.findClostestTimestamForTargetDate(indicator, kommonitorDataExchangeService.selectedDate);
-        // indicator.closestTimestamp = closestApplicableTimestamp;
-
+        
         return indicator.indicatorProperties;
       }
     }
@@ -412,56 +420,63 @@ export class RegressionDiagramComponent implements OnInit {
     this.data = new Array();
     this.dataWithLabels = new Array();
 
-    // both await
-    var indicatorPropertiesArrayForXAxis = this.getPropertiesForIndicatorName(this.selection.selectedIndicatorForXAxis.indicatorMetadata.indicatorName);
-    var indicatorPropertiesArrayForYAxis = this.getPropertiesForIndicatorName(this.selection.selectedIndicatorForYAxis.indicatorMetadata.indicatorName);
-
-    // hier indicatorPropertiesArrayForXAxis and ...YAxis undefined, look getPropertiesForIndicatorName
-    console.log(this.selection);
-
-    if(this.filterHelperService.completelyRemoveFilteredFeaturesFromDisplay && this.filterHelperService.filteredIndicatorFeatureIds.size > 0){
-      indicatorPropertiesArrayForXAxis = indicatorPropertiesArrayForXAxis.filter(featureProperties => ! this.filterHelperService.featureIsCurrentlyFiltered(featureProperties[window.__env.FEATURE_ID_PROPERTY_NAME]));
-      indicatorPropertiesArrayForYAxis = indicatorPropertiesArrayForYAxis.filter(featureProperties => ! this.filterHelperService.featureIsCurrentlyFiltered(featureProperties[window.__env.FEATURE_ID_PROPERTY_NAME]));						
-    }
-    
-
-    var timestamp_xAxis = this.selection.selectedIndicatorForXAxis.selectedDate;
-    var timestamp_yAxis = this.selection.selectedIndicatorForYAxis.selectedDate;
-
-  
-
-    // store data in a map to check above prerequesits
-    // key = ID, 
-    // value = regressionObject = {
-    // 	name: featureName,											
-    // 	itemStyle: {
-    // 		color: color
-    // 	},
-    //  xAxisName: indicatorValue_x,
-    //  yAxisName: indicatorValue_y
-    //}
-    let xAxisName = "xValue";
-    let yAxisName = "yValue";
-    let dataCandidateMap = this.mapRegressionData(indicatorPropertiesArrayForXAxis, timestamp_xAxis, new Map(), xAxisName);
-    dataCandidateMap = this.mapRegressionData(indicatorPropertiesArrayForYAxis, timestamp_yAxis, dataCandidateMap, yAxisName);
-
-    // now iterate over map and identify those objects that have both indicator axis values set
-    // put those into resulting lists 
-
-    dataCandidateMap.forEach((regressionObject, key, map) => {
-      // this.data.push([xAxisDataElement, yAxisDataElement])
-      if (regressionObject[xAxisName] && regressionObject[yAxisName]){
-        this.data.push([regressionObject[xAxisName], regressionObject[yAxisName]]);
-
-        regressionObject.value = [regressionObject[xAxisName], regressionObject[yAxisName]];
-
-        this.dataWithLabels.push(
-          regressionObject
-        );
+    for (var [index, indicator] of this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime.entries()){
+      if(indicator.indicatorMetadata.indicatorName == this.selection.selectedIndicatorForXAxis.indicatorMetadata.indicatorName){
+        this.diagramHelperService.fetchIndicatorPropertiesIfNotExists(index);
       }
-    });
 
-    return this.data;
+      if(indicator.indicatorMetadata.indicatorName == this.selection.selectedIndicatorForYAxis.indicatorMetadata.indicatorName){
+        this.diagramHelperService.fetchIndicatorPropertiesIfNotExists(index);
+      }
+    }
+
+    // both await
+    setTimeout(() => {
+      var indicatorPropertiesArrayForXAxis = this.getPropertiesForIndicatorName(this.selection.selectedIndicatorForXAxis.indicatorMetadata.indicatorName);
+      var indicatorPropertiesArrayForYAxis = this.getPropertiesForIndicatorName(this.selection.selectedIndicatorForYAxis.indicatorMetadata.indicatorName);
+
+      // hier indicatorPropertiesArrayForXAxis and ...YAxis undefined, look getPropertiesForIndicatorName
+
+      if(this.filterHelperService.completelyRemoveFilteredFeaturesFromDisplay && this.filterHelperService.filteredIndicatorFeatureIds.size > 0){
+        indicatorPropertiesArrayForXAxis = indicatorPropertiesArrayForXAxis.filter(featureProperties => ! this.filterHelperService.featureIsCurrentlyFiltered(featureProperties[window.__env.FEATURE_ID_PROPERTY_NAME]));
+        indicatorPropertiesArrayForYAxis = indicatorPropertiesArrayForYAxis.filter(featureProperties => ! this.filterHelperService.featureIsCurrentlyFiltered(featureProperties[window.__env.FEATURE_ID_PROPERTY_NAME]));						
+      }
+
+      var timestamp_xAxis = this.selection.selectedIndicatorForXAxis.selectedDate;
+      var timestamp_yAxis = this.selection.selectedIndicatorForYAxis.selectedDate;
+
+      // store data in a map to check above prerequesits
+      // key = ID, 
+      // value = regressionObject = {
+      // 	name: featureName,											
+      // 	itemStyle: {
+      // 		color: color
+      // 	},
+      //  xAxisName: indicatorValue_x,
+      //  yAxisName: indicatorValue_y
+      //}
+      let xAxisName = "xValue";
+      let yAxisName = "yValue";
+      let dataCandidateMap = this.mapRegressionData(indicatorPropertiesArrayForXAxis, timestamp_xAxis, new Map(), xAxisName);
+      dataCandidateMap = this.mapRegressionData(indicatorPropertiesArrayForYAxis, timestamp_yAxis, dataCandidateMap, yAxisName);
+
+      // now iterate over map and identify those objects that have both indicator axis values set
+      // put those into resulting lists 
+
+      dataCandidateMap.forEach((regressionObject, key, map) => {
+        // this.data.push([xAxisDataElement, yAxisDataElement])
+        if (regressionObject[xAxisName] && regressionObject[yAxisName]){
+          this.data.push([regressionObject[xAxisName], regressionObject[yAxisName]]);
+
+          regressionObject.value = [regressionObject[xAxisName], regressionObject[yAxisName]];
+
+          this.dataWithLabels.push(
+            regressionObject
+          );
+        }
+      });
+    },1000);
+
   };
 
   //Source: http://stevegardner.net/2012/06/11/javascript-code-to-calculate-the-pearson-correlation-coefficient/
@@ -569,250 +584,256 @@ export class RegressionDiagramComponent implements OnInit {
       // }
 
       // await
-      var data =  this.buildDataArrayForSelectedIndicators();
+      this.buildDataArrayForSelectedIndicators();
 
-      data.sort(function(a, b) {
-          return a[0] - b[0];
-      });
+      setTimeout(() => {
 
-      this.correlation = this.calculatePearsonCorrelation(data);
+        let data = this.data;
 
-      this.linearRegression = ecStat.regression('linear', data,1);
+        data.sort(function(a, b) {
+            return a[0] - b[0];
+        });
 
-      let titlePrefix = this.exchangeData.enableScatterPlotRegression ? 'Lineare Regression - ' : 'Streudiagramm - ';
-      let dataViewTitle =  this.exchangeData.enableScatterPlotRegression ? 'Datenansicht - lineare Regression' : 'Datenansicht - Streudiagramm';
+        this.correlation = this.calculatePearsonCorrelation(data);
 
-      this.regressionOption = {
-        grid: {
-          left: '10%',
-          top: 10,
-          right: '5%',
-          bottom: 55,
-          containLabel: true
-        },
-          title: {
-              text: titlePrefix + this.spatialUnitName + ' - ' + this.date,
-              left: 'center',
-              show: false
+        this.linearRegression = ecStat.regression('linear', data,1);
+
+        let titlePrefix = this.exchangeData.enableScatterPlotRegression ? 'Lineare Regression - ' : 'Streudiagramm - ';
+        let dataViewTitle =  this.exchangeData.enableScatterPlotRegression ? 'Datenansicht - lineare Regression' : 'Datenansicht - Streudiagramm';
+
+        this.regressionOption = {
+          grid: {
+            left: '10%',
+            top: 10,
+            right: '5%',
+            bottom: 55,
+            containLabel: true
           },
-          tooltip: {
-              trigger: 'item',
-              confine: 'true',
-              axisPointer: {
-                  type: 'cross'
-              },
-              formatter: (params) => {
-                        if(!(params && params.value && params.value[0] && params.value[1])){
-                          return "";
+            title: {
+                text: titlePrefix + this.spatialUnitName + ' - ' + this.date,
+                left: 'center',
+                show: false
+            },
+            tooltip: {
+                trigger: 'item',
+                confine: 'true',
+                axisPointer: {
+                    type: 'cross'
+                },
+                formatter: (params) => {
+                          if(!(params && params.value && params.value[0] && params.value[1])){
+                            return "";
+                          }
+                            var string = "" + params.name + "<br/>";
+
+                            string += this.selection.selectedIndicatorForXAxis.indicatorMetadata.indicatorName + ": " + this.dataExchangeService.getIndicatorValue_asFormattedText(params.value[0]) + " [" + this.selection.selectedIndicatorForXAxis.indicatorMetadata.unit + "]<br/>";
+                            string += this.selection.selectedIndicatorForYAxis.indicatorMetadata.indicatorName + ": " + this.dataExchangeService.getIndicatorValue_asFormattedText(params.value[1]) + " [" + this.selection.selectedIndicatorForYAxis.indicatorMetadata.unit + "]<br/>";
+                            return string;
+                          }
+            },
+            xAxis: {
+                name: this.dataExchangeService.formatIndicatorNameForLabel(this.selection.selectedIndicatorForXAxis.indicatorMetadata.indicatorName + " - " + this.selection.selectedIndicatorForXAxis.selectedDate + " [" + this.selection.selectedIndicatorForXAxis.indicatorMetadata.unit + "]", 100),
+                nameLocation: 'center',
+                nameGap: 22,
+                            scale: true,
+                    type: 'value',
+                    splitLine: {
+                        lineStyle: {
+                            type: 'dashed'
                         }
-                          var string = "" + params.name + "<br/>";
+                    },
+                },
+            yAxis: {
+                name: this.dataExchangeService.formatIndicatorNameForLabel(this.selection.selectedIndicatorForYAxis.indicatorMetadata.indicatorName + " - " + this.selection.selectedIndicatorForYAxis.selectedDate + " [" + this.selection.selectedIndicatorForYAxis.indicatorMetadata.unit + "]", 75),
+                nameLocation: 'center',
+                nameGap: 50,
+                    type: 'value',
+                    splitLine: {
+                        lineStyle: {
+                            type: 'dashed'
+                        }	
+                    },
+                },
+            toolbox: {
+                show : true,
+                right: '15',
+                feature : {
+                    // mark : {show: true},
+                    dataView : {show: this.exchangeData.showDiagramExportButtons, readOnly: true, title: "Datenansicht", lang: [dataViewTitle, 'schlie&szlig;en', 'refresh'], optionToContent: (opt) => {
 
-                          string += this.selection.selectedIndicatorForXAxis.indicatorMetadata.indicatorName + ": " + this.dataExchangeService.getIndicatorValue_asFormattedText(params.value[0]) + " [" + this.selection.selectedIndicatorForXAxis.indicatorMetadata.unit + "]<br/>";
-                          string += this.selection.selectedIndicatorForYAxis.indicatorMetadata.indicatorName + ": " + this.dataExchangeService.getIndicatorValue_asFormattedText(params.value[1]) + " [" + this.selection.selectedIndicatorForYAxis.indicatorMetadata.unit + "]<br/>";
-                          return string;
-                         }
-          },
-          xAxis: {
-              name: this.dataExchangeService.formatIndicatorNameForLabel(this.selection.selectedIndicatorForXAxis.indicatorMetadata.indicatorName + " - " + this.selection.selectedIndicatorForXAxis.selectedDate + " [" + this.selection.selectedIndicatorForXAxis.indicatorMetadata.unit + "]", 100),
-              nameLocation: 'center',
-              nameGap: 22,
-                          scale: true,
-                  type: 'value',
-                  splitLine: {
-                      lineStyle: {
-                          type: 'dashed'
-                      }
-                  },
-              },
-          yAxis: {
-              name: this.dataExchangeService.formatIndicatorNameForLabel(this.selection.selectedIndicatorForYAxis.indicatorMetadata.indicatorName + " - " + this.selection.selectedIndicatorForYAxis.selectedDate + " [" + this.selection.selectedIndicatorForYAxis.indicatorMetadata.unit + "]", 75),
-              nameLocation: 'center',
-              nameGap: 50,
-                  type: 'value',
-                  splitLine: {
-                      lineStyle: {
-                          type: 'dashed'
-                      }	
-                  },
-              },
-          toolbox: {
-              show : true,
-              right: '15',
-              feature : {
-                  // mark : {show: true},
-                  dataView : {show: this.exchangeData.showDiagramExportButtons, readOnly: true, title: "Datenansicht", lang: [dataViewTitle, 'schlie&szlig;en', 'refresh'], optionToContent: (opt) => {
+                    // 	<table class="table table-condensed table-hover">
+                    // 	<thead>
+                    // 		<tr>
+                    // 			<th>Indikator-Name</th>
+                    // 			<th>Beschreibung der Verkn&uuml;pfung</th>
+                    // 		</tr>
+                    // 	</thead>
+                    // 	<tbody>
+                    // 		<tr ng-repeat="indicator in $ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.referencedIndicators">
+                    // 			<td>{{indicator.referencedIndicatorName}}</td>
+                    // 			<td>{{indicator.referencedIndicatorDescription}}</td>
+                    // 		</tr>
+                    // 	</tbody>
+                    // </table>
 
-                  // 	<table class="table table-condensed table-hover">
-                  // 	<thead>
-                  // 		<tr>
-                  // 			<th>Indikator-Name</th>
-                  // 			<th>Beschreibung der Verkn&uuml;pfung</th>
-                  // 		</tr>
-                  // 	</thead>
-                  // 	<tbody>
-                  // 		<tr ng-repeat="indicator in $ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.referencedIndicators">
-                  // 			<td>{{indicator.referencedIndicatorName}}</td>
-                  // 			<td>{{indicator.referencedIndicatorDescription}}</td>
-                  // 		</tr>
-                  // 	</tbody>
-                  // </table>
-
-                  // has properties "name" and "value"
-                  // value: [Number(xAxisDataElement.toFixed(4)), Number(yAxisDataElement.toFixed(4))]
-                  var scatterSeries = opt.series[0].data;
-                  var lineSeries;
-                  
-                  if (this.exchangeData.enableScatterPlotRegression) {
-                    lineSeries = opt.series[1].data;
-                  }
-
-                  var dataTableId = "regressionDataTable";
-                  var tableExportName = opt.title[0].text + " - Scatter Table";
-
-                  var htmlString = this.exchangeData.enableScatterPlotRegression
-                          ? 
-                          "<p>Data View enth&auml;lt zwei nachstehende Tabellen, die Tabelle der Datenpunkte des Streudiagramms und die Tabelle der Punkte der Regressionsgeraden.</p><br/>"
-                          :
-                          "<p>Data View enth&auml;lt die Tabelle der Datenpunkte des Streudiagramms.</p><br/>";
-                  htmlString += '<h4>Scatter Plot Tabelle</h4>';
-                    htmlString += '<table id="' + dataTableId + '" class="table table-bordered table-condensed" style="width:100%;text-align:center;">';
-                    htmlString += "<thead>";
-                    htmlString += "<tr>";
-                    htmlString += "<th style='text-align:center;'>Feature-Name</th>";
-                    htmlString += "<th style='text-align:center;'>" + opt.xAxis[0].name + "</th>";
-                    htmlString += "<th style='text-align:center;'>" + opt.yAxis[0].name + "</th>";
-
-                    htmlString += "</tr>";
-                    htmlString += "</thead>";
-
-                    htmlString += "<tbody>";
-
-                    for (var j=0; j<scatterSeries.length; j++){
-                      htmlString += "<tr>";
-                      htmlString += "<td>" + scatterSeries[j].name + "</td>";
-
-                      htmlString += "<td>" + this.dataExchangeService.getIndicatorValue_asNumber(scatterSeries[j].value[0]) + "</td>";
-                      htmlString += "<td>" + this.dataExchangeService.getIndicatorValue_asNumber(scatterSeries[j].value[1]) + "</td>";
-                      htmlString += "</tr>";
+                    // has properties "name" and "value"
+                    // value: [Number(xAxisDataElement.toFixed(4)), Number(yAxisDataElement.toFixed(4))]
+                    var scatterSeries = opt.series[0].data;
+                    var lineSeries;
+                    
+                    if (this.exchangeData.enableScatterPlotRegression) {
+                      lineSeries = opt.series[1].data;
                     }
 
-                    htmlString += "</tbody>";
-                    htmlString += "</table>";
+                    var dataTableId = "regressionDataTable";
+                    var tableExportName = opt.title[0].text + " - Scatter Table";
 
-                    let lineTableId;
-                    let lineTableExportName;
-
-                    if (this.exchangeData.enableScatterPlotRegression) {
-
-                      lineTableId = "lineDataTable";
-                      lineTableExportName = opt.title[0].text + " - Line Table";
-
-                      htmlString += "<br/><h4>Referenzpunkte der Regressionsgraden '" + this.linearRegression.expression + "'</h4>";
-
-                      htmlString += '<table id="' + lineTableId + '" class="table table-bordered table-condensed" style="width:100%;text-align:center;">';
+                    var htmlString = this.exchangeData.enableScatterPlotRegression
+                            ? 
+                            "<p>Data View enth&auml;lt zwei nachstehende Tabellen, die Tabelle der Datenpunkte des Streudiagramms und die Tabelle der Punkte der Regressionsgeraden.</p><br/>"
+                            :
+                            "<p>Data View enth&auml;lt die Tabelle der Datenpunkte des Streudiagramms.</p><br/>";
+                    htmlString += '<h4>Scatter Plot Tabelle</h4>';
+                      htmlString += '<table id="' + dataTableId + '" class="table table-bordered table-condensed" style="width:100%;text-align:center;">';
                       htmlString += "<thead>";
                       htmlString += "<tr>";
-                      htmlString += "<th style='text-align:center;'>X</th>";
-                      htmlString += "<th style='text-align:center;'>Y</th>";
+                      htmlString += "<th style='text-align:center;'>Feature-Name</th>";
+                      htmlString += "<th style='text-align:center;'>" + opt.xAxis[0].name + "</th>";
+                      htmlString += "<th style='text-align:center;'>" + opt.yAxis[0].name + "</th>";
+
                       htmlString += "</tr>";
                       htmlString += "</thead>";
 
                       htmlString += "<tbody>";
-                    
-                      for (var j=0; j<lineSeries.length; j++){
+
+                      for (var j=0; j<scatterSeries.length; j++){
                         htmlString += "<tr>";
-                        htmlString += "<td>" + this.dataExchangeService.getIndicatorValue_asNumber(lineSeries[j][0]) + "</td>";
-                        htmlString += "<td>" + this.dataExchangeService.getIndicatorValue_asNumber(lineSeries[j][1]) + "</td>";
+                        htmlString += "<td>" + scatterSeries[j].name + "</td>";
+
+                        htmlString += "<td>" + this.dataExchangeService.getIndicatorValue_asNumber(scatterSeries[j].value[0]) + "</td>";
+                        htmlString += "<td>" + this.dataExchangeService.getIndicatorValue_asNumber(scatterSeries[j].value[1]) + "</td>";
                         htmlString += "</tr>";
                       }
-                      
+
                       htmlString += "</tbody>";
                       htmlString += "</table>";
-                    }	
 
-                    this.broadcastService.broadcast("AppendExportButtonsForTable", [dataTableId, tableExportName]);
+                      let lineTableId;
+                      let lineTableExportName;
 
-                    if (this.exchangeData.enableScatterPlotRegression) {
-                      this.broadcastService.broadcast("AppendExportButtonsForTable", [lineTableId, lineTableExportName]);
-                    }
-                    
-                    return htmlString;
-                  }},
-                  restore : {show: false, title: "Erneuern"},
-                  saveAsImage : {show: true, title: "Export", pixelRatio: 4}
-              }
-          },
-          series: [{
-              name: "scatter",
-              type: 'scatter',
-              // label: {
-              //     emphasis: {
-              //         show: false,
-              //         position: 'left',
-              //         textStyle: {
-              //             color: 'blue',
-              //             fontSize: 16
-              //         }
-              //     }
-              // },
-              itemStyle: {
-                borderWidth: 1,
-                borderColor: 'black'
-              },
-              emphasis: {
+                      if (this.exchangeData.enableScatterPlotRegression) {
+
+                        lineTableId = "lineDataTable";
+                        lineTableExportName = opt.title[0].text + " - Line Table";
+
+                        htmlString += "<br/><h4>Referenzpunkte der Regressionsgraden '" + this.linearRegression.expression + "'</h4>";
+
+                        htmlString += '<table id="' + lineTableId + '" class="table table-bordered table-condensed" style="width:100%;text-align:center;">';
+                        htmlString += "<thead>";
+                        htmlString += "<tr>";
+                        htmlString += "<th style='text-align:center;'>X</th>";
+                        htmlString += "<th style='text-align:center;'>Y</th>";
+                        htmlString += "</tr>";
+                        htmlString += "</thead>";
+
+                        htmlString += "<tbody>";
+                      
+                        for (var j=0; j<lineSeries.length; j++){
+                          htmlString += "<tr>";
+                          htmlString += "<td>" + this.dataExchangeService.getIndicatorValue_asNumber(lineSeries[j][0]) + "</td>";
+                          htmlString += "<td>" + this.dataExchangeService.getIndicatorValue_asNumber(lineSeries[j][1]) + "</td>";
+                          htmlString += "</tr>";
+                        }
+                        
+                        htmlString += "</tbody>";
+                        htmlString += "</table>";
+                      }	
+
+                      this.broadcastService.broadcast("AppendExportButtonsForTable", [dataTableId, tableExportName]);
+
+                      if (this.exchangeData.enableScatterPlotRegression) {
+                        this.broadcastService.broadcast("AppendExportButtonsForTable", [lineTableId, lineTableExportName]);
+                      }
+                      
+                      return htmlString;
+                    }},
+                    restore : {show: false, title: "Erneuern"},
+                    saveAsImage : {show: true, title: "Export", pixelRatio: 4}
+                }
+            },
+            series: [{
+                name: "scatter",
+                type: 'scatter',
+                // label: {
+                //     emphasis: {
+                //         show: false,
+                //         position: 'left',
+                //         textStyle: {
+                //             color: 'blue',
+                //             fontSize: 16
+                //         }
+                //     }
+                // },
                 itemStyle: {
-                  borderWidth: 4,
-                  borderColor: this.defaultColorForClickedFeatures
-                }
-              },
-              data: this.dataWithLabels
-          }
-      ]
-      };
-
-      if (this.exchangeData.enableScatterPlotRegression) {
-        this.regressionOption.series.push(
-          {
-                name: 'line',
-                type: 'line',
-                showSymbol: false,
-                data: this.linearRegression.points,
-                markPoint: {
-                    itemStyle: {
-                        normal: {
-                            color: 'transparent'
-                        }
-                    },
-                    label: {
-                        normal: {
-                            show: true,
-                            position: 'left',
-                            formatter: this.linearRegression.expression,
-                            textStyle: {
-                                color: '#333',
-                                fontSize: 14
-                            }
-                        }
-                    },
-                    data: [{
-                        coord: this.linearRegression.points[this.linearRegression.points.length - 1]
-                    }]
-                }
+                  borderWidth: 1,
+                  borderColor: 'black'
+                },
+                emphasis: {
+                  itemStyle: {
+                    borderWidth: 4,
+                    borderColor: this.defaultColorForClickedFeatures
+                  }
+                },
+                data: this.dataWithLabels
             }
-        )
-      }
+        ]
+        };
 
-      this.regressionChart.setOption(this.regressionOption);
+        if (this.exchangeData.enableScatterPlotRegression) {
+          this.regressionOption.series.push(
+            {
+                  name: 'line',
+                  type: 'line',
+                  showSymbol: false,
+                  data: this.linearRegression.points,
+                  markPoint: {
+                      itemStyle: {
+                          normal: {
+                              color: 'transparent'
+                          }
+                      },
+                      label: {
+                          normal: {
+                              show: true,
+                              position: 'left',
+                              formatter: this.linearRegression.expression,
+                              textStyle: {
+                                  color: '#333',
+                                  fontSize: 14
+                              }
+                          }
+                      },
+                      data: [{
+                          coord: this.linearRegression.points[this.linearRegression.points.length - 1]
+                      }]
+                  }
+              }
+          )
+        }
 
-      // await
-      this.regressionChart.hideLoading();
-      setTimeout(() => {
-        this.regressionChart.resize();
-      }, 350);
+        this.regressionChart.setOption(this.regressionOption);
 
-      this.registerEventsIfNecessary();
+        // await
+        this.regressionChart.hideLoading();
+        setTimeout(() => {
+          this.regressionChart.resize();
+        }, 350);
 
-      this.broadcastService.broadcast("preserveHighlightedFeatures");
+        this.registerEventsIfNecessary();
+
+        this.broadcastService.broadcast("preserveHighlightedFeatures");
+        
+      },1500);
     }
   };
 

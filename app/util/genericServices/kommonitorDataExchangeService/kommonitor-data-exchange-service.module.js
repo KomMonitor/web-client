@@ -1693,7 +1693,7 @@ angular
 
 							return false;
 							
-						  };
+            };
 					};
 
 					this.filterBaseIndicatorsOfCurrentComputationIndicator = function(){
@@ -1710,7 +1710,7 @@ angular
 
 							return false;
 							
-						  };
+            };
 					};
 
           var onMetadataLoadingCompleted = function(){
