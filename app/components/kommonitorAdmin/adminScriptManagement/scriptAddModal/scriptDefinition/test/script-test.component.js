@@ -49,7 +49,7 @@ angular.module('scriptTest').component('scriptTest', {
 				$scope.refIndicatorSelection = refIndicatorSelection;
 
 				kommonitorScriptHelperService.processParameters.reference_id = refIndicatorSelection.indicatorId;
-				$scope.legendValues.refIndicatorSelection = Object.assign($scope.legendValues, refIndicatorSelection);
+				$scope.legendValues.refIndicatorSelection = refIndicatorSelection;
 
 				$scope.resetComputationFormulaAndLegend();				
 			};
@@ -58,7 +58,7 @@ angular.module('scriptTest').component('scriptTest', {
 				$scope.compIndicatorSelection = compIndicatorSelection;
 
 				kommonitorScriptHelperService.processParameters.computation_id = compIndicatorSelection.indicatorId;
-				$scope.legendValues.compIndicatorSelection = Object.assign($scope.legendValues, compIndicatorSelection);
+				$scope.legendValues.compIndicatorSelection = compIndicatorSelection;
 
 				$scope.resetComputationFormulaAndLegend();				
 			};
