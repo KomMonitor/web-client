@@ -49,7 +49,7 @@ angular.module('scriptTest').component('scriptTest', {
 				$scope.refIndicatorSelection = refIndicatorSelection;
 
 				kommonitorScriptHelperService.processParameters.reference_id = refIndicatorSelection.indicatorId;
-				$scope.legendValues = Object.assign($scope.legendValues, refIndicatorSelection);
+				$scope.legendValues.refIndicatorSelection = Object.assign($scope.legendValues, refIndicatorSelection);
 
 				$scope.resetComputationFormulaAndLegend();				
 			};
@@ -58,7 +58,7 @@ angular.module('scriptTest').component('scriptTest', {
 				$scope.compIndicatorSelection = compIndicatorSelection;
 
 				kommonitorScriptHelperService.processParameters.computation_id = compIndicatorSelection.indicatorId;
-				$scope.legendValues = Object.assign($scope.legendValues, compIndicatorSelection);
+				$scope.legendValues.compIndicatorSelection = Object.assign($scope.legendValues, compIndicatorSelection);
 
 				$scope.resetComputationFormulaAndLegend();				
 			};
@@ -99,17 +99,14 @@ angular.module('scriptTest').component('scriptTest', {
 
 			$scope.onChangeNumTemporalItems = function(){
 				kommonitorScriptHelperService.processParameters.number_of_temporal_items = Math.round(kommonitorScriptHelperService.processParameters.number_of_temporal_items);
-				$scope.resetScriptParameter();
 				$scope.resetComputationFormulaAndLegend();	
 			};
 
 			$scope.onChangeTemporalOption = function(){
-				$scope.resetScriptParameter();
 				$scope.resetComputationFormulaAndLegend();	
 			};
 
 			$scope.onChangeInputData = function(){
-				$scope.resetScriptParameter();
 				$scope.resetComputationFormulaAndLegend();	
 			}
 
@@ -336,9 +333,12 @@ angular.module('scriptTest').component('scriptTest', {
 				
 				// parse with regEx to avoid 'eval' or similar unsecure methods
 				function parseStringTemplate(str, obj) {
-					let parts = str.split(/\$\{(?!\d)[\wæøåÆØÅ]*\}/);
-					let args = str.match(/(?<=\${)[^}]+(?=})/g) || [];
-					let parameters = args.map(argument => obj[argument] || (obj[argument] === undefined ? "" : obj[argument]));
+					let parts = str.split(/\$\{(?!\d)[\wæøåÆØÅ.]*\}/);
+					let args = str.match(/(?<=\${)[\wæøåÆØÅ.]+(?=})/g) || [];
+					let parameters = args.map(argument => {
+							let value = argument.split('.').reduce((o, key) => o?.[key], obj);
+							return value !== undefined ? value : "";
+					});
 					return String.raw({ raw: parts }, ...parameters);
 				}
 				var legendText = parseStringTemplate(dynamicLegendStr, $scope.legendValues)
