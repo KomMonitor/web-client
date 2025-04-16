@@ -317,6 +317,29 @@
 									<div class="col-md-6 col-sm-6 col-xs-12">
 										<div class="form-group">
 											<label>Auswahl des Skript-Typen*</label>
+											<div class="btn-group btn-group-justified"  data-toggle="buttons">
+												<label class="btn btn-primary active">
+													<input type="radio" name="options" id="focus_distance" autocomplete="off" checked
+														ng-change="changeFocus('distance')"
+														ng-model="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.focus"
+														value="distance"> <i class="fas fa-globe-americas"></i> Alle
+												</label>
+												<label class="btn btn-primary"
+													ng-disabled="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.transitMode === 'buffer'">
+													<input type="radio" name="options" id="focus_time" autocomplete="off"
+														ng-change="changeFocus('time')"
+														ng-model="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.focus"
+														value="time"><i class="fas fa-sitemap"></i> Indikatoren-Skripts
+												</label>
+												<label class="btn btn-primary"
+													ng-disabled="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.transitMode === 'buffer'">
+													<input type="radio" name="options" id="focus_time" autocomplete="off"
+														ng-change="changeFocus('time')"
+														ng-model="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.focus"
+														value="time"><i class="fas fa-map-marked-alt"></i> Georessourcen-Skripts
+												</label>
+											</div>
+											<br />
 											<div class="input-group">
 												<span class="input-group-addon"><i class="fas fa-filter"></i></span>
 												<input type="text" class="form-control input-sm"
@@ -602,7 +625,8 @@
 				<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Schlie&szlig;en</button>
 
 				<button type="button" class="btn btn-success"
-					ng-disabled="!datasetName || !description || !$ctrl.kommonitorScriptHelperServiceInstance.targetIndicator || !$ctrl.kommonitorScriptHelperServiceInstance.scriptCode_readableString || $ctrl.kommonitorScriptHelperServiceInstance.processParameters.target_spatial_units.length == 0 || (($ctrl.kommonitorScriptHelperServiceInstance.requiredIndicators_tmp.length == 0) && ($ctrl.kommonitorScriptHelperServiceInstance.requiredGeoresources_tmp.length == 0))" ng-click="addScript()">Skript
+					
+					ng-click="addScript()">Skript
 					registrieren</button>
 				<button type="button" class="btn btn-danger" ng-click="resetScriptAddForm()">Zur&uuml;cksetzen</button>
 			</div>
