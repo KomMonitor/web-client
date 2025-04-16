@@ -1,11 +1,12 @@
 import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
-import { NgbDate, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import { NgbDate, NgbDateStruct, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchange, DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { ElementVisibilityHelperService } from 'services/element-visibility-helper-service/element-visibility-helper.service';
 import { FilterHelperService } from 'services/filter-helper-service/filter-helper.service';
 import { ShareHelperService } from 'services/share-helper-service/share-helper.service';
 import { VisualStyleHelperServiceNew } from 'services/visual-style-helper-service/visual-style-helper.service';
+import { SpatialUnitNotificationModalComponent } from '../spatialUnitNotificationModal/spatial-unit-notification-modal.component';
 
 @Component({
   selector: 'app-kommonitor-legend',
@@ -47,7 +48,8 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
     private shareHelperService: ShareHelperService,
     protected visualStyleService: VisualStyleHelperServiceNew,
     protected filterHelperService: FilterHelperService,
-    private broadcastService: BroadcastService
+    private broadcastService: BroadcastService,
+    private modalService: NgbModal
   ) {
     this.exchangeData = this.dataExchangeService.pipedData;
     this.elementVisibilityData = this.elementVisibilityService.pipedData;
@@ -161,12 +163,22 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
       if(localStorage.getItem("hideKomMonitorSpatialUnitNotification") && localStorage.getItem("hideKomMonitorSpatialUnitNotification")=== "true") {
         let selectedSpatialUnitName = this.exchangeData.selectedSpatialUnit.spatialUnitLevel;
         if(this.env.spatialUnitNotificationSelection.includes(selectedSpatialUnitName)) {
-          console.log("show - spatialUnitNotificationModal");
-          // todo
-          /* $('#spatialUnitNotificationModal').modal('show');	 */
+
+          this.openSpatialunitModal()
         }
       }
     } 
+  }
+  
+  showSpatialUnitNotificationModalIfEnabled() {
+    if(window.__env.enableSpatialUnitNotificationSelection) {
+      this.openSpatialunitModal();
+    }
+  }
+
+  openSpatialunitModal() {
+          
+    const modalRef = this.modalService.open(SpatialUnitNotificationModalComponent, {windowClass: 'modal-holder', centered: true});
   }
 
   onClickDownloadMetadata() {

@@ -1,0 +1,23 @@
+<div class="modal-content">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" (click)="activeModal.close('Close click')">&times;</button>
+    <h4 class="modal-title"><b><span id="spatialUnitNotificationModalTitle" [innerHTML]="spatialUnitNotificationModalTitle | safeHtml"></span></b></h4>
+  </div>
+  <div class="modal-body" style="text-align: justify">
+    <span id="spatialUnitNotificationModalMessage" [innerHTML]="spatialUnitNotificationModalMessage | safeHtml"></span>
+        </div>
+  <div class="modal-footer">
+            <div class="row">
+      <div class="col-md-10">						
+          <label>
+            Dieses Fenster beim n&auml;chsten Aufruf verbergen								
+          </label>
+          <input type="checkbox" id="changeHideSpatialUnitNotificationInput" name="dismiss" (click)="changeHideSpatialUnitNotificationInput()">	
+      </div>
+      <div class="col-md-2">
+        <button type="button" class="btn btn-default" data-dismiss="modal" (click)="activeModal.close('Close click')">Schlie&szlig;en</button>
+      </div>
+
+    </div>
+  </div>
+</div>

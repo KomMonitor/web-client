@@ -20,8 +20,8 @@
           <div >
             <div>						
               <div class="row" style="margin-right: 0px;">
-                <div class="col-sm-7">
-                  <div class="text-left"><label>Raumebene</label><a *ngIf="env.enableSpatialUnitNotificationButton" data-toggle="modal" ng-click="showSpatialUnitNotificationModalIfEnabled()" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%; cursor:pointer;" title="Information zu Raumeinheiten&nbsp;&nbsp;"><span class="glyphicon glyphicon-info-sign"></span></a></div>
+                <div class="col-sm-7"> <!-- *ngIf="env.enableSpatialUnitNotificationButton" -->
+                  <div class="text-left"><label>Raumebene</label><a  data-toggle="modal" (click)="showSpatialUnitNotificationModalIfEnabled()" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%; cursor:pointer;" title="Information zu Raumeinheiten&nbsp;&nbsp;"><span class="glyphicon glyphicon-info-sign"></span></a></div>
                   <!-- <select id="spatialUnitSelectionInput" style="font-size: 12px;" ng-model="exchangeData.selectedSpatialUnit"
                     ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in exchangeData.availableSpatialUnits | filter:filterSpatialUnits()"
                     class="form-control" ng-change="onChangeSelectedSpatialUnit()" required> -->
