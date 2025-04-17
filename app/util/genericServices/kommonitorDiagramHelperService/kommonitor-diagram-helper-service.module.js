@@ -42,6 +42,7 @@ angular
       this.radarChartOptions = {};
       this.regressionChartOptions = {};
 
+      // done
       this.isCloserToTargetDate = function(date, closestDate, targetDate){
         var targetYear = targetDate.split("-")[0];
         var targetMonth = targetDate.split("-")[1];
@@ -71,6 +72,7 @@ angular
         return false;
       };
 
+      // done
       this.findClostestTimestamForTargetDate = function(indicatorForRadar, targetDate){
         var applicableDates = indicatorForRadar.indicatorMetadata.applicableDates;
 
@@ -107,6 +109,7 @@ angular
 
       this.filterSameUnitAndSameTime = false;
 
+      // done
       this.setupIndicatorPropertiesForCurrentSpatialUnitAndTime = function (filterBySameUnitAndSameTime) {
 
         $rootScope.$broadcast("allIndicatorPropertiesForCurrentSpatialUnitAndTime setup begin");
@@ -161,6 +164,7 @@ angular
         $rootScope.$broadcast("allIndicatorPropertiesForCurrentSpatialUnitAndTime setup completed");
       };
 
+      // done
       this.fetchIndicatorPropertiesIfNotExists = async function(index){
         if(this.indicatorPropertiesForCurrentSpatialUnitAndTime[index].indicatorProperties === null || this.indicatorPropertiesForCurrentSpatialUnitAndTime[index].indicatorProperties === undefined){
           // var dateComps = kommonitorDataExchangeService.selectedDate.split("-");
@@ -173,6 +177,7 @@ angular
         }
       };
 
+      // done
       this.fetchIndicatorProperties = function (indicatorMetadata, spatialUnitId) {
         return $http({
           url: kommonitorDataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/indicators/" + indicatorMetadata.indicatorId + "/" + spatialUnitId + "/without-geometry",
@@ -189,6 +194,7 @@ angular
         });
       };
 
+      // done
       this.getColorFromBrewInstance = function(brewInstance, feature, targetDate){
         var color;
         for (var index=0; index < brewInstance.breaks.length; index++){
@@ -221,6 +227,7 @@ angular
         return color;
       };
 
+      // done
       this.getColorForFeature = function(feature, indicatorMetadataAndGeoJSON, targetDate, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue){
         var color;
 
@@ -300,30 +307,37 @@ angular
         return color;
       };
 
+      // done
       this.getBarChartOptions = function () {
         return self.barChartOptions;
       };
 
+      // done
       this.getGeoMapChartOptions = function () {
         return self.geoMapChartOptions;
       };
 
+      // done
       this.getHistogramChartOptions = function () {
         return self.histogramChartOptions;
       };
 
+      // done
       this.getLineChartOptions = function () {
         return self.lineChartOptions;
       };
 
+      // done
       this.prepareAllDiagramResources_forCurrentMapIndicator = function (indicatorMetadataAndGeoJSON, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, filterOutFutureDates) {        
         this.prepareAllDiagramResources(indicatorMetadataAndGeoJSON, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, filterOutFutureDates, false);
       };
 
+      // done
       this.prepareAllDiagramResources_forReportingIndicator = function (indicatorMetadataAndGeoJSON, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, filterOutFutureDates) {
         this.prepareAllDiagramResources(indicatorMetadataAndGeoJSON, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, filterOutFutureDates, true);      
       };
 
+      // done
       this.prepareAllDiagramResources = function (indicatorMetadataAndGeoJSON, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, filterOutFutureDates, forceUseSubmittedIndicatorForTimeseries) {
 
         self.indicatorPropertyName = INDICATOR_DATE_PREFIX + date;
@@ -513,6 +527,7 @@ angular
         setGeoMapChartOptions(indicatorMetadataAndGeoJSON, featureNamesArray, indicatorValueBarChartArray, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue);
       };
 
+      // done
       var compareFeaturesByIndicatorValue = function (featureA, featureB) {
         if (featureA.properties[self.indicatorPropertyName] < featureB.properties[self.indicatorPropertyName])
           return -1;
@@ -521,6 +536,7 @@ angular
         return 0;
       };
 
+      // done
       var setBarChartOptions = function (indicatorMetadataAndGeoJSON, featureNamesArray, indicatorValueBarChartArray, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, meanLineLabel, meanLineValue, enableHorizontalMeanLine) {
 
         // specify chart configuration item and data
@@ -708,6 +724,7 @@ angular
         self.barChartOptions = barOption;
       };
 
+      // done
       var containsNegativeValues = function (geoJSON, date) {
 
         var propertyName = date;
@@ -727,6 +744,7 @@ angular
         return containsNegativeValues;
       };
 
+      // done
       var containsZeroValues = function (geoJSON, date) {
 
         var propertyName = date;
@@ -746,6 +764,7 @@ angular
         return containsZeroValues;
       };
 
+      // done
       var setupVisualMap = function(indicatorMetadataAndGeoJSON, featureNamesArray, indicatorValueBarChartArray, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue){
         /*
         pieces: [
@@ -1000,7 +1019,7 @@ angular
 
       };
 
-
+      // done
       var setGeoMapChartOptions = function (indicatorMetadataAndGeoJSON, featureNamesArray, indicatorValueBarChartArray, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue) {
 
         indicatorMetadataAndGeoJSON.geoJSON.features.forEach(feature => {
@@ -1153,7 +1172,7 @@ angular
         self.geoMapChartOptions = geoMapOption;
       };
 
-
+      // done
       var setLineChartOptions = function (indicatorMetadataAndGeoJSON, indicatorTimeSeriesDatesArray, indicatorTimeSeriesAverageArray, indicatorTimeSeriesMaxArray, indicatorTimeSeriesMinArray, indicatorTimeSeriesRegionalMeanArray, indicatorTimeSeriesRegionalSpatiallyUnassignableArray, spatialUnitName, date) {
 
         var lineOption = {
@@ -1481,7 +1500,7 @@ angular
         self.lineChartOptions = lineOption;
       };
 
-
+      // done
       var setHistogramChartOptions = function (indicatorMetadataAndGeoJSON, indicatorValueArray, spatialUnitName, date) {
         var bins;
         try {
@@ -1702,6 +1721,7 @@ angular
         self.histogramChartOptions = histogramOption;
       };
 
+      // done
       var onlyContainsPositiveNumbers = function (indicatorValueArray) {
         indicatorValueArray.forEach(function (element) {
           if (element < 0) {
@@ -1712,7 +1732,7 @@ angular
         return true;
       };
 
-
+// done + removed
       var appendSeriesToLineChart = function (featureProperties) {
 
         // in case of activated balance mode, we must use the properties of kommonitorDataExchangeService.selectedIndicator, to aquire the correct time series item!
@@ -1749,6 +1769,7 @@ angular
         }, 350);
       };
 
+        // done
       var findPropertiesForTimeSeries = function (spatialUnitFeatureName) {
         for (var feature of kommonitorDataExchangeService.selectedIndicator.geoJSON.features) {
           if (feature.properties[__env.FEATURE_NAME_PROPERTY_NAME] == spatialUnitFeatureName) {
@@ -1757,6 +1778,7 @@ angular
         }
       }
 
+        // done
       var getSeriesIndexByFeatureName = function (featureName) {
         for (var index = 0; index < $scope.lineOption.series.length; index++) {
           if ($scope.lineOption.series[index].name === featureName)
@@ -1767,6 +1789,7 @@ angular
         return -1;
       };
 
+        // done
       var removeSeriesFromLineChart = function (featureProperties) {
         // remove feature from legend
         var legendIndex = $scope.lineOption.legend.data.indexOf(featureProperties[__env.FEATURE_NAME_PROPERTY_NAME]);
@@ -1787,10 +1810,12 @@ angular
         }, 350);
       };
 
+        // done
       this.makeFeatureNameForPoiInIsochroneDiagram = function(poiGeoresource, geoJSONFeatureCollection, date){
         return poiGeoresource.datasetName + " - " + date + " (" + geoJSONFeatureCollection.features.length + ")";
       };
 
+        // done
       this.createInitialReachabilityAnalysisPieOptions = function(poiGeoresource, geoJSONFeatureCollection, rangeValue, date){
         var option = {
           grid: {
@@ -1898,6 +1923,7 @@ angular
         return option;
       };
 
+        // done
       this.appendToReachabilityAnalysisOptions = function(poiGeoresource, geoJSONFeatureCollection, eChartsOptions, date){
         eChartsOptions.legend[0].data.push(this.makeFeatureNameForPoiInIsochroneDiagram(poiGeoresource, geoJSONFeatureCollection, date));
         eChartsOptions.series[0].data.push({value: geoJSONFeatureCollection.features.length, name: this.makeFeatureNameForPoiInIsochroneDiagram(poiGeoresource, geoJSONFeatureCollection, date)});
@@ -1905,6 +1931,7 @@ angular
         return eChartsOptions;
       };
 
+        // done
       this.removePoiFromReachabilityAnalysisOption = function(eChartOptions, poiGeoresource){
         for (let index = 0; index < eChartOptions.legend[0].data.length; index++) {
           const legendItem = eChartOptions.legend[0].data[index];
@@ -1923,6 +1950,7 @@ angular
         return eChartOptions;
       };
 
+        // done
       this.makeTrendChartOptions_forAllFeatures = function(indicatorMetadataAndGeoJSON, fromDateAsPropertyString, toDateAsPropertyString, showMinMax, showCompleteTimeseries, computationType, trendEnabled){
           // we may base on the the precomputed timeseries lineOptions and modify that from a cloned instance
 
@@ -2092,6 +2120,7 @@ angular
           return timeseriesOptions;
       };
 
+      // done
       // Returns an image.
       // Attribution has to be converted to an image anyway for report generation.
       this.createReportingReachabilityMapAttribution = async function() {
@@ -2115,6 +2144,7 @@ angular
         });
       }
 
+        // done
       // Returns an image.
       // Legend has to be converted to an image anyway for report generation.
       this.createReportingReachabilityMapLegend = async function(echartsOptions, selectedSpatialUnit, isochronesRangeType, isochronesRangeUnits) {
@@ -2225,6 +2255,7 @@ angular
         });
       }
 
+      // done
       var calculateOverallBoundingBoxFromGeoJSON = function(features) {
         let result = [];
         for(var i=0; i<features.length; i++) {
@@ -2243,6 +2274,7 @@ angular
         return result;
       };
 
+        // done
       function trimCanvas(canvas, padding=0) {
         function rowBlank(imageData, width, y) {
             for (var x = 0; x < width; ++x) {
@@ -2251,6 +2283,7 @@ angular
             return true;
         }
      
+        // done
         function columnBlank(imageData, width, x, top, bottom) {
             for (var y = top; y < bottom; ++y) {
                 if (imageData.data[y * width * 4 + x * 4 + 3] !== 0) return false;

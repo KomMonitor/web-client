@@ -68,7 +68,6 @@ export class RegressionDiagramComponent implements OnInit {
   spatialUnitName;
   date;
 
-  diagramHelperData;
   exchangeData;
 
   constructor(
@@ -77,7 +76,6 @@ export class RegressionDiagramComponent implements OnInit {
     private broadcastService: BroadcastService,
     private filterHelperService: FilterHelperService
   ) {
-    this.diagramHelperData = this.diagramHelperService.pipedData;
     this.exchangeData = this.dataExchangeService.pipedData;
   }
   
@@ -203,9 +201,9 @@ export class RegressionDiagramComponent implements OnInit {
       this.regressionChart.dispose();
       this.regressionChart = echarts.init(document.getElementById('regressionDiagram'));
     }
-    this.diagramHelperData.indicatorPropertiesForCurrentSpatialUnitAndTime = [];
+    this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime = [];
     
-    this.diagramHelperService.setupIndicatorPropertiesForCurrentSpatialUnitAndTime(this.diagramHelperData.filterSameUnitAndSameTime);
+    this.diagramHelperService.setupIndicatorPropertiesForCurrentSpatialUnitAndTime(this.diagramHelperService.filterSameUnitAndSameTime);
   };
 
   updateDiagrams([indicatorMetadataAndGeoJSON, spatialUnitName, spatialUnitId, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, justRestyling]) {
@@ -334,7 +332,7 @@ export class RegressionDiagramComponent implements OnInit {
 
 
   getAllIndicatorPropertiesSortedBySpatialUnitFeatureName(){
-    for(var i=0; i<this.diagramHelperData.indicatorPropertiesForCurrentSpatialUnitAndTime.length; i++){
+    for(var i=0; i<this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime.length; i++){
         // make object to hold indicatorName, max value and average value
         this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime[i].indicatorProperties.sort(function(a, b) {
           // a and b are arrays of indicatorProperties for all features of the selected spatialUnit. We sort them by their property "spatialUnitFeatureName"

@@ -81,6 +81,9 @@ export interface DataExchange {
   currentKeycloakLoginRoles: any;
   showDiagramExportButtons:any;
   computationIndicatorHierarchy:any[];
+  rankingChartAverageLabel:any;
+  rankingChartRegionalReferenceValueLabel:any;
+  FEATURE_NAME_PROPERTY_NAME:any;
 }
 
 export interface KeycloakUser {
