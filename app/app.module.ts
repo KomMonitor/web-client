@@ -51,6 +51,7 @@ import { RegressionDiagramComponent } from './components/ngComponents/userInterf
 import { SelectedIndicatorFilter } from 'pipes/selected-indicator-filter.pipe';
 import { BaseIndicatorOfComputedIndicatorFilter } from 'pipes/base-indicator-of-computed-indicator-filter.pipe';
 import { BaseIndicatorOfHeadlineIndicatorFilter } from 'pipes/base-indicator-of-headline-indicator-filter.pipe';
+import { AuthService } from 'services/auth-service/auth.service';
 
 
 
@@ -81,7 +82,8 @@ declare var MathJax;
     ajskommonitorDiagramHelperServiceProvider,ajskommonitorFilterHelperServiceProvider,
     ajskommonitorElementVisibilityHelperServiceProvider, ajskommonitorShareHelperServiceProvider,
     ajskommonitorVisualStyleHelperServiceProvider, ajskommonitorMapServiceProvider, ajskommonitorGenericMapHelperServiceProvider,
-    NgbModule
+    NgbModule,
+    AuthService
   ],
   declarations: [
     KommonitorLegendComponent,
@@ -112,9 +114,12 @@ export class AppModule implements DoBootstrap {
 
   private env: any = {};
 
-  constructor(private upgrade: UpgradeModule) {
-
+  constructor(
+    private upgrade: UpgradeModule,
+    private authService: AuthService
+  ) {
   }
+  
   async ngDoBootstrap() {
 
     this.checkBrowser();
@@ -584,10 +589,11 @@ export class AppModule implements DoBootstrap {
         onLoad: 'check-sso',
         checkLoginIframe: false,
         silentCheckSsoFallback: false
-      }).then(function (authenticated) {
+      }).then( (authenticated) => {
         console.log(authenticated ? 'User is authenticated!' : 'User is not authenticated!');
         auth.keycloak = keycloakAdapter;
-        angular.module('kommonitorClient').factory('Auth', function () {
+        angular.module('kommonitorClient').factory('Auth',  () => {
+          this.authService.init(auth);
           return auth;
         });
         try {
