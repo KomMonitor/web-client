@@ -19,6 +19,8 @@ export class ElementVisibilityHelperService implements OnInit {
   advancedModeGroupName = "fakeAdvancedModeGroup"; 
   advancedModeRoleName = "fakeAdvancedModeRole";
 
+  controlsConfig:any;
+
   public constructor(
     private dataExchangeService: DataExchangeService,
     private broadcastService: BroadcastService,
@@ -32,11 +34,12 @@ export class ElementVisibilityHelperService implements OnInit {
   }
 
   initElementVisibility() {
+
     this.dataExchangeService.pipedData.showDiagramExportButtons = true;
     this.dataExchangeService.pipedData.showGeoresourceExportButtons = true;
     this.elementVisibility = {};
-    var config = this.configStorageService.getControlsConfig();
-    config.forEach(element => {
+    this.configStorageService.controlsConfig.forEach(element => {
+      console.log(element)
         this.elementVisibility[element.id] = this.checkElementVisibility(element.id);
     });
         
@@ -50,7 +53,7 @@ export class ElementVisibilityHelperService implements OnInit {
   }
 
   checkElementVisibility(id) {
-    var element = this.configStorageService.getControlsConfig().filter(element => element.id === id)[0];
+    var element = this.configStorageService.controlsConfig.filter(element => element.id === id)[0];
     if (element.roles === undefined || element.roles.length === 0) {
       return true;
     }

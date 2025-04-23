@@ -3,6 +3,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { DataExchange, DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { InfoModal } from './infoModal/info-modal.component';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { ConfigStorageService } from 'services/config-storage-service/config-storage.service';
 
 @Component({
   selector: 'user-interface-new',
@@ -47,13 +48,16 @@ export class UserInterfaceComponent implements OnInit {
   constructor(
     private dataExchangeService: DataExchangeService,
     private modalService: NgbModal, 
-    private broadcastService: BroadcastService
+    private broadcastService: BroadcastService,
+    private configStorageService: ConfigStorageService
   ) {
     this.exchangeData = this.dataExchangeService.pipedData;
   }
 
   ngOnInit(): void {
 
+      // load all app configs
+      this.configStorageService.getConfigs();
 
       /* todo
       // initialize application
