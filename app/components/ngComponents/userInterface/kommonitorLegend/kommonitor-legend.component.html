@@ -49,7 +49,7 @@
                 </div>
               </div><br>
   
-        <!--  *ngIf="elementVisibilityData.elementVisibility?.indicatorLegendExportButtons" -->
+        <!--  *ngIf="elementVisibilityService.elementVisibility?.indicatorLegendExportButtons" -->
               <div class="btn-group"  id="indicatorLegendExportButtons">
                 <label><i class="fa fa-file-download"></i>&nbsp;&nbsp;&nbsp;Export</label>
                 <br />
@@ -106,7 +106,7 @@
               <div class="just-padding">
                 
                 <h4>{{exchangeData.selectedIndicator.indicatorName}}</h4>
-                <h5 *ngIf="visualStyleData.isCustomComputation">&nbsp;-&nbsp; <i>individuelles Berechnungsergebnis</i></h5>
+                <h5 *ngIf="visualStyleService.isCustomComputation">&nbsp;-&nbsp; <i>individuelles Berechnungsergebnis</i></h5>
                 <p [innerHTML]="exchangeData.selectedIndicator.metadata.description"></p>							
                 
                 <div *ngIf="exchangeData.selectedIndicator.indicatorType.includes('STATUS') && !exchangeData.isMeasureOfValueChecked && !exchangeData.isBalanceChecked">
@@ -143,30 +143,30 @@
                 </div>
                 <div *ngIf="containsNoData">
                   <div class="row" style="margin-right: 0px;">
-                    <div class="col-md-3"><i [ngStyle]="{background: env.efaultColorForNoDataValues, border: '2px solid '+env.defaultBorderColorForNoDataValues, opacity: visualStyleData.currentIndicatorOpacity}"></i></div>
+                    <div class="col-md-3"><i [ngStyle]="{background: env.efaultColorForNoDataValues, border: '2px solid '+env.defaultBorderColorForNoDataValues, opacity: visualStyleService.currentIndicatorOpacity}"></i></div>
                     <div class="col-md-6">Leerwert</div>
-                    <div class="col-md-3">{{visualStyleData.featuresPerNoData}}</div><br>
+                    <div class="col-md-3">{{visualStyleService.featuresPerNoData}}</div><br>
                   </div>				
                 </div>
                 <div *ngIf="containsOutliers_low && exchangeData.useOutlierDetectionOnIndicator">
                   <div class="row" style="margin-right: 0px;">
                     <div class="col-md-3"><i ng-bind-html="svgString_outlierLow"></i></div>
                     <div class="col-md-6">untere Ausrei&szlig;er {{makeOutliersLowLegendString(outliers_low)}}</div>
-                    <div class="col-md-3">{{visualStyleData.featuresPerOutlierLow}}</div><br>
+                    <div class="col-md-3">{{visualStyleService.featuresPerOutlierLow}}</div><br>
                   </div>				
                 </div>
                 <div *ngIf="containsOutliers_high && exchangeData.useOutlierDetectionOnIndicator">
                   <div class="row" style="margin-right: 0px;">
                     <div class="col-md-3"><i ng-bind-html="svgString_outlierHigh"></i></div>
                     <div class="col-md-6">obere Ausrei&szlig;er {{makeOutliersHighLegendString(outliers_high)}}</div>
-                    <div class="col-md-3">{{visualStyleData.featuresPerOutlierHigh}}</div><br>
+                    <div class="col-md-3">{{visualStyleService.featuresPerOutlierHigh}}</div><br>
                   </div>				
                 </div>
                 <div *ngIf="(filterHelperService.filteredIndicatorFeatureIds.size > 0) && (!filterHelperService.completelyRemoveFilteredFeaturesFromDisplay)">
                   <div class="row" style="margin-right: 0px;">
-                    <div class="col-md-3"><i [ngStyle]="{background: env.defaultColorForFilteredValues, border: '2px solid '+env.defaultBorderColorForFilteredValues, opacity: visualStyleData.currentIndicatorOpacity}"></i></div>
+                    <div class="col-md-3"><i [ngStyle]="{background: env.defaultColorForFilteredValues, border: '2px solid '+env.defaultBorderColorForFilteredValues, opacity: visualStyleService.currentIndicatorOpacity}"></i></div>
                     <div class="col-md-6">gefilterte Features</div>
-                    <div class="col-md-3">{{visualStyleData.filteredIndicatorFeatureIds.size}}</div><br>
+                    <div class="col-md-3">{{filterHelperService.filteredIndicatorFeatureIds.size}}</div><br>
                   </div>				
                 </div>
                 <br/>
@@ -174,42 +174,41 @@
                 <div *ngIf="exchangeData.isMeasureOfValueChecked">
                   <!-- zero -->
                   <div class="row" style="margin-right: 0px;" *ngIf="exchangeData.classifyZeroSeparately && containsZeroValues">
-                    <div class="col-md-3"><i [ngStyle]="{background: env.defaultColorForZeroValues, opacity: visualStyleData.currentIndicatorOpacity}"></i></div>
+                    <div class="col-md-3"><i [ngStyle]="{background: env.defaultColorForZeroValues, opacity: visualStyleService.currentIndicatorOpacity}"></i></div>
                     <div class="col-md-6">0</div>
-                    <div class="col-md-3">{{visualStyleData.featuresPerZero}}</div><br>
+                    <div class="col-md-3">{{visualStyleService.featuresPerZero}}</div><br>
                   </div>	
 
                   <br/>
 
                   <!-- lesser than values -->
-                  <div class="row" style="margin-right: 0px;" *ngFor="let color of visualStyleData.measureOfValueBrew[1].colors; let i = index">
-                    <div class="col-md-3 "><i [ngStyle]="{background: color, opacity: visualStyleData.currentIndicatorOpacity}"></i> </div>
-                    <div class="col-md-6 " *ngIf="visualStyleData.measureOfValueBrew[1].breaks[i + 1]" >{{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleData.measureOfValueBrew[1].breaks[i])}} &dash; &lt; {{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleData.measureOfValueBrew[1].breaks[i + 1])}}</div>
-                    <div class="col-md-6 " *ngIf="! visualStyleData.measureOfValueBrew[1].breaks[i + 1]" >{{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleData.measureOfValueBrew[1].breaks[i])}}</div>
-                    <div class="col-md-3 ">{{visualStyleData.featuresPerColorMap.get(color) || 0}}</div>
+                  <div class="row" style="margin-right: 0px;" *ngFor="let color of visualStyleService.measureOfValueBrew[1].colors; let i = index">
+                    <div class="col-md-3 "><i [ngStyle]="{background: color, opacity: visualStyleService.currentIndicatorOpacity}"></i> </div>
+                    <div class="col-md-6 " *ngIf="visualStyleService.measureOfValueBrew[1].breaks[i + 1]" >{{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleService.measureOfValueBrew[1].breaks[i])}} &dash; &lt; {{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleService.measureOfValueBrew[1].breaks[i + 1])}}</div>
+                    <div class="col-md-6 " *ngIf="! visualStyleService.measureOfValueBrew[1].breaks[i + 1]" >{{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleService.measureOfValueBrew[1].breaks[i])}}</div>
+                    <div class="col-md-3 ">{{visualStyleService.featuresPerColorMap.get(color) || 0}}</div>
                   </div>
 
                   <br/>
 
                   <!-- higher than values -->
-                  <div class="row" style="margin-right: 0px;" *ngFor="let color of visualStyleData.measureOfValueBrew[0].colors; let i = index">
-                    <div class="col-md-3 "><i [ngStyle]="{background: color, opacity: visualStyleData.currentIndicatorOpacity}"></i> </div>
-                    <div class="col-md-6 " *ngIf="visualStyleData.measureOfValueBrew[0].breaks[i + 1]" >{{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleData.measureOfValueBrew[0].breaks[i])}} &dash; &lt; {{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleData.measureOfValueBrew[0].breaks[i + 1])}}</div>
-                    <div class="col-md-6 " *ngIf="! visualStyleData.measureOfValueBrew[0].breaks[i + 1]" >{{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleData.measureOfValueBrew[0].breaks[i])}}</div>
-                    <div class="col-md-3 ">{{visualStyleData.featuresPerColorMap.get(color) || 0}}</div>
+                  <div class="row" style="margin-right: 0px;" *ngFor="let color of visualStyleService.measureOfValueBrew[0].colors; let i = index">
+                    <div class="col-md-3 "><i [ngStyle]="{background: color, opacity: visualStyleService.currentIndicatorOpacity}"></i> </div>
+                    <div class="col-md-6 " *ngIf="visualStyleService.measureOfValueBrew[0].breaks[i + 1]" >{{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleService.measureOfValueBrew[0].breaks[i])}} &dash; &lt; {{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleService.measureOfValueBrew[0].breaks[i + 1])}}</div>
+                    <div class="col-md-6 " *ngIf="! visualStyleService.measureOfValueBrew[0].breaks[i + 1]" >{{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleService.measureOfValueBrew[0].breaks[i])}}</div>
+                    <div class="col-md-3 ">{{visualStyleService.featuresPerColorMap.get(color) || 0}}</div>
                   </div>
 
                 </div>
                 <!-- Dynamic legend items -->
                 <div *ngIf="(exchangeData.isBalanceChecked || exchangeData.selectedIndicator.indicatorType.includes('DYNAMIC') || containsNegativeValues) && ! exchangeData.isMeasureOfValueChecked">					
-
                   <!-- < 0 values -->
-                   <div *ngIf="visualStyleData.dynamicBrew && visualStyleData.dynamicBrew[1]">
-                    <div class="row" style="margin-right: 0px;" *ngFor="let color of visualStyleData.dynamicBrew[1].colors; let i = index">
-                      <div class="col-md-3 "><i [ngStyle]="{background: color, opacity: visualStyleData.currentIndicatorOpacity}"></i> </div>
-                      <div class="col-md-6 " *ngIf="visualStyleData.dynamicBrew[1].breaks[i + 1]" >{{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleData.dynamicBrew[1].breaks[i])}} &dash; &lt; {{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleData.dynamicBrew[1].breaks[i + 1])}}</div>
-                      <div class="col-md-6 " *ngIf="! visualStyleData.dynamicBrew[1].breaks[i + 1]" >{{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleData.dynamicBrew[1].breaks[i])}}</div>
-                      <div class="col-md-3 ">{{visualStyleData.featuresPerColorMap.get(color) || 0}}</div>
+                   <div *ngIf="visualStyleService.dynamicBrew && visualStyleService.dynamicBrew[1]">
+                    <div class="row" style="margin-right: 0px;" *ngFor="let color of visualStyleService.dynamicBrew[1].colors; let i = index">
+                      <div class="col-md-3 "><i [ngStyle]="{background: color, opacity: visualStyleService.currentIndicatorOpacity}"></i> </div>
+                      <div class="col-md-6 " *ngIf="visualStyleService.dynamicBrew[1].breaks[i + 1]" >{{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleService.dynamicBrew[1].breaks[i])}} &dash; &lt; {{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleService.dynamicBrew[1].breaks[i + 1])}}</div>
+                      <div class="col-md-6 " *ngIf="! visualStyleService.dynamicBrew[1].breaks[i + 1]" >{{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleService.dynamicBrew[1].breaks[i])}}</div>
+                      <div class="col-md-3 ">{{visualStyleService.featuresPerColorMap.get(color) || 0}}</div>
                     </div>
                   </div>
 
@@ -217,60 +216,61 @@
 
                   <!-- zero -->
                   <div class="row" style="margin-right: 0px;" *ngIf="exchangeData.classifyZeroSeparately && containsZeroValues">
-                    <div class="col-md-3"><i [ngStyle]="{background: env.defaultColorForZeroValues, opacity: visualStyleData.currentIndicatorOpacity}"></i></div>
+                    <div class="col-md-3"><i [ngStyle]="{background: env.defaultColorForZeroValues, opacity: visualStyleService.currentIndicatorOpacity}"></i></div>
                     <div class="col-md-6">0</div>
-                    <div class="col-md-3">{{visualStyleData.featuresPerZero}}</div><br>
+                    <div class="col-md-3">{{visualStyleService.featuresPerZero}}</div><br>
                   </div>	
 
                   <br />
 
                   <!-- > 0 values -->
-                   <div *ngIf="visualStyleData.dynamicBrew && visualStyleData.dynamicBrew[0]">
-                    <div class="row" style="margin-right: 0px;" *ngFor="let color of visualStyleData.dynamicBrew[0].colors; let i = index">
-                      <div class="col-md-3 "><i [ngStyle]="{background: color, opacity: visualStyleData.currentIndicatorOpacity}"></i> </div>
-                      <div class="col-md-6 " *ngIf="visualStyleData.dynamicBrew[0].breaks[i + 1]" >{{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleData.dynamicBrew[0].breaks[i])}} &dash; &lt; {{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleData.dynamicBrew[0].breaks[i + 1])}}</div>
-                      <div class="col-md-6 " *ngIf="! visualStyleData.dynamicBrew[0].breaks[i + 1]" >{{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleData.dynamicBrew[0].breaks[i])}}</div>
-                      <div class="col-md-3 ">{{visualStyleData.featuresPerColorMap.get(color) || 0}}</div>
+                   <div *ngIf="visualStyleService.dynamicBrew && visualStyleService.dynamicBrew[0]">
+                    <div class="row" style="margin-right: 0px;" *ngFor="let color of visualStyleService.dynamicBrew[0].colors; let i = index">
+                      <div class="col-md-3 "><i [ngStyle]="{background: color, opacity: visualStyleService.currentIndicatorOpacity}"></i> </div>
+                      <div class="col-md-6 " *ngIf="visualStyleService.dynamicBrew[0].breaks[i + 1]" >{{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleService.dynamicBrew[0].breaks[i])}} &dash; &lt; {{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleService.dynamicBrew[0].breaks[i + 1])}}</div>
+                      <div class="col-md-6 " *ngIf="! visualStyleService.dynamicBrew[0].breaks[i + 1]" >{{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleService.dynamicBrew[0].breaks[i])}}</div>
+                      <div class="col-md-3 ">{{visualStyleService.featuresPerColorMap.get(color) || 0}}</div>
                     </div>
                    </div>
                 </div>
 
                 <!-- Static/Status legend items -->
                 <div *ngIf="(exchangeData.selectedIndicator.indicatorType.includes('STATUS') && ! containsNegativeValues) && ! exchangeData.isMeasureOfValueChecked && ! exchangeData.isBalanceChecked">
+         
                   <!-- zero -->
                   <div class="row" style="margin-right: 0px;" *ngIf="exchangeData.classifyZeroSeparately && containsZeroValues">
-                    <div class="col-md-3"><i [ngStyle]="{background: env.defaultColorForZeroValues, opacity: visualStyleData.currentIndicatorOpacity}"></i></div>
+                    <div class="col-md-3"><i [ngStyle]="{background: env.defaultColorForZeroValues, opacity: visualStyleService.currentIndicatorOpacity}"></i></div>
                     <div class="col-md-6">0</div>
-                    <div class="col-md-3">{{visualStyleData.featuresPerZero}}</div><br>
+                    <div class="col-md-3">{{visualStyleService.featuresPerZero}}</div><br>
                   </div>	
 
                   <br />
 
-                  <div [ngSwitch]="visualStyleData.classifyMethod">
+                  <div [ngSwitch]="visualStyleService.classifyMethod">
                     <div *ngSwitchCase="'manual'">
                       <!-- manual classification -->
-                      <div class="row" style="margin-right: 0px;" *ngFor="let color of visualStyleData.manualBrew?.colors; let i = index">
+                      <div class="row" style="margin-right: 0px;" *ngFor="let color of visualStyleService.manualBrew?.colors; let i = index">
                         <div class="col-md-3 ">
-                          <i [ngStyle]="{background: color, opacity: visualStyleData.currentIndicatorOpacity}">
+                          <i [ngStyle]="{background: color, opacity: visualStyleService.currentIndicatorOpacity}">
                           </i> 
                         </div>
-                        <div class="col-md-6 " *ngIf="visualStyleData.manualBrew.breaks[i + 1]" >
-                          {{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleData.manualBrew.breaks[i])}} &dash; &lt; 
-                          {{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleData.manualBrew.breaks[i + 1])}}
+                        <div class="col-md-6 " *ngIf="visualStyleService.manualBrew.breaks[i + 1]" >
+                          {{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleService.manualBrew.breaks[i])}} &dash; &lt; 
+                          {{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleService.manualBrew.breaks[i + 1])}}
                         </div>
-                        <div class="col-md-6 " *ngIf="! visualStyleData.manualBrew.breaks[i + 1]" >
-                          {{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleData.manualBrew.breaks[i])}}
+                        <div class="col-md-6 " *ngIf="! visualStyleService.manualBrew.breaks[i + 1]" >
+                          {{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleService.manualBrew.breaks[i])}}
                         </div>
-                        <div class="col-md-3 ">{{visualStyleData.featuresPerColorMap.get(color) || 0}}</div>
+                        <div class="col-md-3 ">{{visualStyleService.featuresPerColorMap.get(color) || 0}}</div>
                       </div>
                     </div>
                     <div *ngSwitchDefault>
                       <!-- default values -->
-                      <div class="row" style="margin-right: 0px;" *ngFor="let color of visualStyleData.defaultBrew?.colors; let i = index">
-                        <div class="col-md-3 "><i [ngStyle]="{background: color, opacity: visualStyleData.currentIndicatorOpacity}"></i> </div>
-                        <div class="col-md-6 " *ngIf="visualStyleData.defaultBrew.breaks[i + 1]" >{{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleData.defaultBrew.breaks[i])}} &dash; &lt; {{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleData.defaultBrew.breaks[i + 1])}}</div>
-                        <div class="col-md-6 " *ngIf="! visualStyleData.defaultBrew.breaks[i + 1]" >{{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleData.defaultBrew.breaks[i])}}</div>
-                        <div class="col-md-3 ">{{visualStyleData.featuresPerColorMap.get(color) || 0}}</div>
+                      <div class="row" style="margin-right: 0px;" *ngFor="let color of visualStyleService.defaultBrew?.colors; let i = index">
+                        <div class="col-md-3 "><i [ngStyle]="{background: color, opacity: visualStyleService.currentIndicatorOpacity}"></i> </div>
+                        <div class="col-md-6 " *ngIf="visualStyleService.defaultBrew.breaks[i + 1]" >{{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleService.defaultBrew.breaks[i])}} &dash; &lt; {{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleService.defaultBrew.breaks[i + 1])}}</div>
+                        <div class="col-md-6 " *ngIf="! visualStyleService.defaultBrew.breaks[i + 1]" >{{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleService.defaultBrew.breaks[i])}}</div>
+                        <div class="col-md-3 ">{{visualStyleService.featuresPerColorMap.get(color) || 0}}</div>
                       </div>
                     </div>
                   </div>

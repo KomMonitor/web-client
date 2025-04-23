@@ -39,11 +39,10 @@ export class ElementVisibilityHelperService implements OnInit {
     this.dataExchangeService.pipedData.showGeoresourceExportButtons = true;
     this.elementVisibility = {};
     this.configStorageService.controlsConfig.forEach(element => {
-      console.log(element)
         this.elementVisibility[element.id] = this.checkElementVisibility(element.id);
     });
         
-    this.broadcastService.broadcast("changeIndicatorDate");
+    /* this.broadcastService.broadcast("changeIndicatorDate"); */
   }
   
   onChangeIsAdvancedMode() {

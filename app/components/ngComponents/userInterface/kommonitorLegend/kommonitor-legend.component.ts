@@ -52,8 +52,6 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
     private modalService: NgbModal
   ) {
     this.exchangeData = this.dataExchangeService.pipedData;
-    this.elementVisibilityData = this.elementVisibilityService.pipedData;
-    this.visualStyleData = this.visualStyleService.pipedData;
     this.env = window.__env;
   }
 
@@ -98,8 +96,6 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
         var dateComponents = this.exchangeData.selectedDate.split("-");
         this.dateAsDate = new Date(Number(dateComponents[0]), Number(dateComponents[1]) - 1, Number(dateComponents[2]));
         this.datePickerDate = {year: this.dateAsDate.getFullYear(), month: this.dateAsDate.getMonth() + 1, day: this.dateAsDate.getDate()};
-
-        console.log(this.exchangeData.selectedSpatialUnit)
       },2500);
 
       this.broadcastService.currentBroadcastMsg.subscribe(broadcastMsg => {

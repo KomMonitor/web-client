@@ -12,7 +12,6 @@ import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 export class KommonitorClassificationComponent implements OnInit {
 
   exchangeData: DataExchange;
-  visualStyleData: any;
 
  methodName = 'Klassifizierungsmethode auswählen';
  showMethodSelection = false;
@@ -39,11 +38,10 @@ export class KommonitorClassificationComponent implements OnInit {
 
   constructor(
     private dataExchangeService: DataExchangeService,
-    private visualStyleHelperService: VisualStyleHelperServiceNew,
+    protected visualStyleHelperService: VisualStyleHelperServiceNew,
     private broadcastService: BroadcastService
   ) {
     this.exchangeData = dataExchangeService.pipedData;
-    this.visualStyleData = visualStyleHelperService.pipedData;
   }
 
   ngOnInit(): void {
@@ -149,17 +147,16 @@ export class KommonitorClassificationComponent implements OnInit {
   onMethodSelected(method) {
     this.methodName = method.name;
     this.showMethodSelection = false;
-    this.visualStyleData.classifyMethod = method.id;
-    this.broadcastService.broadcast("changeClassifyMethod", [this.visualStyleData.classifyMethod]);
+    this.visualStyleHelperService.classifyMethod = method.id;
+    this.broadcastService.broadcast("changeClassifyMethod", [this.visualStyleHelperService.classifyMethod]);
   }
   
   onChangeSelectedClassifyMethod() {
-    this.broadcastService.broadcast("changeClassifyMethod", [this.visualStyleData.classifyMethod]);
+    this.broadcastService.broadcast("changeClassifyMethod", [this.visualStyleHelperService.classifyMethod]);
   } 
  
   onChangeNumberOfClasses() {
-    this.broadcastService.broadcast("changeNumClasses", [this.visualStyleData.numClasses]);
-    console.log(this.visualStyleData.numClasses);
+    this.broadcastService.broadcast("changeNumClasses", [this.visualStyleHelperService.numClasses]);
   }
 
  toggleAddBtn(e, site) {
@@ -192,17 +189,17 @@ export class KommonitorClassificationComponent implements OnInit {
 
  addNewBreak() {
     let histogram = document.querySelectorAll<HTMLElement>(".editableHistogram")[0];
-    if(this.visualStyleData.manualBrew.breaks.length <  10) {
+    if(this.visualStyleHelperService.manualBrew.breaks.length <  10) {
       if(this.addBtnHeight[0] >= 0 &&this.addBtnHeight[0] < histogram.offsetHeight) {
-        let breaks = this.visualStyleData.manualBrew.breaks;
+        let breaks = this.visualStyleHelperService.manualBrew.breaks;
         let newBreak = Math.floor((this.addBtnHeight[0] / histogram.offsetHeight) * (breaks[breaks.length-1] - breaks[0]) + breaks[0]);
-        if(!this.visualStyleData.manualBrew.breaks.includes(newBreak)) {
-          this.visualStyleData.manualBrew.breaks.push(newBreak);
-          this.visualStyleData.manualBrew.breaks.sort(function(a, b) {
+        if(!this.visualStyleHelperService.manualBrew.breaks.includes(newBreak)) {
+          this.visualStyleHelperService.manualBrew.breaks.push(newBreak);
+          this.visualStyleHelperService.manualBrew.breaks.sort(function(a, b) {
             return a - b;
           });
 
-          this.broadcastService.broadcast("changeBreaks", [this.visualStyleData.manualBrew.breaks]);
+          this.broadcastService.broadcast("changeBreaks", [this.visualStyleHelperService.manualBrew.breaks]);
         }
 
         if((this.exchangeData.isBalanceChecked 
@@ -220,18 +217,18 @@ export class KommonitorClassificationComponent implements OnInit {
     histograms.reverse();
     let histogram = histograms[site];
 
-    if(this.visualStyleData.dynamicBrew[site].breaks.length <  5) {
+    if(this.visualStyleHelperService.dynamicBrew[site].breaks.length <  5) {
       if(this.addBtnHeight[site] >= 0 &&this.addBtnHeight[site] < histogram.offsetHeight) {
-        let breaks = this.visualStyleData.dynamicBrew[site].breaks;
+        let breaks = this.visualStyleHelperService.dynamicBrew[site].breaks;
         let newBreak = Math.floor((this.addBtnHeight[site] / histogram.offsetHeight) * (breaks[breaks.length-1] - breaks[0]) + breaks[0]);
-        if(!this.visualStyleData.dynamicBrew[site].breaks.includes(newBreak)){
-          this.visualStyleData.dynamicBrew[site].breaks.push(newBreak);
-          this.visualStyleData.dynamicBrew[site].breaks.sort(function(a, b) {
+        if(!this.visualStyleHelperService.dynamicBrew[site].breaks.includes(newBreak)){
+          this.visualStyleHelperService.dynamicBrew[site].breaks.push(newBreak);
+          this.visualStyleHelperService.dynamicBrew[site].breaks.sort(function(a, b) {
             return a - b;
           });
 
-          let increaseBreaks = this.visualStyleData.dynamicBrew[0] ? this.visualStyleData.dynamicBrew[0].breaks : [];
-          let decreaseBreaks = this.visualStyleData.dynamicBrew[1] ? this.visualStyleData.dynamicBrew[1].breaks : [];
+          let increaseBreaks = this.visualStyleHelperService.dynamicBrew[0] ? this.visualStyleHelperService.dynamicBrew[0].breaks : [];
+          let decreaseBreaks = this.visualStyleHelperService.dynamicBrew[1] ? this.visualStyleHelperService.dynamicBrew[1].breaks : [];
         
           this.broadcastService.broadcast("changeDynamicBreaks", [[increaseBreaks, decreaseBreaks]]);
         }
@@ -242,7 +239,7 @@ export class KommonitorClassificationComponent implements OnInit {
  updateDynamicBreaksFromManualBreaks(){
     let increaseBreaks:any[] = [];
     let decreaseBreaks:any[] = [];
-    this.visualStyleData.manualBrew.breaks.forEach((br) => {
+    this.visualStyleHelperService.manualBrew.breaks.forEach((br) => {
       if (br < 0) {
         decreaseBreaks.push(br);
       }
@@ -257,20 +254,20 @@ export class KommonitorClassificationComponent implements OnInit {
  breakIsUnalterable(br) {
     if(this.exchangeData.selectedIndicator.indicatorType.includes('DYNAMIC')
       ||this.containsNegativeValues){
-      if(this.visualStyleData.dynamicBrewBreaks) {
-        if(this.visualStyleData.dynamicBrewBreaks[1]) {
-          if(br == this.visualStyleData.dynamicBrewBreaks[1][0]){
+      if(this.visualStyleHelperService.dynamicBrewBreaks) {
+        if(this.visualStyleHelperService.dynamicBrewBreaks[1]) {
+          if(br == this.visualStyleHelperService.dynamicBrewBreaks[1][0]){
             return true;
           }
-          if(br == this.visualStyleData.dynamicBrewBreaks[1][this.visualStyleData.dynamicBrewBreaks[1].length-1]){
+          if(br == this.visualStyleHelperService.dynamicBrewBreaks[1][this.visualStyleHelperService.dynamicBrewBreaks[1].length-1]){
             return true;
           }
         }
-        if(this.visualStyleData.dynamicBrewBreaks[0]) {
-          if(br == this.visualStyleData.dynamicBrewBreaks[0][0]){
+        if(this.visualStyleHelperService.dynamicBrewBreaks[0]) {
+          if(br == this.visualStyleHelperService.dynamicBrewBreaks[0][0]){
             return true;
           }
-          if(br == this.visualStyleData.dynamicBrewBreaks[0][this.visualStyleData.dynamicBrewBreaks[0].length-1]){
+          if(br == this.visualStyleHelperService.dynamicBrewBreaks[0][this.visualStyleHelperService.dynamicBrewBreaks[0].length-1]){
             return true;
           }
         }
@@ -284,48 +281,48 @@ export class KommonitorClassificationComponent implements OnInit {
       || this.exchangeData.selectedIndicator.indicatorType.includes('DYNAMIC')
       || this.containsNegativeValues)) {
       if(this.exchangeData.isMeasureOfValueChecked) {
-        this.visualStyleData.manualBrew.breaks.splice(i, 1);
+        this.visualStyleHelperService.manualBrew.breaks.splice(i, 1);
         
-        this.broadcastService.broadcast("changeBreaks", [this.visualStyleData.manualBrew.breaks]);
+        this.broadcastService.broadcast("changeBreaks", [this.visualStyleHelperService.manualBrew.breaks]);
         this.updateDynamicBreaksFromManualBreaks();
       }
       else {
-        this.visualStyleData.dynamicBrew[site].breaks.splice(i, 1);
-        let increaseBreaks = this.visualStyleData.dynamicBrew[0] ? this.visualStyleData.dynamicBrew[0].breaks : [];
-        let decreaseBreaks = this.visualStyleData.dynamicBrew[1] ? this.visualStyleData.dynamicBrew[1].breaks : [];
+        this.visualStyleHelperService.dynamicBrew[site].breaks.splice(i, 1);
+        let increaseBreaks = this.visualStyleHelperService.dynamicBrew[0] ? this.visualStyleHelperService.dynamicBrew[0].breaks : [];
+        let decreaseBreaks = this.visualStyleHelperService.dynamicBrew[1] ? this.visualStyleHelperService.dynamicBrew[1].breaks : [];
         
         this.broadcastService.broadcast("changeDynamicBreaks", [[increaseBreaks, decreaseBreaks]])
       }
     }
 
     else {
-      this.visualStyleData.manualBrew.breaks.splice(i, 1);
+      this.visualStyleHelperService.manualBrew.breaks.splice(i, 1);
      
-      this.broadcastService.broadcast("changeBreaks", [this.visualStyleData.manualBrew.breaks]);
+      this.broadcastService.broadcast("changeBreaks", [this.visualStyleHelperService.manualBrew.breaks]);
     }
   }
 
  onBreaksChanged(e, i, site) {
     e.currentTarget.disabled = true;
     
-    let breaks = [...this.visualStyleData.manualBrew.breaks];
+    let breaks = [...this.visualStyleHelperService.manualBrew.breaks];
     if(e.currentTarget.value <= breaks[0] || e.currentTarget.value >= breaks[breaks.length - 1] || breaks.includes(Number(e.currentTarget.value))) {
       e.currentTarget.value = breaks[i];
 
       // todo, wrap into timeout if necessary
       //setTimeout(function () {
           e.currentTarget.value = breaks[i];
-          this.visualStyleData.manualBrew.breaks[i] = breaks[i];
+          this.visualStyleHelperService.manualBrew.breaks[i] = breaks[i];
       //}, 10);
     }
     else {
-      this.visualStyleData.manualBrew.breaks[i] = Number(e.currentTarget.value);
-      this.visualStyleData.manualBrew.breaks.sort(function(a, b) {
+      this.visualStyleHelperService.manualBrew.breaks[i] = Number(e.currentTarget.value);
+      this.visualStyleHelperService.manualBrew.breaks.sort(function(a, b) {
         return a - b;
       });
 
       
-      this.broadcastService.broadcast("changeBreaks", [this.visualStyleData.manualBrew.breaks]);
+      this.broadcastService.broadcast("changeBreaks", [this.visualStyleHelperService.manualBrew.breaks]);
       
       if((this.exchangeData.isBalanceChecked 
         || this.exchangeData.selectedIndicator.indicatorType.includes('DYNAMIC')
@@ -339,7 +336,7 @@ export class KommonitorClassificationComponent implements OnInit {
  onBreaksChangedDynamic(e, i, site) {
     e.currentTarget.disabled = true;
     
-    let breaks = [...this.visualStyleData.dynamicBrew[site].breaks];
+    let breaks = [...this.visualStyleHelperService.dynamicBrew[site].breaks];
     if(e.currentTarget.value <= breaks[0] || e.currentTarget.value >= breaks[breaks.length - 1] || breaks.includes(Number(e.currentTarget.value))) {
       e.currentTarget.value = breaks[i];
 
@@ -347,17 +344,17 @@ export class KommonitorClassificationComponent implements OnInit {
       /* setTimeout(function () {
        $apply(function(){ */
           e.currentTarget.value = breaks[i];
-          this.visualStyleData.dynamicBrew[site].breaks[i] = breaks[i];
+          this.visualStyleHelperService.dynamicBrew[site].breaks[i] = breaks[i];
     /*     });
       }, 10); */
     }
     else {
-      this.visualStyleData.dynamicBrew[site].breaks[i] = Number(e.currentTarget.value);
-      this.visualStyleData.dynamicBrew[site].breaks.sort(function(a, b) {
+      this.visualStyleHelperService.dynamicBrew[site].breaks[i] = Number(e.currentTarget.value);
+      this.visualStyleHelperService.dynamicBrew[site].breaks.sort(function(a, b) {
         return a - b;
       });
       
-      this.broadcastService.broadcast("changeDynamicBreaks", [[this.visualStyleData.dynamicBrew[0].breaks, this.visualStyleData.dynamicBrew[1].breaks]]);
+      this.broadcastService.broadcast("changeDynamicBreaks", [[this.visualStyleHelperService.dynamicBrew[0].breaks, this.visualStyleHelperService.dynamicBrew[1].breaks]]);
     }
   }
 
@@ -366,12 +363,12 @@ export class KommonitorClassificationComponent implements OnInit {
       && !this.exchangeData.selectedIndicator.indicatorType.includes('DYNAMIC')
       && !this.containsNegativeValues)
       || this.exchangeData.isMeasureOfValueChecked) {
-      if (i == 0 || i == this.visualStyleData.manualBrew.breaks.length-1 || this.breakIsUnalterable(this.visualStyleData.manualBrew.breaks[i])) {
+      if (i == 0 || i == this.visualStyleHelperService.manualBrew.breaks.length-1 || this.breakIsUnalterable(this.visualStyleHelperService.manualBrew.breaks[i])) {
         return;
       }
     }
     else {
-      if (i == 0 || i == this.visualStyleData.dynamicBrew[site].breaks.length-1 || this.breakIsUnalterable(this.visualStyleData.dynamicBrew[site].breaks[i])) {
+      if (i == 0 || i == this.visualStyleHelperService.dynamicBrew[site].breaks.length-1 || this.breakIsUnalterable(this.visualStyleHelperService.dynamicBrew[site].breaks[i])) {
         return;
       }
     }
@@ -391,53 +388,53 @@ export class KommonitorClassificationComponent implements OnInit {
   }
  
  getWidthForHistogramBar(i) {
-    let colors = this.visualStyleData.manualBrew.colors ? this.visualStyleData.manualBrew.colors : [];
+    let colors = this.visualStyleHelperService.manualBrew.colors ? this.visualStyleHelperService.manualBrew.colors : [];
     let countArray:any[] = [];
     colors.forEach( (color:any) => {
-      countArray.push(this.visualStyleData.featuresPerColorMap.get(color) || 0);
+      countArray.push(this.visualStyleHelperService.featuresPerColorMap.get(color) || 0);
     });
     return (countArray[i] / Math.max(...countArray)) * 100 || 0;
   };
  getWidthForHistogramBarMOV(side, i) {
     let colors:any[] = [];
-    colors[0] = this.visualStyleData.measureOfValueBrew[0] ? this.visualStyleData.measureOfValueBrew[0].colors : [];
-    colors[1] = this.visualStyleData.measureOfValueBrew[1] ? this.visualStyleData.measureOfValueBrew[1].colors : [];
+    colors[0] = this.visualStyleHelperService.measureOfValueBrew[0] ? this.visualStyleHelperService.measureOfValueBrew[0].colors : [];
+    colors[1] = this.visualStyleHelperService.measureOfValueBrew[1] ? this.visualStyleHelperService.measureOfValueBrew[1].colors : [];
 
     let countArray:any[] = [];
     colors[0].forEach( (color) => {
-      countArray.push(this.visualStyleData.featuresPerColorMap.get(color) || 0);
+      countArray.push(this.visualStyleHelperService.featuresPerColorMap.get(color) || 0);
     });
     colors[1].forEach( (color) => {
-      countArray.push(this.visualStyleData.featuresPerColorMap.get(color) || 0);
+      countArray.push(this.visualStyleHelperService.featuresPerColorMap.get(color) || 0);
     })
-    let color = this.visualStyleData.measureOfValueBrew[side].colors[i];
-    let count = this.visualStyleData.featuresPerColorMap.get(color);
+    let color = this.visualStyleHelperService.measureOfValueBrew[side].colors[i];
+    let count = this.visualStyleHelperService.featuresPerColorMap.get(color);
     return (count / Math.max(...countArray)) * 100 || 0;
   };
   
  getWidthForHistogramBarDynamic(side, i) {
-    let colors = [...this.visualStyleData.dynamicBrew[0].colors, ...this.visualStyleData.dynamicBrew[1].colors];
+    let colors = [...this.visualStyleHelperService.dynamicBrew[0].colors, ...this.visualStyleHelperService.dynamicBrew[1].colors];
     let countArray:any[] = [];
     colors.forEach( (color) => {
-      countArray.push(this.visualStyleData.featuresPerColorMap.get(color) || 0);
+      countArray.push(this.visualStyleHelperService.featuresPerColorMap.get(color) || 0);
     })
-    let color = this.visualStyleData.dynamicBrew[side].colors[i];
-    let count = this.visualStyleData.featuresPerColorMap.get(color);
+    let color = this.visualStyleHelperService.dynamicBrew[side].colors[i];
+    let count = this.visualStyleHelperService.featuresPerColorMap.get(color);
     return (count / Math.max(...countArray)) * 100 || 0;
   };
 
  getHeightForBar(i) {
-    let size = this.visualStyleData.manualBrew.breaks[i+1] - this.visualStyleData.manualBrew.breaks[i];
+    let size = this.visualStyleHelperService.manualBrew.breaks[i+1] - this.visualStyleHelperService.manualBrew.breaks[i];
     return (size / (this.getMaxValue(0) -this.getMinValue(0))) * 100;
   };
 
  getHeightForBarMOV(site, i) {
-    let size = this.visualStyleData.measureOfValueBrew[site].breaks[i+1] - this.visualStyleData.measureOfValueBrew[site].breaks[i];
+    let size = this.visualStyleHelperService.measureOfValueBrew[site].breaks[i+1] - this.visualStyleHelperService.measureOfValueBrew[site].breaks[i];
     return (size / (this.getMaxValue(0) -this.getMinValue(1))) * 100;
   };
 
  getHeightForBarDynamic(site, i) {
-    let size = this.visualStyleData.dynamicBrew[site].breaks[i+1] - this.visualStyleData.dynamicBrew[site].breaks[i];
+    let size = this.visualStyleHelperService.dynamicBrew[site].breaks[i+1] - this.visualStyleHelperService.dynamicBrew[site].breaks[i];
     return (size / (this.getMaxValue(site) -this.getMinValue(site))) * 100;
   }; 
 
@@ -452,22 +449,22 @@ export class KommonitorClassificationComponent implements OnInit {
       && !this.exchangeData.selectedIndicator.indicatorType.includes('DYNAMIC')
       && !this.containsNegativeValues)
       || this.exchangeData.isMeasureOfValueChecked) {
-      breaks = this.visualStyleData.manualBrew.breaks;
+      breaks = this.visualStyleHelperService.manualBrew.breaks;
     }
     else {
-      if (!this.visualStyleData.dynamicBrew) {
+      if (!this.visualStyleHelperService.dynamicBrew) {
         return 0;
       }
-      if (!this.visualStyleData.dynamicBrew[0] && !this.visualStyleData.dynamicBrew[1]) {
+      if (!this.visualStyleHelperService.dynamicBrew[0] && !this.visualStyleHelperService.dynamicBrew[1]) {
         return 0;
       }
-      if(site == 1 && (!this.visualStyleData.dynamicBrew[1] || this.visualStyleData.dynamicBrew[1].breaks.length < 1)) {
-        breaks = this.visualStyleData.dynamicBrew[0].breaks;
+      if(site == 1 && (!this.visualStyleHelperService.dynamicBrew[1] || this.visualStyleHelperService.dynamicBrew[1].breaks.length < 1)) {
+        breaks = this.visualStyleHelperService.dynamicBrew[0].breaks;
       }
-      if(site == 0 && (!this.visualStyleData.dynamicBrew[0] || this.visualStyleData.dynamicBrew[0].breaks.length < 1)) {
-        breaks = this.visualStyleData.dynamicBrew[1].breaks;
+      if(site == 0 && (!this.visualStyleHelperService.dynamicBrew[0] || this.visualStyleHelperService.dynamicBrew[0].breaks.length < 1)) {
+        breaks = this.visualStyleHelperService.dynamicBrew[1].breaks;
       }
-      breaks = this.visualStyleData.dynamicBrew[site].breaks;
+      breaks = this.visualStyleHelperService.dynamicBrew[site].breaks;
     }
     return breaks[breaks.length - 1]; 
   }  
@@ -477,21 +474,21 @@ export class KommonitorClassificationComponent implements OnInit {
       && !this.exchangeData.selectedIndicator.indicatorType.includes('DYNAMIC')
       && !this.containsNegativeValues)
       || this.exchangeData.isMeasureOfValueChecked) {
-      return this.visualStyleData.manualBrew.breaks[0];
+      return this.visualStyleHelperService.manualBrew.breaks[0];
     }
-    if (!this.visualStyleData.dynamicBrew) {
+    if (!this.visualStyleHelperService.dynamicBrew) {
       return 0;
     }
-    if (!this.visualStyleData.dynamicBrew[0] && !this.visualStyleData.dynamicBrew[1]) {
+    if (!this.visualStyleHelperService.dynamicBrew[0] && !this.visualStyleHelperService.dynamicBrew[1]) {
       return 0;
     }
-    if(site == 1 && (!this.visualStyleData.dynamicBrew[1] || this.visualStyleData.dynamicBrew[1].breaks.length < 1)) {
-      return this.visualStyleData.dynamicBrew[0].breaks[0];
+    if(site == 1 && (!this.visualStyleHelperService.dynamicBrew[1] || this.visualStyleHelperService.dynamicBrew[1].breaks.length < 1)) {
+      return this.visualStyleHelperService.dynamicBrew[0].breaks[0];
     }
-    if(site == 0 && (!this.visualStyleData.dynamicBrew[0] || this.visualStyleData.dynamicBrew[0].breaks.length < 1)) {
-      return this.visualStyleData.dynamicBrew[1].breaks[0];
+    if(site == 0 && (!this.visualStyleHelperService.dynamicBrew[0] || this.visualStyleHelperService.dynamicBrew[0].breaks.length < 1)) {
+      return this.visualStyleHelperService.dynamicBrew[1].breaks[0];
     }
-    return this.visualStyleData.dynamicBrew[site].breaks[0];
+    return this.visualStyleHelperService.dynamicBrew[site].breaks[0];
   }
    
   onBreakMouseDown(e, i, site) {
@@ -518,7 +515,7 @@ export class KommonitorClassificationComponent implements OnInit {
   }
   
  onBreakMouseMove(e) {
-    if (this.nrOfDraggingBreak != 0 &&this.nrOfDraggingBreak != this.visualStyleData.manualBrew.breaks.length-1 && this.nrOfDraggingBreak && !this.breakIsUnalterable(this.visualStyleData.manualBrew.breaks[this.nrOfDraggingBreak])) {
+    if (this.nrOfDraggingBreak != 0 &&this.nrOfDraggingBreak != this.visualStyleHelperService.manualBrew.breaks.length-1 && this.nrOfDraggingBreak && !this.breakIsUnalterable(this.visualStyleHelperService.manualBrew.breaks[this.nrOfDraggingBreak])) {
      this.showAddBtn[0] = false;
 
       if(e.buttons === 1 &&this.isDraggingBreak) {
@@ -529,17 +526,17 @@ export class KommonitorClassificationComponent implements OnInit {
         }
 
         (async () => {
-          let breaks = this.visualStyleData.manualBrew.breaks;
+          let breaks = this.visualStyleHelperService.manualBrew.breaks;
           let newBreak = Math.floor((this.addBtnHeight[0] / histogram.offsetHeight) * (breaks[breaks.length-1] - breaks[0]) + breaks[0]);
           if (newBreak > breaks[0] && newBreak < breaks[breaks.length-1]) {
            this.draggingBreak.children[0].children[0].value = newBreak;
             if(this.nrOfDraggingBreak)
-              this.visualStyleData.manualBrew.breaks[this.nrOfDraggingBreak] = newBreak;
-            this.visualStyleData.manualBrew.breaks.sort(function(a, b) {
+              this.visualStyleHelperService.manualBrew.breaks[this.nrOfDraggingBreak] = newBreak;
+            this.visualStyleHelperService.manualBrew.breaks.sort(function(a, b) {
               return a - b;
             });
             
-            this.broadcastService.broadcast("changeBreaks", [this.visualStyleData.manualBrew.breaks]);
+            this.broadcastService.broadcast("changeBreaks", [this.visualStyleHelperService.manualBrew.breaks]);
             if((this.exchangeData.isBalanceChecked 
               || this.exchangeData.selectedIndicator.indicatorType.includes('DYNAMIC')
               ||this.containsNegativeValues) 
@@ -553,7 +550,7 @@ export class KommonitorClassificationComponent implements OnInit {
   };
 
  onDynamicBreakMouseMove(e, site) {
-    if (this.nrOfDraggingBreak != 0 &&this.nrOfDraggingBreak != this.visualStyleData.dynamicBrew[this.dynamicDraggingSite].breaks.length-1) {
+    if (this.nrOfDraggingBreak != 0 &&this.nrOfDraggingBreak != this.visualStyleHelperService.dynamicBrew[this.dynamicDraggingSite].breaks.length-1) {
      this.showAddBtn[site] = false;
 
       if(e.buttons === 1 &&this.isDraggingBreak) {
@@ -567,17 +564,17 @@ export class KommonitorClassificationComponent implements OnInit {
         }
 
         (async () => {
-          let breaks = this.visualStyleData.dynamicBrew[this.dynamicDraggingSite].breaks;
+          let breaks = this.visualStyleHelperService.dynamicBrew[this.dynamicDraggingSite].breaks;
           let newBreak = Math.floor((this.addBtnHeight[site] / histogram.offsetHeight) * (breaks[breaks.length-1] - breaks[0]) + breaks[0]);
           if (newBreak > breaks[0] && newBreak < breaks[breaks.length-1] && !breaks.includes(newBreak)) {
            this.draggingBreak.children[0].children[0].value = newBreak;
             if(this.nrOfDraggingBreak)
-              this.visualStyleData.dynamicBrew[this.dynamicDraggingSite].breaks[this.nrOfDraggingBreak] = newBreak;
-            this.visualStyleData.dynamicBrew[this.dynamicDraggingSite].breaks.sort(function(a, b) {
+              this.visualStyleHelperService.dynamicBrew[this.dynamicDraggingSite].breaks[this.nrOfDraggingBreak] = newBreak;
+            this.visualStyleHelperService.dynamicBrew[this.dynamicDraggingSite].breaks.sort(function(a, b) {
               return a - b;
             });
-            let increaseBreaks = this.visualStyleData.dynamicBrew[0] ? this.visualStyleData.dynamicBrew[0].breaks : [];
-            let decreaseBreaks = this.visualStyleData.dynamicBrew[1] ? this.visualStyleData.dynamicBrew[1].breaks : [];
+            let increaseBreaks = this.visualStyleHelperService.dynamicBrew[0] ? this.visualStyleHelperService.dynamicBrew[0].breaks : [];
+            let decreaseBreaks = this.visualStyleHelperService.dynamicBrew[1] ? this.visualStyleHelperService.dynamicBrew[1].breaks : [];
             
             this.broadcastService.broadcast("changeDynamicBreaks", [[increaseBreaks, decreaseBreaks]]);
           }

@@ -41,17 +41,17 @@
 
     <div title="Hier können Sie die Klassifizierungsmethode ändern.">
       <div style="font-weight: bold;">Methode</div>
-      <app-classification-method-select [defaultMethodId]="visualStyleData.classifyMethod" [hiddenMethodIds]="hiddenMethodIds" (onMethodSelect)="onMethodSelected($event)"></app-classification-method-select>
+      <app-classification-method-select [defaultMethodId]="visualStyleHelperService.classifyMethod" [hiddenMethodIds]="hiddenMethodIds" (onMethodSelect)="onMethodSelected($event)"></app-classification-method-select>
       <!-- todo  -->
       <!-- <classification-method-select 
         on-method-selected="onMethodSelected(method)"
-        default-method-id="{{visualStyleData.classifyMethod}}"
+        default-method-id="{{visualStyleHelperService.classifyMethod}}"
         hidden-method-ids="{{hiddenMethodIds}}">
       </classification-method-select> -->
     </div>
 
     <!-- number of classes -->
-    <form class="nrClassSelection" *ngIf="visualStyleData.classifyMethod !== 'manual' && visualStyleData.classifyMethod !== 'regional_default'">
+    <form class="nrClassSelection" *ngIf="visualStyleHelperService.classifyMethod !== 'manual' && visualStyleHelperService.classifyMethod !== 'regional_default'">
       <label>
         Anzahl Klassen 
         <input 
@@ -59,15 +59,15 @@
           min="3"
           max="7"
           (change)="onChangeNumberOfClasses()"
-          value="{{visualStyleData.numClasses}}"
+          value="{{visualStyleHelperService.numClasses}}"
           class="form-control"
           name="numClasses"
-          [(ngModel)]="visualStyleData.numClasses">
+          [(ngModel)]="visualStyleHelperService.numClasses">
       </label>
     </form>
 
     <!-- manual breaks -->
-    <div *ngIf="visualStyleData.classifyMethod=='manual'">
+    <div *ngIf="visualStyleHelperService.classifyMethod=='manual'">
       <div *ngIf="(exchangeData.selectedIndicator.indicatorType.includes('STATUS') && ! containsNegativeValues) && ! exchangeData.isMeasureOfValueChecked && ! exchangeData.isBalanceChecked" 
             class="histogramTabWrapper editableHistogram"
             (mouseover)="toggleAddBtn($event, 0)">
@@ -94,25 +94,25 @@
           </div>-->
           <!-- other breaks -->
           <div class="breakWrapper"
-                *ngFor="let b of visualStyleData.manualBrew.breaks; let i = index"
+                *ngFor="let b of visualStyleHelperService.manualBrew.breaks; let i = index"
                 [ngStyle]="{top: getPercentage(b, 0)+'%'}"
                 (mousedown)="onBreakMouseDown($event, i, 0)"
                 (dblclick)="onBreakDblClick($event, i, 0)"
-                [ngClass]="{'fixed': i === 0 || i === visualStyleData.manualBrew.breaks.length-1}">
+                [ngClass]="{'fixed': i === 0 || i === visualStyleHelperService.manualBrew.breaks.length-1}">
             <div class="break"
-                  [ngClass]="{'fixed': i === 0 || i === visualStyleData.manualBrew.breaks.length-1}">
+                  [ngClass]="{'fixed': i === 0 || i === visualStyleHelperService.manualBrew.breaks.length-1}">
               <!--<div class="colorBox"></div>-->
               <input type="number"
                       (blur)="onBreaksChanged($event, i, 0)"
                       [ngModelOptions]="{ updateOn: 'blur' }"
                       disabled
-                      [ngClass]="{'fixed': i === 0 || i === visualStyleData.manualBrew.breaks.length-1}"
-                      min="{{visualStyleData.manualBrew.breaks[0]}}"
-                      max="{{visualStyleData.manualBrew.breaks[visualStyleData.manualBrew.breaks.length - 1]}}"
-                      [(ngModel)]="visualStyleData.manualBrew.breaks[i]">
+                      [ngClass]="{'fixed': i === 0 || i === visualStyleHelperService.manualBrew.breaks.length-1}"
+                      min="{{visualStyleHelperService.manualBrew.breaks[0]}}"
+                      max="{{visualStyleHelperService.manualBrew.breaks[visualStyleHelperService.manualBrew.breaks.length - 1]}}"
+                      [(ngModel)]="visualStyleHelperService.manualBrew.breaks[i]">
               <i class="fa-regular fa-trash-can" 
                   (click)="deleteBreak(i, 0)"
-                  *ngIf="i != 0 && i != visualStyleData.manualBrew.breaks.length-1"></i>
+                  *ngIf="i != 0 && i != visualStyleHelperService.manualBrew.breaks.length-1"></i>
             </div>
             <div class="line"></div>
           </div>
@@ -120,8 +120,8 @@
         <!-- bars -->
         <div class="histogram">
           <div class="histogramBar"
-                *ngFor="let b of visualStyleData.manualBrew.breaks; let i = index"
-                [ngStyle]="{height: getHeightForBar(i)+'%', width: getWidthForHistogramBar(i)+'%', 'background-color': visualStyleData.manualBrew.colors[i]}">
+                *ngFor="let b of visualStyleHelperService.manualBrew.breaks; let i = index"
+                [ngStyle]="{height: getHeightForBar(i)+'%', width: getWidthForHistogramBar(i)+'%', 'background-color': visualStyleHelperService.manualBrew.colors[i]}">
           </div>
         </div>
       </div>
@@ -150,25 +150,25 @@
             <div class="line"></div>
           </div>
           <!-- other breaks -->
-          <div class="breakWrapper" *ngFor="let b of visualStyleData.manualBrew.breaks; let i = index"
+          <div class="breakWrapper" *ngFor="let b of visualStyleHelperService.manualBrew.breaks; let i = index"
                 [ngStyle]="{top: getPercentage(b, 0)+'%'}"
                 (mousedown)="onBreakMouseDown($event, i, 0)"
                 (cblclick)="onBreakDblClick($event, i, 0)"
-                [ngClass]="{'fixed': i === 0 || i === visualStyleData.manualBrew.breaks.length-1 || breakIsUnalterable(visualStyleData.manualBrew.breaks[i])}">
+                [ngClass]="{'fixed': i === 0 || i === visualStyleHelperService.manualBrew.breaks.length-1 || breakIsUnalterable(visualStyleHelperService.manualBrew.breaks[i])}">
             <div class="break"
-                  [ngClass]="{'fixed': i === 0 || i === visualStyleData.manualBrew.breaks.length-1 || breakIsUnalterable(visualStyleData.manualBrew.breaks[i])}">
+                  [ngClass]="{'fixed': i === 0 || i === visualStyleHelperService.manualBrew.breaks.length-1 || breakIsUnalterable(visualStyleHelperService.manualBrew.breaks[i])}">
               <!--<div class="colorBox"></div>-->
               <input type="number" 
                       (blur)="onBreaksChanged($event, i, 0)"
                       [ngModelOptions]="{ updateOn: 'blur' }"
                       disabled
-                      [ngClass]="{'fixed': i === 0 || i === visualStyleData.manualBrew.breaks.length-1 || breakIsUnalterable(visualStyleData.manualBrew.breaks[i])}"
-                      min="{{visualStyleData.manualBrew.breaks[0]}}"
-                      max="{{visualStyleData.manualBrew.breaks[visualStyleData.manualBrew.breaks.length - 1]}}"
-                      [(ngModel)]="visualStyleData.manualBrew.breaks[i]">
+                      [ngClass]="{'fixed': i === 0 || i === visualStyleHelperService.manualBrew.breaks.length-1 || breakIsUnalterable(visualStyleHelperService.manualBrew.breaks[i])}"
+                      min="{{visualStyleHelperService.manualBrew.breaks[0]}}"
+                      max="{{visualStyleHelperService.manualBrew.breaks[visualStyleHelperService.manualBrew.breaks.length - 1]}}"
+                      [(ngModel)]="visualStyleHelperService.manualBrew.breaks[i]">
               <i class="fa-regular fa-trash-can"
                   (click)="deleteBreak(i, 0)"
-                  *ngIf="i != 0 && i != visualStyleData.manualBrew.breaks.length-1 && !breakIsUnalterable(visualStyleData.manualBrew.breaks[i])"></i>
+                  *ngIf="i != 0 && i != visualStyleHelperService.manualBrew.breaks.length-1 && !breakIsUnalterable(visualStyleHelperService.manualBrew.breaks[i])"></i>
             </div>
             <div class="line"></div>
           </div>
@@ -176,12 +176,12 @@
         <!-- bars -->
         <div class="histogram">
           <div>
-            <div class="histogramBar" *ngFor="let b of visualStyleData.measureOfValueBrew[1].breaks; let i = index">
-                <div *ngIf="i != visualStyleData.measureOfValueBrew[1].breaks.length - 1" [ngStyle]="{height: getHeightForBarMOV(1, i)+'%', width: getWidthForHistogramBarMOV(1, i)+'%', 'background-color': visualStyleData.measureOfValueBrew[1].colors[i]}"></div>
+            <div class="histogramBar" *ngFor="let b of visualStyleHelperService.measureOfValueBrew[1].breaks; let i = index">
+                <div *ngIf="i != visualStyleHelperService.measureOfValueBrew[1].breaks.length - 1" [ngStyle]="{height: getHeightForBarMOV(1, i)+'%', width: getWidthForHistogramBarMOV(1, i)+'%', 'background-color': visualStyleHelperService.measureOfValueBrew[1].colors[i]}"></div>
             </div>
           </div>
-          <div class="histogramBar" *ngFor="let b of visualStyleData.measureOfValueBrew[0].breaks; let i = index">
-              <div *ngIf="i != visualStyleData.measureOfValueBrew[0].breaks.length - 1" [ngStyle]="{height: getHeightForBarMOV(0, i)+'%', width: getWidthForHistogramBarMOV(0, i)+'%', 'background-color': visualStyleData.measureOfValueBrew[0].colors[i]}"></div>
+          <div class="histogramBar" *ngFor="let b of visualStyleHelperService.measureOfValueBrew[0].breaks; let i = index">
+              <div *ngIf="i != visualStyleHelperService.measureOfValueBrew[0].breaks.length - 1" [ngStyle]="{height: getHeightForBarMOV(0, i)+'%', width: getWidthForHistogramBarMOV(0, i)+'%', 'background-color': visualStyleHelperService.measureOfValueBrew[0].colors[i]}"></div>
         </div>
       </div>
     </div>
@@ -191,7 +191,7 @@
         || exchangeData.selectedIndicator.indicatorType.includes('DYNAMIC') 
         || containsNegativeValues) 
         && ! exchangeData.isMeasureOfValueChecked)
-        && visualStyleData.dynamicBrew[1].breaks.length > 0"
+        && visualStyleHelperService.dynamicBrew[1].breaks.length > 0"
           class="histogramTabWrapper editableHistogram editableHistogramDynamic"
           (mousemove)="toggleAddBtn($event, 1)">
       <div class="breaksArea"
@@ -205,31 +205,31 @@
           <div class="line"></div>
         </div>
 
-        <div class="breakWrapper" *ngFor="let b of visualStyleData.dynamicBrew[1].breaks; let i = index"
+        <div class="breakWrapper" *ngFor="let b of visualStyleHelperService.dynamicBrew[1].breaks; let i = index"
               [ngStyle]="{top: getPercentage(b, 1)+'%'}"
               (mousedown)="onBreakMouseDown($event, i, 1)"
               (click)="onBreakDblClick($event, i, 1)"
-              [ngClass]="{'fixed': i === 0 || i === visualStyleData.dynamicBrew[1].breaks.length-1}">
+              [ngClass]="{'fixed': i === 0 || i === visualStyleHelperService.dynamicBrew[1].breaks.length-1}">
           <div class="break"
-                [ngClass]="{'fixed': i === 0 || i === visualStyleData.dynamicBrew[1].breaks.length-1}">
+                [ngClass]="{'fixed': i === 0 || i === visualStyleHelperService.dynamicBrew[1].breaks.length-1}">
             <input type="number" 
                     (blur)="onBreaksChangedDynamic($event, i, 1)"
                     [ngModelOptions]="{ updateOn: 'blur' }"
                     disabled
-                    [ngClass]="{'fixed': i === 0 || i === visualStyleData.dynamicBrew[1].breaks.length-1}"
-                    [(ngModel)]="visualStyleData.dynamicBrew[1].breaks[i]">
+                    [ngClass]="{'fixed': i === 0 || i === visualStyleHelperService.dynamicBrew[1].breaks.length-1}"
+                    [(ngModel)]="visualStyleHelperService.dynamicBrew[1].breaks[i]">
             <i class="fa-regular fa-trash-can"
                 (click)="deleteBreak(i, 1)"
-                *ngIf="i != 0 && i != visualStyleData.dynamicBrew[1].breaks.length-1"></i>
+                *ngIf="i != 0 && i != visualStyleHelperService.dynamicBrew[1].breaks.length-1"></i>
           </div>
           <div class="line"></div>
         </div>
       </div>
 
       <div class="histogram">
-        <div class="histogramBar" *ngFor="let b of visualStyleData.dynamicBrew[1].breaks; let i = index">
-          <div *ngIf="i != visualStyleData.dynamicBrew[1].breaks.length - 1"
-              [ngStyle]="{height: getHeightForBarDynamic(1, i)+'%', width: getWidthForHistogramBarDynamic(1, i)+'%', 'background-color': visualStyleData.dynamicBrew[1].colors[i]}">
+        <div class="histogramBar" *ngFor="let b of visualStyleHelperService.dynamicBrew[1].breaks; let i = index">
+          <div *ngIf="i != visualStyleHelperService.dynamicBrew[1].breaks.length - 1"
+              [ngStyle]="{height: getHeightForBarDynamic(1, i)+'%', width: getWidthForHistogramBarDynamic(1, i)+'%', 'background-color': visualStyleHelperService.dynamicBrew[1].colors[i]}">
           </div>
         </div>
       </div>
@@ -241,7 +241,7 @@
         || exchangeData.selectedIndicator.indicatorType.includes('DYNAMIC') 
         || containsNegativeValues) 
         && ! exchangeData.isMeasureOfValueChecked)
-        && visualStyleData.dynamicBrew[0].breaks.length > 0" 
+        && visualStyleHelperService.dynamicBrew[0].breaks.length > 0" 
           class="histogramTabWrapper editableHistogram editableHistogramDynamic"
           (mousemove)="toggleAddBtn($event, 0)">
       <div class="breaksArea"
@@ -256,31 +256,31 @@
         </div>
 
         <div class="breakWrapper"
-              *ngFor="let b of visualStyleData.dynamicBrew[0].breaks; let i = index"
+              *ngFor="let b of visualStyleHelperService.dynamicBrew[0].breaks; let i = index"
               [ngStyle]="{top: getPercentage(b, 0)+'%'}"
               (mousedown)="onBreakMouseDown($event, i, 0)"
               (cblclick)="onBreakDblClick($event, i, 0)"
-              [ngClass]="{'fixed': i === 0 || i === visualStyleData.dynamicBrew[0].breaks.length-1}">
+              [ngClass]="{'fixed': i === 0 || i === visualStyleHelperService.dynamicBrew[0].breaks.length-1}">
           <div class="break"
-                [ngClass]="{'fixed': i === 0 || i === visualStyleData.dynamicBrew[0].breaks.length-1}">
+                [ngClass]="{'fixed': i === 0 || i === visualStyleHelperService.dynamicBrew[0].breaks.length-1}">
             <input type="number" 
                     (blur)="onBreaksChangedDynamic($event, i, 0)"
                     [ngModelOptions]="{ updateOn: 'blur' }"
                     disabled
-                    [ngClass]="{'fixed': i === 0 || i === visualStyleData.dynamicBrew[0].breaks.length-1}"
-                    [(ngModel)]="visualStyleData.dynamicBrew[0].breaks[i]">
+                    [ngClass]="{'fixed': i === 0 || i === visualStyleHelperService.dynamicBrew[0].breaks.length-1}"
+                    [(ngModel)]="visualStyleHelperService.dynamicBrew[0].breaks[i]">
             <i class="fa-regular fa-trash-can"
                 (click)="deleteBreak(i, 0)"
-                *ngIf="i != 0 && i != visualStyleData.dynamicBrew[0].breaks.length-1"></i>
+                *ngIf="i != 0 && i != visualStyleHelperService.dynamicBrew[0].breaks.length-1"></i>
           </div>
           <div class="line"></div>
         </div>
       </div>
 
       <div class="histogram">
-        <div class="histogramBar" *ngFor="let b of visualStyleData.dynamicBrew[0].breaks; let i = index">
-          <div *ngIf="i != visualStyleData.dynamicBrew[0].breaks.length - 1"
-              [ngStyle]="{height: getHeightForBarDynamic(0, i)+'%', width: getWidthForHistogramBarDynamic(0, i)+'%', 'background-color': visualStyleData.dynamicBrew[0].colors[i]}">
+        <div class="histogramBar" *ngFor="let b of visualStyleHelperService.dynamicBrew[0].breaks; let i = index">
+          <div *ngIf="i != visualStyleHelperService.dynamicBrew[0].breaks.length - 1"
+              [ngStyle]="{height: getHeightForBarDynamic(0, i)+'%', width: getWidthForHistogramBarDynamic(0, i)+'%', 'background-color': visualStyleHelperService.dynamicBrew[0].colors[i]}">
           </div>
         </div>
       </div>
@@ -318,12 +318,12 @@
     </label>
   </div>
 
-  <div class="classificationBoxToogleSlidersWrapper" *ngIf="containsZeroValues && visualStyleData.classifyMethod !== 'manual' && visualStyleData.classifyMethod !== 'regional_default'">
+  <div class="classificationBoxToogleSlidersWrapper" *ngIf="containsZeroValues && visualStyleHelperService.classifyMethod !== 'manual' && visualStyleHelperService.classifyMethod !== 'regional_default'">
     <span class="classificationBoxToogleSlidersLbl"><strong>Wert "0" als separate Klasse darstellen</strong> &nbsp;</span>
     <label class="switch" title="0 als separate Klasse darstellen"><input id="controlIndicatorZeroClassifyOption" type="checkbox" value="useSeparateZeroClass" [(ngModel)]="exchangeData.classifyZeroSeparately" [checked]="exchangeData.classifyZeroSeparately" (change)="restyleCurrentLayer()"><span class="switchslider round"></span></label>
   </div>
 
-  <div class="classificationBoxToogleSlidersWrapper" *ngIf="(containsOutliers_high || containsOutliers_low) && visualStyleData.classifyMethod !== 'manual' && visualStyleData.classifyMethod !== 'regional_default'">
+  <div class="classificationBoxToogleSlidersWrapper" *ngIf="(containsOutliers_high || containsOutliers_low) && visualStyleHelperService.classifyMethod !== 'manual' && visualStyleHelperService.classifyMethod !== 'regional_default'">
     <span class="classificationBoxToogleSlidersLbl"><strong>Ausrei&szlig;er gesondert markieren</strong> &nbsp;</span>
     <label class="switch" title="Ausrei&szlig;er gesondert markieren"><input id="controlIndicatorOutlierDetection" type="checkbox" value="useOutlierDetection" [(ngModel)]="exchangeData.useOutlierDetectionOnIndicator" [checked]="exchangeData.useOutlierDetectionOnIndicator" (change)="restyleCurrentLayer()"><span class="switchslider round"></span></label>
   </div>
