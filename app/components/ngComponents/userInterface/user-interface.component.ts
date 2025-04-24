@@ -4,6 +4,8 @@ import { DataExchange, DataExchangeService } from 'services/data-exchange-servic
 import { InfoModal } from './infoModal/info-modal.component';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { ConfigStorageService } from 'services/config-storage-service/config-storage.service';
+import { ReportingModalComponent } from './reporting/reporting-modal.component';
+import { ElementVisibilityHelperService } from 'services/element-visibility-helper-service/element-visibility-helper.service';
 
 @Component({
   selector: 'user-interface-new',
@@ -49,7 +51,8 @@ export class UserInterfaceComponent implements OnInit {
     private dataExchangeService: DataExchangeService,
     private modalService: NgbModal, 
     private broadcastService: BroadcastService,
-    private configStorageService: ConfigStorageService
+    private configStorageService: ConfigStorageService,
+    protected visibilityHelperService: ElementVisibilityHelperService
   ) {
     this.exchangeData = this.dataExchangeService.pipedData;
   }
@@ -79,6 +82,8 @@ export class UserInterfaceComponent implements OnInit {
       // open infoModal ico
       if(!localStorage.getItem('hideKomMonitorAppGreeting') || localStorage.getItem('hideKomMonitorAppGreeting') === 'false')
         this.openInfoModal();
+  
+      this.openReportingModal();
   }
 
   /* 
@@ -195,6 +200,10 @@ export class UserInterfaceComponent implements OnInit {
     openInfoModal() {
 
       const modalRef = this.modalService.open(InfoModal, {windowClass: 'modal-holder', centered: true});
+    }
+
+    openReportingModal() {
+        const reportingModalRef = this.modalService.open(ReportingModalComponent, {windowClass: 'modal-holder', centered: true});
     }
 
     onSidebarButtonClick(event) {

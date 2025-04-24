@@ -93,12 +93,12 @@
     <!-- <a data-toggle="modal" data-target="#feedbackModal" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%;  cursor:pointer;" title="Feedback&nbsp;&nbsp;"><span class="glyphicon glyphicon-envelope"></span></a> -->
     <a style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%;  cursor:pointer;" title="Guided Tour&nbsp;&nbsp;"><span class="glyphicon glyphicon-play"></span></a>
     
-    <div id="reportingButton" ng-if="$ctrl.kommonitorElementVisibilityHelperServiceInstance.elementVisibility.reportingButton">
-      <a data-toggle="modal" data-target="#reporting-modal" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%; cursor:pointer;" title="Report erstellen&nbsp;&nbsp;">
+    <div id="reportingButton" *ngIf="visibilityHelperService.elementVisibility.reportingButton">
+      <p (click)="openReportingModal()" data-toggle="modal" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%; cursor:pointer;" title="Report erstellen&nbsp;&nbsp;">
         <i class="fas fa-file-alt"></i>
-      </a>
+      </p>
     </div>			
-    <div id="switchAdvancedMode" ng-if="$ctrl.kommonitorElementVisibilityHelperServiceInstance.showAdvancedModeSwitch" 
+    <div id="switchAdvancedMode" *ngIf="visibilityHelperService.showAdvancedModeSwitch" 
     style="float: right; margin-right: 1%; margin-top: 0.5%; cursor: pointer">
       <strong>Erweiterte Ansicht</strong> &nbsp;
       <label class="switch" title="Ein- / Ausblenden von UI Elementen"><input type="checkbox" ng-model="$ctrl.kommonitorElementVisibilityHelperServiceInstance.isAdvancedMode" 

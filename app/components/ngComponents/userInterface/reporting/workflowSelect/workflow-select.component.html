@@ -1,0 +1,22 @@
+<div class="container-fluid">
+  <div class="row row-no-gutters">
+      <div class="col-sm-12 text-center">
+          <!-- <h2 class="fs-title"></h2> -->
+          <p>
+              Möchten Sie einen neuen Report erstellen oder einen bestehenden Report anpassen?
+          </p>
+      </div>
+  </div>
+    <div class="row text-center">
+        <button id="reporting-createNewReportBtn" class="btn btn-primary" (click)='onWorkflowSelect(["new"])'>
+            <i class="fa fa-plus"></i>
+            Neuen Report erstellen
+        </button>
+        <label for="reporting-load-settings-button" class="btn btn-primary">
+            <input type="file" id="reporting-load-settings-button" (change)="onConfigSelect($event)">
+            <i class="fa fa-file-download"></i>
+            &nbsp;&nbsp;Konfigurationsdatei importieren
+        </label>
+    </div>
+</div>
+

@@ -1,0 +1,10 @@
+<div class="modal-content">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" (click)="activeModal.close('Close click')">&times;</button>
+    <h4 class="modal-title"><b>Reporting</b></h4>
+  </div>
+  <div class="modal-body" style="text-align: justify">
+    <app-workflow-select (selectedWorkflow)="onWorkflowDefined($event)" *ngIf="workflowStatus==0"></app-workflow-select>
+    <app-template-select *ngIf="workflowStatus==1"></app-template-select>
+  </div>
+</div>

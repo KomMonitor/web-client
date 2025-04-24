@@ -280,4 +280,8 @@ export class DataExchangeService {
   filterIndicators() {
     return this.ajskommonitorDataExchangeServiceeProvider.filterIndicators();
   }
+
+  getDefaultReportingTemplatePageElement(ident) {
+    return this.ajskommonitorDataExchangeServiceeProvider.getDefaultReportingTemplatePageElement(ident);
+  }
 }

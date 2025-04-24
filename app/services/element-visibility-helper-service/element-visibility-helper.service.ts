@@ -11,7 +11,7 @@ export class ElementVisibilityHelperService implements OnInit {
 
   pipedData:any;
 
-  elementVisibility = {};
+  elementVisibility:any = {};
 
   isAdvancedMode = window.__env.isAdvancedMode;
   showAdvancedModeSwitch = window.__env.showAdvancedModeSwitch;

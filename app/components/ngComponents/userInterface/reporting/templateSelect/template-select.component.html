@@ -1,0 +1,151 @@
+<div class="container-fluid">
+  <div class="row row-no-gutters">
+      <div class="col-sm-12 text-center">
+          <h2 class="fs-title">Templateauswahl</h2>
+          <p class="fs-subtitle">
+              Um die häufigsten Anwendungsfälle abzudecken, stehen für die Reporting-Funktion unterschiedliche
+              Templates zur Verfügung.<br />
+              Die Templates können in einem der folgenden Schritte noch in begrenzem Umfang angepasst werden.
+          </p>
+      </div>
+  </div>
+  <div class="reporting-content-wrapper">
+      <div class="row">
+          <div class="col-sm-3">
+              <div id="reporting-template-categories-wrapper">
+                  <h3>Kategorien</h3>
+                  <!-- https://webdesignerwall.com/wdw-snippet/accordion-with-bootstrap-3-and-without-js -->
+                  <div class="panel-group" id="reporting-template-category-accordion">
+                      <div class="panel panel-default" *ngFor="let category of availableTemplateCategories; index as i">
+                          <div class="panel-heading">
+                              <h4 class="panel-title">
+                                  <a class="reporting-template-category-toggle" data-toggle="collapse"
+                                      data-parent="#reporting-template-category-accordion" href="#collapse{{category.id}}">
+                                      {{category.displayName}}
+                                  </a>
+                              </h4>
+                          </div>
+                          <div id="collapse{{category.id}}" class="panel-collapse" [ngClass]="{'collapse': i!=0}">
+                              <div class="panel-body">
+                                  <div *ngFor="let template of availableTemplates | reportingTemplateFilter:category.id; index as i"
+                                      class="reporting-selectable-template"
+                                      (click)="onTemplateElementClicked($event, template)"
+                                      id="collapse{{category.id}}-template{{i}}">
+                                          {{template.displayName}}
+                                  </div>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+              
+              <div id="reporting-template-customization-wrapper">
+                  <h3>Allgemeine Einstellungen</h3>
+                  <form>
+                      <label>
+                          Bearbeiter:
+                         <input type="text" name="creator" [(ngModel)]="generalSettings.creator">
+                      </label>
+
+                      <label>
+                          Kommune:
+                         <input type="text" name="commune" [(ngModel)]="generalSettings.commune">
+                      </label>
+
+                      <label>
+                          Datum:
+                          <input id="reporting-general-settings-datefield" type="text" placeholder="YYYY-MM-DD" name="creationDate"
+                          [(ngModel)]="generalSettings.creationDate">
+                      </label>
+
+                      <label for="reporting-load-commune-logo-button" class="btn btn-primary">
+                          <input type="file" id="reporting-load-commune-logo-button">
+                          <i class="fa fa-file-download"></i>
+                          &nbsp;&nbsp;Logo der Kommune auswählen
+                      </label>
+                      <br />
+                      <br />
+                      <div [hidden]="templateSupportsFreeText()">
+                          <label for="reporting-general-settings-freetext">Freitext:</label>
+                          <textarea  id="reporting-general-settings-freetext"
+                              name="general-settings-freetext" rows="4" cols="35"
+                              [(ngModel)]="generalSettings.freeText"></textarea>
+                      </div>
+
+                      <!--
+                      <label for="reporting-include-cover-page">Deckblatt erzeugen?</label>
+                      <label class="switch">
+                          <input id="reporting-include-cover-page" class="elementCheckbox" type="checkbox"
+                                  ng-model="includeCoverPage" ng-init="includeCoverPage = true" ng-click="elementChbClicked($event)"
+                                  ng-checked="generalSettings.includeCoverPage">
+                          <span class="switchslider round text-left" style="line-height:25px;"></span>
+                      </label>
+
+                      <div [hidden]="includeCoverPage">
+                          <label for="reporting-cover-page-title">Titel des Reports:</label>
+                          <input type="text" id="reporting-cover-page-title"
+                              name="reporting-cover-page-title" ng-model="generalSettings.documentTitle">
+                      </div> 
+                      -->
+
+                  </form>
+              </div>
+          </div>
+          <div class="col-sm-9">
+              <div class="row" style="margin:0">
+                  <div id="reporting-template-preview-area">
+                      <div *ngFor="let page of selectedTemplate?.pages; index as iPage" 
+                          [ngClass]="{'hiddenPage': !showThisPage(page)}"
+                          class="reporting-page reporting-page-{{page.orientation}}">
+                          <div *ngFor="let pageElement of page.pageElements"
+                              [style]="{position: 'absolute',
+                                  top: pageElement.dimensions.top,
+                                  left: pageElement.dimensions.left,
+                                  width: pageElement.dimensions.width,
+                                  height: pageElement.dimensions.height,
+                                  border: !pageElement.type.includes('footerHorizontalSpacer-') ? 'dashed gray 1px' : '',
+                                  'border-top': pageElement.type.includes('footerHorizontalSpacer-') ? 'solid rgb(148, 148, 148) 1px' : 'dashed gray 1px'}">
+                                  <!-- difference from angularJS version -> pageElement.css replaced with fix "border-top" values, only applicable for two items, both with same css -->
+                              
+                              <span [hidden]="pageElement.isPlaceholder == false"
+                                  [style]="pageElement.css ? pageElement.css : ''"
+                                  [innerHTML]="pageElement.placeholderText | safeHtml">
+                              </span>
+                              <!-- special cases below -->
+                              <span [hidden]="!pageElement.type.includes('footerCreationInfo-') || pageElement.isPlaceholder == true"
+                                  [style]="pageElement.css ? pageElement.css : ''">
+                                  Erstellt am {{generalSettings.creationDate}} von {{generalSettings.creator}}, {{generalSettings.commune}}
+                              </span>
+
+                              <span [hidden]="!pageElement.type.includes('pageNumber-') || pageElement.isPlaceholder == true"
+                                  [style]="pageElement.css ? pageElement.css : ''">
+                                  Seite {{ getPageNumber(iPage) }}
+                              </span>
+
+                              <span [hidden]="pageElement.type != 'textInput' || pageElement.isPlaceholder == true"
+                                  [style]="pageElement.css ? pageElement.css : ''">
+                                  {{generalSettings.freeText}}
+                              </span>
+
+                              <img [hidden]="!pageElement.type.includes('communeLogo-') || pageElement.isPlaceholder == true"
+                                  src="{{pageElement.src}}">
+                              
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+      <div class="row">
+          <div class="col-sm-12">
+              <button class="btn btn-warning" ng-click='onBackToWorkflowSelectionClicked()'>
+                  <i class="fa fa-arrow-left"></i>
+                  &nbsp;&nbsp;Zurück zur Workflow-Auswahl
+              </button>
+
+              <button id="reporting-templateSelectedBtn" class="btn btn-success pull-right" ng-click='onTemplateSelected()' ng-disabled='!selectedTemplate'>Template auswählen</button>
+          </div>
+      </div>
+  </div>
+</div>
+
