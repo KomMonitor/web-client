@@ -1,18 +1,23 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { ReportingTemplateFilter } from 'pipes/reporting-template-filter.pipe';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { FormsModule } from '@angular/forms';
 import { SafeHtmlPipe } from 'pipes/safe-html.pipe';
+import { NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-template-select',
   standalone: true,
   templateUrl: './template-select.component.html',
   styleUrls: ['./template-select.component.css'],
-  imports: [CommonModule, ReportingTemplateFilter, FormsModule, SafeHtmlPipe]
+  imports: [CommonModule, ReportingTemplateFilter, FormsModule, SafeHtmlPipe, NgbDatepickerModule]
 })
-export class TemplateSelectComponent {
+export class TemplateSelectComponent implements OnInit {
+ 
+  @Output() selectedWorkflow = new EventEmitter<any[]>();
+
+  datePickerDate!: any;
 
   constructor(
     private dataExchangeService: DataExchangeService
@@ -2609,23 +2614,14 @@ export class TemplateSelectComponent {
 
   selectedTemplate:any = undefined;
 
- /*  $scope.$on('reportingInitializeTemplateSelect', function(event, data) {
-    $scope.initialize();
-  });
-
-  initialize() {
-    // open first category
-    let collapsible = document.querySelector("#reporting-template-category-accordion #collapse1")
-    collapsible.classList.add("in");
-    // select first template
-    collapsible.querySelector("#collapse1-template0").click();
-
-    this.datePicker = $('#reporting-general-settings-datefield').datepicker({
+  ngOnInit(): void {
+       // todo
+  /*   this.datePicker = $('#reporting-general-settings-datefield').datepicker({
       autoclose: true,
       language: 'de',
       format: 'yyyy-mm-dd'
     });
-    document.getElementById("reporting-load-commune-logo-button").addEventListener('change', readSingleFile, false);
+    document.getElementById("reporting-load-commune-logo-button").addEventListener('change', readSingleFile, false); */
 
     // set the property "isPlaceholder" to false for specific page elements since their content should be replaced right away
     for(let template of this.availableTemplates) {
@@ -2649,8 +2645,15 @@ export class TemplateSelectComponent {
         }
       }
     }
+  }
 
-  } */
+  onWorkflowSelect(value: any[]) {
+    this.selectedWorkflow.emit(value);
+  }
+
+  onChangeDatepickerDate() {
+    this.generalSettings.creationDate = `${this.datePickerDate.year}-${this.datePickerDate.month}-${this.datePickerDate.day}`;
+  }
 
   getPageNumber(index) {
 
@@ -2836,12 +2839,12 @@ export class TemplateSelectComponent {
         }
       }
     }
-    //this.$emit('reportingTemplateSelected', this.selectedTemplate)
+    this.onWorkflowSelect([2,this.selectedTemplate]);
   }
 
   onBackToWorkflowSelectionClicked() {
     this.selectedTemplate = {};
-    //this.$emit('reportingBackToWorkflowSelectionClicked')
+    this.onWorkflowSelect([0]);
   }
 
   iteratePageElements(template, functionToExecute) {

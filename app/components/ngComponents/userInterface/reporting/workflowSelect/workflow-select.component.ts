@@ -8,9 +8,9 @@ import { Component, EventEmitter, Output } from '@angular/core';
 })
 export class WorkflowSelectComponent {
 
-  @Output() selectedWorkflow = new EventEmitter<string[]>();
+  @Output() selectedWorkflow = new EventEmitter<any[]>();
 
-  onWorkflowSelect(value: string[]) {
+  onWorkflowSelect(value: any[]) {
     this.selectedWorkflow.emit(value);
   }
 
@@ -26,7 +26,7 @@ export class WorkflowSelectComponent {
         let config:string = '';
         try {
             config = JSON.parse(content);
-            this.onWorkflowSelect(['existing',config]);
+            this.onWorkflowSelect([1,'existing',config]);
         }
         catch (e) {
             console.error("Configuration is no valid JSON.");

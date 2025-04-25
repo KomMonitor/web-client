@@ -5,6 +5,6 @@
   </div>
   <div class="modal-body" style="text-align: justify">
     <app-workflow-select (selectedWorkflow)="onWorkflowDefined($event)" *ngIf="workflowStatus==0"></app-workflow-select>
-    <app-template-select *ngIf="workflowStatus==1"></app-template-select>
+    <app-template-select (selectedWorkflow)="onWorkflowDefined($event)" *ngIf="workflowStatus==1"></app-template-select>
   </div>
 </div>

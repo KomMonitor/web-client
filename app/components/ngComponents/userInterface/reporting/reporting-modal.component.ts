@@ -11,7 +11,7 @@ import { TemplateSelectComponent } from "./templateSelect/template-select.compon
   styleUrls: ['./reporting-modal.component.css'],
   imports: [CommonModule, WorkflowSelectComponent, TemplateSelectComponent]
 })
-export class ReportingModalComponent{
+export class ReportingModalComponent {
 
   workflowStatus = 0;
   /* 
@@ -23,9 +23,6 @@ export class ReportingModalComponent{
   activeModal = inject(NgbActiveModal);
 
   onWorkflowDefined(workflow) {
-
-    if(workflow[0]!='') {
-      this.workflowStatus = 1;
-    }
+      this.workflowStatus = workflow[0];
   }
 }
