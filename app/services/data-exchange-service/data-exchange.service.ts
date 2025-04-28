@@ -84,6 +84,8 @@ export interface DataExchange {
   rankingChartAverageLabel:any;
   rankingChartRegionalReferenceValueLabel:any;
   FEATURE_NAME_PROPERTY_NAME:any;
+  availableGeoresources:any;
+  availableIndicators:any;
 }
 
 export interface KeycloakUser {

@@ -1,0 +1,180 @@
+<div class="container-fluid">
+  <div class="row row-no-gutters">
+      <div class="col-sm-12 text-center">
+          <h2 class="fs-title">Übersicht</h2>
+      </div>
+  </div>
+  <div class="reporting-content-wrapper">
+      <div class="row">
+          <div class="col-sm-3" id="reporting-overview-sidebar">
+              <div id="reporting-overwiew-indicators-wrapper">
+                  <button [hidden]="config.template.name.includes('-reachability')" id="reporting-configureIndicatorBtn"
+                      class="btn btn-success" (click)='onConfigureNewIndicatorClicked()'>
+                      <i class="fa fa-plus"></i>
+                      <span >&nbsp;&nbsp;Indikator konfigurieren</span>
+                  </button>
+                  <button [hidden]="!config.template.name.includes('-reachability')" id="reporting-configurePoiLayerrBtn"
+                      class="btn btn-success" (click)='onConfigureNewPoiLayerClicked()'>
+                      <i class="fa fa-plus"></i>
+                      <span>&nbsp;&nbsp;POI-Layer konfigurieren</span>
+                  </button>
+                  <h3 [hidden]="config.template.name.includes('-reachability')">Hinzugefügte Indikatoren</h3>
+                  <h3 [hidden]="!config.template.name.includes('-reachability')">Hinzugefügte POI-Layer</h3>
+                  <p>Die Reihenfolge kann über Drag-and-Drop verändert werden.</p>
+                  <div class="list-group" ng-sortable="sortableConfig">
+
+                      <div *ngFor="let section of config.templateSections; index as i">
+                          <hr class="reporting-hr-divider">
+                          <div class="row row-no-gutters reporting-added-templateSections-row">
+                              <div class="col-sm-11">
+                                  <b [hidden]="config.template.name.includes('-reachability')">{{section.indicatorName}}</b>
+                                  <b [hidden]="!config.template.name.includes('-reachability')">{{section.poiLayerName}}</b>
+                              </div>
+                              <div class="col-sm-1 text-right">
+                                  <i class="reporting-templateSection-delete-symbol align-middle fa fa-trash-alt"
+                                    (click)="removeTemplateSection(i)"></i>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+                  
+              </div>
+          </div>
+          <div class="col-sm-9">
+              <!-- defining width and height like this is probably not the best solution, but it works as a first approach -->
+              <div class="loading-overlay-reporting" style="width: calc(100% - 30px); height: calc(100% - 15px)" [hidden]="!loadingData">
+                  <span class="glyphicon glyphicon-refresh icon-spin"></span>
+              </div>
+              <div class="row" style="margin:0">
+                  <div id="reporting-overview-preview-area">
+                      <div *ngFor="let page of config.pages; index as iPage"
+                          [ngClass]="{'hiddenPage': !showThisPage(page)}"
+                          class="reporting-page reporting-page-{{page.orientation}}"
+                          id="reporting-overview-page-{{iPage}}">
+                          <button class="orientationChangeBtn" 
+                              [hidden]="pageContainsDatatable(iPage) && config.template.name.includes('-reachability')"
+                              (click)="onPageTurnClicked(page.orientation, iPage)">
+                              <img src="icons/swap.png" width="100%" height="100%">
+                          </button>
+                          <div *ngFor="let pageElement of page.pageElements"
+                              class="type-{{pageElement.type}}"
+                              id="reporting-overview-page-{{iPage}}-{{pageElement.type}}"
+                              [ngStyle]="{position: 'absolute',
+                                  top: pageElement.dimensions.top,
+                                  left: pageElement.dimensions.left,
+                                  width: pageElement.dimensions.width,
+                                  height: pageElement.dimensions.height,
+                                  border: !pageElement.type.includes('footerHorizontalSpacer-') ? 'dashed gray 1px' : '',
+                                  'border-top': pageElement.type.includes('footerHorizontalSpacer-') ? 'solid rgb(148, 148, 148) 1px' : 'dashed gray 1px',
+                                  'z-index': pageElement.type == 'map' ? 20 : 1}">
+                              
+                              <span [hidden]="pageElement.isPlaceholder == false"
+                                  [style]="pageElement.css ? pageElement.css : ''"
+                                  [innerHTML]="(pageElement.placeholderText ? pageElement.placeholderText : '') | safeHtml">
+                              </span>
+                              <!-- do different things depending on type once the placeholder is replaced (pageElement.isPlaceholder == false) -->
+                              <span [hidden]="!(pageElement.type.includes('pageNumber-') && pageElement.isPlaceholder == false)"
+                                  [style]="pageElement.css ? pageElement.css : ''">
+                                  Seite {{getPageNumber(iPage)}}
+                              </span>
+
+                              <span [hidden]="!(pageElement.type.includes('footerCreationInfo-') && pageElement.isPlaceholder == false)"
+                                  [style]="pageElement.css ? pageElement.css : ''">
+                                  {{pageElement.text}}
+                              </span>
+
+                              <span [hidden]="!(pageElement.type == 'textInput' && pageElement.isPlaceholder == false)"
+                                  [style]="pageElement.css ? pageElement.css : ''">
+                                  {{pageElement.text}}
+                              </span>
+
+                              <img [hidden]="!(pageElement.type.includes('communeLogo-') && pageElement.isPlaceholder == false)"
+                                  src="{{pageElement.src}}">
+
+                              <span [hidden]="!(pageElement.type.includes('indicatorTitle-') && pageElement.isPlaceholder == false)"
+                                  [style]="pageElement.css ? pageElement.css : ''">
+                                  {{pageElement.text}}
+                              </span>
+
+                              <span [hidden]="!(pageElement.type.includes('dataTimestamp-') && pageElement.isPlaceholder == false)"
+                                  [style]="pageElement.css ? pageElement.css : ''">
+                                  {{pageElement.text}}
+                              </span>
+
+                              <span [hidden]="!(pageElement.type.includes('dataTimeseries-') && pageElement.isPlaceholder == false)"
+                                  [style]="pageElement.css ? pageElement.css : ''">
+                                  {{pageElement.text}}
+                              </span>
+
+                              <span [hidden]="!(pageElement.type.includes('reachability-subtitle-') && pageElement.isPlaceholder == false)"
+                                  [style]="pageElement.css ? pageElement.css : ''">
+                                  {{pageElement.text}}
+                              </span>
+
+                              <span [hidden]="!(pageElement.type == 'overallAverage' && pageElement.isPlaceholder == false)"
+                                  [style]="pageElement.css ? pageElement.css : ''">
+                                  <span style="display: block; text-align:left">
+                                      Durchschnitt Gesamtstadt:<br />
+                                      {{pageElement.text}}
+                                  </span>
+                              </span>
+
+                              <span [hidden]="!(pageElement.type == 'selectionAverage' && pageElement.isPlaceholder == false)"
+                                  [style]="pageElement.css ? pageElement.css : ''">
+                                  <span style="display: block; text-align:left">
+                                      Durchschnitt Selektion:<br />
+                                      {{pageElement.text}}
+                                  </span>
+                              </span>
+
+                              <span [hidden]="!(pageElement.type == 'overallChange' && pageElement.isPlaceholder == false)"
+                                  [style]="pageElement.css ? pageElement.css : ''">
+                                  <span style="display: block; text-align:left">
+                                      Durchschnittliche Veränderung Gesamtstadt:<br />
+                                      {{pageElement.text}}
+                                  </span>
+                              </span>
+
+                              <span [hidden]="!(pageElement.type == 'selectionChange' && pageElement.isPlaceholder == false)"
+                                  [style]="pageElement.css ? pageElement.css : ''">
+                                  <span style="display: block; text-align:left">
+                                      Durchschnittliche Veränderung Selektion:<br />
+                                      {{pageElement.text}}
+                                  </span>
+                              </span>
+
+                          </div>
+                      </div>
+                  </div>
+              </div>
+              <!-- <div id="reporting-overview-bot-btn-row-1" class="clearfix">
+                  <button class="btn btn-danger pull-right" ng-click='resetTemplate()'>
+                      <i class="fas fa-exclamation-triangle"></i>
+                      &nbsp;&nbsp;Template zurücksetzen
+                  </button>
+              </div> -->
+  
+              <hr>
+          </div>
+      </div>
+      <div class="row">
+          <div class="col-sm-12">
+              <div id="reporting-overview-bot-btn-row-2">
+                  <button class="btn btn-warning" (click)='onBackToTemplateSelectionClicked()'>
+                      <i class="fa fa-arrow-left"></i>
+                      &nbsp;&nbsp;Zurück zur Templateauswahl
+                  </button>
+                  <button type="button" class="btn btn-primary" (click)="exportConfig()">
+                      <i class="fa fa-save"></i>
+                      &nbsp;&nbsp;Einstellungen exportieren
+                  </button>
+                  <button type="button" class="btn btn-success pull-right" data-toggle="modal" data-target="#reporting-report-formats-selection"
+                      ng-disabled="loadingData || config.indicators.length == 0">
+                      <i class="fa fa-copy"></i>
+                      &nbsp;&nbsp;Report erzeugen
+                  </button> 
+              </div>
+          </div>
+      </div>
+  </div>
+</div>

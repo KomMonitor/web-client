@@ -1,0 +1,310 @@
+<div class="container-fluid">
+  <div class="row row-no-gutters">
+      <div class="col-sm-12 text-center">
+          <h2 [hidden]="template.name.includes('-reachability')" class="fs-title">Indikator-Konfiguration</h2>
+          <h2 [hidden]="!template.name.includes('-reachability')" class="fs-title">POI-Layer-Konfiguration</h2>
+      </div>
+  </div>
+  <div class="reporting-content-wrapper">
+      <div class="row">
+          <div class="col-sm-2"></div>
+          <div class="col-sm-8">
+              <div class="row" style="margin:0">
+                  <ul class="nav nav-tabs" id="reporting-add-indicator-tab-list">
+                      <li id="reporting-add-indicator-tab1" role="presentation"
+                          [ngClass]="template.name.includes('-reachability') ? 'active' : 'tab-disabled'"
+                          [hidden]="!(template.name.includes('-reachability'))">
+                          <a href="#pois" aria-controls="pois" role="tab" data-toggle="tab">POIs</a>
+                      </li>
+                      <li id="reporting-add-indicator-tab2" role="presentation" class="tab-disabled"
+                          [hidden]="!(template.name.includes('-reachability'))">
+                          <a href="#isochrones" aria-controls="isochrones" role="tab" data-toggle="tab">Erreichbarkeit</a>
+                      </li>
+                      <li id="reporting-add-indicator-tab3" role="presentation" 
+                          [ngClass]="!template.name.includes('-reachability') ? 'active' : 'tab-disabled'">
+                          <a href="#indicators" aria-controls="indicators" role="tab" data-toggle="tab">Indikatoren</a>
+                      </li>
+                      <li id="reporting-add-indicator-tab4" role="presentation" class="tab-disabled">
+                          <a href="#area" aria-controls="area" role="tab" data-toggle="tab"  tabindex="-1">Bereich</a>
+                      </li>
+                      <li id="reporting-add-indicator-tab5" role="presentation" class="tab-disabled"
+                          [hidden]="!(!template.name.includes('-reachability'))">
+                          <a href="#time" aria-controls="time" role="tab" data-toggle="tab" tabindex="-1"
+                              ng-bind-html="template.name.includes('-timeseries') ? 'Zeitserie' : 'Zeitpunkt'"></a>
+                      </li>
+                      <li id="reporting-add-indicator-tab6" role="presentation" class="tab-disabled">
+                          <a href="#elements" aria-controls="elements" role="tab" data-toggle="tab" tabindex="-1">Elemente</a>
+                      </li>
+                  </ul>
+                  
+                  
+
+                  <div id="reporting-add-indicator-tab-content" class="tab-content">
+                      <div role="tabpanel" id="pois"
+                          [ngClass]="template.name.includes('-reachability') ? 'tab-pane active' : 'tab-pane'">
+              <div class="loading-overlay-reporting" [hidden]="!(loadingData)">
+              <span class="glyphicon glyphicon-refresh icon-spin"></span>
+            </div>
+                          <p style="margin-top: 10px;"><b>Eine Auswahlmöglichkeit des Datenstands / Datums ist noch nicht verfügbar.
+                              Momentan wird das aktuellste Datum abgefragt.</b></p>
+                          <div class="input-group">
+                              <span class="input-group-addon"><i class="fas fa-filter"></i></span>
+                              <input type="text" class="form-control input-sm" placeholder="Stichwortfilter"
+                                  [value]="poiNameFilter" ng-model-options="{ debounce: 500, blur: 0 }">
+                          </div>
+                          <div id="reporting-poi-select-box">
+                              <select size="30" class="form-control" required>
+                <option disabled selected value> -- POI-Layer w&auml;hlen -- </option>
+                <option style="white-space: pre !important;" *ngFor="let layer of this.filteredAvailablePoiLayers"
+                                      ng-click="onPoiLayerSelected(layer)">{{layer.datasetName}}</option>
+              </select>
+                          </div>
+                      </div>
+                      <div role="tabpanel" id="isochrones" class="tab-pane">
+                          <div class="loading-overlay-reporting" [hidden]="!(loadingData)">
+                              <span class="glyphicon glyphicon-refresh icon-spin"></span>
+                          </div>
+                          <div id="reporting-isochrones-config">
+                              <div ng-if="template.name.includes('-reachability')">
+                                 <!--  <reachability-scenario-configuration></reachability-scenario-configuration> -->
+                              </div>
+                              <!-- <button type="button" class="btn btn-danger" style="margin-left: 1%; margin-top: 10px;" ng-click="resetIsochrones()" [hidden]="!(showResetIsochronesBtn">Isochronen entfernen</button>                                -->
+                          </div>
+              
+                      </div>
+                      <div role="tabpanel" id="indicators"
+                          [ngClass]="!template.name.includes('-reachability') ? 'tab-pane active' : 'tab-pane'">
+              <div class="loading-overlay-reporting" [hidden]="!(loadingData)">
+              <span class="glyphicon glyphicon-refresh icon-spin"></span>
+            </div>
+
+                          <div [hidden]="!(template.name.includes('-reachability'))" id="reporting-optional-indicator-info">
+                              <button type="button" class="btn btn-danger" ng-click="resetOptionalIndicator()">Auswahl zurücksetzen</button>
+                          </div>
+                          
+                          <div class="input-group">
+                              <span class="input-group-addon"><i class="fas fa-filter"></i></span>
+                              <input type="text" class="form-control input-sm" placeholder="Stichwortfilter"
+                                  ng-model="indicatorNameFilter" ng-model-options="{ debounce: 500, blur: 0 }">
+                          </div>
+                          <div ng-if="template.name.includes('-timeseries')">
+                              <div id="reporting-indicator-select-box">
+                                  <select size="30" class="form-control" required>
+                                      <option disabled selected value> -- Indikator w&auml;hlen -- </option>
+                                      <option style="white-space: pre !important;" *ngFor="let indicator of displayableIndicatorsByNameTimeseries"
+                                          ng-click="onIndicatorSelected(indicator)">{{indicator.indicatorName}} [{{indicator.unit}}]</option>
+                                  </select>
+                              </div>
+                          </div>
+                          <div ng-if="!template.name.includes('-timeseries')">
+                              <div id="reporting-indicator-select-box">
+                                  <select size="30" class="form-control" required>
+                                      <option disabled selected value> -- Indikator w&auml;hlen -- </option>
+                                      <option style="white-space: pre !important;" *ngFor="let indicator of displayableIndicatorsByName"
+                                          ng-click="onIndicatorSelected(indicator)">{{indicator.indicatorName}} [{{indicator.unit}}]</option>
+                                  </select>
+                              </div>
+                          </div>
+                          
+                      </div>
+                      <div role="tabpanel" class="tab-pane" id="area">
+                          <div class="loading-overlay-reporting" [hidden]="!(loadingData)">
+                              <span class="glyphicon glyphicon-refresh icon-spin"></span>
+                          </div>
+                          <div id="reporting-spatialUnitChangeWarning" class="alert alert-warning collapse">
+                              <span [hidden]="!(template.name.includes('-timestamp'))">
+                                  Mindestens ein ausgewählter Zeitpunkt war für die neue Raumebene nicht verfügbar und wurde entfernt.
+                              </span>
+                              <span [hidden]="!(template.name.includes('-timeseries'))">
+                                  Nach dem Wechsel der Raumeinheit enthält die Zeitserie andere Zeitpunkte. 
+                              </span>
+                              <span [hidden]="!(template.name.includes('-timeseries') && timeseriesAdjustedOnSpatialUnitChange)">
+                                  Sie wurde auf den größtmöglichen Zeitraum gesetzt weil die ursprüngliche Einstellung nicht übernommen werden konnte.
+                              </span>
+                          </div>
+                          <div id="reporting-spatial-unit-select-wrapper">
+                              Raumebene: 
+                              <select ng-model="selectedSpatialUnit"
+                                  [hidden]="!(!selectedIndicator)"
+                                  ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in allSpatialUnitsForReachability track by spatialUnit.spatialUnitLevel"
+                                  ng-change="onSpatialUnitChanged(selectedSpatialUnit)">
+                              </select>
+                              <select ng-model="selectedSpatialUnit"
+                                  [hidden]="!(selectedIndicator)"
+                                  ng-options="spatialUnit as spatialUnit.spatialUnitName for spatialUnit in selectedIndicator.applicableSpatialUnits track by spatialUnit.spatialUnitName"
+                                  ng-change="onSpatialUnitChanged(selectedSpatialUnit)">
+                              </select>
+                          </div>
+                          <!-- <excalibur-dual-list id="reporting-indicator-add-areas-dual-list" ng-model='selectedAreas' options="dualListAreasOptions"></excalibur-dual-list> -->
+                      </div>
+                      <div role="tabpanel" class="tab-pane" id="time">
+              <div class="loading-overlay-reporting" [hidden]="!(loadingData)">
+              <span class="glyphicon glyphicon-refresh icon-spin"></span>
+            </div>
+                          <div ng-hide="template.name.includes('-timeseries')">
+                              <!-- <excalibur-dual-list id="reporting-indicator-add-timestamps-dual-list" ng-model='selectedTimestamps' options="dualListTimestampsOptions"></excalibur-dual-list> -->
+                          </div>
+                          <div [hidden]="!(template.name.includes('-timeseries'))">
+                              <div id="reporting-dateSliderWrapper">
+                                  <input id="reporting-dateSlider" type="text" class="js-range-slider" value="">
+                              </div>
+                          </div>
+                          
+                      </div>
+                      <div role="tabpanel" class="tab-pane" id="elements">
+
+                          <h4>Element-Konfiguration</h4>
+                          <div id="reporting-element-configuration" class="container-fluid">
+                              <div class="row">
+                                  <div class="col-md-4">
+                                      <div class="reporting-element-config-box">
+                                          <h5>Karte</h5>
+                                          <p>Label anzeigen?</p>
+                                          <label class="switch" title="Label anzeigen">
+                                              <input type="checkbox"
+                                                  ng-model="showMapLabels"
+                                                  ng-checked="showMapLabels"
+                                                  ng-change="onChangeShowMapLabels()">
+                                              <span class="switchslider round"></span>
+                                          </label>
+                                      </div>
+                                  </div>
+                                  <div class="col-md-4">
+                                      <div class="reporting-element-config-box">
+                                          <h5>Ranking-Chart</h5>
+                                          <p>Ranking-Durchschnittslinie anzeigen?</p>
+                                          <label class="switch" title="Ranking-Durchschnittslinie anzeigen">
+                                              <input type="checkbox"
+                                                  ng-model="showRankingMeanLine"
+                                                  ng-checked="showRankingMeanLine"
+                                                  ng-change="onChangeShowRankingMeanLine()">
+                                              <span class="switchslider round"></span>
+                                          </label>
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+
+                  <!-- not affected by tab changes -->
+                  <div id="reporting-add-indicator-preview-area">
+                      <div *ngFor="let page of template.pages; index as iPage" 
+                          [ngClass]="{'hiddenPage': !showThisPage(page)}"
+                          class="reporting-page reporting-page-{{page.orientation}}"
+                          id="reporting-addIndicator-page-{{iPage}}">
+                          <div *ngFor="let pageElement of page.pageElements"
+                              class="type-{{pageElement.type}}"
+                              id="reporting-addIndicator-page-{{iPage}}-{{pageElement.type}}"
+                              [ngStyle]="{position: 'absolute',
+                                  top: pageElement.dimensions.top,
+                                  left: pageElement.dimensions.left,
+                                  width: pageElement.dimensions.width,
+                                  height: pageElement.dimensions.height,
+                                  'z-index': pageElement.type == 'map' ? 20 : 1,
+                                  border: !pageElement.type.includes('footerHorizontalSpacer-') ? 'dashed gray 1px;' : '',
+                                  'border-top': pageElement.type.includes('footerHorizontalSpacer-') ? 'solid rgb(148, 148, 148) 1px' : 'dashed gray 1px'}">
+                                <!--   z-index:  show echarts map above leaflet container, leaflet container gets created dynamically -->
+
+                              <span [hidden]="!(pageElement.isPlaceholder == true)"
+                                  [ngStyle]="pageElement.css ? pageElement.css : ''"
+                                  ng-bind-html="pageElement.placeholderText">
+                              </span>
+                              <!-- do different things depending on type once the placeholder is replaced (pageElement.isPlaceholder == false) -->
+                              <span [hidden]="!(pageElement.type.includes('pageNumber-') && pageElement.isPlaceholder == false)"
+                              [ngStyle]="pageElement.css ? pageElement.css : ''">
+                                  Seite {{getPageNumber(iPage)}}
+                              </span>
+
+                              <span [hidden]="!(pageElement.type.includes('indicatorTitle-') && pageElement.isPlaceholder == false)"
+                                [ngStyle]="pageElement.css ? pageElement.css : ''">
+                                  {{pageElement.text}}
+                              </span>
+
+                              <span [hidden]="!(pageElement.type.includes('dataTimestamp-') && pageElement.isPlaceholder == false)"
+                                [ngStyle]="pageElement.css ? pageElement.css : ''">
+                                  {{pageElement.text}}
+                              </span>
+
+                              <span [hidden]="!(pageElement.type.includes('dataTimeseries-') && pageElement.isPlaceholder == false)"
+                                  [ngStyle]="pageElement.css ? pageElement.css : ''">
+                                  {{pageElement.text}}
+                              </span>
+
+                              <span [hidden]="!(pageElement.type.includes('reachability-subtitle-') && pageElement.isPlaceholder == false)"
+                                  [ngStyle]="pageElement.css ? pageElement.css : ''">
+                              {{pageElement.text}}
+                              </span>
+
+                              <span [hidden]="!(pageElement.type == 'overallAverage' && pageElement.isPlaceholder == false)"
+                                  [ngStyle]="pageElement.css ? pageElement.css : ''">
+                                  <span style="display: block; text-align:left">
+                                      Durchschnitt Gesamtstadt:<br />
+                                      {{pageElement.text}}
+                                  </span>
+                              </span>
+
+                              <span [hidden]="!(pageElement.type == 'selectionAverage' && pageElement.isPlaceholder == false)"
+                                  [ngStyle]="pageElement.css ? pageElement.css : ''">
+                                  <span style="display: block; text-align:left">
+                                      Durchschnitt Selektion:<br />
+                                      {{pageElement.text}}
+                                  </span>
+                              </span>
+
+                              <span [hidden]="!(pageElement.type == 'overallChange' && pageElement.isPlaceholder == false)"
+                                  [ngStyle]="pageElement.css ? pageElement.css : ''">
+                                  <span style="display: block; text-align:left">
+                                      Durchschnittliche Veränderung Gesamtstadt:<br />
+                                      {{pageElement.text}}
+                                  </span>
+                              </span>
+
+                              <span [hidden]="!(pageElement.type == 'selectionChange' && pageElement.isPlaceholder == false)"
+                                  [ngStyle]="pageElement.css ? pageElement.css : ''">
+                                  <span style="display: block; text-align:left">
+                                      Durchschnittliche Veränderung Selektion:<br />
+                                      {{pageElement.text}}
+                                  </span>
+                              </span>
+
+                              <span [hidden]="!(pageElement.type.includes('footerCreationInfo-') && pageElement.isPlaceholder == false)"
+                                  [ngStyle]="pageElement.css ? pageElement.css : ''">
+                                  {{pageElement.text}}
+                              </span>
+
+                              <span [hidden]="!(pageElement.type == 'textInput' && pageElement.isPlaceholder == false)"
+                                  [ngStyle]="pageElement.css ? pageElement.css : ''">
+                                  {{pageElement.text}}
+                              </span>
+                              
+                              <img [hidden]="!(pageElement.type.includes('communeLogo-') && pageElement.isPlaceholder == false)"
+                                  src="{{pageElement.src}}">
+                              
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+          <div class="col-sm-2"></div>
+      </div>
+
+      <div class="row">
+          <div class="col-sm-12">
+              <div>
+                  <button class="btn btn-warning" (click)='onWorkflowSelect([1])'>
+                      <i class="fa fa-arrow-left"></i>
+                      &nbsp;&nbsp;Zurück zur Übersicht
+                  </button>
+                  
+                  <button ng-disabled="!validateConfiguration()" type="button" class="btn btn-success pull-right" ng-click='onAddBtnClicked()'>
+                      <i class="fa fa-plus"></i>
+                      <span [hidden]="!(template.name.includes('-reachability'))">POI-Layer hinzufügen</span>
+                      <span [hidden]="!(!template.name.includes('-reachability'))">Indikator hinzufügen</span>
+                  </button>
+              </div>
+          </div>
+      </div>
+  </div>
+</div>
+

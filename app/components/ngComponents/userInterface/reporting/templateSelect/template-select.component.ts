@@ -2839,7 +2839,7 @@ export class TemplateSelectComponent implements OnInit {
         }
       }
     }
-    this.onWorkflowSelect([2,this.selectedTemplate]);
+    this.onWorkflowSelect([2,[false,this.selectedTemplate]]);
   }
 
   onBackToWorkflowSelectionClicked() {

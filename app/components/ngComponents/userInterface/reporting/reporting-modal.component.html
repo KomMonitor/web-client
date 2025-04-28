@@ -6,5 +6,7 @@
   <div class="modal-body" style="text-align: justify">
     <app-workflow-select (selectedWorkflow)="onWorkflowDefined($event)" *ngIf="workflowStatus==0"></app-workflow-select>
     <app-template-select (selectedWorkflow)="onWorkflowDefined($event)" *ngIf="workflowStatus==1"></app-template-select>
+    <app-reporting-overview (selectedWorkflow)="onWorkflowDefined($event)" [data]="data" *ngIf="workflowStatus==2"></app-reporting-overview>
+    <app-indicator-add (selectedWorkflow)="onWorkflowDefined($event)" [data]="data" *ngIf="workflowStatus==3"></app-indicator-add>
   </div>
 </div>
