@@ -468,6 +468,8 @@ export class VisualStyleHelperServiceNew {
       tempBrew.setColorCode(colorCode);
       // classify by passing in statistical method
       // i.e. equal_interval, jenks, quantile
+
+      console.log(tempBrew);
       tempBrew.classify(classifyMethod);
 
       colorBrewerInstance.colors = tempBrew.getColors();

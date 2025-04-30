@@ -286,4 +286,5 @@ export class DataExchangeService {
   getDefaultReportingTemplatePageElement(ident) {
     return this.ajskommonitorDataExchangeServiceeProvider.getDefaultReportingTemplatePageElement(ident);
   }
+
 }

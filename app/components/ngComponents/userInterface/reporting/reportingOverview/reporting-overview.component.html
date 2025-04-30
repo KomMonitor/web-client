@@ -8,12 +8,12 @@
       <div class="row">
           <div class="col-sm-3" id="reporting-overview-sidebar">
               <div id="reporting-overwiew-indicators-wrapper">
-                  <button [hidden]="config.template.name.includes('-reachability')" id="reporting-configureIndicatorBtn"
+                  <button *ngIf="!config.template.name.includes('-reachability')" id="reporting-configureIndicatorBtn"
                       class="btn btn-success" (click)='onConfigureNewIndicatorClicked()'>
                       <i class="fa fa-plus"></i>
                       <span >&nbsp;&nbsp;Indikator konfigurieren</span>
                   </button>
-                  <button [hidden]="!config.template.name.includes('-reachability')" id="reporting-configurePoiLayerrBtn"
+                  <button *ngIf="config.template.name.includes('-reachability')" id="reporting-configurePoiLayerrBtn"
                       class="btn btn-success" (click)='onConfigureNewPoiLayerClicked()'>
                       <i class="fa fa-plus"></i>
                       <span>&nbsp;&nbsp;POI-Layer konfigurieren</span>
