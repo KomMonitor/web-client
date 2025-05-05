@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 
 export interface dualListInput {
@@ -11,8 +12,10 @@ export interface item {
 
 @Component({
   selector: 'app-dual-list-box',
+  standalone: true,
   templateUrl: './dual-list-box.component.html',
-  styleUrls: ['./dual-list-box.component.css']
+  styleUrls: ['./dual-list-box.component.css'],
+  imports: [CommonModule]
 })
 export class DualListBoxComponent implements OnInit, OnChanges {
 
@@ -34,6 +37,7 @@ export class DualListBoxComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
+    console.log(changes)
     this.availableElements = this.data.items;
     this.displayedAvailableElements = this.availableElements;
     this.selectedElements = [];

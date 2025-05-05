@@ -1,7 +1,7 @@
 import { colorbrewer } from './../../components/ngComponents/userInterface/kommonitorClassification/colors';
 import { Inject, Injectable } from '@angular/core';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
-import * as classyBrew from 'classybrew';
+import * as classyBrew from '../../../customizedExternalLibs/classyBrew.js';
 
 @Injectable({
   providedIn: 'root'
@@ -469,7 +469,6 @@ export class VisualStyleHelperServiceNew {
       // classify by passing in statistical method
       // i.e. equal_interval, jenks, quantile
 
-      console.log(tempBrew);
       tempBrew.classify(classifyMethod);
 
       colorBrewerInstance.colors = tempBrew.getColors();

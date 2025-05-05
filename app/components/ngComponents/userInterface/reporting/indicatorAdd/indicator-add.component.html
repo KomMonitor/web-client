@@ -125,16 +125,17 @@
                           <div id="reporting-spatial-unit-select-wrapper">
                               Raumebene: 
                               <select ng-model="selectedSpatialUnit"
-                                  [hidden]="!(!selectedIndicator)"
-                                  ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in allSpatialUnitsForReachability track by spatialUnit.spatialUnitLevel"
+                                  *ngIf="!selectedIndicator"
                                   ng-change="onSpatialUnitChanged(selectedSpatialUnit)">
+                                  <option *ngFor="let spatialUnit of allSpatialUnitsForReachability">{{spatialUnit.spatialUnitLevel}}</option>
                               </select>
                               <select ng-model="selectedSpatialUnit"
-                                  [hidden]="!(selectedIndicator)"
-                                  ng-options="spatialUnit as spatialUnit.spatialUnitName for spatialUnit in selectedIndicator.applicableSpatialUnits track by spatialUnit.spatialUnitName"
+                                  *ngIf="selectedIndicator"
                                   ng-change="onSpatialUnitChanged(selectedSpatialUnit)">
+                                  <option *ngFor="let spatialUnit of selectedIndicator.applicableSpatialUnits">{{spatialUnit.spatialUnitName}}</option>
                               </select>
                           </div>
+                          <app-dual-list-box [data]="dualListAreasOptions" [reload]="reloadAreasDualList" (selectedItems)="onUpdatedManualSelectedItems($event)"></app-dual-list-box>
                           <!-- <excalibur-dual-list id="reporting-indicator-add-areas-dual-list" ng-model='selectedAreas' options="dualListAreasOptions"></excalibur-dual-list> -->
                       </div>
                       <div role="tabpanel" class="tab-pane" id="time">
@@ -142,6 +143,7 @@
               <span class="glyphicon glyphicon-refresh icon-spin"></span>
             </div>
                           <div ng-hide="template.name.includes('-timeseries')">
+                           <!--  <app-dual-list-box [data]="dualListTimestampsOptions"></app-dual-list-box> -->
                               <!-- <excalibur-dual-list id="reporting-indicator-add-timestamps-dual-list" ng-model='selectedTimestamps' options="dualListTimestampsOptions"></excalibur-dual-list> -->
                           </div>
                           <div [hidden]="!(template.name.includes('-timeseries'))">

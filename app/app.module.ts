@@ -71,7 +71,8 @@ declare var MathJax;
     HttpClientModule,
     JsonPipe,
     NouisliderModule,
-    NgbCollapseModule
+    NgbCollapseModule,
+    DualListBoxComponent
   ],
   providers:[
     {provide: LocationStrategy, useClass: HashLocationStrategy},
@@ -93,7 +94,6 @@ declare var MathJax;
     PoiComponent,
     KommonitorFilterComponent,
     KommonitorMapComponent,
-    DualListBoxComponent,
     KommonitorBalanceComponent,
     KommonitorDiagramsComponent,
     UserInterfaceComponent,

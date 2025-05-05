@@ -9,13 +9,15 @@ import { FormsModule } from '@angular/forms';
 import { DiagramHelperServiceService } from 'services/diagram-helper-service/diagram-helper-service.service';
 import { VisualStyleHelperServiceNew } from 'services/visual-style-helper-service/visual-style-helper.service';
 import { HttpClient } from '@angular/common/http';
+import { DualListBoxComponent } from "../../../customElements/dual-list-box/dual-list-box.component";
+import * as L from 'leaflet';
 
 @Component({
   selector: 'app-indicator-add',
   standalone: true,
   templateUrl: './indicator-add.component.html',
   styleUrls: ['./indicator-add.component.css'],
-  imports: [CommonModule, FormsModule]
+  imports: [CommonModule, FormsModule, DualListBoxComponent]
 })
 export class IndicatorAddComponent implements OnInit {
 
@@ -28,6 +30,11 @@ export class IndicatorAddComponent implements OnInit {
   typeOfMovement;
   geoJsonForReachability;
   reachabilityTemplateGeoMapOptions;
+  draggingLabelForFeature;
+  isochronesRangeType;
+  isochronesRangeUnits;
+  insertDatatableRowsInterval;
+  intervalArr:any[] = [];
   
   indicatorNameFilter = "";
   poiNameFilter = "";
@@ -44,14 +51,24 @@ export class IndicatorAddComponent implements OnInit {
 
   allSpatialUnitsForReachability;
 
-  dualListAreasOptions;
+  testOptions:any = {
+    items: []
+  }
+  reloadManualList = false;
+
+  dualListAreasOptions:any = {
+    items: [],
+    selectedItems: []
+  };
+  reloadAreasDualList = false;
   dualListTimestampsOptions;
   dualListSpatialUnitsOptions;
   indexOfFirstAreaSpecificPage;
+  isochronesSeriesData;
 
   selectedTimestamps:any[] = [];
   dateSlider:any = undefined;
-  absoluteLabelPositions = [];
+  absoluteLabelPositions:any[] = [];
   showMapLabels = true;
   showRankingMeanLine = true;
   echartsOptions:any = {
@@ -65,7 +82,7 @@ export class IndicatorAddComponent implements OnInit {
     },
     line: {}, // no timestamp needed here
   }
-  echartsRegisteredMapNames = [];
+  echartsRegisteredMapNames:any[] = [];
   
   loadingData = false;
   diagramsPrepared = false;
@@ -90,12 +107,33 @@ export class IndicatorAddComponent implements OnInit {
     private broadcastSerice: BroadcastService,
     private diagramHelperService: DiagramHelperServiceService,
     private visualStyleHelperService: VisualStyleHelperServiceNew,
-    private httpClient: HttpClient
+    private httpClient: HttpClient,
+    private broadcastService: BroadcastService
   ) {
   }
 
   ngOnInit(): void {
 
+    // hier, init is not called originally, delete/replace... 
+    this.initialize(['sd']);
+
+    this.broadcastService.currentBroadcastMsg.subscribe(broadcastMsg => {
+      let title = broadcastMsg.msg;
+      let values:any = broadcastMsg.values;
+
+      switch (title) {
+        case 'reportingConfigureNewIndicatorShown': {
+          this.initialize(values);
+        } break;
+        case 'reportingConfigureNewPoiLayerShown': {
+          this.initialize(values);
+        } break;
+      }
+    });
+  }
+
+  
+  initialize([data]) {
     this.loadingData = true;
     let template = this.data.template;
     // deep copy template before any changes are made.
@@ -140,7 +178,6 @@ export class IndicatorAddComponent implements OnInit {
     this.displayableIndicatorsByName = this.dataExchangeService.pipedData.displayableIndicators.sort(this.sortByindicatorName);
 
     this.loadingData = false;
-
   }
 
   onIndicatorNameFilterChange(event:any) {
@@ -620,15 +657,14 @@ export class IndicatorAddComponent implements OnInit {
 
     let updateDiagramsInterval = $interval(updateDiagrams, 0, 100)
   });
+  */
+  reportingConfigureNewIndicatorShown(data) {
+    this.initialize(data);
+  }
 
-  $scope.$on("reportingConfigureNewIndicatorShown", function(event, data) {
-    $scope.initialize(data);
-  });
-
-  $scope.$on("reportingConfigureNewPoiLayerShown", function(event, data) {
-    $scope.initialize(data);
-  });
- */
+  reportingConfigureNewPoiLayerShown(data) {
+    this.initialize(data);
+  }
 
   sortByindicatorName(a,b) {
     if(a.indicatorName>b.indicatorName)
@@ -645,13 +681,6 @@ export class IndicatorAddComponent implements OnInit {
   }
 
   initializeDualLists() {
-    this.dualListAreasOptions = {
-      label: 'Bereiche',
-      boxItemsHeight: 'md',
-      items: [],
-      button: {leftText: "Alle auswählen" , rightText: "Alle entfernen"},
-      selectedItems: []
-    };
 
     this.dualListTimestampsOptions = {
       label: 'Zeitpunkte',
@@ -848,7 +877,7 @@ export class IndicatorAddComponent implements OnInit {
       let data:any = this.queryFeatures(undefined, this.selectedSpatialUnit);
       this.availableFeaturesBySpatialUnit[spatialUnit.spatialUnitLevel] = data.features
       let allAreas = this.availableFeaturesBySpatialUnit[spatialUnit.spatialUnitLevel]
-      this.updateDualList(this.dualListAreasOptions, allAreas, undefined) // don't select any areas
+      this.updateAreasDualList(allAreas, undefined) // don't select any areas
     } else {
       let indicator = this.selectedIndicator;
     
@@ -870,8 +899,9 @@ export class IndicatorAddComponent implements OnInit {
           // save response to scope to avoid further requests
           this.availableFeaturesBySpatialUnit[spatialUnit.spatialUnitName] = response.features
 
-          let allAreas = this.availableFeaturesBySpatialUnit[spatialUnit.spatialUnitName]
-          this.updateDualList(this.dualListAreasOptions, allAreas, undefined) // don't select any areas
+          let allAreas = this.availableFeaturesBySpatialUnit[spatialUnit.spatialUnitName];
+          console.log("hier");
+          this.updateAreasDualList(allAreas, undefined) // don't select any areas
         }
       })
     }
@@ -896,14 +926,19 @@ export class IndicatorAddComponent implements OnInit {
     return this.httpClient.get(url);
   }
 
-  updateDualList(options, data, selectedItems) {
-    options.selectedItems = [];
+  onUpdatedManualSelectedItems(event:any) {
+    
+  }
+
+  updateAreasDualList(data,selectedItems) {
+    this.dualListAreasOptions.selectedItems = [];
 
     let dualListInput = data.map( el => {
-      return {"name": el.properties.NAME} // we need this as an object for kommonitorDataExchangeService.createDualListInputArray
+      return {"name": el.properties.NAME, 'id': 1} // we need this as an object for kommonitorDataExchangeService.createDualListInputArray
     });
     dualListInput = this.dataExchangeService.createDualListInputArray(dualListInput, "name",0);
-    options.items = dualListInput;
+    this.dualListAreasOptions.items = dualListInput;
+    this.reloadAreasDualList = !this.reloadAreasDualList;
 
     // $timeout is needed because we want to click on an element to select it.
     // therefore we have to wait until the dual list is updated and the dom node exists
@@ -912,7 +947,7 @@ export class IndicatorAddComponent implements OnInit {
       if(selectedItems && selectedItems.length > 0) {
         // if all items should be selected we can use the "select all" button for better performance
         if(data.length === selectedItems.length) {
-          let dualListBtnElement:any = undefined;
+          /* let dualListBtnElement:any = undefined;
           switch(options.label) {
             case "Zeitpunkte":
               dualListBtnElement = document.querySelectorAll("#reporting-indicator-add-timestamps-dual-list .duallistButton")[0];
@@ -924,12 +959,12 @@ export class IndicatorAddComponent implements OnInit {
               dualListBtnElement = document.querySelectorAll("#reporting-indicator-add-spatialUnits-dual-list .duallistButton")[0];
               break;
           }
-          dualListBtnElement.click();
+          dualListBtnElement.click(); */
         } else {
           for(let item of selectedItems) {
             if(item.hasOwnProperty("properties")) {
               if(item.properties.hasOwnProperty("NAME")) {
-                let name = item.properties.NAME
+                /* let name = item.properties.NAME
                 // remove item to select from left side and add to right side
                 // we can't filter programmatically here because the changes won't get applied to scope variables
                 // not even with $scope.$digest in a $timeout
@@ -950,7 +985,70 @@ export class IndicatorAddComponent implements OnInit {
                 let el:any = arr.find((el:any) => {
                   return el.textContent.includes(name)
                 });
-                el.click();
+                el.click(); */
+              }
+            }
+          }
+        }
+      }
+    }, 500);
+  }
+
+  updateDualList(options, data, selectedItems) {
+    options.selectedItems = [];
+
+    let dualListInput = data.map( el => {
+      return {"name": el.properties.NAME} // we need this as an object for kommonitorDataExchangeService.createDualListInputArray
+    });
+    dualListInput = this.dataExchangeService.createDualListInputArray(dualListInput, "name",0);
+    options.items = dualListInput;
+
+    // $timeout is needed because we want to click on an element to select it.
+    // therefore we have to wait until the dual list is updated and the dom node exists
+    setTimeout( function() {
+      // if there are items to select
+      if(selectedItems && selectedItems.length > 0) {
+        // if all items should be selected we can use the "select all" button for better performance
+        if(data.length === selectedItems.length) {
+          /* let dualListBtnElement:any = undefined;
+          switch(options.label) {
+            case "Zeitpunkte":
+              dualListBtnElement = document.querySelectorAll("#reporting-indicator-add-timestamps-dual-list .duallistButton")[0];
+              break;
+            case "Bereiche":
+              dualListBtnElement = document.querySelectorAll("#reporting-indicator-add-areas-dual-list .duallistButton")[0];
+              break;
+            case "Raumebenen":
+              dualListBtnElement = document.querySelectorAll("#reporting-indicator-add-spatialUnits-dual-list .duallistButton")[0];
+              break;
+          }
+          dualListBtnElement.click(); */
+        } else {
+          for(let item of selectedItems) {
+            if(item.hasOwnProperty("properties")) {
+              if(item.properties.hasOwnProperty("NAME")) {
+                /* let name = item.properties.NAME
+                // remove item to select from left side and add to right side
+                // we can't filter programmatically here because the changes won't get applied to scope variables
+                // not even with $scope.$digest in a $timeout
+                // instead we click on the elements
+                // get dom element by name
+                let arr = [];
+                switch(options.label) {
+                  case "Zeitpunkte":
+                    arr = Array.from(document.querySelectorAll("#reporting-indicator-add-timestamps-dual-list a"));
+                    break;
+                  case "Bereiche":
+                    arr = Array.from(document.querySelectorAll("#reporting-indicator-add-areas-dual-list a"));
+                    break;
+                  case "Raumebenen":
+                    arr = Array.from(document.querySelectorAll("#reporting-indicator-add-spatialUnits-dual-list a"));
+                    break;
+                }
+                let el:any = arr.find((el:any) => {
+                  return el.textContent.includes(name)
+                });
+                el.click(); */
               }
             }
           }
@@ -1194,7 +1292,7 @@ export class IndicatorAddComponent implements OnInit {
       } else {
         allAreas = this.availableFeaturesBySpatialUnit[this.selectedSpatialUnit.spatialUnitLevel];
       }
-        this.updateDualList(this.dualListAreasOptions, allAreas, allAreas);
+        this.updateAreasDualList( allAreas, allAreas);
 
       let allTabs:any = document.querySelectorAll("#reporting-add-indicator-tab-list li")
       for(let tab of allTabs) {
@@ -1369,6 +1467,7 @@ export class IndicatorAddComponent implements OnInit {
       // set indicator manually.
       // if we use ng-model it gets converted to string instead of an object
       this.selectedIndicator = indicator;
+      console.log(this.selectedIndicator);
 
       // get a new template (in case another indicator was selected previously)
       this.template = this.getCleanTemplate();
@@ -1468,7 +1567,7 @@ export class IndicatorAddComponent implements OnInit {
 
         // select all areas by default
         let allAreas = this.availableFeaturesBySpatialUnit[this.selectedSpatialUnit.spatialUnitName];
-        this.updateDualList(this.dualListAreasOptions, allAreas, allAreas);
+        this.updateAreasDualList(allAreas, allAreas);
 
         let allTabs:any = document.querySelectorAll("#reporting-add-indicator-tab-list li")
         for(let tab of allTabs) {
@@ -1659,24 +1758,26 @@ export class IndicatorAddComponent implements OnInit {
     
     return result;
   }
+  */
 
-  $scope.createMapForReachability = async function(wrapper, page, pageElement) {
+  // async
+  createMapForReachability(wrapper, page, pageElement) {
     
-    let options = JSON.parse(JSON.stringify( $scope.reachabilityTemplateGeoMapOptions ));
+    let options = JSON.parse(JSON.stringify( this.reachabilityTemplateGeoMapOptions ));
     // add indictor data if it is available
-    if($scope.selectedIndicator) {
-      options.series[0] = $scope.setMostRecentIndicatorDataToReachabilityMap(options.series[0])
+    if(this.selectedIndicator) {
+      options.series[0] = this.setMostRecentIndicatorDataToReachabilityMap(options.series[0])
       options.series[0].label.formatter = '{b}\n{c}';
     }
     
     // register a new echarts map with a unique name (needed when filtering by area)
     // check if there is a map registered for this combination, if not register one with all features
-    let mapName = $scope.selectedPoiLayer.datasetName + "_" + $scope.selectedSpatialUnit.spatialUnitId;
+    let mapName = this.selectedPoiLayer.datasetName + "_" + this.selectedSpatialUnit.spatialUnitId;
     if(page.area && page.area.length)
       mapName += "_" + page.area
-    if(!$scope.echartsRegisteredMapNames.includes(mapName)) {
-      echarts.registerMap(mapName, $scope.geoJsonForReachability)
-      $scope.echartsRegisteredMapNames.push(mapName)
+    if(!this.echartsRegisteredMapNames.includes(mapName)) {
+      echarts.registerMap(mapName, this.geoJsonForReachability)
+      this.echartsRegisteredMapNames.push(mapName)
     }
 
     options.series[0].map = mapName;
@@ -1686,35 +1787,35 @@ export class IndicatorAddComponent implements OnInit {
     // In echarts one map can only handle one series
     // But we need the isochrones in different series to control their z-indexes (show smaller isochrones above larger ones)
     // That's why we need to register one map per range threshold, that only contains a subset of isochrones.
-    if($scope.isochrones) {
-      for(let seriesData of $scope.isochronesSeriesData) {
+    if(this.isochrones) {
+      for(let seriesData of this.isochronesSeriesData) {
         let range = seriesData[0].value;
-        let registeredMap = echarts.getMap($scope.selectedPoiLayer.datasetName + "_isochrones-" + range)
+        let registeredMap = echarts.getMap(this.selectedPoiLayer.datasetName + "_isochrones-" + range)
         if( !registeredMap ) {
-          let isochrones = $scope.isochrones.features.filter( feature => {
+          let isochrones = this.isochrones.features.filter( feature => {
             // only weak comparison to allow string == number comparison
             return feature.properties.value == range;
           })
-          let featureCollection = {
+          let featureCollection:any = {
             features: isochrones
           }
-          echarts.registerMap($scope.selectedPoiLayer.datasetName + "_isochrones-" + range, featureCollection)
-          $scope.echartsRegisteredMapNames.push($scope.selectedPoiLayer.datasetName + "_isochrones-" + range)
+          echarts.registerMap(this.selectedPoiLayer.datasetName + "_isochrones-" + range, featureCollection)
+          this.echartsRegisteredMapNames.push(this.selectedPoiLayer.datasetName + "_isochrones-" + range)
         }
       }
       
-      let bbox = $scope.isochrones.bbox; // [left, bottom, right, top]
+      let bbox = this.isochrones.bbox; // [left, bottom, right, top]
       let isochronesBboxForEcharts = [[bbox[0], bbox[3]], [bbox[2], bbox[1]]] // [left, top], [right, bottom]
       
 
-      for(let [idx, seriesData] of $scope.isochronesSeriesData.entries()) {
+      for(let [idx, seriesData] of this.isochronesSeriesData.entries()) {
         let series = {
           name: "isochrones-" + seriesData[0].value,
           type: 'map',
           roam: false,
           left: 0, top: 0, right: 0, bottom: 0,
           boundingCoords: isochronesBboxForEcharts,
-          map: $scope.selectedPoiLayer.datasetName + "_isochrones-" + seriesData[0].value,
+          map: this.selectedPoiLayer.datasetName + "_isochrones-" + seriesData[0].value,
           nameProperty: 'echartsId',
           cursor: "default",
           select: {
@@ -1728,7 +1829,7 @@ export class IndicatorAddComponent implements OnInit {
     }
 
     // Add poi markers as additional series
-    let centerPointSeriesData = $scope.selectedPoiLayer.geoJSON.features.map( feature => {
+    let centerPointSeriesData = this.selectedPoiLayer.geoJSON.features.map( feature => {
       return feature.geometry.coordinates;
     });
 
@@ -1757,23 +1858,23 @@ export class IndicatorAddComponent implements OnInit {
     let map = echarts.init( wrapper )
 
     // label positioning
-    options = enableManualLabelPositioningAcrossPages(page, options, map)
+    options = this.enableManualLabelPositioningAcrossPages(page, options, map)
 
     map.setOption( options, {
       replaceMerge: ['series', 'geo']
     })
 
     // initialize the leaflet map beneath the transparent-background echarts map
-    await $timeout(async function(page, pageElement, echartsMap) {
-      let pageIdx = $scope.template.pages.indexOf(page);
+    setTimeout(async (page:any, pageElement, echartsMap) => {
+      let pageIdx = this.template.pages.indexOf(page);
       let id = "reporting-addPoiLayer-reachability-leaflet-map-container-" + pageIdx;
-      let pageDom = document.getElementById("reporting-addIndicator-page-" + pageIdx);
-      let pageElementDom = document.getElementById("reporting-addIndicator-page-" + pageIdx + "-map");
+      let pageDom:any = document.getElementById("reporting-addIndicator-page-" + pageIdx);
+      let pageElementDom:any = document.getElementById("reporting-addIndicator-page-" + pageIdx + "-map");
       let oldMapNode = document.getElementById(id);
       if(oldMapNode) {
         oldMapNode.remove();
       }
-      let div = document.createElement("div");
+      let div:any = document.createElement("div");
       div.id = id;
       div.style.position = "absolute";
       div.style.left = pageElement.dimensions.left;
@@ -1798,25 +1899,25 @@ export class IndicatorAddComponent implements OnInit {
       // manually create a field for attribution so we can control the z-index.
       let prevAttributionDiv = pageDom.querySelector(".map-attribution")
       if(prevAttributionDiv) prevAttributionDiv.remove();
-      let attrDiv = document.createElement("div")
+      let attrDiv:any = document.createElement("div")
       attrDiv.classList.add("map-attribution")
       attrDiv.style.position = "absolute";
       attrDiv.style.bottom = 0;
       attrDiv.style.left = 0;
       attrDiv.style.zIndex = 800;
-      let attrImg = await kommonitorDiagramHelperService.createReportingReachabilityMapAttribution();
+      let attrImg = this.diagramHelperService.createReportingReachabilityMapAttribution();
       attrDiv.appendChild(attrImg);
       pageElementDom.appendChild(attrDiv);
       // also create the legend manually
       let prevLegendDiv = pageDom.querySelector(".map-legend")
       if(prevLegendDiv) prevLegendDiv.remove();
-      let legendDiv = document.createElement("div")
+      let legendDiv:any = document.createElement("div")
       legendDiv.classList.add("map-legend")
       legendDiv.style.position = "absolute";
       legendDiv.style.bottom = 0;
       legendDiv.style.right = 0;
       legendDiv.style.zIndex = 800;
-      let legendImg = await kommonitorDiagramHelperService.createReportingReachabilityMapLegend(echartsOptions, $scope.selectedSpatialUnit, $scope.isochronesRangeType, $scope.isochronesRangeUnits);
+      let legendImg = this.diagramHelperService.createReportingReachabilityMapLegend(echartsOptions, this.selectedSpatialUnit, this.isochronesRangeType, this.isochronesRangeUnits);
       legendDiv.appendChild(legendImg);
       pageElementDom.appendChild(legendDiv)
 
@@ -1828,7 +1929,7 @@ export class IndicatorAddComponent implements OnInit {
       let northLat = boundingCoords[0][1];
 
       if(page.area && page.area.length) {
-        for(let feature of $scope.geoJsonForReachability.features) {
+        for(let feature of this.geoJsonForReachability.features) {
           if(feature.properties.NAME === page.area) {
             // set bounding box to this feature
             let featureBbox = feature.properties.bbox;
@@ -1878,9 +1979,9 @@ export class IndicatorAddComponent implements OnInit {
       pageElement.leafletMap = leafletMap;
 
       // can be used to check if positioning in echarts matches the one from leaflet
-      // let geoJsonLayer = L.geoJSON( $scope.geoJsonForReachability.features )
+      // let geoJsonLayer = L.geoJSON( this.geoJsonForReachability.features )
       // geoJsonLayer.addTo(leafletMap)
-      // let isochronesLayer = L.geoJSON( $scope.isochrones.features )
+      // let isochronesLayer = L.geoJSON( this.isochrones.features )
       // isochronesLayer.addTo(leafletMap);
       // let poiMarkerLSource = {
       // 	"type": "FeatureCollection",
@@ -1903,28 +2004,30 @@ export class IndicatorAddComponent implements OnInit {
 
       pageElement.leafletBbox = bounds;
 
-      if(pageIdx === $scope.template.pages.length-1) {
-        $scope.loadingData = false;
+      if(pageIdx === this.template.pages.length-1) {
+        this.loadingData = false;
       }
     }, 0, true, page, pageElement, map)
 
     return map;
   }
+  
 
-  $scope.createPageElement_Map = async function(wrapper, page, pageElement) {
+  // async
+  createPageElement_Map(wrapper, page, pageElement) {
 
-    if($scope.template.name.includes("reachability")) {
-      let map = await $scope.createMapForReachability(wrapper, page, pageElement);
+    if(this.template.name.includes("reachability")) {
+      let map = this.createMapForReachability(wrapper, page, pageElement);
       return map;
     }
     
     // check if there is a map registered for this combination, if not register one with all features
-    let mapName = undefined;
-    let timestamp = undefined;
+    let mapName:any = undefined;
+    let timestamp:any = undefined;
     
     // get the timestamp from pageElement, not from dom because dom might not be up to date yet
     let dateElement;
-    if($scope.template.name.includes("reachability")) {
+    if(this.template.name.includes("reachability")) {
       dateElement = page.pageElements.find( el => {
         return el.type.includes("reachability-subtitle-");
       });
@@ -1944,10 +2047,10 @@ export class IndicatorAddComponent implements OnInit {
       }
     }
     
-    if($scope.template.name.includes("reachability")) {
-      mapName = $scope.selectedIndicator.indicatorId + "_" + timestamp + "_" + $scope.selectedSpatialUnit.spatialUnitName;
+    if(this.template.name.includes("reachability")) {
+      mapName = this.selectedIndicator.indicatorId + "_" + timestamp + "_" + this.selectedSpatialUnit.spatialUnitName;
     } else {
-      mapName = $scope.selectedIndicator.indicatorId + "_" + dateElement.text + "_" + $scope.selectedSpatialUnit.spatialUnitName;
+      mapName = this.selectedIndicator.indicatorId + "_" + dateElement.text + "_" + this.selectedSpatialUnit.spatialUnitName;
     }
     
     if(pageElement.classify)
@@ -1957,9 +2060,9 @@ export class IndicatorAddComponent implements OnInit {
     if(page.area && page.area.length)
       mapName += "_" + page.area
 
-    if(!$scope.echartsRegisteredMapNames.includes(mapName)) {
-      echarts.registerMap(mapName, $scope.selectedIndicator.geoJSON)
-      $scope.echartsRegisteredMapNames.push(mapName)
+    if(!this.echartsRegisteredMapNames.includes(mapName)) {
+      echarts.registerMap(mapName, this.selectedIndicator.geoJSON)
+      this.echartsRegisteredMapNames.push(mapName)
     }
     
 
@@ -1967,7 +2070,7 @@ export class IndicatorAddComponent implements OnInit {
     if(pageElement.isTimeseries) {
       timestamp += "_relative"
     }
-    let options = JSON.parse(JSON.stringify( $scope.echartsOptions.map[timestamp] ));
+    let options = JSON.parse(JSON.stringify( this.echartsOptions.map[timestamp] ));
     
     // default changes for all reporting maps
     options.title.show = false;
@@ -1983,14 +2086,14 @@ export class IndicatorAddComponent implements OnInit {
 
     if(pageElement.isTimeseries) {
       let includeInBetweenDates = true;
-      let timeseries = $scope.getFormattedDateSliderValues(includeInBetweenDates)
-      series.data = $scope.calculateSeriesDataForTimeseries($scope.selectedIndicator.geoJSON.features, timeseries)
+      let timeseries = this.getFormattedDateSliderValues(includeInBetweenDates)
+      series.data = this.calculateSeriesDataForTimeseries(this.selectedIndicator.geoJSON.features, timeseries)
     }
     
     series.map = mapName; // update the map with the one registered above
     series.name = mapName;
 
-    let areaNames = $scope.selectedAreas.map( el => {
+    let areaNames = this.selectedAreas.map( (el:any) => {
       return el.name;
     });
 
@@ -2075,13 +2178,13 @@ export class IndicatorAddComponent implements OnInit {
 
 
     // label positioning
-    options = enableManualLabelPositioningAcrossPages(page, options, map)
+    options = this.enableManualLabelPositioningAcrossPages(page, options, map)
     
     map.setOption(options);
     return map;
   }
 
-  function enableManualLabelPositioningAcrossPages(page, options, map) {
+  enableManualLabelPositioningAcrossPages(page, options, map) {
     if(!page.area) {
       options.labelLayout = function(feature) {
         if(feature.seriesIndex != 0) { // index 0 are the borders / indicator
@@ -2089,13 +2192,13 @@ export class IndicatorAddComponent implements OnInit {
         }
         // Set fixed position for labels that were previously dragged by user
         // For all other labels try to avoid overlaps
-        let names = $scope.absoluteLabelPositions.map(el=>el.name)
+        let names = this.absoluteLabelPositions.map(el=>el.name)
         let text = feature.text.split("\n")[0] // area name is the first line
         if(names.includes(text)) {
           let idx = names.indexOf(text)
           return {
-            x: $scope.absoluteLabelPositions[idx].x,
-            y: $scope.absoluteLabelPositions[idx].y,
+            x: this.absoluteLabelPositions[idx].x,
+            y: this.absoluteLabelPositions[idx].y,
             draggable: true
           }
         } else {
@@ -2116,7 +2219,7 @@ export class IndicatorAddComponent implements OnInit {
         }
       }
 
-      map.getZr().on('mousedown', function(event) {
+      map.getZr().on('mousedown', (event) => {
         // on label drag
         if(event.target) {
           let target = event.target;
@@ -2134,36 +2237,36 @@ export class IndicatorAddComponent implements OnInit {
                 break;
               }
             }
-            $scope.draggingLabelForFeature = areaNameChild.style.text;
+            this.draggingLabelForFeature = areaNameChild.style.text;
           }
         }
       });
 
-      map.getZr().on('mouseup', function(event) {
+      map.getZr().on('mouseup', (event) => {
         if(event.target) {
           let target = event.target;
           if(target.parent && target.parent.type === "text") {
             // for all other maps, that are not area-specific, do the exact same label drag
             let newX = target.parent.x;
             let newY = target.parent.y;
-            let names = $scope.absoluteLabelPositions.map(el=>el.name)
-            if(names.includes($scope.draggingLabelForFeature)) {
-              let idx = names.indexOf($scope.draggingLabelForFeature);
-              $scope.absoluteLabelPositions[idx].x = newX;
-              $scope.absoluteLabelPositions[idx].y = newY;
+            let names = this.absoluteLabelPositions.map((el:any)=>el.name)
+            if(names.includes(this.draggingLabelForFeature)) {
+              let idx = names.indexOf(this.draggingLabelForFeature);
+              this.absoluteLabelPositions[idx].x = newX;
+              this.absoluteLabelPositions[idx].y = newY;
             } else {
-              $scope.absoluteLabelPositions.push({
-                name: $scope.draggingLabelForFeature,
+              this.absoluteLabelPositions.push({
+                name: this.draggingLabelForFeature,
                 x: newX,
                 y: newY
               })
             }
 
-            for(let [idx, page] of $scope.template.pages.entries()) {
+            for(let [idx, page] of this.template.pages.entries()) {
               for(let pageElement of page.pageElements) {
                 if(pageElement.type === "map" && !page.area) {
-                  let domNode = document.getElementById("reporting-addIndicator-page-" + idx + "-map");
-                  let map = echarts.getInstanceByDom(domNode);
+                  let domNode:any = document.getElementById("reporting-addIndicator-page-" + idx + "-map");
+                  let map:any = echarts.getInstanceByDom(domNode);
                   map.setOption(map.getOption()); // this calls the labelLayout function defined above
                 }
               }
@@ -2175,7 +2278,7 @@ export class IndicatorAddComponent implements OnInit {
     return options;
   }
 
-  $scope.createPageElement_Average = function(page, pageElement, calcForSelection) {
+  createPageElement_Average(page, pageElement, calcForSelection) {
     // get the timestamp from pageElement, not from dom because dom might not be up to date yet
     // no timeseries possible for this type of element
     let dateElement = page.pageElements.find( el => {
@@ -2183,24 +2286,24 @@ export class IndicatorAddComponent implements OnInit {
     });
     let timestamp = dateElement.text;
 
-    let avg = $scope.calculateAvg( $scope.selectedIndicator, timestamp, calcForSelection );
+    let avg = this.calculateAvg( this.selectedIndicator, timestamp, calcForSelection );
     pageElement.text = avg;
     pageElement.css = "border: solid 1px lightgray; padding: 2px;"
     pageElement.isPlaceholder = false;
   }
 
 
-  $scope.createPageElement_Change = function(page, pageElement, calcForSelection) {
+  createPageElement_Change(page, pageElement, calcForSelection) {
     // get the timeseries from slider, not from dom because dom might not be up to date yet
-    let timeseries = $scope.getFormattedDateSliderValues(true);
+    let timeseries = this.getFormattedDateSliderValues(true);
 
-    let change = $scope.calculateChange( $scope.selectedIndicator, timeseries, calcForSelection );
+    let change = this.calculateChange( this.selectedIndicator, timeseries, calcForSelection );
     pageElement.text = change;
     pageElement.css = "border: solid 1px lightgray; padding: 2px;";
     pageElement.isPlaceholder = false;
   }
 
-  $scope.createPageElement_BarChartDiagram = function(wrapper, page) {
+  createPageElement_BarChartDiagram(wrapper, page) {
     
     // get timestamp from pageElement, not from dom because dom might not be up to date yet
     // barcharts are only used in timestamp templates so we don't have to check for timeseries for now
@@ -2210,7 +2313,7 @@ export class IndicatorAddComponent implements OnInit {
     let timestamp = dateElement.text;
 
     let barChart = echarts.init( wrapper );
-    let options = JSON.parse(JSON.stringify( $scope.echartsOptions.bar[timestamp] ));
+    let options = JSON.parse(JSON.stringify( this.echartsOptions.bar[timestamp] ));
 
     // default changes
     options.xAxis.name = "";
@@ -2240,7 +2343,7 @@ export class IndicatorAddComponent implements OnInit {
       options.xAxis.data = areaNames;
     } else {
       // only show selected areas in the "overview" diagram
-      let areaNames = $scope.selectedAreas.map( obj => obj.name );
+      let areaNames = this.selectedAreas.map( (obj:any) => obj.name );
       options.series[0].data = options.series[0].data.filter( el => {
         return areaNames.includes(el.name);
       });
@@ -2257,9 +2360,9 @@ export class IndicatorAddComponent implements OnInit {
     });
 
     // add data element for the overall average
-    let overallAvgValue = $scope.calculateAvg($scope.selectedIndicator, timestamp, false);
+    let overallAvgValue = this.calculateAvg(this.selectedIndicator, timestamp, false);
     let overallAvgElementName = (page.area && page.area.length) ? "Durchschnitt\nder\nRaumeinheit" : "Durchschnitt der Raumeinheit";
-    let dataObjOverallAvg = {
+    let dataObjOverallAvg:any = {
       name: overallAvgElementName,
       value: overallAvgValue,
       opacity: 1
@@ -2278,9 +2381,9 @@ export class IndicatorAddComponent implements OnInit {
 
     // same for selection average
     // add more data elements for the overall and selection average
-    let selectionAvgValue = $scope.calculateAvg($scope.selectedIndicator, timestamp, true);
+    let selectionAvgValue = this.calculateAvg(this.selectedIndicator, timestamp, true);
     let selectionAvgElementName = (page.area && page.area.length) ? "Durchschnitt\nder\nSelektion" : "Durchschnitt der Selektion";
-    let dataObjSelectionAvg = {
+    let dataObjSelectionAvg:any = {
       name: selectionAvgElementName,
       value: selectionAvgValue,
       opacity: 1
@@ -2305,13 +2408,15 @@ export class IndicatorAddComponent implements OnInit {
     return barChart;
   }
 
-  $scope.createPageElement_TimelineDiagram = function(wrapper, page, pageElement) {
+  createPageElement_TimelineDiagram(wrapper, page, pageElement) {
     // no need to get a timestamp here
 
     let lineChart = echarts.init( wrapper );
-    let timeline = $scope.getFormattedDateSliderValues(true).dates;
+    
+    let vals:any = this.getFormattedDateSliderValues(true);
+    let timeline = vals.dates;
     // get standard options, create a copy of the options to not change anything in the service
-    let options = JSON.parse(JSON.stringify( $scope.echartsOptions.line ));
+    let options = JSON.parse(JSON.stringify( this.echartsOptions.line ));
     options.title.textStyle.fontSize = 12;
     options.title.text = "Zeitreihe";
     options.yAxis.axisLabel = { "fontSize": 10 };
@@ -2329,7 +2434,7 @@ export class IndicatorAddComponent implements OnInit {
     // future dates (compared to max slider value) were already filtered in prepareDiagrams
     // we have to remove dates older than min slider value here
     // we also have to filter xAxis labels accordingly
-    let timeseries = $scope.getFormattedDateSliderValues(true);
+    let timeseries:any = this.getFormattedDateSliderValues(true);
     let oldestSelectedTimestamp = timeseries.from;
     let timestampsToRemoveCounter = 0;
     // use the axis labels to find out how many data points have to be removed later
@@ -2345,7 +2450,7 @@ export class IndicatorAddComponent implements OnInit {
 
     if(pageElement.showAverage) {
       options.series = options.series.filter( series => {
-        return series.name === kommonitorDataExchangeService.rankingChartAverageLabel || series.name === kommonitorDataExchangeService.rankingChartRegionalReferenceValueLabel 
+        return series.name === this.dataExchangeService.pipedData.rankingChartAverageLabel || series.name === this.dataExchangeService.pipedData.rankingChartRegionalReferenceValueLabel 
       });
 
       for(let i=0; i<timestampsToRemoveCounter; i++) {
@@ -2358,20 +2463,20 @@ export class IndicatorAddComponent implements OnInit {
     
     if(pageElement.showAreas) {
       
-      let areaNames = [];
+      let areaNames:any[] = [];
       // in area specific part only add one line
       if(page.area && page.area.length) {
         areaNames.push(page.area);
       } else {
         // else add one line for each selected area
-        areaNames = $scope.selectedAreas.map( el => {
+        areaNames = this.selectedAreas.map( (el:any) => {
           return el.name;
         });
       }
 
       for(let areaName of areaNames) {
-        let data = [];
-        let filtered = $scope.selectedIndicator.geoJSON.features.filter( feature => {
+        let data:any[] = [];
+        let filtered = this.selectedIndicator.geoJSON.features.filter( feature => {
           return feature.properties.NAME === areaName;
         });
       
@@ -2380,7 +2485,7 @@ export class IndicatorAddComponent implements OnInit {
           data.push(value)
         }
       
-        let series = {};
+        let series:any = {};
         series.name = areaName;
         series.type = "line";
         series.data = data;
@@ -2402,7 +2507,7 @@ export class IndicatorAddComponent implements OnInit {
 
     if(pageElement.showPercentageChangeToPrevTimestamp) {
       for(let series of options.series) {
-        series.data = $scope.transformSeriesDataToPercentageChange(series.data)
+        series.data = this.transformSeriesDataToPercentageChange(series.data)
           
         
       }
@@ -2413,17 +2518,17 @@ export class IndicatorAddComponent implements OnInit {
     if(pageElement.showBoxplots) {
       // we assume that boxplots are only shown when showAreas is false (might change in the future).
       // so we have to get the data of all areas first
-      let areaNames = [];
-      areaNames = $scope.selectedAreas.map( el => {
+      let areaNames:any = [];
+      areaNames = this.selectedAreas.map( (el:any) => {
         return el.name;
       });
 
       // create a nested array with each inner array containing all area-values for one timestamp
-      let datasetSource = [];
+      let datasetSource:any[] = [];
       for(let timestamp of timeline) {
-        let valuesForTimestamp = [];
+        let valuesForTimestamp:any[] = [];
         // filter features to selected areas
-        let selectedAreasFeatures = $scope.selectedIndicator.geoJSON.features.filter( feature => {
+        let selectedAreasFeatures = this.selectedIndicator.geoJSON.features.filter( feature => {
           return areaNames.includes( feature.properties.NAME );
         });
         // get values for each feature
@@ -2472,7 +2577,7 @@ export class IndicatorAddComponent implements OnInit {
     return lineChart;
   }
 
-  $scope.createPageElement_Datatable = function(wrapper, page) {
+  createPageElement_Datatable(wrapper, page) {
     
     // table looks different depending on template type
     // for single timestamps it is added at the end of each timestamp-section, so each area is inserted once
@@ -2484,11 +2589,11 @@ export class IndicatorAddComponent implements OnInit {
     // we set each row to be 25px high, so we can fit 415 / 25 --> 16 rows on one page.
     let wrapperHeight = parseInt(wrapper.style.height, 10);
     let maxRows = Math.floor( (wrapperHeight - 25) / 25);
-    let rowsData = [];
+    let rowsData:any[] = [];
     let timestamp = undefined;
-    let timeseries = undefined;
+    let timeseries:any = undefined;
 
-    if($scope.template.name.includes("timestamp")) {
+    if(this.template.name.includes("timestamp")) {
       // get the timestamp from pageElement, not from dom because dom might not be up to date yet
       let dateElement = page.pageElements.find( el => {
         return el.type.includes("dataTimestamp-");
@@ -2496,16 +2601,19 @@ export class IndicatorAddComponent implements OnInit {
       timestamp = dateElement.text;
     }
 
-    if($scope.template.name.includes("timeseries")) {
+    if(this.template.name.includes("timeseries")) {
       let inBetweenValues = true;
-      timeseries = $scope.getFormattedDateSliderValues(inBetweenValues);
+      timeseries = this.getFormattedDateSliderValues(inBetweenValues);
     }
 
     // see how many pages need to be added. Rows are added later
-    for(let feature of $scope.selectedIndicator.geoJSON.features) {
+    for(let feature of this.selectedIndicator.geoJSON.features) {
       // don't add row if feature not selected
       let isSelected = false;
-      for(let area of $scope.selectedAreas) {
+      for(let tEarea of this.selectedAreas) {
+
+        let area:any = tEarea;
+
         if(area.name === feature.properties.NAME) {
           isSelected = true;
         }
@@ -2513,7 +2621,7 @@ export class IndicatorAddComponent implements OnInit {
       if( !isSelected )
         continue;
 
-      if($scope.template.name.includes("timestamp")) {
+      if(this.template.name.includes("timestamp")) {
         // get the timestamp from pageElement, not from dom because dom might not be up to date yet
         let dateElement = page.pageElements.find( el => {
           return el.type.includes("dataTimestamp-");
@@ -2530,7 +2638,7 @@ export class IndicatorAddComponent implements OnInit {
         });
       }
 
-      if($scope.template.name.includes("timeseries")) {
+      if(this.template.name.includes("timeseries")) {
         for(let timestamp of timeseries.dates) {
           let value = feature.properties["DATE_" + timestamp];
           if(typeof(value) == 'number')
@@ -2548,14 +2656,14 @@ export class IndicatorAddComponent implements OnInit {
     rowsData.sort((a, b) => a.name.localeCompare(b.name))
 
     // append average as last row if needed
-    if($scope.template.name.includes("timestamp")) {
+    if(this.template.name.includes("timestamp")) {
       rowsData.push({
         name: "Durchschnitt Selektion",
-        value:  $scope.calculateAvg($scope.selectedIndicator, timestamp, true)
+        value:  this.calculateAvg(this.selectedIndicator, timestamp, true)
       });
       rowsData.push({
         name: "Durchschnitt Gesamtstadt",
-        value:  $scope.calculateAvg($scope.selectedIndicator, timestamp, false)
+        value:  this.calculateAvg(this.selectedIndicator, timestamp, false)
       });
       
     }
@@ -2566,13 +2674,13 @@ export class IndicatorAddComponent implements OnInit {
       // at this point we are not actually adding any rows to the table
       if(i > 0 && i % maxRows == 0) {
         // add a new page
-        let newPage = angular.fromJson($scope.untouchedTemplateAsString).pages.at(-1);
-        newPage.id = $scope.templatePageIdCounter++;
+        let newPage = fromJson(this.untouchedTemplateAsString).pages.at(-1);
+        newPage.id = this.templatePageIdCounter++;
         // setup new page
         for(let pageElement of newPage.pageElements) {
 
           if(pageElement.type.includes("indicatorTitle-")) {
-            pageElement.text = $scope.selectedIndicator.indicatorName + " [" + $scope.selectedIndicator.unit + "]"
+            pageElement.text = this.selectedIndicator.indicatorName + " [" + this.selectedIndicator.unit + "]"
             pageElement.isPlaceholder = false;
           }
 
@@ -2593,16 +2701,15 @@ export class IndicatorAddComponent implements OnInit {
         }
 
         // insert after current one
-        let currentPageIndex = $scope.template.pages.indexOf(page)
-        $scope.template.pages.splice(currentPageIndex + 1, 0, newPage);
+        let currentPageIndex = this.template.pages.indexOf(page)
+        this.template.pages.splice(currentPageIndex + 1, 0, newPage);
       }
     }
-      
 
-    // create table rows once the pages exist
+   /*  // create table rows once the pages exist
     function insertDatatableRows(rowsData, page, maxRows) {
       // get current index of page (might have changed in the meantime)
-      let idx = $scope.template.pages.indexOf(page)
+      let idx = this.template.pages.indexOf(page)
       let wrapper = document.querySelector("#reporting-addIndicator-page-" + idx + "-datatable");
       if(wrapper) {
         $interval.cancel(insertDatatableRowsInterval); // code below still executes once
@@ -2615,16 +2722,16 @@ export class IndicatorAddComponent implements OnInit {
       wrapper.style.justifyContent = "flex-start"; // align table at top instead of center
 
       let columnNames;
-      if($scope.template.name.includes("timeseries")) {
+      if(this.template.name.includes("timeseries")) {
         columnNames  = ["Bereich", "Zeitpunkt", "Wert"]
       } else {
         columnNames  = ["Bereich", "Wert"]
       }
 
-      let table = $scope.createDatatableSkeleton(columnNames);
+      let table = this.createDatatableSkeleton(columnNames);
       wrapper.appendChild(table);
       let tbody = table.querySelector("tbody");
-      let pageElement = $scope.template.pages[idx].pageElements.find( el => el.type === "datatable");
+      let pageElement = this.template.pages[idx].pageElements.find( el => el.type === "datatable");
       pageElement.isPlaceholder = false;
 
       for(let i=0;i<rowsData.length; i++) {
@@ -2649,10 +2756,10 @@ export class IndicatorAddComponent implements OnInit {
             wrapper.innerHTML = "";
             wrapper.style.border = "none"; // hide dotted border from outer dom element
             wrapper.style.justifyContent = "flex-start"; // align table at top instead of center
-            table = $scope.createDatatableSkeleton(columnNames);
+            table = this.createDatatableSkeleton(columnNames);
             wrapper.appendChild(table);
             tbody = table.querySelector("tbody");
-            pageElement = $scope.template.pages[idx].pageElements.find( el => el.type === "datatable");
+            pageElement = this.template.pages[idx].pageElements.find( el => el.type === "datatable");
             pageElement.isPlaceholder = false;
             
             for(let j=i; j<(i + maxRows); j++) {
@@ -2687,21 +2794,114 @@ export class IndicatorAddComponent implements OnInit {
         }
       }
     }
+ */
+    this.insertDatatableRowsInterval = setInterval(this.insertDatatableRows, 0, 100, true, rowsData, page, maxRows)
+  }
 
-    let insertDatatableRowsInterval = $interval(insertDatatableRows, 0, 100, true, rowsData, page, maxRows)
+   // create table rows once the pages exist
+  insertDatatableRows(rowsData, page, maxRows) {
+    // get current index of page (might have changed in the meantime)
+    let idx = this.template.pages.indexOf(page)
+    let wrapper:any = document.querySelector("#reporting-addIndicator-page-" + idx + "-datatable");
+    if(wrapper) {
+      clearInterval(this.insertDatatableRowsInterval); // code below still executes once
+    } else {
+      return;
+    }
+    
+    wrapper.innerHTML = "";
+    wrapper.style.border = "none"; // hide dotted border from outer dom element
+    wrapper.style.justifyContent = "flex-start"; // align table at top instead of center
+
+    let columnNames;
+    if(this.template.name.includes("timeseries")) {
+      columnNames  = ["Bereich", "Zeitpunkt", "Wert"]
+    } else {
+      columnNames  = ["Bereich", "Wert"]
+    }
+
+    let table = this.createDatatableSkeleton(columnNames);
+    wrapper.appendChild(table);
+    let tbody = table.querySelector("tbody");
+    let pageElement = this.template.pages[idx].pageElements.find( el => el.type === "datatable");
+    pageElement.isPlaceholder = false;
+
+    for(let i=0;i<rowsData.length; i++) {
+      // see which page we have to add the row to
+      // switch to next page if necessary
+      
+      if((i % maxRows) == 0) {
+        if(i > 0) idx++
+        const idx_save = idx;
+        const i_save = i;
+        this.intervalArr[idx_save] = setInterval(this.insertDatatableRowsPerPage, 0, 100, true, pageElement, idx_save, columnNames, maxRows, rowsData, i_save, wrapper, table, tbody);
+      }
+    }
+  }
+
+  insertDatatableRowsPerPage(pageElement, idx, columnNames, maxRows, rowsData, i, wrapper, table, tbody) {
+    // check if page exists already in dom, if not try again later
+    wrapper = document.querySelector("#reporting-addIndicator-page-" + idx + "-datatable");
+    if(wrapper) {
+      clearInterval(this.intervalArr[idx]); // code below still executes once
+    } else {
+      return;
+    }
+    // page exists
+    wrapper.innerHTML = "";
+    wrapper.style.border = "none"; // hide dotted border from outer dom element
+    wrapper.style.justifyContent = "flex-start"; // align table at top instead of center
+    table = this.createDatatableSkeleton(columnNames);
+    wrapper.appendChild(table);
+    tbody = table.querySelector("tbody");
+    pageElement = this.template.pages[idx].pageElements.find( el => el.type === "datatable");
+    pageElement.isPlaceholder = false;
+    
+    for(let j=i; j<(i + maxRows); j++) {
+      if(!rowsData[j])
+        break; // on last page
+
+      let row = document.createElement("tr");
+      row.style.height = "25px";
+
+      for(let colName of columnNames) {
+        let td = document.createElement("td");
+        if(colName === "Bereich") {
+          td.innerText = rowsData[j].name;
+          td.classList.add("text-left");
+        }
+      
+        if(colName === "Zeitpunkt") {
+          td.innerText = rowsData[j].timestamp;
+        }
+      
+        if(colName === "Wert") {
+          td.innerText = rowsData[j].value;
+          td.classList.add("text-right");
+        }
+      
+        row.appendChild(td);
+      }
+
+      tbody.appendChild(row)
+    }
   }
 
 
-  $scope.filterMapByAreaName = function(echartsInstance, areaName, allFeatures) {
+  filterMapByAreaName(echartsInstance, areaName, allFeatures) {
     let options = echartsInstance.getOption();
     let mapName = options.series[0].map;
     // filter shown areas if we are in the area-specific part of the template
     // removing areas form the series doesn't work. We have to filter the geojson of the registered map.
-    let features = allFeatures.filter ( el => {
+    let tfeatures:any = allFeatures.filter ( (el:any) => {
       return el.properties.name === areaName
     });
 
-    echarts.registerMap(mapName, { features: features } )
+    let features:any = {
+      features: tfeatures
+    }
+
+    echarts.registerMap(mapName, features )
 
     // echart map bounds are defined by a bounding box, which has to be updated as well.
     if(!features[0].properties.bbox){
@@ -2716,12 +2916,12 @@ export class IndicatorAddComponent implements OnInit {
     });
   }
 
-  $scope.calculateAvg = function(indicator, timestamp, calcForSelection) {
+  calculateAvg(indicator, timestamp, calcForSelection) {
     // calculate avg from geoJSON property, which should be the currently selected spatial unit
     let features = indicator.geoJSON.features;
     if(calcForSelection) {
       features = features.filter( el => {
-        return $scope.selectedAreas.map(area=>area.name).includes( el.properties.NAME )
+        return this.selectedAreas.map((area:any)=>area.name).includes( el.properties.NAME )
       });
     }
 
@@ -2744,11 +2944,11 @@ export class IndicatorAddComponent implements OnInit {
     return avg;
   }
 
-  $scope.calculateChange = function(indicator, timeseries, calcForSelection) {
-    let data = $scope.calculateSeriesDataForTimeseries(indicator.geoJSON.features, timeseries);
+  calculateChange(indicator, timeseries, calcForSelection) {
+    let data = this.calculateSeriesDataForTimeseries(indicator.geoJSON.features, timeseries);
     if(calcForSelection) {
       data = data.filter( el => {
-        return $scope.selectedAreas.map(area=>area.name).includes( el.name )
+        return this.selectedAreas.map((area:any)=>area.name).includes( el.name )
       });
     }
     data = data.map(obj => obj.value)
@@ -2767,7 +2967,7 @@ export class IndicatorAddComponent implements OnInit {
     return avgChange;
   }
 
-*/
+
   prepareDiagrams(selectedIndicator, selectedSpatialUnit, timestampName, classifyUsingWholeTimeseries, isTimeseries, fromDate, toDate) {
     
     // if is  timeseries we must modify the indicator type of the given indicator, since it should display changes over time and hence 
@@ -2809,8 +3009,7 @@ export class IndicatorAddComponent implements OnInit {
     let colorCodeNegativeValues = window.__env.defaultColorBrewerPaletteForBalanceDecreasingValues;
     let classifyMethod = window.__env.defaultClassifyMethod;
 
-    // setup brew  - hier
-    console.log(indicator.geoJSON, timestampPrefix, numClasses, colorCodeStandard, classifyMethod, true, selectedIndicator);
+    // setup brew 
     let defaultBrew = this.visualStyleHelperService.setupDefaultBrew(indicator.geoJSON, timestampPrefix, numClasses, colorCodeStandard, classifyMethod, true, selectedIndicator);
     //let manualBrew = kommonitorVisualStyleHelperService.setupManualBrew(indicator.geoJSON, timestampPrefix, numClasses, colorCodeStandard, classifyMethod, true, selectedIndicator);
     let dynamicBrewsArray = this.visualStyleHelperService.setupDynamicIndicatorBrew(indicator.geoJSON, timestampPrefix, colorCodePositiveValues, colorCodeNegativeValues, classifyMethod, numClasses,'');
@@ -2920,15 +3119,15 @@ export class IndicatorAddComponent implements OnInit {
 
     return geoMapOptions
   }
-/* 
 
-  $scope.initializeAllDiagrams = async function() {
-    if(!$scope.template)
+// async
+  initializeAllDiagrams() {
+    if(!this.template)
       return;
-    if($scope.template.name.includes("timestamp") && $scope.selectedTimestamps.length === 0) {
+    if(this.template.name.includes("timestamp") && this.selectedTimestamps.length === 0) {
       return;
     }
-    if(!$scope.diagramsPrepared) {
+    if(!this.diagramsPrepared) {
       throw new Error("Diagrams can't be initialized since they were not prepared previously.")
     }
 
@@ -2937,11 +3136,11 @@ export class IndicatorAddComponent implements OnInit {
     // Even though we do nothing for these pages, the index gets out of sync with the page ids (which we use to get the dom elements)
     let pageIdx = -1;
 
-    for(let i=0; i<$scope.template.pages.length; i++) {
+    for(let i=0; i<this.template.pages.length; i++) {
       pageIdx++;
-      let page = $scope.template.pages[i];
+      let page = this.template.pages[i];
       
-      let prevPage = i>1 ? $scope.template.pages[i-1] : undefined;
+      let prevPage = i>1 ? this.template.pages[i-1] : undefined;
       let pageIncludesDatatable = page.pageElements.map(el => el.type).includes("datatable")
 
       if(prevPage) {
@@ -2958,7 +3157,7 @@ export class IndicatorAddComponent implements OnInit {
       }
       
 
-      let pageDom = document.querySelector("#reporting-addIndicator-page-" + pageIdx);
+      let pageDom:any = document.querySelector("#reporting-addIndicator-page-" + pageIdx);
 
       for(let pageElement of page.pageElements) {
 
@@ -2979,13 +3178,13 @@ export class IndicatorAddComponent implements OnInit {
         switch(pageElement.type) {
           case "map": {
             // initialize with all areas
-            let map = await $scope.createPageElement_Map(pElementDom, page, pageElement);
+            let map = this.createPageElement_Map(pElementDom, page, pageElement);
             // filter visible areas if needed
             if(page.area && page.area.length) {
-              if($scope.selectedIndicator) {
-                $scope.filterMapByAreaName(map, page.area, $scope.selectedIndicator.geoJSON.features);
+              if(this.selectedIndicator) {
+                this.filterMapByAreaName(map, page.area, this.selectedIndicator.geoJSON.features);
               } else {
-                $scope.filterMapByAreaName(map, page.area, $scope.geoJsonForReachability.features);
+                this.filterMapByAreaName(map, page.area, this.geoJsonForReachability.features);
               }
               
             }
@@ -2999,58 +3198,58 @@ export class IndicatorAddComponent implements OnInit {
           }
             
           case "overallAverage": {
-            $scope.createPageElement_Average(page, pageElement, false);
+            this.createPageElement_Average(page, pageElement, false);
             pageDom.querySelector(".type-overallAverage").style.border = "none";
             break;
           }
           case "selectionAverage": {
-            $scope.createPageElement_Average(page, pageElement, true);
+            this.createPageElement_Average(page, pageElement, true);
             pageDom.querySelector(".type-selectionAverage").style.border = "none";
             break;
           }
           case "overallChange": {
-            $scope.createPageElement_Change(page, pageElement, false);
+            this.createPageElement_Change(page, pageElement, false);
             let wrapper = pageDom.querySelector(".type-overallChange")
             wrapper.style.border = "none";
             break;
           }
           case "selectionChange": {
-            $scope.createPageElement_Change(page, pageElement, true);
+            this.createPageElement_Change(page, pageElement, true);
             let wrapper = pageDom.querySelector(".type-selectionChange")
             wrapper.style.border = "none";
             break;
           }
           case "barchart": {
-            $scope.createPageElement_BarChartDiagram(pElementDom, page);
+            this.createPageElement_BarChartDiagram(pElementDom, page);
             pageElement.isPlaceholder = false;
             break;
           }
           case "linechart": {
-            $scope.createPageElement_TimelineDiagram(pElementDom, page, pageElement);
+            this.createPageElement_TimelineDiagram(pElementDom, page, pageElement);
             pageElement.isPlaceholder = false;
             break;
           }
           case "datatable": {
             // remove all following datatable pages first so we don't add too many.
             // this might happen because we initialize page elements from $watch(selectedAreas) and $watch(selectedTimestamps) on indicator selection
-            let nextPage = i<$scope.template.pages.length-1 ? $scope.template.pages[i+1] : undefined;
+            let nextPage = i<this.template.pages.length-1 ? this.template.pages[i+1] : undefined;
             if(nextPage) {
               let nextPageIncludesDatatable = nextPage.pageElements.map(el => el.type).includes("datatable")
               while(nextPageIncludesDatatable) {
-                $scope.template.pages.splice(i+1, 1) //remove page
+                this.template.pages.splice(i+1, 1) //remove page
                 //update next page
-                nextPage = i<$scope.template.pages.length-1 ? $scope.template.pages[i+1] : undefined;
+                nextPage = i<this.template.pages.length-1 ? this.template.pages[i+1] : undefined;
                 nextPageIncludesDatatable = nextPage ? nextPage.pageElements.map(el => el.type).includes("datatable") : false;
               }
             }
-            $scope.createPageElement_Datatable(pElementDom, page);
+            this.createPageElement_Datatable(pElementDom, page);
             break;
           }
         }
       }
     }
   }
- */
+ 
   showThisPage(page) {
     let pageWillBeShown = false;
     for(let visiblePage of this.filterPagesToShow()){
@@ -3151,14 +3350,14 @@ export class IndicatorAddComponent implements OnInit {
 
     return features;
   }
-/*
-  $scope.calculateSeriesDataForTimeseries = function(features, timeseries) {
-    let result = [];
+
+  calculateSeriesDataForTimeseries(features, timeseries) {
+    let result:any[] = [];
     let mostRecentDate = timeseries.to;
     let oldestDate = timeseries.from
 
     for(let feature of features) {
-      let obj = {};
+      let obj:any = {};
       obj.name = feature.properties.name;
       let value = feature.properties["DATE_" + mostRecentDate] - feature.properties["DATE_" + oldestDate];
       if(typeof(value) == 'number') {
@@ -3171,7 +3370,7 @@ export class IndicatorAddComponent implements OnInit {
     return result;
   }
 
-   */ 
+  
   createLowerCaseNameProperty(features) {
     for(let feature of features) {
       if(feature.hasOwnProperty("properties")) {
@@ -3184,8 +3383,8 @@ export class IndicatorAddComponent implements OnInit {
     return features;
   }
 
-/*
-  $scope.createDatatableSkeleton = function(colNamesArr) {
+
+  createDatatableSkeleton(colNamesArr) {
 
     let table = document.createElement("table");
     table.classList.add("table-striped")
@@ -3211,20 +3410,20 @@ export class IndicatorAddComponent implements OnInit {
     return table;
   }
 
-  $scope.createDatesFromIndicatorDates = function(indicatorDates) {
-    let datesAsMs = [];
+  createDatesFromIndicatorDates(indicatorDates) {
+    let datesAsMs:any[] = [];
     for (let i=0; i < indicatorDates.length; i++){
       // year-month-day
       var dateComponents = indicatorDates[i].split("-");
-      datesAsMs.push(kommonitorDataExchangeService.dateToTS(new Date(Number(dateComponents[0]), Number(dateComponents[1]) - 1, Number(dateComponents[2]))));
+      datesAsMs.push(this.dataExchangeService.dateToTS(new Date(Number(dateComponents[0]), Number(dateComponents[1]) - 1, Number(dateComponents[2]))));
     }
     return datesAsMs;
   }
 
-  function prettifyDateSliderLabels (dateAsMs) {
-    return kommonitorDataExchangeService.tsToDate_withOptionalUpdateInterval(dateAsMs, $scope.selectedIndicator.metadata.updateInterval);
+  prettifyDateSliderLabels(dateAsMs) {
+    return this.dataExchangeService.tsToDate_withOptionalUpdateInterval(dateAsMs, this.selectedIndicator.metadata.updateInterval);
   }
-
+/*
   $scope.onChangeDateSliderInterval = function() {
     $scope.loadingData = true;
     // needed to tell angular something has changed
@@ -3460,25 +3659,25 @@ export class IndicatorAddComponent implements OnInit {
     }
 
   }
-
-  $scope.transformSeriesDataToPercentageChange = function(dataArr) {
+  */
+  transformSeriesDataToPercentageChange(dataArr) {
     // we need at least two timestamps
     if(dataArr.length <= 1) {
       let error = new Error("Can not calculate percentage change from a single timestamp.")
-      kommonitorDataExchangeService.displayMapApplicationError(error.message);
+      this.dataExchangeService.displayMapApplicationError(error.message);
     }
-    let result = [];
+    let result:any[] = [];
     for(let i=1; i<dataArr.length;i++) {
       let datapoint = dataArr[i];
       let prevDatapoint = dataArr[i-1];
-      let value = (datapoint - prevDatapoint) / prevDatapoint;
+      let value:any = (datapoint - prevDatapoint) / prevDatapoint;
       value *= 100;
       value =  Math.round( value * 100) / 100;
       result.push(value);
     }
     return result;
   }
-
+/*
   // https://stackoverflow.com/a/2631198/18450475
   function checkNestedPropExists(obj, level,  ...rest) {
     if (obj === undefined) return false
