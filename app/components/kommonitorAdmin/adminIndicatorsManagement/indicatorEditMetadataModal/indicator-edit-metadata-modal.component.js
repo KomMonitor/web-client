@@ -228,6 +228,13 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 		$scope.successMessagePart = undefined;
 		$scope.errorMessagePart = undefined;
 
+		var customColorSchemes = __env.customColorSchemes;
+
+		// Add custom color themes from configuration properties
+		if(customColorSchemes) {
+			colorbrewer = Object.assign(customColorSchemes, colorbrewer);
+		}
+		
 		$scope.colorbrewerSchemes = colorbrewer;
 		$scope.colorbreweSchemeName_dynamicIncrease = __env.defaultColorBrewerPaletteForBalanceIncreasingValues;
 		$scope.colorbreweSchemeName_dynamicDecrease = __env.defaultColorBrewerPaletteForBalanceDecreasingValues;
