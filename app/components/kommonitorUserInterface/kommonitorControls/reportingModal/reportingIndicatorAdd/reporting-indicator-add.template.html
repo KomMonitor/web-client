@@ -116,7 +116,7 @@
                                     Mindestens ein ausgewählter Zeitpunkt war für die neue Raumebene nicht verfügbar und wurde entfernt.
                                 </span>
                                 <span ng-show="template.name.includes('-timeseries')">
-                                    Nach dem Wechsel der Raumeinheit enthält die Zeitserie andere Zeitpunkte. 
+                                    Nach dem Wechsel der Raumebene enthält die Zeitserie andere Zeitpunkte. 
                                 </span>
                                 <span ng-show="template.name.includes('-timeseries') && timeseriesAdjustedOnSpatialUnitChange">
                                     Sie wurde auf den größtmöglichen Zeitraum gesetzt weil die ursprüngliche Einstellung nicht übernommen werden konnte.
@@ -191,7 +191,7 @@
                     <div id="reporting-add-indicator-preview-area">
                         <div ng-repeat="page in template.pages track by page.id" 
                             ng-class="{hiddenPage: !showThisPage(page)}"
-                            ng-attr-class="reporting-page reporting-page-{{page.orientation}}"
+                            ng-attr-class="reporting-page reporting-page-{{page.orientation}} reporting-custom-css"
                             ng-attr-id="reporting-addIndicator-page-{{$index}}">
                             <div ng-repeat="pageElement in page.pageElements"
                                 ng-attr-class="type-{{pageElement.type}}"

@@ -6,7 +6,9 @@ module.exports = function (grunt) {
         kommonitor_client: [
             'app/util/genericServices/kommonitorCacheHelperService/kommonitor-cache-helper-service.module.js',
             'app/util/genericServices/kommonitorShareHelperService/kommonitor-share-helper-service.module.js', 
+            'app/util/genericServices/kommonitorGlobalFilterHelperService/kommonitor-global-filter-helper-service.module.js',
             'app/util/genericServices/kommonitorDataExchangeService/kommonitor-data-exchange-service.module.js',
+            'app/util/genericServices/kommonitorFavService/kommonitor-fav-service.module.js',
             'app/util/genericServices/kommonitorDiagramHelperService/kommonitor-diagram-helper-service.module.js',
             'app/util/genericServices/kommonitorImporterHelperService/kommonitor-importer-helper-service.module.js',
             'app/util/genericServices/kommonitorScriptHelperService/kommonitor-script-helper-service.module.js',
@@ -149,6 +151,12 @@ module.exports = function (grunt) {
             'app/components/kommonitorAdmin/adminConfig/adminAppConfig/admin-app-config.component.js',
             'app/components/kommonitorAdmin/adminConfig/adminControlsConfig/admin-controls-config.module.js',
             'app/components/kommonitorAdmin/adminConfig/adminControlsConfig/admin-controls-config.component.js',
+            'app/components/kommonitorAdmin/adminConfig/adminFilterConfig/admin-filter-config.module.js',
+            'app/components/kommonitorAdmin/adminConfig/adminFilterConfig/admin-filter-config.component.js',
+            'app/components/kommonitorAdmin/adminConfig/adminFilterConfig/adminFilterAddModal/admin-filter-add-modal.module.js',
+            'app/components/kommonitorAdmin/adminConfig/adminFilterConfig/adminFilterAddModal/admin-filter-add-modal.component.js',
+            'app/components/kommonitorAdmin/adminConfig/adminFilterConfig/adminFilterEditModal/admin-filter-edit-modal.module.js',
+            'app/components/kommonitorAdmin/adminConfig/adminFilterConfig/adminFilterEditModal/admin-filter-edit-modal.component.js',
             'app/components/kommonitorAdmin/adminConfig/adminKeycloakConfig/admin-keycloak-config.module.js',
             'app/components/kommonitorAdmin/adminConfig/adminKeycloakConfig/admin-keycloak-config.component.js',
             'app/components/kommonitorAdmin/kommonitor-admin.module.js',
@@ -216,6 +224,9 @@ module.exports = function (grunt) {
             'app/components/kommonitorUserInterface/kommonitorControls/kommonitorLegend/kommonitor-legend.css',
             'app/components/common/classificationMethodSelect/classification-method-select.css',  
             'app/components/kommonitorUserInterface/kommonitorControls/kommonitorClassification/kommonitor-classification.css'
+        ],
+        custom_styles: [
+            'app/kommonitor-custom.css'
         ],
         copy_files: [
             //the path prefix 'app/' will be set in the copy-command itself! Thus is omitted here.
@@ -304,6 +315,14 @@ module.exports = function (grunt) {
                 },
                 src: ['<%= kommonitor_styles %>'],
                 dest: 'app/index.html'
+            },
+            build_custom_styles: {
+                options: {
+                    openTag: '<!-- start custom style tags -->',
+                    closeTag: '<!-- end custom style tags -->'
+                },
+                src: ['<%= custom_styles %>'],
+                dest: 'app/index.html'
             }
         },
         concat: {
@@ -318,7 +337,12 @@ module.exports = function (grunt) {
             styles: {
                 src: '<%= kommonitor_styles %>',
                 dest: 'dist/<%= name %>.css'
-            },
+            }
+            ,
+            custom: {
+                src: '<%= custom_styles %>',
+                dest: 'dist/kommonitor-custom.css'
+            }
             // libStyles: {
             //     src: '<%= lib_styles %>',
             //     dest: 'dist/css/deps.<%= name %>.css'

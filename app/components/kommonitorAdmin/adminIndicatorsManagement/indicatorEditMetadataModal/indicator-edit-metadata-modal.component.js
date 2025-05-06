@@ -102,6 +102,7 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 				"description": "description about spatial unit dataset",
 				"databasis": "text about data basis",
 			},
+			"precision": "Custom decimal place",
 			"refrencesToOtherIndicators": [
 				{
 				  "referenceDescription": "description about the reference",
@@ -185,6 +186,7 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 			$scope.indicatorCreationType = undefined;
 			$scope.indicatorLowestSpatialUnitMetadataObjectForComputation = undefined;
 			$scope.enableLowestSpatialUnitSelect = false;
+      $scope.indicatorPrecision = null;
 
 			$scope.indicatorReferenceDateNote = undefined;
 			$scope.displayOrder = 0;
@@ -223,6 +225,13 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 		$scope.successMessagePart = undefined;
 		$scope.errorMessagePart = undefined;
 
+		var customColorSchemes = __env.customColorSchemes;
+
+		// Add custom color themes from configuration properties
+		if(customColorSchemes) {
+			colorbrewer = Object.assign(customColorSchemes, colorbrewer);
+		}
+		
 		$scope.colorbrewerSchemes = colorbrewer;
 		$scope.colorbreweSchemeName_dynamicIncrease = __env.defaultColorBrewerPaletteForBalanceIncreasingValues;
 		$scope.colorbreweSchemeName_dynamicDecrease = __env.defaultColorBrewerPaletteForBalanceDecreasingValues;
@@ -234,6 +243,7 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 		$scope.noneColumnValue = "-- keine --";
 		$scope.file_regionalReferenceValuesImport;
 
+    $scope.showCustomCommaValue = false;
 
 		$scope.instantiateColorBrewerPalettes = function(){
 			for (const key in colorbrewer) {
@@ -360,6 +370,13 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 			$scope.refreshReferenceValuesManagementTable();
 
 			$scope.indicatorAbbreviation = $scope.currentIndicatorDataset.abbreviation;
+
+      $scope.indicatorPrecision = $scope.currentIndicatorDataset.precision;
+
+      if($scope.currentIndicatorDataset.defaultPrecision===false)
+        $scope.showCustomCommaValue = true;
+      else
+        $scope.showCustomCommaValue = false;
 
 			kommonitorDataExchangeService.indicatorTypeOptions.forEach(function(option){
 				if(option.apiName === $scope.currentIndicatorDataset.indicatorType){
@@ -681,6 +698,7 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 		};
 
 		$scope.buildPatchBody_indicators = function(){
+
 			var patchBody =
 			{
 				"metadata": {
@@ -698,6 +716,7 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 				  "regionalReferenceValues": [],
 				  "datasetName": $scope.datasetName,
 				  "abbreviation": $scope.indicatorAbbreviation || null,
+          		  "precision": ($scope.showCustomCommaValue===true) ? $scope.indicatorPrecision : null,
 				  "characteristicValue": $scope.indicatorCharacteristicValue || null,
 				  "tags": [], // filled directly after
 				  "creationType": $scope.indicatorCreationType.apiName,
@@ -912,6 +931,12 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 				// indicator specific properties
 
 				$scope.indicatorAbbreviation = $scope.metadataImportSettings.abbreviation;
+        $scope.indicatorPrecision = ($scope.metadataImportSettings.precision!="") ? parseInt($scope.metadataImportSettings.precision) : null;
+        
+        if($scope.indicatorPrecision!=null)
+          $scope.showCustomCommaValue = true;
+        else
+          $scope.showCustomCommaValue = false;
 
 				for (const indicatorTypeOption of kommonitorDataExchangeService.indicatorTypeOptions) {
 					if(indicatorTypeOption.apiName === $scope.metadataImportSettings.indicatorType){
@@ -1108,6 +1133,7 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 			metadataExport.abbreviation = $scope.indicatorAbbreviation || "";
 			metadataExport.indicatorType = $scope.indicatorType ? $scope.indicatorType.apiName : "";
 			metadataExport.creationType = $scope.indicatorCreationType ? $scope.indicatorCreationType.apiName : "";
+      metadataExport.precision = $scope.indicatorPrecision || "";
 
 			// metadataExport.characteristicValue = $scope.indicatorCharacteristicValue || "";
 			metadataExport.isHeadlineIndicator = $scope.isHeadlineIndicator || false;

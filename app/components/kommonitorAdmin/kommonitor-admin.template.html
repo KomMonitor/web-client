@@ -13,7 +13,7 @@
     </a>
 
     <!-- Header Navbar -->
-    <nav class="navbar navbar-static-top" role="navigation">
+    <nav class="navbar navbar-static-top kommonitor-theme" role="navigation">
       <!-- Sidebar toggle button-->
       <a href="" class="sidebar-toggle" data-toggle="push-menu" role="button">
         <span class="sr-only">Toggle navigation</span>
@@ -21,6 +21,9 @@
 
       <!-- witch back to KomMonitor Main Application -->
       <a href="#!/" class="btn btn-danger" style="margin-top:8px;" ng-click="switchToMapApplication()"><i class="fas fa-user-cog"></i>&nbsp;&nbsp;Administration verlassen</a>
+      
+      <!-- TODO: handle redirection with global filter parameter -->
+      <!-- <a ng-href="/#!/?application={{$ctrl.kommonitorGlobalFilterHelperServiceInstance.applicationFilterId}}" class="btn btn-danger" style="margin-top:8px;" ng-click="switchToMapApplication()"><i class="fas fa-user-cog"></i>&nbsp;&nbsp;Administration verlassen</a> -->
 
       <!-- user profile information -->
         <a id="userLogin" ng-mouseover="showUserInfo = true" ng-init="showUserInfo = false" title="User and Session Info" style="font-size:1.2em; float: right; margin-right: 2%; margin-left: 2%; margin-top: 1%;"><i class="fas fa-user-cog" style="color:white;"></i></a>
@@ -135,7 +138,7 @@
               </span>
           </a>
           <ul class="treeview-menu">
-            <li id="adminSpatialUnitsNavItem"><a data-toggle="tab" data-target="#spatialUnitsWrapper" ng-click="onClickGeodataAdminPanel('adminSpatialUnitsNavItem')" href=""><i class="fas fa-layer-group"></i> <span>Raumeinheiten</span></a></li>
+            <li id="adminSpatialUnitsNavItem"><a data-toggle="tab" data-target="#spatialUnitsWrapper" ng-click="onClickGeodataAdminPanel('adminSpatialUnitsNavItem')" href=""><i class="fas fa-layer-group"></i> <span>Raumebenen</span></a></li>
             <li id="adminIndicatorsNavItem"><a data-toggle="tab" data-target="#indicatorsWrapper" ng-click="onClickGeodataAdminPanel('adminIndicatorsNavItem')" href=""><i class="fas fa-sitemap"></i> <span>Indikatoren</span></a></li>
             <li id="adminGeoresourcesNavItem"><a data-toggle="tab" data-target="#georesourcesWrapper" ng-click="onClickGeodataAdminPanel('adminGeoresourcesNavItem')" href=""><i class="fas fa-map-marked-alt"></i> <span>Georessourcen</span></a></li>
           </ul>
@@ -153,6 +156,7 @@
             <!-- hide keycloak settings screen as those config must not be changed by any user directly -->
             <!-- <li id="adminKeycloakConfigNavItem"><a data-toggle="tab" data-target="#keycloakConfigWrapper" ng-click="onClickConfigAdminPanel('adminKeycloakConfigNavItem')" href=""><i class="fas fa-users-cog"></i> <span>Keycloak-Konfiguration</span></a></li> -->
             <li id="adminControlsConfigNavItem"><a data-toggle="tab" data-target="#controlsConfigWrapper" ng-click="onClickConfigAdminPanel('adminControlsConfigNavItem')" href=""><i class="far fa-eye-slash"></i> <span>Widget-Konfiguration</span></a></li>
+            <li id="adminFilterConfigNavItem"><a data-toggle="tab" data-target="#filterConfigWrapper" ng-click="onClickConfigAdminPanel('adminFilterConfigNavItem')" href=""><i class="fa fa-filter"></i> <span>Filter-Konfiguration</span></a></li>
           </ul>
         </li>
 
@@ -240,6 +244,12 @@
 
       </div>
 
+      <div id="filterConfigWrapper" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.checkAdminPermission()" class="tab-pane fade in">
+
+      <admin-filter-config></admin-filter-config>
+
+      </div>
+
       <!-- Modal -->
       <spatial-unit-add-modal></spatial-unit-add-modal>
 
@@ -317,6 +327,11 @@
       <!-- Modal -->
       <role-delete-modal></role-delete-modal>
 
+      <!-- Modal -->
+      <admin-filter-add-modal></admin-filter-add-modal>
+
+      <!-- Modal -->
+      <admin-filter-edit-modal></admin-filter-edit-modal>
 
       <!-- Modal -->
       <batch-update-result-modal></batch-update-result-modal>

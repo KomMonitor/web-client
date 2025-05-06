@@ -2591,8 +2591,28 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 		$scope.selectedTemplate = undefined;
 
 		$scope.$on('reportingInitializeTemplateSelect', function(event, data) {
+
+      if(kommonitorDataExchangeService.customReportFontSize)
+        $scope.setCustomReportStyle();
+
 			$scope.initialize();
 		});
+
+    $scope.setCustomReportStyle = function() {
+      
+      var style = (function() {
+        var style = document.createElement("style");
+    
+        // WebKit hack
+        style.appendChild(document.createTextNode(""));
+  
+        document.head.appendChild(style);  
+        return style;
+      })();
+      style.sheet.insertRule('.reporting-custom-css {font-size:'+kommonitorDataExchangeService.customReportFontSize+'px !important;}', 0);
+
+      console.log('Custom report CSS set');
+    }
 
 		$scope.initialize = function() {
 			// open first category

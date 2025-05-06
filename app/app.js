@@ -68,7 +68,22 @@ function ajaxCall_controlsConfig(configStorageServerConfig) {
         console.log("Use controls-config.json local backup default values that has no widget restrictions.");
       }
   });
-}  
+}
+
+function ajaxCall_filterConfig(configStorageServerConfig) {
+  console.log("try to fetch filter config file");
+  return  $.ajax({
+      url: configStorageServerConfig.targetUrlToConfigStorageServer_filterConfig,
+      success: function(result){
+        console.log("filter config file fetched");
+        window.__env.filterConfig = result;
+        return; 
+      },
+      error: function(XMLHttpRequest, textStatus, errorThrown) { 
+        console.log("Use filter-config.json local backup default values that has no widget restrictions.");
+      }
+  });
+} 
 
 
 /*
@@ -98,6 +113,20 @@ function ajaxCall_controlsConfig_localBackup(configStorageServerConfig) {
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) { 
       console.log("Error parsing local controlsConfig.json backup file");
+    }
+});
+}
+
+function ajaxCall_filterConfig_localBackup(configStorageServerConfig) {
+  return  $.ajax({
+    url: "./config/filter-config_backup.json",
+    success: function(result){
+      console.log("local filter-config file with default values fetched");
+      window.__env.filterConfig = result;
+      return;
+    },
+    error: function(XMLHttpRequest, textStatus, errorThrown) { 
+      console.log("Error parsing local filterConfig.json backup file");
     }
 });
 }  
@@ -134,7 +163,7 @@ function ajaxCall_configServerFile() {
         });
     
 
-        return $.when(ajaxCall_keycloakConfig(window.__env.configStorageServerConfig), ajaxCall_controlsConfig(window.__env.configStorageServerConfig), ajaxCall_appConfig(window.__env.configStorageServerConfig)).then(function(ajax1Results,ajax2Results, ajax3Results){
+        return $.when(ajaxCall_keycloakConfig(window.__env.configStorageServerConfig), ajaxCall_controlsConfig(window.__env.configStorageServerConfig),  ajaxCall_filterConfig(window.__env.configStorageServerConfig), ajaxCall_appConfig(window.__env.configStorageServerConfig)).then(function(ajax1Results,ajax2Results, ajax3Results){
           console.log("all configs have been loaded");
 
           initAngularComponents();
@@ -160,7 +189,7 @@ var loadConfigsThenApp = function(){
 
   console.log("start loading required config files");
 
-  $.when(ajaxCall_keycloakConfig_localBackup(window.__env.configStorageServerConfig), ajaxCall_controlsConfig_localBackup(window.__env.configStorageServerConfig)).then(function(ajax1Results,ajax2Results){
+  $.when(ajaxCall_keycloakConfig_localBackup(window.__env.configStorageServerConfig), ajaxCall_controlsConfig_localBackup(window.__env.configStorageServerConfig), ajaxCall_filterConfig_localBackup(window.__env.configStorageServerConfig)).then(function(ajax1Results,ajax2Results){
     console.log("local backup configs have been loaded in case config server is not reachable.");
 
     ajaxCall_configServerFile();

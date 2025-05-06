@@ -38,7 +38,7 @@
 							<select style="font-size: 12px;"
 								size="5" ng-model="targetSpatialUnit" ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits"
 								ng-change="onChangeTargetSpatialUnit()" class="form-control" required>
-								<option value="" selected disabled>-- Ziel-Raumeinheit w&auml;hlen --</option>
+								<option value="" selected disabled>-- Ziel-Raumebene w&auml;hlen --</option>
 								<option
 									ng-repeat="spatialUnit in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits"></option>
 							</select>

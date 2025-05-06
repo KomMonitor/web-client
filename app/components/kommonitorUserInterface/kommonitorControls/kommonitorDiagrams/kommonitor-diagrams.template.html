@@ -14,7 +14,7 @@
 		<br/>
 		<br/>
 		<br/>
-		<h4>gew&auml;hlte Raumebene enth&auml;lt zu viele Features. Balkendiagramm kann nicht dargestellt werden.</h4>
+		<h4>gew&auml;hlte Raumebene enth&auml;lt zu viele Raumeinheiten. Balkendiagramm kann nicht dargestellt werden.</h4>
 		<br/>
 		<br/>
 		<br/>
@@ -23,8 +23,8 @@
 	<!-- BAR CHART -->
 				<div ng-show="!isTooManyFeatures" style="margin-bottom: 10px;" class="box box-success">
 					<div class="box-header with-border">
-						<h3 ng-if="date" class="box-title">Feature-Vergleich - {{spatialUnitName}} - {{date}}</h3>
-						<h3 ng-if="fromDate && toDate" class="box-title">Feature-Vergleich - {{spatialUnitName}} - Bilanz {{fromDate}} - {{toDate}}</h3>
+						<h3 ng-if="date" class="box-title">Raumeinheits-Vergleich - {{spatialUnitName}} - {{date}}</h3>
+						<h3 ng-if="fromDate && toDate" class="box-title">Raumeinheits-Vergleich - {{spatialUnitName}} - Bilanz {{fromDate}} - {{toDate}}</h3>
 						
 						<div class="box-tools pull-right">
 							<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
@@ -43,7 +43,7 @@
 									</div>
 								</div>
 								<div class="col-md-6" style="text-align: right;">
-									<b title="Checkbox zur Wahl, ob Label der Raumeinheiten im Diagramm angezeigt werden sollen">Namen der Raumeinheiten darstellen?</b>
+									<b title="Checkbox zur Wahl, ob Label der Raumebenen im Diagramm angezeigt werden sollen">Namen der Raumeinheiten darstellen?</b>
 									&nbsp;
 									<label class="switch">
 										<input type="checkbox" value="$ctrl.kommonitorDataExchangeServiceInstance.showBarChartLabel" ng-model="$ctrl.kommonitorDataExchangeServiceInstance.showBarChartLabel" ng-change="onChangeShowBarChartLabel()"

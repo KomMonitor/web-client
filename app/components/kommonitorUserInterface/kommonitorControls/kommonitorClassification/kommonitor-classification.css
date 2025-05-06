@@ -196,8 +196,8 @@ select {
   color: white;
     text-shadow: none;
     padding: 1px 5px;
-    background-color: #428bca;
-    background: linear-gradient(to bottom, #428bca 0%, #3071a9 100%);
+    background-color: var(--kommonitor-light);
+    background: linear-gradient(to bottom, var(--kommonitor-light) 0%, var(--kommonitor-primary) 100%);
     border-radius: 3px;
   margin-top: -10px;
   height: 20px;

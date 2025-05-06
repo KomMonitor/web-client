@@ -1,0 +1,41 @@
+/* Use this CSS file for custom layouts */
+
+/* :root { 
+  Setting a custom color theme
+	--kommonitor-primary: #017925;
+
+  There are also some shades of the primary color, which will be calculated automatically.
+  If you wish to set your own shades, just overwrite these variables with a custom color or calculation.
+  By default, the shades will be calculated within the app.css as follows:
+  --kommonitor-light: hsl(from var(--kommonitor-primary) h calc(s - 10) calc(l - 10));
+	--kommonitor-dark: hsl(from var(--kommonitor-primary) h calc(s + 10) calc(l + 10));
+
+	--kommonitor-primary-20: rgb(from var(--kommonitor-primary) r g b / 0.2);
+	--kommonitor-primary-40: rgb(from var(--kommonitor-primary) r g b / 0.4);
+	--kommonitor-primary-60: rgb(from var(--kommonitor-primary) r g b / 0.6);
+  
+  Custom font family for UserInterface. 
+  Working examples: --custom-font-family: "Comic Sans MS", "Comic Sans";
+  
+  --custom-font-family: "Comic Sans MS", "Comic Sans"; 
+  
+  Custom font family for PDF export, as this does not support the build-in font families and needs to be imported separately 
+  Supporting internal ttf files only
+    
+  Internal fonts need to be placed as ttf in 'app/fonts/' without special chars and white spaces
+  Working example for file "Comic_Sans_internal.ttf": --custom-font-file: "Comic_Sans_internal.ttf";
+    
+  
+  --custom-font-file: "Roboto-Regular.ttf";
+}  
+
+If you want to use a custom font, which you provide via *.ttf file, you have to set the
+@font-face rule as follows. Set a custom font-family name, which can be used for the 
+--custom-font-family variable inside the :root class as well as the source url to the font file.
+
+@font-face {
+  font-family: "Roboto-Regular";
+  src: url("fonts/Roboto-Regular.ttf");
+}
+
+*/

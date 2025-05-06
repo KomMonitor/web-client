@@ -207,7 +207,7 @@
 												<label>Räumlicher Filter*</label>
 												<select id="datasourceTypeParameter_georesourceEditFeatures_bboxType" ng-model="bboxType" class="form-control" required>
 													<option disabled selected value> -- Filter w&auml;hlen -- </option>
-													<option value="ref"> Referenzraumeinheit </option>
+													<option value="ref"> Referenzraumebene </option>
 													<option value="literal"> Manueller Begrenzungsrahmen </option>
 												</select>
 
@@ -217,10 +217,10 @@
 															ng-model="bboxRefSpatialUnit"
 															ng-options="spatialUnit.spatialUnitLevel for spatialUnit in availableSpatialUnits track by spatialUnit.spatialUnitId"
 															class="form-control" ng-required="bboxType == 'ref'">
-														<option disabled selected value> -- Raumeinheit w&auml;hlen -- </option>
+														<option disabled selected value> -- Raumebene w&auml;hlen -- </option>
 													</select>
 													<div class="help-block">
-														<p>Raumeinheit aus welchem ein umschließendes Rechteck extrahiert wird</p>
+														<p>Raumebene aus welchem ein umschließendes Rechteck extrahiert wird</p>
 													</div>
 												</div>
 												<div ng-show="bboxType == 'literal'">

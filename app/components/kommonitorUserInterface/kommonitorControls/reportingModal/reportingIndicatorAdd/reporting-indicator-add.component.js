@@ -1943,6 +1943,10 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			options.visualMap.axisLabel = { "fontSize": 10 };
 			options.toolbox.show = false;
 			options.visualMap.left = "right";
+			options.tooltip.formatter = function(params) {
+				let valueString = params.name + '<br />' + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(params.value, $scope.selectedIndicator.precision);
+				return valueString;
+			  };
 			let series = options.series[0];
 			series.roam = false;
 			series.selectedMode = false;
@@ -1967,6 +1971,9 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			} else {
 				options.visualMap.show = false;
 			}
+			options.visualMap.formatter = function(value1, value2) {
+				return kommonitorDataExchangeService.getIndicatorValue_asFormattedText(value1, $scope.selectedIndicator.precision) + "-<" + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(value2, $scope.selectedIndicator.precision);
+			  };
 
 			series.data.forEach( el => {
 				el.itemStyle =  el.itemStyle ? el.itemStyle : {};
@@ -1978,7 +1985,11 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				if(pageElement.classify === false) {
 					if( areaNames.includes(el.name) ) {
 						// show selected areas (don't classify color by value)
-						el.label.formatter = '{b}\n{c}';
+						// el.label.formatter = '{b}\n{c}';
+						el.label.formatter = function(params) {
+							let valueString = params.name + '\n' + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(params.value, $scope.selectedIndicator.precision);
+							return valueString;
+						  };
 						el.label.show = true;
 						el.label.textShadowColor = '#ffffff';
 						el.label.textShadowBlur = 2;
@@ -2000,7 +2011,10 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				
 					if( areaNames.includes(el.name) ) {
 						el.visualMap = true;
-						el.label.formatter = '{b}\n{c}';
+						el.label.formatter = function(params) {
+							let valueString = params.name + '\n' + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(params.value, $scope.selectedIndicator.precision);
+							return valueString;
+						  };
 						// get color from visual map to overwrite yellow color
 						let color = "rgba(0, 0, 0, 0.5)"; 
 						let opacity = 1;
@@ -2151,7 +2165,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			});
 			let timestamp = dateElement.text;
 
-			let avg = $scope.calculateAvg( $scope.selectedIndicator, timestamp, calcForSelection );
+			let avg = $scope.getFormattedAvg( $scope.selectedIndicator, timestamp, calcForSelection );
 			pageElement.text = avg;
 			pageElement.css = "border: solid 1px lightgray; padding: 2px;"
 			pageElement.isPlaceholder = false;
@@ -2161,8 +2175,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		$scope.createPageElement_Change = function(page, pageElement, calcForSelection) {
 			// get the timeseries from slider, not from dom because dom might not be up to date yet
 			let timeseries = $scope.getFormattedDateSliderValues(true);
-	
-			let change = $scope.calculateChange( $scope.selectedIndicator, timeseries, calcForSelection );
+
+			let change = $scope.getFormattedChange( $scope.selectedIndicator, timeseries, calcForSelection );
 			pageElement.text = change;
 			pageElement.css = "border: solid 1px lightgray; padding: 2px;";
 			pageElement.isPlaceholder = false;
@@ -2189,6 +2203,21 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			options.grid.top = 35;
 			options.grid.bottom = 5;
 			options.toolbox.show = false;
+			options.tooltip.formatter = function(params) {
+				// let valueString = params.name + '<br />' + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(params.value, $scope.selectedIndicator.precision);
+				var valueString = '';
+				if (params.componentType === 'markLine') {
+					if ($scope.selectedIndicator.precision < 2) {
+						valueString = params.name + '<br />' + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(params.value, 2);	
+					} else {
+						valueString = params.name + '<br />' + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(params.value, $scope.selectedIndicator.precision);
+					}
+					
+				} else {
+					valueString = params.name + '<br />' + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(params.value, $scope.selectedIndicator.precision);
+				}
+				return valueString;
+			  };
 			options.visualMap[0].show = false; // only needed to set the color for avg
 			options.xAxis.axisLabel.show = true;
 			options.yAxis.name = ""; // included in header of each page
@@ -2198,6 +2227,14 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			options.textStyle.color = "black";
 			options.textStyle.textShadowColor = '#ffffff';
 			options.textStyle.textShadowBlur = 2;
+			options.series[0].markLine.label.formatter = function(params) {
+				if($scope.selectedIndicator.precision < 2) {
+					return kommonitorDataExchangeService.getIndicatorValue_asFormattedText(params.value, 2);
+				} else {
+					return kommonitorDataExchangeService.getIndicatorValue_asFormattedText(params.value, $scope.selectedIndicator.precision);
+				}
+				
+			  };
 			
 			// filter series data and xAxis labels
 			if(page.area && page.area.length) {
@@ -2225,8 +2262,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			});
 
 			// add data element for the overall average
-			let overallAvgValue = $scope.calculateAvg($scope.selectedIndicator, timestamp, false);
-			let overallAvgElementName = (page.area && page.area.length) ? "Durchschnitt\nder\nRaumeinheit" : "Durchschnitt der Raumeinheit";
+			let overallAvgValue = $scope.getFormattedAvg($scope.selectedIndicator, timestamp, false);
+			let overallAvgElementName = (page.area && page.area.length) ? "Durchschnitt\nder\nRaumebene" : "Durchschnitt der Raumebene";
 			let dataObjOverallAvg = {
 				name: overallAvgElementName,
 				value: overallAvgValue,
@@ -2246,7 +2283,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 			// same for selection average
 			// add more data elements for the overall and selection average
-			let selectionAvgValue = $scope.calculateAvg($scope.selectedIndicator, timestamp, true);
+			let selectionAvgValue = $scope.getFormattedAvg($scope.selectedIndicator, timestamp, true);
 			let selectionAvgElementName = (page.area && page.area.length) ? "Durchschnitt\nder\nSelektion" : "Durchschnitt der Selektion";
 			let dataObjSelectionAvg = {
 				name: selectionAvgElementName,
@@ -2289,6 +2326,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			options.grid.bottom = 5;
 			options.title.show = true;
 			options.toolbox.show = false;
+			options.tooltip.show = false;
 			options.yAxis.name = ""; // included in header of each page
 			options.xAxis.name = ""; // always timestamps
 
@@ -2519,11 +2557,11 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			if($scope.template.name.includes("timestamp")) {
 				rowsData.push({
 					name: "Durchschnitt Selektion",
-					value:  $scope.calculateAvg($scope.selectedIndicator, timestamp, true)
+					value: $scope.getFormattedAvg($scope.selectedIndicator, timestamp, true)
 				});
 				rowsData.push({
 					name: "Durchschnitt Gesamtstadt",
-					value:  $scope.calculateAvg($scope.selectedIndicator, timestamp, false)
+					value:  $scope.getFormattedAvg($scope.selectedIndicator, timestamp, false)
 				});
 				
 			}
@@ -2642,7 +2680,12 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 									}
 								
 									if(colName === "Wert") {
-										td.innerText = rowsData[j].value;
+										// Averge values have already been formatted
+										if (rowsData[j].name === "Durchschnitt Selektion" || rowsData[j].name === "Durchschnitt Gesamtstadt") {
+											td.innerText = rowsData[j].value;
+										} else {
+											td.innerText = kommonitorDataExchangeService.getIndicatorValue_asFormattedText(rowsData[j].value, $scope.selectedIndicator.precision);
+										}
 										td.classList.add("text-right");
 									}
 								
@@ -2712,6 +2755,15 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			return avg;
 		}
 
+		$scope.getFormattedAvg = function(indicator, timestamp, calcForSelection) {
+			let avg = $scope.calculateAvg(indicator, timestamp, calcForSelection);
+			if(indicator.precision < 2) {
+				return kommonitorDataExchangeService.getIndicatorValue_asFormattedText(avg, 2);
+			} else {
+				return kommonitorDataExchangeService.getIndicatorValue_asFormattedText(avg, indicator.precision);
+			}
+		}
+
 		$scope.calculateChange = function(indicator, timeseries, calcForSelection) {
 			let data = $scope.calculateSeriesDataForTimeseries(indicator.geoJSON.features, timeseries);
 			if(calcForSelection) {
@@ -2733,6 +2785,15 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			let avgChange = sum / data.length - noDataCounter;
 			avgChange = Math.round(avgChange * 100) / 100; // 2 decimal places
 			return avgChange;
+		}
+
+		$scope.getFormattedChange = function(indicator, timeseries, calcForSelection) {
+			let change = $scope.calculateChange(indicator, timeseries, calcForSelection);
+			if(indicator.precision < 2) {
+				return kommonitorDataExchangeService.getIndicatorValue_asFormattedText(change, 2);
+			} else {
+				return kommonitorDataExchangeService.getIndicatorValue_asFormattedText(change, indicator.precision);
+			}
 		}
 
 

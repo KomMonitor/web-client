@@ -91,7 +91,7 @@
 															<th>Datengrundlage</th>
 															<th>Tags/Stichworte</th>
 															<th>Themenhierarchie</th>
-															<th>Verf&uuml;gbare Raumeinheiten</th>
+															<th>Verf&uuml;gbare Raumebenen</th>
 															<th>Verf&uuml;gbare Zeitpunkte</th>
 															<!-- <th>Referenzierte Indikatoren</th>
 																							  <th>Referenzierte Georessourcen</th> -->
@@ -101,7 +101,7 @@
 															<th>Aktualisierungszyklus</th>
 															<th>Quellen / Literatur</th>
 															<th>Bemerkung</th>
-															<th>Niedrigste Raumeinheit f&uuml;r Berechnung</th>
+															<th>Niedrigste Raumebene f&uuml;r Berechnung</th>
 															<th>Klassifizierung</th>
 															<!-- <th>OGC Dienste</th> -->
 														</tr>
@@ -187,7 +187,7 @@
 																					  <li style="margin-right: 15px;" ng-repeat="ogcService in selectedIndicatorDataset.ogcServices">
 																						  <ul>
 																							  <li>
-																								  <b>Raumeinheit: </b> {{ogcService.spatialUnit}}
+																								  <b>Raumebene: </b> {{ogcService.spatialUnit}}
 																							  </li>
 																							  <li>
 																								  <b>WMS: </b> {{ogcService.wmsUrl}}
@@ -404,7 +404,7 @@
 								<h4><i class="icon fa fa-check"></i>Folgende Indikatoren-Daten sowie assoziierte Indikatoren- und Georessourcen-Referenzen und Skripte, bei denen Indikatoren als Berechnungsgrundlage verwendet werden, wurden erfolgreich gel&ouml;scht</h4>
 
 								<div ng-if="(successfullyDeletedDatasets).length > 0">
-									<h4>Gesamter Indikatorendatensatz (Metadaten sowie alle Zeitreihen-Werte und Raumeinheiten)</h4>
+									<h4>Gesamter Indikatorendatensatz (Metadaten sowie alle Zeitreihen-Werte und Raumebenen)</h4>
 									<ul>
 					            <li ng-repeat="dataset in successfullyDeletedDatasets">{{dataset.indicatorName}}</li>
 									</ul>
@@ -504,7 +504,7 @@
 						<table class="table table-bordered table-condensed" style="width:100%; overflow:auto; font-size: 11px;">
 							<thead>
 							<tr>
-							  <th>Raumeinheit</th>
+							  <th>Raumebene</th>
 							  <th>Fehlermeldung</th>
 							</tr>
 							</thead>

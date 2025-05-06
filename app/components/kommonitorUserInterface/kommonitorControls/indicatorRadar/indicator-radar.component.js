@@ -172,7 +172,7 @@ angular
 								for (var indicatorPropertyInstance of indicatorProperties) {
 									// for average only apply real numeric values
 									if (!kommonitorDataExchangeService.indicatorValueIsNoData(indicatorPropertyInstance[DATE_PREFIX + indicatorsForRadar[i].selectedDate])) {
-										var value = kommonitorDataExchangeService.getIndicatorValueFromArray_asNumber(indicatorPropertyInstance, indicatorsForRadar[i].selectedDate)
+										var value = kommonitorDataExchangeService.getIndicatorValueFromArray_asNumber(indicatorPropertyInstance, indicatorsForRadar[i].selectedDate, indicatorsForRadar[i].indicatorMetadata.precision)
 										valueSum += value;
 
 										if (value > maxValue)
@@ -197,11 +197,12 @@ angular
 								indicatorArrayForRadarChart.push({
 									name: indicatorsForRadar[i].indicatorMetadata.indicatorName + " - " + indicatorsForRadar[i].selectedDate,
 									unit: indicatorsForRadar[i].indicatorMetadata.unit,
+									precision: indicatorsForRadar[i].indicatorMetadata.precision,
 									max: maxValue,
 									min: minValue
 								});
-
-								defaultSeriesValueArray.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(Number(valueSum / indicatorProperties.length)));
+								
+								defaultSeriesValueArray.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(Number(valueSum / indicatorProperties.length), indicatorsForRadar[i].indicatorMetadata.precision));
 								// }
 							}
 
@@ -224,8 +225,15 @@ angular
 							// 	$scope.radarChart.dispose();
 							// 	$scope.radarChart = echarts.init(document.getElementById('radarDiagram'));
 							// }
+              
+              //get custom fontFamily
+              var elem = document.querySelector('#fontFamily-reference');
+              var style = getComputedStyle(elem);
 
 							$scope.radarOption = {
+                textStyle: {
+                  fontFamily: style.fontFamily
+                },
 								grid: {
 									left: '4%',
 									top: 0,
@@ -246,7 +254,7 @@ angular
 										var string = "" + params.name + "<br/>";
 
 										for (var index = 0; index < params.value.length; index++) {
-											string += $scope.radarOption.radar.indicator[index].name + ": " + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(params.value[index]) + " [" + $scope.radarOption.radar.indicator[index].unit + "]<br/>";
+											string += $scope.radarOption.radar.indicator[index].name + ": " + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(params.value[index], $scope.radarOption.radar.indicator[index].precision) + " [" + $scope.radarOption.radar.indicator[index].unit + "]<br/>";
 										};
 
 										return string;
@@ -285,7 +293,7 @@ angular
 												var htmlString = '<table id="' + dataTableId + '" class="table table-bordered table-condensed" style="width:100%;text-align:center;">';
 												htmlString += "<thead>";
 												htmlString += "<tr>";
-												htmlString += "<th style='text-align:center;'>Feature-Name</th>";
+												htmlString += "<th style='text-align:center;'>Raumeinheits-Name</th>";
 
 												for (var i = 0; i < indicators.length; i++) {
 													htmlString += "<th style='text-align:center;'>" + indicators[i].name + " [" + indicators[i].unit + "]</th>";
@@ -302,7 +310,7 @@ angular
 													htmlString += "<tr>";
 													htmlString += "<td>" + radarSeries[j].name + "</td>";
 													for (var k = 0; k < indicators.length; k++) {
-														htmlString += "<td>" + kommonitorDataExchangeService.getIndicatorValue_asNumber(radarSeries[j].value[k]) + "</td>";
+														htmlString += "<td>" + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(radarSeries[j].value[k], $scope.radarOption.radar.indicator[k].precision) + "</td>";
 													}
 													htmlString += "</tr>";
 												}
@@ -489,7 +497,7 @@ angular
 								for (var indicatorPropertyInstance of indicatorProperties) {
 									if (indicatorPropertyInstance[__env.FEATURE_NAME_PROPERTY_NAME] == featureProperties[__env.FEATURE_NAME_PROPERTY_NAME]) {
 										if (!kommonitorDataExchangeService.indicatorValueIsNoData(indicatorPropertyInstance[DATE_PREFIX + date])) {
-											featureSeries.value.push(kommonitorDataExchangeService.getIndicatorValueFromArray_asNumber(indicatorPropertyInstance, date));
+											featureSeries.value.push(kommonitorDataExchangeService.getIndicatorValueFromArray_asNumber(indicatorPropertyInstance, date, kommonitorDiagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime[i].indicatorMetadata.precision));
 										}
 										else {
 											featureSeries.value.push(null);
