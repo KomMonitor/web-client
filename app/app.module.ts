@@ -27,7 +27,8 @@ import {
   ajskommonitorShareHelperServiceProvider,
   ajskommonitorVisualStyleHelperServiceProvider, 
   ajskommonitorMapServiceProvider,
-  ajskommonitorGenericMapHelperServiceProvider} from 'app-upgraded-providers';
+  ajskommonitorGenericMapHelperServiceProvider,
+  ajskommonitorReachabilityHelperServiceProvider} from 'app-upgraded-providers';
 import { KommonitorLegendComponent } from 'components/ngComponents/userInterface/kommonitorLegend/kommonitor-legend.component';
 import { NgbCalendar, NgbDatepickerModule, NgbDateStruct, NgbAccordionModule, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
@@ -82,7 +83,8 @@ declare var MathJax;
     ajskommonitorDataGridHelperServiceProvider,ajskommonitorSingleFeatureMapServiceProvider,
     ajskommonitorDiagramHelperServiceProvider,ajskommonitorFilterHelperServiceProvider,
     ajskommonitorElementVisibilityHelperServiceProvider, ajskommonitorShareHelperServiceProvider,
-    ajskommonitorVisualStyleHelperServiceProvider, ajskommonitorMapServiceProvider, ajskommonitorGenericMapHelperServiceProvider,
+    ajskommonitorVisualStyleHelperServiceProvider, ajskommonitorMapServiceProvider, 
+    ajskommonitorGenericMapHelperServiceProvider, ajskommonitorReachabilityHelperServiceProvider,
     NgbModule,
     AuthService
   ],

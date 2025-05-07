@@ -14,6 +14,7 @@ import {kommonitorScriptHelperService} from'util/genericServices/kommonitorScrip
 import {kommonitorShareHelperService} from 'util/genericServices/kommonitorShareHelperService/kommonitor-share-helper-service.module'
 import {kommonitorSingleFeatureMapHelperService} from 'util/genericServices/kommonitorSingleFeatureMapHelperService/kommonitor-single-feature-map-helper-service.module'
 import {kommonitorVisualStyleHelperService} from 'util/genericServices/kommonitorVisualStyleHelperService/kommonitor-visual-style-helper-service.module'
+import {kommonitorReachabilityHelperService} from 'util/genericServices/kommonitorReachabilityHelperService/kommonitor-reachability-helper-service.module'
 
 export function kommonitorCacheHelperServiceFactory(injector:any){
     return injector.get('kommonitorCacheHelperService');
@@ -144,7 +145,6 @@ export const ajskommonitorSingleFeatureMapServiceProvider: any = {
 
 
 //visually style helper
-
 export function kommonitorVisualStyleHelperServiceFactory (injector:any){
     return injector.get('kommonitorVisualStyleHelperService')
 }
@@ -157,7 +157,6 @@ export const ajskommonitorVisualStyleHelperServiceProvider: any = {
 
   
 //element visibility helper
-
 export function kommonitorElementVisibilityHelperServiceFactory (injector:any){
   return injector.get('kommonitorElementVisibilityHelperService')
 }
@@ -169,7 +168,6 @@ export const ajskommonitorElementVisibilityHelperServiceProvider: any = {
 };
   
 // map service
-
 export function kommonitorMapServiceFactory (injector:any){
   return injector.get('kommonitorMapService')
 }
@@ -181,7 +179,6 @@ export const ajskommonitorMapServiceProvider: any = {
 };
 
 // generic map helper service
-
 export function kommonitorGenericMapHelperServiceFactory (injector:any){
   return injector.get('kommonitorGenericMapHelperService')
 }
@@ -191,6 +188,18 @@ export const ajskommonitorGenericMapHelperServiceProvider: any = {
   provide: 'kommonitorGenericMapHelperService',
   useFactory:kommonitorGenericMapHelperServiceFactory,
 };
+
+// reachability helper service
+export function kommonitorReachabilityHelperServiceFactory (injector:any){
+  return injector.get('kommonitorReachabilityHelperService')
+}
+
+export const ajskommonitorReachabilityHelperServiceProvider: any = {
+  deps: ['$injector'],
+  provide: 'kommonitorReachabilityHelperService',
+  useFactory:kommonitorReachabilityHelperServiceFactory,
+};
+
 
 
   export const serviceProviders: any[] = [
@@ -209,5 +218,6 @@ export const ajskommonitorGenericMapHelperServiceProvider: any = {
     ajskommonitorVisualStyleHelperServiceProvider,
     ajskommonitorElementVisibilityHelperServiceProvider,
     ajskommonitorMapServiceProvider,
-    ajskommonitorGenericMapHelperServiceProvider
+    ajskommonitorGenericMapHelperServiceProvider,
+    ajskommonitorReachabilityHelperServiceProvider
   ];
