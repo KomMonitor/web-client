@@ -253,8 +253,23 @@ export class DataExchangeService {
     this.ajskommonitorDataExchangeServiceeProvider.generateAndDownloadGeoresourceZIP(poi, geoJSON_string, fileName, extension, val);
   }
 
-  createDualListInputArray(areaNames, name, id) {
-    return this.ajskommonitorDataExchangeServiceeProvider.createDualListInputArray(areaNames, name, id);
+  createDualListInputArray(array, nameProperty, idProperty):any[] {
+    /* return this.ajskommonitorDataExchangeServiceeProvider.createDualListInputArray(areaNames, name, id);*/
+    var result:any[] = [];
+
+    if(array && Array.isArray(array)){
+      for (var i=0;i<array.length;i++) {
+        var obj = {};
+        obj["category"] = array[i][nameProperty];
+        obj["name"] = array[i][nameProperty];
+        if(idProperty && array[i][idProperty]!==undefined){
+          obj["id"] = array[i][idProperty];
+        }
+        result.push(obj);
+      }
+    }
+    
+    return result;
   }
 
   onRemovedFeatureFromSelection([selectedIndicatorFeatureIds]) {

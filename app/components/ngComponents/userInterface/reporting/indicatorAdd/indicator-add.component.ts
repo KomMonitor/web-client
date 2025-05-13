@@ -36,6 +36,7 @@ export class IndicatorAddComponent implements OnInit {
   isochronesRangeUnits;
   insertDatatableRowsInterval;
   intervalArr:any[] = [];
+  updateDiagramsInterval_areas;
   
   indicatorNameFilter = "";
   poiNameFilter = "";
@@ -50,12 +51,17 @@ export class IndicatorAddComponent implements OnInit {
   selectedSpatialUnit:any;
   selectedAreas = [];
 
+  // updated element of selected items in TimestampsDualList for comparison to new values
+  globalActualTimestampsSelectedItems:any[] = [];
+  globalActualTimestampsSelectedItemsInit = false;
+
   allSpatialUnitsForReachability;
 
   testOptions:any = {
     items: []
   }
   reloadManualList = false;
+  reloadTimestampsDualList = false;
 
   dualListAreasOptions:any = {
     items: [],
@@ -208,70 +214,73 @@ export class IndicatorAddComponent implements OnInit {
   $scope.$watchCollection('selectedAreas', function(newVal) {
     $scope.onSelectedAreasChanged(newVal)
   });
+  */
 
-  $scope.onSelectedAreasChanged = function(newVal) {
-    if( typeof($scope.template) === "undefined") return;
-    $scope.loadingData = true;
+  onSelectedAreasChanged(newVal) {
+    console.log("change called", newVal)
+    if( typeof(this.template) === "undefined") return;
+    this.loadingData = true;
     // to make things easier we remove all area-specific pages and recreate them using newVal
     // this approach is not optimized for performance and might have to change in the future
 
     // remove all area-specific pages
-    $scope.template.pages = $scope.template.pages.filter( page => {
+    this.template.pages = this.template.pages.filter( page => {
       return !page.hasOwnProperty("area")
     });
 
-    if($scope.template.name.includes("timestamp"))
-      $scope.updateAreasForTimestampTemplates(newVal)
-    if($scope.template.name.includes("timeseries"))
-      $scope.updateAreasForTimeseriesTemplates(newVal)
-    if($scope.template.name.includes("reachability"))
-      $scope.updateAreasForReachabilityTemplates(newVal)
+    if(this.template.name.includes("timestamp"))
+      this.updateAreasForTimestampTemplates(newVal)
+    if(this.template.name.includes("timeseries"))
+      this.updateAreasForTimeseriesTemplates(newVal)
+    if(this.template.name.includes("reachability"))
+      this.updateAreasForReachabilityTemplates(newVal)
 
-    let updateDiagramsInterval_areas;
-
-    async function updateDiagrams() {
-
-      if($scope.diagramsPrepared) {
-        $interval.cancel(updateDiagramsInterval_areas); // code below still executes once
+    this.updateDiagramsInterval_areas = setInterval(() => { 
+      
+      if(this.diagramsPrepared) {
+        clearInterval(this.updateDiagramsInterval_areas); // code below still executes once
       } else {
         return;
       }
-
       // diagrams are prepared, but dom has to be updated first, too
-        // we could filter the geoJson here to only include selected areas
-        // but for now we get all areas and filter them out after
-        let justChanged = false;
-        if($scope.isFirstUpdateOnIndicatorOrPoiLayerSelection) {
-          // Skip the update but set variable to false, so diagrams get updated on time update
-          // (relevant for indicator selection only)
-          $scope.isFirstUpdateOnIndicatorOrPoiLayerSelection = false;
-          justChanged = true;
-        } 
-        if($scope.template.name.includes("reachability") || ($scope.isFirstUpdateOnIndicatorOrPoiLayerSelection == false && justChanged == false)) {
-          await $scope.initializeAllDiagrams();
-          if(!$scope.template.name.includes("reachability")) {
-            // in reachability template we have to update leaflet maps, too
-            $scope.loadingData = false;
-          }
+      // we could filter the geoJson here to only include selected areas
+      // but for now we get all areas and filter them out after
+      let justChanged = false;
+      if(this.isFirstUpdateOnIndicatorOrPoiLayerSelection) {
+        // Skip the update but set variable to false, so diagrams get updated on time update
+        // (relevant for indicator selection only)
+        this.isFirstUpdateOnIndicatorOrPoiLayerSelection = false;
+        justChanged = true;
+      } 
+      if(this.template.name.includes("reachability") || (this.isFirstUpdateOnIndicatorOrPoiLayerSelection == false && justChanged == false)) {
+        
+        this.initializeAllDiagrams();
+        if(!this.template.name.includes("reachability")) {
+          // in reachability template we have to update leaflet maps, too
+          this.loadingData = false;
         }
-    }
-      updateDiagramsInterval_areas = $interval(updateDiagrams, 0, 100)
-    
+      }
+    }, 0, 100)
+  }
+
+  updateDiagrams() {
+
+   
   }
 
 
-  $scope.updateAreasForTimestampTemplates = function(newVal) {
-    let pagesToInsertPerTimestamp = [];
+  updateAreasForTimestampTemplates(newVal) {
+    let pagesToInsertPerTimestamp:any[] = [];
     for(let area of newVal) {
       // get page to insert from untouched template
-      let pageToInsert = angular.fromJson($scope.untouchedTemplateAsString).pages[ $scope.indexOfFirstAreaSpecificPage ];
+      let pageToInsert = fromJson(this.untouchedTemplateAsString).pages[ this.indexOfFirstAreaSpecificPage ];
       pageToInsert.area = area.name;
-      pageToInsert.id = $scope.templatePageIdCounter++;
+      pageToInsert.id = this.templatePageIdCounter++;
       pagesToInsertPerTimestamp.push(pageToInsert);
 
-      pageToInsert = angular.fromJson($scope.untouchedTemplateAsString).pages[ $scope.indexOfFirstAreaSpecificPage + 1];
+      pageToInsert = fromJson(this.untouchedTemplateAsString).pages[ this.indexOfFirstAreaSpecificPage + 1];
       pageToInsert.area = area.name;
-      pageToInsert.id = $scope.templatePageIdCounter++;
+      pageToInsert.id = this.templatePageIdCounter++;
       pagesToInsertPerTimestamp.push(pageToInsert);
     }
 
@@ -284,13 +293,13 @@ export class IndicatorAddComponent implements OnInit {
 
     // insert area-specific pages for each timestamp
     // right now the area-specific part is missing and we have to figure out where it was.
-    // get pages per timestamp -> insert new ones starting at indexOfFirstAreaSpecificPage -> replace per timestamp in $scope.template.pages
-    if($scope.selectedTimestamps.length) {
+    // get pages per timestamp -> insert new ones starting at indexOfFirstAreaSpecificPage -> replace per timestamp in this.template.pages
+    if(this.selectedTimestamps.length) {
       let idx = 0
-      for(let timestamp of $scope.selectedTimestamps) {
+      for(let timestamp of this.selectedTimestamps) {
 
         // pagesForTimestamp is the template-section for that timestamp
-        let pagesForTimestamp = $scope.template.pages.filter( page => {
+        let pagesForTimestamp = this.template.pages.filter( page => {
           let dateEl = page.pageElements.find( el => {
             return el.type.includes("dataTimestamp-")
           });
@@ -299,7 +308,7 @@ export class IndicatorAddComponent implements OnInit {
         });
         // set index to first page of that timestamp
         // this is where we want to start replacing pages later
-        idx = $scope.template.pages.indexOf( pagesForTimestamp[0] )
+        idx = this.template.pages.indexOf( pagesForTimestamp[0] )
         // create a deep copy so we can assign new ids
         pagesForTimestamp = JSON.parse(JSON.stringify(pagesForTimestamp));
         
@@ -309,7 +318,7 @@ export class IndicatorAddComponent implements OnInit {
           let titleEl = pageToInsert.pageElements.find( el => {
             return el.type.includes("indicatorTitle-")
           });
-          titleEl.text = $scope.selectedIndicator.indicatorName + " [" + $scope.selectedIndicator.unit + "]";
+          titleEl.text = this.selectedIndicator.indicatorName + " [" + this.selectedIndicator.unit + "]";
           if(pageToInsert.area) {
             titleEl.text += ", " + pageToInsert.area
           }
@@ -329,35 +338,35 @@ export class IndicatorAddComponent implements OnInit {
         // insert area-specific pages
         pagesToInsertPerTimestamp = JSON.parse(JSON.stringify(pagesToInsertPerTimestamp));
         for(let page of pagesToInsertPerTimestamp)
-          page.id = $scope.templatePageIdCounter++;
-        pagesForTimestamp.splice($scope.indexOfFirstAreaSpecificPage, 0, ...pagesToInsertPerTimestamp)
+          page.id = this.templatePageIdCounter++;
+        pagesForTimestamp.splice(this.indexOfFirstAreaSpecificPage, 0, ...pagesToInsertPerTimestamp)
         // assign new ids
         for(let page of pagesForTimestamp)
-          page.id = $scope.templatePageIdCounter++;
+          page.id = this.templatePageIdCounter++;
         // then replace the whole timstamp-section with the new pages
-        $scope.template.pages.splice(idx, numberOfPagesToReplace, ...pagesForTimestamp)
+        this.template.pages.splice(idx, numberOfPagesToReplace, ...pagesForTimestamp)
       }
     } else {
       pagesToInsertPerTimestamp = JSON.parse(JSON.stringify(pagesToInsertPerTimestamp));
       for(let page of pagesToInsertPerTimestamp)
-        page.id = $scope.templatePageIdCounter++;
+        page.id = this.templatePageIdCounter++;
       // no timestamp selected, which makes inserting easier
-      $scope.template.pages.splice($scope.indexOfFirstAreaSpecificPage, 0, ...pagesToInsertPerTimestamp)
+      this.template.pages.splice(this.indexOfFirstAreaSpecificPage, 0, ...pagesToInsertPerTimestamp)
     }
   }
 
-  $scope.updateAreasForTimeseriesTemplates = function(newVal) {
-    let pagesToInsert = [];
+  updateAreasForTimeseriesTemplates(newVal) {
+    let pagesToInsert:any[] = [];
     for(let area of newVal) {
       // get pages to insert from untouched template
-      let pageToInsert = angular.fromJson($scope.untouchedTemplateAsString).pages[ $scope.indexOfFirstAreaSpecificPage ];
+      let pageToInsert = fromJson(this.untouchedTemplateAsString).pages[ this.indexOfFirstAreaSpecificPage ];
       pageToInsert.area = area.name;
-      pageToInsert.id = $scope.templatePageIdCounter++;
+      pageToInsert.id = this.templatePageIdCounter++;
       pagesToInsert.push(pageToInsert);
 
-      pageToInsert = angular.fromJson($scope.untouchedTemplateAsString).pages[ $scope.indexOfFirstAreaSpecificPage + 1 ];
+      pageToInsert = fromJson(this.untouchedTemplateAsString).pages[ this.indexOfFirstAreaSpecificPage + 1 ];
       pageToInsert.area = area.name;
-      pageToInsert.id = $scope.templatePageIdCounter++;
+      pageToInsert.id = this.templatePageIdCounter++;
       pagesToInsert.push(pageToInsert);
     }
 
@@ -377,7 +386,7 @@ export class IndicatorAddComponent implements OnInit {
       let titleEl = pageToInsert.pageElements.find( el => {
         return el.type.includes("indicatorTitle-")
       });
-      titleEl.text = $scope.selectedIndicator.indicatorName + " [" + $scope.selectedIndicator.unit + "]";
+      titleEl.text = this.selectedIndicator.indicatorName + " [" + this.selectedIndicator.unit + "]";
       if(pageToInsert.area) {
         titleEl.text += ", " + pageToInsert.area
       }
@@ -387,7 +396,7 @@ export class IndicatorAddComponent implements OnInit {
         return el.type.includes("dataTimeseries-")
       });
       let includeInBetweenValues = false
-      let dsValues = $scope.getFormattedDateSliderValues(includeInBetweenValues);
+      let dsValues:any = this.getFormattedDateSliderValues(includeInBetweenValues);
       dateEl.text = dsValues.from + " - " + dsValues.to;
       dateEl.isPlaceholder = false;
 
@@ -397,23 +406,23 @@ export class IndicatorAddComponent implements OnInit {
     // insert area-specific pages
     pagesToInsert= JSON.parse(JSON.stringify(pagesToInsert));
     for(let page of pagesToInsert)
-      page.id = $scope.templatePageIdCounter++;
-    $scope.template.pages.splice($scope.indexOfFirstAreaSpecificPage, 0, ...pagesToInsert)
+      page.id = this.templatePageIdCounter++;
+    this.template.pages.splice(this.indexOfFirstAreaSpecificPage, 0, ...pagesToInsert)
   }
 
-  $scope.updateAreasForReachabilityTemplates = function(newVal) {
+  updateAreasForReachabilityTemplates(newVal) {
     // we only have one timestamp here (the most recent one)
-    let pagesToInsert = [];
+    let pagesToInsert:any[] = [];
     for(let area of newVal) {
       // get pages to insert from untouched template
-      let pageToInsert = angular.fromJson($scope.untouchedTemplateAsString).pages[ $scope.indexOfFirstAreaSpecificPage ];
+      let pageToInsert = fromJson(this.untouchedTemplateAsString).pages[ this.indexOfFirstAreaSpecificPage ];
       pageToInsert.area = area.name;
-      pageToInsert.id = $scope.templatePageIdCounter++;
+      pageToInsert.id = this.templatePageIdCounter++;
       pagesToInsert.push(pageToInsert);
 
-      pageToInsert = angular.fromJson($scope.untouchedTemplateAsString).pages[ $scope.indexOfFirstAreaSpecificPage + 1 ];
+      pageToInsert = fromJson(this.untouchedTemplateAsString).pages[ this.indexOfFirstAreaSpecificPage + 1 ];
       pageToInsert.area = area.name;
-      pageToInsert.id = $scope.templatePageIdCounter++;
+      pageToInsert.id = this.templatePageIdCounter++;
       pagesToInsert.push(pageToInsert);
     }
 
@@ -425,7 +434,7 @@ export class IndicatorAddComponent implements OnInit {
     });
 
     // we select the most recent timestamp programmatically and don't allow user to change it, so this should be 1 here
-    if($scope.selectedTimestamps.length === 1) {
+    if(this.selectedTimestamps.length === 1) {
 
       // setup pages before inserting
       for(let pageToInsert of pagesToInsert) {
@@ -433,7 +442,7 @@ export class IndicatorAddComponent implements OnInit {
         let titleEl = pageToInsert.pageElements.find( el => {
           return el.type.includes("indicatorTitle-")
         });
-        titleEl.text = "Entfernungen für " + $scope.selectedPoiLayer.datasetName;
+        titleEl.text = "Entfernungen für " + this.selectedPoiLayer.datasetName;
         if(pageToInsert.area) {
           titleEl.text += ", " + pageToInsert.area
         }
@@ -442,11 +451,11 @@ export class IndicatorAddComponent implements OnInit {
         let subtitleEl = pageToInsert.pageElements.find( el => {
           return el.type.includes("reachability-subtitle-")
         });
-        subtitleEl.text = $scope.selectedTimestamps[0].name;
-        if($scope.isochrones)
-          subtitleEl.text += ", " + $scope.isochronesTypeOfMovementMapping[$scope.typeOfMovement];
-        if($scope.selectedIndicator)
-          subtitleEl.text += ", " + $scope.selectedIndicator.indicatorName;
+        subtitleEl.text = this.selectedTimestamps[0].name;
+        if(this.isochrones)
+          subtitleEl.text += ", " + this.isochronesTypeOfMovementMapping[this.typeOfMovement];
+        if(this.selectedIndicator)
+          subtitleEl.text += ", " + this.selectedIndicator.indicatorName;
         subtitleEl.isPlaceholder = false;
 
         // diagrams have to be inserted later because the div element does not yet exist
@@ -454,22 +463,23 @@ export class IndicatorAddComponent implements OnInit {
 
       // create a deep copy so we can assign new ids
       pagesToInsert = JSON.parse(JSON.stringify(pagesToInsert));
-      let numberOfPagesToReplace = $scope.template.pages.length-2 // basically everything until the end of the template (-2 because we start at second page)
+      let numberOfPagesToReplace = this.template.pages.length-2 // basically everything until the end of the template (-2 because we start at second page)
       // insert area-specific pages
       for(let page of pagesToInsert)
-        page.id = $scope.templatePageIdCounter++;
+        page.id = this.templatePageIdCounter++;
 
-      $scope.template.pages.splice($scope.indexOfFirstAreaSpecificPage, numberOfPagesToReplace, ...pagesToInsert)
+      this.template.pages.splice(this.indexOfFirstAreaSpecificPage, numberOfPagesToReplace, ...pagesToInsert)
     }
   }
 
-
-
   // internal array changes do not work with ng-change
-  $scope.$watchCollection('selectedTimestamps', function(newVal, oldVal) {
+  onSelectedTimestampsChanged(newVal, oldVal) {
 
-    if( typeof($scope.template) === "undefined") return;
-    $scope.loadingData = true;
+    let mappedNewVal = newVal.map(e => e.name);
+    let mappedOldVal = oldVal.map(e => e.name);
+
+    if( typeof(this.template) === "undefined") return;
+    this.loadingData = true;
 
     // get difference between old and new value (the timestamps selected / deselected)
     let difference = oldVal
@@ -481,7 +491,7 @@ export class IndicatorAddComponent implements OnInit {
       // if this was the first timestamp
       if(newVal.length === 1) {
         // no need to insert pages, we just replace the placeholder timestamp
-        for(let page of $scope.template.pages) {
+        for(let page of this.template.pages) {
           for(let pageElement of page.pageElements) {
             if(pageElement.type.includes("dataTimestamp-")) {
               pageElement.text = difference[0].name;
@@ -495,17 +505,19 @@ export class IndicatorAddComponent implements OnInit {
         for(let timestampToInsert of difference) {
 
           // setup pages to insert first
-          let pagesToInsert = angular.fromJson($scope.untouchedTemplateAsString).pages;
+          let pagesToInsert = fromJson(this.untouchedTemplateAsString).pages;
           for(let page of pagesToInsert) {
-            page.id = $scope.templatePageIdCounter++;
+            page.id = this.templatePageIdCounter++;
           }
           // insert additional page for each selected area, replace the placeholder page
-          let areaSpecificPages = [];
+          let areaSpecificPages:any[] = [];
           // copy placeholder page for each selected area
-          for(let area of $scope.selectedAreas) {
-            let page = angular.fromJson($scope.untouchedTemplateAsString).pages[ $scope.indexOfFirstAreaSpecificPage ];
-            page.area = area.name;
-            page.id = $scope.templatePageIdCounter++;
+          for(let area of this.selectedAreas) {
+            
+            let tempArea:any = area;
+            let page = fromJson(this.untouchedTemplateAsString).pages[ this.indexOfFirstAreaSpecificPage ];
+            page.area = tempArea.name;
+            page.id = this.templatePageIdCounter++;
             areaSpecificPages.push(page);
           }
 
@@ -516,14 +528,14 @@ export class IndicatorAddComponent implements OnInit {
             return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
           })
 
-          pagesToInsert.splice($scope.indexOfFirstAreaSpecificPage, 1, ...areaSpecificPages)
+          pagesToInsert.splice(this.indexOfFirstAreaSpecificPage, 1, ...areaSpecificPages)
 
           // setup pages before inserting them
           for(let pageToInsert of pagesToInsert) {
             for(let pageElement of pageToInsert.pageElements) {
 
               if(pageElement.type.includes("indicatorTitle-")) {
-                pageElement.text = $scope.selectedIndicator.indicatorName + " [" + $scope.selectedIndicator.unit + "]";
+                pageElement.text = this.selectedIndicator.indicatorName + " [" + this.selectedIndicator.unit + "]";
                 if(pageToInsert.area) {
                   pageElement.text += ", " + pageToInsert.area
                 }
@@ -540,8 +552,8 @@ export class IndicatorAddComponent implements OnInit {
           // determine position to insert pages (ascending timestamps) and insert them
           // iterate pages and check timestamp for each one
           let pagesInserted = false;
-          for(let i=$scope.template.pages.length-1; i>=0; i--) { //iterate in reverse because we might extend the array while iterating
-            let page = $scope.template.pages[i];
+          for(let i=this.template.pages.length-1; i>=0; i--) { //iterate in reverse because we might extend the array while iterating
+            let page = this.template.pages[i];
 
             for(let pElement of page.pageElements) {
               if(pElement.type.includes("dataTimestamp-")) {
@@ -555,7 +567,7 @@ export class IndicatorAddComponent implements OnInit {
                 if(date1Updated > date2Updated) {
                   // insert pages before pages with that timestamp
                   // i+1 because we want to insert after the page that has the older timestamp
-                  $scope.template.pages.splice(i+1, 0, ...pagesToInsert);
+                  this.template.pages.splice(i+1, 0, ...pagesToInsert);
 
                   pagesInserted = true;
                 }
@@ -568,19 +580,19 @@ export class IndicatorAddComponent implements OnInit {
           }
           
           if( !pagesInserted ) { // happens if the timestamp to insert is the oldest one
-            $scope.template.pages.splice(0, 0, ...pagesToInsert); //prepend pages
+            this.template.pages.splice(0, 0, ...pagesToInsert); //prepend pages
           }
         }
 
         // in case all timestamps were added at once and none was present before we still have placeholder pages at this point
         // all other pages got prepended since we compared against an invalid date.
         // remove those pages
-        for(let i=$scope.template.pages.length-1; i>=0; i--) { //iterate in reverse because we might extend the array while iterating
-          let page = $scope.template.pages[i];
+        for(let i=this.template.pages.length-1; i>=0; i--) { //iterate in reverse because we might extend the array while iterating
+          let page = this.template.pages[i];
           for(let pElement of page.pageElements) {
             if(pElement.type.includes("dataTimestamp-")) {
               if(pElement.isPlaceholder) {
-                $scope.template.pages.splice(i, 1);
+                this.template.pages.splice(i, 1);
               }
             }
           }
@@ -592,15 +604,15 @@ export class IndicatorAddComponent implements OnInit {
     if(newVal.length < oldVal.length) {
       // if it was the last one
       if(newVal.length === 0) {
-        let cleanTemplate = angular.fromJson($scope.untouchedTemplateAsString);
+        let cleanTemplate = fromJson(this.untouchedTemplateAsString);
         for(let page of cleanTemplate.pages) {
-          page.id = $scope.templatePageIdCounter++;
+          page.id = this.templatePageIdCounter++;
         }
-        $scope.template = cleanTemplate;
+        this.template = cleanTemplate;
       } else {
         // remove all pages that belong to removed timestamps
         for(let timestampToRemove of difference) {
-          $scope.template.pages = $scope.template.pages.filter( page => {
+          this.template.pages = this.template.pages.filter( page => {
             let timestampEl = page.pageElements.find( el => {
               return el.type.includes("dataTimestamp-")
             })
@@ -615,57 +627,55 @@ export class IndicatorAddComponent implements OnInit {
     // but that one might change if we change the spatial unit
     if(newVal.length === oldVal.length && newVal.length === 1 && newVal[0].name != oldVal[0].name) {
       // simply update the timestamp on all pages
-      for(let page of $scope.template.pages) {
+      for(let page of this.template.pages) {
         for(let pageElement of page.pageElements) {
           if(pageElement.type.includes("reachability-subtitle-")) {
             pageElement.text = newVal[0].name;
-            if($scope.isochrones)
-              pageElement.text += ", " + $scope.isochronesTypeOfMovementMapping[$scope.typeOfMovement];
-            if($scope.selectedIndicator)
-              pageElement.text += ", " + $scope.selectedIndicator.indicatorName;
+            if(this.isochrones)
+              pageElement.text += ", " + this.isochronesTypeOfMovementMapping[this.typeOfMovement];
+            if(this.selectedIndicator)
+              pageElement.text += ", " + this.selectedIndicator.indicatorName;
           }
           break;
         }
       }
     }
 
-    function updateDiagrams() {
-      if($scope.diagramsPrepared) {
-        $interval.cancel(updateDiagramsInterval); // code below still executes once
+    let updateDiagramsInterval = setInterval(() => {
+      if(this.diagramsPrepared) {
+        clearInterval(updateDiagramsInterval); // code below still executes once
       } else {
         return;
       }
 
-      $timeout(async function() {
-        if($scope.isFirstUpdateOnIndicatorOrPoiLayerSelection) {
+      setTimeout(() => {
+        if(this.isFirstUpdateOnIndicatorOrPoiLayerSelection) {
           // Skip the update but set variable to false, so diagrams get updated on time update
           // (relevant for indicator selection only)
-          $scope.isFirstUpdateOnIndicatorOrPoiLayerSelection = false;
+          this.isFirstUpdateOnIndicatorOrPoiLayerSelection = false;
         } else {
           // indicator selection is optional in reachability template only
-          if($scope.selectedIndicator) {
-            for(let timestamp of $scope.selectedTimestamps) {
+          if(this.selectedIndicator) {
+            for(let timestamp of this.selectedTimestamps) {
               let classifyUsingWholeTimeseries = false;
               let isTimeseries = false;
-              $scope.prepareDiagrams($scope.selectedIndicator, $scope.selectedSpatialUnit, timestamp.name, classifyUsingWholeTimeseries, isTimeseries, undefined, undefined);
+              this.prepareDiagrams(this.selectedIndicator, this.selectedSpatialUnit, timestamp.name, classifyUsingWholeTimeseries, isTimeseries, undefined, undefined);
             }
           } else {
-            $scope.reachabilityTemplateGeoMapOptions = $scope.prepareReachabilityEchartsMap();
+            this.reachabilityTemplateGeoMapOptions = this.prepareReachabilityEchartsMap();
           }
 
-          await $scope.initializeAllDiagrams();
-          if(!$scope.template.name.includes("reachability")) {
+          this.initializeAllDiagrams();
+          if(!this.template.name.includes("reachability")) {
             // in reachability template we have to update leaflet maps, too
-            $scope.loadingData = false;
+            this.loadingData = false;
           }
         }
       });
-      
-    }
+    }, 0, 100);
 
-    let updateDiagramsInterval = $interval(updateDiagrams, 0, 100)
-  });
-  */
+  }
+ 
   reportingConfigureNewIndicatorShown() {
     this.initialize();
   }
@@ -908,7 +918,6 @@ export class IndicatorAddComponent implements OnInit {
           this.availableFeaturesBySpatialUnit[spatialUnit.spatialUnitName] = response.features
 
           let allAreas = this.availableFeaturesBySpatialUnit[spatialUnit.spatialUnitName];
-          console.log("hier");
           this.updateAreasDualList(allAreas, undefined) // don't select any areas
         }
       })
@@ -935,71 +944,90 @@ export class IndicatorAddComponent implements OnInit {
   }
 
   onUpdatedManualSelectedItems(event:any) {
-    
+    this.onSelectedAreasChanged(event)
+  }
+
+  onUpdatedManualSelectedTimestamps(event:any) {
+    console.log(event,this.globalActualTimestampsSelectedItems);
+    let temp = this.globalActualTimestampsSelectedItems;
+    this.onSelectedTimestampsChanged(event,temp);
+  }
+
+  updateTimestampsDualList(data, selectedItems) {
+
+    this.dualListTimestampsOptions.selectedItems = [];
+
+    let dualListInput = data.map( (el,i) => {
+      return {"name": el.properties.NAME, 'id':i} // we need this as an object for kommonitorDataExchangeService.createDualListInputArray
+    });
+    dualListInput = this.dataExchangeService.createDualListInputArray(dualListInput, "name",'id');
+    this.dualListTimestampsOptions.items = dualListInput;
+
+    // if there are items to select
+    if(selectedItems && selectedItems.length > 0) {
+      if(data.length === selectedItems.length) {
+        let dualListSelected = selectedItems.map( (el, i) => {
+          return {"name": el.properties.NAME, 'id': i} 
+        });
+        this.dualListTimestampsOptions.selectedItems = this.dataExchangeService.createDualListInputArray(dualListSelected, "name",'id');
+      } else {
+
+        let items:any[] = [];
+        let index:number = 0;
+        for(let item of selectedItems) {
+          if(item.hasOwnProperty("properties")) {
+            if(item.properties.hasOwnProperty("NAME")) {
+              items.push({'name':item.properties.NAME, 'id':index});
+              index++;
+            }
+          }
+        }
+        this.dualListTimestampsOptions.selectedItems = this.dataExchangeService.createDualListInputArray(items, "name",'id');
+      }
+    }
+
+    if(!this.globalActualTimestampsSelectedItemsInit) {
+    console.log("fire")
+      this.globalActualTimestampsSelectedItems = this.dualListTimestampsOptions.selectedItems;
+      this.globalActualTimestampsSelectedItemsInit = true;
+      console.log(this.globalActualTimestampsSelectedItems);
+    }
+    this.reloadTimestampsDualList = !this.reloadTimestampsDualList;
   }
 
   updateAreasDualList(data,selectedItems) {
     this.dualListAreasOptions.selectedItems = [];
 
-    let dualListInput = data.map( el => {
-      return {"name": el.properties.NAME, 'id': 1} // we need this as an object for kommonitorDataExchangeService.createDualListInputArray
+    let dualListInput = data.map( (el, i) => {
+      return {"name": el.properties.NAME, 'id': i} // we need this as an object for kommonitorDataExchangeService.createDualListInputArray
     });
-    dualListInput = this.dataExchangeService.createDualListInputArray(dualListInput, "name",0);
+    dualListInput = this.dataExchangeService.createDualListInputArray(dualListInput, "name",'id');
     this.dualListAreasOptions.items = dualListInput;
-    this.reloadAreasDualList = !this.reloadAreasDualList;
 
-    // $timeout is needed because we want to click on an element to select it.
-    // therefore we have to wait until the dual list is updated and the dom node exists
-    setTimeout( function() {
-      // if there are items to select
-      if(selectedItems && selectedItems.length > 0) {
-        // if all items should be selected we can use the "select all" button for better performance
-        if(data.length === selectedItems.length) {
-          /* let dualListBtnElement:any = undefined;
-          switch(options.label) {
-            case "Zeitpunkte":
-              dualListBtnElement = document.querySelectorAll("#reporting-indicator-add-timestamps-dual-list .duallistButton")[0];
-              break;
-            case "Bereiche":
-              dualListBtnElement = document.querySelectorAll("#reporting-indicator-add-areas-dual-list .duallistButton")[0];
-              break;
-            case "Raumebenen":
-              dualListBtnElement = document.querySelectorAll("#reporting-indicator-add-spatialUnits-dual-list .duallistButton")[0];
-              break;
-          }
-          dualListBtnElement.click(); */
-        } else {
-          for(let item of selectedItems) {
-            if(item.hasOwnProperty("properties")) {
-              if(item.properties.hasOwnProperty("NAME")) {
-                /* let name = item.properties.NAME
-                // remove item to select from left side and add to right side
-                // we can't filter programmatically here because the changes won't get applied to scope variables
-                // not even with $scope.$digest in a $timeout
-                // instead we click on the elements
-                // get dom element by name
-                let arr = [];
-                switch(options.label) {
-                  case "Zeitpunkte":
-                    arr = Array.from(document.querySelectorAll("#reporting-indicator-add-timestamps-dual-list a"));
-                    break;
-                  case "Bereiche":
-                    arr = Array.from(document.querySelectorAll("#reporting-indicator-add-areas-dual-list a"));
-                    break;
-                  case "Raumebenen":
-                    arr = Array.from(document.querySelectorAll("#reporting-indicator-add-spatialUnits-dual-list a"));
-                    break;
-                }
-                let el:any = arr.find((el:any) => {
-                  return el.textContent.includes(name)
-                });
-                el.click(); */
-              }
+    // if there are items to select
+    if(selectedItems && selectedItems.length > 0) {
+      if(data.length === selectedItems.length) {
+        let dualListSelected = selectedItems.map( (el, i) => {
+          return {"name": el.properties.NAME, 'id': i} 
+        });
+        this.dualListAreasOptions.selectedItems = this.dataExchangeService.createDualListInputArray(dualListSelected, "name",'id');;
+      } else {
+
+        let items:any[] = [];
+        let index:number = 0;
+        for(let item of selectedItems) {
+          if(item.hasOwnProperty("properties")) {
+            if(item.properties.hasOwnProperty("NAME")) {
+              items.push({'name':item.properties.NAME, 'id':index});
+              index++;
             }
           }
         }
+        this.dualListAreasOptions.selectedItems = this.dataExchangeService.createDualListInputArray(items, "name",'id');
       }
-    }, 500);
+    }
+
+    this.reloadAreasDualList = !this.reloadAreasDualList;
   }
 
   updateDualList(options, data, selectedItems) {
@@ -1474,7 +1502,6 @@ export class IndicatorAddComponent implements OnInit {
       // set indicator manually.
       // if we use ng-model it gets converted to string instead of an object
       this.selectedIndicator = indicator;
-      console.log(this.selectedIndicator);
 
       // get a new template (in case another indicator was selected previously)
       this.template = this.getCleanTemplate();
@@ -1567,7 +1594,8 @@ export class IndicatorAddComponent implements OnInit {
           let isTimeseries = true;
           this.prepareDiagrams(this.selectedIndicator, this.selectedSpatialUnit, mostRecentTimestampName, classifyUsingWholeTimeseries, isTimeseries, values.from, values.to);
         } else {
-          this.updateDualList(this.dualListTimestampsOptions, availableTimestamps, mostRecentTimestamp)
+          //this.updateDualList(this.dualListTimestampsOptions, availableTimestamps, mostRecentTimestamp)
+          this.updateTimestampsDualList(availableTimestamps, mostRecentTimestamp);
         }
 
         // select all areas by default
@@ -1578,6 +1606,10 @@ export class IndicatorAddComponent implements OnInit {
         for(let tab of allTabs) {
           this.enableTab(tab);
         }
+
+        // hier, nächste Zeile nur Versuch, wieder löschen. 
+        // idee, watchCollection areas und timestamps ersetzen, beim füllen der beiden dualLists.
+        // this.initializeAllDiagrams();
       
       },1000);
     } catch (error) {
@@ -2186,6 +2218,7 @@ export class IndicatorAddComponent implements OnInit {
     options = this.enableManualLabelPositioningAcrossPages(page, options, map)
     
     map.setOption(options);
+    console.log(map, "map");
     return map;
   }
 
@@ -2800,96 +2833,93 @@ export class IndicatorAddComponent implements OnInit {
       }
     }
  */
-    this.insertDatatableRowsInterval = setInterval(this.insertDatatableRows, 0, 100, true, rowsData, page, maxRows)
-  }
 
-   // create table rows once the pages exist
-  insertDatatableRows(rowsData, page, maxRows) {
-    // get current index of page (might have changed in the meantime)
-    let idx = this.template.pages.indexOf(page)
-    let wrapper:any = document.querySelector("#reporting-addIndicator-page-" + idx + "-datatable");
-    if(wrapper) {
-      clearInterval(this.insertDatatableRowsInterval); // code below still executes once
-    } else {
-      return;
-    }
-    
-    wrapper.innerHTML = "";
-    wrapper.style.border = "none"; // hide dotted border from outer dom element
-    wrapper.style.justifyContent = "flex-start"; // align table at top instead of center
-
-    let columnNames;
-    if(this.template.name.includes("timeseries")) {
-      columnNames  = ["Bereich", "Zeitpunkt", "Wert"]
-    } else {
-      columnNames  = ["Bereich", "Wert"]
-    }
-
-    let table = this.createDatatableSkeleton(columnNames);
-    wrapper.appendChild(table);
-    let tbody = table.querySelector("tbody");
-    let pageElement = this.template.pages[idx].pageElements.find( el => el.type === "datatable");
-    pageElement.isPlaceholder = false;
-
-    for(let i=0;i<rowsData.length; i++) {
-      // see which page we have to add the row to
-      // switch to next page if necessary
-      
-      if((i % maxRows) == 0) {
-        if(i > 0) idx++
-        const idx_save = idx;
-        const i_save = i;
-        this.intervalArr[idx_save] = setInterval(this.insertDatatableRowsPerPage, 0, 100, true, pageElement, idx_save, columnNames, maxRows, rowsData, i_save, wrapper, table, tbody);
+    // create table rows once the pages exist
+    this.insertDatatableRowsInterval = setInterval((rowsData:any, page, maxRows) => {
+      // get current index of page (might have changed in the meantime)
+      let idx = this.template.pages.indexOf(page)
+      let wrapper:any = document.querySelector("#reporting-addIndicator-page-" + idx + "-datatable");
+      if(wrapper) {
+        clearInterval(this.insertDatatableRowsInterval); // code below still executes once
+      } else {
+        return;
       }
-    }
-  }
-
-  insertDatatableRowsPerPage(pageElement, idx, columnNames, maxRows, rowsData, i, wrapper, table, tbody) {
-    // check if page exists already in dom, if not try again later
-    wrapper = document.querySelector("#reporting-addIndicator-page-" + idx + "-datatable");
-    if(wrapper) {
-      clearInterval(this.intervalArr[idx]); // code below still executes once
-    } else {
-      return;
-    }
-    // page exists
-    wrapper.innerHTML = "";
-    wrapper.style.border = "none"; // hide dotted border from outer dom element
-    wrapper.style.justifyContent = "flex-start"; // align table at top instead of center
-    table = this.createDatatableSkeleton(columnNames);
-    wrapper.appendChild(table);
-    tbody = table.querySelector("tbody");
-    pageElement = this.template.pages[idx].pageElements.find( el => el.type === "datatable");
-    pageElement.isPlaceholder = false;
-    
-    for(let j=i; j<(i + maxRows); j++) {
-      if(!rowsData[j])
-        break; // on last page
-
-      let row = document.createElement("tr");
-      row.style.height = "25px";
-
-      for(let colName of columnNames) {
-        let td = document.createElement("td");
-        if(colName === "Bereich") {
-          td.innerText = rowsData[j].name;
-          td.classList.add("text-left");
-        }
       
-        if(colName === "Zeitpunkt") {
-          td.innerText = rowsData[j].timestamp;
-        }
-      
-        if(colName === "Wert") {
-          td.innerText = rowsData[j].value;
-          td.classList.add("text-right");
-        }
-      
-        row.appendChild(td);
+      wrapper.innerHTML = "";
+      wrapper.style.border = "none"; // hide dotted border from outer dom element
+      wrapper.style.justifyContent = "flex-start"; // align table at top instead of center
+
+      let columnNames;
+      if(this.template.name.includes("timeseries")) {
+        columnNames  = ["Bereich", "Zeitpunkt", "Wert"]
+      } else {
+        columnNames  = ["Bereich", "Wert"]
       }
 
-      tbody.appendChild(row)
-    }
+      let table = this.createDatatableSkeleton(columnNames);
+      wrapper.appendChild(table);
+      let tbody = table.querySelector("tbody");
+      let pageElement = this.template.pages[idx].pageElements.find( el => el.type === "datatable");
+      pageElement.isPlaceholder = false;
+
+      for(let i=0;i<rowsData.length; i++) {
+        // see which page we have to add the row to
+        // switch to next page if necessary
+        
+        if((i % maxRows) == 0) {
+          if(i > 0) idx++
+          const idx_save = idx;
+          const i_save = i;
+          this.intervalArr[idx_save] = setInterval((pageElement:any, idx_save, columnNames:any, maxRows, rowsData, i_save, wrapper, table, tbody) => {
+            // check if page exists already in dom, if not try again later
+            wrapper = document.querySelector("#reporting-addIndicator-page-" + idx + "-datatable");
+            if(wrapper) {
+              clearInterval(this.intervalArr[idx]); // code below still executes once
+            } else {
+              return;
+            }
+            // page exists
+            wrapper.innerHTML = "";
+            wrapper.style.border = "none"; // hide dotted border from outer dom element
+            wrapper.style.justifyContent = "flex-start"; // align table at top instead of center
+            table = this.createDatatableSkeleton(columnNames);
+            wrapper.appendChild(table);
+            tbody = table.querySelector("tbody");
+            pageElement = this.template.pages[idx].pageElements.find( el => el.type === "datatable");
+            pageElement.isPlaceholder = false;
+            
+            for(let j=i; j<(i + maxRows); j++) {
+              if(!rowsData[j])
+                break; // on last page
+
+              let row = document.createElement("tr");
+              row.style.height = "25px";
+
+              for(let colName of columnNames) {
+                let td = document.createElement("td");
+                if(colName === "Bereich") {
+                  td.innerText = rowsData[j].name;
+                  td.classList.add("text-left");
+                }
+              
+                if(colName === "Zeitpunkt") {
+                  td.innerText = rowsData[j].timestamp;
+                }
+              
+                if(colName === "Wert") {
+                  td.innerText = rowsData[j].value;
+                  td.classList.add("text-right");
+                }
+              
+                row.appendChild(td);
+              }
+
+              tbody.appendChild(row)
+            }
+          }, 0, 100, true);
+        }
+      }
+    }, 0, 100, true);
   }
 
 
@@ -3060,7 +3090,7 @@ export class IndicatorAddComponent implements OnInit {
       this.echartsOptions.line.series[0].data[toDateIndex] = this.dataExchangeService.getIndicatorValue_asNumber(sumToDate / counter);
     }
 
-    console.log(this.echartsOptions);
+    console.log(this.echartsOptions, this.diagramsPrepared);
     this.diagramsPrepared = true;
   }
 
@@ -3132,6 +3162,7 @@ export class IndicatorAddComponent implements OnInit {
     if(this.template.name.includes("timestamp") && this.selectedTimestamps.length === 0) {
       return;
     }
+    console.log('called')
     if(!this.diagramsPrepared) {
       throw new Error("Diagrams can't be initialized since they were not prepared previously.")
     }

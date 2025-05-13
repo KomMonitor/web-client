@@ -97,14 +97,14 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit{
   higherSpatialUnitFilterFeatureGeoJSON;
   reappliedFilter = false;
 
-  selectionByFeatureSpatialFilterDuallistOptions = {
+  selectionByFeatureSpatialFilterDuallistOptions:any = {
     items: [],
     selectedItems: []
   };
   reloadList = false;
   reloadManualList = false;
 
-  manualSelectionSpatialFilterDuallistOptions = {
+  manualSelectionSpatialFilterDuallistOptions:any = {
     items: [],
     selectedItems: []
   };

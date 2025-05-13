@@ -3,6 +3,7 @@ import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChange
 
 export interface dualListInput {
   items: item[];
+  selectedItems: item[];
 }
 
 export interface item {
@@ -32,20 +33,29 @@ export class DualListBoxComponent implements OnInit, OnChanges {
   displayedSelectedElements: item[] = [];
 
   ngOnInit(): void {
-      this.availableElements = this.data.items;
-      this.displayedAvailableElements = this.availableElements;
+    this.availableElements = this.prepAvailableItemsOnSetup();
+    this.displayedAvailableElements = this.availableElements;
+    this.selectedElements = this.data.selectedItems;
+    this.displayedSelectedElements = this.data.selectedItems;
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    console.log(changes)
-    this.availableElements = this.data.items;
+    this.availableElements = this.prepAvailableItemsOnSetup();
     this.displayedAvailableElements = this.availableElements;
-    this.selectedElements = [];
-    this.displayedSelectedElements = [];
+    this.selectedElements = this.data.selectedItems;
+    this.displayedSelectedElements = this.data.selectedItems;
+  }
+
+  prepAvailableItemsOnSetup(): item[] {
+
+    let selectedItemNames = this.data.selectedItems.map(e => e.name);
+
+    return this.data.items.filter(elem => !selectedItemNames.includes(elem.name));
   }
 
   onAvailableElementClick(elem:item) {
     this.selectedElements.push(elem);
+    console.log(elem);
     this.displayedSelectedElements = this.selectedElements;
 
     this.availableElements = this.availableElements.filter(e => e.id!=elem.id);

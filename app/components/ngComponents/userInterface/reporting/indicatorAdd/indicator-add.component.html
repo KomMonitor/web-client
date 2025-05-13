@@ -142,8 +142,8 @@
               <div class="loading-overlay-reporting" [hidden]="!(loadingData)">
               <span class="glyphicon glyphicon-refresh icon-spin"></span>
             </div>
-                          <div ng-hide="template.name.includes('-timeseries')">
-                           <!--  <app-dual-list-box [data]="dualListTimestampsOptions"></app-dual-list-box> -->
+                          <div [hidden]="template.name.includes('-timeseries')">
+                            <app-dual-list-box [data]="dualListTimestampsOptions" [reload]="reloadTimestampsDualList" (selectedItems)="onUpdatedManualSelectedTimestamps($event)"></app-dual-list-box>
                               <!-- <excalibur-dual-list id="reporting-indicator-add-timestamps-dual-list" ng-model='selectedTimestamps' options="dualListTimestampsOptions"></excalibur-dual-list> -->
                           </div>
                           <div [hidden]="!(template.name.includes('-timeseries'))">
