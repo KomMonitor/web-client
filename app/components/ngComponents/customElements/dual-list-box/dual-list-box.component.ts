@@ -55,7 +55,6 @@ export class DualListBoxComponent implements OnInit, OnChanges {
 
   onAvailableElementClick(elem:item) {
     this.selectedElements.push(elem);
-    console.log(elem);
     this.displayedSelectedElements = this.selectedElements;
 
     this.availableElements = this.availableElements.filter(e => e.id!=elem.id);

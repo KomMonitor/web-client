@@ -51,10 +51,6 @@ export class IndicatorAddComponent implements OnInit {
   selectedSpatialUnit:any;
   selectedAreas = [];
 
-  // updated element of selected items in TimestampsDualList for comparison to new values
-  globalActualTimestampsSelectedItems:any[] = [];
-  globalActualTimestampsSelectedItemsInit = false;
-
   allSpatialUnitsForReachability;
 
   testOptions:any = {
@@ -210,10 +206,6 @@ export class IndicatorAddComponent implements OnInit {
     return indicator.applicableDates && indicator.applicableDates.length > 1;
     };
   
-  // internal array changes do not work with ng-change
-  $scope.$watchCollection('selectedAreas', function(newVal) {
-    $scope.onSelectedAreasChanged(newVal)
-  });
   */
 
   onSelectedAreasChanged(newVal) {
@@ -483,8 +475,10 @@ export class IndicatorAddComponent implements OnInit {
 
     // get difference between old and new value (the timestamps selected / deselected)
     let difference = oldVal
-      .filter(x => !newVal.includes(x))
-      .concat(newVal.filter(x => !oldVal.includes(x)));
+      .filter(x => !mappedNewVal.includes(x))
+      .concat(newVal.filter(x => !mappedOldVal.includes(x)));
+
+    console.log(difference)
     
     // if selected
     if(newVal.length > oldVal.length) {
@@ -948,9 +942,7 @@ export class IndicatorAddComponent implements OnInit {
   }
 
   onUpdatedManualSelectedTimestamps(event:any) {
-    console.log(event,this.globalActualTimestampsSelectedItems);
-    let temp = this.globalActualTimestampsSelectedItems;
-    this.onSelectedTimestampsChanged(event,temp);
+    this.onSelectedTimestampsChanged(event,[]);
   }
 
   updateTimestampsDualList(data, selectedItems) {
@@ -986,12 +978,6 @@ export class IndicatorAddComponent implements OnInit {
       }
     }
 
-    if(!this.globalActualTimestampsSelectedItemsInit) {
-    console.log("fire")
-      this.globalActualTimestampsSelectedItems = this.dualListTimestampsOptions.selectedItems;
-      this.globalActualTimestampsSelectedItemsInit = true;
-      console.log(this.globalActualTimestampsSelectedItems);
-    }
     this.reloadTimestampsDualList = !this.reloadTimestampsDualList;
   }
 
@@ -1607,10 +1593,25 @@ export class IndicatorAddComponent implements OnInit {
           this.enableTab(tab);
         }
 
-        // hier, nächste Zeile nur Versuch, wieder löschen. 
-        // idee, watchCollection areas und timestamps ersetzen, beim füllen der beiden dualLists.
-        // this.initializeAllDiagrams();
       
+        // call both onChange functions, as the selected Items have not been processed yet - only been selected on the dual lists
+        let areasListInput = allAreas.map( (el, i) => {
+          return {"name": el.properties.NAME, 'id': i} // we need this as an object for kommonitorDataExchangeService.createDualListInputArray
+        });
+        areasListInput = this.dataExchangeService.createDualListInputArray(areasListInput, "name",'id');
+        this.onSelectedAreasChanged(areasListInput);
+
+        let timestampsListInput = availableTimestamps.map( (el, i) => {
+          return {"name": el.properties.NAME, 'id': i} // we need this as an object for kommonitorDataExchangeService.createDualListInputArray
+        });
+        timestampsListInput = this.dataExchangeService.createDualListInputArray(timestampsListInput, "name",'id');
+
+        let timestampsListSelected = mostRecentTimestamp.map( (el, i) => {
+          return {"name": el.properties.NAME, 'id': i} // we need this as an object for kommonitorDataExchangeService.createDualListInputArray
+        });
+        timestampsListSelected = this.dataExchangeService.createDualListInputArray(timestampsListSelected, "name",'id');
+        this.onSelectedTimestampsChanged(timestampsListInput, timestampsListSelected);
+
       },1000);
     } catch (error) {
       console.error(error);
@@ -2107,7 +2108,8 @@ export class IndicatorAddComponent implements OnInit {
     if(pageElement.isTimeseries) {
       timestamp += "_relative"
     }
-    let options = JSON.parse(JSON.stringify( this.echartsOptions.map[timestamp] ));
+console.log(this.echartsOptions, timestamp);                       // todo timestamp
+    let options = JSON.parse(JSON.stringify(this.echartsOptions.map['2023-12-31']));
     
     // default changes for all reporting maps
     options.title.show = false;
@@ -2224,7 +2226,7 @@ export class IndicatorAddComponent implements OnInit {
 
   enableManualLabelPositioningAcrossPages(page, options, map) {
     if(!page.area) {
-      options.labelLayout = function(feature) {
+      options.labelLayout = (feature) => {
         if(feature.seriesIndex != 0) { // index 0 are the borders / indicator
           return;
         }
@@ -2350,7 +2352,7 @@ export class IndicatorAddComponent implements OnInit {
     });
     let timestamp = dateElement.text;
 
-    let barChart = echarts.init( wrapper );
+    let barChart = echarts.init( wrapper );                         
     let options = JSON.parse(JSON.stringify( this.echartsOptions.bar[timestamp] ));
 
     // default changes
@@ -3005,6 +3007,7 @@ export class IndicatorAddComponent implements OnInit {
 
   prepareDiagrams(selectedIndicator, selectedSpatialUnit, timestampName, classifyUsingWholeTimeseries, isTimeseries, fromDate, toDate) {
     
+    console.log('prepare diagrams called');
     // if is  timeseries we must modify the indicator type of the given indicator, since it should display changes over time and hence 
     // must be treated as dynamic indicator
     let indicator = JSON.parse(JSON.stringify(selectedIndicator));
@@ -3157,15 +3160,23 @@ export class IndicatorAddComponent implements OnInit {
 
 // async
   initializeAllDiagrams() {
+
+    // todo delete
+    this.selectedTimestamps = [{
+      category: '2023-12-31',
+      name: '2023-12-31'
+    }];
+
+    console.log('init all diagrams called', this.selectedTimestamps)
     if(!this.template)
       return;
     if(this.template.name.includes("timestamp") && this.selectedTimestamps.length === 0) {
       return;
     }
-    console.log('called')
     if(!this.diagramsPrepared) {
       throw new Error("Diagrams can't be initialized since they were not prepared previously.")
     }
+    console.log('init all diagrams - progress')
 
     // We need a separate counter for page index because we iterate over the pages array.
     // This array might include additional datatable pages, which are not inserted in the dom
