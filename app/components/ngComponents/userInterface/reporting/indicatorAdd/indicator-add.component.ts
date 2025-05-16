@@ -49,7 +49,7 @@ export class IndicatorAddComponent implements OnInit {
 
   availableFeaturesBySpatialUnit:any = {};
   selectedSpatialUnit:any;
-  selectedAreas = [];
+  selectedAreas:any[] = [];
 
   allSpatialUnitsForReachability;
 
@@ -227,7 +227,7 @@ export class IndicatorAddComponent implements OnInit {
     if(this.template.name.includes("reachability"))
       this.updateAreasForReachabilityTemplates(newVal)
 
-    this.updateDiagramsInterval_areas = setInterval(() => { 
+     this.updateDiagramsInterval_areas = setInterval(() => { 
       
       if(this.diagramsPrepared) {
         clearInterval(this.updateDiagramsInterval_areas); // code below still executes once
@@ -478,7 +478,13 @@ export class IndicatorAddComponent implements OnInit {
       .filter(x => !mappedNewVal.includes(x))
       .concat(newVal.filter(x => !mappedOldVal.includes(x)));
 
-    console.log(difference)
+    console.log('real',difference);
+    // hier, get difference right. should only be the one item selected when initially called
+    difference = [{
+      category: '2023-12-31',
+      name: '2023-12-31'
+    }];
+
     
     // if selected
     if(newVal.length > oldVal.length) {
@@ -635,7 +641,7 @@ export class IndicatorAddComponent implements OnInit {
       }
     }
 
-    let updateDiagramsInterval = setInterval(() => {
+     let updateDiagramsInterval = setInterval(() => {
       if(this.diagramsPrepared) {
         clearInterval(updateDiagramsInterval); // code below still executes once
       } else {
@@ -1592,7 +1598,6 @@ export class IndicatorAddComponent implements OnInit {
         for(let tab of allTabs) {
           this.enableTab(tab);
         }
-
       
         // call both onChange functions, as the selected Items have not been processed yet - only been selected on the dual lists
         let areasListInput = allAreas.map( (el, i) => {
@@ -1610,7 +1615,23 @@ export class IndicatorAddComponent implements OnInit {
           return {"name": el.properties.NAME, 'id': i} // we need this as an object for kommonitorDataExchangeService.createDualListInputArray
         });
         timestampsListSelected = this.dataExchangeService.createDualListInputArray(timestampsListSelected, "name",'id');
-        this.onSelectedTimestampsChanged(timestampsListInput, timestampsListSelected);
+        this.onSelectedTimestampsChanged(timestampsListInput,timestampsListSelected);
+
+        /* 
+          here/hier/todo
+          this.onSelectedTimestampsChanged(timestampsListInput,timestampsListSelected) (above) works, partially. but it should be
+                                          (timestampsListSelected, []); 
+
+          Changing this breaks the process entirely, resulting in cache overflow and breakedown. Although the "should be" above is the correct way to call the function
+
+          onSelectedTimestampsChanged(newVal, oldVal) is called here initially after die dualList has been filled and selectedItems are placed. 
+          Idea is that this initiates the preparation of diagrams and maps as all vars have been set. (newVal, oldVal) should be (timestampsListSelected, []) because the selected Items are the 
+          new value, as [] is the state before.. makes sence. Still it does'nt work.. end of story, no idea right now.
+
+          Process differs quite a bit from original AJS one because the dualList is new.. maybe rethink the entire process this is build.
+        
+        */
+                              
 
       },1000);
     } catch (error) {
