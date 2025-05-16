@@ -83,7 +83,7 @@ export class UserInterfaceComponent implements OnInit {
       if(!localStorage.getItem('hideKomMonitorAppGreeting') || localStorage.getItem('hideKomMonitorAppGreeting') === 'false')
         this.openInfoModal();
   
-      this.openReportingModal();
+      //this.openReportingModal();
   }
 
   /* 

@@ -1,0 +1,177 @@
+<div id="kommonitorReachability">
+
+	<div style="text-align: center">
+		<div class="loading-overlay-sidebar-small ng-hide" ng-show="settings.loadingData">
+			<span class="glyphicon glyphicon-refresh icon-spin"></span>
+		</div>
+	</div>
+
+	<!-- we might want to restructure the whole menu 
+
+		dedicated service that manages scenarios as a map / list object with all assets and configs
+	
+	1. a new box for organizing POI scenarios where I have a table with all scenarios and their most interesting statistics/information
+	  + edit buttons 
+	  - add new scenario (name, description, POI layer, including edit tools to make changes to the POINT source, reachability analysis)
+	  - edit existing scenario (name, description, POI source, reachability analysis -> after edit of point source, reachability analysis must be redone to be in sync with point source)
+	  - duplicate scenario with all assets and copy name
+	  - remove whole scenario
+	  - import/export single config
+
+	  + import/export scenario collection
+	  
+	  -> all those assets shall be configured within an extra modal to make use of the whole display (like reporting) 
+	  -> in that modal we can also include interactive map for POI source edits like adding/deleting/moving points 
+	  -> make modal feel like admin modals with prograss bar for the important steps (name descr poi source, edit poi source on interactive map, configure and preview isochrones as background job) then submit that config as new scenario
+
+	  -> reachability scenario manager service that holds all information about scenarios (data array) and export import possibilities
+	  -> all properties should directly be hold by this service (tmp options for active scenario as well as array of all other scenarios) 
+
+	  -> MAYBE EVEN A SEPARATE ROUTE ESPECIALLY FOR REACHABILITY ANALYSIS TO HAVE THE WHOLE PAGE FOR THAT PURPOSE? 
+
+	2. preserve box for point in polygon analysis and choose a scenario for that analysis
+	3. new box for viewing/comparing scenarios on main map and as table? maybe again within a modal?
+	4. new box for indicator summary statistics for a certain scenario -> for single scenario as well as comparison between two scenarios
+	-->
+
+	<p></p>
+              <!-- *ngIf="!isUsedInReporting" -->
+	<div class="box box-primary"  id="reachability-point-box">
+		<div class="box-header with-border">
+			<h3 class="box-title">Erreichbarkeits-Szenarien verwalten</h3>
+
+			<div class="box-tools pull-right">
+				<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+				</button>
+			</div>
+		</div>
+		<!-- /.box-header -->
+
+		<div class="box-body">
+
+			<div class="row">
+				<div class="col-md-3">
+					<button id="openReachabilityScenarioModalBtn" class="btn btn-success " (click)="openReachabilityScenarioModal()" type="button"
+					data-toggle="modal" data-target="#modal-manage-reachability-scenario"><i
+						class="fas fa-plus"></i>&nbsp;&nbsp;Szenario anlegen</button>
+				</div>
+				<div class="col-md-3">
+					<button type="button" class="btn btn-info " 
+					(click)="reachabilityScenarioHelperService.onImportScenariosFile()"
+					title="Importieren der Szenarien aus einer Datei"><i
+						class="fas fa-file-import"></i>&nbsp;&nbsp;Szenarien-Import</button>
+					<input style="display:none;" type="file" class="form-control"
+						id="reachabilityScenariosImportFile" accept=".json,">
+				</div>
+				<div class="col-md-3">
+					<button type="button"  class="btn btn-info "
+					[disabled]="reachabilityScenarioHelperService.pipedData.reachabilityScenarios.length > 0"
+					(click)="reachabilityScenarioHelperService.exportScenarios()"
+					title="Exportieren der Szenarien in eine Datei"><i
+						class="fas fa-file-export"></i>&nbsp;&nbsp;Szenarien-Export</button>
+				</div>				
+						
+			</div>
+			<br/>
+			<div class="row">
+				<div class="col-md-4">
+					<button type="button"  class="btn btn-danger "
+					[disabled]="dataExchangeService.pipedData.reachabilityScenarioOnMainMap"
+					(click)="removeReachabilityScenarioFromMainMap()"
+					title="Entfernen eines Erreichbarkeits-Szenarios von der Hauptkarte"><i
+						class="fas fa-trash-can"></i>&nbsp;&nbsp;von Karte entfernen</button>	
+				</div>
+			</div>
+
+			<br/>
+			<hr>
+			<div style="max-height: 50vh; overflow: auto;">
+
+				<table class="table table-condensed">
+					<thead>
+						<tr>
+							<th>Szenarioname</th>
+							<th>Punktdatenquelle</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr *ngFor="let reachabilityScenario of reachabilityScenarioHelperService.pipedData.reachabilityScenarios">
+							<td>
+								<b>{{reachabilityScenario.scenarioName}}</b>
+								<br />
+								<!-- <div>
+									<button class="btn btn-warning btn-sm" title="Editieren" (click)="openReachabilityScenarioModal(reachabilityScenario)" data-toggle="modal" data-target="#modal-manage-reachability-scenario"><i class="fa-solid fa-pen" ></i></button>
+									<button class="btn btn-danger btn-sm" title="L&ouml;schen" (click)="$ctrl.kommonitorReachabilityScenarioHelperServiceInstance.removeReachabilityScenario(reachabilityScenario)"><i class="fa-solid fa-trash-can"></i></button>
+									<button class="btn btn-info btn-sm" title="Duplizieren" (click)="$ctrl.kommonitorReachabilityScenarioHelperServiceInstance.cloneReachabilityScenario(reachabilityScenario)"><i class="fa-solid fa-copy" ></i></button>
+								</div> -->
+								<div>
+									<i title="Editieren" style="cursor: pointer;" class="fa-solid fa-pen"
+										(click)="openReachabilityScenarioModal(reachabilityScenario)"
+										data-toggle="modal" data-target="#modal-manage-reachability-scenario"></i>
+									&nbsp; &nbsp;
+									<i class="fa-solid fa-trash-can" style="cursor: pointer;" title="L&ouml;schen"
+										(click)="reachabilityScenarioHelperService.removeReachabilityScenario(reachabilityScenario)"></i>
+									&nbsp; &nbsp;
+									<i class="fa-solid fa-copy" style="cursor: pointer;" title="Duplizieren"
+										(click)="reachabilityScenarioHelperService.cloneReachabilityScenario(reachabilityScenario)"></i>
+									&nbsp; &nbsp;
+									<i class="fa-solid fa-map-location-dot" style="cursor: pointer;" title="auf Hauptkarte anzeigen"
+										(click)="displayReachabilityScenarioOnMainMap(reachabilityScenario)"></i>
+								</div>
+							</td>
+							<td>
+								{{reachabilityScenario.reachabilitySettings.selectedStartPointLayer.datasetName}}
+							</td>
+
+						</tr>
+					</tbody>
+				</table>
+
+			</div>
+
+			<div class="row" [hidden]="!dataExchangeService.pipedData.reachabilityScenarioOnMainMap">
+
+				<div class="col-md-2"></div>
+
+				<div class="col-md-8 col-sm-6 col-xs-12">
+					<!-- Legend -->
+					<div class="just-padding">									
+
+						<div [hidden]="!dataExchangeService.pipedData.isochroneLegend">
+							<div style="text-align: center">
+								<div class="legend" style="text-align: left">
+									<label>Punktdatenquelle:
+									</label>&nbsp;
+									{{dataExchangeService.pipedData.isochroneLegend.datasetName}}
+									<br />
+									<label>Fortbewegungsart:
+									</label>&nbsp;
+									{{dataExchangeService.pipedData.isochroneLegend.transitMode}}
+									<br />
+									<label>Abbruchkriterium: </label>&nbsp;
+									{{dataExchangeService.pipedData.isochroneLegend.reachMode}}
+									<br />
+									<label>Einheit: </label>&nbsp;
+									{{dataExchangeService.pipedData.isochroneLegend.cutOffUnit}}
+									<br />
+								<!-- 	<div *ngFor="let entry in dataExchangeService.pipedData.isochroneLegend.colorValueEntries">
+										<i [ngStyle]="{background: entry.color, opacity: 0.3}"></i>
+										{{entry.value}}
+									</div> -->
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="col-md-2"></div>
+				
+			</div>
+
+		</div>
+		<!-- /.box-body -->
+
+	</div>
+	<!-- /.box -->
+
+</div>

@@ -88,4 +88,12 @@ export class MapService {
   removeAoiGeoresource(aoiGeoresource) {
     this.broadcastService.broadcast('removeAoiGeoresource', [aoiGeoresource]);
   }
+
+  replaceReachabilityScenarioOnMainMap(reachabilityScenario) {
+    this.ajskommonitorMapServiceProvider.replaceReachabilityScenarioOnMainMap(reachabilityScenario);
+  }
+
+  removeReachabilityScenarioFromMainMap() {
+    this.ajskommonitorMapServiceProvider.removeReachabilityScenarioFromMainMap();
+  }
 }

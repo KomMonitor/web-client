@@ -1,0 +1,201 @@
+<div class="modal-header">
+  <button type="button" class="close" (click)="activeModal.close('Close click')">&times;</button>
+  <h4 class="modal-title">Erreichbarkeitsszenario verwalten</h4>
+</div>
+<div class="modal-body">
+  <div class="modal-body" style="text-align: justify">
+  
+   			<!-- MultiStep Form -->
+				<div class="row">
+					<div class="col-md-12">
+						<form class="multiStepForm form-group" id="reachabilityScenarioForm" role="form"
+							data-toggle="validator" data-disable="true" style="margin-bottom: 0px; margin-top: 0px;">
+							<!-- div required for click logic -->
+							<div>
+								<!-- progressbar -->
+								<ul id="progressbar">
+									<li style="width: 20%;" class="active">Szenario-Metadaten</li>
+									<li style="width: 20%;">Bearbeiten der Punktdatenquelle</li>
+									<li style="width: 20%;">Einzugsgebiets-Definition</li>
+									<li style="width: 20%;">Punkte in Einzugsgebieten</li>
+									<li style="width: 20%;">Indikatoren-Statistiken</li>
+								</ul>
+							</div>
+
+							<!-- fieldsets -->
+							<fieldset>
+								<h2 class="fs-title">Name und Punktdatenquelle</h2>
+								<h3 class="fs-subtitle">Definition eines eindeutigen Namens pro Szenario und Wahl der
+									Punktdatenquelle, f&uuml;r die Einzugsgebiete berechnet werden sollen</h3>
+
+								<!-- <div class="row vertical-align">
+									<div class="col-md-6 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<input
+												ng-model="$ctrl.kommonitorReachabilityScenarioHelperServiceInstance.tmpActiveScenario.scenarioName"
+												placeholder="sprechender Name, der Szenario passend umschreibt">
+
+											<div class="help-block">
+												<p>Vergeben Sie einen Namen, der m&ouml;glichst gut darstellt, was das
+													Szenario beinhaltet.</p>
+												<p>Beispiel 1: <i>Kitas2022_ist_5min_10min_15min_fusslaeufig</i></p>
+												<p>Beispiel 2: <i>Kitas2024_planung_5min_10min_15min_fusslaeufig</i></p>
+											</div>
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+									<div class="col-md-6 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Auswahl von Punktdatenquelle und Zeitpunkt</label>
+											<p>mit der Option <i>'{{emptyDatasetName}}'</i> kann ein neuer leerer
+												Datensatz angelegt werden, um neue Punkte zu erfassen</p>
+
+											<div class="row vertical-align" style="margin-right:0px;">
+
+												<div class="col-md-6 col-sm-6 col-xs-6">
+													<div class="horizontal-align"
+														ng-show="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.selectedStartPointLayer.geoJSON_reachability">
+														<p><b>{{reachabilityHelperService.pipedData.settings.selectedStartPointLayer.geoJSON_reachability.features.length}}</b>
+															Startpunkte im
+															selektierten Layer</p>
+													</div>
+
+													<div class="horizontal-align"
+														ng-hide="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.selectedStartPointLayer">
+														<p>noch kein Layer selektiert</p>
+													</div>
+
+													<div class="horizontal-align"
+														ng-if="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.selectedStartPointLayer && ! $ctrl.kommonitorReachabilityHelperServiceInstance.settings.selectedStartPointLayer.geoJSON_reachability">
+														<p style="color: red;">zum angegebenen Zeitwert konnten keine
+															validen Feature-Daten abgerufen werden</p>
+													</div>
+												</div>
+												<div class="col-md-6 col-sm-6 col-xs-6">
+													<select style="font-size: 12px;"
+														ng-model="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.selectedStartPointLayer"
+														ng-options="poi as poi.datasetName for poi in $ctrl.kommonitorDataExchangeServiceInstance.displayableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois()"
+														ng-change="onChangePoiResource()" class="form-control" required>
+														<option disabled selected value> -- Punkt-Layer w&auml;hlen --
+														</option>
+													</select>
+
+													<div
+														ng-if="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.selectedStartPointLayer.isNewReachabilityDataSource">
+														<br />
+														<label>Name des neuen Datensatzes (Umbenennung)</label>
+														<input
+															ng-model="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.selectedStartPointLayer.datasetName">
+
+													</div>
+
+													<div
+														ng-if="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.selectedStartPointLayer && ! $ctrl.kommonitorReachabilityHelperServiceInstance.settings.selectedStartPointLayer.isNewReachabilityDataSource && ! $ctrl.kommonitorReachabilityHelperServiceInstance.settings.selectedStartPointLayer.isTmpDataLayer">
+														<select style="font-size: 11px; width:135px; padding: 0px;"
+															ng-model="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.isochroneConfig.selectedDate"
+															ng-change="fetchPoiResourceGeoJSON()"
+															ng-options="date as date.startDate for date in $ctrl.kommonitorReachabilityHelperServiceInstance.settings.selectedStartPointLayer.availablePeriodsOfValidity | orderBy: 'startDate' | unique: 'startDate'"
+															ng-init="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.isochroneConfig.selectedDate = $ctrl.kommonitorReachabilityHelperServiceInstance.settings.selectedStartPointLayer.availablePeriodsOfValidity[$ctrl.kommonitorReachabilityHelperServiceInstance.settings.selectedStartPointLayer.availablePeriodsOfValidity.length - 1]"
+															class="form-control" required>
+														</select>
+													</div>
+												</div>
+
+											</div>
+
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+								</div> -->
+
+								<input type="button" name="next" class="next  action-button"
+									value="N&auml;chster Schritt" />
+							</fieldset>
+
+							<fieldset>
+								<h2 class="fs-title">Manuelles Bearbeiten der Datensatz-Objekte</h2>
+								<h3 class="fs-subtitle">Eine interaktive Karte sowie Eingabefelder erlauben das
+									Editieren einzelner Features hinsichtlich
+									r&auml;umlicher Lage und/oder Sachdaten. Weiterhin k&ouml;nnen vorhandene Punkte
+									entfernt oder neue Punkte erg&auml;nzt werden.
+									Die &Auml;nderungen gelten nur im Rahmen dieses Erreichbarkeits-Szenarios und werden
+									nicht in der Datenbank gespeichert.
+									<br />
+									Nur die mit * markierten Elemente müssen verpflichtend angegeben werden
+								</h3>
+
+								<!-- <single-feature-edit></single-feature-edit> -->
+
+								<input type="button" name="previous" class="previous  action-button-previous"
+									value="Voriger Schritt" />
+								<input type="button" name="next" class="next  action-button"
+									value="N&auml;chster Schritt" />
+							</fieldset>
+
+							<fieldset>
+
+								<h2 class="fs-title">Einzugsgebiets-Definition mittels OpenRouteService</h2>
+								<h3 class="fs-subtitle">Konfiguration der Berechnung von Einzugsgebieten f&uuml;r alle
+									Punkte der Szenarien-Punktdatenquelle.
+									Die Einstellungen umfassen Fortbewegungsmittel und Erreichbarkeitszonen (Distanz
+									oder Zeit).</h3>
+
+								<!-- <reachability-scenario-configuration></reachability-scenario-configuration> -->
+
+								<input type="button" name="previous" class="previous  action-button-previous"
+									value="Voriger Schritt" />
+								<input type="button" name="next" class="next  action-button"
+									value="N&auml;chster Schritt" />
+
+							</fieldset>
+
+							<fieldset style="padding: 0px 10px;">
+
+								<h2 class="fs-title">Punkte in Einzugsgebieten</h2>
+								<h3 class="fs-subtitle">Bestimmen Sie ein Referenzdatum und selektieren relevante
+									Punktlayer in der Tabelle. F&uuml;r jeden Punktlayer werden gem&auml;&szlig; des
+									Referenzdatums
+									die g&uuml;ltigen Punktobjekte geladen und mit den zuvor berechneten Isochronen
+									verschnitten.</h3>
+
+								<!-- <reachability-poi-in-iso></reachability-poi-in-iso> -->
+
+								<input type="button" name="previous" class="previous  action-button-previous"
+									value="Voriger Schritt" />
+								<input type="button" name="next" class="next  action-button"
+									value="N&auml;chster Schritt" />
+
+							</fieldset>
+
+							<fieldset>
+
+								<h2 class="fs-title">Indikatoren-Statistiken</h2>
+								<h3 class="fs-subtitle">Beantworten Sie Fragestellungen zur Versorgung durch Punkt-Einzugsgebiete, in dem die berechneten Isochronen
+									mit Indikatoren verschnitten werden (fl&auml;chenenteil oder besser &uuml;berlappende Wohngebiete). 
+									Die Sch&auml;tzwerte werden umso genauer, je kleinr&auml;umiger der Indikator mit eingeht.</h3>
+
+							<!-- 	<reachability-indicator-statistics></reachability-indicator-statistics> -->
+
+								<input type="button" name="previous" class="previous  action-button-previous"
+									value="Voriger Schritt" />
+								<input type="button" name="next" class="next  action-button"
+									value="N&auml;chster Schritt" />
+
+							</fieldset>
+						</form>
+					</div>
+				</div>
+
+				<!-- <form role="form" class="form-group" data-toggle="validator" style="margin-bottom: 0px;"> -->
+
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Schlie&szlig;en</button>								
+
+    <button type="button" class="btn btn-success"
+      ng-disabled="! $ctrl.kommonitorReachabilityScenarioHelperServiceInstance.tmpActiveScenario.scenarioName || !$ctrl.kommonitorReachabilityHelperServiceInstance.currentIsochronesGeoJSON || !$ctrl.kommonitorReachabilityHelperServiceInstance.original_nonDissolved_isochrones"
+      ng-click="$ctrl.kommonitorReachabilityScenarioHelperServiceInstance.addReachabilityScenario()">Szenario anlegen/aktualisieren</button>
+    <button type="button" class="btn btn-danger"
+      ng-click="resetReachabilityScenarioForm()">Zur&uuml;cksetzen</button>
+  </div>
+</div>

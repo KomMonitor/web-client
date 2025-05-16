@@ -200,6 +200,38 @@ export const ajskommonitorReachabilityHelperServiceProvider: any = {
   useFactory:kommonitorReachabilityHelperServiceFactory,
 };
 
+// reachability scenario helper service
+export function kommonitorReachabilityScenarioHelperServiceFactory (injector:any){
+  return injector.get('kommonitorReachabilityScenarioHelperService')
+}
+
+export const ajskommonitorReachabilityScenarioHelperServiceProvider: any = {
+  deps: ['$injector'],
+  provide: 'kommonitorReachabilityScenarioHelperService',
+  useFactory:kommonitorReachabilityScenarioHelperServiceFactory,
+};
+
+// reachability map helper service
+export function kommonitorReachabilityMapHelperServiceFactory (injector:any){
+  return injector.get('kommonitorReachabilityMapHelperService')
+}
+
+export const ajskommonitorReachabilityMapHelperServiceProvider: any = {
+  deps: ['$injector'],
+  provide: 'kommonitorReachabilityMapHelperService',
+  useFactory:kommonitorReachabilityMapHelperServiceFactory,
+};
+
+// single feature map helper service
+export function kommonitorSingleFeatureMapHelperServiceFactory (injector:any){
+  return injector.get('kommonitorSingleFeatureMapHelperService')
+}
+
+export const ajskommonitorSingleFeatureMapHelperServiceProvider: any = {
+  deps: ['$injector'],
+  provide: 'kommonitorSingleFeatureMapHelperService',
+  useFactory:kommonitorSingleFeatureMapHelperServiceFactory,
+};
 
 
   export const serviceProviders: any[] = [
@@ -219,5 +251,8 @@ export const ajskommonitorReachabilityHelperServiceProvider: any = {
     ajskommonitorElementVisibilityHelperServiceProvider,
     ajskommonitorMapServiceProvider,
     ajskommonitorGenericMapHelperServiceProvider,
-    ajskommonitorReachabilityHelperServiceProvider
+    ajskommonitorReachabilityHelperServiceProvider,
+    ajskommonitorReachabilityScenarioHelperServiceProvider,
+    ajskommonitorReachabilityMapHelperServiceProvider,
+    ajskommonitorSingleFeatureMapHelperServiceProvider
   ];

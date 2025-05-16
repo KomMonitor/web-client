@@ -7,7 +7,5 @@ import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 })
 export class SidebarComponent {
 
-  content:number | boolean = false; // default: false
-
   @Input() element:any = undefined;
 }

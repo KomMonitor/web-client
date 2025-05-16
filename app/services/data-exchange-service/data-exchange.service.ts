@@ -86,6 +86,8 @@ export interface DataExchange {
   FEATURE_NAME_PROPERTY_NAME:any;
   availableGeoresources:any;
   availableIndicators:any;
+  reachabilityScenarioOnMainMap: any;
+  isochroneLegend: any;
 }
 
 export interface KeycloakUser {
@@ -144,11 +146,14 @@ export interface Indicator {
 export class DataExchangeService {
 
   pipedData:DataExchange;
+  
 
   public constructor(
     @Inject('kommonitorDataExchangeService') private ajskommonitorDataExchangeServiceeProvider: any, // eslint-disable-line @typescript-eslint/no-explicit-any
   ) {
     this.pipedData = this.ajskommonitorDataExchangeServiceeProvider;
+
+    this.pipedData.isochroneLegend = false;
   }
 
   isAllowedSpatialUnitForCurrentIndicator(spatialUnitMetadata:any) {

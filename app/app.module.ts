@@ -28,7 +28,10 @@ import {
   ajskommonitorVisualStyleHelperServiceProvider, 
   ajskommonitorMapServiceProvider,
   ajskommonitorGenericMapHelperServiceProvider,
-  ajskommonitorReachabilityHelperServiceProvider} from 'app-upgraded-providers';
+  ajskommonitorReachabilityHelperServiceProvider,
+  ajskommonitorReachabilityScenarioHelperServiceProvider,
+  ajskommonitorReachabilityMapHelperServiceProvider,
+  ajskommonitorSingleFeatureMapHelperServiceProvider} from 'app-upgraded-providers';
 import { KommonitorLegendComponent } from 'components/ngComponents/userInterface/kommonitorLegend/kommonitor-legend.component';
 import { NgbCalendar, NgbDatepickerModule, NgbDateStruct, NgbAccordionModule, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
@@ -53,6 +56,7 @@ import { SelectedIndicatorFilter } from 'pipes/selected-indicator-filter.pipe';
 import { BaseIndicatorOfComputedIndicatorFilter } from 'pipes/base-indicator-of-computed-indicator-filter.pipe';
 import { BaseIndicatorOfHeadlineIndicatorFilter } from 'pipes/base-indicator-of-headline-indicator-filter.pipe';
 import { AuthService } from 'services/auth-service/auth.service';
+import { KommonitorReachabilityComponent } from './components/ngComponents/userInterface/sidebar/kommonitorReachability/kommonitor-reachability.component';
 
 
 
@@ -77,14 +81,25 @@ declare var MathJax;
   ],
   providers:[
     {provide: LocationStrategy, useClass: HashLocationStrategy},
-    ajskommonitorCacheHelperServiceProvider,ajskommonitorBatchUpdateHelperServiceProvider,
-    ajskommonitorConfigStorageServiceProvider,ajskommonitorKeycloackHelperServiceProvider,
-    ajskommonitorMultiStepFormHelperServiceProvider,ajskommonitorDataExchangeServiceeProvider,
-    ajskommonitorDataGridHelperServiceProvider,ajskommonitorSingleFeatureMapServiceProvider,
-    ajskommonitorDiagramHelperServiceProvider,ajskommonitorFilterHelperServiceProvider,
-    ajskommonitorElementVisibilityHelperServiceProvider, ajskommonitorShareHelperServiceProvider,
-    ajskommonitorVisualStyleHelperServiceProvider, ajskommonitorMapServiceProvider, 
-    ajskommonitorGenericMapHelperServiceProvider, ajskommonitorReachabilityHelperServiceProvider,
+    ajskommonitorCacheHelperServiceProvider,
+    ajskommonitorBatchUpdateHelperServiceProvider,
+    ajskommonitorConfigStorageServiceProvider,
+    ajskommonitorKeycloackHelperServiceProvider,
+    ajskommonitorMultiStepFormHelperServiceProvider,
+    ajskommonitorDataExchangeServiceeProvider,
+    ajskommonitorDataGridHelperServiceProvider,
+    ajskommonitorSingleFeatureMapServiceProvider,
+    ajskommonitorDiagramHelperServiceProvider,
+    ajskommonitorFilterHelperServiceProvider,
+    ajskommonitorElementVisibilityHelperServiceProvider, 
+    ajskommonitorShareHelperServiceProvider,
+    ajskommonitorVisualStyleHelperServiceProvider, 
+    ajskommonitorMapServiceProvider, 
+    ajskommonitorGenericMapHelperServiceProvider, 
+    ajskommonitorReachabilityHelperServiceProvider,
+    ajskommonitorReachabilityScenarioHelperServiceProvider,
+    ajskommonitorReachabilityMapHelperServiceProvider,
+    ajskommonitorSingleFeatureMapHelperServiceProvider,
     NgbModule,
     AuthService
   ],
@@ -105,7 +120,8 @@ declare var MathJax;
     SelectedIndicatorFilter,
     BaseIndicatorOfComputedIndicatorFilter,
     BaseIndicatorOfHeadlineIndicatorFilter,
-    RegressionDiagramComponent
+    RegressionDiagramComponent,
+    KommonitorReachabilityComponent
   ],
   schemas: [
     CUSTOM_ELEMENTS_SCHEMA
