@@ -53,6 +53,10 @@ angular
 
 						$scope.onChangeUseBalance = function(){
 
+							if(!$scope.rangeSliderForBalance){
+								return;
+							}
+
 							if(kommonitorDataExchangeService.isMeasureOfValueChecked){
 								kommonitorDataExchangeService.isMeasureOfValueChecked = false;
 							}

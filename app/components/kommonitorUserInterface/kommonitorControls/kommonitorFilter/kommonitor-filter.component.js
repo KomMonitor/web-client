@@ -654,6 +654,9 @@ angular
 							});
 
 							$scope.$on("removeRangeFilter", function(event){
+								if(!$scope.rangeSliderForFilter){
+									return;
+								}
 								$scope.inputLowerFilterValue = $scope.valueRangeMinValue;
 								$scope.inputHigherFilterValue = $scope.valueRangeMaxValue;
 								$scope.lowerFilterInputNotValid = false;
