@@ -28,7 +28,7 @@
 								<h3 class="fs-subtitle">Definition eines eindeutigen Namens pro Szenario und Wahl der
 									Punktdatenquelle, f&uuml;r die Einzugsgebiete berechnet werden sollen</h3>
 
-								<!-- <div class="row vertical-align">
+								<div class="row vertical-align">
 									<div class="col-md-6 col-sm-6 col-xs-12">
 										<div class="form-group">
 											<input
@@ -53,50 +53,39 @@
 											<div class="row vertical-align" style="margin-right:0px;">
 
 												<div class="col-md-6 col-sm-6 col-xs-6">
-													<div class="horizontal-align"
-														ng-show="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.selectedStartPointLayer.geoJSON_reachability">
+													<div class="horizontal-align" *ngIf="reachabilityHelperService.pipedData.settings.selectedStartPointLayer?.geoJSON_reachability">
 														<p><b>{{reachabilityHelperService.pipedData.settings.selectedStartPointLayer.geoJSON_reachability.features.length}}</b>
 															Startpunkte im
 															selektierten Layer</p>
 													</div>
 
-													<div class="horizontal-align"
-														ng-hide="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.selectedStartPointLayer">
+													<div class="horizontal-align" *ngIf="!reachabilityHelperService.pipedData.settings.selectedStartPointLayer">
 														<p>noch kein Layer selektiert</p>
 													</div>
 
-													<div class="horizontal-align"
-														ng-if="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.selectedStartPointLayer && ! $ctrl.kommonitorReachabilityHelperServiceInstance.settings.selectedStartPointLayer.geoJSON_reachability">
+													<div class="horizontal-align" *ngIf="reachabilityHelperService.pipedData.settings.selectedStartPointLayer && !reachabilityHelperService.pipedData.settings.selectedStartPointLayer?.geoJSON_reachability">
 														<p style="color: red;">zum angegebenen Zeitwert konnten keine
 															validen Feature-Daten abgerufen werden</p>
 													</div>
 												</div>
 												<div class="col-md-6 col-sm-6 col-xs-6">
-													<select style="font-size: 12px;"
-														ng-model="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.selectedStartPointLayer"
-														ng-options="poi as poi.datasetName for poi in $ctrl.kommonitorDataExchangeServiceInstance.displayableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois()"
-														ng-change="onChangePoiResource()" class="form-control" required>
-														<option disabled selected value> -- Punkt-Layer w&auml;hlen --
-														</option>
+													<select style="font-size: 12px;" #POISelect (change)="onChangePoiResource(POISelect.value)" class="form-control" required>
+														<option disabled selected value> -- Punkt-Layer w&auml;hlen --</option>
+                            <option *ngFor="let poi of filteredDisplayableGeoresources" [value]="poi.georesourceId">{{poi.datasetName}}</option>
 													</select>
 
-													<div
-														ng-if="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.selectedStartPointLayer.isNewReachabilityDataSource">
+													<div *ngIf="reachabilityHelperService.pipedData.settings.selectedStartPointLayer?.isNewReachabilityDataSource">
 														<br />
 														<label>Name des neuen Datensatzes (Umbenennung)</label>
-														<input
-															ng-model="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.selectedStartPointLayer.datasetName">
+														<input [ngModel]="reachabilityHelperService.pipedData.settings.selectedStartPointLayer.datasetName">
 
 													</div>
 
-													<div
-														ng-if="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.selectedStartPointLayer && ! $ctrl.kommonitorReachabilityHelperServiceInstance.settings.selectedStartPointLayer.isNewReachabilityDataSource && ! $ctrl.kommonitorReachabilityHelperServiceInstance.settings.selectedStartPointLayer.isTmpDataLayer">
+													<div *ngIf="reachabilityHelperService.pipedData.settings.selectedStartPointLayer && !reachabilityHelperService.pipedData.settings.selectedStartPointLayer?.isNewReachabilityDataSource && !reachabilityHelperService.pipedData.settings.selectedStartPointLayer?.isTmpDataLayer">
 														<select style="font-size: 11px; width:135px; padding: 0px;"
-															ng-model="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.isochroneConfig.selectedDate"
-															ng-change="fetchPoiResourceGeoJSON()"
-															ng-options="date as date.startDate for date in $ctrl.kommonitorReachabilityHelperServiceInstance.settings.selectedStartPointLayer.availablePeriodsOfValidity | orderBy: 'startDate' | unique: 'startDate'"
-															ng-init="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.isochroneConfig.selectedDate = $ctrl.kommonitorReachabilityHelperServiceInstance.settings.selectedStartPointLayer.availablePeriodsOfValidity[$ctrl.kommonitorReachabilityHelperServiceInstance.settings.selectedStartPointLayer.availablePeriodsOfValidity.length - 1]"
+															#selectedDate (change)="fetchPoiResourceGeoJSON(selectedDate.value)"
 															class="form-control" required>
+                              <option *ngFor="let date of filteredAvailablePeriodsOfValidity" [value]="date.startDate">{{date.startDate}}</option>
 														</select>
 													</div>
 												</div>
@@ -106,10 +95,9 @@
 											<div class="help-block with-errors"></div>
 										</div>
 									</div>
-								</div> -->
+								</div>
 
-								<input type="button" name="next" class="next  action-button"
-									value="N&auml;chster Schritt" />
+								<input type="button" name="next" class="next  action-button" value="N&auml;chster Schritt" />
 							</fieldset>
 
 							<fieldset>

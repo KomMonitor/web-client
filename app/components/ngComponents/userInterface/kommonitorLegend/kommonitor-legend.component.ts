@@ -152,7 +152,7 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
   }
 
   onChangeSelectedSpatialUnit() {
-
+console.log(this.dataExchangeService.pipedData.selectedSpatialUnit)
    this.broadcastService.broadcast("changeSpatialUnit");
 
     if(this.env.enableSpatialUnitNotificationSelection) {

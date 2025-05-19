@@ -88,6 +88,7 @@ export interface DataExchange {
   availableIndicators:any;
   reachabilityScenarioOnMainMap: any;
   isochroneLegend: any;
+  displayableGeoresources:any;
 }
 
 export interface KeycloakUser {
