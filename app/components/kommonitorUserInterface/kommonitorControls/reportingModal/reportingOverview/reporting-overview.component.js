@@ -33,7 +33,30 @@ angular.module('reportingOverview').component('reportingOverview', {
 				// }
 			],
 			pages: [],
-			template: {}
+			template: {},
+			pageConfig: {
+				mapLegendBackgroundColor: "rgba(255, 255, 255, 0.75)",
+				showMapLabels: true,
+				showRankingChartPerArea: true,
+				showLineChartPerArea: true,
+				showFreeText: true,
+				showRankingMeanLine: true,
+				showTitle: true,
+				showSubtitle: true,
+				showLogo: true,
+				showFooterCreationInfo: true,
+				showPageNumber: true,
+				sections: {
+					showOverviewSection_unclassified: true,
+					showOverviewSection_classified: true,
+					showBarchartOverview: true,
+					showLinechartOverview: true,
+					showBoxplotchartOverview: true,
+					showAreaSpecific: true,
+					showOverviewSection_reachability: true,
+					showDatatable: true
+				}
+			}
 		};
 
 		this.kommonitorLeafletScreenshotCacheHelperServiceInstance = kommonitorLeafletScreenshotCacheHelperService;
@@ -789,7 +812,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 					// there are pages for two page orientations (landscape and portait)
 					// only trigger the screenshot for those pages, that are actually present
 					if(forceScreenshot || (page.orientation == $scope.config.template.orientation)){
-						kommonitorLeafletScreenshotCacheHelperService.checkForScreenshot(spatialUnit.spatialUnitId, 
+						kommonitorLeafletScreenshotCacheHelperService.checkForScreenshot(pageElement.selectedBaseMap.layerConfig.name, spatialUnit.spatialUnitId, 
 							page.spatialUnitFeatureId, page.orientation, domNode);
 					}
 									
@@ -949,7 +972,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 
 				let numberOfMapElements = $scope.getNumberOfMapElements(config);		
 				// reset leaflet screenshot helper service according to new  number of selected areas
-				kommonitorLeafletScreenshotCacheHelperService.resetCounter(numberOfMapElements, true);						
+				kommonitorLeafletScreenshotCacheHelperService.resetCounter(numberOfMapElements, false);						
 
 				// restore commune logo for every page, starting at the second
 				let communeLogoSrc = ""; // base64 string
@@ -2485,7 +2508,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 				if not or it's too old, recreate it
 				if yes, simply use it to save a lot of time during report generation!
 			*/
-			let leafletMapScreenshot = kommonitorLeafletScreenshotCacheHelperService.getResourceFromCache(page.spatialUnitId, page.spatialUnitFeatureId, page.orientation);
+			let leafletMapScreenshot = kommonitorLeafletScreenshotCacheHelperService.getResourceFromCache(pageElement.selectedBaseMap.layerConfig.name, page.spatialUnitId, page.spatialUnitFeatureId, page.orientation);
 			// let leafletMapScreenshot = await domtoimage
             //   .toJpeg(node, { quality: 1.0 })
             //   .then(function (dataUrl) {

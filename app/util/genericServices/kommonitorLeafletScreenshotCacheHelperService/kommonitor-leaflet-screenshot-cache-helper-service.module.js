@@ -13,6 +13,10 @@ angular
 
       self.cacheMap = new Map();
 
+      // Initialize IndexedDB
+      let dbName = 'leafletScreenshotCache';
+      this.indexedDB;
+
       this.targetNumberOfSpatialUnitFeatures = 0;
       this.screenshotsForCurrentSpatialUnitUpdate = true;
       this.executedScreenshotMapKeys = new Map();
@@ -22,15 +26,15 @@ angular
       // i.e. "<CacheKey_prefix>__leaflet_screenshot_<spatialUnitID>_<featureID>"
       const CacheKey_leafletScreenshotPrefix = CacheKey_prefix + "_leaflet_screenshot_";
 
-      this.generateUniqueCacheKey = function (spatialUnitId, featureId, pageOrientation) {
+      this.generateUniqueCacheKey = function (mapName, spatialUnitId, featureId, pageOrientation) {
 
-        return CacheKey_leafletScreenshotPrefix + spatialUnitId + "_" + featureId + "_" + pageOrientation
+        return CacheKey_leafletScreenshotPrefix  + "_" + mapName + "_" + spatialUnitId + "_" + featureId + "_" + pageOrientation
       };
 
-      this.storeResourceInCache = function (spatialUnitId, featureId, pageOrientation, imageDataUrl) {
+      this.storeResourceInCache = async function (mapName, spatialUnitId, featureId, pageOrientation, imageDataUrl) {
         // let timestampInSeconds = Math.floor(Date.now() / 1000);
 
-        let CacheKey = this.generateUniqueCacheKey(spatialUnitId, featureId, pageOrientation);
+        let CacheKey = self.generateUniqueCacheKey(mapName, spatialUnitId, featureId, pageOrientation);
 
         let item = {
           // "timestamp": timestampInSeconds,
@@ -39,6 +43,17 @@ angular
 
         self.cacheMap.set(CacheKey, item);
         self.executedScreenshotMapKeys.set(CacheKey, CacheKey);
+
+        const blob = await (await fetch(imageDataUrl)).blob({ type: 'image/png' });
+        // Convert blob to array buffer
+        const arrayBuffer = await blob.arrayBuffer();
+
+        // Compress with pako (zlib compression)
+        const compressed = pako.deflate(new Uint8Array(arrayBuffer));
+
+        // Save to IndexedDB
+        await self.saveScreenshotInIndexedDB(CacheKey, compressed);
+        console.log('Screenshot saved in IndexedDB (lossless compressed).');
 
         // send UI update information
         self.logProgress();        
@@ -55,8 +70,8 @@ angular
         }
       }
 
-      this.getResourceFromCache = function (spatialUnitId, featureId, pageOrientation) {
-        let CacheKey = this.generateUniqueCacheKey(spatialUnitId, featureId, pageOrientation);
+      this.getResourceFromCache = function (mapName, spatialUnitId, featureId, pageOrientation) {
+        let CacheKey = this.generateUniqueCacheKey(mapName, spatialUnitId, featureId, pageOrientation);
 
         let item = self.cacheMap.get(CacheKey);
 
@@ -66,9 +81,9 @@ angular
         return undefined;
       }
 
-      this.checkForScreenshot = async function (spatialUnitId, featureId, pageOrientation, domElement) {
+      this.checkForScreenshot = async function (mapName, spatialUnitId, featureId, pageOrientation, domElement) {
 
-        let CacheKey = this.generateUniqueCacheKey(spatialUnitId, featureId, pageOrientation);
+        let CacheKey = this.generateUniqueCacheKey(mapName, spatialUnitId, featureId, pageOrientation);
         if (!self.cacheMap.has(CacheKey)) {
           // we now trigger a process that will actually set this item after a timeout. However, for each spatial unit, two requests occur
           // for now we try to only execute one screenshot process for each spatial unit
@@ -77,7 +92,7 @@ angular
             let leafletMapScreenshot = domtoimage
               .toJpeg(domElement, { quality: 1 })
               .then(function (dataUrl) {
-                self.storeResourceInCache(spatialUnitId, featureId, pageOrientation, dataUrl);
+                self.storeResourceInCache(mapName, spatialUnitId, featureId, pageOrientation, dataUrl);
               })
               .catch(function (error) {
                 console.error('oops, something went wrong!', error);
@@ -94,14 +109,17 @@ angular
       }
 
       // (re)init the whole thing, counter and map of screenshots
-      this.init = function (targetNumberOfSpatialUnitFeatures) {
-        this.targetNumberOfSpatialUnitFeatures = targetNumberOfSpatialUnitFeatures;
-        this.screenshotsForCurrentSpatialUnitUpdate = false;
-        this.executedScreenshotMapKeys = new Map();
-        this.cacheMap = new Map();
+      this.init = async function (targetNumberOfSpatialUnitFeatures) {
+        // this.targetNumberOfSpatialUnitFeatures = targetNumberOfSpatialUnitFeatures;
+        self.screenshotsForCurrentSpatialUnitUpdate = false;
+        self.executedScreenshotMapKeys = new Map();
+        self.cacheMap = new Map();
 
         // create progress log after each 10th percent of features
-        this.logProgressIndexSeparator = Math.round(targetNumberOfSpatialUnitFeatures / 100 * 10);
+        // self.logProgressIndexSeparator = Math.round(targetNumberOfSpatialUnitFeatures / 100 * 10);
+
+        await self.openIndexedDB();   
+        await self.loadScreenshotsFromIndexedDB();         
       }
 
       this.clearScreenshotMap = function(){
@@ -135,5 +153,85 @@ angular
         this.logProgress();
       }
 
+      this.openIndexedDB = () => {
+        return new Promise((resolve, reject) => {
+
+          console.log('setting persistence...');
+
+          // navigator.storage.persist().then(granted => {
+          //   if (granted) {
+          //     console.log("Storage will not be cleared except by the user");
+          //   } else {
+          //     console.log("Storage may be cleared by the browser under storage pressure.");
+          //   }
+          // });
+
+          const request = indexedDB.open(dbName, 1);
+          request.onupgradeneeded = (event) => {
+            self.indexedDB = event.target.result;
+            self.indexedDB.createObjectStore('screenshots');
+          };
+          request.onsuccess = (event) => {
+            self.indexedDB = event.target.result;
+            resolve();
+          };
+          request.onerror = (event) => reject(event.target.error);
+        });
+      };
+
+      this.saveScreenshotInIndexedDB = async (key, data) => {
+        const tx = self.indexedDB.transaction(['screenshots'], 'readwrite');
+        const store = tx.objectStore('screenshots');
+        store.put(data, key);
+      };
+
+      this.loadScreenshotFromIndexedDB = async (cacheKey) => {
+        const tx = self.indexedDB.transaction(['screenshots'], 'readonly');
+        const store = tx.objectStore('screenshots');
+        const req = store.get(cacheKey);
+
+        req.onsuccess = () => {
+          const compressed = req.result;
+          const decompressed = pako.inflate(compressed);
+          const blob = new Blob([decompressed], { type: 'image/png' });
+
+          const url = URL.createObjectURL(blob);
+          return url;
+        };
+      };
+
+      this.loadScreenshotsFromIndexedDB = async () => {
+        return new Promise((resolve, reject) => {
+          const tx = self.indexedDB.transaction(['screenshots'], 'readonly');
+          const store = tx.objectStore('screenshots');
+
+          const result = {};
+          const cursorRequest = store.openCursor();
+
+          cursorRequest.onsuccess = (event) => {
+            const cursor = event.target.result;
+            if (cursor) {
+              const compressed = cursor.value;
+              const decompressed = pako.inflate(compressed);
+              const blob = new Blob([decompressed], { type: 'image/png' });
+
+              const url = URL.createObjectURL(blob);
+              let item = {
+                // "timestamp": timestampInSeconds,
+                "imageDataUrl": url
+              }
+
+              self.cacheMap.set(cursor.key, item);
+              cursor.continue();
+            } else {
+              resolve(result); // Done iterating
+            }
+          };
+
+          cursorRequest.onerror = (event) => reject(event.target.error);
+      });
+      }
+
+      this.init();
 
     }]);

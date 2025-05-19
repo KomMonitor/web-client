@@ -97,7 +97,8 @@ module.exports = {
             { from: nodeModulePathConstant + 'jspdf/dist/jspdf.umd.min.js', to: 'jspdf/jspdf.umd.min.js' },
             { from: nodeModulePathConstant + 'jspdf-autotable/dist', to: 'jspdf-autotable/' },
             { from: nodeModulePathConstant + 'pptxgenjs/dist', to: 'pptxgenjs/' },
-            { from: nodeModulePathConstant + 'd3/dist/d3.min.js', to: 'd3/d3.min.js' }
+            { from: nodeModulePathConstant + 'd3/dist/d3.min.js', to: 'd3/d3.min.js' },
+            { from: nodeModulePathConstant + 'pako/dist/pako.min.js', to: 'pako/pako.min.js' },
       ]})
     ]
 };

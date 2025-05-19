@@ -223,7 +223,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				$scope.loadingData = true; 
 			})
 
-			kommonitorLeafletScreenshotCacheHelperService.resetCounter_keepingCurrentTargetFeatures(true);
+			kommonitorLeafletScreenshotCacheHelperService.resetCounter_keepingCurrentTargetFeatures(false);
 			await $scope.initializeAllDiagrams();			
 
 			$timeout(function(){
@@ -2115,7 +2115,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					// there are pages for two page orientations (landscape and portait)
 					// only trigger the screenshot for those pages, that are actually present
 					if(page.orientation == $scope.template.orientation){
-						kommonitorLeafletScreenshotCacheHelperService.checkForScreenshot($scope.selectedSpatialUnit.spatialUnitId, 
+						kommonitorLeafletScreenshotCacheHelperService.checkForScreenshot($scope.selectedBaseMap.layerConfig.name, $scope.selectedSpatialUnit.spatialUnitId, 
 							page.spatialUnitFeatureId, page.orientation, domNode);
 					}
 									
