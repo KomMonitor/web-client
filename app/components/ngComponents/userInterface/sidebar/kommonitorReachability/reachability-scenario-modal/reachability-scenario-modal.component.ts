@@ -8,13 +8,14 @@ import { DataExchangeService } from 'services/data-exchange-service/data-exchang
 import { MultiStepHelperServiceService } from 'services/multi-step-helper-service/multi-step-helper-service.service';
 import { ReachabilityScenarioHelperService } from 'services/reachability-scenario-helper-service/reachability-scenario-helper-service.service';
 import { ReachabilityHelperService } from 'services/reachbility-helper-service/reachability-helper.service';
+import { SingleFeatureEditComponent } from "../../../../common/single-feature-edit/single-feature-edit.component";
 
 @Component({
   selector: 'app-reachability-scenario-modal',
   standalone: true,
   templateUrl: './reachability-scenario-modal.component.html',
   styleUrls: ['./reachability-scenario-modal.component.css'],
-  imports: [CommonModule, FormsModule]
+  imports: [CommonModule, FormsModule, SingleFeatureEditComponent]
 })
 export class ReachabilityScenarioModalComponent implements OnInit {
   activeModal = inject(NgbActiveModal);
@@ -248,7 +249,6 @@ export class ReachabilityScenarioModalComponent implements OnInit {
 					}
 				}
 
-        // todo
 				this.broadcastService.broadcast("onEditGeoresourceFeatures", [this.reachabilityHelperService.pipedData.settings.selectedStartPointLayer, isReachabilityDatasetOnly]);
 
 			};
