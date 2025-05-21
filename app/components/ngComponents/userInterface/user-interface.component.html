@@ -15,11 +15,11 @@
       
      </div> 			  
 
-    <a id="userLogin" ng-mouseover="showUserLogin = true" ng-init="showUserLogin = false" title="Useristration" style="font-size:1.2em; float: right; margin-right: 2%; margin-left: 2%; margin-top: 0.5%;"><i class="fas fa-user-cog"></i></a>
-    <div id="userLoginForm" *ngIf="showUserLogin && exchangeData.enableKeycloakSecurity" ng-mouseleave="showUserLogin = false" class="userFormWrapper">
+    <a id="userLogin" (mouseover)="showUserLogin = true" title="Useristration" style="font-size:1.2em; float: right; margin-right: 2%; margin-left: 2%; margin-top: 0.5%;"><i class="fas fa-user-cog"></i></a>
+    <div id="userLoginForm" *ngIf="showUserLogin && exchangeData.enableKeycloakSecurity" (mouseleave)="showUserLogin = false" class="userFormWrapper">
       <div id="userForm">
         <h4>User Login</h4>
-        <div ng-if="authenticated" style="margin-bottom: 10px;">
+        <div *ngIf="authenticated" style="margin-bottom: 10px;">
           <span><b>Nutzername:</b></span> <i>{{exchangeData.currentKeycloakUser.username}}</i>
           <div ng-if="exchangeData.currentKeycloakUser.firstName && exchangeData.currentKeycloakUser.lastName">
             <span style="word-break: break-all;"><b>Vor- und Nachname:</b><i> {{exchangeData.currentKeycloakUser.firstName}} {{exchangeData.currentKeycloakUser.lastName}}</i></span>
@@ -83,9 +83,9 @@
             <!-- /.box --> 
           <span><b>Session G&uuml;ltigkeit:</b> {{exchangeData.keycloakTokenExpirationInfo}} Minuten</span>
         </div>
-       <!--  <input type="submit" ng-if="!authenticated" value="Login" id='input_submit' (click)="tryLoginUser()" class='input_field' >
-        <input type="submit" ng-if="authenticated" value="Logout" id='input_submit' (click)="exchangeData.tryLogoutUser()" class='input_field input_authenticated' >
-        <input type="submit" ng-if="authenticated" value="Relogin" (click)="exchangeData.extendKeycloakSession()" class='input_field input_extend_session' > -->
+        <input type="submit" *ngIf="!authenticated" value="Login" id='input_submit' (click)="tryLoginUser()" class='input_field' >
+        <input type="submit" *ngIf="authenticated" value="Logout" id='input_submit' (click)="dataExchangeService.tryLogoutUser()" class='input_field input_authenticated' >
+        <input type="submit" *ngIf="authenticated" value="Relogin" (click)="dataExchangeService.extendKeycloakSession()" class='input_field input_extend_session' >
       </div>
     </div>
     <p ng-if="showAdminLogin" (click)="openAdminUI()" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%; cursor:pointer;" title="Admin UI&nbsp;&nbsp;"><span class="fas fa-cogs"></span></p>

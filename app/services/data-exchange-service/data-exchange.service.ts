@@ -89,6 +89,9 @@ export interface DataExchange {
   reachabilityScenarioOnMainMap: any;
   isochroneLegend: any;
   displayableGeoresources:any;
+  adminUserName;
+  adminPassword;
+  adminIsLoggedIn;
 }
 
 export interface KeycloakUser {
@@ -308,4 +311,11 @@ export class DataExchangeService {
     return this.ajskommonitorDataExchangeServiceeProvider.getDefaultReportingTemplatePageElement(ident);
   }
 
+  tryLogoutUser() {
+    this.ajskommonitorDataExchangeServiceeProvider.tryLogoutUser();
+  }
+
+  extendKeycloakSession() {
+    this.ajskommonitorDataExchangeServiceeProvider.extendKeycloakSession();
+  }
 }

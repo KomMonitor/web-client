@@ -9,7 +9,7 @@ import $ from 'jquery';
 import Keycloak from 'keycloak-js';
 import angular from "angular";
 
-import { RouterModule, Routes } from '@angular/router';
+import { Router, RouterModule, Routes } from '@angular/router';
 import { HashLocationStrategy, LocationStrategy } from '@angular/common';
 
 import { 
@@ -156,6 +156,10 @@ export class AppModule implements DoBootstrap {
   
     this.upgrade.bootstrap(document.documentElement, ['kommonitorClient']);
     // setUpLocationSync(this.upgrade);
+
+    // fix for route-mismatch. to be rebuild/deleted with routeModule implementation // todo
+    if(window.location.href.includes('administration#!'))
+      location.href = `${window.location.origin}/administration#!/administration`;
 
   }
 
@@ -457,7 +461,7 @@ export class AppModule implements DoBootstrap {
                 }
               }
             }).
-            when('/administration', {
+            when('/administration/', {
               template: '<kommonitor-admin></kommonitor-admin>',
               resolve: {
                 'auth': function (Auth, $q, $location) {

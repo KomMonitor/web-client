@@ -6,6 +6,7 @@ import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { ConfigStorageService } from 'services/config-storage-service/config-storage.service';
 import { ReportingModalComponent } from './reporting/reporting-modal.component';
 import { ElementVisibilityHelperService } from 'services/element-visibility-helper-service/element-visibility-helper.service';
+import { AuthService } from 'services/auth-service/auth.service';
 
 @Component({
   selector: 'user-interface-new',
@@ -19,7 +20,9 @@ export class UserInterfaceComponent implements OnInit {
   userGroupInformation:any[] = [];
 
   showUserLogin = false;
-
+  authenticated = false;
+  password;
+  showAdminLogin = false;
   
   sidebarIndicatorConfigClass = "disappear";
   sidebarDiagramsClass = "disappear";
@@ -48,11 +51,12 @@ export class UserInterfaceComponent implements OnInit {
   sidebarElement = "";
 
   constructor(
-    private dataExchangeService: DataExchangeService,
+    protected dataExchangeService: DataExchangeService,
     private modalService: NgbModal, 
     private broadcastService: BroadcastService,
     private configStorageService: ConfigStorageService,
-    protected visibilityHelperService: ElementVisibilityHelperService
+    protected visibilityHelperService: ElementVisibilityHelperService,
+    private authService: AuthService
   ) {
     this.exchangeData = this.dataExchangeService.pipedData;
   }
@@ -69,10 +73,12 @@ export class UserInterfaceComponent implements OnInit {
 				console.log("Authetication successfull");
 			}			
 
-			await checkAuthentication(); */
+			await  */
 
       // todo
 			//kommonitorShareHelperService.init();
+
+      this.checkAuthentication();
 
 			this.dataExchangeService.fetchAllMetadata();
 			setTimeout(() => {
@@ -142,34 +148,33 @@ export class UserInterfaceComponent implements OnInit {
 			console.log("User successfully authenticated");
 			checkAuthentication();
 		}
-
-		$scope.tryLoginUser_withoutKeycloak = function(){
+*/
+		tryLoginUser_withoutKeycloak(){
 			// TODO FIXME make generic user login once user/role concept is implemented
 
 			// currently only simple ADMIN user login is possible
 			console.log("Check user login");
-			if (this.exchangeData.adminUserName === this.exchangeData.currentKeycloakUser && this.exchangeData.adminPassword === $scope.password){
+			if (this.exchangeData.adminUserName === this.exchangeData.currentKeycloakUser && this.exchangeData.adminPassword === this.password){
 				// success login --> currently switch to ADMIN page directly
 				console.log("User Login success - redirect to Admin Page");
 				this.exchangeData.adminIsLoggedIn = true;
-				$location.path('/administration');
+				location.href = '/administration';
 			}
-		};
+		}
 
-		$scope.tryLoginUser = function(){
+		tryLoginUser(){
 			if(this.exchangeData.enableKeycloakSecurity){
-				Auth.keycloak.login();
+				this.authService.Auth.keycloak.login();
 			}
 			else{
-				$scope.tryLoginUser_withoutKeycloak();
+				this.tryLoginUser_withoutKeycloak();
 			}
-			
-		};
+		}
 
-		$scope.tryLogoutUser = function() {
-			Auth.keycloak.logout();
-		};
-
+		tryLogoutUser() {
+			//Auth.keycloak.logout();
+		}
+/*  
 		$scope.tryLoginUserByKeypress = function ($event) {
 			var keyCode = $event.which || $event.keyCode;
 			//check for enter key
@@ -178,20 +183,20 @@ export class UserInterfaceComponent implements OnInit {
 	    }
 		};
   */
-/* 		checkAuthentication = async function () {	
+		checkAuthentication() {	
 			this.exchangeData.currentKeycloakLoginRoles = [];
 
-			if (Auth.keycloak.authenticated) {
-				$scope.authenticated = Auth.keycloak.authenticated;
-				if(Auth.keycloak.tokenParsed 
-					&& Auth.keycloak.tokenParsed.realm_access 
-					&& Auth.keycloak.tokenParsed.realm_access.roles 
-					&& Auth.keycloak.tokenParsed.realm_access.roles.some(role => role.endsWith("-creator") || role.endsWith("-publisher") || role.endsWith("-editor"))){
-						Auth.keycloak.showAdminView = true;
-						$scope.showAdminLogin = true;
+			if (this.authService.Auth.keycloak.authenticated) {
+				this.authenticated = this.authService.Auth.keycloak.authenticated;
+				if(this.authService.Auth.keycloak.tokenParsed 
+					&& this.authService.Auth.keycloak.tokenParsed.realm_access 
+					&& this.authService.Auth.keycloak.tokenParsed.realm_access.roles 
+					&& this.authService.Auth.keycloak.tokenParsed.realm_access.roles.some(role => role.endsWith("-creator") || role.endsWith("-publisher") || role.endsWith("-editor"))){
+						this.authService.Auth.keycloak.showAdminView = true;
+						this.showAdminLogin = true;
 				}
 			}
-		}; */
+		};
 
 		openAdminUI() {
 			document.location = '/administration';
