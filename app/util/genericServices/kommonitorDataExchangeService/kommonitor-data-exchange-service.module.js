@@ -1810,9 +1810,11 @@ angular
             this.availableRoles = [];
 
             for (let elem of this.accessControl) {
-              for (let permission of elem.permissions) {
-                let available = {...permission, ...{"organizationalUnit": elem, "roleName": elem.name + "-" + permission.permissionLevel}};
-                this.availableRoles.push(available);
+              if(elem.permissions) {
+                for (let permission of elem.permissions) {
+                  let available = {...permission, ...{"organizationalUnit": elem, "roleName": elem.name + "-" + permission.permissionLevel}};
+                  this.availableRoles.push(available);
+                }
               }
             }
             // we need to refresh all modals as roles have changed

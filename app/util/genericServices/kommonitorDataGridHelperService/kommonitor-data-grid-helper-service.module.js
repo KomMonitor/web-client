@@ -3416,10 +3416,12 @@ angular
           if(elem.name=='public')
             elem.name = 'Öffentlicher Zugriff';
 
-          for (let permission of elem.permissions) {
-            permission.isChecked = false;
-            if (permissionIds && permissionIds.includes(permission.permissionId)){
-              permission.isChecked = true;
+          if(elem.persmissions) {
+            for (let permission of elem.permissions) {
+              permission.isChecked = false;
+              if (permissionIds && permissionIds.includes(permission.permissionId)){
+                permission.isChecked = true;
+              }
             }
           }
         }
