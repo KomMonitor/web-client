@@ -74,15 +74,23 @@ angular
           domElement.style.display = 'block';
         }
         
+        if (element.restricted === undefined || element.restricted === false) {
+          if(element.groups === undefined || element.groups.length === 0) {
+              return true;
+          }
+          if(self.isAdvancedMode && element.groups && element.groups.includes(self.advancedModeGroupName)){
+            return true;
+          }
+        } else {
 
-        if(element.groups === undefined || element.groups.length === 0) {          
-          return true;
-        }
-        if(self.isAdvancedMode && element.groups && element.groups.includes(self.advancedModeGroupName)){
-          return true;
-        }
         // authenticated access control
         if(Auth.keycloak.authenticated) {
+          if(element.groups === undefined || element.groups.length === 0) {
+              return true;
+          }
+          if(self.isAdvancedMode && element.groups && element.groups.includes(self.advancedModeGroupName)){
+            return true;
+          }
           // admin role user always sees all data and widgets
           // role kommonitor-creator still exists
           if(Auth.keycloak.tokenParsed.realm_access.roles.includes(__env.keycloakKomMonitorAdminRoleName)){
@@ -135,6 +143,8 @@ angular
             // $("#" + id).remove();
             return false;	
         }
+        }
+
       };
       
       this.initElementVisibility();            
