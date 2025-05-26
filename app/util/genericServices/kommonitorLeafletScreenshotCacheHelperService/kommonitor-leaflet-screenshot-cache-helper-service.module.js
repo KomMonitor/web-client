@@ -14,8 +14,10 @@ angular
       self.cacheMap = new Map();
 
       // Initialize IndexedDB
-      let dbName = 'leafletScreenshotCache';
+      const dbName = 'leafletScreenshotCache';
+      const storeName = "screenshots";
       this.indexedDB;
+      this.indexedDbCount;
 
       this.targetNumberOfSpatialUnitFeatures = 0;
       this.screenshotsForCurrentSpatialUnitUpdate = true;
@@ -169,25 +171,63 @@ angular
           const request = indexedDB.open(dbName, 1);
           request.onupgradeneeded = (event) => {
             self.indexedDB = event.target.result;
-            self.indexedDB.createObjectStore('screenshots');
+            self.indexedDB.createObjectStore(storeName);
           };
           request.onsuccess = (event) => {
             self.indexedDB = event.target.result;
+            self.getScreenshotCountFromIndexedDB()
             resolve();
           };
           request.onerror = (event) => reject(event.target.error);
         });
       };
 
+      this.clearScreenshotCache = async () => {
+
+        const tx = self.indexedDB.transaction([storeName], 'readwrite');
+        const store = tx.objectStore(storeName);
+        const clearRequest = store.clear(); // This is the method to clear the store
+
+        clearRequest.onsuccess = (event) => {          
+          self.resetCounter_keepingCurrentTargetFeatures(true); // also delete current cacheMap, as we want to force regeneration of all screenshots
+          self.indexedDbCount = 0;
+          $rootScope.$digest();
+          return; // Resolve the promise when clearing is successful
+        };
+
+        clearRequest.onerror = (event) => {
+          console.error("Error clearing store:", event.target.errorCode);
+          throw new Error("Error clearing store");
+        };
+      }
+
+      this.getScreenshotCountFromIndexedDB = async () => {
+        const tx = self.indexedDB.transaction([storeName], 'readonly');
+        const store = tx.objectStore(storeName);
+        const countRequest = store.count();
+
+        countRequest.onsuccess = (event) => {
+          self.indexedDbCount = event.target.result;
+          $rootScope.$digest();
+          return self.indexedDbCount;   
+        };
+
+        countRequest.onerror = (event) => {
+          console.error("Error counting entries:", event.target.errorCode);
+          throw new Error("Error counting entries");
+        };
+      };
+
       this.saveScreenshotInIndexedDB = async (key, data) => {
-        const tx = self.indexedDB.transaction(['screenshots'], 'readwrite');
-        const store = tx.objectStore('screenshots');
+        const tx = self.indexedDB.transaction([storeName], 'readwrite');
+        const store = tx.objectStore(storeName);
         store.put(data, key);
+        self.getScreenshotCountFromIndexedDB()
       };
 
       this.loadScreenshotFromIndexedDB = async (cacheKey) => {
-        const tx = self.indexedDB.transaction(['screenshots'], 'readonly');
-        const store = tx.objectStore('screenshots');
+        const tx = self.indexedDB.transaction([storeName], 'readonly');
+        const store = tx.objectStore(storeName);
         const req = store.get(cacheKey);
 
         req.onsuccess = () => {
@@ -202,8 +242,8 @@ angular
 
       this.loadScreenshotsFromIndexedDB = async () => {
         return new Promise((resolve, reject) => {
-          const tx = self.indexedDB.transaction(['screenshots'], 'readonly');
-          const store = tx.objectStore('screenshots');
+          const tx = self.indexedDB.transaction([storeName], 'readonly');
+          const store = tx.objectStore(storeName);
 
           const result = {};
           const cursorRequest = store.openCursor();
@@ -224,6 +264,7 @@ angular
               self.cacheMap.set(cursor.key, item);
               cursor.continue();
             } else {
+              self.getScreenshotCountFromIndexedDB()
               resolve(result); // Done iterating
             }
           };

@@ -79,6 +79,15 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			}
 		}
 
+		$scope.clearScreenshotCache = async function(){
+			await kommonitorLeafletScreenshotCacheHelperService.clearScreenshotCache();
+
+			// now retrigger the generation of all screenshots
+			// by simply calling the changeBaseMap method
+			// this will reinit all diagrams, including leafletScreenshots
+			$scope.onChangeSelectedBaseMap();
+		}
+
 		$scope.checkVisibility = function(pageElement, page){
 			switch(pageElement.type) {
 				case "indicatorTitle-landscape":
