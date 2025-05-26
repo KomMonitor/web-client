@@ -1061,8 +1061,6 @@ angular
           });
         }
 
-        console.log(seriesData);
-
         // needed for reporting
         for(let feature of indicatorMetadataAndGeoJSON.geoJSON.features) {
           bbox = turf.bbox(feature); // calculate bbox for each feature

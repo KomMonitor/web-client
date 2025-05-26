@@ -55,7 +55,6 @@ angular
 
         // Save to IndexedDB
         await self.saveScreenshotInIndexedDB(CacheKey, compressed);
-        console.log('Screenshot saved in IndexedDB (lossless compressed).');
 
         // send UI update information
         self.logProgress();        
@@ -157,8 +156,6 @@ angular
 
       this.openIndexedDB = () => {
         return new Promise((resolve, reject) => {
-
-          console.log('setting persistence...');
 
           // navigator.storage.persist().then(granted => {
           //   if (granted) {

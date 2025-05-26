@@ -1342,8 +1342,6 @@ angular.module('kommonitorMap').component(
 
         $scope.$on("addSpatialUnitAsGeopackage", function (event) {
 
-          console.log('addSpatialUnitAsGeopackage was called');
-
           var layer = L.geoPackageFeatureLayer([], {
             geoPackageUrl: './test1234.gpkg',
             layerName: 'test1234',
@@ -1370,8 +1368,6 @@ angular.module('kommonitorMap').component(
         });
 
         $scope.$on("addSpatialUnitAsGeoJSON", function (event, spatialUnitMetadataAndGeoJSON, date) {
-
-          console.log('addSpatialUnitAsGeoJSON was called');
 
           // if ($scope.layers.overlays[spatialUnitMetadataAndGeoJSON.spatialUnitLevel]) {
           //     delete $scope.layers.overlays[spatialUnitMetadataAndGeoJSON.spatialUnitLevel];
@@ -1899,10 +1895,8 @@ angular.module('kommonitorMap').component(
                 poiMarkerLayer = kommonitorGenericMapHelperService.createCustomMarkersFromWfsPoints(wfsLayer, poiMarkerLayer, dataset);
               }
 
-              console.log("Try to fit bounds on wfsLayer");
               $scope.map.fitBounds(wfsLayer.getBounds());
 
-              console.log("Tried fit bounds on wfsLayer");
 
               $scope.map.invalidateSize(true);
               // $scope.loadingData = false;
@@ -2591,8 +2585,6 @@ angular.module('kommonitorMap').component(
 
         $scope.$on("replaceIndicatorAsGeoJSON", function (event, indicatorMetadataAndGeoJSON, spatialUnitName, date, justRestyling, isCustomComputation) {
 
-          console.log('replaceIndicatorAsGeoJSON was called');
-
           $rootScope.$broadcast("updateSpatialFilterIsApplied");
 
           kommonitorVisualStyleHelperService.isCustomComputation = false;
@@ -2630,7 +2622,6 @@ angular.module('kommonitorMap').component(
             $rootScope.$broadcast("checkBalanceMenueAndButton");
           }
 
-          console.log("Remove old indicatorLayer if exists");
           if ($scope.currentIndicatorLayer) {
             $scope.layerControl.removeLayer($scope.currentIndicatorLayer);
             $scope.map.removeLayer($scope.currentIndicatorLayer);

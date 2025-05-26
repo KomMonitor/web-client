@@ -68,8 +68,6 @@ angular
 							return;
 						}
 
-						console.log("updating radar diagram");
-
 						$scope.setupCompleted = false;
 
 						updateRadarChart(indicatorMetadataAndGeoJSON, spatialUnitName, spatialUnitId, date);
@@ -591,7 +589,6 @@ angular
 					};
 
 					this.filterDisplayedIndicatorsOnRadar = function () {
-						console.log("Filtering indicator radar");
 
 						modifyRadarContent(kommonitorDiagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime);
 
