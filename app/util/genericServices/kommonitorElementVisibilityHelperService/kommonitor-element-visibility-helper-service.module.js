@@ -84,16 +84,16 @@ angular
         } else {
 
         // authenticated access control
-        if(Auth.keycloak.authenticated) {
-          if(element.groups === undefined || element.groups.length === 0) {
+        if (Auth.keycloak.authenticated) {
+          if (element.groups === undefined || element.groups.length === 0) {
               return true;
           }
-          if(self.isAdvancedMode && element.groups && element.groups.includes(self.advancedModeGroupName)){
+          if (self.isAdvancedMode && element.groups && element.groups.includes(self.advancedModeGroupName)) {
             return true;
           }
           // admin role user always sees all data and widgets
           // role kommonitor-creator still exists
-          if(Auth.keycloak.tokenParsed.realm_access.roles.includes(__env.keycloakKomMonitorAdminRoleName)){
+          if (Auth.keycloak.tokenParsed.realm_access.roles.includes(__env.keycloakKomMonitorAdminRoleName)) {
             return true;
           }
           var hasAllowedGroup = false;          
