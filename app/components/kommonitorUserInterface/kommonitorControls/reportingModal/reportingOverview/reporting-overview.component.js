@@ -728,7 +728,8 @@ angular.module('reportingOverview').component('reportingOverview', {
 				// We create a new bounds object from the stored data
 				// let bounds = L.latLngBounds(pageElement.leafletBbox._southWest, pageElement.leafletBbox._northEast);
 
-					// boundingCoords = [ [bounds.getWest(), bounds.getNorth()], [bounds.getEast(), bounds.getSouth()]]
+					// let bounds = L.latLngBounds(pageElement.leafletBbox._southWest, pageElement.leafletBbox._northEast);
+					// let boundingCoords = [ [bounds.getWest(), bounds.getNorth()], [bounds.getEast(), bounds.getSouth()]]
 					let boundingCoords = echartsOptions.series[0].boundingCoords;
 
 					// set bounding box to this feature
@@ -749,9 +750,26 @@ angular.module('reportingOverview').component('reportingOverview', {
 				leafletMap.fitBounds( [[southLat, westLon], [northLat, eastLon]] );
 				// leafletMap.fitBounds( bounds );
 
-				// let bounds = leafletMap.getBounds()
-				// // now update every echarts series
-				// boundingCoords = [ [bounds.getWest(), bounds.getNorth()], [bounds.getEast(), bounds.getSouth()]]
+				let bounds = leafletMap.getBounds()
+				
+				/*
+				as we might have landscape and portrait versions of the same content
+				leaflet fitBounds() will not work properly, if the leaflet map is actually not included in the DOM currently
+				
+				--> hence we make a workaround. if the leaflet coords of northeast and southwest are exactly the same
+				then we just ignore it and instead reuse the original echarts coordinates --> they are proper at the beginning of the function  
+
+				*/
+
+				if(bounds.getWest() == bounds.getEast() && bounds.getNorth() == bounds.getSouth()){
+					// this is only the case, if leaflet.fitBounds() results in a single coordinate (due to map HTML element not within DOM)	
+					// hence, simply use current echarts extent				
+				}
+				else{
+					// normal case, leaflet has properly rendered and zoomed to the given extent
+					// thus we use the leaflet coords in order to adjust the echarts extent for proper overlay
+					boundingCoords = [ [bounds.getWest(), bounds.getNorth()], [bounds.getEast(), bounds.getSouth()]]
+				}
 
 				for(let series of echartsOptions.series) {
 
@@ -766,17 +784,19 @@ angular.module('reportingOverview').component('reportingOverview', {
 					}
 				}
 
-				if(echartsOptions.geo){
-					echartsOptions.geo[0].top = 0;
-					echartsOptions.geo[0].left = 0;
-					echartsOptions.geo[0].right = 0;
-					echartsOptions.geo[0].bottom = 0;
-					echartsOptions.geo[0].projection = {
-						project: (point) => mercatorProjection_d3(point),
-						unproject: (point) => mercatorProjection_d3.invert(point)
-					}				
-					echartsOptions.geo[0].boundingCoords = boundingCoords
-				}
+				echartsOptions.geo[0].top = 0;
+				echartsOptions.geo[0].left = 0;
+				echartsOptions.geo[0].right = 0;
+				echartsOptions.geo[0].bottom = 0;
+				echartsOptions.geo[0].projection = {
+					project: (point) => mercatorProjection_d3(point),
+					unproject: (point) => mercatorProjection_d3.invert(point)
+				}				
+				echartsOptions.geo[0].boundingCoords = boundingCoords
+				
+				echartsMap.setOption(echartsOptions, {
+					notMerge: false
+				});	
 				
 
 				// store spatial unit and feature id to page in order to access it later when the screenshot is needed
@@ -821,6 +841,8 @@ angular.module('reportingOverview').component('reportingOverview', {
 
 				// add leaflet map to pageElement in case we need it again later
 				pageElement.leafletMap = leafletMap;
+				pageElement.leafletBbox = bounds;
+				pageElement.echartsOptions = echartsOptions;
 			
 				// can be used to check if positioning in echarts matches the one from leaflet
 				//let geoJsonLayer = L.geoJSON( $scope.geoJsonForReachability.features )

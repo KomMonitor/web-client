@@ -2071,8 +2071,28 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 				leafletMap.fitBounds( [[southLat, westLon], [northLat, eastLon]] );
 				let bounds = leafletMap.getBounds()
+
+				/*
+				as we might have landscape and portrait versions of the same content
+				leaflet fitBounds() will not work properly, if the leaflet map is actually not included in the DOM currently
+				
+				--> hence we make a workaround. if the leaflet coords of northeast and southwest are exactly the same
+				then we just ignore it and instead reuse the original echarts coordinates --> they are proper at the beginning of the function  
+
+				*/
+
+				if(bounds.getWest() == bounds.getEast() && bounds.getNorth() == bounds.getSouth()){
+					// this is only the case, if leaflet.fitBounds() results in a single coordinate (due to map HTML element not within DOM)	
+					// hence, simply use current echarts extent				
+				}
+				else{
+					// normal case, leaflet has properly rendered and zoomed to the given extent
+					// thus we use the leaflet coords in order to adjust the echarts extent for proper overlay
+					boundingCoords = [ [bounds.getWest(), bounds.getNorth()], [bounds.getEast(), bounds.getSouth()]]
+				}
+
 				// // now update every echarts series
-				boundingCoords = [ [bounds.getWest(), bounds.getNorth()], [bounds.getEast(), bounds.getSouth()]]
+				
 				for(let series of echartsOptions.series) {
 
 					series.left = 0;
@@ -2369,6 +2389,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			options = enableManualLabelPositioningAcrossPages(page, options, map)
 			
 			map.setOption(options);
+			pageElement.echartsOptions = options;			
 
 			// await $scope.initLeafletMapBeneathEchartsMap(page, pageElement, map);
 
