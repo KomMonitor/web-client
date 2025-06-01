@@ -128,14 +128,17 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					return true;
 				}
 				 // case "mapLegend" can be ignored since it is included in the map if needed
-				case "overallAverage":
-				case "selectionAverage": {
-					return true;
-				}
-				case "overallChange":
-				case "selectionChange": {
-					return true;
-				}
+				  /*
+					June 2025: we remove overallAverage and overallChange, overallAverage and selectionAverage from reporting overview pages.
+				 */
+				// case "overallAverage":
+				// case "selectionAverage": {
+				// 	return true;
+				// }
+				// case "overallChange":
+				// case "selectionChange": {
+				// 	return true;
+				// }
 				case "barchart": {
 					if(page.type == 'area_specific'){
 						return $scope.pageConfig.showRankingChartPerArea;
@@ -3383,28 +3386,31 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 							break;
 						}
 							
-						case "overallAverage": {
-							$scope.createPageElement_Average(page, pageElement, false);
-							pageDom.querySelector(".type-overallAverage").style.border = "none";
-							break;
-						}
-						case "selectionAverage": {
-							$scope.createPageElement_Average(page, pageElement, true);
-							pageDom.querySelector(".type-selectionAverage").style.border = "none";
-							break;
-						}
-						case "overallChange": {
-							$scope.createPageElement_Change(page, pageElement, false);
-							let wrapper = pageDom.querySelector(".type-overallChange")
-							wrapper.style.border = "none";
-							break;
-						}
-						case "selectionChange": {
-							$scope.createPageElement_Change(page, pageElement, true);
-							let wrapper = pageDom.querySelector(".type-selectionChange")
-							wrapper.style.border = "none";
-							break;
-						}
+						 /*
+							June 2025: we remove overallAverage and overallChange, overallAverage and selectionAverage from reporting overview pages.
+						*/
+						// case "overallAverage": {
+						// 	$scope.createPageElement_Average(page, pageElement, false);
+						// 	pageDom.querySelector(".type-overallAverage").style.border = "none";
+						// 	break;
+						// }
+						// case "selectionAverage": {
+						// 	$scope.createPageElement_Average(page, pageElement, true);
+						// 	pageDom.querySelector(".type-selectionAverage").style.border = "none";
+						// 	break;
+						// }
+						// case "overallChange": {
+						// 	$scope.createPageElement_Change(page, pageElement, false);
+						// 	let wrapper = pageDom.querySelector(".type-overallChange")
+						// 	wrapper.style.border = "none";
+						// 	break;
+						// }
+						// case "selectionChange": {
+						// 	$scope.createPageElement_Change(page, pageElement, true);
+						// 	let wrapper = pageDom.querySelector(".type-selectionChange")
+						// 	wrapper.style.border = "none";
+						// 	break;
+						// }
 						case "barchart": {
 							$scope.createPageElement_BarChartDiagram(pElementDom, page);
 							pageElement.isPlaceholder = false;

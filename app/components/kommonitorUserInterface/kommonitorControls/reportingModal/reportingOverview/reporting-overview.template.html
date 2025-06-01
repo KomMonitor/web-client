@@ -111,7 +111,12 @@
                                     {{pageElement.text}}
                                 </span>
 
-                                <span ng-show="pageElement.type == 'overallAverage' && pageElement.isPlaceholder == false"
+                                <!-- 
+                                 /*
+                                    June 2025: we remove overallAverage and overallChange, overallAverage and selectionAverage from reporting overview pages.
+                                */
+                                -->
+                                <!-- <span ng-show="pageElement.type == 'overallAverage' && pageElement.isPlaceholder == false"
                                     ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
                                     <span style="display: block; text-align:left">
                                         Durchschnitt Gesamtstadt:<br />
@@ -141,7 +146,7 @@
                                         Durchschnittliche Veränderung Selektion:<br />
                                         {{pageElement.text}}
                                     </span>
-                                </span>
+                                </span> -->
 
                             </div>
                         </div>

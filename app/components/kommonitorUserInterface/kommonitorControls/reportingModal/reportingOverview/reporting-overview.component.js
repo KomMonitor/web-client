@@ -167,14 +167,17 @@ angular.module('reportingOverview').component('reportingOverview', {
 					return true;
 				}
 				 // case "mapLegend" can be ignored since it is included in the map if needed
-				case "overallAverage":
-				case "selectionAverage": {
-					return true;
-				}
-				case "overallChange":
-				case "selectionChange": {
-					return true;
-				}
+				  /*
+					June 2025: we remove overallAverage and overallChange, overallAverage and selectionAverage from reporting overview pages.
+				 */
+				// case "overallAverage":
+				// case "selectionAverage": {
+				// 	return true;
+				// }
+				// case "overallChange":
+				// case "selectionChange": {
+				// 	return true;
+				// }
 				case "barchart": {
 					if(page.type == 'area_specific'){
 						return $scope.config.pageConfig.showRankingChartPerArea;
@@ -498,28 +501,28 @@ angular.module('reportingOverview').component('reportingOverview', {
 								}
 							}
 
-							if(pageElement.type === "overallAverage") {
-								pageDom.querySelector(".type-overallAverage").style.border = "none";
-							}
+							// if(pageElement.type === "overallAverage") {
+							// 	pageDom.querySelector(".type-overallAverage").style.border = "none";
+							// }
 	
-							if(pageElement.type === "selectionAverage") {
-								pageDom.querySelector(".type-selectionAverage").style.border = "none";
-							}
+							// if(pageElement.type === "selectionAverage") {
+							// 	pageDom.querySelector(".type-selectionAverage").style.border = "none";
+							// }
 
 							if(pageElement.type === "mapLegend") {
 								pageElement.isPlaceholder = false;
 								pageDom.querySelector(".type-mapLegend").style.display = "none";
 							}
 
-							if(pageElement.type === "overallChange") {
-								let wrapper = pageDom.querySelector(".type-overallChange")
-								wrapper.style.border = "none";
-							}
+							// if(pageElement.type === "overallChange") {
+							// 	let wrapper = pageDom.querySelector(".type-overallChange")
+							// 	wrapper.style.border = "none";
+							// }
 
-							if(pageElement.type === "selectionChange") {
-								let wrapper = pageDom.querySelector(".type-selectionChange")
-								wrapper.style.border = "none";
-							}
+							// if(pageElement.type === "selectionChange") {
+							// 	let wrapper = pageDom.querySelector(".type-selectionChange")
+							// 	wrapper.style.border = "none";
+							// }
 
 							if(pageElement.type === "datatable") {
 								$scope.createDatatablePage(pElementDom, pageElement);
@@ -1525,24 +1528,27 @@ angular.module('reportingOverview').component('reportingOverview', {
 							break;
 						}
 					 	// case "mapLegend" can be ignored since it is included in the map if needed
-						case "overallAverage":
-						case "selectionAverage": {
-							let avgType = pageElement.type === "overallAverage" ? "Gesamtstadt" : "Selektion"
-							let text = "Durchschnitt\n" + avgType + ":\n" + pageElement.text.toString();
+						 /*
+							June 2025: we remove overallAverage and overallChange, overallAverage and selectionAverage from reporting overview pages.
+						*/
+			// 			case "overallAverage":
+			// 			case "selectionAverage": {
+			// 				let avgType = pageElement.type === "overallAverage" ? "Gesamtstadt" : "Selektion"
+			// 				let text = "Durchschnitt\n" + avgType + ":\n" + pageElement.text.toString();
               
-	            slide.addShape(doc.shapes.RECTANGLE, { x: pageElementDimensions.left, y: pageElementDimensions.top, w: pageElementDimensions.width, h: pageElementDimensions.height, line: { color: '#000000', width: 1 } });
-              slide.addText(text, { x: pageElementDimensions.left+0.1, y: pageElementDimensions.top+1, fontSize: fontSize-3, fontFace: fontFace });
-							break;
-						}
-						case "overallChange":
-						case "selectionChange": {
-							let changeType = pageElement.type === "overallChange" ? "Gesamtstadt" : "Selektion"
-							let text = "Durchschnittliche\nVeränderung\n" + changeType + ":\n" + pageElement.text.toString();
+	        //     slide.addShape(doc.shapes.RECTANGLE, { x: pageElementDimensions.left, y: pageElementDimensions.top, w: pageElementDimensions.width, h: pageElementDimensions.height, line: { color: '#000000', width: 1 } });
+            //   slide.addText(text, { x: pageElementDimensions.left+0.1, y: pageElementDimensions.top+1, fontSize: fontSize-3, fontFace: fontFace });
+			// 				break;
+			// 			}
+			// 			case "overallChange":
+			// 			case "selectionChange": {
+			// 				let changeType = pageElement.type === "overallChange" ? "Gesamtstadt" : "Selektion"
+			// 				let text = "Durchschnittliche\nVeränderung\n" + changeType + ":\n" + pageElement.text.toString();
               
-	            slide.addShape(doc.shapes.RECTANGLE, { x: pageElementDimensions.left, y: pageElementDimensions.top, w: pageElementDimensions.width, h: pageElementDimensions.height, line: { color: '#000000', width: 1 } });
-              slide.addText(text, { x: pageElementDimensions.left+0.1, y: pageElementDimensions.top+1.4, fontSize: fontSize-3, fontFace: fontFace });
-							break;
-						}
+	        //     slide.addShape(doc.shapes.RECTANGLE, { x: pageElementDimensions.left, y: pageElementDimensions.top, w: pageElementDimensions.width, h: pageElementDimensions.height, line: { color: '#000000', width: 1 } });
+            //   slide.addText(text, { x: pageElementDimensions.left+0.1, y: pageElementDimensions.top+1.4, fontSize: fontSize-3, fontFace: fontFace });
+			// 				break;
+			// 			}
 						case "barchart": {
 							if(page.type == 'area_specific' && ! $scope.config.pageConfig.showRankingChartPerArea){
 								continue;
@@ -1782,31 +1788,34 @@ angular.module('reportingOverview').component('reportingOverview', {
 							break;
 						}
 						// case "mapLegend" can be ignored since it is included in the map if needed
-						case "overallAverage":
-						case "selectionAverage": {
-							let x, y, width, height;
-							x = pageElementDimensions.left;
-							y = pageElementDimensions.top;
-							width = pageElementDimensions.width;
-							height = pageElementDimensions.height;
-							doc.rect(x, y, width, height);
-							let avgType = pageElement.type === "overallAverage" ? "Gesamtstadt" : "Selektion"
-							let text = "Durchschnitt\n" + avgType + ":\n" + pageElement.text.toString()
-							doc.text(text, pageElementDimensions.left + pxToMilli(5), pageElementDimensions.top + pxToMilli(5), { baseline: "top" });
-							break;
-						}
-						case "overallChange":
-						case "selectionChange": {
-							let x = pageElementDimensions.left;
-							let y = pageElementDimensions.top;
-							let width = pageElementDimensions.width;
-							let height = pageElementDimensions.height;
-							doc.rect(x, y, width, height);
-							let changeType = pageElement.type === "overallChange" ? "Gesamtstadt" : "Selektion"
-							let text = "Durchschnittliche\nVeränderung\n" + changeType + ":\n" + pageElement.text.toString()
-							doc.text(text, x + pxToMilli(5), y + pxToMilli(5), { baseline: "top" });
-							break;
-						}
+						 /*
+							June 2025: we remove overallAverage and overallChange, overallAverage and selectionAverage from reporting overview pages.
+						*/
+						// case "overallAverage":
+						// case "selectionAverage": {
+						// 	let x, y, width, height;
+						// 	x = pageElementDimensions.left;
+						// 	y = pageElementDimensions.top;
+						// 	width = pageElementDimensions.width;
+						// 	height = pageElementDimensions.height;
+						// 	doc.rect(x, y, width, height);
+						// 	let avgType = pageElement.type === "overallAverage" ? "Gesamtstadt" : "Selektion"
+						// 	let text = "Durchschnitt\n" + avgType + ":\n" + pageElement.text.toString()
+						// 	doc.text(text, pageElementDimensions.left + pxToMilli(5), pageElementDimensions.top + pxToMilli(5), { baseline: "top" });
+						// 	break;
+						// }
+						// case "overallChange":
+						// case "selectionChange": {
+						// 	let x = pageElementDimensions.left;
+						// 	let y = pageElementDimensions.top;
+						// 	let width = pageElementDimensions.width;
+						// 	let height = pageElementDimensions.height;
+						// 	doc.rect(x, y, width, height);
+						// 	let changeType = pageElement.type === "overallChange" ? "Gesamtstadt" : "Selektion"
+						// 	let text = "Durchschnittliche\nVeränderung\n" + changeType + ":\n" + pageElement.text.toString()
+						// 	doc.text(text, x + pxToMilli(5), y + pxToMilli(5), { baseline: "top" });
+						// 	break;
+						// }
 						case "barchart": {
 							if(page.type == 'area_specific' && ! $scope.config.pageConfig.showRankingChartPerArea){
 								continue;
@@ -2211,151 +2220,154 @@ angular.module('reportingOverview').component('reportingOverview', {
 							paragraphs.push(paragraph);
 							break;
 						}
-						case "overallAverage":
-						case "selectionAverage": {
-							let paragraph = new docx.Paragraph({
-								children: [
-									new docx.TextRun({
-										text: "Durchschnitt",
-										font: font,
-										size: 28  // 14pt
-									}),
-									new docx.TextRun({
-										text: pageElement.type === "overallAverage" ? "Gesamtstadt" : "Selektion",
-										size: 28,
-										font: font,
-										break: 1,  // 14pt
-									}),
-									new docx.TextRun({
-										text: pageElement.text.toString(),
-										size: 28,
-										font: font,
-										break: 1  // 14pt
-									})
-								],
-								frame: {
-									position: {
-										x: pageElementDimensionsTwip.left,
-										y: pageElementDimensionsTwip.top,
-									},
-									width: pageElementDimensionsTwip.width,
-									height: pageElementDimensionsTwip.height,
-									anchor: {
-										horizontal: docx.FrameAnchorType.MARGIN,
-										vertical: docx.FrameAnchorType.MARGIN,
-									},
-									alignment: {
-										x: docx.HorizontalPositionAlign.LEFT,
-										y: docx.VerticalPositionAlign.TOP,
-									}
-								},
-								border: {
-									top: {
-										color: "#949494", // gray
-										space: 1,
-										style: docx.BorderStyle.SINGLE,
-										size: 6 
-									},
-									right: {
-										color: "#949494",
-										space: 1,
-										style: docx.BorderStyle.SINGLE,
-										size: 6 
-									},
-									bottom: {
-										color: "#949494",
-										space: 1,
-										style: docx.BorderStyle.SINGLE,
-										size: 6 
-									},
-									left: {
-										color: "#949494",
-										space: 1,
-										style: docx.BorderStyle.SINGLE,
-										size: 6 
-									},
-								}
-							});
+						 /*
+							June 2025: we remove overallAverage and overallChange, overallAverage and selectionAverage from reporting overview pages.
+						*/
+						// case "overallAverage":
+						// case "selectionAverage": {
+						// 	let paragraph = new docx.Paragraph({
+						// 		children: [
+						// 			new docx.TextRun({
+						// 				text: "Durchschnitt",
+						// 				font: font,
+						// 				size: 28  // 14pt
+						// 			}),
+						// 			new docx.TextRun({
+						// 				text: pageElement.type === "overallAverage" ? "Gesamtstadt" : "Selektion",
+						// 				size: 28,
+						// 				font: font,
+						// 				break: 1,  // 14pt
+						// 			}),
+						// 			new docx.TextRun({
+						// 				text: pageElement.text.toString(),
+						// 				size: 28,
+						// 				font: font,
+						// 				break: 1  // 14pt
+						// 			})
+						// 		],
+						// 		frame: {
+						// 			position: {
+						// 				x: pageElementDimensionsTwip.left,
+						// 				y: pageElementDimensionsTwip.top,
+						// 			},
+						// 			width: pageElementDimensionsTwip.width,
+						// 			height: pageElementDimensionsTwip.height,
+						// 			anchor: {
+						// 				horizontal: docx.FrameAnchorType.MARGIN,
+						// 				vertical: docx.FrameAnchorType.MARGIN,
+						// 			},
+						// 			alignment: {
+						// 				x: docx.HorizontalPositionAlign.LEFT,
+						// 				y: docx.VerticalPositionAlign.TOP,
+						// 			}
+						// 		},
+						// 		border: {
+						// 			top: {
+						// 				color: "#949494", // gray
+						// 				space: 1,
+						// 				style: docx.BorderStyle.SINGLE,
+						// 				size: 6 
+						// 			},
+						// 			right: {
+						// 				color: "#949494",
+						// 				space: 1,
+						// 				style: docx.BorderStyle.SINGLE,
+						// 				size: 6 
+						// 			},
+						// 			bottom: {
+						// 				color: "#949494",
+						// 				space: 1,
+						// 				style: docx.BorderStyle.SINGLE,
+						// 				size: 6 
+						// 			},
+						// 			left: {
+						// 				color: "#949494",
+						// 				space: 1,
+						// 				style: docx.BorderStyle.SINGLE,
+						// 				size: 6 
+						// 			},
+						// 		}
+						// 	});
 							
-							paragraphs.push(paragraph);
-							break;
-						}
-						case "overallChange":
-						case "selectionChange": {
-							let paragraph = new docx.Paragraph({
-								children: [
-									new docx.TextRun({
-										text: "Durchschnittliche",
-										font: font,
-										size: 28  // 14pt
-									}),
-									new docx.TextRun({
-										text: "Veränderung",
-										font: font,
-										break: 1,
-										size: 28  // 14pt
-									}),
-									new docx.TextRun({
-										text: pageElement.type === "overallChange" ? "Gesamtstadt" : "Selektion",
-										break: 1,
-										font: font,
-										size: 28  // 14pt
-									}),
-									new docx.TextRun({
-										text: pageElement.text.toString(),
-										break: 1,
-										font: font,
-										size: 28  // 14pt
+						// 	paragraphs.push(paragraph);
+						// 	break;
+						// }
+						// case "overallChange":
+						// case "selectionChange": {
+						// 	let paragraph = new docx.Paragraph({
+						// 		children: [
+						// 			new docx.TextRun({
+						// 				text: "Durchschnittliche",
+						// 				font: font,
+						// 				size: 28  // 14pt
+						// 			}),
+						// 			new docx.TextRun({
+						// 				text: "Veränderung",
+						// 				font: font,
+						// 				break: 1,
+						// 				size: 28  // 14pt
+						// 			}),
+						// 			new docx.TextRun({
+						// 				text: pageElement.type === "overallChange" ? "Gesamtstadt" : "Selektion",
+						// 				break: 1,
+						// 				font: font,
+						// 				size: 28  // 14pt
+						// 			}),
+						// 			new docx.TextRun({
+						// 				text: pageElement.text.toString(),
+						// 				break: 1,
+						// 				font: font,
+						// 				size: 28  // 14pt
 									
-									})
-								],
-								frame: {
-									position: {
-										x: pageElementDimensionsTwip.left,
-										y: pageElementDimensionsTwip.top,
-									},
-									width: pageElementDimensionsTwip.width,
-									height: pageElementDimensionsTwip.height,
-									anchor: {
-										horizontal: docx.FrameAnchorType.MARGIN,
-										vertical: docx.FrameAnchorType.MARGIN,
-									},
-									alignment: {
-										x: docx.HorizontalPositionAlign.LEFT,
-										y: docx.VerticalPositionAlign.TOP,
-									}
-								},
-								border: {
-									top: {
-										color: "#949494", // gray
-										space: 1,
-										style: docx.BorderStyle.SINGLE,
-										size: 6 
-									},
-									right: {
-										color: "#949494",
-										space: 1,
-										style: docx.BorderStyle.SINGLE,
-										size: 6 
-									},
-									bottom: {
-										color: "#949494",
-										space: 1,
-										style: docx.BorderStyle.SINGLE,
-										size: 6 
-									},
-									left: {
-										color: "#949494",
-										space: 1,
-										style: docx.BorderStyle.SINGLE,
-										size: 6 
-									},
-								}
-							});
+						// 			})
+						// 		],
+						// 		frame: {
+						// 			position: {
+						// 				x: pageElementDimensionsTwip.left,
+						// 				y: pageElementDimensionsTwip.top,
+						// 			},
+						// 			width: pageElementDimensionsTwip.width,
+						// 			height: pageElementDimensionsTwip.height,
+						// 			anchor: {
+						// 				horizontal: docx.FrameAnchorType.MARGIN,
+						// 				vertical: docx.FrameAnchorType.MARGIN,
+						// 			},
+						// 			alignment: {
+						// 				x: docx.HorizontalPositionAlign.LEFT,
+						// 				y: docx.VerticalPositionAlign.TOP,
+						// 			}
+						// 		},
+						// 		border: {
+						// 			top: {
+						// 				color: "#949494", // gray
+						// 				space: 1,
+						// 				style: docx.BorderStyle.SINGLE,
+						// 				size: 6 
+						// 			},
+						// 			right: {
+						// 				color: "#949494",
+						// 				space: 1,
+						// 				style: docx.BorderStyle.SINGLE,
+						// 				size: 6 
+						// 			},
+						// 			bottom: {
+						// 				color: "#949494",
+						// 				space: 1,
+						// 				style: docx.BorderStyle.SINGLE,
+						// 				size: 6 
+						// 			},
+						// 			left: {
+						// 				color: "#949494",
+						// 				space: 1,
+						// 				style: docx.BorderStyle.SINGLE,
+						// 				size: 6 
+						// 			},
+						// 		}
+						// 	});
 							
-							paragraphs.push(paragraph);
-							break;
-						}
+						// 	paragraphs.push(paragraph);
+						// 	break;
+						// }
 						case "textInput": {
 							if (! $scope.config.pageConfig.showFreeText){
 								// skip
