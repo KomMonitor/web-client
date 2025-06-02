@@ -3,6 +3,9 @@ import { Inject, Injectable } from '@angular/core';
 import L from 'leaflet';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchange, DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import Draw from 'leaflet-draw';
+
+import 'leaflet-draw';
 
 @Injectable({
   providedIn: 'root'
@@ -145,9 +148,9 @@ export class GenericMapHelperService {
     }
 
     // todo
-    /* if (withDrawControl) {
+    if (withDrawControl) {
       drawControlObject = this.initDrawControl(map, drawResourceType, editMode);
-    } */
+    }
 
     if(withScreenshoter){
       //screenshoter = L.simpleMapScreenshoter(this.screenshoterOptions).addTo(map);
@@ -255,10 +258,9 @@ export class GenericMapHelperService {
   }
 
   initDrawControl(map, resourceType, editMode) {
+
     // FeatureGroup is to store editable layers
     let featureLayer = new L.FeatureGroup();
-
-
 
     map.addLayer(featureLayer);
     let enableDraw = false;
@@ -271,7 +273,9 @@ export class GenericMapHelperService {
 
     map.addControl(drawControl);
 
+// ggf. 'draw:created' etc
     map.on(L.Draw.Event.CREATED, (event) => {
+
       var layer = event.layer;
 
       featureLayer.addLayer(layer);
@@ -335,6 +339,7 @@ export class GenericMapHelperService {
       this.invalidateMap(map);
 
       if(layerControl && layerName){
+        
         layerControl.addOverlay(geojsonLayer, layerName);
       }
     }

@@ -1,5 +1,5 @@
-  <!--  -->
-<div id="sidebarContentWrapper" [ngClass]="{'disabled': (element===undefined || element=='')}">
+  <!--  [ngClass]="{'disabled': (element===undefined || element=='')}" -->
+<div id="sidebarContentWrapper">
   <app-kommonitor-data-setup [hidden]="element!='sidebarIndicatorConfigCollapse'"></app-kommonitor-data-setup>
   <app-poi [hidden]="element!='sidebarPoiCollapse'"></app-poi>
   <app-kommonitor-filter [hidden]="element!='sidebarFilterCollapse'"></app-kommonitor-filter>
@@ -7,6 +7,6 @@
   <app-kommonitor-diagrams [hidden]="element!='sidebarDiagramsCollapse'"></app-kommonitor-diagrams>
   <app-indicator-radar [hidden]="element!='sidebarRadarDiagramCollapse'"></app-indicator-radar>
   <app-regression-diagram [hidden]="element!='sidebarRegressionDiagramCollapse'"></app-regression-diagram>
-  <app-kommonitor-reachability [hidden]="element!='sidebarReachabilityCollapse'"></app-kommonitor-reachability>
-  <!--  -->
+  <app-kommonitor-reachability></app-kommonitor-reachability>
+  <!--  [hidden]="element!='sidebarReachabilityCollapse'" -->
 </div>

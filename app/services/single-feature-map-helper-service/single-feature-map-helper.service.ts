@@ -27,7 +27,9 @@ export class SingleFeatureMapHelperService {
   }
 
   invalidateMap() {
-    this.ajskommonitorSingleFeatureMapHelperServiceProvider.invalidateMap();
+    if(this.mapParts && this.mapParts.map){
+      this.genericMapHelperService.invalidateMap(this.mapParts.map);
+    } 
   }
   
   zoomToDataLayer() {
@@ -69,13 +71,30 @@ export class SingleFeatureMapHelperService {
     this.georesourceData_geoJSON = geoJSON;
 
     //function (geoJSON, map, layerControl, layerName)
-    this.mapParts.dataLayer = this.genericMapHelperService.addDataLayer(geoJSON, this.mapParts.map, undefined, "", this.onEachFeature, this.pointToLayer, this.style);
+    this.mapParts.dataLayer = this.genericMapHelperService.addDataLayer(geoJSON, this.mapParts.map, undefined, "", (feature, layer) => {
+      layer.on({
+        click: () => {
+
+          this.broadcastService.broadcast("singleFeatureSelected", [feature]);
+
+          var popupContent = '<div class="georesourceInfoPopupContent featurePropertyPopupContent"><table class="table table-condensed">';
+          for (var p in feature.properties) {
+            popupContent += '<tr><td>' + p + '</td><td>' + feature.properties[p] + '</td></tr>';
+          }
+          popupContent += '</table></div>';
+
+          layer.bindPopup(popupContent);
+        }
+      });
+    }, this.pointToLayer, this.style);
   }
 
   pointToLayer(geoJsonPoint, latlng) {
-    return L.circleMarker(latlng, {
-      radius: 6
-    });
+    return L.marker(latlng);
+
+     /* return L.circleMarker(latlng, {
+          radius: 6
+        }); */
   }
 
   style(feature) {
@@ -86,7 +105,7 @@ export class SingleFeatureMapHelperService {
     };
   }
 
-  onEachFeature(feature, layer) {
+ /*  onEachFeature(feature, layer) {
     layer.on({
       click: () => {
 
@@ -101,5 +120,9 @@ export class SingleFeatureMapHelperService {
         layer.bindPopup(popupContent);
       }
     });
-  };
+  }; */
+
+  changeEditableFeature(feature) {
+    this.ajskommonitorSingleFeatureMapHelperServiceProvider.changeEditableFeature(feature);
+  }
 }
