@@ -1,5 +1,10 @@
 /* app css stylesheet */
 
+:root {
+  --kommonitor-primary: rgb(51, 122, 183);
+  --kommonitor-dark: #2e6da4;
+}
+
 body {
 	overflow-y: auto !important;
 }
@@ -3227,3 +3232,10 @@ input:checked + .switchslider:before {
     .noUi-connect, .noUi-connects {
       background-color: rgb(51,122,183) !important;
     }
+
+.feature-btn {
+  background-color: var(--kommonitor-primary);
+  border-color: var(--kommonitor-primary);  
+  color: #fff;
+  padding: 0.5em 4em 0.5em 4em;
+}

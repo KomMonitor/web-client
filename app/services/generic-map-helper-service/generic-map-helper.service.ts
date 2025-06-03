@@ -346,4 +346,12 @@ export class GenericMapHelperService {
 
     return geojsonLayer;
   }
+
+  zoomToLayer(map, dataLayer) {
+    this.ajskommonitorGenericMapHelperServiceProvider.zoomToLayer(map, dataLayer);
+  }
+
+  changeEditableFeature(feature, featureLayer) {
+    this.ajskommonitorGenericMapHelperServiceProvider.changeEditableFeature(feature, featureLayer);
+  }
 }

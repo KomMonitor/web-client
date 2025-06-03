@@ -16,6 +16,8 @@ angular
       this.resourceType_point = "POINT";
       this.resourceType_line = "LINE";
       this.resourceType_polygon = "POLYGON";
+      
+      this.mapParts;
 
       /*
         {
@@ -31,12 +33,13 @@ angular
           "dataLayer": geoJsonDataLayer
         }
         */
-      this.mapParts;
 
+      // done
       $rootScope.$on("onUpdateSingleFeatureGeometry", function (event, geoJSON, drawControl) {
 				self.mapParts.drawControlObject.drawControl = drawControl;
 			});
 
+      // done
       this.initSingleFeatureGeoMap = function (domId, resourceType) {
         // init leaflet map
 
@@ -63,28 +66,33 @@ angular
         */
       };
 
+      // done
       this.invalidateMap = function(){
         if(this.mapParts && this.mapParts.map){
           kommonitorGenericMapHelperService.invalidateMap(this.mapParts.map);
         } 
       };
 
+      // done
       this.zoomToDataLayer = function(){
         if(this.mapParts && this.mapParts.map && this.mapParts.dataLayer){
           kommonitorGenericMapHelperService.zoomToLayer(this.mapParts.map, this.mapParts.dataLayer);
         } 
       };
 
+      // done
       this.changeEditableFeature = function (feature) {
         kommonitorGenericMapHelperService.changeEditableFeature(feature, this.mapParts.drawControlObject.featureLayer);
       };
 
+      // done
       this.pointToLayer = function (geoJsonPoint, latlng) {
         return L.circleMarker(latlng, {
           radius: 6
         });
       };
 
+      // done
       this.style = function (feature) {
         return {
           color: "red",
@@ -93,6 +101,7 @@ angular
         };
       };
 
+      // done
       this.onEachFeature = function (feature, layer) {
         layer.on({
           click: function () {
@@ -110,6 +119,7 @@ angular
         });
       };
 
+      // done
       this.addDataLayertoSingleFeatureGeoMap = function (geoJSON) {
 
         this.georesourceData_geoJSON = geoJSON;

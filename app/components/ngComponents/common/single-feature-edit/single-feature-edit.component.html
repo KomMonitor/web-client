@@ -1,35 +1,29 @@
 <div class="row vertical-align">
 
 	<div class="col-md-6 col-sm-6 col-xs-12">
-		<div class="btn-group btn-group-justified" data-toggle="buttons">
-			<label class="btn btn-primary active">
-				<input type="radio" name="options" autocomplete="off" checked ng-change="onChangeEditMode()"
-					ng-model="$ctrl.kommonitorSingleFeatureMapHelperServiceInstance.editMode" value="create">
+		<div>
+			<button class="feature-btn" (click)="onChangeEditMode('create')">
 				<i class="fa-solid fa-plus"></i>&nbsp;Erstellen
-			</label>
-			<label class="btn btn-primary">
-				<input type="radio" name="options" autocomplete="off" ng-change="onChangeEditMode()"
-					ng-model="$ctrl.kommonitorSingleFeatureMapHelperServiceInstance.editMode" value="edit">
+      </button>
+			<button class="feature-btn" (click)="onChangeEditMode('edit')">
 				<i class="fa-solid fa-pencil"></i>&nbsp;Editieren
-			</label>
-			<label class="btn btn-primary">
-				<input type="radio" name="options" autocomplete="off" ng-change="onChangeEditMode()"
-					ng-model="$ctrl.kommonitorSingleFeatureMapHelperServiceInstance.editMode" value="delete">
+      </button>
+			<button class="feature-btn" (click)="onChangeEditMode('delete')">
 				<i class="fa-solid fa-trash"></i>&nbsp;Entfernen
-			</label>
+      </button>
 		</div>
 
 		<br />
 
-		<div ng-if="$ctrl.kommonitorSingleFeatureMapHelperServiceInstance.editMode == 'create'">
+		<div *ngIf="singleFeatureMapHelperService.editMode == 'create'">
 			<i><b>Hinweis:</b> Attribute f&uuml;llen und Geometrie setzen, dann <b>Erstellen</b>-Button
 				bet&auml;tigen</i>
 		</div>
-		<div ng-if="$ctrl.kommonitorSingleFeatureMapHelperServiceInstance.editMode == 'edit'">
+		<div *ngIf="singleFeatureMapHelperService.editMode == 'edit'">
 			<i><b>Hinweis:</b> Kartenobjekt anklicken, um Objekt zu selektieren, dann Attribute und Geometrie editieren,
 				dann <b>Editieren</b>-Button bet&auml;tigen</i>
 		</div>
-		<div ng-if="$ctrl.kommonitorSingleFeatureMapHelperServiceInstance.editMode == 'delete'">
+		<div *ngIf="singleFeatureMapHelperService.editMode == 'delete'">
 			<i><b>Hinweis:</b> Kartenobjekt anklicken, um Objekt zu selektieren, Attribute prüfen, dann
 				<b>L&ouml;schen</b>-Button bet&auml;tigen</i>
 		</div>
@@ -64,8 +58,8 @@
 						</td>
 						<td>
 							<input type="text" class="form-control" [(ngModel)]="featureIdValue"
-								placeholder="{{featureIdValue}}" ng-change="validateSingleFeatureId()"
-								[disabled]="singleFeatureMapHelperService.pipedData.editMode != 'create'"
+								placeholder="{{featureIdValue}}" (change)="validateSingleFeatureId()"
+								[disabled]="singleFeatureMapHelperService.editMode != 'create'"
 								required>
 						</td>
 					</tr>
@@ -75,7 +69,7 @@
 						</td>
 						<td>
 							<input type="text" class="form-control" [(ngModel)]="featureNameValue"
-								[disabled]="singleFeatureMapHelperService.pipedData.editMode == 'delete'"
+								[disabled]="singleFeatureMapHelperService.editMode == 'delete'"
 								placeholder="lesbarer Name des Objekts" required>
 						</td>
 					</tr>
@@ -84,11 +78,11 @@
 							<b>G&uuml;ltigkeitszeitraum: g&uuml;ltig seit *</b>
 						</td>
 						<td>
-							<input type="text" ng-model="featureStartDateValue"
-								ng-change="checkSingleFeaturePeriodOfValidity()" class="form-control pull-right"
-								ng-disabled="$ctrl.kommonitorSingleFeatureMapHelperServiceInstance.editMode == 'delete'"
+							<input type="text" [(ngModel)]="featureStartDateValue"
+                class="form-control pull-right"
+								[disabled]="singleFeatureMapHelperService.editMode == 'delete'"
 								id="georesourceSingleFeatureDatepickerStart" placeholder="YYYY-MM-DD"
-								ng-change="validateSingleFeatureId()" required>
+								(change)="validateSingleFeatureId()" required>
 						</td>
 					</tr>
 					<tr>
@@ -96,9 +90,9 @@
 							<b>G&uuml;ltigkeitszeitraum: g&uuml;ltig bis</b>
 						</td>
 						<td>
-							<input type="text" ng-model="featureEndDateValue"
-								ng-change="checkSingleFeaturePeriodOfValidity()" class="form-control pull-right"
-								ng-disabled="$ctrl.kommonitorSingleFeatureMapHelperServiceInstance.editMode == 'delete'"
+							<input type="text" [(ngModel)]="featureEndDateValue"
+                class="form-control pull-right"
+								[disabled]="singleFeatureMapHelperService.editMode == 'delete'"
 								id="georesourceSingleFeatureDatepickerEnd" placeholder="YYYY-MM-DD" required>
 						</td>
 					</tr>
@@ -109,8 +103,8 @@
 							<i>Beispiel: {{featureSchemaEntry.exampleValue}}</i>
 						</td>
 						<td>
-							<input type="text" class="form-control" ng-model="featureSchemaEntry.value"
-								ng-disabled="$ctrl.kommonitorSingleFeatureMapHelperServiceInstance.editMode == 'delete'"
+							<input type="text" class="form-control" [(ngModel)]="featureSchemaEntry.value"
+								[disabled]="singleFeatureMapHelperService.editMode == 'delete'"
 								placeholder="optionaler Wert f&uuml;r Attribut '{{featureSchemaEntry.property}}'"
 								required>
 						</td>
@@ -143,36 +137,36 @@
 
 <div class="row vertical-align">
 	<button type="button" class="btn btn-info"
-		ng-click="reinitSingleFeatureEdit()"><i class="fa-solid fa-rotate"></i>&nbsp;&nbsp;Reset
+		(click)="reinitSingleFeatureEdit()"><i class="fa-solid fa-rotate"></i>&nbsp;&nbsp;Reset
 	</button>
 
 	&nbsp; &nbsp; &nbsp;
 
 	<!-- submit button -->
 	<button type="button" class="btn btn-success"
-		ng-show="$ctrl.kommonitorSingleFeatureMapHelperServiceInstance.editMode == 'create'"
-		ng-disabled="!featureGeometryValue || !featureNameValue || featureIdValue == undefined || featureIdValue == null || !featureIdIsUnique || !featureStartDateValue"
-		ng-click="addSingleGeoresourceFeature()"><i
+		*ngIf="singleFeatureMapHelperService.editMode == 'create'"
+		[disabled]="!featureGeometryValue || !featureNameValue || featureIdValue == undefined || featureIdValue == null || !featureIdIsUnique || !featureStartDateValue"
+		(click)="addSingleGeoresourceFeature()"><i
 		class="fa-solid fa-plus"></i>&nbsp;&nbsp;Einzel-Feature erstellen
 	</button>
 	<button type="button" class="btn btn-warning"
-		ng-show="$ctrl.kommonitorSingleFeatureMapHelperServiceInstance.editMode == 'edit'"
-		ng-disabled="!featureGeometryValue || !featureNameValue || featureIdValue == undefined || featureIdValue == null || !featureStartDateValue"
-		ng-click="editSingleGeoresourceFeature()"><i
+		*ngIf="singleFeatureMapHelperService.editMode == 'edit'"
+		[disabled]="!featureGeometryValue || !featureNameValue || featureIdValue == undefined || featureIdValue == null || !featureStartDateValue"
+		(click)="editSingleGeoresourceFeature()"><i
 		class="fa-solid fa-pen"></i>&nbsp;&nbsp;Einzel-Feature editieren
 	</button>
 	<button type="button" class="btn btn-danger"
-		ng-show="$ctrl.kommonitorSingleFeatureMapHelperServiceInstance.editMode == 'delete'"
-		ng-disabled="!featureGeometryValue || !featureNameValue || featureIdValue == undefined || featureIdValue == null || !featureStartDateValue"
-		ng-click="deleteSingleGeoresourceFeature()"><i
+		*ngIf="singleFeatureMapHelperService.editMode == 'delete'"
+		[disabled]="!featureGeometryValue || !featureNameValue || featureIdValue == undefined || featureIdValue == null || !featureStartDateValue"
+		(click)="deleteSingleGeoresourceFeature()"><i
 		class="fa-solid fa-trash"></i>&nbsp;&nbsp;Einzel-Feature entfernen
 	</button>
 	&nbsp; &nbsp; &nbsp;
 	<button type="button" class="btn btn-info"
-					ng-disabled="georesourceFeaturesGeoJSON.features.length == 0"
-					ng-click="exportCurrentDataset()"
+					[disabled]="georesourceFeaturesGeoJSON.features.length == 0"
+					(click)="exportCurrentDataset()"
 					title="Exportieren des Datensatzes in eine Datei"><i
-						class="fa-solid fa-file-export"></i>&nbsp;&nbsp;Datensatz-Export</button>
+          class="fa-solid fa-file-export"></i>&nbsp;&nbsp;Datensatz-Export</button>
 
 
 

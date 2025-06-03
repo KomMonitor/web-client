@@ -94,7 +94,10 @@ export class SingleFeatureEditComponent implements OnInit {
   }
 
    
-  onChangeEditMode() {
+  onChangeEditMode(value) {
+
+    this.singleFeatureMapHelperService.editMode = value;
+    console.log(this.singleFeatureMapHelperService.editMode);
     this.reinitSingleFeatureEdit();
   };
   
@@ -119,16 +122,16 @@ export class SingleFeatureEditComponent implements OnInit {
   
   resetContentFromFeature(feature) {
     // variables for single feature import
-    this.featureIdValue = feature.properties[window.window.__env.FEATURE_ID_PROPERTY_NAME];
+    this.featureIdValue = feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME];
     this.featureIdExampleString = undefined;
-    this.featureNameValue = feature.properties[window.window.__env.FEATURE_NAME_PROPERTY_NAME];
+    this.featureNameValue = feature.properties[window.__env.FEATURE_NAME_PROPERTY_NAME];
     this.featureGeometryValue = {
       "type": "FeatureCollection",
       "features": []
     }
     this.featureGeometryValue.features[0] = feature;
-    this.featureStartDateValue = feature.properties[window.window.__env.VALID_START_DATE_PROPERTY_NAME];
-    this.featureEndDateValue = feature.properties[window.window.__env.VALID_END_DATE_PROPERTY_NAME];;
+    this.featureStartDateValue = feature.properties[window.__env.VALID_START_DATE_PROPERTY_NAME];
+    this.featureEndDateValue = feature.properties[window.__env.VALID_END_DATE_PROPERTY_NAME];;
     // [{property: name, value: value}]
     let newFeatureSchemaProperties:any[] = [];
     for (const featureSchemaEntry of this.featureSchemaProperties) {
@@ -148,14 +151,14 @@ export class SingleFeatureEditComponent implements OnInit {
     this.resetContent();
     this.initFeatureSchema();
     this.initGeoMap();
-  };
+  }
  
   initDefaultSchema() {
     let schemaObject = {};
-    schemaObject[window.window.__env.FEATURE_ID_PROPERTY_NAME] = "number";
-    schemaObject[window.window.__env.FEATURE_NAME_PROPERTY_NAME] = "string";
-    schemaObject[window.window.__env.VALID_START_DATE_PROPERTY_NAME] = "date";
-    schemaObject[window.window.__env.VALID_END_DATE_PROPERTY_NAME] = "date";
+    schemaObject[window.__env.FEATURE_ID_PROPERTY_NAME] = "number";
+    schemaObject[window.__env.FEATURE_NAME_PROPERTY_NAME] = "string";
+    schemaObject[window.__env.VALID_START_DATE_PROPERTY_NAME] = "date";
+    schemaObject[window.__env.VALID_END_DATE_PROPERTY_NAME] = "date";
 
     return schemaObject;
   }
@@ -175,7 +178,7 @@ export class SingleFeatureEditComponent implements OnInit {
           this.schemaObject = response;
 
           for (var property in this.schemaObject) {
-            if (property != window.window.__env.FEATURE_ID_PROPERTY_NAME && property != window.window.__env.FEATURE_NAME_PROPERTY_NAME && property != window.window.__env.VALID_START_DATE_PROPERTY_NAME && property != window.window.__env.VALID_END_DATE_PROPERTY_NAME) {
+            if (property != window.__env.FEATURE_ID_PROPERTY_NAME && property != window.__env.FEATURE_NAME_PROPERTY_NAME && property != window.__env.VALID_START_DATE_PROPERTY_NAME && property != window.__env.VALID_END_DATE_PROPERTY_NAME) {
               this.featureSchemaProperties.push(
                 {
                   property: property,
@@ -199,7 +202,7 @@ export class SingleFeatureEditComponent implements OnInit {
         this.currentGeoresourceDataset.geoJSON.features && this.currentGeoresourceDataset.geoJSON.features[0] &&
         this.currentGeoresourceDataset.geoJSON.features[0].properties ){
         for (var property in this.currentGeoresourceDataset.geoJSON.features[0].properties) {
-          if (property != window.window.__env.FEATURE_ID_PROPERTY_NAME && property != window.window.__env.FEATURE_NAME_PROPERTY_NAME && property != window.window.__env.VALID_START_DATE_PROPERTY_NAME && property != window.window.__env.VALID_END_DATE_PROPERTY_NAME
+          if (property != window.__env.FEATURE_ID_PROPERTY_NAME && property != window.__env.FEATURE_NAME_PROPERTY_NAME && property != window.__env.VALID_START_DATE_PROPERTY_NAME && property != window.__env.VALID_END_DATE_PROPERTY_NAME
             && property != "individualIsochrones" && property != "individualIsochronePruneResults") {
             this.featureSchemaProperties.push(
               {
@@ -215,12 +218,12 @@ export class SingleFeatureEditComponent implements OnInit {
   }
   
   initGeoMap() {
-    let resourceType = this.singleFeatureMapHelperService.pipedData.resourceType_point;
+    let resourceType = this.singleFeatureMapHelperService.resourceType_point;
     if (this.currentGeoresourceDataset.isLOI) {
-      resourceType = this.singleFeatureMapHelperService.pipedData.resourceType_line;
+      resourceType = this.singleFeatureMapHelperService.resourceType_line;
     }
     else if (this.currentGeoresourceDataset.isAOI) {
-      resourceType = this.singleFeatureMapHelperService.pipedData.resourceType_polygon;
+      resourceType = this.singleFeatureMapHelperService.resourceType_polygon;
     }
     this.singleFeatureMapHelperService.initSingleFeatureGeoMap(this.domId, resourceType);
 
@@ -276,12 +279,12 @@ export class SingleFeatureEditComponent implements OnInit {
       return 0;
     }
     // String or Integer
-    let idDataType = this.schemaObject[window.window.__env.FEATURE_ID_PROPERTY_NAME];
+    let idDataType = this.schemaObject[window.__env.FEATURE_ID_PROPERTY_NAME];
 
     // array of id values
     let existingFeatureIds = this.georesourceFeaturesGeoJSON.features.map(feature => {
-      if (feature.properties[window.window.__env.FEATURE_ID_PROPERTY_NAME]) {
-        return feature.properties[window.window.__env.FEATURE_ID_PROPERTY_NAME];
+      if (feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME]) {
+        return feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME];
       }
       else {
         return 0;
@@ -291,7 +294,7 @@ export class SingleFeatureEditComponent implements OnInit {
     let length = existingFeatureIds.length;
     this.featureIdExampleString = "" + existingFeatureIds[0] + "; " + existingFeatureIds[Math.round(length / 2)] + "; " + existingFeatureIds[length - 1];
 
-    if (idDataType == "Integer" || idDataType == "Double") {
+    if (idDataType == "Integer" || idDataType == "Double" || idDataType == "number") {
       return this.generateIdProposalFromExistingFeatures_numeric(existingFeatureIds);
     }
     else {
@@ -317,7 +320,7 @@ export class SingleFeatureEditComponent implements OnInit {
   validateSingleFeatureId  () {
     this.featureIdIsUnique = true;
     if (this.georesourceFeaturesGeoJSON && this.featureIdValue) {
-      let filteredFeatures = this.georesourceFeaturesGeoJSON.features.filter(feature => feature.properties[window.window.__env.FEATURE_ID_PROPERTY_NAME] == this.featureIdValue);
+      let filteredFeatures = this.georesourceFeaturesGeoJSON.features.filter(feature => feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME] == this.featureIdValue);
 
       if (filteredFeatures.length == 0) {
         this.featureIdIsUnique = true;
@@ -433,19 +436,19 @@ export class SingleFeatureEditComponent implements OnInit {
   }
 
   broadcastUpdate_addSingleFeature() {
-    this.broadcastService.broadcast("georesourceGeoJSONUpdated_addSingleFeature", this.featureGeometryValue.features[0]);
+    this.broadcastService.broadcast("georesourceGeoJSONUpdated_addSingleFeature", [this.featureGeometryValue.features[0]]);
   };
 
   broadcastUpdate_editSingleFeature() {
-    this.broadcastService.broadcast("georesourceGeoJSONUpdated_editSingleFeature", this.featureGeometryValue.features[0]);
+    this.broadcastService.broadcast("georesourceGeoJSONUpdated_editSingleFeature", [this.featureGeometryValue.features[0]]);
   };
 
   broadcastUpdate_deleteSingleFeature() {
-    this.broadcastService.broadcast("georesourceGeoJSONUpdated_deleteSingleFeature", this.featureGeometryValue.features[0]);
+    this.broadcastService.broadcast("georesourceGeoJSONUpdated_deleteSingleFeature", [this.featureGeometryValue.features[0]]);
   };
 
   broadcastUpdate_wholeGeoJSON() {
-    this.broadcastService.broadcast("georesourceGeoJSONUpdated", this.georesourceFeaturesGeoJSON);
+    this.broadcastService.broadcast("georesourceGeoJSONUpdated", [this.georesourceFeaturesGeoJSON]);
   };
 
   onUpdateSingleFeatureGeometry([geoJSON, drawControl]) {
