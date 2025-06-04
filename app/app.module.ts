@@ -59,7 +59,6 @@ import { AuthService } from 'services/auth-service/auth.service';
 import { KommonitorReachabilityComponent } from './components/ngComponents/userInterface/sidebar/kommonitorReachability/kommonitor-reachability.component';
 
 
-
 // currently the AngularJS routing is still used as part of kommonitorClient module
 const routes: Routes = [];
 

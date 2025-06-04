@@ -13,4 +13,16 @@ export class ReachabilityHelperService {
   ) {
     this.pipedData = this.ajskommonitorReachabilityHelperServiceProvider;
   }
+
+  resetSettings() {
+    this.ajskommonitorReachabilityHelperServiceProvider.resetSettings();
+  }
+
+  fetchGeoJSONForIsochrones() {
+    this.ajskommonitorReachabilityHelperServiceProvider.fetchGeoJSONForIsochrones();
+  }
+
+  startIsochroneCalculation(used) {
+    this.ajskommonitorReachabilityHelperServiceProvider.startIsochroneCalculation(used);
+  }
 }

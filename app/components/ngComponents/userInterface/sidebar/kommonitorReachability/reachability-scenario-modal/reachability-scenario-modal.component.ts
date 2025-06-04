@@ -9,13 +9,14 @@ import { MultiStepHelperServiceService } from 'services/multi-step-helper-servic
 import { ReachabilityScenarioHelperService } from 'services/reachability-scenario-helper-service/reachability-scenario-helper-service.service';
 import { ReachabilityHelperService } from 'services/reachbility-helper-service/reachability-helper.service';
 import { SingleFeatureEditComponent } from "../../../../common/single-feature-edit/single-feature-edit.component";
+import { ReachabilityScenarioConfigurationComponent } from './reachability-scenario-configuration/reachability-scenario-configuration.component';
 
 @Component({
   selector: 'app-reachability-scenario-modal',
   standalone: true,
   templateUrl: './reachability-scenario-modal.component.html',
   styleUrls: ['./reachability-scenario-modal.component.css'],
-  imports: [CommonModule, FormsModule, SingleFeatureEditComponent]
+  imports: [CommonModule, FormsModule, SingleFeatureEditComponent, ReachabilityScenarioConfigurationComponent]
 })
 export class ReachabilityScenarioModalComponent implements OnInit {
   activeModal = inject(NgbActiveModal);

@@ -20,4 +20,36 @@ export class ReachabilityMapHelperService {
   zoomToIsochroneLayers() {
     this.ajskommonitorReachabilityMapHelperServiceProvider.zoomToIsochroneLayers();
   }
+
+  initReachabilityGeoMap(id) {
+    return this.ajskommonitorReachabilityMapHelperServiceProvider.initReachabilityGeoMap(id);
+  }
+
+  removeReachabilityLayers(domId) {
+    this.ajskommonitorReachabilityMapHelperServiceProvider.removeReachabilityLayers(domId);
+  }
+
+  replaceIsochroneMarker(domId, locationsArray) {
+    this.ajskommonitorReachabilityMapHelperServiceProvider.replaceIsochroneMarker(domId, locationsArray);
+  }
+
+  replaceIsochroneGeoJSON(
+        domId,
+        datasetName,
+        currentIsochronesGeoJSON,
+        transitMode,
+        focus,
+        rangeArray,
+        useMultipleStartPoints,
+        dissolveIsochrones) {
+    this.ajskommonitorReachabilityMapHelperServiceProvider.replaceIsochroneGeoJSON(
+        domId,
+        datasetName,
+        currentIsochronesGeoJSON,
+        transitMode,
+        focus,
+        rangeArray,
+        useMultipleStartPoints,
+        dissolveIsochrones);
+  }
 }
