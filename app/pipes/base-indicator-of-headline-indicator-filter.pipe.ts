@@ -16,7 +16,7 @@ export class BaseIndicatorOfHeadlineIndicatorFilter implements PipeTransform {
       return items;
     } 
     
-    var headlineIndicatorEntry = this.dataExchangeService.pipedData.headlineIndicatorHierarchy.filter(element => element.computationIndicator.indicatorId == this.dataExchangeService.pipedData.selectedIndicator.indicatorId)[0];
+    var headlineIndicatorEntry = this.dataExchangeService.pipedData.headlineIndicatorHierarchy.filter(element => element.computationIndicator?.indicatorId == this.dataExchangeService.pipedData.selectedIndicator.indicatorId)[0];
 
     return items.filter(item => {
         
