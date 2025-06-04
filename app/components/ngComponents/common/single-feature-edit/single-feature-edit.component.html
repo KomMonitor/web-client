@@ -163,7 +163,7 @@
 	</button>
 	&nbsp; &nbsp; &nbsp;
 	<button type="button" class="btn btn-info"
-					[disabled]="georesourceFeaturesGeoJSON.features.length == 0"
+					[disabled]="georesourceFeaturesGeoJSON?.features.length == 0"
 					(click)="exportCurrentDataset()"
 					title="Exportieren des Datensatzes in eine Datei"><i
           class="fa-solid fa-file-export"></i>&nbsp;&nbsp;Datensatz-Export</button>

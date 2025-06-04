@@ -1,6 +1,6 @@
 <div class="row vertical-align">
 	<!-- reachability config -->
-	<div [ngStyle]="{'col-md-4 col-sm-4 col-xs-12': !isUsedInReporting, 'col-md-6 col-sm-6 col-xs-12': isUsedInReporting}">
+	<div [ngClass]="{'col-md-4 col-sm-4 col-xs-12': !isUsedInReporting, 'col-md-6 col-sm-6 col-xs-12': isUsedInReporting}">
 
 		<div id="reachabilityConfigForm" style="height: 57vh; overflow-y: auto;">
 
@@ -8,28 +8,28 @@
 			<div class="btn-group btn-group-justified" data-toggle="buttons">
 				<label class="btn btn-primary active">
 					<input type="radio" name="options" id="optBuffer" autocomplete="off" checked
-						ng-change="changeType()"
-						ng-model="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.transitMode"
+						(change)="changeType()"
+						[(ngModel)]="reachabilityHelperService.settings.transitMode"
 						value="buffer"> <i class="far fa-dot-circle"></i>
 				</label>
 				<label class="btn btn-primary" id="optFeetRadioButtonLabel">
-					<input type="radio" name="options" id="optFeet" autocomplete="off" checked ng-change="changeType()"
-						ng-model="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.transitMode"
+					<input type="radio" name="options" id="optFeet" autocomplete="off" checked (change)="changeType()"
+						[(ngModel)]="reachabilityHelperService.settings.transitMode"
 						value="foot-walking"> <i class="fas fa-walking"></i>
 				</label>
 				<label class="btn btn-primary">
-					<input type="radio" name="options" id="optBike" autocomplete="off" ng-change="changeType()"
-						ng-model="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.transitMode"
+					<input type="radio" name="options" id="optBike" autocomplete="off" (change)="changeType()"
+						[(ngModel)]="reachabilityHelperService.settings.transitMode"
 						value="cycling-regular"> <i class="fas fa-biking"></i> 
 				</label>
 				<label class="btn btn-primary">
-					<input type="radio" name="options" id="optCar" autocomplete="off" ng-change="changeType()"
-						ng-model="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.transitMode"
+					<input type="radio" name="options" id="optCar" autocomplete="off" (change)="changeType()"
+						[(ngModel)]="reachabilityHelperService.settings.transitMode"
 						value="driving-car"> <i class="fas fa-car"></i> 
 				</label>
 				<label class="btn btn-primary">
-					<input type="radio" name="options" id="optWheelchair" autocomplete="off" ng-change="changeType()"
-						ng-model="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.transitMode"
+					<input type="radio" name="options" id="optWheelchair" autocomplete="off" (change)="changeType()"
+						[(ngModel)]="reachabilityHelperService.settings.transitMode"
 						value="wheelchair"> <i class="fab fa-accessible-icon"></i>
 				</label>
 			</div>
@@ -45,21 +45,21 @@
 					<div class="btn-group btn-group-justified" data-toggle="buttons">
 						<label class="btn btn-primary active">
 							<input type="radio" name="options" id="focus_distance" autocomplete="off" checked
-								ng-change="changeFocus('distance')"
-								ng-model="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.focus"
+								(change)="changeFocus('distance')"
+								[(ngModel)]="reachabilityHelperService.settings.focus"
 								value="distance"> <i class="fas fa-ruler"></i> Distanz
 						</label>
 						<label class="btn btn-primary"
-							ng-disabled="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.transitMode === 'buffer'">
+							ng-disabled="reachabilityHelperService.settings.transitMode === 'buffer'">
 							<input type="radio" name="options" id="focus_time" autocomplete="off"
-								ng-change="changeFocus('time')"
-								ng-model="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.focus"
+								(change)="changeFocus('time')"
+								[(ngModel)]="reachabilityHelperService.settings.focus"
 								value="time"><i class="far fa-clock"></i> Zeit
 						</label>
 					</div>
 
 					<!--
-											<label>Fokus= {{$ctrl.kommonitorReachabilityHelperServiceInstance.settings.focus}}, Time= {{isTime}}</label>
+											<label>Fokus= {{reachabilityHelperService.settings.focus}}, Time= {{isTime}}</label>
 										-->
 
 					<br />
@@ -72,44 +72,44 @@
 						<p>Geben Sie die gew&uuml;nschten Isochronengrenzen kommagetrennt ein
 							(Beispiel: '100,200,300' in Metern oder '5,10,20' f&uuml;r Minuten).</p>
 						<div>
-							<input ng-model="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.isochroneInput"
+							<input [(ngModel)]="reachabilityHelperService.settings.isochroneInput"
 								id="isochroneCutInput" type="text" style="width:95%;"
 								placeholder="Isochronengrenzen angeben">
 						</div>
 
 						<br />
 
-						<div ng-if="!isTime">
+						<div *ngIf="!isTime">
 							<label>Voreinstellungsoptionen</label>
 
 							<br />
 
 							<label class="radio-inline"><input type="radio" name="distances" value="100,200,300,400,500"
-									ng-model="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.isochroneInput"
-									ng-click="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.isochroneInput = '100,200,300,400,500'">
+									[(ngModel)]="reachabilityHelperService.settings.isochroneInput"
+									(click)="reachabilityHelperService.settings.isochroneInput = '100,200,300,400,500'">
 								100,200,300,400,500 Meter</label>
 
 							<label class="radio-inline"><input type="radio" name="distances" value="500,1000,1500"
-									ng-model="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.isochroneInput"
-									ng-click="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.isochroneInput = '500,1000,1500'">
+									[(ngModel)]="reachabilityHelperService.settings.isochroneInput"
+									(click)="reachabilityHelperService.settings.isochroneInput = '500,1000,1500'">
 								500,1000,1500 Meter</label>
 
 						</div>
 
-						<div ng-if="isTime">
+						<div *ngIf="isTime">
 							<label>Voreinstellungsoptionen</label>
 
 							<br />
 
 							<label class="radio-inline"><input type="radio" name="times" value="5,10,15"
-									ng-model="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.isochroneInput"
-									ng-click="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.isochroneInput = '5,10,15'">
+									[(ngModel)]="reachabilityHelperService.settings.isochroneInput"
+									(click)="reachabilityHelperService.settings.isochroneInput = '5,10,15'">
 								5,10,15
 								Minuten</label>
 
 							<label class="radio-inline"><input type="radio" name="times" value="5,10,15,20,25"
-									ng-model="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.isochroneInput"
-									ng-click="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.isochroneInput = '5,10,15,20,25'">5,10,15,20,25
+									[(ngModel)]="reachabilityHelperService.settings.isochroneInput"
+									(click)="reachabilityHelperService.settings.isochroneInput = '5,10,15,20,25'">5,10,15,20,25
 								Minuten</label>
 
 						</div>
@@ -126,8 +126,8 @@
 					<hr>
 					<br />
 
-					<div ng-show="$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend.datasetName != $ctrl.kommonitorReachabilityHelperServiceInstance.settings.selectedStartPointLayer.datasetName">
-						<label style="color: red;">Punktdatenquelle des Szenarios ge&auml;ndert - Neuberechnung erforderlich f&uuml;r <i>{{reachbilityHelperService.pipedData.settings.selectedStartPointLayer.datasetName}}</i></label>
+					<div *ngIf="dataExchangeService.pipedData.isochroneLegend.datasetName != reachabilityHelperService.settings.selectedStartPointLayer?.datasetName">
+						<label style="color: red;">Punktdatenquelle des Szenarios ge&auml;ndert - Neuberechnung erforderlich f&uuml;r <i>{{reachabilityHelperService.settings.selectedStartPointLayer?.datasetName}}</i></label>
 					</div>
 
 					<div style="text-align:center">
@@ -137,8 +137,8 @@
 							&nbsp;
 							<label class="switch">
 								<input type="checkbox"
-									value="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.dissolveIsochrones"
-									ng-model="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.dissolveIsochrones"
+									value="reachabilityHelperService.settings.dissolveIsochrones"
+									[(ngModel)]="reachabilityHelperService.settings.dissolveIsochrones"
 									checked>
 								<span class="switchslider round"></span>
 							</label>
@@ -153,11 +153,11 @@
 									<label>
 										<button class="btn btn-s btn-info"
 											
-											ng-disabled="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.loadingData || !($ctrl.kommonitorReachabilityHelperServiceInstance.settings.selectedStartPointLayer && $ctrl.kommonitorReachabilityHelperServiceInstance.settings.selectedStartPointLayer.geoJSON_reachability && $ctrl.kommonitorReachabilityHelperServiceInstance.settings.isochroneInput)"
-											ng-click="startAnalysis()">
+											[disabled]="reachabilityHelperService.settings.loadingData || !(reachabilityHelperService.settings.selectedStartPointLayer && reachabilityHelperService.settings.selectedStartPointLayer.geoJSON_reachability && reachabilityHelperService.settings.isochroneInput)"
+											(click)="startAnalysis()">
 											<i class="fa-solid fa-hourglass-start"></i>&nbsp;
 												Start
-											<span class="glyphicon glyphicon-refresh icon-spin" ng-show="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.loadingData"></span>
+											<span class="glyphicon glyphicon-refresh icon-spin" *ngIf="reachabilityHelperService.settings.loadingData"></span>
 											</button>
 									</label>
 
@@ -165,8 +165,8 @@
 
 									<label>
 										<button class="btn btn-s btn-success"
-											ng-show="$ctrl.kommonitorReachabilityHelperServiceInstance.currentIsochronesGeoJSON"
-											ng-click="downloadIsochrones()">
+											[hidden]="!reachabilityHelperService.currentIsochronesGeoJSON"
+											(click)="downloadIsochrones()">
 											<i class="fa-solid fa-file-arrow-down"></i> &nbsp; Isochronen</button>
 									</label>
 
@@ -178,7 +178,7 @@
 								<!-- Legend -->
 								<div class="just-padding">									
 
-									<div ng-show="$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend">
+									<div [hidden]="!dataExchangeService.pipedData.isochroneLegend">
 										<div style="text-align:center">
 											<div class="legend" style="text-align:left">
 												<label>Punktdatenquelle:
@@ -213,7 +213,7 @@
 
 			</div>
 
-			<div ng-show="error">
+			<div [hidden]="!error">
 				<br />
 				<div class="alert alert-danger">
 					<strong>Fehler</strong>
@@ -231,7 +231,7 @@
 	</div>
 
 	<!-- interactive Map to display rechability isochrones -->
-	<div class="col-md-8 col-sm-8 col-xs-12" ng-show="!isUsedInReporting">
+	<div class="col-md-8 col-sm-8 col-xs-12" [hidden]="isUsedInReporting">
 		<!-- geometry with interactive map and geocoder functionality -->
 		<!-- together with special helperService that is used to manage map and data -->
 

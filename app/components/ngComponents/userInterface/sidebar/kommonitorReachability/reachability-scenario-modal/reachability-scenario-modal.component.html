@@ -53,17 +53,17 @@
 											<div class="row vertical-align" style="margin-right:0px;">
 
 												<div class="col-md-6 col-sm-6 col-xs-6">
-													<div class="horizontal-align" *ngIf="reachabilityHelperService.pipedData.settings.selectedStartPointLayer?.geoJSON_reachability">
-														<p><b>{{reachabilityHelperService.pipedData.settings.selectedStartPointLayer.geoJSON_reachability.features.length}}</b>
+													<div class="horizontal-align" *ngIf="reachabilityHelperService.settings.selectedStartPointLayer?.geoJSON_reachability">
+														<p><b>{{reachabilityHelperService.settings.selectedStartPointLayer.geoJSON_reachability.features.length}}</b>
 															Startpunkte im
 															selektierten Layer</p>
 													</div>
 
-													<div class="horizontal-align" *ngIf="!reachabilityHelperService.pipedData.settings.selectedStartPointLayer">
+													<div class="horizontal-align" *ngIf="!reachabilityHelperService.settings.selectedStartPointLayer">
 														<p>noch kein Layer selektiert</p>
 													</div>
 
-													<div class="horizontal-align" *ngIf="reachabilityHelperService.pipedData.settings.selectedStartPointLayer && !reachabilityHelperService.pipedData.settings.selectedStartPointLayer?.geoJSON_reachability">
+													<div class="horizontal-align" *ngIf="reachabilityHelperService.settings.selectedStartPointLayer && !reachabilityHelperService.settings.selectedStartPointLayer?.geoJSON_reachability">
 														<p style="color: red;">zum angegebenen Zeitwert konnten keine
 															validen Feature-Daten abgerufen werden</p>
 													</div>
@@ -74,14 +74,14 @@
                             <option *ngFor="let poi of filteredDisplayableGeoresources" [value]="poi.georesourceId">{{poi.datasetName}}</option>
 													</select>
 
-													<div *ngIf="reachabilityHelperService.pipedData.settings.selectedStartPointLayer?.isNewReachabilityDataSource">
+													<div *ngIf="reachabilityHelperService.settings.selectedStartPointLayer?.isNewReachabilityDataSource">
 														<br />
 														<label>Name des neuen Datensatzes (Umbenennung)</label>
-														<input [ngModel]="reachabilityHelperService.pipedData.settings.selectedStartPointLayer.datasetName">
+														<input [ngModel]="reachabilityHelperService.settings.selectedStartPointLayer.datasetName">
 
 													</div>
 
-													<div *ngIf="reachabilityHelperService.pipedData.settings.selectedStartPointLayer && !reachabilityHelperService.pipedData.settings.selectedStartPointLayer?.isNewReachabilityDataSource && !reachabilityHelperService.pipedData.settings.selectedStartPointLayer?.isTmpDataLayer">
+													<div *ngIf="reachabilityHelperService.settings.selectedStartPointLayer && !reachabilityHelperService.settings.selectedStartPointLayer?.isNewReachabilityDataSource && !reachabilityHelperService.settings.selectedStartPointLayer?.isTmpDataLayer">
 														<select style="font-size: 11px; width:135px; padding: 0px;"
 															#selectedDate (change)="fetchPoiResourceGeoJSON(selectedDate.value)"
 															class="form-control" required>

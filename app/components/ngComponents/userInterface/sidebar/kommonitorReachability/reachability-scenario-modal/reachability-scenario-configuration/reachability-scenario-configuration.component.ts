@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { ReachabilityMapHelperService } from 'services/reachability-map-helper-service/reachability-map-helper.service';
@@ -10,7 +11,7 @@ import { ReachabilityHelperService } from 'services/reachbility-helper-service/r
   standalone: true,
   templateUrl: './reachability-scenario-configuration.component.html',
   styleUrls: ['./reachability-scenario-configuration.component.css'],
-  imports: [CommonModule]
+  imports: [CommonModule, FormsModule]
 })
 export class ReachabilityScenarioConfigurationComponent implements OnInit {
 
@@ -33,25 +34,25 @@ export class ReachabilityScenarioConfigurationComponent implements OnInit {
   domId = "reachabilityScenarioIsochroneGeoMap";
 
   constructor(
-    protected reachbilityHelperService: ReachabilityHelperService,
+    protected reachabilityHelperService: ReachabilityHelperService,
     private reachabilityMapHelperService: ReachabilityMapHelperService,
     protected dataExchangeService: DataExchangeService,
     private broadcastService: BroadcastService
   ) {
     // start points that were drawn manually
     // direct GeoJSON structure
-    this.reachbilityHelperService.pipedData.settings.manualStartPoints = undefined;
+    this.reachabilityHelperService.settings.manualStartPoints = undefined;
 
     // Indicator if multiple starting-points shall
     // be used.
-    this.reachbilityHelperService.pipedData.settings.useMultipleStartPoints = false;
+    this.reachabilityHelperService.settings.useMultipleStartPoints = false;
 
     // The calculation unit-indicator.
-    this.reachbilityHelperService.pipedData.settings.unit = 'Meter';
+    this.reachabilityHelperService.settings.unit = 'Meter';
 
     // array of arrays of lon, lat
     // [[lon,lat],[lon,lat]]
-    this.reachbilityHelperService.pipedData.settings.locationsArray = [];
+    this.reachabilityHelperService.settings.locationsArray = [];
   }
 
   ngOnInit(): void {
@@ -71,7 +72,7 @@ export class ReachabilityScenarioConfigurationComponent implements OnInit {
           this.onManageReachabilityScenario(values);
         } break;
         case 'isochronesCalculationFinished': {
-          this.isochronesCalculationFinished(values);
+          this.isochronesCalculationFinished();
         } break;
       }
     });
@@ -111,7 +112,7 @@ export class ReachabilityScenarioConfigurationComponent implements OnInit {
 
   reportingPoiLayerSelected([data]) {
     this.isUsedInReporting = true;
-    this.reachbilityHelperService.pipedData.settings.selectedStartPointLayer = data;
+    this.reachabilityHelperService.settings.selectedStartPointLayer = data;
   }
 
   onManageReachabilityScenario([scenarioDataset]) {
@@ -125,7 +126,7 @@ export class ReachabilityScenarioConfigurationComponent implements OnInit {
 
     this.error = undefined;
 
-    this.reachbilityHelperService.resetSettings();
+    this.reachabilityHelperService.resetSettings();
 
     this.broadcastService.broadcast('changeStartPointsSource_fromLayer');
 
@@ -139,25 +140,25 @@ export class ReachabilityScenarioConfigurationComponent implements OnInit {
   /////
     // TODO
   removeReachabilityLayers() {
-    this.reachbilityHelperService.pipedData.settings.loadingData = true;
+    this.reachabilityHelperService.settings.loadingData = true;
 
     this.reachabilityMapHelperService.removeReachabilityLayers(this.domId);
-    this.reachbilityHelperService.pipedData.currentIsochronesGeoJSON = undefined;
+    this.reachabilityHelperService.currentIsochronesGeoJSON = undefined;
     this.dataExchangeService.pipedData.isochroneLegend = undefined;
     // remove any diagram
     this.broadcastService.broadcast("resetPoisInIsochrone");
-    this.reachbilityHelperService.pipedData.settings.loadingData = false;
+    this.reachabilityHelperService.settings.loadingData = false;
   }
 
 
   downloadIsochrones(){
     var geoJSON_string = JSON
-      .stringify(this.reachbilityHelperService.pipedData.currentIsochronesGeoJSON);
+      .stringify(this.reachabilityHelperService.currentIsochronesGeoJSON);
 
     var fileName = 'Erreichbarkeitsisochronen_via-' +
-      this.reachbilityHelperService.pipedData.settings.transitMode +
+      this.reachabilityHelperService.settings.transitMode +
       '_Abbruchkriterium-' +
-      this.reachbilityHelperService.pipedData.settings.focus + '.geojson';
+      this.reachabilityHelperService.settings.focus + '.geojson';
 
     var blob = new Blob([geoJSON_string], {
       type: 'application/json'
@@ -183,22 +184,22 @@ export class ReachabilityScenarioConfigurationComponent implements OnInit {
         ///
   changeFocus(value) {
 
-    if (value === 'time' && this.reachbilityHelperService.pipedData.settings.transitMode === "buffer") {
-      this.reachbilityHelperService.pipedData.settings.focus = 'distance'
+    if (value === 'time' && this.reachabilityHelperService.settings.transitMode === "buffer") {
+      this.reachabilityHelperService.settings.focus = 'distance'
       this.isTime = false;
-      this.reachbilityHelperService.pipedData.settings.unit = 'Meter';
+      this.reachabilityHelperService.settings.unit = 'Meter';
       this.changeValues();
       return;
     }
 
     this.resetSlider();
 
-    if (this.reachbilityHelperService.pipedData.settings.focus == 'distance') {
+    if (this.reachabilityHelperService.settings.focus == 'distance') {
       this.isTime = false;
-      this.reachbilityHelperService.pipedData.settings.unit = 'Meter';
+      this.reachabilityHelperService.settings.unit = 'Meter';
     }
-    else if (this.reachbilityHelperService.pipedData.settings.focus == 'time') {
-      this.reachbilityHelperService.pipedData.settings.unit = 'Minuten';
+    else if (this.reachabilityHelperService.settings.focus == 'time') {
+      this.reachabilityHelperService.settings.unit = 'Minuten';
       this.isTime = true;
     }
 
@@ -209,7 +210,7 @@ export class ReachabilityScenarioConfigurationComponent implements OnInit {
     // Resets the slider for the distance-/time to initial values.
     ///
   resetSlider() {
-    this.reachbilityHelperService.pipedData.settings.currentTODValue = 1;
+    this.reachabilityHelperService.settings.currentTODValue = 1;
   }
 
   /////
@@ -226,40 +227,40 @@ export class ReachabilityScenarioConfigurationComponent implements OnInit {
     // selected vehicle type.
     ///
   changeValues() {
-    if (this.reachbilityHelperService.pipedData.settings.transitMode == 'buffer') {
-      this.reachbilityHelperService.pipedData.settings.focus = 'distance';
+    if (this.reachabilityHelperService.settings.transitMode == 'buffer') {
+      this.reachabilityHelperService.settings.focus = 'distance';
       $("#focus_distance").click();
-      if (this.reachbilityHelperService.pipedData.settings.focus == 'distance')
+      if (this.reachabilityHelperService.settings.focus == 'distance')
         this.max_value = 5000;
       else
         this.max_value = 25;
     }
 
-    if (this.reachbilityHelperService.pipedData.settings.transitMode == 'foot-walking') {
-      if (this.reachbilityHelperService.pipedData.settings.focus == 'distance')
+    if (this.reachabilityHelperService.settings.transitMode == 'foot-walking') {
+      if (this.reachabilityHelperService.settings.focus == 'distance')
         this.max_value = 5000;
       else
         this.max_value = 25;
     }
 
 
-    if (this.reachbilityHelperService.pipedData.settings.transitMode == 'cycling-regular') {
-      if (this.reachbilityHelperService.pipedData.settings.focus == 'distance')
+    if (this.reachabilityHelperService.settings.transitMode == 'cycling-regular') {
+      if (this.reachabilityHelperService.settings.focus == 'distance')
         this.max_value = 5000;
       else
         this.max_value = 20;
     }
 
 
-    if (this.reachbilityHelperService.pipedData.settings.transitMode == 'driving-car') {
-      if (this.reachbilityHelperService.pipedData.settings.focus == 'distance')
+    if (this.reachabilityHelperService.settings.transitMode == 'driving-car') {
+      if (this.reachabilityHelperService.settings.focus == 'distance')
         this.max_value = 5000;
       else
         this.max_value = 15;
     }
 
-    if (this.reachbilityHelperService.pipedData.settings.transitMode == 'wheelchair') {
-      if (this.reachbilityHelperService.pipedData.settings.focus == 'distance')
+    if (this.reachabilityHelperService.settings.transitMode == 'wheelchair') {
+      if (this.reachabilityHelperService.settings.focus == 'distance')
         this.max_value = 5000;
       else
         this.max_value = 25;
@@ -269,11 +270,11 @@ export class ReachabilityScenarioConfigurationComponent implements OnInit {
 
   onClickPerDataset_isochroneConfig() {
     setTimeout(() => {
-      if (!this.reachbilityHelperService.pipedData.settings.isochroneConfig.selectedDate) {
-        this.reachbilityHelperService.pipedData.settings.isochroneConfig.selectedDate = this.reachbilityHelperService.pipedData.settings.selectedStartPointLayer.availablePeriodsOfValidity[this.reachbilityHelperService.pipedData.settings.selectedStartPointLayer.availablePeriodsOfValidity.length - 1];
+      if (!this.reachabilityHelperService.settings.isochroneConfig.selectedDate) {
+        this.reachabilityHelperService.settings.isochroneConfig.selectedDate = this.reachabilityHelperService.settings.selectedStartPointLayer.availablePeriodsOfValidity[this.reachabilityHelperService.settings.selectedStartPointLayer.availablePeriodsOfValidity.length - 1];
       }
       if (!this.isUsedInReporting) {
-        this.reachbilityHelperService.fetchGeoJSONForIsochrones();
+        this.reachabilityHelperService.fetchGeoJSONForIsochrones();
       }
     }, 500);
   }
@@ -305,7 +306,7 @@ export class ReachabilityScenarioConfigurationComponent implements OnInit {
     setTimeout(() => {
       // Any code in here will automatically have an this.apply() run afterwards 
       if (!this.isUsedInReporting) { // reporting uses it's own loading overlay, which is controlled there
-        this.reachbilityHelperService.pipedData.settings.loadingData = true;
+        this.reachabilityHelperService.settings.loadingData = true;
       }
       // And it just works! 
     }, 50);
@@ -313,24 +314,23 @@ export class ReachabilityScenarioConfigurationComponent implements OnInit {
     setTimeout(() => {
       this.error = undefined;
 
-      this.reachbilityHelperService.startIsochroneCalculation(this.isUsedInReporting);
-
+      this.reachabilityHelperService.startIsochroneCalculation(this.isUsedInReporting);
     }, 150);
 
   }
 
-  isochronesCalculationFinished([reinit]) {
+  isochronesCalculationFinished() {
 
-    this.reachabilityMapHelperService.replaceIsochroneMarker(this.domId, this.reachbilityHelperService.pipedData.settings.locationsArray);
+    this.reachabilityMapHelperService.replaceIsochroneMarker(this.domId, this.reachabilityHelperService.settings.locationsArray);
     this.reachabilityMapHelperService.replaceIsochroneGeoJSON(
         this.domId,
-        this.reachbilityHelperService.pipedData.settings.selectedStartPointLayer.datasetName,
-        this.reachbilityHelperService.pipedData.currentIsochronesGeoJSON,
-        this.reachbilityHelperService.pipedData.settings.transitMode,
-        this.reachbilityHelperService.pipedData.settings.focus,
-        this.reachbilityHelperService.pipedData.settings.rangeArray,
-        this.reachbilityHelperService.pipedData.settings.useMultipleStartPoints,
-        this.reachbilityHelperService.pipedData.settings.dissolveIsochrones);
+        this.reachabilityHelperService.settings.selectedStartPointLayer.datasetName,
+        this.reachabilityHelperService.currentIsochronesGeoJSON,
+        this.reachabilityHelperService.settings.transitMode,
+        this.reachabilityHelperService.settings.focus,
+        this.reachabilityHelperService.settings.rangeArray,
+        this.reachabilityHelperService.settings.useMultipleStartPoints,
+        this.reachabilityHelperService.settings.dissolveIsochrones);
 
   }
 }
