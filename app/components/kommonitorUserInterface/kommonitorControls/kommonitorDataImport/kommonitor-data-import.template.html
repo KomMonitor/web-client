@@ -315,7 +315,209 @@
 																	class="awesome-marker-legend awesome-marker-legend-icon-{{::markerColor.colorName}}">
 																	<span
 																		style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:white;"
-																		class="glyphicon glyphicon-pushpin"></span>
+																		class="glyphicon glyphicon-{{dataset.poiSymbolBootstrap3Name}}"></span>
+																</div>
+															</a>
+
+														</li>
+													</ul>
+													<div class="help-block with-errors"></div>
+												</div>
+											</div>
+											<div align="center" ng-show="dataset.isGeocodedDataset">
+												hohe Genauigkeit
+												<div class="awesome-marker-legend awesome-marker-legend-icon-green">
+													<span
+														style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:{{::dataset.poiSymbolColor}};"
+														class="glyphicon glyphicon-{{::dataset.poiSymbolBootstrap3Name}}"
+														aria-hidden="true"></span>
+												</div>
+
+												<br>
+												<hr>
+												Niedrige Genauigkeit
+												<div
+													class="awesome-marker-legend awesome-marker-legend-icon-{{::dataset.poiMarkerColor}}">
+													<span
+														style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:{{::dataset.poiSymbolColor}};"
+														class="glyphicon glyphicon-{{::dataset.poiSymbolBootstrap3Name}}"
+														aria-hidden="true"></span>
+												</div>
+
+											</div>
+										</div>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+
+				</div>
+
+			</div>
+
+		</div>
+		<!-- /.box-body -->
+
+	</div>
+	<!-- /.box -->
+
+	<div class="box box-primary">
+		<div class="box-header with-border">
+			<h3 class="box-title">Layer aus Beteiligungstool laden</h3>
+
+			<div class="box-tools pull-right">
+				<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+				</button>
+			</div>
+		</div>
+		<div class="box-body">
+
+			<div class="">
+
+				<div id="koboform" >
+					<!-- <a data-toggle="modal" data-target="#kobotoolbox-modal" style="font-size:1.2em; cursor:pointer;" title="Formular aufrufen&nbsp;&nbsp;" class="kommonitor-theme">
+						<i class="fas fa-file-alt"> Formular aufrufen</i>
+					</a> -->
+
+					<div>
+						<h4>Demonstrator Kobotoolbox-Beteiligungsdaten</h4>
+					</div>
+
+					<button data-toggle="modal" data-target="#kobotoolbox-modal" class="btn btn-info btn-sm" type="button">
+						<i class="fas fa-file-alt"></i>&nbsp;&nbsp;Formular aufrufen
+					</button>
+
+					<button class="btn btn-success btn-sm" type="button" ng-click="$ctrl.kobotoolboxHelperServiceInstance.loadNoisePlaces()">
+						<i class="fas fa-plus"></i>&nbsp;&nbsp;Laute Orte laden
+					</button>
+
+					<button class="btn btn-success btn-sm" type="button" ng-click="$ctrl.kobotoolboxHelperServiceInstance.loadQuietPlaces()">
+						<i class="fas fa-plus"></i>&nbsp;&nbsp;Ruhige Orte laden
+					</button>
+				</div>	
+
+				<hr>
+
+				
+
+				<div ng-show="$ctrl.kommonitorDataExchangeServiceInstance.fileDatasets.length > 0">
+					<h4>Geladene Datenlayer</h4>
+					<div class="input-group">
+						<span class="input-group-addon"><i class="fas fa-filter"></i></span>
+						<input type="text" class="form-control input-sm" placeholder="Stichwortfilter"
+							ng-model="fileNameFilter" ng-model-options="{debounce: 500, blur: 0}">
+					</div>
+
+					<br />
+
+					<div class="fileInputForm">
+
+						<table class="table table-condensed" style="margin-bottom:0px;">
+							<thead>
+								<tr>
+									<th>Dateiname</th>
+									<th>ID-Attribut</th>
+									<th>NAME-Attribut</th>
+									<th>Legende</th>
+								</tr>
+							</thead>
+
+							<tbody>
+
+								<tr
+									ng-repeat='dataset in $ctrl.kommonitorDataExchangeServiceInstance.fileDatasets | filter:fileNameFilter | orderBy:"datasetName"'>
+									<td>
+										<label class='checkbox-inline'><input type="checkbox"
+												value="dataset.datasetName" ng-model="dataset.isSelected"
+												ng-change="toggleDataLayer(dataset)">
+
+											<b ng-bind-html="dataset.datasetName"></b>
+										</label>
+										<br>
+										<div class="datasetButtonForm">
+											<i class="fa-solid fa-trash-can" style="cursor: pointer;" title="Entfernen"
+												ng-click="removeDataLayer(dataset)"></i>
+											&nbsp;&nbsp;
+											<i class="fa-solid fa-file-export" style="cursor: pointer;"
+												title="Download als GeoJSON" ng-click="downloadDataLayer(dataset)"></i>
+											&nbsp;&nbsp;
+											<i class="fa-solid fa-file-circle-check" style="cursor: pointer;"
+												title="Download nur der genauen geokodierten Daten als CSV"
+												ng-show="dataset.isGeocodedDataset"
+												ng-click="downloadGeocodedDataRowsAsGeoJSON_highAccuracy(dataset)"></i>
+											&nbsp;&nbsp;
+											<i class="fa-solid fa-file-circle-xmark" style="cursor: pointer;"
+												title="Download nicht geokodierter Datenzeilen als CSV"
+												ng-show="dataset.dataRows_notGeocoded.length > 0"
+												ng-click="downloadNonGeocodedDataRowsAsCSV(dataset)"></i>
+										</div>
+									</td>
+									<td>
+										<div>
+											<select style="font-size: 11px; width:135px; padding: 0px;"
+												ng-model="dataset.ID_ATTRIBUTE" ng-change="onChangeIdProperty(dataset)"
+												ng-options="property as property for property in dataset.featureSchema"
+												class="form-control" required>
+											</select>
+										</div>
+									</td>
+									<td>
+										<div>
+											<select style="font-size: 11px; width:135px; padding: 0px;"
+												ng-model="dataset.NAME_ATTRIBUTE"
+												ng-change="onChangeNameProperty(dataset)"
+												ng-options="property as property for property in dataset.featureSchema"
+												class="form-control" required>
+											</select>
+										</div>
+									</td>
+									<td>
+										<div ng-show="! dataset.isPOI">
+											<div class="input-group colorpicker-component">
+												<input type="text" style="display:none;" class="input-sm"
+													ng-model="dataset.displayColor"
+													ng-change="adjustFileLayerColor(dataset)"
+													placeholder="Darstellungsfarbe" required />
+												<span title="Klicken, um die Farbe anzupassen"
+													style="border: 1px solid #ccc;"
+													class="input-group-addon"><i></i></span>
+											</div>
+											<!-- value="{{dataset.displayColor}}" -->
+											<!-- <i style="background-color:{{dataset.displayColor}}; margin-left: 12px; width: 18px; height: 18px; float: left;"></i> -->
+										</div>
+										<div ng-show="dataset.isPOI">
+											<div align="center" ng-show="! dataset.isGeocodedDataset">
+												<!-- <div
+													class="awesome-marker-legend awesome-marker-legend-icon-{{::dataset.poiMarkerColor}}">
+													<span
+														style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:{{::dataset.poiSymbolColor}};"
+														class="glyphicon glyphicon-{{::dataset.poiSymbolBootstrap3Name}}"
+														aria-hidden="true"></span>
+												</div> -->
+												<div class="dropdown customColorPicker">
+
+													<button type="button" class="btn btn-info dropdown-toggle"
+														data-toggle="dropdown">
+														<div
+															class="awesome-marker-legend awesome-marker-legend-icon-{{dataset.poiMarkerColor}}">
+															<span
+																style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:white;"
+																class="glyphicon glyphicon-{{dataset.poiSymbolBootstrap3Name}}"
+																aria-hidden="true"></span>
+															<span class="caret"></span>
+														</div>
+
+													</button>
+													<ul class="dropdown-menu dropdown-menu-center">
+														<li ng-repeat="markerColor in $ctrl.kommonitorDataExchangeServiceInstance.availablePoiMarkerColors | filter:{colorName:'!white'}"
+															ng-click="adjustFileLayerMarkerColor(dataset, markerColor)">
+															<a href="">
+																<div
+																	class="awesome-marker-legend awesome-marker-legend-icon-{{::markerColor.colorName}}">
+																	<span
+																		style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:white;"
+																		class="glyphicon glyphicon-{{dataset.poiSymbolBootstrap3Name}}"></span>
 																</div>
 															</a>
 

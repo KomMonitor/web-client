@@ -7,15 +7,16 @@ angular
 
 			controller: [
 				'kommonitorDataExchangeService', 'kommonitorMapService', '$scope', '$rootScope', '$http', '__env',
-				'kommonitorToastHelperService', 'kommonitorFileHelperService', 'kommonitorGeocoderHelperService',
+				'kommonitorToastHelperService', 'kommonitorFileHelperService', 'kommonitorGeocoderHelperService', 'kobotoolboxHelperService',
 				function kommonitorDataImportController(
 					kommonitorDataExchangeService, kommonitorMapService, $scope, $rootScope, $http, __env,
-					kommonitorToastHelperService, kommonitorFileHelperService, kommonitorGeocoderHelperService) {
+					kommonitorToastHelperService, kommonitorFileHelperService, kommonitorGeocoderHelperService, kobotoolboxHelperService) {
 					/*
 					 * reference to kommonitorDataExchangeService instances
 					 */
 					this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 					this.kommonitorMapServiceInstance = kommonitorMapService;
+					this.kobotoolboxHelperServiceInstance = kobotoolboxHelperService;
 					$scope.loadingData = false;
 					$scope.date;
 

@@ -32,6 +32,7 @@ module.exports = function (grunt) {
             'app/util/genericServices/kommonitorGeocoderHelperService/kommonitor-geocoder-helper-service.module.js',
             'app/util/genericServices/kommonitorReachabilityCoverageReportsHelperService/kommonitor-reachability-coverage-reports-helper-service.module.js',
             'app/util/genericServices/kommonitorLeafletScreenshotCacheHelperService/kommonitor-leaflet-screenshot-cache-helper-service.module.js',
+            'app/util/genericServices/kobotoolboxHelperService/kobotoolbox-helper-service.module.js',
             'app/components/common/singleFeatureEdit/single-feature-edit.module.js',
             'app/components/common/singleFeatureEdit/single-feature-edit.component.js', 
             'app/components/common/classificationMethodSelect/classification-method-select.module.js',
@@ -210,6 +211,8 @@ module.exports = function (grunt) {
             'app/components/kommonitorUserInterface/kommonitorControls/reportingModal/reportingOverview/reporting-overview.component.js',
             'app/components/kommonitorUserInterface/kommonitorControls/reportingModal/reportingIndicatorAdd/reporting-indicator-add.module.js',
             'app/components/kommonitorUserInterface/kommonitorControls/reportingModal/reportingIndicatorAdd/reporting-indicator-add.component.js',
+            'app/components/kommonitorUserInterface/kommonitorControls/kobotoolboxModal/kobotoolbox-modal.module.js',
+            'app/components/kommonitorUserInterface/kommonitorControls/kobotoolboxModal/kobotoolbox-modal.component.js',
             'app/components/kommonitorUserInterface/kommonitor-user-interface.module.js',
             'app/components/kommonitorUserInterface/kommonitor-user-interface.component.js',
             'app/app.js'
