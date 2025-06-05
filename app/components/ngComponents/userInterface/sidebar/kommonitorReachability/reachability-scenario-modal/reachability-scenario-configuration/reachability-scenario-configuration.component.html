@@ -6,32 +6,21 @@
 
 			<br />
 			<div class="btn-group btn-group-justified" data-toggle="buttons">
-				<label class="btn btn-primary active">
-					<input type="radio" name="options" id="optBuffer" autocomplete="off" checked
-						(change)="changeType()"
-						[(ngModel)]="reachabilityHelperService.settings.transitMode"
-						value="buffer"> <i class="far fa-dot-circle"></i>
-				</label>
-				<label class="btn btn-primary" id="optFeetRadioButtonLabel">
-					<input type="radio" name="options" id="optFeet" autocomplete="off" checked (change)="changeType()"
-						[(ngModel)]="reachabilityHelperService.settings.transitMode"
-						value="foot-walking"> <i class="fas fa-walking"></i>
-				</label>
-				<label class="btn btn-primary">
-					<input type="radio" name="options" id="optBike" autocomplete="off" (change)="changeType()"
-						[(ngModel)]="reachabilityHelperService.settings.transitMode"
-						value="cycling-regular"> <i class="fas fa-biking"></i> 
-				</label>
-				<label class="btn btn-primary">
-					<input type="radio" name="options" id="optCar" autocomplete="off" (change)="changeType()"
-						[(ngModel)]="reachabilityHelperService.settings.transitMode"
-						value="driving-car"> <i class="fas fa-car"></i> 
-				</label>
-				<label class="btn btn-primary">
-					<input type="radio" name="options" id="optWheelchair" autocomplete="off" (change)="changeType()"
-						[(ngModel)]="reachabilityHelperService.settings.transitMode"
-						value="wheelchair"> <i class="fab fa-accessible-icon"></i>
-				</label>
+				<button class="feature-btn" (click)="changeType('buffer')">
+          <i class="far fa-dot-circle"></i>
+        </button>
+				<button class="feature-btn" (click)="changeType('foot-walking')">
+          <i class="fas fa-walking"></i>
+        </button>
+				<button class="feature-btn" (click)="changeType('cycling-regular')">
+          <i class="fas fa-biking"></i> 
+        </button>
+				<button class="feature-btn" (click)="changeType('driving-car')">
+          <i class="fas fa-car"></i> 
+        </button>
+				<button class="feature-btn" (click)="changeType('wheelchair')">
+          <i class="fab fa-accessible-icon"></i>
+        </button>
 			</div>
 
 			<div class="ng-show" id="isochoneCalculation">
@@ -43,19 +32,12 @@
 					<br />
 
 					<div class="btn-group btn-group-justified" data-toggle="buttons">
-						<label class="btn btn-primary active">
-							<input type="radio" name="options" id="focus_distance" autocomplete="off" checked
-								(change)="changeFocus('distance')"
-								[(ngModel)]="reachabilityHelperService.settings.focus"
-								value="distance"> <i class="fas fa-ruler"></i> Distanz
-						</label>
-						<label class="btn btn-primary"
-							ng-disabled="reachabilityHelperService.settings.transitMode === 'buffer'">
-							<input type="radio" name="options" id="focus_time" autocomplete="off"
-								(change)="changeFocus('time')"
-								[(ngModel)]="reachabilityHelperService.settings.focus"
-								value="time"><i class="far fa-clock"></i> Zeit
-						</label>
+            <button class="feature-btn" (click)="changeFocus('distance')">
+              <i class="fas fa-ruler"></i> Distanz
+						</button>
+						<button class="feature-btn" (click)="changeFocus('time')" [disabled]="reachabilityHelperService.settings.transitMode=='buffer'">
+							<i class="far fa-clock"></i> Zeit
+            </button>
 					</div>
 
 					<!--

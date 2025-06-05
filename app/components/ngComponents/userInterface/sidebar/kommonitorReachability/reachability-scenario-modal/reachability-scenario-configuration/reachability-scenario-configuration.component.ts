@@ -184,6 +184,8 @@ export class ReachabilityScenarioConfigurationComponent implements OnInit {
         ///
   changeFocus(value) {
 
+    this.reachabilityHelperService.settings.focus = value;
+
     if (value === 'time' && this.reachabilityHelperService.settings.transitMode === "buffer") {
       this.reachabilityHelperService.settings.focus = 'distance'
       this.isTime = false;
@@ -217,7 +219,10 @@ export class ReachabilityScenarioConfigurationComponent implements OnInit {
     // Changes the vehicle type according to an
     // action on the related buttons.
     ///
-  changeType() {
+  changeType(value) {
+
+    this.reachabilityHelperService.settings.transitMode = value;
+
     this.changeValues();
     this.resetSlider();
   }

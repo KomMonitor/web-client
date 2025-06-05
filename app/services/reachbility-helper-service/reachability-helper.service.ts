@@ -278,7 +278,7 @@ export class ReachabilityHelperService {
     }); */
   }
 
-  startIsochroneCalculation(isUsedInReporting) {
+  async startIsochroneCalculation(isUsedInReporting) {
     //this.ajskommonitorReachabilityHelperServiceProvider.startIsochroneCalculation(used);
 
     if (!isUsedInReporting) { // reporting uses it's own loading overlay, which is controlled there
@@ -304,7 +304,7 @@ export class ReachabilityHelperService {
       resultIsochrones = this.createBuffers();
     }
     else {
-      resultIsochrones = this.createIsochrones();
+      resultIsochrones = await this.createIsochrones();
     }
 
     if (isUsedInReporting) {
@@ -452,7 +452,7 @@ export class ReachabilityHelperService {
     return this.settings.locationsArray;
   }
 
-  createIsochrones() {
+  async createIsochrones() {
     var resultIsochrones;
 
     console.log('Calculating isochrones for ' +
@@ -476,7 +476,10 @@ export class ReachabilityHelperService {
         // make request, collect results
 
         // responses will be GeoJSON FeatureCollections
-        var tempIsochrones:any = this.fetchIsochrones(tempStartPointsArray);
+        var tempIsochrones:any;
+        await this.fetchIsochrones(tempStartPointsArray).then((value) => {
+          tempIsochrones = value;
+        });
 
         if (!resultIsochrones) {
           resultIsochrones = tempIsochrones;
@@ -504,6 +507,7 @@ export class ReachabilityHelperService {
     if (this.settings.dissolveIsochrones) {
       try {
         var dissolved = turf.dissolve(resultIsochrones, { propertyName: 'value' });
+
         return dissolved;
       } catch (e) {
         console.error("Dissolving Isochrones failed with error: " + e);
@@ -537,42 +541,20 @@ export class ReachabilityHelperService {
       }
     };
 
-    return this.http.post(url,req.data,{headers: req.headers}).subscribe({
-      next: response => {
-        return response;
-      },
-      error: error => {
-        console.error(error.data.error.message);
-        this.error = error.data.error.message;
-        this.settings.loadingData = false;
-        this.dataExchangeService.displayMapApplicationError(error);
-      }
-    });
-    /* return await $http(req)
-      .then(
-        function successCallback(
-          response) {
-          // this callback will
-          // becalled
-          // asynchronously
-          // when the response is
-          // available
-          
-          return response.data;
-
+    return new Promise((resolve, reject) => {
+      this.http.post(url,req.data,{headers: req.headers}).subscribe({
+        next: response => {
+          resolve(response);
         },
-        function errorCallback(
-          error) {
-          // called asynchronously
-          // if an error occurs
-          // or server returns
-          // response with an
-          // error status.
+        error: error => {
           console.error(error.data.error.message);
           this.error = error.data.error.message;
           this.settings.loadingData = false;
-          kommonitorDataExchangeService.displayMapApplicationError(error);
-        }); */
+          this.dataExchangeService.displayMapApplicationError(error);
+          reject();
+        }
+      });
+    });
   }
 
   createORSIsochroneRequestBody(locationsArray, rangeArray) {
