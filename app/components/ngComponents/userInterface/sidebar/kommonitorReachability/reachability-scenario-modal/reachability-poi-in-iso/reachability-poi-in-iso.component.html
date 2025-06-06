@@ -1,0 +1,123 @@
+<div style="text-align:center" *ngIf="! reachabilityHelperService.currentIsochronesGeoJSON">
+	<p>
+		Bitte f&uuml;hren Sie zuerst eine Isochronenberechnung durch.
+	</p>
+</div>
+
+<div style="text-align:center" [hidden]="!reachabilityHelperService.currentIsochronesGeoJSON">
+	<div class="row vertical-align">
+		<!-- reachability config -->
+		<div class="col-md-4 col-sm-4 col-xs-12" style="padding-left: 5px; padding-right: 5px;">
+			<div class="just-padding" style="height: 57vh; overflow-y: auto;" id="reachabilityPoiInIsoConfigForm">
+
+				<div *ngIf="dataExchangeService.pipedData.isochroneLegend.datasetName != reachabilityHelperService.settings.selectedStartPointLayer?.datasetName">
+					<label style="color: red;">Punktdatenquelle des Szenarios ge&auml;ndert - Neuberechnung erforderlich f&uuml;r <i>{{reachabilityHelperService.settings.selectedStartPointLayer.datasetName}}</i></label>
+				</div>
+
+				<!-- <label>Art der Datumsdefinition zum Abruf eines Datensatzes</label>
+				<div class="form-group">
+					<label class="radio-inline"><input type="radio"
+							name="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.dateSelectionType"
+							ng-value="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.dateSelectionType_valueIndicator"
+							[(ngModel)]="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.dateSelectionType.selectedDateType"
+							ng-click="onClickUseIndicatorTimestamp()">Datum des aktuellen Indikators</label>
+					<label class="radio-inline"><input type="radio"
+							name="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.dateSelectionType"
+							ng-value="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.dateSelectionType_valueManual"
+							[(ngModel)]="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.dateSelectionType.selectedDateType">manuelles
+						Datum
+						<div ng-hide="!(settings.dateSelectionType.selectedDateType === $ctrl.kommonitorReachabilityHelperServiceInstance.settings.dateSelectionType_valueManual)"
+							class="input-group date">
+							<div class="input-group-addon">
+								<i class="far fa-calendar-alt"></i>
+							</div>
+							<input type="text"
+								[(ngModel)]="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.selectedDate_manual"
+								(change)="onChangeManualDate()" class="form-control pull-right"
+								placeholder="YYYY-MM-DD" id="manualDateDatepicker_reachabilityAnalysis" required>
+						</div>
+					</label>
+					<label class="radio-inline"><input type="radio"
+							name="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.dateSelectionType"
+							ng-value="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.dateSelectionType_valuePerDataset"
+							[(ngModel)]="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.dateSelectionType.selectedDateType">pro
+						Datensatz</label>
+				</div> -->
+
+				<!-- <p>Selektieren eines Eintrags aus unten stehender Liste f&uuml;gt den entsprechenden Punkt-Layer der Kartendarstellung hinzu. Deselektion entfernt den entsprechenden Layer aus der Kartendarstellung.</p> -->
+
+				<div class="input-group">
+					<span class="input-group-addon"><i class="fas fa-filter"></i></span>
+					<input type="text" class="form-control input-sm" placeholder="Stichwortfilter" style="width: 100%"
+						[(ngModel)]="poiNameFilter_reachabilityAnalysis">
+				</div>
+
+				<br />
+
+				<div id="poiInputForm_reachabilityAnalysis">
+
+					<table class="table table-condensed" style="margin-bottom:0px;">
+						<thead>
+							<tr>
+								<th>Datensatz</th>
+								<th>Beschreibung</th>
+								<th>Legende</th>
+								<th
+									*ngIf="reachabilityHelperService.settings.dateSelectionType.selectedDateType === reachabilityHelperService.settings.dateSelectionType_valuePerDataset">
+									Zeitschnitt</th>
+							</tr>
+						</thead>
+
+						<tbody>
+
+              <!--  | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois() | filter:poiNameFilter_reachabilityAnalysis | filter:{datasetName:"!-- leerer neuer Datensatz --"} -->
+							<tr *ngFor='let poi of filteredDisplayableGeoresources'>
+								<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
+								<td>
+									<label class='checkbox-inline'><input type="checkbox" value="poi.datasetName"
+											[(ngModel)]="poi.isSelected_reachabilityAnalysis"
+											(change)="handlePoiForAnalysis(poi)">
+
+										<b>&nbsp;&nbsp;{{poi.datasetName}}</b>
+									</label>
+								</td>
+								<td>
+									<p>{{poi.metadata.description}}</p>
+								</td>
+								<td class="text-center">
+									<div style="text-align:center">
+										<div
+											class="awesome-marker-legend awesome-marker-legend-icon-{{poi.poiMarkerColor}}">
+											<span style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em;" [ngStyle]="{color: poi.poiSymbolColor}"
+												class="glyphicon glyphicon-{{poi.poiSymbolBootstrap3Name}}"
+												aria-hidden="true"></span>
+										</div>
+									</div>
+								</td>
+								<td *ngIf="reachabilityHelperService.settings.dateSelectionType.selectedDateType === reachabilityHelperService.settings.dateSelectionType_valuePerDataset && !poi.isTmpDataLayer">
+									<!-- ng-options="date as date.startDate + ' - ' + date.endDate for date in poi.availablePeriodsOfValidity | orderBy: 'startDate'" -->
+                  <select style="font-size: 11px; width:135px; padding: 0px;" (change)="onChangeSelectedDate(poi)"
+										class="form-control" name="sel-{{poi.datasetName}}">
+                    <option *ngFor="let date of poi.availablePeriodsOfValidity; let i = index" [attr.selected]="(i==poi.availablePeriodsOfValidity.length-1) ? 'selected' : null">{{date.startDate}} - {{date.endDate}}</option>
+									</select>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+
+					<br />
+
+				</div>
+
+			</div>
+		</div>		
+		<div class="col-md-5 col-sm-5 col-xs-12" style="padding-left: 5px; padding-right: 5px;">
+			<div id="reachabilityScenarioPoiInIsoGeoMap" style="height: 57vh;"></div>
+		</div>
+		<div class="col-md-3 col-sm-3 col-xs-12" style="padding-left: 5px; padding-right: 5px;">			
+			<div id="reachability_diagrams_section" style="height: 57vh;">
+
+			</div>
+		</div>
+	</div>
+</div>

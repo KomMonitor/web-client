@@ -1,3 +1,4 @@
+import { ajskommonitorReachabilityMapHelperServiceProvider } from './../../app-upgraded-providers';
 import { Inject, Injectable } from '@angular/core';
 
 @Injectable({
@@ -51,5 +52,13 @@ export class ReachabilityMapHelperService {
         rangeArray,
         useMultipleStartPoints,
         dissolveIsochrones);
+  }
+
+  addPoiGeoresourceGeoJSON_reachabilityAnalysis(domId, poiGeoresource, queryDate, bol) {
+    this.ajskommonitorReachabilityMapHelperServiceProvider.addPoiGeoresourceGeoJSON_reachabilityAnalysis(domId, poiGeoresource, queryDate, bol);
+  }
+
+  removePoiGeoresource_reachabilityAnalysis(domId, poiGeoresource) {
+    this.ajskommonitorReachabilityMapHelperServiceProvider.removePoiGeoresource_reachabilityAnalysis(domId, poiGeoresource);
   }
 }

@@ -11,7 +11,7 @@ export class ReachabilityHelperService {
 
   settings:any = {};
 
-  currentIsochronesGeoJSON = undefined;
+  currentIsochronesGeoJSON:any = undefined;
 	original_nonDissolved_isochrones:any = undefined;
 
   error = undefined;
