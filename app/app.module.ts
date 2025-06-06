@@ -57,6 +57,7 @@ import { BaseIndicatorOfComputedIndicatorFilter } from 'pipes/base-indicator-of-
 import { BaseIndicatorOfHeadlineIndicatorFilter } from 'pipes/base-indicator-of-headline-indicator-filter.pipe';
 import { AuthService } from 'services/auth-service/auth.service';
 import { KommonitorReachabilityComponent } from './components/ngComponents/userInterface/sidebar/kommonitorReachability/kommonitor-reachability.component';
+import { AdminTopicsManagementComponent } from './components/ngComponents/admin/adminTopicsManagement/admin-topics-management.component';
 
 
 
@@ -121,7 +122,8 @@ declare var MathJax;
     BaseIndicatorOfComputedIndicatorFilter,
     BaseIndicatorOfHeadlineIndicatorFilter,
     RegressionDiagramComponent,
-    KommonitorReachabilityComponent
+    KommonitorReachabilityComponent,
+    AdminTopicsManagementComponent,
   ],
   schemas: [
     CUSTOM_ELEMENTS_SCHEMA
@@ -188,6 +190,11 @@ export class AppModule implements DoBootstrap {
 
     angular.module('kommonitorUserInterface')
     .directive('kommonitorMapNew',  downgradeComponent({ component: KommonitorMapComponent }) as angular.IDirectiveFactory); */
+
+    angular.module('adminTopicsManagement')
+      .directive('adminTopicsManagementNew', downgradeComponent({ 
+        component: AdminTopicsManagementComponent 
+      }) as angular.IDirectiveFactory);
 
     console.log("registered downgraded Angular components for AngularJS usage");
   }
