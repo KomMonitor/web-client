@@ -37,13 +37,13 @@
       <div class="box-body">
         <div class="just-padding">
           <div class="list-group list-group-root well">
-            <div *ngFor="let mainTopic of dataExchangeService.availableTopics | filter:{topicType:'main'} | filter:{topicResource:'indicator'}">
+            <div *ngFor="let mainTopic of filteredIndicatorTopics">
               <div class="list-group-item list-group-item-default" style="background: #2171b5; color: white;">
                 <a [id]="mainTopic.topicId" href="" [title]="mainTopic.topicDescription"
                   class="collapseTrigger" style="color: white;"
-                  (click)="isCollapsed_mainTopic = !isCollapsed_mainTopic"
+                  (click)="toggleCollapse(mainTopic.topicId)"
                   [attr.data-init]="true">
-                  <i class="glyphicon glyphicon-chevron-right"></i>{{mainTopic.topicName}}
+                  <i class="glyphicon" [class.glyphicon-chevron-right]="isCollapsed(mainTopic.topicId)" [class.glyphicon-chevron-down]="!isCollapsed(mainTopic.topicId)"></i>{{mainTopic.topicName}}
                 </a>
 
                 <div *ngIf="showTopicIds" style="display: inline-block;">
@@ -63,15 +63,15 @@
                 </div>
               </div>
 
-              <div class="list-group collapse" [class.show]="!isCollapsed_mainTopic">
+              <div class="list-group collapse" [class.show]="!isCollapsed(mainTopic.topicId)">
                 <div *ngFor="let subTopic of mainTopic.subTopics">
                   <div class="list-group-item list-group-item-default"
                     style="background: #6baed6; color: white;">
                     <a [id]="subTopic.topicId" class="collapseTrigger" style="color: white;"
                       [title]="subTopic.topicDescription" href=""
-                      (click)="isCollapsed_subTopic = !isCollapsed_subTopic"
+                      (click)="toggleCollapse(subTopic.topicId)"
                       [attr.data-init]="true">
-                      <i class="glyphicon glyphicon-chevron-right"></i>{{subTopic.topicName}}
+                      <i class="glyphicon" [class.glyphicon-chevron-right]="isCollapsed(subTopic.topicId)" [class.glyphicon-chevron-down]="!isCollapsed(subTopic.topicId)"></i>{{subTopic.topicName}}
                     </a>
 
                     <div *ngIf="showTopicIds" style="display: inline-block;">
@@ -94,7 +94,7 @@
 
                   <!-- Add sub-topic form -->
                   <div class="list-group-item list-group-item-success"
-                    *ngIf="!isCollapsed_subTopic" style="border-top: double;">
+                    *ngIf="!isCollapsed(subTopic.topicId)" style="border-top: double;">
                     <form role="form" class="form-group" data-toggle="validator"
                       style="margin-bottom: 0px;">
                       <div class="row">

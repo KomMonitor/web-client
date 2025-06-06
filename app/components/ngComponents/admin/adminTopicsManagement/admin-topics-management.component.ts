@@ -1,10 +1,8 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
-import { kommonitorCacheHelperService } from 'util/genericServices/kommonitorCacheHelperService/kommonitor-cache-helper-service.module';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { HttpClient } from '@angular/common/http';
 import { Subscription } from 'rxjs';
-import { kommonitorDataExchangeService } from 'util/genericServices/kommonitorDataExchangeService/kommonitor-data-exchange-service.module';
 
 @Component({
   selector: 'admin-topics-management-new',
@@ -22,13 +20,45 @@ export class AdminTopicsManagementComponent implements OnInit, OnDestroy {
   loadingData = false;
   private subscription: Subscription | undefined;
 
+  // Add collapse state tracking
+  collapsedTopics: { [key: string]: boolean } = {};
+
   constructor(
-    public dataExchangeService: DataExchangeService,
-    private cacheHelperService: kommonitorCacheHelperService,
+    @Inject('kommonitorDataExchangeService') public kommonitorDataExchangeService: any,
+    @Inject('kommonitorCacheHelperService') private kommonitorCacheHelperService: any,
     private broadcastService: BroadcastService,
-    private http: HttpClient,
-    private kommonitorDataExchangeService: kommonitorDataExchangeService
+    private http: HttpClient
   ) {}
+
+  get filteredIndicatorTopics() {
+    return this.kommonitorDataExchangeService.availableTopics
+      .filter(t => t.topicType === 'main' && t.topicResource === 'indicator');
+  }
+
+  get filteredGeoresourceTopics() {
+    return this.kommonitorDataExchangeService.availableTopics
+      .filter(t => t.topicType === 'main' && t.topicResource === 'georesource');
+  }
+
+  toggleCollapse(topicId: string) {
+    this.collapsedTopics[topicId] = !this.collapsedTopics[topicId];
+    
+    // Update unCollapsedTopicIds array to maintain compatibility
+    if (this.collapsedTopics[topicId]) {
+      const index = this.unCollapsedTopicIds.indexOf(topicId);
+      if (index > -1) {
+        this.unCollapsedTopicIds.splice(index, 1);
+      }
+    } else {
+      if (!this.unCollapsedTopicIds.includes(topicId)) {
+        this.unCollapsedTopicIds.push(topicId);
+      }
+    }
+  }
+
+  isCollapsed(topicId: string): boolean {
+    return !this.collapsedTopics[topicId];
+  }
 
   ngOnInit() {
     // Initialize any adminLTE box widgets
@@ -53,16 +83,16 @@ export class AdminTopicsManagementComponent implements OnInit, OnDestroy {
   private addClickListenerToEachCollapseTrigger() {
     setTimeout(() => {
       $('.list-group-item > .collapseTrigger').on('click', (event) => {
-        $('.glyphicon', event.currentTarget)
+        $('.glyphicon', event.currentTarget as Element)
           .toggleClass('glyphicon-chevron-right')
           .toggleClass('glyphicon-chevron-down');
 
         // manage uncollapsed entries
-        const clickedTopicId = $(event.currentTarget).attr('id');
-        if (this.unCollapsedTopicIds.includes(clickedTopicId)) {
+        const clickedTopicId = $(event.currentTarget as HTMLElement).attr('id');
+        if (clickedTopicId && this.unCollapsedTopicIds.includes(clickedTopicId)) {
           const index = this.unCollapsedTopicIds.indexOf(clickedTopicId);
           this.unCollapsedTopicIds.splice(index, 1);
-        } else {
+        } else if (clickedTopicId) {
           this.unCollapsedTopicIds.push(clickedTopicId);
         }
       });
