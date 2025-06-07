@@ -112,6 +112,19 @@ Config file to set the connection to the **Client Config Service** component, fr
 }
 
 ```
+Note:Change the Port No according to the setup.
+
+#### `/app/config/config-storage-server.json` -To Connect to Demo Instance of KomMonitor WebClient
+Update the config file to connect to demo instance of the Kommonitor Web-client . (administration pages also allow dynamic modification of the config parameters):
+
+```json
+{
+    "targetUrlToConfigStorageServer_appConfig" : "https://demo.kommonitor.de/client-config/config/client-app-config",
+    "targetUrlToConfigStorageServer_keycloakConfig" : "https://demo.kommonitor.de/client-config/config/client-keycloak-config",
+    "targetUrlToConfigStorageServer_controlsConfig" : "https://demo.kommonitor.de/client-config/config/client-controls-config"
+}
+```
+
 
 #### `/app/config/env_backup.js` - Backup Configuration of Deployment Details of other Services and App Properties
 The main app configuration file is located at [app/config/env_backup.js](./app/config/env_backup.js). The same structure is returned by **Client Config Service** on app startup. So once the previously described `/app/config/config-storage-server.json` is configured, the administration pages of KomMonitor web client allow dynamic modification of the application config files. The most important parameters to setup the connection to other components of the KomMonitor stack are:
