@@ -1,0 +1,62 @@
+<div class="modal-header">
+  <h4 class="modal-title">{{ currentTopic ? 'Edit Topic' : 'New Topic' }}</h4>
+  <button type="button" class="close" aria-label="Close" (click)="cancel()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+
+<div class="modal-body">
+  <form [formGroup]="topicForm" (ngSubmit)="onSubmit()">
+    <div class="form-group">
+      <label for="topicName">Name</label>
+      <input
+        type="text"
+        class="form-control"
+        id="topicName"
+        formControlName="name"
+        [ngClass]="{'is-invalid': topicForm.get('name')?.invalid && topicForm.get('name')?.touched}"
+      >
+      <div class="invalid-feedback" *ngIf="topicForm.get('name')?.invalid && topicForm.get('name')?.touched">
+        Name is required
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="topicDescription">Description</label>
+      <textarea
+        class="form-control"
+        id="topicDescription"
+        rows="3"
+        formControlName="description"
+      ></textarea>
+    </div>
+
+    <div class="form-group">
+      <label for="parentTopic">Parent Topic</label>
+      <input
+        type="text"
+        class="form-control"
+        id="parentTopic"
+        formControlName="parentTopicId"
+        placeholder="Optional"
+      >
+    </div>
+
+    <div class="alert alert-danger" *ngIf="errorMessage">
+      {{ errorMessage }}
+    </div>
+  </form>
+</div>
+
+<div class="modal-footer">
+  <button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
+  <button
+    type="button"
+    class="btn btn-primary"
+    [disabled]="topicForm.invalid || isSubmitting"
+    (click)="onSubmit()"
+  >
+    <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm mr-1"></span>
+    Save Changes
+  </button>
+</div> 

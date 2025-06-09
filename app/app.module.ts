@@ -34,7 +34,7 @@ import {
   ajskommonitorSingleFeatureMapHelperServiceProvider} from 'app-upgraded-providers';
 import { KommonitorLegendComponent } from 'components/ngComponents/userInterface/kommonitorLegend/kommonitor-legend.component';
 import { NgbCalendar, NgbDatepickerModule, NgbDateStruct, NgbAccordionModule, NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { JsonPipe } from '@angular/common';
 import { KommonitorClassificationComponent } from './components/ngComponents/userInterface/kommonitorClassification/kommonitor-classification.component';
 import { KommonitorDataSetupComponent } from './components/ngComponents/userInterface/sidebar/kommonitorDataSetup/kommonitor-data-setup.component';
@@ -58,6 +58,7 @@ import { BaseIndicatorOfHeadlineIndicatorFilter } from 'pipes/base-indicator-of-
 import { AuthService } from 'services/auth-service/auth.service';
 import { KommonitorReachabilityComponent } from './components/ngComponents/userInterface/sidebar/kommonitorReachability/kommonitor-reachability.component';
 import { AdminTopicsManagementComponent } from './components/ngComponents/admin/adminTopicsManagement/admin-topics-management.component';
+import { TopicEditModalComponent } from './components/ngComponents/admin/adminTopicsManagement/topicEditModal/topic-edit-modal.component';
 
 
 
@@ -73,7 +74,8 @@ declare var MathJax;
     RouterModule.forRoot(routes , { useHash: true }),
     NgbDatepickerModule, 
     NgbAccordionModule,
-    FormsModule, 
+    FormsModule,
+    ReactiveFormsModule,
     HttpClientModule,
     JsonPipe,
     NouisliderModule,
@@ -124,6 +126,7 @@ declare var MathJax;
     RegressionDiagramComponent,
     KommonitorReachabilityComponent,
     AdminTopicsManagementComponent,
+    TopicEditModalComponent,
   ],
   schemas: [
     CUSTOM_ELEMENTS_SCHEMA
@@ -191,9 +194,14 @@ export class AppModule implements DoBootstrap {
     angular.module('kommonitorUserInterface')
     .directive('kommonitorMapNew',  downgradeComponent({ component: KommonitorMapComponent }) as angular.IDirectiveFactory); */
 
-    angular.module('adminTopicsManagement')
+    angular.module('kommonitorAdmin')
       .directive('adminTopicsManagementNew', downgradeComponent({ 
         component: AdminTopicsManagementComponent 
+      }) as angular.IDirectiveFactory);
+
+    angular.module('kommonitorAdmin')
+      .directive('topicEditModalNew', downgradeComponent({ 
+        component: TopicEditModalComponent 
       }) as angular.IDirectiveFactory);
 
     console.log("registered downgraded Angular components for AngularJS usage");

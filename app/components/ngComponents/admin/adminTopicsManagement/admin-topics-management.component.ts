@@ -4,6 +4,8 @@ import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { HttpClient } from '@angular/common/http';
 import { Subscription } from 'rxjs';
 import { timeout } from 'rxjs/operators';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { TopicEditModalComponent } from './topicEditModal/topic-edit-modal.component';
 
 @Component({
   selector: 'admin-topics-management-new',
@@ -20,6 +22,8 @@ export class AdminTopicsManagementComponent implements OnInit, OnDestroy {
   errorMessagePart: string = '';
   loadingData = false;
   private subscription: Subscription | undefined;
+  currentTopic: any;
+  topics: any[] = [];
 
   // Add collapse state tracking
   collapsedTopics: { [key: string]: boolean } = {};
@@ -28,8 +32,11 @@ export class AdminTopicsManagementComponent implements OnInit, OnDestroy {
     @Inject('kommonitorDataExchangeService') public kommonitorDataExchangeService: any,
     @Inject('kommonitorCacheHelperService') private kommonitorCacheHelperService: any,
     private broadcastService: BroadcastService,
-    private http: HttpClient
-  ) {}
+    private http: HttpClient,
+    private modalService: NgbModal
+  ) {
+    console.log('AdminTopicsManagementComponent constructor initialized');
+  }
 
   get filteredIndicatorTopics() {
     return this.kommonitorDataExchangeService.availableTopics
@@ -65,6 +72,7 @@ export class AdminTopicsManagementComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    console.log('AdminTopicsManagementComponent ngOnInit');
     // Initialize any adminLTE box widgets
     ($('.box') as any).boxWidget();
 
@@ -76,6 +84,8 @@ export class AdminTopicsManagementComponent implements OnInit, OnDestroy {
         this.refreshTopicsOverview();
       }
     });
+
+    this.loadTopics();
   }
 
   ngOnDestroy() {
@@ -375,11 +385,36 @@ export class AdminTopicsManagementComponent implements OnInit, OnDestroy {
   }
 
   onClickEditTopic(topic: any) {
-    this.broadcastService.broadcast('onEditTopic', topic);
+    console.log('Edit topic clicked:', topic);
+    this.currentTopic = topic;
+    
+    // Open modal using NgbModal
+    const modalRef = this.modalService.open(TopicEditModalComponent, {
+      size: 'lg',
+      backdrop: 'static',
+      keyboard: false,
+      container: 'body'
+    });
+    
+    // Pass the current topic to the modal
+    modalRef.componentInstance.currentTopic = topic;
+    
+    // Handle modal result
+    modalRef.result.then(
+      (result) => {
+        console.log('Modal closed with result:', result);
+        if (result.action === 'updated') {
+          this.loadTopics();
+        }
+      },
+      (reason) => {
+        console.log('Modal dismissed with reason:', reason);
+      }
+    );
   }
 
   onClickDeleteTopic(topic: any) {
-    this.deleteTopic(topic);
+    this.broadcastService.broadcast('openTopicDeleteModal', topic);
   }
 
   async deleteTopic(topic: any) {
@@ -407,5 +442,22 @@ export class AdminTopicsManagementComponent implements OnInit, OnDestroy {
 
   hideErrorAlert() {
     $('#topicsErrorAlert').hide();
+  }
+
+  loadTopics() {
+    console.log('Loading topics...');
+    this.kommonitorDataExchangeService.getTopics()
+      .then(topics => {
+        console.log('Topics loaded:', topics);
+        this.topics = topics;
+      })
+      .catch(error => {
+        console.error('Error loading topics:', error);
+      });
+  }
+
+  onTopicUpdated(updatedTopic: any) {
+    console.log('Topic updated:', updatedTopic);
+    this.loadTopics();
   }
 } 
