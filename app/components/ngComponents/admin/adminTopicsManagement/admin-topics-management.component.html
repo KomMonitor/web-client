@@ -39,24 +39,26 @@
           <div class="list-group list-group-root well">
             <div *ngFor="let mainTopic of filteredIndicatorTopics">
               <div class="list-group-item list-group-item-default" style="background: #2171b5; color: white;">
-                <a [id]="mainTopic.topicId" href="" [title]="mainTopic.topicDescription"
-                  class="collapseTrigger" style="color: white;"
-                  (click)="toggleCollapse(mainTopic.topicId, $event)"
-                  [attr.data-init]="true">
-                  <i class="glyphicon" [class.glyphicon-chevron-right]="isCollapsed(mainTopic.topicId)" [class.glyphicon-chevron-down]="!isCollapsed(mainTopic.topicId)"></i>{{mainTopic.topicName}}
-                </a>
+                <div style="display: flex; align-items: center;">
+                  <a [id]="mainTopic.topicId" href="" [title]="mainTopic.topicDescription"
+                    class="collapseTrigger" style="color: white; flex-grow: 1;"
+                    (click)="toggleCollapse(mainTopic.topicId, $event)"
+                    [attr.data-init]="true">
+                    <i class="glyphicon" [class.glyphicon-chevron-right]="isCollapsed(mainTopic.topicId)" [class.glyphicon-chevron-down]="!isCollapsed(mainTopic.topicId)"></i>{{mainTopic.topicName}}
+                  </a>
 
-                <div *ngIf="showTopicIds" style="display: inline-block;">
-                  (ID: {{mainTopic.topicId}})
-                </div>
+                  <div *ngIf="showTopicIds" style="margin: 0 10px;">
+                    (ID: {{mainTopic.topicId}})
+                  </div>
 
-                <div class="btn-group btn-group-sm" style="margin-left: 30px;">
-                  <button type="button" class="btn btn-warning" (click)="onClickEditTopic(mainTopic)">
-                    <i class="fas fa-pencil-alt"></i>
-                  </button>
-                  <button type="button" class="btn btn-danger" (click)="onClickDeleteTopic(mainTopic)">
-                    <i class="fas fa-trash"></i>
-                  </button>
+                  <div class="btn-group btn-group-sm">
+                    <button type="button" class="btn btn-warning" (click)="onClickEditTopic(mainTopic)">
+                      <i class="fas fa-pencil-alt"></i>
+                    </button>
+                    <button type="button" class="btn btn-danger" (click)="onClickDeleteTopic(mainTopic)">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -64,27 +66,28 @@
                 <div *ngFor="let subTopic of mainTopic.subTopics">
                   <div class="list-group-item list-group-item-default"
                     style="background: #6baed6; color: white;">
-                    <a [id]="subTopic.topicId" class="collapseTrigger" style="color: white;"
-                      [title]="subTopic.topicDescription" href=""
-                      (click)="toggleCollapse(subTopic.topicId, $event)"
-                      [attr.data-init]="true">
-                      <i class="glyphicon" [class.glyphicon-chevron-right]="isCollapsed(subTopic.topicId)" [class.glyphicon-chevron-down]="!isCollapsed(subTopic.topicId)"></i>{{subTopic.topicName}}
-                    </a>
+                    <div style="display: flex; align-items: center;">
+                      <a [id]="subTopic.topicId" class="collapseTrigger" style="color: white; flex-grow: 1;"
+                        [title]="subTopic.topicDescription" href=""
+                        (click)="toggleCollapse(subTopic.topicId, $event)"
+                        [attr.data-init]="true">
+                        <i class="glyphicon" [class.glyphicon-chevron-right]="isCollapsed(subTopic.topicId)" [class.glyphicon-chevron-down]="!isCollapsed(subTopic.topicId)"></i>{{subTopic.topicName}}
+                      </a>
 
-                    <div *ngIf="showTopicIds" style="display: inline-block;">
-                      (ID: {{subTopic.topicId}})
-                    </div>
+                      <div *ngIf="showTopicIds" style="margin: 0 10px;">
+                        (ID: {{subTopic.topicId}})
+                      </div>
 
-                    <div class="btn-group btn-group-sm" style="margin-left: 30px;">
-                      <button type="button" class="btn btn-warning"
-                        (click)="onClickEditTopic(subTopic)" data-toggle="modal"
-                        data-target="#modal-edit-topic">
-                        <i class="fas fa-pencil-alt"></i>
-                      </button>
-                      <button type="button" class="btn btn-danger"
-                        (click)="onClickDeleteTopic(subTopic)">
-                        <i class="fas fa-trash"></i>
-                      </button>
+                      <div class="btn-group btn-group-sm">
+                        <button type="button" class="btn btn-warning"
+                          (click)="onClickEditTopic(subTopic)">
+                          <i class="fas fa-pencil-alt"></i>
+                        </button>
+                        <button type="button" class="btn btn-danger"
+                          (click)="onClickDeleteTopic(subTopic)">
+                          <i class="fas fa-trash"></i>
+                        </button>
+                      </div>
                     </div>
                   </div>
 
@@ -92,27 +95,28 @@
                     <div *ngFor="let subsubTopic of subTopic.subTopics">
                       <div class="list-group-item list-group-item-default"
                         style="background: #bdd7e7; color: white;">
-                        <a [id]="subsubTopic.topicId" class="collapseTrigger" style="color: black;"
-                          [title]="subsubTopic.topicDescription" href=""
-                          (click)="toggleCollapse(subsubTopic.topicId, $event)"
-                          [attr.data-init]="true">
-                          <i class="glyphicon" [class.glyphicon-chevron-right]="isCollapsed(subsubTopic.topicId)" [class.glyphicon-chevron-down]="!isCollapsed(subsubTopic.topicId)"></i>{{subsubTopic.topicName}}
-                        </a>
+                        <div style="display: flex; align-items: center;">
+                          <a [id]="subsubTopic.topicId" class="collapseTrigger" style="color: black; flex-grow: 1;"
+                            [title]="subsubTopic.topicDescription" href=""
+                            (click)="toggleCollapse(subsubTopic.topicId, $event)"
+                            [attr.data-init]="true">
+                            <i class="glyphicon" [class.glyphicon-chevron-right]="isCollapsed(subsubTopic.topicId)" [class.glyphicon-chevron-down]="!isCollapsed(subsubTopic.topicId)"></i>{{subsubTopic.topicName}}
+                          </a>
 
-                        <div *ngIf="showTopicIds" style="display: inline-block; color: black;">
-                          (ID: {{subsubTopic.topicId}})
-                        </div>
+                          <div *ngIf="showTopicIds" style="margin: 0 10px; color: black;">
+                            (ID: {{subsubTopic.topicId}})
+                          </div>
 
-                        <div class="btn-group btn-group-sm" style="margin-left: 30px;">
-                          <button type="button" class="btn btn-warning"
-                            (click)="onClickEditTopic(subsubTopic)" data-toggle="modal"
-                            data-target="#modal-edit-topic">
-                            <i class="fas fa-pencil-alt"></i>
-                          </button>
-                          <button type="button" class="btn btn-danger"
-                            (click)="onClickDeleteTopic(subsubTopic)">
-                            <i class="fas fa-trash"></i>
-                          </button>
+                          <div class="btn-group btn-group-sm">
+                            <button type="button" class="btn btn-warning"
+                              (click)="onClickEditTopic(subsubTopic)">
+                              <i class="fas fa-pencil-alt"></i>
+                            </button>
+                            <button type="button" class="btn btn-danger"
+                              (click)="onClickDeleteTopic(subsubTopic)">
+                              <i class="fas fa-trash"></i>
+                            </button>
+                          </div>
                         </div>
                       </div>
 
@@ -120,27 +124,28 @@
                         <div *ngFor="let subsubsubTopic of subsubTopic.subTopics">
                           <div class="list-group-item list-group-item-default"
                             style="background: #eff3ff; color: white;">
-                            <a [id]="subsubsubTopic.topicId" class="collapseTrigger" style="color: black;"
-                              [title]="subsubsubTopic.topicDescription" href=""
-                              (click)="toggleCollapse(subsubsubTopic.topicId, $event)"
-                              [attr.data-init]="true">
-                              <i class="glyphicon" [class.glyphicon-chevron-right]="isCollapsed(subsubsubTopic.topicId)" [class.glyphicon-chevron-down]="!isCollapsed(subsubsubTopic.topicId)"></i>{{subsubsubTopic.topicName}}
-                            </a>
+                            <div style="display: flex; align-items: center;">
+                              <a [id]="subsubsubTopic.topicId" class="collapseTrigger" style="color: black; flex-grow: 1;"
+                                [title]="subsubsubTopic.topicDescription" href=""
+                                (click)="toggleCollapse(subsubsubTopic.topicId, $event)"
+                                [attr.data-init]="true">
+                                <i class="glyphicon" [class.glyphicon-chevron-right]="isCollapsed(subsubsubTopic.topicId)" [class.glyphicon-chevron-down]="!isCollapsed(subsubsubTopic.topicId)"></i>{{subsubsubTopic.topicName}}
+                              </a>
 
-                            <div *ngIf="showTopicIds" style="display: inline-block; color: black;">
-                              (ID: {{subsubsubTopic.topicId}})
-                            </div>
+                              <div *ngIf="showTopicIds" style="margin: 0 10px; color: black;">
+                                (ID: {{subsubsubTopic.topicId}})
+                              </div>
 
-                            <div class="btn-group btn-group-sm" style="margin-left: 30px;">
-                              <button type="button" class="btn btn-warning"
-                                (click)="onClickEditTopic(subsubsubTopic)" data-toggle="modal"
-                                data-target="#modal-edit-topic">
-                                <i class="fas fa-pencil-alt"></i>
-                              </button>
-                              <button type="button" class="btn btn-danger"
-                                (click)="onClickDeleteTopic(subsubsubTopic)">
-                                <i class="fas fa-trash"></i>
-                              </button>
+                              <div class="btn-group btn-group-sm">
+                                <button type="button" class="btn btn-warning"
+                                  (click)="onClickEditTopic(subsubsubTopic)">
+                                  <i class="fas fa-pencil-alt"></i>
+                                </button>
+                                <button type="button" class="btn btn-danger"
+                                  (click)="onClickDeleteTopic(subsubsubTopic)">
+                                  <i class="fas fa-trash"></i>
+                                </button>
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -303,24 +308,26 @@
           <div class="list-group list-group-root well">
             <div *ngFor="let mainTopic of filteredGeoresourceTopics">
               <div class="list-group-item list-group-item-default" style="background: #2171b5; color: white;">
-                <a [id]="mainTopic.topicId" href="" [title]="mainTopic.topicDescription"
-                  class="collapseTrigger" style="color: white;"
-                  (click)="toggleCollapse(mainTopic.topicId, $event)"
-                  [attr.data-init]="true">
-                  <i class="glyphicon" [class.glyphicon-chevron-right]="isCollapsed(mainTopic.topicId)" [class.glyphicon-chevron-down]="!isCollapsed(mainTopic.topicId)"></i>{{mainTopic.topicName}}
-                </a>
+                <div style="display: flex; align-items: center;">
+                  <a [id]="mainTopic.topicId" href="" [title]="mainTopic.topicDescription"
+                    class="collapseTrigger" style="color: white; flex-grow: 1;"
+                    (click)="toggleCollapse(mainTopic.topicId, $event)"
+                    [attr.data-init]="true">
+                    <i class="glyphicon" [class.glyphicon-chevron-right]="isCollapsed(mainTopic.topicId)" [class.glyphicon-chevron-down]="!isCollapsed(mainTopic.topicId)"></i>{{mainTopic.topicName}}
+                  </a>
 
-                <div *ngIf="showTopicIds" style="display: inline-block;">
-                  (ID: {{mainTopic.topicId}})
-                </div>
+                  <div *ngIf="showTopicIds" style="margin: 0 10px;">
+                    (ID: {{mainTopic.topicId}})
+                  </div>
 
-                <div class="btn-group btn-group-sm" style="margin-left: 30px;">
-                  <button type="button" class="btn btn-warning" (click)="onClickEditTopic(mainTopic)">
-                    <i class="fas fa-pencil-alt"></i>
-                  </button>
-                  <button type="button" class="btn btn-danger" (click)="onClickDeleteTopic(mainTopic)">
-                    <i class="fas fa-trash"></i>
-                  </button>
+                  <div class="btn-group btn-group-sm">
+                    <button type="button" class="btn btn-warning" (click)="onClickEditTopic(mainTopic)">
+                      <i class="fas fa-pencil-alt"></i>
+                    </button>
+                    <button type="button" class="btn btn-danger" (click)="onClickDeleteTopic(mainTopic)">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -328,27 +335,28 @@
                 <div *ngFor="let subTopic of mainTopic.subTopics">
                   <div class="list-group-item list-group-item-default"
                     style="background: #6baed6; color: white;">
-                    <a [id]="subTopic.topicId" class="collapseTrigger" style="color: white;"
-                      [title]="subTopic.topicDescription" href=""
-                      (click)="toggleCollapse(subTopic.topicId, $event)"
-                      [attr.data-init]="true">
-                      <i class="glyphicon" [class.glyphicon-chevron-right]="isCollapsed(subTopic.topicId)" [class.glyphicon-chevron-down]="!isCollapsed(subTopic.topicId)"></i>{{subTopic.topicName}}
-                    </a>
+                    <div style="display: flex; align-items: center;">
+                      <a [id]="subTopic.topicId" class="collapseTrigger" style="color: white; flex-grow: 1;"
+                        [title]="subTopic.topicDescription" href=""
+                        (click)="toggleCollapse(subTopic.topicId, $event)"
+                        [attr.data-init]="true">
+                        <i class="glyphicon" [class.glyphicon-chevron-right]="isCollapsed(subTopic.topicId)" [class.glyphicon-chevron-down]="!isCollapsed(subTopic.topicId)"></i>{{subTopic.topicName}}
+                      </a>
 
-                    <div *ngIf="showTopicIds" style="display: inline-block;">
-                      (ID: {{subTopic.topicId}})
-                    </div>
+                      <div *ngIf="showTopicIds" style="margin: 0 10px;">
+                        (ID: {{subTopic.topicId}})
+                      </div>
 
-                    <div class="btn-group btn-group-sm" style="margin-left: 30px;">
-                      <button type="button" class="btn btn-warning"
-                        (click)="onClickEditTopic(subTopic)" data-toggle="modal"
-                        data-target="#modal-edit-topic">
-                        <i class="fas fa-pencil-alt"></i>
-                      </button>
-                      <button type="button" class="btn btn-danger"
-                        (click)="onClickDeleteTopic(subTopic)">
-                        <i class="fas fa-trash"></i>
-                      </button>
+                      <div class="btn-group btn-group-sm">
+                        <button type="button" class="btn btn-warning"
+                          (click)="onClickEditTopic(subTopic)">
+                          <i class="fas fa-pencil-alt"></i>
+                        </button>
+                        <button type="button" class="btn btn-danger"
+                          (click)="onClickDeleteTopic(subTopic)">
+                          <i class="fas fa-trash"></i>
+                        </button>
+                      </div>
                     </div>
                   </div>
 
@@ -356,27 +364,28 @@
                     <div *ngFor="let subsubTopic of subTopic.subTopics">
                       <div class="list-group-item list-group-item-default"
                         style="background: #bdd7e7; color: white;">
-                        <a [id]="subsubTopic.topicId" class="collapseTrigger" style="color: black;"
-                          [title]="subsubTopic.topicDescription" href=""
-                          (click)="toggleCollapse(subsubTopic.topicId, $event)"
-                          [attr.data-init]="true">
-                          <i class="glyphicon" [class.glyphicon-chevron-right]="isCollapsed(subsubTopic.topicId)" [class.glyphicon-chevron-down]="!isCollapsed(subsubTopic.topicId)"></i>{{subsubTopic.topicName}}
-                        </a>
+                        <div style="display: flex; align-items: center;">
+                          <a [id]="subsubTopic.topicId" class="collapseTrigger" style="color: black; flex-grow: 1;"
+                            [title]="subsubTopic.topicDescription" href=""
+                            (click)="toggleCollapse(subsubTopic.topicId, $event)"
+                            [attr.data-init]="true">
+                            <i class="glyphicon" [class.glyphicon-chevron-right]="isCollapsed(subsubTopic.topicId)" [class.glyphicon-chevron-down]="!isCollapsed(subsubTopic.topicId)"></i>{{subsubTopic.topicName}}
+                          </a>
 
-                        <div *ngIf="showTopicIds" style="display: inline-block; color: black;">
-                          (ID: {{subsubTopic.topicId}})
-                        </div>
+                          <div *ngIf="showTopicIds" style="margin: 0 10px; color: black;">
+                            (ID: {{subsubTopic.topicId}})
+                          </div>
 
-                        <div class="btn-group btn-group-sm" style="margin-left: 30px;">
-                          <button type="button" class="btn btn-warning"
-                            (click)="onClickEditTopic(subsubTopic)" data-toggle="modal"
-                            data-target="#modal-edit-topic">
-                            <i class="fas fa-pencil-alt"></i>
-                          </button>
-                          <button type="button" class="btn btn-danger"
-                            (click)="onClickDeleteTopic(subsubTopic)">
-                            <i class="fas fa-trash"></i>
-                          </button>
+                          <div class="btn-group btn-group-sm">
+                            <button type="button" class="btn btn-warning"
+                              (click)="onClickEditTopic(subsubTopic)">
+                              <i class="fas fa-pencil-alt"></i>
+                            </button>
+                            <button type="button" class="btn btn-danger"
+                              (click)="onClickDeleteTopic(subsubTopic)">
+                              <i class="fas fa-trash"></i>
+                            </button>
+                          </div>
                         </div>
                       </div>
 
@@ -384,27 +393,28 @@
                         <div *ngFor="let subsubsubTopic of subsubTopic.subTopics">
                           <div class="list-group-item list-group-item-default"
                             style="background: #eff3ff; color: white;">
-                            <a [id]="subsubsubTopic.topicId" class="collapseTrigger" style="color: black;"
-                              [title]="subsubsubTopic.topicDescription" href=""
-                              (click)="toggleCollapse(subsubsubTopic.topicId, $event)"
-                              [attr.data-init]="true">
-                              <i class="glyphicon" [class.glyphicon-chevron-right]="isCollapsed(subsubsubTopic.topicId)" [class.glyphicon-chevron-down]="!isCollapsed(subsubsubTopic.topicId)"></i>{{subsubsubTopic.topicName}}
-                            </a>
+                            <div style="display: flex; align-items: center;">
+                              <a [id]="subsubsubTopic.topicId" class="collapseTrigger" style="color: black; flex-grow: 1;"
+                                [title]="subsubsubTopic.topicDescription" href=""
+                                (click)="toggleCollapse(subsubsubTopic.topicId, $event)"
+                                [attr.data-init]="true">
+                                <i class="glyphicon" [class.glyphicon-chevron-right]="isCollapsed(subsubsubTopic.topicId)" [class.glyphicon-chevron-down]="!isCollapsed(subsubsubTopic.topicId)"></i>{{subsubsubTopic.topicName}}
+                              </a>
 
-                            <div *ngIf="showTopicIds" style="display: inline-block; color: black;">
-                              (ID: {{subsubsubTopic.topicId}})
-                            </div>
+                              <div *ngIf="showTopicIds" style="margin: 0 10px; color: black;">
+                                (ID: {{subsubsubTopic.topicId}})
+                              </div>
 
-                            <div class="btn-group btn-group-sm" style="margin-left: 30px;">
-                              <button type="button" class="btn btn-warning"
-                                (click)="onClickEditTopic(subsubsubTopic)" data-toggle="modal"
-                                data-target="#modal-edit-topic">
-                                <i class="fas fa-pencil-alt"></i>
-                              </button>
-                              <button type="button" class="btn btn-danger"
-                                (click)="onClickDeleteTopic(subsubsubTopic)">
-                                <i class="fas fa-trash"></i>
-                              </button>
+                              <div class="btn-group btn-group-sm">
+                                <button type="button" class="btn btn-warning"
+                                  (click)="onClickEditTopic(subsubsubTopic)">
+                                  <i class="fas fa-pencil-alt"></i>
+                                </button>
+                                <button type="button" class="btn btn-danger"
+                                  (click)="onClickDeleteTopic(subsubsubTopic)">
+                                  <i class="fas fa-trash"></i>
+                                </button>
+                              </div>
                             </div>
                           </div>
                         </div>
