@@ -393,7 +393,8 @@ export class AdminTopicsManagementComponent implements OnInit, OnDestroy {
       size: 'lg',
       backdrop: 'static',
       keyboard: false,
-      container: 'body'
+      container: 'body',
+      animation: false
     });
     
     // Pass the current topic to the modal
