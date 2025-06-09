@@ -6,6 +6,7 @@ import { Subscription } from 'rxjs';
 import { timeout } from 'rxjs/operators';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TopicEditModalComponent } from './topicEditModal/topic-edit-modal.component';
+import { TopicDeleteModalComponent } from './topicDeleteModal/topic-delete-modal.component';
 
 @Component({
   selector: 'admin-topics-management-new',
@@ -415,7 +416,33 @@ export class AdminTopicsManagementComponent implements OnInit, OnDestroy {
   }
 
   onClickDeleteTopic(topic: any) {
-    this.broadcastService.broadcast('openTopicDeleteModal', topic);
+    console.log('Delete topic clicked:', topic);
+    this.currentTopic = topic;
+    
+    // Open modal using NgbModal
+    const modalRef = this.modalService.open(TopicDeleteModalComponent, {
+      size: 'lg',
+      backdrop: 'static',
+      keyboard: false,
+      container: 'body',
+      animation: false
+    });
+    
+    // Pass the current topic to the modal
+    modalRef.componentInstance.currentTopic = topic;
+    
+    // Handle modal result
+    modalRef.result.then(
+      (result) => {
+        console.log('Modal closed with result:', result);
+        if (result.action === 'deleted') {
+          this.loadTopics();
+        }
+      },
+      (reason) => {
+        console.log('Modal dismissed with reason:', reason);
+      }
+    );
   }
 
   async deleteTopic(topic: any) {

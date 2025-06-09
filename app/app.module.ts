@@ -59,6 +59,7 @@ import { AuthService } from 'services/auth-service/auth.service';
 import { KommonitorReachabilityComponent } from './components/ngComponents/userInterface/sidebar/kommonitorReachability/kommonitor-reachability.component';
 import { AdminTopicsManagementComponent } from './components/ngComponents/admin/adminTopicsManagement/admin-topics-management.component';
 import { TopicEditModalComponent } from './components/ngComponents/admin/adminTopicsManagement/topicEditModal/topic-edit-modal.component';
+import { TopicDeleteModalComponent } from './components/ngComponents/admin/adminTopicsManagement/topicDeleteModal/topic-delete-modal.component';
 
 
 
@@ -127,6 +128,7 @@ declare var MathJax;
     KommonitorReachabilityComponent,
     AdminTopicsManagementComponent,
     TopicEditModalComponent,
+    TopicDeleteModalComponent
   ],
   schemas: [
     CUSTOM_ELEMENTS_SCHEMA
@@ -202,6 +204,11 @@ export class AppModule implements DoBootstrap {
     angular.module('kommonitorAdmin')
       .directive('topicEditModalNew', downgradeComponent({ 
         component: TopicEditModalComponent 
+      }) as angular.IDirectiveFactory);
+
+    angular.module('kommonitorAdmin')
+      .directive('topicDeleteModalNew', downgradeComponent({ 
+        component: TopicDeleteModalComponent 
       }) as angular.IDirectiveFactory);
 
     console.log("registered downgraded Angular components for AngularJS usage");
