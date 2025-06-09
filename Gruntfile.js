@@ -33,6 +33,7 @@ module.exports = function (grunt) {
             'app/util/genericServices/kommonitorReachabilityCoverageReportsHelperService/kommonitor-reachability-coverage-reports-helper-service.module.js',
             'app/util/genericServices/kommonitorLeafletScreenshotCacheHelperService/kommonitor-leaflet-screenshot-cache-helper-service.module.js',
             'app/util/genericServices/kobotoolboxHelperService/kobotoolbox-helper-service.module.js',
+            'app/util/genericServices/ogitoHelperService/ogito-helper-service.module.js',
             'app/components/common/singleFeatureEdit/single-feature-edit.module.js',
             'app/components/common/singleFeatureEdit/single-feature-edit.component.js', 
             'app/components/common/classificationMethodSelect/classification-method-select.module.js',

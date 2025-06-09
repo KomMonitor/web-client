@@ -397,9 +397,34 @@
 					</button>
 				</div>	
 
+				<br>
+				<br>
+
 				<hr>
 
-				
+				<div>
+					<div>
+						<h4>Demonstrator OGITO-Beteiligungsdaten</h4>
+					</div>
+
+					<button class="btn btn-success btn-sm" type="button" ng-click="$ctrl.ogitoHelperServiceInstance.loadSketchData_pois()">
+						<i class="fas fa-plus"></i>&nbsp;&nbsp;Punktsketches laden
+					</button>
+
+					<button class="btn btn-success btn-sm" type="button" ng-click="$ctrl.ogitoHelperServiceInstance.loadSketchData_lois()">
+						<i class="fas fa-plus"></i>&nbsp;&nbsp;Liniensketches laden
+					</button>
+
+					<button class="btn btn-success btn-sm" type="button" ng-click="$ctrl.ogitoHelperServiceInstance.loadSketchData_aois()">
+						<i class="fas fa-plus"></i>&nbsp;&nbsp;Fl&auml;chensketches laden
+					</button>
+
+					<button class="btn btn-success btn-sm" type="button" ng-click="$ctrl.ogitoHelperServiceInstance.loadMeasures()">
+						<i class="fas fa-plus"></i>&nbsp;&nbsp;Ma&szlig;nahmen laden
+					</button>
+
+
+				</div>
 
 				<div ng-show="$ctrl.kommonitorDataExchangeServiceInstance.fileDatasets.length > 0">
 					<h4>Geladene Datenlayer</h4>
