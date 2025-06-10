@@ -22,12 +22,12 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
   domId = "reachabilityScenarioPoiInIsoGeoMap";
   mapParts;
 
-  poiNameFilter_reachabilityAnalysis;
   timeout_manualdate;
 
   isUsedInReporting = false;
   loadingData = false;
 
+  originGeoresources:any[] = [];
   filteredDisplayableGeoresources:any[] = [];
 
   echartsInstances_reachabilityAnalysis = new Map();
@@ -39,7 +39,10 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
     private diagramHelperService: DiagramHelperServiceService,
     private http: HttpClient,
     private broadcastService: BroadcastService
-  ) {}
+  ) {
+    this.originGeoresources = this.dataExchangeService.pipedData.displayableGeoresources;
+    this.filteredDisplayableGeoresources = this.originGeoresources;
+  }
 
   ngOnInit(): void {
 
@@ -71,8 +74,15 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
     this.mapParts = this.reachabilityMapHelperService.initReachabilityGeoMap(this.domId);
   }
 
+  onNameFilterChange(name:any) {
+    let value = name.target.value;
+
+    this.filteredDisplayableGeoresources = this.originGeoresources.filter(e => e.datasetName.includes(value));
+    this.prepDisplayableGeoresources();
+  }
+
   prepDisplayableGeoresources() {
-    this.filteredDisplayableGeoresources = this.dataExchangeService.pipedData.displayableGeoresources.filter(e => e.isPOI==true);
+    this.filteredDisplayableGeoresources = this.filteredDisplayableGeoresources.filter(e => e.isPOI==true);
     this.filteredDisplayableGeoresources = this.filteredDisplayableGeoresources.filter(e => e.datasetName!="!-- leerer neuer Datensatz --");
 
     // sort available dates and preselect last item (as on the UI)
@@ -138,22 +148,22 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
 
   // async
   async handlePoiForAnalysis(poi) {
-//hier ggf
-    //this.dataExchangeService.pipedData.displayableGeoresources = this.filteredDisplayableGeoresources;
+
+    this.dataExchangeService.pipedData.displayableGeoresources = this.filteredDisplayableGeoresources;
 
     this.reachabilityHelperService.settings.loadingData = true;
     
 
     try {
       if (poi.isSelected_reachabilityAnalysis) {
-        poi = await this.fetchGeoJSONForDate(poi);
+        await this.fetchGeoJSONForDate(poi).then((value) => poi = value );
       }
 
       poi = await this.handlePoiOnDiagram(poi);
-
       if (this.dataExchangeService.isDisplayableGeoresource(poi)) {
         this.handlePoiOnMap(poi);
       }
+      
     } catch (error) {
       console.error(error);
     }
@@ -184,24 +194,25 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
 
     let url = this.dataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/georesources/" + id + "/" + year + "/" + month + "/" + day;
 
-    this.http.get(url).subscribe({
-      next: response => {
-        // this callback will be called asynchronously
-        // when the response is available
-        var geoJSON = response;
+    return new Promise((resolve, reject) => {
+      this.http.get(url).subscribe({
+        next: response => {
+          // this callback will be called asynchronously
+          // when the response is available
+          var geoJSON = response;
 
-        poiGeoresource.geoJSON_poiInIsochrones = geoJSON;
-
-        return poiGeoresource;
-      },
-      error: error => {
-        // called asynchronously if an error occurs
-        // or server returns response with an error status.
-        this.reachabilityHelperService.settings.loadingData = false;
-        this.dataExchangeService.displayMapApplicationError(error);
-      }
+          poiGeoresource.geoJSON_poiInIsochrones = geoJSON;
+          resolve(poiGeoresource);
+        },
+        error: error => {
+          // called asynchronously if an error occurs
+          // or server returns response with an error status.
+          this.reachabilityHelperService.settings.loadingData = false;
+          this.dataExchangeService.displayMapApplicationError(error);
+          reject(error);
+        }
+      });
     });
-
   };
 
   //async
