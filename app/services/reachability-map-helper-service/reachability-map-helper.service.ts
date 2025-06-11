@@ -61,4 +61,16 @@ export class ReachabilityMapHelperService {
   removePoiGeoresource_reachabilityAnalysis(domId, poiGeoresource) {
     this.ajskommonitorReachabilityMapHelperServiceProvider.removePoiGeoresource_reachabilityAnalysis(domId, poiGeoresource);
   }
+
+  initReachabilityIndicatorStatisticsGeoMap(domId) {
+    this.ajskommonitorReachabilityMapHelperServiceProvider.initReachabilityIndicatorStatisticsGeoMap(domId);
+  }
+
+  replaceReachabilityIndicatorStatisticsOnMap(domId, poiDataset, original_nonDissolved_isochrones, indicatorStatisticsCandidate) {
+    this.ajskommonitorReachabilityMapHelperServiceProvider.replaceReachabilityIndicatorStatisticsOnMap(domId, poiDataset, original_nonDissolved_isochrones, indicatorStatisticsCandidate);
+  }
+
+  removeOldLayers_reachabilityIndicatorStatistics(domId) {
+    this.ajskommonitorReachabilityMapHelperServiceProvider.removeOldLayers_reachabilityIndicatorStatistics(domId);
+  }
 }

@@ -1,3 +1,4 @@
+import { ajskommonitorSpatialDataProcessorHelperServiceProvider } from './app-upgraded-providers';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 
 import { DoBootstrap, NgModule, Version, inject, Input, Inject, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
@@ -31,7 +32,8 @@ import {
   ajskommonitorReachabilityHelperServiceProvider,
   ajskommonitorReachabilityScenarioHelperServiceProvider,
   ajskommonitorReachabilityMapHelperServiceProvider,
-  ajskommonitorSingleFeatureMapHelperServiceProvider} from 'app-upgraded-providers';
+  ajskommonitorSingleFeatureMapHelperServiceProvider,
+  ajskommonitorReachabilityCoverageReportsHelperServiceProvider} from 'app-upgraded-providers';
 import { KommonitorLegendComponent } from 'components/ngComponents/userInterface/kommonitorLegend/kommonitor-legend.component';
 import { NgbCalendar, NgbDatepickerModule, NgbDateStruct, NgbAccordionModule, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
@@ -57,7 +59,6 @@ import { BaseIndicatorOfComputedIndicatorFilter } from 'pipes/base-indicator-of-
 import { BaseIndicatorOfHeadlineIndicatorFilter } from 'pipes/base-indicator-of-headline-indicator-filter.pipe';
 import { AuthService } from 'services/auth-service/auth.service';
 import { KommonitorReachabilityComponent } from './components/ngComponents/userInterface/sidebar/kommonitorReachability/kommonitor-reachability.component';
-
 
 // currently the AngularJS routing is still used as part of kommonitorClient module
 const routes: Routes = [];
@@ -99,6 +100,8 @@ declare var MathJax;
     ajskommonitorReachabilityScenarioHelperServiceProvider,
     ajskommonitorReachabilityMapHelperServiceProvider,
     ajskommonitorSingleFeatureMapHelperServiceProvider,
+    ajskommonitorReachabilityCoverageReportsHelperServiceProvider,
+    ajskommonitorSpatialDataProcessorHelperServiceProvider,
     NgbModule,
     AuthService
   ],

@@ -15,6 +15,10 @@ import {kommonitorShareHelperService} from 'util/genericServices/kommonitorShare
 import {kommonitorSingleFeatureMapHelperService} from 'util/genericServices/kommonitorSingleFeatureMapHelperService/kommonitor-single-feature-map-helper-service.module'
 import {kommonitorVisualStyleHelperService} from 'util/genericServices/kommonitorVisualStyleHelperService/kommonitor-visual-style-helper-service.module'
 import {kommonitorReachabilityHelperService} from 'util/genericServices/kommonitorReachabilityHelperService/kommonitor-reachability-helper-service.module'
+import {kommonitorReachabilityCoverageReportsHelper} from 'util/genericServices/kommonitorReachabilityCoverageReportsHelperService/kommonitor-reachability-coverage-reports-helper-service.module'
+import {kommonitorSpatialDataProcessorHelper} from 'util/genericServices/kommonitorSpatialDataProcessorHelperService/kommonitor-spatial-data-processor-helper-service.module'
+
+
 
 export function kommonitorCacheHelperServiceFactory(injector:any){
     return injector.get('kommonitorCacheHelperService');
@@ -234,6 +238,29 @@ export const ajskommonitorSingleFeatureMapHelperServiceProvider: any = {
 };
 
 
+// reachabilityCoverageReportsHelper
+export function kommonitorReachabilityCoverageReportsHelperServiceFactory (injector:any){
+  return injector.get('kommonitorReachabilityCoverageReportsHelperService')
+}
+
+export const ajskommonitorReachabilityCoverageReportsHelperServiceProvider: any = {
+  deps: ['$injector'],
+  provide: 'kommonitorReachabilityCoverageReportsHelperService',
+  useFactory:kommonitorReachabilityCoverageReportsHelperServiceFactory,
+};
+
+// kommonitorSpatialDataProcessorHelperService
+export function kommonitorSpatialDataProcessorHelperServiceFactory (injector:any){
+  return injector.get('kommonitorSpatialDataProcessorHelperService')
+}
+
+export const ajskommonitorSpatialDataProcessorHelperServiceProvider: any = {
+  deps: ['$injector'],
+  provide: 'kommonitorSpatialDataProcessorHelperService',
+  useFactory:kommonitorSpatialDataProcessorHelperServiceFactory,
+};
+
+
   export const serviceProviders: any[] = [
     ajskommonitorCacheHelperServiceProvider,
    ajskommonitorBatchUpdateHelperServiceProvider,
@@ -254,5 +281,7 @@ export const ajskommonitorSingleFeatureMapHelperServiceProvider: any = {
     ajskommonitorReachabilityHelperServiceProvider,
     ajskommonitorReachabilityScenarioHelperServiceProvider,
     ajskommonitorReachabilityMapHelperServiceProvider,
-    ajskommonitorSingleFeatureMapHelperServiceProvider
+    ajskommonitorSingleFeatureMapHelperServiceProvider,
+    ajskommonitorReachabilityCoverageReportsHelperServiceProvider,
+    ajskommonitorSpatialDataProcessorHelperServiceProvider
   ];

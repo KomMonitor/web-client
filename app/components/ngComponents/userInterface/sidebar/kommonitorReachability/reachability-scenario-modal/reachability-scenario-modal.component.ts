@@ -11,13 +11,14 @@ import { ReachabilityHelperService } from 'services/reachbility-helper-service/r
 import { SingleFeatureEditComponent } from "../../../../common/single-feature-edit/single-feature-edit.component";
 import { ReachabilityScenarioConfigurationComponent } from './reachability-scenario-configuration/reachability-scenario-configuration.component';
 import { ReachabilityPoiInIsoComponent } from './reachability-poi-in-iso/reachability-poi-in-iso.component';
+import { ReachabilityIndicatorStatisticsComponent } from "./reachability-indicator-statistics/reachability-indicator-statistics.component";
 
 @Component({
   selector: 'app-reachability-scenario-modal',
   standalone: true,
   templateUrl: './reachability-scenario-modal.component.html',
   styleUrls: ['./reachability-scenario-modal.component.css'],
-  imports: [CommonModule, FormsModule, SingleFeatureEditComponent, ReachabilityScenarioConfigurationComponent, ReachabilityPoiInIsoComponent]
+  imports: [CommonModule, FormsModule, SingleFeatureEditComponent, ReachabilityScenarioConfigurationComponent, ReachabilityPoiInIsoComponent, ReachabilityIndicatorStatisticsComponent]
 })
 export class ReachabilityScenarioModalComponent implements OnInit {
   activeModal = inject(NgbActiveModal);

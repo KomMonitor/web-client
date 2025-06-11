@@ -1,0 +1,217 @@
+<div style="text-align: center" *ngIf="! reachabilityHelperService.currentIsochronesGeoJSON">
+	<p>
+		Bitte f&uuml;hren Sie zuerst eine Isochronenberechnung durch.
+	</p>
+</div>
+
+<div style="text-align: center" *ngIf="reachabilityHelperService.currentIsochronesGeoJSON">
+
+	<div class="row vertical-align">
+		<div class="col-md-6 col-sm-6 col-xs-12">
+			<div class="input-group">
+				<span class="input-group-addon"><i class="fas fa-filter"></i></span>
+				<input type="text" class="form-control input-sm"
+					placeholder="Stichwortfilter" [(ngModel)]="indicatorNameFilter">
+			</div>
+
+			<div class="just-padding">
+				<select style="font-size: 12px;" [(ngModel)]="selectedIndicatorForStatistics"
+					id="indicatorSelection_reachabilityStatistic" 
+					(change)="onChangeSelectedIndicatorForStatistics()"
+					size="5" class="form-control" required>
+					<option disabled selected value> -- Indikator w&auml;hlen -- </option>
+					<option [value]="indicatorMetadata" *ngFor="let indicatorMetadata of dataExchangeService.pipedData.displayableIndicators">
+            <!--  | filter:indicatorNameFilter | filter:{indicatorType:'STATUS_ABSOLUTE'}) track by indicatorMetadata.indicatorId -->
+						{{indicatorMetadata.indicatorName}} [{{indicatorMetadata.unit}}]
+					</option>
+				</select>
+			</div>
+
+			<div class="row" style="margin-right: 0px;">
+				<div class="col-sm-4">
+					<div class="text-left"><label>Raumebene</label></div>
+					<select id="spatialUnitSelection_reachabilityStatistic"
+						style="font-size: 12px;" [(ngModel)]="selectedSpatialUnit"
+						class="form-control" (change)="onChangeSelectedSpatialUnit()"
+						required>
+						<option disabled selected value> -- Raumeinheit w&auml;hlen --
+						</option>
+						<option [value]="spatialUnit"
+							*ngFor="let spatialUnit of selectedIndicatorForStatistics.applicableSpatialUnits">
+							{{spatialUnit.spatialUnitName}}</option>
+					</select>
+				</div>
+				<div class="col-sm-3">
+					<div class="text-left"><label>Indikatoren-Zeitschnitt</label></div>
+					<!-- <input id="indicatorDate_reachabilityStatistic" type="text" placeholder="YYYY-MM-DD" 
+					[(ngModel)]="dataExchangeService.pipedData.selectedDate" (change)="onChangeIndicatorDatepickerDate()"
+					ng-disabled="dataExchangeService.pipedData.disableIndicatorDatePicker"> -->
+					<select id="indicatorDate_reachabilityStatistic"
+						style="font-size: 12px;" [(ngModel)]="selectedIndicatorDate"
+						class="form-control" required>
+						<option disabled selected value> -- Datum w&auml;hlen --
+						</option>
+						<option [value]="date"
+							*ngFor="let date of selectedIndicatorForStatistics.applicableDates">
+							{{date}}</option>
+					</select>
+				</div>
+				<div class="col-sm-5">
+					<div class="text-left" title="Berechnung der Sch&auml;tzwerte erfolgt durch &Uuml;berdeckung zwischen Einzugsgebieten und fl&auml;chigen Indikatoren-Statistiken. &Uuml;berlappende Wohngebiete ist zeitlich aufwendiger, ber&uuml;cksichtigt aber nur &Uuml;berlagerungen von Einzugsgebieten mit Siedlungsfl&auml;chen zur genaueren Sch&auml;tzung versorgter Personengruppen."><label>Gewichtung geschnittener Raumebenen</label>&nbsp;<i style="font-size:1.3em;" class="fa-solid fa-circle-question"></i></div>
+					<select id="weightingStrategy_reachabilityStatistic"
+						style="font-size: 12px;" [(ngModel)]="weightStrategy" ng-init="weightStrategy = weightStrategyOptions[0]"
+						ng-options="weight.displayName for weight in weightStrategyOptions"
+						class="form-control" required>
+						<option disabled value> -- Gewichtung w&auml;hlen --
+						</option>
+						<!-- <option [value]="weight"
+							ng-repeat="weight in weightStrategyOptions">
+							{{::weight.displayName}}</option> -->
+					</select>
+				</div>
+			</div>
+
+			<div class="row" style="margin-right: 0px;">
+
+				<div *ngIf="dataExchangeService.pipedData.isochroneLegend.datasetName != reachabilityHelperService.settings.selectedStartPointLayer.datasetName">
+					<label style="color: red;">Punktdatenquelle des Szenarios ge&auml;ndert - Neuberechnung erforderlich f&uuml;r <i>{{reachabilityHelperService.settings.selectedStartPointLayer.datasetName}}</i></label>
+				</div>
+
+				<div class="col-sm-8">
+					<div *ngIf="reachabilityScenarioHelperService.pipedData.tmpActiveScenario.poiDataset.poiName">
+						<b>Berechnungen f&uuml;r Punktdatenquelle:</b>				
+						<i>{{reachabilityScenarioHelperService.pipedData.tmpActiveScenario.poiDataset.poiName}}</i>
+					</div>
+					<div *ngIf="! reachabilityScenarioHelperService.pipedData.tmpActiveScenario.poiDataset.poiName">
+						<b>Berechnungen f&uuml;r Punktdatenquelle:</b>				
+						<i>{{reachabilityScenarioHelperService.pipedData.settings.selectedStartPointLayer.datasetName}}</i>
+					</div>
+					
+				</div>
+				<div class="col-sm-4">
+					<button class="btn btn-success btn-sm" (click)="computeReachabilityIndicatorStatistic()"
+					type="button"><i class="fas fa-plus"></i>&nbsp;&nbsp;Indikatoren-Statistik
+					generieren</button>
+				</div>
+			</div>
+			
+				<br/>
+				<hr>
+
+				<div>					
+
+					<div style="max-height: 30vh; overflow: auto;">
+					
+						<table class="table table-condensed">
+							<thead>
+								<tr>
+									<th>Indikator</th>
+									<th>Raumeinheit</th>
+									<th>Zeitschnitt</th>
+									<th>Gewichtung</th>
+									<th>&Uuml;berdeckung / Versorgung</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr *ngFor="let indicatorStatisticsEntry of reachabilityScenarioHelperService.pipedData.tmpActiveScenario.indicatorStatistics">
+									<td>
+										<b>{{indicatorStatisticsEntry.indicator.indicatorName}}</b>
+										<span class="glyphicon glyphicon-refresh icon-spin" *ngIf="indicatorStatisticsEntry.progress != 'finished' && indicatorStatisticsEntry.progress != 'failed'"></span>
+										<br>
+										<!-- <div>
+											<a href=""><i class="fa-solid fa-map-location-dot" title="Auf Karte darstellen" (click)="displayIndicatorStatisticOnMap(indicatorStatisticsEntry)"></i></a>
+											<a href=""><i class="fa-solid fa-trash-can" title="Statistik-Eintrag entfernen" (click)="removeIndicatorStatistic(indicatorStatisticsEntry)"></i></a>
+										</div> -->
+										<div *ngIf="indicatorStatisticsEntry.active">
+											<i>(sichtbar in Karte)</i>
+										</div>
+										<div>
+											<button class="btn btn-info btn-sm" title="Auf Karte darstellen" ng-disabled="indicatorStatisticsEntry.progress == 'failed' || indicatorStatisticsEntry.active" (click)="displayIndicatorStatisticOnMap(indicatorStatisticsEntry)"><i class="fa-solid fa-map-location-dot" ></i></button>
+											<button class="btn btn-danger btn-sm" title="Statistik-Eintrag entfernen" (click)="removeIndicatorStatistic(indicatorStatisticsEntry)"><i class="fa-solid fa-trash-can"></i></button>
+											<br>											
+											<button class="btn btn-warning" style="margin-top: 5px;" title="PDF-Report - Gesamtregion" 
+											ng-disabled="indicatorStatisticsEntry.progress == 'failed' || $ctrl.kommonitorReachabilityCoverageReportsHelperServiceInstance.reportInProgress_totalCoverage || (indicatorStatisticsEntry.progress != 'finished' && indicatorStatisticsEntry.progress != 'failed')" 
+											(click)="reachabilityCoverageReportsHelperService.generateTotalCoverageReport_focusPoiCoverage(reachabilityScenarioHelperService.pipedData.tmpActiveScenario, indicatorStatisticsEntry)">
+												<i class="fa-solid fa-file-pdf"></i>
+												<i class="fa-solid fa-map"></i>
+												<span class="glyphicon glyphicon-refresh icon-spin" *ngIf="reachabilityScenarioHelperService.pipedData.reportInProgress_totalCoverage"></span>
+											</button> 
+											<span style="font-size:9px;">&nbsp;(~ 2 Sekunden)</span>
+											<br>										
+											<button class="btn btn-warning" style="margin-top: 5px;" title="PDF-Report - Einzelpunkte mit Karte" 
+											ng-disabled="indicatorStatisticsEntry.progress == 'failed' || $ctrl.kommonitorReachabilityCoverageReportsHelperServiceInstance.reportInProgress_poiCoverage || (indicatorStatisticsEntry.progress != 'finished' && indicatorStatisticsEntry.progress != 'failed')" 
+											(click)="reachabilityCoverageReportsHelperService.generateFeatureCoverageReport_focusPoiCoverage(reachabilityScenarioHelperService.pipedData.tmpActiveScenario, indicatorStatisticsEntry)">
+												<i class="fa-solid fa-file-pdf"></i>
+												<i class="fa-solid fa-map-location-dot"></i>
+												<span class="glyphicon glyphicon-refresh icon-spin" *ngIf="reachabilityCoverageReportsHelperService.pipedData.reportInProgress_poiCoverage"></span>
+											</button>	
+											<span style="font-size:9px;" *ngIf="!reachabilityCoverageReportsHelperService.pipedData.reportInProgress_poiCoverage">&nbsp;(~ 1,5 Sekunden pro Punkt)</span>
+											<!-- 
+											<span style="font-size:9px;" *ngIf="$ctrl.kommonitorReachabilityCoverageReportsHelperServiceInstance.reportInProgress_poiCoverage"{{$ctrl.kommonitorReachabilityCoverageReportsHelperServiceInstance.progressText_poiCoverage}}>&nbsp;</span> -->
+											<span style="font-size:9px;" *ngIf="reachabilityCoverageReportsHelperService.pipedData.reportInProgress_poiCoverage">&nbsp;</span>
+											
+											<!-- <button class="btn btn-warning btn-sm" title="PDF-Report - Datentabelle Punkte" (click)="$ctrl.kommonitorReachabilityCoverageReportsHelperServiceInstance.generateCoverageDataTableReport_focusPoiCoverage($ctrl.kommonitorReachabilityScenarioHelperServiceInstance.tmpActiveScenario, indicatorStatisticsEntry)"><i class="fa-solid fa-map-location-dot"></i></button>											 -->
+											
+											<!-- a spatial unit wise report is more complicated -->
+											<!-- indtead we might want to offer users a spatial unit wise report of all intersecting POIs and use spatial unit as a filter
+											 -->
+											
+											 <!-- <button class="btn btn-warning" style="margin-top: 5px;" title="PDF-Report - Raumeinheiten mit Karte" 
+											ng-disabled="$ctrl.kommonitorReachabilityCoverageReportsHelperServiceInstance.reportInProgress_spatialUnitCoverage"
+											(click)="$ctrl.kommonitorReachabilityCoverageReportsHelperServiceInstance.generateFeatureCoverageReport_focusSpatialUnitCoverage($ctrl.kommonitorReachabilityScenarioHelperServiceInstance.tmpActiveScenario, indicatorStatisticsEntry)">
+												<i class="fa-solid fa-file-pdf"></i>
+												<i class="fa-solid fa-layer-group"></i>
+												<span class="glyphicon glyphicon-refresh icon-spin" *ngIf="$ctrl.kommonitorReachabilityCoverageReportsHelperServiceInstance.reportInProgress_spatialUnitCoverage"></span>
+											</button>	
+											<span style="font-size:9px;">&nbsp;(~ 1 Sekunde pro Raumeinheit)</span>											 -->
+										</div>
+										
+									</td>
+									<td>
+										{{indicatorStatisticsEntry.spatialUnit.spatialUnitName}}
+									</td>
+									<td>
+										{{indicatorStatisticsEntry.timestamp}}
+									</td>
+									<td>
+										{{indicatorStatisticsEntry.weightStrategy.displayName}}
+									</td>
+									<td>
+										<span class="glyphicon glyphicon-refresh icon-spin" *ngIf="indicatorStatisticsEntry.progress != 'finished' && indicatorStatisticsEntry.progress != 'failed'"></span>
+										<div ng-if="indicatorStatisticsEntry.progress == 'failed'">Berechnung fehlgeschlagen</div>
+										<div *ngFor="let overallCoverageEntry of indicatorStatisticsEntry.coverageResult.overallCoverage">
+											<div ng-if="$ctrl.kommonitorReachabilityScenarioHelperServiceInstance.tmpActiveScenario.reachabilitySettings.focus == 'time'">
+
+												<b>{{overallCoverageEntry.range / 60}} [Minuten]</b>
+											</div>	
+											<div ng-if="$ctrl.kommonitorReachabilityScenarioHelperServiceInstance.tmpActiveScenario.reachabilitySettings.focus == 'distance'">
+												<b>{{overallCoverageEntry.range}} [Meter]</b>
+											</div>											
+											<!-- <br/> -->
+											<div style="margin-left: 10px;">
+												<b><i>{{dataExchangeService.getIndicatorValue_asFormattedText(overallCoverageEntry.coverage[0].absoluteCoverage)}} von {{dataExchangeService.getIndicatorValue_asFormattedText(indicatorStatisticsEntry.coverageResult.timeseries[0].value)}}</i></b> [{{indicatorStatisticsEntry.indicator.unit}}]
+												<br/>
+												<b><i>entspricht {{dataExchangeService.getIndicatorValue_asFormattedText(overallCoverageEntry.coverage[0].relativeCoverage * 100)}}</i></b> [%] 												
+											</div>
+											<br/>
+										</div>									
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					
+					</div>
+					
+		
+				</div>
+
+		</div>
+		<div class="col-md-6 col-sm-6 col-xs-12">
+
+			<div id="reachabilityScenarioIsochroneStatisticsGeoMap" style="height: 57vh;"></div>
+
+		</div>
+	</div>
+
+
+</div>
