@@ -1,4 +1,4 @@
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClient, HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 
 import { DoBootstrap, NgModule, Version, inject, Input, Inject, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
@@ -60,7 +60,7 @@ import { KommonitorReachabilityComponent } from './components/ngComponents/userI
 import { AdminTopicsManagementComponent } from './components/ngComponents/admin/adminTopicsManagement/admin-topics-management.component';
 import { TopicEditModalComponent } from './components/ngComponents/admin/adminTopicsManagement/topicEditModal/topic-edit-modal.component';
 import { TopicDeleteModalComponent } from './components/ngComponents/admin/adminTopicsManagement/topicDeleteModal/topic-delete-modal.component';
-
+import { AuthInterceptor } from './util/interceptors/auth.interceptor';
 
 
 // currently the AngularJS routing is still used as part of kommonitorClient module
@@ -105,6 +105,11 @@ declare var MathJax;
     ajskommonitorReachabilityMapHelperServiceProvider,
     ajskommonitorSingleFeatureMapHelperServiceProvider,
     NgbModule,
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true
+    },
     AuthService
   ],
   declarations: [
