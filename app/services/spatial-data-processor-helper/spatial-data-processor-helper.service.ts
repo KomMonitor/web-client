@@ -9,7 +9,7 @@ export class SpatialDataProcessorHelperService {
   pipedData:any;
 
   constructor(
-    @Inject('kommonitorMapService') private ajskommonitorSpatialDataProcessorHelperServiceProvider: any, // eslint-disable-line @typescript-eslint/no-explicit-any
+    @Inject('kommonitorSpatialDataProcessorHelperService') private ajskommonitorSpatialDataProcessorHelperServiceProvider: any, // eslint-disable-line @typescript-eslint/no-explicit-any
   ) { 
     this.pipedData = this.ajskommonitorSpatialDataProcessorHelperServiceProvider;
   }

@@ -8,6 +8,7 @@ import { ReachabilityScenarioHelperService } from 'services/reachability-scenari
 import { ReachabilityHelperService } from 'services/reachbility-helper-service/reachability-helper.service';
 import { ReachabilityCoverageReportsHelperService } from 'services/reachability-coverage-reports-helper-service/reachability-coverage-reports-helper.service';
 import { SpatialDataProcessorHelperService } from 'services/spatial-data-processor-helper/spatial-data-processor-helper.service';
+import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 
 @Component({
   selector: 'app-reachability-indicator-statistics',
@@ -18,7 +19,9 @@ import { SpatialDataProcessorHelperService } from 'services/spatial-data-process
 })
 export class ReachabilityIndicatorStatisticsComponent implements OnInit {
 
+  availableIndicators:any;
   selectedIndicatorForStatistics:any;
+  selectedIndicatorId:any;
   indicatorNameFilter:any;
   selectedSpatialUnit:any;
   selectedIndicatorDate:any;
@@ -46,43 +49,60 @@ export class ReachabilityIndicatorStatisticsComponent implements OnInit {
     protected reachabilityHelperService: ReachabilityHelperService,
     protected reachabilityCoverageReportsHelperService: ReachabilityCoverageReportsHelperService,
     private reachabilityMapHelperService: ReachabilityMapHelperService,
-    private spatialDataProcessorHelperService: SpatialDataProcessorHelperService
+    private spatialDataProcessorHelperService: SpatialDataProcessorHelperService,
+    private broadcastService: BroadcastService
   ) {
     this.reachabilityScenarioHelperService.pipedData.tmpActiveScenario.indicatorStatistics = [];
+    this.availableIndicators = this.dataExchangeService.pipedData.displayableIndicators;
   }
 
 
   ngOnInit(): void {
-      this.mapParts = this.reachabilityMapHelperService.initReachabilityIndicatorStatisticsGeoMap(this.domId);
+
+    this.init();
+
+    this.broadcastService.currentBroadcastMsg.subscribe(broadcastMsg => {
+      let title = broadcastMsg.msg;
+      let values:any = broadcastMsg.values;
+
+      switch (title) {
+        case 'isochronesCalculationFinished' : {
+          this.isochronesCalculationFinished(values);
+        } break;
+      }
+    });
   }
 
- /*  $rootScope.$on("isochronesCalculationFinished", function (event, reinit) {
+  init() {
+    this.mapParts = this.reachabilityMapHelperService.initReachabilityIndicatorStatisticsGeoMap(this.domId);
+  }
+
+  isochronesCalculationFinished([reinit]) {
 
     if (reinit) {
       this.init();
 
-      for (const indicatorStatistic of kommonitorReachabilityScenarioHelperService.tmpActiveScenario.indicatorStatistics) {
+      for (const indicatorStatistic of this.reachabilityScenarioHelperService.pipedData.tmpActiveScenario.indicatorStatistics) {
         if (indicatorStatistic.active) {
           this.displayIndicatorStatisticOnMap(indicatorStatistic);
         }
       }
     } 
 
-    kommonitorReachabilityMapHelperService
-      .replaceIsochroneGeoJSON(
-        this.domId,
-        kommonitorReachabilityHelperService.settings.selectedStartPointLayer.datasetName,
-        kommonitorReachabilityHelperService.currentIsochronesGeoJSON,
-        kommonitorReachabilityHelperService.settings.transitMode,
-        kommonitorReachabilityHelperService.settings.focus,
-        kommonitorReachabilityHelperService.settings.rangeArray,
-        kommonitorReachabilityHelperService.settings.useMultipleStartPoints,
-        kommonitorReachabilityHelperService.settings.dissolveIsochrones);
-
-  });*/
+    this.reachabilityMapHelperService.replaceIsochroneGeoJSON(
+      this.domId,
+      this.reachabilityHelperService.settings.selectedStartPointLayer.datasetName,
+      this.reachabilityHelperService.currentIsochronesGeoJSON,
+      this.reachabilityHelperService.settings.transitMode,
+      this.reachabilityHelperService.settings.focus,
+      this.reachabilityHelperService.settings.rangeArray,
+      this.reachabilityHelperService.settings.useMultipleStartPoints,
+      this.reachabilityHelperService.settings.dissolveIsochrones);
+  }
 
   onChangeSelectedIndicatorForStatistics() {
-    // this.selectedIndicatorForStatistics;
+  
+    this.selectedIndicatorForStatistics = this.availableIndicators.filter(e => e.indicatorId==this.selectedIndicatorId)[0];
 
     this.selectedSpatialUnit = this.selectedIndicatorForStatistics.applicableSpatialUnits[this.selectedIndicatorForStatistics.applicableSpatialUnits.length - 1];
     this.selectedIndicatorDate = this.selectedIndicatorForStatistics.applicableDates[this.selectedIndicatorForStatistics.applicableDates.length - 1];

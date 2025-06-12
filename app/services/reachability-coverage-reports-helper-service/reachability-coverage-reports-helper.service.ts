@@ -9,7 +9,7 @@ export class ReachabilityCoverageReportsHelperService {
   pipedData:any;
 
   constructor(
-    @Inject('kommonitorMapService') private ajskommonitorReachabilityCoverageReportsHelperServiceProvider: any, // eslint-disable-line @typescript-eslint/no-explicit-any
+    @Inject('kommonitorReachabilityCoverageReportsHelperService') private ajskommonitorReachabilityCoverageReportsHelperServiceProvider: any, // eslint-disable-line @typescript-eslint/no-explicit-any
   ) { 
     this.pipedData = this.ajskommonitorReachabilityCoverageReportsHelperServiceProvider;
   }
