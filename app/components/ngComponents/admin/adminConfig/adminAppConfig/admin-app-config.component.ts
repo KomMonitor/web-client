@@ -34,6 +34,9 @@ export class AdminAppConfigComponent implements OnInit, AfterViewInit {
 
   loadingData = true;
   codeMirrorEditor!: CodeMirrorEditor;
+  templateCodeMirrorEditor!: CodeMirrorEditor;
+  currentCodeMirrorEditor!: CodeMirrorEditor;
+  newCodeMirrorEditor!: CodeMirrorEditor;
   missingRequiredParameters: string[] = [];
   missingRequiredParameters_string = '';
   keywordsInConfig = [
@@ -123,6 +126,7 @@ export class AdminAppConfigComponent implements OnInit, AfterViewInit {
       return;
     }
 
+    // Initialize main editor
     this.codeMirrorEditor = CodeMirror.fromTextArea(editorElement, {
       lineNumbers: true,
       autoRefresh: true,
@@ -138,6 +142,51 @@ export class AdminAppConfigComponent implements OnInit, AfterViewInit {
       this.appConfigTmp = this.codeMirrorEditor.getValue();
     });
     this.codeMirrorEditor.setValue(this.appConfigCurrent);
+
+    // Initialize template editor
+    const templateElement = document.getElementById("templateCodeMirror");
+    if (templateElement) {
+      this.templateCodeMirrorEditor = CodeMirror(templateElement, {
+        lineNumbers: true,
+        autoRefresh: true,
+        mode: "javascript",
+        readOnly: true,
+        theme: "panda-syntax",
+        lineWrapping: true
+      });
+      this.templateCodeMirrorEditor.setSize(null, 450);
+      this.templateCodeMirrorEditor.setValue(this.appConfigTemplate);
+    }
+
+    // Initialize current editor
+    const currentElement = document.getElementById("currentCodeMirror");
+    if (currentElement) {
+      this.currentCodeMirrorEditor = CodeMirror(currentElement, {
+        lineNumbers: true,
+        autoRefresh: true,
+        mode: "javascript",
+        readOnly: true,
+        theme: "panda-syntax",
+        lineWrapping: true
+      });
+      this.currentCodeMirrorEditor.setSize(null, 450);
+      this.currentCodeMirrorEditor.setValue(this.appConfigCurrent);
+    }
+
+    // Initialize new editor
+    const newElement = document.getElementById("newCodeMirror");
+    if (newElement) {
+      this.newCodeMirrorEditor = CodeMirror(newElement, {
+        lineNumbers: true,
+        autoRefresh: true,
+        mode: "javascript",
+        readOnly: true,
+        theme: "panda-syntax",
+        lineWrapping: true
+      });
+      this.newCodeMirrorEditor.setSize(null, 450);
+      this.newCodeMirrorEditor.setValue(this.appConfigNew);
+    }
   }
 
   validateCode(cm: any, updateLinting: (issues: LintingIssue[]) => void, options: any) {
@@ -169,13 +218,10 @@ export class AdminAppConfigComponent implements OnInit, AfterViewInit {
     this.configSettingInvalid = this.isConfigSettingInvalid(configString);
     setTimeout(() => {
       this.appConfigNew = configString;
-    });
-    setTimeout(() => {
-      const newElement = document.getElementById('appConfig_new');
-      if (newElement) {
-        newElement.innerHTML = PR.prettyPrintOne(this.appConfigNew, 'javascript', true);
+      if (this.newCodeMirrorEditor) {
+        this.newCodeMirrorEditor.setValue(configString);
       }
-    }, 250);
+    });
   }
 
   async editAppConfig() {
@@ -186,12 +232,9 @@ export class AdminAppConfigComponent implements OnInit, AfterViewInit {
       this.kommonitorConfigStorageService.getAppConfig().subscribe({
         next: (newCurrentConfig: string) => {
           this.appConfigCurrent = newCurrentConfig;
-          setTimeout(() => {
-            const currentElement = document.getElementById('appConfig_current');
-            if (currentElement) {
-              currentElement.innerHTML = PR.prettyPrintOne(this.appConfigCurrent, 'javascript', true);
-            }
-          }, 250);
+          if (this.currentCodeMirrorEditor) {
+            this.currentCodeMirrorEditor.setValue(newCurrentConfig);
+          }
           $("#appConfigEditSuccessAlert").show();
           this.loadingData = false;
         },
