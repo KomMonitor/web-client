@@ -1,0 +1,111 @@
+<div id="adminAppConfigContent">
+  <!-- Content Header (Page header) -->
+  <section class="content-header">
+    <h1>
+      Web Client Einstellungen 
+      <small>Anpassen der Standard-Einstellungen (u.a. Dienstanbindung, Geodatendienste, Standard-Kartendarstellung)</small>
+    </h1>
+  </section>
+
+  <!-- Main content -->
+  <section class="content container-fluid">
+    <div>
+      <div class="box box-primary">
+        <div class="box-header">
+          <h3 class="box-title">App Konfiguration</h3>
+        </div>
+        <!-- /.box-header -->
+        <div class="box-body">
+          <p>Nehmen Sie Anpassungen an variablen Parametern des Web-Clients vor und speichern sie diese. Die Editierungen erfolgen direkt im JavaScript-Format.
+            Dies speichert die Konfiguration im <b>Config Storage Service</b> von KomMonitor, von dem die Daten beim Start der Anwendung geladen werden.
+            Setzen Sie die Werte daher sorgf&auml;ltig.
+          </p>
+
+          <hr>
+          <br/>
+
+          <div class="row vertical-align">
+            <div class="col-md-6 col-sm-6 col-xs-12">
+              <div class="form-group">
+                <label>Vorlage (Struktur und Standard-Einstellung)</label>
+                <br/>
+                <br/>
+              <pre class="prettyprint linenums" id="appConfig_backupTemplate" style="max-height: 450px; overflow: auto; text-align: left;" >
+  <code class="language-javascript" [innerHTML]="appConfigTemplate"></code>
+</pre>
+
+              </div>
+            </div>
+            <div class="col-md-6 col-sm-6 col-xs-12">
+              <div class="form-group">
+                <label>derzeitige Konfiguration (aktuelle Wertbelegung)</label>
+                <br/>
+                <br/>
+             <pre class="prettyprint linenums" id="appConfig_current" style="max-height: 450px; overflow: auto; text-align: left;" >
+  <code class="language-javascript" [innerHTML]="appConfigCurrent"></code>
+</pre>
+              </div>
+            </div>
+          </div>
+
+          <hr>
+          <br/>
+
+          <div class="row vertical-align">						
+            <div class="col-md-6 col-sm-6 col-xs-12">
+              <div class="form-group">
+                <label>Editierfenster der App-Einstellungen</label>
+                <br/>
+                <br/>
+                <textarea #appConfigEditor id="appConfigEditor"></textarea>
+              </div>
+              <div class="help-block with-errors" *ngIf="configSettingInvalid">
+                Bitte beachten Sie, dass alle notwendigen Parameter gem&auml;&szlig; der obigen Vorlage definiert werden m&uuml;ssen. Beachten Sie daher die vorgegebene JavaScript-Struktur. Der Text wird auf Schl&uuml;sselw&ouml;rter gepr&uuml;ft und es wird sichergestellt, dass valides JavaScript geparsed werden kann.
+              </div>
+              <div class="help-block with-errors" *ngIf="missingRequiredParameters && missingRequiredParameters.length > 0">
+                Fehlende Parameter: {{missingRequiredParameters_string}}
+              </div>
+            </div>
+            <div class="col-md-6 col-sm-6 col-xs-12">
+              <div class="form-group">
+                <label>Vorschaufenster (neue Wertbelegung)</label>
+                <br/>
+                <br/>
+                <pre class="prettyprint linenums" style="max-height: 450px; overflow: auto; text-align: left;" id="appConfig_new"><code class="language-javascript" [innerHTML]="appConfigNew"></code></pre>
+              </div>
+            </div>
+          </div>	
+          
+          <div class="row vertical-align">
+            <div class="col-md-6 col-sm-6 col-xs-12">
+              <div class="form-group">
+                <button type="button" class="btn btn-success vertical-align horizontal-align"
+                  [disabled]="configSettingInvalid" (click)="editAppConfig()">App-Konfiguration speichern</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- /.box-body -->
+
+        <div id="appConfigEditSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
+          class="alert alert-success alert-dismissable">
+          <button type="button" class="close" (click)="hideSuccessAlert()" aria-hidden="true">&times;</button>
+          <h4><i class="icon fa fa-check"></i>App-Konfiguration in Config Storage Server gespeichert</h4>
+          <p>Die neue Parametrisierung wird beim n&auml;chsten Start der Anwendung vom Config Storage Server geladen und verwendet.
+          </p>
+        </div>
+
+        <div id="appConfigEditErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
+          class="alert alert-danger alert-dismissable">
+          <button type="button" class="close" (click)="hideErrorAlert()" aria-hidden="true">&times;</button>
+          <h4><i class="icon fa fa-ban"></i>Speichern der App-Konfiguration in Config Storage Server gescheitert</h4>
+          Fehlermeldung:
+          <br />
+          <pre style="overflow:auto; max-height:500px;" [innerHTML]="errorMessagePart"></pre>
+        </div>
+      </div>
+      <!-- /.box -->
+    </div>
+  </section>
+  <!-- /.content -->
+</div> 
