@@ -285,7 +285,6 @@ angular.module('reportingOverview').component('reportingOverview', {
 			$scope.config.pages.push(...template.pages);
 			
 			$scope.config.templateSections.push(templateSection);
-				
 			// setup pages after dom exists
 			// at this point we still have all the echarts maps registered
 			$scope.setupNewPages($scope.config.templateSections.at(-1));
@@ -328,11 +327,31 @@ angular.module('reportingOverview').component('reportingOverview', {
 		});
 
 		$scope.removeTemplateSection = function(idx) {
+			let targetTemplateSection = $scope.config.templateSections[idx]; 
+			let isIndicatorTemplateSection = targetTemplateSection.indicatorId ? true : false;
+			let indicatorIdOrPoiName = isIndicatorTemplateSection ? targetTemplateSection.indicatorId : targetTemplateSection.poiLayerName
 			$scope.config.templateSections.splice(idx, 1)
 
 			// show empty template if this was the last indicator
 			if($scope.config.templateSections.length === 0) {
 				$scope.config.pages = $scope.config.template.pages;
+			}
+			else{
+				// also remove corresponding pages from $scope.config.pages
+				$scope.config.pages = $scope.config.pages.filter(item => {
+					let keepItem = true;
+
+					if (isIndicatorTemplateSection){
+						// indicator case
+						keepItem = item.templateSection.indicatorId != indicatorIdOrPoiName
+					}
+					else{
+						// poi case
+						keepItem = item.templateSection.poiLayer != indicatorIdOrPoiName
+					}
+
+					return keepItem;
+				} )
 			}
 		}
 
