@@ -30,7 +30,7 @@
                 <label>Vorlage (Struktur und Standard-Einstellung)</label>
                 <br/>
                 <br/>
-                <div id="templateCodeMirror" style="height: 450px;"></div>
+                <div #templateCodeMirror id="templateCodeMirror" style="height: 450px;"></div>
               </div>
             </div>
             <div class="col-md-6 col-sm-6 col-xs-12">
@@ -38,7 +38,7 @@
                 <label>derzeitige Konfiguration (aktuelle Wertbelegung)</label>
                 <br/>
                 <br/>
-                <div id="currentCodeMirror" style="height: 450px;"></div>
+                <div #currentCodeMirror id="currentCodeMirror" style="height: 450px;"></div>
               </div>
             </div>
           </div>
@@ -52,10 +52,10 @@
                 <label>Editierfenster der Steuerungselemente-Einstellungen</label>
                 <br/>
                 <br/>
-                <textarea id="controlsConfigEditor"></textarea>
+                <textarea #controlsConfigEditor id="controlsConfigEditor"></textarea>
               </div>
               <div class="help-block with-errors" *ngIf="configSettingInvalid">
-                Bitte beachten Sie, dass alle notwendigen Parameter gem&auml;&szlig; der obigen Vorlage definiert werden m&uuml;ssen. Beachten Sie daher die vorgegebene JavaScript-Struktur. Der Text wird auf Schl&uuml;sselw&ouml;rter gepr&uuml;ft und es wird sichergestellt, dass valides JavaScript geparsed werden kann.
+                Bitte beachten Sie, dass alle notwendigen Parameter gem&auml;&szlig; der obigen Vorlage definiert werden m&uuml;ssen. Beachten Sie daher die vorgegebene JSON-Struktur. Der Text wird auf Schl&uuml;sselw&ouml;rter gepr&uuml;ft und es wird sichergestellt, dass valides JSON geparsed werden kann.
               </div>
               <div class="help-block with-errors" *ngIf="missingRequiredParameters && missingRequiredParameters.length > 0">
                 Fehlende Parameter: {{missingRequiredParameters_string}}
@@ -66,7 +66,7 @@
                 <label>Vorschaufenster (neue Wertbelegung)</label>
                 <br/>
                 <br/>
-                <div id="newCodeMirror" style="height: 450px;"></div>
+                <div #newCodeMirror id="newCodeMirror" style="height: 450px;"></div>
               </div>
             </div>
           </div>	

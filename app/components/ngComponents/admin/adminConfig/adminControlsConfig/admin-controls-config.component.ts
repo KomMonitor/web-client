@@ -31,6 +31,9 @@ interface LintingIssue {
 })
 export class AdminControlsConfigComponent implements OnInit, AfterViewInit {
   @ViewChild('controlsConfigEditor') controlsConfigEditor!: ElementRef;
+  @ViewChild('templateCodeMirror') templateCodeMirrorElement!: ElementRef;
+  @ViewChild('currentCodeMirror') currentCodeMirrorElement!: ElementRef;
+  @ViewChild('newCodeMirror') newCodeMirrorElement!: ElementRef;
 
   loadingData = true;
   codeMirrorEditor!: CodeMirrorEditor;
@@ -50,6 +53,7 @@ export class AdminControlsConfigComponent implements OnInit, AfterViewInit {
   configSettingInvalid = false;
   errorMessagePart: string = '';
   lintingIssues: LintingIssue[] = [];
+  private dataLoaded = false;
 
   constructor(
     private http: HttpClient,
@@ -68,9 +72,15 @@ export class AdminControlsConfigComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    // Initialize any adminLTE box widgets
     $('.box').boxWidget();
-    // Initialize CodeMirror editors
+    this.waitForDataAndInitEditors();
+  }
+
+  private async waitForDataAndInitEditors() {
+    // Wait for data to be loaded
+    while (!this.dataLoaded) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
     this.initCodeEditor();
   }
 
@@ -86,15 +96,28 @@ export class AdminControlsConfigComponent implements OnInit, AfterViewInit {
         if (this.kommonitorScriptHelperService) {
           this.kommonitorScriptHelperService.prettifyScriptCodePreview("controlsConfig_backupTemplate");
         }
+        try {
+          const config = (window as any).__env?.controlsConfig;
+          if (!config) {
+            await this.kommonitorConfigStorageService.getControlsConfig();
+            const storedConfig = this.kommonitorConfigStorageService.controlsConfig;
+            if (storedConfig) {
+              this.controlsConfigTmp = JSON.stringify(storedConfig, null, "    ");
+              this.controlsConfigCurrent = JSON.stringify(storedConfig, null, "    ");
+              this.controlsConfigNew = JSON.stringify(storedConfig, null, "    ");
+            }
+          } else {
+            this.controlsConfigTmp = JSON.stringify(config, null, "    ");
+            this.controlsConfigCurrent = JSON.stringify(config, null, "    ");
+            this.controlsConfigNew = JSON.stringify(config, null, "    ");
+          }
+        } catch (error) {
+          console.error('Error getting controls config:', error);
+        }
 
-        // set in app.js
-        this.controlsConfigTmp = JSON.stringify((window as any).__env.controlsConfig, null, "    ");
-        this.controlsConfigCurrent = JSON.stringify((window as any).__env.controlsConfig, null, "    ");
-        this.controlsConfigNew = JSON.stringify((window as any).__env.controlsConfig, null, "    ");
         if (this.kommonitorScriptHelperService) {
           this.kommonitorScriptHelperService.prettifyScriptCodePreview("controlsConfig_current");
         }
-        this.onChangeControlsConfig();
       }
     } catch (error) {
       console.error('Error initializing controls config:', error);
@@ -106,18 +129,18 @@ export class AdminControlsConfigComponent implements OnInit, AfterViewInit {
       $("#controlsConfigEditErrorAlert").show();
     } finally {
       this.loadingData = false;
+      this.dataLoaded = true;
     }
   }
 
   initCodeEditor() {
-    const editorElement = document.getElementById("controlsConfigEditor");
-    if (!editorElement) {
+    if (!this.controlsConfigEditor?.nativeElement) {
       console.error('Could not find controlsConfigEditor element');
       return;
     }
 
     // Initialize main editor
-    this.codeMirrorEditor = CodeMirror.fromTextArea(editorElement, {
+    this.codeMirrorEditor = CodeMirror.fromTextArea(this.controlsConfigEditor.nativeElement, {
       lineNumbers: true,
       autoRefresh: true,
       mode: "application/json",
@@ -125,18 +148,26 @@ export class AdminControlsConfigComponent implements OnInit, AfterViewInit {
       lint: {
         "getAnnotations": this.validateCode.bind(this),
         "async": true
-      }
+      },
+      lineWrapping: true
     });
     this.codeMirrorEditor.setSize(null, 450);
-    this.codeMirrorEditor.on('change', (cMirror: any) => {
+
+    this.codeMirrorEditor.on('change', () => {
       this.controlsConfigTmp = this.codeMirrorEditor.getValue();
+      this.onChangeControlsConfig();
     });
-    this.codeMirrorEditor.setValue(this.controlsConfigCurrent);
+
+    // Set the value after a short delay to ensure the editor is ready
+    setTimeout(() => {
+      if (this.controlsConfigCurrent) {
+        this.codeMirrorEditor.setValue(this.controlsConfigCurrent);
+      }
+    }, 100);
 
     // Initialize template editor
-    const templateElement = document.getElementById("templateCodeMirror");
-    if (templateElement) {
-      this.templateCodeMirrorEditor = CodeMirror(templateElement, {
+    if (this.templateCodeMirrorElement?.nativeElement) {
+      this.templateCodeMirrorEditor = CodeMirror(this.templateCodeMirrorElement.nativeElement, {
         lineNumbers: true,
         autoRefresh: true,
         mode: "application/json",
@@ -145,13 +176,18 @@ export class AdminControlsConfigComponent implements OnInit, AfterViewInit {
         lineWrapping: true
       });
       this.templateCodeMirrorEditor.setSize(null, 450);
-      this.templateCodeMirrorEditor.setValue(this.controlsConfigTemplate);
+      
+      // Set the value after a short delay
+      setTimeout(() => {
+        if (this.controlsConfigTemplate) {
+          this.templateCodeMirrorEditor.setValue(this.controlsConfigTemplate);
+        }
+      }, 100);
     }
 
     // Initialize current editor
-    const currentElement = document.getElementById("currentCodeMirror");
-    if (currentElement) {
-      this.currentCodeMirrorEditor = CodeMirror(currentElement, {
+    if (this.currentCodeMirrorElement?.nativeElement) {
+      this.currentCodeMirrorEditor = CodeMirror(this.currentCodeMirrorElement.nativeElement, {
         lineNumbers: true,
         autoRefresh: true,
         mode: "application/json",
@@ -160,13 +196,18 @@ export class AdminControlsConfigComponent implements OnInit, AfterViewInit {
         lineWrapping: true
       });
       this.currentCodeMirrorEditor.setSize(null, 450);
-      this.currentCodeMirrorEditor.setValue(this.controlsConfigCurrent);
+      
+      // Set the value after a short delay
+      setTimeout(() => {
+        if (this.controlsConfigCurrent) {
+          this.currentCodeMirrorEditor.setValue(this.controlsConfigCurrent);
+        }
+      }, 100);
     }
 
     // Initialize new editor
-    const newElement = document.getElementById("newCodeMirror");
-    if (newElement) {
-      this.newCodeMirrorEditor = CodeMirror(newElement, {
+    if (this.newCodeMirrorElement?.nativeElement) {
+      this.newCodeMirrorEditor = CodeMirror(this.newCodeMirrorElement.nativeElement, {
         lineNumbers: true,
         autoRefresh: true,
         mode: "application/json",
@@ -175,7 +216,13 @@ export class AdminControlsConfigComponent implements OnInit, AfterViewInit {
         lineWrapping: true
       });
       this.newCodeMirrorEditor.setSize(null, 450);
-      this.newCodeMirrorEditor.setValue(this.controlsConfigNew);
+      
+      // Set the value after a short delay
+      setTimeout(() => {
+        if (this.controlsConfigNew) {
+          this.newCodeMirrorEditor.setValue(this.controlsConfigNew);
+        }
+      }, 100);
     }
   }
 
