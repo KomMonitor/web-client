@@ -1,0 +1,14 @@
+/* Add any component-specific styles here */
+.CodeMirror {
+  height: 450px;
+  border: 1px solid #ddd;
+}
+
+.help-block {
+  color: #a94442;
+  margin-top: 5px;
+}
+
+.alert {
+  margin-bottom: 0;
+} 

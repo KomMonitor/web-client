@@ -59,6 +59,7 @@ import { BaseIndicatorOfHeadlineIndicatorFilter } from 'pipes/base-indicator-of-
 import { AuthService } from 'services/auth-service/auth.service';
 import { KommonitorReachabilityComponent } from './components/ngComponents/userInterface/sidebar/kommonitorReachability/kommonitor-reachability.component';
 import { AdminAppConfigComponent } from './components/ngComponents/admin/adminConfig/adminAppConfig/admin-app-config.component';
+import { AdminControlsConfigComponent } from './components/ngComponents/admin/adminConfig/adminControlsConfig/admin-controls-config.component';
 
 
 
@@ -125,7 +126,8 @@ declare var MathJax;
     BaseIndicatorOfHeadlineIndicatorFilter,
     RegressionDiagramComponent,
     KommonitorReachabilityComponent,
-    AdminAppConfigComponent
+    AdminAppConfigComponent,
+    AdminControlsConfigComponent
   ],
   schemas: [
     CUSTOM_ELEMENTS_SCHEMA
@@ -184,8 +186,8 @@ export class AppModule implements DoBootstrap {
     angular.module('adminAppConfig')
     .directive('newAdminAppConfig',  downgradeComponent({ component: AdminAppConfigComponent }) as angular.IDirectiveFactory);
 
-    /* angular.module('kommonitorUserInterface')
-    .directive('infoModal',  downgradeComponent({ component: InfoModalComponent }) as angular.IDirectiveFactory); */
+    angular.module('adminControlsConfig')
+    .directive('adminControlsConfigNew',  downgradeComponent({ component: AdminControlsConfigComponent }) as angular.IDirectiveFactory);
 
    /*  angular.module('kommonitorUserInterface')
     .directive('kommonitorLegendNew',  downgradeComponent({ component: KommonitorLegendComponent }) as angular.IDirectiveFactory);
