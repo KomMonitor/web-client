@@ -72,9 +72,13 @@ export class TopicEditModalComponent implements OnInit {
         
         console.log('Topic update response:', response);
         
+        // Fetch updated topics metadata
+        await this.kommonitorDataExchangeService.fetchTopicsMetadata(
+          this.kommonitorDataExchangeService.currentKeycloakLoginRoles
+        );
+        
         this.successMessage = 'success';
         
-        // Close modal after a short delay to show success message
         setTimeout(() => {
           this.activeModal.close({
             action: 'updated',

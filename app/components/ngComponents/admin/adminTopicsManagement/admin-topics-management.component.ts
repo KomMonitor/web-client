@@ -474,14 +474,8 @@ export class AdminTopicsManagementComponent implements OnInit, OnDestroy {
 
   loadTopics() {
     console.log('Loading topics...');
-    this.kommonitorDataExchangeService.getTopics()
-      .then(topics => {
-        console.log('Topics loaded:', topics);
-        this.topics = topics;
-      })
-      .catch(error => {
-        console.error('Error loading topics:', error);
-      });
+    this.topics = this.kommonitorDataExchangeService.availableTopics;
+    console.log('Topics loaded:', this.topics);
   }
 
   onTopicUpdated(updatedTopic: any) {
