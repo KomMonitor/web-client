@@ -60,7 +60,7 @@ import { AuthService } from 'services/auth-service/auth.service';
 import { KommonitorReachabilityComponent } from './components/ngComponents/userInterface/sidebar/kommonitorReachability/kommonitor-reachability.component';
 import { AdminAppConfigComponent } from './components/ngComponents/admin/adminConfig/adminAppConfig/admin-app-config.component';
 import { AdminControlsConfigComponent } from './components/ngComponents/admin/adminConfig/adminControlsConfig/admin-controls-config.component';
-
+import { AdminRoleExplanationComponent } from './components/ngComponents/admin/adminRoleExplanation/admin-role-explanation.component';
 
 
 // currently the AngularJS routing is still used as part of kommonitorClient module
@@ -127,7 +127,8 @@ declare var MathJax;
     RegressionDiagramComponent,
     KommonitorReachabilityComponent,
     AdminAppConfigComponent,
-    AdminControlsConfigComponent
+    AdminControlsConfigComponent,
+    AdminRoleExplanationComponent
   ],
   schemas: [
     CUSTOM_ELEMENTS_SCHEMA
@@ -188,6 +189,11 @@ export class AppModule implements DoBootstrap {
 
     angular.module('adminControlsConfig')
     .directive('adminControlsConfigNew',  downgradeComponent({ component: AdminControlsConfigComponent }) as angular.IDirectiveFactory);
+
+    angular.module('adminRoleExplanation')
+      .directive('adminRoleExplanationNew', downgradeComponent({ component: AdminRoleExplanationComponent }) as angular.IDirectiveFactory);
+
+
 
    /*  angular.module('kommonitorUserInterface')
     .directive('kommonitorLegendNew',  downgradeComponent({ component: KommonitorLegendComponent }) as angular.IDirectiveFactory);
