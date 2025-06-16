@@ -579,6 +579,12 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 							page.area = area.name;
 							page.id = $scope.templatePageIdCounter++;
 							areaSpecificPages.push(page);
+
+							// repeat for the same area page with other orientation
+							let page_otherOrientation = angular.fromJson($scope.untouchedTemplateAsString).pages[ $scope.indexOfFirstAreaSpecificPage + 1];
+							page_otherOrientation.area = area.name;
+							page_otherOrientation.id = $scope.templatePageIdCounter++;
+							areaSpecificPages.push(page_otherOrientation);
 						}
 
 						// sort alphabetically by area name
@@ -588,7 +594,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 							return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
 						})
 
-						pagesToInsert.splice($scope.indexOfFirstAreaSpecificPage, 1, ...areaSpecificPages)
+						// remove two placeholders due to 2 orientations
+						pagesToInsert.splice($scope.indexOfFirstAreaSpecificPage, 2, ...areaSpecificPages)
 
 						// setup pages before inserting them
 						for(let pageToInsert of pagesToInsert) {
