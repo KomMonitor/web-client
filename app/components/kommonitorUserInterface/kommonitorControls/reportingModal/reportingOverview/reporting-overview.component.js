@@ -679,198 +679,203 @@ angular.module('reportingOverview').component('reportingOverview', {
 
 		$scope.initializeLeafletMap = async function(page, pageElement, echartsMap, spatialUnit, forceScreenshot) {
 			await $timeout(async function(page, pageElement, echartsMap, spatialUnit) {
-				let pageIdx = $scope.config.pages.indexOf(page);
-				let id = "reporting-overview-leaflet-map-container-" + pageIdx;
-				let pageDom = document.getElementById("reporting-overview-page-" + pageIdx);
-				let pageElementDom = document.getElementById("reporting-overview-page-" + pageIdx + "-map");
-				let oldMapNode = document.getElementById(id);
-				if(oldMapNode) {
-					oldMapNode.remove();
-				}
-				let div = document.createElement("div");
-				div.id = id;
-				div.style.position = "absolute";
-				div.style.left = pageElement.dimensions.left;
-				div.style.top = pageElement.dimensions.top;
-				div.style.width = pageElement.dimensions.width;
-				div.style.height = pageElement.dimensions.height;
-				div.style.zIndex = 10;
-				pageDom.appendChild(div);
-				let echartsOptions = echartsMap.getOption();
-			
-				let leafletMap = L.map(div.id, {
-					zoomControl: false,
-					dragging: false,
-					doubleClickZoom: false,
-					boxZoom: false,
-					trackResize: false,
-					attributionControl: false,
-					// prevents leaflet form snapping to closest pre-defined zoom level.
-					// In other words, it allows us to set exact map extend by a (echarts) bounding box
-					zoomSnap: 0,
-					// disable any fade and zoom animation in order to get screenshots directly after layer event load was called
-					fadeAnimation: false,
-            		zoomAnimation: false,
-				});			
-
-				// manually create a field for attribution so we can control the z-index.
-				let prevAttributionDiv = pageDom.querySelector(".map-attribution")
-				if(prevAttributionDiv) prevAttributionDiv.remove();
-				let attrDiv = document.createElement("div")
-				attrDiv.classList.add("map-attribution")
-				attrDiv.style.position = "absolute";
-				attrDiv.style.bottom = 0;
-				attrDiv.style.left = 0;
-				attrDiv.style.zIndex = 800;
-				let attrImg = await kommonitorDiagramHelperService.createReportingReachabilityMapAttribution();
-				attrDiv.appendChild(attrImg);
-				pageElementDom.appendChild(attrDiv);
-
-				if($scope.config.template.name.includes("reachability")){
-					// also create the legend manually
-					let prevLegendDiv = pageDom.querySelector(".map-legend")
-					if(prevLegendDiv) prevLegendDiv.remove();
-					let legendDiv = document.createElement("div")
-					legendDiv.classList.add("map-legend")
-					legendDiv.style.position = "absolute";
-					legendDiv.style.bottom = 0;
-					legendDiv.style.right = 0;
-					legendDiv.style.zIndex = 800;
-					let isochronesRangeType = page.templateSection.isochronesRangeType;
-					let isochronesRangeUnits = page.templateSection.isochronesRangeUnits;
-					let legendImg = await kommonitorDiagramHelperService.createReportingReachabilityMapLegend(echartsOptions, spatialUnit, isochronesRangeType, isochronesRangeUnits);
-					legendDiv.appendChild(legendImg);
-					pageElementDom.appendChild(legendDiv)
-				}
-
+				try {
+					let pageIdx = $scope.config.pages.indexOf(page);
+					let id = "reporting-overview-leaflet-map-container-" + pageIdx;
+					let pageDom = document.getElementById("reporting-overview-page-" + pageIdx);
+					let pageElementDom = document.getElementById("reporting-overview-page-" + pageIdx + "-map");
+					let oldMapNode = document.getElementById(id);
+					if(oldMapNode) {
+						oldMapNode.remove();
+					}
+					let div = document.createElement("div");
+					div.id = id;
+					div.style.position = "absolute";
+					div.style.left = pageElement.dimensions.left;
+					div.style.top = pageElement.dimensions.top;
+					div.style.width = pageElement.dimensions.width;
+					div.style.height = pageElement.dimensions.height;
+					div.style.zIndex = 10;
+					pageDom.appendChild(div);
+					let echartsOptions = echartsMap.getOption();
 				
+					let leafletMap = L.map(div.id, {
+						zoomControl: false,
+						dragging: false,
+						doubleClickZoom: false,
+						boxZoom: false,
+						trackResize: false,
+						attributionControl: false,
+						// prevents leaflet form snapping to closest pre-defined zoom level.
+						// In other words, it allows us to set exact map extend by a (echarts) bounding box
+						zoomSnap: 0,
+						// disable any fade and zoom animation in order to get screenshots directly after layer event load was called
+						fadeAnimation: false,
+						zoomAnimation: false,
+					});			
 
-				// we have the bbox stored in config
-				// pageElement.leafletBbox is invalid after export and import. Maybe because the prototype object gets removed...
-				// We create a new bounds object from the stored data
-				// let bounds = L.latLngBounds(pageElement.leafletBbox._southWest, pageElement.leafletBbox._northEast);
+					// manually create a field for attribution so we can control the z-index.
+					let prevAttributionDiv = pageDom.querySelector(".map-attribution")
+					if(prevAttributionDiv) prevAttributionDiv.remove();
+					let attrDiv = document.createElement("div")
+					attrDiv.classList.add("map-attribution")
+					attrDiv.style.position = "absolute";
+					attrDiv.style.bottom = 0;
+					attrDiv.style.left = 0;
+					attrDiv.style.zIndex = 800;
+					let attrImg = await kommonitorDiagramHelperService.createReportingReachabilityMapAttribution();
+					attrDiv.appendChild(attrImg);
+					pageElementDom.appendChild(attrDiv);
 
+					if($scope.config.template.name.includes("reachability")){
+						// also create the legend manually
+						let prevLegendDiv = pageDom.querySelector(".map-legend")
+						if(prevLegendDiv) prevLegendDiv.remove();
+						let legendDiv = document.createElement("div")
+						legendDiv.classList.add("map-legend")
+						legendDiv.style.position = "absolute";
+						legendDiv.style.bottom = 0;
+						legendDiv.style.right = 0;
+						legendDiv.style.zIndex = 800;
+						let isochronesRangeType = page.templateSection.isochronesRangeType;
+						let isochronesRangeUnits = page.templateSection.isochronesRangeUnits;
+						let legendImg = await kommonitorDiagramHelperService.createReportingReachabilityMapLegend(echartsOptions, spatialUnit, isochronesRangeType, isochronesRangeUnits);
+						legendDiv.appendChild(legendImg);
+						pageElementDom.appendChild(legendDiv)
+					}
+
+					
+
+					// we have the bbox stored in config
+					// pageElement.leafletBbox is invalid after export and import. Maybe because the prototype object gets removed...
+					// We create a new bounds object from the stored data
 					// let bounds = L.latLngBounds(pageElement.leafletBbox._southWest, pageElement.leafletBbox._northEast);
-					// let boundingCoords = [ [bounds.getWest(), bounds.getNorth()], [bounds.getEast(), bounds.getSouth()]]
-					let boundingCoords = echartsOptions.series[0].boundingCoords;
 
-					// set bounding box to this feature
-					let westLon = boundingCoords[0][0];
-					let southLat = boundingCoords[1][1];
-					let eastLon = boundingCoords[1][0];
-					let northLat = boundingCoords[0][1];
+						// let bounds = L.latLngBounds(pageElement.leafletBbox._southWest, pageElement.leafletBbox._northEast);
+						// let boundingCoords = [ [bounds.getWest(), bounds.getNorth()], [bounds.getEast(), bounds.getSouth()]]
+						let boundingCoords = echartsOptions.series[0].boundingCoords;
 
-				// Add 2% space on all sides
-				// let divisor = 50;
-				// let bboxHeight = northLat - southLat;
-				// let bboxWidth = eastLon - westLon;
-				// northLat += bboxHeight/divisor;
-				// southLat -= bboxHeight/divisor;
-				// eastLon += bboxWidth/divisor;
-				// westLon -= bboxWidth/divisor;
+						// set bounding box to this feature
+						let westLon = boundingCoords[0][0];
+						let southLat = boundingCoords[1][1];
+						let eastLon = boundingCoords[1][0];
+						let northLat = boundingCoords[0][1];
 
-				leafletMap.fitBounds( [[southLat, westLon], [northLat, eastLon]] );
-				// leafletMap.fitBounds( bounds );
+					// Add 2% space on all sides
+					// let divisor = 50;
+					// let bboxHeight = northLat - southLat;
+					// let bboxWidth = eastLon - westLon;
+					// northLat += bboxHeight/divisor;
+					// southLat -= bboxHeight/divisor;
+					// eastLon += bboxWidth/divisor;
+					// westLon -= bboxWidth/divisor;
 
-				let bounds = leafletMap.getBounds()
-				
-				/*
-				as we might have landscape and portrait versions of the same content
-				leaflet fitBounds() will not work properly, if the leaflet map is actually not included in the DOM currently
-				
-				--> hence we make a workaround. if the leaflet coords of northeast and southwest are exactly the same
-				then we just ignore it and instead reuse the original echarts coordinates --> they are proper at the beginning of the function  
+					leafletMap.fitBounds( [[southLat, westLon], [northLat, eastLon]] );
+					// leafletMap.fitBounds( bounds );
 
-				*/
+					let bounds = leafletMap.getBounds()
+					
+					/*
+					as we might have landscape and portrait versions of the same content
+					leaflet fitBounds() will not work properly, if the leaflet map is actually not included in the DOM currently
+					
+					--> hence we make a workaround. if the leaflet coords of northeast and southwest are exactly the same
+					then we just ignore it and instead reuse the original echarts coordinates --> they are proper at the beginning of the function  
 
-				if(bounds.getWest() == bounds.getEast() && bounds.getNorth() == bounds.getSouth()){
-					// this is only the case, if leaflet.fitBounds() results in a single coordinate (due to map HTML element not within DOM)	
-					// hence, simply use current echarts extent				
-				}
-				else{
-					// normal case, leaflet has properly rendered and zoomed to the given extent
-					// thus we use the leaflet coords in order to adjust the echarts extent for proper overlay
-					boundingCoords = [ [bounds.getWest(), bounds.getNorth()], [bounds.getEast(), bounds.getSouth()]]
-				}
+					*/
 
-				for(let series of echartsOptions.series) {
+					if(bounds.getWest() == bounds.getEast() && bounds.getNorth() == bounds.getSouth()){
+						// this is only the case, if leaflet.fitBounds() results in a single coordinate (due to map HTML element not within DOM)	
+						// hence, simply use current echarts extent				
+					}
+					else{
+						// normal case, leaflet has properly rendered and zoomed to the given extent
+						// thus we use the leaflet coords in order to adjust the echarts extent for proper overlay
+						boundingCoords = [ [bounds.getWest(), bounds.getNorth()], [bounds.getEast(), bounds.getSouth()]]
+					}
 
-					series.left = 0;
-					series.top = 0;
-					series.right = 0;
-					series.bottom = 0;
-					series.boundingCoords = boundingCoords,
-					series.projection = {
+					for(let series of echartsOptions.series) {
+
+						series.left = 0;
+						series.top = 0;
+						series.right = 0;
+						series.bottom = 0;
+						series.boundingCoords = boundingCoords,
+						series.projection = {
+							project: (point) => mercatorProjection_d3(point),
+							unproject: (point) => mercatorProjection_d3.invert(point)
+						}
+					}
+
+					echartsOptions.geo[0].top = 0;
+					echartsOptions.geo[0].left = 0;
+					echartsOptions.geo[0].right = 0;
+					echartsOptions.geo[0].bottom = 0;
+					echartsOptions.geo[0].projection = {
 						project: (point) => mercatorProjection_d3(point),
 						unproject: (point) => mercatorProjection_d3.invert(point)
+					}				
+					echartsOptions.geo[0].boundingCoords = boundingCoords
+					
+					echartsMap.setOption(echartsOptions, {
+						notMerge: false
+					});	
+					
+
+					// store spatial unit and feature id to page in order to access it later when the screenshot is needed
+					page.spatialUnitId = spatialUnit.spatialUnitId;			
+					if(page.area){
+						let feature = $scope.geoJsonForReachability_byFeatureName.get(page.area);
+						let spatialUnitFeatureId = feature.properties[__env.FEATURE_ID_PROPERTY_NAME];
+						page.spatialUnitFeatureId = spatialUnitFeatureId;
+					}						
+					
+					// Attribution is handled in a custom element
+					// let leafletLayer = new L.TileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png");
+					let leafletLayer; 
+					if (pageElement.selectedBaseMap.layerConfig.layerType === "TILE_LAYER_GRAYSCALE"){
+						leafletLayer = new L.tileLayer(pageElement.selectedBaseMap.layerConfig.url);
 					}
+					else if (pageElement.selectedBaseMap.layerConfig.layerType === "TILE_LAYER"){
+						leafletLayer = new L.tileLayer(pageElement.selectedBaseMap.layerConfig.url);
+					}
+					else if (pageElement.selectedBaseMap.layerConfig.layerType === "WMS"){
+						leafletLayer = new L.tileLayer.wms(pageElement.selectedBaseMap.layerConfig.url, { layers: pageElement.selectedBaseMap.layerConfig.layerName_WMS, format: 'image/jpeg' })
+					}	
+					else{
+						// i.e. if on import no baseLayer was available
+						// backup: set empty layer
+						leafletLayer = new L.tileLayer("");
+					}			
+					// use the "load" event of the tile layer to hook a function that is triggered once every visible tile is fully loaded
+					// here we ntend to make a screenshot of the leaflet image as a background task in order to boost up report preview generation 
+					// for all spatial unit features		
+					let domNode = leafletMap["_container"];	
+					leafletLayer.on("load", function() { 
+						// there are pages for two page orientations (landscape and portait)
+						// only trigger the screenshot for those pages, that are actually present
+						if(forceScreenshot || (page.orientation == $scope.config.template.orientation)){
+							kommonitorLeafletScreenshotCacheHelperService.checkForScreenshot(pageElement.selectedBaseMap.layerConfig.name, spatialUnit.spatialUnitId, 
+								page.spatialUnitFeatureId, page.orientation, domNode);
+						}
+										
+					});					
+					leafletLayer.addTo(leafletMap);		
+
+					// add leaflet map to pageElement in case we need it again later
+					pageElement.leafletMap = leafletMap;
+					pageElement.leafletBbox = bounds;
+					pageElement.echartsOptions = echartsOptions;
+				
+					// can be used to check if positioning in echarts matches the one from leaflet
+					//let geoJsonLayer = L.geoJSON( $scope.geoJsonForReachability.features )
+					//geoJsonLayer.addTo(leafletMap)
+					//let isochronesLayer = L.geoJSON( $scope.isochrones.features )
+					//isochronesLayer.addTo(leafletMap);
+				} catch (error) {
+					console.error(error)
 				}
-
-				echartsOptions.geo[0].top = 0;
-				echartsOptions.geo[0].left = 0;
-				echartsOptions.geo[0].right = 0;
-				echartsOptions.geo[0].bottom = 0;
-				echartsOptions.geo[0].projection = {
-					project: (point) => mercatorProjection_d3(point),
-					unproject: (point) => mercatorProjection_d3.invert(point)
-				}				
-				echartsOptions.geo[0].boundingCoords = boundingCoords
 				
-				echartsMap.setOption(echartsOptions, {
-					notMerge: false
-				});	
-				
-
-				// store spatial unit and feature id to page in order to access it later when the screenshot is needed
-				page.spatialUnitId = spatialUnit.spatialUnitId;			
-				if(page.area){
-					let feature = $scope.geoJsonForReachability_byFeatureName.get(page.area);
-					let spatialUnitFeatureId = feature.properties[__env.FEATURE_ID_PROPERTY_NAME];
-					page.spatialUnitFeatureId = spatialUnitFeatureId;
-				}						
-				
-				// Attribution is handled in a custom element
-				// let leafletLayer = new L.TileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png");
-				let leafletLayer; 
-				if (pageElement.selectedBaseMap.layerConfig.layerType === "TILE_LAYER_GRAYSCALE"){
-					leafletLayer = new L.tileLayer(pageElement.selectedBaseMap.layerConfig.url);
-				  }
-				  else if (pageElement.selectedBaseMap.layerConfig.layerType === "TILE_LAYER"){
-					leafletLayer = new L.tileLayer(pageElement.selectedBaseMap.layerConfig.url);
-				  }
-				  else if (pageElement.selectedBaseMap.layerConfig.layerType === "WMS"){
-					leafletLayer = new L.tileLayer.wms(pageElement.selectedBaseMap.layerConfig.url, { layers: pageElement.selectedBaseMap.layerConfig.layerName_WMS, format: 'image/jpeg' })
-				  }	
-				  else{
-					// i.e. if on import no baseLayer was available
-					// backup: set empty layer
-					leafletLayer = new L.tileLayer("");
-				  }			
-				// use the "load" event of the tile layer to hook a function that is triggered once every visible tile is fully loaded
-				// here we ntend to make a screenshot of the leaflet image as a background task in order to boost up report preview generation 
-				// for all spatial unit features		
-				let domNode = leafletMap["_container"];	
-				leafletLayer.on("load", function() { 
-					// there are pages for two page orientations (landscape and portait)
-					// only trigger the screenshot for those pages, that are actually present
-					if(forceScreenshot || (page.orientation == $scope.config.template.orientation)){
-						kommonitorLeafletScreenshotCacheHelperService.checkForScreenshot(pageElement.selectedBaseMap.layerConfig.name, spatialUnit.spatialUnitId, 
-							page.spatialUnitFeatureId, page.orientation, domNode);
-					}
-									
-				});					
-				leafletLayer.addTo(leafletMap);		
-
-				// add leaflet map to pageElement in case we need it again later
-				pageElement.leafletMap = leafletMap;
-				pageElement.leafletBbox = bounds;
-				pageElement.echartsOptions = echartsOptions;
-			
-				// can be used to check if positioning in echarts matches the one from leaflet
-				//let geoJsonLayer = L.geoJSON( $scope.geoJsonForReachability.features )
-				//geoJsonLayer.addTo(leafletMap)
-				//let isochronesLayer = L.geoJSON( $scope.isochrones.features )
-				//isochronesLayer.addTo(leafletMap);
 
 			}, 0, false, page, pageElement, echartsMap, spatialUnit)
 		}
