@@ -31,7 +31,8 @@ import {
   ajskommonitorReachabilityHelperServiceProvider,
   ajskommonitorReachabilityScenarioHelperServiceProvider,
   ajskommonitorReachabilityMapHelperServiceProvider,
-  ajskommonitorSingleFeatureMapHelperServiceProvider} from 'app-upgraded-providers';
+  ajskommonitorSingleFeatureMapHelperServiceProvider,
+  ajskommonitorScriptHelperServiceProvider} from 'app-upgraded-providers';
 import { KommonitorLegendComponent } from 'components/ngComponents/userInterface/kommonitorLegend/kommonitor-legend.component';
 import { NgbCalendar, NgbDatepickerModule, NgbDateStruct, NgbAccordionModule, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
@@ -57,7 +58,9 @@ import { BaseIndicatorOfComputedIndicatorFilter } from 'pipes/base-indicator-of-
 import { BaseIndicatorOfHeadlineIndicatorFilter } from 'pipes/base-indicator-of-headline-indicator-filter.pipe';
 import { AuthService } from 'services/auth-service/auth.service';
 import { KommonitorReachabilityComponent } from './components/ngComponents/userInterface/sidebar/kommonitorReachability/kommonitor-reachability.component';
-
+import { AdminAppConfigComponent } from './components/ngComponents/admin/adminConfig/adminAppConfig/admin-app-config.component';
+import { AdminControlsConfigComponent } from './components/ngComponents/admin/adminConfig/adminControlsConfig/admin-controls-config.component';
+import { AdminRoleExplanationComponent } from './components/ngComponents/admin/adminRoleExplanation/admin-role-explanation.component';
 
 
 // currently the AngularJS routing is still used as part of kommonitorClient module
@@ -100,6 +103,7 @@ declare var MathJax;
     ajskommonitorReachabilityScenarioHelperServiceProvider,
     ajskommonitorReachabilityMapHelperServiceProvider,
     ajskommonitorSingleFeatureMapHelperServiceProvider,
+    ajskommonitorScriptHelperServiceProvider,
     NgbModule,
     AuthService
   ],
@@ -121,7 +125,10 @@ declare var MathJax;
     BaseIndicatorOfComputedIndicatorFilter,
     BaseIndicatorOfHeadlineIndicatorFilter,
     RegressionDiagramComponent,
-    KommonitorReachabilityComponent
+    KommonitorReachabilityComponent,
+    AdminAppConfigComponent,
+    AdminControlsConfigComponent,
+    AdminRoleExplanationComponent
   ],
   schemas: [
     CUSTOM_ELEMENTS_SCHEMA
@@ -177,8 +184,16 @@ export class AppModule implements DoBootstrap {
     angular.module('kommonitorUserInterface')
     .directive('userInterfaceNew',  downgradeComponent({ component: UserInterfaceComponent }) as angular.IDirectiveFactory);
 
-    /* angular.module('kommonitorUserInterface')
-    .directive('infoModal',  downgradeComponent({ component: InfoModalComponent }) as angular.IDirectiveFactory); */
+    angular.module('adminAppConfig')
+    .directive('newAdminAppConfig',  downgradeComponent({ component: AdminAppConfigComponent }) as angular.IDirectiveFactory);
+
+    angular.module('adminControlsConfig')
+    .directive('adminControlsConfigNew',  downgradeComponent({ component: AdminControlsConfigComponent }) as angular.IDirectiveFactory);
+
+    angular.module('adminRoleExplanation')
+      .directive('adminRoleExplanationNew', downgradeComponent({ component: AdminRoleExplanationComponent }) as angular.IDirectiveFactory);
+
+
 
    /*  angular.module('kommonitorUserInterface')
     .directive('kommonitorLegendNew',  downgradeComponent({ component: KommonitorLegendComponent }) as angular.IDirectiveFactory);

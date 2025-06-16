@@ -1,0 +1,88 @@
+<div id="adminRoleExplanationContent">
+
+  <div align="center">
+    <div class="loading-overlay" *ngIf="loadingData">
+      <div class="spinner-border text-primary" role="status">
+        <span class="sr-only">Loading...</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content Header (Page header) -->
+  <section class="content-header">
+    <h1>
+      FAQ zu Mandantenkonzept und Zugriffsschutz auf Datens&auml;tze
+      <small>&Uuml;bersicht und Bedienhinweise der ab KomMonitor Version 4 eingef&uuml;hrten
+        Zugriffskontrolle</small>
+    </h1>
+  </section>
+
+  <!-- Main content -->
+  <section class="content container-fluid">
+    <div class="row">
+      <!-- Left Column -->
+      <div class="col-md-6">
+        <div class="box" *ngFor="let item of leftColumnItems" [class.expanded]="item.expanded">
+          <div class="box-header with-border">
+            <h3 class="box-title">{{item.title}}</h3>
+            <div class="box-tools pull-right">
+              <button type="button" class="btn btn-box-tool" (click)="toggleAccordion(item)">
+                <i class="fa" [ngClass]="{'fa-plus': !item.expanded, 'fa-minus': item.expanded}"></i>
+              </button>
+            </div>
+          </div>
+          <div class="box-body" *ngIf="item.expanded">
+            <div [innerHTML]="item.content"></div>
+            <div class="nested-accordion" *ngIf="item.nestedItems">
+              <div class="box" *ngFor="let nestedItem of item.nestedItems" [class.expanded]="nestedItem.expanded">
+                <div class="box-header with-border">
+                  <h4 class="box-title">{{nestedItem.title}}</h4>
+                  <div class="box-tools pull-right">
+                    <button type="button" class="btn btn-box-tool" (click)="toggleAccordion(nestedItem)">
+                      <i class="fa" [ngClass]="{'fa-plus': !nestedItem.expanded, 'fa-minus': nestedItem.expanded}"></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="box-body" *ngIf="nestedItem.expanded">
+                  <div [innerHTML]="nestedItem.content"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column -->
+      <div class="col-md-6">
+        <div class="box" *ngFor="let item of rightColumnItems" [class.expanded]="item.expanded">
+          <div class="box-header with-border">
+            <h3 class="box-title">{{item.title}}</h3>
+            <div class="box-tools pull-right">
+              <button type="button" class="btn btn-box-tool" (click)="toggleAccordion(item)">
+                <i class="fa" [ngClass]="{'fa-plus': !item.expanded, 'fa-minus': item.expanded}"></i>
+              </button>
+            </div>
+          </div>
+          <div class="box-body" *ngIf="item.expanded">
+            <div [innerHTML]="item.content"></div>
+            <div class="nested-accordion" *ngIf="item.nestedItems">
+              <div class="box" *ngFor="let nestedItem of item.nestedItems" [class.expanded]="nestedItem.expanded">
+                <div class="box-header with-border">
+                  <h4 class="box-title">{{nestedItem.title}}</h4>
+                  <div class="box-tools pull-right">
+                    <button type="button" class="btn btn-box-tool" (click)="toggleAccordion(nestedItem)">
+                      <i class="fa" [ngClass]="{'fa-plus': !nestedItem.expanded, 'fa-minus': nestedItem.expanded}"></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="box-body" *ngIf="nestedItem.expanded">
+                  <div [innerHTML]="nestedItem.content"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div> 
