@@ -1584,6 +1584,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 				// get a new template (in case another indicator was selected previously)
 				$scope.template = $scope.getCleanTemplate();
+				$scope.template.pageConfig = $scope.pageConfig;
 				
 				// set spatial unit to highest available one
 				let spatialUnits = kommonitorDataExchangeService.availableSpatialUnits;
@@ -3440,6 +3441,13 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					}
 				}
 			}
+
+			// apply current page configuration as it is performed asynchronously 
+				$timeout(function(){
+					$scope.onChangePageConfig();
+					$scope.onChangeShowPageSection();
+					$scope.$digest();
+				});
 		}
 
 		$scope.showThisPage = function(page) {
