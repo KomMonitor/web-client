@@ -140,7 +140,7 @@ declare var MathJax;
     KommonitorReachabilityComponent,
     AdminTopicsManagementComponent,
     TopicEditModalComponent,
-    TopicDeleteModalComponent
+    TopicDeleteModalComponent,
     AdminAppConfigComponent,
     AdminControlsConfigComponent,
     AdminRoleExplanationComponent
