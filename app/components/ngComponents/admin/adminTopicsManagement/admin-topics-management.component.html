@@ -1,0 +1,563 @@
+<div id="adminTopicsContent">
+  <div align="center">
+    <div class="loading-overlay-admin-panel" [class.ng-hide]="!loadingData">
+      <span class="glyphicon glyphicon-refresh icon-spin"></span>
+    </div>
+  </div>
+
+  <!-- Content Header (Page header) -->
+  <section class="content-header">
+    <h1>
+      Themenverwaltung
+      <small>Management der Themenhierarchien für Indikatoren und Georessourcen</small>
+    </h1>
+  </section>
+
+  <!-- Main content -->
+  <section class="content container-fluid">
+    <b>Zeige IDs</b>
+    &nbsp;
+    <label class="switch">
+      <input type="checkbox" [(ngModel)]="showTopicIds">
+      <span class="switchslider round"></span>
+    </label>
+
+    <br />
+
+    <div class="box box-primary" id="indicatorTopicsManagement">
+      <div class="box-header with-border">
+        <h3 class="box-title">Themenhierarchie - Indikatoren</h3>
+        <div class="box-tools pull-right">
+          <button type="button" class="btn btn-box-tool" data-widget="collapse">
+            <i class="fa fa-minus"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="box-body">
+        <div class="just-padding">
+          <div class="list-group list-group-root well">
+            <div *ngFor="let mainTopic of filteredIndicatorTopics">
+              <div class="list-group-item list-group-item-default" style="background: #2171b5; color: white;">
+                <div style="display: flex; align-items: center;">
+                  <a [id]="mainTopic.topicId" href="" [title]="mainTopic.topicDescription"
+                    class="collapseTrigger" style="color: white; flex-grow: 1;"
+                    (click)="toggleCollapse(mainTopic.topicId, $event)"
+                    [attr.data-init]="true">
+                    <i class="glyphicon" [class.glyphicon-chevron-right]="isCollapsed(mainTopic.topicId)" [class.glyphicon-chevron-down]="!isCollapsed(mainTopic.topicId)"></i>
+                    <div class="btn-group btn-group-sm" style="display: inline-block; margin: 0 5px;">
+                      <button type="button" class="btn btn-warning" (click)="onClickEditTopic(mainTopic)">
+                        <i class="fas fa-pencil-alt"></i>
+                      </button>
+                      <button type="button" class="btn btn-danger" (click)="onClickDeleteTopic(mainTopic)">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </div>
+                    {{mainTopic.topicName}}
+                  </a>
+
+                  <div *ngIf="showTopicIds" style="margin: 0 10px;">
+                    (ID: {{mainTopic.topicId}})
+                  </div>
+                </div>
+              </div>
+
+              <div class="list-group collapse" [class.show]="!isCollapsed(mainTopic.topicId)">
+                <div *ngFor="let subTopic of mainTopic.subTopics">
+                  <div class="list-group-item list-group-item-default"
+                    style="background: #6baed6; color: white;">
+                    <div style="display: flex; align-items: center;">
+                      <a [id]="subTopic.topicId" class="collapseTrigger" style="color: white; flex-grow: 1;"
+                        [title]="subTopic.topicDescription" href=""
+                        (click)="toggleCollapse(subTopic.topicId, $event)"
+                        [attr.data-init]="true">
+                        <i class="glyphicon" [class.glyphicon-chevron-right]="isCollapsed(subTopic.topicId)" [class.glyphicon-chevron-down]="!isCollapsed(subTopic.topicId)"></i>
+                        <div class="btn-group btn-group-sm" style="display: inline-block; margin: 0 5px;">
+                          <button type="button" class="btn btn-warning"
+                            (click)="onClickEditTopic(subTopic)">
+                            <i class="fas fa-pencil-alt"></i>
+                          </button>
+                          <button type="button" class="btn btn-danger"
+                            (click)="onClickDeleteTopic(subTopic)">
+                            <i class="fas fa-trash"></i>
+                          </button>
+                        </div>
+                        {{subTopic.topicName}}
+                      </a>
+
+                      <div *ngIf="showTopicIds" style="margin: 0 10px;">
+                        (ID: {{subTopic.topicId}})
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="list-group collapse" [class.show]="!isCollapsed(subTopic.topicId)">
+                    <div *ngFor="let subsubTopic of subTopic.subTopics">
+                      <div class="list-group-item list-group-item-default"
+                        style="background: #bdd7e7; color: white;">
+                        <div style="display: flex; align-items: center;">
+                          <a [id]="subsubTopic.topicId" class="collapseTrigger" style="color: black; flex-grow: 1;"
+                            [title]="subsubTopic.topicDescription" href=""
+                            (click)="toggleCollapse(subsubTopic.topicId, $event)"
+                            [attr.data-init]="true">
+                            <i class="glyphicon" [class.glyphicon-chevron-right]="isCollapsed(subsubTopic.topicId)" [class.glyphicon-chevron-down]="!isCollapsed(subsubTopic.topicId)"></i>
+                            <div class="btn-group btn-group-sm" style="display: inline-block; margin: 0 5px;">
+                              <button type="button" class="btn btn-warning"
+                                (click)="onClickEditTopic(subsubTopic)">
+                                <i class="fas fa-pencil-alt"></i>
+                              </button>
+                              <button type="button" class="btn btn-danger"
+                                (click)="onClickDeleteTopic(subsubTopic)">
+                                <i class="fas fa-trash"></i>
+                              </button>
+                            </div>
+                            {{subsubTopic.topicName}}
+                          </a>
+
+                          <div *ngIf="showTopicIds" style="margin: 0 10px; color: black;">
+                            (ID: {{subsubTopic.topicId}})
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="list-group collapse" [class.show]="!isCollapsed(subsubTopic.topicId)">
+                        <div *ngFor="let subsubsubTopic of subsubTopic.subTopics">
+                          <div class="list-group-item list-group-item-default"
+                            style="background: #eff3ff; color: white;">
+                            <div style="display: flex; align-items: center;">
+                              <div [id]="subsubsubTopic.topicId" style="color: black; flex-grow: 1;">
+                                <div class="btn-group btn-group-sm" style="display: inline-block; margin: 0 5px;">
+                                  <button type="button" class="btn btn-warning"
+                                    (click)="onClickEditTopic(subsubsubTopic)">
+                                    <i class="fas fa-pencil-alt"></i>
+                                  </button>
+                                  <button type="button" class="btn btn-danger"
+                                    (click)="onClickDeleteTopic(subsubsubTopic)">
+                                    <i class="fas fa-trash"></i>
+                                  </button>
+                                </div>
+                                {{subsubsubTopic.topicName}}
+                              </div>
+
+                              <div *ngIf="showTopicIds" style="margin: 0 10px; color: black;">
+                                (ID: {{subsubsubTopic.topicId}})
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- Add sub-sub-sub-topic form -->
+                        <div class="list-group-item list-group-item-success"
+                          *ngIf="!isCollapsed(subsubTopic.topicId)"
+                          style="border-top: double;">
+                          <form role="form" class="form-group" data-toggle="validator"
+                            style="margin-bottom: 0px;">
+                            <div class="row">
+                              <div class="col-md-3">
+                                <button class="btn btn-success btn-sm"
+                                  (click)="onAddSubSubSubTopic(subsubTopic, 'indicator')"
+                                  [disabled]="!subsubTopic.newSubTopicTitle_indicator || !subsubTopic.newSubTopicDescription_indicator">
+                                  <i class="fas fa-plus"></i> &nbsp; &nbsp;
+                                  Unterthema hinzufügen
+                                </button>
+                              </div>
+                              <div class="col-md-4">
+                                <input style="width:100%;" class="form-control"
+                                  type="text" placeholder="Titel des Unterthemas"
+                                  [(ngModel)]="subsubTopic.newSubTopicTitle_indicator"
+                                  name="newSubTopicTitle_indicator" required>
+                                <div class="help-block with-errors"></div>
+                              </div>
+                              <div class="col-md-5">
+                                <textarea style="width:100%;" rows="1"
+                                  class="form-control" type="text"
+                                  placeholder="Beschreibung des Unterthemas"
+                                  [(ngModel)]="subsubTopic.newSubTopicDescription_indicator"
+                                  name="newSubTopicDescription_indicator" required></textarea>
+                                <div class="help-block with-errors"></div>
+                              </div>
+                            </div>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Add sub-sub-topic form -->
+                    <div class="list-group-item list-group-item-success"
+                      style="border-top: double;">
+                      <form role="form" class="form-group" data-toggle="validator"
+                        style="margin-bottom: 0px;">
+                        <div class="row">
+                          <div class="col-md-3">
+                            <button class="btn btn-success btn-sm"
+                              (click)="onAddSubSubTopic(subTopic, 'indicator')"
+                              [disabled]="!subTopic.newSubTopicTitle_indicator || !subTopic.newSubTopicDescription_indicator">
+                              <i class="fas fa-plus"></i> &nbsp; &nbsp;
+                              Unterthema hinzufügen
+                            </button>
+                          </div>
+                          <div class="col-md-4">
+                            <input style="width:100%;" class="form-control"
+                              type="text" placeholder="Titel des Unterthemas"
+                              [(ngModel)]="subTopic.newSubTopicTitle_indicator"
+                              name="newSubTopicTitle_indicator" required>
+                            <div class="help-block with-errors"></div>
+                          </div>
+                          <div class="col-md-5">
+                            <textarea style="width:100%;" rows="1"
+                              class="form-control" type="text"
+                              placeholder="Beschreibung des Unterthemas"
+                              [(ngModel)]="subTopic.newSubTopicDescription_indicator"
+                              name="newSubTopicDescription_indicator" required></textarea>
+                            <div class="help-block with-errors"></div>
+                          </div>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Add sub-topic form -->
+                <div class="list-group-item list-group-item-success"
+                  style="border-top: double;">
+                  <form role="form" class="form-group" data-toggle="validator"
+                    style="margin-bottom: 0px;">
+                    <div class="row">
+                      <div class="col-md-3">
+                        <button class="btn btn-success btn-sm"
+                          (click)="onAddSubTopic(mainTopic, 'indicator')"
+                          [disabled]="!mainTopic.newSubTopicTitle_indicator || !mainTopic.newSubTopicDescription_indicator">
+                          <i class="fas fa-plus"></i> &nbsp; &nbsp;
+                          Unterthema hinzufügen
+                        </button>
+                      </div>
+                      <div class="col-md-4">
+                        <input style="width:100%;" class="form-control"
+                          type="text" placeholder="Titel des Unterthemas"
+                          [(ngModel)]="mainTopic.newSubTopicTitle_indicator"
+                          name="newSubTopicTitle_indicator" required>
+                        <div class="help-block with-errors"></div>
+                      </div>
+                      <div class="col-md-5">
+                        <textarea style="width:100%;" rows="1"
+                          class="form-control" type="text"
+                          placeholder="Beschreibung des Unterthemas"
+                          [(ngModel)]="mainTopic.newSubTopicDescription_indicator"
+                          name="newSubTopicDescription_indicator" required></textarea>
+                        <div class="help-block with-errors"></div>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+
+            <!-- Add main topic form -->
+            <div class="list-group-item list-group-item-success" style="border-top: double;">
+              <form role="form" class="form-group" data-toggle="validator"
+                style="margin-bottom: 0px;">
+                <div class="row">
+                  <div class="col-md-3">
+                    <button class="btn btn-success btn-sm"
+                      (click)="onAddMainTopic('indicator')"
+                      [disabled]="!newMainTopicTitle_indicator || !newMainTopicDescription_indicator">
+                      <i class="fas fa-plus"></i> &nbsp; &nbsp;
+                      Hauptthema hinzufügen
+                    </button>
+                  </div>
+                  <div class="col-md-4">
+                    <input style="width:100%;" class="form-control"
+                      type="text" placeholder="Titel des Hauptthemas"
+                      [(ngModel)]="newMainTopicTitle_indicator"
+                      name="newMainTopicTitle_indicator" required>
+                    <div class="help-block with-errors"></div>
+                  </div>
+                  <div class="col-md-5">
+                    <textarea style="width:100%;" rows="1"
+                      class="form-control" type="text"
+                      placeholder="Beschreibung des Hauptthemas"
+                      [(ngModel)]="newMainTopicDescription_indicator"
+                      name="newMainTopicDescription_indicator" required></textarea>
+                    <div class="help-block with-errors"></div>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Georesource Topics Section -->
+    <div class="box box-primary" id="georesourceTopicsManagement">
+      <div class="box-header with-border">
+        <h3 class="box-title">Themenhierarchie - Georessourcen</h3>
+        <div class="box-tools pull-right">
+          <button type="button" class="btn btn-box-tool" data-widget="collapse">
+            <i class="fa fa-minus"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="box-body">
+        <div class="just-padding">
+          <div class="list-group list-group-root well">
+            <div *ngFor="let mainTopic of filteredGeoresourceTopics">
+              <div class="list-group-item list-group-item-default" style="background: #2171b5; color: white;">
+                <div style="display: flex; align-items: center;">
+                  <a [id]="mainTopic.topicId" href="" [title]="mainTopic.topicDescription"
+                    class="collapseTrigger" style="color: white; flex-grow: 1;"
+                    (click)="toggleCollapse(mainTopic.topicId, $event)"
+                    [attr.data-init]="true">
+                    <i class="glyphicon" [class.glyphicon-chevron-right]="isCollapsed(mainTopic.topicId)" [class.glyphicon-chevron-down]="!isCollapsed(mainTopic.topicId)"></i>
+                    <div class="btn-group btn-group-sm" style="display: inline-block; margin: 0 5px;">
+                      <button type="button" class="btn btn-warning" (click)="onClickEditTopic(mainTopic)">
+                        <i class="fas fa-pencil-alt"></i>
+                      </button>
+                      <button type="button" class="btn btn-danger" (click)="onClickDeleteTopic(mainTopic)">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </div>
+                    {{mainTopic.topicName}}
+                  </a>
+
+                  <div *ngIf="showTopicIds" style="margin: 0 10px;">
+                    (ID: {{mainTopic.topicId}})
+                  </div>
+                </div>
+              </div>
+
+              <div class="list-group collapse" [class.show]="!isCollapsed(mainTopic.topicId)">
+                <div *ngFor="let subTopic of mainTopic.subTopics">
+                  <div class="list-group-item list-group-item-default"
+                    style="background: #6baed6; color: white;">
+                    <div style="display: flex; align-items: center;">
+                      <a [id]="subTopic.topicId" class="collapseTrigger" style="color: white; flex-grow: 1;"
+                        [title]="subTopic.topicDescription" href=""
+                        (click)="toggleCollapse(subTopic.topicId, $event)"
+                        [attr.data-init]="true">
+                        <i class="glyphicon" [class.glyphicon-chevron-right]="isCollapsed(subTopic.topicId)" [class.glyphicon-chevron-down]="!isCollapsed(subTopic.topicId)"></i>
+                        <div class="btn-group btn-group-sm" style="display: inline-block; margin: 0 5px;">
+                          <button type="button" class="btn btn-warning"
+                            (click)="onClickEditTopic(subTopic)">
+                            <i class="fas fa-pencil-alt"></i>
+                          </button>
+                          <button type="button" class="btn btn-danger"
+                            (click)="onClickDeleteTopic(subTopic)">
+                            <i class="fas fa-trash"></i>
+                          </button>
+                        </div>
+                        {{subTopic.topicName}}
+                      </a>
+
+                      <div *ngIf="showTopicIds" style="margin: 0 10px;">
+                        (ID: {{subTopic.topicId}})
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="list-group collapse" [class.show]="!isCollapsed(subTopic.topicId)">
+                    <div *ngFor="let subsubTopic of subTopic.subTopics">
+                      <div class="list-group-item list-group-item-default"
+                        style="background: #bdd7e7; color: white;">
+                        <div style="display: flex; align-items: center;">
+                          <a [id]="subsubTopic.topicId" class="collapseTrigger" style="color: black; flex-grow: 1;"
+                            [title]="subsubTopic.topicDescription" href=""
+                            (click)="toggleCollapse(subsubTopic.topicId, $event)"
+                            [attr.data-init]="true">
+                            <i class="glyphicon" [class.glyphicon-chevron-right]="isCollapsed(subsubTopic.topicId)" [class.glyphicon-chevron-down]="!isCollapsed(subsubTopic.topicId)"></i>
+                            <div class="btn-group btn-group-sm" style="display: inline-block; margin: 0 5px;">
+                              <button type="button" class="btn btn-warning"
+                                (click)="onClickEditTopic(subsubTopic)">
+                                <i class="fas fa-pencil-alt"></i>
+                              </button>
+                              <button type="button" class="btn btn-danger"
+                                (click)="onClickDeleteTopic(subsubTopic)">
+                                <i class="fas fa-trash"></i>
+                              </button>
+                            </div>
+                            {{subsubTopic.topicName}}
+                          </a>
+
+                          <div *ngIf="showTopicIds" style="margin: 0 10px; color: black;">
+                            (ID: {{subsubTopic.topicId}})
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="list-group collapse" [class.show]="!isCollapsed(subsubTopic.topicId)">
+                        <div *ngFor="let subsubsubTopic of subsubTopic.subTopics">
+                          <div class="list-group-item list-group-item-default"
+                            style="background: #eff3ff; color: white;">
+                            <div style="display: flex; align-items: center;">
+                              <div [id]="subsubsubTopic.topicId" style="color: black; flex-grow: 1;">
+                                <div class="btn-group btn-group-sm" style="display: inline-block; margin: 0 5px;">
+                                  <button type="button" class="btn btn-warning"
+                                    (click)="onClickEditTopic(subsubsubTopic)">
+                                    <i class="fas fa-pencil-alt"></i>
+                                  </button>
+                                  <button type="button" class="btn btn-danger"
+                                    (click)="onClickDeleteTopic(subsubsubTopic)">
+                                    <i class="fas fa-trash"></i>
+                                  </button>
+                                </div>
+                                {{subsubsubTopic.topicName}}
+                              </div>
+
+                              <div *ngIf="showTopicIds" style="margin: 0 10px; color: black;">
+                                (ID: {{subsubsubTopic.topicId}})
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- Add sub-sub-sub-topic form -->
+                        <div class="list-group-item list-group-item-success"
+                          *ngIf="!isCollapsed(subsubTopic.topicId)"
+                          style="border-top: double;">
+                          <form role="form" class="form-group" data-toggle="validator"
+                            style="margin-bottom: 0px;">
+                            <div class="row">
+                              <div class="col-md-3">
+                                <button class="btn btn-success btn-sm"
+                                  (click)="onAddSubSubSubTopic(subsubTopic, 'georesource')"
+                                  [disabled]="!subsubTopic.newSubTopicTitle_georesource || !subsubTopic.newSubTopicDescription_georesource">
+                                  <i class="fas fa-plus"></i> &nbsp; &nbsp;
+                                  Unterthema hinzufügen
+                                </button>
+                              </div>
+                              <div class="col-md-4">
+                                <input style="width:100%;" class="form-control"
+                                  type="text" placeholder="Titel des Unterthemas"
+                                  [(ngModel)]="subsubTopic.newSubTopicTitle_georesource"
+                                  name="newSubTopicTitle_georesource" required>
+                                <div class="help-block with-errors"></div>
+                              </div>
+                              <div class="col-md-5">
+                                <textarea style="width:100%;" rows="1"
+                                  class="form-control" type="text"
+                                  placeholder="Beschreibung des Unterthemas"
+                                  [(ngModel)]="subsubTopic.newSubTopicDescription_georesource"
+                                  name="newSubTopicDescription_georesource" required></textarea>
+                                <div class="help-block with-errors"></div>
+                              </div>
+                            </div>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Add sub-sub-topic form -->
+                    <div class="list-group-item list-group-item-success"
+                      style="border-top: double;">
+                      <form role="form" class="form-group" data-toggle="validator"
+                        style="margin-bottom: 0px;">
+                        <div class="row">
+                          <div class="col-md-3">
+                            <button class="btn btn-success btn-sm"
+                              (click)="onAddSubSubTopic(subTopic, 'georesource')"
+                              [disabled]="!subTopic.newSubTopicTitle_georesource || !subTopic.newSubTopicDescription_georesource">
+                              <i class="fas fa-plus"></i> &nbsp; &nbsp;
+                              Unterthema hinzufügen
+                            </button>
+                          </div>
+                          <div class="col-md-4">
+                            <input style="width:100%;" class="form-control"
+                              type="text" placeholder="Titel des Unterthemas"
+                              [(ngModel)]="subTopic.newSubTopicTitle_georesource"
+                              name="newSubTopicTitle_georesource" required>
+                            <div class="help-block with-errors"></div>
+                          </div>
+                          <div class="col-md-5">
+                            <textarea style="width:100%;" rows="1"
+                              class="form-control" type="text"
+                              placeholder="Beschreibung des Unterthemas"
+                              [(ngModel)]="subTopic.newSubTopicDescription_georesource"
+                              name="newSubTopicDescription_georesource" required></textarea>
+                            <div class="help-block with-errors"></div>
+                          </div>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Add sub-topic form -->
+                <div class="list-group-item list-group-item-success"
+                  style="border-top: double;">
+                  <form role="form" class="form-group" data-toggle="validator"
+                    style="margin-bottom: 0px;">
+                    <div class="row">
+                      <div class="col-md-3">
+                        <button class="btn btn-success btn-sm"
+                          (click)="onAddSubTopic(mainTopic, 'georesource')"
+                          [disabled]="!mainTopic.newSubTopicTitle_georesource || !mainTopic.newSubTopicDescription_georesource">
+                          <i class="fas fa-plus"></i> &nbsp; &nbsp;
+                          Unterthema hinzufügen
+                        </button>
+                      </div>
+                      <div class="col-md-4">
+                        <input style="width:100%;" class="form-control"
+                          type="text" placeholder="Titel des Unterthemas"
+                          [(ngModel)]="mainTopic.newSubTopicTitle_georesource"
+                          name="newSubTopicTitle_georesource" required>
+                        <div class="help-block with-errors"></div>
+                      </div>
+                      <div class="col-md-5">
+                        <textarea style="width:100%;" rows="1"
+                          class="form-control" type="text"
+                          placeholder="Beschreibung des Unterthemas"
+                          [(ngModel)]="mainTopic.newSubTopicDescription_georesource"
+                          name="newSubTopicDescription_georesource" required></textarea>
+                        <div class="help-block with-errors"></div>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+
+            <!-- Add main topic form -->
+            <div class="list-group-item list-group-item-success" style="border-top: double;">
+              <form role="form" class="form-group" data-toggle="validator"
+                style="margin-bottom: 0px;">
+                <div class="row">
+                  <div class="col-md-3">
+                    <button class="btn btn-success btn-sm"
+                      (click)="onAddMainTopic('georesource')"
+                      [disabled]="!newMainTopicTitle_georesource || !newMainTopicDescription_georesource">
+                      <i class="fas fa-plus"></i> &nbsp; &nbsp;
+                      Hauptthema hinzufügen
+                    </button>
+                  </div>
+                  <div class="col-md-4">
+                    <input style="width:100%;" class="form-control"
+                      type="text" placeholder="Titel des Hauptthemas"
+                      [(ngModel)]="newMainTopicTitle_georesource"
+                      name="newMainTopicTitle_georesource" required>
+                    <div class="help-block with-errors"></div>
+                  </div>
+                  <div class="col-md-5">
+                    <textarea style="width:100%;" rows="1"
+                      class="form-control" type="text"
+                      placeholder="Beschreibung des Hauptthemas"
+                      [(ngModel)]="newMainTopicDescription_georesource"
+                      name="newMainTopicDescription_georesource" required></textarea>
+                    <div class="help-block with-errors"></div>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Error Alert -->
+    <div id="topicsErrorAlert" class="alert alert-danger alert-dismissible" style="display: none;">
+      <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+      <h4><i class="icon fa fa-ban"></i> Fehler!</h4>
+      <div [innerHTML]="errorMessagePart"></div>
+    </div>
+  </section>
+</div> 

@@ -1334,6 +1334,7 @@ table, th, td {
 	overflow: auto !important; 
 }
 
+
 @media (min-width: 992px){
 	.modal-xl {
 			width: 1500px;

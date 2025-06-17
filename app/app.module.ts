@@ -1,4 +1,4 @@
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClient, HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 
 import { DoBootstrap, NgModule, Version, inject, Input, Inject, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
@@ -35,7 +35,7 @@ import {
   ajskommonitorScriptHelperServiceProvider} from 'app-upgraded-providers';
 import { KommonitorLegendComponent } from 'components/ngComponents/userInterface/kommonitorLegend/kommonitor-legend.component';
 import { NgbCalendar, NgbDatepickerModule, NgbDateStruct, NgbAccordionModule, NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { JsonPipe } from '@angular/common';
 import { KommonitorClassificationComponent } from './components/ngComponents/userInterface/kommonitorClassification/kommonitor-classification.component';
 import { KommonitorDataSetupComponent } from './components/ngComponents/userInterface/sidebar/kommonitorDataSetup/kommonitor-data-setup.component';
@@ -58,6 +58,12 @@ import { BaseIndicatorOfComputedIndicatorFilter } from 'pipes/base-indicator-of-
 import { BaseIndicatorOfHeadlineIndicatorFilter } from 'pipes/base-indicator-of-headline-indicator-filter.pipe';
 import { AuthService } from 'services/auth-service/auth.service';
 import { KommonitorReachabilityComponent } from './components/ngComponents/userInterface/sidebar/kommonitorReachability/kommonitor-reachability.component';
+
+import { AdminTopicsManagementComponent } from './components/ngComponents/admin/adminTopicsManagement/admin-topics-management.component';
+import { TopicEditModalComponent } from './components/ngComponents/admin/adminTopicsManagement/topicEditModal/topic-edit-modal.component';
+import { TopicDeleteModalComponent } from './components/ngComponents/admin/adminTopicsManagement/topicDeleteModal/topic-delete-modal.component';
+import { AuthInterceptor } from './util/interceptors/auth.interceptor';
+
 import { AdminAppConfigComponent } from './components/ngComponents/admin/adminConfig/adminAppConfig/admin-app-config.component';
 import { AdminControlsConfigComponent } from './components/ngComponents/admin/adminConfig/adminControlsConfig/admin-controls-config.component';
 import { AdminRoleExplanationComponent } from './components/ngComponents/admin/adminRoleExplanation/admin-role-explanation.component';
@@ -75,7 +81,8 @@ declare var MathJax;
     RouterModule.forRoot(routes , { useHash: true }),
     NgbDatepickerModule, 
     NgbAccordionModule,
-    FormsModule, 
+    FormsModule,
+    ReactiveFormsModule,
     HttpClientModule,
     JsonPipe,
     NouisliderModule,
@@ -105,6 +112,11 @@ declare var MathJax;
     ajskommonitorSingleFeatureMapHelperServiceProvider,
     ajskommonitorScriptHelperServiceProvider,
     NgbModule,
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true
+    },
     AuthService
   ],
   declarations: [
@@ -126,6 +138,9 @@ declare var MathJax;
     BaseIndicatorOfHeadlineIndicatorFilter,
     RegressionDiagramComponent,
     KommonitorReachabilityComponent,
+    AdminTopicsManagementComponent,
+    TopicEditModalComponent,
+    TopicDeleteModalComponent
     AdminAppConfigComponent,
     AdminControlsConfigComponent,
     AdminRoleExplanationComponent
@@ -203,6 +218,21 @@ export class AppModule implements DoBootstrap {
 
     angular.module('kommonitorUserInterface')
     .directive('kommonitorMapNew',  downgradeComponent({ component: KommonitorMapComponent }) as angular.IDirectiveFactory); */
+
+    angular.module('kommonitorAdmin')
+      .directive('adminTopicsManagementNew', downgradeComponent({ 
+        component: AdminTopicsManagementComponent 
+      }) as angular.IDirectiveFactory);
+
+    angular.module('kommonitorAdmin')
+      .directive('topicEditModalNew', downgradeComponent({ 
+        component: TopicEditModalComponent 
+      }) as angular.IDirectiveFactory);
+
+    angular.module('kommonitorAdmin')
+      .directive('topicDeleteModalNew', downgradeComponent({ 
+        component: TopicDeleteModalComponent 
+      }) as angular.IDirectiveFactory);
 
     console.log("registered downgraded Angular components for AngularJS usage");
   }
