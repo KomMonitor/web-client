@@ -64,6 +64,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 		const mercatorProjection_d3 = d3.geoMercator();
 
 		$scope.loadingData = false;
+		$scope.lastPageOfAddedSectionPrepared = false;
 		$scope.echartsImgPixelRatio = 2;
 
     $scope.customFontFamily = undefined;
@@ -391,162 +392,186 @@ angular.module('reportingOverview').component('reportingOverview', {
 			}
 		});
 
-		$scope.setupNewPages = function(templateSection) {
+		$scope.setupNewPages = async function(templateSection) {
 
-			$timeout(async function(templateSection) {
+			$scope.lastPageOfAddedSectionPrepared = false;
+			$scope.lastPageOfAddedSectionPrepared = false;
+			$scope.pagePreparationIndex = 0;
+			$scope.pagePreparationSize = $scope.config.pages.length;
+
+			$timeout(function () {
+				$scope.$digest();
+			}, 500);
+
 				if(!templateSection.poiLayerName) {
 
 					// for indicator without poi layer
 					let indicatorId = templateSection.indicatorId;
 					let spatialUnit, featureCollection, features, geoJSON;
-					let isFirstPageToAdd = true;
+					
+					spatialUnit = await $scope.getSpatialUnitByIndicator(indicatorId, templateSection.spatialUnitName)
+					$scope.currentSpatialUnit = spatialUnit;
+					featureCollection = await $scope.queryFeatures(indicatorId, spatialUnit);
+					features = $scope.createLowerCaseNameProperty(featureCollection.features);
+
+					$scope.geoJsonForReachability_byFeatureName = new Map();
+
+					for (let feature of features) {
+						$scope.geoJsonForReachability_byFeatureName.set(feature.properties.NAME, feature)
+					}
+
+					$scope.geoJsonForReachability_byFeatureName.set("undefined", features);
+
+					geoJSON = { features: features };
+
 					for(let [idx, page] of $scope.config.pages.entries()) {
 
 						if(page.templateSection.indicatorId !== indicatorId) {
-							continue; // only do changes to new pages
-						} else {
-							// Indicator and spatial unit are the same for all added pages
-							// We only need to query features on the first page that we add
-							if(isFirstPageToAdd) {
-								isFirstPageToAdd = false;
-								spatialUnit = await $scope.getSpatialUnitByIndicator(indicatorId, page.templateSection.spatialUnitName)	
-								$scope.currentSpatialUnit = spatialUnit;					
-								featureCollection = await $scope.queryFeatures(indicatorId, spatialUnit);
-								features = $scope.createLowerCaseNameProperty(featureCollection.features);
-
-								$scope.geoJsonForReachability_byFeatureName = new Map();
-
-								for(let feature of features) {
-									$scope.geoJsonForReachability_byFeatureName.set(feature.properties.NAME, feature)
-								}	
-
-								$scope.geoJsonForReachability_byFeatureName.set("undefined", features);
-								
-								geoJSON = { features: features };
-
-							}
+								continue; // only do changes to new pages
 						}
 
-						let pageDom = document.querySelector("#reporting-overview-page-" + idx);
-						for(let pageElement of page.pageElements) {
-							// usually each type is included only once per page, but there is an exception for linecharts in area specific part of timeseries template
-							// for now we more or less hardcode this, but it might have to change in the future
-							let pElementDom;
-							if(pageElement.type === "linechart") {
-								let arr = pageDom.querySelectorAll(".type-linechart");
-								if(pageElement.showPercentageChangeToPrevTimestamp) {
-									pElementDom = arr[1];
+						$timeout(async function(){
+							// Indicator and spatial unit are the same for all added pages								
+
+							let pageDom = document.querySelector("#reporting-overview-page-" + idx);
+							for(let pageElement of page.pageElements) {
+								// usually each type is included only once per page, but there is an exception for linecharts in area specific part of timeseries template
+								// for now we more or less hardcode this, but it might have to change in the future
+								let pElementDom;
+								if(pageElement.type === "linechart") {
+									let arr = pageDom.querySelectorAll(".type-linechart");
+									if(pageElement.showPercentageChangeToPrevTimestamp) {
+										pElementDom = arr[1];
+									} else {
+										pElementDom = arr[0];
+									}
 								} else {
-									pElementDom = arr[0];
+									pElementDom = pageDom.querySelector("#reporting-overview-page-" + idx + "-" + pageElement.type)
 								}
-							} else {
-								pElementDom = pageDom.querySelector("#reporting-overview-page-" + idx + "-" + pageElement.type)
+								
+								// recreate boxplots, itemNameFormatter did not get transferred
+								if(pageElement.type === "linechart" && pageElement.showBoxplots) {
+									let xAxisLabels = pageElement.echartsOptions.xAxis[0].data;
+									pageElement.echartsOptions.dataset[1].transform.config = {
+										itemNameFormatter: function (params) {
+											return xAxisLabels[params.value];
+										}
+									}
+								}
+
+								if(pageElement.type === "map" || pageElement.type === "barchart" || pageElement.type === "linechart") {
+									let instance = echarts.init( pElementDom );
+
+
+									if(pageElement.type === "map") {	
+										
+										for(let series of pageElement.echartsOptions.series) {
+
+											series.left = 0;
+											series.top = 0;
+											series.right = 0;
+											series.bottom = 0;
+											// series.boundingCoords = boundingCoords,
+											series.projection = {
+												project: (point) => mercatorProjection_d3(point),
+												unproject: (point) => mercatorProjection_d3.invert(point)
+											}
+										}
+						
+										if(pageElement.echartsOptions.geo){
+											pageElement.echartsOptions.geo[0].top = 0;
+											pageElement.echartsOptions.geo[0].left = 0;
+											pageElement.echartsOptions.geo[0].right = 0;
+											pageElement.echartsOptions.geo[0].bottom = 0;
+											pageElement.echartsOptions.geo[0].projection = {
+												project: (point) => mercatorProjection_d3(point),
+												unproject: (point) => mercatorProjection_d3.invert(point)
+											}				
+											// pageElement.echartsOptions.geo[0].boundingCoords = boundingCoords
+										}
+										
+										if(page.area && page.area.length) {
+											// at this point we have not yet set echarts options, so we provide them as an extra parameter
+											$scope.filterMapByArea(instance, pageElement.echartsOptions, page.area, geoJSON.features)
+										} else {
+											// recreate label positions
+											pageElement.echartsOptions.labelLayout = function(feature) {
+												// Set fixed position for labels that were previously dragged by user
+												// For all other labels try to avoid overlaps
+												let names = page.templateSection.absoluteLabelPositions.map(el=>el.name)
+												let text = feature.text.split("\n")[0] // area name is the first line
+												if(names.includes(text)) {
+													let idx = names.indexOf(text)
+													return {
+														x: page.templateSection.absoluteLabelPositions[idx].x,
+														y: page.templateSection.absoluteLabelPositions[idx].y,
+														draggable: false // Don't allow label dragging in overview, we could have different spatial units here
+													}
+												} else {
+													return {
+														moveOverlap: 'shiftY',
+														x: feature.rect.x + feature.rect.width / 2,
+														draggable: false
+													}
+												}	
+											}
+										}
+										
+									}
+
+									instance.setOption(pageElement.echartsOptions)
+
+									if(pageElement.type === "map") {
+										await $scope.initializeLeafletMap(page, pageElement, instance, spatialUnit, false)
+									}
+								}
+
+								// if(pageElement.type === "overallAverage") {
+								// 	pageDom.querySelector(".type-overallAverage").style.border = "none";
+								// }
+		
+								// if(pageElement.type === "selectionAverage") {
+								// 	pageDom.querySelector(".type-selectionAverage").style.border = "none";
+								// }
+
+								if(pageElement.type === "mapLegend") {
+									pageElement.isPlaceholder = false;
+									pageDom.querySelector(".type-mapLegend").style.display = "none";
+								}
+
+								// if(pageElement.type === "overallChange") {
+								// 	let wrapper = pageDom.querySelector(".type-overallChange")
+								// 	wrapper.style.border = "none";
+								// }
+
+								// if(pageElement.type === "selectionChange") {
+								// 	let wrapper = pageDom.querySelector(".type-selectionChange")
+								// 	wrapper.style.border = "none";
+								// }
+
+								if(pageElement.type === "datatable") {
+									$scope.createDatatablePage(pElementDom, pageElement);
+								}
+							}
+
+							// if the last page is reached and full prepared we want to show that to the user
+							// wait additionally for 500 ms
+							$scope.pagePreparationIndex = idx;
+
+							$timeout(function(){
+									$scope.$digest();
+								});
+
+							if(idx == $scope.config.pages.length - 1){
+								$scope.lastPageOfAddedSectionPrepared = true;
+								$timeout(function(){
+									$scope.$digest();
+								}, 1000);
 							}
 							
-							// recreate boxplots, itemNameFormatter did not get transferred
-							if(pageElement.type === "linechart" && pageElement.showBoxplots) {
-								let xAxisLabels = pageElement.echartsOptions.xAxis[0].data;
-								pageElement.echartsOptions.dataset[1].transform.config = {
-									itemNameFormatter: function (params) {
-										return xAxisLabels[params.value];
-									}
-								}
-							}
+						});
 
-							if(pageElement.type === "map" || pageElement.type === "barchart" || pageElement.type === "linechart") {
-								let instance = echarts.init( pElementDom );
-
-
-								if(pageElement.type === "map") {	
-									
-									for(let series of pageElement.echartsOptions.series) {
-
-										series.left = 0;
-										series.top = 0;
-										series.right = 0;
-										series.bottom = 0;
-										// series.boundingCoords = boundingCoords,
-										series.projection = {
-											project: (point) => mercatorProjection_d3(point),
-											unproject: (point) => mercatorProjection_d3.invert(point)
-										}
-									}
-					
-									if(pageElement.echartsOptions.geo){
-										pageElement.echartsOptions.geo[0].top = 0;
-										pageElement.echartsOptions.geo[0].left = 0;
-										pageElement.echartsOptions.geo[0].right = 0;
-										pageElement.echartsOptions.geo[0].bottom = 0;
-										pageElement.echartsOptions.geo[0].projection = {
-											project: (point) => mercatorProjection_d3(point),
-											unproject: (point) => mercatorProjection_d3.invert(point)
-										}				
-										// pageElement.echartsOptions.geo[0].boundingCoords = boundingCoords
-									}
-									
-									if(page.area && page.area.length) {
-										// at this point we have not yet set echarts options, so we provide them as an extra parameter
-										$scope.filterMapByArea(instance, pageElement.echartsOptions, page.area, geoJSON.features)
-									} else {
-										// recreate label positions
-										pageElement.echartsOptions.labelLayout = function(feature) {
-											// Set fixed position for labels that were previously dragged by user
-											// For all other labels try to avoid overlaps
-											let names = page.templateSection.absoluteLabelPositions.map(el=>el.name)
-											let text = feature.text.split("\n")[0] // area name is the first line
-											if(names.includes(text)) {
-												let idx = names.indexOf(text)
-												return {
-													x: page.templateSection.absoluteLabelPositions[idx].x,
-													y: page.templateSection.absoluteLabelPositions[idx].y,
-													draggable: false // Don't allow label dragging in overview, we could have different spatial units here
-												}
-											} else {
-												return {
-													moveOverlap: 'shiftY',
-													x: feature.rect.x + feature.rect.width / 2,
-													draggable: false
-												}
-											}	
-										}
-									}
-									
-								}
-
-								instance.setOption(pageElement.echartsOptions)
-
-								if(pageElement.type === "map") {
-									await $scope.initializeLeafletMap(page, pageElement, instance, spatialUnit, false)
-								}
-							}
-
-							// if(pageElement.type === "overallAverage") {
-							// 	pageDom.querySelector(".type-overallAverage").style.border = "none";
-							// }
-	
-							// if(pageElement.type === "selectionAverage") {
-							// 	pageDom.querySelector(".type-selectionAverage").style.border = "none";
-							// }
-
-							if(pageElement.type === "mapLegend") {
-								pageElement.isPlaceholder = false;
-								pageDom.querySelector(".type-mapLegend").style.display = "none";
-							}
-
-							// if(pageElement.type === "overallChange") {
-							// 	let wrapper = pageDom.querySelector(".type-overallChange")
-							// 	wrapper.style.border = "none";
-							// }
-
-							// if(pageElement.type === "selectionChange") {
-							// 	let wrapper = pageDom.querySelector(".type-selectionChange")
-							// 	wrapper.style.border = "none";
-							// }
-
-							if(pageElement.type === "datatable") {
-								$scope.createDatatablePage(pElementDom, pageElement);
-							}
-						}
+						
 					}
 					$scope.loadingData = false;
 					$timeout(function(){
@@ -555,7 +580,6 @@ angular.module('reportingOverview').component('reportingOverview', {
 				} else {
 					$scope.handleSetupNewPagesForReachability(templateSection)
 				}
-			}, 0, false, templateSection);
 		}
 
 		
@@ -567,102 +591,113 @@ angular.module('reportingOverview').component('reportingOverview', {
 			if( templateSection.indicatorId) {
 				indicatorId = templateSection.indicatorId;
 			}
-			let isFirstPageToAdd = true;
+			
+			if (indicatorId) {
+				spatialUnit = await $scope.getSpatialUnitByIndicator(indicatorId, templateSection.spatialUnitName);
+				featureCollection = await $scope.queryFeatures(indicatorId, spatialUnit);
+			} else {
+				spatialUnit = await $scope.getSpatialUnitByName(templateSection.spatialUnitName);
+				featureCollection = await $scope.queryFeatures(undefined, spatialUnit);
+			}
+
+			features = $scope.createLowerCaseNameProperty(featureCollection.features);
+			geoJSON = { features: features };
+
+			$scope.geoJsonForReachability_byFeatureName = new Map();
+
+			for (let feature of features) {
+				$scope.geoJsonForReachability_byFeatureName.set(feature.properties.NAME, feature)
+			}
+
+			$scope.geoJsonForReachability_byFeatureName.set("undefined", features);		
+
 			for(let [idx, page] of $scope.config.pages.entries()) {
 
 				if(page.templateSection.poiLayerName !== poiLayerName) {
 					continue; // only do changes to new pages
-				} else {
-					// PoiLayer, Indicator and spatial unit are the same for all added pages
-					// We only need to query features on the first page that we add
-					if(isFirstPageToAdd) {
-						isFirstPageToAdd = false;
-						if(indicatorId) {
-							spatialUnit = await $scope.getSpatialUnitByIndicator(indicatorId, page.templateSection.spatialUnitName);
-							featureCollection = await $scope.queryFeatures(indicatorId, spatialUnit);
-						} else {
-							spatialUnit = await $scope.getSpatialUnitByName(page.templateSection.spatialUnitName);
-							featureCollection = await $scope.queryFeatures(undefined, spatialUnit);
-						}
-						
-						features = $scope.createLowerCaseNameProperty(featureCollection.features);
-						geoJSON = { features: features };
-
-						$scope.geoJsonForReachability_byFeatureName = new Map();
-
-						for(let feature of features) {
-							$scope.geoJsonForReachability_byFeatureName.set(feature.properties.NAME, feature)
-						}	
-						
-						$scope.geoJsonForReachability_byFeatureName.set("undefined", features);
-
-					}
 				}
 
-				let pageDom = document.querySelector("#reporting-overview-page-" + idx);
-				for(let pageElement of page.pageElements) {
-					let pElementDom = pageDom.querySelector("#reporting-overview-page-" + idx + "-" + pageElement.type)
+				$timeout(async function(){
+					let pageDom = document.querySelector("#reporting-overview-page-" + idx);
+					for(let pageElement of page.pageElements) {
+						let pElementDom = pageDom.querySelector("#reporting-overview-page-" + idx + "-" + pageElement.type)
 
-					if(pageElement.type === "map") {
-						let instance = echarts.init( pElementDom );
+						if(pageElement.type === "map") {
+							let instance = echarts.init( pElementDom );
 
-						for(let series of pageElement.echartsOptions.series) {
+							for(let series of pageElement.echartsOptions.series) {
 
-							series.left = 0;
-							series.top = 0;
-							series.right = 0;
-							series.bottom = 0;
-							// series.boundingCoords = newBounds,
-							series.projection = {
-								project: (point) => mercatorProjection_d3(point),
-								unproject: (point) => mercatorProjection_d3.invert(point)
+								series.left = 0;
+								series.top = 0;
+								series.right = 0;
+								series.bottom = 0;
+								// series.boundingCoords = newBounds,
+								series.projection = {
+									project: (point) => mercatorProjection_d3(point),
+									unproject: (point) => mercatorProjection_d3.invert(point)
+								}
 							}
-						}
-		
-						if(pageElement.echartsOptions.geo){
-							pageElement.echartsOptions.geo[0].top = 0;
-							pageElement.echartsOptions.geo[0].left = 0;
-							pageElement.echartsOptions.geo[0].right = 0;
-							pageElement.echartsOptions.geo[0].bottom = 0;
-							pageElement.echartsOptions.geo[0].projection = {
-								project: (point) => mercatorProjection_d3(point),
-								unproject: (point) => mercatorProjection_d3.invert(point)
-							}				
-							// pageElement.echartsOptions.geo[0].boundingCoords = newBounds
-						}
-
-						if(page.area && page.area.length) {
-							// at this point we have not yet set echarts options, so we provide them as an extra parameter
-							$scope.filterMapByArea(instance, pageElement.echartsOptions, page.area, geoJSON.features)
-						} else {
-							// recreate label positions
-							pageElement.echartsOptions.labelLayout = function(feature) {
-								// Set fixed position for labels that were previously dragged by user
-								// For all other labels try to avoid overlaps
-								let names = page.templateSection.absoluteLabelPositions.map(el=>el.name)
-								let text = feature.text.split("\n")[0] // area name is the first line
-								if(names.includes(text)) {
-									let idx = names.indexOf(text)
-									return {
-										x: page.templateSection.absoluteLabelPositions[idx].x,
-										y: page.templateSection.absoluteLabelPositions[idx].y,
-										draggable: false // Don't allow label dragging in overview, we could have different spatial units here
-									}
-								} else {
-									return {
-										moveOverlap: 'shiftY',
-										x: feature.rect.x + feature.rect.width / 2,
-										draggable: false
-									}
-								}	
+			
+							if(pageElement.echartsOptions.geo){
+								pageElement.echartsOptions.geo[0].top = 0;
+								pageElement.echartsOptions.geo[0].left = 0;
+								pageElement.echartsOptions.geo[0].right = 0;
+								pageElement.echartsOptions.geo[0].bottom = 0;
+								pageElement.echartsOptions.geo[0].projection = {
+									project: (point) => mercatorProjection_d3(point),
+									unproject: (point) => mercatorProjection_d3.invert(point)
+								}				
+								// pageElement.echartsOptions.geo[0].boundingCoords = newBounds
 							}
+
+							if(page.area && page.area.length) {
+								// at this point we have not yet set echarts options, so we provide them as an extra parameter
+								$scope.filterMapByArea(instance, pageElement.echartsOptions, page.area, geoJSON.features)
+							} else {
+								// recreate label positions
+								pageElement.echartsOptions.labelLayout = function(feature) {
+									// Set fixed position for labels that were previously dragged by user
+									// For all other labels try to avoid overlaps
+									let names = page.templateSection.absoluteLabelPositions.map(el=>el.name)
+									let text = feature.text.split("\n")[0] // area name is the first line
+									if(names.includes(text)) {
+										let idx = names.indexOf(text)
+										return {
+											x: page.templateSection.absoluteLabelPositions[idx].x,
+											y: page.templateSection.absoluteLabelPositions[idx].y,
+											draggable: false // Don't allow label dragging in overview, we could have different spatial units here
+										}
+									} else {
+										return {
+											moveOverlap: 'shiftY',
+											x: feature.rect.x + feature.rect.width / 2,
+											draggable: false
+										}
+									}	
+								}
+							}
+
+							instance.setOption( pageElement.echartsOptions )
+
+							await $scope.initializeLeafletMap(page, pageElement, instance, spatialUnit, false)
 						}
-
-						instance.setOption( pageElement.echartsOptions )
-
-						await $scope.initializeLeafletMap(page, pageElement, instance, spatialUnit, false)
 					}
-				}
+
+					// if the last page is reached and full prepared we want to show that to the user
+					// wait additionally for 500 ms
+					$scope.pagePreparationIndex = idx;
+					$timeout(function(){
+									$scope.$digest();
+								});
+
+					if (idx == $scope.config.pages.length - 1) {
+						$scope.lastPageOfAddedSectionPrepared = true;
+						$timeout(function () {
+							$scope.$digest();
+						}, 1000);
+					}
+				})
+
 			}
 			$scope.loadingData = false;
 			$timeout(function(){
@@ -678,7 +713,6 @@ angular.module('reportingOverview').component('reportingOverview', {
 		});
 
 		$scope.initializeLeafletMap = async function(page, pageElement, echartsMap, spatialUnit, forceScreenshot) {
-			await $timeout(async function(page, pageElement, echartsMap, spatialUnit) {
 				try {
 					let pageIdx = $scope.config.pages.indexOf(page);
 					let id = "reporting-overview-leaflet-map-container-" + pageIdx;
@@ -874,10 +908,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 					//isochronesLayer.addTo(leafletMap);
 				} catch (error) {
 					console.error(error)
-				}
-				
-
-			}, 0, false, page, pageElement, echartsMap, spatialUnit)
+				}				
 		}
 
 		$scope.getSpatialUnitByName = async function(spatialUnitName) {
