@@ -395,13 +395,12 @@ angular.module('reportingOverview').component('reportingOverview', {
 		$scope.setupNewPages = async function(templateSection) {
 
 			$scope.lastPageOfAddedSectionPrepared = false;
-			$scope.lastPageOfAddedSectionPrepared = false;
 			$scope.pagePreparationIndex = 0;
 			$scope.pagePreparationSize = $scope.config.pages.length;
 
 			$timeout(function () {
 				$scope.$digest();
-			}, 500);
+			});
 
 				if(!templateSection.poiLayerName) {
 
