@@ -394,14 +394,6 @@ angular.module('reportingOverview').component('reportingOverview', {
 
 		$scope.setupNewPages = async function(templateSection) {
 
-			$scope.lastPageOfAddedSectionPrepared = false;
-			$scope.pagePreparationIndex = 0;
-			$scope.pagePreparationSize = $scope.config.pages.length;
-
-			$timeout(function () {
-				$scope.$digest();
-			});
-
 				if(!templateSection.poiLayerName) {
 
 					// for indicator without poi layer
@@ -422,6 +414,15 @@ angular.module('reportingOverview').component('reportingOverview', {
 					$scope.geoJsonForReachability_byFeatureName.set("undefined", features);
 
 					geoJSON = { features: features };
+
+					$scope.lastPageOfAddedSectionPrepared = false;
+					$scope.pagePreparationIndex = 0;
+					// $scope.pagePreparationSize = $scope.config.pages.length; 
+					$scope.pagePreparationSize = document.querySelectorAll("[id^='reporting-overview-page-'].reporting-page").length;
+
+					$timeout(function () {
+						$scope.$digest();
+					});
 
 					for(let [idx, page] of $scope.config.pages.entries()) {
 
@@ -561,7 +562,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 									$scope.$digest();
 								});
 
-							if(idx == $scope.config.pages.length - 1){
+							if(idx == $scope.pagePreparationSize - 1){
 								$scope.lastPageOfAddedSectionPrepared = true;
 								$timeout(function(){
 									$scope.$digest();
@@ -689,7 +690,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 									$scope.$digest();
 								});
 
-					if (idx == $scope.config.pages.length - 1) {
+					if (idx == $scope.pagePreparationSize - 1) {
 						$scope.lastPageOfAddedSectionPrepared = true;
 						$timeout(function () {
 							$scope.$digest();

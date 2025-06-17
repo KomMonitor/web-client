@@ -3341,7 +3341,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 			$scope.lastPageOfAddedSectionPrepared = false;
 			$scope.pagePreparationIndex = 0;
-			$scope.pagePreparationSize = $scope.template.pages.length;
+			$scope.pagePreparationSize = document.querySelectorAll("[id^='reporting-addIndicator-page-'].reporting-page").length; // all starting with that id
 
 			$timeout(function () {
 				$scope.$digest();
@@ -3473,7 +3473,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 						$scope.$digest();
 					});
 
-					if (i == $scope.template.pages.length - 1) {
+					if (i == $scope.pagePreparationSize - 1) {
 						$scope.lastPageOfAddedSectionPrepared = true;
 						$timeout(function () {
 							$scope.$digest();
