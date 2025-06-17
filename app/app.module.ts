@@ -255,19 +255,17 @@ export class AppModule implements DoBootstrap {
 
     console.log("start loading required config files");
 
-    let self = this;
-
-    await $.when(this.ajaxCall_keycloakConfig_localBackup(window.__env.configStorageServerConfig), this.ajaxCall_controlsConfig_localBackup(window.__env.configStorageServerConfig)).then(async function (ajax1Results, ajax2Results) {
+    await $.when(this.ajaxCall_keycloakConfig_localBackup(window.__env.configStorageServerConfig), this.ajaxCall_controlsConfig_localBackup(window.__env.configStorageServerConfig), this.ajaxCall_filterConfig_localBackup(window.__env.configStorageServerConfig)).then(async (ajax1Results, ajax2Results) => {
       console.log("local backup configs have been loaded in case config server is not reachable.");
 
-      await self.ajaxCall_configServerFile();
+      await this.ajaxCall_configServerFile();
       // error
 
-    }, async function () {
+    }, async () => {
       // on fail
       console.log("all configs have been loaded - at least some from local backup values. See console log for details");
 
-      await self.ajaxCall_configServerFile();
+      await this.ajaxCall_configServerFile();
       // error
     });
 
@@ -321,6 +319,21 @@ export class AppModule implements DoBootstrap {
     });
   }
 
+  private ajaxCall_filterConfig(configStorageServerConfig:any): JQuery.jqXHR<any> {
+    console.log("try to fetch filter config file");
+    return  $.ajax({
+        url: configStorageServerConfig.targetUrlToConfigStorageServer_filterConfig,
+        success: function(result){
+          console.log("filter config file fetched");
+          window.__env.filterConfig = result;
+          return; 
+        },
+        error: function(XMLHttpRequest, textStatus, errorThrown) { 
+          console.log("Use filter-config.json local backup default values that has no widget restrictions.");
+        }
+    });
+  } 
+
   /*
    LOAD CONFIG FILES FROM LOCAL BACKUP FILES
   */
@@ -350,6 +363,20 @@ export class AppModule implements DoBootstrap {
         console.log("Error parsing local controlsConfig.json backup file");
       }
     });
+  }
+
+  private ajaxCall_filterConfig_localBackup(configStorageServerConfig: any): JQuery.jqXHR<any> {
+    return  $.ajax({
+      url: "./config/filter-config_backup.json",
+      success: function(result){
+        console.log("local filter-config file with default values fetched");
+        window.__env.filterConfig = result;
+        return;
+      },
+      error: function(XMLHttpRequest, textStatus, errorThrown) { 
+        console.log("Error parsing local filterConfig.json backup file");
+      }
+  });
   }
 
 
@@ -382,16 +409,16 @@ export class AppModule implements DoBootstrap {
   }
 
   private ajaxCall_configServerFile(): JQuery.jqXHR<any> {
-    let self = this;
+
     return $.ajax({
       url: "./config/config-storage-server.json",
-      success: function (result) {
+      success: (result) => {
         window.__env = window.__env || {};
         window.__env.configStorageServerConfig = result;
 
         // inject script tag dynamically to DOM to load ENV variables
         console.log("dynamically load env.js");
-        const event = self.loadAppConfigScriptDynamically(window.__env.configStorageServerConfig.targetUrlToConfigStorageServer_appConfig)
+        const event = this.loadAppConfigScriptDynamically(window.__env.configStorageServerConfig.targetUrlToConfigStorageServer_appConfig)
           .then(() => { console.log("loaded"); })
           .catch(() => {
             console.log("Error while loading app config from client config storage server. Will use defaults instead");
@@ -399,17 +426,17 @@ export class AppModule implements DoBootstrap {
           });
 
 
-        return $.when(self.ajaxCall_keycloakConfig(window.__env.configStorageServerConfig), self.ajaxCall_controlsConfig(window.__env.configStorageServerConfig), self.ajaxCall_appConfig(window.__env.configStorageServerConfig)).then(function (ajax1Results, ajax2Results, ajax3Results) {
+        return $.when(this.ajaxCall_keycloakConfig(window.__env.configStorageServerConfig), this.ajaxCall_controlsConfig(window.__env.configStorageServerConfig), this.ajaxCall_appConfig(window.__env.configStorageServerConfig), this.ajaxCall_filterConfig(window.__env.configStorageServerConfig)).then((ajax1Results, ajax2Results, ajax3Results) => {
           console.log("all configs have been loaded");
 
-          self.initEnvVariables();
+          this.initEnvVariables();
 
           return;
-        }, function () {
+        }, () => {
           // on fail
           console.log("all configs have been loaded - at least some from local backup values. See console log for details");
 
-          self.initEnvVariables();
+          this.initEnvVariables();
 
           return;
         });
@@ -418,13 +445,12 @@ export class AppModule implements DoBootstrap {
   }
 
   private initKomMonitorClientModule(): void {
-    let self = this;
 
     // Register environment in AngularJS as constant
     angular.module('kommonitorClient').constant('__env', window.__env);
 
     // MathJx directive
-    angular.module('kommonitorClient').directive("mathjaxBind", function () {
+    angular.module('kommonitorClient').directive("mathjaxBind", () => {
       return {
         restrict: "EA",
         controller: [
@@ -539,16 +565,16 @@ export class AppModule implements DoBootstrap {
       ]);
 
     // register auth interceptor to refresh Keycloak login on each user request 
-    angular.module('kommonitorClient').factory('authInterceptor', ['$q', 'Auth', function ($q, Auth) {
+    angular.module('kommonitorClient').factory('authInterceptor', ['$q', 'Auth', ($q, Auth) => {
       return {
-        request: function (config) {
+        request: (config) => {
           var deferred = $q.defer();
-          if (Auth.keycloak.token && self.urlRequiresKeycloakAuthHeader(config.url)) {
-            Auth.keycloak.updateToken(5).then(function () {
+          if (Auth.keycloak.token && this.urlRequiresKeycloakAuthHeader(config.url)) {
+            Auth.keycloak.updateToken(5).then(() => {
               config.headers = config.headers || {};
               config.headers.Authorization = 'Bearer ' + Auth.keycloak.token;
               deferred.resolve(config);
-            }).catch(function () {
+            }).catch(() => {
               deferred.reject('Failed to refresh token');
               console.error('Failed to refresh token. Will redirect to Login screen');
               Auth.keycloak.login();

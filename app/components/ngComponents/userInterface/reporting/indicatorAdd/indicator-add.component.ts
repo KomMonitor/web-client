@@ -1169,7 +1169,7 @@ export class IndicatorAddComponent implements OnInit {
   reportingIsochronesCalculationFinished([isochrones]) {
     this.isochrones = isochrones;
       // this.typeOfMovement = this.isochrones.metadata.query.profile;
-    this.typeOfMovement = this.reachabilityHelperService.pipedData.settings.transitMode;
+    this.typeOfMovement = this.reachabilityHelperService.settings.transitMode;
 
     if(this.typeOfMovement === "buffer") {
       this.isochronesRangeType = "distance";
@@ -1177,7 +1177,7 @@ export class IndicatorAddComponent implements OnInit {
     } else {
       // this.isochronesRangeType = this.isochrones.metadata.query.range_type;
       // this.isochronesRangeUnits = this.isochrones.metadata.query.units;
-      this.isochronesRangeType = this.reachabilityHelperService.pipedData.settings.focus;
+      this.isochronesRangeType = this.reachabilityHelperService.settings.focus;
       this.isochronesRangeUnits = this.isochronesRangeType == "distance" ? "m" : 's';
     }
     

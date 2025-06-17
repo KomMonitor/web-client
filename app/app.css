@@ -1,5 +1,31 @@
 /* app css stylesheet */
 
+:root {
+  --kommonitor-primary: #337ab7;
+
+	--kommonitor-light: hsl(from var(--kommonitor-primary) h calc(s - 10) calc(l - 10));
+	--kommonitor-dark: hsl(from var(--kommonitor-primary) h calc(s + 10) calc(l + 10));
+
+	--kommonitor-primary-20: rgb(from var(--kommonitor-primary) r g b / 0.2);
+	--kommonitor-primary-40: rgb(from var(--kommonitor-primary) r g b / 0.4);
+	--kommonitor-primary-60: rgb(from var(--kommonitor-primary) r g b / 0.6);
+	--kommonitor-primary-80: rgb(from var(--kommonitor-primary) r g b / 0.8);
+
+	--custom-font-family: "Source Sans Pro",  sans-serif;
+
+	--body_gradient_left:#7200D0;
+	--body_gradient_right: #C800C1;
+	--form_bg: #ffffff;
+	--input_bg: #E5E5E5;
+	--input_hover:#eaeaea;
+	--submit_bg: #1FCC44;
+	--submit_hover: #40e263;
+	--logout_bg: rgb(216, 0, 0);
+	--extend_bg: rgb(235, 160, 0);
+	--logout_hover: #ff7373;
+	--icon_color:#d84a4a;
+}
+
 body {
 	overflow-y: auto !important;
 }
@@ -3228,3 +3254,40 @@ input:checked + .switchslider:before {
     .noUi-connect, .noUi-connects {
       background-color: rgb(51,122,183) !important;
     }
+
+.feature-btn {
+  background-color: var(--kommonitor-primary);
+  border-color: var(--kommonitor-primary);  
+  color: #fff;
+  padding: 0.5em 4em 0.5em 4em;
+}
+
+
+/* custom css adjustments */
+kommonitor-user-interface {
+  font-family: var(--custom-font-family) !important;
+}
+
+kommonitor-user-interface .ng-binding {
+  font-family: var(--custom-font-family) !important;
+}
+
+kommonitor-user-interface .boxedLegend {
+  font-family: var(--custom-font-family) !important;
+}
+
+kommonitor-user-interface h3, kommonitor-user-interface h4 {
+  font-family: var(--custom-font-family) !important;
+}
+
+/* range slider single values */
+kommonitor-user-interface .irs {
+  font-family: var(--custom-font-family) !important;
+}
+
+/* hidden element in root html to populate styling to 3rd party plugins/frameworks with non-editable css */
+#fontFamily-reference {
+  display: none;
+  font-family: var(--custom-font-family);
+  content: var(--custom-font-file);
+}

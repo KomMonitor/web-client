@@ -1,5 +1,5 @@
 import { ajskommonitorSingleFeatureMapHelperServiceProvider } from './../../app-upgraded-providers';
-import { Inject, Injectable } from '@angular/core';
+import { Inject, Injectable, OnInit } from '@angular/core';
 import L from 'leaflet';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 
@@ -8,35 +8,54 @@ import { GenericMapHelperService } from 'services/generic-map-helper-service/gen
 @Injectable({
   providedIn: 'root'
 })
-export class SingleFeatureMapHelperService {
+export class SingleFeatureMapHelperService implements OnInit {
 
-  pipedData:any;
 
   mapParts:any;
   georesourceData_geoJSON:any;
+
+  resourceType_point = "POINT";
+  resourceType_line = "LINE";
+  resourceType_polygon = "POLYGON";
 
   // create, edit, delete
   editMode = "create";
 
   public constructor(
-    @Inject('kommonitorSingleFeatureMapHelperService') private ajskommonitorSingleFeatureMapHelperServiceProvider: any, // eslint-disable-line @typescript-eslint/no-explicit-any
     private genericMapHelperService: GenericMapHelperService,
     private broadcastService: BroadcastService
   ) {
-    this.pipedData = this.ajskommonitorSingleFeatureMapHelperServiceProvider;
+  }
+
+  ngOnInit(): void {
+      // catch broadcast msgs
+    this.broadcastService.currentBroadcastMsg.subscribe(broadcastMsg => {
+      let title = broadcastMsg.msg;
+      let values:any = broadcastMsg.values;
+
+      switch (title) {
+        case 'onUpdateSingleFeatureGeometry' : {
+          this.onUpdateSingleFeatureGeometry(values);
+        } break;
+      }
+    });
+  }
+
+  onUpdateSingleFeatureGeometry([geoJSON, drawControl]) {
+    this.mapParts.drawControlObject.drawControl = drawControl;
   }
 
   invalidateMap() {
-    this.ajskommonitorSingleFeatureMapHelperServiceProvider.invalidateMap();
+    if(this.mapParts && this.mapParts.map){
+      this.genericMapHelperService.invalidateMap(this.mapParts.map);
+    } 
   }
   
   zoomToDataLayer() {
-    this.ajskommonitorSingleFeatureMapHelperServiceProvider.zoomToDataLayer();
+    if(this.mapParts && this.mapParts.map && this.mapParts.dataLayer){
+      this.genericMapHelperService.zoomToLayer(this.mapParts.map, this.mapParts.dataLayer);
+    } 
   }
-
-  /* initSingleFeatureGeoMap(domId, resourceType) {
-    this.ajskommonitorSingleFeatureMapHelperServiceProvider.initSingleFeatureGeoMap(domId, resourceType);
-  } */
 
   initSingleFeatureGeoMap(domId, resourceType) {
     // init leaflet map
@@ -69,13 +88,30 @@ export class SingleFeatureMapHelperService {
     this.georesourceData_geoJSON = geoJSON;
 
     //function (geoJSON, map, layerControl, layerName)
-    this.mapParts.dataLayer = this.genericMapHelperService.addDataLayer(geoJSON, this.mapParts.map, undefined, "", this.onEachFeature, this.pointToLayer, this.style);
+    this.mapParts.dataLayer = this.genericMapHelperService.addDataLayer(geoJSON, this.mapParts.map, undefined, "", (feature, layer) => {
+      layer.on({
+        click: () => {
+
+          this.broadcastService.broadcast("singleFeatureSelected", [feature]);
+
+          var popupContent = '<div class="georesourceInfoPopupContent featurePropertyPopupContent"><table class="table table-condensed">';
+          for (var p in feature.properties) {
+            popupContent += '<tr><td>' + p + '</td><td>' + feature.properties[p] + '</td></tr>';
+          }
+          popupContent += '</table></div>';
+
+          layer.bindPopup(popupContent);
+        }
+      });
+    }, this.pointToLayer, this.style);
   }
 
   pointToLayer(geoJsonPoint, latlng) {
-    return L.circleMarker(latlng, {
-      radius: 6
-    });
+    return L.marker(latlng);
+
+     /* return L.circleMarker(latlng, {
+          radius: 6
+        }); */
   }
 
   style(feature) {
@@ -86,7 +122,9 @@ export class SingleFeatureMapHelperService {
     };
   }
 
-  onEachFeature(feature, layer) {
+ /*  
+  moved into addDataLayer call to be able to use local vars
+ onEachFeature(feature, layer) {
     layer.on({
       click: () => {
 
@@ -101,5 +139,9 @@ export class SingleFeatureMapHelperService {
         layer.bindPopup(popupContent);
       }
     });
-  };
+  }; */
+
+  changeEditableFeature(feature) {
+    this.genericMapHelperService.changeEditableFeature(feature, this.mapParts.drawControlObject.featureLayer);
+  }
 }

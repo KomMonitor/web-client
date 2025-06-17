@@ -318,4 +318,8 @@ export class DataExchangeService {
   extendKeycloakSession() {
     this.ajskommonitorDataExchangeServiceeProvider.extendKeycloakSession();
   }
+
+  isDisplayableGeoresource(poi) {
+    return this.ajskommonitorDataExchangeServiceeProvider.isDisplayableGeoresource(poi);
+  }
 }

@@ -1,4 +1,3 @@
-"use strict";
 angular.module('kommonitorDataGridHelper', ['kommonitorDataExchange', 'kommonitorKeycloakHelper']);
 
 angular
@@ -30,6 +29,8 @@ angular
       this.dataGridOptions_spatialUnits;
       this.dataGridOptions_accessControl;
       this.reducedRoleManagement = false;
+
+      this.dataGridOptions_globalFilter;
 
       function getCurrentTimestampString(){
         let date = new Date();
@@ -119,7 +120,17 @@ angular
         html += '<button id="btn_spatialUnit_editMetadata_' + params.data.spatialUnitId + '" class="btn btn-warning btn-sm spatialUnitEditMetadataBtn" type="button" data-toggle="modal" data-target="#modal-edit-spatial-unit-metadata" title="Metadaten editieren"  '+ (params.data.userPermissions.includes("editor") ? '' : 'disabled') + '><i class="fas fa-pencil-alt"></i></button>';
         html += '<button id="btn_spatialUnit_editFeatures_' + params.data.spatialUnitId + '" class="btn btn-warning btn-sm spatialUnitEditFeaturesBtn" type="button" data-toggle="modal" data-target="#modal-edit-spatial-unit-features" title="Features fortf&uuml;hren"  '+ (params.data.userPermissions.includes("editor") ? '' : 'disabled') + '><i class="fas fa-draw-polygon"></i></button>';
         html += '<button id="btn_spatialUnit_editUserRoles_' + params.data.spatialUnitId + '" class="btn btn-warning btn-sm spatialUnitEditUserRolesBtn" type="button" data-toggle="modal" data-target="#modal-edit-spatial-unit-user-roles" title="Zugriffsschutz und Eigentümerschaft editieren"  '+ (params.data.userPermissions.includes("creator") ? '' : 'disabled') + '><i class="fas fa-user-lock"></i></button>'
-        html += '<button id="btn_spatialUnit_deleteSpatialUnit_' + params.data.spatialUnitId + '" class="btn btn-danger btn-sm spatialUnitDeleteBtn" type="button" data-toggle="modal" data-target="#modal-delete-spatial-units" title="Raumeinheit entfernen"  '+ (params.data.userPermissions.includes("creator") ? '' : 'disabled') + '><i class="fas fa-trash"></i></button>'
+        html += '<button id="btn_spatialUnit_deleteSpatialUnit_' + params.data.spatialUnitId + '" class="btn btn-danger btn-sm spatialUnitDeleteBtn" type="button" data-toggle="modal" data-target="#modal-delete-spatial-units" title="Raumebene entfernen"  '+ (params.data.userPermissions.includes("creator") ? '' : 'disabled') + '><i class="fas fa-trash"></i></button>'
+        html += '</div>';
+
+        return html;
+      };
+
+      var displayEditButtons_globalFilter = function (params) {
+
+        let html = '<div class="btn-group btn-group-sm">';
+        html += '<button id="btn_globalFilter_editFilter_' + params.data.filterId + '" class="btn btn-warning btn-sm globalFilterEditBtn" type="button" data-toggle="modal" data-target="#modal-edit-admin-filter" title="Filter editieren"><i class="fas fa-pencil-alt"></i></button>';
+        html += '<button id="btn_globalFilter_deleteFilter_' + params.data.filterId + '" class="btn btn-danger btn-sm globalFilterDeleteBtn" type="button" title="Filter entfernen"><i class="fas fa-trash"></i></button>'
         html += '</div>';
 
         return html;
@@ -219,7 +230,7 @@ angular
             }
           },
           {
-            headerName: 'Verfügbare Raumeinheiten', field: "applicableSpatialUnits", minWidth: 400,
+            headerName: 'Verfügbare Raumebenen', field: "applicableSpatialUnits", minWidth: 400,
             cellRenderer: function (params) {
               /*
                 <ul style="columns: 2; 	-webkit-columns: 2;	-moz-columns: 2;">
@@ -322,6 +333,12 @@ angular
           filter: 'agTextColumnFilter', 
           filterValueGetter: (params) => {
               return "" + kommonitorDataExchangeService.getRoleTitle(params.data.ownerId);
+            } 
+          },
+          { headerName: 'Nachkommastellen', minWidth: 200, cellRenderer: function (params) { return params.data.precision; },
+          filter: 'agTextColumnFilter', 
+          filterValueGetter: (params) => {
+              return "" +  params.data.precision;
             } 
           }
         ];
@@ -1410,6 +1427,139 @@ angular
         }
       };
 
+      // GLOBAL FILTER table
+
+      this.buildDataGrid_globalFilter = function (spatialUnitMetadataArray) {
+        
+        if (this.dataGridOptions_globalFilter && this.dataGridOptions_globalFilter.api && document.querySelector('#globalFilterOverviewTable').childElementCount > 0) {
+
+          this.saveGridStore(this.dataGridOptions_globalFilter);
+          let newRowData = this.buildDataGridRowData_globalFilter(spatialUnitMetadataArray);
+          this.dataGridOptions_globalFilter.api.setRowData(newRowData);
+          this.restoreGridStore(this.dataGridOptions_globalFilter);
+        }
+        else {
+          this.dataGridOptions_globalFilter = this.buildDataGridOptions_globalFilter(spatialUnitMetadataArray);
+          let gridDiv = document.querySelector('#globalFilterOverviewTable');
+          new agGrid.Grid(gridDiv, this.dataGridOptions_globalFilter);
+        }
+      };
+
+      this.buildDataGridOptions_globalFilter = function (spatialUnitMetadataArray) {
+        let columnDefs = this.buildDataGridColumnConfig_globalFilter(spatialUnitMetadataArray);
+        let rowData = this.buildDataGridRowData_globalFilter(spatialUnitMetadataArray);
+
+        let gridOptions = {
+          defaultColDef: {
+            editable: false,
+            sortable: true,
+            flex: 1,
+            minWidth: 200,
+            filter: true,
+            floatingFilter: true,
+            // filterParams: {
+            //   newRowsAction: 'keep'
+            // },
+            resizable: true,
+            wrapText: true,
+            autoHeight: true,
+            cellStyle: { 'font-size': '12px;', 'white-space': 'normal !important', "line-height": "20px !important", "word-break": "break-word !important", "padding-top": "17px", "padding-bottom": "17px" },
+            headerComponentParams: {
+              template:
+                '<div class="ag-cell-label-container" role="presentation">' +
+                '  <span ref="eMenu" class="ag-header-icon ag-header-cell-menu-button"></span>' +
+                '  <div ref="eLabel" class="ag-header-cell-label" role="presentation">' +
+                '    <span ref="eSortOrder" class="ag-header-icon ag-sort-order"></span>' +
+                '    <span ref="eSortAsc" class="ag-header-icon ag-sort-ascending-icon"></span>' +
+                '    <span ref="eSortDesc" class="ag-header-icon ag-sort-descending-icon"></span>' +
+                '    <span ref="eSortNone" class="ag-header-icon ag-sort-none-icon"></span>' +
+                '    <span ref="eText" class="ag-header-cell-text" role="columnheader" style="white-space: normal;"></span>' +
+                '    <span ref="eFilter" class="ag-header-icon ag-filter-icon"></span>' +
+                '  </div>' +
+                '</div>',
+            },
+          },
+          components: {
+            displayEditButtons_globalFilter: displayEditButtons_globalFilter
+          },
+          columnDefs: columnDefs,
+          rowData: rowData,
+          suppressRowClickSelection: true,
+          rowSelection: 'multiple',
+          enableCellTextSelection: true,
+          ensureDomOrder: true,
+          pagination: true,
+          paginationPageSize: 10,
+          suppressColumnVirtualisation: true,          
+          onFirstDataRendered: function () {
+            headerHeightSetter(self.dataGridOptions_globalFilter);
+          },
+          onColumnResized: function () {
+            headerHeightSetter(self.dataGridOptions_globalFilter);
+          },        
+          onRowDataChanged: function () {
+            self.registerClickHandler_globalFilter(spatialUnitMetadataArray);
+          },   
+          onModelUpdated: function () {
+            self.registerClickHandler_globalFilter(spatialUnitMetadataArray);
+            
+          },
+          onViewportChanged: function () {
+            self.registerClickHandler_globalFilter(spatialUnitMetadataArray);                   
+          },
+
+        };
+
+        return gridOptions;
+      };
+
+      this.buildDataGridRowData_globalFilter = function (spatialUnitMetadataArray) {
+        return spatialUnitMetadataArray;
+      };
+
+      this.buildDataGridColumnConfig_globalFilter = function (spatialUnitMetadataArray) {
+        const columnDefs = [
+          { headerName: 'Editierfunktionen', pinned: 'left', maxWidth: 150, checkboxSelection: false, headerCheckboxSelection: false, 
+          headerCheckboxSelectionFilteredOnly: true, filter: false, sortable: false, cellRenderer: 'displayEditButtons_globalFilter' },
+          { headerName: 'Name', field: "name", pinned: 'left', minWidth: 300 },
+          { headerName: 'Indikatoren', field: "indicators", minWidth: 250 },
+          { headerName: 'Indikator-Themen', field: "indicatorTopics", minWidth: 250 },    
+          { headerName: 'Georesourcen', field: "georesources", minWidth: 250 },
+          { headerName: 'Georesource-Themen', field: "georesourceTopics", minWidth: 250 },   
+        ];
+
+        return columnDefs;
+      };
+
+      this.registerClickHandler_globalFilter = function (spatialUnitMetadataArray) {
+
+        $(".globalFilterEditBtn").off();
+        $(".globalFilterEditBtn").on("click", function (event) {
+          // ensure that only the target button gets clicked
+          // manually open modal
+          event.stopPropagation();
+          let modalId = document.getElementById(this.id).getAttribute("data-target");
+          $(modalId).modal('show');
+          
+          let adminFilterId = this.id.split("_")[3];
+
+          $rootScope.$broadcast("onGlobalFilterEdit", adminFilterId);
+        });
+
+        $(".globalFilterDeleteBtn").off();
+        $(".globalFilterDeleteBtn").on("click", function (event) {
+          // ensure that only the target button gets clicked
+          event.stopPropagation();
+          
+          let adminFilterId = this.id.split("_")[3];
+
+          $rootScope.$broadcast("onGlobalFilterDelete", adminFilterId);
+        });
+
+      };
+
+      // END
+
       // FEATURE TABLES
 
       const isDate = (date) => {
@@ -2093,10 +2243,7 @@ angular
             field: "name", 
             pinned: 'left', 
             minWidth: 250,
-            cellClassRules: {
-              'user-roles-normal': row => row.data.contact != 'public',
-              'user-roles-public': row => row.data.contact == 'public',
-            } 
+            cellClass: 'user-roles-normal'
           }, 
           { headerName: 'Hierarchie - übergeordnete Organisationseinheit', field: "parentName",  maxWidth: 250 }, 
           { headerName: 'Hierarchie - direkt untergeordnete Organisationseinheiten', 
@@ -2562,7 +2709,7 @@ angular
             
             let html = "";
                 if(params.data.spatialUnitIntegrationSummary && params.data.spatialUnitIntegrationSummary.length > 0){
-                  html += '<table class="table table-condensed table-bordered table-striped"><thead><tr><th>Raumeinheits-Id</th><th>Raumeinheits-Name</th><th>Anzahl integrierter Indikatoren-Features</th><th>Anzahl integrierter Zeitstempel</th><th>integrierte Zeitstempel</th><th>Fehlermeldung</th></tr></thead><tbody>';
+                  html += '<table class="table table-condensed table-bordered table-striped"><thead><tr><th>Raumebenen-Id</th><th>Raumebenen-Name</th><th>Anzahl integrierter Indikatoren-Features</th><th>Anzahl integrierter Zeitstempel</th><th>integrierte Zeitstempel</th><th>Fehlermeldung</th></tr></thead><tbody>';
 
                   for (const item of params.data.spatialUnitIntegrationSummary) {
                     html += "<tr>";
@@ -2850,15 +2997,17 @@ angular
         let isChecked = false;
         let exists = false;
         let className;
-        for (const permission of params.data.permissions) {
-          if (permission.permissionLevel == "viewer"){
-            exists = true;
-            isChecked = permission.isChecked;
-            className = permission.permissionId;
-            break;
-          }
-        }  
-
+        if (params && params.data) {
+          for (const permission of params.data.permissions) {
+            if (permission.permissionLevel == "viewer"){
+              exists = true;
+              isChecked = permission.isChecked;
+              className = permission.permissionId;
+              break;
+            }
+          }  
+        }
+        
         if(exists){
           this.eGui = document.createElement('input');
           this.eGui.className = className;
@@ -2908,14 +3057,16 @@ angular
         let isChecked = false;
         let exists = false;
         let className;
-        for (const permission of params.data.permissions) {
-          if (permission.permissionLevel == "editor"){
-            exists = true;
-            isChecked = permission.isChecked;
-            className = permission.permissionId;
-            break;
-          }
-        }  
+        if (params && params.data) {
+          for (const permission of params.data.permissions) {
+            if (permission.permissionLevel == "editor"){
+              exists = true;
+              isChecked = permission.isChecked;
+              className = permission.permissionId;
+              break;
+            }
+          }  
+        }
 
         if(exists){
           this.eGui = document.createElement('input');
@@ -3408,7 +3559,38 @@ angular
       };
       // end
 
-      // "Basic" Role Management Grid 
+      function CheckboxRenderer_checked() {}
+
+      CheckboxRenderer_checked.prototype.init = function(params) {
+
+        this.params = params;
+
+        this.eGui = document.createElement('input');
+        this.eGui.type = 'checkbox';
+
+        if(this.params.data && this.params.data.checked)
+          this.eGui.checked = this.params.data.checked;
+        else
+          this.eGui.checked = false;
+
+        this.checkedHandler = this.checkedHandler.bind(this);
+        this.eGui.addEventListener('click', this.checkedHandler);
+      };
+
+      CheckboxRenderer_checked.prototype.checkedHandler = function(e) {
+        this.params.data.checked = e.target.checked;
+      };
+
+      CheckboxRenderer_checked.prototype.getGui = function(params) {
+        return this.eGui;
+      };
+
+      CheckboxRenderer_checked.prototype.destroy = function(params) {
+        if(this.eGui){
+          this.eGui.removeEventListener('click', this.checkedHandler);
+        }  
+      };
+
       this.buildRoleManagementGridRowData = function(accessControlMetadata, permissionIds){
         let data = JSON.parse(JSON.stringify(accessControlMetadata));
         for (let elem of data) {
@@ -3416,12 +3598,10 @@ angular
           if(elem.name=='public')
             elem.name = 'Öffentlicher Zugriff';
 
-          if(elem.persmissions) {
-            for (let permission of elem.permissions) {
-              permission.isChecked = false;
-              if (permissionIds && permissionIds.includes(permission.permissionId)){
-                permission.isChecked = true;
-              }
+          for (let permission of elem.permissions) {
+            permission.isChecked = false;
+            if (permissionIds && permissionIds.includes(permission.permissionId)){
+              permission.isChecked = true;
             }
           }
         }
@@ -3452,10 +3632,7 @@ angular
             headerName: 'Organisationseinheit', 
             field: "name", 
             minWidth: 200,
-            cellClassRules: {
-              'user-roles-normal': row => row.data.contact != 'public',
-              'user-roles-public': row => row.data.contact == 'public',
-            } 
+            cellClass: 'user-roles-normal'
           },
           { headerName: 'lesen', field: "permissions", filter: false, sortable: false, maxWidth: 100, cellRenderer: 'checkboxRenderer_viewer'},
           { headerName: 'editieren', field: "permissions", filter: false, sortable: false, maxWidth: 100, cellRenderer: 'checkboxRenderer_editor'}                   
@@ -3470,7 +3647,7 @@ angular
 
       this.buildRoleManagementGridOptions = function(accessControlMetadata, selectedPermissionIds){
         let columnDefs = this.buildRoleManagementGridColumnConfig();
-          let rowData = this.buildRoleManagementGridRowData(accessControlMetadata, selectedPermissionIds);
+        let rowData = this.buildRoleManagementGridRowData(accessControlMetadata, selectedPermissionIds);
   
           let components = {};
           if(this.reducedRoleManagement)
@@ -3778,6 +3955,146 @@ angular
         }
         return ids;
       };
+
+      // SINGLE-SELECT TABLE
+
+      this.buildSingleSelectGridRowData = function(accessControlMetadata, selectedIds){
+        let data = JSON.parse(JSON.stringify(accessControlMetadata));
+       /*  for (let elem of data) {
+          if(selectedIds.includes(elem.id))
+              elem.isChecked = true;
+        }
+ */
+        let array = [];
+        array.push(data[0]);
+        array.push(data[1]);
+
+        data.splice(0,2);
+        data.sort(function (a, b) {
+          if (a.name < b.name) {
+            return -1;
+          }
+          if (a.name > b.name) {
+            return 1;
+          }
+          return 0;
+        });
+
+        array = array.concat(data);
+
+        return array;
+      };
+
+      this.buildSingleSelectGridColumnConfig = function(){
+        let columnDefs = [];
+
+        return columnDefs.concat([
+          { headerName: 'Name', field: "name", minWidth: 200 },
+          { headerName: 'ID', field: "id", minWidth: 150 },
+          { headerName: 'Beschreibung', field: "description", minWidth: 300 },
+          { headerName: 'sichtbar', field: "checked", filter: false, sortable: false, maxWidth: 100, cellRenderer: 'checkboxRenderer_checked', }
+        ]);
+      };
+
+      this.buildSingleSelectGridOptions = function(accessControlMetadata, selectedIds){
+        let columnDefs = this.buildSingleSelectGridColumnConfig();
+          let rowData = this.buildSingleSelectGridRowData(accessControlMetadata, selectedIds);
+  
+          let components = {
+            checkboxRenderer_checked: CheckboxRenderer_checked,
+          };
+
+          let gridOptions = {
+            defaultColDef: {
+              editable: false,
+              sortable: true,
+              flex: 1,
+              minWidth: 200,
+              filter: true,
+              floatingFilter: false,
+              // filterParams: {
+              //   newRowsAction: 'keep'
+              // },
+              resizable: true,
+              wrapText: true,
+              autoHeight: true,
+              cellStyle: { 'font-size': '12px;', 'white-space': 'normal !important', "line-height": "20px !important", "word-break": "break-word !important", "padding-top": "17px", "padding-bottom": "17px" },
+              headerComponentParams: {
+                template:
+                  '<div class="ag-cell-label-container" role="presentation">' +
+                  '  <span ref="eMenu" class="ag-header-icon ag-header-cell-menu-button"></span>' +
+                  '  <div ref="eLabel" class="ag-header-cell-label" role="presentation">' +
+                  '    <span ref="eSortOrder" class="ag-header-icon ag-sort-order"></span>' +
+                  '    <span ref="eSortAsc" class="ag-header-icon ag-sort-ascending-icon"></span>' +
+                  '    <span ref="eSortDesc" class="ag-header-icon ag-sort-descending-icon"></span>' +
+                  '    <span ref="eSortNone" class="ag-header-icon ag-sort-none-icon"></span>' +
+                  '    <span ref="eText" class="ag-header-cell-text" role="columnheader" style="white-space: normal;"></span>' +
+                  '    <span ref="eFilter" class="ag-header-icon ag-filter-icon"></span>' +
+                  '  </div>' +
+                  '</div>',
+              },
+            },
+            components: components,
+            floatingFilter: false,
+            columnDefs: columnDefs,
+            rowData: rowData,
+            rowHeight: 10,
+            suppressRowClickSelection: true,
+            rowSelection: 'multiple',
+            enableCellTextSelection: false,
+            ensureDomOrder: true,
+            pagination: true,
+            paginationPageSize: 5,
+            suppressColumnVirtualisation: true,          
+            onFirstDataRendered: function () {
+            },
+            onColumnResized: function () {
+              self.registerClickHandler_accessControl(accessControlMetadata);
+            },        
+            onRowDataChanged: function () {
+              self.registerClickHandler_accessControl(accessControlMetadata);
+            },   
+            onModelUpdated: function () {
+              self.registerClickHandler_accessControl(accessControlMetadata);
+            },   
+            onViewportChanged: function () {   
+              self.registerClickHandler_accessControl(accessControlMetadata);    
+            },
+  
+          };
+  
+          return gridOptions;
+      };
+
+      this.buildSingleSelectGrid = function(tableDOMId, currentTableOptionsObject, accessControlMetadata, selectedIds){
+
+        if (currentTableOptionsObject && currentTableOptionsObject.api) {
+
+          let newRowData = this.buildSingleSelectGridRowData(accessControlMetadata, selectedIds);
+          currentTableOptionsObject.api.setRowData(newRowData);
+        }
+        else {
+          currentTableOptionsObject = this.buildSingleSelectGridOptions(accessControlMetadata, selectedIds);
+          let gridDiv = document.querySelector('#' + tableDOMId);
+          new agGrid.Grid(gridDiv, currentTableOptionsObject);
+        }
+        return currentTableOptionsObject;
+      };
+
+      this.getSelectedIds_singleSelectGrid = function(roleManagementTableOptions){
+        let ids = [];
+        if (roleManagementTableOptions && roleManagementTableOptions.api){
+
+          roleManagementTableOptions.api.forEachNode(function(node, index){
+            if(node.data && node.data.checked) {
+                ids.push(node.data.id);
+            } 
+          })               
+        }
+        return ids;
+      };
+
+      // END
 
       // INDICATOR REFERENCE VALUES
 
