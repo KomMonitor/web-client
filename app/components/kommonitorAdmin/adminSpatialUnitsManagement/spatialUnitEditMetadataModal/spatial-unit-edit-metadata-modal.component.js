@@ -396,7 +396,7 @@ angular.module('spatialUnitEditMetadataModal').component('spatialUnitEditMetadat
 
 			var metadataJSON = JSON.stringify($scope.spatialUnitMetadataStructure);
 
-			var fileName = "Raumeinheit_Metadaten_Vorlage_Export.json";
+			var fileName = "Raumebene_Metadaten_Vorlage_Export.json";
 
 			var blob = new Blob([metadataJSON], {type: "application/json"});
 			var data  = URL.createObjectURL(blob);
@@ -450,7 +450,7 @@ angular.module('spatialUnitEditMetadataModal').component('spatialUnitEditMetadat
 
 			var metadataJSON = JSON.stringify(metadataExport);
 
-			var fileName = "Raumeinheit_Metadaten_Export";
+			var fileName = "Raumebene_Metadaten_Export";
 
 			if (name){
 				fileName += "-" + name;
