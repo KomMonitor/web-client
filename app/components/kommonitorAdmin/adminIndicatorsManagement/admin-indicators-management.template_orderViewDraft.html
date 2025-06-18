@@ -68,7 +68,7 @@
 										<th>Datengrundlage</th>
 										<th>Tags/Stichworte</th>
 										<th>Themenhierarchie</th>
-										<th>Verf&uuml;gbare Raumeinheiten</th>
+										<th>Verf&uuml;gbare Raumebenen</th>
 										<th>Verf&uuml;gbare Zeitpunkte</th>
 										<!-- <th>Referenzierte Indikatoren</th>
 										<th>Referenzierte Georessourcen</th> -->
@@ -78,7 +78,7 @@
 										<th>Aktualisierungszyklus</th>
 										<th>Quellen / Literatur</th>
 										<th>Bemerkung</th>
-										<th>Niedrigste Raumeinheit f&uuml;r Berechnung</th>
+										<th>Niedrigste Raumebene f&uuml;r Berechnung</th>
 										<th>Klassifizierung</th>										
 										<!-- <th>OGC Dienste</th> -->
 	                </tr>
@@ -178,7 +178,7 @@
 								<li style="margin-right: 15px;" ng-repeat="ogcService in indicatorDataset.ogcServices">
 									<ul>
 										<li>
-											<b>Raumeinheit: </b> {{ogcService.spatialUnit}}
+											<b>Raumebene: </b> {{ogcService.spatialUnit}}
 										</li>
 										<li>
 											<b>WMS: </b> {{ogcService.wmsUrl}}
@@ -213,7 +213,7 @@
 										<th>Datengrundlage</th>
 										<th>Tags/Stichworte</th>
 										<th>Themenhierarchie</th>
-										<th>Verf&uuml;gbare Raumeinheiten</th>
+										<th>Verf&uuml;gbare Raumebenen</th>
 										<th>Verf&uuml;gbare Zeitpunkte</th>
 										<!-- <th>Referenzierte Indikatoren</th>
 										<th>Referenzierte Georessourcen</th> -->
@@ -223,7 +223,7 @@
 										<th>Aktualisierungszyklus</th>
 										<th>Quellen / Literatur</th>
 										<th>Bemerkung</th>
-										<th>Niedrigste Raumeinheit f&uuml;r Berechnung</th>
+										<th>Niedrigste Raumebene f&uuml;r Berechnung</th>
 										<th>Klassifizierung</th>										
 										<!-- <th>OGC Dienste</th> -->
 	                </tr>
@@ -273,14 +273,14 @@
 						<label> Themenorientierter Datenkatalog </label>
 
 						<div ng-repeat="mainTopic in $ctrl.kommonitorDataExchangeServiceInstance.topicIndicatorHierarchy_forOrderView | orderBy: 'topicName'">
-							<div  class="list-group-item list-group-item-default" style="background: #2171b5; color: white;">
+							<div  class="list-group-item list-group-item-default kommonitor-theme">
 								<a id="indicatorOrderView_{{mainTopic.topicId}}" href="" ng-attr-title="{{mainTopic.topicDescription}}" class="collapseTrigger" style="color: white;" ng-click="isCollapsed_mainTopic = !isCollapsed_mainTopic" ng-init="isCollapsed_mainTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>{{mainTopic.topicName}}  ({{mainTopic.indicatorCount}})</a>
 							</div>
 
 
 							<div ng-repeat="subTopic in mainTopic.subTopics | orderBy: 'topicName'" class="list-group collapse" uib-collapse="isCollapsed_mainTopic">
 
-								<div  class="list-group-item list-group-item-default" style="background: #6baed6; color: white;">
+								<div  class="list-group-item list-group-item-default kommonitor-theme-light">
 									<a id="indicatorOrderView_{{subTopic.topicId}}" class="collapseTrigger" style="color: white;" ng-attr-title="{{subTopic.topicDescription}}" href="" ng-click="isCollapsed_subTopic = !isCollapsed_subTopic" ng-init="isCollapsed_subTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>{{subTopic.topicName}}  ({{subTopic.indicatorCount}})</a>
 								</div>
 
