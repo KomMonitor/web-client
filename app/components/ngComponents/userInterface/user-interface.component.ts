@@ -7,6 +7,8 @@ import { ConfigStorageService } from 'services/config-storage-service/config-sto
 import { ReportingModalComponent } from './reporting/reporting-modal.component';
 import { ElementVisibilityHelperService } from 'services/element-visibility-helper-service/element-visibility-helper.service';
 import { AuthService } from 'services/auth-service/auth.service';
+import { FavService } from 'services/fav-service/fav.service';
+import { GlobalFilterHelperService } from 'services/global-filter-helper-service/global-filter-helper.service';
 
 @Component({
   selector: 'user-interface-new',
@@ -56,7 +58,9 @@ export class UserInterfaceComponent implements OnInit {
     private broadcastService: BroadcastService,
     private configStorageService: ConfigStorageService,
     protected visibilityHelperService: ElementVisibilityHelperService,
-    private authService: AuthService
+    private authService: AuthService,
+    private favService: FavService,
+    private globalFilterHelperService: GlobalFilterHelperService
   ) {
     this.exchangeData = this.dataExchangeService.pipedData;
   }
@@ -78,9 +82,17 @@ export class UserInterfaceComponent implements OnInit {
       // todo
 			//kommonitorShareHelperService.init();
 
-      this.checkAuthentication();
+      this.globalFilterHelperService.init();
+      this.favService.init();
 
-			this.dataExchangeService.fetchAllMetadata();
+			if(this.globalFilterHelperService.applicationFilter) {
+				this.dataExchangeService.fetchAllMetadata(this.globalFilterHelperService.applicationFilter);
+			} else {
+				this.dataExchangeService.fetchAllMetadata();
+			}
+
+      this.checkAuthentication();
+      
 			setTimeout(() => {
 				this.prepUserInformation();
 			}, 1000);

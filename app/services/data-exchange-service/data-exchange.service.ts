@@ -92,6 +92,7 @@ export interface DataExchange {
   adminUserName;
   adminPassword;
   adminIsLoggedIn;
+  loginInfoText:any;
 }
 
 export interface KeycloakUser {
@@ -182,8 +183,8 @@ export class DataExchangeService {
     return filteredApplicableUnits.length > 0;
   }
 
-  fetchAllMetadata() {
-    this.ajskommonitorDataExchangeServiceeProvider.fetchAllMetadata();
+  fetchAllMetadata(filter=undefined) {
+    this.ajskommonitorDataExchangeServiceeProvider.fetchAllMetadata(filter);
   }
 
   downloadMetadataPDF_georesource(loi) {
