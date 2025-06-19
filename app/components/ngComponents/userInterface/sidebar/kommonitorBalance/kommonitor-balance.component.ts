@@ -264,7 +264,7 @@ export class KommonitorBalanceComponent implements OnInit {
 							}
 
 							// use configuration item and data specified to show chart
-							this.trendOption = this.diagramHelperService.makeTrendChartOptions_forAllFeatures(indicatorMetadata, fromDateAsPropertyString, toDateAsPropertyString, this.trendConfig_allFeatures.showMinMax, this.trendConfig_allFeatures.showCompleteTimeseries, this.trendConfig_allFeatures.trendComputationType, this.exchangeData.enableBilanceTrend);
+							this.trendOption = this.diagramHelperService.makeTrendChartOptions_forAllFeatures(indicatorMetadata, fromDateAsPropertyString, toDateAsPropertyString, this.trendConfig_allFeatures.showMinMax, this.trendConfig_allFeatures.showCompleteTimeseries, this.trendConfig_allFeatures.trendComputationType, this.exchangeData.enableBilanceTrend, true);
 							this.trendChart_allFeatures.setOption(this.trendOption);
 
 							this.trendChart_allFeatures.hideLoading();

@@ -47,10 +47,10 @@
 		</div>
 		<!-- /.box -->
 
-		<div style="margin-bottom: 0px;" class="box box-danger" [hidden]="!exchangeData.isBalanceChecked">
+		<div style="margin-bottom: 0px;" class="box box-primary" [hidden]="!exchangeData.isBalanceChecked">
 			<div class="box-header with-border">
-				<h3 *ngIf="exchangeData.enableBilanceTrend" class="box-title">Trenddarstellung &uuml;ber alle Features</h3>
-				<h3 *ngIf="!exchangeData.enableBilanceTrend" class="box-title">Zeitreihendarstellung &uuml;ber alle Features</h3>
+				<h3 *ngIf="exchangeData.enableBilanceTrend" class="box-title">Trenddarstellung &uuml;ber alle Raumeinheiten</h3>
+				<h3 *ngIf="!exchangeData.enableBilanceTrend" class="box-title">Zeitreihendarstellung &uuml;ber alle Raumeinheiten</h3>
 
 				<div class="box-tools pull-right">
 					<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>

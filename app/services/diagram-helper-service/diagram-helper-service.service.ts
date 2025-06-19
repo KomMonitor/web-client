@@ -52,6 +52,22 @@ export class DiagramHelperServiceService {
     this.exchangeData = this.dataExchangeService.pipedData;
   }
 
+  setCustomFontFamily() {
+  
+    var elem:any = document.querySelector('#fontFamily-reference');
+    var style = getComputedStyle(elem);
+    return style.fontFamily;
+  }
+
+  customFontFamily = this.setCustomFontFamily(); 
+
+  prepCustomStyling(customFontFamilyEnabled, options) {
+
+    if(customFontFamilyEnabled===true)
+      options.textStyle = {fontFamily: this.customFontFamily};
+
+    return options;
+  }
 
   isCloserToTargetDate(date, closestDate, targetDate){
     var targetYear = targetDate.split("-")[0];
@@ -344,9 +360,9 @@ export class DiagramHelperServiceService {
     return this.histogramChartOptions;
   }
 
-  getLineChartOptions() {
-    return this.lineChartOptions;
-  }
+  getLineChartOptions(customFontFamilyEnabled = false) {
+    return this.prepCustomStyling(customFontFamilyEnabled, this.lineChartOptions);
+  };
 
   prepareAllDiagramResources_forCurrentMapIndicator(indicatorMetadataAndGeoJSON, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, filterOutFutureDates) {        
     this.prepareAllDiagramResources(indicatorMetadataAndGeoJSON, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, filterOutFutureDates, false);
@@ -1678,10 +1694,10 @@ export class DiagramHelperServiceService {
     return eChartOptions;
   }
 
-  makeTrendChartOptions_forAllFeatures(indicatorMetadataAndGeoJSON, fromDateAsPropertyString, toDateAsPropertyString, showMinMax, showCompleteTimeseries, computationType, trendEnabled){
+  makeTrendChartOptions_forAllFeatures(indicatorMetadataAndGeoJSON, fromDateAsPropertyString, toDateAsPropertyString, showMinMax, showCompleteTimeseries, computationType, trendEnabled, customFontFamilyEnabled = false){
       // we may base on the the precomputed timeseries lineOptions and modify that from a cloned instance
 
-      var timeseriesOptions:any = jQuery.extend(true, {}, this.getLineChartOptions())
+      var timeseriesOptions = jQuery.extend(true, {}, this.getLineChartOptions(customFontFamilyEnabled));
 
       // remove any additional lines for concrete features
       timeseriesOptions.series.length = 5;
