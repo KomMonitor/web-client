@@ -374,7 +374,7 @@ export class AdminDashboardManagementComponent implements OnInit, OnDestroy {
             data: indicatorsPerSpatialUnitSeriesData,
             itemStyle: {
               normal: {
-                color: '#00a65b',
+                color: '#337ab7',
                 shadowBlur: 20,
                 shadowColor: 'rgba(0, 0, 0, 0.5)'
               },
