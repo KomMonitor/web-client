@@ -210,7 +210,7 @@ export class IndicatorRadarComponent implements OnInit {
               for (let indicatorPropertyInstance of indicatorProperties) {
                   // for average only apply real numeric values
                   if (!this.dataExchangeService.indicatorValueIsNoData(indicatorPropertyInstance[this.DATE_PREFIX + indicatorsForRadar[i].selectedDate])) {
-                    let value = this.dataExchangeService.getIndicatorValueFromArray_asNumber(indicatorPropertyInstance, indicatorsForRadar[i].selectedDate);
+                    let value = this.dataExchangeService.getIndicatorValueFromArray_asNumber(indicatorPropertyInstance, indicatorsForRadar[i].selectedDate, indicatorsForRadar[i].indicatorMetadata.precision);
                       valueSum += value;
                       if (value > maxValue)
                           maxValue = value;
@@ -230,10 +230,11 @@ export class IndicatorRadarComponent implements OnInit {
               indicatorArrayForRadarChart.push({
                   name: indicatorsForRadar[i].indicatorMetadata.indicatorName + " - " + indicatorsForRadar[i].selectedDate,
                   unit: indicatorsForRadar[i].indicatorMetadata.unit,
+									precision: indicatorsForRadar[i].indicatorMetadata.precision,
                   max: maxValue,
                   min: minValue
               });
-              defaultSeriesValueArray.push(this.dataExchangeService.getIndicatorValue_asNumber(Number(valueSum / indicatorProperties.length)));
+              defaultSeriesValueArray.push(this.dataExchangeService.getIndicatorValue_asNumber(Number(valueSum / indicatorProperties.length), indicatorsForRadar[i].indicatorMetadata.precision));
               // }
           }
       }
@@ -251,7 +252,15 @@ export class IndicatorRadarComponent implements OnInit {
           // 	this.radarChart.dispose();
           // 	this.radarChart = echarts.init(document.getElementById('radarDiagram'));
           // }
+          //get custom fontFamilyAdd commentMore actions
+
+          var elem:any = document.querySelector('#fontFamily-reference');
+          var style = getComputedStyle(elem);
+
           this.radarOption = {
+              textStyle: {
+                  fontFamily: style.fontFamily
+              },
               grid: {
                   left: '4%',
                   top: 0,
@@ -270,7 +279,7 @@ export class IndicatorRadarComponent implements OnInit {
                   formatter: (params) => {
                       var string = "" + params.name + "<br/>";
                       for (var index = 0; index < params.value.length; index++) {
-                          string += this.radarOption.radar.indicator[index].name + ": " + this.dataExchangeService.getIndicatorValue_asFormattedText(params.value[index]) + " [" + this.radarOption.radar.indicator[index].unit + "]<br/>";
+                          string += this.radarOption.radar.indicator[index].name + ": " + this.dataExchangeService.getIndicatorValue_asFormattedText(params.value[index], this.radarOption.radar.indicator[index].precision) + " [" + this.radarOption.radar.indicator[index].unit + "]<br/>";
                       }
                       ;
                       return string;
@@ -305,7 +314,7 @@ export class IndicatorRadarComponent implements OnInit {
                               var htmlString = '<table id="' + dataTableId + '" class="table table-bordered table-condensed" style="width:100%;text-align:center;">';
                               htmlString += "<thead>";
                               htmlString += "<tr>";
-                              htmlString += "<th style='text-align:center;'>Feature-Name</th>";
+                              htmlString += "<th style='text-align:center;'>Raumeinheits-Name</th>";
                               for (var i = 0; i < indicators.length; i++) {
                                   htmlString += "<th style='text-align:center;'>" + indicators[i].name + " [" + indicators[i].unit + "]</th>";
                               }
@@ -316,7 +325,7 @@ export class IndicatorRadarComponent implements OnInit {
                                   htmlString += "<tr>";
                                   htmlString += "<td>" + radarSeries[j].name + "</td>";
                                   for (let k = 0; k < indicators.length; k++) {
-                                      htmlString += "<td>" + this.dataExchangeService.getIndicatorValue_asNumber(radarSeries[j].value[k]) + "</td>";
+                                      htmlString += "<td>" + this.dataExchangeService.getIndicatorValue_asFormattedText(radarSeries[j].value[k], this.radarOption.radar.indicator[k].precision) + "</td>";
                                   }
                                   htmlString += "</tr>";
                               }
@@ -480,7 +489,7 @@ export class IndicatorRadarComponent implements OnInit {
               for (var indicatorPropertyInstance of indicatorProperties) {
                   if (indicatorPropertyInstance[window.__env.FEATURE_NAME_PROPERTY_NAME] == featureProperties[window.__env.FEATURE_NAME_PROPERTY_NAME]) {
                       if (!this.dataExchangeService.indicatorValueIsNoData(indicatorPropertyInstance[this.DATE_PREFIX + date])) {
-                          featureSeries.value.push(this.dataExchangeService.getIndicatorValueFromArray_asNumber(indicatorPropertyInstance, date));
+                          featureSeries.value.push(this.dataExchangeService.getIndicatorValueFromArray_asNumber(indicatorPropertyInstance, date, this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime[i].indicatorMetadata.precision));
                       }
                       else {
                           featureSeries.value.push(null);

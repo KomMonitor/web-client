@@ -199,8 +199,8 @@ export class DataExchangeService {
     this.ajskommonitorDataExchangeServiceeProvider.generateIndicatorMetadataPdf(indicatorMetadata, pdfName, autosave);
   }
 
-  getIndicatorValue_asFormattedText(indicatorValue:any) {
-    return this.ajskommonitorDataExchangeServiceeProvider.getIndicatorValue_asFormattedText(indicatorValue);
+  getIndicatorValue_asFormattedText(indicatorValue:any, precision=undefined) {
+    return this.ajskommonitorDataExchangeServiceeProvider.getIndicatorValue_asFormattedText(indicatorValue, precision);
   }
 
   tsToDate_withOptionalUpdateInterval(value: any, interval:any) {
@@ -243,8 +243,8 @@ export class DataExchangeService {
     return this.ajskommonitorDataExchangeServiceeProvider.indicatorValueIsNoData(feature);
   }
 
-  getIndicatorValue_asNumber(value) {
-    return this.ajskommonitorDataExchangeServiceeProvider.getIndicatorValue_asNumber(value);
+  getIndicatorValue_asNumber(value, precision=undefined) {
+    return this.ajskommonitorDataExchangeServiceeProvider.getIndicatorValue_asNumber(value, precision);
   }
 
   setAllFeaturesProperty(indicatorMetadataAndGeoJSON, indicatorPropertyName) {
@@ -296,8 +296,8 @@ export class DataExchangeService {
     return propertyName;
   }
 
-  getIndicatorValueFromArray_asNumber(indicatorPropertyInstance, selectedDate) {
-    return this.ajskommonitorDataExchangeServiceeProvider.getIndicatorValueFromArray_asNumber(indicatorPropertyInstance, selectedDate);
+  getIndicatorValueFromArray_asNumber(indicatorPropertyInstance, selectedDate, precision=undefined) {
+    return this.ajskommonitorDataExchangeServiceeProvider.getIndicatorValueFromArray_asNumber(indicatorPropertyInstance, selectedDate, precision);
   }
 
   formatIndicatorNameForLabel(value, num) {
