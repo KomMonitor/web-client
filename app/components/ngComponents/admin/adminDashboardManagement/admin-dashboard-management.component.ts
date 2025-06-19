@@ -16,9 +16,6 @@ export class AdminDashboardManagementComponent implements OnInit, OnDestroy {
   numberOfMainTopics = 0;
   numberOfSubTopics = 0;
 
-  kommonitorDataExchangeService: any;
-  kommonitorDataExchangeServiceInstance: any;
-
   indicatorsPerTopicChart: any;
   georesourcesPerTypeChart: any;
   indicatorsPerSpatialUnitChart: any;
@@ -41,19 +38,17 @@ export class AdminDashboardManagementComponent implements OnInit, OnDestroy {
   private initializationTimeout: any;
 
   constructor(
-    @Inject('kommonitorDataExchangeService') public dataExchangeService: any,
+    @Inject('kommonitorDataExchangeService') public kommonitorDataExchangeService: any,
     private broadcastService: BroadcastService,
     private ngZone: NgZone,
     @Inject(DOCUMENT) private document: Document
   ) {
-    this.kommonitorDataExchangeService = dataExchangeService;
-    this.kommonitorDataExchangeServiceInstance = dataExchangeService;
+    console.log('AdminDashboardManagementComponent constructor initialized');
   }
 
   ngOnInit(): void {
+    console.log('AdminDashboardManagementComponent ngOnInit');
     this.loadingData = true;
-    this.kommonitorDataExchangeService = this.dataExchangeService;
-    this.kommonitorDataExchangeServiceInstance = this.dataExchangeService;
     
     // initialize any adminLTE box widgets
     ($('.box') as any).boxWidget();
@@ -379,7 +374,7 @@ export class AdminDashboardManagementComponent implements OnInit, OnDestroy {
             data: indicatorsPerSpatialUnitSeriesData,
             itemStyle: {
               normal: {
-                color: '#337ab7',
+                color: '#00a65b',
                 shadowBlur: 20,
                 shadowColor: 'rgba(0, 0, 0, 0.5)'
               },
