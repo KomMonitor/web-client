@@ -1,0 +1,106 @@
+<div id="adminDashboardContent">
+  <div align="center">
+    <div class="loading-overlay-admin-panel" *ngIf="loadingData">
+      <span class="glyphicon glyphicon-refresh icon-spin"></span>
+    </div>
+  </div>
+  <section class="content-header">
+    <h1>
+      &Uuml;bersicht
+      <small>Informationen &uuml;ber in KomMonitor enthaltene Daten</small>
+    </h1>
+  </section>
+  <section class="content container-fluid">
+    <div class="row vertical-align">
+      <div class="col-md-3 col-sm-6 col-xs-12"></div>
+      <div class="col-md-3 col-sm-6 col-xs-12">
+        <div class="small-box bg-aqua">
+          <div class="inner">
+            <h3>{{ kommonitorDataExchangeService.accessControl.length }}</h3>
+            <p>Organisationen </p>
+          </div>
+          <div class="icon">
+            <i class="fas fa-users"></i>
+          </div>
+          <a class="small-box-footer"></a>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6 col-xs-12">
+        <div class="small-box bg-gray">
+          <div class="inner">
+            <h3>{{ numberOfMainTopics }}&nbsp; &nbsp; / &nbsp; &nbsp;{{ numberOfSubTopics }}</h3>
+            <p>Haupt- &nbsp; &nbsp; / &nbsp; &nbsp; Unterthemen</p>
+          </div>
+          <div class="icon">
+            <i class="fas fa-book"></i>
+          </div>
+          <a class="small-box-footer"></a>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6 col-xs-12"></div>
+    </div>
+    <div class="row vertical-align">
+      <div class="col-md-3 col-sm-6 col-xs-12">
+        <div class="small-box bg-primary">
+          <div class="inner">
+            <h3>{{ kommonitorDataExchangeService.availableSpatialUnits.length }}</h3>
+            <p>Raumeinheiten</p>
+          </div>
+          <div class="icon">
+            <i class="fas fa-layer-group"></i>
+          </div>
+          <a class="small-box-footer"></a>
+        </div>
+        
+      </div>
+      <div class="col-md-3 col-sm-6 col-xs-12">
+        <div class="small-box bg-orange">
+          <div class="inner">
+            <h3>{{ kommonitorDataExchangeService.availableGeoresources.length }}</h3>
+            <p>Georessourcen</p>
+          </div>
+          <div class="icon">
+            <i class="fas fa-map-marked-alt"></i>
+          </div>
+          <a class="small-box-footer"></a>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6 col-xs-12">
+        <div class="small-box bg-green">
+          <div class="inner">
+            <h3>{{ kommonitorDataExchangeService.availableIndicators.length }}</h3>
+            <p>Indikatoren</p>
+          </div>
+          <div class="icon">
+            <i class="fas fa-sitemap"></i>
+          </div>
+          <a class="small-box-footer"></a>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6 col-xs-12">
+        <div class="small-box bg-purple">
+          <div class="inner">
+            <h3>{{ kommonitorDataExchangeService.availableProcessScripts.length }}</h3>
+            <p>Indikatorenskripte</p>
+          </div>
+          <div class="icon">
+            <i class="fas fa-file-code"></i>
+          </div>
+          <a class="small-box-footer"></a>
+        </div>
+      </div>
+    </div>
+    <div class="row vertical-align">
+      <div class="col-md-3 col-sm-6 col-xs-12">
+        <div id="indicatorsPerSpatialUnitDiagram" style="width:100%; min-height:500px;"></div>
+      </div>
+      <div class="col-md-3 col-sm-6 col-xs-12">
+        <div id="georesourcesPerTypeDiagram" style="width:100%; min-height:500px;"></div>
+      </div>
+      <div class="col-md-3 col-sm-6 col-xs-12">
+        <div id="indicatorsPerTopicDiagram" style="width:100%; min-height:500px;"></div>
+      </div>
+      <div class="col-md-3 col-sm-6 col-xs-12"></div>
+    </div>
+  </section>
+</div> 

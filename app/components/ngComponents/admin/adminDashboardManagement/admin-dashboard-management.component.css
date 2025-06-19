@@ -1,0 +1,60 @@
+
+@media (max-width: 768px) {
+  
+  .row.vertical-align {
+    flex-wrap: wrap;
+  }
+  
+ 
+  .col-md-3.col-sm-6.col-xs-12 {
+    flex: 0 0 100%;
+    max-width: 100%;
+    margin-bottom: 15px;
+  }
+  
+  .row.vertical-align:last-child .col-md-3.col-sm-6.col-xs-12 {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+  
+  
+  #indicatorsPerSpatialUnitDiagram,
+  #georesourcesPerTypeDiagram,
+  #indicatorsPerTopicDiagram {
+    width: 100% !important;
+    min-height: 300px !important;
+  }
+  
+  
+ 
+  
+  
+ 
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+ 
+  .col-md-3.col-sm-6.col-xs-12 {
+    flex: 0 0 50%;
+    max-width: 50%;
+  }
+  
+  
+  #indicatorsPerSpatialUnitDiagram,
+  #georesourcesPerTypeDiagram,
+  #indicatorsPerTopicDiagram {
+    min-height: 400px !important;
+  }
+}
+
+
+.row.vertical-align {
+  margin-bottom: 20px;
+}
+
+
+@media (max-width: 768px) {
+  .loading-overlay-admin-panel {
+    padding: 20px;
+  }
+} 
