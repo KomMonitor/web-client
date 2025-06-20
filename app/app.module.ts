@@ -62,6 +62,7 @@ import { AuthService } from 'services/auth-service/auth.service';
 import { KommonitorReachabilityComponent } from './components/ngComponents/userInterface/sidebar/kommonitorReachability/kommonitor-reachability.component';
 
 import { AuthInterceptor } from 'util/interceptors/auth.interceptor';
+import { FavFilter } from 'pipes/fav-filter.pipe';
 
 
 
@@ -130,6 +131,7 @@ declare var MathJax;
     ClassificationMethodSelectComponent,
     IndicatorNameFilter,
     SelectedIndicatorFilter,
+    FavFilter,
     BaseIndicatorOfComputedIndicatorFilter,
     BaseIndicatorOfHeadlineIndicatorFilter,
     RegressionDiagramComponent,

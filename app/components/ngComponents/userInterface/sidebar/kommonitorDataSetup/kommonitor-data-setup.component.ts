@@ -16,6 +16,41 @@ import { FavService } from 'services/fav-service/fav.service';
 })
 export class KommonitorDataSetupComponent implements OnInit {
 
+data =  [{
+				topicName: "first",
+				subTopics: [
+					{
+						topicName: "second-a",
+						subTopics: [
+							{
+								topicName: "third-first",
+								subTopics: [
+									{
+										topicName: "ferth",
+										subTopics: [
+											{
+												topicName: "fiver",
+												subTopics: []
+											}
+										]
+									}
+								]
+							}
+						]
+					},
+					{
+						topicName: "second-b",
+						subTopics: [
+							{
+								topicName: "third",
+								subTopics: []
+							}
+						]
+					}
+				]
+		}];
+
+
   exchangeData!:DataExchange;
   topicsCollapsed:string[] = [];
 
@@ -35,6 +70,7 @@ export class KommonitorDataSetupComponent implements OnInit {
   selectedDate;		
   
   indicatorFavTopicsTree:any[] = [];
+  indicatorFavTopicsTreePimped:any = {};
 
   indicatorTopicFavItems:any[] = []; 
   indicatorFavItems:any[] = [];
@@ -137,7 +173,8 @@ export class KommonitorDataSetupComponent implements OnInit {
           this.updateIndicatorOgcServices(values);
         } break;
         case 'favItemsStored': {
-          this.onSaveFavSelection();
+          this.onSaveFavSelection(values); 
+          // why called again?! button click calls onSaveFavSelection(true), which saves and broadcasts onSaveFavSelection(false) again ... // todo, check
         } break;
       }
     });
@@ -227,6 +264,10 @@ export class KommonitorDataSetupComponent implements OnInit {
     this.elementVisibilityHelperService.initElementVisibility();
 
     this.indicatorFavTopicsTree = this.prepTopicsTree(this.dataExchangeService.pipedData.topicIndicatorHierarchy,0,undefined);
+    this.indicatorFavTopicsTreePimped = {
+      topicName: 'Test',
+      subTopics: this.prepTopicsTree(this.dataExchangeService.pipedData.topicIndicatorHierarchy,0,undefined)
+    };
     this.addClickListenerToEachCollapseTrigger();
 
     var userInfo = this.favService.getUserInfo();
@@ -311,9 +352,10 @@ export class KommonitorDataSetupComponent implements OnInit {
           .toggleClass('glyphicon-chevron-down');
 
         // manage entries
+        console.log($(e));
         var clickedTopicId = $(e).attr('id');
-        if(document.getElementById('indicatorFavSubTopic-'+clickedTopicId)!.style!.display=='none')
-          document.getElementById('indicatorFavSubTopic-'+clickedTopicId)!.style!.display = 'block';
+        if(document.getElementById('indicatorFavSubTopic-'+clickedTopicId)?.style.display=='none')
+          document.getElementById('indicatorFavSubTopic-'+clickedTopicId)!.style.display = 'block';
         else
           document.getElementById('indicatorFavSubTopic-'+clickedTopicId)!.style!.display = 'none';
       });
@@ -569,7 +611,7 @@ export class KommonitorDataSetupComponent implements OnInit {
     }
   };
 /*
-  prettifyDateSliderLabels (dateAsMs) {
+  prettifyDateSlidertopicNames (dateAsMs) {
     return kommonitorDataExchangeService.tsToDate_withOptionalUpdateInterval(dateAsMs, kommonitorDataExchangeService.selectedIndicator.metadata.updateInterval);									
   }
 */
@@ -963,7 +1005,7 @@ export class KommonitorDataSetupComponent implements OnInit {
     this.exchangeData.wfsUrlForSelectedIndicator = indicatorWfsUrl;
   }
 
-  favTabShowTopic(topic) {
+  public favTabShowTopic(topic) {
     if(this.topicOrIndicatorInFavRecursive([topic]) || this.topicInFavTopBottom(topic))
       return true;
 
@@ -1188,7 +1230,7 @@ export class KommonitorDataSetupComponent implements OnInit {
     this.addClickListenerToEachCollapseTrigger();
   }
 
-  onSaveFavSelection(broadcast = true) {
+  onSaveFavSelection([broadcast]) {
     if(broadcast===true)
       this.favService.storeFavSelection();
 
@@ -1198,11 +1240,11 @@ export class KommonitorDataSetupComponent implements OnInit {
     this.handleToastStatus(2);
 
     if(broadcast===true)
-      this.broadcastService.broadcast("favItemsStored");
+      this.broadcastService.broadcast("favItemsStored",[false]);
   }
 
   handleToastStatus(type) {
-
+console.log(this.indicatorFavTopicsTree, this.indicatorTopicFavItems);
     this.favSelectionToastStatus = type;
 
     if(type==2) {

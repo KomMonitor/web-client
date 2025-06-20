@@ -50,7 +50,7 @@ export class FavService {
 
       let url = `${this.baseUrlToKomMonitorDataAPI}/userInfos/${this.userInfoId}`;
 
-      this.http.put(url, body).subscribe({
+     /*  this.http.put(url, body).subscribe({
         next: response => {
           console.log("userInfo data patched");
           this.favObject = response;
@@ -58,13 +58,13 @@ export class FavService {
         error: error => {
           console.log("Unable to store userInfo data");
         }
-      });
+      }); */
     } else {
       // userInfo does not exist yet, make initial post call
 
       let url = `${this.baseUrlToKomMonitorDataAPI}/userInfos`;
 
-      this.http.post(url, body).subscribe({
+     /*  this.http.post(url, body).subscribe({
         next: (response:any) => {
           this.userInfoExists = true;
           this.userInfoId = response.userInfoId;
@@ -74,7 +74,7 @@ export class FavService {
         error: error => {
           console.log("Unable to store userInfo data");
         }
-      });
+      }); */
     }
   }
 
@@ -83,10 +83,10 @@ export class FavService {
     
     this.http.get(`${this.baseUrlToKomMonitorDataAPI}/userInfos/user`, {'responseType': 'text'}).subscribe({
       next: (response:any) => {
-        if(response.data.userInfoId) {
+        if(response.userInfoId) {
           this.userInfoExists = true;
-          this.userInfoId = response.data.userInfoId;
-          this.favObject = response.data;
+          this.userInfoId = response.userInfoId;
+          this.favObject = response;
         }
       },
       error: error => {

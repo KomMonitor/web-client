@@ -285,7 +285,7 @@
                         <div class="just-padding">
 													<div class="list-group list-group-root well" style="text-align: left">
 
-                            <script type="text/ng-template" id="indicatorTopicTree">
+                            <!-- <script type="text/ng-template" id="indicatorTopicTree">
                               <div *ngIf="favTabShowTopic(topic) && topic.indicatorCount>0">
                                 <div class="list-group-item list-group-item-default list-group-item-grid-centered list-group-item-level-{{topic.level}}">
                                   <a *ngIf="topic.subTopics.length>0 || topic.indicatorData.length>0" id="{{topic.topicId}}" href="" title="{{topic.topicDescription}}"
@@ -306,15 +306,43 @@
                                   </div>
                                 </div>
                               </div>
-                            </script>
+                            </script> -->
 
                             <!-- todo:  | orderBy: 'topicName'  -->
-                            <div *ngFor="let topic of indicatorFavTopicsTree" ng-include="'indicatorTopicTree'"></div>
+                            <!-- <div *ngFor="let topic of indicatorFavTopicsTree" ng-include="'indicatorTopicTree'"></div> -->
+
+
+                            <ng-template #FavsRecursive let-list="list">
+                              <div *ngFor="let topic of list | favFilter:indicatorFavItems"> <!--  *ngIf="favTabShowTopic(topic) | orderBy: 'topicName'  -->
+                                <div class="list-group-item list-group-item-default list-group-item-grid-centered list-group-item-level-{{topic.level}}">
+                                  <p *ngIf="topic.subTopics.length>0 || topic.indicatorData.length>0" [attr.id]="topic.topicId" href="" title="{{topic.topicDescription}}"
+                                    class="indicatorFavCollapseTrigger" style="color: white;">
+                                  <i class="glyphicon glyphicon-chevron-right"></i>{{topic.topicName}}</p>
+                                  <p *ngIf="topic.subTopics.length==0 && topic.indicatorData.length==0">{{topic.topicName}}</p>
+                                  <i [hidden]="!showFavSelection" class="glyphicon glyphicon-custom" [ngClass]="{'glyphicon-star':indicatorTopicFavSelected(topic.topicId), 'glyphicon-star-empty':!indicatorTopicFavSelected(topic.topicId)}" (click)="onIndicatorTopicFavClick(topic.topicId,true)"></i>
+                                </div>
+                                <div [attr.id]="'indicatorFavSubTopic-'+topic.topicId" class="subTopic-block sub-topic-wrapper-level-{{topic.level}}" style="display:none">
+                                  <div *ngIf="topic.subTopics">
+                                    <ng-container *ngTemplateOutlet="FavsRecursive; context:{ list: topic.subTopics }"></ng-container>
+                                  </div>
+                                  <!--  | orderBy: 'indicatorName'  *ngIf="topic.indicatorData && favTabShowIndicator(data.indicatorId, topic)"  -->
+                                  <div *ngFor="let data of topic.indicatorData" class="indicator-element list-group-item-grid-layout" 
+                                    [ngClass]="{'style-headline-indicator': data.isHeadlineIndicator, 'selectedIndicator': dataExchangeService.pipedData.selectedIndicator.indicatorId==data.indicatorId}">
+                                    <div (click)="onClickHierarchyIndicator(data)">
+                                      <i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>{{data.indicatorName}}</b> [{{data.unit}}]
+                                    </div>
+                                    <i [hidden]="!showFavSelection" class="glyphicon glyphicon-custom" [ngClass]="{'glyphicon-star':indicatorFavSelected(data.indicatorId), 'glyphicon-star-empty':!indicatorFavSelected(data.indicatorId)}" (click)="onIndicatorFavClick(data.indicatorId,true)"></i>
+                                  </div>
+                                </div>
+                              </div>
+                            </ng-template>
+
+                            <ng-container *ngTemplateOutlet="FavsRecursive; context:{ list: indicatorFavTopicsTree}"></ng-container>
                           </div>
 												</div>
                       </div>
                     </div>
-                    <div class="favoritesToast" id="favoritesToast" (click)="onSaveFavSelection()" [ngClass]="{'disabled': favSelectionToastStatus==0, 'notSaved': favSelectionToastStatus==1, 'saved': favSelectionToastStatus==2}" *ngIf="showFavSelection">{{favSelectionToastText[favSelectionToastStatus]}}</div>
+                    <div class="favoritesToast" id="favoritesToast" (click)="onSaveFavSelection([true])" [ngClass]="{'disabled': favSelectionToastStatus==0, 'notSaved': favSelectionToastStatus==1, 'saved': favSelectionToastStatus==2}" *ngIf="showFavSelection">{{favSelectionToastText[favSelectionToastStatus]}}</div>
 
 
 									<!-- 	 <uib-tabset active="0">
