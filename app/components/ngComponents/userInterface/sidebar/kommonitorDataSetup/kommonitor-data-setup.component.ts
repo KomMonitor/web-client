@@ -16,41 +16,6 @@ import { FavService } from 'services/fav-service/fav.service';
 })
 export class KommonitorDataSetupComponent implements OnInit {
 
-data =  [{
-				topicName: "first",
-				subTopics: [
-					{
-						topicName: "second-a",
-						subTopics: [
-							{
-								topicName: "third-first",
-								subTopics: [
-									{
-										topicName: "ferth",
-										subTopics: [
-											{
-												topicName: "fiver",
-												subTopics: []
-											}
-										]
-									}
-								]
-							}
-						]
-					},
-					{
-						topicName: "second-b",
-						subTopics: [
-							{
-								topicName: "third",
-								subTopics: []
-							}
-						]
-					}
-				]
-		}];
-
-
   exchangeData!:DataExchange;
   topicsCollapsed:string[] = [];
 
