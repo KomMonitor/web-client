@@ -853,7 +853,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 		$rootScope.$on("screenshotsForCurrentSpatialUnitUpdate", function(event){
 			// update ui to enable button
-			$timeout(function() {
+			setTimeout(function() {
 				$scope.$digest();
 			})			
 		});
@@ -1049,7 +1049,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 	
 			}
 			
-			$timeout(function(){
+			setTimeout(function(){
 				$scope.$digest();
 			});
 		}
@@ -1563,7 +1563,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				}
 			}
 			$scope.loadingData = false;
-			$timeout(function(){
+			setTimeout(function(){
 				$scope.$digest();
 			});
 
@@ -3304,6 +3304,9 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 
 		$scope.initializeAllDiagrams = async function() {
+
+			console.log("called initAllDiagrams");
+
 			if(!$scope.template)
 				return;
 			if($scope.template.name.includes("timestamp") && $scope.selectedTimestamps.length === 0) {
@@ -3342,14 +3345,15 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			$scope.lastPageOfAddedSectionPrepared = false;
 			$scope.pagePreparationIndex = 0;
 			$scope.pagePreparationSize = document.querySelectorAll("[id^='reporting-addIndicator-page-'].reporting-page").length; // all starting with that id
+			let logProgressIndexSeparator = Math.round($scope.pagePreparationSize / 100 * 10);
 
-			$timeout(function () {
+			setTimeout(function () {
 				$scope.$digest();
 			});
 
 			for(let i=0; i<$scope.template.pages.length; i++) {
 
-				$timeout(async function(){
+				setTimeout(async function(){
 					pageIdx++;
 					let page = $scope.template.pages[i];
 					
@@ -3469,10 +3473,11 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					// wait additionally for 500 ms
 					$scope.pagePreparationIndex = i;
 
-					$timeout(function () {
-						$scope.$digest();
-					});
-
+					// every 10 percent log progress to user
+					if($scope.pagePreparationIndex % logProgressIndexSeparator === 0){
+						$scope.$digest();	
+					}				
+					
 					if (i == $scope.pagePreparationSize - 1) {
 						$scope.lastPageOfAddedSectionPrepared = true;
 						$timeout(function () {
@@ -3484,7 +3489,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			}
 
 			// apply current page configuration as it is performed asynchronously 
-				$timeout(function(){
+				setTimeout(function(){
 					$scope.onChangePageConfig();
 					$scope.onChangeShowPageSection();
 					$scope.$digest();
@@ -3681,7 +3686,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		$scope.onChangeDateSliderInterval = function() {
 			$scope.loadingData = true;
 			// needed to tell angular something has changed
-			$timeout(function(){
+			setTimeout(function(){
 				$scope.$digest();
 			});
 			// setup all pages with the new timeseries

@@ -214,7 +214,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 			$scope.config.pages[index] = new_page;
 			$scope.config.pages[index + 1] = old_page;
 
-			$timeout(function(){
+			setTimeout(function(){
 				$scope.$digest();
 			});
 
@@ -227,14 +227,14 @@ angular.module('reportingOverview').component('reportingOverview', {
 					if(mapElement && mapElement.leafletMap){
 
 						kommonitorLeafletScreenshotCacheHelperService.resetCounter(1, false);
-						$timeout(function(){
+						setTimeout(function(){
 							$scope.$digest();
 						});
 
 						let pageDom = document.querySelector("#reporting-overview-page-" + index);
 						let pElementDom = pageDom.querySelector("#reporting-overview-page-" + index + "-map");
 						let instance = echarts.getInstanceByDom(pElementDom);
-						$scope.initializeLeafletMap(new_page, mapElement, instance, $scope.currentSpatialUnit, true)
+						await $scope.initializeLeafletMap(new_page, mapElement, instance, $scope.currentSpatialUnit, true)
 
 					}		
 				}
@@ -420,7 +420,9 @@ angular.module('reportingOverview').component('reportingOverview', {
 					// $scope.pagePreparationSize = $scope.config.pages.length; 
 					$scope.pagePreparationSize = document.querySelectorAll("[id^='reporting-overview-page-'].reporting-page").length;
 
-					$timeout(function () {
+					let logProgressIndexSeparator = Math.round($scope.pagePreparationSize / 100 * 10);
+
+					setTimeout(function () {
 						$scope.$digest();
 					});
 
@@ -430,7 +432,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 								continue; // only do changes to new pages
 						}
 
-						$timeout(async function(){
+						setTimeout(async function(){
 							// Indicator and spatial unit are the same for all added pages								
 
 							let pageDom = document.querySelector("#reporting-overview-page-" + idx);
@@ -558,13 +560,14 @@ angular.module('reportingOverview').component('reportingOverview', {
 							// wait additionally for 500 ms
 							$scope.pagePreparationIndex = idx;
 
-							$timeout(function(){
-									$scope.$digest();
-								});
+							// every 10 percent log progress to user
+							if($scope.pagePreparationIndex % logProgressIndexSeparator === 0){
+								$scope.$digest();	
+							}	
 
 							if(idx == $scope.pagePreparationSize - 1){
 								$scope.lastPageOfAddedSectionPrepared = true;
-								$timeout(function(){
+								setTimeout(function(){
 									$scope.$digest();
 								}, 1000);
 							}
@@ -574,10 +577,10 @@ angular.module('reportingOverview').component('reportingOverview', {
 						
 					}
 					$scope.loadingData = false;
-					$timeout(function(){
+					setTimeout(function(){
 						$scope.$digest();
 					});
-				} else {
+				} else {					
 					$scope.handleSetupNewPagesForReachability(templateSection)
 				}
 		}
@@ -611,13 +614,18 @@ angular.module('reportingOverview').component('reportingOverview', {
 
 			$scope.geoJsonForReachability_byFeatureName.set("undefined", features);		
 
+			$scope.lastPageOfAddedSectionPrepared = false;
+			$scope.pagePreparationIndex = 0;
+			// $scope.pagePreparationSize = $scope.config.pages.length; 
+			$scope.pagePreparationSize = document.querySelectorAll("[id^='reporting-overview-page-'].reporting-page").length;
+
 			for(let [idx, page] of $scope.config.pages.entries()) {
 
 				if(page.templateSection.poiLayerName !== poiLayerName) {
 					continue; // only do changes to new pages
 				}
 
-				$timeout(async function(){
+				setTimeout(async function(){
 					let pageDom = document.querySelector("#reporting-overview-page-" + idx);
 					for(let pageElement of page.pageElements) {
 						let pElementDom = pageDom.querySelector("#reporting-overview-page-" + idx + "-" + pageElement.type)
@@ -686,13 +694,13 @@ angular.module('reportingOverview').component('reportingOverview', {
 					// if the last page is reached and full prepared we want to show that to the user
 					// wait additionally for 500 ms
 					$scope.pagePreparationIndex = idx;
-					$timeout(function(){
-									$scope.$digest();
-								});
+					setTimeout(function(){
+						$scope.$digest();
+					});
 
 					if (idx == $scope.pagePreparationSize - 1) {
 						$scope.lastPageOfAddedSectionPrepared = true;
-						$timeout(function () {
+						setTimeout(function () {
 							$scope.$digest();
 						}, 1000);
 					}
@@ -700,14 +708,14 @@ angular.module('reportingOverview').component('reportingOverview', {
 
 			}
 			$scope.loadingData = false;
-			$timeout(function(){
+			setTimeout(function(){
 				$scope.$digest();
 			});
 		}
 
 		$rootScope.$on("screenshotsForCurrentSpatialUnitUpdate", function(event){
 			// update ui to enable button
-			$timeout(function() {
+			setTimeout(function() {
 				$scope.$digest();
 			})			
 		});
@@ -1045,7 +1053,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 
 		$scope.importConfig = function(config) {
 			$scope.loadingData = true;
-			$timeout(function(){
+			setTimeout(function(){
 				$scope.$digest();
 			});
 			try {
@@ -1109,7 +1117,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 					}
 				}
 				
-				$timeout(function(){
+				setTimeout(function(){
 					$scope.$digest();
 				});
 
@@ -1680,7 +1688,7 @@ angular.module('reportingOverview').component('reportingOverview', {
       let now = getCurrentDateAndTime();
       doc.writeFile({ fileName: now + "_KomMonitor-Report.pptx" });
 			$scope.loadingData = false;
-			$timeout(function(){
+			setTimeout(function(){
 				$scope.$digest();
 			});
     }
@@ -1924,7 +1932,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 			let now = getCurrentDateAndTime();
 			doc.save(now + "_KomMonitor-Report.pdf");
 			$scope.loadingData = false;
-			$timeout(function(){
+			setTimeout(function(){
 				$scope.$digest();
 			});
 		}
@@ -1974,7 +1982,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 			zip.generateAsync({type:"blob"}).then(function(content) {
 				saveAs(content, zipFileName + ".zip");
 				$scope.loadingData = false;
-				$timeout(function(){
+				setTimeout(function(){
 					$scope.$digest();
 				});
 			});
@@ -2575,7 +2583,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 			docx.Packer.toBlob(doc).then((blob) => {
 				saveAs(blob, filename + ".docx");
 				$scope.loadingData = false;
-				$timeout(function(){
+				setTimeout(function(){
 					$scope.$digest();
 				});
 			});
