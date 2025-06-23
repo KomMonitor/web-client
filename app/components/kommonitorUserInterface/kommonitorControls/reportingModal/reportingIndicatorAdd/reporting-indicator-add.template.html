@@ -551,12 +551,12 @@
                         <span ng-show="!template.name.includes('-reachability')">Indikator hinzufügen</span>
                     </button>
 
-                    <button ng-disabled="true" style="margin-right: 15px;" ng-show="! $ctrl.kommonitorLeafletScreenshotCacheHelperServiceInstance.screenshotsForCurrentSpatialUnitUpdate" type="button" class="btn btn-info pull-right">
+                    <button ng-disabled="true" style="margin-right: 15px;" ng-show="! $ctrl.kommonitorLeafletScreenshotCacheHelperServiceInstance.screenshotsForCurrentSpatialUnitUpdate && $ctrl.kommonitorLeafletScreenshotCacheHelperServiceInstance.targetNumberOfSpatialUnitFeatures > 0" type="button" class="btn btn-info pull-right">
                         <span class="glyphicon glyphicon-refresh icon-spin"></span>
                         <span>Kartenbildaufbereitung: {{$ctrl.kommonitorLeafletScreenshotCacheHelperServiceInstance.executedScreenshotMapKeys.size}} von {{$ctrl.kommonitorLeafletScreenshotCacheHelperServiceInstance.targetNumberOfSpatialUnitFeatures}}</span>
                     </button>
 
-                    <button ng-disabled="true" style="margin-right: 15px;" ng-show="! lastPageOfAddedSectionPrepared" type="button" class="btn btn-warning pull-right">
+                    <button ng-disabled="true" style="margin-right: 15px;" ng-show="! lastPageOfAddedSectionPrepared && pagePreparationSize > 0" type="button" class="btn btn-warning pull-right">
                         <span class="glyphicon glyphicon-refresh icon-spin"></span>
                         <span>Reportaufbereitung: {{pagePreparationIndex + 1}} von {{pagePreparationSize}}</span>
                     </button>
