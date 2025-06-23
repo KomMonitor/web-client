@@ -1630,6 +1630,15 @@ table, th, td {
 	overflow: auto !important; 
 }
 
+/* override bootstrap modal as animations do not work properly */
+.modal-holder.fade.show {
+    opacity: 1 !important;
+}
+
+.modal {
+    z-index: 1150 !important;
+}
+
 @media (min-width: 992px){
 	.modal-xl {
 			width: 1500px;

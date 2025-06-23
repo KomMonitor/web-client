@@ -47,7 +47,7 @@ export class KommonitorDataSetupComponent implements OnInit {
   headlineIndicatorFavItems:any[] = [];
   baseIndicatorFavItems:any[] = [];
   favSelectionToastStatus = 0;
-  showFavSelection = true;
+  showFavSelection = false;
 
   favSelectionToastText = ['',
     'Favoriten-Auswahl nicht gesichert. Zum speichern hier klicken',
@@ -236,7 +236,6 @@ export class KommonitorDataSetupComponent implements OnInit {
     this.addClickListenerToEachCollapseTrigger();
 
     var userInfo = this.favService.getUserInfo();
-    console.log(userInfo)
     if(userInfo.indicatorFavourites) {
       this.indicatorFavItems = userInfo.indicatorFavourites;
       this.FavTabIndicatorFavItems = userInfo.indicatorFavourites;
@@ -316,9 +315,10 @@ export class KommonitorDataSetupComponent implements OnInit {
           .toggleClass('glyphicon-chevron-right')
           .toggleClass('glyphicon-chevron-down');
 
-        // manage entries
-        console.log($(e));
-        var clickedTopicId = $(e).attr('id');
+        // manage entries;
+        // todo rebuild dirty elem[0] structure, maybe with ngb
+        let elem:any = $(e);
+        var clickedTopicId = elem[0].currentTarget.id;
         if(document.getElementById('indicatorFavSubTopic-'+clickedTopicId)?.style.display=='none')
           document.getElementById('indicatorFavSubTopic-'+clickedTopicId)!.style.display = 'block';
         else
@@ -1209,7 +1209,6 @@ export class KommonitorDataSetupComponent implements OnInit {
   }
 
   handleToastStatus(type) {
-console.log(this.indicatorFavTopicsTree, this.indicatorTopicFavItems);
     this.favSelectionToastStatus = type;
 
     if(type==2) {

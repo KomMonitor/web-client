@@ -41,6 +41,13 @@ export class ElementVisibilityHelperService implements OnInit {
     this.configStorageService.controlsConfig.forEach(element => {
         this.elementVisibility[element.id] = this.checkElementVisibility(element.id);
     });
+
+    // todo, change back to & check function
+    //if(this.authService.Auth.keycloak.authenticated && window.__env.showFavoriteSelection)
+    if(this.authService.Auth.keycloak.authenticated)
+      this.elementVisibility['favSelection'] = true;
+    else
+      this.elementVisibility['favSelection'] = false;
         
     /* this.broadcastService.broadcast("changeIndicatorDate"); */
   }

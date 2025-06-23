@@ -47,10 +47,9 @@ export class FavService {
     delete(body.keycloakId);
     
     if(this.userInfoExists===true) {
-
       let url = `${this.baseUrlToKomMonitorDataAPI}/userInfos/${this.userInfoId}`;
 
-     /*  this.http.put(url, body).subscribe({
+      this.http.put(url, body).subscribe({
         next: response => {
           console.log("userInfo data patched");
           this.favObject = response;
@@ -58,13 +57,11 @@ export class FavService {
         error: error => {
           console.log("Unable to store userInfo data");
         }
-      }); */
+      });
     } else {
-      // userInfo does not exist yet, make initial post call
-
       let url = `${this.baseUrlToKomMonitorDataAPI}/userInfos`;
 
-     /*  this.http.post(url, body).subscribe({
+      this.http.post(url, body).subscribe({
         next: (response:any) => {
           this.userInfoExists = true;
           this.userInfoId = response.userInfoId;
@@ -74,14 +71,14 @@ export class FavService {
         error: error => {
           console.log("Unable to store userInfo data");
         }
-      }); */
+      });
     }
   }
 
   init(){
     console.log("Favs init");
     
-    this.http.get(`${this.baseUrlToKomMonitorDataAPI}/userInfos/user`, {'responseType': 'text'}).subscribe({
+    this.http.get(`${this.baseUrlToKomMonitorDataAPI}/userInfos/user`, {'responseType': 'json'}).subscribe({
       next: (response:any) => {
         if(response.userInfoId) {
           this.userInfoExists = true;
