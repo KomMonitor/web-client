@@ -348,16 +348,16 @@ export class DiagramHelperServiceService {
     return color;
   }
   
-  getBarChartOptions() {
-    return this.barChartOptions;
+  getBarChartOptions(customFontFamilyEnabled = false) {
+    return this.prepCustomStyling(customFontFamilyEnabled, this.barChartOptions);
   }
 
-  getGeoMapChartOptions() {
-    return this.geoMapChartOptions;
+  getGeoMapChartOptions(customFontFamilyEnabled = false) {
+    return this.prepCustomStyling(customFontFamilyEnabled, this.geoMapChartOptions);
   }
 
-  getHistogramChartOptions() {
-    return this.histogramChartOptions;
+  getHistogramChartOptions(customFontFamilyEnabled = false) {
+    return this.prepCustomStyling(customFontFamilyEnabled, this.histogramChartOptions);
   }
 
   getLineChartOptions(customFontFamilyEnabled = false) {
