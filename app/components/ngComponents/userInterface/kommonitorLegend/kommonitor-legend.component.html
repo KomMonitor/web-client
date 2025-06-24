@@ -21,12 +21,12 @@
             <div>						
               <div class="row" style="margin-right: 0px;">
                 <div class="col-sm-7"> <!-- *ngIf="env.enableSpatialUnitNotificationButton" -->
-                  <div class="text-left"><label>Raumebene</label><a  data-toggle="modal" (click)="showSpatialUnitNotificationModalIfEnabled()" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%; cursor:pointer;" title="Information zu Raumeinheiten&nbsp;&nbsp;"><span class="glyphicon glyphicon-info-sign"></span></a></div>
+                  <div class="text-left"><label>Raumebene</label><a  data-toggle="modal" (click)="showSpatialUnitNotificationModalIfEnabled()" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%; cursor:pointer;" title="Information zu Raumebenen&nbsp;&nbsp;"><span class="glyphicon glyphicon-info-sign"></span></a></div>
                   <!-- <select id="spatialUnitSelectionInput" style="font-size: 12px;" ng-model="exchangeData.selectedSpatialUnit"
                     ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in exchangeData.availableSpatialUnits | filter:filterSpatialUnits()"
                     class="form-control" ng-change="onChangeSelectedSpatialUnit()" required> -->
                     <select (change)="onChangeSelectedSpatialUnit()" [ngModel]="exchangeData.selectedSpatialUnit">
-                      <option disabled selected value> -- Raumeinheit w&auml;hlen --</option>
+                      <option disabled selected value> -- Raumebene w&auml;hlen --</option>
                       <option *ngFor="let item of filteredSpatialUnits()" [value]="item">{{item.spatialUnitLevel }}</option>
                     </select>
                 </div>
@@ -101,7 +101,7 @@
           </ul>
           <div class="tab-content" id="legendTabContent">
             <div class="tab-pane active" id="legendTab1Content" role="tabpanel"
-              aria-labelledby="legendTab1">
+              aria-labelledby="legendTab1" class="kommonitor-theme">
                 
               <div class="just-padding">
                 
@@ -165,7 +165,7 @@
                 <div *ngIf="(filterHelperService.filteredIndicatorFeatureIds.size > 0) && (!filterHelperService.completelyRemoveFilteredFeaturesFromDisplay)">
                   <div class="row" style="margin-right: 0px;">
                     <div class="col-md-3"><i [ngStyle]="{background: env.defaultColorForFilteredValues, border: '2px solid '+env.defaultBorderColorForFilteredValues, opacity: visualStyleService.currentIndicatorOpacity}"></i></div>
-                    <div class="col-md-6">gefilterte Features</div>
+                    <div class="col-md-6">gefilterte Raumeinheiten</div>
                     <div class="col-md-3">{{filterHelperService.filteredIndicatorFeatureIds.size}}</div><br>
                   </div>				
                 </div>
@@ -312,7 +312,7 @@
               </div>
             </div>
             <div class="tab-pane" id="legendTab2Content" role="tabpanel"
-              aria-labelledby="legendTab2">
+              aria-labelledby="legendTab2" class="kommonitor-theme">
 
               <div class="just-padding">
                 <h4>&Uuml;bersicht Metadaten</h4>
@@ -481,7 +481,7 @@
 
             </div>
             <div class="tab-pane" id="legendTab3Content" role="tabpanel"
-              aria-labelledby="legendTab3">
+              aria-labelledby="legendTab3" class="kommonitor-theme">
 
               
               <div class="just-padding">

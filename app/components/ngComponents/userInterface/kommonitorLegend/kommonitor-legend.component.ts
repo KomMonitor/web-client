@@ -36,6 +36,8 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
   isStatisticCollapsed = true;
 
   classificationCollapsed = true;
+  globalFilterActivated = false;
+  actualSelectedSpatialUnitId = undefined;
 
   isDisabledDate;
   datePickerDate;
@@ -112,8 +114,16 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
           case 'updateDatePickerSelectedDate': {
             this.onUpdateDatePickerSelectedDate(values);
           } break;
+          case 'onGlobalFilterChange': {
+            this.onGlobalFilterChange();
+          } break;
         }
       });
+  }
+
+  onGlobalFilterChange() {
+    this.actualSelectedSpatialUnitId = undefined;
+    this.globalFilterActivated = true;
   }
 
   onUpdateDatePicker([dates]) {
@@ -152,8 +162,37 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
   }
 
   onChangeSelectedSpatialUnit() {
-console.log(this.dataExchangeService.pipedData.selectedSpatialUnit)
-   this.broadcastService.broadcast("changeSpatialUnit");
+
+    /* 
+      onChangeSelectedSpatialUnit changed to be called by on-click iso on-change
+      on-change was triggerd as well by selecting a global filter. here in some occations the metadata-loading took longer, resulting in an error following this $broadcast("changeSpatialUnit")
+      on-click needed some workaround to cover the actual change of selection iso just the initial click or the change by the global filter
+    */
+
+    if(!this.actualSelectedSpatialUnitId && this.globalFilterActivated) {
+      // initial click, no change yet. Define currently selected spatial unit
+      this.actualSelectedSpatialUnitId = this.dataExchangeService.pipedData.selectedSpatialUnit.spatialUnitId;
+      this.globalFilterActivated = false;
+    } else {
+
+      if(this.dataExchangeService.pipedData.selectedSpatialUnit && this.dataExchangeService.pipedData.selectedSpatialUnit.spatialUnitId!=this.actualSelectedSpatialUnitId) {
+
+        this.actualSelectedSpatialUnitId = this.dataExchangeService.pipedData.selectedSpatialUnit.spatialUnitId;
+        this.broadcastService.broadcast("changeSpatialUnit");
+
+        if(window.__env.enableSpatialUnitNotificationSelection) {
+          if(! (localStorage.getItem("hideKomMonitorSpatialUnitNotification") === "true")) {
+            let selectedSpatialUnitName = this.dataExchangeService.pipedData.selectedSpatialUnit.spatialUnitLevel;
+            if(window.__env.spatialUnitNotificationSelection.includes(selectedSpatialUnitName)) {
+              this.openSpatialunitModal()
+            }
+          }
+        }
+      }
+    }
+
+    // old, prior merge but past migration
+  /*  this.broadcastService.broadcast("changeSpatialUnit");
 
     if(this.env.enableSpatialUnitNotificationSelection) {
       if(localStorage.getItem("hideKomMonitorSpatialUnitNotification") && localStorage.getItem("hideKomMonitorSpatialUnitNotification")=== "true") {
@@ -163,7 +202,7 @@ console.log(this.dataExchangeService.pipedData.selectedSpatialUnit)
           this.openSpatialunitModal()
         }
       }
-    } 
+    }  */
   }
   
   showSpatialUnitNotificationModalIfEnabled() {
