@@ -650,6 +650,22 @@ angular.module('kommonitorMap').component(
             thousandsSep: '.'
           };
 
+          // https://github.com/ljagis/leaflet-measure/issues/171
+          // workaround for leaflet-measure BUG since leaflet 1.8.0
+          L.Control.Measure.include({
+            // set icon on the capture marker
+            _setCaptureMarkerIcon: function () {
+              // disable autopan
+              this._captureMarker.options.autoPanOnFocus = false;
+
+              // default function
+              this._captureMarker.setIcon(
+                L.divIcon({
+                  iconSize: this._map.getSize().multiplyBy(2)
+                })
+              );
+            },
+          });
           $scope.measureControl = new L.Control.Measure(measureOptions);
           $scope.measureControl.addTo($scope.map);
 
