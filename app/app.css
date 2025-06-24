@@ -469,6 +469,10 @@ pre.CodeMirror-line {
 
 .list-group .list-group-item-grid-layout div:first-child {
   cursor: pointer;
+
+  display: grid;
+  grid-template-columns: auto min-content;
+  padding-right: 2em;
 }
 
 .list-group .list-group-item-grid-layout.selectedIndicator {

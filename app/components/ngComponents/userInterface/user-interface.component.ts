@@ -98,8 +98,8 @@ export class UserInterfaceComponent implements OnInit {
 			}, 1000);
 
       // open infoModal ico
-      if(!localStorage.getItem('hideKomMonitorAppGreeting') || localStorage.getItem('hideKomMonitorAppGreeting') === 'false')
-        this.openInfoModal();
+      /* if(!localStorage.getItem('hideKomMonitorAppGreeting') || localStorage.getItem('hideKomMonitorAppGreeting') === 'false')
+        this.openInfoModal(); */
   
       //this.openReportingModal();
   }
