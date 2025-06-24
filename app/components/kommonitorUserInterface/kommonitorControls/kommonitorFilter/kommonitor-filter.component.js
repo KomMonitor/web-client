@@ -351,7 +351,10 @@ angular
 
 								kommonitorFilterHelperService.applyRangeFilter($scope.indicatorMetadataAndGeoJSON.geoJSON.features, dateProperty, $scope.currentLowerFilterValue, $scope.currentHigherFilterValue);
 
-								$scope.$digest();
+								setTimeout(function(){
+									$scope.$digest();
+								})
+								
 							}
 
 
@@ -507,13 +510,7 @@ angular
 								//send request to datamanagement API
 								let selectedSpatialUnit = kommonitorDataExchangeService.selectedSpatialUnit;
 								let selectedSpatialUnitId = selectedSpatialUnit.spatialUnitId;
-								let upperSpatialUnitId = undefined;
-								
-								// spatial filter not applicable since no upper spatial unit is available or selected
-								if(! $scope.selectedSpatialUnitForFilter){
-									$scope.loadingData = false;
-									return;
-								}
+								let upperSpatialUnitId = undefined;															
 
 								if (selectionType === "byFeature" && $scope.selectedSpatialUnitForFilter) {									
 									upperSpatialUnitId = $scope.selectedSpatialUnitForFilter.spatialUnitId;																		
