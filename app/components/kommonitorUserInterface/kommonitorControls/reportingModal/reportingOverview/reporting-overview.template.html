@@ -10,13 +10,13 @@
                 <div id="reporting-overwiew-indicators-wrapper">
                     <button ng-show="!config.template.name.includes('-reachability')" id="reporting-configureIndicatorBtn"
                         class="btn btn-success" ng-click='onConfigureNewIndicatorClicked()'
-                        ng-disabled="loadingData || ! lastPageOfAddedSectionPrepared || ! $ctrl.kommonitorLeafletScreenshotCacheHelperServiceInstance.screenshotsForCurrentSpatialUnitUpdate">
+                        ng-disabled="loadingData || (! lastPageOfAddedSectionPrepared && pagePreparationSize > 0) || (! $ctrl.kommonitorLeafletScreenshotCacheHelperServiceInstance.screenshotsForCurrentSpatialUnitUpdate && $ctrl.kommonitorLeafletScreenshotCacheHelperServiceInstance.targetNumberOfSpatialUnitFeatures > 0)">
                         <i class="fa fa-plus"></i>
                         <span >&nbsp;&nbsp;Indikator konfigurieren</span>
                     </button>
                     <button ng-show="config.template.name.includes('-reachability')" id="reporting-configurePoiLayerrBtn"
                         class="btn btn-success" ng-click='onConfigureNewPoiLayerClicked()'
-                        ng-disabled="loadingData || ! lastPageOfAddedSectionPrepared || ! $ctrl.kommonitorLeafletScreenshotCacheHelperServiceInstance.screenshotsForCurrentSpatialUnitUpdate">
+                        ng-disabled="loadingData || (! lastPageOfAddedSectionPrepared && pagePreparationSize > 0) || (! $ctrl.kommonitorLeafletScreenshotCacheHelperServiceInstance.screenshotsForCurrentSpatialUnitUpdate && $ctrl.kommonitorLeafletScreenshotCacheHelperServiceInstance.targetNumberOfSpatialUnitFeatures > 0)">
                         <i class="fa fa-plus"></i>
                         <span>&nbsp;&nbsp;POI-Layer konfigurieren</span>
                     </button>

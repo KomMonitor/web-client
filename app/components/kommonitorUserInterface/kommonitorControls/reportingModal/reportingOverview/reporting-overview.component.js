@@ -111,7 +111,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 			if(! page || !page.templateSection || !page.templateSection.pageConfig){
 				return true;
 			}
-			
+
 			switch(pageElement.type) {
 				case "indicatorTitle-landscape":
 				case "indicatorTitle-portrait": {
