@@ -9,12 +9,14 @@
             <div class="col-sm-3" id="reporting-overview-sidebar">
                 <div id="reporting-overwiew-indicators-wrapper">
                     <button ng-show="!config.template.name.includes('-reachability')" id="reporting-configureIndicatorBtn"
-                        class="btn btn-success" ng-click='onConfigureNewIndicatorClicked()'>
+                        class="btn btn-success" ng-click='onConfigureNewIndicatorClicked()'
+                        ng-disabled="loadingData || ! lastPageOfAddedSectionPrepared || ! $ctrl.kommonitorLeafletScreenshotCacheHelperServiceInstance.screenshotsForCurrentSpatialUnitUpdate">
                         <i class="fa fa-plus"></i>
                         <span >&nbsp;&nbsp;Indikator konfigurieren</span>
                     </button>
                     <button ng-show="config.template.name.includes('-reachability')" id="reporting-configurePoiLayerrBtn"
-                        class="btn btn-success" ng-click='onConfigureNewPoiLayerClicked()'>
+                        class="btn btn-success" ng-click='onConfigureNewPoiLayerClicked()'
+                        ng-disabled="loadingData || ! lastPageOfAddedSectionPrepared || ! $ctrl.kommonitorLeafletScreenshotCacheHelperServiceInstance.screenshotsForCurrentSpatialUnitUpdate">
                         <i class="fa fa-plus"></i>
                         <span>&nbsp;&nbsp;POI-Layer konfigurieren</span>
                     </button>
@@ -73,40 +75,40 @@
                                     ng-bind-html="pageElement.placeholderText">
                                 </span>
                                 <!-- do different things depending on type once the placeholder is replaced (pageElement.isPlaceholder == false) -->
-                                <span ng-show="config.pageConfig.showPageNumber && pageElement.type.includes('pageNumber-') && pageElement.isPlaceholder == false"
+                                <span ng-show="page.templateSection.pageConfig.showPageNumber && pageElement.type.includes('pageNumber-') && pageElement.isPlaceholder == false"
                                     ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
                                     Seite {{getPageNumber($parent.$index)}}
                                 </span>
 
-                                <span ng-show="config.pageConfig.showFooterCreationInfo && pageElement.type.includes('footerCreationInfo-') && pageElement.isPlaceholder == false"
+                                <span ng-show="page.templateSection.pageConfig.showFooterCreationInfo && pageElement.type.includes('footerCreationInfo-') && pageElement.isPlaceholder == false"
                                     ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
                                     {{pageElement.text}}
                                 </span>
 
-                                <span ng-show="config.pageConfig.showFreeText &&  pageElement.type == 'textInput' && pageElement.isPlaceholder == false"
+                                <span ng-show="page.templateSection.pageConfig.showFreeText &&  pageElement.type == 'textInput' && pageElement.isPlaceholder == false"
                                     ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
                                     {{pageElement.text}}
                                 </span>
 
-                                <img ng-show="config.pageConfig.showLogo && pageElement.type.includes('communeLogo-') && pageElement.isPlaceholder == false"
+                                <img ng-show="page.templateSection.pageConfig.showLogo && pageElement.type.includes('communeLogo-') && pageElement.isPlaceholder == false"
                                     ng-attr-src="{{pageElement.src}}">
 
-                                <span ng-show="config.pageConfig.showTitle && pageElement.type.includes('indicatorTitle-') && pageElement.isPlaceholder == false"
+                                <span ng-show="page.templateSection.pageConfig.showTitle && pageElement.type.includes('indicatorTitle-') && pageElement.isPlaceholder == false"
                                     ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
                                     {{pageElement.text}}
                                 </span>
 
-                                <span ng-show="config.pageConfig.showSubtitle && pageElement.type.includes('dataTimestamp-') && pageElement.isPlaceholder == false"
+                                <span ng-show="page.templateSection.pageConfig.showSubtitle && pageElement.type.includes('dataTimestamp-') && pageElement.isPlaceholder == false"
                                     ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
                                     {{pageElement.text}}
                                 </span>
 
-                                <span ng-show="config.pageConfig.showSubtitle && pageElement.type.includes('dataTimeseries-') && pageElement.isPlaceholder == false"
+                                <span ng-show="page.templateSection.pageConfig.showSubtitle && pageElement.type.includes('dataTimeseries-') && pageElement.isPlaceholder == false"
                                     ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
                                     {{pageElement.text}}
                                 </span>
 
-                                <span ng-show="config.pageConfig.showSubtitle && pageElement.type.includes('reachability-subtitle-') && pageElement.isPlaceholder == false"
+                                <span ng-show="page.templateSection.pageConfig.showSubtitle && pageElement.type.includes('reachability-subtitle-') && pageElement.isPlaceholder == false"
                                     ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
                                     {{pageElement.text}}
                                 </span>

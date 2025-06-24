@@ -33,30 +33,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 				// }
 			],
 			pages: [],
-			template: {},
-			pageConfig: {
-				mapLegendBackgroundColor: "rgba(255, 255, 255, 0.75)",
-				showMapLabels: true,
-				showRankingChartPerArea: true,
-				showLineChartPerArea: true,
-				showFreeText: true,
-				showRankingMeanLine: true,
-				showTitle: true,
-				showSubtitle: true,
-				showLogo: true,
-				showFooterCreationInfo: true,
-				showPageNumber: true,
-				sections: {
-					showOverviewSection_unclassified: true,
-					showOverviewSection_classified: true,
-					showBarchartOverview: true,
-					showLinechartOverview: true,
-					showBoxplotchartOverview: true,
-					showAreaSpecific: true,
-					showOverviewSection_reachability: true,
-					showDatatable: true
-				}
-			}
+			template: {},			
 		};
 
 		this.kommonitorLeafletScreenshotCacheHelperServiceInstance = kommonitorLeafletScreenshotCacheHelperService;
@@ -106,6 +83,8 @@ angular.module('reportingOverview').component('reportingOverview', {
 	}
 
 		$scope.initialize = function(data) {
+			$scope.config.templateSections = [];
+
 			let configFileSelected = data[0];
 			data = data[1];
 			if(configFileSelected) {
@@ -114,9 +93,9 @@ angular.module('reportingOverview').component('reportingOverview', {
 				$scope.config.template = JSON.parse(JSON.stringify(data));
 				$scope.config.pages = $scope.config.template.pages;
 			}
-			$scope.config.templateSections = [];
+			
 			let deviceScreenDpi = calculateScreenDpi();
-      $scope.deviceScreenDpi = deviceScreenDpi;
+      		$scope.deviceScreenDpi = deviceScreenDpi;
 			$scope.pxPerMilli = deviceScreenDpi / 25.4 // /2.54 --> cm, /10 --> mm
 
 			$scope.setCustomFont(); 
@@ -129,39 +108,43 @@ angular.module('reportingOverview').component('reportingOverview', {
 		};
 
 		$scope.checkVisibility = function(pageElement, page){
+			if(! page || !page.templateSection || !page.templateSection.pageConfig){
+				return true;
+			}
+			
 			switch(pageElement.type) {
 				case "indicatorTitle-landscape":
 				case "indicatorTitle-portrait": {
-					return $scope.config.pageConfig.showTitle;
+					return page.templateSection.pageConfig.showTitle;
 				}
 	
 				case "communeLogo-landscape":
 				case "communeLogo-portrait": {
-					return $scope.config.pageConfig.showLogo;
+					return page.templateSection.pageConfig.showLogo;
 				}
 				case "dataTimestamp-landscape":
 				case "dataTimestamp-portrait": {
-					return $scope.config.pageConfig.showSubtitle;
+					return page.templateSection.pageConfig.showSubtitle;
 				}
 				case "dataTimeseries-landscape":
 				case "dataTimeseries-portrait": {
-					return $scope.config.pageConfig.showSubtitle;
+					return page.templateSection.pageConfig.showSubtitle;
 				}
 				case "reachability-subtitle-landscape":
 				case "reachability-subtitle-portrait": {
-					return $scope.config.pageConfig.showSubtitle;
+					return page.templateSection.pageConfig.showSubtitle;
 				}
 				case "footerHorizontalSpacer-landscape":
 				case "footerHorizontalSpacer-portrait": {
-					return $scope.config.pageConfig.showFooterCreationInfo;
+					return page.templateSection.pageConfig.showFooterCreationInfo;
 				}
 				case "footerCreationInfo-landscape":
 				case "footerCreationInfo-portrait": {  
-					return $scope.config.pageConfig.showFooterCreationInfo;
+					return page.templateSection.pageConfig.showFooterCreationInfo;
 				} 
 				case "pageNumber-landscape":
 				case "pageNumber-portrait": {
-					return $scope.config.pageConfig.showPageNumber;
+					return page.templateSection.pageConfig.showPageNumber;
 				}
 				// template-specific elements
 				case "map": {
@@ -181,21 +164,21 @@ angular.module('reportingOverview').component('reportingOverview', {
 				// }
 				case "barchart": {
 					if(page.type == 'area_specific'){
-						return $scope.config.pageConfig.showRankingChartPerArea;
+						return page.templateSection.pageConfig.showRankingChartPerArea;
 					}
 					return true;					
 				}
 				case "linechart": {
 					if(page.type == 'area_specific'){
-						return $scope.config.pageConfig.showLineChartPerArea;
+						return page.templateSection.pageConfig.showLineChartPerArea;
 					}
 					return true;
 				}
 				case "textInput": {
-					return $scope.config.pageConfig.showFreeText;
+					return page.templateSection.pageConfig.showFreeText;
 				}
 				case "datatable": {
-					return $scope.config.pageConfig.sections.showDatatable;
+					return page.templateSection.pageConfig.sections.showDatatable;
 				}
 				default:{
 					return true;
@@ -260,7 +243,6 @@ angular.module('reportingOverview').component('reportingOverview', {
 			let [indicator, template] = data;
 
 			// apply submitted pageConfig to all sections of the selected template
-			$scope.config.pageConfig = template.pageConfig;
 			
 			let templateSection = {
 				indicatorName: indicator ? indicator.indicatorName : "",
@@ -269,7 +251,8 @@ angular.module('reportingOverview').component('reportingOverview', {
 				spatialUnitName: template.spatialUnitName,
 				absoluteLabelPositions: template.absoluteLabelPositions,
 				echartsRegisteredMapNames: template.echartsRegisteredMapNames,
-				echartsMaps: []
+				echartsMaps: [],
+				pageConfig: jQuery.extend(true, {}, template.pageConfig) // deep copy to preserve section specific settings
 			}
 			for(let page of template.pages) {
 				page.templateSection = templateSection;
@@ -296,6 +279,8 @@ angular.module('reportingOverview').component('reportingOverview', {
 			// add indicator to 'added indicators'
 			let [poiLayer, indicator, template] = data;
 
+			// apply submitted pageConfig to all sections of the selected template
+
 			let templateSection = {
 				indicatorName: indicator ? indicator.indicatorName : "",
 				indicatorId: indicator ? indicator.indicatorId : "",
@@ -305,7 +290,8 @@ angular.module('reportingOverview').component('reportingOverview', {
 				echartsRegisteredMapNames: template.echartsRegisteredMapNames,
 				echartsMaps: [],
 				isochronesRangeType: template.isochronesRangeType,
-				isochronesRangeUnits: template.isochronesRangeUnits
+				isochronesRangeUnits: template.isochronesRangeUnits,
+				pageConfig: jQuery.extend(true, {}, template.pageConfig) // deep copy to preserve section specific settings
 			}
 			for(let page of template.pages) {
 				page.templateSection = templateSection;
@@ -1500,7 +1486,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 					switch(pageElement.type) {
 						case "indicatorTitle-landscape":
 						case "indicatorTitle-portrait": {
-							if (! $scope.config.pageConfig.showTitle){
+							if (! page.templateSection.pageConfig.showTitle){
 								// skip
 								continue;
 							}
@@ -1510,7 +1496,7 @@ angular.module('reportingOverview').component('reportingOverview', {
             
 						case "communeLogo-landscape":
 						case "communeLogo-portrait": {
-							if (! $scope.config.pageConfig.showLogo){
+							if (! page.templateSection.pageConfig.showLogo){
 								// skip
 								continue;
 							}
@@ -1528,7 +1514,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 						}
 						case "dataTimestamp-landscape":
 						case "dataTimestamp-portrait": {
-							if (! $scope.config.pageConfig.showSubtitle){
+							if (! page.templateSection.pageConfig.showSubtitle){
 								// skip
 								continue;
 							}
@@ -1537,7 +1523,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 						}
 						case "dataTimeseries-landscape":
 						case "dataTimeseries-portrait": {
-							if (! $scope.config.pageConfig.showSubtitle){
+							if (! page.templateSection.pageConfig.showSubtitle){
 								// skip
 								continue;
 							}
@@ -1546,7 +1532,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 						}
 						case "reachability-subtitle-landscape":
 						case "reachability-subtitle-portrait": {
-							if (! $scope.config.pageConfig.showSubtitle){
+							if (! page.templateSection.pageConfig.showSubtitle){
 								// skip
 								continue;
 							}
@@ -1555,7 +1541,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 						}
 						case "footerHorizontalSpacer-landscape":
 						case "footerHorizontalSpacer-portrait": {
-							if (! $scope.config.pageConfig.showFooterCreationInfo){
+							if (! page.templateSection.pageConfig.showFooterCreationInfo){
 								// skip
 								continue;
 							}
@@ -1564,7 +1550,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 						}
 						case "footerCreationInfo-landscape":
 						case "footerCreationInfo-portrait": {  
-							if (! $scope.config.pageConfig.showFooterCreationInfo){
+							if (! page.templateSection.pageConfig.showFooterCreationInfo){
 								// skip
 								continue;								
 							}
@@ -1573,7 +1559,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 						} 
 						case "pageNumber-landscape":
 						case "pageNumber-portrait": {
-							if (! $scope.config.pageConfig.showPageNumber){
+							if (! page.templateSection.pageConfig.showPageNumber){
 								// skip
 								continue;
 							}
@@ -1613,7 +1599,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 			// 				break;
 			// 			}
 						case "barchart": {
-							if(page.type == 'area_specific' && ! $scope.config.pageConfig.showRankingChartPerArea){
+							if(page.type == 'area_specific' && ! page.templateSection.pageConfig.showRankingChartPerArea){
 								continue;
 							}
 							let instance = echarts.getInstanceByDom(pElementDom);
@@ -1623,7 +1609,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 							break;
 						}
 						case "linechart": {
-							if(page.type == 'area_specific' && ! $scope.config.pageConfig.showLineChartPerArea){
+							if(page.type == 'area_specific' && ! page.templateSection.pageConfig.showLineChartPerArea){
 								continue;
 							}
 							let instance = echarts.getInstanceByDom(pElementDom);
@@ -1633,7 +1619,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 							break;
 						}
 						case "textInput": {
-							if (! $scope.config.pageConfig.showFreeText){
+							if (! page.templateSection.pageConfig.showFreeText){
 								// skip
 								continue;
 							}
@@ -1756,7 +1742,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 					switch(pageElement.type) {
 						case "indicatorTitle-landscape":
 						case "indicatorTitle-portrait": {
-							if (! $scope.config.pageConfig.showTitle){
+							if (! page.templateSection.pageConfig.showTitle){
 								// skip
 								continue;
 							}
@@ -1769,7 +1755,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 						}
 						case "communeLogo-landscape":
 						case "communeLogo-portrait": {
-							if (! $scope.config.pageConfig.showLogo){
+							if (! page.templateSection.pageConfig.showLogo){
 								// skip
 								continue;
 							}
@@ -1782,7 +1768,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 						}
 						case "dataTimestamp-landscape":
 						case "dataTimestamp-portrait": {
-							if (! $scope.config.pageConfig.showSubtitle){
+							if (! page.templateSection.pageConfig.showSubtitle){
 								// skip
 								continue;
 							}
@@ -1791,7 +1777,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 						}
 						case "dataTimeseries-landscape":
 						case "dataTimeseries-portrait": {
-							if (! $scope.config.pageConfig.showSubtitle){
+							if (! page.templateSection.pageConfig.showSubtitle){
 								// skip
 								continue;
 							}
@@ -1800,7 +1786,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 						}
 						case "reachability-subtitle-landscape":
 						case "reachability-subtitle-portrait": {
-							if (! $scope.config.pageConfig.showSubtitle){
+							if (! page.templateSection.pageConfig.showSubtitle){
 								// skip
 								continue;
 							}
@@ -1809,7 +1795,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 						}
 						case "footerHorizontalSpacer-landscape":
 						case "footerHorizontalSpacer-portrait": {
-							if (! $scope.config.pageConfig.showFooterCreationInfo){
+							if (! page.templateSection.pageConfig.showFooterCreationInfo){
 								// skip
 								continue;
 							}
@@ -1823,7 +1809,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 						}
 						case "footerCreationInfo-landscape":
 						case "footerCreationInfo-portrait": {
-							if (! $scope.config.pageConfig.showFooterCreationInfo){
+							if (! page.templateSection.pageConfig.showFooterCreationInfo){
 								// skip
 								continue;
 							}
@@ -1832,7 +1818,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 						}
 						case "pageNumber-landscape":
 						case "pageNumber-portrait": {
-							if (! $scope.config.pageConfig.showPageNumber){
+							if (! page.templateSection.pageConfig.showPageNumber){
 								// skip
 								continue;
 							}
@@ -1880,7 +1866,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 						// 	break;
 						// }
 						case "barchart": {
-							if(page.type == 'area_specific' && ! $scope.config.pageConfig.showRankingChartPerArea){
+							if(page.type == 'area_specific' && ! page.templateSection.pageConfig.showRankingChartPerArea){
 								continue;
 							}
 							let instance = echarts.getInstanceByDom(pElementDom)
@@ -1890,7 +1876,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 							break;
 						}
 						case "linechart": {
-							if(page.type == 'area_specific' && ! $scope.config.pageConfig.showLineChartPerArea){
+							if(page.type == 'area_specific' && ! page.templateSection.pageConfig.showLineChartPerArea){
 								continue;
 							}
 							let instance = echarts.getInstanceByDom(pElementDom)
@@ -1900,7 +1886,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 							break;
 						}
 						case "textInput": {
-							if (! $scope.config.pageConfig.showFreeText){
+							if (! page.templateSection.pageConfig.showFreeText){
 								// skip
 								continue;
 							}
@@ -2015,7 +2001,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 					switch(pageElement.type) {
 						case "indicatorTitle-landscape":
 						case "indicatorTitle-portrait": {
-							if (! $scope.config.pageConfig.showTitle){
+							if (! page.templateSection.pageConfig.showTitle){
 								// skip
 								continue;
 							}
@@ -2051,7 +2037,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 						}
 						case "communeLogo-landscape":
 						case "communeLogo-portrait": {
-							if (! $scope.config.pageConfig.showLogo){
+							if (! page.templateSection.pageConfig.showLogo){
 								// skip
 								continue;
 							}
@@ -2086,7 +2072,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 						case "dataTimestamp-portrait":
 						case "dataTimeseries-portrait":
 						case "reachability-subtitle-portrait": {
-							if (! $scope.config.pageConfig.showSubtitle){
+							if (! page.templateSection.pageConfig.showSubtitle){
 								// skip
 								continue;
 							}
@@ -2122,7 +2108,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 						
 						case "footerHorizontalSpacer-landscape":
 						case "footerHorizontalSpacer-portrait":
-							if (! $scope.config.pageConfig.showFooterCreationInfo){
+							if (! page.templateSection.pageConfig.showFooterCreationInfo){
 								// skip
 								continue;
 							}
@@ -2158,7 +2144,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 							break;
 						case "footerCreationInfo-landscape":
 						case "footerCreationInfo-portrait": {
-							if (! $scope.config.pageConfig.showFooterCreationInfo){
+							if (! page.templateSection.pageConfig.showFooterCreationInfo){
 								// skip
 								continue;
 							}
@@ -2194,7 +2180,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 						}
 						case "pageNumber-landscape":
 						case "pageNumber-portrait": {
-							if (! $scope.config.pageConfig.showPageNumber){
+							if (! page.templateSection.pageConfig.showPageNumber){
 								// skip
 								continue;
 							}
@@ -2230,10 +2216,10 @@ angular.module('reportingOverview').component('reportingOverview', {
 						case "map":
 						case "barchart":
 						case "linechart": {
-							if(page.type == 'area_specific' && ! $scope.config.pageConfig.showLineChartPerArea && pageElement.type === "linechart" ){
+							if(page.type == 'area_specific' && ! page.templateSection.pageConfig.showLineChartPerArea && pageElement.type === "linechart" ){
 								continue;
 							}
-							if(page.type == 'area_specific' && ! $scope.config.pageConfig.showRankingChartPerArea && pageElement.type === "barchart" ){
+							if(page.type == 'area_specific' && ! page.templateSection.pageConfig.showRankingChartPerArea && pageElement.type === "barchart" ){
 								continue;
 							}
 							let pElementDom;
@@ -2432,7 +2418,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 						// 	break;
 						// }
 						case "textInput": {
-							if (! $scope.config.pageConfig.showFreeText){
+							if (! page.templateSection.pageConfig.showFreeText){
 								// skip
 								continue;
 							}

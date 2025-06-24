@@ -3305,8 +3305,6 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 		$scope.initializeAllDiagrams = async function() {
 
-			console.log("called initAllDiagrams");
-
 			if(!$scope.template)
 				return;
 			if($scope.template.name.includes("timestamp") && $scope.selectedTimestamps.length === 0) {
