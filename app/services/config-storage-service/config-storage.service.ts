@@ -74,7 +74,10 @@ export class ConfigStorageService  {
   }
 
   getAppConfig():Observable<any> {
-
     return this.httpClient.get(window.__env.configStorageServerConfig.targetUrlToConfigStorageServer_appConfig);
   }
+
+  getFilterConfig(){
+    return this.httpClient.get(window.__env.configStorageServerConfig.targetUrlToConfigStorageServer_filterConfig);
+  };
 }

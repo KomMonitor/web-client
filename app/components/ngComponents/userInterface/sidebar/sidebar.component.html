@@ -1,6 +1,6 @@
   <!--  [ngClass]="{'disabled': (element===undefined || element=='')}" -->
-<div id="sidebarContentWrapper">
-  <app-kommonitor-data-setup></app-kommonitor-data-setup>
+<div id="sidebarContentWrapper" [ngClass]="{'disabled': (element===undefined || element=='')}">
+  <app-kommonitor-data-setup [hidden]="element!='sidebarIndicatorConfigCollapse'"></app-kommonitor-data-setup>
   <app-poi [hidden]="element!='sidebarPoiCollapse'"></app-poi>
   <app-kommonitor-filter [hidden]="element!='sidebarFilterCollapse'"></app-kommonitor-filter>
   <app-kommonitor-balance [hidden]="element!='sidebarBalanceCollapse'"></app-kommonitor-balance>
