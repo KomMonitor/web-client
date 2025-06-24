@@ -1,4 +1,82 @@
 <div id="versionInfo">
+
+		<!-- version info  -->
+		<div id="" class="box box-primary collapsed-box">
+			<div class="box-header with-border">
+				<h3 class="box-title">Neuerungen in KomMonitor V3.4.0-beta.1</h3>
+				<div class="box-tools pull-right">
+					<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+					</button>
+				</div>
+			</div>
+			<div class="box-body">
+	
+				<ul>
+					<li>
+						Anpassungen in der <b>Kartenapp</b>
+						<ul>
+							<li>
+								<b>Einf&uuml;hrung von Bannern für aktive Darstellungsfilter und Bilanzierung:</b>
+								Aktive Filter (Wertebereich, Schwellenwertklassifikation, r&auml;umlicher Filter) 
+								sowie der eingeschaltete Bilanzierungsmodus werden nun zus&auml;tzlich durch permanent sichtbare 
+								Banner am oberen Rand der Kartendarstellung begleitet. User k&ouml;nnen so jederzeit erkennen, ob noch ein Darstellungsfilter/Modus 
+								gesetzt ist.  
+							</li>
+							<li>
+								<b>R&auml;umlicher Filter auch für Georessourcen:</b>
+								Sobald im Darstellungsfilter-Men&uuml; ein r&auml;umlicher Filter gesetzt wird, lassen sich neben den Indikatoren-Raumeinheiten 
+								nun auch Georessourcen (Punkte, Linien, Fl&auml;chen) gefiltert abfragen. Bei aktivem Filter k&ouml;nnen User
+								ins <i>Georessourcen</i>-Men&uuml; navigieren und dort einzelne Datens&auml;tze laden. Ob s&auml;mtliche Objekte des Datensatzes oder nur diejenigen, 
+								die innerhalb der r&auml;umlich gefilterten Raumeinheiten liegen (oder diese schneiden), kann &uuml;ber einen Schalter am oberen Rand des <i>Georessourcenauswahl</i>-Men&uuml;s 
+								spontan gesteuert werden. Für den Datendownload wird bei aktivem r&auml;umlichen Filter eine zweite Option angeboten, sodass User den gesamten oder gefilterten Datensatz herunterladen k&ouml;nnen.     
+							</li>
+							<li>
+								<b>Konfigurierbares Reporting:</b>
+								Das Reporting wurde um weitere Konfigurationsoptionen erg&auml;nzt und hinsichtlich Perfomanz verbessert. Konkret sind folgende Funktionen nun verf&uuml;gbar:
+								<ul>
+									<li>
+										<i>konfigurierbare Hintergrundkarte</i> bei Kartenelementen
+									</li>
+									<li>
+										<i>Hintergrundkarten-Screenshot-Cache</i>, der pro Raumebene die Hintergrundkarten-Screenshots jeder Raumeinheit im Cache des Web Browsers speichert. 
+										Dadurch lassen sich h&auml;ufig genutzte Raumeinheiten wesentlich schneller laden. Weitere Tipps hierzu befinden sich im Reporting-Men&uuml; 
+										beim Hinzuf&uuml;gen eines neuen Indikators oder POI-Datensatzes im Reiter <i>Kartenbild-Verwaltung</i>
+									</li>
+									<li>
+										<i>konfigurierbare Abschnitte:</i> Jeder Reporting-Abschnitt (z.B. &Uuml;bersichtskarten, Einzelseiten pro Raumeinheit, Datentabelle, ...) kann nun selektiv aus dem Report entfernt werden. 
+									</li>
+									<li>
+										<i>konfigurierbare Seiteninhalte:</i> Ausgew&auml;hlte Inhalte jeder Reporting-Seite (z.B. Titel, Verfasserdetails, Seitenzahl, einzelne Diagramme, Freitext ...) k&ouml;nnen 
+										nun selektiv aus dem Report entfernt werden. 
+									</li>
+									<li>
+										<i>Power Point Export (PPTX):</i> KomMonitor bietet neben PDF und MS Word nun auch MS Power Point (Dateiendung <i>.pptx</i>) als weiteres Report-Format an. Mit Power Point 
+										und dem darin enthaltenen Folienmanager k&ouml;nnen User f&uuml;r alle Seiten des Reports schneller Corporate Design Elemente/Vorgaben umsetzen. 										     
+									</li>
+									<li>
+										<i>Neue Fortschrittsanzeigen</i> in Bezug auf die Aufbereitung der einzelnen Reporting-Seiten und hinsichtlich Kartenbild-Screenshot-Generierung.   
+									</li>
+								</ul>
+							</li>
+							<li>
+								<b>Bugfix Messwerkzeug:</b>
+								Ein Fehler beim Messwerkzeug wurde behoben, der bei jedem Klick die Karte verschob.  
+							</li>
+						</ul>
+					</li>
+					<li>
+						Anpassungen in der <b>Admin-Ansicht</b>
+						<ul>
+							<li>
+								<b>keine:</b>
+							</li>							
+						</ul>
+					</li>
+				</ul>
+	
+			</div>
+		</div>
+
 		<!-- version info  -->
 		<div id="" class="box box-primary collapsed-box">
 			<div class="box-header with-border">
@@ -26,7 +104,7 @@
 								Bei der dynamischen Klassifizierung stehen Farbpaletten, die selber hinterlegt wurden, zur Auswahl.
 							</li>
 							<li>
-								<b>Kosistentes Labeling:</b>
+								<b>Konsistentes Labeling:</b>
 								Es erfolgt nun eine konsistente Verwendung der Begriffe „Raumebene“, „Raumeinheit“, „Feature“.
 							</li>
 						</ul>
