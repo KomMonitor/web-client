@@ -378,7 +378,7 @@ export class RegressionDiagramComponent implements OnInit {
     return color;
   };
  
-  mapRegressionData(indicatorPropertiesArray, timestamp, map, axisValueName){
+  mapRegressionData(indicatorPropertiesArray, timestamp, map, axisValueName, axisPrecision){
 
     for (const indicatorPropertiesEntry of indicatorPropertiesArray) {
       let featureName = indicatorPropertiesEntry[window.__env.FEATURE_NAME_PROPERTY_NAME];
@@ -388,7 +388,7 @@ export class RegressionDiagramComponent implements OnInit {
         indicatorValue = null;
       }
       else{
-        indicatorValue = this.dataExchangeService.getIndicatorValue_asNumber(indicatorPropertiesEntry[this.DATE_PREFIX + timestamp]);
+        indicatorValue = this.dataExchangeService.getIndicatorValue_asNumber(indicatorPropertiesEntry[this.DATE_PREFIX + timestamp], axisPrecision);
       }
 
       if(map.has(featureName)){
@@ -455,8 +455,11 @@ export class RegressionDiagramComponent implements OnInit {
       //}
       let xAxisName = "xValue";
       let yAxisName = "yValue";
-      let dataCandidateMap = this.mapRegressionData(indicatorPropertiesArrayForXAxis, timestamp_xAxis, new Map(), xAxisName);
-      dataCandidateMap = this.mapRegressionData(indicatorPropertiesArrayForYAxis, timestamp_yAxis, dataCandidateMap, yAxisName);
+      let xAxisPrecision = this.selection.selectedIndicatorForXAxis.indicatorMetadata.precision;
+      let yAxisPrecision = this.selection.selectedIndicatorForYAxis.indicatorMetadata.precision;
+
+      let dataCandidateMap = this.mapRegressionData(indicatorPropertiesArrayForXAxis, timestamp_xAxis, new Map(), xAxisName, xAxisPrecision);
+      dataCandidateMap = this.mapRegressionData(indicatorPropertiesArrayForYAxis, timestamp_yAxis, dataCandidateMap, yAxisName, yAxisPrecision);
 
       // now iterate over map and identify those objects that have both indicator axis values set
       // put those into resulting lists 
@@ -598,8 +601,15 @@ export class RegressionDiagramComponent implements OnInit {
 
         let titlePrefix = this.exchangeData.enableScatterPlotRegression ? 'Lineare Regression - ' : 'Streudiagramm - ';
         let dataViewTitle =  this.exchangeData.enableScatterPlotRegression ? 'Datenansicht - lineare Regression' : 'Datenansicht - Streudiagramm';
+        
+        //get custom fontFamily
+        var elem:any = document.querySelector('#fontFamily-reference');
+        var style = getComputedStyle(elem);
 
-        this.regressionOption = {
+        this.regressionOption = { 
+          textStyle: {
+            fontFamily: style.fontFamily
+          },
           grid: {
             left: '10%',
             top: 10,
@@ -616,7 +626,22 @@ export class RegressionDiagramComponent implements OnInit {
                 trigger: 'item',
                 confine: 'true',
                 axisPointer: {
-                    type: 'cross'
+                    type: 'cross',
+                    label: {
+                      formatter: (params, index) => {
+                        //y-axis
+                        if (params.axisDimension === 'y') {
+                          return this.dataExchangeService.getIndicatorValue_asFormattedText(params.value,  this.selection.selectedIndicatorForYAxis.indicatorMetadata.precision);
+                        }
+                        //x-axis
+                        else if (params.axisDimension === 'x') {
+                          return this.dataExchangeService.getIndicatorValue_asFormattedText(params.value,  this.selection.selectedIndicatorForXAxis.indicatorMetadata.precision);
+                        }
+                        else {
+                          return this.dataExchangeService.getIndicatorValue_asFormattedText(params.value);
+                        }
+                      }
+                    }
                 },
                 formatter: (params) => {
                           if(!(params && params.value && params.value[0] && params.value[1])){
@@ -624,8 +649,8 @@ export class RegressionDiagramComponent implements OnInit {
                           }
                             var string = "" + params.name + "<br/>";
 
-                            string += this.selection.selectedIndicatorForXAxis.indicatorMetadata.indicatorName + ": " + this.dataExchangeService.getIndicatorValue_asFormattedText(params.value[0]) + " [" + this.selection.selectedIndicatorForXAxis.indicatorMetadata.unit + "]<br/>";
-                            string += this.selection.selectedIndicatorForYAxis.indicatorMetadata.indicatorName + ": " + this.dataExchangeService.getIndicatorValue_asFormattedText(params.value[1]) + " [" + this.selection.selectedIndicatorForYAxis.indicatorMetadata.unit + "]<br/>";
+                            string += this.selection.selectedIndicatorForXAxis.indicatorMetadata.indicatorName + ": " + this.dataExchangeService.getIndicatorValue_asFormattedText(params.value[0], this.selection.selectedIndicatorForXAxis.indicatorMetadata.precision) + " [" + this.selection.selectedIndicatorForXAxis.indicatorMetadata.unit + "]<br/>";
+                            string += this.selection.selectedIndicatorForYAxis.indicatorMetadata.indicatorName + ": " + this.dataExchangeService.getIndicatorValue_asFormattedText(params.value[1], this.selection.selectedIndicatorForYAxis.indicatorMetadata.precision) + " [" + this.selection.selectedIndicatorForYAxis.indicatorMetadata.unit + "]<br/>";
                             return string;
                           }
             },
@@ -633,24 +658,34 @@ export class RegressionDiagramComponent implements OnInit {
                 name: this.dataExchangeService.formatIndicatorNameForLabel(this.selection.selectedIndicatorForXAxis.indicatorMetadata.indicatorName + " - " + this.selection.selectedIndicatorForXAxis.selectedDate + " [" + this.selection.selectedIndicatorForXAxis.indicatorMetadata.unit + "]", 100),
                 nameLocation: 'center',
                 nameGap: 22,
-                            scale: true,
-                    type: 'value',
-                    splitLine: {
-                        lineStyle: {
-                            type: 'dashed'
-                        }
-                    },
+                scale: true,
+                type: 'value',
+                splitLine: {
+                    lineStyle: {
+                        type: 'dashed'
+                    }
                 },
+                axisLabel: {
+                  formatter: (value, index) => {
+                    return this.dataExchangeService.getIndicatorValue_asFormattedText(value, this.selection.selectedIndicatorForXAxis.indicatorMetadata.precision);
+                  }
+                }
+            },
             yAxis: {
                 name: this.dataExchangeService.formatIndicatorNameForLabel(this.selection.selectedIndicatorForYAxis.indicatorMetadata.indicatorName + " - " + this.selection.selectedIndicatorForYAxis.selectedDate + " [" + this.selection.selectedIndicatorForYAxis.indicatorMetadata.unit + "]", 75),
                 nameLocation: 'center',
-                nameGap: 50,
+                nameGap: 80,
                     type: 'value',
                     splitLine: {
                         lineStyle: {
                             type: 'dashed'
                         }	
                     },
+                    axisLabel: {
+                      formatter: (value, index) => {
+                        return this.dataExchangeService.getIndicatorValue_asFormattedText(value, this.selection.selectedIndicatorForYAxis.indicatorMetadata.precision);
+                      }
+                    }
                 },
             toolbox: {
                 show : true,
@@ -695,7 +730,7 @@ export class RegressionDiagramComponent implements OnInit {
                       htmlString += '<table id="' + dataTableId + '" class="table table-bordered table-condensed" style="width:100%;text-align:center;">';
                       htmlString += "<thead>";
                       htmlString += "<tr>";
-                      htmlString += "<th style='text-align:center;'>Feature-Name</th>";
+                      htmlString += "<th style='text-align:center;'>Raumeinheits-Name</th>";
                       htmlString += "<th style='text-align:center;'>" + opt.xAxis[0].name + "</th>";
                       htmlString += "<th style='text-align:center;'>" + opt.yAxis[0].name + "</th>";
 
@@ -708,8 +743,8 @@ export class RegressionDiagramComponent implements OnInit {
                         htmlString += "<tr>";
                         htmlString += "<td>" + scatterSeries[j].name + "</td>";
 
-                        htmlString += "<td>" + this.dataExchangeService.getIndicatorValue_asNumber(scatterSeries[j].value[0]) + "</td>";
-                        htmlString += "<td>" + this.dataExchangeService.getIndicatorValue_asNumber(scatterSeries[j].value[1]) + "</td>";
+                        htmlString += "<td>" + this.dataExchangeService.getIndicatorValue_asNumber(scatterSeries[j].value[0], this.selection.selectedIndicatorForXAxis.indicatorMetadata.precision) + "</td>";
+                        htmlString += "<td>" + this.dataExchangeService.getIndicatorValue_asNumber(scatterSeries[j].value[1], this.selection.selectedIndicatorForYAxis.indicatorMetadata.precision) + "</td>";
                         htmlString += "</tr>";
                       }
 
@@ -738,8 +773,8 @@ export class RegressionDiagramComponent implements OnInit {
                       
                         for (var j=0; j<lineSeries.length; j++){
                           htmlString += "<tr>";
-                          htmlString += "<td>" + this.dataExchangeService.getIndicatorValue_asNumber(lineSeries[j][0]) + "</td>";
-                          htmlString += "<td>" + this.dataExchangeService.getIndicatorValue_asNumber(lineSeries[j][1]) + "</td>";
+                          htmlString += "<td>" + this.dataExchangeService.getIndicatorValue_asNumber(lineSeries[j][0], this.selection.selectedIndicatorForXAxis.indicatorMetadata.precision) + "</td>";
+                          htmlString += "<td>" + this.dataExchangeService.getIndicatorValue_asNumber(lineSeries[j][1], this.selection.selectedIndicatorForYAxis.indicatorMetadata.precision) + "</td>";
                           htmlString += "</tr>";
                         }
                         
