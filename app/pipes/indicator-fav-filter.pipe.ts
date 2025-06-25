@@ -2,10 +2,10 @@ import { Pipe, PipeTransform } from '@angular/core';
 import { KommonitorDataSetupComponent } from 'components/ngComponents/userInterface/sidebar/kommonitorDataSetup/kommonitor-data-setup.component';
 
 @Pipe({
-    name: 'favFilter',
+    name: 'indicatorFavFilter',
     pure: false
 })
-export class FavFilter implements PipeTransform {
+export class IndicatorFavFilter implements PipeTransform {
 
   constructor(
     private dataSetupComponent: KommonitorDataSetupComponent

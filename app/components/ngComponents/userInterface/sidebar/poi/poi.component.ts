@@ -5,13 +5,15 @@ import { DataExchange, DataExchangeService } from 'services/data-exchange-servic
 import { ElementVisibilityHelperService } from 'services/element-visibility-helper-service/element-visibility-helper.service';
 import { FavService } from 'services/fav-service/fav.service';
 import { MapService } from 'services/map-service/map.service';
+import { GeoFavFilter } from 'pipes/georesources-fav-filter.pipe';
+import { GeoFavItemFilter } from 'pipes/georesources-fav-item-filter.pipe';
 
 @Component({
   selector: 'app-poi',
   templateUrl: './poi.component.html',
   styleUrls: ['./poi.component.css']
 })
-export class PoiComponent implements OnInit{
+export class PoiComponent implements OnInit {
 
   useCluster = true;
   loadingData = false;
@@ -74,23 +76,26 @@ export class PoiComponent implements OnInit{
     window.setTimeout( () => {
       this.preppedTopicGeoresourceHierarchy = this.prepareTopicGeoresourceHierarchyRecursive(this.exchangeData.topicGeoresourceHierarchy);
       this.georesourceFavTopicsTree = this.prepTopicsTree(this.dataExchangeService.pipedData.topicGeoresourceHierarchy,0,undefined);
-
+console.log(this.georesourceFavTopicsTree)
       if(this.elementVisibilityHelperService.elementVisibility.favSelection===true)
         this.showFavSelection = true;
+
+      var userInfo = this.favService.getUserInfo();
+    
+      if(userInfo.georesourceFavourites) {
+        this.poiFavItems = userInfo.georesourceFavourites;
+        this.FavTabPoiFavItems = userInfo.georesourceFavourites;
+      }
+
+      if(userInfo.georesourceTopicFavourites) {
+        this.georesourceTopicFavItems = userInfo.georesourceTopicFavourites;
+        this.FavTabGeoresourceTopicFavItems = userInfo.georesourceTopicFavourites;
+      }
 
       this.addClickListenerToEachCollapseTrigger();
     },2000);
 
-    var userInfo = this.favService.getUserInfo();
-    if(userInfo.georesourceFavourites) {
-      this.poiFavItems = userInfo.georesourceFavourites;
-      this.FavTabPoiFavItems = userInfo.georesourceFavourites;
-    }
-
-    if(userInfo.georesourceTopicFavourites) {
-      this.georesourceTopicFavItems = userInfo.georesourceTopicFavourites;
-      this.FavTabGeoresourceTopicFavItems = userInfo.georesourceTopicFavourites;
-    }
+ 
 
     this.broadcastService.currentBroadcastMsg.subscribe(broadcastMsg => {
       let title = broadcastMsg.msg;
@@ -100,7 +105,7 @@ export class PoiComponent implements OnInit{
         case 'selectedIndicatorDateHasChanged': {
           this.selectedIndicatorDateHasChanged();
         } break; 
-        case 'favItemsStored': {
+        case 'geoFavItemsStored': {
           this.favItemsStored();
         } break;
       }
@@ -575,7 +580,33 @@ export class PoiComponent implements OnInit{
     this.loadingData = false;
     // todo
     // // todo $rootScope.$broadcast("hideLoadingIconOnMap");
-  };
+  }
+
+  onChangeSelectedFavDate(georesourceDataset,event){
+
+    console.log(georesourceDataset.availablePeriodsOfValidity[event.srcElement.value]);
+    georesourceDataset.selectedDate = georesourceDataset.availablePeriodsOfValidity[event.srcElement.value];
+
+    // only if it s already selected, we must modify the shown dataset 
+    if(georesourceDataset.isSelected){
+      // depending on type we must call different methods
+      if (georesourceDataset.isPOI){
+        this.removePoiLayerFromMap(georesourceDataset);
+        this.addPoiLayerToMap(georesourceDataset, this.useCluster);
+      }
+      else if (georesourceDataset.isLOI){
+        this.removeLoiLayerFromMap(georesourceDataset);
+        this.addLoiLayerToMap(georesourceDataset);
+      }
+      else if (georesourceDataset.isAOI){
+        this.removeAoiLayerFromMap(georesourceDataset);
+        this.addAoiLayerToMap(georesourceDataset);
+      }
+      else{
+        console.error("unknown dataset: " + georesourceDataset);
+      }
+    }
+  }
 
   onChangeSelectedDate(georesourceDataset){
     // only if it s already selected, we must modify the shown dataset 
@@ -597,7 +628,7 @@ export class PoiComponent implements OnInit{
         console.error("unknown dataset: " + georesourceDataset);
       }
     }
-  };
+  }
 
   getQueryDate(resource){
     if (this.dateSelectionType.selectedDateType === this.dateSelectionType_valueIndicator){
@@ -1090,7 +1121,7 @@ export class PoiComponent implements OnInit{
     this.handleToastStatus(2);
 
     if(broadcast===true)
-      this.broadcastService.broadcast("favItemsStored",);
+      this.broadcastService.broadcast("geoFavItemsStored",[false]);
   }
 
   favItemsStored() {

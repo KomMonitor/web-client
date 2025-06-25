@@ -2274,22 +2274,22 @@
             <div class="list-group list-group-root well" style="text-align: left">
 
              <!--  <script type="text/ng-template" id="georesourceTopicTree">
-                <div ng-if="favTabShowTopic(topic) && topic.totalCount>0">
+                <div *ngIf="favTabShowTopic(topic) && topic.totalCount>0">
                   <div class="list-group-item list-group-item-default list-group-item-grid-centered-georesources georesources-grid-item list-group-item-level-{{topic.level}}">
-                    <a ng-if="topic.subTopics.length>0 || topic.poiData.length>0 || topic.aoiData.length>0 || topic.loiData.length>0" id="{{topic.topicId}}" href="" ng-attr-title="{{topic.topicDescription}}"
+                    <a *ngIf="topic.subTopics.length>0 || topic.poiData.length>0 || topic.aoiData.length>0 || topic.loiData.length>0" id="{{topic.topicId}}" href="" ng-attr-title="{{topic.topicDescription}}"
                       class="georesourcesFavCollapseTrigger" style="color: white;">
                       <i class="glyphicon glyphicon-chevron-right"></i>{{topic.topicName}}</a>
-                    <p ng-if="topic.subTopics.length==0 && topic.poiData.length==0 && topic.aoiData.length==0 && topic.loiData.length==0">{{topic.topicName}}</p>
-                    <input type="checkbox" ng-model="topic.isSelected"
+                    <p *ngIf="topic.subTopics.length==0 && topic.poiData.length==0 && topic.aoiData.length==0 && topic.loiData.length==0">{{topic.topicName}}</p>
+                    <input type="checkbox" [(ngModel)]="topic.isSelected"
                       value="topic.isSelected" id="showAllForTopic_{{::topic.topicId}}"
-                      ng-change="handleShowAllOnTopic(topic)">
-                    <i ng-show="showFavSelection" class="glyphicon glyphicon-custom" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[georesourceTopicFavSelected(topic.topicId)]" ng-click="onGeoresourceTopicFavClick(topic.topicId,true)"></i>
+                      (change)="handleShowAllOnTopic(topic)">
+                    <i ng-show="showFavSelection" class="glyphicon glyphicon-custom" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[georesourceTopicFavSelected(topic.topicId)]" (click)="onGeoresourceTopicFavClick(topic.topicId,true)"></i>
                   </div>
 
                   <div id="georesourcesFavSubTopic-{{topic.topicId}}" class="subTopic-block sub-topic-wrapper-level-{{topic.level}}" style="display:none">
-                    <div ng-if="topic.subTopics" ng-repeat="topic in topic.subTopics | orderBy: 'topicName'" ng-include="'georesourceTopicTree'"></div>
+                    <div *ngIf="topic.subTopics" ng-repeat="topic in topic.subTopics | orderBy: 'topicName'" ng-include="'georesourceTopicTree'"></div>
 
-                    <div ng-if="(topic.poiData || topic.aoiData || topic.loiData) && FavTabShowPOIHeader(topic)" class="georesource-fav-details-wrapper">
+                    <div *ngIf="(topic.poiData || topic.aoiData || topic.loiData) && FavTabShowPOIHeader(topic)" class="georesource-fav-details-wrapper">
                       <table class="table table-condensed " style="margin-bottom:0px;">
                         <thead>
                           <tr>
@@ -2298,26 +2298,26 @@
                             <th>Beschreibung</th>
                             <th>Legende</th>
                             <th
-                              ng-if="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
+                              *ngIf="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
                               Lebenszeit-Beginn</th>
-                            <th ng-if="$ctrl.kommonitorDataExchangeServiceInstance.showGeoresourceExportButtons">Export</th>
+                            <th *ngIf="$ctrl.kommonitorDataExchangeServiceInstance.showGeoresourceExportButtons">Export</th>
                             <th></th>
                           </tr>
                         </thead>
 
                         <tbody> -->
                           <!-- POI -->
-                        <!--   <tr ng-repeat="poi in topic.poiData" ng-if="FavTabShowPoi(topic,poi.georesourceId)">
+                        <!--   <tr ng-repeat="poi in topic.poiData" *ngIf="FavTabShowPoi(topic,poi.georesourceId)">
                             <td>
                               <i class="fas fa-map-marker-alt"></i>
                             </td>
                             <td>
                               <label class='checkbox-inline'><input
                                   type="checkbox" value="poi.datasetName"
-                                  ng-model="poi.isSelected"
-                                  ng-change="handlePoiOnMap(poi)">
+                                  [(ngModel)]="poi.isSelected"
+                                  (change)="handlePoiOnMap(poi)">
 
-                                <b>&nbsp;&nbsp;{{::poi.datasetName}}</b> <a href="" ng-show="poi.isSelected" title="Auf Layer zoomen" ng-click="zoomToLayer(poi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></a>
+                                <b>&nbsp;&nbsp;{{::poi.datasetName}}</b> <a href="" ng-show="poi.isSelected" title="Auf Layer zoomen" (click)="zoomToLayer(poi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></a>
                               </label>
                             </td>
                             <td>
@@ -2328,7 +2328,7 @@
                                 <div
                                   class="awesome-marker-legend awesome-marker-legend-icon-{{::poi.poiMarkerColor}}">
                                   <span
-                                    ng-if="!poi.poiMarkerStyle || poi.poiMarkerStyle == 'symbol'"
+                                    *ngIf="!poi.poiMarkerStyle || poi.poiMarkerStyle == 'symbol'"
                                     style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:{{::poi.poiSymbolColor}};"
                                     class="glyphicon glyphicon-{{::poi.poiSymbolBootstrap3Name}}"
                                     aria-hidden="true"></span>
@@ -2341,41 +2341,41 @@
                               </div>
                             </td>
                             <td
-                              ng-if="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
+                              *ngIf="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
                               <select
                                 style="font-size: 11px; width:135px; padding: 0px;"
-                                ng-model="poi.selectedDate"
-                                ng-change="onChangeSelectedDate(poi)"
+                                [(ngModel)]="poi.selectedDate"
+                                (change)="onChangeSelectedDate(poi)"
                                 ng-options="date as date.startDate for date in poi.availablePeriodsOfValidity | orderBy: 'startDate' | unique: 'startDate'"
                                 ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]"
                                 class="form-control" required>
                               </select>
                             </td>
-                            <td ng-if="$ctrl.kommonitorDataExchangeServiceInstance.showGeoresourceExportButtons" class="text-center">
-                              <a href="" ng-click="getExportLinkForPoi(poi)"
+                            <td *ngIf="$ctrl.kommonitorDataExchangeServiceInstance.showGeoresourceExportButtons" class="text-center">
+                              <a href="" (click)="getExportLinkForPoi(poi)"
                                 title="Download Features as GeoJSON"><i
                                   class="fas fa-file-download fa-lg"></i></a>
 
-                              <a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.downloadMetadataPDF_georesource(loi)"
+                              <a href="" (click)="$ctrl.kommonitorDataExchangeServiceInstance.downloadMetadataPDF_georesource(loi)"
                                 title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
                             </td>
                             <td>
-                              <i ng-show="showFavSelection" class="glyphicon glyphicon-custom" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[poiFavSelected(poi.georesourceId)]" ng-click="onPoiFavClick(poi.georesourceId, true)" style="color: black;"></i>
+                              <i ng-show="showFavSelection" class="glyphicon glyphicon-custom" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[poiFavSelected(poi.georesourceId)]" (click)="onPoiFavClick(poi.georesourceId, true)" style="color: black;"></i>
                             </td>
                           </tr>
  -->
                           <!-- LOI -->
-                         <!--  <tr ng-repeat='loi in topic.loiData' ng-if="FavTabShowPoi(topic,loi.georesourceId)">
+                         <!--  <tr ng-repeat='loi in topic.loiData' *ngIf="FavTabShowPoi(topic,loi.georesourceId)">
                             <td>
                               <i class="fas fa-minus"></i>
                             </td>
                             <td>
                               <label class='checkbox-inline'><input
                                   type="checkbox" value="loi.datasetName"
-                                  ng-model="loi.isSelected"
-                                  ng-change="handleLoiOnMap(loi)">
+                                  [(ngModel)]="loi.isSelected"
+                                  (change)="handleLoiOnMap(loi)">
 
-                                <b>&nbsp;&nbsp;{{::loi.datasetName}}</b> <a href="" ng-show="loi.isSelected" title="Auf Layer zoomen" ng-click="zoomToLayer(loi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></a>
+                                <b>&nbsp;&nbsp;{{::loi.datasetName}}</b> <a href="" ng-show="loi.isSelected" title="Auf Layer zoomen" (click)="zoomToLayer(loi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></a>
                               </label>
                             </td>
                             <td>
@@ -2390,41 +2390,41 @@
 
                             </td>
                             <td
-                              ng-if="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
+                              *ngIf="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
                               <select
                                 style="font-size: 11px; width:135px; padding: 0px;"
-                                ng-model="loi.selectedDate"
-                                ng-change="onChangeSelectedDate(loi)"
+                                [(ngModel)]="loi.selectedDate"
+                                (change)="onChangeSelectedDate(loi)"
                                 ng-options="date as date.startDate for date in loi.availablePeriodsOfValidity | orderBy: 'startDate' | unique: 'startDate'"
                                 ng-init="loi.selectedDate = loi.availablePeriodsOfValidity[loi.availablePeriodsOfValidity.length - 1]"
                                 class="form-control" required>
                               </select>
                             </td>
-                            <td ng-if="$ctrl.kommonitorDataExchangeServiceInstance.showGeoresourceExportButtons" class="text-center">
-                              <a href="" ng-click="getExportLinkForLoi(loi)"
+                            <td *ngIf="$ctrl.kommonitorDataExchangeServiceInstance.showGeoresourceExportButtons" class="text-center">
+                              <a href="" (click)="getExportLinkForLoi(loi)"
                                 title="Download Features as GeoJSON"><i
                                   class="fas fa-file-download fa-lg"></i></a>
 
-                              <a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.downloadMetadataPDF_georesource(loi)"
+                              <a href="" (click)="$ctrl.kommonitorDataExchangeServiceInstance.downloadMetadataPDF_georesource(loi)"
                                 title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
                             </td>
                             <td>
-                              <i ng-show="showFavSelection" class="glyphicon glyphicon-custom" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[poiFavSelected(loi.georesourceId)]" ng-click="onPoiFavClick(loi.georesourceId,true)" style="color: black;"></i>
+                              <i ng-show="showFavSelection" class="glyphicon glyphicon-custom" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[poiFavSelected(loi.georesourceId)]" (click)="onPoiFavClick(loi.georesourceId,true)" style="color: black;"></i>
                             </td>
                           </tr> -->
 
                           <!-- AOI -->
-                          <!-- <tr ng-repeat='aoi in in topic.aoiData' ng-if="FavTabShowPoi(topic,aoi.georesourceId)">
+                          <!-- <tr ng-repeat='aoi in in topic.aoiData' *ngIf="FavTabShowPoi(topic,aoi.georesourceId)">
                             <td>
                               <i class="far fa-square"></i>
                             </td>
                             <td>
                               <label class='checkbox-inline'><input
                                   type="checkbox" value="aoi.datasetName"
-                                  ng-model="aoi.isSelected"
-                                  ng-change="handleAoiOnMap(aoi)">
+                                  [(ngModel)]="aoi.isSelected"
+                                  (change)="handleAoiOnMap(aoi)">
 
-                                <b>&nbsp;&nbsp;{{::aoi.datasetName}}</b> <a href="" ng-show="aoi.isSelected" title="Auf Layer zoomen" ng-click="zoomToLayer(aoi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></a>
+                                <b>&nbsp;&nbsp;{{::aoi.datasetName}}</b> <a href="" ng-show="aoi.isSelected" title="Auf Layer zoomen" (click)="zoomToLayer(aoi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></a>
                               </label>
                             </td>
                             <td>
@@ -2438,26 +2438,26 @@
                               </div>
                             </td>
                             <td
-                              ng-if="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
+                              *ngIf="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
                               <select
                                 style="font-size: 11px; width:135px; padding: 0px;"
-                                ng-model="aoi.selectedDate"
-                                ng-change="onChangeSelectedDate(aoi)"
+                                [(ngModel)]="aoi.selectedDate"
+                                (change)="onChangeSelectedDate(aoi)"
                                 ng-options="date as date.startDate for date in aoi.availablePeriodsOfValidity | orderBy: 'startDate' | unique: 'startDate'"
                                 ng-init="aoi.selectedDate = aoi.availablePeriodsOfValidity[aoi.availablePeriodsOfValidity.length - 1]"
                                 class="form-control" required>
                               </select>
                             </td>
-                            <td ng-if="$ctrl.kommonitorDataExchangeServiceInstance.showGeoresourceExportButtons" class="text-center">
-                              <a href="" ng-click="getExportLinkForAoi(aoi)"
+                            <td *ngIf="$ctrl.kommonitorDataExchangeServiceInstance.showGeoresourceExportButtons" class="text-center">
+                              <a href="" (click)="getExportLinkForAoi(aoi)"
                                 title="Download Features as GeoJSON"><i
                                   class="fas fa-file-download fa-lg"></i></a>
 
-                              <a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.downloadMetadataPDF_georesource(aoi)"
+                              <a href="" (click)="$ctrl.kommonitorDataExchangeServiceInstance.downloadMetadataPDF_georesource(aoi)"
                                 title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
                             </td>
                             <td>
-                              <i ng-show="showFavSelection" class="glyphicon glyphicon-custom" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[poiFavSelected(aoi.georesourceId)]" ng-click="onPoiFavClick(aoi.georesourceId, true)" style="color: black;"></i>
+                              <i ng-show="showFavSelection" class="glyphicon glyphicon-custom" ng-class="{true:'glyphicon-star', false:'glyphicon-star-empty'}[poiFavSelected(aoi.georesourceId)]" (click)="onPoiFavClick(aoi.georesourceId, true)" style="color: black;"></i>
                             </td>
                           </tr>
                         </tbody>
@@ -2466,8 +2466,190 @@
 
                 </div>
               </script> -->
-
+<!-- 
               <div ng-repeat="topic in georesourceFavTopicsTree | orderBy: 'topicName'" ng-include="'georesourceTopicTree'"></div>
+ -->
+              
+              <ng-template #GeoFavsRecursive let-list="list">
+                <div *ngFor="let topic of list | geoFavFilter:georesourceTopicFavItems">
+                  <div class="list-group-item list-group-item-default list-group-item-grid-centered-georesources georesources-grid-item list-group-item-level-{{topic.level}}">
+                    <p *ngIf="topic.subTopics.length>0 || topic.poiData.length>0 || topic.aoiData.length>0 || topic.loiData.length>0" [attr.id]="topic.topicId" href="" title="{{topic.topicDescription}}"
+                      class="georesourcesFavCollapseTrigger" style="color: white;">
+                    <i class="glyphicon glyphicon-chevron-right"></i>{{topic.topicName}}</p>
+                    <p *ngIf="topic.subTopics.length==0 && topic.poiData.length==0 && topic.aoiData.length==0 && topic.loiData.length==0">{{topic.topicName}}</p>
+                    <input type="checkbox" [(ngModel)]="topic.isSelected"
+                      value="topic.isSelected" id="showAllForTopic_{{topic.topicId}}"
+                      (change)="handleShowAllOnTopic(topic)">
+                    <i [hidden]="!showFavSelection" class="glyphicon glyphicon-custom" [ngClass]="{'glyphicon-star':georesourceTopicFavSelected(topic.topicId), 'glyphicon-star-empty':!georesourceTopicFavSelected(topic.topicId)}" (click)="onGeoresourceTopicFavClick(topic.topicId,true)"></i>
+                  </div>
+                  <div [attr.id]="'georesourcesFavSubTopic-'+topic.topicId" class="subTopic-block sub-topic-wrapper-level-{{topic.level}}" style="display:none">
+                    <div *ngIf="topic.subTopics">
+                      <ng-container *ngTemplateOutlet="GeoFavsRecursive; context:{ list: topic.subTopics }"></ng-container>
+                    </div>
+                    <div *ngIf="(topic.poiData.length>0 || topic.aoiData.length>0 || topic.loiData.length>0) && FavTabShowPOIHeader(topic)" class="georesource-fav-details-wrapper">
+                      <table class="table table-condensed " style="margin-bottom:0px;">
+                        <thead>
+                          <tr>
+                            <th>Typ</th>
+                            <th>Datensatz</th>
+                            <th>Beschreibung</th>
+                            <th>Legende</th>
+                            <th *ngIf="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">Lebenszeit-Beginn</th>
+                            <th *ngIf="dataExchangeService.pipedData.showGeoresourceExportButtons">Export</th>
+                            <th></th>
+                          </tr>
+                        </thead>
+
+                        <tbody>
+
+                          <!-- POIs -->
+                          <tr *ngFor="let poi of topic.poiData | geoFavItemFilter:topic">
+                            <td>
+                              <i class="fas fa-map-marker-alt"></i>
+                            </td>
+                            <td>
+                              <label class='checkbox-inline'><input
+                                  type="checkbox" [value]="poi.datasetName"
+                                  [(ngModel)]="poi.isSelected"
+                                  (change)="handlePoiOnMap(poi)">
+
+                                <b>&nbsp;&nbsp;{{poi.datasetName}}</b> <p *ngIf="poi.isSelected" title="Auf Layer zoomen" (click)="zoomToLayer(poi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></p>
+                              </label>
+                            </td>
+                            <td>
+                              <p>{{poi.metadata.description}}</p>
+                            </td>
+                            <td class="text-center">
+                              <div style="text-align:center">
+                                <div class="awesome-marker-legend awesome-marker-legend-icon-{{poi.poiMarkerColor}}">
+                                  <span *ngIf="!poi.poiMarkerStyle || poi.poiMarkerStyle == 'symbol'; else elseSpan" 
+                                    style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em" [ngStyle]="{'color':poi.poiSymbolColor}"
+                                    class="glyphicon glyphicon-{{poi.poiSymbolBootstrap3Name}}"
+                                    aria-hidden="true"></span>
+                                  <ng-template #elseSpan>
+                                    <span style="font-size:0.9em" [ngStyle]="{'color':poi.poiSymbolColor}">
+                                      {{poi.poiMarkerText}}
+                                    </span>
+                                  </ng-template>
+                                </div>
+                              </div>
+                            </td>
+                            <td *ngIf="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
+                              <select
+                                style="font-size: 11px; width:135px; padding: 0px;"
+                                (change)="onChangeSelectedFavDate(poi,$event)"
+                                class="form-control" required>
+                                <option *ngFor="let date of poi.availablePeriodsOfValidity; let i = index" [value]="i" [attr.selected]="(date==poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]) ? 'selected' : null">{{date.startDate}}</option>
+                              </select>
+                            </td>
+                            <td *ngIf="dataExchangeService.pipedData.showGeoresourceExportButtons" class="text-center">
+                              <p (click)="getExportLinkForPoi(poi)"
+                                title="Download Features as GeoJSON"><i
+                                  class="fas fa-file-download fa-lg"></i></p>
+
+                              <p (click)="dataExchangeService.downloadMetadataPDF_georesource(poi)"
+                                title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></p>
+                            </td>
+                            <td>
+                              <i [hidden]="!showFavSelection" class="glyphicon glyphicon-custom"  [ngClass]="{'glyphicon-star':poiFavSelected(poi.georesourceId), 'glyphicon-star-empty':!poiFavSelected(poi.georesourceId)}" (click)="onPoiFavClick(poi.georesourceId, true)" style="color: black;"></i>
+                            </td>
+                          </tr>
+
+                          <!-- LOIs -->
+                          <tr *ngFor="let loi of topic.loiData | geoFavItemFilter:topic">
+                            <td>
+                              <i class="fas fa-minus"></i>
+                            </td>
+                            <td>
+                              <label class='checkbox-inline'><input
+                                  type="checkbox" [value]="loi.datasetName"
+                                  [(ngModel)]="loi.isSelected"
+                                  (change)="handleLoiOnMap(loi)">
+
+                                <b>&nbsp;&nbsp;{{loi.datasetName}}</b> <p *ngIf="loi.isSelected" title="Auf Layer zoomen" (click)="zoomToLayer(loi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></p>
+                              </label>
+                            </td>
+                            <td>
+                              <p>{{loi.metadata.description}}</p>
+                            </td>
+                            <td class="text-center">
+                              <div style="text-align:center">
+                                <i style="width:15px; height:15px; display:inherit" [ngStyle]="{'background':loi.loiColor}">
+                                </i>
+                              </div>
+                            </td>
+                            <td *ngIf="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
+                              <select
+                                style="font-size: 11px; width:135px; padding: 0px;"
+                                (change)="onChangeSelectedFavDate(loi,$event)"
+                                class="form-control" required>
+                                <option *ngFor="let date of loi.availablePeriodsOfValidity; let i = index" [value]="i" [attr.selected]="(date==loi.availablePeriodsOfValidity[loi.availablePeriodsOfValidity.length - 1]) ? 'selected' : null">{{date.startDate}}</option>
+                              </select>
+                            </td>
+                            <td *ngIf="dataExchangeService.pipedData.showGeoresourceExportButtons" class="text-center">
+                              <p (click)="getExportLinkForLoi(loi)" title="Download Features as GeoJSON">
+                                <i class="fas fa-file-download fa-lg"></i>
+                              </p>
+
+                              <p (click)="dataExchangeService.downloadMetadataPDF_georesource(loi)"
+                                title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></p>
+                            </td>
+                            <td>
+                              <i [hidden]="!showFavSelection" class="glyphicon glyphicon-custom"  [ngClass]="{'glyphicon-star':poiFavSelected(loi.georesourceId), 'glyphicon-star-empty':!poiFavSelected(loi.georesourceId)}" (click)="onPoiFavClick(loi.georesourceId, true)" style="color: black;"></i>
+                            </td>
+                          </tr>
+
+                          <!-- AOIs -->
+                          <tr *ngFor="let aoi of topic.aoiData | geoFavItemFilter:topic">
+                            <td>
+                              <i class="far fa-square"></i>
+                            </td>
+                            <td>
+                              <label class='checkbox-inline'><input
+                                  type="checkbox" [value]="aoi.datasetName"
+                                  [(ngModel)]="aoi.isSelected"
+                                  (change)="handleAoiOnMap(aoi)">
+
+                                <b>&nbsp;&nbsp;{{aoi.datasetName}}</b> <p *ngIf="aoi.isSelected" title="Auf Layer zoomen" (click)="zoomToLayer(aoi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></p>
+                              </label>
+                            </td>
+                            <td>
+                              <p>{{aoi.metadata.description}}</p>
+                            </td>
+                            <td class="text-center">
+                              <div style="text-align:center">
+                                <i style="width:15px; height:15px; display:inherit" [ngStyle]="{'background':aoi.loiColor}">
+                                </i>
+                              </div>
+                            </td>
+                            <td *ngIf="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
+                              <select
+                                style="font-size: 11px; width:135px; padding: 0px;"
+                                (change)="onChangeSelectedFavDate(aoi,$event)"
+                                class="form-control" required>
+                                <option *ngFor="let date of aoi.availablePeriodsOfValidity; let i = index" [value]="i" [attr.selected]="(date==aoi.availablePeriodsOfValidity[aoi.availablePeriodsOfValidity.length - 1]) ? 'selected' : null">{{date.startDate}}</option>
+                              </select>
+                            </td>
+                            <td *ngIf="dataExchangeService.pipedData.showGeoresourceExportButtons" class="text-center">
+                              <p (click)="getExportLinkForLoi(aoi)" title="Download Features as GeoJSON">
+                                <i class="fas fa-file-download fa-lg"></i>
+                              </p>
+
+                              <p (click)="dataExchangeService.downloadMetadataPDF_georesource(aoi)"
+                                title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></p>
+                            </td>
+                            <td>
+                              <i [hidden]="!showFavSelection" class="glyphicon glyphicon-custom"  [ngClass]="{'glyphicon-star':poiFavSelected(aoi.georesourceId), 'glyphicon-star-empty':!poiFavSelected(aoi.georesourceId)}" (click)="onPoiFavClick(aoi.georesourceId, true)" style="color: black;"></i>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </ng-template>
+
+              <ng-container *ngTemplateOutlet="GeoFavsRecursive; context:{ list: georesourceFavTopicsTree}"></ng-container>
             </div>
 
 					</div>
