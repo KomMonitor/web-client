@@ -28,6 +28,12 @@ angular.module('scriptTest').component('scriptTest', {
 				propertyValue: null,
 			};
 
+			$scope.numericPropertyOptions = undefined;
+
+			$scope.compPropSelection = {
+				numericPropertyName: null
+			};
+
 			$scope.dropdownTranslations =  kommonitorDataExchangeService.multiselectDropdownTranslations;
 			$scope.dropdownSettings = kommonitorDataExchangeService.multiselectDropdownSettings;
 			$scope.dropdownEvents =  {
@@ -112,6 +118,8 @@ angular.module('scriptTest').component('scriptTest', {
 
 			$scope.onChangeGeoresource = function(georesourceSelection){
 				kommonitorScriptHelperService.processParameters.georesource_id = georesourceSelection.georesourceId;
+				$scope.georesourceSelection = georesourceSelection;
+				$scope.legendValues.georesourceSelection = georesourceSelection;
 
 				$scope.compFilterData = {
 					operator: null,
@@ -124,7 +132,26 @@ angular.module('scriptTest').component('scriptTest', {
 				}
 
 				$scope.resetPropertyOptions();
+				$scope.resetNumericPropertyOptions();
 				$scope.resetComputationFormulaAndLegend();				
+			};
+
+			$scope.resetNumericPropertyOptions = function(){
+				$scope.propertySchema = {};
+				kommonitorCacheHelperService.fetchSingleGeoresourceSchema(kommonitorScriptHelperService.processParameters.georesource_id)
+				.then((schema) => {
+					for (var prop in schema) {
+						if (schema[prop] === 'Integer' || schema[prop] === 'Double') {
+							$scope.propertySchema[prop] = schema[prop];
+						}
+					}
+					$scope.numericPropertyOptions = Object.keys($scope.propertySchema);
+				});
+			};
+
+			$scope.onChangeNumericPropertyName = function(){
+				kommonitorScriptHelperService.processParameters.compProp = $scope.compPropSelection.numericPropertyName;
+				$scope.resetComputationFormulaAndLegend();	
 			};
 
 			$scope.onChangePropertyName = function(propertyName){
@@ -156,7 +183,6 @@ angular.module('scriptTest').component('scriptTest', {
 			$scope.resetPropertyOptions = function(){
 				kommonitorCacheHelperService.fetchSingleGeoresourceSchema(kommonitorScriptHelperService.processParameters.georesource_id)
 				.then((schema) => {
-					console.log(schema);
 					for (var prop in schema) {
 						if (schema[prop] !== 'Date') {
 							$scope.compFilterData.propertySchema[prop] = schema[prop];
@@ -314,9 +340,11 @@ angular.module('scriptTest').component('scriptTest', {
 					formula = $scope.createDynamicFormula(kommonitorScriptHelperService.scriptData.additionalParameters.parameters.kommonitorUiParams.dynamicFormula);
 				}
 
-				var formulaHTML = "<b>Berechnung gem&auml;&szlig; Formel<br/> " + formula;
-
-
+				var formulaHTML = "";
+				if(kommonitorScriptHelperService.scriptData.additionalParameters.parameters.kommonitorUiParams.apiName.includes("indicator")){
+					var formulaHTML = "<b>Berechnung gem&auml;&szlig; Formel<br/> " + formula;
+				}
+				
 				var dynamicLegendStr = kommonitorScriptHelperService.scriptData.additionalParameters.parameters.kommonitorUiParams.dynamicLegend;
 				$scope.legendValues =  Object.assign($scope.legendValues, kommonitorScriptHelperService.processParameters);
 
@@ -343,7 +371,12 @@ angular.module('scriptTest').component('scriptTest', {
 				}
 				var legendText = parseStringTemplate(dynamicLegendStr, $scope.legendValues)
 
-				kommonitorScriptHelperService.scriptFormulaHTML = formulaHTML + "<br/><br/>" + "<b>Legende zur Formel</b><br/>" + legendText;
+				if(kommonitorScriptHelperService.scriptData.additionalParameters.parameters.kommonitorUiParams.apiName.includes("indicator")){
+					kommonitorScriptHelperService.scriptFormulaHTML = formulaHTML + "<br/><br/>" + "<b>Legende zur Formel</b><br/>" + legendText;
+				}
+				else {
+					kommonitorScriptHelperService.scriptFormulaHTML = formulaHTML + "<br/><br/>" + "<b></b><br/>" + legendText;
+				}
 			
 			};
 	

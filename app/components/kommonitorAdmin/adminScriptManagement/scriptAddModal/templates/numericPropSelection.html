@@ -1,0 +1,19 @@
+<div class="row vertical-align">
+  <div class="col-md-3 col-sm-2 col-xs-12">
+    <div class="form-group">
+      <label>Numerische Objekteigenschaft</label>
+      <br />
+      <select class="form-control" ng-model="$parent.compPropSelection.numericPropertyName" 
+        ng-options="propertyOption for propertyOption in $parent.numericPropertyOptions"
+        ng-change="$parent.onChangeNumericPropertyName()">
+        <option disabled selected value> -- Objekteigenschaft w&auml;hlen --
+        </option>
+      </select>
+      <div class="help-block with-errors"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+	$('.box').boxWidget();
+</script>

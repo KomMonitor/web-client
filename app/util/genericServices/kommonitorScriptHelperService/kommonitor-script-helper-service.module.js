@@ -53,6 +53,7 @@ angular
         "reference_id",
         "georesource_id",
         "comp_filter",
+        "compProp",
         "target_spatial_units",
         "execution_interval",
         "target_time",

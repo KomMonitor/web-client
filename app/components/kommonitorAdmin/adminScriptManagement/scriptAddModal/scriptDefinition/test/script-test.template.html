@@ -45,6 +45,7 @@
 					<ng-include ng-show="box.id == 'computation_ids'" src="'components/kommonitorAdmin/adminScriptManagement/scriptAddModal/templates/baseIndicatorMultiSelection.html'"></ng-include>
 					
 					<ng-include ng-show="box.id == 'comp_filter'" src="'components/kommonitorAdmin/adminScriptManagement/scriptAddModal/templates/computationFilter.html'"></ng-include>
+					<ng-include ng-show="box.id == 'compProp'" src="'components/kommonitorAdmin/adminScriptManagement/scriptAddModal/templates/numericPropSelection.html'"></ng-include>
 
 					<div class="row vertical-align" ng-show="!$ctrl.kommonitorScriptHelperServiceInstance.predefinedInputNames.includes(box.id)">
 					
