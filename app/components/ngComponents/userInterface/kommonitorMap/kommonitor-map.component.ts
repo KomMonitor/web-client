@@ -378,7 +378,6 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       zoomSnap: 0.5,
       layers: [baseLayerDefinitionsMap.get(window.__env.baseLayers[0].name)]
     });
-    
 
     window.__env.currentLatitude = this.latCenter;
     window.__env.currentLongitude = this.lonCenter;
