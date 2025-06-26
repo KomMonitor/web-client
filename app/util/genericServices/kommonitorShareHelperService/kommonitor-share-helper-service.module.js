@@ -1,5 +1,6 @@
-"use strict";
 angular.module('kommonitorShareHelper', ['kommonitorDataExchange']);
+
+
 angular
   .module('kommonitorShareHelper', [])
   .service(
@@ -13,6 +14,7 @@ angular
       this.queryParamMap = new Map();
       this.currentShareLink = "";
 
+      this.paramName_sharing = "share";
       this.paramName_loginRequired = "login";
       this.paramName_indicatorId = "ind";
       this.paramName_spatialUnitName = "spu";
@@ -51,30 +53,33 @@ angular
       };
 
       this.init = function(){
-        // parse query params
-        this.initParamsMap();
 
-        // if login required then route to login page with same link as redirect URL
-        if ($routeParams[this.paramName_loginRequired] && JSON.parse($routeParams[this.paramName_loginRequired])){
-          // login required
-          if(window.__env.enableKeycloakSecurity){
-            if (Auth.keycloak.authenticated) {
-              // if (Auth.keycloak.showAdminView) {
-              //   return true;
-              // } else {
-              //   return $q.reject('Not Authenticated');
-              // }
-            }
-            else {
-              Auth.keycloak.login({
-                redirectUri: this.currentShareLink
-              });
-            }
-          }        
+        // No need to parse sharing params if sharing is not true
+        if ($routeParams[this.paramName_sharing] && JSON.parse($routeParams[this.paramName_sharing])) {
+          // parse query params
+          this.initParamsMap();
+
+          // if login required then route to login page with same link as redirect URL
+          if ($routeParams[this.paramName_loginRequired] && JSON.parse($routeParams[this.paramName_loginRequired])){
+            // login required
+            if(window.__env.enableKeycloakSecurity){
+              if (Auth.keycloak.authenticated) {
+                // if (Auth.keycloak.showAdminView) {
+                //   return true;
+                // } else {
+                //   return $q.reject('Not Authenticated');
+                // }
+              }
+              else {
+                Auth.keycloak.login({
+                  redirectUri: this.currentShareLink
+                });
+              }
+            }        
+          }
+          // set config and data options from params
+          this.applyQueryParams();
         }
-
-        // set config and data options from params
-        this.applyQueryParams();
       };
 
       this.generateCurrentShareLink = function(){
@@ -93,9 +98,10 @@ angular
         }
 
         this.currentShareLink += "?";
+        this.currentShareLink += this.paramName_sharing + "=true";
 
         this.queryParamMap.forEach((value, key) => { 
-          self.currentShareLink += "" + key + "=" + value + "&";
+          self.currentShareLink += "&" + key + "=" + value;
           } 
         );
 
@@ -108,13 +114,13 @@ angular
       this.setShareLinkParam_currentIndicatorId = function(){
         this.setShareLinkParam(this.paramName_indicatorId, kommonitorDataExchangeService.selectedIndicator.indicatorId);
 
-        if(kommonitorDataExchangeService.selectedIndicator.permissions?.length > 0){
+        if(kommonitorDataExchangeService.selectedIndicator.permissions.length > 0){
           this.setShareLinkParam(this.paramName_loginRequired, "true");
         }
         else{
           for (const spatialUnit of kommonitorDataExchangeService.selectedIndicator.applicableSpatialUnits) {
             if(spatialUnit.spatialUnitName == kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel){
-              if (spatialUnit.permissions?.length > 0){
+              if (spatialUnit.permissions.length > 0){
                 this.setShareLinkParam(this.paramName_loginRequired, "true");
               }
             }
@@ -125,7 +131,7 @@ angular
 
       this.setShareLinkParam_currentSpatialUnitName = function(){
         this.setShareLinkParam(this.paramName_spatialUnitName, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel);
-        if(kommonitorDataExchangeService.selectedSpatialUnit.permissions?.length > 0){
+        if(kommonitorDataExchangeService.selectedSpatialUnit.permissions.length > 0){
           this.setShareLinkParam(this.paramName_loginRequired, "true");
         }
       };

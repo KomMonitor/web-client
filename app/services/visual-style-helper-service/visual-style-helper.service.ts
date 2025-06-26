@@ -82,6 +82,7 @@ export class VisualStyleHelperServiceNew {
   defaultBorderColorForOutliers_low = window.__env.defaultBorderColorForOutliers_low;
   defaultFillOpacityForOutliers_low = window.__env.defaultFillOpacityForOutliers_low;
   useOutlierDetectionOnIndicator = window.__env.useOutlierDetectionOnIndicator;
+  customColorSchemes = window.__env.customColorSchemes;
 
   outlierPropertyName = "outlier";
   outlierPropertyValue_high_soft = "high-soft";
@@ -258,6 +259,12 @@ export class VisualStyleHelperServiceNew {
 
   createNewClassyBrewInstance(){
     let classyBrewInstance = new classyBrew();
+    
+    // Add custom color themes from configuration properties
+    if(this.customColorSchemes) {
+      var colorbrewer = Object.assign(this.customColorSchemes, colorbrewer);
+    }
+
     // must overwrite the color schemes of classybrew if there are any custom color palettes defined by KomMonitor users
     // that are not part of official colorbrewer project
     // deep clone colorbrewer content in case some methods use .shift method on color palette arrays

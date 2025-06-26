@@ -343,11 +343,11 @@ angular
         weightStrategyExplanationText = "";
         if (indicatorStatistic.weightStrategy.apiName == "residential_areas") {
           weightStrategyText += "versorgte Wohnfläche";
-          weightStrategyExplanationText += "Pro Raumeinheit wird nur die Wohnfläche mit den Einzugsgebieten eines Punktes räumlich verschnitten. Die geschätzte Gesamtversorgung einer Raumeinheit ergibt sich dann aus dem durch die Punkteinzugsgebiete insgesamt überlappenden Anteil an der Wohnfläche innerhalb der Raumeinheit. Dieses Verfahren berücksichtigt demnach nur die Wohnfläche und liefert daher einen genaueren Schätzwert als der einfache Gesamtflächenanteil. Da keine Einzelpersonen im Verfahren verücksichtigt werden, ist das Ergebnis ausdrücklich als Schätzwert zu interpretieren.";
+          weightStrategyExplanationText += "Pro Raumebene wird nur die Wohnfläche mit den Einzugsgebieten eines Punktes räumlich verschnitten. Die geschätzte Gesamtversorgung einer Raumebene ergibt sich dann aus dem durch die Punkteinzugsgebiete insgesamt überlappenden Anteil an der Wohnfläche innerhalb der Raumebene. Dieses Verfahren berücksichtigt demnach nur die Wohnfläche und liefert daher einen genaueren Schätzwert als der einfache Gesamtflächenanteil. Da keine Einzelpersonen im Verfahren verücksichtigt werden, ist das Ergebnis ausdrücklich als Schätzwert zu interpretieren.";
         }
         else {
           weightStrategyText += "einfacher Gesamtflächenanteil";
-          weightStrategyExplanationText += "Pro Raumeinheit wird die Gesamtfläche mit den Einzugsgebieten eines Punktes räumlich verschnitten. Die geschätzte Gesamtversorgung einer Raumeinheit ergibt sich dann aus dem durch die Punkteinzugsgebiete insgesamt überlappenden Anteil an der Gesamtfläche der Raumeinheit. Da keine Einzelpersonen im Verfahren verücksichtigt werden, ist das Ergebnis ausdrücklich als Schätzwert zu interpretieren.";
+          weightStrategyExplanationText += "Pro Raumebene wird die Gesamtfläche mit den Einzugsgebieten eines Punktes räumlich verschnitten. Die geschätzte Gesamtversorgung einer Raumebene ergibt sich dann aus dem durch die Punkteinzugsgebiete insgesamt überlappenden Anteil an der Gesamtfläche der Raumebene. Da keine Einzelpersonen im Verfahren verücksichtigt werden, ist das Ergebnis ausdrücklich als Schätzwert zu interpretieren.";
         }
       }
 
@@ -499,7 +499,7 @@ angular
       this.addCoverageInformation_spatialUnitIndividualCoverage = async function (doc, reachabilityScenario, indicatorStatistic, spatialUnitLayer, domId) {
         doc.setFont(fontName, 'bolditalic');
         doc.setFontSize(12);
-        let poiCoverageTitle = doc.splitTextToSize('Versorgung der Raumeinheit "' + spatialUnitLayer.feature.properties[__env.FEATURE_NAME_PROPERTY_NAME] + '"', 180);
+        let poiCoverageTitle = doc.splitTextToSize('Versorgung der Raumebene "' + spatialUnitLayer.feature.properties[__env.FEATURE_NAME_PROPERTY_NAME] + '"', 180);
         doc.text(poiCoverageTitle, initX, nextLineY, { baseline: "top" });
         doc.setFont(fontName, "normal", "normal");
         doc.setFontSize(fontSize_default);
@@ -559,7 +559,7 @@ angular
 
           doc.setFont(fontName, 'bolditalic');
           doc.setFontSize(12);
-          let poiCoverageTitle = doc.splitTextToSize('Versorgung der Raumeinheit "' + spatialUnitLayer.feature.properties[__env.FEATURE_NAME_PROPERTY_NAME] + '"', 180);
+          let poiCoverageTitle = doc.splitTextToSize('Versorgung der Raumebene "' + spatialUnitLayer.feature.properties[__env.FEATURE_NAME_PROPERTY_NAME] + '"', 180);
           doc.text(poiCoverageTitle, initX, nextLineY, { baseline: "top" });
           doc.setFont(fontName, "normal", "normal");
           doc.setFontSize(fontSize_default);
@@ -705,7 +705,7 @@ angular
         nextLineY = doc.autoTable.previous.finalY + 5;
 
         doc.autoTable({
-          head: [['Einzugsgebiet', 'anteilig versorgte Raumeinheiten']],
+          head: [['Einzugsgebiet', 'anteilig versorgte Raumebenen']],
           body: spatialUnitPoiCoverage_tableArray,
           theme: 'grid',
           headStyles: headStyles,
@@ -935,7 +935,7 @@ angular
 
         this.removeLeafletContainer(leafletMapDomId);
 
-        doc.save("KomMonitor-Report_Erreichbarkeits_Coverage_Raumeinheiten-Karte.pdf");
+        doc.save("KomMonitor-Report_Erreichbarkeits_Coverage_Raumebenen-Karte.pdf");
 
         this.reportInProgress_spatialUnitCoverage = false;
         $timeout(function () {
