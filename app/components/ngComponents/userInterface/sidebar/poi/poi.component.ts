@@ -74,9 +74,31 @@ export class PoiComponent implements OnInit {
   ngOnInit(): void {
 
     window.setTimeout( () => {
-      this.preppedTopicGeoresourceHierarchy = this.prepareTopicGeoresourceHierarchyRecursive(this.exchangeData.topicGeoresourceHierarchy);
+      this.init();
+    },2000);
+
+    this.broadcastService.currentBroadcastMsg.subscribe(broadcastMsg => {
+      let title = broadcastMsg.msg;
+      let values:any = broadcastMsg.values;
+
+      switch (title) {
+        case 'selectedIndicatorDateHasChanged': {
+          this.selectedIndicatorDateHasChanged();
+        } break; 
+        case 'geoFavItemsStored': {
+          this.favItemsStored();
+        } break;
+        case 'LIKEinitialMetadataLoadingCompleted': {
+          this.init();
+        } break;
+      }
+    });
+  }
+
+  init() {
+    this.preppedTopicGeoresourceHierarchy = this.prepareTopicGeoresourceHierarchyRecursive(this.exchangeData.topicGeoresourceHierarchy);
       this.georesourceFavTopicsTree = this.prepTopicsTree(this.dataExchangeService.pipedData.topicGeoresourceHierarchy,0,undefined);
-console.log(this.georesourceFavTopicsTree)
+
       if(this.elementVisibilityHelperService.elementVisibility.favSelection===true)
         this.showFavSelection = true;
 
@@ -93,23 +115,6 @@ console.log(this.georesourceFavTopicsTree)
       }
 
       this.addClickListenerToEachCollapseTrigger();
-    },2000);
-
- 
-
-    this.broadcastService.currentBroadcastMsg.subscribe(broadcastMsg => {
-      let title = broadcastMsg.msg;
-      let values:any = broadcastMsg.values;
-
-      switch (title) {
-        case 'selectedIndicatorDateHasChanged': {
-          this.selectedIndicatorDateHasChanged();
-        } break; 
-        case 'geoFavItemsStored': {
-          this.favItemsStored();
-        } break;
-      }
-    });
   }
 
   prepTopicsTree(tree, level, parent) {

@@ -1,3 +1,4 @@
+import { ActivatedRoute } from '@angular/router';
 import { ajskommonitorGlobalFilterHelperServiceProvider } from './../../app-upgraded-providers';
 import { Inject, Injectable } from '@angular/core';
 
@@ -16,29 +17,40 @@ export class GlobalFilterHelperService {
   applicationFilter:any;
   filterParamSet = false;
 
+  constructor(
+    private route: ActivatedRoute
+  ) {}
+
   applyQueryParams(){
-    // todo
-   /*  if ($routeParams[this.paramName_app]){
-      this.applicationFilterId = $routeParams[this.paramName_app];
+
+    // todo, once fully migrated, change to ngRoute with valid url params and adjust code here accordingly
+    
+    if(window.location.href.includes(this.paramName_app)) {
+      let urlParts = window.location.href.split(`${this.paramName_app}=`);
+      this.applicationFilterId = urlParts[1];
 
       window.__env.filterConfig.some((filterConfig) => {
         if (filterConfig['name'] === this.applicationFilterId) {
           this.applicationFilter = filterConfig;
           return true;
         }
+        
+        return false;
       });
-    }  */
+    } 
   };
 
   init(){
-// todo
+
+    // todo, once fully migrated, change to ngRoute with valid url params and adjust code here accordingly
+
     // No need to parse sharing params if sharing is not true
- /*    if ($routeParams[this.paramName_app]) {
+    if (window.location.href.includes(this.paramName_app)) {
       this.filterParamSet = true;
       // set config and data options from params
       this.applyQueryParams();
     } else
-      this.filterParamSet = false; */
+      this.filterParamSet = false;
   };
 
   applyFilterSelection(filterConfig) {

@@ -29,7 +29,7 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit{
   kommonitorFilterModes = window.window.__env.filterModes;
 
   considerAllowedSpatialUnitsOfCurrentIndicator = true;
-  loadingData = false;
+  loadingData = true;
 
   rangeSliderForFilter;
   valueRangeMinValue;
@@ -189,6 +189,10 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit{
       this.dataExchangeService.fetchAllMetadata();
 
     this.broadcastService.broadcast("onGlobalFilterChange");
+    setTimeout(() => {
+      console.log('LIKEinitialMetadataLoadingCompleted broadcasted')
+      this.broadcastService.broadcast("LIKEinitialMetadataLoadingCompleted");
+    },1000)
   }
 
   globalFiltersActive() {

@@ -104,8 +104,6 @@ export class KommonitorDataSetupComponent implements OnInit {
 
     // todo like "initialMetadataLoadingCompleted"
     window.setTimeout( () => {
-      this.preppedIndicatorTopics = this.prepareIndicatorTopicsRecursive(this.exchangeData.topicIndicatorHierarchy);
-      //this.addClickListenerToEachCollapseTrigger(); calles later again
 
       this.onInitialMetadataLoadingComplete();
 
@@ -141,6 +139,9 @@ export class KommonitorDataSetupComponent implements OnInit {
           this.onSaveFavSelection(values); 
           // why called again?! button click calls onSaveFavSelection(true), which saves and broadcasts onSaveFavSelection(false) again ... // todo, check
         } break;
+        case 'LIKEinitialMetadataLoadingCompleted': {
+          this.onInitialMetadataLoadingComplete();
+        } break;
       }
     });
   }
@@ -152,6 +153,8 @@ export class KommonitorDataSetupComponent implements OnInit {
 
   onInitialMetadataLoadingComplete() {
     console.log("Load an initial example indicator");
+
+    this.preppedIndicatorTopics = this.prepareIndicatorTopicsRecursive(this.exchangeData.topicIndicatorHierarchy);
 
     if (this.exchangeData.displayableIndicators == null || this.exchangeData.displayableIndicators == undefined || this.exchangeData.displayableIndicators.length === 0){
       console.error("Kein darstellbarer Indikator konnte gefunden werden.");
