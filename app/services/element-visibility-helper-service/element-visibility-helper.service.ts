@@ -42,9 +42,7 @@ export class ElementVisibilityHelperService implements OnInit {
         this.elementVisibility[element.id] = this.checkElementVisibility(element.id);
     });
 
-    // todo, change back to & check function
-    //if(this.authService.Auth.keycloak.authenticated && window.__env.showFavoriteSelection)
-    if(this.authService.Auth.keycloak.authenticated)
+    if(this.authService.Auth.keycloak.authenticated && window.__env.showFavoriteSelection)
       this.elementVisibility['favSelection'] = true;
     else
       this.elementVisibility['favSelection'] = false;
