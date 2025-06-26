@@ -369,10 +369,10 @@ export class DiagramHelperServiceService {
   }
 
   prepareAllDiagramResources_forReportingIndicator(indicatorMetadataAndGeoJSON, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, filterOutFutureDates) {
-    this.prepareAllDiagramResources(indicatorMetadataAndGeoJSON, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, filterOutFutureDates, true);      
+    this.prepareAllDiagramResources(indicatorMetadataAndGeoJSON, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, filterOutFutureDates, true, true);      
   }
 
-  prepareAllDiagramResources(indicatorMetadataAndGeoJSON, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, filterOutFutureDates, forceUseSubmittedIndicatorForTimeseries) {
+  prepareAllDiagramResources(indicatorMetadataAndGeoJSON, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, filterOutFutureDates, forceUseSubmittedIndicatorForTimeseries, fixedPrecision = false) {
 
     this.indicatorPropertyName = this.INDICATOR_DATE_PREFIX + date;
 
@@ -394,7 +394,12 @@ export class DiagramHelperServiceService {
       if (this.dataExchangeService.indicatorValueIsNoData(cartographicFeature.properties[this.indicatorPropertyName])) {
         indicatorValue = null;
       }
-      else {
+      else { 
+        if(!fixedPrecision)
+          indicatorValue = this.dataExchangeService.getIndicatorValue_asNumber(cartographicFeature.properties[this.indicatorPropertyName]);  
+        else
+          indicatorValue = this.dataExchangeService.getIndicatorValue_asFixedPrecisionNumber(cartographicFeature.properties[this.indicatorPropertyName],indicatorMetadataAndGeoJSON.precision);  
+
         indicatorValue = this.dataExchangeService.getIndicatorValue_asNumber(cartographicFeature.properties[this.indicatorPropertyName]);  
       }
 
@@ -665,7 +670,7 @@ export class DiagramHelperServiceService {
               htmlString += "<tbody>";
 
               for (var i = 0; i < seriesData.length; i++) {
-                var value = this.dataExchangeService.getIndicatorValue_asNumber(seriesData[i].value);
+                var value = this.dataExchangeService.getIndicatorValue_asFormattedText(seriesData[i].value);
                 htmlString += "<tr>";
                 htmlString += "<td>" + seriesData[i].name + "</td>";
                 htmlString += "<td>" + value + "</td>";
@@ -692,7 +697,7 @@ export class DiagramHelperServiceService {
         type: "piecewise",
         pieces: legendConfig,
         // selectedMode: 'multiple',
-        precision: 2,
+        precision: indicatorMetadataAndGeoJSON.precision,
         show: true
     },
       series: [{
@@ -820,7 +825,7 @@ export class DiagramHelperServiceService {
               htmlString += "<tbody>";
 
               for (var i = 0; i < barData.length; i++) {
-                var value = this.dataExchangeService.getIndicatorValue_asNumber(barData[i].value);
+                var value = this.dataExchangeService.getIndicatorValue_asFormattedText(barData[i].value);
                 htmlString += "<tr>";
                 htmlString += "<td>" + featureNames[i] + "</td>";
                 htmlString += "<td>" + value + "</td>";
@@ -885,7 +890,7 @@ export class DiagramHelperServiceService {
           left: 'left',
           type: "piecewise",
           pieces: legendConfig,
-          precision: 2,
+          precision: indicatorMetadataAndGeoJSON.precision,
           show: false
       }]
     };
@@ -1010,7 +1015,7 @@ export class DiagramHelperServiceService {
                 htmlString += "<tr>";
                 htmlString += "<td>" + timestamps[j] + "</td>";
                 for (var k = 0; k < lineSeries.length; k++) {
-                  var value = this.dataExchangeService.getIndicatorValue_asNumber(lineSeries[k].data[j]);
+                  var value = this.dataExchangeService.getIndicatorValue_asFormattedText(lineSeries[k].data[j]);
                   htmlString += "<td>" + value + "</td>";
                 }
                 htmlString += "</tr>";

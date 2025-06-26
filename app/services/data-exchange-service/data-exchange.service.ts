@@ -323,4 +323,8 @@ export class DataExchangeService {
   isDisplayableGeoresource(poi) {
     return this.ajskommonitorDataExchangeServiceeProvider.isDisplayableGeoresource(poi);
   }
+
+  getIndicatorValue_asFixedPrecisionNumber(cartographicFeature,precision) {
+    return this.ajskommonitorDataExchangeServiceeProvider.getIndicatorValue_asFixedPrecisionNumber(cartographicFeature,precision);
+  }
 }
