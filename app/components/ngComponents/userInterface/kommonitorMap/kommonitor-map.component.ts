@@ -148,7 +148,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   showLegend = true;
   overlays = new Array();
   baseMaps = new Array();
-  spatialUnitLayerGroupName = "Raumeinheiten";
+  spatialUnitLayerGroupName = "Raumebenen";
   georesourceLayerGroupName = "Georessourcen";
   poiLayerGroupName = "Points of Interest";
   loiLayerGroupName = "Lines of Interest";
@@ -158,7 +158,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   wmsLayerGroupName = "Web Map Services (WMS)";
   wfsLayerGroupName = "Web Feature Services (WFS)";
   fileLayerGroupName = "Dateilayer";
-  spatialUnitOutlineLayerGroupName = "Raumeinheiten Umringe";
+  spatialUnitOutlineLayerGroupName = "Raumebenen Umringe";
 
   propertyName;
 
@@ -330,6 +330,9 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         case 'unselectAllFeatures': {
           this.unselectAllFeatures();
         } break;
+        case 'onGlobalFilterChange': {
+          this.onGlobalFilterChange();
+        } break;
       }
     });
   }
@@ -375,6 +378,11 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       zoomSnap: 0.5,
       layers: [baseLayerDefinitionsMap.get(window.__env.baseLayers[0].name)]
     });
+    
+
+    window.__env.currentLatitude = this.latCenter;
+    window.__env.currentLongitude = this.lonCenter;
+    window.__env.currentZoomLevel = this.zoomLevel;
 
     // execute update search control on layer add and remove
  /*    this.map.on('overlayadd',(eo) => {
@@ -553,6 +561,13 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     /* let measureControl = new L.Control.Measure(measureOptions);
     measureControl.addTo(this.map); */
   }
+
+  onGlobalFilterChange() {
+    // reset custom layers when global filters change. otherwise douplicates might be added
+    this.layerControl._layers = this.layerControl._layers.filter(e => e.overlay===undefined);
+  }
+
+
 
  /*  MultipleResultsLeafletSearch = L.Control.Search.extend({
 
