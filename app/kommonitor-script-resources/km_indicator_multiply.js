@@ -1,18 +1,21 @@
-"use strict";
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // NECESSARY NODE MODULE DEPENDENCIES                                                                                                                       //                                                                                                                         //
 //                                                                                                                                                          //
 // SEE MODULE "KmProcessingEngine" for numerous predefined helper methods                                 //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 /**
 * Module that contains various helper methods (spatial GIS functions and statistical functions)
 * to simplify script writing
 */
 const KmHelper = require("kmhelper");
+
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CONSTANTS DEFINITION                                                                                                                                     //
 // here you may specify custom CONSTANTS used within the script.                                                                                            //                                            //                               //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 /**
 * This constant specifies allowed values to determine how the aggregation process will deal with indicator values.
 * I.e. "SUM" will compute the sum of all affected features, while "AVERAGE" will compute the average of all affected features.
@@ -22,6 +25,7 @@ const KmHelper = require("kmhelper");
 * @constant
 */
 const aggregationTypeEnum = ["SUM", "AVERAGE"];
+
 /**
 * via the setting constant {@linkcode aggregationType} the user can decide how the aggregation process will deal with indicator values.
 * Any value of {@linkcode aggregationTypeEnum} can be used. If set to an unknown type, then "AVERAGE" is taken as fallback option
@@ -30,7 +34,9 @@ const aggregationTypeEnum = ["SUM", "AVERAGE"];
 * @constant
 */
 const aggregationType = "SUM";
+
 const parameterName_computationIndicatorId = "COMPUTATION_ID";
+
 /**
 * This method computes the indicator for the specified point in time and target spatial unit. To do this, necessary base indicators and/or georesources as well as variable process properties are defined
 * as method parameters that can be used within the method body.
@@ -121,31 +127,41 @@ async function computeIndicator(targetDate, targetSpatialUnit_geoJSON, baseIndic
 
         // get spatialUnit feature id as string --> use it to get associated map entry
         var spatialUnitFeatureId = KmHelper.getSpatialUnitFeatureIdValue(spatialUnitFeature);
-        if (!map.has(spatialUnitFeatureId)) {
-            KmHelper.log("Target spatial unit feature with id '" + spatialUnitFeatureId + "' was not computed from computation resources. Will set indicator value to null.");
-            var mapObject = {
-                featureId: spatialUnitFeatureId,
-                indicatorValue: null,
-                intermediateValue: null
-            };
-            map.set(spatialUnitFeatureId, mapObject);
-        }
+
+        if (! map.has(spatialUnitFeatureId)){
+          KmHelper.log("Target spatial unit feature with id '" + spatialUnitFeatureId + "' was not computed from computation resources. Will set indicator value to null.");
+				  var mapObject = {
+					  featureId: spatialUnitFeatureId,
+					  indicatorValue: null,                
+					  intermediateValue: null
+					  };
+				  map.set(spatialUnitFeatureId, mapObject);					 
+				}
+
         var mapEntry = map.get(spatialUnitFeatureId);
+
+       
         var indicatorValue = mapEntry.intermediateValue;
+
         // set aggregationWeight as number of citizens
         KmHelper.setAggregationWeight(spatialUnitFeature, indicatorValue);
+
         // set indicator value for spatialUnitFeature
         spatialUnitFeature = KmHelper.setIndicatorValue(spatialUnitFeature, targetDate, indicatorValue);
-        spatialUnitIndex++;
+
+        spatialUnitIndex ++;
+
         // only log after certain progress
-        if (spatialUnitIndex % logProgressIndexSeparator === 0) {
+        if(spatialUnitIndex % logProgressIndexSeparator === 0){
             KmHelper.log("PROGRESS: Computed '" + spatialUnitIndex + "' of total '" + numFeatures + "' features.");
         }
-    });
-    KmHelper.log("Computation of indicator finished");
-    return targetSpatialUnit_geoJSON;
-}
-;
+      });
+
+      KmHelper.log("Computation of indicator finished");
+
+      return targetSpatialUnit_geoJSON;
+};
+
 /**
 * This method is used to aggregate indicators of a certain spatial unit to the features of a more high-level spatial unit (i.e. aggregate from building blocks to city districts).
 * The template contains predefined aggregation logic that makes use of constant {@linkcode aggregationType} to decide how indicator values shall be aggregated.
@@ -161,22 +177,22 @@ async function computeIndicator(targetDate, targetSpatialUnit_geoJSON, baseIndic
 * @memberof METHODS_TO_IMPLEMENT_OR_OVERWRITE
 * @function
 */
-function aggregateIndicator(targetDate, targetSpatialUnit_geoJSON, indicator_geoJSON) {
-    // aggregate indicator
-    if (!aggregationTypeEnum.includes(aggregationType)) {
-        console.log("Unknown parameter value for 'aggregationType' was specified for aggregation logic. Parameter value was '" + aggregationType +
-            "'. Allowed values are: " + aggregationTypeEnum);
-        console.log("Will fallback to using AVERAGE aggregation logic.");
-        return aggregate_average(targetDate, targetSpatialUnit_geoJSON, indicator_geoJSON);
-    }
-    else if (aggregationType === "SUM") {
-        return aggregate_sum(targetDate, targetSpatialUnit_geoJSON, indicator_geoJSON);
-    }
-    else {
-        return aggregate_average(targetDate, targetSpatialUnit_geoJSON, indicator_geoJSON);
-    }
-}
-;
+function aggregateIndicator(targetDate, targetSpatialUnit_geoJSON, indicator_geoJSON){
+  // aggregate indicator
+  if (!aggregationTypeEnum.includes(aggregationType)){
+    console.log("Unknown parameter value for 'aggregationType' was specified for aggregation logic. Parameter value was '" + aggregationType +
+      "'. Allowed values are: " + aggregationTypeEnum);
+    console.log("Will fallback to using AVERAGE aggregation logic.");
+    return aggregate_average(targetDate, targetSpatialUnit_geoJSON, indicator_geoJSON);
+  }
+  else if(aggregationType === "SUM"){
+    return aggregate_sum(targetDate, targetSpatialUnit_geoJSON, indicator_geoJSON);
+  }
+  else {
+    return aggregate_average(targetDate, targetSpatialUnit_geoJSON, indicator_geoJSON);
+  }
+};
+
 /**
 * This method is used to disaggregate indicators of a certain spatial unit to the features of a more low-level spatial unit (i.e. disaggregate from city districts to building blocks).
 * @todo CURRENTLY THIS METHOD IS NOT USED WITHIN KOMMONITOR PROJECT: THUS IT CONTAINS NO IMPLEMENTATION YET!
@@ -187,10 +203,12 @@ function aggregateIndicator(targetDate, targetSpatialUnit_geoJSON, indicator_geo
 * @memberof METHODS_TO_IMPLEMENT_OR_OVERWRITE
 * @function
 */
-function disaggregateIndicator(targetDate, targetSpatialUnit_geoJSON, indicator_geoJSON) {
-    // disaggregate indicator
-}
-;
+function disaggregateIndicator(targetDate, targetSpatialUnit_geoJSON, indicator_geoJSON){
+  // disaggregate indicator
+
+};
+
+
 /**
 * Aggregate features from {@linkcode indicator_geoJSON} to target features of {@linkcode targetSpatialUnit_geoJSON}
 * by computing the AVERAGE indicator value of all affected features. Internally this compares the centroids of each indicator feature to target spatial unit features.
@@ -204,60 +222,74 @@ function disaggregateIndicator(targetDate, targetSpatialUnit_geoJSON, indicator_
 * @memberof API_HELPER_METHODS_GEOMETRIC_OPERATIONS
 * @function
 */
-function aggregate_average(targetDate, targetSpatialUnit_geoJSON, indicator_geoJSON) {
-    // aggregate indicator
-    var indicatorFeatures = indicator_geoJSON.features;
-    KmHelper.log("Aggregate indicator for targetDate " + targetDate + " for a total amount of " + targetSpatialUnit_geoJSON.features.length + " target features. Computing AVERAGE values.");
-    KmHelper.log("Aggregate from a total number of " + indicator_geoJSON.features.length + " baseFeatures");
-    KmHelper.log("Aggregating by comparing the centroids of each indicator feature to target spatial unit features. Each indicator feature will be weighted by its size (area in squareMeters).");
-    targetDate = KmHelper.getTargetDateWithPropertyPrefix(targetDate);
-    KmHelper.log('Target Date with prefix: ' + targetDate);
-    // first replace indicatorFeature geoimetry by their pointOnSurface
-    for (var index = 0; index < indicatorFeatures.length; index++) {
-        var indicatorFeature = indicatorFeatures[index];
-        var centerPoint = KmHelper.pointOnFeature(indicatorFeature);
-        indicatorFeature.geometry = centerPoint.geometry;
+function aggregate_average(targetDate, targetSpatialUnit_geoJSON, indicator_geoJSON){
+  // aggregate indicator
+
+  var indicatorFeatures = indicator_geoJSON.features;
+
+  KmHelper.log("Aggregate indicator for targetDate " + targetDate + " for a total amount of " + targetSpatialUnit_geoJSON.features.length + " target features. Computing AVERAGE values.");
+  KmHelper.log("Aggregate from a total number of " + indicator_geoJSON.features.length + " baseFeatures");
+  KmHelper.log("Aggregating by comparing the centroids of each indicator feature to target spatial unit features. Each indicator feature will be weighted by its size (area in squareMeters).");
+
+  targetDate = KmHelper.getTargetDateWithPropertyPrefix(targetDate);
+  KmHelper.log('Target Date with prefix: ' + targetDate);
+
+  // first replace indicatorFeature geoimetry by their pointOnSurface
+  for (var index = 0; index < indicatorFeatures.length; index++){
+    var indicatorFeature = indicatorFeatures[index];
+    var centerPoint = KmHelper.pointOnFeature(indicatorFeature);
+
+    indicatorFeature.geometry = centerPoint.geometry;
+  }
+
+  // spatial within check to aggregate
+  targetSpatialUnit_geoJSON.features.forEach(function(targetFeature){
+
+  	targetFeature.properties[targetDate] = 0;
+  	var baseIndicatorTotalWeight = 0;
+    var featureCounter = 0;
+
+  	for (var index = 0; index < indicatorFeatures.length; index++){
+  		var indicatorFeature = indicatorFeatures[index];
+      if(KmHelper.within(indicatorFeature, targetFeature)){
+  			// remove from array and decrement index
+  			indicatorFeatures.splice(index, 1);
+        index--;
+        featureCounter++;
+
+        // only use in aggregation, if the indicator value is not NaN, null or undefined but a "real" numeric number
+          if(! Number.isNaN(indicatorFeature.properties[targetDate]) && indicatorFeature.properties[targetDate] !== null && indicatorFeature.properties[targetDate] !== undefined){
+            // aggregationWeight is either 1 or a custom user-set weight value set within computeIndicator()-method
+            // it "survives" until this aggregation logic within processing engine
+            var weight = KmHelper.getAggregationWeight(indicatorFeature);
+
+            // use weight as weight for indicator value
+            baseIndicatorTotalWeight += weight;
+            targetFeature.properties[targetDate] += Number(indicatorFeature.properties[targetDate]) * weight;
+          }
+  		}
+  	}
+
+  	// compute average for share
+    if(baseIndicatorTotalWeight === 0){
+      targetFeature.properties[targetDate] = Number.NaN;
     }
-    // spatial within check to aggregate
-    targetSpatialUnit_geoJSON.features.forEach(function (targetFeature) {
-        targetFeature.properties[targetDate] = 0;
-        var baseIndicatorTotalWeight = 0;
-        var featureCounter = 0;
-        for (var index = 0; index < indicatorFeatures.length; index++) {
-            var indicatorFeature = indicatorFeatures[index];
-            if (KmHelper.within(indicatorFeature, targetFeature)) {
-                // remove from array and decrement index
-                indicatorFeatures.splice(index, 1);
-                index--;
-                featureCounter++;
-                // only use in aggregation, if the indicator value is not NaN, null or undefined but a "real" numeric number
-                if (!Number.isNaN(indicatorFeature.properties[targetDate]) && indicatorFeature.properties[targetDate] !== null && indicatorFeature.properties[targetDate] !== undefined) {
-                    // aggregationWeight is either 1 or a custom user-set weight value set within computeIndicator()-method
-                    // it "survives" until this aggregation logic within processing engine
-                    var weight = KmHelper.getAggregationWeight(indicatorFeature);
-                    // use weight as weight for indicator value
-                    baseIndicatorTotalWeight += weight;
-                    targetFeature.properties[targetDate] += Number(indicatorFeature.properties[targetDate]) * weight;
-                }
-            }
-        }
-        // compute average for share
-        if (baseIndicatorTotalWeight === 0) {
-            targetFeature.properties[targetDate] = Number.NaN;
-        }
-        else {
-            targetFeature.properties[targetDate] = (targetFeature.properties[targetDate] / baseIndicatorTotalWeight);
-        }
-        // KmHelper.log("resulting average value is " + targetFeature.properties[targetDate]);
-    });
-    KmHelper.log("Aggregation finished");
-    if (indicatorFeatures.length > 0) {
-        console.error("Spatial Aggregation failed for a total number of " + indicatorFeatures.length);
-        throw Error("Spatial Aggregation operation failed for a total number of " + indicatorFeatures.length);
+    else {
+        targetFeature.properties[targetDate] = (targetFeature.properties[targetDate] / baseIndicatorTotalWeight);
     }
-    return targetSpatialUnit_geoJSON;
-}
-;
+    // KmHelper.log("resulting average value is " + targetFeature.properties[targetDate]);
+  });
+
+  KmHelper.log("Aggregation finished");
+
+  if(indicatorFeatures.length > 0){
+    console.error("Spatial Aggregation failed for a total number of " + indicatorFeatures.length);
+    throw Error("Spatial Aggregation operation failed for a total number of " + indicatorFeatures.length);
+  }
+
+  return targetSpatialUnit_geoJSON;
+};
+
 /**
 * Aggregate features from {@linkcode indicator_geoJSON} to target features of {@linkcode targetSpatialUnit_geoJSON}
 * by computing the SUM indicator value of all affected features. Internally this uses the function {@linkcode within_usingBBOX}
@@ -271,47 +303,59 @@ function aggregate_average(targetDate, targetSpatialUnit_geoJSON, indicator_geoJ
 * @memberof API_HELPER_METHODS_GEOMETRIC_OPERATIONS
 * @function
 */
-function aggregate_sum(targetDate, targetSpatialUnit_geoJSON, indicator_geoJSON) {
-    // aggregate indicator
-    var indicatorFeatures = indicator_geoJSON.features;
-    KmHelper.log("Aggregate indicator for targetDate " + targetDate + " for a total amount of " + targetSpatialUnit_geoJSON.features.length + " target features. Computing SUM values.");
-    KmHelper.log("Aggregate from a total number of " + indicator_geoJSON.features.length + " baseFeatures");
-    KmHelper.log("Aggregating by comparing the centroids of each indicator feature to target spatial unit features.");
-    targetDate = KmHelper.getTargetDateWithPropertyPrefix(targetDate);
-    KmHelper.log('Target Date with prefix: ' + targetDate);
-    var totalAggregatedIndicatorFeatures = 0;
-    // first replace indicatorFeature geoimetry by their pointOnSurface
-    for (var index = 0; index < indicatorFeatures.length; index++) {
-        var indicatorFeature = indicatorFeatures[index];
-        var centerPoint = KmHelper.pointOnFeature(indicatorFeature);
-        indicatorFeature.geometry = centerPoint.geometry;
-    }
-    // spatial within check for aggregation
-    targetSpatialUnit_geoJSON.features.forEach(function (targetFeature) {
-        targetFeature.properties[targetDate] = 0;
-        var numberOfIndicatorFeaturesWithinTargetFeature = 0;
-        for (var index = 0; index < indicatorFeatures.length; index++) {
-            var indicatorFeature = indicatorFeatures[index];
-            if (KmHelper.within(indicatorFeature, targetFeature)) {
-                // remove from array and decrement index
-                indicatorFeatures.splice(index, 1);
-                index--;
-                numberOfIndicatorFeaturesWithinTargetFeature++;
-                targetFeature.properties[targetDate] += Number(indicatorFeature.properties[targetDate]);
-            }
-        }
-        totalAggregatedIndicatorFeatures += numberOfIndicatorFeaturesWithinTargetFeature;
-    });
-    KmHelper.log("Aggregation finished");
-    KmHelper.log(totalAggregatedIndicatorFeatures + " features were aggregated to " + targetSpatialUnit_geoJSON.features.length + " targetFeatures");
-    if (indicatorFeatures.length > 0) {
-        console.error("Spatial Aggregation failed for a total number of " + indicatorFeatures.length);
-        throw Error("Spatial Aggregation operation failed for a total number of " + indicatorFeatures.length);
-    }
-    return targetSpatialUnit_geoJSON;
-}
-;
+function aggregate_sum(targetDate, targetSpatialUnit_geoJSON, indicator_geoJSON){
+  // aggregate indicator
+
+  var indicatorFeatures = indicator_geoJSON.features;
+
+  KmHelper.log("Aggregate indicator for targetDate " + targetDate + " for a total amount of " + targetSpatialUnit_geoJSON.features.length + " target features. Computing SUM values.");
+  KmHelper.log("Aggregate from a total number of " + indicator_geoJSON.features.length + " baseFeatures");
+  KmHelper.log("Aggregating by comparing the centroids of each indicator feature to target spatial unit features.");
+
+  targetDate = KmHelper.getTargetDateWithPropertyPrefix(targetDate);
+  KmHelper.log('Target Date with prefix: ' + targetDate);
+
+  var totalAggregatedIndicatorFeatures = 0;
+
+  // first replace indicatorFeature geoimetry by their pointOnSurface
+  for (var index = 0; index < indicatorFeatures.length; index++){
+    var indicatorFeature = indicatorFeatures[index];
+    var centerPoint = KmHelper.pointOnFeature(indicatorFeature);
+
+    indicatorFeature.geometry = centerPoint.geometry;
+  }
+
+  // spatial within check for aggregation
+  targetSpatialUnit_geoJSON.features.forEach(function(targetFeature){
+
+  	targetFeature.properties[targetDate] = 0;
+  	var numberOfIndicatorFeaturesWithinTargetFeature = 0;
+
+  	for (var index = 0; index < indicatorFeatures.length; index++){
+  		var indicatorFeature = indicatorFeatures[index];
+      if(KmHelper.within(indicatorFeature, targetFeature)){
+  			// remove from array and decrement index
+  			indicatorFeatures.splice(index, 1);
+        index--;
+  			numberOfIndicatorFeaturesWithinTargetFeature++;
+  			targetFeature.properties[targetDate] += Number(indicatorFeature.properties[targetDate]);
+  		}
+  	}
+    totalAggregatedIndicatorFeatures += numberOfIndicatorFeaturesWithinTargetFeature;
+  });
+
+  KmHelper.log("Aggregation finished");
+  KmHelper.log(totalAggregatedIndicatorFeatures + " features were aggregated to " + targetSpatialUnit_geoJSON.features.length + " targetFeatures");
+
+  if(indicatorFeatures.length > 0){
+    console.error("Spatial Aggregation failed for a total number of " + indicatorFeatures.length);
+    throw Error("Spatial Aggregation operation failed for a total number of " + indicatorFeatures.length);
+  }
+
+  return targetSpatialUnit_geoJSON;
+};
+
+
 module.exports.computeIndicator = computeIndicator;
 module.exports.aggregateIndicator = aggregateIndicator;
 module.exports.disaggregateIndicator = disaggregateIndicator;
-//# sourceMappingURL=km_indicator_multiply.js.map
