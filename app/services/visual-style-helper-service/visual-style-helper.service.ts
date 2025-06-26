@@ -10,6 +10,8 @@ export class VisualStyleHelperServiceNew {
 
   pipedData:any;
 
+  colorbrewer = colorbrewer;
+
   INDICATOR_DATE_PREFIX = window.__env.indicatorDatePrefix;
 
   defaultBrew:any = undefined;
@@ -262,13 +264,13 @@ export class VisualStyleHelperServiceNew {
     
     // Add custom color themes from configuration properties
     if(this.customColorSchemes) {
-      var colorbrewer = Object.assign(this.customColorSchemes, colorbrewer);
+      this.colorbrewer = Object.assign(this.customColorSchemes, this.colorbrewer);
     }
 
     // must overwrite the color schemes of classybrew if there are any custom color palettes defined by KomMonitor users
     // that are not part of official colorbrewer project
     // deep clone colorbrewer content in case some methods use .shift method on color palette arrays
-    classyBrewInstance.colorSchemes = jQuery.extend(true, {}, colorbrewer);
+    classyBrewInstance.colorSchemes = jQuery.extend(true, {}, this.colorbrewer);
 
     return classyBrewInstance;
   }
