@@ -13,28 +13,30 @@ export class KommonitorClassificationComponent implements OnInit {
 
   exchangeData: DataExchange;
 
- methodName = 'Klassifizierungsmethode auswählen';
- showMethodSelection = false;
- addBtnHeight = [0, 0];
- showAddBtn = [false, false];
+  methodName = 'Klassifizierungsmethode auswählen';
+  showMethodSelection = false;
+  addBtnHeight = [0, 0];
+  showAddBtn = [false, false];
 
- isDraggingBreak = false;
- draggingBreak!:any;
- nrOfDraggingBreak = null;
- dynamicDraggingSite = 0;
+  isDraggingBreak = false;
+  draggingBreak!:any;
+  nrOfDraggingBreak = null;
+  dynamicDraggingSite = 0;
 
- containsZeroValues = false;
- containsNegativeValues = false;
- containsOutliers_high = false;
- containsOutliers_low = false;
- containsNoData;
+  containsZeroValues = false;
+  containsNegativeValues = false;
+  containsOutliers_high = false;
+  containsOutliers_low = false;
+  containsNoData;
 
- hiddenMethodIds:any[] = [];
+  hiddenMethodIds:any[] = [];
 
- colorbrewerSchemes!:any;
- colorbrewerPalettes:any[] = [];
+  colorbrewerSchemes!:any;
+  colorbrewerPalettes:any[] = [];
 
- selectedColorBrewerPaletteEntry!:any;
+  selectedColorBrewerPaletteEntry!:any;
+
+  customColorSchemes = window.__env.customColorSchemes;
 
   constructor(
     private dataExchangeService: DataExchangeService,
@@ -42,10 +44,16 @@ export class KommonitorClassificationComponent implements OnInit {
     private broadcastService: BroadcastService
   ) {
     this.exchangeData = dataExchangeService.pipedData;
+
+    // Add custom color themes from configuration properties
+    if(this.customColorSchemes) {
+      var colorbrewer = Object.assign(this.customColorSchemes, colorbrewer);
+    }
   }
 
   ngOnInit(): void {
       
+
     this.instantiateColorBrewerPalettes();
 
      // catch broadcast msgs
@@ -72,6 +80,7 @@ export class KommonitorClassificationComponent implements OnInit {
   }
  
  instantiateColorBrewerPalettes() {
+
 
     for (const key in colorbrewer) {
       if (colorbrewer.hasOwnProperty(key)) {

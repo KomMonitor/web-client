@@ -1,11 +1,16 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 
 @Component({
   selector: 'app-sidebar',
   templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.css']
 })
-export class SidebarComponent {
+export class SidebarComponent implements OnInit{
 
   @Input() element:any = undefined;
+
+  ngOnInit(): void {
+    // default open
+    this.element = 'sidebarFilterCollapse';
+  }
 }

@@ -1,6 +1,45 @@
 <div id="kommonitorFilter">
-
+  <div style="text-align:center">
+		<div class="loading-overlay-sidebar-auto" *ngIf="loadingData">
+					<span class="glyphicon glyphicon-refresh icon-spin"></span>
+		</div>
+	</div>
 	<p></p>
+
+<!-- GLOBALE FILTER -->
+  <div class="box box-primary" id="globalFilterBox" *ngIf="globalFiltersActive()">
+		<div class="box-header with-border">
+			<h3 class="box-title">Globale Filter</h3>
+
+			<div class="box-tools pull-right">
+				<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+				</button>
+			</div>
+		</div>
+		<div class="box-body">
+
+      Eingrenzung der Indikatoren-Auswahl anhand von voreingestellten globalen Filtern.
+
+      <table class="table table-condensed " style="margin: 10px 10px 10px 0; max-height:150px; overflow: auto; padding-left: 5px;">
+        <thead>
+          <tr>
+            <th>
+              Filter-Bezeichnung											
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let filter of globalFilters; let i = index">
+            <td>
+              <label class="checkbox-inline input-sm"><input type="checkbox" [(ngModel)]="globalFilters[i].checked" [checked]="globalFilters[i].checked" (change)="onChangeFilterSelection()">{{filter.name}}</label>											
+            </td>
+          </tr>	
+        </tbody>												
+
+      </table>
+
+    </div>
+  </div>
 
 	<!-- RÄUMLICHE FILTER -->
 	<div class="box box-primary" id="kommonitorSpatialFilter" *ngIf="isFilterModeActive('kommonitorSpatialFilter')">
@@ -14,7 +53,7 @@
 		</div>
 		<div class="box-body">
 
-			<strong>gefilterte Features tempor&auml;r aus Datensatz entfernen</strong>
+			<strong>gefilterte Raumebenen tempor&auml;r aus Datensatz entfernen</strong>
 			&nbsp;
 			<label class="switch">
 				<input id="controlFilterBehaviourToggle" type="checkbox" (change)="filterHelperService.onChangeFilterBehaviourToggle()"
@@ -27,8 +66,8 @@
 			<hr>
 
 			<div style="text-align: center">
-				<h4>Selektion anhand &uuml;bergeordneter Raumeinheit</h4>
-				<p>Durch Auswahl eines Gebiets der &uuml;bergeordneten Raumeinheit (relativ zur momentan angezeigten) k&ouml;nnen alle darin enthaltenen Gebiete ausgew&auml;hlt werden. Die Auswahl erfolgt &uuml;ber eine Zentroidberechnung.</p>
+				<h4>Selektion anhand &uuml;bergeordneter Raumebene</h4>
+				<p>Durch Auswahl eines Gebiets der &uuml;bergeordneten Raumebene (relativ zur momentan angezeigten) k&ouml;nnen alle darin enthaltenen Gebiete ausgew&auml;hlt werden. Die Auswahl erfolgt &uuml;ber eine Zentroidberechnung.</p>
 				<label class="switch">
 					<input id="showSelectionByFeatureSpatialFilterToggle" type="checkbox" (change)="onChangeShowSelectionByFeature(showSelectionByFeatureSpatialFilter)"
 						[(ngModel)]="showSelectionByFeatureSpatialFilter" 
@@ -53,7 +92,7 @@
 
 					<div class="row">						
 						<div class="col-sm-12 col-md-7 col-lg-7">
-							<label>nur Raumeinheiten des aktuellen Indikators ber&uuml;cksichtigen</label>
+							<label>nur Raumebenen des aktuellen Indikators ber&uuml;cksichtigen</label>
 							
 						</div>
 						<div class="col-sm-12 col-md-2 col-lg-2">
@@ -75,7 +114,7 @@
 						</div>
 						<div class="col-sm-12 col-md-6 col-lg-6">
               <select [(ngModel)]="selectedSpatialUnitIdForFilter" (change)="onChangeSelectedSpatialUnitForFilter()">
-								<option disabled selected value> -- Raumeinheit w&auml;hlen -- </option>
+								<option disabled selected value> -- Raumebene w&auml;hlen -- </option>
                 <option *ngFor="let item of higherSpatialUnits" [value]="item.spatialUnitId">{{item.metadata.description}}</option>
               </select>
 						</div>
@@ -100,7 +139,7 @@
 
 				<hr>
 
-				<h4>Manuelle Selektion anzuzeigender Raumeinheiten</h4>
+				<h4>Manuelle Selektion anzuzeigender Raumebeneen</h4>
 				<p>Gebiete k&ouml;nnen &uuml;ber ihre Bezeichnung oder &uuml;ber die Karte ausgew&auml;hlt werden.</p>
 				<label class="switch">
 					<input id="showManualSelectionSpatialFilterToggle" type="checkbox" (change)="onChangeShowManualSelection(showManualSelectionSpatialFilter)"

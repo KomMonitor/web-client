@@ -32,7 +32,9 @@ import {
   ajskommonitorReachabilityScenarioHelperServiceProvider,
   ajskommonitorReachabilityMapHelperServiceProvider,
   ajskommonitorSingleFeatureMapHelperServiceProvider,
-  ajskommonitorScriptHelperServiceProvider} from 'app-upgraded-providers';
+  ajskommonitorScriptHelperServiceProvider,
+  ajskommonitorGlobalFilterHelperServiceProvider,
+  ajskommonitorFavServiceProvider} from 'app-upgraded-providers';
 import { KommonitorLegendComponent } from 'components/ngComponents/userInterface/kommonitorLegend/kommonitor-legend.component';
 import { NgbCalendar, NgbDatepickerModule, NgbDateStruct, NgbAccordionModule, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -62,8 +64,10 @@ import { KommonitorReachabilityComponent } from './components/ngComponents/userI
 import { AdminTopicsManagementComponent } from './components/ngComponents/admin/adminTopicsManagement/admin-topics-management.component';
 import { TopicEditModalComponent } from './components/ngComponents/admin/adminTopicsManagement/topicEditModal/topic-edit-modal.component';
 import { TopicDeleteModalComponent } from './components/ngComponents/admin/adminTopicsManagement/topicDeleteModal/topic-delete-modal.component';
-
-import { AuthInterceptor } from './util/interceptors/auth.interceptor';
+import { AuthInterceptor } from 'util/interceptors/auth.interceptor';
+import { IndicatorFavFilter } from 'pipes/indicator-fav-filter.pipe';
+import { GeoFavFilter } from 'pipes/georesources-fav-filter.pipe';
+import { GeoFavItemFilter } from 'pipes/georesources-fav-item-filter.pipe';
 
 import { AdminAppConfigComponent } from './components/ngComponents/admin/adminConfig/adminAppConfig/admin-app-config.component';
 import { AdminControlsConfigComponent } from './components/ngComponents/admin/adminConfig/adminControlsConfig/admin-controls-config.component';
@@ -113,6 +117,8 @@ declare var MathJax;
     ajskommonitorReachabilityMapHelperServiceProvider,
     ajskommonitorSingleFeatureMapHelperServiceProvider,
     ajskommonitorScriptHelperServiceProvider,
+    ajskommonitorGlobalFilterHelperServiceProvider,
+    ajskommonitorFavServiceProvider,
     NgbModule,
     {
       provide: HTTP_INTERCEPTORS,
@@ -136,6 +142,9 @@ declare var MathJax;
     ClassificationMethodSelectComponent,
     IndicatorNameFilter,
     SelectedIndicatorFilter,
+    IndicatorFavFilter,
+    GeoFavFilter,
+    GeoFavItemFilter,
     BaseIndicatorOfComputedIndicatorFilter,
     BaseIndicatorOfHeadlineIndicatorFilter,
     RegressionDiagramComponent,

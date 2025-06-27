@@ -7,6 +7,7 @@ import { ElementVisibilityHelperService } from 'services/element-visibility-help
 import { MapService } from 'services/map-service/map.service';
 import * as noUiSlider from 'nouislider';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import { FavService } from 'services/fav-service/fav.service';
 
 @Component({
   selector: 'app-kommonitor-data-setup',
@@ -31,7 +32,26 @@ export class KommonitorDataSetupComponent implements OnInit {
   indicatorNameFilter = undefined;
   INDICATOR_DATE_PREFIX = window.__env.indicatorDatePrefix
 
-  selectedDate;					
+  selectedDate;		
+  
+  indicatorFavTopicsTree:any[] = [];
+  indicatorFavTopicsTreePimped:any = {};
+
+  indicatorTopicFavItems:any[] = []; 
+  indicatorFavItems:any[] = [];
+
+  // own temp list as fav items should remain visible in fav-tab even if deleted, until save/reload
+  FavTabIndicatorTopicFavItems:any[] = []; 
+  FavTabIndicatorFavItems:any[] = [];
+
+  headlineIndicatorFavItems:any[] = [];
+  baseIndicatorFavItems:any[] = [];
+  favSelectionToastStatus = 0;
+  showFavSelection = false;
+
+  favSelectionToastText = ['',
+    'Favoriten-Auswahl nicht gesichert. Zum speichern hier klicken',
+    'Auswahl erfolgreich gespeichert'];
 
   preppedIndicatorTopics: IndicatorTopic[] = [];
 
@@ -69,11 +89,12 @@ export class KommonitorDataSetupComponent implements OnInit {
   ];
 
   constructor(
-    public dataExchangeService: DataExchangeService,
+    protected dataExchangeService: DataExchangeService,
     private broadcastService: BroadcastService,
     private elementVisibilityHelperService: ElementVisibilityHelperService,
     private mapService: MapService,
-    private http: HttpClient
+    private http: HttpClient,
+    private favService: FavService
   ) {}
 
   ngOnInit(): void {
@@ -83,8 +104,6 @@ export class KommonitorDataSetupComponent implements OnInit {
 
     // todo like "initialMetadataLoadingCompleted"
     window.setTimeout( () => {
-      this.preppedIndicatorTopics = this.prepareIndicatorTopicsRecursive(this.exchangeData.topicIndicatorHierarchy);
-      this.addClickListenerToEachCollapseTrigger();
 
       this.onInitialMetadataLoadingComplete();
 
@@ -116,6 +135,13 @@ export class KommonitorDataSetupComponent implements OnInit {
         case 'updateIndicatorOgcServices': {
           this.updateIndicatorOgcServices(values);
         } break;
+        case 'favItemsStored': {
+          this.onSaveFavSelection(values); 
+          // why called again?! button click calls onSaveFavSelection(true), which saves and broadcasts onSaveFavSelection(false) again ... // todo, check
+        } break;
+        case 'LIKEinitialMetadataLoadingCompleted': {
+          this.onInitialMetadataLoadingComplete();
+        } break;
       }
     });
   }
@@ -127,6 +153,8 @@ export class KommonitorDataSetupComponent implements OnInit {
 
   onInitialMetadataLoadingComplete() {
     console.log("Load an initial example indicator");
+
+    this.preppedIndicatorTopics = this.prepareIndicatorTopicsRecursive(this.exchangeData.topicIndicatorHierarchy);
 
     if (this.exchangeData.displayableIndicators == null || this.exchangeData.displayableIndicators == undefined || this.exchangeData.displayableIndicators.length === 0){
       console.error("Kein darstellbarer Indikator konnte gefunden werden.");
@@ -202,6 +230,41 @@ export class KommonitorDataSetupComponent implements OnInit {
 
     //reinit visibility of elements due to fact that now some HTML elements are actually available
     this.elementVisibilityHelperService.initElementVisibility();
+
+    this.indicatorFavTopicsTree = this.prepTopicsTree(this.dataExchangeService.pipedData.topicIndicatorHierarchy,0,undefined);
+    this.indicatorFavTopicsTreePimped = {
+      topicName: 'Test',
+      subTopics: this.prepTopicsTree(this.dataExchangeService.pipedData.topicIndicatorHierarchy,0,undefined)
+    };
+    this.addClickListenerToEachCollapseTrigger();
+
+    var userInfo = this.favService.getUserInfo();
+    if(userInfo.indicatorFavourites) {
+      this.indicatorFavItems = userInfo.indicatorFavourites;
+      this.FavTabIndicatorFavItems = userInfo.indicatorFavourites;
+    }
+    
+    if(userInfo.indicatorFavourites) {
+      this.indicatorTopicFavItems = userInfo.indicatorTopicFavourites;
+      this.FavTabIndicatorTopicFavItems = userInfo.indicatorTopicFavourites;
+    }
+
+    if(this.elementVisibilityHelperService.elementVisibility.favSelection===true)
+      this.showFavSelection = true;
+  }
+
+  prepTopicsTree(tree, level, parent) {
+    tree.forEach(entry => {
+      entry.level = level;
+      entry.parent = parent
+
+      if(entry.subTopics.length>0) {
+        let newLevel = level+1;
+        entry.subTopics = this.prepTopicsTree(entry.subTopics, newLevel, entry.topicId);
+      }
+    });
+
+    return tree;
   }
 
   prepareIndicatorTopicsRecursive(tree:IndicatorTopic[]) {
@@ -248,16 +311,32 @@ export class KommonitorDataSetupComponent implements OnInit {
           // 	$scope.unCollapsedTopicIds.push(clickedTopicId);
           // }
       });
+
+      // addClass "clickBound" sets trigger, that listener has been added, not:.clickBound filters for that. otherwise multiple listeners will be added
+      $('.list-group-item > .indicatorFavCollapseTrigger:not(.clickBound)').addClass('clickBound').on('click', (e) => {
+        $('.glyphicon', e)
+          .toggleClass('glyphicon-chevron-right')
+          .toggleClass('glyphicon-chevron-down');
+
+        // manage entries;
+        // todo rebuild dirty elem[0] structure, maybe with ngb
+        let elem:any = $(e);
+        var clickedTopicId = elem[0].currentTarget.id;
+        if(document.getElementById('indicatorFavSubTopic-'+clickedTopicId)?.style.display=='none')
+          document.getElementById('indicatorFavSubTopic-'+clickedTopicId)!.style.display = 'block';
+        else
+          document.getElementById('indicatorFavSubTopic-'+clickedTopicId)!.style!.display = 'none';
+      });
     }, 500);
   };
 
 /*
 					
 
-  this.addGeopackage = function(){
+  this.addGeopackage(){
     this.kommonitorMapServiceInstance.addSpatialUnitGeopackage();
   }
-  this.addGeoJSON = function(){
+  this.addGeoJSON(){
     this.kommonitorMapServiceInstance.addSpatialUnitGeoJSON();
   }
   */
@@ -273,7 +352,7 @@ export class KommonitorDataSetupComponent implements OnInit {
   // }, true);
 /*
  
-  $scope.filterGeoresourcesByIndicator = function() {
+  $scope.filterGeoresourcesByIndicator() {
     return function( item ) {
 
       try{
@@ -293,7 +372,7 @@ export class KommonitorDataSetupComponent implements OnInit {
     };
   };
 
-  $scope.filterReferencedIndicatorsByIndicator = function() {
+  $scope.filterReferencedIndicatorsByIndicator() {
     return function( item ) {
 
       try{
@@ -312,7 +391,7 @@ export class KommonitorDataSetupComponent implements OnInit {
     };
   };
 
-  $scope.filterGeoresourcesByTopic = function() {
+  $scope.filterGeoresourcesByTopic() {
     return function( item ) {
       if (kommonitorDataExchangeService.selectedTopic)
         return item.applicableTopics.includes(kommonitorDataExchangeService.selectedTopic.topicName);
@@ -321,7 +400,7 @@ export class KommonitorDataSetupComponent implements OnInit {
     };
   };
 
-  $scope.filterSpatialUnitsByIndicator = function() {
+  $scope.filterSpatialUnitsByIndicator() {
     return function( item ) {
 
       try{
@@ -351,7 +430,7 @@ export class KommonitorDataSetupComponent implements OnInit {
       return result;
   };
 /*
-  this.onDateChange = function(){
+  this.onDateChange(){
 
     var date = new Date($scope.selectedDate);
 
@@ -370,7 +449,7 @@ export class KommonitorDataSetupComponent implements OnInit {
     $scope.$digest();
   };
 
-  $scope.$on("initialMetadataLoadingFailed", function (event, errorArray) {
+  $scope.$on("initialMetadataLoadingFailed", (event, errorArray) {
 
     $scope.loadingData = false;
     $scope.$broadcast("hideLoadingIconOnMap");
@@ -386,7 +465,7 @@ export class KommonitorDataSetupComponent implements OnInit {
       return Math.floor(Math.random() * (max - min + 1)) + min;
   }
 /*
-  this.addSelectedSpatialUnitToMap = function() {
+  this.addSelectedSpatialUnitToMap() {
     $scope.loadingData = true;
     $rootScope.$broadcast("showLoadingIconOnMap");
 
@@ -405,7 +484,7 @@ export class KommonitorDataSetupComponent implements OnInit {
     $http({
       url: kommonitorDataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/spatial-units/" + id + "/" + year + "/" + month + "/" + day + "?" + kommonitorDataExchangeService.simplifyGeometriesParameterName + "=" + kommonitorDataExchangeService.simplifyGeometries,
       method: "GET"
-    }).then(function successCallback(response) {
+    }).then(successCallback(response) {
         // this callback will be called asynchronously
         // when the response is available
         var geoJSON = response.data;
@@ -416,7 +495,7 @@ export class KommonitorDataSetupComponent implements OnInit {
         $scope.loadingData = false;
         $rootScope.$broadcast("hideLoadingIconOnMap");
 
-      }, function errorCallback(error) {
+      }, errorCallback(error) {
         // called asynchronously if an error occurs
         // or server returns response with an error status.
         $scope.loadingData = false;
@@ -425,7 +504,7 @@ export class KommonitorDataSetupComponent implements OnInit {
     });
   };
 
-  this.addSelectedSpatialUnitToMapAsWFS = function() {
+  this.addSelectedSpatialUnitToMapAsWFS() {
     $scope.loadingData = true;
     $rootScope.$broadcast("showLoadingIconOnMap");
 
@@ -441,7 +520,7 @@ export class KommonitorDataSetupComponent implements OnInit {
 
   };
 
-  this.addSelectedGeoresourceToMap = function() {
+  this.addSelectedGeoresourceToMap() {
     $scope.loadingData = true;
     $rootScope.$broadcast("showLoadingIconOnMap");
 
@@ -460,7 +539,7 @@ export class KommonitorDataSetupComponent implements OnInit {
     $http({
       url: kommonitorDataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/georesources/" + id + "/" + year + "/" + month + "/" + day  + "?" + kommonitorDataExchangeService.simplifyGeometriesParameterName + "=" + kommonitorDataExchangeService.simplifyGeometries,
       method: "GET"
-    }).then(function successCallback(response) {
+    }).then(successCallback(response) {
         // this callback will be called asynchronously
         // when the response is available
         var geoJSON = response.data;
@@ -471,7 +550,7 @@ export class KommonitorDataSetupComponent implements OnInit {
         $scope.loadingData = false;
         $rootScope.$broadcast("hideLoadingIconOnMap");
 
-      }, function errorCallback(error) {
+      }, errorCallback(error) {
         // called asynchronously if an error occurs
         // or server returns response with an error status.
         $scope.loadingData = false;
@@ -500,7 +579,7 @@ export class KommonitorDataSetupComponent implements OnInit {
     }
   };
 /*
-  function prettifyDateSliderLabels (dateAsMs) {
+  prettifyDateSlidertopicNames (dateAsMs) {
     return kommonitorDataExchangeService.tsToDate_withOptionalUpdateInterval(dateAsMs, kommonitorDataExchangeService.selectedIndicator.metadata.updateInterval);									
   }
 */
@@ -680,7 +759,7 @@ export class KommonitorDataSetupComponent implements OnInit {
     var indicatorId = this.exchangeData.selectedIndicator.indicatorId;
 
     if(! (this.date && this.exchangeData.selectedSpatialUnit && indicatorId)){
-      this.dataExchangeService.displayMapApplicationError("Beim Versuch, einen Beispielindikator zu laden, ist ein Fehler aufgetreten. Der Datenbankeintrag scheint eine fehlerhafte Kombination aus Raumeinheit und Zeitschnitt zu enthalten.");
+      this.dataExchangeService.displayMapApplicationError("Beim Versuch, einen Beispielindikator zu laden, ist ein Fehler aufgetreten. Der Datenbankeintrag scheint eine fehlerhafte Kombination aus Raumebene und Zeitschnitt zu enthalten.");
       throw Error("Not all parameters have been set up yet.");
     }										
     //
@@ -894,4 +973,251 @@ export class KommonitorDataSetupComponent implements OnInit {
     this.exchangeData.wfsUrlForSelectedIndicator = indicatorWfsUrl;
   }
 
+  public favTabShowTopic(topic) {
+    if(this.topicOrIndicatorInFavRecursive([topic]) || this.topicInFavTopBottom(topic))
+      return true;
+
+    return false;
+  }
+
+  favTabShowIndicator(indicatorId, topic) {
+
+    if(this.FavTabIndicatorFavItems.includes(indicatorId) || this.topicInFavTopBottom(topic))
+      return true;
+
+    return false;
+  }
+
+  topicInFavTopBottom(topic) {
+
+    var parentNext = topic.parent;
+    var ret = false;
+
+    if(this.FavTabIndicatorTopicFavItems.includes(topic.topicId))
+      ret = true;
+
+    while(parentNext!==undefined && ret===false) {
+      ret = this.parentInFavRecursive(this.indicatorFavTopicsTree, parentNext);
+      if(ret===false)
+        parentNext = this.findParentNextRecursive(this.indicatorFavTopicsTree, parentNext);
+    }
+
+    return ret;
+  }
+
+  parentInFavRecursive(tree, parentId) {
+
+    var ret = false;
+    tree.forEach(elem => {
+
+      if(elem.topicId==parentId && this.FavTabIndicatorTopicFavItems.includes(parentId))
+          ret = true;
+
+      if(elem.subTopics && elem.subTopics.length>0 && ret===false) 
+        ret = this.parentInFavRecursive(elem.subTopics, parentId);
+    });
+
+    return ret;
+  }
+
+  findParentNextRecursive(tree, parent) {
+
+    var parentNext = undefined;
+    tree.forEach(elem => {
+
+      if(elem.topicId==parent) {
+        parentNext = elem.parent;
+      }
+
+      if(elem.subTopics && elem.subTopics.length>0 && parentNext===undefined)
+        parentNext = this.findParentNextRecursive(elem.subTopics, parent);
+    });
+
+    return parentNext;
+  }
+
+  topicOrIndicatorInFavRecursive(tree) {
+
+    let ret = false;
+    tree.forEach(elem => {
+
+      if(this.FavTabIndicatorTopicFavItems.includes(elem.topicId) || this.FavTabIndicatorFavItems.includes(elem.indicatorId))
+        ret = true;
+
+      if(elem.subTopics && elem.subTopics.length>0 && ret===false)
+        ret = this.topicOrIndicatorInFavRecursive(elem.subTopics);
+
+      if(elem.indicatorData && elem.indicatorData.length>0 && ret===false)
+        ret = this.topicOrIndicatorInFavRecursive(elem.indicatorData);
+    });
+
+    return ret;
+  }
+
+  indicatorTopicFavSelected(topicId) {
+    return this.indicatorTopicFavItems.includes(topicId);
+  }
+
+  indicatorFavSelected(topicId) {
+    return this.indicatorFavItems.includes(topicId);
+  }
+
+  headlineIndicatorFavSelected(topicId) {
+    return this.indicatorFavItems.includes(topicId);
+  }
+
+  baseIndicatorFavSelected(topicId) {
+    return this.indicatorFavItems.includes(topicId);
+  }
+
+  searchIndicatorTopicFavItemsRecursive(tree, id, selected) {
+
+    let ret = false;
+
+    tree.forEach(entry => {
+      if(entry.topicId==id) {
+        if(selected===true) {
+          if(!this.indicatorTopicFavItems.includes(id))
+            this.indicatorTopicFavItems.push(id);
+        } else
+          this.indicatorTopicFavItems = this.indicatorTopicFavItems.filter(e => e!=id);
+
+        // recursive selection of topics / indicators
+        /*  if(entry.subTopics.length>0)
+          checkIndicatorTopicFavItemsRecursive(entry.subTopics, selected);
+        if(entry.indicatorData.length>0)
+          checkIndicatorMetadataFavItems(entry.indicatorData, selected); */
+
+        ret = true;
+      } else {
+        let itemFound = this.searchIndicatorTopicFavItemsRecursive(entry.subTopics, id, selected);
+        if(itemFound===true) 
+          ret = true;
+      }
+    });
+
+    return ret;
+  }
+
+  checkIndicatorTopicFavItemsRecursive(tree, selected) {
+    tree.forEach(entry => {
+      if(selected===true) {
+        if(!this.indicatorTopicFavItems.includes(entry.topicId))
+          this.indicatorTopicFavItems.push(entry.topicId);
+      } else
+        this.indicatorTopicFavItems = this.indicatorTopicFavItems.filter(e => e!=entry.topicId);
+
+      if(entry.subTopics.length>0)
+        this.checkIndicatorTopicFavItemsRecursive(entry.subTopics, selected);
+
+      if(entry.indicatorData.length>0)
+        this.checkIndicatorMetadataFavItems(entry.indicatorData, selected);
+    });
+  }
+
+  checkIndicatorMetadataFavItems(tree, selected) {
+    tree.forEach(entry => {
+      if(selected===true) {
+        if(!this.indicatorFavItems.includes(entry.indicatorId))
+          this.indicatorFavItems.push(entry.indicatorId);
+      } else {
+        this.indicatorFavItems = this.indicatorFavItems.filter(e => e!=entry.indicatorId);
+      }
+    });
+  }
+
+  checkBaseIndicatorFavItems(id, selected) {
+    this.dataExchangeService.pipedData.headlineIndicatorHierarchy.forEach(entry => {
+      if(entry.headlineIndicator.indicatorId==id) {
+
+        entry.baseIndicators.forEach(base => {
+          if(selected===true) {
+            if(!this.indicatorFavItems.includes(entry.indicatorId))
+              this.indicatorFavItems.push(base.indicatorId);
+          } else {
+            this.indicatorFavItems = this.indicatorFavItems.filter(e => e!=base.indicatorId);
+          }
+        });
+      }
+    });
+  }
+
+  onIndicatorTopicFavClick(topicId, favTab = false) {
+    if(!this.indicatorTopicFavItems.includes(topicId))
+      this.searchIndicatorTopicFavItemsRecursive(this.dataExchangeService.pipedData.topicIndicatorHierarchy, topicId, true);
+    else
+      this.searchIndicatorTopicFavItemsRecursive(this.dataExchangeService.pipedData.topicIndicatorHierarchy, topicId, false);
+
+    this.onHandleFavSelection(favTab);
+  }
+
+  onIndicatorFavClick(id, favTab = false) {
+    if(!this.indicatorFavItems.includes(id))
+      this.indicatorFavItems.push(id);
+    else
+      this.indicatorFavItems = this.indicatorFavItems.filter(e => e!=id);
+
+    this.onHandleFavSelection(favTab);
+  }
+
+  onHeadlineIndicatorFavClick(id) {
+    if(!this.indicatorFavItems.includes(id)) {
+      this.indicatorFavItems.push(id);
+      this.checkBaseIndicatorFavItems(id, true);
+    } else {
+      this.indicatorFavItems = this.indicatorFavItems.filter(e => e!=id);
+      this.checkBaseIndicatorFavItems(id, false);
+    }
+
+    this.onHandleFavSelection();
+  }
+
+  onBaseIndicatorFavClick(id) {
+    if(!this.indicatorFavItems.includes(id))
+      this.indicatorFavItems.push(id);
+    else
+      this.indicatorFavItems = this.indicatorFavItems.filter(e => e!=id);
+
+    this.onHandleFavSelection();
+  }
+
+  onHandleFavSelection(favTab = false) {
+
+    if(favTab===false) {
+      this.FavTabIndicatorTopicFavItems = this.indicatorTopicFavItems;
+      this.FavTabIndicatorFavItems = this.indicatorFavItems;
+    }
+
+    this.handleToastStatus(1);
+
+    this.favService.handleFavSelection({
+      indicatorTopicFavourites: this.indicatorTopicFavItems,
+      indicatorFavourites: this.indicatorFavItems
+    });
+
+    this.addClickListenerToEachCollapseTrigger();
+  }
+
+  onSaveFavSelection([broadcast]) {
+    if(broadcast===true)
+      this.favService.storeFavSelection();
+
+    this.FavTabIndicatorTopicFavItems = this.indicatorTopicFavItems;
+    this.FavTabIndicatorFavItems = this.indicatorFavItems;
+
+    this.handleToastStatus(2);
+
+    if(broadcast===true)
+      this.broadcastService.broadcast("favItemsStored",[false]);
+  }
+
+  handleToastStatus(type) {
+    this.favSelectionToastStatus = type;
+
+    if(type==2) {
+      setTimeout(() => {
+        this.favSelectionToastStatus = 0;
+      },1000);
+    }
+  }
 }

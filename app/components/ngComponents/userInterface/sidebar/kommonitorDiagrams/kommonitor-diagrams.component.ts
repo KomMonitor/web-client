@@ -198,7 +198,7 @@ export class KommonitorDiagramsComponent implements OnInit{
 
     // use configuration item and data specified to show chart
     // this.barOption = JSON.parse(JSON.stringify(kommonitorDiagramHelperService.getBarChartOptions()));
-    this.barOption = this.diagramHelperService.getBarChartOptions();
+    this.barOption = this.diagramHelperService.getBarChartOptions(true);
     if (showBarChartLabel){
       this.barOption.label.show = true;
     }
@@ -303,7 +303,7 @@ export class KommonitorDiagramsComponent implements OnInit{
     }
 
     // use configuration item and data specified to show chart
-    this.lineOption = this.diagramHelperService.getLineChartOptions();
+    this.lineOption = this.diagramHelperService.getLineChartOptions(true);
     this.lineChart.setOption(this.lineOption);
 
     this.lineChart.hideLoading();

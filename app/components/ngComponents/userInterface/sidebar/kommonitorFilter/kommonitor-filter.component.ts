@@ -6,6 +6,8 @@ import { DataExchange, DataExchangeService } from 'services/data-exchange-servic
 import { FilterHelperService } from 'services/filter-helper-service/filter-helper.service';
 import { MapService } from 'services/map-service/map.service';
 import * as noUiSlider from 'nouislider';
+import { GlobalFilterHelperService } from 'services/global-filter-helper-service/global-filter-helper.service';
+import { ConfigStorageService } from 'services/config-storage-service/config-storage.service';
 
 @Component({
   selector: 'app-kommonitor-filter',
@@ -27,7 +29,7 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit{
   kommonitorFilterModes = window.window.__env.filterModes;
 
   considerAllowedSpatialUnitsOfCurrentIndicator = true;
-  loadingData = false;
+  loadingData = true;
 
   rangeSliderForFilter;
   valueRangeMinValue;
@@ -107,8 +109,10 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit{
   manualSelectionSpatialFilterDuallistOptions:any = {
     items: [],
     selectedItems: []
-  };
+  };              
   
+  // Global filter
+  globalFilters:any = undefined;
 
   inputNotValid = false;
 
@@ -119,7 +123,9 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit{
     protected filterHelperService: FilterHelperService,
     private mapService: MapService,
     private broadcastService: BroadcastService,
-    private http: HttpClient
+    private http: HttpClient,
+    private globalFilterHelperService: GlobalFilterHelperService,
+    private configStorageService:ConfigStorageService
   ) {
     this.exchangeData = this.dataExchangeService.pipedData;
   }
@@ -155,6 +161,45 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit{
     
     this.measureSlider = document.getElementById('measureOfValueSlider');
     noUiSlider.create(this.measureSlider, this.sliderSingleConfig);
+    
+    if(!this.globalFilters)
+      this.loadGlobalFilters();
+  }
+
+  loadGlobalFilters() {
+     this.configStorageService.getFilterConfig().subscribe({
+      next: response => {
+        console.log('Filter config loaded')
+        this.globalFilters = response;
+      },
+      error: error => {
+        console.error(error, "Error while getting filter config from config storage service.");
+      }
+    });
+  }
+
+  onChangeFilterSelection() {
+
+    this.loadingData = true;
+    this.globalFilterHelperService.applyFilterSelection(this.globalFilters.filter(e => e.checked===true));
+
+    if(this.globalFilterHelperService.applicationFilter)
+      this.dataExchangeService.fetchAllMetadata(this.globalFilterHelperService.applicationFilter);
+    else
+      this.dataExchangeService.fetchAllMetadata();
+
+    this.broadcastService.broadcast("onGlobalFilterChange");
+    setTimeout(() => {
+      console.log('LIKEinitialMetadataLoadingCompleted broadcasted')
+      this.broadcastService.broadcast("LIKEinitialMetadataLoadingCompleted");
+    },1000)
+  }
+
+  globalFiltersActive() {
+    if(this.globalFilters && !this.globalFilterHelperService.isFilterParamSet())
+      return true;
+
+    return false;
   }
 
   onUpdatedSelectedItems(items:any) {
@@ -219,7 +264,7 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit{
     }
 						/* 
 
-							$scope.$on("indicatortMapDisplayFinished", function(){
+							this.$on("indicatortMapDisplayFinished", function(){
 								// trigger the continous display of current filter									
 								if(! this.reappliedFilter){
 									this.reappliedFilter = true;
@@ -470,7 +515,7 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit{
 							};
 
               // todo
-						/* 	$scope.$on("updateMeasureOfValueBar", function (event, date, indicatorMetadataAndGeoJSON) {
+						/* 	this.$on("updateMeasureOfValueBar", function (event, date, indicatorMetadataAndGeoJSON) {
 
 									this.updateMeasureOfValueBar(date, indicatorMetadataAndGeoJSON);
 

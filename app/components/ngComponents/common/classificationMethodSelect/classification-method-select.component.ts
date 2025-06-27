@@ -36,7 +36,7 @@ export class ClassificationMethodSelectComponent implements OnInit, OnChanges {
       name: 'Quantile', 
       id: 'quantile', 
       imgPath: 'icons/classificationMethods/neu/quantile_grau.svg',
-      description: 'Bei der Quantil-Methode enthält jede Klasse die gleiche Anzahl von Raumeinheiten.'},
+      description: 'Bei der Quantil-Methode enthält jede Klasse die gleiche Anzahl von Features.'},
     {
       name: 'Manuell', 
       id: 'manual', 

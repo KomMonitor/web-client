@@ -2,14 +2,18 @@ import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchange, DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { ElementVisibilityHelperService } from 'services/element-visibility-helper-service/element-visibility-helper.service';
+import { FavService } from 'services/fav-service/fav.service';
 import { MapService } from 'services/map-service/map.service';
+import { GeoFavFilter } from 'pipes/georesources-fav-filter.pipe';
+import { GeoFavItemFilter } from 'pipes/georesources-fav-item-filter.pipe';
 
 @Component({
   selector: 'app-poi',
   templateUrl: './poi.component.html',
   styleUrls: ['./poi.component.css']
 })
-export class PoiComponent implements OnInit{
+export class PoiComponent implements OnInit {
 
   useCluster = true;
   loadingData = false;
@@ -39,11 +43,29 @@ export class PoiComponent implements OnInit{
   exchangeData!: DataExchange;
   preppedTopicGeoresourceHierarchy!:any;
 
+  georesourceFavTopicsTree = [];
+
+  georesourceTopicFavItems:any[] = [];
+  poiFavItems:any[] = [];
+
+  // own temp list as fav items should remain visible in fav-tab even if deleted, until save/reload
+  FavTabGeoresourceTopicFavItems:any[] = []; 
+  FavTabPoiFavItems:any[] = [];
+
+  favSelectionToastStatus = 0;
+  showFavSelection = false;
+
+  favSelectionToastText = ['',
+    'Favoriten-Auswahl nicht gesichert. Zum speichern hier klicken',
+    'Auswahl erfolgreich gespeichert'];
+
   constructor(
     protected dataExchangeService: DataExchangeService,
     private mapService: MapService,
     private broadcastService: BroadcastService,
-    private http: HttpClient
+    private http: HttpClient,
+    private elementVisibilityHelperService: ElementVisibilityHelperService,
+    private favService: FavService
   ) {
     this.exchangeData = dataExchangeService.pipedData;
     this.selectedPoiSize = this.exchangeData.selectedPOISize.id;
@@ -52,8 +74,7 @@ export class PoiComponent implements OnInit{
   ngOnInit(): void {
 
     window.setTimeout( () => {
-      this.preppedTopicGeoresourceHierarchy = this.prepareTopicGeoresourceHierarchyRecursive(this.exchangeData.topicGeoresourceHierarchy);
-       this.addClickListenerToEachCollapseTrigger();
+      this.init();
     },2000);
 
     this.broadcastService.currentBroadcastMsg.subscribe(broadcastMsg => {
@@ -63,9 +84,51 @@ export class PoiComponent implements OnInit{
       switch (title) {
         case 'selectedIndicatorDateHasChanged': {
           this.selectedIndicatorDateHasChanged();
+        } break; 
+        case 'geoFavItemsStored': {
+          this.favItemsStored();
+        } break;
+        case 'LIKEinitialMetadataLoadingCompleted': {
+          this.init();
         } break;
       }
     });
+  }
+
+  init() {
+    this.preppedTopicGeoresourceHierarchy = this.prepareTopicGeoresourceHierarchyRecursive(this.exchangeData.topicGeoresourceHierarchy);
+      this.georesourceFavTopicsTree = this.prepTopicsTree(this.dataExchangeService.pipedData.topicGeoresourceHierarchy,0,undefined);
+
+      if(this.elementVisibilityHelperService.elementVisibility.favSelection===true)
+        this.showFavSelection = true;
+
+      var userInfo = this.favService.getUserInfo();
+    
+      if(userInfo.georesourceFavourites) {
+        this.poiFavItems = userInfo.georesourceFavourites;
+        this.FavTabPoiFavItems = userInfo.georesourceFavourites;
+      }
+
+      if(userInfo.georesourceTopicFavourites) {
+        this.georesourceTopicFavItems = userInfo.georesourceTopicFavourites;
+        this.FavTabGeoresourceTopicFavItems = userInfo.georesourceTopicFavourites;
+      }
+
+      this.addClickListenerToEachCollapseTrigger();
+  }
+
+  prepTopicsTree(tree, level, parent) {
+    tree.forEach(entry => {
+      entry.level = level;
+      entry.parent = parent;
+
+      if(entry.subTopics.length>0) {
+        let newLevel = level+1;
+        entry.subTopics = this.prepTopicsTree(entry.subTopics, newLevel, entry.topicId);
+      }
+    });
+
+    return tree;
   }
 
   onTopicClick(topicID:string) {
@@ -162,7 +225,7 @@ export class PoiComponent implements OnInit{
      var colorPickerInputs = $('.input-group.colorpicker-component')
     colorPickerInputs.colorpicker(); 
 
-    // $('.input-group.colorpicker-component').each(function (index, value){
+    // $('.input-group.colorpicker-component').each((index, value){
     // 	$(this).colorpicker();
     // });
   }, 3000); */
@@ -177,13 +240,28 @@ export class PoiComponent implements OnInit{
 
           // manage uncollapsed entries
           // var clickedTopicId = $(this).attr('id');
-          // if ($scope.unCollapsedTopicIds.includes(clickedTopicId)){
-          // 	var index = $scope.unCollapsedTopicIds.indexOf(clickedTopicId);
-          // 	$scope.unCollapsedTopicIds.splice(index, 1);
+          // if (this.unCollapsedTopicIds.includes(clickedTopicId)){
+          // 	var index = this.unCollapsedTopicIds.indexOf(clickedTopicId);
+          // 	this.unCollapsedTopicIds.splice(index, 1);
           // }
           // else{
-          // 	$scope.unCollapsedTopicIds.push(clickedTopicId);
+          // 	this.unCollapsedTopicIds.push(clickedTopicId);
           // }
+      });
+
+      $('.list-group-item > .georesourcesFavCollapseTrigger:not(.clickBound)').addClass('clickBound').on('click', (e) => {
+      $('.glyphicon', e)
+        .toggleClass('glyphicon-chevron-right')
+        .toggleClass('glyphicon-chevron-down');
+
+        // manage entries
+         // todo rebuild dirty elem[0] structure, maybe with ngb
+        let elem:any = $(e);
+        var clickedTopicId = elem[0].currentTarget.id;
+        if(document.getElementById('georesourcesFavSubTopic-'+clickedTopicId)?.style.display=='none')
+          document.getElementById('georesourcesFavSubTopic-'+clickedTopicId)!.style.display = 'block';
+        else
+          document.getElementById('georesourcesFavSubTopic-'+clickedTopicId)!.style.display = 'none';
       });
     }, 500);
   };
@@ -507,7 +585,33 @@ export class PoiComponent implements OnInit{
     this.loadingData = false;
     // todo
     // // todo $rootScope.$broadcast("hideLoadingIconOnMap");
-  };
+  }
+
+  onChangeSelectedFavDate(georesourceDataset,event){
+
+    console.log(georesourceDataset.availablePeriodsOfValidity[event.srcElement.value]);
+    georesourceDataset.selectedDate = georesourceDataset.availablePeriodsOfValidity[event.srcElement.value];
+
+    // only if it s already selected, we must modify the shown dataset 
+    if(georesourceDataset.isSelected){
+      // depending on type we must call different methods
+      if (georesourceDataset.isPOI){
+        this.removePoiLayerFromMap(georesourceDataset);
+        this.addPoiLayerToMap(georesourceDataset, this.useCluster);
+      }
+      else if (georesourceDataset.isLOI){
+        this.removeLoiLayerFromMap(georesourceDataset);
+        this.addLoiLayerToMap(georesourceDataset);
+      }
+      else if (georesourceDataset.isAOI){
+        this.removeAoiLayerFromMap(georesourceDataset);
+        this.addAoiLayerToMap(georesourceDataset);
+      }
+      else{
+        console.error("unknown dataset: " + georesourceDataset);
+      }
+    }
+  }
 
   onChangeSelectedDate(georesourceDataset){
     // only if it s already selected, we must modify the shown dataset 
@@ -529,7 +633,7 @@ export class PoiComponent implements OnInit{
         console.error("unknown dataset: " + georesourceDataset);
       }
     }
-  };
+  }
 
   getQueryDate(resource){
     if (this.dateSelectionType.selectedDateType === this.dateSelectionType_valueIndicator){
@@ -965,4 +1069,247 @@ export class PoiComponent implements OnInit{
     //this.digest();
   }
 
+  georesourceTopicFavSelected(topicId) {
+    return this.georesourceTopicFavItems.includes(topicId);
+  }
+
+  poiFavSelected(id) {
+
+    if(Array.isArray(id))
+      return id.some(e => this.poiFavItems.includes(e.georesourceId));
+    else
+      return this.poiFavItems.includes(id);
+  }
+
+  onPoiFavClick(id, favTab = false) {
+    if(!this.poiFavItems.includes(id))
+      this.poiFavItems.push(id);
+    else
+      this.poiFavItems = this.poiFavItems.filter(e => e!=id);
+
+    this.onHandleFavSelection(favTab);
+  }
+
+  onGeoresourceTopicFavClick(topicId, favTab = false) {
+    if(!this.georesourceTopicFavItems.includes(topicId))
+      this.searchGeoresourceTopicFavItemsRecursive(this.dataExchangeService.pipedData.topicGeoresourceHierarchy, topicId, true);
+    else
+      this.searchGeoresourceTopicFavItemsRecursive(this.dataExchangeService.pipedData.topicGeoresourceHierarchy, topicId, false);                  
+
+    this.onHandleFavSelection(favTab);
+  }
+
+  onHandleFavSelection(favTab = false) {
+
+    if(favTab===false) {
+      this.FavTabGeoresourceTopicFavItems = this.georesourceTopicFavItems;
+      this.FavTabPoiFavItems = this.poiFavItems;
+    }
+
+    this.handleToastStatus(1);
+
+    this.favService.handleFavSelection({
+      georesourceTopicFavourites: this.georesourceTopicFavItems,
+      georesourceFavourites: this.poiFavItems
+    });
+
+    this.addClickListenerToEachCollapseTrigger();
+  }
+
+  onSaveFavSelection([broadcast = true]) {
+    if(broadcast===true)
+      this.favService.storeFavSelection();
+
+    this.FavTabGeoresourceTopicFavItems = this.georesourceTopicFavItems;
+    this.FavTabPoiFavItems = this.poiFavItems;
+
+    this.handleToastStatus(2);
+
+    if(broadcast===true)
+      this.broadcastService.broadcast("geoFavItemsStored",[false]);
+  }
+
+  favItemsStored() {
+    this.onSaveFavSelection([false]);
+  }
+
+  handleToastStatus(type) {
+
+    this.favSelectionToastStatus = type;
+
+    if(type==2) {
+      setTimeout(() => {
+        this.favSelectionToastStatus = 0;
+      },1000);
+    }
+  }
+
+  searchGeoresourceTopicFavItemsRecursive(tree, id, selected) {
+
+    let ret = false;
+
+    tree.forEach(entry => {
+      if(entry.topicId==id) {
+        if(selected===true) {
+          if(!this.georesourceTopicFavItems.includes(id))
+            this.georesourceTopicFavItems.push(id);
+        } else
+          this.georesourceTopicFavItems = this.georesourceTopicFavItems.filter(e => e!=id);
+
+        // recursive selection of topics / georesources
+        /* if(entry.subTopics.length>0)
+          checkGeoresourceTopicFavItemsRecursive(entry.subTopics, selected);
+        if(entry.poiData.length>0 || entry.aoiData.length>0 || entry.loiData.length>0)
+          checkGeoresourceDataFavItems(entry, selected); */
+
+        ret = true;
+      } else {
+        let itemFound = this.searchGeoresourceTopicFavItemsRecursive(entry.subTopics, id, selected);
+        if(itemFound===true) 
+          ret = true;
+      }
+    });
+
+    return ret;
+  }
+
+  checkGeoresourceDataFavItems(entry, selected) {
+
+    let types = [{ 
+        typeName:'poiData',
+        typeFav: 'poiFavItems'},
+      { 
+        typeName:'aoiData',
+        typeFav: 'poiFavItems'},
+      { 
+        typeName:'loiData',
+        typeFav: 'poiFavItems'}];
+
+    types.forEach(type => {
+      entry[type.typeName].forEach(typeElem => {
+        if(selected===true) {
+          if(!this[type.typeFav].includes(typeElem.georesourceId))
+            this[type.typeFav].push(typeElem.georesourceId);
+        } else 
+          this[type.typeFav] = this[type.typeFav].filter(e => e!=typeElem.georesourceId);
+      });
+    });
+  }
+
+  checkGeoresourceTopicFavItemsRecursive(tree, selected) {
+    tree.forEach(entry => {
+      if(selected===true) {
+        if(!this.georesourceTopicFavItems.includes(entry.topicId))
+          this.georesourceTopicFavItems.push(entry.topicId);
+      } else
+        this.georesourceTopicFavItems = this.georesourceTopicFavItems.filter(e => e!=entry.topicId);
+
+      if(entry.subTopics.length>0)
+        this.checkGeoresourceTopicFavItemsRecursive(entry.subTopics, selected);
+
+      if(entry.poiData.length>0 || entry.aoiData.length>0 || entry.loiData.length>0)
+        this.checkGeoresourceDataFavItems(entry, selected);
+    });
+  }
+
+  favTabShowTopic(topic) {
+
+    if(this.topicOrGeoresourceInFavRecursive([topic]) || this.topicInFavTopBottom(topic))
+      return true;
+
+    return false;
+  }
+
+  topicInFavTopBottom(topic) {
+
+    var parentNext = topic.parent;
+    var ret = false;
+
+    if(this.FavTabGeoresourceTopicFavItems.includes(topic.topicId))
+      ret = true;
+
+    while(parentNext!==undefined && ret===false) {
+      // hier
+      ret = this.parentInFavRecursive(this.georesourceFavTopicsTree, parentNext);
+      if(ret===false) 
+        parentNext = this.findParentNextRecursive(this.georesourceFavTopicsTree, parentNext);
+    }
+
+    return ret;
+  }
+
+  parentInFavRecursive(tree, parentId) {
+
+    var ret = false;
+    tree.forEach(elem => {
+
+      if(elem.topicId==parentId && this.FavTabGeoresourceTopicFavItems.includes(parentId))
+          ret = true;
+
+      if(elem.subTopics && elem.subTopics.length>0 && ret===false) 
+        ret = this.parentInFavRecursive(elem.subTopics, parentId);
+    });
+
+    return ret;
+  }
+
+  findParentNextRecursive(tree, parent) {
+
+    var parentNext = undefined;
+    tree.forEach(elem => {
+
+      if(elem.topicId==parent) {
+        parentNext = elem.parent;
+      }
+
+      if(elem.subTopics && elem.subTopics.length>0 && parentNext===undefined)
+        parentNext = this.findParentNextRecursive(elem.subTopics, parent);
+    });
+
+    return parentNext;
+  }
+
+  FavTabShowPOIHeader(topic) {
+
+    if(topic.poiData.some(e => this.FavTabPoiFavItems.includes(e.georesourceId)) || 
+        topic.aoiData.some(e => this.FavTabPoiFavItems.includes(e.georesourceId)) || 
+        topic.loiData.some(e => this.FavTabPoiFavItems.includes(e.georesourceId)) || 
+        this.topicInFavTopBottom(topic))
+      return true;
+
+    return false;
+  }
+
+  FavTabShowPoi(topic,georesourceId) {
+
+    if(this.FavTabPoiFavItems.includes(georesourceId) || this.topicInFavTopBottom(topic))
+      return true;
+
+    return false;
+  }
+
+  topicOrGeoresourceInFavRecursive(tree) {
+
+    let ret = false;
+    tree.forEach(elem => {
+
+      if(this.FavTabGeoresourceTopicFavItems.includes(elem.topicId) || 
+        this.georesourceInFavItems(elem.poiData, this.FavTabPoiFavItems) || 
+        this.georesourceInFavItems(elem.aoiData, this.FavTabPoiFavItems) || 
+        this.georesourceInFavItems(elem.loiData, this.FavTabPoiFavItems))
+          ret = true;
+
+      if(elem.subTopics && elem.subTopics.length>0 && ret===false)
+        ret = this.topicOrGeoresourceInFavRecursive(elem.subTopics);
+/* 
+      if(elem.indicatorData && elem.indicatorData.length>0 && ret===false)
+        ret = topicOrGeoresourceInFavRecursive(elem.indicatorData); */
+    });
+
+    return ret;
+  }
+
+  georesourceInFavItems(elems, favItems) {
+    return elems.filter(e => favItems.includes(e.georesourceId)).length>0 ? true : false;
+  }
 }

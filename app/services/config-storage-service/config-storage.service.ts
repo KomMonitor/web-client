@@ -55,6 +55,17 @@ export class ConfigStorageService  {
     return this.httpClient.post(window.__env.configStorageServerConfig.targetUrlToConfigStorageServer_appConfig, formdata, {headers: headers});
   }
 
+  postFilterConfig(jsonString){         
+
+    console.log("Trying to POST to config storage service to upload new filter config.");
+    var formdata = new FormData();
+    formdata.append("appConfig", new Blob([jsonString], { type: "application/json"}));  
+    
+    let headers = new HttpHeaders({ "Content-Type": '*', "Accept": "text/plain" });
+
+    return this.httpClient.post(window.__env.configStorageServerConfig.targetUrlToConfigStorageServer_filterConfig, formdata, {headers: headers});
+  }
+
   getKeycloakConfig():Observable<any> {
 
     return this.httpClient.get(window.__env.configStorageServerConfig.targetUrlToConfigStorageServer_keycloakConfig);
@@ -74,7 +85,10 @@ export class ConfigStorageService  {
   }
 
   getAppConfig():Observable<any> {
-
     return this.httpClient.get(window.__env.configStorageServerConfig.targetUrlToConfigStorageServer_appConfig);
   }
+
+  getFilterConfig(){
+    return this.httpClient.get(window.__env.configStorageServerConfig.targetUrlToConfigStorageServer_filterConfig);
+  };
 }

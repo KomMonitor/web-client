@@ -12,13 +12,13 @@
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span></button>
-				<h4 class="modal-title">Raumeinheiten l&ouml;schen</h4>
+				<h4 class="modal-title">Raumebenen l&ouml;schen</h4>
 			</div>
 			<div class="modal-body">
 
-				<h4><b>Sollen die folgenden Raumeinheiten wirklich gel&ouml;scht werden?</b></h4>
+				<h4><b>Sollen die folgenden Raumebenen wirklich gel&ouml;scht werden?</b></h4>
 
-				<p>Dabei werden auch s&auml;mtliche Indikatoren-Datens&auml;tze der angezeigten Raumeinheiten dauerhaft aus dem System entfernt.</p>
+				<p>Dabei werden auch s&auml;mtliche Indikatoren-Datens&auml;tze der angezeigten Raumebenen dauerhaft aus dem System entfernt.</p>
 
 				<div ng-if="datasetsToDelete.length > 0">
 					<ul>
@@ -33,12 +33,12 @@
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Schlie&szlig;en</button>
-					<button type="button" class="btn btn-danger" ng-click="deleteSpatialUnits()" ng-disabled="! datasetsToDelete.length > 0">Raumeinheiten unwiderruflich l&ouml;schen</button>
+					<button type="button" class="btn btn-danger" ng-click="deleteSpatialUnits()" ng-disabled="! datasetsToDelete.length > 0">Raumebenen unwiderruflich l&ouml;schen</button>
 			</div>
 
 			<div id="spatialUnitsDeleteSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden class="alert alert-success alert-dismissable">
                 <button type="button" class="close" ng-click="hideSuccessAlert()" aria-hidden="true">&times;</button>
-                <h4><i class="icon fa fa-check"></i>Folgende Raumeinheiten wurde erfolgreich gel&ouml;scht</h4>
+                <h4><i class="icon fa fa-check"></i>Folgende Raumebenen wurde erfolgreich gel&ouml;scht</h4>
 								<ul>
 				            <li ng-repeat="dataset in successfullyDeletedDatasets">{{dataset.spatialUnitLevel}}</li>
 								</ul>

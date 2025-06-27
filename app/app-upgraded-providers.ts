@@ -260,6 +260,28 @@ export const ajskommonitorSpatialDataProcessorHelperServiceProvider: any = {
   useFactory:kommonitorSpatialDataProcessorHelperServiceFactory,
 };
 
+// kommonitorGlobalFilterHelperService
+export function kommonitorGlobalFilterHelperServiceFactory (injector:any){
+  return injector.get('kommonitorGlobalFilterHelperService')
+}
+
+export const ajskommonitorGlobalFilterHelperServiceProvider: any = {
+  deps: ['$injector'],
+  provide: 'kommonitorGlobalFilterHelperService',
+  useFactory:kommonitorGlobalFilterHelperServiceFactory,
+};
+
+// kommonitorFavService
+export function kommonitorFavServiceFactory (injector:any){
+  return injector.get('kommonitorFavService')
+}
+
+export const ajskommonitorFavServiceProvider: any = {
+  deps: ['$injector'],
+  provide: 'kommonitorFavService',
+  useFactory:kommonitorFavServiceFactory,
+};
+
 
   export const serviceProviders: any[] = [
     ajskommonitorCacheHelperServiceProvider,
@@ -283,5 +305,7 @@ export const ajskommonitorSpatialDataProcessorHelperServiceProvider: any = {
     ajskommonitorReachabilityMapHelperServiceProvider,
     ajskommonitorSingleFeatureMapHelperServiceProvider,
     ajskommonitorReachabilityCoverageReportsHelperServiceProvider,
-    ajskommonitorSpatialDataProcessorHelperServiceProvider
+    ajskommonitorSpatialDataProcessorHelperServiceProvider,
+    ajskommonitorGlobalFilterHelperServiceProvider,
+    ajskommonitorFavServiceProvider
   ];

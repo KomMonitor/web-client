@@ -1,3 +1,4 @@
+<p id="fontFamily-reference"></p>
 <header id="header" class="main-header">
 
   <div  style="position:absolute; left:40%;  padding-top: 4px;">
@@ -15,7 +16,7 @@
       
      </div> 			  
 
-    <a id="userLogin" (mouseover)="showUserLogin = true" title="Useristration" style="font-size:1.2em; float: right; margin-right: 2%; margin-left: 2%; margin-top: 0.5%;"><i class="fas fa-user-cog"></i></a>
+    <a id="userLogin" (mouseover)="showUserLogin = true" title="Useristration" class="kommonitor-theme" style="font-size:1.2em; float: right; margin-right: 2%; margin-left: 2%; margin-top: 0.5%;"><i class="fas fa-user-cog"></i></a>
     <div id="userLoginForm" *ngIf="showUserLogin && exchangeData.enableKeycloakSecurity" (mouseleave)="showUserLogin = false" class="userFormWrapper">
       <div id="userForm">
         <h4>User Login</h4>
@@ -84,6 +85,7 @@
           <span><b>Session G&uuml;ltigkeit:</b> {{exchangeData.keycloakTokenExpirationInfo}} Minuten</span>
         </div>
         <input type="submit" *ngIf="!authenticated" value="Login" id='input_submit' (click)="tryLoginUser()" class='input_field' >
+        <p ng-if="!authenticated" [innerHTML]="dataExchangeService.pipedData.loginInfoText"></p>
         <input type="submit" *ngIf="authenticated" value="Logout" id='input_submit' (click)="dataExchangeService.tryLogoutUser()" class='input_field input_authenticated' >
         <input type="submit" *ngIf="authenticated" value="Relogin" (click)="dataExchangeService.extendKeycloakSession()" class='input_field input_extend_session' >
       </div>
@@ -94,7 +96,7 @@
     <a style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%;  cursor:pointer;" title="Guided Tour&nbsp;&nbsp;"><span class="glyphicon glyphicon-play"></span></a>
     
     <div id="reportingButton" *ngIf="visibilityHelperService.elementVisibility.reportingButton">
-      <p (click)="openReportingModal()" data-toggle="modal" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%; cursor:pointer;" title="Report erstellen&nbsp;&nbsp;">
+      <p (click)="openReportingModal()" data-toggle="modal" class="kommonitor-theme" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%; cursor:pointer;" title="Report erstellen&nbsp;&nbsp;">
         <i class="fas fa-file-alt"></i>
       </p>
     </div>			
@@ -170,7 +172,7 @@
       </button>
 
       <button type="button" id="unselectFeaturesButton"
-        (click)="onUnselectFeaturesButtonClick()" class="btn btn-leaflet-custom" data-toggle="tooltip" title="Feature-Selektion aufheben">
+        (click)="onUnselectFeaturesButtonClick()" class="btn btn-leaflet-custom" data-toggle="tooltip" title="Raumeinheits-Selektion aufheben">
           <span style="font-size:1.5em;left:-5px;" class="glyphicon glyphicon-ban-circle" aria-hidden="true"></span>
       </button>
 

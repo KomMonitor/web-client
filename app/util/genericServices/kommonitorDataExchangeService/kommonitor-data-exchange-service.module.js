@@ -1,4 +1,3 @@
-"use sctrict";
 angular.module('kommonitorDataExchange', ['kommonitorMap', 'kommonitorKeycloakHelper']);
 
 /**
@@ -14,13 +13,14 @@ angular
 		.module('kommonitorDataExchange', ['kommonitorCacheHelper', 'angularjs-dropdown-multiselect'])
 		.service(
 				'kommonitorDataExchangeService', ['$rootScope', '$timeout', '$interval', 'kommonitorMapService', 'kommonitorKeycloakHelperService',
-        'kommonitorCacheHelperService', 
+        'kommonitorCacheHelperService',
         '$http', '__env', '$q', 'Auth',
 				function($rootScope, $timeout, $interval,
 						kommonitorMapService, kommonitorKeycloakHelperService, kommonitorCacheHelperService, $http, __env, $q, Auth,) {              
 
               let thisService = this;
               this.appTitle = __env.appTitle;
+              this.loginInfoText = __env.loginInfoText;
 
               this.customLogoURL = __env.customLogoURL;
               this.customLogo_onClickURL = __env.customLogo_onClickURL;
@@ -35,11 +35,13 @@ angular
               this.showBarChartLabel = __env.showBarChartLabel;
               this.showBarChartAverageLine = __env.showBarChartAverageLine;
 
+              this.customReportFontSize = __env.customReportFontSize;
+
               this.enableMeanDataDisplayInLegend = __env.enableMeanDataDisplayInLegend;
               this.configMeanDataDisplay = __env.configMeanDataDisplay;
              
 
-							var numberOfDecimals = __env.numberOfDecimals;
+							var defaultNumberOfDecimals = __env.numberOfDecimals;
 							const DATE_PREFIX = __env.indicatorDatePrefix;
               var defaultColorForZeroValues = __env.defaultColorForZeroValues;
               var defaultColorForNoDataValues = __env.defaultColorForNoDataValues;
@@ -633,7 +635,7 @@ angular
           this.updateInterval.set("QUARTERLY", "vierteljährlich");
 
 					this.setIndicators = function(indicatorsArray){
-						this.availableIndicators = indicatorsArray;
+						this.availableIndicators = self.modifyIndicators(indicatorsArray);
             this.availableIndicators_map = new Map();
             
             for (const indicatorMetadata of indicatorsArray) {
@@ -641,8 +643,30 @@ angular
             }
 					};
 
+          this.modifyIndicators = function(indicators) {
+
+            var decimalDefault = 2;
+            if(__env.numberOfDecimals !== undefined)
+              decimalDefault = __env.numberOfDecimals;
+
+            indicators.forEach(elem => {
+              if(elem.precision===null) {
+                elem.precision = decimalDefault;
+                elem.defaultPrecision = true;
+              } else 
+                elem.defaultPrecision = false;
+            });
+
+            return indicators;
+          }
+
+          this.modifySingleIndicator = function(indicator) {
+            var temp = self.modifyIndicators([indicator]);
+            return temp[0];
+          }
+
           this.addSingleIndicatorMetadata = function(indicatorMetadata){
-            let tmpArray = [indicatorMetadata];
+            let tmpArray = self.modifyIndicators([indicatorMetadata]);
             Array.prototype.push.apply(tmpArray, this.availableIndicators);
             this.availableIndicators =  tmpArray;
             this.availableIndicators_map.set(indicatorMetadata.indicatorId, indicatorMetadata);
@@ -652,7 +676,7 @@ angular
             for (let index = 0; index < this.availableIndicators.length; index++) {
               let indicator = this.availableIndicators[index];
               if(indicator.indicatorId == indicatorMetadata.indicatorId){
-                this.availableIndicators[index] = indicatorMetadata;
+                this.availableIndicators[index] = self.modifySingleIndicator(indicatorMetadata);
                 break;
               }
             }
@@ -1090,7 +1114,7 @@ angular
           //   self.adminIsLoggedIn = false;
           // });
 
-          this.fetchAllMetadata = async function(){
+          this.fetchAllMetadata = async function(filter){
             console.log("fetching all metadata from management component");
             
             // var metadataPromises = [topicsPromise, usersPromise, rolesPromise, spatialUnitsPromise, georesourcesPromise, indicatorsPromise, scriptsPromise];
@@ -1129,11 +1153,11 @@ angular
             }
 
             //TODO revise metadata fecthing for protected endpoints        
-            var scriptsPromise = await this.fetchIndicatorScriptsMetadata(self.currentKeycloakLoginRoles);
-            var topicsPromise = await this.fetchTopicsMetadata(self.currentKeycloakLoginRoles);
-            var spatialUnitsPromise = await this.fetchSpatialUnitsMetadata(self.currentKeycloakLoginRoles);
-            var georesourcesPromise = await this.fetchGeoresourcesMetadata(self.currentKeycloakLoginRoles);
-            var indicatorsPromise = await this.fetchIndicatorsMetadata(self.currentKeycloakLoginRoles);
+            var scriptsPromise = await this.fetchIndicatorScriptsMetadata(self.currentKeycloakLoginRoles, filter);
+            var topicsPromise = await this.fetchTopicsMetadata(self.currentKeycloakLoginRoles, filter);
+            var spatialUnitsPromise = await this.fetchSpatialUnitsMetadata(self.currentKeycloakLoginRoles, filter);
+            var georesourcesPromise = await this.fetchGeoresourcesMetadata(self.currentKeycloakLoginRoles, filter);
+            var indicatorsPromise = await this.fetchIndicatorsMetadata(self.currentKeycloakLoginRoles, filter);
             metadataPromises.push(scriptsPromise);
             metadataPromises.push(topicsPromise);
             metadataPromises.push(spatialUnitsPromise);
@@ -1149,7 +1173,7 @@ angular
                   self.topicIndicatorHierarchy_forOrderView = JSON.parse(JSON.stringify(self.topicIndicatorHierarchy));
                   self.buildComputationIndicatorHierarchy();
 
-                  self.buildTopicGeoresourceHierarchy();
+                  self.buildTopicGeoresourceHierarchy(filter);
 
                   console.log("Metadata fetched. Call initialize event.");
       						onMetadataLoadingCompleted();
@@ -1253,7 +1277,7 @@ angular
             return topicsMap;
           };
 
-          this.buildTopicGeoresourceHierarchy = function(){
+          this.buildTopicGeoresourceHierarchy = function(filter = undefined){
 
             var georesourceTopics = JSON.parse(JSON.stringify(this.availableTopics)).filter(topic => topic.topicResource === "georesource");
             /*
@@ -1319,10 +1343,12 @@ angular
             // PROCESS WMS and WFS
             for (const wmsMetadata of this.wmsDatasets_keywordFiltered) {
               if (topicsMap.has(wmsMetadata.topicReference)){
-                var georesourceDatasets = topicsMap.get(wmsMetadata.topicReference);                
-                georesourceDatasets.wmsDatasets.push(wmsMetadata);              
+                if(!filter || (filter && filter.georesourceTopics.includes(wmsMetadata.topicReference))) {
+                  var georesourceDatasets = topicsMap.get(wmsMetadata.topicReference);                
+                  georesourceDatasets.wmsDatasets.push(wmsMetadata);              
 
-                topicsMap.set(wmsMetadata.topicReference, georesourceDatasets);
+                  topicsMap.set(wmsMetadata.topicReference, georesourceDatasets);
+                }
               }
               else{
                 var georesourceDatasets_unmapped = topicsMap.get(this.georesourceMapKey_forUnmappedTopicReferences);
@@ -1336,10 +1362,12 @@ angular
             // PROCESS WMS and WFS
             for (const wfsMetadata of this.wfsDatasets_keywordFiltered) {
               if (topicsMap.has(wfsMetadata.topicReference)){
-                var georesourceDatasets = topicsMap.get(wfsMetadata.topicReference);                
-                georesourceDatasets.wfsDatasets.push(wfsMetadata);              
+                if(!filter || (filter && filter.georesourceTopics.includes(wfsMetadata.topicReference))) {
+                  var georesourceDatasets = topicsMap.get(wfsMetadata.topicReference);                
+                  georesourceDatasets.wfsDatasets.push(wfsMetadata);              
 
-                topicsMap.set(wfsMetadata.topicReference, georesourceDatasets);
+                  topicsMap.set(wfsMetadata.topicReference, georesourceDatasets);
+                }
               }
               else{
                 var georesourceDatasets_unmapped = topicsMap.get(this.georesourceMapKey_forUnmappedTopicReferences);
@@ -1693,7 +1721,7 @@ angular
 
 							return false;
 							
-            };
+						  };
 					};
 
 					this.filterBaseIndicatorsOfCurrentComputationIndicator = function(){
@@ -1710,7 +1738,7 @@ angular
 
 							return false;
 							
-            };
+						  };
 					};
 
           var onMetadataLoadingCompleted = function(){
@@ -1810,11 +1838,9 @@ angular
             this.availableRoles = [];
 
             for (let elem of this.accessControl) {
-              if(elem.permissions) {
-                for (let permission of elem.permissions) {
-                  let available = {...permission, ...{"organizationalUnit": elem, "roleName": elem.name + "-" + permission.permissionLevel}};
-                  this.availableRoles.push(available);
-                }
+              for (let permission of elem.permissions) {
+                let available = {...permission, ...{"organizationalUnit": elem, "roleName": elem.name + "-" + permission.permissionLevel}};
+                this.availableRoles.push(available);
               }
             }
             // we need to refresh all modals as roles have changed
@@ -1877,12 +1903,12 @@ angular
             self.setSpatialUnits(await kommonitorCacheHelperService.fetchSpatialUnitsMetadata(keycloakRolesArray));
           };
 
-          this.fetchGeoresourcesMetadata = async function(keycloakRolesArray){
-            self.setGeoresources(await kommonitorCacheHelperService.fetchGeoresourceMetadata(keycloakRolesArray));
+          this.fetchGeoresourcesMetadata = async function(keycloakRolesArray, filter){
+            self.setGeoresources(await kommonitorCacheHelperService.fetchGeoresourceMetadata(keycloakRolesArray, filter));
           };
 
-          this.fetchIndicatorsMetadata = async function(keycloakRolesArray){
-            self.setIndicators(await kommonitorCacheHelperService.fetchIndicatorsMetadata(keycloakRolesArray));
+          this.fetchIndicatorsMetadata = async function(keycloakRolesArray, filter){
+            self.setIndicators(await kommonitorCacheHelperService.fetchIndicatorsMetadata(keycloakRolesArray, filter));
           };
 
           this.fetchIndicatorScriptsMetadata = async function(keycloakRolesArray){
@@ -1896,7 +1922,7 @@ angular
 						return false;
 					};
 
-					this.getIndicatorValueFromArray_asNumber = function(propertiesArray, targetDateString){
+					this.getIndicatorValueFromArray_asNumber = function(propertiesArray, targetDateString, precision){
 						if(!targetDateString.includes(DATE_PREFIX)){
 							targetDateString = DATE_PREFIX + targetDateString;
 						}
@@ -1906,13 +1932,13 @@ angular
 							value = "NoData";
 						}
 						else{
-							value = this.getIndicatorValue_asNumber(indicatorValue);
+							value = this.getIndicatorValue_asNumber(indicatorValue, precision);
 						}
 
 						return value;
 					};
 
-					this.getIndicatorValueFromArray_asFormattedText = function(propertiesArray, targetDateString){
+					this.getIndicatorValueFromArray_asFormattedText = function(propertiesArray, targetDateString, precision){
 						if(!targetDateString.includes(DATE_PREFIX)){
 							targetDateString = DATE_PREFIX + targetDateString;
 						}
@@ -1922,19 +1948,29 @@ angular
 							value = "NoData";
 						}
 						else{
-						 	value = this.getIndicatorValue_asFormattedText(indicatorValue);
+						 	value = this.getIndicatorValue_asFormattedText(indicatorValue, precision);
 						}
 
 						return value;
 					};
 
-					this.getIndicatorValue_asNumber = function(indicatorValue){
+					this.getIndicatorValue_asNumber = function(indicatorValue, precision){
+
+            var maximumDecimals = defaultNumberOfDecimals;
+            if (precision !== undefined) {
+              maximumDecimals = precision
+            } else {
+              if(this.selectedIndicator && this.selectedIndicator.precision!==null)
+                maximumDecimals = this.selectedIndicator.precision;
+            }
+
 						var value;
 						if(this.indicatorValueIsNoData(indicatorValue)){
 							value = "NoData";
 						}
-						else{
-							value = +Number(indicatorValue).toFixed(numberOfDecimals);
+						else{ 
+							value = +(Number(indicatorValue)).toFixed(maximumDecimals);
+              // value = +Number(indicatorValue).toFixed(numberOfDecimals);
             }
             
             // if the original value is greater than zero but would be rounded as 0 then we must return the original result
@@ -1945,18 +1981,63 @@ angular
 						return value;
 					};
 
-					this.getIndicatorValue_asFormattedText = function(indicatorValue){
+          this.getIndicatorValue_asFixedPrecisionNumber = function(indicatorValue, precision){
+
+            var maximumDecimals = defaultNumberOfDecimals;
+            var minimumDecimals = 0;
+            if (precision !== undefined) {
+              maximumDecimals = precision;
+              minimumDecimals = precision;
+            } else {
+              if(this.selectedIndicator && this.selectedIndicator.precision!==null) {
+                maximumDecimals = this.selectedIndicator.precision;
+                minimumDecimals = this.selectedIndicator.precision;
+              }
+            }
+
+						var value;
+						if(this.indicatorValueIsNoData(indicatorValue)){
+							value = "NoData";
+						}
+						else{ 
+              // value = string with . as separator, without "," as thounsand-sep
+							value = indicatorValue.toLocaleString('en-GB', {maximumFractionDigits: maximumDecimals, minimumFractionDigits: minimumDecimals}).replace(',','');
+            }
+            
+            // if the original value is greater than zero but would be rounded as 0 then we must return the original result
+            if(Number(value) == 0 && indicatorValue > 0){
+              value = Number(indicatorValue);
+            } 
+
+						return value;
+					};
+
+					this.getIndicatorValue_asFormattedText = function(indicatorValue, precision){
+
+            var maximumDecimals = defaultNumberOfDecimals;
+            var minimumDecimals = 0;
+            if (precision !== undefined) {
+              maximumDecimals = precision;
+              minimumDecimals = precision;
+            } else {
+              if (this.selectedIndicator && this.selectedIndicator.precision!==null) {
+                maximumDecimals = this.selectedIndicator.precision;
+                minimumDecimals = this.selectedIndicator.precision;
+              }
+            }
+            
+
 						var value;
 						if(this.indicatorValueIsNoData(indicatorValue)){
 							value = "NoData";
 						}
 						else{
-						 	value = Number(indicatorValue).toLocaleString('de-DE', {maximumFractionDigits: numberOfDecimals});
+						 	value = Number(indicatorValue).toLocaleString('de-DE', {maximumFractionDigits: maximumDecimals, minimumFractionDigits: minimumDecimals});
             }
             
             // if the original value is greater than zero but would be rounded as 0 then we must return the original result
             if(Number(value) == 0 && indicatorValue > 0){
-              value = Number(indicatorValue).toLocaleString('de-DE');
+              value = Number(indicatorValue).toLocaleString('de-DE', {minimumFractionDigits: minimumDecimals, maximumFractionDigits: maximumDecimals});
             } 
 
 						return value;
@@ -2003,9 +2084,9 @@ angular
           };
 
           
-          this.labelAllFeatures = "alle Features";
-          this.labelFilteredFeatures = "gefilterte Features";
-          this.labelSelectedFeatures = "selektierte Features";
+          this.labelAllFeatures = "alle Raumeinheiten";
+          this.labelFilteredFeatures = "gefilterte Raumeinheiten";
+          this.labelSelectedFeatures = "selektierte Raumeinheiten";
           this.labelNumberOfFeatures = "Anzahl:"
           this.labelSum = "rechnerische Summe:"
           this.labelMean = "rechnerisches arith. Mittel:"
@@ -2607,7 +2688,7 @@ angular
                   return jspdf.output("blob", {filename: pdfName});
           };
       
-          this.generateIndicatorMetadataPdf = async function(indicatorMetadata, pdfName, autosave = false){																					
+          this.generateIndicatorMetadataPdf = async function(indicatorMetadata, pdfName){																					
             var jspdf = await this.createMetadataPDF_indicator(indicatorMetadata);
       
             jspdf.setProperties({
@@ -2617,10 +2698,6 @@ angular
             keywords: 'Indikator, Metadatenblatt',
             creator: 'KomMonitor'
             });
-
-            if(autosave)
-              jspdf.save(pdfName);
-            
             return jspdf;
           }; 
 

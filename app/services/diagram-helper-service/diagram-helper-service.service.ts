@@ -52,6 +52,22 @@ export class DiagramHelperServiceService {
     this.exchangeData = this.dataExchangeService.pipedData;
   }
 
+  setCustomFontFamily() {
+  
+    var elem:any = document.querySelector('#fontFamily-reference');
+    var style = getComputedStyle(elem);
+    return style.fontFamily;
+  }
+
+  customFontFamily = this.setCustomFontFamily(); 
+
+  prepCustomStyling(customFontFamilyEnabled, options) {
+
+    if(customFontFamilyEnabled===true)
+      options.textStyle = {fontFamily: this.customFontFamily};
+
+    return options;
+  }
 
   isCloserToTargetDate(date, closestDate, targetDate){
     var targetYear = targetDate.split("-")[0];
@@ -332,31 +348,31 @@ export class DiagramHelperServiceService {
     return color;
   }
   
-  getBarChartOptions() {
-    return this.barChartOptions;
+  getBarChartOptions(customFontFamilyEnabled = false) {
+    return this.prepCustomStyling(customFontFamilyEnabled, this.barChartOptions);
   }
 
-  getGeoMapChartOptions() {
-    return this.geoMapChartOptions;
+  getGeoMapChartOptions(customFontFamilyEnabled = false) {
+    return this.prepCustomStyling(customFontFamilyEnabled, this.geoMapChartOptions);
   }
 
-  getHistogramChartOptions() {
-    return this.histogramChartOptions;
+  getHistogramChartOptions(customFontFamilyEnabled = false) {
+    return this.prepCustomStyling(customFontFamilyEnabled, this.histogramChartOptions);
   }
 
-  getLineChartOptions() {
-    return this.lineChartOptions;
-  }
+  getLineChartOptions(customFontFamilyEnabled = false) {
+    return this.prepCustomStyling(customFontFamilyEnabled, this.lineChartOptions);
+  };
 
   prepareAllDiagramResources_forCurrentMapIndicator(indicatorMetadataAndGeoJSON, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, filterOutFutureDates) {        
     this.prepareAllDiagramResources(indicatorMetadataAndGeoJSON, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, filterOutFutureDates, false);
   }
 
   prepareAllDiagramResources_forReportingIndicator(indicatorMetadataAndGeoJSON, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, filterOutFutureDates) {
-    this.prepareAllDiagramResources(indicatorMetadataAndGeoJSON, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, filterOutFutureDates, true);      
+    this.prepareAllDiagramResources(indicatorMetadataAndGeoJSON, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, filterOutFutureDates, true, true);      
   }
 
-  prepareAllDiagramResources(indicatorMetadataAndGeoJSON, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, filterOutFutureDates, forceUseSubmittedIndicatorForTimeseries) {
+  prepareAllDiagramResources(indicatorMetadataAndGeoJSON, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, filterOutFutureDates, forceUseSubmittedIndicatorForTimeseries, fixedPrecision = false) {
 
     this.indicatorPropertyName = this.INDICATOR_DATE_PREFIX + date;
 
@@ -378,7 +394,12 @@ export class DiagramHelperServiceService {
       if (this.dataExchangeService.indicatorValueIsNoData(cartographicFeature.properties[this.indicatorPropertyName])) {
         indicatorValue = null;
       }
-      else {
+      else { 
+        if(!fixedPrecision)
+          indicatorValue = this.dataExchangeService.getIndicatorValue_asNumber(cartographicFeature.properties[this.indicatorPropertyName]);  
+        else
+          indicatorValue = this.dataExchangeService.getIndicatorValue_asFixedPrecisionNumber(cartographicFeature.properties[this.indicatorPropertyName],indicatorMetadataAndGeoJSON.precision);  
+
         indicatorValue = this.dataExchangeService.getIndicatorValue_asNumber(cartographicFeature.properties[this.indicatorPropertyName]);  
       }
 
@@ -649,7 +670,7 @@ export class DiagramHelperServiceService {
               htmlString += "<tbody>";
 
               for (var i = 0; i < seriesData.length; i++) {
-                var value = this.dataExchangeService.getIndicatorValue_asNumber(seriesData[i].value);
+                var value = this.dataExchangeService.getIndicatorValue_asFormattedText(seriesData[i].value);
                 htmlString += "<tr>";
                 htmlString += "<td>" + seriesData[i].name + "</td>";
                 htmlString += "<td>" + value + "</td>";
@@ -676,7 +697,7 @@ export class DiagramHelperServiceService {
         type: "piecewise",
         pieces: legendConfig,
         // selectedMode: 'multiple',
-        precision: 2,
+        precision: indicatorMetadataAndGeoJSON.precision,
         show: true
     },
       series: [{
@@ -804,7 +825,7 @@ export class DiagramHelperServiceService {
               htmlString += "<tbody>";
 
               for (var i = 0; i < barData.length; i++) {
-                var value = this.dataExchangeService.getIndicatorValue_asNumber(barData[i].value);
+                var value = this.dataExchangeService.getIndicatorValue_asFormattedText(barData[i].value);
                 htmlString += "<tr>";
                 htmlString += "<td>" + featureNames[i] + "</td>";
                 htmlString += "<td>" + value + "</td>";
@@ -869,7 +890,7 @@ export class DiagramHelperServiceService {
           left: 'left',
           type: "piecewise",
           pieces: legendConfig,
-          precision: 2,
+          precision: indicatorMetadataAndGeoJSON.precision,
           show: false
       }]
     };
@@ -994,7 +1015,7 @@ export class DiagramHelperServiceService {
                 htmlString += "<tr>";
                 htmlString += "<td>" + timestamps[j] + "</td>";
                 for (var k = 0; k < lineSeries.length; k++) {
-                  var value = this.dataExchangeService.getIndicatorValue_asNumber(lineSeries[k].data[j]);
+                  var value = this.dataExchangeService.getIndicatorValue_asFormattedText(lineSeries[k].data[j]);
                   htmlString += "<td>" + value + "</td>";
                 }
                 htmlString += "</tr>";
@@ -1678,10 +1699,10 @@ export class DiagramHelperServiceService {
     return eChartOptions;
   }
 
-  makeTrendChartOptions_forAllFeatures(indicatorMetadataAndGeoJSON, fromDateAsPropertyString, toDateAsPropertyString, showMinMax, showCompleteTimeseries, computationType, trendEnabled){
+  makeTrendChartOptions_forAllFeatures(indicatorMetadataAndGeoJSON, fromDateAsPropertyString, toDateAsPropertyString, showMinMax, showCompleteTimeseries, computationType, trendEnabled, customFontFamilyEnabled = false){
       // we may base on the the precomputed timeseries lineOptions and modify that from a cloned instance
 
-      var timeseriesOptions:any = jQuery.extend(true, {}, this.getLineChartOptions())
+      var timeseriesOptions = jQuery.extend(true, {}, this.getLineChartOptions(customFontFamilyEnabled));
 
       // remove any additional lines for concrete features
       timeseriesOptions.series.length = 5;
