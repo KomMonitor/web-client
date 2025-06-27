@@ -8,7 +8,7 @@ angular.module('kommonitorAdmin', ['kommonitorDataExchange', 'adminDashboardMana
 'indicatorEditIndicatorSpatialUnitRolesModal', 
 'topicEditModal', 'topicDeleteModal',
 'scriptAddModal', "scriptDeleteModal",
-'adminAppConfig', 'adminKeycloakConfig', 'adminControlsConfig', 
+'adminAppConfig', 'adminFilterConfig', 'adminFilterAddModal', 'adminFilterEditModal', 'adminKeycloakConfig', 'adminControlsConfig', 
 'roleAddModal', 'roleEditMetadataModal', 'roleEditGroupRightsModal', 'roleDeleteModal',
 'adminRoleExplanation',
 // ,'spatialUnitDeleteModal',
