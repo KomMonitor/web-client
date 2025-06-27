@@ -40,7 +40,7 @@ export class ConfigStorageService  {
     var formdata = new FormData();
     formdata.append("appConfig", new Blob([jsonString], { type: "application/json" }));
 
-    let headers = new HttpHeaders({ "Content-Type": '*', "Accept": "text/plain" });
+    let headers = new HttpHeaders({"Accept": "text/plain" });
 
     return this.httpClient.post(window.__env.configStorageServerConfig.targetUrlToConfigStorageServer_controlsConfig, formdata, {headers: headers});
   }
@@ -50,7 +50,7 @@ export class ConfigStorageService  {
     var formdata = new FormData();
     formdata.append("appConfig", new Blob([jsString], { type: "application/javascript" }));
 
-    let headers = new HttpHeaders({ "Content-Type": '*', "Accept": "text/plain" });
+    let headers = new HttpHeaders({"Accept": "text/plain" });
 
     return this.httpClient.post(window.__env.configStorageServerConfig.targetUrlToConfigStorageServer_appConfig, formdata, {headers: headers});
   }
@@ -61,7 +61,7 @@ export class ConfigStorageService  {
     var formdata = new FormData();
     formdata.append("appConfig", new Blob([jsonString], { type: "application/json"}));  
     
-    let headers = new HttpHeaders({ "Content-Type": '*', "Accept": "text/plain" });
+    let headers = new HttpHeaders({"Accept": "text/plain" });
 
     return this.httpClient.post(window.__env.configStorageServerConfig.targetUrlToConfigStorageServer_filterConfig, formdata, {headers: headers});
   }
