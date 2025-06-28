@@ -51,6 +51,7 @@ angular
         "computation_id",
         "computation_ids",
         "reference_id",
+        "reference_date",
         "georesource_id",
         "comp_filter",
         "compProp",

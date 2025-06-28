@@ -34,6 +34,10 @@ angular.module('scriptTest').component('scriptTest', {
 				numericPropertyName: null
 			};
 
+			$scope.refDateSelection = {
+				referenceDate: null
+			};
+
 			$scope.dropdownTranslations =  kommonitorDataExchangeService.multiselectDropdownTranslations;
 			$scope.dropdownSettings = kommonitorDataExchangeService.multiselectDropdownSettings;
 			$scope.dropdownEvents =  {
@@ -58,6 +62,11 @@ angular.module('scriptTest').component('scriptTest', {
 				$scope.legendValues.refIndicatorSelection = refIndicatorSelection;
 
 				$scope.resetComputationFormulaAndLegend();				
+			};
+
+			$scope.onChangeReferenceDate = function(){
+				kommonitorScriptHelperService.processParameters.reference_date = $scope.refDateSelection.referenceDate;
+				$scope.resetComputationFormulaAndLegend();	
 			};
 
 			$scope.onChangeComputationIndicator = function(compIndicatorSelection){
