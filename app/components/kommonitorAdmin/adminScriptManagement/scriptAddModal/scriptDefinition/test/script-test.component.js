@@ -335,7 +335,34 @@ angular.module('scriptTest').component('scriptTest', {
 				return formula;
 			}
 
-			//a
+			function replaceGeoresourceFilterPlaceholder(str) {
+				var filterLegendHTML = "";
+				if ($scope.compFilterData.propertyName !== undefined && $scope.compFilterData.operator && $scope.compFilterData.operator.apiName !== undefined && ($scope.compFilterData.propertyValue != undefined || $scope.compFilterData.propertyValueSelection != undefined)) {
+					filterLegendHTML = "" + $scope.compFilterData.propertyName + "' '" + $scope.compFilterData.operator.displayName + "' '" + $scope.compFilterData.propertyValue + "'";
+					if ($scope.compFilterData.operator.apiName === "Range") {
+						filterLegendHTML = "" + $scope.compFilterData.propertyName + "' im " +  "Wertebereich von '>=" +  $scope.compFilterData.propertyValueRange_from + " bis <" + $scope.compFilterData.propertyValueRange_to + "'";
+					}
+					if ($scope.compFilterData.operator.apiName === "Contains") {
+						filterLegendHTML = "" + $scope.compFilterData.propertyName + "' 'enthält' '" + $scope.compFilterData.propertyValueSelection + "'";
+					}
+				}
+				else {
+					filterLegendHTML = " -";
+				}
+				return str.replace("georesource_filter_legend", filterLegendHTML);
+			}
+
+			// parse with regEx to avoid 'eval' or similar unsecure methods
+			function parseStringTemplate(str, obj) {
+				let parts = str.split(/\$\{(?!\d)[\wæøåÆØÅ.]*\}/);
+				let args = str.match(/(?<=\${)[\wæøåÆØÅ.]+(?=})/g) || [];
+				let parameters = args.map(argument => {
+						let value = argument.split('.').reduce((o, key) => o?.[key], obj);
+						return value !== undefined ? value : "";
+				});
+				return String.raw({ raw: parts }, ...parameters);
+			}
+
 			$scope.resetComputationFormulaAndLegend = function(){
 				kommonitorScriptHelperService.scriptFormulaHTML = "";
 
@@ -367,17 +394,11 @@ angular.module('scriptTest').component('scriptTest', {
 						}
 					}
 				}
-				
-				// parse with regEx to avoid 'eval' or similar unsecure methods
-				function parseStringTemplate(str, obj) {
-					let parts = str.split(/\$\{(?!\d)[\wæøåÆØÅ.]*\}/);
-					let args = str.match(/(?<=\${)[\wæøåÆØÅ.]+(?=})/g) || [];
-					let parameters = args.map(argument => {
-							let value = argument.split('.').reduce((o, key) => o?.[key], obj);
-							return value !== undefined ? value : "";
-					});
-					return String.raw({ raw: parts }, ...parameters);
+
+				if(dynamicLegendStr.includes('georesource_filter_legend')) {
+					dynamicLegendStr = replaceGeoresourceFilterPlaceholder(dynamicLegendStr);
 				}
+				
 				var legendText = parseStringTemplate(dynamicLegendStr, $scope.legendValues)
 
 				if(kommonitorScriptHelperService.scriptData.additionalParameters.parameters.kommonitorUiParams.apiName.includes("indicator")){
