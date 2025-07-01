@@ -53,6 +53,7 @@ angular
         "reference_id",
         "reference_date",
         "georesource_id",
+        "georesource_id_line",
         "comp_filter",
         "compProp",
         "target_spatial_units",

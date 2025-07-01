@@ -1,0 +1,54 @@
+<div class="row vertical-align">
+  <div class="col-md-12 col-sm-12 col-xs-12">
+    <div class="form-group">
+      <label>Auswahl der zur Berechnung erforderlichen Georessource</label>
+      <div class="input-group">
+        <span class="input-group-addon"><i class="fas fa-filter"></i></span>
+        <input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model-options="{debounce: 500, blur: 0}"
+          ng-model="$parent.georesourceNameFilter">
+      </div>
+      <br />
+      <select ng-model="$parent.georesourceSelection" size="5" ng-change="$parent.onChangeGeoresource($parent.georesourceSelection)"
+        ng-options="georesourceMetadata as georesourceMetadata.datasetName for georesourceMetadata in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isLOI:'true'} | filter:georesourceNameFilter"
+        class="form-control">
+        <option disabled selected value> -- Georessource w&auml;hlen --
+        </option>
+      </select>
+      <div class="help-block with-errors"></div>
+    </div>
+  </div>
+</div>
+
+<div class="row vertical-align">
+  <div class="col-md-6 col-sm-6 col-xs-12">
+    <div class="form-group">
+      <label>ID der selektierten Georessource</label>
+      <input type="text" class="form-control input-sm" disabled placeholder="GeoressourcenId"
+        ng-model="$parent.georesourceSelection.georesourceId">
+      <div class="help-block with-errors"></div>
+    </div>
+  </div>
+  <div class="col-md-6 col-sm-6 col-xs-12">
+    <div class="form-group">
+      <label>Name der selektierten Georessource</label>
+      <input type="text" class="form-control input-sm" disabled placeholder="GeoressourcenName"
+        ng-model="$parent.georesourceSelection.datasetName">
+      <div class="help-block with-errors"></div>
+    </div>
+  </div>
+</div>
+
+<div class="row vertical-align">
+  <div class="col-md-10 col-sm-10 col-xs-12">
+    <div class="form-group">
+      <label>Beschreibung der selektierten Georessource</label>
+      <textarea rows="4" class="form-control input-sm" disabled placeholder="GeoressourcenBeschreibung"
+        ng-model="$parent.georesourceSelection.metadata.description"></textarea>
+      <div class="help-block with-errors"></div>
+    </div>
+  </div>		
+</div>
+
+<script>
+	$('.box').boxWidget();
+</script>

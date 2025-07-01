@@ -164,7 +164,7 @@ angular.module('scriptTest').component('scriptTest', {
 			};
 
 			$scope.onChangePropertyName = function(propertyName){
-				kommonitorScriptHelperService.processParameters.comp_filter.value.compFilterProp = $scope.compFilterData.propertyName;
+				kommonitorScriptHelperService.processParameters.comp_filter.compFilterProp = $scope.compFilterData.propertyName;
 				$scope.resetComputationFormulaAndLegend();
 				$scope.filterOperatorOptions();
 				$scope.resetPropertyValueOptions();
@@ -175,7 +175,7 @@ angular.module('scriptTest').component('scriptTest', {
 
 			$scope.onChangeOperatorOption = function(operatorOption){
 				if ($scope.compFilterData.operator) {
-					kommonitorScriptHelperService.processParameters.comp_filter.value.compFilterOperator = $scope.compFilterData.operator.apiName;
+					kommonitorScriptHelperService.processParameters.comp_filter.compFilterOperator = $scope.compFilterData.operator.apiName;
 					if ($scope.compFilterData.operator.apiName === 'Contains') {
 						$scope.compFilterData.propertyValueSelection = [];
 					}
@@ -184,7 +184,7 @@ angular.module('scriptTest').component('scriptTest', {
 			};
 
 			$scope.onChangePropertyValue = function(){
-				kommonitorScriptHelperService.processParameters.comp_filter.value.compFilterPropVal = $scope.compFilterData.propertyValue;
+				kommonitorScriptHelperService.processParameters.comp_filter.compFilterPropVal = $scope.compFilterData.propertyValue;
 				$scope.resetScriptParameter_filterPropertyValue();
 				$scope.resetComputationFormulaAndLegend();	
 			};
@@ -282,9 +282,9 @@ angular.module('scriptTest').component('scriptTest', {
 			$scope.resetScriptParameter_filterPropertyValue = function() {
 				if($scope.compFilterData.operator) {
 					if ($scope.compFilterData.operator.apiName !== "Contains") {
-						kommonitorScriptHelperService.processParameters.comp_filter.value.compFilterPropVal = $scope.compFilterData.propertyValue;
+						kommonitorScriptHelperService.processParameters.comp_filter.compFilterPropVal = $scope.compFilterData.propertyValue;
 					} else {
-						kommonitorScriptHelperService.processParameters.comp_filter.value.compFilterPropVal = $scope.compFilterData.propertyValueSelection.join();
+						kommonitorScriptHelperService.processParameters.comp_filter.compFilterPropVal = $scope.compFilterData.propertyValueSelection.join();
 					}
 				}
 			};
