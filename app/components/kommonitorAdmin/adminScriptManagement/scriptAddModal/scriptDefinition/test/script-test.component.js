@@ -338,16 +338,16 @@ angular.module('scriptTest').component('scriptTest', {
 			function replaceGeoresourceFilterPlaceholder(str) {
 				var filterLegendHTML = "";
 				if ($scope.compFilterData.propertyName !== undefined && $scope.compFilterData.operator && $scope.compFilterData.operator.apiName !== undefined && ($scope.compFilterData.propertyValue != undefined || $scope.compFilterData.propertyValueSelection != undefined)) {
-					filterLegendHTML = "" + $scope.compFilterData.propertyName + "' '" + $scope.compFilterData.operator.displayName + "' '" + $scope.compFilterData.propertyValue + "'";
+					filterLegendHTML = "'" + $scope.compFilterData.propertyName + "' '" + $scope.compFilterData.operator.displayName + "' '" + $scope.compFilterData.propertyValue + "'";
 					if ($scope.compFilterData.operator.apiName === "Range") {
-						filterLegendHTML = "" + $scope.compFilterData.propertyName + "' im " +  "Wertebereich von '>=" +  $scope.compFilterData.propertyValueRange_from + " bis <" + $scope.compFilterData.propertyValueRange_to + "'";
+						filterLegendHTML = "'" + $scope.compFilterData.propertyName + "' im " +  "Wertebereich von '>=" +  $scope.compFilterData.propertyValueRange_from + " bis <" + $scope.compFilterData.propertyValueRange_to + "'";
 					}
 					if ($scope.compFilterData.operator.apiName === "Contains") {
-						filterLegendHTML = "" + $scope.compFilterData.propertyName + "' 'enthält' '" + $scope.compFilterData.propertyValueSelection + "'";
+						filterLegendHTML = "'" + $scope.compFilterData.propertyName + "' 'enthält' '" + $scope.compFilterData.propertyValueSelection + "'";
 					}
 				}
 				else {
-					filterLegendHTML = " -";
+					filterLegendHTML = "-";
 				}
 				return str.replace("georesource_filter_legend", filterLegendHTML);
 			}
