@@ -73,7 +73,7 @@ import { AdminAppConfigComponent } from './components/ngComponents/admin/adminCo
 import { AdminControlsConfigComponent } from './components/ngComponents/admin/adminConfig/adminControlsConfig/admin-controls-config.component';
 import { AdminRoleExplanationComponent } from './components/ngComponents/admin/adminRoleExplanation/admin-role-explanation.component';
 import { AdminDashboardManagementComponent } from './components/ngComponents/admin/adminDashboardManagement/admin-dashboard-management.component';
-
+import { UserLoginComponent } from './components/ngComponents/userInterface/userLogin/user-login.component';
 
 // currently the AngularJS routing is still used as part of kommonitorClient module
 const routes: Routes = [];
@@ -155,7 +155,8 @@ declare var MathJax;
     AdminAppConfigComponent,
     AdminControlsConfigComponent,
     AdminRoleExplanationComponent,
-    AdminDashboardManagementComponent
+    AdminDashboardManagementComponent,
+    UserLoginComponent
   ],
   schemas: [
     CUSTOM_ELEMENTS_SCHEMA
