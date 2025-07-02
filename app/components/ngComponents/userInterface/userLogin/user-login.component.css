@@ -1,0 +1,178 @@
+/* UserLogin Component Styles */
+
+.userFormWrapper {
+  width: 300px;
+  height: auto;
+  position: absolute;
+  right: 2px;
+  top: 40px;
+  background-color: #ecf0f5;
+  border-radius: 50px;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-gap: 5vw;
+  padding: 15px;
+  z-index: 1004;
+}
+
+.userFormRight {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-gap: 20px;
+  padding: 10% 5%;
+}
+
+.input_container {
+  background-color: var(--input_bg);
+  display: flex;
+  align-items: center;
+  padding-left: 20px;
+}
+
+.input_container:hover {
+  background-color: var(--input_hover);
+}
+
+.input_container,
+#input_submit {
+  height: 40px;
+  border-radius: 20px;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.input_field {
+  color: var(--icon_color);
+  background-color: inherit;
+  width: 90%;
+  border: none;
+  font-size: 1.3rem;
+  font-weight: 400;
+  padding-left: 30px;
+}
+
+.input_field:hover,
+.input_field:focus {
+  outline: none;
+}
+
+.input_extend_session {
+  background-color: var(--extend_bg);
+  color: white;
+  font-weight: bold;
+  text-transform: uppercase;
+  padding-left: 0;
+}
+
+.input_container,
+.input_extend_session {
+  height: 40px;
+  border-radius: 20px;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.input_extend_session:hover {
+  background-color: var(--submit_hover);
+  transition: background-color, 1s;
+  cursor: pointer;
+}
+
+#input_submit {
+  background-color: var(--submit_bg);
+  padding-left: 0;
+  font-weight: bold;
+  color: white;
+  text-transform: uppercase;
+}
+
+#input_submit:hover {
+  background-color: var(--submit_hover);
+  transition: background-color, 1s;
+  cursor: pointer;
+}
+
+#input_submit.input_authenticated {
+  background-color: var(--logout_bg);
+}
+
+#input_submit:hover.input_authenticated {
+  background-color: var(--logout_hover);
+}
+
+#userLogin a {
+  text-decoration: none;
+  color: var(--submit_bg);
+  font-weight: bold;
+}
+
+#userLogin a:hover {
+  color: var(--submit_hover);
+}
+
+/* Responsive design */
+@media screen and (max-width: 768px) {
+  .userFormWrapper {
+    grid-template-columns: 1fr;
+    margin-left: 10px;
+    margin-right: 10px;
+  }
+}
+
+/* Box styles for roles and groups */
+.box.box-simplified {
+  border: 1px solid #d2d6de;
+  margin-bottom: 10px;
+}
+
+.box.box-simplified .box-header {
+  padding: 10px;
+  border-bottom: 1px solid #d2d6de;
+  background-color: #f9f9f9;
+}
+
+.box.box-simplified .box-title {
+  font-size: 14px;
+  font-weight: bold;
+  margin: 0;
+}
+
+.box.box-simplified .box-body {
+  padding: 10px;
+}
+
+.box.box-simplified .box-tools {
+  float: right;
+}
+
+.box.box-simplified .btn-box-tool {
+  background: none;
+  border: none;
+  font-size: 12px;
+  color: #666;
+}
+
+.box.box-simplified .btn-box-tool:hover {
+  color: #333;
+}
+
+/* Table styles */
+.box-body table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.box-body table th {
+  font-weight: bold;
+  text-align: left;
+  padding: 5px;
+}
+
+.box-body table td {
+  padding: 5px;
+}
+
+.box-body table p {
+  margin: 2px 0;
+} 
