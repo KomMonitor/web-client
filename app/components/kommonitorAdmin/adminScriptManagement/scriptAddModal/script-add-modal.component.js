@@ -58,7 +58,8 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 			kommonitorScriptHelperService.scriptData = [];
 
 			$scope.init = async function () {
-				kommonitorScriptHelperService.availableScriptTypeOptions = await kommonitorScriptHelperService.getScriptTypes();
+				$scope.allScriptTypeOptions = await kommonitorScriptHelperService.getScriptTypes();
+				kommonitorScriptHelperService.availableScriptTypeOptions = $scope.allScriptTypeOptions.filter((script) => (script.id.startsWith("KmIndicator") || script.id.startsWith("KmGeoresource")));
 			}
 
 			$scope.init();
@@ -79,6 +80,18 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 					$scope.$digest();
 				}, 1000);
 			};
+
+			$scope.changeScriptTypeFilter = function (value) {
+				if (value == 'all') {
+					kommonitorScriptHelperService.availableScriptTypeOptions = $scope.allScriptTypeOptions.filter((script) => (script.id.startsWith("KmIndicator") || script.id.startsWith("KmGeoresource")));
+				}
+				else if(value == 'indicator') {
+					kommonitorScriptHelperService.availableScriptTypeOptions = $scope.allScriptTypeOptions.filter((script) => script.id.startsWith("KmIndicator"));
+				}
+				else if(value == 'georesource') {
+					kommonitorScriptHelperService.availableScriptTypeOptions = $scope.allScriptTypeOptions.filter((script) => script.id.startsWith("KmGeoresource"));
+				}
+			}
 
 			$scope.onScriptTypeChanged = function () {
 				kommonitorScriptHelperService.getProcessDescription($scope.selectedScriptType.id);

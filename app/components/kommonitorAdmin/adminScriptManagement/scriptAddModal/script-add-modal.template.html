@@ -319,24 +319,22 @@
 											<label>Auswahl des Skript-Typen*</label>
 											<div class="btn-group btn-group-justified"  data-toggle="buttons">
 												<label class="btn btn-primary active">
-													<input type="radio" name="options" id="focus_distance" autocomplete="off" checked
-														ng-change="changeFocus('distance')"
-														ng-model="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.focus"
-														value="distance"> <i class="fas fa-globe-americas"></i> Alle
+													<input type="radio" name="options" id="focus_all" autocomplete="off" checked
+														ng-change="changeScriptTypeFilter('all')"
+														ng-model="$ctrl.focus"
+														value="all"> <i class="fas fa-globe-americas"></i> Alle
 												</label>
-												<label class="btn btn-primary"
-													ng-disabled="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.transitMode === 'buffer'">
-													<input type="radio" name="options" id="focus_time" autocomplete="off"
-														ng-change="changeFocus('time')"
-														ng-model="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.focus"
-														value="time"><i class="fas fa-sitemap"></i> Indikatoren-Skripts
+												<label class="btn btn-primary">
+													<input type="radio" name="options" id="focus_indicator" autocomplete="off"
+														ng-change="changeScriptTypeFilter('indicator')"
+														ng-model="$ctrl.focus"
+														value="indicator"><i class="fas fa-sitemap"></i> Indikatoren-Skripts
 												</label>
-												<label class="btn btn-primary"
-													ng-disabled="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.transitMode === 'buffer'">
-													<input type="radio" name="options" id="focus_time" autocomplete="off"
-														ng-change="changeFocus('time')"
-														ng-model="$ctrl.kommonitorReachabilityHelperServiceInstance.settings.focus"
-														value="time"><i class="fas fa-map-marked-alt"></i> Georessourcen-Skripts
+												<label class="btn btn-primary">
+													<input type="radio" name="options" id="focus_georesource" autocomplete="off"
+														ng-change="changeScriptTypeFilter('georesource')"
+														ng-model="$ctrl.focus"
+														value="georesource"><i class="fas fa-map-marked-alt"></i> Georessourcen-Skripts
 												</label>
 											</div>
 											<br />
