@@ -4,6 +4,7 @@ import { DoBootstrap, NgModule, Version, inject, Input, Inject, CUSTOM_ELEMENTS_
 import { BrowserModule } from '@angular/platform-browser';
 import { UpgradeModule } from '@angular/upgrade/static';
 import { downgradeComponent } from '@angular/upgrade/static';
+import { KeycloakAngularModule } from 'keycloak-angular';
 
 import $ from 'jquery';
 import Keycloak from 'keycloak-js';
@@ -21,6 +22,7 @@ import {
   ajskommonitorDiagramHelperServiceProvider,
   ajskommonitorFilterHelperServiceProvider,
   ajskommonitorKeycloackHelperServiceProvider,
+  keycloakHelperServiceProvider,
   ajskommonitorMultiStepFormHelperServiceProvider, 
   ajskommonitorSingleFeatureMapServiceProvider,
   ajskommonitorElementVisibilityHelperServiceProvider,
@@ -59,6 +61,7 @@ import { SelectedIndicatorFilter } from 'pipes/selected-indicator-filter.pipe';
 import { BaseIndicatorOfComputedIndicatorFilter } from 'pipes/base-indicator-of-computed-indicator-filter.pipe';
 import { BaseIndicatorOfHeadlineIndicatorFilter } from 'pipes/base-indicator-of-headline-indicator-filter.pipe';
 import { AuthService } from 'services/auth-service/auth.service';
+import { KeycloakHelperService } from './services/auth/keycloak-helper.service';
 import { KommonitorReachabilityComponent } from './components/ngComponents/userInterface/sidebar/kommonitorReachability/kommonitor-reachability.component';
 
 import { AdminTopicsManagementComponent } from './components/ngComponents/admin/adminTopicsManagement/admin-topics-management.component';
@@ -90,6 +93,7 @@ declare var MathJax;
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule,
+    KeycloakAngularModule,
     JsonPipe,
     NouisliderModule,
     NgbCollapseModule,
@@ -100,7 +104,7 @@ declare var MathJax;
     ajskommonitorCacheHelperServiceProvider,
     ajskommonitorBatchUpdateHelperServiceProvider,
     ajskommonitorConfigStorageServiceProvider,
-    ajskommonitorKeycloackHelperServiceProvider,
+    keycloakHelperServiceProvider,
     ajskommonitorMultiStepFormHelperServiceProvider,
     ajskommonitorDataExchangeServiceeProvider,
     ajskommonitorDataGridHelperServiceProvider,
@@ -125,7 +129,8 @@ declare var MathJax;
       useClass: AuthInterceptor,
       multi: true
     },
-    AuthService
+    AuthService,
+    KeycloakHelperService
   ],
   declarations: [
     KommonitorLegendComponent,
