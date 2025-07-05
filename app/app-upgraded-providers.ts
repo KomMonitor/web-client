@@ -110,7 +110,7 @@ export function keycloakHelperServiceFactory(injector: any) {
 
 export const keycloakHelperServiceProvider: any = {
   deps: ['$injector'],
-  provide: 'kommonitorKeycloackHelperService',
+  provide: 'kommonitorKeycloakHelperService',
   useFactory: keycloakHelperServiceFactory,
 };
 
