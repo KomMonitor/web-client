@@ -78,6 +78,7 @@ import { AdminSpatialUnitsManagementComponent } from './components/ngComponents/
 import { SpatialUnitAddModalComponent } from './components/ngComponents/admin/adminSpatialUnitsManagement/spatialUnitAddModal/spatial-unit-add-modal.component';
 import { SpatialUnitEditMetadataModalComponent } from './components/ngComponents/admin/adminSpatialUnitsManagement/spatialUnitEditMetadataModal/spatial-unit-edit-metadata-modal.component';
 import { SpatialUnitEditFeaturesModalComponent } from './components/ngComponents/admin/adminSpatialUnitsManagement/spatialUnitEditFeaturesModal/spatial-unit-edit-features-modal.component';
+import { SpatialUnitEditUserRolesModalComponent } from './components/ngComponents/admin/adminSpatialUnitsManagement/spatialUnitEditUserRolesModal/spatial-unit-edit-user-roles-modal.component';
 import { SpatialUnitDeleteModalComponent } from './components/ngComponents/admin/adminSpatialUnitsManagement/spatialUnitDeleteModal/spatial-unit-delete-modal.component';
 
 
@@ -167,6 +168,7 @@ declare var MathJax;
     SpatialUnitAddModalComponent,
     SpatialUnitEditMetadataModalComponent,
     SpatialUnitEditFeaturesModalComponent,
+    SpatialUnitEditUserRolesModalComponent,
     SpatialUnitDeleteModalComponent
   ],
   schemas: [
@@ -276,6 +278,11 @@ export class AppModule implements DoBootstrap {
     angular.module('kommonitorAdmin')
       .directive('spatialUnitEditFeaturesModalNew', downgradeComponent({
         component: SpatialUnitEditFeaturesModalComponent
+      }) as angular.IDirectiveFactory);
+
+    angular.module('kommonitorAdmin')
+      .directive('spatialUnitEditUserRolesModalNew', downgradeComponent({
+        component: SpatialUnitEditUserRolesModalComponent
       }) as angular.IDirectiveFactory);
 
     angular.module('kommonitorAdmin')

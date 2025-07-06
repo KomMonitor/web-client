@@ -7,6 +7,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { SpatialUnitAddModalComponent } from './spatialUnitAddModal/spatial-unit-add-modal.component';
 import { SpatialUnitEditMetadataModalComponent } from './spatialUnitEditMetadataModal/spatial-unit-edit-metadata-modal.component';
 import { SpatialUnitEditFeaturesModalComponent } from './spatialUnitEditFeaturesModal/spatial-unit-edit-features-modal.component';
+import { SpatialUnitEditUserRolesModalComponent } from './spatialUnitEditUserRolesModal/spatial-unit-edit-user-roles-modal.component';
 import { SpatialUnitDeleteModalComponent } from './spatialUnitDeleteModal/spatial-unit-delete-modal.component';
 declare const agGrid: any;
 declare const $: any;
@@ -340,6 +341,50 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
       console.error('Error opening edit features modal:', error);
       // Fallback: broadcast event for old AngularJS modal
       this.broadcastService.broadcast('onEditSpatialUnitFeatures', spatialUnitDataset);
+    }
+  }
+
+  onClickEditUserRoles(spatialUnitDataset: any): void {
+    this.openEditUserRolesModal(spatialUnitDataset);
+  }
+
+  openEditUserRolesModal(spatialUnitDataset: any) {
+    console.log('Opening edit spatial unit user roles modal for:', spatialUnitDataset);
+    
+    try {
+      // Open modal using NgbModal
+      const modalRef = this.modalService.open(SpatialUnitEditUserRolesModalComponent, {
+        size: 'xl',
+        backdrop: 'static',
+        keyboard: false,
+        container: 'body',
+        animation: false,
+        windowClass: 'spatial-unit-edit-user-roles-modal'
+      });
+      
+      console.log('Edit user roles modal reference created:', modalRef);
+      
+      // Pass the spatial unit dataset to the modal
+      modalRef.componentInstance.currentSpatialUnitDataset = spatialUnitDataset;
+      modalRef.componentInstance.resetForm();
+      
+      // Handle modal result
+      modalRef.result.then(
+        (result) => {
+          console.log('Edit user roles modal closed with result:', result);
+          if (result && result.action === 'updated') {
+            // Refresh the spatial units table
+            this.refreshSpatialUnitOverviewTable('edit', spatialUnitDataset.spatialUnitId);
+          }
+        },
+        (reason) => {
+          console.log('Edit user roles modal dismissed with reason:', reason);
+        }
+      );
+    } catch (error: any) {
+      console.error('Error opening edit user roles modal:', error);
+      // Fallback: broadcast event for old AngularJS modal
+      this.broadcastService.broadcast('onEditSpatialUnitUserRoles', spatialUnitDataset);
     }
   }
 
