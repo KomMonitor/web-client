@@ -73,6 +73,7 @@ import { AdminAppConfigComponent } from './components/ngComponents/admin/adminCo
 import { AdminControlsConfigComponent } from './components/ngComponents/admin/adminConfig/adminControlsConfig/admin-controls-config.component';
 import { AdminRoleExplanationComponent } from './components/ngComponents/admin/adminRoleExplanation/admin-role-explanation.component';
 import { AdminDashboardManagementComponent } from './components/ngComponents/admin/adminDashboardManagement/admin-dashboard-management.component';
+import { AdminSpatialUnitsManagementComponent } from './components/ngComponents/admin/adminSpatialUnitsManagement/admin-spatial-units-management.component';
 
 
 // currently the AngularJS routing is still used as part of kommonitorClient module
@@ -155,7 +156,8 @@ declare var MathJax;
     AdminAppConfigComponent,
     AdminControlsConfigComponent,
     AdminRoleExplanationComponent,
-    AdminDashboardManagementComponent
+    AdminDashboardManagementComponent,
+    AdminSpatialUnitsManagementComponent
   ],
   schemas: [
     CUSTOM_ELEMENTS_SCHEMA
@@ -249,6 +251,11 @@ export class AppModule implements DoBootstrap {
     angular.module('kommonitorAdmin')
       .directive('adminDashboardManagementNew', downgradeComponent({
         component: AdminDashboardManagementComponent
+      }) as angular.IDirectiveFactory);
+
+    angular.module('kommonitorAdmin')
+      .directive('adminSpatialUnitsManagementNew', downgradeComponent({
+        component: AdminSpatialUnitsManagementComponent
       }) as angular.IDirectiveFactory);
 
     console.log("registered downgraded Angular components for AngularJS usage");
