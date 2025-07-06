@@ -23,7 +23,7 @@
           </label>
         </div>
       </div>
-      <button [disabled]="!kommonitorDataExchangeServiceInstance.checkCreatePermission()" class="btn btn-success btn-sm" type="button" data-toggle="modal" data-target="#modal-add-spatial-unit">
+      <button [disabled]="!kommonitorDataExchangeServiceInstance.checkCreatePermission()" class="btn btn-success btn-sm" type="button" (click)="openAddSpatialUnitModal()" style="border: 2px solid blue;">
         <i class="fas fa-plus"></i>&nbsp;&nbsp;Erstellen
       </button>
       <!-- edit metadata -->

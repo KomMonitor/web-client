@@ -3,6 +3,8 @@ import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DOCUMENT } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { SpatialUnitAddModalComponent } from './spatialUnitAddModal/spatial-unit-add-modal.component';
 declare const agGrid: any;
 declare const $: any;
 declare const __env: any;
@@ -32,7 +34,8 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
     private broadcastService: BroadcastService,
     private ngZone: NgZone,
     @Inject(DOCUMENT) private document: Document,
-    private http: HttpClient
+    private http: HttpClient,
+    private modalService: NgbModal
   ) {
     console.log('AdminSpatialUnitsManagementComponent constructor initialized');
     this.kommonitorDataExchangeServiceInstance = this.kommonitorDataExchangeService;
@@ -230,5 +233,45 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
 
   checkCreatePermission(): boolean {
     return this.kommonitorDataExchangeService.checkCreatePermission();
+  }
+
+  openAddSpatialUnitModal() {
+    console.log('Opening add spatial unit modal');
+    
+    // Test if modal service is working
+    console.log('Modal service available:', this.modalService);
+    console.log('SpatialUnitAddModalComponent available:', SpatialUnitAddModalComponent);
+    
+    try {
+      // Open modal using NgbModal
+      const modalRef = this.modalService.open(SpatialUnitAddModalComponent, {
+        size: 'xl',
+        backdrop: 'static',
+        keyboard: false,
+        container: 'body',
+        animation: false,
+        windowClass: 'spatial-unit-add-modal'
+      });
+      
+      console.log('Modal reference created:', modalRef);
+      
+      // Handle modal result
+      modalRef.result.then(
+        (result) => {
+          console.log('Modal closed with result:', result);
+          if (result.action === 'created') {
+            // Refresh the spatial units table
+            this.initializeOrRefreshOverviewTable();
+          }
+        },
+        (reason) => {
+          console.log('Modal dismissed with reason:', reason);
+        }
+      );
+    } catch (error: any) {
+      console.error('Error opening modal:', error);
+      // Fallback: show alert
+      alert('Modal failed to open: ' + (error?.message || 'Unknown error'));
+    }
   }
 } 

@@ -20,6 +20,7 @@ import {
   ajskommonitorDataGridHelperServiceProvider,
   ajskommonitorDiagramHelperServiceProvider,
   ajskommonitorFilterHelperServiceProvider,
+  ajskommonitorImporterHelperServiceProvider,
   ajskommonitorKeycloackHelperServiceProvider,
   ajskommonitorMultiStepFormHelperServiceProvider, 
   ajskommonitorSingleFeatureMapServiceProvider,
@@ -74,6 +75,7 @@ import { AdminControlsConfigComponent } from './components/ngComponents/admin/ad
 import { AdminRoleExplanationComponent } from './components/ngComponents/admin/adminRoleExplanation/admin-role-explanation.component';
 import { AdminDashboardManagementComponent } from './components/ngComponents/admin/adminDashboardManagement/admin-dashboard-management.component';
 import { AdminSpatialUnitsManagementComponent } from './components/ngComponents/admin/adminSpatialUnitsManagement/admin-spatial-units-management.component';
+import { SpatialUnitAddModalComponent } from './components/ngComponents/admin/adminSpatialUnitsManagement/spatialUnitAddModal/spatial-unit-add-modal.component';
 
 
 // currently the AngularJS routing is still used as part of kommonitorClient module
@@ -108,6 +110,7 @@ declare var MathJax;
     ajskommonitorSingleFeatureMapServiceProvider,
     ajskommonitorDiagramHelperServiceProvider,
     ajskommonitorFilterHelperServiceProvider,
+    ajskommonitorImporterHelperServiceProvider,
     ajskommonitorElementVisibilityHelperServiceProvider, 
     ajskommonitorShareHelperServiceProvider,
     ajskommonitorVisualStyleHelperServiceProvider, 
@@ -157,7 +160,8 @@ declare var MathJax;
     AdminControlsConfigComponent,
     AdminRoleExplanationComponent,
     AdminDashboardManagementComponent,
-    AdminSpatialUnitsManagementComponent
+    AdminSpatialUnitsManagementComponent,
+    SpatialUnitAddModalComponent
   ],
   schemas: [
     CUSTOM_ELEMENTS_SCHEMA
