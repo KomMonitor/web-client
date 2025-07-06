@@ -7,6 +7,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { SpatialUnitAddModalComponent } from './spatialUnitAddModal/spatial-unit-add-modal.component';
 import { SpatialUnitEditMetadataModalComponent } from './spatialUnitEditMetadataModal/spatial-unit-edit-metadata-modal.component';
 import { SpatialUnitEditFeaturesModalComponent } from './spatialUnitEditFeaturesModal/spatial-unit-edit-features-modal.component';
+import { SpatialUnitDeleteModalComponent } from './spatialUnitDeleteModal/spatial-unit-delete-modal.component';
 declare const agGrid: any;
 declare const $: any;
 declare const __env: any;
@@ -211,16 +212,47 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
   }
 
   onClickDeleteDatasets(): void {
-    this.loadingData = true;
-
     const markedEntriesForDeletion = this.kommonitorDataGridHelperService.getSelectedSpatialUnitsMetadata();
+    this.openDeleteModal(markedEntriesForDeletion);
+  }
 
-    // submit selected spatial units to modal controller
-    this.broadcastService.broadcast('onDeleteSpatialUnits', markedEntriesForDeletion);
-
-    setTimeout(() => {
-      this.loadingData = false;
-    });
+  openDeleteModal(datasetsToDelete: any[]) {
+    console.log('Opening delete spatial units modal for:', datasetsToDelete);
+    
+    try {
+      // Open modal using NgbModal
+      const modalRef = this.modalService.open(SpatialUnitDeleteModalComponent, {
+        size: 'lg',
+        backdrop: 'static',
+        keyboard: false,
+        container: 'body',
+        animation: false,
+        windowClass: 'spatial-unit-delete-modal'
+      });
+      
+      console.log('Delete modal reference created:', modalRef);
+      
+      // Pass the datasets to the modal
+      modalRef.componentInstance.datasetsToDelete = datasetsToDelete;
+      
+      // Handle modal result
+      modalRef.result.then(
+        (result) => {
+          console.log('Delete modal closed with result:', result);
+          if (result && result.action === 'deleted') {
+            // Refresh the spatial units table
+            this.refreshSpatialUnitOverviewTable('delete', result.deletedDatasets?.map((d: any) => d.spatialUnitId));
+          }
+        },
+        (reason) => {
+          console.log('Delete modal dismissed with reason:', reason);
+        }
+      );
+    } catch (error: any) {
+      console.error('Error opening delete modal:', error);
+      // Fallback: broadcast event for old AngularJS modal
+      this.broadcastService.broadcast('onDeleteSpatialUnits', datasetsToDelete);
+    }
   }
 
   onClickEditMetadata(spatialUnitDataset: any): void {
