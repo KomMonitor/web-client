@@ -5,6 +5,7 @@ import { Subscription } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { SpatialUnitAddModalComponent } from './spatialUnitAddModal/spatial-unit-add-modal.component';
+import { SpatialUnitEditMetadataModalComponent } from './spatialUnitEditMetadataModal/spatial-unit-edit-metadata-modal.component';
 declare const agGrid: any;
 declare const $: any;
 declare const __env: any;
@@ -222,8 +223,47 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
   }
 
   onClickEditMetadata(spatialUnitDataset: any): void {
-    // submit selected spatial unit to modal controller
-    this.broadcastService.broadcast('onEditSpatialUnitMetadata', spatialUnitDataset);
+    this.openEditMetadataModal(spatialUnitDataset);
+  }
+
+  openEditMetadataModal(spatialUnitDataset: any) {
+    console.log('Opening edit spatial unit metadata modal for:', spatialUnitDataset);
+    
+    try {
+      // Open modal using NgbModal
+      const modalRef = this.modalService.open(SpatialUnitEditMetadataModalComponent, {
+        size: 'xl',
+        backdrop: 'static',
+        keyboard: false,
+        container: 'body',
+        animation: false,
+        windowClass: 'spatial-unit-edit-metadata-modal'
+      });
+      
+      console.log('Edit metadata modal reference created:', modalRef);
+      
+      // Pass the spatial unit dataset to the modal
+      modalRef.componentInstance.currentSpatialUnitDataset = spatialUnitDataset;
+      modalRef.componentInstance.resetForm();
+      
+      // Handle modal result
+      modalRef.result.then(
+        (result) => {
+          console.log('Edit metadata modal closed with result:', result);
+          if (result && result.action === 'updated') {
+            // Refresh the spatial units table
+            this.refreshSpatialUnitOverviewTable('edit', spatialUnitDataset.spatialUnitId);
+          }
+        },
+        (reason) => {
+          console.log('Edit metadata modal dismissed with reason:', reason);
+        }
+      );
+    } catch (error: any) {
+      console.error('Error opening edit metadata modal:', error);
+      // Fallback: broadcast event for old AngularJS modal
+      this.broadcastService.broadcast('onEditSpatialUnitMetadata', spatialUnitDataset);
+    }
   }
 
   onClickEditFeatures(spatialUnitDataset: any): void {

@@ -1,0 +1,394 @@
+<div class="modal-header">
+  <button type="button" class="close" aria-label="Close" (click)="cancel()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+  <h4 class="modal-title">Metadaten der Raumebene <i><b>{{currentSpatialUnitDataset?.spatialUnitLevel}}</b></i> editieren</h4>
+</div>
+
+<div class="modal-body">
+  <div align="center">
+    <div class="loading-overlay-admin-panel" *ngIf="loadingData">
+      <span class="glyphicon glyphicon-refresh icon-spin"></span>
+    </div>
+  </div>
+
+  <!-- Success Alert -->
+  <div *ngIf="successMessage" class="alert alert-success alert-dismissable">
+    <button type="button" class="close" (click)="hideSuccessAlert()" aria-hidden="true">&times;</button>
+    <h4><i class="icon fa fa-check"></i>Raumebene aktualisiert</h4>
+    {{successMessage}}
+  </div>
+
+  <!-- Error Alert -->
+  <div *ngIf="errorMessage" class="alert alert-danger alert-dismissable">
+    <button type="button" class="close" (click)="hideErrorAlert()" aria-hidden="true">&times;</button>
+    <h4><i class="icon fa fa-ban"></i>Aktualisierung gescheitert</h4>
+    {{errorMessage}}
+    <br/>
+    <pre *ngIf="errorMessagePart" style="overflow:auto; max-height:500px;" [innerHTML]="errorMessagePart"></pre>
+  </div>
+
+  <!-- Metadata Import Error Alert -->
+  <div *ngIf="spatialUnitMetadataImportError" class="alert alert-danger alert-dismissable">
+    <button type="button" class="close" (click)="hideMetadataErrorAlert()" aria-hidden="true">&times;</button>
+    <h4><i class="icon fa fa-ban"></i>Metadata Import gescheitert</h4>
+    Beim Import der Metadaten aus einer Datei ist ein Fehler aufgetreten. Fehlermeldung:
+    <br/>
+    <pre>{{spatialUnitMetadataImportError}}</pre>
+    <br/>
+    <br/>
+    <p>Bitte stellen Sie sicher, dass folgendes JSON-Format eingehalten wird:</p>
+    <pre style="overflow:auto; max-height:500px;">{{spatialUnitMetadataStructure | json}}</pre>
+  </div>
+
+  <!-- MultiStep Form -->
+  <form class="multiStepForm form-group" #spatialUnitEditMetadataForm="ngForm" (ngSubmit)="onSubmit()" style="margin-bottom: 0px;">
+    <!-- progressbar -->
+    <ul id="progressbar" *ngIf="!kommonitorDataExchangeService.enableKeycloakSecurity">
+      <li [class.active]="currentStep >= 1" [class.clickable]="true" (click)="goToStep(1)" style="width: 50%; cursor: pointer;">Metadaten der Raumebene</li>
+      <li [class.active]="currentStep >= 2" [class.clickable]="true" (click)="goToStep(2)" style="width: 50%; cursor: pointer;">Allgemeine Metadaten</li>
+    </ul>
+    <ul id="progressbar" *ngIf="kommonitorDataExchangeService.enableKeycloakSecurity">
+      <li [class.active]="currentStep >= 1" [class.clickable]="true" (click)="goToStep(1)" style="width: 33.33%; cursor: pointer;">Metadaten der Raumebene</li>
+      <li [class.active]="currentStep >= 2" [class.clickable]="true" (click)="goToStep(2)" style="width: 33.33%; cursor: pointer;">Allgemeine Metadaten</li>
+      <li [class.active]="currentStep >= 3" [class.clickable]="true" (click)="goToStep(3)" style="width: 33.33%; cursor: pointer;">Zugriffsschutz</li>
+    </ul>
+
+    <!-- Step 1: Metadaten der Raumebene -->
+    <fieldset *ngIf="currentStep === 1">
+      <h2 class="fs-title">Metadaten der Raumebene</h2>
+      <h3 class="fs-subtitle">Angaben über die Raumebene</h3>
+      <p><b><i>* = Pflichtfeld</i></b></p>
+
+      <div class="row vertical-align">
+        <div class="col-md-4 col-sm-6 col-xs-12">
+          <div class="form-group">
+            <label>Name der Raumebene*</label>
+            <input 
+              type="text" 
+              class="form-control" 
+              [(ngModel)]="spatialUnitLevel"
+              name="spatialUnitLevel"
+              (ngModelChange)="checkSpatialUnitName()"
+              placeholder="eindeutiger Name" 
+              required
+            >
+            <div class="help-block with-errors"></div>
+            <div *ngIf="spatialUnitLevelInvalid" style="color: red;">
+              <p>Eingabe ungültig. Es existiert bereits eine Raumebene mit gleichem Namen.</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4 col-sm-6 col-xs-12">
+          <div class="form-group">
+            <label>Hierarchie: nächst niedrigere Ebene</label>
+            <select 
+              [(ngModel)]="nextLowerHierarchySpatialUnit"
+              name="nextLowerHierarchy"
+              (ngModelChange)="checkSpatialUnitHierarchy()"
+              class="form-control"
+            >
+              <option [ngValue]="null"> -- Raumebene wählen -- </option>
+              <option [ngValue]="null"> -- keine (neue unterste Ebene) -- </option>
+              <option *ngFor="let value of availableSpatialUnits" [ngValue]="value">
+                {{value.spatialUnitLevel}}
+              </option>
+            </select>
+            <div class="help-block">
+              <p>Eintrag kann im Nachhinein mittels Metadaten-Editier-Funktion gesetzt werden</p>
+            </div>
+            <div class="help-block with-errors"></div>
+            <div *ngIf="hierarchyInvalid" style="color: red;">
+              <p>Eingabe ungültig. Definierte Hierarchie ist nicht erlaubt.</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4 col-sm-6 col-xs-12">
+          <div class="form-group">
+            <label>Hierarchie: nächst höhere Ebene</label>
+            <select 
+              [(ngModel)]="nextUpperHierarchySpatialUnit"
+              name="nextUpperHierarchy"
+              (ngModelChange)="checkSpatialUnitHierarchy()"
+              class="form-control"
+            >
+              <option [ngValue]="null"> -- Raumebene wählen -- </option>
+              <option [ngValue]="null"> -- keine (neue oberste Ebene) -- </option>
+              <option *ngFor="let value of availableSpatialUnits" [ngValue]="value">
+                {{value.spatialUnitLevel}}
+              </option>
+            </select>
+            <div class="help-block">
+              <p>Eintrag kann im Nachhinein mittels Metadaten-Editier-Funktion gesetzt werden</p>
+            </div>
+            <div class="help-block with-errors"></div>
+            <div *ngIf="hierarchyInvalid" style="color: red;">
+              <p>Eingabe ungültig. Definierte Hierarchie ist nicht erlaubt.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row vertical-align">
+        <div class="col-md-3 col-sm-6 col-xs-12">
+          <div class="form-group">
+            <label>als Umringslayer markieren?</label>
+            <label class="switch">
+              <input type="checkbox" [(ngModel)]="isOutlineLayer" name="isOutlineLayer">
+              <span class="switchslider round"></span>
+            </label>
+            <div class="help-block">
+              <p>wenn markiert, dann wird in der Kartenapplikation in der Layersteuerung ein entsprechender Eintrag zur Darstellung der Raumebenenumringe angeboten</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3 col-sm-6 col-xs-12" *ngIf="isOutlineLayer">
+          <div class="form-group" align="center">
+            <label>Linienfarbe (Umringslayer)</label>
+            <div class="input-group" style="width: 50px;">
+              <input 
+                type="color" 
+                class="form-control input-sm"
+                [(ngModel)]="outlineColor"
+                name="outlineColor"
+                style="width: 100%; height: 34px;"
+              />
+            </div>
+            <div class="help-block with-errors"></div>
+          </div>
+        </div>
+        <div class="col-md-3 col-sm-6 col-xs-12" *ngIf="isOutlineLayer">
+          <div class="form-group" align="center">
+            <label>Linienbreite (Umringslayer)</label>
+            <br/>
+            <input 
+              style="width: auto;" 
+              type="number" 
+              [(ngModel)]="outlineWidth"
+              name="outlineWidth"
+              min="1" 
+              max="5" 
+              step="1"
+            >
+            <div class="help-block with-errors"></div>
+          </div>
+        </div>
+        <div class="col-md-3 col-sm-6 col-xs-12" *ngIf="isOutlineLayer">
+          <div class="form-group" align="center">
+            <label>Linienmuster (Umringslayer)</label>
+            <div class="dropdown">
+              <button type="button" width="200px" class="btn btn-info dropdown-toggle"
+                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <div id="outlineDashArrayDropdownButton_editSpatialUnit">
+                </div> <span class="caret"></span>
+              </button>
+              <ul class="dropdown-menu dropdown-menu-center">
+                <li *ngFor="let outlineDashArrayObject of availableLoiDashArrayObjects; let i = index"
+                  (click)="onChangeOutlineDashArray(outlineDashArrayObject)">
+                  <a href="">
+                    <div id="outlineDashArrayDropdownItem-editMetadata-{{i}}">
+                    </div>
+                  </a>
+                </li>
+              </ul>
+              <div class="help-block with-errors"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <input type="button" name="next" class="next next_editSpatialUnit action-button" value="Nächster Schritt" (click)="nextStep()"/>
+    </fieldset>
+
+    <!-- Step 2: Allgemeine Metadaten -->
+    <fieldset *ngIf="currentStep === 2">
+      <h2 class="fs-title">Allgemeine Metadaten</h2>
+      <h3 class="fs-subtitle">Angaben über allgemeine Metadaten in KomMonitor</h3>
+      <p><b><i>* = Pflichtfeld</i></b></p>
+
+      <div class="row vertical-align">
+        <div class="col-md-3 col-sm-6 col-xs-12">
+          <div class="form-group">
+            <label>Beschreibung*</label>
+            <textarea 
+              rows="3" 
+              class="form-control" 
+              [(ngModel)]="metadata.description"
+              name="description"
+              placeholder="Datensatz Beschreibung"
+              required
+            ></textarea>
+            <div class="help-block with-errors"></div>
+          </div>
+        </div>
+        <div class="col-md-3 col-sm-6 col-xs-12">
+          <div class="form-group">
+            <label>Datenbasis</label>
+            <textarea 
+              rows="3" 
+              class="form-control" 
+              [(ngModel)]="metadata.databasis"
+              name="databasis"
+              placeholder="optionale Beschreibung etwaiger grundlegender Daten, die zur Erzeugung des Datensatzes beitragen"
+            ></textarea>
+            <div class="help-block with-errors"></div>
+          </div>
+        </div>
+        <div class="col-md-3 col-sm-6 col-xs-12">
+          <div class="form-group">
+            <label>Datenquelle*</label>
+            <textarea 
+              rows="3" 
+              class="form-control" 
+              [(ngModel)]="metadata.datasource"
+              name="datasource"
+              placeholder="Beschreibung der Datenquelle"
+              required
+            ></textarea>
+            <div class="help-block with-errors"></div>
+          </div>
+        </div>
+        <div class="col-md-3 col-sm-6 col-xs-12">
+          <div class="form-group">
+            <label>Datenhalter und Kontakt*</label>
+            <textarea 
+              rows="3" 
+              class="form-control" 
+              [(ngModel)]="metadata.contact"
+              name="contact"
+              placeholder="Beschreibung des Datenhalters und etwaiger Kontaktinformationen"
+              required
+            ></textarea>
+            <div class="help-block with-errors"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row vertical-align">
+        <div class="col-md-3 col-sm-6 col-xs-12">
+          <div class="form-group">
+            <label>Aktualisierungszyklus*</label>
+            <select 
+              [(ngModel)]="metadata.updateInterval"
+              name="updateInterval"
+              class="form-control"
+              required
+            >
+              <option [ngValue]="null"> -- Aktualisierungszyklus wählen -- </option>
+              <option *ngFor="let value of updateIntervalOptions" [ngValue]="value">
+                {{value.displayName}}
+              </option>
+            </select>
+            <div class="help-block with-errors"></div>
+          </div>
+        </div>
+        <div class="col-md-3 col-sm-6 col-xs-12">
+          <div class="form-group">
+            <label>Datum der letzten Aktualisierung*</label>
+            <div class="input-group date">
+              <div class="input-group-addon">
+                <i class="far fa-calendar-alt"></i>
+              </div>
+              <input 
+                type="date" 
+                [(ngModel)]="metadata.lastUpdate"
+                name="lastUpdate"
+                class="form-control pull-right"
+                placeholder="YYYY-MM-DD"
+                required
+              >
+            </div>
+            <div class="help-block with-errors"></div>
+          </div>
+        </div>
+        <div class="col-md-3 col-sm-6 col-xs-12">
+          <div class="form-group">
+            <label>Literatur</label>
+            <textarea 
+              rows="3" 
+              class="form-control" 
+              [(ngModel)]="metadata.literature"
+              name="literature"
+              placeholder="optionale Angaben zu Literatur"
+            ></textarea>
+            <div class="help-block with-errors"></div>
+          </div>
+        </div>
+        <div class="col-md-3 col-sm-6 col-xs-12">
+          <div class="form-group">
+            <label>Bemerkung</label>
+            <textarea 
+              rows="3" 
+              class="form-control" 
+              [(ngModel)]="metadata.note"
+              name="note"
+              placeholder="optionale Bemerkung"
+            ></textarea>
+            <div class="help-block with-errors"></div>
+          </div>
+        </div>
+      </div>
+
+      <input type="button" name="previous" class="previous previous_editSpatialUnit action-button-previous" value="Voriger Schritt" (click)="previousStep()"/>
+    </fieldset>
+
+    <!-- Step 3: Zugriffsschutz (only if Keycloak is enabled) -->
+    <fieldset *ngIf="currentStep === 3 && kommonitorDataExchangeService.enableKeycloakSecurity">
+      <h2 class="fs-title">Zugriffsschutz</h2>
+      <h3 class="fs-subtitle">Rollen- und Rechteverwaltung</h3>
+
+      <div class="row vertical-align">
+        <div class="col-md-12">
+          <div class="form-group">
+            <label>Berechtigte Rollen</label>
+            <div id="spatialUnitEditRoleManagementTable" class="ag-theme-balham" style="height: 300px; width: 100%;">
+              <!-- Role management table will be rendered here -->
+            </div>
+            <div class="help-block">
+              <p>Wählen Sie die Rollen aus, die Zugriff auf diese Raumebene haben sollen.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <input type="button" name="previous" class="previous previous_editSpatialUnit action-button-previous" value="Voriger Schritt" (click)="previousStep()"/>
+    </fieldset>
+  </form>
+</div>
+
+<div class="modal-footer">
+  <button type="button" class="btn btn-default pull-left" (click)="cancel()">Schließen</button>
+  
+  <button type="button" class="btn btn-info pull-left" (click)="onImportSpatialUnitEditMetadata()" title="Importieren der Metadaten aus einer Datei">
+    <i class="fas fa-file-import"></i>&nbsp;&nbsp;Metadaten-Import
+  </button>
+  
+  <input 
+    #metadataImportFile
+    style="display:none;" 
+    type="file" 
+    class="form-control" 
+    accept=".json"
+    (change)="onMetadataFileSelected($event)"
+  >
+  
+  <button type="button" style="margin-left: 6px;" class="btn btn-info pull-left" (click)="onExportSpatialUnitEditMetadata()" title="Exportieren der Metadaten in eine Datei">
+    <i class="fas fa-file-export"></i>&nbsp;&nbsp;Metadaten-Export
+  </button>
+
+  <button type="button" style="margin-left: 6px;" class="btn btn-info pull-left" (click)="onExportSpatialUnitEditMetadataTemplate()" title="Exportieren einer Metadaten-Vorlage in eine Datei">
+    <i class="fas fa-file-export"></i>&nbsp;&nbsp;Metadaten-Export Vorlage
+  </button>
+
+  <button 
+    type="button" 
+    class="btn btn-success" 
+    [disabled]="!spatialUnitLevel || spatialUnitLevelInvalid || !metadata.description || !metadata.datasource || !metadata.contact || !metadata.updateInterval || !metadata.lastUpdate || hierarchyInvalid || loadingData" 
+    (click)="editSpatialUnitMetadata()"
+  >
+    <span *ngIf="loadingData" class="glyphicon glyphicon-refresh icon-spin"></span>
+    Metadaten aktualisieren
+  </button>
+  
+  <button type="button" class="btn btn-danger" (click)="resetForm()">Zurücksetzen</button>
+</div> 
