@@ -58,9 +58,10 @@
 								
 								<!-- String oder Integer Input -->
 								<input 
+										class="form-control"
 										type="{{ $ctrl.kommonitorScriptHelperServiceInstance.scriptData.inputs[inputKey].schema.type === 'integer' ? 'number' : 'text' }}" 
 										ng-model="$ctrl.kommonitorScriptHelperServiceInstance.processParameters[inputKey]" 
-										ng-init="$ctrl.kommonitorScriptHelperServiceInstance.processParameters[inputKey] = $ctrl.kommonitorScriptHelperServiceInstance.scriptData.inputs[inputKey].schema.default" 
+										ng-init="$ctrl.kommonitorScriptHelperServiceInstance.processParameters[inputKey] = $ctrl.kommonitorScriptHelperServiceInstance.scriptData.inputs[inputKey].schema.minimum" 
 										ng-min="$ctrl.kommonitorScriptHelperServiceInstance.scriptData.inputs[inputKey].schema.minimum" 
 										ng-max="$ctrl.kommonitorScriptHelperServiceInstance.scriptData.inputs[inputKey].schema.maximum" 
 										ng-if="!$ctrl.kommonitorScriptHelperServiceInstance.scriptData.inputs[inputKey].schema.enum" 
@@ -69,8 +70,9 @@
 								
 								<!-- Dropdown für Enums -->
 								<select 
+										class="form-control"
 										ng-model="$ctrl.kommonitorScriptHelperServiceInstance.processParameters[inputKey]" 
-										ng-init="$ctrl.kommonitorScriptHelperServiceInstance.processParameters[inputKey] = $ctrl.kommonitorScriptHelperServiceInstance.scriptData.inputs[inputKey].schema.default" 
+										ng-init="$ctrl.kommonitorScriptHelperServiceInstance.processParameters[inputKey] = $ctrl.kommonitorScriptHelperServiceInstance.scriptData.inputs[inputKey].schema.enum[0];" 
 										ng-options="option as option.displayName for option in $ctrl.kommonitorScriptHelperServiceInstance.scriptData.inputs[inputKey].schema.enum" 
 										ng-if="$ctrl.kommonitorScriptHelperServiceInstance.scriptData.inputs[inputKey].schema.enum"
 										ng-change="onChangeInputData()">

@@ -462,15 +462,16 @@
 									<div class="form-group">
 										<label>Zeitpunkte, die berechnet werden sollen: </label>
 										<br />
-										<select ng-model="$ctrl.kommonitorScriptHelperServiceInstance.processParameters.target_time.value.mode"
-											ng-options="targetTimeOption.apiName as targetTimeOption.displayName for targetTimeOption in $ctrl.kommonitorScriptHelperServiceInstance.targetTimeOptions"
+										<select class="form-control" ng-model="$ctrl.kommonitorScriptHelperServiceInstance.processParameters.target_time.mode"
+											ng-init="$ctrl.kommonitorScriptHelperServiceInstance.processParameters.target_time.mode = $ctrl.kommonitorScriptHelperServiceInstance.targetTimeOptions[0]"
+											ng-options="targetTimeOption as targetTimeOption.displayName for targetTimeOption in $ctrl.kommonitorScriptHelperServiceInstance.targetTimeOptions"
 											ng-change="resetApplicableDates()">
 										</select>
 										<div class="help-block with-errors"></div>
 									</div>
 								</div>
 
-								<div class="row vertical-align" ng-show="$ctrl.kommonitorScriptHelperServiceInstance.processParameters.target_time.value.mode != 'DATES'">
+								<div class="row vertical-align" ng-show="$ctrl.kommonitorScriptHelperServiceInstance.processParameters.target_time.mode.apiName != 'DATES'">
 									<div class="col-md-10 col-sm-12 col-xs-12">
 										<!-- <div style="text-align: left;"> -->
 										<div class="box collapsed-box" style="background: #ebf0fd;">
@@ -484,11 +485,11 @@
 											</div>
 											<!-- /.box-header -->
 											<div class="box-body">
-												<div class="row vertical-align" ng-show="$ctrl.kommonitorScriptHelperServiceInstance.processParameters.target_time.value.mode == 'MISSING'">
+												<div class="row vertical-align" ng-show="$ctrl.kommonitorScriptHelperServiceInstance.processParameters.target_time.mode.apiName == 'MISSING'">
 													<div class="col-md-6 col-sm-6 col-xs-12">
 														<div class="form-group">
 															<label>Nicht berechnen für: </label>
-															<ui-select width="max-content" multiple ng-model="$ctrl.kommonitorScriptHelperServiceInstance.processParameters.target_time.value.excludeDates">
+															<ui-select width="max-content" multiple ng-model="$ctrl.kommonitorScriptHelperServiceInstance.processParameters.target_time.excludeDates">
 																<ui-select-match placeholder="Daten auswählen">
 																	{{$item}}
 																</ui-select-match>
@@ -505,7 +506,7 @@
 													<div class="col-md-6 col-sm-6 col-xs-12">
 														<div class="form-group">
 															<label>Zusätzlich berechnen für: </label>
-															<ui-select width="max-content" multiple ng-model="$ctrl.kommonitorScriptHelperServiceInstance.processParameters.target_time.value.includeDates">
+															<ui-select width="max-content" multiple ng-model="$ctrl.kommonitorScriptHelperServiceInstance.processParameters.target_time.includeDates">
 																<ui-select-match placeholder="Daten auswählen">
 																	{{$item}}
 																</ui-select-match>
@@ -522,11 +523,11 @@
 												</div>
 				
 				
-												<div class="row vertical-align" ng-show="$ctrl.kommonitorScriptHelperServiceInstance.processParameters.target_time.value.mode == 'ALL'">
+												<div class="row vertical-align" ng-show="$ctrl.kommonitorScriptHelperServiceInstance.processParameters.target_time.mode.apiName == 'ALL'">
 													<div class="col-md-6 col-sm-6 col-xs-12">
 														<div class="form-group">
 															<label for="notDates">Nicht berechnen für: </label>
-															<ui-select width="max-content" multiple ng-model="$ctrl.kommonitorScriptHelperServiceInstance.processParameters.target_time.value.excludeDates">
+															<ui-select width="max-content" multiple ng-model="$ctrl.kommonitorScriptHelperServiceInstance.processParameters.target_time.excludeDates">
 																<ui-select-match placeholder="Daten auswählen">
 																	{{$item}}
 																</ui-select-match>
@@ -548,11 +549,11 @@
 
 								
 
-								<div class="row vertical-align" ng-show="$ctrl.kommonitorScriptHelperServiceInstance.processParameters.target_time.value.mode == 'DATES'">
+								<div class="row vertical-align" ng-show="$ctrl.kommonitorScriptHelperServiceInstance.processParameters.target_time.mode.apiName == 'DATES'">
 									<div class="col-md-6 col-sm-6 col-xs-12">
 										<div class="form-group">
 											<label>Berechnen für: </label>
-											<ui-select width="max-content" multiple ng-model="$ctrl.kommonitorScriptHelperServiceInstance.processParameters.target_time.value.includeDates">
+											<ui-select width="max-content" multiple ng-model="$ctrl.kommonitorScriptHelperServiceInstance.processParameters.target_time.includeDates">
 												<ui-select-match placeholder="Daten auswählen">
 													{{$item}}
 												</ui-select-match>

@@ -171,8 +171,8 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 			$scope.resetApplicableDates = function () {
 				$scope.applicableDates = kommonitorScriptHelperService.targetIndicator.applicableDates;
 				if(kommonitorScriptHelperService.processParameters.target_time) {
-					kommonitorScriptHelperService.processParameters.target_time.value.excludeDates = [];
-					kommonitorScriptHelperService.processParameters.target_time.value.includeDates = [];
+					kommonitorScriptHelperService.processParameters.target_time.excludeDates = [];
+					kommonitorScriptHelperService.processParameters.target_time.includeDates = [];
 				}
 			}
 
