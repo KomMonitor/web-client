@@ -1193,8 +1193,8 @@ a.kommonitor-theme:hover, a.kommonitor-theme:active, a.kommonitor-theme:focus {
 	background: rgb(236,240,245);
 	z-index: 1003;
 	border-bottom: 2px solid gray;
-	max-height: 6vh !important;
-	height: 6vh !important;
+	/* max-height: 6vh !important;
+	height: 6vh !important; */
 }
 
 #map {
