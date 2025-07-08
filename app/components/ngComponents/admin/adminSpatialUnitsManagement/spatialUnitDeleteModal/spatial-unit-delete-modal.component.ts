@@ -1,8 +1,9 @@
-import { Component, OnInit, OnDestroy, Inject, Input } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { HttpClient } from '@angular/common/http';
 import { Subscription, forkJoin } from 'rxjs';
+import { KommonitorDataExchangeService } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
 
 declare const $: any;
 declare const __env: any;
@@ -27,7 +28,7 @@ export class SpatialUnitDeleteModalComponent implements OnInit, OnDestroy {
 
   constructor(
     public activeModal: NgbActiveModal,
-    @Inject('kommonitorDataExchangeService') public kommonitorDataExchangeService: any,
+    public kommonitorDataExchangeService: KommonitorDataExchangeService,
     private http: HttpClient,
     private broadcastService: BroadcastService
   ) {

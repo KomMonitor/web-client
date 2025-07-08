@@ -1,141 +1,62 @@
 <div class="modal-header">
-  <h4 class="modal-title">Raumebenen löschen</h4>
-  <button type="button" class="btn-close" (click)="closeModal()" aria-label="Close">
+  <button type="button" class="close" (click)="closeModal()" aria-label="Close">
     <span aria-hidden="true">&times;</span>
   </button>
+  <h4 class="modal-title">Raumebenen löschen</h4>
 </div>
 
 <div class="modal-body">
-  <!-- Loading overlay -->
-  <div class="loading-overlay-admin-panel" [class.d-none]="!loadingData" *ngIf="loadingData">
-    <div class="text-center">
-      <div class="spinner-border text-primary" role="status">
-        <span class="visually-hidden">Loading...</span>
-      </div>
+  <div align="center">
+    <div class="loading-overlay-admin-panel" [class.ng-hide]="!loadingData" *ngIf="loadingData">
+      <span class="glyphicon glyphicon-refresh icon-spin"></span>
     </div>
   </div>
 
-  <!-- Success Alert -->
-  <div class="alert alert-success alert-dismissible fade show" role="alert" *ngIf="successMessage">
-    <strong>Erfolg!</strong> {{ successMessage }}
-    <button type="button" class="btn-close" (click)="hideSuccessAlert()" aria-label="Close"></button>
+  <h4><b>Sollen die folgenden Raumebenen wirklich gelöscht werden?</b></h4>
+
+  <p>Dabei werden auch sämtliche Indikatoren-Datensätze der angezeigten Raumebenen dauerhaft aus dem System entfernt.</p>
+
+  <div *ngIf="datasetsToDelete.length > 0">
+    <ul>
+      <li *ngFor="let dataset of datasetsToDelete">{{dataset.spatialUnitLevel}}</li>
+    </ul>
   </div>
 
-  <!-- Error Alert -->
-  <div class="alert alert-danger alert-dismissible fade show" role="alert" *ngIf="errorMessage">
-    <strong>Fehler!</strong> {{ errorMessage }}
-    
-    <!-- Show failed datasets -->
-    <div *ngIf="failedDatasetsAndErrors.length > 0" class="mt-3">
-      <h6>Fehlgeschlagene Löschvorgänge:</h6>
-      <ul class="mb-0">
-        <li *ngFor="let failedEntry of failedDatasetsAndErrors">
-          <strong>{{ failedEntry[0].spatialUnitLevel }}</strong>
-          <div class="small mt-1" [innerHTML]="failedEntry[1]"></div>
-        </li>
-      </ul>
-    </div>
-    
-    <button type="button" class="btn-close" (click)="hideErrorAlert()" aria-label="Close"></button>
-  </div>
-
-  <!-- Delete confirmation content -->
-  <div *ngIf="!loadingData">
-    <h4><b>Sollen die folgenden Raumebenen wirklich gelöscht werden?</b></h4>
-
-    <p>Dabei werden auch sämtliche Indikatoren-Datensätze der angezeigten Raumebenen dauerhaft aus dem System entfernt.</p>
-
-    <!-- List of datasets to delete -->
-    <div *ngIf="hasValidDatasets">
-      <div class="card">
-        <div class="card-header">
-          <h6 class="mb-0">Zu löschende Raumebenen ({{ datasetsToDelete.length }})</h6>
-        </div>
-        <div class="card-body">
-          <ul class="list-unstyled mb-0">
-            <li *ngFor="let dataset of datasetsToDelete" class="mb-2">
-              <i class="fas fa-trash text-danger me-2"></i>
-              <strong>{{ dataset.spatialUnitLevel }}</strong>
-              <div class="small text-muted">ID: {{ dataset.spatialUnitId }}</div>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </div>
-
-    <!-- No datasets selected message -->
-    <div *ngIf="!hasValidDatasets" class="alert alert-warning">
-      <i class="fas fa-exclamation-triangle me-2"></i>
-      Kein Datensatz zum Löschen markiert. Mindestens ein Datensatz muss markiert werden.
-    </div>
-
-    <!-- Success summary -->
-    <div *ngIf="successfullyDeletedDatasets.length > 0" class="mt-3">
-      <div class="card border-success">
-        <div class="card-header bg-success text-white">
-          <h6 class="mb-0">
-            <i class="fas fa-check me-2"></i>
-            Erfolgreich gelöscht ({{ successfullyDeletedDatasets.length }})
-          </h6>
-        </div>
-        <div class="card-body">
-          <ul class="list-unstyled mb-0">
-            <li *ngFor="let dataset of successfullyDeletedDatasets" class="mb-1">
-              <i class="fas fa-check text-success me-2"></i>
-              {{ dataset.spatialUnitLevel }}
-            </li>
-          </ul>
-        </div>
-      </div>
-    </div>
-
-    <!-- Error summary -->
-    <div *ngIf="failedDatasetsAndErrors.length > 0" class="mt-3">
-      <div class="card border-danger">
-        <div class="card-header bg-danger text-white">
-          <h6 class="mb-0">
-            <i class="fas fa-times me-2"></i>
-            Fehler beim Löschen ({{ failedDatasetsAndErrors.length }})
-          </h6>
-        </div>
-        <div class="card-body">
-          <div *ngFor="let failedEntry of failedDatasetsAndErrors" class="mb-3">
-            <div class="d-flex align-items-start">
-              <i class="fas fa-times text-danger me-2 mt-1"></i>
-              <div class="flex-grow-1">
-                <strong>{{ failedEntry[0].spatialUnitLevel }}</strong>
-                <div class="small text-muted mt-1">ID: {{ failedEntry[0].spatialUnitId }}</div>
-                <div class="small mt-2 p-2 bg-light rounded" [innerHTML]="failedEntry[1]"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+  <div *ngIf="!datasetsToDelete.length">
+    <pre>kein Datensatz zum Löschen markiert. Mindestens ein Datensatz muss markiert werden.</pre>
   </div>
 </div>
 
 <div class="modal-footer">
-  <button type="button" class="btn btn-secondary" (click)="closeModal()">
-    Schließen
-  </button>
-  
-  <button 
-    type="button" 
-    class="btn btn-danger" 
-    (click)="deleteSpatialUnits()" 
-    [disabled]="!canDelete"
-    *ngIf="!successfullyDeletedDatasets.length && !failedDatasetsAndErrors.length">
-    <i class="fas fa-trash me-2"></i>
-    Raumebenen unwiderruflich löschen
-  </button>
+  <button type="button" class="btn btn-default pull-left" (click)="closeModal()">Schließen</button>
+  <button type="button" class="btn btn-danger" (click)="deleteSpatialUnits()" [disabled]="!datasetsToDelete.length">Raumebenen unwiderruflich löschen</button>
+</div>
 
-  <button 
-    type="button" 
-    class="btn btn-success" 
-    (click)="closeModal()"
-    *ngIf="successfullyDeletedDatasets.length > 0">
-    <i class="fas fa-check me-2"></i>
-    Fertig
-  </button>
+<div id="spatialUnitsDeleteSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" [hidden]="!successMessage" class="alert alert-success alert-dismissable">
+  <button type="button" class="close" (click)="hideSuccessAlert()" aria-hidden="true">&times;</button>
+  <h4><i class="icon fa fa-check"></i>Folgende Raumebenen wurde erfolgreich gelöscht</h4>
+  <ul>
+    <li *ngFor="let dataset of successfullyDeletedDatasets">{{dataset.spatialUnitLevel}}</li>
+  </ul>
+</div>
+
+<div id="spatialUnitsDeleteErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" [hidden]="!errorMessage" class="alert alert-danger alert-dismissable">
+  <button type="button" class="close" (click)="hideErrorAlert()" aria-hidden="true">&times;</button>
+  <h4><i class="icon fa fa-ban"></i>Löschen gescheitert</h4>
+  Folgende Datensätze konnten nicht gelöscht werden.
+  <br/>
+  <table class="table table-bordered table-condensed" style="width:100%; overflow:auto; font-size: 11px;">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Fehlermeldung</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let dataset of failedDatasetsAndErrors">
+        <td>{{dataset[0].spatialUnitLevel}}</td>
+        <td [innerHTML]="dataset[1]"></td>
+      </tr>
+    </tbody>
+  </table>
 </div> 

@@ -9,6 +9,9 @@ import { SpatialUnitEditMetadataModalComponent } from './spatialUnitEditMetadata
 import { SpatialUnitEditFeaturesModalComponent } from './spatialUnitEditFeaturesModal/spatial-unit-edit-features-modal.component';
 import { SpatialUnitEditUserRolesModalComponent } from './spatialUnitEditUserRolesModal/spatial-unit-edit-user-roles-modal.component';
 import { SpatialUnitDeleteModalComponent } from './spatialUnitDeleteModal/spatial-unit-delete-modal.component';
+import { KommonitorDataExchangeService } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
+import { KommonitorCacheHelperService } from 'services/adminSpatialUnit/kommonitor-cache-helper.service';
+import { KommonitorDataGridHelperService } from 'services/adminSpatialUnit/kommonitor-data-grid-helper.service';
 declare const agGrid: any;
 declare const $: any;
 declare const __env: any;
@@ -21,414 +24,247 @@ declare const __env: any;
 export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
   @ViewChild('spatialUnitOverviewTable', { static: true }) spatialUnitOverviewTable!: ElementRef;
 
-  loadingData = true;
-  tableViewSwitcher = false;
-  gridApi: any;
-  gridColumnApi: any;
-  gridOptions: any;
-  kommonitorDataExchangeServiceInstance: any;
-
-  private subscription: Subscription | undefined;
-  private initializationTimeout: any;
+  public loadingData: boolean = true;
+  public initializationCompleted: boolean = false;
+  public tableViewSwitcher: boolean = false;
+  private subscriptions: Subscription[] = [];
 
   constructor(
-    @Inject('kommonitorDataExchangeService') public kommonitorDataExchangeService: any,
-    @Inject('kommonitorCacheHelperService') public kommonitorCacheHelperService: any,
-    @Inject('kommonitorDataGridHelperService') public kommonitorDataGridHelperService: any,
-    private broadcastService: BroadcastService,
-    private ngZone: NgZone,
     @Inject(DOCUMENT) private document: Document,
+    private zone: NgZone,
+    private modalService: NgbModal,
+    private broadcastService: BroadcastService,
     private http: HttpClient,
-    private modalService: NgbModal
-  ) {
-    console.log('AdminSpatialUnitsManagementComponent constructor initialized');
-    this.kommonitorDataExchangeServiceInstance = this.kommonitorDataExchangeService;
-  }
+    public kommonitorDataExchangeService: KommonitorDataExchangeService,
+    private kommonitorCacheHelperService: KommonitorCacheHelperService,
+    private kommonitorDataGridHelperService: KommonitorDataGridHelperService
+  ) {}
 
   ngOnInit(): void {
-    console.log('AdminSpatialUnitsManagementComponent ngOnInit');
-    this.loadingData = true;
+    this.initializeOrRefreshOverviewTable();
+    this.setupEventListeners();
     
-    // initialize any adminLTE box widgets
-    ($('.box') as any).boxWidget();
+    // Add polling mechanism to check for data availability
+    this.startDataPolling();
     
-    this.setupBroadcastListeners();
-    
-    // Check if data is already available and initialize immediately
-    this.checkDataAvailabilityAndInitialize();
-    
-    // Fallback timeout in case no events are fired
-    this.initializationTimeout = setTimeout(() => {
-      console.log('Fallback: Initializing spatial units management after timeout');
-      this.checkDataAvailabilityAndInitialize();
-    }, 5000); // 5 second fallback
+    // Add a fallback timeout to prevent infinite loading
+    setTimeout(() => {
+      if (this.loadingData) {
+        this.initializeOrRefreshOverviewTable();
+        
+        // If still no data after fallback, stop loading anyway
+        if (!this.kommonitorDataExchangeService.availableSpatialUnits || this.kommonitorDataExchangeService.availableSpatialUnits.length === 0) {
+          this.loadingData = false;
+          this.initializationCompleted = true;
+        }
+      }
+    }, 3000); // 3 second timeout
   }
 
   ngOnDestroy(): void {
-    if (this.subscription) {
-      this.subscription.unsubscribe();
-    }
-    if (this.initializationTimeout) {
-      clearTimeout(this.initializationTimeout);
-    }
+    this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 
-  private checkDataAvailabilityAndInitialize(): void {
-    // Check if required data is available
-    if (this.isDataAvailable()) {
-      console.log('Data is available, initializing spatial units management');
-      this.initializeOrRefreshOverviewTable();
-      if (this.initializationTimeout) {
-        clearTimeout(this.initializationTimeout);
-      }
-    } else {
-      console.log('Data not yet available, waiting for events...');
-    }
-  }
-
-  private isDataAvailable(): boolean {
-    return this.kommonitorDataExchangeService &&
-           this.kommonitorDataExchangeService.availableSpatialUnits &&
-           this.kommonitorDataExchangeService.availableSpatialUnits.length >= 0;
-  }
-
-  private setupBroadcastListeners(): void {
-    this.subscription = this.broadcastService.currentBroadcastMsg.subscribe(broadcastMsg => {
-      if (broadcastMsg.msg === 'initialMetadataLoadingCompleted') {
-        console.log("Initial metadata loading completed");
-        if (this.initializationTimeout) {
-          clearTimeout(this.initializationTimeout);
-        }
-        setTimeout(() => {
+  private setupEventListeners(): void {
+    // Listen for the global metadata loading completion event
+    const sub = this.broadcastService.currentBroadcastMsg.subscribe(data => {
+      if (data.msg === 'initialMetadataLoadingCompleted') {
+        this.zone.run(() => {
           this.initializeOrRefreshOverviewTable();
-        }, 250);
-      } else if (broadcastMsg.msg === 'initialMetadataLoadingFailed') {
-        console.log("Metadata loading failed");
-        this.loadingData = false;
-        if (this.initializationTimeout) {
-          clearTimeout(this.initializationTimeout);
-        }
-      } else if (broadcastMsg.msg === 'refreshSpatialUnitOverviewTable') {
-        console.log("Refreshing spatial unit overview table");
-        this.loadingData = true;
-        const values = broadcastMsg.values as any[];
-        this.refreshSpatialUnitOverviewTable(values[0], values[1]);
+        });
+      }
+      // Handle grid button click events
+      else if (data.msg === 'onEditSpatialUnitMetadata') {
+        this.zone.run(() => {
+          this.onClickEditMetadata(data.values);
+        });
+      }
+      else if (data.msg === 'onEditSpatialUnitFeatures') {
+        this.zone.run(() => {
+          this.onClickEditFeatures(data.values);
+        });
+      }
+      else if (data.msg === 'onEditSpatialUnitUserRoles') {
+        this.zone.run(() => {
+          this.onClickEditUserRoles(data.values);
+        });
+      }
+      else if (data.msg === 'onDeleteSpatialUnits') {
+        this.zone.run(() => {
+          // Ensure data.values is an array for delete operation
+          const datasetsToDelete = Array.isArray(data.values) ? data.values : [data.values];
+          this.onClickDeleteSpatialUnits(datasetsToDelete);
+        });
       }
     });
+    this.subscriptions.push(sub);
   }
 
-  initializeOrRefreshOverviewTable(): void {
-    this.loadingData = true;
+  public initializeOrRefreshOverviewTable(): void {
+    const spatialUnits = this.kommonitorDataExchangeService.availableSpatialUnits;
     
-    this.kommonitorDataGridHelperService.buildDataGrid_spatialUnits(this.initSpatialUnits());
-    
-    setTimeout(() => {
+    if (spatialUnits && spatialUnits.length > 0) {
       this.loadingData = false;
-    });
-  }
-
-  initSpatialUnits(): any[] {
-    if (this.tableViewSwitcher) {
-      return this.kommonitorDataExchangeService.availableSpatialUnits.filter(
-        (e: any) => !(e.userPermissions.length === 1 && e.userPermissions.includes('viewer'))
-      );
+      this.initializationCompleted = true;
+      
+      // Use the new Angular service to build the data grid
+      this.kommonitorDataGridHelperService.buildDataGrid_spatialUnits(spatialUnits);
     } else {
-      return this.kommonitorDataExchangeService.availableSpatialUnits;
+      // Data not ready yet, keep loading
+      this.loadingData = true;
+      this.initializationCompleted = false;
     }
   }
 
+  // Debug method to force stop loading
+  stopLoading(): void {
+    this.loadingData = false;
+    this.initializationCompleted = true;
+  }
+
+  // Table view switcher method
   onTableViewSwitch(): void {
+    // Filter the data based on the tableViewSwitcher state
+    // For now, just refresh the table
     this.initializeOrRefreshOverviewTable();
   }
 
-  refreshSpatialUnitOverviewTable(crudType?: string, targetSpatialUnitId?: string | string[]): void {
-    if (!crudType || !targetSpatialUnitId) {
-      // refetch all metadata from spatial units to update table
-      this.kommonitorDataExchangeService.fetchSpatialUnitsMetadata(
-        this.kommonitorDataExchangeService.currentKeycloakLoginRoles
-      ).then((response: any) => {
+  // Alias for the add spatial unit modal (matching HTML template)
+  openAddSpatialUnitModal(): void {
+    this.onClickAddSpatialUnit();
+  }
+
+  // Modal event handlers
+  onClickAddSpatialUnit(): void {
+    const modalRef = this.modalService.open(SpatialUnitAddModalComponent, {
+      size: 'lg',
+      backdrop: 'static',
+      keyboard: false,
+      container: 'body',
+      animation: false
+    });
+    
+    modalRef.result.then((result) => {
+      if (result) {
         this.initializeOrRefreshOverviewTable();
-        setTimeout(() => {
-          this.loadingData = false;
-        });
-      }, (error: any) => {
-        setTimeout(() => {
-          this.loadingData = false;
-        });
-      });
-    } else if (crudType && targetSpatialUnitId) {
-      if (crudType === 'add') {
-        this.kommonitorCacheHelperService.fetchSingleSpatialUnitMetadata(
-          targetSpatialUnitId as string, 
-          this.kommonitorDataExchangeService.currentKeycloakLoginRoles
-        ).then((data: any) => {
-          this.kommonitorDataExchangeService.addSingleSpatialUnitMetadata(data);
-          this.initializeOrRefreshOverviewTable();
-          setTimeout(() => {
-            this.loadingData = false;
-          });
-        }, (error: any) => {
-          setTimeout(() => {
-            this.loadingData = false;
-          });
-        });
-      } else if (crudType === 'edit') {
-        this.kommonitorCacheHelperService.fetchSingleSpatialUnitMetadata(
-          targetSpatialUnitId as string, 
-          this.kommonitorDataExchangeService.currentKeycloakLoginRoles
-        ).then((data: any) => {
-          this.kommonitorDataExchangeService.replaceSingleSpatialUnitMetadata(data);
-          this.initializeOrRefreshOverviewTable();
-          setTimeout(() => {
-            this.loadingData = false;
-          });
-        }, (error: any) => {
-          setTimeout(() => {
-            this.loadingData = false;
-          });
-        });
-      } else if (crudType === 'delete') {
-        // targetSpatialUnitId might be array in this case
-        if (targetSpatialUnitId && typeof targetSpatialUnitId === 'string') {
-          this.kommonitorDataExchangeService.deleteSingleSpatialUnitMetadata(targetSpatialUnitId);
-          this.initializeOrRefreshOverviewTable();
-          setTimeout(() => {
-            this.loadingData = false;
-          });
-        } else if (targetSpatialUnitId && Array.isArray(targetSpatialUnitId)) {
-          for (const id of targetSpatialUnitId) {
-            this.kommonitorDataExchangeService.deleteSingleSpatialUnitMetadata(id);
-          }
-          this.initializeOrRefreshOverviewTable();
-          setTimeout(() => {
-            this.loadingData = false;
-          });
-        }
       }
-    }
+    }).catch(() => {
+      // Modal dismissed
+    });
   }
 
-  onChangeSelectDataset(spatialUnitDataset: any): void {
-    console.log(spatialUnitDataset.spatialUnitLevel);
-  }
-
-  onClickDeleteDatasets(): void {
-    const markedEntriesForDeletion = this.kommonitorDataGridHelperService.getSelectedSpatialUnitsMetadata();
-    this.openDeleteModal(markedEntriesForDeletion);
-  }
-
-  openDeleteModal(datasetsToDelete: any[]) {
-    console.log('Opening delete spatial units modal for:', datasetsToDelete);
+  onClickEditMetadata(spatialUnitMetadata: any): void {
+    const modalRef = this.modalService.open(SpatialUnitEditMetadataModalComponent, {
+      size: 'lg',
+      backdrop: 'static',
+      keyboard: false,
+      container: 'body',
+      animation: false
+    });
     
-    try {
-      // Open modal using NgbModal
-      const modalRef = this.modalService.open(SpatialUnitDeleteModalComponent, {
-        size: 'lg',
-        backdrop: 'static',
-        keyboard: false,
-        container: 'body',
-        animation: false,
-        windowClass: 'spatial-unit-delete-modal'
-      });
-      
-      console.log('Delete modal reference created:', modalRef);
-      
-      // Pass the datasets to the modal
-      modalRef.componentInstance.datasetsToDelete = datasetsToDelete;
-      
-      // Handle modal result
-      modalRef.result.then(
-        (result) => {
-          console.log('Delete modal closed with result:', result);
-          if (result && result.action === 'deleted') {
-            // Refresh the spatial units table
-            this.refreshSpatialUnitOverviewTable('delete', result.deletedDatasets?.map((d: any) => d.spatialUnitId));
-          }
-        },
-        (reason) => {
-          console.log('Delete modal dismissed with reason:', reason);
-        }
-      );
-    } catch (error: any) {
-      console.error('Error opening delete modal:', error);
-      // Fallback: broadcast event for old AngularJS modal
-      this.broadcastService.broadcast('onDeleteSpatialUnits', datasetsToDelete);
-    }
-  }
-
-  onClickEditMetadata(spatialUnitDataset: any): void {
-    this.openEditMetadataModal(spatialUnitDataset);
-  }
-
-  openEditMetadataModal(spatialUnitDataset: any) {
-    console.log('Opening edit spatial unit metadata modal for:', spatialUnitDataset);
+    modalRef.componentInstance.currentSpatialUnitDataset = spatialUnitMetadata;
     
-    try {
-      // Open modal using NgbModal
-      const modalRef = this.modalService.open(SpatialUnitEditMetadataModalComponent, {
-        size: 'xl',
-        backdrop: 'static',
-        keyboard: false,
-        container: 'body',
-        animation: false,
-        windowClass: 'spatial-unit-edit-metadata-modal'
-      });
-      
-      console.log('Edit metadata modal reference created:', modalRef);
-      
-      // Pass the spatial unit dataset to the modal
-      modalRef.componentInstance.currentSpatialUnitDataset = spatialUnitDataset;
-      modalRef.componentInstance.resetForm();
-      
-      // Handle modal result
-      modalRef.result.then(
-        (result) => {
-          console.log('Edit metadata modal closed with result:', result);
-          if (result && result.action === 'updated') {
-            // Refresh the spatial units table
-            this.refreshSpatialUnitOverviewTable('edit', spatialUnitDataset.spatialUnitId);
-          }
-        },
-        (reason) => {
-          console.log('Edit metadata modal dismissed with reason:', reason);
-        }
-      );
-    } catch (error: any) {
-      console.error('Error opening edit metadata modal:', error);
-      // Fallback: broadcast event for old AngularJS modal
-      this.broadcastService.broadcast('onEditSpatialUnitMetadata', spatialUnitDataset);
-    }
+    modalRef.result.then((result) => {
+      if (result) {
+        this.initializeOrRefreshOverviewTable();
+      }
+    }).catch(() => {
+      // Modal dismissed
+    });
   }
 
-  onClickEditFeatures(spatialUnitDataset: any): void {
-    this.openEditFeaturesModal(spatialUnitDataset);
-  }
-
-  openEditFeaturesModal(spatialUnitDataset: any) {
-    console.log('Opening edit spatial unit features modal for:', spatialUnitDataset);
+  onClickEditFeatures(spatialUnitMetadata: any): void {
+    const modalRef = this.modalService.open(SpatialUnitEditFeaturesModalComponent, {
+      size: 'xl',
+      backdrop: 'static',
+      keyboard: false,
+      container: 'body',
+      animation: false
+    });
     
-    try {
-      // Open modal using NgbModal
-      const modalRef = this.modalService.open(SpatialUnitEditFeaturesModalComponent, {
-        size: 'xl',
-        backdrop: 'static',
-        keyboard: false,
-        container: 'body',
-        animation: false,
-        windowClass: 'spatial-unit-edit-features-modal'
-      });
-      
-      console.log('Edit features modal reference created:', modalRef);
-      
-      // Pass the spatial unit dataset to the modal
-      modalRef.componentInstance.currentSpatialUnitDataset = spatialUnitDataset;
-      modalRef.componentInstance.resetForm();
-      
-      // Handle modal result
-      modalRef.result.then(
-        (result) => {
-          console.log('Edit features modal closed with result:', result);
-          if (result && result.action === 'updated') {
-            // Refresh the spatial units table
-            this.refreshSpatialUnitOverviewTable('edit', spatialUnitDataset.spatialUnitId);
-          }
-        },
-        (reason) => {
-          console.log('Edit features modal dismissed with reason:', reason);
-        }
-      );
-    } catch (error: any) {
-      console.error('Error opening edit features modal:', error);
-      // Fallback: broadcast event for old AngularJS modal
-      this.broadcastService.broadcast('onEditSpatialUnitFeatures', spatialUnitDataset);
-    }
-  }
-
-  onClickEditUserRoles(spatialUnitDataset: any): void {
-    this.openEditUserRolesModal(spatialUnitDataset);
-  }
-
-  openEditUserRolesModal(spatialUnitDataset: any) {
-    console.log('Opening edit spatial unit user roles modal for:', spatialUnitDataset);
+    modalRef.componentInstance.currentSpatialUnitDataset = spatialUnitMetadata;
     
-    try {
-      // Open modal using NgbModal
-      const modalRef = this.modalService.open(SpatialUnitEditUserRolesModalComponent, {
-        size: 'xl',
-        backdrop: 'static',
-        keyboard: false,
-        container: 'body',
-        animation: false,
-        windowClass: 'spatial-unit-edit-user-roles-modal'
-      });
-      
-      console.log('Edit user roles modal reference created:', modalRef);
-      
-      // Pass the spatial unit dataset to the modal
-      modalRef.componentInstance.currentSpatialUnitDataset = spatialUnitDataset;
-      modalRef.componentInstance.resetForm();
-      
-      // Handle modal result
-      modalRef.result.then(
-        (result) => {
-          console.log('Edit user roles modal closed with result:', result);
-          if (result && result.action === 'updated') {
-            // Refresh the spatial units table
-            this.refreshSpatialUnitOverviewTable('edit', spatialUnitDataset.spatialUnitId);
-          }
-        },
-        (reason) => {
-          console.log('Edit user roles modal dismissed with reason:', reason);
-        }
-      );
-    } catch (error: any) {
-      console.error('Error opening edit user roles modal:', error);
-      // Fallback: broadcast event for old AngularJS modal
-      this.broadcastService.broadcast('onEditSpatialUnitUserRoles', spatialUnitDataset);
-    }
+    modalRef.result.then((result) => {
+      if (result) {
+        this.initializeOrRefreshOverviewTable();
+      }
+    }).catch(() => {
+      // Modal dismissed
+    });
   }
 
+  onClickEditUserRoles(spatialUnitMetadata: any): void {
+    const modalRef = this.modalService.open(SpatialUnitEditUserRolesModalComponent, {
+      size: 'lg',
+      backdrop: 'static',
+      keyboard: false,
+      container: 'body',
+      animation: false
+    });
+    
+    modalRef.componentInstance.currentSpatialUnitDataset = spatialUnitMetadata;
+    
+    modalRef.result.then((result) => {
+      if (result) {
+        this.initializeOrRefreshOverviewTable();
+      }
+    }).catch(() => {
+      // Modal dismissed
+    });
+  }
+
+  onClickDeleteSpatialUnits(spatialUnitsMetadata: any[]): void {
+    const modalRef = this.modalService.open(SpatialUnitDeleteModalComponent, {
+      size: 'xl',
+      backdrop: 'static',
+      keyboard: false,
+      container: 'body',
+      animation: false
+    });
+    
+    modalRef.componentInstance.datasetsToDelete = spatialUnitsMetadata;
+    
+    modalRef.result.then((result) => {
+      if (result) {
+        this.initializeOrRefreshOverviewTable();
+      }
+    }).catch(() => {
+      // Modal dismissed
+    });
+  }
+
+  // Utility methods
   checkCreatePermission(): boolean {
     return this.kommonitorDataExchangeService.checkCreatePermission();
   }
 
-  openAddSpatialUnitModal() {
-    console.log('Opening add spatial unit modal');
-    
-    // Test if modal service is working
-    console.log('Modal service available:', this.modalService);
-    console.log('SpatialUnitAddModalComponent available:', SpatialUnitAddModalComponent);
-    
-    try {
-      // Open modal using NgbModal
-      const modalRef = this.modalService.open(SpatialUnitAddModalComponent, {
-        size: 'xl',
-        backdrop: 'static',
-        keyboard: false,
-        container: 'body',
-        animation: false,
-        windowClass: 'spatial-unit-add-modal'
-      });
-      
-      console.log('Modal reference created:', modalRef);
-      
-      // Handle modal result
-      modalRef.result.then(
-        (result) => {
-          console.log('Modal closed with result:', result);
-          if (result.action === 'created') {
-            // Refresh the spatial units table
+  getSelectedSpatialUnitsMetadata(): any[] {
+    return this.kommonitorDataGridHelperService.getSelectedSpatialUnitsMetadata();
+  }
+
+  refreshSpatialUnitOverviewTable(): void {
             this.initializeOrRefreshOverviewTable();
           }
-        },
-        (reason) => {
-          console.log('Modal dismissed with reason:', reason);
+
+  private startDataPolling(): void {
+    // Poll every 500ms for data availability
+    const pollInterval = setInterval(() => {
+      if (this.loadingData) {
+        this.initializeOrRefreshOverviewTable();
+        
+        // If data is found, stop polling
+        if (!this.loadingData) {
+          clearInterval(pollInterval);
         }
-      );
-    } catch (error: any) {
-      console.error('Error opening modal:', error);
-      // Fallback: show alert
-      alert('Modal failed to open: ' + (error?.message || 'Unknown error'));
-    }
+      } else {
+        // Data loaded, stop polling
+        clearInterval(pollInterval);
+      }
+    }, 500);
+    
+    // Stop polling after 10 seconds regardless
+    setTimeout(() => {
+      clearInterval(pollInterval);
+    }, 10000);
   }
 } 

@@ -6,6 +6,7 @@
     </div>
   </div>
 
+
   <!-- Content Header (Page header) -->
   <section class="content-header">
     <h1>
@@ -23,7 +24,7 @@
           </label>
         </div>
       </div>
-      <button [disabled]="!kommonitorDataExchangeServiceInstance.checkCreatePermission()" class="btn btn-success btn-sm" type="button" (click)="openAddSpatialUnitModal()" style="border: 2px solid blue;">
+      <button [disabled]="!kommonitorDataExchangeService.checkCreatePermission()" class="btn btn-success btn-sm" type="button" (click)="openAddSpatialUnitModal()" style="border: 2px solid blue;">
         <i class="fas fa-plus"></i>&nbsp;&nbsp;Erstellen
       </button>
       <!-- edit metadata -->
@@ -40,22 +41,31 @@
       | Your Page Content Here |
       -------------------------->
 
-    <div class="box box-primary">
-      <div class="box-header">
-        <h3 class="box-title">Raumebenen</h3>
-      </div>
-      <!-- /.box-header -->
-      <div class="box-body">
+    <div class="row">
+      <div class="col-md-12">
+        <!--------------------------------
+                  Spatial Units MANAGEMENT Area
+        -------------------------->
 
-        <div class="admin-table-wrapper">
-          
-          <div #spatialUnitOverviewTable id="spatialUnitOverviewTable" style="height: 70vh;" class="ag-theme-alpine"></div>	   
+        <div class="box box-primary">
+          <div class="box-header">
+            <h3 class="box-title">Raumebenen</h3>
+          </div>
+          <!-- /.box-header -->
+          <div class="box-body">
 
+            <div class="admin-table-wrapper">
+              
+              <div #spatialUnitOverviewTable id="spatialUnitOverviewTable" style="height: 70vh;" class="ag-theme-alpine"></div>	   
+
+            </div>
+          </div>
+          <!-- /.box-body -->
         </div>
+        <!-- /.box -->
+
       </div>
-      <!-- /.box-body -->
     </div>
-    <!-- /.box -->
 
   </section>
   <!-- /.content -->
