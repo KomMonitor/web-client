@@ -20,6 +20,7 @@ import {
   ajskommonitorDataGridHelperServiceProvider,
   ajskommonitorDiagramHelperServiceProvider,
   ajskommonitorFilterHelperServiceProvider,
+  ajskommonitorImporterHelperServiceProvider,
   ajskommonitorKeycloackHelperServiceProvider,
   ajskommonitorMultiStepFormHelperServiceProvider, 
   ajskommonitorSingleFeatureMapServiceProvider,
@@ -73,6 +74,12 @@ import { AdminAppConfigComponent } from './components/ngComponents/admin/adminCo
 import { AdminControlsConfigComponent } from './components/ngComponents/admin/adminConfig/adminControlsConfig/admin-controls-config.component';
 import { AdminRoleExplanationComponent } from './components/ngComponents/admin/adminRoleExplanation/admin-role-explanation.component';
 import { AdminDashboardManagementComponent } from './components/ngComponents/admin/adminDashboardManagement/admin-dashboard-management.component';
+import { AdminSpatialUnitsManagementComponent } from './components/ngComponents/admin/adminSpatialUnitsManagement/admin-spatial-units-management.component';
+import { SpatialUnitAddModalComponent } from './components/ngComponents/admin/adminSpatialUnitsManagement/spatialUnitAddModal/spatial-unit-add-modal.component';
+import { SpatialUnitEditMetadataModalComponent } from './components/ngComponents/admin/adminSpatialUnitsManagement/spatialUnitEditMetadataModal/spatial-unit-edit-metadata-modal.component';
+import { SpatialUnitEditFeaturesModalComponent } from './components/ngComponents/admin/adminSpatialUnitsManagement/spatialUnitEditFeaturesModal/spatial-unit-edit-features-modal.component';
+import { SpatialUnitEditUserRolesModalComponent } from './components/ngComponents/admin/adminSpatialUnitsManagement/spatialUnitEditUserRolesModal/spatial-unit-edit-user-roles-modal.component';
+import { SpatialUnitDeleteModalComponent } from './components/ngComponents/admin/adminSpatialUnitsManagement/spatialUnitDeleteModal/spatial-unit-delete-modal.component';
 
 
 // currently the AngularJS routing is still used as part of kommonitorClient module
@@ -107,6 +114,7 @@ declare var MathJax;
     ajskommonitorSingleFeatureMapServiceProvider,
     ajskommonitorDiagramHelperServiceProvider,
     ajskommonitorFilterHelperServiceProvider,
+    ajskommonitorImporterHelperServiceProvider,
     ajskommonitorElementVisibilityHelperServiceProvider, 
     ajskommonitorShareHelperServiceProvider,
     ajskommonitorVisualStyleHelperServiceProvider, 
@@ -155,7 +163,13 @@ declare var MathJax;
     AdminAppConfigComponent,
     AdminControlsConfigComponent,
     AdminRoleExplanationComponent,
-    AdminDashboardManagementComponent
+    AdminDashboardManagementComponent,
+    AdminSpatialUnitsManagementComponent,
+    SpatialUnitAddModalComponent,
+    SpatialUnitEditMetadataModalComponent,
+    SpatialUnitEditFeaturesModalComponent,
+    SpatialUnitEditUserRolesModalComponent,
+    SpatialUnitDeleteModalComponent
   ],
   schemas: [
     CUSTOM_ELEMENTS_SCHEMA
@@ -249,6 +263,31 @@ export class AppModule implements DoBootstrap {
     angular.module('kommonitorAdmin')
       .directive('adminDashboardManagementNew', downgradeComponent({
         component: AdminDashboardManagementComponent
+      }) as angular.IDirectiveFactory);
+
+    angular.module('kommonitorAdmin')
+      .directive('adminSpatialUnitsManagementNew', downgradeComponent({
+        component: AdminSpatialUnitsManagementComponent
+      }) as angular.IDirectiveFactory);
+
+    angular.module('kommonitorAdmin')
+      .directive('spatialUnitEditMetadataModalNew', downgradeComponent({
+        component: SpatialUnitEditMetadataModalComponent
+      }) as angular.IDirectiveFactory);
+
+    angular.module('kommonitorAdmin')
+      .directive('spatialUnitEditFeaturesModalNew', downgradeComponent({
+        component: SpatialUnitEditFeaturesModalComponent
+      }) as angular.IDirectiveFactory);
+
+    angular.module('kommonitorAdmin')
+      .directive('spatialUnitEditUserRolesModalNew', downgradeComponent({
+        component: SpatialUnitEditUserRolesModalComponent
+      }) as angular.IDirectiveFactory);
+
+    angular.module('kommonitorAdmin')
+      .directive('spatialUnitDeleteModalNew', downgradeComponent({
+        component: SpatialUnitDeleteModalComponent
       }) as angular.IDirectiveFactory);
 
     console.log("registered downgraded Angular components for AngularJS usage");
