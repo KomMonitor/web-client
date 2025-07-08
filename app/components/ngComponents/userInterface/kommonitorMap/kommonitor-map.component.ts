@@ -11,6 +11,9 @@ import { GenericMapHelperService } from 'services/generic-map-helper-service/gen
 import * as turf from '@turf/turf';
 import domtoimage from 'dom-to-image-more';
 import { saveAs } from 'file-saver';
+//import 'leaflet-groupedlayercontrol';
+
+import '../../../../../customizedExternalLibs/leaflet-groupedLayerControl/leaflet.groupedLayerControl';
 
 @Component({
   selector: 'app-kommonitor-map',
@@ -333,6 +336,9 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         case 'onGlobalFilterChange': {
           this.onGlobalFilterChange();
         } break;
+        case 'openLayerControl': {
+          this.openLayerControl();
+        } break;
       }
     });
   }
@@ -441,20 +447,21 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       }
     };
     
-    // todo see old version
-    //this.layerControl = L.control.groupedLayers(this.baseMaps, groupedOverlays, {collapsed: false, position: 'topleft', layers: this.sortableLayers });
-    
-    this.layerControl = L.control.layers(this.baseMaps, [], {position: 'topleft'}).addTo(this.map);
+    this.layerControl = L.control.groupedLayers(this.baseMaps, groupedOverlays, {collapsed: false, position: 'topleft', layers: this.sortableLayers });
+  
+    //backup ico groupedLayers not working properly
+    //this.layerControl = L.control.layers(this.baseMaps, [], {position: 'topleft'}).addTo(this.map);  
+
+    delete this.layerControl._groupList;
+    this.layerControl._groupList = ["","Raumebene Umringe", "Indikatoren"];
+
     this.map.addControl(this.layerControl);
 
     // Hide Leaflet layer control button in favor of a custom button for opening the layer control group
-   /*  $('.leaflet-control-layers').hide();
-    this.$on("openLayerControl", function (event) {
-      $('.leaflet-control-layers').toggle();
-    }); */
-
+    $('.leaflet-control-layers').hide();
+    
     // Disable dragging when user's cursor enters the element
-   /*  this.layerControl.getContainer().addEventListener('mouseover', () => {
+    this.layerControl.getContainer().addEventListener('mouseover', () => {
       this.map.dragging.disable();
       this.map.touchZoom.disable();
       this.map.doubleClickZoom.disable();
@@ -467,7 +474,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       this.map.touchZoom.enable();
       this.map.doubleClickZoom.enable();
       this.map.scrollWheelZoom.enable();
-    }); */
+    });
 
     this.scaleBar = L.control.scale({position: 'bottomleft'});
     this.scaleBar.addTo(this.map);
@@ -566,7 +573,9 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     this.layerControl._layers = this.layerControl._layers.filter(e => e.overlay===undefined);
   }
 
-
+  openLayerControl() {
+    $('.leaflet-control-layers').toggle();
+  }
 
  /*  MultipleResultsLeafletSearch = L.Control.Search.extend({
 

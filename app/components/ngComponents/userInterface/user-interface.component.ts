@@ -275,9 +275,9 @@ export class UserInterfaceComponent implements OnInit {
 			this.broadcastService.broadcast("unselectAllFeatures");
 		}
 
-/* 		onOpenLayerControlButtonClick(){
+		onOpenLayerControlButtonClick(){
 			this.broadcastService.broadcast("openLayerControl");
-		} */
+		}
 
 		onToggleInfoControlButtonClick(){
 			this.broadcastService.broadcast("toggleInfoControl");
