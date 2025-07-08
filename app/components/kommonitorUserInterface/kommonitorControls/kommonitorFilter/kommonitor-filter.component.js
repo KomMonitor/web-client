@@ -268,6 +268,9 @@ angular
 						        to: $scope.valueRangeMaxValue,
 								   	force_edges: true,
 										step: 0.01,
+								prettify: function(value){
+									return kommonitorDataExchangeService.getIndicatorValue_asFormattedText(value);
+								},
 						        grid: true,
 										prettify_enabled: true,
 										prettify_separator: "",
@@ -451,10 +454,13 @@ angular
 						        max: $scope.movMaxValue,
 						        from: $scope.movMiddleValue,
 								   	force_edges: true,
-										step: 0.01,
+										step: 0.01,								
 						        grid: true,
 										prettify_enabled: true,
 										prettify_separator: "",
+										prettify: function(value){
+											return kommonitorDataExchangeService.getIndicatorValue_asFormattedText(value);
+										},
 										onChange: $scope.onMeasureOfValueChange
 						    });
 
