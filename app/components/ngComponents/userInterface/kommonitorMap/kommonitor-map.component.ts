@@ -109,7 +109,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   customPropertyName;
 
   currentCustomIndicatorLayer;
-  isochronesLayer = undefined;
+  isochronesLayer:any = undefined;
   isochroneMarkerLayer = undefined;
   
 
@@ -1416,26 +1416,27 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     layer.bindTooltip(tooltipHtml, {
       sticky: false // If true, the tooltip will follow the mouse instead of being fixed at the feature center.
     });
+
     layer.on({
-      mouseover: this.highlightFeature,
-      mouseout: this.resetHighlight,
-      click: this.switchHighlightFeature
+      mouseover: (l) => this.highlightFeature(l),
+      mouseout: (l) => this.resetHighlight(l),
+      click: (l) => this.switchHighlightFeature(l)
     });
   }
 
   switchHighlightFeature(layer) {
-    
+
     // add or remove feature within a list of "clicked features"
     // those shall be treated specially, i.e. keep being highlighted
-    if (!this.filterHelperService.featureIsCurrentlySelected(layer.feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME])) {
-      this.filterHelperService.addFeatureToSelection(layer.feature);
-      this.highlightClickedFeature(layer);
+    if (!this.filterHelperService.featureIsCurrentlySelected(layer.target.feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME])) {
+      this.filterHelperService.addFeatureToSelection(layer.target.feature);
+      this.highlightClickedFeature(layer.target);
     }
 
     else {
       //remove from array
-      this.filterHelperService.removeFeatureFromSelection(layer.feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME]);
-      this.resetHighlightClickedFeature(layer);
+      this.filterHelperService.removeFeatureFromSelection(layer.target.feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME]);
+      this.resetHighlightClickedFeature(layer.target);
     }
   }
 /*
@@ -2182,6 +2183,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   });
   */
   highlightFeature(e) {
+
     let layer = e.target;
     this.visualStyleHelperService.setOpacity(layer.options.fillOpacity);
 
@@ -2193,9 +2195,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     this.setTemporarilyHighlightedStyle(layer);
 
     // update diagrams for hovered feature
-    // todo
-    // $rootScope.$broadcast("updateDiagramsForHoveredFeature", layer.feature.properties);
-
+    this.broadcastService.broadcast("updateDiagramsForHoveredFeature", [layer.feature.properties]);
   }
 
   highlightClickedFeature(layer) {
@@ -2203,8 +2203,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     this.setPermanentlyHighlightedStyle(layer);
 
     // update diagrams for hovered feature
-    // todo
-    // $rootScope.$broadcast("updateDiagramsForHoveredFeature", layer.feature.properties);
+    this.broadcastService.broadcast("updateDiagramsForHoveredFeature", [layer.feature.properties]);
   }
 
   setPermanentlyHighlightedStyle(layer) {
@@ -2225,8 +2224,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       // also bring possible isochrone layer to front
       // so it will not disapper behing indicator layer
       if (this.isochronesLayer) {
-        // todo
-        // this.isochronesLayer.bringToFront();
+        this.isochronesLayer.bringToFront();
       }
     }
   }
@@ -2250,7 +2248,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       // so it will not disapper behing indicator layer
       if (this.isochronesLayer) {
         // todo
-        // this.isochronesLayer.bringToFront();
+        this.isochronesLayer.bringToFront();
       }
     }
   }
@@ -2755,7 +2753,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
           }
           return this.visualStyleHelperService.styleMeasureOfValue(feature, this.gtMeasureOfValueBrew, this.ltMeasureOfValueBrew, this.propertyName, this.useTransparencyOnIndicator, true);
         },
-        onEachFeature: this.onEachFeatureIndicator
+        onEachFeature: (e,l) => { this.onEachFeatureIndicator(e,l)}
       });
 
       // this.makeMeasureOfValueLegend(isCustomComputation);
@@ -2813,7 +2811,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
             }
             return this.visualStyleHelperService.styleDefault(feature, this.defaultBrew, this.dynamicIncreaseBrew, this.dynamicDecreaseBrew, this.propertyName, this.useTransparencyOnIndicator, this.datasetContainsNegativeValues, true);
           },
-          onEachFeature: this.onEachFeatureIndicator
+          onEachFeature: (e,l) => { this.onEachFeatureIndicator(e,l) }
         });
         // this.makeDefaultLegend(indicatorMetadataAndGeoJSON.defaultClassificationMapping, this.datasetContainsNegativeValues, isCustomComputation);
       }
@@ -2841,7 +2839,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
             }
             return this.visualStyleHelperService.styleDynamicIndicator(feature, this.dynamicIncreaseBrew, this.dynamicDecreaseBrew, this.propertyName, this.useTransparencyOnIndicator, true);
           },
-          onEachFeature: this.onEachFeatureIndicator
+          onEachFeature: (e,l) => { this.onEachFeatureIndicator(e,l)}
         });
         // this.makeDynamicIndicatorLegend(isCustomComputation);
       }
@@ -2881,7 +2879,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
           }
           return this.visualStyleHelperService.styleMeasureOfValue(feature, this.gtMeasureOfValueBrew, this.ltMeasureOfValueBrew, this.propertyName, this.useTransparencyOnIndicator, true);
         },
-        onEachFeature: this.onEachFeatureIndicator
+        onEachFeature: (e,l) => { this.onEachFeatureIndicator(e,l)}
       });
     }
 

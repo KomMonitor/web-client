@@ -139,7 +139,7 @@ export class FilterHelperService {
   }
 
   featureIsCurrentlySelected(id) {
-    return this.filteredIndicatorFeatureIds.has("" + id);
+    return this.selectedIndicatorFeatureIds.has("" + id);
   }
 
   onChangeFilterBehaviourToggle() {
