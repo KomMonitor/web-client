@@ -65,17 +65,20 @@
 
     <!-- manual breaks -->
     <div ng-if="$ctrl.kommonitorVisualStyleHelperServiceInstance.classifyMethod=='manual'">
-      <div ng-if="($ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.indicatorType.includes('STATUS') && ! containsNegativeValues) && ! $ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked && ! $ctrl.kommonitorDataExchangeServiceInstance.isBalanceChecked" 
-            class="histogramTabWrapper editableHistogram"
-            ng-mousemove="toggleAddBtn($event, 0)">
+    <div ng-if="(! $ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked 
+      && ! $ctrl.kommonitorDataExchangeServiceInstance.isBalanceChecked
+      && ! $ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.indicatorType.includes('DYNAMIC') 
+      && ! containsNegativeValues)" 
+          class="histogramTabWrapper editableHistogram"
+          ng-mousemove="toggleAddBtn($event, 0)">
         <div class="breaksArea"
-              ng-mousemove="onBreaksMouseMove($event, 0)">
+              ng-mousemove="onBreakMouseMove($event, 0)">
           <!-- add btn -->
           <div class="addBtnWrapper breakWrapper"
                 style="top: {{addBtnHeight[0]}}px"
                 ng-if="showAddBtn[0]"
                 ng-mousover="toggleAddBtn($event, 0)">
-            <div class="addBtn" ng-click="addNewBreaks(0)">+</div>
+            <div class="addBtn" ng-click="addNewBreak(0)">+</div>
             <div class="line"></div>
           </div>
           <!-- measure of Value -->
@@ -129,19 +132,19 @@
             class="histogramTabWrapper editableHistogram"
             ng-mousemove="toggleAddBtn($event, 0)">
         <div class="breaksArea"
-              ng-mousemove="onBreaksMouseMove($event, 0)">
+              ng-mousemove="onBreakMouseMove($event, 0)">
           <!-- add btn -->
           <div class="addBtnWrapper breakWrapper"
                 style="top: {{addBtnHeight[0]}}px"
                 ng-if="showAddBtn[0]"
                 ng-mousover="toggleAddBtn($event, 0)">
-            <div class="addBtn" ng-click="addNewBreaks(0)">+</div>
+            <div class="addBtn" ng-click="addNewBreak(0)">+</div>
             <div class="line"></div>
           </div>
           <!-- measure of Value -->
           <div class="breakWrapper measureOfValue"
                 style="top: {{getPercentage($ctrl.kommonitorDataExchangeServiceInstance.measureOfValue, 0)}}%"
-                ng-mousedown="onBreaksMouseMove($event, 0)">
+                ng-mousedown="onBreakMouseMove($event, 0)">
             <div class ="break fixed">
               <!--<div class="colorBox"></div>-->
               <span>{{$ctrl.kommonitorDataExchangeServiceInstance.measureOfValue}}</span>
@@ -157,7 +160,6 @@
                 ng-class="{'fixed': i === 0 || i === $ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks.length-1 || breakIsUnalterable($ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks[i])}">
             <div class="break"
                   ng-class="{'fixed': i === 0 || i === $ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks.length-1 || breakIsUnalterable($ctrl.kommonitorVisualStyleHelperServiceInstance.manualBrew.breaks[i])}">
-              <!--<div class="colorBox"></div>-->
               <input type="number" 
                       ng-blur="onBreaksChanged($event, i, 0)"
                       ng-model-options="{ updateOn: 'blur', allowInvalid: false }"
@@ -192,7 +194,7 @@
       </div>
     </div>
 
-    <!-- balance checked -- lower than values -->
+    <!-- dynamic brew-- lower than values -->
     <div ng-if="(($ctrl.kommonitorDataExchangeServiceInstance.isBalanceChecked 
         || $ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.indicatorType.includes('DYNAMIC') 
         || containsNegativeValues) 
@@ -201,13 +203,13 @@
           class="histogramTabWrapper editableHistogram editableHistogramDynamic"
           ng-mousemove="toggleAddBtn($event, 1)">
       <div class="breaksArea"
-            ng-mousemove="onBreaksMouseMove($event, 1)">
+            ng-mousemove="onBreakMouseMove($event, 1)">
 
         <div class="addBtnWrapper breakWrapper"
               style="top: {{addBtnHeight[1]}}px"
               ng-if="showAddBtn[1]"
               ng-mousover="toggleAddBtn($event, 1)">
-          <div class="addBtn" ng-click="addNewBreaks(1)">+</div>
+          <div class="addBtn" ng-click="addNewBreak(1)">+</div>
           <div class="line"></div>
         </div>
 
@@ -220,7 +222,7 @@
           <div class="break"
                 ng-class="{'fixed': i === 0 || i === $ctrl.kommonitorVisualStyleHelperServiceInstance.dynamicBrew[1].breaks.length-1}">
             <input type="number" 
-                    ng-blur="onBreaksChangedDynamic($event, i, 1)"
+                    ng-blur="onBreaksChanged($event, i, 1)"
                     ng-model-options="{ updateOn: 'blur', allowInvalid: false }"
                     disabled
                     ng-class="{'fixed': i === 0 || i === $ctrl.kommonitorVisualStyleHelperServiceInstance.dynamicBrew[1].breaks.length-1}"
@@ -245,7 +247,7 @@
     </div>
 
 
-    <!-- balance checked -- higher than values -->
+    <!-- dynamic brew -- higher than values -->
     <div ng-if="(($ctrl.kommonitorDataExchangeServiceInstance.isBalanceChecked 
         || $ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.indicatorType.includes('DYNAMIC') 
         || containsNegativeValues) 
@@ -254,13 +256,13 @@
           class="histogramTabWrapper editableHistogram editableHistogramDynamic"
           ng-mousemove="toggleAddBtn($event, 0)">
       <div class="breaksArea"
-            ng-mousemove="onBreaksMouseMove($event, 0)">
+            ng-mousemove="onBreakMouseMove($event, 0)">
 
         <div class="addBtnWrapper breakWrapper"
               style="top: {{addBtnHeight[0]}}px"
               ng-if="showAddBtn[0]"
               ng-mousover="toggleAddBtn($event, 0)">
-          <div class="addBtn" ng-click="addNewBreaks(0)">+</div>
+          <div class="addBtn" ng-click="addNewBreak(0)">+</div>
           <div class="line"></div>
         </div>
 
@@ -273,7 +275,7 @@
           <div class="break"
                 ng-class="{'fixed': i === 0 || i === $ctrl.kommonitorVisualStyleHelperServiceInstance.dynamicBrew[0].breaks.length-1}">
             <input type="number" 
-                    ng-blur="onBreaksChangedDynamic($event, i, 0)"
+                    ng-blur="onBreaksChanged($event, i, 0)"
                     ng-model-options="{ updateOn: 'blur', allowInvalid: false }"
                     disabled
                     ng-class="{'fixed': i === 0 || i === $ctrl.kommonitorVisualStyleHelperServiceInstance.dynamicBrew[0].breaks.length-1}"

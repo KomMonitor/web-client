@@ -1,1 +1,1 @@
-angular.module('reportingOverview', ['ng-sortable', 'ngSanitize']);
+angular.module('reportingOverview', ['ng-sortable', 'ngSanitize', 'kommonitorLeafletScreenshotCacheHelper']);

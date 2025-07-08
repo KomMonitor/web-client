@@ -24,7 +24,7 @@
 				<b title="Checkbox zur Wahl, ob die einzelnen Punkte eines POI Layers geclustered werden sollen">Points
 					of Interest clustern</b> (Zusammenfassung mehrerer Punkte je nach Zoomstufe)
 				&nbsp;
-				<label class="switch">
+				<label class="switch" style="top: -5px; margin-top: 5px;">
 					<input type="checkbox" value="useCluster" ng-model="useCluster" ng-change="refreshPoiLayers()"
 						checked>
 					<span class="switchslider round"></span>
@@ -32,7 +32,7 @@
 
 				<br />
 
-				<label>
+				<label style="margin-bottom: 10px;">
 					<b title="Auswahl zur Größe der POI-Marker">Größe der Points
 						of Interest</b>
 					&nbsp;
@@ -41,6 +41,24 @@
 						ng-model="$ctrl.kommonitorDataExchangeServiceInstance.selectedPOISize"
 						ng-change="refreshPoiLayers()">
 					</select>
+				</label>
+
+				<br />
+
+				<b ng-if="!$ctrl.kommonitorDataExchangeServiceInstance.spatialFilterIsApplied"
+					 title="Checkbox zur Wahl, ob die gesetzten räumlichen Filter auf die POI angewendet werden sollen"
+					 style="color: #777">
+					Räumliche Filter anwenden
+				</b>
+				<b ng-if="$ctrl.kommonitorDataExchangeServiceInstance.spatialFilterIsApplied" 
+					 title="Checkbox zur Wahl, ob die gesetzten räumlichen Filter auf die POI angewendet werden sollen">
+					Räumliche Filter anwenden
+				</b>
+				&nbsp;
+				<label class="switch" style="top: -5px; margin-top: 5px;">
+					<input type="checkbox" value="useSpatialFilterForGeoressources" ng-model="useSpatialFilterForGeoressources" ng-change="refreshGeoressourceLayers()"
+						 ng-disabled="!$ctrl.kommonitorDataExchangeServiceInstance.spatialFilterIsApplied">
+					<span class="switchslider round switchsliderOrange"></span>
 				</label>
 
 				
@@ -160,8 +178,8 @@
                       ng-attr-title="{{::mainTopic.topicDescription}}" class="collapseTrigger"
                       style="color: white;" ng-click="isCollapsed_mainTopic = !isCollapsed_mainTopic"
                       ng-init="isCollapsed_mainTopic=true"><i
-                        class="glyphicon glyphicon-chevron-right"></i>{{::mainTopic.topicName}}
-                      ({{mainTopic.totalCount}})</a></a>
+                        class="glyphicon " ng-class="isCollapsed_mainTopic? 'glyphicon-chevron-right' : 'glyphicon-chevron-down'"></i>{{::mainTopic.topicName}}
+                      ({{mainTopic.totalCount}})</a>
                     &nbsp;&nbsp; <input type="checkbox" ng-model="mainTopic.isSelected"
                       value="mainTopic.isSelected" id="showAllForTopic_{{::mainTopic.topicId}}"
                       ng-change="handleShowAllOnTopic(mainTopic)">
@@ -181,7 +199,7 @@
                         ng-attr-title="{{::subTopic.topicDescription}}" href=""
                         ng-click="isCollapsed_subTopic = !isCollapsed_subTopic"
                         ng-init="isCollapsed_subTopic=true"><i
-                          class="glyphicon glyphicon-chevron-right"></i>{{::subTopic.topicName}}
+						class="glyphicon " ng-class="isCollapsed_subTopic? 'glyphicon-chevron-right' : 'glyphicon-chevron-down'"></i>{{::subTopic.topicName}}
                         ({{subTopic.totalCount}})</a>
                       &nbsp;&nbsp; <input type="checkbox" ng-model="subTopic.isSelected"
                         value="subTopic.isSelected" id="showAllForTopic_{{::subTopic.topicId}}"
@@ -202,7 +220,7 @@
                           style="color: black;" ng-attr-title="{{::subsubTopic.topicDescription}}"
                           href="" ng-click="isCollapsed_subsubTopic = !isCollapsed_subsubTopic"
                           ng-init="isCollapsed_subsubTopic=true"><i
-                            class="glyphicon glyphicon-chevron-right"></i>{{::subsubTopic.topicName}}
+						  class="glyphicon " ng-class="isCollapsed_subsubTopic? 'glyphicon-chevron-right' : 'glyphicon-chevron-down'"></i>{{::subsubTopic.topicName}}
                           ({{subsubTopic.totalCount}})</a>
                         &nbsp;&nbsp; <input type="checkbox" ng-model="subsubTopic.isSelected"
                           value="subsubTopic.isSelected"
@@ -224,7 +242,7 @@
                             ng-attr-title="{{::subsubsubTopic.topicDescription}}"
                             ng-click="isCollapsed_subsubsubTopic = !isCollapsed_subsubsubTopic"
                             ng-init="isCollapsed_subsubsubTopic=true"><i
-                            class="glyphicon glyphicon-chevron-right"></i>{{::subsubsubTopic.topicName}}
+                            class="glyphicon " ng-class="isCollapsed_subsubsubTopic? 'glyphicon-chevron-right' : 'glyphicon-chevron-down'"></i>{{::subsubsubTopic.topicName}}
                             ({{subsubsubTopic.totalCount}})</a>
                           &nbsp;&nbsp; <input type="checkbox" ng-model="subsubsubTopic.isSelected"
                             value="subsubsubTopic.isSelected"
@@ -271,6 +289,7 @@
 
 																		<b>&nbsp;&nbsp;{{::poi.datasetName}}</b> <a href="" ng-show="poi.isSelected" title="Auf Layer zoomen" ng-click="zoomToLayer(poi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></a>
 																	</label>
+																	<div ng-include="'components/kommonitorUserInterface/kommonitorControls/poi/templates/poi-filter-notice.html'"></div>
 																</td>
 																<td>
 																	<p>{{::poi.metadata.description}}</p>
@@ -307,6 +326,10 @@
 																	<a href="" ng-click="getExportLinkForPoi(poi)"
 																		title="Download Features as GeoJSON"><i
 																			class="fas fa-file-download fa-lg"></i></a>
+
+																	<a href="" ng-click="getExportLinkForFilteredGeoresource(poi)" ng-show="$ctrl.kommonitorDataExchangeServiceInstance.spatialFilterIsApplied && poi.isSelected && useSpatialFilterForGeoressources"
+																		title="Download gefilterte Features as GeoJSON"><i
+																			class="fas fa-file-download fa-lg kommonitorOrange"></i></a>
 																			
 																	<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.downloadMetadataPDF_georesource(loi)"
 																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
@@ -331,6 +354,7 @@
 
 																		<b>&nbsp;&nbsp;{{::loi.datasetName}}</b> <a href="" ng-show="loi.isSelected" title="Auf Layer zoomen" ng-click="zoomToLayer(loi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></a>
 																	</label>
+																	<div ng-include="'components/kommonitorUserInterface/kommonitorControls/poi/templates/loi-filter-notice.html'"></div>
 																</td>
 																<td>
 																	<p>{{::loi.metadata.description}}</p>
@@ -359,6 +383,10 @@
 																		title="Download Features as GeoJSON"><i
 																			class="fas fa-file-download fa-lg"></i></a>
 
+																			<a href="" ng-click="getExportLinkForFilteredGeoresource(loi)" ng-show="$ctrl.kommonitorDataExchangeServiceInstance.spatialFilterIsApplied && loi.isSelected && useSpatialFilterForGeoressources"
+																			title="Download gefilterte Features as GeoJSON"><i
+																				class="fas fa-file-download fa-lg kommonitorOrange"></i></a>	
+
 																	<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.downloadMetadataPDF_georesource(loi)"
 																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
 																	<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
@@ -382,6 +410,7 @@
 
 																		<b>&nbsp;&nbsp;{{::aoi.datasetName}}</b> <a href="" ng-show="aoi.isSelected" title="Auf Layer zoomen" ng-click="zoomToLayer(aoi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></a>
 																	</label>
+																	<div ng-include="'components/kommonitorUserInterface/kommonitorControls/poi/templates/aoi-filter-notice.html'"></div>
 																</td>
 																<td>
 																	<p>{{::aoi.metadata.description}}</p>
@@ -408,6 +437,10 @@
 																	<a href="" ng-click="getExportLinkForAoi(aoi)"
 																		title="Download Features as GeoJSON"><i
 																			class="fas fa-file-download fa-lg"></i></a>
+
+																			<a href="" ng-click="getExportLinkForFilteredGeoresource(aoi)" ng-show="$ctrl.kommonitorDataExchangeServiceInstance.spatialFilterIsApplied && aoi.isSelected && useSpatialFilterForGeoressources"
+																			title="Download gefilterte Features as GeoJSON"><i
+																				class="fas fa-file-download fa-lg kommonitorOrange"></i></a>	
 
 																	<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.downloadMetadataPDF_georesource(aoi)"
 																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
@@ -582,6 +615,7 @@
 
 																	<b>&nbsp;&nbsp;{{::poi.datasetName}}</b> <a href="" ng-show="poi.isSelected" title="Auf Layer zoomen" ng-click="zoomToLayer(poi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></a>
 																</label>
+																<div ng-include="'components/kommonitorUserInterface/kommonitorControls/poi/templates/poi-filter-notice.html'"></div>
 															</td>
 															<td>
 																<p>{{::poi.metadata.description}}</p>
@@ -619,6 +653,10 @@
 																	title="Download Features as GeoJSON"><i
 																		class="fas fa-file-download fa-lg"></i></a>
 
+																		<a href="" ng-click="getExportLinkForFilteredGeoresource(poi)" ng-show="$ctrl.kommonitorDataExchangeServiceInstance.spatialFilterIsApplied && poi.isSelected && useSpatialFilterForGeoressources"
+																title="Download gefilterte Features as GeoJSON"><i
+																	class="fas fa-file-download fa-lg kommonitorOrange"></i></a>	
+
 																<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.downloadMetadataPDF_georesource(poi)"
 																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
 																<!-- <a ng-href="getExportLinkForPoi(poi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
@@ -642,6 +680,7 @@
 
 																	<b>&nbsp;&nbsp;{{::loi.datasetName}}</b> <a href="" ng-show="loi.isSelected" title="Auf Layer zoomen" ng-click="zoomToLayer(loi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></a>
 																</label>
+																<div ng-include="'components/kommonitorUserInterface/kommonitorControls/poi/templates/loi-filter-notice.html'"></div>
 															</td>
 															<td>
 																<p>{{::loi.metadata.description}}</p>
@@ -670,6 +709,10 @@
 																	title="Download Features as GeoJSON"><i
 																		class="fas fa-file-download fa-lg"></i></a>
 
+																		<a href="" ng-click="getExportLinkForFilteredGeoresource(loi)" ng-show="$ctrl.kommonitorDataExchangeServiceInstance.spatialFilterIsApplied && loi.isSelected && useSpatialFilterForGeoressources"
+																title="Download gefilterte Features as GeoJSON"><i
+																	class="fas fa-file-download fa-lg kommonitorOrange"></i></a>	
+
 																<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.downloadMetadataPDF_georesource(loi)"
 																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
 																<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
@@ -693,6 +736,7 @@
 
 																	<b>&nbsp;&nbsp;{{::aoi.datasetName}}</b> <a href="" ng-show="aoi.isSelected" title="Auf Layer zoomen" ng-click="zoomToLayer(aoi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></a>
 																</label>
+																<div ng-include="'components/kommonitorUserInterface/kommonitorControls/poi/templates/aoi-filter-notice.html'"></div>
 															</td>
 															<td>
 																<p>{{::aoi.metadata.description}}</p>
@@ -719,6 +763,10 @@
 																<a href="" ng-click="getExportLinkForAoi(aoi)"
 																	title="Download Features as GeoJSON"><i
 																		class="fas fa-file-download fa-lg"></i></a>
+
+																		<a href="" ng-click="getExportLinkForFilteredGeoresource(aoi)" ng-show="$ctrl.kommonitorDataExchangeServiceInstance.spatialFilterIsApplied && aoi.isSelected && useSpatialFilterForGeoressources"
+																title="Download gefilterte Features as GeoJSON"><i
+																	class="fas fa-file-download fa-lg kommonitorOrange"></i></a>	
 
 																<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.downloadMetadataPDF_georesource(aoi)"
 																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
@@ -892,6 +940,7 @@
 
 																<b>&nbsp;&nbsp;{{::poi.datasetName}}</b> <a href="" ng-show="poi.isSelected" title="Auf Layer zoomen" ng-click="zoomToLayer(poi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></a>
 															</label>
+															<div ng-include="'components/kommonitorUserInterface/kommonitorControls/poi/templates/poi-filter-notice.html'"></div>
 														</td>
 														<td>
 															<p>{{::poi.metadata.description}}</p>
@@ -928,6 +977,10 @@
 																title="Download Features as GeoJSON"><i
 																	class="fas fa-file-download fa-lg"></i></a>
 
+																	<a href="" ng-click="getExportLinkForFilteredGeoresource(poi)" ng-show="$ctrl.kommonitorDataExchangeServiceInstance.spatialFilterIsApplied && poi.isSelected && useSpatialFilterForGeoressources"
+																title="Download gefilterte Features as GeoJSON"><i
+																	class="fas fa-file-download fa-lg kommonitorOrange"></i></a>	
+
 															<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.downloadMetadataPDF_georesource(poi)"
 																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
 															<!-- <a ng-href="getExportLinkForPoi(poi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
@@ -950,6 +1003,7 @@
 
 																<b>&nbsp;&nbsp;{{::loi.datasetName}}</b> <a href="" ng-show="loi.isSelected" title="Auf Layer zoomen" ng-click="zoomToLayer(loi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></a>
 															</label>
+															<div ng-include="'components/kommonitorUserInterface/kommonitorControls/poi/templates/loi-filter-notice.html'"></div>
 														</td>
 														<td>
 															<p>{{::loi.metadata.description}}</p>
@@ -976,6 +1030,10 @@
 																title="Download Features as GeoJSON"><i
 																	class="fas fa-file-download fa-lg"></i></a>
 
+																	<a href="" ng-click="getExportLinkForFilteredGeoresource(loi)" ng-show="$ctrl.kommonitorDataExchangeServiceInstance.spatialFilterIsApplied && loi.isSelected && useSpatialFilterForGeoressources"
+																title="Download gefilterte Features as GeoJSON"><i
+																	class="fas fa-file-download fa-lg kommonitorOrange"></i></a>	
+
 															<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.downloadMetadataPDF_georesource(loi)"
 																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
 															<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
@@ -998,6 +1056,7 @@
 
 																<b>&nbsp;&nbsp;{{::aoi.datasetName}}</b> <a href="" ng-show="aoi.isSelected" title="Auf Layer zoomen" ng-click="zoomToLayer(aoi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></a>
 															</label>
+															<div ng-include="'components/kommonitorUserInterface/kommonitorControls/poi/templates/aoi-filter-notice.html'"></div>
 														</td>
 														<td>
 															<p>{{::aoi.metadata.description}}</p>
@@ -1022,6 +1081,10 @@
 															<a href="" ng-click="getExportLinkForAoi(aoi)"
 																title="Download Features as GeoJSON"><i
 																	class="fas fa-file-download fa-lg"></i></a>
+
+																	<a href="" ng-click="getExportLinkForFilteredGeoresource(aoi)" ng-show="$ctrl.kommonitorDataExchangeServiceInstance.spatialFilterIsApplied && aoi.isSelected && useSpatialFilterForGeoressources"
+																title="Download gefilterte Features as GeoJSON"><i
+																	class="fas fa-file-download fa-lg kommonitorOrange"></i></a>	
 
 															<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.downloadMetadataPDF_georesource(aoi)"
 																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
@@ -1196,6 +1259,7 @@
 
 															<b>&nbsp;&nbsp;{{::poi.datasetName}}</b> <a href="" ng-show="poi.isSelected" title="Auf Layer zoomen" ng-click="zoomToLayer(poi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></a>
 														</label>
+														<div ng-include="'components/kommonitorUserInterface/kommonitorControls/poi/templates/poi-filter-notice.html'"></div>
 													</td>
 													<td>
 														<p>{{::poi.metadata.description}}</p>
@@ -1232,6 +1296,10 @@
 															title="Download Features as GeoJSON"><i
 																class="fas fa-file-download fa-lg"></i></a>
 
+														<a href="" ng-click="getExportLinkForFilteredGeoresource(poi)" ng-show="$ctrl.kommonitorDataExchangeServiceInstance.spatialFilterIsApplied && poi.isSelected && useSpatialFilterForGeoressources"
+																title="Download gefilterte Features as GeoJSON"><i
+																	class="fas fa-file-download fa-lg kommonitorOrange"></i></a>		
+
 														<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.downloadMetadataPDF_georesource(poi)"
 																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
 														<!-- <a ng-href="getExportLinkForPoi(poi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
@@ -1254,6 +1322,7 @@
 
 															<b>&nbsp;&nbsp;{{::loi.datasetName}}</b> <a href="" ng-show="loi.isSelected" title="Auf Layer zoomen" ng-click="zoomToLayer(loi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></a>
 														</label>
+														<div ng-include="'components/kommonitorUserInterface/kommonitorControls/poi/templates/loi-filter-notice.html'"></div>
 													</td>
 													<td>
 														<p>{{::loi.metadata.description}}</p>
@@ -1280,6 +1349,10 @@
 															title="Download Features as GeoJSON"><i
 																class="fas fa-file-download fa-lg"></i></a>
 
+																<a href="" ng-click="getExportLinkForFilteredGeoresource(loi)" ng-show="$ctrl.kommonitorDataExchangeServiceInstance.spatialFilterIsApplied && loi.isSelected && useSpatialFilterForGeoressources"
+																title="Download gefilterte Features as GeoJSON"><i
+																	class="fas fa-file-download fa-lg kommonitorOrange"></i></a>	
+
 														<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.downloadMetadataPDF_georesource(loi)"
 																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
 														<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
@@ -1302,6 +1375,7 @@
 
 															<b>&nbsp;&nbsp;{{::aoi.datasetName}}</b> <a href="" ng-show="aoi.isSelected" title="Auf Layer zoomen" ng-click="zoomToLayer(aoi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></a>
 														</label>
+														<div ng-include="'components/kommonitorUserInterface/kommonitorControls/poi/templates/aoi-filter-notice.html'"></div>
 													</td>
 													<td>
 														<p>{{::aoi.metadata.description}}</p>
@@ -1327,6 +1401,10 @@
 														<a href="" ng-click="getExportLinkForAoi(aoi)"
 															title="Download Features as GeoJSON"><i
 																class="fas fa-file-download fa-lg"></i></a>
+
+																<a href="" ng-click="getExportLinkForFilteredGeoresource(aoi)" ng-show="$ctrl.kommonitorDataExchangeServiceInstance.spatialFilterIsApplied && aoi.isSelected && useSpatialFilterForGeoressources"
+																title="Download gefilterte Features as GeoJSON"><i
+																	class="fas fa-file-download fa-lg kommonitorOrange"></i></a>	
 
 														<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.downloadMetadataPDF_georesource(aoi)"
 																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
@@ -1514,6 +1592,7 @@
 
 														<b>&nbsp;&nbsp;{{::poi.datasetName}}</b> <a href="" ng-show="poi.isSelected" title="Auf Layer zoomen" ng-click="zoomToLayer(poi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></a>
 													</label>
+													<div ng-include="'components/kommonitorUserInterface/kommonitorControls/poi/templates/poi-filter-notice.html'"></div>
 												</td>
 												<td>
 													<p>{{::poi.metadata.description}}</p>
@@ -1550,6 +1629,10 @@
 														title="Download Features as GeoJSON"><i
 															class="fas fa-file-download fa-lg"></i></a>
 
+															<a href="" ng-click="getExportLinkForFilteredGeoresource(poi)" ng-show="$ctrl.kommonitorDataExchangeServiceInstance.spatialFilterIsApplied && poi.isSelected && useSpatialFilterForGeoressources"
+																title="Download gefilterte Features as GeoJSON"><i
+																	class="fas fa-file-download fa-lg kommonitorOrange"></i></a>	
+
 													<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.downloadMetadataPDF_georesource(poi)"
 																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
 													<!-- <a ng-href="getExportLinkForPoi(poi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
@@ -1573,6 +1656,7 @@
 
 														<b>&nbsp;&nbsp;{{::loi.datasetName}}</b> <a href="" ng-show="loi.isSelected" title="Auf Layer zoomen" ng-click="zoomToLayer(loi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></a>
 													</label>
+													<div ng-include="'components/kommonitorUserInterface/kommonitorControls/poi/templates/loi-filter-notice.html'"></div>
 												</td>
 												<td>
 													<p>{{::loi.metadata.description}}</p>
@@ -1599,6 +1683,10 @@
 														title="Download Features as GeoJSON"><i
 															class="fas fa-file-download fa-lg"></i></a>
 
+															<a href="" ng-click="getExportLinkForFilteredGeoresource(loi)" ng-show="$ctrl.kommonitorDataExchangeServiceInstance.spatialFilterIsApplied && loi.isSelected && useSpatialFilterForGeoressources"
+																title="Download gefilterte Features as GeoJSON"><i
+																	class="fas fa-file-download fa-lg kommonitorOrange"></i></a>	
+
 													<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.downloadMetadataPDF_georesource(loi)"
 																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
 													<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
@@ -1622,6 +1710,7 @@
 
 														<b>&nbsp;&nbsp;{{::aoi.datasetName}}</b> <a href="" ng-show="aoi.isSelected" title="Auf Layer zoomen" ng-click="zoomToLayer(aoi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></a>
 													</label>
+													<div ng-include="'components/kommonitorUserInterface/kommonitorControls/poi/templates/aoi-filter-notice.html'"></div>
 												</td>
 												<td>
 													<p>{{::aoi.metadata.description}}</p>
@@ -1647,6 +1736,10 @@
 													<a href="" ng-click="getExportLinkForAoi(aoi)"
 														title="Download Features as GeoJSON"><i
 															class="fas fa-file-download fa-lg"></i></a>
+
+															<a href="" ng-click="getExportLinkForFilteredGeoresource(aoi)" ng-show="$ctrl.kommonitorDataExchangeServiceInstance.spatialFilterIsApplied && aoi.isSelected && useSpatialFilterForGeoressources"
+																title="Download gefilterte Features as GeoJSON"><i
+																	class="fas fa-file-download fa-lg kommonitorOrange"></i></a>	
 
 													<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.downloadMetadataPDF_georesource(aoi)"
 																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
@@ -1833,6 +1926,7 @@
 
 															<b>&nbsp;&nbsp;{{::poi.datasetName}}</b> <a href="" ng-show="poi.isSelected" title="Auf Layer zoomen" ng-click="zoomToLayer(poi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></a>
 														</label>
+														<div ng-include="'components/kommonitorUserInterface/kommonitorControls/poi/templates/poi-filter-notice.html'"></div>
 													</td>
 													<td>
 														<p>{{::poi.metadata.description}}</p>
@@ -1868,6 +1962,10 @@
 														<a href="" ng-click="getExportLinkForPoi(poi)"
 															title="Download Features as GeoJSON"><i
 																class="fas fa-file-download fa-lg"></i></a>
+
+																<a href="" ng-click="getExportLinkForFilteredGeoresource(poi)" ng-show="$ctrl.kommonitorDataExchangeServiceInstance.spatialFilterIsApplied && poi.isSelected && useSpatialFilterForGeoressources"
+																title="Download gefilterte Features as GeoJSON"><i
+																	class="fas fa-file-download fa-lg kommonitorOrange"></i></a>	
 
 														<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.downloadMetadataPDF_georesource(poi)"
 																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
@@ -1934,6 +2032,7 @@
 
 															<b>&nbsp;&nbsp;{{::loi.datasetName}}</b> <a href="" ng-show="loi.isSelected" title="Auf Layer zoomen" ng-click="zoomToLayer(loi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></a>
 														</label>
+														<div ng-include="'components/kommonitorUserInterface/kommonitorControls/poi/templates/loi-filter-notice.html'"></div>
 													</td>
 													<td>
 														<p>{{::loi.metadata.description}}</p>
@@ -1959,6 +2058,10 @@
 														<a href="" ng-click="getExportLinkForLoi(loi)"
 															title="Download Features as GeoJSON"><i
 																class="fas fa-file-download fa-lg"></i></a>
+
+																<a href="" ng-click="getExportLinkForFilteredGeoresource(loi)" ng-show="$ctrl.kommonitorDataExchangeServiceInstance.spatialFilterIsApplied && loi.isSelected && useSpatialFilterForGeoressources"
+																title="Download gefilterte Features as GeoJSON"><i
+																	class="fas fa-file-download fa-lg kommonitorOrange"></i></a>	
 														
 														<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.downloadMetadataPDF_georesource(loi)"
 																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
@@ -2021,6 +2124,7 @@
 															<b>&nbsp;&nbsp;{{::aoi.datasetName}}</b> <a href="" ng-show="aoi.isSelected" title="Auf Layer zoomen" ng-click="zoomToLayer(aoi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></a>
 													
 														</label>
+														<div ng-include="'components/kommonitorUserInterface/kommonitorControls/poi/templates/aoi-filter-notice.html'"></div>
 													</td>
 													<td>
 														<p>{{::aoi.metadata.description}}</p>
@@ -2046,6 +2150,10 @@
 														<a href="" ng-click="getExportLinkForAoi(aoi)"
 															title="Download Features as GeoJSON"><i
 																class="fas fa-file-download fa-lg"></i></a>
+
+																<a href="" ng-click="getExportLinkForFilteredGeoresource(aoi)" ng-show="$ctrl.kommonitorDataExchangeServiceInstance.spatialFilterIsApplied && aoi.isSelected && useSpatialFilterForGeoressources"
+																title="Download gefilterte Features as GeoJSON"><i
+																	class="fas fa-file-download fa-lg kommonitorOrange"></i></a>	
 
 														<a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.downloadMetadataPDF_georesource(aoi)"
 																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
@@ -2351,6 +2459,10 @@
                               <a href="" ng-click="getExportLinkForPoi(poi)"
                                 title="Download Features as GeoJSON"><i
                                   class="fas fa-file-download fa-lg"></i></a>
+
+								  <a href="" ng-click="getExportLinkForFilteredGeoresource(poi)" ng-show="$ctrl.kommonitorDataExchangeServiceInstance.spatialFilterIsApplied && poi.isSelected && useSpatialFilterForGeoressources"
+																title="Download gefilterte Features as GeoJSON"><i
+																	class="fas fa-file-download fa-lg kommonitorOrange"></i></a>	
                                   
                               <a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.downloadMetadataPDF_georesource(loi)"
                                 title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
@@ -2400,6 +2512,10 @@
                               <a href="" ng-click="getExportLinkForLoi(loi)"
                                 title="Download Features as GeoJSON"><i
                                   class="fas fa-file-download fa-lg"></i></a>
+
+								  <a href="" ng-click="getExportLinkForFilteredGeoresource(loi)" ng-show="$ctrl.kommonitorDataExchangeServiceInstance.spatialFilterIsApplied && loi.isSelected && useSpatialFilterForGeoressources"
+																title="Download gefilterte Features as GeoJSON"><i
+																	class="fas fa-file-download fa-lg kommonitorOrange"></i></a>	
                       
                               <a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.downloadMetadataPDF_georesource(loi)"
                                 title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
@@ -2448,6 +2564,10 @@
                               <a href="" ng-click="getExportLinkForAoi(aoi)"
                                 title="Download Features as GeoJSON"><i
                                   class="fas fa-file-download fa-lg"></i></a>
+
+								  <a href="" ng-click="getExportLinkForFilteredGeoresource(aoi)" ng-show="$ctrl.kommonitorDataExchangeServiceInstance.spatialFilterIsApplied && aoi.isSelected && useSpatialFilterForGeoressources"
+																title="Download gefilterte Features as GeoJSON"><i
+																	class="fas fa-file-download fa-lg kommonitorOrange"></i></a>	
                       
                               <a href="" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.downloadMetadataPDF_georesource(aoi)"
                                 title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>

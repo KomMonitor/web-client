@@ -35,7 +35,6 @@ angular
         value: "quantile"
         }];
 
-      this.manualMOVBreaks = undefined;
     
       this.classifyMethod = __env.defaultClassifyMethod || "jenks";
 
@@ -291,6 +290,11 @@ angular
         --> treat all other cases equally to measureOfValue
         */
 
+       let manualMOVBreaks = manualBreaks ? [
+        [kommonitorDataExchangeService.measureOfValue, ...manualBreaks.filter(val => val > kommonitorDataExchangeService.measureOfValue)],
+        [...manualBreaks.filter(val => val < kommonitorDataExchangeService.measureOfValue), kommonitorDataExchangeService.measureOfValue]
+       ] : [];
+
        this.resetFeaturesPerColorObjects();
 
        this.greaterThanValues = [];
@@ -312,19 +316,33 @@ angular
           ltMeasureOfValueBrew.colors = ltMeasureOfValueBrew.colors.reverse();
         }
         else if(classifyMethod == "manual") {
-          if (!manualBreaks || manualBreaks.length == 0) {
-            manualBreaks = [];
-            manualBreaks[0] = gtMeasureOfValueBrew ? gtMeasureOfValueBrew.breaks : [];
-            manualBreaks[1] = ltMeasureOfValueBrew ? ltMeasureOfValueBrew.breaks : [];
+          if (!manualMOVBreaks || manualMOVBreaks.length == 0) {
+            manualMOVBreaks = [];
+            manualMOVBreaks[0] = gtMeasureOfValueBrew ? gtMeasureOfValueBrew.breaks : [];
+            manualMOVBreaks[1] = ltMeasureOfValueBrew ? ltMeasureOfValueBrew.breaks : [];
+          }
+
+          // set max and min break correctly
+          if(manualMOVBreaks[1][0] < Math.min(...this.lesserThanValues)) {
+            manualMOVBreaks = manualMOVBreaks[1].filter(val => val >= Math.min(...this.lesserThanValues));
+          }
+          else if(manualMOVBreaks[1][0] > Math.min(...this.lesserThanValues)) {
+            manualMOVBreaks[1].unshift(Math.min(...this.lesserThanValues))
+          }
+          if(manualMOVBreaks[0][manualMOVBreaks[0].length-1] > Math.max(...this.greaterThanValues)) {
+            manualMOVBreaks = manualMOVBreaks[0].filter(val => val <= Math.max(...this.greaterThanValues));
+          }
+          else if(manualMOVBreaks[0][manualMOVBreaks[0].length-1] < Math.max(...this.greaterThanValues)) {
+            manualMOVBreaks[0].push(Math.max(...this.greaterThanValues))
           }
   
           var manualBreaksMatchMeasureOfValue = 
-            (manualBreaks[1][manualBreaks[1].length-1] <= measureOfValue) &&
-            (measureOfValue <= manualBreaks[0][0]);
+            (manualMOVBreaks[1][manualMOVBreaks[1].length-1] <= measureOfValue) &&
+            (measureOfValue <= manualMOVBreaks[0][0]);
 
           if (manualBreaksMatchMeasureOfValue) {
-            gtMeasureOfValueBrew = this.setupManualBrew(manualBreaks[0].length -1, colorCodeForGreaterThanValues, manualBreaks[0]);
-            ltMeasureOfValueBrew = this.setupManualBrew(manualBreaks[1].length -1, colorCodeForLesserThanValues, manualBreaks[1]);
+            gtMeasureOfValueBrew = this.setupManualBrew(manualMOVBreaks[0].length -1, colorCodeForGreaterThanValues, manualMOVBreaks[0]);
+            ltMeasureOfValueBrew = this.setupManualBrew(manualMOVBreaks[1].length -1, colorCodeForLesserThanValues, manualMOVBreaks[1]);
             ltMeasureOfValueBrew.colors = ltMeasureOfValueBrew.colors.reverse();
           }
         }
@@ -468,7 +486,7 @@ angular
        *
        * [dynamicIncreaseBrew, dynamicDecreaseBrew]
        */
-      this.setupDynamicIndicatorBrew = function (geoJSON, propertyName, colorCodeForPositiveValues, colorCodeForNegativeValues, classifyMethod, numClasses, breaks) {
+      this.setupDynamicIndicatorBrew = function (geoJSON, propertyName, colorCodeForPositiveValues, colorCodeForNegativeValues, classifyMethod, numClasses, manualBreaks) {
 
         /*
         * Idea: Analyse the complete geoJSON property array for each feature and make conclusion about how to build the legend
@@ -482,6 +500,11 @@ angular
         --> implement special cases (0, 1 or 2 negative/positive values --> apply colors manually)
         --> treat all other cases equally to measureOfValue
         */
+
+        let manualDynamicBreaks = manualBreaks ? [
+          [...manualBreaks.filter(val => val >= 0)],
+          [...manualBreaks.filter(val => val < 0)]
+         ] : [];
 
        this.resetFeaturesPerColorObjects();
 
@@ -499,13 +522,28 @@ angular
         var dynamicDecreaseBrew = setupDynamicDecreaseBrew(this.negativeValues, colorCodeForNegativeValues, classifyMethod, Math.floor(numClasses / 2));
 
         if(classifyMethod == "manual") {
-          if (!breaks || breaks.length == 0) {
-            breaks = [];
-            breaks[0] = dynamicIncreaseBrew ? dynamicIncreaseBrew.breaks : [];
-            breaks[1] = dynamicDecreaseBrew ? dynamicDecreaseBrew.breaks : [];
+          if (!manualDynamicBreaks || manualDynamicBreaks.length == 0) {
+            manualDynamicBreaks = [];
+            manualDynamicBreaks[0] = dynamicIncreaseBrew ? dynamicIncreaseBrew.breaks : [];
+            manualDynamicBreaks[1] = dynamicDecreaseBrew ? dynamicDecreaseBrew.breaks : [];
           }
-          dynamicIncreaseBrew = this.setupManualBrew(breaks[0].length -1, colorCodeForPositiveValues, breaks[0]);
-          dynamicDecreaseBrew = this.setupManualBrew(breaks[1].length -1, colorCodeForNegativeValues, breaks[1]);
+
+          // set max and min break correctly
+          if(manualDynamicBreaks[1][0] < Math.min(...this.negativeValues)) {
+            manualDynamicBreaks[1] = manualDynamicBreaks[1].filter(val => val >= Math.min(...this.negativeValues));
+          }
+          else if(manualDynamicBreaks[1][0] > Math.min(...this.negativeValues)) {
+            manualDynamicBreaks[1].unshift(Math.min(...this.negativeValues))
+          }
+          if(manualDynamicBreaks[0][manualDynamicBreaks[0].length-1] > Math.max(...this.positiveValues)) {
+            manualDynamicBreaks[0] = manualDynamicBreaks[0].filter(val => val <= Math.max(...this.positiveValues));
+          }
+          else if(manualDynamicBreaks[0][manualDynamicBreaks[0].length-1] < Math.max(...this.positiveValues)) {
+            manualDynamicBreaks[0].push(Math.max(...this.positiveValues))
+          }
+
+          dynamicIncreaseBrew = this.setupManualBrew(manualDynamicBreaks[0].length -1, colorCodeForPositiveValues, manualDynamicBreaks[0]);
+          dynamicDecreaseBrew = this.setupManualBrew(manualDynamicBreaks[1].length -1, colorCodeForNegativeValues, manualDynamicBreaks[1]);
           dynamicDecreaseBrew.colors = dynamicDecreaseBrew.colors.reverse();
         }
 

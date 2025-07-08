@@ -9,7 +9,8 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 			communeLogo: "",
 			creationDate: getCurrentDate(),
 			freeText: "Text",
-		}
+		}		
+
 		$scope.availableTemplateCategories = [
 			{
 				"id": 1,
@@ -35,6 +36,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 				"orientation" : "landscape",
 				"pages": [
 					{
+						"type": "map_overview_unclassified",
 						"orientation": "landscape",
 						"pageElements": [
 
@@ -88,6 +90,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 						]
 					},// l
 					{
+						"type": "map_overview_unclassified",
 						"orientation": "portrait",
 						"pageElements": [
 
@@ -141,6 +144,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 						]
 					}, // p
 					{
+						"type": "map_overview_classified",
 						"orientation": "landscape",
 						"pageElements": [
 
@@ -203,6 +207,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 						]
 					}, // l
 					{
+						"type": "map_overview_classified",
 						"orientation": "portrait",
 						"pageElements": [
 
@@ -265,6 +270,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 						]
 					}, // p
 					{
+						"type": "barchart_overview",
 						"orientation": "landscape",
 						"pageElements": [
 
@@ -289,6 +295,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 						]
 					}, // l
 					{
+						"type": "barchart_overview",
 						"orientation": "portrait",
 						"pageElements": [
 
@@ -314,6 +321,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 					}, // p
 					// one page for each selected area
 					{
+						"type": "area_specific",
 						"orientation": "landscape",
 						"area": "", // the area shown on this page or an empty string if it is a placeholder page
 						"pageElements": [
@@ -381,6 +389,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 						]
 					}, // l
 					{
+						"type": "area_specific",
 						"orientation": "portrait",
 						"area": "", // the area shown on this page or an empty string if it is a placeholder page
 						"pageElements": [
@@ -450,6 +459,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 					// end of area-specific part
 					// datatable might need multiple pages
 					{
+						"type": "datatable",
 						"orientation": "landscape",
 						"pageElements": [
 
@@ -486,6 +496,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 				"orientation": "portrait",
 				"pages": [
 					{
+						"type": "map_overview_unclassified",
 						"orientation": "portrait",
 						"pageElements": [
 
@@ -539,6 +550,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 						]
 					}, // p
 					{
+						"type": "map_overview_unclassified",
 						"orientation": "landscape",
 						"pageElements": [
 
@@ -592,6 +604,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 						]
 					}, // l
 					{
+						"type": "map_overview_classified",
 						"orientation": "portrait",
 						"pageElements": [
 
@@ -654,6 +667,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 						]
 					}, // p
 					{
+						"type": "map_overview_classified",
 						"orientation": "landscape",
 						"pageElements": [
 
@@ -716,6 +730,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 						]
 					}, // l
 					{
+						"type": "barchart_overview",
 						"orientation": "portrait",
 						"pageElements": [
 
@@ -740,6 +755,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 						]
 					}, // p
 					{
+						"type": "barchart_overview",
 						"orientation": "landscape",
 						"pageElements": [
 
@@ -765,6 +781,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 					}, // l
 					// one page for each selected area
 					{
+						"type": "area_specific",
 						"orientation": "portrait",
 						"area": "", // the area shown on this page or an empty string if it is a placeholder page
 						"pageElements": [
@@ -832,6 +849,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 						]
 					}, // p
 					{
+						"type": "area_specific",
 						"orientation": "landscape",
 						"area": "", // the area shown on this page or an empty string if it is a placeholder page
 						"pageElements": [
@@ -901,6 +919,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 					// end of area-specific part
 					// datatable might need multiple pages
 					{
+						"type": "datatable",
 						"orientation": "portrait",
 						"pageElements": [
 
@@ -937,6 +956,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 				"orientation": "landscape",
 				"pages": [
 					{
+						"type": "map_overview_unclassified",
 						"orientation": "landscape",
 						"pageElements": [
 
@@ -989,6 +1009,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 						]
 					}, // l
 					{
+						"type": "map_overview_unclassified",
 						"orientation": "portrait",
 						"pageElements": [
 
@@ -1041,6 +1062,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 						]
 					}, // p
 					{
+						"type": "map_overview_classified",
 						"orientation": "landscape",
 						"pageElements": [
 
@@ -1105,6 +1127,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 						]
 					}, // l
 					{
+						"type": "map_overview_classified",
 						"orientation": "portrait",
 						"pageElements": [
 
@@ -1169,6 +1192,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 						]
 					}, // p
 					{
+						"type": "linechart_overview",
 						"orientation": "landscape",
 						"pageElements": [
 
@@ -1196,6 +1220,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 						]
 					}, // l
 					{
+						"type": "linechart_overview",
 						"orientation": "portrait",
 						"pageElements": [
 
@@ -1223,6 +1248,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 						]
 					}, // p
 					{
+						"type": "boxplot_overview",
 						"orientation": "landscape",
 						"pageElements": [
 
@@ -1252,6 +1278,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 						]
 					}, // l
 					{
+						"type": "boxplot_overview",
 						"orientation": "portrait",
 						"pageElements": [
 
@@ -1282,6 +1309,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 					}, // p
 					// one page for each selected area
 					{
+						"type": "area_specific",
 						"orientation": "landscape",
 						"area": "",
 						"pageElements": [
@@ -1368,6 +1396,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 						]
 					}, // l
 					{
+						"type": "area_specific",
 						"orientation": "portrait",
 						"area": "",
 						"pageElements": [
@@ -1456,6 +1485,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 					// end of area-specific part
 					// datatable might need multiple pages
 					{
+						"type": "datatable",
 						"orientation": "landscape",
 						"pageElements": [
 
@@ -1493,6 +1523,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 				"orientation": "portrait",
 				"pages": [
 					{
+						"type": "map_overview_unclassified",
 						"orientation": "portrait",
 						"pageElements": [
 
@@ -1545,6 +1576,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 						]
 					}, // p
 					{
+						"type": "map_overview_unclassified",
 						"orientation": "landscape",
 						"pageElements": [
 
@@ -1597,6 +1629,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 						]
 					}, // l
 					{
+						"type": "map_overview_classified",
 						"orientation": "portrait",
 						"pageElements": [
 
@@ -1661,6 +1694,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 						]
 					}, // p
 					{
+						"type": "map_overview_classified",
 						"orientation": "landscape",
 						"pageElements": [
 
@@ -1725,6 +1759,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 						]
 					}, // l
 					{
+						"type": "linechart_overview",
 						"orientation": "portrait",
 						"pageElements": [
 
@@ -1752,6 +1787,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 						]
 					}, // p
 					{
+						"type": "linechart_overview",
 						"orientation": "landscape",
 						"pageElements": [
 
@@ -1779,6 +1815,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 						]
 					}, // l
 					{
+						"type": "boxplot_overview",
 						"orientation": "portrait",
 						"pageElements": [
 
@@ -1808,6 +1845,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 						]
 					}, // p
 					{
+						"type": "boxplot_overview",
 						"orientation": "landscape",
 						"pageElements": [
 
@@ -1838,6 +1876,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 					}, // l
 					// one page for each selected area
 					{
+						"type": "area_specific",
 						"orientation": "portrait",
 						"area": "",
 						"pageElements": [
@@ -1924,6 +1963,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 						]
 					}, // p
 					{
+						"type": "area_specific",
 						"orientation": "landscape",
 						"area": "",
 						"pageElements": [
@@ -2012,6 +2052,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 					// end of area-specific part
 					// datatable might need multiple pages
 					{
+						"type": "datatable",
 						"orientation": "portrait",
 						"pageElements": [
 
@@ -2049,6 +2090,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 				"orientation" : "landscape",
 				"pages": [
 					{
+						"type": "map_overview_reachability",
 						"orientation": "landscape",
 						"pageElements": [
 
@@ -2114,6 +2156,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 						]
 					}, // l
 					{
+						"type": "map_overview_reachability",
 						"orientation": "portrait",
 						"pageElements": [
 
@@ -2180,6 +2223,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 					}, // p
 					// one page for each selected area
 					{
+						"type": "area_specific",
 						"orientation": "landscape",
 						"area": "",
 						"pageElements": [
@@ -2246,6 +2290,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 						]
 					}, // l
 					{
+						"type": "area_specific",
 						"orientation": "portrait",
 						"area": "",
 						"pageElements": [
@@ -2321,6 +2366,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 				"orientation" : "portrait",
 				"pages": [
 					{
+						"type": "map_overview_reachability",
 						"orientation": "portrait",
 						"pageElements": [
 
@@ -2386,6 +2432,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 						]
 					}, // p
 					{
+						"type": "map_overview_reachability",
 						"orientation": "landscape",
 						"pageElements": [
 
@@ -2452,6 +2499,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 					}, // l
 					// one page for each selected area
 					{
+						"type": "area_specific",
 						"orientation": "portrait",
 						"area": "",
 						"pageElements": [
@@ -2518,6 +2566,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 						]
 					}, // p
 					{
+						"type": "area_specific",
 						"orientation": "landscape",
 						"area": "",
 						"pageElements": [
@@ -2750,7 +2799,9 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 					document.body.removeChild(img);
 					canvas.width = width;
 					canvas.height = width / ratio;
-					let ctx = canvas.getContext("2d");
+					let ctx = canvas.getContext("2d", {
+						willReadFrequently: true
+					  });
 					ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 					try {
 						let data = canvas.toDataURL('image/png');

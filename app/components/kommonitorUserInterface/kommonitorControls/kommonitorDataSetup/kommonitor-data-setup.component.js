@@ -116,6 +116,10 @@ angular
 								//   }
 								// }, true);
 
+								$scope.hasHeadlineIndicators = function(){
+									return kommonitorDataExchangeService.displayableIndicators.filter(item => item.isHeadlineIndicator).length > 0
+								}
+
                 // make sure that initial fetching of availableRoles has happened
                 $scope.$on("initialMetadataLoadingCompleted", function (event) {
 

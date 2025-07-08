@@ -17,6 +17,7 @@ angular
 								this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 								this.kommonitorMapServiceInstance = kommonitorMapService;
 								$scope.useCluster = true;
+								$scope.useSpatialFilterForGeoressources = false;
 								$scope.loadingData = false;
 								$scope.date;
 
@@ -110,34 +111,35 @@ angular
 								var addClickListenerToEachCollapseTrigger = function(){
 									setTimeout(function(){
 										$('.list-group-item > .collapseTrigger').on('click', function() {
-									    $('.glyphicon', this)
-									      .toggleClass('glyphicon-chevron-right')
-									      .toggleClass('glyphicon-chevron-down');
+											$('.glyphicon', this)
+											.toggleClass('glyphicon-chevron-right')
+											.toggleClass('glyphicon-chevron-down')
+											.toggleClass('test');
 
-												// manage uncollapsed entries
-												// var clickedTopicId = $(this).attr('id');
-												// if ($scope.unCollapsedTopicIds.includes(clickedTopicId)){
-												// 	var index = $scope.unCollapsedTopicIds.indexOf(clickedTopicId);
-												// 	$scope.unCollapsedTopicIds.splice(index, 1);
-												// }
-												// else{
-												// 	$scope.unCollapsedTopicIds.push(clickedTopicId);
-												// }
-									  });
+													// manage uncollapsed entries
+													// var clickedTopicId = $(this).attr('id');
+													// if ($scope.unCollapsedTopicIds.includes(clickedTopicId)){
+													// 	var index = $scope.unCollapsedTopicIds.indexOf(clickedTopicId);
+													// 	$scope.unCollapsedTopicIds.splice(index, 1);
+													// }
+													// else{
+													// 	$scope.unCollapsedTopicIds.push(clickedTopicId);
+													// }
+										});
                     
-                    // addClass "clickBound" sets trigger, that listener has been added, not:.clickBound filters for that. otherwise multiple listeners will be added
-                    $('.list-group-item > .georesourcesFavCollapseTrigger:not(.clickBound)').addClass('clickBound').on('click', function() {
-									    $('.glyphicon', this)
-									      .toggleClass('glyphicon-chevron-right')
-									      .toggleClass('glyphicon-chevron-down');
+										// addClass "clickBound" sets trigger, that listener has been added, not:.clickBound filters for that. otherwise multiple listeners will be added
+										$('.list-group-item > .georesourcesFavCollapseTrigger:not(.clickBound)').addClass('clickBound').on('click', function() {
+															$('.glyphicon', this)
+															.toggleClass('glyphicon-chevron-right')
+															.toggleClass('glyphicon-chevron-down');
 
-                      // manage entries
-                      var clickedTopicId = $(this).attr('id');
-                      if(document.getElementById('georesourcesFavSubTopic-'+clickedTopicId).style.display=='none')
-                        document.getElementById('georesourcesFavSubTopic-'+clickedTopicId).style.display = 'block';
-                      else
-                        document.getElementById('georesourcesFavSubTopic-'+clickedTopicId).style.display = 'none';
-									  });
+										// manage entries
+										var clickedTopicId = $(this).attr('id');
+										if(document.getElementById('georesourcesFavSubTopic-'+clickedTopicId).style.display=='none')
+											document.getElementById('georesourcesFavSubTopic-'+clickedTopicId).style.display = 'block';
+										else
+											document.getElementById('georesourcesFavSubTopic-'+clickedTopicId).style.display = 'none';
+														});
 									}, 500);
 								};
 
@@ -147,9 +149,9 @@ angular
 								}); */
 
                 $scope.$on("initialMetadataLoadingCompleted", function (event) {
-                  $scope.georesourceFavTopicsTree = prepTopicsTree(kommonitorDataExchangeService.topicGeoresourceHierarchy,0,undefined);
-                  
-									addClickListenerToEachCollapseTrigger();
+                  $scope.georesourceFavTopicsTree = prepTopicsTree(kommonitorDataExchangeService.topicGeoresourceHierarchy,0,undefined); 
+				  
+				  addClickListenerToEachCollapseTrigger();
 
                   var userInfo = kommonitorFavService.getUserInfo();
                   if(userInfo.georesourceFavourites) {
@@ -479,6 +481,22 @@ angular
 									}, 250);							
 								});
 
+								$scope.$on("onAddedFeatureToSelection", function (event, selectedIndicatorFeatureIds) {
+									$scope.refreshPoiLayers();
+								});
+
+								$scope.$on("indicatortMapDisplayFinished", function(){
+									$scope.refreshGeoressourceLayers();
+								});
+
+								$scope.$on("onRemovedFeatureFromSelection", function (event, selectedIndicatorFeatureIds) {
+									$scope.refreshPoiLayers();
+								});
+
+								$scope.$on("removeAllSpatialFilters", function(event){
+									$scope.useSpatialFilterForGeoressources = false;
+								});
+
 								$scope.refreshSelectedGeoresources = function(){
 									for (const georesource of kommonitorDataExchangeService.displayableGeoresources_keywordFiltered) {
 										if (georesource.isSelected){
@@ -517,15 +535,15 @@ angular
 										// depending on type we must call different methods
 										if (georesourceDataset.isPOI){
 											$scope.removePoiLayerFromMap(georesourceDataset);
-											$scope.addPoiLayerToMap(georesourceDataset, $scope.useCluster);
+											$scope.addPoiLayerToMap(georesourceDataset, $scope.useCluster, $scope.useSpatialFilterForGeoressources);
 										}
 										else if (georesourceDataset.isLOI){
 											$scope.removeLoiLayerFromMap(georesourceDataset);
-											$scope.addLoiLayerToMap(georesourceDataset);
+											$scope.addLoiLayerToMap(georesourceDataset, $scope.useSpatialFilterForGeoressources);
 										}
 										else if (georesourceDataset.isAOI){
 											$scope.removeAoiLayerFromMap(georesourceDataset);
-											$scope.addAoiLayerToMap(georesourceDataset);
+											$scope.addAoiLayerToMap(georesourceDataset, $scope.useSpatialFilterForGeoressources);
 										}
 										else{
 											console.error("unknown dataset: " + georesourceDataset);
@@ -552,7 +570,7 @@ angular
 
 									if(poi.isSelected){
 										//display on Map
-										$scope.addPoiLayerToMap(poi, $scope.useCluster);
+										$scope.addPoiLayerToMap(poi, $scope.useCluster, $scope.useSpatialFilterForGeoressources);
 									}
 									else{
 										// unselect topic
@@ -567,7 +585,7 @@ angular
 
 								};
 
-								$scope.addPoiLayerToMap = async function(poiGeoresource, useCluster) {
+								$scope.addPoiLayerToMap = async function(poiGeoresource, useCluster, useSpatialFilterForGeoressources) {
 									$scope.loadingData = true;
 									$rootScope.$broadcast("showLoadingIconOnMap");
 
@@ -591,7 +609,7 @@ angular
 
 											poiGeoresource.geoJSON = geoJSON;
 
-											kommonitorMapService.addPoiGeoresourceGeoJSON(poiGeoresource, date, useCluster);
+											kommonitorMapService.addPoiGeoresourceGeoJSON(poiGeoresource, date, useCluster, useSpatialFilterForGeoressources);
 											$scope.loadingData = false;
 											$rootScope.$broadcast("hideLoadingIconOnMap");
 
@@ -617,14 +635,21 @@ angular
 
 								};
 
-								$scope.refreshPoiLayers = async function(){
-									for (var poi of kommonitorDataExchangeService.displayableGeoresources_keywordFiltered){
-										if (poi.isSelected){
-											//remove POI layer from map
-											$scope.removePoiLayerFromMap(poi);
-
-											// remove layer and add layer again
-											await $scope.addPoiLayerToMap(poi, $scope.useCluster);
+								$scope.refreshGeoressourceLayers = async function(){
+									for (var el of kommonitorDataExchangeService.displayableGeoresources_keywordFiltered){
+										if (el.isSelected){
+											if(el.isPOI) {
+												$scope.removePoiLayerFromMap(el);
+												await $scope.addPoiLayerToMap(el, $scope.useCluster, $scope.useSpatialFilterForGeoressources);
+											}
+											else if (el.isLOI) {
+												$scope.removeLoiLayerFromMap(el);
+												await $scope.addLoiLayerToMap(el, $scope.useSpatialFilterForGeoressources);
+											}
+											else if (el.isAOI) {
+												$scope.removeAoiLayerFromMap(el);
+												await $scope.addAoiLayerToMap(el, $scope.useSpatialFilterForGeoressources);
+											}
 										}
 									}
 
@@ -639,6 +664,45 @@ angular
 										}
 									}
 								};
+
+								$scope.refreshPoiLayers = async function(){
+									for (var poi of kommonitorDataExchangeService.displayableGeoresources_keywordFiltered){
+										if (poi.isSelected){
+											//remove POI layer from map
+											$scope.removePoiLayerFromMap(poi);
+
+											// remove layer and add layer again
+											await $scope.addPoiLayerToMap(poi, $scope.useCluster, $scope.useSpatialFilterForGeoressources);
+										}
+									}
+
+									for (var wfs of kommonitorDataExchangeService.wfsDatasets){
+										if (wfs.geometryType == 'POI' && wfs.isSelected){
+											//remove POI layer from map
+											kommonitorMapService.removeWfsLayerFromMap(wfs);
+
+											// remove layer and add layer again
+											var opacity = 1 - wfs.transparency;
+											await kommonitorMapService.addWfsLayerToMap(wfs, opacity, $scope.useCluster);											
+										}
+									}
+								};
+
+								$scope.getExportLinkForFilteredGeoresource = function(georesource){
+									var date = $scope.getQueryDate(georesource);
+
+									var dateComps = date.split("-");
+
+									var year = dateComps[0];
+									var month = dateComps[1];
+									var day = dateComps[2];
+
+									var fileName = georesource.datasetName + "-" + year + "-" + month + "-" + day + "_gefiltert";
+
+									var geoJSON_string = JSON.stringify(georesource.geoJSON);
+
+									kommonitorDataExchangeService.generateAndDownloadGeoresourceZIP(georesource, geoJSON_string, fileName, ".geojson", {});
+								}
 
 								$scope.getExportLinkForPoi = function(poi){
 									var date = $scope.getQueryDate(poi);
@@ -719,7 +783,7 @@ angular
 
 											aoiGeoresource.geoJSON = geoJSON;
 
-											kommonitorMapService.addAoiGeoresourceGeoJSON(aoiGeoresource, date);
+											kommonitorMapService.addAoiGeoresourceGeoJSON(aoiGeoresource, date, $scope.useSpatialFilterForGeoressources);
 											$scope.loadingData = false;
 											$rootScope.$broadcast("hideLoadingIconOnMap");
 
@@ -791,7 +855,7 @@ angular
 
 										if(loi.isSelected){
 											//display on Map
-											$scope.addLoiLayerToMap(loi);
+											$scope.addLoiLayerToMap(loi, $scope.addLoiGeoresourceGeoJSON);
 										}
 										else{
 											// unselect topic
@@ -806,7 +870,7 @@ angular
 
 									};
 
-									$scope.addLoiLayerToMap = async function(loiGeoresource) {
+									$scope.addLoiLayerToMap = async function(loiGeoresource, useSpatialFilterForGeoressources) {
 										$scope.loadingData = true;
 										$rootScope.$broadcast("showLoadingIconOnMap");
 
@@ -830,7 +894,7 @@ angular
 
 												loiGeoresource.geoJSON = geoJSON;
 
-												kommonitorMapService.addLoiGeoresourceGeoJSON(loiGeoresource, date);
+												kommonitorMapService.addLoiGeoresourceGeoJSON(loiGeoresource, date, $scope.useSpatialFilterForGeoressources);
 												$scope.loadingData = false;
 												$rootScope.$broadcast("hideLoadingIconOnMap");
 
@@ -913,6 +977,10 @@ angular
 										kommonitorMapService.removeWmsLayerFromMap(dataset);
 
 									}
+
+									// on WMS layer visibility change we must inform legend control 
+									// it decides if an additional WMS legend is displayed if at least one WMS layer is active
+									$rootScope.$broadcast("WMSLayerVisibilityChanged");
 								};
 
 								$scope.adjustWMSLayerTransparency = function(dataset){
@@ -981,7 +1049,10 @@ angular
 
 									$scope.isCollapsed_noTopic = ! $scope.isCollapsed_noTopic;
 
-									$scope.digest();
+									$timeout(function(){
+										$scope.$digest();
+									});
+									
 								}
 
                 $scope.georesourceTopicFavSelected = function(topicId) {

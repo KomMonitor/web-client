@@ -30,6 +30,10 @@ body {
 	overflow-y: auto !important;
 }
 
+.kommonitorOrange{
+	color: rgb(247, 147, 30)
+}
+
 /* toastr library override of transparency */
 .toast { opacity: 0.8 }
 
@@ -1209,6 +1213,33 @@ a.kommonitor-theme:hover, a.kommonitor-theme:active, a.kommonitor-theme:focus {
 	width: 280px;
   height: 220px;
   position: absolute;
+}
+
+#statusButtonContainer {
+	position: absolute;
+	left: 280px;
+	top: 10px;
+	z-index: 3;
+	display: flex;
+	flex-direction: row;
+	gap: 10px;
+}
+
+#filterStatusButtonContainer {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	align-items: flex-start;
+}
+
+.btn-purple {
+	background-color: rgb(117,107,177);
+	border-color: rgb(98, 89, 148);
+	color: white !important;
+}
+
+.btn-purple:hover,.btn-purple:active,.btn-purple.hover {
+	background-color: rgb(98, 89, 148);
 }
 
 #sideBarButtons{
@@ -2445,6 +2476,15 @@ transition: opacity 0.3s;
 	z-index: 1003;
 }
 
+.btn-custom.filterActive {
+	border: 5px solid #f39c12;
+	/*background-color: #f39c12;*/
+}
+
+.btn-custom.balanceActive {
+	border: 5px solid #f39c12;
+}
+
 .btn-custom:hover {
 	background-color: white;
 	color: black;
@@ -2939,6 +2979,10 @@ input:checked + .switchslider {
   background-color: var(--kommonitor-primary);
 }
 
+input:checked + .switchsliderOrange {
+	background-color: rgb(247, 147, 30);
+}
+
 input:focus + .switchslider {
   box-shadow: 0 0 1px var(--kommonitor-primary);
 }
@@ -3011,10 +3055,11 @@ input:checked + .switchslider:before {
 }
 
 .reporting-element-config-box {
-	height: 150px;
+	height: fit-content;
 	border: solid lightgray 1px;
 	padding:10px;
 	margin-bottom: 15px;
+	z-index: 99999;
 }
 
 .reporting-element-config-box > h5 {
@@ -3209,7 +3254,7 @@ input:checked + .switchslider:before {
 	flex-wrap: wrap;
 	align-items: center;
 	padding: 5px 0px 5px 0px;
-	cursor: pointer;
+	/* cursor: pointer;   */  /* that suggests to the user that the whole reporting row could be clicked in order to be edited, but that is not implemented - only the delete button shall be clickable  */
 }
 
 .reporting-hr-divider {

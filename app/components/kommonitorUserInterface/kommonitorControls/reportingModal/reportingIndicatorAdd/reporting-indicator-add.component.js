@@ -1,11 +1,14 @@
 angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 	templateUrl : "components/kommonitorUserInterface/kommonitorControls/reportingModal/reportingIndicatorAdd/reporting-indicator-add.template.html",
 	controller : ['$scope', '$http', '$timeout', '$interval', '__env', 'kommonitorDataExchangeService', 'kommonitorDiagramHelperService', 
-	'kommonitorVisualStyleHelperService', 'kommonitorReachabilityHelperService',
+	'kommonitorVisualStyleHelperService', 'kommonitorReachabilityHelperService', 'kommonitorLeafletScreenshotCacheHelperService', '$rootScope',
 	function ReportingIndicatorAddController($scope, $http, $timeout, $interval, __env, kommonitorDataExchangeService, kommonitorDiagramHelperService, 
-		kommonitorVisualStyleHelperService, kommonitorReachabilityHelperService) {
+		kommonitorVisualStyleHelperService, kommonitorReachabilityHelperService, kommonitorLeafletScreenshotCacheHelperService, $rootScope) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
+		this.kommonitorLeafletScreenshotCacheHelperServiceInstance = kommonitorLeafletScreenshotCacheHelperService;
+
+		const mercatorProjection_d3 = d3.geoMercator();
 
 		$scope.template = undefined;
 		$scope.untouchedTemplateAsString = "";
@@ -24,8 +27,6 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		$scope.indexOfFirstAreaSpecificPage = undefined;
 		$scope.dateSlider = undefined;
 		$scope.absoluteLabelPositions = [];
-		$scope.showMapLabels = true;
-		$scope.showRankingMeanLine = true;
 		$scope.echartsOptions = {
 			map: {
 				// "2017-12-31": ...
@@ -44,12 +45,206 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		$scope.isFirstUpdateOnIndicatorOrPoiLayerSelection = true;
 		$scope.showResetIsochronesBtn = false;
 
+		$scope.lastPageOfAddedSectionPrepared = false;
+		$scope.pagePreparationIndex = 0;
+		$scope.pagePreparationSize = 0;
+
 		$scope.isochronesTypeOfMovementMapping = {
 			"foot-walking": "Fußgänger",
 			"driving-car": "Auto",
 			"cycling-regular": "Fahrrad",
 			"wheelchair": "Barrierefrei",
 			"buffer": "Puffer"
+		}
+
+		// page config is applied for the whole template and set within template.pageConfig later
+		// in order to apply config on overview page and report generation 
+		$scope.pageConfig = {
+			mapLegendBackgroundColor: "rgba(255, 255, 255, 0.75)",
+			showMapLabels: true,
+			showRankingChartPerArea: true,
+			showLineChartPerArea: true,
+			showFreeText: true,
+			showRankingMeanLine: true,
+			showTitle: true,
+			showSubtitle: true,
+			showLogo: true,
+			showFooterCreationInfo: true,
+			showPageNumber: true,
+			sections: {
+				showOverviewSection_unclassified: true,
+				showOverviewSection_classified: true,
+				showBarchartOverview: true,
+				showLinechartOverview: true,
+				showBoxplotchartOverview: true,
+				showAreaSpecific: true,
+				showOverviewSection_reachability: true,
+				showDatatable: true
+			}
+		}
+
+		$scope.clearScreenshotCache = async function(){
+			await kommonitorLeafletScreenshotCacheHelperService.clearScreenshotCache();
+
+			// now retrigger the generation of all screenshots
+			// by simply calling the changeBaseMap method
+			// this will reinit all diagrams, including leafletScreenshots
+			$scope.onChangeSelectedBaseMap();
+		}
+
+		$scope.checkVisibility = function(pageElement, page){
+			switch(pageElement.type) {
+				case "indicatorTitle-landscape":
+				case "indicatorTitle-portrait": {
+					return $scope.pageConfig.showTitle;
+				}
+	
+				case "communeLogo-landscape":
+				case "communeLogo-portrait": {
+					return $scope.pageConfig.showLogo;
+				}
+				case "dataTimestamp-landscape":
+				case "dataTimestamp-portrait": {
+					return $scope.pageConfig.showSubtitle;
+				}
+				case "dataTimeseries-landscape":
+				case "dataTimeseries-portrait": {
+					return $scope.pageConfig.showSubtitle;
+				}
+				case "reachability-subtitle-landscape":
+				case "reachability-subtitle-portrait": {
+					return $scope.pageConfig.showSubtitle;
+				}
+				case "footerHorizontalSpacer-landscape":
+				case "footerHorizontalSpacer-portrait": {
+					return $scope.pageConfig.showFooterCreationInfo;
+				}
+				case "footerCreationInfo-landscape":
+				case "footerCreationInfo-portrait": {  
+					return $scope.pageConfig.showFooterCreationInfo;
+				} 
+				case "pageNumber-landscape":
+				case "pageNumber-portrait": {
+					return $scope.pageConfig.showPageNumber;
+				}
+				// template-specific elements
+				case "map": {
+					return true;
+				}
+				 // case "mapLegend" can be ignored since it is included in the map if needed
+				  /*
+					June 2025: we remove overallAverage and overallChange, overallAverage and selectionAverage from reporting overview pages.
+				 */
+				// case "overallAverage":
+				// case "selectionAverage": {
+				// 	return true;
+				// }
+				// case "overallChange":
+				// case "selectionChange": {
+				// 	return true;
+				// }
+				case "barchart": {
+					if(page.type == 'area_specific'){
+						return $scope.pageConfig.showRankingChartPerArea;
+					}
+					return true;					
+				}
+				case "linechart": {
+					if(page.type == 'area_specific'){
+						return $scope.pageConfig.showLineChartPerArea;
+					}
+					return true;
+				}
+				case "textInput": {
+					return $scope.pageConfig.showFreeText;
+				}
+				case "datatable": {
+					return $scope.pageConfig.sections.showDatatable;
+				}
+				default:{
+					return true;
+				}
+			}
+		}
+
+		$scope.onChangePageConfig = function(){
+			// just visual updates and make sure that config is set at selected template
+			// in order to apply this config in overview and for report generation!
+			$timeout(function(){
+				$scope.loadingData = true; 
+			})
+
+			$scope.template.pageConfig = $scope.pageConfig;		
+
+			$timeout(function(){
+				$scope.loadingData = false; 
+			}) 
+		}
+
+		$scope.onChangeShowPageSection = function(){
+			$timeout(function(){
+				$scope.loadingData = true; 
+			})
+
+			// now iterate over pages and adjust visibility according to settings
+			// save that config at template level to adjust it in overview component and during export as well
+			 for (const page of $scope.template.pages) {
+				if(page.type == "map_overview_unclassified"){
+					page.hidden = ! $scope.pageConfig.sections.showOverviewSection_unclassified;
+					continue;
+				}
+				if(page.type == "map_overview_classified"){
+					page.hidden = ! $scope.pageConfig.sections.showOverviewSection_classified;
+					continue;
+				}
+				if(page.type == "barchart_overview"){
+					page.hidden = ! $scope.pageConfig.sections.showBarchartOverview;
+					continue;
+				}
+				if(page.type == "linechart_overview"){
+					page.hidden = ! $scope.pageConfig.sections.showLinechartOverview;
+					continue;
+				}
+				if(page.type == "boxplot_overview"){
+					page.hidden = ! $scope.pageConfig.sections.showBoxplotchartOverview;
+					continue;
+				}
+				if(page.type == "area_specific"){
+					page.hidden = ! $scope.pageConfig.sections.showAreaSpecific;
+					continue;
+				}
+				if(page.type == "map_overview_reachability"){
+					page.hidden = ! $scope.pageConfig.sections.showOverviewSection_reachability;
+					continue;
+				}
+				if(page.type == "datatable"){
+					page.hidden = ! $scope.pageConfig.sections.showDatatable;
+					continue;
+				}
+			 }
+
+
+			$scope.template.pageConfig = $scope.pageConfig;
+
+			$timeout(function(){
+				$scope.loadingData = false; 
+			}) 
+		}
+
+		$scope.selectedBaseMap = kommonitorDataExchangeService.baseLayerDefinitionsArray[1];
+
+		$scope.onChangeSelectedBaseMap = async function(){
+			// reinitiate page building from the scratch as easiest solution
+			$timeout(function(){
+				$scope.loadingData = true; 
+			})
+
+			kommonitorLeafletScreenshotCacheHelperService.resetCounter_keepingCurrentTargetFeatures(false);
+			await $scope.initializeAllDiagrams();			
+
+			$timeout(function(){
+				$scope.loadingData = false; 
+			}) 
 		}
 
 		// used to track template pages instead of using $$hashkey
@@ -75,6 +270,16 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			$scope.template.pages = $scope.template.pages.filter( page => {
 				return !page.hasOwnProperty("area")
 			});
+
+			let numberOfTargetSpatialUnitFeatures = 0;
+			if(newVal && newVal.length){
+				numberOfTargetSpatialUnitFeatures = newVal.length;				
+			}			
+			// reset leaflet screenshot helper service according to new  number of selected areas
+			// add one page to display the total map of all selected spatial unit features
+			numberOfTargetSpatialUnitFeatures ++;				
+			kommonitorLeafletScreenshotCacheHelperService.resetCounter(numberOfTargetSpatialUnitFeatures, false);
+
 
 			if($scope.template.name.includes("timestamp"))
 				$scope.updateAreasForTimestampTemplates(newVal)
@@ -105,16 +310,28 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					} 
 					if($scope.template.name.includes("reachability") || ($scope.isFirstUpdateOnIndicatorOrPoiLayerSelection == false && justChanged == false)) {
 						await $scope.initializeAllDiagrams();
-						if(!$scope.template.name.includes("reachability")) {
-							// in reachability template we have to update leaflet maps, too
-							$scope.loadingData = false;
-						}
+						// if(!$scope.template.name.includes("reachability")) {
+						// 	// in reachability template we have to update leaflet maps, too
+						// 	$scope.loadingData = false;
+						// }
+						$scope.loadingData = false;
 					}
 			}
 				updateDiagramsInterval_areas = $interval(updateDiagrams, 0, 100)
 			
 		}
 
+		function removeCircularReferences(pages){			
+			for (const page of pages) {
+				for (const pageElement of page.pageElements) {
+					if(pageElement.type === "map"){
+						delete pageElement.leafletMap;
+					}
+				}
+			}
+
+			return pages;
+		}
 
 		$scope.updateAreasForTimestampTemplates = function(newVal) {
 			let pagesToInsertPerTimestamp = [];
@@ -157,6 +374,9 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					// this is where we want to start replacing pages later
 					idx = $scope.template.pages.indexOf( pagesForTimestamp[0] )
 					// create a deep copy so we can assign new ids
+					// we must remove leafletMap, as this causes CircularReference Errors
+					// it will be added again during page creation anyway
+					pagesForTimestamp = removeCircularReferences(pagesForTimestamp);
 					pagesForTimestamp = JSON.parse(JSON.stringify(pagesForTimestamp));
 					
 					// setup pages before inserting
@@ -363,6 +583,12 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 							page.area = area.name;
 							page.id = $scope.templatePageIdCounter++;
 							areaSpecificPages.push(page);
+
+							// repeat for the same area page with other orientation
+							let page_otherOrientation = angular.fromJson($scope.untouchedTemplateAsString).pages[ $scope.indexOfFirstAreaSpecificPage + 1];
+							page_otherOrientation.area = area.name;
+							page_otherOrientation.id = $scope.templatePageIdCounter++;
+							areaSpecificPages.push(page_otherOrientation);
 						}
 
 						// sort alphabetically by area name
@@ -372,7 +598,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 							return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
 						})
 
-						pagesToInsert.splice($scope.indexOfFirstAreaSpecificPage, 1, ...areaSpecificPages)
+						// remove two placeholders due to 2 orientations
+						pagesToInsert.splice($scope.indexOfFirstAreaSpecificPage, 2, ...areaSpecificPages)
 
 						// setup pages before inserting them
 						for(let pageToInsert of pagesToInsert) {
@@ -510,10 +737,11 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 						}
 
 						await $scope.initializeAllDiagrams();
-						if(!$scope.template.name.includes("reachability")) {
-							// in reachability template we have to update leaflet maps, too
-							$scope.loadingData = false;
-						}
+						// if(!$scope.template.name.includes("reachability")) {
+						// 	// in reachability template we have to update leaflet maps, too
+						// 	$scope.loadingData = false;
+						// }
+						$scope.loadingData = false;
 					}
 				});
 				
@@ -623,12 +851,22 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			});
 		}
 
+		$rootScope.$on("screenshotsForCurrentSpatialUnitUpdate", function(event){
+			// update ui to enable button
+			setTimeout(function() {
+				$scope.$digest();
+			})			
+		});
+
 
 		$scope.onSpatialUnitChanged = async function(selectedSpatialUnit) {
-			$scope.loadingData = true;
+			$scope.loadingData = true;			
+
 			$("#reporting-spatialUnitChangeWarning").hide();
 			$scope.timeseriesAdjustedOnSpatialUnitChange = false;
-			await $scope.updateAreasInDualList()
+			await $scope.updateAreasInDualList() // after that spatialUnitFeatures are available
+			// kommonitorLeafletScreenshotCacheHelperService.clearScreenshotMap();
+
 			let validTimestamps = []
 			// There might be different valid timestamps for the new spatial unit.
 			if($scope.selectedIndicator) {
@@ -757,10 +995,11 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				}
 
 				await $scope.initializeAllDiagrams();
-				if(!$scope.template.name.includes("reachability")) {
-					// in reachability template we have to update leaflet maps, too
-					$scope.loadingData = false;
-				}
+				// if(!$scope.template.name.includes("reachability")) {
+				// 	// in reachability template we have to update leaflet maps, too
+				// 	$scope.loadingData = false;
+				// }
+				$scope.loadingData = false;
 			});
 		}
 
@@ -810,7 +1049,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 	
 			}
 			
-			$timeout(function(){
+			setTimeout(function(){
 				$scope.$digest();
 			});
 		}
@@ -869,6 +1108,18 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		$scope.updateDualList = function(options, data, selectedItems) {
 			options.selectedItems = [];
 
+			if(options.label == "Bereiche"){
+				let numberOfTargetSpatialUnitFeatures = 0;
+				if(selectedItems && selectedItems.length){
+					numberOfTargetSpatialUnitFeatures = selectedItems.length;
+				}
+				// add one page to display the total map of all selected spatial unit features
+				numberOfTargetSpatialUnitFeatures ++;
+				
+				kommonitorLeafletScreenshotCacheHelperService.resetCounter(numberOfTargetSpatialUnitFeatures, false);
+			}
+			
+
 			let dualListInput = data.map( el => {
 				return {"name": el.properties.NAME} // we need this as an object for kommonitorDataExchangeService.createDualListInputArray
 			});
@@ -926,7 +1177,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 						}
 					}
 				}
-			}, 500);
+			}, 150);
 		}
 
 		// availableFeaturesBySpatialUnit has to be populated before this method is called.
@@ -1097,6 +1348,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				});
 				if( !$scope.selectedSpatialUnit) {
 					$scope.selectedSpatialUnit = kommonitorDataExchangeService.availableSpatialUnits[0];
+					await $scope.updateAreasInDualList(); // this populates $scope.availableFeaturesBySpatialUnit
+					
 				}
 				let mostRecentTimestampName
 				if($scope.selectedSpatialUnit.metadata) {
@@ -1111,9 +1364,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				$scope.selectedTimestamps = [{
 					category: mostRecentTimestampName,
 					name: mostRecentTimestampName
-				}];
-				
-				await $scope.updateAreasInDualList(); // this populates $scope.availableFeaturesBySpatialUnit
+				}];				
 
 				
 				// update information in preview
@@ -1279,10 +1530,13 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			$scope.availableFeaturesBySpatialUnit[$scope.selectedSpatialUnit.spatialUnitName] = featureCollection.features;
 			$scope.selectedIndicator.geoJSON = featureCollection;
 			$scope.selectedIndicator.geoJSON.features = $scope.createLowerCaseNameProperty($scope.selectedIndicator.geoJSON.features);
-			for(let feature of $scope.selectedIndicator.geoJSON.features) {
-				let bbox = turf.bbox(feature); // calculate bbox for each feature
-				feature.properties.bbox = bbox;
+			if($scope.selectedIndicator.geoJSON.features[0] && !$scope.selectedIndicator.geoJSON.features[0].properties.bbox){
+				for(let feature of $scope.selectedIndicator.geoJSON.features) {
+					let bbox = turf.bbox(feature); // calculate bbox for each feature
+					feature.properties.bbox = bbox;
+				}
 			}
+			
 			
 			for(let page of $scope.template.pages) {
 				for(let pageElement of page.pageElements) {
@@ -1309,7 +1563,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				}
 			}
 			$scope.loadingData = false;
-			$timeout(function(){
+			setTimeout(function(){
 				$scope.$digest();
 			});
 
@@ -1341,6 +1595,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 				// get a new template (in case another indicator was selected previously)
 				$scope.template = $scope.getCleanTemplate();
+				$scope.template.pageConfig = $scope.pageConfig;
 				
 				// set spatial unit to highest available one
 				let spatialUnits = kommonitorDataExchangeService.availableSpatialUnits;
@@ -1462,6 +1717,9 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		}
 
 		$scope.reset = function() {
+			$scope.pagePreparationIndex = 0;
+			$scope.pagePreparationSize = 0;
+
 			$scope.template = undefined;
 			$scope.untouchedTemplateAsString = "";
 			$scope.indicatorNameFilter = "";
@@ -1489,6 +1747,9 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		}
 
 		$scope.onAddBtnClicked = function() {
+
+			$scope.template.pageConfig = $scope.pageConfig;
+
 			// for each page: add echarts configuration objects to the template
 			for(let [idx, page] of $scope.template.pages.entries()) {
 				let pageDom = document.querySelector("#reporting-addIndicator-page-" + idx);
@@ -1622,6 +1883,14 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			return result;
 		}
 
+		$scope.getReportingRechabilityMapAttribution = async function(){
+			if(!$scope.reportingReachabilityMapAttribution){
+				$scope.reportingReachabilityMapAttribution = await kommonitorDiagramHelperService.createReportingReachabilityMapAttribution();
+			} 
+
+			return $scope.reportingReachabilityMapAttribution;			
+		}
+
 		$scope.createMapForReachability = async function(wrapper, page, pageElement) {
 			
 			let options = JSON.parse(JSON.stringify( $scope.reachabilityTemplateGeoMapOptions ));
@@ -1725,10 +1994,17 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				replaceMerge: ['series', 'geo']
 			})
 
+			// await $scope.initLeafletMapBeneathEchartsMap(page, pageElement, map);
+
+			$scope.loadingData = false;
+
+			return map;
+		}
+
+		$scope.initLeafletMapBeneathEchartsMap = async function(page, pageElement, map){
 			// initialize the leaflet map beneath the transparent-background echarts map
-			await $timeout(async function(page, pageElement, echartsMap) {
 				let pageIdx = $scope.template.pages.indexOf(page);
-				let id = "reporting-addPoiLayer-reachability-leaflet-map-container-" + pageIdx;
+				let id = "reporting-addPoiLayer-leaflet-map-container-" + pageIdx;
 				let pageDom = document.getElementById("reporting-addIndicator-page-" + pageIdx);
 				let pageElementDom = document.getElementById("reporting-addIndicator-page-" + pageIdx + "-map");
 				let oldMapNode = document.getElementById(id);
@@ -1744,7 +2020,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				div.style.height = pageElement.dimensions.height;
 				div.style.zIndex = 10;
 				pageDom.appendChild(div);
-				let echartsOptions = echartsMap.getOption();
+				// let echartsOptions = echartsMap.getOption();
+				let echartsOptions = map.getOption();				
 
 				let leafletMap = L.map(div.id, {
 					zoomControl: false,
@@ -1755,7 +2032,10 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					attributionControl: false,
 					// prevents leaflet form snapping to closest pre-defined zoom level.
 					// In other words, it allows us to set exact map extend by a (echarts) bounding box
-					zoomSnap: 0 
+					zoomSnap: 0,
+					// disable any fade and zoom animation in order to get screenshots directly after layer event load was called
+					fadeAnimation: false,
+            		zoomAnimation: false,
 				});
 				// manually create a field for attribution so we can control the z-index.
 				let prevAttributionDiv = pageDom.querySelector(".map-attribution")
@@ -1766,21 +2046,25 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				attrDiv.style.bottom = 0;
 				attrDiv.style.left = 0;
 				attrDiv.style.zIndex = 800;
-				let attrImg = await kommonitorDiagramHelperService.createReportingReachabilityMapAttribution();
+				let attrImg = await $scope.getReportingRechabilityMapAttribution(); 
 				attrDiv.appendChild(attrImg);
 				pageElementDom.appendChild(attrDiv);
-				// also create the legend manually
-				let prevLegendDiv = pageDom.querySelector(".map-legend")
-				if(prevLegendDiv) prevLegendDiv.remove();
-				let legendDiv = document.createElement("div")
-				legendDiv.classList.add("map-legend")
-				legendDiv.style.position = "absolute";
-				legendDiv.style.bottom = 0;
-				legendDiv.style.right = 0;
-				legendDiv.style.zIndex = 800;
-				let legendImg = await kommonitorDiagramHelperService.createReportingReachabilityMapLegend(echartsOptions, $scope.selectedSpatialUnit, $scope.isochronesRangeType, $scope.isochronesRangeUnits);
-				legendDiv.appendChild(legendImg);
-				pageElementDom.appendChild(legendDiv)
+
+				if($scope.template.name.includes("reachability")){
+					// also create the reachability specific legend manually
+					let prevLegendDiv = pageDom.querySelector(".map-legend")
+					if(prevLegendDiv) prevLegendDiv.remove();
+					let legendDiv = document.createElement("div")
+					legendDiv.classList.add("map-legend")
+					legendDiv.style.position = "absolute";
+					legendDiv.style.bottom = 0;
+					legendDiv.style.right = 0;
+					legendDiv.style.zIndex = 800;
+					let legendImg = await kommonitorDiagramHelperService.createReportingReachabilityMapLegend(echartsOptions, $scope.selectedSpatialUnit, $scope.isochronesRangeType, $scope.isochronesRangeUnits);
+					legendDiv.appendChild(legendImg);
+					pageElementDom.appendChild(legendDiv)
+				}
+				
 
 				// echarts uses [lon, lat], leaflet uses [lat, lon]
 				let boundingCoords = echartsOptions.series[0].boundingCoords;
@@ -1789,52 +2073,104 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				let eastLon = boundingCoords[1][0];
 				let northLat = boundingCoords[0][1];
 
-				if(page.area && page.area.length) {
-					for(let feature of $scope.geoJsonForReachability.features) {
-						if(feature.properties.NAME === page.area) {
-							// set bounding box to this feature
-							let featureBbox = feature.properties.bbox;
-							westLon = featureBbox[0];
-							southLat = featureBbox[1];
-							eastLon = featureBbox[2];
-							northLat = featureBbox[3];
-							break;
-						}
-					}
+				if(page.area && page.area.length){
+					let feature = $scope.geoJsonForReachability_byFeatureName.get(page.area);
+					page.spatialUnitFeatureId = feature.properties[__env.FEATURE_ID_PROPERTY_NAME];
 				}
 
 				// Add 2% space on all sides
-				let divisor = 50;
-				let bboxHeight = northLat - southLat;
-				let bboxWidth = eastLon - westLon;
-				northLat += bboxHeight/divisor;
-				southLat -= bboxHeight/divisor;
-				eastLon += bboxWidth/divisor;
-				westLon -= bboxWidth/divisor;
+				// let divisor = 50;
+				// let bboxHeight = northLat - southLat;
+				// let bboxWidth = eastLon - westLon;
+				// northLat += bboxHeight/divisor;
+				// southLat -= bboxHeight/divisor;
+				// eastLon += bboxWidth/divisor;
+				// westLon -= bboxWidth/divisor;
 
 				leafletMap.fitBounds( [[southLat, westLon], [northLat, eastLon]] );
 				let bounds = leafletMap.getBounds()
-				// now update every echarts series
-				boundingCoords = [ [bounds.getWest(), bounds.getNorth()], [bounds.getEast(), bounds.getSouth()]]
-				for(let series of echartsOptions.series) {
-					series.top = 0;
-					series.bottom = 0;
-					series.aspectScale = 0.625
-					series.boundingCoords = boundingCoords
-				}
-				// also for the invisible geo component to update pois
-				echartsOptions.geo[0].top = 0;
-				echartsOptions.geo[0].bottom = 0;
-				echartsOptions.geo[0].aspectScale = 0.625
-				echartsOptions.geo[0].boundingCoords = boundingCoords
 
-				echartsMap.setOption(echartsOptions, {
-					notMerge: true
-				});
+				/*
+				as we might have landscape and portrait versions of the same content
+				leaflet fitBounds() will not work properly, if the leaflet map is actually not included in the DOM currently
+				
+				--> hence we make a workaround. if the leaflet coords of northeast and southwest are exactly the same
+				then we just ignore it and instead reuse the original echarts coordinates --> they are proper at the beginning of the function  
+
+				*/
+
+				if(bounds.getWest() == bounds.getEast() && bounds.getNorth() == bounds.getSouth()){
+					// this is only the case, if leaflet.fitBounds() results in a single coordinate (due to map HTML element not within DOM)	
+					// hence, simply use current echarts extent				
+				}
+				else{
+					// normal case, leaflet has properly rendered and zoomed to the given extent
+					// thus we use the leaflet coords in order to adjust the echarts extent for proper overlay
+					boundingCoords = [ [bounds.getWest(), bounds.getNorth()], [bounds.getEast(), bounds.getSouth()]]
+				}
+
+				// // now update every echarts series
+				
+				for(let series of echartsOptions.series) {
+
+					series.left = 0;
+					series.top = 0;
+					series.right = 0;
+					series.bottom = 0;
+					series.boundingCoords = boundingCoords,
+					series.projection = {
+						project: (point) => mercatorProjection_d3(point),
+						unproject: (point) => mercatorProjection_d3.invert(point)
+					}
+				}
+
+				echartsOptions.geo[0].top = 0;
+				echartsOptions.geo[0].left = 0;
+				echartsOptions.geo[0].right = 0;
+				echartsOptions.geo[0].bottom = 0;
+				echartsOptions.geo[0].projection = {
+					project: (point) => mercatorProjection_d3(point),
+        			unproject: (point) => mercatorProjection_d3.invert(point)
+				}				
+				echartsOptions.geo[0].boundingCoords = boundingCoords
+				
+
+				// echartsMap.setOption(echartsOptions, {
+				// 	notMerge: true
+				// });
+				map.setOption(echartsOptions, {
+					notMerge: false
+				});				
 				
 				// Attribution is handled in a custom element
-				let osmLayer = new L.TileLayer.Grayscale("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png");
-				osmLayer.addTo(leafletMap);
+				// let leafletLayer = new L.TileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png");
+				let leafletLayer; 
+				if ($scope.selectedBaseMap.layerConfig.layerType === "TILE_LAYER_GRAYSCALE"){
+					leafletLayer = new L.tileLayer($scope.selectedBaseMap.layerConfig.url);
+				  }
+				  else if ($scope.selectedBaseMap.layerConfig.layerType === "TILE_LAYER"){
+					leafletLayer = new L.tileLayer($scope.selectedBaseMap.layerConfig.url);
+				  }
+				  else if ($scope.selectedBaseMap.layerConfig.layerType === "WMS"){
+					leafletLayer = new L.tileLayer.wms($scope.selectedBaseMap.layerConfig.url, { layers: $scope.selectedBaseMap.layerConfig.layerName_WMS, format: 'image/jpeg' })
+				  }				
+				// use the "load" event of the tile layer to hook a function that is triggered once every visible tile is fully loaded
+				// here we ntend to make a screenshot of the leaflet image as a background task in order to boost up report preview generation 
+				// for all spatial unit features		
+				let domNode = leafletMap["_container"];	
+				leafletLayer.on("load", function() { 
+					// there are pages for two page orientations (landscape and portait)
+					// only trigger the screenshot for those pages, that are actually present
+					if(page.orientation == $scope.template.orientation){
+						kommonitorLeafletScreenshotCacheHelperService.checkForScreenshot($scope.selectedBaseMap.layerConfig.name, $scope.selectedSpatialUnit.spatialUnitId, 
+							page.spatialUnitFeatureId, page.orientation, domNode);
+					}
+									
+				});					
+				leafletLayer.addTo(leafletMap);		
+				
+				// set selected base map in order to make it available in reporting overview
+				pageElement.selectedBaseMap = $scope.selectedBaseMap;
 
 				// add leaflet map to pageElement in case we need it again later
 				pageElement.leafletMap = leafletMap;
@@ -1864,14 +2200,14 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				// poiMarkerLayer.addTo(leafletMap);
 
 				pageElement.leafletBbox = bounds;
-
-				if(pageIdx === $scope.template.pages.length-1) {
-					$scope.loadingData = false;
-				}
-			}, 0, true, page, pageElement, map)
-
-			return map;
+				pageElement.echartsOptions = echartsOptions;
 		}
+
+		$scope.filterBaseMaps = function(){
+			return function( baseMapEntry ) {
+				return baseMapEntry.layerConfig.layerType != "TILE_LAYER_GRAYSCALE";
+			};
+		  };
 
 		/**
 		 * Creates and returns an echarts geoMap object.
@@ -1950,8 +2286,18 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			let series = options.series[0];
 			series.roam = false;
 			series.selectedMode = false;
-			
-			
+
+			let overallBbox = calculateOverallBoundingBoxFromGeoJSON($scope.selectedIndicator.geoJSON.features)
+
+			options.geo = {
+				map: mapName,
+				z: 1,
+				itemStyle: {
+					opacity: 0
+				},
+				roam: false,
+				boundingCoords: overallBbox,
+			};
 
 			if(pageElement.isTimeseries) {
 				let includeInBetweenDates = true;
@@ -1968,6 +2314,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 			if(pageElement.classify === true) {
 				options.visualMap.show = true;
+				options.visualMap.backgroundColor = $scope.pageConfig.mapLegendBackgroundColor;
 			} else {
 				options.visualMap.show = false;
 			}
@@ -2060,6 +2407,10 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			options = enableManualLabelPositioningAcrossPages(page, options, map)
 			
 			map.setOption(options);
+			pageElement.echartsOptions = options;			
+
+			// await $scope.initLeafletMapBeneathEchartsMap(page, pageElement, map);
+
 			return map;
 		}
 
@@ -2262,7 +2613,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			});
 
 			// add data element for the overall average
-			let overallAvgValue = $scope.getFormattedAvg($scope.selectedIndicator, timestamp, false);
+			let overallAvgValue = $scope.calculateAvg($scope.selectedIndicator, timestamp, false);
 			let overallAvgElementName = (page.area && page.area.length) ? "Durchschnitt\nder\nRaumebene" : "Durchschnitt der Raumebene";
 			let dataObjOverallAvg = {
 				name: overallAvgElementName,
@@ -2283,7 +2634,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 			// same for selection average
 			// add more data elements for the overall and selection average
-			let selectionAvgValue = $scope.getFormattedAvg($scope.selectedIndicator, timestamp, true);
+			let selectionAvgValue = $scope.calculateAvg($scope.selectedIndicator, timestamp, true);
 			let selectionAvgElementName = (page.area && page.area.length) ? "Durchschnitt\nder\nSelektion" : "Durchschnitt der Selektion";
 			let dataObjSelectionAvg = {
 				name: selectionAvgElementName,
@@ -2703,14 +3054,13 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		}
 
 
-		$scope.filterMapByAreaName = function(echartsInstance, areaName, allFeatures) {
+		$scope.filterMapByAreaName = function(echartsInstance, areaName, targetFeature) {
 			let options = echartsInstance.getOption();
 			let mapName = options.series[0].map;
 			// filter shown areas if we are in the area-specific part of the template
 			// removing areas form the series doesn't work. We have to filter the geojson of the registered map.
-			let features = allFeatures.filter ( el => {
-				return el.properties.name === areaName
-			});
+			let features = [];
+			features.push(targetFeature);
 
 			echarts.registerMap(mapName, { features: features } )
 
@@ -2890,10 +3240,13 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 
 		$scope.prepareReachabilityEchartsMap = function() {
-			for(let feature of $scope.geoJsonForReachability.features) {
-				let bbox = turf.bbox(feature); // calculate bbox for each feature
-				feature.properties.bbox = bbox;
+			if($scope.geoJsonForReachability.features[0] && !$scope.geoJsonForReachability.features[0].properties.bbox){
+				for(let feature of $scope.geoJsonForReachability.features) {
+					let bbox = turf.bbox(feature); // calculate bbox for each feature
+					feature.properties.bbox = bbox;
+				}
 			}
+			
 			let overallBbox = calculateOverallBoundingBoxFromGeoJSON($scope.geoJsonForReachability.features)
 			// change format of bbox to match the format needed for echarts
 			overallBbox = [
@@ -2951,6 +3304,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 
 		$scope.initializeAllDiagrams = async function() {
+
 			if(!$scope.template)
 				return;
 			if($scope.template.name.includes("timestamp") && $scope.selectedTimestamps.length === 0) {
@@ -2960,126 +3314,192 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				throw new Error("Diagrams can't be initialized since they were not prepared previously.")
 			}
 
+			// prepare O(1) access to geoJSON features used within each page
+			if($scope.selectedIndicator) {
+				$scope.geoJsonForSelectedIndicator_byFeatureName = new Map();
+				for(let feature of $scope.selectedIndicator.geoJSON.features) {
+					if(!feature.properties.bbox)
+						feature.properties.bbox = turf.bbox(feature);
+
+					$scope.geoJsonForSelectedIndicator_byFeatureName.set(feature.properties.NAME, feature)
+				}
+				$scope.geoJsonForReachability_byFeatureName = $scope.geoJsonForSelectedIndicator_byFeatureName;
+			} else {
+				$scope.geoJsonForReachability_byFeatureName = new Map();
+
+				for(let feature of $scope.geoJsonForReachability.features) {
+					if(!feature.properties.bbox)
+						feature.properties.bbox = turf.bbox(feature);
+					$scope.geoJsonForReachability_byFeatureName.set(feature.properties.NAME, feature)
+				}	
+				$scope.geoJsonForSelectedIndicator_byFeatureName = $scope.geoJsonForReachability_byFeatureName
+			}	
+
 			// We need a separate counter for page index because we iterate over the pages array.
 			// This array might include additional datatable pages, which are not inserted in the dom
 			// Even though we do nothing for these pages, the index gets out of sync with the page ids (which we use to get the dom elements)
 			let pageIdx = -1;
 
+			$scope.lastPageOfAddedSectionPrepared = false;
+			$scope.pagePreparationIndex = 0;
+			$scope.pagePreparationSize = document.querySelectorAll("[id^='reporting-addIndicator-page-'].reporting-page").length; // all starting with that id
+			let logProgressIndexSeparator = Math.round($scope.pagePreparationSize / 100 * 10);
+
+			setTimeout(function () {
+				$scope.$digest();
+			});
+
 			for(let i=0; i<$scope.template.pages.length; i++) {
-				pageIdx++;
-				let page = $scope.template.pages[i];
-				
-				let prevPage = i>1 ? $scope.template.pages[i-1] : undefined;
-				let pageIncludesDatatable = page.pageElements.map(el => el.type).includes("datatable")
 
-				if(prevPage) {
-					let prevPageIncludesDatatable = prevPage.pageElements.map(el => el.type).includes("datatable")
-					if(pageIncludesDatatable && prevPageIncludesDatatable) {
-						// get corresponding pages in the dom and check if they are datatable-pages
-						let prevDomPageEl = document.querySelector("#reporting-addIndicator-page-" + (i-1) + "-datatable")
-						let domPageEl =  document.querySelector("#reporting-addIndicator-page-" + i + "-datatable")
-						if(!prevDomPageEl || !domPageEl) { // if this page does not exist in the dom
-							pageIdx--; // don't increase index in this iteration so it stays in sync with the pages that exist in the dom
-						}
-						continue; // don't do anything for additional datatable pages. They are added in createPageElement_Datatable
-					}
-				}
-				
-
-				let pageDom = document.querySelector("#reporting-addIndicator-page-" + pageIdx);
-
-				for(let pageElement of page.pageElements) {
-
-					// usually each type is included only once per page, but there is an exception for linecharts in area specific part of timeseries template
-					// for now we more or less hardcode this, but it might have to change in the future
-					let pElementDom;
-					if(pageElement.type === "linechart") {
-						let arr = pageDom.querySelectorAll(".type-linechart");
-						if(pageElement.showPercentageChangeToPrevTimestamp) {
-							pElementDom = arr[1];
-						} else {
-							pElementDom = arr[0];
-						}
-					} else {
-						pElementDom = pageDom.querySelector("#reporting-addIndicator-page-" + pageIdx + "-" + pageElement.type)
-					}
+				setTimeout(async function(){
+					pageIdx++;
+					let page = $scope.template.pages[i];
 					
-					switch(pageElement.type) {
-						case "map": {
-							// initialize with all areas
-							let map = await $scope.createPageElement_Map(pElementDom, page, pageElement);
-							// filter visible areas if needed
-							if(page.area && page.area.length) {
-								if($scope.selectedIndicator) {
-									$scope.filterMapByAreaName(map, page.area, $scope.selectedIndicator.geoJSON.features);
-								} else {
-									$scope.filterMapByAreaName(map, page.area, $scope.geoJsonForReachability.features);
+					let prevPage = i>1 ? $scope.template.pages[i-1] : undefined;
+					let pageIncludesDatatable = page.pageElements.map(el => el.type).includes("datatable")
+
+					if(prevPage) {
+						let prevPageIncludesDatatable = prevPage.pageElements.map(el => el.type).includes("datatable")
+						if(pageIncludesDatatable && prevPageIncludesDatatable) {
+							// get corresponding pages in the dom and check if they are datatable-pages
+							let prevDomPageEl = document.querySelector("#reporting-addIndicator-page-" + (i-1) + "-datatable")
+							let domPageEl =  document.querySelector("#reporting-addIndicator-page-" + i + "-datatable")
+							if(!prevDomPageEl || !domPageEl) { // if this page does not exist in the dom
+								pageIdx--; // don't increase index in this iteration so it stays in sync with the pages that exist in the dom
+							}
+							return; // don't do anything for additional datatable pages. They are added in createPageElement_Datatable
+						}
+					}				
+
+					let pageDom = document.querySelector("#reporting-addIndicator-page-" + i);	
+
+					for(let pageElement of page.pageElements) {
+
+						// usually each type is included only once per page, but there is an exception for linecharts in area specific part of timeseries template
+						// for now we more or less hardcode this, but it might have to change in the future
+						let pElementDom;
+						if(pageElement.type === "linechart") {
+							let arr = pageDom.querySelectorAll(".type-linechart");
+							if(pageElement.showPercentageChangeToPrevTimestamp) {
+								pElementDom = arr[1];
+							} else {
+								pElementDom = arr[0];
+							}
+						} else {
+							pElementDom = pageDom.querySelector("#reporting-addIndicator-page-" + i + "-" + pageElement.type)
+						}
+						
+						switch(pageElement.type) {
+							case "map": {
+								// initialize with all areas
+								let map = await $scope.createPageElement_Map(pElementDom, page, pageElement);
+								// filter visible areas if needed
+								if(page.area && page.area.length) {
+									if($scope.selectedIndicator) {
+										$scope.filterMapByAreaName(map, page.area, $scope.geoJsonForSelectedIndicator_byFeatureName.get(page.area));
+									} else {
+										$scope.filterMapByAreaName(map, page.area, $scope.geoJsonForReachability_byFeatureName.get(page.area));
+									}
+									
 								}
+								await $scope.initLeafletMapBeneathEchartsMap(page, pageElement, map);
+
+								pageElement.isPlaceholder = false;
+								break;
+							}
+							case "mapLegend": {
+								pageElement.isPlaceholder = false; // hide the placeholder, legend is part of map
+								pageDom.querySelector(".type-mapLegend").style.display = "none";
+								break;
+							}
 								
+							/*
+								June 2025: we remove overallAverage and overallChange, overallAverage and selectionAverage from reporting overview pages.
+							*/
+							// case "overallAverage": {
+							// 	$scope.createPageElement_Average(page, pageElement, false);
+							// 	pageDom.querySelector(".type-overallAverage").style.border = "none";
+							// 	break;
+							// }
+							// case "selectionAverage": {
+							// 	$scope.createPageElement_Average(page, pageElement, true);
+							// 	pageDom.querySelector(".type-selectionAverage").style.border = "none";
+							// 	break;
+							// }
+							// case "overallChange": {
+							// 	$scope.createPageElement_Change(page, pageElement, false);
+							// 	let wrapper = pageDom.querySelector(".type-overallChange")
+							// 	wrapper.style.border = "none";
+							// 	break;
+							// }
+							// case "selectionChange": {
+							// 	$scope.createPageElement_Change(page, pageElement, true);
+							// 	let wrapper = pageDom.querySelector(".type-selectionChange")
+							// 	wrapper.style.border = "none";
+							// 	break;
+							// }
+							case "barchart": {
+								$scope.createPageElement_BarChartDiagram(pElementDom, page);
+								pageElement.isPlaceholder = false;
+								break;
 							}
-							pageElement.isPlaceholder = false;
-							break;
-						}
-						case "mapLegend": {
-							pageElement.isPlaceholder = false; // hide the placeholder, legend is part of map
-							pageDom.querySelector(".type-mapLegend").style.display = "none";
-							break;
-						}
-							
-						case "overallAverage": {
-							$scope.createPageElement_Average(page, pageElement, false);
-							pageDom.querySelector(".type-overallAverage").style.border = "none";
-							break;
-						}
-						case "selectionAverage": {
-							$scope.createPageElement_Average(page, pageElement, true);
-							pageDom.querySelector(".type-selectionAverage").style.border = "none";
-							break;
-						}
-						case "overallChange": {
-							$scope.createPageElement_Change(page, pageElement, false);
-							let wrapper = pageDom.querySelector(".type-overallChange")
-							wrapper.style.border = "none";
-							break;
-						}
-						case "selectionChange": {
-							$scope.createPageElement_Change(page, pageElement, true);
-							let wrapper = pageDom.querySelector(".type-selectionChange")
-							wrapper.style.border = "none";
-							break;
-						}
-						case "barchart": {
-							$scope.createPageElement_BarChartDiagram(pElementDom, page);
-							pageElement.isPlaceholder = false;
-							break;
-						}
-						case "linechart": {
-							$scope.createPageElement_TimelineDiagram(pElementDom, page, pageElement);
-							pageElement.isPlaceholder = false;
-							break;
-						}
-						case "datatable": {
-							// remove all following datatable pages first so we don't add too many.
-							// this might happen because we initialize page elements from $watch(selectedAreas) and $watch(selectedTimestamps) on indicator selection
-							let nextPage = i<$scope.template.pages.length-1 ? $scope.template.pages[i+1] : undefined;
-							if(nextPage) {
-								let nextPageIncludesDatatable = nextPage.pageElements.map(el => el.type).includes("datatable")
-								while(nextPageIncludesDatatable) {
-									$scope.template.pages.splice(i+1, 1) //remove page
-									//update next page
-									nextPage = i<$scope.template.pages.length-1 ? $scope.template.pages[i+1] : undefined;
-									nextPageIncludesDatatable = nextPage ? nextPage.pageElements.map(el => el.type).includes("datatable") : false;
+							case "linechart": {
+								$scope.createPageElement_TimelineDiagram(pElementDom, page, pageElement);
+								pageElement.isPlaceholder = false;
+								break;
+							}
+							case "datatable": {
+								// remove all following datatable pages first so we don't add too many.
+								// this might happen because we initialize page elements from $watch(selectedAreas) and $watch(selectedTimestamps) on indicator selection
+								let nextPage = i<$scope.template.pages.length-1 ? $scope.template.pages[i+1] : undefined;
+								if(nextPage) {
+									let nextPageIncludesDatatable = nextPage.pageElements.map(el => el.type).includes("datatable")
+									while(nextPageIncludesDatatable) {
+										$scope.template.pages.splice(i+1, 1) //remove page
+										//update next page
+										nextPage = i<$scope.template.pages.length-1 ? $scope.template.pages[i+1] : undefined;
+										nextPageIncludesDatatable = nextPage ? nextPage.pageElements.map(el => el.type).includes("datatable") : false;
+									}
 								}
+								$scope.createPageElement_Datatable(pElementDom, page);
+								break;
 							}
-							$scope.createPageElement_Datatable(pElementDom, page);
-							break;
 						}
 					}
-				}
+
+					// if the last page is reached and full prepared we want to show that to the user
+					// wait additionally for 500 ms
+					$scope.pagePreparationIndex = i;
+
+					// every 10 percent log progress to user
+					if($scope.pagePreparationIndex % logProgressIndexSeparator === 0){
+						$scope.$digest();	
+					}				
+					
+					if (i == $scope.pagePreparationSize - 1) {
+						$scope.lastPageOfAddedSectionPrepared = true;
+						$timeout(function () {
+							$scope.$digest();
+						}, 1000);
+					}
+				})
+				
 			}
+
+			// apply current page configuration as it is performed asynchronously 
+				setTimeout(function(){
+					$scope.onChangePageConfig();
+					$scope.onChangeShowPageSection();
+					$scope.$digest();
+				});
 		}
 
 		$scope.showThisPage = function(page) {
+
+			if (page.hidden){
+				return false;
+			}
+
 			let pageWillBeShown = false;
 			for(let visiblePage of $scope.filterPagesToShow()){
 				if(visiblePage.id == page.id) {
@@ -3264,7 +3684,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		$scope.onChangeDateSliderInterval = function() {
 			$scope.loadingData = true;
 			// needed to tell angular something has changed
-			$timeout(function(){
+			setTimeout(function(){
 				$scope.$digest();
 			});
 			// setup all pages with the new timeseries
@@ -3409,13 +3829,13 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 				let instance = echarts.getInstanceByDom(map);
 				let options = instance.getOption();
-				options.series[0].label.show = $scope.showMapLabels;
-				options.series[0].select.label.show = $scope.showMapLabels;
+				options.series[0].label.show = $scope.pageConfig.showMapLabels;
+				options.series[0].select.label.show = $scope.pageConfig.showMapLabels;
 				for(let item of options.series[0].data) {
 					if(typeof item.label === "undefined") {
 						item.label = {};
 					}
-					item.label.show = $scope.showMapLabels;
+					item.label.show = $scope.pageConfig.showMapLabels;
 				}
 				instance.setOption(options, {
 					replaceMerge: ['series']
@@ -3433,7 +3853,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 				let instance = echarts.getInstanceByDom(barChart);
 				let options = instance.getOption();				
-				if (! $scope.showRankingMeanLine){
+				if (! $scope.pageConfig.showRankingMeanLine){
 					options.series[0].markLine_backup = options.series[0].markLine;
 					options.series[0].markLine = {};
 				}

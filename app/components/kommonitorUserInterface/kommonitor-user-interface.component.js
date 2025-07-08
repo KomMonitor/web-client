@@ -182,7 +182,13 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 			$scope.buttonProcessingClass = "btn btn-custom btn-circle";
 			$scope.buttonRegressionDiagramClass = "btn btn-custom btn-circle";
 			$scope.buttonFilterClass = "btn btn-custom btn-circle";
+			if (kommonitorDataExchangeService.spatialFilterIsApplied || kommonitorDataExchangeService.rangeFilterIsApplied || kommonitorDataExchangeService.isMeasureOfValueChecked) {
+				$scope.buttonFilterClass = "btn btn-custom btn-circle filterActive";
+			}
 			$scope.buttonBalanceClass = "btn btn-custom btn-circle";
+			if (kommonitorDataExchangeService.isBalanceChecked) {
+				$scope.buttonBalanceClass = "btn btn-custom btn-circle balanceActive";
+			}
 			$scope.buttonReachabilityClass = "btn btn-custom btn-circle";
 			$scope.buttonPoiClass = "btn btn-custom btn-circle";
 			$scope.buttonDataImportClass = "btn btn-custom btn-circle";
@@ -213,6 +219,9 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 			}
 			else{
 				$scope.buttonBalanceClass = "btn btn-custom btn-circle";
+				if (kommonitorDataExchangeService.isBalanceChecked) {
+					$scope.buttonBalanceClass = "btn btn-custom btn-circle balanceActive";
+				}
 			}
 		};
 
@@ -292,6 +301,11 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 
 		}
 
+		$scope.openFilterSidebar = function(){
+			$scope.sidebarFilterClass = "disappear";
+			$scope.onSidebarFilterButtonClick();
+		}
+
 		$scope.onSidebarFilterButtonClick = function(){
 			$scope.undockButtons();
 
@@ -314,6 +328,11 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 			$rootScope.$broadcast("refreshIndicatorValueRangeSlider");
 			$rootScope.$broadcast("redrawGuidedTourElement");
 
+		}
+
+		$scope.openBalanceSidebar = function(){
+			$scope.sidebarBalanceClass = "disappear";
+			$scope.onSidebarBalanceButtonClick();
 		}
 
 		$scope.onSidebarBalanceButtonClick = function(){
@@ -496,6 +515,30 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 
 		$scope.onToggleLegendControlButtonClick = function(){
 			$rootScope.$broadcast("toggleLegendControl");
+		}
+
+		$scope.onSpatialFilterCloseButtonClick = function() {
+			$scope.buttonFilterClass = "btn btn-custom btn-circle";
+			$rootScope.$broadcast("removeAllSpatialFilters");
+		}
+
+		$scope.onMOVCloseButtonClick = function() {
+			$scope.buttonFilterClass = "btn btn-custom btn-circle";
+			$rootScope.$broadcast("disableMeasureOfValue");
+		}
+
+		$scope.onRangeFilterCloseButtonClick = function() {
+			$scope.buttonFilterClass = "btn btn-custom btn-circle";
+			$rootScope.$broadcast("removeRangeFilter");
+		}
+
+		$scope.$on("removeRangeFilter", function() {
+			$scope.buttonFilterClass = "btn btn-custom btn-circle";
+		})
+
+		$scope.onBalanceCloseButtonClick = function() {
+			$scope.buttonBalanceClass = "btn btn-custom btn-circle";
+			$rootScope.$broadcast("DisableBalance");
 		}
 
 		$scope.$on("startGuidedTour", function(event){

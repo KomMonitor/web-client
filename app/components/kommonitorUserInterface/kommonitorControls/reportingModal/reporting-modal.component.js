@@ -9,6 +9,11 @@ angular.module('reportingModal').component('reportingModal', {
 		let modalDialog = document.querySelector("#reporting-modal .modal-dialog");
 
 		$scope.$on('reportingWorkflowSelected', function(event, data) {
+
+      // raus
+			/* $scope.$broadcast("reportingGenerateReport", 'pptx'); */
+
+      // rein
 			// make modal wide
 			modalDialog.classList.add("modal-xl");
 
@@ -66,12 +71,12 @@ angular.module('reportingModal').component('reportingModal', {
 
 		$scope.$on('reportingBackToWorkflowSelectionClicked', function() {
 			$scope.workflowSelected = false;
-			modalDialog.classList.remove("modal-xl")
+			modalDialog.classList.remove("modal-xl");
 		});
 
 		$scope.generateReport = function(format) {
-			$('#reporting-report-formats-selection').modal('hide')
-			$scope.$broadcast("reportingGenerateReport", format)
+			$('#reporting-report-formats-selection').modal('hide');
+			$scope.$broadcast("reportingGenerateReport", format);
 		}
 
 		// $scope.$on("reportingPageGenerated", function(event, data) {

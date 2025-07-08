@@ -90,6 +90,7 @@ angular
 
           this.allowedAccessControl = [];
           this.allowedAccessControl_map = new Map();
+          this.spatialFilterIsApplied = false;
           
           // Define translations, settings for dropdown-multiselect 
           this.multiselectDropdownTranslations = {	checkAll: 'Alle auswählen', uncheckAll: 'Nichts auswählen', dynamicButtonTextSuffix: 'Werte ausgewählt',
