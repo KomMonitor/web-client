@@ -773,12 +773,15 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     let node = document.getElementById("ngMap");
 
     return domtoimage
-        .toBlob(node, {"quality": 1.0, filter: this.filterForScreenshot})
-        .then( (blob) => {
+        .toBlob(node, {
+          "quality": 1.0, 
+          filter: this.filterForScreenshot,
+          width: this.map.getSize().x,
+          height: this.map.getSize().y
+        }).then( (blob) => {
           // FileSaver saveAs method
           saveAs(blob, 'KomMonitor-Screenshot.png');
-        })
-        .catch( (error) => {
+        }).catch( (error) => {
           console.log("Error while exporting map view.");
           console.error(error);
 
