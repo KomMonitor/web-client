@@ -629,6 +629,12 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
     }
   }
 
+  goToStep(step: number): void {
+    if (step >= 1 && step <= this.totalSteps) {
+      this.currentStep = step;
+    }
+  }
+
   // Alert methods
   showSuccessAlert(): void {
     this.successMessage = 'Operation completed successfully';

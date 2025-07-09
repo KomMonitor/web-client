@@ -195,7 +195,7 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
 
   onClickEditUserRoles(spatialUnitMetadata: any): void {
     const modalRef = this.modalService.open(SpatialUnitEditUserRolesModalComponent, {
-      size: 'lg',
+      size: 'xl',
       backdrop: 'static',
       keyboard: false,
       container: 'body',

@@ -56,8 +56,7 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy 
   updateIntervalOptions: any[] = [];
   availableLoiDashArrayObjects: any[] = [];
 
-  // Role management
-  roleManagementTableOptions: any = null;
+
 
   // Import/Export functionality
   metadataImportSettings: any = null;
@@ -86,11 +85,28 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy 
     this.loadInitialData();
     this.setupEventListeners();
     
+    // Initialize date picker
+    setTimeout(() => {
+      if (this.kommonitorDataExchangeService.datePickerOptions) {
+        ($ as any)('#spatialUnitEditMetadataLastUpdateDatepicker').datepicker(this.kommonitorDataExchangeService.datePickerOptions);
+      }
+    }, 100);
+
+    // Initialize dash array dropdown
+    setTimeout(() => {
+      if (this.kommonitorDataExchangeService.availableLoiDashArrayObjects) {
+        for (let i = 0; i < this.kommonitorDataExchangeService.availableLoiDashArrayObjects.length; i++) {
+          const element = document.getElementById(`outlineDashArrayDropdownItem-editMetadata-${i}`);
+          if (element) {
+            element.innerHTML = this.kommonitorDataExchangeService.availableLoiDashArrayObjects[i].svgString;
+          }
+        }
+      }
+    }, 1000);
+    
     // If currentSpatialUnitDataset is already set (from parent component), initialize form
     if (this.currentSpatialUnitDataset) {
       this.resetForm();
-      // Register multi-step form click handler
-      this.kommonitorMultiStepFormHelperService.registerClickHandler();
     }
   }
 
@@ -99,16 +115,8 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy 
   }
 
   private setupEventListeners() {
-    // Listen for broadcast messages
-    const broadcastSub = this.broadcastService.currentBroadcastMsg.subscribe(broadcastMsg => {
-      if (broadcastMsg) {
-        if (broadcastMsg.msg === 'availableRolesUpdate') {
-          this.refreshRoles();
-        }
-      }
-    });
-
-    this.subscriptions.push(broadcastSub);
+    // Listen for broadcast messages if needed
+    // Currently no role management in this version to match AngularJS
   }
 
   private loadInitialData() {
@@ -129,27 +137,13 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy 
       this.availableLoiDashArrayObjects = this.kommonitorDataExchangeService.availableLoiDashArrayObjects;
     }
 
-    // Set total steps based on security settings
-    if (this.kommonitorDataExchangeService.enableKeycloakSecurity) {
-      this.totalSteps = 3; // Include role management step
-    } else {
-      this.totalSteps = 2;
-    }
+    // Always 2 steps to match AngularJS version
+    this.totalSteps = 2;
 
     this.loadingData = false;
   }
 
-  private refreshRoles() {
-    if (this.currentSpatialUnitDataset) {
-      const allowedRoles = this.currentSpatialUnitDataset.allowedRoles || [];
-      this.roleManagementTableOptions = this.kommonitorDataGridHelperService.buildRoleManagementGrid(
-        'spatialUnitEditRoleManagementTable', 
-        this.roleManagementTableOptions, 
-        this.kommonitorDataExchangeService.accessControl, 
-        allowedRoles
-      );
-    }
-  }
+
 
   resetForm() {
     if (!this.currentSpatialUnitDataset) return;
@@ -208,12 +202,31 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy 
       }
     }
 
+    // Initialize dash array dropdown
+    setTimeout(() => {
+      if (this.availableLoiDashArrayObjects) {
+        for (let i = 0; i < this.availableLoiDashArrayObjects.length; i++) {
+          const element = document.getElementById(`outlineDashArrayDropdownItem-editMetadata-${i}`);
+          if (element) {
+            element.innerHTML = this.availableLoiDashArrayObjects[i].svgString;
+          }
+        }
+      }
+      if (this.selectedOutlineDashArrayObject) {
+        this.onChangeOutlineDashArray(this.selectedOutlineDashArrayObject);
+      }
+    }, 1000);
+
+    // Set date picker value
+    setTimeout(() => {
+      ($ as any)('#spatialUnitEditMetadataLastUpdateDatepicker').datepicker('setDate', this.currentSpatialUnitDataset.metadata.lastUpdate);
+    }, 100);
+
     this.hierarchyInvalid = false;
     this.successMessagePart = '';
     this.errorMessagePart = '';
 
-    // Refresh roles
-    this.refreshRoles();
+    // No role management in this version to match AngularJS
 
     // Reset to first step
     this.currentStep = 1;
@@ -255,6 +268,17 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy 
 
   onChangeOutlineDashArray(outlineDashArrayObject: any) {
     this.selectedOutlineDashArrayObject = outlineDashArrayObject;
+    
+    // Update dropdown button display
+    const buttonElement = document.getElementById('outlineDashArrayDropdownButton_editSpatialUnit');
+    if (buttonElement && outlineDashArrayObject && outlineDashArrayObject.svgString) {
+      buttonElement.innerHTML = outlineDashArrayObject.svgString;
+    }
+  }
+
+  onColorPickerClick() {
+    // Implement color picker functionality if needed
+    console.log('Color picker clicked');
   }
 
   async editSpatialUnitMetadata() {
@@ -285,11 +309,7 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy 
       outlineDashArrayString: this.selectedOutlineDashArrayObject ? this.selectedOutlineDashArrayObject.dashArrayValue : ''
     };
 
-    // Add selected roles
-    if (this.roleManagementTableOptions) {
-      const roleIds = this.kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid(this.roleManagementTableOptions);
-      patchBody.allowedRoles = roleIds;
-    }
+    // No role management in this version to match AngularJS
 
     this.loadingData = true;
     this.errorMessage = '';
@@ -427,15 +447,7 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy 
       });
     }
 
-    // Refresh roles
-    if (this.metadataImportSettings.allowedRoles) {
-      this.roleManagementTableOptions = this.kommonitorDataGridHelperService.buildRoleManagementGrid(
-        'spatialUnitEditRoleManagementTable', 
-        this.roleManagementTableOptions, 
-        this.kommonitorDataExchangeService.accessControl, 
-        this.metadataImportSettings.allowedRoles
-      );
-    }
+    // No role management in this version to match AngularJS
   }
 
   onExportSpatialUnitEditMetadata() {
@@ -462,14 +474,10 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy 
       outlineDashArrayString: this.selectedOutlineDashArrayObject ? this.selectedOutlineDashArrayObject.dashArrayValue : ""
     };
 
-    // Add selected roles
-    if (this.roleManagementTableOptions) {
-      const roleIds = this.kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid(this.roleManagementTableOptions);
-      metadataExport.allowedRoles = roleIds;
-    }
+    // No role management in this version to match AngularJS
 
     const metadataJSON = JSON.stringify(metadataExport, null, 2);
-    const fileName = `Raumeinheit_Metadaten_Export${this.spatialUnitLevel ? '-' + this.spatialUnitLevel : ''}.json`;
+    const fileName = `Raumebene_Metadaten_Export${this.spatialUnitLevel ? '-' + this.spatialUnitLevel : ''}.json`;
     this.downloadFile(metadataJSON, fileName);
   }
 
@@ -531,7 +539,7 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy 
   onExportSpatialUnitEditMetadataTemplate() {
     const metadataStructure = this.spatialUnitMetadataStructure;
     const metadataJSON = JSON.stringify(metadataStructure, null, 2);
-    const fileName = "Raumeinheit_Metadaten_Vorlage_Export.json";
+    const fileName = "Raumebene_Metadaten_Vorlage_Export.json";
     this.downloadFile(metadataJSON, fileName);
   }
 } 

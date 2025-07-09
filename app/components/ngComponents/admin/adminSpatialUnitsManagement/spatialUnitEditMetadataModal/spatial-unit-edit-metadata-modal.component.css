@@ -4,60 +4,77 @@
   padding: 0;
 }
 
+/* Progress Bar Styles - Matching Add Modal */
 #progressbar {
-  margin-bottom: 30px;
+  margin-bottom: 10px;
   overflow: hidden;
-  color: lightgrey;
-  list-style: none;
-  padding: 0;
+  /*CSS counters to number the steps*/
+  counter-reset: step;
 }
 
 #progressbar li {
-  display: inline-block;
-  text-align: center;
-  line-height: 45px;
+  list-style-type: none;
+  color: black;
+  text-transform: uppercase;
+  font-size: 9px;
+  float: left;
   position: relative;
-  font-weight: bold;
-  font-size: 12px;
-  color: #999;
+  letter-spacing: 1px;
+  cursor: pointer;
 }
 
 #progressbar li:before {
   content: counter(step);
   counter-increment: step;
-  width: 45px;
-  line-height: 45px;
+  width: 24px;
+  height: 24px;
+  line-height: 26px;
   display: block;
   font-size: 12px;
-  color: #cccccc;
-  background: white;
-  border-radius: 50%;
+  color: #333;
+  background: #cccc;
+  border-radius: 25px;
   margin: 0 auto 10px auto;
-  border: 2px solid #cccccc;
+  transform: translateZ(-1px);
 }
 
-#progressbar li.active:before {
-  background: #27AE60;
+/*progressbar connectors*/
+#progressbar li:after {
+  content: '';
+  width: 100%;
+  height: 2px;
+  background: #cccc;
+  position: absolute;
+  left: -50%;
+  top: 9px;
+  /*put it behind the numbers */
+  z-index: -1; 
+}
+
+#progressbar li:first-child:after {
+  /*connector not needed before the first step*/
+  content: none;
+}
+
+/*marking active/completed steps green*/
+/*The number of the step and the connector before it = green*/
+#progressbar li.active:before, #progressbar li.active:after {
+  background: var(--kommonitor-primary);
   color: white;
-  border-color: #27AE60;
-}
-
-#progressbar li.active {
-  color: #27AE60;
 }
 
 #progressbar li.clickable {
   cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 #progressbar li.clickable:hover {
-  color: #27AE60;
+  color: var(--kommonitor-primary);
 }
 
 #progressbar li.clickable:hover:before {
-  background: #27AE60;
-  color: white;
-  border-color: #27AE60;
+  background: var(--kommonitor-primary);
+  transform: scale(1.1);
 }
 
 /* Form step styles */
@@ -77,10 +94,10 @@
   text-align: center;
 }
 
-/* Action buttons */
+/* Action buttons - Centered */
 .action-button {
-  width: 100px;
-  background: #27AE60;
+  width: 150px;
+  background: var(--kommonitor-primary);
   font-weight: bold;
   color: white;
   border: 0 none;
@@ -88,18 +105,18 @@
   cursor: pointer;
   padding: 10px 5px;
   margin: 10px 5px;
-  float: right;
+  display: inline-block;
 }
 
 .action-button:hover, .action-button:focus {
-  box-shadow: 0 0 0 2px white, 0 0 0 3px #27AE60;
-  background: #27AE60;
+  box-shadow: 0 0 0 2px white, 0 0 0 3px var(--kommonitor-primary);
+  background: var(--kommonitor-primary);
   color: white;
 }
 
 .action-button-previous {
-  width: 100px;
-  background: #C5C5F1;
+  width: 150px;
+  background: rgb(236, 138, 138);
   font-weight: bold;
   color: white;
   border: 0 none;
@@ -107,13 +124,20 @@
   cursor: pointer;
   padding: 10px 5px;
   margin: 10px 5px;
-  float: left;
+  display: inline-block;
 }
 
 .action-button-previous:hover, .action-button-previous:focus {
   box-shadow: 0 0 0 2px white, 0 0 0 3px #C5C5F1;
-  background: #C5C5F1;
+  background: rgb(236, 138, 138);
   color: white;
+}
+
+/* Center the button container */
+.button-container {
+  text-align: center;
+  margin-top: 20px;
+  clear: both;
 }
 
 /* Form field styles */
@@ -203,6 +227,31 @@ input:checked + .switchslider:before {
   justify-content: center;
   align-items: center;
   z-index: 9999;
+}
+
+.loading-overlay-admin-panel .glyphicon {
+  font-size: 2rem;
+}
+
+.ng-hide {
+  display: none !important;
+}
+
+/* Glyphicon base class */
+.glyphicon {
+  position: relative;
+  top: 1px;
+  display: inline-block;
+  font-family: 'Glyphicons Halflings';
+  font-style: normal;
+  font-weight: normal;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.glyphicon-refresh:before {
+  content: "\e031";
 }
 
 .icon-spin {
@@ -462,4 +511,56 @@ pre {
   background-color: #f5f5f5;
   border: 1px solid #ccc;
   border-radius: 4px;
+}
+
+/* Caret styles for dropdowns */
+.caret {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  margin-left: 2px;
+  vertical-align: middle;
+  border-top: 4px dashed;
+  border-top: 4px solid \9;
+  border-right: 4px solid transparent;
+  border-left: 4px solid transparent;
+}
+
+/* Additional Bootstrap-like styles */
+.btn-sm {
+  padding: 5px 10px;
+  font-size: 12px;
+  line-height: 1.5;
+  border-radius: 3px;
+}
+
+.input-sm {
+  height: 30px;
+  padding: 5px 10px;
+  font-size: 12px;
+  line-height: 1.5;
+  border-radius: 3px;
+}
+
+/* Date input group */
+.input-group.date .input-group-addon {
+  cursor: pointer;
+}
+
+/* Color input styling */
+input[type="color"] {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 2px;
+  cursor: pointer;
+}
+
+/* Align center for form groups */
+.form-group[align="center"] {
+  text-align: center;
+}
+
+.form-group[align="center"] label {
+  display: block;
+  margin-bottom: 5px;
 } 

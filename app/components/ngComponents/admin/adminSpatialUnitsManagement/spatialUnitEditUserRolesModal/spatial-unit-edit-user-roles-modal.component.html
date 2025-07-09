@@ -1,179 +1,131 @@
+<div align="center">
+  <div class="loading-overlay-admin-panel ng-hide" [class.ng-hide]="!loadingData">
+    <span class="glyphicon glyphicon-refresh icon-spin"></span>
+  </div>
+</div>
+
 <div class="modal-header">
-  <h4 class="modal-title">
-    Zugriffsschutz und Eigentümerschaft für Raumeinheit 
-    <i><b>{{currentSpatialUnitDataset?.spatialUnitLevel}}</b></i> editieren
-  </h4>
-  <button type="button" class="btn-close" aria-label="Close" (click)="onCancel()"></button>
+  <button type="button" class="close" aria-label="Close" (click)="onCancel()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+  <h4 class="modal-title">Zugriffsschutz und Eigentümerschaft für Raumeinheit <i><b>{{currentSpatialUnitDataset?.spatialUnitLevel}}</b></i> editieren</h4>
 </div>
 
 <div class="modal-body">
-  <!-- Loading Overlay -->
-  <div *ngIf="loadingData" class="loading-overlay-admin-panel">
-    <div class="spinner-border" role="status">
-      <span class="visually-hidden">Loading...</span>
-    </div>
-  </div>
-
   <!-- MultiStep Form -->
   <div class="row">
     <div class="col-md-12">
-      <form class="multiStepForm form-group" style="margin-bottom: 0px;">
-        
-        <!-- Progress Bar -->
+      <form role="form" class="multiStepForm form-group" id="spatialUnitEditUserRolesForm" data-toggle="validator" style="margin-bottom: 0px;">
+        <!-- progressbar -->
         <div>
-          <ul id="progressbar" #progressbar>
-            <li style="width: 50%;" [class.active]="currentStep >= 1">Zugriffsschutz</li>
-            <li style="width: 50%;" [class.active]="currentStep >= 2">Eigentümerschaft</li>
+          <ul id="progressbar">
+            <li [class.active]="currentStep >= 1" [class.clickable]="true" (click)="goToStep(1)" style="width: 50%; cursor: pointer;">Zugriffsschutz</li>
+            <li [class.active]="currentStep >= 2" [class.clickable]="true" (click)="goToStep(2)" style="width: 50%; cursor: pointer;">Eigentümerschaft</li>						
           </ul>
         </div>
+        <!-- fieldsets -->
 
-        <!-- Step 1: Access Control -->
         <fieldset *ngIf="currentStep === 1">
           <h2 class="fs-title">Zugriffsschutz</h2>
           <h3 class="fs-subtitle">Vergabe der Zugriffsrechte auf Datensatz-Metadaten und -Features pro Organisationseinheit</h3>
-          
+
           <p>Zugriffsrechte (lesen, editieren) müssen explizit vergeben werden</p>
-          
+        
           <div class="row">
-            <div class="col-md-12 col-sm-12 col-xs-12" *ngIf="permissions.length !== 0">
+            <div class="col-md-12 col-sm-12 col-xs-12" *ngIf="permissions.length!=0">
               <div class="form-group vertical-align">
                 <label class="margin-right">Zeige nur zugewiesene Rechte</label>
-                <div class="form-check form-switch">
-                  <input 
-                    class="form-check-input" 
-                    type="checkbox" 
-                    role="switch" 
-                    [(ngModel)]="activeRolesOnly" 
-                    (change)="onActiveRolesOnlyChange()"
-                    [disabled]="permissions.length === 0">
-                </div>
+                <label class="switch">
+                  <input type="checkbox" value="activeRolesOnly" [(ngModel)]="activeRolesOnly" name="activeRolesOnly" [ngModelOptions]="{standalone: true}" (ngModelChange)="onActiveRolesOnlyChange()" [disabled]="permissions.length==0">
+                  <span class="switchslider round"></span>
+                </label>
               </div>
             </div>
-            
             <div class="col-md-3">
               <label>Öffentliche Lesefreigabe*</label>
-              <div class="form-check form-switch">
-                <input 
-                  class="form-check-input" 
-                  type="checkbox" 
-                  role="switch" 
-                  [(ngModel)]="currentSpatialUnitDataset.isPublic">
-              </div>
-              <div class="form-text">
-                <p>Öffentlich freigegebene Datensätze können ohne Login abgerufen werden.</p>
+              <label class="switch">
+                <input type="checkbox" [(ngModel)]="currentSpatialUnitDataset.isPublic" name="isPublic" [ngModelOptions]="{standalone: true}">
+                <span class="switchslider round"></span>
+              </label>
+              <div class="help-block">
+                <p>
+                  Öffentlich freigegebene Datensätze können ohne Login abgerufen werden.
+                </p>
               </div>
             </div>
-            
             <div class="col-md-6 col-sm-6 col-xs-12">
-              <div id="spatialUnitEditRoleManagementTable" style="height: 45vh" class="ag-theme-alpine"></div>
+              <!-- <div id="georesourceAddRoleManagementTable" style="height: 40vh; overflow-y: auto;" class="ag-theme-alpine"></div>     -->
+              <div id="spatialUnitEditRoleManagementTable" style="height: 45vh" class="ag-theme-alpine"></div>  
             </div>
-            
             <div class="col-md-3">
               <div class="alert alert-info">
-                Als Eigentümer-Organisation des Datensatzes können Sie Lese- und Editier-Rechte an die eigene und weitere Organisationseinheiten vergeben.
+                Als Eigentümer-Organisation des Datensatzes können Sie Lese- und Editier-Rechte an die eigene und weitere Organisationseinheiten vergeben. 
               </div>
             </div>
-          </div>
-          
-          <button type="button" class="btn btn-primary action-button" (click)="nextStep()">
-            Nächster Schritt
-          </button>
+          </div>	
+        
+          <input type="button" name="next" class="next next_editSpatialUnitRoles action-button" value="Nächster Schritt" (click)="nextStep()"/>
         </fieldset>
 
-        <!-- Step 2: Ownership -->
         <fieldset *ngIf="currentStep === 2">
           <h2 class="fs-title">Eigentümerschaft eines Datensatzes</h2>
           <h3 class="fs-subtitle">Übertragen der Eigentümerschaft von Datensätzen mit allen dazugehörigen Rechten</h3>
-          
           <div class="alert alert-danger">
-            Bitte beachten Sie, dass Sie beim Übertragen einer Eigentümerschaft einer Resource unter Umständen jegliche Rechte eben dieser verlieren.<br>
-            Die Rechte werden unwiderruflich und sofort an den neuen Eigentümer übertragen.
+            Bitte beachten Sie, dass Sie beim Übertragen einer Eigentümerschaft einer Resource unter Umständen jegliche Rechte eben dieser verlieren.<br>Die Rechte werden unwiderruflich und sofort an den neuen Eigentümer übertragen.
           </div>
-          
           <div class="row">
             <div class="col-md-3"></div>
             <div class="col-md-6 col-sm-6 col-xs-12">
               <label for="targetUserRoleSelect"><b>Eigentümerschaft übertragen an</b></label>
-              <div class="input-group mb-3">
-                <span class="input-group-text">
-                  <i class="fas fa-filter"></i>
-                </span>
-                <input 
-                  type="text" 
-                  class="form-control" 
-                  placeholder="Stichwortfilter" 
-                  [(ngModel)]="ownerOrgFilter">
+              <div class="input-group">
+                <span class="input-group-addon"><i class="fas fa-filter"></i></span>
+                <input type="text" class="form-control input-sm" placeholder="Stichwortfilter" [(ngModel)]="ownerOrgFilter" name="ownerOrgFilter" [ngModelOptions]="{standalone: true}">
               </div>
-              
-              <select 
-                *ngIf="kommonitorDataExchangeService.checkAdminPermission()" 
-                class="form-select" 
-                [(ngModel)]="ownerOrganization" 
-                (change)="onChangeOwner(ownerOrganization)">
-                <option value="">Eigentümerschaft nicht übertragen</option>
-                <option 
-                  *ngFor="let org of getFilteredOrganizations()" 
-                  [value]="org.organizationalUnitId">
-                  {{org.name}}
-                </option>
+              <select *ngIf="kommonitorDataExchangeService.checkAdminPermission()" id="targetUserRoleSelect" [(ngModel)]="ownerOrganization" name="ownerOrganization" [ngModelOptions]="{standalone: true}" class="form-control" (ngModelChange)="onChangeOwner(ownerOrganization)" required>
+                <option selected value><b>Eigentümerschaft nicht übertragen</b></option>
+                <option *ngFor="let org of getFilteredOrganizations()" [value]="org.organizationalUnitId">{{org.name}}</option>
               </select>
-              
-              <select 
-                *ngIf="!kommonitorDataExchangeService.checkAdminPermission()" 
-                class="form-select" 
-                [(ngModel)]="ownerOrganization" 
-                (change)="onChangeOwner(ownerOrganization)">
-                <option value="">Eigentümerschaft nicht übertragen</option>
-                <option 
-                  *ngFor="let org of getFilteredOrganizations()" 
-                  [value]="org.organizationalUnitId">
-                  {{org.name}}
-                </option>
+              <select *ngIf="!kommonitorDataExchangeService.checkAdminPermission()" id="addSpatialUnitUserRoleSelect" [(ngModel)]="ownerOrganization" name="ownerOrganizationNonAdmin" [ngModelOptions]="{standalone: true}" class="form-control" (ngModelChange)="onChangeOwner(ownerOrganization)" required>
+                <option selected value><b>Eigentümerschaft nicht übertragen</b></option>
+                <option *ngFor="let org of getFilteredOrganizations()" [value]="org.organizationalUnitId">{{org.name}}</option>
               </select>
             </div>
             <div class="col-md-3">
               <label>aktuelle Eigentümer-Organisationseinheit</label>
               <p>{{getCurrentOwnerName()}}</p>
-              <div class="form-text text-danger" *ngIf="isOwnershipChanging()">
-                <p>ACHTUNG: Sie sind dabei, die Eigentümerschaft an diesem Datensatz zu ändern.</p>
+              <div class="help-block" style="color: red" *ngIf="isOwnershipChanging()">
+                <p>
+                  ACHTUNG: Sie sind dabei, die Eigentümerschaft an diesem Datensatz zu ändern.
+                </p>
               </div>
             </div>
           </div>
-          
-          <button type="button" class="btn btn-secondary action-button-previous me-2" (click)="previousStep()">
-            Voriger Schritt
-          </button>
+
+          <input type="button" name="previous" class="previous next_editSpatialUnitRoles action-button-previous" value="Voriger Schritt" (click)="previousStep()"/>
         </fieldset>
 
       </form>
     </div>
   </div>
-</div>
 
+</div>
 <div class="modal-footer">
-  <button type="button" class="btn btn-secondary" (click)="onCancel()">
-    Schließen
-  </button>
-  <button type="button" class="btn btn-success" (click)="editSpatialUnitUserRoles()" [disabled]="loadingData">
-    Aktualisieren
-  </button>
-  <button type="button" class="btn btn-danger" (click)="resetForm()">
-    Zurücksetzen
-  </button>
+  <button type="button" class="btn btn-default pull-left" (click)="onCancel()">Schließen</button>
+
+  <button type="button" class="btn btn-success" (click)="editSpatialUnitUserRoles()">Aktualisieren</button>
+  <button type="button" class="btn btn-danger" (click)="resetForm()">Zurücksetzen</button>
 </div>
 
-<!-- Success Alert -->
-<div *ngIf="successMessagePart" class="alert alert-success alert-dismissible fade show" style="position: absolute; bottom: 0px; width: 100%;">
-  <button type="button" class="btn-close" (click)="hideSuccessAlert()"></button>
-  <h4><i class="fas fa-check"></i> Zugriffsschutz und Eigentümerschaft aktualisiert</h4>
+<div id="spatialUnitEditUserRolesSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" [hidden]="!successMessagePart" class="alert alert-success alert-dismissable">
+  <button type="button" class="close" (click)="hideSuccessAlert()" aria-hidden="true">&times;</button>
+  <h4><i class="icon fa fa-check"></i>Zugriffsschutz und Eigentümerschaft aktualisiert</h4>
   Erfolgreiche Aktualisierung des Zugriffsschutzes und der Eigentümerschaft für die Raumeinheit '{{currentSpatialUnitDataset?.spatialUnitLevel}}'
 </div>
 
-<!-- Error Alert -->
-<div *ngIf="errorMessagePart" class="alert alert-danger alert-dismissible fade show" style="position: absolute; bottom: 0px; width: 100%;">
-  <button type="button" class="btn-close" (click)="hideErrorAlert()"></button>
-  <h4><i class="fas fa-ban"></i> Aktualisierung gescheitert</h4>
+<div id="spatialUnitEditUserRolesErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" [hidden]="!errorMessagePart" class="alert alert-danger alert-dismissable">
+  <button type="button" class="close" (click)="hideErrorAlert()" aria-hidden="true">&times;</button>
+  <h4><i class="icon fa fa-ban"></i>Aktualisierung gescheitert</h4>
   Bei der Aktualisierung des Zugriffsschutzes und der Eigentümerschaft ist ein Fehler aufgetreten. Fehlermeldung:
-  <br>
+  <br />
   <pre style="overflow:auto; max-height:500px;" [innerHTML]="errorMessagePart"></pre>
 </div> 

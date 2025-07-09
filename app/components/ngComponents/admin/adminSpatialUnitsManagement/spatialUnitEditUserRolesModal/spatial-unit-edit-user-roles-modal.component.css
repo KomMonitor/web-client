@@ -26,16 +26,54 @@
 
 /* Loading overlay */
 .loading-overlay-admin-panel {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
+  width: 100%;
+  height: 100%;
   background-color: rgba(255, 255, 255, 0.8);
   display: flex;
-  align-items: center;
   justify-content: center;
-  z-index: 1000;
+  align-items: center;
+  z-index: 9999;
+}
+
+.loading-overlay-admin-panel .glyphicon {
+  font-size: 2rem;
+}
+
+.ng-hide {
+  display: none !important;
+}
+
+/* Glyphicon base class */
+.glyphicon {
+  position: relative;
+  top: 1px;
+  display: inline-block;
+  font-family: 'Glyphicons Halflings';
+  font-style: normal;
+  font-weight: normal;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.glyphicon-refresh:before {
+  content: "\e031";
+}
+
+.icon-spin {
+  animation: spin 2s infinite linear;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .spinner-border {
@@ -44,90 +82,138 @@
   border-width: 0.3rem;
 }
 
-/* Progress bar styling */
+/* Progress Bar Styles - Matching Original */
 #progressbar {
-  margin-bottom: 30px;
+  margin-bottom: 10px;
   overflow: hidden;
-  color: lightgrey;
-  padding: 0;
-  list-style: none;
-  display: flex;
-  width: 100%;
+  /*CSS counters to number the steps*/
+  counter-reset: step;
 }
 
 #progressbar li {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
+  list-style-type: none;
+  color: black;
+  text-transform: uppercase;
+  font-size: 9px;
+  float: left;
   position: relative;
-  padding: 20px;
-  background-color: #f8f9fa;
-  border: 1px solid #dee2e6;
-  color: #6c757d;
-  font-weight: 500;
-  text-align: center;
-  min-height: 60px;
-  flex: 1;
-}
-
-#progressbar li:first-child {
-  border-radius: 4px 0 0 4px;
-}
-
-#progressbar li:last-child {
-  border-radius: 0 4px 4px 0;
-}
-
-#progressbar li.active {
-  background-color: #007bff;
-  color: white;
-  border-color: #007bff;
-}
-
-#progressbar li.active:before {
-  opacity: 1;
+  letter-spacing: 1px;
+  cursor: pointer;
 }
 
 #progressbar li:before {
   content: counter(step);
   counter-increment: step;
-  width: 20px;
-  line-height: 20px;
+  width: 24px;
+  height: 24px;
+  line-height: 26px;
   display: block;
-  font-size: 10px;
+  font-size: 12px;
   color: #333;
-  background: white;
-  border-radius: 3px;
-  margin: 0 auto 5px auto;
+  background: #cccc;
+  border-radius: 25px;
+  margin: 0 auto 10px auto;
+  transform: translateZ(-1px);
 }
 
-/* Form styling */
+/*progressbar connectors*/
+#progressbar li:after {
+  content: '';
+  width: 100%;
+  height: 2px;
+  background: #cccc;
+  position: absolute;
+  left: -50%;
+  top: 9px;
+  /*put it behind the numbers */
+  z-index: -1; 
+}
+
+#progressbar li:first-child:after {
+  /*connector not needed before the first step*/
+  content: none;
+}
+
+/*marking active/completed steps green*/
+/*The number of the step and the connector before it = green*/
+#progressbar li.active:before, #progressbar li.active:after {
+  background: var(--kommonitor-primary);
+  color: white;
+}
+
+#progressbar li.clickable {
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+#progressbar li.clickable:hover {
+  color: var(--kommonitor-primary);
+}
+
+#progressbar li.clickable:hover:before {
+  background: var(--kommonitor-primary);
+  transform: scale(1.1);
+}
+
+/* Multi-step form styles - Matching Original */
 .multiStepForm {
-  margin-bottom: 0;
-}
-
-fieldset {
-  border: none;
-  padding: 0;
-  margin: 0;
-  min-height: 500px;
-}
-
-.fs-title {
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin-bottom: 1rem;
-  color: #333;
   text-align: center;
+  position: relative;
+  margin-top: 30px;
+  z-index: 11000;
+  font-size: 12px;
+}
+
+.multiStepForm fieldset {
+  background: white;
+  border: 0 none;
+  border-radius: 0px;
+  box-shadow: 0 0 15px 1px rgba(0, 0, 0, 0.4);
+  padding: 0px 30px;
+  box-sizing: border-box;
+  /*stacking fieldsets above each other*/
+  position: relative;
+  width: 100%;
+}
+
+/*inputs*/
+.multiStepForm input, .multiStepForm textarea, .multiStepForm select {
+  border: 1px solid #ccc;
+  border-radius: 0px;
+  margin-bottom: 10px;
+  width: 100%;
+  box-sizing: border-box;
+  color: #2C3E50;
+  font-size: 13px;
+}
+
+.multiStepForm input:focus, .multiStepForm textarea:focus {
+  -moz-box-shadow: none !important;
+  -webkit-box-shadow: none !important;
+  box-shadow: none !important;
+  border: 1px solid var(--kommonitor-primary);
+  outline-width: 0;
+  transition: All 0.5s ease-in;
+  -webkit-transition: All 0.5s ease-in;
+  -moz-transition: All 0.5s ease-in;
+  -o-transition: All 0.5s ease-in;
+}
+
+/*headings*/
+.fs-title {
+  font-size: 18px;
+  text-transform: uppercase;
+  color: #2C3E50;
+  margin-bottom: 10px;
+  letter-spacing: 2px;
+  font-weight: bold;
 }
 
 .fs-subtitle {
-  font-size: 1rem;
-  font-weight: 500;
-  margin-bottom: 1.5rem;
-  color: #6c757d;
-  text-align: center;
+  font-weight: normal;
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 20px;
 }
 
 /* Form controls */
@@ -157,7 +243,63 @@ fieldset {
   box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
 }
 
-/* Switch styling */
+/* AngularJS Switch styling */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.switchslider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: .4s;
+}
+
+.switchslider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: .4s;
+}
+
+input:checked + .switchslider {
+  background-color: #27AE60;
+}
+
+input:focus + .switchslider {
+  box-shadow: 0 0 1px #27AE60;
+}
+
+input:checked + .switchslider:before {
+  transform: translateX(26px);
+}
+
+.switchslider.round {
+  border-radius: 34px;
+}
+
+.switchslider.round:before {
+  border-radius: 50%;
+}
+
+/* Form switch styling - keeping for backward compatibility */
 .form-switch .form-check-input {
   width: 2em;
   margin-left: -2.5em;
@@ -174,37 +316,37 @@ fieldset {
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='rgba%28255, 255, 255, 1.0%29'/%3e%3c/svg%3e");
 }
 
-/* Button styling */
-.action-button {
-  background-color: #007bff;
-  border: none;
+/*buttons*/
+.multiStepForm .action-button {
+  width: auto;
+  background: var(--kommonitor-primary);
+  font-weight: bold;
   color: white;
-  padding: 0.75rem 1.5rem;
-  font-size: 1rem;
-  border-radius: 0.375rem;
+  border: 0 none;
+  border-radius: 25px;
   cursor: pointer;
-  transition: background-color 0.15s ease-in-out;
-  margin-top: 1rem;
+  padding: 10px 5px;
+  margin: 10px 5px;
 }
 
-.action-button:hover {
-  background-color: #0056b3;
+.multiStepForm .action-button:hover, .multiStepForm .action-button:focus {
+  box-shadow: 0 0 0 2px white, 0 0 0 3px var(--kommonitor-primary);
 }
 
-.action-button-previous {
-  background-color: #6c757d;
-  border: none;
+.multiStepForm .action-button-previous {
+  width: 100px;
+  background: rgb(236, 138, 138);
+  font-weight: bold;
   color: white;
-  padding: 0.75rem 1.5rem;
-  font-size: 1rem;
-  border-radius: 0.375rem;
+  border: 0 none;
+  border-radius: 25px;
   cursor: pointer;
-  transition: background-color 0.15s ease-in-out;
-  margin-top: 1rem;
+  padding: 10px 5px;
+  margin: 10px 5px;
 }
 
-.action-button-previous:hover {
-  background-color: #545b62;
+.multiStepForm .action-button-previous:hover, .multiStepForm .action-button-previous:focus {
+  box-shadow: 0 0 0 2px white, 0 0 0 3px #C5C5F1;
 }
 
 /* Alert styling */
@@ -242,6 +384,16 @@ fieldset {
   padding: 1.25rem 1rem;
 }
 
+/* Make sure form fields have proper spacing */
+.row.vertical-align {
+  margin-bottom: 1.5rem;
+}
+
+/* Ensure proper spacing between form groups */
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
 /* Vertical alignment utility */
 .vertical-align {
   display: flex;
@@ -259,15 +411,54 @@ fieldset {
   overflow: hidden;
 }
 
-/* Input group styling */
+/* AngularJS Input group styling */
 .input-group {
   position: relative;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: stretch;
-  width: 100%;
+  display: table;
+  border-collapse: separate;
 }
 
+.input-group-addon {
+  padding: 6px 12px;
+  font-size: 14px;
+  font-weight: normal;
+  line-height: 1;
+  color: #555;
+  text-align: center;
+  background-color: #eee;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 1%;
+  white-space: nowrap;
+  vertical-align: middle;
+  display: table-cell;
+}
+
+.input-group .form-control {
+  position: relative;
+  z-index: 2;
+  float: left;
+  width: 100%;
+  margin-bottom: 0;
+  display: table-cell;
+}
+
+.input-group .form-control:not(:first-child):not(:last-child) {
+  border-radius: 0;
+}
+
+.input-group-addon:first-child {
+  border-right: 0;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.input-group .form-control:last-child {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+/* Modern Input group styling - keeping for backward compatibility */
 .input-group-text {
   display: flex;
   align-items: center;
@@ -281,14 +472,6 @@ fieldset {
   background-color: #e9ecef;
   border: 1px solid #ced4da;
   border-radius: 0.375rem 0 0 0.375rem;
-}
-
-.input-group > .form-control {
-  position: relative;
-  flex: 1 1 auto;
-  width: 1%;
-  min-width: 0;
-  border-radius: 0 0.375rem 0.375rem 0;
 }
 
 /* Responsive design */
@@ -323,7 +506,105 @@ pre {
   word-wrap: break-word;
 }
 
-/* Form text helper */
+/* AngularJS Help block styles */
+.help-block {
+  display: block;
+  margin-top: 5px;
+  margin-bottom: 10px;
+  color: #737373;
+  font-size: 12px;
+}
+
+.help-block.with-errors {
+  color: #a94442;
+}
+
+/* AngularJS button styles */
+.btn {
+  display: inline-block;
+  padding: 6px 12px;
+  margin-bottom: 0;
+  font-size: 14px;
+  font-weight: normal;
+  line-height: 1.42857143;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: middle;
+  cursor: pointer;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  text-decoration: none;
+}
+
+.btn:focus,
+.btn:active:focus,
+.btn.active:focus {
+  outline: thin dotted;
+  outline: 5px auto -webkit-focus-ring-color;
+  outline-offset: -2px;
+}
+
+.btn:hover,
+.btn:focus {
+  color: #333;
+  text-decoration: none;
+}
+
+.btn-default {
+  color: #333;
+  background-color: #fff;
+  border-color: #ccc;
+}
+
+.btn-default:hover,
+.btn-default:focus {
+  color: #333;
+  background-color: #e6e6e6;
+  border-color: #adadad;
+}
+
+.btn-success {
+  color: #fff;
+  background-color: #5cb85c;
+  border-color: #4cae4c;
+}
+
+.btn-success:hover,
+.btn-success:focus {
+  color: #fff;
+  background-color: #449d44;
+  border-color: #398439;
+}
+
+.btn-danger {
+  color: #fff;
+  background-color: #d9534f;
+  border-color: #d43f3a;
+}
+
+.btn-danger:hover,
+.btn-danger:focus {
+  color: #fff;
+  background-color: #c9302c;
+  border-color: #ac2925;
+}
+
+.btn:disabled,
+.btn[disabled] {
+  cursor: not-allowed;
+  opacity: 0.65;
+  box-shadow: none;
+}
+
+.pull-left {
+  float: left !important;
+}
+
+.pull-right {
+  float: right !important;
+}
+
+/* Form text helper - keeping for backward compatibility */
 .form-text {
   margin-top: 0.25rem;
   font-size: 0.875em;

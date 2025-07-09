@@ -2,6 +2,7 @@ import { Component, Inject, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewI
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClient } from '@angular/common/http';
 import { Subscription } from 'rxjs';
+import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 
 @Component({
   selector: 'spatial-unit-edit-user-roles-modal',
@@ -34,7 +35,7 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, OnDestroy
     @Inject('kommonitorDataExchangeService') public kommonitorDataExchangeService: any,
     @Inject('kommonitorDataGridHelperService') public kommonitorDataGridHelperService: any,
     @Inject('kommonitorMultiStepFormHelperService') public kommonitorMultiStepFormHelperService: any,
-    @Inject('BroadcastService') public broadcastService: any,
+    private broadcastService: BroadcastService,
     private http: HttpClient
   ) {}
 
@@ -200,6 +201,13 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, OnDestroy
   previousStep(): void {
     if (this.currentStep > 1) {
       this.currentStep--;
+      this.updateProgressBar();
+    }
+  }
+
+  goToStep(step: number): void {
+    if (step >= 1 && step <= this.totalSteps) {
+      this.currentStep = step;
       this.updateProgressBar();
     }
   }
