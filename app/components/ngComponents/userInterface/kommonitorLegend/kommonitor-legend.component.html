@@ -11,7 +11,7 @@
           <h3 class="box-title">Raumebene und Export</h3>
   
           <div class="box-tools pull-right">
-            <button (click)="exportCollapse.toggle()" id="kommonitorIndicatorExportAndSpatialUnitSwitchCollapse" type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+            <button (click)="exportCollapse.toggle()" id="kommonitorIndicatorExportAndSpatialUnitSwitchCollapse" type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa" [ngClass]="{'fa-plus':isExportCollapsed, 'fa-minus':!isExportCollapsed}"></i>
             </button>
           </div>
         </div>
@@ -79,7 +79,7 @@
           <h3 class="box-title">Legenden</h3>
   
           <div class="box-tools pull-right">
-            <button (click)="legendCollapse.toggle()" id="legendSymbologyCollapse" type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+            <button (click)="legendCollapse.toggle()" id="legendSymbologyCollapse" type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa" [ngClass]="{'fa-plus':isLegendCollapsed, 'fa-minus':!isLegendCollapsed}"></i>
             </button>
           </div>
         </div>
@@ -534,7 +534,7 @@
           <h3 class="box-title">Indikatoren-Statistik</h3>
   
           <div class="box-tools pull-right">
-            <button (click)="statisticCollapse.toggle()" id="statisticalValuesCollapse" type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+            <button (click)="statisticCollapse.toggle()" id="statisticalValuesCollapse" type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa" [ngClass]="{'fa-plus':isStatisticCollapsed, 'fa-minus':!isStatisticCollapsed}"></i>
             </button>
           </div>
         </div>
