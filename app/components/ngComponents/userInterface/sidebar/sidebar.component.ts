@@ -11,6 +11,6 @@ export class SidebarComponent implements OnInit{
 
   ngOnInit(): void {
     // default open
-    //this.element = 'sidebarFilterCollapse';
+    this.element = 'sidebarDiagramsCollapse';
   }
 }

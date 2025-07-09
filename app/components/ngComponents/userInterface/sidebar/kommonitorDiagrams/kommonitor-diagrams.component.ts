@@ -3,20 +3,28 @@ import { DataExchange, DataExchangeService } from 'services/data-exchange-servic
 import * as echarts from 'echarts';
 import { DiagramHelperServiceService } from 'services/diagram-helper-service/diagram-helper-service.service';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { FilterHelperService } from 'services/filter-helper-service/filter-helper.service';
+import { fromEvent, Observable, Subscription } from "rxjs";
+import { TableExport } from 'TableExport';
+
 
 @Component({
   selector: 'app-kommonitor-diagrams',
   templateUrl: './kommonitor-diagrams.component.html',
   styleUrls: ['./kommonitor-diagrams.component.css']
 })
-export class KommonitorDiagramsComponent implements OnInit{
+export class KommonitorDiagramsComponent implements OnInit {
 
   exchangeData!: DataExchange;
+  
+  resizeObservable$!: Observable<Event>;
+  resizeSubscription$!: Subscription;
 
   constructor(
     private dataExchangeService: DataExchangeService,
     private diagramHelperService: DiagramHelperServiceService,
-    private broadcastService: BroadcastService
+    private broadcastService: BroadcastService,
+    private filterHelperService: FilterHelperService
   ) {
     this.exchangeData = this.dataExchangeService.pipedData;
   }
@@ -30,29 +38,25 @@ export class KommonitorDiagramsComponent implements OnInit{
         case 'updateDiagrams': {
           setTimeout(() => {
             this.updateDiagrams(values);
-          },1500);
+          },500);
+        } break;
+        case 'updateDiagramsForHoveredFeature': {
+          this.updateDiagramsForHoveredFeature(values);
+        } break;
+        case 'updateDiagramsForUnhoveredFeature': {
+          this.updateDiagramsForUnhoveredFeature(values);
+        } break;
+        case 'resizeDiagrams': {
+          this.resizeDiagrams();
+        } break;
+        case 'AppendExportButtonsForTable': {
+          this.AppendExportButtonsForTable(values);
         } break;
       }
     });
-  }
 
- /*  $(window).on('resize', () {
-    if (this.histogramChart != null && this.histogramChart != undefined) {
-      this.histogramChart.resize();
-    }
-
-    if (this.barChart != null && this.barChart != undefined) {
-      this.barChart.resize();
-    }
-
-    if (this.lineChart != null && this.lineChart != undefined) {
-      this.lineChart.resize();
-    }
-  });
-
-  $on("resizeDiagrams", (event) {
-
-    setTimeout(() {
+    this.resizeObservable$ = fromEvent(window, 'resize')
+    this.resizeSubscription$ = this.resizeObservable$.subscribe( evt => {
       if (this.histogramChart != null && this.histogramChart != undefined) {
         this.histogramChart.resize();
       }
@@ -64,9 +68,8 @@ export class KommonitorDiagramsComponent implements OnInit{
       if (this.lineChart != null && this.lineChart != undefined) {
         this.lineChart.resize();
       }
-    }, 350);
-  });
-  */
+    })
+  }
 
   loadingData = false;
 
@@ -99,6 +102,23 @@ export class KommonitorDiagramsComponent implements OnInit{
   histogramOption!:any;
   barOption!:any;
   lineOption!:any;
+
+  resizeDiagrams() {
+
+    setTimeout(() => {
+      if (this.histogramChart != null && this.histogramChart != undefined) {
+        this.histogramChart.resize();
+      }
+
+      if (this.barChart != null && this.barChart != undefined) {
+        this.barChart.resize();
+      }
+
+      if (this.lineChart != null && this.lineChart != undefined) {
+        this.lineChart.resize();
+      }
+    }, 350);
+  }
 
   compareFeaturesByIndicatorValue(featureA, featureB) {
     if (featureA.properties[this.indicatorPropertyName] < featureB.properties[this.indicatorPropertyName])
@@ -230,7 +250,7 @@ export class KommonitorDiagramsComponent implements OnInit{
   registerEventsIfNecessary() {
     if (!this.eventsRegistered) {
       // when hovering over elements of the chart then highlight them in the map.
-/*       this.barChart.on('mouseOver', (params) {
+      this.barChart.on('mouseOver', (params) => {
         // this.userHoveresOverBarItem = true;
         let seriesIndex = params.seriesIndex;
         let dataIndex = params.dataIndex;
@@ -247,9 +267,9 @@ export class KommonitorDiagramsComponent implements OnInit{
           this.broadcastService.broadcast("highlightFeatureOnMap", [spatialFeatureName]);
         }
         
-      }); */
+      });
 
-  /*     this.barChart.on('mouseOut', (params) {
+      this.barChart.on('mouseOut', (params) => {
         // this.userHoveresOverBarItem = false;
         let seriesIndex = params.seriesIndex;
         let dataIndex = params.dataIndex;
@@ -266,9 +286,9 @@ export class KommonitorDiagramsComponent implements OnInit{
           this.broadcastService.broadcast("unhighlightFeatureOnMap", [spatialFeatureName]);
         }
         
-      }); */
+      });
 
-   /*    this.barChart.on('click', (params) {
+      this.barChart.on('click', (params) => {
         let seriesIndex = params.seriesIndex;
         let dataIndex = params.dataIndex;
 
@@ -284,7 +304,7 @@ export class KommonitorDiagramsComponent implements OnInit{
           this.broadcastService.broadcast("switchHighlightFeatureOnMap", [spatialFeatureName]);
         }
         
-      }); */
+      });
 
       this.eventsRegistered = true;
     }
@@ -311,8 +331,8 @@ export class KommonitorDiagramsComponent implements OnInit{
       this.lineChart.resize();
     }, 350);
   };
-/* 
-  $on("updateDiagramsForHoveredFeature", (event, featureProperties) {
+
+  updateDiagramsForHoveredFeature([featureProperties]) {
 
     if (!this.lineOption.legend.data.includes(featureProperties[window.__env.FEATURE_NAME_PROPERTY_NAME])) {
       this.appendSeriesToLineChart(featureProperties);
@@ -320,7 +340,7 @@ export class KommonitorDiagramsComponent implements OnInit{
 
     this.highlightFeatureInBarChart(featureProperties);
     this.highlightFeatureInLineChart(featureProperties);
-  }); */
+  }
 
   appendSeriesToLineChart(featureProperties) {
 
@@ -410,16 +430,16 @@ export class KommonitorDiagramsComponent implements OnInit{
     }
   };
 
-/*   $on("updateDiagramsForUnhoveredFeature", (event, featureProperties) {
+  updateDiagramsForUnhoveredFeature([featureProperties]) {
 
-    if (!kommonitorFilterHelperService.featureIsCurrentlySelected(featureProperties[window.__env.FEATURE_ID_PROPERTY_NAME])) {
+    if (!this.filterHelperService.featureIsCurrentlySelected(featureProperties[window.__env.FEATURE_ID_PROPERTY_NAME])) {
       this.unhighlightFeatureInLineChart(featureProperties);
 
       this.removeSeriesFromLineChart(featureProperties);
 
       this.unhighlightFeatureInBarChart(featureProperties);
     }
-  }); */
+  }
 
   getSeriesIndexByFeatureName(featureName) {
     for (let index = 0; index < this.lineOption.series.length; index++) {
@@ -490,13 +510,14 @@ export class KommonitorDiagramsComponent implements OnInit{
     }
   };
 
- /*  this.$on("AppendExportButtonsForTable", (event, tableId, tableExportName) {
+  AppendExportButtonsForTable([tableId, tableExportName]) {
 
-    setTimeout(() {
+    setTimeout(() => {
 
-
+      // todo throws error, currently unable to identify reason. maybe replace package
+     /*  let temp:any = document.getElementsByTagName(tableId);
       // new TableExport(document.getElementsByTagName("table"), {
-      new TableExport(document.getElementById(tableId), {
+      new TableExport(temp, {
         headers: true,                              // (Boolean), display table headers (th or td elements) in the <thead>, (default: true)
         footers: true,                              // (Boolean), display table footers (th or td elements) in the <tfoot>, (default: false)
         formats: ['xlsx', 'csv', 'txt'],            // (String[]), filetype(s) for the export, (default: ['xlsx', 'csv', 'txt'])
@@ -504,12 +525,11 @@ export class KommonitorDiagramsComponent implements OnInit{
         bootstrap: true,                           // (Boolean), style buttons using bootstrap, (default: true)
         exportButtons: true,                        // (Boolean), automatically generate the built-in export buttons for each of the specified formats (default: true)
         position: 'top',                         // (top, bottom), position of the caption element relative to table, (default: 'bottom')
-        ignoreRows: null,                           // (Number, Number[]), row indices to exclude from the exported file(s) (default: null)
-        ignoreCols: null,                           // (Number, Number[]), column indices to exclude from the exported file(s) (default: null)
+        ignoreRows: undefined,                      // (Number, Number[]), row indices to exclude from the exported file(s) (default: null)
+        ignoreCols: undefined,                      // (Number, Number[]), column indices to exclude from the exported file(s) (default: null)
         trimWhitespace: true                        // (Boolean), remove all leading/trailing newlines, spaces, and tabs from cell text in the exported file(s) (default: false)
-      });
+      }); */
+
     }, 50);
-
-
-  } */
+  }
 }

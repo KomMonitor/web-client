@@ -339,6 +339,15 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         case 'openLayerControl': {
           this.openLayerControl();
         } break;
+        case 'highlightFeatureOnMap': {
+          this.highlightFeatureOnMap(values);
+        } break;
+        case 'switchHighlightFeatureOnMap': {
+          this.switchHighlightFeatureOnMap(values);
+        } break;
+        case 'unhighlightFeatureOnMap': {
+          this.unhighlightFeatureOnMap(values);
+        } break;
       }
     });
   }
@@ -2308,8 +2317,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     }
 
     //update diagrams for unhoveredFeature
-    // todo
-    // $rootScope.$broadcast("updateDiagramsForUnhoveredFeature", layer.feature.properties);
+    this.broadcastService.broadcast("updateDiagramsForUnhoveredFeature", [layer.feature.properties]);
   }
  
   resetHighlightClickedFeature(layer) {
@@ -3249,70 +3257,64 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     this.visualStyleHelperService.manualMOVBreaks[0] = ltBreaks;
     this.visualStyleHelperService.manualMOVBreaks[1] = gtBreaks;
   }
-/*
-  $scope.$on("highlightFeatureOnMap", function (event, spatialFeatureName) {
+
+  highlightFeatureOnMap([spatialFeatureName]) {
 
     // console.log("highlight feature on map for featureName " + spatialFeatureName);
 
     if(!spatialFeatureName){
       return;
     }
-    done = false;
+    let done = false;
 
-    $scope.map.eachLayer(function (layer) {
+    this.map.eachLayer((layer) => {
       if (!done && layer.feature) {
         if (layer.feature.properties[window.__env.FEATURE_NAME_PROPERTY_NAME] == spatialFeatureName) {
-          highlightFeatureForLayer(layer);
+          this.highlightFeatureForLayer(layer);
           done = true;
         }
       }
-
     });
+  }
 
-  });
-
-  $scope.$on("unhighlightFeatureOnMap", function (event, spatialFeatureName) {
+  unhighlightFeatureOnMap ([spatialFeatureName]) {
     if(!spatialFeatureName){
       return;
     }
 
     // console.log("unhighlight feature on map for featureName " + spatialFeatureName);
 
-    done = false;
+    let done = false;
 
-    $scope.map.eachLayer(function (layer) {
+    this.map.eachLayer((layer) => {
       if (!done && layer.feature) {
         if (layer.feature.properties[window.__env.FEATURE_NAME_PROPERTY_NAME] == spatialFeatureName) {
-          resetHighlightForLayer(layer);
+          this.resetHighlightForLayer(layer);
           done = true;
         }
       }
-
     });
+  }
 
-  });
-
-  $scope.$on("switchHighlightFeatureOnMap", function (event, spatialFeatureName) {
+  switchHighlightFeatureOnMap(spatialFeatureName) {
     if(!spatialFeatureName){
       return;
     }
 
     // console.log("switch highlight feature on map for featureName " + spatialFeatureName);
 
-    done = false;
+    let done = false;
 
-    $scope.map.eachLayer(function (layer) {
+    this.map.eachLayer((layer) => {
       if (!done && layer.feature) {
         if (layer.feature.properties[window.__env.FEATURE_NAME_PROPERTY_NAME] == spatialFeatureName) {
-          switchHighlightFeature(layer);
+          this.switchHighlightFeature(layer);
           done = true;
         }
       }
-
     });
-
-  });
-  */
+  }
+ 
   unselectAllFeatures() {
 
     this.filterHelperService.clearSelectedFeatures();
