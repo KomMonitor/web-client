@@ -26,12 +26,12 @@
 						<h3 *ngIf="date" class="box-title">Raumeinheits-Vergleich - {{spatialUnitName}} - {{date}}</h3>
 						<!-- <h3 *ngIf="fromDate && toDate" class="box-title">Raumeinheits-Vergleich - {{spatialUnitName}} - Bilanz {{fromDate}} - {{toDate}}</h3> -->
 						
-						<div class="box-tools pull-right">
-							<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
-							</button>
-						</div> 
+            <div class="box-tools pull-right">
+              <button (click)="barchartCollapse.toggle()" type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa" [ngClass]="{'fa-plus':isBarchartCollapsed, 'fa-minus':!isBarchartCollapsed}"></i>
+            </button>
+          </div>
 					</div>
-					<div class="box-body">
+					<div class="box-body boxedLegend" #barchartCollapse="ngbCollapse" [(ngbCollapse)]="isBarchartCollapsed">
 						<div class="chart">
 							<div class="row">
 								<div class="col-md-6" style="text-align: left;">
@@ -76,11 +76,10 @@
 							<h3 class="box-title">Zeitreihe - {{spatialUnitName}}</h3>
 
 							<div class="box-tools pull-right">
-								<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
-								</button>
-							</div> 
+              <button (click)="linechartCollapse.toggle()" type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa" [ngClass]="{'fa-plus':isLinechartCollapsed, 'fa-minus':!isLinechartCollapsed}"></i>
+            </button>
 						</div>
-						<div class="box-body">
+						<div class="box-body boxedLegend" #linechartCollapse="ngbCollapse" [(ngbCollapse)]="isLinechartCollapsed">
 							<div class="chart">
 								<div id="lineDiagram" style="width:100%; min-height:40vh;"></div>
 							</div>

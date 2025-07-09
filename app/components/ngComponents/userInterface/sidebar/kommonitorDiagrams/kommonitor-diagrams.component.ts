@@ -20,6 +20,9 @@ export class KommonitorDiagramsComponent implements OnInit {
   resizeObservable$!: Observable<Event>;
   resizeSubscription$!: Subscription;
 
+  isBarchartCollapsed = false;
+  isLinechartCollapsed = false;
+
   constructor(
     private dataExchangeService: DataExchangeService,
     private diagramHelperService: DiagramHelperServiceService,
