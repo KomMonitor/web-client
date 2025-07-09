@@ -1,8 +1,10 @@
-import { Component, OnInit, OnDestroy, Inject, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { HttpClient } from '@angular/common/http';
 import { Subscription } from 'rxjs';
+import { KommonitorDataExchangeService } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
+import { KommonitorDataGridHelperService } from 'services/adminSpatialUnit/kommonitor-data-grid-helper.service';
 
 @Component({
   selector: 'spatial-unit-edit-metadata-modal-new',
@@ -71,9 +73,8 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy 
 
   constructor(
     public activeModal: NgbActiveModal,
-    @Inject('kommonitorDataExchangeService') public kommonitorDataExchangeService: any,
-    @Inject('kommonitorDataGridHelperService') private kommonitorDataGridHelperService: any,
-    @Inject('kommonitorMultiStepFormHelperService') private kommonitorMultiStepFormHelperService: any,
+    public kommonitorDataExchangeService: KommonitorDataExchangeService,
+    private kommonitorDataGridHelperService: KommonitorDataGridHelperService,
     private http: HttpClient,
     private broadcastService: BroadcastService
   ) {
@@ -151,25 +152,28 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy 
     this.spatialUnitLevel = this.currentSpatialUnitDataset.spatialUnitLevel;
     this.spatialUnitLevelInvalid = false;
 
-    // Reset metadata
+    // Reset metadata with null checks
+    const metadata = this.currentSpatialUnitDataset.metadata || {};
     this.metadata = {
-      note: this.currentSpatialUnitDataset.metadata.note,
-      literature: this.currentSpatialUnitDataset.metadata.literature,
+      note: metadata.note || '',
+      literature: metadata.literature || '',
       sridEPSG: 4326,
-      datasource: this.currentSpatialUnitDataset.metadata.datasource,
-      databasis: this.currentSpatialUnitDataset.metadata.databasis,
-      contact: this.currentSpatialUnitDataset.metadata.contact,
-      description: this.currentSpatialUnitDataset.metadata.description,
-      lastUpdate: this.currentSpatialUnitDataset.metadata.lastUpdate,
+      datasource: metadata.datasource || '',
+      databasis: metadata.databasis || '',
+      contact: metadata.contact || '',
+      description: metadata.description || '',
+      lastUpdate: metadata.lastUpdate || '',
       updateInterval: null
     };
 
-    // Set update interval
-    this.updateIntervalOptions.forEach(option => {
-      if (option.apiName === this.currentSpatialUnitDataset.metadata.updateInterval) {
-        this.metadata.updateInterval = option;
-      }
-    });
+    // Set update interval with null check
+    if (metadata.updateInterval) {
+      this.updateIntervalOptions.forEach(option => {
+        if (option.apiName === metadata.updateInterval) {
+          this.metadata.updateInterval = option;
+        }
+      });
+    }
 
     // Set hierarchy
     this.nextLowerHierarchySpatialUnit = null;
@@ -217,9 +221,12 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy 
       }
     }, 1000);
 
-    // Set date picker value
+    // Set date picker value with null check
     setTimeout(() => {
-      ($ as any)('#spatialUnitEditMetadataLastUpdateDatepicker').datepicker('setDate', this.currentSpatialUnitDataset.metadata.lastUpdate);
+      const datePicker = ($ as any)('#spatialUnitEditMetadataLastUpdateDatepicker');
+      if (datePicker && datePicker.datepicker && metadata.lastUpdate) {
+        datePicker.datepicker('setDate', metadata.lastUpdate);
+      }
     }, 100);
 
     this.hierarchyInvalid = false;

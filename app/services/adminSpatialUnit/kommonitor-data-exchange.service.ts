@@ -130,4 +130,46 @@ export class KommonitorDataExchangeService {
   syntaxHighlightJSON(json: any): string {
     return this.angularJsDataExchangeService.syntaxHighlightJSON(json);
   }
+
+  /**
+   * Get date picker options - delegates to AngularJS service
+   */
+  get datePickerOptions(): any {
+    return this.angularJsDataExchangeService.datePickerOptions;
+  }
+
+  /**
+   * Get update interval options - delegates to AngularJS service
+   */
+  get updateIntervalOptions(): any[] {
+    return this.angularJsDataExchangeService.updateIntervalOptions || [];
+  }
+
+  /**
+   * Get available LOI dash array objects - delegates to AngularJS service
+   */
+  get availableLoiDashArrayObjects(): any[] {
+    return this.angularJsDataExchangeService.availableLoiDashArrayObjects || [];
+  }
+
+  /**
+   * Check if Keycloak security is enabled - delegates to AngularJS service
+   */
+  get enableKeycloakSecurity(): boolean {
+    return this.angularJsDataExchangeService.enableKeycloakSecurity || false;
+  }
+
+  /**
+   * Get access control data - delegates to AngularJS service
+   */
+  get accessControl(): any[] {
+    return this.angularJsDataExchangeService.accessControl || [];
+  }
+
+  /**
+   * Check admin permission - delegates to AngularJS service
+   */
+  checkAdminPermission(): boolean {
+    return this.angularJsDataExchangeService.checkAdminPermission();
+  }
 } 
