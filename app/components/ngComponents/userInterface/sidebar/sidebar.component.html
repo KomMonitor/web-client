@@ -1,5 +1,5 @@
   <!--  [ngClass]="{'disabled': (element===undefined || element=='')}" -->
-<div id="sidebarContentWrapper" [ngClass]="{'disabled': (element===undefined || element=='')}">
+<div id="sidebarContentWrapper" [ngClass]="{'disabled': (element===undefined || element==''), 'expWidth':expandedWidthElements.includes(element)}">
   <app-kommonitor-data-setup [hidden]="element!='sidebarIndicatorConfigCollapse'"></app-kommonitor-data-setup>
   <app-poi [hidden]="element!='sidebarPoiCollapse'"></app-poi>
   <app-kommonitor-filter [hidden]="element!='sidebarFilterCollapse'"></app-kommonitor-filter>

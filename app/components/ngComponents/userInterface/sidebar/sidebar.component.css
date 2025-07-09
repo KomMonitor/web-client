@@ -12,9 +12,14 @@
   #sidebarContentWrapper {
     
     width: 35vw;
+    padding-right: 1em;
 
     &.disabled {
       display: none;
+    }
+
+    &.expWidth {
+      width: 42vw !important;
     }
   }
 
