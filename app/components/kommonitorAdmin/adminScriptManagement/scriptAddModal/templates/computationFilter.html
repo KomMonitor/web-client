@@ -4,6 +4,7 @@
       <label>Name der Objekteigenschaft</label>
       <br />
       <select class="form-control" ng-model="$parent.compFilterData.propertyName" 
+        ng-init="$ctrl.kommonitorScriptHelperServiceInstance.processParameters.comp_filter = {compFilterProp: '', compFilterOperator: '', compFilterPropVal: ''}"
         ng-options="propertyOption for propertyOption in $parent.compFilterData.propertyOptions"
         ng-change="$parent.onChangePropertyName(propertyName)">
         <option disabled selected value> -- Objekteigenschaft w&auml;hlen --
