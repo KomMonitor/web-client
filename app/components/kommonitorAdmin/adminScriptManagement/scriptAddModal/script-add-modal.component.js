@@ -76,6 +76,8 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 
 				kommonitorScriptHelperService.reset();
 
+				$scope.init();
+
 				setTimeout(() => {
 					$scope.$digest();
 				}, 1000);
@@ -203,11 +205,21 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 				kommonitorScriptHelperService.scriptData.additional_parameters = undefined;
 				kommonitorScriptHelperService.scriptData.additionalParameters.parameters.kommonitorUiParams = kommonitorScriptHelperService.scriptData.additionalParameters.parameters.kommonitorUiParams[0];
 
-				// save defaults for the inputs in processParameters
-				kommonitorScriptHelperService.processParameters = Object.keys(kommonitorScriptHelperService.scriptData.inputs).reduce((acc, key) => {
+				var staticInputsData = {
+					execution_interval: kommonitorScriptHelperService.processParameters.execution_interval,
+					target_indicator_id: kommonitorScriptHelperService.processParameters.target_indicator_id,
+					target_spatial_units: kommonitorScriptHelperService.processParameters.target_spatial_units,
+					target_time: kommonitorScriptHelperService.processParameters.target_time
+				};
+
+				var scriptDataInputDefaults = Object.keys(kommonitorScriptHelperService.scriptData.inputs).reduce((acc, key) => {
 					acc[key] = kommonitorScriptHelperService.scriptData.inputs[key].schema.default;
 					return acc;
 				}, {});
+
+				kommonitorScriptHelperService.processParameters = {...scriptDataInputDefaults, ...staticInputsData};
+				kommonitorScriptHelperService.processParameters.execution_interval = scriptDataInputDefaults.execution_interval ?? staticInputsData.execution_interval;
+				kommonitorScriptHelperService.processParameters.target_time = scriptDataInputDefaults.target_time ?? staticInputsData.target_time;
 
 				setTimeout(() => {
 					$scope.$digest();

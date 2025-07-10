@@ -463,15 +463,15 @@
 										<label>Zeitpunkte, die berechnet werden sollen: </label>
 										<br />
 										<select class="form-control" ng-model="$ctrl.kommonitorScriptHelperServiceInstance.processParameters.target_time.mode"
-											ng-init="$ctrl.kommonitorScriptHelperServiceInstance.processParameters.target_time.mode = $ctrl.kommonitorScriptHelperServiceInstance.targetTimeOptions[0]"
-											ng-options="targetTimeOption as targetTimeOption.displayName for targetTimeOption in $ctrl.kommonitorScriptHelperServiceInstance.targetTimeOptions"
+											ng-init="$ctrl.kommonitorScriptHelperServiceInstance.processParameters.target_time.mode = $ctrl.kommonitorScriptHelperServiceInstance.targetTimeOptions[0].apiName"
+											ng-options="targetTimeOption.apiName as targetTimeOption.displayName for targetTimeOption in $ctrl.kommonitorScriptHelperServiceInstance.targetTimeOptions"
 											ng-change="resetApplicableDates()">
 										</select>
 										<div class="help-block with-errors"></div>
 									</div>
 								</div>
 
-								<div class="row vertical-align" ng-show="$ctrl.kommonitorScriptHelperServiceInstance.processParameters.target_time.mode.apiName != 'DATES'">
+								<div class="row vertical-align" ng-show="$ctrl.kommonitorScriptHelperServiceInstance.processParameters.target_time.mode != 'DATES'">
 									<div class="col-md-10 col-sm-12 col-xs-12">
 										<!-- <div style="text-align: left;"> -->
 										<div class="box collapsed-box" style="background: #ebf0fd;">
@@ -485,7 +485,7 @@
 											</div>
 											<!-- /.box-header -->
 											<div class="box-body">
-												<div class="row vertical-align" ng-show="$ctrl.kommonitorScriptHelperServiceInstance.processParameters.target_time.mode.apiName == 'MISSING'">
+												<div class="row vertical-align" ng-show="$ctrl.kommonitorScriptHelperServiceInstance.processParameters.target_time.mode == 'MISSING'">
 													<div class="col-md-6 col-sm-6 col-xs-12">
 														<div class="form-group">
 															<label>Nicht berechnen für: </label>
@@ -523,7 +523,7 @@
 												</div>
 				
 				
-												<div class="row vertical-align" ng-show="$ctrl.kommonitorScriptHelperServiceInstance.processParameters.target_time.mode.apiName == 'ALL'">
+												<div class="row vertical-align" ng-show="$ctrl.kommonitorScriptHelperServiceInstance.processParameters.target_time.mode == 'ALL'">
 													<div class="col-md-6 col-sm-6 col-xs-12">
 														<div class="form-group">
 															<label for="notDates">Nicht berechnen für: </label>
@@ -549,7 +549,7 @@
 
 								
 
-								<div class="row vertical-align" ng-show="$ctrl.kommonitorScriptHelperServiceInstance.processParameters.target_time.mode.apiName == 'DATES'">
+								<div class="row vertical-align" ng-show="$ctrl.kommonitorScriptHelperServiceInstance.processParameters.target_time.mode == 'DATES'">
 									<div class="col-md-6 col-sm-6 col-xs-12">
 										<div class="form-group">
 											<label>Berechnen für: </label>
@@ -574,7 +574,8 @@
 								<div class="row vertical-align">
 									<div class="form-group">
 										<label>Ausführungsintervall </label>
-											<input type="text" class="form-control" ng-model="$ctrl.kommonitorScriptHelperServiceInstance.processParameters.execution_interval.value.cron"
+											<input type="text" class="form-control" 
+												ng-model="$ctrl.kommonitorScriptHelperServiceInstance.processParameters.execution_interval.cron"
 												placeholder="z.B. 0 0 1 * *" required></input>
 										<div class="help-block with-errors"></div>
 										<div class="help-block">
