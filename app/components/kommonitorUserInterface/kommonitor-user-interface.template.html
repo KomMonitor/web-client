@@ -22,74 +22,7 @@
 			 </div> 			  
 
 			<a id="userLogin" ng-mouseover="showUserLogin = true" ng-init="showUserLogin = false" title="Useristration" style="font-size:1.2em; float: right; margin-right: 2%; margin-left: 2%; margin-top: 0.5%;"><i class="fas fa-user-cog"></i></a>
-			<div id="userLoginForm" ng-show="showUserLogin && $ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity" ng-mouseleave="showUserLogin = false" class="userFormWrapper">
-				<div id="userForm">
-					<h4>User Login</h4>
-					<div ng-if="authenticated" style="margin-bottom: 10px;">
-						<span><b>Nutzername:</b></span> <i>{{$ctrl.kommonitorDataExchangeServiceInstance.currentKeycloakUser.username}}</i>
-						<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.currentKeycloakUser.firstName && $ctrl.kommonitorDataExchangeServiceInstance.currentKeycloakUser.lastName">
-							<span style="word-break: break-all;"><b>Vor- und Nachname:</b><i> {{$ctrl.kommonitorDataExchangeServiceInstance.currentKeycloakUser.firstName}} {{$ctrl.kommonitorDataExchangeServiceInstance.currentKeycloakUser.lastName}}</i></span>
-						</div>
-						<div ng-if="! $ctrl.kommonitorDataExchangeServiceInstance.currentKeycloakUser.firstName && $ctrl.kommonitorDataExchangeServiceInstance.currentKeycloakUser.lastName">
-							<span style="word-break: break-all;"><b>Nachname:</b><i>({{$ctrl.kommonitorDataExchangeServiceInstance.currentKeycloakUser.lastName}}</i></span>
-						</div>
-						<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.currentKeycloakUser.email">
-							<span style="word-break: break-all;"><b>E-Mail:</b><i>{{$ctrl.kommonitorDataExchangeServiceInstance.currentKeycloakUser.email}}</i></span>
-						</div>
-						<br/>
-						<div class="box box-simplified collapsed-box">
-							<div class="box-header with-border">
-							  <h3 class="box-title">Rollen</h3>
-					  
-							  <div class="box-tools pull-right">
-								<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
-								</button>
-							  </div>
-							</div>
-							<div class="box-body">
-							  <table>
-								<tr ng-repeat="(key, value) in userRoleInformation">
-								  <td>
-									<table>
-									  <tr>
-										<th>{{key}}</th>
-									  </tr>
-									  </tr>
-										<td style="padding-left: 1em;"><p ng-repeat="role in value">{{role}}</p></td>
-									  </tr>
-									</table>
-								  </td>
-								</tr>
-							  </table>
-							</div>
-						  </div>
-			
-						  <div class="box box-simplified collapsed-box">
-							<div class="box-header with-border">
-							  <h3 class="box-title">Gruppen (Hierarchie)</h3>
-					  
-							  <div class="box-tools pull-right">
-								<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
-								</button>
-							  </div>
-							</div>
-							<div class="box-body">
-							  <table>
-								<tr ng-repeat="entry in userGroupInformation">
-								  <td>
-									<p ng-style="{margin: 0,'padding-left': '{{$index + 'em'}}'}" ng-repeat="group in entry track by $index">{{group}}</p>
-								  </td>
-								</tr>
-							  </table>
-							</div>
-						  </div>
-						<span><b>Session G&uuml;ltigkeit:</b> {{$ctrl.kommonitorDataExchangeServiceInstance.keycloakTokenExpirationInfo}} Minuten</span>
-					</div>
-					<input type="submit" ng-if="!authenticated" value="Login" id='input_submit' ng-click="tryLoginUser()" class='input_field' >
-					<input type="submit" ng-if="authenticated" value="Logout" id='input_submit' ng-click="$ctrl.kommonitorDataExchangeServiceInstance.tryLogoutUser()" class='input_field input_authenticated' >
-					<input type="submit" ng-if="authenticated" value="Relogin" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.extendKeycloakSession()" class='input_field input_extend_session' >
-				</div>
-			</div>
+			<app-user-login></app-user-login>
 			<a ng-if="showAdminLogin" ng-click="openAdminUI()" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%; cursor:pointer;" title="Admin UI&nbsp;&nbsp;"><span class="fas fa-cogs"></span></a>
 			<a ng-click="openInfoModal()" href="#infoModal" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%; cursor:pointer;" title="Information&nbsp;&nbsp;"><span class="glyphicon glyphicon-info-sign"></span></a>
 			<a ng-click="startGuidedTour()" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%;  cursor:pointer;" title="Guided Tour&nbsp;&nbsp;"><span class="glyphicon glyphicon-play"></span></a>

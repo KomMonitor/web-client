@@ -76,6 +76,7 @@
     
     <input type="submit" *ngIf="!authenticated" value="Login" id='input_submit' (click)="tryLoginUser()" class='input_field'>
     <span *ngIf="!authenticated">
+      <span *ngIf="loginInfoText">{{loginInfoText}}</span>
    Melden Sie sich mit ihrem Konto an, um geschützte Daten abzurufen.
     </span>
     <input type="submit" *ngIf="authenticated" value="Logout" id='input_submit' (click)="tryLogoutUser()" class='input_field input_authenticated'>

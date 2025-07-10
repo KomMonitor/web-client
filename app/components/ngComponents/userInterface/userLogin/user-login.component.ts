@@ -22,6 +22,10 @@ export class UserLoginComponent implements OnInit {
   showAdminLogin = false;
   password: string = '';
 
+  get loginInfoText(): string {
+    return this.dataExchangeService.pipedData.loginInfoText;
+  }
+
   constructor(
     private authService: AuthService,
     private dataExchangeService: DataExchangeService,
