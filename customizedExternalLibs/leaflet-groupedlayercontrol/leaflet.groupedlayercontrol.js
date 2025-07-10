@@ -66,7 +66,19 @@ L.Control.GroupedLayers = L.Control.extend({
     var id = L.Util.stamp(layer);
     var _layer = this._getLayer(id);
     if (_layer) {
-      delete this._layers[this._layers.indexOf(_layer)];
+
+      // new 
+      let tempLayers = [];
+      this._layers.forEach((element, index) => {
+        if(!(index==this._layers.indexOf(_layer)))
+          tempLayers.push(element);
+      });
+
+      this._layers = tempLayers;
+      // new end
+
+      // old version, leaves empty section in array, which causes errors downstream in _addItem() 
+      //delete this._layers[this._layers.indexOf(_layer)];
     }
     this._update();
     return this;
