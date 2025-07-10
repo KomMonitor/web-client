@@ -374,7 +374,27 @@ angular
         }
         
         postBody = angular.toJson( this.processParameters ); // remove hash keys
+
+        function wrapObjectsInValue(obj) {
+          const result = {};
+          for (const [key, value] of Object.entries(obj)) {
+            if (
+              value !== null &&
+              typeof value === 'object' &&
+              !Array.isArray(value)
+            ) {
+              result[key] = { value };
+            } else {
+              result[key] = value;
+            }
+          }
+          return result;
+        }
+
+        this.processParameters = wrapObjectsInValue(this.processParameters);
         
+        console.log(this.processParameters);
+        return;
 
         return await $http({
           url: this.targetUrlToManagementService + "process-scripts",
