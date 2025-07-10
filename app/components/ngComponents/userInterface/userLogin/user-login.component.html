@@ -1,0 +1,87 @@
+<a id="userLogin" (mouseover)="showUserLogin = true" title="User Login" style="font-size:1.2em; float: right; margin-right: 2%; margin-left: 2%; margin-top: 0.5%;"><i class="fas fa-user-cog"></i></a>
+
+<div id="userLoginForm" *ngIf="showUserLogin && enableKeycloakSecurity" (mouseleave)="onMouseLeave()" class="userFormWrapper">
+  <div id="userForm">
+    <h4>User Login</h4>
+    <div *ngIf="authenticated" style="margin-bottom: 10px;">
+      <span><b>Nutzername:</b></span> <i>{{currentKeycloakUser.username}}</i>
+      <div *ngIf="currentKeycloakUser.firstName && currentKeycloakUser.lastName">
+        <span style="word-break: break-all;"><b>Vor- und Nachname:</b><i> {{currentKeycloakUser.firstName}} {{currentKeycloakUser.lastName}}</i></span>
+      </div>
+      <div *ngIf="!currentKeycloakUser.firstName && currentKeycloakUser.lastName">
+        <span style="word-break: break-all;"><b>Nachname:</b><i>({{currentKeycloakUser.lastName}}</i></span>
+      </div>
+      <div *ngIf="currentKeycloakUser.email">
+        <span style="word-break: break-all;"><b>E-Mail:</b><i>{{currentKeycloakUser.email}}</i></span>
+      </div>
+      <br/>
+      
+      <div class="box box-simplified collapsed-box">
+        <div class="box-header with-border">
+          <h3 class="box-title">Rollen</h3>
+          <div class="box-tools pull-right">
+            <button type="button" class="btn btn-box-tool" data-widget="collapse">
+              <i class="fa fa-plus"></i>
+            </button>
+          </div>
+        </div>
+        <!-- /.box-header -->
+        <div class="box-body">
+          <table>
+            <tr *ngFor="let item of userRoleInformation | keyvalue">
+              <td>
+                <table>
+                  <tr>
+                    <th>{{item.key}}</th>
+                  </tr>
+                  <tr>
+                    <td style="padding-left: 1em;">
+                      <p *ngFor="let role of item.value">{{role}}</p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </div>
+        <!-- /.box-body -->
+      </div>
+      <!-- /.box -->
+
+      <div class="box box-simplified collapsed-box">
+        <div class="box-header with-border">
+          <h3 class="box-title">Gruppen (Hierarchie)</h3>
+          <div class="box-tools pull-right">
+            <button type="button" class="btn btn-box-tool" data-widget="collapse">
+              <i class="fa fa-plus"></i>
+            </button>
+          </div>
+        </div>
+        <!-- /.box-header -->
+        <div class="box-body">
+          <table>
+            <tr *ngFor="let entry of userGroupInformation">
+              <td>
+                <p [ngStyle]="{margin: 0,'padding-left': i + 'em'}" *ngFor="let group of entry; let i = index">{{group}}</p>
+              </td>
+            </tr>
+          </table>
+        </div>
+        <!-- /.box-body -->
+      </div>
+      <!-- /.box --> 
+      
+      <span><b>Session Gültigkeit:</b> {{keycloakTokenExpirationInfo}} Minuten</span>
+    </div>
+    
+    <input type="submit" *ngIf="!authenticated" value="Login" id='input_submit' (click)="tryLoginUser()" class='input_field'>
+    <span *ngIf="!authenticated">
+      <span *ngIf="loginInfoText">{{loginInfoText}}</span>
+   Melden Sie sich mit ihrem Konto an, um geschützte Daten abzurufen.
+    </span>
+    <input type="submit" *ngIf="authenticated" value="Logout" id='input_submit' (click)="tryLogoutUser()" class='input_field input_authenticated'>
+    <input type="submit" *ngIf="authenticated" value="Relogin" (click)="extendKeycloakSession()" class='input_field input_extend_session'>
+  </div>
+</div>
+
+<p *ngIf="showAdminLogin" (click)="openAdminUI()" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%; cursor:pointer;" title="Admin UI&nbsp;&nbsp;"><span class="fas fa-cogs"></span></p> 
