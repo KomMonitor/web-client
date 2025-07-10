@@ -1445,51 +1445,51 @@ a.kommonitor-theme:hover, a.kommonitor-theme:active, a.kommonitor-theme:focus {
     top: .2em;
 }
 
-#dateSliderWrapper{
-	position: absolute;
+/*#dateSliderWrapper{
+	 position: absolute;
   bottom: 25px;
   margin-right: auto;
   margin-left: auto;
   left: 100px;
   right: 20px;
 	z-index: 1004;
-	font: 16px/18px Arial, Helvetica, sans-serif;
+	font: 16px/18px Arial, Helvetica, sans-serif; */
 	/* border: 2px solid black;
-  border-radius: 8px; */
-}
+  border-radius: 8px; 
+}*/
 
-#dateSliderWrapper .irs-grid-text{
+/* #dateSliderWrapper .irs-grid-text{
 	color: black;
 	font-size: 16px;
 	margin-top: 3px;
 	padding: 0px 5px;
-	/* font-weight: bold; */
+
 	background-color: white;
   border-radius: 3px;
 	line-height: 20px;
-	/* opacity: 0.8; */
+
 }
 
 #dateSliderWrapper .irs-min{
 	font-size: 16px;
-	/* opacity: 0.8; */
+
 }
 
 #dateSliderWrapper .irs-single{
 	font-size: 16px;
 	background: var(--kommonitor-primary);
-	/* opacity: 0.8; */
-}
+	
+} */
 
 .irs--big .irs-bar {
     border: 1px solid var(--kommonitor-primary);
     background: linear-gradient(to bottom, #ffffff 0%, var(--kommonitor-primary) 30%, var(--kommonitor-light) 100%);
 }
 
-#dateSliderWrapper .irs--big .irs-line {
+/* #dateSliderWrapper .irs--big .irs-line {
     border: 1px solid var(--kommonitor-primary);;
     background: linear-gradient(to bottom, #ffffff 0%, var(--kommonitor-primary) 30%, var(--kommonitor-light) 100%);
-}
+} */
 
 
 .irs--big .irs-grid-pol {
@@ -3584,4 +3584,40 @@ kommonitor-user-interface .irs {
   display: none;
   font-family: var(--custom-font-family);
   content: var(--custom-font-file);
+}
+
+.custom-dateSlider .noUi-connects {
+  background-color: var(--kommonitor-primary-80);
+}
+
+.custom-dateSlider.noUi-horizontal {
+  height: 12px !important;
+
+  .noUi-handle {
+    height: 20px !important;
+    width: 20px !important;
+    cursor: pointer;
+  }
+
+  .noUi-handle::before {
+    display: none !important;
+  }
+
+  .noUi-pips-horizontal {
+    padding: 0 !important;
+  }
+
+  .noUi-value-horizontal {
+    color: #000;
+    background-color: #fff;
+    padding: .1em .2em;
+    border-radius: .2em;
+  }
+
+  .noUi-tooltip {
+    color: #fff;
+    background-color: var(--kommonitor-primary);
+    padding: .1em .2em;
+    border-radius: .2em;
+  }
 }

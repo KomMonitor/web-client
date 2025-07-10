@@ -148,6 +148,8 @@ export class KommonitorDataSetupComponent implements OnInit {
   
   setupSlider() {
     this.dateSlider = document.getElementById('dateSlider');
+
+    noUiSlider.cssClasses.target += ' custom-dateSlider';
     noUiSlider.create(this.dateSlider, this.config);
   }
 
@@ -666,13 +668,13 @@ export class KommonitorDataSetupComponent implements OnInit {
 
   tsToDateString (dateAsMs) {
     var date = new Date(dateAsMs);
-    // return date.getFullYear();
+    return date.getFullYear();
 
-    return date.toLocaleDateString("de-DE", {
+    /* return date.toLocaleDateString("de-DE", {
       year: 'numeric',
       month: 'long',
       day: 'numeric'
-    });
+    }); */
   }
 
   setupDatePickerForIndicator(){

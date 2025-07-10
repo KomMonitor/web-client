@@ -245,7 +245,6 @@ export class KommonitorBalanceComponent implements OnInit {
 						}
 
 						updateTrendChart(indicatorMetadata, datePeriodSliderData){
-							console.log("sdff")
 
 							var fromDateAsPropertyString = this.getFromDate_asPropertyString(datePeriodSliderData);
 							var toDateAsPropertyString = this.getToDate_asPropertyString(datePeriodSliderData);

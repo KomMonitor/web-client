@@ -1,10 +1,30 @@
 :host {
 
+  header {
+    height: 4em !important;
+  }
 
   #userInterface-content {
     width: 100%;
     display: grid;
     grid-template-columns: min-content auto;
     height: 90vh;
+
+    #mapWrapper {
+      position: relative;
+    }
+  }
+
+  #dateSliderWrapper {
+    position: absolute;
+    bottom: 25px;
+    margin-right: auto;
+    margin-left: auto;
+    left: 100px;
+    right: 100px;
+    z-index: 1004;
+    font: 16px/18px Arial, Helvetica, sans-serif;
+    /* border: 2px solid black;
+    border-radius: 8px; */
   }
 }

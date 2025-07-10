@@ -457,7 +457,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     };
     
     this.layerControl = L.control.groupedLayers(this.baseMaps, groupedOverlays, {collapsed: false, position: 'topleft', layers: this.sortableLayers });
-  
+
     //backup ico groupedLayers not working properly
     //this.layerControl = L.control.layers(this.baseMaps, [], {position: 'topleft'}).addTo(this.map);  
 
@@ -2616,10 +2616,6 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       this.exchangeData.classifyZeroSeparately_backup = undefined;
     }
   }
-/*
-  // hier
-  // data-setup -> initMetadatLoadingComplete -> onChangeSelectedIndicator -> modifyExports -> addSelectedIndicatorToMap -> mapModule -> broadcast: replaceIndicatorAsGeoJSON 
-  */
 
   onReplaceIndicatorAsGeoJSON([indicatorMetadataAndGeoJSON, spatialUnitName, date, justRestyling, isCustomComputation]) {
 
@@ -2664,6 +2660,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
     console.log("Remove old indicatorLayer if exists");
     if (this.currentIndicatorLayer) {
+      // todo "removeLayer" expects key "layer" on each "_layer" elem in currentIndicatorLayer. This may be introduced by the groupedLayer, check
       this.layerControl.removeLayer(this.currentIndicatorLayer);
       this.map.removeLayer(this.currentIndicatorLayer);
     }
