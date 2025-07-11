@@ -63,7 +63,7 @@ export class KommonitorBalanceComponent implements OnInit {
 
   someRange;
 
-  slider;
+  balanceSlider;
   config: any  = {
     behaviour: 'drag',
     connect: true,
@@ -112,8 +112,8 @@ export class KommonitorBalanceComponent implements OnInit {
   } */
 
   setupSlider() {
-    this.slider = document.getElementById('rangeSlider');
-    noUiSlider.create(this.slider, this.config);
+    this.balanceSlider = document.getElementById('rangeSlider');
+    noUiSlider.create(this.balanceSlider, this.config);
   }
   
   trendConfig_allFeatures = {
@@ -151,7 +151,7 @@ export class KommonitorBalanceComponent implements OnInit {
 							if(this.exchangeData.isBalanceChecked){
 								this.exchangeData.isMeasureOfValueChecked = false;
 								this.exchangeData.classifyUsingWholeTimeseries = false;
-								this.slider.noUiSlider.enable();
+								this.balanceSlider.noUiSlider.enable();
 
 								// disable DateSlider on map
                 this.broadcastService.broadcast('DisableDateSlider')
@@ -181,7 +181,7 @@ export class KommonitorBalanceComponent implements OnInit {
 							}
 							else{
 								
-								this.slider.noUiSlider.disable();
+								this.balanceSlider.noUiSlider.disable();
                 
 								// reanebalbe DateSlider on map
                 this.broadcastService.broadcast('EnableDateSlider');
@@ -364,7 +364,7 @@ export class KommonitorBalanceComponent implements OnInit {
 
         getFormatedSliderReturn() {
 
-          let data = this.slider.noUiSlider.get(true);
+          let data = this.balanceSlider.noUiSlider.get(true);
           
           return {
             from: Math.round(data[0]),
@@ -384,7 +384,7 @@ export class KommonitorBalanceComponent implements OnInit {
         createNewBalanceInstance(){
           this.datesAsMs = this.createDatesFromIndicatorDates(this.exchangeData.selectedIndicator.applicableDates);
  
-          this.slider.noUiSlider.updateOptions({
+          this.balanceSlider.noUiSlider.updateOptions({
             range: {
                 'min': 0, // index from
                 'max': this.datesAsMs.length-1 // index to
@@ -414,14 +414,14 @@ export class KommonitorBalanceComponent implements OnInit {
             }
           });
        
-          // fehler hier 
-          this.slider.noUiSlider.on('set', () => {
+          // event type set to "end" because of constant calls of type "set" when slider is re-initiated by changing indicators
+          this.balanceSlider.noUiSlider.on('end', () => {
             this.onChangeBalanceRange(this.getFormatedSliderReturn());
           });
 
           if (!this.exchangeData.isBalanceChecked){
             // deactivate balance slider
-            this.slider.noUiSlider.disable();
+            this.balanceSlider.noUiSlider.disable();
           }
         }
 
@@ -443,12 +443,10 @@ export class KommonitorBalanceComponent implements OnInit {
           this.targetDate = date;
           this.targetIndicatorProperty = this.INDICATOR_DATE_PREFIX + date;
 
-    // hier fehler
-           if(!this.slider){
+          if(!this.balanceSlider){
             // create new instance
             this.createNewBalanceInstance();
-          }
-         else {
+          } else {
 
             if(this.exchangeData.indicatorAndMetadataAsBalance){
               if (this.exchangeData.selectedIndicator.indicatorName != this.exchangeData.indicatorAndMetadataAsBalance.indicatorName){
@@ -464,10 +462,9 @@ export class KommonitorBalanceComponent implements OnInit {
             }
 
           }
-
         };
 
-        onChangeBalanceRange (data) {
+        onChangeBalanceRange(data) {
           // create balance GeoJSON and broadcast "replaceIndicatorAsGeoJSON"
           // Called every time handle position is changed
 
