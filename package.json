@@ -67,11 +67,8 @@
     "tsc": "tsc",
     "tsc:w": "tsc -w",
     "extract-i18n": "ng extract-i18n",
-    "build:de": "ng build --configuration de",
     "build:en": "ng build --configuration en",
-    "build:prod:de": "ng build --configuration production-de",
     "build:prod:en": "ng build --configuration production-en",
-    "serve:de": "ng serve --configuration de",
     "serve:en": "ng serve --configuration en"
   },
   "dependencies": {

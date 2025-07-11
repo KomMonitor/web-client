@@ -97,7 +97,8 @@ declare var MathJax;
     NouisliderModule,
     NgbCollapseModule,
     DualListBoxComponent,
-    CommonModule
+    CommonModule,
+    LanguageDropdownComponent
   ],
   providers:[
     {provide: LocationStrategy, useClass: HashLocationStrategy},
@@ -160,8 +161,7 @@ declare var MathJax;
     AdminAppConfigComponent,
     AdminControlsConfigComponent,
     AdminRoleExplanationComponent,
-    AdminDashboardManagementComponent,
-    LanguageDropdownComponent
+    AdminDashboardManagementComponent
   ],
   schemas: [
     CUSTOM_ELEMENTS_SCHEMA

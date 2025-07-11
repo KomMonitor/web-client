@@ -15,10 +15,6 @@
           "en": {
             "translation": "app/locale/messages.en.xlf",
             "baseHref": "/en/"
-          },
-          "de": {
-            "translation": "app/locale/messages.de.xlf",
-            "baseHref": "/de/"
           }
         }
       },
@@ -67,32 +63,9 @@
               "sourceMap": true,
               "namedChunks": true
             },
-            "de": {
-              "aot": true,
-              "outputPath": "dist/kommonitor-client/de/",
-              "i18nMissingTranslation": "warning"
-            },
             "en": {
               "aot": true,
               "outputPath": "dist/kommonitor-client/en/",
-              "i18nMissingTranslation": "warning"
-            },
-            "production-de": {
-              "budgets": [
-                {
-                  "type": "initial",
-                  "maximumWarning": "500kb",
-                  "maximumError": "1mb"
-                },
-                {
-                  "type": "anyComponentStyle",
-                  "maximumWarning": "2kb",
-                  "maximumError": "4kb"
-                }
-              ],
-              "outputHashing": "all",
-              "aot": true,
-              "outputPath": "dist/kommonitor-client/de/",
               "i18nMissingTranslation": "warning"
             },
             "production-en": {
@@ -112,6 +85,12 @@
               "aot": true,
               "outputPath": "dist/kommonitor-client/en/",
               "i18nMissingTranslation": "warning"
+            },
+            "i18n": {
+              "tsConfig": "tsconfig.i18n.json",
+              "aot": true,
+              "optimization": false,
+              "outputPath": "dist/kommonitor-client/i18n-extract-temp"
             }
           },
           "defaultConfiguration": "production"
@@ -129,9 +108,6 @@
             "development": {
               "browserTarget": "kommonitor-client:build:development"
             },
-            "de": {
-              "browserTarget": "kommonitor-client:build:de"
-            },
             "en": {
               "browserTarget": "kommonitor-client:build:en"
             }
@@ -141,7 +117,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "kommonitor-client:build",
+            "browserTarget": "kommonitor-client:build:i18n",
             "format": "xlf2",
             "outputPath": "app/locale"
           }
