@@ -605,21 +605,25 @@ export class KommonitorDataSetupComponent implements OnInit {
     this.exchangeData.selectedDate = availableDates[availableDates.length - 1];
 
     this.datesAsMs = this.createDatesFromIndicatorDates(this.exchangeData.selectedIndicator.applicableDates);
-   
+   console.log(this.datesAsMs)
     this.dateSlider.noUiSlider.updateOptions({
       range: {
           'min': 0, // index from
           'max': this.datesAsMs.length-1 // index to
       },
-      start: [ this.tsToDateString(this.datesAsMs[this.datesAsMs.length-1])],
+      start: [this.datesAsMs.length-1 ], // index 
       step: 1,
       tooltips: true,
       format: {
-        to: (value) => {
-          return this.tsToDateString(this.datesAsMs[Math.round(value)]);  
+        to: (value) => { // test
+          console.log("to",value)
+          if(value)
+            return this.tsToDateString(this.datesAsMs[Math.round(value)]);    
+          else
+            return;
         },
-        from: (value) => {
-          return this.datesAsMs.indexOf(this.dateStringToMs(value));
+        from: (value) => { 
+          return this.datesAsMs[value];
         }
       },
       pips: {
@@ -636,7 +640,7 @@ export class KommonitorDataSetupComponent implements OnInit {
       }
     });
   
-    this.dateSlider.noUiSlider.on('set', () => {
+    this.dateSlider.noUiSlider.on('end', () => {
       this.onChangeDateSliderItem(this.getFormatedSliderReturn());
     })
   };
@@ -658,6 +662,7 @@ export class KommonitorDataSetupComponent implements OnInit {
   }
 
   dateStringToMs(dateStr) {
+    console.log(dateStr)
     let parts = dateStr.split(' ');
     // get timezoneOffset w/o daylight saving time by referencing a specific date
     let offset = new Date('November 1, 2000 00:00:00').getTimezoneOffset()*60*1000;
@@ -686,6 +691,7 @@ export class KommonitorDataSetupComponent implements OnInit {
 
     let ngbDates = this.prepNgbDates(availableDates);
     this.broadcastService.broadcast('updateDatePickerAvailableDates',[ngbDates]);																
+    this.broadcastService.broadcast('updateDatePickerSelectedDate',[ngbDates[ngbDates.length-1]]);		
   };
 
   prepNgbDates(dates):NgbDateStruct[] {
@@ -802,16 +808,19 @@ export class KommonitorDataSetupComponent implements OnInit {
   }
 
   changeIndicatorDate([datePickerDate]){	
-    
+    console.log(datePickerDate);
     if(this.exchangeData.selectedIndicator && this.exchangeData.selectedDate){
       this.loadingData = true;
       this.broadcastService.broadcast("showLoadingIconOnMap");
 
       console.log("Change selected date");
 
-      this.dateSlider.noUiSlider.updateOptions({
+      console.log(this.datesAsMs)
+
+      // hier problem, wählt nicht das korrekte datum aus
+     /*  this.dateSlider.noUiSlider.updateOptions({
         start: [ this.datePickerToDateSlider(datePickerDate) ],
-      });
+      }); */
 
       this.date = this.exchangeData.selectedDate;
       this.selectedDate = this.exchangeData.selectedDate;
