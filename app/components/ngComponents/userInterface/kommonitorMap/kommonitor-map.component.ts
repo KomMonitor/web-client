@@ -253,7 +253,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
           this.changeNumClasses(values);
         } break;
         case 'replaceIndicatorAsGeoJSON': {
-          setTimeout(() => this.onReplaceIndicatorAsGeoJSON(values), 2000);
+          setTimeout(() => this.onReplaceIndicatorAsGeoJSON(values), 800);
         } break;
         case 'changeSpatialUnit': {
           this.onChangeSpatialUnit();

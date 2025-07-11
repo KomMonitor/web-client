@@ -962,7 +962,9 @@ export class KommonitorDataSetupComponent implements OnInit {
     this.broadcastService.broadcast("updateBalanceSlider", [this.exchangeData.selectedDate]);
     setTimeout(() => {
       this.broadcastService.broadcast("updateIndicatorValueRangeFilter", [this.exchangeData.selectedDate, this.exchangeData.selectedIndicator]);
-    },2000); 
+    },1000); 
+    // time here seems to be crucial, "500" does not work.. maybe fix, maybe leave it
+
     this.addSelectedIndicatorToMap(changeIndicator);
 
   }
