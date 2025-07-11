@@ -1,5 +1,13 @@
 // <reference types="@angular/localize" />
 
+import '@angular/localize/init';
+
+// Global declaration for window.__env to resolve TypeScript errors during i18n extraction
+declare global {
+  interface Window {
+    __env: any;
+  }
+}
 
 // Import these globally to make teh typescript compiler happy by bringing in their @types
 import 'angular';

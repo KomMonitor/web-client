@@ -1,0 +1,40 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./out-tsc/i18n",
+    "types": [
+      "@angular/localize"
+    ]
+  },
+  "files": [
+    "app/main.ts"
+  ],
+  "include": [
+    "app/main.ts",
+    "app/app.module.ts",
+    "app/components/ngComponents/admin/adminRoleExplanation/admin-role-explanation.component.ts",
+    "app/components/ngComponents/admin/adminRoleExplanation/admin-role-explanation.template.html",
+    "app/components/ngComponents/userInterface/languageDropdown/language-dropdown.component.ts",
+    "app/components/ngComponents/userInterface/languageDropdown/language-dropdown.component.html",
+    "app/services/language-service/language.service.ts"
+  ],
+  "exclude": [
+    "**/*.js",
+    "**/*.js.map",
+    "**/*.min.js",
+    "**/*.spec.ts",
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/out-tsc/**",
+    "**/customizedExternalLibs/**",
+    "**/kommonitor-script-resources/**",
+    "**/test-keycloak-service/**",
+    "**/util/genericServices/**",
+    "**/components/kommonitorAdmin/**",
+    "**/components/kommonitorUserInterface/**",
+    "**/components/common/**",
+    "**/components/ngComponents/customElements/**",
+    "**/pipes/**",
+    "**/util/**"
+  ]
+}

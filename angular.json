@@ -9,6 +9,15 @@
       "root": "app",
       "sourceRoot": "app",
       "prefix": "app",
+      "i18n": {
+        "sourceLocale": "de",
+        "locales": {
+          "en": {
+            "translation": "app/locale/messages.en.xlf",
+            "baseHref": "/en/"
+          }
+        }
+      },
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
@@ -53,6 +62,35 @@
               "extractLicenses": false,
               "sourceMap": true,
               "namedChunks": true
+            },
+            "en": {
+              "aot": true,
+              "outputPath": "dist/kommonitor-client/en/",
+              "i18nMissingTranslation": "warning"
+            },
+            "production-en": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "500kb",
+                  "maximumError": "1mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "2kb",
+                  "maximumError": "4kb"
+                }
+              ],
+              "outputHashing": "all",
+              "aot": true,
+              "outputPath": "dist/kommonitor-client/en/",
+              "i18nMissingTranslation": "warning"
+            },
+            "i18n": {
+              "tsConfig": "tsconfig.i18n.json",
+              "aot": true,
+              "optimization": false,
+              "outputPath": "dist/kommonitor-client/i18n-extract-temp"
             }
           },
           "defaultConfiguration": "production"
@@ -69,6 +107,9 @@
             },
             "development": {
               "browserTarget": "kommonitor-client:build:development"
+            },
+            "en": {
+              "browserTarget": "kommonitor-client:build:en"
             }
           },
           "defaultConfiguration": "development"
@@ -76,7 +117,9 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "kommonitor-client:build"
+            "browserTarget": "kommonitor-client:build:i18n",
+            "format": "xlf2",
+            "outputPath": "app/locale"
           }
         },
         "test": {
