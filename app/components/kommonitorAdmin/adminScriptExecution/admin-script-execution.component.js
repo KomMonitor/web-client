@@ -142,12 +142,14 @@ angular.module('adminScriptExecution').component('adminScriptExecution', {
 		  };
 		 
 		  $scope.fetchCustomizedIndicatorJobs = function(){
+				console.log("fetchCustomizedIndicatorJobs");
             return $http({
-              url: __env.targetUrlToProcessingEngine + "script-engine/customizableIndicatorComputation",
+              url: "http://localhost:8099/jobs",
               method: "GET"
             }).then(function successCallback(response) {
                 // this callback will be called asynchronously
                 // when the response is available
+								console.log(response.data);
 
                 $scope.availableCustomizedComputationJobDatasets = response.data;
 

@@ -113,7 +113,7 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 				// TODO Create and perform POST Request with loading screen
 
 				try {
-					var addScriptResponse = await kommonitorScriptHelperService.postNewScript($scope.datasetName, $scope.description, kommonitorScriptHelperService.targetIndicator);					
+					var addScriptResponse = await kommonitorScriptHelperService.postNewScript($scope.selectedScriptType.id);					
 
 					let scriptId = addScriptResponse.scriptId;
 					$rootScope.$broadcast("refreshScriptOverviewTable", "add", scriptId);

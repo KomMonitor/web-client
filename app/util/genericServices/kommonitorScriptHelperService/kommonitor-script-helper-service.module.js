@@ -320,60 +320,13 @@ angular
         });
       };
 
-      this.postNewScript = async function(scriptName, description, targetIndicatorMetadata){
-        console.log("Trying to POST to management service to register new script.");
-
-        /*	POST BODY
-				{
-						"scriptCodeBase64": "scriptCodeBase64",
-						"requiredIndicatorIds": [
-							"requiredIndicatorIds",
-							"requiredIndicatorIds"
-						],
-						"variableProcessParameters": [
-							{
-							"minParameterValueForNumericInputs": 6.027456183070403,
-							"maxParameterValueForNumericInputs": 0.8008281904610115,
-							"defaultValue": "defaultValue",
-							"dataType": "string",
-							"name": "name",
-							"description": "description"
-							},
-							{
-							"minParameterValueForNumericInputs": 6.027456183070403,
-							"maxParameterValueForNumericInputs": 0.8008281904610115,
-							"defaultValue": "defaultValue",
-							"dataType": "string",
-							"name": "name",
-							"description": "description"
-							}
-						],
-						"associatedIndicatorId": "associatedIndicatorId",
-						"name": "name",
-						"description": "description",
-						"requiredGeoresourceIds": [
-							"requiredGeoresourceIds",
-							"requiredGeoresourceIds"
-						]
-						}
-			*/
-
-        var postBody = { // old postBody:
-          "name": scriptName,
-          "description": description,
-          "associatedIndicatorId": targetIndicatorMetadata.indicatorId,
-          "requiredIndicatorIds": this.requiredIndicators_tmp.map(indicatorMetadata => indicatorMetadata.indicatorId),
-          "requiredGeoresourceIds": this.requiredGeoresources_tmp.map(georesourceMetadata => georesourceMetadata.georesourceId),
-          "variableProcessParameters": this.requiredScriptParameters_tmp,
-          "scriptCodeBase64": window.btoa(this.scriptCode_readableString)
-        };            
+      this.postNewScript = async function(scriptId){
+        console.log("Trying to POST to management service to register new script.");        
 
         if(this.processParameters.computation_id) {
           this.processParameters.computation_ids = [this.processParameters.computation_id];
           this.processParameters.computation_id = undefined;
         }
-        
-        postBody = angular.toJson( this.processParameters ); // remove hash keys
 
         function wrapObjectsInValue(obj) {
           const result = {};
@@ -392,17 +345,43 @@ angular
         }
 
         this.processParameters = wrapObjectsInValue(this.processParameters);
+
+        var postBody = {
+          inputs: this.processParameters,
+        }
+
+        console.log(postBody);
+
+        //postBody = angular.toJson( this.processParameters ); // remove hash keys
         
         console.log(this.processParameters);
-        return;
+        console.log(postBody);
+
+        postBody = {
+          "inputs": {
+            "target_indicator_id": "7f84da9c-604a-4af8-8861-129f3be78e62",
+            "target_spatial_units": [
+                "15fcddce-55d6-4bae-89ea-87656e2749b7"
+            ],
+            "target_time": {
+                "value": {
+                    "mode": "DATES",
+                    "includeDates": ["2019-12-31", "2020-12-31"]    
+                }
+            },
+            "execution_interval":  {
+                "value": {
+                    "cron": "*/1 * * * *"
+                }
+            },
+            "computation_ids": ["614618cb-2b7c-479c-8615-6811a1081942", "344da619-6c28-4136-895d-ecbc5670f9e7"]
+          }
+        }
 
         return await $http({
-          url: this.targetUrlToManagementService + "process-scripts",
+          url: "http://localhost:8099/processes/" + scriptId + "/schedule",
           method: "POST",
-          data: postBody,
-          headers: {
-            'Content-Type': "application/json"
-          }
+          data: postBody
         }).then(function successCallback(response) {
             // this callback will be called asynchronously
             // when the response is available
