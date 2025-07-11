@@ -9,6 +9,7 @@ import { ElementVisibilityHelperService } from 'services/element-visibility-help
 import { AuthService } from 'services/auth-service/auth.service';
 import { FavService } from 'services/fav-service/fav.service';
 import { GlobalFilterHelperService } from 'services/global-filter-helper-service/global-filter-helper.service';
+import { LanguageDropdownComponent } from './languageDropdown/language-dropdown.component';
 
 @Component({
   selector: 'user-interface-new',

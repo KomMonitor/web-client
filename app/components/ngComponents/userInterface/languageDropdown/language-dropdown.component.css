@@ -1,0 +1,144 @@
+/* Language Dropdown Container */
+.language-dropdown {
+  position: relative;
+  display: inline-block;
+  float: right;
+  margin-right: 1%;
+  margin-top: 0.5%;
+}
+
+/* Language Toggle Button */
+.language-toggle {
+  display: flex;
+  align-items: center;
+  padding: 4px 8px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2em;
+  color: #333;
+  border-radius: 3px;
+  transition: background-color 0.2s ease;
+}
+
+.language-toggle:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.language-flag {
+  font-size: 1.1em;
+  margin-right: 4px;
+}
+
+.language-code {
+  font-size: 0.9em;
+  font-weight: 500;
+  margin-right: 4px;
+}
+
+.caret {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  margin-left: 2px;
+  vertical-align: middle;
+  border-top: 4px dashed;
+  border-top: 4px solid \9;
+  border-right: 4px solid transparent;
+  border-left: 4px solid transparent;
+}
+
+/* Dropdown Menu */
+.language-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 1000;
+  display: none;
+  float: left;
+  min-width: 120px;
+  padding: 5px 0;
+  margin: 2px 0 0;
+  list-style: none;
+  font-size: 14px;
+  text-align: left;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+  background-clip: padding-box;
+}
+
+.language-menu.show {
+  display: block;
+}
+
+.language-item {
+  display: block;
+}
+
+.language-item a {
+  display: block;
+  padding: 6px 12px;
+  clear: both;
+  font-weight: normal;
+  line-height: 1.42857143;
+  color: #333;
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.language-item a:hover,
+.language-item a:focus {
+  color: #262626;
+  text-decoration: none;
+  background-color: #f5f5f5;
+}
+
+.language-item.active a {
+  color: #fff;
+  text-decoration: none;
+  outline: 0;
+  background-color: #337ab7;
+}
+
+.language-item .language-flag {
+  margin-right: 8px;
+}
+
+.language-item .language-name {
+  font-size: 13px;
+}
+
+/* Backdrop for click outside */
+.language-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 999;
+  background: transparent;
+}
+
+/* Responsive adjustments */
+@media (max-width: 767px) {
+  .language-dropdown {
+    float: none;
+    margin: 5px 0;
+  }
+  
+  .language-toggle {
+    font-size: 1em;
+  }
+  
+  .language-menu {
+    position: fixed;
+    top: 50px;
+    right: 10px;
+    left: auto;
+    min-width: 100px;
+  }
+} 

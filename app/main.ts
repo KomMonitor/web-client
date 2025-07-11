@@ -1,5 +1,6 @@
 // <reference types="@angular/localize" />
 
+import '@angular/localize/init';
 
 // Import these globally to make teh typescript compiler happy by bringing in their @types
 import 'angular';

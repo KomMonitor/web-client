@@ -1,0 +1,30 @@
+<div class="language-dropdown" (click)="$event.stopPropagation()">
+  <!-- Language Toggle Button -->
+  <div class="language-toggle" 
+       (click)="toggleDropdown()" 
+       [attr.title]="'Sprache wechseln / Change language'">
+    <span class="language-flag">{{ currentLanguage?.flag || '🌐' }}</span>
+    <span class="language-code">{{ currentLanguage?.code?.toUpperCase() || 'DE' }}</span>
+    <span class="caret"></span>
+  </div>
+
+  <!-- Dropdown Menu -->
+  <ul class="language-menu" 
+      [class.show]="isDropdownOpen"
+      (click)="$event.stopPropagation()">
+    <li *ngFor="let language of availableLanguages" 
+        class="language-item"
+        [class.active]="language.code === currentLanguage?.code"
+        (click)="selectLanguage(language)">
+      <a href="javascript:void(0)">
+        <span class="language-flag">{{ language.flag }}</span>
+        <span class="language-name">{{ language.name }}</span>
+      </a>
+    </li>
+  </ul>
+</div>
+
+<!-- Click outside handler -->
+<div class="language-backdrop" 
+     *ngIf="isDropdownOpen" 
+     (click)="closeDropdown()"></div> 

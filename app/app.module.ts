@@ -73,6 +73,9 @@ import { AdminAppConfigComponent } from './components/ngComponents/admin/adminCo
 import { AdminControlsConfigComponent } from './components/ngComponents/admin/adminConfig/adminControlsConfig/admin-controls-config.component';
 import { AdminRoleExplanationComponent } from './components/ngComponents/admin/adminRoleExplanation/admin-role-explanation.component';
 import { AdminDashboardManagementComponent } from './components/ngComponents/admin/adminDashboardManagement/admin-dashboard-management.component';
+import { LanguageService } from 'services/language-service/language.service';
+import { LanguageDropdownComponent } from 'components/ngComponents/userInterface/languageDropdown/language-dropdown.component';
+import { CommonModule } from '@angular/common';
 
 
 // currently the AngularJS routing is still used as part of kommonitorClient module
@@ -93,7 +96,8 @@ declare var MathJax;
     JsonPipe,
     NouisliderModule,
     NgbCollapseModule,
-    DualListBoxComponent
+    DualListBoxComponent,
+    CommonModule
   ],
   providers:[
     {provide: LocationStrategy, useClass: HashLocationStrategy},
@@ -125,7 +129,8 @@ declare var MathJax;
       useClass: AuthInterceptor,
       multi: true
     },
-    AuthService
+    AuthService,
+    LanguageService
   ],
   declarations: [
     KommonitorLegendComponent,
@@ -155,7 +160,8 @@ declare var MathJax;
     AdminAppConfigComponent,
     AdminControlsConfigComponent,
     AdminRoleExplanationComponent,
-    AdminDashboardManagementComponent
+    AdminDashboardManagementComponent,
+    LanguageDropdownComponent
   ],
   schemas: [
     CUSTOM_ELEMENTS_SCHEMA

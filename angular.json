@@ -9,6 +9,19 @@
       "root": "app",
       "sourceRoot": "app",
       "prefix": "app",
+      "i18n": {
+        "sourceLocale": "de",
+        "locales": {
+          "en": {
+            "translation": "app/locale/messages.en.xlf",
+            "baseHref": "/en/"
+          },
+          "de": {
+            "translation": "app/locale/messages.de.xlf",
+            "baseHref": "/de/"
+          }
+        }
+      },
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
@@ -53,6 +66,52 @@
               "extractLicenses": false,
               "sourceMap": true,
               "namedChunks": true
+            },
+            "de": {
+              "aot": true,
+              "outputPath": "dist/kommonitor-client/de/",
+              "i18nMissingTranslation": "warning"
+            },
+            "en": {
+              "aot": true,
+              "outputPath": "dist/kommonitor-client/en/",
+              "i18nMissingTranslation": "warning"
+            },
+            "production-de": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "500kb",
+                  "maximumError": "1mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "2kb",
+                  "maximumError": "4kb"
+                }
+              ],
+              "outputHashing": "all",
+              "aot": true,
+              "outputPath": "dist/kommonitor-client/de/",
+              "i18nMissingTranslation": "warning"
+            },
+            "production-en": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "500kb",
+                  "maximumError": "1mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "2kb",
+                  "maximumError": "4kb"
+                }
+              ],
+              "outputHashing": "all",
+              "aot": true,
+              "outputPath": "dist/kommonitor-client/en/",
+              "i18nMissingTranslation": "warning"
             }
           },
           "defaultConfiguration": "production"
@@ -69,6 +128,12 @@
             },
             "development": {
               "browserTarget": "kommonitor-client:build:development"
+            },
+            "de": {
+              "browserTarget": "kommonitor-client:build:de"
+            },
+            "en": {
+              "browserTarget": "kommonitor-client:build:en"
             }
           },
           "defaultConfiguration": "development"
@@ -76,7 +141,9 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "kommonitor-client:build"
+            "browserTarget": "kommonitor-client:build",
+            "format": "xlf2",
+            "outputPath": "app/locale"
           }
         },
         "test": {
