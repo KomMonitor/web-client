@@ -55,9 +55,9 @@
                 <br />
                 <button id="downloadMetadata" (click)="onClickDownloadMetadata()" class="btn btn-default btn-xs">Metadatenblatt</button>
                 <button id="downloadGeoJSON" (click)="downloadIndicatorAsGeoJSON()" class="btn btn-primary btn-xs">GeoJSON</button>
-                <button id="downloadShape" ng-click="downloadIndicatorAsShape()" class="btn btn-primary btn-xs">ESRI
+                <button id="downloadShape" (click)="downloadIndicatorAsShape()" class="btn btn-primary btn-xs">ESRI
                   Shape</button>
-                <button id="downloadCSV" ng-click="downloadIndicatorAsCSV()" class="btn btn-primary btn-xs">CSV</button>							
+                <button id="downloadCSV" (click)="downloadIndicatorAsCSV()" class="btn btn-primary btn-xs">CSV</button>							
                
               </div>
               <br>

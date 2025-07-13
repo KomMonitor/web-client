@@ -7,6 +7,9 @@ import { FilterHelperService } from 'services/filter-helper-service/filter-helpe
 import { ShareHelperService } from 'services/share-helper-service/share-helper.service';
 import { VisualStyleHelperServiceNew } from 'services/visual-style-helper-service/visual-style-helper.service';
 import { SpatialUnitNotificationModalComponent } from '../spatialUnitNotificationModal/spatial-unit-notification-modal.component';
+import shpwrite from '@mapbox/shp-write';
+import Papa from 'papaparse';
+
 
 @Component({
   selector: 'app-kommonitor-legend',
@@ -216,11 +219,12 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
     const modalRef = this.modalService.open(SpatialUnitNotificationModalComponent, {windowClass: 'modal-holder', centered: true});
   }
 
-  onClickDownloadMetadata() {
+  async onClickDownloadMetadata() {
     // create PDF from currently selected/displayed indicator!
     var indicatorMetadata = this.exchangeData.selectedIndicator;
     var pdfName = indicatorMetadata.indicatorName + ".pdf";
-    this.dataExchangeService.generateIndicatorMetadataPdf(indicatorMetadata, pdfName, true);	
+    let jspdf = await this.dataExchangeService.generateIndicatorMetadataPdf(indicatorMetadata, pdfName, true);	
+    jspdf.save();
   }
   
   downloadIndicatorAsGeoJSON() {
@@ -248,7 +252,7 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
     var fileName = this.dataExchangeService.pipedData.selectedIndicator.indicatorName + "_" + this.dataExchangeService.pipedData.selectedSpatialUnit.spatialUnitLevel;
     var polygonName = this.dataExchangeService.pipedData.selectedIndicator.indicatorName + "_" + this.dataExchangeService.pipedData.selectedSpatialUnit.spatialUnitLevel;
 
-    var options = {
+    var options:any = {
       folder: "shape",
       types: {
       point: 'points',
@@ -306,14 +310,13 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
     }
 
     // shpwrite.download(geoJSON, options);
-    // todo
-    /* var arrayBuffer = shpwrite.zip(geoJSON, options);							
-    this.dataExchangeService.generateAndDownloadIndicatorZIP(arrayBuffer, fileName, "_shape.zip", {base64: true}); */
+    var arrayBuffer = shpwrite.zip(geoJSON, options);							
+    this.dataExchangeService.generateAndDownloadIndicatorZIP(arrayBuffer, fileName, "_shape.zip", {base64: true});
   }
   
   downloadIndicatorAsCSV() {
     //todo
-   /*  var fileName = this.dataExchangeService.pipedData.selectedIndicator.indicatorName + "_" + this.dataExchangeService.pipedData.selectedSpatialUnit.spatialUnitLevel;
+    var fileName = this.dataExchangeService.pipedData.selectedIndicator.indicatorName + "_" + this.dataExchangeService.pipedData.selectedSpatialUnit.spatialUnitLevel;
 
     var geoJSON;
 
@@ -327,7 +330,7 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
       fileName += "_" + this.dataExchangeService.pipedData.selectedDate;
     }
 
-    var items = [];
+    var items:any[] = [];
 
     for (var feature of geoJSON.features) {
       var properties = feature.properties;
@@ -389,7 +392,7 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
       columns: null //or array of strings
     });
 
-    this.dataExchangeService.pipedData.generateAndDownloadIndicatorZIP(csv, fileName, ".csv", {}); */
+    this.dataExchangeService.generateAndDownloadIndicatorZIP(csv, fileName, ".csv", {});
 
     // exportCSVFile(headers, items, fileName);
   }

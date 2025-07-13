@@ -79,6 +79,7 @@
     "@angular/upgrade": "^16.1.4",
     "@fortawesome/fontawesome-free": "^6.1.1",
     "@googlemaps/js-api-loader": "^1.16.8",
+    "@mapbox/shp-write": "^0.4.3",
     "@ng-bootstrap/ng-bootstrap": "^15.1.2",
     "@popperjs/core": "^2.11.8",
     "@turf/turf": "^7.2.0",

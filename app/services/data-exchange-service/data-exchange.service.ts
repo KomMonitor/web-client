@@ -1,4 +1,5 @@
 import { Inject, Injectable } from '@angular/core';
+import jsPDF from 'jspdf';
 
 export interface DataExchange {
   customGreetingsContact_mail: string;
@@ -195,8 +196,8 @@ export class DataExchangeService {
     this.ajskommonitorDataExchangeServiceeProvider.generateAndDownloadIndicatorZIP(indicatorData, fileName, fileEnding, jsZipOptions);
   }
 
-  generateIndicatorMetadataPdf(indicatorMetadata, pdfName, autosave) {	
-    this.ajskommonitorDataExchangeServiceeProvider.generateIndicatorMetadataPdf(indicatorMetadata, pdfName, autosave);
+  async generateIndicatorMetadataPdf(indicatorMetadata, pdfName, autosave) {	
+    return await this.ajskommonitorDataExchangeServiceeProvider.generateIndicatorMetadataPdf(indicatorMetadata, pdfName, autosave);
   }
 
   getIndicatorValue_asFormattedText(indicatorValue:any, precision=undefined) {
