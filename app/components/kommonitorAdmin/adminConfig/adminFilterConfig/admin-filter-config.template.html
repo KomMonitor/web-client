@@ -1,0 +1,170 @@
+<div id="adminFilterConfigContent">
+	<!-- Content Header (Page header) -->
+	<section class="content-header">
+		<h1>
+			Konfiguration von globalen Inhaltsfiltern
+			<small>Globale themenspezifische Filter von Indikatoren und Georessourcen</small>
+		</h1>
+		
+	</section>
+
+	<!-- Main content -->
+	<section class="content container-fluid">
+		<!--------------------------
+	| Your Page Content Here |
+	-------------------------->
+
+	<!-- <div>
+		<div class="box box-danger collapsed-box">
+			<div class="box-header">
+				<h3 class="box-title">Erl&auml;uternde Hinweise</h3>
+
+				<div class="box-tools pull-right">
+					<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+					</button>
+				</div>
+			</div>
+			<div class="box-body">
+
+				<p>Text 
+					</p>
+				<h4>Content</h4>	
+			</div>
+		</div>
+	</div> -->
+
+	<div>
+    <div class="box box-primary" id="globalFilterTableView">
+			<div class="box-header">
+				<h3 class="box-title">Globale Filter - Tabellenansicht</h3>
+
+				<div class="box-tools pull-right">
+					<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+					</button>
+				</div>
+			</div>
+			<!-- /.box-header -->
+			<div class="box-body">
+				<p>
+					Gruppieren Sie Indikatoren, Georessourcen und Themen zu globalen Filtern. Beim Aufruf eines solchen Filters, wird KomMonitor den im Filter definierten Inhalten geladen.
+				</p>
+
+        <div class="adminTableButtonWrapper">
+          <button class="btn btn-success btn-sm" type="button" data-toggle="modal" data-target="#modal-add-admin-filter" ng-click="onAddFilter()"><i class="fas fa-plus"></i>&nbsp;&nbsp;Erstellen</button>
+        </div>
+				<hr><br/>
+        <div id="globalFilterOverviewTable" style="height: 50vh;" class="ag-theme-alpine"></div>	   
+			</div>
+			<!-- /.box-body -->
+		</div>
+		<!-- /.box -->
+
+
+
+
+		<div class="box box-primary" id="globalFilterEditorView">
+			<div class="box-header">
+				<h3 class="box-title">Globale Filter - Konfigurationsdatei</h3>
+
+				<div class="box-tools pull-right">
+					<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+					</button>
+				</div>
+			</div>
+			<!-- /.box-header -->
+			<div class="box-body">
+				<p>
+					Gruppieren Sie Indikatoren, Georessourcen und Themen zu globalen Filtern. Beim Aufruf eines solchen Filters, wird KomMonitor den im Filter definierten Inhalten geladen.
+				</p>
+
+				<hr><br/>
+				<div class="row">
+					<div class="col-md-6 col-sm-6 col-xs-12">
+						<div class="form-group">
+							<label>Vorlage (Struktur und Standard-Einstellung)</label>
+							<br/>
+							<br/>
+							<pre class="prettyprint linenums" style="max-height: 300px; overflow: auto; text-align: left;" id="filterConfig_backupTemplate"><code class="language-javascript" ng-bind-html="filterConfigTemplate"></code></pre>
+						</div>
+					</div>
+					<div class="col-md-6 col-sm-6 col-xs-12">
+						<div class="form-group">
+							<label>derzeitige Konfiguration (aktuelle Wertbelegung)</label>
+							<br/>
+							<br/>
+							<pre class="prettyprint linenums" style="max-height: 300px; overflow: auto; text-align: left;" id="filterConfig_current"><code class="language-javascript" ng-bind-html="filterConfigCurrent"></code></pre>
+						</div>
+					</div>
+				</div>
+
+				<hr>
+				<br/>
+
+				<div class="row">						
+					<div class="col-md-6 col-sm-6 col-xs-12">
+						<div class="form-group">
+							<label>Editierfenster der Filter-Konfiguration</label>
+							<br/>
+							<br/>
+							<textarea id="filterConfigEditor"></textarea>
+						</div>
+						<div class="help-block with-errors" ng-show="configSettingInvalid">
+							Bitte beachten Sie, dass alle notwendigen Parameter gem&auml;&szlig; der obigen Vorlage definiert werden m&uuml;ssen. Beachten Sie daher die vorgegebene JSON-Struktur. Der Text wird auf Schl&uuml;sselw&ouml;rter gepr&uuml;ft und es wird sichergestellt, dass valides JSON geparsed werden kann.
+						</div>
+						<div class="help-block with-errors" ng-show="missingRequiredParameters && missingRequiredParameters.length > 0">
+							Fehlende Parameter: {{missingRequiredParameters_string}}
+						</div>
+					</div>
+					<div class="col-md-6 col-sm-6 col-xs-12">
+						<div class="form-group">
+							<label>Vorschaufenster (neue Wertbelegung)</label>
+							<br/>
+							<br/>
+							<pre class="prettyprint linenums" style="max-height: 300px; overflow: auto; text-align: left;" id="filterConfig_new"><code class="language-javascript" ng-bind-html="filterConfigNew"></code></pre>
+						</div>
+					</div>
+				</div>	
+				
+				
+				<div class="row vertical-align">
+					<!-- hide button to reset content as this will actually break the settings due to localhost standard config  -->	
+					<!-- <div class="col-md-6 col-sm-6 col-xs-12">							
+						<div class="form-group">
+							<button type="button" class="btn btn-warning vertical-align horizontal-align"
+								ng-click="resetDefaultConfig()">Standard-Einstellungen wiederherstellen</button>
+						</div>
+					</div>					 -->
+					<div class="col-md-6 col-sm-6 col-xs-12">
+						<div class="form-group">
+							<button type="button" class="btn btn-success vertical-align horizontal-align"
+							ng-disabled="configSettingInvalid" ng-click="editFilterConfig()">Filter-Konfiguration speichern</button>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- /.box-body -->
+
+			<div id="filterConfigEditSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
+				class="alert alert-success alert-dismissable">
+				<button type="button" class="close" ng-click="hideSuccessAlert()" aria-hidden="true">&times;</button>
+				<h4><i class="icon fa fa-check"></i>Filter-Konfiguration in Config Storage Server gespeichert</h4>
+				<p>Die neue Parametrisierung wird beim n&auml;chsten Start der Anwendung vom Config Storage Server geladen und verwendet.
+				</p>
+			</div>
+
+			<div id="filterConfigEditErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
+				class="alert alert-danger alert-dismissable">
+				<button type="button" class="close" ng-click="hideErrorAlert()" aria-hidden="true">&times;</button>
+				<h4><i class="icon fa fa-ban"></i>Speichern der Filter-Konfiguration in Config Storage Server gescheitert</h4>
+				Fehlermeldung:
+				<br />
+				<pre style="overflow:auto; max-height:500px;" ng-bind-html="errorMessagePart"></pre>
+			</div>
+		</div>
+		<!-- /.box -->
+	</div>
+
+
+	</section>
+	<!-- /.content -->
+</div>

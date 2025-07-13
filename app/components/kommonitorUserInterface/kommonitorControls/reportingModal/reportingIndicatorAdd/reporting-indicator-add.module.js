@@ -1,1 +1,3 @@
-angular.module('reportingIndicatorAdd', ['excaliburDualList', 'ngSanitize', 'reachabilityScenarioConfiguration', 'kommonitorReachabilityHelper']);
+angular.module('reportingIndicatorAdd', ['excaliburDualList', 'ngSanitize', 'reachabilityScenarioConfiguration', 'kommonitorReachabilityHelper',
+    'kommonitorLeafletScreenshotCacheHelper'
+]);

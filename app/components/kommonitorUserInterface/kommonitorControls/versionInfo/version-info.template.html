@@ -1,5 +1,296 @@
 <div id="versionInfo">
 
+		<!-- version info  -->
+		<div id="" class="box box-primary collapsed-box">
+			<div class="box-header with-border">
+				<h3 class="box-title">Neuerungen in KomMonitor V3.4.0</h3>
+				<div class="box-tools pull-right">
+					<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+					</button>
+				</div>
+			</div>
+			<div class="box-body">
+	
+				<ul>
+					<li>
+						Anpassungen in der <b>Kartenapp</b>
+						<ul>
+							<li>
+								<b>Einf&uuml;hrung von Bannern für aktive Darstellungsfilter und Bilanzierung:</b>
+								Aktive Filter (Wertebereich, Schwellenwertklassifikation, r&auml;umlicher Filter) 
+								sowie der eingeschaltete Bilanzierungsmodus werden nun zus&auml;tzlich durch permanent sichtbare 
+								Banner am oberen Rand der Kartendarstellung begleitet. User k&ouml;nnen so jederzeit erkennen, ob noch ein Darstellungsfilter/Modus 
+								gesetzt ist.  
+							</li>
+							<li>
+								<b>R&auml;umlicher Filter auch für Georessourcen:</b>
+								Sobald im Darstellungsfilter-Men&uuml; ein r&auml;umlicher Filter gesetzt wird, lassen sich neben den Indikatoren-Raumeinheiten 
+								nun auch Georessourcen (Punkte, Linien, Fl&auml;chen) gefiltert abfragen. Bei aktivem Filter k&ouml;nnen User
+								ins <i>Georessourcen</i>-Men&uuml; navigieren und dort einzelne Datens&auml;tze laden. Ob s&auml;mtliche Objekte des Datensatzes oder nur diejenigen, 
+								die innerhalb der r&auml;umlich gefilterten Raumeinheiten liegen (oder diese schneiden), kann &uuml;ber einen Schalter am oberen Rand des <i>Georessourcenauswahl</i>-Men&uuml;s 
+								spontan gesteuert werden. Für den Datendownload wird bei aktivem r&auml;umlichen Filter eine zweite Option angeboten, sodass User den gesamten oder gefilterten Datensatz herunterladen k&ouml;nnen.     
+							</li>
+							<li>
+								<b>Konfigurierbares Reporting:</b>
+								Das Reporting wurde um weitere Konfigurationsoptionen erg&auml;nzt und hinsichtlich Perfomanz verbessert. Konkret sind folgende Funktionen nun verf&uuml;gbar:
+								<ul>
+									<li>
+										<i>konfigurierbare Hintergrundkarte</i> bei Kartenelementen
+									</li>
+									<li>
+										<i>Hintergrundkarten-Screenshot-Cache</i>, der pro Raumebene die Hintergrundkarten-Screenshots jeder Raumeinheit im Cache des Web Browsers speichert. 
+										Dadurch lassen sich h&auml;ufig genutzte Raumeinheiten wesentlich schneller laden. Weitere Tipps hierzu befinden sich im Reporting-Men&uuml; 
+										beim Hinzuf&uuml;gen eines neuen Indikators oder POI-Datensatzes im Reiter <i>Kartenbild-Verwaltung</i>
+									</li>
+									<li>
+										<i>konfigurierbare Abschnitte:</i> Jeder Reporting-Abschnitt (z.B. &Uuml;bersichtskarten, Einzelseiten pro Raumeinheit, Datentabelle, ...) kann nun selektiv aus dem Report entfernt werden. 
+									</li>
+									<li>
+										<i>konfigurierbare Seiteninhalte:</i> Ausgew&auml;hlte Inhalte jeder Reporting-Seite (z.B. Titel, Verfasserdetails, Seitenzahl, einzelne Diagramme, Freitext ...) k&ouml;nnen 
+										nun selektiv aus dem Report entfernt werden. 
+									</li>
+									<li>
+										<i>Power Point Export (PPTX):</i> KomMonitor bietet neben PDF und MS Word nun auch MS Power Point (Dateiendung <i>.pptx</i>) als weiteres Report-Format an. Mit Power Point 
+										und dem darin enthaltenen Folienmanager k&ouml;nnen User f&uuml;r alle Seiten des Reports schneller Corporate Design Elemente/Vorgaben umsetzen. 										     
+									</li>
+									<li>
+										<i>Neue Fortschrittsanzeigen</i> in Bezug auf die Aufbereitung der einzelnen Reporting-Seiten und hinsichtlich Kartenbild-Screenshot-Generierung.   
+									</li>
+								</ul>
+							</li>
+							<li>
+								<b>Bugfix Messwerkzeug:</b>
+								Ein Fehler beim Messwerkzeug wurde behoben, der bei jedem Klick die Karte verschob.  
+							</li>
+							<li>
+								<b>Bugfix Zahlenformatierung in Darstellungsfiltern:</b>
+								Beim Schieberegler der Werkzeuge <i>Wertebereichsfilter</i> und <i>Schwellenwertklassifikation</i> werden nun die Zahlenwerte hinsichtlich 
+								Tausender- und Dezimaltrennzeichen wie in der restlichen Anwendung dargestellt.  
+							</li>							
+						</ul>
+					</li>
+					<li>
+						Anpassungen in der <b>Admin-Ansicht</b>
+						<ul>
+							<li>
+								<b>Bugfix Batch-Update Georessourcen:</b>
+								Das Batch Update f&uuml;r Georessourcen wurde repariert.  
+							</li>						
+						</ul>
+					</li>
+				</ul>
+	
+			</div>
+		</div>
+
+		<!-- version info  -->
+		<div id="" class="box box-primary collapsed-box">
+			<div class="box-header with-border">
+				<h3 class="box-title">Neuerungen in KomMonitor V3.3.0</h3>
+				<div class="box-tools pull-right">
+					<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+					</button>
+				</div>
+			</div>
+			<div class="box-body">
+	
+				<ul>
+					<li>
+						Anpassungen in der <b>Kartenapp</b>
+						<ul>
+							<li>
+								<b>Verbesserte Darstellung von Dezimalzahlen:</b>
+								Sowohl in der Kartenanwendung als auch in den Reports wurde die Darstellung von Dezimalzahlen verbessert. Dies betrifft alle Textdarstellungen 
+								von Werten (u.A. Infofenster, Diagramme, Karten Popus und Labels, Reports). Zum einen erfolgt eine konsistente Verwendung des Punkts als 1000er-Trennzeichen
+								und die Verwendung des Kommas als Dezimaltrennzeichen. Zum anderen richtet sich die Anzahl der angezeigten Nachkommastellen von Indikatorenwerten nun
+								zunächst nach Indikatoren-spezifischen Angaben und nachgelagert nach dem Standardwert, der in den <i>Allgemeinen Einstellungen</i> hinterlegt werden kann.
+							</li>
+							<li>
+								<b>Auswahl eigener Farbpaletten:</b>
+								Bei der dynamischen Klassifizierung stehen Farbpaletten, die selber hinterlegt wurden, zur Auswahl.
+							</li>
+							<li>
+								<b>Konsistentes Labeling:</b>
+								Es erfolgt nun eine konsistente Verwendung der Begriffe „Raumebene“, „Raumeinheit“, „Feature“.
+							</li>
+						</ul>
+					</li>
+					<li>
+						Anpassungen in der <b>Admin-Ansicht</b>
+						<ul>
+							<li>
+								<b>Definition Indikatoren-spezifischer Genauigkeitsangaben:</b>
+								In der <i>Geodatenverwaltung</i> kann beim Anlegen oder Editieren eines Indikators ein spezifischer Genauigkeitswert hinterlegt werden. Dieser Wert legt fest,
+								mit wie vielen Nachkommastellen Werte eines Indikators in der Kartendarstellung und der Reporting-Funktion dargestellt werden.
+							</li>
+							<li>
+								<b>Definition eigener Farbpaletten:</b>
+								In den <i>Allgemeinen Einstellungen</i> k&ouml;nnen eigene Farbpaletten, die für die Klassifizierung verwendet werden, hinterlegt werden. Diese sind in der
+								Admin UI bei der Definition einer Standard-Klassifikation beim Editieren von Indikator-Metadaten ausw&auml;hlbar.
+							</li>
+						</ul>
+					</li>
+				</ul>
+	
+			</div>
+		</div>
+
+	<!-- version info  -->
+	<div id="" class="box box-primary collapsed-box">
+		<div class="box-header with-border">
+			<h3 class="box-title">Neuerungen in KomMonitor V3.2.1</h3>
+			<div class="box-tools pull-right">
+				<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+				</button>
+			</div>
+		</div>
+		<div class="box-body">
+
+			<ul>
+				<li>
+					Anpassungen in der <b>Admin-Ansicht</b>
+					<ul>
+						<li>
+							<b>Indikatoren Zugriffsrechte - Batch Update und Skriptbasierte Berechnung</b>
+							Wenn beim Batch Update oder bei der skriptbasierten Berechnung eines Indikators erstmalig eine neue Raumeinheit verkn&uuml;pft wird,
+							so werden die Zugriffsrechte auf die Zeitreihe aus den Indikatoren-Metadaten &uuml;bernommen. 
+							Ein entsprechender Disclaimer weist in den Eingabemasken darauf hin.
+						</li>						
+					</ul>
+				</li>
+				<li>
+					Anpassungen in der <b>Kartenapp</b>
+					<ul>
+						<li>
+							<b>keine</b>							   
+						</li>
+					</ul>
+				</li>
+			</ul>
+
+		</div>
+	</div>
+
+		<!-- version info  -->
+		<div id="" class="box box-primary collapsed-box">
+			<div class="box-header with-border">
+				<h3 class="box-title">Neuerungen in KomMonitor V3.2.0</h3>
+				<div class="box-tools pull-right">
+					<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+					</button>
+				</div>
+			</div>
+			<div class="box-body">
+	
+				<ul>
+					<li>
+						Anpassungen in der <b>Kartenapp</b>
+						<ul>
+							<li>
+								<b>Globale Filterung von Datens&auml;tzen:</b>
+								Der Web Client unterst&uuml;tzt nun den Aufruf mit einem aktiven globalen Filter. Dieser sorgt daf&uuml;r, dass der Web Client nur mit einem
+								eingeschr&auml;nkten Satz an Indikatoren und Georessourcen geladen wird. F&uuml;r die Kartenanwendung kann außerdem spontan ein globaler Filter
+								aktiviert werden. Diese Funktion befindet sich unter dem <i>Filter-Button</i>.
+							</li>
+							<li>
+								<b>NutzerInnen Favoriten:</b>
+								Angemeldete NutzerInnen k&ouml;nnen nun einzelne Indikatoren und Georessourcen oder ganze Themen als Favoriten ausw&auml;hlen. Die Auswahl
+								an favorisierten Datens&auml;tzen wird im Themenbaum in einem gesonderten Tab aufgef&uuml;hrt und erleichtert so den Zugriff auf Datens&auml;tze,
+								die von besonderem Interesse f&uuml;r eine/n Nutzer/Nutzerin sind.
+							</li>
+						</ul>
+					</li>
+					<li>
+						Anpassungen in der <b>Admin-Ansicht</b>
+						<ul>
+							<li>
+								<b>Management von globale Filtern f&uuml;r Datens&auml;tze:</b>
+								In den <i>Allgemeinen Einstellungen</i> wurde ein neuer Bereich <i>Filter-Konfiguration</i> hinzugef&uuml;gt. In diesem Bereich lassen sich globale
+								Filter für Datens&auml;tze erstellen und bearbeiten. Einem globalen Filter k&ouml;nnen sowohl einzelne Indikatoren und Georessourcen hinzugef&uuml;gt werden,
+								als auch ganze Indikatoren- und Georessourcen-Themen. &Uuml;ber die Kartenanwendung k&ouml;nnen diese Filter aktiviert werden, um nur einen Teil aller
+								verf&uuml;gbaren Indikatoren und Georessourcen zu laden.
+							</li>
+						</ul>
+					</li>
+				</ul>
+	
+			</div>
+		</div>
+
+	<!-- version info  -->
+	<div id="" class="box box-primary collapsed-box">
+		<div class="box-header with-border">
+			<h3 class="box-title">Neuerungen in KomMonitor V3.1.8</h3>
+			<div class="box-tools pull-right">
+				<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+				</button>
+			</div>
+		</div>
+		<div class="box-body">
+
+			<ul>
+				<li>
+					Anpassungen in der <b>Admin-Ansicht</b>
+					<ul>
+						<li>
+							<b>Fehler in Summen- und Anteils-Skripten behoben</b>
+							<i>Leerwerte in beteiligten Indikatoren werden nun korrekt verarbeitet und führen auch zu einem Leerwert im Ergebnis. 
+								Betroffene Skripte m&uuml;ssen manuell von Ihnen neu konfiguriert werden (löschen und neu anlegen)</i>
+							
+						</li>
+					</ul>
+				</li>
+				<li>
+					Anpassungen in der <b>Kartenapp</b>
+					<ul>
+						<li>
+							<b>Bugfixes</b>
+							Fehlerbehebung in Kartennavigation. Effekte wie mehrfache Karten-Tooltips Raumeinheiten sowie die Darstellung 
+							eines umschließenden Rechtecks einer Raumeinheit in der Kartendarstellung werden nun vermieden.  
+						</li>
+					</ul>
+				</li>
+			</ul>
+
+		</div>
+	</div>
+
+	<!-- version info  -->
+	<div id="" class="box box-primary collapsed-box">
+		<div class="box-header with-border">
+			<h3 class="box-title">Neuerungen in KomMonitor V3.1.7</h3>
+			<div class="box-tools pull-right">
+				<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+				</button>
+			</div>
+		</div>
+		<div class="box-body">
+
+			<ul>
+				<li>
+					Anpassungen in der <b>Admin-Ansicht</b>
+					<ul>
+						<li>
+							<b>Fehler in Summen-Skript behoben</b>
+							<i>Betroffene Skripte m&uuml;ssen manuell von Ihnen neu konfiguriert werden (löschen und neu anlegen)</i>
+							
+						</li>
+					</ul>
+				</li>
+				<li>
+					Anpassungen in der <b>Kartenapp</b>
+					<ul>
+						<li>
+							<b>Bugfixes</b>
+							Fehlerbehebung in Reporting und Erreichbarkeitsanalysen
+						</li>
+					</ul>
+				</li>
+			</ul>
+
+		</div>
+	</div>
+
 	<!-- version info  -->
 	<div id="" class="box box-primary collapsed-box">
 		<div class="box-header with-border">
@@ -310,8 +601,8 @@ window.__env.configMeanDataDisplay = 'preferRegionalMeanIfAvailable';
 							<b>korrigierte Anzeige des Erreichbarkeitsmodus (Distanz oder Zeit) bei Indikatorenstatistiken</b>
 						</li>
 						<li>
-							<b>Bessere Unterst&uuml;tzung fehlender Raumeinheiten sowie NoData Werte in Indikatorenstatistik</b>
-							Wenn beispielsweise in einem Kreisgebiet 24 Kommunen auf einer Raumeinheit "Kommunalebene" existieren, vier davon für einen Indikator NoData Werte aufweisen (Leerwerte in Datentabelle) und 12 Kommunen g&auml;nzlich fehlen (kein Eintrag in Datentabelle vorhanden), 
+							<b>Bessere Unterst&uuml;tzung fehlender Raumebenen sowie NoData Werte in Indikatorenstatistik</b>
+							Wenn beispielsweise in einem Kreisgebiet 24 Kommunen auf einer Raumebene "Kommunalebene" existieren, vier davon für einen Indikator NoData Werte aufweisen (Leerwerte in Datentabelle) und 12 Kommunen g&auml;nzlich fehlen (kein Eintrag in Datentabelle vorhanden), 
 							so werden Verschneidungen zwischen Isochronen und Indikatorenstatistiken ohne Fehler berechnet und Reportings werden fehlerfrei erzeugt.
 						</li>
 						<li>
@@ -404,7 +695,7 @@ window.__env.configMeanDataDisplay = 'preferRegionalMeanIfAvailable';
 					Anpassungen in der <b>Admin-Ansicht</b>
 					<ul>
 						<li>
-							<b>Fehler beim Bearbeiten der Indikatoren-Feature Tabelle behoben</b>	
+							<b>Fehler beim Bearbeiten der Indikatoren-Raumeinheit Tabelle behoben</b>	
 						</li>
 						<li>						
 							<b>Fehlerbehebungen und Verbesserungen bei der regionalen Standard-Klassifizierung</b> von Indikatoren<br>
@@ -421,7 +712,7 @@ window.__env.configMeanDataDisplay = 'preferRegionalMeanIfAvailable';
 					<ul>
 						<li>
 							<b>Erreichbarkeitsanalysen</b>
-							Bei der Verschneidung von Isochronen und Indiaktoren-Statistiken Fehler wurde ein Fehler behoben, wenn der Indikator für eine bestimmtes Raumeinheits-Objekt einen Leerwert aufweist oder fehlt.
+							Bei der Verschneidung von Isochronen und Indiaktoren-Statistiken Fehler wurde ein Fehler behoben, wenn der Indikator für eine bestimmtes Raumebenen-Objekt einen Leerwert aufweist oder fehlt.
 						</li>
 						<li>
 							<b>Regional Vergleichswerte</b>
@@ -463,7 +754,7 @@ window.__env.configMeanDataDisplay = 'preferRegionalMeanIfAvailable';
 					<ul>
 						<li>
 							<b>besseres User Feedback bei Indikatoren-Statistik in Erreichbarkeitsszenarien</b>
-							User werden nun durch ein Popup benachrichtigt, ob eine Versorgungsstatistik-Analyse zwischen Einzugsgebieten und Indikatoren einer Raumeinheit
+							User werden nun durch ein Popup benachrichtigt, ob eine Versorgungsstatistik-Analyse zwischen Einzugsgebieten und Indikatoren einer Raumebene
 							gelingen oder fehlschlagen.
 						</li>
 						<li>
@@ -557,7 +848,7 @@ window.__env.configMeanDataDisplay = 'preferRegionalMeanIfAvailable';
 		<div class="box-body">
 
 			Version 3 von KomMonitor bietet eine in vielen Punkten &uuml;berarbeitete und erweiterte Kartenapp
-			sowie diverse neue Konfigurationsm&öuml;glichkeiten der integrierten Geo- und Sachdaten.
+			sowie diverse neue Konfigurationsm&ouml;glichkeiten der integrierten Geo- und Sachdaten.
 
 			<ul>
 				<li>
@@ -568,27 +859,27 @@ window.__env.configMeanDataDisplay = 'preferRegionalMeanIfAvailable';
 							<br>
 							F&uuml;r jeden Indikator kann eine individuelle Standard-Klassifizierung festgelegt werden,
 							inklusive Anzahl Klassen,
-							und Klassifikationsmethode. Auch k&öuml;nnen dabei pro Raumeinheit eigene Klassengrenzen
+							und Klassifikationsmethode. Auch k&ouml;nnen dabei pro Raumeinheit eigene Klassengrenzen
 							vorgegeben werden.<br>
 						</li>
 						<li>
 							<b>Gesamtregionale Vergleichswerte pro Indikator</b>
 							<br>
-							Jedem Indikator k&öuml;nnen gesamtregionale Vergleichswerte (Gesamtsumme, Durchschnittswert,
+							Jedem Indikator k&ouml;nnen gesamtregionale Vergleichswerte (Gesamtsumme, Durchschnittswert,
 							r&auml;umlich nicht zuordenbare)
 							im Metadaten-Bearbeiten Men&uuml; zugewiesen werden.
 							Die Eingabe ist auf bereits integrierte Zeitreihenschritte begrenzt, um Datenkonsistenz zu
 							wahren.
-							M&öuml;glich sind manuelle Eingabe oder der Import aus einer CSV-Datei.
+							M&ouml;glich sind manuelle Eingabe oder der Import aus einer CSV-Datei.
 						</li>
 						<li>
-							<b>Raumeinheiten als Umringslayer </b>
+							<b>Raumebenen als Umringslayer </b>
 							<br>
-							Pro Raumeinheit kann konfiguriert werden, ob sie in der Kartenapp als Umringslayer in der
+							Pro Raumebene kann konfiguriert werden, ob sie in der Kartenapp als Umringslayer in der
 							Layersteuerung erscheint. <br />
-							Dies erm&öuml;glicht es, die Grenzverl&auml;ufe der Raumeinheit in die Karte als
+							Dies erm&ouml;glicht es, die Grenzverl&auml;ufe der Raumeinheit in die Karte als
 							Orientierungshilfe einblenden zu lassen. Dies kann n&uuml;tzlich sein,
-							um bspw. punkthafte Georessourcen optisch mit Raumeinheiten-Grenzen zu &uuml;berblenden.
+							um bspw. punkthafte Georessourcen optisch mit Raumebenen-Grenzen zu &uuml;berblenden.
 						</li>
 						<li>
 							<b>Textuelle POIs (punkthafte Georessourcen) </b>
@@ -604,7 +895,7 @@ window.__env.configMeanDataDisplay = 'preferRegionalMeanIfAvailable';
 							Divergierende oder qualitative Paletten wurden entfernt.
 						</li>
 						<li>
-							<b>Fehlerbehebungen in Feature-Tabellen</b>
+							<b>Fehlerbehebungen in Raumeinheits-Tabellen</b>
 							<br>
 							F&uuml;r alle Geodatentypen wurde ein Fehler behoben, der das interaktive Editieren der
 							Einzelzellen verhindert hat.
@@ -628,7 +919,7 @@ window.__env.configMeanDataDisplay = 'preferRegionalMeanIfAvailable';
 								<li>
 									F&uuml;r die erweiterte szenarienbasierte Erreichbarkeitsanalyse muss eine neue
 									Software-Komponente im
-									KomMonitor-&Öuml;kosystem konfiguriert werden. Im Client muss hierzu die URL sowie
+									KomMonitor-&ouml;kosystem konfiguriert werden. Im Client muss hierzu die URL sowie
 									der Prozessname gesetzt werden
 									<code>
 											// KomMonitor Spatial Data Processor
@@ -652,14 +943,14 @@ window.__env.configMeanDataDisplay = 'preferRegionalMeanIfAvailable';
 							Wesentliche Neuerungen:
 							<ul>
 								<li>
-									Es k&öuml;nnen mehrere Erreichbarkeiten nacheinander angelegt
+									Es k&ouml;nnen mehrere Erreichbarkeiten nacheinander angelegt
 									und in der aktuellen Sitzung gespeichert werden.
 								</li>
 								<li>Import und Export angelegter Szenarien</li>
 								<li>Anlegen und Bearbeiten eines Szenarios in einem eigenen Schritt-basierten Men&uuml;
 								</li>
 								<li>genutzte Punktquelle kann beliebig editiert werden, um Szenarien zu erzeugen (neue
-									Punkte setzen, vorhandene verschieben oder l&öuml;schen)</li>
+									Punkte setzen, vorhandene verschieben oder l&ouml;schen)</li>
 								<li>Indikatoren-Statistik-Verschneidung: r&auml;umliche Verschneidung zwischen
 									Einzugsgebieten und kleinr&auml;umigen Indikatoren-Statistiken f&uuml;r
 									Fragestellungen wie <i>Wie viele Personen von 0-18 Jahren werden durch
@@ -685,20 +976,20 @@ window.__env.configMeanDataDisplay = 'preferRegionalMeanIfAvailable';
 						<li>
 							<b>NEU - spontaner Import von Geo- oder Adressdaten</b>
 							<br>
-							Im neuen Datenimport-Menu (links unterhalb Georessourcen) k&öuml;nnen Daten spontan
+							Im neuen Datenimport-Menu (links unterhalb Georessourcen) k&ouml;nnen Daten spontan
 							eingeladen werden, die zuvor nicht in KomMonitor eingepflegt wurden.
 							<br />
 							Bei <b>Adressdaten</b> aus CSV-Dateien (aus Excel l&auml;sst sich CSV prima erzeugen)
 							versucht KomMonitor, die Adressen in Punktkoordinaten zu &uuml;bertragen (sogenannte
 							Geokodierung aus Basis von OpenStreetMap Daten und Nominatim).
-							Dabei k&öuml;nnen drei F&auml;lle eintreten:
+							Dabei k&ouml;nnen drei F&auml;lle eintreten:
 							<ol type="a">
 								<li>genaues Ergebnis: Ort, PLZ, Stra&szlig;e und Hausnummer wurden vermeintlich genau
 									gefunden</li>
 								<li>ungenaues Ergebnis: Ort, PLZ passen, aber Stra&szlig;e zumeist ohne Hausnummer.
 									Somit wurde eine ungenaue Koordinate bestimmt aber kein Fehler geworfen
 									(tats&auml;chlicher Punkt kann wenige oder viele Meter entfernt sein - je nach
-									Stra&szlig;engr&öuml;&szlig;e)</li>
+									Stra&szlig;engr&ouml;&szlig;e)</li>
 								<li>ohne Ergebnis: Adresse konnte gar nicht verortet werden (Pr&uuml;fen des Datensatzes
 									auf Schreibfehler, doppelte oder fehlende Adresseintr&auml;ge)</li>
 							</ol>
@@ -709,7 +1000,7 @@ window.__env.configMeanDataDisplay = 'preferRegionalMeanIfAvailable';
 							<br />
 							<b>Geodaten</b> m&uuml;ssen f&uuml;r den Import gegenw&auml;rtig im Format <i>GeoJSON</i>
 							oder <i>ESRI-Shape</i> und im Koordinatensystem WGS84 (EPSG:4326) vorliegen.
-							In k&uuml;nftigen Versionen k&öuml;nnen auch andere Koordinatensysteme und Projektionen
+							In k&uuml;nftigen Versionen k&ouml;nnen auch andere Koordinatensysteme und Projektionen
 							unterst&uuml;tzt werden.
 
 						</li>
@@ -717,7 +1008,7 @@ window.__env.configMeanDataDisplay = 'preferRegionalMeanIfAvailable';
 							<b>neu strukturierte Legende</b>
 							<br>
 							Am rechten Bildschirmrand wurde das Informations- und Legendenfenster neu angeordnet.
-							Im obersten Men&uuml; kann wie gewohnt die Raumeinheit gewechselt werden oder der
+							Im obersten Men&uuml; kann wie gewohnt die Raumebene gewechselt werden oder der
 							Indikatorendatensatz exportiert werden.
 							<br />
 							Die Legende enth&auml;lt nun weitere Reiter f&uuml;r erg&auml;nzende Indikatoren-Metadaten
@@ -737,7 +1028,7 @@ window.__env.configMeanDataDisplay = 'preferRegionalMeanIfAvailable';
 						<li>
 							<b>Durchschnittslinie und Label in Ranking-Diagramm</b>
 							<br>
-							Namen der Raumeinheiten sowie eine Querlinie des Durchschnittswerts k&öuml;nnen im
+							Namen der Raumeinheiten sowie eine Querlinie des Durchschnittswerts k&ouml;nnen im
 							Ranking-Diagramm spontan ein- und ausgeblendet werden.
 						</li>
 						<li>
@@ -753,20 +1044,20 @@ window.__env.configMeanDataDisplay = 'preferRegionalMeanIfAvailable';
 							spontan ein- und ausgeblendet werden.
 						</li>
 						<li>
-							<b>Layersteuerung mit Transparenzregler und Raumeinheiten-Umringslayer</b>
+							<b>Layersteuerung mit Transparenzregler und Raumebenen-Umringslayer</b>
 							<br>
 							Die Layersteuerung der interaktiven Karte muss nun aktiv angeklickt werden, um sie zu
-							&öuml;ffnen oder zu schlie&szlig;en.
+							&ouml;ffnen oder zu schlie&szlig;en.
 							<br />
 							Zudem wurde sie um Transprenzregler f&uuml;r jeden Datensatz (Layer) erweitert.
 							<br />
-							Sind f&uuml;r Raumeinheiten Umringslayer konfiguriert, so lassen sie sich via Layersteuerung
+							Sind f&uuml;r Raumebenen Umringslayer konfiguriert, so lassen sie sich via Layersteuerung
 							in das Kartenbild integrieren.
 						</li>
 						<li>
-							<b>Georessourcen POI Gr&öuml;&szlig;e</b>
+							<b>Georessourcen POI Gr&ouml;&szlig;e</b>
 							<br>
-							Punkthafte Georessourcen erlauben eine einstellbare Gr&öuml;&szlig;e (klein, mittel,
+							Punkthafte Georessourcen erlauben eine einstellbare Gr&ouml;&szlig;e (klein, mittel,
 							gro&szlig;) im oberen Teil des Georessourcen-Men&uuml;s.
 						</li>
 						<li>
@@ -860,7 +1151,7 @@ window.__env.configMeanDataDisplay = 'preferRegionalMeanIfAvailable';
 							<b>Geodatenverwaltung</b>
 							<br>
 							Probleme beim L&ouml;schen einzelner Georessourcen sowie beim partiellen Update von
-							Raumeinheiten wurden behoben.
+							Raumebenen wurden behoben.
 						</li>
 					</ul>
 				</li>
@@ -894,7 +1185,7 @@ window.__env.configMeanDataDisplay = 'preferRegionalMeanIfAvailable';
 						<li>
 							<b>Geodatenverwaltung</b>
 							<br>
-							F&uuml;r den Import von Raumeinheiten, Georessourcen und Indikatoren wird nun auch die OGC
+							F&uuml;r den Import von Raumebenen, Georessourcen und Indikatoren wird nun auch die OGC
 							API - Features unterst&uuml;tzt.
 							Voraussetzung f&uuml;r die Nutzung ist die Anbindung an eine Instanz der Importer API ab
 							Version 3.2.0.
@@ -1422,13 +1713,13 @@ window.__env.configMeanDataDisplay = 'preferRegionalMeanIfAvailable';
 				<li>
 					r&auml;umliche Filter k&ouml;nnen nun dahingehend konfiguriert werden, ob alle verf&uuml;gbaren
 					hierarchisch
-					h&ouml;heren Raumeinheiten angezeigt werden, oder nur solche, die f&uuml;r den derzeitigen Indikator
+					h&ouml;heren Raumebenen angezeigt werden, oder nur solche, die f&uuml;r den derzeitigen Indikator
 					g&uuml;ltig sind.
 				</li>
 				<li>
-					bei r&auml;umlichen Filtern wird nun ein Ladebildschirm angezeigt, sobald die Raumeinheit selektiert
+					bei r&auml;umlichen Filtern wird nun ein Ladebildschirm angezeigt, sobald die Raumebene selektiert
 					wird, um die Augenblicke
-					zu &uuml;berbr&uuml;cken, die das Laden der m&ouml;glichen Feature-Namen beansprucht.
+					zu &uuml;berbr&uuml;cken, die das Laden der m&ouml;glichen Raumeinheits-Namen beansprucht.
 				</li>
 
 			</ul>
@@ -1452,10 +1743,10 @@ window.__env.configMeanDataDisplay = 'preferRegionalMeanIfAvailable';
 
 			<ul>
 				<li>
-					Raumeinheiten k&ouml;nnen nun in der Administrationsoberfl&auml;che umbenannt werden.
-					Die Defnition der Raumeinheitshierarchie wird konsistent mit aktualisiert.
+					Raumebenen k&ouml;nnen nun in der Administrationsoberfl&auml;che umbenannt werden.
+					Die Defnition der Raumebenenhierarchie wird konsistent mit aktualisiert.
 					In Version 2.1.4 wurden dabei noch die bereits integrierten Indikatoren-Daten f&uuml;r die
-					umbenannte Raumeinheit
+					umbenannte Raumebene
 					nicht konsistent mit aktualisiert, sodass sie nicht mehr dargestellt werden konnten. Dies wurde in
 					Version 2.1.5 behoben.
 				</li>
@@ -1481,8 +1772,8 @@ window.__env.configMeanDataDisplay = 'preferRegionalMeanIfAvailable';
 
 			<ul>
 				<li>
-					Raumeinheiten k&ouml;nnen nun in der Administrationsoberfl&auml;che umbenannt werden.
-					Die Defnition der Raumeinheitshierarchie wird konsistent mit aktualisiert.
+					Raumebenen k&ouml;nnen nun in der Administrationsoberfl&auml;che umbenannt werden.
+					Die Defnition der Raumebenenhierarchie wird konsistent mit aktualisiert.
 				</li>
 
 			</ul>
@@ -1737,11 +2028,11 @@ window.__env.configMeanDataDisplay = 'preferRegionalMeanIfAvailable';
 						<li>erweiterte <b>Verwaltung von Organisationen und
 								Rollen/Rechtestufen</b>
 						</li>
-						<li><b>Editierbarkeit von Feature-Tabellen</b>. F&uuml;r
-							Indikatoren, Raumeinheiten und Georessourcen &uuml;ber das <i>Feature
+						<li><b>Editierbarkeit von Raumeinheits-Tabellen</b>. F&uuml;r
+							Indikatoren, Raumebenen und Georessourcen &uuml;ber das <i>Raumeinheit
 								fortf&uuml;hren</i>-Men&uuml; lassen
 							sich die
-							einzelnen Datenzeilen in einer Feature-Tabelle anzeigen. Ein Doppelklick auf eine
+							einzelnen Datenzeilen in einer Raumeinheits-Tabelle anzeigen. Ein Doppelklick auf eine
 							editierbare Zelle
 							erm&ouml;glicht dem User nun, den Zellenwert zu &auml;ndern und diese &Auml;nderung in der
 							Datenbank
@@ -1749,8 +2040,8 @@ window.__env.configMeanDataDisplay = 'preferRegionalMeanIfAvailable';
 							&uuml;bernehmen.
 						</li>
 						<li>
-							<b>Editierbarkeit von Georessourcen-Features</b>. F&uuml;r
-							jeden Georessourcen Datensatz bietet das <i>Feature fortf&uuml;hren</i>-Men&uuml; eine neue
+							<b>Editierbarkeit von Georessourcen-Raumeinheiten</b>. F&uuml;r
+							jeden Georessourcen Datensatz bietet das <i>Raumeinheit fortf&uuml;hren</i>-Men&uuml; eine neue
 							M&ouml;glichkeit,
 							Einzelobjekte hinzuzuf&uuml;gen (bspw. einen neuen Standort einer neuen Kita manuell
 							hinzuf&uuml;gen).

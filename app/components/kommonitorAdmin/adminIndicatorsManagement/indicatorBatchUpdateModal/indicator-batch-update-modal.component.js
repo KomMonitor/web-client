@@ -6,6 +6,9 @@ angular.module('indicatorBatchUpdateModal').component('indicatorBatchUpdateModal
 			this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 			this.kommonitorImporterHelperServiceInstance = kommonitorImporterHelperService;
 			this.kommonitorBatchUpdateHelperServiceInstance = kommonitorBatchUpdateHelperService;
+
+			// initialize any adminLTE box widgets
+			$('.box').boxWidget();
 	
 			$scope.isFirstStart = true;
 			$scope.lastUpdateResponseObj;

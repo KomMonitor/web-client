@@ -278,16 +278,16 @@ angular.module('scriptGeoresourceSubsetShare').component('scriptGeoresourceSubse
 				kommonitorScriptHelperService.scriptFormulaHTML = "";
 				var formulaHTML = "";
 				if ($scope.propertyName !== undefined && $scope.operator && $scope.operator.apiName !== undefined && ($scope.propertyValue != undefined || $scope.propertyValueSelection != undefined)) {
-					formulaHTML = "<b>Berechnung gem&auml;&szlig; Geodatenanalyse<br/><i>Prozentualer Anteil der Auswahl an allen Punkten des Datensatzes G<sub>1</sub> pro Raumeinheits-Feature</i> <br/> <i>Auswahlkriterium:</i> '" + $scope.propertyName + "' '" + $scope.operator.displayName + "' '" + $scope.propertyValue + "'";
+					formulaHTML = "<b>Berechnung gem&auml;&szlig; Geodatenanalyse<br/><i>Prozentualer Anteil der Auswahl an allen Punkten des Datensatzes G<sub>1</sub> pro Raumeinheit</i> <br/> <i>Auswahlkriterium:</i> '" + $scope.propertyName + "' '" + $scope.operator.displayName + "' '" + $scope.propertyValue + "'";
 					if ($scope.operator.apiName === "Range") {
-						formulaHTML = "<b>Berechnung gem&auml;&szlig; Geodatenanalyse<br/><i>Prozentualer Anteil der Auswahl an allen Punkten des Datensatzes G<sub>1</sub> pro Raumeinheits-Feature</i> <br/> <i>Auswahlkriterium:</i> '" + $scope.propertyName + "' im Wertebereich von '>=" +  $scope.propertyValueRange_from + " bis <" + $scope.propertyValueRange_to + "'";
+						formulaHTML = "<b>Berechnung gem&auml;&szlig; Geodatenanalyse<br/><i>Prozentualer Anteil der Auswahl an allen Punkten des Datensatzes G<sub>1</sub> pro Raumeinheit</i> <br/> <i>Auswahlkriterium:</i> '" + $scope.propertyName + "' im Wertebereich von '>=" +  $scope.propertyValueRange_from + " bis <" + $scope.propertyValueRange_to + "'";
 					}
 					if ($scope.operator.apiName === "Contains") {
-						formulaHTML = "<b>Berechnung gem&auml;&szlig; Geodatenanalyse<br/><i>Prozentualer Anteil der Auswahl an allen Punkten des Datensatzes G<sub>1</sub> pro Raumeinheits-Feature</i> <br/> <i>Filterkriterium:</i> '" + $scope.propertyName + "' 'enthält' '" + $scope.propertyValueSelection + "'";
+						formulaHTML = "<b>Berechnung gem&auml;&szlig; Geodatenanalyse<br/><i>Prozentualer Anteil der Auswahl an allen Punkten des Datensatzes G<sub>1</sub> pro Raumeinheit</i> <br/> <i>Filterkriterium:</i> '" + $scope.propertyName + "' 'enthält' '" + $scope.propertyValueSelection + "'";
 					}
 				}
 				else {
-					formulaHTML = "<b>Berechnung gem&auml;&szlig; Geodatenanalyse<br/><i>Prozentualer Anteil der Auswahl an allen Punkten des Datensatzes G<sub>1</sub> pro Raumeinheits-Feature</i>";
+					formulaHTML = "<b>Berechnung gem&auml;&szlig; Geodatenanalyse<br/><i>Prozentualer Anteil der Auswahl an allen Punkten des Datensatzes G<sub>1</sub> pro Raumeinheit</i>";
 				}
 				var legendItemsHTML = "<b>Legende zur Geodatenanalyse</b><br/>G<sub>1</sub>: " + $scope.georesourceSelection.datasetName;
 

@@ -1,4 +1,4 @@
-angular.module('kommonitorFilter', ['kommonitorDataExchange', 'kommonitorMap', 'kommonitorFilterHelper'])
+angular.module('kommonitorFilter', ['kommonitorDataExchange', 'kommonitorConfigStorage', 'kommonitorMap', 'kommonitorFilterHelper', 'kommonitorGlobalFilterHelper'])
 
 .directive('stringToNumber', function() {
   return {

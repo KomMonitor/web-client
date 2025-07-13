@@ -1,7 +1,37 @@
 /* app css stylesheet */
 
+:root {
+	--kommonitor-primary: #337ab7;
+
+	--kommonitor-light: hsl(from var(--kommonitor-primary) h calc(s - 10) calc(l - 10));
+	--kommonitor-dark: hsl(from var(--kommonitor-primary) h calc(s + 10) calc(l + 10));
+
+	--kommonitor-primary-20: rgb(from var(--kommonitor-primary) r g b / 0.2);
+	--kommonitor-primary-40: rgb(from var(--kommonitor-primary) r g b / 0.4);
+	--kommonitor-primary-60: rgb(from var(--kommonitor-primary) r g b / 0.6);
+	--kommonitor-primary-80: rgb(from var(--kommonitor-primary) r g b / 0.8);
+
+	--custom-font-family: "Source Sans Pro",  sans-serif;
+	
+	--body_gradient_left:#7200D0;
+	--body_gradient_right: #C800C1;
+	--form_bg: #ffffff;
+	--input_bg: #E5E5E5;
+	--input_hover:#eaeaea;
+	--submit_bg: #1FCC44;
+	--submit_hover: #40e263;
+	--logout_bg: rgb(216, 0, 0);
+	--extend_bg: rgb(235, 160, 0);
+	--logout_hover: #ff7373;
+	--icon_color:#d84a4a;
+}
+
 body {
 	overflow-y: auto !important;
+}
+
+.kommonitorOrange{
+	color: rgb(247, 147, 30)
 }
 
 /* toastr library override of transparency */
@@ -78,7 +108,7 @@ MULTI STEP FORM
     -moz-box-shadow: none !important;
     -webkit-box-shadow: none !important;
     box-shadow: none !important;
-    border: 1px solid #337ab7;
+    border: 1px solid var(--kommonitor-primary);
     outline-width: 0;
     transition: All 0.5s ease-in;
     -webkit-transition: All 0.5s ease-in;
@@ -90,7 +120,7 @@ MULTI STEP FORM
 
 .multiStepForm .action-button {
     width: auto;
-    background: #337ab7;
+    background: var(--kommonitor-primary);
     font-weight: bold;
     color: white;
     border: 0 none;
@@ -101,7 +131,7 @@ MULTI STEP FORM
 }
 
 .multiStepForm .action-button:hover, .multiStepForm .action-button:focus {
-    box-shadow: 0 0 0 2px white, 0 0 0 3px #337ab7;
+    box-shadow: 0 0 0 2px white, 0 0 0 3px var(--kommonitor-primary);
 }
 
 .multiStepForm .action-button-previous {
@@ -219,7 +249,7 @@ MULTI STEP FORM
 /*marking active/completed steps green*/
 /*The number of the step and the connector before it = green*/
 #progressbar li.active:before, #progressbar li.active:after {
-    background: #337ab7;
+    background: var(--kommonitor-primary);
 	color: white;
 }
 
@@ -241,20 +271,6 @@ MULTI STEP FORM
 #userLoginForm_withoutKeycloak h4, span {
     text-align: left;
 }
-
-:root {
-        --body_gradient_left:#7200D0;
-        --body_gradient_right: #C800C1;
-        --form_bg: #ffffff;
-        --input_bg: #E5E5E5;
-        --input_hover:#eaeaea;
-        --submit_bg: #1FCC44;
-		--submit_hover: #40e263;
-		--logout_bg: rgb(216, 0, 0);
-		--extend_bg: rgb(235, 160, 0);
-        --logout_hover: #ff7373;
-        --icon_color:#d84a4a;
-    }
 
 .userFormWrapper {
         width: 300px;
@@ -434,8 +450,190 @@ pre.CodeMirror-line {
     border-width: 1px 0 0 0;
 }
 
+.list-group.list-group-root .glyphicon.glyphicon-custom {
+  cursor: pointer;
+}
+
+.list-group.list-group-root .georesource-fav-details-wrapper {
+  overflow-x: scroll;
+}
+
+.glyphicon-star {
+  color: var(--extend_bg) !important;
+}
+
+#georesourceHierarchySelection.list-group.list-group-root .list-group-item .glyphicon.glyphicon-custom {
+  top: 4px !important;
+}
+
+.list-group .list-group-item-grid-layout {
+  display: grid;
+  grid-template-columns: auto min-content;
+}
+
+.list-group .list-group-item-grid-layout div:first-child {
+  cursor: pointer;
+}
+
+.list-group .list-group-item-grid-layout.selectedIndicator {
+	background: var(--kommonitor-primary) !important;
+	color: white !important;
+}
+
+.list-group.list-group-root .list-group-item.list-group-item-grid-centered {
+    display: grid;
+    grid-template-columns: 1fr auto;
+}
+
+.list-group.list-group-root .list-group-item.list-group-item-grid-centered-georesources {
+  display: grid;
+  grid-template-columns: min-content min-content auto;
+}
+
+.list-group.list-group-root .list-group-item.list-group-item-grid-centered-georesources *:first-child{
+  text-wrap: nowrap;
+  padding-right: .6em;
+}
+
+.list-group.list-group-root .list-group-item.list-group-item-grid-centered-georesources input[type="checkbox"] {
+  margin: 0 !important;
+} 
+
+.list-group.list-group-root .list-group-item.list-group-item-grid-centered-georesources .glyphicon.glyphicon-star,
+.list-group.list-group-root .list-group-item.list-group-item-grid-centered-georesources .glyphicon.glyphicon-star-empty {
+  text-align: right;
+}
+/* .list-group.list-group-root .list-group-item.list-group-item-grid-layout a,
+.list-group.list-group-root .list-group-item.list-group-item-grid-layout p,
+.list-group.list-group-root .list-group-item.list-group-item-grid-layout input {
+  margin-top: .2em;
+  margin-bottom: .2em;
+} */
+
+.list-group.list-group-root .list-group-item.list-group-item-level-0 {
+	background: var(--kommonitor-primary);
+	color: white;
+    padding-right: 3px;
+}
+
+.list-group.list-group-root .list-group-item.list-group-item-level-1::before {
+  content: '';
+  width: 100%;
+  height: 100%;
+	background: var(--kommonitor-primary-80);
+  position: absolute;
+}
+
+.list-group.list-group-root .list-group-item.list-group-item-level-1 {
+	color: white;
+  padding-right: 3px;
+  margin-left: 15px;
+}
+
+.list-group.list-group-root .list-group-item.list-group-item-level-2::before {
+  content: '';
+  width: 100%;
+  height: 100%;
+	background: var(--kommonitor-primary-60);
+  position: absolute;
+}
+
+.list-group.list-group-root .list-group-item.list-group-item-level-2 {
+	color: black;
+  margin-left: 0px;
+  padding-right: 3px;
+  margin-left: 15px;
+}
+
+.list-group.list-group-root .list-group-item.list-group-item-level-2 a,
+.list-group.list-group-root .list-group-item.list-group-item-level-2 p {
+    color: black
+}
+
+.list-group.list-group-root .list-group-item.list-group-item-level-3::before {
+  content: '';
+  width: 100%;
+  height: 100%;
+	background: var(--kommonitor-primary-40);
+  position: absolute;
+}
+
+.list-group.list-group-root .list-group-item.list-group-item-level-3 {
+	background: var(--kommonitor-primary-40);
+	color: black;
+    margin-left: 0px;
+    padding-right: 3px;
+    margin-left: 15px;
+}
+
+.list-group.list-group-root .list-group-item.list-group-item-level-3 a,
+.list-group.list-group-root .list-group-item.list-group-item-level-3 p {
+    color: black
+}
+
+.list-group.list-group-root .list-group-item.list-group-item-level-1 *,
+.list-group.list-group-root .list-group-item.list-group-item-level-2 *,
+.list-group.list-group-root .list-group-item.list-group-item-level-3 * {
+	z-index: 1;
+}
+
+.list-group.list-group-root .list-group-item .subTopic-block {
+  margin-top: .3em;
+}
+
+.list-group.list-group-root .sub-topic-wrapper-level-1 {
+  margin-left: 15px;
+}
+
+.list-group.list-group-root .sub-topic-wrapper-level-2 {
+  margin-left: 15px;
+}
+
+.list-group.list-group-root .sub-topic-wrapper-level-3 {
+  margin-left: 15px;
+}
+
+.list-group.list-group-root .sub-topic-wrapper-level-0 .indicator-element {
+  margin-left: 15px;  
+  border-top: 1px solid #ddd;
+}
+
+.list-group.list-group-root .sub-topic-wrapper-level-1 .indicator-element {
+  margin-left: 15px;
+  border-top: 1px solid #ddd;
+}
+
+.list-group.list-group-root .sub-topic-wrapper-level-2 .indicator-element {
+  margin-left: 15px;
+  border-top: 1px solid #ddd;
+}
+
+.list-group.list-group-root .sub-topic-wrapper-level-3 .indicator-element {
+  margin-left: 15px;
+  border-top: 1px solid #ddd;
+}
+
+.list-group.list-group-root .list-group-item .indicator-element,
+.list-group.list-group-root .indicator-element {
+  background-color: white;
+  color: #000;
+  padding: .6em;
+}
+
+
+.list-group .georesource-item-content-grid {
+  display: grid;
+  grid-template-columns: min-content 1fr 1fr min-content;
+  grid-gap: 1em;
+}
+
 .list-group.list-group-root > .list-group-item:first-child {
     border-top-width: 0;
+}
+
+.list-group-item.active, .list-group-item.active:focus, .list-group-item.active:hover {
+    background-color: var(--kommonitor-primary);
+    border-color: var(--kommonitor-primary);
 }
 
 /* .list-group.list-group-root > .list-group > .list-group-item {
@@ -496,6 +694,25 @@ pre.CodeMirror-line {
 
 .list-group-item .glyphicon {
     margin-right: 5px;
+}
+
+.favoritesToast {
+  padding: 1em;
+  cursor: pointer;
+  border-radius: .3em;
+  color: #fff;
+}
+
+.favoritesToast.disabled {
+  display: none;
+}
+
+.favoritesToast.notSaved {
+  background-color: rgb(216, 0,0);
+}
+
+.favoritesToast.saved {
+  background-color: green;
 }
 
 .iconpicker-popover {
@@ -660,10 +877,58 @@ pre.CodeMirror-line {
 }
 
 .popover-title {
-	background-color: #3c8dbc;
+	background-color: var(--kommonitor-primary);
 	font-weight: bold;
 	color: #ffffff;
 }
+
+.box.box-primary {
+	border-top-color: var(--kommonitor-primary);
+}
+
+a.kommonitor-theme {
+	color: var(--kommonitor-primary);
+}
+
+div.kommonitor-theme {
+	background: var(--kommonitor-primary);
+	color: white;
+}
+
+div.kommonitor-theme-light {
+	background: var(--kommonitor-light);
+	color: white;
+}
+
+div.kommonitor-80 {
+	background: var(--kommonitor-primary-80);
+	color: white;
+}
+
+div.kommonitor-60 {
+	background: var(--kommonitor-primary-60);
+	color: black;
+}
+
+div.kommonitor-40 {
+	background: var(--kommonitor-primary-40);
+	color: black;
+}
+
+div.kommonitor-20 {
+	background: var(--kommonitor-primary-20);
+	color: black;
+}
+
+a.kommonitor-theme:hover, a.kommonitor-theme:active, a.kommonitor-theme:focus {
+    outline: none;
+    text-decoration: none;
+    filter: brightness(130%);
+}
+
+/* div.kommonitor-theme-border {
+	border: solid var(--kommonitor-primary) 1px;
+} */
 
 .popover-title span {
 	cursor: pointer;
@@ -950,6 +1215,33 @@ pre.CodeMirror-line {
   position: absolute;
 }
 
+#statusButtonContainer {
+	position: absolute;
+	left: 280px;
+	top: 10px;
+	z-index: 3;
+	display: flex;
+	flex-direction: row;
+	gap: 10px;
+}
+
+#filterStatusButtonContainer {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	align-items: flex-start;
+}
+
+.btn-purple {
+	background-color: rgb(117,107,177);
+	border-color: rgb(98, 89, 148);
+	color: white !important;
+}
+
+.btn-purple:hover,.btn-purple:active,.btn-purple.hover {
+	background-color: rgb(98, 89, 148);
+}
+
 #sideBarButtons{
     margin-top: 200px;
   width: 90px;
@@ -984,8 +1276,14 @@ pre.CodeMirror-line {
 	z-index: 1003;
 }
 
+/* chrome might display feature Accessibility box on click ; see https://github.com/Leaflet/Leaflet/issues/8659 */
+.leaflet-container :focus:not(:focus-visible) {
+	outline: 0;
+  }
+
 .leaflet-container {
 	font-size: 12px !important;
+  font-family: var(--custom-font-family) !important;
 }
 
 .leaflet-control-layers {
@@ -1151,7 +1449,7 @@ pre.CodeMirror-line {
 	font-size: 12px;
 	position: absolute;
 	top: 15px;
-	right: 15px;
+	right: 40px;
 }
 
 #dateSliderWrapper{
@@ -1186,7 +1484,48 @@ pre.CodeMirror-line {
 
 #dateSliderWrapper .irs-single{
 	font-size: 16px;
+	background: var(--kommonitor-primary);
 	/* opacity: 0.8; */
+}
+
+.irs--big .irs-bar {
+    border: 1px solid var(--kommonitor-primary);
+    background: linear-gradient(to bottom, #ffffff 0%, var(--kommonitor-primary) 30%, var(--kommonitor-light) 100%);
+}
+
+#dateSliderWrapper .irs--big .irs-line {
+    border: 1px solid var(--kommonitor-primary);;
+    background: linear-gradient(to bottom, #ffffff 0%, var(--kommonitor-primary) 30%, var(--kommonitor-light) 100%);
+}
+
+
+.irs--big .irs-grid-pol {
+    background-color: var(--kommonitor-primary);
+}
+
+.irs--big .irs-from, .irs--big .irs-to, .irs--big .irs-single {
+    background-color: var(--kommonitor-light);
+    background: linear-gradient(to bottom, var(--kommonitor-light) 0%, var(--kommonitor-primary) 100%);
+}
+
+.irs--big .irs-grid-text {
+    color: var(--kommonitor-primary);
+}
+
+.nav-tabs > li > a {
+    color: var(--kommonitor-primary);
+}
+
+
+.skin-blue .main-header .navbar {
+	background-color: var(--kommonitor-primary);
+}
+
+.skin-blue .main-header .logo {
+    background-color: var(--kommonitor-primary);
+    color: #fff;
+    border-bottom: 0 solid transparent;
+	filter: brightness(85%);
 }
 
 .irs-handle:hover {
@@ -1498,6 +1837,10 @@ color: #777;
     margin: 0 auto;
 } */
 
+.margin-right {
+  margin-right: 1em !important;
+}
+
 .legendMap {
 		padding: 6px 8px;
 		font: 12px/14px Arial, Helvetica, sans-serif;
@@ -1659,35 +2002,35 @@ color: #777;
 	/* height: auto !important;
 	max-height: 450px;
   overflow: auto; */
-	font: 12px/14px Arial, Helvetica, sans-serif;
+	font: 12px/14px var(--custom-font-family);
 }
 
 #georesourceHierarchySelection{
 	/* height: auto !important;
 	max-height: 750px;
   	overflow: auto; */
-	font: 12px/14px Arial, Helvetica, sans-serif;
+	font: 12px/14px var(--custom-font-family);
 }
 
 #indicatorMetadataOverview {
 	/* height: auto !important;
 	max-height: 400px;
   overflow: auto; */
-	font: 12px/14px Arial, Helvetica, sans-serif;
+	font: 12px/14px var(--custom-font-family) !important;
 }
 
 #referencedIndicatorOverview {
 	height: auto !important;
 	max-height: 300px;
   overflow: auto;
-	font: 12px/14px Arial, Helvetica, sans-serif;
+	font: 12px/14px var(--custom-font-family);
 }
 
 #referencedGeoresourcesOverview {
 	height: auto !important;
 	max-height: 300px;
   overflow: auto;
-	font: 12px/14px Arial, Helvetica, sans-serif;
+	font: 12px/14px var(--custom-font-family);
 }
 
 
@@ -2107,26 +2450,65 @@ transition: opacity 0.3s;
 }
 
 .btn-custom {
-	background-color: #337ab7;
+	background-color: var(--kommonitor-primary);
 	color: white;
 	position: absolute;
 	z-index: 1003;
 }
 
+.btn-custom.filterActive {
+	border: 5px solid #f39c12;
+	/*background-color: #f39c12;*/
+}
+
+.btn-custom.balanceActive {
+	border: 5px solid #f39c12;
+}
+
 .btn-custom:hover {
 	background-color: white;
 	color: black;
-	border: 2px solid #337ab7;
+	border: 2px solid var(--kommonitor-primary);
 	position: absolute;
 	z-index: 1003;
 }
+
+.btn-primary {
+    background-color: var(--kommonitor-primary);
+    border-color: var(--kommonitor-dark);
+}
+
+.btn-primary:active, .btn-primary.active {
+    background-color: var(--kommonitor-dark);
+	border-color: var(--kommonitor-dark);
+}
+
+.btn-primary:active:hover,.btn-primary.active:hover,.open>.dropdown-toggle.btn-primary:hover,.btn-primary:active:focus,.btn-primary.active:focus,.open>.dropdown-toggle.btn-primary:focus,.btn-primary:active.focus,.btn-primary.active.focus,.open>.dropdown-toggle.btn-primary.focus {
+    color: #fff;
+    background-color: var(--kommonitor-dark);
+	border-color: var(--kommonitor-dark);
+	filter: brightness(85%);
+}
+
+.btn-primary:hover, .btn-primary:focus, .open>.dropdown-toggle.btn-primary {
+    background-color: var(--kommonitor-light);
+    border-color: var(--kommonitor-primary);
+	filter: brightness(85%);
+}
+
+.btn-primary.disabled:hover,.btn-primary[disabled]:hover,fieldset[disabled] .btn-primary:hover,.btn-primary.disabled:focus,.btn-primary[disabled]:focus,fieldset[disabled] .btn-primary:focus,.btn-primary.disabled.focus,.btn-primary[disabled].focus,fieldset[disabled] .btn-primary.focus {
+    background-color: var(--kommonitor-light);
+    border-color: var(--kommonitor-primary);
+	filter: brightness(85%);
+}
+
 
 .btn-custom:hover img{
 	filter: invert(0);
 }
 
 .btn-custom-right {
-	background-color: #337ab7;
+	background-color: var(--kommonitor-primary);
 	color: white;
 	z-index: 1003;
 	transition: 0.3s;
@@ -2135,7 +2517,7 @@ transition: opacity 0.3s;
 .btn-custom-right:hover {
 	background-color: white;
 	color: black;
-	border: 2px solid #337ab7;
+	border: 2px solid var(--kommonitor-primary);
 	z-index: 1003;
 }
 
@@ -2243,7 +2625,7 @@ input[type=range]::-webkit-slider-runnable-track {
   height: 8.4px;
   cursor: pointer;
   box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
-  background: #337ab7;
+  background: var(--kommonitor-primary);
   border-radius: 1.3px;
   border: 0.2px solid #010101;
 }
@@ -2257,7 +2639,7 @@ input[type=range]::-moz-range-track {
   height: 8.4px;
   cursor: pointer;
   box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
-  background: #337ab7;
+  background: var(--kommonitor-primary);
   border-radius: 1.3px;
   border: 0.2px solid #010101;
 }
@@ -2271,11 +2653,11 @@ input[type=range]::-ms-track {
   border-width: 16px 0;
   color: transparent; */
 
-	width: 100%;
+  width: 100%;
   height: 8.4px;
   cursor: pointer;
   box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
-  background: #337ab7;
+  background: var(--kommonitor-primary);
   border-radius: 1.3px;
   border: 0.2px solid #010101;
 }
@@ -2286,7 +2668,7 @@ input[type=range]::-ms-fill-lower {
   /* box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d; */
 }
 input[type=range]::-ms-fill-upper {
-  /* background: #337ab7; */
+  /* background: var(--kommonitor-primary); */
   border: 0.2px solid #010101;
   border-radius: 2.6px;
   /* box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d; */
@@ -2574,11 +2956,15 @@ hr {
 }
 
 input:checked + .switchslider {
-  background-color: rgb(51,122,183);
+  background-color: var(--kommonitor-primary);
+}
+
+input:checked + .switchsliderOrange {
+	background-color: rgb(247, 147, 30);
 }
 
 input:focus + .switchslider {
-  box-shadow: 0 0 1px rgb(51,122,183);
+  box-shadow: 0 0 1px var(--kommonitor-primary);
 }
 
 input:checked + .switchslider:before {
@@ -2611,7 +2997,7 @@ input:checked + .switchslider:before {
 /* this overrides the css in the duallist component css file */
 .duallistLabelDiv {
 	color:white;
-	background-color:#337ab7;
+	background-color: var(--kommonitor-primary);
 	margin:0;
 	padding:0;
 }
@@ -2638,7 +3024,7 @@ input:checked + .switchslider:before {
 }
 
 .duallistButton {
-	background-color:#337ab7;
+	background-color: var(--kommonitor-primary);
 	color:white;
 	height: 2.5em;
 	margin: 1px;
@@ -2649,10 +3035,11 @@ input:checked + .switchslider:before {
 }
 
 .reporting-element-config-box {
-	height: 150px;
+	height: fit-content;
 	border: solid lightgray 1px;
 	padding:10px;
 	margin-bottom: 15px;
+	z-index: 99999;
 }
 
 .reporting-element-config-box > h5 {
@@ -2847,7 +3234,7 @@ input:checked + .switchslider:before {
 	flex-wrap: wrap;
 	align-items: center;
 	padding: 5px 0px 5px 0px;
-	cursor: pointer;
+	/* cursor: pointer;   */  /* that suggests to the user that the whole reporting row could be clicked in order to be edited, but that is not implemented - only the delete button shall be clickable  */
 }
 
 .reporting-hr-divider {
@@ -2993,7 +3380,12 @@ input:checked + .switchslider:before {
 }
 
 .style-headline-indicator {
-	background-color: rgb(247,147,30);
+	background-color: rgb(247,147,30) !important;
+  color: #fff !important;
+}
+
+.style-headline-indicator .glyphicon.glyphicon-star {
+  color: #fff !important;
 }
 
 .style-computation-indicator {
@@ -3146,3 +3538,33 @@ input:checked + .switchslider:before {
 	from {bottom: 60vh; opacity: 1;}
 	to {bottom: 0; opacity: 0;}
   }
+
+  
+/* custom css adjustments */
+kommonitor-user-interface {
+  font-family: var(--custom-font-family) !important;
+}
+
+kommonitor-user-interface .ng-binding {
+  font-family: var(--custom-font-family) !important;
+}
+
+kommonitor-user-interface .boxedLegend {
+  font-family: var(--custom-font-family) !important;
+}
+
+kommonitor-user-interface h3, kommonitor-user-interface h4 {
+  font-family: var(--custom-font-family) !important;
+}
+
+/* range slider single values */
+kommonitor-user-interface .irs {
+  font-family: var(--custom-font-family) !important;
+}
+
+/* hidden element in root html to populate styling to 3rd party plugins/frameworks with non-editable css */
+#fontFamily-reference {
+  display: none;
+  font-family: var(--custom-font-family);
+  content: var(--custom-font-file);
+}

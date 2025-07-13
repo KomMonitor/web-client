@@ -91,6 +91,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 				"description": "description about spatial unit dataset",
 				"databasis": "text about data basis",
 			},
+      "precision": "Custom decimal place",
 			"allowedRoles": ['roleId'],
 			"refrencesToOtherIndicators": [
 				{
@@ -183,6 +184,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			$scope.indicatorCreationType = undefined;
 			$scope.indicatorLowestSpatialUnitMetadataObjectForComputation = kommonitorDataExchangeService.availableSpatialUnits[0];
 			$scope.enableLowestSpatialUnitSelect = false;
+      $scope.indicatorPrecision = null;
 
 			$scope.indicatorReferenceDateNote = undefined;
 			$scope.displayOrder = 0;
@@ -224,11 +226,20 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 
 		$scope.loadingData = false;
 
+		var customColorSchemes = __env.customColorSchemes;
+
+		// Add custom color themes from configuration properties
+		if(customColorSchemes) {
+			colorbrewer = Object.assign(customColorSchemes, colorbrewer);
+		}
+				
+
 		$scope.colorbrewerSchemes = colorbrewer;
 		$scope.colorbreweSchemeName_dynamicIncrease = __env.defaultColorBrewerPaletteForBalanceIncreasingValues;
 		$scope.colorbreweSchemeName_dynamicDecrease = __env.defaultColorBrewerPaletteForBalanceDecreasingValues;
 		$scope.colorbrewerPalettes = [];
 
+    $scope.showCustomCommaValue = false;
 
 		$scope.instantiateColorBrewerPalettes = function(){
 			for (const key in colorbrewer) {
@@ -375,6 +386,9 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			$scope.selectedColorBrewerPaletteEntry = $scope.colorbrewerPalettes[13];
 			$scope.spatialUnitClassification = [];
 			$scope.classBreaksInvalid = false;
+
+      $scope.indicatorPrecision = null;
+      $scope.showCustomCommaValue = false;
 
 			$scope.postBody_indicators = undefined;
 
@@ -557,6 +571,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 				  "allowedRoles": [],
 				  "datasetName": $scope.datasetName,
 				  "abbreviation": $scope.indicatorAbbreviation || null,
+          "precision": ($scope.showCustomCommaValue===true) ? $scope.indicatorPrecision : null,
 				  "characteristicValue": $scope.indicatorCharacteristicValue || null,
 				  "tags": [], // filled directly after
 				  "creationType": $scope.indicatorCreationType.apiName,
@@ -772,8 +787,13 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 				
 				// indicator specific properties
 
-				
-				$scope.indicatorAbbreviation = $scope.metadataImportSettings.abbreviation;
+				$scope.indicatorAbbreviation = $scope.metadataImportSettings.abbreviation; 
+        $scope.indicatorPrecision = ($scope.metadataImportSettings.precision!="") ? parseInt($scope.metadataImportSettings.precision) : null;
+        
+        if($scope.indicatorPrecision!=null)
+          $scope.showCustomCommaValue = true;
+        else
+          $scope.showCustomCommaValue = false;
 
 				for (const indicatorTypeOption of kommonitorDataExchangeService.indicatorTypeOptions) {
 					if(indicatorTypeOption.apiName === $scope.metadataImportSettings.indicatorType){
@@ -970,6 +990,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			metadataExport.abbreviation = $scope.indicatorAbbreviation || "";
 			metadataExport.indicatorType = $scope.indicatorType ? $scope.indicatorType.apiName : "";
 			metadataExport.creationType = $scope.indicatorCreationType ? $scope.indicatorCreationType.apiName : "";
+      metadataExport.precision = $scope.indicatorPrecision || "";
 
 			// metadataExport.characteristicValue = $scope.indicatorCharacteristicValue || "";
 			metadataExport.isHeadlineIndicator = $scope.isHeadlineIndicator || false;

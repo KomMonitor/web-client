@@ -6,9 +6,10 @@ angular
 					templateUrl : "components/kommonitorUserInterface/kommonitorControls/poi/poi.template.html",
 
 					controller : [
-							'kommonitorDataExchangeService', 'kommonitorMapService', '$scope', '$rootScope', '$http', '__env', '$timeout',
+							'kommonitorDataExchangeService', 'kommonitorMapService', '$scope', '$rootScope', '$http', '__env', '$timeout', 'kommonitorElementVisibilityHelperService', 'kommonitorFavService',
 							function indicatorRadarController(
-									kommonitorDataExchangeService, kommonitorMapService, $scope, $rootScope, $http, __env, $timeout) {
+									kommonitorDataExchangeService, kommonitorMapService, $scope, $rootScope, $http, __env, $timeout, 
+                  kommonitorElementVisibilityHelperService, kommonitorFavService) {
 
 								/*
 								 * reference to kommonitorDataExchangeService instances
@@ -16,6 +17,7 @@ angular
 								this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 								this.kommonitorMapServiceInstance = kommonitorMapService;
 								$scope.useCluster = true;
+								$scope.useSpatialFilterForGeoressources = false;
 								$scope.loadingData = false;
 								$scope.date;
 
@@ -33,6 +35,22 @@ angular
 								$scope.dateSelectionType = {
 									selectedDateType: $scope.dateSelectionType_valuePerDataset
 								};
+                
+                $scope.georesourceFavTopicsTree = [];
+
+                $scope.georesourceTopicFavItems = [];
+                $scope.poiFavItems = [];
+
+                // own temp list as fav items should remain visible in fav-tab even if deleted, until save/reload
+                $scope.FavTabGeoresourceTopicFavItems = []; 
+                $scope.FavTabPoiFavItems = [];
+
+                $scope.favSelectionToastStatus = 0;
+                $scope.showFavSelection = false;
+
+                $scope.favSelectionToastText = ['',
+                  'Favoriten-Auswahl nicht gesichert. Zum speichern hier klicken',
+                  'Auswahl erfolgreich gespeichert'];
 
 								$scope.selectedDate_manual = undefined;
 								$('#manualDateDatepicker').datepicker(kommonitorDataExchangeService.datePickerOptions);
@@ -93,27 +111,76 @@ angular
 								var addClickListenerToEachCollapseTrigger = function(){
 									setTimeout(function(){
 										$('.list-group-item > .collapseTrigger').on('click', function() {
-									    $('.glyphicon', this)
-									      .toggleClass('glyphicon-chevron-right')
-									      .toggleClass('glyphicon-chevron-down');
+											$('.glyphicon', this)
+											.toggleClass('glyphicon-chevron-right')
+											.toggleClass('glyphicon-chevron-down')
+											.toggleClass('test');
 
-												// manage uncollapsed entries
-												// var clickedTopicId = $(this).attr('id');
-												// if ($scope.unCollapsedTopicIds.includes(clickedTopicId)){
-												// 	var index = $scope.unCollapsedTopicIds.indexOf(clickedTopicId);
-												// 	$scope.unCollapsedTopicIds.splice(index, 1);
-												// }
-												// else{
-												// 	$scope.unCollapsedTopicIds.push(clickedTopicId);
-												// }
-									  });
+													// manage uncollapsed entries
+													// var clickedTopicId = $(this).attr('id');
+													// if ($scope.unCollapsedTopicIds.includes(clickedTopicId)){
+													// 	var index = $scope.unCollapsedTopicIds.indexOf(clickedTopicId);
+													// 	$scope.unCollapsedTopicIds.splice(index, 1);
+													// }
+													// else{
+													// 	$scope.unCollapsedTopicIds.push(clickedTopicId);
+													// }
+										});
+                    
+										// addClass "clickBound" sets trigger, that listener has been added, not:.clickBound filters for that. otherwise multiple listeners will be added
+										$('.list-group-item > .georesourcesFavCollapseTrigger:not(.clickBound)').addClass('clickBound').on('click', function() {
+															$('.glyphicon', this)
+															.toggleClass('glyphicon-chevron-right')
+															.toggleClass('glyphicon-chevron-down');
+
+										// manage entries
+										var clickedTopicId = $(this).attr('id');
+										if(document.getElementById('georesourcesFavSubTopic-'+clickedTopicId).style.display=='none')
+											document.getElementById('georesourcesFavSubTopic-'+clickedTopicId).style.display = 'block';
+										else
+											document.getElementById('georesourcesFavSubTopic-'+clickedTopicId).style.display = 'none';
+														});
 									}, 500);
 								};
 
-								$(document).ready(function() {
+							/* 	$(document).ready(function() {
 
 									addClickListenerToEachCollapseTrigger();
-								});
+								}); */
+
+                $scope.$on("initialMetadataLoadingCompleted", function (event) {
+                  $scope.georesourceFavTopicsTree = prepTopicsTree(kommonitorDataExchangeService.topicGeoresourceHierarchy,0,undefined); 
+				  
+				  addClickListenerToEachCollapseTrigger();
+
+                  var userInfo = kommonitorFavService.getUserInfo();
+                  if(userInfo.georesourceFavourites) {
+                    $scope.poiFavItems = userInfo.georesourceFavourites;
+                    $scope.FavTabPoiFavItems = userInfo.georesourceFavourites;
+                  }
+                  
+                  if(userInfo.georesourceTopicFavourites) {
+                    $scope.georesourceTopicFavItems = userInfo.georesourceTopicFavourites;
+                    $scope.FavTabGeoresourceTopicFavItems = userInfo.georesourceTopicFavourites;
+                  }
+
+                  if(kommonitorElementVisibilityHelperService.elementVisibility.favSelection===true)
+                    $scope.showFavSelection = true;
+                }); 
+
+                function prepTopicsTree(tree, level, parent) {
+                  tree.forEach(entry => {
+                    entry.level = level;
+                    entry.parent = parent;
+            
+                    if(entry.subTopics.length>0) {
+                      let newLevel = level+1;
+                      entry.subTopics = prepTopicsTree(entry.subTopics, newLevel, entry.topicId);
+                    }
+                  });
+            
+                  return tree;
+                }
 
 								$scope.onChangeShowPOI = function(){
 									if ($scope.showPOI){
@@ -414,6 +481,22 @@ angular
 									}, 250);							
 								});
 
+								$scope.$on("onAddedFeatureToSelection", function (event, selectedIndicatorFeatureIds) {
+									$scope.refreshPoiLayers();
+								});
+
+								$scope.$on("indicatortMapDisplayFinished", function(){
+									$scope.refreshGeoressourceLayers();
+								});
+
+								$scope.$on("onRemovedFeatureFromSelection", function (event, selectedIndicatorFeatureIds) {
+									$scope.refreshPoiLayers();
+								});
+
+								$scope.$on("removeAllSpatialFilters", function(event){
+									$scope.useSpatialFilterForGeoressources = false;
+								});
+
 								$scope.refreshSelectedGeoresources = function(){
 									for (const georesource of kommonitorDataExchangeService.displayableGeoresources_keywordFiltered) {
 										if (georesource.isSelected){
@@ -452,15 +535,15 @@ angular
 										// depending on type we must call different methods
 										if (georesourceDataset.isPOI){
 											$scope.removePoiLayerFromMap(georesourceDataset);
-											$scope.addPoiLayerToMap(georesourceDataset, $scope.useCluster);
+											$scope.addPoiLayerToMap(georesourceDataset, $scope.useCluster, $scope.useSpatialFilterForGeoressources);
 										}
 										else if (georesourceDataset.isLOI){
 											$scope.removeLoiLayerFromMap(georesourceDataset);
-											$scope.addLoiLayerToMap(georesourceDataset);
+											$scope.addLoiLayerToMap(georesourceDataset, $scope.useSpatialFilterForGeoressources);
 										}
 										else if (georesourceDataset.isAOI){
 											$scope.removeAoiLayerFromMap(georesourceDataset);
-											$scope.addAoiLayerToMap(georesourceDataset);
+											$scope.addAoiLayerToMap(georesourceDataset, $scope.useSpatialFilterForGeoressources);
 										}
 										else{
 											console.error("unknown dataset: " + georesourceDataset);
@@ -487,7 +570,7 @@ angular
 
 									if(poi.isSelected){
 										//display on Map
-										$scope.addPoiLayerToMap(poi, $scope.useCluster);
+										$scope.addPoiLayerToMap(poi, $scope.useCluster, $scope.useSpatialFilterForGeoressources);
 									}
 									else{
 										// unselect topic
@@ -502,7 +585,7 @@ angular
 
 								};
 
-								$scope.addPoiLayerToMap = async function(poiGeoresource, useCluster) {
+								$scope.addPoiLayerToMap = async function(poiGeoresource, useCluster, useSpatialFilterForGeoressources) {
 									$scope.loadingData = true;
 									$rootScope.$broadcast("showLoadingIconOnMap");
 
@@ -526,7 +609,7 @@ angular
 
 											poiGeoresource.geoJSON = geoJSON;
 
-											kommonitorMapService.addPoiGeoresourceGeoJSON(poiGeoresource, date, useCluster);
+											kommonitorMapService.addPoiGeoresourceGeoJSON(poiGeoresource, date, useCluster, useSpatialFilterForGeoressources);
 											$scope.loadingData = false;
 											$rootScope.$broadcast("hideLoadingIconOnMap");
 
@@ -552,14 +635,21 @@ angular
 
 								};
 
-								$scope.refreshPoiLayers = async function(){
-									for (var poi of kommonitorDataExchangeService.displayableGeoresources_keywordFiltered){
-										if (poi.isSelected){
-											//remove POI layer from map
-											$scope.removePoiLayerFromMap(poi);
-
-											// remove layer and add layer again
-											await $scope.addPoiLayerToMap(poi, $scope.useCluster);
+								$scope.refreshGeoressourceLayers = async function(){
+									for (var el of kommonitorDataExchangeService.displayableGeoresources_keywordFiltered){
+										if (el.isSelected){
+											if(el.isPOI) {
+												$scope.removePoiLayerFromMap(el);
+												await $scope.addPoiLayerToMap(el, $scope.useCluster, $scope.useSpatialFilterForGeoressources);
+											}
+											else if (el.isLOI) {
+												$scope.removeLoiLayerFromMap(el);
+												await $scope.addLoiLayerToMap(el, $scope.useSpatialFilterForGeoressources);
+											}
+											else if (el.isAOI) {
+												$scope.removeAoiLayerFromMap(el);
+												await $scope.addAoiLayerToMap(el, $scope.useSpatialFilterForGeoressources);
+											}
 										}
 									}
 
@@ -574,6 +664,45 @@ angular
 										}
 									}
 								};
+
+								$scope.refreshPoiLayers = async function(){
+									for (var poi of kommonitorDataExchangeService.displayableGeoresources_keywordFiltered){
+										if (poi.isSelected){
+											//remove POI layer from map
+											$scope.removePoiLayerFromMap(poi);
+
+											// remove layer and add layer again
+											await $scope.addPoiLayerToMap(poi, $scope.useCluster, $scope.useSpatialFilterForGeoressources);
+										}
+									}
+
+									for (var wfs of kommonitorDataExchangeService.wfsDatasets){
+										if (wfs.geometryType == 'POI' && wfs.isSelected){
+											//remove POI layer from map
+											kommonitorMapService.removeWfsLayerFromMap(wfs);
+
+											// remove layer and add layer again
+											var opacity = 1 - wfs.transparency;
+											await kommonitorMapService.addWfsLayerToMap(wfs, opacity, $scope.useCluster);											
+										}
+									}
+								};
+
+								$scope.getExportLinkForFilteredGeoresource = function(georesource){
+									var date = $scope.getQueryDate(georesource);
+
+									var dateComps = date.split("-");
+
+									var year = dateComps[0];
+									var month = dateComps[1];
+									var day = dateComps[2];
+
+									var fileName = georesource.datasetName + "-" + year + "-" + month + "-" + day + "_gefiltert";
+
+									var geoJSON_string = JSON.stringify(georesource.geoJSON);
+
+									kommonitorDataExchangeService.generateAndDownloadGeoresourceZIP(georesource, geoJSON_string, fileName, ".geojson", {});
+								}
 
 								$scope.getExportLinkForPoi = function(poi){
 									var date = $scope.getQueryDate(poi);
@@ -654,7 +783,7 @@ angular
 
 											aoiGeoresource.geoJSON = geoJSON;
 
-											kommonitorMapService.addAoiGeoresourceGeoJSON(aoiGeoresource, date);
+											kommonitorMapService.addAoiGeoresourceGeoJSON(aoiGeoresource, date, $scope.useSpatialFilterForGeoressources);
 											$scope.loadingData = false;
 											$rootScope.$broadcast("hideLoadingIconOnMap");
 
@@ -726,7 +855,7 @@ angular
 
 										if(loi.isSelected){
 											//display on Map
-											$scope.addLoiLayerToMap(loi);
+											$scope.addLoiLayerToMap(loi, $scope.addLoiGeoresourceGeoJSON);
 										}
 										else{
 											// unselect topic
@@ -741,7 +870,7 @@ angular
 
 									};
 
-									$scope.addLoiLayerToMap = async function(loiGeoresource) {
+									$scope.addLoiLayerToMap = async function(loiGeoresource, useSpatialFilterForGeoressources) {
 										$scope.loadingData = true;
 										$rootScope.$broadcast("showLoadingIconOnMap");
 
@@ -765,7 +894,7 @@ angular
 
 												loiGeoresource.geoJSON = geoJSON;
 
-												kommonitorMapService.addLoiGeoresourceGeoJSON(loiGeoresource, date);
+												kommonitorMapService.addLoiGeoresourceGeoJSON(loiGeoresource, date, $scope.useSpatialFilterForGeoressources);
 												$scope.loadingData = false;
 												$rootScope.$broadcast("hideLoadingIconOnMap");
 
@@ -848,6 +977,10 @@ angular
 										kommonitorMapService.removeWmsLayerFromMap(dataset);
 
 									}
+
+									// on WMS layer visibility change we must inform legend control 
+									// it decides if an additional WMS legend is displayed if at least one WMS layer is active
+									$rootScope.$broadcast("WMSLayerVisibilityChanged");
 								};
 
 								$scope.adjustWMSLayerTransparency = function(dataset){
@@ -916,9 +1049,256 @@ angular
 
 									$scope.isCollapsed_noTopic = ! $scope.isCollapsed_noTopic;
 
-									$scope.digest();
+									$timeout(function(){
+										$scope.$digest();
+									});
+									
 								}
 
+                $scope.georesourceTopicFavSelected = function(topicId) {
+                  return $scope.georesourceTopicFavItems.includes(topicId);
+                }
+
+                $scope.poiFavSelected = function(id) {
+
+                  if(Array.isArray(id))
+                    return id.some(e => $scope.poiFavItems.includes(e.georesourceId));
+                  else
+                    return $scope.poiFavItems.includes(id);
+                }
+
+                $scope.onPoiFavClick = function(id, favTab = false) {
+                  if(!$scope.poiFavItems.includes(id))
+                    $scope.poiFavItems.push(id);
+                  else
+                    $scope.poiFavItems = $scope.poiFavItems.filter(e => e!=id);
+
+                  $scope.onHandleFavSelection(favTab);
+                }
+
+                $scope.onGeoresourceTopicFavClick = function(topicId, favTab = false) {
+                  if(!$scope.georesourceTopicFavItems.includes(topicId))
+                    searchGeoresourceTopicFavItemsRecursive(kommonitorDataExchangeService.topicGeoresourceHierarchy, topicId, true);
+                  else
+                    searchGeoresourceTopicFavItemsRecursive(kommonitorDataExchangeService.topicGeoresourceHierarchy, topicId, false);                  
+                  
+                  $scope.onHandleFavSelection(favTab);
+                }
+
+                $scope.onHandleFavSelection = function(favTab = false) {
+                  
+                  if(favTab===false) {
+                    $scope.FavTabGeoresourceTopicFavItems = $scope.georesourceTopicFavItems;
+                    $scope.FavTabPoiFavItems = $scope.poiFavItems;
+                  }
+
+                  $scope.handleToastStatus(1);
+
+                  kommonitorFavService.handleFavSelection({
+                    georesourceTopicFavourites: $scope.georesourceTopicFavItems,
+                    georesourceFavourites: $scope.poiFavItems
+                  });
+
+									addClickListenerToEachCollapseTrigger();
+                }
+                
+                $scope.onSaveFavSelection = function(broadcast = true) {
+                  if(broadcast===true)
+                    kommonitorFavService.storeFavSelection();
+
+                  $scope.FavTabGeoresourceTopicFavItems = $scope.georesourceTopicFavItems;
+                  $scope.FavTabPoiFavItems = $scope.poiFavItems;
+
+                  $scope.handleToastStatus(2);
+                  
+                  if(broadcast===true)
+                    $rootScope.$broadcast("favItemsStored");
+                }
+                
+                $scope.$on("favItemsStored", function (event) {
+                  $scope.onSaveFavSelection(false);
+                });
+
+                $scope.handleToastStatus = function(type) {
+                  
+                  $scope.favSelectionToastStatus = type;
+
+                  if(type==2) {
+                    setTimeout(() => {
+                      $scope.favSelectionToastStatus = 0;
+                    },1000);
+                  }
+                }
+
+                function searchGeoresourceTopicFavItemsRecursive(tree, id, selected) {
+
+                  let ret = false;
+            
+                  tree.forEach(entry => {
+                    if(entry.topicId==id) {
+                      if(selected===true) {
+                        if(!$scope.georesourceTopicFavItems.includes(id))
+                          $scope.georesourceTopicFavItems.push(id);
+                      } else
+                        $scope.georesourceTopicFavItems = $scope.georesourceTopicFavItems.filter(e => e!=id);
+            
+                      // recursive selection of topics / georesources
+                      /* if(entry.subTopics.length>0)
+                        checkGeoresourceTopicFavItemsRecursive(entry.subTopics, selected);
+
+                      if(entry.poiData.length>0 || entry.aoiData.length>0 || entry.loiData.length>0)
+                        checkGeoresourceDataFavItems(entry, selected); */
+            
+                      ret = true;
+                    } else {
+                      let itemFound = searchGeoresourceTopicFavItemsRecursive(entry.subTopics, id, selected);
+                      if(itemFound===true) 
+                        ret = true;
+                    }
+                  });
+            
+                  return ret;
+                }
+
+                function checkGeoresourceDataFavItems(entry, selected) {
+
+                  let types = [{ 
+                      typeName:'poiData',
+                      typeFav: 'poiFavItems'},
+                    { 
+                      typeName:'aoiData',
+                      typeFav: 'poiFavItems'},
+                    { 
+                      typeName:'loiData',
+                      typeFav: 'poiFavItems'}];
+
+                  types.forEach(type => {
+                    entry[type.typeName].forEach(typeElem => {
+                      if(selected===true) {
+                        if(!$scope[type.typeFav].includes(typeElem.georesourceId))
+                          $scope[type.typeFav].push(typeElem.georesourceId);
+                      } else 
+                        $scope[type.typeFav] = $scope[type.typeFav].filter(e => e!=typeElem.georesourceId);
+                    });
+                  });
+                }
+            
+                function checkGeoresourceTopicFavItemsRecursive(tree, selected) {
+                  tree.forEach(entry => {
+                    if(selected===true) {
+                      if(!$scope.georesourceTopicFavItems.includes(entry.topicId))
+                        $scope.georesourceTopicFavItems.push(entry.topicId);
+                    } else
+                      $scope.georesourceTopicFavItems = $scope.georesourceTopicFavItems.filter(e => e!=entry.topicId);
+              
+                    if(entry.subTopics.length>0)
+                      checkGeoresourceTopicFavItemsRecursive(entry.subTopics, selected);
+
+                    if(entry.poiData.length>0 || entry.aoiData.length>0 || entry.loiData.length>0)
+                      checkGeoresourceDataFavItems(entry, selected);
+                  });
+                }
+
+                $scope.favTabShowTopic = function(topic) {
+
+                  if(topicOrGeoresourceInFavRecursive([topic]) || topicInFavTopBottom(topic))
+                    return true;
+
+                  return false;
+                }
+
+                function topicInFavTopBottom(topic) {
+
+                  var parentNext = topic.parent;
+                  var ret = false;
+
+                  if($scope.FavTabGeoresourceTopicFavItems.includes(topic.topicId))
+                    ret = true;
+
+                  while(parentNext!==undefined && ret===false) {
+                    // hier
+                    ret = parentInFavRecursive($scope.georesourceFavTopicsTree, parentNext);
+                    if(ret===false) 
+                      parentNext = findParentNextRecursive($scope.georesourceFavTopicsTree, parentNext);
+                  }
+
+                  return ret;
+                }
+
+                function parentInFavRecursive(tree, parentId) {
+
+                  var ret = false;
+                  tree.forEach(elem => {
+                    
+                    if(elem.topicId==parentId && $scope.FavTabGeoresourceTopicFavItems.includes(parentId))
+                        ret = true;
+
+                    if(elem.subTopics && elem.subTopics.length>0 && ret===false) 
+                      ret = parentInFavRecursive(elem.subTopics, parentId);
+                  });
+
+                  return ret;
+                }
+
+                function findParentNextRecursive(tree, parent) {
+
+                  var parentNext = undefined;
+                  tree.forEach(elem => {
+
+                    if(elem.topicId==parent) {
+                      parentNext = elem.parent;
+                    }
+
+                    if(elem.subTopics && elem.subTopics.length>0 && parentNext===undefined)
+                      parentNext = findParentNextRecursive(elem.subTopics, parent);
+                  });
+
+                  return parentNext;
+                }
+
+                $scope.FavTabShowPOIHeader = function(topic) {
+
+                  if(topic.poiData.some(e => $scope.FavTabPoiFavItems.includes(e.georesourceId)) || 
+                      topic.aoiData.some(e => $scope.FavTabPoiFavItems.includes(e.georesourceId)) || 
+                      topic.loiData.some(e => $scope.FavTabPoiFavItems.includes(e.georesourceId)) || 
+                      topicInFavTopBottom(topic))
+                    return true;
+
+                  return false;
+                }
+
+                $scope.FavTabShowPoi = function(topic,georesourceId) {
+
+                  if($scope.FavTabPoiFavItems.includes(georesourceId) || topicInFavTopBottom(topic))
+                    return true;
+
+                  return false;
+                }
+
+                function topicOrGeoresourceInFavRecursive(tree) {
+
+                  let ret = false;
+                  tree.forEach(elem => {
+
+                    if($scope.FavTabGeoresourceTopicFavItems.includes(elem.topicId) || 
+                      georesourceInFavItems(elem.poiData, $scope.FavTabPoiFavItems) || 
+                      georesourceInFavItems(elem.aoiData, $scope.FavTabPoiFavItems) || 
+                      georesourceInFavItems(elem.loiData, $scope.FavTabPoiFavItems))
+                        ret = true;
+
+                    if(elem.subTopics && elem.subTopics.length>0 && ret===false)
+                      ret = topicOrGeoresourceInFavRecursive(elem.subTopics);
+/* 
+                    if(elem.indicatorData && elem.indicatorData.length>0 && ret===false)
+                      ret = topicOrGeoresourceInFavRecursive(elem.indicatorData); */
+                  });
+
+                  return ret;
+                }
+
+                function georesourceInFavItems(elems, favItems) {
+                  return elems.filter(e => favItems.includes(e.georesourceId)).length>0 ? true : false;
+                }
 
 							} ]
 				});

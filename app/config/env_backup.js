@@ -4,6 +4,8 @@ try {
 
   window.__env.appTitle = "KomMonitor (Pilotversion)";
 
+  window.__env.loginInfoText = "";
+
   // a unique prefix for the respective KomMonitor instance
   // it is used to distuingish between various KomMonitor instances in order to write/read data to/from browser cache
   window.__env.localStoragePrefix = "kommonitor-develop";
@@ -23,6 +25,9 @@ try {
   // configure elements in admin page app settings via controls-config file
   window.__env.isAdvancedMode = true; // controls if advanced mode is activated on startup
   window.__env.showAdvancedModeSwitch = true; // controls if toggle switch is at all displayed for toggling basinc/advanced mode  
+
+  // enable show/hide of favorite selection within the indicator & georesource widget
+  window.__env.showFavoriteSelection = true;
 
   // enable/disable certain tools and functions
 
@@ -45,6 +50,10 @@ try {
   // show bar chart label and average line
   window.__env.showBarChartLabel = false;
   window.__env.showBarChartAverageLine = true;
+  
+  // custom report styling
+  // value: number
+  window.__env.customReportFontSize = undefined;
 
   // controls whether the mean values (arithmetic and regional) shall be displayed in legend and indicator statistics menus or not
   window.__env.enableMeanDataDisplayInLegend = false;
@@ -156,7 +165,7 @@ try {
   window.__env.maxZoomLevel = 18;
 
   // Controls, which layers will be sortable via drag&drop in Leaflet's layer control
-  // Possible values ["Raumeinheiten", "Georessourcen", "Points of Interest", "Lines of Interest", "Areas of Interest", "Indikatoren", "Erreichbarkeiten", "Web Map Services (WMS)", "Web Feature Services (WFS)"]
+  // Possible values ["Raumebenen", "Georessourcen", "Points of Interest", "Lines of Interest", "Areas of Interest", "Indikatoren", "Erreichbarkeiten", "Web Map Services (WMS)", "Web Feature Services (WFS)"]
   window.__env.sortableLayers = ["Web Map Services (WMS)"];
 
   window.__env.baseLayers = [ // baseLayers of instance; first will be set as default starting layer
@@ -282,6 +291,19 @@ try {
   window.__env.defaultColorBrewerPaletteForBalanceDecreasingValues = "YlOrBr";
   window.__env.defaultColorBrewerPaletteForGtMovValues = "YlOrBr";
   window.__env.defaultColorBrewerPaletteForLtMovValues = "Blues";
+
+    // Custom color schemes
+    // window.__env.customColorSchemes = {
+    //   Dunkelblau: {
+    //       3: ["#E2EDFF", "#818BEC", "#25328A"],
+    //       4: ["#B0BBFF", "#818BEC", "#535EB6", "#25328A"],
+    //       5: ["#E2EDFF", "#B0BBFF", "#818BEC", "#535EB6", "#25328A"],
+    //       6: ["#E2EDFF", "#B0BBFF", "#818BEC", "#535EB6", "#25328A", "#001d36"],
+    //       7: ["#f4fbff", "#E2EDFF", "#B0BBFF", "#818BEC", "#535EB6", "#25328A", "#001d36"],
+    //       8: ["#f4fbff", "#E2EDFF", "#B0BBFF", "#818BEC", "#535EB6", "#25328A", "#002C58", "#001d36"],
+    //       9: ["#F7FCFF", "#f4fbff", "#E2EDFF", "#B0BBFF", "#818BEC", "#535EB6", "#25328A", "#002C58", "#001d36"]
+    //   }
+    // };
 
   // classification
   //allowesValues: equal_interval, quantile, jenks

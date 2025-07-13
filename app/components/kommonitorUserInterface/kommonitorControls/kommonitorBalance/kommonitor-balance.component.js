@@ -41,6 +41,8 @@ angular
 
 							// reanebalbe DateSlider on map
 							$rootScope.$broadcast("EnableDateSlider");
+
+							$scope.onChangeUseBalance();
 						});
 
 						$scope.$on("replaceBalancedIndicator", function (event) {
@@ -51,11 +53,17 @@ angular
 
 						$scope.onChangeUseBalance = function(){
 
+							if(!$scope.rangeSliderForBalance){
+								return;
+							}
+
 							if(kommonitorDataExchangeService.isMeasureOfValueChecked){
 								kommonitorDataExchangeService.isMeasureOfValueChecked = false;
 							}
 
 							let indicatorMetadataAndGeoJSON = undefined;
+
+							$rootScope.$broadcast("removeRangeFilter");
 
 							if(kommonitorDataExchangeService.isBalanceChecked){
 								kommonitorDataExchangeService.isMeasureOfValueChecked = false;
@@ -166,7 +174,7 @@ angular
 							}
 
 							// use configuration item and data specified to show chart
-							$scope.trendOption = kommonitorDiagramHelperService.makeTrendChartOptions_forAllFeatures(indicatorMetadata, fromDateAsPropertyString, toDateAsPropertyString, $scope.trendConfig_allFeatures.showMinMax, $scope.trendConfig_allFeatures.showCompleteTimeseries, $scope.trendConfig_allFeatures.trendComputationType, kommonitorDataExchangeService.enableBilanceTrend);
+							$scope.trendOption = kommonitorDiagramHelperService.makeTrendChartOptions_forAllFeatures(indicatorMetadata, fromDateAsPropertyString, toDateAsPropertyString, $scope.trendConfig_allFeatures.showMinMax, $scope.trendConfig_allFeatures.showCompleteTimeseries, $scope.trendConfig_allFeatures.trendComputationType, kommonitorDataExchangeService.enableBilanceTrend, true);
 							$scope.trendChart_allFeatures.setOption($scope.trendOption);
 
 							$scope.trendChart_allFeatures.hideLoading();

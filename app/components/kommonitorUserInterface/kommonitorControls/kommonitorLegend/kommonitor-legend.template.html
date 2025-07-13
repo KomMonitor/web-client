@@ -17,11 +17,11 @@
 					<div>						
 						<div class="row" style="margin-right: 0px;">
 							<div class="col-sm-7">
-								<div class="text-left"><label>Raumebene</label><a ng-show="$ctrl.envInstance.enableSpatialUnitNotificationButton" data-toggle="modal" ng-click="showSpatialUnitNotificationModalIfEnabled()" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%; cursor:pointer;" title="Information zu Raumeinheiten&nbsp;&nbsp;"><span class="glyphicon glyphicon-info-sign"></span></a></div>
+								<div class="text-left"><label>Raumebene</label><a ng-show="$ctrl.envInstance.enableSpatialUnitNotificationButton" data-toggle="modal" ng-click="showSpatialUnitNotificationModalIfEnabled()" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%; cursor:pointer;" title="Information zu Raumebenen&nbsp;&nbsp;"><span class="glyphicon glyphicon-info-sign"></span></a></div>
 								<select id="spatialUnitSelectionInput" style="font-size: 12px;" ng-model="$ctrl.kommonitorDataExchangeServiceInstance.selectedSpatialUnit"
 									ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits | filter:filterSpatialUnits()"
 									class="form-control" ng-change="onChangeSelectedSpatialUnit()" required>
-									<option disabled selected value> -- Raumeinheit w&auml;hlen --
+									<option disabled selected value> -- Raumebene w&auml;hlen --
 									</option>
 								</select>
 							</div>
@@ -85,7 +85,7 @@
 			<div class="box-body boxedLegend" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator">
 
 				<uib-tabset active="0">
-					<uib-tab index="0" heading="Indikator">
+					<uib-tab index="0" heading="Indikator" class="kommonitor-theme">
 
 						<div class="just-padding">
 							
@@ -149,7 +149,7 @@
 							<div ng-if="($ctrl.kommonitorFilterHelperServiceInstance.filteredIndicatorFeatureIds.size > 0) && (!$ctrl.kommonitorFilterHelperServiceInstance.completelyRemoveFilteredFeaturesFromDisplay)">
 								<div class="row" style="margin-right: 0px;">
 									<div class="col-md-3"><i style="background:{{::$ctrl.env.defaultColorForFilteredValues}}; border: 2px solid {{::$ctrl.env.defaultBorderColorForFilteredValues}}; opacity: {{$ctrl.kommonitorVisualStyleHelperServiceInstance.currentIndicatorOpacity}};"></i></div>
-									<div class="col-md-6">gefilterte Features</div>
+									<div class="col-md-6">gefilterte Raumeinheiten</div>
 									<div class="col-md-3">{{$ctrl.kommonitorFilterHelperServiceInstance.filteredIndicatorFeatureIds.size}}</div><br>
 								</div>				
 							</div>
@@ -245,7 +245,7 @@
 										</div>
 									</div>
 									<div ng-switch-default>
-										<!-- default values -->
+										<!-- default values hier -->
 										<div class="row" style="margin-right: 0px;" ng-repeat="color in $ctrl.kommonitorVisualStyleHelperServiceInstance.defaultBrew.colors">
 											<div class="col-md-3 "><i style="background:{{color}}; opacity: {{$ctrl.kommonitorVisualStyleHelperServiceInstance.currentIndicatorOpacity}};"></i> </div>
 											<div class="col-md-6 " ng-if="$ctrl.kommonitorVisualStyleHelperServiceInstance.defaultBrew.breaks[$index + 1]" >{{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText($ctrl.kommonitorVisualStyleHelperServiceInstance.defaultBrew.breaks[$index])}} &dash; &lt; {{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText($ctrl.kommonitorVisualStyleHelperServiceInstance.defaultBrew.breaks[$index + 1])}}</div>
@@ -294,7 +294,7 @@
 				
 					</uib-tab>
 
-					<uib-tab index="1" heading="Indikator-Metadaten">
+					<uib-tab index="1" heading="Indikator-Metadaten" class="kommonitor-theme">
 
 						<div class="just-padding">
 
@@ -468,7 +468,7 @@
 
 					</uib-tab>
 
-					<uib-tab index="2" heading="WMS-Dienste">
+					<uib-tab index="2" heading="WMS-Dienste" ng-show="hasActiveWMSLayers()">
 
 						<div class="just-padding">
 							<table class="table table-condensed " style="margin-bottom:0px;">

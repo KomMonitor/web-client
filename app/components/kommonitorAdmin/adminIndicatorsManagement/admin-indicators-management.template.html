@@ -103,8 +103,7 @@
 
 						<div
 							ng-repeat="mainTopic in $ctrl.kommonitorDataExchangeServiceInstance.topicIndicatorHierarchy_forOrderView | orderBy: 'topicName'">
-							<div class="list-group-item list-group-item-default"
-								style="background: #2171b5; color: white;">
+							<div class="list-group-item list-group-item-default kommonitor-theme">
 								<a href="" ng-attr-title="{{mainTopic.topicDescription}}" class="collapseTrigger"
 									style="color: white;" ng-click="isCollapsed_mainTopic = !isCollapsed_mainTopic"
 									ng-init="isCollapsed_mainTopic=true"><i
@@ -115,8 +114,7 @@
 							<div class="list-group collapse" uib-collapse="isCollapsed_mainTopic">
 								<div ng-repeat="subTopic in ::mainTopic.subTopics | orderBy: 'topicName'">
 
-									<div class="list-group-item list-group-item-default"
-										style="background: #6baed6; color: white;">
+									<div class="list-group-item list-group-item-default kommonitor-theme-light">
 										<a class="collapseTrigger" style="color: white;"
 											ng-attr-title="{{::subTopic.topicDescription}}" href=""
 											ng-click="isCollapsed_subTopic = !isCollapsed_subTopic"

@@ -1,8 +1,10 @@
 angular.module('topicEditModal').component('topicEditModal', {
 	templateUrl : "components/kommonitorAdmin/adminTopicsManagement/topicEditModal/topic-edit-modal.template.html",
-	controller : ['kommonitorDataExchangeService', '$scope', '$rootScope', '$http', '__env', '$timeout',function TopicEditModalController(kommonitorDataExchangeService, $scope, $rootScope, $http, __env, $timeout) {
+	controller : ['kommonitorDataExchangeService', 'kommonitorConfigStorageService', '$scope', '$rootScope', '$http', '__env', '$timeout',
+    function TopicEditModalController(kommonitorDataExchangeService, kommonitorConfigStorageService, $scope, $rootScope, $http, __env, $timeout) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
+    this.kommonitorConfigStorageServiceInstance = kommonitorConfigStorageService;		
 
 		$scope.currentTopic;
 
@@ -16,6 +18,7 @@ angular.module('topicEditModal').component('topicEditModal', {
 		});
 
 		$scope.updateTopic = function(topic){
+
 			$scope.loadingData = true;
 
 			var topicId = topic.topicId;

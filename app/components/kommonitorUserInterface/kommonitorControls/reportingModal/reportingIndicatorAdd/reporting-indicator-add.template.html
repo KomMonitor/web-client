@@ -33,7 +33,10 @@
                                 ng-bind-html="template.name.includes('-timeseries') ? 'Zeitserie' : 'Zeitpunkt'"></a>
                         </li>
                         <li id="reporting-add-indicator-tab6" role="presentation" class="tab-disabled">
-                            <a href="#elements" aria-controls="elements" role="tab" data-toggle="tab" tabindex="-1">Elemente</a>
+                            <a href="#elements" aria-controls="elements" role="tab" data-toggle="tab" tabindex="-1">Konfiguration</a>
+                        </li>
+                        <li id="reporting-add-indicator-tab7" role="presentation" class="tab-disabled">
+                            <a href="#screenshotmanagement" aria-controls="screenshotmanagement" role="tab" data-toggle="tab" tabindex="-1">Kartenbild-Verwaltung</a>
                         </li>
                     </ul>
                     
@@ -53,7 +56,7 @@
                                     ng-model="poiNameFilter" ng-model-options="{ debounce: 500, blur: 0 }">
                             </div>
                             <div id="reporting-poi-select-box">
-                                <select size="30" class="form-control" required>
+                                <select size="10" class="form-control" required>
 									<option disabled selected value> -- POI-Layer w&auml;hlen -- </option>
 									<option style="white-space: pre !important;" ng-repeat="layer in availablePoiLayers | filter: poiNameFilter | orderBy: 'datasetName'"
                                         ng-click="onPoiLayerSelected(layer)">{{layer.datasetName}}</option>
@@ -89,7 +92,7 @@
                             </div>
                             <div ng-if="template.name.includes('-timeseries')">
                                 <div id="reporting-indicator-select-box">
-                                    <select size="30" class="form-control" required>
+                                    <select size="10" class="form-control" required>
                                         <option disabled selected value> -- Indikator w&auml;hlen -- </option>
                                         <option style="white-space: pre !important;" ng-repeat="indicator in $ctrl.kommonitorDataExchangeServiceInstance.displayableIndicators | filter: indicatorNameFilter | filter: filterTimeseriesIndicator  | orderBy: 'indicatorName'"
                                             ng-click="onIndicatorSelected(indicator)">{{indicator.indicatorName}} [{{indicator.unit}}]</option>
@@ -98,7 +101,7 @@
                             </div>
                             <div ng-if="!template.name.includes('-timeseries')">
                                 <div id="reporting-indicator-select-box">
-                                    <select size="30" class="form-control" required>
+                                    <select size="10" class="form-control" required>
                                         <option disabled selected value> -- Indikator w&auml;hlen -- </option>
                                         <option style="white-space: pre !important;" ng-repeat="indicator in $ctrl.kommonitorDataExchangeServiceInstance.displayableIndicators | filter: indicatorNameFilter | orderBy: 'indicatorName'"
                                             ng-click="onIndicatorSelected(indicator)">{{indicator.indicatorName}} [{{indicator.unit}}]</option>
@@ -116,7 +119,7 @@
                                     Mindestens ein ausgewählter Zeitpunkt war für die neue Raumebene nicht verfügbar und wurde entfernt.
                                 </span>
                                 <span ng-show="template.name.includes('-timeseries')">
-                                    Nach dem Wechsel der Raumeinheit enthält die Zeitserie andere Zeitpunkte. 
+                                    Nach dem Wechsel der Raumebene enthält die Zeitserie andere Zeitpunkte. 
                                 </span>
                                 <span ng-show="template.name.includes('-timeseries') && timeseriesAdjustedOnSpatialUnitChange">
                                     Sie wurde auf den größtmöglichen Zeitraum gesetzt weil die ursprüngliche Einstellung nicht übernommen werden konnte.
@@ -158,42 +161,286 @@
                                 <div class="row">
                                     <div class="col-md-4">
                                         <div class="reporting-element-config-box">
-                                            <h5>Karte</h5>
-                                            <p>Label anzeigen?</p>
+                                            <h5>Abschnitte</h5>  
+                                            
+                                            <div ng-show="! template.name.includes('-reachability')">
+                                            
+                                                <label class="switch" title="Karte gesamt unklassifiziert">
+                                                    <input type="checkbox"
+                                                        ng-model="pageConfig.sections.showOverviewSection_unclassified"
+                                                        ng-checked="pageConfig.sections.showOverviewSection_unclassified"
+                                                        ng-change="onChangeShowPageSection()">
+                                                    <span class="switchslider round"></span>
+                                                </label>
+                                                Gesamtkarte - einheitliche Farbe
+
+                                                <br/>
+
+                                                <label class="switch" title="Karte gesamt klassifiziert">
+                                                    <input type="checkbox"
+                                                        ng-model="pageConfig.sections.showOverviewSection_classified"
+                                                        ng-checked="pageConfig.sections.showOverviewSection_classified"
+                                                        ng-change="onChangeShowPageSection()">
+                                                    <span class="switchslider round"></span>
+                                                </label>
+                                                Gesamtkarte - farbklassifiziert
+
+                                                <br/>
+
+                                                <label class="switch" title="Ranking-Diagramm">
+                                                    <input type="checkbox"
+                                                        ng-model="pageConfig.sections.showBarchartOverview"
+                                                        ng-checked="pageConfig.sections.showBarchartOverview"
+                                                        ng-change="onChangeShowPageSection()">
+                                                    <span class="switchslider round"></span>
+                                                </label>
+                                                Ranking-Diagramm - &Uuml;bersicht
+
+                                            </div>
+
+                                            <div ng-show="template.name.includes('-timeseries')">
+                                                <label class="switch" title="Zeitreihen-Diagramm">
+                                                    <input type="checkbox"
+                                                        ng-model="pageConfig.sections.showLinechartOverview"
+                                                        ng-checked="pageConfig.sections.showLinechartOverview"
+                                                        ng-change="onChangeShowPageSection()">
+                                                    <span class="switchslider round"></span>
+                                                </label>
+                                                Zeitreihen-Diagramm - &Uuml;bersicht
+
+                                                <br/>
+
+                                                <label class="switch" title="Boxplot-Diagramm">
+                                                    <input type="checkbox"
+                                                        ng-model="pageConfig.sections.showBoxplotchartOverview"
+                                                        ng-checked="pageConfig.sections.showBoxplotchartOverview"
+                                                        ng-change="onChangeShowPageSection()">
+                                                    <span class="switchslider round"></span>
+                                                </label>
+                                                Boxplot-Diagramm - &Uuml;bersicht
+                                            </div>
+
+                                            <div ng-show="template.name.includes('-reachability')">
+                                                <label class="switch" title="Karte Erreichbarkeit gesamt">
+                                                    <input type="checkbox"
+                                                        ng-model="pageConfig.sections.showOverviewSection_reachability"
+                                                        ng-checked="pageConfig.sections.showOverviewSection_reachability"
+                                                        ng-change="onChangeShowPageSection()">
+                                                    <span class="switchslider round"></span>
+                                                </label>
+                                                &Uuml;bersichtskarte - Erreichbarkeit
+                                            </div>
+
+                                            <label class="switch" title="Karte Erreichbarkeit gesamt">
+                                                <input type="checkbox"
+                                                    ng-model="pageConfig.sections.showAreaSpecific"
+                                                    ng-checked="pageConfig.sections.showAreaSpecific"
+                                                    ng-change="onChangeShowPageSection()">
+                                                <span class="switchslider round"></span>
+                                            </label>
+                                            Einzelseite pro Raumeinheit
+
+                                            <div ng-show="! template.name.includes('-reachability')">
+                                                <label class="switch" title="Datentabelle">
+                                                    <input type="checkbox"
+                                                        ng-model="pageConfig.sections.showDatatable"
+                                                        ng-checked="pageConfig.sections.showDatatable"
+                                                        ng-change="onChangeShowPageSection()">
+                                                    <span class="switchslider round"></span>
+                                                </label>
+                                                Datentabelle
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="reporting-element-config-box">
+                                            <h5>Kopf- und Fu&szlig;leiste</h5>                                            
+                                            <label class="switch" title="Titel anzeigen">
+                                                <input type="checkbox"
+                                                    ng-model="pageConfig.showTitle"
+                                                    ng-checked="pageConfig.showTitle"
+                                                    ng-change="onChangePageConfig()">
+                                                <span class="switchslider round"></span>
+                                            </label>
+                                            Titel
+
+                                            <br>
+                                            
+                                            <label class="switch" title="Untertitel anzeigen">
+                                                <input type="checkbox"
+                                                    ng-model="pageConfig.showSubtitle"
+                                                    ng-checked="pageConfig.showSubtitle"
+                                                    ng-change="onChangePageConfig()">
+                                                <span class="switchslider round"></span>
+                                            </label>
+                                            Untertitel
+
+                                            <br>
+                                            
+                                            <label class="switch" title="Logo anzeigen">
+                                                <input type="checkbox"
+                                                    ng-model="pageConfig.showLogo"
+                                                    ng-checked="pageConfig.showLogo"
+                                                    ng-change="onChangePageConfig()">
+                                                <span class="switchslider round"></span>
+                                            </label>
+                                            Logo
+
+                                            <br>
+                                            
+                                            <label class="switch" title="Erstelldetails anzeigen">
+                                                <input type="checkbox"
+                                                    ng-model="pageConfig.showFooterCreationInfo"
+                                                    ng-checked="pageConfig.showFooterCreationInfo"
+                                                    ng-change="onChangePageConfig()">
+                                                <span class="switchslider round"></span>
+                                            </label>
+                                            Erstelldetails 
+
+                                            <br>
+                                            
+                                            <label class="switch" title="Seitenzahl anzeigen">
+                                                <input type="checkbox"
+                                                    ng-model="pageConfig.showPageNumber"
+                                                    ng-checked="pageConfig.showPageNumber"
+                                                    ng-change="onChangePageConfig()">
+                                                <span class="switchslider round"></span>
+                                            </label>
+                                            Seitenzahl
+                                        </div>
+                                    </div>
+                                    <div class="col-md-5">
+                                        <div class="reporting-element-config-box">
+                                            <h5>Abschnittssinhalte</h5>   
+                                            <i>Kartendarstellungen</i> 
+                                            <br/>                                           
                                             <label class="switch" title="Label anzeigen">
                                                 <input type="checkbox"
-                                                    ng-model="showMapLabels"
-                                                    ng-checked="showMapLabels"
+                                                    ng-model="pageConfig.showMapLabels"
+                                                    ng-checked="pageConfig.showMapLabels"
                                                     ng-change="onChangeShowMapLabels()">
                                                 <span class="switchslider round"></span>
                                             </label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="reporting-element-config-box">
-                                            <h5>Ranking-Chart</h5>
-                                            <p>Ranking-Durchschnittslinie anzeigen?</p>
-                                            <label class="switch" title="Ranking-Durchschnittslinie anzeigen">
-                                                <input type="checkbox"
-                                                    ng-model="showRankingMeanLine"
-                                                    ng-checked="showRankingMeanLine"
-                                                    ng-change="onChangeShowRankingMeanLine()">
-                                                <span class="switchslider round"></span>
-                                            </label>
+                                            Label anzeigen
+
+                                            <div>
+                                                Hintergrundkarte
+                                                <select ng-model="selectedBaseMap"
+                                                    ng-options="baseMap as baseMap.layerConfig.name for baseMap in $ctrl.kommonitorDataExchangeServiceInstance.baseLayerDefinitionsArray | filter:filterBaseMaps()"
+                                                    class="form-control" ng-change="onChangeSelectedBaseMap()" required>
+                                                    <option disabled selected value> -- Hintergrundkarte w&auml;hlen --
+                                                    </option>
+                                                </select>
+                                            </div>
+                                                
+                                            <div ng-show="template.name.includes('-timestamp')">
+
+                                                <br/>
+                                                <i>Ranking Chart</i> 
+                                                <br/>
+                                                
+                                                <label class="switch" title="Ranking Chart anzeigen">
+                                                    <input type="checkbox"
+                                                        ng-model="pageConfig.showRankingChartPerArea"
+                                                        ng-checked="pageConfig.showRankingChartPerArea"
+                                                        ng-change="onChangePageConfig()">
+                                                    <span class="switchslider round"></span>
+                                                </label>
+                                                Ranking Chart pro Raumeinheit
+                                                
+
+                                                <br>
+
+                                                <label class="switch" title="Ranking-Durchschnittslinie anzeigen">
+                                                    <input type="checkbox"
+                                                        ng-model="pageConfig.showRankingMeanLine"
+                                                        ng-checked="pageConfig.showRankingMeanLine"
+                                                        ng-change="onChangeShowRankingMeanLine()">
+                                                    <span class="switchslider round"></span>
+                                                </label>
+                                                Ranking-Durchschnittslinie
+
+                                            </div>
+                                            
+                                            <div ng-show="template.name.includes('-timeseries')">
+
+                                                <br/>
+                                                <i>Zeitreihen Chart</i> 
+                                                <br/>
+                                                
+                                                <label class="switch" title="Zeitreihen Chart anzeigen">
+                                                    <input type="checkbox"
+                                                        ng-model="pageConfig.showLineChartPerArea"
+                                                        ng-checked="pageConfig.showLineChartPerArea"
+                                                        ng-change="onChangePageConfig()">
+                                                    <span class="switchslider round"></span>
+                                                </label>
+                                                Zeitreihen Chart pro Raumeinheit
+
+                                            </div>
+
+                                            <div ng-show="! template.name.includes('-reachability')">
+                                                <br/>
+                                                <i>Sonstiges</i> 
+                                                <br/>
+
+                                                <label class="switch" title="Freitext anzeigen">
+                                                    <input type="checkbox"
+                                                        ng-model="pageConfig.showFreeText"
+                                                        ng-checked="pageConfig.showFreeText"
+                                                        ng-change="onChangePageConfig()">
+                                                    <span class="switchslider round"></span>
+                                                </label>
+                                                Freitextfeld
+                                            </div>
+                                            
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
+                        <div role="tabpanel" class="tab-pane" id="screenshotmanagement">
+						    <div class="loading-overlay-reporting" ng-show="loadingData">
+								<span class="glyphicon glyphicon-refresh icon-spin"></span>
+							</div>
+
+                            <div style="margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9;">
+                                <h3 style="text-align: center; margin-bottom: 20px;">Kartenbilder brauchen Zeit – aber wir haben eine Lösung!</h3>
+                                <p>Kartenbilder sind wie kleine Zeichnungen. Jede Kombination aus Raumeinheits-Geometrie und Hintergrundkarte muss neu positioniert, gerendert und als Bild gespeichert werden, was Zeit kostet.</p>                                
+                                <p><strong>Die gute Nachricht:</strong> KomMonitor speichert Kartenbilder im Browser-Cache. Bei wiederholter Nutzung werden Raumeinheiten und Hintergrundkarten schneller geladen.</p>
+                                <h4 style="margin-top: 20px;">Ihr Vorteil: Weniger Wartezeit</h4>
+                                <p>Häufig genutzte Elemente laden fast sofort, was Ihre Arbeit effizienter macht.</p>
+                                <h4 style="color: #d9534f; margin-top: 20px;">Wichtig: Cache-Einstellungen beachten!</h4>
+                                <p>Dies erlaubt es Ihrem Browser, die für unsere Anwendung wichtigen Daten (einschließlich der erzeugten Screenshots) dauerhaft zu speichern, auch wenn andere Cache-Daten gelöscht werden. Die genaue Vorgehensweise variiert je nach Browser, aber Sie finden diese Option üblicherweise unter den Datenschutz- oder Website-Einstellungen im Bereich "Cookies und Websitedaten" oder "Website-Berechtigungen".</p>
+                                <p style="font-size: 0.9em; color: #666;">
+                                    <span style="font-weight: bold;">Tipp:</span> Suchen Sie in den Einstellungen Ihres Browsers nach Stichworten wie "Website-Berechtigungen", "Ausnahmen hinzufügen" oder "Seiten, die immer Cookies verwenden dürfen". Fügen Sie dort die Internet-Adresse Ihrer KomMonitor Instanz hinzu.
+                                </p>
+                                <p style="text-align: center; margin-top: 20px; font-size: 0.9em; color: #666;">Wir arbeiten daran, Ihre Arbeit zu erleichtern!</p>
+                           
+                                
+                                <hr>
+
+                                <h4 style="margin-top: 20px;">Aktuelle Anzahl Kartenbilder im Cache: {{$ctrl.kommonitorLeafletScreenshotCacheHelperServiceInstance.indexedDbCount}}  <button ng-show="$ctrl.kommonitorLeafletScreenshotCacheHelperServiceInstance.indexedDbCount > 0" class="btn btn-info" ng-click="clearScreenshotCache()"><i class="fas fa-trash"></i> &nbsp; &nbsp;leeren und neu generieren</button></h4>
+                                <div ng-show="$ctrl.kommonitorLeafletScreenshotCacheHelperServiceInstance.indexedDbCount > 0">                                    
+                                    <p style="font-size: 0.9em; color: #666;">
+                                        <span style="font-weight: bold;">Tipp:</span> Durch manuelles Leeren des Caches werden alle gespeicherten Kartenbilder verworfen und ein Neugenerieren und -speichern erzwungen. 
+                                    </p>
+                                </div>                                
+                                
+                            </div>
+                            
+                        </div>
                     </div>
 
                     <!-- not affected by tab changes -->
                     <div id="reporting-add-indicator-preview-area">
-                        <div ng-repeat="page in template.pages track by page.id" 
+                        <div ng-repeat="page in template.pages track by page.id"                              
                             ng-class="{hiddenPage: !showThisPage(page)}"
-                            ng-attr-class="reporting-page reporting-page-{{page.orientation}}"
+                            ng-attr-class="reporting-page reporting-page-{{page.orientation}} reporting-custom-css"
                             ng-attr-id="reporting-addIndicator-page-{{$index}}">
                             <div ng-repeat="pageElement in page.pageElements"
+                                ng-show="checkVisibility(pageElement, page)"
                                 ng-attr-class="type-{{pageElement.type}}"
                                 ng-attr-id="reporting-addIndicator-page-{{$parent.$index}}-{{pageElement.type}}"
                                 ng-attr-style="position: absolute;
@@ -209,32 +456,35 @@
                                     ng-bind-html="pageElement.placeholderText">
                                 </span>
                                 <!-- do different things depending on type once the placeholder is replaced (pageElement.isPlaceholder == false) -->
-                                <span ng-show="pageElement.type.includes('pageNumber-') && pageElement.isPlaceholder == false"
+                                <span ng-show="pageConfig.showPageNumber && pageElement.type.includes('pageNumber-') && pageElement.isPlaceholder == false"
                                     ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
                                     Seite {{getPageNumber($parent.$index)}}
                                 </span>
 
-                                <span ng-show="pageElement.type.includes('indicatorTitle-') && pageElement.isPlaceholder == false"
+                                <span ng-show="pageConfig.showTitle && pageElement.type.includes('indicatorTitle-') && pageElement.isPlaceholder == false"
                                     ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
                                     {{pageElement.text}}
                                 </span>
 
-                                <span ng-show="pageElement.type.includes('dataTimestamp-') && pageElement.isPlaceholder == false"
+                                <span ng-show="pageConfig.showSubtitle && pageElement.type.includes('dataTimestamp-') && pageElement.isPlaceholder == false"
                                     ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
                                     {{pageElement.text}}
                                 </span>
 
-                                <span ng-show="pageElement.type.includes('dataTimeseries-') && pageElement.isPlaceholder == false"
+                                <span ng-show="pageConfig.showSubtitle && pageElement.type.includes('dataTimeseries-') && pageElement.isPlaceholder == false"
                                     ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
                                     {{pageElement.text}}
                                 </span>
 
-                                <span ng-show="pageElement.type.includes('reachability-subtitle-') && pageElement.isPlaceholder == false"
+                                <span ng-show="pageConfig.showSubtitle && pageElement.type.includes('reachability-subtitle-') && pageElement.isPlaceholder == false"
                                     ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
                                 {{pageElement.text}}
                                 </span>
 
-                                <span ng-show="pageElement.type == 'overallAverage' && pageElement.isPlaceholder == false"
+                                 <!--
+                                    June 2025: we remove overallAverage and overallChange, overallAverage and selectionAverage from reporting overview pages.
+                                 -->
+                                <!-- <span ng-show="pageElement.type == 'overallAverage' && pageElement.isPlaceholder == false"
                                     ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
                                     <span style="display: block; text-align:left">
                                         Durchschnitt Gesamtstadt:<br />
@@ -264,19 +514,19 @@
                                         Durchschnittliche Veränderung Selektion:<br />
                                         {{pageElement.text}}
                                     </span>
-                                </span>
+                                </span> -->
 
-                                <span ng-show="pageElement.type.includes('footerCreationInfo-') && pageElement.isPlaceholder == false"
+                                <span ng-show="pageConfig.showFooterCreationInfo && pageElement.type.includes('footerCreationInfo-') && pageElement.isPlaceholder == false"
                                     ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
                                     {{pageElement.text}}
                                 </span>
 
-                                <span ng-show="pageElement.type == 'textInput' && pageElement.isPlaceholder == false"
+                                <span ng-show="pageConfig.showFreeText && pageElement.type == 'textInput' && pageElement.isPlaceholder == false"
                                     ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
                                     {{pageElement.text}}
                                 </span>
                                 
-                                <img ng-show="pageElement.type.includes('communeLogo-') && pageElement.isPlaceholder == false"
+                                <img ng-show="pageConfig.showLogo && pageElement.type.includes('communeLogo-') && pageElement.isPlaceholder == false"
                                     ng-attr-src="{{pageElement.src}}">
                                 
                             </div>
@@ -293,12 +543,22 @@
                     <button class="btn btn-warning" ng-click='onBackToOverviewClicked()'>
                         <i class="fa fa-arrow-left"></i>
                         &nbsp;&nbsp;Zurück zur Übersicht
-                    </button>
+                    </button>                    
                     
-                    <button ng-disabled="!validateConfiguration()" type="button" class="btn btn-success pull-right" ng-click='onAddBtnClicked()'>
+                    <button ng-disabled="!validateConfiguration() || ! lastPageOfAddedSectionPrepared || ! $ctrl.kommonitorLeafletScreenshotCacheHelperServiceInstance.screenshotsForCurrentSpatialUnitUpdate" type="button" class="btn btn-success pull-right" ng-click='onAddBtnClicked()'>
                         <i class="fa fa-plus"></i>
                         <span ng-show="template.name.includes('-reachability')">POI-Layer hinzufügen</span>
                         <span ng-show="!template.name.includes('-reachability')">Indikator hinzufügen</span>
+                    </button>
+
+                    <button ng-disabled="true" style="margin-right: 15px;" ng-show="! $ctrl.kommonitorLeafletScreenshotCacheHelperServiceInstance.screenshotsForCurrentSpatialUnitUpdate && $ctrl.kommonitorLeafletScreenshotCacheHelperServiceInstance.targetNumberOfSpatialUnitFeatures > 0" type="button" class="btn btn-info pull-right">
+                        <span class="glyphicon glyphicon-refresh icon-spin"></span>
+                        <span>Kartenbildaufbereitung: {{$ctrl.kommonitorLeafletScreenshotCacheHelperServiceInstance.executedScreenshotMapKeys.size}} von {{$ctrl.kommonitorLeafletScreenshotCacheHelperServiceInstance.targetNumberOfSpatialUnitFeatures}}</span>
+                    </button>
+
+                    <button ng-disabled="true" style="margin-right: 15px;" ng-show="! lastPageOfAddedSectionPrepared && pagePreparationSize > 0" type="button" class="btn btn-warning pull-right">
+                        <span class="glyphicon glyphicon-refresh icon-spin"></span>
+                        <span>Reportaufbereitung: {{pagePreparationIndex + 1}} von {{pagePreparationSize}}</span>
                     </button>
                 </div>
             </div>

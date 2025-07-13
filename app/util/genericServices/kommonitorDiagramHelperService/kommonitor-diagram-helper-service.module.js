@@ -40,6 +40,23 @@ angular
       this.histogramChartOptions = {};
       this.radarChartOptions = {};
       this.regressionChartOptions = {};
+      
+      this.setCustomFontFamily = function() {
+        
+        var elem = document.querySelector('#fontFamily-reference');
+        var style = getComputedStyle(elem);
+        return style.fontFamily;
+      }
+
+      const customFontFamily = this.setCustomFontFamily(); 
+
+      this.prepCustomStyling = function(customFontFamilyEnabled, options) {
+
+        if(customFontFamilyEnabled===true)
+          options.textStyle = {fontFamily: customFontFamily};
+
+        return options;
+      }
 
       this.isCloserToTargetDate = function(date, closestDate, targetDate){
         var targetYear = targetDate.split("-")[0];
@@ -299,20 +316,20 @@ angular
         return color;
       };
 
-      this.getBarChartOptions = function () {
-        return self.barChartOptions;
+      this.getBarChartOptions = function (customFontFamilyEnabled = false) {
+        return this.prepCustomStyling(customFontFamilyEnabled, self.barChartOptions);
       };
 
-      this.getGeoMapChartOptions = function () {
-        return self.geoMapChartOptions;
+      this.getGeoMapChartOptions = function (customFontFamilyEnabled = false) {
+        return this.prepCustomStyling(customFontFamilyEnabled, self.geoMapChartOptions);
       };
 
-      this.getHistogramChartOptions = function () {
-        return self.histogramChartOptions;
+      this.getHistogramChartOptions = function (customFontFamilyEnabled = false) {
+        return this.prepCustomStyling(customFontFamilyEnabled, self.histogramChartOptions);
       };
 
-      this.getLineChartOptions = function () {
-        return self.lineChartOptions;
+      this.getLineChartOptions = function (customFontFamilyEnabled = false) {
+        return this.prepCustomStyling(customFontFamilyEnabled, self.lineChartOptions);
       };
 
       this.prepareAllDiagramResources_forCurrentMapIndicator = function (indicatorMetadataAndGeoJSON, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, filterOutFutureDates) {        
@@ -320,10 +337,10 @@ angular
       };
 
       this.prepareAllDiagramResources_forReportingIndicator = function (indicatorMetadataAndGeoJSON, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, filterOutFutureDates) {
-        this.prepareAllDiagramResources(indicatorMetadataAndGeoJSON, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, filterOutFutureDates, true);      
+        this.prepareAllDiagramResources(indicatorMetadataAndGeoJSON, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, filterOutFutureDates, true, true);      
       };
 
-      this.prepareAllDiagramResources = function (indicatorMetadataAndGeoJSON, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, filterOutFutureDates, forceUseSubmittedIndicatorForTimeseries) {
+      this.prepareAllDiagramResources = function (indicatorMetadataAndGeoJSON, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, filterOutFutureDates, forceUseSubmittedIndicatorForTimeseries, fixedPrecision = false) {
 
         self.indicatorPropertyName = INDICATOR_DATE_PREFIX + date;
 
@@ -346,7 +363,10 @@ angular
             indicatorValue = null;
           }
           else {
-            indicatorValue = kommonitorDataExchangeService.getIndicatorValue_asNumber(cartographicFeature.properties[self.indicatorPropertyName]);  
+            if(!fixedPrecision)
+              indicatorValue = kommonitorDataExchangeService.getIndicatorValue_asNumber(cartographicFeature.properties[self.indicatorPropertyName]);  
+            else
+              indicatorValue = kommonitorDataExchangeService.getIndicatorValue_asFixedPrecisionNumber(cartographicFeature.properties[self.indicatorPropertyName],indicatorMetadataAndGeoJSON.precision);  
           }
 
           var featureName = cartographicFeature.properties[__env.FEATURE_NAME_PROPERTY_NAME]
@@ -608,7 +628,7 @@ angular
                   htmlString += "<tbody>";
 
                   for (var i = 0; i < barData.length; i++) {
-                    var value = kommonitorDataExchangeService.getIndicatorValue_asNumber(barData[i].value);
+                    var value = kommonitorDataExchangeService.getIndicatorValue_asFormattedText(barData[i].value);
                     htmlString += "<tr>";
                     htmlString += "<td>" + featureNames[i] + "</td>";
                     htmlString += "<td>" + value + "</td>";
@@ -673,7 +693,7 @@ angular
               left: 'left',
               type: "piecewise",
               pieces: legendConfig,
-              precision: 2,
+              precision: indicatorMetadataAndGeoJSON.precision,
               show: false
           }]
         };
@@ -1103,7 +1123,7 @@ angular
                   htmlString += "<tbody>";
 
                   for (var i = 0; i < seriesData.length; i++) {
-                    var value = kommonitorDataExchangeService.getIndicatorValue_asNumber(seriesData[i].value);
+                    var value = kommonitorDataExchangeService.getIndicatorValue_asFormattedText(seriesData[i].value);
                     htmlString += "<tr>";
                     htmlString += "<td>" + seriesData[i].name + "</td>";
                     htmlString += "<td>" + value + "</td>";
@@ -1130,7 +1150,7 @@ angular
             type: "piecewise",
             pieces: legendConfig,
             // selectedMode: 'multiple',
-            precision: 2,
+            precision: indicatorMetadataAndGeoJSON.precision,
             show: true
         },
           series: [{
@@ -1244,7 +1264,7 @@ angular
                     htmlString += "<tr>";
                     htmlString += "<td>" + timestamps[j] + "</td>";
                     for (var k = 0; k < lineSeries.length; k++) {
-                      var value = kommonitorDataExchangeService.getIndicatorValue_asNumber(lineSeries[k].data[j]);
+                      var value = kommonitorDataExchangeService.getIndicatorValue_asFormattedText(lineSeries[k].data[j]);
                       htmlString += "<td>" + value + "</td>";
                     }
                     htmlString += "</tr>";
@@ -1922,10 +1942,10 @@ angular
         return eChartOptions;
       };
 
-      this.makeTrendChartOptions_forAllFeatures = function(indicatorMetadataAndGeoJSON, fromDateAsPropertyString, toDateAsPropertyString, showMinMax, showCompleteTimeseries, computationType, trendEnabled){
+      this.makeTrendChartOptions_forAllFeatures = function(indicatorMetadataAndGeoJSON, fromDateAsPropertyString, toDateAsPropertyString, showMinMax, showCompleteTimeseries, computationType, trendEnabled, customFontFamilyEnabled = false){
           // we may base on the the precomputed timeseries lineOptions and modify that from a cloned instance
 
-          var timeseriesOptions = jQuery.extend(true, {}, this.getLineChartOptions())
+          var timeseriesOptions = jQuery.extend(true, {}, this.getLineChartOptions(customFontFamilyEnabled));
 
           // remove any additional lines for concrete features
           timeseriesOptions.series.length = 5;
@@ -2097,7 +2117,9 @@ angular
         let attributionText = "Leaflet | Map data @ OpenStreetMap contributors"
         let canvas = document.createElement("canvas")
         canvas.width = 800;
-        let ctx = canvas.getContext('2d')
+        let ctx = canvas.getContext('2d', {
+          willReadFrequently: true
+          })
         ctx.font = "8pt Arial";
         ctx.textBaseline = 'top';
         ctx.fillStyle = "rgb(60, 60, 60)";
@@ -2156,7 +2178,9 @@ angular
         let canvas = document.createElement("canvas")
         canvas.width = 800;
         canvas.height = 800;
-        let ctx = canvas.getContext('2d')
+        let ctx = canvas.getContext('2d', {
+          willReadFrequently: true
+          })
         let fontStyle = "8pt Arial"
         ctx.font = fontStyle
         let xPos = 5
@@ -2258,9 +2282,13 @@ angular
         }
      
      
-            var ctx = canvas.getContext("2d");
+            var ctx = canvas.getContext("2d", {
+              willReadFrequently: true
+              });
             var width = canvas.width;
-            var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height, {
+              willReadFrequently: true
+            });
             var top = 0, bottom = imageData.height, left = 0, right = imageData.width;
      
             while (top < bottom && rowBlank(imageData, width, top)) ++top;
@@ -2268,9 +2296,13 @@ angular
             while (left < right && columnBlank(imageData, width, left, top, bottom)) ++left;
             while (right - 1 > left && columnBlank(imageData, width, right - 1, top, bottom)) --right;
      
-            var trimmed = ctx.getImageData(left, top, right - left, bottom - top);
+            var trimmed = ctx.getImageData(left, top, right - left, bottom - top, {
+              willReadFrequently: true
+            });
             var copy = canvas.ownerDocument.createElement("canvas");
-            var copyCtx = copy.getContext("2d");
+            var copyCtx = copy.getContext("2d", {
+              willReadFrequently: true
+              });
             copy.width = trimmed.width + padding*2;
             copy.height = trimmed.height + padding*2;
             copyCtx.putImageData(trimmed, padding, padding);

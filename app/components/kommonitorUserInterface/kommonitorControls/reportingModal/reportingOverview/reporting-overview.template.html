@@ -9,12 +9,14 @@
             <div class="col-sm-3" id="reporting-overview-sidebar">
                 <div id="reporting-overwiew-indicators-wrapper">
                     <button ng-show="!config.template.name.includes('-reachability')" id="reporting-configureIndicatorBtn"
-                        class="btn btn-success" ng-click='onConfigureNewIndicatorClicked()'>
+                        class="btn btn-success" ng-click='onConfigureNewIndicatorClicked()'
+                        ng-disabled="loadingData || (! lastPageOfAddedSectionPrepared && pagePreparationSize > 0) || (! $ctrl.kommonitorLeafletScreenshotCacheHelperServiceInstance.screenshotsForCurrentSpatialUnitUpdate && $ctrl.kommonitorLeafletScreenshotCacheHelperServiceInstance.targetNumberOfSpatialUnitFeatures > 0)">
                         <i class="fa fa-plus"></i>
                         <span >&nbsp;&nbsp;Indikator konfigurieren</span>
                     </button>
                     <button ng-show="config.template.name.includes('-reachability')" id="reporting-configurePoiLayerrBtn"
-                        class="btn btn-success" ng-click='onConfigureNewPoiLayerClicked()'>
+                        class="btn btn-success" ng-click='onConfigureNewPoiLayerClicked()'
+                        ng-disabled="loadingData || (! lastPageOfAddedSectionPrepared && pagePreparationSize > 0) || (! $ctrl.kommonitorLeafletScreenshotCacheHelperServiceInstance.screenshotsForCurrentSpatialUnitUpdate && $ctrl.kommonitorLeafletScreenshotCacheHelperServiceInstance.targetNumberOfSpatialUnitFeatures > 0)">
                         <i class="fa fa-plus"></i>
                         <span>&nbsp;&nbsp;POI-Layer konfigurieren</span>
                     </button>
@@ -30,9 +32,9 @@
                                     <b ng-show="!config.template.name.includes('-reachability')">{{section.indicatorName}}</b>
                                     <b ng-show="config.template.name.includes('-reachability')">{{section.poiLayerName}}</b>
                                 </div>
-                                <div class="col-sm-1 text-right">
+                                <div class="col-sm-1 text-right" style="cursor: pointer;">
                                     <i class="reporting-templateSection-delete-symbol align-middle fa fa-trash-alt"
-                                        ng-click="removeTemplateSection($$index)"></i>
+                                        ng-click="removeTemplateSection($index)"></i>
                                 </div>
                             </div>
                         </div>
@@ -49,7 +51,7 @@
                     <div id="reporting-overview-preview-area">
                         <div ng-repeat="page in config.pages" 
                             ng-class="{hiddenPage: !showThisPage(page)}"
-                            ng-attr-class="reporting-page reporting-page-{{page.orientation}}""
+                            ng-attr-class="reporting-page reporting-page-{{page.orientation}} reporting-custom-css"
                             ng-attr-id="reporting-overview-page-{{$index}}">
                             <button class="orientationChangeBtn" 
                                 ng-if="!pageContainsDatatable($index) && !config.template.name.includes('-reachability')"
@@ -57,6 +59,7 @@
                                 <img src="icons/swap.png" width="100%" height="100%"></img>
                             </button>
                             <div ng-repeat="pageElement in page.pageElements"
+                                ng-show="checkVisibility(pageElement, page)"
                                 ng-attr-class="type-{{pageElement.type}}"
                                 ng-attr-id="reporting-overview-page-{{$parent.$index}}-{{pageElement.type}}"
                                 ng-attr-style="position: absolute;
@@ -72,45 +75,50 @@
                                     ng-bind-html="pageElement.placeholderText">
                                 </span>
                                 <!-- do different things depending on type once the placeholder is replaced (pageElement.isPlaceholder == false) -->
-                                <span ng-show="pageElement.type.includes('pageNumber-') && pageElement.isPlaceholder == false"
+                                <span ng-show="page.templateSection.pageConfig.showPageNumber && pageElement.type.includes('pageNumber-') && pageElement.isPlaceholder == false"
                                     ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
                                     Seite {{getPageNumber($parent.$index)}}
                                 </span>
 
-                                <span ng-show="pageElement.type.includes('footerCreationInfo-') && pageElement.isPlaceholder == false"
+                                <span ng-show="page.templateSection.pageConfig.showFooterCreationInfo && pageElement.type.includes('footerCreationInfo-') && pageElement.isPlaceholder == false"
                                     ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
                                     {{pageElement.text}}
                                 </span>
 
-                                <span ng-show="pageElement.type == 'textInput' && pageElement.isPlaceholder == false"
+                                <span ng-show="page.templateSection.pageConfig.showFreeText &&  pageElement.type == 'textInput' && pageElement.isPlaceholder == false"
                                     ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
                                     {{pageElement.text}}
                                 </span>
 
-                                <img ng-show="pageElement.type.includes('communeLogo-') && pageElement.isPlaceholder == false"
+                                <img ng-show="page.templateSection.pageConfig.showLogo && pageElement.type.includes('communeLogo-') && pageElement.isPlaceholder == false"
                                     ng-attr-src="{{pageElement.src}}">
 
-                                <span ng-show="pageElement.type.includes('indicatorTitle-') && pageElement.isPlaceholder == false"
+                                <span ng-show="page.templateSection.pageConfig.showTitle && pageElement.type.includes('indicatorTitle-') && pageElement.isPlaceholder == false"
                                     ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
                                     {{pageElement.text}}
                                 </span>
 
-                                <span ng-show="pageElement.type.includes('dataTimestamp-') && pageElement.isPlaceholder == false"
+                                <span ng-show="page.templateSection.pageConfig.showSubtitle && pageElement.type.includes('dataTimestamp-') && pageElement.isPlaceholder == false"
                                     ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
                                     {{pageElement.text}}
                                 </span>
 
-                                <span ng-show="pageElement.type.includes('dataTimeseries-') && pageElement.isPlaceholder == false"
+                                <span ng-show="page.templateSection.pageConfig.showSubtitle && pageElement.type.includes('dataTimeseries-') && pageElement.isPlaceholder == false"
                                     ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
                                     {{pageElement.text}}
                                 </span>
 
-                                <span ng-show="pageElement.type.includes('reachability-subtitle-') && pageElement.isPlaceholder == false"
+                                <span ng-show="page.templateSection.pageConfig.showSubtitle && pageElement.type.includes('reachability-subtitle-') && pageElement.isPlaceholder == false"
                                     ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
                                     {{pageElement.text}}
                                 </span>
 
-                                <span ng-show="pageElement.type == 'overallAverage' && pageElement.isPlaceholder == false"
+                                <!-- 
+                                 /*
+                                    June 2025: we remove overallAverage and overallChange, overallAverage and selectionAverage from reporting overview pages.
+                                */
+                                -->
+                                <!-- <span ng-show="pageElement.type == 'overallAverage' && pageElement.isPlaceholder == false"
                                     ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
                                     <span style="display: block; text-align:left">
                                         Durchschnitt Gesamtstadt:<br />
@@ -140,7 +148,7 @@
                                         Durchschnittliche Veränderung Selektion:<br />
                                         {{pageElement.text}}
                                     </span>
-                                </span>
+                                </span> -->
 
                             </div>
                         </div>
@@ -168,10 +176,20 @@
                         &nbsp;&nbsp;Einstellungen exportieren
                     </button>
                     <button type="button" class="btn btn-success pull-right" data-toggle="modal" data-target="#reporting-report-formats-selection"
-                        ng-disabled="loadingData || config.indicators.length == 0">
+                        ng-disabled="loadingData || ! lastPageOfAddedSectionPrepared || config.indicators.length == 0 || ! $ctrl.kommonitorLeafletScreenshotCacheHelperServiceInstance.screenshotsForCurrentSpatialUnitUpdate">
                         <i class="fa fa-copy"></i>
                         &nbsp;&nbsp;Report erzeugen
                     </button> 
+
+                    <button ng-disabled="true" style="margin-right: 15px;" ng-show="! $ctrl.kommonitorLeafletScreenshotCacheHelperServiceInstance.screenshotsForCurrentSpatialUnitUpdate && $ctrl.kommonitorLeafletScreenshotCacheHelperServiceInstance.targetNumberOfSpatialUnitFeatures > 0" type="button" class="btn btn-info pull-right">
+                        <span class="glyphicon glyphicon-refresh icon-spin"></span>
+                        <span>Kartenbildaufbereitung: {{$ctrl.kommonitorLeafletScreenshotCacheHelperServiceInstance.executedScreenshotMapKeys.size}} von {{$ctrl.kommonitorLeafletScreenshotCacheHelperServiceInstance.targetNumberOfSpatialUnitFeatures}}</span>
+                    </button>
+
+                    <button ng-disabled="true" style="margin-right: 15px;" ng-show="! lastPageOfAddedSectionPrepared && pagePreparationSize > 0" type="button" class="btn btn-warning pull-right">
+                        <span class="glyphicon glyphicon-refresh icon-spin"></span>
+                        <span>Reportaufbereitung: {{pagePreparationIndex + 1}} von {{pagePreparationSize}}</span>
+                    </button>
                 </div>
             </div>
         </div>

@@ -12,7 +12,7 @@
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span></button>
-				<h4 class="modal-title">Features der Raumeinheit
+				<h4 class="modal-title">Raumeinheiten der Raumebene
 					<i><b>{{currentSpatialUnitDataset.spatialUnitLevel}}</b></i> fortf&uuml;hren</h4>
 			</div>
 			<div class="modal-body">
@@ -37,26 +37,26 @@
 							<div> 
 								<!-- progressbar -->
 								<ul id="progressbar">
-									<li style="width: 50%;" class="active">Feature &Uuml;bersicht</li>
+									<li style="width: 50%;" class="active">Raumeinheit &Uuml;bersicht</li>
 									<li style="width: 50%;">R&auml;umlicher Datensatz</li>
 								</ul>
 							</div>
 							
 
 							<fieldset>
-								<h2 class="fs-title">Feature &Uuml;bersicht</h2>
-								<h3 class="fs-subtitle">Optionale Anzeige der Feature-Details</h3>
+								<h2 class="fs-title">Raumeinheit &Uuml;bersicht</h2>
+								<h3 class="fs-subtitle">Optionale Anzeige der Raumeinheits-Details</h3>
 
 								<div class="row vertical-align">
 									<div class="col-md-6 col-sm-6 col-xs-12">
 										<div class="form-group">
-											<label>Datenbank-Features abrufen und editieren</label>
+											<label>Datenbank-Raumeinheiten abrufen und editieren</label>
 											<button class="btn btn-info"
 												ng-click="refreshSpatialUnitEditFeaturesOverviewTable()"><i
-													class="fas fa-sync-alt"></i>&nbsp;Zeige alle Features</button>
+													class="fas fa-sync-alt"></i>&nbsp;Zeige alle Raumeinheiten</button>
 
 											<div class="help-block">
-												<p>Das Anzeigen aller Features der Raumeinheit kann je nach Anzahl und
+												<p>Das Anzeigen aller Raumeinheiten der Raumebene kann je nach Anzahl und
 													Komplexität der Objekte einige
 													Zeit in Anspruch nehmen</p>
 												<p>Editieren einzelner Zellwerte via Doppelklick. Best&auml;tigen der Editierung durch Enter oder Klicken in eine andere Zelle</p>
@@ -66,7 +66,7 @@
 									</div>
 									<div class="col-md-6 col-sm-6 col-xs-12">
 										<div class="form-group">
-											<label >Datenbank-Features bereinigen (Funktion muss zuerst aktiv eingeschaltet werden)</label>										
+											<label >Datenbank-Raumeinheiten bereinigen (Funktion muss zuerst aktiv eingeschaltet werden)</label>										
 										<label class="switch">
 											<input class="elementCheckbox" type="checkbox"
 												ng-model="enableDeleteFeatures" ng-init="enableDeleteFeatures = false"
@@ -77,10 +77,10 @@
 										&nbsp;&nbsp;
 
 											<button class="btn btn-danger" ng-click="clearAllSpatialUnitFeatures()" ng-disabled="!enableDeleteFeatures"><i
-													class="fas fa-trash"></i>&nbsp;Lösche alle Features</button>
+													class="fas fa-trash"></i>&nbsp;Lösche alle Raumeinheiten</button>
 
 											<div class="help-block">
-												<p>Das Löschen aller Features der Raumeinheit ist unwiderruflich. Der
+												<p>Das Löschen aller Raumeinheiten der Raumebene ist unwiderruflich. Der
 													Datensatz als solches (Metadaten)
 													bleibt dabei bestehen.</p>
 											</div>
@@ -118,7 +118,7 @@
 								</div>
 								<h2 class="fs-title">R&auml;umlicher Datensatz</h2>
 								<h3 class="fs-subtitle">Angaben &uuml;ber den r&auml;umlichen Datensatz, aus dem die
-									Features importiert werden</h3>
+									Raumeinheiten importiert werden</h3>
 
 								<p><b><i>* = Pflichtfeld</i></b></p>
 
@@ -168,7 +168,7 @@
 													<p>{{parameter.description}}</p>
 												</div>
 												<div ng-if="parameter.name === 'CRS'" class="help-block with-errors" style="color: red;">
-													<p>CRS aufmerksam setzen. Falsche Angaben f&uuml;hren zur fehlerhaften Koordinaten der Features</p>
+													<p>CRS aufmerksam setzen. Falsche Angaben f&uuml;hren zur fehlerhaften Koordinaten der Raumeinheiten</p>
 												</div>
 												<div class="help-block with-errors"></div>
 											</div>
@@ -200,7 +200,7 @@
 													<label>Räumlicher Filter*</label>
 													<select id="datasourceTypeParameter_spatialUnitEditFeatures_bboxType" ng-model="bboxType" class="form-control" required>
 														<option disabled selected value> -- Filter w&auml;hlen -- </option>
-														<option value="ref"> Referenzraumeinheit </option>
+														<option value="ref"> Referenzraumebene </option>
 														<option value="literal"> Manueller Begrenzungsrahmen </option>
 													</select>
 
@@ -210,10 +210,10 @@
 																ng-model="bboxRefSpatialUnit"
 																ng-options="spatialUnit.spatialUnitLevel for spatialUnit in availableSpatialUnits track by spatialUnit.spatialUnitId"
 																class="form-control" ng-required="bboxType == 'ref'">
-															<option disabled selected value> -- Raumeinheit w&auml;hlen -- </option>
+															<option disabled selected value> -- Raumebene w&auml;hlen -- </option>
 														</select>
 														<div class="help-block">
-															<p>Raumeinheit aus welchem ein umschließendes Rechteck extrahiert wird</p>
+															<p>Raumebene aus welchem ein umschließendes Rechteck extrahiert wird</p>
 														</div>
 													</div>
 													<div ng-show="bboxType == 'literal'">
@@ -251,7 +251,7 @@
 													</div>
 												</div>
 											</div>
-											<!-- <div class="help-block"><p>Features m&uuml;ssen Informationen &uuml;ber eindutige ID und eindeutigen Namen in Attribut namens <code>ID</code> und <code>NAME</code> enthalten, um in KomMonitor verarbeitet werden zu k&ouml;nnen.</p></div> -->
+											<!-- <div class="help-block"><p>Raumeinheiten m&uuml;ssen Informationen &uuml;ber eindutige ID und eindeutigen Namen in Attribut namens <code>ID</code> und <code>NAME</code> enthalten, um in KomMonitor verarbeitet werden zu k&ouml;nnen.</p></div> -->
 
 											<div class="help-block with-errors"></div>
 											<div ng-if="spatialUnitDataSourceInputInvalid" style="color: red;">
@@ -264,7 +264,7 @@
 											<label>ID Attributname*</label>
 											<input type="text" class="form-control" ng-model="spatialUnitDataSourceIdProperty" required></input>
 											<div class="help-block">
-												<p>Name des Attributs, welches den eindeutigen Identifier des Features enth&auml;lt.</p>
+												<p>Name des Attributs, welches den eindeutigen Identifier des Raumeinheiten enth&auml;lt.</p>
 											</div>
 											<div class="help-block with-errors"></div>
 											<div ng-if="idPropertyNotFound" style="color: red;">
@@ -275,7 +275,7 @@
 											<label>NAME Attributname*</label>
 											<input type="text" class="form-control" ng-model="spatialUnitDataSourceNameProperty" required></input>
 											<div class="help-block">
-												<p>Name des Attributs, welches den eindeutigen Namen des Features enth&auml;lt.</p>
+												<p>Name des Attributs, welches den eindeutigen Namen des Raumeinheiten enth&auml;lt.</p>
 											</div>
 											<div class="help-block with-errors"></div>
 											<div ng-if="namePropertyNotFound" style="color: red;">
@@ -288,7 +288,7 @@
 											<label>Lebenszeit-Beginn Attributname</label>
 											<input type="text" ng-model="validityStartDate_perFeature" class="form-control pull-right">
 											<div class="help-block">
-												<p>Eintrag nur, falls die r&auml;umlichen Features &uuml;ber ein Attribut
+												<p>Eintrag nur, falls die r&auml;umlichen Raumeinheiten &uuml;ber ein Attribut
 													für den Lebenszeitraum (Beginn) verf&uuml;gen.</p>
 											</div>
 											<div class="help-block with-errors"></div>
@@ -297,7 +297,7 @@
 											<label>Lebenszeit-Ende Attributname</label>
 											<input type="text" ng-model="validityEndDate_perFeature" class="form-control pull-right">
 											<div class="help-block">
-												<p>Eintrag nur, falls die r&auml;umlichen Features &uuml;ber ein Attribut
+												<p>Eintrag nur, falls die r&auml;umlichen Raumeinheiten &uuml;ber ein Attribut
 													für den Lebenszeitraum (Ende) verf&uuml;gen.</p>
 											</div>
 											<div class="help-block with-errors"></div>
@@ -316,7 +316,7 @@
 													class="form-control pull-right" id="spatialUnitEditFeaturesDatepickerStart" placeholder="YYYY-MM-DD" required>
 											</div>
 											<div class="help-block">
-												<p>Eintrag ist immer erforderlich, selbst wenn die r&auml;umlichen Features &uuml;ber ein
+												<p>Eintrag ist immer erforderlich, selbst wenn die r&auml;umlichen Raumeinheiten &uuml;ber ein
 													Lebenszeitraum-Attribut
 													verf&uuml;gen.</p>
 											</div>
@@ -337,10 +337,10 @@
 													class="form-control pull-right" id="spatialUnitEditFeaturesDatepickerEnd" placeholder="YYYY-MM-DD">
 											</div>
 											<div class="help-block">
-												<p>Eintrag ist erforderlich, falls die r&auml;umlichen Features nicht selbst &uuml;ber ein
+												<p>Eintrag ist erforderlich, falls die r&auml;umlichen Raumeinheiten nicht selbst &uuml;ber ein
 													Lebenszeitraum-Attribut
 													verf&uuml;gen. Enddatum darf leer sein, um anzuzeigen, dass es sich
-													um aktuell g&uuml;ltige Features handelt.</p>
+													um aktuell g&uuml;ltige Raumeinheiten handelt.</p>
 											</div>
 											<div class="help-block with-errors"></div>
 											<div ng-if="periodOfValidityInvalid" style="color: red;">
@@ -498,7 +498,7 @@
 				
 				<button type="button" class="btn btn-success"
 					ng-disabled="!currentSpatialUnitDataset.spatialUnitLevel || !spatialUnitDataSourceIdProperty || !spatialUnitDataSourceNameProperty || !periodOfValidity.startDate || periodOfValidityInvalid || !converter || !datasourceType"
-					ng-click="editSpatialUnitFeatures()">Features fortf&uuml;hren</button>
+					ng-click="editSpatialUnitFeatures()">Raumeinheiten fortf&uuml;hren</button>
 				<button type="button" class="btn btn-danger"
 					ng-click="resetSpatialUnitEditFeaturesForm()">Zur&uuml;cksetzen</button>
 			</div>
@@ -506,10 +506,10 @@
 			<div id="spatialUnitEditFeaturesSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
 				class="alert alert-success alert-dismissable">
 				<button type="button" class="close" ng-click="hideSuccessAlert()" aria-hidden="true">&times;</button>
-				<h4><i class="icon fa fa-check"></i>Features erfolgreich fortgef&uuml;hrt</h4>
-				<p>Fortf&uuml;hren der Features der Raumeinheit mit Namen {{successMessagePart}} war erfolgreich.
+				<h4><i class="icon fa fa-check"></i>Raumeinheiten erfolgreich fortgef&uuml;hrt</h4>
+				<p>Fortf&uuml;hren der Raumeinheiten der Raumebene mit Namen {{successMessagePart}} war erfolgreich.
 					<div ng-if="importedFeatures && importedFeatures.length > 0">
-						{{importedFeatures.length}} Features wurden dabei importiert.
+						{{importedFeatures.length}} Raumeinheiten wurden dabei importiert.
 					</div>
 				</p>
 			</div>
@@ -517,15 +517,15 @@
 			<div id="spatialUnitEditFeaturesErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
 				class="alert alert-danger alert-dismissable">
 				<button type="button" class="close" ng-click="hideErrorAlert()" aria-hidden="true">&times;</button>
-				<h4><i class="icon fa fa-ban"></i>Features fortf&uuml;hren gescheitert</h4>
-				Beim Fortf&uuml;hren der Features ist ein Fehler aufgetreten. Fehlermeldung:
+				<h4><i class="icon fa fa-ban"></i>Raumeinheiten fortf&uuml;hren gescheitert</h4>
+				Beim Fortf&uuml;hren der Raumeinheiten ist ein Fehler aufgetreten. Fehlermeldung:
 				<br />
 				<pre style="overflow:auto; max-height:500px;" ng-bind-html="errorMessagePart"></pre>
 								<br/>
 								<br/>
 
 								<div ng-show="importerErrors">
-									<p>Bei den {{importerErrors.length}} Features mit folgenden IDs scheitert der Import:</p>
+									<p>Bei den {{importerErrors.length}} Raumeinheiten mit folgenden IDs scheitert der Import:</p>
 									<pre style="overflow:auto; max-height:500px;">
 										<ul>
 											<li ng-repeat="error in importerErrors">{{error}}</li>
