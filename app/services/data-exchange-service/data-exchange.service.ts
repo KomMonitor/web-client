@@ -94,6 +94,7 @@ export interface DataExchange {
   adminPassword;
   adminIsLoggedIn;
   loginInfoText:any;
+  wmsDatasets:any;
 }
 
 export interface KeycloakUser {
@@ -130,6 +131,10 @@ export interface Indicator {
   metadata: {
     updateInterval: any;
     description: string;
+    databasis: any;
+    datasource: any;
+    contact: any;
+    note: any;
   }
   unit: any;
   indicatorType: any;
@@ -144,6 +149,7 @@ export interface Indicator {
   ogcServices: any;
   applicableDates: any;
   creationType: any;
+  processDescription:any;
 }
 
 @Injectable({
@@ -327,5 +333,9 @@ export class DataExchangeService {
 
   getIndicatorValue_asFixedPrecisionNumber(cartographicFeature,precision) {
     return this.ajskommonitorDataExchangeServiceeProvider.getIndicatorValue_asFixedPrecisionNumber(cartographicFeature,precision);
+  }
+
+  getIndicatorAbbreviationFromIndicatorId(id:any) {
+    return this.ajskommonitorDataExchangeServiceeProvider.getIndicatorAbbreviationFromIndicatorId(id);
   }
 }

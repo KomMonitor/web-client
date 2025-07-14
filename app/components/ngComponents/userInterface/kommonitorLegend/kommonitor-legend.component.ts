@@ -466,4 +466,8 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
   keywordFilteredWmsDataset() {
     return this.exchangeData.wmsDatasets_keywordFiltered.filter(e => e.isSelected===true);
   }
+
+  hasActiveWMSLayers(){
+    return this.dataExchangeService.pipedData.wmsDatasets.filter(item => item.isSelected).length > 0;
+  }
 }

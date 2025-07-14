@@ -74,6 +74,8 @@ import { AdminControlsConfigComponent } from './components/ngComponents/admin/ad
 import { AdminRoleExplanationComponent } from './components/ngComponents/admin/adminRoleExplanation/admin-role-explanation.component';
 import { AdminDashboardManagementComponent } from './components/ngComponents/admin/adminDashboardManagement/admin-dashboard-management.component';
 
+import { MathjaxModule } from "mathjax-angular";
+
 
 // currently the AngularJS routing is still used as part of kommonitorClient module
 const routes: Routes = [];
@@ -93,7 +95,8 @@ declare var MathJax;
     JsonPipe,
     NouisliderModule,
     NgbCollapseModule,
-    DualListBoxComponent
+    DualListBoxComponent,
+    MathjaxModule.forRoot()
   ],
   providers:[
     {provide: LocationStrategy, useClass: HashLocationStrategy},

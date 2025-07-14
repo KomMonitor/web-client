@@ -94,7 +94,7 @@
               <a class="nav-link" id="legendTab2" data-toggle="tab" href="#legendTab2Content" role="tab"
                 aria-controls="legendTab2Content" aria-selected="false">Indikator-Metadaten</a>
             </li>
-            <li class="nav-item">
+            <li class="nav-item" *ngIf="hasActiveWMSLayers()">
               <a class="nav-link" id="legendTab3" data-toggle="tab" href="#legendTab3Content" role="tab"
                 aria-controls="legendTab3Content" aria-selected="false">WMS-Dienste</a>
             </li>
@@ -356,8 +356,7 @@
                       </tr>
                       <tr>
                         <td><b>Beschreibung</b></td>
-                        <td
-                          ng-bind-html="exchangeData.selectedIndicator.metadata.description">
+                        <td [innerHTML]="exchangeData.selectedIndicator.metadata.description">
                         </td>
                       </tr>
                       <tr>
@@ -366,44 +365,37 @@
                       </tr>
                       <tr>
                         <td><b>Methodik</b></td>
-                        <td
-                          mathjax-bind="exchangeData.selectedIndicator.processDescription">
+                        <td [mathjax]="exchangeData.selectedIndicator.processDescription">
                         </td>
                       </tr>
                       <tr>
                         <td><b>Interpretation</b></td>
-                        <td
-                          ng-bind-html="exchangeData.selectedIndicator.interpretation">
+                        <td [innerHTML]="exchangeData.selectedIndicator.interpretation">
                         </td>
                       </tr>
                       <tr>
                         <td><b>Datengrundlage</b></td>
-                        <td
-                          ng-bind-html="exchangeData.selectedIndicator.metadata.databasis">
+                        <td [innerHTML]="exchangeData.selectedIndicator.metadata.databasis">
                         </td>
                       </tr>
                       <tr>
                         <td><b>Datenquelle</b></td>
-                        <td
-                          ng-bind-html="exchangeData.selectedIndicator.metadata.datasource">
+                        <td [innerHTML]="exchangeData.selectedIndicator.metadata.datasource">
                         </td>
                       </tr>
                       <tr>
                         <td><b>Datenhalter und Kontakt</b></td>
-                        <td
-                          ng-bind-html="exchangeData.selectedIndicator.metadata.contact">
+                        <td [innerHTML]="exchangeData.selectedIndicator.metadata.contact">
                         </td>
                       </tr>
                       <tr>
                         <td><b>Bemerkung</b></td>
-                        <td
-                          ng-bind-html="exchangeData.selectedIndicator.metadata.note">
+                        <td [innerHTML]="exchangeData.selectedIndicator.metadata.note">
                         </td>
                       </tr>
                       <tr>
                         <td><b>Fortführungsintervall</b></td>
-                        <td
-                          ng-bind-html="exchangeData.selectedIndicator.metadata.updateInterval">
+                        <td [innerHTML]="exchangeData.selectedIndicator.metadata.updateInterval">
                         </td>
                       </tr>
                     </tbody>
@@ -420,8 +412,7 @@
                     -- keine --
                   </div>
                   <div *ngIf="exchangeData.selectedIndicator.referencedIndicators?.length > 0">
-                    <div id="referencedIndicatorOverview" text-align="center" align="center" class=""
-                    ng-if="exchangeData.selectedIndicator.referencedIndicators.length > 0">
+                    <div id="referencedIndicatorOverview" text-align="center" style="text-align:center" class="">
           
                     <table class="table table-condensed">
                       <thead>
@@ -434,9 +425,7 @@
                       <tbody>
                         <tr *ngFor="let indicator of exchangeData.selectedIndicator.referencedIndicators">
                           <td>{{indicator.referencedIndicatorName}}</td>
-                          <td
-                            ng-bind="exchangeData.getIndicatorAbbreviationFromIndicatorId(indicator.referencedIndicatorId)">
-                          </td>
+                          <td>{{dataExchangeService.getIndicatorAbbreviationFromIndicatorId(indicator.referencedIndicatorId)}}</td>
                           <td>{{indicator.referencedIndicatorDescription}}</td>
                         </tr>
                       </tbody>
@@ -455,8 +444,7 @@
                     -- keine --
                   </div>
                   <div *ngIf="exchangeData.selectedIndicator.referencedGeoresources?.length > 0">
-                    <div id="referencedGeoresourcesOverview" text-align="center" align="center" class=""
-                    ng-if="exchangeData.selectedIndicator.referencedGeoresources.length > 0">
+                    <div id="referencedGeoresourcesOverview" text-align="center" style="text-align:center" class="">
                     <h4>Verkn&uuml;pfte Georessourcen</h4>
           
                     <table class="table table-condensed">
@@ -480,8 +468,7 @@
               </div>
 
             </div>
-            <div class="tab-pane" id="legendTab3Content" role="tabpanel"
-              aria-labelledby="legendTab3">
+            <div class="tab-pane" id="legendTab3Content" role="tabpanel" aria-labelledby="legendTab3" *ngIf="hasActiveWMSLayers()">
 
               
               <div class="just-padding">
