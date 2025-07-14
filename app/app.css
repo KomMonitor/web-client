@@ -446,6 +446,10 @@ pre.CodeMirror-line {
     border-width: 1px 0 0 0;
 }
 
+.list-group.list-group-root .list-group-item p {
+  cursor: pointer;
+}
+
 .list-group.list-group-root .glyphicon.glyphicon-custom {
   cursor: pointer;
 }

@@ -233,12 +233,7 @@ export class KommonitorDataSetupComponent implements OnInit {
     //reinit visibility of elements due to fact that now some HTML elements are actually available
     this.elementVisibilityHelperService.initElementVisibility();
 
-    this.indicatorFavTopicsTree = this.prepTopicsTree(this.dataExchangeService.pipedData.topicIndicatorHierarchy,0,undefined);
-    this.indicatorFavTopicsTreePimped = {
-      topicName: 'Test',
-      subTopics: this.prepTopicsTree(this.dataExchangeService.pipedData.topicIndicatorHierarchy,0,undefined)
-    };
-    this.addClickListenerToEachCollapseTrigger();
+    
 
     var userInfo = this.favService.getUserInfo();
     if(userInfo.indicatorFavourites) {
@@ -251,8 +246,17 @@ export class KommonitorDataSetupComponent implements OnInit {
       this.FavTabIndicatorTopicFavItems = userInfo.indicatorTopicFavourites;
     }
 
+    setTimeout(() => {
     if(this.elementVisibilityHelperService.elementVisibility.favSelection===true)
       this.showFavSelection = true;
+    },1000)
+
+    this.indicatorFavTopicsTree = this.prepTopicsTree(this.dataExchangeService.pipedData.topicIndicatorHierarchy,0,undefined);
+    this.indicatorFavTopicsTreePimped = {
+      topicName: 'Test',
+      subTopics: this.prepTopicsTree(this.dataExchangeService.pipedData.topicIndicatorHierarchy,0,undefined)
+    };
+    this.addClickListenerToEachCollapseTrigger();
   }
 
   prepTopicsTree(tree, level, parent) {
@@ -293,37 +297,25 @@ export class KommonitorDataSetupComponent implements OnInit {
       this.topicsCollapsed = this.topicsCollapsed.filter(e => e!=topicID);
     else
       this.topicsCollapsed.push(topicID);
+
+    console.log(this.topicsCollapsed)
   }
 
   addClickListenerToEachCollapseTrigger(){
     setTimeout(function(){
-      $('.list-group-item > .collapseTrigger').on('click', function(e) {
-        
-        $('.glyphicon', e)
-        .toggleClass('glyphicon-chevron-right')
-        .toggleClass('glyphicon-chevron-down');
-
-          // manage uncollapsed entries
-          // var clickedTopicId = $(this).attr('id');
-          // if ($scope.unCollapsedTopicIds.includes(clickedTopicId)){
-          // 	var index = $scope.unCollapsedTopicIds.indexOf(clickedTopicId);
-          // 	$scope.unCollapsedTopicIds.splice(index, 1);
-          // }
-          // else{
-          // 	$scope.unCollapsedTopicIds.push(clickedTopicId);
-          // }
-      });
 
       // addClass "clickBound" sets trigger, that listener has been added, not:.clickBound filters for that. otherwise multiple listeners will be added
       $('.list-group-item > .indicatorFavCollapseTrigger:not(.clickBound)').addClass('clickBound').on('click', (e) => {
-        $('.glyphicon', e)
+
+        // todo rebuild dirty elem[0] structure, maybe with ngb
+        let elem:any = $(e);
+        var clickedTopicId = elem[0].currentTarget.id;
+
+        $('.glyphicon', clickedTopicId)
           .toggleClass('glyphicon-chevron-right')
           .toggleClass('glyphicon-chevron-down');
 
         // manage entries;
-        // todo rebuild dirty elem[0] structure, maybe with ngb
-        let elem:any = $(e);
-        var clickedTopicId = elem[0].currentTarget.id;
         if(document.getElementById('indicatorFavSubTopic-'+clickedTopicId)?.style.display=='none')
           document.getElementById('indicatorFavSubTopic-'+clickedTopicId)!.style.display = 'block';
         else

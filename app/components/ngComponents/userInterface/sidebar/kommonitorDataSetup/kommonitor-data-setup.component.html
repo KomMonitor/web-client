@@ -46,7 +46,7 @@
                         <a class="nav-link active" id="dataCatalogueTab1" data-toggle="tab" href="#dataCatalogueTab1Content"
                           role="tab" aria-controls="dataCatalogueTab1Content" aria-selected="true">Themenhierarchie</a>
                       </li>
-                      <li class="nav-item" [ngClass]="{'disabled': (!exchangeData.headlineIndicatorHierarchy || exchangeData.headlineIndicatorHierarchy.length == 0)}">
+                      <li class="nav-item" *ngIf="exchangeData.headlineIndicatorHierarchy && exchangeData.headlineIndicatorHierarchy.length>0">
                         <a class="nav-link" id="dataCatalogueTab2" data-toggle="tab" href="#dataCatalogueTab2Content" role="tab"
                           aria-controls="dataCatalogueTab2Content" aria-selected="false">Leitindikatoren-Hierarchie</a>
                       </li>
@@ -66,26 +66,29 @@
                           <div class="just-padding">
   
                             <div id="indicatorHierarchySelection" class="list-group list-group-root well">
-  
-                              <label>Erl&auml;uterungen zur Symbolik </label>
-                              <div class="list-group-item list-group-item-default style-simple-indicator">
-                                <p style="cursor:pointer; color: black;"> <i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>Standardindikator (numerische Wertverteilung)</b>
-                                    [Einheitsbezeichnung]</p>
+                              <div id="indicator-symbol-explanation" *ngIf="exchangeData.headlineIndicatorHierarchy && exchangeData.headlineIndicatorHierarchy.length>0">
+															
+                            
+                                <label>Erl&auml;uterungen zur Symbolik </label>
+                                <div class="list-group-item list-group-item-default style-simple-indicator">
+                                  <p style="cursor:pointer; color: black;"> <i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>Standardindikator (numerische Wertverteilung)</b>
+                                      [Einheitsbezeichnung]</p>
+                                </div>
+    
+                                <div class="list-group-item list-group-item-default style-headline-indicator">
+                                  <p style="cursor:pointer; color: white;">
+                                      <i class="fas fa-tachometer-alt"></i> &nbsp;&nbsp;<b>Leitindikator (bewertende Aussage)</b>
+                                      [Einheitsbezeichnung]</p>
+                                </div>  
                               </div>
-  
-                              <div class="list-group-item list-group-item-default style-headline-indicator">
-                                <p style="cursor:pointer; color: white;">
-                                    <i class="fas fa-tachometer-alt"></i> &nbsp;&nbsp;<b>Leitindikator (bewertende Aussage)</b>
-                                    [Einheitsbezeichnung]</p>
-                              </div>
-  
+    
                               <br/>
   
                               <label> Themenorientierter Datenkatalog </label>
   
                               <div *ngFor="let mainTopic of preppedIndicatorTopics">
-                                <div  class="list-group-item list-group-item-default list-group-item-grid-layout kommonitor-theme">
-                                  <p title="{{mainTopic.topicDescription}}" class="collapseTrigger" style="color: white;" (click)="onTopicClick(mainTopic.topicId)"><i class="glyphicon glyphicon-chevron-right"></i>{{mainTopic.topicName}}  ({{mainTopic.indicatorCount}})</p> 
+                                <div  class="list-group-item list-group-item-default list-group-item-grid-layout kommonitor-theme" id="{{mainTopic.topicId}}">
+                                  <p title="{{mainTopic.topicDescription}}" class="collapseTrigger" style="color: white;" (click)="onTopicClick(mainTopic.topicId)"><i class="glyphicon" [ngClass]="{'glyphicon-chevron-right':topicsCollapsed.includes(mainTopic.topicId), 'glyphicon-chevron-down':!topicsCollapsed.includes(mainTopic.topicId)}"></i>{{mainTopic.topicName}}  ({{mainTopic.indicatorCount}})</p> 
                                   <i *ngIf="showFavSelection" class="glyphicon glyphicon-custom" [ngClass]="{'glyphicon-star':indicatorTopicFavSelected(mainTopic.topicId), 'glyphicon-star-empty':!indicatorTopicFavSelected(mainTopic.topicId)}" (click)="onIndicatorTopicFavClick(mainTopic.topicId)"></i>
                                 </div>
   
@@ -93,14 +96,14 @@
                                   <div *ngFor="let subTopic of mainTopic.subTopics">
   
                                     <div  class="list-group-item list-group-item-default list-group-item-grid-layout kommonitor-80">
-                                      <p class="collapseTrigger" style="color: white;" title="{{subTopic.topicDescription}}" (click)="onTopicClick(subTopic.topicId)"><i class="glyphicon glyphicon-chevron-right"></i>{{subTopic.topicName}}  ({{subTopic.indicatorCount}})</p> 
+                                      <p class="collapseTrigger" style="color: white;" title="{{subTopic.topicDescription}}" (click)="onTopicClick(subTopic.topicId)"><i class="glyphicon" [ngClass]="{'glyphicon-chevron-right':topicsCollapsed.includes(subTopic.topicId), 'glyphicon-chevron-down':!topicsCollapsed.includes(subTopic.topicId)}"></i>{{subTopic.topicName}}  ({{subTopic.indicatorCount}})</p> 
                                       <i *ngIf="showFavSelection" class="glyphicon glyphicon-custom" [ngClass]="{'glyphicon-star':indicatorTopicFavSelected(subTopic.topicId), 'glyphicon-star-empty':!indicatorTopicFavSelected(subTopic.topicId)}" (click)="onIndicatorTopicFavClick(subTopic.topicId)"></i>
                                     </div>	
                                     <div class="list-group collapse" [ngClass]="{'in': !topicsCollapsed.includes(subTopic.topicId)}">
                                       <div *ngFor="let subsubTopic of subTopic.subTopics">
                                         
                                         <div  class="list-group-item list-group-item-default list-group-item-grid-layout kommonitor-60">
-                                          <p class="collapseTrigger" style="color: black;" title="{{subsubTopic.topicDescription}}"  (click)="onTopicClick(subsubTopic.topicId)"><i class="glyphicon glyphicon-chevron-right"></i>{{subsubTopic.topicName}}   ({{subsubTopic.indicatorCount}})</p> 
+                                          <p class="collapseTrigger" style="color: black;" title="{{subsubTopic.topicDescription}}"  (click)="onTopicClick(subsubTopic.topicId)"><i class="glyphicon" [ngClass]="{'glyphicon-chevron-right':topicsCollapsed.includes(subsubTopic.topicId), 'glyphicon-chevron-down':!topicsCollapsed.includes(subsubTopic.topicId)}"></i>{{subsubTopic.topicName}}   ({{subsubTopic.indicatorCount}})</p> 
                                           <i *ngIf="showFavSelection" class="glyphicon glyphicon-custom" [ngClass]="{'glyphicon-star':indicatorTopicFavSelected(subsubTopic.topicId), 'glyphicon-star-empty':!indicatorTopicFavSelected(subsubTopic.topicId)}" (click)="onIndicatorTopicFavClick(subsubTopic.topicId)"></i>
                                         </div>
       
@@ -108,7 +111,7 @@
                                           <div *ngFor="let subsubsubTopic of subsubTopic.subTopics">
       
                                             <div  class="list-group-item list-group-item-default list-group-item-grid-layout kommonitor-40">
-                                              <p class="collapseTrigger" style="color: black;" title="{{subsubsubTopic.topicDescription}}"  (click)="onTopicClick(subsubsubTopic.topicId)"><i class="glyphicon glyphicon-chevron-right"></i>{{subsubsubTopic.topicName}}   ({{subsubsubTopic.indicatorCount}})</p>
+                                              <p class="collapseTrigger" style="color: black;" title="{{subsubsubTopic.topicDescription}}"  (click)="onTopicClick(subsubsubTopic.topicId)"><i class="glyphicon" [ngClass]="{'glyphicon-chevron-right':topicsCollapsed.includes(subsubsubTopic.topicId), 'glyphicon-chevron-down':!topicsCollapsed.includes(subsubsubTopic.topicId)}"></i>{{subsubsubTopic.topicName}}   ({{subsubsubTopic.indicatorCount}})</p>
                                               <i *ngIf="showFavSelection" class="glyphicon glyphicon-custom" [ngClass]="{'glyphicon-star':indicatorTopicFavSelected(subsubsubTopic.topicId), 'glyphicon-star-empty':!indicatorTopicFavSelected(subsubsubTopic.topicId)}" (click)="onIndicatorTopicFavClick(subsubsubTopic.topicId)"></i>
                                             </div>
         
@@ -215,7 +218,7 @@
 
                       </div>
                       <div class="tab-pane" id="dataCatalogueTab2Content" role="tabpanel" 
-                        aria-labelledby="dataCatalogueTab2">
+                        aria-labelledby="dataCatalogueTab2" *ngIf="exchangeData.headlineIndicatorHierarchy && exchangeData.headlineIndicatorHierarchy.length>0">
                         <div class="just-padding">
 
 													<div id="headlineIndicatorHierarchySelection" class="list-group list-group-root well">
