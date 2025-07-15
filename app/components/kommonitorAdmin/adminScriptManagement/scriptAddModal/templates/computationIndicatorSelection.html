@@ -9,7 +9,7 @@
           ng-model="$parent.indicatorNameFilter_compIndicator">
       </div>
       <br />
-      <select ng-model="$parent.compIndicatorSelection" size="5" ng-change="$parent.onChangeComputationIndicator(compIndicatorSelection)"
+      <select ng-model="$parent.compIndicatorSelection" size="5" ng-change="$parent.onChangeComputationIndicator(compIndicatorSelection, box)"
         ng-options="indicatorMetadata as indicatorMetadata.indicatorName for indicatorMetadata in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter:indicatorNameFilter_compIndicator"
         class="form-control">
         <option disabled selected value> -- Indikator als Berechnungsgrundlage w&auml;hlen --

@@ -130,13 +130,13 @@ angular.module('adminScriptExecution').component('adminScriptExecution', {
 
 		$scope.fetchDefaultIndicatorJobs = function(){
             return $http({
-              url: __env.targetUrlToProcessingEngine + "script-engine/defaultIndicatorComputation",
+              url: __env.targetUrlToProcessesApi + "jobs",
               method: "GET"
             }).then(function successCallback(response) {
                 // this callback will be called asynchronously
                 // when the response is available
 
-                $scope.availableDefaultComputationJobDatasets = response.data;
+                $scope.availableDefaultComputationJobDatasets = response.data.jobs;
 
               });
 		  };
@@ -144,21 +144,22 @@ angular.module('adminScriptExecution').component('adminScriptExecution', {
 		  $scope.fetchCustomizedIndicatorJobs = function(){
 				console.log("fetchCustomizedIndicatorJobs");
             return $http({
-              url: "http://localhost:8099/jobs",
+              url: __env.targetUrlToProcessesApi + "jobs",
               method: "GET"
             }).then(function successCallback(response) {
                 // this callback will be called asynchronously
                 // when the response is available
 								console.log(response.data);
 
-                $scope.availableCustomizedComputationJobDatasets = response.data;
+				// new since processes api July, 2025
+                $scope.availableCustomizedComputationJobDatasets = response.data.jobs;
 
               });
           };
 
 		  $scope.fetchDefaultIndicatorJobHealth = function(){
 			return $http({
-				url: __env.targetUrlToProcessingEngine + "script-engine/defaultIndicatorComputation/health",
+				url: __env.targetUrlToProcessesApi + "processes",
 				method: "GET"
 			  }).then(function successCallback(response) {
 				  // this callback will be called asynchronously
@@ -171,7 +172,7 @@ angular.module('adminScriptExecution').component('adminScriptExecution', {
 
 		  $scope.fetchCustomizedIndicatorJobHealth = function(){
 			return $http({
-				url: __env.targetUrlToProcessingEngine + "script-engine/customizableIndicatorComputation/health",
+				url: __env.targetUrlToProcessesApi + "processes",
 				method: "GET"
 			  }).then(function successCallback(response) {
 				  // this callback will be called asynchronously

@@ -151,7 +151,22 @@ angular.module('indicatorDeleteModal').component('indicatorDeleteModal', {
 			$scope.affectedScripts = [];
 
 			kommonitorDataExchangeService.availableProcessScripts.forEach(function(script){
-				var requiredIndicatorIds = script.requiredIndicatorIds;
+				var requiredIndicatorIds = [];
+				if (script.inputs.computation_ids){
+					requiredIndicatorIds.concat(script.inputs.computation_ids);
+				}
+				if(script.inputs.computation_id){
+					requiredIndicatorIds.push(script.inputs.computation_id);
+				}
+				if(script.inputs.computation_id_numerator){
+					requiredIndicatorIds.push(script.inputs.computation_id_numerator);
+				}
+				if(script.inputs.computation_id_denominator){
+					requiredIndicatorIds.push(script.inputs.computation_id_denominator);
+				}
+				if(script.inputs.target_indicator_id){
+					requiredIndicatorIds.push(script.inputs.target_indicator_id);
+				}
 
 				for(var i=0; i<requiredIndicatorIds.length; i++){
 					var indicatorId = requiredIndicatorIds[i];
@@ -168,7 +183,7 @@ angular.module('indicatorDeleteModal').component('indicatorDeleteModal', {
 		$scope.gatherAffectedGeoresourceReferences = function(){
 			$scope.affectedGeoresourceReferences = [];
 
-			var georesourceReferences = $scope.selectedIndicatorDataset.referencedGeoresources;
+			var georesourceReferences = $scope.selectedIndicatorDataset.referencedGeoresources || [];
 
 				for(var i=0; i<georesourceReferences.length; i++){
 					var georesourceReference = georesourceReferences[i];
@@ -186,7 +201,7 @@ angular.module('indicatorDeleteModal').component('indicatorDeleteModal', {
 			$scope.affectedIndicatorReferences = [];
 
 			// first add all direct references from selected indicator
-			var indicatorReferences_selectedIndicator = $scope.selectedIndicatorDataset.referencedIndicators;
+			var indicatorReferences_selectedIndicator = $scope.selectedIndicatorDataset.referencedIndicators || [];
 
 				for(var i=0; i<indicatorReferences_selectedIndicator.length; i++){
 					var indicatorReference_selectedIndicator = indicatorReferences_selectedIndicator[i];

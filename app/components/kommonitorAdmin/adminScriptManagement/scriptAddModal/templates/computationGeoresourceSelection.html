@@ -8,7 +8,7 @@
           ng-model="$parent.georesourceNameFilter">
       </div>
       <br />
-      <select ng-model="$parent.georesourceSelection" size="5" ng-change="$parent.onChangeGeoresource($parent.georesourceSelection)"
+      <select ng-model="$parent.georesourceSelection" size="5" ng-change="$parent.onChangeGeoresource($parent.georesourceSelection, box)"
         ng-options="georesourceMetadata as georesourceMetadata.datasetName for georesourceMetadata in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isPOI:'true'} | filter:georesourceNameFilter"
         class="form-control">
         <option disabled selected value> -- Georessource w&auml;hlen --

@@ -124,8 +124,8 @@ try {
   // Base url for Data Management API
   window.__env.basePath = 'management';
 
-  // Processing Engine URL
-  window.__env.targetUrlToProcessingEngine = 'http://localhost:8086/processing/';
+  // Processes API URL
+  window.__env.targetUrlToProcessesApi = "http://localhost:8099/"
 
   // Open Route Service URL
   window.__env.targetUrlToReachabilityService_ORS = 'https://ors5.fbg-hsbo.de';

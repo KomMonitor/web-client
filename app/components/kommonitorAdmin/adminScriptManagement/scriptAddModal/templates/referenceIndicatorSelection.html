@@ -8,7 +8,7 @@
           ng-model="$parent.indicatorNameFilter_refIndicator">
       </div>
       <br />
-      <select ng-model="$parent.refIndicatorSelection" size="5" ng-change="$parent.onChangeReferenceIndicator(refIndicatorSelection)"
+      <select ng-model="$parent.refIndicatorSelection" size="5" ng-change="$parent.onChangeReferenceIndicator(refIndicatorSelection, box)"
         ng-options="indicatorMetadata as indicatorMetadata.indicatorName for indicatorMetadata in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter:indicatorNameFilter_refIndicator"
         class="form-control">
         <option disabled selected value> -- Indikator als Berechnungsgrundlage w&auml;hlen --

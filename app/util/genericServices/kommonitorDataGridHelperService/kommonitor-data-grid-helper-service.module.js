@@ -1,10 +1,11 @@
-angular.module('kommonitorDataGridHelper', ['kommonitorDataExchange']);
+angular.module('kommonitorDataGridHelper', ['kommonitorDataExchange', 'kommonitorScriptHelper']);
 
 angular
   .module('kommonitorDataGridHelper', [])
   .service(
-    'kommonitorDataGridHelperService', ['kommonitorDataExchangeService', '$rootScope', '$timeout', '$http', '$httpParamSerializerJQLike', '__env',
-    function (kommonitorDataExchangeService, $rootScope, $timeout,
+    'kommonitorDataGridHelperService', ['kommonitorDataExchangeService', 'kommonitorScriptHelperService',
+      '$rootScope', '$timeout', '$http', '$httpParamSerializerJQLike', '__env',
+    function (kommonitorDataExchangeService, kommonitorScriptHelperService, $rootScope, $timeout,
       $http, $httpParamSerializerJQLike, __env) {
 
       var self = this;
@@ -2271,20 +2272,44 @@ angular
 
       this.buildDataGridColumnConfig_scripts = function(){
         const columnDefs = [
-          { headerName: 'Id', field: "scriptId", pinned: 'left', maxWidth: 125, checkboxSelection: true, headerCheckboxSelection: true, 
+          { headerName: 'Id', field: "scheduleID", pinned: 'left', maxWidth: 125, checkboxSelection: true, headerCheckboxSelection: true, 
           headerCheckboxSelectionFilteredOnly: true },
-          { headerName: 'Name', field: "name", pinned: 'left', maxWidth: 300 },  
-          { headerName: 'Ziel-Indikatoren-Id', field: "indicatorId", maxWidth: 125 },
+          // { headerName: 'Name', field: "name", pinned: 'left', maxWidth: 300 },  
+          { headerName: 'Ziel-Indikatoren-Id', field: "indicatorId", maxWidth: 125, cellRenderer: function (params) {
+              return params.data.inputs.target_indicator_id;
+            } },
           { headerName: 'Ziel-Indikatoren-Name', minWidth: 200, cellRenderer: function (params) {
-              return kommonitorDataExchangeService.getIndicatorNameFromIndicatorId(params.data.indicatorId);
+              return kommonitorDataExchangeService.getIndicatorNameFromIndicatorId(params.data.inputs.target_indicator_id);
             },
             filter: 'agTextColumnFilter', 
             filterValueGetter: (params) => {
-              return kommonitorDataExchangeService.getIndicatorNameFromIndicatorId(params.data.indicatorId);
+              return kommonitorDataExchangeService.getIndicatorNameFromIndicatorId(params.data.inputs.target_indicator_id);
             } 
-          },       
-          { headerName: 'Beschreibung', field: "description", minWidth: 300 },
-          { headerName: 'notwendige Basis-Indikatoren', minWidth: 300, cellRenderer: function (params) {
+          },
+          { headerName: 'Berechnungsart', minWidth: 200, cellRenderer: function (params) {
+
+            for (const scriptType of kommonitorScriptHelperService.availableScriptTypeOptions) {
+                if(scriptType && scriptType.additional_parameters && scriptType.additional_parameters.parameters[0] && scriptType.additional_parameters.parameters[0].value[0]){
+                  if (scriptType.additional_parameters.parameters[0].value[0].apiName == params.data.processID){
+                    return scriptType.title;
+                  }
+                }              
+              }
+            
+            },
+            filter: 'agTextColumnFilter', 
+            filterValueGetter: (params) => {
+              for (const scriptType of kommonitorScriptHelperService.availableScriptTypeOptions) {
+                if(scriptType && scriptType.additional_parameters && scriptType.additional_parameters.parameters[0] && scriptType.additional_parameters.parameters[0].value[0]){
+                  if (scriptType.additional_parameters.parameters[0].value[0].apiName == params.data.processID){
+                    return scriptType.title;
+                  }
+                }              
+              }
+            } 
+          },
+          
+          { headerName: 'Ziel Raumebenen', minWidth: 300, cellRenderer: function (params) {
             
               /*
                 <table class="table table-condensed">
@@ -2295,20 +2320,20 @@ angular
                         </tr>
                       </thead>
                       <tbody>
-                        <tr ng-repeat="baseIndicatorId in scriptDataset.requiredIndicatorIds">
-                        <td>{{::baseIndicatorId}}</td>
-                        <td>{{::$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorNameFromIndicatorId(baseIndicatorId)}}</td>
+                        <tr ng-repeat="spatialUnitId in scriptDataset.target_spatial_units">
+                        <td>{{::spatialUnitId}}</td>
+                        <td>{{::$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorNameFromIndicatorId(spatialUnitId)}}</td>
                         </tr>
                       </tbody>
                     </table> 
               */
-              if(params.data && params.data.requiredIndicatorIds && params.data.requiredIndicatorIds.length > 0){
+              if(params.data && params.data.inputs.target_spatial_units && params.data.inputs.target_spatial_units.length > 0){
                 let html = '<table class="table table-condensed table-bordered table-striped"><thead><tr><th>Id</th><th>Name</th></tr></thead><tbody>';
 
-                for (const baseIndicatorId of params.data.requiredIndicatorIds) {
+                for (const spatialUnitId of params.data.inputs.target_spatial_units) {
                   html += "<tr>";
-                  html += "<td>" + baseIndicatorId + "</td>";
-                  html += "<td>" + kommonitorDataExchangeService.getIndicatorNameFromIndicatorId(baseIndicatorId) + "</td>";
+                  html += "<td>" + spatialUnitId + "</td>";
+                  html += "<td>" + kommonitorDataExchangeService.getSpatialUnitMetadataById(spatialUnitId).spatialUnitLevel + "</td>";
                   html += "</tr>";
                 }
                 
@@ -2323,11 +2348,11 @@ angular
             filter: 'agTextColumnFilter', 
             filterValueGetter: (params) => {
 
-              if(params.data && params.data.requiredIndicatorIds && params.data.requiredIndicatorIds.length > 0){
-                let string = JSON.stringify(params.data.requiredIndicatorIds);
+              if(params.data && params.data.inputs.target_spatial_units && params.data.inputs.target_spatial_units.length > 0){
+                let string = JSON.stringify(params.data.inputs.target_spatial_units);
 
-                for (const baseIndicatorId of params.data.requiredIndicatorIds) {
-                  string += kommonitorDataExchangeService.getIndicatorNameFromIndicatorId(baseIndicatorId);
+                for (const spatialUnitId of params.data.inputs.target_spatial_units) {
+                  string += kommonitorDataExchangeService.getSpatialUnitMetadataById(spatialUnitId).spatialUnitLevel;
                 }                              
 
                 return string;  
@@ -2337,16 +2362,111 @@ angular
               }
             }  
           },
-          { headerName: 'notwendige Basis-Georessourcen', minWidth: 300, cellRenderer: function (params) {
-              if(params.data && params.data.requiredGeoresourceIds && params.data.requiredGeoresourceIds.length > 0){
+          { headerName: 'notwendige Basis-Indikatoren', minWidth: 300, cellRenderer: function (params) {
+            
+              /*
+                <table class="table table-condensed">
+                      <thead>
+                        <tr>
+                        <th>Id</th>
+                        <th>Name</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr ng-repeat="baseIndicatorId in scriptDataset.inputs.computation_ids">
+                        <td>{{::baseIndicatorId}}</td>
+                        <td>{{::$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorNameFromIndicatorId(baseIndicatorId)}}</td>
+                        </tr>
+                      </tbody>
+                    </table> 
+              */
+              if(params.data && (params.data.inputs.computation_ids || params.data.inputs.computation_id || params.data.inputs.computation_id_numerator || params.data.inputs.computation_id_denominator)){
                 let html = '<table class="table table-condensed table-bordered table-striped"><thead><tr><th>Id</th><th>Name</th></tr></thead><tbody>';
 
-                for (const baseGeoresourceId of params.data.requiredGeoresourceIds) {
-                  html += "<tr>";
-                  html += "<td>" + baseGeoresourceId + "</td>";
-                  html += "<td>" + kommonitorDataExchangeService.getGeoresourceNameFromGeoresourceId(baseGeoresourceId) + "</td>";
-                  html += "</tr>";
+                if(params.data.inputs.computation_ids && params.data.inputs.computation_ids.length > 0){
+                  for (const baseIndicatorId of params.data.inputs.computation_ids) {
+                    html += "<tr>";
+                    html += "<td>" + baseIndicatorId + "</td>";
+                    html += "<td>" + kommonitorDataExchangeService.getIndicatorNameFromIndicatorId(baseIndicatorId) + "</td>";
+                    html += "</tr>";
+                  }
                 }
+                if(params.data.inputs.computation_id){
+                    html += "<tr>";
+                    html += "<td>" + params.data.inputs.computation_id + "</td>";
+                    html += "<td>" + kommonitorDataExchangeService.getIndicatorNameFromIndicatorId(params.data.inputs.computation_id) + "</td>";
+                    html += "</tr>";
+                }
+                if(params.data.inputs.computation_id_numerator){
+                    html += "<tr>";
+                    html += "<td>" + params.data.inputs.computation_id_numerator + "</td>";
+                    html += "<td>" + kommonitorDataExchangeService.getIndicatorNameFromIndicatorId(params.data.inputs.computation_id_numerator) + "</td>";
+                    html += "</tr>";
+                }
+                if(params.data.inputs.computation_id_denominator){
+                    html += "<tr>";
+                    html += "<td>" + params.data.inputs.computation_id_denominator + "</td>";
+                    html += "<td>" + kommonitorDataExchangeService.getIndicatorNameFromIndicatorId(params.data.inputs.computation_id_denominator) + "</td>";
+                    html += "</tr>";
+                }                
+                
+                html += "</tbody></table>";
+                return html;  
+              }
+              else{
+                return "keine";
+              }
+              
+            },
+            filter: 'agTextColumnFilter', 
+            filterValueGetter: (params) => {
+
+              let string = "";
+              if(params.data && params.data.inputs.computation_ids && params.data.inputs.computation_ids.length > 0){
+                string = JSON.stringify(params.data.inputs.computation_ids);
+
+                for (const baseIndicatorId of params.data.inputs.computation_ids) {
+                  string += kommonitorDataExchangeService.getIndicatorNameFromIndicatorId(baseIndicatorId);
+                }                              
+              }
+              if(params.data.inputs.computation_id){
+                string += kommonitorDataExchangeService.getIndicatorNameFromIndicatorId(params.data.inputs.computation_id)
+              }
+              if(params.data.inputs.computation_id_numerator){
+                string += kommonitorDataExchangeService.getIndicatorNameFromIndicatorId(params.data.inputs.computation_id_numerator)
+              }
+              if(params.data.inputs.computation_id_denominator){
+                string += kommonitorDataExchangeService.getIndicatorNameFromIndicatorId(params.data.inputs.computation_id_denominator)
+              }              
+              
+              if(string == ""){
+                return "keine";
+              }
+              else{
+                return string;
+              }
+              
+            }  
+          },
+          { headerName: 'notwendige Basis-Georessourcen', minWidth: 300, cellRenderer: function (params) {
+              if(params.data && params.data.inputs.georesource_id ){
+                let html = '<table class="table table-condensed table-bordered table-striped"><thead><tr><th>Id</th><th>Name</th></tr></thead><tbody>';
+
+                // July 2025 processes api migration
+                // currently existing scripts only require one single georesource
+                // hence we only add one entry to datatable
+                // we might need this snippet in the future though 
+                // for (const baseGeoresourceId of params.data.inputs.georesource_id) {
+                //   html += "<tr>";
+                //   html += "<td>" + baseGeoresourceId + "</td>";
+                //   html += "<td>" + kommonitorDataExchangeService.getGeoresourceNameFromGeoresourceId(baseGeoresourceId) + "</td>";
+                //   html += "</tr>";
+                // }
+
+                html += "<tr>";
+                html += "<td>" + params.data.inputs.georesource_id + "</td>";
+                html += "<td>" + kommonitorDataExchangeService.getGeoresourceNameFromGeoresourceId(params.data.inputs.georesource_id) + "</td>";
+                html += "</tr>";
                 
                 html += "</tbody></table>";
                 return html;  
@@ -2357,11 +2477,11 @@ angular
             },
             filter: 'agTextColumnFilter', 
             filterValueGetter: (params) => {
-              if(params.data && params.data.requiredGeoresourceIds && params.data.requiredGeoresourceIds.length > 0){
-                let string = JSON.stringify(params.data.requiredGeoresourceIds);
+              if(params.data && params.data.inputs.georesource_id && params.data.inputs.georesource_id.length > 0){
+                let string = JSON.stringify(params.data.inputs.georesource_id);
 
-                for (const baseIndicatorId of params.data.requiredGeoresourceIds) {
-                  string += kommonitorDataExchangeService.getGeoresourceNameFromGeoresourceId(baseIndicatorId);
+                for (const georesourceId of params.data.inputs.georesource_id) {
+                  string += kommonitorDataExchangeService.getGeoresourceNameFromGeoresourceId(georesourceId);
                 }                              
 
                 return string;  
@@ -2370,67 +2490,8 @@ angular
                 return "keine";
               }
             } 
-          },
-          { headerName: 'Prozessparameter', field: "", minWidth: 1000, cellRenderer: function (params) {
-              /*
-                <table class="table table-condensed">
-										<thead>
-										  <tr>
-											<th>Name</th>
-											<th>Beschreibung</th>
-											<th>Datentyp</th>
-											<th>Standard-Wert</th>
-											<th>erlaubter Wertebereich</th>
-										  </tr>
-										</thead>
-										<tbody>
-										  <tr ng-repeat="processParameter in scriptDataset.variableProcessParameters">
-											<td>{{::processParameter.name}}</td>
-											<td>{{::processParameter.description}}</td>
-											<td>{{::processParameter.dataType}}</td>
-											<td>{{::processParameter.defaultValue}}</td>
-											<td><div ng-show="processParameter.dataType == 'double' || processParameter.dataType == 'integer'"><b>erlaubter Wertebereich</b> {{::processParameter.minParameterValueForNumericInputs}} - {{::processParameter.maxParameterValueForNumericInputs}}</div></td>
-										  </tr>
-										 </tbody>
-									</table>
-              */
-                  if(params.data && params.data.variableProcessParameters && params.data.variableProcessParameters.length > 0){
-                    let html = '<table class="table table-condensed table-bordered table-striped"><thead><tr><th>Name</th><th>Beschreibung</th><th>Datentyp</th><th>Standard-Wert</th><th>erlaubter Wertebereich</th></tr></thead><tbody>';
-    
-                    for (const processParameter of params.data.variableProcessParameters) {
-                      html += "<tr>";
-                      html += "<td>" + processParameter.name + "</td>";
-                      html += "<td>" + processParameter.description + "</td>";
-                      html += "<td>" + processParameter.dataType + "</td>";
-                      html += "<td>" + processParameter.defaultValue + "</td>";
-                      html += "<td>" ;
-
-                      if(processParameter.dataType == "integer" || processParameter.dataType == "double"){
-                        html += "<b>erlaubter Wertebereich</b><br/><br/>";
-                        html += "" + processParameter.minParameterValueForNumericInputs + " &dash; " + processParameter.maxParameterValueForNumericInputs;
-                      }
-
-                      html += "</td>";
-                      html += "</tr>";
-                    }
+          }
                     
-                    html += "</tbody></table>";
-                    return html;  
-                  }
-                  else{
-                    return "keine";
-                  }
-            },
-            filter: 'agTextColumnFilter', 
-            filterValueGetter: (params) => {
-              if(params.data && params.data.variableProcessParameters && params.data.variableProcessParameters.length > 0){
-                return JSON.stringify(params.data.variableProcessParameters);
-              }
-              else{
-                return "keine";
-              }
-            } 
-         }          
         ];
 
         return columnDefs;
@@ -2518,7 +2579,7 @@ angular
         const columnDefs = [
           { headerName: 'Job-Id', field: "jobId", pinned: 'left', maxWidth: 125, checkboxSelection: true, headerCheckboxSelection: true, 
           headerCheckboxSelectionFilteredOnly: true },
-          { headerName: 'Script-Id', field: "jobData.scriptId", pinned: 'left', maxWidth: 125 },
+          { headerName: 'Script-Id', field: "jobData.scheduleID", pinned: 'left', maxWidth: 125 },
           { headerName: 'Ziel-Indikator', pinned: 'left', maxWidth: 250, cellRenderer: function (params) {
             if(params.data.jobData && params.data.jobData.targetIndicatorId){
               let indicatorMetadata = kommonitorDataExchangeService.getIndicatorMetadataById(params.data.jobData.targetIndicatorId); 

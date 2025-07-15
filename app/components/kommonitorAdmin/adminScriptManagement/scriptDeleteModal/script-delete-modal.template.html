@@ -22,7 +22,7 @@
 
 				<div ng-if="datasetsToDelete.length > 0">
 					<ul>
-	            <li ng-repeat="dataset in datasetsToDelete">{{dataset.name}}</li>
+	            <li ng-repeat="dataset in datasetsToDelete">{{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorNameFromIndicatorId(dataset.inputs.target_indicator_id)}}</li>
 					</ul>
 				</div>
 
@@ -40,7 +40,7 @@
                 <button type="button" class="close" ng-click="hideSuccessAlert()" aria-hidden="true">&times;</button>
                 <h4><i class="icon fa fa-check"></i>Folgende Skripte wurde erfolgreich gel&ouml;scht</h4>
 								<ul>
-				            <li ng-repeat="dataset in successfullyDeletedDatasets">{{dataset.name}}</li>
+				            <li ng-repeat="dataset in successfullyDeletedDatasets">{{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorNameFromIndicatorId(dataset.inputs.target_indicator_id)}}</li>
 								</ul>
       </div>
 
@@ -59,7 +59,7 @@
 
 	                <tbody>
 		                <tr ng-repeat="dataset in failedDatasetsAndErrors">
-		                  <td>{{dataset[0].name}}</td>
+		                  <td>{{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorNameFromIndicatorId(dataset.inputs.target_indicator_id)}}</td>
 		                  <td ng-bind-html="dataset[1]"></td>
 		                </tr>
 

@@ -7,25 +7,29 @@ This project is part of the [KomMonitor](http://kommonitor.de) spatial data infr
 <!-- TOC depthFrom:1 depthTo:6 withLinks:1 updateOnSave:0 orderedList:0 -->
 
 - [KomMonitor Web Client](#kommonitor-web-client)
-	- [Quick Links And Further Information on KomMonitor](#quick-links-and-further-information-on-kommonitor)
-	- [Overview](#overview)
-	- [Dependencies to other KomMonitor Components](#dependencies-to-other-kommonitor-components)
-	- [Features](#features)
-	- [Installation / Building Information](#installation-building-information)
-		- [Configuration](#configuration)
-			- [env.js - Configure Deployment Details of other Services and App Properties](#envjs-configure-deployment-details-of-other-services-and-app-properties)
-		- [Running the NodeJS KomMonitor Web Client](#running-the-nodejs-kommonitor-web-client)
-			- [Local Manual Startup and Shutdown](#local-manual-startup-and-shutdown)
-			- [Production Startup and Shutdown](#production-startup-and-shutdown)
-		- [Docker](#docker)
-	- [User Guide](#user-guide)
-	- [Contribution - Developer Information](#contribution-developer-information)
-		- [How to Contribute](#how-to-contribute)
-		- [Hints on how to integrate a new Module](#hints-on-how-to-integrate-a-new-module)
-		- [Branching](#branching)
-	- [Third Party Dependencies](#third-party-dependencies)
-	- [Contact](#contact)
-	- [Credits and Contributing Organizations](#credits-and-contributing-organizations)
+  - [Quick Links And Further Information on KomMonitor](#quick-links-and-further-information-on-kommonitor)
+  - [Overview](#overview)
+  - [Dependencies to other KomMonitor Components](#dependencies-to-other-kommonitor-components)
+  - [Features](#features)
+  - [Installation / Building Information](#installation--building-information)
+    - [Configuration](#configuration)
+      - [`/app/config/config-storage-server.json`](#appconfigconfig-storage-serverjson)
+      - [`/app/config/env_backup.js` - Backup Configuration of Deployment Details of other Services and App Properties](#appconfigenv_backupjs---backup-configuration-of-deployment-details-of-other-services-and-app-properties)
+      - [`/app/config/keycloak_backup.json` - Backup Configuration of Keycloak Connection (only relevant when role-based Data Access via Keycloak is enabled)](#appconfigkeycloak_backupjson---backup-configuration-of-keycloak-connection-only-relevant-when-role-based-data-access-via-keycloak-is-enabled)
+      - [`/app/config/controls-config_backup.json` - Backup Configuration of role-based Element Visibility (only relevant when role-based Data Access via Keycloak is enabled)](#appconfigcontrols-config_backupjson---backup-configuration-of-role-based-element-visibility-only-relevant-when-role-based-data-access-via-keycloak-is-enabled)
+    - [Running the NodeJS KomMonitor Web Client](#running-the-nodejs-kommonitor-web-client)
+      - [Local Manual Startup and Shutdown](#local-manual-startup-and-shutdown)
+      - [Production Startup and Shutdown](#production-startup-and-shutdown)
+    - [Docker](#docker)
+  - [Exemplar docker-compose File with explanatory comments](#exemplar-docker-compose-file-with-explanatory-comments)
+  - [User Guide](#user-guide)
+  - [Contribution - Developer Information](#contribution---developer-information)
+    - [How to Contribute](#how-to-contribute)
+    - [Hints on how to integrate a new Module](#hints-on-how-to-integrate-a-new-module)
+    - [Branching](#branching)
+  - [Third Party Dependencies](#third-party-dependencies)
+  - [Contact](#contact)
+  - [Credits and Contributing Organizations](#credits-and-contributing-organizations)
 
 <!-- /TOC -->
 
@@ -167,8 +171,6 @@ The main app configuration file is located at [app/config/env_backup.js](./app/c
   // Base url for Data Management API
   window.__env.basePath = 'management';
 
-  // Processing Engine URL
-  window.__env.targetUrlToProcessingEngine = 'http://localhost:8086/processing/';
 
   // Open Route Service URL
   window.__env.targetUrlToReachabilityService_ORS = 'https://ors5.fbg-hsbo.de';

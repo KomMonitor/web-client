@@ -106,13 +106,11 @@ angular
       };
 
       this.getScriptTypes = async function(){
-          console.log("Trying to GET processes");
 
           return await $http({
-            url: "http://localhost:8099/processes/",
+            url: __env.targetUrlToProcessesApi + "processes/",
             method: "GET"
           }).then(function successCallback(response) {
-              console.log(response.data.processes);
               return response.data.processes;
     
             }, function errorCallback(response) {
@@ -122,17 +120,15 @@ angular
       }
 
       this.getProcessDescription = async function(processId) {
-        console.log("Trying to GET process description for " + processId);
 
         var self = this;
         await $http({
-          url: "http://localhost:8099/processes/"+ processId,
+          url: __env.targetUrlToProcessesApi + "processes/" + processId,
           method: "GET",
           data: {
             'f': 'json'
           }
-        }).then(function successCallback(response) {
-            console.log(response.data);
+        }).then(function successCallback(response) {            
             self.scriptData = response.data;
             $rootScope.$broadcast("processDescriptionFetched");
           }, function errorCallback(response) {
@@ -320,13 +316,12 @@ angular
         });
       };
 
-      this.postNewScript = async function(scriptId){
-        console.log("Trying to POST to management service to register new script.");        
+      this.postNewScript = async function(scheduleId){ 
 
-        if(this.processParameters.computation_id) {
-          this.processParameters.computation_ids = [this.processParameters.computation_id];
-          this.processParameters.computation_id = undefined;
-        }
+        // if(this.processParameters.computation_id) {
+        //   this.processParameters.computation_ids = [this.processParameters.computation_id];
+        //   this.processParameters.computation_id = undefined;
+        // }
 
         function wrapObjectsInValue(obj) {
           const result = {};
@@ -350,36 +345,33 @@ angular
           inputs: this.processParameters,
         }
 
-        console.log(postBody);
 
         //postBody = angular.toJson( this.processParameters ); // remove hash keys
-        
-        console.log(this.processParameters);
-        console.log(postBody);
 
-        postBody = {
-          "inputs": {
-            "target_indicator_id": "7f84da9c-604a-4af8-8861-129f3be78e62",
-            "target_spatial_units": [
-                "15fcddce-55d6-4bae-89ea-87656e2749b7"
-            ],
-            "target_time": {
-                "value": {
-                    "mode": "DATES",
-                    "includeDates": ["2019-12-31", "2020-12-31"]    
-                }
-            },
-            "execution_interval":  {
-                "value": {
-                    "cron": "*/1 * * * *"
-                }
-            },
-            "computation_ids": ["614618cb-2b7c-479c-8615-6811a1081942", "344da619-6c28-4136-895d-ecbc5670f9e7"]
-          }
-        }
+        // postBody = {
+        //   "inputs": {
+        //     "target_indicator_id": "8146f4ad-8db2-45de-aa4d-a9ce59c68f83",            
+        //     "target_spatial_units": [
+        //         "4154115f-3fa8-4fb9-9d7a-593ed0885e6c"
+        //     ],
+        //     "target_time": {
+        //         "value": {
+        //             "mode": "DATES",
+        //             "includeDates": ["2019-12-31", "2020-12-31"]    
+        //         }
+        //     },
+        //     "execution_interval":  {
+        //         "value": {
+        //             "cron": "*/1 * * * *"
+        //         }
+        //     },
+        //     "computation_id_numerator": "905b3c1b-0b1c-49d0-99e5-b327b7b085c2",
+        //     "computation_id_denominator": "baad078b-8e91-4999-aa94-0fee5a50cec6",
+        //   }
+        // }
 
         return await $http({
-          url: "http://localhost:8099/processes/" + scriptId + "/schedule",
+          url: __env.targetUrlToProcessesApi + "processes/" + scheduleId + "/schedule",
           method: "POST",
           data: postBody
         }).then(function successCallback(response) {
@@ -397,8 +389,21 @@ angular
         });
       };
 
-      this.updateScript = async function(scriptName, description, scriptId){
-        console.log("Trying to POST to importer service to update spatial unit with id '" + spatialUnitId + "'.");
+      this.deleteScript = async function(scheduleId){
+
+          return await $http({
+            url: __env.targetUrlToProcessesApi + "schedules/" + scheduleId,
+            method: "DELETE"
+          }).then(function successCallback(response) {
+              
+    
+            }, function errorCallback(response) {
+              console.error("Error deleting script schedule.");
+              throw response;
+          });
+      }
+
+      this.updateScript = async function(scriptName, description, scheduleId){
 
         var putBody = {
           "name": scriptName,
@@ -410,7 +415,7 @@ angular
         };       
 
         return await $http({
-          url: this.targetUrlToManagementService + "process-scripts/" + scriptId,
+          url: this.targetUrlToManagementService + "process-scripts/" + scheduleId,
           method: "PUT",
           data: putBody,
           headers: {

@@ -287,18 +287,14 @@
 										<thead>
 										<tr>
 											<th>Skript-ID</th>
-											<th>Skript-Name</th>
-											<th>Skript-Beschreibung</th>
-											<th>ID des berechneten Indikators</th>
+											<th>Name des berechneten Indikators</th>
 										</tr>
 										</thead>
 
 										<tbody>
 											<tr ng-repeat="script in affectedScripts track by $index">
-												<td>{{script.scriptId}}</td>
-												<td>{{script.name}}</td>
-												<td>{{script.description}}</td>
-												<td>{{script.indicatorId}}</td>
+												<td>{{script.scheduleID}}</td>
+												<td>{{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorNameFromIndicatorId(script.inputs.target_indicator_id)}}</td>
 											</tr>
 
 										</tbody>

@@ -115,8 +115,8 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 				try {
 					var addScriptResponse = await kommonitorScriptHelperService.postNewScript($scope.selectedScriptType.id);					
 
-					let scriptId = addScriptResponse.scriptId;
-					$rootScope.$broadcast("refreshScriptOverviewTable", "add", scriptId);
+					let scheduleId = addScriptResponse.scheduleID;
+					$rootScope.$broadcast("refreshScriptOverviewTable", "add", scheduleId);
 					if(kommonitorScriptHelperService.scriptFormulaHTML_overwriteTargetIndicatorMethod){
 						try {
 							await kommonitorScriptHelperService.replaceMethodMetadataForTargetIndicator(kommonitorScriptHelperService.targetIndicator);

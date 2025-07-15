@@ -55,10 +55,15 @@ angular.module('scriptTest').component('scriptTest', {
 
 			$scope.init();
 
-			$scope.onChangeReferenceIndicator = function(refIndicatorSelection){
+			$scope.onChangeReferenceIndicator = function(refIndicatorSelection, inputBox){
 				$scope.refIndicatorSelection = refIndicatorSelection;
 
-				kommonitorScriptHelperService.processParameters.reference_id = refIndicatorSelection.indicatorId;
+				if(inputBox && inputBox.processInputName){
+					kommonitorScriptHelperService.processParameters[inputBox.processInputName] = refIndicatorSelection.indicatorId;
+				}
+				else{
+					kommonitorScriptHelperService.processParameters.reference_id = refIndicatorSelection.indicatorId;
+				}				
 				$scope.legendValues.refIndicatorSelection = refIndicatorSelection;
 
 				$scope.resetComputationFormulaAndLegend();				
@@ -69,10 +74,15 @@ angular.module('scriptTest').component('scriptTest', {
 				$scope.resetComputationFormulaAndLegend();	
 			};
 
-			$scope.onChangeComputationIndicator = function(compIndicatorSelection){
+			$scope.onChangeComputationIndicator = function(compIndicatorSelection, inputBox){
 				$scope.compIndicatorSelection = compIndicatorSelection;
 
-				kommonitorScriptHelperService.processParameters.computation_id = compIndicatorSelection.indicatorId;
+				if(inputBox && inputBox.processInputName){
+					kommonitorScriptHelperService.processParameters[inputBox.processInputName] = compIndicatorSelection.indicatorId;
+				}
+				else{
+					kommonitorScriptHelperService.processParameters.computation_id = compIndicatorSelection.indicatorId;
+				}		
 				$scope.legendValues.compIndicatorSelection = compIndicatorSelection;
 
 				$scope.resetComputationFormulaAndLegend();				
@@ -125,8 +135,13 @@ angular.module('scriptTest').component('scriptTest', {
 				$scope.resetComputationFormulaAndLegend();	
 			}
 
-			$scope.onChangeGeoresource = function(georesourceSelection){
-				kommonitorScriptHelperService.processParameters.georesource_id = georesourceSelection.georesourceId;
+			$scope.onChangeGeoresource = function(georesourceSelection, inputBox){
+				if(inputBox && inputBox.processInputName){
+					kommonitorScriptHelperService.processParameters[inputBox.processInputName] = georesourceSelection.georesourceId;
+				}
+				else{
+					kommonitorScriptHelperService.processParameters.georesource_id = georesourceSelection.georesourceId;
+				}	
 				$scope.georesourceSelection = georesourceSelection;
 				$scope.legendValues.georesourceSelection = georesourceSelection;
 

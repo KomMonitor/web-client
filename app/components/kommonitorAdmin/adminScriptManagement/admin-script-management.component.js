@@ -37,9 +37,9 @@ angular.module('adminScriptManagement').component('adminScriptManagement', {
 			$scope.loadingData = false;
 		};
 
-		$scope.$on("refreshScriptOverviewTable", function (event, crudType, scriptId) {
+		$scope.$on("refreshScriptOverviewTable", function (event, crudType, scheduleId) {
 			$scope.loadingData = true;
-			$scope.refreshScriptOverviewTable(crudType, scriptId);
+			$scope.refreshScriptOverviewTable(crudType, scheduleId);
 		});
 
 		$scope.onChangeSelectAllEntries = function () {
@@ -68,9 +68,9 @@ angular.module('adminScriptManagement').component('adminScriptManagement', {
 			}
 		};
 
-		$scope.refreshScriptOverviewTable = function (crudType, targetScriptId) {
+		$scope.refreshScriptOverviewTable = function (crudType, targetScheduleId) {
 
-			if(! crudType || !targetScriptId){
+			if(! crudType || !targetScheduleId){
 				// refetch all metadata from spatial units to update table
 				kommonitorDataExchangeService.fetchIndicatorScriptsMetadata(kommonitorDataExchangeService.currentKeycloakLoginRoles).then(function successCallback(response) {
 
@@ -83,9 +83,9 @@ angular.module('adminScriptManagement').component('adminScriptManagement', {
 						$scope.loadingData = false;
 				});
 			}
-			else if(crudType && targetScriptId){
+			else if(crudType && targetScheduleId){
 				if(crudType == "add"){
-					kommonitorCacheHelperService.fetchSingleIndicatorScriptMetadata(targetScriptId, kommonitorDataExchangeService.currentKeycloakLoginRoles).then(function successCallback(data) {
+					kommonitorCacheHelperService.fetchSingleIndicatorScriptMetadata(targetScheduleId, kommonitorDataExchangeService.currentKeycloakLoginRoles).then(function successCallback(data) {
 
 						kommonitorDataExchangeService.addSingleProcessScriptMetadata(data);
 
@@ -99,7 +99,7 @@ angular.module('adminScriptManagement').component('adminScriptManagement', {
 					});
 				}
 				else if(crudType == "edit"){
-					kommonitorCacheHelperService.fetchSingleIndicatorScriptMetadata(targetScriptId, kommonitorDataExchangeService.currentKeycloakLoginRoles).then(function successCallback(data) {
+					kommonitorCacheHelperService.fetchSingleIndicatorScriptMetadata(targetScheduleId, kommonitorDataExchangeService.currentKeycloakLoginRoles).then(function successCallback(data) {
 
 						kommonitorDataExchangeService.replaceSingleProcessScriptMetadata(data);
 						
@@ -113,17 +113,17 @@ angular.module('adminScriptManagement').component('adminScriptManagement', {
 					});
 				}				
 				else if(crudType == "delete"){
-					// targetScriptId might be array in this case
-					if(targetScriptId && typeof targetScriptId == "string"){
-						kommonitorDataExchangeService.deleteSingleProcessScriptMetadata(targetScriptId);
+					// targetScheduleId might be array in this case
+					if(targetScheduleId && typeof targetScheduleId == "string"){
+						kommonitorDataExchangeService.deleteSingleProcessScriptMetadata(targetScheduleId);
 						
 						$scope.initializeOrRefreshOverviewTable();
 	
 						$scope.loadingData = false;
 					}
 
-					else if (targetScriptId && Array.isArray(targetScriptId)){
-						for (const id of targetScriptId) {
+					else if (targetScheduleId && Array.isArray(targetScheduleId)){
+						for (const id of targetScheduleId) {
 							kommonitorDataExchangeService.deleteSingleProcessScriptMetadata(id);
 						}
 						$scope.initializeOrRefreshOverviewTable();

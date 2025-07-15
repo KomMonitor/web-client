@@ -26,7 +26,6 @@ angular
       const localStorageKey_spatialUnits = localStorageKey_prefix + "_lastModification_spatialUnits";
       const localStorageKey_georesources = localStorageKey_prefix + "_lastModification_georesources";
       const localStorageKey_indicators = localStorageKey_prefix + "_lastModification_indicators";
-      const localStorageKey_processScripts = localStorageKey_prefix + "_lastModification_processScripts";
 
       const georesourcesPublicEndpoint = "/public/georesources";
       const georesourcesProtectedEndpoint = "/georesources";
@@ -34,8 +33,6 @@ angular
       const spatialUnitsProtectedEndpoint = "/spatial-units";
       const indicatorsPublicEndpoint = "/public/indicators";
       const indicatorsProtectedEndpoint = "/indicators";
-      const scriptsPublicEndpoint = "/public/process-scripts";
-      const scriptsProtectedEndpoint = "/process-scripts";
       const topicsPublicEndpoint = "/public/topics";
       // only resource that has no public endpoint
       const accessControlEndpoint = "/organizationalUnits";
@@ -43,7 +40,6 @@ angular
       var georesourcesEndpoint = georesourcesProtectedEndpoint;
       var spatialUnitsEndpoint = spatialUnitsProtectedEndpoint;
       var indicatorsEndpoint = indicatorsProtectedEndpoint;
-      var scriptsEndpoint = scriptsProtectedEndpoint;
       this.spatialResourceGETUrlPath_forAuthentication = "/public";
 
       this.checkAuthentication = function () {
@@ -51,13 +47,11 @@ angular
           georesourcesEndpoint = georesourcesProtectedEndpoint;
           spatialUnitsEndpoint = spatialUnitsProtectedEndpoint;
           indicatorsEndpoint = indicatorsProtectedEndpoint;
-          scriptsEndpoint = scriptsProtectedEndpoint;
           this.spatialResourceGETUrlPath_forAuthentication = "";
         } else {
           georesourcesEndpoint = georesourcesPublicEndpoint;
           spatialUnitsEndpoint = spatialUnitsPublicEndpoint;
           indicatorsEndpoint = indicatorsPublicEndpoint;
-          scriptsEndpoint = scriptsPublicEndpoint;
           this.spatialResourceGETUrlPath_forAuthentication = "/public";
         }
 
@@ -202,10 +196,6 @@ angular
         }
       };
 
-      this.fetchProcessScriptsMetadata = async function (keycloakRolesArray) {
-        return await this.fetchResource_fromCacheOrServer(localStorageKey_processScripts, scriptsEndpoint, "process-scripts", keycloakRolesArray);
-      };
-
       this.fetchSingleAccessControlMetadata = function (targetId, keycloakRolesArray) {
         return $http({
           url: this.baseUrlToKomMonitorDataAPI + accessControlEndpoint + "/" + targetId,
@@ -257,20 +247,6 @@ angular
           // when the response is available
 
           self.fetchIndicatorsMetadata(keycloakRolesArray);
-          return response.data;
-
-        });
-      };
-
-      this.fetchSingleIndicatorScriptMetadata = function (targetScriptId, keycloakRolesArray) {
-        return $http({
-          url: this.baseUrlToKomMonitorDataAPI + scriptsEndpoint + "/" + targetScriptId,
-          method: "GET"
-        }).then(function successCallback(response) {
-          // this callback will be called asynchronously
-          // when the response is available
-
-          self.fetchProcessScriptsMetadata(keycloakRolesArray);
           return response.data;
 
         });
