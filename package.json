@@ -83,6 +83,7 @@
     "@popperjs/core": "^2.11.8",
     "@turf/turf": "^7.2.0",
     "admin-lte": "^2.4.15",
+    "ag-grid-angular": "^31.3.4",
     "ag-grid-community": "^31.3.2",
     "angular": "^1.8.3",
     "angular-animations": "^0.11.0",
