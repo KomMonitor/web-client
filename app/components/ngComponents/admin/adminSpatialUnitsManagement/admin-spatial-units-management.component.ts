@@ -12,7 +12,8 @@ import { SpatialUnitDeleteModalComponent } from './spatialUnitDeleteModal/spatia
 import { KommonitorDataExchangeService } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
 import { KommonitorCacheHelperService } from 'services/adminSpatialUnit/kommonitor-cache-helper.service';
 import { KommonitorDataGridHelperService } from 'services/adminSpatialUnit/kommonitor-data-grid-helper.service';
-declare const agGrid: any;
+import { AgGridAngular } from 'ag-grid-angular';
+import { ColDef, GridOptions, GridApi, ColumnApi, FirstDataRenderedEvent, ColumnResizedEvent } from 'ag-grid-community';
 declare const $: any;
 declare const __env: any;
 
@@ -22,12 +23,20 @@ declare const __env: any;
   styleUrls: ['./admin-spatial-units-management.component.css']
 })
 export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
-  @ViewChild('spatialUnitOverviewTable', { static: true }) spatialUnitOverviewTable!: ElementRef;
+  @ViewChild('spatialUnitOverviewTable', { static: true }) spatialUnitOverviewTable!: AgGridAngular;
 
   public loadingData: boolean = true;
   public initializationCompleted: boolean = false;
   public tableViewSwitcher: boolean = false;
   private subscriptions: Subscription[] = [];
+
+  // AG Grid properties
+  public columnDefs: ColDef[] = [];
+  public rowData: any[] = [];
+  public defaultColDef: ColDef = {};
+  public gridOptions: GridOptions = {};
+  private gridApi!: GridApi;
+  private columnApi!: ColumnApi;
 
   constructor(
     @Inject(DOCUMENT) private document: Document,
@@ -108,7 +117,7 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
       this.initializationCompleted = true;
       
       // Use the new Angular service to build the data grid
-      this.kommonitorDataGridHelperService.buildDataGrid_spatialUnits(spatialUnits);
+      this.buildDataGrid_spatialUnits(spatialUnits);
     } else {
       // Data not ready yet, keep loading
       this.loadingData = true;
@@ -238,13 +247,9 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
     return this.kommonitorDataExchangeService.checkCreatePermission();
   }
 
-  getSelectedSpatialUnitsMetadata(): any[] {
-    return this.kommonitorDataGridHelperService.getSelectedSpatialUnitsMetadata();
-  }
-
   refreshSpatialUnitOverviewTable(): void {
-            this.initializeOrRefreshOverviewTable();
-          }
+    this.initializeOrRefreshOverviewTable();
+  }
 
   private startDataPolling(): void {
     // Poll every 500ms for data availability
@@ -266,5 +271,285 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
     setTimeout(() => {
       clearInterval(pollInterval);
     }, 10000);
+  }
+
+  // AG Grid methods
+  private buildDataGrid_spatialUnits(spatialUnitMetadataArray: any[]): void {
+    this.columnDefs = this.buildDataGridColumnConfig_spatialUnits(spatialUnitMetadataArray);
+    this.rowData = this.buildDataGridRowData_spatialUnits(spatialUnitMetadataArray);
+    this.defaultColDef = this.buildDefaultColDef();
+    this.gridOptions = this.buildGridOptions(spatialUnitMetadataArray);
+  }
+
+  private buildDefaultColDef(): ColDef {
+    return {
+      editable: false,
+      sortable: true,
+      flex: 1,
+      minWidth: 200,
+      filter: true,
+      floatingFilter: true,
+      resizable: true,
+      wrapText: true,
+      autoHeight: true,
+      cellStyle: { 
+        'font-size': '12px', 
+        'white-space': 'normal !important', 
+        'line-height': '20px !important', 
+        'word-break': 'break-word !important', 
+        'padding-top': '17px', 
+        'padding-bottom': '17px' 
+      }
+    };
+  }
+
+  private buildGridOptions(spatialUnitMetadataArray: any[]): GridOptions {
+    return {
+      suppressRowClickSelection: true,
+      rowSelection: 'multiple',
+      enableCellTextSelection: true,
+      ensureDomOrder: true,
+      pagination: true,
+      paginationPageSize: 10,
+      suppressColumnVirtualisation: true,
+      onGridReady: (params) => {
+        this.gridApi = params.api;
+        this.columnApi = params.columnApi;
+      }
+    };
+  }
+
+  private buildDataGridColumnConfig_spatialUnits(spatialUnitMetadataArray: any[]): ColDef[] {
+    return [
+      { 
+        headerName: 'Editierfunktionen', 
+        pinned: 'left', 
+        maxWidth: 170, 
+        checkboxSelection: false, 
+        headerCheckboxSelection: false, 
+        headerCheckboxSelectionFilteredOnly: true, 
+        filter: false, 
+        sortable: false, 
+        cellRenderer: this.displayEditButtons_spatialUnits.bind(this)
+      },
+      { 
+        headerName: '', 
+        field: 'checkboxSelection', 
+        pinned: 'left', 
+        maxWidth: 50, 
+        checkboxSelection: true, 
+        headerCheckboxSelection: true, 
+        headerCheckboxSelectionFilteredOnly: true, 
+        filter: false, 
+        sortable: false 
+      },
+      { headerName: 'Id', field: 'spatialUnitId', pinned: 'left', maxWidth: 125 },
+      { headerName: 'Name', field: 'spatialUnitLevel', pinned: 'left', minWidth: 300 },
+      { 
+        headerName: 'Beschreibung', 
+        minWidth: 400, 
+        cellRenderer: (params: any) => params.data.metadata.description,
+        filter: 'agTextColumnFilter',
+        filterValueGetter: (params: any) => '' + params.data.metadata.description
+      },
+      { headerName: 'Nächst niedrigere Raumebene', field: 'nextLowerHierarchyLevel', minWidth: 250 },
+      { headerName: 'Nächst höhere Raumebene', field: 'nextUpperHierarchyLevel', minWidth: 250 },
+      {
+        headerName: 'Gültigkeitszeitraum', 
+        minWidth: 400,
+        cellRenderer: (params: any) => {
+          let html = '<ul style="columns: 5; -webkit-columns: 5; -moz-columns: 5; word-break: break-word !important;">';
+          for (const periodOfValidity of params.data.availablePeriodsOfValidity) {
+            html += '<li style="margin-right: 15px;">';
+            if (periodOfValidity.endDate) {
+              html += '<p>' + periodOfValidity.startDate + ' &dash; ' + periodOfValidity.endDate + '</p>';
+            } else {
+              html += '<p>' + periodOfValidity.startDate + ' &dash; heute</p>';
+            }
+            html += '</li>';
+          }
+          html += '</ul>';
+          return html;
+        },
+        filter: 'agTextColumnFilter',
+        filterValueGetter: (params: any) => {
+          if (params.data.availablePeriodsOfValidity && params.data.availablePeriodsOfValidity.length > 1) {
+            return '' + JSON.stringify(params.data.availablePeriodsOfValidity);
+          }
+          return params.data.availablePeriodsOfValidity;
+        }
+      },
+      { 
+        headerName: 'Datenquelle', 
+        minWidth: 400, 
+        cellRenderer: (params: any) => params.data.metadata.datasource,
+        filter: 'agTextColumnFilter',
+        filterValueGetter: (params: any) => '' + params.data.metadata.datasource
+      },
+      { 
+        headerName: 'Datenhalter und Kontakt', 
+        minWidth: 400, 
+        cellRenderer: (params: any) => params.data.metadata.contact,
+        filter: 'agTextColumnFilter',
+        filterValueGetter: (params: any) => '' + params.data.metadata.contact
+      },
+      { 
+        headerName: 'Rollen', 
+        minWidth: 400, 
+        cellRenderer: (params: any) => this.kommonitorDataExchangeService.getAllowedRolesString(params.data.permissions),
+        filter: 'agTextColumnFilter',
+        filterValueGetter: (params: any) => '' + this.kommonitorDataExchangeService.getAllowedRolesString(params.data.permissions)
+      },
+      { 
+        headerName: 'Öffentlich sichtbar', 
+        minWidth: 400, 
+        cellRenderer: (params: any) => params.data.isPublic ? 'ja' : 'nein',
+        filter: 'agTextColumnFilter',
+        filterValueGetter: (params: any) => '' + (params.data.isPublic ? 'ja' : 'nein')
+      }
+    ];
+  }
+
+  private buildDataGridRowData_spatialUnits(spatialUnitMetadataArray: any[]): any[] {
+    return spatialUnitMetadataArray.map(metadata => ({
+      ...metadata,
+      spatialUnitId: metadata.spatialUnitId,
+      spatialUnitLevel: metadata.spatialUnitLevel
+    }));
+  }
+
+  private displayEditButtons_spatialUnits(params: any): string {
+    const data = params.data;
+    let html = '<div class="btn-group btn-group-sm">';
+    
+    // Edit Metadata Button
+    html += '<button id="btn_spatialUnit_editMetadata_' + data.spatialUnitId + '" class="btn btn-warning btn-sm spatialUnitEditMetadataBtn" type="button" title="Metadaten editieren" ' + 
+            (data.userPermissions && data.userPermissions.includes('editor') ? '' : 'disabled') + '><i class="fas fa-pencil-alt"></i></button>';
+    
+    // Edit Features Button
+    html += '<button id="btn_spatialUnit_editFeatures_' + data.spatialUnitId + '" class="btn btn-warning btn-sm spatialUnitEditFeaturesBtn" type="button" title="Features fortführen" ' + 
+            (data.userPermissions && data.userPermissions.includes('editor') ? '' : 'disabled') + '><i class="fas fa-draw-polygon"></i></button>';
+    
+    // Edit User Roles Button
+    html += '<button id="btn_spatialUnit_editUserRoles_' + data.spatialUnitId + '" class="btn btn-warning btn-sm spatialUnitEditUserRolesBtn" type="button" title="Zugriffsschutz und Eigentümerschaft editieren" ' + 
+            (data.userPermissions && data.userPermissions.includes('creator') ? '' : 'disabled') + '><i class="fas fa-user-lock"></i></button>';
+    
+    // Delete Button
+    html += '<button id="btn_spatialUnit_deleteSpatialUnit_' + data.spatialUnitId + '" class="btn btn-danger btn-sm spatialUnitDeleteBtn" type="button" title="Raumebene entfernen" ' + 
+            (data.userPermissions && data.userPermissions.includes('creator') ? '' : 'disabled') + '><i class="fas fa-trash"></i></button>';
+    
+    html += '</div>';
+    return html;
+  }
+
+  // Grid event handlers
+  onFirstDataRendered(event: FirstDataRenderedEvent): void {
+    this.headerHeightSetter();
+  }
+
+  onColumnResized(event: ColumnResizedEvent): void {
+    this.headerHeightSetter();
+  }
+
+  onRowDataChanged(): void {
+    this.registerClickHandler_spatialUnits();
+  }
+
+  onModelUpdated(): void {
+    this.registerClickHandler_spatialUnits();
+  }
+
+  onViewportChanged(): void {
+    this.registerClickHandler_spatialUnits();
+  }
+
+  private registerClickHandler_spatialUnits(): void {
+    setTimeout(() => {
+      // Use jQuery to register click handlers (matching original implementation)
+      const $ = (window as any).$;
+
+      // Edit Metadata Button
+      $('.spatialUnitEditMetadataBtn').off();
+      $('.spatialUnitEditMetadataBtn').on('click', (event: any) => {
+        event.stopPropagation();
+        
+        const spatialUnitId = event.target.id.split('_')[3];
+        const spatialUnitMetadata = this.kommonitorDataExchangeService.getSpatialUnitMetadataById(spatialUnitId);
+        
+        if (spatialUnitMetadata) {
+          this.onClickEditMetadata(spatialUnitMetadata);
+        }
+      });
+
+      // Edit Features Button
+      $('.spatialUnitEditFeaturesBtn').off();
+      $('.spatialUnitEditFeaturesBtn').on('click', (event: any) => {
+        event.stopPropagation();
+        
+        const spatialUnitId = event.target.id.split('_')[3];
+        const spatialUnitMetadata = this.kommonitorDataExchangeService.getSpatialUnitMetadataById(spatialUnitId);
+        
+        if (spatialUnitMetadata) {
+          this.onClickEditFeatures(spatialUnitMetadata);
+        }
+      });
+
+      // Edit User Roles Button
+      $('.spatialUnitEditUserRolesBtn').off();
+      $('.spatialUnitEditUserRolesBtn').on('click', (event: any) => {
+        event.stopPropagation();
+        
+        const spatialUnitId = event.target.id.split('_')[3];
+        const spatialUnitMetadata = this.kommonitorDataExchangeService.getSpatialUnitMetadataById(spatialUnitId);
+
+        if (spatialUnitMetadata) {
+          this.onClickEditUserRoles(spatialUnitMetadata);
+        }
+      });
+
+      // Delete Button
+      $('.spatialUnitDeleteBtn').off();
+      $('.spatialUnitDeleteBtn').on('click', (event: any) => {
+        event.stopPropagation();
+        
+        const spatialUnitId = event.target.id.split('_')[3];
+        const spatialUnitMetadata = this.kommonitorDataExchangeService.getSpatialUnitMetadataById(spatialUnitId);
+        
+        if (spatialUnitMetadata) {
+          this.onClickDeleteSpatialUnits([spatialUnitMetadata]);
+        }
+      });
+    }, 100);
+  }
+
+  private headerHeightSetter(): void {
+    if (this.gridApi) {
+      const headerHeight = this.headerHeightGetter();
+      this.gridApi.setHeaderHeight(headerHeight);
+    }
+  }
+
+  private headerHeightGetter(): number {
+    const headerElement = document.querySelector('.ag-header');
+    if (headerElement) {
+      const headerTextElements = headerElement.querySelectorAll('.ag-header-cell-text');
+      let maxHeight = 0;
+      headerTextElements.forEach(element => {
+        const height = element.scrollHeight;
+        if (height > maxHeight) {
+          maxHeight = height;
+        }
+      });
+      return Math.max(maxHeight + 20, 50); // Add padding and minimum height
+    }
+    return 50;
+  }
+
+  getSelectedSpatialUnitsMetadata(): any[] {
+    if (this.gridApi) {
+      const selectedNodes = this.gridApi.getSelectedNodes();
+      return selectedNodes.map(node => node.data);
+    }
+    return [];
   }
 } 

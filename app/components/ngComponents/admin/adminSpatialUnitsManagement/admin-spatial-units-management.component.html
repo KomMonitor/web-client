@@ -24,7 +24,7 @@
           </label>
         </div>
       </div>
-      <button [disabled]="!kommonitorDataExchangeService.checkCreatePermission()" class="btn btn-success btn-sm" type="button" (click)="openAddSpatialUnitModal()" style="border: 2px solid blue;">
+      <button [disabled]="!kommonitorDataExchangeService.checkCreatePermission()" class="btn btn-success btn-sm" type="button" (click)="openAddSpatialUnitModal()">
         <i class="fas fa-plus"></i>&nbsp;&nbsp;Erstellen
       </button>
       <!-- edit metadata -->
@@ -56,7 +56,21 @@
 
             <div class="admin-table-wrapper">
               
-              <div #spatialUnitOverviewTable id="spatialUnitOverviewTable" style="height: 70vh;" class="ag-theme-alpine"></div>	   
+              <ag-grid-angular
+                #spatialUnitOverviewTable
+                id="spatialUnitOverviewTable"
+                style="height: 70vh;"
+                class="ag-theme-alpine"
+                [columnDefs]="columnDefs"
+                [rowData]="rowData"
+                [defaultColDef]="defaultColDef"
+                [gridOptions]="gridOptions"
+                (firstDataRendered)="onFirstDataRendered($event)"
+                (columnResized)="onColumnResized($event)"
+                (rowDataChanged)="onRowDataChanged()"
+                (modelUpdated)="onModelUpdated()"
+                (viewportChanged)="onViewportChanged()">
+              </ag-grid-angular>
 
             </div>
           </div>

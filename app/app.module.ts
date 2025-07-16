@@ -4,6 +4,7 @@ import { DoBootstrap, NgModule, Version, inject, Input, Inject, CUSTOM_ELEMENTS_
 import { BrowserModule } from '@angular/platform-browser';
 import { UpgradeModule } from '@angular/upgrade/static';
 import { downgradeComponent } from '@angular/upgrade/static';
+import { AgGridAngular } from 'ag-grid-angular';
 
 import $ from 'jquery';
 import Keycloak from 'keycloak-js';
@@ -100,7 +101,8 @@ declare var MathJax;
     JsonPipe,
     NouisliderModule,
     NgbCollapseModule,
-    DualListBoxComponent
+    DualListBoxComponent,
+    AgGridAngular
   ],
   providers:[
     {provide: LocationStrategy, useClass: HashLocationStrategy},
