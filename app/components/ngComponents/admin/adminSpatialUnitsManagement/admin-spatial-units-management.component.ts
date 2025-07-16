@@ -332,17 +332,6 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
         sortable: false, 
         cellRenderer: this.displayEditButtons_spatialUnits.bind(this)
       },
-      { 
-        headerName: '', 
-        field: 'checkboxSelection', 
-        pinned: 'left', 
-        maxWidth: 50, 
-        checkboxSelection: true, 
-        headerCheckboxSelection: true, 
-        headerCheckboxSelectionFilteredOnly: true, 
-        filter: false, 
-        sortable: false 
-      },
       { headerName: 'Id', field: 'spatialUnitId', pinned: 'left', maxWidth: 125 },
       { headerName: 'Name', field: 'spatialUnitLevel', pinned: 'left', minWidth: 300 },
       { 
@@ -406,6 +395,13 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
         cellRenderer: (params: any) => params.data.isPublic ? 'ja' : 'nein',
         filter: 'agTextColumnFilter',
         filterValueGetter: (params: any) => '' + (params.data.isPublic ? 'ja' : 'nein')
+      },
+      { 
+        headerName: 'Eigentümer', 
+        minWidth: 400, 
+        cellRenderer: (params: any) => this.kommonitorDataExchangeService.getRoleTitle(params.data.ownerId),
+        filter: 'agTextColumnFilter',
+        filterValueGetter: (params: any) => '' + this.kommonitorDataExchangeService.getRoleTitle(params.data.ownerId)
       }
     ];
   }
