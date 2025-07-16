@@ -138,6 +138,17 @@ angular
         return html;
       };
 
+      var displayEditButtons_scripts = function (params) {
+
+        let html = '<div class="btn-group btn-group-sm">';
+        html += '<button id="' + params.data.scheduleID + '" class="btn btn-warning btn-sm scriptEditBtn" type="button" data-toggle="modal" data-target="#modal-add-script" title="Skript editieren"><i class="fas fa-pencil-alt"></i></button>';
+        html += '<button id="btn_script_deleteScript_' + params.data.scheduleID + '" class="btn btn-danger btn-sm scriptDeleteBtn" type="button" title="Skript entfernen"><i class="fas fa-trash"></i></button>';
+        html += '<button id="btn_script_executeScript_' + params.data.scheduleID + '" class="btn btn-success btn-sm scriptExecuteBtn" type="button" title="Skript jetzt ausführen"><i class="fas fa-play"></i></button>';
+        html += '</div>';
+
+        return html;
+      };
+
       function getDatePicker() {
         // function to act as a class
         function Datepicker() {}
@@ -2272,6 +2283,7 @@ angular
 
       this.buildDataGridColumnConfig_scripts = function(){
         const columnDefs = [
+          { headerName: 'Editierfunktionen', pinned: 'left', maxWidth: 150, checkboxSelection: false, headerCheckboxSelection: false, cellRenderer: 'displayEditButtons_scripts'},
           { headerName: 'Id', field: "scheduleID", pinned: 'left', maxWidth: 125, checkboxSelection: true, headerCheckboxSelection: true, 
           headerCheckboxSelectionFilteredOnly: true },
           // { headerName: 'Name', field: "name", pinned: 'left', maxWidth: 300 },  
@@ -2497,6 +2509,41 @@ angular
         return columnDefs;
       };
 
+      this.registerClickHandler_scripts = function (scriptDataArray) {
+
+        $(".scriptEditBtn").off();
+        $(".scriptEditBtn").on("click", function (event) {
+          // ensure that only the target button gets clicked
+          // manually open modal
+          event.stopPropagation();
+
+          kommonitorScriptHelperService.scriptAddModalIsInEditMode = true;
+
+          let modalId = document.getElementById(this.id).getAttribute("data-target");
+          $(modalId).modal('show');
+
+          const scriptData = scriptDataArray.find(element => element.scheduleID === this.id);
+
+          $rootScope.$broadcast("onEditScript", scriptData);
+        });
+
+        $(".scriptDeleteBtn").off();
+        $(".scriptDeleteBtn").on("click", function (event) { 
+          // ensure that only the target button gets clicked
+          // manually open modal
+          event.stopPropagation();
+          let modalId = document.getElementById(this.id).getAttribute("data-target");
+          $(modalId).modal('show');
+                
+          //let spatialUnitId = this.id.split("_")[3]; 
+
+          //let spatialUnitMetadata = kommonitorDataExchangeService.getSpatialUnitMetadataById(spatialUnitId);
+
+          $rootScope.$broadcast("onDeleteScript", [scriptMetadata]); //handler function takes an array
+        });
+
+      };
+
       this.buildDataGridRowData_scripts = function(dataArray){
         
         return dataArray;
@@ -2536,6 +2583,9 @@ angular
                   '</div>',
               },
             },
+            components: {
+              displayEditButtons_scripts: displayEditButtons_scripts
+            },
             columnDefs: columnDefs,
             rowData: rowData,
             suppressRowClickSelection: true,
@@ -2550,8 +2600,17 @@ angular
             },
             onColumnResized: function () {
               headerHeightSetter(self.dataGridOptions_scripts);
-            }
-  
+            },
+            onRowDataChanged: function () {
+            self.registerClickHandler_scripts(scriptsArray);
+            },   
+            onModelUpdated: function () {
+              self.registerClickHandler_scripts(scriptsArray);
+              
+            },
+            onViewportChanged: function () {
+              self.registerClickHandler_scripts(scriptsArray);                   
+            },
           };
   
           return gridOptions;        

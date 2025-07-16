@@ -224,7 +224,20 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 				setTimeout(() => {
 					$scope.$digest();
 				}, 1000);
-			})
+			});
+
+			$scope.setDefaultsForEditing = function () {
+				console.log("setDefaultsForEditing");
+				// TO DO
+			}
+
+			$rootScope.$on("onEditScript", function (event, scriptData) {
+				// TO DO
+				console.log("onEditScript");
+				console.log(kommonitorScriptHelperService.scriptAddModalIsInEditMode);
+				console.log(scriptData);
+				kommonitorDataExchangeService.fetchProcessScriptScheduleDetails(scriptData.scheduleID);
+			});
 
 			$scope.hideSuccessAlert = function () {
 				$("#scriptAddSuccessAlert").hide();
