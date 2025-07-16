@@ -2573,307 +2573,11 @@ angular
         }
       };
 
-      // DEFAULT JOBS OVERVIEW TABLE
+            // Processes API JOBS OVERVIEW TABLE (NEW July 2025)
 
-      this.buildDataGridColumnConfig_defaultJobs = function(){
-        const columnDefs = [
-          { headerName: 'Job-Id', field: "jobId", pinned: 'left', maxWidth: 125, checkboxSelection: true, headerCheckboxSelection: true, 
-          headerCheckboxSelectionFilteredOnly: true },
-          { headerName: 'Script-Id', field: "jobData.scheduleID", pinned: 'left', maxWidth: 125 },
-          { headerName: 'Ziel-Indikator', pinned: 'left', maxWidth: 250, cellRenderer: function (params) {
-            if(params.data.jobData && params.data.jobData.targetIndicatorId){
-              let indicatorMetadata = kommonitorDataExchangeService.getIndicatorMetadataById(params.data.jobData.targetIndicatorId); 
-              if (indicatorMetadata){
-                return indicatorMetadata.indicatorName;
-              }
-            }
-            return "";
-            },
-            filter: 'agTextColumnFilter', 
-            filterValueGetter: (params) => {
-              if(params.data.jobData && params.data.jobData.targetIndicatorId){
-                let indicatorMetadata = kommonitorDataExchangeService.getIndicatorMetadataById(params.data.jobData.targetIndicatorId); 
-                if (indicatorMetadata){
-                  return indicatorMetadata.indicatorName;
-                }
-              }
-              return "";
-            } 
-          },
-          { headerName: 'Job-Status', field: "status", maxWidth: 125 },
-          { headerName: 'Job-Fortschritt', field: "progress", maxWidth: 125 },
-          { headerName: 'Job-Data', minWidth: 500, cellRenderer: function (params) {
-              return kommonitorDataExchangeService.syntaxHighlightJSON(params.data.jobData);
-            },
-            filter: 'agTextColumnFilter', 
-            filterValueGetter: (params) => {
-              return params.data.jobData;
-            } 
-          },
-          { headerName: 'Job-Logs', maxWidth: 150, cellRenderer: function (params) {
-            if(params.data.logs){
-
-              var logJSON = JSON.stringify(params.data.logs);
-
-              var blob = new Blob([logJSON], {type: "application/json"});
-              var data  = URL.createObjectURL(blob);
-
-              let html = '<a href="' + data + '" download="KomMonitor-Indikatorberechnung-Job-' + params.data.jobId + '-Logs.json" textContent="JSON" target="_blank" rel="noopener noreferrer"><button class="btn btn-warning btn-sm">Download Logs</button></a>';
-              return html;
-            }  
-            else{
-              return "Dieser Job umfasst keine Logs";
-            }
-            },
-            filter: 'agTextColumnFilter', 
-            filterValueGetter: (params) => {
-              return params.data.logs;
-            } 
-          },
-          { headerName: 'Job-Summary', minWidth: 1000, cellRenderer: function (params) {
-            
-            let html = "";
-                if(params.data.spatialUnitIntegrationSummary && params.data.spatialUnitIntegrationSummary.length > 0){
-                  html += '<table class="table table-condensed table-bordered table-striped"><thead><tr><th>Raumebenen-Id</th><th>Raumebenen-Name</th><th>Anzahl integrierter Indikatoren-Features</th><th>Anzahl integrierter Zeitstempel</th><th>integrierte Zeitstempel</th><th>Fehlermeldung</th></tr></thead><tbody>';
-
-                  for (const item of params.data.spatialUnitIntegrationSummary) {
-                    html += "<tr>";
-                    html += "<td>" + item.spatialUnitId + "</td>";
-                    html += "<td>" + item.spatialUnitName + "</td>";
-                    html += "<td>" + item.numberOfIntegratedIndicatorFeatures + "</td>";
-                    html += "<td>" + item.numberOfIntegratedTargetDates + "</td>";
-                    html += "<td>" + item.integratedTargetDates + "</td>";
-                    if(item.errorsOccurred && item.errorsOccurred.length > 0){
-                      html += "<td>" + kommonitorDataExchangeService.syntaxHighlightJSON(item.errorsOccurred) + "</td>";
-                    }
-                    else{
-                      html += "<td>keine Fehlermeldungen vorhanden</td>";
-                    }
-                    
-                    html += "</tr>";
-                  }
-                  html += "</tbody></table>";
-                }
-                else{
-                  html += "Dieser Job umfasst keine Informationen zur erfolgreichen/gescheiterten Datenintegration";
-                }
-                
-                return html; 
-          },
-          filter: 'agTextColumnFilter', 
-          filterValueGetter: (params) => {
-            return JSON.stringify(params.data.spatialUnitIntegrationSummary);
-          } 
-        }
-                              
-        ];
-
-        return columnDefs;
-      };
-
-      this.buildDataGridRowData_defaultJobs = function(dataArray){
-
-        dataArray.sort((a, b) => b.jobId - a.jobId);
-        
-        return dataArray;
-      };
-
-      this.buildDataGridOptions_defaultJobs = function(jobsArray){
-          let columnDefs = this.buildDataGridColumnConfig_defaultJobs();
-          let rowData = this.buildDataGridRowData_defaultJobs(jobsArray);
-  
-          let gridOptions = {
-            defaultColDef: {
-              editable: false,
-              sortable: true,
-              flex: 1,
-              minWidth: 200,
-              filter: true,
-              floatingFilter: true,
-              // filterParams: {
-              //   newRowsAction: 'keep'
-              // },
-              resizable: true,
-              wrapText: true,
-              autoHeight: true,
-              cellStyle: { 'font-size': '12px;', 'white-space': 'normal !important', "line-height": "20px !important", "word-break": "break-word !important", "padding-top": "17px", "padding-bottom": "17px" },
-              headerComponentParams: {
-                template:
-                  '<div class="ag-cell-label-container" role="presentation">' +
-                  '  <span ref="eMenu" class="ag-header-icon ag-header-cell-menu-button"></span>' +
-                  '  <div ref="eLabel" class="ag-header-cell-label" role="presentation">' +
-                  '    <span ref="eSortOrder" class="ag-header-icon ag-sort-order"></span>' +
-                  '    <span ref="eSortAsc" class="ag-header-icon ag-sort-ascending-icon"></span>' +
-                  '    <span ref="eSortDesc" class="ag-header-icon ag-sort-descending-icon"></span>' +
-                  '    <span ref="eSortNone" class="ag-header-icon ag-sort-none-icon"></span>' +
-                  '    <span ref="eText" class="ag-header-cell-text" role="columnheader" style="white-space: normal;"></span>' +
-                  '    <span ref="eFilter" class="ag-header-icon ag-filter-icon"></span>' +
-                  '  </div>' +
-                  '</div>',
-              },
-            },
-            columnDefs: columnDefs,
-            rowData: rowData,
-            suppressRowClickSelection: true,
-            rowSelection: 'multiple',
-            enableCellTextSelection: true,
-            ensureDomOrder: true,
-            pagination: true,
-            paginationPageSize: 10,
-            suppressColumnVirtualisation: true,          
-            onFirstDataRendered: function () {
-              headerHeightSetter(self.dataGridOptions_scripts);
-            },
-            onColumnResized: function () {
-              headerHeightSetter(self.dataGridOptions_scripts);
-            }
-  
-          };
-  
-          return gridOptions;        
-      };
-
-      this.buildDataGrid_defaultJobs = function (jobsArray) {
-        
-        if (this.dataGridOptions_defaultJobs && this.dataGridOptions_defaultJobs.api && document.querySelector('#jobExecutionTable_defaultComputation').childElementCount > 0) {
-
-          this.saveGridStore(this.dataGridOptions_defaultJobs);
-          let newRowData = this.buildDataGridRowData_defaultJobs(jobsArray);
-          this.dataGridOptions_defaultJobs.api.setRowData(newRowData);
-          this.restoreGridStore(this.dataGridOptions_defaultJobs);
-        }
-        else {
-          this.dataGridOptions_defaultJobs = this.buildDataGridOptions_defaultJobs(jobsArray);
-          let gridDiv = document.querySelector('#jobExecutionTable_defaultComputation');
-          new agGrid.Grid(gridDiv, this.dataGridOptions_defaultJobs);
-        }
-      };
-
-      // CUSTOMIZED JOBS OVERVIEW TABLE
-
-      this.buildDataGridColumnConfig_customizedJobs = function(){
-        const columnDefs = [
-          { headerName: 'Job-Id', field: "jobId", pinned: 'left', maxWidth: 125, checkboxSelection: true, headerCheckboxSelection: true, 
-          headerCheckboxSelectionFilteredOnly: true},
-          { headerName: 'Job-Status', field: "status", maxWidth: 125 },
-          { headerName: 'Job-Fortschritt', field: "progress", maxWidth: 125 },
-          { headerName: 'Job-Data', minWidth: 500, cellRenderer: function (params) {
-            return kommonitorDataExchangeService.syntaxHighlightJSON(params.data.jobData);
-          },
-          filter: 'agTextColumnFilter', 
-          filterValueGetter: (params) => {
-            return params.data.jobData;
-          } 
-          },
-          { headerName: 'Job-Logs', maxWidth: 150, cellRenderer: function (params) {
-            if(params.data.logs){
-
-              var logJSON = JSON.stringify(params.data.logs);
-
-              var blob = new Blob([logJSON], {type: "application/json"});
-              var data  = URL.createObjectURL(blob);
-
-              let html = '<a href="' + data + '" download="KomMonitor-Indikatorberechnung-individuell-Job-' + params.data.jobId + '-Logs.json" textContent="JSON" target="_blank" rel="noopener noreferrer"><button class="btn btn-warning btn-sm">Download Logs</button></a>';
-              return html;
-            } 
-            else{
-              return "Dieser Job umfasst keine Logs";
-            } 
-            },
-            filter: 'agTextColumnFilter', 
-            filterValueGetter: (params) => {
-              return params.data.logs;
-            } 
-          }
-                          
-        ];
-
-        return columnDefs;
-      };
-
-      this.buildDataGridRowData_customizedJobs = function(dataArray){
-        
-        dataArray.sort((a, b) => b.jobId - a.jobId);
-
-        return dataArray;
-      };
-
-      this.buildDataGridOptions_customizedJobs = function(jobsArray){
-          let columnDefs = this.buildDataGridColumnConfig_customizedJobs();
-          let rowData = this.buildDataGridRowData_customizedJobs(jobsArray);
-  
-          let gridOptions = {
-            defaultColDef: {
-              editable: false,
-              sortable: true,
-              flex: 1,
-              minWidth: 200,
-              filter: true,
-              floatingFilter: true,
-              // filterParams: {
-              //   newRowsAction: 'keep'
-              // },
-              resizable: true,
-              wrapText: true,
-              autoHeight: true,
-              cellStyle: { 'font-size': '12px;', 'white-space': 'normal !important', "line-height": "20px !important", "word-break": "break-word !important", "padding-top": "17px", "padding-bottom": "17px" },
-              headerComponentParams: {
-                template:
-                  '<div class="ag-cell-label-container" role="presentation">' +
-                  '  <span ref="eMenu" class="ag-header-icon ag-header-cell-menu-button"></span>' +
-                  '  <div ref="eLabel" class="ag-header-cell-label" role="presentation">' +
-                  '    <span ref="eSortOrder" class="ag-header-icon ag-sort-order"></span>' +
-                  '    <span ref="eSortAsc" class="ag-header-icon ag-sort-ascending-icon"></span>' +
-                  '    <span ref="eSortDesc" class="ag-header-icon ag-sort-descending-icon"></span>' +
-                  '    <span ref="eSortNone" class="ag-header-icon ag-sort-none-icon"></span>' +
-                  '    <span ref="eText" class="ag-header-cell-text" role="columnheader" style="white-space: normal;"></span>' +
-                  '    <span ref="eFilter" class="ag-header-icon ag-filter-icon"></span>' +
-                  '  </div>' +
-                  '</div>',
-              },
-            },
-            columnDefs: columnDefs,
-            rowData: rowData,
-            suppressRowClickSelection: true,
-            rowSelection: 'multiple',
-            enableCellTextSelection: true,
-            ensureDomOrder: true,
-            pagination: true,
-            paginationPageSize: 10,
-            suppressColumnVirtualisation: true,          
-            onFirstDataRendered: function () {
-              headerHeightSetter(self.dataGridOptions_scripts);
-            },
-            onColumnResized: function () {
-              headerHeightSetter(self.dataGridOptions_scripts);
-            }
-  
-          };
-  
-          return gridOptions;        
-      };
-
-      this.buildDataGrid_customizedJobs = function (jobsArray) {
-        
-        if (this.dataGridOptions_customizedJobs && this.dataGridOptions_customizedJobs.api && document.querySelector('#jobExecutionTable_customizedComputation').childElementCount > 0) {
-
-          this.saveGridStore(this.dataGridOptions_customizedJobs);
-          let newRowData = this.buildDataGridRowData_customizedJobs(jobsArray);
-          this.dataGridOptions_customizedJobs.api.setRowData(newRowData);
-          this.restoreGridStore(this.dataGridOptions_customizedJobs);
-        }
-        else {
-          this.dataGridOptions_customizedJobs = this.buildDataGridOptions_customizedJobs(jobsArray);
-          let gridDiv = document.querySelector('#jobExecutionTable_customizedComputation');
-          new agGrid.Grid(gridDiv, this.dataGridOptions_customizedJobs);
-        }
-      };
-
-            // CUSTOMIZED JOBS OVERVIEW TABLE (NEW)
-
-            this.buildDataGridColumnConfig_customizedJobs_new = function(){
+            this.buildDataGridColumnConfig_processJobs = function(){
               const columnDefs = [
-                { headerName: 'Job-Id', field: "jobId", pinned: 'left', maxWidth: 125, checkboxSelection: false, headerCheckboxSelection: false, 
+                { headerName: 'Job-Id', field: "jobID", pinned: 'left', maxWidth: 125, checkboxSelection: false, headerCheckboxSelection: false, 
                 headerCheckboxSelectionFilteredOnly: true},
                 { headerName: 'Job-Status', field: "status", maxWidth: 125 },
                 { headerName: 'Job-Fortschritt', field: "progress", maxWidth: 125 },
@@ -2881,7 +2585,7 @@ angular
                   console.log(params);
                   return kommonitorDataExchangeService.syntaxHighlightJSON(params.data.jobSummary);
                 }, },*/
-                { headerName: 'Job-Zusammenfassungen nach Raumeinheit', field: "", minWidth: 1000, cellRenderer: function (params) {
+                { headerName: 'Job-Zusammenfassungen nach Raumeinheit', minWidth: 1000, cellRenderer: function (params) {
                       /*
                         <table class="table table-condensed">
                             <thead>
@@ -2948,19 +2652,17 @@ angular
               return columnDefs;
             };
       
-            this.buildDataGridRowData_customizedJobs_new = function(dataArray){
+            this.buildDataGridRowData_processJobs = function(dataArray){
               
-              dataArray.sort((a, b) => b.jobId - a.jobId);
+              dataArray.sort((a, b) => b.job_start_datetime - a.job_start_datetime);
       
               return dataArray;
             };
       
-            this.buildDataGridOptions_customizedJobs_new = function(jobsArray){
-                console.log("buildDataGridOptions_customizedJobs_new");
-                console.log(jobsArray);
+            this.buildDataGridOptions_processJobs = function(jobsArray){
 
-                let columnDefs = this.buildDataGridColumnConfig_customizedJobs_new();
-                let rowData = this.buildDataGridRowData_customizedJobs_new(jobsArray);
+                let columnDefs = this.buildDataGridColumnConfig_processJobs();
+                let rowData = this.buildDataGridRowData_processJobs(jobsArray);
         
                 let gridOptions = {
                   defaultColDef: {
@@ -3001,10 +2703,10 @@ angular
                   paginationPageSize: 10,
                   suppressColumnVirtualisation: true,          
                   onFirstDataRendered: function () {
-                    headerHeightSetter(self.dataGridOptions_scripts);
+                    headerHeightSetter(self.dataGridOptions_processJobs);
                   },
                   onColumnResized: function () {
-                    headerHeightSetter(self.dataGridOptions_scripts);
+                    headerHeightSetter(self.dataGridOptions_processJobs);
                   }
         
                 };
@@ -3012,19 +2714,19 @@ angular
                 return gridOptions;        
             };
       
-            this.buildDataGrid_customizedJobs_new = function (jobsArray) {
+            this.buildDataGrid_processJobs = function (jobsArray) {
               
-              if (this.dataGridOptions_customizedJobs_new && this.dataGridOptions_customizedJobs_new.api && document.querySelector('#jobExecutionTable_customizedComputation_new').childElementCount > 0) {
+              if (this.dataGridOptions_processJobs && this.dataGridOptions_processJobs.api && document.querySelector('#jobExecutionTable_processJobs').childElementCount > 0) {
       
-                this.saveGridStore(this.dataGridOptions_customizedJobs_new);
-                let newRowData = this.buildDataGridRowData_customizedJobs_new(jobsArray);
-                this.dataGridOptions_customizedJobs_new.api.setRowData(newRowData);
-                this.restoreGridStore(this.dataGridOptions_customizedJobs_new);
+                this.saveGridStore(this.dataGridOptions_processJobs);
+                let newRowData = this.buildDataGridRowData_processJobs(jobsArray);
+                this.dataGridOptions_processJobs.api.setRowData(newRowData);
+                this.restoreGridStore(this.dataGridOptions_processJobs);
               }
               else {
-                this.dataGridOptions_customizedJobs_new = this.buildDataGridOptions_customizedJobs_new(jobsArray);
-                let gridDiv = document.querySelector('#jobExecutionTable_customizedComputation_new');
-                new agGrid.Grid(gridDiv, this.dataGridOptions_customizedJobs_new);
+                this.dataGridOptions_processJobs = this.buildDataGridOptions_processJobs(jobsArray);
+                let gridDiv = document.querySelector('#jobExecutionTable_processJobs');
+                new agGrid.Grid(gridDiv, this.dataGridOptions_processJobs);
               }
             };
 

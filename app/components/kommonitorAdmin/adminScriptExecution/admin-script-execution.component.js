@@ -9,192 +9,51 @@ angular.module('adminScriptExecution').component('adminScriptExecution', {
 
 		$scope.loadingData = true;
 
-		$scope.availableDefaultComputationJobDatasets;
-		$scope.availableCustomizedComputationJobDatasets;
-		$scope.defaultComputationJobHealth;
-		$scope.customizedComputationJobHealth;
 		$scope.selectAllEntriesInput = false;
 
-		$scope.jobDescriptions = [
-			{
-				"jobId": 5,
-				"status": "failed",
-				"progress": "",
-				"jobSummary": [
-					{
-						"spatialUnitId": "stadtteile",
-						"modifiedResource": "https://kommonitor-data-management-api/indicators/<indicatotrId>/<spatialUnitId>/",
-						"numberOfIntegratedIndicatorFeatures": 50,            
-						"integratedTargetDates": ["2025-01-15", "2024-01-15"],
-						"errorsOccurred": [
-								{
-										"type": "missingTimestamp", 
-										"affectedResourceType": "indicator" | "georesource",
-										"affectedDatasetId": "indicatorId" | "georesourceId",
-										"affectedTimestamps" : ["2024-12-31", "2023-12-31"],
-										"affectedSpatialUnitFeatures": [],
-										"errorMessage": "string"
-								},
-								{
-										"type": "missingDataset", 
-										"affectedResourceType": "indicator" | "georesource",
-										"affectedDatasetId": "indicatorId" | "georesourceId",
-										"affectedTimestamps" : [],
-										"affectedSpatialUnitFeatures": [],
-										"errorMessage": "string"
-								},
-								{
-										"type": "missingSpatialUnit", 
-										"affectedResourceType": "indicator",
-										"affectedDatasetId": "indicatorId",
-										"affectedTimestamps" : [],
-										"affectedSpatialUnitFeatures": [],
-										"errorMessage": "string"
-								},
-								{
-										"type": "missingSpatialUnitFeature", 
-										"affectedResourceType": "indicator",
-										"affectedDatasetId": "indicatorId",
-										"affectedTimestamps" : [],
-										"affectedSpatialUnitFeatures": ["Kupferdreh_Id", "Kettwig_Id"],
-										"errorMessage": "string"
-								},
-								{
-										"type": "dataManagementApiError", // bei nicht vorhandenem Datenzugriff, sonstigen API Fehlern
-										"affectedResourceType": "string",
-										"dataManagementApiErrorCode": 401,
-										"affectedDatasetId": "string",
-										"affectedTimestamps" : [],
-										"affectedSpatialUnitFeatures": [],
-										"errorMessage": "Data-Management error message"
-								},
-								{
-										"type": "processingError", // tritt bei Fehlern innerhalb des eigentlichen Prozesses auf (teilen durch null, ungültige Geometrieoperationen)
-										"affectedResourceType": "indicator" | "georesource",
-										"affectedDatasetId": "indicatorId" | "georesourceId",
-										"affectedTimestamps" : [],
-										"affectedSpatialUnitFeatures": [],
-										"errorMessage": "string"
-								}
-						]
-					}
-				]  
-			},
-			{
-				"jobId": 8,
-				"status": "waiting",
-				"progress": "",
-				"jobSummary": [
-					{
-						"spatialUnitId": "stadtteile",
-						"modifiedResource": "https://kommonitor-data-management-api/indicators/<indicatotrId>/<spatialUnitId>/",
-						"numberOfIntegratedIndicatorFeatures": 50,            
-						"integratedTargetDates": ["2025-01-15", "2024-01-15"],
-						"errorsOccurred": [
-								{
-										"type": "processingError", // tritt bei Fehlern innerhalb des eigentlichen Prozesses auf (teilen durch null, ungültige Geometrieoperationen)
-										"affectedResourceType": "indicator" | "georesource",
-										"affectedDatasetId": "indicatorId" | "georesourceId",
-										"affectedTimestamps" : [],
-										"affectedSpatialUnitFeatures": [],
-										"errorMessage": "string"
-								}
-						]
-					}
-				]  
-			},
-			{
-				"jobId": 42,
-				"status": "succeeded",
-				"progress": "",
-				"jobSummary": [
-					{
-						"spatialUnitId": "stadtteile",
-						"modifiedResource": "https://kommonitor-data-management-api/indicators/<indicatotrId>/<spatialUnitId>/",
-						"numberOfIntegratedIndicatorFeatures": 50,            
-						"integratedTargetDates": ["2025-01-15", "2024-01-15"],
-						"errorsOccurred": [
-								{
-										"type": "processingError", // tritt bei Fehlern innerhalb des eigentlichen Prozesses auf (teilen durch null, ungültige Geometrieoperationen)
-										"affectedResourceType": "indicator" | "georesource",
-										"affectedDatasetId": "indicatorId" | "georesourceId",
-										"affectedTimestamps" : [],
-										"affectedSpatialUnitFeatures": [],
-										"errorMessage": "string"
-								}
-						]
-					}
-				]  
-			},
-		]
+		$scope.jobDescriptions = [];
 
-		$scope.fetchDefaultIndicatorJobs = function(){
-            return $http({
-              url: __env.targetUrlToProcessesApi + "jobs",
+		$scope.fetchJobDescriptions = async function(){
+            return await $http({
+              url: __env.targetUrlToProcessesApi + "jobs?limit=50",
               method: "GET"
             }).then(function successCallback(response) {
                 // this callback will be called asynchronously
                 // when the response is available
 
-                $scope.availableDefaultComputationJobDatasets = response.data.jobs;
-
+                $scope.jobDescriptions = response.data.jobs;
               });
 		  };
+
+		$scope.fetchJobDetails = async function(jobDescriptions){
+			let jobDescriptions_withJobSummary = [];
+			for (const jobDescription of jobDescriptions) {
+				await $http({
+					url: __env.targetUrlToProcessesApi + "jobs/" + jobDescription.jobID + "/results",
+					method: "GET"
+					}).then(function successCallback(response) {
+						// this callback will be called asynchronously
+						// when the response is available
+
+						// this is only the jobSummayr as response
+						let clone = jQuery.extend(true, {}, jobDescription);
+						clone.jobSummary =response.data.jobSummary;
+
+						jobDescriptions_withJobSummary.push(clone);
+				});
+			}
+
+			return jobDescriptions_withJobSummary;
+		}  
 		 
-		  $scope.fetchCustomizedIndicatorJobs = function(){
-				console.log("fetchCustomizedIndicatorJobs");
-            return $http({
-              url: __env.targetUrlToProcessesApi + "jobs",
-              method: "GET"
-            }).then(function successCallback(response) {
-                // this callback will be called asynchronously
-                // when the response is available
-								console.log(response.data);
-
-				// new since processes api July, 2025
-                $scope.availableCustomizedComputationJobDatasets = response.data.jobs;
-
-              });
-          };
-
-		  $scope.fetchDefaultIndicatorJobHealth = function(){
-			return $http({
-				url: __env.targetUrlToProcessesApi + "processes",
-				method: "GET"
-			  }).then(function successCallback(response) {
-				  // this callback will be called asynchronously
-				  // when the response is available
-  
-				  $scope.defaultComputationJobHealth = response.data;
-  
-				});
-		  };
-
-		  $scope.fetchCustomizedIndicatorJobHealth = function(){
-			return $http({
-				url: __env.targetUrlToProcessesApi + "processes",
-				method: "GET"
-			  }).then(function successCallback(response) {
-				  // this callback will be called asynchronously
-				  // when the response is available
-  
-				  $scope.customizedComputationJobHealth = response.data;
-  
-				});
-		  };
-
 		$scope.$on("initialMetadataLoadingCompleted", function (event) {
 
 
 			$timeout(async function () {
 
-				await $scope.fetchDefaultIndicatorJobHealth();
-				await $scope.fetchCustomizedIndicatorJobHealth();
+				await $scope.fetchJobDescriptions();
 
-				await $scope.fetchDefaultIndicatorJobs();
-				await $scope.fetchCustomizedIndicatorJobs();
-
-				$scope.initializeOrRefreshOverviewTable();
+				// $scope.initializeOrRefreshOverviewTable();
 			}, 250);
 
 		});
@@ -208,14 +67,12 @@ angular.module('adminScriptExecution').component('adminScriptExecution', {
 		$scope.initializeOrRefreshOverviewTable = function () {
 			$scope.loadingData = true;
 
-			kommonitorDataGridHelperService.buildDataGrid_defaultJobs($scope.availableDefaultComputationJobDatasets);
-			kommonitorDataGridHelperService.buildDataGrid_customizedJobs($scope.availableCustomizedComputationJobDatasets);
-			kommonitorDataGridHelperService.buildDataGrid_customizedJobs_new($scope.jobDescriptions);
+			kommonitorDataGridHelperService.buildDataGrid_processJobs($scope.jobDescriptions);
 
 			$scope.loadingData = false;
 		};
 
-		$scope.onJobStatusClicked = function (status){
+		$scope.onJobStatusClicked = async function (status){
 			$scope.selectedStatus = status;
 
 			$scope.filteredJobDescriptions = [];
@@ -224,7 +81,12 @@ angular.module('adminScriptExecution').component('adminScriptExecution', {
 					$scope.filteredJobDescriptions.push(job);
 				}
 			}
-			kommonitorDataGridHelperService.buildDataGrid_customizedJobs_new($scope.filteredJobDescriptions);
+
+			// for each filtered job entry, we must fetch jkob details, as only then we get detailed 
+			// jobSummary for the respective data grid
+
+			$scope.filteredJobDescriptions_withJobSummary = await $scope.fetchJobDetails($scope.filteredJobDescriptions);
+			kommonitorDataGridHelperService.buildDataGrid_processJobs($scope.filteredJobDescriptions_withJobSummary);
 		}
 
 		$scope.$on("refreshJobOverviewTable", function (event) {
@@ -235,26 +97,12 @@ angular.module('adminScriptExecution').component('adminScriptExecution', {
 		$scope.refreshJobOverviewTable = async function () {
 
 			// refetch all metadata from spatial units to update table
-			await $scope.fetchDefaultIndicatorJobs();
-			await $scope.fetchCustomizedIndicatorJobs();
-			await $scope.fetchCustomizedIndicatorJobHealth();
-			await $scope.fetchDefaultIndicatorJobHealth();
+			await $scope.fetchJobDescriptions();
 
 			$scope.initializeOrRefreshOverviewTable();
 
 			$scope.loadingData = false;
 
-		};
-
-		$scope.onClickDeleteDatasets = function () {
-			$scope.loadingData = true;
-
-			let markedEntriesForDeletion = kommonitorDataGridHelperService.getSelectedDefaultJobsMetadata();
-
-			// submit selected spatial units to modal controller
-			$rootScope.$broadcast("onDeleteJobs", markedEntriesForDeletion);
-
-			$scope.loadingData = false;
 		};
 
 		$scope.syntaxHighlightJSON = function(json){
@@ -272,15 +120,15 @@ angular.module('adminScriptExecution').component('adminScriptExecution', {
 		}
 
 		$scope.statusDescriptions = {
-			waiting: {
+			accepted: {
 				title: "wartende Jobs",
 				backgroundClass: "bg-orange",
 			},
-			delayed: {
-				title: "verzögerte Jobs",
-				backgroundClass: "bg-gray",
-			},
-			active: {
+			// delayed: { // not supported by pyGeoAPI as of July 2025
+			// 	title: "verzögerte Jobs",
+			// 	backgroundClass: "bg-gray",
+			// },
+			running: {
 				title: "laufende Jobs",
 				backgroundClass: "bg-aqua",
 			},
@@ -288,7 +136,7 @@ angular.module('adminScriptExecution').component('adminScriptExecution', {
 				title: "gescheiterte Jobs",
 				backgroundClass: "bg-red",
 			},
-			succeeded: {
+			successful: {
 				title: "abgeschlossene Jobs",
 				backgroundClass: "bg-green",
 			}
