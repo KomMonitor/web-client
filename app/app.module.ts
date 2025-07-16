@@ -11,7 +11,8 @@ import angular from "angular";
 
 import { Router, RouterModule, Routes } from '@angular/router';
 import { HashLocationStrategy, LocationStrategy } from '@angular/common';
-
+import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
+import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { 
   ajskommonitorCacheHelperServiceProvider,
   ajskommonitorBatchUpdateHelperServiceProvider,
@@ -60,6 +61,7 @@ import { BaseIndicatorOfComputedIndicatorFilter } from 'pipes/base-indicator-of-
 import { BaseIndicatorOfHeadlineIndicatorFilter } from 'pipes/base-indicator-of-headline-indicator-filter.pipe';
 import { AuthService } from 'services/auth-service/auth.service';
 import { KommonitorReachabilityComponent } from './components/ngComponents/userInterface/sidebar/kommonitorReachability/kommonitor-reachability.component';
+import { LanguageSwitcherComponent } from './components/ngComponents/common/languageSwitcher/language-switcher.component';
 
 import { AdminTopicsManagementComponent } from './components/ngComponents/admin/adminTopicsManagement/admin-topics-management.component';
 import { TopicEditModalComponent } from './components/ngComponents/admin/adminTopicsManagement/topicEditModal/topic-edit-modal.component';
@@ -80,6 +82,11 @@ const routes: Routes = [];
 
 declare var MathJax;
 
+// AoT requires an exported function for factories
+export function HttpLoaderFactory(http: HttpClient) {
+  return new TranslateHttpLoader(http, './assets/i18n/', '.json');
+}
+
 @NgModule({
   imports: [
     BrowserModule,
@@ -93,7 +100,15 @@ declare var MathJax;
     JsonPipe,
     NouisliderModule,
     NgbCollapseModule,
-    DualListBoxComponent
+    DualListBoxComponent,
+    TranslateModule.forRoot({
+      defaultLanguage: 'de',
+      loader: {
+        provide: TranslateLoader,
+        useFactory: HttpLoaderFactory,
+        deps: [HttpClient]
+      }
+    })
   ],
   providers:[
     {provide: LocationStrategy, useClass: HashLocationStrategy},
@@ -149,6 +164,7 @@ declare var MathJax;
     BaseIndicatorOfHeadlineIndicatorFilter,
     RegressionDiagramComponent,
     KommonitorReachabilityComponent,
+    LanguageSwitcherComponent,
     AdminTopicsManagementComponent,
     TopicEditModalComponent,
     TopicDeleteModalComponent,

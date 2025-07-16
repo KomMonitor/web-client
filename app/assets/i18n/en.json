@@ -1,0 +1,42 @@
+{
+  "COMMON": {
+    "LOGIN": "Login",
+    "LOGOUT": "Logout",
+    "RELOGIN": "Relogin",
+    "USERNAME": "Username",
+    "FIRST_AND_LAST_NAME": "First and Last Name",
+    "LAST_NAME": "Last Name",
+    "EMAIL": "E-Mail",
+    "ROLES": "Roles",
+    "GROUPS_HIERARCHY": "Groups (Hierarchy)",
+    "SESSION_VALIDITY": "Session Validity",
+    "MINUTES": "Minutes",
+    "INFORMATION": "Information",
+    "ADMIN_UI": "Admin UI",
+    "GUIDED_TOUR": "Guided Tour",
+    "CREATE_REPORT": "Create Report",
+    "ADVANCED_VIEW": "Advanced View",
+    "SHOW_HIDE_UI_ELEMENTS": "Show / Hide UI Elements"
+  },
+  "SIDEBAR": {
+    "INDICATOR_SELECTION": "Indicator Selection",
+    "INFRASTRUCTURE_DATA": "Infrastructure Data",
+    "DATA_IMPORT": "Data Import",
+    "DISPLAY_FILTER": "Display Filter",
+    "TEMPORAL_BALANCING": "Temporal Balancing",
+    "STATISTICAL_DIAGRAMS": "Statistical Diagrams",
+    "INDICATOR_RADAR": "Indicator Radar",
+    "REGRESSION_DIAGRAM": "Regression Diagram",
+    "REACHABILITY_ANALYSIS": "Reachability Analysis"
+  },
+  "MAP_CONTROLS": {
+    "CENTER_MAP": "Center Map",
+    "CLEAR_SPATIAL_UNIT_SELECTION": "Clear Spatial Unit Selection",
+    "EXPORT_CURRENT_MAP_VIEW": "Export Current Map View",
+    "SHOW_LAYER_CONTROL": "Show Layer Control"
+  },
+  "USER_INTERFACE": {
+    "USER_LOGIN": "User Login",
+    "USER_REGISTRATION": "User Registration"
+  }
+} 

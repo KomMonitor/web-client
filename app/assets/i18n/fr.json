@@ -1,0 +1,42 @@
+{
+  "COMMON": {
+    "LOGIN": "Connexion",
+    "LOGOUT": "Déconnexion",
+    "RELOGIN": "Reconnexion",
+    "USERNAME": "Nom d'utilisateur",
+    "FIRST_AND_LAST_NAME": "Prénom et Nom",
+    "LAST_NAME": "Nom",
+    "EMAIL": "E-Mail",
+    "ROLES": "Rôles",
+    "GROUPS_HIERARCHY": "Groupes (Hiérarchie)",
+    "SESSION_VALIDITY": "Validité de Session",
+    "MINUTES": "Minutes",
+    "INFORMATION": "Information",
+    "ADMIN_UI": "Interface Admin",
+    "GUIDED_TOUR": "Visite Guidée",
+    "CREATE_REPORT": "Créer un Rapport",
+    "ADVANCED_VIEW": "Vue Avancée",
+    "SHOW_HIDE_UI_ELEMENTS": "Afficher / Masquer les Éléments UI"
+  },
+  "SIDEBAR": {
+    "INDICATOR_SELECTION": "Sélection d'Indicateurs",
+    "INFRASTRUCTURE_DATA": "Données d'Infrastructure",
+    "DATA_IMPORT": "Import de Données",
+    "DISPLAY_FILTER": "Filtre d'Affichage",
+    "TEMPORAL_BALANCING": "Équilibrage Temporel",
+    "STATISTICAL_DIAGRAMS": "Diagrammes Statistiques",
+    "INDICATOR_RADAR": "Radar d'Indicateurs",
+    "REGRESSION_DIAGRAM": "Diagramme de Régression",
+    "REACHABILITY_ANALYSIS": "Analyse d'Accessibilité"
+  },
+  "MAP_CONTROLS": {
+    "CENTER_MAP": "Centrer la Carte",
+    "CLEAR_SPATIAL_UNIT_SELECTION": "Effacer la Sélection d'Unité Spatiale",
+    "EXPORT_CURRENT_MAP_VIEW": "Exporter la Vue Actuelle de la Carte",
+    "SHOW_LAYER_CONTROL": "Afficher le Contrôle des Couches"
+  },
+  "USER_INTERFACE": {
+    "USER_LOGIN": "Connexion Utilisateur",
+    "USER_REGISTRATION": "Inscription Utilisateur"
+  }
+} 
