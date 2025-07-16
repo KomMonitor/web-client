@@ -38,5 +38,23 @@
   "USER_INTERFACE": {
     "USER_LOGIN": "User Login",
     "USER_REGISTRATION": "User Registration"
+  },
+  "ADMIN_DASHBOARD": {
+    "OVERVIEW": "Overview",
+    "OVERVIEW_DESCRIPTION": "Information about data contained in KomMonitor",
+    "ORGANIZATIONS": "Organizations",
+    "MAIN_TOPICS": "Main Topics",
+    "SUB_TOPICS": "Sub Topics",
+    "SPATIAL_UNITS": "Spatial Units",
+    "GEORESOURCES": "Georesources",
+    "INDICATORS": "Indicators",
+    "INDICATOR_SCRIPTS": "Indicator Scripts",
+    "LOADING": "Loading...",
+    "INDICATORS_PER_TOPIC": "Indicators per Topic",
+    "GEORESOURCES_PER_TYPE": "Georesources per Type",
+    "INDICATORS_PER_SPATIAL_UNIT": "Indicators per Spatial Unit",
+    "POINTS_OF_INTEREST": "Points of Interest",
+    "LINES_OF_INTEREST": "Lines of Interest",
+    "AREAS_OF_INTEREST": "Areas of Interest"
   }
 } 

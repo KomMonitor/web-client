@@ -11,7 +11,7 @@ import angular from "angular";
 
 import { Router, RouterModule, Routes } from '@angular/router';
 import { HashLocationStrategy, LocationStrategy } from '@angular/common';
-import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
+import { TranslateModule, TranslateLoader, TranslateService } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { 
   ajskommonitorCacheHelperServiceProvider,
@@ -184,7 +184,8 @@ export class AppModule implements DoBootstrap {
 
   constructor(
     private upgrade: UpgradeModule,
-    private authService: AuthService
+    private authService: AuthService,
+    private translateService: TranslateService
   ) {
   }
   
@@ -195,6 +196,9 @@ export class AppModule implements DoBootstrap {
     await this.loadConfigs();
     // instantiate env variable 
     this.env = window.__env || {};
+
+    // Initialize TranslateService
+    this.initializeTranslateService();
 
     this.downgradeDependencies();
 
@@ -211,6 +215,31 @@ export class AppModule implements DoBootstrap {
     if(window.location.href.includes('administration#!'))
       location.href = `${window.location.origin}/administration#!/administration`;
 
+  }
+
+  private initializeTranslateService(): void {
+    // Set default language
+    this.translateService.setDefaultLang('de');
+    
+    // Get saved language preference from localStorage
+    const savedLanguage = localStorage.getItem('preferredLanguage');
+    
+    // Use saved language if available, otherwise use browser language or default to 'de'
+    if (savedLanguage && ['de', 'en'].includes(savedLanguage)) {
+      this.translateService.use(savedLanguage);
+    } else {
+      // Try to use browser language if it's supported
+      const browserLang = this.translateService.getBrowserLang();
+      if (browserLang && ['de', 'en'].includes(browserLang)) {
+        this.translateService.use(browserLang);
+        localStorage.setItem('preferredLanguage', browserLang);
+      } else {
+        this.translateService.use('de');
+        localStorage.setItem('preferredLanguage', 'de');
+      }
+    }
+    
+    console.log('TranslateService initialized with language:', this.translateService.currentLang);
   }
 
   private downgradeDependencies(): void {  
