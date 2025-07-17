@@ -1,4 +1,4 @@
-name: CI to Docker Hub
+name: CI to Docker Hub - Snapshot processes api
 
 # Controls when the action will run. 
 on:
