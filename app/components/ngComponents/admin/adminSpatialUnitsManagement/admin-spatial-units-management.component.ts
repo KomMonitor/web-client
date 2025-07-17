@@ -441,6 +441,7 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
   // Grid event handlers
   onFirstDataRendered(event: FirstDataRenderedEvent): void {
     this.headerHeightSetter();
+    this.registerClickHandler_spatialUnits();
   }
 
   onColumnResized(event: ColumnResizedEvent): void {
@@ -460,62 +461,83 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
   }
 
   private registerClickHandler_spatialUnits(): void {
-    setTimeout(() => {
-      // Use jQuery to register click handlers (matching original implementation)
-      const $ = (window as any).$;
+    // Use event delegation on the grid container instead of individual buttons
+    // This ensures handlers work even for dynamically rendered buttons
+    const $ = (window as any).$;
+    
+    // Remove any existing handlers first to avoid duplicates
+    $('#spatialUnitOverviewTable').off('click', '.spatialUnitEditMetadataBtn');
+    $('#spatialUnitOverviewTable').off('click', '.spatialUnitEditFeaturesBtn');
+    $('#spatialUnitOverviewTable').off('click', '.spatialUnitEditUserRolesBtn');
+    $('#spatialUnitOverviewTable').off('click', '.spatialUnitDeleteBtn');
 
-      // Edit Metadata Button
-      $('.spatialUnitEditMetadataBtn').off();
-      $('.spatialUnitEditMetadataBtn').on('click', (event: any) => {
-        event.stopPropagation();
-        
-        const spatialUnitId = event.target.id.split('_')[3];
-        const spatialUnitMetadata = this.kommonitorDataExchangeService.getSpatialUnitMetadataById(spatialUnitId);
-        
-        if (spatialUnitMetadata) {
+    // Edit Metadata Button - use event delegation
+    $('#spatialUnitOverviewTable').on('click', '.spatialUnitEditMetadataBtn', (event: any) => {
+      event.stopPropagation();
+      event.preventDefault();
+      
+      // Get the button element (could be the icon inside)
+      const button = $(event.target).closest('.spatialUnitEditMetadataBtn')[0];
+      const spatialUnitId = button.id.split('_')[3];
+      const spatialUnitMetadata = this.kommonitorDataExchangeService.getSpatialUnitMetadataById(spatialUnitId);
+      
+      if (spatialUnitMetadata) {
+        this.zone.run(() => {
           this.onClickEditMetadata(spatialUnitMetadata);
-        }
-      });
+        });
+      }
+    });
 
-      // Edit Features Button
-      $('.spatialUnitEditFeaturesBtn').off();
-      $('.spatialUnitEditFeaturesBtn').on('click', (event: any) => {
-        event.stopPropagation();
-        
-        const spatialUnitId = event.target.id.split('_')[3];
-        const spatialUnitMetadata = this.kommonitorDataExchangeService.getSpatialUnitMetadataById(spatialUnitId);
-        
-        if (spatialUnitMetadata) {
+    // Edit Features Button - use event delegation
+    $('#spatialUnitOverviewTable').on('click', '.spatialUnitEditFeaturesBtn', (event: any) => {
+      event.stopPropagation();
+      event.preventDefault();
+      
+      // Get the button element (could be the icon inside)
+      const button = $(event.target).closest('.spatialUnitEditFeaturesBtn')[0];
+      const spatialUnitId = button.id.split('_')[3];
+      const spatialUnitMetadata = this.kommonitorDataExchangeService.getSpatialUnitMetadataById(spatialUnitId);
+      
+      if (spatialUnitMetadata) {
+        this.zone.run(() => {
           this.onClickEditFeatures(spatialUnitMetadata);
-        }
-      });
+        });
+      }
+    });
 
-      // Edit User Roles Button
-      $('.spatialUnitEditUserRolesBtn').off();
-      $('.spatialUnitEditUserRolesBtn').on('click', (event: any) => {
-        event.stopPropagation();
-        
-        const spatialUnitId = event.target.id.split('_')[3];
-        const spatialUnitMetadata = this.kommonitorDataExchangeService.getSpatialUnitMetadataById(spatialUnitId);
+    // Edit User Roles Button - use event delegation
+    $('#spatialUnitOverviewTable').on('click', '.spatialUnitEditUserRolesBtn', (event: any) => {
+      event.stopPropagation();
+      event.preventDefault();
+      
+      // Get the button element (could be the icon inside)
+      const button = $(event.target).closest('.spatialUnitEditUserRolesBtn')[0];
+      const spatialUnitId = button.id.split('_')[3];
+      const spatialUnitMetadata = this.kommonitorDataExchangeService.getSpatialUnitMetadataById(spatialUnitId);
 
-        if (spatialUnitMetadata) {
+      if (spatialUnitMetadata) {
+        this.zone.run(() => {
           this.onClickEditUserRoles(spatialUnitMetadata);
-        }
-      });
+        });
+      }
+    });
 
-      // Delete Button
-      $('.spatialUnitDeleteBtn').off();
-      $('.spatialUnitDeleteBtn').on('click', (event: any) => {
-        event.stopPropagation();
-        
-        const spatialUnitId = event.target.id.split('_')[3];
-        const spatialUnitMetadata = this.kommonitorDataExchangeService.getSpatialUnitMetadataById(spatialUnitId);
-        
-        if (spatialUnitMetadata) {
+    // Delete Button - use event delegation
+    $('#spatialUnitOverviewTable').on('click', '.spatialUnitDeleteBtn', (event: any) => {
+      event.stopPropagation();
+      event.preventDefault();
+      
+      // Get the button element (could be the icon inside)
+      const button = $(event.target).closest('.spatialUnitDeleteBtn')[0];
+      const spatialUnitId = button.id.split('_')[3];
+      const spatialUnitMetadata = this.kommonitorDataExchangeService.getSpatialUnitMetadataById(spatialUnitId);
+      
+      if (spatialUnitMetadata) {
+        this.zone.run(() => {
           this.onClickDeleteSpatialUnits([spatialUnitMetadata]);
-        }
-      });
-    }, 100);
+        });
+      }
+    });
   }
 
   private headerHeightSetter(): void {
