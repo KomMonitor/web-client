@@ -26,9 +26,10 @@ angular.module('adminScriptExecution').component('adminScriptExecution', {
 		  };
 
 		$scope.fetchJobDetails = async function(jobDescriptions){
-			let jobDescriptions_withJobSummary = [];
+			// let jobDescriptions_withJobSummary = [];
 			for (const jobDescription of jobDescriptions) {
-				await $http({
+				if(!jobDescription.jobSummary){
+					await $http({
 					url: __env.targetUrlToProcessesApi + "jobs/" + jobDescription.jobID + "/results",
 					method: "GET"
 					}).then(function successCallback(response) {
@@ -36,14 +37,16 @@ angular.module('adminScriptExecution').component('adminScriptExecution', {
 						// when the response is available
 
 						// this is only the jobSummayr as response
-						let clone = jQuery.extend(true, {}, jobDescription);
-						clone.jobSummary =response.data.jobSummary;
+						// let clone = jQuery.extend(true, {}, jobDescription);
+						jobDescription.jobSummary = response.data.jobSummary;
 
-						jobDescriptions_withJobSummary.push(clone);
+						// jobDescriptions_withJobSummary.push(clone);
 				});
+				}
+				
 			}
 
-			return jobDescriptions_withJobSummary;
+			return jobDescriptions;
 		}  
 		 
 		$scope.$on("initialMetadataLoadingCompleted", function (event) {
@@ -53,7 +56,11 @@ angular.module('adminScriptExecution').component('adminScriptExecution', {
 
 				await $scope.fetchJobDescriptions();
 
-				// $scope.initializeOrRefreshOverviewTable();
+				// also start to fetch job details for all queried jobs
+				// in the background
+				$scope.fetchJobDetails();
+
+				$scope.initializeOrRefreshOverviewTable();
 			}, 250);
 
 		});
@@ -99,9 +106,13 @@ angular.module('adminScriptExecution').component('adminScriptExecution', {
 			// refetch all metadata from spatial units to update table
 			await $scope.fetchJobDescriptions();
 
-			$scope.initializeOrRefreshOverviewTable();
+			$timeout(async function () {
 
-			$scope.loadingData = false;
+				$scope.initializeOrRefreshOverviewTable();
+
+				$scope.loadingData = false;
+			});
+			
 
 		};
 
