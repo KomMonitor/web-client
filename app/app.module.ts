@@ -81,6 +81,7 @@ import { SpatialUnitEditMetadataModalComponent } from './components/ngComponents
 import { SpatialUnitEditFeaturesModalComponent } from './components/ngComponents/admin/adminSpatialUnitsManagement/spatialUnitEditFeaturesModal/spatial-unit-edit-features-modal.component';
 import { SpatialUnitEditUserRolesModalComponent } from './components/ngComponents/admin/adminSpatialUnitsManagement/spatialUnitEditUserRolesModal/spatial-unit-edit-user-roles-modal.component';
 import { SpatialUnitDeleteModalComponent } from './components/ngComponents/admin/adminSpatialUnitsManagement/spatialUnitDeleteModal/spatial-unit-delete-modal.component';
+import { AdminIndicatorsManagementComponent } from './components/ngComponents/admin/adminIndicatorsManagement/admin-indicators-management.component';
 
 
 // currently the AngularJS routing is still used as part of kommonitorClient module
@@ -171,7 +172,8 @@ declare var MathJax;
     SpatialUnitEditMetadataModalComponent,
     SpatialUnitEditFeaturesModalComponent,
     SpatialUnitEditUserRolesModalComponent,
-    SpatialUnitDeleteModalComponent
+    SpatialUnitDeleteModalComponent,
+    AdminIndicatorsManagementComponent
   ],
   schemas: [
     CUSTOM_ELEMENTS_SCHEMA
@@ -290,6 +292,11 @@ export class AppModule implements DoBootstrap {
     angular.module('kommonitorAdmin')
       .directive('spatialUnitDeleteModalNew', downgradeComponent({
         component: SpatialUnitDeleteModalComponent
+      }) as angular.IDirectiveFactory);
+
+    angular.module('kommonitorAdmin')
+      .directive('adminIndicatorsManagementNew', downgradeComponent({
+        component: AdminIndicatorsManagementComponent
       }) as angular.IDirectiveFactory);
 
     console.log("registered downgraded Angular components for AngularJS usage");
