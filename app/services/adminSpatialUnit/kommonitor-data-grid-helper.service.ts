@@ -720,7 +720,7 @@ export class KommonitorDataGridHelperService {
 
     const gridOptions = {
       defaultColDef: {
-        editable: false,
+        editable: true,
         sortable: true,
         flex: 1,
         minWidth: 150,
@@ -729,6 +729,7 @@ export class KommonitorDataGridHelperService {
         resizable: true,
         wrapText: true,
         autoHeight: true,
+        cellEditor: 'agLargeTextCellEditor',
         cellStyle: { 
           'font-size': '12px', 
           'white-space': 'normal !important', 
@@ -751,12 +752,37 @@ export class KommonitorDataGridHelperService {
             '  </div>' +
             '</div>',
         },
+        onCellValueChanged: (newValueParams: any) => {
+          // Handle cell value changes for date validation
+          if (newValueParams.colDef.field === __env?.VALID_START_DATE_PROPERTY_NAME || 
+              newValueParams.colDef.field === __env?.VALID_END_DATE_PROPERTY_NAME) {
+            
+            // Validate date format
+            const isDate = (date: any) => {
+              const dateObj = new Date(date);
+              return dateObj.toString() !== "Invalid Date" && !isNaN(dateObj.getTime());
+            };
+            
+            if (!newValueParams.data[newValueParams.colDef.field]) {
+              newValueParams.data[newValueParams.colDef.field] = newValueParams.oldValue;
+            }
+            if (!isDate(newValueParams.data[newValueParams.colDef.field])) {
+              newValueParams.data[newValueParams.colDef.field] = newValueParams.oldValue;
+            }
+          }
+        }
       },
       components: {
         deleteButtonRenderer: this.deleteButtonRenderer.bind(this)
       },
       columnDefs: columnDefs,
       rowData: rowData,
+      // enables undo / redo
+      undoRedoCellEditing: true,
+      // restricts the number of undo / redo steps to 10
+      undoRedoCellEditingLimit: 10,
+      // enables flashing to help see cell changes
+      enableCellChangeFlash: true,
       suppressRowClickSelection: true,
       rowSelection: 'multiple',
       enableCellTextSelection: true,
@@ -773,6 +799,15 @@ export class KommonitorDataGridHelperService {
       },
       onGridReady: (params: GridReadyEvent) => {
         this.gridApi_featureTable = params.api;
+      },
+      onRowDataChanged: () => {
+        this.registerFeatureTableClickHandlers(resourceId, resourceType, enableDelete);
+      },
+      onModelUpdated: () => {
+        this.registerFeatureTableClickHandlers(resourceId, resourceType, enableDelete);
+      },
+      onViewportChanged: () => {
+        this.registerFeatureTableClickHandlers(resourceId, resourceType, enableDelete);
       }
     };
 
@@ -785,29 +820,58 @@ export class KommonitorDataGridHelperService {
   private buildFeatureTableColumnConfig(headers: string[], enableDelete: boolean, resourceType?: string): any[] {
     const columnDefs: any[] = [];
 
-    // Add delete button column if enabled
-    if (enableDelete) {
-      columnDefs.push({
-        headerName: 'Löschen',
-        pinned: 'left',
-        maxWidth: 80,
-        checkboxSelection: false,
-        headerCheckboxSelection: false,
-        filter: false,
-        sortable: false,
-        cellRenderer: 'deleteButtonRenderer',
-        cellRendererParams: {
-          resourceType: resourceType
-        }
-      });
-    }
-
-    // Add ID column (always present for features)
+    // Add DB-Record-Id column with delete button (always first, combines both functionalities)
     columnDefs.push({
-      headerName: 'ID',
+      headerName: 'DB-Record-Id',
+      field: 'kommonitorRecordId',
+      pinned: 'left',
+      editable: false,
+      maxWidth: 125,
+      cellClass: 'grid-non-editable',
+      cellRenderer: (params: any) => {
+        let html = '';
+        
+        // Add delete button if enabled
+        if (enableDelete) {
+          const datasetId = this.currentResourceId || '';
+          const featureId = params.data.properties?.[__env?.FEATURE_ID_PROPERTY_NAME] || 
+                           params.data[__env?.FEATURE_ID_PROPERTY_NAME] || '';
+          const recordId = params.data.properties?.kommonitorRecordId || 
+                          params.data.kommonitorRecordId || 
+                          params.data.id || '';
+          
+          if (resourceType === this.resourceType_spatialUnit) {
+            html += `<button id="btn__spatialUnit__deleteFeatureEntry__${datasetId}__${featureId}__${recordId}" ` +
+                   `class="btn btn-danger btn-sm spatialUnitDeleteFeatureRecordBtn" type="button" ` +
+                   `title="Datenobjekt unwiderruflich entfernen" ${enableDelete ? '' : 'disabled'}>` +
+                   `<i class="fas fa-trash"></i></button>`;
+          } else {
+            html += `<button id="btn__georesource__deleteFeatureEntry__${datasetId}__${featureId}__${recordId}" ` +
+                   `class="btn btn-danger btn-sm georesourceDeleteFeatureRecordBtn" type="button" ` +
+                   `title="Datenobjekt unwiderruflich entfernen" ${enableDelete ? '' : 'disabled'}>` +
+                   `<i class="fas fa-trash"></i></button>`;
+          }
+          html += '<br/>';
+        }
+        
+        // Add the record ID
+        const recordId = params.data.properties?.kommonitorRecordId || 
+                        params.data.kommonitorRecordId || 
+                        params.data.id || '';
+        html += recordId;
+        
+        return html;
+      }
+    });
+
+    // Add Feature-Id column (always present for features)
+    columnDefs.push({
+      headerName: 'Feature-Id',
       field: __env?.FEATURE_ID_PROPERTY_NAME || 'ID',
       pinned: 'left',
-      maxWidth: 150,
+      editable: false,
+      cellClass: 'grid-non-editable',
+      maxWidth: 125,
       cellRenderer: (params: any) => {
         const featureId = params.data.properties?.[__env?.FEATURE_ID_PROPERTY_NAME] || 
                          params.data[__env?.FEATURE_ID_PROPERTY_NAME] || '';
@@ -820,7 +884,7 @@ export class KommonitorDataGridHelperService {
       headerName: 'Name',
       field: __env?.FEATURE_NAME_PROPERTY_NAME || 'NAME',
       pinned: 'left',
-      minWidth: 200,
+      minWidth: 150,
       cellRenderer: (params: any) => {
         const featureName = params.data.properties?.[__env?.FEATURE_NAME_PROPERTY_NAME] || 
                            params.data[__env?.FEATURE_NAME_PROPERTY_NAME] || '';
@@ -828,29 +892,68 @@ export class KommonitorDataGridHelperService {
       }
     });
 
-    // Add validity date columns if they exist
+    // Add Lebenszeitbeginn (validity start date) column
     if (__env?.VALID_START_DATE_PROPERTY_NAME) {
       columnDefs.push({
-        headerName: 'Gültig von',
+        headerName: 'Lebenszeitbeginn',
         field: __env.VALID_START_DATE_PROPERTY_NAME,
         minWidth: 150,
+        editable: true,
+        cellEditor: 'agDatePickerCellEditor',
         cellRenderer: (params: any) => {
           const startDate = params.data.properties?.[__env.VALID_START_DATE_PROPERTY_NAME] || 
                            params.data[__env.VALID_START_DATE_PROPERTY_NAME] || '';
           return startDate;
+        },
+        filter: 'agDateColumnFilter',
+        filterParams: {
+          comparator: (filterLocalDateAtMidnight: Date, cellValue: string) => {
+            if (cellValue == null) return -1;
+            const cellDate = new Date(cellValue);
+            if (filterLocalDateAtMidnight.getTime() === cellDate.getTime()) {
+              return 0;
+            }
+            if (cellDate < filterLocalDateAtMidnight) {
+              return -1;
+            }
+            if (cellDate > filterLocalDateAtMidnight) {
+              return 1;
+            }
+            return 0;
+          }
         }
       });
     }
 
+    // Add Lebenszeitende (validity end date) column
     if (__env?.VALID_END_DATE_PROPERTY_NAME) {
       columnDefs.push({
-        headerName: 'Gültig bis',
+        headerName: 'Lebenszeitende',
         field: __env.VALID_END_DATE_PROPERTY_NAME,
         minWidth: 150,
+        editable: true,
+        cellEditor: 'agDatePickerCellEditor',
         cellRenderer: (params: any) => {
           const endDate = params.data.properties?.[__env.VALID_END_DATE_PROPERTY_NAME] || 
                          params.data[__env.VALID_END_DATE_PROPERTY_NAME] || '';
           return endDate;
+        },
+        filter: 'agDateColumnFilter',
+        filterParams: {
+          comparator: (filterLocalDateAtMidnight: Date, cellValue: string) => {
+            if (cellValue == null) return -1;
+            const cellDate = new Date(cellValue);
+            if (filterLocalDateAtMidnight.getTime() === cellDate.getTime()) {
+              return 0;
+            }
+            if (cellDate < filterLocalDateAtMidnight) {
+              return -1;
+            }
+            if (cellDate > filterLocalDateAtMidnight) {
+              return 1;
+            }
+            return 0;
+          }
         }
       });
     }
@@ -886,7 +989,19 @@ export class KommonitorDataGridHelperService {
     }
 
     return features.map(feature => {
-      // Return the feature itself - the column renderers will extract properties
+      // If the feature has properties (GeoJSON format), add geometry and record ID to properties
+      if (feature.properties) {
+        // Add geometry and database record ID to properties to be available within data grid object
+        feature.properties.kommonitorGeometry = feature.geometry;
+        feature.properties.kommonitorRecordId = feature.id;
+        return feature.properties;
+      }
+      
+      // If it's already a flat object, ensure it has the required fields
+      if (feature.id && !feature.kommonitorRecordId) {
+        feature.kommonitorRecordId = feature.id;
+      }
+      
       return feature;
     });
   }
@@ -909,17 +1024,20 @@ export class KommonitorDataGridHelperService {
   }
 
   /**
-   * Register click handlers for feature table buttons
+   * Register click handlers for feature table delete buttons
    */
-  private registerFeatureTableClickHandlers(resourceId?: string, resourceType?: string, enableDelete: boolean = false): void {
-    if (!enableDelete || !resourceType) return;
+  private registerFeatureTableClickHandlers(resourceId?: string, resourceType?: string, enableDelete?: boolean): void {
+    if (!enableDelete) return;
 
     setTimeout(() => {
-      const buttonClass = `.${resourceType}DeleteFeatureRecordBtn`;
-      const buttons = document.querySelectorAll(buttonClass);
-
-      buttons.forEach((button: any) => {
+      // Remove existing handlers to prevent duplicates
+      const deleteButtons = document.querySelectorAll('.spatialUnitDeleteFeatureRecordBtn, .georesourceDeleteFeatureRecordBtn');
+      deleteButtons.forEach(button => {
         button.removeEventListener('click', this.handleFeatureDeleteClick);
+      });
+
+      // Add new handlers
+      deleteButtons.forEach(button => {
         button.addEventListener('click', this.handleFeatureDeleteClick);
       });
     }, 100);
