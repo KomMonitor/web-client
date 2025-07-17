@@ -184,7 +184,7 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
 
   onClickEditFeatures(spatialUnitMetadata: any): void {
     const modalRef = this.modalService.open(SpatialUnitEditFeaturesModalComponent, {
-      size: 'xl',
+      size: 'lg',
       backdrop: 'static',
       keyboard: false,
       container: 'body',
@@ -204,7 +204,7 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
 
   onClickEditUserRoles(spatialUnitMetadata: any): void {
     const modalRef = this.modalService.open(SpatialUnitEditUserRolesModalComponent, {
-      size: 'xl',
+      size: 'lg',
       backdrop: 'static',
       keyboard: false,
       container: 'body',
@@ -224,7 +224,7 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
 
   onClickDeleteSpatialUnits(spatialUnitsMetadata: any[]): void {
     const modalRef = this.modalService.open(SpatialUnitDeleteModalComponent, {
-      size: 'xl',
+      size: 'lg',
       backdrop: 'static',
       keyboard: false,
       container: 'body',
