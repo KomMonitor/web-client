@@ -1,10 +1,10 @@
-name: CI to Docker Hub
+name: CI to Docker Hub - Snapshot processes api
 
 # Controls when the action will run. 
 on:
   # Triggers the workflow on push or pull request events but only for the master branch
   push:
-    branches: [ ap-4-anbindung-web-interface ]
+    branches: [ feature/ap-4-anbindung-web-interface ]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
