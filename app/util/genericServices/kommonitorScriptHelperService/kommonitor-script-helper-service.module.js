@@ -252,8 +252,10 @@ angular
             },
             "refrencesToOtherIndicators": [], // filled directly after
               "allowedRoles": targetIndicatorMetadata.allowedRoles,
+              "regionalReferenceValues": targetIndicatorMetadata.regionalReferenceValues,
               "datasetName": targetIndicatorMetadata.indicatorName,
               "abbreviation": targetIndicatorMetadata.abbreviation || null,
+              "precision": targetIndicatorMetadata.precision,
               "characteristicValue": targetIndicatorMetadata.characteristicValue || null,
               "tags": targetIndicatorMetadata.tags, 
               "creationType": targetIndicatorMetadata.creationType,
@@ -265,7 +267,10 @@ angular
               "isHeadlineIndicator": targetIndicatorMetadata.isHeadlineIndicator || false,
               "processDescription": this.scriptFormulaHTML || targetIndicatorMetadata.processDescription,
               "lowestSpatialUnitForComputation": targetIndicatorMetadata.lowestSpatialUnitForComputation,
-              "defaultClassificationMapping": targetIndicatorMetadata.defaultClassificationMapping
+              "defaultClassificationMapping": targetIndicatorMetadata.defaultClassificationMapping,
+              "referenceDateNote": targetIndicatorMetadata.referenceDateNote || "",
+				      "displayOrder": targetIndicatorMetadata.displayOrder,
+				  
           };
 
           // REFERENCES
@@ -324,14 +329,26 @@ angular
         // }
 
         function wrapObjectsInValue(obj) {
+           // process inputs are often delivered as key value pairs.
+          // for all non-special inputs (all except those from this.predefinedInputNames) we want to
+          // reduce input value object to key value pairs
+          // enumeration have to be treated specifically
+
           const result = {};
           for (const [key, value] of Object.entries(obj)) {
-            if (
+            // selected enumeration entry
+            // we only need apiName value here
+            if(value && value.apiName){
+              result[key] = value.apiName;
+            }
+            // entry has own value property
+            else if (
               value !== null &&
               typeof value === 'object' &&
               !Array.isArray(value)
             ) {
               result[key] = { value };
+            // all other cases
             } else {
               result[key] = value;
             }
@@ -340,6 +357,7 @@ angular
         }
 
         this.processParameters = wrapObjectsInValue(this.processParameters);
+
 
         var postBody = {
           inputs: this.processParameters,
