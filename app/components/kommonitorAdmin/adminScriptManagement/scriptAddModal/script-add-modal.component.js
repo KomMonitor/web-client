@@ -218,8 +218,8 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 				}, {});
 
 				kommonitorScriptHelperService.processParameters = {...scriptDataInputDefaults, ...staticInputsData};
-				kommonitorScriptHelperService.processParameters.execution_interval = scriptDataInputDefaults.execution_interval ?? staticInputsData.execution_interval;
-				kommonitorScriptHelperService.processParameters.target_time = scriptDataInputDefaults.target_time ?? staticInputsData.target_time;
+				kommonitorScriptHelperService.processParameters.execution_interval = scriptDataInputDefaults.execution_interval ? scriptDataInputDefaults.execution_interval : staticInputsData.execution_interval;
+				kommonitorScriptHelperService.processParameters.target_time = scriptDataInputDefaults.target_time ? scriptDataInputDefaults.target_time : staticInputsData.target_time;
 
 				setTimeout(() => {
 					$scope.$digest();

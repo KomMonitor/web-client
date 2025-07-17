@@ -22,6 +22,10 @@ angular.module('adminScriptExecution').component('adminScriptExecution', {
                 // when the response is available
 
                 $scope.jobDescriptions = response.data.jobs;
+
+				// also start to fetch job details for all queried jobs
+				// in the background
+				$scope.fetchJobDetails($scope.jobDescriptions);
               });
 		  };
 
@@ -56,10 +60,6 @@ angular.module('adminScriptExecution').component('adminScriptExecution', {
 
 				await $scope.fetchJobDescriptions();
 
-				// also start to fetch job details for all queried jobs
-				// in the background
-				$scope.fetchJobDetails();
-
 				$scope.initializeOrRefreshOverviewTable();
 			}, 250);
 
@@ -83,7 +83,8 @@ angular.module('adminScriptExecution').component('adminScriptExecution', {
 			$scope.selectedStatus = status;
 
 			$scope.filteredJobDescriptions = [];
-			for (job of $scope.jobDescriptions) {
+
+			for (let job of $scope.jobDescriptions) {
 				if (job.status == status) {
 					$scope.filteredJobDescriptions.push(job);
 				}

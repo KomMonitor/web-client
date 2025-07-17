@@ -195,6 +195,7 @@ module.exports = function (grunt) {
             'logos/**/*',
             'components/**/*.template.html',
             'components/kommonitorUserInterface/kommonitorControls/poi/templates/*.html',
+            'components/kommonitorAdmin/adminScriptManagement/scriptAddModal/templates/*.html',
             'config/**/*',
             'favicon.ico'           
         ],

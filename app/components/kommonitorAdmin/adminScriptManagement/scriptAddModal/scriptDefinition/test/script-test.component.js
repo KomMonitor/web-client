@@ -372,7 +372,8 @@ angular.module('scriptTest').component('scriptTest', {
 				let parts = str.split(/\$\{(?!\d)[\wæøåÆØÅ.]*\}/);
 				let args = str.match(/(?<=\${)[\wæøåÆØÅ.]+(?=})/g) || [];
 				let parameters = args.map(argument => {
-						let value = argument.split('.').reduce((o, key) => o?.[key], obj);
+						// let value = argument.split('.').reduce((o, key) => o?.[key], obj);
+						let value = argument.split('.').reduce((o, key) => (o && o[key] !== undefined) ? o[key] : undefined, obj);
 						return value !== undefined ? value : "";
 				});
 				return String.raw({ raw: parts }, ...parameters);
