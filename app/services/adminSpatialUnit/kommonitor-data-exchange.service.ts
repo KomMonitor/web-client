@@ -172,4 +172,11 @@ export class KommonitorDataExchangeService {
   checkAdminPermission(): boolean {
     return this.angularJsDataExchangeService.checkAdminPermission();
   }
+
+  /**
+   * Get base URL to KomMonitor Data API for spatial resources - delegates to AngularJS service
+   */
+  getBaseUrlToKomMonitorDataAPI_spatialResource(): string {
+    return this.angularJsDataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() || '';
+  }
 } 

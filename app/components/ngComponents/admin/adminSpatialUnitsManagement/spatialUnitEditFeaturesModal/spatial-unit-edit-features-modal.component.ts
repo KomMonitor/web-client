@@ -3,6 +3,9 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { HttpClient } from '@angular/common/http';
 import { Subscription } from 'rxjs';
+import { KommonitorDataGridHelperService } from 'services/adminSpatialUnit/kommonitor-data-grid-helper.service';
+import { AgGridAngular } from 'ag-grid-angular';
+import { ColDef, GridOptions, GridApi, ColumnApi, GridReadyEvent, FirstDataRenderedEvent, ColumnResizedEvent } from 'ag-grid-community';
 
 declare const $: any;
 declare const __env: any;
@@ -15,6 +18,7 @@ declare const __env: any;
 export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy {
   @ViewChild('mappingConfigImportFile', { static: false }) mappingConfigImportFile!: ElementRef;
   @ViewChild('spatialUnitDataSourceInput', { static: false }) spatialUnitDataSourceInput!: ElementRef;
+  @ViewChild('spatialUnitFeatureTable', { static: true }) spatialUnitFeatureTable!: AgGridAngular;
 
   // Multi-step form
   currentStep = 1;
@@ -97,6 +101,11 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
   // Import/Export functionality
   mappingConfigImportSettings: any = null;
 
+  // Grid options for feature table
+  featureTableGridOptions: GridOptions = {};
+  private gridApi!: GridApi;
+  private columnApi!: ColumnApi;
+
   // Subscriptions
   private subscriptions: Subscription[] = [];
 
@@ -104,7 +113,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
     public activeModal: NgbActiveModal,
     @Inject('kommonitorDataExchangeService') public kommonitorDataExchangeService: any,
     @Inject('kommonitorImporterHelperService') public kommonitorImporterHelperService: any,
-    @Inject('kommonitorDataGridHelperService') public kommonitorDataGridHelperService: any,
+    public kommonitorDataGridHelperService: KommonitorDataGridHelperService,
     @Inject('kommonitorMultiStepFormHelperService') private kommonitorMultiStepFormHelperService: any,
     private http: HttpClient,
     private broadcastService: BroadcastService
@@ -173,7 +182,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
   }
 
   private buildFeatureTable(): void {
-    this.kommonitorDataGridHelperService?.buildDataGrid_featureTable_spatialResource(
+    this.featureTableGridOptions = this.kommonitorDataGridHelperService.buildDataGrid_featureTable_spatialResource(
       "spatialUnitFeatureTable", 
       [], 
       []
@@ -276,7 +285,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
         }
 
         this.remainingFeatureHeaders = tmpRemainingHeaders;
-        this.kommonitorDataGridHelperService?.buildDataGrid_featureTable_spatialResource(
+        this.featureTableGridOptions = this.kommonitorDataGridHelperService.buildDataGrid_featureTable_spatialResource(
           "spatialUnitFeatureTable", 
           tmpRemainingHeaders, 
           this.spatialUnitFeaturesGeoJSON.features, 
@@ -305,7 +314,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
         this.spatialUnitFeaturesGeoJSON = null;
         this.remainingFeatureHeaders = [];
         this.broadcastService.broadcast('refreshSpatialUnitOverviewTable', ['edit', this.currentSpatialUnitDataset.spatialUnitId]);
-        this.kommonitorDataGridHelperService?.buildDataGrid_featureTable_spatialResource("spatialUnitFeatureTable", [], []);
+        this.featureTableGridOptions = this.kommonitorDataGridHelperService.buildDataGrid_featureTable_spatialResource("spatialUnitFeatureTable", [], []);
         this.successMessagePart = this.currentSpatialUnitDataset.spatialUnitLevel;
         this.showSuccessAlert();
         this.loadingData = false;
@@ -633,6 +642,20 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
     if (step >= 1 && step <= this.totalSteps) {
       this.currentStep = step;
     }
+  }
+
+  // AG Grid event handlers
+  onGridReady(event: GridReadyEvent): void {
+    this.gridApi = event.api;
+    this.columnApi = event.columnApi;
+  }
+
+  onFirstDataRendered(event: FirstDataRenderedEvent): void {
+    // Handle first data rendered event
+  }
+
+  onColumnResized(event: ColumnResizedEvent): void {
+    // Handle column resize event
   }
 
   // Alert methods

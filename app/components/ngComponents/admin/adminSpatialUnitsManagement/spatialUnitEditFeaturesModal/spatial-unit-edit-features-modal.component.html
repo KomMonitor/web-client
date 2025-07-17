@@ -102,7 +102,16 @@
 
           <!-- Feature table -->
           <div class="admin-table-wrapper featureTableWrapper">
-            <table id="spatialUnitFeatureTable" style="height: 50vh; width: 100%;" class="ag-theme-alpine"></table>
+            <ag-grid-angular
+              #spatialUnitFeatureTable
+              id="spatialUnitFeatureTable"
+              style="height: 50vh; width: 100%;"
+              class="ag-theme-alpine"
+              [gridOptions]="featureTableGridOptions"
+              (gridReady)="onGridReady($event)"
+              (firstDataRendered)="onFirstDataRendered($event)"
+              (columnResized)="onColumnResized($event)">
+            </ag-grid-angular>
           </div>
 
           <input type="button" name="next" class="next next_editSpatialUnitFeatures action-button" value="Nächster Schritt" (click)="nextStep()"/>
