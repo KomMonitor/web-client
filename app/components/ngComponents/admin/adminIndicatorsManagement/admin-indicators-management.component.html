@@ -67,7 +67,22 @@
 
         <div class="admin-table-wrapper">
 
-          <div id="indicatorOverviewTable" style="height: 70vh;" class="ag-theme-alpine"></div>
+          <ag-grid-angular
+            #agGrid
+            style="height: 70vh;"
+            class="ag-theme-alpine"
+            [columnDefs]="columnDefs"
+            [rowData]="rowData"
+            [gridOptions]="gridOptions"
+            [defaultColDef]="gridOptions.defaultColDef"
+            [pagination]="true"
+            [paginationPageSize]="10"
+            [rowSelection]="'multiple'"
+            [suppressRowClickSelection]="true"
+            [enableCellTextSelection]="true"
+            [ensureDomOrder]="true"
+            [suppressColumnVirtualisation]="true">
+          </ag-grid-angular>
 
         </div>
       </div>

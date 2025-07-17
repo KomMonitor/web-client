@@ -1,9 +1,11 @@
-import { Component, Inject, OnInit, NgZone, OnDestroy } from '@angular/core';
+import { Component, Inject, OnInit, NgZone, OnDestroy, ViewChild } from '@angular/core';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DOCUMENT } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { AgGridAngular } from 'ag-grid-angular';
+import { ColDef, GridOptions, GridReadyEvent, RowNode, SelectionChangedEvent } from 'ag-grid-community';
 import { KommonitorIndicatorDataExchangeService } from 'services/adminIndicatorUnit/kommonitor-data-exchange.service';
 import { KommonitorIndicatorCacheHelperService } from 'services/adminIndicatorUnit/kommonitor-cache-helper.service';
 import { KommonitorIndicatorDataGridHelperService } from 'services/adminIndicatorUnit/kommonitor-data-grid-helper.service';
@@ -17,11 +19,19 @@ declare const __env: any;
 })
 export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
 
+  @ViewChild(AgGridAngular) agGrid!: AgGridAngular;
+
   public loadingData: boolean = true;
   public initializationCompleted: boolean = false;
   public tableViewSwitcher: boolean = false;
   public selectIndicatorEntriesInput: boolean = false;
-  public dataGrid: any;
+  
+  // AG Grid properties
+  public columnDefs: ColDef[] = [];
+  public rowData: any[] = [];
+  public gridOptions: GridOptions = {};
+  public selectedRows: any[] = [];
+
   public sortableConfig: any = {
     onEnd: (evt: any) => {
       const updatedIndicatorMetadataEntries = evt.models;
@@ -141,6 +151,40 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
       }
     });
     this.subscriptions.push(sub);
+
+    // Listen for custom events from the data grid helper service
+    const handleEditMetadata = (event: CustomEvent) => {
+      this.zone.run(() => {
+        this.onClickEditMetadata(event.detail.values);
+      });
+    };
+
+    const handleEditFeatures = (event: CustomEvent) => {
+      this.zone.run(() => {
+        this.onClickEditFeatures(event.detail.values);
+      });
+    };
+
+    const handleEditUserRoles = (event: CustomEvent) => {
+      this.zone.run(() => {
+        this.onClickEditUserRoles(event.detail.values);
+      });
+    };
+
+    // Add event listeners
+    document.addEventListener('onEditIndicatorMetadata', handleEditMetadata as EventListener);
+    document.addEventListener('onEditIndicatorFeatures', handleEditFeatures as EventListener);
+    document.addEventListener('onEditIndicatorSpatialUnitRoles', handleEditUserRoles as EventListener);
+
+    // Store references for cleanup
+    const customEventSubscription = {
+      unsubscribe: () => {
+        document.removeEventListener('onEditIndicatorMetadata', handleEditMetadata as EventListener);
+        document.removeEventListener('onEditIndicatorFeatures', handleEditFeatures as EventListener);
+        document.removeEventListener('onEditIndicatorSpatialUnitRoles', handleEditUserRoles as EventListener);
+      }
+    } as any;
+    this.subscriptions.push(customEventSubscription);
   }
 
   public initializeOrRefreshOverviewTable(): void {
@@ -150,13 +194,118 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
       this.loadingData = false;
       this.initializationCompleted = true;
       
-      // Use the adminIndicatorUnit service to build the data grid (same as original)
-      this.kommonitorDataGridHelperService.buildDataGrid_indicators(indicators);
+      // Set up grid options first
+      this.setupGridOptions(indicators);
+      
+      // Use the data grid helper service to build column definitions and row data
+      this.columnDefs = this.kommonitorDataGridHelperService.buildDataGridColumnConfig_indicators(indicators);
+      this.rowData = this.kommonitorDataGridHelperService.buildDataGridRowData_indicators(indicators);
     } else {
       // Data not ready yet, keep loading
       this.loadingData = true;
       this.initializationCompleted = false;
     }
+  }
+
+  private setupGridOptions(indicatorMetadataArray: any[]): void {
+    this.gridOptions = {
+      defaultColDef: {
+        editable: false,
+        sortable: true,
+        flex: 1,
+        minWidth: 200,
+        filter: true,
+        floatingFilter: true,
+        resizable: true,
+        wrapText: true,
+        autoHeight: true,
+        cellStyle: { 
+          'font-size': '12px;', 
+          'white-space': 'normal !important', 
+          "line-height": "20px !important", 
+          "word-break": "break-word !important", 
+          "padding-top": "17px", 
+          "padding-bottom": "17px" 
+        },
+        headerComponentParams: {
+          template:
+            '<div class="ag-cell-label-container" role="presentation">' +
+            '  <span ref="eMenu" class="ag-header-icon ag-header-cell-menu-button"></span>' +
+            '  <div ref="eLabel" class="ag-header-cell-label" role="presentation">' +
+            '    <span ref="eSortOrder" class="ag-header-icon ag-sort-order"></span>' +
+            '    <span ref="eSortAsc" class="ag-header-icon ag-sort-ascending-icon"></span>' +
+            '    <span ref="eSortDesc" class="ag-header-icon ag-sort-descending-icon"></span>' +
+            '    <span ref="eSortNone" class="ag-header-icon ag-sort-none-icon"></span>' +
+            '    <span ref="eText" class="ag-header-cell-text" role="columnheader" style="white-space: normal;"></span>' +
+            '    <span ref="eFilter" class="ag-header-icon ag-filter-icon"></span>' +
+            '  </div>' +
+            '</div>',
+        },
+      },
+      components: {
+        displayEditButtons_indicators: this.kommonitorDataGridHelperService.displayEditButtons_indicators
+      },
+      enableCellTextSelection: true,
+      ensureDomOrder: true,
+      pagination: true,
+      paginationPageSize: 10,
+      suppressColumnVirtualisation: true,
+      rowSelection: 'multiple',
+      suppressRowClickSelection: true,
+      onGridReady: (params: GridReadyEvent) => {
+        this.onGridReady(params);
+      },
+      onFirstDataRendered: () => {
+        this.onFirstDataRendered();
+      },
+      onColumnResized: () => {
+        this.onColumnResized();
+      },
+      onModelUpdated: () => {
+        this.onModelUpdated(indicatorMetadataArray);
+      },
+      onViewportChanged: () => {
+        this.onViewportChanged(indicatorMetadataArray);
+      },
+      onSelectionChanged: (event: SelectionChangedEvent) => {
+        this.onSelectionChanged(event);
+      }
+    };
+  }
+
+  // Grid event handlers
+  onGridReady(params: GridReadyEvent): void {
+    // Grid is ready
+  }
+
+  onFirstDataRendered(): void {
+    // First data rendered
+  }
+
+  onColumnResized(): void {
+    // Column resized
+  }
+
+  onModelUpdated(indicatorMetadataArray: any[]): void {
+    this.kommonitorDataGridHelperService.registerClickHandler_indicators(indicatorMetadataArray);
+  }
+
+
+
+  onViewportChanged(indicatorMetadataArray: any[]): void {
+    this.kommonitorDataGridHelperService.registerClickHandler_indicators(indicatorMetadataArray);
+    setTimeout(() => {
+      // MathJax rendering if available
+      if ((window as any).MathJax && (window as any).MathJax.typesetPromise) {
+        (window as any).MathJax.typesetPromise().then(() => {
+          // MathJax rendering completed
+        });
+      }
+    }, 250);
+  }
+
+  onSelectionChanged(event: SelectionChangedEvent): void {
+    this.selectedRows = event.api.getSelectedRows();
   }
 
   private getFilteredIndicators(): any[] {
@@ -305,8 +454,6 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
     return this.kommonitorDataExchangeService.checkDeletePermission();
   }
 
-
-
   private startDataPolling(): void {
     // Poll every 500ms for data availability
     const pollInterval = setInterval(() => {
@@ -330,9 +477,6 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
   }
 
   getSelectedIndicatorsMetadata(): any[] {
-    // Since we're using the service layer, we need to get selected data from the grid
-    // This will be handled by the service layer, so for now return empty array
-    // TODO: Implement when needed
-    return [];
+    return this.selectedRows;
   }
 } 
