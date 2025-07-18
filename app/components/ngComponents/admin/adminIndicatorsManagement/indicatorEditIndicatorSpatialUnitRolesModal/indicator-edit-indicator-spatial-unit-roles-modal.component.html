@@ -1,0 +1,226 @@
+<div class="modal fade" id="modal-edit-indicator-spatial-unit-roles" role="dialog">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+
+      <div align="center">
+        <div class="loading-overlay-admin-panel ng-hide" *ngIf="loadingData">
+          <span class="glyphicon glyphicon-refresh icon-spin"></span>
+        </div>
+      </div>
+
+      <div class="modal-header">
+        <button type="button" class="close" (click)="closeModal()" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title">Zugriffsschutz und Eigentümerschaft für Indikator
+          <i><b>{{currentIndicatorDataset?.indicatorName}}</b></i> und dessen verknüpfte Raumebenen editieren</h4>
+      </div>
+      
+      <div class="modal-body">
+        <!-- MultiStep Form -->
+        <div class="row">
+          <div class="col-md-12">
+            <form class="multiStepForm form-group" id="indicatorEditIndicatorSpatialUnitRolesForm" role="form"
+              data-toggle="validator" data-disable="true" style="margin-bottom: 0px;">
+              <!-- progressbar -->
+              <div>
+                <ul id="progressbar">
+                  <li style="width: 33.33%" [class.active]="currentStep >= 1" (click)="goToStep(1)">Zugriffsschutz Indikator-Metadaten</li>
+                  <li style="width: 33.33%" [class.active]="currentStep >= 2" (click)="goToStep(2)">Zugriffsschutz Indikator-Zeitreihe pro Raumeinheit</li>
+                  <li style="width: 33.33%" [class.active]="currentStep >= 3" (click)="goToStep(3)">Eigentümerschaft</li>
+                </ul>
+              </div>
+              
+              <!-- Step 1: Zugriffsschutz Indikator-Metadaten -->
+              <fieldset *ngIf="currentStep === 1">
+                <h2 class="fs-title">Zugriffsschutz Indikator-Metadaten</h2>
+                <h3 class="fs-subtitle">Vergabe der Zugriffsrechte auf Indikator-Metadaten pro Organisationseinheit. Hiermit legen Sie fest, 
+                  welche Organisationseinheiten den Indikator lesen und/oder editieren dürfen</h3>
+
+                <p>Zugriffsrechte (lesen, editieren) müssen explizit vergeben werden</p>
+
+                <div class="row">
+                  <div class="col-md-12 col-sm-12 col-xs-12" *ngIf="permissions.length != 0">
+                    <div class="form-group vertical-align">
+                      <label class="margin-right">Zeige nur zugewiesene Rechte</label>
+                      <label class="switch">
+                        <input type="checkbox" value="activeRolesOnly" [(ngModel)]="activeRolesOnly" 
+                               [ngModelOptions]="{standalone: true}"
+                               (change)="onActiveRolesOnlyChange()" 
+                               [disabled]="permissions.length == 0">
+                        <span class="switchslider round"></span>
+                      </label>
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <label>Öffentliche Lesefreigabe*</label>
+                    <label class="switch">
+                      <input type="checkbox" [(ngModel)]="currentIndicatorDataset.isPublic" 
+                             [ngModelOptions]="{standalone: true}">
+                      <span class="switchslider round"></span>
+                    </label>
+                    <div class="help-block">
+                      <p>Öffentlich freigegebene Datensätze können ohne Login abgerufen werden.</p>
+                    </div>
+                  </div>
+                  <div class="col-md-6 col-sm-6 col-xs-12">
+                    <div id="indicatorEditRoleManagementTable" style="height: 45vh" class="ag-theme-alpine"></div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="alert alert-info">
+                      Als Eigentümer-Organisation des Datensatzes können Sie Lese- und Editier-Rechte an die eigene und weitere Organisationseinheiten vergeben.
+                    </div>
+                  </div>
+                </div>
+
+                <input type="button" name="next" class="next next_editIndicatorRoles action-button" 
+                       value="Nächster Schritt" (click)="nextStep()"/>
+              </fieldset>
+
+              <!-- Step 2: Zeitreihen-Zugriffsschutz für verknüpfte Raumebenen -->
+              <fieldset *ngIf="currentStep === 2">
+                <h2 class="fs-title">Zeitreihen-Zugriffsschutz für verknüpfte Raumebenen</h2>
+                <h3 class="fs-subtitle">Vergabe der Zugriffsrechte auf die Indikator-Zeitreihen der einzelnen Raumebenen. Zusätzlich zu den Metadaten
+                  muss der Zugriff auf die Zeitreihe einer verknüpften Raumeinheit explizit für authorisierte Organisationseinheiten freigegeben werden.</h3>
+
+                <div class="row">
+                  <div class="col-md-12 col-sm-12 col-xs-12" *ngIf="targetApplicableSpatialUnit?.permissions?.length != 0">
+                    <div class="form-group vertical-align">
+                      <label class="margin-right">Zeige nur zugewiesene Rechte</label>
+                      <label class="switch">
+                        <input type="checkbox" value="activeConnectedRolesOnly" [(ngModel)]="activeConnectedRolesOnly" 
+                               [ngModelOptions]="{standalone: true}"
+                               (change)="onActiveConnectedRolesOnlyChange()" 
+                               [disabled]="targetApplicableSpatialUnit?.permissions?.length == 0">
+                        <span class="switchslider round"></span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="row vertical-align">
+                  <div class="col-md-3 col-sm-6 col-xs-12">
+                    <label>Ziel-Raumebene*</label>
+                    <select [(ngModel)]="targetApplicableSpatialUnit" 
+                            [ngModelOptions]="{standalone: true}"
+                            (change)="onChangeSelectedSpatialUnit(targetApplicableSpatialUnit)"
+                            class="form-control" required>
+                      <option disabled selected value> -- Ziel-Raumebene wählen -- </option>
+                      <option *ngFor="let spatialUnit of currentIndicatorDataset?.applicableSpatialUnits" 
+                              [value]="spatialUnit">
+                        {{spatialUnit.spatialUnitName}}
+                      </option>
+                    </select>
+                    <br>
+                    <label>Öffentliche Lesefreigabe*</label>
+                    <label class="switch">
+                      <input type="checkbox" [(ngModel)]="targetApplicableSpatialUnit.isPublic" 
+                             [ngModelOptions]="{standalone: true}">
+                      <span class="switchslider round"></span>
+                    </label>
+                    <div class="help-block">
+                      <p>Öffentlich freigegebene Datensätze können ohne Login abgerufen werden.</p>
+                    </div>
+                    <div class="form-group">
+                      <div class="help-block with-errors"></div>
+                    </div>
+                  </div>
+
+                  <div class="col-md-9 col-sm-6 col-xs-12">
+                    <div id="indicatorEditIndicatorSpatialUnitsRoleManagementTable" style="height: 45vh" class="ag-theme-alpine"></div>
+                  </div>
+                </div>
+
+                <input type="button" name="next" class="next next_editIndicatorRoles action-button" 
+                       value="Nächster Schritt" (click)="nextStep()"/>
+
+                <input type="button" name="previous" class="previous previous_editIndicatorRoles action-button-previous"
+                       value="Voriger Schritt" (click)="previousStep()"/>
+              </fieldset>
+
+              <!-- Step 3: Eigentümerschaft -->
+              <fieldset *ngIf="currentStep === 3">
+                <h2 class="fs-title">Eigentümerschaft eines Datensatzes</h2>
+                <h3 class="fs-subtitle">Übetragen der Eigentümerschaft von Datensätzen mit allen dazugehörigen Rechten</h3>
+                <div class="alert alert-danger">
+                  Bitte beachten Sie, dass Sie beim Übertragen einer Eigentümerschaft einer Resource unter Umständen jegliche Rechte eben dieser verlieren.<br>Die Rechte werden unwiderruflich und sofort an den neuen Eigentümer übertragen.
+                </div>
+                <div class="row">
+                  <div class="col-md-3"></div>
+                  <div class="col-md-6 col-sm-6 col-xs-12">
+                    <label for="targetUserRoleSelect"><b>Eigentümerschaft übertragen an</b></label>
+                    <div class="input-group">
+                      <span class="input-group-addon"><i class="fas fa-filter"></i></span>
+                      <input type="text" class="form-control input-sm" placeholder="Stichwortfilter" 
+                             [(ngModel)]="ownerOrgFilter" 
+                             [ngModelOptions]="{standalone: true}">
+                    </div>
+                    <select *ngIf="angularJsDataExchangeService.checkAdminPermission()" 
+                            id="targetUserRoleSelect" 
+                            [(ngModel)]="ownerOrganization" 
+                            [ngModelOptions]="{standalone: true}"
+                            (change)="onChangeOwner(ownerOrganization)" 
+                            class="form-control" required>
+                      <option selected value><b>Eigentümerschaft nicht übertragen</b></option>
+                      <option *ngFor="let org of angularJsDataExchangeService.accessControl | filter:ownerOrgFilter" 
+                              [value]="org.organizationalUnitId">{{org.name}}</option>
+                    </select>
+                    <select *ngIf="!angularJsDataExchangeService.checkAdminPermission()" 
+                            id="targetUserRoleSelect" 
+                            [(ngModel)]="ownerOrganization" 
+                            [ngModelOptions]="{standalone: true}"
+                            (change)="onChangeOwner(ownerOrganization)" 
+                            class="form-control" required>
+                      <option selected value><b>Eigentümerschaft nicht übertragen</b></option>
+                      <option *ngFor="let org of resourcesCreatorRights | filter:ownerOrgFilter" 
+                              [value]="org.organizationalUnitId">{{org.name}}</option>
+                    </select>
+                  </div>
+                  <div class="col-md-3">
+                    <label>aktuelle Eigentümer-Organisationseinheit</label>
+                    <p>{{angularJsDataExchangeService.getAccessControlById(currentIndicatorDataset?.ownerId)?.name}}</p>
+                    <div class="help-block" style="color: red" *ngIf="ownerOrganization != currentIndicatorDataset?.ownerId">
+                      <p>ACHTUNG: Sie sind dabei, die Eigentümerschaft an diesem Datensatz zu ändern.</p>
+                    </div>
+                  </div>
+                </div>
+
+                <input type="button" name="previous" class="previous previous_editIndicatorRoles action-button-previous"
+                       value="Voriger Schritt" (click)="previousStep()"/>
+              </fieldset>
+            </form>
+          </div>
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default pull-left" (click)="closeModal()">Schließen</button>
+        <button type="button" class="btn btn-success" (click)="editIndicatorSpatialUnitRoles()">Aktualisieren</button>
+        <button type="button" class="btn btn-danger" (click)="resetIndicatorEditIndicatorSpatialUnitRolesForm()">Zurücksetzen</button>
+      </div>
+
+      <!-- Success Alert -->
+      <div id="indicatorEditIndicatorSpatialUnitRolesSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" 
+           class="alert alert-success alert-dismissable" style="display: none;">
+        <button type="button" class="close" (click)="hideSuccessAlert()" aria-hidden="true">&times;</button>
+        <h4><i class="icon fa fa-check"></i>Zugriffsschutz und Eigentümerschaft aktualisiert</h4>
+        Erfolgreiche Aktualisierung des Zugriffsschutzes und der Eigentümerschaft für Indikator '{{currentIndicatorDataset?.indicatorName}}'.
+        <br>
+        sowie
+        <br>
+        Erfolgreiche Aktualisierung des Zugriffsschutzes für verknüpfte Raumebene '{{targetApplicableSpatialUnit?.spatialUnitName}}'
+      </div>
+
+      <!-- Error Alert -->
+      <div id="indicatorEditIndicatorSpatialUnitRolesErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" 
+           class="alert alert-danger alert-dismissable" style="display: none;">
+        <button type="button" class="close" (click)="hideErrorAlert()" aria-hidden="true">&times;</button>
+        <h4><i class="icon fa fa-ban"></i>Aktualisierung gescheitert</h4>
+        Bei der Aktualisierung des Zugriffsschutzes und der Eigentümerschaft ist ein Fehler aufgetreten. Fehlermeldung:
+        <br />
+        <pre style="overflow:auto; max-height:500px;" [innerHTML]="errorMessagePart"></pre>
+      </div>
+
+    </div>
+  </div>
+</div> 

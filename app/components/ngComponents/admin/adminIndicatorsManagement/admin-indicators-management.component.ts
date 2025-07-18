@@ -10,6 +10,10 @@ import { KommonitorIndicatorDataExchangeService } from 'services/adminIndicatorU
 import { KommonitorIndicatorCacheHelperService } from 'services/adminIndicatorUnit/kommonitor-cache-helper.service';
 import { KommonitorIndicatorDataGridHelperService } from 'services/adminIndicatorUnit/kommonitor-data-grid-helper.service';
 import { IndicatorAddModalComponent } from './indicatorAddModal/indicator-add-modal.component';
+import { IndicatorEditMetadataModalComponent } from './indicatorEditMetadataModal/indicator-edit-metadata-modal.component';
+import { IndicatorEditFeaturesModalComponent } from './indicatorEditFeaturesModal/indicator-edit-features-modal.component';
+import { IndicatorDeleteModalComponent } from './indicatorDeleteModal/indicator-delete-modal.component';
+
 declare const $: any;
 declare const __env: any;
 
@@ -112,6 +116,8 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
         this.zone.run(() => {
           setTimeout(() => {
             this.initializeOrRefreshOverviewTable();
+            // Also ensure topics are collapsed when metadata is loaded
+            this.initializeCollapsedTopics();
           }, 250);
         });
       }
@@ -140,9 +146,9 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
           this.onClickEditFeatures(data.values);
         });
       }
-      else if (data.msg === 'onEditIndicatorUserRoles') {
+      else if (data.msg === 'onEditIndicatorSpatialUnitRoles') {
         this.zone.run(() => {
-          this.onClickEditUserRoles(data.values);
+          this.onClickEditIndicatorSpatialUnitRoles(data.values);
         });
       }
       else if (data.msg === 'onDeleteIndicators') {
@@ -170,7 +176,7 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
 
     const handleEditUserRoles = (event: CustomEvent) => {
       this.zone.run(() => {
-        this.onClickEditUserRoles(event.detail.values);
+        this.onClickEditIndicatorSpatialUnitRoles(event.detail.values);
       });
     };
 
@@ -196,6 +202,9 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
     if (indicators && indicators.length > 0) {
       this.loadingData = false;
       this.initializationCompleted = true;
+      
+      // Initialize all topics as collapsed
+      this.initializeCollapsedTopics();
       
       // Set up grid options first
       this.setupGridOptions(indicators);
@@ -369,23 +378,100 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
   }
 
   onClickEditMetadata(indicatorMetadata: any): void {
-    // TODO: Implement indicator edit metadata modal
-    console.log('Edit metadata clicked for:', indicatorMetadata);
+    console.log('Opening indicator edit metadata modal...');
+    try {
+      const modalRef = this.modalService.open(IndicatorEditMetadataModalComponent, {
+        size: 'xl',
+        backdrop: 'static',
+        keyboard: false,
+        container: 'body',
+        animation: false
+      });
+
+      console.log('Edit metadata modal reference created:', modalRef);
+
+      // Set the current indicator dataset in the modal component
+      const modalComponent = modalRef.componentInstance as IndicatorEditMetadataModalComponent;
+      modalComponent.currentIndicatorDataset = indicatorMetadata;
+      modalComponent.resetIndicatorEditMetadataForm();
+
+      modalRef.result.then((result) => {
+        console.log('Edit metadata modal result:', result);
+        if (result) {
+          // Modal was closed successfully, refresh the table
+          this.initializeOrRefreshOverviewTable();
+        }
+      }).catch((error) => {
+        console.log('Edit metadata modal error:', error);
+        // Modal dismissed
+      });
+    } catch (error) {
+      console.error('Error opening edit metadata modal:', error);
+    }
   }
 
   onClickEditFeatures(indicatorMetadata: any): void {
-    // TODO: Implement indicator edit features modal
-    console.log('Edit features clicked for:', indicatorMetadata);
+    try {
+      const modalRef = this.modalService.open(IndicatorEditFeaturesModalComponent, {
+        size: 'xl',
+        backdrop: 'static',
+        keyboard: false
+      });
+
+      const modalComponent = modalRef.componentInstance as IndicatorEditFeaturesModalComponent;
+      modalComponent.openModal(indicatorMetadata);
+
+      modalRef.result.then((result) => {
+        console.log('Edit features modal result:', result);
+        if (result) {
+          // Modal was closed successfully, refresh the table
+          this.initializeOrRefreshOverviewTable();
+        }
+      }).catch((error) => {
+        console.log('Edit features modal error:', error);
+        // Modal dismissed
+      });
+    } catch (error) {
+      console.error('Error opening edit features modal:', error);
+    }
   }
 
-  onClickEditUserRoles(indicatorMetadata: any): void {
-    // TODO: Implement indicator edit user roles modal
-    console.log('Edit user roles clicked for:', indicatorMetadata);
+  onClickEditIndicatorSpatialUnitRoles(indicatorMetadata: any): void {
+    try {
+      // Broadcast the event to open the modal
+      this.broadcastService.broadcast('onEditIndicatorSpatialUnitRoles', indicatorMetadata);
+    } catch (error) {
+      console.error('Error opening edit indicator spatial unit roles modal:', error);
+    }
   }
 
   onClickDeleteIndicators(indicatorsMetadata: any[]): void {
-    // TODO: Implement indicator delete modal
-    console.log('Delete indicators clicked for:', indicatorsMetadata);
+    if (indicatorsMetadata.length === 1) {
+      // Open the Angular delete modal for single indicator
+      this.openDeleteIndicatorModal(indicatorsMetadata[0]);
+    } else {
+      // For multiple indicators, we might need to handle differently
+      // For now, just open the modal with the first indicator
+      console.log('Multiple indicators delete not yet supported');
+    }
+  }
+
+  openDeleteIndicatorModal(indicatorDataset: any): void {
+    const modalRef = this.modalService.open(IndicatorDeleteModalComponent, {
+      size: 'xl',
+      backdrop: 'static',
+      keyboard: false
+    });
+
+    // Set the selected indicator in the modal
+    modalRef.componentInstance.selectedIndicatorDataset = indicatorDataset;
+    modalRef.componentInstance.onChangeSelectedIndicator();
+
+    modalRef.result.then((result) => {
+      console.log('Delete modal closed with result:', result);
+    }).catch((error) => {
+      console.log('Delete modal dismissed:', error);
+    });
   }
 
   onClickBatchUpdate(): void {
@@ -506,7 +592,51 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
     return this.selectedRows;
   }
 
+  // Getter to check if we have topic hierarchy data
+  get hasTopicData(): boolean {
+    return this.kommonitorDataExchangeService.topicIndicatorHierarchy_forOrderView && 
+           this.kommonitorDataExchangeService.topicIndicatorHierarchy_forOrderView.length > 0;
+  }
+
   // Drag & Drop methods
+  initializeCollapsedTopics(): void {
+    // Clear existing collapsed topics
+    this.collapsedTopics.clear();
+    
+    // Initialize all topics as collapsed by default
+    if (this.kommonitorDataExchangeService.topicIndicatorHierarchy_forOrderView && 
+        this.kommonitorDataExchangeService.topicIndicatorHierarchy_forOrderView.length > 0) {
+      
+      console.log('Initializing collapsed topics for', this.kommonitorDataExchangeService.topicIndicatorHierarchy_forOrderView.length, 'main topics');
+      
+      this.kommonitorDataExchangeService.topicIndicatorHierarchy_forOrderView.forEach((mainTopic: any) => {
+        this.collapsedTopics.add(mainTopic.topicId);
+        
+        if (mainTopic.subTopics && mainTopic.subTopics.length > 0) {
+          mainTopic.subTopics.forEach((subTopic: any) => {
+            this.collapsedTopics.add(subTopic.topicId);
+            
+            if (subTopic.subTopics && subTopic.subTopics.length > 0) {
+              subTopic.subTopics.forEach((subsubTopic: any) => {
+                this.collapsedTopics.add(subsubTopic.topicId);
+                
+                if (subsubTopic.subTopics && subsubTopic.subTopics.length > 0) {
+                  subsubTopic.subTopics.forEach((subsubsubTopic: any) => {
+                    this.collapsedTopics.add(subsubsubTopic.topicId);
+                  });
+                }
+              });
+            }
+          });
+        }
+      });
+      
+      console.log('Collapsed topics set:', this.collapsedTopics);
+    } else {
+      console.log('No topic hierarchy data available yet');
+    }
+  }
+
   toggleTopicCollapse(topicId: string): void {
     if (this.collapsedTopics.has(topicId)) {
       this.collapsedTopics.delete(topicId);
@@ -516,6 +646,18 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
   }
 
   isTopicCollapsed(topicId: string): boolean {
+    // If topic hierarchy is not loaded yet, assume collapsed
+    if (!this.kommonitorDataExchangeService.topicIndicatorHierarchy_forOrderView || 
+        this.kommonitorDataExchangeService.topicIndicatorHierarchy_forOrderView.length === 0) {
+      return true;
+    }
+    
+    // If the collapsedTopics set is empty, initialize it and return true (collapsed by default)
+    if (this.collapsedTopics.size === 0) {
+      this.initializeCollapsedTopics();
+      return true;
+    }
+    
     return this.collapsedTopics.has(topicId);
   }
 

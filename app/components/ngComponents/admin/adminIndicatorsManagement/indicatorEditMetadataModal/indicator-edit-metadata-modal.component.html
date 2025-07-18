@@ -1,0 +1,628 @@
+<!-- Modal Template -->
+<ng-template #modal let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title"> Indikator Metadaten bearbeiten</h4>
+    <button type="button" class="close" aria-label="Close" (click)="closeModal()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+
+  <div class="modal-body">
+    <!-- Success Alert -->
+    <div *ngIf="successMessagePart" class="alert alert-success alert-dismissible" id="indicatorEditMetadataSuccessAlert">
+      <button type="button" class="close" (click)="hideSuccessAlert()">
+        <span aria-hidden="true">&times;</span>
+      </button>
+      <strong>Erfolg!</strong> Die Metadaten für den Indikator "{{successMessagePart}}" wurden erfolgreich aktualisiert.
+    </div>
+
+    <!-- Error Alert -->
+    <div *ngIf="errorMessagePart" class="alert alert-danger alert-dismissible" id="indicatorEditMetadataErrorAlert">
+      <button type="button" class="close" (click)="hideErrorAlert()">
+        <span aria-hidden="true">&times;</span>
+      </button>
+      <strong>Fehler!</strong> Beim Aktualisieren der Metadaten ist ein Fehler aufgetreten.
+      <pre>{{errorMessagePart}}</pre>
+    </div>
+
+    <!-- Import Error Alert -->
+    <div *ngIf="indicatorAddMetadataImportErrorAlert" class="alert alert-danger alert-dismissible" id="indicatorEditMetadataImportErrorAlert">
+      <button type="button" class="close" (click)="hideMetadataErrorAlert()">
+        <span aria-hidden="true">&times;</span>
+      </button>
+      <strong>Fehler!</strong> {{indicatorMetadataImportError}}
+    </div>
+
+    <!-- Loading Overlay -->
+    <div *ngIf="loadingData" class="loading-overlay">
+      <div class="spinner-border text-primary" role="status">
+        <span class="sr-only">Loading...</span>
+      </div>
+    </div>
+
+    <!-- Form Content -->
+    <form id="indicatorEditMetadataForm" #indicatorEditMetadataForm="ngForm">
+      
+      <!-- Basic Information -->
+      <div class="form-group">
+        <label for="datasetName">Indikatorname *</label>
+        <input type="text" 
+               class="form-control" 
+               id="datasetName" 
+               name="datasetName"
+               [(ngModel)]="datasetName"
+               (blur)="checkDatasetName()"
+               [class.is-invalid]="datasetNameInvalid"
+               required>
+        <div *ngIf="datasetNameInvalid" class="invalid-feedback">
+          Ein Indikator mit diesem Namen existiert bereits.
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="indicatorAbbreviation">Kürzel/Kennzeichen</label>
+        <input type="text" 
+               class="form-control" 
+               id="indicatorAbbreviation" 
+               name="indicatorAbbreviation"
+               [(ngModel)]="indicatorAbbreviation">
+      </div>
+
+      <div class="form-group">
+        <label for="indicatorType">Indikator-Typ *</label>
+        <select class="form-control" 
+                id="indicatorType" 
+                name="indicatorType"
+                [(ngModel)]="indicatorType"
+                required>
+          <option value="">Bitte wählen...</option>
+          <option *ngFor="let option of kommonitorDataExchangeService.indicatorTypeOptions" 
+                  [value]="option">
+            {{option.displayName}}
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <div class="form-check">
+          <input type="checkbox" 
+                 class="form-check-input" 
+                 id="isHeadlineIndicator" 
+                 name="isHeadlineIndicator"
+                 [(ngModel)]="isHeadlineIndicator">
+          <label class="form-check-label" for="isHeadlineIndicator">
+            Leitindikator
+          </label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="indicatorUnit">Einheit *</label>
+        <select class="form-control" 
+                id="indicatorUnit" 
+                name="indicatorUnit"
+                [(ngModel)]="indicatorUnit"
+                (change)="onChangeIndicatorUnit()"
+                required>
+          <option value="">Bitte wählen...</option>
+          <option *ngFor="let unit of kommonitorDataExchangeService.indicatorUnitOptions" 
+                  [value]="unit">
+            {{unit}}
+          </option>
+        </select>
+        <div *ngIf="enableFreeTextUnit" class="mt-2">
+          <input type="text" 
+                 class="form-control" 
+                 placeholder="Freitext-Einheit eingeben"
+                 [(ngModel)]="indicatorUnit"
+                 name="indicatorUnitFreeText">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="indicatorPrecision">Präzision</label>
+        <div class="form-check">
+          <input type="checkbox" 
+                 class="form-check-input" 
+                 id="showCustomCommaValue" 
+                 name="showCustomCommaValue"
+                 [(ngModel)]="showCustomCommaValue">
+          <label class="form-check-label" for="showCustomCommaValue">
+            Benutzerdefinierte Dezimalstellen verwenden
+          </label>
+        </div>
+        <input *ngIf="showCustomCommaValue" 
+               type="number" 
+               class="form-control mt-2" 
+               id="indicatorPrecision" 
+               name="indicatorPrecision"
+               [(ngModel)]="indicatorPrecision"
+               min="0" 
+               max="10">
+      </div>
+
+      <div class="form-group">
+        <label for="indicatorProcessDescription">Prozessbeschreibung</label>
+        <textarea class="form-control" 
+                  id="indicatorProcessDescription" 
+                  name="indicatorProcessDescription"
+                  [(ngModel)]="indicatorProcessDescription"
+                  rows="3"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="indicatorTagsString_withCommas">Tags (kommagetrennt)</label>
+        <input type="text" 
+               class="form-control" 
+               id="indicatorTagsString_withCommas" 
+               name="indicatorTagsString_withCommas"
+               [(ngModel)]="indicatorTagsString_withCommas"
+               placeholder="tag1, tag2, tag3">
+      </div>
+
+      <div class="form-group">
+        <label for="indicatorInterpretation">Interpretation</label>
+        <textarea class="form-control" 
+                  id="indicatorInterpretation" 
+                  name="indicatorInterpretation"
+                  [(ngModel)]="indicatorInterpretation"
+                  rows="3"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="indicatorCreationType">Erstellungstyp *</label>
+        <select class="form-control" 
+                id="indicatorCreationType" 
+                name="indicatorCreationType"
+                [(ngModel)]="indicatorCreationType"
+                (change)="onChangeCreationType()"
+                required>
+          <option value="">Bitte wählen...</option>
+          <option *ngFor="let option of kommonitorDataExchangeService.indicatorCreationTypeOptions" 
+                  [value]="option">
+            {{option.displayName}}
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group" *ngIf="enableLowestSpatialUnitSelect">
+        <label for="indicatorLowestSpatialUnitMetadataObjectForComputation">Niedrigste räumliche Einheit für Berechnung</label>
+        <select class="form-control" 
+                id="indicatorLowestSpatialUnitMetadataObjectForComputation" 
+                name="indicatorLowestSpatialUnitMetadataObjectForComputation"
+                [(ngModel)]="indicatorLowestSpatialUnitMetadataObjectForComputation">
+          <option value="">Bitte wählen...</option>
+          <option *ngFor="let spatialUnit of kommonitorDataExchangeService.availableSpatialUnits" 
+                  [value]="spatialUnit">
+            {{spatialUnit.spatialUnitName}}
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="indicatorReferenceDateNote">Referenzdatum Notiz</label>
+        <input type="text" 
+               class="form-control" 
+               id="indicatorReferenceDateNote" 
+               name="indicatorReferenceDateNote"
+               [(ngModel)]="indicatorReferenceDateNote">
+      </div>
+
+      <div class="form-group">
+        <label for="displayOrder">Anzeigereihenfolge</label>
+        <input type="number" 
+               class="form-control" 
+               id="displayOrder" 
+               name="displayOrder"
+               [(ngModel)]="displayOrder"
+               min="0">
+      </div>
+
+      <!-- Metadata Section -->
+      <h5>Metadaten</h5>
+      
+      <div class="form-group">
+        <label for="metadata.note">Notiz</label>
+        <textarea class="form-control" 
+                  id="metadata.note" 
+                  name="metadata.note"
+                  [(ngModel)]="metadata.note"
+                  rows="2"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="metadata.literature">Literatur</label>
+        <textarea class="form-control" 
+                  id="metadata.literature" 
+                  name="metadata.literature"
+                  [(ngModel)]="metadata.literature"
+                  rows="2"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="metadata.updateInterval">Aktualisierungsintervall</label>
+        <select class="form-control" 
+                id="metadata.updateInterval" 
+                name="metadata.updateInterval"
+                [(ngModel)]="metadata.updateInterval">
+          <option value="">Bitte wählen...</option>
+          <option *ngFor="let option of kommonitorDataExchangeService.updateIntervalOptions" 
+                  [value]="option">
+            {{option.displayName}}
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="metadata.sridEPSG">SRID EPSG</label>
+        <input type="number" 
+               class="form-control" 
+               id="metadata.sridEPSG" 
+               name="metadata.sridEPSG"
+               [(ngModel)]="metadata.sridEPSG">
+      </div>
+
+      <div class="form-group">
+        <label for="metadata.datasource">Datenquelle</label>
+        <input type="text" 
+               class="form-control" 
+               id="metadata.datasource" 
+               name="metadata.datasource"
+               [(ngModel)]="metadata.datasource">
+      </div>
+
+      <div class="form-group">
+        <label for="metadata.contact">Kontakt</label>
+        <input type="text" 
+               class="form-control" 
+               id="metadata.contact" 
+               name="metadata.contact"
+               [(ngModel)]="metadata.contact">
+      </div>
+
+      <div class="form-group">
+        <label for="metadata.lastUpdate">Letzte Aktualisierung</label>
+        <input type="date" 
+               class="form-control" 
+               id="metadata.lastUpdate" 
+               name="metadata.lastUpdate"
+               [(ngModel)]="metadata.lastUpdate">
+      </div>
+
+      <div class="form-group">
+        <label for="metadata.description">Beschreibung</label>
+        <textarea class="form-control" 
+                  id="metadata.description" 
+                  name="metadata.description"
+                  [(ngModel)]="metadata.description"
+                  rows="3"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="metadata.databasis">Datenbasis</label>
+        <input type="text" 
+               class="form-control" 
+               id="metadata.databasis" 
+               name="metadata.databasis"
+               [(ngModel)]="metadata.databasis">
+      </div>
+
+      <!-- Topic Hierarchy Section -->
+      <h5>Themenhierarchie</h5>
+      
+      <div class="form-group">
+        <label for="indicatorTopic_mainTopic">Hauptthema</label>
+        <select class="form-control" 
+                id="indicatorTopic_mainTopic" 
+                name="indicatorTopic_mainTopic"
+                [(ngModel)]="indicatorTopic_mainTopic">
+          <option value="">Bitte wählen...</option>
+          <option *ngFor="let topic of kommonitorDataExchangeService.availableTopics | filter:'topicResource':'indicator'" 
+                  [value]="topic">
+            {{topic.topicName}}
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group" *ngIf="indicatorTopic_mainTopic?.subTopics?.length">
+        <label for="indicatorTopic_subTopic">Unterthema</label>
+        <select class="form-control" 
+                id="indicatorTopic_subTopic" 
+                name="indicatorTopic_subTopic"
+                [(ngModel)]="indicatorTopic_subTopic">
+          <option value="">Bitte wählen...</option>
+          <option *ngFor="let topic of indicatorTopic_mainTopic.subTopics" 
+                  [value]="topic">
+            {{topic.topicName}}
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group" *ngIf="indicatorTopic_subTopic?.subTopics?.length">
+        <label for="indicatorTopic_subsubTopic">Unter-Unterthema</label>
+        <select class="form-control" 
+                id="indicatorTopic_subsubTopic" 
+                name="indicatorTopic_subsubTopic"
+                [(ngModel)]="indicatorTopic_subsubTopic">
+          <option value="">Bitte wählen...</option>
+          <option *ngFor="let topic of indicatorTopic_subTopic.subTopics" 
+                  [value]="topic">
+            {{topic.topicName}}
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group" *ngIf="indicatorTopic_subsubTopic?.subTopics?.length">
+        <label for="indicatorTopic_subsubsubTopic">Unter-Unter-Unterthema</label>
+        <select class="form-control" 
+                id="indicatorTopic_subsubsubTopic" 
+                name="indicatorTopic_subsubsubTopic"
+                [(ngModel)]="indicatorTopic_subsubsubTopic">
+          <option value="">Bitte wählen...</option>
+          <option *ngFor="let topic of indicatorTopic_subsubTopic.subTopics" 
+                  [value]="topic">
+            {{topic.topicName}}
+          </option>
+        </select>
+      </div>
+
+      <!-- References Section -->
+      <h5>Referenzen zu anderen Indikatoren</h5>
+      
+      <div class="form-group">
+        <label for="indicatorNameFilter">Indikator filtern</label>
+        <input type="text" 
+               class="form-control" 
+               id="indicatorNameFilter" 
+               name="indicatorNameFilter"
+               [(ngModel)]="indicatorNameFilter"
+               placeholder="Indikatorname eingeben...">
+      </div>
+
+      <div class="form-group">
+        <label for="tmpIndicatorReference_selectedIndicatorMetadata">Indikator auswählen</label>
+        <select class="form-control" 
+                id="tmpIndicatorReference_selectedIndicatorMetadata" 
+                name="tmpIndicatorReference_selectedIndicatorMetadata"
+                [(ngModel)]="tmpIndicatorReference_selectedIndicatorMetadata">
+          <option value="">Bitte wählen...</option>
+          <option *ngFor="let indicator of kommonitorDataExchangeService.availableIndicators | filter:'indicatorName':indicatorNameFilter" 
+                  [value]="indicator">
+            {{indicator.indicatorName}}
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="tmpIndicatorReference_referenceDescription">Referenzbeschreibung</label>
+        <input type="text" 
+               class="form-control" 
+               id="tmpIndicatorReference_referenceDescription" 
+               name="tmpIndicatorReference_referenceDescription"
+               [(ngModel)]="tmpIndicatorReference_referenceDescription">
+      </div>
+
+      <button type="button" 
+              class="btn btn-primary" 
+              (click)="onAddOrUpdateIndicatorReference()"
+              [disabled]="!tmpIndicatorReference_selectedIndicatorMetadata">
+        Hinzufügen/Aktualisieren
+      </button>
+
+      <!-- Current References Table -->
+      <div *ngIf="indicatorReferences_adminView.length > 0" class="mt-3">
+        <h6>Aktuelle Referenzen</h6>
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Indikator</th>
+              <th>Beschreibung</th>
+              <th>Aktionen</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let reference of indicatorReferences_adminView">
+              <td>{{reference.referencedIndicatorName}}</td>
+              <td>{{reference.referencedIndicatorDescription}}</td>
+              <td>
+                <button type="button" 
+                        class="btn btn-sm btn-info" 
+                        (click)="onClickEditIndicatorReference(reference)">
+                  Bearbeiten
+                </button>
+                <button type="button" 
+                        class="btn btn-sm btn-danger" 
+                        (click)="onClickDeleteIndicatorReference(reference)">
+                  Löschen
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Georesource References Section -->
+      <h5>Referenzen zu Georessourcen</h5>
+      
+      <div class="form-group">
+        <label for="georesourceNameFilter">Georessource filtern</label>
+        <input type="text" 
+               class="form-control" 
+               id="georesourceNameFilter" 
+               name="georesourceNameFilter"
+               [(ngModel)]="georesourceNameFilter"
+               placeholder="Georessourcenname eingeben...">
+      </div>
+
+      <div class="form-group">
+        <label for="tmpGeoresourceReference_selectedGeoresourceMetadata">Georessource auswählen</label>
+        <select class="form-control" 
+                id="tmpGeoresourceReference_selectedGeoresourceMetadata" 
+                name="tmpGeoresourceReference_selectedGeoresourceMetadata"
+                [(ngModel)]="tmpGeoresourceReference_selectedGeoresourceMetadata">
+          <option value="">Bitte wählen...</option>
+          <option *ngFor="let georesource of kommonitorDataExchangeService.availableGeoresources | filter:'datasetName':georesourceNameFilter" 
+                  [value]="georesource">
+            {{georesource.datasetName}}
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="tmpGeoresourceReference_referenceDescription">Referenzbeschreibung</label>
+        <input type="text" 
+               class="form-control" 
+               id="tmpGeoresourceReference_referenceDescription" 
+               name="tmpGeoresourceReference_referenceDescription"
+               [(ngModel)]="tmpGeoresourceReference_referenceDescription">
+      </div>
+
+      <button type="button" 
+              class="btn btn-primary" 
+              (click)="onAddOrUpdateGeoresourceReference()"
+              [disabled]="!tmpGeoresourceReference_selectedGeoresourceMetadata">
+        Hinzufügen/Aktualisieren
+      </button>
+
+      <!-- Current Georesource References Table -->
+      <div *ngIf="georesourceReferences_adminView.length > 0" class="mt-3">
+        <h6>Aktuelle Georessourcen-Referenzen</h6>
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Georessource</th>
+              <th>Beschreibung</th>
+              <th>Aktionen</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let reference of georesourceReferences_adminView">
+              <td>{{reference.referencedGeoresourceName}}</td>
+              <td>{{reference.referencedGeoresourceDescription}}</td>
+              <td>
+                <button type="button" 
+                        class="btn btn-sm btn-info" 
+                        (click)="onClickEditGeoresourceReference(reference)">
+                  Bearbeiten
+                </button>
+                <button type="button" 
+                        class="btn btn-sm btn-danger" 
+                        (click)="onClickDeleteGeoresourceReference(reference)">
+                  Löschen
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Classification Section -->
+      <h5>Klassifizierungsoptionen</h5>
+      
+      <div class="form-group">
+        <label for="numClassesPerSpatialUnit">Anzahl Klassen</label>
+        <select class="form-control" 
+                id="numClassesPerSpatialUnit" 
+                name="numClassesPerSpatialUnit"
+                [(ngModel)]="numClassesPerSpatialUnit"
+                (change)="onNumClassesChanged(numClassesPerSpatialUnit || 5)">
+          <option value="">Bitte wählen...</option>
+          <option *ngFor="let num of numClassesArray" 
+                  [value]="num">
+            {{num}}
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="classificationMethod">Klassifizierungsmethode</label>
+        <select class="form-control" 
+                id="classificationMethod" 
+                name="classificationMethod"
+                [(ngModel)]="classificationMethod">
+          <option value="jenks">Jenks Natural Breaks</option>
+          <option value="equal">Gleiche Intervalle</option>
+          <option value="manual">Manuell</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Farbpalette</label>
+        <div class="color-palette-grid">
+          <div *ngFor="let palette of colorbrewerPalettes" 
+               class="color-palette-item"
+               [class.selected]="selectedColorBrewerPaletteEntry?.paletteName === palette.paletteName"
+               (click)="onClickColorBrewerEntry(palette)">
+            <div class="color-samples">
+              <div *ngFor="let color of palette.paletteArrayObject[5] || palette.paletteArrayObject[3]" 
+                   class="color-sample"
+                   [style.background-color]="color"></div>
+            </div>
+            <div class="palette-name">{{palette.paletteName}}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Spatial Unit Classification Tabs -->
+      <div *ngIf="spatialUnitClassification.length > 0" class="mt-3">
+        <h6>Klassengrenzen pro räumliche Einheit</h6>
+        <ul class="nav nav-tabs">
+          <li class="nav-item" *ngFor="let classification of spatialUnitClassification; let i = index">
+            <a class="nav-link" 
+               [class.active]="i === 0"
+               [class.tab-completed]="tabClasses[i] === 'tab-completed'"
+               [class.tab-error]="tabClasses[i] === 'tab-error'"
+               href="#tab-{{i}}"
+               data-toggle="tab">
+              {{kommonitorDataExchangeService.getSpatialUnitMetadataById(classification.spatialUnitId)?.spatialUnitName}}
+            </a>
+          </li>
+        </ul>
+        
+        <div class="tab-content">
+          <div *ngFor="let classification of spatialUnitClassification; let i = index" 
+               class="tab-pane"
+               [class.active]="i === 0"
+               id="tab-{{i}}">
+            <div class="form-group">
+              <label>Klassengrenzen</label>
+              <div *ngFor="let break of classification.breaks; let j = index" class="mb-2">
+                <input type="number" 
+                       class="form-control" 
+                       [placeholder]="'Grenze ' + (j + 1)"
+                       [(ngModel)]="classification.breaks[j]"
+                       (change)="onBreaksChanged(i)">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Regional Reference Values Section -->
+      <h5>Regionale Vergleichswerte</h5>
+      
+      <div class="form-group">
+        <label>Vergleichswerte verwalten</label>
+        <div id="indicatorRegionalReferenceValuesManagementTable" class="ag-theme-alpine" style="height: 300px;">
+          <!-- AG Grid will be initialized here -->
+        </div>
+      </div>
+
+    </form>
+  </div>
+
+  <div class="modal-footer">
+    <button type="button" 
+            class="btn btn-secondary" 
+            (click)="closeModal()">
+      Abbrechen
+    </button>
+    <button type="button" 
+            class="btn btn-primary" 
+            (click)="editIndicatorMetadata()"
+            [disabled]="loadingData || !indicatorEditMetadataForm.valid">
+      <span *ngIf="loadingData" class="spinner-border spinner-border-sm mr-1"></span>
+      Speichern
+    </button>
+  </div>
+</ng-template> 

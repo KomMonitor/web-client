@@ -382,4 +382,18 @@ export class KommonitorIndicatorDataGridHelperService {
     const now = new Date();
     return now.toISOString();
   }
+
+  /**
+   * Gets reference values from regional reference values management grid - delegates to AngularJS service
+   */
+  getReferenceValues_regionalReferenceValuesManagementGrid(gridOptions: any): any[] {
+    return this.angularJsDataExchangeService.getReferenceValues_regionalReferenceValuesManagementGrid(gridOptions);
+  }
+
+  /**
+   * Builds reference values management grid - delegates to AngularJS service
+   */
+  buildReferenceValuesManagementGrid(gridOptions: any): any {
+    return this.angularJsDataExchangeService.buildReferenceValuesManagementGrid(gridOptions);
+  }
 } 

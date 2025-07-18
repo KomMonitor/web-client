@@ -146,6 +146,27 @@ export class KommonitorIndicatorDataExchangeService {
   }
 
   /**
+   * Gets georesource metadata by ID - delegates to AngularJS service
+   */
+  getGeoresourceMetadataById(georesourceId: string): any {
+    return this.angularJsDataExchangeService.getGeoresourceMetadataById(georesourceId);
+  }
+
+  /**
+   * Gets topic hierarchy for topic ID - delegates to AngularJS service
+   */
+  getTopicHierarchyForTopicId(topicId: string): any {
+    return this.angularJsDataExchangeService.getTopicHierarchyForTopicId(topicId);
+  }
+
+  /**
+   * Gets spatial unit metadata by ID - delegates to AngularJS service
+   */
+  getSpatialUnitMetadataById(spatialUnitId: string): any {
+    return this.angularJsDataExchangeService.getSpatialUnitMetadataById(spatialUnitId);
+  }
+
+  /**
    * Checks if the current user has create permissions - delegates to AngularJS service
    */
   checkCreatePermission(): boolean {

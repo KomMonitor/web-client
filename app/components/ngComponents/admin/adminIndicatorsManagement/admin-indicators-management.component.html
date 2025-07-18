@@ -126,6 +126,10 @@
 
             <label> Via Drag and Drop Einträge innerhalb eines (Unter-)Themas sortieren </label>
 
+            <div *ngIf="!hasTopicData" class="alert alert-info">
+              Laden der Themenhierarchie...
+            </div>
+
             <!-- Main Topics -->
             <div *ngFor="let mainTopic of kommonitorDataExchangeService.topicIndicatorHierarchy_forOrderView | orderBy: 'topicName'">
               <div class="list-group-item list-group-item-default kommonitor-theme"
@@ -141,8 +145,8 @@
                 </a>
               </div>
 
-              <div class="list-group collapse" 
-                   [ngClass]="{'in': !isTopicCollapsed(mainTopic.topicId)}">
+              <div class="list-group" 
+                   *ngIf="!isTopicCollapsed(mainTopic.topicId)">
                 
                 <!-- Sub Topics -->
                 <div *ngFor="let subTopic of mainTopic.subTopics | orderBy: 'topicName'">
@@ -159,8 +163,8 @@
                     </a>
                   </div>
                   
-                  <div class="list-group collapse" 
-                       [ngClass]="{'in': !isTopicCollapsed(subTopic.topicId)}">
+                  <div class="list-group" 
+                       *ngIf="!isTopicCollapsed(subTopic.topicId)">
                     
                     <!-- Sub-Sub Topics -->
                     <div *ngFor="let subsubTopic of subTopic.subTopics | orderBy: 'topicName'">
@@ -177,8 +181,8 @@
                         </a>
                       </div>
                       
-                      <div class="list-group collapse" 
-                           [ngClass]="{'in': !isTopicCollapsed(subsubTopic.topicId)}">
+                      <div class="list-group" 
+                           *ngIf="!isTopicCollapsed(subsubTopic.topicId)">
                         
                         <!-- Sub-Sub-Sub Topics -->
                         <div *ngFor="let subsubsubTopic of subsubTopic.subTopics | orderBy: 'topicName'">
@@ -196,8 +200,8 @@
                           </div>
                           
                           <!-- Indicators in Sub-Sub-Sub Topics -->
-                          <div class="list-group collapse indicatorInputForm" 
-                               [ngClass]="{'in': !isTopicCollapsed(subsubsubTopic.topicId)}"
+                          <div class="list-group indicatorInputForm" 
+                               *ngIf="!isTopicCollapsed(subsubsubTopic.topicId)"
                                cdkDropList
                                (cdkDropListDropped)="onDragEnd($event, subsubsubTopic.indicatorData)">
                             <div *ngFor="let indicatorMetadata of subsubsubTopic.indicatorData; let i = index"
@@ -229,7 +233,7 @@
                         
                         <!-- Indicators in Sub-Sub Topics -->
                         <div class="list-group indicatorInputForm" 
-                             [ngClass]="{'in': !isTopicCollapsed(subsubTopic.topicId)}"
+                             *ngIf="!isTopicCollapsed(subsubTopic.topicId)"
                              cdkDropList
                              (cdkDropListDropped)="onDragEnd($event, subsubTopic.indicatorData)">
                           <div *ngFor="let indicatorMetadata of subsubTopic.indicatorData; let i = index"
@@ -262,7 +266,7 @@
                     
                     <!-- Indicators in Sub Topics -->
                     <div class="list-group indicatorInputForm" 
-                         [ngClass]="{'in': !isTopicCollapsed(subTopic.topicId)}"
+                         *ngIf="!isTopicCollapsed(subTopic.topicId)"
                          cdkDropList
                          (cdkDropListDropped)="onDragEnd($event, subTopic.indicatorData)">
                       <div *ngFor="let indicatorMetadata of subTopic.indicatorData; let i = index"
@@ -295,7 +299,7 @@
                 
                 <!-- Indicators in Main Topics -->
                 <div class="list-group indicatorInputForm" 
-                     [ngClass]="{'in': !isTopicCollapsed(mainTopic.topicId)}"
+                     *ngIf="!isTopicCollapsed(mainTopic.topicId)"
                      cdkDropList
                      (cdkDropListDropped)="onDragEnd($event, mainTopic.indicatorData)">
                   <div *ngFor="let indicatorMetadata of mainTopic.indicatorData; let i = index"

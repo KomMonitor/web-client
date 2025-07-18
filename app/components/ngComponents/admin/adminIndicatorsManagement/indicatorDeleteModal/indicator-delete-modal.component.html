@@ -1,0 +1,418 @@
+<div class="modal-header">
+  <h4 class="modal-title" id="modal-title">Indikatoren löschen</h4>
+  <button type="button" class="btn-close" aria-label="Close" (click)="close()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+
+<div class="modal-body">
+  <!-- Loading Overlay -->
+  <div *ngIf="loadingData" class="loading-overlay-admin-panel text-center">
+    <i class="fas fa-spinner fa-spin fa-2x"></i>
+  </div>
+
+  <div class="text-center">
+    <h2 class="fs-title">Indikatoren-Daten löschen</h2>
+    <h3 class="fs-subtitle">Hier können einzelne Zeitschnitte oder Raumebenen sowie ganze Indikatoren-Datensätze aus dem System entfernt werden.</h3>
+  </div>
+
+  <div class="row vertical-align">
+    <div class="col-md-6 col-sm-6 col-xs-12">
+      <div class="input-group mb-3">
+        <span class="input-group-text"><i class="fas fa-filter"></i></span>
+        <input type="text" class="form-control form-control-sm" placeholder="Stichwortfilter" 
+               [(ngModel)]="indicatorNameFilter">
+      </div>
+      <br/>
+      <div>
+        <select class="form-control" size="8" [(ngModel)]="selectedIndicatorDataset" 
+                (ngModelChange)="onChangeSelectedIndicator()" required>
+          <option [ngValue]="null" disabled>-- Indikator wählen --</option>
+          <option *ngFor="let indicator of getFilteredIndicators()" 
+                  [ngValue]="indicator">
+            {{indicator.indicatorName}}
+          </option>
+        </select>
+      </div>
+    </div>
+    <div class="col-md-6 col-sm-6 col-xs-12">
+      <div class="form-group">
+        <label>Typ*</label>
+        <select [(ngModel)]="indicatorDeleteType" class="form-control" required>
+          <option *ngFor="let deleteType of indicatorDeleteTypes" [ngValue]="deleteType">
+            {{deleteType.displayName}}
+          </option>
+        </select>
+        <div class="help-block">
+          <p>Diese Auswahl bestimmt, welche Aspekte des Indikators gelöscht werden sollen.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <br/><br/>
+
+  <!-- Indicator Metadata -->
+  <div *ngIf="selectedIndicatorDataset" class="row vertical-align">
+    <div class="col-md-10 col-sm-12 col-xs-12">
+      <div class="card card-info">
+        <div class="card-header" [attr.data-bs-toggle]="'collapse'" [attr.data-bs-target]="'#indicatorMetadataCollapse'">
+          <h3 class="card-title">Metadaten des selektierten Indikators</h3>
+          <div class="card-tools">
+            <button type="button" class="btn btn-tool" data-bs-toggle="collapse" data-bs-target="#indicatorMetadataCollapse">
+              <i class="fas fa-plus"></i>
+            </button>
+          </div>
+        </div>
+        <div id="indicatorMetadataCollapse" class="collapse">
+          <div class="card-body">
+            <div class="admin-table-wrapper">
+              <table class="table table-bordered table-condensed table-striped">
+                <thead>
+                  <tr>
+                    <th>Id</th>
+                    <th>Name</th>
+                    <th>Kürzel/Kennzeichen</th>
+                    <th>Leitindikator</th>
+                    <th>Indikator-Typ</th>
+                    <th>Merkmal</th>
+                    <th>Art der Fortführung</th>
+                    <th>Einheit</th>
+                    <th>Beschreibung</th>
+                    <th>Interpretation</th>
+                    <th>Methodik</th>
+                    <th>Datenquelle</th>
+                    <th>Datengrundlage</th>
+                    <th>Tags/Stichworte</th>
+                    <th>Themenhierarchie</th>
+                    <th>Verfügbare Raumebenen</th>
+                    <th>Verfügbare Zeitpunkte</th>
+                    <th>Datenhalter und Kontakt</th>
+                    <th>zuletzt aktualisiert am</th>
+                    <th>Koordinatensystem</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>{{selectedIndicatorDataset?.indicatorId}}</td>
+                    <td>{{selectedIndicatorDataset?.indicatorName}}</td>
+                    <td>{{selectedIndicatorDataset?.abbreviation}}</td>
+                    <td>{{selectedIndicatorDataset?.isHeadlineIndicator ? 'Ja' : 'Nein'}}</td>
+                    <td>{{selectedIndicatorDataset?.indicatorType}}</td>
+                    <td>{{selectedIndicatorDataset?.characteristicValue}}</td>
+                    <td>{{selectedIndicatorDataset?.creationType}}</td>
+                    <td>{{selectedIndicatorDataset?.unit}}</td>
+                    <td>{{selectedIndicatorDataset?.description}}</td>
+                    <td>{{selectedIndicatorDataset?.interpretation}}</td>
+                    <td>{{selectedIndicatorDataset?.processDescription}}</td>
+                    <td>{{selectedIndicatorDataset?.datasource}}</td>
+                    <td>{{selectedIndicatorDataset?.datasetName}}</td>
+                    <td>
+                      <span *ngFor="let tag of selectedIndicatorDataset?.tags; let last = last">
+                        {{tag}}<span *ngIf="!last">, </span>
+                      </span>
+                    </td>
+                    <td>
+                      <span *ngFor="let topic of selectedIndicatorDataset?.topicReference; let last = last">
+                        {{topic}}<span *ngIf="!last">, </span>
+                      </span>
+                    </td>
+                    <td>
+                      <span *ngFor="let spatialUnit of selectedIndicatorDataset?.applicableSpatialUnits; let last = last">
+                        {{spatialUnit.spatialUnitName}}<span *ngIf="!last">, </span>
+                      </span>
+                    </td>
+                    <td>
+                      <span *ngFor="let date of selectedIndicatorDataset?.applicableDates; let last = last">
+                        {{date}}<span *ngIf="!last">, </span>
+                      </span>
+                    </td>
+                    <td>{{selectedIndicatorDataset?.contact}}</td>
+                    <td>{{selectedIndicatorDataset?.lastUpdate}}</td>
+                    <td>{{selectedIndicatorDataset?.referenceDateNote}}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <form *ngIf="selectedIndicatorDataset" class="multiStepForm form-group" id="indicatorDeleteForm" 
+        role="form" style="margin-bottom: 0px;">
+
+    <fieldset>
+      <!-- Complete Dataset Deletion -->
+      <div *ngIf="selectedIndicatorDataset && indicatorDeleteType.apiName === 'indicatorDataset'">
+        <h4>Vollständigen Datensatz entfernen</h4>
+        <p style="color: red;">Durch betätigen des Löschen-Buttons wird der gesamte Indikatoren-Datensatz aus dem System unwiderruflich entfernt (Metadaten sowie alle Indikatoren-Werte aller Raumebenen und Zeitschnitte)</p>
+
+        <h3>ACHTUNG!</h3>
+        <p>Dabei werden auch sämtliche <b>Indikatoren-Referenzen</b> und <b>Georessourcen-Referenzen</b> auf den betroffene Indikator dauerhaft aus dem System entfernt. Etwaige <b>Skripte</b>, in denen der betroffene Indikator als Berechnungsgrundlage verwendet werden, werden ebenfalls ungültig und daher aus dem System gelöscht</p>
+        
+        <h4>Betroffene Georessourcen-Referenzen</h4>
+        <div *ngIf="affectedGeoresourceReferences.length === 0">
+          <p>keine</p>
+        </div>
+        <div *ngIf="affectedGeoresourceReferences.length > 0">
+          <table class="table table-bordered table-condensed">
+            <thead>
+              <tr>
+                <th>referenzierte Georessource - ID</th>
+                <th>referenzierte Georessource - Name</th>
+                <th>referenzierte Georessource - Beschreibung</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let entry of affectedGeoresourceReferences">
+                <td>{{entry.georesourceReference.referencedGeoresourceId}}</td>
+                <td>{{entry.georesourceReference.referencedGeoresourceName}}</td>
+                <td>{{entry.georesourceReference.referencedGeoresourceDescription}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h4>Betroffene Indikator-Referenzen</h4>
+        <div *ngIf="affectedIndicatorReferences.length === 0">
+          <p>keine</p>
+        </div>
+        <div *ngIf="affectedIndicatorReferences.length > 0">
+          <table class="table table-bordered table-condensed">
+            <thead>
+              <tr>
+                <th>referenzierter Indikator - ID</th>
+                <th>referenzierter Indikator - Name</th>
+                <th>referenzierter Indikator - Beschreibung</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let entry of affectedIndicatorReferences">
+                <td>{{entry.indicatorReference.referencedIndicatorId}}</td>
+                <td>{{entry.indicatorReference.referencedIndicatorName}}</td>
+                <td>{{entry.indicatorReference.referencedIndicatorDescription}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h4>Betroffene Skripte</h4>
+        <div *ngIf="affectedScripts.length === 0">
+          <p>keine</p>
+        </div>
+        <div *ngIf="affectedScripts.length > 0">
+          <table class="table table-bordered table-condensed">
+            <thead>
+              <tr>
+                <th>Skript-ID</th>
+                <th>Skript-Name</th>
+                <th>Skript-Beschreibung</th>
+                <th>ID des berechneten Indikators</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let script of affectedScripts; trackBy: trackByIndex">
+                <td>{{script.scriptId}}</td>
+                <td>{{script.name}}</td>
+                <td>{{script.description}}</td>
+                <td>{{script.requiredIndicatorIds.join(', ')}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Timestamp Deletion -->
+      <div *ngIf="selectedIndicatorDataset && indicatorDeleteType.apiName === 'indicatorTimestamp'">
+        <h4>Zeitschnitte entfernen</h4>
+        <p>Hier können einzelne Zeitschnitte für alle verfügbaren Raumebenen entfernt werden</p>
+
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="selectAllTimestamps" 
+                 [checked]="selectIndicatorTimestampsInput"
+                 (change)="onChangeSelectIndicatorTimestampEntries()">
+          <label class="form-check-label" for="selectAllTimestamps">
+            Alle Zeitschnitte {{selectIndicatorTimestampsInput ? 'ab' : ''}}wählen
+          </label>
+        </div>
+
+        <div class="row" *ngIf="currentApplicableDates.length > 0">
+          <div class="col-md-12">
+            <table class="table table-bordered table-condensed">
+              <thead>
+                <tr>
+                  <th>Auswählen</th>
+                  <th>Zeitschnitt</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let date of currentApplicableDates">
+                  <td>
+                    <input type="checkbox" class="form-check-input" [(ngModel)]="date.isSelected">
+                  </td>
+                  <td>{{date.timestamp}}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Spatial Unit Deletion -->
+      <div *ngIf="selectedIndicatorDataset && indicatorDeleteType.apiName === 'indicatorSpatialUnit'">
+        <h4>Raumebenen entfernen</h4>
+        <p>Hier können einzelne Raumebenen für alle verfügbaren Zeitschnitte entfernt werden</p>
+
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="selectAllSpatialUnits" 
+                 [checked]="selectIndicatorSpatialUnitsInput"
+                 (change)="onChangeSelectIndicatorSpatialUnitsEntries()">
+          <label class="form-check-label" for="selectAllSpatialUnits">
+            Alle Raumebenen {{selectIndicatorSpatialUnitsInput ? 'ab' : ''}}wählen
+          </label>
+        </div>
+
+        <div class="row" *ngIf="currentApplicableSpatialUnits.length > 0">
+          <div class="col-md-12">
+            <table class="table table-bordered table-condensed">
+              <thead>
+                <tr>
+                  <th>Auswählen</th>
+                  <th>Raumebene</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let spatialUnit of currentApplicableSpatialUnits">
+                  <td>
+                    <input type="checkbox" class="form-check-input" [(ngModel)]="spatialUnit.isSelected">
+                  </td>
+                  <td>{{spatialUnit.spatialUnitMetadata.spatialUnitLevel}}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </fieldset>
+  </form>
+
+  <!-- Success Alert -->
+  <div *ngIf="showSuccessAlert" class="alert alert-success alert-dismissible position-absolute bottom-0 w-100">
+    <button type="button" class="btn-close" (click)="hideSuccessAlert()" aria-label="Close"></button>
+    <h4><i class="fas fa-check"></i> Folgende Indikatoren-Daten sowie assoziierte Indikatoren- und Georessourcen-Referenzen und Skripte, bei denen Indikatoren als Berechnungsgrundlage verwendet werden, wurden erfolgreich gelöscht</h4>
+
+    <div *ngIf="successfullyDeletedDatasets.length > 0">
+      <h4>Gesamter Indikatorendatensatz (Metadaten sowie alle Zeitreihen-Werte und Raumebenen)</h4>
+      <ul>
+        <li *ngFor="let dataset of successfullyDeletedDatasets">{{dataset.indicatorName}}</li>
+      </ul>
+
+      <div *ngIf="affectedScripts.length > 0">
+        <h4>Skripte</h4>
+        <ul>
+          <li *ngFor="let script of affectedScripts">{{script.name}}</li>
+        </ul>
+      </div>
+
+      <div *ngIf="affectedGeoresourceReferences.length > 0">
+        <h4>Referenzen zu Georessourcen</h4>
+        <ul>
+          <li *ngFor="let reference of affectedGeoresourceReferences">{{reference.georesourceReference.referencedGeoresourceName}}</li>
+        </ul>
+      </div>
+
+      <div *ngIf="affectedIndicatorReferences.length > 0">
+        <h4>Referenzen zu anderen Indikatoren</h4>
+        <ul>
+          <li *ngFor="let reference of affectedIndicatorReferences">{{reference.indicatorReference.referencedIndicatorName}}</li>
+        </ul>
+      </div>
+    </div>
+
+    <div *ngIf="successfullyDeletedTimestamps.length > 0">
+      <h4>Zeitschnitte</h4>
+      <ul>
+        <li *ngFor="let timestamp of successfullyDeletedTimestamps">{{timestamp.timestamp}}</li>
+      </ul>
+    </div>
+
+    <div *ngIf="successfullyDeletedSpatialUnits.length > 0">
+      <h4>Raumebenen</h4>
+      <ul>
+        <li *ngFor="let spatialUnit of successfullyDeletedSpatialUnits">{{spatialUnit.spatialUnitMetadata.spatialUnitLevel}}</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Error Alert -->
+  <div *ngIf="showErrorAlert" class="alert alert-danger alert-dismissible position-absolute bottom-0 w-100">
+    <button type="button" class="btn-close" (click)="hideErrorAlert()" aria-label="Close"></button>
+    <h4><i class="fas fa-ban"></i> Löschen gescheitert</h4>
+    Folgende Datensätze konnten nicht gelöscht werden.
+    <br/>
+
+    <div *ngIf="failedDatasetsAndErrors.length > 0">
+      <table class="table table-bordered table-condensed">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Fehlermeldung</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let dataset of failedDatasetsAndErrors">
+            <td>{{dataset[0].indicatorName}}</td>
+            <td [innerHTML]="dataset[1]"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div *ngIf="failedTimestampsAndErrors.length > 0">
+      <table class="table table-bordered table-condensed">
+        <thead>
+          <tr>
+            <th>Zeitschnitt</th>
+            <th>Fehlermeldung</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let dataset of failedTimestampsAndErrors">
+            <td>{{dataset[0].timestamp}}</td>
+            <td [innerHTML]="dataset[1]"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div *ngIf="failedSpatialUnitsAndErrors.length > 0">
+      <table class="table table-bordered table-condensed">
+        <thead>
+          <tr>
+            <th>Raumebene</th>
+            <th>Fehlermeldung</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let dataset of failedSpatialUnitsAndErrors">
+            <td>{{dataset[0].spatialUnitMetadata.spatialUnitLevel}}</td>
+            <td [innerHTML]="dataset[1]"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="modal-footer">
+  <button type="button" class="btn btn-secondary" (click)="close()">Abbrechen</button>
+  <button type="button" class="btn btn-danger" 
+          [disabled]="!selectedIndicatorDataset || loadingData"
+          (click)="deleteIndicatorData()">
+    <i class="fas fa-trash" *ngIf="!loadingData"></i>
+    <i class="fas fa-spinner fa-spin" *ngIf="loadingData"></i>
+    Löschen
+  </button>
+</div> 
