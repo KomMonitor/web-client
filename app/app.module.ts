@@ -86,6 +86,10 @@ import { SpatialUnitEditUserRolesModalComponent } from './components/ngComponent
 import { SpatialUnitDeleteModalComponent } from './components/ngComponents/admin/adminSpatialUnitsManagement/spatialUnitDeleteModal/spatial-unit-delete-modal.component';
 import { AdminIndicatorsManagementComponent } from './components/ngComponents/admin/adminIndicatorsManagement/admin-indicators-management.component';
 import { IndicatorAddModalComponent } from './components/ngComponents/admin/adminIndicatorsManagement/indicatorAddModal/indicator-add-modal.component';
+import { IndicatorEditMetadataModalComponent } from './components/ngComponents/admin/adminIndicatorsManagement/indicatorEditMetadataModal/indicator-edit-metadata-modal.component';
+import { IndicatorEditFeaturesModalComponent } from './components/ngComponents/admin/adminIndicatorsManagement/indicatorEditFeaturesModal/indicator-edit-features-modal.component';
+import { IndicatorEditIndicatorSpatialUnitRolesModalComponent } from './components/ngComponents/admin/adminIndicatorsManagement/indicatorEditIndicatorSpatialUnitRolesModal/indicator-edit-indicator-spatial-unit-roles-modal.component';
+import { IndicatorDeleteModalComponent } from './components/ngComponents/admin/adminIndicatorsManagement/indicatorDeleteModal/indicator-delete-modal.component';
 
 
 // currently the AngularJS routing is still used as part of kommonitorClient module
@@ -181,7 +185,11 @@ declare var MathJax;
     SpatialUnitEditUserRolesModalComponent,
     SpatialUnitDeleteModalComponent,
     AdminIndicatorsManagementComponent,
-    IndicatorAddModalComponent
+    IndicatorAddModalComponent,
+    IndicatorEditMetadataModalComponent,
+    IndicatorEditFeaturesModalComponent,
+    IndicatorEditIndicatorSpatialUnitRolesModalComponent,
+    IndicatorDeleteModalComponent
   ],
   schemas: [
     CUSTOM_ELEMENTS_SCHEMA
