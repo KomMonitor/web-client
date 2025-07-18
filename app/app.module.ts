@@ -41,6 +41,7 @@ import { KommonitorLegendComponent } from 'components/ngComponents/userInterface
 import { NgbCalendar, NgbDatepickerModule, NgbDateStruct, NgbAccordionModule, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { JsonPipe } from '@angular/common';
+import { DragDropModule } from '@angular/cdk/drag-drop';
 import { KommonitorClassificationComponent } from './components/ngComponents/userInterface/kommonitorClassification/kommonitor-classification.component';
 import { KommonitorDataSetupComponent } from './components/ngComponents/userInterface/sidebar/kommonitorDataSetup/kommonitor-data-setup.component';
 import { SidebarComponent } from './components/ngComponents/userInterface/sidebar/sidebar.component';
@@ -70,6 +71,8 @@ import { AuthInterceptor } from 'util/interceptors/auth.interceptor';
 import { IndicatorFavFilter } from 'pipes/indicator-fav-filter.pipe';
 import { GeoFavFilter } from 'pipes/georesources-fav-filter.pipe';
 import { GeoFavItemFilter } from 'pipes/georesources-fav-item-filter.pipe';
+import { FilterPipe } from 'pipes/filter.pipe';
+import { OrderByPipe } from 'pipes/order-by.pipe';
 
 import { AdminAppConfigComponent } from './components/ngComponents/admin/adminConfig/adminAppConfig/admin-app-config.component';
 import { AdminControlsConfigComponent } from './components/ngComponents/admin/adminConfig/adminControlsConfig/admin-controls-config.component';
@@ -82,6 +85,7 @@ import { SpatialUnitEditFeaturesModalComponent } from './components/ngComponents
 import { SpatialUnitEditUserRolesModalComponent } from './components/ngComponents/admin/adminSpatialUnitsManagement/spatialUnitEditUserRolesModal/spatial-unit-edit-user-roles-modal.component';
 import { SpatialUnitDeleteModalComponent } from './components/ngComponents/admin/adminSpatialUnitsManagement/spatialUnitDeleteModal/spatial-unit-delete-modal.component';
 import { AdminIndicatorsManagementComponent } from './components/ngComponents/admin/adminIndicatorsManagement/admin-indicators-management.component';
+import { IndicatorAddModalComponent } from './components/ngComponents/admin/adminIndicatorsManagement/indicatorAddModal/indicator-add-modal.component';
 
 
 // currently the AngularJS routing is still used as part of kommonitorClient module
@@ -102,6 +106,7 @@ declare var MathJax;
     JsonPipe,
     NouisliderModule,
     NgbCollapseModule,
+    DragDropModule,
     DualListBoxComponent,
     AgGridAngular
   ],
@@ -156,6 +161,8 @@ declare var MathJax;
     IndicatorFavFilter,
     GeoFavFilter,
     GeoFavItemFilter,
+    FilterPipe,
+    OrderByPipe,
     BaseIndicatorOfComputedIndicatorFilter,
     BaseIndicatorOfHeadlineIndicatorFilter,
     RegressionDiagramComponent,
@@ -173,7 +180,8 @@ declare var MathJax;
     SpatialUnitEditFeaturesModalComponent,
     SpatialUnitEditUserRolesModalComponent,
     SpatialUnitDeleteModalComponent,
-    AdminIndicatorsManagementComponent
+    AdminIndicatorsManagementComponent,
+    IndicatorAddModalComponent
   ],
   schemas: [
     CUSTOM_ELEMENTS_SCHEMA

@@ -21,6 +21,76 @@ export class KommonitorIndicatorDataExchangeService {
   }
 
   /**
+   * Get available spatial units - delegates to AngularJS service
+   */
+  get availableSpatialUnits(): any[] {
+    return this.angularJsDataExchangeService.availableSpatialUnits || [];
+  }
+
+  /**
+   * Get available georesources - delegates to AngularJS service
+   */
+  get availableGeoresources(): any[] {
+    return this.angularJsDataExchangeService.availableGeoresources || [];
+  }
+
+  /**
+   * Get available topics - delegates to AngularJS service
+   */
+  get availableTopics(): any[] {
+    return this.angularJsDataExchangeService.availableTopics || [];
+  }
+
+  /**
+   * Get topic indicator hierarchy for order view - delegates to AngularJS service
+   */
+  get topicIndicatorHierarchy_forOrderView(): any[] {
+    return this.angularJsDataExchangeService.topicIndicatorHierarchy_forOrderView || [];
+  }
+
+  /**
+   * Get access control - delegates to AngularJS service
+   */
+  get accessControl(): any[] {
+    return this.angularJsDataExchangeService.accessControl || [];
+  }
+
+  /**
+   * Get update interval options - delegates to AngularJS service
+   */
+  get updateIntervalOptions(): any[] {
+    return this.angularJsDataExchangeService.updateIntervalOptions || [];
+  }
+
+  /**
+   * Get indicator type options - delegates to AngularJS service
+   */
+  get indicatorTypeOptions(): any[] {
+    return this.angularJsDataExchangeService.indicatorTypeOptions || [];
+  }
+
+  /**
+   * Get indicator unit options - delegates to AngularJS service
+   */
+  get indicatorUnitOptions(): any[] {
+    return this.angularJsDataExchangeService.indicatorUnitOptions || [];
+  }
+
+  /**
+   * Get indicator creation type options - delegates to AngularJS service
+   */
+  get indicatorCreationTypeOptions(): any[] {
+    return this.angularJsDataExchangeService.indicatorCreationTypeOptions || [];
+  }
+
+  /**
+   * Get enable Keycloak security flag - delegates to AngularJS service
+   */
+  get enableKeycloakSecurity(): boolean {
+    return this.angularJsDataExchangeService.enableKeycloakSecurity || false;
+  }
+
+  /**
    * Get current Keycloak login roles - delegates to AngularJS service
    */
   get currentKeycloakLoginRoles(): string[] {
@@ -122,6 +192,20 @@ export class KommonitorIndicatorDataExchangeService {
    */
   getRoleTitle(roleId: string): string {
     return this.angularJsDataExchangeService.getRoleTitle(roleId);
+  }
+
+  /**
+   * Get indicator string from indicator type - delegates to AngularJS service
+   */
+  getIndicatorStringFromIndicatorType(indicatorType: any): string {
+    return this.angularJsDataExchangeService.getIndicatorStringFromIndicatorType(indicatorType);
+  }
+
+  /**
+   * Get topic hierarchy display string - delegates to AngularJS service
+   */
+  getTopicHierarchyDisplayString(topicReference: any): string {
+    return this.angularJsDataExchangeService.getTopicHierarchyDisplayString(topicReference);
   }
 
   /**

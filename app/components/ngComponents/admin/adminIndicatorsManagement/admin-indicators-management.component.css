@@ -123,9 +123,50 @@ input:checked + .switchslider:before {
   border-radius: 4px;
 }
 
+/* Topic hierarchy styles */
+.list-group-root {
+  padding: 0;
+}
+
+.list-group-item {
+  border-radius: 0;
+  border-left: none;
+  border-right: none;
+}
+
+.list-group-item:first-child {
+  border-top: none;
+}
+
+.list-group-item:last-child {
+  border-bottom: none;
+}
+
+.kommonitor-theme {
+  background: #2171b5 !important;
+  color: white !important;
+}
+
+.kommonitor-theme-light {
+  background: #6baed6 !important;
+  color: white !important;
+}
+
+.collapseTrigger {
+  display: block;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.collapseTrigger:hover {
+  text-decoration: none;
+}
+
+/* Indicator styles */
 .list-group-item-default.style-simple-indicator {
   background-color: #f5f5f5;
   border-color: #ddd;
+  color: black;
 }
 
 .list-group-item-default.style-headline-indicator {
@@ -136,6 +177,65 @@ input:checked + .switchslider:before {
 
 .list-group-item-default.style-headline-indicator p {
   color: white !important;
+}
+
+.list-group-item-default.style-simple-indicator p {
+  color: black !important;
+}
+
+/* Drag & Drop styles */
+.cdk-drag-preview {
+  box-sizing: border-box;
+  border-radius: 4px;
+  box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
+              0 8px 10px 1px rgba(0, 0, 0, 0.14),
+              0 3px 14px 2px rgba(0, 0, 0, 0.12);
+}
+
+.cdk-drag-placeholder {
+  opacity: 0.3;
+}
+
+.cdk-drag-animating {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.indicatorInputForm.cdk-drop-list-dragging .list-group-item:not(.cdk-drag-placeholder) {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+/* Drag handle styles */
+.cdk-drag-handle {
+  cursor: move;
+}
+
+/* Hover effects for draggable items */
+.list-group-item[cdkDrag]:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  transform: translateY(-1px);
+  transition: all 0.2s ease;
+}
+
+/* Collapse animation */
+.collapse {
+  transition: height 0.35s ease;
+}
+
+.collapse.in {
+  display: block;
+}
+
+/* Topic level indentation */
+.list-group .list-group {
+  margin-left: 20px;
+}
+
+.list-group .list-group .list-group {
+  margin-left: 20px;
+}
+
+.list-group .list-group .list-group .list-group {
+  margin-left: 20px;
 }
 
 /* Box styles */

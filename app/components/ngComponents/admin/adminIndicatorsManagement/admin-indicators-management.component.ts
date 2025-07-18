@@ -9,6 +9,7 @@ import { ColDef, GridOptions, GridReadyEvent, RowNode, SelectionChangedEvent } f
 import { KommonitorIndicatorDataExchangeService } from 'services/adminIndicatorUnit/kommonitor-data-exchange.service';
 import { KommonitorIndicatorCacheHelperService } from 'services/adminIndicatorUnit/kommonitor-cache-helper.service';
 import { KommonitorIndicatorDataGridHelperService } from 'services/adminIndicatorUnit/kommonitor-data-grid-helper.service';
+import { IndicatorAddModalComponent } from './indicatorAddModal/indicator-add-modal.component';
 declare const $: any;
 declare const __env: any;
 
@@ -32,6 +33,8 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
   public gridOptions: GridOptions = {};
   public selectedRows: any[] = [];
 
+  // Drag & Drop properties
+  public collapsedTopics: Set<string> = new Set();
   public sortableConfig: any = {
     onEnd: (evt: any) => {
       const updatedIndicatorMetadataEntries = evt.models;
@@ -338,8 +341,31 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
 
   // Modal event handlers
   onClickAddIndicator(): void {
-    // TODO: Implement indicator add modal
-    console.log('Add indicator clicked');
+    console.log('Opening indicator add modal...');
+    try {
+      const modalRef = this.modalService.open(IndicatorAddModalComponent, {
+        size: 'lg',
+        backdrop: 'static',
+        keyboard: false,
+        container: 'body',
+        animation: false
+      });
+
+      console.log('Modal reference created:', modalRef);
+
+      modalRef.result.then((result) => {
+        console.log('Modal result:', result);
+        if (result) {
+          // Modal was closed successfully, refresh the table
+          this.initializeOrRefreshOverviewTable();
+        }
+      }).catch((error) => {
+        console.log('Modal error:', error);
+        // Modal dismissed
+      });
+    } catch (error) {
+      console.error('Error opening modal:', error);
+    }
   }
 
   onClickEditMetadata(indicatorMetadata: any): void {
@@ -478,5 +504,53 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
 
   getSelectedIndicatorsMetadata(): any[] {
     return this.selectedRows;
+  }
+
+  // Drag & Drop methods
+  toggleTopicCollapse(topicId: string): void {
+    if (this.collapsedTopics.has(topicId)) {
+      this.collapsedTopics.delete(topicId);
+    } else {
+      this.collapsedTopics.add(topicId);
+    }
+  }
+
+  isTopicCollapsed(topicId: string): boolean {
+    return this.collapsedTopics.has(topicId);
+  }
+
+  onDragEnd(event: any, indicators: any[]): void {
+    const { previousIndex, currentIndex } = event;
+    
+    if (previousIndex === currentIndex) {
+      return;
+    }
+
+    // Reorder the indicators array
+    const movedItem = indicators.splice(previousIndex, 1)[0];
+    indicators.splice(currentIndex, 0, movedItem);
+
+    // Update display order for all indicators in this group
+    const patchBody: Array<{indicatorId: string, displayOrder: number}> = [];
+    for (let index = 0; index < indicators.length; index++) {
+      const indicatorMetadata = indicators[index];
+      patchBody.push({
+        "indicatorId": indicatorMetadata.indicatorId,
+        "displayOrder": index
+      });
+    }
+
+    // Send API request to persist new sort order
+    this.http.patch(
+      this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/indicators/display-order",
+      patchBody
+    ).subscribe({
+      next: (response: any) => {
+        console.log('Display order updated successfully');
+      },
+      error: (error: any) => {
+        this.kommonitorDataExchangeService.displayMapApplicationError(error);
+      }
+    });
   }
 } 
