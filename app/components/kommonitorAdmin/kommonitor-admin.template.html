@@ -197,13 +197,13 @@
 
       <div id="spatialUnitsWrapper" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.checkResourcesEditPermission()" class="tab-pane fade in">
 
-        <admin-spatial-units-management></admin-spatial-units-management>
+        <admin-spatial-units-management-new></admin-spatial-units-management-new>
 
       </div>
 
       <div id="indicatorsWrapper" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.checkResourcesEditPermission()" class="tab-pane fade in">
 
-        <admin-indicators-management></admin-indicators-management>
+        <admin-indicators-management-new></admin-indicators-management-new>
 
       </div>
 
@@ -295,6 +295,9 @@
 
       <!-- Modal -->
       <indicator-edit-metadata-modal></indicator-edit-metadata-modal>
+
+      <!-- Modal -->
+      <app-indicator-edit-features-modal></app-indicator-edit-features-modal>
 
       <!-- Modal -->
       <indicator-edit-indicator-spatial-unit-roles-modal></indicator-edit-indicator-spatial-unit-roles-modal>

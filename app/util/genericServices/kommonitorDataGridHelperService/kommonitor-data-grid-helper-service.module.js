@@ -1338,16 +1338,28 @@ angular
         $(".spatialUnitEditUserRolesBtn").off();
         $(".spatialUnitEditUserRolesBtn").on("click", function (event) {
           // ensure that only the target button gets clicked
-          // manually open modal
           event.stopPropagation();
-          let modalId = document.getElementById(this.id).getAttribute("data-target");
-          $(modalId).modal('show');
           
           let spatialUnitId = this.id.split("_")[3];
-
           let spatialUnitMetadata = kommonitorDataExchangeService.getSpatialUnitMetadataById(spatialUnitId);
 
-          $rootScope.$broadcast("onEditSpatialUnitUserRoles", spatialUnitMetadata);
+          // Try to use the new Angular component method first
+          try {
+            let angularComponent = angular.element(document.querySelector('admin-spatial-units-management-new')).controller('admin-spatial-units-management-new');
+            if (angularComponent && angularComponent.onClickEditUserRoles) {
+              angularComponent.onClickEditUserRoles(spatialUnitMetadata);
+            } else {
+              // Fallback to AngularJS broadcast
+              let modalId = document.getElementById(this.id).getAttribute("data-target");
+              $(modalId).modal('show');
+              $rootScope.$broadcast("onEditSpatialUnitUserRoles", spatialUnitMetadata);
+            }
+          } catch (error) {
+            // Fallback to AngularJS broadcast
+            let modalId = document.getElementById(this.id).getAttribute("data-target");
+            $(modalId).modal('show');
+            $rootScope.$broadcast("onEditSpatialUnitUserRoles", spatialUnitMetadata);
+          }
         });
 
         $(".spatialUnitDeleteBtn").off();

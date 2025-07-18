@@ -1,0 +1,1525 @@
+<div class="modal-header">
+  <h4 class="modal-title">Neuen Indikator registrieren</h4>
+  <button type="button" class="close" aria-label="Close" (click)="cancel()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+
+<div class="modal-body">
+  <div align="center">
+    <div class="loading-overlay-admin-panel" *ngIf="loadingData">
+      <span class="glyphicon glyphicon-refresh icon-spin"></span>
+    </div>
+  </div>
+
+  <!-- MultiStep Form -->
+  <div class="row">
+    <div class="col-md-12">
+      <form class="multiStepForm form-group" id="indicatorAddForm" role="form" style="margin-bottom: 0px;">
+        <!-- progressbar -->
+        <div *ngIf="kommonitorDataExchangeService && kommonitorDataExchangeService.enableKeycloakSecurity">
+          <ul id="progressbar">
+            <li [style.width.%]="14.28" [class.active]="currentStep >= 1" [class.current]="currentStep === 1" 
+                (click)="goToStep(1)" style="cursor: pointer;">
+              <span class="step-number">1</span>
+              <span class="step-title">Metadaten des Indikators</span>
+            </li>
+            <li [style.width.%]="14.28" [class.active]="currentStep >= 2" [class.current]="currentStep === 2" 
+                (click)="goToStep(2)" style="cursor: pointer;">
+              <span class="step-number">2</span>
+              <span class="step-title">Allgemeine Metadaten</span>
+            </li>
+            <li [style.width.%]="14.28" [class.active]="currentStep >= 3" [class.current]="currentStep === 3" 
+                (click)="goToStep(3)" style="cursor: pointer;">
+              <span class="step-number">3</span>
+              <span class="step-title">Themenhierarchie</span>
+            </li>
+            <li [style.width.%]="14.28" [class.active]="currentStep >= 4" [class.current]="currentStep === 4" 
+                (click)="goToStep(4)" style="cursor: pointer;">
+              <span class="step-number">4</span>
+              <span class="step-title">Referenzen zu Indikatoren/Georessourcen</span>
+            </li>
+            <li [style.width.%]="14.28" [class.active]="currentStep >= 5" [class.current]="currentStep === 5" 
+                (click)="goToStep(5)" style="cursor: pointer;">
+              <span class="step-number">5</span>
+              <span class="step-title">Klassifizierungsoptionen</span>
+            </li>
+            <li [style.width.%]="14.28" [class.active]="currentStep >= 6" [class.current]="currentStep === 6" 
+                (click)="goToStep(6)" style="cursor: pointer;">
+              <span class="step-number">6</span>
+              <span class="step-title">regionale Vergleichswerte</span>
+            </li>
+            <li [style.width.%]="14.28" [class.active]="currentStep >= 7" [class.current]="currentStep === 7" 
+                (click)="goToStep(7)" style="cursor: pointer;">
+              <span class="step-number">7</span>
+              <span class="step-title">Zugriffsschutz und Eigentümerschaft</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Step 1: Basic Indicator Metadata -->
+        <div *ngIf="currentStep === 1">
+          <h2 class="fs-title">Metadaten des Indikators</h2>
+          <h3 class="fs-subtitle">Angaben über Metadaten des Indikators</h3>
+          <p><b><i>* = Pflichtfeld</i></b></p>
+
+          <div class="row vertical-align">
+            <div class="col-md-3 col-sm-6 col-xs-12">
+              <div class="form-group">
+                <label>Indikatorname*</label>
+                <input type="text" class="form-control" [(ngModel)]="datasetName" name="datasetName"
+                  placeholder="Name" (ngModelChange)="checkDatasetName()" required>
+                <div class="help-block with-errors"></div>
+                <div class="help-block">
+                  <p>Das Tupel aus 'Indikatorname' und 'Indikatoren-Typ' muss eindeutig sein.</p>
+                </div>
+                <div *ngIf="datasetNameInvalid" style="color: red;">
+                  <p>Eingabe ungültig. Es existiert bereits ein Indikator mit gleichem Namen und gleichem Typ.</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3 col-sm-6 col-xs-12">
+              <div class="form-group">
+                <label>Kürzel/Kennzeichen</label>
+                <input type="text" class="form-control" [(ngModel)]="indicatorAbbreviation" name="indicatorAbbreviation"
+                  placeholder="optionales Kürzel">
+                <div class="help-block with-errors"></div>
+              </div>
+            </div>
+            <div class="col-md-3 col-sm-6 col-xs-12">
+              <div class="form-group">
+                <label>Indikatoren-Typ*</label>
+                <select [(ngModel)]="indicatorType" name="indicatorType" (ngModelChange)="checkDatasetName()"
+                  class="form-control" required>
+                  <option [ngValue]="null" disabled selected>-- Indikatorentyp wählen --</option>
+                  <option *ngFor="let type of indicatorTypeOptions" [ngValue]="type">
+                    {{type.displayName}}
+                  </option>
+                </select>
+                <div class="help-block with-errors"></div>
+                <div class="help-block">
+                  <p>'Status'-Indikatoren enthalten Werte für je einen einzelnen Zeitpunkt.</p>
+                  <p>'Dynamik'-Indikatoren enthalten Werte, die sich auf eine Zeitperiode beziehen (bspw. Veränderung innerhalb der letzten 5 Jahre), somit Zu- oder Abnahmen des Indikators.</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3 col-sm-6 col-xs-12">
+              <div class="form-group">
+                <label>Nachkommastellen</label>
+                <div class="form-group vertical-align">
+                  <label class="margin-right" style="font-weight: normal;">Individuelle Anzeige aktivieren</label>
+                  <label class="switch">
+                    <input type="checkbox" [(ngModel)]="showCustomCommaValue" name="showCustomCommaValue">
+                    <span class="switchslider round"></span>
+                  </label>
+                </div>
+                <div *ngIf="!showCustomCommaValue">
+                  Wird kein individueller Wert angegeben, so greift selbiger aus den Allgemeinen Einstellungen.<br>
+                  Zu finden unter <i>Einstellungen</i> - <i>Allgemeine Einstellungen</i> - <i>"numberOfDecimals"</i>
+                </div>
+                <div *ngIf="showCustomCommaValue">
+                  <input class="form-control" type="number" min="0" max="4" [(ngModel)]="indicatorPrecision" name="indicatorPrecision">
+                  <div class="help-block">
+                    <p>Anzahl der angezeigten Nachkommastellen in allen Bereichen der Benutzeroberfläche</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row vertical-align">
+            <div class="col-md-3 col-sm-6 col-xs-12">
+              <div class="form-group">
+                <label>Einheit*</label>
+                <select [(ngModel)]="indicatorUnit" name="indicatorUnit" (ngModelChange)="onChangeIndicatorUnit()"
+                  class="form-control" required>
+                  <option [ngValue]="null" disabled selected>-- Einheit wählen --</option>
+                  <option value="-- Freitext --">-- Freitext --</option>
+                  <option *ngFor="let unit of kommonitorDataExchangeService?.indicatorUnitOptions" [value]="unit">{{unit}}</option>
+                </select>
+                <div *ngIf="enableFreeTextUnit">
+                  <label>Freitexteingabe*</label>
+                  <input type="text" class="form-control" [(ngModel)]="indicatorUnit" name="indicatorUnit"
+                    placeholder="Einheit" required>
+                </div>
+                <div class="help-block">
+                  <p>Enthält die Auswahlliste nicht das gewünschte Element, dann '-- Freitext --' selektieren, um einen Freitext einzugeben</p>
+                </div>
+                <div class="help-block with-errors"></div>
+              </div>
+            </div>
+            <div class="col-md-3 col-sm-6 col-xs-12">
+              <div class="form-group">
+                <label>Methodik (der Berechnung)</label>
+                <textarea rows="3" class="form-control" [(ngModel)]="indicatorProcessDescription" name="indicatorProcessDescription"
+                  placeholder="optionale Methodik"></textarea>
+                <div class="help-block">
+                  <p>Hinweise über die Berechnungsvorschrift des Indikators</p>
+                </div>
+                <div class="help-block with-errors"></div>
+              </div>
+            </div>
+            <div class="col-md-3 col-sm-6 col-xs-12">
+              <div class="form-group">
+                <label>Interpretation*</label>
+                <textarea rows="3" class="form-control" [(ngModel)]="indicatorInterpretation" name="indicatorInterpretation"
+                  placeholder="optionale Interpretationshilfe" required></textarea>
+                <div class="help-block">
+                  <p>Hinweise, um die Verständlichkeit der Werteverteilung des Indikators zu erhöhen</p>
+                </div>
+                <div class="help-block with-errors"></div>
+              </div>
+            </div>
+            <div class="col-md-3 col-sm-6 col-xs-12">
+              <div class="form-group">
+                <label>Tags (Komma-separierte Auflistung)</label>
+                <input type="text" class="form-control" [(ngModel)]="indicatorTagsString_withCommas" name="indicatorTagsString_withCommas"
+                  placeholder="optionale Komma-separierte Tags">
+                <div class="help-block">
+                  <p>Eingabe als Freitext. Komma dient als Trennzeichen</p>
+                </div>
+                <div class="help-block with-errors"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row vertical-align">
+            <div class="col-md-3 col-sm-6 col-xs-12">
+              <div class="form-group">
+                <label>Leitindikator*</label>
+                <label class="switch">
+                  <input type="checkbox" [(ngModel)]="isHeadlineIndicator" name="isHeadlineIndicator">
+                  <span class="switchslider round"></span>
+                </label>
+                <div class="help-block">
+                  <p>Angabe, ob der Indikator ein Leitindikator ist. Leitindikatoren aggregieren in der Regel Basisindikatoren zu einer höherwertigen Aussage</p>
+              </div>
+                <div class="help-block with-errors"></div>
+            </div>
+            </div>
+            <div class="col-md-3 col-sm-6 col-xs-12">
+              <div class="form-group">
+                <label>Hinweistext zu Referenzdatum</label>
+                <textarea rows="3" class="form-control" [(ngModel)]="indicatorReferenceDateNote" name="indicatorReferenceDateNote"
+                  placeholder="optionaler Hinweistext bzgl. Referenzdatum des Indikators"></textarea>
+                <div class="help-block">
+                  <p>Angabe des Referenzdatums oder Hinweise über die Fortführung des Indikators</p>
+              </div>
+                <div class="help-block with-errors"></div>
+            </div>
+          </div>
+            <div class="col-md-3 col-sm-6 col-xs-12">
+              <div class="form-group">
+                <label>Fortführungstyp*</label>
+                <select [(ngModel)]="indicatorCreationType" name="indicatorCreationType" (ngModelChange)="onChangeCreationType()"
+                  class="form-control" required>
+                  <option [ngValue]="null" disabled selected>-- Fortführungstyp wählen --</option>
+                  <option *ngFor="let type of kommonitorDataExchangeService?.indicatorCreationTypeOptions" [ngValue]="type">
+                    {{type.displayName}}
+                  </option>
+                </select>
+                <div class="help-block">
+                  <p>'manuell' bedeutet, dass die Zeitreihenfortführung manuell durch den Anwender durchgeführt werden muss.</p>
+                  <p>'automatisierte Berechnung durch KomMonitor' bedeutet, dass die Zeitreihenfortführung mittels eines Skript-Mechanismus semi-automatisiert von KomMonitor durchgeführt werden kann.</p>
+              </div>
+                <div class="help-block with-errors"></div>
+            </div>
+              </div>
+            <div class="col-md-3 col-sm-6 col-xs-12">
+              <div *ngIf="enableLowestSpatialUnitSelect" class="form-group">
+                <label>Niedrigste Raumebene für automatisierte Berechnung</label>
+                <select [(ngModel)]="indicatorLowestSpatialUnitMetadataObjectForComputation" name="indicatorLowestSpatialUnitMetadataObjectForComputation"
+                  class="form-control">
+                  <option [ngValue]="null" disabled selected>-- Raumebene wählen --</option>
+                  <option *ngFor="let spatialUnit of availableSpatialUnits" [ngValue]="spatialUnit">
+                    {{spatialUnit.spatialUnitLevel}}
+                  </option>
+                </select>
+                <div class="help-block">
+                  <p>Angabe der niedrigsten Raumebene, für die der automatisiert berechenbare Indikator berechnet werden kann. Indikatorenwerte für höhere Raumebenen werden dabei automatisch aus den niedrigeren Ebenen aggregiert berechnet.</p>
+                </div>
+                <div class="help-block with-errors"></div>
+            </div>
+          </div>
+          </div>
+
+          <input type="button" name="next" class="next next_addIndicator action-button" value="Nächster Schritt" (click)="nextStep()"/>
+        </div>
+
+        <!-- Step 2: General Metadata -->
+        <div *ngIf="currentStep === 2">
+          <h2 class="fs-title">Allgemeine Metadaten</h2>
+          <h3 class="fs-subtitle">Angaben über allgemeine Metadaten in KomMonitor</h3>
+          <p><b><i>* = Pflichtfeld</i></b></p>
+
+          <div class="row vertical-align">
+            <div class="col-md-3 col-sm-6 col-xs-12">
+              <div class="form-group">
+                <label>Beschreibung*</label>
+                <textarea rows="3" class="form-control" [(ngModel)]="metadata.description" name="metadata.description"
+                  placeholder="Datensatz Beschreibung" required></textarea>
+                <div class="help-block with-errors"></div>
+              </div>
+            </div>
+            <div class="col-md-3 col-sm-6 col-xs-12">
+              <div class="form-group">
+                <label>Datenbasis</label>
+                <textarea rows="3" class="form-control" [(ngModel)]="metadata.databasis" name="metadata.databasis"
+                  placeholder="optionale Beschreibung etwaiger grundlegender Daten, die zur Erzeugung des Datensatzes beitragen"></textarea>
+                <div class="help-block with-errors"></div>
+              </div>
+            </div>
+            <div class="col-md-3 col-sm-6 col-xs-12">
+              <div class="form-group">
+                <label>Datenquelle*</label>
+                <textarea rows="3" class="form-control" [(ngModel)]="metadata.datasource" name="metadata.datasource"
+                  placeholder="Beschreibung der Datenquelle" required></textarea>
+                <div class="help-block with-errors"></div>
+              </div>
+            </div>
+            <div class="col-md-3 col-sm-6 col-xs-12">
+              <div class="form-group">
+                <label>Datenhalter und Kontakt*</label>
+                <textarea rows="3" class="form-control" [(ngModel)]="metadata.contact" name="metadata.contact"
+                  placeholder="Beschreibung des Datenhalters und etwaiger Kontaktinformationen" required></textarea>
+                <div class="help-block with-errors"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row vertical-align">
+            <div class="col-md-3 col-sm-6 col-xs-12">
+              <div class="form-group">
+                <label>Aktualisierungszyklus*</label>
+                <select [(ngModel)]="metadata.updateInterval" name="metadata.updateInterval"
+                  class="form-control" required>
+                  <option [ngValue]="null" disabled selected>-- Aktualisierungszyklus wählen --</option>
+                  <option *ngFor="let value of updateIntervalOptions" [ngValue]="value">
+                    {{value.displayName}}
+                  </option>
+                </select>
+                <div class="help-block with-errors"></div>
+              </div>
+            </div>
+            <div class="col-md-3 col-sm-6 col-xs-12">
+              <div class="form-group">
+                <label>Datum der letzten Aktualisierung*</label>
+                <div class="input-group date">
+                  <div class="input-group-addon">
+                    <i class="far fa-calendar-alt"></i>
+              </div>
+                  <input type="text" [(ngModel)]="metadata.lastUpdate" name="metadata.lastUpdate"
+                    class="form-control pull-right" placeholder="YYYY-MM-DD" required>
+            </div>
+                <div class="help-block with-errors"></div>
+              </div>
+            </div>
+            <div class="col-md-3 col-sm-6 col-xs-12">
+              <div class="form-group">
+                <label>Literatur</label>
+                <textarea rows="3" class="form-control" [(ngModel)]="metadata.literature" name="metadata.literature"
+                  placeholder="optionale Angaben zu Literatur"></textarea>
+                <div class="help-block with-errors"></div>
+              </div>
+            </div>
+            <div class="col-md-3 col-sm-6 col-xs-12">
+              <div class="form-group">
+                <label>Bemerkung</label>
+                <textarea rows="3" class="form-control" [(ngModel)]="metadata.note" name="metadata.note"
+                  placeholder="optionale Bemerkung"></textarea>
+                <div class="help-block with-errors"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row vertical-align">
+            <div class="col-md-3 col-sm-6 col-xs-12">
+              <div class="form-group">
+                <label>SRID EPSG</label>
+                <input type="number" class="form-control" [(ngModel)]="metadata.sridEPSG" name="metadata.sridEPSG" 
+                  placeholder="4326" value="4326">
+                <div class="help-block">
+                  <p>Koordinatensystem für die räumlichen Daten (Standard: 4326 für WGS84)</p>
+              </div>
+                <div class="help-block with-errors"></div>
+            </div>
+              </div>
+            </div>
+
+          <input type="button" name="previous" class="previous previous_addIndicator action-button-previous" value="Voriger Schritt" (click)="previousStep()"/>
+          <input type="button" name="next" class="next next_addIndicator action-button" value="Nächster Schritt" (click)="nextStep()"/>
+        </div>
+
+        <!-- Step 3: Topic Hierarchy -->
+        <div *ngIf="currentStep === 3">
+          <h2 class="fs-title">Themenhierarchie</h2>
+          <h3 class="fs-subtitle">Angaben über die Themenhierarchie in KomMonitor</h3>
+          <p><b><i>* = Pflichtfeld</i></b></p>
+
+          <div class="row vertical-align">
+            <div class="col-md-6 col-sm-12 col-xs-12">
+              <div class="form-group">
+                <label>Thema*</label>
+                <select [(ngModel)]="selectedTopic" name="selectedTopic" (ngModelChange)="onTopicChange()"
+                  class="form-control" required>
+                  <option [ngValue]="null" disabled selected>-- Thema wählen --</option>
+                  <option *ngFor="let topic of availableTopics" [ngValue]="topic">
+                    {{topic.topicName}}
+                  </option>
+                </select>
+                <div class="help-block">
+                  <p>Auswahl des übergeordneten Themas, dem der Indikator zugeordnet werden soll</p>
+              </div>
+                <div class="help-block with-errors"></div>
+            </div>
+            </div>
+            <div class="col-md-6 col-sm-12 col-xs-12">
+              <div class="form-group">
+                <label>Unterthema*</label>
+                <select [(ngModel)]="selectedSubTopic" name="selectedSubTopic" (ngModelChange)="onSubTopicChange()"
+                  class="form-control" required>
+                  <option [ngValue]="null" disabled selected>-- Unterthema wählen --</option>
+                  <option *ngFor="let subTopic of availableSubTopics" [ngValue]="subTopic">
+                    {{subTopic.subTopicName}}
+                  </option>
+                </select>
+                <div class="help-block">
+                  <p>Auswahl des Unterthemas, dem der Indikator zugeordnet werden soll</p>
+              </div>
+                <div class="help-block with-errors"></div>
+            </div>
+            </div>
+          </div>
+
+          <div class="row vertical-align" *ngIf="selectedTopic && selectedSubTopic">
+            <div class="col-md-12">
+              <div class="form-group">
+                <label>Aktuelle Zuordnung</label>
+                <div class="alert alert-info">
+                  <strong>Thema:</strong> {{selectedTopic.topicName}} <br>
+                  <strong>Unterthema:</strong> {{selectedSubTopic.subTopicName}}
+                </div>
+                <div class="help-block">
+                  <p>Diese Zuordnung bestimmt, in welchem Themenbereich der Indikator in der Benutzeroberfläche angezeigt wird</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row vertical-align">
+            <div class="col-md-12">
+              <div class="form-group">
+                <label>Zusätzliche Themenzuordnungen (optional)</label>
+                <div class="alert alert-warning">
+                  <i class="fas fa-info-circle"></i>
+                  <strong>Hinweis:</strong> Sie können den Indikator zusätzlich zu anderen Themen/Unterthemen zuordnen, um ihn in mehreren Themenbereichen anzuzeigen.
+                </div>
+                <div class="help-block">
+                  <p>Diese Funktion ermöglicht es, einen Indikator in mehreren thematischen Kontexten zu präsentieren</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row vertical-align">
+            <div class="col-md-4 col-sm-6 col-xs-12">
+              <div class="form-group">
+                <label>Zusätzliches Thema</label>
+                <select [(ngModel)]="additionalTopic" name="additionalTopic" (ngModelChange)="onAdditionalTopicChange()" class="form-control">
+                  <option [ngValue]="null" selected>-- Zusätzliches Thema wählen --</option>
+                  <option *ngFor="let topic of availableTopics" [ngValue]="topic">
+                    {{topic.topicName}}
+                  </option>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-4 col-sm-6 col-xs-12">
+              <div class="form-group">
+                <label>Zusätzliches Unterthema</label>
+                <select [(ngModel)]="additionalSubTopic" name="additionalSubTopic" class="form-control">
+                  <option [ngValue]="null" selected>-- Zusätzliches Unterthema wählen --</option>
+                  <option *ngFor="let subTopic of additionalSubTopics" [ngValue]="subTopic">
+                    {{subTopic.subTopicName}}
+                  </option>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-4 col-sm-6 col-xs-12">
+              <div class="form-group">
+                <label>&nbsp;</label>
+                <button type="button" class="btn btn-primary form-control" 
+                  [disabled]="!additionalTopic || !additionalSubTopic"
+                  (click)="addAdditionalTopicAssignment()">
+                  <i class="fas fa-plus"></i> Zuordnung hinzufügen
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="row vertical-align" *ngIf="additionalTopicAssignments.length > 0">
+            <div class="col-md-12">
+              <div class="form-group">
+                <label>Zusätzliche Zuordnungen</label>
+                <div class="table-responsive">
+                  <table class="table table-striped table-bordered">
+                    <thead>
+                      <tr>
+                        <th>Thema</th>
+                        <th>Unterthema</th>
+                        <th>Aktion</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let assignment of additionalTopicAssignments; let i = index">
+                        <td>{{assignment.topic.topicName}}</td>
+                        <td>{{assignment.subTopic.subTopicName}}</td>
+                        <td>
+                          <button type="button" class="btn btn-danger btn-sm" (click)="removeAdditionalTopicAssignment(i)">
+                            <i class="fas fa-trash"></i> Entfernen
+                          </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+          <input type="button" name="previous" class="previous previous_addIndicator action-button-previous" value="Voriger Schritt" (click)="previousStep()"/>
+          <input type="button" name="next" class="next next_addIndicator action-button" value="Nächster Schritt" (click)="nextStep()"/>
+        </div>
+
+        <!-- Step 4: References to Indicators/Georesources -->
+        <div *ngIf="currentStep === 4">
+          <h2 class="fs-title">Referenzen zu Indikatoren/Georessourcen</h2>
+          <h3 class="fs-subtitle">Angaben über Referenzen zu anderen Indikatoren und Georessourcen</h3>
+          <p><b><i>* = Pflichtfeld</i></b></p>
+
+          <!-- Indicator References Section -->
+              <div class="row vertical-align">
+            <div class="col-md-12">
+                  <div class="form-group">
+                <label>Referenzen zu anderen Indikatoren (optional)</label>
+                <div class="alert alert-info">
+                  <i class="fas fa-info-circle"></i>
+                  <strong>Hinweis:</strong> Hier können Sie Referenzen zu anderen Indikatoren hinzufügen, die mit diesem Indikator in Beziehung stehen.
+                  </div>
+                </div>
+            </div>
+          </div>
+
+          <div class="row vertical-align">
+                <div class="col-md-4 col-sm-6 col-xs-12">
+                  <div class="form-group">
+                <label>Indikator auswählen</label>
+                <input type="text" class="form-control" [(ngModel)]="indicatorNameFilter" name="indicatorNameFilter"
+                  placeholder="Indikatorname filtern" (ngModelChange)="filterIndicators()">
+                <select [(ngModel)]="tmpIndicatorReference_selectedIndicatorMetadata" name="tmpIndicatorReference_selectedIndicatorMetadata"
+                  class="form-control" size="8">
+                  <option [ngValue]="null" disabled>-- Indikator wählen --</option>
+                  <option *ngFor="let indicator of filteredIndicators" [ngValue]="indicator">
+                    {{indicator.datasetName}} ({{indicator.indicatorType.displayName}})
+                      </option>
+                    </select>
+                <div class="help-block">
+                  <p>Wählen Sie einen Indikator aus der Liste aus, zu dem eine Referenz erstellt werden soll</p>
+                </div>
+                  </div>
+                </div>
+                <div class="col-md-4 col-sm-6 col-xs-12">
+                  <div class="form-group">
+                <label>Referenzbeschreibung*</label>
+                <textarea rows="3" class="form-control" [(ngModel)]="tmpIndicatorReference_referenceDescription" name="tmpIndicatorReference_referenceDescription"
+                  placeholder="Beschreibung der Beziehung zum ausgewählten Indikator" required></textarea>
+                <div class="help-block">
+                  <p>Beschreiben Sie die Art der Beziehung zwischen diesem Indikator und dem ausgewählten Indikator</p>
+                  </div>
+                <div class="help-block with-errors"></div>
+                </div>
+              </div>
+            <div class="col-md-4 col-sm-6 col-xs-12">
+              <div class="form-group">
+                <label>&nbsp;</label>
+                <button type="button" class="btn btn-primary form-control" 
+                  [disabled]="!tmpIndicatorReference_selectedIndicatorMetadata || !tmpIndicatorReference_referenceDescription"
+                  (click)="onAddOrUpdateIndicatorReference()">
+                  <i class="fas fa-plus"></i> Indikator-Referenz hinzufügen
+                  </button>
+              </div>
+                </div>
+              </div>
+
+          <div class="row vertical-align" *ngIf="indicatorReferences_adminView.length > 0">
+                <div class="col-md-12">
+              <div class="form-group">
+                <label>Hinzugefügte Indikator-Referenzen</label>
+                <div class="table-responsive">
+                  <table class="table table-striped table-bordered">
+                    <thead>
+                      <tr>
+                        <th>Indikator</th>
+                        <th>Typ</th>
+                        <th>Referenzbeschreibung</th>
+                        <th>Aktion</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let reference of indicatorReferences_adminView; let i = index">
+                        <td>{{reference.indicatorMetadata.datasetName}}</td>
+                        <td>{{reference.indicatorMetadata.indicatorType.displayName}}</td>
+                        <td>{{reference.referenceDescription}}</td>
+                        <td>
+                          <button type="button" class="btn btn-warning btn-sm" (click)="onClickEditIndicatorReference(reference)">
+                            <i class="fas fa-edit"></i> Bearbeiten
+                          </button>
+                          <button type="button" class="btn btn-danger btn-sm" (click)="onClickDeleteIndicatorReference(reference)">
+                            <i class="fas fa-trash"></i> Löschen
+                          </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Georesource References Section -->
+              <div class="row vertical-align">
+            <div class="col-md-12">
+                  <div class="form-group">
+                <label>Referenzen zu Georessourcen (optional)</label>
+                <div class="alert alert-info">
+                  <i class="fas fa-info-circle"></i>
+                  <strong>Hinweis:</strong> Hier können Sie Referenzen zu Georessourcen hinzufügen, die mit diesem Indikator in Beziehung stehen.
+                  </div>
+                </div>
+            </div>
+          </div>
+
+          <div class="row vertical-align">
+                <div class="col-md-4 col-sm-6 col-xs-12">
+                  <div class="form-group">
+                <label>Georessource auswählen</label>
+                <input type="text" class="form-control" [(ngModel)]="georesourceNameFilter" name="georesourceNameFilter"
+                  placeholder="Georessourcenname filtern" (ngModelChange)="filterGeoresources()">
+                <select [(ngModel)]="tmpGeoresourceReference_selectedGeoresourceMetadata" name="tmpGeoresourceReference_selectedGeoresourceMetadata"
+                  class="form-control" size="8">
+                  <option [ngValue]="null" disabled>-- Georessource wählen --</option>
+                  <option *ngFor="let georesource of filteredGeoresources" [ngValue]="georesource">
+                    {{georesource.datasetName}} ({{georesource.georesourceType.displayName}})
+                      </option>
+                    </select>
+                <div class="help-block">
+                  <p>Wählen Sie eine Georessource aus der Liste aus, zu der eine Referenz erstellt werden soll</p>
+                </div>
+                  </div>
+                </div>
+                <div class="col-md-4 col-sm-6 col-xs-12">
+                  <div class="form-group">
+                <label>Referenzbeschreibung*</label>
+                <textarea rows="3" class="form-control" [(ngModel)]="tmpGeoresourceReference_referenceDescription" name="tmpGeoresourceReference_referenceDescription"
+                  placeholder="Beschreibung der Beziehung zur ausgewählten Georessource" required></textarea>
+                <div class="help-block">
+                  <p>Beschreiben Sie die Art der Beziehung zwischen diesem Indikator und der ausgewählten Georessource</p>
+                  </div>
+                <div class="help-block with-errors"></div>
+                </div>
+              </div>
+            <div class="col-md-4 col-sm-6 col-xs-12">
+              <div class="form-group">
+                <label>&nbsp;</label>
+                <button type="button" class="btn btn-primary form-control" 
+                  [disabled]="!tmpGeoresourceReference_selectedGeoresourceMetadata || !tmpGeoresourceReference_referenceDescription"
+                  (click)="onAddOrUpdateGeoresourceReference()">
+                  <i class="fas fa-plus"></i> Georessourcen-Referenz hinzufügen
+                  </button>
+              </div>
+                </div>
+              </div>
+
+          <div class="row vertical-align" *ngIf="georesourceReferences_adminView.length > 0">
+                <div class="col-md-12">
+              <div class="form-group">
+                <label>Hinzugefügte Georessourcen-Referenzen</label>
+                <div class="table-responsive">
+                  <table class="table table-striped table-bordered">
+                    <thead>
+                      <tr>
+                        <th>Georessource</th>
+                        <th>Typ</th>
+                        <th>Referenzbeschreibung</th>
+                        <th>Aktion</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let reference of georesourceReferences_adminView; let i = index">
+                        <td>{{reference.georesourceMetadata.datasetName}}</td>
+                        <td>{{reference.georesourceMetadata.georesourceType.displayName}}</td>
+                        <td>{{reference.referenceDescription}}</td>
+                        <td>
+                          <button type="button" class="btn btn-warning btn-sm" (click)="onClickEditGeoresourceReference(reference)">
+                            <i class="fas fa-edit"></i> Bearbeiten
+                          </button>
+                          <button type="button" class="btn btn-danger btn-sm" (click)="onClickDeleteGeoresourceReference(reference)">
+                            <i class="fas fa-trash"></i> Löschen
+                          </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <input type="button" name="previous" class="previous previous_addIndicator action-button-previous" value="Voriger Schritt" (click)="previousStep()"/>
+          <input type="button" name="next" class="next next_addIndicator action-button" value="Nächster Schritt" (click)="nextStep()"/>
+        </div>
+
+        <!-- Step 5: Classification Options -->
+        <div *ngIf="currentStep === 5">
+          <h2 class="fs-title">Klassifizierungsoptionen</h2>
+          <h3 class="fs-subtitle">Angaben über die Klassifizierung der Indikatorwerte</h3>
+          <p><b><i>* = Pflichtfeld</i></b></p>
+
+          <div class="row vertical-align">
+            <div class="col-md-12">
+              <div class="form-group">
+                <label>Allgemeine Klassifizierungseinstellungen</label>
+                <div class="alert alert-info">
+                  <i class="fas fa-info-circle"></i>
+                  <strong>Hinweis:</strong> Hier können Sie die Klassifizierungsoptionen für die Darstellung der Indikatorwerte konfigurieren.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row vertical-align">
+            <div class="col-md-3 col-sm-6 col-xs-12">
+              <div class="form-group">
+                <label>Anzahl Klassen*</label>
+                <select [(ngModel)]="numClassesPerSpatialUnit" name="numClassesPerSpatialUnit" (ngModelChange)="onNumClassesChanged($event)"
+                  class="form-control" required>
+                  <option *ngFor="let numClass of numClassesArray" [ngValue]="numClass">{{numClass}}</option>
+                </select>
+                <div class="help-block">
+                  <p>Anzahl der Klassen für die Klassifizierung der Indikatorwerte</p>
+              </div>
+                <div class="help-block with-errors"></div>
+            </div>
+            </div>
+            <div class="col-md-3 col-sm-6 col-xs-12">
+              <div class="form-group">
+                <label>Klassifizierungsmethode*</label>
+                <select [(ngModel)]="classificationMethod" name="classificationMethod" (ngModelChange)="onClassificationMethodSelected($event)"
+                  class="form-control" required>
+                  <option value="jenks">Jenks Natural Breaks</option>
+                  <option value="equal">Gleiche Intervalle</option>
+                  <option value="manual">Manuelle Klassifizierung</option>
+                </select>
+                <div class="help-block">
+                  <p>Methode zur Bestimmung der Klassengrenzen</p>
+              </div>
+                <div class="help-block with-errors"></div>
+            </div>
+            </div>
+            <div class="col-md-3 col-sm-6 col-xs-12">
+              <div class="form-group">
+                <label>Farbschema*</label>
+                <div class="color-palette-container">
+                  <div class="color-palette-grid">
+                    <div *ngFor="let palette of colorbrewerPalettes" 
+                         class="color-palette-item"
+                         [class.selected]="selectedColorBrewerPaletteEntry === palette"
+                         (click)="onClickColorBrewerEntry(palette)"
+                         [title]="palette.paletteName">
+                      <div class="color-strip" [style.background]="palette.colorStrip"></div>
+                      <div class="palette-name">{{palette.paletteName}}</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="help-block">
+                  <p>Wählen Sie ein Farbschema für die Darstellung der Klassen</p>
+                </div>
+                <div class="help-block with-errors"></div>
+              </div>
+            </div>
+            <div class="col-md-3 col-sm-6 col-xs-12">
+              <div class="form-group">
+                <label>Dynamische Farbzuordnung</label>
+                <div class="form-group vertical-align">
+                  <label class="margin-right" style="font-weight: normal;">Aktivieren</label>
+                  <label class="switch">
+                    <input type="checkbox" [(ngModel)]="enableDynamicColorAssignment" name="enableDynamicColorAssignment">
+                    <span class="switchslider round"></span>
+                  </label>
+                </div>
+                <div class="help-block">
+                  <p>Bei Aktivierung werden Farben basierend auf der Werteentwicklung automatisch zugeordnet</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row vertical-align" *ngIf="enableDynamicColorAssignment">
+            <div class="col-md-6 col-sm-6 col-xs-12">
+              <div class="form-group">
+                <label>Farbschema für steigende Werte</label>
+                <select [(ngModel)]="colorbreweSchemeName_dynamicIncrease" name="colorbreweSchemeName_dynamicIncrease"
+                  class="form-control">
+                  <option *ngFor="let palette of colorbrewerPalettes" [ngValue]="palette.paletteName">
+                    {{palette.paletteName}}
+                  </option>
+                </select>
+                <div class="help-block">
+                  <p>Farbschema für positive Werteentwicklung</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 col-sm-6 col-xs-12">
+              <div class="form-group">
+                <label>Farbschema für fallende Werte</label>
+                <select [(ngModel)]="colorbreweSchemeName_dynamicDecrease" name="colorbreweSchemeName_dynamicDecrease"
+                  class="form-control">
+                  <option *ngFor="let palette of colorbrewerPalettes" [ngValue]="palette.paletteName">
+                    {{palette.paletteName}}
+                  </option>
+                </select>
+                <div class="help-block">
+                  <p>Farbschema für negative Werteentwicklung</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Spatial Unit Classification Tabs -->
+          <div class="row vertical-align">
+            <div class="col-md-12">
+              <div class="form-group">
+                <label>Klassifizierung pro Raumebene</label>
+                <div class="alert alert-warning">
+                  <i class="fas fa-exclamation-triangle"></i>
+                  <strong>Wichtig:</strong> Konfigurieren Sie die Klassengrenzen für jede Raumebene. Ungültige Konfigurationen werden rot markiert.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row vertical-align">
+            <div class="col-md-12">
+              <div class="form-group">
+                <div class="nav-tabs-custom">
+              <ul class="nav nav-tabs">
+                    <li *ngFor="let spatialUnit of availableSpatialUnits; let i = index" 
+                    [class.active]="i === 0" 
+                        [ngClass]="tabClasses[i]">
+                      <a href="#" (click)="goToClassificationTab(i); $event.preventDefault()">
+                        {{spatialUnit.spatialUnitLevel}}
+                      </a>
+                </li>
+              </ul>
+              <div class="tab-content">
+                    <div *ngFor="let spatialUnit of availableSpatialUnits; let i = index" 
+                         class="tab-pane" 
+                         [class.active]="i === 0"
+                         [id]="'classification-tab-' + i">
+                      <div class="classification-tab-content">
+                        <h4>Klassifizierung für {{spatialUnit.spatialUnitLevel}}</h4>
+                        
+                  <div class="row">
+                          <div class="col-md-6">
+                          <div class="form-group">
+                              <label>Klassengrenzen</label>
+                              <div class="class-breaks-container">
+                                <div *ngFor="let break of spatialUnitClassification[i]?.breaks; let j = index" 
+                                     class="class-break-input">
+                                  <label>Klasse {{j + 1}} - {{j + 2}}</label>
+                                  <input type="number" 
+                                         class="form-control" 
+                                         [(ngModel)]="spatialUnitClassification[i].breaks[j]" 
+                                         (ngModelChange)="onBreaksChanged(i)"
+                                         step="0.01"
+                                         placeholder="Klassengrenze">
+                          </div>
+                        </div>
+                              <div class="help-block">
+                                <p>Geben Sie die Klassengrenzen für diese Raumebene ein. Leere Felder werden ignoriert.</p>
+                      </div>
+                    </div>
+                  </div>
+                          <div class="col-md-6">
+                            <div class="form-group">
+                              <label>Vorschau</label>
+                              <div class="classification-preview">
+                                <ng-container *ngFor="let break of spatialUnitClassification[i]?.breaks; let j = index">
+                                  <div *ngIf="break !== null && break !== undefined" 
+                                       class="class-preview-item">
+                                  <div class="class-color" 
+                                       [style.background-color]="getClassColor(j, selectedColorBrewerPaletteEntry)">
+                </div>
+                                  <div class="class-range">
+                                    <span *ngIf="j === 0">≤ {{break}}</span>
+                                    <span *ngIf="j > 0 && spatialUnitClassification[i]?.breaks[j-1] !== null">
+                                      {{spatialUnitClassification[i].breaks[j-1]}} - {{break}}
+                                    </span>
+                                    <span *ngIf="j === spatialUnitClassification[i]?.breaks.length - 1">> {{break}}</span>
+                                  </div>
+                                </div>
+                                </ng-container>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+              </div>
+            </div>
+          </div>
+          </div>
+
+          <div class="row vertical-align" *ngIf="classBreaksInvalid">
+            <div class="col-md-12">
+              <div class="alert alert-danger">
+                <i class="fas fa-exclamation-triangle"></i>
+                <strong>Fehler:</strong> Es gibt ungültige Klassifizierungskonfigurationen. Bitte überprüfen Sie die rot markierten Tabs.
+              </div>
+            </div>
+          </div>
+
+          <input type="button" name="previous" class="previous previous_addIndicator action-button-previous" value="Voriger Schritt" (click)="previousStep()"/>
+          <input type="button" name="next" class="next next_addIndicator action-button" value="Nächster Schritt" (click)="nextStep()"/>
+        </div>
+
+        <!-- Step 6: Regional Comparison Values -->
+        <div *ngIf="currentStep === 6">
+          <h2 class="fs-title">Regionale Vergleichswerte</h2>
+          <h3 class="fs-subtitle">Angaben über regionale Vergleichswerte und Benchmarking</h3>
+          <p><b><i>* = Pflichtfeld</i></b></p>
+
+          <div class="row vertical-align">
+            <div class="col-md-12">
+              <div class="form-group">
+                <label>Regionale Vergleichswerte (optional)</label>
+                <div class="alert alert-info">
+                  <i class="fas fa-info-circle"></i>
+                  <strong>Hinweis:</strong> Hier können Sie regionale Vergleichswerte definieren, die als Benchmark für die Bewertung der Indikatorwerte dienen.
+                </div>
+            </div>
+          </div>
+          </div>
+
+          <div class="row vertical-align">
+            <div class="col-md-6 col-sm-6 col-xs-12">
+              <div class="form-group">
+                <label>Vergleichswert-Typ</label>
+                <select [(ngModel)]="comparisonValueType" name="comparisonValueType" (ngModelChange)="onComparisonValueTypeChange()"
+                  class="form-control">
+                  <option [ngValue]="null" selected>-- Vergleichswert-Typ wählen --</option>
+                  <option value="target">Zielwert</option>
+                  <option value="average">Durchschnittswert</option>
+                  <option value="median">Medianwert</option>
+                  <option value="best_practice">Best Practice</option>
+                  <option value="threshold">Schwellenwert</option>
+                  <option value="custom">Benutzerdefiniert</option>
+                </select>
+                <div class="help-block">
+                  <p>Art des Vergleichswerts für die Bewertung der Indikatorwerte</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 col-sm-6 col-xs-12">
+              <div class="form-group">
+                <label>Vergleichswert</label>
+                <input type="number" class="form-control" [(ngModel)]="comparisonValue" name="comparisonValue"
+                  placeholder="Numerischer Wert" step="0.01">
+                <div class="help-block">
+                  <p>Numerischer Wert des Vergleichswerts</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row vertical-align">
+            <div class="col-md-6 col-sm-6 col-xs-12">
+              <div class="form-group">
+                <label>Vergleichsregion</label>
+                <select [(ngModel)]="comparisonRegion" name="comparisonRegion" class="form-control">
+                  <option [ngValue]="null" selected>-- Vergleichsregion wählen --</option>
+                  <option value="national">National</option>
+                  <option value="state">Bundesland</option>
+                  <option value="district">Kreis</option>
+                  <option value="municipality">Gemeinde</option>
+                  <option value="neighborhood">Stadtteil</option>
+                  <option value="custom">Benutzerdefiniert</option>
+                </select>
+                <div class="help-block">
+                  <p>Räumliche Ebene der Vergleichsregion</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 col-sm-6 col-xs-12">
+              <div class="form-group">
+                <label>Vergleichszeitraum</label>
+                <select [(ngModel)]="comparisonTimeframe" name="comparisonTimeframe" class="form-control">
+                  <option [ngValue]="null" selected>-- Vergleichszeitraum wählen --</option>
+                  <option value="current">Aktueller Zeitpunkt</option>
+                  <option value="previous_year">Vorjahr</option>
+                  <option value="five_years">5-Jahres-Durchschnitt</option>
+                  <option value="ten_years">10-Jahres-Durchschnitt</option>
+                  <option value="baseline">Baseline-Zeitpunkt</option>
+                  <option value="custom">Benutzerdefiniert</option>
+                </select>
+                <div class="help-block">
+                  <p>Zeitlicher Bezugspunkt für den Vergleichswert</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row vertical-align">
+            <div class="col-md-12">
+              <div class="form-group">
+                <label>Beschreibung des Vergleichswerts</label>
+                <textarea rows="3" class="form-control" [(ngModel)]="comparisonDescription" name="comparisonDescription"
+                  placeholder="Beschreibung der Herkunft und Bedeutung des Vergleichswerts"></textarea>
+                <div class="help-block">
+                  <p>Detaillierte Beschreibung der Herkunft, Berechnung und Bedeutung des Vergleichswerts</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row vertical-align">
+            <div class="col-md-6 col-sm-6 col-xs-12">
+              <div class="form-group">
+                <label>Bewertungsrichtung</label>
+                <select [(ngModel)]="evaluationDirection" name="evaluationDirection" class="form-control">
+                  <option [ngValue]="null" selected>-- Bewertungsrichtung wählen --</option>
+                  <option value="higher_better">Höhere Werte sind besser</option>
+                  <option value="lower_better">Niedrigere Werte sind besser</option>
+                  <option value="target_range">Optimaler Bereich</option>
+                  <option value="neutral">Neutral</option>
+                </select>
+                <div class="help-block">
+                  <p>Richtung der Bewertung im Vergleich zum Vergleichswert</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 col-sm-6 col-xs-12">
+              <div class="form-group">
+                <label>Toleranzbereich (±)</label>
+                <input type="number" class="form-control" [(ngModel)]="toleranceRange" name="toleranceRange"
+                  placeholder="Toleranz in Prozent" step="0.1" min="0">
+                <div class="help-block">
+                  <p>Toleranzbereich um den Vergleichswert in Prozent</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row vertical-align">
+            <div class="col-md-12">
+              <div class="form-group">
+                <label>Zusätzliche Vergleichswerte</label>
+                <div class="alert alert-warning">
+                  <i class="fas fa-info-circle"></i>
+                  <strong>Hinweis:</strong> Sie können mehrere Vergleichswerte für verschiedene Kontexte hinzufügen.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row vertical-align">
+            <div class="col-md-3 col-sm-6 col-xs-12">
+              <div class="form-group">
+                <label>Typ</label>
+                <select [(ngModel)]="additionalComparisonType" name="additionalComparisonType" class="form-control">
+                  <option [ngValue]="null" selected>-- Typ wählen --</option>
+                  <option value="target">Zielwert</option>
+                  <option value="average">Durchschnittswert</option>
+                  <option value="median">Medianwert</option>
+                  <option value="best_practice">Best Practice</option>
+                  <option value="threshold">Schwellenwert</option>
+                  <option value="custom">Benutzerdefiniert</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-3 col-sm-6 col-xs-12">
+              <div class="form-group">
+                <label>Wert</label>
+                <input type="number" class="form-control" [(ngModel)]="additionalComparisonValue" name="additionalComparisonValue"
+                  placeholder="Numerischer Wert" step="0.01">
+              </div>
+            </div>
+            <div class="col-md-3 col-sm-6 col-xs-12">
+              <div class="form-group">
+                <label>Beschreibung</label>
+                <input type="text" class="form-control" [(ngModel)]="additionalComparisonDescription" name="additionalComparisonDescription"
+                  placeholder="Kurze Beschreibung">
+              </div>
+            </div>
+            <div class="col-md-3 col-sm-6 col-xs-12">
+              <div class="form-group">
+                <label>&nbsp;</label>
+                <button type="button" class="btn btn-primary form-control" 
+                  [disabled]="!additionalComparisonType || !additionalComparisonValue"
+                  (click)="addAdditionalComparisonValue()">
+                  <i class="fas fa-plus"></i> Hinzufügen
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="row vertical-align" *ngIf="additionalComparisonValues.length > 0">
+            <div class="col-md-12">
+              <div class="form-group">
+                <label>Hinzugefügte Vergleichswerte</label>
+                <div class="table-responsive">
+                  <table class="table table-striped table-bordered">
+                    <thead>
+                      <tr>
+                        <th>Typ</th>
+                        <th>Wert</th>
+                        <th>Beschreibung</th>
+                        <th>Aktion</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let comparison of additionalComparisonValues; let i = index">
+                        <td>{{getComparisonTypeDisplayName(comparison.type)}}</td>
+                        <td>{{comparison.value}}</td>
+                        <td>{{comparison.description}}</td>
+                        <td>
+                          <button type="button" class="btn btn-danger btn-sm" (click)="removeAdditionalComparisonValue(i)">
+                            <i class="fas fa-trash"></i> Entfernen
+                          </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row vertical-align">
+            <div class="col-md-12">
+              <div class="form-group">
+                <label>Benchmarking-Konfiguration</label>
+                <div class="alert alert-info">
+                  <i class="fas fa-chart-line"></i>
+                  <strong>Benchmarking:</strong> Konfigurieren Sie, wie die Indikatorwerte im Vergleich zu den Vergleichswerten dargestellt werden sollen.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row vertical-align">
+            <div class="col-md-6 col-sm-6 col-xs-12">
+              <div class="form-group">
+                <label>Benchmarking aktivieren</label>
+                <div class="form-group vertical-align">
+                  <label class="margin-right" style="font-weight: normal;">Aktivieren</label>
+                  <label class="switch">
+                    <input type="checkbox" [(ngModel)]="enableBenchmarking" name="enableBenchmarking">
+                    <span class="switchslider round"></span>
+                  </label>
+                </div>
+                <div class="help-block">
+                  <p>Bei Aktivierung werden Indikatorwerte im Vergleich zu den Vergleichswerten bewertet</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 col-sm-6 col-xs-12">
+              <div class="form-group">
+                <label>Visualisierungstyp</label>
+                <select [(ngModel)]="benchmarkingVisualizationType" name="benchmarkingVisualizationType"
+                  class="form-control" [disabled]="!enableBenchmarking">
+                  <option [ngValue]="null" selected>-- Visualisierungstyp wählen --</option>
+                  <option value="traffic_light">Ampelsystem</option>
+                  <option value="percentage">Prozentuale Abweichung</option>
+                  <option value="rating">Bewertungsskala</option>
+                  <option value="trend">Trendindikator</option>
+                </select>
+                <div class="help-block">
+                  <p>Art der visuellen Darstellung der Benchmarking-Ergebnisse</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row vertical-align" *ngIf="enableBenchmarking">
+            <div class="col-md-6 col-sm-6 col-xs-12">
+              <div class="form-group">
+                <label>Schwellenwerte für Bewertung</label>
+                <div class="threshold-config">
+                  <div class="threshold-item">
+                    <label>Grün (gut):</label>
+                    <input type="number" class="form-control" [(ngModel)]="greenThreshold" name="greenThreshold"
+                      placeholder="Schwellenwert" step="0.1">
+                  </div>
+                  <div class="threshold-item">
+                    <label>Gelb (mittel):</label>
+                    <input type="number" class="form-control" [(ngModel)]="yellowThreshold" name="yellowThreshold"
+                      placeholder="Schwellenwert" step="0.1">
+                  </div>
+                  <div class="threshold-item">
+                    <label>Rot (schlecht):</label>
+                    <input type="number" class="form-control" [(ngModel)]="redThreshold" name="redThreshold"
+                      placeholder="Schwellenwert" step="0.1">
+                  </div>
+                </div>
+                <div class="help-block">
+                  <p>Schwellenwerte für die Bewertung der Abweichung vom Vergleichswert</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 col-sm-6 col-xs-12">
+              <div class="form-group">
+                <label>Vorschau der Bewertung</label>
+                <div class="benchmarking-preview">
+                  <div class="preview-item">
+                    <div class="preview-color green"></div>
+                    <div class="preview-text">Gut (≤ {{greenThreshold || 0}}%)</div>
+                  </div>
+                  <div class="preview-item">
+                    <div class="preview-color yellow"></div>
+                    <div class="preview-text">Mittel ({{greenThreshold || 0}}% - {{yellowThreshold || 0}}%)</div>
+                  </div>
+                  <div class="preview-item">
+                    <div class="preview-color red"></div>
+                    <div class="preview-text">Schlecht (> {{yellowThreshold || 0}}%)</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <input type="button" name="previous" class="previous previous_addIndicator action-button-previous" value="Voriger Schritt" (click)="previousStep()"/>
+          <input type="button" name="next" class="next next_addIndicator action-button" value="Nächster Schritt" (click)="nextStep()"/>
+        </div>
+
+        <!-- Step 7: Access Control and Ownership -->
+        <div *ngIf="currentStep === 7">
+          <h2 class="fs-title">Zugriffsschutz und Eigentümerschaft</h2>
+          <h3 class="fs-subtitle">Angaben über Zugriffsrechte und Eigentümerschaft des Indikators</h3>
+          <p><b><i>* = Pflichtfeld</i></b></p>
+
+          <div class="row vertical-align">
+            <div class="col-md-12">
+              <div class="form-group">
+                <label>Zugriffsschutz und Eigentümerschaft</label>
+                <div class="alert alert-info">
+                  <i class="fas fa-shield-alt"></i>
+                  <strong>Hinweis:</strong> Hier können Sie die Zugriffsrechte und Eigentümerschaft des Indikators konfigurieren.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row vertical-align">
+            <div class="col-md-6 col-sm-6 col-xs-12">
+              <div class="form-group">
+                <label>Eigentümer-Organisation*</label>
+                <div class="input-group">
+                  <input type="text" class="form-control" [(ngModel)]="ownerOrgFilter" name="ownerOrgFilter"
+                    placeholder="Organisation filtern" (ngModelChange)="filterOrganizations()">
+                  <span class="input-group-btn">
+                    <button class="btn btn-default" type="button" (click)="clearOwnerFilter()">
+                      <i class="fas fa-times"></i>
+                    </button>
+                  </span>
+                </div>
+                <select [(ngModel)]="ownerOrganization" name="ownerOrganization" (ngModelChange)="onChangeOwner($event)"
+                  class="form-control" required>
+                  <option [ngValue]="null" disabled selected>-- Eigentümer-Organisation wählen --</option>
+                  <option *ngFor="let org of filteredOrganizations" [ngValue]="org">
+                    {{org.organizationName}}
+                  </option>
+                </select>
+                <div class="help-block">
+                  <p>Organisation, die für den Indikator verantwortlich ist und die Zugriffsrechte verwaltet</p>
+              </div>
+                <div class="help-block with-errors"></div>
+            </div>
+            </div>
+            <div class="col-md-6 col-sm-6 col-xs-12">
+              <div class="form-group">
+                <label>Öffentlicher Zugriff</label>
+                <div class="form-group vertical-align">
+                  <label class="margin-right" style="font-weight: normal;">Öffentlich verfügbar</label>
+                  <label class="switch">
+                    <input type="checkbox" [(ngModel)]="isPublic" name="isPublic" (ngModelChange)="onChangeIsPublic($event)">
+                    <span class="switchslider round"></span>
+                  </label>
+                </div>
+                <div class="help-block">
+                  <p>Bei Aktivierung ist der Indikator für alle Benutzer sichtbar und zugreifbar</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row vertical-align" *ngIf="!isPublic">
+            <div class="col-md-12">
+              <div class="form-group">
+                <label>Rollenbasierte Zugriffsrechte</label>
+                <div class="alert alert-warning">
+                  <i class="fas fa-exclamation-triangle"></i>
+                  <strong>Wichtig:</strong> Da der Indikator nicht öffentlich ist, müssen Sie mindestens eine Rolle mit Zugriffsrechten zuweisen.
+                </div>
+            </div>
+          </div>
+        </div>
+
+          <div class="row vertical-align" *ngIf="!isPublic">
+          <div class="col-md-12">
+              <div class="form-group">
+                <label>Verfügbare Rollen</label>
+                <div class="role-selection-container">
+                  <div class="role-filter">
+                    <input type="text" class="form-control" [(ngModel)]="roleFilter" name="roleFilter"
+                      placeholder="Rollen filtern" (ngModelChange)="filterRoles()">
+            </div>
+                  <div class="role-list">
+                    <div *ngFor="let role of filteredRoles" class="role-item"
+                         [class.selected]="isRoleSelected(role)"
+                         (click)="toggleRoleSelection(role)">
+                      <div class="role-checkbox">
+                        <input type="checkbox" [checked]="isRoleSelected(role)" (change)="toggleRoleSelection(role)">
+          </div>
+                      <div class="role-info">
+                        <div class="role-name">{{role.roleName}}</div>
+                        <div class="role-description">{{role.roleDescription}}</div>
+        </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="help-block">
+                  <p>Wählen Sie die Rollen aus, die Zugriff auf diesen Indikator haben sollen</p>
+                </div>
+              </div>
+    </div>
+  </div>
+
+          <div class="row vertical-align" *ngIf="selectedRoles.length > 0">
+    <div class="col-md-12">
+              <div class="form-group">
+                <label>Ausgewählte Rollen</label>
+                <div class="selected-roles-container">
+                  <div *ngFor="let role of selectedRoles; let i = index" class="selected-role-item">
+                    <span class="role-badge">{{role.roleName}}</span>
+                    <button type="button" class="btn btn-sm btn-danger" (click)="removeRole(role)">
+                      <i class="fas fa-times"></i>
+        </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+      </div>
+
+          <div class="row vertical-align">
+            <div class="col-md-12">
+              <div class="form-group">
+                <label>Erweiterte Zugriffskontrolle</label>
+                <div class="alert alert-info">
+                  <i class="fas fa-cogs"></i>
+                  <strong>Erweiterte Einstellungen:</strong> Konfigurieren Sie zusätzliche Zugriffskontrollen für spezielle Anforderungen.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row vertical-align">
+            <div class="col-md-6 col-sm-6 col-xs-12">
+              <div class="form-group">
+                <label>Zugriffszeitraum</label>
+                <div class="form-group vertical-align">
+                  <label class="margin-right" style="font-weight: normal;">Zeitlich begrenzt</label>
+                  <label class="switch">
+                    <input type="checkbox" [(ngModel)]="enableTimeRestrictedAccess" name="enableTimeRestrictedAccess">
+                    <span class="switchslider round"></span>
+                  </label>
+      </div>
+                <div class="help-block">
+                  <p>Bei Aktivierung können Sie einen zeitlich begrenzten Zugriff konfigurieren</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 col-sm-6 col-xs-12">
+              <div class="form-group">
+                <label>Geografische Einschränkung</label>
+                <div class="form-group vertical-align">
+                  <label class="margin-right" style="font-weight: normal;">Räumlich begrenzt</label>
+                  <label class="switch">
+                    <input type="checkbox" [(ngModel)]="enableGeographicRestriction" name="enableGeographicRestriction">
+                    <span class="switchslider round"></span>
+                  </label>
+                </div>
+                <div class="help-block">
+                  <p>Bei Aktivierung können Sie eine geografische Zugriffsbeschränkung konfigurieren</p>
+                </div>
+      </div>
+    </div>
+  </div>
+
+          <div class="row vertical-align" *ngIf="enableTimeRestrictedAccess">
+            <div class="col-md-6 col-sm-6 col-xs-12">
+              <div class="form-group">
+                <label>Zugriff von</label>
+                <div class="input-group date">
+                  <div class="input-group-addon">
+                    <i class="far fa-calendar-alt"></i>
+                  </div>
+                  <input type="text" [(ngModel)]="accessStartDate" name="accessStartDate"
+                    class="form-control pull-right" placeholder="YYYY-MM-DD">
+                </div>
+                <div class="help-block">
+                  <p>Startdatum für den Zugriff auf den Indikator</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 col-sm-6 col-xs-12">
+              <div class="form-group">
+                <label>Zugriff bis</label>
+                <div class="input-group date">
+                  <div class="input-group-addon">
+                    <i class="far fa-calendar-alt"></i>
+                  </div>
+                  <input type="text" [(ngModel)]="accessEndDate" name="accessEndDate"
+                    class="form-control pull-right" placeholder="YYYY-MM-DD">
+                </div>
+                <div class="help-block">
+                  <p>Enddatum für den Zugriff auf den Indikator</p>
+                </div>
+              </div>
+            </div>
+  </div>
+
+          <div class="row vertical-align" *ngIf="enableGeographicRestriction">
+            <div class="col-md-12">
+              <div class="form-group">
+                <label>Erlaubte Regionen</label>
+                <select [(ngModel)]="allowedRegions" name="allowedRegions" class="form-control" multiple>
+                  <option *ngFor="let region of availableRegions" [ngValue]="region">
+                    {{region.regionName}}
+                  </option>
+                </select>
+                <div class="help-block">
+                  <p>Wählen Sie die Regionen aus, für die der Zugriff erlaubt ist</p>
+                </div>
+              </div>
+            </div>
+  </div>
+
+          <div class="row vertical-align">
+            <div class="col-md-12">
+              <div class="form-group">
+                <label>Zugriffsprotokollierung</label>
+                <div class="form-group vertical-align">
+                  <label class="margin-right" style="font-weight: normal;">Protokollierung aktivieren</label>
+                  <label class="switch">
+                    <input type="checkbox" [(ngModel)]="enableAccessLogging" name="enableAccessLogging">
+                    <span class="switchslider round"></span>
+                  </label>
+                </div>
+                <div class="help-block">
+                  <p>Bei Aktivierung werden alle Zugriffe auf den Indikator protokolliert</p>
+                </div>
+              </div>
+            </div>
+  </div>
+
+          <div class="row vertical-align">
+            <div class="col-md-12">
+              <div class="form-group">
+                <label>Zusammenfassung der Zugriffskonfiguration</label>
+                <div class="access-summary">
+                  <div class="summary-item">
+                    <strong>Eigentümer:</strong> {{ownerOrganization?.organizationName || 'Nicht ausgewählt'}}
+                  </div>
+                  <div class="summary-item">
+                    <strong>Öffentlicher Zugriff:</strong> {{isPublic ? 'Ja' : 'Nein'}}
+                  </div>
+                  <div class="summary-item" *ngIf="!isPublic">
+                    <strong>Zugriffsberechtigte Rollen:</strong> {{selectedRoles.length}} Rolle(n)
+                  </div>
+                  <div class="summary-item" *ngIf="enableTimeRestrictedAccess">
+                    <strong>Zeitliche Begrenzung:</strong> {{accessStartDate}} - {{accessEndDate}}
+                  </div>
+                  <div class="summary-item" *ngIf="enableGeographicRestriction">
+                    <strong>Geografische Begrenzung:</strong> {{allowedRegions.length || 0}} Region(en)
+                  </div>
+                  <div class="summary-item">
+                    <strong>Protokollierung:</strong> {{enableAccessLogging ? 'Aktiviert' : 'Deaktiviert'}}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <input type="button" name="previous" class="previous previous_addIndicator action-button-previous" value="Voriger Schritt" (click)="previousStep()"/>
+          <input type="button" name="next" class="next next_addIndicator action-button" value="Nächster Schritt" (click)="nextStep()"/>
+        </div>
+
+
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="modal-footer">
+  <button type="button" class="btn btn-default pull-left" (click)="cancel()">Schließen</button>
+  <button type="button" class="btn btn-info pull-left" (click)="onImportIndicatorAddMetadata()"
+    title="Importieren der Metadaten aus einer Datei">
+    <i class="fas fa-file-import"></i>&nbsp;&nbsp;Metadaten-Import
+    </button>
+  <input style="display:none;" class="pull-left" type="file" #metadataImportFile (change)="onMetadataFileSelected($event)"
+    id="indicatorMetadataImportFile" accept=".json,">
+  <button type="button" style="margin-left: 6px;" class="btn btn-info pull-left"
+    (click)="onExportIndicatorAddMetadata()" title="Exportieren der Metadaten in eine Datei">
+    <i class="fas fa-file-export"></i>&nbsp;&nbsp;Metadaten-Export
+    </button>
+
+  <button type="button" class="btn btn-success"
+    [disabled]="!datasetName || !metadata.description || !metadata.datasource || !metadata.contact || !metadata.updateInterval || !metadata.lastUpdate || !indicatorType || !indicatorCreationType || !indicatorInterpretation || datasetNameInvalid || !indicatorUnit || classBreaksInvalid"
+    (click)="addIndicator()">Indikator-Metadaten registrieren</button>
+  <button type="button" class="btn btn-danger" (click)="resetForm()">Zurücksetzen</button>
+  </div>
+
+<!-- Success Alert -->
+<div id="indicatorAddSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" *ngIf="successMessagePart"
+  class="alert alert-success alert-dismissable">
+  <button type="button" class="close" (click)="hideSuccessAlert()" aria-hidden="true">&times;</button>
+  <h4><i class="icon fa fa-check"></i>Indikator-Metadaten registriert</h4>
+  <p>Eine neuer Indikator mit Namen {{successMessagePart}} wurde in KomMonitor registriert und in die Übersichtstabelle eingetragen.</p>
+</div>
+
+<!-- Error Alert -->
+<div id="indicatorAddErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" *ngIf="errorMessagePart"
+  class="alert alert-danger alert-dismissable">
+  <button type="button" class="close" (click)="hideErrorAlert()" aria-hidden="true">&times;</button>
+  <h4><i class="icon fa fa-ban"></i>Registrierung gescheitert</h4>
+  Bei der Registrierung des Indikators ist ein Fehler aufgetreten. Fehlermeldung:
+  <br/>
+  <pre style="overflow:auto; max-height:500px;" [innerHTML]="errorMessagePart"></pre>
+  <br/>
+  <br/>
+</div>
+
+<!-- Metadata Import Error Alert -->
+<div id="indicatorAddMetadataImportErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" *ngIf="indicatorMetadataImportError"
+  class="alert alert-danger alert-dismissable">
+  <button type="button" class="close" (click)="hideMetadataErrorAlert()" aria-hidden="true">&times;</button>
+  <h4><i class="icon fa fa-ban"></i>Metadata Import gescheitert</h4>
+  Beim Import der Metadaten aus einer Datei ist ein Fehler aufgetreten. Fehlermeldung:
+  <br />
+  <pre>{{indicatorMetadataImportError}}</pre>
+  <br />
+  <br />
+  <p>Bitte stellen Sie sicher, dass folgendes JSON-Format eingehalten wird:</p>
+  <pre id="indicatorsAddMetadataPre" style="overflow:auto; max-height:500px;">{{indicatorMetadataStructure_pretty}}</pre>
+</div> 
