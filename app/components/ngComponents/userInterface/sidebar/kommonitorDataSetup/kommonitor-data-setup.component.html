@@ -240,27 +240,21 @@
 
 														<div *ngFor="let headlineIndicatorHierarchyItem of exchangeData.headlineIndicatorHierarchy">
 															<div class="list-group-item list-group-item-default list-group-item-grid-layout kommonitor-theme">
-																<p title="{{headlineIndicatorHierarchyItem.headlineIndicator.metadata.description}}" class="collapseTrigger" style="color: white;" (click)="isCollapsed_headlineIndicatorHierarchyItem = !isCollapsed_headlineIndicatorHierarchyItem"><i class="glyphicon glyphicon-chevron-right"></i>{{headlineIndicatorHierarchyItem.headlineIndicator.indicatorName}} </p>
+																<p title="{{headlineIndicatorHierarchyItem.headlineIndicator.metadata.description}}" class="collapseTrigger" style="color: white;" (click)="onHeadlineTopicClick(headlineIndicatorHierarchyItem.headlineIndicator.indicatorId)"><i class="glyphicon" [ngClass]="{'glyphicon-chevron-right':headlineTopicsCollapsed.includes(headlineIndicatorHierarchyItem.headlineIndicator.indicatorId), 'glyphicon-chevron-down':!headlineTopicsCollapsed.includes(headlineIndicatorHierarchyItem.headlineIndicator.indicatorId)}"></i>{{headlineIndicatorHierarchyItem.headlineIndicator.indicatorName}} </p>
 														    <i *ngIf="showFavSelection" class="glyphicon glyphicon-custom" [ngClass]="{'glyphicon-star':headlineIndicatorFavSelected(headlineIndicatorHierarchyItem.headlineIndicator.indicatorId), 'glyphicon-star-empty':!headlineIndicatorFavSelected(headlineIndicatorHierarchyItem.headlineIndicator.indicatorId)}" (click)="onHeadlineIndicatorFavClick(headlineIndicatorHierarchyItem.headlineIndicator.indicatorId)"></i>
                               </div>
 
-															<div class="list-group collapse indicatorInputForm" uib-collapse="isCollapsed_headlineIndicatorHierarchyItem">
+															<div class="list-group collapse" [ngClass]="{'in': !headlineTopicsCollapsed.includes(headlineIndicatorHierarchyItem.headlineIndicator.indicatorId)}">
 																<div class="list-group-item list-group-item-default style-headline-indicator">
 																	<div class="list-group-item-grid-layout">
-                                    <div>
-																		  <p style="cursor:pointer; color: white;" title="<b>{{headlineIndicatorHierarchyItem.headlineIndicator.indicatorName}}</b> [{{headlineIndicatorHierarchyItem.headlineIndicator.unit}}]" (click)="onClickHierarchyIndicator(headlineIndicatorHierarchyItem.headlineIndicator)"><i class="fas fa-tachometer-alt"></i> &nbsp;&nbsp;<b>{{headlineIndicatorHierarchyItem.headlineIndicator.indicatorName}}</b> [{{headlineIndicatorHierarchyItem.headlineIndicator.unit}}]</p>
-                                    </div>
-                                    <div>
-                                      <i *ngIf="showFavSelection" class="glyphicon glyphicon-custom" [ngClass]="{'glyphicon-star':headlineIndicatorFavSelected(headlineIndicatorHierarchyItem.headlineIndicator.indicatorId), 'glyphicon-star-empty':!headlineIndicatorFavSelected(headlineIndicatorHierarchyItem.headlineIndicator.indicatorId)}" (click)="onHeadlineIndicatorFavClick(headlineIndicatorHierarchyItem.headlineIndicator.indicatorId)"></i>
-                                    </div>
+                                    <p style="cursor:pointer; color: white;" title="<b>{{headlineIndicatorHierarchyItem.headlineIndicator.indicatorName}}</b> [{{headlineIndicatorHierarchyItem.headlineIndicator.unit}}]" (click)="onClickHierarchyIndicator(headlineIndicatorHierarchyItem.headlineIndicator)"><i class="fas fa-tachometer-alt"></i> &nbsp;&nbsp;<b>{{headlineIndicatorHierarchyItem.headlineIndicator.indicatorName}}</b> [{{headlineIndicatorHierarchyItem.headlineIndicator.unit}}]</p>
+                                    <i *ngIf="showFavSelection" class="glyphicon glyphicon-custom" [ngClass]="{'glyphicon-star':headlineIndicatorFavSelected(headlineIndicatorHierarchyItem.headlineIndicator.indicatorId), 'glyphicon-star-empty':!headlineIndicatorFavSelected(headlineIndicatorHierarchyItem.headlineIndicator.indicatorId)}" (click)="onHeadlineIndicatorFavClick(headlineIndicatorHierarchyItem.headlineIndicator.indicatorId)"></i>
                                   </div> 
 																</div>
 
 																<div class="list-group-item list-group-item-default style-simple-indicator" *ngFor="let baseIndicatorMetadata of headlineIndicatorHierarchyItem.baseIndicators" >
                                   <div class="list-group-item-grid-layout">
 																		<p style="cursor:pointer; color: black;" title="<b>{{baseIndicatorMetadata.indicatorName}}</b> [{{baseIndicatorMetadata.unit}}]" (click)="onClickHierarchyIndicator(baseIndicatorMetadata)"><i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>{{baseIndicatorMetadata.indicatorName}}</b> [{{baseIndicatorMetadata.unit}}]</p>
-																  </div>
-                                  <div>
                                     <i *ngIf="showFavSelection" class="glyphicon glyphicon-custom" [ngClass]="{'glyphicon-star':baseIndicatorFavSelected(baseIndicatorMetadata.indicatorId), 'glyphicon-star-empty':!baseIndicatorFavSelected(baseIndicatorMetadata.indicatorId)}" (click)="onBaseIndicatorFavClick(baseIndicatorMetadata.indicatorId)" style="color: black;"></i>
                                   </div>
 																</div>

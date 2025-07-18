@@ -18,6 +18,7 @@ export class KommonitorDataSetupComponent implements OnInit {
 
   exchangeData!:DataExchange;
   topicsCollapsed:string[] = [];
+  headlineTopicsCollapsed:string[] = [];
 
   isCollapsed_headlineIndicatorHierarchyItem = true;
 
@@ -158,6 +159,8 @@ export class KommonitorDataSetupComponent implements OnInit {
 
     this.preppedIndicatorTopics = this.prepareIndicatorTopicsRecursive(this.exchangeData.topicIndicatorHierarchy);
 
+    this.prepareHeadlineIndicatorTopics();
+
     if (this.exchangeData.displayableIndicators == null || this.exchangeData.displayableIndicators == undefined || this.exchangeData.displayableIndicators.length === 0){
       console.error("Kein darstellbarer Indikator konnte gefunden werden.");
 
@@ -259,6 +262,14 @@ export class KommonitorDataSetupComponent implements OnInit {
     this.addClickListenerToEachCollapseTrigger();
   }
 
+  prepareHeadlineIndicatorTopics() {
+    this.exchangeData.headlineIndicatorHierarchy.forEach( (elem:any) => {
+
+      if(!this.headlineTopicsCollapsed.includes(elem.headlineIndicator.indicatorId))
+        this.headlineTopicsCollapsed.push(elem.headlineIndicator.indicatorId);
+    });
+  }
+
   prepTopicsTree(tree, level, parent) {
     tree.forEach(entry => {
       entry.level = level;
@@ -291,14 +302,19 @@ export class KommonitorDataSetupComponent implements OnInit {
 
     return retTree;
   }
+  
+  onHeadlineTopicClick(topicID:string) {
+    if(this.headlineTopicsCollapsed.includes(topicID))
+      this.headlineTopicsCollapsed = this.headlineTopicsCollapsed.filter(e => e!=topicID);
+    else
+      this.headlineTopicsCollapsed.push(topicID);
+  }
 
   onTopicClick(topicID:string) {
     if(this.topicsCollapsed.includes(topicID))
       this.topicsCollapsed = this.topicsCollapsed.filter(e => e!=topicID);
     else
       this.topicsCollapsed.push(topicID);
-
-    console.log(this.topicsCollapsed)
   }
 
   addClickListenerToEachCollapseTrigger(){
@@ -597,7 +613,7 @@ export class KommonitorDataSetupComponent implements OnInit {
     this.exchangeData.selectedDate = availableDates[availableDates.length - 1];
 
     this.datesAsMs = this.createDatesFromIndicatorDates(this.exchangeData.selectedIndicator.applicableDates);
-   console.log(this.datesAsMs)
+
     this.dateSlider.noUiSlider.updateOptions({
       range: {
           'min': 0, // index from
@@ -654,7 +670,7 @@ export class KommonitorDataSetupComponent implements OnInit {
   }
 
   dateStringToMs(dateStr) {
-    console.log(dateStr)
+
     let parts = dateStr.split(' ');
     // get timezoneOffset w/o daylight saving time by referencing a specific date
     let offset = new Date('November 1, 2000 00:00:00').getTimezoneOffset()*60*1000;
@@ -800,14 +816,12 @@ export class KommonitorDataSetupComponent implements OnInit {
   }
 
   changeIndicatorDate([datePickerDate]){	
-    console.log(datePickerDate);
+
     if(this.exchangeData.selectedIndicator && this.exchangeData.selectedDate){
       this.loadingData = true;
       this.broadcastService.broadcast("showLoadingIconOnMap");
 
       console.log("Change selected date");
-
-      console.log(this.datesAsMs)
 
       // hier problem, wählt nicht das korrekte datum aus
      /*  this.dateSlider.noUiSlider.updateOptions({
