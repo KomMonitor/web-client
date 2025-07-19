@@ -91,6 +91,7 @@ import { IndicatorEditFeaturesModalComponent } from './components/ngComponents/a
 import { IndicatorEditIndicatorSpatialUnitRolesModalComponent } from './components/ngComponents/admin/adminIndicatorsManagement/indicatorEditIndicatorSpatialUnitRolesModal/indicator-edit-indicator-spatial-unit-roles-modal.component';
 import { IndicatorDeleteModalComponent } from './components/ngComponents/admin/adminIndicatorsManagement/indicatorDeleteModal/indicator-delete-modal.component';
 import { IndicatorBatchUpdateModalComponent } from './components/ngComponents/admin/adminIndicatorsManagement/indicatorBatchUpdateModal/indicator-batch-update-modal.component';
+import { AdminGeoresourcesManagementComponent } from './components/ngComponents/admin/adminGeoresourcesManagement/admin-georesources-management.component';
 
 
 // currently the AngularJS routing is still used as part of kommonitorClient module
@@ -191,7 +192,8 @@ declare var MathJax;
     IndicatorEditFeaturesModalComponent,
     IndicatorEditIndicatorSpatialUnitRolesModalComponent,
     IndicatorDeleteModalComponent,
-    IndicatorBatchUpdateModalComponent
+    IndicatorBatchUpdateModalComponent,
+    AdminGeoresourcesManagementComponent
   ],
   schemas: [
     CUSTOM_ELEMENTS_SCHEMA
@@ -315,6 +317,11 @@ export class AppModule implements DoBootstrap {
     angular.module('kommonitorAdmin')
       .directive('adminIndicatorsManagementNew', downgradeComponent({
         component: AdminIndicatorsManagementComponent
+      }) as angular.IDirectiveFactory);
+
+    angular.module('kommonitorAdmin')
+      .directive('adminGeoresourcesManagementNew', downgradeComponent({
+        component: AdminGeoresourcesManagementComponent
       }) as angular.IDirectiveFactory);
 
     console.log("registered downgraded Angular components for AngularJS usage");
