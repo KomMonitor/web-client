@@ -90,6 +90,7 @@ import { IndicatorEditMetadataModalComponent } from './components/ngComponents/a
 import { IndicatorEditFeaturesModalComponent } from './components/ngComponents/admin/adminIndicatorsManagement/indicatorEditFeaturesModal/indicator-edit-features-modal.component';
 import { IndicatorEditIndicatorSpatialUnitRolesModalComponent } from './components/ngComponents/admin/adminIndicatorsManagement/indicatorEditIndicatorSpatialUnitRolesModal/indicator-edit-indicator-spatial-unit-roles-modal.component';
 import { IndicatorDeleteModalComponent } from './components/ngComponents/admin/adminIndicatorsManagement/indicatorDeleteModal/indicator-delete-modal.component';
+import { IndicatorBatchUpdateModalComponent } from './components/ngComponents/admin/adminIndicatorsManagement/indicatorBatchUpdateModal/indicator-batch-update-modal.component';
 
 
 // currently the AngularJS routing is still used as part of kommonitorClient module
@@ -189,7 +190,8 @@ declare var MathJax;
     IndicatorEditMetadataModalComponent,
     IndicatorEditFeaturesModalComponent,
     IndicatorEditIndicatorSpatialUnitRolesModalComponent,
-    IndicatorDeleteModalComponent
+    IndicatorDeleteModalComponent,
+    IndicatorBatchUpdateModalComponent
   ],
   schemas: [
     CUSTOM_ELEMENTS_SCHEMA

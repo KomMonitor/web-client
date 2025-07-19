@@ -13,6 +13,7 @@ import { IndicatorAddModalComponent } from './indicatorAddModal/indicator-add-mo
 import { IndicatorEditMetadataModalComponent } from './indicatorEditMetadataModal/indicator-edit-metadata-modal.component';
 import { IndicatorEditFeaturesModalComponent } from './indicatorEditFeaturesModal/indicator-edit-features-modal.component';
 import { IndicatorDeleteModalComponent } from './indicatorDeleteModal/indicator-delete-modal.component';
+import { IndicatorBatchUpdateModalComponent } from './indicatorBatchUpdateModal/indicator-batch-update-modal.component';
 
 declare const $: any;
 declare const __env: any;
@@ -381,7 +382,7 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
     console.log('Opening indicator edit metadata modal...');
     try {
       const modalRef = this.modalService.open(IndicatorEditMetadataModalComponent, {
-        size: 'xl',
+        size: 'lg',
         backdrop: 'static',
         keyboard: false,
         container: 'body',
@@ -413,9 +414,11 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
   onClickEditFeatures(indicatorMetadata: any): void {
     try {
       const modalRef = this.modalService.open(IndicatorEditFeaturesModalComponent, {
-        size: 'xl',
+        size: 'lg',
         backdrop: 'static',
-        keyboard: false
+        keyboard: false,
+        container: 'body',
+        animation: false
       });
 
       const modalComponent = modalRef.componentInstance as IndicatorEditFeaturesModalComponent;
@@ -458,9 +461,11 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
 
   openDeleteIndicatorModal(indicatorDataset: any): void {
     const modalRef = this.modalService.open(IndicatorDeleteModalComponent, {
-      size: 'xl',
+      size: 'lg',
       backdrop: 'static',
-      keyboard: false
+      keyboard: false,
+      container: 'body',
+      animation: false
     });
 
     // Set the selected indicator in the modal
@@ -475,8 +480,35 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
   }
 
   onClickBatchUpdate(): void {
-    // TODO: Implement batch update modal
-    console.log('Batch update clicked');
+    console.log('Opening indicator batch update modal...');
+    try {
+      const modalRef = this.modalService.open(IndicatorBatchUpdateModalComponent, {
+        size: 'lg',
+        backdrop: 'static',
+        keyboard: false,
+        container: 'body',
+        animation: false
+      });
+
+      // Pass the modal reference to the component
+      const modalComponent = modalRef.componentInstance as IndicatorBatchUpdateModalComponent;
+      modalComponent.modalRef = modalRef;
+
+      console.log('Batch update modal reference created:', modalRef);
+
+      modalRef.result.then((result) => {
+        console.log('Batch update modal result:', result);
+        if (result) {
+          // Modal was closed successfully, refresh the table
+          this.initializeOrRefreshOverviewTable();
+        }
+      }).catch((error) => {
+        console.log('Batch update modal error:', error);
+        // Modal dismissed
+      });
+    } catch (error) {
+      console.error('Error opening batch update modal:', error);
+    }
   }
 
   onClickDeleteSelected(): void {
