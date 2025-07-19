@@ -225,12 +225,12 @@ export class AppModule implements DoBootstrap {
     const savedLanguage = localStorage.getItem('preferredLanguage');
     
     // Use saved language if available, otherwise use browser language or default to 'de'
-    if (savedLanguage && ['de', 'en'].includes(savedLanguage)) {
+    if (savedLanguage && ['de', 'de-at', 'de-li', 'de-lu', 'de-ch', 'en'].includes(savedLanguage)) {
       this.translateService.use(savedLanguage);
     } else {
       // Try to use browser language if it's supported
       const browserLang = this.translateService.getBrowserLang();
-      if (browserLang && ['de', 'en'].includes(browserLang)) {
+      if (browserLang && ['de', 'de-at', 'de-li', 'de-lu', 'de-ch', 'en'].includes(browserLang)) {
         this.translateService.use(browserLang);
         localStorage.setItem('preferredLanguage', browserLang);
       } else {

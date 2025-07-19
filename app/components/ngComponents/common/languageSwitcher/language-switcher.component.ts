@@ -13,8 +13,12 @@ export class LanguageSwitcherComponent implements OnInit, OnDestroy, AfterViewIn
   
   currentLanguage: string = 'de';
   supportedLanguages = [
-    { code: 'de', name: 'Deutsch' },
-    { code: 'en', name: 'English' }
+    { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
+    { code: 'de-at', name: 'Deutsch (Österreich)', flag: '🇦🇹' },
+    { code: 'de-li', name: 'Deutsch (Liechtenstein)', flag: '🇱🇮' },
+    { code: 'de-lu', name: 'Deutsch (Luxemburg)', flag: '🇱🇺' },
+    { code: 'de-ch', name: 'Deutsch (Schweiz)', flag: '🇨🇭' },
+    { code: 'en', name: 'English', flag: '🇺🇸' }
   ];
 
   private languageChangeSubscription: Subscription | undefined;
@@ -39,7 +43,7 @@ export class LanguageSwitcherComponent implements OnInit, OnDestroy, AfterViewIn
 
     // Load saved language preference
     const savedLanguage = localStorage.getItem('preferredLanguage');
-    if (savedLanguage && ['de', 'en'].includes(savedLanguage) && savedLanguage !== this.currentLanguage) {
+    if (savedLanguage && ['de', 'de-at', 'de-li', 'de-lu', 'de-ch', 'en'].includes(savedLanguage) && savedLanguage !== this.currentLanguage) {
       this.changeLanguage(savedLanguage);
     }
 
@@ -84,6 +88,11 @@ export class LanguageSwitcherComponent implements OnInit, OnDestroy, AfterViewIn
   getCurrentLanguageName(): string {
     const lang = this.supportedLanguages.find(l => l.code === this.currentLanguage);
     return lang ? lang.name : 'Deutsch';
+  }
+
+  getCurrentLanguageFlag(): string {
+    const lang = this.supportedLanguages.find(l => l.code === this.currentLanguage);
+    return lang ? lang.flag : '🇩🇪';
   }
 
   private testTranslationService(): void {

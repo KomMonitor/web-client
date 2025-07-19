@@ -2,6 +2,7 @@
   <div class="dropdown">
     <button class="btn btn-link dropdown-toggle" type="button" id="languageDropdown" 
             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      <span class="flag">{{ getCurrentLanguageFlag() }}</span>
       <span class="language-name">{{ getCurrentLanguageName() }}</span>
     </button>
     <div class="dropdown-menu" aria-labelledby="languageDropdown">
@@ -9,6 +10,7 @@
          *ngFor="let lang of supportedLanguages" 
          (click)="changeLanguage(lang.code); $event.preventDefault()"
          [class.active]="lang.code === currentLanguage">
+        <span class="flag">{{ lang.flag }}</span>
         <span class="language-name">{{ lang.name }}</span>
       </a>
     </div>

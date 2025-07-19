@@ -11,6 +11,9 @@
   border-radius: 4px;
   background-color: #fff;
   font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .language-switcher .dropdown-toggle:hover {
@@ -21,6 +24,12 @@
 .language-switcher .language-name {
   font-weight: 500;
   font-size: 14px;
+  margin-left: 8px;
+}
+
+.language-switcher .flag {
+  font-size: 16px;
+  margin-right: 5px;
 }
 
 .language-switcher .dropdown-menu {
@@ -37,6 +46,7 @@
   text-decoration: none;
   display: flex;
   align-items: center;
+  gap: 8px;
 }
 
 .language-switcher .dropdown-item:hover {
