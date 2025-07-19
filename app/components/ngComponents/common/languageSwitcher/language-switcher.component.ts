@@ -18,7 +18,7 @@ export class LanguageSwitcherComponent implements OnInit, OnDestroy, AfterViewIn
     { code: 'de-li', name: 'Deutsch (Liechtenstein)', flag: '🇱🇮' },
     { code: 'de-lu', name: 'Deutsch (Luxemburg)', flag: '🇱🇺' },
     { code: 'de-ch', name: 'Deutsch (Schweiz)', flag: '🇨🇭' },
-    { code: 'en', name: 'English', flag: '🇺🇸' }
+    { code: 'en', name: 'English', flag: '🇬🇧' }
   ];
 
   private languageChangeSubscription: Subscription | undefined;

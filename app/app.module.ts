@@ -296,6 +296,16 @@ export class AppModule implements DoBootstrap {
         component: AdminDashboardManagementComponent
       }) as angular.IDirectiveFactory);
 
+    angular.module('kommonitorAdmin')
+      .directive('adminLanguageSwitcher', downgradeComponent({
+        component: LanguageSwitcherComponent
+      }) as angular.IDirectiveFactory);
+
+    angular.module('kommonitorUserInterface')
+      .directive('userLanguageSwitcher', downgradeComponent({
+        component: LanguageSwitcherComponent
+      }) as angular.IDirectiveFactory);
+
     console.log("registered downgraded Angular components for AngularJS usage");
   }
 

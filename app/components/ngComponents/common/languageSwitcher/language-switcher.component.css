@@ -3,6 +3,21 @@
   margin-left: 10px;
 }
 
+/* Home page header alignment */
+#header .language-switcher {
+  float: right;
+  margin-right: 1%;
+  margin-top: 0.5%;
+  margin-left: 0;
+  /* Debug styling to ensure visibility */
+  background-color: #ffeb3b !important;
+  border: 3px solid #f44336 !important;
+  padding: 10px !important;
+  color: #000 !important;
+  font-weight: bold !important;
+  z-index: 9999 !important;
+}
+
 .language-switcher .dropdown-toggle {
   color: #333;
   text-decoration: none;
