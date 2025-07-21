@@ -9,6 +9,7 @@ import { KommonitorGeoresourceDataGridHelperService } from '../../../../services
 import { AgGridAngular } from 'ag-grid-angular';
 import { GeoresourceAddModalComponent } from './georesourceAddModal/georesource-add-modal.component';
 import { GeoresourceBatchUpdateModalComponent } from './georesourceBatchUpdateModal/georesource-batch-update-modal.component';
+import { GeoresourceEditMetadataModalComponent } from './georesourceEditMetadataModal/georesource-edit-metadata-modal.component';
 
 // Declare jQuery for AdminLTE
 declare const $: any;
@@ -284,8 +285,25 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy, 
   }
 
   public onClickEditMetadata(georesourceDataset: any): void {
-    // submit selected georesource to modal controller
-    this.broadcastService.broadcast('onEditGeoresourceMetadata', georesourceDataset);
+    const modalRef = this.modalService.open(GeoresourceEditMetadataModalComponent, {
+      size: 'lg',
+      backdrop: 'static',
+      keyboard: false,
+      container: 'body',
+      animation: false
+    });
+
+    // Pass the georesource dataset to the modal
+    modalRef.componentInstance.currentGeoresourceDataset = georesourceDataset;
+    
+    modalRef.result.then((result) => {
+      if (result) {
+        // Handle successful edit
+        this.refreshGeoresourceOverviewTable('edit', georesourceDataset.georesourceId);
+      }
+    }, (reason) => {
+      // Modal dismissed
+    });
   }
 
   public onClickEditFeatures(georesourceDataset: any): void {
