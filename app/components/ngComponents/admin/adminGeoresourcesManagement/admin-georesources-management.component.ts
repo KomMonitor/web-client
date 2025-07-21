@@ -11,6 +11,7 @@ import { GeoresourceAddModalComponent } from './georesourceAddModal/georesource-
 import { GeoresourceBatchUpdateModalComponent } from './georesourceBatchUpdateModal/georesource-batch-update-modal.component';
 import { GeoresourceEditMetadataModalComponent } from './georesourceEditMetadataModal/georesource-edit-metadata-modal.component';
 import { GeoresourceEditFeaturesModalComponent } from './georesourceEditFeaturesModal/georesource-edit-features-modal.component';
+import { GeoresourceEditUserRolesModalComponent } from './georesourceEditUserRolesModal/georesource-edit-user-roles-modal.component';
 
 // Declare jQuery for AdminLTE
 declare const $: any;
@@ -330,8 +331,23 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy, 
   }
 
   public onClickEditUserRoles(georesourceDataset: any): void {
-    // submit selected georesource to modal controller
-    this.broadcastService.broadcast('onEditGeoresourcesUserRoles', georesourceDataset);
+    const modalRef = this.modalService.open(GeoresourceEditUserRolesModalComponent, {
+      size: 'xl',
+      backdrop: 'static',
+      keyboard: false,
+      container: 'body',
+      animation: false
+    });
+    modalRef.componentInstance.currentGeoresourceDataset = georesourceDataset;
+    
+    modalRef.result.then((result) => {
+      if (result) {
+        // Handle successful edit
+        this.refreshGeoresourceOverviewTable('edit', georesourceDataset.georesourceId);
+      }
+    }, (reason) => {
+      // Modal dismissed
+    });
   }
 
   public onClickDeleteGeoresource(georesourceDataset: any): void {

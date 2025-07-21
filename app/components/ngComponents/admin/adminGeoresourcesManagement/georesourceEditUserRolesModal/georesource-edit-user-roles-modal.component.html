@@ -1,0 +1,151 @@
+<div class="modal-header">
+  <button type="button" class="close" (click)="cancel()" aria-label="Close">
+    <span aria-hidden="true">&times;</span>
+  </button>
+  <h4 class="modal-title">Zugriffsschutz und Eigentuümerschaft der Georesource <i><b>{{currentGeoresourceDataset?.datasetName}}</b></i> editieren</h4>
+</div>
+
+<div class="modal-body">
+  <div align="center">
+    <div class="loading-overlay-admin-panel" [class.ng-hide]="!loadingData">
+      <span class="glyphicon glyphicon-refresh icon-spin"></span>
+    </div>
+  </div>
+
+  <!-- MultiStep Form -->
+  <div class="row">
+    <div class="col-md-12">
+      <form role="form" class="multiStepForm form-group" id="georesourceEditUserRolesForm" style="margin-bottom: 0px;">
+        <!-- progressbar -->
+        <div>
+          <ul id="progressbar">
+            <li style="width: 50%;" [class.active]="currentStep === 1" (click)="goToStep(1)">Zugriffsschutz</li>
+            <li style="width: 50%;" [class.active]="currentStep === 2" (click)="goToStep(2)">Eigentuümerschaft</li>
+          </ul>
+        </div>
+        <!-- fieldsets -->
+
+        <fieldset *ngIf="kommonitorDataExchangeService.enableKeycloakSecurity" [style.display]="currentStep === 1 ? 'block' : 'none'">
+          <h2 class="fs-title">Zugriffsschutz</h2>
+          <h3 class="fs-subtitle">Vergabe der Zugriffsrechte auf Datensatz-Metadaten und -Features pro Organisationseinheit</h3>
+
+          <p>Zugriffsrechte (lesen, editieren) müssen explizit vergeben werden</p>
+
+          <div class="row">
+            <div class="col-md-12 col-sm-12 col-xs-12" [hidden]="permissions.length === 0">
+              <div class="form-group vertical-align">
+                <label class="margin-right">Zeige nur zugewiesene Rechte</label>
+                <label class="switch">
+                  <input type="checkbox" value="activeRolesOnly" [(ngModel)]="activeRolesOnly" (ngModelChange)="onActiveRolesOnlyChange()" [disabled]="permissions.length === 0">
+                  <span class="switchslider round"></span>
+                </label>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <label>Öffentliche Lesefreigabe*</label>
+              <label class="switch">
+                <input type="checkbox" [(ngModel)]="currentGeoresourceDataset.isPublic">
+                <span class="switchslider round"></span>
+              </label>
+              <div class="help-block">
+                <p>
+                  Öffentlich freigegebene Datensätze können ohne Login abgerufen werden.
+                </p>
+              </div>
+            </div>
+            <div class="col-md-6 col-sm-6 col-xs-12">
+              <ag-grid-angular
+                #roleManagementTable
+                id="georesourceEditRoleManagementTable"
+                style="height: 45vh; width: 100%;"
+                class="ag-theme-alpine"
+                [gridOptions]="roleManagementTableOptions"
+                [rowData]="roleManagementTableOptions.rowData || []"
+                [columnDefs]="roleManagementTableOptions.columnDefs || []"
+                (gridReady)="onGridReady($event)"
+                (firstDataRendered)="onFirstDataRendered($event)"
+                (columnResized)="onColumnResized($event)">
+              </ag-grid-angular>
+            </div>
+            <div class="col-md-3">
+              <div class="alert alert-info">
+                Als Eigentümer-Organisation des Datensatzes können Sie Lese- und Editier-Rechte an die eigene und weitere Organisationseinheiten vergeben.
+              </div>
+            </div>
+          </div>
+
+          <input type="button" name="previous" class="previous previous_editGeoresourceRoles action-button-previous" value="Voriger Schritt" (click)="previousStep()"/>
+        </fieldset>
+
+        <fieldset [style.display]="currentStep === 2 ? 'block' : 'none'">
+          <h2 class="fs-title">Eigentuümerschaft eines Datensatzes</h2>
+          <h3 class="fs-subtitle">Übetragen der Eigentuümerschaft von Datensätzen mit allen dazugehörigen Rechten</h3>
+          <div class="alert alert-danger">
+            Bitte beachten Sie, dass Sie beim Übertragen einer Eigentuümerschaft einer Resource unter Umständen jegliche Rechte eben dieser verlieren.<br>Die Rechte werden unwiderruflich und sofort an den neuen Eigentümer übertragen.
+          </div>
+          <div class="row">
+            <div class="col-md-3"></div>
+            <div class="col-md-6 col-sm-6 col-xs-12">
+              <label for="targetUserRoleSelect"><b>Eigentuümerschaft übertragen an</b></label>
+              <div class="input-group">
+                <span class="input-group-addon"><i class="fas fa-filter"></i></span>
+                <input type="text" class="form-control input-sm" placeholder="Stichwortfilter" [(ngModel)]="ownerOrgFilter">
+              </div>
+              <select *ngIf="kommonitorDataExchangeService.checkAdminPermission()" 
+                      id="targetUserRoleSelect" 
+                      [(ngModel)]="ownerOrganization" 
+                      class="form-control" 
+                      (ngModelChange)="onChangeOwner(ownerOrganization)" 
+                      required>
+                <option [ngValue]="undefined"><b>Eigentuümerschaft nicht übertragen</b></option>
+                <option *ngFor="let org of getFilteredOrganizations()" [ngValue]="org.organizationalUnitId">{{org.name}}</option>
+              </select>
+              <select *ngIf="!kommonitorDataExchangeService.checkAdminPermission()" 
+                      id="targetUserRoleSelect" 
+                      [(ngModel)]="ownerOrganization" 
+                      class="form-control" 
+                      (ngModelChange)="onChangeOwner(ownerOrganization)" 
+                      required>
+                <option [ngValue]="undefined"><b>Eigentuümerschaft nicht übertragen</b></option>
+                <option *ngFor="let org of getFilteredCreatorRights()" [ngValue]="org.organizationalUnitId">{{org.name}}</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label>aktuelle Eigentümer-Organisationseinheit</label>
+              <p>{{getCurrentOwnerName()}}</p>
+              <div class="help-block" style="color: red" *ngIf="ownerOrganization !== currentGeoresourceDataset?.ownerId">
+                <p>
+                  ACHTUNG: Sie sind dabei, die Eigentuümerschaft an diesem Datensatz zu ändern.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <input type="button" name="previous" class="previous previous_editGeoresourceRoles action-button-previous" value="Voriger Schritt" (click)="previousStep()"/>
+        </fieldset>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="modal-footer">
+  <button type="button" class="btn btn-default pull-left" (click)="cancel()">Schließen</button>
+  <button type="button" class="btn btn-success" (click)="editGeoresourceEditUserRolesForm()">Aktualisieren</button>
+  <button type="button" class="btn btn-danger" (click)="resetGeoresourceEditUserRolesForm()">Zurücksetzen</button>
+</div>
+
+<!-- Success Alert -->
+<div *ngIf="successMessage" style="position: absolute; bottom: 0px; width: 100%;" class="alert alert-success alert-dismissable">
+  <button type="button" class="close" (click)="hideSuccessAlert()" aria-hidden="true">&times;</button>
+  <h4><i class="icon fa fa-check"></i>Zugriffsschutz und Eigentuümerschaft aktualisiert</h4>
+  Erfolgreiche Aktualisierung des Zugriffsschutzes und der Eigentuümerschaft für die Georessource '{{successMessagePart}}'
+</div>
+
+<!-- Error Alert -->
+<div *ngIf="errorMessage || errorMessagePart" style="position: absolute; bottom: 0px; width: 100%;" class="alert alert-danger alert-dismissable">
+  <button type="button" class="close" (click)="hideErrorAlert()" aria-hidden="true">&times;</button>
+  <h4><i class="icon fa fa-ban"></i>Aktualisierung gescheitert</h4>
+  Bei der Aktualisierung des Zugriffsschutzes und der Eigentuümerschaft ist ein Fehler aufgetreten. Fehlermeldung:
+  <br />
+  <pre style="overflow:auto; max-height:500px;" [innerHTML]="errorMessagePart"></pre>
+</div> 
