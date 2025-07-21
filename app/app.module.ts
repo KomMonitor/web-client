@@ -97,6 +97,7 @@ import { GeoresourceBatchUpdateModalComponent } from './components/ngComponents/
 import { GeoresourceEditMetadataModalComponent } from './components/ngComponents/admin/adminGeoresourcesManagement/georesourceEditMetadataModal/georesource-edit-metadata-modal.component';
 import { GeoresourceEditFeaturesModalComponent } from './components/ngComponents/admin/adminGeoresourcesManagement/georesourceEditFeaturesModal/georesource-edit-features-modal.component';
 import { GeoresourceEditUserRolesModalComponent } from './components/ngComponents/admin/adminGeoresourcesManagement/georesourceEditUserRolesModal/georesource-edit-user-roles-modal.component';
+import { GeoresourceDeleteModalComponent } from './components/ngComponents/admin/adminGeoresourcesManagement/georesourceDeleteModal/georesource-delete-modal.component';
 
 
 // currently the AngularJS routing is still used as part of kommonitorClient module
@@ -203,7 +204,8 @@ declare var MathJax;
     GeoresourceBatchUpdateModalComponent,
     GeoresourceEditMetadataModalComponent,
     GeoresourceEditFeaturesModalComponent,
-    GeoresourceEditUserRolesModalComponent
+    GeoresourceEditUserRolesModalComponent,
+    GeoresourceDeleteModalComponent
   ],
   schemas: [
     CUSTOM_ELEMENTS_SCHEMA
@@ -357,6 +359,11 @@ export class AppModule implements DoBootstrap {
     angular.module('kommonitorAdmin')
       .directive('georesourceEditUserRolesModalNew', downgradeComponent({
         component: GeoresourceEditUserRolesModalComponent
+      }) as angular.IDirectiveFactory);
+
+    angular.module('kommonitorAdmin')
+      .directive('georesourceDeleteModalNew', downgradeComponent({
+        component: GeoresourceDeleteModalComponent
       }) as angular.IDirectiveFactory);
 
     console.log("registered downgraded Angular components for AngularJS usage");
