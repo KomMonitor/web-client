@@ -9,7 +9,7 @@
   <!-- Content Header (Page header) -->
   <section class="content-header">
     <h1>
-      Verwalten der Geodaten
+      Pranjal Verwalten der Geodaten
       <small>Info</small>
     </h1>
 
@@ -37,7 +37,7 @@
 
       <!-- edit features -->
 
-      <!-- delete b timestamp -->
+      <!-- delete datasets -->
     </div>
   </section>
 
@@ -65,7 +65,30 @@
 
         <div class="admin-table-wrapper">
 
-          <div id="poiOverviewTable" style="height: 70vh;" class="ag-theme-alpine"></div>	              
+          <ag-grid-angular 
+            #poiGrid
+            class="ag-theme-alpine" 
+            style="height: 70vh; width: 100%;"
+            [rowData]="[]"
+            [columnDefs]="[]"
+            [gridOptions]="poiGridOptions"
+            [defaultColDef]="{
+              editable: false,
+              sortable: true,
+              filter: true,
+              floatingFilter: true,
+              resizable: true,
+              wrapText: true,
+              autoHeight: true
+            }"
+            [suppressRowClickSelection]="true"
+            [rowSelection]="'multiple'"
+            [pagination]="true"
+            [paginationPageSize]="10"
+            [enableCellTextSelection]="true"
+            [ensureDomOrder]="true"
+            [suppressColumnVirtualisation]="true">
+          </ag-grid-angular>	              
 
         </div>
       </div>
@@ -90,7 +113,30 @@
 
         <div class="admin-table-wrapper">
 
-          <div id="loiOverviewTable" style="height: 70vh;" class="ag-theme-alpine"></div>	 										
+          <ag-grid-angular 
+            #loiGrid
+            class="ag-theme-alpine" 
+            style="height: 70vh; width: 100%;"
+            [rowData]="[]"
+            [columnDefs]="[]"
+            [gridOptions]="loiGridOptions"
+            [defaultColDef]="{
+              editable: false,
+              sortable: true,
+              filter: true,
+              floatingFilter: true,
+              resizable: true,
+              wrapText: true,
+              autoHeight: true
+            }"
+            [suppressRowClickSelection]="true"
+            [rowSelection]="'multiple'"
+            [pagination]="true"
+            [paginationPageSize]="10"
+            [enableCellTextSelection]="true"
+            [ensureDomOrder]="true"
+            [suppressColumnVirtualisation]="true">
+          </ag-grid-angular>	 										
 
         </div>
       </div>
@@ -115,7 +161,30 @@
 
         <div class="admin-table-wrapper">
 
-          <div id="aoiOverviewTable" style="height: 70vh;" class="ag-theme-alpine"></div>	 
+          <ag-grid-angular 
+            #aoiGrid
+            class="ag-theme-alpine" 
+            style="height: 70vh; width: 100%;"
+            [rowData]="[]"
+            [columnDefs]="[]"
+            [gridOptions]="aoiGridOptions"
+            [defaultColDef]="{
+              editable: false,
+              sortable: true,
+              filter: true,
+              floatingFilter: true,
+              resizable: true,
+              wrapText: true,
+              autoHeight: true
+            }"
+            [suppressRowClickSelection]="true"
+            [rowSelection]="'multiple'"
+            [pagination]="true"
+            [paginationPageSize]="10"
+            [enableCellTextSelection]="true"
+            [ensureDomOrder]="true"
+            [suppressColumnVirtualisation]="true">
+          </ag-grid-angular>	 
 
         </div>
       </div>

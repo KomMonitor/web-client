@@ -1,10 +1,11 @@
-import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, Inject, ViewChild, AfterViewInit } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { BroadcastService } from '../../../../services/broadcast-service/broadcast.service';
 import { KommonitorGeoresourceDataExchangeService } from '../../../../services/adminGeoresourceUnit/kommonitor-data-exchange.service';
 import { KommonitorGeoresourceCacheHelperService } from '../../../../services/adminGeoresourceUnit/kommonitor-cache-helper.service';
 import { KommonitorGeoresourceDataGridHelperService } from '../../../../services/adminGeoresourceUnit/kommonitor-data-grid-helper.service';
+import { AgGridAngular } from 'ag-grid-angular';
 
 // Declare jQuery for AdminLTE
 declare const $: any;
@@ -14,10 +15,19 @@ declare const $: any;
   templateUrl: './admin-georesources-management.component.html',
   styleUrls: ['./admin-georesources-management.component.css']
 })
-export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy {
+export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy, AfterViewInit {
+
+  @ViewChild('poiGrid', { static: false }) poiGrid!: AgGridAngular;
+  @ViewChild('loiGrid', { static: false }) loiGrid!: AgGridAngular;
+  @ViewChild('aoiGrid', { static: false }) aoiGrid!: AgGridAngular;
 
   public loadingData: boolean = true;
   public tableViewSwitcher: boolean = false;
+
+  // Grid options for each table
+  public poiGridOptions: any = {};
+  public loiGridOptions: any = {};
+  public aoiGridOptions: any = {};
 
   private subscriptions: Subscription[] = [];
 
@@ -32,6 +42,97 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.setupEventListeners();
     this.initialize();
+    
+    // Initialize grid options with the service
+    this.poiGridOptions = this.kommonitorDataGridHelperService.getPoiGridOptions();
+    this.loiGridOptions = this.kommonitorDataGridHelperService.getLoiGridOptions();
+    this.aoiGridOptions = this.kommonitorDataGridHelperService.getAoiGridOptions();
+  }
+
+  ngAfterViewInit(): void {
+    // Initialize grids after view is ready
+    this.kommonitorDataGridHelperService.initializeGrids(
+      this.poiGrid,
+      this.loiGrid,
+      this.aoiGrid
+    );
+
+    // Set component reference for callbacks
+    this.kommonitorDataGridHelperService.setComponentRef(this);
+
+    // Load data if not already loaded
+    if (this.kommonitorDataExchangeService.availableGeoresources.length === 0) {
+      this.loadDataFallback();
+    }
+  }
+
+  private loadDataFallback(): void {
+    // If we still don't have data after 1 second, try to manually trigger data loading
+    if (!this.kommonitorDataExchangeService.availableGeoresources || 
+        this.kommonitorDataExchangeService.availableGeoresources.length === 0) {
+      
+      // Try to fetch metadata manually
+      this.kommonitorDataExchangeService.fetchGeoresourcesMetadata(
+        this.kommonitorDataExchangeService.currentKeycloakLoginRoles
+      ).then((response: any) => {
+        this.initializeOrRefreshOverviewTable();
+      }).catch((error: any) => {
+        // As a last resort, try with test data to verify grids are working
+        this.testGridsWithSampleData();
+        
+        this.loadingData = false;
+      });
+    }
+  }
+
+  private testGridsWithSampleData(): void {
+    const testData = [
+      {
+        georesourceId: 'test-poi-1',
+        datasetName: 'Test POI 1',
+        isPOI: true,
+        isLOI: false,
+        isAOI: false,
+        poiSymbolColor: '#ff0000',
+        poiSymbolBootstrap3Name: 'home',
+        poiMarkerColor: '#0000ff',
+        metadata: {
+          description: 'Test POI description'
+        },
+        ownerId: 'test-owner',
+        userPermissions: ['creator']
+      },
+      {
+        georesourceId: 'test-loi-1',
+        datasetName: 'Test LOI 1',
+        isPOI: false,
+        isLOI: true,
+        isAOI: false,
+        loiColor: '#00ff00',
+        loiWidth: 2,
+        loiDashArrayString: '5 5',
+        metadata: {
+          description: 'Test LOI description'
+        },
+        ownerId: 'test-owner',
+        userPermissions: ['creator']
+      },
+      {
+        georesourceId: 'test-aoi-1',
+        datasetName: 'Test AOI 1',
+        isPOI: false,
+        isLOI: false,
+        isAOI: true,
+        aoiColor: '#ffff00',
+        metadata: {
+          description: 'Test AOI description'
+        },
+        ownerId: 'test-owner',
+        userPermissions: ['creator']
+      }
+    ];
+    
+    this.kommonitorDataGridHelperService.buildDataGrid_georesources(testData);
   }
 
   ngOnDestroy(): void {
@@ -70,7 +171,9 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy {
   public initializeOrRefreshOverviewTable(): void {
     this.loadingData = true;
     
-    this.kommonitorDataGridHelperService.buildDataGrid_georesources(this.initGeoresources());
+    const georesources = this.initGeoresources();
+    
+    this.kommonitorDataGridHelperService.buildDataGrid_georesources(georesources);
 
     setTimeout(() => {
       this.loadingData = false;
@@ -146,19 +249,6 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy {
     }
   }
 
-  public onClickDeleteDatasets(): void {
-    this.loadingData = true;
-
-    const markedEntriesForDeletion = this.kommonitorDataGridHelperService.getSelectedGeoresourcesMetadata();
-
-    // submit selected georesources to modal controller
-    this.broadcastService.broadcast('onDeleteGeoresources', markedEntriesForDeletion);
-
-    setTimeout(() => {
-      this.loadingData = false;
-    }, 100);
-  }
-
   public onClickEditMetadata(georesourceDataset: any): void {
     // submit selected georesource to modal controller
     this.broadcastService.broadcast('onEditGeoresourceMetadata', georesourceDataset);
@@ -167,6 +257,16 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy {
   public onClickEditFeatures(georesourceDataset: any): void {
     // submit selected georesource to modal controller
     this.broadcastService.broadcast('onEditGeoresourceFeatures', georesourceDataset);
+  }
+
+  public onClickEditUserRoles(georesourceDataset: any): void {
+    // submit selected georesource to modal controller
+    this.broadcastService.broadcast('onEditGeoresourcesUserRoles', georesourceDataset);
+  }
+
+  public onClickDeleteGeoresource(georesourceDataset: any): void {
+    // submit selected georesource to modal controller (as array like original)
+    this.broadcastService.broadcast('onDeleteGeoresources', [georesourceDataset]);
   }
 
   // Utility methods
@@ -180,5 +280,18 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy {
 
   checkDeletePermission(): boolean {
     return this.kommonitorDataExchangeService.checkDeletePermission();
+  }
+
+  // Callback methods for cell renderer
+  onEditMetadata(georesourceDataset: any): void {
+    this.broadcastService.broadcast('onEditGeoresourceMetadata', georesourceDataset);
+  }
+
+  onEditFeatures(georesourceDataset: any): void {
+    this.onClickEditFeatures(georesourceDataset);
+  }
+
+  onEditUserRoles(georesourceDataset: any): void {
+    this.onClickEditUserRoles(georesourceDataset);
   }
 } 

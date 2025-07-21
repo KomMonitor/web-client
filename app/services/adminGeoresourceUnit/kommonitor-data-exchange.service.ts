@@ -89,4 +89,32 @@ export class KommonitorGeoresourceDataExchangeService {
   getBaseUrlToKomMonitorDataAPI_spatialResource(): string {
     return this.angularJsDataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() || '';
   }
+
+  /**
+   * Get role title - delegates to AngularJS service
+   */
+  getRoleTitle(roleId: string): string {
+    return this.angularJsDataExchangeService.getRoleTitle(roleId);
+  }
+
+  /**
+   * Get topic hierarchy display string - delegates to AngularJS service
+   */
+  getTopicHierarchyDisplayString(topicReference: any): string {
+    return this.angularJsDataExchangeService.getTopicHierarchyDisplayString(topicReference);
+  }
+
+  /**
+   * Get all allowed roles string - delegates to AngularJS service
+   */
+  getAllowedRolesString(permissions: any): string {
+    return this.angularJsDataExchangeService.getAllowedRolesString(permissions);
+  }
+
+  /**
+   * Get LOI dash SVG from string value - delegates to AngularJS service
+   */
+  getLoiDashSvgFromStringValue(dashArrayString: string): string {
+    return this.angularJsDataExchangeService.getLoiDashSvgFromStringValue(dashArrayString);
+  }
 } 
