@@ -1,0 +1,289 @@
+/* Georesource Edit Features Modal Styles */
+
+/* Multi-step form styles */
+.multiStepForm {
+  position: relative;
+  margin: 0 auto;
+}
+
+.multiStepForm fieldset {
+  background: white;
+  border: 0 none;
+  border-radius: 0.5rem;
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0;
+  padding-bottom: 20px;
+  position: relative;
+}
+
+.multiStepForm fieldset:not(:first-of-type) {
+  display: none;
+}
+
+.multiStepForm .fs-title {
+  font-size: 15px;
+  text-transform: uppercase;
+  color: #2C3E50;
+  margin-bottom: 10px;
+}
+
+.multiStepForm .fs-subtitle {
+  font-weight: normal;
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 20px;
+}
+
+/* Progress bar */
+#progressbar {
+  margin-bottom: 30px;
+  overflow: hidden;
+  color: lightgrey;
+  padding-left: 0;
+}
+
+#progressbar li {
+  list-style-type: none;
+  font-size: 11px;
+  width: 33.33%;
+  float: left;
+  position: relative;
+  font-weight: 400;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+#progressbar li:hover {
+  color: #27AE60;
+}
+
+#progressbar li:hover:before {
+  background: #27AE60;
+  transform: scale(1.1);
+}
+
+#progressbar li:before {
+  width: 24px;
+  height: 24px;
+  line-height: 20px;
+  display: block;
+  font-size: 10px;
+  color: #ffffff;
+  background: lightgray;
+  border-radius: 50%;
+  margin: 0 auto 3px auto;
+  padding: 2px;
+  transition: all 0.3s ease;
+}
+
+#progressbar li.active:before,
+#progressbar li.active:after {
+  background: #27AE60;
+}
+
+/* Action buttons */
+.action-button {
+  width: 100px;
+  background: #27AE60;
+  font-weight: bold;
+  color: white;
+  border: 0 none;
+  border-radius: 5px;
+  cursor: pointer;
+  padding: 10px 5px;
+  margin: 10px 5px;
+}
+
+.action-button-previous {
+  width: 100px;
+  background: #616161;
+  font-weight: bold;
+  color: white;
+  border: 0 none;
+  border-radius: 5px;
+  cursor: pointer;
+  padding: 10px 5px;
+  margin: 10px 5px;
+}
+
+.action-button:hover,
+.action-button:focus {
+  box-shadow: 0 0 0 2px white, 0 0 0 3px #27AE60;
+}
+
+.action-button-previous:hover,
+.action-button-previous:focus {
+  box-shadow: 0 0 0 2px white, 0 0 0 3px #616161;
+}
+
+/* Switch toggle styles */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.switchslider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.switchslider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked + .switchslider {
+  background-color: #2196F3;
+}
+
+input:focus + .switchslider {
+  box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked + .switchslider:before {
+  -webkit-transform: translateX(26px);
+  -ms-transform: translateX(26px);
+  transform: translateX(26px);
+}
+
+/* Rounded switch */
+.switchslider.round {
+  border-radius: 34px;
+}
+
+.switchslider.round:before {
+  border-radius: 50%;
+}
+
+/* Feature table wrapper */
+.featureTableWrapper {
+  margin: 20px 0;
+}
+
+.admin-table-wrapper {
+  position: relative;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+/* Loading overlay */
+.loading-overlay-admin-panel {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+  font-size: 2em;
+  color: #337ab7;
+}
+
+.loading-overlay-admin-panel.ng-hide {
+  display: none;
+}
+
+.icon-spin {
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Form adjustments */
+.form-control {
+  font-size: 12px;
+}
+
+.help-block {
+  font-size: 11px;
+  color: #737373;
+}
+
+/* Alert styles */
+.alert {
+  margin-bottom: 0;
+  border-radius: 0;
+}
+
+.alert pre {
+  background-color: #f5f5f5;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  padding: 10px;
+  margin-top: 10px;
+}
+
+/* Table styles */
+.table-condensed {
+  font-size: 12px;
+}
+
+.table-condensed th,
+.table-condensed td {
+  padding: 5px;
+  border-top: 1px solid #ddd;
+}
+
+.btn-group-sm > .btn,
+.btn-sm {
+  padding: 5px 10px;
+  font-size: 12px;
+  line-height: 1.5;
+  border-radius: 3px;
+}
+
+/* Vertical alignment helper */
+.vertical-align {
+  display: flex;
+  align-items: flex-start;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .vertical-align {
+    display: block;
+  }
+  
+  .col-md-3,
+  .col-md-6 {
+    margin-bottom: 15px;
+  }
+
+  .switch {
+    width: 50px;
+    height: 28px;
+  }
+
+  .switchslider:before {
+    height: 20px;
+    width: 20px;
+  }
+
+  input:checked + .switchslider:before {
+    transform: translateX(22px);
+  }
+} 

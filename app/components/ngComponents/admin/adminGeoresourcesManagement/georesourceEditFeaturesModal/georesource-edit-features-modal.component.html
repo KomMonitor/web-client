@@ -1,0 +1,522 @@
+<div class="modal-header">
+  <button type="button" class="close" aria-label="Close" (click)="cancel()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+  <h4 class="modal-title">Features der Georessource <i><b>{{currentGeoresourceDataset?.datasetName}}</b></i> fortführen</h4>
+</div>
+
+<div class="modal-body">
+  <div align="center">
+    <div class="loading-overlay-admin-panel" [class.ng-hide]="!loadingData" *ngIf="loadingData">
+      <span class="glyphicon glyphicon-refresh icon-spin"></span>
+    </div>
+  </div>
+
+  <!-- MultiStep Form -->
+  <div class="row">
+    <div class="col-md-12">
+      <form class="multiStepForm form-group" id="georesourceEditFeaturesForm" role="form" data-toggle="validator" data-disable="true" style="margin-bottom: 0px;">
+        <!-- div required for click logic -->
+        <div> 
+          <!-- progressbar -->
+          <ul id="progressbar">
+            <li style="width: 33.33%;" [class.active]="currentStep === 1" (click)="goToStep(1)" style="cursor: pointer;">Feature Übersicht</li>
+            <li style="width: 33.33%;" [class.active]="currentStep === 2" (click)="goToStep(2)" style="cursor: pointer;">Import einzelner Features</li>
+            <li style="width: 33.33%;" [class.active]="currentStep === 3" (click)="goToStep(3)" style="cursor: pointer;">Import mehrerer Features</li>
+          </ul>
+        </div>
+        
+        <!-- fieldsets -->
+        <fieldset [style.display]="currentStep === 1 ? 'block' : 'none'">
+          <h2 class="fs-title">Feature Übersicht</h2>
+          <h3 class="fs-subtitle">Optionale Anzeige der Feature-Details</h3>
+
+          <div class="row vertical-align">
+            <div class="col-md-6 col-sm-6 col-xs-12">
+              <div class="form-group">
+                <label>Datenbank-Features abrufen und editieren</label>
+                <button class="btn btn-info" (click)="refreshGeoresourceEditFeaturesOverviewTable()"><i class="fas fa-sync-alt"></i>&nbsp;Zeige alle Features</button>
+
+                <div class="help-block"><p>Das Anzeigen aller Features der Georessource kann je nach Anzahl und Komplexität der Objekte einige Zeit in Anspruch nehmen</p>
+                  <p>Editieren einzelner Zellwerte via Doppelklick. Bestätigen der Editierung durch Enter oder Klicken in eine andere Zelle</p>
+                </div>
+                <div class="help-block with-errors"></div>
+              </div>
+            </div>
+            <div class="col-md-6 col-sm-6 col-xs-12">
+              <div class="form-group">
+                <label>Datenbank-Features bereinigen (Funktion muss zuerst aktiv eingeschaltet werden)</label>                                        
+                <label class="switch">
+                  <input class="elementCheckbox" type="checkbox"
+                    [(ngModel)]="enableDeleteFeatures"
+                    [checked]="enableDeleteFeatures" (ngModelChange)="onChangeEnableDeleteFeatures()">
+                  <span class="switchslider round text-left" style="line-height:25px;"></span>
+                </label>
+
+                &nbsp;&nbsp;
+
+                <button class="btn btn-danger" (click)="clearAllGeoresourceFeatures()" [disabled]="!enableDeleteFeatures"><i class="fas fa-trash"></i>&nbsp;Lösche alle Features</button>
+
+                <div class="help-block"><p>Das Löschen aller Features der Georessource ist unwiderruflich. Der Datensatz als solches (Metadaten) bleibt dabei bestehen.</p></div>
+                <div class="help-block with-errors"></div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div *ngIf="kommonitorDataGridHelperService.featureTable_georesource_lastUpdate_timestamp_success" style="background-color: #9DC89F;">
+              <b>Letztes erfolgreiches Update eines Einzeleintrags</b>
+              {{kommonitorDataGridHelperService.featureTable_georesource_lastUpdate_timestamp_success}}
+            </div>
+            <div *ngIf="kommonitorDataGridHelperService.featureTable_georesource_lastUpdate_timestamp_failure" style="background-color: #E79595;">
+              <b>Letztes gescheitertes Update eines Einzeleintrags</b>
+              {{kommonitorDataGridHelperService.featureTable_georesource_lastUpdate_timestamp_failure}}
+            </div>
+          </div>
+
+          <div class="admin-table-wrapper featureTableWrapper">
+            <ag-grid-angular
+              #georesourceFeatureTable
+              id="georesourceFeatureTable"
+              style="height: 50vh; width: 100%;"
+              class="ag-theme-alpine"
+              [gridOptions]="featureTableGridOptions"
+              [rowData]="featureTableGridOptions?.rowData || []"
+              [columnDefs]="featureTableGridOptions?.columnDefs || []"
+              (gridReady)="onGridReady($event)"
+              (firstDataRendered)="onFirstDataRendered($event)"
+              (columnResized)="onColumnResized($event)"
+              (cellValueChanged)="onCellValueChanged($event)">
+            </ag-grid-angular>
+          </div>
+
+          <input type="button" name="next" class="next next_editFeaturesGeoresource action-button" value="Nächster Schritt" (click)="nextStep()"/>
+        </fieldset>
+        
+        <fieldset [style.display]="currentStep === 2 ? 'block' : 'none'">
+          <h2 class="fs-title">Manuelles Bearbeiten der Datensatz-Objekte</h2>
+          <h3 class="fs-subtitle">Eine interaktive Karte sowie Eingabefelder erlauben das
+            Editieren einzelner Features hinsichtlich
+            räumlicher Lage und/oder Sachdaten. Weiterhin können vorhandene Punkte
+            entfernt oder neue Punkte ergänzt werden.
+            Die Änderungen werden dauerhaft in der Datenbank gespeichert.
+            <br/>
+            Nur die mit * markierten Elemente müssen verpflichtend angegeben werden
+          </h3>
+
+          <single-feature-edit></single-feature-edit>
+
+          <br/>
+
+          <input type="button" name="previous" class="previous previous_editFeaturesGeoresource action-button-previous" value="Voriger Schritt" (click)="previousStep()"/>
+          <input type="button" name="next" class="next next_editFeaturesGeoresource action-button" value="Nächster Schritt" (click)="nextStep()"/>
+        </fieldset>
+
+        <fieldset [style.display]="currentStep === 3 ? 'block' : 'none'">
+          <div style="position: absolute;">
+            <button type="button" class="btn btn-info pull-left" (click)="onImportGeoresourceEditFeaturesMappingConfig()" title="Importieren der Mapping-Konfigurationen aus einer Datei"><i class="fas fa-file-import"></i>&nbsp;&nbsp;Mapping-Import</button>
+            <input style="display:none;" class="pull-left" type="file" #mappingConfigImportFile class="form-control" id="georesourceMappingConfigEditFeaturesImportFile" accept=".json" (change)="onMappingConfigFileSelected($event)">
+            <button type="button" style="margin-left: 6px;" class="btn btn-info pull-left" (click)="onExportGeoresourceEditFeaturesMappingConfig()" title="Exportieren der Mapping-Konfigurationen in eine Datei"><i class="fas fa-file-export"></i>&nbsp;&nbsp;Mapping-Export</button>                                
+          </div>
+          
+          <h2 class="fs-title">Räumlicher Datensatz</h2>
+          <h3 class="fs-subtitle">Angaben über den räumlichen Datensatz, aus dem die Features importiert werden</h3>
+          <p><b><i>* = Pflichtfeld</i></b></p>
+
+          <div class="row vertical-align">
+            <div class="col-md-3 col-sm-6 col-xs-12">
+              <div class="form-group">
+                <label>Geodaten-Quellformat*</label>
+                <select [(ngModel)]="converter" (ngModelChange)="onChangeConverter()" class="form-control" required>
+                  <option disabled selected value> -- Quellformat wählen -- </option>
+                  <option *ngFor="let conv of getFilteredConverters()" [ngValue]="conv">{{conv.name}}</option>
+                </select>
+                <div class="help-block with-errors"></div>
+              </div>
+              
+              <div *ngIf="converter?.schemas">
+                <div class="form-group">
+                  <label>Schema*</label>
+                  <select [(ngModel)]="schema" class="form-control" required>
+                    <option disabled selected value> -- Schema wählen -- </option>
+                    <option *ngFor="let sch of converter.schemas" [value]="sch">{{sch}}</option>
+                  </select>
+                  <div class="help-block with-errors"></div>
+                </div>
+              </div>
+
+              <div *ngIf="converter?.mimeTypes">
+                <div class="form-group">
+                  <label>Quellformat*</label>
+                  <select [(ngModel)]="mimeType" (ngModelChange)="onChangeMimeType(mimeType)" class="form-control" required>
+                    <option disabled selected value> -- Format wählen -- </option>
+                    <option *ngFor="let mime of converter.mimeTypes" [value]="mime">{{mime}}</option>
+                  </select>
+                  <div class="help-block with-errors"></div>
+                </div>
+              </div>
+
+              <div *ngFor="let parameter of converter?.parameters">
+                <div class="form-group">
+                  <label>{{parameter.name}}<i *ngIf="parameter.mandatory">*</i></label>
+                  <input type="text" [id]="'converterParameter_georesourceEditFeatures_' + parameter.name" class="form-control"
+                    [placeholder]="parameter.name" [required]="parameter.mandatory">
+                  <div class="help-block">
+                    <p>{{parameter.description}}</p>
+                  </div>
+                  <div *ngIf="parameter.name === 'CRS'" class="help-block with-errors" style="color: red;">
+                    <p>CRS aufmerksam setzen. Falsche Angaben führen zur fehlerhaften Koordinaten der Features</p>
+                  </div>
+                  <div class="help-block with-errors"></div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="col-md-3 col-sm-6 col-xs-12">
+              <div class="form-group">
+                <div *ngIf="!converter">
+                  <p>bitte zuerst das Quellformat wählen</p>
+                </div>
+                <div *ngIf="converter">
+                  <div class="form-group">
+                    <label>Datenquelltyp*</label>
+                    <select [(ngModel)]="datasourceType" (ngModelChange)="onChangeDatasourceType(datasourceType)" class="form-control" required>
+                      <option disabled selected value> -- Quelltyp wählen -- </option>
+                      <option *ngFor="let dsType of availableDatasourceTypes" [ngValue]="dsType">{{dsType.type}}</option>
+                    </select>
+                    <div class="help-block"></div>
+                  </div>
+
+                  <div *ngIf="datasourceType?.type === 'FILE'">
+                    <label>Datei*</label>
+                    <input type="file" class="form-control" #dataSourceInput id="georesourceDataSourceInput_editFeatures" required>
+                  </div>
+                  
+                  <div *ngIf="datasourceType?.type === 'OGCAPI_FEATURES'">
+                    <label>Räumlicher Filter*</label>
+                    <select id="datasourceTypeParameter_georesourceEditFeatures_bboxType" [(ngModel)]="bboxType" class="form-control" required>
+                      <option disabled selected value> -- Filter wählen -- </option>
+                      <option value="ref"> Referenzraumebene </option>
+                      <option value="literal"> Manueller Begrenzungsrahmen </option>
+                    </select>
+
+                    <div *ngIf="bboxType == 'ref'">
+                      <!-- select available spatialUnits -->
+                      <select id="datasourceTypeParameter_georesourceEditFeatures_bboxRef"
+                        [(ngModel)]="bboxRefSpatialUnit" class="form-control" [required]="bboxType == 'ref'">
+                        <option disabled selected value> -- Raumebene wählen -- </option>
+                        <option *ngFor="let spatialUnit of availableSpatialUnits" [ngValue]="spatialUnit">{{spatialUnit.spatialUnitLevel}}</option>
+                      </select>
+                      <div class="help-block">
+                        <p>Raumebene aus welchem ein umschließendes Rechteck extrahiert wird</p>
+                      </div>
+                    </div>
+                    
+                    <div *ngIf="bboxType == 'literal'">
+                      <label>Begrenzungsrahmen*</label>
+                      <input id="datasourceTypeParameter_georesourceEditFeatures_bbox_minx" class="form-control" type="number" lang="us" placeholder="-180" [required]="bboxType == 'literal'">
+                      <div class="help-block">
+                        <p>Minimale x-Koordinate</p>
+                      </div>
+                      <input id="datasourceTypeParameter_georesourceEditFeatures_bbox_miny" class="form-control" type="number" lang="us" placeholder="-90" [required]="bboxType == 'literal'">
+                      <div class="help-block">
+                        <p>Minimale y-Koordinate</p>
+                      </div>
+                      <input id="datasourceTypeParameter_georesourceEditFeatures_bbox_maxx" class="form-control" type="number" lang="us" placeholder="180" [required]="bboxType == 'literal'">
+                      <div class="help-block">
+                        <p>Maximale x-Koordinate</p>
+                      </div>
+                      <input id="datasourceTypeParameter_georesourceEditFeatures_bbox_maxy" class="form-control" type="number" lang="us" placeholder="90" [required]="bboxType == 'literal'">
+                      <div class="help-block">
+                        <p>Maximale y-Koordinate</p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div *ngIf="datasourceType?.type !== 'FILE'">
+                    <div *ngFor="let parameter of getFilteredDatasourceParameters()">
+                      <div class="form-group">
+                        <label *ngIf="parameter.mandatory">{{parameter.name}}*</label>
+                        <label *ngIf="!parameter.mandatory">{{parameter.name}}</label>
+                        <textarea rows="1" [id]="'datasourceTypeParameter_georesourceEditFeatures_' + parameter.name"
+                          class="form-control" [placeholder]="parameter.name" [required]="parameter.mandatory"></textarea>
+                        <div class="help-block">
+                          <p>{{parameter.description}}</p>
+                        </div>
+                        <div class="help-block with-errors"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="help-block with-errors"></div>
+                <div *ngIf="georesourceDataSourceInputInvalid" style="color: red;">
+                  <p>Eingabe ungültig. Grund: {{georesourceDataSourceInputInvalidReason}}</p>
+                </div>
+              </div>
+            </div>
+            
+            <div class="col-md-3 col-sm-6 col-xs-12">
+              <div class="form-group">
+                <label>ID Attributname*</label>
+                <input type="text" class="form-control" [(ngModel)]="georesourceDataSourceIdProperty" required>
+                <div class="help-block">
+                  <p>Name des Attributs, welches den eindeutigen Identifier des Features enthält.</p>
+                </div>
+                <div class="help-block with-errors"></div>
+                <div *ngIf="idPropertyNotFound" style="color: red;">
+                  <p>Eingabe ungültig. Angegebenes Attribut nicht gefunden oder enthält NULL-Werte.</p>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>NAME Attributname*</label>
+                <input type="text" class="form-control" [(ngModel)]="georesourceDataSourceNameProperty" required>
+                <div class="help-block">
+                  <p>Name des Attributs, welches den eindeutigen Namen des Features enthält.</p>
+                </div>
+                <div class="help-block with-errors"></div>
+                <div *ngIf="namePropertyNotFound" style="color: red;">
+                  <p>Eingabe ungültig. Angegebenes Attribut nicht gefunden oder enthält NULL-Werte.</p>
+                </div>
+              </div>
+            </div>
+            
+            <div class="col-md-3 col-sm-6 col-xs-12">
+              <div class="form-group">
+                <label>Lebenszeit-Beginn Attributname</label>
+                <input type="text" [(ngModel)]="validityStartDate_perFeature" class="form-control pull-right">
+                <div class="help-block">
+                  <p>Eintrag nur, falls die räumlichen Features über ein Attribut
+                    für den Lebenszeitraum (Beginn) verfügen.</p>
+                </div>
+                <div class="help-block with-errors"></div>
+              </div>
+              <div class="form-group">
+                <label>Lebenszeit-Ende Attributname</label>
+                <input type="text" [(ngModel)]="validityEndDate_perFeature" class="form-control pull-right">
+                <div class="help-block">
+                  <p>Eintrag nur, falls die räumlichen Features über ein Attribut
+                    für den Lebenszeitraum (Ende) verfügen.</p>
+                </div>
+                <div class="help-block with-errors"></div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="row vertical-align">
+            <div class="col-md-6 col-sm-6 col-xs-12">
+              <div class="form-group">
+                <label>Gültigkeitszeitraum: gültig seit*</label>
+                <div class="input-group date">
+                  <div class="input-group-addon">
+                    <i class="far fa-calendar-alt"></i>
+                  </div>
+                  <input type="text" [(ngModel)]="periodOfValidity.startDate" (ngModelChange)="checkPeriodOfValidity()"
+                    class="form-control pull-right" id="georesourceEditFeaturesDatepickerStart" placeholder="YYYY-MM-DD" required>
+                </div>
+                <div class="help-block">
+                  <p>Eintrag ist immer erforderlich, selbst wenn die räumlichen Features über ein
+                    Lebenszeitraum-Attribut
+                    verfügen.</p>
+                </div>
+                <div class="help-block with-errors"></div>
+                <div *ngIf="periodOfValidityInvalid" style="color: red;">
+                  <p>Eingabe ungültig. Definiertes Zeitintervall ist nicht erlaubt.</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 col-sm-6 col-xs-12">
+              <div class="form-group">
+                <label>Gültigkeitszeitraum: gültig bis</label>
+                <div class="input-group date">
+                  <div class="input-group-addon">
+                    <i class="far fa-calendar-alt"></i>
+                  </div>
+                  <input type="text" [(ngModel)]="periodOfValidity.endDate" (ngModelChange)="checkPeriodOfValidity()"
+                    class="form-control pull-right" id="georesourceEditFeaturesDatepickerEnd" placeholder="YYYY-MM-DD">
+                </div>
+                <div class="help-block">
+                  <p>Eintrag ist erforderlich, falls die räumlichen Features nicht selbst über ein
+                    Lebenszeitraum-Attribut
+                    verfügen. Enddatum darf leer sein, um anzuzeigen, dass es sich
+                    um aktuell gültige Features handelt.</p>
+                </div>
+                <div class="help-block with-errors"></div>
+                <div *ngIf="periodOfValidityInvalid" style="color: red;">
+                  <p>Eingabe ungültig. Definiertes Zeitintervall ist nicht erlaubt.</p>
+                </div>
+              </div>
+            </div>
+          </div>    
+          
+          <hr>
+          <br/>
+
+          <div class="row vertical-align">
+            <div class="col-md-6 col-sm-6 col-xs-12">
+              <div class="form-group">
+                <label>Partielles Update einzelner Geometrien*</label>
+
+                <br/>    
+                <label class="switch">
+                  <input type="checkbox" value="isPartialUpdate" [(ngModel)]="isPartialUpdate">
+                  <span class="switchslider round"></span>
+                </label>
+
+                <div class="help-block">
+                  <p>Angabe, ob das Update nur einen Teil der räumlichen Objekte enthält (bspw. 20/50 Stadtteilen). Wird der vollständige Datensatz hochgeladen (Schalter deaktiviert), so vergleicht KomMonitor die in der Datenbank befindlichen Objekte und löscht solche Objekte, die nicht mehr im hochgeladenen Datensatz enthalten sind, aber im gleichen Lebenzeitintervall liegen.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <hr>
+          <br/>
+
+          <div class="row vertical-align">
+            <div class="col-md-6 col-sm-6 col-xs-12">
+              <div class="form-group">
+                <label>Import weiterer Attribute*</label>
+
+                <br/>    
+                <label class="switch">
+                  <input type="checkbox" value="keepAttributes" [(ngModel)]="keepAttributes">
+                  <span class="switchslider round"></span>
+                </label>
+
+                <div class="help-block">
+                  <p>Angabe, ob alle sonstigen Attribute des importierten Datensatzes mit gleichem Namen übernommen werden sollen. 
+                    Falls nicht, so lassen sich einzelne Attribut-Importe definieren.</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 col-sm-6 col-xs-12" *ngIf="!keepAttributes">
+              <div class="form-group">
+                <label>Fehlende/NULL Werte beibehalten*</label>
+
+                <br/>    
+                <label class="switch">
+                  <input type="checkbox" value="keepMissingValues" [(ngModel)]="keepMissingValues">
+                  <span class="switchslider round"></span>
+                </label>
+
+                <div class="help-block">
+                  <p>Angabe, ob fehlende Attribute oder leere Attributwerte (<code>NULL</code>-Werte) übernommen werden. Bei deaktivierter Option 
+                    wird bei einem solchen Fall ein Fehler geworfen.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div *ngIf="!keepAttributes" class="row vertical-align">
+            <div class="col-md-6 col-sm-6 col-xs-12">
+              <div class="form-group">
+                <label>Attributname im zu importierenden Datensatz*</label>
+                <input type="text" class="form-control input-sm" placeholder="Quell-Attributname" [(ngModel)]="attributeMapping_sourceAttributeName">
+                <div class="help-block with-errors"></div>
+              </div>
+
+              <div class="form-group">
+                <label>Ziel-Attributname in Datenbank nach Import*</label>
+                <input type="text" class="form-control input-sm" placeholder="Ziel-Attributname" [(ngModel)]="attributeMapping_destinationAttributeName">
+                <div class="help-block with-errors"></div>
+              </div>
+
+              <div class="form-group">
+                <label>Datentyp*</label>
+                <select [(ngModel)]="attributeMapping_attributeType" class="form-control" required>
+                  <option disabled selected value> -- Datentyp wählen -- </option>
+                  <option *ngFor="let type of kommonitorImporterHelperService.attributeMapping_attributeTypes" [ngValue]="type">{{type.displayName}}</option>
+                </select>
+                <div class="help-block with-errors"></div>
+              </div>
+
+              <div class="form-group">
+                <button class="btn btn-success btn-sm" [disabled]="!attributeMapping_sourceAttributeName || !attributeMapping_destinationAttributeName || !attributeMapping_attributeType" (click)="onAddOrUpdateAttributeMapping()">Hinzufügen/Editieren</button>
+                <div class="help-block with-errors"></div>
+              </div>
+            </div>
+            
+            <div class="col-md-6 col-sm-6 col-xs-12">
+              <label>Übersicht der definierten Attribut-Mappings</label>
+              <table class="table table-condensed">
+                <thead>
+                  <tr>
+                    <th>Editierfunktionen</th>
+                    <th>Quell-Attributname im Datensatz</th>
+                    <th>Ziel-Attributname nach Import</th>
+                    <th>Datentyp</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let attributeMappingEntry of attributeMappings_adminView">
+                    <td>
+                      <div class="btn-group btn-group-sm">
+                        <button class="btn btn-warning btn-sm" type="button" (click)="onClickEditAttributeMapping(attributeMappingEntry)"
+                          title="Referenz editieren"><i class="fas fa-pencil-alt"></i></button>
+                        <button class="btn btn-danger btn-sm" type="button" (click)="onClickDeleteAttributeMapping(attributeMappingEntry)"
+                          title="Referenz löschen"><i class="fas fa-trash"></i></button>
+                      </div>
+                    </td>
+                    <td>{{attributeMappingEntry.sourceName}}</td>
+                    <td>{{attributeMappingEntry.destinationName}}</td>
+                    <td>{{attributeMappingEntry.dataType.displayName}}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          
+          <input type="button" name="previous" class="previous previous_editFeaturesGeoresource action-button-previous" value="Voriger Schritt" (click)="previousStep()"/>
+        </fieldset>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="modal-footer">
+  <button type="button" class="btn btn-default pull-left" (click)="cancel()">Schließen</button>
+  <button type="button" class="btn btn-success" [disabled]="!canSubmitForm()" (click)="editGeoresourceFeatures()">Features fortführen</button>
+  <button type="button" class="btn btn-danger" (click)="resetGeoresourceEditFeaturesForm()">Zurücksetzen</button>
+</div>
+
+<div id="georesourceEditFeaturesSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden class="alert alert-success alert-dismissable">
+  <button type="button" class="close" (click)="hideSuccessAlert()" aria-hidden="true">&times;</button>
+  <h4><i class="icon fa fa-check"></i>Features erfolgreich fortgeführt</h4>
+  <p>Fortführen der Features der Georessource mit Namen {{successMessagePart}} war erfolgreich.</p>
+  <div *ngIf="importedFeatures && importedFeatures.length > 0">
+    <p>{{importedFeatures.length}} Features wurden dabei importiert.</p>
+  </div>
+</div>
+
+<div id="georesourceEditFeaturesErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden class="alert alert-danger alert-dismissable">
+  <button type="button" class="close" (click)="hideErrorAlert()" aria-hidden="true">&times;</button>
+  <h4><i class="icon fa fa-ban"></i>Features fortführen gescheitert</h4>
+  Beim Fortführen der Features ist ein Fehler aufgetreten. Fehlermeldung:
+  <br/>
+  <pre style="overflow:auto; max-height:500px;" [innerHTML]="errorMessagePart"></pre>
+  <br/>
+  <br/>
+
+  <div *ngIf="importerErrors">
+    <p>Bei den {{importerErrors.length}} Features mit folgenden IDs scheitert der Import:</p>
+    <pre style="overflow:auto; max-height:500px;">
+      <ul>
+        <li *ngFor="let error of importerErrors">{{error}}</li>
+      </ul>
+    </pre>    
+    <p>Bitte beheben Sie die angezeigten Fehler im Datensatz und wiederholen den Prozess.</p>
+  </div>
+</div>
+
+<div id="georesourceEditFeaturesMappingConfigImportErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden class="alert alert-danger alert-dismissable">
+  <button type="button" class="close" (click)="hideMappingConfigErrorAlert()" aria-hidden="true">&times;</button>
+  <h4><i class="icon fa fa-ban"></i>Mapping-Konfiguration Import gescheitert</h4>
+  Beim Import der Mapping-Konfiguration aus einer Datei ist ein Fehler aufgetreten. Fehlermeldung:
+  <br/>
+  <pre [innerHTML]="georesourceMappingConfigImportError"></pre>                                
+  <br/>                                
+  <br/>
+  <p>Bitte stellen Sie sicher, dass folgendes JSON-Format eingehalten wird:</p>
+  <pre id="georesourcesEditFeaturesMappingConfigPre" style="overflow:auto; max-height:500px;"></pre>
+</div> 
