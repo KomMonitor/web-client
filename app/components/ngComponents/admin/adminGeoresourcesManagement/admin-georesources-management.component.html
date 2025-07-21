@@ -25,7 +25,7 @@
       </div>
       <!-- batch update georesources -->
       <button id="button-batch-update-georesources" class="btn btn-success btn-sm" type="button" 
-        [disabled]="!checkEditorPermission()" data-toggle="modal" data-target="#modal-batch-update-georesources">
+        [disabled]="!checkEditorPermission()" (click)="onClickBatchUpdateGeoresource()">
         <i class="fas fa-refresh"></i>&nbsp;&nbsp;Batch-Update
       </button>
       <!-- add georesource -->					  		

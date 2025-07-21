@@ -8,6 +8,7 @@ import { KommonitorGeoresourceCacheHelperService } from '../../../../services/ad
 import { KommonitorGeoresourceDataGridHelperService } from '../../../../services/adminGeoresourceUnit/kommonitor-data-grid-helper.service';
 import { AgGridAngular } from 'ag-grid-angular';
 import { GeoresourceAddModalComponent } from './georesourceAddModal/georesource-add-modal.component';
+import { GeoresourceBatchUpdateModalComponent } from './georesourceBatchUpdateModal/georesource-batch-update-modal.component';
 
 // Declare jQuery for AdminLTE
 declare const $: any;
@@ -255,6 +256,17 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy, 
   // Modal event handlers
   onClickAddGeoresource(): void {
     const modalRef = this.modalService.open(GeoresourceAddModalComponent, {
+      size: 'lg',
+      backdrop: 'static',
+      keyboard: false,
+      container: 'body',
+      animation: false
+    });
+    
+  }
+
+  onClickBatchUpdateGeoresource(): void {
+    const modalRef = this.modalService.open(GeoresourceBatchUpdateModalComponent, {
       size: 'lg',
       backdrop: 'static',
       keyboard: false,

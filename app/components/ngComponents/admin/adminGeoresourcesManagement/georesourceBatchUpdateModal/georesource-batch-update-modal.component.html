@@ -1,0 +1,607 @@
+<div class="modal-header">
+  <button type="button" class="close" aria-label="Close" (click)="cancel()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+  <h4 class="modal-title">Batch-Update</h4>
+</div>
+
+<div class="modal-body">
+  <div align="center">
+    <div class="loading-overlay-admin-panel" [class.ng-hide]="!loadingData" *ngIf="loadingData">
+      <span class="glyphicon glyphicon-refresh icon-spin"></span>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-12 col-sm-12 col-xs-12">
+      <p>Diese Funktion ermöglicht es, die Mapping-Parameter mehrerer Georessoucen gleichzeitig zu aktualisieren.</p>
+      <p><b>* = Pflichtfeld</b></p>
+    </div>
+  </div>
+  
+  <div class="row">
+    <div class="col-md-12 col-sm-12 col-xs-12">
+      <form id="georesourceBatchUpdateForm" class="form-group" role="form" data-toggle="validator" data-disable="true">
+        <div class="batch-list-table-wrapper table-responsive">
+          <table class="batch-list-table table table-bordered table-condensed table-striped" style="width:100%; overflow:auto; font-size: 11px;">
+            <thead>
+              <tr>
+                <th class="batch-list-table-sticky-column batch-list-table-sticky-column-header batch-list-table-sticky-column-1">
+                  <input type="checkbox" [(ngModel)]="allRowsSelected" (ngModelChange)="onSelectAllRows()">
+                </th>
+                <th class="batch-list-table-sticky-column batch-list-table-sticky-column-header batch-list-table-sticky-column-2">Name*</th>
+                <th>Mappingtabelle</th>
+                <th>Gültigkeitszeitraum von*</th>
+                <th>Gültigkeitszeitraum bis</th>
+                <th>Geodaten-Quellformat*</th>
+                <th *ngIf="checkColumnsToShow_selectedConverter().length">Quellformat*</th>
+                <th *ngIf="checkColumnsToShow_selectedConverter().length">Encoding*</th>
+                <th *ngIf="checkColumnsToShow_selectedConverter().includes('GeoJSON') ||
+                          checkColumnsToShow_selectedConverter().includes('Shapefile (ZIP-Ordner mit .shp, .dbf, .prj)') ||
+                          checkColumnsToShow_selectedConverter().includes('Tabelle_XY_Koordinate_zu_Punkt') ||
+                          checkColumnsToShow_selectedConverter().includes('WFS_v1')">CRS*</th>
+                <th *ngIf="checkColumnsToShow_selectedConverter().includes('Tabelle_Geokodierung_Adresse_strukturierte_Einzelspalten')">Hausnummer_Spaltenname*</th>
+                <th *ngIf="checkColumnsToShow_selectedConverter().includes('Tabelle_Geokodierung_Adresse_strukturierte_Einzelspalten')">Strasse_Spaltenname*</th>
+                <th *ngIf="checkColumnsToShow_selectedConverter().includes('Tabelle_Geokodierung_beliebige_Zeichenkette')">Adresse_Spaltenname*</th>
+                <th *ngIf="checkColumnsToShow_selectedConverter().includes('Tabelle_Geokodierung_Strasse_Hausnummer_Stadt')">Strasse_Hausnummer_Spaltenname*</th>
+                <th *ngIf="checkColumnsToShow_selectedConverter().includes('Tabelle_XY_Koordinate_zu_Punkt')">X_Koordinatenspalte_Rechtswert*</th>
+                <th *ngIf="checkColumnsToShow_selectedConverter().includes('Tabelle_XY_Koordinate_zu_Punkt')">Y_Koordinatenspalte_Hochwert*</th>
+                <th *ngIf="checkColumnsToShow_selectedConverter().includes('Tabelle_Geokodierung_Adresse_strukturierte_Einzelspalten') ||
+                          checkColumnsToShow_selectedConverter().includes('Tabelle_Geokodierung_Strasse_Hausnummer_Stadt')">Postleitzahl_Spaltenname</th>
+                <th *ngIf="checkColumnsToShow_selectedConverter().includes('Tabelle_Geokodierung_Adresse_strukturierte_Einzelspalten') ||
+                          checkColumnsToShow_selectedConverter().includes('Tabelle_Geokodierung_Strasse_Hausnummer_Stadt')">Stadt_Spaltenname</th>
+                <th *ngIf="checkColumnsToShow_selectedConverter().includes('WFS_v1')">Schema*</th>
+                <th *ngIf="checkColumnsToShow_selectedConverter().includes('WFS_v1')">NAMESPACE</th>
+                <th *ngIf="checkColumnsToShow_selectedConverter().includes('WFS_v1')">SCHEMA_LOCATION</th>
+                <th *ngIf="checkColumnsToShow_selectedConverter().includes('Tabelle_Geokodierung_Adresse_strukturierte_Einzelspalten') ||
+                          checkColumnsToShow_selectedConverter().includes('Tabelle_Geokodierung_beliebige_Zeichenkette') ||
+                          checkColumnsToShow_selectedConverter().includes('Tabelle_Geokodierung_Strasse_Hausnummer_Stadt') ||
+                          checkColumnsToShow_selectedConverter().includes('Tabelle_XY_Koordinate_zu_Punkt')">Trennzeichen</th>
+                <th>Datenquelltyp*</th>
+                <th *ngIf="checkIfSelectedDatasourceTypeIsFile()">Datei*</th>
+                <th *ngIf="checkIfSelectedDatasourceTypeIsHttp()">URL*</th>
+                <th *ngIf="checkIfSelectedDatasourceTypeIsInline()">Payload*</th>
+                <th>ID Attributname*</th>
+                <th>NAME Attributname*</th>
+                <th>Lebenszeit-Beginn Attributname</th>
+                <th>Lebenszeit-Ende Attributname</th>
+                <th>Mappingtabelle speichern</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let georesource of batchList; let i = index; odd as isOdd; even as isEven" 
+                  [class.batch-list-odd-rows]="isOdd" [class.batch-list-even-rows]="isEven">
+
+                <!-- isSelected -->
+                <td class="batch-list-table-sticky-column batch-list-table-sticky-column-1">
+                  <input type="checkbox" [(ngModel)]="georesource.isSelected">
+                </td>
+
+                <!-- Name -->
+                <td class="batch-list-table-sticky-column batch-list-table-sticky-column-2">
+                  <select [id]="'georesourceSelect' + i" class="form-control batch-list-table-name-field" 
+                    [(ngModel)]="georesource.name" (ngModelChange)="onGeoresourceSelected(georesource, i)" required>
+                    <option *ngFor="let avGeoresource of kommonitorDataExchangeService.availableGeoresources" 
+                      [ngValue]="avGeoresource">{{avGeoresource.datasetName}}</option>
+                  </select>
+                </td>
+                
+                <!-- Mappingtabelle -->
+                <td>
+                  <input [id]="'georesourceMappingTableSelect' + i" class="form-control georesourceMappingTableInputField" 
+                    type="file" (change)="onMappingTableFileSelected($event, i)">
+                </td>
+
+                <!-- Gültigkeitszeitraum von -->
+                <td>
+                  <div class="input-group date">
+                    <div class="input-group-addon">
+                      <i class="far fa-calendar-alt"></i>
+                    </div>
+                    <input [id]="'georesourcePeriodOfValidityStartDatePicker' + i" class="form-control pull-right" 
+                      type="text" placeholder="YYYY-MM-DD" [value]="georesource.periodOfValidityStart" 
+                      [(ngModel)]="georesource.mappingObj.periodOfValidity.startDate" required>
+                  </div>
+                </td>
+
+                <!-- Gültigkeitszeitraum bis -->
+                <td>
+                  <div class="input-group date">
+                    <div class="input-group-addon">
+                      <i class="far fa-calendar-alt"></i>
+                    </div>
+                    <input [id]="'georesourcePeriodOfValidityEndDatePicker' + i" type="text" 
+                      class="form-control pull-right" placeholder="YYYY-MM-DD" [value]="georesource.periodOfValidityEnd" 
+                      [(ngModel)]="georesource.mappingObj.periodOfValidity.endDate">
+                  </div>
+                </td>
+
+                <!-- Geodaten-Quellformat -->
+                <td>
+                  <select class="form-control" [(ngModel)]="georesource.selectedConverter" required>
+                    <option disabled selected value> -- Geodaten-Quellformat wählen -- </option>
+                    <option *ngFor="let converter of kommonitorImporterHelperService.availableConverters" 
+                      [ngValue]="converter">{{converter.name}}</option>
+                  </select>
+                </td>
+
+                <!-- Quellformat -->
+                <td *ngIf="checkColumnsToShow_selectedConverter().length > 0">
+                  <select class="form-control" [(ngModel)]="georesource.mappingObj.converter.mimeType" required>
+                    <option disabled selected value> -- Quellformat wählen -- </option>
+                    <option *ngFor="let mimeType of georesource.selectedConverter?.mimeTypes" 
+                      [value]="mimeType">{{mimeType}}</option>
+                  </select>
+                </td>
+
+                <!-- Encoding -->
+                <td *ngIf="checkColumnsToShow_selectedConverter().length > 0">
+                  <select class="form-control" [(ngModel)]="georesource.mappingObj.converter.encoding" required>
+                    <option disabled selected value> -- Encoding wählen -- </option>
+                    <option *ngFor="let encoding of georesource.selectedConverter?.encodings" 
+                      [value]="encoding">{{encoding}}</option>
+                  </select>
+                </td>
+
+                <!-- CRS -->
+                <td *ngIf="checkColumnsToShow_selectedConverter().includes('GeoJSON') ||
+                          checkColumnsToShow_selectedConverter().includes('Shapefile (ZIP-Ordner mit .shp, .dbf, .prj)') ||
+                          checkColumnsToShow_selectedConverter().includes('Tabelle_XY_Koordinate_zu_Punkt') ||
+                          checkColumnsToShow_selectedConverter().includes('WFS_v1')">
+                  <input [id]="'georesourceCrsInputField' + i" class="form-control" 
+                    [(ngModel)]="georesource.mappingObj.converter.crs" type="text" placeholder="z.B. EPSG:4326" required>
+                </td>
+
+                <!-- Hausnummer_Spaltenname -->
+                <td *ngIf="checkColumnsToShow_selectedConverter().includes('Tabelle_Geokodierung_Adresse_strukturierte_Einzelspalten')">
+                  <input class="form-control" [(ngModel)]="georesource.mappingObj.converter.hnrColumnName" type="text" 
+                    [disabled]="!georesource.selectedConverter?.name?.includes('Tabelle_Geokodierung_Adresse_strukturierte_Einzelspalten')" required>
+                </td>
+
+                <!-- Strasse_Spaltenname -->
+                <td *ngIf="checkColumnsToShow_selectedConverter().includes('Tabelle_Geokodierung_Adresse_strukturierte_Einzelspalten')">
+                  <input class="form-control" [(ngModel)]="georesource.mappingObj.converter.streetColumnName" type="text" 
+                    [disabled]="!georesource.selectedConverter?.name?.includes('Tabelle_Geokodierung_Adresse_strukturierte_Einzelspalten')" required>
+                </td>
+
+                <!-- Adresse_Spaltenname -->
+                <td *ngIf="checkColumnsToShow_selectedConverter().includes('Tabelle_Geokodierung_beliebige_Zeichenkette')">
+                  <input class="form-control" [(ngModel)]="georesource.mappingObj.converter.addressColumnName" type="text" 
+                    [disabled]="!georesource.selectedConverter?.name?.includes('Tabelle_Geokodierung_beliebige_Zeichenkette')" required>
+                </td>
+
+                <!-- Strasse_Hausnummer_Spaltenname -->
+                <td *ngIf="checkColumnsToShow_selectedConverter().includes('Tabelle_Geokodierung_Strasse_Hausnummer_Stadt')">
+                  <input class="form-control" [(ngModel)]="georesource.mappingObj.converter.streetHnrColumnName" type="text" 
+                    [disabled]="!georesource.selectedConverter?.name?.includes('Tabelle_Geokodierung_Strasse_Hausnummer_Stadt')" required>
+                </td>
+
+                <!-- X_Koordinatenspalte_Rechtswert -->
+                <td *ngIf="checkColumnsToShow_selectedConverter().includes('Tabelle_XY_Koordinate_zu_Punkt')">
+                  <input class="form-control" [(ngModel)]="georesource.mappingObj.converter.xCoordColumnName" type="text" 
+                    [disabled]="!georesource.selectedConverter?.name?.includes('Tabelle_XY_Koordinate_zu_Punkt')" required>
+                </td>
+
+                <!-- Y_Koordinatenspalte_Rechtswert -->
+                <td *ngIf="checkColumnsToShow_selectedConverter().includes('Tabelle_XY_Koordinate_zu_Punkt')">
+                  <input class="form-control" [(ngModel)]="georesource.mappingObj.converter.yCoordColumnName" type="text" 
+                    [disabled]="!georesource.selectedConverter?.name?.includes('Tabelle_XY_Koordinate_zu_Punkt')" required>
+                </td>
+
+                <!-- Postleitzahl_Spaltenname -->
+                <td *ngIf="checkColumnsToShow_selectedConverter().includes('Tabelle_Geokodierung_Adresse_strukturierte_Einzelspalten') ||
+                          checkColumnsToShow_selectedConverter().includes('Tabelle_Geokodierung_Strasse_Hausnummer_Stadt')">
+                  <input class="form-control" [(ngModel)]="georesource.mappingObj.converter.plzColumnName" type="text" 
+                    [disabled]="!['Tabelle_Geokodierung_Adresse_strukturierte_Einzelspalten', 'Tabelle_Geokodierung_Strasse_Hausnummer_Stadt'].includes(georesource.selectedConverter?.name)">
+                </td>
+
+                <!-- Stadt_Spaltenname -->
+                <td *ngIf="checkColumnsToShow_selectedConverter().includes('Tabelle_Geokodierung_Adresse_strukturierte_Einzelspalten') ||
+                          checkColumnsToShow_selectedConverter().includes('Tabelle_Geokodierung_Strasse_Hausnummer_Stadt')">
+                  <input class="form-control" [(ngModel)]="georesource.mappingObj.converter.cityColumnName" type="text" 
+                    [disabled]="!['Tabelle_Geokodierung_Adresse_strukturierte_Einzelspalten', 'Tabelle_Geokodierung_Strasse_Hausnummer_Stadt'].includes(georesource.selectedConverter?.name)">
+                </td>
+
+                <!-- schema -->
+                <td *ngIf="checkColumnsToShow_selectedConverter().includes('WFS_v1')">
+                  <select class="form-control" [(ngModel)]="georesource.mappingObj.converter.schema" 
+                    [disabled]="!georesource.selectedConverter?.name?.includes('WFS_v1')" required>
+                    <option disabled selected value> -- Schema wählen -- </option>
+                    <option *ngFor="let schema of georesource.selectedConverter?.schemas" 
+                      [value]="schema">{{schema}}</option>
+                  </select>
+                </td>
+
+                <!-- NAMESPACE -->
+                <td *ngIf="checkColumnsToShow_selectedConverter().includes('WFS_v1')">
+                  <input class="form-control" [(ngModel)]="georesource.mappingObj.converter.schemaNamespace" type="text" 
+                    [disabled]="!georesource.selectedConverter?.name?.includes('WFS_v1')">
+                </td>
+
+                <!-- SCHEMA_LOCATION -->
+                <td *ngIf="checkColumnsToShow_selectedConverter().includes('WFS_v1')">
+                  <input class="form-control" [(ngModel)]="georesource.mappingObj.converter.schemaLocation" type="text" 
+                    [disabled]="!georesource.selectedConverter?.name?.includes('WFS_v1')">
+                </td>
+
+                <!-- Trennzeichen -->
+                <td *ngIf="checkColumnsToShow_selectedConverter().includes('Tabelle_Geokodierung_Adresse_strukturierte_Einzelspalten') ||
+                          checkColumnsToShow_selectedConverter().includes('Tabelle_Geokodierung_beliebige_Zeichenkette') ||
+                          checkColumnsToShow_selectedConverter().includes('Tabelle_Geokodierung_Strasse_Hausnummer_Stadt') ||
+                          checkColumnsToShow_selectedConverter().includes('Tabelle_XY_Koordinate_zu_Punkt')">
+                  <input class="form-control" [(ngModel)]="georesource.mappingObj.converter.separator" type="text" 
+                    [disabled]="!['Tabelle_Geokodierung_Adresse_strukturierte_Einzelspalten', 'Tabelle_Geokodierung_beliebige_Zeichenkette', 'Tabelle_Geokodierung_Strasse_Hausnummer_Stadt', 'Tabelle_XY_Koordinate_zu_Punkt'].includes(georesource.selectedConverter?.name)">
+                </td>
+
+                <!-- Datenquelltyp -->
+                <td>
+                  <select [(ngModel)]="georesource.selectedDatasourceType" class="form-control" required>
+                    <option disabled selected value> -- Quelltyp wählen -- </option>
+                    <option *ngFor="let datasourceType of kommonitorImporterHelperService.availableDatasourceTypes" 
+                      [ngValue]="datasourceType">{{datasourceType.type}}</option>
+                  </select>
+                </td>
+
+                <!-- Datei -->
+                <td *ngIf="checkIfSelectedDatasourceTypeIsFile()">
+                  <input [id]="'georesourceDataSourceFileInputField' + i" class="form-control georesourceDataSourceFileInputField" 
+                    type="file" [disabled]="!georesource.selectedDatasourceType?.type?.includes('FILE')" 
+                    (change)="onDataSourceFileSelected($event, i)" required>
+                </td>
+
+                <!-- URL -->
+                <td *ngIf="checkIfSelectedDatasourceTypeIsHttp()">
+                  <input class="form-control" type="text" [(ngModel)]="georesource.mappingObj.dataSource.URL" 
+                    [disabled]="!georesource.selectedDatasourceType?.type?.includes('HTTP')" required>
+                </td>
+
+                <!-- Payload -->
+                <td *ngIf="checkIfSelectedDatasourceTypeIsInline()">
+                  <input class="form-control" type="text" [(ngModel)]="georesource.mappingObj.dataSource.payload" 
+                    [disabled]="!georesource.selectedDatasourceType?.type?.includes('INLINE')" required>
+                </td>
+
+                <!-- ID Attributname -->
+                <td>
+                  <input class="form-control" [(ngModel)]="georesource.mappingObj.propertyMapping.identifierProperty" type="text" required>
+                </td>
+
+                <!-- NAME Attributname -->
+                <td>
+                  <input class="form-control" [(ngModel)]="georesource.mappingObj.propertyMapping.nameProperty" type="text" required>
+                </td>
+
+                <!-- Lebenszeit-Beginn Attributname -->
+                <td>
+                  <input class="form-control" [(ngModel)]="georesource.mappingObj.propertyMapping.validStartDateProperty" type="text" required>
+                </td>
+
+                <!-- Lebenszeit-Ende Attributname -->
+                <td>
+                  <input class="form-control" [(ngModel)]="georesource.mappingObj.propertyMapping.validEndDateProperty" type="text" required>
+                </td>
+
+                <!-- Speichern -->
+                <td>
+                  <button [id]="'georesourceMappingTableSave' + i" type="button" class="btn btn-primary fas fa-save" 
+                    (click)="saveMappingObjectToFile($event)">
+                  </button>
+                </td>
+
+              </tr>
+            </tbody>
+
+            <tfoot>
+              <tr>
+                <th class="batch-list-table-sticky-column batch-list-table-sticky-column-footer batch-list-table-sticky-column-1">
+                  <input type="checkbox" [(ngModel)]="allRowsSelected" (ngModelChange)="onSelectAllRows()">
+                </th>
+                <th class="batch-list-table-sticky-column batch-list-table-sticky-column-footer batch-list-table-sticky-column-2">Name*</th>
+                <th>Mappingtabelle</th>
+                <th>Gültigkeitszeitraum von*</th>
+                <th>Gültigkeitszeitraum bis</th>
+                <th>Geodaten-Quellformat*</th>
+                <th *ngIf="checkColumnsToShow_selectedConverter().length">Quellformat*</th>
+                <th *ngIf="checkColumnsToShow_selectedConverter().includes('GeoJSON') ||
+                          checkColumnsToShow_selectedConverter().includes('Shapefile (ZIP-Ordner mit .shp, .dbf, .prj)') ||
+                          checkColumnsToShow_selectedConverter().includes('Tabelle_XY_Koordinate_zu_Punkt') ||
+                          checkColumnsToShow_selectedConverter().includes('WFS_v1')">CRS*</th>
+                <th *ngIf="checkColumnsToShow_selectedConverter().includes('Tabelle_Geokodierung_Adresse_strukturierte_Einzelspalten')">Hausnummer_Spaltenname*</th>
+                <th *ngIf="checkColumnsToShow_selectedConverter().includes('Tabelle_Geokodierung_Adresse_strukturierte_Einzelspalten')">Strasse_Spaltenname*</th>
+                <th *ngIf="checkColumnsToShow_selectedConverter().includes('Tabelle_Geokodierung_beliebige_Zeichenkette')">Adresse_Spaltenname*</th>
+                <th *ngIf="checkColumnsToShow_selectedConverter().includes('Tabelle_Geokodierung_Strasse_Hausnummer_Stadt')">Strasse_Hausnummer_Spaltenname*</th>
+                <th *ngIf="checkColumnsToShow_selectedConverter().includes('Tabelle_XY_Koordinate_zu_Punkt')">X_Koordinatenspalte_Rechtswert*</th>
+                <th *ngIf="checkColumnsToShow_selectedConverter().includes('Tabelle_XY_Koordinate_zu_Punkt')">Y_Koordinatenspalte_Hochwert*</th>
+                <th *ngIf="checkColumnsToShow_selectedConverter().includes('Tabelle_Geokodierung_Adresse_strukturierte_Einzelspalten') ||
+                          checkColumnsToShow_selectedConverter().includes('Tabelle_Geokodierung_Strasse_Hausnummer_Stadt')">Postleitzahl_Spaltenname</th>
+                <th *ngIf="checkColumnsToShow_selectedConverter().includes('Tabelle_Geokodierung_Adresse_strukturierte_Einzelspalten') ||
+                          checkColumnsToShow_selectedConverter().includes('Tabelle_Geokodierung_Strasse_Hausnummer_Stadt')">Stadt_Spaltenname</th>
+                <th *ngIf="checkColumnsToShow_selectedConverter().includes('WFS_v1')">Schema*</th>
+                <th *ngIf="checkColumnsToShow_selectedConverter().includes('WFS_v1')">NAMESPACE</th>
+                <th *ngIf="checkColumnsToShow_selectedConverter().includes('WFS_v1')">SCHEMA_LOCATION</th>
+                <th *ngIf="checkColumnsToShow_selectedConverter().includes('Tabelle_Geokodierung_Adresse_strukturierte_Einzelspalten') ||
+                          checkColumnsToShow_selectedConverter().includes('Tabelle_Geokodierung_beliebige_Zeichenkette') ||
+                          checkColumnsToShow_selectedConverter().includes('Tabelle_Geokodierung_Strasse_Hausnummer_Stadt') ||
+                          checkColumnsToShow_selectedConverter().includes('Tabelle_XY_Koordinate_zu_Punkt')">Trennzeichen</th>
+                <th>Datenquelltyp*</th>
+                <th *ngIf="checkIfSelectedDatasourceTypeIsFile()">Datei*</th>
+                <th *ngIf="checkIfSelectedDatasourceTypeIsHttp()">URL*</th>
+                <th *ngIf="checkIfSelectedDatasourceTypeIsInline()">Payload*</th>
+                <th>ID Attributname*</th>
+                <th>NAME Attributname*</th>
+                <th>Lebenszeit-Beginn Attributname</th>
+                <th>Lebenszeit-Ende Attributname</th>
+                <th>Mappingtabelle speichern</th>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+
+        <button type="button" class="btn btn-primary" (click)="addNewRow()">neue Zeile hinzufügen</button>
+        <button type="button" class="btn btn-danger" (click)="deleteSelectedRows()">ausgewählte Zeilen löschen</button>
+      </form>
+    </div>
+  </div>
+  
+  <div class="row">
+    <div class="col-md-4 col-sm-4 col-xs-6">
+      <div class="form-group">
+        <label>Standardwert-Funktion</label>
+        <div class="help-block">
+          <p>
+            Diese Funktion ermöglicht es, einen Standardwert für alle Zeilen einer variablen Tabellenspalte zu setzen.<br />
+            Sofern die Checkbox aktiviert ist, wird der Wert für alle Zeilen gesetzt.<br />
+            Ist sie deaktiviert, werden nur leere Tabellenfelder überschrieben, sodass bereits eingetragene Werte erhalten bleiben.<br />
+            Gesperrte (ausgegraute) Felder werden ignoriert.
+          </p>
+        </div>
+        <div class="row">
+          <div class="col-md-6 col-sm-6 col-xs-6">
+            <label for="georesourceColDefaultFunctionColSelectInput">Tabellenspalte:</label>
+            <select id="georesourceColDefaultFunctionColSelectInput" class="form-control"
+              [(ngModel)]="colDefaultFunctionSelectedColumn" (ngModelChange)="onChangeDefaultColumn()">
+              <option disabled selected value> -- Tabellenspalte wählen -- </option>
+              <option value="mappingObj.periodOfValidity.startDate">Gültigkeitszeitraum von*</option>
+              <option value="mappingObj.periodOfValidity.endDate">Gültigkeitszeitraum bis</option>
+              <option value="selectedConverter">Geodaten-Quellformat*</option>
+              <option value="mappingObj.converter.mimeType">Quellformat*</option>
+              <option value="mappingObj.converter.encoding">Encoding*</option>
+              <option value="mappingObj.converter.crs">CRS*</option>
+              <option value="mappingObj.converter.hnrColumnName">Hausnummer_Spaltenname*</option>
+              <option value="mappingObj.converter.streetColumnName">Strasse_Spaltenname*</option>
+              <option value="mappingObj.converter.addressColumnName">Adresse_Spaltenname*</option>
+              <option value="mappingObj.converter.streetHnrColumnName">Strasse_Hausnummer_Spaltenname*</option>
+              <option value="mappingObj.converter.xCoordColumnName">X_Koordinatenspalte_Rechtswert*</option>
+              <option value="mappingObj.converter.yCoordColumnName">Y_Koordinatenspalte_Hochwert*</option>
+              <option value="mappingObj.converter.plzColumnName">Postleitzahl_Spaltenname</option>
+              <option value="mappingObj.converter.cityColumnName">Stadt_Spaltenname</option>
+              <option value="mappingObj.converter.schema">Schema*</option>
+              <option value="mappingObj.converter.schemaNamespace">NAMESPACE</option>
+              <option value="mappingObj.converter.schemaLocation">SCHEMA_LOCATION</option>
+              <option value="mappingObj.converter.separator">Trennzeichen</option>
+              <option value="selectedDatasourceType">Datenquelltyp*</option>
+              <option value="mappingObj.dataSource.URL">URL*</option>
+              <option value="mappingObj.dataSource.payload">Payload*</option>
+              <option value="mappingObj.propertyMapping.identifierProperty">ID Attributname*</option>
+              <option value="mappingObj.propertyMapping.nameProperty">NAME Attributname*</option>
+              <option value="mappingObj.propertyMapping.validStartDateProperty">Lebenszeit-Beginn Attributname</option>
+              <option value="mappingObj.propertyMapping.validEndDateProperty">Lebenszeit-Ende Attributname</option>
+            </select>
+            <label>Wert:</label>
+
+            <!-- default -->
+            <input *ngIf="!colDefaultFunctionSelectedColumn" type="text" class="form-control" 
+              [(ngModel)]="colDefaultFunctionNewValue" disabled placeholder="keine Tabellenspalte ausgewählt">
+
+            <!-- Gültigkeitszeitraum von* -->
+            <div *ngIf="colDefaultFunctionSelectedColumn=='mappingObj.periodOfValidity.startDate'" class="input-group date">
+              <div class="input-group-addon">
+                <i class="far fa-calendar-alt"></i>
+              </div>
+              <input id="georesourceDefaultColumnDatePickerStart" class="form-control pull-right" type="text" 
+                placeholder="YYYY-MM-DD" [value]="colDefaultFunctionNewValue" [(ngModel)]="colDefaultFunctionNewValue">
+            </div>
+
+            <!-- Gültigkeitszeitraum bis* -->
+            <div *ngIf="colDefaultFunctionSelectedColumn=='mappingObj.periodOfValidity.endDate'" class="input-group date">
+              <div class="input-group-addon">
+                <i class="far fa-calendar-alt"></i>
+              </div>
+              <input id="georesourceDefaultColumnDatePickerEnd" class="form-control pull-right" type="text" 
+                placeholder="YYYY-MM-DD" [value]="colDefaultFunctionNewValue" [(ngModel)]="colDefaultFunctionNewValue">
+            </div>
+
+            <!-- Geodaten-Quellformat* -->
+            <select *ngIf="colDefaultFunctionSelectedColumn=='selectedConverter'" class="form-control" 
+              [(ngModel)]="colDefaultFunctionNewValue">
+              <option disabled selected value> -- Geodaten-Quellformat wählen -- </option>
+              <option *ngFor="let converter of kommonitorImporterHelperService.availableConverters" 
+                [ngValue]="converter">{{converter.name}}</option>
+            </select>
+
+            <!-- Quellformat* -->
+            <select *ngIf="colDefaultFunctionSelectedColumn=='mappingObj.converter.mimeType'" class="form-control" 
+              [(ngModel)]="colDefaultFunctionNewValue" 
+              [disabled]="checkColumnsToShow_selectedConverter().length != 1">
+              <option disabled selected value> -- Quellformat wählen -- </option>
+              <option *ngFor="let mimeType of getConverterObjectByName(batchList[0]?.selectedConverter?.name)?.mimeTypes" 
+                [value]="mimeType">{{mimeType}}</option>
+            </select>
+
+            <!-- Encoding* -->
+            <select *ngIf="colDefaultFunctionSelectedColumn=='mappingObj.converter.encoding'" class="form-control" 
+              [(ngModel)]="colDefaultFunctionNewValue" 
+              [disabled]="checkColumnsToShow_selectedConverter().length != 1">
+              <option disabled selected value> -- Encoding wählen -- </option>
+              <option *ngFor="let encoding of getConverterObjectByName(batchList[0]?.selectedConverter?.name)?.encodings" 
+                [value]="encoding">{{encoding}}</option>
+            </select>
+
+            <!-- CRS* -->
+            <input *ngIf="colDefaultFunctionSelectedColumn=='mappingObj.converter.crs'" type="text" class="form-control"
+              [(ngModel)]="colDefaultFunctionNewValue" placeholder="z.B. EPSG:4326"
+              [disabled]="!(checkColumnsToShow_selectedConverter().includes('GeoJSON') ||
+                          checkColumnsToShow_selectedConverter().includes('Shapefile (ZIP-Ordner mit .shp, .dbf, .prj)') ||
+                          checkColumnsToShow_selectedConverter().includes('Tabelle_XY_Koordinate_zu_Punkt') ||
+                          checkColumnsToShow_selectedConverter().includes('WFS_v1'))">
+
+            <!-- Hausnummer_Spaltenname* -->
+            <input *ngIf="colDefaultFunctionSelectedColumn=='mappingObj.converter.hnrColumnName'" type="text" class="form-control"
+              [(ngModel)]="colDefaultFunctionNewValue"
+              [disabled]="!checkColumnsToShow_selectedConverter().includes('Tabelle_Geokodierung_Adresse_strukturierte_Einzelspalten')">
+
+            <!-- Strasse_Spaltenname* -->
+            <input *ngIf="colDefaultFunctionSelectedColumn=='mappingObj.converter.streetColumnName'" type="text" class="form-control"
+              [(ngModel)]="colDefaultFunctionNewValue"
+              [disabled]="!checkColumnsToShow_selectedConverter().includes('Tabelle_Geokodierung_Adresse_strukturierte_Einzelspalten')">
+
+            <!-- Adresse_Spaltenname* -->
+            <input *ngIf="colDefaultFunctionSelectedColumn=='mappingObj.converter.addressColumnName'" type="text" class="form-control"
+              [(ngModel)]="colDefaultFunctionNewValue"
+              [disabled]="!checkColumnsToShow_selectedConverter().includes('Tabelle_Geokodierung_beliebige_Zeichenkette')">
+
+            <!-- Strasse_Hausnummer_Spaltenname* -->
+            <input *ngIf="colDefaultFunctionSelectedColumn=='mappingObj.converter.streetHnrColumnName'" type="text" class="form-control"
+              [(ngModel)]="colDefaultFunctionNewValue"
+              [disabled]="!checkColumnsToShow_selectedConverter().includes('Tabelle_Geokodierung_Strasse_Hausnummer_Stadt')">
+
+            <!-- X_Koordinatenspalte_Rechtswert* -->
+            <input *ngIf="colDefaultFunctionSelectedColumn=='mappingObj.converter.xCoordColumnName'" type="text" class="form-control"
+              [(ngModel)]="colDefaultFunctionNewValue"
+              [disabled]="!checkColumnsToShow_selectedConverter().includes('Tabelle_XY_Koordinate_zu_Punkt')">
+
+            <!-- Y_Koordinatenspalte_Rechtswert* -->
+            <input *ngIf="colDefaultFunctionSelectedColumn=='mappingObj.converter.yCoordColumnName'" type="text" class="form-control"
+              [(ngModel)]="colDefaultFunctionNewValue"
+              [disabled]="!checkColumnsToShow_selectedConverter().includes('Tabelle_XY_Koordinate_zu_Punkt')">
+
+            <!-- Postleitzahl_Spaltenname -->
+            <input *ngIf="colDefaultFunctionSelectedColumn=='mappingObj.converter.plzColumnName'" type="text" class="form-control"
+              [(ngModel)]="colDefaultFunctionNewValue"
+              [disabled]="!(checkColumnsToShow_selectedConverter().includes('Tabelle_Geokodierung_Adresse_strukturierte_Einzelspalten') ||
+                          checkColumnsToShow_selectedConverter().includes('Tabelle_Geokodierung_Strasse_Hausnummer_Stadt'))">
+
+            <!-- Stadt_Spaltenname -->
+            <input *ngIf="colDefaultFunctionSelectedColumn=='mappingObj.converter.cityColumnName'" type="text" class="form-control"
+              [(ngModel)]="colDefaultFunctionNewValue"
+              [disabled]="!(checkColumnsToShow_selectedConverter().includes('Tabelle_Geokodierung_Adresse_strukturierte_Einzelspalten') ||
+                          checkColumnsToShow_selectedConverter().includes('Tabelle_Geokodierung_Strasse_Hausnummer_Stadt'))">
+
+            <!-- Schema* -->
+            <select *ngIf="colDefaultFunctionSelectedColumn=='mappingObj.converter.schema'" class="form-control" 
+              [(ngModel)]="colDefaultFunctionNewValue" 
+              [disabled]="!checkColumnsToShow_selectedConverter().includes('WFS_v1')">
+              <option disabled selected value> -- Schema wählen -- </option>
+              <option *ngFor="let schema of getConverterObjectByName('WFS_v1')?.schemas" 
+                [value]="schema">{{schema}}</option>
+            </select>
+            
+            <!-- NAMESPACE -->
+            <input *ngIf="colDefaultFunctionSelectedColumn=='mappingObj.converter.schemaNamespace'" type="text" class="form-control"
+              [(ngModel)]="colDefaultFunctionNewValue"
+              [disabled]="!checkColumnsToShow_selectedConverter().includes('WFS_v1')">
+            
+            <!-- SCHEMA LOCATION -->
+            <input *ngIf="colDefaultFunctionSelectedColumn=='mappingObj.converter.schemaLocation'" type="text" class="form-control"
+              [(ngModel)]="colDefaultFunctionNewValue"
+              [disabled]="!checkColumnsToShow_selectedConverter().includes('WFS_v1')">
+
+            <!-- Trennzeichen -->
+            <input *ngIf="colDefaultFunctionSelectedColumn=='mappingObj.converter.separator'" type="text" class="form-control"
+              [(ngModel)]="colDefaultFunctionNewValue"
+              [disabled]="!(checkColumnsToShow_selectedConverter().includes('Tabelle_Geokodierung_Adresse_strukturierte_Einzelspalten') ||
+                          checkColumnsToShow_selectedConverter().includes('Tabelle_Geokodierung_beliebige_Zeichenkette') ||
+                          checkColumnsToShow_selectedConverter().includes('Tabelle_Geokodierung_Strasse_Hausnummer_Stadt') ||
+                          checkColumnsToShow_selectedConverter().includes('Tabelle_XY_Koordinate_zu_Punkt'))">
+            
+            <!-- Datenquelltyp* -->
+            <select *ngIf="colDefaultFunctionSelectedColumn=='selectedDatasourceType'" class="form-control" 
+              [(ngModel)]="colDefaultFunctionNewValue">
+              <option disabled selected value> -- Quelltyp wählen -- </option>
+              <option *ngFor="let datasourceType of kommonitorImporterHelperService.availableDatasourceTypes" 
+                [ngValue]="datasourceType">{{datasourceType.type}}</option>
+            </select>
+            
+            <!-- URL* -->
+            <input *ngIf="colDefaultFunctionSelectedColumn=='mappingObj.dataSource.URL'" type="text" class="form-control"
+              [(ngModel)]="colDefaultFunctionNewValue" [disabled]="!checkIfSelectedDatasourceTypeIsHttp()">
+            
+            <!-- Payload* -->
+            <input *ngIf="colDefaultFunctionSelectedColumn=='mappingObj.dataSource.payload'" type="text" class="form-control"
+              [(ngModel)]="colDefaultFunctionNewValue" [disabled]="!checkIfSelectedDatasourceTypeIsInline()">
+            
+            <!-- ID Attributname* -->
+            <input *ngIf="colDefaultFunctionSelectedColumn=='mappingObj.propertyMapping.identifierProperty'" type="text" class="form-control"
+              [(ngModel)]="colDefaultFunctionNewValue">
+            
+            <!-- NAME Attributname* -->
+            <input *ngIf="colDefaultFunctionSelectedColumn=='mappingObj.propertyMapping.nameProperty'" type="text" class="form-control"
+              [(ngModel)]="colDefaultFunctionNewValue">
+            
+            <!-- Lebenszeit-Beginn Attributname -->
+            <input *ngIf="colDefaultFunctionSelectedColumn=='mappingObj.propertyMapping.validStartDateProperty'" type="text" class="form-control"
+              [(ngModel)]="colDefaultFunctionNewValue">
+            
+            <!-- Lebenszeit-Ende Attributname -->
+            <input *ngIf="colDefaultFunctionSelectedColumn=='mappingObj.propertyMapping.validEndDateProperty'" type="text" class="form-control"
+              [(ngModel)]="colDefaultFunctionNewValue">
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-12 col-sm-12 col-xs-12">
+            <label for="georesourceColDefaultFunctionAllRowsChb">Vorhandene Werte überschreiben?</label>
+            <input id="georesourceColDefaultFunctionAllRowsChb" type="checkbox" [(ngModel)]="colDefaultFunctionAllRowsChb">
+          </div>
+          <div class="col-md-12 col-sm-12 col-xs-12">
+            <button type="button" class="btn btn-primary" (click)="saveDefaultValue()">
+              Standardwert eintragen
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="row">
+    <div class="col-md-4 col-sm-4 col-xs-6">
+      <div class="form-group">
+        <label>Fehlende/NULL Werte beibehalten*</label>
+        <br/>
+        <label class="switch">
+          <input type="checkbox" [(ngModel)]="keepMissingValues">
+          <span class="switchslider round"></span>
+        </label>
+        <div class="help-block">
+          <p>Angabe, ob fehlende Attribute oder leere Attributwerte (<code>NULL</code>-Werte) übernommen werden. Bei deaktivierter Option 
+            wird bei einem solchen Fall ein Fehler geworfen.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-footer">
+  <button type="button" class="btn btn-default pull-left" (click)="cancel()">Schließen</button>
+  <button type="button" class="btn btn-info pull-left" (click)="loadBatchList()"
+    title="Importieren der Batch-Liste aus einer Datei">
+    <i class="fas fa-file-import"></i>&nbsp;&nbsp;Batch-Liste importieren
+  </button>
+
+  <input style="display:none;" class="pull-left" type="file" #batchListFile class="form-control"
+    id="georesourcesBatchListFile" accept=".json" (change)="onBatchListFileSelected($event)">
+
+  <button type="button" style="margin-left: 6px;" class="btn btn-info pull-left" (click)="exportBatchList()" 
+    title="Exportieren der Batch-Liste in eine Datei">
+    <i class="fas fa-file-export"></i>&nbsp;&nbsp;Batch-Liste exportieren
+  </button>
+
+  <button id="georesource-reopen-results-btn" type="button" class="btn btn-info"
+    (click)="reopenResultModal()" [disabled]="lastUpdateResponseObj === undefined">Ergebnis anzeigen
+  </button>
+
+  <button id="georesource-batch-update-btn" type="button" class="btn btn-success"
+    (click)="executeBatchUpdate()" [disabled]="!canExecuteBatchUpdate()">Update ausführen
+  </button>
+  
+  <button type="button" class="btn btn-danger" (click)="resetForm()">Zurücksetzen</button>
+</div> 
