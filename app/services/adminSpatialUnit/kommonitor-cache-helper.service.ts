@@ -1,43 +1,118 @@
-import { Injectable, Inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { 
+  Observable, 
+  BehaviorSubject, 
+  throwError, 
+  of, 
+  timer,
+  catchError,
+  retry,
+  shareReplay,
+  switchMap,
+  tap,
+  map
+} from 'rxjs';
+
+// TypeScript interfaces for better type safety
+export interface DatabaseModificationInfo {
+  'access-control': string;
+  'topics': string;
+  'spatial-units': string;
+  'georesources': string;
+  'indicators': string;
+  'process-scripts': string;
+}
+
+export interface CacheEntry<T> {
+  data: T;
+  timestamp: string;
+  lastModified: string;
+}
+
+export interface SpatialUnitMetadata {
+  spatialUnitId: string;
+  spatialUnitLevel: string;
+  metadata: {
+    description: string;
+    datasource: string;
+    contact: string;
+    note?: string;
+    literature?: string;
+    updateInterval?: string;
+    lastUpdate?: string;
+    databasis?: string;
+    sridEPSG?: number;
+  };
+  nextLowerHierarchyLevel?: string;
+  nextUpperHierarchyLevel?: string;
+  availablePeriodsOfValidity: Array<{
+    startDate: string;
+    endDate?: string;
+  }>;
+  permissions: string[];
+  isPublic: boolean;
+  ownerId: string;
+  userPermissions?: string[];
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class KommonitorCacheHelperService {
-  private baseUrlToKomMonitorDataAPI: string;
-  private spatialUnitsEndpoint = '/spatial-units';
+  private baseUrlToKomMonitorDataAPI: string = '';
+  private lastDatabaseModificationInfo: DatabaseModificationInfo | null = null;
+  
+  // Endpoints
   private spatialUnitsPublicEndpoint = '/public/spatial-units';
   private spatialUnitsProtectedEndpoint = '/spatial-units';
+  private spatialUnitsEndpoint = this.spatialUnitsProtectedEndpoint;
+  
+  // Local storage keys
+  private localStorageKey_prefix: string = '';
+  private localStorageKey_spatialUnits: string = '';
+  
+  // Reactive subjects for state management
+  private spatialUnitsSubject = new BehaviorSubject<SpatialUnitMetadata[]>([]);
+  private loadingSubject = new BehaviorSubject<boolean>(false);
+  private errorSubject = new BehaviorSubject<string | null>(null);
+  private lastModificationSubject = new BehaviorSubject<DatabaseModificationInfo | null>(null);
 
-  constructor(
-    private http: HttpClient,
-    @Inject('kommonitorCacheHelperService') private angularJsCacheHelperService: any
-  ) {
-    // Initialize the base URL - this should come from environment configuration
-    this.baseUrlToKomMonitorDataAPI = this.getBaseApiUrl();
-    this.checkAuthentication();
+  // Public observables
+  public spatialUnits$ = this.spatialUnitsSubject.asObservable();
+  public loading$ = this.loadingSubject.asObservable();
+  public error$ = this.errorSubject.asObservable();
+  public lastModification$ = this.lastModificationSubject.asObservable();
+
+  constructor(private http: HttpClient) {
+    this.initializeService();
   }
 
   /**
-   * Gets the base API URL from environment configuration
-   * This is a placeholder - should be configured properly in environment
+   * Initialize the service with configuration
    */
-  private getBaseApiUrl(): string {
-    // This should come from environment configuration
-    // For now, using a placeholder that would be configured properly
-    return (window as any).__env?.apiUrl + (window as any).__env?.basePath || '';
+  private initializeService(): void {
+    // Get configuration from environment
+    const env = (window as any).__env;
+    this.baseUrlToKomMonitorDataAPI = env?.apiUrl + env?.basePath || '';
+    this.localStorageKey_prefix = env?.localStoragePrefix || 'kommonitor';
+    this.localStorageKey_spatialUnits = this.localStorageKey_prefix + '_lastModification_spatialUnits';
+    
+    console.log('KommonitorCacheHelperService initialized with base URL:', this.baseUrlToKomMonitorDataAPI);
+    
+    // Check authentication and set appropriate endpoints
+    this.checkAuthentication();
+    
+    // Fetch initial database modification info
+    this.fetchLastDatabaseModificationObject();
   }
 
   /**
-   * Checks authentication status and sets appropriate endpoints
-   * Mirrors the original AngularJS implementation
+   * Check authentication status and set appropriate endpoints
    */
   private checkAuthentication(): void {
-    // This would check with the authentication service
+    // This would integrate with your authentication service
     // For now, we'll assume authenticated and use protected endpoints
-    // In a real implementation, this would check with Keycloak or similar
     const isAuthenticated = this.isUserAuthenticated();
     
     if (isAuthenticated) {
@@ -45,73 +120,308 @@ export class KommonitorCacheHelperService {
     } else {
       this.spatialUnitsEndpoint = this.spatialUnitsPublicEndpoint;
     }
+    
+    console.log('Authentication check completed. Using endpoint:', this.spatialUnitsEndpoint);
   }
 
   /**
-   * Checks if user is authenticated
-   * This is a placeholder method
+   * Check if user is authenticated
+   * This is a placeholder method that should integrate with your auth service
    */
   private isUserAuthenticated(): boolean {
-    // This would integrate with your authentication service
+    // This would integrate with your authentication service (Keycloak, etc.)
     // For now, return true as a placeholder
     return true;
   }
 
   /**
-   * Fetches spatial units metadata - delegates to AngularJS service
+   * Fetch last database modification info from server
    */
-  async fetchSpatialUnitsMetadata(keycloakRolesArray: string[]): Promise<any[]> {
-    return this.angularJsCacheHelperService.fetchSpatialUnitsMetadata(keycloakRolesArray);
+  private fetchLastDatabaseModificationObject(): Observable<DatabaseModificationInfo> {
+    const url = `${this.baseUrlToKomMonitorDataAPI}/public/database/last-modification`;
+    
+    return this.http.get<DatabaseModificationInfo>(url).pipe(
+      tap(info => {
+        this.lastDatabaseModificationInfo = info;
+        this.lastModificationSubject.next(info);
+        console.log('Database modification info fetched:', info);
+      }),
+      catchError(this.handleError)
+    );
   }
 
   /**
-   * Fetches single spatial unit metadata - delegates to AngularJS service
+   * Fetch spatial units metadata with caching
    */
-  async fetchSingleSpatialUnitMetadata(spatialUnitId: string, keycloakRolesArray: string[]): Promise<any> {
-    return this.angularJsCacheHelperService.fetchSingleSpatialUnitMetadata(spatialUnitId, keycloakRolesArray);
+  fetchSpatialUnitsMetadata(keycloakRolesArray: string[]): Observable<SpatialUnitMetadata[]> {
+    console.log('Fetching spatial units metadata with roles:', keycloakRolesArray);
+    
+    // Check cache first
+    const cachedData = this.getCachedSpatialUnits(keycloakRolesArray);
+    if (cachedData) {
+      console.log('Returning cached spatial units data');
+      this.spatialUnitsSubject.next(cachedData);
+      return of(cachedData);
+    }
+
+    // Fetch from server
+    console.log('Cache miss, fetching from server...');
+    this.setLoading(true);
+    this.clearError();
+
+    return this.fetchResourceFromServer<SpatialUnitMetadata>(
+      this.localStorageKey_spatialUnits,
+      this.spatialUnitsEndpoint,
+      'spatial-units',
+      keycloakRolesArray
+    ).pipe(
+      tap((data: SpatialUnitMetadata[]) => {
+        this.spatialUnitsSubject.next(data);
+        this.setLoading(false);
+        console.log('Spatial units data fetched from server:', data.length, 'items');
+      }),
+      catchError(error => {
+        this.setError(error);
+        this.setLoading(false);
+        return throwError(() => error);
+      })
+    );
   }
 
   /**
-   * Fetches resource from cache or server with caching logic
-   * This is a simplified version of the original caching mechanism
+   * Fetch single spatial unit metadata
    */
-  private async fetchResource_fromCacheOrServer(
+  fetchSingleSpatialUnitMetadata(spatialUnitId: string, keycloakRolesArray: string[]): Observable<SpatialUnitMetadata> {
+    const url = `${this.baseUrlToKomMonitorDataAPI}${this.spatialUnitsEndpoint}/${spatialUnitId}`;
+    
+    return this.http.get<SpatialUnitMetadata>(url).pipe(
+      tap(() => {
+        // Refresh the full list in the background
+        this.fetchSpatialUnitsMetadata(keycloakRolesArray).subscribe();
+      }),
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Fetch resource from server with optional filtering
+   */
+  private fetchResourceFromServer<T>(
     localStorageKey: string,
     resourceEndpoint: string,
     lastModificationResourceName: string,
     keycloakRolesArray: string[],
     filter?: any
-  ): Promise<any[]> {
-    try {
-      // Simplified implementation without full caching logic
-      // In a real implementation, you'd check localStorage and last modification timestamps
-      const url = `${this.baseUrlToKomMonitorDataAPI}${resourceEndpoint}`;
-      
-      if (filter) {
-        // If filter is provided, make a POST request with filter
-        const response = await this.http.post<any[]>(`${url}/filter`, filter, {
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        }).toPromise();
-        return response || [];
-      } else {
-        // Standard GET request
-        const response = await this.http.get<any[]>(url).toPromise();
-        return response || [];
-      }
-    } catch (error) {
-      console.error(`Error fetching resource from ${resourceEndpoint}:`, error);
-      return [];
+  ): Observable<T[]> {
+    const url = `${this.baseUrlToKomMonitorDataAPI}${resourceEndpoint}`;
+    
+    if (filter) {
+      // POST request with filter
+      return this.http.post<T[]>(`${url}/filter`, filter).pipe(
+        tap((data: T[]) => this.updateCache(localStorageKey, data, lastModificationResourceName, keycloakRolesArray)),
+        catchError(this.handleError)
+      );
+    } else {
+      // Standard GET request
+      return this.http.get<T[]>(url).pipe(
+        tap((data: T[]) => this.updateCache(localStorageKey, data, lastModificationResourceName, keycloakRolesArray)),
+        catchError(this.handleError)
+      );
     }
   }
 
   /**
+   * Get cached spatial units data
+   */
+  private getCachedSpatialUnits(keycloakRolesArray: string[]): SpatialUnitMetadata[] | null {
+    if (!this.lastDatabaseModificationInfo) {
+      return null;
+    }
+
+    const { timestampKey, metadataKey } = this.getCacheKeys(keycloakRolesArray);
+    
+    const cachedTimestamp = localStorage.getItem(timestampKey);
+    if (!cachedTimestamp) {
+      return null;
+    }
+
+    const cachedLastModified = JSON.parse(cachedTimestamp);
+    const serverLastModified = this.lastDatabaseModificationInfo['spatial-units'];
+
+    if (cachedLastModified !== serverLastModified) {
+      console.log('Cache invalid - timestamps differ');
+      return null;
+    }
+
+    const cachedData = localStorage.getItem(metadataKey);
+    if (!cachedData) {
+      return null;
+    }
+
+    try {
+      const parsedData = JSON.parse(cachedData);
+      console.log('Valid cache found, returning cached data');
+      return parsedData;
+    } catch (error) {
+      console.error('Error parsing cached data:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Update cache with new data
+   */
+  private updateCache<T>(
+    localStorageKey: string,
+    data: T[],
+    lastModificationResourceName: string,
+    keycloakRolesArray: string[]
+  ): void {
+    if (!this.lastDatabaseModificationInfo) {
+      return;
+    }
+
+    const { timestampKey, metadataKey } = this.getCacheKeys(keycloakRolesArray);
+    
+    // Store timestamp
+    const timestamp = this.lastDatabaseModificationInfo[lastModificationResourceName as keyof DatabaseModificationInfo];
+    localStorage.setItem(timestampKey, JSON.stringify(timestamp));
+    
+    // Store data
+    localStorage.setItem(metadataKey, JSON.stringify(data));
+    
+    console.log('Cache updated for', lastModificationResourceName);
+  }
+
+  /**
+   * Get cache keys based on roles
+   */
+  private getCacheKeys(keycloakRolesArray: string[]): { timestampKey: string; metadataKey: string } {
+    const env = (window as any).__env;
+    let suffix = '_public';
+    
+    if (keycloakRolesArray && keycloakRolesArray.length > 0) {
+      if (keycloakRolesArray.includes(env?.keycloakKomMonitorAdminRoleName)) {
+        suffix = '_' + env.keycloakKomMonitorAdminRoleName;
+      } else {
+        suffix = '_' + JSON.stringify(keycloakRolesArray);
+      }
+    }
+
+    const timestampKey = this.localStorageKey_spatialUnits + '_timestamp' + suffix;
+    const metadataKey = this.localStorageKey_spatialUnits + '_metadata' + suffix;
+
+    return { timestampKey, metadataKey };
+  }
+
+  /**
+   * Clear cache for spatial units
+   */
+  clearSpatialUnitsCache(keycloakRolesArray: string[]): void {
+    const { timestampKey, metadataKey } = this.getCacheKeys(keycloakRolesArray);
+    localStorage.removeItem(timestampKey);
+    localStorage.removeItem(metadataKey);
+    console.log('Spatial units cache cleared');
+  }
+
+  /**
+   * Clear all cache
+   */
+  clearAllCache(): void {
+    const keys = Object.keys(localStorage);
+    const cacheKeys = keys.filter(key => key.startsWith(this.localStorageKey_prefix));
+    cacheKeys.forEach(key => localStorage.removeItem(key));
+    console.log('All cache cleared');
+  }
+
+  /**
+   * Get current spatial units data
+   */
+  get availableSpatialUnits(): SpatialUnitMetadata[] {
+    return this.spatialUnitsSubject.value;
+  }
+
+  /**
+   * Get current loading state
+   */
+  get isLoading(): boolean {
+    return this.loadingSubject.value;
+  }
+
+  /**
+   * Get current error state
+   */
+  get currentError(): string | null {
+    return this.errorSubject.value;
+  }
+
+  /**
+   * Get base URL
+   */
+  get baseUrl(): string {
+    return this.baseUrlToKomMonitorDataAPI;
+  }
+
+  /**
+   * Get spatial units endpoint
+   */
+  get spatialUnitsEndpointPath(): string {
+    return this.spatialUnitsEndpoint;
+  }
+
+  /**
+   * Set loading state
+   */
+  private setLoading(loading: boolean): void {
+    this.loadingSubject.next(loading);
+  }
+
+  /**
+   * Set error state
+   */
+  private setError(error: any): void {
+    const errorMessage = error?.error?.message || error?.message || 'An unknown error occurred';
+    this.errorSubject.next(errorMessage);
+  }
+
+  /**
+   * Clear error state
+   */
+  private clearError(): void {
+    this.errorSubject.next(null);
+  }
+
+  /**
+   * Handle HTTP errors
+   */
+  private handleError(error: HttpErrorResponse): Observable<never> {
+    let errorMessage = 'An error occurred';
+    
+    if (error.error instanceof ErrorEvent) {
+      // Client-side error
+      errorMessage = `Error: ${error.error.message}`;
+    } else {
+      // Server-side error
+      errorMessage = `Error Code: ${error.status}\nMessage: ${error.message}`;
+    }
+    
+    console.error('HTTP Error:', errorMessage);
+    return throwError(() => new Error(errorMessage));
+  }
+
+  /**
    * Initialize the service
-   * Mirrors the original AngularJS init method
    */
   async init(): Promise<void> {
     this.checkAuthentication();
-    // Additional initialization logic could go here
+    await this.fetchLastDatabaseModificationObject().toPromise();
+  }
+
+  /**
+   * Refresh spatial units data
+   */
+  refreshSpatialUnits(keycloakRolesArray: string[]): Observable<SpatialUnitMetadata[]> {
+    this.clearSpatialUnitsCache(keycloakRolesArray);
+    return this.fetchSpatialUnitsMetadata(keycloakRolesArray);
   }
 } 

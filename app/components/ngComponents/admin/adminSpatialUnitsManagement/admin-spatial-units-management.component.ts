@@ -38,6 +38,10 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
   private gridApi!: GridApi;
   private columnApi!: ColumnApi;
 
+  // Pagination properties
+  public paginationPageSize: number = 10;
+  public paginationPageSizeSelector: number[] = [10, 25, 50, 100];
+
   constructor(
     @Inject(DOCUMENT) private document: Document,
     private zone: NgZone,
@@ -50,19 +54,52 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.initializeOrRefreshOverviewTable();
+    console.log('AdminSpatialUnitsManagementComponent ngOnInit started');
+    
+    // Subscribe to spatial units data
+    const spatialUnitsSub = this.kommonitorDataExchangeService.spatialUnits$.subscribe(spatialUnits => {
+      console.log('Spatial units subscription received:', spatialUnits);
+      if (spatialUnits && spatialUnits.length > 0) {
+        console.log('Building data grid with', spatialUnits.length, 'spatial units');
+        this.loadingData = false;
+        this.initializationCompleted = true;
+        this.buildDataGrid_spatialUnits(spatialUnits);
+      } else {
+        console.log('No spatial units data received yet');
+      }
+    });
+    this.subscriptions.push(spatialUnitsSub);
+
+    // Subscribe to loading state
+    const loadingSub = this.kommonitorDataExchangeService.loading$.subscribe(loading => {
+      console.log('Loading state changed:', loading);
+      this.loadingData = loading;
+    });
+    this.subscriptions.push(loadingSub);
+
+    // Subscribe to error state
+    const errorSub = this.kommonitorDataExchangeService.error$.subscribe(error => {
+      if (error) {
+        console.error('Data exchange error:', error);
+        // You can add error handling UI here
+      }
+    });
+    this.subscriptions.push(errorSub);
+
     this.setupEventListeners();
     
-    // Add polling mechanism to check for data availability
-    this.startDataPolling();
+    // Fetch spatial units data
+    this.fetchSpatialUnitsData();
     
     // Add a fallback timeout to prevent infinite loading
     setTimeout(() => {
       if (this.loadingData) {
-        this.initializeOrRefreshOverviewTable();
+        console.log('Fallback timeout reached, checking data again...');
+        this.fetchSpatialUnitsData();
         
         // If still no data after fallback, stop loading anyway
         if (!this.kommonitorDataExchangeService.availableSpatialUnits || this.kommonitorDataExchangeService.availableSpatialUnits.length === 0) {
+          console.log('No data after fallback timeout, stopping loading');
           this.loadingData = false;
           this.initializationCompleted = true;
         }
@@ -79,7 +116,7 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
     const sub = this.broadcastService.currentBroadcastMsg.subscribe(data => {
       if (data.msg === 'initialMetadataLoadingCompleted') {
         this.zone.run(() => {
-          this.initializeOrRefreshOverviewTable();
+          this.fetchSpatialUnitsData();
         });
       }
       // Handle grid button click events
@@ -109,20 +146,32 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
     this.subscriptions.push(sub);
   }
 
-  public initializeOrRefreshOverviewTable(): void {
-    const spatialUnits = this.kommonitorDataExchangeService.availableSpatialUnits;
+  /**
+   * Fetch spatial units data from the service
+   */
+  private fetchSpatialUnitsData(): void {
+    console.log('Fetching spatial units data...');
     
-    if (spatialUnits && spatialUnits.length > 0) {
-      this.loadingData = false;
-      this.initializationCompleted = true;
-      
-      // Use the new Angular service to build the data grid
-      this.buildDataGrid_spatialUnits(spatialUnits);
-    } else {
-      // Data not ready yet, keep loading
-      this.loadingData = true;
-      this.initializationCompleted = false;
-    }
+    // Get current roles or use empty array as fallback
+    const currentRoles = this.kommonitorDataExchangeService.currentKeycloakLoginRoles || [];
+    console.log('Current roles:', currentRoles);
+    
+    this.kommonitorDataExchangeService.fetchSpatialUnitsMetadata(currentRoles).subscribe({
+      next: (spatialUnits) => {
+        console.log('Spatial units data received:', spatialUnits);
+        // The data will be handled by the subscription in ngOnInit
+      },
+      error: (error) => {
+        console.error('Error fetching spatial units:', error);
+        this.loadingData = false;
+        this.initializationCompleted = true;
+      }
+    });
+  }
+
+  public initializeOrRefreshOverviewTable(): void {
+    console.log('Initializing/refreshing overview table...');
+    this.fetchSpatialUnitsData();
   }
 
   // Debug method to force stop loading
@@ -251,28 +300,6 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
     this.initializeOrRefreshOverviewTable();
   }
 
-  private startDataPolling(): void {
-    // Poll every 500ms for data availability
-    const pollInterval = setInterval(() => {
-      if (this.loadingData) {
-        this.initializeOrRefreshOverviewTable();
-        
-        // If data is found, stop polling
-        if (!this.loadingData) {
-          clearInterval(pollInterval);
-        }
-      } else {
-        // Data loaded, stop polling
-        clearInterval(pollInterval);
-      }
-    }, 500);
-    
-    // Stop polling after 10 seconds regardless
-    setTimeout(() => {
-      clearInterval(pollInterval);
-    }, 10000);
-  }
-
   // AG Grid methods
   private buildDataGrid_spatialUnits(spatialUnitMetadataArray: any[]): void {
     this.columnDefs = this.buildDataGridColumnConfig_spatialUnits(spatialUnitMetadataArray);
@@ -310,13 +337,46 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
       enableCellTextSelection: true,
       ensureDomOrder: true,
       pagination: true,
-      paginationPageSize: 10,
+      paginationPageSize: this.paginationPageSize,
+      paginationPageSizeSelector: this.paginationPageSizeSelector,
       suppressColumnVirtualisation: true,
       onGridReady: (params) => {
         this.gridApi = params.api;
         this.columnApi = params.columnApi;
+      },
+      onFirstDataRendered: (event) => {
+        this.headerHeightSetter();
+        this.registerClickHandler_spatialUnits();
+      },
+      onColumnResized: (event) => {
+        this.headerHeightSetter();
       }
     };
+  }
+
+  /**
+   * Handle pagination page size change
+   */
+  onPaginationPageSizeChanged(newPageSize: number): void {
+    this.paginationPageSize = newPageSize;
+    if (this.gridApi) {
+      this.gridApi.paginationSetPageSize(newPageSize);
+    }
+  }
+
+  /**
+   * Get current pagination info
+   */
+  getPaginationInfo(): any {
+    if (this.gridApi) {
+      return {
+        currentPage: this.gridApi.paginationGetCurrentPage(),
+        totalPages: this.gridApi.paginationGetTotalPages(),
+        totalRows: this.gridApi.paginationGetRowCount(),
+        pageSize: this.gridApi.paginationGetPageSize()
+      };
+    }
+    return null;
   }
 
   private buildDataGridColumnConfig_spatialUnits(spatialUnitMetadataArray: any[]): ColDef[] {

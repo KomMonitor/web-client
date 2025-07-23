@@ -196,3 +196,44 @@ input:checked + .switchslider:before {
     justify-content: center;
   }
 } 
+
+/* AG Grid pagination styles */
+.ag-theme-alpine .ag-paging-panel {
+  background-color: #f8f9fa;
+  border-top: 1px solid #dee2e6;
+  padding: 8px 12px;
+  font-size: 12px;
+}
+
+.ag-theme-alpine .ag-paging-button {
+  background-color: #fff;
+  border: 1px solid #dee2e6;
+  color: #495057;
+  padding: 4px 8px;
+  margin: 0 2px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.ag-theme-alpine .ag-paging-button:hover {
+  background-color: #e9ecef;
+  border-color: #adb5bd;
+}
+
+.ag-theme-alpine .ag-paging-button:disabled {
+  background-color: #f8f9fa;
+  color: #6c757d;
+  cursor: not-allowed;
+}
+
+.ag-theme-alpine .ag-paging-page-summary-panel {
+  color: #6c757d;
+}
+
+.ag-theme-alpine .ag-paging-page-size-select {
+  background-color: #fff;
+  border: 1px solid #dee2e6;
+  border-radius: 3px;
+  padding: 2px 4px;
+  font-size: 12px;
+} 
