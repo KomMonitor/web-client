@@ -1,8 +1,10 @@
-import { Component, Inject, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClient } from '@angular/common/http';
 import { Subscription } from 'rxjs';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { KommonitorDataExchangeService } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
+import { KommonitorDataGridHelperService } from 'services/adminSpatialUnit/kommonitor-data-grid-helper.service';
 
 @Component({
   selector: 'spatial-unit-edit-user-roles-modal',
@@ -32,9 +34,8 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, OnDestroy
 
   constructor(
     public activeModal: NgbActiveModal,
-    @Inject('kommonitorDataExchangeService') public kommonitorDataExchangeService: any,
-    @Inject('kommonitorDataGridHelperService') public kommonitorDataGridHelperService: any,
-    @Inject('kommonitorMultiStepFormHelperService') public kommonitorMultiStepFormHelperService: any,
+    public kommonitorDataExchangeService: KommonitorDataExchangeService,
+    public kommonitorDataGridHelperService: KommonitorDataGridHelperService,
     private broadcastService: BroadcastService,
     private http: HttpClient
   ) {}
@@ -155,8 +156,9 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, OnDestroy
   }
 
   private refreshRoles(orgUnitId: string): void {
-    const permissionIds_ownerUnit = orgUnitId ? 
-      this.kommonitorDataExchangeService.getAccessControlById(orgUnitId).permissions
+    const accessControl = this.kommonitorDataExchangeService.getAccessControlById(orgUnitId);
+    const permissionIds_ownerUnit = orgUnitId && accessControl ? 
+      accessControl.permissions
         .filter((permission: any) => permission.permissionLevel === 'viewer' || permission.permissionLevel === 'editor')
         .map((permission: any) => permission.permissionId) : [];
 
@@ -301,7 +303,7 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, OnDestroy
   getCurrentOwnerName(): string {
     if (this.currentSpatialUnitDataset && this.currentSpatialUnitDataset.ownerId) {
       const owner = this.kommonitorDataExchangeService.getAccessControlById(this.currentSpatialUnitDataset.ownerId);
-      return owner ? owner.name : '';
+      return owner?.name || '';
     }
     return '';
   }

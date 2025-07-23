@@ -2,7 +2,7 @@
   <button type="button" class="close" aria-label="Close" (click)="cancel()">
     <span aria-hidden="true">&times;</span>
   </button>
-  <h4 class="modal-title">Neue Raumebene registrieren</h4>
+  <h4 class="modal-title"> Neue Raumebene registrieren</h4>
 </div>
 
 <div class="modal-body">
@@ -397,7 +397,7 @@
               required
             >
               <option [ngValue]="null"> -- Quellformat wählen -- </option>
-              <option *ngFor="let converter of kommonitorImporterHelperService.availableConverters" [ngValue]="converter">
+              <option *ngFor="let converter of kommonitorImporterHelperService.getAvailableConverters()" [ngValue]="converter">
                 {{converter.name}}
               </option>
             </select>
@@ -740,7 +740,7 @@
               required
             >
               <option [ngValue]="null"> -- Datentyp wählen -- </option>
-              <option *ngFor="let type of kommonitorImporterHelperService.attributeMapping_attributeTypes" [ngValue]="type">
+              <option *ngFor="let type of kommonitorImporterHelperService.getAttributeMappingTypes()" [ngValue]="type">
                 {{type.displayName}}
               </option>
             </select>

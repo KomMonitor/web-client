@@ -144,7 +144,7 @@
                 <label>Geodaten-Quellformat*</label>
                 <select class="form-control" [(ngModel)]="converter" (change)="onChangeConverter()" required>
                   <option value="" disabled>-- Quellformat wählen --</option>
-                  <option *ngFor="let conv of kommonitorImporterHelperService?.availableConverters" 
+                  <option *ngFor="let conv of kommonitorImporterHelperService?.getAvailableConverters()" 
                           [ngValue]="conv">
                     {{ conv.name }}
                   </option>

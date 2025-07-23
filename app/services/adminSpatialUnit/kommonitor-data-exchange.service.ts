@@ -59,6 +59,12 @@ export interface AccessControlMetadata {
     isChecked: boolean;
   }>;
   datasetOwner?: boolean;
+  children?: string[];
+  parentId?: string;
+  description?: string;
+  contact?: string;
+  mandant?: boolean;
+  keycloakId?: string;
 }
 
 @Injectable({
@@ -139,8 +145,6 @@ export class KommonitorDataExchangeService implements OnDestroy {
    * Initialize the service with proper race condition handling
    */
   private initializeService(): void {
-    console.log('Initializing KommonitorDataExchangeService...');
-    
     // Set up authentication listeners
     this.setupAuthenticationListeners();
     
@@ -166,7 +170,6 @@ export class KommonitorDataExchangeService implements OnDestroy {
         })
       )
       .subscribe(isAuthenticated => {
-        console.log('Authentication state changed:', isAuthenticated);
         this.authenticationStateSubject.next(isAuthenticated);
         
         if (isAuthenticated) {
@@ -191,14 +194,8 @@ export class KommonitorDataExchangeService implements OnDestroy {
       
       if (roles.length > 0 || retryCount >= maxRetries) {
         this.setCurrentKeycloakLoginRoles(roles);
-        if (roles.length > 0) {
-          console.log('Roles extracted successfully:', roles);
-        } else {
-          console.warn('No roles found after', maxRetries, 'attempts');
-        }
       } else {
         retryCount++;
-        console.log(`Role extraction attempt ${retryCount}/${maxRetries} - retrying...`);
         setTimeout(attemptRoleExtraction, 500); // Retry after 500ms
       }
     };
@@ -221,7 +218,6 @@ export class KommonitorDataExchangeService implements OnDestroy {
         
         // Only update if roles have changed
         if (JSON.stringify(currentRoles) !== JSON.stringify(newRoles)) {
-          console.log('Roles changed, updating...');
           this.setCurrentKeycloakLoginRoles(newRoles);
         }
       });
@@ -235,26 +231,21 @@ export class KommonitorDataExchangeService implements OnDestroy {
       const keycloak = this.authService.Auth?.keycloak;
       
       if (!keycloak) {
-        console.log('Keycloak not available');
         return [];
       }
 
       if (!keycloak.authenticated) {
-        console.log('User not authenticated');
         return [];
       }
 
       const tokenParsed = keycloak.tokenParsed;
       if (!tokenParsed?.realm_access?.roles) {
-        console.log('No roles found in token');
         return [];
       }
 
       const roles = tokenParsed.realm_access.roles;
-      console.log('Extracted roles from Keycloak:', roles);
       return roles;
     } catch (error) {
-      console.error('Error extracting roles from Keycloak:', error);
       return [];
     }
   }
@@ -296,7 +287,6 @@ export class KommonitorDataExchangeService implements OnDestroy {
     // Filter roles to only include KomMonitor-specific ones
     const komMonitorRoles = allRoles.filter(role => possibleRoles.includes(role));
     
-    console.log('Filtered KomMonitor roles:', komMonitorRoles);
     return komMonitorRoles;
   }
 
@@ -308,7 +298,6 @@ export class KommonitorDataExchangeService implements OnDestroy {
       const keycloak = this.authService.Auth?.keycloak;
       return keycloak?.authenticated || false;
     } catch (error) {
-      console.error('Error checking authentication:', error);
       return false;
     }
   }
@@ -319,7 +308,6 @@ export class KommonitorDataExchangeService implements OnDestroy {
   private clearRoles(): void {
     this.currentRolesSubject.next([]);
     this.komMonitorRolesSubject.next([]);
-    console.log('Roles cleared due to logout');
   }
 
   /**
@@ -381,6 +369,17 @@ export class KommonitorDataExchangeService implements OnDestroy {
   }
 
   /**
+   * Get base URL to KomMonitor Data API for spatial resources
+   * This includes the authentication path based on user authentication state
+   */
+  getBaseUrlToKomMonitorDataAPI_spatialResource(): string {
+    // For now, we'll use "/public" as the default path for spatial resources
+    // This should be configurable based on authentication state
+    const spatialResourcePath = this.isAuthenticated() ? "" : "/public";
+    return this.baseUrl + spatialResourcePath;
+  }
+
+  /**
    * Check if Keycloak security is enabled
    */
   get enableKeycloakSecurity(): boolean {
@@ -432,32 +431,26 @@ export class KommonitorDataExchangeService implements OnDestroy {
    * Fetches spatial units metadata with caching and error handling
    */
   fetchSpatialUnitsMetadata(keycloakRolesArray: string[]): Observable<SpatialUnitMetadata[]> {
-    console.log('Fetching spatial units metadata with roles:', keycloakRolesArray);
     
     // Check cache first
     if (this.isCacheValid(this.spatialUnitsCache)) {
-      console.log('Returning cached spatial units data');
       this.spatialUnitsSubject.next(this.spatialUnitsCache!.data);
       return of(this.spatialUnitsCache!.data);
     }
 
-    console.log('Cache miss, fetching from API...');
     this.setLoading(true);
     this.clearError();
 
     const endpoint = this.getSpatialUnitsEndpoint();
     const url = `${this.baseUrl}${endpoint}`;
-    console.log('Making API call to:', url);
 
     return this.http.get<SpatialUnitMetadata[]>(url).pipe(
       tap(data => {
-        console.log('Spatial units data received:', data.length, 'items');
         this.spatialUnitsSubject.next(data);
         this.updateSpatialUnitsCache(data);
         this.setLoading(false);
       }),
       catchError(error => {
-        console.error('Error fetching spatial units:', error);
         this.setError(this.handleHttpError(error));
         this.setLoading(false);
         return throwError(() => error);
@@ -471,11 +464,9 @@ export class KommonitorDataExchangeService implements OnDestroy {
    * Fetches access control metadata
    */
   fetchAccessControlMetadata(): Observable<AccessControlMetadata[]> {
-    console.log('Fetching access control metadata...');
     
     // Check cache first
     if (this.isCacheValid(this.accessControlCache)) {
-      console.log('Returning cached access control data');
       this.accessControlSubject.next(this.accessControlCache!.data);
       return of(this.accessControlCache!.data);
     }
@@ -484,20 +475,16 @@ export class KommonitorDataExchangeService implements OnDestroy {
     this.clearError();
 
     const url = `${this.baseUrl}${this.endpoints.accessControl}`;
-    console.log('Making API call to:', url);
 
     return this.http.get<AccessControlMetadata[]>(url).pipe(
       tap(data => {
-        console.log('Access control data received:', data.length, 'items');
         this.accessControlSubject.next(data);
         this.updateAccessControlCache(data);
-        this.setLoading(false);
         
         // Update KomMonitor roles after access control is loaded
         this.updateKomMonitorRoles();
       }),
       catchError(error => {
-        console.error('Error fetching access control:', error);
         this.setError(this.handleHttpError(error));
         this.setLoading(false);
         return throwError(() => error);
@@ -511,22 +498,18 @@ export class KommonitorDataExchangeService implements OnDestroy {
    * Fetches indicators metadata
    */
   fetchIndicatorsMetadata(keycloakRolesArray: string[]): Observable<any[]> {
-    console.log('Fetching indicators metadata with roles:', keycloakRolesArray);
     
     this.setLoading(true);
     this.clearError();
 
     const endpoint = this.getIndicatorsEndpoint();
     const url = `${this.baseUrl}${endpoint}`;
-    console.log('Making API call to:', url);
 
     return this.http.get<any[]>(url).pipe(
       tap(data => {
-        console.log('Indicators data received:', data.length, 'items');
         this.setLoading(false);
       }),
       catchError(error => {
-        console.error('Error fetching indicators:', error);
         this.setError(this.handleHttpError(error));
         this.setLoading(false);
         return throwError(() => error);
@@ -547,7 +530,6 @@ export class KommonitorDataExchangeService implements OnDestroy {
    * Sets the current Keycloak login roles
    */
   setCurrentKeycloakLoginRoles(roles: string[]): void {
-    console.log('Setting current Keycloak login roles:', roles);
     this.currentRolesSubject.next([...roles]);
     this.komMonitorRolesSubject.next(this.filterKomMonitorRoles(roles));
   }
@@ -559,18 +541,13 @@ export class KommonitorDataExchangeService implements OnDestroy {
     const roles = this.currentKeycloakLoginRoles;
     const komMonitorRoles = this.currentKomMonitorLoginRoleNames;
     
-    console.log('Checking create permission with roles:', roles);
-    console.log('KomMonitor roles:', komMonitorRoles);
-    
     // Check for admin role
     if (roles.includes(this.env?.keycloakKomMonitorAdminRoleName || 'kommonitor-creator')) {
-      console.log('User has admin role, create permission granted');
       return true;
     }
     
     // Check for creator roles
     const hasCreatorRole = komMonitorRoles.some(role => role.endsWith('-creator'));
-    console.log('User has creator role:', hasCreatorRole);
     
     return hasCreatorRole;
   }
@@ -635,7 +612,6 @@ export class KommonitorDataExchangeService implements OnDestroy {
    * Display map application error
    */
   displayMapApplicationError(error: any): void {
-    console.error('Map application error:', error);
     this.setError(typeof error === 'string' ? error : JSON.stringify(error));
   }
 
@@ -653,7 +629,6 @@ export class KommonitorDataExchangeService implements OnDestroy {
   clearAllCaches(): void {
     this.invalidateSpatialUnitsCache();
     this.accessControlCache = null;
-    console.log('All caches cleared');
   }
 
   /**
@@ -663,7 +638,6 @@ export class KommonitorDataExchangeService implements OnDestroy {
     const endpoint = this.enableKeycloakSecurity ? 
       this.endpoints.spatialUnits : 
       this.endpoints.spatialUnitsPublic;
-    console.log('Selected spatial units endpoint:', endpoint, '(Keycloak enabled:', this.enableKeycloakSecurity, ')');
     return endpoint;
   }
 
@@ -674,7 +648,6 @@ export class KommonitorDataExchangeService implements OnDestroy {
     const endpoint = this.enableKeycloakSecurity ? 
       this.endpoints.indicators : 
       this.endpoints.indicatorsPublic;
-    console.log('Selected indicators endpoint:', endpoint, '(Keycloak enabled:', this.enableKeycloakSecurity, ')');
     return endpoint;
   }
 
@@ -694,7 +667,6 @@ export class KommonitorDataExchangeService implements OnDestroy {
       timestamp: Date.now(),
       expiresAt: Date.now() + this.CACHE_DURATION
     };
-    console.log('Spatial units cache updated');
   }
 
   /**
@@ -706,7 +678,6 @@ export class KommonitorDataExchangeService implements OnDestroy {
       timestamp: Date.now(),
       expiresAt: Date.now() + this.CACHE_DURATION
     };
-    console.log('Access control cache updated');
   }
 
   /**
@@ -714,7 +685,6 @@ export class KommonitorDataExchangeService implements OnDestroy {
    */
   private invalidateSpatialUnitsCache(): void {
     this.spatialUnitsCache = null;
-    console.log('Spatial units cache invalidated');
   }
 
   /**
@@ -765,5 +735,77 @@ export class KommonitorDataExchangeService implements OnDestroy {
     }
     
     return errorMessage;
+  }
+
+  /**
+   * Check if current user has admin permission
+   */
+  checkAdminPermission(): boolean {
+    const currentRoles = this.currentRolesSubject.value;
+    const adminRoleName = this.env?.keycloakKomMonitorAdminRoleName;
+    
+    if (!adminRoleName || !currentRoles || currentRoles.length === 0) {
+      return false;
+    }
+    
+    return currentRoles.includes(adminRoleName);
+  }
+
+  /**
+   * Get access control metadata by organizational unit ID
+   */
+  getAccessControlById(id: string): AccessControlMetadata | null {
+    return this.accessControl.find(unit => unit.organizationalUnitId === id) || null;
+  }
+
+  /**
+   * Get access control metadata by organizational unit name
+   */
+  getAccessControlByName(name: string): AccessControlMetadata | null {
+    return this.accessControl.find(unit => unit.name === name) || null;
+  }
+
+  /**
+   * Filter child or self organizational units
+   */
+  filterChildOrSelfOrganizationalUnits(organizationalUnitReferenceItem: AccessControlMetadata | null): (organizationalUnit: AccessControlMetadata) => boolean {
+    return (organizationalUnit: AccessControlMetadata) => {
+      if (!organizationalUnitReferenceItem) {
+        return true;
+      }
+
+      if (organizationalUnit.organizationalUnitId === organizationalUnitReferenceItem.organizationalUnitId) {
+        return false;
+      }
+
+      if (organizationalUnitReferenceItem.children && organizationalUnitReferenceItem.children.length > 0) {
+        return !this.isDescendantOfReferenceItem(organizationalUnitReferenceItem, organizationalUnit);
+      }
+      
+      return true;
+    };
+  }
+
+  /**
+   * Check if an organizational unit is a descendant of a reference item
+   */
+  isDescendantOfReferenceItem(organizationalUnitReferenceItem: AccessControlMetadata, organizationalUnitCandidate: AccessControlMetadata): boolean {
+    if (organizationalUnitReferenceItem.children && organizationalUnitReferenceItem.children.includes(organizationalUnitCandidate.organizationalUnitId)) {
+      return true;
+    }
+
+    // Check all further descendants
+    if (organizationalUnitReferenceItem.children) {
+      for (const childOrganizationalUnitId of organizationalUnitReferenceItem.children) {
+        const childOrganizationalUnit = this.getAccessControlById(childOrganizationalUnitId);
+        if (childOrganizationalUnit && childOrganizationalUnit.children && childOrganizationalUnit.children.length > 0) {
+          if (this.isDescendantOfReferenceItem(childOrganizationalUnit, organizationalUnitCandidate)) {
+            return true;
+          }
+        }
+      }
+    }
+    
+    return false;
   }
 } 

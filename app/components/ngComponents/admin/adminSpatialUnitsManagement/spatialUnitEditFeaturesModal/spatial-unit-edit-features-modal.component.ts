@@ -4,6 +4,8 @@ import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { HttpClient } from '@angular/common/http';
 import { Subscription } from 'rxjs';
 import { KommonitorDataGridHelperService } from 'services/adminSpatialUnit/kommonitor-data-grid-helper.service';
+import { KommonitorDataExchangeService } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
+import { KommonitorImporterHelperService } from 'services/adminSpatialUnit/kommonitor-importer-helper.service';
 import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef, GridOptions, GridApi, ColumnApi, GridReadyEvent, FirstDataRenderedEvent, ColumnResizedEvent } from 'ag-grid-community';
 
@@ -111,10 +113,9 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
 
   constructor(
     public activeModal: NgbActiveModal,
-    @Inject('kommonitorDataExchangeService') public kommonitorDataExchangeService: any,
-    @Inject('kommonitorImporterHelperService') public kommonitorImporterHelperService: any,
+    public kommonitorDataExchangeService: KommonitorDataExchangeService,
+    public kommonitorImporterHelperService: KommonitorImporterHelperService,
     public kommonitorDataGridHelperService: KommonitorDataGridHelperService,
-    @Inject('kommonitorMultiStepFormHelperService') private kommonitorMultiStepFormHelperService: any,
     private http: HttpClient,
     private broadcastService: BroadcastService
   ) {
@@ -175,8 +176,9 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
   }
 
   private loadAvailableOptions(): void {
-    if (this.kommonitorImporterHelperService?.availableConverters) {
-      this.availableDatasourceTypes = this.kommonitorImporterHelperService.availableConverters
+    const converters = this.kommonitorImporterHelperService?.getAvailableConverters();
+    if (converters) {
+      this.availableDatasourceTypes = converters
         .filter((converter: any) => converter.type === 'spatialUnit');
     }
   }
@@ -193,8 +195,6 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
   }
 
   onEditSpatialUnitFeatures(spatialUnitDataset: any): void {
-    this.kommonitorMultiStepFormHelperService?.registerClickHandler();
-
     if (this.currentSpatialUnitDataset && 
         this.currentSpatialUnitDataset.spatialUnitLevel === spatialUnitDataset.spatialUnitLevel) {
       return;
@@ -479,7 +479,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
       this.spatialUnitDataSourceIdProperty, 
       this.validityStartDate_perFeature, 
       this.validityEndDate_perFeature, 
-      undefined, 
+      '', // empty string instead of undefined
       this.keepAttributes, 
       this.keepMissingValues, 
       this.attributeMappings_adminView
@@ -586,7 +586,8 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
     }
 
     // Set converter
-    this.converter = this.kommonitorImporterHelperService?.availableConverters?.find(
+    const converters = this.kommonitorImporterHelperService?.getAvailableConverters();
+    this.converter = converters?.find(
       (converter: any) => converter.name === this.mappingConfigImportSettings.converter.name
     );
 
@@ -604,7 +605,8 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
     }
 
     // Set datasource type
-    this.datasourceType = this.kommonitorImporterHelperService?.availableDatasourceTypes?.find(
+    const datasourceTypes = this.kommonitorImporterHelperService?.getAvailableDatasourceTypes();
+    this.datasourceType = datasourceTypes?.find(
       (datasourceType: any) => datasourceType.type === this.mappingConfigImportSettings.dataSource.type
     );
 
