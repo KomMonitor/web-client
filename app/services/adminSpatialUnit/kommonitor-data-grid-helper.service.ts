@@ -1162,4 +1162,11 @@ export class KommonitorDataGridHelperService {
   getFeatureTableGridOptions(): GridOptions | null {
     return this.dataGridOptions_featureTable;
   }
+
+  /**
+   * Set the grid API for role management operations
+   */
+  setGridApi(gridApi: GridApi): void {
+    this.gridApi_spatialUnits = gridApi;
+  }
 } 

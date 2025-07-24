@@ -355,7 +355,27 @@
             </div>
           </div>
           <div class="col-md-6 col-sm-6 col-xs-12">
-            <div id="spatialUnitAddRoleManagementTable" style="height: 45vh" class="ag-theme-alpine"></div>  
+            <ag-grid-angular
+              #roleManagementGrid
+              class="ag-theme-alpine"
+              style="height: 45vh; width: 100%;"
+              [columnDefs]="roleManagementColumnDefs"
+              [rowData]="roleManagementRowData"
+              [defaultColDef]="roleManagementDefaultColDef"
+              [gridOptions]="roleManagementGridOptions"
+              [components]="roleManagementTableOptions?.components"
+              [suppressRowClickSelection]="true"
+              [rowSelection]="'multiple'"
+              [enableCellTextSelection]="true"
+              [ensureDomOrder]="true"
+              [pagination]="false"
+              [suppressColumnVirtualisation]="true"
+              (gridReady)="onRoleManagementGridReady($event)"
+              (firstDataRendered)="onRoleManagementFirstDataRendered($event)"
+              (columnResized)="onRoleManagementColumnResized($event)"
+              (modelUpdated)="onRoleManagementModelUpdated()"
+              (viewportChanged)="onRoleManagementViewportChanged()">
+            </ag-grid-angular>
           </div>
           <div class="col-md-3">
             <div class="alert alert-info">

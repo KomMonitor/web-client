@@ -5,6 +5,8 @@ import { HttpClient } from '@angular/common/http';
 import { KommonitorImporterHelperService } from '../../../../../services/adminSpatialUnit/kommonitor-importer-helper.service';
 import { KommonitorDataGridHelperService } from '../../../../../services/adminSpatialUnit/kommonitor-data-grid-helper.service';
 import { KommonitorDataExchangeService } from '../../../../../services/adminSpatialUnit/kommonitor-data-exchange.service';
+import { AgGridAngular } from 'ag-grid-angular';
+import { ColDef, GridOptions, GridApi, ColumnApi } from 'ag-grid-community';
 
 @Component({
   selector: 'spatial-unit-add-modal-new',
@@ -15,6 +17,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
   @ViewChild('metadataImportFile', { static: false }) metadataImportFile!: ElementRef;
   @ViewChild('mappingConfigImportFile', { static: false }) mappingConfigImportFile!: ElementRef;
   @ViewChild('spatialUnitDataSourceInput', { static: false }) spatialUnitDataSourceInput!: ElementRef;
+  @ViewChild('roleManagementGrid', { static: false }) roleManagementGrid!: AgGridAngular;
 
   // Multi-step form
   currentStep = 1;
@@ -93,6 +96,12 @@ export class SpatialUnitAddModalComponent implements OnInit {
 
   // Role management
   roleManagementTableOptions: any = null;
+  roleManagementColumnDefs: ColDef[] = [];
+  roleManagementRowData: any[] = [];
+  roleManagementDefaultColDef: ColDef = {};
+  roleManagementGridOptions: GridOptions = {};
+  roleManagementGridApi: GridApi | null = null;
+  roleManagementColumnApi: ColumnApi | null = null;
   ownerOrganization = '';
   ownerOrgFilter = '';
   isPublic = false;
@@ -129,6 +138,55 @@ export class SpatialUnitAddModalComponent implements OnInit {
   
   // Role form visibility
   showRoleForm = false;
+
+  // Grid ready event handler
+  onRoleManagementGridReady(params: any) {
+    this.roleManagementGridApi = params.api;
+    this.roleManagementColumnApi = params.columnApi;
+    
+    // Update the service with the grid API so it can be used for getSelectedRoleIds
+    this.kommonitorDataGridHelperService.setGridApi(params.api);
+  }
+
+  // Additional grid event handlers to match parent component
+  onRoleManagementFirstDataRendered(event: any): void {
+    this.roleManagementHeaderHeightSetter();
+  }
+
+  onRoleManagementColumnResized(event: any): void {
+    this.roleManagementHeaderHeightSetter();
+  }
+
+  onRoleManagementModelUpdated(): void {
+    // Grid model updated
+  }
+
+  onRoleManagementViewportChanged(): void {
+    // Viewport changed
+  }
+
+  private roleManagementHeaderHeightSetter(): void {
+    if (this.roleManagementGridApi) {
+      const headerHeight = this.roleManagementHeaderHeightGetter();
+      this.roleManagementGridApi.setHeaderHeight(headerHeight);
+    }
+  }
+
+  private roleManagementHeaderHeightGetter(): number {
+    const headerElement = document.querySelector('#roleManagementGrid .ag-header');
+    if (headerElement) {
+      const headerTextElements = headerElement.querySelectorAll('.ag-header-cell-text');
+      let maxHeight = 0;
+      headerTextElements.forEach(element => {
+        const height = element.scrollHeight;
+        if (height > maxHeight) {
+          maxHeight = height;
+        }
+      });
+      return Math.max(maxHeight + 20, 40); // Add padding and minimum height
+    }
+    return 40;
+  }
 
   // Filter organizations based on ownerOrgFilter
   get filteredAccessControl() {
@@ -240,6 +298,15 @@ export class SpatialUnitAddModalComponent implements OnInit {
         this.kommonitorDataExchangeService.accessControl, 
         []
       );
+
+      // Extract initial column definitions and row data and build grid config
+      if (this.roleManagementTableOptions) {
+        this.roleManagementColumnDefs = this.roleManagementTableOptions.columnDefs || [];
+        this.roleManagementRowData = this.roleManagementTableOptions.rowData || [];
+        
+        // Build grid configuration
+        this.buildRoleManagementGridConfig();
+      }
     }
   }
 
@@ -303,6 +370,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
       item.datasetOwner = item.organizationalUnitId === orgUnitId;
     });
 
+    // Build the role management grid options
     this.roleManagementTableOptions = this.kommonitorDataGridHelperService.buildRoleManagementGrid(
       'spatialUnitAddRoleManagementTable',
       this.roleManagementTableOptions,
@@ -310,6 +378,30 @@ export class SpatialUnitAddModalComponent implements OnInit {
       permissionIds_ownerUnit,
       true
     );
+
+    // Extract column definitions and row data for ag-grid-angular and rebuild grid config
+    if (this.roleManagementTableOptions) {
+      this.roleManagementColumnDefs = this.roleManagementTableOptions.columnDefs || [];
+      this.roleManagementRowData = this.roleManagementTableOptions.rowData || [];
+      
+      // Build grid configuration (this will use the components from roleManagementTableOptions)
+      this.buildRoleManagementGridConfig();
+      
+      // If grid is already initialized, update the data and grid options
+      if (this.roleManagementGridApi) {
+        // Update data
+        this.roleManagementGridApi.setRowData(this.roleManagementRowData);
+        this.roleManagementGridApi.setColumnDefs(this.roleManagementColumnDefs);
+        
+        // Refresh the grid to ensure it updates
+        setTimeout(() => {
+          if (this.roleManagementGridApi) {
+            this.roleManagementGridApi.refreshCells();
+            this.roleManagementGridApi.redrawRows();
+          }
+        }, 100);
+      }
+    }
   }
 
   private setupEventListeners() {
@@ -1132,5 +1224,57 @@ export class SpatialUnitAddModalComponent implements OnInit {
   cancel() {
     console.log('Modal cancelled');
     this.activeModal.dismiss('cancel');
+  }
+
+  private buildRoleManagementGridConfig() {
+    this.roleManagementDefaultColDef = this.buildRoleManagementDefaultColDef();
+    this.roleManagementGridOptions = this.buildRoleManagementGridOptions();
+  }
+
+  private buildRoleManagementDefaultColDef(): ColDef {
+    return {
+      editable: false,
+      sortable: true,
+      flex: 1,
+      minWidth: 100,
+      filter: false,
+      resizable: true,
+      wrapText: true,
+      autoHeight: false,
+      cellStyle: { 
+        'font-size': '12px', 
+        'white-space': 'normal !important', 
+        'line-height': '20px !important', 
+        'word-break': 'break-word !important', 
+        'padding-top': '8px', 
+        'padding-bottom': '8px' 
+      }
+    };
+  }
+
+  private buildRoleManagementGridOptions(): GridOptions {
+    // Use components from the table options if available
+    const components = this.roleManagementTableOptions?.components || {};
+
+    return {
+      components: components,
+      suppressRowClickSelection: true,
+      rowSelection: 'multiple',
+      enableCellTextSelection: true,
+      ensureDomOrder: true,
+      pagination: false,
+      suppressColumnVirtualisation: true,
+      headerHeight: 40,
+      rowHeight: 35,
+      onGridReady: (params) => {
+        this.onRoleManagementGridReady(params);
+      },
+      onFirstDataRendered: (event) => {
+        this.onRoleManagementFirstDataRendered(event);
+      },
+      onColumnResized: (event) => {
+        this.onRoleManagementColumnResized(event);
+      }
+    };
   }
 } 
