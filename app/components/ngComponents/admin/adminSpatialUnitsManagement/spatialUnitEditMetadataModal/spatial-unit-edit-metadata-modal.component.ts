@@ -173,6 +173,11 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy 
           this.metadata.updateInterval = option;
         }
       });
+    } else {
+      // If no update interval is set, try to find a default one
+      if (this.updateIntervalOptions && this.updateIntervalOptions.length > 0) {
+        this.metadata.updateInterval = this.updateIntervalOptions[0];
+      }
     }
 
     // Set hierarchy
@@ -290,37 +295,56 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy 
 
   async editSpatialUnitMetadata() {
     if (!this.currentSpatialUnitDataset) return;
+    
+    // Prevent multiple submissions
+    if (this.loadingData) return;
 
     const spatialUnitName_old = this.currentSpatialUnitDataset.spatialUnitLevel;
     const spatialUnitName_new = this.spatialUnitLevel;
 
+    // Helper function to convert empty strings to null
+    const convertEmptyToNull = (value: any) => {
+      return value === '' || value === undefined || value === null ? null : value;
+    };
+
+    // Validate required fields
+    if (!this.spatialUnitLevel || this.spatialUnitLevel.trim() === '') {
+      this.errorMessage = 'Raumebene Name ist erforderlich.';
+      this.loadingData = false;
+      return;
+    }
+
     const patchBody = {
-      datasetName: this.spatialUnitLevel,
+      datasetName: this.spatialUnitLevel.trim(),
       metadata: {
-        note: this.metadata.note,
-        literature: this.metadata.literature,
-        updateInterval: this.metadata.updateInterval.apiName,
-        sridEPSG: this.metadata.sridEPSG,
-        datasource: this.metadata.datasource,
-        contact: this.metadata.contact,
-        lastUpdate: this.metadata.lastUpdate,
-        description: this.metadata.description,
-        databasis: this.metadata.databasis
+        note: convertEmptyToNull(this.metadata.note),
+        literature: convertEmptyToNull(this.metadata.literature),
+        updateInterval: this.metadata.updateInterval && this.metadata.updateInterval.apiName ? this.metadata.updateInterval.apiName : null,
+        sridEPSG: this.metadata.sridEPSG || 4326,
+        datasource: convertEmptyToNull(this.metadata.datasource),
+        contact: convertEmptyToNull(this.metadata.contact),
+        lastUpdate: convertEmptyToNull(this.metadata.lastUpdate),
+        description: convertEmptyToNull(this.metadata.description),
+        databasis: convertEmptyToNull(this.metadata.databasis)
       },
-      allowedRoles: [],
       nextLowerHierarchyLevel: this.nextLowerHierarchySpatialUnit ? this.nextLowerHierarchySpatialUnit.spatialUnitLevel : null,
       nextUpperHierarchyLevel: this.nextUpperHierarchySpatialUnit ? this.nextUpperHierarchySpatialUnit.spatialUnitLevel : null,
       isOutlineLayer: this.isOutlineLayer,
-      outlineColor: this.outlineColor,
-      outlineWidth: this.outlineWidth,
-      outlineDashArrayString: this.selectedOutlineDashArrayObject ? this.selectedOutlineDashArrayObject.dashArrayValue : ''
+      outlineColor: this.outlineColor || '#bf3d2c',
+      outlineWidth: this.outlineWidth || 2,
+      outlineDashArrayString: this.selectedOutlineDashArrayObject ? this.selectedOutlineDashArrayObject.dashArrayValue : null
     };
 
     // No role management in this version to match AngularJS
 
+    // Debug: Log the payload being sent
+    console.log('Sending patch body:', JSON.stringify(patchBody, null, 2));
+
     this.loadingData = true;
     this.errorMessage = '';
     this.successMessage = '';
+    this.errorMessagePart = '';
+    this.successMessagePart = '';
 
     try {
       const response = await this.http.patch(
@@ -331,17 +355,27 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy 
       this.successMessagePart = this.currentSpatialUnitDataset.spatialUnitLevel;
       this.successMessage = `Metadaten für Raumebene "${this.successMessagePart}" erfolgreich aktualisiert.`;
 
-      // Broadcast refresh events
-      this.broadcastService.broadcast('refreshSpatialUnitOverviewTable');
+      // Broadcast refresh events with proper parameters
+      this.broadcastService.broadcast('refreshSpatialUnitOverviewTable', { 
+        crudType: 'edit', 
+        targetSpatialUnitId: this.currentSpatialUnitDataset.spatialUnitId 
+      });
       if (spatialUnitName_old !== spatialUnitName_new) {
         this.broadcastService.broadcast('refreshIndicatorOverviewTable');
       }
 
       this.loadingData = false;
       
-      // Close modal with success result
-      this.activeModal.close({ action: 'updated', spatialUnitId: this.currentSpatialUnitDataset.spatialUnitId });
+      // Don't close modal immediately - let user see success message
+      // User can close manually or we can auto-close after a delay
+      setTimeout(() => {
+        this.activeModal.close({ action: 'updated', spatialUnitId: this.currentSpatialUnitDataset.spatialUnitId });
+      }, 2000); // Close after 2 seconds
     } catch (error: any) {
+      console.error('Error updating spatial unit metadata:', error);
+      console.error('Error response:', error.error);
+      console.error('Error status:', error.status);
+      
       this.errorMessagePart = error.error ? 
         this.kommonitorDataExchangeService.syntaxHighlightJSON(error.error) : 
         this.kommonitorDataExchangeService.syntaxHighlightJSON(error);
@@ -458,27 +492,31 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy 
   }
 
   onExportSpatialUnitEditMetadata() {
+    // Helper function to convert empty strings to null for export
+    const convertEmptyToNull = (value: any) => {
+      return value === '' || value === undefined ? null : value;
+    };
+
     const metadataExport = {
       ...this.spatialUnitMetadataStructure,
       metadata: {
-        note: this.metadata.note || "",
-        literature: this.metadata.literature || "",
-        sridEPSG: this.metadata.sridEPSG || "",
-        datasource: this.metadata.datasource || "",
-        contact: this.metadata.contact || "",
-        lastUpdate: this.metadata.lastUpdate || "",
-        description: this.metadata.description || "",
-        databasis: this.metadata.databasis || "",
-        updateInterval: this.metadata.updateInterval ? this.metadata.updateInterval.apiName : ""
+        note: convertEmptyToNull(this.metadata.note),
+        literature: convertEmptyToNull(this.metadata.literature),
+        sridEPSG: this.metadata.sridEPSG || null,
+        datasource: convertEmptyToNull(this.metadata.datasource),
+        contact: convertEmptyToNull(this.metadata.contact),
+        lastUpdate: convertEmptyToNull(this.metadata.lastUpdate),
+        description: convertEmptyToNull(this.metadata.description),
+        databasis: convertEmptyToNull(this.metadata.databasis),
+        updateInterval: this.metadata.updateInterval ? this.metadata.updateInterval.apiName : null
       },
-      spatialUnitLevel: this.spatialUnitLevel || "",
-      nextLowerHierarchyLevel: this.nextLowerHierarchySpatialUnit ? this.nextLowerHierarchySpatialUnit.spatialUnitLevel : "",
-      nextUpperHierarchyLevel: this.nextUpperHierarchySpatialUnit ? this.nextUpperHierarchySpatialUnit.spatialUnitLevel : "",
-      allowedRoles: [],
+      spatialUnitLevel: this.spatialUnitLevel || null,
+      nextLowerHierarchyLevel: this.nextLowerHierarchySpatialUnit ? this.nextLowerHierarchySpatialUnit.spatialUnitLevel : null,
+      nextUpperHierarchyLevel: this.nextUpperHierarchySpatialUnit ? this.nextUpperHierarchySpatialUnit.spatialUnitLevel : null,
       isOutlineLayer: this.isOutlineLayer,
       outlineColor: this.outlineColor,
       outlineWidth: this.outlineWidth,
-      outlineDashArrayString: this.selectedOutlineDashArrayObject ? this.selectedOutlineDashArrayObject.dashArrayValue : ""
+      outlineDashArrayString: this.selectedOutlineDashArrayObject ? this.selectedOutlineDashArrayObject.dashArrayValue : null
     };
 
     // No role management in this version to match AngularJS
@@ -534,12 +572,24 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy 
     this.spatialUnitMetadataImportError = '';
   }
 
+  closeOnSuccess() {
+    this.activeModal.close({ action: 'updated', spatialUnitId: this.currentSpatialUnitDataset?.spatialUnitId });
+  }
+
   cancel() {
     this.activeModal.dismiss();
   }
 
-  onSubmit() {
-    this.editSpatialUnitMetadata();
+  onSubmit(event?: Event) {
+    // Prevent default form submission behavior
+    if (event) {
+      event.preventDefault();
+    }
+    
+    // Only proceed if not already loading
+    if (!this.loadingData) {
+      this.editSpatialUnitMetadata();
+    }
   }
 
   // Missing function for metadata export template

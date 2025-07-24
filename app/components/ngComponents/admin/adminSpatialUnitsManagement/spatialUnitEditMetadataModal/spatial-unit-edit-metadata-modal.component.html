@@ -15,7 +15,7 @@
   <!-- MultiStep Form -->
   <div class="row">
     <div class="col-md-12">
-      <form role="form" class="multiStepForm form-group" id="spatialUnitEditMetadataForm" #spatialUnitEditMetadataForm="ngForm" data-toggle="validator" style="margin-bottom: 0px;">
+      <form role="form" class="multiStepForm form-group" id="spatialUnitEditMetadataForm" #spatialUnitEditMetadataForm="ngForm" data-toggle="validator" style="margin-bottom: 0px;" (ngSubmit)="onSubmit()">
         
         <!-- progressbar -->
         <div>
@@ -354,10 +354,11 @@
   <button 
     type="button" 
     class="btn btn-success" 
-    [disabled]="!spatialUnitLevel || spatialUnitLevelInvalid || !metadata.description || !metadata.datasource || !metadata.contact || !metadata.updateInterval || !metadata.lastUpdate || hierarchyInvalid" 
-    (click)="editSpatialUnitMetadata()"
+    [disabled]="!spatialUnitLevel || spatialUnitLevelInvalid || !metadata.description || !metadata.datasource || !metadata.contact || !metadata.updateInterval || !metadata.lastUpdate || hierarchyInvalid || loadingData" 
+    (click)="onSubmit()"
   >
-    Metadaten aktualisieren
+    <span *ngIf="!loadingData">Metadaten aktualisieren</span>
+    <span *ngIf="loadingData">Aktualisiere...</span>
   </button>
   
   <button type="button" class="btn btn-danger" (click)="resetForm()">Zurücksetzen</button>
@@ -373,6 +374,10 @@
   <button type="button" class="close" (click)="hideSuccessAlert()" aria-hidden="true">&times;</button>
   <h4><i class="icon fa fa-check"></i>Raumebene aktualisiert</h4>
   Die Metadaten der Raumebene mit Namen {{successMessagePart}} wurden in KomMonitor aktualisiert und in die Übersichtstabelle eingetragen.
+  <br/>
+  <button type="button" class="btn btn-success btn-sm" (click)="closeOnSuccess()" style="margin-top: 10px;">
+    <i class="fas fa-check"></i> Schließen
+  </button>
 </div>
 
 <!-- Error Alert - positioned absolutely at bottom like AngularJS version -->

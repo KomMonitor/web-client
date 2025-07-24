@@ -43,7 +43,7 @@ export interface SpatialUnitMetadata {
   permissions: any[];
   isPublic: boolean;
   ownerId: string;
-  userPermissions: string[];
+  userPermissions?: string[];
   isOutlineLayer?: boolean;
   outlineColor?: string;
   outlineWidth?: number;
@@ -549,6 +549,56 @@ export class KommonitorDataExchangeService implements OnDestroy {
   getSpatialUnitMetadataById(spatialUnitId: string): SpatialUnitMetadata | null {
     const spatialUnits = this.availableSpatialUnits;
     return spatialUnits.find(unit => unit.spatialUnitId === spatialUnitId) || null;
+  }
+
+  /**
+   * Add single spatial unit metadata to the list
+   */
+  addSingleSpatialUnitMetadata(spatialUnitMetadata: SpatialUnitMetadata): void {
+    // Ensure userPermissions is always an array
+    const metadataWithDefaults = {
+      ...spatialUnitMetadata,
+      userPermissions: spatialUnitMetadata.userPermissions || []
+    };
+    
+    const currentSpatialUnits = [...this.availableSpatialUnits];
+    currentSpatialUnits.unshift(metadataWithDefaults);
+    this.spatialUnitsSubject.next(currentSpatialUnits);
+    this.updateSpatialUnitsCache(currentSpatialUnits);
+  }
+
+  /**
+   * Replace single spatial unit metadata in the list
+   */
+  replaceSingleSpatialUnitMetadata(spatialUnitMetadata: SpatialUnitMetadata): void {
+    // Ensure userPermissions is always an array
+    const metadataWithDefaults = {
+      ...spatialUnitMetadata,
+      userPermissions: spatialUnitMetadata.userPermissions || []
+    };
+    
+    const currentSpatialUnits = [...this.availableSpatialUnits];
+    const index = currentSpatialUnits.findIndex(unit => unit.spatialUnitId === spatialUnitMetadata.spatialUnitId);
+    
+    if (index !== -1) {
+      currentSpatialUnits[index] = metadataWithDefaults;
+      this.spatialUnitsSubject.next(currentSpatialUnits);
+      this.updateSpatialUnitsCache(currentSpatialUnits);
+    }
+  }
+
+  /**
+   * Delete single spatial unit metadata from the list
+   */
+  deleteSingleSpatialUnitMetadata(spatialUnitId: string): void {
+    const currentSpatialUnits = [...this.availableSpatialUnits];
+    const index = currentSpatialUnits.findIndex(unit => unit.spatialUnitId === spatialUnitId);
+    
+    if (index !== -1) {
+      currentSpatialUnits.splice(index, 1);
+      this.spatialUnitsSubject.next(currentSpatialUnits);
+      this.updateSpatialUnitsCache(currentSpatialUnits);
+    }
   }
 
   /**

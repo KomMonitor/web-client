@@ -119,6 +119,15 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
           this.fetchSpatialUnitsData();
         });
       }
+      else if (data.msg === 'refreshSpatialUnitOverviewTable') {
+        this.zone.run(() => {
+          this.loadingData = true;
+          // Extract crudType and targetSpatialUnitId from the broadcast data values
+          const crudType = (data.values as any)?.crudType;
+          const targetSpatialUnitId = (data.values as any)?.targetSpatialUnitId;
+          this.refreshSpatialUnitOverviewTable(crudType, targetSpatialUnitId);
+        });
+      }
       // Handle grid button click events
       else if (data.msg === 'onEditSpatialUnitMetadata') {
         this.zone.run(() => {
@@ -296,8 +305,70 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
     return this.kommonitorDataExchangeService.checkCreatePermission();
   }
 
-  refreshSpatialUnitOverviewTable(): void {
-    this.initializeOrRefreshOverviewTable();
+  refreshSpatialUnitOverviewTable(crudType?: string, targetSpatialUnitId?: string | string[]): void {
+    if (!crudType || !targetSpatialUnitId) {
+      // Refetch all metadata from spatial units to update table
+      this.kommonitorDataExchangeService.fetchSpatialUnitsMetadata(
+        this.kommonitorDataExchangeService.currentKeycloakLoginRoles
+      ).subscribe({
+        next: (response) => {
+          this.initializeOrRefreshOverviewTable();
+          this.loadingData = false;
+        },
+        error: (response) => {
+          console.error('Error fetching spatial units metadata:', response);
+          this.loadingData = false;
+        }
+      });
+    }
+    else if (crudType && targetSpatialUnitId) {
+      if (crudType === 'edit') {
+        // Fetch single spatial unit metadata and update the table
+        this.kommonitorCacheHelperService.fetchSingleSpatialUnitMetadata(
+          targetSpatialUnitId as string, 
+          this.kommonitorDataExchangeService.currentKeycloakLoginRoles
+        ).subscribe({
+          next: (data) => {
+            this.kommonitorDataExchangeService.replaceSingleSpatialUnitMetadata(data);
+            this.initializeOrRefreshOverviewTable();
+            this.loadingData = false;
+          },
+          error: (response) => {
+            console.error('Error fetching single spatial unit metadata:', response);
+            this.loadingData = false;
+          }
+        });
+      }
+      else if (crudType === 'add') {
+        // Fetch single spatial unit metadata and add to table
+        this.kommonitorCacheHelperService.fetchSingleSpatialUnitMetadata(
+          targetSpatialUnitId as string, 
+          this.kommonitorDataExchangeService.currentKeycloakLoginRoles
+        ).subscribe({
+          next: (data) => {
+            this.kommonitorDataExchangeService.addSingleSpatialUnitMetadata(data);
+            this.initializeOrRefreshOverviewTable();
+            this.loadingData = false;
+          },
+          error: (response) => {
+            console.error('Error fetching single spatial unit metadata:', response);
+            this.loadingData = false;
+          }
+        });
+      }
+      else if (crudType === 'delete') {
+        // Handle delete operation
+        if (typeof targetSpatialUnitId === 'string') {
+          this.kommonitorDataExchangeService.deleteSingleSpatialUnitMetadata(targetSpatialUnitId);
+        } else if (Array.isArray(targetSpatialUnitId)) {
+          for (const id of targetSpatialUnitId) {
+            this.kommonitorDataExchangeService.deleteSingleSpatialUnitMetadata(id);
+          }
+        }
+        this.initializeOrRefreshOverviewTable();
+        this.loadingData = false;
+      }
+    }
   }
 
   // AG Grid methods
