@@ -122,8 +122,8 @@
               <input 
                 type="color" 
                 class="form-control input-sm"
-                [(ngModel)]="loiColor"
-                name="loiColor"
+                [(ngModel)]="outlineColor"
+                name="outlineColor"
                 style="width: 100%; height: 34px;"
               />
             </div>
@@ -859,7 +859,7 @@
   <br/>								
   <br/>
   <p>Bitte stellen Sie sicher, dass folgendes JSON-Format eingehalten wird:</p>
-  <pre id="spatialUnitsAddMetadataPre" style="overflow:auto; max-height:500px;"></pre>
+  <pre id="spatialUnitsAddMetadataPre" style="overflow:auto; max-height:500px;" [innerHTML]="spatialUnitMetadataStructure_pretty"></pre>
 </div>
 
 <!-- Mapping Config Import Error Alert -->
@@ -874,5 +874,5 @@
   <br/>								
   <br/>
   <p>Bitte stellen Sie sicher, dass folgendes JSON-Format eingehalten wird:</p>
-  <pre id="spatialUnitsAddMappingConfigPre" style="overflow:auto; max-height:500px;"></pre>
+  <pre id="spatialUnitsAddMappingConfigPre" style="overflow:auto; max-height:500px;" [innerHTML]="spatialUnitMappingConfigStructure_pretty"></pre>
 </div> 

@@ -49,7 +49,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
   // Outline layer settings
   isOutlineLayer = false;
   loiColor = '#bf3d2c';
-  outlineWidth = 2;
+  outlineWidth = 3;
   outlineDashArray: any = null;
 
   // Period of validity
@@ -122,6 +122,11 @@ export class SpatialUnitAddModalComponent implements OnInit {
   spatialUnitDataSourceInputInvalid = false;
   spatialUnitDataSourceInputInvalidReason = '';
 
+  // Missing properties from original component
+  outlineColor = "#000000";
+  selectedOutlineDashArrayObject: any = null;
+  spatialUnitMetadataStructure_pretty: string = '';
+
   constructor(
     public activeModal: NgbActiveModal,
     public kommonitorDataExchangeService: KommonitorDataExchangeService,
@@ -137,6 +142,9 @@ export class SpatialUnitAddModalComponent implements OnInit {
     console.log('SpatialUnitAddModalComponent ngOnInit - Modal is being initialized');
     this.loadInitialData();
     this.initializeMultiStepForm();
+    this.initializeOutlineLayerSettings();
+    this.initializeMetadataStructures();
+    this.setupEventListeners();
     console.log('SpatialUnitAddModalComponent ngOnInit - Modal initialization complete');
     console.log('Current step:', this.currentStep);
     console.log('Total steps:', this.totalSteps);
@@ -203,6 +211,84 @@ export class SpatialUnitAddModalComponent implements OnInit {
     if (datasourceTypes) {
       this.availableDatasourceTypes = datasourceTypes;
     }
+  }
+
+  private initializeOutlineLayerSettings() {
+    this.selectedOutlineDashArrayObject = this.kommonitorDataExchangeService.availableLoiDashArrayObjects?.[0] || null;
+    this.availableLoiDashArrayObjects = this.kommonitorDataExchangeService.availableLoiDashArrayObjects || [];
+  }
+
+  private initializeMetadataStructures() {
+    this.spatialUnitMetadataStructure_pretty = this.kommonitorDataExchangeService.syntaxHighlightJSON(this.spatialUnitMetadataStructure);
+  }
+
+  prepareCreatorList() {
+    if (this.kommonitorDataExchangeService.currentKomMonitorLoginRoleNames?.length > 0) {
+      let creatorRights: string[] = [];
+      let creatorRightsChildren: string[] = [];
+      
+      this.kommonitorDataExchangeService.currentKomMonitorLoginRoleNames.forEach((roles: string) => {
+        let key = roles.split('.')[0];
+        let role = roles.split('.')[1];
+
+        if (role === 'unit-resources-creator' && !this.resourcesCreatorRights.includes(key)) {
+          creatorRights.push(key);
+        }
+
+        if (role === 'client-resources-creator' && !creatorRightsChildren.includes(key)) {
+          creatorRightsChildren.push(key);
+        }
+      });
+
+      this.gatherCreatorRightsChildren(creatorRights, creatorRightsChildren);
+      this.resourcesCreatorRights = this.kommonitorDataExchangeService.accessControl?.filter(elem => creatorRights.includes(elem.name)) || [];
+    }
+  }
+
+  private gatherCreatorRightsChildren(creatorRights: string[], creatorRightsChildren: string[]) {
+    if (creatorRightsChildren.length > 0) {
+      this.kommonitorDataExchangeService.accessControl
+        ?.filter(elem => creatorRightsChildren.includes(elem.name))
+        .flatMap(res => res.children || [])
+        .forEach(child => {
+          this.kommonitorDataExchangeService.accessControl
+            ?.filter(elem => elem.organizationalUnitId === child)
+            .forEach(childData => {
+              creatorRights.push(childData.name);
+              this.gatherCreatorRightsChildren(creatorRights, [childData.name]);
+            });
+        });
+    }
+  }
+
+  private refreshRoles(orgUnitId?: string) {
+    let permissionIds_ownerUnit: string[] = [];
+    
+    if (orgUnitId) {
+      const accessControl = this.kommonitorDataExchangeService.getAccessControlById(orgUnitId);
+      permissionIds_ownerUnit = accessControl?.permissions
+        ?.filter(permission => permission.permissionLevel === "viewer" || permission.permissionLevel === "editor")
+        .map(permission => permission.permissionId) || [];
+    }
+
+    // Set datasetOwner flags
+    this.kommonitorDataExchangeService.accessControl?.forEach(item => {
+      item.datasetOwner = item.organizationalUnitId === orgUnitId;
+    });
+
+    this.roleManagementTableOptions = this.kommonitorDataGridHelperService.buildRoleManagementGrid(
+      'spatialUnitAddRoleManagementTable',
+      this.roleManagementTableOptions,
+      this.kommonitorDataExchangeService.accessControl || [],
+      permissionIds_ownerUnit,
+      true
+    );
+  }
+
+  private setupEventListeners() {
+    // Note: In Angular, we typically use subscription to broadcast events
+    // For now, we'll handle these events in the appropriate service calls
+    // The original AngularJS component used $scope.$on which is not available in Angular
   }
 
   checkSpatialUnitName() {
@@ -327,6 +413,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
 
   onChangeOutlineDashArray(outlineDashArrayObject: any) {
     // Handle outline dash array change
+    this.selectedOutlineDashArrayObject = outlineDashArrayObject;
     this.outlineDashArray = outlineDashArrayObject;
   }
 
@@ -465,14 +552,21 @@ export class SpatialUnitAddModalComponent implements OnInit {
         "databasis": this.metadata.databasis
       },
       "jsonSchema": undefined,
-      "allowedRoles": [] as string[],
+      "permissions": [] as string[], // Changed from allowedRoles to match original
       "nextLowerHierarchyLevel": this.nextLowerHierarchySpatialUnit ? this.nextLowerHierarchySpatialUnit.spatialUnitLevel : null,
       "spatialUnitLevel": this.spatialUnitLevel,
       "periodOfValidity": {
         "endDate": this.periodOfValidity && this.periodOfValidity.endDate ? this.periodOfValidity.endDate : null,
         "startDate": this.periodOfValidity && this.periodOfValidity.startDate ? this.periodOfValidity.startDate : null
       },
-      "nextUpperHierarchyLevel": this.nextUpperHierarchySpatialUnit ? this.nextUpperHierarchySpatialUnit.spatialUnitLevel : null
+      "nextUpperHierarchyLevel": this.nextUpperHierarchySpatialUnit ? this.nextUpperHierarchySpatialUnit.spatialUnitLevel : null,
+      // Add missing outline layer properties
+      "isOutlineLayer": this.isOutlineLayer,
+      "outlineColor": this.outlineColor,
+      "outlineWidth": this.outlineWidth,
+      "outlineDashArrayString": this.selectedOutlineDashArrayObject?.dashArrayValue,
+      "ownerId": this.ownerOrganization,
+      "isPublic": this.isPublic
     };
 
     if (this.roleManagementTableOptions) {
@@ -480,7 +574,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
       console.log('- roleIds from grid:', roleIds);
       if (roleIds && Array.isArray(roleIds)) {
         for (const roleId of roleIds) {
-          postBody.allowedRoles.push(roleId);
+          postBody.permissions.push(roleId);
         }
       }
     }
@@ -737,6 +831,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
       return;
     }
 
+    // Parse metadata
     this.metadata = {};
     this.metadata.note = this.metadataImportSettings.metadata.note;
     this.metadata.literature = this.metadataImportSettings.metadata.literature;
@@ -754,26 +849,42 @@ export class SpatialUnitAddModalComponent implements OnInit {
     this.metadata.description = this.metadataImportSettings.metadata.description;
     this.metadata.databasis = this.metadataImportSettings.metadata.databasis;
 
+    // Parse role management (changed from allowedRoles to permissions)
     if (this.kommonitorDataExchangeService.accessControl) {
       this.roleManagementTableOptions = this.kommonitorDataGridHelperService.buildRoleManagementGrid(
         'spatialUnitAddRoleManagementTable', 
         this.roleManagementTableOptions, 
         this.kommonitorDataExchangeService.accessControl, 
-        this.metadataImportSettings.allowedRoles
+        this.metadataImportSettings.permissions || [], // Changed from allowedRoles
+        true
       );
     }
 
-    for (let i = 0; i < this.kommonitorDataExchangeService.availableSpatialUnits.length; i++) {
-      const spatialUnit = this.kommonitorDataExchangeService.availableSpatialUnits[i];
+    // Parse hierarchy
+    this.kommonitorDataExchangeService.availableSpatialUnits.forEach((spatialUnit: any) => {
       if (spatialUnit.spatialUnitLevel === this.metadataImportSettings.nextLowerHierarchyLevel) {
         this.nextLowerHierarchySpatialUnit = spatialUnit;
       }
       if (spatialUnit.spatialUnitLevel === this.metadataImportSettings.nextUpperHierarchyLevel) {
         this.nextUpperHierarchySpatialUnit = spatialUnit;
       }
-    }
+    });
+
+    // Parse outline layer settings
+    this.isOutlineLayer = this.metadataImportSettings.isOutlineLayer || false;
+    this.outlineColor = this.metadataImportSettings.outlineColor || "#000000";
+    this.outlineWidth = this.metadataImportSettings.outlineWidth || 3;
+    
+    this.kommonitorDataExchangeService.availableLoiDashArrayObjects?.forEach((option: any) => {
+      if (option.dashArrayValue === this.metadataImportSettings.outlineDashArrayString) {
+        this.selectedOutlineDashArrayObject = option;
+        this.onChangeOutlineDashArray(this.selectedOutlineDashArrayObject);
+      }
+    });
 
     this.spatialUnitLevel = this.metadataImportSettings.spatialUnitLevel;
+    this.ownerOrganization = this.metadataImportSettings.ownerId;
+    this.isPublic = this.metadataImportSettings.isPublic || false;
   }
 
   parseFromMappingConfigFile(event: any) {
@@ -857,13 +968,14 @@ export class SpatialUnitAddModalComponent implements OnInit {
 
   onExportSpatialUnitAddMetadataTemplate() {
     const metadataJSON = JSON.stringify(this.spatialUnitMetadataStructure);
-    const fileName = "Raumeinheit_Metadaten_Vorlage_Export.json";
+    const fileName = "Raumebene_Metadaten_Vorlage_Export.json";
     this.downloadFile(metadataJSON, fileName);
   }
 
   onExportSpatialUnitAddMetadata() {
     const metadataExport: any = { ...this.spatialUnitMetadataStructure };
 
+    // Update metadata fields
     metadataExport.metadata.note = this.metadata.note || "";
     metadataExport.metadata.literature = this.metadata.literature || "";
     metadataExport.metadata.sridEPSG = this.metadata.sridEPSG || "";
@@ -874,38 +986,33 @@ export class SpatialUnitAddModalComponent implements OnInit {
     metadataExport.metadata.databasis = this.metadata.databasis || "";
     metadataExport.spatialUnitLevel = this.spatialUnitLevel || "";
 
-    metadataExport.allowedRoles = [];
+    // Update permissions (changed from allowedRoles)
+    metadataExport.permissions = [];
     if (this.roleManagementTableOptions) {
       const roleIds = this.kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid(this.roleManagementTableOptions);
-      for (const roleId of roleIds) {
-        metadataExport.allowedRoles.push(roleId);
-      }
+      metadataExport.permissions.push(...roleIds);
     }
 
+    // Update hierarchy levels
     if (this.metadata.updateInterval) {
       metadataExport.metadata.updateInterval = this.metadata.updateInterval.apiName;
     }
-    if (this.nextLowerHierarchySpatialUnit) {
-      metadataExport.nextLowerHierarchyLevel = this.nextLowerHierarchySpatialUnit.spatialUnitLevel;
-    } else {
-      metadataExport.nextLowerHierarchyLevel = "";
-    }
-    if (this.nextUpperHierarchySpatialUnit) {
-      metadataExport.nextUpperHierarchyLevel = this.nextUpperHierarchySpatialUnit.spatialUnitLevel;
-    } else {
-      metadataExport.nextUpperHierarchyLevel = "";
-    }
+    metadataExport.nextLowerHierarchyLevel = this.nextLowerHierarchySpatialUnit?.spatialUnitLevel || "";
+    metadataExport.nextUpperHierarchyLevel = this.nextUpperHierarchySpatialUnit?.spatialUnitLevel || "";
+
+    // Add outline layer properties
+    metadataExport.isOutlineLayer = this.isOutlineLayer;
+    metadataExport.outlineDashArrayString = this.selectedOutlineDashArrayObject?.dashArrayValue;
+    metadataExport.outlineColor = this.outlineColor;
+    metadataExport.outlineWidth = this.outlineWidth;
+
+    // Add owner properties
+    metadataExport.ownerId = this.ownerOrganization;
+    metadataExport.isPublic = this.isPublic;
 
     const name = this.spatialUnitLevel;
-    const metadataJSON = JSON.stringify(metadataExport);
-    let fileName = "Raumeinheit_Metadaten_Export";
-
-    if (name) {
-      fileName += "-" + name;
-    }
-
-    fileName += ".json";
-    this.downloadFile(metadataJSON, fileName);
+    const fileName = `Raumebene_Metadaten_Export${name ? '-' + name : ''}.json`;
+    this.downloadFile(JSON.stringify(metadataExport), fileName);
   }
 
   async onExportSpatialUnitAddMappingConfig() {
@@ -952,25 +1059,25 @@ export class SpatialUnitAddModalComponent implements OnInit {
   get spatialUnitMetadataStructure() {
     return {
       "metadata": {
-        "note": "",
-        "literature": "",
-        "updateInterval": "",
-        "sridEPSG": "",
-        "datasource": "",
-        "contact": "",
-        "lastUpdate": "",
-        "description": "",
-        "databasis": ""
+        "note": "an optional note",
+        "literature": "optional text about literature",
+        "updateInterval": "YEARLY|HALF_YEARLY|QUARTERLY|MONTHLY|ARBITRARY",
+        "sridEPSG": 4326,
+        "datasource": "text about data source",
+        "contact": "text about contact details",
+        "lastUpdate": "YYYY-MM-DD",
+        "description": "description about spatial unit dataset",
+        "databasis": "text about data basis",
       },
-      "allowedRoles": [],
-      "nextLowerHierarchyLevel": "",
-      "spatialUnitLevel": "",
-      "nextUpperHierarchyLevel": ""
+      "permissions": ['roleId'],
+      "nextLowerHierarchyLevel": "Name of lower hierarchy level",
+      "spatialUnitLevel": "Name of spatial unit dataset",
+      "nextUpperHierarchyLevel": "Name of upper hierarchy level"
     };
   }
 
   get spatialUnitMappingConfigStructure_pretty() {
-    return JSON.stringify(this.spatialUnitMetadataStructure, null, 2);
+    return this.kommonitorDataExchangeService.syntaxHighlightJSON(this.kommonitorImporterHelperService.mappingConfigStructure);
   }
 
   resetForm() {
@@ -993,10 +1100,14 @@ export class SpatialUnitAddModalComponent implements OnInit {
     this.hierarchyInvalid = false;
     this.periodOfValidity = { startDate: '', endDate: '' };
     this.periodOfValidityInvalid = false;
+    
+    // Reset outline layer settings
     this.isOutlineLayer = false;
-    this.loiColor = '#bf3d2c';
-    this.outlineWidth = 2;
+    this.outlineColor = "#000000";
+    this.outlineWidth = 3;
     this.outlineDashArray = null;
+    this.selectedOutlineDashArrayObject = this.kommonitorDataExchangeService.availableLoiDashArrayObjects?.[0] || null;
+    
     this.converter = null;
     this.schema = '';
     this.mimeType = '';
@@ -1022,15 +1133,28 @@ export class SpatialUnitAddModalComponent implements OnInit {
     this.namePropertyNotFound = false;
     this.spatialUnitDataSourceInputInvalid = false;
     this.spatialUnitDataSourceInputInvalidReason = '';
+    
+    // Reset role management
     this.ownerOrganization = '';
     this.ownerOrgFilter = '';
     this.isPublic = false;
-    this.roleManagementTableOptions = null;
+    this.resourcesCreatorRights = [];
+    
+    // Reset role management table
+    if (this.kommonitorDataExchangeService.accessControl) {
+      this.roleManagementTableOptions = this.kommonitorDataGridHelperService.buildRoleManagementGrid(
+        'spatialUnitAddRoleManagementTable',
+        this.roleManagementTableOptions,
+        this.kommonitorDataExchangeService.accessControl,
+        [],
+        true
+      );
+    }
+    
     this.metadataImportSettings = null;
     this.mappingConfigImportSettings = null;
     this.spatialUnitMetadataImportError = '';
     this.spatialUnitMappingConfigImportError = '';
-    this.resourcesCreatorRights = [];
     this.spatialUnitDataSourceIdPropertyInvalid = false;
     this.spatialUnitDataSourceNamePropertyInvalid = false;
     const attributeMappingTypes = this.kommonitorImporterHelperService.getAttributeMappingTypes();
