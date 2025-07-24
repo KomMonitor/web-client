@@ -126,6 +126,32 @@ export class SpatialUnitAddModalComponent implements OnInit {
   outlineColor = "#000000";
   selectedOutlineDashArrayObject: any = null;
   spatialUnitMetadataStructure_pretty: string = '';
+  
+  // Role form visibility
+  showRoleForm = false;
+
+  // Filter organizations based on ownerOrgFilter
+  get filteredAccessControl() {
+    const accessControl = this.kommonitorDataExchangeService.accessControl || [];
+    
+    if (!this.ownerOrgFilter) {
+      return accessControl;
+    }
+    const filtered = accessControl.filter(org => 
+      org.name.toLowerCase().includes(this.ownerOrgFilter.toLowerCase())
+    );
+    return filtered;
+  }
+
+  get filteredResourcesCreatorRights() {
+    if (!this.ownerOrgFilter) {
+      return this.resourcesCreatorRights;
+    }
+    const filtered = this.resourcesCreatorRights.filter(org => 
+      org.name.toLowerCase().includes(this.ownerOrgFilter.toLowerCase())
+    );
+    return filtered;
+  }
 
   constructor(
     public activeModal: NgbActiveModal,
@@ -135,19 +161,14 @@ export class SpatialUnitAddModalComponent implements OnInit {
     private http: HttpClient,
     private broadcastService: BroadcastService
   ) {
-    console.log('SpatialUnitAddModalComponent constructor initialized - Modal is being created');
   }
 
   ngOnInit() {
-    console.log('SpatialUnitAddModalComponent ngOnInit - Modal is being initialized');
     this.loadInitialData();
     this.initializeMultiStepForm();
     this.initializeOutlineLayerSettings();
     this.initializeMetadataStructures();
     this.setupEventListeners();
-    console.log('SpatialUnitAddModalComponent ngOnInit - Modal initialization complete');
-    console.log('Current step:', this.currentStep);
-    console.log('Total steps:', this.totalSteps);
   }
 
   private loadInitialData() {
@@ -161,6 +182,8 @@ export class SpatialUnitAddModalComponent implements OnInit {
     // Load update interval options
     if (this.kommonitorDataExchangeService.updateIntervalOptions) {
       this.updateIntervalOptions = this.kommonitorDataExchangeService.updateIntervalOptions;
+    } else {
+      console.warn('No update interval options available from service');
     }
 
     // Initialize attribute mapping types
@@ -173,7 +196,30 @@ export class SpatialUnitAddModalComponent implements OnInit {
     this.loadConverters();
     this.loadDatasourceTypes();
 
-    this.loadingData = false;
+    // Load access control data and prepare creator list
+    this.loadAccessControlData();
+  }
+
+  private loadAccessControlData() {
+    // Check if access control data is already available
+    if (this.kommonitorDataExchangeService.accessControl && this.kommonitorDataExchangeService.accessControl.length > 0) {
+      this.prepareCreatorList();
+      this.loadingData = false;
+    } else {
+      // Fetch access control data from server
+      this.kommonitorDataExchangeService.fetchAccessControlMetadata().subscribe({
+        next: (data) => {
+          this.prepareCreatorList();
+          this.loadingData = false;
+        },
+        error: (error) => {
+          console.error('Error fetching access control data:', error);
+          // Set empty arrays to avoid errors
+          this.resourcesCreatorRights = [];
+          this.loadingData = false;
+        }
+      });
+    }
   }
 
   private initializeMultiStepForm() {
@@ -225,39 +271,20 @@ export class SpatialUnitAddModalComponent implements OnInit {
   prepareCreatorList() {
     if (this.kommonitorDataExchangeService.currentKomMonitorLoginRoleNames?.length > 0) {
       let creatorRights: string[] = [];
-      let creatorRightsChildren: string[] = [];
       
       this.kommonitorDataExchangeService.currentKomMonitorLoginRoleNames.forEach((roles: string) => {
         let key = roles.split('.')[0];
         let role = roles.split('.')[1];
 
-        if (role === 'unit-resources-creator' && !this.resourcesCreatorRights.includes(key)) {
+        if (role === 'unit-resources-creator' && !creatorRights.includes(key)) {
           creatorRights.push(key);
-        }
-
-        if (role === 'client-resources-creator' && !creatorRightsChildren.includes(key)) {
-          creatorRightsChildren.push(key);
         }
       });
 
-      this.gatherCreatorRightsChildren(creatorRights, creatorRightsChildren);
+      // Simplified approach - just filter based on creator rights
       this.resourcesCreatorRights = this.kommonitorDataExchangeService.accessControl?.filter(elem => creatorRights.includes(elem.name)) || [];
-    }
-  }
-
-  private gatherCreatorRightsChildren(creatorRights: string[], creatorRightsChildren: string[]) {
-    if (creatorRightsChildren.length > 0) {
-      this.kommonitorDataExchangeService.accessControl
-        ?.filter(elem => creatorRightsChildren.includes(elem.name))
-        .flatMap(res => res.children || [])
-        .forEach(child => {
-          this.kommonitorDataExchangeService.accessControl
-            ?.filter(elem => elem.organizationalUnitId === child)
-            .forEach(childData => {
-              creatorRights.push(childData.name);
-              this.gatherCreatorRightsChildren(creatorRights, [childData.name]);
-            });
-        });
+    } else {
+      this.resourcesCreatorRights = [];
     }
   }
 
@@ -419,35 +446,19 @@ export class SpatialUnitAddModalComponent implements OnInit {
 
   // Importer object building methods
   async buildImporterObjects() {
-    console.log('=== BUILDING IMPORTER OBJECTS - START ===');
     
-    console.log('Building converter definition...');
     this.converterDefinition = this.buildConverterDefinition();
-    console.log('- converterDefinition result:', this.converterDefinition);
     
-    console.log('Building datasource type definition...');
     this.datasourceTypeDefinition = await this.buildDatasourceTypeDefinition();
-    console.log('- datasourceTypeDefinition result:', this.datasourceTypeDefinition);
     
-    console.log('Building property mapping definition...');
     this.propertyMappingDefinition = this.buildPropertyMappingDefinition();
-    console.log('- propertyMappingDefinition result:', this.propertyMappingDefinition);
     
-    console.log('Building post body for spatial units...');
     this.postBody_spatialUnits = this.buildPostBody_spatialUnits();
-    console.log('- postBody_spatialUnits result:', this.postBody_spatialUnits);
 
     const allValid = this.converterDefinition && 
                     this.datasourceTypeDefinition && 
                     this.propertyMappingDefinition && 
                     this.postBody_spatialUnits;
-    
-    console.log('=== BUILDING IMPORTER OBJECTS - END ===');
-    console.log('- All objects valid:', allValid);
-    console.log('- converterDefinition valid:', !!this.converterDefinition);
-    console.log('- datasourceTypeDefinition valid:', !!this.datasourceTypeDefinition);
-    console.log('- propertyMappingDefinition valid:', !!this.propertyMappingDefinition);
-    console.log('- postBody_spatialUnits valid:', !!this.postBody_spatialUnits);
 
     if (!allValid) {
       console.error('=== BUILDING IMPORTER OBJECTS - FAILED ===');
@@ -458,10 +469,6 @@ export class SpatialUnitAddModalComponent implements OnInit {
   }
 
   buildConverterDefinition() {
-    console.log('=== BUILDING CONVERTER DEFINITION ===');
-    console.log('- converter:', this.converter);
-    console.log('- schema:', this.schema);
-    console.log('- mimeType:', this.mimeType);
     
     const result = this.kommonitorImporterHelperService.buildConverterDefinition(
       this.converter, 
@@ -470,13 +477,10 @@ export class SpatialUnitAddModalComponent implements OnInit {
       this.mimeType
     );
     
-    console.log('- buildConverterDefinition result:', result);
     return result;
   }
 
   async buildDatasourceTypeDefinition() {
-    console.log('=== BUILDING DATASOURCE TYPE DEFINITION ===');
-    console.log('- datasourceType:', this.datasourceType);
     
     try {
       const result = await this.kommonitorImporterHelperService.buildDatasourceTypeDefinition(
@@ -485,7 +489,6 @@ export class SpatialUnitAddModalComponent implements OnInit {
         'spatialUnitDataSourceInput'
       );
       
-      console.log('- buildDatasourceTypeDefinition result:', result);
       return result;
     } catch (error: any) {
       console.error('=== BUILDING DATASOURCE TYPE DEFINITION - ERROR ===');
@@ -504,39 +507,22 @@ export class SpatialUnitAddModalComponent implements OnInit {
   }
 
   buildPropertyMappingDefinition() {
-    console.log('=== BUILDING PROPERTY MAPPING DEFINITION ===');
-    console.log('- spatialUnitDataSourceNameProperty:', this.spatialUnitDataSourceNameProperty);
-    console.log('- spatialUnitDataSourceIdProperty:', this.spatialUnitDataSourceIdProperty);
-    console.log('- validityStartDate_perFeature:', this.validityStartDate_perFeature);
-    console.log('- validityEndDate_perFeature:', this.validityEndDate_perFeature);
-    console.log('- keepAttributes:', this.keepAttributes);
-    console.log('- keepMissingValues:', this.keepMissingValues);
-    console.log('- attributeMappings_adminView:', this.attributeMappings_adminView);
     
-    // arsion from is undefined currently
     const result = this.kommonitorImporterHelperService.buildPropertyMapping_spatialResource(
       this.spatialUnitDataSourceNameProperty, 
       this.spatialUnitDataSourceIdProperty, 
       this.validityStartDate_perFeature, 
       this.validityEndDate_perFeature, 
-      '', // empty string instead of undefined
+      '',
       this.keepAttributes, 
       this.keepMissingValues, 
       this.attributeMappings_adminView
     );
     
-    console.log('- buildPropertyMappingDefinition result:', result);
     return result;
   }
 
   buildPostBody_spatialUnits() {
-    console.log('=== BUILDING POST BODY FOR SPATIAL UNITS ===');
-    console.log('- metadata:', this.metadata);
-    console.log('- nextLowerHierarchySpatialUnit:', this.nextLowerHierarchySpatialUnit);
-    console.log('- nextUpperHierarchySpatialUnit:', this.nextUpperHierarchySpatialUnit);
-    console.log('- spatialUnitLevel:', this.spatialUnitLevel);
-    console.log('- periodOfValidity:', this.periodOfValidity);
-    console.log('- roleManagementTableOptions:', this.roleManagementTableOptions);
     
     const postBody: any = {
       "geoJsonString": "", // will be set by importer
@@ -571,7 +557,6 @@ export class SpatialUnitAddModalComponent implements OnInit {
 
     if (this.roleManagementTableOptions) {
       const roleIds = this.kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid(this.roleManagementTableOptions);
-      console.log('- roleIds from grid:', roleIds);
       if (roleIds && Array.isArray(roleIds)) {
         for (const roleId of roleIds) {
           postBody.permissions.push(roleId);
@@ -579,35 +564,17 @@ export class SpatialUnitAddModalComponent implements OnInit {
       }
     }
 
-    console.log('- buildPostBody_spatialUnits result:', postBody);
     return postBody;
   }
 
   async addSpatialUnit() {
-    console.log('=== SPATIAL UNIT ADD - START ===');
-    console.log('Current form state:');
-    console.log('- spatialUnitLevel:', this.spatialUnitLevel);
-    console.log('- metadata:', this.metadata);
-    console.log('- converter:', this.converter);
-    console.log('- datasourceType:', this.datasourceType);
-    console.log('- currentStep:', this.currentStep);
-    console.log('- totalSteps:', this.totalSteps);
     
     this.loadingData = true;
     this.importerErrors = [];
     this.successMessagePart = '';
     this.errorMessagePart = '';
 
-    console.log('=== BUILDING IMPORTER OBJECTS ===');
-    // now collect data and build request for importer
     const allDataSpecified = await this.buildImporterObjects();
-
-    console.log('=== IMPORTER OBJECTS RESULT ===');
-    console.log('- allDataSpecified:', allDataSpecified);
-    console.log('- converterDefinition:', this.converterDefinition);
-    console.log('- datasourceTypeDefinition:', this.datasourceTypeDefinition);
-    console.log('- propertyMappingDefinition:', this.propertyMappingDefinition);
-    console.log('- postBody_spatialUnits:', this.postBody_spatialUnits);
 
     if (!allDataSpecified) {
       console.error('=== VALIDATION FAILED ===');
@@ -621,14 +588,11 @@ export class SpatialUnitAddModalComponent implements OnInit {
       this.loadingData = false;
       return;
     } else {
-      console.log('=== VALIDATION PASSED - PROCEEDING WITH DRY RUN ===');
       // TODO verify input
       // TODO Create and perform POST Request with loading screen
 
       let newSpatialUnitResponse_dryRun: any = undefined;
       try {
-        console.log('=== STARTING DRY RUN ===');
-        console.log('Calling kommonitorImporterHelperService.registerNewSpatialUnit with dryRun=true');
         
         newSpatialUnitResponse_dryRun = await this.kommonitorImporterHelperService.registerNewSpatialUnit(
           this.converterDefinition,
@@ -638,12 +602,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
           true // isDryRun
         );
 
-        console.log('=== DRY RUN RESPONSE ===');
-        console.log('- newSpatialUnitResponse_dryRun:', newSpatialUnitResponse_dryRun);
-        console.log('- Response contains errors:', this.kommonitorImporterHelperService.importerResponseContainsErrors(newSpatialUnitResponse_dryRun));
-
         if (!this.kommonitorImporterHelperService.importerResponseContainsErrors(newSpatialUnitResponse_dryRun)) {
-          console.log('=== DRY RUN SUCCESSFUL - PROCEEDING WITH ACTUAL IMPORT ===');
           // all good, really execute the request to import data against data management API
           const newSpatialUnitResponse = await this.kommonitorImporterHelperService.registerNewSpatialUnit(
             this.converterDefinition,
@@ -652,10 +611,6 @@ export class SpatialUnitAddModalComponent implements OnInit {
             this.postBody_spatialUnits,
             false // isDryRun
           );
-
-          console.log('=== ACTUAL IMPORT RESPONSE ===');
-          console.log('- newSpatialUnitResponse:', newSpatialUnitResponse);
-          console.log('- Imported ID:', this.kommonitorImporterHelperService.getIdFromImporterResponse(newSpatialUnitResponse));
 
           this.broadcastService.broadcast("refreshSpatialUnitOverviewTable", ["add", this.kommonitorImporterHelperService.getIdFromImporterResponse(newSpatialUnitResponse)]);
 
@@ -668,21 +623,13 @@ export class SpatialUnitAddModalComponent implements OnInit {
           const importedFeatures = this.kommonitorImporterHelperService.getImportedFeaturesFromImporterResponse(newSpatialUnitResponse);
           this.importedFeatures = importedFeatures || [];
 
-          console.log('=== IMPORT SUCCESSFUL ===');
-          console.log('- successMessagePart:', this.successMessagePart);
-          console.log('- importedFeatures count:', this.importedFeatures.length);
-
           this.loadingData = false;
         } else {
-          console.error('=== DRY RUN FAILED WITH ERRORS ===');
           // errors occurred
           // show them 
           this.errorMessagePart = "Einige der zu importierenden Features des Datensatzes weisen kritische Fehler auf";
           const errors = this.kommonitorImporterHelperService.getErrorsFromImporterResponse(newSpatialUnitResponse_dryRun);
           this.importerErrors = errors || [];
-
-          console.error('- errorMessagePart:', this.errorMessagePart);
-          console.error('- importerErrors:', this.importerErrors);
 
           this.loadingData = false;
         }
@@ -703,33 +650,20 @@ export class SpatialUnitAddModalComponent implements OnInit {
         if (newSpatialUnitResponse_dryRun) {
           const errors = this.kommonitorImporterHelperService.getErrorsFromImporterResponse(newSpatialUnitResponse_dryRun);
           this.importerErrors = errors || [];
-          console.error('- Errors from dry run:', this.importerErrors);
         }
 
         this.loadingData = false;
       }
     }
-    console.log('=== SPATIAL UNIT ADD - END ===');
   }
 
   onSubmit() {
-    console.log('=== ON SUBMIT - START ===');
-    console.log('Current form state:');
-    console.log('- spatialUnitLevel:', this.spatialUnitLevel);
-    console.log('- spatialUnitLevelInvalid:', this.spatialUnitLevelInvalid);
-    console.log('- hierarchyInvalid:', this.hierarchyInvalid);
-    console.log('- currentStep:', this.currentStep);
-    console.log('- totalSteps:', this.totalSteps);
-
+    
     if (!this.spatialUnitLevelInvalid && !this.hierarchyInvalid) {
       this.addSpatialUnit();
     } else {
-      console.log('=== ON SUBMIT - FAILED VALIDATION ===');
-      console.log('- spatialUnitLevelInvalid:', this.spatialUnitLevelInvalid);
-      console.log('- hierarchyInvalid:', this.hierarchyInvalid);
       this.loadingData = false;
     }
-    console.log('=== ON SUBMIT - END ===');
   }
 
   // Multi-step navigation
@@ -757,7 +691,6 @@ export class SpatialUnitAddModalComponent implements OnInit {
 
     // For now, allow navigation to any step for testing
     // TODO: Add validation back once basic navigation works
-    console.log(`Navigating to step: ${step}`);
     this.currentStep = step;
   }
 
@@ -1139,6 +1072,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
     this.ownerOrgFilter = '';
     this.isPublic = false;
     this.resourcesCreatorRights = [];
+    this.showRoleForm = false;
     
     // Reset role management table
     if (this.kommonitorDataExchangeService.accessControl) {
@@ -1182,6 +1116,12 @@ export class SpatialUnitAddModalComponent implements OnInit {
   onChangeOwner(ownerOrganization: any) {
     // Handle owner organization change
     this.ownerOrganization = ownerOrganization;
+    
+    // Refresh roles for the selected organization
+    this.refreshRoles(ownerOrganization);
+    
+    // Show/hide the role form based on whether an organization is selected
+    this.showRoleForm = !!ownerOrganization;
   }
 
   onChangeIsPublic(isPublic: boolean) {

@@ -316,16 +316,19 @@
           <div class="alert alert-info">
             Bitte wählen Sie zunächst die Organisationseinheit aus, unter welcher Sie den Datensatz anlegen möchten
           </div>
+          
           <label for="addSpatialUnitUserRoleSelect">Eigentümer-Organisationseinheit*</label>
           <div class="input-group">
             <span class="input-group-addon"><i class="fas fa-filter"></i></span>
             <input type="text" class="form-control input-sm" placeholder="Stichwortfilter" [(ngModel)]="ownerOrgFilter" name="ownerOrgFilter">
           </div>
           <select *ngIf="kommonitorDataExchangeService.checkAdminPermission()" id="addSpatialUnitUserRoleSelect" [(ngModel)]="ownerOrganization" name="ownerOrganization" class="form-control" (ngModelChange)="onChangeOwner(ownerOrganization)" required>
-            <option *ngFor="let org of kommonitorDataExchangeService.accessControl" [value]="org.organizationalUnitId">{{org.name}}</option>
+            <option [ngValue]="null"> -- Eigentümer-Organisationseinheit wählen -- </option>
+            <option *ngFor="let org of filteredAccessControl" [value]="org.organizationalUnitId">{{org.name}}</option>
           </select>		
           <select *ngIf="!kommonitorDataExchangeService.checkAdminPermission()" id="addSpatialUnitUserRoleSelect" [(ngModel)]="ownerOrganization" name="ownerOrganization" class="form-control" (ngModelChange)="onChangeOwner(ownerOrganization)" required>
-            <option *ngFor="let org of resourcesCreatorRights" [value]="org.organizationalUnitId">{{org.name}}</option>
+            <option [ngValue]="null"> -- Eigentümer-Organisationseinheit wählen -- </option>
+            <option *ngFor="let org of filteredResourcesCreatorRights" [value]="org.organizationalUnitId">{{org.name}}</option>
           </select>		
           <p></p>
         </div>
@@ -336,7 +339,7 @@
       <hr>
       <br>
 
-      <div id="spatialUnitRoleForm">
+      <div id="spatialUnitRoleForm" *ngIf="showRoleForm">
         <label>Datensatz-Freigaben</label>
         <div class="row vertical-align">
           <div class="col-md-3">

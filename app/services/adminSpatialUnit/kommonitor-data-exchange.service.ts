@@ -406,12 +406,34 @@ export class KommonitorDataExchangeService implements OnDestroy {
    */
   get updateIntervalOptions(): any[] {
     return [
-      { value: 'daily', label: 'Täglich' },
-      { value: 'weekly', label: 'Wöchentlich' },
-      { value: 'monthly', label: 'Monatlich' },
-      { value: 'quarterly', label: 'Vierteljährlich' },
-      { value: 'yearly', label: 'Jährlich' },
-      { value: 'on-demand', label: 'Bei Bedarf' }
+      {
+        displayName: "jährlich",
+        apiName: "YEARLY"
+      },
+      {
+        displayName: "halbjährlich",
+        apiName: "HALF_YEARLY"
+      },
+      {
+        displayName: "vierteljährlich",
+        apiName: "QUARTERLY"
+      },
+      {
+        displayName: "monatlich",
+        apiName: "MONTHLY"
+      },
+      {
+        displayName: "wöchentlich",
+        apiName: "WEEKLY"
+      },
+      {
+        displayName: "täglich",
+        apiName: "DAILY"
+      },
+      {
+        displayName: "beliebig",
+        apiName: "ARBITRARY"
+      }
     ];
   }
 
@@ -483,6 +505,9 @@ export class KommonitorDataExchangeService implements OnDestroy {
         
         // Update KomMonitor roles after access control is loaded
         this.updateKomMonitorRoles();
+        
+        // Reset loading state after successful fetch
+        this.setLoading(false);
       }),
       catchError(error => {
         this.setError(this.handleHttpError(error));
