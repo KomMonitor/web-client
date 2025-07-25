@@ -5,6 +5,7 @@ import { Subscription } from 'rxjs';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { KommonitorDataExchangeService } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
 import { KommonitorDataGridHelperService } from 'services/adminSpatialUnit/kommonitor-data-grid-helper.service';
+import { GridOptions, GridReadyEvent, ColDef } from 'ag-grid-community';
 
 @Component({
   selector: 'spatial-unit-edit-user-roles-modal',
@@ -14,8 +15,32 @@ import { KommonitorDataGridHelperService } from 'services/adminSpatialUnit/kommo
 export class SpatialUnitEditUserRolesModalComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('progressbar', { static: true }) progressBar!: ElementRef;
 
-  currentSpatialUnitDataset: any = null;
+  private _currentSpatialUnitDataset: any = null;
+
+  get currentSpatialUnitDataset(): any {
+    return this._currentSpatialUnitDataset;
+  }
+
+  set currentSpatialUnitDataset(value: any) {
+    this._currentSpatialUnitDataset = value;
+    if (value) {
+      this.resetForm();
+      // If access control data is available, refresh the table
+      if (this.kommonitorDataExchangeService.accessControl && this.kommonitorDataExchangeService.accessControl.length > 0) {
+        setTimeout(() => {
+          this.refreshRoleManagementTable();
+        }, 100);
+      }
+    }
+  }
   roleManagementTableOptions: any = undefined;
+  
+  // ag-Grid properties
+  roleManagementColumnDefs: ColDef[] = [];
+  roleManagementRowData: any[] = [];
+  roleManagementDefaultColDef: any = {};
+  roleManagementGridOptions: GridOptions = {};
+  roleManagementGridApi: any = null;
   
   successMessagePart: string = '';
   errorMessagePart: string = '';
@@ -42,12 +67,18 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, OnDestroy
 
   ngOnInit(): void {
     this.prepareCreatorList();
-    this.resetForm();
     this.setupBroadcastSubscription();
+    this.loadAccessControlData();
   }
 
   ngAfterViewInit(): void {
     this.updateProgressBar();
+    // Initialize grid if data is already available
+    if (this.currentSpatialUnitDataset) {
+      setTimeout(() => {
+        this.refreshRoleManagementTable();
+      }, 100);
+    }
   }
 
   ngOnDestroy(): void {
@@ -112,6 +143,11 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, OnDestroy
   refreshRoleManagementTable(): void {
     this.permissions = this.currentSpatialUnitDataset ? this.currentSpatialUnitDataset.permissions : [];
 
+    // Check if accessControl data is available
+    if (!this.kommonitorDataExchangeService.accessControl || this.kommonitorDataExchangeService.accessControl.length === 0) {
+      return;
+    }
+
     // set datasetOwner to disable checkboxes for owned datasets in permissions-table
     this.kommonitorDataExchangeService.accessControl.forEach((item: any) => {
       if (this.currentSpatialUnitDataset) {
@@ -128,13 +164,7 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, OnDestroy
     }
 
     let access = this.kommonitorDataExchangeService.accessControl;
-    if (this.permissions.length > 0 && this.activeRolesOnly) {
-      access = this.kommonitorDataExchangeService.accessControl.filter((unit: any) => {
-        return unit.permissions.filter((unitPermission: any) => 
-          this.permissions.includes(unitPermission.permissionId)
-        ).length > 0;
-      });
-    }
+    // Do not filter access here; always pass the full array to the grid helper
 
     this.roleManagementTableOptions = this.kommonitorDataGridHelperService.buildRoleManagementGrid(
       'spatialUnitEditRoleManagementTable',
@@ -143,6 +173,100 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, OnDestroy
       this.permissions,
       true
     );
+
+    // Extract column definitions and row data for ag-grid-angular
+    if (this.roleManagementTableOptions) {
+      this.roleManagementColumnDefs = this.roleManagementTableOptions.columnDefs || [];
+      // Always get the full row data
+      let allRows = this.roleManagementTableOptions.rowData || [];
+      // If toggle is on, filter for at least one assigned right
+      if (this.activeRolesOnly) {
+        allRows = allRows.filter((row: any) => row.viewer || row.editor || row.creator);
+      }
+      this.roleManagementRowData = allRows;
+      // Build grid configuration
+      this.buildRoleManagementGridConfig();
+    }
+  }
+
+  private buildRoleManagementGridConfig(): void {
+    this.roleManagementDefaultColDef = this.buildRoleManagementDefaultColDef();
+    this.roleManagementGridOptions = this.buildRoleManagementGridOptions();
+  }
+
+  private buildRoleManagementDefaultColDef(): any {
+    return {
+      editable: false,
+      sortable: true,
+      flex: 1,
+      minWidth: 100,
+      filter: true,
+      floatingFilter: false,
+      resizable: true,
+      wrapText: true,
+      autoHeight: true,
+      cellStyle: { 
+        'font-size': '12px', 
+        'white-space': 'normal !important', 
+        'line-height': '20px !important', 
+        'word-break': 'break-word !important', 
+        'padding-top': '17px', 
+        'padding-bottom': '17px' 
+      },
+      headerComponentParams: {
+        template:
+          '<div class="ag-cell-label-container" role="presentation">' +
+          '  <span ref="eMenu" class="ag-header-icon ag-header-cell-menu-button"></span>' +
+          '  <div ref="eLabel" class="ag-header-cell-label" role="presentation">' +
+          '    <span ref="eSortOrder" class="ag-header-icon ag-sort-order"></span>' +
+          '    <span ref="eSortAsc" class="ag-header-icon ag-sort-ascending-icon"></span>' +
+          '    <span ref="eSortDesc" class="ag-header-icon ag-sort-descending-icon"></span>' +
+          '    <span ref="eSortNone" class="ag-header-icon ag-sort-none-icon"></span>' +
+          '    <span ref="eText" class="ag-header-cell-text" role="columnheader" style="white-space: normal;"></span>' +
+          '    <span ref="eFilter" class="ag-header-icon ag-filter-icon"></span>' +
+          '  </div>' +
+          '</div>',
+      },
+    };
+  }
+
+  private buildRoleManagementGridOptions(): GridOptions {
+    // Use components from the table options if available
+    const components = this.roleManagementTableOptions?.components || {};
+
+    return {
+      components: components,
+      suppressRowClickSelection: true,
+      rowSelection: 'multiple',
+      enableCellTextSelection: true,
+      ensureDomOrder: true,
+      pagination: true,
+      paginationPageSize: 10,
+      suppressColumnVirtualisation: true,
+      headerHeight: 40,
+      rowHeight: 35,
+      onGridReady: (params) => {
+        this.onRoleManagementGridReady(params);
+      },
+      onFirstDataRendered: (event) => {
+        this.onRoleManagementFirstDataRendered(event);
+      },
+      onColumnResized: (event) => {
+        this.onRoleManagementColumnResized(event);
+      }
+    };
+  }
+
+  onRoleManagementGridReady(params: GridReadyEvent): void {
+    this.roleManagementGridApi = params.api;
+  }
+
+  onRoleManagementFirstDataRendered(event: any): void {
+    // Handle first data rendered event
+  }
+
+  onRoleManagementColumnResized(event: any): void {
+    // Handle column resized event
   }
 
   onActiveRolesOnlyChange(): void {
@@ -151,7 +275,6 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, OnDestroy
 
   onChangeOwner(ownerOrganization: string): void {
     this.ownerOrganization = ownerOrganization;
-    console.log('Target creator role selected to be ', this.ownerOrganization);
     this.refreshRoles(this.ownerOrganization);
   }
 
@@ -178,12 +301,39 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, OnDestroy
       permissionIds_ownerUnit,
       true
     );
+
+    // Extract column definitions and row data for ag-grid-angular and rebuild grid config
+    if (this.roleManagementTableOptions) {
+      this.roleManagementColumnDefs = this.roleManagementTableOptions.columnDefs || [];
+      this.roleManagementRowData = this.roleManagementTableOptions.rowData || [];
+      
+      // Build grid configuration (this will use the components from roleManagementTableOptions)
+      this.buildRoleManagementGridConfig();
+      
+      // If grid is already initialized, update the data and grid options
+      if (this.roleManagementGridApi && !this.roleManagementGridApi.isDestroyed()) {
+        // Update data
+        this.roleManagementGridApi.setRowData(this.roleManagementRowData);
+        this.roleManagementGridApi.setColumnDefs(this.roleManagementColumnDefs);
+        
+        // Refresh the grid to ensure it updates
+        setTimeout(() => {
+          if (this.roleManagementGridApi && !this.roleManagementGridApi.isDestroyed()) {
+            this.roleManagementGridApi.refreshCells();
+            this.roleManagementGridApi.redrawRows();
+          }
+        }, 100);
+      }
+    }
   }
 
   resetForm(): void {
     if (this.currentSpatialUnitDataset) {
       this.ownerOrganization = this.currentSpatialUnitDataset.ownerId;
-      this.refreshRoleManagementTable();
+      // Ensure the grid is initialized after a short delay to allow the view to be ready
+      setTimeout(() => {
+        this.refreshRoleManagementTable();
+      }, 100);
     }
     
     this.ownerOrgFilter = '';
@@ -336,5 +486,34 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, OnDestroy
 
   onCancel(): void {
     this.activeModal.dismiss();
+  }
+
+  // Method to initialize the component with data (called from parent)
+  initializeWithData(spatialUnitDataset: any): void {
+    this.currentSpatialUnitDataset = spatialUnitDataset;
+    this.resetForm();
+  }
+
+  private loadAccessControlData(): void {
+    // Check if access control data is already available
+    if (this.kommonitorDataExchangeService.accessControl && this.kommonitorDataExchangeService.accessControl.length > 0) {
+      // If we have data and a spatial unit dataset, refresh the table
+      if (this.currentSpatialUnitDataset) {
+        this.refreshRoleManagementTable();
+      }
+    } else {
+      // Fetch access control data from server
+      this.kommonitorDataExchangeService.fetchAccessControlMetadata().subscribe({
+        next: (data) => {
+          // If we have data and a spatial unit dataset, refresh the table
+          if (this.currentSpatialUnitDataset) {
+            this.refreshRoleManagementTable();
+          }
+        },
+        error: (error) => {
+          console.error('Error fetching access control data:', error);
+        }
+      });
+    }
   }
 } 

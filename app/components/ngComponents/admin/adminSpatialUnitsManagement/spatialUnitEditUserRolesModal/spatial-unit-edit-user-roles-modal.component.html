@@ -32,11 +32,11 @@
           <p>Zugriffsrechte (lesen, editieren) müssen explizit vergeben werden</p>
         
           <div class="row">
-            <div class="col-md-12 col-sm-12 col-xs-12" *ngIf="permissions.length!=0">
+            <div class="col-md-12 col-sm-12 col-xs-12">
               <div class="form-group vertical-align">
                 <label class="margin-right">Zeige nur zugewiesene Rechte</label>
                 <label class="switch">
-                  <input type="checkbox" value="activeRolesOnly" [(ngModel)]="activeRolesOnly" name="activeRolesOnly" [ngModelOptions]="{standalone: true}" (ngModelChange)="onActiveRolesOnlyChange()" [disabled]="permissions.length==0">
+                  <input type="checkbox" value="activeRolesOnly" [(ngModel)]="activeRolesOnly" name="activeRolesOnly" [ngModelOptions]="{standalone: true}" (ngModelChange)="onActiveRolesOnlyChange()">
                   <span class="switchslider round"></span>
                 </label>
               </div>
@@ -54,8 +54,26 @@
               </div>
             </div>
             <div class="col-md-6 col-sm-6 col-xs-12">
-              <!-- <div id="georesourceAddRoleManagementTable" style="height: 40vh; overflow-y: auto;" class="ag-theme-alpine"></div>     -->
-              <div id="spatialUnitEditRoleManagementTable" style="height: 45vh" class="ag-theme-alpine"></div>  
+              <ag-grid-angular
+                #roleManagementGrid
+                class="ag-theme-alpine"
+                style="height: 45vh; width: 100%;"
+                [columnDefs]="roleManagementColumnDefs"
+                [rowData]="roleManagementRowData"
+                [defaultColDef]="roleManagementDefaultColDef"
+                [gridOptions]="roleManagementGridOptions"
+                [components]="roleManagementTableOptions?.components"
+                [suppressRowClickSelection]="true"
+                [rowSelection]="'multiple'"
+                [enableCellTextSelection]="true"
+                [ensureDomOrder]="true"
+                [pagination]="true"
+                [paginationPageSize]="10"
+                [suppressColumnVirtualisation]="true"
+                (gridReady)="onRoleManagementGridReady($event)"
+                (firstDataRendered)="onRoleManagementFirstDataRendered($event)"
+                (columnResized)="onRoleManagementColumnResized($event)">
+              </ag-grid-angular>
             </div>
             <div class="col-md-3">
               <div class="alert alert-info">

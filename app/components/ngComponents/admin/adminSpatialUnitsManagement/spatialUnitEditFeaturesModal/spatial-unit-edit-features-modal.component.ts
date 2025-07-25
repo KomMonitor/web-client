@@ -119,7 +119,6 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
     private http: HttpClient,
     private broadcastService: BroadcastService
   ) {
-    console.log('SpatialUnitEditFeaturesModalComponent constructor initialized');
   }
 
   async ngOnInit(): Promise<void> {
@@ -167,7 +166,6 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
           this.loadingData = false;
         } else if (broadcastMsg.msg === 'onDeleteFeatureEntry_' + this.kommonitorDataGridHelperService?.resourceType_spatialUnit) {
           // Handle individual feature deletion
-          console.log('Feature deleted, refreshing table...');
           this.broadcastService.broadcast('refreshSpatialUnitOverviewTable', { 
             crudType: 'edit', 
             targetSpatialUnitId: this.currentSpatialUnitDataset?.spatialUnitId 
@@ -183,7 +181,6 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
   private async loadAvailableOptions(): Promise<void> {
     // Wait for the importer helper service to load data if it hasn't already
     if (!this.kommonitorImporterHelperService?.getAvailableDatasourceTypes()?.length) {
-      console.log('Waiting for importer helper service to load data...');
       try {
         await this.kommonitorImporterHelperService.fetchResourcesFromImporter();
       } catch (error) {
@@ -193,7 +190,6 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
     
     // Load available datasource types from the importer helper service
     this.availableDatasourceTypes = this.kommonitorImporterHelperService?.getAvailableDatasourceTypes() || [];
-    console.log('Loaded available datasource types:', this.availableDatasourceTypes);
   }
 
   private buildFeatureTable(): void {
@@ -269,14 +265,9 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
       this.schema = this.converter?.schemas ? this.converter.schemas[0] : '';
       this.mimeType = this.converter?.mimeTypes ? this.converter.mimeTypes[0] : '';
 
-      console.log('Selected converter:', this.converter);
-      console.log('Converter datasources:', this.converter.datasources);
-
       // Update available datasource types for this specific converter
       this.availableDatasourceTypes = [];
       const allDatasourceTypes = this.kommonitorImporterHelperService?.getAvailableDatasourceTypes() || [];
-      
-      console.log('All available datasource types:', allDatasourceTypes);
       
       for (const datasourceType of allDatasourceTypes) {
         for (const availableType of this.converter.datasources) {
@@ -285,8 +276,6 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
           }
         }
       }
-
-      console.log('Filtered available datasource types:', this.availableDatasourceTypes);
 
       // Auto-select if only one datasource type is available
       if (this.availableDatasourceTypes.length === 1) {
@@ -315,23 +304,19 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
       return;
     }
 
-    console.log('Starting refresh of spatial unit features table...');
     this.loadingData = true;
     this.hideSuccessAlert();
     this.hideErrorAlert();
     
     const url = `${this.kommonitorDataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource()}/spatial-units/${this.currentSpatialUnitDataset.spatialUnitId}/allFeatures`;
-    console.log('Fetching from URL:', url);
 
     this.http.get(url).subscribe({
       next: (response: any) => {
-        console.log('Successfully received spatial unit features data:', response);
         this.spatialUnitFeaturesGeoJSON = response;
         const tmpRemainingHeaders: string[] = [];
 
         // Extract headers from the first feature's properties
         if (this.spatialUnitFeaturesGeoJSON?.features?.[0]?.properties) {
-          console.log('First feature properties:', this.spatialUnitFeaturesGeoJSON.features[0].properties);
           for (const property in this.spatialUnitFeaturesGeoJSON.features[0].properties) {
             if (property !== 'ID' && 
                 property !== 'NAME' && 
@@ -343,8 +328,6 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
         }
 
         this.remainingFeatureHeaders = tmpRemainingHeaders;
-        console.log('Remaining headers:', tmpRemainingHeaders);
-        console.log('Features count:', this.spatialUnitFeaturesGeoJSON.features?.length || 0);
 
         // Rebuild the grid options with new data
         this.featureTableGridOptions = this.kommonitorDataGridHelperService.buildDataGrid_featureTable_spatialResource(
@@ -358,7 +341,6 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
 
         // If grid API is available, update the data directly
         if (this.gridApi) {
-          console.log('Updating grid data via API...');
                   // Transform the data to match the expected format
         const transformedData = (this.spatialUnitFeaturesGeoJSON.features || []).map((feature: any) => {
           if (feature.properties) {
@@ -369,7 +351,6 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
           }
           return feature;
         });
-        console.log('Transformed data for grid:', transformedData);
         this.gridApi.setRowData(transformedData);
           // Force refresh of the grid
           this.gridApi.refreshCells();
@@ -378,7 +359,6 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
         // Use setTimeout to ensure proper change detection and DOM updates
         setTimeout(() => {
           this.loadingData = false;
-          console.log('Loading completed');
         }, 500); // Increased timeout to show loading state longer
       },
       error: (error) => {
@@ -794,7 +774,6 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
   onGridReady(event: GridReadyEvent): void {
     this.gridApi = event.api;
     this.columnApi = event.columnApi;
-    console.log('Grid is ready, API initialized');
   }
 
   onFirstDataRendered(event: FirstDataRenderedEvent): void {
@@ -807,7 +786,6 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
 
   onCellValueChanged(event: any): void {
     // Handle cell value changes - this will be called by the grid
-    console.log('Cell value changed:', event);
     
     // The actual API call and visual feedback is handled in the data grid helper service
     // This method can be used for additional component-specific logic if needed

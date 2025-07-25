@@ -420,25 +420,34 @@ export class KommonitorDataGridHelperService {
    * Build role management grid row data
    */
   private buildRoleManagementGridRowData(accessControlMetadata: any[], permissionIds: string[]): any[] {
+    // Flatten permissions into boolean fields for ag-Grid built-in checkbox renderer
     const data = JSON.parse(JSON.stringify(accessControlMetadata));
-    
     for (const elem of data) {
       if (elem.name === 'public') {
         elem.name = 'Öffentlicher Zugriff';
       }
-
-      for (const permission of elem.permissions) {
-        permission.isChecked = false;
-        if (permissionIds && permissionIds.includes(permission.permissionId)) {
-          permission.isChecked = true;
+      // Flatten permissions
+      elem.viewer = false;
+      elem.editor = false;
+      elem.creator = false;
+      if (elem.permissions && Array.isArray(elem.permissions)) {
+        for (const permission of elem.permissions) {
+          if (permission.permissionLevel === 'viewer') {
+            elem.viewer = permissionIds && permissionIds.includes(permission.permissionId);
+          }
+          if (permission.permissionLevel === 'editor') {
+            elem.editor = permissionIds && permissionIds.includes(permission.permissionId);
+          }
+          if (permission.permissionLevel === 'creator') {
+            elem.creator = permissionIds && permissionIds.includes(permission.permissionId);
+          }
         }
       }
     }
-
+    // Keep the original sorting logic
     const array: any[] = [];
     array.push(data[0]);
     array.push(data[1]);
-
     data.splice(0, 2);
     data.sort((a, b) => {
       if (a.name < b.name) {
@@ -449,69 +458,53 @@ export class KommonitorDataGridHelperService {
       }
       return 0;
     });
-
     return array.concat(data);
   }
 
-  /**
-   * Build role management grid column configuration
-   */
   private buildRoleManagementGridColumnConfig(reducedRoleManagement: boolean = false): any[] {
     const columnDefs = [
       { 
         headerName: 'Organisationseinheit', 
-        field: "name", 
+        field: 'name', 
         minWidth: 200,
         cellClass: 'user-roles-normal'
       },
       { 
-        headerName: 'lesen', 
-        field: "permissions", 
+        headerName: 'Lesen', 
+        field: 'viewer', 
         filter: false, 
         sortable: false, 
-        maxWidth: 100, 
-        cellRenderer: 'checkboxRenderer_viewer'
+        width: 100, 
+        cellRenderer: 'agCheckboxCellRenderer',
+        editable: true
       },
       { 
-        headerName: 'editieren', 
-        field: "permissions", 
+        headerName: 'Editieren', 
+        field: 'editor', 
         filter: false, 
         sortable: false, 
-        maxWidth: 100, 
-        cellRenderer: 'checkboxRenderer_editor'
+        width: 100, 
+        cellRenderer: 'agCheckboxCellRenderer',
+        editable: true
       }
     ];
-
     if (!reducedRoleManagement) {
       columnDefs.push({ 
-        headerName: 'löschen', 
-        field: "permissions", 
+        headerName: 'Löschen', 
+        field: 'creator', 
         filter: false, 
         sortable: false, 
-        maxWidth: 100, 
-        cellRenderer: 'checkboxRenderer_creator'
+        width: 100, 
+        cellRenderer: 'agCheckboxCellRenderer',
+        editable: true
       });
     }
-
     return columnDefs;
   }
 
-  /**
-   * Build role management grid options
-   */
   private buildRoleManagementGridOptions(accessControlMetadata: any[], selectedPermissionIds: string[], reducedRoleManagement: boolean = false): any {
     const columnDefs = this.buildRoleManagementGridColumnConfig(reducedRoleManagement);
     const rowData = this.buildRoleManagementGridRowData(accessControlMetadata, selectedPermissionIds);
-
-    const components: any = {
-      checkboxRenderer_viewer: this.CheckboxRenderer_viewer.bind(this),
-      checkboxRenderer_editor: this.CheckboxRenderer_editor.bind(this)
-    };
-
-    if (!reducedRoleManagement) {
-      components.checkboxRenderer_creator = this.CheckboxRenderer_creator.bind(this);
-    }
-
     const gridOptions = {
       defaultColDef: {
         editable: false,
@@ -546,7 +539,6 @@ export class KommonitorDataGridHelperService {
             '</div>',
         },
       },
-      components: components,
       columnDefs: columnDefs,
       rowData: rowData,
       suppressRowClickSelection: true,
@@ -566,7 +558,6 @@ export class KommonitorDataGridHelperService {
         this.gridApi_spatialUnits = params.api;
       }
     };
-
     return gridOptions;
   }
 
@@ -601,62 +592,216 @@ export class KommonitorDataGridHelperService {
   /**
    * Checkbox renderer for viewer permissions
    */
-  private CheckboxRenderer_viewer(params: any): any {
-    const viewerPermission = params.data.permissions.find((p: any) => p.permissionLevel === 'viewer');
-    if (!viewerPermission) return '';
+  private CheckboxRenderer_viewer = class {
+    private params: any;
+    private eGui: HTMLInputElement | null = null;
+    private boundCheckedHandler: any;
 
-    const checkbox = document.createElement('input');
-    checkbox.type = 'checkbox';
-    checkbox.checked = viewerPermission.isChecked;
-    checkbox.disabled = params.data.datasetOwner || false;
-    
-    checkbox.addEventListener('change', (event: any) => {
-      viewerPermission.isChecked = event.target.checked;
-      params.api.refreshCells({ force: true });
-    });
+    init(params: any) {
+      this.params = params;
+      
+      let isChecked = false;
+      let exists = false;
+      let className;
+      if (params && params.data) {
+        for (const permission of params.data.permissions) {
+          if (permission.permissionLevel == "viewer"){
+            exists = true;
+            isChecked = permission.isChecked;
+            className = permission.permissionId;
+            break;
+          }
+        }  
+      }
+      
+      if(exists){
+        this.eGui = document.createElement('input') as HTMLInputElement;
+        this.eGui.className = className;
+        this.eGui.type = 'checkbox';
+        this.eGui.checked = isChecked;
+        
+        if(this.params.data.datasetOwner===true)
+          this.eGui.disabled = true;
+        else
+          this.eGui.disabled = false;
 
-    return checkbox;
-  }
+        this.boundCheckedHandler = this.checkedHandler.bind(this);
+        this.eGui.addEventListener('click', this.boundCheckedHandler);
+      }
+    }
+
+    checkedHandler(e: any) {
+      let checked = e.target.checked;
+
+      for (const permission of this.params.data.permissions) {
+        if (permission.permissionLevel == "viewer"){            
+          permission.isChecked = checked;
+          break;
+        }
+      }  
+    }
+
+    getGui() {
+      return this.eGui;
+    }
+
+    destroy() {
+      if(this.eGui && this.boundCheckedHandler){
+        this.eGui.removeEventListener('click', this.boundCheckedHandler);
+      }        
+    }
+  };
 
   /**
    * Checkbox renderer for editor permissions
    */
-  private CheckboxRenderer_editor(params: any): any {
-    const editorPermission = params.data.permissions.find((p: any) => p.permissionLevel === 'editor');
-    if (!editorPermission) return '';
+  private CheckboxRenderer_editor = class {
+    private params: any;
+    private eGui: HTMLInputElement | null = null;
+    private boundCheckedHandler: any;
 
-    const checkbox = document.createElement('input');
-    checkbox.type = 'checkbox';
-    checkbox.checked = editorPermission.isChecked;
-    checkbox.disabled = params.data.datasetOwner || false;
-    
-    checkbox.addEventListener('change', (event: any) => {
-      editorPermission.isChecked = event.target.checked;
-      params.api.refreshCells({ force: true });
-    });
+    init(params: any) {
+      this.params = params;
 
-    return checkbox;
-  }
+      let isChecked = false;
+      let exists = false;
+      let className;
+      if (params && params.data) {
+        for (const permission of params.data.permissions) {
+          if (permission.permissionLevel == "editor"){
+            exists = true;
+            isChecked = permission.isChecked;
+            className = permission.permissionId;
+            break;
+          }
+        }  
+      }
+
+      if(exists){
+        this.eGui = document.createElement('input') as HTMLInputElement;
+        this.eGui.className = className;
+        this.eGui.type = 'checkbox';
+        this.eGui.checked = isChecked;
+
+        if(this.params.data.datasetOwner===true)
+          this.eGui.disabled = true;
+        else
+          this.eGui.disabled = false;
+
+        this.boundCheckedHandler = this.checkedHandler.bind(this);
+        this.eGui.addEventListener('click', this.boundCheckedHandler);
+      }
+    }
+
+    checkedHandler(e: any) {
+      let checked = e.target.checked;
+      for (const permission of this.params.data.permissions) {
+        if (permission.permissionLevel == "viewer"){    
+          if (checked){
+            permission.isChecked = true;
+            // Note: jQuery selectors removed as they may not be available in Angular context
+          }                    
+          else{
+            // Note: jQuery selectors removed as they may not be available in Angular context
+          }
+        }
+        else if (permission.permissionLevel == "editor"){            
+          permission.isChecked = checked;
+        }
+      }  
+    }
+
+    getGui() {
+      return this.eGui;
+    }
+
+    destroy() {
+      if(this.eGui && this.boundCheckedHandler){
+        this.eGui.removeEventListener('click', this.boundCheckedHandler);
+      }  
+    }
+  };
 
   /**
    * Checkbox renderer for creator permissions
    */
-  private CheckboxRenderer_creator(params: any): any {
-    const creatorPermission = params.data.permissions.find((p: any) => p.permissionLevel === 'creator');
-    if (!creatorPermission) return '';
+  private CheckboxRenderer_creator = class {
+    private params: any;
+    private eGui: HTMLInputElement | null = null;
+    private boundCheckedHandler: any;
 
-    const checkbox = document.createElement('input');
-    checkbox.type = 'checkbox';
-    checkbox.checked = creatorPermission.isChecked;
-    checkbox.disabled = params.data.datasetOwner || false;
-    
-    checkbox.addEventListener('change', (event: any) => {
-      creatorPermission.isChecked = event.target.checked;
-      params.api.refreshCells({ force: true });
-    });
+    init(params: any) {
+      this.params = params;
 
-    return checkbox;
-  }
+      let isChecked = false;
+      let exists = false;
+      let className;
+      for (const permission of params.data.permissions) {
+        if (permission.permissionLevel == "creator"){
+          exists = true;
+          isChecked = permission.isChecked;
+          className = permission.permissionId;
+          break;
+        }
+      }  
+
+      if(exists){
+        this.eGui = document.createElement('input') as HTMLInputElement;
+        this.eGui.className = className;
+        this.eGui.type = 'checkbox';
+        this.eGui.checked = isChecked;
+
+        if(this.params.data.datasetOwner===true)
+          this.eGui.disabled = true;
+        else
+          this.eGui.disabled = false;
+
+        this.boundCheckedHandler = this.checkedHandler.bind(this);
+        this.eGui.addEventListener('click', this.boundCheckedHandler);
+      }
+    }
+
+    checkedHandler(e: any) {
+      let checked = e.target.checked;
+      for (const permission of this.params.data.permissions) {
+        if (permission.permissionLevel == "publisher"){            
+          if(!checked)
+            permission.isChecked = false;
+        }
+        else if (permission.permissionLevel == "editor"){            
+          if (checked){
+            permission.isChecked = true;
+            // Note: jQuery selectors removed as they may not be available in Angular context
+          }                    
+          else{
+            // Note: jQuery selectors removed as they may not be available in Angular context
+          }
+        }
+        else if (permission.permissionLevel == "viewer"){            
+          if (checked){
+            permission.isChecked = true;
+            // Note: jQuery selectors removed as they may not be available in Angular context
+          }                    
+          else{
+            // Note: jQuery selectors removed as they may not be available in Angular context
+          }
+        }
+        else if (permission.permissionLevel == "creator" || permission.permissionLevel == "editor" || permission.permissionLevel == "viewer"){            
+          permission.isChecked = checked;
+        }
+      }  
+    }
+
+    getGui() {
+      return this.eGui;
+    }
+
+    destroy() {
+      if(this.eGui && this.boundCheckedHandler){
+        this.eGui.removeEventListener('click', this.boundCheckedHandler);
+      }  
+    }
+  };
 
   /**
    * Build feature table data grid for spatial resources
