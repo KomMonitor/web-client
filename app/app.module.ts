@@ -90,7 +90,7 @@ declare var MathJax;
     NgbDatepickerModule, 
     NgbAccordionModule,
     FormsModule,
-    ReactiveFormsModule,
+    ReactiveFormsModule,  
     HttpClientModule,
     JsonPipe,
     NouisliderModule,

@@ -110,12 +110,6 @@ export class KommonitorDataSetupComponent implements OnInit {
 
     },2000);
 
-    $(document).ready(function() {
-      $(".nav li.disabled a").click(function() {
-        return false;
-      });
-    });
-
     this.broadcastService.currentBroadcastMsg.subscribe(res => {
       let msg = res.msg;
       let values:any = res.values;
