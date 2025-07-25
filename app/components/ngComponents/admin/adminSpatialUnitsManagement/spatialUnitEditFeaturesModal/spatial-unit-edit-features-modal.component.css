@@ -674,3 +674,45 @@ fieldset {
 .modal-body::-webkit-scrollbar-thumb:hover {
   background: #a8a8a8;
 } 
+
+/* AG Grid cell editing visual feedback */
+.ag-theme-alpine .ag-cell[style*="background-color: #9DC89F"] {
+  background-color: #9DC89F !important;
+  transition: background-color 0.3s ease;
+}
+
+.ag-theme-alpine .ag-cell[style*="background-color: #E79595"] {
+  background-color: #E79595 !important;
+  transition: background-color 0.3s ease;
+}
+
+/* Cell editing success state */
+.cell-edit-success {
+  background-color: #9DC89F !important;
+  transition: background-color 0.3s ease;
+}
+
+/* Cell editing error state */
+.cell-edit-error {
+  background-color: #E79595 !important;
+  transition: background-color 0.3s ease;
+}
+
+/* Timestamp display styles */
+.timestamp-success {
+  background-color: #9DC89F;
+  color: #155724;
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.timestamp-error {
+  background-color: #E79595;
+  color: #721c24;
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+} 

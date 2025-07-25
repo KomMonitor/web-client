@@ -12,6 +12,7 @@ import {
   GridReadyEvent
 } from 'ag-grid-community';
 import { AgGridAngular } from 'ag-grid-angular';
+import { HttpClient } from '@angular/common/http';
 
 // Declare environment variables
 declare const __env: any;
@@ -43,7 +44,8 @@ export class KommonitorDataGridHelperService {
   constructor(
     private modalService: NgbModal,
     private broadcastService: BroadcastService,
-    private kommonitorDataExchangeService: KommonitorDataExchangeService
+    private kommonitorDataExchangeService: KommonitorDataExchangeService,
+    private http: HttpClient
   ) {}
 
   /**
@@ -753,23 +755,8 @@ export class KommonitorDataGridHelperService {
             '</div>',
         },
         onCellValueChanged: (newValueParams: any) => {
-          // Handle cell value changes for date validation
-          if (newValueParams.colDef.field === __env?.VALID_START_DATE_PROPERTY_NAME || 
-              newValueParams.colDef.field === __env?.VALID_END_DATE_PROPERTY_NAME) {
-            
-            // Validate date format
-            const isDate = (date: any) => {
-              const dateObj = new Date(date);
-              return dateObj.toString() !== "Invalid Date" && !isNaN(dateObj.getTime());
-            };
-            
-            if (!newValueParams.data[newValueParams.colDef.field]) {
-              newValueParams.data[newValueParams.colDef.field] = newValueParams.oldValue;
-            }
-            if (!isDate(newValueParams.data[newValueParams.colDef.field])) {
-              newValueParams.data[newValueParams.colDef.field] = newValueParams.oldValue;
-            }
-          }
+          // Handle cell value changes for date validation and API updates
+          this.handleCellValueChanged(newValueParams, resourceId, resourceType);
         }
       },
       components: {
@@ -834,11 +821,8 @@ export class KommonitorDataGridHelperService {
         // Add delete button if enabled
         if (enableDelete) {
           const datasetId = this.currentResourceId || '';
-          const featureId = params.data.properties?.[__env?.FEATURE_ID_PROPERTY_NAME] || 
-                           params.data[__env?.FEATURE_ID_PROPERTY_NAME] || '';
-          const recordId = params.data.properties?.kommonitorRecordId || 
-                          params.data.kommonitorRecordId || 
-                          params.data.id || '';
+          const featureId = params.data['ID'] || params.data['featureId'] || '';
+          const recordId = params.data.kommonitorRecordId || params.data.id || '';
           
           if (resourceType === this.resourceType_spatialUnit) {
             html += `<button id="btn__spatialUnit__deleteFeatureEntry__${datasetId}__${featureId}__${recordId}" ` +
@@ -855,127 +839,51 @@ export class KommonitorDataGridHelperService {
         }
         
         // Add the record ID
-        const recordId = params.data.properties?.kommonitorRecordId || 
-                        params.data.kommonitorRecordId || 
-                        params.data.id || '';
-        html += recordId;
+        html += params.data.kommonitorRecordId || params.data.id || '';
         
         return html;
       }
     });
 
-    // Add Feature-Id column (always present for features)
+    // Add Feature-Id column
     columnDefs.push({
       headerName: 'Feature-Id',
-      field: __env?.FEATURE_ID_PROPERTY_NAME || 'ID',
+      field: 'ID',
       pinned: 'left',
       editable: false,
       cellClass: 'grid-non-editable',
-      maxWidth: 125,
-      cellRenderer: (params: any) => {
-        const featureId = params.data.properties?.[__env?.FEATURE_ID_PROPERTY_NAME] || 
-                         params.data[__env?.FEATURE_ID_PROPERTY_NAME] || '';
-        return featureId;
-      }
+      maxWidth: 125
     });
 
-    // Add Name column (always present for features)
+    // Add Name column
     columnDefs.push({
       headerName: 'Name',
-      field: __env?.FEATURE_NAME_PROPERTY_NAME || 'NAME',
+      field: 'NAME',
       pinned: 'left',
-      minWidth: 150,
-      cellRenderer: (params: any) => {
-        const featureName = params.data.properties?.[__env?.FEATURE_NAME_PROPERTY_NAME] || 
-                           params.data[__env?.FEATURE_NAME_PROPERTY_NAME] || '';
-        return featureName;
-      }
+      minWidth: 150
     });
 
-    // Add Lebenszeitbeginn (validity start date) column
-    if (__env?.VALID_START_DATE_PROPERTY_NAME) {
-      columnDefs.push({
-        headerName: 'Lebenszeitbeginn',
-        field: __env.VALID_START_DATE_PROPERTY_NAME,
-        minWidth: 150,
-        editable: true,
-        cellEditor: 'agDatePickerCellEditor',
-        cellRenderer: (params: any) => {
-          const startDate = params.data.properties?.[__env.VALID_START_DATE_PROPERTY_NAME] || 
-                           params.data[__env.VALID_START_DATE_PROPERTY_NAME] || '';
-          return startDate;
-        },
-        filter: 'agDateColumnFilter',
-        filterParams: {
-          comparator: (filterLocalDateAtMidnight: Date, cellValue: string) => {
-            if (cellValue == null) return -1;
-            const cellDate = new Date(cellValue);
-            if (filterLocalDateAtMidnight.getTime() === cellDate.getTime()) {
-              return 0;
-            }
-            if (cellDate < filterLocalDateAtMidnight) {
-              return -1;
-            }
-            if (cellDate > filterLocalDateAtMidnight) {
-              return 1;
-            }
-            return 0;
-          }
-        }
-      });
-    }
-
-    // Add Lebenszeitende (validity end date) column
-    if (__env?.VALID_END_DATE_PROPERTY_NAME) {
-      columnDefs.push({
-        headerName: 'Lebenszeitende',
-        field: __env.VALID_END_DATE_PROPERTY_NAME,
-        minWidth: 150,
-        editable: true,
-        cellEditor: 'agDatePickerCellEditor',
-        cellRenderer: (params: any) => {
-          const endDate = params.data.properties?.[__env.VALID_END_DATE_PROPERTY_NAME] || 
-                         params.data[__env.VALID_END_DATE_PROPERTY_NAME] || '';
-          return endDate;
-        },
-        filter: 'agDateColumnFilter',
-        filterParams: {
-          comparator: (filterLocalDateAtMidnight: Date, cellValue: string) => {
-            if (cellValue == null) return -1;
-            const cellDate = new Date(cellValue);
-            if (filterLocalDateAtMidnight.getTime() === cellDate.getTime()) {
-              return 0;
-            }
-            if (cellDate < filterLocalDateAtMidnight) {
-              return -1;
-            }
-            if (cellDate > filterLocalDateAtMidnight) {
-              return 1;
-            }
-            return 0;
-          }
-        }
-      });
-    }
-
-    // Add dynamic columns based on headers
-    headers.forEach(header => {
-      // Skip standard columns that are already added
-      if (header !== __env?.FEATURE_ID_PROPERTY_NAME && 
-          header !== __env?.FEATURE_NAME_PROPERTY_NAME &&
-          header !== __env?.VALID_START_DATE_PROPERTY_NAME &&
-          header !== __env?.VALID_END_DATE_PROPERTY_NAME) {
-        columnDefs.push({
-          headerName: header,
-          field: header,
-          minWidth: 150,
-          cellRenderer: (params: any) => {
-            const value = params.data.properties?.[header] || params.data[header] || '';
-            return value;
-          }
-        });
-      }
+    // Add validity date columns
+    columnDefs.push({
+      headerName: 'Lebenszeitbeginn',
+      field: 'validStartDate',
+      minWidth: 150
     });
+
+    columnDefs.push({
+      headerName: 'Lebenszeitende',
+      field: 'validEndDate',
+      minWidth: 150
+    });
+
+    // Add dynamic headers
+    for (const header of headers) {
+      columnDefs.push({
+        headerName: header,
+        field: header,
+        minWidth: 125
+      });
+    }
 
     return columnDefs;
   }
@@ -1026,7 +934,7 @@ export class KommonitorDataGridHelperService {
   /**
    * Register click handlers for feature table delete buttons
    */
-  private registerFeatureTableClickHandlers(resourceId?: string, resourceType?: string, enableDelete?: boolean): void {
+  registerFeatureTableClickHandlers(resourceId?: string, resourceType?: string, enableDelete?: boolean): void {
     if (!enableDelete) return;
 
     setTimeout(() => {
@@ -1044,24 +952,83 @@ export class KommonitorDataGridHelperService {
   }
 
   /**
-   * Handle feature delete button click
+   * Handle delete button click for feature table
    */
-  private handleFeatureDeleteClick = (event: any): void => {
+  private handleFeatureDeleteClick = (event: Event): void => {
+    event.preventDefault();
     event.stopPropagation();
-    
-    const buttonId = event.target.closest('button').id;
-    const parts = buttonId.split('_');
-    const featureId = parts[parts.length - 1];
-    const resourceType = parts[1]; // Extract resource type from button ID
-    
-    if (featureId && this.currentResourceId) {
-      // Broadcast delete event
-      this.broadcastService.broadcast(`onDeleteFeatureEntry_${resourceType}`, {
-        featureId: featureId,
-        resourceId: this.currentResourceId,
-        resourceType: resourceType
-      });
+    event.stopImmediatePropagation();
+
+    const button = event.target as HTMLElement;
+    const buttonElement = button.closest('button') || button;
+    const buttonId = buttonElement.id;
+
+    // Parse button ID: btn__spatialUnit__deleteFeatureEntry__{datasetId}__{featureId}__{recordId}
+    const idParts = buttonId.split('__');
+    if (idParts.length < 6) {
+      console.error('Invalid button ID format:', buttonId);
+      return;
     }
+
+    const resourceType = idParts[1]; // spatialUnit or georesource
+    const datasetId = idParts[3];
+    const featureId = idParts[4];
+    const recordId = idParts[5];
+
+    // Broadcast loading event
+    this.broadcastService.broadcast(`showLoadingIcon_${resourceType}`, {});
+
+    // Determine URL based on resource type
+    let url = `${this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI}`;
+    if (resourceType === 'spatialUnit') {
+      url += `/spatial-units/${datasetId}/singleFeature/${featureId}/singleFeatureRecord/${recordId}`;
+    } else if (resourceType === 'georesource') {
+      url += `/georesources/${datasetId}/singleFeature/${featureId}/singleFeatureRecord/${recordId}`;
+    } else {
+      console.error('Unknown resource type:', resourceType);
+      return;
+    }
+
+    // Make DELETE request
+    this.http.delete(url).subscribe({
+      next: (response: any) => {
+        console.log('Successfully deleted database record');
+        
+        // Update timestamps
+        if (resourceType === 'georesource') {
+          this.featureTable_georesource_lastUpdate_timestamp_success = this.getCurrentTimestamp();
+        } else {
+          this.featureTable_spatialUnit_lastUpdate_timestamp_success = this.getCurrentTimestamp();
+        }
+        
+        // Broadcast delete event
+        this.broadcastService.broadcast(`onDeleteFeatureEntry_${resourceType}`, {
+          datasetId,
+          featureId,
+          recordId
+        });
+      },
+      error: (error) => {
+        console.error('Error while deleting database record:', error);
+        
+        // Broadcast hide loading event
+        this.broadcastService.broadcast(`hideLoadingIcon_${resourceType}`, {});
+        
+        // Update failure timestamps
+        if (resourceType === 'georesource') {
+          this.featureTable_georesource_lastUpdate_timestamp_failure = this.getCurrentTimestamp();
+        } else {
+          this.featureTable_spatialUnit_lastUpdate_timestamp_failure = this.getCurrentTimestamp();
+        }
+      }
+    });
+  };
+
+  /**
+   * Get current timestamp
+   */
+  private getCurrentTimestamp(): Date {
+    return new Date();
   }
 
   // Store current resource ID for delete handlers
@@ -1168,5 +1135,112 @@ export class KommonitorDataGridHelperService {
    */
   setGridApi(gridApi: GridApi): void {
     this.gridApi_spatialUnits = gridApi;
+  }
+
+  /**
+   * Handle cell value changes for feature table
+   */
+  private handleCellValueChanged(newValueParams: any, resourceId?: string, resourceType?: string): void {
+    // Validate date properties
+    if (!newValueParams.data.validStartDate) {
+      newValueParams.data.validStartDate = newValueParams.oldValue;
+    }
+    
+    const isDate = (date: any) => {
+      const dateObj = new Date(date);
+      return dateObj.toString() !== "Invalid Date" && !isNaN(dateObj.getTime());
+    };
+    
+    if (!isDate(newValueParams.data.validStartDate)) {
+      newValueParams.data.validStartDate = newValueParams.oldValue;
+    }
+    
+    if (newValueParams.data.validEndDate === "") {
+      newValueParams.data.validEndDate = undefined;
+    }
+    
+    if (newValueParams.data.validEndDate) {
+      if (!isDate(newValueParams.data.validEndDate)) {
+        newValueParams.data.validEndDate = newValueParams.oldValue;
+      }
+    }
+
+    // Build GeoJSON for API request
+    const geoJSON: any = {
+      "type": "Feature",
+      geometry: null,
+      properties: null,
+      id: null
+    };
+
+    // Clone properties and extract geometry/ID
+    geoJSON.geometry = JSON.parse(JSON.stringify(newValueParams.data.kommonitorGeometry));
+    geoJSON.id = JSON.parse(JSON.stringify(newValueParams.data.kommonitorRecordId));
+    geoJSON.properties = JSON.parse(JSON.stringify(newValueParams.data));
+
+    // Remove internal properties
+    delete geoJSON.properties.kommonitorGeometry;
+    delete geoJSON.properties.kommonitorRecordId;
+
+    // Build URL
+    let url = `${this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI}`;
+    if (resourceType === this.resourceType_georesource) {
+      url += "/georesources/";
+    } else {
+      url += "/spatial-units/";
+    }
+    
+    url += `${resourceId}/singleFeature/${newValueParams.data.ID}/singleFeatureRecord/${newValueParams.data.kommonitorRecordId}`;
+
+    // Make HTTP PUT request
+    this.http.put(url, geoJSON, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }).subscribe({
+      next: (response: any) => {
+        console.log("Successfully updated database record");
+
+        // On success: mark grid cell with green background
+        newValueParams.colDef.cellStyle = (p: any) =>
+          p.rowIndex.toString() === newValueParams.node.id ? {'background-color': '#9DC89F'} : "";
+
+        newValueParams.api.refreshCells({
+          force: true,
+          columns: [newValueParams.column.getId()],
+          rowNodes: [newValueParams.node]
+        });
+        
+        // Update success timestamp
+        if (resourceType === this.resourceType_georesource) {
+          this.featureTable_georesource_lastUpdate_timestamp_success = this.getCurrentTimestamp();
+        } else {
+          this.featureTable_spatialUnit_lastUpdate_timestamp_success = this.getCurrentTimestamp();
+        }
+      },
+      error: (error) => {
+        console.error("Error while updating database record:", error);
+
+        // Reset cell value as an error occurred
+        newValueParams.data[newValueParams.column.colId] = newValueParams.oldValue;
+
+        // On failure: mark grid cell with red background
+        newValueParams.colDef.cellStyle = (p: any) =>
+          p.rowIndex.toString() === newValueParams.node.id ? {'background-color': '#E79595'} : "";
+
+        newValueParams.api.refreshCells({
+          force: true,
+          columns: [newValueParams.column.getId()],
+          rowNodes: [newValueParams.node]
+        });
+        
+        // Update failure timestamp
+        if (resourceType === this.resourceType_georesource) {
+          this.featureTable_georesource_lastUpdate_timestamp_failure = this.getCurrentTimestamp();
+        } else {
+          this.featureTable_spatialUnit_lastUpdate_timestamp_failure = this.getCurrentTimestamp();
+        }
+      }
+    });
   }
 } 

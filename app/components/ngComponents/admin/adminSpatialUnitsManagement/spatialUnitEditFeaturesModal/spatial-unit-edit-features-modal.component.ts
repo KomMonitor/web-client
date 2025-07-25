@@ -122,11 +122,11 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
     console.log('SpatialUnitEditFeaturesModalComponent constructor initialized');
   }
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     this.initializeDatePickers();
     this.initializeForm();
     this.setupEventListeners();
-    this.loadAvailableOptions();
+    await this.loadAvailableOptions();
     this.buildFeatureTable();
   }
 
@@ -166,7 +166,12 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
         } else if (broadcastMsg.msg === 'hideLoadingIcon_' + this.kommonitorDataGridHelperService?.resourceType_spatialUnit) {
           this.loadingData = false;
         } else if (broadcastMsg.msg === 'onDeleteFeatureEntry_' + this.kommonitorDataGridHelperService?.resourceType_spatialUnit) {
-          this.broadcastService.broadcast('refreshSpatialUnitOverviewTable', ['edit', this.currentSpatialUnitDataset?.spatialUnitId]);
+          // Handle individual feature deletion
+          console.log('Feature deleted, refreshing table...');
+          this.broadcastService.broadcast('refreshSpatialUnitOverviewTable', { 
+            crudType: 'edit', 
+            targetSpatialUnitId: this.currentSpatialUnitDataset?.spatialUnitId 
+          });
           this.refreshSpatialUnitEditFeaturesOverviewTable();
         }
       }
@@ -175,12 +180,20 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
     this.subscriptions.push(broadcastSubscription);
   }
 
-  private loadAvailableOptions(): void {
-    const converters = this.kommonitorImporterHelperService?.getAvailableConverters();
-    if (converters) {
-      this.availableDatasourceTypes = converters
-        .filter((converter: any) => converter.type === 'spatialUnit');
+  private async loadAvailableOptions(): Promise<void> {
+    // Wait for the importer helper service to load data if it hasn't already
+    if (!this.kommonitorImporterHelperService?.getAvailableDatasourceTypes()?.length) {
+      console.log('Waiting for importer helper service to load data...');
+      try {
+        await this.kommonitorImporterHelperService.fetchResourcesFromImporter();
+      } catch (error) {
+        console.error('Error loading importer resources:', error);
+      }
     }
+    
+    // Load available datasource types from the importer helper service
+    this.availableDatasourceTypes = this.kommonitorImporterHelperService?.getAvailableDatasourceTypes() || [];
+    console.log('Loaded available datasource types:', this.availableDatasourceTypes);
   }
 
   private buildFeatureTable(): void {
@@ -240,6 +253,8 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
     this.attributeMappings_adminView = [];
     this.keepAttributes = true;
     this.keepMissingValues = true;
+    this.isPartialUpdate = false;
+    this.enableDeleteFeatures = false;
     this.importerErrors = [];
     this.successMessagePart = '';
     this.errorMessagePart = '';
@@ -250,8 +265,35 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
   }
 
   onChangeConverter(schema?: any): void {
-    this.schema = this.converter?.schemas ? this.converter.schemas[0] : '';
-    this.mimeType = this.converter?.mimeTypes ? this.converter.mimeTypes[0] : '';
+    if (this.converter) {
+      this.schema = this.converter?.schemas ? this.converter.schemas[0] : '';
+      this.mimeType = this.converter?.mimeTypes ? this.converter.mimeTypes[0] : '';
+
+      console.log('Selected converter:', this.converter);
+      console.log('Converter datasources:', this.converter.datasources);
+
+      // Update available datasource types for this specific converter
+      this.availableDatasourceTypes = [];
+      const allDatasourceTypes = this.kommonitorImporterHelperService?.getAvailableDatasourceTypes() || [];
+      
+      console.log('All available datasource types:', allDatasourceTypes);
+      
+      for (const datasourceType of allDatasourceTypes) {
+        for (const availableType of this.converter.datasources) {
+          if (datasourceType.type === availableType) {
+            this.availableDatasourceTypes.push(datasourceType);
+          }
+        }
+      }
+
+      console.log('Filtered available datasource types:', this.availableDatasourceTypes);
+
+      // Auto-select if only one datasource type is available
+      if (this.availableDatasourceTypes.length === 1) {
+        this.datasourceType = this.availableDatasourceTypes[0];
+        this.onChangeDatasourceType(this.datasourceType);
+      }
+    }
   }
 
   onChangeMimeType(mimeType: any): void {
@@ -259,6 +301,8 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
   }
 
   onChangeDatasourceType(datasourceType: any): void {
+    this.datasourceType = datasourceType;
+    
     if (this.datasourceType && this.datasourceType.type === "OGCAPI_FEATURES") {
       this.availableSpatialUnits = this.kommonitorDataExchangeService?.availableSpatialUnits_map ? 
         [...this.kommonitorDataExchangeService.availableSpatialUnits_map.values()] : [];
@@ -289,10 +333,10 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
         if (this.spatialUnitFeaturesGeoJSON?.features?.[0]?.properties) {
           console.log('First feature properties:', this.spatialUnitFeaturesGeoJSON.features[0].properties);
           for (const property in this.spatialUnitFeaturesGeoJSON.features[0].properties) {
-            if (property !== __env.FEATURE_ID_PROPERTY_NAME && 
-                property !== __env.FEATURE_NAME_PROPERTY_NAME && 
-                property !== __env.VALID_START_DATE_PROPERTY_NAME && 
-                property !== __env.VALID_END_DATE_PROPERTY_NAME) {
+            if (property !== 'ID' && 
+                property !== 'NAME' && 
+                property !== 'validStartDate' && 
+                property !== 'validEndDate') {
               tmpRemainingHeaders.push(property);
             }
           }
@@ -663,17 +707,54 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
   }
 
   onChangeEnableDeleteFeatures(): void {
-    const buttons = document.querySelectorAll('.spatialUnitDeleteFeatureRecordBtn');
-    buttons.forEach((button: any) => {
-      button.disabled = !this.enableDeleteFeatures;
-    });
+    // Rebuild the grid with updated delete settings
+    this.featureTableGridOptions = this.kommonitorDataGridHelperService.buildDataGrid_featureTable_spatialResource(
+      "spatialUnitFeatureTable", 
+      this.remainingFeatureHeaders, 
+      this.spatialUnitFeaturesGeoJSON?.features || [], 
+      this.currentSpatialUnitDataset?.spatialUnitId, 
+      this.kommonitorDataGridHelperService.resourceType_spatialUnit, 
+      this.enableDeleteFeatures
+    );
+
+    // Update grid column definitions and data if API is available
+    if (this.gridApi && this.featureTableGridOptions.columnDefs) {
+      // Update column definitions
+      this.gridApi.setColumnDefs(this.featureTableGridOptions.columnDefs);
+      
+      // Update data if we have features
+      if (this.spatialUnitFeaturesGeoJSON?.features) {
+        const transformedData = (this.spatialUnitFeaturesGeoJSON.features || []).map((feature: any) => {
+          if (feature.properties) {
+            // Add geometry and record ID to properties
+            feature.properties.kommonitorGeometry = feature.geometry;
+            feature.properties.kommonitorRecordId = feature.id;
+            return feature.properties;
+          }
+          return feature;
+        });
+        this.gridApi.setRowData(transformedData);
+      }
+      
+      // Force refresh of the grid to show/hide delete buttons
+      this.gridApi.refreshCells();
+      
+      // Register click handlers after grid update
+      setTimeout(() => {
+        this.kommonitorDataGridHelperService.registerFeatureTableClickHandlers(
+          this.currentSpatialUnitDataset?.spatialUnitId,
+          this.kommonitorDataGridHelperService.resourceType_spatialUnit,
+          this.enableDeleteFeatures
+        );
+      }, 100);
+    }
   }
 
   filterByKomMonitorProperties(): (item: string) => boolean {
     return (item: string) => {
       try {
-        return item !== __env.FEATURE_ID_PROPERTY_NAME && 
-               item !== __env.FEATURE_NAME_PROPERTY_NAME && 
+        return item !== 'ID' && 
+               item !== 'NAME' && 
                item !== 'validStartDate' && 
                item !== 'validEndDate';
       } catch (error) {
@@ -683,11 +764,11 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
   }
 
   getFeatureId(geojsonFeature: any): string {
-    return geojsonFeature.properties?.[__env.FEATURE_ID_PROPERTY_NAME] || '';
+    return geojsonFeature.properties?.['ID'] || '';
   }
 
   getFeatureName(geojsonFeature: any): string {
-    return geojsonFeature.properties?.[__env.FEATURE_NAME_PROPERTY_NAME] || '';
+    return geojsonFeature.properties?.['NAME'] || '';
   }
 
   // Navigation methods
@@ -722,6 +803,14 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
 
   onColumnResized(event: ColumnResizedEvent): void {
     // Handle column resize event
+  }
+
+  onCellValueChanged(event: any): void {
+    // Handle cell value changes - this will be called by the grid
+    console.log('Cell value changed:', event);
+    
+    // The actual API call and visual feedback is handled in the data grid helper service
+    // This method can be used for additional component-specific logic if needed
   }
 
   // Alert methods
@@ -763,10 +852,10 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
 
   // Modal control methods
   closeModal(): void {
-    this.activeModal.dismiss('cancel');
+    this.activeModal.dismiss();
   }
 
   saveAndClose(): void {
-    this.activeModal.close({ action: 'updated' });
+    this.activeModal.close();
   }
 } 

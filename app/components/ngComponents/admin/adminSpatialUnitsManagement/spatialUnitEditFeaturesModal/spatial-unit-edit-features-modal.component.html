@@ -75,6 +75,7 @@
                 <label>Datenbank-Raumeinheiten bereinigen (Funktion muss zuerst aktiv eingeschaltet werden)</label>
                 <label class="switch">
                   <input class="elementCheckbox" type="checkbox" [(ngModel)]="enableDeleteFeatures" 
+                         name="enableDeleteFeatures"
                          (change)="onChangeEnableDeleteFeatures()" id="enableDeleteFeatures">
                   <span class="switchslider round text-left" style="line-height:25px;"></span>
                 </label>
@@ -90,13 +91,13 @@
           </div>
 
           <div>
-            <div *ngIf="kommonitorDataGridHelperService?.featureTable_spatialUnit_lastUpdate_timestamp_success" style="background-color: #9DC89F;">
+            <div *ngIf="kommonitorDataGridHelperService?.featureTable_spatialUnit_lastUpdate_timestamp_success" class="timestamp-success">
               <b>Letztes erfolgreiches Update eines Einzeleintrags</b>
-              {{ kommonitorDataGridHelperService.featureTable_spatialUnit_lastUpdate_timestamp_success }}
+              {{ kommonitorDataGridHelperService.featureTable_spatialUnit_lastUpdate_timestamp_success | date:'medium' }}
             </div>
-            <div *ngIf="kommonitorDataGridHelperService?.featureTable_spatialUnit_lastUpdate_timestamp_failure" style="background-color: #E79595;">
+            <div *ngIf="kommonitorDataGridHelperService?.featureTable_spatialUnit_lastUpdate_timestamp_failure" class="timestamp-error">
               <b>Letztes gescheitertes Update eines Einzeleintrags</b>
-              {{ kommonitorDataGridHelperService.featureTable_spatialUnit_lastUpdate_timestamp_failure }}
+              {{ kommonitorDataGridHelperService.featureTable_spatialUnit_lastUpdate_timestamp_failure | date:'medium' }}
             </div>
           </div>
 
@@ -110,7 +111,8 @@
               [gridOptions]="featureTableGridOptions"
               (gridReady)="onGridReady($event)"
               (firstDataRendered)="onFirstDataRendered($event)"
-              (columnResized)="onColumnResized($event)">
+              (columnResized)="onColumnResized($event)"
+              (cellValueChanged)="onCellValueChanged($event)">
             </ag-grid-angular>
           </div>
 
@@ -142,7 +144,7 @@
             <div class="col-md-3 col-sm-6 col-xs-12">
               <div class="form-group">
                 <label>Geodaten-Quellformat*</label>
-                <select class="form-control" [(ngModel)]="converter" (change)="onChangeConverter()" required>
+                <select class="form-control" [(ngModel)]="converter" name="converter" (change)="onChangeConverter()" required>
                   <option value="" disabled>-- Quellformat wählen --</option>
                   <option *ngFor="let conv of kommonitorImporterHelperService?.getAvailableConverters()" 
                           [ngValue]="conv">
@@ -153,7 +155,7 @@
 
               <div class="form-group" *ngIf="converter?.schemas">
                 <label>Schema*</label>
-                <select class="form-control" [(ngModel)]="schema" required>
+                <select class="form-control" [(ngModel)]="schema" name="schema" required>
                   <option value="" disabled>-- Schema wählen --</option>
                   <option *ngFor="let schemaOption of converter.schemas" [value]="schemaOption">
                     {{ schemaOption }}
@@ -163,7 +165,7 @@
 
               <div class="form-group" *ngIf="converter?.mimeTypes">
                 <label>Quellformat*</label>
-                <select class="form-control" [(ngModel)]="mimeType" (change)="onChangeMimeType(mimeType)" required>
+                <select class="form-control" [(ngModel)]="mimeType" name="mimeType" (change)="onChangeMimeType(mimeType)" required>
                   <option value="" disabled>-- Format wählen --</option>
                   <option *ngFor="let mimeTypeOption of converter.mimeTypes" [value]="mimeTypeOption">
                     {{ mimeTypeOption }}
@@ -176,7 +178,8 @@
                 <input type="text" class="form-control" 
                        [id]="'converterParameter_spatialUnitEditFeatures_' + parameter.name"
                        [placeholder]="parameter.name" 
-                       [required]="parameter.mandatory">
+                       [required]="parameter.mandatory"
+                       [name]="'converterParameter_spatialUnitEditFeatures_' + parameter.name">
                 <div class="help-block">
                   <p>{{ parameter.description }}</p>
                 </div>
@@ -195,7 +198,7 @@
               <div *ngIf="converter">
                 <div class="form-group">
                   <label>Datenquelltyp*</label>
-                  <select class="form-control" [(ngModel)]="datasourceType" 
+                  <select class="form-control" [(ngModel)]="datasourceType" name="datasourceType"
                           (change)="onChangeDatasourceType(datasourceType)" required>
                     <option value="" disabled>-- Quelltyp wählen --</option>
                     <option *ngFor="let dsType of availableDatasourceTypes" [ngValue]="dsType">
@@ -212,14 +215,14 @@
 
                 <div *ngIf="datasourceType?.type === 'OGCAPI_FEATURES'">
                   <label>Räumlicher Filter*</label>
-                  <select class="form-control" [(ngModel)]="bboxType" required>
+                  <select class="form-control" [(ngModel)]="bboxType" name="bboxType" required>
                     <option value="" disabled>-- Filter wählen --</option>
                     <option value="ref">Referenzraumebene</option>
                     <option value="literal">Manueller Begrenzungsrahmen</option>
                   </select>
 
                   <div *ngIf="bboxType === 'ref'" class="form-group">
-                    <select class="form-control" [(ngModel)]="bboxRefSpatialUnit" required>
+                    <select class="form-control" [(ngModel)]="bboxRefSpatialUnit" name="bboxRefSpatialUnit" required>
                       <option value="" disabled>-- Raumebene wählen --</option>
                       <option *ngFor="let spatialUnit of availableSpatialUnits" [ngValue]="spatialUnit">
                         {{ spatialUnit.spatialUnitLevel }}
@@ -243,14 +246,15 @@
                   </div>
                 </div>
 
-                <div *ngIf="datasourceType?.type !== 'FILE'">
+                <div *ngIf="datasourceType?.type !== 'FILE' && datasourceType?.type !== 'OGCAPI_FEATURES'">
                   <div class="form-group" *ngFor="let parameter of datasourceType?.parameters">
                     <label *ngIf="parameter.mandatory">{{ parameter.name }}*</label>
                     <label *ngIf="!parameter.mandatory">{{ parameter.name }}</label>
                     <textarea rows="1" class="form-control" 
                               [id]="'datasourceTypeParameter_spatialUnitEditFeatures_' + parameter.name"
                               [placeholder]="parameter.name" 
-                              [required]="parameter.mandatory"></textarea>
+                              [required]="parameter.mandatory"
+                              [name]="'datasourceTypeParameter_spatialUnitEditFeatures_' + parameter.name"></textarea>
                     <div class="help-block">
                       <p>{{ parameter.description }}</p>
                     </div>
@@ -267,7 +271,7 @@
             <div class="col-md-3 col-sm-6 col-xs-12">
               <div class="form-group">
                 <label>ID Attributname*</label>
-                <input type="text" class="form-control" [(ngModel)]="spatialUnitDataSourceIdProperty" required>
+                <input type="text" class="form-control" [(ngModel)]="spatialUnitDataSourceIdProperty" name="spatialUnitDataSourceIdProperty" required>
                 <div class="help-block">
                   <p>Name des Attributs, welches den eindeutigen Identifier des Raumeinheiten enthält.</p>
                 </div>
@@ -275,7 +279,7 @@
 
               <div class="form-group">
                 <label>NAME Attributname*</label>
-                <input type="text" class="form-control" [(ngModel)]="spatialUnitDataSourceNameProperty" required>
+                <input type="text" class="form-control" [(ngModel)]="spatialUnitDataSourceNameProperty" name="spatialUnitDataSourceNameProperty" required>
                 <div class="help-block">
                   <p>Name des Attributs, welches den eindeutigen Namen des Raumeinheiten enthält.</p>
                 </div>
@@ -286,7 +290,7 @@
             <div class="col-md-3 col-sm-6 col-xs-12">
               <div class="form-group">
                 <label>Lebenszeit-Beginn Attributname</label>
-                <input type="text" class="form-control" [(ngModel)]="validityStartDate_perFeature">
+                <input type="text" class="form-control" [(ngModel)]="validityStartDate_perFeature" name="validityStartDate_perFeature">
                 <div class="help-block">
                   <p>Eintrag nur, falls die räumlichen Raumeinheiten über ein Attribut für den Lebenszeitraum (Beginn) verfügen.</p>
                 </div>
@@ -294,7 +298,7 @@
 
               <div class="form-group">
                 <label>Lebenszeit-Ende Attributname</label>
-                <input type="text" class="form-control" [(ngModel)]="validityEndDate_perFeature">
+                <input type="text" class="form-control" [(ngModel)]="validityEndDate_perFeature" name="validityEndDate_perFeature">
                 <div class="help-block">
                   <p>Eintrag nur, falls die räumlichen Raumeinheiten über ein Attribut für den Lebenszeitraum (Ende) verfügen.</p>
                 </div>
@@ -311,7 +315,7 @@
                   <div class="input-group-addon">
                     <i class="far fa-calendar-alt"></i>
                   </div>
-                  <input type="text" [(ngModel)]="periodOfValidity.startDate" (ngModelChange)="checkPeriodOfValidity()"
+                  <input type="text" [(ngModel)]="periodOfValidity.startDate" name="periodOfValidityStartDate" (ngModelChange)="checkPeriodOfValidity()"
                          class="form-control pull-right" id="spatialUnitEditFeaturesDatepickerStart" placeholder="YYYY-MM-DD" required>
                 </div>
                 <div class="help-block">
@@ -331,7 +335,7 @@
                   <div class="input-group-addon">
                     <i class="far fa-calendar-alt"></i>
                   </div>
-                  <input type="text" [(ngModel)]="periodOfValidity.endDate" (ngModelChange)="checkPeriodOfValidity()"
+                  <input type="text" [(ngModel)]="periodOfValidity.endDate" name="periodOfValidityEndDate" (ngModelChange)="checkPeriodOfValidity()"
                          class="form-control pull-right" id="spatialUnitEditFeaturesDatepickerEnd" placeholder="YYYY-MM-DD">
                 </div>
                 <div class="help-block">
@@ -354,7 +358,7 @@
                 <label>Partielles Update einzelner Geometrien*</label>
                 <br/>	
                 <label class="switch">
-                  <input type="checkbox" value="isPartialUpdate" [(ngModel)]="isPartialUpdate">
+                  <input type="checkbox" value="isPartialUpdate" [(ngModel)]="isPartialUpdate" name="isPartialUpdate">
                   <span class="switchslider round"></span>
                 </label>
                 <div class="help-block">
@@ -373,7 +377,7 @@
                 <label>Import weiterer Attribute*</label>
                 <br/>	
                 <label class="switch">
-                  <input type="checkbox" value="keepAttributes" [(ngModel)]="keepAttributes">
+                  <input type="checkbox" value="keepAttributes" [(ngModel)]="keepAttributes" name="keepAttributes">
                   <span class="switchslider round"></span>
                 </label>
                 <div class="help-block">
@@ -387,7 +391,7 @@
                 <label>Fehlende/NULL Werte beibehalten*</label>
                 <br/>	
                 <label class="switch">
-                  <input type="checkbox" value="keepMissingValues" [(ngModel)]="keepMissingValues">
+                  <input type="checkbox" value="keepMissingValues" [(ngModel)]="keepMissingValues" name="keepMissingValues">
                   <span class="switchslider round"></span>
                 </label>
                 <div class="help-block">
@@ -403,18 +407,20 @@
               <div class="form-group">
                 <label>Attributname im zu importierenden Datensatz*</label>
                 <input type="text" class="form-control" [(ngModel)]="attributeMapping_sourceAttributeName" 
-                       placeholder="Quell-Attributname">
+                       placeholder="Quell-Attributname"
+                       name="attributeMapping_sourceAttributeName">
               </div>
 
               <div class="form-group">
                 <label>Ziel-Attributname in Datenbank nach Import*</label>
                 <input type="text" class="form-control" [(ngModel)]="attributeMapping_destinationAttributeName" 
-                       placeholder="Ziel-Attributname">
+                       placeholder="Ziel-Attributname"
+                       name="attributeMapping_destinationAttributeName">
               </div>
 
               <div class="form-group">
                 <label>Datentyp*</label>
-                <select class="form-control" [(ngModel)]="attributeMapping_attributeType" required>
+                <select class="form-control" [(ngModel)]="attributeMapping_attributeType" name="attributeMapping_attributeType" required>
                   <option value="" disabled>-- Datentyp wählen --</option>
                   <option *ngFor="let type of kommonitorImporterHelperService?.attributeMapping_attributeTypes" 
                           [ngValue]="type">
@@ -482,5 +488,8 @@
           [disabled]="!currentSpatialUnitDataset?.spatialUnitLevel || !spatialUnitDataSourceIdProperty || !spatialUnitDataSourceNameProperty || !periodOfValidity.startDate || periodOfValidityInvalid || !converter || !datasourceType"
           (click)="editSpatialUnitFeatures()">
     <i class="fas fa-upload"></i>&nbsp;Raumeinheiten fortführen
+  </button>
+  <button type="button" class="btn btn-danger" (click)="resetForm()">
+    <i class="fas fa-undo"></i>&nbsp;Zurücksetzen
   </button>
 </div> 
