@@ -85,6 +85,12 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
     // Initialize any adminLTE box widgets
     (window as any).$('.box').boxWidget();
     
+    // Make component available globally for debugging
+    (window as any).adminIndicatorsComponent = this;
+    
+    // Try to load data if not already available
+    this.ensureDataLoaded();
+    
     this.initializeOrRefreshOverviewTable();
     this.setupEventListeners();
     
@@ -94,6 +100,7 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
     // Add a fallback timeout to prevent infinite loading
     setTimeout(() => {
       if (this.loadingData) {
+        this.ensureDataLoaded();
         this.initializeOrRefreshOverviewTable();
         
         // If still no data after fallback, stop loading anyway
@@ -106,8 +113,49 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
     }, 3000); // 3 second timeout
   }
 
+  private async ensureDataLoaded(): Promise<void> {
+    // If no indicators are available, try to fetch them
+    if (!this.kommonitorDataExchangeService.availableIndicators || 
+        this.kommonitorDataExchangeService.availableIndicators.length === 0) {
+      try {
+        await this.kommonitorDataExchangeService.fetchIndicatorsMetadata(
+          this.kommonitorDataExchangeService.currentKeycloakLoginRoles
+        );
+        // Force refresh the table after data is loaded
+        setTimeout(() => {
+          this.forceRefreshGrid();
+        }, 100);
+      } catch (error) {
+        console.error('Error fetching indicators:', error);
+      }
+    }
+  }
+
+  private forceRefreshGrid(): void {
+    const indicators = this.getFilteredIndicators();
+    
+    if (indicators && indicators.length > 0) {
+      this.columnDefs = this.kommonitorDataGridHelperService.buildDataGridColumnConfig_indicators(indicators);
+      this.rowData = this.kommonitorDataGridHelperService.buildDataGridRowData_indicators(indicators);
+      
+      // Update the grid if it's ready
+      if (this.agGrid && this.agGrid.api) {
+        this.agGrid.api.setRowData(this.rowData);
+        this.agGrid.api.setColumnDefs(this.columnDefs);
+        this.agGrid.api.refreshCells();
+        this.loadingData = false;
+        this.initializationCompleted = true;
+      }
+    }
+  }
+
   ngOnDestroy(): void {
     this.subscriptions.forEach(sub => sub.unsubscribe());
+    
+    // Clean up global reference
+    if ((window as any).adminIndicatorsComponent === this) {
+      delete (window as any).adminIndicatorsComponent;
+    }
   }
 
   private setupEventListeners(): void {
@@ -213,6 +261,15 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
       // Use the data grid helper service to build column definitions and row data
       this.columnDefs = this.kommonitorDataGridHelperService.buildDataGridColumnConfig_indicators(indicators);
       this.rowData = this.kommonitorDataGridHelperService.buildDataGridRowData_indicators(indicators);
+      
+      // Force change detection
+      setTimeout(() => {
+        if (this.agGrid && this.agGrid.api) {
+          this.agGrid.api.setRowData(this.rowData);
+          this.agGrid.api.setColumnDefs(this.columnDefs);
+          this.agGrid.api.refreshCells();
+        }
+      }, 100);
     } else {
       // Data not ready yet, keep loading
       this.loadingData = true;
@@ -288,11 +345,22 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
 
   // Grid event handlers
   onGridReady(params: GridReadyEvent): void {
-    // Grid is ready
+    // If we have data, set it now
+    if (this.rowData && this.rowData.length > 0) {
+      params.api.setRowData(this.rowData);
+      params.api.setColumnDefs(this.columnDefs);
+    } else {
+      // If no data is available, try to load it
+      if (!this.kommonitorDataExchangeService.availableIndicators || 
+          this.kommonitorDataExchangeService.availableIndicators.length === 0) {
+        this.ensureDataLoaded();
+      } else {
+        this.forceRefreshGrid();
+      }
+    }
   }
 
   onFirstDataRendered(): void {
-    // First data rendered
   }
 
   onColumnResized(): void {
@@ -326,7 +394,8 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
     
     if (this.tableViewSwitcher) {
       // Filter out indicators where user only has viewer permission
-      return allIndicators.filter(e => !(e.userPermissions.length === 1 && e.userPermissions.includes('viewer')));
+      const filtered = allIndicators.filter(e => !(e.userPermissions && e.userPermissions.length === 1 && e.userPermissions.includes('viewer')));
+      return filtered;
     } else {
       return allIndicators;
     }
@@ -336,6 +405,12 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
   stopLoading(): void {
     this.loadingData = false;
     this.initializationCompleted = true;
+  }
+
+  // Debug method to manually refresh the grid
+  debugRefreshGrid(): void {
+    // Force refresh
+    this.forceRefreshGrid();
   }
 
   // Table view switcher method
@@ -351,7 +426,6 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
 
   // Modal event handlers
   onClickAddIndicator(): void {
-    console.log('Opening indicator add modal...');
     try {
       const modalRef = this.modalService.open(IndicatorAddModalComponent, {
         size: 'lg',
@@ -361,16 +435,12 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
         animation: false
       });
 
-      console.log('Modal reference created:', modalRef);
-
       modalRef.result.then((result) => {
-        console.log('Modal result:', result);
         if (result) {
           // Modal was closed successfully, refresh the table
           this.initializeOrRefreshOverviewTable();
         }
       }).catch((error) => {
-        console.log('Modal error:', error);
         // Modal dismissed
       });
     } catch (error) {
@@ -379,7 +449,6 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
   }
 
   onClickEditMetadata(indicatorMetadata: any): void {
-    console.log('Opening indicator edit metadata modal...');
     try {
       const modalRef = this.modalService.open(IndicatorEditMetadataModalComponent, {
         size: 'lg',
@@ -389,21 +458,17 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
         animation: false
       });
 
-      console.log('Edit metadata modal reference created:', modalRef);
-
       // Set the current indicator dataset in the modal component
       const modalComponent = modalRef.componentInstance as IndicatorEditMetadataModalComponent;
       modalComponent.currentIndicatorDataset = indicatorMetadata;
       modalComponent.resetIndicatorEditMetadataForm();
 
       modalRef.result.then((result) => {
-        console.log('Edit metadata modal result:', result);
         if (result) {
           // Modal was closed successfully, refresh the table
           this.initializeOrRefreshOverviewTable();
         }
       }).catch((error) => {
-        console.log('Edit metadata modal error:', error);
         // Modal dismissed
       });
     } catch (error) {
@@ -425,13 +490,11 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
       modalComponent.openModal(indicatorMetadata);
 
       modalRef.result.then((result) => {
-        console.log('Edit features modal result:', result);
         if (result) {
           // Modal was closed successfully, refresh the table
           this.initializeOrRefreshOverviewTable();
         }
       }).catch((error) => {
-        console.log('Edit features modal error:', error);
         // Modal dismissed
       });
     } catch (error) {
@@ -473,14 +536,13 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
     modalRef.componentInstance.onChangeSelectedIndicator();
 
     modalRef.result.then((result) => {
-      console.log('Delete modal closed with result:', result);
+      // Delete modal closed with result
     }).catch((error) => {
-      console.log('Delete modal dismissed:', error);
+      // Delete modal dismissed
     });
   }
 
   onClickBatchUpdate(): void {
-    console.log('Opening indicator batch update modal...');
     try {
       const modalRef = this.modalService.open(IndicatorBatchUpdateModalComponent, {
         size: 'lg',
@@ -494,16 +556,12 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
       const modalComponent = modalRef.componentInstance as IndicatorBatchUpdateModalComponent;
       modalComponent.modalRef = modalRef;
 
-      console.log('Batch update modal reference created:', modalRef);
-
       modalRef.result.then((result) => {
-        console.log('Batch update modal result:', result);
         if (result) {
           // Modal was closed successfully, refresh the table
           this.initializeOrRefreshOverviewTable();
         }
       }).catch((error) => {
-        console.log('Batch update modal error:', error);
         // Modal dismissed
       });
     } catch (error) {
@@ -517,7 +575,6 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
       this.onClickDeleteIndicators(selectedIndicators);
     } else {
       // Show message that no indicators are selected
-      console.log('No indicators selected for deletion');
     }
   }
 
@@ -639,8 +696,6 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
     if (this.kommonitorDataExchangeService.topicIndicatorHierarchy_forOrderView && 
         this.kommonitorDataExchangeService.topicIndicatorHierarchy_forOrderView.length > 0) {
       
-      console.log('Initializing collapsed topics for', this.kommonitorDataExchangeService.topicIndicatorHierarchy_forOrderView.length, 'main topics');
-      
       this.kommonitorDataExchangeService.topicIndicatorHierarchy_forOrderView.forEach((mainTopic: any) => {
         this.collapsedTopics.add(mainTopic.topicId);
         
@@ -663,9 +718,8 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
         }
       });
       
-      console.log('Collapsed topics set:', this.collapsedTopics);
     } else {
-      console.log('No topic hierarchy data available yet');
+      // No topic hierarchy data available yet
     }
   }
 
@@ -720,7 +774,7 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
       patchBody
     ).subscribe({
       next: (response: any) => {
-        console.log('Display order updated successfully');
+        // Display order updated successfully
       },
       error: (error: any) => {
         this.kommonitorDataExchangeService.displayMapApplicationError(error);
