@@ -1,4 +1,4 @@
-<a id="userLogin" (mouseover)="showUserLogin = true" title="User Login" style="font-size:1.2em; float: right; margin-right: 2%; margin-left: 2%; margin-top: 0.5%;"><i class="fas fa-user-cog"></i></a>
+<a id="userLogin" (mouseover)="showUserLogin = true" title="User Login" style="font-size:1.2em; float: right; margin-right: 2%; margin-left: 2%; margin-top: 0.5%;"><i class="fas fa-user-cog" [ngStyle]="{'color': isAdminView ? 'white' : 'inherit'}"></i></a>
 
 <div id="userLoginForm" *ngIf="showUserLogin && enableKeycloakSecurity" (mouseleave)="onMouseLeave()" class="userFormWrapper">
   <div id="userForm">
@@ -76,6 +76,7 @@
     
     <input type="submit" *ngIf="!authenticated" value="Login" id='input_submit' (click)="tryLoginUser()" class='input_field'>
     <span *ngIf="!authenticated">
+      <span *ngIf="loginInfoText">{{loginInfoText}}</span>
    Melden Sie sich mit ihrem Konto an, um geschützte Daten abzurufen.
     </span>
     <input type="submit" *ngIf="authenticated" value="Logout" id='input_submit' (click)="tryLogoutUser()" class='input_field input_authenticated'>
@@ -83,4 +84,4 @@
   </div>
 </div>
 
-<p *ngIf="showAdminLogin" (click)="openAdminUI()" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%; cursor:pointer;" title="Admin UI&nbsp;&nbsp;"><span class="fas fa-cogs"></span></p> 
+ 

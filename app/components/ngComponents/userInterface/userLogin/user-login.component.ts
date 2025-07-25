@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import { Component, OnInit, Inject, Input } from '@angular/core';
 import { AuthService } from 'services/auth-service/auth.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 
@@ -19,8 +19,17 @@ export class UserLoginComponent implements OnInit {
   userRoleInformation: UserRoleInformation = {};
   userGroupInformation: string[][] = [];
   keycloakTokenExpirationInfo: string = '';
-  showAdminLogin = false;
   password: string = '';
+
+  get loginInfoText(): string {
+    return this.dataExchangeService.pipedData.loginInfoText;
+  }
+  
+  // Check if we're in admin context by looking at the current URL
+  get isAdminView(): boolean {
+    return window.location.pathname.includes('/administration') || 
+           window.location.pathname.includes('/admin');
+  }
 
   constructor(
     private authService: AuthService,
@@ -47,7 +56,6 @@ export class UserLoginComponent implements OnInit {
         && this.authService.Auth.keycloak.tokenParsed.realm_access.roles
         && this.authService.Auth.keycloak.tokenParsed.realm_access.roles.some(role => role.endsWith("-creator") || role.endsWith("-publisher") || role.endsWith("-editor"))) {
         this.authService.Auth.keycloak.showAdminView = true;
-        this.showAdminLogin = true;
       }
     }
   }
@@ -107,10 +115,6 @@ export class UserLoginComponent implements OnInit {
 
   extendKeycloakSession(): void {
     this.kommonitorDataExchangeService.extendKeycloakSession();
-  }
-
-  openAdminUI(): void {
-    document.location = '/administration';
   }
 
   onMouseLeave(): void {

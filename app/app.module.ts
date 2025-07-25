@@ -210,7 +210,8 @@ export class AppModule implements DoBootstrap {
     // meaning "infoModal" must be called as <info-modal>.. , "komLegend" as <kom-legend>.... 
 
     angular.module('kommonitorUserInterface')
-    .directive('userInterfaceNew',  downgradeComponent({ component: UserInterfaceComponent }) as angular.IDirectiveFactory);
+    .directive('userInterfaceNew',  downgradeComponent({ component: UserInterfaceComponent }) as angular.IDirectiveFactory)
+    .directive('userLogin',  downgradeComponent({ component: UserLoginComponent }) as angular.IDirectiveFactory);
 
     angular.module('adminAppConfig')
     .directive('newAdminAppConfig',  downgradeComponent({ component: AdminAppConfigComponent }) as angular.IDirectiveFactory);
@@ -250,7 +251,8 @@ export class AppModule implements DoBootstrap {
     angular.module('kommonitorAdmin')
       .directive('adminDashboardManagementNew', downgradeComponent({
         component: AdminDashboardManagementComponent
-      }) as angular.IDirectiveFactory);
+      }) as angular.IDirectiveFactory)
+      .directive('userLoginAdmin',  downgradeComponent({ component: UserLoginComponent }) as angular.IDirectiveFactory);
 
     console.log("registered downgraded Angular components for AngularJS usage");
   }
