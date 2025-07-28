@@ -13,11 +13,11 @@
 			<h3 class="box-title">Georessourcenauswahl</h3>
 
 			<div class="box-tools pull-right">
-				<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+				<button (click)="poiSelectCollapse.toggle()" type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
 				</button>
 			</div>
 		</div>
-		<div class="box-body">
+    <div class="box-body boxedLegend" #poiSelectCollapse="ngbCollapse" [(ngbCollapse)]="isPoiSelectCollapsed">
 
 			<div style="text-align: center">
 
@@ -272,12 +272,12 @@
 																		ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]" -->
 																</td>
 																<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
-																	<a href="" (click)="getExportLinkForPoi(poi)"
+																	<p class="poiList-downloadLink"  (click)="getExportLinkForPoi(poi)"
 																		title="Download Features as GeoJSON"><i
-																			class="fas fa-file-download fa-lg"></i></a>
+																			class="fas fa-file-download fa-lg"></i></p>
 																			
-																	<a href="" (click)="dataExchangeService.downloadMetadataPDF_georesource(poi)"
-																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
+																	<p class="poiList-downloadLink"  (click)="dataExchangeService.downloadMetadataPDF_georesource(poi)"
+																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></p>
 																	<!-- <a ng-href="getExportLinkForPoi(poi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 																</td>
                                 <td>
@@ -323,12 +323,12 @@
 																	</select>
 																</td>
 																<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
-																	<a href="" (click)="getExportLinkForLoi(loi)"
+																	<p class="poiList-downloadLink"  (click)="getExportLinkForLoi(loi)"
 																		title="Download Features as GeoJSON"><i
-																			class="fas fa-file-download fa-lg"></i></a>
+																			class="fas fa-file-download fa-lg"></i></p>
 
-																	<a href="" (click)="dataExchangeService.downloadMetadataPDF_georesource(loi)"
-																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
+																	<p class="poiList-downloadLink"  (click)="dataExchangeService.downloadMetadataPDF_georesource(loi)"
+																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></p>
 																	<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 																</td>
                                 <td>
@@ -373,12 +373,12 @@
 																	</select>
 																</td>
 																<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
-																	<a href="" (click)="getExportLinkForAoi(aoi)"
+																	<p class="poiList-downloadLink"  (click)="getExportLinkForAoi(aoi)"
 																		title="Download Features as GeoJSON"><i
-																			class="fas fa-file-download fa-lg"></i></a>
+																			class="fas fa-file-download fa-lg"></i></p>
 
-																	<a href="" (click)="dataExchangeService.downloadMetadataPDF_georesource(aoi)"
-																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
+																	<p class="poiList-downloadLink"  (click)="dataExchangeService.downloadMetadataPDF_georesource(aoi)"
+																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></p>
 																	<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 																</td>
                                 <td>
@@ -586,12 +586,12 @@
 																	ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]" -->
 															</td>
 															<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
-																<a href="" (click)="getExportLinkForPoi(poi)"
+																<p class="poiList-downloadLink"  (click)="getExportLinkForPoi(poi)"
 																	title="Download Features as GeoJSON"><i
-																		class="fas fa-file-download fa-lg"></i></a>
+																		class="fas fa-file-download fa-lg"></i></p>
 
-																<a href="" (click)="dataExchangeService.downloadMetadataPDF_georesource(poi)"
-																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
+																<p class="poiList-downloadLink"  (click)="dataExchangeService.downloadMetadataPDF_georesource(poi)"
+																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></p>
 																<!-- <a ng-href="getExportLinkForPoi(poi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 															</td>
                               <td>
@@ -637,12 +637,12 @@
 																</select>
 															</td>
 															<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
-																<a href="" (click)="getExportLinkForLoi(loi)"
+																<p class="poiList-downloadLink"  (click)="getExportLinkForLoi(loi)"
 																	title="Download Features as GeoJSON"><i
-																		class="fas fa-file-download fa-lg"></i></a>
+																		class="fas fa-file-download fa-lg"></i></p>
 
-																<a href="" (click)="dataExchangeService.downloadMetadataPDF_georesource(loi)"
-																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
+																<p class="poiList-downloadLink"  (click)="dataExchangeService.downloadMetadataPDF_georesource(loi)"
+																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></p>
 																<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 															</td>
                               <td>
@@ -687,12 +687,12 @@
 																</select>
 															</td>
 															<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
-																<a href="" (click)="getExportLinkForAoi(aoi)"
+																<p class="poiList-downloadLink"  (click)="getExportLinkForAoi(aoi)"
 																	title="Download Features as GeoJSON"><i
-																		class="fas fa-file-download fa-lg"></i></a>
+																		class="fas fa-file-download fa-lg"></i></p>
 
-																<a href="" (click)="dataExchangeService.downloadMetadataPDF_georesource(aoi)"
-																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
+																<p class="poiList-downloadLink"  (click)="dataExchangeService.downloadMetadataPDF_georesource(aoi)"
+																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></p>
 																<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 															</td>
                               <td>
@@ -897,12 +897,12 @@
 																ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]" -->
 														</td>
 														<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
-															<a href="" (click)="getExportLinkForPoi(poi)"
+															<p class="poiList-downloadLink"  (click)="getExportLinkForPoi(poi)"
 																title="Download Features as GeoJSON"><i
-																	class="fas fa-file-download fa-lg"></i></a>
+																	class="fas fa-file-download fa-lg"></i></p>
 
-															<a href="" (click)="dataExchangeService.downloadMetadataPDF_georesource(poi)"
-																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
+															<p class="poiList-downloadLink"  (click)="dataExchangeService.downloadMetadataPDF_georesource(poi)"
+																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></p>
 															<!-- <a ng-href="getExportLinkForPoi(poi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 														</td>
                             <td>
@@ -944,13 +944,13 @@
 																class="form-control" required>
 															</select>
 														</td>
-														<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
-															<a href="" (click)="getExportLinkForLoi(loi)"
+														<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center export-column">
+															<p class="poiList-downloadLink"  (click)="getExportLinkForLoi(loi)"
 																title="Download Features as GeoJSON"><i
-																	class="fas fa-file-download fa-lg"></i></a>
+																	class="fas fa-file-download fa-lg"></i></p>
 
-															<a href="" (click)="dataExchangeService.downloadMetadataPDF_georesource(loi)"
-																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
+															<p class="poiList-downloadLink"  (click)="dataExchangeService.downloadMetadataPDF_georesource(loi)"
+																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></p>
 															<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 														</td>
                             <td>
@@ -991,13 +991,13 @@
 																class="form-control" required>
 															</select>
 														</td>
-														<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
-															<a href="" (click)="getExportLinkForAoi(aoi)"
+														<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center export-column">
+															<p class="poiList-downloadLink"  (click)="getExportLinkForAoi(aoi)"
 																title="Download Features as GeoJSON"><i
-																	class="fas fa-file-download fa-lg"></i></a>
+																	class="fas fa-file-download fa-lg"></i></p>
 
-															<a href="" (click)="dataExchangeService.downloadMetadataPDF_georesource(aoi)"
-																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
+															<p class="poiList-downloadLink"  (click)="dataExchangeService.downloadMetadataPDF_georesource(aoi)"
+																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></p>
 															<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 														</td>
                             <td>
@@ -1203,13 +1203,13 @@
 															ng-options="date as date.startDate for date in poi.availablePeriodsOfValidity | orderBy: 'startDate' | unique: 'startDate'"
 															ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]" -->
 													</td>
-													<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
-														<a href="" (click)="getExportLinkForPoi(poi)"
+													<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center export-column">
+														<p class="poiList-downloadLink"  (click)="getExportLinkForPoi(poi)"
 															title="Download Features as GeoJSON"><i
-																class="fas fa-file-download fa-lg"></i></a>
+																class="fas fa-file-download fa-lg"></i></p>
 
-														<a href="" (click)="dataExchangeService.downloadMetadataPDF_georesource(poi)"
-																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
+														<p class="poiList-downloadLink"  (click)="dataExchangeService.downloadMetadataPDF_georesource(poi)"
+																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></p>
 														<!-- <a ng-href="getExportLinkForPoi(poi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 													</td>
                           <td>
@@ -1251,13 +1251,13 @@
 															class="form-control" required>
 														</select>
 													</td>
-													<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
-														<a href="" (click)="getExportLinkForLoi(loi)"
+													<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center export-column">
+														<p class="poiList-downloadLink"  (click)="getExportLinkForLoi(loi)"
 															title="Download Features as GeoJSON"><i
-																class="fas fa-file-download fa-lg"></i></a>
+																class="fas fa-file-download fa-lg"></i></p>
 
-														<a href="" (click)="dataExchangeService.downloadMetadataPDF_georesource(loi)"
-																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
+														<p class="poiList-downloadLink"  (click)="dataExchangeService.downloadMetadataPDF_georesource(loi)"
+																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></p>
 														<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 													</td>
                           <td>
@@ -1299,13 +1299,13 @@
 															class="form-control" required>
 														</select>
 													</td>
-													<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
-														<a href="" (click)="getExportLinkForAoi(aoi)"
+													<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center export-column">
+														<p class="poiList-downloadLink"  (click)="getExportLinkForAoi(aoi)"
 															title="Download Features as GeoJSON"><i
-																class="fas fa-file-download fa-lg"></i></a>
+																class="fas fa-file-download fa-lg"></i></p>
 
-														<a href="" (click)="dataExchangeService.downloadMetadataPDF_georesource(aoi)"
-																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
+														<p class="poiList-downloadLink"  (click)="dataExchangeService.downloadMetadataPDF_georesource(aoi)"
+																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></p>
 														<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 													</td>
                           <td>
@@ -1526,13 +1526,13 @@
 														ng-options="date as date.startDate for date in poi.availablePeriodsOfValidity | orderBy: 'startDate' | unique: 'startDate'"
 														ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]" -->
 												</td>
-												<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
-													<a href="" (click)="getExportLinkForPoi(poi)"
+												<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center export-column">
+													<p class="poiList-downloadLink"  (click)="getExportLinkForPoi(poi)"
 														title="Download Features as GeoJSON"><i
-															class="fas fa-file-download fa-lg"></i></a>
+															class="fas fa-file-download fa-lg"></i></p>
 
-													<a href="" (click)="dataExchangeService.downloadMetadataPDF_georesource(poi)"
-																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
+													<p class="poiList-downloadLink"  (click)="dataExchangeService.downloadMetadataPDF_georesource(poi)"
+																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></p>
 													<!-- <a ng-href="getExportLinkForPoi(poi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 												</td>
                         <td>
@@ -1575,13 +1575,13 @@
 														class="form-control" required>
 													</select>
 												</td>
-												<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
-													<a href="" (click)="getExportLinkForLoi(loi)"
+												<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center export-column">
+													<p class="poiList-downloadLink"  (click)="getExportLinkForLoi(loi)"
 														title="Download Features as GeoJSON"><i
-															class="fas fa-file-download fa-lg"></i></a>
+															class="fas fa-file-download fa-lg"></i></p>
 
-													<a href="" (click)="dataExchangeService.downloadMetadataPDF_georesource(loi)"
-																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
+													<p class="poiList-downloadLink"  (click)="dataExchangeService.downloadMetadataPDF_georesource(loi)"
+																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></p>
 													<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 												</td>
                         <td>
@@ -1624,13 +1624,13 @@
 														class="form-control" required>
 													</select>
 												</td>
-												<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
-													<a href="" (click)="getExportLinkForAoi(aoi)"
+												<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center export-column">
+													<p class="poiList-downloadLink"  (click)="getExportLinkForAoi(aoi)"
 														title="Download Features as GeoJSON"><i
-															class="fas fa-file-download fa-lg"></i></a>
+															class="fas fa-file-download fa-lg"></i></p>
 
-													<a href="" (click)="dataExchangeService.downloadMetadataPDF_georesource(aoi)"
-																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
+													<p class="poiList-downloadLink"  (click)="dataExchangeService.downloadMetadataPDF_georesource(aoi)"
+																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></p>
 													<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 												</td>
                         <td>
@@ -1851,13 +1851,13 @@
 															ng-options="date as date.startDate for date in poi.availablePeriodsOfValidity | orderBy: 'startDate' | unique: 'startDate'"
 															ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]" -->
 													</td>
-													<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
-														<a href="" (click)="getExportLinkForPoi(poi)"
+													<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center export-column">
+														<p class="poiList-downloadLink" (click)="getExportLinkForPoi(poi)"
 															title="Download Features as GeoJSON"><i
-																class="fas fa-file-download fa-lg"></i></a>
+																class="fas fa-file-download fa-lg"></i></p>
 
-														<a href="" (click)="dataExchangeService.downloadMetadataPDF_georesource(poi)"
-																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
+														<p class="poiList-downloadLink" (click)="dataExchangeService.downloadMetadataPDF_georesource(poi)"
+																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></p>
 														<!-- <a ng-href="getExportLinkForPoi(poi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 													</td>
                           <td>
@@ -1944,13 +1944,13 @@
                             <!-- ng-options="date as date.startDate for date in loi.availablePeriodsOfValidity | orderBy: 'startDate' | unique: 'startDate'"
 															ng-init="loi.selectedDate = loi.availablePeriodsOfValidity[loi.availablePeriodsOfValidity.length - 1]" -->
 													</td>
-													<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
-														<a href="" (click)="getExportLinkForLoi(loi)"
+													<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center export-column">
+														<p class="poiList-downloadLink"  (click)="getExportLinkForLoi(loi)"
 															title="Download Features as GeoJSON"><i
-																class="fas fa-file-download fa-lg"></i></a>
+																class="fas fa-file-download fa-lg"></i></p>
 														
-														<a href="" (click)="dataExchangeService.downloadMetadataPDF_georesource(loi)"
-																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
+														<p class="poiList-downloadLink"  (click)="dataExchangeService.downloadMetadataPDF_georesource(loi)"
+																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></p>
 														<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 													</td>
 												</tr>
@@ -2032,13 +2032,13 @@
 															ng-options="date as date.startDate for date in aoi.availablePeriodsOfValidity | orderBy: 'startDate' | unique: 'startDate'"
 															ng-init="aoi.selectedDate = aoi.availablePeriodsOfValidity[aoi.availablePeriodsOfValidity.length - 1]" -->
 													</td>
-													<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
-														<a href="" (click)="getExportLinkForAoi(aoi)"
+													<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center export-column">
+														<p class="poiList-downloadLink"  (click)="getExportLinkForAoi(aoi)"
 															title="Download Features as GeoJSON"><i
-																class="fas fa-file-download fa-lg"></i></a>
+																class="fas fa-file-download fa-lg"></i></p>
 
-														<a href="" (click)="dataExchangeService.downloadMetadataPDF_georesource(aoi)"
-																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
+														<p class="poiList-downloadLink"  (click)="dataExchangeService.downloadMetadataPDF_georesource(aoi)"
+																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></p>
 														<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 													</td>
 												</tr>

@@ -5,4 +5,14 @@
     grid-template-columns: auto auto;
     cursor: pointer;
   }
+
+  .poiList-downloadLink {
+    color: var(--kommonitor-primary);
+  }
+
+  .export-column {
+    display: grid;
+    grid-template-columns: auto auto;
+    padding-top: 1em;
+  }
 }

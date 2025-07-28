@@ -59,6 +59,8 @@ export class PoiComponent implements OnInit {
     'Favoriten-Auswahl nicht gesichert. Zum speichern hier klicken',
     'Auswahl erfolgreich gespeichert'];
 
+  isPoiSelectCollapsed = false;
+
   constructor(
     protected dataExchangeService: DataExchangeService,
     private mapService: MapService,
