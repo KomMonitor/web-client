@@ -287,7 +287,7 @@
                                 <div class="list-group-item list-group-item-default list-group-item-grid-centered list-group-item-level-{{topic.level}}">
                                   <p *ngIf="topic.subTopics.length>0 || topic.indicatorData.length>0" [attr.id]="topic.topicId" href="" title="{{topic.topicDescription}}"
                                     class="indicatorFavCollapseTrigger" style="color: white;">
-                                  <i class="glyphicon glyphicon-chevron-right"></i>{{topic.topicName}}</p>
+                                  <i class="glyphicon" [ngClass]="{'glyphicon-chevron-right':isFavSubTopicCollapsed(topic.topicId), 'glyphicon-chevron-down':!isFavSubTopicCollapsed(topic.topicId)}"></i>{{topic.topicName}}</p>
                                   <p *ngIf="topic.subTopics.length==0 && topic.indicatorData.length==0">{{topic.topicName}}</p>
                                   <i [hidden]="!showFavSelection" class="glyphicon glyphicon-custom" [ngClass]="{'glyphicon-star':indicatorTopicFavSelected(topic.topicId), 'glyphicon-star-empty':!indicatorTopicFavSelected(topic.topicId)}" (click)="onIndicatorTopicFavClick(topic.topicId,true)"></i>
                                 </div>

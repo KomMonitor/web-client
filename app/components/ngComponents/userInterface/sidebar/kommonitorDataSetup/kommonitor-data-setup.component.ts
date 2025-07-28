@@ -326,13 +326,18 @@ export class KommonitorDataSetupComponent implements OnInit {
           .toggleClass('glyphicon-chevron-down');
 
         // manage entries;
+        
         if(document.getElementById('indicatorFavSubTopic-'+clickedTopicId)?.style.display=='none')
           document.getElementById('indicatorFavSubTopic-'+clickedTopicId)!.style.display = 'block';
         else
           document.getElementById('indicatorFavSubTopic-'+clickedTopicId)!.style!.display = 'none';
       });
-    }, 500);
+    }, 1000);
   };
+
+  isFavSubTopicCollapsed(topicId) {
+    return (document.getElementById('indicatorFavSubTopic-'+topicId)!.style.display=='none');
+  }
 
 /*
 					
