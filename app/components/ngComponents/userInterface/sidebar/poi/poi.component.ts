@@ -203,9 +203,9 @@ export class PoiComponent implements OnInit {
 
     this.dataExchangeService.onChangeGeoresourceKeywordFilter(this.georesourceNameFilter.value, this.showPOI, this.showLOI, this.showAOI, this.showWMS, this.showWFS);
 
-    window.setTimeout( () => {
+    setTimeout(() => {
       this.preppedTopicGeoresourceHierarchy = this.prepareTopicGeoresourceHierarchyRecursive(this.exchangeData.topicGeoresourceHierarchy);
-       this.addClickListenerToEachCollapseTrigger();
+      this.addClickListenerToEachCollapseTrigger();
     },250);
   }						
   
@@ -717,6 +717,7 @@ export class PoiComponent implements OnInit {
   refreshPoiLayers(){
 
     this.exchangeData.selectedPOISize = this.exchangeData.POISizes.filter(e => e.id==this.selectedPoiSize)[0];
+
     for (var poi of this.exchangeData.displayableGeoresources_keywordFiltered){
       if (poi.isSelected){
         //remove POI layer from map
