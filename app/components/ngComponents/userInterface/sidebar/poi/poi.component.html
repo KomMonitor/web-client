@@ -1441,21 +1441,22 @@
 							</div>
 							<!-- end main Topics -->
 
-							<div class="list-group-item list-group-item-default kommonitor-theme"
+							<div class="list-group-item list-group-item-default list-group-item-grid-layout"
 								style="background: #2171b5; color: white;" *ngIf="exchangeData.topicGeoresourceHierarchy_unmappedEntries.totalCount > 0">
-								<a id="noHierarchyGeoresourceDatasets" href=""
-									title="Georessourcen-Daten ohne Themenbezug" class="collapseTrigger"
-									style="color: white;" 
-									ng-init="isCollapsed_noTopic=true"
-									(click)="toggleNoTopicHierarchy()">
-										<i	class="glyphicon glyphicon-chevron-right"></i>ohne Themenbezug
-									({{exchangeData.topicGeoresourceHierarchy_unmappedEntries.totalCount}})</a>
-								&nbsp;&nbsp; <input type="checkbox" value="showAllForTopic_null"
-									[(ngModel)]="showAllForTopic_null" (change)="handleShowAllOnTopic(null)">
+								<div>
+                  <p id="noHierarchyGeoresourceDatasets"
+                    title="Georessourcen-Daten ohne Themenbezug" class="collapseTrigger"
+                    style="color: white;" 
+                    (click)="toggleNoTopicHierarchy()">
+                      <i	class="glyphicon" [ngClass]="{'glyphicon-chevron-right':isCollapsed_noTopic, 'glyphicon-chevron-down':!isCollapsed_noTopic}"></i>ohne Themenbezug
+                    ({{exchangeData.topicGeoresourceHierarchy_unmappedEntries.totalCount}})</p>
+								  <input type="checkbox" value="showAllForTopic_null"
+									  [(ngModel)]="showAllForTopic_null" (change)="handleShowAllOnTopic(null)">
+                </div>
 							</div>
 
 
-							<div class="list-group collapse" uib-collapse="isCollapsed_noTopic">
+							<div class="list-group collapse" [ngClass]="{'in': !isCollapsed_noTopic}"  uib-collapse="isCollapsed_noTopic">
 
 								<div class="georesourceInputForm"
 									*ngIf="exchangeData.topicGeoresourceHierarchy_unmappedEntries.totalCount > 0">
