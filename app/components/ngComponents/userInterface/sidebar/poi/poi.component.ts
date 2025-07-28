@@ -131,6 +131,10 @@ export class PoiComponent implements OnInit {
     return tree;
   }
 
+  isFavSubTopicCollapsed(topicId) {
+    return (document.getElementById('georesourcesFavSubTopic-'+topicId)!.style.display=='none');
+  }
+
   onTopicClick(topicID:string) {
     if(this.topicsCollapsed.includes(topicID))
       this.topicsCollapsed = this.topicsCollapsed.filter(e => e!=topicID);
