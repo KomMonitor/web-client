@@ -73,7 +73,7 @@ import { AdminAppConfigComponent } from './components/ngComponents/admin/adminCo
 import { AdminControlsConfigComponent } from './components/ngComponents/admin/adminConfig/adminControlsConfig/admin-controls-config.component';
 import { AdminRoleExplanationComponent } from './components/ngComponents/admin/adminRoleExplanation/admin-role-explanation.component';
 import { AdminDashboardManagementComponent } from './components/ngComponents/admin/adminDashboardManagement/admin-dashboard-management.component';
-
+import { UserLoginComponent } from './components/ngComponents/userInterface/userLogin/user-login.component';
 
 // currently the AngularJS routing is still used as part of kommonitorClient module
 const routes: Routes = [];
@@ -155,7 +155,8 @@ declare var MathJax;
     AdminAppConfigComponent,
     AdminControlsConfigComponent,
     AdminRoleExplanationComponent,
-    AdminDashboardManagementComponent
+    AdminDashboardManagementComponent,
+    UserLoginComponent
   ],
   schemas: [
     CUSTOM_ELEMENTS_SCHEMA
@@ -209,7 +210,8 @@ export class AppModule implements DoBootstrap {
     // meaning "infoModal" must be called as <info-modal>.. , "komLegend" as <kom-legend>.... 
 
     angular.module('kommonitorUserInterface')
-    .directive('userInterfaceNew',  downgradeComponent({ component: UserInterfaceComponent }) as angular.IDirectiveFactory);
+    .directive('userInterfaceNew',  downgradeComponent({ component: UserInterfaceComponent }) as angular.IDirectiveFactory)
+    .directive('userLogin',  downgradeComponent({ component: UserLoginComponent }) as angular.IDirectiveFactory);
 
     angular.module('adminAppConfig')
     .directive('newAdminAppConfig',  downgradeComponent({ component: AdminAppConfigComponent }) as angular.IDirectiveFactory);
@@ -249,7 +251,8 @@ export class AppModule implements DoBootstrap {
     angular.module('kommonitorAdmin')
       .directive('adminDashboardManagementNew', downgradeComponent({
         component: AdminDashboardManagementComponent
-      }) as angular.IDirectiveFactory);
+      }) as angular.IDirectiveFactory)
+      .directive('userLoginAdmin',  downgradeComponent({ component: UserLoginComponent }) as angular.IDirectiveFactory);
 
     console.log("registered downgraded Angular components for AngularJS usage");
   }
