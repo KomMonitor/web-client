@@ -19,8 +19,14 @@
         <span class="sr-only">Toggle navigation</span>
       </a>
 
-      <!-- witch back to KomMonitor Main Application -->
-      <a href="#!/" class="btn btn-danger" style="margin-top:8px;" ng-click="switchToMapApplication()"><i class="fas fa-user-cog"></i>&nbsp;&nbsp;Administration verlassen</a>
+      <!-- Language Switcher and Administration Exit Button Container -->
+      <div style="float: left; margin-top: 8px; display: flex; align-items: center; gap: 10px;">
+        <!-- Language Switcher -->
+        <admin-language-switcher></admin-language-switcher>
+        
+        <!-- Switch back to KomMonitor Main Application -->
+        <a href="#!/" class="btn btn-danger" ng-click="switchToMapApplication()"><i class="fas fa-user-cog"></i>&nbsp;&nbsp;Administration verlassen</a>
+      </div>
 
       <!-- TODO: handle redirection with global filter parameter -->
       <!-- <a ng-href="/#!/?application={{$ctrl.kommonitorGlobalFilterHelperServiceInstance.applicationFilterId}}" class="btn btn-danger" style="margin-top:8px;" ng-click="switchToMapApplication()"><i class="fas fa-user-cog"></i>&nbsp;&nbsp;Administration verlassen</a> -->
