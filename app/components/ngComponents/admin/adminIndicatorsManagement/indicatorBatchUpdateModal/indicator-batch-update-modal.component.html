@@ -40,7 +40,9 @@
                 <th>Datensatz-Quellformat*</th>
                 <th *ngIf="checkColumnsToShowSelectedConverter().length">Quellformat*</th>
                 <th *ngIf="checkColumnsToShowSelectedConverter().length">Encoding*</th>
+                <th *ngIf="false">CRS*</th>
                 <th *ngIf="checkColumnsToShowSelectedConverter().includes('Tabelle_Zeitreihe_zu_Indikator')">Trennzeichen*</th>
+                <th *ngIf="checkIfSelectedConverterIsCsvOnlyIndicator()">Trennzeichen*</th>
                 <th *ngIf="checkColumnsToShowSelectedConverter().includes('WFS_v1')">Schema*</th>
                 <th *ngIf="checkColumnsToShowSelectedConverter().includes('WFS_v1')">NAMESPACE</th>
                 <th *ngIf="checkColumnsToShowSelectedConverter().includes('WFS_v1')">SCHEMA_LOCATION</th>
@@ -128,12 +130,30 @@
                   </select>
                 </td>
 
+                <!-- CRS (hidden) -->
+                <td *ngIf="false">
+                  <input class="form-control" 
+                         [(ngModel)]="indicator.mappingObj.converter.crs"
+                         type="text" 
+                         value="EPSG:4326" 
+                         required>
+                </td>
+
                 <!-- Trennzeichen -->
                 <td *ngIf="checkColumnsToShowSelectedConverter().includes('Tabelle_Zeitreihe_zu_Indikator')">
                   <input class="form-control" 
                          [(ngModel)]="indicator.mappingObj.converter.separator"
                          type="text" 
                          [disabled]="!indicator.selectedConverter?.name?.includes('Tabelle_Zeitreihe_zu_Indikator')">
+                </td>
+
+                <!-- Trennzeichen for CSV-only indicators -->
+                <td *ngIf="checkIfSelectedConverterIsCsvOnlyIndicator()">
+                  <input class="form-control" 
+                         [(ngModel)]="indicator.mappingObj.converter.separator"
+                         type="text" 
+                         [disabled]="!indicator.selectedConverter?.name?.includes('csv_onlyIndicator')" 
+                         required>
                 </td>
 
                 <!-- Schema -->
@@ -244,7 +264,9 @@
                  <th>Datensatz-Quellformat*</th>
                  <th *ngIf="checkColumnsToShowSelectedConverter().length">Quellformat*</th>
                  <th *ngIf="checkColumnsToShowSelectedConverter().length">Encoding*</th>
+                 <th *ngIf="false">CRS*</th>
                  <th *ngIf="checkColumnsToShowSelectedConverter().includes('Tabelle_Zeitreihe_zu_Indikator')">Trennzeichen*</th>
+                 <th *ngIf="checkIfSelectedConverterIsCsvOnlyIndicator()">Trennzeichen*</th>
                  <th *ngIf="checkColumnsToShowSelectedConverter().includes('WFS_v1')">Schema*</th>
                  <th *ngIf="checkColumnsToShowSelectedConverter().includes('WFS_v1')">NAMESPACE</th>
                  <th *ngIf="checkColumnsToShowSelectedConverter().includes('WFS_v1')">SCHEMA_LOCATION</th>
@@ -275,7 +297,7 @@
          <div class="box-header with-border">
            <h3 class="box-title">Standardwert-Funktion</h3>
            <div class="box-tools pull-right">
-             <button type="button" class="btn btn-box-tool" data-widget="collapse">
+             <button type="button" class="btn btn-box-tool" data-widget="collapse" (click)="toggleAccordion($event)">
                <i class="fa fa-plus"></i>
              </button>
            </div>
@@ -333,6 +355,105 @@
                      {{converter.name}}
                    </option>
                  </select>
+
+                 <!-- Quellformat* -->
+                 <select *ngIf="colDefaultFunctionSelectedColumn=='mappingObj.converter.mimeType'" 
+                         class="form-control" 
+                         [(ngModel)]="colDefaultFunctionNewValue"
+                         [disabled]="checkColumnsToShowSelectedConverter().length != 1">
+                   <option [ngValue]="null">-- Quellformat wählen --</option>
+                   <option *ngFor="let mimeType of getConverterObjectByName(batchList[0]?.selectedConverter?.name)?.mimeTypes" 
+                           [ngValue]="mimeType">
+                     {{mimeType}}
+                   </option>
+                 </select>
+
+                 <!-- Encoding* -->
+                 <select *ngIf="colDefaultFunctionSelectedColumn=='mappingObj.converter.encoding'" 
+                         class="form-control" 
+                         [(ngModel)]="colDefaultFunctionNewValue"
+                         [disabled]="checkColumnsToShowSelectedConverter().length != 1">
+                   <option [ngValue]="null">-- Encoding wählen --</option>
+                   <option *ngFor="let encoding of getConverterObjectByName(batchList[0]?.selectedConverter?.name)?.encodings" 
+                           [ngValue]="encoding">
+                     {{encoding}}
+                   </option>
+                 </select>
+
+                 <!-- Trennzeichen* -->
+                 <input *ngIf="colDefaultFunctionSelectedColumn=='mappingObj.converter.separator'" 
+                        type="text" 
+                        class="form-control"
+                        [(ngModel)]="colDefaultFunctionNewValue"
+                        [disabled]="!checkColumnsToShowSelectedConverter().includes('Tabelle_Zeitreihe_zu_Indikator')">
+
+                 <!-- Schema* -->
+                 <select *ngIf="colDefaultFunctionSelectedColumn=='mappingObj.converter.schema'" 
+                         class="form-control" 
+                         [(ngModel)]="colDefaultFunctionNewValue" 
+                         [disabled]="!checkColumnsToShowSelectedConverter().includes('WFS_v1')">
+                   <option [ngValue]="null">-- Schema wählen --</option>
+                   <option *ngFor="let schema of getConverterObjectByName('WFS_v1')?.schemas" 
+                           [ngValue]="schema">
+                     {{schema}}
+                   </option>
+                 </select>
+
+                 <!-- NAMESPACE -->
+                 <input *ngIf="colDefaultFunctionSelectedColumn=='mappingObj.converter.schemaNamespace'" 
+                        type="text" 
+                        class="form-control"
+                        [(ngModel)]="colDefaultFunctionNewValue"
+                        [disabled]="!checkColumnsToShowSelectedConverter().includes('WFS_v1')">
+
+                 <!-- SCHEMA LOCATION -->
+                 <input *ngIf="colDefaultFunctionSelectedColumn=='mappingObj.converter.schemaLocation'" 
+                        type="text" 
+                        class="form-control"
+                        [(ngModel)]="colDefaultFunctionNewValue"
+                        [disabled]="!checkColumnsToShowSelectedConverter().includes('WFS_v1')">
+
+                 <!-- Datenquelltyp* -->
+                 <select *ngIf="colDefaultFunctionSelectedColumn=='selectedDatasourceType'" 
+                         class="form-control" 
+                         [(ngModel)]="colDefaultFunctionNewValue">
+                   <option [ngValue]="null">-- Quelltyp wählen --</option>
+                   <option *ngFor="let datasourceType of getAvailableDatasourceTypes()" 
+                           [ngValue]="datasourceType">
+                     {{datasourceType.type}}
+                   </option>
+                 </select>
+
+                 <!-- URL* -->
+                 <input *ngIf="colDefaultFunctionSelectedColumn=='mappingObj.dataSource.URL'" 
+                        type="text" 
+                        class="form-control"
+                        [(ngModel)]="colDefaultFunctionNewValue" 
+                        [disabled]="!checkIfSelectedDatasourceTypeIsHttp()">
+
+                 <!-- Payload* -->
+                 <input *ngIf="colDefaultFunctionSelectedColumn=='mappingObj.dataSource.payload'" 
+                        type="text" 
+                        class="form-control"
+                        [(ngModel)]="colDefaultFunctionNewValue" 
+                        [disabled]="!checkIfSelectedDatasourceTypeIsInline()">
+
+                 <!-- ID Attributname der Raumebenen-Features* -->
+                 <input *ngIf="colDefaultFunctionSelectedColumn=='mappingObj.propertyMapping.spatialReferenceKeyProperty'" 
+                        type="text" 
+                        class="form-control"
+                        [(ngModel)]="colDefaultFunctionNewValue">
+
+                 <!-- Ziel-Raumebene* -->
+                 <select *ngIf="colDefaultFunctionSelectedColumn=='selectedTargetSpatialUnit'" 
+                         class="form-control" 
+                         [(ngModel)]="colDefaultFunctionNewValue">
+                   <option [ngValue]="null">-- Raumebene wählen --</option>
+                   <option *ngFor="let spatialUnit of kommonitorDataExchangeService.availableSpatialUnits" 
+                           [ngValue]="spatialUnit">
+                     {{spatialUnit.spatialUnitLevel}}
+                   </option>
+                 </select>
                </div>
              </div>
              <div class="row">
@@ -379,16 +500,7 @@
      </div>
    </div>
 
-        <!-- Default timeseries mapping -->
-        <div class="row mt-3">
-          <div class="col-md-12">
-            <button type="button" 
-                    class="btn btn-info" 
-                    (click)="onDefaultTimeseriesMappingBtnClicked($event)">
-              Standard-Zeitreihen-Mapping bearbeiten
-            </button>
-          </div>
-        </div>
+
 
          </div>
  

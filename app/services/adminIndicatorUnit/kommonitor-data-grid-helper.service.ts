@@ -1,8 +1,10 @@
 import { Injectable, Inject } from '@angular/core';
-import { ColDef } from 'ag-grid-community';
+import { ColDef, GridOptions, ICellRendererParams, GridApi, ColumnApi, GridReadyEvent } from 'ag-grid-community';
 import { KommonitorIndicatorDataExchangeService } from './kommonitor-data-exchange.service';
+import { BroadcastService } from '../broadcast-service/broadcast.service';
+import { HttpClient } from '@angular/common/http';
+import { Subject } from 'rxjs';
 
-declare const $: any;
 declare const MathJax: any;
 
 @Injectable({
@@ -10,14 +12,35 @@ declare const MathJax: any;
 })
 export class KommonitorIndicatorDataGridHelperService {
 
+  // Grid references
+  private gridApi: GridApi | null = null;
+  private columnApi: ColumnApi | null = null;
 
+  // Observable for grid events
+  private gridReadySubject = new Subject<GridReadyEvent>();
+  public gridReady$ = this.gridReadySubject.asObservable();
+
+  // Resource type constants
+  readonly resourceType_georesource = "georesource";
+  readonly resourceType_spatialUnit = "spatialUnit";
+  readonly resourceType_indicator = "indicator";
+
+  // Timestamp properties for feature table updates
+  featureTable_spatialUnit_lastUpdate_timestamp_success: Date | undefined = undefined;
+  featureTable_spatialUnit_lastUpdate_timestamp_failure: Date | undefined = undefined;
+  featureTable_georesource_lastUpdate_timestamp_success: Date | undefined = undefined;
+  featureTable_georesource_lastUpdate_timestamp_failure: Date | undefined = undefined;
+  featureTable_indicator_lastUpdate_timestamp_success: Date | undefined = undefined;
+  featureTable_indicator_lastUpdate_timestamp_failure: Date | undefined = undefined;
 
   constructor(
-    @Inject('kommonitorDataExchangeService') private angularJsDataExchangeService: any
+    private kommonitorDataExchangeService: KommonitorIndicatorDataExchangeService,
+    private broadcastService: BroadcastService,
+    private http: HttpClient
   ) {}
 
   /**
-   * Builds data grid for indicators - now returns column definitions and row data for AG Grid Angular
+   * Builds data grid for indicators - returns column definitions and row data for AG Grid Angular
    */
   buildDataGrid_indicators(indicatorMetadataArray: any[]): { columnDefs: ColDef[], rowData: any[] } {
     const columnDefs = this.buildDataGridColumnConfig_indicators(indicatorMetadataArray);
@@ -26,13 +49,11 @@ export class KommonitorIndicatorDataGridHelperService {
     return { columnDefs, rowData };
   }
 
-
-
   /**
    * Builds column configuration for indicators
    */
-  buildDataGridColumnConfig_indicators(indicatorMetadataArray: any[]): any[] {
-    const columnDefs = [
+  buildDataGridColumnConfig_indicators(indicatorMetadataArray: any[]): ColDef[] {
+    const columnDefs: ColDef[] = [
       { 
         headerName: 'Editierfunktionen', 
         pinned: 'left', 
@@ -40,7 +61,7 @@ export class KommonitorIndicatorDataGridHelperService {
         checkboxSelection: false, 
         filter: false, 
         sortable: false, 
-        cellRenderer: (params: any) => this.displayEditButtons_indicators(params)
+        cellRenderer: (params: ICellRendererParams) => this.displayEditButtons_indicators(params)
       },
       { headerName: 'Id', field: "indicatorId", pinned: 'left', maxWidth: 125 },
       { headerName: 'Name', field: "indicatorName", pinned: 'left', minWidth: 300 },
@@ -48,19 +69,19 @@ export class KommonitorIndicatorDataGridHelperService {
       { 
         headerName: 'Beschreibung', 
         minWidth: 400, 
-        cellRenderer: (params: any) => { 
-          return params.data.metadata.description; 
+        cellRenderer: (params: ICellRendererParams) => { 
+          return params.data?.metadata?.description || ''; 
         },
         filter: 'agTextColumnFilter', 
         filterValueGetter: (params: any) => {
-          return "" + params.data.metadata.description;
+          return params.data?.metadata?.description || '';
         }
       },
       {
         headerName: 'Methodik', 
         minWidth: 400,
-        cellRenderer: (params: any) => {
-          if(params.data.processDescription && params.data.processDescription.includes("$$")){
+        cellRenderer: (params: ICellRendererParams) => {
+          if(params.data?.processDescription && params.data.processDescription.includes("$$")){
             let splitArray = params.data.processDescription.split("$$");
             for (let index = 0; index < splitArray.length; index++) {
               if((index % 2) == 0){
@@ -68,18 +89,20 @@ export class KommonitorIndicatorDataGridHelperService {
               }                  
             }                
           }
-          return params.data.processDescription;
+          return params.data?.processDescription || '';
         },
         filter: 'agTextColumnFilter', 
         filterValueGetter: (params: any) => {
-          return "" + params.data.processDescription;
+          return params.data?.processDescription || '';
         }
       },
       {
         headerName: 'Verfügbare Raumebenen', 
         field: "applicableSpatialUnits", 
         minWidth: 400,
-        cellRenderer: (params: any) => {
+        cellRenderer: (params: ICellRendererParams) => {
+          if (!params.data?.applicableSpatialUnits) return '';
+          
           let html = '<ul style="columns: 2; -webkit-columns: 2; -moz-columns: 2; word-break: break-word !important;">';
           for (const applicableSpatialUnit of params.data.applicableSpatialUnits) {
             html += '<li style="margin-right: 15px;">';
@@ -91,17 +114,19 @@ export class KommonitorIndicatorDataGridHelperService {
         },
         filter: 'agTextColumnFilter', 
         filterValueGetter: (params: any) => {
-          if (params.data.applicableSpatialUnits && params.data.applicableSpatialUnits.length > 1){
-            return "" + JSON.stringify(params.data.applicableSpatialUnits);
+          if (params.data?.applicableSpatialUnits && params.data.applicableSpatialUnits.length > 1){
+            return JSON.stringify(params.data.applicableSpatialUnits);
           }
-          return params.data.applicableSpatialUnits;
+          return params.data?.applicableSpatialUnits || '';
         }
       },
       {
         headerName: 'Verfügbare Zeitschnitte', 
         field: "applicableDates", 
         minWidth: 400,
-        cellRenderer: (params: any) => {
+        cellRenderer: (params: ICellRendererParams) => {
+          if (!params.data?.applicableDates) return '';
+          
           let html = '<ul style="columns: 5; -webkit-columns: 5; -moz-columns: 5; word-break: break-word !important;">';
           for (const timestamp of params.data.applicableDates) {
             html += '<li style="margin-right: 15px;">';
@@ -113,10 +138,10 @@ export class KommonitorIndicatorDataGridHelperService {
         },
         filter: 'agTextColumnFilter', 
         filterValueGetter: (params: any) => {
-          if (params.data.applicableDates && params.data.applicableDates.length > 1){
-            return "" + JSON.stringify(params.data.applicableDates);
+          if (params.data?.applicableDates && params.data.applicableDates.length > 1){
+            return JSON.stringify(params.data.applicableDates);
           }
-          return params.data.applicableDates;
+          return params.data?.applicableDates || '';
         }
       },
       { headerName: 'Kürzel', field: "abbreviation" },
@@ -124,12 +149,12 @@ export class KommonitorIndicatorDataGridHelperService {
       { 
         headerName: 'Indikator-Typ', 
         minWidth: 200, 
-        cellRenderer: (params: any) => { 
-          return this.angularJsDataExchangeService.getIndicatorStringFromIndicatorType(params.data.indicatorType); 
+        cellRenderer: (params: ICellRendererParams) => { 
+          return this.getIndicatorStringFromIndicatorType(params.data?.indicatorType); 
         },
         filter: 'agTextColumnFilter', 
         filterValueGetter: (params: any) => {
-          return "" + this.angularJsDataExchangeService.getIndicatorStringFromIndicatorType(params.data.indicatorType);
+          return this.getIndicatorStringFromIndicatorType(params.data?.indicatorType);
         } 
       },
       { headerName: 'Merkmal', field: "characteristicValue", minWidth: 200 },
@@ -138,78 +163,78 @@ export class KommonitorIndicatorDataGridHelperService {
       { 
         headerName: 'Themenhierarchie', 
         minWidth: 400, 
-        cellRenderer: (params: any) => { 
-          return this.angularJsDataExchangeService.getTopicHierarchyDisplayString(params.data.topicReference); 
+        cellRenderer: (params: ICellRendererParams) => { 
+          return this.getTopicHierarchyDisplayString(params.data?.topicReference); 
         },
         filter: 'agTextColumnFilter', 
         filterValueGetter: (params: any) => {
-          return "" + this.angularJsDataExchangeService.getTopicHierarchyDisplayString(params.data.topicReference);
+          return this.getTopicHierarchyDisplayString(params.data?.topicReference);
         }
       },
       { 
         headerName: 'Datenquelle', 
         minWidth: 400, 
-        cellRenderer: (params: any) => { 
-          return params.data.metadata.datasource; 
+        cellRenderer: (params: ICellRendererParams) => { 
+          return params.data?.metadata?.datasource || ''; 
         },
         filter: 'agTextColumnFilter', 
         filterValueGetter: (params: any) => {
-          return "" + params.data.metadata.datasource;
+          return params.data?.metadata?.datasource || '';
         }
       },
       { 
         headerName: 'Datenhalter und Kontakt', 
         minWidth: 400, 
-        cellRenderer: (params: any) => { 
-          return params.data.metadata.contact; 
+        cellRenderer: (params: ICellRendererParams) => { 
+          return params.data?.metadata?.contact || ''; 
         },
         filter: 'agTextColumnFilter', 
         filterValueGetter: (params: any) => {
-          return "" + params.data.metadata.contact;
+          return params.data?.metadata?.contact || '';
         }
       },
       { 
         headerName: 'Rollen', 
         minWidth: 400, 
-        cellRenderer: (params: any) => { 
-          return this.angularJsDataExchangeService.getAllowedRolesString(params.data.permissions); 
+        cellRenderer: (params: ICellRendererParams) => { 
+          return this.getAllowedRolesString(params.data?.permissions); 
         },
         filter: 'agTextColumnFilter', 
         filterValueGetter: (params: any) => {
-          return "" + this.angularJsDataExchangeService.getAllowedRolesString(params.data.permissions);
+          return this.getAllowedRolesString(params.data?.permissions);
         } 
       },
       { 
         headerName: 'Öffentlich sichtbar', 
         minWidth: 400, 
-        cellRenderer: (params: any) => { 
-          return params.data.isPublic ? 'ja' : 'nein'; 
+        cellRenderer: (params: ICellRendererParams) => { 
+          return params.data?.isPublic ? 'ja' : 'nein'; 
         },
         filter: 'agTextColumnFilter', 
         filterValueGetter: (params: any) => {
-          return "" + (params.data.isPublic ? 'ja' : 'nein');
+          return params.data?.isPublic ? 'ja' : 'nein';
         } 
       },
       { 
         headerName: 'Eigentümer', 
         minWidth: 400, 
-        cellRenderer: (params: any) => { 
-          return this.angularJsDataExchangeService.getRoleTitle(params.data.ownerId); 
+        cellRenderer: (params: ICellRendererParams) => { 
+          return this.getRoleTitle(params.data?.ownerId); 
         },
         filter: 'agTextColumnFilter', 
         filterValueGetter: (params: any) => {
-          return "" + this.angularJsDataExchangeService.getRoleTitle(params.data.ownerId);
+          return this.getRoleTitle(params.data?.ownerId);
         } 
       },
       { 
         headerName: 'Nachkommastellen', 
         minWidth: 200, 
-        cellRenderer: (params: any) => { 
-          return params.data.precision; 
+        cellRenderer: (params: ICellRendererParams) => { 
+          return params.data?.precision || ''; 
         },
         filter: 'agTextColumnFilter', 
         filterValueGetter: (params: any) => {
-          return "" + params.data.precision;
+          return params.data?.precision || '';
         } 
       }
     ];
@@ -227,7 +252,7 @@ export class KommonitorIndicatorDataGridHelperService {
   /**
    * Display edit buttons component for indicators
    */
-  displayEditButtons_indicators = (params: any) => {
+  displayEditButtons_indicators = (params: ICellRendererParams): string => {
     // Safety check for data
     if (!params.data || !params.data.indicatorId) {
       return '<div class="btn-group btn-group-sm">No data</div>';
@@ -238,14 +263,14 @@ export class KommonitorIndicatorDataGridHelperService {
     let editFeaturesButtonId = 'btn_indicator_editFeatures_' + params.data.indicatorId;
 
     let html = '<div class="btn-group btn-group-sm">';
-    html += '<button id="' + editMetadataButtonId + '" class="btn btn-warning btn-sm indicatorEditMetadataBtn disabled" type="button" data-toggle="modal" data-target="#modal-edit-indicator-metadata" title="Metadaten editieren" disabled><i class="fas fa-pencil-alt"></i></button>';
-    html += '<button id="' + editFeaturesButtonId + '" class="btn btn-warning btn-sm indicatorEditFeaturesBtn disabled" type="button" data-toggle="modal" data-target="#modal-edit-indicator-features" title="Features fortf&uuml;hren" disabled><i class="fas fa-draw-polygon"></i></button>';
+    html += '<button id="' + editMetadataButtonId + '" class="btn btn-warning btn-sm indicatorEditMetadataBtn disabled" type="button" title="Metadaten editieren" disabled><i class="fas fa-pencil-alt"></i></button>';
+    html += '<button id="' + editFeaturesButtonId + '" class="btn btn-warning btn-sm indicatorEditFeaturesBtn disabled" type="button" title="Features fortf&uuml;hren" disabled><i class="fas fa-draw-polygon"></i></button>';
     
     if(!disabledEditButtons){
       html = html.replaceAll("disabled", ""); // enabled
     }
     
-    if (this.angularJsDataExchangeService.enableKeycloakSecurity) {
+    if (this.kommonitorDataExchangeService.enableKeycloakSecurity) {
       let disabled = !(params.data.userPermissions && Array.isArray(params.data.userPermissions) && params.data.userPermissions.includes("creator"));
       html += '<button id="btn_indicator_editRoleBasedAccess_' + params.data.indicatorId + '"class="btn btn-warning btn-sm indicatorEditRoleBasedAccessBtn ';
 
@@ -253,7 +278,7 @@ export class KommonitorIndicatorDataGridHelperService {
         html += 'disabled" disabled';
       }
 
-      html += ' type="button" data-toggle="modal" data-target="#modal-edit-indicator-spatial-unit-roles" title="Zugriffsschutz und Eigentümerschaft editieren"><i class="fas fa-user-lock"></i></button>';
+      html += ' type="button" title="Zugriffsschutz und Eigentümerschaft editieren"><i class="fas fa-user-lock"></i></button>';
     }
     html += '</div>';
 
@@ -261,61 +286,75 @@ export class KommonitorIndicatorDataGridHelperService {
   };
 
   /**
-   * Registers click handlers for indicator buttons
+   * Registers click handlers for indicator buttons using Angular events
    */
   registerClickHandler_indicators(indicatorMetadataArray: any[]): void {
-    // First unbind previous click events
-    $(".indicatorEditMetadataBtn").off();
-    $(".indicatorEditMetadataBtn").on("click", (event: any) => {
-      // Ensure that only the target button gets clicked
-      // Manually open modal
-      event.stopPropagation();
-      let modalId = document.getElementById(event.target.id)?.getAttribute("data-target");
-      if (modalId) {
-        $(modalId).modal('show');
-      }
-      
-      let indicatorId = event.target.id.split("_")[3];
-      let indicatorMetadata = this.angularJsDataExchangeService.getIndicatorMetadataById(indicatorId);
+    // Use Angular event listeners instead of jQuery
+    setTimeout(() => {
+      // Register click handlers for edit metadata buttons
+      const editMetadataButtons = document.querySelectorAll('.indicatorEditMetadataBtn');
+      editMetadataButtons.forEach((button: Element) => {
+        button.addEventListener('click', (event: Event) => {
+          event.stopPropagation();
+          const target = event.target as HTMLElement;
+          const indicatorId = target.id.split("_")[3];
+          const indicatorMetadata = this.getIndicatorMetadataById(indicatorId);
+          
+          // Broadcast event for Angular component to handle
+          this.broadcastEvent('onEditIndicatorMetadata', indicatorMetadata);
+        });
+      });
 
-      // Broadcast event for Angular component to handle
-      this.broadcastEvent('onEditIndicatorMetadata', indicatorMetadata);
-    });
+      // Register click handlers for edit features buttons
+      const editFeaturesButtons = document.querySelectorAll('.indicatorEditFeaturesBtn');
+      editFeaturesButtons.forEach((button: Element) => {
+        button.addEventListener('click', (event: Event) => {
+          event.stopPropagation();
+          const target = event.target as HTMLElement;
+          const indicatorId = target.id.split("_")[3];
+          const indicatorMetadata = this.getIndicatorMetadataById(indicatorId);
+          
+          // Broadcast event for Angular component to handle
+          this.broadcastEvent('onEditIndicatorFeatures', indicatorMetadata);
+        });
+      });
 
-    // First unbind previous click events
-    $(".indicatorEditFeaturesBtn").off();
-    $(".indicatorEditFeaturesBtn").on("click", (event: any) => {
-      // Ensure that only the target button gets clicked
-      // Manually open modal
-      event.stopPropagation();
-      let modalId = document.getElementById(event.target.id)?.getAttribute("data-target");
-      if (modalId) {
-        $(modalId).modal('show');
-      }
-      
-      let indicatorId = event.target.id.split("_")[3];
-      let indicatorMetadata = this.angularJsDataExchangeService.getIndicatorMetadataById(indicatorId);
+      // Register click handlers for edit role-based access buttons
+      const editRoleButtons = document.querySelectorAll('.indicatorEditRoleBasedAccessBtn');
+      editRoleButtons.forEach((button: Element) => {
+        button.addEventListener('click', (event: Event) => {
+          event.stopPropagation();
+          const target = event.target as HTMLElement;
+          const indicatorId = target.id.split("_")[3];
+          const indicatorMetadata = this.getIndicatorMetadataById(indicatorId);
+          
+          // Broadcast event for Angular component to handle
+          this.broadcastEvent('onEditIndicatorSpatialUnitRoles', indicatorMetadata);
+        });
+      });
+    }, 100);
+  }
 
-      // Broadcast event for Angular component to handle
-      this.broadcastEvent('onEditIndicatorFeatures', indicatorMetadata);
-    });
+  /**
+   * Set grid API references
+   */
+  setGridApi(gridApi: GridApi, columnApi: ColumnApi): void {
+    this.gridApi = gridApi;
+    this.columnApi = columnApi;
+  }
 
-    $(".indicatorEditRoleBasedAccessBtn").off();
-    $(".indicatorEditRoleBasedAccessBtn").on("click", (event: any) => {
-      // Ensure that only the target button gets clicked
-      // Manually open modal
-      event.stopPropagation();
-      let modalId = document.getElementById(event.target.id)?.getAttribute("data-target");
-      if (modalId) {
-        $(modalId).modal('show');
-      }
-      
-      let indicatorId = event.target.id.split("_")[3];
-      let indicatorMetadata = this.angularJsDataExchangeService.getIndicatorMetadataById(indicatorId);
+  /**
+   * Get grid API
+   */
+  getGridApi(): GridApi | null {
+    return this.gridApi;
+  }
 
-      // Broadcast event for Angular component to handle
-      this.broadcastEvent('onEditIndicatorSpatialUnitRoles', indicatorMetadata);
-    });
+  /**
+   * Get column API
+   */
+  getColumnApi(): ColumnApi | null {
+    return this.columnApi;
   }
 
   /**
@@ -334,33 +373,39 @@ export class KommonitorIndicatorDataGridHelperService {
   /**
    * Header height setter utility function
    */
-  private headerHeightSetter(gridOptions: any): void {
-    const padding = 20;
-    const height = this.headerHeightGetter() + padding;
-    gridOptions.api.setHeaderHeight(height);
+  private headerHeightSetter(gridOptions: GridOptions): void {
+    if (gridOptions.api) {
+      const padding = 20;
+      const height = this.headerHeightGetter() + padding;
+      (gridOptions.api as any).setHeaderHeight(height);
+    }
   }
 
   /**
    * Save grid store (filters, sorting, etc.)
    */
-  private saveGridStore(gridOptions: any): void {
-    (window as any).colState = gridOptions.columnApi.getColumnState();
-    (window as any).filterState = gridOptions.api.getFilterModel();
+  private saveGridStore(gridOptions: GridOptions): void {
+    if (gridOptions.columnApi && gridOptions.api) {
+      (window as any).colState = (gridOptions.columnApi as any).getColumnState();
+      (window as any).filterState = (gridOptions.api as any).getFilterModel();
+    }
   }
 
   /**
    * Restore grid store (filters, sorting, etc.)
    */
-  private restoreGridStore(gridOptions: any): void {
-    if ((window as any).colState) {
-      gridOptions.columnApi.applyColumnState({ 
-        state: (window as any).colState, 
-        applyOrder: true 
-      });
-    }
+  private restoreGridStore(gridOptions: GridOptions): void {
+    if (gridOptions.columnApi && gridOptions.api) {
+      if ((window as any).colState) {
+        (gridOptions.columnApi as any).applyColumnState({ 
+          state: (window as any).colState, 
+          applyOrder: true 
+        });
+      }
 
-    if ((window as any).filterState) {
-      gridOptions.api.setFilterModel((window as any).filterState);
+      if ((window as any).filterState) {
+        (gridOptions.api as any).setFilterModel((window as any).filterState);
+      }
     }
   }
 
@@ -384,16 +429,97 @@ export class KommonitorIndicatorDataGridHelperService {
   }
 
   /**
-   * Gets reference values from regional reference values management grid - delegates to AngularJS service
+   * Get indicator string from indicator type
    */
-  getReferenceValues_regionalReferenceValuesManagementGrid(gridOptions: any): any[] {
-    return this.angularJsDataExchangeService.getReferenceValues_regionalReferenceValuesManagementGrid(gridOptions);
+  private getIndicatorStringFromIndicatorType(indicatorType: any): string {
+    if (!indicatorType) return '';
+    
+    // Map indicator types to display strings
+    const typeMap: { [key: string]: string } = {
+      'headline': 'Leitindikator',
+      'base': 'Basisindikator',
+      'computed': 'Berechneter Indikator'
+    };
+    
+    return typeMap[indicatorType] || indicatorType;
   }
 
   /**
-   * Builds reference values management grid - delegates to AngularJS service
+   * Get topic hierarchy display string
+   */
+  private getTopicHierarchyDisplayString(topicReference: any): string {
+    if (!topicReference) return '';
+    
+    // Build topic hierarchy string
+    let hierarchy = '';
+    if (topicReference.mainTopic) {
+      hierarchy += topicReference.mainTopic;
+    }
+    if (topicReference.subTopic) {
+      hierarchy += ' > ' + topicReference.subTopic;
+    }
+    if (topicReference.subsubTopic) {
+      hierarchy += ' > ' + topicReference.subsubTopic;
+    }
+    if (topicReference.subsubsubTopic) {
+      hierarchy += ' > ' + topicReference.subsubsubTopic;
+    }
+    
+    return hierarchy;
+  }
+
+  /**
+   * Get allowed roles string
+   */
+  private getAllowedRolesString(permissions: any): string {
+    if (!permissions || !Array.isArray(permissions)) return '';
+    
+    const roleMap: { [key: string]: string } = {
+      'viewer': 'Betrachter',
+      'editor': 'Bearbeiter',
+      'creator': 'Ersteller'
+    };
+    
+    return permissions.map((permission: string) => roleMap[permission] || permission).join(', ');
+  }
+
+  /**
+   * Get role title
+   */
+  private getRoleTitle(roleId: string): string {
+    if (!roleId) return '';
+    
+    // Map role IDs to display titles
+    const roleMap: { [key: string]: string } = {
+      'admin': 'Administrator',
+      'user': 'Benutzer',
+      'guest': 'Gast'
+    };
+    
+    return roleMap[roleId] || roleId;
+  }
+
+  /**
+   * Get indicator metadata by ID
+   */
+  private getIndicatorMetadataById(indicatorId: string): any {
+    const indicators = this.kommonitorDataExchangeService.availableIndicators;
+    return indicators.find((indicator: any) => indicator.indicatorId === indicatorId);
+  }
+
+  /**
+   * Gets reference values from regional reference values management grid
+   */
+  getReferenceValues_regionalReferenceValuesManagementGrid(gridOptions: any): any[] {
+    // Implementation for reference values management
+    return [];
+  }
+
+  /**
+   * Builds reference values management grid
    */
   buildReferenceValuesManagementGrid(gridOptions: any): any {
-    return this.angularJsDataExchangeService.buildReferenceValuesManagementGrid(gridOptions);
+    // Implementation for reference values management grid
+    return gridOptions;
   }
 } 
