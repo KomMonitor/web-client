@@ -237,7 +237,7 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
       // Set indicator by ID
       const indicatorId = item.name;
       const indicatorObj = this.kommonitorDataExchangeService.getIndicatorMetadataById(indicatorId);
-      row.name = indicatorObj;
+      row.name = indicatorObj || null;
 
       row.mappingTableName = item.mappingTableName;
       row.mappingObj = item.mappingObj;

@@ -157,7 +157,7 @@ export class GeoresourceBatchUpdateModalComponent implements OnInit, OnDestroy {
         // name - convert georesourceId to georesource object
         const georesourceId = newBatchList[i].name;
         const georesourceObj = this.kommonitorDataExchangeService.getGeoresourceMetadataById(georesourceId);
-        row.name = georesourceObj;
+        row.name = georesourceObj || null;
 
         // mappingTableName
         row.mappingTableName = newBatchList[i].mappingTableName;

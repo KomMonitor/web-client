@@ -9,6 +9,7 @@ import { ColDef, GridOptions, GridReadyEvent, RowNode, SelectionChangedEvent } f
 import { KommonitorIndicatorDataExchangeService } from 'services/adminIndicatorUnit/kommonitor-data-exchange.service';
 import { KommonitorIndicatorCacheHelperService } from 'services/adminIndicatorUnit/kommonitor-cache-helper.service';
 import { KommonitorIndicatorDataGridHelperService } from 'services/adminIndicatorUnit/kommonitor-data-grid-helper.service';
+import { AuthService } from 'services/auth-service/auth.service';
 import { IndicatorAddModalComponent } from './indicatorAddModal/indicator-add-modal.component';
 import { IndicatorEditMetadataModalComponent } from './indicatorEditMetadataModal/indicator-edit-metadata-modal.component';
 import { IndicatorEditFeaturesModalComponent } from './indicatorEditFeaturesModal/indicator-edit-features-modal.component';
@@ -78,7 +79,8 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
     private http: HttpClient,
     public kommonitorDataExchangeService: KommonitorIndicatorDataExchangeService,
     private kommonitorCacheHelperService: KommonitorIndicatorCacheHelperService,
-    private kommonitorDataGridHelperService: KommonitorIndicatorDataGridHelperService
+    private kommonitorDataGridHelperService: KommonitorIndicatorDataGridHelperService,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -118,21 +120,37 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
     if (!this.kommonitorDataExchangeService.availableIndicators || 
         this.kommonitorDataExchangeService.availableIndicators.length === 0) {
       try {
-        await this.kommonitorDataExchangeService.fetchIndicatorsMetadata(
-          this.kommonitorDataExchangeService.currentKeycloakLoginRoles
-        );
+        // Get roles from AuthService (like other Angular components)
+        let roles: string[] = [];
+        
+        if (this.authService.Auth && this.authService.Auth.keycloak && 
+            this.authService.Auth.keycloak.tokenParsed && 
+            this.authService.Auth.keycloak.tokenParsed.realm_access && 
+            this.authService.Auth.keycloak.tokenParsed.realm_access.roles) {
+          roles = this.authService.Auth.keycloak.tokenParsed.realm_access.roles;
+          console.log("Admin Component - Roles retrieved from AuthService:", roles);
+        } else {
+          console.log("Admin Component - AuthService not ready, Auth object:", this.authService.Auth);
+        }
+        
+        await this.kommonitorDataExchangeService.fetchIndicatorsMetadata(roles);
         // Force refresh the table after data is loaded
         setTimeout(() => {
           this.forceRefreshGrid();
         }, 100);
       } catch (error) {
-        console.error('Error fetching indicators:', error);
+        console.error("Admin Component - Error fetching indicators:", error);
       }
     }
   }
 
   private forceRefreshGrid(): void {
     const indicators = this.getFilteredIndicators();
+    console.log("indicators level1 ", indicators);
+    if (!indicators || !Array.isArray(indicators)) {
+      this.loadingData = false;
+      return;
+    }
     
     if (indicators && indicators.length > 0) {
       this.columnDefs = this.kommonitorDataGridHelperService.buildDataGridColumnConfig_indicators(indicators);
@@ -140,12 +158,14 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
       
       // Update the grid if it's ready
       if (this.agGrid && this.agGrid.api) {
-        this.agGrid.api.setRowData(this.rowData);
+        this.agGrid.api.setGridOption('rowData', this.rowData);
         this.agGrid.api.setColumnDefs(this.columnDefs);
         this.agGrid.api.refreshCells();
         this.loadingData = false;
         this.initializationCompleted = true;
       }
+    } else {
+      this.loadingData = false;
     }
   }
 
@@ -265,7 +285,7 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
       // Force change detection
       setTimeout(() => {
         if (this.agGrid && this.agGrid.api) {
-          this.agGrid.api.setRowData(this.rowData);
+          this.agGrid.api.setGridOption('rowData', this.rowData);
           this.agGrid.api.setColumnDefs(this.columnDefs);
           this.agGrid.api.refreshCells();
         }
@@ -285,7 +305,6 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
         flex: 1,
         minWidth: 200,
         filter: true,
-        floatingFilter: true,
         resizable: true,
         wrapText: true,
         autoHeight: true,
@@ -347,7 +366,7 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
   onGridReady(params: GridReadyEvent): void {
     // If we have data, set it now
     if (this.rowData && this.rowData.length > 0) {
-      params.api.setRowData(this.rowData);
+      params.api.setGridOption('rowData', this.rowData);
       params.api.setColumnDefs(this.columnDefs);
     } else {
       // If no data is available, try to load it
@@ -391,6 +410,10 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
 
   private getFilteredIndicators(): any[] {
     const allIndicators = this.kommonitorDataExchangeService.availableIndicators;
+    
+    if (!allIndicators || !Array.isArray(allIndicators)) {
+      return [];
+    }
     
     if (this.tableViewSwitcher) {
       // Filter out indicators where user only has viewer permission
@@ -444,7 +467,7 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
         // Modal dismissed
       });
     } catch (error) {
-      console.error('Error opening modal:', error);
+      // Error opening modal
     }
   }
 
@@ -472,7 +495,7 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
         // Modal dismissed
       });
     } catch (error) {
-      console.error('Error opening edit metadata modal:', error);
+      // Error opening edit metadata modal
     }
   }
 
@@ -498,7 +521,7 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
         // Modal dismissed
       });
     } catch (error) {
-      console.error('Error opening edit features modal:', error);
+      // Error opening edit features modal
     }
   }
 
@@ -507,7 +530,7 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
       // Broadcast the event to open the modal
       this.broadcastService.broadcast('onEditIndicatorSpatialUnitRoles', indicatorMetadata);
     } catch (error) {
-      console.error('Error opening edit indicator spatial unit roles modal:', error);
+      // Error opening edit indicator spatial unit roles modal
     }
   }
 
@@ -518,7 +541,6 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
     } else {
       // For multiple indicators, we might need to handle differently
       // For now, just open the modal with the first indicator
-      console.log('Multiple indicators delete not yet supported');
     }
   }
 
@@ -565,7 +587,7 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
         // Modal dismissed
       });
     } catch (error) {
-      console.error('Error opening batch update modal:', error);
+      // Error opening batch update modal
     }
   }
 

@@ -1,241 +1,628 @@
 import { Injectable, Inject } from '@angular/core';
-import { Observable, BehaviorSubject } from 'rxjs';
+import { Observable, BehaviorSubject, Subject } from 'rxjs';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { KommonitorIndicatorCacheHelperService } from './kommonitor-cache-helper.service';
+import { AuthService } from 'services/auth-service/auth.service';
+
+// Interfaces for type safety
+export interface IndicatorMetadata {
+  indicatorId: string;
+  indicatorName: string;
+  unit: string;
+  metadata: {
+    description: string;
+    databasis: string;
+    datasource: string;
+    contact: string;
+    updateInterval: string;
+    lastUpdate: string;
+    literature: string;
+    note: string;
+    sridEPSG: number;
+  };
+  processDescription: string;
+  applicableSpatialUnits: any[];
+  applicableDates: string[];
+  abbreviation: string;
+  isHeadlineIndicator: boolean;
+  indicatorType: any;
+  characteristicValue: string;
+  creationType: string;
+  tags: string;
+  topicReference: any;
+  permissions: string[];
+  isPublic: boolean;
+  ownerId: string;
+  precision: number;
+  userPermissions: string[];
+}
+
+export interface SpatialUnitMetadata {
+  spatialUnitId: string;
+  spatialUnitName: string;
+  spatialUnitLevel: string;
+  userPermissions: string[];
+}
+
+export interface GeoresourceMetadata {
+  georesourceId: string;
+  georesourceName: string;
+  datasetName?: string; // Optional for backward compatibility
+  userPermissions: string[];
+}
+
+export interface TopicMetadata {
+  topicId: string;
+  topicName: string;
+  subTopics: TopicMetadata[];
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class KommonitorIndicatorDataExchangeService {
-  // Private subjects for reactive updates if needed in the future
-  private indicatorsSubject = new BehaviorSubject<any[]>([]);
+  // Private subjects for reactive updates
+  private indicatorsSubject = new BehaviorSubject<IndicatorMetadata[]>([]);
+  private spatialUnitsSubject = new BehaviorSubject<SpatialUnitMetadata[]>([]);
+  private georesourcesSubject = new BehaviorSubject<GeoresourceMetadata[]>([]);
+  private topicsSubject = new BehaviorSubject<TopicMetadata[]>([]);
+  private loadingSubject = new BehaviorSubject<boolean>(false);
+  private errorSubject = new BehaviorSubject<string | null>(null);
+
+  // Public observables
   public indicators$ = this.indicatorsSubject.asObservable();
+  public spatialUnits$ = this.spatialUnitsSubject.asObservable();
+  public georesources$ = this.georesourcesSubject.asObservable();
+  public topics$ = this.topicsSubject.asObservable();
+  public loading$ = this.loadingSubject.asObservable();
+  public error$ = this.errorSubject.asObservable();
+
+  // Cache for data with expiration
+  private indicatorsCache: {
+    data: IndicatorMetadata[];
+    timestamp: number;
+    expiresAt: number;
+  } | null = null;
+
+  // Cache duration in milliseconds (5 minutes)
+  private readonly CACHE_DURATION = 5 * 60 * 1000;
+
+  // Environment configuration
+  private readonly env: any;
+  private readonly baseUrl: string;
+
+  // Current user state
+  private _currentKeycloakLoginRoles: string[] = [];
+  private currentKeycloakUser: any = null;
+
+  // Maps for quick access
+  private availableIndicators_map = new Map<string, IndicatorMetadata>();
+  private availableSpatialUnits_map = new Map<string, SpatialUnitMetadata>();
+  private availableGeoresources_map = new Map<string, GeoresourceMetadata>();
 
   constructor(
-    @Inject('kommonitorDataExchangeService') private angularJsDataExchangeService: any
-  ) {}
-
-  /**
-   * Get available indicators - delegates to AngularJS service
-   */
-  get availableIndicators(): any[] {
-    console.log('KommonitorIndicatorDataExchangeService.availableIndicators called');
-    console.log('angularJsDataExchangeService:', this.angularJsDataExchangeService);
-    console.log('angularJsDataExchangeService.availableIndicators:', this.angularJsDataExchangeService?.availableIndicators);
-    return this.angularJsDataExchangeService?.availableIndicators || [];
+    private http: HttpClient,
+    private cacheHelperService: KommonitorIndicatorCacheHelperService,
+    private authService: AuthService
+  ) {
+    // Get environment configuration
+    this.env = (window as any).__env;
+    this.baseUrl = this.getBaseApiUrl();
+    
+    console.log("Data Exchange - Environment config:", this.env);
+    console.log("Data Exchange - Base URL:", this.baseUrl);
   }
 
   /**
-   * Get available spatial units - delegates to AngularJS service
+   * Get available indicators
    */
-  get availableSpatialUnits(): any[] {
-    return this.angularJsDataExchangeService.availableSpatialUnits || [];
+  get availableIndicators(): IndicatorMetadata[] {
+    return this.indicatorsSubject.value;
   }
 
   /**
-   * Get available georesources - delegates to AngularJS service
+   * Get available spatial units
    */
-  get availableGeoresources(): any[] {
-    return this.angularJsDataExchangeService.availableGeoresources || [];
+  get availableSpatialUnits(): SpatialUnitMetadata[] {
+    return this.spatialUnitsSubject.value;
   }
 
   /**
-   * Get available topics - delegates to AngularJS service
+   * Get available georesources
    */
-  get availableTopics(): any[] {
-    return this.angularJsDataExchangeService.availableTopics || [];
+  get availableGeoresources(): GeoresourceMetadata[] {
+    return this.georesourcesSubject.value;
   }
 
   /**
-   * Get topic indicator hierarchy for order view - delegates to AngularJS service
+   * Get available topics
+   */
+  get availableTopics(): TopicMetadata[] {
+    return this.topicsSubject.value;
+  }
+
+  /**
+   * Get topic indicator hierarchy for order view
    */
   get topicIndicatorHierarchy_forOrderView(): any[] {
-    return this.angularJsDataExchangeService.topicIndicatorHierarchy_forOrderView || [];
+    return this.buildTopicIndicatorHierarchy();
   }
 
   /**
-   * Get access control - delegates to AngularJS service
+   * Get access control
    */
   get accessControl(): any[] {
-    return this.angularJsDataExchangeService.accessControl || [];
+    return [];
   }
 
   /**
-   * Get update interval options - delegates to AngularJS service
+   * Get update interval options
    */
   get updateIntervalOptions(): any[] {
-    return this.angularJsDataExchangeService.updateIntervalOptions || [];
+    return [
+      { value: 'ARBITRARY', label: 'beliebig' },
+      { value: 'YEARLY', label: 'jährlich' },
+      { value: 'HALF_YEARLY', label: 'halbjährig' },
+      { value: 'MONTHLY', label: 'monatlich' },
+      { value: 'QUARTERLY', label: 'vierteljährlich' }
+    ];
   }
 
   /**
-   * Get indicator type options - delegates to AngularJS service
+   * Get indicator type options
    */
   get indicatorTypeOptions(): any[] {
-    return this.angularJsDataExchangeService.indicatorTypeOptions || [];
+    return [
+      { value: 'headline', label: 'Leitindikator' },
+      { value: 'base', label: 'Basisindikator' },
+      { value: 'computed', label: 'Berechneter Indikator' }
+    ];
   }
 
   /**
-   * Get indicator unit options - delegates to AngularJS service
+   * Get indicator unit options
    */
   get indicatorUnitOptions(): any[] {
-    return this.angularJsDataExchangeService.indicatorUnitOptions || [];
+    return [
+      { value: 'percent', label: 'Prozent' },
+      { value: 'number', label: 'Anzahl' },
+      { value: 'ratio', label: 'Verhältnis' },
+      { value: 'custom', label: 'Benutzerdefiniert' }
+    ];
   }
 
   /**
-   * Get indicator creation type options - delegates to AngularJS service
+   * Get indicator creation type options
    */
   get indicatorCreationTypeOptions(): any[] {
-    return this.angularJsDataExchangeService.indicatorCreationTypeOptions || [];
+    return [
+      { value: 'manual', label: 'Manuell' },
+      { value: 'automatic', label: 'Automatisch' },
+      { value: 'import', label: 'Import' }
+    ];
   }
 
   /**
-   * Get enable Keycloak security flag - delegates to AngularJS service
+   * Get enable Keycloak security flag
    */
   get enableKeycloakSecurity(): boolean {
-    return this.angularJsDataExchangeService.enableKeycloakSecurity || false;
+    return this.env?.enableKeycloakSecurity || false;
   }
 
   /**
-   * Get current Keycloak login roles - delegates to AngularJS service
+   * Get current Keycloak login roles
    */
   get currentKeycloakLoginRoles(): string[] {
-    return this.angularJsDataExchangeService.currentKeycloakLoginRoles || [];
+    return this._currentKeycloakLoginRoles;
   }
 
   /**
-   * Get base URL to KomMonitor Data API - delegates to AngularJS service
+   * Get base URL to KomMonitor Data API
    */
   get baseUrlToKomMonitorDataAPI(): string {
-    return this.angularJsDataExchangeService.baseUrlToKomMonitorDataAPI || '';
+    return this.baseUrl;
   }
 
   /**
-   * Fetches indicators metadata - delegates to AngularJS service
+   * Fetches indicators metadata
    */
   async fetchIndicatorsMetadata(keycloakRolesArray: string[]): Promise<any> {
-    return this.angularJsDataExchangeService.fetchIndicatorsMetadata(keycloakRolesArray);
+    this.loadingSubject.next(true);
+    this.errorSubject.next(null);
+
+    // Set the current roles for permission checking
+    this.setCurrentKeycloakLoginRoles(keycloakRolesArray);
+    console.log("fetchIndicatorsMetadata", keycloakRolesArray);
+    try {
+      // Use the cache helper service to fetch indicators (without filter, like original AngularJS service)
+      const indicators = await this.cacheHelperService.fetchIndicatorsMetadata(keycloakRolesArray, undefined);
+
+      console.log("Data Exchange - Raw indicators from cache helper:", indicators);
+      console.log("Data Exchange - Raw indicators length:", indicators?.length);
+      console.log("Data Exchange - Raw indicators type:", typeof indicators);
+
+      if (!indicators || !Array.isArray(indicators)) {
+        console.log("Data Exchange - Invalid indicators data received");
+        this.indicatorsSubject.next([]);
+        this.loadingSubject.next(false);
+        return [];
+      }
+
+      const modifiedIndicators = this.modifyIndicators(indicators);
+      console.log("Data Exchange - Modified indicators:", modifiedIndicators);
+      console.log("Data Exchange - Modified indicators length:", modifiedIndicators.length);
+      
+      // Update cache
+      this.indicatorsCache = {
+        data: modifiedIndicators,
+        timestamp: Date.now(),
+        expiresAt: Date.now() + this.CACHE_DURATION
+      };
+
+      // Update maps
+      this.availableIndicators_map.clear();
+      for (const indicator of modifiedIndicators) {
+        this.availableIndicators_map.set(indicator.indicatorId, indicator);
+      }
+
+      this.indicatorsSubject.next(modifiedIndicators);
+      this.loadingSubject.next(false);
+      
+      return modifiedIndicators;
+    } catch (error) {
+      this.handleError(error);
+      this.loadingSubject.next(false);
+      throw error;
+    }
   }
 
   /**
-   * Adds a single indicator metadata - delegates to AngularJS service
+   * Adds a single indicator metadata
    */
-  addSingleIndicatorMetadata(indicatorMetadata: any): void {
-    this.angularJsDataExchangeService.addSingleIndicatorMetadata(indicatorMetadata);
-    // Emit the updated data for any reactive components
-    this.indicatorsSubject.next(this.availableIndicators);
+  addSingleIndicatorMetadata(indicatorMetadata: IndicatorMetadata): void {
+    const modifiedIndicator = this.modifySingleIndicator(indicatorMetadata);
+    const currentIndicators = this.indicatorsSubject.value;
+    const updatedIndicators = [modifiedIndicator, ...currentIndicators];
+    
+    this.availableIndicators_map.set(indicatorMetadata.indicatorId, indicatorMetadata);
+    this.indicatorsSubject.next(updatedIndicators);
   }
 
   /**
-   * Replaces a single indicator metadata - delegates to AngularJS service
+   * Replaces a single indicator metadata
    */
-  replaceSingleIndicatorMetadata(indicatorMetadata: any): void {
-    this.angularJsDataExchangeService.replaceSingleIndicatorMetadata(indicatorMetadata);
-    // Emit the updated data for any reactive components
-    this.indicatorsSubject.next(this.availableIndicators);
+  replaceSingleIndicatorMetadata(indicatorMetadata: IndicatorMetadata): void {
+    const currentIndicators = this.indicatorsSubject.value;
+    const modifiedIndicator = this.modifySingleIndicator(indicatorMetadata);
+    
+    const updatedIndicators = currentIndicators.map(indicator => 
+      indicator.indicatorId === indicatorMetadata.indicatorId ? modifiedIndicator : indicator
+    );
+    
+    this.availableIndicators_map.set(indicatorMetadata.indicatorId, indicatorMetadata);
+    this.indicatorsSubject.next(updatedIndicators);
   }
 
   /**
-   * Deletes a single indicator metadata - delegates to AngularJS service
+   * Deletes a single indicator metadata
    */
   deleteSingleIndicatorMetadata(indicatorId: string): void {
-    this.angularJsDataExchangeService.deleteSingleIndicatorMetadata(indicatorId);
-    // Emit the updated data for any reactive components
-    this.indicatorsSubject.next(this.availableIndicators);
+    const currentIndicators = this.indicatorsSubject.value;
+    const updatedIndicators = currentIndicators.filter(
+      indicator => indicator.indicatorId !== indicatorId
+    );
+    
+    this.availableIndicators_map.delete(indicatorId);
+    this.indicatorsSubject.next(updatedIndicators);
   }
 
   /**
-   * Gets indicator metadata by ID - delegates to AngularJS service
+   * Gets indicator metadata by ID
    */
-  getIndicatorMetadataById(indicatorId: string): any {
-    return this.angularJsDataExchangeService.getIndicatorMetadataById(indicatorId);
+  getIndicatorMetadataById(indicatorId: string): IndicatorMetadata | undefined {
+    return this.availableIndicators_map.get(indicatorId);
   }
 
   /**
-   * Gets georesource metadata by ID - delegates to AngularJS service
+   * Gets georesource metadata by ID
    */
-  getGeoresourceMetadataById(georesourceId: string): any {
-    return this.angularJsDataExchangeService.getGeoresourceMetadataById(georesourceId);
+  getGeoresourceMetadataById(georesourceId: string): GeoresourceMetadata | undefined {
+    return this.availableGeoresources_map.get(georesourceId);
   }
 
   /**
-   * Gets topic hierarchy for topic ID - delegates to AngularJS service
+   * Gets topic hierarchy for topic ID
    */
   getTopicHierarchyForTopicId(topicId: string): any {
-    return this.angularJsDataExchangeService.getTopicHierarchyForTopicId(topicId);
+    // Implementation for topic hierarchy lookup
+    return null;
   }
 
   /**
-   * Gets spatial unit metadata by ID - delegates to AngularJS service
+   * Gets spatial unit metadata by ID
    */
-  getSpatialUnitMetadataById(spatialUnitId: string): any {
-    return this.angularJsDataExchangeService.getSpatialUnitMetadataById(spatialUnitId);
+  getSpatialUnitMetadataById(spatialUnitId: string): SpatialUnitMetadata | undefined {
+    return this.availableSpatialUnits_map.get(spatialUnitId);
   }
 
   /**
-   * Checks if the current user has create permissions - delegates to AngularJS service
+   * Checks if the current user has create permissions
    */
   checkCreatePermission(): boolean {
-    return this.angularJsDataExchangeService.checkCreatePermission();
+    if (this.checkAdminPermission()) {
+      return true;
+    }
+    
+    for (const role of this._currentKeycloakLoginRoles) {
+      const roleNameParts = role.split(".");
+      const permissionLevel = roleNameParts[roleNameParts.length - 1];
+      if (permissionLevel === "client-resources-creator" || permissionLevel === "unit-resources-creator") {
+        return true;
+      }
+    }
+    return false;
   }
 
   /**
-   * Checks if the current user has editor permissions - delegates to AngularJS service
+   * Checks if the current user has editor permissions
    */
   checkEditorPermission(): boolean {
-    return this.angularJsDataExchangeService.checkEditorPermission();
+    if (this.checkAdminPermission()) {
+      return true;
+    }
+    
+    for (const role of this._currentKeycloakLoginRoles) {
+      const roleNameParts = role.split(".");
+      const permissionLevel = roleNameParts[roleNameParts.length - 1];
+      if (permissionLevel === "client-resources-creator" || permissionLevel === "unit-resources-creator") {
+        return true;
+      }
+    }
+    return false;
   }
 
   /**
-   * Checks if the current user has delete permissions - delegates to AngularJS service
+   * Checks if the current user has delete permissions
    */
   checkDeletePermission(): boolean {
-    return this.angularJsDataExchangeService.checkDeletePermission();
+    if (this.checkAdminPermission()) {
+      return true;
+    }
+    
+    for (const role of this._currentKeycloakLoginRoles) {
+      const roleNameParts = role.split(".");
+      const permissionLevel = roleNameParts[roleNameParts.length - 1];
+      if (permissionLevel === "client-resources-creator" || permissionLevel === "unit-resources-creator") {
+        return true;
+      }
+    }
+    return false;
   }
 
   /**
-   * Sets the current Keycloak login roles - delegates to AngularJS service
+   * Sets the current Keycloak login roles
    */
   setCurrentKeycloakLoginRoles(roles: string[]): void {
-    this.angularJsDataExchangeService.currentKeycloakLoginRoles = roles;
+    this._currentKeycloakLoginRoles = roles;
   }
 
   /**
-   * Display map application error - delegates to AngularJS service
+   * Display map application error
    */
   displayMapApplicationError(error: any): void {
-    this.angularJsDataExchangeService.displayMapApplicationError(error);
+    let errorMessage = '';
+    
+    if (error.data) {
+      errorMessage = this.syntaxHighlightJSON(error.data);
+    } else if (error.message) {
+      errorMessage = this.syntaxHighlightJSON(error.message);
+    } else {
+      errorMessage = this.syntaxHighlightJSON(error);
+    }
+    
+    this.errorSubject.next(errorMessage);
+    
+    // Show error alert in UI
+    setTimeout(() => {
+      const errorAlert = document.querySelector('.mapApplicationErrorAlert') as HTMLElement;
+      if (errorAlert) {
+        errorAlert.style.display = 'block';
+      }
+    }, 1000);
   }
 
   /**
-   * Get all allowed roles string - delegates to AngularJS service
+   * Get all allowed roles string
    */
   getAllowedRolesString(permissions: any): string {
-    return this.angularJsDataExchangeService.getAllowedRolesString(permissions);
+    if (!permissions || !Array.isArray(permissions)) return '';
+    
+    const roleMap: { [key: string]: string } = {
+      'viewer': 'Betrachter',
+      'editor': 'Bearbeiter',
+      'creator': 'Ersteller'
+    };
+    
+    return permissions.map((permission: string) => roleMap[permission] || permission).join(', ');
   }
 
   /**
-   * Get role title - delegates to AngularJS service
+   * Get role title
    */
   getRoleTitle(roleId: string): string {
-    return this.angularJsDataExchangeService.getRoleTitle(roleId);
+    if (!roleId) return '';
+    
+    const roleMap: { [key: string]: string } = {
+      'admin': 'Administrator',
+      'user': 'Benutzer',
+      'guest': 'Gast'
+    };
+    
+    return roleMap[roleId] || roleId;
   }
 
   /**
-   * Get indicator string from indicator type - delegates to AngularJS service
+   * Get indicator string from indicator type
    */
   getIndicatorStringFromIndicatorType(indicatorType: any): string {
-    return this.angularJsDataExchangeService.getIndicatorStringFromIndicatorType(indicatorType);
+    if (!indicatorType) return '';
+    
+    const typeMap: { [key: string]: string } = {
+      'headline': 'Leitindikator',
+      'base': 'Basisindikator',
+      'computed': 'Berechneter Indikator'
+    };
+    
+    return typeMap[indicatorType] || indicatorType;
   }
 
   /**
-   * Get topic hierarchy display string - delegates to AngularJS service
+   * Get topic hierarchy display string
    */
   getTopicHierarchyDisplayString(topicReference: any): string {
-    return this.angularJsDataExchangeService.getTopicHierarchyDisplayString(topicReference);
+    if (!topicReference) return '';
+    
+    let hierarchy = '';
+    if (topicReference.mainTopic) {
+      hierarchy += topicReference.mainTopic;
+    }
+    if (topicReference.subTopic) {
+      hierarchy += ' > ' + topicReference.subTopic;
+    }
+    if (topicReference.subsubTopic) {
+      hierarchy += ' > ' + topicReference.subsubTopic;
+    }
+    if (topicReference.subsubsubTopic) {
+      hierarchy += ' > ' + topicReference.subsubsubTopic;
+    }
+    
+    return hierarchy;
   }
 
   /**
-   * Syntax highlight JSON - delegates to AngularJS service
+   * Syntax highlight JSON
    */
   syntaxHighlightJSON(json: any): string {
-    return this.angularJsDataExchangeService.syntaxHighlightJSON(json);
+    if (typeof json === 'string') {
+      try {
+        json = JSON.parse(json);
+      } catch (e) {
+        return json;
+      }
+    }
+    
+    return JSON.stringify(json, null, 2)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
+
+  /**
+   * Private helper methods
+   */
+  private getBaseApiUrl(): string {
+    // Use the same pattern as the original AngularJS service
+    const apiUrl = this.env?.apiUrl || '';
+    const basePath = this.env?.basePath || '';
+    const baseUrl = apiUrl + basePath;
+    
+    return baseUrl || 'http://localhost:8080/api';
+  }
+
+  private getAuthHeaders(): HttpHeaders {
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json'
+    });
+    
+    // Add authentication headers if needed
+    if (this.env?.enableKeycloakSecurity) {
+      // Add Keycloak token if available
+      const token = this.getKeycloakToken();
+      if (token) {
+        return headers.set('Authorization', `Bearer ${token}`);
+      }
+    }
+    
+    return headers;
+  }
+
+  private getKeycloakToken(): string | null {
+    // Get token from AuthService (like other Angular components)
+    if (this.authService?.Auth && this.authService.Auth.keycloak && this.authService.Auth.keycloak.token) {
+      return this.authService.Auth.keycloak.token;
+    }
+    return null;
+  }
+
+  private modifyIndicators(indicators: IndicatorMetadata[]): IndicatorMetadata[] {
+    const decimalDefault = this.env?.numberOfDecimals || 2;
+    
+    // First, modify precision values
+    const modifiedIndicators = indicators.map(indicator => {
+      if (indicator.precision === null || indicator.precision === undefined) {
+        indicator.precision = decimalDefault;
+        (indicator as any).defaultPrecision = true;
+      } else {
+        (indicator as any).defaultPrecision = false;
+      }
+      return indicator;
+    });
+
+    // Then apply the same filtering logic as the original AngularJS service
+    return this.filterDisplayableIndicators(modifiedIndicators);
+  }
+
+  private filterDisplayableIndicators(indicators: IndicatorMetadata[]): IndicatorMetadata[] {
+    const arrayOfNameSubstringsForHidingIndicators = this.env?.arrayOfNameSubstringsForHidingIndicators || [];
+    
+    console.log("Data Exchange - Total indicators before filtering:", indicators.length);
+    console.log("Data Exchange - Hide substrings:", arrayOfNameSubstringsForHidingIndicators);
+    
+    const filteredIndicators = indicators.filter(indicator => {
+      // Check if indicator has applicable dates
+      if (!indicator.applicableDates || indicator.applicableDates.length === 0) {
+        console.log("Data Exchange - Filtering out indicator (no dates):", indicator.indicatorName);
+        return false;
+      }
+
+      // Check if indicator has applicable spatial units
+      if (!indicator.applicableSpatialUnits || indicator.applicableSpatialUnits.length === 0) {
+        console.log("Data Exchange - Filtering out indicator (no spatial units):", indicator.indicatorName);
+        return false;
+      }
+
+      // Check if indicator name contains hidden substrings
+      const isIndicatorThatShallNotBeDisplayed = arrayOfNameSubstringsForHidingIndicators.some(
+        substring => String(indicator.indicatorName).includes(substring)
+      );
+      
+      if (isIndicatorThatShallNotBeDisplayed) {
+        console.log("Data Exchange - Filtering out indicator (hidden substring):", indicator.indicatorName);
+        return false;
+      }
+
+      return true;
+    });
+
+    console.log("Data Exchange - Total indicators after filtering:", filteredIndicators.length);
+    return filteredIndicators;
+  }
+
+  private modifySingleIndicator(indicator: IndicatorMetadata): IndicatorMetadata {
+    const modified = this.modifyIndicators([indicator]);
+    return modified[0];
+  }
+
+  private buildTopicIndicatorHierarchy(): any[] {
+    // Implementation for building topic indicator hierarchy
+    return [];
+  }
+
+  private checkAdminPermission(): boolean {
+    return this._currentKeycloakLoginRoles.includes(this.env?.keycloakKomMonitorAdminRoleName);
+  }
+
+  private handleError(error: any): void {
+    this.errorSubject.next('An error occurred while fetching data');
   }
 } 

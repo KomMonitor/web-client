@@ -424,13 +424,15 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
     if (this.currentIndicatorDataset.referencedIndicators && this.currentIndicatorDataset.referencedIndicators.length > 0) {
       for (const indicatorReference of this.currentIndicatorDataset.referencedIndicators.filter((item: any) => item != null && item != undefined)) {
         const indicatorMetadata = this.kommonitorDataExchangeService.getIndicatorMetadataById(indicatorReference.referencedIndicatorId);
-        const referenceEntry = {
-          "referencedIndicatorName": indicatorMetadata.indicatorName,
-          "referencedIndicatorId": indicatorMetadata.indicatorId,
-          "referencedIndicatorAbbreviation": indicatorMetadata.abbreviation,
-          "referencedIndicatorDescription": indicatorReference.referencedIndicatorDescription
-        };
-        this.indicatorReferences_adminView.push(referenceEntry);
+        if (indicatorMetadata) {
+          const referenceEntry = {
+            "referencedIndicatorName": indicatorMetadata.indicatorName,
+            "referencedIndicatorId": indicatorMetadata.indicatorId,
+            "referencedIndicatorAbbreviation": indicatorMetadata.abbreviation,
+            "referencedIndicatorDescription": indicatorReference.referencedIndicatorDescription
+          };
+          this.indicatorReferences_adminView.push(referenceEntry);
+        }
       }
     }
 
@@ -443,12 +445,14 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
     if (this.currentIndicatorDataset.referencedGeoresources && this.currentIndicatorDataset.referencedGeoresources.length > 0) {
       for (const georesourceReference of this.currentIndicatorDataset.referencedGeoresources) {
         const georesourceMetadata = this.kommonitorDataExchangeService.getGeoresourceMetadataById(georesourceReference.referencedGeoresourceId);
-        const geo_referenceEntry = {
-          "referencedGeoresourceName": georesourceMetadata.datasetName,
-          "referencedGeoresourceId": georesourceMetadata.georesourceId,
-          "referencedGeoresourceDescription": georesourceReference.referencedGeoresourceDescription
-        };
-        this.georesourceReferences_adminView.push(geo_referenceEntry);
+        if (georesourceMetadata) {
+          const geo_referenceEntry = {
+            "referencedGeoresourceName": georesourceMetadata.datasetName || georesourceMetadata.georesourceName,
+            "referencedGeoresourceId": georesourceMetadata.georesourceId,
+            "referencedGeoresourceDescription": georesourceReference.referencedGeoresourceDescription
+          };
+          this.georesourceReferences_adminView.push(geo_referenceEntry);
+        }
       }
     }
 
@@ -526,8 +530,11 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
   }
 
   onClickEditIndicatorReference(indicatorReference_adminView: any): void {
-    this.tmpIndicatorReference_selectedIndicatorMetadata = this.kommonitorDataExchangeService.getIndicatorMetadataById(indicatorReference_adminView.referencedIndicatorId);
-    this.tmpIndicatorReference_referenceDescription = indicatorReference_adminView.referencedIndicatorDescription;
+    const indicatorMetadata = this.kommonitorDataExchangeService.getIndicatorMetadataById(indicatorReference_adminView.referencedIndicatorId);
+    if (indicatorMetadata) {
+      this.tmpIndicatorReference_selectedIndicatorMetadata = indicatorMetadata;
+      this.tmpIndicatorReference_referenceDescription = indicatorReference_adminView.referencedIndicatorDescription;
+    }
   }
 
   onClickDeleteIndicatorReference(indicatorReference_adminView: any): void {
@@ -541,8 +548,12 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
   }
 
   onAddOrUpdateGeoresourceReference(): void {
+    if (!this.tmpGeoresourceReference_selectedGeoresourceMetadata) {
+      return;
+    }
+    
     const tmpGeoresourceReference_adminView = {
-      "referencedGeoresourceName": this.tmpGeoresourceReference_selectedGeoresourceMetadata.datasetName,
+      "referencedGeoresourceName": this.tmpGeoresourceReference_selectedGeoresourceMetadata.datasetName || this.tmpGeoresourceReference_selectedGeoresourceMetadata.georesourceName,
       "referencedGeoresourceId": this.tmpGeoresourceReference_selectedGeoresourceMetadata.georesourceId,
       "referencedGeoresourceDescription": this.tmpGeoresourceReference_referenceDescription
     };
@@ -570,8 +581,11 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
   }
 
   onClickEditGeoresourceReference(georesourceReference_adminView: any): void {
-    this.tmpGeoresourceReference_selectedGeoresourceMetadata = this.kommonitorDataExchangeService.getGeoresourceMetadataById(georesourceReference_adminView.referencedGeoresourceId);
-    this.tmpGeoresourceReference_referenceDescription = georesourceReference_adminView.referencedGeoresourceDescription;
+    const georesourceMetadata = this.kommonitorDataExchangeService.getGeoresourceMetadataById(georesourceReference_adminView.referencedGeoresourceId);
+    if (georesourceMetadata) {
+      this.tmpGeoresourceReference_selectedGeoresourceMetadata = georesourceMetadata;
+      this.tmpGeoresourceReference_referenceDescription = georesourceReference_adminView.referencedGeoresourceDescription;
+    }
   }
 
   onClickDeleteGeoresourceReference(georesourceReference_adminView: any): void {
