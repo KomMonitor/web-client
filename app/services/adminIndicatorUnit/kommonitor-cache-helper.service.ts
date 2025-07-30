@@ -41,8 +41,13 @@ export class KommonitorIndicatorCacheHelperService {
   private readonly indicatorsProtectedEndpoint = "/indicators";
   private indicatorsEndpoint = this.indicatorsProtectedEndpoint;
 
+  private readonly topicsPublicEndpoint = "/public/topics";
+  private readonly topicsProtectedEndpoint = "/topics";
+  private topicsEndpoint = this.topicsProtectedEndpoint;
+
   // Local storage keys (like original AngularJS service)
   private readonly localStorageKey_indicators: string;
+  private readonly localStorageKey_topics: string;
 
   constructor(
     private http: HttpClient,
@@ -53,6 +58,7 @@ export class KommonitorIndicatorCacheHelperService {
     this.baseUrl = this.getBaseApiUrl();
     this.localStoragePrefix = this.env?.localStoragePrefix || 'kommonitor';
     this.localStorageKey_indicators = this.localStoragePrefix + "_lastModification_indicators";
+    this.localStorageKey_topics = this.localStoragePrefix + "_lastModification_topics";
     
     // Initialize like original AngularJS service
     this.init();
@@ -89,6 +95,33 @@ export class KommonitorIndicatorCacheHelperService {
       this.lastModificationSubject.next(response);
     } catch (error) {
       // Error fetching last modification info
+    }
+  }
+
+  /**
+   * Fetches topics metadata with caching (like original AngularJS service)
+   */
+  async fetchTopicsMetadata(keycloakRolesArray: string[]): Promise<any[]> {
+    this.loadingSubject.next(true);
+    this.errorSubject.next(null);
+
+    console.log("Cache Helper - fetchTopicsMetadata called with roles:", keycloakRolesArray);
+
+    try {
+      // Check authentication
+      this.checkAuthentication();
+      console.log("Cache Helper - topicsEndpoint:", this.topicsEndpoint);
+      // Use the same logic as original AngularJS service
+      return await this.fetchResource_fromCacheOrServer(
+        this.localStorageKey_topics,
+        this.topicsEndpoint,
+        "topics",
+        keycloakRolesArray
+      );
+    } catch (error) {
+      this.errorSubject.next('Error fetching topics metadata');
+      this.loadingSubject.next(false);
+      throw error;
     }
   }
 

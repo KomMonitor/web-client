@@ -224,6 +224,45 @@ export class KommonitorIndicatorDataExchangeService {
   }
 
   /**
+   * Fetches topics metadata
+   */
+  async fetchTopicsMetadata(keycloakRolesArray: string[]): Promise<any> {
+    this.loadingSubject.next(true);
+    this.errorSubject.next(null);
+
+    // Set the current roles for permission checking
+    this.setCurrentKeycloakLoginRoles(keycloakRolesArray);
+    console.log("fetchTopicsMetadata", keycloakRolesArray);
+    try {
+      // Use the cache helper service to fetch topics
+      const topics = await this.cacheHelperService.fetchTopicsMetadata(keycloakRolesArray);
+
+      console.log("Data Exchange - Raw topics from cache helper:", topics);
+      console.log("Data Exchange - Raw topics length:", topics?.length);
+      console.log("Data Exchange - Raw topics type:", typeof topics);
+
+      if (!topics || !Array.isArray(topics)) {
+        console.log("Data Exchange - Invalid topics data received");
+        this.topicsSubject.next([]);
+        this.loadingSubject.next(false);
+        return [];
+      }
+
+      console.log("Data Exchange - Topics:", topics);
+      console.log("Data Exchange - Topics length:", topics.length);
+      
+      this.topicsSubject.next(topics);
+      this.loadingSubject.next(false);
+      
+      return topics;
+    } catch (error) {
+      this.handleError(error);
+      this.loadingSubject.next(false);
+      throw error;
+    }
+  }
+
+  /**
    * Fetches indicators metadata
    */
   async fetchIndicatorsMetadata(keycloakRolesArray: string[]): Promise<any> {
@@ -266,6 +305,15 @@ export class KommonitorIndicatorDataExchangeService {
       }
 
       this.indicatorsSubject.next(modifiedIndicators);
+      
+      // Also fetch topics since they're needed for the topic hierarchy
+      try {
+        await this.fetchTopicsMetadata(keycloakRolesArray);
+      } catch (topicsError) {
+        console.log("Data Exchange - Error fetching topics:", topicsError);
+        // Don't fail the entire operation if topics fail to load
+      }
+      
       this.loadingSubject.next(false);
       
       return modifiedIndicators;
@@ -614,8 +662,78 @@ export class KommonitorIndicatorDataExchangeService {
   }
 
   private buildTopicIndicatorHierarchy(): any[] {
-    // Implementation for building topic indicator hierarchy
-    return [];
+    // Filter topics that are for indicators
+    const indicatorTopics = this.availableTopics.filter(topic => (topic as any).topicResource === "indicator");
+    const topicsMap = this.buildTopicsMap_indicators(indicatorTopics);
+
+    // Get filtered indicators
+    const filteredIndicators = this.availableIndicators;
+
+    // Map indicators to their topics
+    for (const indicatorMetadata of filteredIndicators) {
+      if (topicsMap.has(indicatorMetadata.topicReference)) {
+        const indicatorArray = topicsMap.get(indicatorMetadata.topicReference);
+        if (indicatorArray) {
+          indicatorArray.push(indicatorMetadata);
+          topicsMap.set(indicatorMetadata.topicReference, indicatorArray);
+        }
+      }
+    }
+
+    return this.addIndicatorDataToTopicHierarchy(indicatorTopics, topicsMap);
+  }
+
+  private buildTopicsMap_indicators(indicatorTopics: TopicMetadata[]): Map<string, any[]> {
+    const topicsMap = new Map<string, any[]>();
+
+    for (const topic of indicatorTopics) {
+      topicsMap.set(topic.topicId, []);
+      if (topic.subTopics.length > 0) {
+        this.addSubTopicsToMap_indicators(topic.subTopics, topicsMap);
+      }
+    }
+
+    return topicsMap;
+  }
+
+  private addSubTopicsToMap_indicators(subTopicsArray: TopicMetadata[], topicsMap: Map<string, any[]>): Map<string, any[]> {
+    for (const subTopic of subTopicsArray) {
+      topicsMap.set(subTopic.topicId, []);
+      if (subTopic.subTopics.length > 0) {
+        this.addSubTopicsToMap_indicators(subTopic.subTopics, topicsMap);
+      }
+    }
+    
+    return topicsMap;
+  }
+
+  private addIndicatorDataToTopicHierarchy(topicsArray: TopicMetadata[], topicsMap: Map<string, any[]>): any[] {
+    for (const topic of topicsArray) {
+      (topic as any).indicatorData = topicsMap.get(topic.topicId) || [];
+      (topic as any).indicatorData.sort((a: any, b: any) => (a.displayOrder > b.displayOrder) ? 1 : ((b.displayOrder > a.displayOrder) ? -1 : 0));
+      (topic as any).indicatorCount = (topic as any).indicatorData.length;
+      
+      if (topic.subTopics.length > 0) {
+        this.addIndicatorDataToSubTopics(topic, topicsMap);
+      }
+    }
+
+    return topicsArray as any[];
+  }
+
+  private addIndicatorDataToSubTopics(topic: TopicMetadata, topicsMap: Map<string, any[]>): TopicMetadata {
+    for (const subTopic of topic.subTopics) {
+      (subTopic as any).indicatorData = topicsMap.get(subTopic.topicId) || [];
+      (subTopic as any).indicatorData.sort((a: any, b: any) => (a.displayOrder > b.displayOrder) ? 1 : ((b.displayOrder > a.displayOrder) ? -1 : 0));
+      (subTopic as any).indicatorCount = (subTopic as any).indicatorData.length;
+      
+      if (subTopic.subTopics.length > 0) {
+        this.addIndicatorDataToSubTopics(subTopic, topicsMap);
+      }
+      (topic as any).indicatorCount = (topic as any).indicatorCount + (subTopic as any).indicatorCount;
+    }
+
+    return topic;
   }
 
   private checkAdminPermission(): boolean {
