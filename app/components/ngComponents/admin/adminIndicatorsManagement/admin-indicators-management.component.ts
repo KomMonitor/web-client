@@ -61,7 +61,8 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
         patchBody
       ).subscribe({
         next: (response: any) => {
-          // Success - no action needed
+          // Success - refresh the data to reflect the new order
+          this.refreshDataAfterDragDrop();
         },
         error: (error: any) => {
           this.kommonitorDataExchangeService.displayMapApplicationError(error);
@@ -796,11 +797,37 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
       patchBody
     ).subscribe({
       next: (response: any) => {
-        // Display order updated successfully
+        // Display order updated successfully - refresh the data
+        this.refreshDataAfterDragDrop();
       },
       error: (error: any) => {
         this.kommonitorDataExchangeService.displayMapApplicationError(error);
       }
     });
+  }
+
+  private refreshDataAfterDragDrop(): void {
+    console.log("refreshDataAfterDragDrop called");
+    // Refresh the indicators data to reflect the new order
+    if (this.authService.Auth && this.authService.Auth.keycloak && 
+        this.authService.Auth.keycloak.tokenParsed && 
+        this.authService.Auth.keycloak.tokenParsed.realm_access && 
+        this.authService.Auth.keycloak.tokenParsed.realm_access.roles) {
+      const roles = this.authService.Auth.keycloak.tokenParsed.realm_access.roles;
+      console.log("Refreshing data with roles:", roles);
+      
+      // Fetch fresh data to reflect the new order
+      this.kommonitorDataExchangeService.fetchIndicatorsMetadata(roles).then(() => {
+        console.log("Data refreshed successfully");
+        // Force refresh the table and topic hierarchy
+        this.initializeOrRefreshOverviewTable();
+        this.initializeCollapsedTopics();
+        console.log("UI refreshed");
+      }).catch((error) => {
+        console.error("Error refreshing data after drag drop:", error);
+      });
+    } else {
+      console.log("No roles available for refresh");
+    }
   }
 } 

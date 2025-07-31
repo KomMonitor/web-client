@@ -662,12 +662,17 @@ export class KommonitorIndicatorDataExchangeService {
   }
 
   private buildTopicIndicatorHierarchy(): any[] {
+    console.log("buildTopicIndicatorHierarchy called");
     // Filter topics that are for indicators
     const indicatorTopics = this.availableTopics.filter(topic => (topic as any).topicResource === "indicator");
+    console.log("Available topics:", this.availableTopics.length);
+    console.log("Indicator topics:", indicatorTopics.length);
+    
     const topicsMap = this.buildTopicsMap_indicators(indicatorTopics);
 
     // Get filtered indicators
     const filteredIndicators = this.availableIndicators;
+    console.log("Available indicators:", filteredIndicators.length);
 
     // Map indicators to their topics
     for (const indicatorMetadata of filteredIndicators) {
@@ -680,7 +685,9 @@ export class KommonitorIndicatorDataExchangeService {
       }
     }
 
-    return this.addIndicatorDataToTopicHierarchy(indicatorTopics, topicsMap);
+    const result = this.addIndicatorDataToTopicHierarchy(indicatorTopics, topicsMap);
+    console.log("Topic hierarchy result:", result.length);
+    return result;
   }
 
   private buildTopicsMap_indicators(indicatorTopics: TopicMetadata[]): Map<string, any[]> {
@@ -710,7 +717,21 @@ export class KommonitorIndicatorDataExchangeService {
   private addIndicatorDataToTopicHierarchy(topicsArray: TopicMetadata[], topicsMap: Map<string, any[]>): any[] {
     for (const topic of topicsArray) {
       (topic as any).indicatorData = topicsMap.get(topic.topicId) || [];
+      console.log(`Topic ${topic.topicName} has ${(topic as any).indicatorData.length} indicators`);
+      
+      // Sort by display order
       (topic as any).indicatorData.sort((a: any, b: any) => (a.displayOrder > b.displayOrder) ? 1 : ((b.displayOrder > a.displayOrder) ? -1 : 0));
+      
+      // Log the first few indicators to see their display order
+      if ((topic as any).indicatorData.length > 0) {
+        console.log(`Topic ${topic.topicName} first 3 indicators:`, 
+          (topic as any).indicatorData.slice(0, 3).map((ind: any) => ({ 
+            name: ind.indicatorName, 
+            displayOrder: ind.displayOrder 
+          }))
+        );
+      }
+      
       (topic as any).indicatorCount = (topic as any).indicatorData.length;
       
       if (topic.subTopics.length > 0) {
