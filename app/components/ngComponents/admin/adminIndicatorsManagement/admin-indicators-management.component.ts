@@ -71,6 +71,16 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
     }
   };
   private subscriptions: Subscription[] = [];
+  
+  // Timeout properties for debouncing
+  private modelUpdateTimeout: any = null;
+  private viewportChangeTimeout: any = null;
+  
+  // Polling control
+  private isPolling: boolean = false;
+  
+  // Debouncing for initializeOrRefreshOverviewTable
+  private initializeTableTimeout: any = null;
 
   constructor(
     @Inject(DOCUMENT) private document: Document,
@@ -103,6 +113,7 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
     // Add a fallback timeout to prevent infinite loading
     setTimeout(() => {
       if (this.loadingData) {
+        console.log("Fallback timeout triggered - attempting to load data again");
         this.ensureDataLoaded();
         this.initializeOrRefreshOverviewTable();
         
@@ -111,6 +122,7 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
         if (!filteredIndicators || filteredIndicators.length === 0) {
           this.loadingData = false;
           this.initializationCompleted = true;
+          console.warn("No data available after fallback timeout");
         }
       }
     }, 3000); // 3 second timeout
@@ -132,6 +144,8 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
           console.log("Admin Component - Roles retrieved from AuthService:", roles);
         } else {
           console.log("Admin Component - AuthService not ready, Auth object:", this.authService.Auth);
+          // If no roles available, try with empty array
+          roles = [];
         }
         
         await this.kommonitorDataExchangeService.fetchIndicatorsMetadata(roles);
@@ -141,6 +155,9 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
         }, 100);
       } catch (error) {
         console.error("Admin Component - Error fetching indicators:", error);
+        // Set loading to false to prevent infinite retries
+        this.loadingData = false;
+        this.initializationCompleted = true;
       }
     }
   }
@@ -172,6 +189,17 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.subscriptions.forEach(sub => sub.unsubscribe());
+    
+    // Clean up timeouts
+    if (this.modelUpdateTimeout) {
+      clearTimeout(this.modelUpdateTimeout);
+    }
+    if (this.viewportChangeTimeout) {
+      clearTimeout(this.viewportChangeTimeout);
+    }
+    if (this.initializeTableTimeout) {
+      clearTimeout(this.initializeTableTimeout);
+    }
     
     // Clean up global reference
     if ((window as any).adminIndicatorsComponent === this) {
@@ -267,35 +295,50 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
   }
 
   public initializeOrRefreshOverviewTable(): void {
-    const indicators = this.getFilteredIndicators();
-    
-    if (indicators && indicators.length > 0) {
-      this.loadingData = false;
-      this.initializationCompleted = true;
-      
-      // Initialize all topics as collapsed
-      this.initializeCollapsedTopics();
-      
-      // Set up grid options first
-      this.setupGridOptions(indicators);
-      
-      // Use the data grid helper service to build column definitions and row data
-      this.columnDefs = this.kommonitorDataGridHelperService.buildDataGridColumnConfig_indicators(indicators);
-      this.rowData = this.kommonitorDataGridHelperService.buildDataGridRowData_indicators(indicators);
-      
-      // Force change detection
-      setTimeout(() => {
-        if (this.agGrid && this.agGrid.api) {
-          this.agGrid.api.setGridOption('rowData', this.rowData);
-          this.agGrid.api.setColumnDefs(this.columnDefs);
-          this.agGrid.api.refreshCells();
-        }
-      }, 100);
-    } else {
-      // Data not ready yet, keep loading
-      this.loadingData = true;
-      this.initializationCompleted = false;
+    // Add debouncing to prevent excessive calls
+    if (this.initializeTableTimeout) {
+      clearTimeout(this.initializeTableTimeout);
     }
+    
+    this.initializeTableTimeout = setTimeout(() => {
+      const indicators = this.getFilteredIndicators();
+      
+      if (indicators && indicators.length > 0) {
+        this.loadingData = false;
+        this.initializationCompleted = true;
+        
+        // Initialize all topics as collapsed
+        this.initializeCollapsedTopics();
+        
+        // Set up grid options first
+        this.setupGridOptions(indicators);
+        
+        // Use the data grid helper service to build column definitions and row data
+        this.columnDefs = this.kommonitorDataGridHelperService.buildDataGridColumnConfig_indicators(indicators);
+        this.rowData = this.kommonitorDataGridHelperService.buildDataGridRowData_indicators(indicators);
+        
+        // Force change detection
+        setTimeout(() => {
+          if (this.agGrid && this.agGrid.api) {
+            this.agGrid.api.setGridOption('rowData', this.rowData);
+            this.agGrid.api.setColumnDefs(this.columnDefs);
+            this.agGrid.api.refreshCells();
+          }
+        }, 100);
+      } else {
+        // Check if we should stop trying to load data
+        const availableIndicators = this.kommonitorDataExchangeService.availableIndicators;
+        if (availableIndicators && Array.isArray(availableIndicators)) {
+          // Data is available but filtered out, stop loading
+          this.loadingData = false;
+          this.initializationCompleted = true;
+        } else {
+          // Data not ready yet, keep loading
+          this.loadingData = true;
+          this.initializationCompleted = false;
+        }
+      }
+    }, 100); // 100ms debounce
   }
 
   private setupGridOptions(indicatorMetadataArray: any[]): void {
@@ -388,21 +431,33 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
   }
 
   onModelUpdated(indicatorMetadataArray: any[]): void {
-    this.kommonitorDataGridHelperService.registerClickHandler_indicators(indicatorMetadataArray);
+    // Add debouncing to prevent excessive calls
+    if (this.modelUpdateTimeout) {
+      clearTimeout(this.modelUpdateTimeout);
+    }
+    
+    this.modelUpdateTimeout = setTimeout(() => {
+      this.kommonitorDataGridHelperService.registerClickHandler_indicators(indicatorMetadataArray);
+    }, 100);
   }
 
-
-
   onViewportChanged(indicatorMetadataArray: any[]): void {
-    this.kommonitorDataGridHelperService.registerClickHandler_indicators(indicatorMetadataArray);
-    setTimeout(() => {
-      // MathJax rendering if available
-      if ((window as any).MathJax && (window as any).MathJax.typesetPromise) {
-        (window as any).MathJax.typesetPromise().then(() => {
-          // MathJax rendering completed
-        });
-      }
-    }, 250);
+    // Add debouncing to prevent excessive calls
+    if (this.viewportChangeTimeout) {
+      clearTimeout(this.viewportChangeTimeout);
+    }
+    
+    this.viewportChangeTimeout = setTimeout(() => {
+      this.kommonitorDataGridHelperService.registerClickHandler_indicators(indicatorMetadataArray);
+      setTimeout(() => {
+        // MathJax rendering if available
+        if ((window as any).MathJax && (window as any).MathJax.typesetPromise) {
+          (window as any).MathJax.typesetPromise().then(() => {
+            // MathJax rendering completed
+          });
+        }
+      }, 250);
+    }, 100);
   }
 
   onSelectionChanged(event: SelectionChangedEvent): void {
@@ -679,24 +734,43 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
   }
 
   private startDataPolling(): void {
+    if (this.isPolling) {
+      return;
+    }
+    
+    let pollCount = 0;
+    const maxPolls = 20; // Maximum number of polls (10 seconds at 500ms intervals)
+    
+    this.isPolling = true;
+    
     // Poll every 500ms for data availability
     const pollInterval = setInterval(() => {
-      if (this.loadingData) {
+      pollCount++;
+      
+      if (this.loadingData && pollCount < maxPolls) {
         this.initializeOrRefreshOverviewTable();
         
         // If data is found, stop polling
         if (!this.loadingData) {
           clearInterval(pollInterval);
+          this.isPolling = false;
         }
       } else {
-        // Data loaded, stop polling
+        // Data loaded or max polls reached, stop polling
         clearInterval(pollInterval);
+        this.isPolling = false;
       }
     }, 500);
     
     // Stop polling after 10 seconds regardless
     setTimeout(() => {
       clearInterval(pollInterval);
+      this.isPolling = false;
+      // Force stop loading if polling times out
+      if (this.loadingData) {
+        this.loadingData = false;
+        this.initializationCompleted = true;
+      }
     }, 10000);
   }
 

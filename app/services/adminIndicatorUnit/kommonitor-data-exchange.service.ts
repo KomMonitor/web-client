@@ -100,6 +100,11 @@ export class KommonitorIndicatorDataExchangeService {
   private availableSpatialUnits_map = new Map<string, SpatialUnitMetadata>();
   private availableGeoresources_map = new Map<string, GeoresourceMetadata>();
 
+  // Cache for topic hierarchy
+  private topicHierarchyCache: any[] | null = null;
+  private topicHierarchyCacheTimestamp: number = 0;
+  private readonly TOPIC_HIERARCHY_CACHE_DURATION = 5000; // 5 seconds
+
   constructor(
     private http: HttpClient,
     private cacheHelperService: KommonitorIndicatorCacheHelperService,
@@ -145,7 +150,19 @@ export class KommonitorIndicatorDataExchangeService {
    * Get topic indicator hierarchy for order view
    */
   get topicIndicatorHierarchy_forOrderView(): any[] {
-    return this.buildTopicIndicatorHierarchy();
+    const now = Date.now();
+    
+    // Check if cache is still valid
+    if (this.topicHierarchyCache && 
+        (now - this.topicHierarchyCacheTimestamp) < this.TOPIC_HIERARCHY_CACHE_DURATION) {
+      return this.topicHierarchyCache;
+    }
+    
+    // Rebuild cache
+    this.topicHierarchyCache = this.buildTopicIndicatorHierarchy();
+    this.topicHierarchyCacheTimestamp = now;
+    
+    return this.topicHierarchyCache;
   }
 
   /**
@@ -252,6 +269,10 @@ export class KommonitorIndicatorDataExchangeService {
       console.log("Data Exchange - Topics length:", topics.length);
       
       this.topicsSubject.next(topics);
+      
+      // Invalidate topic hierarchy cache since topics changed
+      this.invalidateTopicHierarchyCache();
+      
       this.loadingSubject.next(false);
       
       return topics;
@@ -306,6 +327,9 @@ export class KommonitorIndicatorDataExchangeService {
 
       this.indicatorsSubject.next(modifiedIndicators);
       
+      // Invalidate topic hierarchy cache since indicators changed
+      this.invalidateTopicHierarchyCache();
+      
       // Also fetch topics since they're needed for the topic hierarchy
       try {
         await this.fetchTopicsMetadata(keycloakRolesArray);
@@ -334,6 +358,9 @@ export class KommonitorIndicatorDataExchangeService {
     
     this.availableIndicators_map.set(indicatorMetadata.indicatorId, indicatorMetadata);
     this.indicatorsSubject.next(updatedIndicators);
+    
+    // Invalidate topic hierarchy cache since indicators changed
+    this.invalidateTopicHierarchyCache();
   }
 
   /**
@@ -349,6 +376,9 @@ export class KommonitorIndicatorDataExchangeService {
     
     this.availableIndicators_map.set(indicatorMetadata.indicatorId, indicatorMetadata);
     this.indicatorsSubject.next(updatedIndicators);
+    
+    // Invalidate topic hierarchy cache since indicators changed
+    this.invalidateTopicHierarchyCache();
   }
 
   /**
@@ -362,6 +392,9 @@ export class KommonitorIndicatorDataExchangeService {
     
     this.availableIndicators_map.delete(indicatorId);
     this.indicatorsSubject.next(updatedIndicators);
+    
+    // Invalidate topic hierarchy cache since indicators changed
+    this.invalidateTopicHierarchyCache();
   }
 
   /**
@@ -662,17 +695,13 @@ export class KommonitorIndicatorDataExchangeService {
   }
 
   private buildTopicIndicatorHierarchy(): any[] {
-    console.log("buildTopicIndicatorHierarchy called");
     // Filter topics that are for indicators
     const indicatorTopics = this.availableTopics.filter(topic => (topic as any).topicResource === "indicator");
-    console.log("Available topics:", this.availableTopics.length);
-    console.log("Indicator topics:", indicatorTopics.length);
     
     const topicsMap = this.buildTopicsMap_indicators(indicatorTopics);
 
     // Get filtered indicators
     const filteredIndicators = this.availableIndicators;
-    console.log("Available indicators:", filteredIndicators.length);
 
     // Map indicators to their topics
     for (const indicatorMetadata of filteredIndicators) {
@@ -686,7 +715,6 @@ export class KommonitorIndicatorDataExchangeService {
     }
 
     const result = this.addIndicatorDataToTopicHierarchy(indicatorTopics, topicsMap);
-    console.log("Topic hierarchy result:", result.length);
     return result;
   }
 
@@ -717,20 +745,9 @@ export class KommonitorIndicatorDataExchangeService {
   private addIndicatorDataToTopicHierarchy(topicsArray: TopicMetadata[], topicsMap: Map<string, any[]>): any[] {
     for (const topic of topicsArray) {
       (topic as any).indicatorData = topicsMap.get(topic.topicId) || [];
-      console.log(`Topic ${topic.topicName} has ${(topic as any).indicatorData.length} indicators`);
       
       // Sort by display order
       (topic as any).indicatorData.sort((a: any, b: any) => (a.displayOrder > b.displayOrder) ? 1 : ((b.displayOrder > a.displayOrder) ? -1 : 0));
-      
-      // Log the first few indicators to see their display order
-      if ((topic as any).indicatorData.length > 0) {
-        console.log(`Topic ${topic.topicName} first 3 indicators:`, 
-          (topic as any).indicatorData.slice(0, 3).map((ind: any) => ({ 
-            name: ind.indicatorName, 
-            displayOrder: ind.displayOrder 
-          }))
-        );
-      }
       
       (topic as any).indicatorCount = (topic as any).indicatorData.length;
       
@@ -763,5 +780,13 @@ export class KommonitorIndicatorDataExchangeService {
 
   private handleError(error: any): void {
     this.errorSubject.next('An error occurred while fetching data');
+  }
+
+  /**
+   * Invalidates the topic hierarchy cache
+   */
+  private invalidateTopicHierarchyCache(): void {
+    this.topicHierarchyCache = null;
+    this.topicHierarchyCacheTimestamp = 0;
   }
 } 
