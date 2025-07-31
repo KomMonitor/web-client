@@ -479,15 +479,122 @@
 
 								<div class="row vertical-align">
 									<div class="form-group">
-										<label>Ausführungsintervall </label>
-											<input type="text" class="form-control" 
-												ng-model="$ctrl.kommonitorScriptHelperServiceInstance.processParameters.execution_interval.cron"
-												placeholder="z.B. 0 0 1 * *" required></input>
-										<div class="help-block with-errors"></div>
-										<div class="help-block">
-											<p>Bitte ein Ausführungsintervall in einem Cron Ausdruck angeben
-												(-><a href="https://crontab.guru/" target="_blank">https://crontab.guru/</a>)
-											</p>
+										<h3>Ausführungsintervall</h3>
+										<label>Wie oft soll das Skript ausgeführt werden?</label>
+										<div class="cronInputModeOptions">
+											<div class="mode-option">
+												<label>
+													<div><input type="radio" ng-model="cronInputMode" name="mode" value="interval" ng-change="updateCron()" checked/></div>
+													<div>Alle</div>
+													<div>
+														<input ng-model="intervalValue" ng-change="updateCron()" class="form-control" type="number" id="intervalValue" min="1" max="30" />
+													</div>
+													<div>
+														<select class="form-control" ng-change="updateCron()" ng-model="intervalUnit" id="intervalUnit">
+															<option value="minute">Minuten</option>
+															<option value="hour">Stunden</option>
+															<option value="day">Tage</option>
+															<option value="month" selected>Monate</option>
+															<option value="year">Jahre</option>
+														</select>
+													</div>
+												</label>
+											</div>
+											<div class="mode-option">
+												<label>
+													<div><input type="radio" ng-model="cronInputMode" value="once" ng-change="updateCron()" /></div>
+													<div>Einmal</div>
+													<div>
+														<select class="form-control" ng-model="intervalUnit" ng-change="updateCron()" id="intervalUnit">
+															<option value="minute">in der Minute</option>
+															<option value="hour">in der Stunde</option>
+															<option value="day">am Tag</option>
+															<option value="week">in der Woche</option>
+															<option value="month" selected>im Monat</option>
+															<option value="year">im Jahr</option>
+														</select>
+													</div>
+												</label>
+											</div>
+											<div class="mode-option">
+												<label>
+													<div><input type="radio" ng-model="cronInputMode" value="everyFirst" ng-change="updateCron()" /></div>
+													<div>Jeden ersten Sonntag</div>
+													<!--<div>
+														<select ng-change="updateCron()" class="form-control" ng-model="selectedDayOfWeek.number">
+															<option value="0" selected>Sonntag</option>
+															<option value="1">Montag</option>
+															<option value="2">Dienstag</option>
+															<option value="3">Mittwoch</option>
+															<option value="4">Donnerstag</option>
+															<option value="5">Freitag</option>
+															<option value="6">Samstag</option>
+														</select>
+													</div>-->
+													<div>
+														<select ng-change="updateCron()" class="form-control" ng-model="everyFirstInUnit" id="everyFirstInUnit">
+															<option value="month" selected>im Monat</option>
+															<option value="year">im Jahr</option>
+														</select>
+													</div>
+												</label>
+											</div>
+										</div>
+										<label ng-show="intervalUnit != 'minute'">Genauen Zeitpunkt einstellen:</label>
+										<div ng-show="intervalUnit != 'minute'" id="intervalDetails">
+											<div ng-show="intervalUnit != 'minute'" class="box-body intervalDetailsContent">
+												<div ng-show="['year'].includes(intervalUnit)  && cronInputMode != 'everyFirst'"><label>Monat:</label>
+													<select ng-change="updateCron()" class="form-control" ng-model="selectedMonth" ng-options="n for n in monthOptions"></select>
+												</div>
+												<div ng-show="['month', 'year'].includes(intervalUnit) && cronInputMode != 'everyFirst'"><label>Tag:</label>
+													<select ng-change="updateCron()" class="form-control" ng-model="selectedDayOfMonth" ng-options="n for n in dayOfMonthOptions"></select>
+												</div>
+												<div ng-show="['week'].includes(intervalUnit)"><label>Wochentag (0=So):</label>
+													<select ng-change="updateCron()" class="form-control" ng-model="selectedDayOfWeek.number">
+														<option value="0" selected>Sonntag</option>
+														<option value="1">Montag</option>
+														<option value="2">Dienstag</option>
+														<option value="3">Mittwoch</option>
+														<option value="4">Donnerstag</option>
+														<option value="5">Freitag</option>
+														<option value="6">Samstag</option>
+													</select>
+												</div>
+												<div ng-show="['day', 'week', 'month', 'year'].includes(intervalUnit)"><label>Stunde:</label>
+													<select ng-change="updateCron()" class="form-control" ng-model="selectedHour" ng-options="n for n in hourOptions"></select>
+												</div>
+												<div ng-show="['hour', 'day', 'week', 'month', 'year'].includes(intervalUnit)"><label>Minute:</label>
+													<select ng-change="updateCron()" class="form-control" ng-model="selectedMinute" ng-options="n for n in minuteOptions"></select>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+
+								<div class="row vertical-align">
+									<div class="col-md-10 col-sm-12 col-xs-12">
+										<div class="box collapsed-box" style="background: #ebf0fd;">
+											<div class="box-header">
+												<h3 class="box-title">Manuelle Eingabe durch Cron-Pattern</h3>
+								
+												<div class="box-tools pull-right">
+													<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+													</button>
+												</div>
+											</div>
+											<!-- /.box-header -->
+											<div class="box-body">
+												<div>
+													Alternativ kann das Ausführungsintervall durch einen Cron-Ausdruck angegeben werden.
+													Hilfestellungen dazu finden Sie unter <a href="https://crontab.guru/" target="_blank">https://crontab.guru/</a>.
+												</div>
+												<div>
+													<input type="text" class="form-control" 
+														ng-model="$ctrl.kommonitorScriptHelperServiceInstance.processParameters.execution_interval.cron"
+														placeholder="z.B. 0 0 1 * *" required></input>
+												</div>
+												<div class="help-block with-errors">Hinweis: Es erfolgt keine automatische Validierung des Cron-Ausdrucks.</div>
+											</div>
 										</div>
 									</div>
 								</div>

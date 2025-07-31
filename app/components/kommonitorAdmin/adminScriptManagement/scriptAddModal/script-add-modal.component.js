@@ -57,6 +57,38 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 
 			kommonitorScriptHelperService.scriptData = [];
 
+			$scope.cronInputMode = "interval";
+			$scope.intervalUnit = "month";
+			$scope.intervalValue = 3;
+			$scope.everyFirstInUnit = "month";
+
+			$scope.monthOptions = [];
+			for (var i = 1; i <= 12; i++) {
+				$scope.monthOptions.push(i);
+			}
+			$scope.dayOfMonthOptions = [];
+			for (var i = 1; i <= 30; i++) {
+				$scope.dayOfMonthOptions.push(i);
+			}
+			$scope.dayOfWeekOptions = [];
+			for (var i = 0; i <= 6; i++) {
+				$scope.dayOfWeekOptions.push(i);
+			}
+			$scope.hourOptions = [];
+			for (var i = 0; i <= 23; i++) {
+				$scope.hourOptions.push(i);
+			}
+			$scope.minuteOptions = [];
+			for (var i = 0; i <= 59; i++) {
+				$scope.minuteOptions.push(i);
+			}
+
+			$scope.selectedMonth = 1;
+			$scope.selectedDayOfMonth = 1;
+			$scope.selectedDayOfWeek = { number: 0 };
+			$scope.selectedHour = 0;
+			$scope.selectedMinute = 0;
+
 			$scope.init = async function () {
 				$scope.allScriptTypeOptions = await kommonitorScriptHelperService.getScriptTypes();
 				kommonitorScriptHelperService.availableScriptTypeOptions = $scope.allScriptTypeOptions.filter((script) => (script.id.startsWith("KmIndicator") || script.id.startsWith("KmGeoresource")));
@@ -191,6 +223,53 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 				kommonitorScriptHelperService.processParameters.target_indicator_id = kommonitorScriptHelperService.targetIndicator.indicatorId;
 				$scope.resetApplicableDates();
 				$scope.resetSelectableSpatialUnits();
+			}
+
+			$scope.updateCron = function() {
+				let cron = "";
+				let min = "*", hour = "*", day = "*", month = "*", weekday = "*";
+
+				if (["hour", "day", "week", "month", "year"].includes($scope.intervalUnit)) {
+					min = $scope.selectedMinute;
+				}
+				if (["day", "week", "month", "year"].includes($scope.intervalUnit)) {
+					hour = $scope.selectedHour;
+				}
+				if ($scope.intervalUnit === "week") {
+					weekday = $scope.selectedDayOfWeek.number;
+				}
+				if (["month", "year"].includes($scope.intervalUnit)) {
+					day = $scope.selectedDayOfMonth;
+				}
+				if ($scope.intervalUnit === "year") {
+					month = $scope.selectedMonth;
+				}
+
+				if ($scope.cronInputMode == "manual") {
+					cron = cronManual.value;
+				} 
+				else if ($scope.cronInputMode == "once") {
+					cron = `${min} ${hour} ${day} ${month} ${weekday}`;
+				} 
+				else if ($scope.cronInputMode == "interval"){
+					switch ($scope.intervalUnit) {
+						case "minute": cron = `*/${$scope.intervalValue} * * * *`; break;
+						case "hour":   cron = `${min} */${$scope.intervalValue} * * *`; break;
+						case "day":    cron = `${min} ${hour} */${$scope.intervalValue} * *`; break;
+						case "month":  cron = `${min} ${hour} ${day} */${$scope.intervalValue} *`; break;
+						case "year":   cron = `${min} ${hour} ${day} ${month} */${$scope.intervalValue}`; break;
+					}
+				}
+				else if ($scope.cronInputMode == "everyFirst") {
+					if ($scope.everyFirstInUnit == "year") {
+						cron = `${min} ${hour} 1-7 1 */7`
+					}
+					if ($scope.everyFirstInUnit == "month") {
+						cron = `${min} ${hour} 1-7 * */7`
+					}
+				}
+
+				console.log(cron);
 			}
 
 			$rootScope.$on("processDescriptionFetched", function (event) {
