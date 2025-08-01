@@ -491,7 +491,7 @@ pre.CodeMirror-line {
 
 .list-group.list-group-root .list-group-item.list-group-item-grid-centered-georesources {
   display: grid;
-  grid-template-columns: min-content min-content auto;
+  grid-template-columns: auto min-content min-content;
 }
 
 .list-group.list-group-root .list-group-item.list-group-item-grid-centered-georesources *:first-child{

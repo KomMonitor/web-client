@@ -60,6 +60,7 @@ export class PoiComponent implements OnInit {
     'Auswahl erfolgreich gespeichert'];
 
   isPoiSelectCollapsed = false;
+  poiAlphListCollapse:any[] = [true,true,true,true,true];
 
   constructor(
     protected dataExchangeService: DataExchangeService,

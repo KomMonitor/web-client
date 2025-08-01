@@ -1781,12 +1781,12 @@
 								<h3 class="box-title">Points of Interest</h3>
 
 								<div class="box-tools pull-right">
-									<button type="button" class="btn btn-box-tool" data-widget="collapse"><i
-											class="fa fa-plus"></i>
+									<button (click)="poiAlphListPOICollapse.toggle()" type="button" class="btn btn-box-tool" data-widget="collapse"><i
+											class="fa" [ngClass]="{'fa-plus':poiAlphListCollapse[0], 'fa-minus':!poiAlphListCollapse[0]}"></i>
 									</button>
 								</div>
 							</div>
-							<div class="box-body">
+							<div class="box-body" #poiAlphListPOICollapse="ngbCollapse" [(ngbCollapse)]="poiAlphListCollapse[0]">
 
 								<div class="">
 
@@ -1887,12 +1887,12 @@
 								<h3 class="box-title">Lines of Interest</h3>
 
 								<div class="box-tools pull-right">
-									<button type="button" class="btn btn-box-tool" data-widget="collapse"><i
-											class="fa fa-plus"></i>
+									<button (click)="poiAlphListLinesCollapse.toggle()"  type="button" class="btn btn-box-tool" data-widget="collapse"><i
+											class="fa" [ngClass]="{'fa-plus':poiAlphListCollapse[1], 'fa-minus':!poiAlphListCollapse[1]}"></i>
 									</button>
 								</div>
 							</div>
-							<div class="box-body">
+							<div class="box-body" #poiAlphListLinesCollapse="ngbCollapse" [(ngbCollapse)]="poiAlphListCollapse[1]">
 
 								<div class="">
 
@@ -1972,12 +1972,12 @@
 								<h3 class="box-title">Areas of Interest</h3>
 
 								<div class="box-tools pull-right">
-									<button type="button" class="btn btn-box-tool" data-widget="collapse"><i
-											class="fa fa-plus"></i>
+									<button (click)="poiAlphListAreasCollapse.toggle()" type="button" class="btn btn-box-tool" data-widget="collapse"><i
+											class="fa" [ngClass]="{'fa-plus':poiAlphListCollapse[2], 'fa-minus':!poiAlphListCollapse[2]}"></i>
 									</button>
 								</div>
 							</div>
-							<div class="box-body">
+							<div class="box-body" #poiAlphListAreasCollapse="ngbCollapse" [(ngbCollapse)]="poiAlphListCollapse[2]">
 
 								<div class="">
 
@@ -2060,12 +2060,12 @@
 								<h3 class="box-title">Web Map Service (WMS)</h3>
 
 								<div class="box-tools pull-right">
-									<button type="button" class="btn btn-box-tool" data-widget="collapse"><i
-											class="fa fa-plus"></i>
+									<button (click)="poiAlphListWmsCollapse.toggle()" type="button" class="btn btn-box-tool" data-widget="collapse"><i
+											class="fa" [ngClass]="{'fa-plus':poiAlphListCollapse[3], 'fa-minus':!poiAlphListCollapse[3]}"></i>
 									</button>
 								</div>
 							</div>
-							<div class="box-body">
+							<div class="box-body" #poiAlphListWmsCollapse="ngbCollapse" [(ngbCollapse)]="poiAlphListCollapse[3]">
 
 								<div id="wmsInputForm">
 
@@ -2138,12 +2138,12 @@
 								<h3 class="box-title">Web Feature Service (WFS)</h3>
 
 								<div class="box-tools pull-right">
-									<button type="button" class="btn btn-box-tool" data-widget="collapse"><i
-											class="fa fa-plus"></i>
+									<button (click)="poiAlphListWfsCollapse.toggle()" type="button" class="btn btn-box-tool" data-widget="collapse"><i
+											class="fa" [ngClass]="{'fa-plus':poiAlphListCollapse[4], 'fa-minus':!poiAlphListCollapse[4]}"></i>
 									</button>
 								</div>
 							</div>
-							<div class="box-body">
+							<div class="box-body" #poiAlphListWfsCollapse="ngbCollapse" [(ngbCollapse)]="poiAlphListCollapse[4]">
 
 								<p>Hinzuladen eines WFS kann je nach Objektanzahl und -komplexität einige Moment dauern.
 									Die Features werden zudem nach dem aktuellen Raumausschnitt der Kartendarstellung
