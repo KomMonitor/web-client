@@ -42,11 +42,91 @@ export class KommonitorIndicatorDataGridHelperService {
   /**
    * Builds data grid for indicators - returns column definitions and row data for AG Grid Angular
    */
-  buildDataGrid_indicators(indicatorMetadataArray: any[]): { columnDefs: ColDef[], rowData: any[] } {
+  buildDataGrid_indicators(indicatorMetadataArray: any[]): GridOptions {
+    return this.buildDataGridOptions_indicators(indicatorMetadataArray);
+  }
+
+  /**
+   * Builds complete grid options for indicators (matches AngularJS implementation)
+   */
+  buildDataGridOptions_indicators(indicatorMetadataArray: any[]): GridOptions {
     const columnDefs = this.buildDataGridColumnConfig_indicators(indicatorMetadataArray);
     const rowData = this.buildDataGridRowData_indicators(indicatorMetadataArray);
-    
-    return { columnDefs, rowData };
+
+    return {
+      defaultColDef: {
+        editable: false,
+        sortable: true,
+        flex: 1,
+        minWidth: 200,
+        filter: true,
+        floatingFilter: true,
+        resizable: true,
+        wrapText: true,
+        autoHeight: true,
+        cellStyle: { 
+          'font-size': '12px', 
+          'white-space': 'normal !important', 
+          'line-height': '20px !important', 
+          'word-break': 'break-word !important', 
+          'padding-top': '17px', 
+          'padding-bottom': '17px' 
+        },
+        headerComponentParams: {
+          template:
+            '<div class="ag-cell-label-container" role="presentation">' +
+            '  <span ref="eMenu" class="ag-header-icon ag-header-cell-menu-button"></span>' +
+            '  <div ref="eLabel" class="ag-header-cell-label" role="presentation">' +
+            '    <span ref="eSortOrder" class="ag-header-icon ag-sort-order"></span>' +
+            '    <span ref="eSortAsc" class="ag-header-icon ag-sort-ascending-icon"></span>' +
+            '    <span ref="eSortDesc" class="ag-header-icon ag-sort-descending-icon"></span>' +
+            '    <span ref="eSortNone" class="ag-header-icon ag-sort-none-icon"></span>' +
+            '    <span ref="eText" class="ag-header-cell-text" role="columnheader" style="white-space: normal;"></span>' +
+            '    <span ref="eFilter" class="ag-header-icon ag-filter-icon"></span>' +
+            '  </div>' +
+            '</div>',
+        },
+      },
+      columnDefs: columnDefs,
+      rowData: rowData,
+      enableCellTextSelection: true,
+      ensureDomOrder: true,
+      pagination: true,
+      paginationPageSize: 10,
+      suppressColumnVirtualisation: true,
+      onGridReady: () => {
+        // Grid ready logic - equivalent to AngularJS onGridReady
+      },
+      onFirstDataRendered: () => {
+        // Header height setter logic - equivalent to AngularJS onFirstDataRendered
+        if (this.gridApi) {
+          this.headerHeightSetter({ api: this.gridApi } as any);
+        }
+      },
+      onColumnResized: () => {
+        // Header height setter logic - equivalent to AngularJS onColumnResized
+        if (this.gridApi) {
+          this.headerHeightSetter({ api: this.gridApi } as any);
+        }
+      },
+      onModelUpdated: () => {
+        // Register click handlers - equivalent to AngularJS onModelUpdated
+        this.registerClickHandler_indicators(indicatorMetadataArray);
+      },
+      onViewportChanged: () => {
+        // Register click handlers and MathJax typesetting - equivalent to AngularJS onViewportChanged
+        this.registerClickHandler_indicators(indicatorMetadataArray);
+        
+        // MathJax typesetting (equivalent to AngularJS implementation)
+        setTimeout(() => {
+          if (typeof MathJax !== 'undefined') {
+            MathJax.typesetPromise().then(() => {
+              // MathJax rendering complete
+            });
+          }
+        }, 250);
+      },
+    };
   }
 
   /**
@@ -289,13 +369,62 @@ export class KommonitorIndicatorDataGridHelperService {
   };
 
   /**
-   * Registers click handlers for indicator buttons using direct approach
-   * This method is now deprecated in favor of the component's direct approach
+   * Registers click handlers for indicator buttons (complete implementation)
+   * This method handles all indicator button click events
    */
   registerClickHandler_indicators(indicatorMetadataArray: any[]): void {
-    // This method is kept for backward compatibility but should not be used
-    // The component now handles click events directly using jQuery event delegation
-    console.warn('registerClickHandler_indicators in service is deprecated. Use component\'s direct approach instead.');
+    // Register edit metadata button click handlers
+    setTimeout(() => {
+      const editMetadataButtons = document.querySelectorAll('.indicatorEditMetadataBtn');
+      editMetadataButtons.forEach(button => {
+        button.addEventListener('click', (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          
+          const buttonId = (button as HTMLElement).id;
+          const indicatorId = buttonId.split('_')[3];
+          
+          const indicatorMetadata = this.kommonitorDataExchangeService.getIndicatorMetadataById(indicatorId);
+          
+          // Broadcast edit metadata event
+          this.broadcastService.broadcast('onEditIndicatorMetadata', indicatorMetadata);
+        });
+      });
+
+      // Register edit features button click handlers
+      const editFeaturesButtons = document.querySelectorAll('.indicatorEditFeaturesBtn');
+      editFeaturesButtons.forEach(button => {
+        button.addEventListener('click', (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          
+          const buttonId = (button as HTMLElement).id;
+          const indicatorId = buttonId.split('_')[3];
+          
+          const indicatorMetadata = this.kommonitorDataExchangeService.getIndicatorMetadataById(indicatorId);
+          
+          // Broadcast edit features event
+          this.broadcastService.broadcast('onEditIndicatorFeatures', indicatorMetadata);
+        });
+      });
+
+      // Register edit role based access button click handlers
+      const editRoleButtons = document.querySelectorAll('.indicatorEditRoleBasedAccessBtn');
+      editRoleButtons.forEach(button => {
+        button.addEventListener('click', (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          
+          const buttonId = (button as HTMLElement).id;
+          const indicatorId = buttonId.split('_')[3];
+          
+          const indicatorMetadata = this.kommonitorDataExchangeService.getIndicatorMetadataById(indicatorId);
+          
+          // Broadcast edit role based access event
+          this.broadcastService.broadcast('onEditIndicatorSpatialUnitRoles', indicatorMetadata);
+        });
+      });
+    }, 100);
   }
 
   /**
@@ -318,6 +447,26 @@ export class KommonitorIndicatorDataGridHelperService {
    */
   getColumnApi(): ColumnApi | null {
     return this.columnApi;
+  }
+
+  /**
+   * Get current timestamp string (matches AngularJS implementation)
+   */
+  private getCurrentTimestampString(): string {
+    const date = new Date();
+    let hours = date.getHours();
+    if (hours < 10) {
+      hours = 0 + hours;
+    }
+    let minutes = date.getMinutes();
+    if (minutes < 10) {
+      minutes = 0 + minutes;
+    }
+    let seconds = date.getSeconds();
+    if (seconds < 10) {
+      seconds = 0 + seconds;
+    }
+    return `${hours}:${minutes}:${seconds}`;
   }
 
   /**
@@ -376,14 +525,6 @@ export class KommonitorIndicatorDataGridHelperService {
    * Broadcast event for Angular component communication
    */
   // Removed broadcastEvent method as it's no longer needed with direct approach
-
-  /**
-   * Get current timestamp string utility
-   */
-  private getCurrentTimestampString(): string {
-    const now = new Date();
-    return now.toISOString();
-  }
 
   /**
    * Get indicator string from indicator type
@@ -463,6 +604,516 @@ export class KommonitorIndicatorDataGridHelperService {
     const indicators = this.kommonitorDataExchangeService.availableIndicators;
     return indicators.find((indicator: any) => indicator.indicatorId === indicatorId);
   }
+
+  /**
+   * Builds data grid for indicator feature table
+   */
+  buildDataGrid_featureTable_indicatorResource(
+    tableId: string, 
+    headers: string[], 
+    features: any[] = [], 
+    resourceId?: string, 
+    resourceType?: string, 
+    enableDelete: boolean = false
+  ): GridOptions {
+    return this.buildDataGridOptions_featureTable_indicatorResource(headers, features, resourceId, resourceType, enableDelete);
+  }
+
+  /**
+   * Builds complete grid options for indicator feature table (matches AngularJS implementation)
+   */
+  buildDataGridOptions_featureTable_indicatorResource(
+    headers: string[], 
+    dataArray: any[], 
+    datasetId?: string, 
+    resourceType?: string, 
+    deleteButtonEnabled: boolean = false
+  ): GridOptions {
+    const columnDefs = this.buildFeatureTableColumnConfig(headers, deleteButtonEnabled, resourceType);
+    const rowData = this.buildDataGridRowData_featureTable_indicatorResource(dataArray);
+
+    return {
+      defaultColDef: {
+        editable: true,
+        cellEditor: 'agLargeTextCellEditor',
+        onCellValueChanged: (newValueParams: any) => {
+          // Handle cell value changes for indicator data
+          this.handleIndicatorCellValueChanged(newValueParams, datasetId, resourceType);
+        },
+        sortable: true,
+        flex: 1,
+        minWidth: 200,
+        filter: true,
+        floatingFilter: true,
+        resizable: true,
+        wrapText: true,
+        autoHeight: true,
+        cellStyle: { 
+          'font-size': '12px', 
+          'white-space': 'normal !important', 
+          'line-height': '20px !important', 
+          'word-break': 'break-word !important', 
+          'padding-top': '17px', 
+          'padding-bottom': '17px' 
+        },
+        headerComponentParams: {
+          template:
+            '<div class="ag-cell-label-container" role="presentation">' +
+            '  <span ref="eMenu" class="ag-header-icon ag-header-cell-menu-button"></span>' +
+            '  <div ref="eLabel" class="ag-header-cell-label" role="presentation">' +
+            '    <span ref="eSortOrder" class="ag-header-icon ag-sort-order"></span>' +
+            '    <span ref="eSortAsc" class="ag-header-icon ag-sort-ascending-icon"></span>' +
+            '    <span ref="eSortDesc" class="ag-header-icon ag-sort-descending-icon"></span>' +
+            '    <span ref="eSortNone" class="ag-header-icon ag-sort-none-icon"></span>' +
+            '    <span ref="eText" class="ag-header-cell-text" role="columnheader" style="white-space: normal;"></span>' +
+            '    <span ref="eFilter" class="ag-header-icon ag-filter-icon"></span>' +
+            '  </div>' +
+            '</div>',
+        },
+      },
+      columnDefs: columnDefs,
+      rowData: rowData,
+      undoRedoCellEditing: true,
+      undoRedoCellEditingLimit: 10,
+      enableCellChangeFlash: true,
+      suppressRowClickSelection: true,
+      enableCellTextSelection: true,
+      ensureDomOrder: true,
+      pagination: true,
+      paginationPageSize: 10,
+      suppressColumnVirtualisation: true,
+      onViewportChanged: () => {
+        this.registerFeatureTableClickHandlers(datasetId, resourceType, deleteButtonEnabled);
+      },
+    };
+  }
+
+  /**
+   * Builds row data for indicator feature table
+   */
+  private buildDataGridRowData_featureTable_indicatorResource(dataArray: any[]): any[] {
+    return dataArray.map(dataItem => {
+      // Remove arisenFrom property as this is currently never used (matches AngularJS)
+      delete dataItem.arisenFrom;
+      return dataItem;
+    });
+  }
+
+  /**
+   * Build feature table column configuration (matches AngularJS implementation)
+   */
+  private buildFeatureTableColumnConfig(headers: string[], enableDelete: boolean, resourceType?: string): ColDef[] {
+    const columnDefs: ColDef[] = [];
+
+    // Add DB-Record-Id column (matches AngularJS implementation)
+    columnDefs.push({
+      headerName: 'DB-Record-Id',
+      field: 'fid',
+      pinned: 'left',
+      editable: false,
+      maxWidth: 125,
+      cellRenderer: (params: any) => {
+        let html = '';
+        
+        if (enableDelete) {
+          html += `<button id="btn__indicator__deleteFeatureEntry__${params.data?.datasetId || ''}__${params.data?.spatialUnitId || ''}__${params.data?.ID || ''}__${params.data?.fid || ''}" class="btn btn-danger btn-sm indicatorDeleteFeatureRecordBtn" type="button" title="Datenobjekt unwiderruflich entfernen"><i class="fas fa-trash"></i></button>`;
+        }
+        
+        html += '&nbsp;&nbsp;';
+        html += params.data?.fid || '';
+        
+        return html;
+      }
+    });
+
+    // Add Feature-Id column (matches AngularJS implementation)
+    columnDefs.push({
+      headerName: 'Feature-Id',
+      field: 'ID', // Using ID field instead of __env.FEATURE_ID_PROPERTY_NAME
+      pinned: 'left',
+      editable: false,
+      maxWidth: 125
+    });
+
+    // Add Name column (matches AngularJS implementation)
+    columnDefs.push({
+      headerName: 'Name',
+      field: 'NAME', // Using NAME field instead of __env.FEATURE_NAME_PROPERTY_NAME
+      pinned: 'left',
+      minWidth: 200,
+      editable: false
+    });
+
+    // Add Lebenszeitbeginn column (matches AngularJS implementation)
+    columnDefs.push({
+      headerName: 'Lebenszeitbeginn',
+      field: 'VALID_START_DATE', // Using VALID_START_DATE instead of __env.VALID_START_DATE_PROPERTY_NAME
+      minWidth: 125,
+      editable: false
+    });
+
+    // Add Lebenszeitende column (matches AngularJS implementation)
+    columnDefs.push({
+      headerName: 'Lebenszeitende',
+      field: 'VALID_END_DATE', // Using VALID_END_DATE instead of __env.VALID_END_DATE_PROPERTY_NAME
+      minWidth: 125,
+      editable: false
+    });
+
+    // Add dynamic headers for indicator date columns (matches AngularJS implementation)
+    headers.forEach(header => {
+      columnDefs.push({
+        headerName: header,
+        field: header,
+        minWidth: 125,
+        editable: true,
+        cellEditor: 'agTextCellEditor'
+      });
+    });
+
+    return columnDefs;
+  }
+
+  /**
+   * Register feature table click handlers (matches AngularJS implementation)
+   */
+  registerFeatureTableClickHandlers(resourceId?: string, resourceType?: string, enableDelete?: boolean): void {
+    if (!enableDelete) return;
+
+    // Register delete button click handlers (matches AngularJS implementation)
+    setTimeout(() => {
+      const deleteButtons = document.querySelectorAll('.indicatorDeleteFeatureRecordBtn');
+      deleteButtons.forEach(button => {
+        button.addEventListener('click', (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          event.stopImmediatePropagation();
+          
+          // Broadcast loading icon event
+          this.broadcastService.broadcast(`showLoadingIcon_${resourceType}`, {});
+          
+          // Get the button ID and parse it
+          const buttonId = (button as HTMLElement).id;
+          this.handleIndicatorFeatureDelete(buttonId, resourceId, resourceType);
+        });
+      });
+    }, 100);
+  }
+
+  /**
+   * Handle indicator feature delete (matches AngularJS implementation)
+   */
+  private handleIndicatorFeatureDelete(featureId: string, resourceId?: string, resourceType?: string): void {
+    if (!resourceId || !resourceType) return;
+
+    // Parse the button ID to extract parameters (matches AngularJS implementation)
+    const buttonId = featureId; // featureId parameter contains the full button ID
+    const idArray = buttonId.split('__');
+    
+    if (idArray.length < 7) return;
+    
+    const datasetId = idArray[3];
+    const spatialUnitId = idArray[4];
+    const actualFeatureId = idArray[5];
+    const recordId = idArray[6];
+
+    // Build URL for the DELETE request
+    const url = `${this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI}/indicators/${datasetId}/${spatialUnitId}/singleFeature/${actualFeatureId}/singleFeatureRecord/${recordId}`;
+
+    // Send DELETE request
+    this.http.delete(url).subscribe({
+      next: (response: any) => {
+        console.log('Successfully deleted database record');
+        
+        // Broadcast delete event
+        this.broadcastService.broadcast(`onDeleteFeatureEntry_${resourceType}`, {});
+        
+        // Update timestamp for successful deletion
+        this.featureTable_indicator_lastUpdate_timestamp_success = new Date(this.getCurrentTimestampString());
+      },
+      error: (error: any) => {
+        console.error('Error while deleting database record. Error is:', error);
+        
+        // Update timestamp for failure
+        this.featureTable_indicator_lastUpdate_timestamp_failure = new Date(this.getCurrentTimestampString());
+      }
+    });
+  }
+
+  /**
+   * Handle indicator cell value changed (matches AngularJS implementation)
+   */
+  private handleIndicatorCellValueChanged(newValueParams: any, resourceId?: string, resourceType?: string): void {
+    const { data, field, newValue, oldValue, column, node, api } = newValueParams;
+    
+    if (newValue === oldValue) return;
+
+    // Take the modified data from newValueParams.data
+    let json = JSON.parse(JSON.stringify(data));
+
+    // Delete information - only ID, fid as datatable recordId and all timestamp attributes starting with prefix 'DATE_' shall remain for indicator record update
+    const allowedProperties = ['ID', 'fid']; // Using ID instead of __env.FEATURE_ID_PROPERTY_NAME
+    for (const key in json) {
+      if (Object.hasOwnProperty.call(json, key)) {
+        if (!key.includes('DATE_') && !allowedProperties.includes(key)) {
+          delete json[key];
+        }
+      }
+    }
+    
+    // Remove specific properties
+    delete json['VALID_START_DATE']; // Using VALID_START_DATE instead of __env.VALID_START_DATE_PROPERTY_NAME
+    delete json['VALID_END_DATE']; // Using VALID_END_DATE instead of __env.VALID_END_DATE_PROPERTY_NAME
+    delete json['NAME']; // Using NAME instead of __env.FEATURE_NAME_PROPERTY_NAME
+
+    // For indicators we should check if an empty/null/undefined value has been set by user and transmit it as null value
+    for (const key in json) {
+      if (Object.hasOwnProperty.call(json, key)) {
+        const element = json[key];
+        if (key.includes('DATE_')) {
+          if (element === '') {
+            json[key] = null;
+          }
+        }
+      }
+    }
+
+    // Build URL for the PUT request
+    const url = `${this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI}/indicators/${resourceId}/${data.spatialUnitId}/singleFeature/${data.ID}/singleFeatureRecord/${data.fid}`;
+
+    // Send PUT request
+    this.http.put(url, json, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }).subscribe({
+      next: (response: any) => {
+        console.log('Successfully updated database record');
+
+        // On success mark grid cell with green background
+        column.colDef.cellStyle = (p: any) =>
+          p.rowIndex.toString() === node.id ? { 'background-color': '#9DC89F' } : '';
+
+        api.refreshCells({
+          force: true,
+          columns: [column.getId()],
+          rowNodes: [node]
+        });
+
+        // Update timestamp for successful edit
+        this.featureTable_indicator_lastUpdate_timestamp_success = new Date(this.getCurrentTimestampString());
+      },
+      error: (error: any) => {
+        console.error('Error while updating database record. Error is:', error);
+
+        // Reset cell value as an error occurred
+        data[column.colId] = oldValue;
+
+        // On failure mark grid cell with red background
+        column.colDef.cellStyle = (p: any) =>
+          p.rowIndex.toString() === node.id ? { 'background-color': '#E79595' } : '';
+
+        api.refreshCells({
+          force: true,
+          columns: [column.getId()],
+          rowNodes: [node]
+        });
+
+        // Update timestamp for failure
+        this.featureTable_indicator_lastUpdate_timestamp_failure = new Date(this.getCurrentTimestampString());
+      }
+    });
+  }
+
+  /**
+   * Build role management grid
+   */
+  buildRoleManagementGrid(tableDOMId: string, currentTableOptionsObject: any, accessControlMetadata: any[], selectedPermissionIds: string[], reducedRoleManagement: boolean = false): any {
+    const gridOptions: GridOptions = {
+      defaultColDef: {
+        sortable: true,
+        filter: true,
+        resizable: true
+      },
+      columnDefs: this.buildRoleManagementGridColumnConfig(reducedRoleManagement),
+      rowData: this.buildRoleManagementGridRowData(accessControlMetadata, selectedPermissionIds),
+      pagination: true,
+      paginationPageSize: 10
+    };
+
+    return gridOptions;
+  }
+
+  /**
+   * Build role management grid column configuration
+   */
+  private buildRoleManagementGridColumnConfig(reducedRoleManagement: boolean = false): ColDef[] {
+    const columnDefs: ColDef[] = [
+      { headerName: 'Organisationseinheit', field: 'organizationalUnitName', pinned: 'left', minWidth: 200 }
+    ];
+
+    if (!reducedRoleManagement) {
+      columnDefs.push(
+        { 
+          headerName: 'Betrachter', 
+          field: 'viewer', 
+          maxWidth: 100,
+          cellRenderer: this.CheckboxRenderer_viewer
+        },
+        { 
+          headerName: 'Bearbeiter', 
+          field: 'editor', 
+          maxWidth: 100,
+          cellRenderer: this.CheckboxRenderer_editor
+        },
+        { 
+          headerName: 'Ersteller', 
+          field: 'creator', 
+          maxWidth: 100,
+          cellRenderer: this.CheckboxRenderer_creator
+        }
+      );
+    }
+
+    return columnDefs;
+  }
+
+  /**
+   * Build role management grid row data
+   */
+  private buildRoleManagementGridRowData(accessControlMetadata: any[], permissionIds: string[]): any[] {
+    return accessControlMetadata.map(item => ({
+      organizationalUnitId: item.organizationalUnitId,
+      organizationalUnitName: item.organizationalUnitName,
+      viewer: permissionIds.includes(item.viewerPermissionId),
+      editor: permissionIds.includes(item.editorPermissionId),
+      creator: permissionIds.includes(item.creatorPermissionId),
+      datasetOwner: item.datasetOwner || false
+    }));
+  }
+
+  /**
+   * Get selected role IDs from role management grid
+   */
+  getSelectedRoleIds_roleManagementGrid(roleManagementTableOptions: any): string[] {
+    if (!roleManagementTableOptions || !roleManagementTableOptions.rowData) return [];
+
+    const selectedRoleIds: string[] = [];
+    
+    roleManagementTableOptions.rowData.forEach((row: any) => {
+      if (row.viewer) {
+        selectedRoleIds.push(row.viewerPermissionId);
+      }
+      if (row.editor) {
+        selectedRoleIds.push(row.editorPermissionId);
+      }
+      if (row.creator) {
+        selectedRoleIds.push(row.creatorPermissionId);
+      }
+    });
+
+    return selectedRoleIds;
+  }
+
+  // Checkbox renderers for role management
+  private CheckboxRenderer_viewer = class {
+    private params: any;
+    private eGui: HTMLInputElement | null = null;
+    private boundCheckedHandler: any;
+
+    init(params: any) {
+      this.params = params;
+      this.eGui = document.createElement('input');
+      this.eGui.type = 'checkbox';
+      this.eGui.checked = params.value;
+      this.eGui.disabled = params.data.datasetOwner;
+      
+      this.boundCheckedHandler = this.checkedHandler.bind(this);
+      this.eGui.addEventListener('click', this.boundCheckedHandler);
+    }
+
+    checkedHandler(e: any) {
+      if (this.params.node) {
+        this.params.node.setDataValue('viewer', e.target.checked);
+      }
+    }
+
+    getGui() {
+      return this.eGui;
+    }
+
+    destroy() {
+      if (this.eGui) {
+        this.eGui.removeEventListener('click', this.boundCheckedHandler);
+      }
+    }
+  };
+
+  private CheckboxRenderer_editor = class {
+    private params: any;
+    private eGui: HTMLInputElement | null = null;
+    private boundCheckedHandler: any;
+
+    init(params: any) {
+      this.params = params;
+      this.eGui = document.createElement('input');
+      this.eGui.type = 'checkbox';
+      this.eGui.checked = params.value;
+      this.eGui.disabled = params.data.datasetOwner;
+      
+      this.boundCheckedHandler = this.checkedHandler.bind(this);
+      this.eGui.addEventListener('click', this.boundCheckedHandler);
+    }
+
+    checkedHandler(e: any) {
+      if (this.params.node) {
+        this.params.node.setDataValue('editor', e.target.checked);
+      }
+    }
+
+    getGui() {
+      return this.eGui;
+    }
+
+    destroy() {
+      if (this.eGui) {
+        this.eGui.removeEventListener('click', this.boundCheckedHandler);
+      }
+    }
+  };
+
+  private CheckboxRenderer_creator = class {
+    private params: any;
+    private eGui: HTMLInputElement | null = null;
+    private boundCheckedHandler: any;
+
+    init(params: any) {
+      this.params = params;
+      this.eGui = document.createElement('input');
+      this.eGui.type = 'checkbox';
+      this.eGui.checked = params.value;
+      this.eGui.disabled = params.data.datasetOwner;
+      
+      this.boundCheckedHandler = this.checkedHandler.bind(this);
+      this.eGui.addEventListener('click', this.boundCheckedHandler);
+    }
+
+    checkedHandler(e: any) {
+      if (this.params.node) {
+        this.params.node.setDataValue('creator', e.target.checked);
+      }
+    }
+
+    getGui() {
+      return this.eGui;
+    }
+
+    destroy() {
+      if (this.eGui) {
+        this.eGui.removeEventListener('click', this.boundCheckedHandler);
+      }
+    }
+  };
 
   /**
    * Gets reference values from regional reference values management grid

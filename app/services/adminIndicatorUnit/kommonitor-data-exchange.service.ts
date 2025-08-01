@@ -234,10 +234,31 @@ export class KommonitorIndicatorDataExchangeService {
   }
 
   /**
+   * Get current KomMonitor login role IDs
+   */
+  getCurrentKomMonitorLoginRoleIds(): string[] {
+    return this.currentKeycloakLoginRoles;
+  }
+
+  /**
    * Get base URL to KomMonitor Data API
    */
   get baseUrlToKomMonitorDataAPI(): string {
     return this.baseUrl;
+  }
+
+  /**
+   * Get base URL to KomMonitor Data API for spatial resources
+   */
+  getBaseUrlToKomMonitorDataAPI_spatialResource(): string {
+    return this.getBaseApiUrl();
+  }
+
+  /**
+   * Get access control by ID
+   */
+  getAccessControlById(ownerId: string): any {
+    return this.accessControl.find((item: any) => item.organizationalUnitId === ownerId);
   }
 
   /**

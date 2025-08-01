@@ -609,14 +609,6 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
     console.log('Modal ref created:', modalRef);
     modalRef.componentInstance.currentIndicatorDataset = indicatorMetadata;
     
-    // Remove explicit openModal call - modal will initialize automatically in ngOnInit
-    // setTimeout(() => {
-    //   if (modalRef.componentInstance.openModal) {
-    //     console.log('Calling openModal on IndicatorEditFeaturesModalComponent');
-    //     modalRef.componentInstance.openModal(indicatorMetadata);
-    //   }
-    // }, 0);
-    
     modalRef.result.then((result) => {
       if (result) {
         this.initializeOrRefreshOverviewTable();
