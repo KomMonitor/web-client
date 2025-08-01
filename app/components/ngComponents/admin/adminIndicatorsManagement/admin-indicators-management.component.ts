@@ -233,65 +233,8 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
           this.refreshIndicatorOverviewTable(crudType, targetIndicatorId);
         });
       }
-      // Handle grid button click events
-      else if (data.msg === 'onEditIndicatorMetadata') {
-        this.zone.run(() => {
-          this.onClickEditMetadata(data.values);
-        });
-      }
-      else if (data.msg === 'onEditIndicatorFeatures') {
-        this.zone.run(() => {
-          this.onClickEditFeatures(data.values);
-        });
-      }
-      else if (data.msg === 'onEditIndicatorSpatialUnitRoles') {
-        this.zone.run(() => {
-          this.onClickEditIndicatorSpatialUnitRoles(data.values);
-        });
-      }
-      else if (data.msg === 'onDeleteIndicators') {
-        this.zone.run(() => {
-          // Ensure data.values is an array for delete operation
-          const datasetsToDelete = Array.isArray(data.values) ? data.values : [data.values];
-          this.onClickDeleteIndicators(datasetsToDelete);
-        });
-      }
     });
     this.subscriptions.push(sub);
-
-    // Listen for custom events from the data grid helper service
-    const handleEditMetadata = (event: CustomEvent) => {
-      this.zone.run(() => {
-        this.onClickEditMetadata(event.detail.values);
-      });
-    };
-
-    const handleEditFeatures = (event: CustomEvent) => {
-      this.zone.run(() => {
-        this.onClickEditFeatures(event.detail.values);
-      });
-    };
-
-    const handleEditUserRoles = (event: CustomEvent) => {
-      this.zone.run(() => {
-        this.onClickEditIndicatorSpatialUnitRoles(event.detail.values);
-      });
-    };
-
-    // Add event listeners
-    document.addEventListener('onEditIndicatorMetadata', handleEditMetadata as EventListener);
-    document.addEventListener('onEditIndicatorFeatures', handleEditFeatures as EventListener);
-    document.addEventListener('onEditIndicatorSpatialUnitRoles', handleEditUserRoles as EventListener);
-
-    // Store references for cleanup
-    const customEventSubscription = {
-      unsubscribe: () => {
-        document.removeEventListener('onEditIndicatorMetadata', handleEditMetadata as EventListener);
-        document.removeEventListener('onEditIndicatorFeatures', handleEditFeatures as EventListener);
-        document.removeEventListener('onEditIndicatorSpatialUnitRoles', handleEditUserRoles as EventListener);
-      }
-    } as any;
-    this.subscriptions.push(customEventSubscription);
   }
 
   public initializeOrRefreshOverviewTable(): void {
@@ -388,18 +331,6 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
       onGridReady: (params: GridReadyEvent) => {
         this.onGridReady(params);
       },
-      onFirstDataRendered: () => {
-        this.onFirstDataRendered();
-      },
-      onColumnResized: () => {
-        this.onColumnResized();
-      },
-      onModelUpdated: () => {
-        this.onModelUpdated(indicatorMetadataArray);
-      },
-      onViewportChanged: () => {
-        this.onViewportChanged(indicatorMetadataArray);
-      },
       onSelectionChanged: (event: SelectionChangedEvent) => {
         this.onSelectionChanged(event);
       }
@@ -423,32 +354,37 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
     }
   }
 
-  onFirstDataRendered(): void {
+  onFirstDataRendered(event: any): void {
+    this.registerClickHandler_indicators();
   }
 
-  onColumnResized(): void {
+  onColumnResized(event: any): void {
     // Column resized
   }
 
-  onModelUpdated(indicatorMetadataArray: any[]): void {
+  onRowDataChanged(): void {
+    this.registerClickHandler_indicators();
+  }
+
+  onModelUpdated(): void {
     // Add debouncing to prevent excessive calls
     if (this.modelUpdateTimeout) {
       clearTimeout(this.modelUpdateTimeout);
     }
     
     this.modelUpdateTimeout = setTimeout(() => {
-      this.kommonitorDataGridHelperService.registerClickHandler_indicators(indicatorMetadataArray);
+      this.registerClickHandler_indicators();
     }, 100);
   }
 
-  onViewportChanged(indicatorMetadataArray: any[]): void {
+  onViewportChanged(): void {
     // Add debouncing to prevent excessive calls
     if (this.viewportChangeTimeout) {
       clearTimeout(this.viewportChangeTimeout);
     }
     
     this.viewportChangeTimeout = setTimeout(() => {
-      this.kommonitorDataGridHelperService.registerClickHandler_indicators(indicatorMetadataArray);
+      this.registerClickHandler_indicators();
       setTimeout(() => {
         // MathJax rendering if available
         if ((window as any).MathJax && (window as any).MathJax.typesetPromise) {
@@ -462,6 +398,106 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
 
   onSelectionChanged(event: SelectionChangedEvent): void {
     this.selectedRows = event.api.getSelectedRows();
+  }
+
+  private registerClickHandler_indicators(): void {
+    console.log('registerClickHandler_indicators called');
+    
+    // Use event delegation on the grid container instead of individual buttons
+    // This ensures handlers work even for dynamically rendered buttons
+    const $ = (window as any).$;
+    
+    if (!$) {
+      console.error('jQuery not available');
+      return;
+    }
+    
+    const gridContainer = $('#adminIndicatorsOverviewTable');
+    console.log('Grid container found:', gridContainer.length > 0);
+    
+    // Remove any existing handlers first to avoid duplicates
+    gridContainer.off('click', '.indicatorEditMetadataBtn');
+    gridContainer.off('click', '.indicatorEditFeaturesBtn');
+    gridContainer.off('click', '.indicatorEditRoleBasedAccessBtn');
+
+    // Edit Metadata Button - use event delegation
+    gridContainer.on('click', '.indicatorEditMetadataBtn', (event: any) => {
+      console.log('=== EDIT METADATA BUTTON CLICKED ===');
+      console.log('Event target:', event.target);
+      console.log('Event currentTarget:', event.currentTarget);
+      event.stopPropagation();
+      event.preventDefault();
+      
+      // Get the button element (could be the icon inside)
+      const button = $(event.target).closest('.indicatorEditMetadataBtn')[0];
+      console.log('Button element:', button);
+      console.log('Button ID:', button?.id);
+      console.log('Button classes:', button?.className);
+      
+      if (button && button.id) {
+        const indicatorId = button.id.split('_')[3];
+        console.log('Indicator ID:', indicatorId);
+        
+        const indicatorMetadata = this.kommonitorDataExchangeService.getIndicatorMetadataById(indicatorId);
+        console.log('Indicator metadata:', indicatorMetadata);
+        
+        if (indicatorMetadata) {
+          console.log('Calling onClickEditMetadata...');
+          this.zone.run(() => {
+            this.onClickEditMetadata(indicatorMetadata);
+          });
+        } else {
+          console.error('No indicator metadata found for ID:', indicatorId);
+        }
+      } else {
+        console.error('Button element or ID not found');
+      }
+    });
+
+    // Edit Features Button - use event delegation
+    gridContainer.on('click', '.indicatorEditFeaturesBtn', (event: any) => {
+      console.log('=== EDIT FEATURES BUTTON CLICKED ===');
+      console.log('Event target:', event.target);
+      console.log('Event currentTarget:', event.currentTarget);
+      event.stopPropagation();
+      event.preventDefault();
+      
+      // Get the button element (could be the icon inside)
+      const button = $(event.target).closest('.indicatorEditFeaturesBtn')[0];
+      console.log('Button element:', button);
+      console.log('Button ID:', button?.id);
+      console.log('Button classes:', button?.className);
+      
+      const indicatorId = button.id.split('_')[3];
+      console.log('Indicator ID:', indicatorId);
+      const indicatorMetadata = this.kommonitorDataExchangeService.getIndicatorMetadataById(indicatorId);
+      console.log('Indicator metadata:', indicatorMetadata);
+      
+      if (indicatorMetadata) {
+        console.log('Calling onClickEditFeatures...');
+        this.zone.run(() => {
+          this.onClickEditFeatures(indicatorMetadata);
+        });
+      }
+    });
+
+    // Edit Role-Based Access Button - use event delegation
+    gridContainer.on('click', '.indicatorEditRoleBasedAccessBtn', (event: any) => {
+      console.log('Edit role-based access button clicked!');
+      event.stopPropagation();
+      event.preventDefault();
+      
+      // Get the button element (could be the icon inside)
+      const button = $(event.target).closest('.indicatorEditRoleBasedAccessBtn')[0];
+      const indicatorId = button.id.split('_')[3];
+      const indicatorMetadata = this.kommonitorDataExchangeService.getIndicatorMetadataById(indicatorId);
+      
+      if (indicatorMetadata) {
+        this.zone.run(() => {
+          this.onClickEditIndicatorSpatialUnitRoles(indicatorMetadata);
+        });
+      }
+    });
   }
 
   private getFilteredIndicators(): any[] {
@@ -505,85 +541,96 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
 
   // Modal event handlers
   onClickAddIndicator(): void {
-    try {
-      const modalRef = this.modalService.open(IndicatorAddModalComponent, {
-        size: 'lg',
-        backdrop: 'static',
-        keyboard: false,
-        container: 'body',
-        animation: false
-      });
+    const modalRef = this.modalService.open(IndicatorAddModalComponent, {
+      size: 'lg',
+      backdrop: 'static',
+      keyboard: false,
+      container: 'body',
+      animation: false
+    });
 
-      modalRef.result.then((result) => {
-        if (result) {
-          // Modal was closed successfully, refresh the table
-          this.initializeOrRefreshOverviewTable();
-        }
-      }).catch((error) => {
-        // Modal dismissed
-      });
-    } catch (error) {
-      // Error opening modal
-    }
+    modalRef.result.then((result) => {
+      if (result) {
+        this.initializeOrRefreshOverviewTable();
+      }
+    }).catch(() => {
+      // Modal dismissed
+    });
   }
 
   onClickEditMetadata(indicatorMetadata: any): void {
-    try {
-      const modalRef = this.modalService.open(IndicatorEditMetadataModalComponent, {
-        size: 'lg',
-        backdrop: 'static',
-        keyboard: false,
-        container: 'body',
-        animation: false
-      });
-
-      // Set the current indicator dataset in the modal component
-      const modalComponent = modalRef.componentInstance as IndicatorEditMetadataModalComponent;
-      modalComponent.currentIndicatorDataset = indicatorMetadata;
-      modalComponent.resetIndicatorEditMetadataForm();
-
-      modalRef.result.then((result) => {
-        if (result) {
-          // Modal was closed successfully, refresh the table
-          this.initializeOrRefreshOverviewTable();
-        }
-      }).catch((error) => {
-        // Modal dismissed
-      });
-    } catch (error) {
-      // Error opening edit metadata modal
-    }
+    console.log('=== onClickEditMetadata called ===');
+    console.log('Opening IndicatorEditMetadataModalComponent');
+    console.log('Indicator metadata:', indicatorMetadata);
+    
+    const modalRef = this.modalService.open(IndicatorEditMetadataModalComponent, {
+      size: 'lg',
+      backdrop: 'static',
+      keyboard: false,
+      container: 'body',
+      animation: false
+    });
+    
+    console.log('Modal ref created:', modalRef);
+    console.log('Setting currentIndicatorDataset on modal component');
+    modalRef.componentInstance.currentIndicatorDataset = indicatorMetadata;
+    console.log('Modal component instance:', modalRef.componentInstance);
+    
+    // Remove explicit openModal call - modal will initialize automatically in ngOnInit
+    // if (modalRef.componentInstance.openModal) {
+    //   console.log('Calling openModal on IndicatorEditMetadataModalComponent');
+    //   modalRef.componentInstance.openModal();
+    // }
+    
+    modalRef.result.then((result) => {
+      console.log('Modal result:', result);
+      if (result) {
+        this.initializeOrRefreshOverviewTable();
+      }
+    }).catch((error) => {
+      console.log('Modal dismissed or error:', error);
+      // Modal dismissed
+    });
   }
 
   onClickEditFeatures(indicatorMetadata: any): void {
-    try {
-      const modalRef = this.modalService.open(IndicatorEditFeaturesModalComponent, {
-        size: 'lg',
-        backdrop: 'static',
-        keyboard: false,
-        container: 'body',
-        animation: false
-      });
-
-      const modalComponent = modalRef.componentInstance as IndicatorEditFeaturesModalComponent;
-      modalComponent.openModal(indicatorMetadata);
-
-      modalRef.result.then((result) => {
-        if (result) {
-          // Modal was closed successfully, refresh the table
-          this.initializeOrRefreshOverviewTable();
-        }
-      }).catch((error) => {
-        // Modal dismissed
-      });
-    } catch (error) {
-      // Error opening edit features modal
-    }
+    console.log('=== onClickEditFeatures called ===');
+    console.log('Opening IndicatorEditFeaturesModalComponent');
+    console.log('Indicator metadata:', indicatorMetadata);
+    
+    const modalRef = this.modalService.open(IndicatorEditFeaturesModalComponent, {
+      size: 'lg',
+      backdrop: 'static',
+      keyboard: false,
+      container: 'body',
+      animation: false
+    });
+    
+    console.log('Modal ref created:', modalRef);
+    modalRef.componentInstance.currentIndicatorDataset = indicatorMetadata;
+    
+    // Remove explicit openModal call - modal will initialize automatically in ngOnInit
+    // setTimeout(() => {
+    //   if (modalRef.componentInstance.openModal) {
+    //     console.log('Calling openModal on IndicatorEditFeaturesModalComponent');
+    //     modalRef.componentInstance.openModal(indicatorMetadata);
+    //   }
+    // }, 0);
+    
+    modalRef.result.then((result) => {
+      if (result) {
+        this.initializeOrRefreshOverviewTable();
+      }
+    }).catch(() => {
+      // Modal dismissed
+    });
   }
 
   onClickEditIndicatorSpatialUnitRoles(indicatorMetadata: any): void {
     try {
-      // Broadcast the event to open the modal
+      // Open the modal directly instead of broadcasting
+      // Note: This would need to be implemented with the actual modal component
+      // For now, we'll keep the broadcast for this specific case as it might be handled elsewhere
       this.broadcastService.broadcast('onEditIndicatorSpatialUnitRoles', indicatorMetadata);
     } catch (error) {
       // Error opening edit indicator spatial unit roles modal
@@ -609,42 +656,33 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
       animation: false
     });
 
-    // Set the selected indicator in the modal
     modalRef.componentInstance.selectedIndicatorDataset = indicatorDataset;
-    modalRef.componentInstance.onChangeSelectedIndicator();
-
+    
     modalRef.result.then((result) => {
-      // Delete modal closed with result
-    }).catch((error) => {
-      // Delete modal dismissed
+      if (result) {
+        this.initializeOrRefreshOverviewTable();
+      }
+    }).catch(() => {
+      // Modal dismissed
     });
   }
 
   onClickBatchUpdate(): void {
-    try {
-      const modalRef = this.modalService.open(IndicatorBatchUpdateModalComponent, {
-        size: 'lg',
-        backdrop: 'static',
-        keyboard: false,
-        container: 'body',
-        animation: false
-      });
+    const modalRef = this.modalService.open(IndicatorBatchUpdateModalComponent, {
+      size: 'lg',
+      backdrop: 'static',
+      keyboard: false,
+      container: 'body',
+      animation: false
+    });
 
-      // Pass the modal reference to the component
-      const modalComponent = modalRef.componentInstance as IndicatorBatchUpdateModalComponent;
-      modalComponent.modalRef = modalRef;
-
-      modalRef.result.then((result) => {
-        if (result) {
-          // Modal was closed successfully, refresh the table
-          this.initializeOrRefreshOverviewTable();
-        }
-      }).catch((error) => {
-        // Modal dismissed
-      });
-    } catch (error) {
-      // Error opening batch update modal
-    }
+    modalRef.result.then((result) => {
+      if (result) {
+        this.initializeOrRefreshOverviewTable();
+      }
+    }).catch(() => {
+      // Modal dismissed
+    });
   }
 
   onClickDeleteSelected(): void {

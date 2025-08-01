@@ -6,6 +6,7 @@ import { KommonitorIndicatorDataExchangeService } from 'services/adminIndicatorU
 import { KommonitorIndicatorCacheHelperService } from 'services/adminIndicatorUnit/kommonitor-cache-helper.service';
 import { KommonitorIndicatorDataGridHelperService } from 'services/adminIndicatorUnit/kommonitor-data-grid-helper.service';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { NgForm } from '@angular/forms';
 
 declare const $: any;
 declare const __env: any;
@@ -18,8 +19,13 @@ declare const colorbrewer: any;
 })
 export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
   @ViewChild('modal') modal!: ElementRef;
+  @ViewChild('indicatorEditMetadataForm') indicatorEditMetadataForm!: NgForm;
 
   private subscriptions: Subscription[] = [];
+
+  // Multi-step form properties
+  currentStep = 1;
+  totalSteps = 6;
 
   // Current indicator dataset
   currentIndicatorDataset: any = null;
@@ -42,6 +48,7 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
   showCustomCommaValue = false;
   indicatorReferenceDateNote = '';
   displayOrder = 0;
+  indicatorCharacteristicValue = '';
 
   // Metadata
   metadata: any = {
@@ -90,13 +97,15 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
   noneColumnValue = '-- keine --';
   file_regionalReferenceValuesImport: any = null;
 
-  // Messages
+  // Messages - standardized to match spatial units pattern
+  successMessage = '';
+  errorMessage = '';
   successMessagePart = '';
   errorMessagePart = '';
   indicatorMetadataImportError = '';
   indicatorAddMetadataImportErrorAlert = false;
 
-  // Loading state
+  // Loading state - standardized to match spatial units pattern
   loadingData = false;
 
   // Color brewer
@@ -104,6 +113,18 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
   colorbreweSchemeName_dynamicIncrease = __env?.defaultColorBrewerPaletteForBalanceIncreasingValues;
   colorbreweSchemeName_dynamicDecrease = __env?.defaultColorBrewerPaletteForBalanceDecreasingValues;
   colorbrewerPalettes: any[] = [];
+  
+  // Classification properties
+  decreaseBreaksLength: number = 0;
+  increaseBreaksLength: number = 0;
+
+  // Available options - these were missing!
+  availableSpatialUnits: any[] = [];
+  updateIntervalOptions: any[] = [];
+  indicatorTypeOptions: any[] = [];
+  indicatorCreationTypeOptions: any[] = [];
+  indicatorUnitOptions: any[] = [];
+  availableTopics: any[] = [];
 
   // Metadata structure
   indicatorMetadataStructure: any = {
@@ -180,37 +201,201 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    console.log('IndicatorEditMetadataModalComponent ngOnInit');
+    console.log('Current indicator dataset:', this.currentIndicatorDataset);
+    console.log('KommonitorDataExchangeService:', this.kommonitorDataExchangeService);
+    
     this.setupEventListeners();
+    this.loadInitialData();
     this.instantiateColorBrewerPalettes();
     this.indicatorMetadataStructure_pretty = this.kommonitorDataExchangeService.syntaxHighlightJSON(this.indicatorMetadataStructure);
+    
+    console.log('Available options loaded:');
+    console.log('- indicatorTypeOptions:', this.indicatorTypeOptions);
+    console.log('- indicatorCreationTypeOptions:', this.indicatorCreationTypeOptions);
+    console.log('- indicatorUnitOptions:', this.indicatorUnitOptions);
+    console.log('- updateIntervalOptions:', this.updateIntervalOptions);
+    console.log('- availableSpatialUnits:', this.availableSpatialUnits);
+    
+    // If currentIndicatorDataset is already set (from parent component), initialize form
+    if (this.currentIndicatorDataset) {
+      console.log('Initializing form with currentIndicatorDataset');
+      this.resetIndicatorEditMetadataForm();
+    } else {
+      console.log('No currentIndicatorDataset available');
+    }
   }
 
   ngOnDestroy(): void {
     this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 
+  // Multi-step form navigation methods
+  nextStep(): void {
+    if (this.currentStep < this.totalSteps && this.isCurrentStepValid()) {
+      this.currentStep++;
+      this.updateProgressBar();
+    }
+  }
+
+  previousStep(): void {
+    if (this.currentStep > 1) {
+      this.currentStep--;
+      this.updateProgressBar();
+    }
+  }
+
+  goToStep(step: number): void {
+    if (step >= 1 && step <= this.totalSteps) {
+      // Allow navigation to any step for better user experience
+      this.currentStep = step;
+      this.updateProgressBar();
+      
+      // Show validation feedback if navigating to a step that requires validation
+      if (step > 1 && !this.isStepValid(step)) {
+        console.log(`Step ${step} requires validation. Please complete the required fields.`);
+      }
+    }
+  }
+
+  isStepValid(step: number): boolean {
+    // Validation for specific steps
+    switch (step) {
+      case 1:
+        return !!this.datasetName && !!this.indicatorType && !!this.indicatorUnit && !!this.indicatorInterpretation;
+      case 2:
+        return !!this.metadata.description && !!this.metadata.datasource && !!this.metadata.contact && !!this.metadata.updateInterval && !!this.metadata.lastUpdate;
+      case 3:
+        return !!this.indicatorTopic_mainTopic;
+      case 4:
+        // Step 4 is optional (references)
+        return true;
+      case 5:
+        // Step 5 validation depends on indicator type
+        if (this.indicatorType?.apiName?.includes('STATUS')) {
+          return !!this.selectedColorBrewerPaletteEntry && !!this.numClassesPerSpatialUnit;
+        }
+        return !!this.numClassesPerSpatialUnit;
+      case 6:
+        // Step 6 is informational
+        return true;
+      default:
+        return true;
+    }
+  }
+
+  updateProgressBar(): void {
+    // Update progress bar active states
+    const progressItems = document.querySelectorAll('#progressbar li');
+    progressItems.forEach((item, index) => {
+      if (index < this.currentStep) {
+        item.classList.add('active');
+      } else {
+        item.classList.remove('active');
+      }
+    });
+  }
+
+  isStepActive(step: number): boolean {
+    return this.currentStep === step;
+  }
+
+  isStepCompleted(step: number): boolean {
+    return this.currentStep > step;
+  }
+
+  isCurrentStepValid(): boolean {
+    return this.isStepValid(this.currentStep);
+  }
+
   private setupEventListeners(): void {
+    // Listen for broadcast messages if needed
     const sub = this.broadcastService.currentBroadcastMsg.subscribe(data => {
-      if (data.msg === 'onEditIndicatorMetadata') {
-        this.currentIndicatorDataset = data.values;
-        this.resetIndicatorEditMetadataForm();
+      if (data.msg === 'refreshIndicatorOverviewTableCompleted') {
+        if (this.currentIndicatorDataset) {
+          this.currentIndicatorDataset = this.kommonitorDataExchangeService.getIndicatorMetadataById(this.currentIndicatorDataset.indicatorId);
+        }
       }
     });
     this.subscriptions.push(sub);
+
+    // Setup Bootstrap accordion functionality
+    setTimeout(() => {
+      console.log('Setting up accordion event listeners');
+      ($('[data-widget="collapse"]') as any).on('click', function(this: any) {
+        console.log('Accordion button clicked');
+        const icon = $(this).find('i');
+        if (icon.hasClass('fa-plus')) {
+          icon.removeClass('fa-plus').addClass('fa-minus');
+        } else {
+          icon.removeClass('fa-minus').addClass('fa-plus');
+        }
+      });
+    }, 100);
+
+    // Setup Bootstrap dropdown functionality
+    setTimeout(() => {
+      console.log('Setting up dropdown event listeners');
+      ($('[data-toggle="dropdown"]') as any).on('click', function(this: any, e: any) {
+        e.preventDefault();
+        const dropdown = $(this).next('.dropdown-menu');
+        dropdown.toggleClass('show');
+      });
+
+      // Close dropdown when clicking outside
+      $(document).on('click', function(e: any) {
+        if (!$(e.target).closest('.dropdown').length) {
+          $('.dropdown-menu').removeClass('show');
+        }
+      });
+    }, 100);
   }
 
-  openModal(): void {
-    // Modal is already opened by the parent component
-    // This method is called after the modal is already open
-    this.resetIndicatorEditMetadataForm();
-    this.instantiateColorBrewerPalettes();
+  private loadInitialData(): void {
+    // Load available spatial units
+    if (this.kommonitorDataExchangeService.availableSpatialUnits) {
+      this.availableSpatialUnits = this.kommonitorDataExchangeService.availableSpatialUnits;
+    }
+
+    // Load update interval options
+    if (this.kommonitorDataExchangeService.updateIntervalOptions) {
+      this.updateIntervalOptions = this.kommonitorDataExchangeService.updateIntervalOptions;
+    }
+
+    // Load indicator type options
+    if (this.kommonitorDataExchangeService.indicatorTypeOptions) {
+      this.indicatorTypeOptions = this.kommonitorDataExchangeService.indicatorTypeOptions;
+    }
+
+    // Load indicator creation type options
+    if (this.kommonitorDataExchangeService.indicatorCreationTypeOptions) {
+      this.indicatorCreationTypeOptions = this.kommonitorDataExchangeService.indicatorCreationTypeOptions;
+    }
+
+    // Load indicator unit options
+    if (this.kommonitorDataExchangeService.indicatorUnitOptions) {
+      this.indicatorUnitOptions = this.kommonitorDataExchangeService.indicatorUnitOptions;
+    }
+
+    // Load available topics
+    if (this.kommonitorDataExchangeService.availableTopics) {
+      this.availableTopics = this.kommonitorDataExchangeService.availableTopics;
+    }
   }
+
+  // Remove openModal method - no longer needed
 
   closeModal(): void {
     this.activeModal.dismiss();
   }
 
   instantiateColorBrewerPalettes(): void {
+    console.log('instantiateColorBrewerPalettes called');
+    console.log('colorbrewer:', colorbrewer);
+    console.log('colorbrewerSchemes:', this.colorbrewerSchemes);
+    console.log('colorbreweSchemeName_dynamicDecrease:', this.colorbreweSchemeName_dynamicDecrease);
+    console.log('colorbreweSchemeName_dynamicIncrease:', this.colorbreweSchemeName_dynamicIncrease);
+    
     const customColorSchemes = __env?.customColorSchemes;
     let colorbrewerExtended = colorbrewer;
 
@@ -234,13 +419,20 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
 
     // instantiate with palette 'Blues'
     this.selectedColorBrewerPaletteEntry = this.colorbrewerPalettes[13];
+    
+    console.log('colorbrewerPalettes length:', this.colorbrewerPalettes.length);
+    console.log('selectedColorBrewerPaletteEntry:', this.selectedColorBrewerPaletteEntry);
   }
 
   onClassificationMethodSelected(method: any): void {
     this.classificationMethod = method.id;
   }
 
-  onNumClassesChanged(numClasses: number): void {
+  onNumClassesChanged(numClasses: number | null): void {
+    if (numClasses === null) {
+      return; // Don't process if null
+    }
+    
     this.numClassesPerSpatialUnit = numClasses;
     for (let i = 0; i < this.kommonitorDataExchangeService.availableSpatialUnits.length; i++) {
       const spatialUnit = this.kommonitorDataExchangeService.availableSpatialUnits[i];
@@ -285,13 +477,13 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
   }
 
   updateDecreaseAndIncreaseBreaks(tabIndex: number): void {
-    const increaseBreaksLength = this.spatialUnitClassification[tabIndex].breaks.filter((val: number) => val > 0).length;
-    const decreaseBreaksLength = this.spatialUnitClassification[tabIndex].breaks.filter((val: number) => val < 0).length;
+    this.increaseBreaksLength = this.spatialUnitClassification[tabIndex].breaks.filter((val: number) => val > 0).length;
+    this.decreaseBreaksLength = this.spatialUnitClassification[tabIndex].breaks.filter((val: number) => val < 0).length;
     
-    if (increaseBreaksLength < 3) {
+    if (this.increaseBreaksLength < 3) {
       // Handle minimum increase breaks
     }
-    if (decreaseBreaksLength < 3) {
+    if (this.decreaseBreaksLength < 3) {
       // Handle minimum decrease breaks
     }
   }
@@ -303,25 +495,36 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
   }
 
   resetIndicatorEditMetadataForm(): void {
+    console.log('resetIndicatorEditMetadataForm called with currentIndicatorDataset:', this.currentIndicatorDataset);
+    
+    if (!this.currentIndicatorDataset) {
+      console.error('currentIndicatorDataset is null or undefined!');
+      return;
+    }
+    
+    this.successMessage = '';
+    this.errorMessage = '';
     this.successMessagePart = '';
     this.errorMessagePart = '';
 
-    this.datasetName = this.currentIndicatorDataset.indicatorName;
+    // Basic form data with null checks
+    this.datasetName = this.currentIndicatorDataset.indicatorName || '';
     this.datasetNameInvalid = false;
 
-    this.indicatorReferenceDateNote = this.currentIndicatorDataset.referenceDateNote;
-    this.displayOrder = this.currentIndicatorDataset.displayOrder;
+    this.indicatorReferenceDateNote = this.currentIndicatorDataset.referenceDateNote || '';
+    this.displayOrder = this.currentIndicatorDataset.displayOrder || 0;
 
-    // Reset metadata
+    // Reset metadata with null checks
+    const metadata = this.currentIndicatorDataset.metadata || {};
     this.metadata = {
-      note: this.currentIndicatorDataset.metadata.note,
-      literature: this.currentIndicatorDataset.metadata.literature,
+      note: metadata.note || '',
+      literature: metadata.literature || '',
       sridEPSG: 4326,
-      datasource: this.currentIndicatorDataset.metadata.datasource,
-      databasis: this.currentIndicatorDataset.metadata.databasis,
-      contact: this.currentIndicatorDataset.metadata.contact,
-      description: this.currentIndicatorDataset.metadata.description,
-      lastUpdate: this.currentIndicatorDataset.metadata.lastUpdate
+      datasource: metadata.datasource || '',
+      databasis: metadata.databasis || '',
+      contact: metadata.contact || '',
+      description: metadata.description || '',
+      lastUpdate: metadata.lastUpdate || ''
     };
 
     // Set update interval
@@ -333,8 +536,8 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
 
     this.refreshReferenceValuesManagementTable();
 
-    this.indicatorAbbreviation = this.currentIndicatorDataset.abbreviation;
-    this.indicatorPrecision = this.currentIndicatorDataset.precision;
+    this.indicatorAbbreviation = this.currentIndicatorDataset.abbreviation || '';
+    this.indicatorPrecision = this.currentIndicatorDataset.precision || null;
 
     if (this.currentIndicatorDataset.defaultPrecision === false) {
       this.showCustomCommaValue = true;
@@ -343,14 +546,17 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
     }
 
     // Set indicator type
-    this.kommonitorDataExchangeService.indicatorTypeOptions.forEach((option: any) => {
-      if (option.apiName === this.currentIndicatorDataset.indicatorType) {
-        this.indicatorType = option;
-      }
-    });
+    this.indicatorType = null;
+    if (this.currentIndicatorDataset.indicatorType) {
+      this.kommonitorDataExchangeService.indicatorTypeOptions.forEach((option: any) => {
+        if (option.apiName === this.currentIndicatorDataset.indicatorType) {
+          this.indicatorType = option;
+        }
+      });
+    }
 
-    this.isHeadlineIndicator = this.currentIndicatorDataset.isHeadlineIndicator;
-    this.indicatorUnit = this.currentIndicatorDataset.unit;
+    this.isHeadlineIndicator = this.currentIndicatorDataset.isHeadlineIndicator || false;
+    this.indicatorUnit = this.currentIndicatorDataset.unit || '';
 
     this.enableFreeTextUnit = true;
     this.kommonitorDataExchangeService.indicatorUnitOptions.forEach((option: any) => {
@@ -359,7 +565,7 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
       }
     });
 
-    this.indicatorProcessDescription = this.currentIndicatorDataset.processDescription;
+    this.indicatorProcessDescription = this.currentIndicatorDataset.processDescription || '';
     this.indicatorTagsString_withCommas = '';
 
     if (this.currentIndicatorDataset.tags && this.currentIndicatorDataset.tags.length > 0) {
@@ -373,14 +579,17 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
       this.indicatorTagsString_withCommas = '';
     }
 
-    this.indicatorInterpretation = this.currentIndicatorDataset.interpretation;
+    this.indicatorInterpretation = this.currentIndicatorDataset.interpretation || '';
 
     // Set creation type
-    this.kommonitorDataExchangeService.indicatorCreationTypeOptions.forEach((option: any) => {
-      if (option.apiName === this.currentIndicatorDataset.creationType) {
-        this.indicatorCreationType = option;
-      }
-    });
+    this.indicatorCreationType = null;
+    if (this.currentIndicatorDataset.creationType) {
+      this.kommonitorDataExchangeService.indicatorCreationTypeOptions.forEach((option: any) => {
+        if (option.apiName === this.currentIndicatorDataset.creationType) {
+          this.indicatorCreationType = option;
+        }
+      });
+    }
 
     this.indicatorLowestSpatialUnitMetadataObjectForComputation = null;
 
@@ -463,19 +672,21 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
     this.spatialUnitClassification = [];
     this.classBreaksInvalid = false;
 
-    if (this.currentIndicatorDataset.defaultClassificationMapping.classificationMethod) {
+    if (this.currentIndicatorDataset.defaultClassificationMapping && this.currentIndicatorDataset.defaultClassificationMapping.classificationMethod) {
       this.classificationMethod = this.currentIndicatorDataset.defaultClassificationMapping.classificationMethod.toLowerCase();
     }
-    if (this.currentIndicatorDataset.defaultClassificationMapping.numClasses) {
+    if (this.currentIndicatorDataset.defaultClassificationMapping && this.currentIndicatorDataset.defaultClassificationMapping.numClasses) {
       this.numClassesPerSpatialUnit = this.currentIndicatorDataset.defaultClassificationMapping.numClasses;
       this.onNumClassesChanged(this.numClassesPerSpatialUnit || 5);
       
       // apply breaks for spatial units:
-      for (let i = 0; i < this.spatialUnitClassification.length; i++) {
-        for (let item of this.currentIndicatorDataset.defaultClassificationMapping.items) {
-          if (item.spatialUnitId == this.spatialUnitClassification[i].spatialUnitId) {
-            this.spatialUnitClassification[i] = item;
-            this.onBreaksChanged(i);
+      if (this.currentIndicatorDataset.defaultClassificationMapping.items) {
+        for (let i = 0; i < this.spatialUnitClassification.length; i++) {
+          for (let item of this.currentIndicatorDataset.defaultClassificationMapping.items) {
+            if (item.spatialUnitId == this.spatialUnitClassification[i].spatialUnitId) {
+              this.spatialUnitClassification[i] = item;
+              this.onBreaksChanged(i);
+            }
           }
         }
       }
@@ -484,15 +695,32 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
     // instantiate with palette 'Blues'
     this.selectedColorBrewerPaletteEntry = this.colorbrewerPalettes[13];
 
-    for (const colorbrewerPalette of this.colorbrewerPalettes) {
-      if (colorbrewerPalette.paletteName === this.currentIndicatorDataset.defaultClassificationMapping.colorBrewerSchemeName) {
-        this.selectedColorBrewerPaletteEntry = colorbrewerPalette;
-        break;
+    if (this.currentIndicatorDataset.defaultClassificationMapping && this.currentIndicatorDataset.defaultClassificationMapping.colorBrewerSchemeName) {
+      for (const colorbrewerPalette of this.colorbrewerPalettes) {
+        if (colorbrewerPalette.paletteName === this.currentIndicatorDataset.defaultClassificationMapping.colorBrewerSchemeName) {
+          this.selectedColorBrewerPaletteEntry = colorbrewerPalette;
+          break;
+        }
       }
     }
 
+    this.successMessage = '';
+    this.errorMessage = '';
     this.successMessagePart = '';
     this.errorMessagePart = '';
+  }
+
+  checkDatasetName(): void {
+    this.datasetNameInvalid = false;
+    this.kommonitorDataExchangeService.availableIndicators.forEach((indicator: any) => {
+      // show error only if indicator is renamed to another already existing indicator
+      if (indicator.indicatorName === this.datasetName && 
+          indicator.indicatorType === this.indicatorType?.apiName && 
+          indicator.indicatorId != this.currentIndicatorDataset.indicatorId) {
+        this.datasetNameInvalid = true;
+        return;
+      }
+    });
   }
 
   onClickColorBrewerEntry(colorPaletteEntry: any): void {
@@ -614,17 +842,64 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
     }
   }
 
-  checkDatasetName(): void {
-    this.datasetNameInvalid = false;
-    this.kommonitorDataExchangeService.availableIndicators.forEach((indicator: any) => {
-      // show error only if indicator is renamed to another already existing indicator
-      if (indicator.indicatorName === this.datasetName && 
-          indicator.indicatorType === this.indicatorType?.apiName && 
-          indicator.indicatorId != this.currentIndicatorDataset.indicatorId) {
-        this.datasetNameInvalid = true;
-        return;
-      }
-    });
+  // Topic hierarchy change methods
+  onMainTopicChanged(): void {
+    console.log('Main topic changed to:', this.indicatorTopic_mainTopic);
+    // Reset sub-topics when main topic changes
+    this.indicatorTopic_subTopic = null;
+    this.indicatorTopic_subsubTopic = null;
+    this.indicatorTopic_subsubsubTopic = null;
+  }
+
+  onSubTopicChanged(): void {
+    console.log('Sub topic changed to:', this.indicatorTopic_subTopic);
+    // Reset sub-sub-topics when sub topic changes
+    this.indicatorTopic_subsubTopic = null;
+    this.indicatorTopic_subsubsubTopic = null;
+  }
+
+  onSubSubTopicChanged(): void {
+    console.log('Sub-sub topic changed to:', this.indicatorTopic_subsubTopic);
+    // Reset sub-sub-sub-topics when sub-sub topic changes
+    this.indicatorTopic_subsubsubTopic = null;
+  }
+
+  // Filter methods to replace AngularJS filters
+  getMainTopics(): any[] {
+    return this.availableTopics.filter((topic: any) => 
+      topic.topicType === 'main' && topic.topicResource === 'indicator'
+    );
+  }
+
+  // Reference filter methods
+  getFilteredIndicators(): any[] {
+    if (!this.kommonitorDataExchangeService.availableIndicators) {
+      return [];
+    }
+    
+    if (!this.indicatorNameFilter) {
+      return this.kommonitorDataExchangeService.availableIndicators;
+    }
+    
+    const filterLower = this.indicatorNameFilter.toLowerCase();
+    return this.kommonitorDataExchangeService.availableIndicators.filter((indicator: any) =>
+      indicator.indicatorName.toLowerCase().includes(filterLower)
+    );
+  }
+
+  getFilteredGeoresources(): any[] {
+    if (!this.kommonitorDataExchangeService.availableGeoresources) {
+      return [];
+    }
+    
+    if (!this.georesourceNameFilter) {
+      return this.kommonitorDataExchangeService.availableGeoresources;
+    }
+    
+    const filterLower = this.georesourceNameFilter.toLowerCase();
+    return this.kommonitorDataExchangeService.availableGeoresources.filter((georesource: any) =>
+      georesource.datasetName.toLowerCase().includes(filterLower)
+    );
   }
 
   buildPatchBody_indicators(): any {
@@ -724,6 +999,10 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
     const patchBody = this.buildPatchBody_indicators();
 
     this.loadingData = true;
+    this.errorMessage = '';
+    this.successMessage = '';
+    this.errorMessagePart = '';
+    this.successMessagePart = '';
 
     this.http.patch(
       this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/indicators/" + this.currentIndicatorDataset.indicatorId,
@@ -731,32 +1010,183 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
     ).subscribe({
       next: (response: any) => {
         this.successMessagePart = this.datasetName;
-        this.broadcastService.broadcast('refreshIndicatorOverviewTable', { crudType: 'edit', targetIndicatorId: this.currentIndicatorDataset.indicatorId });
+        this.successMessage = `Metadaten für Indikator "${this.successMessagePart}" erfolgreich aktualisiert.`;
+
+        // Broadcast refresh events with proper parameters (matching spatial units pattern)
+        this.broadcastService.broadcast('refreshIndicatorOverviewTable', { 
+          crudType: 'edit', 
+          targetIndicatorId: this.currentIndicatorDataset.indicatorId 
+        });
+
         this.loadingData = false;
+        
+        // Auto-close after delay (matching spatial units pattern)
+        setTimeout(() => {
+          this.activeModal.close({ action: 'updated', indicatorId: this.currentIndicatorDataset.indicatorId });
+        }, 2000); // Close after 2 seconds
       },
       error: (error: any) => {
-        console.error("Error while updating indicator metadata.");
-        if (error.data?.message) {
-          this.errorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON(error.data.message);
-        } else if (error.data) {
-          this.errorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
-        } else {
-          this.errorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON(error);
-        }
+        console.error('Error updating indicator metadata:', error);
+        console.error('Error response:', error.error);
+        console.error('Error status:', error.status);
+        
+        this.errorMessagePart = error.error ? 
+          this.kommonitorDataExchangeService.syntaxHighlightJSON(error.error) : 
+          this.kommonitorDataExchangeService.syntaxHighlightJSON(error);
+        this.errorMessage = 'Fehler beim Aktualisieren der Metadaten.';
         this.loadingData = false;
       }
     });
   }
 
   hideSuccessAlert(): void {
-    this.successMessagePart = '';
+    this.successMessage = '';
   }
 
   hideErrorAlert(): void {
-    this.errorMessagePart = '';
+    this.errorMessage = '';
   }
 
   hideMetadataErrorAlert(): void {
     this.indicatorAddMetadataImportErrorAlert = false;
+  }
+
+  closeOnSuccess(): void {
+    this.activeModal.close({ action: 'updated', indicatorId: this.currentIndicatorDataset?.indicatorId });
+  }
+
+  cancel(): void {
+    this.activeModal.dismiss();
+  }
+
+  onSubmit(event?: Event): void {
+    // Prevent default form submission behavior
+    if (event) {
+      event.preventDefault();
+    }
+    
+    // Check if form is valid
+    if (this.indicatorEditMetadataForm && !this.indicatorEditMetadataForm.valid) {
+      console.log('Form is not valid');
+      return;
+    }
+    
+    // Only proceed if not already loading
+    if (!this.loadingData) {
+      this.editIndicatorMetadata();
+    }
+  }
+
+  isFormValid(): boolean {
+    return this.indicatorEditMetadataForm ? this.indicatorEditMetadataForm.valid || false : false;
+  }
+
+  // Import/Export methods for indicator metadata
+  onImportIndicatorEditMetadata(): void {
+    this.indicatorMetadataImportError = '';
+    const fileInput = document.getElementById('indicatorEditMetadataImportFile') as HTMLInputElement;
+    if (fileInput) {
+      fileInput.click();
+    }
+  }
+
+  onExportIndicatorEditMetadata(): void {
+    const metadataExport = {
+      metadata: {
+        note: this.metadata.note || '',
+        literature: this.metadata.literature || '',
+        updateInterval: this.metadata.updateInterval ? this.metadata.updateInterval.apiName : '',
+        sridEPSG: this.metadata.sridEPSG || 4326,
+        datasource: this.metadata.datasource || '',
+        contact: this.metadata.contact || '',
+        lastUpdate: this.metadata.lastUpdate || '',
+        description: this.metadata.description || '',
+        databasis: this.metadata.databasis || ''
+      },
+      datasetName: this.datasetName || '',
+      abbreviation: this.indicatorAbbreviation || '',
+      indicatorType: this.indicatorType ? this.indicatorType.apiName : '',
+      creationType: this.indicatorCreationType ? this.indicatorCreationType.apiName : '',
+      characteristicValue: this.indicatorCharacteristicValue || '',
+      isHeadlineIndicator: this.isHeadlineIndicator || false,
+      unit: this.indicatorUnit || '',
+      processDescription: this.indicatorProcessDescription || '',
+      tags: this.indicatorTagsString_withCommas ? this.indicatorTagsString_withCommas.split(',').map(tag => tag.trim()) : [],
+      interpretation: this.indicatorInterpretation || '',
+      lowestSpatialUnitForComputation: this.indicatorLowestSpatialUnitMetadataObjectForComputation ? this.indicatorLowestSpatialUnitMetadataObjectForComputation.spatialUnitLevel : '',
+      topicReference: this.getTopicReference(),
+      refrencesToOtherIndicators: this.getIndicatorReferences(),
+      refrencesToGeoresources: this.getGeoresourceReferences(),
+      defaultClassificationMapping: this.getDefaultClassificationMapping()
+    };
+
+    const metadataJSON = JSON.stringify(metadataExport, null, 2);
+    const fileName = `Indikator_Metadaten_Export${this.datasetName ? '-' + this.datasetName : ''}.json`;
+    this.downloadFile(metadataJSON, fileName);
+  }
+
+  private getTopicReference(): string {
+    if (this.indicatorTopic_subsubsubTopic) {
+      return this.indicatorTopic_subsubsubTopic.topicId;
+    } else if (this.indicatorTopic_subsubTopic) {
+      return this.indicatorTopic_subsubTopic.topicId;
+    } else if (this.indicatorTopic_subTopic) {
+      return this.indicatorTopic_subTopic.topicId;
+    } else if (this.indicatorTopic_mainTopic) {
+      return this.indicatorTopic_mainTopic.topicId;
+    }
+    return '';
+  }
+
+  private getIndicatorReferences(): any[] {
+    const references: any[] = [];
+    if (this.indicatorReferences_adminView && this.indicatorReferences_adminView.length > 0) {
+      for (const indicRef of this.indicatorReferences_adminView) {
+        references.push({
+          indicatorId: indicRef.referencedIndicatorId,
+          referenceDescription: indicRef.referencedIndicatorDescription
+        });
+      }
+    }
+    return references;
+  }
+
+  private getGeoresourceReferences(): any[] {
+    const references: any[] = [];
+    if (this.georesourceReferences_adminView && this.georesourceReferences_adminView.length > 0) {
+      for (const geoRef of this.georesourceReferences_adminView) {
+        references.push({
+          georesourceId: geoRef.referencedGeoresourceId,
+          referenceDescription: geoRef.referencedGeoresourceDescription
+        });
+      }
+    }
+    return references;
+  }
+
+  private downloadFile(content: string, fileName: string): void {
+    const blob = new Blob([content], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.download = fileName;
+    a.href = url;
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  private getDefaultClassificationMapping(): any {
+    if (this.spatialUnitClassification && this.spatialUnitClassification.length > 0) {
+      return {
+        colorBrewerSchemeName: this.selectedColorBrewerPaletteEntry ? this.selectedColorBrewerPaletteEntry.paletteName : '',
+        items: this.spatialUnitClassification.map(classification => ({
+          defaultCustomRating: classification.customRating || '',
+          defaultColorAsHex: classification.colorAsHex || ''
+        }))
+      };
+    }
+    return null;
   }
 } 

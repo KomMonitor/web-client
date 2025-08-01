@@ -774,7 +774,7 @@ export class KommonitorIndicatorDataExchangeService {
     return topic;
   }
 
-  private checkAdminPermission(): boolean {
+  public checkAdminPermission(): boolean {
     return this._currentKeycloakLoginRoles.includes(this.env?.keycloakKomMonitorAdminRoleName);
   }
 

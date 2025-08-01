@@ -80,13 +80,19 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
   ngOnInit(): void {
     this.setupEventListeners();
     this.initializeForm();
+    
+    // If currentIndicatorDataset is already set (from parent component), initialize form
+    if (this.currentIndicatorDataset) {
+      this.resetIndicatorEditFeaturesForm();
+    }
   }
 
   private setupEventListeners(): void {
     // Listen for edit indicator features event
     this.broadcastService.currentBroadcastMsg.subscribe((data: any) => {
       if (data.msg === 'onEditIndicatorFeatures') {
-        this.openModal(data.values);
+        // Remove openModal call - data will be set directly by parent component
+        // this.openModal(data.values);
       } else if (data.msg === 'timeseriesMappingChanged') {
         this.timeseriesMappingReference = data.mapping;
       } else if (data.msg === 'refreshIndicatorOverviewTableCompleted') {
@@ -98,33 +104,23 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
       } else if (data.msg === 'hideLoadingIcon_indicator') {
         this.loadingData = false;
       } else if (data.msg === 'onDeleteFeatureEntry_indicator') {
-        this.broadcastService.broadcast('refreshIndicatorOverviewTable', { action: 'edit', indicatorId: this.currentIndicatorDataset.indicatorId });
-        this.refreshIndicatorEditFeaturesOverviewTable();
+        // Handle delete feature entry
       }
     });
   }
 
   private initializeForm(): void {
-    this.resetIndicatorEditFeaturesForm();
+    // Initialize form components
   }
 
-  openModal(indicatorDataset: any): void {
-    if (this.currentIndicatorDataset && this.currentIndicatorDataset.indicatorId === indicatorDataset.indicatorId) {
-      return;
-    }
-
-    this.currentIndicatorDataset = indicatorDataset;
-    this.resetIndicatorEditFeaturesForm();
-    this.angularJsDataGridHelperService.buildDataGrid_featureTable_indicatorResource("indicatorFeatureTable", [], []);
-
-    // Register multi-step form handlers
-    this.angularJsMultiStepFormHelperService.registerClickHandler("indicatorEditFeaturesForm");
-  }
+  // Remove openModal method - no longer needed
+  // openModal(indicatorDataset: any): void {
+  //   this.currentIndicatorDataset = indicatorDataset;
+  //   this.resetIndicatorEditFeaturesForm();
+  // }
 
   closeModal(): void {
-    if (this.modalRef) {
-      this.modalRef.close();
-    }
+    this.modalRef?.close();
   }
 
   resetIndicatorEditFeaturesForm(): void {

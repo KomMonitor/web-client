@@ -258,6 +258,8 @@ export class KommonitorIndicatorDataGridHelperService {
       return '<div class="btn-group btn-group-sm">No data</div>';
     }
     
+    console.log('Generating buttons for indicator:', params.data.indicatorId);
+    
     let disabledEditButtons = !(params.data.userPermissions && Array.isArray(params.data.userPermissions) && params.data.userPermissions.includes("editor"));
     let editMetadataButtonId = 'btn_indicator_editMetadata_' + params.data.indicatorId;
     let editFeaturesButtonId = 'btn_indicator_editFeatures_' + params.data.indicatorId;
@@ -282,57 +284,18 @@ export class KommonitorIndicatorDataGridHelperService {
     }
     html += '</div>';
 
+    console.log('Generated HTML:', html);
     return html;
   };
 
   /**
-   * Registers click handlers for indicator buttons using Angular events
+   * Registers click handlers for indicator buttons using direct approach
+   * This method is now deprecated in favor of the component's direct approach
    */
   registerClickHandler_indicators(indicatorMetadataArray: any[]): void {
-    // Use Angular event listeners instead of jQuery
-    setTimeout(() => {
-      // Register click handlers for edit metadata buttons
-      const editMetadataButtons = document.querySelectorAll('.indicatorEditMetadataBtn');
-      editMetadataButtons.forEach((button: Element) => {
-        button.addEventListener('click', (event: Event) => {
-          event.stopPropagation();
-          const target = event.target as HTMLElement;
-          const indicatorId = target.id.split("_")[3];
-          const indicatorMetadata = this.getIndicatorMetadataById(indicatorId);
-          
-          // Broadcast event for Angular component to handle
-          this.broadcastEvent('onEditIndicatorMetadata', indicatorMetadata);
-        });
-      });
-
-      // Register click handlers for edit features buttons
-      const editFeaturesButtons = document.querySelectorAll('.indicatorEditFeaturesBtn');
-      editFeaturesButtons.forEach((button: Element) => {
-        button.addEventListener('click', (event: Event) => {
-          event.stopPropagation();
-          const target = event.target as HTMLElement;
-          const indicatorId = target.id.split("_")[3];
-          const indicatorMetadata = this.getIndicatorMetadataById(indicatorId);
-          
-          // Broadcast event for Angular component to handle
-          this.broadcastEvent('onEditIndicatorFeatures', indicatorMetadata);
-        });
-      });
-
-      // Register click handlers for edit role-based access buttons
-      const editRoleButtons = document.querySelectorAll('.indicatorEditRoleBasedAccessBtn');
-      editRoleButtons.forEach((button: Element) => {
-        button.addEventListener('click', (event: Event) => {
-          event.stopPropagation();
-          const target = event.target as HTMLElement;
-          const indicatorId = target.id.split("_")[3];
-          const indicatorMetadata = this.getIndicatorMetadataById(indicatorId);
-          
-          // Broadcast event for Angular component to handle
-          this.broadcastEvent('onEditIndicatorSpatialUnitRoles', indicatorMetadata);
-        });
-      });
-    }, 100);
+    // This method is kept for backward compatibility but should not be used
+    // The component now handles click events directly using jQuery event delegation
+    console.warn('registerClickHandler_indicators in service is deprecated. Use component\'s direct approach instead.');
   }
 
   /**
@@ -412,13 +375,7 @@ export class KommonitorIndicatorDataGridHelperService {
   /**
    * Broadcast event for Angular component communication
    */
-  private broadcastEvent(eventName: string, data: any): void {
-    // Create a custom event that the Angular component can listen to
-    const event = new CustomEvent(eventName, { 
-      detail: { values: data } 
-    });
-    document.dispatchEvent(event);
-  }
+  // Removed broadcastEvent method as it's no longer needed with direct approach
 
   /**
    * Get current timestamp string utility
