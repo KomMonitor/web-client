@@ -102,6 +102,9 @@ export class IndicatorEditFeaturesModalComponent implements OnInit, OnDestroy {
       this.kommonitorIndicatorImporterHelperService.mappingConfigStructure_indicator
     );
     
+    // Fetch spatial units data
+    this.loadSpatialUnitsData();
+    
     // If currentIndicatorDataset is already set (from parent component), initialize form
     if (this.currentIndicatorDataset) {
       this.onEditIndicatorFeatures(this.currentIndicatorDataset);
@@ -223,36 +226,14 @@ export class IndicatorEditFeaturesModalComponent implements OnInit, OnDestroy {
     this.remainingFeatureHeaders = [];
     this.overviewTableTargetSpatialUnitMetadata = undefined;
     
-    // Set default spatial unit
-    if (this.currentIndicatorDataset?.applicableSpatialUnits && this.currentIndicatorDataset.applicableSpatialUnits.length > 0) {
-      // Try to find a matching spatial unit from available spatial units
-      for (const spatialUnitMetadataEntry of this.kommonitorIndicatorDataExchangeService.availableSpatialUnits) {
-        // Check if this spatial unit is applicable for the current indicator
-        const isApplicable = this.currentIndicatorDataset.applicableSpatialUnits.some((applicableUnit: any) => 
-          applicableUnit.spatialUnitId === spatialUnitMetadataEntry.spatialUnitId ||
-          applicableUnit.spatialUnitName === spatialUnitMetadataEntry.spatialUnitLevel ||
-          applicableUnit.spatialUnitName === spatialUnitMetadataEntry.spatialUnitName
-        );
-        
-        if (isApplicable) {
-          this.overviewTableTargetSpatialUnitMetadata = spatialUnitMetadataEntry;
-          break;
-        }
+    // Set default spatial unit (like in AngularJS version)
+    this.overviewTableTargetSpatialUnitMetadata = undefined;
+    for (const spatialUnitMetadataEntry of this.kommonitorIndicatorDataExchangeService.availableSpatialUnits) {
+      if (this.currentIndicatorDataset.applicableSpatialUnits.some((applicableUnit: any) => 
+        applicableUnit.spatialUnitName === spatialUnitMetadataEntry.spatialUnitLevel)) {
+        this.overviewTableTargetSpatialUnitMetadata = spatialUnitMetadataEntry;
+        break;
       }
-      
-      // If no match found, use the first available spatial unit as fallback
-      if (!this.overviewTableTargetSpatialUnitMetadata && this.kommonitorIndicatorDataExchangeService.availableSpatialUnits.length > 0) {
-        this.overviewTableTargetSpatialUnitMetadata = this.kommonitorIndicatorDataExchangeService.availableSpatialUnits[0];
-      }
-    }
-    
-    // If still no spatial unit is set, try to set it after a delay to ensure data is loaded
-    if (!this.overviewTableTargetSpatialUnitMetadata) {
-      setTimeout(() => {
-        if (this.kommonitorIndicatorDataExchangeService.availableSpatialUnits.length > 0) {
-          this.overviewTableTargetSpatialUnitMetadata = this.kommonitorIndicatorDataExchangeService.availableSpatialUnits[0];
-        }
-      }, 100);
     }
 
     this.roleManagementTableOptions = this.kommonitorIndicatorDataGridHelperService.buildRoleManagementGrid(
@@ -1093,10 +1074,21 @@ export class IndicatorEditFeaturesModalComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Get available spatial units
+   * Get available spatial units filtered for current indicator
    */
   getAvailableSpatialUnits(): any[] {
-    return this.kommonitorIndicatorDataExchangeService.availableSpatialUnits;
+    if (!this.currentIndicatorDataset || !this.currentIndicatorDataset.applicableSpatialUnits) {
+      return [];
+    }
+    
+    // Filter spatial units to only show those applicable to the current indicator
+    return this.kommonitorIndicatorDataExchangeService.availableSpatialUnits.filter((spatialUnit: any) => {
+      return this.currentIndicatorDataset.applicableSpatialUnits.some((applicableUnit: any) => 
+        applicableUnit.spatialUnitId === spatialUnit.spatialUnitId ||
+        applicableUnit.spatialUnitName === spatialUnit.spatialUnitLevel ||
+        applicableUnit.spatialUnitName === spatialUnit.spatialUnitName
+      );
+    });
   }
 
   /**
@@ -1180,6 +1172,18 @@ export class IndicatorEditFeaturesModalComponent implements OnInit, OnDestroy {
    */
   isGridApiAvailable(): boolean {
     return !!this.gridApi;
+  }
+
+  /**
+   * Load spatial units data
+   */
+  private async loadSpatialUnitsData(): Promise<void> {
+    try {
+      const currentRoles = this.kommonitorIndicatorDataExchangeService.currentKeycloakLoginRoles;
+      await this.kommonitorIndicatorDataExchangeService.fetchSpatialUnitsMetadata(currentRoles);
+    } catch (error) {
+      console.error('Error loading spatial units data:', error);
+    }
   }
 
   /**

@@ -130,6 +130,30 @@ export class KommonitorIndicatorDataExchangeService {
   }
 
   /**
+   * Fetches spatial units metadata
+   */
+  async fetchSpatialUnitsMetadata(keycloakRolesArray: string[]): Promise<SpatialUnitMetadata[]> {
+    try {
+      const url = `${this.baseUrl}/spatial-units`;
+      const response = await this.http.get<SpatialUnitMetadata[]>(url).toPromise();
+      
+      if (response) {
+        this.spatialUnitsSubject.next(response);
+        // Update the map for quick access
+        this.availableSpatialUnits_map.clear();
+        response.forEach(spatialUnit => {
+          this.availableSpatialUnits_map.set(spatialUnit.spatialUnitId, spatialUnit);
+        });
+      }
+      
+      return response || [];
+    } catch (error) {
+      console.error('Error fetching spatial units:', error);
+      return [];
+    }
+  }
+
+  /**
    * Get available georesources
    */
   get availableGeoresources(): GeoresourceMetadata[] {
