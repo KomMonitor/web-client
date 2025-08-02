@@ -49,8 +49,8 @@
             <div class="col-md-4 col-sm-4 col-xs-12">
               <div class="form-group">
                 <label>Datenbank-Zeitreihen abrufen</label>
-                <button class="btn btn-info" (click)="refreshIndicatorEditFeaturesOverviewTable()"
-                        [disabled]="!isRefreshButtonEnabled()">
+                <button class="btn btn-info" (click)="refreshIndicatorEditFeaturesOverviewTable()" 
+                        >
                   <i class="fas fa-sync-alt"></i>&nbsp;Zeige alle Zeitreihen
                 </button>
                 <div class="help-block">
@@ -98,6 +98,7 @@
           </div>
    
           <div class="admin-table-wrapper featureTableWrapper">
+            
             <ag-grid-angular
               #indicatorFeatureTable
               id="indicatorFeatureTable"

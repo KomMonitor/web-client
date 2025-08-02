@@ -75,7 +75,7 @@ export class IndicatorEditFeaturesModalComponent implements OnInit, OnDestroy {
   
   // Grid options for feature table
   featureTableGridOptions: GridOptions = {};
-  private gridApi!: GridApi;
+  public gridApi!: GridApi;
   private columnApi!: ColumnApi;
   
   // Subscriptions
@@ -104,8 +104,13 @@ export class IndicatorEditFeaturesModalComponent implements OnInit, OnDestroy {
     
     // If currentIndicatorDataset is already set (from parent component), initialize form
     if (this.currentIndicatorDataset) {
-      this.resetIndicatorEditFeaturesForm();
+      this.onEditIndicatorFeatures(this.currentIndicatorDataset);
     }
+    
+    // Ensure spatial unit is set after data is loaded
+    setTimeout(() => {
+      this.ensureSpatialUnitIsSet();
+    }, 100);
   }
 
   ngOnDestroy(): void {
@@ -128,8 +133,11 @@ export class IndicatorEditFeaturesModalComponent implements OnInit, OnDestroy {
       } else if (data.msg === 'hideLoadingIcon_indicator') {
         this.loadingData = false;
       } else if (data.msg === 'onDeleteFeatureEntry_indicator') {
-        // Handle delete feature entry
-        this.broadcastService.broadcast('refreshIndicatorOverviewTable', { action: 'edit', indicatorId: this.currentIndicatorDataset.indicatorId });
+        // Handle individual feature deletion
+        this.broadcastService.broadcast('refreshIndicatorOverviewTable', { 
+          action: 'edit', 
+          indicatorId: this.currentIndicatorDataset.indicatorId 
+        });
         this.refreshIndicatorEditFeaturesOverviewTable();
       }
     });
@@ -139,7 +147,6 @@ export class IndicatorEditFeaturesModalComponent implements OnInit, OnDestroy {
     // Setup file input change listener
     setTimeout(() => {
       $(document).on("change", "#indicatorMappingConfigEditFeaturesImportFile", (event: any) => {
-        console.log("Importing Importer Mapping Config for EditFeatures Indicator Form");
         const file = (event.target as HTMLInputElement).files?.[0];
         if (file) {
           this.parseMappingConfigFromFile(file);
@@ -164,14 +171,40 @@ export class IndicatorEditFeaturesModalComponent implements OnInit, OnDestroy {
   }
 
   onEditIndicatorFeatures(indicatorDataset: any): void {
+    console.log('=== onEditIndicatorFeatures CALLED ===');
+    console.log('Indicator dataset:', indicatorDataset);
+    
     if (this.currentIndicatorDataset && 
         this.currentIndicatorDataset.indicatorId === indicatorDataset.indicatorId) {
+      console.log('Same indicator already selected, returning');
       return;
     }
 
     this.currentIndicatorDataset = indicatorDataset;
+    console.log('Current indicator dataset set:', this.currentIndicatorDataset);
+    
     this.resetIndicatorEditFeaturesForm();
     this.buildFeatureTable();
+    
+    // Ensure spatial unit is set
+    this.ensureSpatialUnitIsSet();
+    console.log('Spatial unit after ensureSpatialUnitIsSet:', this.overviewTableTargetSpatialUnitMetadata);
+    
+    // Fetch data for the indicator features after form reset
+    if (this.overviewTableTargetSpatialUnitMetadata) {
+      console.log('Spatial unit available, calling refreshIndicatorEditFeaturesOverviewTable');
+      this.refreshIndicatorEditFeaturesOverviewTable();
+    } else {
+      console.log('No spatial unit available for refresh');
+    }
+    
+    // Force grid to refresh after a short delay to ensure it's ready
+    setTimeout(() => {
+      if (this.gridApi && this.indicatorFeaturesJSON) {
+        console.log('Forcing grid refresh after edit indicator features');
+        this.gridApi.setRowData(this.indicatorFeaturesJSON);
+      }
+    }, 100);
   }
 
   closeModal(): void {
@@ -191,13 +224,35 @@ export class IndicatorEditFeaturesModalComponent implements OnInit, OnDestroy {
     this.overviewTableTargetSpatialUnitMetadata = undefined;
     
     // Set default spatial unit
-    if (this.currentIndicatorDataset?.applicableSpatialUnits) {
+    if (this.currentIndicatorDataset?.applicableSpatialUnits && this.currentIndicatorDataset.applicableSpatialUnits.length > 0) {
+      // Try to find a matching spatial unit from available spatial units
       for (const spatialUnitMetadataEntry of this.kommonitorIndicatorDataExchangeService.availableSpatialUnits) {
-        if (this.currentIndicatorDataset.applicableSpatialUnits.some((o: any) => o.spatialUnitName === spatialUnitMetadataEntry.spatialUnitLevel)) {
+        // Check if this spatial unit is applicable for the current indicator
+        const isApplicable = this.currentIndicatorDataset.applicableSpatialUnits.some((applicableUnit: any) => 
+          applicableUnit.spatialUnitId === spatialUnitMetadataEntry.spatialUnitId ||
+          applicableUnit.spatialUnitName === spatialUnitMetadataEntry.spatialUnitLevel ||
+          applicableUnit.spatialUnitName === spatialUnitMetadataEntry.spatialUnitName
+        );
+        
+        if (isApplicable) {
           this.overviewTableTargetSpatialUnitMetadata = spatialUnitMetadataEntry;
           break;
         }
       }
+      
+      // If no match found, use the first available spatial unit as fallback
+      if (!this.overviewTableTargetSpatialUnitMetadata && this.kommonitorIndicatorDataExchangeService.availableSpatialUnits.length > 0) {
+        this.overviewTableTargetSpatialUnitMetadata = this.kommonitorIndicatorDataExchangeService.availableSpatialUnits[0];
+      }
+    }
+    
+    // If still no spatial unit is set, try to set it after a delay to ensure data is loaded
+    if (!this.overviewTableTargetSpatialUnitMetadata) {
+      setTimeout(() => {
+        if (this.kommonitorIndicatorDataExchangeService.availableSpatialUnits.length > 0) {
+          this.overviewTableTargetSpatialUnitMetadata = this.kommonitorIndicatorDataExchangeService.availableSpatialUnits[0];
+        }
+      }, 100);
     }
 
     this.roleManagementTableOptions = this.kommonitorIndicatorDataGridHelperService.buildRoleManagementGrid(
@@ -237,13 +292,35 @@ export class IndicatorEditFeaturesModalComponent implements OnInit, OnDestroy {
     
     // Rebuild the feature table with empty data
     this.buildFeatureTable();
+    
+    // If we have a target spatial unit selected, fetch the data
+    if (this.overviewTableTargetSpatialUnitMetadata) {
+      this.refreshIndicatorEditFeaturesOverviewTable();
+    }
   }
 
   refreshIndicatorEditFeaturesOverviewTable(): void {
-    if (!this.overviewTableTargetSpatialUnitMetadata) {
-      console.warn('No target spatial unit metadata selected');
+    console.log('=== refreshIndicatorEditFeaturesOverviewTable START ===');
+    console.log('Current indicator dataset:', this.currentIndicatorDataset);
+    console.log('Applicable spatial units:', this.currentIndicatorDataset?.applicableSpatialUnits);
+    
+    if (!this.currentIndicatorDataset || !this.currentIndicatorDataset.indicatorId) {
+      console.log('No current indicator dataset or indicator ID, returning');
       return;
     }
+
+    // Use the first applicable spatial unit from the indicator dataset
+    if (!this.overviewTableTargetSpatialUnitMetadata && this.currentIndicatorDataset.applicableSpatialUnits?.length > 0) {
+      console.log('Setting first applicable spatial unit from indicator dataset');
+      this.overviewTableTargetSpatialUnitMetadata = this.currentIndicatorDataset.applicableSpatialUnits[0];
+    }
+
+    if (!this.overviewTableTargetSpatialUnitMetadata) {
+      console.log('No applicable spatial unit found, returning');
+      return;
+    }
+
+    console.log('Using spatial unit:', this.overviewTableTargetSpatialUnitMetadata);
 
     this.loadingData = true;
     this.hideSuccessAlert();
@@ -253,10 +330,28 @@ export class IndicatorEditFeaturesModalComponent implements OnInit, OnDestroy {
                 "/indicators/" + this.currentIndicatorDataset.indicatorId + "/" + 
                 this.overviewTableTargetSpatialUnitMetadata.spatialUnitId + "/without-geometry";
 
+    console.log('Fetching data from URL:', url);
+
     this.http.get(url).subscribe({
       next: (response: any) => {
+        console.log('=== API RESPONSE RECEIVED ===');
+        console.log('Response:', response);
+        console.log('Response type:', typeof response);
+        console.log('Response is array:', Array.isArray(response));
+        console.log('Response length:', Array.isArray(response) ? response.length : 'not array');
+        
+        // Handle both response.data and direct array response
+        let responseData = response;
+        if (response && response.data) {
+          responseData = response.data;
+        }
+        
+        console.log('Response data to use:', responseData);
+        console.log('Response data length:', Array.isArray(responseData) ? responseData.length : 'not array');
+        
         // Check if we have data
-        if (!response || !response.data || response.data.length === 0) {
+        if (!responseData || !Array.isArray(responseData) || responseData.length === 0) {
+          console.log('No data found in response, setting empty grid');
           this.indicatorFeaturesJSON = [];
           this.remainingFeatureHeaders = [];
           
@@ -276,15 +371,22 @@ export class IndicatorEditFeaturesModalComponent implements OnInit, OnDestroy {
           return;
         }
 
-        this.indicatorFeaturesJSON = response.data;
+        this.indicatorFeaturesJSON = responseData;
+        console.log('Indicator features loaded:', this.indicatorFeaturesJSON.length, 'features');
+        console.log('First feature sample:', this.indicatorFeaturesJSON[0]);
         
         const tmpRemainingHeaders: string[] = [];
         
         // Extract headers from the first indicator feature
         if (this.indicatorFeaturesJSON[0]) {
+          console.log('First feature properties:', Object.keys(this.indicatorFeaturesJSON[0]));
+          // Get indicator date prefix from environment or use default
+          const indicatorDatePrefix = (window.__env && window.__env.indicatorDatePrefix) || 'DATE_';
+          console.log('Using indicator date prefix:', indicatorDatePrefix);
+          
           for (const property in this.indicatorFeaturesJSON[0]) {
             // Only show indicator date columns as editable fields
-            if (property.includes(window.__env.indicatorDatePrefix)) {
+            if (property.includes(indicatorDatePrefix)) {
               tmpRemainingHeaders.push(property);
             }
           }
@@ -292,10 +394,14 @@ export class IndicatorEditFeaturesModalComponent implements OnInit, OnDestroy {
 
         // Sort date headers
         tmpRemainingHeaders.sort((a, b) => a.localeCompare(b));
+        console.log('Date headers found:', tmpRemainingHeaders);
         
         this.remainingFeatureHeaders = tmpRemainingHeaders;
         
         // Rebuild the grid options with new data (no transformation, use raw data)
+        console.log('Building grid with headers:', tmpRemainingHeaders);
+        console.log('Building grid with data length:', this.indicatorFeaturesJSON.length);
+        
         this.featureTableGridOptions = this.kommonitorIndicatorDataGridHelperService.buildDataGrid_featureTable_indicatorResource(
           "indicatorFeatureTable", 
           tmpRemainingHeaders, 
@@ -304,13 +410,70 @@ export class IndicatorEditFeaturesModalComponent implements OnInit, OnDestroy {
           this.kommonitorIndicatorDataGridHelperService.resourceType_indicator, 
           this.enableDeleteFeatures
         );
-
+        
+        console.log('New grid options:', this.featureTableGridOptions);
+        
+        // Force grid to refresh if grid API is available
+        if (this.gridApi) {
+          console.log('Grid API available, setting row data');
+          console.log('Data being set to grid:', this.indicatorFeaturesJSON);
+          
+          // Transform the data to match the expected format (like spatial unit component)
+          const transformedData = (this.indicatorFeaturesJSON || []).map((feature: any) => {
+            // Ensure each feature has the required properties
+            if (feature && typeof feature === 'object') {
+              // Add any missing required properties
+              if (!feature.hasOwnProperty('kommonitorRecordId')) {
+                feature.kommonitorRecordId = feature.fid || feature.ID || feature.id;
+              }
+              return feature;
+            }
+            return feature;
+          });
+          
+          console.log('Transformed data:', transformedData);
+          
+          // Update the grid with new options and data
+          this.gridApi.setColumnDefs(this.featureTableGridOptions.columnDefs || []);
+          this.gridApi.setRowData(transformedData);
+          
+          // Also refresh the grid to ensure changes are applied
+          this.gridApi.refreshCells();
+          this.gridApi.redrawRows();
+          
+          // Force a complete grid refresh
+          setTimeout(() => {
+            console.log('Forcing grid refresh after timeout');
+            this.gridApi.refreshCells({ force: true });
+            this.gridApi.redrawRows();
+          }, 100);
+          
+          // Additional force refresh after a longer delay
+          setTimeout(() => {
+            console.log('Final grid refresh');
+            this.gridApi.setRowData([...transformedData]);
+            this.gridApi.refreshCells({ force: true });
+          }, 500);
+          
+          // Register click handlers after grid update (for delete functionality)
+          setTimeout(() => {
+            this.kommonitorIndicatorDataGridHelperService.registerFeatureTableClickHandlers(
+              this.currentIndicatorDataset?.indicatorId,
+              this.kommonitorIndicatorDataGridHelperService.resourceType_indicator,
+              this.enableDeleteFeatures
+            );
+          }, 600);
+        } else {
+          console.log('Grid API not available');
+        }
+        
         setTimeout(() => {
           this.loadingData = false;
         }, 500);
       },
       error: (error: any) => {
-        console.error('Error fetching indicator features:', error);
+        console.log('=== API ERROR ===');
+        console.log('Error:', error);
         this.handleError(error);
         
         // Set empty data on error
@@ -431,7 +594,7 @@ export class IndicatorEditFeaturesModalComponent implements OnInit, OnDestroy {
   }
 
   onChangeEnableDeleteFeatures(): void {
-    // Rebuild the grid with updated delete settings (no transformation, use raw data)
+    // Rebuild the grid with updated delete settings
     this.featureTableGridOptions = this.kommonitorIndicatorDataGridHelperService.buildDataGrid_featureTable_indicatorResource(
       "indicatorFeatureTable", 
       this.remainingFeatureHeaders, 
@@ -440,6 +603,40 @@ export class IndicatorEditFeaturesModalComponent implements OnInit, OnDestroy {
       this.kommonitorIndicatorDataGridHelperService.resourceType_indicator, 
       this.enableDeleteFeatures
     );
+
+    // Update grid column definitions and data if API is available
+    if (this.gridApi && this.featureTableGridOptions.columnDefs) {
+      // Update column definitions
+      this.gridApi.setColumnDefs(this.featureTableGridOptions.columnDefs);
+      
+      // Update data if we have features
+      if (this.indicatorFeaturesJSON && this.indicatorFeaturesJSON.length > 0) {
+        const transformedData = (this.indicatorFeaturesJSON || []).map((feature: any) => {
+          // Ensure each feature has the required properties
+          if (feature && typeof feature === 'object') {
+            // Add any missing required properties
+            if (!feature.hasOwnProperty('kommonitorRecordId')) {
+              feature.kommonitorRecordId = feature.fid || feature.ID || feature.id;
+            }
+            return feature;
+          }
+          return feature;
+        });
+        this.gridApi.setRowData(transformedData);
+      }
+      
+      // Force refresh of the grid to show/hide delete buttons
+      this.gridApi.refreshCells();
+      
+      // Register click handlers after grid update
+      setTimeout(() => {
+        this.kommonitorIndicatorDataGridHelperService.registerFeatureTableClickHandlers(
+          this.currentIndicatorDataset?.indicatorId,
+          this.kommonitorIndicatorDataGridHelperService.resourceType_indicator,
+          this.enableDeleteFeatures
+        );
+      }, 100);
+    }
   }
 
   filterOverviewTargetSpatialUnits(): any {
@@ -600,8 +797,6 @@ export class IndicatorEditFeaturesModalComponent implements OnInit, OnDestroy {
       try {
         this.parseFromMappingConfigFile(event);
       } catch (error) {
-        console.error(error);
-        console.error("Uploaded MappingConfig File cannot be parsed.");
         this.indicatorMappingConfigImportError = "Uploaded MappingConfig File cannot be parsed correctly";
         const element = document.getElementById("indicatorsEditFeaturesMappingConfigPre");
         if (element) {
@@ -621,7 +816,6 @@ export class IndicatorEditFeaturesModalComponent implements OnInit, OnDestroy {
     if (!this.mappingConfigImportSettings.converter || 
         !this.mappingConfigImportSettings.dataSource || 
         !this.mappingConfigImportSettings.propertyMapping) {
-      console.error("uploaded MappingConfig File cannot be parsed - wrong structure.");
       this.indicatorMappingConfigImportError = "Struktur der Datei stimmt nicht mit erwartetem Muster überein.";
       const element = document.getElementById("indicatorsEditFeaturesMappingConfigPre");
       if (element) {
@@ -764,8 +958,51 @@ export class IndicatorEditFeaturesModalComponent implements OnInit, OnDestroy {
 
   // AG Grid event handlers
   onGridReady(event: GridReadyEvent): void {
+    console.log('=== GRID READY ===');
     this.gridApi = event.api;
     this.columnApi = event.columnApi;
+    
+    console.log('Grid API set:', !!this.gridApi);
+    console.log('Current indicatorFeaturesJSON length:', this.indicatorFeaturesJSON?.length);
+    console.log('Current grid options:', this.featureTableGridOptions);
+    
+    // If we have data, set it to the grid
+    if (this.indicatorFeaturesJSON && this.indicatorFeaturesJSON.length > 0) {
+      console.log('Setting initial data to grid');
+      
+      // Transform the data to match the expected format (like spatial unit component)
+      const transformedData = this.indicatorFeaturesJSON.map((feature: any) => {
+        // Ensure each feature has the required properties
+        if (feature && typeof feature === 'object') {
+          // Add any missing required properties
+          if (!feature.hasOwnProperty('kommonitorRecordId')) {
+            feature.kommonitorRecordId = feature.fid || feature.ID || feature.id;
+          }
+          return feature;
+        }
+        return feature;
+      });
+      
+      console.log('Transformed initial data:', transformedData);
+      this.gridApi.setRowData(transformedData);
+    } else {
+      console.log('No initial data to set to grid');
+    }
+    
+    // Also set the column definitions if available
+    if (this.featureTableGridOptions.columnDefs) {
+      console.log('Setting column definitions');
+      this.gridApi.setColumnDefs(this.featureTableGridOptions.columnDefs);
+    }
+    
+    // Register click handlers for delete functionality
+    setTimeout(() => {
+      this.kommonitorIndicatorDataGridHelperService.registerFeatureTableClickHandlers(
+        this.currentIndicatorDataset?.indicatorId,
+        this.kommonitorIndicatorDataGridHelperService.resourceType_indicator,
+        this.enableDeleteFeatures
+      );
+    }, 100);
   }
 
   onFirstDataRendered(event: FirstDataRenderedEvent): void {
@@ -807,7 +1044,6 @@ export class IndicatorEditFeaturesModalComponent implements OnInit, OnDestroy {
   }
 
   private handleError(error: any): void {
-    console.error('Error occurred:', error);
     if (error.data) {
       this.errorMessagePart = this.kommonitorIndicatorDataExchangeService.syntaxHighlightJSON(error.data);
     } else {
@@ -820,7 +1056,10 @@ export class IndicatorEditFeaturesModalComponent implements OnInit, OnDestroy {
    * Check if refresh button should be enabled
    */
   isRefreshButtonEnabled(): boolean {
-    return !!this.overviewTableTargetSpatialUnitMetadata;
+    // Enable button if we have a current indicator dataset with applicable spatial units
+    return !!this.currentIndicatorDataset && 
+           this.currentIndicatorDataset.applicableSpatialUnits && 
+           this.currentIndicatorDataset.applicableSpatialUnits.length > 0;
   }
 
   /**
@@ -879,5 +1118,78 @@ export class IndicatorEditFeaturesModalComponent implements OnInit, OnDestroy {
    */
   getFeatureTableFailureTimestamp(): any {
     return this.kommonitorIndicatorDataGridHelperService.featureTable_indicator_lastUpdate_timestamp_failure;
+  }
+
+  /**
+   * Check if grid has data
+   */
+  hasGridData(): boolean {
+    return this.indicatorFeaturesJSON && this.indicatorFeaturesJSON.length > 0;
+  }
+
+  /**
+   * Get grid data count
+   */
+  getGridDataCount(): number {
+    return this.indicatorFeaturesJSON ? this.indicatorFeaturesJSON.length : 0;
+  }
+
+  /**
+   * Force grid refresh
+   */
+  forceGridRefresh(): void {
+    console.log('=== FORCE GRID REFRESH ===');
+    console.log('Grid API available:', !!this.gridApi);
+    console.log('Current data length:', this.indicatorFeaturesJSON?.length);
+    console.log('Current data sample:', this.indicatorFeaturesJSON?.[0]);
+    
+    if (this.gridApi) {
+      // Transform the data to match the expected format (like spatial unit component)
+      const transformedData = (this.indicatorFeaturesJSON || []).map((feature: any) => {
+        // Ensure each feature has the required properties
+        if (feature && typeof feature === 'object') {
+          // Add any missing required properties
+          if (!feature.hasOwnProperty('kommonitorRecordId')) {
+            feature.kommonitorRecordId = feature.fid || feature.ID || feature.id;
+          }
+          return feature;
+        }
+        return feature;
+      });
+      
+      console.log('Transformed data for force refresh:', transformedData);
+      console.log('Setting row data to grid');
+      this.gridApi.setRowData(transformedData);
+      this.gridApi.refreshCells({ force: true });
+      this.gridApi.redrawRows();
+      
+      // Force a complete rebuild
+      setTimeout(() => {
+        console.log('Forcing complete grid rebuild');
+        this.gridApi.setRowData([...transformedData]);
+        this.gridApi.refreshCells({ force: true });
+        this.gridApi.redrawRows();
+      }, 100);
+    } else {
+      console.log('Grid API not available for refresh');
+    }
+  }
+
+  /**
+   * Check if grid API is available
+   */
+  isGridApiAvailable(): boolean {
+    return !!this.gridApi;
+  }
+
+  /**
+   * Ensure spatial unit is set for the button to be enabled
+   */
+  private ensureSpatialUnitIsSet(): void {
+    // Use the first applicable spatial unit from the indicator dataset
+    if (!this.overviewTableTargetSpatialUnitMetadata && 
+        this.currentIndicatorDataset?.applicableSpatialUnits?.length > 0) {
+      this.overviewTableTargetSpatialUnitMetadata = this.currentIndicatorDataset.applicableSpatialUnits[0];
+    }
   }
 } 

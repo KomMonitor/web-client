@@ -338,8 +338,6 @@ export class KommonitorIndicatorDataGridHelperService {
       return '<div class="btn-group btn-group-sm">No data</div>';
     }
     
-    console.log('Generating buttons for indicator:', params.data.indicatorId);
-    
     let disabledEditButtons = !(params.data.userPermissions && Array.isArray(params.data.userPermissions) && params.data.userPermissions.includes("editor"));
     let editMetadataButtonId = 'btn_indicator_editMetadata_' + params.data.indicatorId;
     let editFeaturesButtonId = 'btn_indicator_editFeatures_' + params.data.indicatorId;
@@ -364,7 +362,6 @@ export class KommonitorIndicatorDataGridHelperService {
     }
     html += '</div>';
 
-    console.log('Generated HTML:', html);
     return html;
   };
 
@@ -692,11 +689,13 @@ export class KommonitorIndicatorDataGridHelperService {
    * Builds row data for indicator feature table
    */
   private buildDataGridRowData_featureTable_indicatorResource(dataArray: any[]): any[] {
-    return dataArray.map(dataItem => {
+    const result = dataArray.map(dataItem => {
       // Remove arisenFrom property as this is currently never used (matches AngularJS)
       delete dataItem.arisenFrom;
       return dataItem;
     });
+    
+    return result;
   }
 
   /**
@@ -823,8 +822,6 @@ export class KommonitorIndicatorDataGridHelperService {
     // Send DELETE request
     this.http.delete(url).subscribe({
       next: (response: any) => {
-        console.log('Successfully deleted database record');
-        
         // Broadcast delete event
         this.broadcastService.broadcast(`onDeleteFeatureEntry_${resourceType}`, {});
         
@@ -832,8 +829,6 @@ export class KommonitorIndicatorDataGridHelperService {
         this.featureTable_indicator_lastUpdate_timestamp_success = new Date(this.getCurrentTimestampString());
       },
       error: (error: any) => {
-        console.error('Error while deleting database record. Error is:', error);
-        
         // Update timestamp for failure
         this.featureTable_indicator_lastUpdate_timestamp_failure = new Date(this.getCurrentTimestampString());
       }
@@ -888,8 +883,6 @@ export class KommonitorIndicatorDataGridHelperService {
       }
     }).subscribe({
       next: (response: any) => {
-        console.log('Successfully updated database record');
-
         // On success mark grid cell with green background
         column.colDef.cellStyle = (p: any) =>
           p.rowIndex.toString() === node.id ? { 'background-color': '#9DC89F' } : '';
@@ -904,8 +897,6 @@ export class KommonitorIndicatorDataGridHelperService {
         this.featureTable_indicator_lastUpdate_timestamp_success = new Date(this.getCurrentTimestampString());
       },
       error: (error: any) => {
-        console.error('Error while updating database record. Error is:', error);
-
         // Reset cell value as an error occurred
         data[column.colId] = oldValue;
 

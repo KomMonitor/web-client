@@ -113,9 +113,6 @@ export class KommonitorIndicatorDataExchangeService {
     // Get environment configuration
     this.env = (window as any).__env;
     this.baseUrl = this.getBaseApiUrl();
-    
-    console.log("Data Exchange - Environment config:", this.env);
-    console.log("Data Exchange - Base URL:", this.baseUrl);
   }
 
   /**
@@ -270,24 +267,15 @@ export class KommonitorIndicatorDataExchangeService {
 
     // Set the current roles for permission checking
     this.setCurrentKeycloakLoginRoles(keycloakRolesArray);
-    console.log("fetchTopicsMetadata", keycloakRolesArray);
     try {
       // Use the cache helper service to fetch topics
       const topics = await this.cacheHelperService.fetchTopicsMetadata(keycloakRolesArray);
 
-      console.log("Data Exchange - Raw topics from cache helper:", topics);
-      console.log("Data Exchange - Raw topics length:", topics?.length);
-      console.log("Data Exchange - Raw topics type:", typeof topics);
-
       if (!topics || !Array.isArray(topics)) {
-        console.log("Data Exchange - Invalid topics data received");
         this.topicsSubject.next([]);
         this.loadingSubject.next(false);
         return [];
       }
-
-      console.log("Data Exchange - Topics:", topics);
-      console.log("Data Exchange - Topics length:", topics.length);
       
       this.topicsSubject.next(topics);
       
@@ -313,25 +301,17 @@ export class KommonitorIndicatorDataExchangeService {
 
     // Set the current roles for permission checking
     this.setCurrentKeycloakLoginRoles(keycloakRolesArray);
-    console.log("fetchIndicatorsMetadata", keycloakRolesArray);
     try {
       // Use the cache helper service to fetch indicators (without filter, like original AngularJS service)
       const indicators = await this.cacheHelperService.fetchIndicatorsMetadata(keycloakRolesArray, undefined);
 
-      console.log("Data Exchange - Raw indicators from cache helper:", indicators);
-      console.log("Data Exchange - Raw indicators length:", indicators?.length);
-      console.log("Data Exchange - Raw indicators type:", typeof indicators);
-
       if (!indicators || !Array.isArray(indicators)) {
-        console.log("Data Exchange - Invalid indicators data received");
         this.indicatorsSubject.next([]);
         this.loadingSubject.next(false);
         return [];
       }
 
       const modifiedIndicators = this.modifyIndicators(indicators);
-      console.log("Data Exchange - Modified indicators:", modifiedIndicators);
-      console.log("Data Exchange - Modified indicators length:", modifiedIndicators.length);
       
       // Update cache
       this.indicatorsCache = {
@@ -355,7 +335,6 @@ export class KommonitorIndicatorDataExchangeService {
       try {
         await this.fetchTopicsMetadata(keycloakRolesArray);
       } catch (topicsError) {
-        console.log("Data Exchange - Error fetching topics:", topicsError);
         // Don't fail the entire operation if topics fail to load
       }
       
@@ -677,19 +656,14 @@ export class KommonitorIndicatorDataExchangeService {
   private filterDisplayableIndicators(indicators: IndicatorMetadata[]): IndicatorMetadata[] {
     const arrayOfNameSubstringsForHidingIndicators = this.env?.arrayOfNameSubstringsForHidingIndicators || [];
     
-    console.log("Data Exchange - Total indicators before filtering:", indicators.length);
-    console.log("Data Exchange - Hide substrings:", arrayOfNameSubstringsForHidingIndicators);
-    
     const filteredIndicators = indicators.filter(indicator => {
       // Check if indicator has applicable dates
       if (!indicator.applicableDates || indicator.applicableDates.length === 0) {
-        console.log("Data Exchange - Filtering out indicator (no dates):", indicator.indicatorName);
         return false;
       }
 
       // Check if indicator has applicable spatial units
       if (!indicator.applicableSpatialUnits || indicator.applicableSpatialUnits.length === 0) {
-        console.log("Data Exchange - Filtering out indicator (no spatial units):", indicator.indicatorName);
         return false;
       }
 
@@ -699,14 +673,12 @@ export class KommonitorIndicatorDataExchangeService {
       );
       
       if (isIndicatorThatShallNotBeDisplayed) {
-        console.log("Data Exchange - Filtering out indicator (hidden substring):", indicator.indicatorName);
         return false;
       }
 
       return true;
     });
 
-    console.log("Data Exchange - Total indicators after filtering:", filteredIndicators.length);
     return filteredIndicators;
   }
 
