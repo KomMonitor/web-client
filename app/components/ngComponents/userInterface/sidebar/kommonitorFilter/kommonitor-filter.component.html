@@ -113,8 +113,8 @@
 							<label>Raumebene</label>							
 						</div>
 						<div class="col-sm-12 col-md-6 col-lg-6">
-              <select [(ngModel)]="selectedSpatialUnitIdForFilter" (change)="onChangeSelectedSpatialUnitForFilter()">
-								<option disabled selected value> -- Raumebene w&auml;hlen -- </option>
+              <select [formControl]="spatialLevel" (change)="onChangeSelectedSpatialUnitForFilter()">
+                <option disabled> -- Raumebene w&auml;hlen -- </option>
                 <option *ngFor="let item of higherSpatialUnits" [value]="item.spatialUnitId">{{item.metadata.description}}</option>
               </select>
 						</div>
