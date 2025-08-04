@@ -74,15 +74,15 @@ export class DualListBoxComponent implements OnInit, OnChanges {
   }
 
   onAvailableSearchChange(event:any) {
-    let value = event.target.value;
+    let value = event.target.value.toUpperCase();
     
-    this.displayedAvailableElements = this.availableElements.filter(e => e.name.includes(value));
+    this.displayedAvailableElements = this.availableElements.filter(e => e.name.toUpperCase().includes(value));
   }
 
   onSelectedSearchChange(event:any) {
-    let value = event.target.value;
+    let value = event.target.value.toUpperCase();
 
-    this.displayedSelectedElements = this.selectedElements.filter(e => e.name.includes(value));
+    this.displayedSelectedElements = this.selectedElements.filter(e => e.name.toUpperCase().includes(value));
   }
 
   updateSelectedElements() {

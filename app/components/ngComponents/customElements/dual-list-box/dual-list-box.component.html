@@ -5,7 +5,7 @@
       <input name="availableSearch" placeholder="Suche..." (keyup)="onAvailableSearchChange($event)">
     </div>
     <select style="font-size: 12px;" size="{{selectSize}}" class="form-control">
-      <option *ngFor="let elem of availableElements" (click)="onAvailableElementClick(elem)">{{elem.name}} &rArr;</option>
+      <option *ngFor="let elem of displayedAvailableElements" (click)="onAvailableElementClick(elem)">{{elem.name}} &rArr;</option>
     </select>
   </div>
   <div class="selectBox">
