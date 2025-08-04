@@ -407,6 +407,11 @@ export class IndicatorEditFeaturesModalComponent implements OnInit, OnDestroy {
               if (!feature.hasOwnProperty('kommonitorRecordId')) {
                 feature.kommonitorRecordId = feature.fid || feature.ID || feature.id;
               }
+              // Add required fields for delete functionality
+              feature.datasetId = this.currentIndicatorDataset?.indicatorId;
+              feature.spatialUnitId = this.overviewTableTargetSpatialUnitMetadata?.spatialUnitId;
+              feature.ID = feature.ID || feature.id || feature.fid;
+              feature.fid = feature.fid || feature.ID || feature.id;
               return feature;
             }
             return feature;
@@ -599,6 +604,11 @@ export class IndicatorEditFeaturesModalComponent implements OnInit, OnDestroy {
             if (!feature.hasOwnProperty('kommonitorRecordId')) {
               feature.kommonitorRecordId = feature.fid || feature.ID || feature.id;
             }
+            // Add required fields for delete functionality
+            feature.datasetId = this.currentIndicatorDataset?.indicatorId;
+            feature.spatialUnitId = this.overviewTableTargetSpatialUnitMetadata?.spatialUnitId;
+            feature.ID = feature.ID || feature.id || feature.fid;
+            feature.fid = feature.fid || feature.ID || feature.id;
             return feature;
           }
           return feature;
@@ -959,6 +969,11 @@ export class IndicatorEditFeaturesModalComponent implements OnInit, OnDestroy {
           if (!feature.hasOwnProperty('kommonitorRecordId')) {
             feature.kommonitorRecordId = feature.fid || feature.ID || feature.id;
           }
+          // Add required fields for delete functionality
+          feature.datasetId = this.currentIndicatorDataset?.indicatorId;
+          feature.spatialUnitId = this.overviewTableTargetSpatialUnitMetadata?.spatialUnitId;
+          feature.ID = feature.ID || feature.id || feature.fid;
+          feature.fid = feature.fid || feature.ID || feature.id;
           return feature;
         }
         return feature;
@@ -1101,14 +1116,14 @@ export class IndicatorEditFeaturesModalComponent implements OnInit, OnDestroy {
   /**
    * Get feature table success timestamp
    */
-  getFeatureTableSuccessTimestamp(): any {
+  getFeatureTableSuccessTimestamp(): string | undefined {
     return this.kommonitorIndicatorDataGridHelperService.featureTable_indicator_lastUpdate_timestamp_success;
   }
 
   /**
    * Get feature table failure timestamp
    */
-  getFeatureTableFailureTimestamp(): any {
+  getFeatureTableFailureTimestamp(): string | undefined {
     return this.kommonitorIndicatorDataGridHelperService.featureTable_indicator_lastUpdate_timestamp_failure;
   }
 
@@ -1136,18 +1151,23 @@ export class IndicatorEditFeaturesModalComponent implements OnInit, OnDestroy {
     console.log('Current data sample:', this.indicatorFeaturesJSON?.[0]);
     
     if (this.gridApi) {
-      // Transform the data to match the expected format (like spatial unit component)
-      const transformedData = (this.indicatorFeaturesJSON || []).map((feature: any) => {
-        // Ensure each feature has the required properties
-        if (feature && typeof feature === 'object') {
-          // Add any missing required properties
-          if (!feature.hasOwnProperty('kommonitorRecordId')) {
-            feature.kommonitorRecordId = feature.fid || feature.ID || feature.id;
-          }
-          return feature;
-        }
-        return feature;
-      });
+                // Transform the data to match the expected format (like spatial unit component)
+          const transformedData = (this.indicatorFeaturesJSON || []).map((feature: any) => {
+            // Ensure each feature has the required properties
+            if (feature && typeof feature === 'object') {
+              // Add any missing required properties
+              if (!feature.hasOwnProperty('kommonitorRecordId')) {
+                feature.kommonitorRecordId = feature.fid || feature.ID || feature.id;
+              }
+              // Add required fields for delete functionality
+              feature.datasetId = this.currentIndicatorDataset?.indicatorId;
+              feature.spatialUnitId = this.overviewTableTargetSpatialUnitMetadata?.spatialUnitId;
+              feature.ID = feature.ID || feature.id || feature.fid;
+              feature.fid = feature.fid || feature.ID || feature.id;
+              return feature;
+            }
+            return feature;
+          });
       
       console.log('Transformed data for force refresh:', transformedData);
       console.log('Setting row data to grid');

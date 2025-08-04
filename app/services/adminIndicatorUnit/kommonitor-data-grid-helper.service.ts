@@ -26,12 +26,12 @@ export class KommonitorIndicatorDataGridHelperService {
   readonly resourceType_indicator = "indicator";
 
   // Timestamp properties for feature table updates
-  featureTable_spatialUnit_lastUpdate_timestamp_success: Date | undefined = undefined;
-  featureTable_spatialUnit_lastUpdate_timestamp_failure: Date | undefined = undefined;
-  featureTable_georesource_lastUpdate_timestamp_success: Date | undefined = undefined;
-  featureTable_georesource_lastUpdate_timestamp_failure: Date | undefined = undefined;
-  featureTable_indicator_lastUpdate_timestamp_success: Date | undefined = undefined;
-  featureTable_indicator_lastUpdate_timestamp_failure: Date | undefined = undefined;
+  featureTable_spatialUnit_lastUpdate_timestamp_success: string | undefined = undefined;
+  featureTable_spatialUnit_lastUpdate_timestamp_failure: string | undefined = undefined;
+  featureTable_georesource_lastUpdate_timestamp_success: string | undefined = undefined;
+  featureTable_georesource_lastUpdate_timestamp_failure: string | undefined = undefined;
+  featureTable_indicator_lastUpdate_timestamp_success: string | undefined = undefined;
+  featureTable_indicator_lastUpdate_timestamp_failure: string | undefined = undefined;
 
   constructor(
     private kommonitorDataExchangeService: KommonitorIndicatorDataExchangeService,
@@ -692,6 +692,18 @@ export class KommonitorIndicatorDataGridHelperService {
     const result = dataArray.map(dataItem => {
       // Remove arisenFrom property as this is currently never used (matches AngularJS)
       delete dataItem.arisenFrom;
+      
+      // Ensure required fields are present for delete functionality
+      if (dataItem && typeof dataItem === 'object') {
+        // Add any missing required properties
+        if (!dataItem.hasOwnProperty('kommonitorRecordId')) {
+          dataItem.kommonitorRecordId = dataItem.fid || dataItem.ID || dataItem.id;
+        }
+        // Ensure ID and fid fields are present
+        dataItem.ID = dataItem.ID || dataItem.id || dataItem.fid;
+        dataItem.fid = dataItem.fid || dataItem.ID || dataItem.id;
+      }
+      
       return dataItem;
     });
     
@@ -826,11 +838,11 @@ export class KommonitorIndicatorDataGridHelperService {
         this.broadcastService.broadcast(`onDeleteFeatureEntry_${resourceType}`, {});
         
         // Update timestamp for successful deletion
-        this.featureTable_indicator_lastUpdate_timestamp_success = new Date(this.getCurrentTimestampString());
+        this.featureTable_indicator_lastUpdate_timestamp_success = this.getCurrentTimestampString();
       },
       error: (error: any) => {
         // Update timestamp for failure
-        this.featureTable_indicator_lastUpdate_timestamp_failure = new Date(this.getCurrentTimestampString());
+        this.featureTable_indicator_lastUpdate_timestamp_failure = this.getCurrentTimestampString();
       }
     });
   }
@@ -894,7 +906,7 @@ export class KommonitorIndicatorDataGridHelperService {
         });
 
         // Update timestamp for successful edit
-        this.featureTable_indicator_lastUpdate_timestamp_success = new Date(this.getCurrentTimestampString());
+        this.featureTable_indicator_lastUpdate_timestamp_success = this.getCurrentTimestampString();
       },
       error: (error: any) => {
         // Reset cell value as an error occurred
@@ -911,7 +923,7 @@ export class KommonitorIndicatorDataGridHelperService {
         });
 
         // Update timestamp for failure
-        this.featureTable_indicator_lastUpdate_timestamp_failure = new Date(this.getCurrentTimestampString());
+        this.featureTable_indicator_lastUpdate_timestamp_failure = this.getCurrentTimestampString();
       }
     });
   }
