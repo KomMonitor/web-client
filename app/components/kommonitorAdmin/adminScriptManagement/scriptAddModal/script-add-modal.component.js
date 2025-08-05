@@ -70,10 +70,17 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 			for (var i = 1; i <= 30; i++) {
 				$scope.dayOfMonthOptions.push(i);
 			}
-			$scope.dayOfWeekOptions = [];
-			for (var i = 0; i <= 6; i++) {
-				$scope.dayOfWeekOptions.push(i);
-			}
+			$scope.dayOfWeekOptions = [
+				{ number: 0, name: 'Sonntag' },
+				{ number: 1, name: 'Montag' },
+				{ number: 2, name: 'Dienstag' },
+				{ number: 3, name: 'Mittwoch' },
+				{ number: 4, name: 'Donnerstag' },
+				{ number: 5, name: 'Freitag' },
+				{ number: 6, name: 'Samstag' }
+			];
+			$scope.selectedDayOfWeek = { number: 0 };
+
 			$scope.hourOptions = [];
 			for (var i = 0; i <= 23; i++) {
 				$scope.hourOptions.push(i);
@@ -88,6 +95,8 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 			$scope.selectedDayOfWeek = { number: 0 };
 			$scope.selectedHour = 0;
 			$scope.selectedMinute = 0;
+
+			kommonitorScriptHelperService.useManualCronPattern = false;
 
 			$scope.init = async function () {
 				$scope.allScriptTypeOptions = await kommonitorScriptHelperService.getScriptTypes();
@@ -228,6 +237,10 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 			$scope.updateCron = function() {
 				let cron = "";
 				let min = "*", hour = "*", day = "*", month = "*", weekday = "*";
+
+				if($scope.intervalUnit == "week" && $scope.cronInputMode == "interval") {
+					$scope.intervalUnit = "month";
+				}
 
 				if (["hour", "day", "week", "month", "year"].includes($scope.intervalUnit)) {
 					min = $scope.selectedMinute;

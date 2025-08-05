@@ -3472,7 +3472,6 @@ input:checked + .switchslider:before {
 	display: flex;
 	flex-direction: row;
 	justify-content: flex-start;
-	padding: 10px;
 	align-items: baseline;
 	gap: 15px;
 }
