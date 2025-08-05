@@ -57,6 +57,7 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 
 			kommonitorScriptHelperService.scriptData = [];
 
+			$scope.cronRegexPattern = String.raw`^((((\d+,)+\d+|(\d+(\/|-|#)\d+)|\d+L?|\*(\/\d+)?|L(-\d+)?|\?|[A-Z]{3}(-[A-Z]{3})?) ?){5,7})|(@(annually|yearly|monthly|weekly|daily|hourly|reboot))|(@every (\d+(ns|us|µs|ms|s|m|h))+)$`;
 			$scope.cronInputMode = "interval";
 			$scope.intervalUnit = "month";
 			$scope.intervalValue = 3;
@@ -282,7 +283,7 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 					}
 				}
 
-				console.log(cron);
+				kommonitorScriptHelperService.processParameters.execution_interval.cron = cron;
 			}
 
 			$rootScope.$on("processDescriptionFetched", function (event) {

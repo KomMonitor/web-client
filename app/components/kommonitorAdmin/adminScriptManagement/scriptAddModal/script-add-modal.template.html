@@ -488,10 +488,10 @@
 															<div><input type="radio" ng-model="cronInputMode" ng-disabled="$ctrl.kommonitorScriptHelperServiceInstance.useManualCronPattern" name="mode" value="interval" ng-change="updateCron()" checked/></div>
 															<div>Alle</div>
 															<div>
-																<input ng-model="intervalValue" ng-disabled="$ctrl.kommonitorScriptHelperServiceInstance.useManualCronPattern" ng-change="updateCron()" class="form-control" type="number" id="intervalValue" min="1" max="30" />
+																<input ng-model="intervalValue" ng-disabled="$ctrl.kommonitorScriptHelperServiceInstance.useManualCronPattern || cronInputMode != 'interval'" ng-change="updateCron()" class="form-control" type="number" id="intervalValue" min="1" max="30" />
 															</div>
 															<div>
-																<select class="form-control" ng-disabled="$ctrl.kommonitorScriptHelperServiceInstance.useManualCronPattern" ng-change="updateCron()" ng-model="intervalUnit" id="intervalUnit">
+																<select class="form-control" ng-disabled="$ctrl.kommonitorScriptHelperServiceInstance.useManualCronPattern || cronInputMode != 'interval'" ng-change="updateCron()" ng-model="intervalUnit" id="intervalUnit">
 																	<option value="minute">Minuten</option>
 																	<option value="hour">Stunden</option>
 																	<option value="day">Tage</option>
@@ -506,7 +506,7 @@
 															<div><input type="radio" ng-model="cronInputMode" ng-disabled="$ctrl.kommonitorScriptHelperServiceInstance.useManualCronPattern" value="once" ng-change="updateCron()" /></div>
 															<div>Einmal</div>
 															<div>
-																<select class="form-control" ng-model="intervalUnit" ng-disabled="$ctrl.kommonitorScriptHelperServiceInstance.useManualCronPattern" ng-change="updateCron()" id="intervalUnit">
+																<select class="form-control" ng-model="intervalUnit" ng-disabled="$ctrl.kommonitorScriptHelperServiceInstance.useManualCronPattern || cronInputMode != 'once'" ng-change="updateCron()" id="intervalUnit">
 																	<option value="minute">in der Minute</option>
 																	<option value="hour">in der Stunde</option>
 																	<option value="day">am Tag</option>
@@ -533,7 +533,7 @@
 																</select>
 															</div>-->
 															<div>
-																<select ng-change="updateCron()" ng-disabled="$ctrl.kommonitorScriptHelperServiceInstance.useManualCronPattern" class="form-control" ng-model="everyFirstInUnit" id="everyFirstInUnit">
+																<select ng-change="updateCron()" ng-disabled="$ctrl.kommonitorScriptHelperServiceInstance.useManualCronPattern || cronInputMode != 'everyFirst'" class="form-control" ng-model="everyFirstInUnit" id="everyFirstInUnit">
 																	<option value="month" selected>im Monat</option>
 																	<option value="year">im Jahr</option>
 																</select>
@@ -542,23 +542,30 @@
 													</div>
 												</div>
 												<br/>
-												<label ng-show="intervalUnit != 'minute'">Genauen Zeitpunkt einstellen:</label>
-												<div ng-show="intervalUnit != 'minute'" id="intervalDetails">
-													<div ng-show="intervalUnit != 'minute'" class="intervalDetailsContent">
-														<div ng-show="['year'].includes(intervalUnit)  && cronInputMode != 'everyFirst'"><label>Monat:</label>
+												<label ng-show="intervalUnit != 'minute' || cronInputMode == 'everyFirst'">
+													Genauen Zeitpunkt einstellen:
+												</label>
+												<div ng-show="intervalUnit != 'minute' || cronInputMode == 'everyFirst'" id="intervalDetails">
+													<div ng-show="intervalUnit != 'minute' || cronInputMode == 'everyFirst'" class="intervalDetailsContent">
+														<div ng-show="['year'].includes(intervalUnit)  && cronInputMode != 'everyFirst'">
+															<label>Monat:</label>
 															<select ng-change="updateCron()" class="form-control" ng-model="selectedMonth" ng-disabled="$ctrl.kommonitorScriptHelperServiceInstance.useManualCronPattern" ng-options="n as (n < 10 ? '0' + n : n) for n in monthOptions"></select>
 														</div>
-														<div ng-show="['month', 'year'].includes(intervalUnit) && cronInputMode != 'everyFirst'"><label>Tag:</label>
+														<div ng-show="['month', 'year'].includes(intervalUnit) && cronInputMode != 'everyFirst'">
+															<label>Tag:</label>
 															<select ng-change="updateCron()" class="form-control" ng-model="selectedDayOfMonth" ng-disabled="$ctrl.kommonitorScriptHelperServiceInstance.useManualCronPattern" ng-options="n as (n < 10 ? '0' + n : n) for n in dayOfMonthOptions"></select>
 														</div>
-														<div ng-show="['week'].includes(intervalUnit)"><label>Wochentag:</label>
+														<div ng-show="['week'].includes(intervalUnit)">
+															<label>Wochentag:</label>
 															<select ng-change="updateCron()" class="form-control" ng-disabled="$ctrl.kommonitorScriptHelperServiceInstance.useManualCronPattern" ng-model="selectedDayOfWeek.number" ng-options="day.number as day.name for day in dayOfWeekOptions">
 															</select>
 														</div>
-														<div ng-show="['day', 'week', 'month', 'year'].includes(intervalUnit)"><label>Stunde:</label>
+														<div ng-show="['day', 'week', 'month', 'year'].includes(intervalUnit) || cronInputMode == 'everyFirst'">
+															<label>Stunde:</label>
 															<select ng-change="updateCron()" class="form-control" ng-model="selectedHour" ng-disabled="$ctrl.kommonitorScriptHelperServiceInstance.useManualCronPattern" ng-options="n as (n < 10 ? '0' + n : n) for n in hourOptions"></select>
 														</div>
-														<div ng-show="['hour', 'day', 'week', 'month', 'year'].includes(intervalUnit)"><label>Minute:</label>
+														<div ng-show="['hour', 'day', 'week', 'month', 'year'].includes(intervalUnit) || cronInputMode == 'everyFirst'">
+															<label>Minute:</label>
 															<select ng-change="updateCron()" class="form-control" ng-model="selectedMinute" ng-disabled="$ctrl.kommonitorScriptHelperServiceInstance.useManualCronPattern" ng-options="n as (n < 10 ? '0' + n : n) for n in minuteOptions"></select>
 														</div>
 													</div>
@@ -593,9 +600,12 @@
 														<div>
 															<input ng-disabled="!$ctrl.kommonitorScriptHelperServiceInstance.useManualCronPattern" type="text" class="form-control" 
 																ng-model="$ctrl.kommonitorScriptHelperServiceInstance.processParameters.execution_interval.cron"
-																placeholder="z.B. 0 0 1 * *" required></input>
+																ng-pattern="cronRegexPattern"
+																placeholder="z.B. 0 0 1 */3 *" required></input>
 														</div>
-														<div class="help-block with-errors">Hinweis: Es erfolgt keine automatische Validierung des Cron-Ausdrucks.</div>
+														<div class="help-block with-errors" ng-show="!$ctrl.kommonitorScriptHelperServiceInstance.processParameters.execution_interval.cron">
+															Ungültiger Cron-Ausdruck
+														</div>
 													</div>
 												</div>
 											</div>
