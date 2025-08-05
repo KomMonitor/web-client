@@ -716,6 +716,19 @@ export class KommonitorIndicatorDataGridHelperService {
   private buildFeatureTableColumnConfig(headers: string[], enableDelete: boolean, resourceType?: string): ColDef[] {
     const columnDefs: ColDef[] = [];
 
+    // Get environment variables with fallbacks
+    const featureIdProperty = (window as any).__env?.FEATURE_ID_PROPERTY_NAME || 'ID';
+    const featureNameProperty = (window as any).__env?.FEATURE_NAME_PROPERTY_NAME || 'NAME';
+    const validStartDateProperty = (window as any).__env?.VALID_START_DATE_PROPERTY_NAME || 'VALID_START_DATE';
+    const validEndDateProperty = (window as any).__env?.VALID_END_DATE_PROPERTY_NAME || 'VALID_END_DATE';
+
+    console.log('Using environment variables:', {
+      featureIdProperty,
+      featureNameProperty,
+      validStartDateProperty,
+      validEndDateProperty
+    });
+
     // Add DB-Record-Id column (matches AngularJS implementation)
     columnDefs.push({
       headerName: 'DB-Record-Id',
@@ -740,7 +753,7 @@ export class KommonitorIndicatorDataGridHelperService {
     // Add Feature-Id column (matches AngularJS implementation)
     columnDefs.push({
       headerName: 'Feature-Id',
-      field: 'ID', // Using ID field instead of __env.FEATURE_ID_PROPERTY_NAME
+      field: featureIdProperty,
       pinned: 'left',
       editable: false,
       maxWidth: 125
@@ -749,7 +762,7 @@ export class KommonitorIndicatorDataGridHelperService {
     // Add Name column (matches AngularJS implementation)
     columnDefs.push({
       headerName: 'Name',
-      field: 'NAME', // Using NAME field instead of __env.FEATURE_NAME_PROPERTY_NAME
+      field: featureNameProperty,
       pinned: 'left',
       minWidth: 200,
       editable: false
@@ -758,7 +771,7 @@ export class KommonitorIndicatorDataGridHelperService {
     // Add Lebenszeitbeginn column (matches AngularJS implementation)
     columnDefs.push({
       headerName: 'Lebenszeitbeginn',
-      field: 'VALID_START_DATE', // Using VALID_START_DATE instead of __env.VALID_START_DATE_PROPERTY_NAME
+      field: validStartDateProperty,
       minWidth: 125,
       editable: false
     });
@@ -766,7 +779,7 @@ export class KommonitorIndicatorDataGridHelperService {
     // Add Lebenszeitende column (matches AngularJS implementation)
     columnDefs.push({
       headerName: 'Lebenszeitende',
-      field: 'VALID_END_DATE', // Using VALID_END_DATE instead of __env.VALID_END_DATE_PROPERTY_NAME
+      field: validEndDateProperty,
       minWidth: 125,
       editable: false
     });
@@ -858,8 +871,14 @@ export class KommonitorIndicatorDataGridHelperService {
     // Take the modified data from newValueParams.data
     let json = JSON.parse(JSON.stringify(data));
 
+    // Get environment variables with fallbacks
+    const featureIdProperty = (window as any).__env?.FEATURE_ID_PROPERTY_NAME || 'ID';
+    const featureNameProperty = (window as any).__env?.FEATURE_NAME_PROPERTY_NAME || 'NAME';
+    const validStartDateProperty = (window as any).__env?.VALID_START_DATE_PROPERTY_NAME || 'VALID_START_DATE';
+    const validEndDateProperty = (window as any).__env?.VALID_END_DATE_PROPERTY_NAME || 'VALID_END_DATE';
+
     // Delete information - only ID, fid as datatable recordId and all timestamp attributes starting with prefix 'DATE_' shall remain for indicator record update
-    const allowedProperties = ['ID', 'fid']; // Using ID instead of __env.FEATURE_ID_PROPERTY_NAME
+    const allowedProperties = [featureIdProperty, 'fid'];
     for (const key in json) {
       if (Object.hasOwnProperty.call(json, key)) {
         if (!key.includes('DATE_') && !allowedProperties.includes(key)) {
@@ -869,9 +888,9 @@ export class KommonitorIndicatorDataGridHelperService {
     }
     
     // Remove specific properties
-    delete json['VALID_START_DATE']; // Using VALID_START_DATE instead of __env.VALID_START_DATE_PROPERTY_NAME
-    delete json['VALID_END_DATE']; // Using VALID_END_DATE instead of __env.VALID_END_DATE_PROPERTY_NAME
-    delete json['NAME']; // Using NAME instead of __env.FEATURE_NAME_PROPERTY_NAME
+    delete json[validStartDateProperty];
+    delete json[validEndDateProperty];
+    delete json[featureNameProperty];
 
     // For indicators we should check if an empty/null/undefined value has been set by user and transmit it as null value
     for (const key in json) {
@@ -1018,8 +1037,10 @@ export class KommonitorIndicatorDataGridHelperService {
     return selectedRoleIds;
   }
 
-  // Checkbox renderers for role management
-  private CheckboxRenderer_viewer = class {
+  /**
+   * Checkbox renderer for viewer permissions
+   */
+  public CheckboxRenderer_viewer = class {
     private params: any;
     private eGui: HTMLInputElement | null = null;
     private boundCheckedHandler: any;
@@ -1052,7 +1073,10 @@ export class KommonitorIndicatorDataGridHelperService {
     }
   };
 
-  private CheckboxRenderer_editor = class {
+  /**
+   * Checkbox renderer for editor permissions
+   */
+  public CheckboxRenderer_editor = class {
     private params: any;
     private eGui: HTMLInputElement | null = null;
     private boundCheckedHandler: any;
@@ -1085,7 +1109,7 @@ export class KommonitorIndicatorDataGridHelperService {
     }
   };
 
-  private CheckboxRenderer_creator = class {
+  public CheckboxRenderer_creator = class {
     private params: any;
     private eGui: HTMLInputElement | null = null;
     private boundCheckedHandler: any;

@@ -1,3 +1,45 @@
+/* AG Grid Theme Import */
+@import '~ag-grid-community/styles/ag-theme-alpine.css';
+
+/* AG Grid Specific Styles */
+.ag-theme-alpine {
+  --ag-header-height: 50px;
+  --ag-row-height: 48px;
+  --ag-header-foreground-color: #333;
+  --ag-header-background-color: #f8f9fa;
+  --ag-odd-row-background-color: #f8f9fa;
+  --ag-row-hover-color: #e9ecef;
+  --ag-selected-row-background-color: #007bff;
+  --ag-font-size: 14px;
+  --ag-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.ag-theme-alpine .ag-header-cell {
+  font-weight: 600;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.ag-theme-alpine .ag-cell {
+  padding: 8px 12px;
+  border-right: 1px solid #dee2e6;
+}
+
+.ag-theme-alpine .ag-row {
+  border-bottom: 1px solid #dee2e6;
+}
+
+.ag-theme-alpine .ag-row:hover {
+  background-color: #e9ecef;
+}
+
+.ag-theme-alpine .ag-cell[style*="background-color: #9DC89F"] {
+  background-color: #9DC89F !important;
+}
+
+.ag-theme-alpine .ag-cell[style*="background-color: #E79595"] {
+  background-color: #E79595 !important;
+}
+
 /* Modal Styles */
 .modal-xl {
   max-width: 90%;

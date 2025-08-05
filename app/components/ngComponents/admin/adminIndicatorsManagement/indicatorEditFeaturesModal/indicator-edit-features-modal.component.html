@@ -104,7 +104,15 @@
               id="indicatorFeatureTable"
               style="height: 50vh; width: 100%;"
               class="ag-theme-alpine"
-              [gridOptions]="featureTableGridOptions"
+              [columnDefs]="columnDefs"
+              [rowData]="rowData"
+              [defaultColDef]="featureTableGridOptions.defaultColDef"
+              [pagination]="true"
+              [paginationPageSize]="10"
+              [suppressRowClickSelection]="true"
+              [enableCellTextSelection]="true"
+              [ensureDomOrder]="true"
+              [suppressColumnVirtualisation]="true"
               (gridReady)="onGridReady($event)"
               (firstDataRendered)="onFirstDataRendered($event)"
               (columnResized)="onColumnResized($event)"
@@ -283,7 +291,7 @@
             </div>
           </div>
 
-          <div *ngIf="isKeycloakSecurityEnabled()">
+          <div *ngIf="shouldShowRoleManagement()">
             <hr>
             <br/>
             <h4>Vergabe der Zugriffsrechte auf die Datensatz-Zeitreihe für Raumebene {{targetSpatialUnitMetadata?.spatialUnitLevel}}</h4>
@@ -303,7 +311,22 @@
                 </div>
               </div>
               <div class="col-md-6 col-sm-6 col-xs-12">
-                <div id="indicatorEditFeaturesRoleManagementTable" style="height: 45vh" class="ag-theme-alpine"></div>
+                <ag-grid-angular
+                  #roleManagementTable
+                  id="indicatorEditFeaturesRoleManagementTable"
+                  style="height: 45vh; width: 100%;"
+                  class="ag-theme-alpine"
+                  [columnDefs]="roleManagementColumnDefs"
+                  [rowData]="roleManagementRowData"
+                  [defaultColDef]="roleManagementGridOptions.defaultColDef"
+                  [pagination]="true"
+                  [paginationPageSize]="10"
+                  [suppressRowClickSelection]="true"
+                  [enableCellTextSelection]="true"
+                  [ensureDomOrder]="true"
+                  [suppressColumnVirtualisation]="true"
+                  (gridReady)="onRoleManagementGridReady($event)">
+                </ag-grid-angular>
               </div>
               <div class="col-md-3">
                 <div class="alert alert-info">

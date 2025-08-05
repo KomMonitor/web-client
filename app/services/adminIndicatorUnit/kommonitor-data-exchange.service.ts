@@ -57,6 +57,23 @@ export interface TopicMetadata {
   subTopics: TopicMetadata[];
 }
 
+export interface AccessControlMetadata {
+  organizationalUnitId: string;
+  name: string;
+  permissions: Array<{
+    permissionId: string;
+    permissionLevel: string;
+    isChecked: boolean;
+  }>;
+  datasetOwner?: boolean;
+  children?: string[];
+  parentId?: string;
+  description?: string;
+  contact?: string;
+  mandant?: boolean;
+  keycloakId?: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -189,9 +206,18 @@ export class KommonitorIndicatorDataExchangeService {
   /**
    * Get access control
    */
-  get accessControl(): any[] {
-    return [];
+  get accessControl(): AccessControlMetadata[] {
+    return this._accessControl || [];
   }
+
+  /**
+   * Set access control
+   */
+  set accessControl(value: AccessControlMetadata[]) {
+    this._accessControl = value;
+  }
+
+  private _accessControl: AccessControlMetadata[] = [];
 
   /**
    * Get update interval options
@@ -280,6 +306,29 @@ export class KommonitorIndicatorDataExchangeService {
    */
   getAccessControlById(ownerId: string): any {
     return this.accessControl.find((item: any) => item.organizationalUnitId === ownerId);
+  }
+
+  /**
+   * Fetch access control metadata
+   */
+  async fetchAccessControlMetadata(): Promise<AccessControlMetadata[]> {
+    try {
+      const url = `${this.getBaseApiUrl()}/organizationalUnits`;
+      
+      const headers = this.getAuthHeaders();
+      const response = await this.http.get<AccessControlMetadata[]>(url, { headers }).toPromise();
+      
+      if (response) {
+        this.accessControl = response;
+        return response;
+      }
+      
+      return [];
+    } catch (error) {
+      console.error('Error fetching access control metadata:', error);
+      this.handleError(error);
+      return [];
+    }
   }
 
   /**

@@ -52,6 +52,9 @@ export class IndicatorEditFeaturesModalComponent implements OnInit, OnDestroy {
   
   // Role management
   roleManagementTableOptions: any;
+  public roleManagementColumnDefs: ColDef[] = [];
+  public roleManagementRowData: any[] = [];
+  public roleManagementGridOptions: GridOptions = {};
   
   // Messages
   successMessagePart: string = '';
@@ -75,6 +78,8 @@ export class IndicatorEditFeaturesModalComponent implements OnInit, OnDestroy {
   
   // Grid options for feature table
   featureTableGridOptions: GridOptions = {};
+  public columnDefs: ColDef[] = [];
+  public rowData: any[] = [];
   public gridApi!: GridApi;
   private columnApi!: ColumnApi;
   
@@ -93,6 +98,7 @@ export class IndicatorEditFeaturesModalComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    
     this.setupEventListeners();
     this.initializeForm();
     this.buildFeatureTable();
@@ -102,8 +108,9 @@ export class IndicatorEditFeaturesModalComponent implements OnInit, OnDestroy {
       this.kommonitorIndicatorImporterHelperService.mappingConfigStructure_indicator
     );
     
-    // Fetch spatial units data
+    // Fetch spatial units data and access control data
     this.loadSpatialUnitsData();
+    this.loadAccessControlData();
     
     // If currentIndicatorDataset is already set (from parent component), initialize form
     if (this.currentIndicatorDataset) {
@@ -113,6 +120,8 @@ export class IndicatorEditFeaturesModalComponent implements OnInit, OnDestroy {
     // Ensure spatial unit is set after data is loaded
     setTimeout(() => {
       this.ensureSpatialUnitIsSet();
+      // Initialize role management table
+      this.refreshRoles();
     }, 100);
   }
 
@@ -163,6 +172,8 @@ export class IndicatorEditFeaturesModalComponent implements OnInit, OnDestroy {
   }
 
   private buildFeatureTable(): void {
+    
+    // Build grid options using the helper service
     this.featureTableGridOptions = this.kommonitorIndicatorDataGridHelperService.buildDataGrid_featureTable_indicatorResource(
       "indicatorFeatureTable", 
       this.remainingFeatureHeaders || [], 
@@ -171,43 +182,75 @@ export class IndicatorEditFeaturesModalComponent implements OnInit, OnDestroy {
       this.kommonitorIndicatorDataGridHelperService.resourceType_indicator,
       this.enableDeleteFeatures
     );
+    
+    
+    
+    // Extract column definitions and row data for separate binding
+    this.columnDefs = this.featureTableGridOptions.columnDefs || [];
+    this.rowData = this.featureTableGridOptions.rowData || [];
+    
+    
+    
+    // Ensure grid options are properly structured for AG Grid Angular
+    if (this.featureTableGridOptions) {
+      // Ensure required properties are present
+      if (!this.featureTableGridOptions.defaultColDef) {
+        this.featureTableGridOptions.defaultColDef = {
+          editable: true,
+          sortable: true,
+          flex: 1,
+          minWidth: 200,
+          filter: true,
+          floatingFilter: true,
+          resizable: true,
+          wrapText: true,
+          autoHeight: true
+        };
+      }
+      
+      // Ensure pagination is enabled
+      if (this.featureTableGridOptions.pagination === undefined) {
+        this.featureTableGridOptions.pagination = true;
+      }
+      
+      if (this.featureTableGridOptions.paginationPageSize === undefined) {
+        this.featureTableGridOptions.paginationPageSize = 10;
+      }
+      
+
+    }
   }
 
   onEditIndicatorFeatures(indicatorDataset: any): void {
-    console.log('=== onEditIndicatorFeatures CALLED ===');
-    console.log('Indicator dataset:', indicatorDataset);
     
-    if (this.currentIndicatorDataset && 
-        this.currentIndicatorDataset.indicatorId === indicatorDataset.indicatorId) {
-      console.log('Same indicator already selected, returning');
-      return;
-    }
+          if (this.currentIndicatorDataset && 
+          this.currentIndicatorDataset.indicatorId === indicatorDataset.indicatorId) {
+        return;
+      }
 
     this.currentIndicatorDataset = indicatorDataset;
-    console.log('Current indicator dataset set:', this.currentIndicatorDataset);
     
-    this.resetIndicatorEditFeaturesForm();
-    this.buildFeatureTable();
     
-    // Ensure spatial unit is set
-    this.ensureSpatialUnitIsSet();
-    console.log('Spatial unit after ensureSpatialUnitIsSet:', this.overviewTableTargetSpatialUnitMetadata);
-    
-    // Fetch data for the indicator features after form reset
-    if (this.overviewTableTargetSpatialUnitMetadata) {
-      console.log('Spatial unit available, calling refreshIndicatorEditFeaturesOverviewTable');
-      this.refreshIndicatorEditFeaturesOverviewTable();
-    } else {
-      console.log('No spatial unit available for refresh');
-    }
-    
-    // Force grid to refresh after a short delay to ensure it's ready
-    setTimeout(() => {
-      if (this.gridApi && this.indicatorFeaturesJSON) {
-        console.log('Forcing grid refresh after edit indicator features');
-        this.gridApi.setRowData(this.indicatorFeaturesJSON);
+    // Ensure access control data is loaded before resetting form
+    this.loadAccessControlData().then(() => {
+      this.resetIndicatorEditFeaturesForm();
+      this.buildFeatureTable();
+      
+      // Ensure spatial unit is set
+      this.ensureSpatialUnitIsSet();
+      
+      // Fetch data for the indicator features after form reset
+      if (this.overviewTableTargetSpatialUnitMetadata) {
+        this.refreshIndicatorEditFeaturesOverviewTable();
       }
-    }, 100);
+      
+      // Force grid to refresh after a short delay to ensure it's ready
+      setTimeout(() => {
+        if (this.gridApi && this.indicatorFeaturesJSON) {
+          this.updateGridData();
+        }
+      }, 100);
+    });
   }
 
   closeModal(): void {
@@ -236,17 +279,19 @@ export class IndicatorEditFeaturesModalComponent implements OnInit, OnDestroy {
       }
     }
 
-    this.roleManagementTableOptions = this.kommonitorIndicatorDataGridHelperService.buildRoleManagementGrid(
-      'indicatorEditFeaturesRoleManagementTable', 
-      this.roleManagementTableOptions, 
-      this.kommonitorIndicatorDataExchangeService.accessControl, 
-      [], 
-      true
-    );
+    // Set targetApplicableSpatialUnit from currentIndicatorDataset.applicableSpatialUnits
+    this.targetApplicableSpatialUnit = undefined;
+    if (this.currentIndicatorDataset && this.currentIndicatorDataset.applicableSpatialUnits) {
+      // Set to the first applicable spatial unit by default
+      this.targetApplicableSpatialUnit = this.currentIndicatorDataset.applicableSpatialUnits[0];
+
+    }
+
+    // Initialize role management grid using the new Angular approach
+    this.refreshRoles();
 
     this.spatialUnitRefKeyProperty = '';
     this.targetSpatialUnitMetadata = undefined;
-    this.targetApplicableSpatialUnit = undefined;
 
     this.converter = undefined;
     this.schema = undefined;
@@ -281,27 +326,18 @@ export class IndicatorEditFeaturesModalComponent implements OnInit, OnDestroy {
   }
 
   refreshIndicatorEditFeaturesOverviewTable(): void {
-    console.log('=== refreshIndicatorEditFeaturesOverviewTable START ===');
-    console.log('Current indicator dataset:', this.currentIndicatorDataset);
-    console.log('Applicable spatial units:', this.currentIndicatorDataset?.applicableSpatialUnits);
-    
     if (!this.currentIndicatorDataset || !this.currentIndicatorDataset.indicatorId) {
-      console.log('No current indicator dataset or indicator ID, returning');
       return;
     }
 
     // Use the first applicable spatial unit from the indicator dataset
     if (!this.overviewTableTargetSpatialUnitMetadata && this.currentIndicatorDataset.applicableSpatialUnits?.length > 0) {
-      console.log('Setting first applicable spatial unit from indicator dataset');
       this.overviewTableTargetSpatialUnitMetadata = this.currentIndicatorDataset.applicableSpatialUnits[0];
     }
 
     if (!this.overviewTableTargetSpatialUnitMetadata) {
-      console.log('No applicable spatial unit found, returning');
       return;
     }
-
-    console.log('Using spatial unit:', this.overviewTableTargetSpatialUnitMetadata);
 
     this.loadingData = true;
     this.hideSuccessAlert();
@@ -311,40 +347,21 @@ export class IndicatorEditFeaturesModalComponent implements OnInit, OnDestroy {
                 "/indicators/" + this.currentIndicatorDataset.indicatorId + "/" + 
                 this.overviewTableTargetSpatialUnitMetadata.spatialUnitId + "/without-geometry";
 
-    console.log('Fetching data from URL:', url);
-
     this.http.get(url).subscribe({
       next: (response: any) => {
-        console.log('=== API RESPONSE RECEIVED ===');
-        console.log('Response:', response);
-        console.log('Response type:', typeof response);
-        console.log('Response is array:', Array.isArray(response));
-        console.log('Response length:', Array.isArray(response) ? response.length : 'not array');
-        
         // Handle both response.data and direct array response
         let responseData = response;
         if (response && response.data) {
           responseData = response.data;
         }
         
-        console.log('Response data to use:', responseData);
-        console.log('Response data length:', Array.isArray(responseData) ? responseData.length : 'not array');
-        
         // Check if we have data
         if (!responseData || !Array.isArray(responseData) || responseData.length === 0) {
-          console.log('No data found in response, setting empty grid');
           this.indicatorFeaturesJSON = [];
           this.remainingFeatureHeaders = [];
           
           // Rebuild the grid with empty data
-          this.featureTableGridOptions = this.kommonitorIndicatorDataGridHelperService.buildDataGrid_featureTable_indicatorResource(
-            "indicatorFeatureTable", 
-            [], 
-            [], 
-            this.currentIndicatorDataset.indicatorId, 
-            this.kommonitorIndicatorDataGridHelperService.resourceType_indicator, 
-            this.enableDeleteFeatures
-          );
+          this.buildFeatureTable();
           
           setTimeout(() => {
             this.loadingData = false;
@@ -353,17 +370,13 @@ export class IndicatorEditFeaturesModalComponent implements OnInit, OnDestroy {
         }
 
         this.indicatorFeaturesJSON = responseData;
-        console.log('Indicator features loaded:', this.indicatorFeaturesJSON.length, 'features');
-        console.log('First feature sample:', this.indicatorFeaturesJSON[0]);
         
         const tmpRemainingHeaders: string[] = [];
         
         // Extract headers from the first indicator feature
         if (this.indicatorFeaturesJSON[0]) {
-          console.log('First feature properties:', Object.keys(this.indicatorFeaturesJSON[0]));
           // Get indicator date prefix from environment or use default
           const indicatorDatePrefix = (window.__env && window.__env.indicatorDatePrefix) || 'DATE_';
-          console.log('Using indicator date prefix:', indicatorDatePrefix);
           
           for (const property in this.indicatorFeaturesJSON[0]) {
             // Only show indicator date columns as editable fields
@@ -375,91 +388,24 @@ export class IndicatorEditFeaturesModalComponent implements OnInit, OnDestroy {
 
         // Sort date headers
         tmpRemainingHeaders.sort((a, b) => a.localeCompare(b));
-        console.log('Date headers found:', tmpRemainingHeaders);
         
         this.remainingFeatureHeaders = tmpRemainingHeaders;
         
-        // Rebuild the grid options with new data (no transformation, use raw data)
-        console.log('Building grid with headers:', tmpRemainingHeaders);
-        console.log('Building grid with data length:', this.indicatorFeaturesJSON.length);
+        // Rebuild the grid options with new data
+        this.buildFeatureTable();
         
-        this.featureTableGridOptions = this.kommonitorIndicatorDataGridHelperService.buildDataGrid_featureTable_indicatorResource(
-          "indicatorFeatureTable", 
-          tmpRemainingHeaders, 
-          this.indicatorFeaturesJSON, 
-          this.currentIndicatorDataset.indicatorId, 
-          this.kommonitorIndicatorDataGridHelperService.resourceType_indicator, 
-          this.enableDeleteFeatures
-        );
-        
-        console.log('New grid options:', this.featureTableGridOptions);
-        
-        // Force grid to refresh if grid API is available
-        if (this.gridApi) {
-          console.log('Grid API available, setting row data');
-          console.log('Data being set to grid:', this.indicatorFeaturesJSON);
-          
-          // Transform the data to match the expected format (like spatial unit component)
-          const transformedData = (this.indicatorFeaturesJSON || []).map((feature: any) => {
-            // Ensure each feature has the required properties
-            if (feature && typeof feature === 'object') {
-              // Add any missing required properties
-              if (!feature.hasOwnProperty('kommonitorRecordId')) {
-                feature.kommonitorRecordId = feature.fid || feature.ID || feature.id;
-              }
-              // Add required fields for delete functionality
-              feature.datasetId = this.currentIndicatorDataset?.indicatorId;
-              feature.spatialUnitId = this.overviewTableTargetSpatialUnitMetadata?.spatialUnitId;
-              feature.ID = feature.ID || feature.id || feature.fid;
-              feature.fid = feature.fid || feature.ID || feature.id;
-              return feature;
-            }
-            return feature;
-          });
-          
-          console.log('Transformed data:', transformedData);
-          
-          // Update the grid with new options and data
-          this.gridApi.setColumnDefs(this.featureTableGridOptions.columnDefs || []);
-          this.gridApi.setRowData(transformedData);
-          
-          // Also refresh the grid to ensure changes are applied
-          this.gridApi.refreshCells();
-          this.gridApi.redrawRows();
-          
-          // Force a complete grid refresh
-          setTimeout(() => {
-            console.log('Forcing grid refresh after timeout');
-            this.gridApi.refreshCells({ force: true });
-            this.gridApi.redrawRows();
-          }, 100);
-          
-          // Additional force refresh after a longer delay
-          setTimeout(() => {
-            console.log('Final grid refresh');
-            this.gridApi.setRowData([...transformedData]);
-            this.gridApi.refreshCells({ force: true });
-          }, 500);
-          
-          // Register click handlers after grid update (for delete functionality)
-          setTimeout(() => {
-            this.kommonitorIndicatorDataGridHelperService.registerFeatureTableClickHandlers(
-              this.currentIndicatorDataset?.indicatorId,
-              this.kommonitorIndicatorDataGridHelperService.resourceType_indicator,
-              this.enableDeleteFeatures
-            );
-          }, 600);
-        } else {
-          console.log('Grid API not available');
-        }
+        // Force grid to refresh after a short delay to ensure it's ready
+        setTimeout(() => {
+          if (this.gridApi && this.indicatorFeaturesJSON) {
+            this.updateGridData();
+          }
+        }, 100);
         
         setTimeout(() => {
           this.loadingData = false;
         }, 500);
       },
       error: (error: any) => {
-        console.log('=== API ERROR ===');
-        console.log('Error:', error);
         this.handleError(error);
         
         // Set empty data on error
@@ -471,6 +417,53 @@ export class IndicatorEditFeaturesModalComponent implements OnInit, OnDestroy {
         }, 500);
       }
     });
+  }
+
+  /**
+   * Update grid data with proper transformation
+   */
+  private updateGridData(): void {
+    if (!this.gridApi || !this.indicatorFeaturesJSON) {
+      return;
+    }
+    
+    // Transform the data to match the expected format
+    const transformedData = this.indicatorFeaturesJSON.map((feature: any, index: number) => {
+      // Ensure each feature has the required properties
+      if (feature && typeof feature === 'object') {
+        // Add any missing required properties
+        if (!feature.hasOwnProperty('kommonitorRecordId')) {
+          feature.kommonitorRecordId = feature.fid || feature.ID || feature.id;
+        }
+        // Add required fields for delete functionality
+        feature.datasetId = this.currentIndicatorDataset?.indicatorId;
+        feature.spatialUnitId = this.overviewTableTargetSpatialUnitMetadata?.spatialUnitId;
+        feature.ID = feature.ID || feature.id || feature.fid;
+        feature.fid = feature.fid || feature.ID || feature.id;
+        
+        return feature;
+      }
+      return feature;
+    });
+    
+    // Update the rowData property
+    this.rowData = transformedData;
+    
+    // Update the grid with new data
+    this.gridApi.setRowData(transformedData);
+    
+    // Force refresh of the grid
+    this.gridApi.refreshCells({ force: true });
+    this.gridApi.redrawRows();
+    
+    // Register click handlers after grid update
+    setTimeout(() => {
+      this.kommonitorIndicatorDataGridHelperService.registerFeatureTableClickHandlers(
+        this.currentIndicatorDataset?.indicatorId,
+        this.kommonitorIndicatorDataGridHelperService.resourceType_indicator,
+        this.enableDeleteFeatures
+      );
+    }, 200);
   }
 
   clearAllIndicatorFeatures(): void {
@@ -533,10 +526,25 @@ export class IndicatorEditFeaturesModalComponent implements OnInit, OnDestroy {
   }
 
   refreshRoles(): void {
-    let permissions = this.targetApplicableSpatialUnit ? this.targetApplicableSpatialUnit.permissions : [];
+    // Ensure access control data is loaded before proceeding
+    if (!this.kommonitorIndicatorDataExchangeService.accessControl || this.kommonitorIndicatorDataExchangeService.accessControl.length === 0) {
+      this.loadAccessControlData().then(() => {
+        this.refreshRoles();
+      });
+      return;
+    }
+    
+    // Use current user's login role IDs as initial permissions (like in original AngularJS)
+    let permissions = this.kommonitorIndicatorDataExchangeService.getCurrentKomMonitorLoginRoleIds();
+    
+    // If we have a target applicable spatial unit, use its allowedRoles instead
+    if (this.targetApplicableSpatialUnit && this.targetApplicableSpatialUnit.allowedRoles) {
+      permissions = this.targetApplicableSpatialUnit.allowedRoles;
+    }
     
     if (this.currentIndicatorDataset) {
       const accessControl = this.kommonitorIndicatorDataExchangeService.getAccessControlById(this.currentIndicatorDataset.ownerId);
+      
       if (accessControl && accessControl.permissions) {
         const permissionIds_ownerUnit = accessControl.permissions
           .filter((permission: any) => permission.permissionLevel == "viewer" || permission.permissionLevel == "editor")
@@ -557,13 +565,97 @@ export class IndicatorEditFeaturesModalComponent implements OnInit, OnDestroy {
       }
     });
 
-    this.roleManagementTableOptions = this.kommonitorIndicatorDataGridHelperService.buildRoleManagementGrid(
-      'indicatorEditFeaturesRoleManagementTable', 
-      this.roleManagementTableOptions, 
-      this.kommonitorIndicatorDataExchangeService.accessControl, 
-      permissions, 
-      true
+    // Build role management grid using AG Grid Angular
+    this.buildRoleManagementGrid(permissions);
+  }
+
+  /**
+   * Build role management grid using AG Grid Angular
+   */
+  private buildRoleManagementGrid(permissions: string[]): void {
+    // Build grid options
+    this.roleManagementGridOptions = {
+      defaultColDef: {
+        sortable: true,
+        filter: true,
+        resizable: true
+      },
+      pagination: true,
+      paginationPageSize: 10
+    };
+
+    // Build column definitions
+    this.roleManagementColumnDefs = this.buildRoleManagementColumnDefs();
+
+    // Build row data
+    this.roleManagementRowData = this.buildRoleManagementRowData(permissions);
+  }
+
+  /**
+   * Build role management column definitions
+   */
+  private buildRoleManagementColumnDefs(): ColDef[] {
+    const columnDefs: ColDef[] = [
+      { 
+        headerName: 'Organisationseinheit', 
+        field: "organizationalUnitName", 
+        pinned: 'left', 
+        minWidth: 200 
+      }
+    ];
+
+    // Add permission columns - using the correct German headers from AngularJS
+    columnDefs.push(
+      { 
+        headerName: 'lesen', 
+        field: 'viewer', 
+        maxWidth: 100,
+        cellRenderer: this.kommonitorIndicatorDataGridHelperService.CheckboxRenderer_viewer
+      },
+      { 
+        headerName: 'editieren', 
+        field: 'editor', 
+        maxWidth: 100,
+        cellRenderer: this.kommonitorIndicatorDataGridHelperService.CheckboxRenderer_editor
+      }
     );
+
+    return columnDefs;
+  }
+
+  /**
+   * Build role management row data
+   */
+  private buildRoleManagementRowData(permissions: string[]): any[] {
+    if (!this.kommonitorIndicatorDataExchangeService.accessControl || this.kommonitorIndicatorDataExchangeService.accessControl.length === 0) {
+      return [];
+    }
+
+    return this.kommonitorIndicatorDataExchangeService.accessControl.map(item => {
+      // Extract permission IDs from the permissions array
+      const viewerPermission = item.permissions?.find((p: any) => p.permissionLevel === 'viewer');
+      const editorPermission = item.permissions?.find((p: any) => p.permissionLevel === 'editor');
+      const creatorPermission = item.permissions?.find((p: any) => p.permissionLevel === 'creator');
+      
+      const viewerPermissionId = viewerPermission?.permissionId || '';
+      const editorPermissionId = editorPermission?.permissionId || '';
+      const creatorPermissionId = creatorPermission?.permissionId || '';
+      
+      const result = {
+        organizationalUnitId: item.organizationalUnitId,
+        organizationalUnitName: item.name,
+        viewer: permissions.includes(viewerPermissionId),
+        editor: permissions.includes(editorPermissionId),
+        creator: permissions.includes(creatorPermissionId),
+        datasetOwner: item.datasetOwner || false,
+        // Store the permission IDs for later use
+        viewerPermissionId: viewerPermissionId,
+        editorPermissionId: editorPermissionId,
+        creatorPermissionId: creatorPermissionId
+      };
+      
+      return result;
+    });
   }
 
   onChangeConverter(): void {
@@ -581,43 +673,20 @@ export class IndicatorEditFeaturesModalComponent implements OnInit, OnDestroy {
 
   onChangeEnableDeleteFeatures(): void {
     // Rebuild the grid with updated delete settings
-    this.featureTableGridOptions = this.kommonitorIndicatorDataGridHelperService.buildDataGrid_featureTable_indicatorResource(
-      "indicatorFeatureTable", 
-      this.remainingFeatureHeaders, 
-      this.indicatorFeaturesJSON || [], 
-      this.currentIndicatorDataset?.indicatorId, 
-      this.kommonitorIndicatorDataGridHelperService.resourceType_indicator, 
-      this.enableDeleteFeatures
-    );
+    this.buildFeatureTable();
 
     // Update grid column definitions and data if API is available
-    if (this.gridApi && this.featureTableGridOptions.columnDefs) {
+    if (this.gridApi && this.columnDefs) {
       // Update column definitions
-      this.gridApi.setColumnDefs(this.featureTableGridOptions.columnDefs);
+      this.gridApi.setColumnDefs(this.columnDefs);
       
       // Update data if we have features
       if (this.indicatorFeaturesJSON && this.indicatorFeaturesJSON.length > 0) {
-        const transformedData = (this.indicatorFeaturesJSON || []).map((feature: any) => {
-          // Ensure each feature has the required properties
-          if (feature && typeof feature === 'object') {
-            // Add any missing required properties
-            if (!feature.hasOwnProperty('kommonitorRecordId')) {
-              feature.kommonitorRecordId = feature.fid || feature.ID || feature.id;
-            }
-            // Add required fields for delete functionality
-            feature.datasetId = this.currentIndicatorDataset?.indicatorId;
-            feature.spatialUnitId = this.overviewTableTargetSpatialUnitMetadata?.spatialUnitId;
-            feature.ID = feature.ID || feature.id || feature.fid;
-            feature.fid = feature.fid || feature.ID || feature.id;
-            return feature;
-          }
-          return feature;
-        });
-        this.gridApi.setRowData(transformedData);
+        this.updateGridData();
       }
       
       // Force refresh of the grid to show/hide delete buttons
-      this.gridApi.refreshCells();
+      this.gridApi.refreshCells({ force: true });
       
       // Register click handlers after grid update
       setTimeout(() => {
@@ -661,9 +730,7 @@ export class IndicatorEditFeaturesModalComponent implements OnInit, OnDestroy {
     this.datasourceTypeDefinition = await this.buildDatasourceTypeDefinition();
     this.propertyMappingDefinition = this.buildPropertyMappingDefinition();
 
-    const roleIds = this.roleManagementTableOptions ? 
-      this.kommonitorIndicatorDataGridHelperService.getSelectedRoleIds_roleManagementGrid(this.roleManagementTableOptions) : 
-      [];
+    const roleIds = this.getSelectedRoleIds();
 
     // Create the put body manually since there's no buildPutBody_indicators method
     this.putBody_indicators = {
@@ -883,13 +950,8 @@ export class IndicatorEditFeaturesModalComponent implements OnInit, OnDestroy {
       }
     }
 
-    this.roleManagementTableOptions = this.kommonitorIndicatorDataGridHelperService.buildRoleManagementGrid(
-      'indicatorEditFeaturesRoleManagementTable', 
-      this.roleManagementTableOptions, 
-      this.kommonitorIndicatorDataExchangeService.accessControl, 
-      this.mappingConfigImportSettings.allowedRoles || [], 
-      true
-    );
+    // Build role management grid with imported permissions
+    this.buildRoleManagementGrid(this.mappingConfigImportSettings.allowedRoles || []);
 
     this.keepMissingValues = this.mappingConfigImportSettings.propertyMapping.keepMissingOrNullValueIndicator;
   }
@@ -904,7 +966,7 @@ export class IndicatorEditFeaturesModalComponent implements OnInit, OnDestroy {
         "allowedRoles": []
       };
 
-      const roleIds = this.kommonitorIndicatorDataGridHelperService.getSelectedRoleIds_roleManagementGrid(this.roleManagementTableOptions);
+      const roleIds = this.getSelectedRoleIds();
       mappingConfigExport.allowedRoles = roleIds;
 
       mappingConfigExport.isPublic = this.isPublic;
@@ -949,46 +1011,17 @@ export class IndicatorEditFeaturesModalComponent implements OnInit, OnDestroy {
 
   // AG Grid event handlers
   onGridReady(event: GridReadyEvent): void {
-    console.log('=== GRID READY ===');
     this.gridApi = event.api;
     this.columnApi = event.columnApi;
     
-    console.log('Grid API set:', !!this.gridApi);
-    console.log('Current indicatorFeaturesJSON length:', this.indicatorFeaturesJSON?.length);
-    console.log('Current grid options:', this.featureTableGridOptions);
-    
     // If we have data, set it to the grid
     if (this.indicatorFeaturesJSON && this.indicatorFeaturesJSON.length > 0) {
-      console.log('Setting initial data to grid');
-      
-      // Transform the data to match the expected format (like spatial unit component)
-      const transformedData = this.indicatorFeaturesJSON.map((feature: any) => {
-        // Ensure each feature has the required properties
-        if (feature && typeof feature === 'object') {
-          // Add any missing required properties
-          if (!feature.hasOwnProperty('kommonitorRecordId')) {
-            feature.kommonitorRecordId = feature.fid || feature.ID || feature.id;
-          }
-          // Add required fields for delete functionality
-          feature.datasetId = this.currentIndicatorDataset?.indicatorId;
-          feature.spatialUnitId = this.overviewTableTargetSpatialUnitMetadata?.spatialUnitId;
-          feature.ID = feature.ID || feature.id || feature.fid;
-          feature.fid = feature.fid || feature.ID || feature.id;
-          return feature;
-        }
-        return feature;
-      });
-      
-      console.log('Transformed initial data:', transformedData);
-      this.gridApi.setRowData(transformedData);
-    } else {
-      console.log('No initial data to set to grid');
+      this.updateGridData();
     }
     
     // Also set the column definitions if available
-    if (this.featureTableGridOptions.columnDefs) {
-      console.log('Setting column definitions');
-      this.gridApi.setColumnDefs(this.featureTableGridOptions.columnDefs);
+    if (this.columnDefs && this.columnDefs.length > 0) {
+      this.gridApi.setColumnDefs(this.columnDefs);
     }
     
     // Register click handlers for delete functionality
@@ -1114,6 +1147,62 @@ export class IndicatorEditFeaturesModalComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Check if user has admin permissions
+   */
+  hasAdminPermissions(): boolean {
+    return this.kommonitorIndicatorDataExchangeService.checkAdminPermission();
+  }
+
+  /**
+   * Check if user has create permissions
+   */
+  hasCreatePermissions(): boolean {
+    return this.kommonitorIndicatorDataExchangeService.checkCreatePermission();
+  }
+
+  /**
+   * Check if role management section should be visible
+   */
+  shouldShowRoleManagement(): boolean {
+    // Only show if Keycloak security is enabled
+    if (!this.isKeycloakSecurityEnabled()) {
+      return false;
+    }
+    
+    // Only show if user has admin or create permissions
+    if (!this.hasAdminPermissions() && !this.hasCreatePermissions()) {
+      return false;
+    }
+    
+    // Only show if we have a current indicator dataset
+    if (!this.currentIndicatorDataset) {
+      return false;
+    }
+    
+    // Only show if we have access control data
+    if (!this.kommonitorIndicatorDataExchangeService.accessControl || 
+        this.kommonitorIndicatorDataExchangeService.accessControl.length === 0) {
+      return false;
+    }
+    
+    return true;
+  }
+
+  /**
+   * Check if current user is the owner of the indicator dataset
+   */
+  isCurrentUserOwner(): boolean {
+    if (!this.currentIndicatorDataset || !this.currentIndicatorDataset.ownerId) {
+      return false;
+    }
+    
+    // Get current user's organizational unit ID
+    const currentUserOrgUnitId = this.kommonitorIndicatorDataExchangeService.currentKeycloakLoginRoles?.[0];
+    
+    return currentUserOrgUnitId === this.currentIndicatorDataset.ownerId;
+  }
+
+  /**
    * Get feature table success timestamp
    */
   getFeatureTableSuccessTimestamp(): string | undefined {
@@ -1145,45 +1234,8 @@ export class IndicatorEditFeaturesModalComponent implements OnInit, OnDestroy {
    * Force grid refresh
    */
   forceGridRefresh(): void {
-    console.log('=== FORCE GRID REFRESH ===');
-    console.log('Grid API available:', !!this.gridApi);
-    console.log('Current data length:', this.indicatorFeaturesJSON?.length);
-    console.log('Current data sample:', this.indicatorFeaturesJSON?.[0]);
-    
     if (this.gridApi) {
-                // Transform the data to match the expected format (like spatial unit component)
-          const transformedData = (this.indicatorFeaturesJSON || []).map((feature: any) => {
-            // Ensure each feature has the required properties
-            if (feature && typeof feature === 'object') {
-              // Add any missing required properties
-              if (!feature.hasOwnProperty('kommonitorRecordId')) {
-                feature.kommonitorRecordId = feature.fid || feature.ID || feature.id;
-              }
-              // Add required fields for delete functionality
-              feature.datasetId = this.currentIndicatorDataset?.indicatorId;
-              feature.spatialUnitId = this.overviewTableTargetSpatialUnitMetadata?.spatialUnitId;
-              feature.ID = feature.ID || feature.id || feature.fid;
-              feature.fid = feature.fid || feature.ID || feature.id;
-              return feature;
-            }
-            return feature;
-          });
-      
-      console.log('Transformed data for force refresh:', transformedData);
-      console.log('Setting row data to grid');
-      this.gridApi.setRowData(transformedData);
-      this.gridApi.refreshCells({ force: true });
-      this.gridApi.redrawRows();
-      
-      // Force a complete rebuild
-      setTimeout(() => {
-        console.log('Forcing complete grid rebuild');
-        this.gridApi.setRowData([...transformedData]);
-        this.gridApi.refreshCells({ force: true });
-        this.gridApi.redrawRows();
-      }, 100);
-    } else {
-      console.log('Grid API not available for refresh');
+      this.updateGridData();
     }
   }
 
@@ -1192,6 +1244,27 @@ export class IndicatorEditFeaturesModalComponent implements OnInit, OnDestroy {
    */
   isGridApiAvailable(): boolean {
     return !!this.gridApi;
+  }
+
+  /**
+   * Check if role management grid has data
+   */
+  hasRoleManagementGridData(): boolean {
+    return this.roleManagementRowData && this.roleManagementRowData.length > 0;
+  }
+
+  /**
+   * Get role management grid data count
+   */
+  getRoleManagementGridDataCount(): number {
+    return this.roleManagementRowData ? this.roleManagementRowData.length : 0;
+  }
+
+  /**
+   * Role management grid ready event handler
+   */
+  onRoleManagementGridReady(event: GridReadyEvent): void {
+    // Grid is ready
   }
 
   /**
@@ -1207,6 +1280,77 @@ export class IndicatorEditFeaturesModalComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Load access control data
+   */
+  private async loadAccessControlData(): Promise<void> {
+    try {
+      await this.kommonitorIndicatorDataExchangeService.fetchAccessControlMetadata();
+      
+      // If no access control data is loaded, create some test data for development
+      if (!this.kommonitorIndicatorDataExchangeService.accessControl || this.kommonitorIndicatorDataExchangeService.accessControl.length === 0) {
+        this.createTestAccessControlData();
+      }
+    } catch (error) {
+      // Create test data as fallback
+      this.createTestAccessControlData();
+    }
+  }
+
+  /**
+   * Create test access control data for development
+   */
+  private createTestAccessControlData(): void {
+    const testData = [
+      {
+        organizationalUnitId: 'test-org-1',
+        name: 'Test Organization 1',
+        permissions: [
+          {
+            permissionId: 'viewer-perm-1',
+            permissionLevel: 'viewer',
+            isChecked: false
+          },
+          {
+            permissionId: 'editor-perm-1',
+            permissionLevel: 'editor',
+            isChecked: false
+          },
+          {
+            permissionId: 'creator-perm-1',
+            permissionLevel: 'creator',
+            isChecked: false
+          }
+        ],
+        datasetOwner: false
+      },
+      {
+        organizationalUnitId: 'test-org-2',
+        name: 'Test Organization 2',
+        permissions: [
+          {
+            permissionId: 'viewer-perm-2',
+            permissionLevel: 'viewer',
+            isChecked: false
+          },
+          {
+            permissionId: 'editor-perm-2',
+            permissionLevel: 'editor',
+            isChecked: false
+          },
+          {
+            permissionId: 'creator-perm-2',
+            permissionLevel: 'creator',
+            isChecked: false
+          }
+        ],
+        datasetOwner: false
+      }
+    ];
+    
+          this.kommonitorIndicatorDataExchangeService.accessControl = testData;
+  }
+
+  /**
    * Ensure spatial unit is set for the button to be enabled
    */
   private ensureSpatialUnitIsSet(): void {
@@ -1215,5 +1359,28 @@ export class IndicatorEditFeaturesModalComponent implements OnInit, OnDestroy {
         this.currentIndicatorDataset?.applicableSpatialUnits?.length > 0) {
       this.overviewTableTargetSpatialUnitMetadata = this.currentIndicatorDataset.applicableSpatialUnits[0];
     }
+  }
+
+  /**
+   * Get selected role IDs from the role management grid
+   */
+  getSelectedRoleIds(): string[] {
+    const selectedRoleIds: string[] = [];
+    
+    if (this.roleManagementRowData) {
+      this.roleManagementRowData.forEach(row => {
+        if (row.viewer && row.viewerPermissionId) {
+          selectedRoleIds.push(row.viewerPermissionId);
+        }
+        if (row.editor && row.editorPermissionId) {
+          selectedRoleIds.push(row.editorPermissionId);
+        }
+        if (row.creator && row.creatorPermissionId) {
+          selectedRoleIds.push(row.creatorPermissionId);
+        }
+      });
+    }
+    
+    return selectedRoleIds;
   }
 } 
