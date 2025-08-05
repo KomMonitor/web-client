@@ -320,9 +320,11 @@ export class KommonitorIndicatorDataExchangeService {
       
       if (response) {
         this.accessControl = response;
+        console.log('Access control metadata loaded:', response);
         return response;
       }
       
+      console.log('No access control metadata received');
       return [];
     } catch (error) {
       console.error('Error fetching access control metadata:', error);

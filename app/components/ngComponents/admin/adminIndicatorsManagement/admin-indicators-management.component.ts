@@ -13,6 +13,7 @@ import { AuthService } from 'services/auth-service/auth.service';
 import { IndicatorAddModalComponent } from './indicatorAddModal/indicator-add-modal.component';
 import { IndicatorEditMetadataModalComponent } from './indicatorEditMetadataModal/indicator-edit-metadata-modal.component';
 import { IndicatorEditFeaturesModalComponent } from './indicatorEditFeaturesModal/indicator-edit-features-modal.component';
+import { IndicatorEditIndicatorSpatialUnitRolesModalComponent } from './indicatorEditIndicatorSpatialUnitRolesModal/indicator-edit-indicator-spatial-unit-roles-modal.component';
 import { IndicatorDeleteModalComponent } from './indicatorDeleteModal/indicator-delete-modal.component';
 import { IndicatorBatchUpdateModalComponent } from './indicatorBatchUpdateModal/indicator-batch-update-modal.component';
 
@@ -619,14 +620,23 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
   }
 
   onClickEditIndicatorSpatialUnitRoles(indicatorMetadata: any): void {
-    try {
-      // Open the modal directly instead of broadcasting
-      // Note: This would need to be implemented with the actual modal component
-      // For now, we'll keep the broadcast for this specific case as it might be handled elsewhere
-      this.broadcastService.broadcast('onEditIndicatorSpatialUnitRoles', indicatorMetadata);
-    } catch (error) {
-      // Error opening edit indicator spatial unit roles modal
-    }
+    const modalRef = this.modalService.open(IndicatorEditIndicatorSpatialUnitRolesModalComponent, {
+      size: 'xl',
+      backdrop: 'static',
+      keyboard: false,
+      container: 'body',
+      animation: false
+    });
+    
+    modalRef.componentInstance.currentIndicatorDataset = indicatorMetadata;
+    
+    modalRef.result.then((result) => {
+      if (result) {
+        this.initializeOrRefreshOverviewTable();
+      }
+    }).catch(() => {
+      // Modal dismissed
+    });
   }
 
   onClickDeleteIndicators(indicatorsMetadata: any[]): void {
