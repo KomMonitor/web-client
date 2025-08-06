@@ -546,12 +546,14 @@ export class IndicatorAddModalComponent implements OnInit {
     const maxSteps = this.kommonitorDataExchangeService && this.kommonitorDataExchangeService.enableKeycloakSecurity ? 7 : 6;
     if (this.currentStep < maxSteps) {
       this.currentStep++;
+      this.updateProgressBar();
     }
   }
 
   previousStep() {
     if (this.currentStep > 1) {
       this.currentStep--;
+      this.updateProgressBar();
     }
   }
 
@@ -560,8 +562,14 @@ export class IndicatorAddModalComponent implements OnInit {
     
     // Allow navigation to any step without validation (like old AngularJS counterpart)
     if (step >= 1 && step <= maxSteps) {
-    console.log(`Navigating to step: ${step}`);
-    this.currentStep = step;
+      console.log(`Navigating to step: ${step}`);
+      this.currentStep = step;
+      this.updateProgressBar();
+      
+      // Show validation feedback if navigating to a step that requires validation
+      if (step > 1 && !this.isStepValid(step)) {
+        console.log(`Step ${step} requires validation. Please complete the required fields.`);
+      }
     }
   }
 
@@ -1520,6 +1528,60 @@ export class IndicatorAddModalComponent implements OnInit {
   // Get selected role IDs for API
   getSelectedRoleIds(): string[] {
     return this.selectedRoles.map(role => role.roleId);
+  }
+
+  // Step validation methods for progress bar
+  isStepValid(step: number): boolean {
+    // Validation for specific steps
+    switch (step) {
+      case 1:
+        return !!this.datasetName && !!this.indicatorType && !!this.indicatorUnit && !!this.indicatorInterpretation;
+      case 2:
+        return !!this.metadata.description && !!this.metadata.datasource && !!this.metadata.contact && !!this.metadata.updateInterval && !!this.metadata.lastUpdate;
+      case 3:
+        return !!this.indicatorTopic_mainTopic;
+      case 4:
+        // Step 4 is optional (references)
+        return true;
+      case 5:
+        // Step 5 validation depends on indicator type
+        if (this.indicatorType?.apiName?.includes('STATUS')) {
+          return !!this.selectedColorBrewerPaletteEntry && !!this.numClassesPerSpatialUnit;
+        }
+        return !!this.numClassesPerSpatialUnit;
+      case 6:
+        // Step 6 is informational
+        return true;
+      case 7:
+        // Step 7 validation for access control
+        return this.validateAccessControl();
+      default:
+        return true;
+    }
+  }
+
+  isCurrentStepValid(): boolean {
+    return this.isStepValid(this.currentStep);
+  }
+
+  updateProgressBar(): void {
+    // Update progress bar active states
+    const progressItems = document.querySelectorAll('#progressbar li');
+    progressItems.forEach((item, index) => {
+      if (index < this.currentStep) {
+        item.classList.add('active');
+      } else {
+        item.classList.remove('active');
+      }
+    });
+  }
+
+  isStepActive(step: number): boolean {
+    return this.currentStep === step;
+  }
+
+  isStepCompleted(step: number): boolean {
+    return this.currentStep > step;
   }
 
   cancel() {
