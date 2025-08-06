@@ -492,6 +492,7 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit{
                       'max': this.valueRangeMaxValue
                   },
                   start: [middle],
+                  connect: [true, false],
                   step: 0.01,
                   tooltips: true,
                   pips: {
@@ -594,6 +595,7 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit{
                       'max': this.movMaxValue
                   },
                   start: [middle],
+                  connect: [true, false],
                   step: 0.01,
                   tooltips: true,
                   pips: {

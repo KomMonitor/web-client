@@ -11,3 +11,12 @@
     }
   }
 }
+
+/* custom fix for left sided range slider */
+::ng-deep #measureOfValueSlider.custom-dateSlider .noUi-connects {
+  background-color: transparent !important;
+
+  .noUi-connect {
+    background-color: var(--kommonitor-primary-80);
+  } 
+}

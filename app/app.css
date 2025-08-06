@@ -3590,8 +3590,18 @@ kommonitor-user-interface .irs {
   content: var(--custom-font-file);
 }
 
+/* noUi dateslider, one slider */
 .custom-dateSlider .noUi-connects {
   background-color: var(--kommonitor-primary-80);
+}
+
+/* noUi dateslider, draggable (two sliders) */
+.custom-dateSlider .noUi-connects:has(.noUi-draggable) {
+  background-color: transparent !important;
+
+  .noUi-draggable {
+    background-color: var(--kommonitor-primary-80);
+  }
 }
 
 .custom-dateSlider.noUi-horizontal {
