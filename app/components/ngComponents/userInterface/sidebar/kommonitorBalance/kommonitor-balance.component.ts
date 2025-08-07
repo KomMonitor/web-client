@@ -376,14 +376,24 @@ export class KommonitorBalanceComponent implements OnInit {
           let parts = dateStr.split(' ');
           // get timezoneOffset w/o daylight saving time by referencing a specific date
           let offset = new Date('November 1, 2000 00:00:00').getTimezoneOffset()*60*1000;
-         
-          let tms = new Date(parts[2]+'-'+(this.months.indexOf(parts[1])+1)+'-'+parts[0].replace('.','')+'T00:00:00Z').getTime();
+          
+          let year = parts[2];
+          let month:any = this.months.indexOf(parts[1])+1;
+          let day:any = parts[0].replace('.','');
+
+          if(month<10)
+            month = '0'+month;
+          
+          if(day<10)
+            day = '0'+day;
+
+          let tms = new Date(`${year}-${month}-${day}T00:00:00Z`).getTime();
           return tms+offset;
         }
 
         createNewBalanceInstance(){
           this.datesAsMs = this.createDatesFromIndicatorDates(this.exchangeData.selectedIndicator.applicableDates);
- 
+
           this.balanceSlider.noUiSlider.updateOptions({
             range: {
                 'min': 0, // index from
@@ -599,7 +609,8 @@ export class KommonitorBalanceComponent implements OnInit {
 
 
         onChangeTrendConfig(){
-          var data = this.rangeSliderForBalance.result;
+          console.log(this.trendConfig_allFeatures.trendComputationType)
+          var data = this.getFormatedSliderReturn();
             setTimeout(() => {
             
               this.updateTrendChart(this.exchangeData.selectedIndicator, data);	
@@ -607,7 +618,7 @@ export class KommonitorBalanceComponent implements OnInit {
         };
 
         onChangeEnableBilanceTrend(){
-          var data = this.rangeSliderForBalance.result;
+          var data = this.getFormatedSliderReturn();
             setTimeout(() => {
             
               this.updateTrendChart(this.exchangeData.selectedIndicator, data);	
