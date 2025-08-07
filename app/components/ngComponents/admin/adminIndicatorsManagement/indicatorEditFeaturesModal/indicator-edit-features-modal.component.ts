@@ -631,7 +631,53 @@ export class IndicatorEditFeaturesModalComponent implements OnInit, OnDestroy {
       return [];
     }
 
-    return this.kommonitorIndicatorDataExchangeService.accessControl.map(item => {
+    // Create a deep copy of the data (like AngularJS)
+    let data = JSON.parse(JSON.stringify(this.kommonitorIndicatorDataExchangeService.accessControl));
+    
+    // Process each item (like AngularJS)
+    for (let elem of data) {
+      // Handle 'public' name translation (like AngularJS)
+      if (elem.name === 'public') {
+        elem.name = 'Öffentlicher Zugriff';
+      }
+
+      // Process permissions
+      for (let permission of elem.permissions) {
+        permission.isChecked = false;
+        if (permissions && permissions.includes(permission.permissionId)) {
+          permission.isChecked = true;
+        }
+      }
+    }
+
+    // Apply special ordering logic (like AngularJS)
+    let array: any[] = [];
+    
+    // Always put first 2 items at the top
+    if (data.length > 0) {
+      array.push(data[0]);
+    }
+    if (data.length > 1) {
+      array.push(data[1]);
+    }
+
+    // Remove first 2 items and sort the rest
+    data.splice(0, 2);
+    data.sort(function (a: any, b: any) {
+      if (a.name < b.name) {
+        return -1;
+      }
+      if (a.name > b.name) {
+        return 1;
+      }
+      return 0;
+    });
+
+    // Combine fixed first 2 + sorted rest
+    array = array.concat(data);
+
+    // Convert to the format expected by the grid
+    return array.map(item => {
       // Extract permission IDs from the permissions array
       const viewerPermission = item.permissions?.find((p: any) => p.permissionLevel === 'viewer');
       const editorPermission = item.permissions?.find((p: any) => p.permissionLevel === 'editor');

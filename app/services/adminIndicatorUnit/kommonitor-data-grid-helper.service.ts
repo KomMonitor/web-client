@@ -1006,7 +1006,7 @@ export class KommonitorIndicatorDataGridHelperService {
   private buildRoleManagementGridRowData(accessControlMetadata: any[], permissionIds: string[]): any[] {
     return accessControlMetadata.map(item => ({
       organizationalUnitId: item.organizationalUnitId,
-      organizationalUnitName: item.organizationalUnitName,
+      organizationalUnitName: item.organizationalUnitName || item.name, // Handle both field names
       viewer: permissionIds.includes(item.viewerPermissionId),
       editor: permissionIds.includes(item.editorPermissionId),
       creator: permissionIds.includes(item.creatorPermissionId),

@@ -101,6 +101,12 @@ export class KommonitorIndicatorDataExchangeService {
     expiresAt: number;
   } | null = null;
 
+  private georesourcesCache: {
+    data: GeoresourceMetadata[];
+    timestamp: number;
+    expiresAt: number;
+  } | null = null;
+
   // Cache duration in milliseconds (5 minutes)
   private readonly CACHE_DURATION = 5 * 60 * 1000;
 
@@ -316,16 +322,14 @@ export class KommonitorIndicatorDataExchangeService {
       const url = `${this.getBaseApiUrl()}/organizationalUnits`;
       
       const headers = this.getAuthHeaders();
-      const response = await this.http.get<AccessControlMetadata[]>(url, { headers }).toPromise();
+      const response = await this.http.get<any[]>(url, { headers }).toPromise();
       
-      if (response) {
+      if (response && Array.isArray(response)) {
         this.accessControl = response;
-        console.log('Access control metadata loaded:', response);
         return response;
+      } else {
+        return [];
       }
-      
-      console.log('No access control metadata received');
-      return [];
     } catch (error) {
       console.error('Error fetching access control metadata:', error);
       this.handleError(error);
@@ -371,55 +375,118 @@ export class KommonitorIndicatorDataExchangeService {
    * Fetches indicators metadata
    */
   async fetchIndicatorsMetadata(keycloakRolesArray: string[]): Promise<any> {
-    this.loadingSubject.next(true);
-    this.errorSubject.next(null);
-
-    // Set the current roles for permission checking
-    this.setCurrentKeycloakLoginRoles(keycloakRolesArray);
     try {
-      // Use the cache helper service to fetch indicators (without filter, like original AngularJS service)
-      const indicators = await this.cacheHelperService.fetchIndicatorsMetadata(keycloakRolesArray, undefined);
+      this.loadingSubject.next(true);
+      this.errorSubject.next(null);
 
-      if (!indicators || !Array.isArray(indicators)) {
-        this.indicatorsSubject.next([]);
-        this.loadingSubject.next(false);
-        return [];
+      // Set the current roles for permission checking
+      this.setCurrentKeycloakLoginRoles(keycloakRolesArray);
+
+      // Check cache first
+      if (this.indicatorsCache && Date.now() - this.indicatorsCache.timestamp < this.CACHE_DURATION) {
+        this.indicatorsSubject.next(this.indicatorsCache.data);
+        return this.indicatorsCache.data;
+      }
+      
+      const url = `${this.getBaseApiUrl()}/indicators`;
+      const headers = this.getAuthHeaders();
+      const response = await this.http.get<any[]>(url, { headers }).toPromise();
+      
+      if (!response) {
+        throw new Error('No response from indicators API');
       }
 
-      const modifiedIndicators = this.modifyIndicators(indicators);
-      
+      // Process and filter indicators
+      const modifiedIndicators = this.modifyIndicators(response);
+      const displayableIndicators = this.filterDisplayableIndicators(modifiedIndicators);
+
       // Update cache
       this.indicatorsCache = {
-        data: modifiedIndicators,
+        data: displayableIndicators,
         timestamp: Date.now(),
         expiresAt: Date.now() + this.CACHE_DURATION
       };
 
-      // Update maps
+      // Update maps and subjects
       this.availableIndicators_map.clear();
-      for (const indicator of modifiedIndicators) {
+      displayableIndicators.forEach(indicator => {
         this.availableIndicators_map.set(indicator.indicatorId, indicator);
-      }
+      });
 
-      this.indicatorsSubject.next(modifiedIndicators);
-      
-      // Invalidate topic hierarchy cache since indicators changed
+      this.indicatorsSubject.next(displayableIndicators);
       this.invalidateTopicHierarchyCache();
-      
+
       // Also fetch topics since they're needed for the topic hierarchy
       try {
         await this.fetchTopicsMetadata(keycloakRolesArray);
       } catch (topicsError) {
         // Don't fail the entire operation if topics fail to load
+        console.warn('Failed to load topics:', topicsError);
       }
-      
-      this.loadingSubject.next(false);
-      
-      return modifiedIndicators;
+
+      return displayableIndicators;
+
     } catch (error) {
+      console.error('Error fetching indicators metadata:', error);
       this.handleError(error);
-      this.loadingSubject.next(false);
       throw error;
+    } finally {
+      this.loadingSubject.next(false);
+    }
+  }
+
+  async fetchGeoresourcesMetadata(keycloakRolesArray: string[]): Promise<any> {
+    try {
+      this.loadingSubject.next(true);
+      this.errorSubject.next(null);
+
+      // Check cache first
+      if (this.georesourcesCache && Date.now() - this.georesourcesCache.timestamp < this.CACHE_DURATION) {
+        this.georesourcesSubject.next(this.georesourcesCache.data);
+        return this.georesourcesCache.data;
+      }
+
+      // Fetch from API
+      const url = `${this.getBaseApiUrl()}/georesources`;
+      const headers = this.getAuthHeaders();
+      
+      const response = await this.http.get<any[]>(url, { headers }).toPromise();
+      
+      if (!response) {
+        throw new Error('No response from georesources API');
+      }
+
+      // Process georesources
+      const georesources: GeoresourceMetadata[] = response.map((item: any) => ({
+        georesourceId: item.georesourceId,
+        georesourceName: item.georesourceName || item.datasetName,
+        datasetName: item.datasetName,
+        userPermissions: item.userPermissions || []
+      }));
+
+      // Update cache
+      this.georesourcesCache = {
+        data: georesources,
+        timestamp: Date.now(),
+        expiresAt: Date.now() + this.CACHE_DURATION
+      };
+
+      // Update maps and subjects
+      this.availableGeoresources_map.clear();
+      georesources.forEach(georesource => {
+        this.availableGeoresources_map.set(georesource.georesourceId, georesource);
+      });
+
+      this.georesourcesSubject.next(georesources);
+
+      return georesources;
+
+    } catch (error) {
+      console.error('Error fetching georesources metadata:', error);
+      this.handleError(error);
+      throw error;
+    } finally {
+      this.loadingSubject.next(false);
     }
   }
 

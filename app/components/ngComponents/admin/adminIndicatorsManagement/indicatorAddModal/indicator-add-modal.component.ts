@@ -1,16 +1,31 @@
-import { Component, OnInit, Inject, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, OnDestroy } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { HttpClient } from '@angular/common/http';
+import { KommonitorIndicatorDataExchangeService } from 'services/adminIndicatorUnit/kommonitor-data-exchange.service';
+import { KommonitorIndicatorDataGridHelperService } from 'services/adminIndicatorUnit/kommonitor-data-grid-helper.service';
+import { KommonitorIndicatorImporterHelperService } from 'services/adminIndicatorUnit/kommonitor-importer-helper.service';
+import { KommonitorIndicatorCacheHelperService } from 'services/adminIndicatorUnit/kommonitor-cache-helper.service';
+import { Subscription } from 'rxjs';
+import { AgGridAngular } from 'ag-grid-angular';
 
 @Component({
   selector: 'indicator-add-modal-new',
   templateUrl: './indicator-add-modal.component.html',
   styleUrls: ['./indicator-add-modal.component.css']
 })
-export class IndicatorAddModalComponent implements OnInit {
+export class IndicatorAddModalComponent implements OnInit, OnDestroy {
   @ViewChild('metadataImportFile', { static: false }) metadataImportFile!: ElementRef;
   @ViewChild('mappingConfigImportFile', { static: false }) mappingConfigImportFile!: ElementRef;
+  @ViewChild('roleManagementGrid', { static: false }) roleManagementGrid!: AgGridAngular;
+
+  // Event subscriptions for role management (like AngularJS component)
+  private roleUpdateSubscription?: Subscription;
+  private metadataLoadingSubscription?: Subscription;
+
+  // Grid API references for role management
+  roleManagementGridApi: any = null;
+  roleManagementColumnApi: any = null;
 
   // Multi-step form
   currentStep = 1;
@@ -81,6 +96,12 @@ export class IndicatorAddModalComponent implements OnInit {
   spatialUnitClassification: any[] = [];
   classBreaksInvalid = false;
   tabClasses: string[] = [];
+  
+  // Additional classification variables (missing from original)
+  classificationMethodOptions: any[] = [];
+  defaultClassificationMethod = 'jenks';
+  enableManualClassification = false;
+  enableRegionalClassification = false;
 
   // Role management
   roleManagementTableOptions: any = null;
@@ -88,6 +109,12 @@ export class IndicatorAddModalComponent implements OnInit {
   ownerOrgFilter = '';
   isPublic = false;
   resourcesCreatorRights: any[] = [];
+  
+  // Initialize resources creator rights (for non-admin users)
+  private initializeResourcesCreatorRights() {
+    // For now, use the same as access control, but this should be filtered based on user permissions
+    this.resourcesCreatorRights = this.accessControl || [];
+  }
 
   // Import/Export functionality
   metadataImportSettings: any = null;
@@ -117,6 +144,17 @@ export class IndicatorAddModalComponent implements OnInit {
   // Step 5: Classification Options
   enableDynamicColorAssignment = false;
   currentClassificationTab = 0;
+  decreaseBreaksLength = 0;
+  increaseBreaksLength = 0;
+  
+  // Additional classification validation and color assignment variables
+  classificationValidationErrors: string[] = [];
+  enableColorValidation = false;
+  dynamicColorAssignmentEnabled = false;
+  negativeValueColorScheme = 'Reds';
+  positiveValueColorScheme = 'Blues';
+  zeroValueColor = '#bababa';
+  classificationBreakValidationEnabled = true;
   
   // Step 6: Regional Comparison Values
   comparisonValueType: string | null = null;
@@ -178,65 +216,76 @@ export class IndicatorAddModalComponent implements OnInit {
 
   constructor(
     public activeModal: NgbActiveModal,
-    @Inject('kommonitorDataExchangeService') public kommonitorDataExchangeService: any,
-    @Inject('kommonitorImporterHelperService') public kommonitorImporterHelperService: any,
-    @Inject('kommonitorDataGridHelperService') private kommonitorDataGridHelperService: any,
-    @Inject('kommonitorMultiStepFormHelperService') private kommonitorMultiStepFormHelperService: any,
+    public kommonitorDataExchangeService: KommonitorIndicatorDataExchangeService,
+    public kommonitorImporterHelperService: KommonitorIndicatorImporterHelperService,
+    public kommonitorDataGridHelperService: KommonitorIndicatorDataGridHelperService,
+    private kommonitorCacheHelperService: KommonitorIndicatorCacheHelperService,
     private http: HttpClient,
-    private broadcastService: BroadcastService,
-    @Inject('kommonitorConfigStorageService') private kommonitorConfigStorageService: any
+    private broadcastService: BroadcastService
   ) {
-    console.log('IndicatorAddModalComponent constructor initialized - Modal is being created');
   }
 
-  ngOnInit() {
-    console.log('IndicatorAddModalComponent ngOnInit - Modal is being initialized');
-    this.loadInitialData();
+  async ngOnInit() {
+    await this.loadInitialData();
     this.initializeMultiStepForm();
-    console.log('IndicatorAddModalComponent ngOnInit - Modal initialization complete');
-    console.log('Current step:', this.currentStep);
-    console.log('Total steps:', this.totalSteps);
+    
+    // Ensure color palettes are loaded
+    if (this.colorbrewerPalettes.length === 0) {
+      this.loadColorBrewerSchemes();
+    }
+    
+    // Initialize role management grid after a short delay to ensure DOM is ready
+    setTimeout(() => {
+      this.refreshRoles(); // Call refreshRoles() like AngularJS component
+    }, 100);
+
+    // Set up event listeners for role management (like AngularJS component)
+    this.setupEventListeners();
   }
 
-  private loadInitialData() {
+  private async loadInitialData() {
     this.loadingData = true;
     
-    // Load available spatial units
-    if (this.kommonitorDataExchangeService && this.kommonitorDataExchangeService.availableSpatialUnits) {
-      this.availableSpatialUnits = this.kommonitorDataExchangeService.availableSpatialUnits;
-      this.indicatorLowestSpatialUnitMetadataObjectForComputation = this.availableSpatialUnits.length > 0 ? this.availableSpatialUnits[0] : null;
+    // Ensure indicators and georesources data is loaded
+    if (!this.kommonitorDataExchangeService.availableIndicators || this.kommonitorDataExchangeService.availableIndicators.length === 0) {
+      await this.kommonitorDataExchangeService.fetchIndicatorsMetadata(this.kommonitorDataExchangeService.currentKeycloakLoginRoles);
     }
+    
+    if (!this.kommonitorDataExchangeService.availableGeoresources || this.kommonitorDataExchangeService.availableGeoresources.length === 0) {
+      await this.kommonitorDataExchangeService.fetchGeoresourcesMetadata(this.kommonitorDataExchangeService.currentKeycloakLoginRoles);
+    }
+    
+    // Ensure access control data is loaded
+    if (!this.kommonitorDataExchangeService.accessControl || this.kommonitorDataExchangeService.accessControl.length === 0) {
+      try {
+        await this.kommonitorDataExchangeService.fetchAccessControlMetadata();
+      } catch (error) {
+        this.createTestAccessControlData();
+      }
+    }
+    
+    // Load available spatial units
+    this.availableSpatialUnits = this.kommonitorDataExchangeService.availableSpatialUnits;
+    this.indicatorLowestSpatialUnitMetadataObjectForComputation = this.availableSpatialUnits.length > 0 ? this.availableSpatialUnits[0] : null;
 
     // Load update interval options
-    if (this.kommonitorDataExchangeService && this.kommonitorDataExchangeService.updateIntervalOptions) {
-      this.updateIntervalOptions = this.kommonitorDataExchangeService.updateIntervalOptions;
-    }
+    this.updateIntervalOptions = this.kommonitorDataExchangeService.updateIntervalOptions;
 
     // Load indicator type options
-    if (this.kommonitorDataExchangeService && this.kommonitorDataExchangeService.indicatorTypeOptions) {
-      this.indicatorTypeOptions = this.kommonitorDataExchangeService.indicatorTypeOptions;
-      this.indicatorType = this.indicatorTypeOptions.length > 0 ? this.indicatorTypeOptions[0] : null;
-    }
+    this.indicatorTypeOptions = this.kommonitorDataExchangeService.indicatorTypeOptions;
+    this.indicatorType = this.indicatorTypeOptions.length > 0 ? this.indicatorTypeOptions[0] : null;
 
     // Load available indicators
-    if (this.kommonitorDataExchangeService && this.kommonitorDataExchangeService.availableIndicators) {
-      this.availableIndicators = this.kommonitorDataExchangeService.availableIndicators;
-    }
+    this.availableIndicators = this.kommonitorDataExchangeService.availableIndicators;
 
     // Load available georesources
-    if (this.kommonitorDataExchangeService && this.kommonitorDataExchangeService.availableGeoresources) {
-      this.availableGeoresources = this.kommonitorDataExchangeService.availableGeoresources;
-    }
+    this.availableGeoresources = this.kommonitorDataExchangeService.availableGeoresources;
 
     // Load available topics
-    if (this.kommonitorDataExchangeService && this.kommonitorDataExchangeService.availableTopics) {
-      this.availableTopics = this.kommonitorDataExchangeService.availableTopics;
-    }
+    this.availableTopics = this.kommonitorDataExchangeService.availableTopics;
 
     // Load access control
-    if (this.kommonitorDataExchangeService && this.kommonitorDataExchangeService.accessControl) {
-      this.accessControl = this.kommonitorDataExchangeService.accessControl;
-    }
+    this.accessControl = this.kommonitorDataExchangeService.accessControl;
 
     // Load color brewer schemes
     this.loadColorBrewerSchemes();
@@ -249,27 +298,30 @@ export class IndicatorAddModalComponent implements OnInit {
     this.filteredOrganizations = this.accessControl || [];
     this.filteredRoles = this.accessControl || [];
     this.availableRegions = this.availableSpatialUnits || [];
+    
+    // Initialize resources creator rights
+    this.initializeResourcesCreatorRights();
 
     this.loadingData = false;
   }
 
   private initializeMultiStepForm() {
     // Initialize multi-step form based on security settings
-    if (this.kommonitorDataExchangeService && this.kommonitorDataExchangeService.enableKeycloakSecurity) {
+    if (this.kommonitorDataExchangeService.enableKeycloakSecurity) {
       this.totalSteps = 7; // Include role management step
     } else {
       this.totalSteps = 6;
     }
 
     // Initialize role management if available
-    if (this.kommonitorDataExchangeService && this.kommonitorDataExchangeService.accessControl && this.kommonitorDataGridHelperService) {
-      this.roleManagementTableOptions = this.kommonitorDataGridHelperService.buildRoleManagementGrid(
-        'indicatorAddRoleManagementTable', 
-        this.roleManagementTableOptions, 
-        this.kommonitorDataExchangeService.accessControl, 
-        []
-      );
-    }
+    this.roleManagementTableOptions = this.kommonitorDataGridHelperService.buildRoleManagementGrid(
+      'indicatorAddRoleManagementTable', 
+      this.roleManagementTableOptions, 
+      this.kommonitorDataExchangeService.accessControl, 
+      this.kommonitorDataExchangeService.getCurrentKomMonitorLoginRoleIds()
+    );
+    
+
 
     // Initialize classification
     this.onNumClassesChanged(this.numClassesPerSpatialUnit);
@@ -280,11 +332,368 @@ export class IndicatorAddModalComponent implements OnInit {
     const customColorSchemes = (window as any).__env?.customColorSchemes;
     this.colorbrewerSchemes = (window as any).colorbrewer || {};
     
+    // Fallback to default color schemes if colorbrewer is not available
+    if (!this.colorbrewerSchemes || Object.keys(this.colorbrewerSchemes).length === 0) {
+      console.warn('Colorbrewer library not found, using default color schemes');
+      this.colorbrewerSchemes = {
+        'Blues': {
+          '3': ['#deebf7', '#9ecae1', '#3182bd'],
+          '4': ['#deebf7', '#9ecae1', '#3182bd', '#08519c'],
+          '5': ['#deebf7', '#9ecae1', '#3182bd', '#08519c', '#08306b'],
+          '6': ['#f7fbff', '#deebf7', '#9ecae1', '#3182bd', '#08519c', '#08306b'],
+          '7': ['#f7fbff', '#deebf7', '#c6dbef', '#9ecae1', '#3182bd', '#08519c', '#08306b'],
+          '8': ['#f7fbff', '#deebf7', '#c6dbef', '#9ecae1', '#6baed6', '#3182bd', '#08519c', '#08306b']
+        },
+        'Reds': {
+          '3': ['#fee5d9', '#fcae91', '#de2d26'],
+          '4': ['#fee5d9', '#fcae91', '#de2d26', '#a50f15'],
+          '5': ['#fee5d9', '#fcae91', '#de2d26', '#a50f15', '#67000d'],
+          '6': ['#fff5f0', '#fee5d9', '#fcae91', '#de2d26', '#a50f15', '#67000d'],
+          '7': ['#fff5f0', '#fee5d9', '#fcbba1', '#fcae91', '#de2d26', '#a50f15', '#67000d'],
+          '8': ['#fff5f0', '#fee5d9', '#fcbba1', '#fcae91', '#fb6a4a', '#de2d26', '#a50f15', '#67000d']
+        },
+        'Greens': {
+          '3': ['#e5f5e0', '#a1d99b', '#31a354'],
+          '4': ['#e5f5e0', '#a1d99b', '#31a354', '#006d2c'],
+          '5': ['#e5f5e0', '#a1d99b', '#31a354', '#006d2c', '#00441b'],
+          '6': ['#f7fcf5', '#e5f5e0', '#a1d99b', '#31a354', '#006d2c', '#00441b'],
+          '7': ['#f7fcf5', '#e5f5e0', '#c7e9c0', '#a1d99b', '#31a354', '#006d2c', '#00441b'],
+          '8': ['#f7fcf5', '#e5f5e0', '#c7e9c0', '#a1d99b', '#74c476', '#31a354', '#006d2c', '#00441b']
+        },
+        'Oranges': {
+          '3': ['#fee6ce', '#fdd0a2', '#e6550d'],
+          '4': ['#fee6ce', '#fdd0a2', '#e6550d', '#a63603'],
+          '5': ['#fee6ce', '#fdd0a2', '#e6550d', '#a63603', '#7f2704'],
+          '6': ['#fff5eb', '#fee6ce', '#fdd0a2', '#e6550d', '#a63603', '#7f2704'],
+          '7': ['#fff5eb', '#fee6ce', '#fed98e', '#fdd0a2', '#e6550d', '#a63603', '#7f2704'],
+          '8': ['#fff5eb', '#fee6ce', '#fed98e', '#fdd0a2', '#fdbe85', '#e6550d', '#a63603', '#7f2704']
+        }
+      };
+    }
+    
     if (customColorSchemes) {
       this.colorbrewerSchemes = Object.assign(customColorSchemes, this.colorbrewerSchemes);
     }
 
+    // Load environment configuration for classification
+    this.loadEnvironmentConfiguration();
+
     this.instantiateColorBrewerPalettes();
+  }
+
+  // Helper method to get color palette colors safely
+  getColorPaletteColors(paletteEntry: any, numColors: number): string[] {
+    if (!paletteEntry || !paletteEntry.paletteArrayObject) {
+      return ['#cccccc', '#cccccc', '#cccccc', '#cccccc', '#cccccc'];
+    }
+    
+    const colors = paletteEntry.paletteArrayObject[numColors.toString()];
+    if (!colors || !Array.isArray(colors)) {
+      return ['#cccccc', '#cccccc', '#cccccc', '#cccccc', '#cccccc'];
+    }
+    
+    return colors;
+  }
+
+  // Helper method to get color scheme colors safely
+  getColorSchemeColors(schemeName: string, numColors: number): string[] {
+    if (!this.colorbrewerSchemes || !this.colorbrewerSchemes[schemeName]) {
+      return ['#cccccc', '#cccccc', '#cccccc', '#cccccc', '#cccccc'];
+    }
+    
+    const colors = this.colorbrewerSchemes[schemeName][numColors.toString()];
+    if (!colors || !Array.isArray(colors)) {
+      return ['#cccccc', '#cccccc', '#cccccc', '#cccccc', '#cccccc'];
+    }
+    
+    return colors;
+  }
+
+  // Helper method to get dynamic color for classification legend
+  getDynamicColor(schemeName: string, breakLength: number, index: number, type: 'increase' | 'decrease'): string {
+    if (!this.colorbrewerSchemes || !this.colorbrewerSchemes[schemeName]) {
+      return '#cccccc';
+    }
+    
+    const colors = this.colorbrewerSchemes[schemeName][(breakLength + 1).toString()];
+    if (!colors || !Array.isArray(colors)) {
+      return '#cccccc';
+    }
+    
+    let colorIndex: number;
+    if (type === 'decrease') {
+      colorIndex = Math.max(0, breakLength - index - 1);
+    } else {
+      colorIndex = Math.max(0, breakLength - index - 1);
+    }
+    
+    return colors[colorIndex] || '#cccccc';
+  }
+
+  // Method to manually reload color palettes
+  reloadColorPalettes() {
+    this.loadColorBrewerSchemes();
+  }
+
+  // Method to manually reload access control data
+  async reloadAccessControlData() {
+    try {
+      // Try to fetch from API first
+      await this.kommonitorDataExchangeService.fetchAccessControlMetadata();
+      
+      // Reload access control from service
+      if (this.kommonitorDataExchangeService.accessControl) {
+        this.accessControl = this.kommonitorDataExchangeService.accessControl;
+        this.filteredOrganizations = this.accessControl || [];
+        this.filteredRoles = this.accessControl || [];
+      } else {
+        throw new Error('No access control data returned from API');
+      }
+    } catch (error) {
+      this.createTestAccessControlData();
+    }
+  }
+
+  // Check if user has admin permissions (like AngularJS component)
+  checkAdminPermission(): boolean {
+    return this.kommonitorDataExchangeService.checkAdminPermission();
+  }
+
+  // Handle role management grid ready event
+  onRoleManagementGridReady(params: any) {
+    // Store API references
+    this.roleManagementGridApi = params.api;
+    this.roleManagementColumnApi = params.columnApi;
+    
+    // The grid is now ready and can be accessed via params.api
+    if (params.api) {
+      // Auto-size columns
+      params.api.sizeColumnsToFit();
+    }
+  }
+
+  // Handle role management first data rendered event
+  onRoleManagementFirstDataRendered(params: any) {
+    // Role management first data rendered
+  }
+
+  // Handle role management column resized event
+  onRoleManagementColumnResized(params: any) {
+    // Role management column resized
+  }
+
+  // Handle role management model updated event
+  onRoleManagementModelUpdated() {
+    // Role management model updated
+  }
+
+  // Handle role management viewport changed event
+  onRoleManagementViewportChanged() {
+    // Role management viewport changed
+  }
+
+
+
+  // Refresh role management table
+  refreshRoleManagementTable() {
+    // Rebuild role management grid with current data
+    this.roleManagementTableOptions = this.kommonitorDataGridHelperService.buildRoleManagementGrid(
+      'indicatorAddRoleManagementTable', 
+      this.roleManagementTableOptions, 
+      this.kommonitorDataExchangeService.accessControl, 
+      this.kommonitorDataExchangeService.getCurrentKomMonitorLoginRoleIds()
+    );
+    
+    // Refresh the grid if API is available
+    if (this.roleManagementGridApi) {
+      this.roleManagementGridApi.refreshCells();
+      this.roleManagementGridApi.redrawRows();
+    }
+  }
+
+  // Set up event listeners for role management (like AngularJS component)
+  setupEventListeners() {
+    // Listen for role updates (like AngularJS "availableRolesUpdate" event)
+    // Note: We'll use a different approach since BroadcastService might not have the same API
+    // In a real implementation, you would need to check the BroadcastService API
+    
+    // For now, we'll trigger refreshRoles() manually when needed
+    // This matches the AngularJS pattern where refreshRoles() is called when events are triggered
+  }
+
+  // Refresh roles (like other Angular components)
+  refreshRoles(orgUnitId?: string) {
+    // Check if access control data is available
+    if (!this.kommonitorDataExchangeService.accessControl || this.kommonitorDataExchangeService.accessControl.length === 0) {
+      this.createTestAccessControlData();
+    }
+    
+    // Get permission IDs for the selected organization (like other Angular components)
+    let permissionIds: string[] = [];
+    if (orgUnitId) {
+      const accessControlItem = this.kommonitorDataExchangeService.getAccessControlById(orgUnitId);
+      if (accessControlItem && accessControlItem.permissions) {
+        permissionIds = accessControlItem.permissions
+          .filter((permission: any) => permission.permissionLevel === 'viewer' || permission.permissionLevel === 'editor')
+          .map((permission: any) => permission.permissionId);
+      }
+      
+      // Set datasetOwner flag for the selected organization (like other Angular components)
+      this.kommonitorDataExchangeService.accessControl.forEach((item: any) => {
+        if (item.organizationalUnitId === orgUnitId) {
+          item.datasetOwner = true;
+        } else {
+          item.datasetOwner = false;
+        }
+      });
+    } else {
+      // Use current user roles if no organization is selected
+      permissionIds = this.kommonitorDataExchangeService.getCurrentKomMonitorLoginRoleIds();
+    }
+    
+    // Build role management grid with filtered data
+    this.roleManagementTableOptions = this.kommonitorDataGridHelperService.buildRoleManagementGrid(
+      'indicatorAddRoleManagementTable', 
+      this.roleManagementTableOptions, 
+      this.kommonitorDataExchangeService.accessControl, 
+      permissionIds
+    );
+    
+    // Force change detection by updating the options
+    setTimeout(() => {
+      if (this.roleManagementGrid && this.roleManagementGrid.api) {
+        // Update the grid data directly using the API
+        this.roleManagementGrid.api.setRowData(this.roleManagementTableOptions.rowData);
+        
+        // Refresh the grid to ensure it updates
+        this.roleManagementGrid.api.refreshCells();
+        this.roleManagementGrid.api.redrawRows();
+      }
+    }, 100);
+  }
+
+
+
+  // Create test access control data for development/testing
+  private createTestAccessControlData() {
+    this.accessControl = [
+      {
+        organizationalUnitId: 'org1',
+        name: 'Test Organisation 1',
+        organizationalUnitName: 'Test Organisation 1',
+        organizationDescription: 'Erste Testorganisation für Entwicklung',
+        viewerPermissionId: 'viewer_org1',
+        editorPermissionId: 'editor_org1',
+        creatorPermissionId: 'creator_org1',
+        permissions: [
+          {
+            permissionId: 'viewer_org1',
+            permissionLevel: 'viewer',
+            roleName: 'Viewer',
+            roleDescription: 'Nur Leserechte auf Daten'
+          },
+          {
+            permissionId: 'editor_org1',
+            permissionLevel: 'editor',
+            roleName: 'Editor',
+            roleDescription: 'Bearbeitung von Indikatoren und Daten'
+          },
+          {
+            permissionId: 'creator_org1',
+            permissionLevel: 'creator',
+            roleName: 'Creator',
+            roleDescription: 'Erstellen von neuen Datensätzen'
+          }
+        ]
+      },
+      {
+        organizationalUnitId: 'org2',
+        name: 'Test Organisation 2',
+        organizationalUnitName: 'Test Organisation 2',
+        organizationDescription: 'Zweite Testorganisation für Entwicklung',
+        viewerPermissionId: 'viewer_org2',
+        editorPermissionId: 'editor_org2',
+        creatorPermissionId: 'creator_org2',
+        permissions: [
+          {
+            permissionId: 'viewer_org2',
+            permissionLevel: 'viewer',
+            roleName: 'Viewer',
+            roleDescription: 'Nur Leserechte auf Daten'
+          },
+          {
+            permissionId: 'editor_org2',
+            permissionLevel: 'editor',
+            roleName: 'Editor',
+            roleDescription: 'Bearbeitung von Indikatoren und Daten'
+          },
+          {
+            permissionId: 'creator_org2',
+            permissionLevel: 'creator',
+            roleName: 'Creator',
+            roleDescription: 'Erstellen von neuen Datensätzen'
+          }
+        ]
+      },
+      {
+        organizationalUnitId: 'org3',
+        name: 'Test Organisation 3',
+        organizationalUnitName: 'Test Organisation 3',
+        organizationDescription: 'Dritte Testorganisation für Entwicklung',
+        viewerPermissionId: 'viewer_org3',
+        editorPermissionId: 'editor_org3',
+        creatorPermissionId: 'creator_org3',
+        permissions: [
+          {
+            permissionId: 'viewer_org3',
+            permissionLevel: 'viewer',
+            roleName: 'Viewer',
+            roleDescription: 'Nur Leserechte auf Daten'
+          },
+          {
+            permissionId: 'editor_org3',
+            permissionLevel: 'editor',
+            roleName: 'Editor',
+            roleDescription: 'Bearbeitung von Indikatoren und Daten'
+          },
+          {
+            permissionId: 'creator_org3',
+            permissionLevel: 'creator',
+            roleName: 'Creator',
+            roleDescription: 'Erstellen von neuen Datensätzen'
+          }
+        ]
+      }
+    ];
+    
+    // Also update the service's access control data
+    this.kommonitorDataExchangeService.accessControl = this.accessControl;
+    
+    this.filteredOrganizations = this.accessControl;
+    this.filteredRoles = this.accessControl;
+  }
+
+  private loadEnvironmentConfiguration() {
+    // Load default classification method from environment
+    this.defaultClassificationMethod = (window as any).__env?.defaultClassifyMethod || 'jenks';
+    this.classificationMethod = this.defaultClassificationMethod;
+    
+    // Load color scheme names from environment
+    this.colorbreweSchemeName_dynamicIncrease = (window as any).__env?.defaultColorBrewerPaletteForBalanceIncreasingValues || 'Blues';
+    this.colorbreweSchemeName_dynamicDecrease = (window as any).__env?.defaultColorBrewerPaletteForBalanceDecreasingValues || 'Reds';
+    
+    // Load classification method options
+    this.classificationMethodOptions = [
+      { id: 'jenks', name: 'Jenks Natural Breaks', description: 'Automatische Klassifizierung nach natürlichen Brüchen' },
+      { id: 'equal', name: 'Gleiche Intervalle', description: 'Gleichmäßige Aufteilung des Wertebereichs' },
+      { id: 'manual', name: 'Manuelle Klassifizierung', description: 'Benutzerdefinierte Klassengrenzen' },
+      { id: 'regional_default', name: 'Regionale Standard-Klassifizierung', description: 'Regionsspezifische Klassengrenzen' }
+    ];
+    
+    // Check if manual classification is disabled
+    if ((window as any).__env?.disableManualClassification) {
+      this.classificationMethodOptions = this.classificationMethodOptions.filter(option => option.id !== 'manual');
+    }
   }
 
   private instantiateColorBrewerPalettes() {
@@ -303,14 +712,15 @@ export class IndicatorAddModalComponent implements OnInit {
       }
     }
 
-    // Instantiate with palette 'Blues'
-    this.selectedColorBrewerPaletteEntry = this.colorbrewerPalettes[13] || this.colorbrewerPalettes[0];
+    // Instantiate with palette 'Blues' or first available
+    this.selectedColorBrewerPaletteEntry = this.colorbrewerPalettes.find(p => p.paletteName === 'Blues') || 
+                                          this.colorbrewerPalettes[0];
   }
 
   checkDatasetName() {
     this.datasetNameInvalid = false;
     
-    if (this.datasetName && this.indicatorType && this.kommonitorDataExchangeService && this.kommonitorDataExchangeService.availableIndicators) {
+    if (this.datasetName && this.indicatorType && this.kommonitorDataExchangeService.availableIndicators) {
       this.kommonitorDataExchangeService.availableIndicators.forEach((indicator: any) => {
         if (indicator.datasetName === this.datasetName && 
             indicator.indicatorType === this.indicatorType.apiName) {
@@ -474,7 +884,7 @@ export class IndicatorAddModalComponent implements OnInit {
     }
 
     // Add role permissions
-    if (this.roleManagementTableOptions && this.kommonitorDataGridHelperService) {
+    if (this.roleManagementTableOptions) {
       const roleIds = this.kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid(this.roleManagementTableOptions);
       if (roleIds && Array.isArray(roleIds)) {
         for (const roleId of roleIds) {
@@ -494,11 +904,6 @@ export class IndicatorAddModalComponent implements OnInit {
 
     try {
       this.postBody_indicators = this.buildPostBody_indicators();
-
-      // Check if service is available
-      if (!this.kommonitorDataExchangeService || !this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI) {
-        throw new Error('Data exchange service not available');
-      }
 
       const response = await this.http.post(
         this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/indicators",
@@ -521,14 +926,10 @@ export class IndicatorAddModalComponent implements OnInit {
       }, 2000);
 
     } catch (error: any) {
-      if (this.kommonitorDataExchangeService && this.kommonitorDataExchangeService.syntaxHighlightJSON) {
       if (error.data) {
         this.errorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
       } else {
         this.errorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON(error);
-        }
-      } else {
-        this.errorMessagePart = error.message || 'An error occurred';
       }
 
       this.loadingData = false;
@@ -562,13 +963,37 @@ export class IndicatorAddModalComponent implements OnInit {
     
     // Allow navigation to any step without validation (like old AngularJS counterpart)
     if (step >= 1 && step <= maxSteps) {
-      console.log(`Navigating to step: ${step}`);
+  
       this.currentStep = step;
       this.updateProgressBar();
       
+      // Initialize filtered lists when navigating to Step 4
+      if (step === 4) {
+        this.filterIndicators();
+        this.filterGeoresources();
+        // Expand the collapsible boxes by default for better UX
+        this.isIndicatorReferencesCollapsed = false;
+        this.isGeoresourceReferencesCollapsed = false;
+      }
+      
+      // Initialize access control data when navigating to Step 7
+      if (step === 7) {
+        // Ensure access control data is loaded
+        if (this.filteredOrganizations.length === 0 || this.filteredRoles.length === 0) {
+    
+          this.reloadAccessControlData();
+        }
+        
+        // Initialize role management grid with delay to ensure DOM is ready (like AngularJS component)
+        setTimeout(() => {
+          this.refreshRoles(); // Call refreshRoles() like AngularJS component
+        }, 200);
+      }
+      
       // Show validation feedback if navigating to a step that requires validation
       if (step > 1 && !this.isStepValid(step)) {
-        console.log(`Step ${step} requires validation. Please complete the required fields.`);
+
+        // You can add visual feedback here if needed
       }
     }
   }
@@ -648,12 +1073,12 @@ export class IndicatorAddModalComponent implements OnInit {
     this.metadata.note = this.metadataImportSettings.metadata.note;
     this.metadata.literature = this.metadataImportSettings.metadata.literature;
     
-    if (this.kommonitorDataExchangeService && this.kommonitorDataExchangeService.updateIntervalOptions) {
-    this.kommonitorDataExchangeService.updateIntervalOptions.forEach((option: any) => {
-      if (option.apiName === this.metadataImportSettings.metadata.updateInterval) {
-        this.metadata.updateInterval = option;
-      }
-    });
+    if (this.kommonitorDataExchangeService.updateIntervalOptions) {
+      this.kommonitorDataExchangeService.updateIntervalOptions.forEach((option: any) => {
+        if (option.apiName === this.metadataImportSettings.metadata.updateInterval) {
+          this.metadata.updateInterval = option;
+        }
+      });
     }
     
     this.metadata.sridEPSG = this.metadataImportSettings.metadata.sridEPSG;
@@ -674,7 +1099,7 @@ export class IndicatorAddModalComponent implements OnInit {
     this.isHeadlineIndicator = this.metadataImportSettings.isHeadlineIndicator || false;
 
     // Parse indicator type
-    if (this.metadataImportSettings.indicatorType && this.kommonitorDataExchangeService && this.kommonitorDataExchangeService.indicatorTypeOptions) {
+    if (this.metadataImportSettings.indicatorType && this.kommonitorDataExchangeService.indicatorTypeOptions) {
       this.kommonitorDataExchangeService.indicatorTypeOptions.forEach((option: any) => {
         if (option.apiName === this.metadataImportSettings.indicatorType) {
           this.indicatorType = option;
@@ -694,7 +1119,7 @@ export class IndicatorAddModalComponent implements OnInit {
     }
 
     // Parse references
-    if (this.metadataImportSettings.refrencesToOtherIndicators && this.kommonitorDataExchangeService && this.kommonitorDataExchangeService.availableIndicators) {
+    if (this.metadataImportSettings.refrencesToOtherIndicators && this.kommonitorDataExchangeService.availableIndicators) {
       this.indicatorReferences_apiRequest = this.metadataImportSettings.refrencesToOtherIndicators;
       // Populate admin view
       this.indicatorReferences_adminView = [];
@@ -710,7 +1135,7 @@ export class IndicatorAddModalComponent implements OnInit {
       });
     }
 
-    if (this.metadataImportSettings.refrencesToGeoresources && this.kommonitorDataExchangeService && this.kommonitorDataExchangeService.availableGeoresources) {
+    if (this.metadataImportSettings.refrencesToGeoresources && this.kommonitorDataExchangeService.availableGeoresources) {
       this.georesourceReferences_apiRequest = this.metadataImportSettings.refrencesToGeoresources;
       // Populate admin view
       this.georesourceReferences_adminView = [];
@@ -726,20 +1151,30 @@ export class IndicatorAddModalComponent implements OnInit {
       });
     }
 
-    // Parse classification mapping
+    // Enhanced classification mapping parsing
     if (this.metadataImportSettings.defaultClassificationMapping) {
       const mapping = this.metadataImportSettings.defaultClassificationMapping;
+      
+      // Parse basic classification settings
       this.numClassesPerSpatialUnit = mapping.numClasses || 5;
       this.classificationMethod = mapping.classificationMethod || 'jenks';
       
-      // Set color brewer palette
+      // Parse color brewer palette
       if (mapping.colorBrewerSchemeName) {
         this.selectedColorBrewerPaletteEntry = this.colorbrewerPalettes.find(palette => 
           palette.paletteName === mapping.colorBrewerSchemeName
         );
       }
 
-      // Parse spatial unit classification
+      // Parse dynamic color assignment settings
+      if (mapping.dynamicColorAssignment) {
+        this.dynamicColorAssignmentEnabled = mapping.dynamicColorAssignment.enabled || false;
+        this.negativeValueColorScheme = mapping.dynamicColorAssignment.negativeColorScheme || 'Reds';
+        this.positiveValueColorScheme = mapping.dynamicColorAssignment.positiveColorScheme || 'Blues';
+        this.zeroValueColor = mapping.dynamicColorAssignment.zeroColor || '#bababa';
+      }
+
+      // Parse spatial unit classification with enhanced validation
       if (mapping.items) {
         this.onNumClassesChanged(this.numClassesPerSpatialUnit);
         mapping.items.forEach((item: any) => {
@@ -747,21 +1182,45 @@ export class IndicatorAddModalComponent implements OnInit {
             classification.spatialUnitId === item.spatialUnit
           );
           if (index > -1) {
-            this.spatialUnitClassification[index].breaks = item.breaks;
+            this.spatialUnitClassification[index].breaks = item.breaks || [];
+            
+            // Parse color assignment if available
+            if (item.colorAssignment) {
+              this.spatialUnitClassification[index].colorAssignment = item.colorAssignment;
+            }
           }
         });
+        
+        // Update color assignment for all spatial units
+        this.updateColorAssignmentForAllSpatialUnits();
+      }
+
+      // Parse validation settings
+      if (mapping.validation) {
+        this.classificationBreakValidationEnabled = mapping.validation.enabled !== false;
+        this.enableColorValidation = mapping.validation.colorValidation || false;
       }
     }
 
     // Parse role permissions
-    if (this.kommonitorDataExchangeService && this.kommonitorDataExchangeService.accessControl && this.metadataImportSettings.allowedRoles && this.kommonitorDataGridHelperService) {
+    if (this.kommonitorDataExchangeService.accessControl && this.metadataImportSettings.allowedRoles) {
       this.roleManagementTableOptions = this.kommonitorDataGridHelperService.buildRoleManagementGrid(
         'indicatorAddRoleManagementTable', 
         this.roleManagementTableOptions, 
         this.kommonitorDataExchangeService.accessControl, 
         this.metadataImportSettings.allowedRoles
       );
+    } else if (this.kommonitorDataExchangeService.accessControl) {
+      // Initialize with current user roles if no imported roles
+      this.roleManagementTableOptions = this.kommonitorDataGridHelperService.buildRoleManagementGrid(
+        'indicatorAddRoleManagementTable', 
+        this.roleManagementTableOptions, 
+        this.kommonitorDataExchangeService.accessControl, 
+        this.kommonitorDataExchangeService.getCurrentKomMonitorLoginRoleIds()
+      );
     }
+
+    // Classification settings imported
   }
 
   parseFromMappingConfigFile(event: any) {
@@ -831,24 +1290,35 @@ export class IndicatorAddModalComponent implements OnInit {
     metadataExport.refrencesToOtherIndicators = this.indicatorReferences_apiRequest;
     metadataExport.refrencesToGeoresources = this.georesourceReferences_apiRequest;
 
-    // Add classification mapping
+    // Enhanced classification mapping export
     metadataExport.defaultClassificationMapping = {
       colorBrewerSchemeName: this.selectedColorBrewerPaletteEntry?.paletteName,
       numClasses: this.numClassesPerSpatialUnit,
       classificationMethod: this.classificationMethod,
+      dynamicColorAssignment: {
+        enabled: this.dynamicColorAssignmentEnabled,
+        negativeColorScheme: this.negativeValueColorScheme,
+        positiveColorScheme: this.positiveValueColorScheme,
+        zeroColor: this.zeroValueColor
+      },
+      validation: {
+        enabled: this.classificationBreakValidationEnabled,
+        colorValidation: this.enableColorValidation
+      },
       items: this.spatialUnitClassification.map(classification => ({
         spatialUnit: classification.spatialUnitId,
-        breaks: classification.breaks.filter(breakVal => breakVal !== null)
+        breaks: classification.breaks.filter(breakVal => breakVal !== null),
+        colorAssignment: classification.colorAssignment || null
       }))
     };
 
     // Add role permissions
     metadataExport.allowedRoles = [];
-    if (this.roleManagementTableOptions && this.kommonitorDataGridHelperService) {
+    if (this.roleManagementTableOptions) {
       const roleIds = this.kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid(this.roleManagementTableOptions);
       if (roleIds && Array.isArray(roleIds)) {
-      for (const roleId of roleIds) {
-        metadataExport.allowedRoles.push(roleId);
+        for (const roleId of roleIds) {
+          metadataExport.allowedRoles.push(roleId);
         }
       }
     }
@@ -933,6 +1403,16 @@ export class IndicatorAddModalComponent implements OnInit {
         "colorBrewerSchemeName": "",
         "numClasses": 5,
         "classificationMethod": "jenks",
+        "dynamicColorAssignment": {
+          "enabled": false,
+          "negativeColorScheme": "Reds",
+          "positiveColorScheme": "Blues",
+          "zeroColor": "#bababa"
+        },
+        "validation": {
+          "enabled": true,
+          "colorValidation": false
+        },
         "items": []
       }
     };
@@ -1037,6 +1517,15 @@ export class IndicatorAddModalComponent implements OnInit {
     this.enableDynamicColorAssignment = false;
     this.currentClassificationTab = 0;
     
+    // Reset enhanced classification variables
+    this.classificationValidationErrors = [];
+    this.enableColorValidation = false;
+    this.dynamicColorAssignmentEnabled = false;
+    this.negativeValueColorScheme = 'Reds';
+    this.positiveValueColorScheme = 'Blues';
+    this.zeroValueColor = '#bababa';
+    this.classificationBreakValidationEnabled = true;
+    
     // Reset Step 6: Regional Comparison Values
     this.comparisonValueType = null;
     this.comparisonValue = null;
@@ -1066,6 +1555,14 @@ export class IndicatorAddModalComponent implements OnInit {
     this.enableAccessLogging = false;
     this.filteredOrganizations = this.accessControl || [];
     this.filteredRoles = this.accessControl || [];
+
+    // Reset role management
+    this.roleManagementTableOptions = this.kommonitorDataGridHelperService.buildRoleManagementGrid(
+      'indicatorAddRoleManagementTable', 
+      this.roleManagementTableOptions, 
+      this.kommonitorDataExchangeService.accessControl, 
+      this.kommonitorDataExchangeService.getCurrentKomMonitorLoginRoleIds()
+    );
 
     // Reinitialize classification
     this.onNumClassesChanged(this.numClassesPerSpatialUnit);
@@ -1105,6 +1602,10 @@ export class IndicatorAddModalComponent implements OnInit {
 
   onChangeOwner(ownerOrganization: any) {
     this.ownerOrganization = ownerOrganization;
+
+    
+    // Refresh roles based on the selected owner organization
+    this.refreshRoles(this.ownerOrganization?.organizationalUnitId);
   }
 
   onChangeIsPublic(isPublic: boolean) {
@@ -1215,7 +1716,8 @@ export class IndicatorAddModalComponent implements OnInit {
     } else {
       const filter = this.indicatorNameFilter.toLowerCase().trim();
       this.filteredIndicators = (this.availableIndicators || []).filter(indicator =>
-        indicator.datasetName && indicator.datasetName.toLowerCase().includes(filter)
+        (indicator.indicatorName && indicator.indicatorName.toLowerCase().includes(filter)) ||
+        (indicator.datasetName && indicator.datasetName.toLowerCase().includes(filter))
       );
     }
   }
@@ -1226,9 +1728,32 @@ export class IndicatorAddModalComponent implements OnInit {
     } else {
       const filter = this.georesourceNameFilter.toLowerCase().trim();
       this.filteredGeoresources = (this.availableGeoresources || []).filter(georesource =>
-        georesource.datasetName && georesource.datasetName.toLowerCase().includes(filter)
+        (georesource.georesourceName && georesource.georesourceName.toLowerCase().includes(filter)) ||
+        (georesource.datasetName && georesource.datasetName.toLowerCase().includes(filter))
       );
     }
+  }
+
+  // Step 4: Collapsible Box Properties
+  isIndicatorReferencesCollapsed = true;
+  isGeoresourceReferencesCollapsed = true;
+
+  // Step 4: Collapsible Box Methods
+  toggleIndicatorReferences() {
+    this.isIndicatorReferencesCollapsed = !this.isIndicatorReferencesCollapsed;
+  }
+
+  toggleGeoresourceReferences() {
+    this.isGeoresourceReferencesCollapsed = !this.isGeoresourceReferencesCollapsed;
+  }
+
+  // Step 4: Selection Methods
+  onIndicatorSelected() {
+    // Selection handled by ngModel binding
+  }
+
+  onGeoresourceSelected() {
+    // Selection handled by ngModel binding
   }
 
   // Convert admin view references to API format
@@ -1276,11 +1801,130 @@ export class IndicatorAddModalComponent implements OnInit {
     return '#cccccc';
   }
 
-  // Override existing classification methods to work with Step 5
+  // Enhanced classification method selection
   onClassificationMethodSelected(method: any) {
     this.classificationMethod = method;
+    
+    // Enable/disable specific features based on method
+    this.enableManualClassification = method === 'manual';
+    this.enableRegionalClassification = method === 'regional_default';
+    
+    // Reset validation errors
+    this.classificationValidationErrors = [];
+    this.classBreaksInvalid = false;
+    
     // Reinitialize classification when method changes
     this.onNumClassesChanged(this.numClassesPerSpatialUnit);
+    
+    // Update dynamic color assignment based on method
+    this.updateDynamicColorAssignment();
+    
+
+  }
+
+  // Update dynamic color assignment based on classification method
+  private updateDynamicColorAssignment() {
+    // Enable dynamic color assignment for certain methods
+    this.dynamicColorAssignmentEnabled = this.classificationMethod === 'regional_default' || 
+                                       this.classificationMethod === 'manual';
+    
+    // Set color schemes based on method
+    if (this.classificationMethod === 'regional_default') {
+      this.negativeValueColorScheme = 'Reds';
+      this.positiveValueColorScheme = 'Blues';
+    } else if (this.classificationMethod === 'manual') {
+      this.negativeValueColorScheme = 'Reds';
+      this.positiveValueColorScheme = 'Blues';
+    } else {
+      // For automatic methods, use default schemes
+      this.negativeValueColorScheme = this.colorbreweSchemeName_dynamicDecrease;
+      this.positiveValueColorScheme = this.colorbreweSchemeName_dynamicIncrease;
+    }
+    
+    // Update color assignment for all spatial units
+    this.updateColorAssignmentForAllSpatialUnits();
+  }
+
+  // Update color assignment for all spatial units
+  private updateColorAssignmentForAllSpatialUnits() {
+    if (!this.dynamicColorAssignmentEnabled) {
+      return;
+    }
+
+    for (let i = 0; i < this.spatialUnitClassification.length; i++) {
+      this.updateColorAssignmentForSpatialUnit(i);
+    }
+  }
+
+  // Update color assignment for a specific spatial unit
+  private updateColorAssignmentForSpatialUnit(spatialUnitIndex: number) {
+    if (!this.spatialUnitClassification[spatialUnitIndex]) {
+      return;
+    }
+
+    const classification = this.spatialUnitClassification[spatialUnitIndex];
+    const breaks = classification.breaks;
+
+    // Calculate color assignment based on break values
+    let hasNegativeValues = false;
+    let hasPositiveValues = false;
+    let hasZeroValue = false;
+
+    for (const breakValue of breaks) {
+      if (breakValue !== null && breakValue !== undefined) {
+        if (breakValue < 0) hasNegativeValues = true;
+        if (breakValue > 0) hasPositiveValues = true;
+        if (breakValue === 0) hasZeroValue = true;
+      }
+    }
+
+    // Store color assignment information
+    classification.colorAssignment = {
+      hasNegativeValues,
+      hasPositiveValues,
+      hasZeroValue,
+      negativeColorScheme: this.negativeValueColorScheme,
+      positiveColorScheme: this.positiveValueColorScheme,
+      zeroColor: this.zeroValueColor
+    };
+
+
+  }
+
+  // Get color for a specific class based on break value
+  getClassColorForBreak(breakValue: number, classIndex: number): string {
+    if (!this.dynamicColorAssignmentEnabled) {
+      // Use standard color brewer palette
+      if (this.selectedColorBrewerPaletteEntry && this.selectedColorBrewerPaletteEntry.paletteArrayObject) {
+        const colors = this.selectedColorBrewerPaletteEntry.paletteArrayObject[this.numClassesPerSpatialUnit.toString()];
+        if (colors && colors[classIndex]) {
+          return colors[classIndex];
+        }
+      }
+      return '#cccccc';
+    }
+
+    // Dynamic color assignment based on break value
+    if (breakValue < 0) {
+      // Negative values - use decreasing color scheme
+      const colors = this.colorbrewerSchemes[this.negativeValueColorScheme];
+      if (colors && colors[this.decreaseBreaksLength]) {
+        const colorIndex = Math.min(classIndex, this.decreaseBreaksLength - 1);
+        return colors[this.decreaseBreaksLength][colorIndex];
+      }
+    } else if (breakValue > 0) {
+      // Positive values - use increasing color scheme
+      const colors = this.colorbrewerSchemes[this.positiveValueColorScheme];
+      if (colors && colors[this.increaseBreaksLength]) {
+        const colorIndex = Math.min(classIndex, this.increaseBreaksLength - 1);
+        return colors[this.increaseBreaksLength][colorIndex];
+      }
+    } else if (breakValue === 0) {
+      // Zero value - use neutral color
+      return this.zeroValueColor;
+    }
+
+    return '#cccccc';
   }
 
   onClickColorBrewerEntry(colorPaletteEntry: any) {
@@ -1289,6 +1933,10 @@ export class IndicatorAddModalComponent implements OnInit {
 
   onNumClassesChanged(numClasses: number) {
     this.numClassesPerSpatialUnit = numClasses;
+    
+    // Calculate break lengths for dynamic color assignment
+    this.decreaseBreaksLength = Math.floor(numClasses / 2);
+    this.increaseBreaksLength = numClasses - this.decreaseBreaksLength;
     
     // Initialize classification for each spatial unit
     this.spatialUnitClassification = [];
@@ -1323,32 +1971,175 @@ export class IndicatorAddModalComponent implements OnInit {
     }
     
     const breaks = this.spatialUnitClassification[tabIndex].breaks;
-    let cssClass = 'active';
+    let cssClass = 'tab-completed';
     this.classBreaksInvalid = false;
+    this.classificationValidationErrors = [];
     
-    // Validate breaks for manual classification
-    if (this.classificationMethod === 'manual') {
-      let lastValidBreak = null;
-      for (let i = 0; i < breaks.length; i++) {
-        if (breaks[i] !== null && breaks[i] !== undefined) {
-          if (lastValidBreak !== null && breaks[i] <= lastValidBreak) {
+    // Enhanced validation logic matching AngularJS implementation
+    if (this.classificationMethod === 'regional_default' || this.classificationMethod === 'manual') {
+      // Check if all breaks are filled
+      let allBreaksFilled = true;
+      for (const classBreak of breaks) {
+        if (classBreak === null || classBreak === undefined || classBreak === '') {
+          allBreaksFilled = false;
+          break;
+        }
+      }
+      
+      if (allBreaksFilled) {
+        // Validate that breaks are in ascending order
+        for (let i = 0; i < breaks.length - 1; i++) {
+          if (breaks[i] >= breaks[i + 1]) {
             cssClass = 'tab-error';
             this.classBreaksInvalid = true;
+            this.classificationValidationErrors.push(
+              `Klassengrenze ${i + 1} (${breaks[i]}) muss kleiner sein als Klassengrenze ${i + 2} (${breaks[i + 1]})`
+            );
             break;
           }
-          lastValidBreak = breaks[i];
+        }
+      } else {
+        // Check if any breaks are filled but not all
+        let hasAnyBreaks = false;
+        for (const classBreak of breaks) {
+          if (classBreak !== null && classBreak !== undefined && classBreak !== '') {
+            hasAnyBreaks = true;
+            break;
+          }
+        }
+        
+        if (hasAnyBreaks) {
+          cssClass = 'tab-error';
+          this.classBreaksInvalid = true;
+          this.classificationValidationErrors.push('Alle Klassengrenzen müssen ausgefüllt werden');
+        } else {
+          cssClass = 'active';
         }
       }
     } else {
-      for (const classBreak of this.spatialUnitClassification[tabIndex].breaks) {
-        if (classBreak !== null) {
-          cssClass = 'tab-error';
-          this.classBreaksInvalid = true;
+      // For automatic classification methods, check if any manual breaks are entered
+      let hasManualBreaks = false;
+      for (const classBreak of breaks) {
+        if (classBreak !== null && classBreak !== undefined && classBreak !== '') {
+          hasManualBreaks = true;
+          break;
         }
+      }
+      
+      if (hasManualBreaks) {
+        cssClass = 'tab-error';
+        this.classBreaksInvalid = true;
+        this.classificationValidationErrors.push('Manuelle Klassengrenzen sind für automatische Klassifizierungsmethoden nicht erlaubt');
       }
     }
     
     this.tabClasses[tabIndex] = cssClass;
+    
+    // Update decrease and increase breaks for dynamic color assignment
+    this.updateDecreaseAndIncreaseBreaks(tabIndex);
+  }
+
+  // Update decrease and increase breaks for dynamic color assignment
+  private updateDecreaseAndIncreaseBreaks(tabIndex: number) {
+    if (!this.spatialUnitClassification[tabIndex]) {
+      return;
+    }
+    
+    const breaks = this.spatialUnitClassification[tabIndex].breaks;
+    
+    // Count positive and negative breaks
+    this.increaseBreaksLength = breaks.filter(val => val !== null && val !== undefined && val > 0).length;
+    this.decreaseBreaksLength = breaks.filter(val => val !== null && val !== undefined && val < 0).length;
+    
+    // Ensure minimum lengths for color schemes
+    if (this.increaseBreaksLength < 3) {
+      this.increaseBreaksLength = 3;
+    }
+    if (this.decreaseBreaksLength < 3) {
+      this.decreaseBreaksLength = 3;
+    }
+    // Updated break lengths
+  }
+
+  // Validate classification breaks across all spatial units
+  validateClassificationBreaks(): boolean {
+    this.classificationValidationErrors = [];
+    let isValid = true;
+
+    // Check if classification method is selected
+    if (!this.classificationMethod) {
+      this.classificationValidationErrors.push('Klassifizierungsmethode muss ausgewählt werden');
+      isValid = false;
+    }
+
+    // Check if number of classes is selected
+    if (!this.numClassesPerSpatialUnit || this.numClassesPerSpatialUnit < 3) {
+      this.classificationValidationErrors.push('Mindestens 3 Klassen müssen ausgewählt werden');
+      isValid = false;
+    }
+
+    // Validate breaks for each spatial unit
+    for (let i = 0; i < this.spatialUnitClassification.length; i++) {
+      const classification = this.spatialUnitClassification[i];
+      if (!classification) continue;
+
+      const breaks = classification.breaks;
+      
+      // Check for null/undefined breaks
+      for (let j = 0; j < breaks.length; j++) {
+        if (breaks[j] === null || breaks[j] === undefined || breaks[j] === '') {
+          this.classificationValidationErrors.push(
+            `Klassengrenze ${j + 1} für Raumebene ${classification.spatialUnitLevel} ist nicht ausgefüllt`
+          );
+          isValid = false;
+        }
+      }
+
+      // Check for ascending order
+      for (let j = 0; j < breaks.length - 1; j++) {
+        if (breaks[j] >= breaks[j + 1]) {
+          this.classificationValidationErrors.push(
+            `Klassengrenzen für Raumebene ${classification.spatialUnitLevel} müssen in aufsteigender Reihenfolge sein`
+          );
+          isValid = false;
+          break;
+        }
+      }
+    }
+
+    this.classBreaksInvalid = !isValid;
+    return isValid;
+  }
+
+  // Get validation status for a specific spatial unit
+  getSpatialUnitValidationStatus(spatialUnitIndex: number): { isValid: boolean, errors: string[] } {
+    const errors: string[] = [];
+    let isValid = true;
+
+    if (!this.spatialUnitClassification[spatialUnitIndex]) {
+      return { isValid: false, errors: ['Raumeinheit nicht gefunden'] };
+    }
+
+    const classification = this.spatialUnitClassification[spatialUnitIndex];
+    const breaks = classification.breaks;
+
+    // Check for null/undefined breaks
+    for (let i = 0; i < breaks.length; i++) {
+      if (breaks[i] === null || breaks[i] === undefined || breaks[i] === '') {
+        errors.push(`Klassengrenze ${i + 1} ist nicht ausgefüllt`);
+        isValid = false;
+      }
+    }
+
+    // Check for ascending order
+    for (let i = 0; i < breaks.length - 1; i++) {
+      if (breaks[i] >= breaks[i + 1]) {
+        errors.push(`Klassengrenze ${i + 1} (${breaks[i]}) muss kleiner sein als Klassengrenze ${i + 2} (${breaks[i + 1]})`);
+        isValid = false;
+      }
+    }
+
+    return { isValid, errors };
   }
 
   // Step 6: Regional Comparison Methods
@@ -1451,6 +2242,16 @@ export class IndicatorAddModalComponent implements OnInit {
     }
   }
 
+  // Get filtered organizations based on admin permissions (like AngularJS component)
+  getFilteredOrganizations(): any[] {
+    if (this.checkAdminPermission()) {
+      return this.filteredOrganizations;
+    } else {
+      // For non-admin users, show only their creator rights
+      return this.resourcesCreatorRights || [];
+    }
+  }
+
   clearOwnerFilter() {
     this.ownerOrgFilter = '';
     this.filterOrganizations();
@@ -1544,9 +2345,13 @@ export class IndicatorAddModalComponent implements OnInit {
         // Step 4 is optional (references)
         return true;
       case 5:
-        // Step 5 validation depends on indicator type
+        // Enhanced Step 5 validation with classification breaks validation
         if (this.indicatorType?.apiName?.includes('STATUS')) {
-          return !!this.selectedColorBrewerPaletteEntry && !!this.numClassesPerSpatialUnit;
+          const basicValidation = !!this.selectedColorBrewerPaletteEntry && !!this.numClassesPerSpatialUnit;
+          if (this.classificationMethod === 'regional_default' || this.classificationMethod === 'manual') {
+            return basicValidation && this.validateClassificationBreaks();
+          }
+          return basicValidation;
         }
         return !!this.numClassesPerSpatialUnit;
       case 6:
@@ -1585,7 +2390,17 @@ export class IndicatorAddModalComponent implements OnInit {
   }
 
   cancel() {
-    console.log('Modal cancelled');
+
     this.activeModal.dismiss('cancel');
+  }
+
+  ngOnDestroy() {
+    // Clean up event subscriptions (like AngularJS component)
+    if (this.roleUpdateSubscription) {
+      this.roleUpdateSubscription.unsubscribe();
+    }
+    if (this.metadataLoadingSubscription) {
+      this.metadataLoadingSubscription.unsubscribe();
+    }
   }
 } 

@@ -114,7 +114,6 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
     // Add a fallback timeout to prevent infinite loading
     setTimeout(() => {
       if (this.loadingData) {
-        console.log("Fallback timeout triggered - attempting to load data again");
         this.ensureDataLoaded();
         this.initializeOrRefreshOverviewTable();
         
@@ -123,7 +122,6 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
         if (!filteredIndicators || filteredIndicators.length === 0) {
           this.loadingData = false;
           this.initializationCompleted = true;
-          console.warn("No data available after fallback timeout");
         }
       }
     }, 3000); // 3 second timeout
@@ -142,9 +140,7 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
             this.authService.Auth.keycloak.tokenParsed.realm_access && 
             this.authService.Auth.keycloak.tokenParsed.realm_access.roles) {
           roles = this.authService.Auth.keycloak.tokenParsed.realm_access.roles;
-          console.log("Admin Component - Roles retrieved from AuthService:", roles);
         } else {
-          console.log("Admin Component - AuthService not ready, Auth object:", this.authService.Auth);
           // If no roles available, try with empty array
           roles = [];
         }
@@ -165,7 +161,6 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
 
   private forceRefreshGrid(): void {
     const indicators = this.getFilteredIndicators();
-    console.log("indicators level1 ", indicators);
     if (!indicators || !Array.isArray(indicators)) {
       this.loadingData = false;
       return;
@@ -402,8 +397,6 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
   }
 
   private registerClickHandler_indicators(): void {
-    console.log('registerClickHandler_indicators called');
-    
     // Use event delegation on the grid container instead of individual buttons
     // This ensures handlers work even for dynamically rendered buttons
     const $ = (window as any).$;
@@ -414,7 +407,6 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
     }
     
     const gridContainer = $('#adminIndicatorsOverviewTable');
-    console.log('Grid container found:', gridContainer.length > 0);
     
     // Remove any existing handlers first to avoid duplicates
     gridContainer.off('click', '.indicatorEditMetadataBtn');
@@ -423,27 +415,18 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
 
     // Edit Metadata Button - use event delegation
     gridContainer.on('click', '.indicatorEditMetadataBtn', (event: any) => {
-      console.log('=== EDIT METADATA BUTTON CLICKED ===');
-      console.log('Event target:', event.target);
-      console.log('Event currentTarget:', event.currentTarget);
       event.stopPropagation();
       event.preventDefault();
       
       // Get the button element (could be the icon inside)
       const button = $(event.target).closest('.indicatorEditMetadataBtn')[0];
-      console.log('Button element:', button);
-      console.log('Button ID:', button?.id);
-      console.log('Button classes:', button?.className);
       
       if (button && button.id) {
         const indicatorId = button.id.split('_')[3];
-        console.log('Indicator ID:', indicatorId);
         
         const indicatorMetadata = this.kommonitorDataExchangeService.getIndicatorMetadataById(indicatorId);
-        console.log('Indicator metadata:', indicatorMetadata);
         
         if (indicatorMetadata) {
-          console.log('Calling onClickEditMetadata...');
           this.zone.run(() => {
             this.onClickEditMetadata(indicatorMetadata);
           });
@@ -457,25 +440,16 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
 
     // Edit Features Button - use event delegation
     gridContainer.on('click', '.indicatorEditFeaturesBtn', (event: any) => {
-      console.log('=== EDIT FEATURES BUTTON CLICKED ===');
-      console.log('Event target:', event.target);
-      console.log('Event currentTarget:', event.currentTarget);
       event.stopPropagation();
       event.preventDefault();
       
       // Get the button element (could be the icon inside)
       const button = $(event.target).closest('.indicatorEditFeaturesBtn')[0];
-      console.log('Button element:', button);
-      console.log('Button ID:', button?.id);
-      console.log('Button classes:', button?.className);
       
       const indicatorId = button.id.split('_')[3];
-      console.log('Indicator ID:', indicatorId);
       const indicatorMetadata = this.kommonitorDataExchangeService.getIndicatorMetadataById(indicatorId);
-      console.log('Indicator metadata:', indicatorMetadata);
       
       if (indicatorMetadata) {
-        console.log('Calling onClickEditFeatures...');
         this.zone.run(() => {
           this.onClickEditFeatures(indicatorMetadata);
         });
@@ -484,7 +458,6 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
 
     // Edit Role-Based Access Button - use event delegation
     gridContainer.on('click', '.indicatorEditRoleBasedAccessBtn', (event: any) => {
-      console.log('Edit role-based access button clicked!');
       event.stopPropagation();
       event.preventDefault();
       
@@ -560,10 +533,6 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
   }
 
   onClickEditMetadata(indicatorMetadata: any): void {
-    console.log('=== onClickEditMetadata called ===');
-    console.log('Opening IndicatorEditMetadataModalComponent');
-    console.log('Indicator metadata:', indicatorMetadata);
-    
     const modalRef = this.modalService.open(IndicatorEditMetadataModalComponent, {
       size: 'lg',
       backdrop: 'static',
@@ -572,33 +541,18 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
       animation: false
     });
     
-    console.log('Modal ref created:', modalRef);
-    console.log('Setting currentIndicatorDataset on modal component');
     modalRef.componentInstance.currentIndicatorDataset = indicatorMetadata;
-    console.log('Modal component instance:', modalRef.componentInstance);
-    
-    // Remove explicit openModal call - modal will initialize automatically in ngOnInit
-    // if (modalRef.componentInstance.openModal) {
-    //   console.log('Calling openModal on IndicatorEditMetadataModalComponent');
-    //   modalRef.componentInstance.openModal();
-    // }
     
     modalRef.result.then((result) => {
-      console.log('Modal result:', result);
       if (result) {
         this.initializeOrRefreshOverviewTable();
       }
     }).catch((error) => {
-      console.log('Modal dismissed or error:', error);
       // Modal dismissed
     });
   }
 
   onClickEditFeatures(indicatorMetadata: any): void {
-    console.log('=== onClickEditFeatures called ===');
-    console.log('Opening IndicatorEditFeaturesModalComponent');
-    console.log('Indicator metadata:', indicatorMetadata);
-    
     const modalRef = this.modalService.open(IndicatorEditFeaturesModalComponent, {
       size: 'lg',
       backdrop: 'static',
@@ -607,7 +561,6 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
       animation: false
     });
     
-    console.log('Modal ref created:', modalRef);
     modalRef.componentInstance.currentIndicatorDataset = indicatorMetadata;
     
     modalRef.result.then((result) => {
@@ -921,27 +874,21 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
   }
 
   private refreshDataAfterDragDrop(): void {
-    console.log("refreshDataAfterDragDrop called");
     // Refresh the indicators data to reflect the new order
     if (this.authService.Auth && this.authService.Auth.keycloak && 
         this.authService.Auth.keycloak.tokenParsed && 
         this.authService.Auth.keycloak.tokenParsed.realm_access && 
         this.authService.Auth.keycloak.tokenParsed.realm_access.roles) {
       const roles = this.authService.Auth.keycloak.tokenParsed.realm_access.roles;
-      console.log("Refreshing data with roles:", roles);
       
       // Fetch fresh data to reflect the new order
       this.kommonitorDataExchangeService.fetchIndicatorsMetadata(roles).then(() => {
-        console.log("Data refreshed successfully");
         // Force refresh the table and topic hierarchy
         this.initializeOrRefreshOverviewTable();
         this.initializeCollapsedTopics();
-        console.log("UI refreshed");
       }).catch((error) => {
         console.error("Error refreshing data after drag drop:", error);
       });
-    } else {
-      console.log("No roles available for refresh");
     }
   }
 } 
