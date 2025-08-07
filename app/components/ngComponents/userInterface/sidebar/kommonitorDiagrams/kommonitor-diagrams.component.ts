@@ -153,6 +153,7 @@ export class KommonitorDiagramsComponent implements OnInit {
   }
 
   onChangeShowBarChartAverageLine(){
+
     if (this.exchangeData.showBarChartAverageLine){
       this.updateBarChart(this.exchangeData.showBarChartLabel, true);
     }
@@ -163,7 +164,7 @@ export class KommonitorDiagramsComponent implements OnInit {
 
   updateDiagrams([indicatorMetadataAndGeoJSON, spatialUnitName, spatialUnitId, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, justRestyling]) {
 
-    // console.log("Updating diagrams!");
+    console.log("Updating diagrams!");
 
     this.loadingData = true;
 
@@ -176,10 +177,12 @@ export class KommonitorDiagramsComponent implements OnInit {
 
     // updateHistogramChart();
 
-    this.updateLineChart();
+    setTimeout(() => {
+      this.updateLineChart();
 
-    this.updateBarChart(this.exchangeData.showBarChartLabel, this.exchangeData.showBarChartAverageLine);
-    this.loadingData = false;
+      this.updateBarChart(this.exchangeData.showBarChartLabel, this.exchangeData.showBarChartAverageLine);
+      this.loadingData = false;
+    },500);
   }
 
   //HISTOGRAM CHART FUNCTION

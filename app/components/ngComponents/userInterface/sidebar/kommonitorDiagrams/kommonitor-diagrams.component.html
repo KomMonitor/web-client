@@ -46,7 +46,7 @@
 									<b title="Checkbox zur Wahl, ob Label der Raumebene im Diagramm angezeigt werden sollen">Namen der Raumebene darstellen?</b>
 									&nbsp;
 									<label class="switch">
-										<input type="checkbox" value="exchangeData.showBarChartLabel" [(ngModel)]="exchangeData.showBarChartLabel" (change)="onChangeShowBarChartLabel()"
+										<input type="checkbox" [(ngModel)]="exchangeData.showBarChartLabel" (change)="onChangeShowBarChartLabel()"
 											checked>
 										<span class="switchslider round"></span>
 									</label>
@@ -56,7 +56,7 @@
 									<b title="Checkbox zur Wahl, ob Durchschnittslinie im Diagramm angezeigt werden sollen">Durchschnittslinie darstellen?</b>
 									&nbsp;
 									<label class="switch">
-										<input type="checkbox" value="exchangeData.showBarChartAverageLine" [(ngModel)]="exchangeData.showBarChartAverageLine" (change)="onChangeShowBarChartAverageLine()"
+										<input type="checkbox" [(ngModel)]="exchangeData.showBarChartAverageLine" (change)="onChangeShowBarChartAverageLine()"
 											checked>
 										<span class="switchslider round"></span>
 									</label>
