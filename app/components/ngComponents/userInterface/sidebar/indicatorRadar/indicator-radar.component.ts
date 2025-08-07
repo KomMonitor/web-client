@@ -14,6 +14,9 @@ export class IndicatorRadarComponent implements OnInit {
 
   
   activeTab = 0;
+
+  isRadarChartCollapsed = false;
+  isIndicatorSelectCollapsed = false;
   
   date;
   spatialUnitName;
