@@ -428,15 +428,20 @@
                 <div class="col-md-12 col-sm-12 col-xs-12">					
       <div class="form-group">
                     <label>Indikator, für den eine Referenz angelegt werden soll</label>
-                    <div class="input-group">
+                      <div class="input-group">
                       <span class="input-group-addon"><i class="fas fa-filter"></i></span>
-                      <input type="text" class="form-control input-sm" placeholder="Stichwortfilter" [(ngModel)]="indicatorNameFilter" name="indicatorNameFilter">
-                    </div>
+                        <input type="text" class="form-control input-sm" placeholder="Stichwortfilter" [(ngModel)]="indicatorNameFilter" name="indicatorNameFilter">
+                        <span class="input-group-btn">
+                          <button type="button" class="btn btn-info btn-sm" (click)="refreshIndicators()" title="Indikatoren aktualisieren">
+                            <i class="fas fa-sync-alt"></i>
+                          </button>
+                        </span>
+                      </div>
                     <br/>
-                    <select class="form-control" size="5" [(ngModel)]="tmpIndicatorReference_selectedIndicatorMetadata" name="tmpIndicatorReference_selectedIndicatorMetadata">
-                      <option [ngValue]="null">-- referenzierten Indikator wählen --</option>
-                      <option *ngFor="let indicatorMetadata of getFilteredIndicators()" [ngValue]="indicatorMetadata">{{indicatorMetadata.indicatorName}}</option>
-        </select>
+                                            <select class="form-control" size="5" [(ngModel)]="tmpIndicatorReference_selectedIndicatorMetadata" name="tmpIndicatorReference_selectedIndicatorMetadata">
+                        <option [ngValue]="null">-- referenzierten Indikator wählen --</option>
+                        <option *ngFor="let indicatorMetadata of getFilteredIndicators()" [ngValue]="indicatorMetadata">{{indicatorMetadata.indicatorName || indicatorMetadata.datasetName}}</option>
+                      </select>
 
                     <div class="help-block with-errors"></div>
                   </div>
@@ -446,15 +451,15 @@
               <div class="row vertical-align">
                 <div class="col-md-3 col-sm-6 col-xs-12">
                   <div class="form-group">
-                    <label>ID des selektierten Indikators</label>
-                    <input type="text" class="form-control input-sm" disabled placeholder="IndikatorenId" [(ngModel)]="tmpIndicatorReference_selectedIndicatorMetadata.indicatorId" name="tmpIndicatorReference_selectedIndicatorId">
+                                        <label>ID des selektierten Indikators</label>
+                    <input type="text" class="form-control input-sm" disabled placeholder="IndikatorenId" [ngModel]="tmpIndicatorReference_selectedIndicatorMetadata?.indicatorId" name="tmpIndicatorReference_selectedIndicatorId">
                     <div class="help-block with-errors"></div>
-      </div>
-      </div>
+                  </div>
+                </div>
                 <div class="col-md-3 col-sm-6 col-xs-12">												
-      <div class="form-group">
+                  <div class="form-group">
                     <label>Name des selektierten Indikators</label>
-                    <input type="text" class="form-control input-sm" disabled placeholder="IndikatorenName" [(ngModel)]="tmpIndicatorReference_selectedIndicatorMetadata.indicatorName" name="tmpIndicatorReference_selectedIndicatorName">
+                    <input type="text" class="form-control input-sm" disabled placeholder="IndikatorenName" [ngModel]="tmpIndicatorReference_selectedIndicatorMetadata?.indicatorName" name="tmpIndicatorReference_selectedIndicatorName">
                     <div class="help-block with-errors"></div>
                   </div>
       </div>
@@ -470,7 +475,7 @@
               <div class="row vertical-align">														
                 <div class="col-md-3 col-sm-6 col-xs-12">
       <div class="form-group">
-                    <button class="btn btn-success btn-sm" [disabled]="!tmpIndicatorReference_selectedIndicatorMetadata && !tmpIndicatorReference_referenceDescription" (click)="onAddOrUpdateIndicatorReference()">Hinzufügen/Editieren</button>
+                    <button type="button" class="btn btn-success btn-sm" [disabled]="!tmpIndicatorReference_selectedIndicatorMetadata && tmpIndicatorReference_referenceDescription" (click)="onAddOrUpdateIndicatorReference()">Hinzufügen/Editieren</button>
                     <div class="help-block with-errors"></div>
                   </div>
                 </div>
@@ -539,15 +544,20 @@
                 <div class="col-md-12 col-sm-12 col-xs-12">
       <div class="form-group">
                     <label>Georessource, für die eine Referenz angelegt werden soll</label>
-                    <div class="input-group">
+                      <div class="input-group">
                       <span class="input-group-addon"><i class="fas fa-filter"></i></span>
-                      <input type="text" class="form-control input-sm" placeholder="Stichwortfilter" [(ngModel)]="georesourceNameFilter" name="georesourceNameFilter">
-                    </div>
+                        <input type="text" class="form-control input-sm" placeholder="Stichwortfilter" [(ngModel)]="georesourceNameFilter" name="georesourceNameFilter">
+                        <span class="input-group-btn">
+                          <button type="button" class="btn btn-info btn-sm" (click)="refreshGeoresources()" title="Georesourcen aktualisieren">
+                            <i class="fas fa-sync-alt"></i>
+                          </button>
+                        </span>
+                      </div>
                     <br/>
-                    <select class="form-control" size="5" [(ngModel)]="tmpGeoresourceReference_selectedGeoresourceMetadata" name="tmpGeoresourceReference_selectedGeoresourceMetadata">
-                      <option [ngValue]="null">-- referenzierte Georessource wählen --</option>
-                      <option *ngFor="let georesourceMetadata of getFilteredGeoresources()" [ngValue]="georesourceMetadata">{{georesourceMetadata.datasetName}}</option>
-        </select>
+                      <select class="form-control" size="5" [(ngModel)]="tmpGeoresourceReference_selectedGeoresourceMetadata" name="tmpGeoresourceReference_selectedGeoresourceMetadata">
+                        <option [ngValue]="null">-- referenzierte Georessource wählen --</option>
+                        <option *ngFor="let georesourceMetadata of getFilteredGeoresources()" [ngValue]="georesourceMetadata">{{georesourceMetadata.datasetName || georesourceMetadata.georesourceName}}</option>
+                      </select>
 
                     <div class="help-block with-errors"></div>
                   </div>
@@ -558,14 +568,14 @@
                 <div class="col-md-3 col-sm-6 col-xs-12">
                   <div class="form-group">
                     <label>ID der selektierten Georessource</label>
-                    <input type="text" class="form-control input-sm" disabled placeholder="Georessourcen-Id" [(ngModel)]="tmpGeoresourceReference_selectedGeoresourceMetadata.georesourceId" name="tmpGeoresourceReference_selectedGeoresourceId">
+                    <input type="text" class="form-control input-sm" disabled placeholder="Georessourcen-Id" [ngModel]="tmpGeoresourceReference_selectedGeoresourceMetadata?.georesourceId" name="tmpGeoresourceReference_selectedGeoresourceId">
                     <div class="help-block with-errors"></div>
                   </div>
                 </div>
                 <div class="col-md-3 col-sm-6 col-xs-12">												
                   <div class="form-group">
                     <label>Name der selektierten Georessource</label>
-                    <input type="text" class="form-control input-sm" disabled placeholder="Georessourcen-Name" [(ngModel)]="tmpGeoresourceReference_selectedGeoresourceMetadata.datasetName" name="tmpGeoresourceReference_selectedGeoresourceName">
+                    <input type="text" class="form-control input-sm" disabled placeholder="Georessourcen-Name" [ngModel]="tmpGeoresourceReference_selectedGeoresourceMetadata?.datasetName" name="tmpGeoresourceReference_selectedGeoresourceName">
                     <div class="help-block with-errors"></div>
                   </div>
                 </div>
@@ -581,7 +591,7 @@
               <div class="row vertical-align">
                 <div class="col-md-3 col-sm-6 col-xs-12">
       <div class="form-group">
-                    <button class="btn btn-success btn-sm" [disabled]="!tmpGeoresourceReference_selectedGeoresourceMetadata && !tmpGeoresourceReference_referenceDescription" (click)="onAddOrUpdateGeoresourceReference()">Hinzufügen/Editieren</button>
+                    <button type="button" class="btn btn-success btn-sm" [disabled]="!tmpGeoresourceReference_selectedGeoresourceMetadata && tmpGeoresourceReference_referenceDescription" (click)="onAddOrUpdateGeoresourceReference()">Hinzufügen/Editieren</button>
                     <div class="help-block with-errors"></div>
                   </div>
                 </div>
@@ -637,29 +647,57 @@
     <fieldset *ngIf="currentStep === 5">
       <h2 class="fs-title">Klassifizierungsoptionen</h2>
 
-      <div *ngIf="indicatorType && indicatorType.apiName && indicatorType.apiName.includes('STATUS')">
+      <!-- Color Palette Section - Show for all indicator types -->
+      <div>
         <h3 class="fs-subtitle">Angaben über die Standard-Klassifizierung des Indikators</h3>
         <p><b><i>* = Pflichtfeld</i></b></p>
+        
+        <!-- Debug info -->
+        <div class="alert alert-info" *ngIf="colorbrewerPalettes.length === 0">
+          <strong>Debug:</strong> Keine Farbpaletten geladen. Anzahl: {{colorbrewerPalettes.length}}
+        </div>
 
         <div class="row vertical-align">
           <div class="col-md-4 col-sm-6 col-xs-12">
             <div class="form-group">
               <label>Farbpalette*</label>
-              <div class="dropdown">
-                <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Farbpalettenwahl
-                <span class="caret"></span></button>
-                <ul class="dropdown-menu dropdown-menu-center" style="columns: 4; -webkit-columns: 4; -moz-columns: 4;">
-                  <li style="margin-right: 15px;" *ngFor="let colorPaletteEntry of colorbrewerPalettes">
-                    <a href="" (click)="onClickColorBrewerEntry(colorPaletteEntry); $event.preventDefault()">
+              
+              <div class="dropdown" [class.show]="isColorPaletteOpen">
+                <button class="btn btn-primary dropdown-toggle" type="button" 
+                        (click)="toggleColorPalette()">
+                  {{selectedColorBrewerPaletteEntry ? selectedColorBrewerPaletteEntry.paletteName : 'Farbpalettenwahl'}}
+                  <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu" [class.show]="isColorPaletteOpen"
+                    style="columns: 4; -webkit-columns: 4; -moz-columns: 4; max-height: 300px; overflow-y: auto;">
+                  <li style="margin-right: 15px;" *ngFor="let colorPaletteEntry of colorbrewerPalettes; let i = index">
+                    <a class="dropdown-item" href="#" (click)="onClickColorBrewerEntry(colorPaletteEntry); $event.preventDefault()">
                       <div style="display: inline-block;">
                         <svg width="100" height="20">
-                          <rect *ngFor="let color of colorPaletteEntry.paletteArrayObject['5']; let i = index" 
-                                [attr.fill]="color" width="20" height="20" [attr.x]="i * 20"></rect>
+                          <rect *ngFor="let color of getColorPaletteColors(colorPaletteEntry, 5); let j = index" 
+                                [attr.fill]="color" 
+                                width="20" 
+                                height="20" 
+                                [attr.x]="j * 20">
+                          </rect>
                         </svg>
                       </div>
-            </a>
-          </li>
-        </ul>
+                      <span style="margin-left: 10px; font-size: 12px;">{{colorPaletteEntry.paletteName}}</span>
+                    </a>
+                  </li>
+                </ul>
+              </div>
+              
+              <!-- Fallback when no palettes are loaded -->
+              <div *ngIf="colorbrewerPalettes.length === 0" class="alert alert-warning">
+                <strong>Hinweis:</strong> Farbpaletten werden geladen... 
+                <br>Anzahl verfügbare Paletten: {{colorbrewerPalettes.length}}
+                <br>Indikator-Typ: {{indicatorType?.apiName}}
+                <br>Schritt: {{currentStep}}
+                <br>
+                <button type="button" class="btn btn-sm btn-primary" (click)="reloadColorPalettes()">
+                  Farbpaletten neu laden
+                </button>
               </div>
               <div class="help-block with-errors"></div>
             </div>
@@ -668,15 +706,23 @@
           <div class="col-md-4 col-sm-6 col-xs-12">
             <div class="form-group">
               <label>derzeit selektiert: </label>
-              <div style="display: inline-block;">
+              <div style="display: inline-block;" *ngIf="selectedColorBrewerPaletteEntry">
                 <svg width="100" height="20">
-                  <rect *ngFor="let color of selectedColorBrewerPaletteEntry && selectedColorBrewerPaletteEntry.paletteArrayObject && selectedColorBrewerPaletteEntry.paletteArrayObject['5'] ? selectedColorBrewerPaletteEntry.paletteArrayObject['5'] : []; let i = index" 
-                        [attr.fill]="color" width="20" height="20" [attr.x]="i * 20"></rect>
+                  <rect *ngFor="let color of getColorPaletteColors(selectedColorBrewerPaletteEntry, 5); let i = index" 
+                        [attr.fill]="color" 
+                        width="20" 
+                        height="20" 
+                        [attr.x]="i * 20">
+                  </rect>
                 </svg>
+                <span style="margin-left: 10px; font-size: 12px;">
+                  {{selectedColorBrewerPaletteEntry.paletteName}}
+                </span>
               </div>
-            </div> 
-          </div>									
-        </div>	
+              <span *ngIf="!selectedColorBrewerPaletteEntry" style="color: #999;">Keine Palette ausgewählt</span>
+            </div>
+          </div>
+        </div>
 
         <h3 class="fs-subtitle">Sollte der Indikator negative und positive Werte enthalten, so wird in KomMonitor standardmäßig folgende zweifarbige Klassifizierung verwendet</h3>
 
@@ -686,38 +732,12 @@
               <label>Farbspektrum für negative Werte: </label>
               <div style="display: inline-block;">
                 <svg width="100" height="20">
-                  <rect *ngFor="let color of colorbrewerSchemes[colorbreweSchemeName_dynamicDecrease]['5']; let i = index" 
-                        [attr.fill]="color" width="20" height="20" [attr.x]="i * 20"></rect>
-                </svg>
-              </div>
-            </div> 
-          </div>
-
-          <div class="col-md-4 col-sm-6 col-xs-12">
-            <div class="form-group">
-              <label>Farbspektrum für positive Werte: </label>
-              <div style="display: inline-block;">
-                <svg width="100" height="20">
-                  <rect *ngFor="let color of colorbrewerSchemes[colorbreweSchemeName_dynamicIncrease]['5']; let i = index" 
-                        [attr.fill]="color" width="20" height="20" [attr.x]="i * 20"></rect>
-                </svg>
-              </div>
-            </div> 
-          </div>									
-        </div>	
-      </div>
-
-      <div *ngIf="indicatorType && indicatorType.apiName && indicatorType.apiName.includes('DYNAMIC')">									
-        <h3 class="fs-subtitle">Da ein dynamischer Indikatorentyp ('{{indicatorType && indicatorType.displayName ? indicatorType.displayName : ''}}') konfiguriert wurde, ist hier keine Angabe erforderlich. Es wird folgende zweifarbige Standard-Klassifizierung verwendet</h3>
-
-        <div class="row vertical-align">
-          <div class="col-md-4 col-sm-6 col-xs-12">
-            <div class="form-group">
-              <label>Farbspektrum für negative Werte: </label>
-              <div style="display: inline-block;">
-                <svg width="100" height="20">
-                  <rect *ngFor="let color of colorbrewerSchemes[colorbreweSchemeName_dynamicDecrease]['5']; let i = index" 
-                        [attr.fill]="color" width="20" height="20" [attr.x]="i * 20"></rect>
+                  <rect *ngFor="let color of getColorSchemeColors(colorbreweSchemeName_dynamicDecrease, 5); let i = index" 
+                        [attr.fill]="color" 
+                        width="20" 
+                        height="20" 
+                        [attr.x]="i * 20">
+                  </rect>
                 </svg>
               </div>
             </div>
@@ -728,156 +748,390 @@
               <label>Farbspektrum für positive Werte: </label>
               <div style="display: inline-block;">
                 <svg width="100" height="20">
-                  <rect *ngFor="let color of colorbrewerSchemes[colorbreweSchemeName_dynamicIncrease]['5']; let i = index" 
-                        [attr.fill]="color" width="20" height="20" [attr.x]="i * 20"></rect>
+                  <rect *ngFor="let color of getColorSchemeColors(colorbreweSchemeName_dynamicIncrease, 5); let i = index" 
+                        [attr.fill]="color" 
+                        width="20" 
+                        height="20" 
+                        [attr.x]="i * 20">
+                  </rect>
                 </svg>
               </div>
-            </div> 
-          </div>									
-        </div>	
-      </div>
-
-      <div class="row vertical-align">
-        <div class="classificationMethodSelectContainer form-group">
-          <label>Klassifizierungsmethode</label>
-          <app-classification-method-select 
-            [defaultMethodId]="classificationMethod"
-            [hiddenMethodIds]="['manual']"
-            (onMethodSelect)="onClassificationMethodSelected($event)">
-          </app-classification-method-select>
-        </div>
-      </div>
-
-      <div class="row vertical-align">
-      <div class="form-group">
-          <label>Anzahl Klassen pro Raumebene</label>
-          <select class="form-control" [(ngModel)]="numClassesPerSpatialUnit" name="numClassesPerSpatialUnit" 
-                  (change)="onNumClassesChanged(numClassesPerSpatialUnit)" required>
-            <option [ngValue]="null">-- Anzahl Klassen wählen --</option>
-            <option *ngFor="let numClassesEntry of numClassesArray" [value]="numClassesEntry">{{numClassesEntry}}</option>
-          </select>
-          <div class="help-block with-errors"></div>
-          <div class="help-block">
-            <p>Für jede Raumebene wird die gleiche Anzahl an Klassengrenzen vergeben </p>
+            </div>
           </div>
         </div>
       </div>
 
-      <div class="row vertical-align" *ngIf="(numClassesPerSpatialUnit && numClassesPerSpatialUnit > 0) && classificationMethod == 'regional_default'">
-        <ngb-tabset>
-          <ngb-tab *ngFor="let spatialUnit of availableSpatialUnits; let i = index" 
-                   [title]="spatialUnit.spatialUnitLevel"
-                   [class]="tabClasses[i]">
-            <ng-template ngbTabContent>
-              <div class="just-padding">
-                <div class="col-md-6 col-sm-6 col-xs-12">
-                  <div class="form-group">
-                    <label>Klassengrenzen für die Ebene {{spatialUnit.spatialUnitLevel}}</label>
-                    <ng-container *ngIf="spatialUnitClassification[i] && spatialUnitClassification[i].breaks">
-                      <input *ngFor="let b of spatialUnitClassification[i].breaks; let j = index"
-                             type="number"
-                             class="form-control"
-                             (blur)="onBreaksChanged(i)"
-                             [(ngModel)]="spatialUnitClassification[i].breaks[j]"
-                             [name]="'break_' + i + '_' + j">
-                    </ng-container>
-                  </div>
+      <!-- DYNAMIC Indicator Type -->
+      <div *ngIf="indicatorType?.apiName?.includes('DYNAMIC')">
+        <h3 class="fs-subtitle">Da ein dynamischer Indikatorentyp ('{{indicatorType?.displayName}}') konfiguriert wurde, ist hier keine Angabe erforderlich. Es wird folgende zweifarbige Standard-Klassifizierung verwendet</h3>
+
+        <div class="row vertical-align">
+          <div class="col-md-4 col-sm-6 col-xs-12">
+            <div class="form-group">
+              <label>Farbspektrum für negative Werte: </label>
+              <div style="display: inline-block;">
+                <svg width="100" height="20">
+                  <rect *ngFor="let color of getColorSchemeColors(colorbreweSchemeName_dynamicDecrease, 5); let i = index" 
+                        [attr.fill]="color" 
+                        width="20" 
+                        height="20" 
+                        [attr.x]="i * 20">
+                  </rect>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-4 col-sm-6 col-xs-12">
+            <div class="form-group">
+              <label>Farbspektrum für positive Werte: </label>
+              <div style="display: inline-block;">
+                <svg width="100" height="20">
+                  <rect *ngFor="let color of getColorSchemeColors(colorbreweSchemeName_dynamicIncrease, 5); let i = index" 
+                        [attr.fill]="color" 
+                        width="20" 
+                        height="20" 
+                        [attr.x]="i * 20">
+                  </rect>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- General Classification Settings -->
+      <div class="row vertical-align">
+        <div class="classificationMethodSelectContainer form-group">
+          <label>Klassifizierungsmethode</label>
+          
+          <!-- Enhanced classification method selection -->
+          <div class="classification-method-selector">
+            <div class="method-options">
+              <div *ngFor="let method of classificationMethodOptions" 
+                   class="method-option" 
+                   [class.selected]="classificationMethod === method.id"
+                   (click)="onClassificationMethodSelected(method.id)">
+                <div class="method-icon">
+                  <img [src]="method.imgPath || 'icons/classificationMethods/neu/jenks.svg'" 
+                       [alt]="method.name" 
+                       class="method-icon-img">
                 </div>
-                <div class="col-md-6 col-sm-6 col-xs-12 boxedLegend">
-                  <p><b>Legende</b></p>
-                  <div class="row" style="margin-right: 0px;">
-                    <div class="col-md-2"><b>Symbolik</b></div>
-                    <div class="col-md-5"><b>Wertebereich</b></div>
-                    <div class="col-md-5"><b>Hinweis</b></div>
-                  </div>
-                  <ng-container *ngIf="spatialUnitClassification[i] && spatialUnitClassification[i].breaks && selectedColorBrewerPaletteEntry && selectedColorBrewerPaletteEntry.paletteArrayObject && selectedColorBrewerPaletteEntry.paletteArrayObject[numClassesPerSpatialUnit ? numClassesPerSpatialUnit.toString() : '']">
-                    <div class="row" 
-                         style="margin-right: 0px;" 
-                         *ngFor="let color of selectedColorBrewerPaletteEntry.paletteArrayObject[numClassesPerSpatialUnit.toString()]; let k = index">
-                      <!-- non-zero breaks -->
-                      <div *ngIf="spatialUnitClassification[i].breaks[k] != 0 && spatialUnitClassification[i].breaks[k-1] != 0 && !(spatialUnitClassification[i].breaks[k-1] < 0 && spatialUnitClassification[i].breaks[k] > 0)">
-                        <div class="col-md-2">
-                          <i *ngIf="spatialUnitClassification[i].breaks[0] >= 0" [style.background]="color"></i>
-                          <i *ngIf="spatialUnitClassification[i].breaks[0] < 0 && spatialUnitClassification[i].breaks[k] < 0" 
-                             [style.background]="colorbrewerSchemes[colorbreweSchemeName_dynamicDecrease][decreaseBreaksLength+1][decreaseBreaksLength-k-1]"></i>
-                          <i *ngIf="spatialUnitClassification[i].breaks[0] < 0 && spatialUnitClassification[i].breaks[k] > 0" 
-                             [style.background]="colorbrewerSchemes[colorbreweSchemeName_dynamicIncrease][increaseBreaksLength+1][increaseBreaksLength-(spatialUnitClassification[i].breaks.length - k)-1]"></i>
-                          <i *ngIf="spatialUnitClassification[i].breaks[0] < 0 && k == spatialUnitClassification[i].breaks.length" 
-                             [style.background]="colorbrewerSchemes[colorbreweSchemeName_dynamicIncrease][increaseBreaksLength+1][increaseBreaksLength-(spatialUnitClassification[i].breaks.length - k)-1]"></i>
-                        </div>
-                        <!-- lowest class -->
-                        <div class="col-md-5" *ngIf="k == 0">
-                          Niedrigster Wert 
-                          &dash; &lt; 
-                          <span *ngIf="spatialUnitClassification[i].breaks[k] !== null">{{spatialUnitClassification[i].breaks[k]}}</span>
-                          <span *ngIf="spatialUnitClassification[i].breaks[k] === null">[bitte eingeben]</span>
-                        </div>
-                        <div style="color: #737373" *ngIf="k == 0 && spatialUnitClassification[i].breaks[k] !== null" class="col-md-5">
-                          Klasse wird bei Werten unter {{spatialUnitClassification[i].breaks[k]}} hinzugefügt
-                        </div>
-                        <!-- classes in between -->
-                        <div class="col-md-10" *ngIf="k != 0 && k != spatialUnitClassification[i].breaks.length">
-                          <span *ngIf="spatialUnitClassification[i].breaks[k-1] !== null">{{spatialUnitClassification[i].breaks[k-1]}}</span>
-                          <span *ngIf="spatialUnitClassification[i].breaks[k-1] === null">[bitte eingeben]</span> 
-                          &dash; &lt; 
-                          <span *ngIf="spatialUnitClassification[i].breaks[k] !== null">{{spatialUnitClassification[i].breaks[k]}}</span>
-                          <span *ngIf="spatialUnitClassification[i].breaks[k] === null">[bitte eingeben]</span>
-                        </div>
-                        <!-- highest class -->
-                        <div class="col-md-5" *ngIf="k == spatialUnitClassification[i].breaks.length">
-                          <span *ngIf="spatialUnitClassification[i].breaks[k-1] !== null">{{spatialUnitClassification[i].breaks[k-1]}}</span>
-                          <span *ngIf="spatialUnitClassification[i].breaks[k-1] === null">[bitte eingeben]</span>  
-                          &dash; &lt; 
-                          Höchster Wert
-                        </div>
-                        <div style="color: #737373" *ngIf="k == spatialUnitClassification[i].breaks.length && spatialUnitClassification[i].breaks[k-1] !== null" class="col-md-5">
-                          Klasse wird bei Werten über {{spatialUnitClassification[i].breaks[k-1]}} hinzugefügt
-                        </div>
-                      </div>
-                      <!-- zero -->
-                      <div *ngIf="spatialUnitClassification[i].breaks[k] == 0 || (spatialUnitClassification[i].breaks[k-1] < 0 && spatialUnitClassification[i].breaks[k] > 0)">
-                        <br>
-                        <div class="col-md-2"><i style="background:#bababa; opacity: 0.7;"></i></div>
-                        <div class="col-md-5">
-                          0
-                        </div>
-                        <div style="color: #737373" class="col-md-5">
-                          <div *ngIf="spatialUnitClassification[i].breaks[k] == 0">
-                            Bei sonstigen Werten zwischen {{spatialUnitClassification[i].breaks[k-1] || 0 }}
-                            und {{spatialUnitClassification[i].breaks[k+1] || 0 }} werden weitere Klassen hinzugefügt
-                          </div>
-                          <div *ngIf="spatialUnitClassification[i].breaks[k] !== 0">
-                            Bei sonstigen Werten zwischen {{spatialUnitClassification[i].breaks[k-1] || 0 }}
-                            und {{spatialUnitClassification[i].breaks[k] || 0 }} werden weitere Klassen hinzugefügt
-                          </div>
-                        </div>
-                        <br><br>
-                      </div>
-                    </div>
-                  </ng-container>
+                <div class="method-info">
+                  <div class="method-name">{{method.name}}</div>
+                  <div class="method-description">{{method.description}}</div>
                 </div>
               </div>
-            </ng-template>
-          </ngb-tab>
-        </ngb-tabset>
+            </div>
+            
+            <!-- Fallback dropdown for mobile or if custom component fails -->
+            <select [(ngModel)]="classificationMethod" 
+                    name="classificationMethod" 
+                    (ngModelChange)="onClassificationMethodSelected($event)"
+                    class="form-control fallback-select" 
+                    required>
+              <option *ngFor="let method of classificationMethodOptions" 
+                      [value]="method.id">{{method.name}}</option>
+            </select>
+          </div>
+          
+          <div class="help-block">
+            <p>Methode zur Bestimmung der Klassengrenzen</p>
+          </div>
+          
+          <!-- Validation errors display -->
+          <div *ngIf="classificationValidationErrors.length > 0" class="alert alert-danger">
+            <ul>
+              <li *ngFor="let error of classificationValidationErrors">{{error}}</li>
+            </ul>
+          </div>
+        </div>
       </div>
 
-      <div class="help-block row" *ngIf="(numClassesPerSpatialUnit && numClassesPerSpatialUnit > 0) && classificationMethod == 'regional_default'">
-        <p>Vollständig ausgefüllte Tabs werden grün hervorgehoben.</p>
-        <p>Fehlerhaft ausgefüllte Tabs werden rot hervorgehoben. Die Klassengrenzen müssen von niedrig nach hoch sortiert sein. </p>
+      <div class="row vertical-align">
+        <div class="form-group">
+          <label>Anzahl Klassen pro Raumebene</label>
+          <select [(ngModel)]="numClassesPerSpatialUnit" name="numClassesPerSpatialUnit" (ngModelChange)="onNumClassesChanged($event)"
+            class="form-control" required>
+            <option [ngValue]="null" disabled selected>-- Anzahl Klassen wählen --</option>
+            <option *ngFor="let numClassesEntry of numClassesArray" [ngValue]="numClassesEntry">{{numClassesEntry}}</option>
+          </select>
+          <div class="help-block with-errors"></div>
+          <div class="help-block">
+            <p>Für jede Raumebene wird die gleiche Anzahl an Klassengrenzen vergeben</p>
+          </div>
+        </div>
       </div>
 
-      <input type="button" name="previous" class="previous previous_addIndicator action-button-previous" value="Voriger Schritt" (click)="previousStep()"/>
-      <input type="button" name="next" class="next next_addIndicator action-button" value="Nächster Schritt" (click)="nextStep()"/>
+      <!-- Regional Default Classification -->
+      <div class="row vertical-align" *ngIf="(numClassesPerSpatialUnit && numClassesPerSpatialUnit > 0) && classificationMethod === 'regional_default'">
+        <div class="col-md-12">
+          <div class="form-group">
+            <div class="nav-tabs-custom">
+              <ul class="nav nav-tabs">
+                <li *ngFor="let spatialUnit of availableSpatialUnits; let i = index" 
+                    [class.active]="i === currentClassificationTab" 
+                    [ngClass]="tabClasses[i]">
+                  <a href="#" (click)="goToClassificationTab(i); $event.preventDefault()">
+                    {{spatialUnit.spatialUnitLevel}}
+                  </a>
+                </li>
+              </ul>
+              <div class="tab-content">
+                <div *ngFor="let spatialUnit of availableSpatialUnits; let i = index" 
+                     class="tab-pane" 
+                     [class.active]="i === currentClassificationTab"
+                     [id]="'classification-tab-' + i">
+                  <div class="just-padding">
+                    <div class="row">
+                      <div class="col-md-6 col-sm-6 col-xs-12">
+                        <div class="form-group">
+                          <label>Klassengrenzen für die Ebene {{spatialUnit.spatialUnitLevel}}</label>
+                          <div *ngFor="let break of spatialUnitClassification[i]?.breaks; let j = index" class="form-group">
+                            <input type="number"
+                                   class="form-control"
+                                   (blur)="onBreaksChanged(i)"
+                                   [(ngModel)]="spatialUnitClassification[i].breaks[j]"
+                                   [placeholder]="'Klassengrenze ' + (j + 1)">
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-md-6 col-sm-6 col-xs-12 boxedLegend">
+                        <p><b>Legende</b></p>
+                        <div class="row" style="margin-right: 0px;">
+                          <div class="col-md-2"><b>Symbolik</b></div>
+                          <div class="col-md-5"><b>Wertebereich</b></div>
+                          <div class="col-md-5"><b>Hinweis</b></div>
+                        </div>
+                        <div class="row" 
+                             style="margin-right: 0px;" 
+                             *ngFor="let color of (selectedColorBrewerPaletteEntry?.paletteArrayObject && numClassesPerSpatialUnit ? selectedColorBrewerPaletteEntry.paletteArrayObject[numClassesPerSpatialUnit.toString()] : []); let index = index">
+                          
+                          <!-- non-zero breaks -->
+                          <div *ngIf="spatialUnitClassification[i]?.breaks[index] != 0 && spatialUnitClassification[i]?.breaks[index-1] != 0 && !(spatialUnitClassification[i]?.breaks[index-1] < 0 && spatialUnitClassification[i]?.breaks[index] > 0)">
+                            <div class="col-md-2">
+                              <i *ngIf="spatialUnitClassification[i]?.breaks[0] >= 0" [style.background]="color"></i>
+                              <i *ngIf="spatialUnitClassification[i]?.breaks[0] < 0 && spatialUnitClassification[i]?.breaks[index] < 0" 
+                                 [style.background]="getDynamicColor(colorbreweSchemeName_dynamicDecrease, decreaseBreaksLength, index, 'decrease')"></i>
+                              <i *ngIf="spatialUnitClassification[i]?.breaks[0] < 0 && spatialUnitClassification[i]?.breaks[index] > 0" 
+                                 [style.background]="getDynamicColor(colorbreweSchemeName_dynamicIncrease, increaseBreaksLength, index, 'increase')"></i>
+                              <i *ngIf="spatialUnitClassification[i]?.breaks[0] < 0 && index == spatialUnitClassification[i]?.breaks.length" 
+                                 [style.background]="getDynamicColor(colorbreweSchemeName_dynamicIncrease, increaseBreaksLength, index, 'increase')"></i>
+                            </div>
+                            
+                            <!-- lowest class -->
+                            <div class="col-md-5" *ngIf="index == 0">
+                              Niedrigster Wert 
+                              &dash; &lt; 
+                              <span *ngIf="spatialUnitClassification[i]?.breaks[index] !== null">{{spatialUnitClassification[i]?.breaks[index]}}</span>
+                              <span *ngIf="spatialUnitClassification[i]?.breaks[index] === null">[bitte eingeben]</span>
+                            </div>
+                            <div style="color: #737373" *ngIf="index == 0 && spatialUnitClassification[i]?.breaks[index] !== null" class="col-md-5">
+                              Klasse wird bei Werten unter {{spatialUnitClassification[i]?.breaks[index]}} hinzugefügt
+                            </div>
+                          
+                            <!-- classes in between -->
+                            <div class="col-md-10" *ngIf="index != 0 && index != spatialUnitClassification[i]?.breaks.length">
+                              <span *ngIf="spatialUnitClassification[i]?.breaks[index-1] !== null">{{spatialUnitClassification[i]?.breaks[index-1]}}</span>
+                              <span *ngIf="spatialUnitClassification[i]?.breaks[index-1] === null">[bitte eingeben]</span> 
+                              &dash; &lt; 
+                              <span *ngIf="spatialUnitClassification[i]?.breaks[index] !== null">{{spatialUnitClassification[i]?.breaks[index]}}</span>
+                              <span *ngIf="spatialUnitClassification[i]?.breaks[index] === null">[bitte eingeben]</span>
+                            </div>
+
+                            <!-- highest class -->
+                            <div class="col-md-5" *ngIf="index == spatialUnitClassification[i]?.breaks.length">
+                              <span *ngIf="spatialUnitClassification[i]?.breaks[index-1] !== null">{{spatialUnitClassification[i]?.breaks[index-1]}}</span>
+                              <span *ngIf="spatialUnitClassification[i]?.breaks[index-1] === null">[bitte eingeben]</span>  
+                              &dash; &lt; 
+                              Höchster Wert
+                            </div>
+                            <div style="color: #737373" *ngIf="index == spatialUnitClassification[i]?.breaks.length && spatialUnitClassification[i]?.breaks[index-1] !== null" class="col-md-5">
+                              Klasse wird bei Werten über {{spatialUnitClassification[i]?.breaks[index-1]}} hinzugefügt
+                            </div>
+                          </div>
+
+                          <!-- zero -->
+                          <div *ngIf="spatialUnitClassification[i]?.breaks[index] == 0 || (spatialUnitClassification[i]?.breaks[index-1] < 0 && spatialUnitClassification[i]?.breaks[index] > 0)">
+                            <br>
+                            <div class="col-md-2"><i style="background:#bababa; opacity: 0.7;"></i></div>
+                            <div class="col-md-5">0</div>
+                            <div style="color: #737373" class="col-md-5">
+                              <div *ngIf="spatialUnitClassification[i]?.breaks[index] == 0">
+                                Bei sonstigen Werten zwischen {{spatialUnitClassification[i]?.breaks[index-1] || 0 }}
+                                und {{spatialUnitClassification[i]?.breaks[index+1] || 0 }} werden weitere Klassen hinzugefügt
+                              </div>
+                              <div *ngIf="spatialUnitClassification[i]?.breaks[index] !== 0">
+                                Bei sonstigen Werten zwischen {{spatialUnitClassification[i]?.breaks[index-1] || 0 }}
+                                und {{spatialUnitClassification[i]?.breaks[index] || 0 }} werden weitere Klassen hinzugefügt
+                              </div>
+                            </div>
+                            <br><br>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="help-block row" *ngIf="(numClassesPerSpatialUnit && numClassesPerSpatialUnit > 0) && classificationMethod === 'regional_default'">
+          <p>Vollständig ausgefüllte Tabs werden grün hervorgehoben.</p>
+          <p>Fehlerhaft ausgefüllte Tabs werden rot hervorgehoben. Die Klassengrenzen müssen von niedrig nach hoch sortiert sein.</p>
+        </div>
+
+        <input type="button" name="previous" class="previous previous_editIndicatorMetadata action-button-previous" value="Voriger Schritt" (click)="previousStep()"/>
+        <input type="button" name="next" class="next next_editIndicatorMetadata action-button" value="Nächster Schritt" (click)="nextStep()"/>
+      </div>
     </fieldset>
 
     <!-- Step 6: Vergleichswerte (optional) -->
     <fieldset *ngIf="currentStep === 6">
       <h2 class="fs-title">Vergleichswerte (optional)</h2>
       <h3 class="fs-subtitle">Optionale Vergabe gesamtregionaler Vergleichswerte. Hierüber sind regionale Gesamtwerte als Summe oder Durchschnittswerte hinterlegbar.</h3>
-      <h4>Beim initialen Anlegen von Indikatoren können noch keine Vergleichswerte hinterlegt werden. Zur Wahrung der Datenkonsistenz ist dies ausschließlich über die Editiermaske für Indikatoren-Metadaten möglich.</h4>
-      <input type="button" name="previous" class="previous previous_addIndicator action-button-previous" value="Voriger Schritt" (click)="previousStep()"/>
-      <input type="button" name="submit" class="submit submit_addIndicator action-button" value="Speichern" (click)="onSubmit($event)"/>
+      <h4>Zur Wahrung der Datenkonsistenz können Vergleichswerte ausschließlich für bereits verfügbare Zeitschnitte hinterlegt werden.</h4>
+
+      <div class="row">
+        <div class="col-md-7 col-sm-8 col-xs-12">
+          <!-- Data Grid for Regional Reference Values -->
+          <div id="indicatorRegionalReferenceValuesManagementTable" style="height: 60vh" class="ag-theme-alpine">
+            <ag-grid-angular 
+              *ngIf="regionalReferenceValuesManagementTableOptions"
+              [gridOptions]="regionalReferenceValuesManagementTableOptions"
+              [rowData]="regionalReferenceValuesManagementTableOptions.rowData"
+              [columnDefs]="regionalReferenceValuesManagementTableOptions.columnDefs"
+              [pagination]="true"
+              [paginationPageSize]="10"
+              style="width: 100%; height: 100%;"
+              class="ag-theme-alpine">
+            </ag-grid-angular>
+          </div>
+        </div>
+        
+        <div class="col-md-5">
+          <div class="form-group">
+            <!-- DRAG/DROP Area to insert CSV file with timestamp and regionalSum, regionalAverage columns -->
+            <div class="drop_zone" 
+                 (click)="openFileDialog()" 
+                 (dragover)="onDragOver($event)" 
+                 (drop)="onDrop($event)"
+                 [class.drag-over]="isDragOver">
+              <input type="file" 
+                     #fileInput
+                     id="fileUploadInput_importRegionalReferenceValues" 
+                     style="display: none"
+                     accept=".csv" 
+                     (change)="onFileSelected($event)" />
+              <i style="font-size:4em; margin:5px;" class="fas fa-file-upload"></i>
+              <h4 style="vertical-align: middle; margin-bottom:10px;">
+                Hochladen einer CSV-Datei mit folgenden Spalten:
+                <ul style="width: 50%; margin-left: 25%; margin-top:10%">
+                  <li>Zeitstempel (YYYY-MM-DD)*</li>
+                  <li>gesamtregionaler Summenwert</li>
+                  <li>gesamtregionaler Mittelwert</li>
+                </ul>
+                * = Pflichtfeld
+              </h4>
+            </div>
+          </div>
+
+          <div class="row vertical-align">
+            <div class="col-xs-12">
+              <div *ngIf="file_regionalReferenceValuesImport" class="file-upload-status success">
+                <i class="fas fa-check-circle"></i>
+                <b>Datei ausgewählt:</b> <i>{{file_regionalReferenceValuesImport.name}}</i>
+              </div>
+              <div *ngIf="!file_regionalReferenceValuesImport" class="file-upload-status info">
+                <i class="fas fa-info-circle"></i>
+                <b>Angegebene Datei:</b> <i>-- keine --</i>
+              </div>
+            </div>
+          </div>
+
+          <br>
+
+          <!-- Column Mapping Interface -->
+          <div class="row vertical-align" *ngIf="tmpIndicatorRegionalReferenceValuesObject?.featureSchema">
+            <div class="col-xs-3">
+              <label>Spaltenname Zeitstempel</label>
+              <select style="font-size: 11px;" 
+                      [(ngModel)]="tmpIndicatorRegionalReferenceValuesObject.TIMESTAMP_ATTRIBUTE"
+                      class="form-control" 
+                      required>
+                <option *ngFor="let property of tmpIndicatorRegionalReferenceValuesObject.featureSchema" 
+                        [value]="property">{{property}}</option>
+              </select>
+            </div>
+            
+            <div class="col-xs-3">
+              <label>Spaltenname Summenwert</label>
+              <select style="font-size: 11px;" 
+                      [(ngModel)]="tmpIndicatorRegionalReferenceValuesObject.REGIONAL_SUM_ATTRIBUTE"
+                      class="form-control" 
+                      required>
+                <option *ngFor="let property of tmpIndicatorRegionalReferenceValuesObject.featureSchema" 
+                        [value]="property">{{property}}</option>
+              </select>
+            </div>
+
+            <div class="col-xs-3">
+              <label>Spaltenname Mittelwert</label>
+              <select style="font-size: 11px;" 
+                      [(ngModel)]="tmpIndicatorRegionalReferenceValuesObject.REGIONAL_MEAN_ATTRIBUTE"
+                      class="form-control" 
+                      required>
+                <option *ngFor="let property of tmpIndicatorRegionalReferenceValuesObject.featureSchema" 
+                        [value]="property">{{property}}</option>
+              </select>
+            </div>
+            
+            <div class="col-xs-3">
+              <label>Spaltenname räumlich nicht zuordenbar</label>
+              <select style="font-size: 11px;" 
+                      [(ngModel)]="tmpIndicatorRegionalReferenceValuesObject.SPATIALLY_UNASSIGNABLE"
+                      class="form-control" 
+                      required>
+                <option *ngFor="let property of tmpIndicatorRegionalReferenceValuesObject.featureSchema" 
+                        [value]="property">{{property}}</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="row vertical-align">
+            <div class="col-xs-4"></div>
+            <div class="col-xs-4">
+              <button type="button" 
+                      class="btn btn-success" 
+                      (click)="loadCSV_indicatorRegionalReferenceValues()"
+                      [disabled]="!tmpIndicatorRegionalReferenceValuesObject?.TIMESTAMP_ATTRIBUTE">
+                <i class="fa-solid fa-plus"></i>&nbsp;&nbsp;laden
+              </button>
+            </div>
+            <div class="col-xs-4"></div>
+          </div>
+
+          <!-- Status Messages -->
+          <div class="row vertical-align" *ngIf="csvProcessingStatus">
+            <div class="col-xs-12">
+              <div class="file-upload-status" 
+                   [class.success]="csvProcessingStatus.type === 'success'"
+                   [class.error]="csvProcessingStatus.type === 'error'"
+                   [class.info]="csvProcessingStatus.type === 'info'">
+                <i [class]="csvProcessingStatus.type === 'success' ? 'fas fa-check-circle' : 
+                           csvProcessingStatus.type === 'error' ? 'fas fa-exclamation-circle' : 
+                           'fas fa-info-circle'"></i>
+                {{csvProcessingStatus.message}}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <input type="button" name="previous" class="previous previous_editIndicatorMetadata action-button-previous" value="Voriger Schritt" (click)="previousStep()"/>
+      <input type="button" name="next" class="next next_editIndicatorMetadata action-button" value="Nächster Schritt" (click)="nextStep()"/>
     </fieldset>
     </form>
 
