@@ -62,66 +62,64 @@ export class KommonitorDataGridHelperService {
     return this.dataGridOptions_spatialUnits;
   }
 
+
+
   // Store current spatial units data
   private currentSpatialUnitsData: any[] = [];
 
   /**
    * Build the grid options configuration for ag-grid-angular
+   * Returns base configuration that component can extend
    */
-  private buildDataGridOptions_spatialUnits(spatialUnitMetadataArray: any[]): GridOptions {
+  buildDataGridOptions_spatialUnits(spatialUnitMetadataArray: any[]): GridOptions {
     const columnDefs = this.buildDataGridColumnConfig_spatialUnits(spatialUnitMetadataArray);
     const rowData = this.buildDataGridRowData_spatialUnits(spatialUnitMetadataArray);
 
     const gridOptions: GridOptions = {
       columnDefs: columnDefs,
       rowData: rowData,
-      defaultColDef: {
-        editable: false,
-        sortable: true,
-        flex: 1,
-        minWidth: 200,
-        filter: true,
-        floatingFilter: true,
-        resizable: true,
-        wrapText: true,
-        autoHeight: true,
-        cellStyle: { 
-          'font-size': '12px', 
-          'white-space': 'normal !important', 
-          'line-height': '20px !important', 
-          'word-break': 'break-word !important', 
-          'padding-top': '17px', 
-          'padding-bottom': '17px' 
-        }
-      },
+      defaultColDef: this.buildDefaultColDef(),
       suppressRowClickSelection: true,
       rowSelection: 'multiple',
       enableCellTextSelection: true,
       ensureDomOrder: true,
       pagination: true,
       paginationPageSize: 10,
-      suppressColumnVirtualisation: true,
-      onGridReady: (params) => {
-        this.gridApi_spatialUnits = params.api;
-        this.headerHeightSetter();
-        this.registerClickHandler_spatialUnits();
-      },
-      onFirstDataRendered: () => {
-        this.headerHeightSetter();
-        this.registerClickHandler_spatialUnits();
-      },
-      onColumnResized: () => {
-        this.headerHeightSetter();
-      }
+      suppressColumnVirtualisation: true
     };
 
     return gridOptions;
   }
 
   /**
+   * Build default column definition
+   */
+  buildDefaultColDef(): ColDef {
+    return {
+      editable: false,
+      sortable: true,
+      flex: 1,
+      minWidth: 200,
+      filter: true,
+      floatingFilter: true,
+      resizable: true,
+      wrapText: true,
+      autoHeight: true,
+      cellStyle: { 
+        'font-size': '12px', 
+        'white-space': 'normal !important', 
+        'line-height': '20px !important', 
+        'word-break': 'break-word !important', 
+        'padding-top': '17px', 
+        'padding-bottom': '17px' 
+      }
+    };
+  }
+
+  /**
    * Build column configuration for spatial units with proper cell renderers
    */
-  private buildDataGridColumnConfig_spatialUnits(spatialUnitMetadataArray: any[]): ColDef[] {
+  buildDataGridColumnConfig_spatialUnits(spatialUnitMetadataArray: any[]): ColDef[] {
     const columnDefs: ColDef[] = [
       { 
         headerName: 'Editierfunktionen', 
@@ -213,14 +211,88 @@ export class KommonitorDataGridHelperService {
   /**
    * Build row data for spatial units (just return the input array)
    */
-  private buildDataGridRowData_spatialUnits(spatialUnitMetadataArray: any[]): any[] {
+  buildDataGridRowData_spatialUnits(spatialUnitMetadataArray: any[]): any[] {
     return spatialUnitMetadataArray;
   }
 
   /**
+   * Build grid options for spatial units
+   */
+  buildGridOptions(): GridOptions {
+    return {
+      suppressRowClickSelection: true,
+      rowSelection: 'multiple',
+      enableCellTextSelection: true,
+      ensureDomOrder: true,
+      pagination: true,
+      paginationPageSize: 10,
+      suppressColumnVirtualisation: true
+    };
+  }
+
+  /**
+   * Build default column definition for role management grids
+   */
+  buildRoleManagementDefaultColDef(): any {
+    return {
+      editable: false,
+      sortable: true,
+      flex: 1,
+      minWidth: 100,
+      filter: true,
+      floatingFilter: false,
+      resizable: true,
+      wrapText: true,
+      autoHeight: true,
+      cellStyle: { 
+        'font-size': '12px', 
+        'white-space': 'normal !important', 
+        'line-height': '20px !important', 
+        'word-break': 'break-word !important', 
+        'padding-top': '17px', 
+        'padding-bottom': '17px' 
+      },
+      headerComponentParams: {
+        template:
+          '<div class="ag-cell-label-container" role="presentation">' +
+          '  <span ref="eMenu" class="ag-header-icon ag-header-cell-menu-button"></span>' +
+          '  <div ref="eLabel" class="ag-header-cell-label" role="presentation">' +
+          '    <span ref="eSortOrder" class="ag-header-icon ag-sort-order"></span>' +
+          '    <span ref="eSortAsc" class="ag-header-icon ag-sort-ascending-icon"></span>' +
+          '    <span ref="eSortDesc" class="ag-header-icon ag-sort-descending-icon"></span>' +
+          '    <span ref="eSortNone" class="ag-header-icon ag-sort-none-icon"></span>' +
+          '    <span ref="eText" class="ag-header-cell-text" role="columnheader" style="white-space: normal;"></span>' +
+          '    <span ref="eFilter" class="ag-header-icon ag-filter-icon"></span>' +
+          '  </div>' +
+          '</div>',
+      },
+    };
+  }
+
+  /**
+   * Build grid options for role management grids (public method for components)
+   */
+  buildRoleManagementGridOptionsPublic(components?: any): GridOptions {
+    return {
+      components: components || {},
+      suppressRowClickSelection: true,
+      rowSelection: 'multiple',
+      enableCellTextSelection: true,
+      ensureDomOrder: true,
+      pagination: true,
+      paginationPageSize: 10,
+      suppressColumnVirtualisation: true,
+      headerHeight: 40,
+      rowHeight: 35
+    };
+  }
+
+
+
+  /**
    * Cell renderer for edit buttons
    */
-  private displayEditButtons_spatialUnits(params: any): string {
+  displayEditButtons_spatialUnits(params: any): string {
     const data = params.data;
     let html = '<div class="btn-group btn-group-sm">';
     

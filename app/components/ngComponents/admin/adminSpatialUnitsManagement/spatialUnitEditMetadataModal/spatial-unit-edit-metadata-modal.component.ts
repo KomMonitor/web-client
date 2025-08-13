@@ -302,38 +302,29 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy 
     const spatialUnitName_old = this.currentSpatialUnitDataset.spatialUnitLevel;
     const spatialUnitName_new = this.spatialUnitLevel;
 
-    // Helper function to convert empty strings to null
-    const convertEmptyToNull = (value: any) => {
-      return value === '' || value === undefined || value === null ? null : value;
-    };
-
-    // Validate required fields
-    if (!this.spatialUnitLevel || this.spatialUnitLevel.trim() === '') {
-      this.errorMessage = 'Raumebene Name ist erforderlich.';
+    // Validate using service method
+    const validation = this.kommonitorDataExchangeService.validateSpatialUnitMetadata(
+      this.metadata, 
+      this.spatialUnitLevel
+    );
+    
+    if (!validation.isValid) {
+      this.errorMessage = validation.errors.join('\n');
       this.loadingData = false;
       return;
     }
 
-    const patchBody = {
-      datasetName: this.spatialUnitLevel.trim(),
-      metadata: {
-        note: convertEmptyToNull(this.metadata.note),
-        literature: convertEmptyToNull(this.metadata.literature),
-        updateInterval: this.metadata.updateInterval && this.metadata.updateInterval.apiName ? this.metadata.updateInterval.apiName : null,
-        sridEPSG: this.metadata.sridEPSG || 4326,
-        datasource: convertEmptyToNull(this.metadata.datasource),
-        contact: convertEmptyToNull(this.metadata.contact),
-        lastUpdate: convertEmptyToNull(this.metadata.lastUpdate),
-        description: convertEmptyToNull(this.metadata.description),
-        databasis: convertEmptyToNull(this.metadata.databasis)
-      },
-      nextLowerHierarchyLevel: this.nextLowerHierarchySpatialUnit ? this.nextLowerHierarchySpatialUnit.spatialUnitLevel : null,
-      nextUpperHierarchyLevel: this.nextUpperHierarchySpatialUnit ? this.nextUpperHierarchySpatialUnit.spatialUnitLevel : null,
-      isOutlineLayer: this.isOutlineLayer,
-      outlineColor: this.outlineColor || '#bf3d2c',
-      outlineWidth: this.outlineWidth || 2,
-      outlineDashArrayString: this.selectedOutlineDashArrayObject ? this.selectedOutlineDashArrayObject.dashArrayValue : null
-    };
+    // Build patch body using service method
+    const patchBody = this.kommonitorDataExchangeService.buildSpatialUnitMetadataPatchBody(
+      this.spatialUnitLevel,
+      this.metadata,
+      this.nextLowerHierarchySpatialUnit ? this.nextLowerHierarchySpatialUnit.spatialUnitLevel : null,
+      this.nextUpperHierarchySpatialUnit ? this.nextUpperHierarchySpatialUnit.spatialUnitLevel : null,
+      this.isOutlineLayer,
+      this.outlineColor,
+      this.outlineWidth,
+      this.selectedOutlineDashArrayObject ? this.selectedOutlineDashArrayObject.dashArrayValue : null
+    );
 
     // No role management in this version to match AngularJS
 
@@ -442,7 +433,7 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy 
       return;
     }
 
-    // Apply imported metadata
+    // Apply imported metadata using service method for consistency
     this.metadata = {
       note: this.metadataImportSettings.metadata.note,
       literature: this.metadataImportSettings.metadata.literature,
@@ -492,32 +483,17 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy 
   }
 
   onExportSpatialUnitEditMetadata() {
-    // Helper function to convert empty strings to null for export
-    const convertEmptyToNull = (value: any) => {
-      return value === '' || value === undefined ? null : value;
-    };
-
-    const metadataExport = {
-      ...this.spatialUnitMetadataStructure,
-      metadata: {
-        note: convertEmptyToNull(this.metadata.note),
-        literature: convertEmptyToNull(this.metadata.literature),
-        sridEPSG: this.metadata.sridEPSG || null,
-        datasource: convertEmptyToNull(this.metadata.datasource),
-        contact: convertEmptyToNull(this.metadata.contact),
-        lastUpdate: convertEmptyToNull(this.metadata.lastUpdate),
-        description: convertEmptyToNull(this.metadata.description),
-        databasis: convertEmptyToNull(this.metadata.databasis),
-        updateInterval: this.metadata.updateInterval ? this.metadata.updateInterval.apiName : null
-      },
-      spatialUnitLevel: this.spatialUnitLevel || null,
-      nextLowerHierarchyLevel: this.nextLowerHierarchySpatialUnit ? this.nextLowerHierarchySpatialUnit.spatialUnitLevel : null,
-      nextUpperHierarchyLevel: this.nextUpperHierarchySpatialUnit ? this.nextUpperHierarchySpatialUnit.spatialUnitLevel : null,
-      isOutlineLayer: this.isOutlineLayer,
-      outlineColor: this.outlineColor,
-      outlineWidth: this.outlineWidth,
-      outlineDashArrayString: this.selectedOutlineDashArrayObject ? this.selectedOutlineDashArrayObject.dashArrayValue : null
-    };
+    // Build export data using service method
+    const metadataExport = this.kommonitorDataExchangeService.buildSpatialUnitMetadataExport(
+      this.metadata,
+      this.spatialUnitLevel,
+      this.nextLowerHierarchySpatialUnit ? this.nextLowerHierarchySpatialUnit.spatialUnitLevel : null,
+      this.nextUpperHierarchySpatialUnit ? this.nextUpperHierarchySpatialUnit.spatialUnitLevel : null,
+      this.isOutlineLayer,
+      this.outlineColor,
+      this.outlineWidth,
+      this.selectedOutlineDashArrayObject ? this.selectedOutlineDashArrayObject.dashArrayValue : null
+    );
 
     // No role management in this version to match AngularJS
 
@@ -539,25 +515,9 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy 
     URL.revokeObjectURL(url);
   }
 
-  // Metadata structure for export
+  // Metadata structure for export - now using service
   get spatialUnitMetadataStructure() {
-    return {
-      "metadata": {
-        "note": "an optional note",
-        "literature": "optional text about literature",
-        "updateInterval": "YEARLY|HALF_YEARLY|QUARTERLY|MONTHLY|ARBITRARY",
-        "sridEPSG": 4326,
-        "datasource": "text about data source",
-        "contact": "text about contact details",
-        "lastUpdate": "YYYY-MM-DD",
-        "description": "description about spatial unit dataset",
-        "databasis": "text about data basis"
-      },
-      "allowedRoles": ['roleId'],
-      "nextLowerHierarchyLevel": "Name of lower hierarchy level",
-      "spatialUnitLevel": "Name of spatial unit dataset",
-      "nextUpperHierarchyLevel": "Name of upper hierarchy level"
-    };
+    return this.kommonitorDataExchangeService.spatialUnitMetadataStructure;
   }
 
   hideSuccessAlert() {

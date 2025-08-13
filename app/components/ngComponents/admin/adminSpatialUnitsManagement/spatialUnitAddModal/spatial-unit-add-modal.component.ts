@@ -451,15 +451,16 @@ export class SpatialUnitAddModalComponent implements OnInit {
   }
 
   checkPeriodOfValidity() {
-    this.periodOfValidityInvalid = false;
-    if (this.periodOfValidity.startDate && this.periodOfValidity.endDate) {
-      const startDate = new Date(this.periodOfValidity.startDate);
-      const endDate = new Date(this.periodOfValidity.endDate);
-
-      if ((startDate.getTime() === endDate.getTime()) || startDate > endDate) {
-        // failure
-        this.periodOfValidityInvalid = true;
-      }
+    // Use service method for validation
+    const validation = this.kommonitorDataExchangeService.validatePeriodOfValidity(
+      this.periodOfValidity.startDate,
+      this.periodOfValidity.endDate
+    );
+    
+    this.periodOfValidityInvalid = !validation.isValid;
+    
+    if (!validation.isValid && validation.error) {
+      console.warn('Period of validity validation error:', validation.error);
     }
   }
 
@@ -998,38 +999,24 @@ export class SpatialUnitAddModalComponent implements OnInit {
   }
 
   onExportSpatialUnitAddMetadata() {
-    const metadataExport: any = { ...this.spatialUnitMetadataStructure };
+    // Use service method to build export structure
+    const metadataExport = this.kommonitorDataExchangeService.buildSpatialUnitMetadataExport(
+      this.metadata,
+      this.spatialUnitLevel,
+      this.nextLowerHierarchySpatialUnit?.spatialUnitLevel || null,
+      this.nextUpperHierarchySpatialUnit?.spatialUnitLevel || null,
+      this.isOutlineLayer,
+      this.outlineColor,
+      this.outlineWidth,
+      this.selectedOutlineDashArrayObject?.dashArrayValue || null
+    );
 
-    // Update metadata fields
-    metadataExport.metadata.note = this.metadata.note || "";
-    metadataExport.metadata.literature = this.metadata.literature || "";
-    metadataExport.metadata.sridEPSG = this.metadata.sridEPSG || "";
-    metadataExport.metadata.datasource = this.metadata.datasource || "";
-    metadataExport.metadata.contact = this.metadata.contact || "";
-    metadataExport.metadata.lastUpdate = this.metadata.lastUpdate || "";
-    metadataExport.metadata.description = this.metadata.description || "";
-    metadataExport.metadata.databasis = this.metadata.databasis || "";
-    metadataExport.spatialUnitLevel = this.spatialUnitLevel || "";
-
-    // Update permissions (changed from allowedRoles)
+    // Add component-specific properties
     metadataExport.permissions = [];
     if (this.roleManagementTableOptions) {
       const roleIds = this.kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid(this.roleManagementTableOptions);
       metadataExport.permissions.push(...roleIds);
     }
-
-    // Update hierarchy levels
-    if (this.metadata.updateInterval) {
-      metadataExport.metadata.updateInterval = this.metadata.updateInterval.apiName;
-    }
-    metadataExport.nextLowerHierarchyLevel = this.nextLowerHierarchySpatialUnit?.spatialUnitLevel || "";
-    metadataExport.nextUpperHierarchyLevel = this.nextUpperHierarchySpatialUnit?.spatialUnitLevel || "";
-
-    // Add outline layer properties
-    metadataExport.isOutlineLayer = this.isOutlineLayer;
-    metadataExport.outlineDashArrayString = this.selectedOutlineDashArrayObject?.dashArrayValue;
-    metadataExport.outlineColor = this.outlineColor;
-    metadataExport.outlineWidth = this.outlineWidth;
 
     // Add owner properties
     metadataExport.ownerId = this.ownerOrganization;
@@ -1045,13 +1032,13 @@ export class SpatialUnitAddModalComponent implements OnInit {
     const datasourceTypeDefinition = await this.buildDatasourceTypeDefinition();
     const propertyMappingDefinition = this.buildPropertyMappingDefinition();
 
-    const mappingConfigExport = {
-      "converter": converterDefinition,
-      "dataSource": datasourceTypeDefinition,
-      "propertyMapping": propertyMappingDefinition,
-    };
-
-    (mappingConfigExport as any).periodOfValidity = this.periodOfValidity;
+    // Use service method to build export structure
+    const mappingConfigExport = this.kommonitorDataExchangeService.buildMappingConfigExport(
+      converterDefinition,
+      datasourceTypeDefinition,
+      propertyMappingDefinition,
+      this.periodOfValidity
+    );
 
     const name = this.spatialUnitLevel;
     const metadataJSON = JSON.stringify(mappingConfigExport);
@@ -1082,23 +1069,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
 
   // Metadata structure for export
   get spatialUnitMetadataStructure() {
-    return {
-      "metadata": {
-        "note": "an optional note",
-        "literature": "optional text about literature",
-        "updateInterval": "YEARLY|HALF_YEARLY|QUARTERLY|MONTHLY|ARBITRARY",
-        "sridEPSG": 4326,
-        "datasource": "text about data source",
-        "contact": "text about contact details",
-        "lastUpdate": "YYYY-MM-DD",
-        "description": "description about spatial unit dataset",
-        "databasis": "text about data basis",
-      },
-      "permissions": ['roleId'],
-      "nextLowerHierarchyLevel": "Name of lower hierarchy level",
-      "spatialUnitLevel": "Name of spatial unit dataset",
-      "nextUpperHierarchyLevel": "Name of upper hierarchy level"
-    };
+    return this.kommonitorDataExchangeService.spatialUnitMetadataStructure;
   }
 
   get spatialUnitMappingConfigStructure_pretty() {
@@ -1227,45 +1198,15 @@ export class SpatialUnitAddModalComponent implements OnInit {
   }
 
   private buildRoleManagementGridConfig() {
-    this.roleManagementDefaultColDef = this.buildRoleManagementDefaultColDef();
-    this.roleManagementGridOptions = this.buildRoleManagementGridOptions();
-  }
-
-  private buildRoleManagementDefaultColDef(): ColDef {
-    return {
-      editable: false,
-      sortable: true,
-      flex: 1,
-      minWidth: 100,
-      filter: false,
-      resizable: true,
-      wrapText: true,
-      autoHeight: false,
-      cellStyle: { 
-        'font-size': '12px', 
-        'white-space': 'normal !important', 
-        'line-height': '20px !important', 
-        'word-break': 'break-word !important', 
-        'padding-top': '8px', 
-        'padding-bottom': '8px' 
-      }
-    };
-  }
-
-  private buildRoleManagementGridOptions(): GridOptions {
-    // Use components from the table options if available
-    const components = this.roleManagementTableOptions?.components || {};
-
-    return {
-      components: components,
-      suppressRowClickSelection: true,
-      rowSelection: 'multiple',
-      enableCellTextSelection: true,
-      ensureDomOrder: true,
-      pagination: false,
-      suppressColumnVirtualisation: true,
-      headerHeight: 40,
-      rowHeight: 35,
+    // Use service methods for base grid configuration
+    this.roleManagementDefaultColDef = this.kommonitorDataGridHelperService.buildRoleManagementDefaultColDef();
+    const baseGridOptions = this.kommonitorDataGridHelperService.buildRoleManagementGridOptionsPublic(
+      this.roleManagementTableOptions?.components
+    );
+    
+    // Apply component-specific overrides
+    this.roleManagementGridOptions = {
+      ...baseGridOptions,
       onGridReady: (params) => {
         this.onRoleManagementGridReady(params);
       },

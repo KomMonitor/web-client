@@ -193,14 +193,22 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
   }
 
   private buildFeatureTable(): void {
+    console.log('Building feature table with:', {
+      headers: this.remainingFeatureHeaders,
+      features: this.spatialUnitFeaturesGeoJSON?.features?.length || 0,
+      enableDelete: this.enableDeleteFeatures
+    });
+    
     this.featureTableGridOptions = this.kommonitorDataGridHelperService.buildDataGrid_featureTable_spatialResource(
       "spatialUnitFeatureTable", 
-      [], 
-      [],
-      undefined,
+      this.remainingFeatureHeaders || [], 
+      this.spatialUnitFeaturesGeoJSON?.features || [],
+      this.currentSpatialUnitDataset?.spatialUnitId,
       this.kommonitorDataGridHelperService.resourceType_spatialUnit,
       this.enableDeleteFeatures
     );
+    
+    console.log('Grid options built:', this.featureTableGridOptions);
   }
 
   onEditSpatialUnitFeatures(spatialUnitDataset: any): void {
@@ -312,53 +320,52 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
 
     this.http.get(url).subscribe({
       next: (response: any) => {
+        console.log('Received features response:', response);
         this.spatialUnitFeaturesGeoJSON = response;
-        const tmpRemainingHeaders: string[] = [];
-
-        // Extract headers from the first feature's properties
-        if (this.spatialUnitFeaturesGeoJSON?.features?.[0]?.properties) {
-          for (const property in this.spatialUnitFeaturesGeoJSON.features[0].properties) {
-            if (property !== 'ID' && 
-                property !== 'NAME' && 
-                property !== 'validStartDate' && 
-                property !== 'validEndDate') {
-              tmpRemainingHeaders.push(property);
-            }
-          }
-        }
-
-        this.remainingFeatureHeaders = tmpRemainingHeaders;
+        
+        // Use service method to extract remaining headers
+        this.remainingFeatureHeaders = this.kommonitorDataExchangeService.extractRemainingHeaders(
+          this.spatialUnitFeaturesGeoJSON?.features || []
+        );
+        
+        console.log('Extracted headers:', this.remainingFeatureHeaders);
+        console.log('Features count:', this.spatialUnitFeaturesGeoJSON?.features?.length || 0);
 
         // Rebuild the grid options with new data
         this.featureTableGridOptions = this.kommonitorDataGridHelperService.buildDataGrid_featureTable_spatialResource(
           "spatialUnitFeatureTable", 
-          tmpRemainingHeaders, 
+          this.remainingFeatureHeaders, 
           this.spatialUnitFeaturesGeoJSON.features, 
           this.currentSpatialUnitDataset.spatialUnitId, 
           this.kommonitorDataGridHelperService.resourceType_spatialUnit, 
           this.enableDeleteFeatures
         );
+        
+        console.log('Rebuilt grid options:', this.featureTableGridOptions);
 
-        // If grid API is available, update the data directly
-        if (this.gridApi) {
-                  // Transform the data to match the expected format
-        const transformedData = (this.spatialUnitFeaturesGeoJSON.features || []).map((feature: any) => {
-          if (feature.properties) {
-            // Add geometry and record ID to properties
-            feature.properties.kommonitorGeometry = feature.geometry;
-            feature.properties.kommonitorRecordId = feature.id;
-            return feature.properties;
-          }
-          return feature;
-        });
-        this.gridApi.setRowData(transformedData);
-          // Force refresh of the grid
-          this.gridApi.refreshCells();
+        // Update the grid with new data
+        this.updateGridWithData();
+        
+        // Register click handlers if delete features is enabled
+        if (this.enableDeleteFeatures) {
+          setTimeout(() => {
+            this.kommonitorDataGridHelperService.registerFeatureTableClickHandlers(
+              this.currentSpatialUnitDataset?.spatialUnitId,
+              this.kommonitorDataGridHelperService.resourceType_spatialUnit,
+              this.enableDeleteFeatures
+            );
+          }, 100);
         }
 
         // Use setTimeout to ensure proper change detection and DOM updates
         setTimeout(() => {
           this.loadingData = false;
+          
+          // If grid API is still not available, try to rebuild the grid
+          if (!this.gridApi && this.spatialUnitFeatureTable) {
+            console.log('Grid API not available, trying to rebuild grid...');
+            this.buildFeatureTable();
+          }
         }, 500); // Increased timeout to show loading state longer
       },
       error: (error) => {
@@ -414,14 +421,16 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
   }
 
   checkPeriodOfValidity(): void {
-    this.periodOfValidityInvalid = false;
-    if (this.periodOfValidity.startDate && this.periodOfValidity.endDate) {
-      const startDate = new Date(this.periodOfValidity.startDate);
-      const endDate = new Date(this.periodOfValidity.endDate);
-
-      if (startDate === endDate || startDate > endDate) {
-        this.periodOfValidityInvalid = true;
-      }
+    // Use service method for validation
+    const validation = this.kommonitorDataExchangeService.validatePeriodOfValidity(
+      this.periodOfValidity.startDate,
+      this.periodOfValidity.endDate
+    );
+    
+    this.periodOfValidityInvalid = !validation.isValid;
+    
+    if (!validation.isValid && validation.error) {
+      console.warn('Period of validity validation error:', validation.error);
     }
   }
 
@@ -601,10 +610,10 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
   parseFromMappingConfigFile(event: any): void {
     this.mappingConfigImportSettings = JSON.parse(event.target.result);
 
-    if (!this.mappingConfigImportSettings.converter || 
-        !this.mappingConfigImportSettings.dataSource || 
-        !this.mappingConfigImportSettings.propertyMapping) {
-      this.spatialUnitMappingConfigImportError = 'Struktur der Datei stimmt nicht mit erwartetem Muster überein.';
+    // Use service method to validate import structure
+    const validation = this.kommonitorDataExchangeService.validateMappingConfigImport(this.mappingConfigImportSettings);
+    if (!validation.isValid) {
+      this.spatialUnitMappingConfigImportError = validation.error || 'Struktur der Datei stimmt nicht mit erwartetem Muster überein.';
       this.showMappingConfigErrorAlert();
       return;
     }
@@ -666,12 +675,13 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
     const datasourceTypeDefinition = await this.buildDatasourceTypeDefinition();
     const propertyMappingDefinition = this.buildPropertyMappingDefinition();
 
-    const mappingConfigExport = {
-      converter: converterDefinition,
-      dataSource: datasourceTypeDefinition,
-      propertyMapping: propertyMappingDefinition,
-      periodOfValidity: this.periodOfValidity
-    };
+    // Use service method to build export structure
+    const mappingConfigExport = this.kommonitorDataExchangeService.buildMappingConfigExport(
+      converterDefinition,
+      datasourceTypeDefinition,
+      propertyMappingDefinition,
+      this.periodOfValidity
+    );
 
     const fileName = `KomMonitor-Import-Mapping-Konfiguration_Export-${this.currentSpatialUnitDataset?.spatialUnitLevel || 'SpatialUnit'}.json`;
     const metadataJSON = JSON.stringify(mappingConfigExport);
@@ -704,15 +714,10 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
       
       // Update data if we have features
       if (this.spatialUnitFeaturesGeoJSON?.features) {
-        const transformedData = (this.spatialUnitFeaturesGeoJSON.features || []).map((feature: any) => {
-          if (feature.properties) {
-            // Add geometry and record ID to properties
-            feature.properties.kommonitorGeometry = feature.geometry;
-            feature.properties.kommonitorRecordId = feature.id;
-            return feature.properties;
-          }
-          return feature;
-        });
+        // Use service method to transform data for grid display
+        const transformedData = this.kommonitorDataExchangeService.transformFeaturesForGrid(
+          this.spatialUnitFeaturesGeoJSON.features
+        );
         this.gridApi.setRowData(transformedData);
       }
       
@@ -730,18 +735,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
     }
   }
 
-  filterByKomMonitorProperties(): (item: string) => boolean {
-    return (item: string) => {
-      try {
-        return item !== 'ID' && 
-               item !== 'NAME' && 
-               item !== 'validStartDate' && 
-               item !== 'validEndDate';
-      } catch (error) {
-        return false;
-      }
-    };
-  }
+  // Filtering is now handled by the service method extractRemainingHeaders
 
   getFeatureId(geojsonFeature: any): string {
     return geojsonFeature.properties?.['ID'] || '';
@@ -772,8 +766,43 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
 
   // AG Grid event handlers
   onGridReady(event: GridReadyEvent): void {
+    console.log('Grid ready event:', event);
     this.gridApi = event.api;
     this.columnApi = event.columnApi;
+    
+    // If we have data already, update the grid
+    if (this.spatialUnitFeaturesGeoJSON?.features && this.remainingFeatureHeaders.length > 0) {
+      console.log('Grid ready, updating with existing data...');
+      this.updateGridWithData();
+    }
+  }
+
+  private updateGridWithData(): void {
+    if (!this.gridApi) {
+      console.warn('Grid API not available for update');
+      return;
+    }
+
+    console.log('Updating grid with data:', {
+      headers: this.remainingFeatureHeaders,
+      features: this.spatialUnitFeaturesGeoJSON?.features?.length || 0
+    });
+
+    // Update column definitions
+    if (this.featureTableGridOptions.columnDefs) {
+      this.gridApi.setColumnDefs(this.featureTableGridOptions.columnDefs);
+    }
+
+    // Transform and set data
+    const transformedData = this.kommonitorDataExchangeService.transformFeaturesForGrid(
+      this.spatialUnitFeaturesGeoJSON?.features || []
+    );
+    
+    this.gridApi.setRowData(transformedData);
+    this.gridApi.refreshCells();
+    this.gridApi.redrawRows();
+    
+    console.log('Grid updated successfully');
   }
 
   onFirstDataRendered(event: FirstDataRenderedEvent): void {
