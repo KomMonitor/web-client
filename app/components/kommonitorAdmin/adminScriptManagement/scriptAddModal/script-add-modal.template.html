@@ -592,14 +592,15 @@
 														</div>
 														<div class="form-group">
 															<label class="switch">
-																<input type="checkbox" value="$ctrl.kommonitorScriptHelperServiceInstance.useManualCronPattern" ng-model="$ctrl.kommonitorScriptHelperServiceInstance.useManualCronPattern">
+																<input type="checkbox" value="$ctrl.kommonitorScriptHelperServiceInstance.useManualCronPattern" ng-model="$ctrl.kommonitorScriptHelperServiceInstance.useManualCronPattern" ng-change="updateCron()">
 																<span class="switchslider round"></span>
 															</label>
 															<label>Manuelles Cron-Pattern nutzen</label>
 														</div>
 														<div>
 															<input ng-disabled="!$ctrl.kommonitorScriptHelperServiceInstance.useManualCronPattern" type="text" class="form-control" 
-																ng-model="$ctrl.kommonitorScriptHelperServiceInstance.processParameters.execution_interval.cron"
+																ng-model="manualCron"
+																ng-change="updateCron()"
 																ng-pattern="cronRegexPattern"
 																placeholder="z.B. 0 0 1 */3 *" required></input>
 														</div>

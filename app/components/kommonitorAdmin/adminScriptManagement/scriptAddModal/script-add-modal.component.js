@@ -98,6 +98,7 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 			$scope.selectedMinute = 0;
 
 			kommonitorScriptHelperService.useManualCronPattern = false;
+			$scope.manualCron = "";
 
 			$scope.init = async function () {
 				$scope.allScriptTypeOptions = await kommonitorScriptHelperService.getScriptTypes();
@@ -138,7 +139,9 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 			}
 
 			$scope.onScriptTypeChanged = function () {
-				kommonitorScriptHelperService.getProcessDescription($scope.selectedScriptType.id);
+				if ($scope.selectedScriptType) {
+					kommonitorScriptHelperService.getProcessDescription($scope.selectedScriptType.id);
+				}
 			}
 
 			$scope.addScript = async function () {
@@ -236,6 +239,13 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 			}
 
 			$scope.updateCron = function() {
+				if (kommonitorScriptHelperService.useManualCronPattern) {
+					if(kommonitorScriptHelperService.processParameters.execution_interval) {
+						kommonitorScriptHelperService.processParameters.execution_interval.cron = $scope.manualCron;
+					}
+					return;
+				} 
+
 				let cron = "";
 				let min = "*", hour = "*", day = "*", month = "*", weekday = "*";
 
@@ -258,10 +268,6 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 				if ($scope.intervalUnit === "year") {
 					month = $scope.selectedMonth;
 				}
-
-				if ($scope.cronInputMode == "manual") {
-					cron = cronManual.value;
-				} 
 				else if ($scope.cronInputMode == "once") {
 					cron = `${min} ${hour} ${day} ${month} ${weekday}`;
 				} 
@@ -283,7 +289,10 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 					}
 				}
 
-				kommonitorScriptHelperService.processParameters.execution_interval.cron = cron;
+				$scope.manualCron = cron;
+				if(kommonitorScriptHelperService.processParameters.execution_interval) {
+					kommonitorScriptHelperService.processParameters.execution_interval.cron = cron;
+				}
 			}
 
 			$rootScope.$on("processDescriptionFetched", function (event) {
@@ -313,6 +322,9 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 				kommonitorScriptHelperService.processParameters = {...scriptDataInputDefaults, ...staticInputsData};
 				kommonitorScriptHelperService.processParameters.execution_interval = scriptDataInputDefaults.execution_interval ? scriptDataInputDefaults.execution_interval : staticInputsData.execution_interval;
 				kommonitorScriptHelperService.processParameters.target_time = scriptDataInputDefaults.target_time ? scriptDataInputDefaults.target_time : staticInputsData.target_time;
+
+				// override default cron by value selected in UI
+				$scope.updateCron();
 
 				setTimeout(() => {
 					$scope.$digest();
