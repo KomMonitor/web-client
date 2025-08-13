@@ -95,6 +95,9 @@ export interface DataExchange {
   adminIsLoggedIn;
   loginInfoText:any;
   wmsDatasets:any;
+  spatialFilterIsApplied:any;
+  rangeFilterIsApplied:any;
+  baseLayerDefinitionsArray: any[];
 }
 
 export interface KeycloakUser {

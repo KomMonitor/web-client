@@ -33,7 +33,10 @@
                               [innerHTML]="template.name.includes('-timeseries') ? 'Zeitserie' : 'Zeitpunkt'"></a>
                       </li>
                       <li id="reporting-add-indicator-tab6" role="presentation" class="tab-disabled">
-                          <a href="#elements" aria-controls="elements" role="tab" data-toggle="tab" tabindex="-1">Elemente</a>
+                          <a href="#elements" aria-controls="elements" role="tab" data-toggle="tab" tabindex="-1">Konfiguration</a>
+                      </li>  
+                      <li id="reporting-add-indicator-tab7" role="presentation" class="tab-disabled">
+                          <a href="#screenshotmanagement" aria-controls="screenshotmanagement" role="tab" data-toggle="tab" tabindex="-1">Kartenbild-Verwaltung</a>
                       </li>
                   </ul>
                   
@@ -53,7 +56,7 @@
                                   [value]="poiNameFilter">
                           </div>
                           <div id="reporting-poi-select-box">
-                              <select size="30" class="form-control" required>
+                              <select size="10" class="form-control" required>
                 <option disabled selected value> -- POI-Layer w&auml;hlen -- </option>
                 <option style="white-space: pre !important;" *ngFor="let layer of this.filteredAvailablePoiLayers"
                                       (click)="onPoiLayerSelected(layer)">{{layer.datasetName}}</option>
@@ -89,7 +92,7 @@
                           </div>
                           <div *ngIf="template.name.includes('-timeseries')">
                               <div id="reporting-indicator-select-box">
-                                  <select size="30" class="form-control" required>
+                                  <select size="10" class="form-control" required>
                                       <option disabled selected value> -- Indikator w&auml;hlen -- </option>
                                       <option style="white-space: pre !important;" *ngFor="let indicator of displayableIndicatorsByNameTimeseries"
                                           (click)="onIndicatorSelected(indicator)">{{indicator.indicatorName}} [{{indicator.unit}}]</option>
@@ -98,7 +101,7 @@
                           </div>
                           <div *ngIf="!template.name.includes('-timeseries')">
                               <div id="reporting-indicator-select-box">
-                                  <select size="30" class="form-control" required>
+                                  <select size="10" class="form-control" required>
                                       <option disabled selected value> -- Indikator w&auml;hlen -- </option>
                                       <option style="white-space: pre !important;" *ngFor="let indicator of displayableIndicatorsByName"
                                           (click)="onIndicatorSelected(indicator)">{{indicator.indicatorName}} [{{indicator.unit}}]</option>
@@ -124,19 +127,19 @@
                           </div>
                           <div id="reporting-spatial-unit-select-wrapper">
                               Raumebene: 
-                              <select ng-model="selectedSpatialUnit"
+                              <select [(ngModel)]="selectedSpatialUnit"
                                   *ngIf="!selectedIndicator"
-                                  ng-change="onSpatialUnitChanged(selectedSpatialUnit)">
+                                  (change)="onSpatialUnitChanged(selectedSpatialUnit)">
                                   <option *ngFor="let spatialUnit of allSpatialUnitsForReachability">{{spatialUnit.spatialUnitLevel}}</option>
                               </select>
-                              <select ng-model="selectedSpatialUnit"
+                              <select [(ngModel)]="selectedSpatialUnit"
                                   *ngIf="selectedIndicator"
-                                  ng-change="onSpatialUnitChanged(selectedSpatialUnit)">
+                                  (change)="onSpatialUnitChanged(selectedSpatialUnit)">
                                   <option *ngFor="let spatialUnit of selectedIndicator.applicableSpatialUnits">{{spatialUnit.spatialUnitName}}</option>
                               </select>
                           </div>
                           <app-dual-list-box [data]="dualListAreasOptions" [reload]="reloadAreasDualList" (selectedItems)="onUpdatedManualSelectedItems($event)"></app-dual-list-box>
-                          <!-- <excalibur-dual-list id="reporting-indicator-add-areas-dual-list" ng-model='selectedAreas' options="dualListAreasOptions"></excalibur-dual-list> -->
+                          <!-- <excalibur-dual-list id="reporting-indicator-add-areas-dual-list" [(ngModel)]='selectedAreas' options="dualListAreasOptions"></excalibur-dual-list> -->
                       </div>
                       <div role="tabpanel" class="tab-pane" id="time">
               <div class="loading-overlay-reporting" [hidden]="!(loadingData)">
@@ -144,7 +147,7 @@
             </div>
                           <div [hidden]="template.name.includes('-timeseries')">
                             <app-dual-list-box [data]="dualListTimestampsOptions" [reload]="reloadTimestampsDualList" (selectedItems)="onUpdatedManualSelectedTimestamps($event)"></app-dual-list-box>
-                              <!-- <excalibur-dual-list id="reporting-indicator-add-timestamps-dual-list" ng-model='selectedTimestamps' options="dualListTimestampsOptions"></excalibur-dual-list> -->
+                              <!-- <excalibur-dual-list id="reporting-indicator-add-timestamps-dual-list" [(ngModel)]='selectedTimestamps' options="dualListTimestampsOptions"></excalibur-dual-list> -->
                           </div>
                           <div [hidden]="!(template.name.includes('-timeseries'))">
                               <div id="reporting-dateSliderWrapper">
@@ -155,38 +158,249 @@
                       </div>
                       <div role="tabpanel" class="tab-pane" id="elements">
 
-                          <h4>Element-Konfiguration</h4>
-                          <div id="reporting-element-configuration" class="container-fluid">
-                              <div class="row">
-                                  <div class="col-md-4">
-                                      <div class="reporting-element-config-box">
-                                          <h5>Karte</h5>
-                                          <p>Label anzeigen?</p>
-                                          <label class="switch" title="Label anzeigen">
-                                              <input type="checkbox"
-                                                  ng-model="showMapLabels"
-                                                  ng-checked="showMapLabels"
-                                                  ng-change="onChangeShowMapLabels()">
-                                              <span class="switchslider round"></span>
-                                          </label>
-                                      </div>
-                                  </div>
-                                  <div class="col-md-4">
-                                      <div class="reporting-element-config-box">
-                                          <h5>Ranking-Chart</h5>
-                                          <p>Ranking-Durchschnittslinie anzeigen?</p>
-                                          <label class="switch" title="Ranking-Durchschnittslinie anzeigen">
-                                              <input type="checkbox"
-                                                  ng-model="showRankingMeanLine"
-                                                  ng-checked="showRankingMeanLine"
-                                                  ng-change="onChangeShowRankingMeanLine()">
-                                              <span class="switchslider round"></span>
-                                          </label>
-                                      </div>
-                                  </div>
-                              </div>
-                          </div>
-                      </div>
+                        <h4>Element-Konfiguration</h4>
+                            <div id="reporting-element-configuration" class="container-fluid">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="reporting-element-config-box">
+                                            <h5>Abschnitte</h5>  
+                                            
+                                            <div *ngIf="! template.name.includes('-reachability')">
+                                            
+                                                <label class="switch" title="Karte gesamt unklassifiziert">
+                                                    <input type="checkbox"
+                                                        [(ngModel)]="pageConfig.sections.showOverviewSection_unclassified"
+                                                        (checked)="pageConfig.sections.showOverviewSection_unclassified"
+                                                        (change)="onChangeShowPageSection()">
+                                                    <span class="switchslider round"></span>
+                                                </label>
+                                                Gesamtkarte - einheitliche Farbe
+
+                                                <br/>
+
+                                                <label class="switch" title="Karte gesamt klassifiziert">
+                                                    <input type="checkbox"
+                                                        [(ngModel)]="pageConfig.sections.showOverviewSection_classified"
+                                                        (checked)="pageConfig.sections.showOverviewSection_classified"
+                                                        (change)="onChangeShowPageSection()">
+                                                    <span class="switchslider round"></span>
+                                                </label>
+                                                Gesamtkarte - farbklassifiziert
+
+                                                <br/>
+
+                                                <label class="switch" title="Ranking-Diagramm">
+                                                    <input type="checkbox"
+                                                        [(ngModel)]="pageConfig.sections.showBarchartOverview"
+                                                        (checked)="pageConfig.sections.showBarchartOverview"
+                                                        (change)="onChangeShowPageSection()">
+                                                    <span class="switchslider round"></span>
+                                                </label>
+                                                Ranking-Diagramm - &Uuml;bersicht
+
+                                            </div>
+
+                                            <div *ngIf="template.name.includes('-timeseries')">
+                                                <label class="switch" title="Zeitreihen-Diagramm">
+                                                    <input type="checkbox"
+                                                        [(ngModel)]="pageConfig.sections.showLinechartOverview"
+                                                        (checked)="pageConfig.sections.showLinechartOverview"
+                                                        (change)="onChangeShowPageSection()">
+                                                    <span class="switchslider round"></span>
+                                                </label>
+                                                Zeitreihen-Diagramm - &Uuml;bersicht
+
+                                                <br/>
+
+                                                <label class="switch" title="Boxplot-Diagramm">
+                                                    <input type="checkbox"
+                                                        [(ngModel)]="pageConfig.sections.showBoxplotchartOverview"
+                                                        (checked)="pageConfig.sections.showBoxplotchartOverview"
+                                                        (change)="onChangeShowPageSection()">
+                                                    <span class="switchslider round"></span>
+                                                </label>
+                                                Boxplot-Diagramm - &Uuml;bersicht
+                                            </div>
+
+                                            <div *ngIf="template.name.includes('-reachability')">
+                                                <label class="switch" title="Karte Erreichbarkeit gesamt">
+                                                    <input type="checkbox"
+                                                        [(ngModel)]="pageConfig.sections.showOverviewSection_reachability"
+                                                        (checked)="pageConfig.sections.showOverviewSection_reachability"
+                                                        (change)="onChangeShowPageSection()">
+                                                    <span class="switchslider round"></span>
+                                                </label>
+                                                &Uuml;bersichtskarte - Erreichbarkeit
+                                            </div>
+
+                                            <label class="switch" title="Karte Erreichbarkeit gesamt">
+                                                <input type="checkbox"
+                                                    [(ngModel)]="pageConfig.sections.showAreaSpecific"
+                                                    (checked)="pageConfig.sections.showAreaSpecific"
+                                                    (change)="onChangeShowPageSection()">
+                                                <span class="switchslider round"></span>
+                                            </label>
+                                            Einzelseite pro Raumeinheit
+
+                                            <div *ngIf="! template.name.includes('-reachability')">
+                                                <label class="switch" title="Datentabelle">
+                                                    <input type="checkbox"
+                                                        [(ngModel)]="pageConfig.sections.showDatatable"
+                                                        (checked)="pageConfig.sections.showDatatable"
+                                                        (change)="onChangeShowPageSection()">
+                                                    <span class="switchslider round"></span>
+                                                </label>
+                                                Datentabelle
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="reporting-element-config-box">
+                                            <h5>Kopf- und Fu&szlig;leiste</h5>                                            
+                                            <label class="switch" title="Titel anzeigen">
+                                                <input type="checkbox"
+                                                    [(ngModel)]="pageConfig.showTitle"
+                                                    (checked)="pageConfig.showTitle"
+                                                    (change)="onChangePageConfig()">
+                                                <span class="switchslider round"></span>
+                                            </label>
+                                            Titel
+
+                                            <br>
+                                            
+                                            <label class="switch" title="Untertitel anzeigen">
+                                                <input type="checkbox"
+                                                    [(ngModel)]="pageConfig.showSubtitle"
+                                                    (checked)="pageConfig.showSubtitle"
+                                                    (change)="onChangePageConfig()">
+                                                <span class="switchslider round"></span>
+                                            </label>
+                                            Untertitel
+
+                                            <br>
+                                            
+                                            <label class="switch" title="Logo anzeigen">
+                                                <input type="checkbox"
+                                                    [(ngModel)]="pageConfig.showLogo"
+                                                    (checked)="pageConfig.showLogo"
+                                                    (change)="onChangePageConfig()">
+                                                <span class="switchslider round"></span>
+                                            </label>
+                                            Logo
+
+                                            <br>
+                                            
+                                            <label class="switch" title="Erstelldetails anzeigen">
+                                                <input type="checkbox"
+                                                    [(ngModel)]="pageConfig.showFooterCreationInfo"
+                                                    (checked)="pageConfig.showFooterCreationInfo"
+                                                    (change)="onChangePageConfig()">
+                                                <span class="switchslider round"></span>
+                                            </label>
+                                            Erstelldetails 
+
+                                            <br>
+                                            
+                                            <label class="switch" title="Seitenzahl anzeigen">
+                                                <input type="checkbox"
+                                                    [(ngModel)]="pageConfig.showPageNumber"
+                                                    (checked)="pageConfig.showPageNumber"
+                                                    (change)="onChangePageConfig()">
+                                                <span class="switchslider round"></span>
+                                            </label>
+                                            Seitenzahl
+                                        </div>
+                                    </div>
+                                    <div class="col-md-5">
+                                        <div class="reporting-element-config-box">
+                                            <h5>Abschnittssinhalte</h5>   
+                                            <i>Kartendarstellungen</i> 
+                                            <br/>                                           
+                                            <label class="switch" title="Label anzeigen">
+                                                <input type="checkbox"
+                                                    [(ngModel)]="pageConfig.showMapLabels"
+                                                    (checked)="pageConfig.showMapLabels"
+                                                    (change)="onChangeShowMapLabels()">
+                                                <span class="switchslider round"></span>
+                                            </label>
+                                            Label anzeigen
+
+                                            <div>
+                                                Hintergrundkarte
+                                                <select [(ngModel)]="selectedBaseMap"
+                                                    ng-options="baseMap as baseMap.layerConfig.name for baseMap in $ctrl.kommonitorDataExchangeServiceInstance.baseLayerDefinitionsArray | filter:filterBaseMaps()"
+                                                    class="form-control" (change)="onChangeSelectedBaseMap()" required>
+                                                    <option disabled selected value> -- Hintergrundkarte w&auml;hlen --
+                                                    </option>
+                                                </select>
+                                            </div>
+                                                
+                                            <div *ngIf="template.name.includes('-timestamp')">
+
+                                                <br/>
+                                                <i>Ranking Chart</i> 
+                                                <br/>
+                                                
+                                                <label class="switch" title="Ranking Chart anzeigen">
+                                                    <input type="checkbox"
+                                                        [(ngModel)]="pageConfig.showRankingChartPerArea"
+                                                        (checked)="pageConfig.showRankingChartPerArea"
+                                                        (change)="onChangePageConfig()">
+                                                    <span class="switchslider round"></span>
+                                                </label>
+                                                Ranking Chart pro Raumeinheit
+                                                
+
+                                                <br>
+
+                                                <label class="switch" title="Ranking-Durchschnittslinie anzeigen">
+                                                    <input type="checkbox"
+                                                        [(ngModel)]="pageConfig.showRankingMeanLine"
+                                                        (checked)="pageConfig.showRankingMeanLine"
+                                                        (change)="onChangeShowRankingMeanLine()">
+                                                    <span class="switchslider round"></span>
+                                                </label>
+                                                Ranking-Durchschnittslinie
+
+                                            </div>
+                                            
+                                            <div *ngIf="template.name.includes('-timeseries')">
+
+                                                <br/>
+                                                <i>Zeitreihen Chart</i> 
+                                                <br/>
+                                                
+                                                <label class="switch" title="Zeitreihen Chart anzeigen">
+                                                    <input type="checkbox"
+                                                        [(ngModel)]="pageConfig.showLineChartPerArea"
+                                                        (checked)="pageConfig.showLineChartPerArea"
+                                                        (change)="onChangePageConfig()">
+                                                    <span class="switchslider round"></span>
+                                                </label>
+                                                Zeitreihen Chart pro Raumeinheit
+
+                                            </div>
+
+                                            <div *ngIf="! template.name.includes('-reachability')">
+                                                <br/>
+                                                <i>Sonstiges</i> 
+                                                <br/>
+
+                                                <label class="switch" title="Freitext anzeigen">
+                                                    <input type="checkbox"
+                                                        [(ngModel)]="pageConfig.showFreeText"
+                                                        (checked)="pageConfig.showFreeText"
+                                                        (change)="onChangePageConfig()">
+                                                    <span class="switchslider round"></span>
+                                                </label>
+                                                Freitextfeld
+                                            </div>
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                   </div>
 
                   <!-- not affected by tab changes -->

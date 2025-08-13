@@ -34,7 +34,9 @@ import {
   ajskommonitorSingleFeatureMapHelperServiceProvider,
   ajskommonitorScriptHelperServiceProvider,
   ajskommonitorGlobalFilterHelperServiceProvider,
-  ajskommonitorFavServiceProvider} from 'app-upgraded-providers';
+  ajskommonitorFavServiceProvider,
+  ajskommonitorLeafletScreenshotCacheHelperServiceProvider
+} from 'app-upgraded-providers';
 import { KommonitorLegendComponent } from 'components/ngComponents/userInterface/kommonitorLegend/kommonitor-legend.component';
 import { NgbCalendar, NgbDatepickerModule, NgbDateStruct, NgbAccordionModule, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -122,6 +124,7 @@ declare var MathJax;
     ajskommonitorScriptHelperServiceProvider,
     ajskommonitorGlobalFilterHelperServiceProvider,
     ajskommonitorFavServiceProvider,
+    ajskommonitorLeafletScreenshotCacheHelperServiceProvider,
     NgbModule,
     {
       provide: HTTP_INTERCEPTORS,

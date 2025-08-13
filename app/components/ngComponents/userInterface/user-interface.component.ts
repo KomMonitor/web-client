@@ -102,6 +102,14 @@ export class UserInterfaceComponent implements OnInit {
         this.openInfoModal(); */
   
       //this.openReportingModal();
+
+      if (this.exchangeData.spatialFilterIsApplied || this.exchangeData.rangeFilterIsApplied || this.exchangeData.isMeasureOfValueChecked) {
+				this.buttonFilterClass = "btn btn-custom btn-circle filterActive";
+			}
+
+      if (this.exchangeData.isBalanceChecked) {
+				this.buttonBalanceClass = "btn btn-custom btn-circle balanceActive";
+			}
   }
 
   /* 
@@ -253,7 +261,10 @@ export class UserInterfaceComponent implements OnInit {
 				$scope.sidebarBalanceClass = "disappear";
 			}
 			else{
-				$scope.buttonBalanceClass = "btn btn-custom btn-circle";
+				$scope.buttonBalanceClass = "btn btn-custom btn-circle";		
+        if (kommonitorDataExchangeService.isBalanceChecked) {
+					$scope.buttonBalanceClass = "btn btn-custom btn-circle balanceActive";
+				}
 			}
 		};
 

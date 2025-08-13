@@ -12,6 +12,7 @@ import { HttpClient } from '@angular/common/http';
 import { DualListBoxComponent } from "../../../customElements/dual-list-box/dual-list-box.component";
 import * as L from 'leaflet';
 import { ReachabilityHelperService } from 'services/reachbility-helper-service/reachability-helper.service';
+import { LeafletScreenshotCacheHelperService } from 'services/leaflet-screenshot-cache-helper-service/leaflet-screenshot-cache-helper.service';
 
 @Component({
   selector: 'app-indicator-add',
@@ -105,6 +106,32 @@ export class IndicatorAddComponent implements OnInit {
   
   timeseriesAdjustedOnSpatialUnitChange;
 
+  pageConfig = {
+			mapLegendBackgroundColor: "rgba(255, 255, 255, 0.75)",
+			showMapLabels: true,
+			showRankingChartPerArea: true,
+			showLineChartPerArea: true,
+			showFreeText: true,
+			showRankingMeanLine: true,
+			showTitle: true,
+			showSubtitle: true,
+			showLogo: true,
+			showFooterCreationInfo: true,
+			showPageNumber: true,
+			sections: {
+				showOverviewSection_unclassified: true,
+				showOverviewSection_classified: true,
+				showBarchartOverview: true,
+				showLinechartOverview: true,
+				showBoxplotchartOverview: true,
+				showAreaSpecific: true,
+				showOverviewSection_reachability: true,
+				showDatatable: true
+			}
+  }
+
+  selectedBaseMap;
+
   constructor(
     protected dataExchangeService: DataExchangeService,
     private broadcastSerice: BroadcastService,
@@ -112,7 +139,8 @@ export class IndicatorAddComponent implements OnInit {
     private visualStyleHelperService: VisualStyleHelperServiceNew,
     private httpClient: HttpClient,
     private broadcastService: BroadcastService,
-    private reachabilityHelperService: ReachabilityHelperService
+    private reachabilityHelperService: ReachabilityHelperService,
+    private leafletScreenshotCacheHelperService: LeafletScreenshotCacheHelperService
   ) {
   }
 
@@ -141,7 +169,6 @@ export class IndicatorAddComponent implements OnInit {
       }
     });
   }
-
   
   initialize() {
     this.loadingData = true;
@@ -187,7 +214,125 @@ export class IndicatorAddComponent implements OnInit {
     this.displayableIndicatorsByNameTimeseries = this.dataExchangeService.pipedData.displayableIndicators.filter((e:any) => e.applicableDates.length>0).sort(this.sortByindicatorName);
     this.displayableIndicatorsByName = this.dataExchangeService.pipedData.displayableIndicators.sort(this.sortByindicatorName);
 
+	  this.selectedBaseMap = this.dataExchangeService.pipedData.baseLayerDefinitionsArray[1];
+
     this.loadingData = false;
+  }
+
+  
+
+  onChangeShowPageSection (){
+    this.loadingData = true; 
+
+    // now iterate over pages and adjust visibility according to settings
+    // save that config at template level to adjust it in overview component and during export as well
+      for (const page of this.template.pages) {
+      if(page.type == "map_overview_unclassified"){
+        page.hidden = ! this.pageConfig.sections.showOverviewSection_unclassified;
+        continue;
+      }
+      if(page.type == "map_overview_classified"){
+        page.hidden = ! this.pageConfig.sections.showOverviewSection_classified;
+        continue;
+      }
+      if(page.type == "barchart_overview"){
+        page.hidden = ! this.pageConfig.sections.showBarchartOverview;
+        continue;
+      }
+      if(page.type == "linechart_overview"){
+        page.hidden = ! this.pageConfig.sections.showLinechartOverview;
+        continue;
+      }
+      if(page.type == "boxplot_overview"){
+        page.hidden = ! this.pageConfig.sections.showBoxplotchartOverview;
+        continue;
+      }
+      if(page.type == "area_specific"){
+        page.hidden = ! this.pageConfig.sections.showAreaSpecific;
+        continue;
+      }
+      if(page.type == "map_overview_reachability"){
+        page.hidden = ! this.pageConfig.sections.showOverviewSection_reachability;
+        continue;
+      }
+      if(page.type == "datatable"){
+        page.hidden = ! this.pageConfig.sections.showDatatable;
+        continue;
+      }
+      }
+
+
+    this.template.pageConfig = this.pageConfig;
+
+    this.loadingData = false; 
+  }
+
+  onChangePageConfig(){
+    // just visual updates and make sure that config is set at selected template
+    // in order to apply this config in overview and for report generation!
+    this.loadingData = true; 
+
+    this.template.pageConfig = this.pageConfig;		
+
+    this.loadingData = false;
+  }
+
+  onChangeShowMapLabels() {
+
+    for(let i=0; i<this.template.pages.length; i++) {
+      let map:any = document.querySelector("#reporting-addIndicator-page-" + i +"-map")
+      if(!map) {
+        continue; // no map on current page
+      }
+
+      let instance:any = echarts.getInstanceByDom(map);
+      let options = instance.getOption();
+      options.series[0].label.show = this.pageConfig.showMapLabels;
+      options.series[0].select.label.show = this.pageConfig.showMapLabels;
+      for(let item of options.series[0].data) {
+        if(typeof item.label === "undefined") {
+          item.label = {};
+        }
+        item.label.show = this.pageConfig.showMapLabels;
+      }
+      instance.setOption(options, {
+        replaceMerge: ['series']
+      });
+    }
+  }
+
+
+  onChangeSelectedBaseMap(){
+    // reinitiate page building from the scratch as easiest solution
+    this.loadingData = true; 
+
+    this.leafletScreenshotCacheHelperService.resetCounter_keepingCurrentTargetFeatures(false);
+    this.initializeAllDiagrams();			
+
+    this.loadingData = false; 
+  }
+
+  onChangeShowRankingMeanLine() {
+
+    for(let i=0; i<this.template.pages.length; i++) {
+      let barChart:any = document.querySelector("#reporting-addIndicator-page-" + i +"-barchart")
+      if(!barChart) {
+        continue; // no map on current page
+      }
+
+      let instance:any = echarts.getInstanceByDom(barChart);
+      let options = instance.getOption();				
+      if (! this.pageConfig.showRankingMeanLine){
+        options.series[0].markLine_backup = options.series[0].markLine;
+        options.series[0].markLine = {};
+      }
+      else{
+        options.series[0].markLine = options.series[0].markLine_backup;
+      }				
+      instance.setOption(options, {
+        replaceMerge: ['series']
+      });
+    }
   }
 
   onIndicatorNameFilterChange(event:any) {
@@ -741,9 +886,9 @@ export class IndicatorAddComponent implements OnInit {
   }
 
 
-/* 
-  $scope.onSpatialUnitChanged = async function(selectedSpatialUnit) {
-    $scope.loadingData = true;
+ 
+  onSpatialUnitChanged(selectedSpatialUnit) {
+   /* $scope.loadingData = true;
     $("#reporting-spatialUnitChangeWarning").hide();
     $scope.timeseriesAdjustedOnSpatialUnitChange = false;
     await $scope.updateAreasInDualList()
@@ -880,8 +1025,8 @@ export class IndicatorAddComponent implements OnInit {
         $scope.loadingData = false;
       }
     });
-  }
  */
+  }
 
   updateAreasInDualList() {
     // this happens for the reachability template on poi selection
