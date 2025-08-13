@@ -209,7 +209,7 @@ export class IndicatorAddComponent implements OnInit {
   */
 
   onSelectedAreasChanged(newVal) {
-    console.log("change called", newVal)
+    
     if( typeof(this.template) === "undefined") return;
     this.loadingData = true;
     // to make things easier we remove all area-specific pages and recreate them using newVal
@@ -465,7 +465,7 @@ export class IndicatorAddComponent implements OnInit {
   }
 
   // internal array changes do not work with ng-change
-  onSelectedTimestampsChanged(newVal, oldVal) {
+  onSelectedTimestampsChanged(newVal, oldVal, init = false) {
 
     let mappedNewVal = newVal.map(e => e.name);
     let mappedOldVal = oldVal.map(e => e.name);
@@ -478,18 +478,16 @@ export class IndicatorAddComponent implements OnInit {
       .filter(x => !mappedNewVal.includes(x))
       .concat(newVal.filter(x => !mappedOldVal.includes(x)));
 
-    console.log('real',difference);
-    // hier, get difference right. should only be the one item selected when initially called
-    difference = [{
-      category: '2023-12-31',
-      name: '2023-12-31'
-    }];
-
+    // overeride difference definition as the inital values have to be set after setUp of the dual list. No "timestampChange", more like a init setup
+    if(init) {
+      difference = newVal;
+      this.selectedTimestamps = difference;
+    }
     
     // if selected
     if(newVal.length > oldVal.length) {
       // if this was the first timestamp
-      if(newVal.length === 1) {
+      if(newVal.length === 1 && init===false) {
         // no need to insert pages, we just replace the placeholder timestamp
         for(let page of this.template.pages) {
           for(let pageElement of page.pageElements) {
@@ -501,7 +499,7 @@ export class IndicatorAddComponent implements OnInit {
         }
       }
       
-      if(newVal.length > 1) {
+      if(newVal.length > 1 || init===true) {
         for(let timestampToInsert of difference) {
 
           // setup pages to insert first
@@ -1615,23 +1613,7 @@ export class IndicatorAddComponent implements OnInit {
           return {"name": el.properties.NAME, 'id': i} // we need this as an object for kommonitorDataExchangeService.createDualListInputArray
         });
         timestampsListSelected = this.dataExchangeService.createDualListInputArray(timestampsListSelected, "name",'id');
-        this.onSelectedTimestampsChanged(timestampsListInput,timestampsListSelected);
-
-        /* 
-          here/hier/todo
-          this.onSelectedTimestampsChanged(timestampsListInput,timestampsListSelected) (above) works, partially. but it should be
-                                          (timestampsListSelected, []); 
-
-          Changing this breaks the process entirely, resulting in cache overflow and breakedown. Although the "should be" above is the correct way to call the function
-
-          onSelectedTimestampsChanged(newVal, oldVal) is called here initially after die dualList has been filled and selectedItems are placed. 
-          Idea is that this initiates the preparation of diagrams and maps as all vars have been set. (newVal, oldVal) should be (timestampsListSelected, []) because the selected Items are the 
-          new value, as [] is the state before.. makes sence. Still it does'nt work.. end of story, no idea right now.
-
-          Process differs quite a bit from original AJS one because the dualList is new.. maybe rethink the entire process this is build.
-        
-        */
-                              
+        this.onSelectedTimestampsChanged(timestampsListSelected, [], true);              
 
       },1000);
     } catch (error) {
@@ -2129,8 +2111,8 @@ export class IndicatorAddComponent implements OnInit {
     if(pageElement.isTimeseries) {
       timestamp += "_relative"
     }
-console.log(this.echartsOptions, timestamp);                       // todo timestamp
-    let options = JSON.parse(JSON.stringify(this.echartsOptions.map['2023-12-31']));
+
+    let options = JSON.parse(JSON.stringify(this.echartsOptions.map[timestamp]));
     
     // default changes for all reporting maps
     options.title.show = false;
@@ -2241,7 +2223,6 @@ console.log(this.echartsOptions, timestamp);                       // todo times
     options = this.enableManualLabelPositioningAcrossPages(page, options, map)
     
     map.setOption(options);
-    console.log(map, "map");
     return map;
   }
 
@@ -3114,7 +3095,6 @@ console.log(this.echartsOptions, timestamp);                       // todo times
       this.echartsOptions.line.series[0].data[toDateIndex] = this.dataExchangeService.getIndicatorValue_asNumber(sumToDate / counter);
     }
 
-    console.log(this.echartsOptions, this.diagramsPrepared);
     this.diagramsPrepared = true;
   }
 
@@ -3182,13 +3162,6 @@ console.log(this.echartsOptions, timestamp);                       // todo times
 // async
   initializeAllDiagrams() {
 
-    // todo delete
-    this.selectedTimestamps = [{
-      category: '2023-12-31',
-      name: '2023-12-31'
-    }];
-
-    console.log('init all diagrams called', this.selectedTimestamps)
     if(!this.template)
       return;
     if(this.template.name.includes("timestamp") && this.selectedTimestamps.length === 0) {
