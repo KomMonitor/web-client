@@ -84,6 +84,14 @@ export class KommonitorGeoresourceDataExchangeService implements OnDestroy {
   private readonly env: any;
   private readonly baseUrl: string;
 
+  // Date picker options
+  datePickerOptions = {
+    format: 'yyyy-mm-dd',
+    autoclose: true,
+    todayHighlight: true,
+    clearBtn: true
+  };
+
   // Current user state
   private _currentKeycloakLoginRoles: string[] = [];
   private _currentKomMonitorLoginRoleNames: string[] = [];
@@ -307,6 +315,20 @@ export class KommonitorGeoresourceDataExchangeService implements OnDestroy {
     return this._currentKomMonitorLoginRoleNames;
   }
 
+  /**
+   * Get base API URL from environment configuration
+   */
+  private getBaseApiUrl(): string {
+    if (this.env?.configStorageServerConfig?.targetUrlToConfigStorageServer) {
+      return this.env.configStorageServerConfig.targetUrlToConfigStorageServer;
+    }
+    if (this.env?.apiUrl && this.env?.basePath) {
+      return `${this.env.apiUrl}${this.env.basePath}`;
+    }
+    // Fallback to default values
+    return 'http://localhost:8085/management';
+  }
+
 
 
   /**
@@ -516,6 +538,8 @@ export class KommonitorGeoresourceDataExchangeService implements OnDestroy {
     return roleId;
   }
 
+
+
   /**
    * Get topic hierarchy display string (like original AngularJS service)
    */
@@ -560,19 +584,7 @@ export class KommonitorGeoresourceDataExchangeService implements OnDestroy {
     return `<div style="border-top: 2px dashed #000; width: 20px;"></div>`;
   }
 
-  /**
-   * Get the base API URL from environment configuration
-   */
-  private getBaseApiUrl(): string {
-    if (this.env?.configStorageServerConfig?.targetUrlToConfigStorageServer) {
-      return this.env.configStorageServerConfig.targetUrlToConfigStorageServer;
-    }
-    if (this.env?.apiUrl && this.env?.basePath) {
-      return `${this.env.apiUrl}${this.env.basePath}`;
-    }
-    // Fallback to default values
-    return 'http://localhost:8085/management';
-  }
+
 
   /**
    * Get authentication headers
