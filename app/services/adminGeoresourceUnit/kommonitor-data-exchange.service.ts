@@ -1,7 +1,7 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, BehaviorSubject, Subject } from 'rxjs';
-import { map, catchError, tap } from 'rxjs/operators';
+import { Observable, BehaviorSubject, Subject, timer, filter, takeUntil, map } from 'rxjs';
+import { map as rxMap, catchError, tap } from 'rxjs/operators';
 import { AuthService } from '../auth-service/auth.service';
 
 // Interfaces for better typing
@@ -54,8 +54,10 @@ export class KommonitorGeoresourceDataExchangeService implements OnDestroy {
   // Private subjects for reactive updates
   private georesourcesSubject = new BehaviorSubject<GeoresourceMetadata[]>([]);
   private currentRolesSubject = new BehaviorSubject<string[]>([]);
+  private komMonitorRolesSubject = new BehaviorSubject<string[]>([]);
   private loadingSubject = new BehaviorSubject<boolean>(false);
   private errorSubject = new BehaviorSubject<string | null>(null);
+  private authenticationStateSubject = new BehaviorSubject<boolean>(false);
 
   // Destroy subject for cleanup
   private destroy$ = new Subject<void>();
@@ -63,8 +65,10 @@ export class KommonitorGeoresourceDataExchangeService implements OnDestroy {
   // Public observables
   public georesources$ = this.georesourcesSubject.asObservable();
   public currentRoles$ = this.currentRolesSubject.asObservable();
+  public komMonitorRoles$ = this.komMonitorRolesSubject.asObservable();
   public loading$ = this.loadingSubject.asObservable();
   public error$ = this.errorSubject.asObservable();
+  public authenticationState$ = this.authenticationStateSubject.asObservable();
 
   // Cache for data with expiration
   private georesourcesCache: {
@@ -82,6 +86,7 @@ export class KommonitorGeoresourceDataExchangeService implements OnDestroy {
 
   // Current user state
   private _currentKeycloakLoginRoles: string[] = [];
+  private _currentKomMonitorLoginRoleNames: string[] = [];
   private currentKeycloakUser: any = null;
 
   // Maps for quick access (like original AngularJS service)
@@ -106,54 +111,162 @@ export class KommonitorGeoresourceDataExchangeService implements OnDestroy {
     this.initializeService();
   }
 
-  /**
-   * Initialize the service
-   */
-  private async initializeService(): Promise<void> {
-    try {
-      // Check authentication
-      await this.checkAuthentication();
-      
-      // Initialize current roles
-      this._currentKeycloakLoginRoles = await this.getCurrentUserRoles();
-      this.currentRolesSubject.next(this._currentKeycloakLoginRoles);
-      
-    } catch (error) {
-      console.error('Error initializing georesource data exchange service:', error);
-      this.handleError(error);
-    }
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   /**
-   * Check authentication status
+   * Initialize the service with proper race condition handling
    */
-  private async checkAuthentication(): Promise<void> {
-    try {
-      const isAuthenticated = this.isAuthenticated();
-      if (!isAuthenticated) {
-        throw new Error('User not authenticated');
+  private initializeService(): void {
+    // Set up authentication listeners
+    this.setupAuthenticationListeners();
+    
+    // Initial role extraction (with retry logic for race conditions)
+    this.extractAndSetRolesWithRetry();
+    
+    // Set up periodic role checking to handle token refreshes
+    this.setupPeriodicRoleCheck();
+  }
+
+  /**
+   * Set up authentication state listeners
+   */
+  private setupAuthenticationListeners(): void {
+    // Listen for authentication state changes
+    timer(0, 1000) // Check every second
+      .pipe(
+        takeUntil(this.destroy$),
+        map(() => this.isAuthenticated()),
+        filter((isAuth, index) => {
+          const currentState = this.authenticationStateSubject.value;
+          return isAuth !== currentState; // Only emit when state changes
+        })
+      )
+      .subscribe(isAuthenticated => {
+        this.authenticationStateSubject.next(isAuthenticated);
+        
+        if (isAuthenticated) {
+          // User just authenticated, extract roles
+          this.extractAndSetRoles();
+        } else {
+          // User logged out, clear roles
+          this.clearRoles();
+        }
+      });
+  }
+
+  /**
+   * Extract roles with retry logic to handle race conditions
+   */
+  private extractAndSetRolesWithRetry(): void {
+    const maxRetries = 10;
+    let retryCount = 0;
+
+    const attemptRoleExtraction = () => {
+      const roles = this.extractRolesFromKeycloak();
+      
+      if (roles.length > 0 || retryCount >= maxRetries) {
+        this.setCurrentKeycloakLoginRoles(roles);
+      } else {
+        retryCount++;
+        setTimeout(attemptRoleExtraction, 500); // Retry after 500ms
       }
-    } catch (error) {
-      console.error('Authentication check failed:', error);
-      throw error;
-    }
+    };
+
+    attemptRoleExtraction();
   }
 
   /**
-   * Get current user roles
+   * Set up periodic role checking for token refreshes
    */
-  private async getCurrentUserRoles(): Promise<string[]> {
+  private setupPeriodicRoleCheck(): void {
+    timer(30000, 30000) // Check every 30 seconds
+      .pipe(
+        takeUntil(this.destroy$),
+        filter(() => this.isAuthenticated())
+      )
+      .subscribe(() => {
+        const currentRoles = this.currentRolesSubject.value;
+        const newRoles = this.extractRolesFromKeycloak();
+        
+        // Only update if roles have changed
+        if (JSON.stringify(currentRoles) !== JSON.stringify(newRoles)) {
+          this.setCurrentKeycloakLoginRoles(newRoles);
+        }
+      });
+  }
+
+  /**
+   * Extract roles directly from Keycloak JWT token
+   */
+  private extractRolesFromKeycloak(): string[] {
     try {
-      const roles = this.getCurrentUserRolesFromKeycloak();
+      const keycloak = this.authService.Auth?.keycloak;
+      
+      if (!keycloak) {
+        return [];
+      }
+
+      if (!keycloak.authenticated) {
+        return [];
+      }
+
+      const tokenParsed = keycloak.tokenParsed;
+      if (!tokenParsed?.realm_access?.roles) {
+        return [];
+      }
+
+      const roles = tokenParsed.realm_access.roles;
       return roles;
     } catch (error) {
-      console.error('Failed to get current user roles:', error);
       return [];
     }
   }
 
   /**
-   * Check if user is authenticated using Keycloak
+   * Extract and set roles from Keycloak
+   */
+  private extractAndSetRoles(): void {
+    const roles = this.extractRolesFromKeycloak();
+    this.setCurrentKeycloakLoginRoles(roles);
+  }
+
+  /**
+   * Filter roles to only include KomMonitor-specific roles
+   */
+  private filterKomMonitorRoles(allRoles: string[]): string[] {
+    if (!allRoles || allRoles.length === 0) {
+      return [];
+    }
+
+    // Get environment configuration for role suffixes
+    const roleSuffixes = [
+      ...(this.env?.keycloakKomMonitorGroupsEditRoleNames || []),
+      ...(this.env?.keycloakKomMonitorThemesEditRoleNames || []),
+      ...(this.env?.keycloakKomMonitorGeodataEditRoleNames || [])
+    ];
+
+    // Always include admin role
+    const possibleRoles = [this.env?.keycloakKomMonitorAdminRoleName || 'kommonitor-creator'];
+
+    // Add organizational unit roles based on access control data
+    const accessControl = this._accessControl;
+    accessControl.forEach(organizationalUnit => {
+      for (const roleSuffix of roleSuffixes) {
+        possibleRoles.push(organizationalUnit.name + "." + roleSuffix);
+      }
+    });
+
+    // Filter roles to only include KomMonitor-specific ones
+    const komMonitorRoles = allRoles.filter(role => possibleRoles.includes(role));
+    
+    return komMonitorRoles;
+  }
+
+  /**
+   * Check if user is authenticated
    */
   private isAuthenticated(): boolean {
     try {
@@ -165,20 +278,36 @@ export class KommonitorGeoresourceDataExchangeService implements OnDestroy {
   }
 
   /**
-   * Get current user roles from Keycloak
+   * Set current Keycloak login roles and update subjects
    */
-  private getCurrentUserRolesFromKeycloak(): string[] {
-    try {
-      const keycloak = this.authService.Auth?.keycloak;
-      if (keycloak?.tokenParsed?.realm_access?.roles) {
-        return keycloak.tokenParsed.realm_access.roles;
-      }
-      return [];
-    } catch (error) {
-      console.error('Failed to get roles from Keycloak:', error);
-      return [];
-    }
+  private setCurrentKeycloakLoginRoles(roles: string[]): void {
+    this._currentKeycloakLoginRoles = roles;
+    this.currentRolesSubject.next(roles);
+    
+    // Also filter and set KomMonitor-specific roles
+    const komMonitorRoles = this.filterKomMonitorRoles(roles);
+    this._currentKomMonitorLoginRoleNames = komMonitorRoles;
+    this.komMonitorRolesSubject.next(komMonitorRoles);
   }
+
+  /**
+   * Clear all roles when user logs out
+   */
+  private clearRoles(): void {
+    this._currentKeycloakLoginRoles = [];
+    this._currentKomMonitorLoginRoleNames = [];
+    this.currentRolesSubject.next([]);
+    this.komMonitorRolesSubject.next([]);
+  }
+
+  /**
+   * Get current KomMonitor login role names
+   */
+  get currentKomMonitorLoginRoleNames(): string[] {
+    return this._currentKomMonitorLoginRoleNames;
+  }
+
+
 
   /**
    * Get available georesources
@@ -198,25 +327,54 @@ export class KommonitorGeoresourceDataExchangeService implements OnDestroy {
    * Check create permission
    */
   checkCreatePermission(): boolean {
-    return this._currentKeycloakLoginRoles.includes('creator') || 
-           this._currentKeycloakLoginRoles.includes('admin');
+    const roles = this.currentKeycloakLoginRoles;
+    const komMonitorRoles = this.currentKomMonitorLoginRoleNames;
+    
+    // Check for admin role
+    if (roles.includes(this.env?.keycloakKomMonitorAdminRoleName || 'kommonitor-creator')) {
+      return true;
+    }
+    
+    // Check for creator roles
+    const hasCreatorRole = komMonitorRoles.some(role => role.endsWith('-creator'));
+    
+    return hasCreatorRole;
   }
 
   /**
    * Check editor permission
    */
   checkEditorPermission(): boolean {
-    return this._currentKeycloakLoginRoles.includes('editor') || 
-           this._currentKeycloakLoginRoles.includes('creator') || 
-           this._currentKeycloakLoginRoles.includes('admin');
+    const roles = this.currentKeycloakLoginRoles;
+    const komMonitorRoles = this.currentKomMonitorLoginRoleNames;
+    
+    // Check for admin role
+    if (roles.includes(this.env?.keycloakKomMonitorAdminRoleName || 'kommonitor-creator')) {
+      return true;
+    }
+    
+    // Check for editor or creator roles
+    const hasEditorRole = komMonitorRoles.some(role => role.endsWith('-editor') || role.endsWith('-creator'));
+    
+    return hasEditorRole;
   }
 
   /**
    * Check delete permission
    */
   checkDeletePermission(): boolean {
-    return this._currentKeycloakLoginRoles.includes('creator') || 
-           this._currentKeycloakLoginRoles.includes('admin');
+    const roles = this.currentKeycloakLoginRoles;
+    const komMonitorRoles = this.currentKomMonitorLoginRoleNames;
+    
+    // Check for admin role
+    if (roles.includes(this.env?.keycloakKomMonitorAdminRoleName || 'kommonitor-creator')) {
+      return true;
+    }
+    
+    // Check for creator roles
+    const hasCreatorRole = komMonitorRoles.some(role => role.endsWith('-creator'));
+    
+    return hasCreatorRole;
   }
 
   /**
@@ -406,6 +564,9 @@ export class KommonitorGeoresourceDataExchangeService implements OnDestroy {
    * Get the base API URL from environment configuration
    */
   private getBaseApiUrl(): string {
+    if (this.env?.configStorageServerConfig?.targetUrlToConfigStorageServer) {
+      return this.env.configStorageServerConfig.targetUrlToConfigStorageServer;
+    }
     if (this.env?.apiUrl && this.env?.basePath) {
       return `${this.env.apiUrl}${this.env.basePath}`;
     }
@@ -473,13 +634,5 @@ export class KommonitorGeoresourceDataExchangeService implements OnDestroy {
   async refreshData(): Promise<void> {
     this.clearCache();
     await this.fetchGeoresourcesMetadata(this._currentKeycloakLoginRoles);
-  }
-
-  /**
-   * Cleanup on destroy
-   */
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 } 
