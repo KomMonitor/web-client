@@ -369,6 +369,17 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     this.loadingData = true;
 
     let baseLayerDefinitionsMap = new Map();
+    this.exchangeData.baseLayerDefinitionsArray = [{
+      "layerConfig": {
+        name: "leere Karte", 
+        url: "",
+        layerType: "TILE_LAYER", 
+        layerName_WMS: "", 
+        attribution_html: "", 
+        minZoomLevel: window.__env.minZoomLevel, 
+        maxZoomLevel: window.__env.maxZoomLevel 
+      }
+    }];
 
     for (let baseMapEntry of window.__env.baseLayers) {              
       

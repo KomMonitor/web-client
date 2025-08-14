@@ -13,6 +13,7 @@ import { DualListBoxComponent } from "../../../customElements/dual-list-box/dual
 import * as L from 'leaflet';
 import { ReachabilityHelperService } from 'services/reachbility-helper-service/reachability-helper.service';
 import { LeafletScreenshotCacheHelperService } from 'services/leaflet-screenshot-cache-helper-service/leaflet-screenshot-cache-helper.service';
+import * as d3 from 'd3';
 
 @Component({
   selector: 'app-indicator-add',
@@ -101,6 +102,12 @@ export class IndicatorAddComponent implements OnInit {
     "buffer": "Puffer"
   }
 
+  reportingReachabilityMapAttribution;
+  geoJsonForReachability_byFeatureName;
+  geoJsonForSelectedIndicator_byFeatureName;
+
+  mercatorProjection_d3:any = d3.geoMercator();
+
   // used to track template pages instead of using $$hashkey
   templatePageIdCounter = 1;
   
@@ -131,6 +138,10 @@ export class IndicatorAddComponent implements OnInit {
   }
 
   selectedBaseMap;
+
+  lastPageOfAddedSectionPrepared;
+  pagePreparationIndex;
+  pagePreparationSize;
 
   constructor(
     protected dataExchangeService: DataExchangeService,
@@ -219,9 +230,7 @@ export class IndicatorAddComponent implements OnInit {
     this.loadingData = false;
   }
 
-  
-
-  onChangeShowPageSection (){
+  onChangeShowPageSection(){
     this.loadingData = true; 
 
     // now iterate over pages and adjust visibility according to settings
@@ -365,6 +374,15 @@ export class IndicatorAddComponent implements OnInit {
       return !page.hasOwnProperty("area")
     });
 
+    let numberOfTargetSpatialUnitFeatures = 0;
+    if(newVal && newVal.length){
+      numberOfTargetSpatialUnitFeatures = newVal.length;				
+    }			
+    // reset leaflet screenshot helper service according to new  number of selected areas
+    // add one page to display the total map of all selected spatial unit features
+    numberOfTargetSpatialUnitFeatures ++;				
+    this.leafletScreenshotCacheHelperService.resetCounter(numberOfTargetSpatialUnitFeatures, false);
+
     if(this.template.name.includes("timestamp"))
       this.updateAreasForTimestampTemplates(newVal)
     if(this.template.name.includes("timeseries"))
@@ -392,19 +410,22 @@ export class IndicatorAddComponent implements OnInit {
       if(this.template.name.includes("reachability") || (this.isFirstUpdateOnIndicatorOrPoiLayerSelection == false && justChanged == false)) {
         
         this.initializeAllDiagrams();
-        if(!this.template.name.includes("reachability")) {
-          // in reachability template we have to update leaflet maps, too
-          this.loadingData = false;
-        }
+        this.loadingData = false;
       }
     }, 0, 100)
   }
 
-  updateDiagrams() {
+  removeCircularReferences(pages){			
+    for (const page of pages) {
+      for (const pageElement of page.pageElements) {
+        if(pageElement.type === "map"){
+          delete pageElement.leafletMap;
+        }
+      }
+    }
 
-   
+    return pages;
   }
-
 
   updateAreasForTimestampTemplates(newVal) {
     let pagesToInsertPerTimestamp:any[] = [];
@@ -447,6 +468,9 @@ export class IndicatorAddComponent implements OnInit {
         // this is where we want to start replacing pages later
         idx = this.template.pages.indexOf( pagesForTimestamp[0] )
         // create a deep copy so we can assign new ids
+        // we must remove leafletMap, as this causes CircularReference Errors
+        // it will be added again during page creation anyway
+        pagesForTimestamp = this.removeCircularReferences(pagesForTimestamp);
         pagesForTimestamp = JSON.parse(JSON.stringify(pagesForTimestamp));
         
         // setup pages before inserting
@@ -662,6 +686,12 @@ export class IndicatorAddComponent implements OnInit {
             page.area = tempArea.name;
             page.id = this.templatePageIdCounter++;
             areaSpecificPages.push(page);
+            
+            // repeat for the same area page with other orientation
+            let page_otherOrientation = fromJson(this.untouchedTemplateAsString).pages[ this.indexOfFirstAreaSpecificPage + 1];
+            page_otherOrientation.area = area.name;
+            page_otherOrientation.id = this.templatePageIdCounter++;
+            areaSpecificPages.push(page_otherOrientation);
           }
 
           // sort alphabetically by area name
@@ -671,7 +701,8 @@ export class IndicatorAddComponent implements OnInit {
             return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
           })
 
-          pagesToInsert.splice(this.indexOfFirstAreaSpecificPage, 1, ...areaSpecificPages)
+          // remove two placeholders due to 2 orientations
+          pagesToInsert.splice(this.indexOfFirstAreaSpecificPage, 2, ...areaSpecificPages)
 
           // setup pages before inserting them
           for(let pageToInsert of pagesToInsert) {
@@ -809,10 +840,7 @@ export class IndicatorAddComponent implements OnInit {
           }
 
           this.initializeAllDiagrams();
-          if(!this.template.name.includes("reachability")) {
-            // in reachability template we have to update leaflet maps, too
-            this.loadingData = false;
-          }
+          this.loadingData = false;
         }
       });
     }, 0, 100);
@@ -888,143 +916,147 @@ export class IndicatorAddComponent implements OnInit {
 
  
   onSpatialUnitChanged(selectedSpatialUnit) {
-   /* $scope.loadingData = true;
-    $("#reporting-spatialUnitChangeWarning").hide();
-    $scope.timeseriesAdjustedOnSpatialUnitChange = false;
-    await $scope.updateAreasInDualList()
-    let validTimestamps = []
-    // There might be different valid timestamps for the new spatial unit.
-    if($scope.selectedIndicator) {
-      validTimestamps = getValidTimestampsForSpatialUnit( selectedSpatialUnit );
-    
-      // Check if the currently selected timestamps are also available for the new spatial unit.
-      // If one is not, deselect is and show an info to user
-      let selectedTimestamps_old = [...$scope.selectedTimestamps];
-      $scope.selectedTimestamps = $scope.selectedTimestamps.filter( el => {
-        return validTimestamps.includes(el.name);
-      });
-      // if any timestamp was deselected show a warning alert
-      // except for reachability template, it doesn't matter there
-      if(selectedTimestamps_old.length > $scope.selectedTimestamps.length && !$scope.template.name.includes("-reachability")) {
-        $("#reporting-spatialUnitChangeWarning").show();
-      }
-    } else {
-      // without selected indicator we have to fall back to the last update of the new spatial unit
-      let mostRecentTimestampName = $scope.selectedSpatialUnit.metadata.lastUpdate;
-      validTimestamps.push(mostRecentTimestampName)
-    }
-    
-    if($scope.template.name.includes("timeseries")) {
-      // Similar procedure as with timestamps
-      let oldTimeseries = $scope.getFormattedDateSliderValues(true);
-      
-      let from = new Date($scope.dateSlider.result.from_value);
-      let to = new Date($scope.dateSlider.result.to_value);
-      let filteredTimeseries = validTimestamps.filter( el => {
-        let date = new Date(el);
-        date.setHours(0); // remove time-offset...TODO is there a better way?
-        return from <= date && date <= to;
-      });
+   /* $scope.loadingData = true;			
 
-      let isEqualTimeseries = (oldTimeseries.dates.length == filteredTimeseries.length) && oldTimeseries.dates.every(function(element, index) {
-        return element === filteredTimeseries[index];
-      });
-      
-      if( !isEqualTimeseries) {
-        // timeseries changed
-        $("#reporting-spatialUnitChangeWarning").show();
-        // try to set slider to previously selected timestamps
-        if(validTimestamps.includes(oldTimeseries.from) && validTimestamps.includes(oldTimeseries.to)) {
-          $scope.dateSlider = $scope.initializeDateRangeSlider( validTimestamps, filteredTimeseries[0], filteredTimeseries.at(-1));	
-        } else {
-          $scope.dateSlider = $scope.initializeDateRangeSlider( validTimestamps );	
-          $scope.timeseriesAdjustedOnSpatialUnitChange = true; // show additional text in warning alert
-        }
-      } else {
-        // the selected part of the timeseries has the same dates so we don't have to show a warning
-        // but the timeseries could still include older or newer dates
-        $scope.dateSlider = $scope.initializeDateRangeSlider( validTimestamps, filteredTimeseries[0], filteredTimeseries.at(-1));
-      }
-    }
-    
-    // prepare arrays for updateDualList
-    validTimestamps = validTimestamps.map( el => {
-      return {
-        properties: {
-          NAME: el
-        }
-      }
-    });
-    let timestampsToSelect = $scope.selectedTimestamps.map( el => {
-      return {
-        properties: {
-          NAME: el.name
-        }
-      }
-    });
-    
-    $scope.updateDualList($scope.dualListTimestampsOptions, validTimestamps, timestampsToSelect);
+			$("#reporting-spatialUnitChangeWarning").hide();
+			$scope.timeseriesAdjustedOnSpatialUnitChange = false;
+			await $scope.updateAreasInDualList() // after that spatialUnitFeatures are available
+			// kommonitorLeafletScreenshotCacheHelperService.clearScreenshotMap();
 
-    
-    
-    // fire $watch('selectedAreas') function manually to remove pages
-    $scope.selectedAreas = [];
-    $scope.onSelectedAreasChanged( $scope.selectedAreas , undefined)
-    // updateAreasInDualList does not trigger diagram updates
-    // we have the wrong geometries set at this point, causing area selection to fail.
-    // echarts requires properties.name to be present, create it from properties.NAME unless it exists
-    let features;
-    if($scope.template.name.includes("reachability")) {
-      if($scope.selectedIndicator) {
-        features = $scope.availableFeaturesBySpatialUnit[ $scope.selectedSpatialUnit.spatialUnitName ];
-      } else {
-        features = $scope.availableFeaturesBySpatialUnit[ $scope.selectedSpatialUnit.spatialUnitLevel ];
-      }
-      features = $scope.createLowerCaseNameProperty(features);
-      $scope.geoJsonForReachability = { features: features }
-    } else {
-      features = $scope.availableFeaturesBySpatialUnit[ $scope.selectedSpatialUnit.spatialUnitName ];
-      features = $scope.createLowerCaseNameProperty(features);
-      let geoJSON = { features: features }
-      $scope.selectedIndicator.geoJSON = geoJSON;
-    }
-    
+			let validTimestamps = []
+			// There might be different valid timestamps for the new spatial unit.
+			if($scope.selectedIndicator) {
+				validTimestamps = getValidTimestampsForSpatialUnit( selectedSpatialUnit );
+			
+				// Check if the currently selected timestamps are also available for the new spatial unit.
+				// If one is not, deselect is and show an info to user
+				let selectedTimestamps_old = [...$scope.selectedTimestamps];
+				$scope.selectedTimestamps = $scope.selectedTimestamps.filter( el => {
+					return validTimestamps.includes(el.name);
+				});
+				// if any timestamp was deselected show a warning alert
+				// except for reachability template, it doesn't matter there
+				if(selectedTimestamps_old.length > $scope.selectedTimestamps.length && !$scope.template.name.includes("-reachability")) {
+					$("#reporting-spatialUnitChangeWarning").show();
+				}
+			} else {
+				// without selected indicator we have to fall back to the last update of the new spatial unit
+				let mostRecentTimestampName = $scope.selectedSpatialUnit.metadata.lastUpdate;
+				validTimestamps.push(mostRecentTimestampName)
+			}
+			
+			if($scope.template.name.includes("timeseries")) {
+				// Similar procedure as with timestamps
+				let oldTimeseries = $scope.getFormattedDateSliderValues(true);
+				
+				let from = new Date($scope.dateSlider.result.from_value);
+				let to = new Date($scope.dateSlider.result.to_value);
+				let filteredTimeseries = validTimestamps.filter( el => {
+					let date = new Date(el);
+					date.setHours(0); // remove time-offset...TODO is there a better way?
+					return from <= date && date <= to;
+				});
 
-    // no need to check if diagrams are prepared here since we have to prepare them again anyway
-    $timeout(async function() {
-      // prepare diagrams for all selected timestamps with all features
-      // Preparing all diagrams is not possible without an indicator, which might happen in the reachability template
-      // User selects a poi layer first and we set the most recent timestamp programmatically, triggering this function without selected Indicator
-      // We only need an echarts geoMap to show isochrones, POIs and spatial unit borders
-      if($scope.selectedIndicator) {
-        if($scope.template.name.includes("reachability")) {
-          $scope.reachabilityTemplateGeoMapOptions = $scope.prepareReachabilityEchartsMap();
-        } else if ($scope.template.name.includes("timeseries")) {
-          let values = $scope.getFormattedDateSliderValues(true);
-          let classifyUsingWholeTimeseries = false;
-          let isTimeseries = true;
-          $scope.prepareDiagrams($scope.selectedIndicator, $scope.selectedSpatialUnit, values.to, classifyUsingWholeTimeseries, isTimeseries, values.from, values.to);
-          // prepare diagrams again for most recent timestamp of slider and for whole timeseries (changes).
-          classifyUsingWholeTimeseries = true;
-          isTimeseries = false;
-          $scope.prepareDiagrams($scope.selectedIndicator, $scope.selectedSpatialUnit, values.to, classifyUsingWholeTimeseries, isTimeseries, undefined, undefined);
-        } else {
-          for(let timestamp of $scope.selectedTimestamps) {
-            let classifyUsingWholeTimeseries = false;
-            let isTimeseries = false;
-            $scope.prepareDiagrams($scope.selectedIndicator, selectedSpatialUnit, timestamp.name, classifyUsingWholeTimeseries, isTimeseries, undefined, undefined);
-          }	
-        }
-      } else {
-        $scope.reachabilityTemplateGeoMapOptions = $scope.prepareReachabilityEchartsMap();
-      }
+				let isEqualTimeseries = (oldTimeseries.dates.length == filteredTimeseries.length) && oldTimeseries.dates.every(function(element, index) {
+					return element === filteredTimeseries[index];
+				});
+				
+				if( !isEqualTimeseries) {
+					// timeseries changed
+					$("#reporting-spatialUnitChangeWarning").show();
+					// try to set slider to previously selected timestamps
+					if(validTimestamps.includes(oldTimeseries.from) && validTimestamps.includes(oldTimeseries.to)) {
+						$scope.dateSlider = $scope.initializeDateRangeSlider( validTimestamps, filteredTimeseries[0], filteredTimeseries.at(-1));	
+					} else {
+						$scope.dateSlider = $scope.initializeDateRangeSlider( validTimestamps );	
+						$scope.timeseriesAdjustedOnSpatialUnitChange = true; // show additional text in warning alert
+					}
+				} else {
+					// the selected part of the timeseries has the same dates so we don't have to show a warning
+					// but the timeseries could still include older or newer dates
+					$scope.dateSlider = $scope.initializeDateRangeSlider( validTimestamps, filteredTimeseries[0], filteredTimeseries.at(-1));
+				}
+			}
+			
+			// prepare arrays for updateDualList
+			validTimestamps = validTimestamps.map( el => {
+				return {
+					properties: {
+						NAME: el
+					}
+				}
+			});
+			let timestampsToSelect = $scope.selectedTimestamps.map( el => {
+				return {
+					properties: {
+						NAME: el.name
+					}
+				}
+			});
+			
+			$scope.updateDualList($scope.dualListTimestampsOptions, validTimestamps, timestampsToSelect);
 
-      await $scope.initializeAllDiagrams();
-      if(!$scope.template.name.includes("reachability")) {
-        // in reachability template we have to update leaflet maps, too
-        $scope.loadingData = false;
-      }
-    });
+			
+			
+			// fire $watch('selectedAreas') function manually to remove pages
+			$scope.selectedAreas = [];
+			$scope.onSelectedAreasChanged( $scope.selectedAreas , undefined)
+			// updateAreasInDualList does not trigger diagram updates
+			// we have the wrong geometries set at this point, causing area selection to fail.
+			// echarts requires properties.name to be present, create it from properties.NAME unless it exists
+			let features;
+			if($scope.template.name.includes("reachability")) {
+				if($scope.selectedIndicator) {
+					features = $scope.availableFeaturesBySpatialUnit[ $scope.selectedSpatialUnit.spatialUnitName ];
+				} else {
+					features = $scope.availableFeaturesBySpatialUnit[ $scope.selectedSpatialUnit.spatialUnitLevel ];
+				}
+				features = $scope.createLowerCaseNameProperty(features);
+				$scope.geoJsonForReachability = { features: features }
+			} else {
+				features = $scope.availableFeaturesBySpatialUnit[ $scope.selectedSpatialUnit.spatialUnitName ];
+				features = $scope.createLowerCaseNameProperty(features);
+				let geoJSON = { features: features }
+				$scope.selectedIndicator.geoJSON = geoJSON;
+			}
+			
+
+			// no need to check if diagrams are prepared here since we have to prepare them again anyway
+			$timeout(async function() {
+				// prepare diagrams for all selected timestamps with all features
+				// Preparing all diagrams is not possible without an indicator, which might happen in the reachability template
+				// User selects a poi layer first and we set the most recent timestamp programmatically, triggering this function without selected Indicator
+				// We only need an echarts geoMap to show isochrones, POIs and spatial unit borders
+				if($scope.selectedIndicator) {
+					if($scope.template.name.includes("reachability")) {
+						$scope.reachabilityTemplateGeoMapOptions = $scope.prepareReachabilityEchartsMap();
+					} else if ($scope.template.name.includes("timeseries")) {
+						let values = $scope.getFormattedDateSliderValues(true);
+						let classifyUsingWholeTimeseries = false;
+						let isTimeseries = true;
+						$scope.prepareDiagrams($scope.selectedIndicator, $scope.selectedSpatialUnit, values.to, classifyUsingWholeTimeseries, isTimeseries, values.from, values.to);
+						// prepare diagrams again for most recent timestamp of slider and for whole timeseries (changes).
+						classifyUsingWholeTimeseries = true;
+						isTimeseries = false;
+						$scope.prepareDiagrams($scope.selectedIndicator, $scope.selectedSpatialUnit, values.to, classifyUsingWholeTimeseries, isTimeseries, undefined, undefined);
+					} else {
+						for(let timestamp of $scope.selectedTimestamps) {
+							let classifyUsingWholeTimeseries = false;
+							let isTimeseries = false;
+							$scope.prepareDiagrams($scope.selectedIndicator, selectedSpatialUnit, timestamp.name, classifyUsingWholeTimeseries, isTimeseries, undefined, undefined);
+						}	
+					}
+				} else {
+					$scope.reachabilityTemplateGeoMapOptions = $scope.prepareReachabilityEchartsMap();
+				}
+
+				await $scope.initializeAllDiagrams();
+				// if(!$scope.template.name.includes("reachability")) {
+				// 	// in reachability template we have to update leaflet maps, too
+				// 	$scope.loadingData = false;
+				// }
+				$scope.loadingData = false;
+			});
  */
   }
 
@@ -1168,6 +1200,17 @@ export class IndicatorAddComponent implements OnInit {
   updateDualList(options, data, selectedItems) {
     options.selectedItems = [];
 
+    if(options.label == "Bereiche"){
+      let numberOfTargetSpatialUnitFeatures = 0;
+      if(selectedItems && selectedItems.length){
+        numberOfTargetSpatialUnitFeatures = selectedItems.length;
+      }
+      // add one page to display the total map of all selected spatial unit features
+      numberOfTargetSpatialUnitFeatures ++;
+
+      this.leafletScreenshotCacheHelperService.resetCounter(numberOfTargetSpatialUnitFeatures, false);
+    }
+
     let dualListInput = data.map( el => {
       return {"name": el.properties.NAME} // we need this as an object for kommonitorDataExchangeService.createDualListInputArray
     });
@@ -1225,7 +1268,7 @@ export class IndicatorAddComponent implements OnInit {
           }
         }
       }
-    }, 500);
+    }, 150);
   }
 
 
@@ -1398,6 +1441,7 @@ export class IndicatorAddComponent implements OnInit {
       });
       if( !this.selectedSpatialUnit) {
         this.selectedSpatialUnit = this.dataExchangeService.pipedData.availableSpatialUnits[0];
+        this.updateAreasInDualList(); // this populates $scope.availableFeaturesBySpatialUnit
       }
       let mostRecentTimestampName
       if(this.selectedSpatialUnit.metadata) {
@@ -1413,8 +1457,6 @@ export class IndicatorAddComponent implements OnInit {
         category: mostRecentTimestampName,
         name: mostRecentTimestampName
       }];
-      
-      this.updateAreasInDualList(); // this populates this.availableFeaturesBySpatialUnit
 
       
       // update information in preview
@@ -1580,9 +1622,11 @@ export class IndicatorAddComponent implements OnInit {
     this.availableFeaturesBySpatialUnit[this.selectedSpatialUnit.spatialUnitName] = featureCollection.features;
     this.selectedIndicator.geoJSON = featureCollection;
     this.selectedIndicator.geoJSON.features = this.createLowerCaseNameProperty(this.selectedIndicator.geoJSON.features);
-    for(let feature of this.selectedIndicator.geoJSON.features) {
-      let bbox = turf.bbox(feature); // calculate bbox for each feature
-      feature.properties.bbox = bbox;
+    if(this.selectedIndicator.geoJSON.features[0] && !this.selectedIndicator.geoJSON.features[0].properties.bbox){
+      for(let feature of this.selectedIndicator.geoJSON.features) {
+        let bbox = turf.bbox(feature); // calculate bbox for each feature
+        feature.properties.bbox = bbox;
+      }
     }
     
     for(let page of this.template.pages) {
@@ -1640,6 +1684,7 @@ export class IndicatorAddComponent implements OnInit {
 
       // get a new template (in case another indicator was selected previously)
       this.template = this.getCleanTemplate();
+      this.template.pageConfig = this.pageConfig;
       
       // set spatial unit to highest available one
       let spatialUnits = this.dataExchangeService.pipedData.availableSpatialUnits;
@@ -1784,6 +1829,9 @@ export class IndicatorAddComponent implements OnInit {
 
 /* 
   $scope.reset = function() {
+
+  $scope.pagePreparationIndex = 0;
+			$scope.pagePreparationSize = 0;
     $scope.template = undefined;
     $scope.untouchedTemplateAsString = "";
     $scope.indicatorNameFilter = "";
@@ -1811,6 +1859,7 @@ export class IndicatorAddComponent implements OnInit {
   }
 
   $scope.onAddBtnClicked = function() {
+			$scope.template.pageConfig = $scope.pageConfig;
     // for each page: add echarts configuration objects to the template
     for(let [idx, page] of $scope.template.pages.entries()) {
       let pageDom = document.querySelector("#reporting-addIndicator-page-" + idx);
@@ -1877,6 +1926,14 @@ export class IndicatorAddComponent implements OnInit {
     $scope.reset();
   }
   */
+
+  async getReportingRechabilityMapAttribution(){
+    if(!this.reportingReachabilityMapAttribution){
+      this.reportingReachabilityMapAttribution = await this.diagramHelperService.createReportingReachabilityMapAttribution();
+    } 
+
+    return this.reportingReachabilityMapAttribution;			
+  }
 
   enableTab (tab) {
     tab.classList.remove("tab-disabled")
@@ -2195,9 +2252,218 @@ export class IndicatorAddComponent implements OnInit {
       }
     }, 0, true, page, pageElement, map)
 
+    this.loadingData = false;
+
     return map;
   }
   
+  async initLeafletMapBeneathEchartsMap(page, pageElement, map){
+    // initialize the leaflet map beneath the transparent-background echarts map
+      let pageIdx:any = this.template.pages.indexOf(page);
+      let id = "reporting-addPoiLayer-leaflet-map-container-" + pageIdx;
+      let pageDom:any = document.getElementById("reporting-addIndicator-page-" + pageIdx);
+      let pageElementDom:any = document.getElementById("reporting-addIndicator-page-" + pageIdx + "-map");
+      let oldMapNode:any = document.getElementById(id);
+      if(oldMapNode) {
+        oldMapNode.remove();
+      }
+      let div:any = document.createElement("div");
+      div.id = id;
+      div.style.position = "absolute";
+      div.style.left = pageElement.dimensions.left;
+      div.style.top = pageElement.dimensions.top;
+      div.style.width = pageElement.dimensions.width;
+      div.style.height = pageElement.dimensions.height;
+      div.style.zIndex = 10;
+      pageDom.appendChild(div);
+      // let echartsOptions = echartsMap.getOption();
+      let echartsOptions = map.getOption();				
+
+      let leafletMap = L.map(div.id, {
+        zoomControl: false,
+        dragging: false,
+        doubleClickZoom: false,
+        boxZoom: false,
+        trackResize: false,
+        attributionControl: false,
+        // prevents leaflet form snapping to closest pre-defined zoom level.
+        // In other words, it allows us to set exact map extend by a (echarts) bounding box
+        zoomSnap: 0,
+        // disable any fade and zoom animation in order to get screenshots directly after layer event load was called
+        fadeAnimation: false,
+              zoomAnimation: false,
+      });
+      // manually create a field for attribution so we can control the z-index.
+      let prevAttributionDiv = pageDom.querySelector(".map-attribution")
+      if(prevAttributionDiv) prevAttributionDiv.remove();
+      let attrDiv:any = document.createElement("div")
+      attrDiv.classList.add("map-attribution")
+      attrDiv.style.position = "absolute";
+      attrDiv.style.bottom = 0;
+      attrDiv.style.left = 0;
+      attrDiv.style.zIndex = 800;
+      let attrImg = await this.getReportingRechabilityMapAttribution(); 
+      attrDiv.appendChild(attrImg);
+      pageElementDom.appendChild(attrDiv);
+
+      if(this.template.name.includes("reachability")){
+        // also create the reachability specific legend manually
+        let prevLegendDiv = pageDom.querySelector(".map-legend")
+        if(prevLegendDiv) prevLegendDiv.remove();
+        let legendDiv:any = document.createElement("div")
+        legendDiv.classList.add("map-legend")
+        legendDiv.style.position = "absolute";
+        legendDiv.style.bottom = 0;
+        legendDiv.style.right = 0;
+        legendDiv.style.zIndex = 800;
+        let legendImg = await this.diagramHelperService.createReportingReachabilityMapLegend(echartsOptions, this.selectedSpatialUnit, this.isochronesRangeType, this.isochronesRangeUnits);
+        legendDiv.appendChild(legendImg);
+        pageElementDom.appendChild(legendDiv)
+      }
+      
+
+      // echarts uses [lon, lat], leaflet uses [lat, lon]
+      let boundingCoords = echartsOptions.series[0].boundingCoords;
+      let westLon = boundingCoords[0][0];
+      let southLat = boundingCoords[1][1];
+      let eastLon = boundingCoords[1][0];
+      let northLat = boundingCoords[0][1];
+
+      if(page.area && page.area.length){
+        let feature = this.geoJsonForReachability_byFeatureName.get(page.area);
+        page.spatialUnitFeatureId = feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME];
+      }
+
+      // Add 2% space on all sides
+      // let divisor = 50;
+      // let bboxHeight = northLat - southLat;
+      // let bboxWidth = eastLon - westLon;
+      // northLat += bboxHeight/divisor;
+      // southLat -= bboxHeight/divisor;
+      // eastLon += bboxWidth/divisor;
+      // westLon -= bboxWidth/divisor;
+
+      leafletMap.fitBounds( [[southLat, westLon], [northLat, eastLon]] );
+      let bounds = leafletMap.getBounds()
+
+      /*
+      as we might have landscape and portrait versions of the same content
+      leaflet fitBounds() will not work properly, if the leaflet map is actually not included in the DOM currently
+      
+      --> hence we make a workaround. if the leaflet coords of northeast and southwest are exactly the same
+      then we just ignore it and instead reuse the original echarts coordinates --> they are proper at the beginning of the function  
+
+      */
+
+      if(bounds.getWest() == bounds.getEast() && bounds.getNorth() == bounds.getSouth()){
+        // this is only the case, if leaflet.fitBounds() results in a single coordinate (due to map HTML element not within DOM)	
+        // hence, simply use current echarts extent				
+      }
+      else{
+        // normal case, leaflet has properly rendered and zoomed to the given extent
+        // thus we use the leaflet coords in order to adjust the echarts extent for proper overlay
+        boundingCoords = [ [bounds.getWest(), bounds.getNorth()], [bounds.getEast(), bounds.getSouth()]]
+      }
+
+      // // now update every echarts series
+      
+      for(let series of echartsOptions.series) {
+
+        series.left = 0;
+        series.top = 0;
+        series.right = 0;
+        series.bottom = 0;
+        series.boundingCoords = boundingCoords,
+        series.projection = {
+          project: (point) => this.mercatorProjection_d3(point),
+          unproject: (point) => this.mercatorProjection_d3.invert(point)
+        }
+      }
+
+      echartsOptions.geo[0].top = 0;
+      echartsOptions.geo[0].left = 0;
+      echartsOptions.geo[0].right = 0;
+      echartsOptions.geo[0].bottom = 0;
+      echartsOptions.geo[0].projection = {
+        project: (point) => this.mercatorProjection_d3(point),
+            unproject: (point) => this.mercatorProjection_d3.invert(point)
+      }				
+      echartsOptions.geo[0].boundingCoords = boundingCoords
+      
+
+      // echartsMap.setOption(echartsOptions, {
+      // 	notMerge: true
+      // });
+      map.setOption(echartsOptions, {
+        notMerge: false
+      });				
+      
+      // Attribution is handled in a custom element
+      // let leafletLayer = new L.TileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png");
+      let leafletLayer; 
+      if (this.selectedBaseMap.layerConfig.layerType === "TILE_LAYER_GRAYSCALE"){
+        leafletLayer = new L.tileLayer(this.selectedBaseMap.layerConfig.url);
+        }
+        else if (this.selectedBaseMap.layerConfig.layerType === "TILE_LAYER"){
+        leafletLayer = new L.tileLayer(this.selectedBaseMap.layerConfig.url);
+        }
+        else if (this.selectedBaseMap.layerConfig.layerType === "WMS"){
+        leafletLayer = new L.tileLayer.wms(this.selectedBaseMap.layerConfig.url, { layers: this.selectedBaseMap.layerConfig.layerName_WMS, format: 'image/jpeg' })
+        }				
+      // use the "load" event of the tile layer to hook a function that is triggered once every visible tile is fully loaded
+      // here we ntend to make a screenshot of the leaflet image as a background task in order to boost up report preview generation 
+      // for all spatial unit features		
+      let domNode = leafletMap["_container"];	
+      leafletLayer.on("load", () => { 
+        // there are pages for two page orientations (landscape and portait)
+        // only trigger the screenshot for those pages, that are actually present
+        if(page.orientation == this.template.orientation){
+          this.leafletScreenshotCacheHelperService.checkForScreenshot(this.selectedBaseMap.layerConfig.name, this.selectedSpatialUnit.spatialUnitId, 
+            page.spatialUnitFeatureId, page.orientation, domNode);
+        }
+                
+      });					
+      leafletLayer.addTo(leafletMap);		
+      
+      // set selected base map in order to make it available in reporting overview
+      pageElement.selectedBaseMap = this.selectedBaseMap;
+
+      // add leaflet map to pageElement in case we need it again later
+      pageElement.leafletMap = leafletMap;
+
+      // can be used to check if positioning in echarts matches the one from leaflet
+      // let geoJsonLayer = L.geoJSON( this.geoJsonForReachability.features )
+      // geoJsonLayer.addTo(leafletMap)
+      // let isochronesLayer = L.geoJSON( this.isochrones.features )
+      // isochronesLayer.addTo(leafletMap);
+      // let poiMarkerLSource = {
+      // 	"type": "FeatureCollection",
+      // 	"features": []
+      // }
+      // for(let lonLatArr of centers) {
+      // 	poiMarkerLSource.features.push({
+      // 		"type": "Feature",
+      // 		"geometry": {
+      // 			"type": "Point",
+      // 			"coordinates": [
+      // 				lonLatArr[0],
+      // 				lonLatArr[1]
+      // 			]
+      // 		}
+      // 	})
+      // }
+      // poiMarkerLayer = L.geoJSON( poiMarkerLSource )
+      // poiMarkerLayer.addTo(leafletMap);
+
+      pageElement.leafletBbox = bounds;
+      pageElement.echartsOptions = echartsOptions;
+  }
+
+  filterBaseMaps(){
+    return function( baseMapEntry ) {
+      return baseMapEntry.layerConfig.layerType != "TILE_LAYER_GRAYSCALE";
+    };
+  }
 
   // async
   createPageElement_Map(wrapper, page, pageElement) {
@@ -2269,7 +2535,17 @@ export class IndicatorAddComponent implements OnInit {
     series.roam = false;
     series.selectedMode = false;
     
-    
+    let overallBbox = this.calculateOverallBoundingBoxFromGeoJSON(this.selectedIndicator.geoJSON.features)
+
+    options.geo = {
+      map: mapName,
+      z: 1,
+      itemStyle: {
+        opacity: 0
+      },
+      roam: false,
+      boundingCoords: overallBbox,
+    };
 
     if(pageElement.isTimeseries) {
       let includeInBetweenDates = true;
@@ -2286,6 +2562,7 @@ export class IndicatorAddComponent implements OnInit {
 
     if(pageElement.classify === true) {
       options.visualMap.show = true;
+      options.visualMap.backgroundColor = this.pageConfig.mapLegendBackgroundColor;
     } else {
       options.visualMap.show = false;
     }
@@ -2368,6 +2645,7 @@ export class IndicatorAddComponent implements OnInit {
     options = this.enableManualLabelPositioningAcrossPages(page, options, map)
     
     map.setOption(options);
+    pageElement.echartsOptions = options;	
     return map;
   }
 
@@ -3072,18 +3350,20 @@ export class IndicatorAddComponent implements OnInit {
   }
 
 
-  filterMapByAreaName(echartsInstance, areaName, allFeatures) {
+  filterMapByAreaName(echartsInstance, areaName, targetFeature) {
     let options = echartsInstance.getOption();
     let mapName = options.series[0].map;
     // filter shown areas if we are in the area-specific part of the template
     // removing areas form the series doesn't work. We have to filter the geojson of the registered map.
-    let tfeatures:any = allFeatures.filter ( (el:any) => {
+  /*   let tfeatures:any = allFeatures.filter ( (el:any) => {
       return el.properties.name === areaName
-    });
+    }); */
 
-    let features:any = {
+   /*  let features:any = {
       features: tfeatures
-    }
+    } */
+    let features:any = [];
+    features.push(targetFeature);
 
     echarts.registerMap(mapName, features )
 
@@ -3245,9 +3525,11 @@ export class IndicatorAddComponent implements OnInit {
 
  
   prepareReachabilityEchartsMap() {
-    for(let feature of this.geoJsonForReachability.features) {
-      let bbox = turf.bbox(feature); // calculate bbox for each feature
-      feature.properties.bbox = bbox;
+    if(this.geoJsonForReachability.features[0] && !this.geoJsonForReachability.features[0].properties.bbox){
+      for(let feature of this.geoJsonForReachability.features) {
+        let bbox = turf.bbox(feature); // calculate bbox for each feature
+        feature.properties.bbox = bbox;
+      }
     }
     let overallBbox = this.calculateOverallBoundingBoxFromGeoJSON(this.geoJsonForReachability.features)
     // change format of bbox to match the format needed for echarts
@@ -3307,136 +3589,196 @@ export class IndicatorAddComponent implements OnInit {
 // async
   initializeAllDiagrams() {
 
-    if(!this.template)
-      return;
-    if(this.template.name.includes("timestamp") && this.selectedTimestamps.length === 0) {
-      return;
-    }
-    if(!this.diagramsPrepared) {
-      throw new Error("Diagrams can't be initialized since they were not prepared previously.")
-    }
-    console.log('init all diagrams - progress')
+			if(!this.template)
+				return;
+			if(this.template.name.includes("timestamp") && this.selectedTimestamps.length === 0) {
+				return;
+			}
+			if(!this.diagramsPrepared) {
+				throw new Error("Diagrams can't be initialized since they were not prepared previously.")
+			}
 
-    // We need a separate counter for page index because we iterate over the pages array.
-    // This array might include additional datatable pages, which are not inserted in the dom
-    // Even though we do nothing for these pages, the index gets out of sync with the page ids (which we use to get the dom elements)
-    let pageIdx = -1;
+			// prepare O(1) access to geoJSON features used within each page
+			if(this.selectedIndicator) {
+				this.geoJsonForSelectedIndicator_byFeatureName = new Map();
+				for(let feature of this.selectedIndicator.geoJSON.features) {
+					if(!feature.properties.bbox)
+						feature.properties.bbox = turf.bbox(feature);
 
-    for(let i=0; i<this.template.pages.length; i++) {
-      pageIdx++;
-      let page = this.template.pages[i];
-      
-      let prevPage = i>1 ? this.template.pages[i-1] : undefined;
-      let pageIncludesDatatable = page.pageElements.map(el => el.type).includes("datatable")
+					this.geoJsonForSelectedIndicator_byFeatureName.set(feature.properties.NAME, feature)
+				}
+				this.geoJsonForReachability_byFeatureName = this.geoJsonForSelectedIndicator_byFeatureName;
+			} else {
+				this.geoJsonForReachability_byFeatureName = new Map();
 
-      if(prevPage) {
-        let prevPageIncludesDatatable = prevPage.pageElements.map(el => el.type).includes("datatable")
-        if(pageIncludesDatatable && prevPageIncludesDatatable) {
-          // get corresponding pages in the dom and check if they are datatable-pages
-          let prevDomPageEl = document.querySelector("#reporting-addIndicator-page-" + (i-1) + "-datatable")
-          let domPageEl =  document.querySelector("#reporting-addIndicator-page-" + i + "-datatable")
-          if(!prevDomPageEl || !domPageEl) { // if this page does not exist in the dom
-            pageIdx--; // don't increase index in this iteration so it stays in sync with the pages that exist in the dom
-          }
-          continue; // don't do anything for additional datatable pages. They are added in createPageElement_Datatable
-        }
-      }
-      
+				for(let feature of this.geoJsonForReachability.features) {
+					if(!feature.properties.bbox)
+						feature.properties.bbox = turf.bbox(feature);
+					this.geoJsonForReachability_byFeatureName.set(feature.properties.NAME, feature)
+				}	
+				this.geoJsonForSelectedIndicator_byFeatureName = this.geoJsonForReachability_byFeatureName
+			}	
 
-      let pageDom:any = document.querySelector("#reporting-addIndicator-page-" + pageIdx);
+			// We need a separate counter for page index because we iterate over the pages array.
+			// This array might include additional datatable pages, which are not inserted in the dom
+			// Even though we do nothing for these pages, the index gets out of sync with the page ids (which we use to get the dom elements)
+			let pageIdx = -1;
 
-      for(let pageElement of page.pageElements) {
+			this.lastPageOfAddedSectionPrepared = false;
+			this.pagePreparationIndex = 0;
+			this.pagePreparationSize = document.querySelectorAll("[id^='reporting-addIndicator-page-'].reporting-page").length; // all starting with that id
+			let logProgressIndexSeparator = Math.round(this.pagePreparationSize / 100 * 10);
 
-        // usually each type is included only once per page, but there is an exception for linecharts in area specific part of timeseries template
-        // for now we more or less hardcode this, but it might have to change in the future
-        let pElementDom;
-        if(pageElement.type === "linechart") {
-          let arr = pageDom.querySelectorAll(".type-linechart");
-          if(pageElement.showPercentageChangeToPrevTimestamp) {
-            pElementDom = arr[1];
-          } else {
-            pElementDom = arr[0];
-          }
-        } else {
-          pElementDom = pageDom.querySelector("#reporting-addIndicator-page-" + pageIdx + "-" + pageElement.type)
-        }
-        
-        switch(pageElement.type) {
-          case "map": {
-            // initialize with all areas
-            let map = this.createPageElement_Map(pElementDom, page, pageElement);
-            // filter visible areas if needed
-            if(page.area && page.area.length) {
-              if(this.selectedIndicator) {
-                this.filterMapByAreaName(map, page.area, this.selectedIndicator.geoJSON.features);
-              } else {
-                this.filterMapByAreaName(map, page.area, this.geoJsonForReachability.features);
-              }
-              
-            }
-            pageElement.isPlaceholder = false;
-            break;
-          }
-          case "mapLegend": {
-            pageElement.isPlaceholder = false; // hide the placeholder, legend is part of map
-            pageDom.querySelector(".type-mapLegend").style.display = "none";
-            break;
-          }
-            
-          case "overallAverage": {
-            this.createPageElement_Average(page, pageElement, false);
-            pageDom.querySelector(".type-overallAverage").style.border = "none";
-            break;
-          }
-          case "selectionAverage": {
-            this.createPageElement_Average(page, pageElement, true);
-            pageDom.querySelector(".type-selectionAverage").style.border = "none";
-            break;
-          }
-          case "overallChange": {
-            this.createPageElement_Change(page, pageElement, false);
-            let wrapper = pageDom.querySelector(".type-overallChange")
-            wrapper.style.border = "none";
-            break;
-          }
-          case "selectionChange": {
-            this.createPageElement_Change(page, pageElement, true);
-            let wrapper = pageDom.querySelector(".type-selectionChange")
-            wrapper.style.border = "none";
-            break;
-          }
-          case "barchart": {
-            this.createPageElement_BarChartDiagram(pElementDom, page);
-            pageElement.isPlaceholder = false;
-            break;
-          }
-          case "linechart": {
-            this.createPageElement_TimelineDiagram(pElementDom, page, pageElement);
-            pageElement.isPlaceholder = false;
-            break;
-          }
-          case "datatable": {
-            // remove all following datatable pages first so we don't add too many.
-            // this might happen because we initialize page elements from $watch(selectedAreas) and $watch(selectedTimestamps) on indicator selection
-            let nextPage = i<this.template.pages.length-1 ? this.template.pages[i+1] : undefined;
-            if(nextPage) {
-              let nextPageIncludesDatatable = nextPage.pageElements.map(el => el.type).includes("datatable")
-              while(nextPageIncludesDatatable) {
-                this.template.pages.splice(i+1, 1) //remove page
-                //update next page
-                nextPage = i<this.template.pages.length-1 ? this.template.pages[i+1] : undefined;
-                nextPageIncludesDatatable = nextPage ? nextPage.pageElements.map(el => el.type).includes("datatable") : false;
-              }
-            }
-            this.createPageElement_Datatable(pElementDom, page);
-            break;
-          }
-        }
-      }
-    }
+			for(let i=0; i<this.template.pages.length; i++) {
+
+				setTimeout(async () => {
+					pageIdx++;
+					let page = this.template.pages[i];
+					
+					let prevPage = i>1 ? this.template.pages[i-1] : undefined;
+					let pageIncludesDatatable = page.pageElements.map(el => el.type).includes("datatable")
+
+					if(prevPage) {
+						let prevPageIncludesDatatable = prevPage.pageElements.map(el => el.type).includes("datatable")
+						if(pageIncludesDatatable && prevPageIncludesDatatable) {
+							// get corresponding pages in the dom and check if they are datatable-pages
+							let prevDomPageEl = document.querySelector("#reporting-addIndicator-page-" + (i-1) + "-datatable")
+							let domPageEl =  document.querySelector("#reporting-addIndicator-page-" + i + "-datatable")
+							if(!prevDomPageEl || !domPageEl) { // if this page does not exist in the dom
+								pageIdx--; // don't increase index in this iteration so it stays in sync with the pages that exist in the dom
+							}
+							return; // don't do anything for additional datatable pages. They are added in createPageElement_Datatable
+						}
+					}				
+
+					let pageDom:any = document.querySelector("#reporting-addIndicator-page-" + i);	
+
+					for(let pageElement of page.pageElements) {
+
+						// usually each type is included only once per page, but there is an exception for linecharts in area specific part of timeseries template
+						// for now we more or less hardcode this, but it might have to change in the future
+						let pElementDom;
+						if(pageElement.type === "linechart") {
+							let arr = pageDom.querySelectorAll(".type-linechart");
+							if(pageElement.showPercentageChangeToPrevTimestamp) {
+								pElementDom = arr[1];
+							} else {
+								pElementDom = arr[0];
+							}
+						} else {
+							pElementDom = pageDom.querySelector("#reporting-addIndicator-page-" + i + "-" + pageElement.type)
+						}
+						
+						switch(pageElement.type) {
+							case "map": {
+								// initialize with all areas
+								let map = await this.createPageElement_Map(pElementDom, page, pageElement);
+								// filter visible areas if needed
+								if(page.area && page.area.length) {
+									if(this.selectedIndicator) {
+										this.filterMapByAreaName(map, page.area, this.geoJsonForSelectedIndicator_byFeatureName.get(page.area));
+									} else {
+										this.filterMapByAreaName(map, page.area, this.geoJsonForReachability_byFeatureName.get(page.area));
+									}
+									
+								}
+								await this.initLeafletMapBeneathEchartsMap(page, pageElement, map);
+
+								pageElement.isPlaceholder = false;
+								break;
+							}
+							case "mapLegend": {
+								pageElement.isPlaceholder = false; // hide the placeholder, legend is part of map
+								pageDom.querySelector(".type-mapLegend").style.display = "none";
+								break;
+							}
+								
+							/*
+								June 2025: we remove overallAverage and overallChange, overallAverage and selectionAverage from reporting overview pages.
+							*/
+							// case "overallAverage": {
+							// 	this.createPageElement_Average(page, pageElement, false);
+							// 	pageDom.querySelector(".type-overallAverage").style.border = "none";
+							// 	break;
+							// }
+							// case "selectionAverage": {
+							// 	this.createPageElement_Average(page, pageElement, true);
+							// 	pageDom.querySelector(".type-selectionAverage").style.border = "none";
+							// 	break;
+							// }
+							// case "overallChange": {
+							// 	this.createPageElement_Change(page, pageElement, false);
+							// 	let wrapper = pageDom.querySelector(".type-overallChange")
+							// 	wrapper.style.border = "none";
+							// 	break;
+							// }
+							// case "selectionChange": {
+							// 	this.createPageElement_Change(page, pageElement, true);
+							// 	let wrapper = pageDom.querySelector(".type-selectionChange")
+							// 	wrapper.style.border = "none";
+							// 	break;
+							// }
+							case "barchart": {
+								this.createPageElement_BarChartDiagram(pElementDom, page);
+								pageElement.isPlaceholder = false;
+								break;
+							}
+							case "linechart": {
+								this.createPageElement_TimelineDiagram(pElementDom, page, pageElement);
+								pageElement.isPlaceholder = false;
+								break;
+							}
+							case "datatable": {
+								// remove all following datatable pages first so we don't add too many.
+								// this might happen because we initialize page elements from $watch(selectedAreas) and $watch(selectedTimestamps) on indicator selection
+								let nextPage = i<this.template.pages.length-1 ? this.template.pages[i+1] : undefined;
+								if(nextPage) {
+									let nextPageIncludesDatatable = nextPage.pageElements.map(el => el.type).includes("datatable")
+									while(nextPageIncludesDatatable) {
+										this.template.pages.splice(i+1, 1) //remove page
+										//update next page
+										nextPage = i<this.template.pages.length-1 ? this.template.pages[i+1] : undefined;
+										nextPageIncludesDatatable = nextPage ? nextPage.pageElements.map(el => el.type).includes("datatable") : false;
+									}
+								}
+								this.createPageElement_Datatable(pElementDom, page);
+								break;
+							}
+						}
+					}
+
+					// if the last page is reached and full prepared we want to show that to the user
+					// wait additionally for 500 ms
+					this.pagePreparationIndex = i;
+
+					// every 10 percent log progress to user
+				/* 	if(this.pagePreparationIndex % logProgressIndexSeparator === 0){
+						this.$digest();	
+					}			 */	
+					
+					if (i == this.pagePreparationSize - 1) {
+						this.lastPageOfAddedSectionPrepared = true;
+					/* 	$timeout(function () {
+							this.$digest();
+						}, 1000) */;
+					}
+				})
+				
+			}
+
+			// apply current page configuration as it is performed asynchronously 
+				setTimeout(() => {
+					this.onChangePageConfig();
+					this.onChangeShowPageSection();
+				});
   }
  
   showThisPage(page) {
+    
+    if (page.hidden){
+      return false;
+    }
+
     let pageWillBeShown = false;
     for(let visiblePage of this.filterPagesToShow()){
       if(visiblePage.id == page.id) {
@@ -3759,13 +4101,13 @@ export class IndicatorAddComponent implements OnInit {
 
       let instance = echarts.getInstanceByDom(map);
       let options = instance.getOption();
-      options.series[0].label.show = $scope.showMapLabels;
-      options.series[0].select.label.show = $scope.showMapLabels;
+     options.series[0].label.show = $scope.pageConfig.showMapLabels;
+				options.series[0].select.label.show = $scope.pageConfig.showMapLabels;
       for(let item of options.series[0].data) {
         if(typeof item.label === "undefined") {
           item.label = {};
         }
-        item.label.show = $scope.showMapLabels;
+        item.label.show = $scope.pageConfig.showMapLabels;
       }
       instance.setOption(options, {
         replaceMerge: ['series']
@@ -3783,7 +4125,7 @@ export class IndicatorAddComponent implements OnInit {
 
       let instance = echarts.getInstanceByDom(barChart);
       let options = instance.getOption();				
-      if (! $scope.showRankingMeanLine){
+     if (! $scope.pageConfig.showRankingMeanLine){
         options.series[0].markLine_backup = options.series[0].markLine;
         options.series[0].markLine = {};
       }
