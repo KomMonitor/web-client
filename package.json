@@ -140,6 +140,7 @@
     "ng2-ion-range-slider": "^2.0.0",
     "ng2-nouislider": "^2.0.0",
     "nouislider": "^15.8.1",
+    "pako": "^2.1.0",
     "papaparse": "^5.4.1",
     "rangeslide.js": "^0.13.0",
     "rxjs": "^7.8.1",
