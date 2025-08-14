@@ -144,6 +144,7 @@
     "nouislider": "^15.8.1",
     "pako": "^2.1.0",
     "papaparse": "^5.4.1",
+    "pptxgenjs-angular": "^1.0.0-beta",
     "rangeslide.js": "^0.13.0",
     "rxjs": "^7.8.1",
     "shp-write": "^0.3.2",
