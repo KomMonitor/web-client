@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { BroadcastService } from '../broadcast-service/broadcast.service';
-import { KommonitorGeoresourceDataExchangeService } from './kommonitor-data-exchange.service';
 import { AgGridAngular } from 'ag-grid-angular';
 import { 
   GridOptions, 
@@ -13,6 +12,41 @@ import {
   RowSelectedEvent,
   CellClickedEvent
 } from 'ag-grid-community';
+
+// Interfaces for better typing
+export interface GeoresourceMetadata {
+  georesourceId: string;
+  datasetName: string;
+  isPOI?: boolean;
+  isLOI?: boolean;
+  isAOI?: boolean;
+  poiSymbolColor?: string;
+  poiSymbolBootstrap3Name?: string;
+  poiMarkerColor?: string;
+  loiColor?: string;
+  loiWidth?: number;
+  loiDashArrayString?: string;
+  aoiColor?: string;
+  metadata?: {
+    description?: string;
+    datasource?: string;
+    contact?: string;
+  };
+  availablePeriodsOfValidity?: Array<{
+    startDate: string;
+    endDate?: string;
+  }>;
+  topicReference?: any;
+  permissions?: any;
+  isPublic?: boolean;
+  ownerId?: string;
+  userPermissions?: string[];
+}
+
+export interface GridState {
+  columnDefs: any[];
+  timestamp: Date;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -27,9 +61,27 @@ export class KommonitorGeoresourceDataGridHelperService {
   // Component reference for callbacks
   private componentRef: any = null;
 
+  // Grid state storage
+  private gridStates = new Map<string, GridState>();
+
+  // Current georesources data for lookup
+  private currentGeoresources: GeoresourceMetadata[] = [];
+
+  // Timestamp properties for feature table updates (like original AngularJS service)
+  featureTable_spatialUnit_lastUpdate_timestamp_success: Date | undefined = undefined;
+  featureTable_spatialUnit_lastUpdate_timestamp_failure: Date | undefined = undefined;
+  featureTable_georesource_lastUpdate_timestamp_success: Date | undefined = undefined;
+  featureTable_georesource_lastUpdate_timestamp_failure: Date | undefined = undefined;
+  featureTable_indicator_lastUpdate_timestamp_success: Date | undefined = undefined;
+  featureTable_indicator_lastUpdate_timestamp_failure: Date | undefined = undefined;
+
+  // Resource type constants (like original AngularJS service)
+  readonly resourceType_georesource = "georesource";
+  readonly resourceType_spatialUnit = "spatialUnit";
+  readonly resourceType_indicator = "indicator";
+
   constructor(
-    private broadcastService: BroadcastService,
-    private kommonitorDataExchangeService: KommonitorGeoresourceDataExchangeService
+    private broadcastService: BroadcastService
   ) {}
 
   /**
@@ -108,7 +160,7 @@ export class KommonitorGeoresourceDataGridHelperService {
   /**
    * Build data grid for georesources
    */
-  buildDataGrid_georesources(georesourcesArray: any[]): void {
+  buildDataGrid_georesources(georesourcesArray: GeoresourceMetadata[]): void {
     if (!georesourcesArray || georesourcesArray.length === 0) {
       console.warn('No georesources data provided to buildDataGrid_georesources');
       return;
@@ -119,6 +171,12 @@ export class KommonitorGeoresourceDataGridHelperService {
       return;
     }
 
+    // Store current georesources for lookup
+    this.currentGeoresources = [...georesourcesArray];
+
+    // Update timestamps like original AngularJS service
+    this.featureTable_georesource_lastUpdate_timestamp_success = new Date();
+
     this.buildPoiGrid(georesourcesArray);
     this.buildLoiGrid(georesourcesArray);
     this.buildAoiGrid(georesourcesArray);
@@ -127,7 +185,7 @@ export class KommonitorGeoresourceDataGridHelperService {
   /**
    * Build POI grid
    */
-  private buildPoiGrid(georesourcesArray: any[]): void {
+  private buildPoiGrid(georesourcesArray: GeoresourceMetadata[]): void {
     if (!this.poiGrid) {
       return;
     }
@@ -142,16 +200,17 @@ export class KommonitorGeoresourceDataGridHelperService {
       // Register click handlers after a short delay
       setTimeout(() => {
         this.registerClickHandler_georesources(georesourcesArray);
-      }, 200);
+      }, 500);
     } catch (error) {
       console.error('Error updating POI grid:', error);
+      this.featureTable_georesource_lastUpdate_timestamp_failure = new Date();
     }
   }
 
   /**
    * Build LOI grid
    */
-  private buildLoiGrid(georesourcesArray: any[]): void {
+  private buildLoiGrid(georesourcesArray: GeoresourceMetadata[]): void {
     if (!this.loiGrid) {
       return;
     }
@@ -166,16 +225,17 @@ export class KommonitorGeoresourceDataGridHelperService {
       // Register click handlers after a short delay
       setTimeout(() => {
         this.registerClickHandler_georesources(georesourcesArray);
-      }, 200);
+      }, 500);
     } catch (error) {
       console.error('Error updating LOI grid:', error);
+      this.featureTable_georesource_lastUpdate_timestamp_failure = new Date();
     }
   }
 
   /**
    * Build AOI grid
    */
-  private buildAoiGrid(georesourcesArray: any[]): void {
+  private buildAoiGrid(georesourcesArray: GeoresourceMetadata[]): void {
     if (!this.aoiGrid) {
       return;
     }
@@ -190,43 +250,85 @@ export class KommonitorGeoresourceDataGridHelperService {
       // Register click handlers after a short delay
       setTimeout(() => {
         this.registerClickHandler_georesources(georesourcesArray);
-      }, 200);
+      }, 500);
     } catch (error) {
       console.error('Error updating AOI grid:', error);
+      this.featureTable_georesource_lastUpdate_timestamp_failure = new Date();
     }
   }
 
   /**
    * Register click handlers for georesource buttons
    */
-  private registerClickHandler_georesources(georesourceMetadataArray: any[]): void {
+  private registerClickHandler_georesources(georesourceMetadataArray: GeoresourceMetadata[]): void {
+    console.log('Registering click handlers for georesources...');
+    
     // Edit Metadata Button
     const editMetadataButtons = document.querySelectorAll('.georesourceEditMetadataBtn');
+    console.log('Found edit metadata buttons:', editMetadataButtons.length);
     editMetadataButtons.forEach((button: any) => {
       button.removeEventListener('click', this.handleEditMetadataClick);
       button.addEventListener('click', this.handleEditMetadataClick);
+      console.log('Registered click handler for edit metadata button:', button.id);
     });
 
     // Edit Features Button
     const editFeaturesButtons = document.querySelectorAll('.georesourceEditFeaturesBtn');
+    console.log('Found edit features buttons:', editFeaturesButtons.length);
     editFeaturesButtons.forEach((button: any) => {
       button.removeEventListener('click', this.handleEditFeaturesClick);
       button.addEventListener('click', this.handleEditFeaturesClick);
+      console.log('Registered click handler for edit features button:', button.id);
     });
 
     // Edit User Roles Button
     const editUserRolesButtons = document.querySelectorAll('.georesourceEditUserRolesBtn');
+    console.log('Found edit user roles buttons:', editFeaturesButtons.length);
     editUserRolesButtons.forEach((button: any) => {
       button.removeEventListener('click', this.handleEditUserRolesClick);
       button.addEventListener('click', this.handleEditUserRolesClick);
+      console.log('Registered click handler for edit user roles button:', button.id);
     });
 
     // Delete Button
     const deleteButtons = document.querySelectorAll('.georesourceDeleteBtn');
+    console.log('Found delete buttons:', deleteButtons.length);
     deleteButtons.forEach((button: any) => {
       button.removeEventListener('click', this.handleDeleteClick);
       button.addEventListener('click', this.handleDeleteClick);
+      console.log('Registered click handler for delete button:', button.id);
     });
+
+    // Also try to find buttons by their specific IDs
+    if (georesourceMetadataArray && georesourceMetadataArray.length > 0) {
+      georesourceMetadataArray.forEach(geo => {
+        const editMetadataBtn = document.getElementById(`btn_georesource_editMetadata_${geo.georesourceId}`);
+        const editFeaturesBtn = document.getElementById(`btn_georesource_editFeatures_${geo.georesourceId}`);
+        const editUserRolesBtn = document.getElementById(`btn_georesource_editUserRoles_${geo.georesourceId}`);
+        const deleteBtn = document.getElementById(`btn_georesource_deleteGeoresource_${geo.georesourceId}`);
+
+        if (editMetadataBtn) {
+          editMetadataBtn.removeEventListener('click', this.handleEditMetadataClick);
+          editMetadataBtn.addEventListener('click', this.handleEditMetadataClick);
+          console.log('Registered click handler for specific edit metadata button:', editMetadataBtn.id);
+        }
+        if (editFeaturesBtn) {
+          editFeaturesBtn.removeEventListener('click', this.handleEditFeaturesClick);
+          editFeaturesBtn.addEventListener('click', this.handleEditFeaturesClick);
+          console.log('Registered click handler for specific edit features button:', editFeaturesBtn.id);
+        }
+        if (editUserRolesBtn) {
+          editUserRolesBtn.removeEventListener('click', this.handleEditUserRolesClick);
+          editUserRolesBtn.addEventListener('click', this.handleEditUserRolesClick);
+          console.log('Registered click handler for specific edit user roles button:', editUserRolesBtn.id);
+        }
+        if (deleteBtn) {
+          deleteBtn.removeEventListener('click', this.handleDeleteClick);
+          deleteBtn.addEventListener('click', this.handleDeleteClick);
+          console.log('Registered click handler for specific delete button:', deleteBtn.id);
+        }
+      });
+    }
   }
 
   /**
@@ -236,9 +338,9 @@ export class KommonitorGeoresourceDataGridHelperService {
     event.stopPropagation();
     
     const georesourceId = event.target.id.split('_')[3] || event.target.closest('button').id.split('_')[3];
-    const georesourceMetadata = this.kommonitorDataExchangeService.getGeoresourceMetadataById(georesourceId);
+    const georesourceMetadata = this.findGeoresourceMetadataById(georesourceId);
     
-    if (this.componentRef) {
+    if (this.componentRef && georesourceMetadata) {
       this.componentRef.onClickEditMetadata(georesourceMetadata);
     }
   }
@@ -250,9 +352,9 @@ export class KommonitorGeoresourceDataGridHelperService {
     event.stopPropagation();
     
     const georesourceId = event.target.id.split('_')[3] || event.target.closest('button').id.split('_')[3];
-    const georesourceMetadata = this.kommonitorDataExchangeService.getGeoresourceMetadataById(georesourceId);
+    const georesourceMetadata = this.findGeoresourceMetadataById(georesourceId);
     
-    if (this.componentRef) {
+    if (this.componentRef && georesourceMetadata) {
       this.componentRef.onClickEditFeatures(georesourceMetadata);
     }
   }
@@ -264,9 +366,9 @@ export class KommonitorGeoresourceDataGridHelperService {
     event.stopPropagation();
     
     const georesourceId = event.target.id.split('_')[3] || event.target.closest('button').id.split('_')[3];
-    const georesourceMetadata = this.kommonitorDataExchangeService.getGeoresourceMetadataById(georesourceId);
+    const georesourceMetadata = this.findGeoresourceMetadataById(georesourceId);
     
-    if (this.componentRef) {
+    if (this.componentRef && georesourceMetadata) {
       this.componentRef.onClickEditUserRoles(georesourceMetadata);
     }
   }
@@ -278,11 +380,18 @@ export class KommonitorGeoresourceDataGridHelperService {
     event.stopPropagation();
     
     const georesourceId = event.target.id.split('_')[3] || event.target.closest('button').id.split('_')[3];
-    const georesourceMetadata = this.kommonitorDataExchangeService.getGeoresourceMetadataById(georesourceId);
+    const georesourceMetadata = this.findGeoresourceMetadataById(georesourceId);
     
-    if (this.componentRef) {
+    if (this.componentRef && georesourceMetadata) {
       this.componentRef.onClickDeleteGeoresource(georesourceMetadata);
     }
+  }
+
+  /**
+   * Find georesource metadata by ID from current data
+   */
+  private findGeoresourceMetadataById(georesourceId: string): GeoresourceMetadata | null {
+    return this.currentGeoresources.find(geo => geo.georesourceId === georesourceId) || null;
   }
 
   /**
@@ -364,7 +473,7 @@ export class KommonitorGeoresourceDataGridHelperService {
         headerName: 'Themenhierarchie', 
         minWidth: 400, 
         cellRenderer: (params: any) => {
-          return this.kommonitorDataExchangeService.getTopicHierarchyDisplayString(params.data.topicReference);
+          return this.getTopicHierarchyDisplayString(params.data.topicReference);
         }
       },
       { 
@@ -385,7 +494,7 @@ export class KommonitorGeoresourceDataGridHelperService {
         headerName: 'Rollen', 
         minWidth: 400, 
         cellRenderer: (params: any) => {
-          return this.kommonitorDataExchangeService.getAllowedRolesString(params.data.permissions);
+          return this.getAllowedRolesString(params.data.permissions);
         }
       },
       { 
@@ -399,7 +508,7 @@ export class KommonitorGeoresourceDataGridHelperService {
         headerName: 'Eigentümer', 
         minWidth: 400, 
         cellRenderer: (params: any) => {
-          return this.kommonitorDataExchangeService.getRoleTitle(params.data.ownerId);
+          return this.getRoleTitle(params.data.ownerId);
         }
       }
     ];
@@ -443,7 +552,7 @@ export class KommonitorGeoresourceDataGridHelperService {
         filter: false,
         sortable: false,
         cellRenderer: (params: any) => {
-          return this.kommonitorDataExchangeService.getLoiDashSvgFromStringValue(params.data.loiDashArrayString);
+          return this.getLoiDashSvgFromStringValue(params.data.loiDashArrayString);
         }
       },
       { 
@@ -475,7 +584,7 @@ export class KommonitorGeoresourceDataGridHelperService {
         headerName: 'Themenhierarchie', 
         minWidth: 400, 
         cellRenderer: (params: any) => {
-          return this.kommonitorDataExchangeService.getTopicHierarchyDisplayString(params.data.topicReference);
+          return this.getTopicHierarchyDisplayString(params.data.topicReference);
         }
       },
       { 
@@ -496,7 +605,7 @@ export class KommonitorGeoresourceDataGridHelperService {
         headerName: 'Rollen', 
         minWidth: 400, 
         cellRenderer: (params: any) => {
-          return this.kommonitorDataExchangeService.getAllowedRolesString(params.data.permissions);
+          return this.getAllowedRolesString(params.data.permissions);
         }
       },
       { 
@@ -510,7 +619,7 @@ export class KommonitorGeoresourceDataGridHelperService {
         headerName: 'Eigentümer', 
         minWidth: 400, 
         cellRenderer: (params: any) => {
-          return this.kommonitorDataExchangeService.getRoleTitle(params.data.ownerId);
+          return this.getRoleTitle(params.data.ownerId);
         }
       }
     ];
@@ -575,7 +684,7 @@ export class KommonitorGeoresourceDataGridHelperService {
         headerName: 'Themenhierarchie', 
         minWidth: 400, 
         cellRenderer: (params: any) => {
-          return this.kommonitorDataExchangeService.getTopicHierarchyDisplayString(params.data.topicReference);
+          return this.getTopicHierarchyDisplayString(params.data.topicReference);
         }
       },
       { 
@@ -596,7 +705,7 @@ export class KommonitorGeoresourceDataGridHelperService {
         headerName: 'Rollen', 
         minWidth: 400, 
         cellRenderer: (params: any) => {
-          return this.kommonitorDataExchangeService.getAllowedRolesString(params.data.permissions);
+          return this.getAllowedRolesString(params.data.permissions);
         }
       },
       { 
@@ -610,7 +719,7 @@ export class KommonitorGeoresourceDataGridHelperService {
         headerName: 'Eigentümer', 
         minWidth: 400, 
         cellRenderer: (params: any) => {
-          return this.kommonitorDataExchangeService.getRoleTitle(params.data.ownerId);
+          return this.getRoleTitle(params.data.ownerId);
         }
       }
     ];
@@ -619,8 +728,8 @@ export class KommonitorGeoresourceDataGridHelperService {
   /**
    * Get selected georesources metadata from all grids
    */
-  getSelectedGeoresourcesMetadata(): any[] {
-    const selectedRows: any[] = [];
+  getSelectedGeoresourcesMetadata(): GeoresourceMetadata[] {
+    const selectedRows: GeoresourceMetadata[] = [];
     
     if (this.poiGrid?.api) {
       selectedRows.push(...this.poiGrid.api.getSelectedRows());
@@ -639,7 +748,11 @@ export class KommonitorGeoresourceDataGridHelperService {
    * Get current timestamp string
    */
   getCurrentTimestampString(): string {
-    return new Date().toISOString();
+    const date = new Date();
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    const seconds = date.getSeconds().toString().padStart(2, '0');
+    return `${hours}:${minutes}:${seconds}`;
   }
 
   /**
@@ -682,6 +795,61 @@ export class KommonitorGeoresourceDataGridHelperService {
       gridApi.exportDataAsCsv({
         fileName: `georesources_${gridType}_${this.getCurrentTimestampString()}.csv`
       });
+    }
+  }
+
+  /**
+   * Save grid state for a specific grid
+   */
+  saveGridState(gridType: 'poi' | 'loi' | 'aoi'): void {
+    let gridApi: GridApi | undefined = undefined;
+    
+    switch (gridType) {
+      case 'poi':
+        gridApi = this.poiGrid?.api;
+        break;
+      case 'loi':
+        gridApi = this.loiGrid?.api;
+        break;
+      case 'aoi':
+        gridApi = this.aoiGrid?.api;
+        break;
+    }
+    
+    if (gridApi) {
+      const state: GridState = {
+        columnDefs: gridApi.getColumnDefs() || [],
+        timestamp: new Date()
+      };
+      
+      this.gridStates.set(gridType, state);
+    }
+  }
+
+  /**
+   * Restore grid state for a specific grid
+   */
+  restoreGridState(gridType: 'poi' | 'loi' | 'aoi'): void {
+    const state = this.gridStates.get(gridType);
+    if (!state) return;
+    
+    let gridApi: GridApi | undefined = undefined;
+    
+    switch (gridType) {
+      case 'poi':
+        gridApi = this.poiGrid?.api;
+        break;
+      case 'loi':
+        gridApi = this.loiGrid?.api;
+        break;
+      case 'aoi':
+        gridApi = this.aoiGrid?.api;
+        break;
+    }
+    
+    if (gridApi) {
+      // Restore column definitions
+      gridApi.setColumnDefs(state.columnDefs);
     }
   }
 
@@ -794,5 +962,76 @@ export class KommonitorGeoresourceDataGridHelperService {
         }, 100);
       }
     };
+  }
+
+  // Utility methods that were in the original AngularJS service
+
+  /**
+   * Get topic hierarchy display string
+   */
+  private getTopicHierarchyDisplayString(topicReference: any): string {
+    if (!topicReference) return '';
+    
+    // Simple implementation - can be enhanced based on actual topic structure
+    if (Array.isArray(topicReference)) {
+      return topicReference.map((topic: any) => topic.name || topic.title || topic.id).join(' > ');
+    }
+    
+    if (typeof topicReference === 'object') {
+      return topicReference.name || topicReference.title || topicReference.id || '';
+    }
+    
+    return String(topicReference);
+  }
+
+  /**
+   * Get allowed roles string
+   */
+  private getAllowedRolesString(permissions: any): string {
+    if (!permissions) return '';
+    
+    if (Array.isArray(permissions)) {
+      return permissions.join(', ');
+    }
+    
+    if (typeof permissions === 'object') {
+      return Object.keys(permissions).join(', ');
+    }
+    
+    return String(permissions);
+  }
+
+  /**
+   * Get role title
+   */
+  private getRoleTitle(ownerId: any): string {
+    if (!ownerId) return '';
+    
+    // Simple implementation - can be enhanced based on actual role structure
+    if (typeof ownerId === 'object') {
+      return ownerId.name || ownerId.title || ownerId.id || '';
+    }
+    
+    return String(ownerId);
+  }
+
+  /**
+   * Get LOI dash SVG from string value
+   */
+  private getLoiDashSvgFromStringValue(dashArrayString: string): string {
+    if (!dashArrayString) return '';
+    
+    // Simple implementation - can be enhanced to generate actual SVG
+    return `<div style="border-top: 2px dashed #000; width: 20px;"></div>`;
+  }
+
+  /**
+   * Manually re-register click handlers for all grids
+   */
+  reRegisterClickHandlers(): void {
+    if (this.currentGeoresources && this.currentGeoresources.length > 0) {
+      console.log('Manually re-registering click handlers...');
+      this.registerClickHandler_georesources(this.currentGeoresources);
+    }
   }
 } 

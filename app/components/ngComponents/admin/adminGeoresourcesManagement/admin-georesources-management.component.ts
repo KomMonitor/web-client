@@ -55,6 +55,9 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy, 
     this.poiGridOptions = this.kommonitorDataGridHelperService.getPoiGridOptions();
     this.loiGridOptions = this.kommonitorDataGridHelperService.getLoiGridOptions();
     this.aoiGridOptions = this.kommonitorDataGridHelperService.getAoiGridOptions();
+
+    // Subscribe to service observables for reactive updates
+    this.subscribeToServiceObservables();
   }
 
   ngAfterViewInit(): void {
@@ -72,6 +75,11 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy, 
     if (this.kommonitorDataExchangeService.availableGeoresources.length === 0) {
       this.loadDataFallback();
     }
+
+    // Re-register click handlers after a delay to ensure DOM is ready
+    setTimeout(() => {
+      this.reRegisterClickHandlers();
+    }, 1000);
   }
 
   private loadDataFallback(): void {
@@ -165,6 +173,54 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy, 
     this.subscriptions.push(broadcastSub);
   }
 
+  /**
+   * Subscribe to service observables for reactive updates
+   */
+  private subscribeToServiceObservables(): void {
+    // Subscribe to georesources updates
+    const georesourcesSub = this.kommonitorDataExchangeService.georesources$.subscribe(georesources => {
+      if (georesources && georesources.length > 0) {
+        this.initializeOrRefreshOverviewTable();
+      }
+    });
+
+    // Subscribe to loading state
+    const loadingSub = this.kommonitorDataExchangeService.loading$.subscribe(loading => {
+      this.loadingData = loading;
+    });
+
+    // Subscribe to error state
+    const errorSub = this.kommonitorDataExchangeService.error$.subscribe(error => {
+      if (error) {
+        console.error('Data exchange service error:', error);
+        // You could show a toast notification here
+      }
+    });
+
+    // Subscribe to cache helper service observables
+    const cacheLoadingSub = this.kommonitorCacheHelperService.loading$.subscribe(loading => {
+      if (loading) {
+        this.loadingData = true;
+      }
+    });
+
+    const cacheErrorSub = this.kommonitorCacheHelperService.error$.subscribe(error => {
+      if (error) {
+        console.error('Cache helper service error:', error);
+        // You could show a toast notification here
+      }
+    });
+
+    // Add all subscriptions to the array for cleanup
+    this.subscriptions.push(
+      georesourcesSub,
+      loadingSub,
+      errorSub,
+      cacheLoadingSub,
+      cacheErrorSub
+    );
+  }
+
   private initialize(): void {
     // Initialize any adminLTE box widgets
     if (typeof $ !== 'undefined' && $ && $.fn && $.fn.boxWidget) {
@@ -185,6 +241,11 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy, 
 
     setTimeout(() => {
       this.loadingData = false;
+      
+      // Re-register click handlers after grid is built
+      setTimeout(() => {
+        this.reRegisterClickHandlers();
+      }, 600);
     }, 100);
   }
 
@@ -207,7 +268,8 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy, 
         this.initializeOrRefreshOverviewTable();
         this.broadcastService.broadcast('refreshGeoresourceOverviewTableCompleted');
         this.loadingData = false;
-      }).catch((response: any) => {
+      }).catch((error: any) => {
+        console.error('Error refreshing georesource overview table:', error);
         this.loadingData = false;
         this.broadcastService.broadcast('refreshGeoresourceOverviewTableCompleted');
       });
@@ -221,7 +283,8 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy, 
           this.initializeOrRefreshOverviewTable();
           this.broadcastService.broadcast('refreshGeoresourceOverviewTableCompleted');
           this.loadingData = false;
-        }).catch((response: any) => {
+        }).catch((error: any) => {
+          console.error('Error adding single georesource metadata:', error);
           this.loadingData = false;
           this.broadcastService.broadcast('refreshGeoresourceOverviewTableCompleted');
         });
@@ -234,7 +297,8 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy, 
           this.initializeOrRefreshOverviewTable();
           this.broadcastService.broadcast('refreshGeoresourceOverviewTableCompleted');
           this.loadingData = false;
-        }).catch((response: any) => {
+        }).catch((error: any) => {
+          console.error('Error editing single georesource metadata:', error);
           this.loadingData = false;
           this.broadcastService.broadcast('refreshGeoresourceOverviewTableCompleted');
         });
@@ -267,6 +331,14 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy, 
       animation: false
     });
     
+    modalRef.result.then((result) => {
+      if (result) {
+        // Handle successful add
+        this.refreshGeoresourceOverviewTable('add', result.georesourceId);
+      }
+    }).catch(() => {
+      // Modal dismissed
+    });
   }
 
   onClickBatchUpdateGeoresource(): void {
@@ -388,14 +460,168 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy, 
 
   // Callback methods for cell renderer
   onEditMetadata(georesourceDataset: any): void {
+    // Broadcast the event like the original AngularJS component
     this.broadcastService.broadcast('onEditGeoresourceMetadata', georesourceDataset);
+    
+    // Then open the modal
+    this.onClickEditMetadata(georesourceDataset);
   }
 
   onEditFeatures(georesourceDataset: any): void {
+    // Broadcast the event like the original AngularJS component
+    this.broadcastService.broadcast('onEditGeoresourceFeatures', georesourceDataset);
+    
+    // Then open the modal
     this.onClickEditFeatures(georesourceDataset);
   }
 
   onEditUserRoles(georesourceDataset: any): void {
+    // Broadcast the event like the original AngularJS component
+    this.broadcastService.broadcast('onEditGeoresourceUserRoles', georesourceDataset);
+    
+    // Then open the modal
     this.onClickEditUserRoles(georesourceDataset);
+  }
+
+  /**
+   * Handle bulk deletion of selected georesources (like original AngularJS component)
+   */
+  onClickDeleteDatasets(): void {
+    this.loadingData = true;
+    
+    const markedEntriesForDeletion = this.kommonitorDataGridHelperService.getSelectedGeoresourcesMetadata();
+    
+    if (markedEntriesForDeletion && markedEntriesForDeletion.length > 0) {
+      // Submit selected georesources to modal controller
+      this.broadcastService.broadcast('onDeleteGeoresources', markedEntriesForDeletion);
+      
+      // Refresh the table after deletion
+      setTimeout(() => {
+        this.initializeOrRefreshOverviewTable();
+        this.loadingData = false;
+      }, 100);
+    } else {
+      // No items selected
+      this.loadingData = false;
+      console.warn('No georesources selected for deletion');
+    }
+  }
+
+  /**
+   * Get selected georesources for bulk operations
+   */
+  getSelectedGeoresources(): any[] {
+    return this.kommonitorDataGridHelperService.getSelectedGeoresourcesMetadata();
+  }
+
+  /**
+   * Clear all grid selections
+   */
+  clearAllSelections(): void {
+    this.kommonitorDataGridHelperService.clearAllSelections();
+  }
+
+  /**
+   * Export grid data to CSV
+   */
+  exportGridToCsv(gridType: 'poi' | 'loi' | 'aoi'): void {
+    this.kommonitorDataGridHelperService.exportToCsv(gridType);
+  }
+
+  /**
+   * Save grid state for persistence
+   */
+  saveGridState(gridType: 'poi' | 'loi' | 'aoi'): void {
+    this.kommonitorDataGridHelperService.saveGridState(gridType);
+  }
+
+  /**
+   * Restore grid state from persistence
+   */
+  restoreGridState(gridType: 'poi' | 'loi' | 'aoi'): void {
+    this.kommonitorDataGridHelperService.restoreGridState(gridType);
+  }
+
+  /**
+   * Refresh all data from cache helper service
+   */
+  async refreshAllData(): Promise<void> {
+    try {
+      this.loadingData = true;
+      await this.kommonitorCacheHelperService.refreshAllData(
+        this.kommonitorDataExchangeService.currentKeycloakLoginRoles
+      );
+      this.initializeOrRefreshOverviewTable();
+    } catch (error) {
+      console.error('Error refreshing all data:', error);
+    } finally {
+      this.loadingData = false;
+    }
+  }
+
+  /**
+   * Clear all caches
+   */
+  clearAllCaches(): void {
+    this.kommonitorCacheHelperService.clearAllCaches();
+    console.log('All caches cleared');
+  }
+
+  /**
+   * Manually re-register click handlers for grid buttons
+   */
+  reRegisterClickHandlers(): void {
+    this.kommonitorDataGridHelperService.reRegisterClickHandlers();
+  }
+
+  /**
+   * Force refresh grid data and re-register handlers
+   */
+  forceRefreshGrids(): void {
+    console.log('Force refreshing grids...');
+    this.loadingData = true;
+    
+    // Re-register click handlers
+    this.reRegisterClickHandlers();
+    
+    // Refresh the overview table
+    setTimeout(() => {
+      this.initializeOrRefreshOverviewTable();
+      this.loadingData = false;
+    }, 1000);
+  }
+
+  /**
+   * Debug method to check button state in DOM
+   */
+  debugButtonState(): void {
+    console.log('=== Debugging Button State ===');
+    
+    const editMetadataButtons = document.querySelectorAll('.georesourceEditMetadataBtn');
+    const editFeaturesButtons = document.querySelectorAll('.georesourceEditFeaturesBtn');
+    const editUserRolesButtons = document.querySelectorAll('.georesourceEditUserRolesBtn');
+    const deleteButtons = document.querySelectorAll('.georesourceDeleteBtn');
+    
+    console.log('Edit Metadata Buttons:', editMetadataButtons.length);
+    editMetadataButtons.forEach((btn: any, index) => {
+      console.log(`  ${index}:`, btn.id, btn.className, btn.disabled);
+    });
+    
+    console.log('Edit Features Buttons:', editFeaturesButtons.length);
+    editFeaturesButtons.forEach((btn: any, index) => {
+      console.log(`  ${index}:`, btn.id, btn.className, btn.disabled);
+    });
+    
+    console.log('Edit User Roles Buttons:', editUserRolesButtons.length);
+    editUserRolesButtons.forEach((btn: any, index) => {
+      console.log(`  ${index}:`, btn.id, btn.className, btn.disabled);
+    });
+    
+    console.log('Delete Buttons:', deleteButtons.length);
+    deleteButtons.forEach((btn: any, index) => {
+      console.log(`  ${index}:`, btn.id, btn.className, btn.disabled);
+    });
+    
+    console.log('=== End Debug ===');
   }
 } 
