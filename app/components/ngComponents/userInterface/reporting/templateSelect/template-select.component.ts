@@ -2612,7 +2612,7 @@ export class TemplateSelectComponent implements OnInit {
     }
   ];
 
-  selectedTemplate:any = undefined;
+  selectedTemplate:any = this.availableTemplates[0];
 
   ngOnInit(): void {
        // todo
