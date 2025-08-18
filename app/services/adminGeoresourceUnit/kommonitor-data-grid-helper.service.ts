@@ -1048,62 +1048,13 @@ export class KommonitorGeoresourceDataGridHelperService {
       return null;
     }
 
-    // Build row data from access control
-    const rowData = accessControl.map(org => {
-      const isSelected = selectedRoleIds.includes(org.organizationalUnitId);
-      return {
-        organizationalUnitId: org.organizationalUnitId,
-        organizationName: org.name || org.organizationalUnitName,
-        organizationDescription: org.organizationDescription,
-        viewerPermissionId: org.viewerPermissionId,
-        editorPermissionId: org.editorPermissionId,
-        creatorPermissionId: org.creatorPermissionId,
-        datasetOwner: org.datasetOwner || false,
-        selected: isSelected,
-        permissions: org.permissions || []
-      };
-    });
+    // Build row data from access control (like spatial unit service)
+    const rowData = this.buildRoleManagementGridRowData(accessControl, selectedRoleIds);
 
     return {
       gridId: gridId,
       rowData: rowData,
-      columnDefs: [
-        {
-          headerName: 'Organisation',
-          field: 'organizationName',
-          sortable: true,
-          filter: true,
-          width: 200
-        },
-        {
-          headerName: 'Beschreibung',
-          field: 'organizationDescription',
-          sortable: true,
-          filter: true,
-          width: 300
-        },
-        {
-          headerName: 'Eigentümer',
-          field: 'datasetOwner',
-          sortable: true,
-          filter: true,
-          width: 100,
-          cellRenderer: (params: any) => {
-            return params.value ? '✓' : '';
-          }
-        },
-        {
-          headerName: 'Berechtigungen',
-          field: 'permissions',
-          sortable: false,
-          filter: false,
-          width: 200,
-          cellRenderer: (params: any) => {
-            if (!params.value || !Array.isArray(params.value)) return '';
-            return params.value.map((p: any) => p.roleName).join(', ');
-          }
-        }
-      ],
+      columnDefs: this.buildRoleManagementGridColumnConfig(true), // Use reducedRoleManagement = true
       defaultColDef: {
         editable: false,
         sortable: true,
@@ -1112,8 +1063,101 @@ export class KommonitorGeoresourceDataGridHelperService {
       },
       suppressRowClickSelection: true,
       rowSelection: 'multiple',
-      enableCellTextSelection: true
+      enableCellTextSelection: true,
+      pagination: true,
+      paginationPageSize: 10
     };
+  }
+
+  /**
+   * Build role management grid row data (like spatial unit service)
+   */
+  private buildRoleManagementGridRowData(accessControl: any[], permissionIds: string[]): any[] {
+    // Flatten permissions into boolean fields for ag-Grid built-in checkbox renderer
+    const data = JSON.parse(JSON.stringify(accessControl));
+    for (const elem of data) {
+      if (elem.name === 'public') {
+        elem.name = 'Öffentlicher Zugriff';
+      }
+      // Flatten permissions
+      elem.viewer = false;
+      elem.editor = false;
+      elem.creator = false;
+      if (elem.permissions && Array.isArray(elem.permissions)) {
+        for (const permission of elem.permissions) {
+          if (permission.permissionLevel === 'viewer') {
+            elem.viewer = permissionIds && permissionIds.includes(permission.permissionId);
+          }
+          if (permission.permissionLevel === 'editor') {
+            elem.editor = permissionIds && permissionIds.includes(permission.permissionId);
+          }
+          if (permission.permissionLevel === 'creator') {
+            elem.creator = permissionIds && permissionIds.includes(permission.permissionId);
+          }
+        }
+      }
+    }
+    // Keep the original sorting logic
+    const array: any[] = [];
+    array.push(data[0]);
+    array.push(data[1]);
+    data.splice(0, 2);
+    data.sort((a, b) => {
+      if (a.name < b.name) {
+        return -1;
+      }
+      if (a.name > b.name) {
+        return 1;
+      }
+      return 0;
+    });
+    return array.concat(data);
+  }
+
+  /**
+   * Build role management grid column configuration (like spatial unit service)
+   */
+  private buildRoleManagementGridColumnConfig(reducedRoleManagement: boolean = false): any[] {
+    const columnDefs = [
+      { 
+        headerName: 'Organisationseinheit', 
+        field: 'name', 
+        minWidth: 200,
+        cellClass: 'user-roles-normal'
+      },
+      { 
+        headerName: 'Lesen', 
+        field: 'viewer', 
+        filter: false, 
+        sortable: false, 
+        width: 100, 
+        cellRenderer: 'agCheckboxCellRenderer',
+        editable: true
+      },
+      { 
+        headerName: 'Editieren', 
+        field: 'editor', 
+        filter: false, 
+        sortable: false, 
+        width: 100, 
+        cellRenderer: 'agCheckboxCellRenderer',
+        editable: true
+      }
+    ];
+    
+    if (!reducedRoleManagement) {
+      columnDefs.push({ 
+        headerName: 'Löschen', 
+        field: 'creator', 
+        filter: false, 
+        sortable: false, 
+        width: 100, 
+        cellRenderer: 'agCheckboxCellRenderer',
+        editable: true
+      });
+    }
+    
+    return columnDefs;
   }
 
   /**
@@ -1124,8 +1168,20 @@ export class KommonitorGeoresourceDataGridHelperService {
       return [];
     }
 
-    return gridOptions.rowData
-      .filter((row: any) => row.selected)
-      .map((row: any) => row.organizationalUnitId);
+    const selectedPermissionIds: string[] = [];
+    
+    for (const row of gridOptions.rowData) {
+      if (row.viewer && row.viewerPermissionId) {
+        selectedPermissionIds.push(row.viewerPermissionId);
+      }
+      if (row.editor && row.editorPermissionId) {
+        selectedPermissionIds.push(row.editorPermissionId);
+      }
+      if (row.creator && row.creatorPermissionId) {
+        selectedPermissionIds.push(row.creatorPermissionId);
+      }
+    }
+
+    return selectedPermissionIds;
   }
 } 

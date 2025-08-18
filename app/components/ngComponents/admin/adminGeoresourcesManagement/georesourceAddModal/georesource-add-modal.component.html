@@ -328,39 +328,7 @@
           <p>Angabe der Themenhierarchie. Mindestens das Hauptthema muss gewählt werden. Vorhandene Unterthemen erscheinen nach Auswahl eines Hauptthemas. Bis zu vier Themen-Ebenen sind erlaubt.</p>
           <p>Das Aufklappen der unteren Box ermöglicht die Verwaltung des Themenkatalogs.</p>
 
-          <!-- Debug section - remove after fixing -->
-          <div class="alert alert-info" style="margin-bottom: 15px;">
-            <strong>Debug Info:</strong><br>
-            Current Step: {{currentStep}}<br>
-            Loading Topics: {{loadingTopics}}<br>
-            availableTopics length: {{availableTopics?.length || 0}}<br>
-            availableTopics: {{availableTopics | json}}<br>
-            <strong>Template Conditions:</strong><br>
-            !loadingTopics: {{!loadingTopics}}<br>
-            (!availableTopics || availableTopics.length === 0): {{(!availableTopics || availableTopics.length === 0)}}<br>
-            <button class="btn btn-sm btn-warning" (click)="manualRefreshTopics()" [disabled]="loadingTopics">
-              {{loadingTopics ? 'Loading...' : 'Manual Refresh Topics'}}
-            </button>
-            <button class="btn btn-sm btn-info" (click)="setTestTopicsData()" style="margin-left: 5px;">
-              Set Test Data
-            </button>
-            <button class="btn btn-sm btn-success" (click)="goToStep(3)" style="margin-left: 5px;">
-              Go to Step 3 (Topics)
-            </button>
-          </div>
-          
-          <!-- Always visible test dropdown -->
-          <div class="alert alert-success" style="margin-bottom: 15px;">
-            <strong>Always Visible Test Dropdown:</strong><br>
-            <select class="form-control" style="width: 300px;">
-              <option>-- Test Topics (Always Visible) --</option>
-              <option *ngFor="let topic of availableTopics; let i = index" [value]="i">
-                {{i + 1}}. {{topic.topicName || topic.name || 'Unnamed'}}
-              </option>
-            </select>
-            <br>
-            <small>Topics count: {{availableTopics?.length || 0}}</small>
-          </div>
+
 
           <div class="row vertical-align">
             <div class="col-md-3 col-sm-6 col-xs-12">
@@ -380,26 +348,7 @@
                 </div>
                 <div class="help-block with-errors"></div>
                 
-                <!-- Additional debugging for dropdown -->
-                <div class="alert alert-warning" style="margin-top: 10px; font-size: 12px;">
-                  <strong>Dropdown Debug:</strong><br>
-                  Selected Topic: {{georesourceTopic_mainTopic | json}}<br>
-                  Selected Topic Name: {{georesourceTopic_mainTopic?.topicName || 'None'}}<br>
-                  Available Topics Count: {{availableTopics?.length || 0}}<br>
-                  First Topic: {{availableTopics[0] | json}}<br>
-                  First Topic Name: {{availableTopics[0]?.topicName || 'None'}}
-                </div>
-                
-                <!-- Simple test dropdown -->
-                <div class="alert alert-success" style="margin-top: 10px;">
-                  <strong>Test Dropdown:</strong><br>
-                  <select class="form-control" style="width: 200px;">
-                    <option>-- Test Options --</option>
-                    <option *ngFor="let topic of availableTopics; let i = index" [value]="i">
-                      {{i + 1}}. {{topic.topicName || topic.name || 'Unnamed'}}
-                    </option>
-                  </select>
-                </div>
+
               </div>
             </div>
             <div class="col-md-3 col-sm-6 col-xs-12">
@@ -497,7 +446,7 @@
           <hr>
           <br>
 
-          <div id="georesourceRoleForm">
+          <div id="georesourceRoleForm" *ngIf="showRoleManagementForm">
             <label>Datensatz-Freigaben</label>
             
             <div class="row vertical-align">

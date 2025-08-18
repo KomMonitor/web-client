@@ -133,6 +133,7 @@ export class GeoresourceAddModalComponent implements OnInit {
   isPublic = false;
   resourcesCreatorRights: any[] = [];
   filteredOrganizations: any[] = [];
+  showRoleManagementForm = false;
 
   // GeoJSON data
   geoJsonString: any = null;
@@ -225,34 +226,14 @@ export class GeoresourceAddModalComponent implements OnInit {
   ) {}
 
   async ngOnInit(): Promise<void> {
-    console.log('GeoresourceAddModalComponent ngOnInit');
     await this.initializeForm();
     this.setupEventListeners();
-    
-    // Debug: Check initial state
-    console.log('Initial selectedPoiMarkerStyle:', this.selectedPoiMarkerStyle);
-    console.log('Initial availablePoiMarkerColors:', this.availablePoiMarkerColors);
     
     // Add click outside handler for dropdown
     document.addEventListener('click', this.onDocumentClick.bind(this));
     
     // Initialize Bootstrap Icon Picker (same as AngularJS)
-    console.log('ngOnInit: About to initialize icon picker...');
-    
-    // Test if button exists immediately
-    const immediateTest = document.getElementById('poiSymbolPicker');
-    console.log('ngOnInit: Immediate button test - found:', !!immediateTest);
-    console.log('ngOnInit: selectedPoiMarkerStyle value:', this.selectedPoiMarkerStyle);
-    console.log('ngOnInit: Should Symbol button be visible?', this.selectedPoiMarkerStyle === 'symbol');
-    
-    if (immediateTest) {
-      console.log('ngOnInit: Button HTML:', immediateTest.outerHTML);
-    } else {
-      console.log('ngOnInit: Button NOT found - this means selectedPoiMarkerStyle !== "symbol"');
-    }
-    
     this.initializeIconPicker();
-    console.log('ngOnInit: Icon picker initialization called');
   }
 
 
@@ -304,26 +285,7 @@ export class GeoresourceAddModalComponent implements OnInit {
     await this.loadTopicsData();
   }
 
-  /**
-   * Manual refresh topics for debugging
-   */
-  async manualRefreshTopics(): Promise<void> {
-    console.log('=== MANUAL TOPICS REFRESH ===');
-    console.log('Current availableTopics:', this.availableTopics);
-    console.log('Current availableTopics length:', this.availableTopics?.length);
-    
-    // Check if services are properly injected
-    console.log('Service injection check:');
-    console.log('  - kommonitorDataExchangeService:', !!this.kommonitorDataExchangeService);
-    console.log('  - kommonitorDataExchangeService type:', typeof this.kommonitorDataExchangeService);
-    console.log('  - kommonitorDataExchangeService methods:', Object.getOwnPropertyNames(Object.getPrototypeOf(this.kommonitorDataExchangeService)));
-    
-    await this.loadTopicsData();
-    
-    console.log('After refresh - availableTopics:', this.availableTopics);
-    console.log('After refresh - availableTopics length:', this.availableTopics?.length);
-    console.log('=== END MANUAL REFRESH ===');
-  }
+
 
   // Initialize resources creator rights (for non-admin users)
   private async initializeResourcesCreatorRights() {
@@ -344,7 +306,8 @@ export class GeoresourceAddModalComponent implements OnInit {
       []
     );
     
-    // Initialize the role management table
+    // Initialize the role management table (like AngularJS component - initially hidden)
+    this.showRoleManagementForm = false;
     this.refreshRoles();
   }
 
@@ -368,44 +331,21 @@ export class GeoresourceAddModalComponent implements OnInit {
    */
   private async loadTopicsData(): Promise<void> {
     try {
-      console.log('=== LOADING TOPICS DATA ===');
-      console.log('1. Starting topics data load...');
-      
       this.loadingTopics = true;
       
       const roles = this.kommonitorDataExchangeService.currentKeycloakLoginRoles;
-      console.log('2. Current roles:', roles);
-      
-      console.log('3. Calling fetchTopicsMetadata...');
       const topics = await this.kommonitorDataExchangeService.fetchTopicsMetadata(roles);
-      console.log('4. Topics response received:', topics);
       
       if (topics && Array.isArray(topics)) {
-        this.availableTopics = topics;
-        console.log('5. Topics loaded successfully. Count:', this.availableTopics.length);
-        console.log('6. First few topics:', this.availableTopics.slice(0, 3));
+        // Filter topics to only show main topics for georesources (like AngularJS component)
+        this.availableTopics = this.filterTopicsForGeoresources(topics);
+        console.log('Available topics after filtering:', this.availableTopics);
       } else {
-        console.warn('5. No topics data received or invalid format');
         this.availableTopics = [];
       }
-      
-      console.log('7. Final availableTopics array:', this.availableTopics);
-      console.log('=== END TOPICS LOADING ===');
     } catch (error: any) {
-      console.error('=== ERROR LOADING TOPICS ===');
       console.error('Error loading topics data:', error);
-      console.error('Error details:', {
-        message: error.message,
-        stack: error.stack,
-        name: error.name
-      });
-      console.error('=== END ERROR ===');
-      
-      // Set fallback test data for development/testing
-      console.log('Setting fallback test data for topics...');
       this.availableTopics = this.getFallbackTopicsData();
-      
-      // Try to show a user-friendly error message
       this.errorMessage = 'Fehler beim Laden der Themen. Verwende Testdaten.';
     } finally {
       this.loadingTopics = false;
@@ -413,14 +353,48 @@ export class GeoresourceAddModalComponent implements OnInit {
   }
 
   /**
+   * Filter topics to only show main topics for georesources (like AngularJS component)
+   */
+  private filterTopicsForGeoresources(topics: any[]): any[] {
+    console.log('Filtering topics:', topics);
+    
+    // First, try the exact AngularJS filter
+    let filtered = topics.filter(topic => {
+      return topic.topicType === 'main' && topic.topicResource === 'georesource';
+    });
+    
+    // If no results, try alternative filtering approaches
+    if (filtered.length === 0) {
+      console.log('No topics found with exact filter, trying alternative approaches...');
+      
+      // Try filtering by topicType only
+      filtered = topics.filter(topic => topic.topicType === 'main');
+      
+      if (filtered.length === 0) {
+        // If still no results, show all topics that have subTopics (likely main topics)
+        filtered = topics.filter(topic => topic.subTopics && Array.isArray(topic.subTopics));
+        console.log('Using fallback filter - showing topics with subTopics:', filtered);
+      } else {
+        console.log('Found topics with topicType=main:', filtered);
+      }
+    } else {
+      console.log('Found topics with exact filter:', filtered);
+    }
+    
+    return filtered;
+  }
+
+  /**
    * Get fallback topics data for testing when API fails
    */
   private getFallbackTopicsData(): any[] {
-    return [
+    const fallbackTopics = [
       {
         topicId: 'test-topic-1',
         name: 'Test Hauptthema 1',
         topicName: 'Test Hauptthema 1',
+        topicType: 'main',
+        topicResource: 'georesource',
         subTopics: [
           {
             topicId: 'test-subtopic-1-1',
@@ -440,12 +414,16 @@ export class GeoresourceAddModalComponent implements OnInit {
         topicId: 'test-topic-2',
         name: 'Test Hauptthema 2',
         topicName: 'Test Hauptthema 2',
+        topicType: 'main',
+        topicResource: 'georesource',
         subTopics: []
       },
       {
         topicId: 'test-topic-3',
         name: 'Test Hauptthema 3',
         topicName: 'Test Hauptthema 3',
+        topicType: 'main',
+        topicResource: 'georesource',
         subTopics: [
           {
             topicId: 'test-subtopic-3-1',
@@ -456,39 +434,12 @@ export class GeoresourceAddModalComponent implements OnInit {
         ]
       }
     ];
+
+    // Apply the same filtering as the real data
+    return this.filterTopicsForGeoresources(fallbackTopics);
   }
 
-  /**
-   * Set test data manually for debugging
-   */
-  setTestTopicsData(): void {
-    console.log('=== SETTING TEST TOPICS DATA ===');
-    console.log('Before setting - availableTopics:', this.availableTopics);
-    console.log('Before setting - availableTopics length:', this.availableTopics?.length);
-    
-    this.availableTopics = this.getFallbackTopicsData();
-    
-    console.log('After setting - availableTopics:', this.availableTopics);
-    console.log('After setting - availableTopics length:', this.availableTopics?.length);
-    console.log('After setting - first topic:', this.availableTopics[0]);
-    console.log('After setting - first topic name:', this.availableTopics[0]?.name);
-    console.log('After setting - first topic topicName:', this.availableTopics[0]?.topicName);
-    
-    // Force change detection
-    this.cdr.detectChanges();
-    
-    console.log('Change detection triggered');
-    
-    // Also try with a timeout to see if there's a timing issue
-    setTimeout(() => {
-      console.log('Timeout callback - availableTopics:', this.availableTopics);
-      console.log('Timeout callback - availableTopics length:', this.availableTopics?.length);
-      this.cdr.detectChanges();
-      console.log('Timeout callback - change detection triggered again');
-    }, 100);
-    
-    console.log('=== END SETTING TEST DATA ===');
-  }
+
 
   // Handle role management grid ready event
   onRoleManagementGridReady(params: any) {
@@ -551,7 +502,7 @@ export class GeoresourceAddModalComponent implements OnInit {
       this.createTestAccessControlData();
     }
     
-    // Get permission IDs for the selected organization (like other Angular components)
+    // Get permission IDs for the selected organization (like AngularJS component)
     let permissionIds: string[] = [];
     if (this.ownerOrganization) {
       const accessControlItem = this.kommonitorDataExchangeService.getAccessControlById(this.ownerOrganization);
@@ -561,7 +512,7 @@ export class GeoresourceAddModalComponent implements OnInit {
           .map((permission: any) => permission.permissionId);
       }
       
-      // Set datasetOwner flag for the selected organization (like other Angular components)
+      // Set datasetOwner flag for the selected organization (like AngularJS component)
       this.kommonitorDataExchangeService.accessControl.forEach((item: any) => {
         if (item.organizationalUnitId === this.ownerOrganization) {
           item.datasetOwner = true;
@@ -569,15 +520,12 @@ export class GeoresourceAddModalComponent implements OnInit {
           item.datasetOwner = false;
         }
       });
-    } else {
-      // Use current user roles if no organization is selected
-      permissionIds = this.kommonitorDataExchangeService.getCurrentKomMonitorLoginRoleIds();
     }
     
     // Use transformed data for the grid
     const transformedData = this.transformAccessControlData(this.kommonitorDataExchangeService.accessControl);
     
-    // Build role management grid with filtered data
+    // Build role management grid with filtered data (like AngularJS component)
     this.roleManagementTableOptions = this.kommonitorDataGridHelperService.buildRoleManagementGrid(
       'georesourceAddRoleManagementTable', 
       this.roleManagementTableOptions, 
@@ -725,12 +673,19 @@ export class GeoresourceAddModalComponent implements OnInit {
 
   onChangeOwner(orgUnitId: string): void {
     this.ownerOrganization = orgUnitId;
+    
+    // Show role management form only when an organization is selected
+    this.showRoleManagementForm = !!orgUnitId;
+    
     this.refreshRoles();
   }
 
   // Handle owner organization change with proper validation
   onChangeOwnerOrganization(ownerOrganization: any): void {
     this.ownerOrganization = ownerOrganization;
+    
+    // Show role management form only when an organization is selected
+    this.showRoleManagementForm = !!ownerOrganization;
     
     // Refresh roles based on the selected owner organization
     this.refreshRoles();
@@ -878,57 +833,11 @@ export class GeoresourceAddModalComponent implements OnInit {
 
   // Initialize Bootstrap Icon Picker (based on AngularJS implementation)
   private initializeIconPicker(): void {
-    console.log('=== ICON PICKER DEBUG ===');
-    console.log('1. initializeIconPicker() called');
-    console.log('2. Current selectedPoiIconName:', this.selectedPoiIconName);
-    console.log('3. DOM ready state:', document.readyState);
-    console.log('4. Component state - georesourceType:', this.georesourceType);
-    console.log('5. Component state - selectedPoiMarkerStyle:', this.selectedPoiMarkerStyle);
-    
     // Wait for the DOM to be ready
     setTimeout(() => {
-      console.log('4. setTimeout callback executed (100ms delay)');
-      
-      // Check jQuery availability
-      const jQueryAvailable = !!(window as any).$;
-      const iconPickerAvailable = !!(window as any).$ && (window as any).$.fn?.iconpicker;
-      
-      console.log('5. jQuery available:', jQueryAvailable);
-      console.log('6. Bootstrap Icon Picker available:', iconPickerAvailable);
-      
-      if (jQueryAvailable) {
-        console.log('7. jQuery version:', (window as any).$.fn.jquery);
-      }
-      
-      if (iconPickerAvailable) {
-        console.log('8. Icon picker version:', (window as any).$.fn.iconpicker.Constructor.VERSION);
-      }
-      
-      // Check if element exists
       const element = document.getElementById('poiSymbolPicker');
-      console.log('9. Element found:', !!element);
-      console.log('10. Element details:', element);
-      
-      if (element) {
-        console.log('11. Element classes:', element.className);
-        console.log('12. Element visible:', element.offsetParent !== null);
-        console.log('13. Element styles:', window.getComputedStyle(element));
-        console.log('14. Element HTML:', element.outerHTML);
-        
-        // Add a basic click handler immediately to test if clicks work at all
-        element.addEventListener('click', (e) => {
-          console.log('=== BASIC CLICK TEST ===');
-          console.log('Basic click event triggered!');
-          console.log('Event:', e);
-          console.log('Element clicked:', e.target);
-          console.log('=== END BASIC CLICK TEST ===');
-        });
-        console.log('15. Basic click handler added successfully');
-      }
       
       if (element && (window as any).$ && (window as any).$.fn?.iconpicker) {
-        console.log('14. All requirements met, initializing icon picker...');
-        
         try {
           // Initialize Bootstrap Icon Picker with same options as AngularJS
           (window as any).$('#poiSymbolPicker').iconpicker({
@@ -950,215 +859,25 @@ export class GeoresourceAddModalComponent implements OnInit {
             selectedClass: 'btn-success',
             unselectedClass: ''
           });
-          
-          console.log('15. Icon picker initialized successfully');
 
           // Handle icon selection change (same logic as AngularJS)
           (window as any).$('#poiSymbolPicker').on('change', (e: any) => {
-            console.log('16. Icon selection change event triggered:', e.icon);
             // Extract icon name from full class (e.g., "glyphicon-home" -> "home")
             this.selectedPoiIconName = e.icon.substring(e.icon.indexOf('-') + 1);
-            console.log('17. New selectedPoiIconName:', this.selectedPoiIconName);
             this.cdr.detectChanges();
-          });
-
-          // Add click event logging to debug button clicks
-          (window as any).$('#poiSymbolPicker').on('click', (e: any) => {
-            console.log('=== BUTTON CLICK DEBUG ===');
-            console.log('Button clicked! Event:', e);
-            console.log('Event target:', e.target);
-            console.log('Event currentTarget:', e.currentTarget);
-            console.log('Button element:', (window as any).$('#poiSymbolPicker')[0]);
-            
-            // Check if icon picker is properly initialized
-            const iconPickerInstance = (window as any).$('#poiSymbolPicker').data('iconpicker');
-            console.log('Icon picker instance on click:', !!iconPickerInstance);
-            
-            // Try to manually show the picker
-            try {
-              console.log('Attempting to show icon picker...');
-              (window as any).$('#poiSymbolPicker').iconpicker('show');
-              console.log('Icon picker show() called successfully');
-            } catch (error) {
-              console.error('Error showing icon picker:', error);
-            }
-            
-            console.log('=== END CLICK DEBUG ===');
-          });
-
-          // Add show event logging
-          (window as any).$('#poiSymbolPicker').on('show', (e: any) => {
-            console.log('=== ICON PICKER SHOW EVENT ===');
-            console.log('Show event triggered:', e);
-            console.log('Event type:', e.type);
-            console.log('=== END SHOW EVENT ===');
-          });
-
-          // Add shown event logging
-          (window as any).$('#poiSymbolPicker').on('shown', (e: any) => {
-            console.log('=== ICON PICKER SHOWN EVENT ===');
-            console.log('Shown event triggered:', e);
-            console.log('Event type:', e.type);
-            console.log('=== END SHOWN EVENT ===');
           });
 
           // Set initial icon
           (window as any).$('#poiSymbolPicker').iconpicker('setIcon', 'glyphicon-' + this.selectedPoiIconName);
-          console.log('18. Initial icon set to:', 'glyphicon-' + this.selectedPoiIconName);
-          
-          // Test if icon picker is working
-          const iconPickerInstance = (window as any).$('#poiSymbolPicker').data('iconpicker');
-          console.log('19. Icon picker instance created:', !!iconPickerInstance);
-          
-          // Add native click event listener as backup
-          const buttonElement = document.getElementById('poiSymbolPicker');
-          if (buttonElement) {
-            // Check button properties
-            console.log('20. Button element properties:');
-            console.log('   - disabled:', (buttonElement as HTMLButtonElement).disabled);
-            console.log('   - readonly:', (buttonElement as any).readonly);
-            console.log('   - tabIndex:', buttonElement.tabIndex);
-            console.log('   - style.pointerEvents:', buttonElement.style.pointerEvents);
-            console.log('   - style.cursor:', buttonElement.style.cursor);
-            
-            // Check computed styles
-            const computedStyle = window.getComputedStyle(buttonElement);
-            console.log('   - computed pointerEvents:', computedStyle.pointerEvents);
-            console.log('   - computed cursor:', computedStyle.cursor);
-            console.log('   - computed display:', computedStyle.display);
-            console.log('   - computed visibility:', computedStyle.visibility);
-            console.log('   - computed opacity:', computedStyle.opacity);
-            
-            buttonElement.addEventListener('click', (e) => {
-              console.log('=== NATIVE CLICK EVENT ===');
-              console.log('Native click event triggered');
-              console.log('Event:', e);
-              console.log('Element:', e.target);
-              console.log('=== END NATIVE CLICK ===');
-            });
-          }
           
         } catch (error) {
-          console.error('20. Error initializing icon picker:', error);
+          console.error('Error initializing icon picker:', error);
         }
-      } else {
-        console.warn('21. Cannot initialize icon picker - missing requirements');
-        console.warn('   - Element exists:', !!element);
-        console.warn('   - jQuery available:', jQueryAvailable);
-        console.warn('   - Icon picker available:', iconPickerAvailable);
       }
-      
-      console.log('=== END ICON PICKER DEBUG ===');
     }, 100);
   }
 
-  // Test method for debugging (can be called from browser console)
-  testIconPickerDebug(): void {
-    console.log('=== MANUAL ICON PICKER TEST ===');
-    console.log('Component state:', {
-      selectedPoiIconName: this.selectedPoiIconName,
-      selectedPoiMarkerStyle: this.selectedPoiMarkerStyle,
-      georesourceType: this.georesourceType
-    });
-    
-    console.log('jQuery status:', {
-      available: !!(window as any).$,
-      version: (window as any).$ ? (window as any).$.fn.jquery : 'N/A'
-    });
-    
-    console.log('Icon picker status:', {
-      available: !!(window as any).$ && (window as any).$.fn?.iconpicker,
-      version: (window as any).$ && (window as any).$.fn?.iconpicker ? 
-        (window as any).$.fn.iconpicker.Constructor.VERSION : 'N/A'
-    });
-    
-    const element = document.getElementById('poiSymbolPicker');
-    console.log('DOM element:', {
-      found: !!element,
-      element: element,
-      visible: element ? element.offsetParent !== null : false,
-      classes: element ? element.className : 'N/A'
-    });
-    
-    // Try to manually trigger icon picker
-    if (element && (window as any).$ && (window as any).$.fn?.iconpicker) {
-      console.log('Attempting to manually show icon picker...');
-      try {
-        (window as any).$('#poiSymbolPicker').iconpicker('show');
-        console.log('Icon picker show() called successfully');
-      } catch (error) {
-        console.error('Error calling icon picker show():', error);
-      }
-    }
-    
-    console.log('=== END MANUAL TEST ===');
-  }
 
-    // Test method to manually click the button
-  testButtonClick(): void {
-    console.log('=== TESTING BUTTON CLICK ===');
-    const button = document.getElementById('poiSymbolPicker');
-    if (button) {
-      console.log('Button found, attempting to click...');
-      console.log('Button before click:', button);
-      
-      // Try different click methods
-      try {
-        // Method 1: Native click
-        button.click();
-        console.log('Native click() called');
-        
-        // Method 2: jQuery click
-        if ((window as any).$) {
-          (window as any).$('#poiSymbolPicker').click();
-          console.log('jQuery click() called');
-        }
-        
-        // Method 3: jQuery trigger
-        if ((window as any).$) {
-          (window as any).$('#poiSymbolPicker').trigger('click');
-          console.log('jQuery trigger("click") called');
-        }
-        
-      } catch (error) {
-        console.error('Error during click test:', error);
-      }
-    } else {
-      console.error('Button not found for click test');
-    }
-    console.log('=== END CLICK TEST ===');
-  }
-
-    // Test method to check button visibility and force symbol mode
-  testButtonVisibility(): void {
-    console.log('=== TESTING BUTTON VISIBILITY ===');
-    console.log('Current selectedPoiMarkerStyle:', this.selectedPoiMarkerStyle);
-    console.log('Current georesourceType:', this.georesourceType);
-    
-    // Check if button exists
-    const button = document.getElementById('poiSymbolPicker');
-    console.log('Button found in DOM:', !!button);
-    
-    if (!button) {
-      console.log('Button not found - forcing symbol mode...');
-      this.selectedPoiMarkerStyle = 'symbol';
-      this.cdr.detectChanges();
-      
-      // Wait for DOM update
-      setTimeout(() => {
-        const newButton = document.getElementById('poiSymbolPicker');
-        console.log('Button found after forcing symbol mode:', !!newButton);
-        if (newButton) {
-          console.log('Button HTML after forcing symbol mode:', newButton.outerHTML);
-          this.initializeIconPicker();
-        }
-      }, 100);
-    } else {
-      console.log('Button found, HTML:', button.outerHTML);
-    }
-    
-    console.log('=== END VISIBILITY TEST ===');
-  }
 
   // Importer methods
   onChangeConverter(): void {
@@ -1227,10 +946,6 @@ export class GeoresourceAddModalComponent implements OnInit {
   }
 
   onChangeMarkerStyle(markerStyle: string, event?: Event): void {
-    console.log('=== MARKER STYLE CHANGE DEBUG ===');
-    console.log('Previous selectedPoiMarkerStyle:', this.selectedPoiMarkerStyle);
-    console.log('New markerStyle:', markerStyle);
-    
     // Prevent default behavior and stop propagation to avoid any navigation issues
     if (event) {
       event.preventDefault();
@@ -1239,33 +954,20 @@ export class GeoresourceAddModalComponent implements OnInit {
     
     // Update the selected style
     this.selectedPoiMarkerStyle = markerStyle;
-    console.log('Updated selectedPoiMarkerStyle:', this.selectedPoiMarkerStyle);
     
     // Force change detection to ensure the UI updates properly
     this.cdr.detectChanges();
     
     // Initialize icon picker if switching to symbol mode (same as AngularJS)
     if (markerStyle === 'symbol') {
-      console.log('onChangeMarkerStyle: Switching to symbol mode, reinitializing icon picker...');
-      console.log('Waiting for DOM update before initializing icon picker...');
-      
       // Wait longer for DOM to update
       setTimeout(() => {
-        console.log('onChangeMarkerStyle: DOM update timeout completed, checking button...');
         const button = document.getElementById('poiSymbolPicker');
-        console.log('Button found after style change:', !!button);
         if (button) {
-          console.log('Button HTML after style change:', button.outerHTML);
           this.initializeIconPicker();
-        } else {
-          console.log('Button still not found after style change - DOM update issue');
         }
       }, 200); // Increased timeout to 200ms
-    } else {
-      console.log('onChangeMarkerStyle: Not switching to symbol mode, skipping icon picker init');
     }
-    
-    console.log('=== END MARKER STYLE CHANGE DEBUG ===');
   }
 
   checkPoiMarkerText(): void {
@@ -1777,17 +1479,12 @@ export class GeoresourceAddModalComponent implements OnInit {
     this.isMarkerStyleDropdownOpen = false;
     
     // Reset icon picker (same as AngularJS)
-    console.log('resetGeoresourceAddForm: Attempting to reset icon picker...');
     if ((window as any).$ && (window as any).$('#poiSymbolPicker').length > 0) {
-      console.log('resetGeoresourceAddForm: jQuery and element found, resetting icon picker...');
       try {
         (window as any).$('#poiSymbolPicker').val("").iconpicker('setIcon', 'glyphicon-' + this.selectedPoiIconName);
-        console.log('resetGeoresourceAddForm: Icon picker reset successfully');
       } catch (error) {
-        console.error('resetGeoresourceAddForm: Error resetting icon picker:', error);
+        console.error('Error resetting icon picker:', error);
       }
-    } else {
-      console.warn('resetGeoresourceAddForm: Cannot reset icon picker - jQuery or element not available');
     }
     
 
@@ -1831,6 +1528,7 @@ export class GeoresourceAddModalComponent implements OnInit {
     this.ownerOrganization = '';
     this.ownerOrgFilter = '';
     this.isPublic = false;
+    this.showRoleManagementForm = false;
 
     this.metadataImportSettings = null;
     this.mappingConfigImportSettings = null;
