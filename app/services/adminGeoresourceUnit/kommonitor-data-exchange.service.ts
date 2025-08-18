@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, BehaviorSubject, Subject, timer, filter, takeUntil, map } from 'rxjs';
 import { map as rxMap, catchError, tap } from 'rxjs/operators';
 import { AuthService } from '../auth-service/auth.service';
+import { KommonitorGeoresourceCacheHelperService } from './kommonitor-cache-helper.service';
 
 // Interfaces for better typing
 export interface GeoresourceMetadata {
@@ -45,6 +46,18 @@ export interface RoleMetadata {
   organizationalUnitId: string;
   name: string;
   title?: string;
+  permissions?: Array<{
+    permissionId: string;
+    permissionLevel: string;
+    isChecked?: boolean;
+  }>;
+  datasetOwner?: boolean;
+  children?: string[];
+  parentId?: string;
+  description?: string;
+  contact?: string;
+  mandant?: boolean;
+  keycloakId?: string;
 }
 
 @Injectable({
@@ -92,6 +105,116 @@ export class KommonitorGeoresourceDataExchangeService implements OnDestroy {
     clearBtn: true
   };
 
+  // Configuration options
+  enableKeycloakSecurity = true;
+  updateIntervalOptions = [
+    {
+      displayName: "jährlich",
+      apiName: "YEARLY"
+    },
+    {
+      displayName: "halbjährlich",
+      apiName: "HALF_YEARLY"
+    },
+    {
+      displayName: "vierteljährlich",
+      apiName: "QUARTERLY"
+    },
+    {
+      displayName: "monatlich",
+      apiName: "MONTHLY"
+    },
+    {
+      displayName: "wöchentlich",
+      apiName: "WEEKLY"
+    },
+    {
+      displayName: "täglich",
+      apiName: "DAILY"
+    },
+    {
+      displayName: "beliebig",
+      apiName: "ARBITRARY"
+    }
+  ];
+
+  // Available POI marker colors
+  availablePoiMarkerColors = [
+    {
+      "colorName": "red",
+      "colorValue": "rgb(205,59,40)"
+    },
+    {
+      "colorName": "white",
+      "colorValue": "rgb(255,255,255)"
+    },
+    {
+      "colorName": "orange",
+      "colorValue": "rgb(235,144,46)"
+    },
+    {
+      "colorName": "beige",
+      "colorValue": "rgb(255,198,138)"
+    },
+    {
+      "colorName": "green",
+      "colorValue": "rgb(108,166,36)"
+    },
+    {
+      "colorName": "blue",
+      "colorValue": "rgb(53,161,209)"
+    },
+    {
+      "colorName": "purple",
+      "colorValue": "rgb(198,77,175)"
+    },
+    {
+      "colorName": "pink",
+      "colorValue": "rgb(255,138,232)"
+    },
+    {
+      "colorName": "gray",
+      "colorValue": "rgb(163,163,163)"
+    },
+    {
+      "colorName": "black",
+      "colorValue": "rgb(47,47,47)"
+    }
+  ];
+
+  // Available LOI dash array objects
+  availableLoiDashArrayObjects = [
+    {
+      "svgString": '<svg width=150 height=10 xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="5" x2="150" y2="5" stroke="black"/></svg>',
+      "dashArrayValue": ""
+    },
+    {
+      "svgString": '<svg width=150 height=10 xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="5" x2="150" y2="5" stroke="black" stroke-dasharray="20"/></svg>',
+      "dashArrayValue": "20"
+    },
+    {
+      "svgString": '<svg width=150 height=10 xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="5" x2="150" y2="5" stroke="black" stroke-dasharray="20 10"/></svg>',
+      "dashArrayValue": "20 10"
+    },
+    {
+      "svgString": '<svg width=150 height=10 xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="5" x2="150" y2="5" stroke="black" stroke-dasharray="20 10 5 10"/></svg>',
+      "dashArrayValue": "20 10 5 10"
+    },
+    {
+      "svgString": '<svg width=150 height=10 xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="5" x2="150" y2="5" stroke="black" stroke-dasharray="5"/></svg>',
+      "dashArrayValue": "5"
+    }
+  ];
+
+  // Available spatial units
+  availableSpatialUnits: any[] = [];
+
+  // Additional configuration options from AngularJS
+  indicatorTypeOptions: any[] = [];
+  indicatorUnitOptions: any[] = [];
+  indicatorCreationTypeOptions: any[] = [];
+  geodataSourceFormats: any[] = [];
+
   // Current user state
   private _currentKeycloakLoginRoles: string[] = [];
   private _currentKomMonitorLoginRoleNames: string[] = [];
@@ -109,11 +232,15 @@ export class KommonitorGeoresourceDataExchangeService implements OnDestroy {
 
   constructor(
     private http: HttpClient,
-    private authService: AuthService
+    private authService: AuthService,
+    private cacheHelperService: KommonitorGeoresourceCacheHelperService
   ) {
     // Get environment configuration
-    this.env = (window as any).__env;
+    this.env = (window as any).__env || this.getDefaultEnvironment();
     this.baseUrl = this.getBaseApiUrl();
+    
+    // Initialize environment-based options
+    this.initializeEnvironmentOptions();
     
     // Initialize the service
     this.initializeService();
@@ -122,6 +249,40 @@ export class KommonitorGeoresourceDataExchangeService implements OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  /**
+   * Initialize environment-based configuration options
+   */
+  private initializeEnvironmentOptions(): void {
+    // Initialize options from environment configuration
+    if (this.env?.updateIntervalOptions) {
+      this.updateIntervalOptions = this.env.updateIntervalOptions;
+    }
+    if (this.env?.indicatorTypeOptions) {
+      this.indicatorTypeOptions = this.env.indicatorTypeOptions;
+    }
+    if (this.env?.indicatorUnitOptions) {
+      this.indicatorUnitOptions = this.env.indicatorUnitOptions.sort();
+    }
+    if (this.env?.indicatorCreationTypeOptions) {
+      this.indicatorCreationTypeOptions = this.env.indicatorCreationTypeOptions;
+    }
+    if (this.env?.geodataSourceFormats) {
+      this.geodataSourceFormats = this.env.geodataSourceFormats;
+    }
+  }
+
+  /**
+   * Get LOI dash SVG from string value (like AngularJS service)
+   */
+  getLoiDashSvgFromStringValue(loiDashArrayString: string): string | undefined {
+    for (const loiDashArrayObject of this.availableLoiDashArrayObjects) {
+      if (loiDashArrayObject.dashArrayValue === loiDashArrayString) {
+        return loiDashArrayObject.svgString;
+      }
+    }
+    return undefined;
   }
 
   /**
@@ -261,11 +422,15 @@ export class KommonitorGeoresourceDataExchangeService implements OnDestroy {
 
     // Add organizational unit roles based on access control data
     const accessControl = this._accessControl;
-    accessControl.forEach(organizationalUnit => {
-      for (const roleSuffix of roleSuffixes) {
-        possibleRoles.push(organizationalUnit.name + "." + roleSuffix);
-      }
-    });
+    if (accessControl && accessControl.length > 0) {
+      accessControl.forEach(organizationalUnit => {
+        if (organizationalUnit.name) {
+          for (const roleSuffix of roleSuffixes) {
+            possibleRoles.push(organizationalUnit.name + "." + roleSuffix);
+          }
+        }
+      });
+    }
 
     // Filter roles to only include KomMonitor-specific ones
     const komMonitorRoles = allRoles.filter(role => possibleRoles.includes(role));
@@ -316,6 +481,50 @@ export class KommonitorGeoresourceDataExchangeService implements OnDestroy {
   }
 
   /**
+   * Get current KomMonitor login role IDs
+   */
+  getCurrentKomMonitorLoginRoleIds(): string[] {
+    return this._currentKomMonitorLoginRoleNames;
+  }
+
+  /**
+   * Get default environment configuration
+   */
+  private getDefaultEnvironment(): any {
+    return {
+      enableKeycloakSecurity: true,
+      keycloakKomMonitorAdminRoleName: 'kommonitor-creator',
+      keycloakKomMonitorGroupsEditRoleNames: ['client-users-creator', 'unit-users-creator'],
+      keycloakKomMonitorThemesEditRoleNames: ['client-themes-creator', 'unit-themes-creator'],
+      keycloakKomMonitorGeodataEditRoleNames: ['client-resources-creator', 'unit-resources-creator'],
+      updateIntervalOptions: [
+        { displayName: 'jährlich', apiName: 'YEARLY' },
+        { displayName: 'halbjährlich', apiName: 'HALF_YEARLY' },
+        { displayName: 'vierteljährlich', apiName: 'QUARTERLY' },
+        { displayName: 'monatlich', apiName: 'MONTHLY' },
+        { displayName: 'beliebig', apiName: 'ARBITRARY' }
+      ],
+      availablePoiMarkerColors: [
+        { colorName: 'Weiß', colorValue: '#ffffff' },
+        { colorName: 'Rot', colorValue: '#ff0000' },
+        { colorName: 'Orange', colorValue: '#ffa500' },
+        { colorName: 'Beige', colorValue: '#f5f5dc' },
+        { colorName: 'Grün', colorValue: '#008000' },
+        { colorName: 'Blau', colorValue: '#0000ff' },
+        { colorName: 'Lila', colorValue: '#800080' },
+        { colorName: 'Pink', colorValue: '#ffc0cb' },
+        { colorName: 'Grau', colorValue: '#808080' },
+        { colorName: 'Schwarz', colorValue: '#000000' }
+      ],
+      availableLoiDashArrayObjects: [
+        { displayName: 'Durchgezogen', dashArrayValue: '0' },
+        { displayName: 'Gestrichelt', dashArrayValue: '20 20' },
+        { displayName: 'Gepunktet', dashArrayValue: '5 5' }
+      ]
+    };
+  }
+
+  /**
    * Get base API URL from environment configuration
    */
   private getBaseApiUrl(): string {
@@ -343,6 +552,20 @@ export class KommonitorGeoresourceDataExchangeService implements OnDestroy {
    */
   get currentKeycloakLoginRoles(): string[] {
     return this._currentKeycloakLoginRoles;
+  }
+
+  /**
+   * Get available topics
+   */
+  get availableTopics(): TopicHierarchy[] {
+    return this._availableTopics;
+  }
+
+  /**
+   * Get access control
+   */
+  get accessControl(): RoleMetadata[] {
+    return this._accessControl;
   }
 
   /**
@@ -574,14 +797,31 @@ export class KommonitorGeoresourceDataExchangeService implements OnDestroy {
     return String(permissions);
   }
 
+
+
   /**
-   * Get LOI dash SVG from string value (like original AngularJS service)
+   * Syntax highlight JSON for display (matches original AngularJS implementation)
    */
-  getLoiDashSvgFromStringValue(dashArrayString: string): string {
-    if (!dashArrayString) return '';
-    
-    // Simple implementation - can be enhanced to generate actual SVG
-    return `<div style="border-top: 2px dashed #000; width: 20px;"></div>`;
+  syntaxHighlightJSON(json: any): string {
+    if (typeof json !== 'string') {
+      json = JSON.stringify(json, undefined, 2);
+    }
+    json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+      let cls = 'number';
+      if (/^"/.test(match)) {
+        if (/:$/.test(match)) {
+          cls = 'key';
+        } else {
+          cls = 'string';
+        }
+      } else if (/true|false/.test(match)) {
+        cls = 'boolean';
+      } else if (/null/.test(match)) {
+        cls = 'null';
+      }
+      return '<span class="' + cls + '">' + match + '</span>';
+    });
   }
 
 
@@ -646,5 +886,156 @@ export class KommonitorGeoresourceDataExchangeService implements OnDestroy {
   async refreshData(): Promise<void> {
     this.clearCache();
     await this.fetchGeoresourcesMetadata(this._currentKeycloakLoginRoles);
+  }
+
+  // Get access control by ID
+  getAccessControlById(organizationalUnitId: string): any | undefined {
+    if (!this.accessControl) return undefined;
+    return this.accessControl.find(item => item.organizationalUnitId === organizationalUnitId);
+  }
+
+  // Fetch access control metadata
+  async fetchAccessControlMetadata(): Promise<void> {
+    try {
+      console.log('Fetching access control metadata from:', `${this.baseUrl}/organizationalUnits`);
+      const response = await this.http.get<any[]>(`${this.baseUrl}/organizationalUnits`).toPromise();
+      console.log('Access control metadata response:', response);
+      if (response) {
+        this._accessControl = response;
+        console.log('Access control data set:', this._accessControl);
+      }
+    } catch (error) {
+      console.error('Error fetching access control metadata:', error);
+      console.error('Base URL:', this.baseUrl);
+      console.error('Full URL:', `${this.baseUrl}/organizationalUnits`);
+      throw error;
+    }
+  }
+
+  /**
+   * Fetches topics metadata
+   */
+  async fetchTopicsMetadata(keycloakRolesArray: string[]): Promise<any> {
+    this.loadingSubject.next(true);
+    this.errorSubject.next(null);
+
+    // Set the current roles for permission checking
+    this.setCurrentKeycloakLoginRoles(keycloakRolesArray);
+    
+    try {
+      // Check cache first
+      if (this._availableTopics && this._availableTopics.length > 0) {
+        console.log('Using cached topics data');
+        this.loadingSubject.next(false);
+        return this._availableTopics;
+      }
+
+      // Use cache helper service to fetch topics
+      if (!this.cacheHelperService) {
+        console.error('Cache helper service not available');
+        throw new Error('Cache helper service not available');
+      }
+
+      const topics = await this.cacheHelperService.fetchTopicsMetadata(keycloakRolesArray);
+      
+      if (!topics || !Array.isArray(topics)) {
+        console.warn('No topics data received from cache helper');
+        this._availableTopics = [];
+        this.loadingSubject.next(false);
+        return [];
+      }
+      
+      // Transform the response to match TopicHierarchy interface
+      const transformedTopics = this.transformTopicsResponse(topics);
+      this._availableTopics = transformedTopics;
+      
+      // Update the map for quick access
+      this.availableTopics_map.clear();
+      transformedTopics.forEach(topic => {
+        this.availableTopics_map.set(topic.topicId, topic);
+      });
+      
+      console.log('Topics data loaded:', this._availableTopics);
+      this.loadingSubject.next(false);
+      
+      return this._availableTopics;
+    } catch (error) {
+      console.error('Error fetching topics metadata:', error);
+      this.handleError(error);
+      this.loadingSubject.next(false);
+      throw error;
+    }
+  }
+
+  /**
+   * Transform API response to TopicHierarchy format
+   */
+  private transformTopicsResponse(apiTopics: any[]): TopicHierarchy[] {
+    return apiTopics.map(topic => ({
+      topicId: topic.topicId || topic.id,
+      name: topic.name || topic.topicName,
+      title: topic.title || topic.name || topic.topicName,
+      subTopics: topic.subTopics ? this.transformTopicsResponse(topic.subTopics) : undefined
+    }));
+  }
+
+  // Check if user has admin permission (matches original AngularJS implementation)
+  checkAdminPermission(): boolean {
+    if (!this.env?.keycloakKomMonitorAdminRoleName) {
+      return false;
+    }
+    
+    return this.currentKeycloakLoginRoles.includes(this.env.keycloakKomMonitorAdminRoleName);
+  }
+
+  // Get topic hierarchy for topic ID (matches original AngularJS implementation)
+  getTopicHierarchyForTopicId(topicReferenceId: string): TopicHierarchy[] {
+    // create an array representing the topic hierarchy
+    // i.e. [mainTopic_firstTier, subTopic_secondTier, subTopic_thirdTier, ...]
+    const topicHierarchyArray: TopicHierarchy[] = [];
+
+    for (let i = 0; i < this.availableTopics.length; i++) {
+      const mainTopicCandidate = this.availableTopics[i];
+
+      if (mainTopicCandidate.topicId === topicReferenceId) {
+        topicHierarchyArray.push(mainTopicCandidate);
+        break;
+      } else if (mainTopicCandidate.subTopics && this.findIdInAnySubTopicHierarchy(topicReferenceId, mainTopicCandidate.subTopics)) {
+        topicHierarchyArray.push(mainTopicCandidate);
+        return this.addSubTopicHierarchy(topicHierarchyArray, topicReferenceId, mainTopicCandidate.subTopics);
+      }
+    }
+
+    return topicHierarchyArray;
+  }
+
+  private findIdInAnySubTopicHierarchy(topicReferenceId: string, subTopicsArray: TopicHierarchy[]): boolean {
+    for (let index = 0; index < subTopicsArray.length; index++) {
+      const subTopicCandidate = subTopicsArray[index];
+
+      if (subTopicCandidate.topicId === topicReferenceId) {
+        return true;
+      } else if (subTopicCandidate.subTopics && this.findIdInAnySubTopicHierarchy(topicReferenceId, subTopicCandidate.subTopics)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  private addSubTopicHierarchy(topicHierarchyArray: TopicHierarchy[], topicReferenceId: string, subTopicsArray: TopicHierarchy[]): TopicHierarchy[] {
+    for (let index = 0; index < subTopicsArray.length; index++) {
+      const subTopicCandidate = subTopicsArray[index];
+
+      if (subTopicCandidate.topicId === topicReferenceId) {
+        topicHierarchyArray.push(subTopicCandidate);
+        break;
+      } else if (subTopicCandidate.subTopics && this.findIdInAnySubTopicHierarchy(topicReferenceId, subTopicCandidate.subTopics)) {
+        topicHierarchyArray.push(subTopicCandidate);
+        return this.addSubTopicHierarchy(topicHierarchyArray, topicReferenceId, subTopicCandidate.subTopics);
+      }
+    }
+
+    return topicHierarchyArray;
   }
 } 

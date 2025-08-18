@@ -79,8 +79,8 @@
                     {{selectedPoiMarkerColor?.colorName || 'Farbe wählen'}} <span class="caret"></span>
                   </button>
                   <ul class="dropdown-menu dropdown-menu-center">
-                    <li *ngFor="let markerColor of availablePoiMarkerColors" (click)="onChangeMarkerColor(markerColor)">
-                      <a href=""><i [style.background]="markerColor?.colorValue || '#ccc'"></i>{{markerColor?.colorName || markerColor}}</a>
+                    <li *ngFor="let markerColor of availablePoiMarkerColors" (click)="onChangeMarkerColor(markerColor, $event)">
+                      <span><i [style.background]="markerColor?.colorValue || '#ccc'"></i>{{markerColor?.colorName || markerColor}}</span>
                     </li>
                   </ul>
                   <div class="help-block with-errors"></div>
@@ -91,15 +91,15 @@
               <div class="form-group" align="center">
                 <label>Art*</label>
                 <div class="dropdown customColorPicker">
-                  <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  <button type="button" class="btn btn-info dropdown-toggle" (click)="onDropdownButtonClick($event)">
                     {{selectedPoiMarkerStyle.charAt(0).toUpperCase() + selectedPoiMarkerStyle.slice(1)}} <span class="caret"></span>
                   </button>
-                  <ul class="dropdown-menu dropdown-menu-center">
-                    <li (click)="onChangeMarkerStyle('symbol')">
-                      <a href="">Symbol</a>
+                  <ul class="dropdown-menu dropdown-menu-center" [class.show]="isMarkerStyleDropdownOpen">
+                    <li (click)="onChangeMarkerStyle('symbol', $event); closeMarkerStyleDropdown()" style="cursor: pointer;">
+                      <span>Symbol</span>
                     </li>
-                    <li (click)="onChangeMarkerStyle('text')">
-                      <a href="">Text</a>
+                    <li (click)="onChangeMarkerStyle('text', $event); closeMarkerStyleDropdown()" style="cursor: pointer;">
+                      <span>Text</span>
                     </li>
                   </ul>
                   <div class="help-block with-errors"></div>
@@ -110,7 +110,27 @@
               <div class="form-group" align="center">
                 <label>Symbol*</label>
                 <br />
-                <button id="poiSymbolPicker" class="btn btn-info"></button>
+                <button id="poiSymbolPicker" class="btn btn-info" 
+                        [attr.data-icon]="'glyphicon-' + selectedPoiIconName"
+                        [attr.data-iconset]="'glyphicon'"
+                        data-placement="bottom"
+                        data-align="center"
+                        data-arrow-class="btn-default"
+                        data-arrow-prev-icon-class="fas fa-angle-left"
+                        data-arrow-next-icon-class="fas fa-angle-right"
+                        data-cols="10"
+                        data-rows="6"
+                        data-search="true"
+                        data-footer="true"
+                        data-header="true"
+                        data-label-header="{0} von {1} Seiten"
+                        data-label-footer="{0} - {1} von {2} Icons"
+                        data-search-text="Stichwortsuche (Bootstrap Glyphicons)"
+                        data-selected-class="btn-success"
+                        data-unselected-class="">
+                  <i class="glyphicon" [class]="'glyphicon-' + selectedPoiIconName" style="font-size: 16px;"></i>
+                  <span style="margin-left: 5px;">{{selectedPoiIconName}}</span>
+                </button>
                 <div class="help-block with-errors"></div>
               </div>
             </div>
@@ -138,8 +158,8 @@
                     {{selectedPoiSymbolColor?.colorName || 'Farbe wählen'}} <span class="caret"></span>
                   </button>
                   <ul class="dropdown-menu dropdown-menu-center">
-                    <li *ngFor="let symbolColor of availablePoiMarkerColors" (click)="onChangeSymbolColor(symbolColor)">
-                      <a href=""><i [style.background]="symbolColor?.colorValue || '#ccc'"></i>{{symbolColor?.colorName || symbolColor}}</a>
+                    <li *ngFor="let symbolColor of availablePoiMarkerColors" (click)="onChangeSymbolColor(symbolColor, $event)">
+                      <span><i [style.background]="symbolColor?.colorValue || '#ccc'"></i>{{symbolColor?.colorName || symbolColor}}</span>
                     </li>
                   </ul>
                   <div class="help-block with-errors"></div>
@@ -181,12 +201,12 @@
                     </div> <span class="caret"></span>
                   </button>
                   <ul class="dropdown-menu dropdown-menu-center">
-                    <li *ngFor="let loiDashArrayObject of availableLoiDashArrayObjects; let i = index" (click)="onChangeLoiDashArray(loiDashArrayObject)">
-                      <a href="">
+                    <li *ngFor="let loiDashArrayObject of availableLoiDashArrayObjects; let i = index" (click)="onChangeLoiDashArray(loiDashArrayObject, $event)">
+                      <span>
                         <div id="loiDashArrayDropdownItem-{{i}}">
                           {{loiDashArrayObject.displayName}}
                         </div>
-                      </a>
+                      </span>
                     </li>
                   </ul>
                   <div class="help-block with-errors"></div>
@@ -308,15 +328,78 @@
           <p>Angabe der Themenhierarchie. Mindestens das Hauptthema muss gewählt werden. Vorhandene Unterthemen erscheinen nach Auswahl eines Hauptthemas. Bis zu vier Themen-Ebenen sind erlaubt.</p>
           <p>Das Aufklappen der unteren Box ermöglicht die Verwaltung des Themenkatalogs.</p>
 
+          <!-- Debug section - remove after fixing -->
+          <div class="alert alert-info" style="margin-bottom: 15px;">
+            <strong>Debug Info:</strong><br>
+            Current Step: {{currentStep}}<br>
+            Loading Topics: {{loadingTopics}}<br>
+            availableTopics length: {{availableTopics?.length || 0}}<br>
+            availableTopics: {{availableTopics | json}}<br>
+            <strong>Template Conditions:</strong><br>
+            !loadingTopics: {{!loadingTopics}}<br>
+            (!availableTopics || availableTopics.length === 0): {{(!availableTopics || availableTopics.length === 0)}}<br>
+            <button class="btn btn-sm btn-warning" (click)="manualRefreshTopics()" [disabled]="loadingTopics">
+              {{loadingTopics ? 'Loading...' : 'Manual Refresh Topics'}}
+            </button>
+            <button class="btn btn-sm btn-info" (click)="setTestTopicsData()" style="margin-left: 5px;">
+              Set Test Data
+            </button>
+            <button class="btn btn-sm btn-success" (click)="goToStep(3)" style="margin-left: 5px;">
+              Go to Step 3 (Topics)
+            </button>
+          </div>
+          
+          <!-- Always visible test dropdown -->
+          <div class="alert alert-success" style="margin-bottom: 15px;">
+            <strong>Always Visible Test Dropdown:</strong><br>
+            <select class="form-control" style="width: 300px;">
+              <option>-- Test Topics (Always Visible) --</option>
+              <option *ngFor="let topic of availableTopics; let i = index" [value]="i">
+                {{i + 1}}. {{topic.topicName || topic.name || 'Unnamed'}}
+              </option>
+            </select>
+            <br>
+            <small>Topics count: {{availableTopics?.length || 0}}</small>
+          </div>
+
           <div class="row vertical-align">
             <div class="col-md-3 col-sm-6 col-xs-12">
               <div class="form-group">
                 <label>Hauptthema*</label>
-                <select [(ngModel)]="georesourceTopic_mainTopic" name="georesourceTopic_mainTopic" class="form-control" required>
+                <div *ngIf="loadingTopics" class="text-center">
+                  <span class="glyphicon glyphicon-refresh icon-spin"></span> Lade Themen...
+                </div>
+                <select *ngIf="!loadingTopics" [(ngModel)]="georesourceTopic_mainTopic" name="georesourceTopic_mainTopic" class="form-control" required>
                   <option disabled selected value> -- Hauptthema wählen -- </option>
-                  <option *ngFor="let mainTopic of availableTopics" [ngValue]="mainTopic">{{mainTopic.topicName}}</option>
+                  <option *ngFor="let mainTopic of availableTopics" [ngValue]="mainTopic">
+                    {{mainTopic.topicName || mainTopic.name || 'Unnamed Topic'}}
+                  </option>
                 </select>
+                <div *ngIf="!loadingTopics && (!availableTopics || availableTopics.length === 0)" class="alert alert-warning">
+                  Keine Themen verfügbar. Bitte versuchen Sie es später erneut.
+                </div>
                 <div class="help-block with-errors"></div>
+                
+                <!-- Additional debugging for dropdown -->
+                <div class="alert alert-warning" style="margin-top: 10px; font-size: 12px;">
+                  <strong>Dropdown Debug:</strong><br>
+                  Selected Topic: {{georesourceTopic_mainTopic | json}}<br>
+                  Selected Topic Name: {{georesourceTopic_mainTopic?.topicName || 'None'}}<br>
+                  Available Topics Count: {{availableTopics?.length || 0}}<br>
+                  First Topic: {{availableTopics[0] | json}}<br>
+                  First Topic Name: {{availableTopics[0]?.topicName || 'None'}}
+                </div>
+                
+                <!-- Simple test dropdown -->
+                <div class="alert alert-success" style="margin-top: 10px;">
+                  <strong>Test Dropdown:</strong><br>
+                  <select class="form-control" style="width: 200px;">
+                    <option>-- Test Options --</option>
+                    <option *ngFor="let topic of availableTopics; let i = index" [value]="i">
+                      {{i + 1}}. {{topic.topicName || topic.name || 'Unnamed'}}
+                    </option>
+                  </select>
+                </div>
               </div>
             </div>
             <div class="col-md-3 col-sm-6 col-xs-12">
@@ -354,7 +437,7 @@
           <hr>
           <br/>
 
-          <div class="row vertical-align" *ngIf="kommonitorDataExchangeService.checkAdminPermission && kommonitorDataExchangeService.checkAdminPermission()">
+          <div class="row vertical-align" *ngIf="kommonitorDataExchangeService.checkAdminPermission()">
             <div class="col-md-10 col-sm-12 col-xs-12">
               <div style="text-align: left;">
                 <div id="georesourceAddAdmin_topicsManagement" class="box box-primary collapsed-box" style="background: #ebf0fd;">
@@ -395,12 +478,12 @@
                 <span class="input-group-addon"><i class="fas fa-filter"></i></span>
                 <input type="text" class="form-control input-sm" placeholder="Stichwortfilter" [(ngModel)]="ownerOrgFilter" name="ownerOrgFilter">
               </div>
-              <select *ngIf="kommonitorDataExchangeService.checkAdminPermission && kommonitorDataExchangeService.checkAdminPermission()" 
+              <select *ngIf="kommonitorDataExchangeService.checkAdminPermission()" 
                 id="addGeoresourceUserRoleSelect" [(ngModel)]="ownerOrganization" name="ownerOrganization" 
                 class="form-control" (ngModelChange)="onChangeOwner($event)" required>
                 <option *ngFor="let org of kommonitorDataExchangeService.accessControl" [value]="org.organizationalUnitId">{{org.name}}</option>
               </select>
-              <select *ngIf="!kommonitorDataExchangeService.checkAdminPermission || !kommonitorDataExchangeService.checkAdminPermission()" 
+              <select *ngIf="!kommonitorDataExchangeService.checkAdminPermission()" 
                 id="addGeoresourceUserRoleSelect" [(ngModel)]="ownerOrganization" name="ownerOrganization" 
                 class="form-control" (ngModelChange)="onChangeOwner($event)" required>
                 <option *ngFor="let org of resourcesCreatorRights" [value]="org.organizationalUnitId">{{org.name}}</option>
@@ -429,7 +512,17 @@
                 </div>
               </div>
               <div class="col-md-6 col-sm-6 col-xs-12">
-                <div id="georesourceAddRoleManagementTable" style="height: 45vh" class="ag-theme-alpine"></div>
+                <ag-grid-angular
+                  #roleManagementGrid
+                  style="width: 100%; height: 45vh;"
+                  class="ag-theme-alpine"
+                  [gridOptions]="roleManagementTableOptions"
+                  (gridReady)="onRoleManagementGridReady($event)"
+                  (firstDataRendered)="onRoleManagementFirstDataRendered($event)"
+                  (columnResized)="onRoleManagementColumnResized($event)"
+                  (modelUpdated)="onRoleManagementModelUpdated()"
+                  (viewportChanged)="onRoleManagementViewportChanged()">
+                </ag-grid-angular>
               </div>
               <div class="col-md-3">
                 <div class="alert alert-info">

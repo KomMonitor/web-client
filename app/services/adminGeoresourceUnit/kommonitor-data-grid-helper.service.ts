@@ -1034,4 +1034,98 @@ export class KommonitorGeoresourceDataGridHelperService {
       this.registerClickHandler_georesources(this.currentGeoresources);
     }
   }
+
+  /**
+   * Build role management grid
+   */
+  buildRoleManagementGrid(
+    gridId: string,
+    existingOptions: any,
+    accessControl: any[],
+    selectedRoleIds: string[]
+  ): any {
+    if (!accessControl || accessControl.length === 0) {
+      return null;
+    }
+
+    // Build row data from access control
+    const rowData = accessControl.map(org => {
+      const isSelected = selectedRoleIds.includes(org.organizationalUnitId);
+      return {
+        organizationalUnitId: org.organizationalUnitId,
+        organizationName: org.name || org.organizationalUnitName,
+        organizationDescription: org.organizationDescription,
+        viewerPermissionId: org.viewerPermissionId,
+        editorPermissionId: org.editorPermissionId,
+        creatorPermissionId: org.creatorPermissionId,
+        datasetOwner: org.datasetOwner || false,
+        selected: isSelected,
+        permissions: org.permissions || []
+      };
+    });
+
+    return {
+      gridId: gridId,
+      rowData: rowData,
+      columnDefs: [
+        {
+          headerName: 'Organisation',
+          field: 'organizationName',
+          sortable: true,
+          filter: true,
+          width: 200
+        },
+        {
+          headerName: 'Beschreibung',
+          field: 'organizationDescription',
+          sortable: true,
+          filter: true,
+          width: 300
+        },
+        {
+          headerName: 'Eigentümer',
+          field: 'datasetOwner',
+          sortable: true,
+          filter: true,
+          width: 100,
+          cellRenderer: (params: any) => {
+            return params.value ? '✓' : '';
+          }
+        },
+        {
+          headerName: 'Berechtigungen',
+          field: 'permissions',
+          sortable: false,
+          filter: false,
+          width: 200,
+          cellRenderer: (params: any) => {
+            if (!params.value || !Array.isArray(params.value)) return '';
+            return params.value.map((p: any) => p.roleName).join(', ');
+          }
+        }
+      ],
+      defaultColDef: {
+        editable: false,
+        sortable: true,
+        filter: true,
+        resizable: true
+      },
+      suppressRowClickSelection: true,
+      rowSelection: 'multiple',
+      enableCellTextSelection: true
+    };
+  }
+
+  /**
+   * Get selected role IDs from role management grid
+   */
+  getSelectedRoleIds_roleManagementGrid(gridOptions: any): string[] {
+    if (!gridOptions || !gridOptions.rowData) {
+      return [];
+    }
+
+    return gridOptions.rowData
+      .filter((row: any) => row.selected)
+      .map((row: any) => row.organizationalUnitId);
+  }
 } 

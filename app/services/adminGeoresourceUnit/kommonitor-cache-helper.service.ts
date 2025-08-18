@@ -3,9 +3,37 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, BehaviorSubject, Subject } from 'rxjs';
 import { map, catchError, tap } from 'rxjs/operators';
 import { AuthService } from '../auth-service/auth.service';
-import { GeoresourceMetadata } from './kommonitor-data-exchange.service';
 
-// Interfaces for better typing
+// Define interfaces locally to avoid circular dependencies
+export interface GeoresourceMetadata {
+  georesourceId: string;
+  datasetName: string;
+  isPOI?: boolean;
+  isLOI?: boolean;
+  isAOI?: boolean;
+  poiSymbolColor?: string;
+  poiSymbolBootstrap3Name?: string;
+  poiMarkerColor?: string;
+  loiColor?: string;
+  loiWidth?: number;
+  loiDashArrayString?: string;
+  aoiColor?: string;
+  metadata?: {
+    description?: string;
+    datasource?: string;
+    contact?: string;
+  };
+  availablePeriodsOfValidity?: Array<{
+    startDate: string;
+    endDate?: string;
+  }>;
+  topicReference?: any;
+  permissions?: any;
+  isPublic?: boolean;
+  ownerId?: string;
+  userPermissions?: string[];
+}
+
 export interface DatabaseModificationInfo {
   georesources: string;
   spatialUnits: string;
@@ -148,14 +176,53 @@ export class KommonitorGeoresourceCacheHelperService implements OnDestroy {
     try {
       const url = `${this.baseUrl}/public/database/last-modification`;
       const response = await this.http.get<DatabaseModificationInfo>(url).toPromise();
+      console.log("fetchLastDatabaseModificationObject", response);
       
       if (response) {
         this.lastDatabaseModificationInfo = response;
         this.lastModificationSubject.next(response);
       }
     } catch (error) {
-      console.error('Error fetching last database modification:', error);
-      this.handleError(error);
+      // Error fetching last modification info
+      console.warn('Could not fetch last database modification info:', error);
+    }
+  }
+
+  /**
+   * Fetches topics metadata with caching (like original AngularJS service)
+   */
+  async fetchTopicsMetadata(keycloakRolesArray: string[]): Promise<any[]> {
+    this.loadingSubject.next(true);
+    this.errorSubject.next(null);
+
+    console.log("Georesource Cache Helper - fetchTopicsMetadata called with roles:", keycloakRolesArray);
+
+    try {
+      // Check authentication
+      this.checkAuthentication();
+      console.log("Georesource Cache Helper - topics endpoint:", this.topicsPublicEndpoint);
+      
+      // For now, use the public topics endpoint
+      // In the future, this could be enhanced to use protected endpoint when authenticated
+      const url = `${this.baseUrl}${this.topicsPublicEndpoint}`;
+      console.log("Georesource Cache Helper - fetching from URL:", url);
+      
+      const response = await this.http.get<any[]>(url).toPromise();
+      console.log("Georesource Cache Helper - topics response:", response);
+      
+      if (!response || !Array.isArray(response)) {
+        console.warn("Georesource Cache Helper - No topics data received");
+        this.loadingSubject.next(false);
+        return [];
+      }
+      
+      this.loadingSubject.next(false);
+      return response;
+    } catch (error) {
+      console.error("Georesource Cache Helper - Error fetching topics metadata:", error);
+      this.errorSubject.next('Error fetching topics metadata');
+      this.loadingSubject.next(false);
+      throw error;
     }
   }
 

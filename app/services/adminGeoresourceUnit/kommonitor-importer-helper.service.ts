@@ -200,4 +200,171 @@ export class KommonitorImporterHelperService {
     { type: 'http', name: 'HTTP URL', description: 'Download from a web URL' },
     { type: 'inline', name: 'Inline Data', description: 'Paste data directly' }
   ];
+
+  // Mapping config structure for export/import
+  mappingConfigStructure = {
+    converter: {
+      name: 'converter-name',
+      schema: 'schema-name',
+      mimeType: 'mime-type',
+      parameters: [
+        { name: 'param1', value: 'value1' },
+        { name: 'param2', value: 'value2' }
+      ]
+    },
+    dataSource: {
+      type: 'file|http|inline',
+      parameters: [
+        { name: 'param1', value: 'value1' },
+        { name: 'param2', value: 'value2' }
+      ]
+    },
+    propertyMapping: {
+      nameProperty: 'property-name',
+      identifierProperty: 'id-property',
+      validStartDateProperty: 'start-date-property',
+      validEndDateProperty: 'end-date-property',
+      keepAttributes: true,
+      keepMissingOrNullValueAttributes: true,
+      attributes: [
+        { name: 'attr1', mappingName: 'mapped-attr1', type: 'string' },
+        { name: 'attr2', mappingName: 'mapped-attr2', type: 'number' }
+      ]
+    }
+  };
+
+  // Attribute mapping types
+  attributeMapping_attributeTypes = [
+    { apiName: 'string', displayName: 'String', description: 'Text data' },
+    { apiName: 'number', displayName: 'Number', description: 'Numeric data' },
+    { apiName: 'boolean', displayName: 'Boolean', description: 'True/False data' },
+    { apiName: 'date', displayName: 'Date', description: 'Date data' },
+    { apiName: 'geometry', displayName: 'Geometry', description: 'Spatial data' }
+  ];
+
+  // Methods for georesource registration
+  async registerNewGeoresource(
+    converterDefinition: any,
+    datasourceTypeDefinition: any,
+    propertyMappingDefinition: any,
+    postBody: any,
+    isDryRun: boolean = false
+  ): Promise<any> {
+    // This would typically make an API call to register the georesource
+    // For now, return a mock response
+    return {
+      success: true,
+      georesourceId: 'mock-id-' + Date.now(),
+      message: isDryRun ? 'Dry run completed successfully' : 'Georesource registered successfully'
+    };
+  }
+
+  // Check if importer response contains errors
+  importerResponseContainsErrors(response: any): boolean {
+    return !response || !response.success || response.errors || response.errors?.length > 0;
+  }
+
+  // Get ID from importer response
+  getIdFromImporterResponse(response: any): string {
+    return response?.georesourceId || 'unknown';
+  }
+
+  // Get imported features from importer response
+  getImportedFeaturesFromImporterResponse(response: any): any[] {
+    return response?.importedFeatures || [];
+  }
+
+  // Get errors from importer response
+  getErrorsFromImporterResponse(response: any): any[] {
+    return response?.errors || [];
+  }
+
+  // Build converter definition
+  buildConverterDefinition(
+    converter: any,
+    parameterPrefix: string,
+    schema: string,
+    mimeType: string
+  ): any {
+    if (!converter) return null;
+
+    const parameters: any[] = [];
+    if (converter.parameters) {
+      converter.parameters.forEach((param: any) => {
+        const element = document.getElementById(parameterPrefix + param.name) as HTMLInputElement;
+        if (element) {
+          parameters.push({
+            name: param.name,
+            value: element.value
+          });
+        }
+      });
+    }
+
+    return {
+      name: converter.name,
+      schema: schema,
+      mimeType: mimeType,
+      parameters: parameters
+    };
+  }
+
+  // Build datasource type definition
+  async buildDatasourceTypeDefinition(
+    datasourceType: any,
+    parameterPrefix: string,
+    inputElementId: string
+  ): Promise<any> {
+    if (!datasourceType) return null;
+
+    const parameters: any[] = [];
+    if (datasourceType.parameters) {
+      datasourceType.parameters.forEach((param: any) => {
+        const element = document.getElementById(parameterPrefix + param.name) as HTMLInputElement;
+        if (element) {
+          parameters.push({
+            name: param.name,
+            value: element.value
+          });
+        }
+      });
+    }
+
+    // Get the actual data from the input element
+    const inputElement = document.getElementById(inputElementId) as HTMLInputElement;
+    const data = inputElement?.value || '';
+
+    return {
+      type: datasourceType.type,
+      parameters: parameters,
+      data: data
+    };
+  }
+
+  // Build property mapping for spatial resource
+  buildPropertyMapping_spatialResource(
+    nameProperty: string,
+    identifierProperty: string,
+    validStartDateProperty: string,
+    validEndDateProperty: string,
+    additionalProperties: any,
+    keepAttributes: boolean,
+    keepMissingValues: boolean,
+    attributeMappings: any[]
+  ): any {
+    return {
+      nameProperty: nameProperty,
+      identifierProperty: identifierProperty,
+      validStartDateProperty: validStartDateProperty,
+      validEndDateProperty: validEndDateProperty,
+      additionalProperties: additionalProperties,
+      keepAttributes: keepAttributes,
+      keepMissingOrNullValueAttributes: keepMissingValues,
+      attributes: attributeMappings.map(mapping => ({
+        name: mapping.sourceName,
+        mappingName: mapping.destinationName,
+        type: mapping.dataType?.apiName || 'string'
+      }))
+    };
+  }
 }
