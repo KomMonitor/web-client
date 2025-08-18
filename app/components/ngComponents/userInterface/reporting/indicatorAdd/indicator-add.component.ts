@@ -14,18 +14,21 @@ import * as L from 'leaflet';
 import { ReachabilityHelperService } from 'services/reachbility-helper-service/reachability-helper.service';
 import { LeafletScreenshotCacheHelperService } from 'services/leaflet-screenshot-cache-helper-service/leaflet-screenshot-cache-helper.service';
 import * as d3 from 'd3';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-indicator-add',
   standalone: true,
   templateUrl: './indicator-add.component.html',
   styleUrls: ['./indicator-add.component.css'],
-  imports: [CommonModule, FormsModule, DualListBoxComponent]
+  imports: [CommonModule, FormsModule, DualListBoxComponent, ReactiveFormsModule]
 })
 export class IndicatorAddComponent implements OnInit {
 
   @Output() selectedWorkflow = new EventEmitter<any[]>();
   @Input() data:any = [];
+
+  spatialUnitSelect = new FormControl;
   
 	template:any = undefined;
   untouchedTemplateAsString = "";
@@ -394,21 +397,18 @@ export class IndicatorAddComponent implements OnInit {
 
   }
 
-  async onSelectedAreasChanged(newVal, init = false) {
+  async onSelectedAreasChanged(newVal) {
     
     if( typeof(this.template) === "undefined") return;
     this.loadingData = true;
 
-    // todo cache overflow, slice works, but fails with all areas
-   /*  if(init===true) 
-      this.selectedAreas = newVal.slice(0,10); */
-        
+    this.selectedAreas = newVal;
 
     // to make things easier we remove all area-specific pages and recreate them using newVal
     // this approach is not optimized for performance and might have to change in the future
 
     // remove all area-specific pages
-    this.template.pages = this.template.pages.filter( page => {
+     this.template.pages = this.template.pages.filter( page => {
       return !page.hasOwnProperty("area")
     });
 
@@ -421,12 +421,12 @@ export class IndicatorAddComponent implements OnInit {
     numberOfTargetSpatialUnitFeatures ++;				
     this.leafletScreenshotCacheHelperService.resetCounter(numberOfTargetSpatialUnitFeatures, false);
 
-    if(this.template.name.includes("timestamp"))
+  /*   if(this.template.name.includes("timestamp"))
       this.updateAreasForTimestampTemplates(newVal)
     if(this.template.name.includes("timeseries"))
       this.updateAreasForTimeseriesTemplates(newVal)
     if(this.template.name.includes("reachability"))
-      this.updateAreasForReachabilityTemplates(newVal)
+      this.updateAreasForReachabilityTemplates(newVal) */
 
      this.updateDiagramsInterval_areas = setInterval(async () => { 
       
@@ -953,7 +953,9 @@ export class IndicatorAddComponent implements OnInit {
 
 
  
-  onSpatialUnitChanged(selectedSpatialUnit) {
+  onSpatialUnitChanged() {
+
+    let selectedSpatialUnit = this.spatialUnitSelect.value;
    /* $scope.loadingData = true;			
 
 			$("#reporting-spatialUnitChangeWarning").hide();
@@ -1728,6 +1730,7 @@ export class IndicatorAddComponent implements OnInit {
       
       // set spatial unit to highest available one
       let spatialUnits = this.dataExchangeService.pipedData.availableSpatialUnits;
+
       // go from highest to lowest spatial unit and check if it is available.
       for(let spatialUnit of spatialUnits) {
         let applicableSpatialUnitsFiltered = this.selectedIndicator.applicableSpatialUnits.filter( (unit) => {
@@ -1736,6 +1739,7 @@ export class IndicatorAddComponent implements OnInit {
 
         if(applicableSpatialUnitsFiltered.length === 1) {
           this.selectedSpatialUnit = applicableSpatialUnitsFiltered[0];
+          this.spatialUnitSelect = new FormControl(this.selectedSpatialUnit);
           break;
         }
       }
