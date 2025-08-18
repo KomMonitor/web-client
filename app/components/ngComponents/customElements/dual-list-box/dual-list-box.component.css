@@ -36,5 +36,22 @@
         border-radius: 0;
       }
     }
+
+    .selectAll {
+        border: 0;
+        border-left: 1px solid rgb(51,122,183);
+        border-right: 1px solid rgb(51,122,183);
+        border-bottom: 1px solid rgb(51,122,183);
+        border-radius: 0;
+
+        button {
+          background-color: var(--kommonitor-primary);
+          color: #fff;
+          border: 0;
+          margin: .5em;
+          padding: .4em;
+          border-radius: .2em;
+        }
+    }
   }
 }

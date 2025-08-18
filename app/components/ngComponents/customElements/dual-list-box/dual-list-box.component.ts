@@ -88,4 +88,24 @@ export class DualListBoxComponent implements OnInit, OnChanges {
   updateSelectedElements() {
     this.selectedItems.emit(this.selectedElements);
   }
+
+  onSelectAll() {
+    this.selectedElements = this.data.items;
+    this.displayedSelectedElements = this.data.items;
+
+    this.availableElements = [];
+    this.displayedAvailableElements = [];
+
+    this.updateSelectedElements();
+  }
+
+  onDeselectAll() {
+    this.selectedElements = [];
+    this.displayedSelectedElements = [];
+
+    this.availableElements = this.data.items;
+    this.displayedAvailableElements = this.data.items;
+
+    this.updateSelectedElements();
+  }
 }
