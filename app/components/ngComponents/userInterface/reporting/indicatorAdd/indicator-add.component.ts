@@ -183,7 +183,7 @@ export class IndicatorAddComponent implements OnInit {
   
   initialize() {
     this.loadingData = true;
-    let template = this.data.template;
+    let template = this.data.templateData.template;
     // deep copy template before any changes are made.
     // this is needed when additional timestamps are inserted.
     this.untouchedTemplateAsString = toJson(template)
@@ -311,12 +311,12 @@ export class IndicatorAddComponent implements OnInit {
   }
 
 
-  onChangeSelectedBaseMap(){
+  async onChangeSelectedBaseMap(){
     // reinitiate page building from the scratch as easiest solution
     this.loadingData = true; 
 
     this.leafletScreenshotCacheHelperService.resetCounter_keepingCurrentTargetFeatures(false);
-    this.initializeAllDiagrams();			
+    await this.initializeAllDiagrams();			
 
     this.loadingData = false; 
   }
@@ -362,10 +362,48 @@ export class IndicatorAddComponent implements OnInit {
   
   */
 
-  onSelectedAreasChanged(newVal) {
+  initSelectedDualListOption(selectedAreas, selectedTimestamps) {
+
+    this.selectedAreas = selectedAreas;
+    this.selectedTimestamps = selectedTimestamps;
+   
+    let updateDiagramsInterval = setInterval(() => {
+      if(this.diagramsPrepared) {
+        clearInterval(updateDiagramsInterval); // code below still executes once
+      } else {
+        return;
+      }
+
+      setTimeout(async () => {
+
+        // indicator selection is optional in reachability template only
+        if(this.selectedIndicator) {
+          for(let timestamp of this.selectedTimestamps) {
+            let classifyUsingWholeTimeseries = false;
+            let isTimeseries = false;
+            this.prepareDiagrams(this.selectedIndicator, this.selectedSpatialUnit, timestamp.name, classifyUsingWholeTimeseries, isTimeseries, undefined, undefined);
+          }
+        } else {
+          this.reachabilityTemplateGeoMapOptions = this.prepareReachabilityEchartsMap();
+        }
+        await this.initializeAllDiagrams();
+        this.isFirstUpdateOnIndicatorOrPoiLayerSelection = false;
+        this.loadingData = false;
+      });
+    }, 0, 100);
+
+  }
+
+  async onSelectedAreasChanged(newVal, init = false) {
     
     if( typeof(this.template) === "undefined") return;
     this.loadingData = true;
+
+    // todo cache overflow, slice works, but fails with all areas
+   /*  if(init===true) 
+      this.selectedAreas = newVal.slice(0,10); */
+        
+
     // to make things easier we remove all area-specific pages and recreate them using newVal
     // this approach is not optimized for performance and might have to change in the future
 
@@ -390,7 +428,7 @@ export class IndicatorAddComponent implements OnInit {
     if(this.template.name.includes("reachability"))
       this.updateAreasForReachabilityTemplates(newVal)
 
-     this.updateDiagramsInterval_areas = setInterval(() => { 
+     this.updateDiagramsInterval_areas = setInterval(async () => { 
       
       if(this.diagramsPrepared) {
         clearInterval(this.updateDiagramsInterval_areas); // code below still executes once
@@ -409,7 +447,7 @@ export class IndicatorAddComponent implements OnInit {
       } 
       if(this.template.name.includes("reachability") || (this.isFirstUpdateOnIndicatorOrPoiLayerSelection == false && justChanged == false)) {
         
-        this.initializeAllDiagrams();
+        await this.initializeAllDiagrams();
         this.loadingData = false;
       }
     }, 0, 100)
@@ -634,7 +672,7 @@ export class IndicatorAddComponent implements OnInit {
   }
 
   // internal array changes do not work with ng-change
-  onSelectedTimestampsChanged(newVal, oldVal, init = false) {
+  async onSelectedTimestampsChanged(newVal, oldVal, init = false) {
 
     let mappedNewVal = newVal.map(e => e.name);
     let mappedOldVal = oldVal.map(e => e.name);
@@ -822,7 +860,7 @@ export class IndicatorAddComponent implements OnInit {
         return;
       }
 
-      setTimeout(() => {
+      setTimeout(async () => {
         if(this.isFirstUpdateOnIndicatorOrPoiLayerSelection) {
           // Skip the update but set variable to false, so diagrams get updated on time update
           // (relevant for indicator selection only)
@@ -839,7 +877,7 @@ export class IndicatorAddComponent implements OnInit {
             this.reachabilityTemplateGeoMapOptions = this.prepareReachabilityEchartsMap();
           }
 
-          this.initializeAllDiagrams();
+          await this.initializeAllDiagrams();
           this.loadingData = false;
         }
       });
@@ -1352,7 +1390,7 @@ export class IndicatorAddComponent implements OnInit {
     this.loadingData = true;
   }
 
-  reportingIsochronesCalculationFinished([isochrones]) {
+  async reportingIsochronesCalculationFinished([isochrones]) {
     this.isochrones = isochrones;
       // this.typeOfMovement = this.isochrones.metadata.query.profile;
     this.typeOfMovement = this.reachabilityHelperService.settings.transitMode;
@@ -1389,11 +1427,11 @@ export class IndicatorAddComponent implements OnInit {
     this.showResetIsochronesBtn =true;
 
     // TODO performance could be improved if we just iterate pages and update echarts
-    this.initializeAllDiagrams();
+    await this.initializeAllDiagrams();
     this.loadingData = false;
   }
 
-  resetIsochrones() {
+  async resetIsochrones() {
     this.isochrones = undefined;
     this.typeOfMovement = undefined;
     this.isochronesRangeType = undefined,
@@ -1401,7 +1439,7 @@ export class IndicatorAddComponent implements OnInit {
     this.isochronesSeriesData = undefined
     // TODO performance could be improved if we just iterate pages and update echarts
     if(this.diagramsPrepared) {
-      this.initializeAllDiagrams();
+      await this.initializeAllDiagrams();
     }
     this.showResetIsochronesBtn = false;
   }
@@ -1535,7 +1573,9 @@ export class IndicatorAddComponent implements OnInit {
       result[3] = (bbox[3] > result[3]) ? bbox[3] : result[3];
       }
     }
-    return result;
+    // changed here due to "invalid boundingCoords" error
+    //return result;
+    return [[result[0],result[3]],[result[2],result[1]]];
   }
 
 
@@ -1657,7 +1697,7 @@ export class IndicatorAddComponent implements OnInit {
   }
 
   //async
-  onIndicatorSelected(indicator) {
+  async onIndicatorSelected(indicator) {
 
     try {
       this.loadingData = true;
@@ -1705,8 +1745,8 @@ export class IndicatorAddComponent implements OnInit {
       }
 
       this.updateAreasInDualList(); // this populates this.availableFeaturesBySpatialUnit
-
-      setTimeout(() => {
+ 
+      setTimeout( async () => {
         // select most recent timestamp that is valid for the largest spatial unit
         let dates = this.selectedIndicator.applicableDates;
         let timestampsForSelectedSpatialUnit = this.getValidTimestampsForSpatialUnit( this.selectedSpatialUnit);
@@ -1765,6 +1805,7 @@ export class IndicatorAddComponent implements OnInit {
         this.prepareDiagrams(this.selectedIndicator, this.selectedSpatialUnit, mostRecentTimestampName, classifyUsingWholeTimeseries, isTimeseries, undefined, undefined);
         // We have to update time and areas. Usually both of these would result in a diagram update.
         // We want to skip the first one and only update diagrams once everything is ready for better performance.
+        
         this.isFirstUpdateOnIndicatorOrPoiLayerSelection = true;
         if(this.template.name.includes("timeseries")) {
           // This is an exception from the process above
@@ -1787,12 +1828,10 @@ export class IndicatorAddComponent implements OnInit {
           this.enableTab(tab);
         }
       
-        // call both onChange functions, as the selected Items have not been processed yet - only been selected on the dual lists
         let areasListInput = allAreas.map( (el, i) => {
           return {"name": el.properties.NAME, 'id': i} // we need this as an object for kommonitorDataExchangeService.createDualListInputArray
         });
         areasListInput = this.dataExchangeService.createDualListInputArray(areasListInput, "name",'id');
-        this.onSelectedAreasChanged(areasListInput);
 
         let timestampsListInput = availableTimestamps.map( (el, i) => {
           return {"name": el.properties.NAME, 'id': i} // we need this as an object for kommonitorDataExchangeService.createDualListInputArray
@@ -1803,9 +1842,11 @@ export class IndicatorAddComponent implements OnInit {
           return {"name": el.properties.NAME, 'id': i} // we need this as an object for kommonitorDataExchangeService.createDualListInputArray
         });
         timestampsListSelected = this.dataExchangeService.createDualListInputArray(timestampsListSelected, "name",'id');
-        this.onSelectedTimestampsChanged(timestampsListSelected, [], true);              
 
-      },1000);
+        // call initSelectedDualListOption, as the selected Items have not been processed yet - only been selected on the dual lists
+        this.initSelectedDualListOption(areasListInput, timestampsListSelected);    
+
+      },1000); 
     } catch (error) {
       console.error(error);
       this.dataExchangeService.displayMapApplicationError(error);
@@ -2537,6 +2578,7 @@ export class IndicatorAddComponent implements OnInit {
     
     let overallBbox = this.calculateOverallBoundingBoxFromGeoJSON(this.selectedIndicator.geoJSON.features)
 
+    // hier
     options.geo = {
       map: mapName,
       z: 1,
@@ -2642,7 +2684,7 @@ export class IndicatorAddComponent implements OnInit {
 
 
     // label positioning
-    options = this.enableManualLabelPositioningAcrossPages(page, options, map)
+    options = this.enableManualLabelPositioningAcrossPages(page, options, map);
     
     map.setOption(options);
     pageElement.echartsOptions = options;	
@@ -3587,7 +3629,7 @@ export class IndicatorAddComponent implements OnInit {
   }
 
 // async
-  initializeAllDiagrams() {
+  async initializeAllDiagrams() {
 
 			if(!this.template)
 				return;
@@ -3682,7 +3724,9 @@ export class IndicatorAddComponent implements OnInit {
 									}
 									
 								}
-								await this.initLeafletMapBeneathEchartsMap(page, pageElement, map);
+
+                // this causes trouble.. 
+								// await this.initLeafletMapBeneathEchartsMap(page, pageElement, map);
 
 								pageElement.isPlaceholder = false;
 								break;

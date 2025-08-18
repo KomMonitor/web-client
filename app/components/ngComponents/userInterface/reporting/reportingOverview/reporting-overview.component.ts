@@ -36,17 +36,28 @@ export class ReportingOverviewComponent implements OnInit {
     protected leafletScreenshotCacheHelperService: LeafletScreenshotCacheHelperService
   ) {}
 
-
   ngOnInit(): void {
+    console.log(this.data)
     this.config.templateSections = [];
-    let configFileSelected = this.data[0];
-    let data:any = this.data[1];
+    let configFileSelected = this.data.templateData[0];
+    let data:any = this.data.templateData[1];
+
+ 
+
     if(configFileSelected) {
       this.importConfig(data);
     } else {
       this.config.template = JSON.parse(JSON.stringify(data));
+
+      // pre-init pageConfig in template section as this is needed even before an indicator is selected. indicator/poi select may override this
+      let templateSection = {
+        pageConfig: jQuery.extend(true, {}, this.data.config) // deep copy to preserve section specific settings
+      }
+      for(let page of this.config.template.pages) {
+        page.templateSection = templateSection;
+      }
+
       this.config.pages = this.config.template.pages;
-      console.log(this.config);
     }
     this.deviceScreenDpi = this.calculateScreenDpi();
     this.pxPerMilli = this.deviceScreenDpi / 25.4 // /2.54 --> cm, /10 --> mm

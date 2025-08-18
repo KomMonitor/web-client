@@ -15,19 +15,43 @@ import { ReportingOverviewComponent } from "./reportingOverview/reporting-overvi
 })
 export class ReportingModalComponent {
 
-  workflowStatus = 0;
-  data;
   /* 
     0 = workflow select
     1 = template select
     2 = overview page
     3 = indicator add 
   */
+  workflowStatus = 0;
+  data;
 
   activeModal = inject(NgbActiveModal);
 
+  pageConfig = {
+    mapLegendBackgroundColor: "rgba(255, 255, 255, 0.75)",
+    showMapLabels: true,
+    showRankingChartPerArea: true,
+    showLineChartPerArea: true,
+    showFreeText: true,
+    showRankingMeanLine: true,
+    showTitle: true,
+    showSubtitle: true,
+    showLogo: true,
+    showFooterCreationInfo: true,
+    showPageNumber: true,
+    sections: {
+      showOverviewSection_unclassified: true,
+      showOverviewSection_classified: true,
+      showBarchartOverview: true,
+      showLinechartOverview: true,
+      showBoxplotchartOverview: true,
+      showAreaSpecific: true,
+      showOverviewSection_reachability: true,
+      showDatatable: true
+    }
+  }
+
   onWorkflowDefined(workflow) {
       this.workflowStatus = workflow[0];
-      this.data = workflow[1];
+      this.data = {templateData: workflow[1], config: this.pageConfig};
   }
 }
