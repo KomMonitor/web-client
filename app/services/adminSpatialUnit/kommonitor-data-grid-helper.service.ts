@@ -957,20 +957,6 @@ export class KommonitorDataGridHelperService {
           'padding-top': '17px', 
           'padding-bottom': '17px' 
         },
-        headerComponentParams: {
-          template:
-            '<div class="ag-cell-label-container" role="presentation">' +
-            '  <span ref="eMenu" class="ag-header-icon ag-header-cell-menu-button"></span>' +
-            '  <div ref="eLabel" class="ag-header-cell-label" role="presentation">' +
-            '    <span ref="eSortOrder" class="ag-header-icon ag-sort-order"></span>' +
-            '    <span ref="eSortAsc" class="ag-header-icon ag-sort-ascending-icon"></span>' +
-            '    <span ref="eSortDesc" class="ag-header-icon ag-sort-descending-icon"></span>' +
-            '    <span ref="eSortNone" class="ag-header-icon ag-sort-none-icon"></span>' +
-            '    <span ref="eText" class="ag-header-cell-text" role="columnheader" style="white-space: normal;"></span>' +
-            '    <span ref="eFilter" class="ag-header-icon ag-filter-icon"></span>' +
-            '  </div>' +
-            '</div>',
-        },
         onCellValueChanged: (newValueParams: any) => {
           // Handle cell value changes for date validation and API updates
           this.handleCellValueChanged(newValueParams, resourceId, resourceType);
@@ -991,8 +977,12 @@ export class KommonitorDataGridHelperService {
       rowSelection: 'multiple',
       enableCellTextSelection: true,
       ensureDomOrder: true,
+      // Pagination settings
       pagination: true,
       paginationPageSize: 20,
+      paginationPageSizeSelector: [10, 20, 50, 100],
+      // Filtering is controlled via defaultColDef.filter and per-column filters
+      // Grid features
       suppressColumnVirtualisation: true,
       onFirstDataRendered: () => {
         this.headerHeightSetter();

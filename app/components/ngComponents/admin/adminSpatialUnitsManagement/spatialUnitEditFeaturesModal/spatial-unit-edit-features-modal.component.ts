@@ -108,6 +108,13 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
   private gridApi!: GridApi;
   private columnApi!: ColumnApi;
 
+  // AG Grid inputs (align with parent component pattern)
+  public columnDefs: ColDef[] = [];
+  public rowData: any[] = [];
+  public defaultColDef: ColDef = {};
+  public paginationPageSize: number = 20;
+  public paginationPageSizeSelector: number[] = [10, 20, 50, 100];
+
   // Subscriptions
   private subscriptions: Subscription[] = [];
 
@@ -127,6 +134,33 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
     this.setupEventListeners();
     await this.loadAvailableOptions();
     this.buildFeatureTable();
+    this.ensureGridConfiguration();
+    
+    // Add a small delay to ensure everything is initialized
+    setTimeout(() => {
+      this.checkGridConfiguration();
+    }, 500);
+  }
+
+  private checkGridConfiguration(): void {
+    // Grid configuration check completed
+  }
+
+  private ensureGridConfiguration(): void {
+    // Ensure grid options are properly configured
+    if (this.featureTableGridOptions) {
+      // Force enable pagination and filtering
+      this.featureTableGridOptions.pagination = true;
+      this.featureTableGridOptions.paginationPageSize = 20;
+      this.featureTableGridOptions.paginationPageSizeSelector = [10, 20, 50, 100];
+      
+      // Ensure defaultColDef has proper filtering
+      if (this.featureTableGridOptions.defaultColDef) {
+        this.featureTableGridOptions.defaultColDef.filter = true;
+        this.featureTableGridOptions.defaultColDef.floatingFilter = true;
+        this.featureTableGridOptions.defaultColDef.sortable = true;
+      }
+    }
   }
 
   ngOnDestroy(): void {
@@ -193,13 +227,9 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
   }
 
   private buildFeatureTable(): void {
-    console.log('Building feature table with:', {
-      headers: this.remainingFeatureHeaders,
-      features: this.spatialUnitFeaturesGeoJSON?.features?.length || 0,
-      enableDelete: this.enableDeleteFeatures
-    });
     
-    this.featureTableGridOptions = this.kommonitorDataGridHelperService.buildDataGrid_featureTable_spatialResource(
+    // Get base configuration from service
+    const baseGridOptions = this.kommonitorDataGridHelperService.buildDataGrid_featureTable_spatialResource(
       "spatialUnitFeatureTable", 
       this.remainingFeatureHeaders || [], 
       this.spatialUnitFeaturesGeoJSON?.features || [],
@@ -208,7 +238,71 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
       this.enableDeleteFeatures
     );
     
-    console.log('Grid options built:', this.featureTableGridOptions);
+    // Extract service configuration
+    const columnDefs = baseGridOptions.columnDefs || [];
+    const rowData = baseGridOptions.rowData || [];
+    const defaultColDef = baseGridOptions.defaultColDef || {};
+
+    // Bind to template inputs
+    this.columnDefs = columnDefs;
+    this.rowData = rowData;
+    this.defaultColDef = {
+      ...defaultColDef,
+      editable: true,
+      sortable: true,
+      flex: 1,
+      minWidth: 150,
+      filter: true,
+      floatingFilter: true,
+      resizable: true,
+      wrapText: true,
+      autoHeight: true,
+      cellEditor: 'agLargeTextCellEditor',
+      cellStyle: { 
+        'font-size': '12px', 
+        'white-space': 'normal !important', 
+        'line-height': '20px !important', 
+        'word-break': 'break-word !important', 
+        'padding-top': '17px', 
+        'padding-bottom': '17px' 
+      }
+    };
+    
+    // Override with component-specific settings
+    this.featureTableGridOptions = {
+      ...baseGridOptions,
+      columnDefs: this.columnDefs,
+      rowData: this.rowData,
+      defaultColDef: this.defaultColDef,
+      // Pagination settings
+      pagination: true,
+      paginationPageSize: this.paginationPageSize,
+      paginationPageSizeSelector: this.paginationPageSizeSelector,
+      // Grid features
+      suppressRowClickSelection: true,
+      rowSelection: 'multiple',
+      enableCellTextSelection: true,
+      ensureDomOrder: true,
+      suppressColumnVirtualisation: true,
+      // enables undo / redo
+      undoRedoCellEditing: true,
+      undoRedoCellEditingLimit: 10,
+      // enables flashing to help see cell changes
+      enableCellChangeFlash: true,
+      onGridReady: (params: any) => {
+        this.gridApi = params.api;
+        this.columnApi = params.columnApi;
+      },
+      onFirstDataRendered: () => {
+        this.headerHeightSetter();
+        this.registerFeatureTableClickHandlers();
+      },
+      onColumnResized: () => {
+        this.headerHeightSetter();
+      }
+    };
+    
+
   }
 
   onEditSpatialUnitFeatures(spatialUnitDataset: any): void {
@@ -320,28 +414,15 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
 
     this.http.get(url).subscribe({
       next: (response: any) => {
-        console.log('Received features response:', response);
         this.spatialUnitFeaturesGeoJSON = response;
         
         // Use service method to extract remaining headers
         this.remainingFeatureHeaders = this.kommonitorDataExchangeService.extractRemainingHeaders(
           this.spatialUnitFeaturesGeoJSON?.features || []
         );
-        
-        console.log('Extracted headers:', this.remainingFeatureHeaders);
-        console.log('Features count:', this.spatialUnitFeaturesGeoJSON?.features?.length || 0);
 
         // Rebuild the grid options with new data
-        this.featureTableGridOptions = this.kommonitorDataGridHelperService.buildDataGrid_featureTable_spatialResource(
-          "spatialUnitFeatureTable", 
-          this.remainingFeatureHeaders, 
-          this.spatialUnitFeaturesGeoJSON.features, 
-          this.currentSpatialUnitDataset.spatialUnitId, 
-          this.kommonitorDataGridHelperService.resourceType_spatialUnit, 
-          this.enableDeleteFeatures
-        );
-        
-        console.log('Rebuilt grid options:', this.featureTableGridOptions);
+        this.buildFeatureTable();
 
         // Update the grid with new data
         this.updateGridWithData();
@@ -361,11 +442,10 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
         setTimeout(() => {
           this.loadingData = false;
           
-          // If grid API is still not available, try to rebuild the grid
-          if (!this.gridApi && this.spatialUnitFeatureTable) {
-            console.log('Grid API not available, trying to rebuild grid...');
-            this.buildFeatureTable();
-          }
+                  // If grid API is still not available, try to rebuild the grid
+        if (!this.gridApi && this.spatialUnitFeatureTable) {
+          this.buildFeatureTable();
+        }
         }, 500); // Increased timeout to show loading state longer
       },
       error: (error) => {
@@ -394,11 +474,9 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
         this.broadcastService.broadcast('refreshSpatialUnitOverviewTable', ['edit', this.currentSpatialUnitDataset.spatialUnitId]);
         
         // Clear the grid data
-        this.featureTableGridOptions = this.kommonitorDataGridHelperService.buildDataGrid_featureTable_spatialResource(
-          "spatialUnitFeatureTable", 
-          [], 
-          []
-        );
+        this.spatialUnitFeaturesGeoJSON = null;
+        this.remainingFeatureHeaders = [];
+        this.buildFeatureTable();
         
         if (this.gridApi) {
           this.gridApi.setRowData([]);
@@ -698,19 +776,12 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
 
   onChangeEnableDeleteFeatures(): void {
     // Rebuild the grid with updated delete settings
-    this.featureTableGridOptions = this.kommonitorDataGridHelperService.buildDataGrid_featureTable_spatialResource(
-      "spatialUnitFeatureTable", 
-      this.remainingFeatureHeaders, 
-      this.spatialUnitFeaturesGeoJSON?.features || [], 
-      this.currentSpatialUnitDataset?.spatialUnitId, 
-      this.kommonitorDataGridHelperService.resourceType_spatialUnit, 
-      this.enableDeleteFeatures
-    );
+    this.buildFeatureTable();
 
     // Update grid column definitions and data if API is available
-    if (this.gridApi && this.featureTableGridOptions.columnDefs) {
+    if (this.gridApi && this.columnDefs?.length) {
       // Update column definitions
-      this.gridApi.setColumnDefs(this.featureTableGridOptions.columnDefs);
+      this.gridApi.setColumnDefs(this.columnDefs);
       
       // Update data if we have features
       if (this.spatialUnitFeaturesGeoJSON?.features) {
@@ -718,7 +789,8 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
         const transformedData = this.kommonitorDataExchangeService.transformFeaturesForGrid(
           this.spatialUnitFeaturesGeoJSON.features
         );
-        this.gridApi.setRowData(transformedData);
+        this.rowData = transformedData;
+        this.gridApi.setRowData(this.rowData);
       }
       
       // Force refresh of the grid to show/hide delete buttons
@@ -766,31 +838,76 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
 
   // AG Grid event handlers
   onGridReady(event: GridReadyEvent): void {
-    console.log('Grid ready event:', event);
     this.gridApi = event.api;
     this.columnApi = event.columnApi;
     
+    // Force refresh grid configuration after a short delay
+    setTimeout(() => {
+      this.forceRefreshGridConfiguration();
+    }, 100);
+    
     // If we have data already, update the grid
     if (this.spatialUnitFeaturesGeoJSON?.features && this.remainingFeatureHeaders.length > 0) {
-      console.log('Grid ready, updating with existing data...');
       this.updateGridWithData();
     }
   }
 
+  private forceRefreshGridConfiguration(): void {
+    if (!this.gridApi) return;
+    
+    // Force refresh of grid configuration
+    this.gridApi.refreshHeader();
+    this.gridApi.refreshCells();
+    
+    // Ensure pagination is visible
+    if (this.featureTableGridOptions.pagination) {
+      this.gridApi.paginationGoToPage(0);
+    }
+  }
+
+  private headerHeightSetter(): void {
+    if (this.gridApi) {
+      const headerHeight = this.headerHeightGetter();
+      this.gridApi.setHeaderHeight(headerHeight);
+    }
+  }
+
+  private headerHeightGetter(): number {
+    const headerElement = document.querySelector('.ag-header');
+    if (headerElement) {
+      const headerTextElements = headerElement.querySelectorAll('.ag-header-cell-text');
+      let maxHeight = 0;
+      headerTextElements.forEach(element => {
+        const height = element.scrollHeight;
+        if (height > maxHeight) {
+          maxHeight = height;
+        }
+      });
+      return Math.max(maxHeight + 20, 50); // Add padding and minimum height
+    }
+    return 50;
+  }
+
+  private registerFeatureTableClickHandlers(): void {
+    if (!this.enableDeleteFeatures) return;
+
+    setTimeout(() => {
+      this.kommonitorDataGridHelperService.registerFeatureTableClickHandlers(
+        this.currentSpatialUnitDataset?.spatialUnitId,
+        this.kommonitorDataGridHelperService.resourceType_spatialUnit,
+        this.enableDeleteFeatures
+      );
+    }, 100);
+  }
+
   private updateGridWithData(): void {
     if (!this.gridApi) {
-      console.warn('Grid API not available for update');
       return;
     }
 
-    console.log('Updating grid with data:', {
-      headers: this.remainingFeatureHeaders,
-      features: this.spatialUnitFeaturesGeoJSON?.features?.length || 0
-    });
-
     // Update column definitions
-    if (this.featureTableGridOptions.columnDefs) {
-      this.gridApi.setColumnDefs(this.featureTableGridOptions.columnDefs);
+    if (this.columnDefs?.length) {
+      this.gridApi.setColumnDefs(this.columnDefs);
     }
 
     // Transform and set data
@@ -798,11 +915,14 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
       this.spatialUnitFeaturesGeoJSON?.features || []
     );
     
-    this.gridApi.setRowData(transformedData);
+    this.rowData = transformedData;
+    this.gridApi.setRowData(this.rowData);
     this.gridApi.refreshCells();
     this.gridApi.redrawRows();
     
-    console.log('Grid updated successfully');
+    // Force refresh of pagination and filtering
+    this.gridApi.paginationGoToPage(0);
+    this.gridApi.refreshHeader();
   }
 
   onFirstDataRendered(event: FirstDataRenderedEvent): void {
