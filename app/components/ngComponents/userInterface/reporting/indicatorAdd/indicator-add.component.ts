@@ -672,7 +672,7 @@ export class IndicatorAddComponent implements OnInit {
   }
 
   // internal array changes do not work with ng-change
-  async onSelectedTimestampsChanged(newVal, oldVal, init = false) {
+  async onSelectedTimestampsChanged(newVal, oldVal) {
 
     let mappedNewVal = newVal.map(e => e.name);
     let mappedOldVal = oldVal.map(e => e.name);
@@ -682,19 +682,15 @@ export class IndicatorAddComponent implements OnInit {
 
     // get difference between old and new value (the timestamps selected / deselected)
     let difference = oldVal
-      .filter(x => !mappedNewVal.includes(x))
-      .concat(newVal.filter(x => !mappedOldVal.includes(x)));
+      .filter(x => !mappedNewVal.includes(x.name))
+      .concat(newVal.filter(x => !mappedOldVal.includes(x.name)));
 
-    // overeride difference definition as the inital values have to be set after setUp of the dual list. No "timestampChange", more like a init setup
-    if(init) {
-      difference = newVal;
-      this.selectedTimestamps = difference;
-    }
-    
+    this.selectedTimestamps = newVal;
+
     // if selected
     if(newVal.length > oldVal.length) {
       // if this was the first timestamp
-      if(newVal.length === 1 && init===false) {
+      if(newVal.length === 1) {
         // no need to insert pages, we just replace the placeholder timestamp
         for(let page of this.template.pages) {
           for(let pageElement of page.pageElements) {
@@ -706,7 +702,7 @@ export class IndicatorAddComponent implements OnInit {
         }
       }
       
-      if(newVal.length > 1 || init===true) {
+      if(newVal.length > 1) {
         for(let timestampToInsert of difference) {
 
           // setup pages to insert first
@@ -1158,12 +1154,12 @@ export class IndicatorAddComponent implements OnInit {
     return this.httpClient.get(url);
   }
 
-  onUpdatedManualSelectedItems(event:any) {
+  onUpdatedManualSelectedAreas(event:any) {
     this.onSelectedAreasChanged(event)
   }
 
   onUpdatedManualSelectedTimestamps(event:any) {
-    this.onSelectedTimestampsChanged(event,[]);
+    this.onSelectedTimestampsChanged(event,this.selectedTimestamps);
   }
 
   updateTimestampsDualList(data, selectedItems) {

@@ -43,6 +43,7 @@
         border-right: 1px solid rgb(51,122,183);
         border-bottom: 1px solid rgb(51,122,183);
         border-radius: 0;
+        text-align: center;
 
         button {
           background-color: var(--kommonitor-primary);

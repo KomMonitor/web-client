@@ -136,8 +136,7 @@
                                 <option *ngFor="let spatialUnit of selectedIndicator.applicableSpatialUnits" [value]="spatialUnit">{{spatialUnit.spatialUnitName}}</option>
                               </select>
                           </div>
-                          <app-dual-list-box [data]="dualListAreasOptions" [reload]="reloadAreasDualList" (selectedItems)="onUpdatedManualSelectedItems($event)"></app-dual-list-box>
-                          <!-- <excalibur-dual-list id="reporting-indicator-add-areas-dual-list" [(ngModel)]='selectedAreas' options="dualListAreasOptions"></excalibur-dual-list> -->
+                          <app-dual-list-box [data]="dualListAreasOptions" [reload]="reloadAreasDualList" (selectedItems)="onUpdatedManualSelectedAreas($event)"></app-dual-list-box>
                       </div>
                       <div role="tabpanel" class="tab-pane dual-list-select" id="time">
               <div class="loading-overlay-reporting" [hidden]="!(loadingData)">
@@ -145,7 +144,6 @@
             </div>
                           <div [hidden]="template.name.includes('-timeseries')">
                             <app-dual-list-box [data]="dualListTimestampsOptions" [reload]="reloadTimestampsDualList" (selectedItems)="onUpdatedManualSelectedTimestamps($event)"></app-dual-list-box>
-                              <!-- <excalibur-dual-list id="reporting-indicator-add-timestamps-dual-list" [(ngModel)]='selectedTimestamps' options="dualListTimestampsOptions"></excalibur-dual-list> -->
                           </div>
                           <div [hidden]="!(template.name.includes('-timeseries'))">
                               <div id="reporting-dateSliderWrapper">
