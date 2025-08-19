@@ -15,13 +15,14 @@ import { ReachabilityHelperService } from 'services/reachbility-helper-service/r
 import { LeafletScreenshotCacheHelperService } from 'services/leaflet-screenshot-cache-helper-service/leaflet-screenshot-cache-helper.service';
 import * as d3 from 'd3';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { BaseMapFilter } from 'pipes/baseMap-filter.pipe';
 
 @Component({
   selector: 'app-indicator-add',
   standalone: true,
   templateUrl: './indicator-add.component.html',
   styleUrls: ['./indicator-add.component.css'],
-  imports: [CommonModule, FormsModule, DualListBoxComponent, ReactiveFormsModule]
+  imports: [CommonModule, FormsModule, DualListBoxComponent, ReactiveFormsModule, BaseMapFilter]
 })
 export class IndicatorAddComponent implements OnInit {
 
@@ -29,6 +30,7 @@ export class IndicatorAddComponent implements OnInit {
   @Input() data:any = [];
 
   spatialUnitSelect = new FormControl;
+  baseMapSelect = new FormControl;
   
 	template:any = undefined;
   untouchedTemplateAsString = "";
@@ -162,6 +164,8 @@ export class IndicatorAddComponent implements OnInit {
 
     // originally called by "reportingConfigureNewIndicatorShown" when +Indicator clicked
     this.initialize();
+
+    this.baseMapSelect = new FormControl(this.dataExchangeService.pipedData.baseLayerDefinitionsArray[0]);
 
     this.broadcastService.currentBroadcastMsg.subscribe(broadcastMsg => {
       let title = broadcastMsg.msg;
@@ -2444,13 +2448,13 @@ export class IndicatorAddComponent implements OnInit {
       let leafletLayer; 
       if (this.selectedBaseMap.layerConfig.layerType === "TILE_LAYER_GRAYSCALE"){
         leafletLayer = new L.tileLayer(this.selectedBaseMap.layerConfig.url);
-        }
-        else if (this.selectedBaseMap.layerConfig.layerType === "TILE_LAYER"){
+      }
+      else if (this.selectedBaseMap.layerConfig.layerType === "TILE_LAYER"){
         leafletLayer = new L.tileLayer(this.selectedBaseMap.layerConfig.url);
-        }
-        else if (this.selectedBaseMap.layerConfig.layerType === "WMS"){
+      }
+      else if (this.selectedBaseMap.layerConfig.layerType === "WMS"){
         leafletLayer = new L.tileLayer.wms(this.selectedBaseMap.layerConfig.url, { layers: this.selectedBaseMap.layerConfig.layerName_WMS, format: 'image/jpeg' })
-        }				
+      }				
       // use the "load" event of the tile layer to hook a function that is triggered once every visible tile is fully loaded
       // here we ntend to make a screenshot of the leaflet image as a background task in order to boost up report preview generation 
       // for all spatial unit features		
@@ -2498,12 +2502,6 @@ export class IndicatorAddComponent implements OnInit {
 
       pageElement.leafletBbox = bounds;
       pageElement.echartsOptions = echartsOptions;
-  }
-
-  filterBaseMaps(){
-    return function( baseMapEntry ) {
-      return baseMapEntry.layerConfig.layerType != "TILE_LAYER_GRAYSCALE";
-    };
   }
 
   // async
@@ -3726,7 +3724,7 @@ export class IndicatorAddComponent implements OnInit {
 								}
 
                 // this causes trouble.. 
-								// await this.initLeafletMapBeneathEchartsMap(page, pageElement, map);
+                await this.initLeafletMapBeneathEchartsMap(page, pageElement, map);
 
 								pageElement.isPlaceholder = false;
 								break;
