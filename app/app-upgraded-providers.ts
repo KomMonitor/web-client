@@ -9,6 +9,7 @@ import {kommonitorDiagramHelperService} from 'util/genericServices/kommonitorDia
 import {kommonitorFilterHelperService} from 'util/genericServices/kommonitorFilterHelperService/kommonitor-filter-helper-service.module';
 import {kommonitorImporterHelperService} from 'util/genericServices/kommonitorImporterHelperService/kommonitor-importer-helper-service.module';
 import {kommonitorKeycloackHelperService} from 'util/genericServices/kommonitorKeycloakHelperService/kommonitor-keycloak-helper-service.module'
+import { KeycloakHelperService } from './services/auth/keycloak-helper.service';
 import {kommonitorMultistepFormHelperService} from 'util/genericServices/kommonitorMultiStepFormHelperService/kommonitor-multi-step-form-helper-service.module'
 import {kommonitorScriptHelperService} from'util/genericServices/kommonitorScriptHelperService/kommonitor-script-helper-service.module';
 import {kommonitorShareHelperService} from 'util/genericServices/kommonitorShareHelperService/kommonitor-share-helper-service.module'
@@ -101,6 +102,17 @@ export const ajskommonitorKeycloackHelperServiceProvider: any = {
     provide: 'kommonitorKeycloackHelperService',
     useFactory:kommonitorKeycloackHelperServiceFactory,
   };
+
+// Angular Keycloak Helper Service
+export function keycloakHelperServiceFactory(injector: any) {
+  return injector.get(KeycloakHelperService);
+}
+
+export const keycloakHelperServiceProvider: any = {
+  deps: ['$injector'],
+  provide: 'kommonitorKeycloakHelperService',
+  useFactory: keycloakHelperServiceFactory,
+};
 
  //multistep form
  export function kommonitorMultiStepFormHelperServiceFactory (injector:any){
