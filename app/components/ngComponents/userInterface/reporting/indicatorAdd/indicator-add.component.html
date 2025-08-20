@@ -154,20 +154,20 @@
                       </div>
                       <div role="tabpanel" class="tab-pane" id="elements">
 
+                        <form [formGroup]="configForm">
                         <h4>Element-Konfiguration</h4>
                             <div id="reporting-element-configuration" class="container-fluid">
                                 <div class="row">
-                                    <div class="col-md-4">
+                                    <div class="col-md-4" formGroupName="sectionControl">
                                         <div class="reporting-element-config-box">
                                             <h5>Abschnitte</h5>  
                                             
                                             <div *ngIf="! template.name.includes('-reachability')">
                                             
                                                 <label class="switch" title="Karte gesamt unklassifiziert">
-                                                    <input type="checkbox"
-                                                        [(ngModel)]="pageConfig.sections.showOverviewSection_unclassified"
-                                                        (checked)="pageConfig.sections.showOverviewSection_unclassified"
-                                                        (change)="onChangeShowPageSection()">
+                                                    <input type="checkbox" 
+                                                      formControlName="showOverviewSection_unclassified"
+                                                      (change)="onChangePageSettings()">
                                                     <span class="switchslider round"></span>
                                                 </label>
                                                 Gesamtkarte - einheitliche Farbe
@@ -176,9 +176,8 @@
 
                                                 <label class="switch" title="Karte gesamt klassifiziert">
                                                     <input type="checkbox"
-                                                        [(ngModel)]="pageConfig.sections.showOverviewSection_classified"
-                                                        (checked)="pageConfig.sections.showOverviewSection_classified"
-                                                        (change)="onChangeShowPageSection()">
+                                                      formControlName="showOverviewSection_classified"
+                                                      (change)="onChangePageSettings()">
                                                     <span class="switchslider round"></span>
                                                 </label>
                                                 Gesamtkarte - farbklassifiziert
@@ -187,9 +186,8 @@
 
                                                 <label class="switch" title="Ranking-Diagramm">
                                                     <input type="checkbox"
-                                                        [(ngModel)]="pageConfig.sections.showBarchartOverview"
-                                                        (checked)="pageConfig.sections.showBarchartOverview"
-                                                        (change)="onChangeShowPageSection()">
+                                                      formControlName="showBarchartOverview"
+                                                      (change)="onChangePageSettings()">
                                                     <span class="switchslider round"></span>
                                                 </label>
                                                 Ranking-Diagramm - &Uuml;bersicht
@@ -199,9 +197,8 @@
                                             <div *ngIf="template.name.includes('-timeseries')">
                                                 <label class="switch" title="Zeitreihen-Diagramm">
                                                     <input type="checkbox"
-                                                        [(ngModel)]="pageConfig.sections.showLinechartOverview"
-                                                        (checked)="pageConfig.sections.showLinechartOverview"
-                                                        (change)="onChangeShowPageSection()">
+                                                      formControlName="showLinechartOverview"
+                                                      (change)="onChangePageSettings()">
                                                     <span class="switchslider round"></span>
                                                 </label>
                                                 Zeitreihen-Diagramm - &Uuml;bersicht
@@ -210,9 +207,8 @@
 
                                                 <label class="switch" title="Boxplot-Diagramm">
                                                     <input type="checkbox"
-                                                        [(ngModel)]="pageConfig.sections.showBoxplotchartOverview"
-                                                        (checked)="pageConfig.sections.showBoxplotchartOverview"
-                                                        (change)="onChangeShowPageSection()">
+                                                      formControlName="showBoxplotchartOverview"
+                                                      (change)="onChangePageSettings()">
                                                     <span class="switchslider round"></span>
                                                 </label>
                                                 Boxplot-Diagramm - &Uuml;bersicht
@@ -221,9 +217,8 @@
                                             <div *ngIf="template.name.includes('-reachability')">
                                                 <label class="switch" title="Karte Erreichbarkeit gesamt">
                                                     <input type="checkbox"
-                                                        [(ngModel)]="pageConfig.sections.showOverviewSection_reachability"
-                                                        (checked)="pageConfig.sections.showOverviewSection_reachability"
-                                                        (change)="onChangeShowPageSection()">
+                                                      formControlName="showOverviewSection_reachability"
+                                                      (change)="onChangePageSettings()">
                                                     <span class="switchslider round"></span>
                                                 </label>
                                                 &Uuml;bersichtskarte - Erreichbarkeit
@@ -231,9 +226,8 @@
 
                                             <label class="switch" title="Karte Erreichbarkeit gesamt">
                                                 <input type="checkbox"
-                                                    [(ngModel)]="pageConfig.sections.showAreaSpecific"
-                                                    (checked)="pageConfig.sections.showAreaSpecific"
-                                                    (change)="onChangeShowPageSection()">
+                                                  formControlName="showAreaSpecific"
+                                                  (change)="onChangePageSettings()">
                                                 <span class="switchslider round"></span>
                                             </label>
                                             Einzelseite pro Raumeinheit
@@ -241,9 +235,8 @@
                                             <div *ngIf="! template.name.includes('-reachability')">
                                                 <label class="switch" title="Datentabelle">
                                                     <input type="checkbox"
-                                                        [(ngModel)]="pageConfig.sections.showDatatable"
-                                                        (checked)="pageConfig.sections.showDatatable"
-                                                        (change)="onChangeShowPageSection()">
+                                                      formControlName="showDatatable"
+                                                      (change)="onChangePageSettings()">
                                                     <span class="switchslider round"></span>
                                                 </label>
                                                 Datentabelle
@@ -251,14 +244,13 @@
 
                                         </div>
                                     </div>
-                                    <div class="col-md-3">
+                                    <div class="col-md-3" formGroupName="headerFooterControl">
                                         <div class="reporting-element-config-box">
                                             <h5>Kopf- und Fu&szlig;leiste</h5>                                            
                                             <label class="switch" title="Titel anzeigen">
                                                 <input type="checkbox"
-                                                    [(ngModel)]="pageConfig.showTitle"
-                                                    (checked)="pageConfig.showTitle"
-                                                    (change)="onChangePageConfig()">
+                                                  formControlName="showTitle"
+                                                  (change)="onChangePageSettings()">
                                                 <span class="switchslider round"></span>
                                             </label>
                                             Titel
@@ -267,9 +259,8 @@
                                             
                                             <label class="switch" title="Untertitel anzeigen">
                                                 <input type="checkbox"
-                                                    [(ngModel)]="pageConfig.showSubtitle"
-                                                    (checked)="pageConfig.showSubtitle"
-                                                    (change)="onChangePageConfig()">
+                                                  formControlName="showSubtitle"
+                                                  (change)="onChangePageSettings()">
                                                 <span class="switchslider round"></span>
                                             </label>
                                             Untertitel
@@ -278,9 +269,8 @@
                                             
                                             <label class="switch" title="Logo anzeigen">
                                                 <input type="checkbox"
-                                                    [(ngModel)]="pageConfig.showLogo"
-                                                    (checked)="pageConfig.showLogo"
-                                                    (change)="onChangePageConfig()">
+                                                  formControlName="showLogo"
+                                                  (change)="onChangePageSettings()">
                                                 <span class="switchslider round"></span>
                                             </label>
                                             Logo
@@ -289,9 +279,8 @@
                                             
                                             <label class="switch" title="Erstelldetails anzeigen">
                                                 <input type="checkbox"
-                                                    [(ngModel)]="pageConfig.showFooterCreationInfo"
-                                                    (checked)="pageConfig.showFooterCreationInfo"
-                                                    (change)="onChangePageConfig()">
+                                                  formControlName="showFooterCreationInfo"
+                                                  (change)="onChangePageSettings()">
                                                 <span class="switchslider round"></span>
                                             </label>
                                             Erstelldetails 
@@ -300,24 +289,22 @@
                                             
                                             <label class="switch" title="Seitenzahl anzeigen">
                                                 <input type="checkbox"
-                                                    [(ngModel)]="pageConfig.showPageNumber"
-                                                    (checked)="pageConfig.showPageNumber"
-                                                    (change)="onChangePageConfig()">
+                                                  formControlName="showPageNumber"
+                                                  (change)="onChangePageSettings()">
                                                 <span class="switchslider round"></span>
                                             </label>
                                             Seitenzahl
                                         </div>
                                     </div>
-                                    <div class="col-md-5">
+                                    <div class="col-md-5" formGroupName="sectionContentControl">
                                         <div class="reporting-element-config-box">
                                             <h5>Abschnittssinhalte</h5>   
                                             <i>Kartendarstellungen</i> 
                                             <br/>                                           
                                             <label class="switch" title="Label anzeigen">
                                                 <input type="checkbox"
-                                                    [(ngModel)]="pageConfig.showMapLabels"
-                                                    (checked)="pageConfig.showMapLabels"
-                                                    (change)="onChangeShowMapLabels()">
+                                                  formControlName="showMapLabels"
+                                                  (change)="onChangeShowMapLabels()">
                                                 <span class="switchslider round"></span>
                                             </label>
                                             Label anzeigen
@@ -338,9 +325,8 @@
                                                 
                                                 <label class="switch" title="Ranking Chart anzeigen">
                                                     <input type="checkbox"
-                                                        [(ngModel)]="pageConfig.showRankingChartPerArea"
-                                                        (checked)="pageConfig.showRankingChartPerArea"
-                                                        (change)="onChangePageConfig()">
+                                                      formControlName="showRankingChartPerArea"
+                                                      (change)="onChangePageSettings()">
                                                     <span class="switchslider round"></span>
                                                 </label>
                                                 Ranking Chart pro Raumeinheit
@@ -350,9 +336,8 @@
 
                                                 <label class="switch" title="Ranking-Durchschnittslinie anzeigen">
                                                     <input type="checkbox"
-                                                        [(ngModel)]="pageConfig.showRankingMeanLine"
-                                                        (checked)="pageConfig.showRankingMeanLine"
-                                                        (change)="onChangeShowRankingMeanLine()">
+                                                      formControlName="showRankingMeanLine"
+                                                      (change)="onChangeShowRankingMeanLine()">
                                                     <span class="switchslider round"></span>
                                                 </label>
                                                 Ranking-Durchschnittslinie
@@ -367,9 +352,8 @@
                                                 
                                                 <label class="switch" title="Zeitreihen Chart anzeigen">
                                                     <input type="checkbox"
-                                                        [(ngModel)]="pageConfig.showLineChartPerArea"
-                                                        (checked)="pageConfig.showLineChartPerArea"
-                                                        (change)="onChangePageConfig()">
+                                                      formControlName="showLineChartPerArea"
+                                                      (change)="onChangePageSettings()">
                                                     <span class="switchslider round"></span>
                                                 </label>
                                                 Zeitreihen Chart pro Raumeinheit
@@ -383,9 +367,8 @@
 
                                                 <label class="switch" title="Freitext anzeigen">
                                                     <input type="checkbox"
-                                                        [(ngModel)]="pageConfig.showFreeText"
-                                                        (checked)="pageConfig.showFreeText"
-                                                        (change)="onChangePageConfig()">
+                                                      formControlName="showFreeText"
+                                                      (change)="onChangePageSettings()">
                                                     <span class="switchslider round"></span>
                                                 </label>
                                                 Freitextfeld
@@ -395,6 +378,7 @@
                                     </div>
                                 </div>
                             </div>
+                          </form>
                   </div>
 
                   <!-- not affected by tab changes -->
@@ -404,17 +388,18 @@
                           class="reporting-page reporting-page-{{page.orientation}}"
                           id="reporting-addIndicator-page-{{iPage}}">
                           <div *ngFor="let pageElement of page.pageElements"
-                              class="type-{{pageElement.type}}"
-                              id="reporting-addIndicator-page-{{iPage}}-{{pageElement.type}}"
-                              [ngStyle]="{position: 'absolute',
-                                  top: pageElement.dimensions.top,
-                                  left: pageElement.dimensions.left,
-                                  width: pageElement.dimensions.width,
-                                  height: pageElement.dimensions.height,
-                                  'z-index': pageElement.type == 'map' ? 20 : 1,
-                                  border: !pageElement.type.includes('footerHorizontalSpacer-') ? 'dashed gray 1px' : '',
-                                  'border-top': pageElement.type.includes('footerHorizontalSpacer-') ? 'solid rgb(148, 148, 148) 1px' : 'dashed gray 1px'}">
-                                <!--   z-index:  show echarts map above leaflet container, leaflet container gets created dynamically -->
+                            [ngClass]="{'hidden-override': !checkVisibility(pageElement,page)}"
+                            class="type-{{pageElement.type}}"
+                            id="reporting-addIndicator-page-{{iPage}}-{{pageElement.type}}"
+                            [ngStyle]="{position: 'absolute',
+                                top: pageElement.dimensions.top,
+                                left: pageElement.dimensions.left,
+                                width: pageElement.dimensions.width,
+                                height: pageElement.dimensions.height,
+                                'z-index': pageElement.type == 'map' ? 20 : 1,
+                                border: !pageElement.type.includes('footerHorizontalSpacer-') ? 'dashed gray 1px' : '',
+                                'border-top': pageElement.type.includes('footerHorizontalSpacer-') ? 'solid rgb(148, 148, 148) 1px' : 'dashed gray 1px'}">
+                              <!--   z-index:  show echarts map above leaflet container, leaflet container gets created dynamically -->
 
                               <span [hidden]="!(pageElement.isPlaceholder == true)"
                                   [style]="pageElement.css ? pageElement.css : ''"
