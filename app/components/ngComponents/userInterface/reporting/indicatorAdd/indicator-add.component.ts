@@ -32,6 +32,8 @@ export class IndicatorAddComponent implements OnInit {
   spatialUnitSelect = new FormControl;
   baseMapSelect = new FormControl;
 
+  numAreaSpecificPagesToShow:number = 20;
+
   // new Forms type, only used by form itself, transferred to page.config when necessary for the time beeing
   configForm = new FormGroup({
     sectionControl: new FormGroup({
@@ -41,7 +43,7 @@ export class IndicatorAddComponent implements OnInit {
       showLinechartOverview: new FormControl<boolean>(true),
       showBoxplotchartOverview: new FormControl<boolean>(true),
       showOverviewSection_reachability: new FormControl<boolean>(true),
-      showAreaSpecific: new FormControl<boolean>(true),
+      showAreaSpecific: new FormControl<boolean>(false), // false by default, to improve loading times. Will be changed if selected specificAreas < x, or manually
       showDatatable: new FormControl<boolean>(true)
     }),
     headerFooterControl: new FormGroup({
@@ -167,7 +169,7 @@ export class IndicatorAddComponent implements OnInit {
 				showBarchartOverview: true,
 				showLinechartOverview: true,
 				showBoxplotchartOverview: true,
-				showAreaSpecific: true,
+				showAreaSpecific: false,
 				showOverviewSection_reachability: true,
 				showDatatable: true
 			}
@@ -566,12 +568,12 @@ export class IndicatorAddComponent implements OnInit {
     numberOfTargetSpatialUnitFeatures ++;				
     this.leafletScreenshotCacheHelperService.resetCounter(numberOfTargetSpatialUnitFeatures, false);
 
-  /*   if(this.template.name.includes("timestamp"))
+    if(this.template.name.includes("timestamp"))
       this.updateAreasForTimestampTemplates(newVal)
     if(this.template.name.includes("timeseries"))
       this.updateAreasForTimeseriesTemplates(newVal)
     if(this.template.name.includes("reachability"))
-      this.updateAreasForReachabilityTemplates(newVal) */
+      this.updateAreasForReachabilityTemplates(newVal)
 
      this.updateDiagramsInterval_areas = setInterval(async () => { 
       
@@ -622,6 +624,7 @@ export class IndicatorAddComponent implements OnInit {
       pageToInsert = fromJson(this.untouchedTemplateAsString).pages[ this.indexOfFirstAreaSpecificPage + 1];
       pageToInsert.area = area.name;
       pageToInsert.id = this.templatePageIdCounter++;
+      
       pagesToInsertPerTimestamp.push(pageToInsert);
     }
 
@@ -1988,6 +1991,18 @@ export class IndicatorAddComponent implements OnInit {
         });
         timestampsListSelected = this.dataExchangeService.createDualListInputArray(timestampsListSelected, "name",'id');
 
+        this.updateAreaSpecificSettings(areasListInput);
+
+        // insert areaSpecific pages by default only for indicators with less than x areas to improve loading times
+        if(this.pageConfig.sections.showAreaSpecific) {
+          if(this.template.name.includes("timestamp"))
+            this.updateAreasForTimestampTemplates(areasListInput)
+          if(this.template.name.includes("timeseries"))
+            this.updateAreasForTimeseriesTemplates(areasListInput)
+          if(this.template.name.includes("reachability"))
+            this.updateAreasForReachabilityTemplates(areasListInput)
+        }
+
         // call initSelectedDualListOption, as the selected Items have not been processed yet - only been selected on the dual lists
         this.initSelectedDualListOption(areasListInput, timestampsListSelected);    
 
@@ -1996,6 +2011,18 @@ export class IndicatorAddComponent implements OnInit {
       console.error(error);
       this.dataExchangeService.displayMapApplicationError(error);
       this.loadingData = false;
+    }
+  }
+
+  updateAreaSpecificSettings(areasListInput) {
+    if(areasListInput.length<this.numAreaSpecificPagesToShow) {
+      this.pageConfig.sections.showAreaSpecific = true;
+      this.template.pageConfig = this.pageConfig;
+      this.configForm.controls.sectionControl.controls.showAreaSpecific.setValue(true);
+    } else {
+      this.pageConfig.sections.showAreaSpecific = false;
+      this.template.pageConfig = this.pageConfig;
+      this.configForm.controls.sectionControl.controls.showAreaSpecific.setValue(false);
     }
   }
 
