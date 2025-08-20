@@ -387,6 +387,7 @@
                           [ngClass]="{'hiddenPage': !showThisPage(page)}"
                           class="reporting-page reporting-page-{{page.orientation}}"
                           id="reporting-addIndicator-page-{{iPage}}">
+                          <!-- class "hidden-override" due to [hidden] not beeing effective enough here -->
                           <div *ngFor="let pageElement of page.pageElements"
                             [ngClass]="{'hidden-override': !checkVisibility(pageElement,page)}"
                             class="type-{{pageElement.type}}"

@@ -431,11 +431,11 @@ export class IndicatorAddComponent implements OnInit {
 
   onChangeShowMapLabels() {
 
-    this.pageConfig.showMapLabels = this.configForm.controls.sectionContentControl.controls.showMapLabels;
-
+    this.pageConfig.showMapLabels = this.configForm.controls.sectionContentControl.controls.showMapLabels.value;
 
     for(let i=0; i<this.template.pages.length; i++) {
       let map:any = document.querySelector("#reporting-addIndicator-page-" + i +"-map")
+     
       if(!map) {
         continue; // no map on current page
       }
@@ -469,7 +469,7 @@ export class IndicatorAddComponent implements OnInit {
 
   onChangeShowRankingMeanLine() {
 
-    this.pageConfig.showRankingMeanLine = this.configForm.controls.sectionContentControl.controls.showRankingMeanLine;
+    this.pageConfig.showRankingMeanLine = this.configForm.controls.sectionContentControl.controls.showRankingMeanLine.value;
 
     for(let i=0; i<this.template.pages.length; i++) {
       let barChart:any = document.querySelector("#reporting-addIndicator-page-" + i +"-barchart")
