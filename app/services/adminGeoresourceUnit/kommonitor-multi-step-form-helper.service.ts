@@ -8,75 +8,110 @@ export class KommonitorMultiStepFormHelperService {
   constructor() { }
 
   /**
-   * Register click handler for multi-step forms
+   * Register click handlers for multi-step forms
+   * @param formId Optional form identifier
    */
-  registerClickHandler(): void {
-    // This method is called to register click handlers for multi-step forms
-    // In the original AngularJS service, this would set up event listeners
-    // For now, it's a placeholder that can be enhanced as needed
-    console.log('Multi-step form click handler registered');
+  registerClickHandler(formId?: string): void {
+    // This method can be extended to handle specific form interactions
+    // For now, it's a placeholder that maintains compatibility with the existing code
+    console.log('Multi-step form click handler registered', formId ? `for form: ${formId}` : '');
   }
 
   /**
-   * Validate step data
+   * Initialize multi-step form with default settings
+   * @param totalSteps Total number of steps in the form
+   * @returns Initial form configuration
    */
-  validateStep(stepNumber: number, stepData: any): { isValid: boolean; errors: string[] } {
+  initializeForm(totalSteps: number = 2): any {
+    return {
+      currentStep: 1,
+      totalSteps: totalSteps,
+      steps: Array.from({ length: totalSteps }, (_, i) => i + 1)
+    };
+  }
+
+  /**
+   * Validate if a step can be accessed
+   * @param currentStep Current step number
+   * @param targetStep Target step number
+   * @param validationRules Optional validation rules for step transitions
+   * @returns Whether the step transition is valid
+   */
+  canAccessStep(currentStep: number, targetStep: number, validationRules?: any): boolean {
+    if (targetStep < 1 || targetStep > this.getTotalSteps()) {
+      return false;
+    }
+
+    // Add custom validation logic here if needed
+    if (validationRules && validationRules[targetStep]) {
+      return validationRules[targetStep]();
+    }
+
+    return true;
+  }
+
+  /**
+   * Get total number of steps
+   * @returns Total steps count
+   */
+  getTotalSteps(): number {
+    return 2; // Default for most forms
+  }
+
+  /**
+   * Check if form is on the last step
+   * @param currentStep Current step number
+   * @returns Whether current step is the last step
+   */
+  isLastStep(currentStep: number): boolean {
+    return currentStep === this.getTotalSteps();
+  }
+
+  /**
+   * Check if form is on the first step
+   * @param currentStep Current step number
+   * @returns Whether current step is the first step
+   */
+  isFirstStep(currentStep: number): boolean {
+    return currentStep === 1;
+  }
+
+  /**
+   * Get step progress percentage
+   * @param currentStep Current step number
+   * @returns Progress percentage (0-100)
+   */
+  getStepProgress(currentStep: number): number {
+    return (currentStep / this.getTotalSteps()) * 100;
+  }
+
+  /**
+   * Validate form data for a specific step
+   * @param stepData Form data for the step
+   * @param stepNumber Step number to validate
+   * @returns Validation result object
+   */
+  validateStep(stepData: any, stepNumber: number): { isValid: boolean; errors: string[] } {
     const errors: string[] = [];
     
+    // Add step-specific validation logic here
     switch (stepNumber) {
       case 1:
-        // Basic validation for step 1
-        if (!stepData.datasetName) {
-          errors.push('Dataset name is required');
-        }
-        if (!stepData.georesourceType) {
-          errors.push('Georesource type is required');
+        // Validate step 1 data
+        if (!stepData || Object.keys(stepData).length === 0) {
+          errors.push('Step 1 data is required');
         }
         break;
-        
       case 2:
-        // Metadata validation for step 2
-        if (!stepData.description) {
-          errors.push('Description is required');
-        }
-        if (!stepData.datasource) {
-          errors.push('Datasource is required');
-        }
-        if (!stepData.contact) {
-          errors.push('Contact is required');
+        // Validate step 2 data
+        if (!stepData || Object.keys(stepData).length === 0) {
+          errors.push('Step 2 data is required');
         }
         break;
-        
-      case 3:
-        // Topic hierarchy validation for step 3
-        if (!stepData.topicReference) {
-          errors.push('Topic reference is required');
-        }
-        break;
-        
-      case 4:
-        // Access control validation for step 4 (if security is enabled)
-        if (stepData.enableKeycloakSecurity) {
-          if (!stepData.ownerOrganization) {
-            errors.push('Owner organization is required');
-          }
-        }
-        break;
-        
-      case 5:
-        // Spatial data validation for step 5
-        if (!stepData.converter) {
-          errors.push('Converter is required');
-        }
-        if (!stepData.datasourceType) {
-          errors.push('Datasource type is required');
-        }
-        break;
-        
       default:
-        break;
+        errors.push(`Unknown step ${stepNumber}`);
     }
-    
+
     return {
       isValid: errors.length === 0,
       errors: errors
@@ -84,73 +119,28 @@ export class KommonitorMultiStepFormHelperService {
   }
 
   /**
-   * Get step title
+   * Reset form to initial state
+   * @param formData Form data object to reset
+   * @returns Reset form data
    */
-  getStepTitle(stepNumber: number): string {
-    const titles: { [key: number]: string } = {
-      1: 'Metadaten der Georessource',
-      2: 'Allgemeine Metadaten',
-      3: 'Themenhierarchie',
-      4: 'Zugriffsschutz und Eigentümerschaft',
-      5: 'Räumlicher Datensatz'
-    };
+  resetForm(formData: any): any {
+    // Reset form data to initial state
+    if (formData) {
+      Object.keys(formData).forEach(key => {
+        if (Array.isArray(formData[key])) {
+          formData[key] = [];
+        } else if (typeof formData[key] === 'boolean') {
+          formData[key] = false;
+        } else if (typeof formData[key] === 'string') {
+          formData[key] = '';
+        } else if (typeof formData[key] === 'number') {
+          formData[key] = 0;
+        } else {
+          formData[key] = null;
+        }
+      });
+    }
     
-    return titles[stepNumber] || `Step ${stepNumber}`;
-  }
-
-  /**
-   * Get step subtitle
-   */
-  getStepSubtitle(stepNumber: number): string {
-    const subtitles: { [key: number]: string } = {
-      1: 'Angaben über Metadaten der Georessource',
-      2: 'Angaben über allgemeine Metadaten',
-      3: 'Angaben über die Themenhierarchie',
-      4: 'Angaben über Zugriffsschutz und Eigentümerschaft',
-      5: 'Angaben über den räumlichen Datensatz'
-    };
-    
-    return subtitles[stepNumber] || '';
-  }
-
-  /**
-   * Check if step is required
-   */
-  isStepRequired(stepNumber: number): boolean {
-    // All steps are required by default
-    return true;
-  }
-
-  /**
-   * Get step validation rules
-   */
-  getStepValidationRules(stepNumber: number): any {
-    const rules: { [key: number]: any } = {
-      1: {
-        datasetName: { required: true, minLength: 1 },
-        georesourceType: { required: true }
-      },
-      2: {
-        description: { required: true, minLength: 10 },
-        datasource: { required: true, minLength: 5 },
-        contact: { required: true, minLength: 5 },
-        updateInterval: { required: true },
-        lastUpdate: { required: true, type: 'date' }
-      },
-      3: {
-        topicReference: { required: true }
-      },
-      4: {
-        ownerOrganization: { required: true }
-      },
-      5: {
-        converter: { required: true },
-        datasourceType: { required: true },
-        georesourceDataSourceIdProperty: { required: true },
-        georesourceDataSourceNameProperty: { required: true }
-      }
-    };
-    
-    return rules[stepNumber] || {};
+    return formData;
   }
 }

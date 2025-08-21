@@ -557,14 +557,137 @@ fieldset {
 
 /* Ensure Bootstrap Icon Picker dropdown is visible */
 .iconpicker-popover {
-  z-index: 9999 !important;
+  z-index: 9999999 !important;
   position: absolute !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
 .iconpicker-popover.popover {
-  z-index: 9999 !important;
+  z-index: 9999999 !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
 .iconpicker-popover .popover-content {
-  z-index: 9999 !important;
+  z-index: 9999999 !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Ensure the popover is not clipped by parent containers */
+.iconpicker-popover,
+.iconpicker-popover.popover,
+.iconpicker-popover .popover-content {
+  overflow: visible !important;
+  clip: auto !important;
+  clip-path: none !important;
+}
+
+/* Ensure the modal doesn't clip the popover */
+.modal-body {
+  overflow: visible !important;
+}
+
+/* Ensure modal has proper positioning context */
+.modal {
+  position: relative !important;
+  overflow: visible !important;
+}
+
+/* Ensure modal-body doesn't clip content */
+.modal-body {
+  overflow: visible !important;
+  position: relative !important;
+}
+
+/* Ensure the form fieldset has proper positioning */
+fieldset {
+  position: relative !important;
+  overflow: visible !important;
+}
+
+/* Ensure the button's parent container has proper positioning */
+.form-group {
+  position: relative !important;
+  overflow: visible !important;
+}
+
+/* Ensure the button container has proper positioning */
+.col-md-3, .col-sm-6, .col-xs-12 {
+  position: relative !important;
+  overflow: visible !important;
+}
+
+/* Manual icon picker styling */
+.manual-icon-picker {
+  position: absolute !important;
+  z-index: 9999999 !important;
+  background: white !important;
+  border: 1px solid #ccc !important;
+  border-radius: 4px !important;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.2) !important;
+  max-width: 400px !important;
+  min-width: 300px !important;
+  pointer-events: auto !important;
+}
+
+/* Ensure the icon picker appears above other elements */
+.manual-icon-picker.popover {
+  z-index: 9999999 !important;
+}
+
+/* Ensure the icon picker content is visible */
+.manual-icon-picker .popover-content {
+  background: white !important;
+  border: none !important;
+  padding: 10px !important;
+}
+
+/* Ensure the form doesn't clip the popover */
+.multiStepForm {
+  overflow: visible !important;
+}
+
+/* Ensure the fieldset doesn't clip the popover */
+fieldset {
+  overflow: visible !important;
+}
+
+/* Ensure the icon picker popover appears above Bootstrap modal */
+.modal {
+  z-index: 1050 !important;
+}
+
+.iconpicker-popover {
+  z-index: 9999999 !important;
+}
+
+/* Additional fixes for icon picker visibility */
+.iconpicker-popover .table-icons {
+  display: table !important;
+  visibility: visible !important;
+}
+
+.iconpicker-popover .table-icons tbody {
+  display: table-row-group !important;
+  visibility: visible !important;
+}
+
+.iconpicker-popover .table-icons tr {
+  display: table-row !important;
+  visibility: visible !important;
+}
+
+.iconpicker-popover .table-icons td {
+  display: table-cell !important;
+  visibility: visible !important;
+}
+
+.iconpicker-popover .table-icons .btn {
+  display: inline-block !important;
+  visibility: visible !important;
 } 

@@ -127,9 +127,8 @@
                         data-label-footer="{0} - {1} von {2} Icons"
                         data-search-text="Stichwortsuche (Bootstrap Glyphicons)"
                         data-selected-class="btn-success"
-                        data-unselected-class="">
-                  <i class="glyphicon" [class]="'glyphicon-' + selectedPoiIconName" style="font-size: 16px;"></i>
-                  <span style="margin-left: 5px;">{{selectedPoiIconName}}</span>
+                        data-unselected-class=""
+                        (click)="onIconPickerClick($event)">
                 </button>
                 <div class="help-block with-errors"></div>
               </div>

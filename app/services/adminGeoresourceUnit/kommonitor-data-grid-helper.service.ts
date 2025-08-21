@@ -1073,45 +1073,66 @@ export class KommonitorGeoresourceDataGridHelperService {
    * Build role management grid row data (like spatial unit service)
    */
   private buildRoleManagementGridRowData(accessControl: any[], permissionIds: string[]): any[] {
+    if (!accessControl || accessControl.length === 0) {
+      return [];
+    }
+
     // Flatten permissions into boolean fields for ag-Grid built-in checkbox renderer
     const data = JSON.parse(JSON.stringify(accessControl));
+    
     for (const elem of data) {
       if (elem.name === 'public') {
         elem.name = 'Öffentlicher Zugriff';
       }
-      // Flatten permissions
+      
+      // Flatten permissions and store permission IDs for later use
       elem.viewer = false;
       elem.editor = false;
       elem.creator = false;
+      elem.viewerPermissionId = null;
+      elem.editorPermissionId = null;
+      elem.creatorPermissionId = null;
+      
       if (elem.permissions && Array.isArray(elem.permissions)) {
         for (const permission of elem.permissions) {
           if (permission.permissionLevel === 'viewer') {
             elem.viewer = permissionIds && permissionIds.includes(permission.permissionId);
+            elem.viewerPermissionId = permission.permissionId;
           }
           if (permission.permissionLevel === 'editor') {
             elem.editor = permissionIds && permissionIds.includes(permission.permissionId);
+            elem.editorPermissionId = permission.permissionId;
           }
           if (permission.permissionLevel === 'creator') {
             elem.creator = permissionIds && permissionIds.includes(permission.permissionId);
+            elem.creatorPermissionId = permission.permissionId;
           }
         }
       }
     }
-    // Keep the original sorting logic
-    const array: any[] = [];
-    array.push(data[0]);
-    array.push(data[1]);
-    data.splice(0, 2);
-    data.sort((a, b) => {
-      if (a.name < b.name) {
-        return -1;
-      }
-      if (a.name > b.name) {
-        return 1;
-      }
+    
+    // Sort data properly - put 'public' and first organization first, then sort the rest
+    const sortedData: any[] = [];
+    const publicItem = data.find(item => item.name === 'Öffentlicher Zugriff');
+    const firstOrg = data.find(item => item.name !== 'Öffentlicher Zugriff');
+    
+    if (publicItem) {
+      sortedData.push(publicItem);
+    }
+    if (firstOrg) {
+      sortedData.push(firstOrg);
+    }
+    
+    // Add remaining items sorted alphabetically
+    const remainingItems = data.filter(item => 
+      item.name !== 'Öffentlicher Zugriff' && item !== firstOrg
+    ).sort((a, b) => {
+      if (a.name < b.name) return -1;
+      if (a.name > b.name) return 1;
       return 0;
     });
-    return array.concat(data);
+    
+    return sortedData.concat(remainingItems);
   }
 
   /**
@@ -1183,5 +1204,174 @@ export class KommonitorGeoresourceDataGridHelperService {
     }
 
     return selectedPermissionIds;
+  }
+
+  /**
+   * Build data grid for feature table of spatial resource (like spatial unit service)
+   */
+  buildDataGrid_featureTable_spatialResource(
+    tableId: string, 
+    headers: string[], 
+    features: any[] = [], 
+    resourceId?: string, 
+    resourceType?: string, 
+    enableDelete: boolean = false
+  ): any {
+    console.log(`Building feature table grid for ${tableId} with ${features.length} features`);
+    
+    const columnDefs = this.buildFeatureTableColumnConfig(headers, enableDelete, resourceType);
+    const rowData = this.buildFeatureTableRowData(features);
+
+    const gridOptions = {
+      defaultColDef: {
+        editable: true,
+        sortable: true,
+        flex: 1,
+        minWidth: 150,
+        filter: true,
+        floatingFilter: true,
+        resizable: true,
+        wrapText: true,
+        autoHeight: true,
+        cellEditor: 'agLargeTextCellEditor',
+        cellStyle: { 
+          'font-size': '12px', 
+          'white-space': 'normal !important', 
+          'line-height': '20px !important', 
+          'word-break': 'break-word !important', 
+          'padding-top': '17px', 
+          'padding-bottom': '17px' 
+        }
+      },
+      columnDefs: columnDefs,
+      rowData: rowData,
+      pagination: true,
+      paginationPageSize: 25,
+      domLayout: 'autoHeight',
+      suppressRowClickSelection: true,
+      enableCellTextSelection: true,
+      suppressCellFocus: true
+    };
+    
+    return gridOptions;
+  }
+
+  /**
+   * Build column configuration for feature table
+   */
+  private buildFeatureTableColumnConfig(headers: string[], enableDelete: boolean, resourceType?: string): any[] {
+    const columnDefs: any[] = [];
+    
+    // Add standard columns
+    columnDefs.push(
+      { 
+        headerName: 'ID', 
+        field: 'ID', 
+        minWidth: 100,
+        editable: false,
+        cellStyle: { 'font-weight': 'bold' }
+      },
+      { 
+        headerName: 'Name', 
+        field: 'NAME', 
+        minWidth: 200,
+        editable: true
+      },
+      { 
+        headerName: 'Valid Start Date', 
+        field: 'validStartDate', 
+        minWidth: 150,
+        editable: true,
+        cellEditor: 'agDateCellEditor'
+      },
+      { 
+        headerName: 'Valid End Date', 
+        field: 'validEndDate', 
+        minWidth: 150,
+        editable: true,
+        cellEditor: 'agDateCellEditor'
+      }
+    );
+    
+    // Add dynamic headers
+    headers.forEach(header => {
+      columnDefs.push({
+        headerName: header,
+        field: header,
+        minWidth: 150,
+        editable: true
+      });
+    });
+    
+    // Add delete button column if enabled
+    if (enableDelete) {
+      columnDefs.push({
+        headerName: 'Actions',
+        field: 'actions',
+        minWidth: 100,
+        editable: false,
+        cellRenderer: 'deleteButtonRenderer',
+        cellRendererParams: {
+          resourceType: resourceType || 'georesource'
+        }
+      });
+    }
+    
+    return columnDefs;
+  }
+
+  /**
+   * Build row data for feature table
+   */
+  private buildFeatureTableRowData(features: any[]): any[] {
+    if (!features || features.length === 0) {
+      return [];
+    }
+    
+    return features.map(feature => {
+      if (feature.properties) {
+        return {
+          ...feature.properties,
+          kommonitorGeometry: feature.geometry,
+          kommonitorRecordId: feature.id
+        };
+      }
+      return feature;
+    });
+  }
+
+  /**
+   * Register click handlers for feature table
+   */
+  registerFeatureTableClickHandlers(resourceId: string, resourceType: string, enableDelete: boolean): void {
+    if (!enableDelete) return;
+    
+    // This would typically register delete button click handlers
+    console.log(`Registering click handlers for ${resourceType} ${resourceId}`);
+  }
+
+  /**
+   * Delete button renderer for feature table
+   */
+  deleteButtonRenderer(params: any): string {
+    const resourceType = params.colDef?.cellRendererParams?.resourceType || 'georesource';
+    const recordId = params.data?.kommonitorRecordId || params.data?.ID;
+    
+    if (!recordId) {
+      return '<div class="btn-group btn-group-sm">No ID</div>';
+    }
+
+    const deleteButtonId = `btn_${resourceType}_deleteFeature_${recordId}`;
+    
+    return `
+      <div class="btn-group btn-group-sm">
+        <button type="button" 
+                class="btn btn-danger btn-sm ${resourceType}DeleteFeatureRecordBtn" 
+                id="${deleteButtonId}"
+                title="Delete Feature">
+          <i class="fa fa-trash"></i>
+        </button>
+      </div>
+    `;
   }
 } 

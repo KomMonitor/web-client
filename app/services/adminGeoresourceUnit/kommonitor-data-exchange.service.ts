@@ -751,6 +751,13 @@ export class KommonitorGeoresourceDataExchangeService implements OnDestroy {
   }
 
   /**
+   * Get base URL to KomMonitor Data API (getter for compatibility)
+   */
+  get baseUrlToKomMonitorDataAPI(): string {
+    return this.baseUrl;
+  }
+
+  /**
    * Get role title (like original AngularJS service)
    */
   getRoleTitle(roleId: string): string {

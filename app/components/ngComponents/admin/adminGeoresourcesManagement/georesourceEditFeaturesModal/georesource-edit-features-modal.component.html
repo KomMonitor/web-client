@@ -94,17 +94,39 @@
         </fieldset>
         
         <fieldset [style.display]="currentStep === 2 ? 'block' : 'none'">
-          <h2 class="fs-title">Manuelles Bearbeiten der Datensatz-Objekte</h2>
-          <h3 class="fs-subtitle">Eine interaktive Karte sowie Eingabefelder erlauben das
-            Editieren einzelner Features hinsichtlich
-            räumlicher Lage und/oder Sachdaten. Weiterhin können vorhandene Punkte
-            entfernt oder neue Punkte ergänzt werden.
-            Die Änderungen werden dauerhaft in der Datenbank gespeichert.
-            <br/>
-            Nur die mit * markierten Elemente müssen verpflichtend angegeben werden
-          </h3>
+          <h2 class="fs-title">Import einzelner Features</h2>
+          <h3 class="fs-subtitle">Manuelles Erstellen neuer Feature-Objekte für den selektierten Datensatz. Nur die mit * markierten Elemente müssen verpflichtend angegeben werden</h3>
 
+          <!-- Debug info -->
+          <div style="background: #f0f0f0; padding: 10px; margin: 10px 0; border: 1px solid #ccc;">
+            <strong>Debug Info:</strong><br>
+            Current Step: {{currentStep}}<br>
+            Step 2 Display: {{currentStep === 2 ? 'block' : 'none'}}<br>
+            Component should be visible: {{currentStep === 2}}<br>
+            <button (click)="goToStep(2)">Force Go to Step 2</button>
+            <button (click)="goToStep(1)">Force Go to Step 1</button>
+            <button (click)="goToStep(3)">Force Go to Step 3</button>
+          </div>
+
+          <!-- Test if component is working -->
+          <div style="background: #e8f5e8; padding: 10px; margin: 10px 0; border: 1px solid #4caf50;">
+            <strong>Component Test:</strong> This should be visible in Step 2
+          </div>
+          
+          <!-- Simple test component -->
+          <div style="background: #d4edda; padding: 15px; margin: 15px 0; border: 1px solid #c3e6cb; border-radius: 4px;">
+            <h4>Test Component</h4>
+            <p>This is a simple test to see if Step 2 is working.</p>
+            <p>Current time: {{getCurrentTime()}}</p>
+            <button (click)="testButton()" class="btn btn-primary">Test Button</button>
+          </div>
+          
           <single-feature-edit></single-feature-edit>
+          
+          <!-- Test if component rendered anything -->
+          <div style="background: #fff3cd; padding: 10px; margin: 10px 0; border: 1px solid #ffc107;">
+            <strong>After Component:</strong> This should appear after the single-feature-edit component
+          </div>
 
           <br/>
 
@@ -117,6 +139,16 @@
             <button type="button" class="btn btn-info pull-left" (click)="onImportGeoresourceEditFeaturesMappingConfig()" title="Importieren der Mapping-Konfigurationen aus einer Datei"><i class="fas fa-file-import"></i>&nbsp;&nbsp;Mapping-Import</button>
             <input style="display:none;" class="pull-left" type="file" #mappingConfigImportFile class="form-control" id="georesourceMappingConfigEditFeaturesImportFile" accept=".json" (change)="onMappingConfigFileSelected($event)">
             <button type="button" style="margin-left: 6px;" class="btn btn-info pull-left" (click)="onExportGeoresourceEditFeaturesMappingConfig()" title="Exportieren der Mapping-Konfigurationen in eine Datei"><i class="fas fa-file-export"></i>&nbsp;&nbsp;Mapping-Export</button>                                
+          </div>
+          
+          <div class="row">
+            <div class="col-md-12">
+              <div class="alert alert-info">
+                <h4><i class="icon fa fa-info"></i>Mapping-Konfiguration Struktur</h4>
+                <p>Die folgende Struktur zeigt das erwartete Format für Import/Export der Mapping-Konfiguration:</p>
+                <pre id="georesourcesEditFeaturesMappingConfigPre" style="overflow:auto; max-height:300px;" [innerHTML]="georesourceMappingConfigStructure_pretty"></pre>
+              </div>
+            </div>
           </div>
           
           <h2 class="fs-title">Räumlicher Datensatz</h2>

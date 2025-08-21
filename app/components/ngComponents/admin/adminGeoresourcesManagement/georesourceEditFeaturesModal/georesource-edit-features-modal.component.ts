@@ -1,10 +1,15 @@
-import { Component, OnInit, Inject, ViewChild, ElementRef, OnDestroy } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, OnDestroy, Inject } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { HttpClient } from '@angular/common/http';
 import { Subscription } from 'rxjs';
 import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef, GridOptions, GridApi, ColumnApi, GridReadyEvent, FirstDataRenderedEvent, ColumnResizedEvent } from 'ag-grid-community';
+import { ajskommonitorSingleFeatureMapHelperServiceProvider } from '../../../../../app-upgraded-providers';
+import { KommonitorGeoresourceDataExchangeService } from 'services/adminGeoresourceUnit/kommonitor-data-exchange.service';
+import { KommonitorImporterHelperService } from 'services/adminGeoresourceUnit/kommonitor-importer-helper.service';
+import { KommonitorGeoresourceDataGridHelperService } from 'services/adminGeoresourceUnit/kommonitor-data-grid-helper.service';
+import { KommonitorMultiStepFormHelperService } from 'services/adminGeoresourceUnit/kommonitor-multi-step-form-helper.service';
 
 declare const $: any;
 declare const __env: any;
@@ -43,7 +48,7 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
   private columnApi!: ColumnApi;
 
   // Single feature variables
-  featureIdValue = 0;
+  featureIdValue: any = 0;
   featureIdExampleString: string = '';
   featureIdIsValid = false;
   featureNameValue: string = '';
@@ -52,6 +57,7 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
   featureEndDateValue: string = '';
   featureSchemaProperties: any[] = [];
   schemaObject: any;
+  featureInfoText_singleFeatureAddMenu: string = '';
 
   // Multiple feature import variables
   periodOfValidity: any = {
@@ -119,11 +125,11 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
 
   constructor(
     public activeModal: NgbActiveModal,
-    @Inject('kommonitorDataExchangeService') public kommonitorDataExchangeService: any,
-    @Inject('kommonitorMultiStepFormHelperService') public kommonitorMultiStepFormHelperService: any,
-    @Inject('kommonitorDataGridHelperService') public kommonitorDataGridHelperService: any,
-    @Inject('kommonitorImporterHelperService') public kommonitorImporterHelperService: any,
-    @Inject('kommonitorSingleFeatureMapHelperService') public kommonitorSingleFeatureMapHelperService: any,
+    public kommonitorDataExchangeService: KommonitorGeoresourceDataExchangeService,
+    public kommonitorMultiStepFormHelperService: KommonitorMultiStepFormHelperService,
+    public kommonitorDataGridHelperService: KommonitorGeoresourceDataGridHelperService,
+    public kommonitorImporterHelperService: KommonitorImporterHelperService,
+    @Inject(ajskommonitorSingleFeatureMapHelperServiceProvider.provide) private kommonitorSingleFeatureMapHelperService: any,
     private broadcastService: BroadcastService,
     private http: HttpClient
   ) {
@@ -136,10 +142,14 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
     this.setupEventListeners();
     this.initializeMappingConfigStructure();
     this.buildFeatureTable();
+    
+    // Debug: Log the grid options
+    console.log('Grid options initialized:', this.featureTableGridOptions);
   }
 
   ngOnDestroy(): void {
     this.subscriptions.forEach(sub => sub.unsubscribe());
+    this.kommonitorSingleFeatureMapHelperService.invalidateMap();
   }
 
   private initializeDefaultValues(): void {
@@ -193,6 +203,8 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
             targetGeoresourceId: this.currentGeoresourceDataset?.georesourceId 
           });
           this.refreshGeoresourceEditFeaturesOverviewTable();
+        } else if (broadcastMsg.msg === 'onUpdateSingleFeatureGeometry') {
+          this.onUpdateSingleFeatureGeometry(broadcastMsg.values);
         }
       }
     });
@@ -212,28 +224,348 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
     this.resetGeoresourceEditFeaturesForm();
     this.buildFeatureTable();
     
-    // Load the georesource features
-    setTimeout(() => {
+    // Load the georesource features immediately
       this.refreshGeoresourceEditFeaturesOverviewTable();
-    }, 100);
+  }
+
+  // Single feature import methods
+  async initSingleFeatureAddMenu(): Promise<void> {
+    if (!this.currentGeoresourceDataset) return;
+
+    // If we're in Step 2, broadcast to the single-feature-edit component
+    if (this.currentStep === 2) {
+      this.broadcastService.broadcast('onEditGeoresourceFeatures', [
+        this.currentGeoresourceDataset, 
+        false // isReachabilityDatasetOnly
+      ]);
+      return; // Let the single-feature-edit component handle the rest
+    }
+
+    // Initialize map for single feature import
+    const domId = "singleFeatureGeoMap";
+    let resourceType = this.kommonitorSingleFeatureMapHelperService.resourceType_point;
+    
+    if (this.currentGeoresourceDataset.isLOI) {
+      resourceType = this.kommonitorSingleFeatureMapHelperService.resourceType_line;
+    } else if (this.currentGeoresourceDataset.isAOI) {
+      resourceType = this.kommonitorSingleFeatureMapHelperService.resourceType_polygon;
+    }
+    
+    this.kommonitorSingleFeatureMapHelperService.initSingleFeatureGeoMap(domId, resourceType);
+
+    // Initialize feature schema
+    await this.initFeatureSchema();
+
+    // Load existing features and add to map
+    try {
+      const response = await this.http.get(
+        `${this.kommonitorDataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource()}/georesources/${this.currentGeoresourceDataset.georesourceId}/allFeatures`
+      ).toPromise();
+
+      this.georesourceFeaturesGeoJSON = response;
+      
+      if (this.georesourceFeaturesGeoJSON?.features) {
+        this.kommonitorSingleFeatureMapHelperService.addDataLayertoSingleFeatureGeoMap(this.georesourceFeaturesGeoJSON);
+        
+        this.featureInfoText_singleFeatureAddMenu = `${this.georesourceFeaturesGeoJSON.features.length} weitere Features im Datensatz vorhanden`;
+        
+        // Generate ID proposal
+        this.featureIdValue = this.generateIdProposalFromExistingFeatures();
+        this.addExampleValuesToSchemaProperties();
+      } else {
+        this.featureInfoText_singleFeatureAddMenu = "Keine weiteren Features im Datensatz vorhanden";
+      }
+    } catch (error) {
+      console.error('Error loading features for single feature menu:', error);
+      this.featureInfoText_singleFeatureAddMenu = "Fehler bei Abruf der Features";
+    }
+
+    // Validate the generated ID
+    this.validateSingleFeatureId();
+  }
+
+  private async initFeatureSchema(): Promise<void> {
+    if (!this.currentGeoresourceDataset) return;
+
+    try {
+      const schemaResult = await this.initFeatureSchemaDirectly(
+        this.currentGeoresourceDataset.georesourceId
+      );
+
+      if (schemaResult) {
+        this.schemaObject = schemaResult.schemaObject;
+        this.featureSchemaProperties = schemaResult.featureSchemaProperties;
+      }
+    } catch (error) {
+      console.error('Error initializing feature schema:', error);
+    }
+  }
+
+  private async initFeatureSchemaDirectly(georesourceId: string): Promise<{ schemaObject: any; featureSchemaProperties: any[] }> {
+    try {
+      const response = await this.http.get(
+        `${this.kommonitorDataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource()}/georesources/${georesourceId}/schema`
+      ).toPromise();
+      
+      const schemaObject = response as any;
+      const featureSchemaProperties: any[] = [];
+      
+      // Environment constants (these should match your environment configuration)
+      const FEATURE_ID_PROPERTY_NAME = 'ID';
+      const FEATURE_NAME_PROPERTY_NAME = 'NAME';
+      const VALID_START_DATE_PROPERTY_NAME = 'validStartDate';
+      const VALID_END_DATE_PROPERTY_NAME = 'validEndDate';
+      
+      for (const property in schemaObject) {
+        if (property !== FEATURE_ID_PROPERTY_NAME && 
+            property !== FEATURE_NAME_PROPERTY_NAME && 
+            property !== VALID_START_DATE_PROPERTY_NAME && 
+            property !== VALID_END_DATE_PROPERTY_NAME) {
+          featureSchemaProperties.push({
+            property: property,
+            value: undefined
+          });
+        }
+      }
+
+      return { schemaObject, featureSchemaProperties };
+    } catch (error) {
+      console.error('Error initializing feature schema:', error);
+      throw error;
+    }
+  }
+
+  private generateIdProposalFromExistingFeatures(): any {
+    if (!this.georesourceFeaturesGeoJSON?.features || !this.schemaObject) {
+      return 0;
+    }
+
+    const idDataType = this.schemaObject['ID']; // Using the constant from initFeatureSchemaDirectly
+    const existingFeatureIds = this.georesourceFeaturesGeoJSON.features
+      .map((feature: any) => feature.properties?.['ID'])
+      .filter((id: any) => id !== undefined && id !== null);
+
+    if (existingFeatureIds.length > 0) {
+      const length = existingFeatureIds.length;
+      this.featureIdExampleString = `${existingFeatureIds[0]}; ${existingFeatureIds[Math.round(length/2)]}; ${existingFeatureIds[length - 1]}`;
+    }
+
+    return this.generateIdProposalFromExistingFeaturesDirectly(
+      existingFeatureIds,
+      idDataType
+    );
+  }
+
+  private generateIdProposalFromExistingFeaturesDirectly(existingFeatureIds: any[], idDataType: string): any {
+    if (existingFeatureIds.length === 0) {
+      return idDataType === 'Integer' || idDataType === 'Double' ? 1 : this.generateUUID();
+    }
+
+    if (idDataType === 'Integer' || idDataType === 'Double') {
+      const maxValue = Math.max(...existingFeatureIds);
+      return maxValue + 1;
+    } else {
+      return this.generateUUID();
+    }
+  }
+
+  private generateUUID(): string {
+    // Simple UUID generation - you might want to use a proper UUID library
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      const r = Math.random() * 16 | 0;
+      const v = c === 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+    });
+  }
+
+  private addExampleValuesToSchemaProperties(): void {
+    if (this.georesourceFeaturesGeoJSON?.features?.[0] && this.featureSchemaProperties) {
+      const exampleFeature = this.georesourceFeaturesGeoJSON.features[0];
+      this.addExampleValuesToSchemaPropertiesDirectly(
+        this.featureSchemaProperties,
+        exampleFeature
+      );
+    }
+  }
+
+  private addExampleValuesToSchemaPropertiesDirectly(featureSchemaProperties: any[], exampleFeature: any): void {
+    for (const element of featureSchemaProperties) {
+      element.exampleValue = exampleFeature.properties[element.property];
+    }
+  }
+
+  private validateSingleFeatureId(): void {
+    if (!this.georesourceFeaturesGeoJSON?.features || !this.featureIdValue) {
+      this.featureIdIsValid = false;
+      return;
+    }
+
+    this.featureIdIsValid = this.validateSingleFeatureIdDirectly(
+      this.featureIdValue,
+      this.georesourceFeaturesGeoJSON.features
+    );
+  }
+
+  private validateSingleFeatureIdDirectly(featureIdValue: any, features: any[]): boolean {
+    if (!features || !featureIdValue) {
+      return featureIdValue !== undefined && featureIdValue !== null;
+    }
+
+    const filteredFeatures = features.filter(
+      (feature: any) => feature.properties?.['ID'] === featureIdValue
+    );
+
+    return filteredFeatures.length === 0;
+  }
+
+  onUpdateSingleFeatureGeometry(geoJSON: any): void {
+    this.featureGeometryValue = geoJSON;
+  }
+
+  async addSingleGeoresourceFeature(): Promise<void> {
+    if (!this.currentGeoresourceDataset || !this.featureGeometryValue) {
+      return;
+    }
+
+    this.loadingData = true;
+    this.importerErrors = null;
+    this.successMessagePart = '';
+    this.errorMessagePart = '';
+
+    try {
+      // Build importer objects for single feature import
+      const allDataSpecified = await this.buildImporterObjects_singleFeatureImport();
+      
+      if (!allDataSpecified) {
+        this.loadingData = false;
+        return;
+      }
+
+      // Perform dry run first
+      const updateGeoresourceResponse_dryRun = await this.kommonitorImporterHelperService.updateGeoresource(
+        this.converterDefinition,
+        this.datasourceTypeDefinition,
+        this.propertyMappingDefinition,
+        this.currentGeoresourceDataset.georesourceId,
+        this.putBody_georesources,
+        true
+      );
+
+      if (!this.kommonitorImporterHelperService.importerResponseContainsErrors(updateGeoresourceResponse_dryRun)) {
+        // Execute the actual import
+        const updateGeoresourceResponse = await this.kommonitorImporterHelperService.updateGeoresource(
+          this.converterDefinition,
+          this.datasourceTypeDefinition,
+          this.propertyMappingDefinition,
+          this.currentGeoresourceDataset.georesourceId,
+          this.putBody_georesources,
+          false
+        );
+
+        // Handle success
+        this.broadcastService.broadcast('refreshGeoresourceOverviewTable', { 
+          crudType: 'edit', 
+          targetGeoresourceId: this.currentGeoresourceDataset.georesourceId 
+        });
+        
+        this.refreshGeoresourceEditFeaturesOverviewTable();
+        this.initSingleFeatureAddMenu();
+
+        this.successMessagePart = this.currentGeoresourceDataset.datasetName;
+        this.importedFeatures = this.kommonitorImporterHelperService.getImportedFeaturesFromImporterResponse(updateGeoresourceResponse);
+
+        // Prevent duplicate import
+        this.featureIdIsValid = false;
+
+        // Add new feature to current dataset
+        if (this.georesourceFeaturesGeoJSON) {
+          this.georesourceFeaturesGeoJSON.features.push(this.featureGeometryValue.features[0]);
+        } else {
+          this.georesourceFeaturesGeoJSON = {
+            type: 'FeatureCollection',
+            features: [this.featureGeometryValue.features[0]]
+          };
+        }
+
+        this.showSuccessAlert();
+        this.loadingData = false;
+      } else {
+        // Handle errors
+        this.errorMessagePart = "Das zu importierende Feature des Datensatzes weist kritische Fehler auf";
+        this.importerErrors = this.kommonitorImporterHelperService.getErrorsFromImporterResponse(updateGeoresourceResponse_dryRun);
+        this.showErrorAlert();
+        this.loadingData = false;
+      }
+    } catch (error) {
+      console.error('Error adding single feature:', error);
+      this.handleError(error);
+      this.loadingData = false;
+    }
+  }
+
+  private async buildImporterObjects_singleFeatureImport(): Promise<boolean> {
+    this.converterDefinition = this.getSingleFeatureConverterDefinition();
+    
+    const singleFeatureObjects = this.buildSingleFeatureImportObjects(
+      this.featureGeometryValue,
+      this.featureIdValue,
+      this.featureNameValue || '',
+      this.featureStartDateValue || '',
+      this.featureEndDateValue || '',
+      this.featureSchemaProperties
+    );
+    
+    this.datasourceTypeDefinition = singleFeatureObjects.datasourceDefinition;
+    this.propertyMappingDefinition = singleFeatureObjects.propertyMappingDefinition;
+
+    // Build put body
+    const scopeProperties = {
+      periodOfValidity: {
+        endDate: this.featureEndDateValue || '',
+        startDate: this.featureStartDateValue || ''
+      },
+      isPartialUpdate: true
+    };
+    
+    this.putBody_georesources = this.kommonitorImporterHelperService.buildPutBody_georesources(scopeProperties);
+
+    return !!(this.converterDefinition && this.datasourceTypeDefinition && this.propertyMappingDefinition && this.putBody_georesources);
   }
 
   // Step navigation
   nextStep(): void {
+    console.log('nextStep called, current step before:', this.currentStep);
     if (this.currentStep < 3) {
       this.currentStep++;
+      console.log('nextStep: moved to step', this.currentStep);
+      
+      // Initialize Step 2 if moving to it
+      if (this.currentStep === 2) {
+        console.log('nextStep: initializing Step 2');
+        this.initSingleFeatureAddMenu();
+      }
     }
   }
 
   previousStep(): void {
+    console.log('previousStep called, current step before:', this.currentStep);
     if (this.currentStep > 1) {
       this.currentStep--;
+      console.log('previousStep: moved to step', this.currentStep);
     }
   }
 
   goToStep(step: number): void {
+    console.log('goToStep called with step:', step, 'current step before:', this.currentStep);
     if (step >= 1 && step <= 3) {
       this.currentStep = step;
+      console.log('goToStep: moved to step', this.currentStep);
+      
+      // Initialize Step 2 if moving to it
+      if (this.currentStep === 2) {
+        console.log('goToStep: initializing Step 2');
+        this.initSingleFeatureAddMenu();
+      }
     }
   }
 
@@ -247,6 +579,11 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
       this.kommonitorDataGridHelperService.resourceType_georesource,
       this.enableDeleteFeatures
     );
+    
+    // Initialize with empty data to show the grid structure
+    if (this.gridApi) {
+      this.gridApi.setRowData([]);
+    }
   }
 
   refreshGeoresourceEditFeaturesOverviewTable(): void {
@@ -257,6 +594,8 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
 
     console.log('Starting refresh of georesource features table...');
     this.loadingData = true;
+    this.hideSuccessAlert();
+    this.hideErrorAlert();
     
     const url = `${this.kommonitorDataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource()}/georesources/${this.currentGeoresourceDataset.georesourceId}/allFeatures`;
     console.log('Fetching from URL:', url);
@@ -271,10 +610,10 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
         if (this.georesourceFeaturesGeoJSON?.features?.[0]?.properties) {
           console.log('First feature properties:', this.georesourceFeaturesGeoJSON.features[0].properties);
           for (const property in this.georesourceFeaturesGeoJSON.features[0].properties) {
-            if (property !== __env.FEATURE_ID_PROPERTY_NAME && 
-                property !== __env.FEATURE_NAME_PROPERTY_NAME && 
-                property !== __env.VALID_START_DATE_PROPERTY_NAME && 
-                property !== __env.VALID_END_DATE_PROPERTY_NAME) {
+            if (property !== (__env?.FEATURE_ID_PROPERTY_NAME || 'ID') && 
+                property !== (__env?.FEATURE_NAME_PROPERTY_NAME || 'NAME') && 
+                property !== (__env?.VALID_START_DATE_PROPERTY_NAME || 'validStartDate') && 
+                property !== (__env?.VALID_END_DATE_PROPERTY_NAME || 'validEndDate')) {
               tmpRemainingHeaders.push(property);
             }
           }
@@ -345,7 +684,33 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
        if (this.gridApi && this.featureTableGridOptions && this.featureTableGridOptions.columnDefs) {
          // Update column definitions to include/exclude delete buttons
          this.gridApi.setColumnDefs(this.featureTableGridOptions.columnDefs);
-       }
+        
+        // Update data if we have features
+        if (this.georesourceFeaturesGeoJSON?.features) {
+          const transformedData = (this.georesourceFeaturesGeoJSON.features || []).map((feature: any) => {
+            if (feature.properties) {
+              // Add geometry and record ID to properties
+              feature.properties.kommonitorGeometry = feature.geometry;
+              feature.properties.kommonitorRecordId = feature.id;
+              return feature.properties;
+            }
+            return feature;
+          });
+          this.gridApi.setRowData(transformedData);
+        }
+        
+        // Force refresh of the grid to show/hide delete buttons
+        this.gridApi.refreshCells();
+        
+        // Register click handlers after grid update
+        setTimeout(() => {
+          this.kommonitorDataGridHelperService.registerFeatureTableClickHandlers(
+            this.currentGeoresourceDataset?.georesourceId,
+            this.kommonitorDataGridHelperService.resourceType_georesource,
+            this.enableDeleteFeatures
+          );
+        }, 100);
+      }
     }
   }
 
@@ -354,19 +719,44 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
 
     if (confirm('Sind Sie sicher, dass Sie alle Features dieser Georessource löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.')) {
       this.loadingData = true;
+      this.hideSuccessAlert();
+      this.hideErrorAlert();
 
       this.http.delete(
         `${this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI}/georesources/${this.currentGeoresourceDataset.georesourceId}/allFeatures`
       ).subscribe({
         next: (response: any) => {
+          this.georesourceFeaturesGeoJSON = null;
+          this.remainingFeatureHeaders = [];
+          
+          this.broadcastService.broadcast('refreshGeoresourceOverviewTable', { 
+            crudType: 'edit', 
+            targetGeoresourceId: this.currentGeoresourceDataset.georesourceId 
+          });
+          
+          // Clear the grid data
+          this.featureTableGridOptions = this.kommonitorDataGridHelperService.buildDataGrid_featureTable_spatialResource(
+            "georesourceFeatureTable", 
+            [], 
+            []
+          );
+          
+          if (this.gridApi) {
+            this.gridApi.setRowData([]);
+          }
+          
+          this.successMessagePart = this.currentGeoresourceDataset.datasetName;
+          this.showSuccessAlert();
+          
+          setTimeout(() => {
           this.loadingData = false;
-          this.refreshGeoresourceEditFeaturesOverviewTable();
-          alert('Alle Features wurden erfolgreich gelöscht.');
+          }, 500);
         },
         error: (error: any) => {
+          this.handleError(error);
+          setTimeout(() => {
           this.loadingData = false;
-          console.error('Error deleting features:', error);
-          alert('Fehler beim Löschen der Features.');
+          }, 500);
         }
       });
     }
@@ -374,9 +764,11 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
 
   // Converter and data source methods
   onChangeConverter(): void {
-    this.schema = '';
-    this.mimeType = '';
+    if (this.converter) {
+      this.schema = this.converter.schemas ? this.converter.schemas[0] : '';
+      this.mimeType = this.converter.mimeTypes ? this.converter.mimeTypes[0] : '';
     this.datasourceType = undefined;
+    }
   }
 
   onChangeMimeType(mimeType: string): void {
@@ -533,140 +925,125 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
   }
 
   // Main edit method
-  editGeoresourceFeatures(): void {
+  async editGeoresourceFeatures(): Promise<void> {
     if (!this.currentGeoresourceDataset || !this.converter || !this.datasourceType) {
       return;
     }
 
     this.loadingData = true;
+    this.importerErrors = null;
+    this.successMessagePart = '';
+    this.errorMessagePart = '';
 
-    // Build the request body
-    const putBody = this.buildPutBody();
+    try {
+      // Build importer objects
+      const allDataSpecified = await this.buildImporterObjects();
+      
+      if (!allDataSpecified) {
+        this.loadingData = false;
+        return;
+      }
 
-    this.http.put(
-      `${this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI}/georesources/${this.currentGeoresourceDataset.georesourceId}/features`,
-      putBody
-    ).subscribe({
-      next: (response: any) => {
-        this.successMessagePart = this.currentGeoresourceDataset.datasetName;
-        this.importedFeatures = response.importedFeatures || [];
+      // Perform dry run first
+      const updateGeoresourceResponse_dryRun = await this.kommonitorImporterHelperService.updateGeoresource(
+        this.converterDefinition,
+        this.datasourceTypeDefinition,
+        this.propertyMappingDefinition,
+        this.currentGeoresourceDataset.georesourceId,
+        this.putBody_georesources,
+        true
+      );
+
+      if (!this.kommonitorImporterHelperService.importerResponseContainsErrors(updateGeoresourceResponse_dryRun)) {
+        // Execute the actual import
+        const updateGeoresourceResponse = await this.kommonitorImporterHelperService.updateGeoresource(
+          this.converterDefinition,
+          this.datasourceTypeDefinition,
+          this.propertyMappingDefinition,
+          this.currentGeoresourceDataset.georesourceId,
+          this.putBody_georesources,
+          false
+        );
+
+        // Handle success
         this.broadcastService.broadcast('refreshGeoresourceOverviewTable', { 
           crudType: 'edit', 
           targetGeoresourceId: this.currentGeoresourceDataset.georesourceId 
         });
+        
+        this.refreshGeoresourceEditFeaturesOverviewTable();
+        this.initSingleFeatureAddMenu();
+
+        this.successMessagePart = this.currentGeoresourceDataset.datasetName;
+        this.importedFeatures = this.kommonitorImporterHelperService.getImportedFeaturesFromImporterResponse(updateGeoresourceResponse);
+
         this.showSuccessAlert();
         this.loadingData = false;
-      },
-      error: (error: any) => {
-        if (error.error) {
-          this.errorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON(error.error);
         } else {
-          this.errorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON(error);
-        }
-        this.importerErrors = error.error?.importerErrors || [];
+        // Handle errors
+        this.errorMessagePart = "Einige der zu importierenden Features des Datensatzes weisen kritische Fehler auf";
+        this.importerErrors = this.kommonitorImporterHelperService.getErrorsFromImporterResponse(updateGeoresourceResponse_dryRun);
         this.showErrorAlert();
         this.loadingData = false;
       }
-    });
+    } catch (error) {
+      console.error('Error editing georesource features:', error);
+      this.handleError(error);
+      this.loadingData = false;
+    }
   }
 
-  private buildPutBody(): any {
-    const putBody: any = {
-      geoJsonString: '',
+  private async buildImporterObjects(): Promise<boolean> {
+    this.converterDefinition = this.buildConverterDefinition();
+    this.datasourceTypeDefinition = await this.buildDatasourceTypeDefinition();
+    this.propertyMappingDefinition = this.buildPropertyMappingDefinition();
+
+    const scopeProperties = {
       periodOfValidity: {
-        startDate: this.periodOfValidity.startDate,
-        endDate: this.periodOfValidity.endDate
-      }
+        endDate: this.periodOfValidity.endDate,
+        startDate: this.periodOfValidity.startDate
+      },
+      isPartialUpdate: this.isPartialUpdate
     };
-
-    // Add converter definition
-    putBody.converterDefinition = {
-      name: this.converter.name,
-      parameters: this.getConverterParameters()
-    };
-
-    // Add datasource definition
-    putBody.datasourceTypeDefinition = {
-      type: this.datasourceType.type,
-      parameters: this.getDatasourceParameters()
-    };
-
-    // Add property mapping
-    putBody.propertyMappingDefinition = {
-      idProperty: this.georesourceDataSourceIdProperty,
-      nameProperty: this.georesourceDataSourceNameProperty,
-      validityStartDateProperty: this.validityStartDate_perFeature,
-      validityEndDateProperty: this.validityEndDate_perFeature,
-      keepAttributes: this.keepAttributes,
-      keepMissingValues: this.keepMissingValues,
-      attributeMappings: this.attributeMappings_adminView
-    };
-
-    // Add partial update flag
-    putBody.isPartialUpdate = this.isPartialUpdate;
-
-    return putBody;
-  }
-
-  private getConverterParameters(): any {
-    const parameters: any = {};
     
-    if (this.converter.parameters) {
-      this.converter.parameters.forEach((param: any) => {
-        const element = document.getElementById(`converterParameter_georesourceEditFeatures_${param.name}`);
-        if (element) {
-          parameters[param.name] = (element as HTMLInputElement).value;
-        }
-      });
-    }
+    this.putBody_georesources = this.kommonitorImporterHelperService.buildPutBody_georesources(scopeProperties);
 
-    if (this.schema) {
-      parameters.schema = this.schema;
-    }
-    if (this.mimeType) {
-      parameters.mimeType = this.mimeType;
-    }
-
-    return parameters;
+    return !!(this.converterDefinition && this.datasourceTypeDefinition && this.propertyMappingDefinition && this.putBody_georesources);
   }
 
-  private getDatasourceParameters(): any {
-    const parameters: any = {};
+  private buildConverterDefinition(): any {
+    return this.kommonitorImporterHelperService.buildConverterDefinition(
+      this.converter, 
+      "converterParameter_georesourceEditFeatures_", 
+      this.schema, 
+      this.mimeType
+    );
+  }
 
-    if (this.datasourceType.type === 'FILE') {
-      // Handle file upload
-      const fileInput = document.getElementById('georesourceDataSourceInput_editFeatures') as HTMLInputElement;
-      if (fileInput && fileInput.files && fileInput.files[0]) {
-        // File will be handled separately in actual implementation
-        parameters.file = fileInput.files[0];
-      }
-    } else if (this.datasourceType.type === 'OGCAPI_FEATURES') {
-      // Handle BBOX parameters
-      if (this.bboxType === 'ref' && this.bboxRefSpatialUnit) {
-        parameters.spatialUnitId = this.bboxRefSpatialUnit.spatialUnitId;
-      } else if (this.bboxType === 'literal') {
-        const minx = (document.getElementById('datasourceTypeParameter_georesourceEditFeatures_bbox_minx') as HTMLInputElement)?.value;
-        const miny = (document.getElementById('datasourceTypeParameter_georesourceEditFeatures_bbox_miny') as HTMLInputElement)?.value;
-        const maxx = (document.getElementById('datasourceTypeParameter_georesourceEditFeatures_bbox_maxx') as HTMLInputElement)?.value;
-        const maxy = (document.getElementById('datasourceTypeParameter_georesourceEditFeatures_bbox_maxy') as HTMLInputElement)?.value;
-        
-        parameters.bbox = `${minx},${miny},${maxx},${maxy}`;
-      }
+  private async buildDatasourceTypeDefinition(): Promise<any> {
+    try {
+      return await this.kommonitorImporterHelperService.buildDatasourceTypeDefinition(
+        this.datasourceType, 
+        'datasourceTypeParameter_georesourceEditFeatures_', 
+        'georesourceDataSourceInput_editFeatures'
+      );
+    } catch (error) {
+      this.handleError(error);
+      return null;
     }
+  }
 
-    // Add other datasource parameters
-    if (this.datasourceType.parameters) {
-      this.datasourceType.parameters.forEach((param: any) => {
-        if (param.name !== 'bbox') {
-          const element = document.getElementById(`datasourceTypeParameter_georesourceEditFeatures_${param.name}`);
-          if (element) {
-            parameters[param.name] = (element as HTMLTextAreaElement).value;
-          }
-        }
-      });
-    }
-
-    return parameters;
+  private buildPropertyMappingDefinition(): any {
+    return this.kommonitorImporterHelperService.buildPropertyMapping_spatialResource(
+      this.georesourceDataSourceNameProperty, 
+      this.georesourceDataSourceIdProperty, 
+      this.validityStartDate_perFeature, 
+      this.validityEndDate_perFeature, 
+      undefined, 
+      this.keepAttributes, 
+      this.keepMissingValues, 
+      this.attributeMappings_adminView
+    );
   }
 
   // Filter methods
@@ -681,10 +1058,24 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
     return this.datasourceType.parameters.filter((param: any) => param.name !== 'bbox');
   }
 
+
+
   // Form reset
   resetGeoresourceEditFeaturesForm(): void {
     this.currentStep = 1;
     this.enableDeleteFeatures = false;
+    
+    // Reset single feature variables
+    this.featureIdValue = 0;
+    this.featureIdExampleString = '';
+    this.featureIdIsValid = false;
+    this.featureNameValue = '';
+    this.featureGeometryValue = undefined;
+    this.featureStartDateValue = '';
+    this.featureEndDateValue = '';
+    this.featureSchemaProperties = [];
+    this.schemaObject = undefined;
+    this.featureInfoText_singleFeatureAddMenu = '';
     
     // Reset all form fields
     this.converter = undefined;
@@ -719,6 +1110,11 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
     this.errorMessagePart = '';
     this.importerErrors = undefined;
     this.importedFeatures = [];
+
+    // Reinitialize single feature add menu
+    setTimeout(() => {
+      this.initSingleFeatureAddMenu();
+    }, 100);
   }
 
   // Alert methods
@@ -783,10 +1179,21 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
     
     // Auto-size columns to fit content
     this.gridApi.sizeColumnsToFit();
+    
+    // If we have data, load it into the grid
+    if (this.currentGeoresourceDataset && this.georesourceFeaturesGeoJSON) {
+      this.refreshGeoresourceEditFeaturesOverviewTable();
+    }
   }
 
   onFirstDataRendered(event: FirstDataRenderedEvent): void {
     // Handle first data rendered event
+    console.log('First data rendered in grid');
+    
+    // Auto-size columns after data is rendered
+    if (this.gridApi) {
+      this.gridApi.sizeColumnsToFit();
+    }
   }
 
   onColumnResized(event: ColumnResizedEvent): void {
@@ -815,4 +1222,83 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
   cancel(): void {
     this.activeModal.dismiss();
   }
+
+  // Test methods for debugging
+  getCurrentTime(): string {
+    return new Date().toLocaleTimeString();
+  }
+
+  testButton(): void {
+    console.log('Test button clicked!');
+    alert('Test button works! Current step: ' + this.currentStep);
+  }
+
+  private getSingleFeatureConverterDefinition(): any {
+    // This should return the converter definition for single feature import
+    // You'll need to implement this based on your importer helper service
+    return {
+      name: 'singleFeatureImport',
+      // Add other converter properties as needed
+    };
+  }
+
+  private buildSingleFeatureImportObjects(
+    featureGeometryValue: any,
+    featureIdValue: any,
+    featureNameValue: string,
+    featureStartDateValue: string,
+    featureEndDateValue: string,
+    featureSchemaProperties: any[]
+  ): any {
+    // Set properties on the feature
+    featureGeometryValue.features[0].properties['ID'] = featureIdValue;
+    featureGeometryValue.features[0].properties['NAME'] = featureNameValue;
+    featureGeometryValue.features[0].properties['validStartDate'] = featureStartDateValue;
+    featureGeometryValue.features[0].properties['validEndDate'] = featureEndDateValue;
+
+    // Add schema properties
+    for (const element of featureSchemaProperties) {
+      featureGeometryValue.features[0].properties[element.property] = element.value;
+    }
+
+    // Build converter definition
+    const converterDefinition = this.getSingleFeatureConverterDefinition();
+
+    // Build datasource type definition
+    const datasourceTypeDefinition = {
+      type: 'singleFeature',
+      parameters: [{
+        name: 'geoJsonData',
+        value: JSON.stringify(featureGeometryValue)
+      }]
+    };
+
+    // Build property mapping definition
+    const propertyMappingDefinition = {
+      nameProperty: 'NAME',
+      identifierProperty: 'ID',
+      validStartDateProperty: 'validStartDate',
+      validEndDateProperty: 'validEndDate',
+      keepAttributes: true,
+      keepMissingOrNullValueAttributes: true,
+      attributes: []
+    };
+
+    // Build PUT body
+    const putBody = {
+      periodOfValidity: {
+        endDate: featureEndDateValue,
+        startDate: featureStartDateValue
+      },
+      isPartialUpdate: true
+    };
+
+    return {
+      converterDefinition,
+      datasourceDefinition: datasourceTypeDefinition,
+      propertyMappingDefinition,
+      putBody
+    };
+  }
+
 } 

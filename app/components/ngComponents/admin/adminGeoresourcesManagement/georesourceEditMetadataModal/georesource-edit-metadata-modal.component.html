@@ -106,7 +106,10 @@
               <div class="form-group" align="center">
                 <label>Symbol*</label>
                 <br />
-                <button id="poiSymbolEditPicker" class="btn btn-info"></button>
+                <button id="poiSymbolEditPicker" class="btn btn-info" (click)="onIconPickerClick($event)">
+                  <i class="glyphicon glyphicon-{{selectedPoiIconName}}"></i>
+                  <span style="margin-left: 5px;">{{selectedPoiIconName}}</span>
+                </button>
                 <div class="help-block with-errors"></div>
               </div>
             </div>
@@ -322,7 +325,7 @@
                 <select [(ngModel)]="georesourceTopic_mainTopic" class="form-control" required>
                   <option disabled selected value> -- Hauptthema wählen -- </option>
                   <option *ngFor="let mainTopic of getMainTopicsForGeoresource()" 
-                    [ngValue]="mainTopic">{{mainTopic.topicName}}</option>
+                    [ngValue]="mainTopic">{{mainTopic.name || mainTopic.title}}</option>
                 </select>
                 <div class="help-block with-errors"></div>
               </div>
@@ -333,7 +336,7 @@
                 <select [(ngModel)]="georesourceTopic_subTopic" class="form-control">
                   <option disabled selected value> -- Unterthema wählen -- </option>
                   <option *ngFor="let subTopic of georesourceTopic_mainTopic.subTopics" 
-                    [ngValue]="subTopic">{{subTopic.topicName}}</option>
+                    [ngValue]="subTopic">{{subTopic.name || subTopic.title}}</option>
                 </select>
                 <div class="help-block with-errors"></div>
               </div>
@@ -344,7 +347,7 @@
                 <select [(ngModel)]="georesourceTopic_subsubTopic" class="form-control">
                   <option disabled selected value> -- Unterthema wählen -- </option>
                   <option *ngFor="let subsubTopic of georesourceTopic_subTopic.subTopics" 
-                    [ngValue]="subsubTopic">{{subsubTopic.topicName}}</option>
+                    [ngValue]="subsubTopic">{{subsubTopic.name || subsubTopic.title}}</option>
                 </select>
                 <div class="help-block with-errors"></div>
               </div>
@@ -355,7 +358,7 @@
                 <select [(ngModel)]="georesourceTopic_subsubsubTopic" class="form-control">
                   <option disabled selected value> -- Unterthema wählen -- </option>
                   <option *ngFor="let subsubsubTopic of georesourceTopic_subsubTopic.subTopics" 
-                    [ngValue]="subsubsubTopic">{{subsubsubTopic.topicName}}</option>
+                    [ngValue]="subsubsubTopic">{{subsubsubTopic.name || subsubsubTopic.title}}</option>
                 </select>
                 <div class="help-block with-errors"></div>
               </div>

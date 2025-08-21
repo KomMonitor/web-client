@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, OnDestroy, ChangeDetectorRef, NgZone } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { HttpClient } from '@angular/common/http';
@@ -222,7 +222,8 @@ export class GeoresourceAddModalComponent implements OnInit {
     public kommonitorDataGridHelperService: KommonitorGeoresourceDataGridHelperService,
     private broadcastService: BroadcastService,
     private http: HttpClient,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private ngZone: NgZone
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -232,8 +233,12 @@ export class GeoresourceAddModalComponent implements OnInit {
     // Add click outside handler for dropdown
     document.addEventListener('click', this.onDocumentClick.bind(this));
     
-    // Initialize Bootstrap Icon Picker (same as AngularJS)
-    this.initializeIconPicker();
+
+    
+    // Initialize icon picker
+    setTimeout(() => {
+      this.initializeIconPicker();
+    }, 500);
   }
 
 
@@ -249,6 +254,8 @@ export class GeoresourceAddModalComponent implements OnInit {
     
     // Remove document click listener
     document.removeEventListener('click', this.onDocumentClick.bind(this));
+    
+
   }
 
   private async initializeForm(): Promise<void> {
@@ -339,13 +346,13 @@ export class GeoresourceAddModalComponent implements OnInit {
       if (topics && Array.isArray(topics)) {
         // Filter topics to only show main topics for georesources (like AngularJS component)
         this.availableTopics = this.filterTopicsForGeoresources(topics);
-        console.log('Available topics after filtering:', this.availableTopics);
+    
       } else {
         this.availableTopics = [];
       }
     } catch (error: any) {
       console.error('Error loading topics data:', error);
-      this.availableTopics = this.getFallbackTopicsData();
+      this.availableTopics = [];
       this.errorMessage = 'Fehler beim Laden der Themen. Verwende Testdaten.';
     } finally {
       this.loadingTopics = false;
@@ -356,8 +363,6 @@ export class GeoresourceAddModalComponent implements OnInit {
    * Filter topics to only show main topics for georesources (like AngularJS component)
    */
   private filterTopicsForGeoresources(topics: any[]): any[] {
-    console.log('Filtering topics:', topics);
-    
     // First, try the exact AngularJS filter
     let filtered = topics.filter(topic => {
       return topic.topicType === 'main' && topic.topicResource === 'georesource';
@@ -365,79 +370,19 @@ export class GeoresourceAddModalComponent implements OnInit {
     
     // If no results, try alternative filtering approaches
     if (filtered.length === 0) {
-      console.log('No topics found with exact filter, trying alternative approaches...');
-      
       // Try filtering by topicType only
       filtered = topics.filter(topic => topic.topicType === 'main');
       
       if (filtered.length === 0) {
         // If still no results, show all topics that have subTopics (likely main topics)
         filtered = topics.filter(topic => topic.subTopics && Array.isArray(topic.subTopics));
-        console.log('Using fallback filter - showing topics with subTopics:', filtered);
-      } else {
-        console.log('Found topics with topicType=main:', filtered);
       }
-    } else {
-      console.log('Found topics with exact filter:', filtered);
     }
     
     return filtered;
   }
 
-  /**
-   * Get fallback topics data for testing when API fails
-   */
-  private getFallbackTopicsData(): any[] {
-    const fallbackTopics = [
-      {
-        topicId: 'test-topic-1',
-        name: 'Test Hauptthema 1',
-        topicName: 'Test Hauptthema 1',
-        topicType: 'main',
-        topicResource: 'georesource',
-        subTopics: [
-          {
-            topicId: 'test-subtopic-1-1',
-            name: 'Test Unterthema 1.1',
-            topicName: 'Test Unterthema 1.1',
-            subTopics: []
-          },
-          {
-            topicId: 'test-subtopic-1-2',
-            name: 'Test Unterthema 1.2',
-            topicName: 'Test Unterthema 1.2',
-            subTopics: []
-          }
-        ]
-      },
-      {
-        topicId: 'test-topic-2',
-        name: 'Test Hauptthema 2',
-        topicName: 'Test Hauptthema 2',
-        topicType: 'main',
-        topicResource: 'georesource',
-        subTopics: []
-      },
-      {
-        topicId: 'test-topic-3',
-        name: 'Test Hauptthema 3',
-        topicName: 'Test Hauptthema 3',
-        topicType: 'main',
-        topicResource: 'georesource',
-        subTopics: [
-          {
-            topicId: 'test-subtopic-3-1',
-            name: 'Test Unterthema 3.1',
-            topicName: 'Test Unterthema 3.1',
-            subTopics: []
-          }
-        ]
-      }
-    ];
 
-    // Apply the same filtering as the real data
-    return this.filterTopicsForGeoresources(fallbackTopics);
-  }
 
 
 
@@ -831,16 +776,37 @@ export class GeoresourceAddModalComponent implements OnInit {
     });
   }
 
+
+
   // Initialize Bootstrap Icon Picker (based on AngularJS implementation)
   private initializeIconPicker(): void {
-    // Wait for the DOM to be ready
-    setTimeout(() => {
+    // Wait for the DOM to be ready and ensure jQuery and iconpicker are available
+    const initIconPicker = () => {
       const element = document.getElementById('poiSymbolPicker');
       
-      if (element && (window as any).$ && (window as any).$.fn?.iconpicker) {
-        try {
-          // Initialize Bootstrap Icon Picker with same options as AngularJS
-          (window as any).$('#poiSymbolPicker').iconpicker({
+      if (!element) {
+        setTimeout(initIconPicker, 100);
+        return;
+      }
+      
+      if (!(window as any).$) {
+        return;
+      }
+      
+      if (!(window as any).$.fn?.iconpicker) {
+        return;
+      }
+      
+      try {
+        // Check if already initialized
+        const existingIconPicker = (window as any).$('#poiSymbolPicker').data('bs.iconpicker');
+        if (existingIconPicker) {
+          (window as any).$('#poiSymbolPicker').iconpicker('setIcon', 'glyphicon-' + this.selectedPoiIconName);
+          return;
+        }
+        
+        // Initialize Bootstrap Icon Picker with same options as AngularJS
+        const iconPickerOptions = {
             align: 'center',
             arrowClass: 'btn-default',
             arrowPrevIconClass: 'fas fa-angle-left',
@@ -857,24 +823,30 @@ export class GeoresourceAddModalComponent implements OnInit {
             search: true,
             searchText: 'Stichwortsuche (Bootstrap Glyphicons)',
             selectedClass: 'btn-success',
-            unselectedClass: ''
-          });
+          unselectedClass: '',
+          container: 'body' // Ensure popover is appended to body
+        };
+        
+        const iconPickerElement = (window as any).$('#poiSymbolPicker');
+        iconPickerElement.iconpicker(iconPickerOptions);
 
-          // Handle icon selection change (same logic as AngularJS)
-          (window as any).$('#poiSymbolPicker').on('change', (e: any) => {
-            // Extract icon name from full class (e.g., "glyphicon-home" -> "home")
-            this.selectedPoiIconName = e.icon.substring(e.icon.indexOf('-') + 1);
-            this.cdr.detectChanges();
-          });
+        // Handle icon selection change (same logic as AngularJS)
+        (window as any).$('#poiSymbolPicker').on('change', (e: any) => {
+          // Extract icon name from full class (e.g., "glyphicon-home" -> "home")
+          this.selectedPoiIconName = e.icon.substring(e.icon.indexOf('-') + 1);
+          this.cdr.detectChanges();
+        });
 
-          // Set initial icon
-          (window as any).$('#poiSymbolPicker').iconpicker('setIcon', 'glyphicon-' + this.selectedPoiIconName);
+        // Set initial icon (like AngularJS version)
+        (window as any).$('#poiSymbolPicker').iconpicker('setIcon', 'glyphicon-' + this.selectedPoiIconName);
           
-        } catch (error) {
-          console.error('Error initializing icon picker:', error);
-        }
+      } catch (error) {
+        // Handle error silently
       }
-    }, 100);
+    };
+    
+    // Start initialization with a delay to ensure DOM is ready
+    setTimeout(initIconPicker, 200);
   }
 
 
@@ -925,7 +897,6 @@ export class GeoresourceAddModalComponent implements OnInit {
   }
 
   onDropdownButtonClick(event: Event): void {
-    console.log('Dropdown button clicked:', event);
     // Toggle custom dropdown state
     this.isMarkerStyleDropdownOpen = !this.isMarkerStyleDropdownOpen;
     this.cdr.detectChanges();
@@ -936,12 +907,319 @@ export class GeoresourceAddModalComponent implements OnInit {
     this.cdr.detectChanges();
   }
 
+  onIconPickerClick(event: Event): void {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    // Check if icon picker is initialized
+    if ((window as any).$ && (window as any).$('#poiSymbolPicker').length > 0) {
+      const iconPicker = (window as any).$('#poiSymbolPicker');
+      
+      if (iconPicker.data('bs.iconpicker')) {
+        // Try to trigger the icon picker popover directly
+        try {
+          // The icon picker should automatically show when clicked
+          // Let's try to trigger the click event on the button
+          iconPicker.trigger('click');
+        } catch (error) {
+          // Fallback: try manual popover creation
+          this.createManualIconPicker();
+        }
+        
+        // Add a small delay and check if popover is visible
+        setTimeout(() => {
+          const popover = document.querySelector('.iconpicker-popover');
+          if (!popover) {
+            this.createManualIconPicker();
+          }
+        }, 200);
+        
+      } else {
+        this.initializeIconPicker();
+      }
+    } else {
+      // jQuery not available, use manual picker
+    }
+  }
+
   onDocumentClick(event: Event): void {
     // Close dropdown if clicking outside
     const target = event.target as HTMLElement;
     if (!target.closest('.customColorPicker')) {
       this.isMarkerStyleDropdownOpen = false;
       this.cdr.detectChanges();
+    }
+    
+    // Close manual icon picker if clicking outside
+    if (!target.closest('.manual-icon-picker')) {
+      this.closeManualIconPicker();
+    }
+  }
+
+
+
+  // Create a manual icon picker as fallback
+  private createManualIconPicker(): void {
+    
+    // Remove any existing manual icon picker
+    this.closeManualIconPicker();
+    
+    // Create popover container
+    const popover = document.createElement('div');
+    popover.className = 'manual-icon-picker popover bottom';
+    popover.style.cssText = `
+      position: absolute;
+      z-index: 9999999;
+      display: block;
+      max-width: 400px;
+      min-width: 300px;
+      background: white;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    `;
+    
+    // Get button position and parent container for proper positioning
+    const button = document.getElementById('poiSymbolPicker');
+    const buttonParent = button?.parentElement;
+    const modalElement = document.querySelector('.modal');
+    
+    if (button && buttonParent) {
+      // Position relative to the button's parent container
+      const buttonRect = button.getBoundingClientRect();
+      const parentRect = buttonParent.getBoundingClientRect();
+      
+      // Calculate position relative to parent
+      const relativeLeft = buttonRect.left - parentRect.left;
+      const relativeTop = buttonRect.bottom - parentRect.top + 5;
+      
+      popover.style.left = relativeLeft + 'px';
+      popover.style.top = relativeTop + 'px';
+      
+      // Ensure it doesn't go outside parent bounds
+      const maxLeft = parentRect.width - 400; // 400px is max-width
+      if (relativeLeft > maxLeft) {
+        popover.style.left = maxLeft + 'px';
+      }
+      
+      // If it would go below parent, show above button instead
+      if (relativeTop + 300 > parentRect.height) { // 300px is approximate height
+        popover.style.top = (buttonRect.top - parentRect.top - 305) + 'px';
+      }
+      
+
+    } else if (button) {
+      // Fallback to viewport positioning if parent not found
+      const rect = button.getBoundingClientRect();
+      popover.style.position = 'fixed';
+      popover.style.left = rect.left + 'px';
+      popover.style.top = (rect.bottom + 5) + 'px';
+
+    }
+    
+
+    
+    // Create popover content
+    const content = document.createElement('div');
+    content.className = 'popover-content';
+    content.style.cssText = `
+      padding: 10px;
+      max-height: 300px;
+      overflow-y: auto;
+    `;
+    
+    // Add search input
+    const searchInput = document.createElement('input');
+    searchInput.type = 'text';
+    searchInput.className = 'form-control';
+    searchInput.placeholder = 'Search icons...';
+    searchInput.style.marginBottom = '10px';
+    content.appendChild(searchInput);
+    
+    // Add icon grid
+    const iconGrid = document.createElement('div');
+    iconGrid.style.cssText = `
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 5px;
+    `;
+    
+    // Common glyphicon icons
+    const icons = ['home', 'star', 'heart', 'user', 'cog', 'search', 'plus', 'minus', 'check', 'remove', 'edit', 'eye', 'download', 'upload', 'folder', 'file'];
+    
+    icons.forEach(iconName => {
+      const iconButton = document.createElement('button');
+      iconButton.className = 'btn btn-default';
+      iconButton.style.cssText = `
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+      `;
+      iconButton.innerHTML = `<i class="glyphicon glyphicon-${iconName}"></i>`;
+      iconButton.title = iconName;
+      
+      iconButton.addEventListener('click', () => {
+        // Update the component property within NgZone
+        this.ngZone.run(() => {
+          this.selectedPoiIconName = iconName;
+          
+          // Update the Bootstrap Icon Picker (like AngularJS version)
+          if ((window as any).$ && (window as any).$('#poiSymbolPicker').length > 0) {
+            (window as any).$('#poiSymbolPicker').iconpicker('setIcon', 'glyphicon-' + iconName);
+          }
+          
+          // Force change detection
+          this.cdr.detectChanges();
+          
+          // Update the button display
+          this.updateIconPickerButtonDisplay(iconName);
+          
+          // Force another change detection cycle
+          setTimeout(() => {
+            this.ngZone.run(() => {
+              this.cdr.detectChanges();
+            });
+          }, 200);
+        });
+        
+        this.closeManualIconPicker();
+      });
+      
+      iconGrid.appendChild(iconButton);
+    });
+    
+    content.appendChild(iconGrid);
+    popover.appendChild(content);
+    
+    // Try to append to the button's parent container first for better positioning
+    if (buttonParent) {
+      buttonParent.appendChild(popover);
+    } else if (modalElement) {
+      modalElement.appendChild(popover);
+    } else {
+      // Fallback to body if neither found
+      document.body.appendChild(popover);
+    }
+    
+    // Add search functionality
+    searchInput.addEventListener('input', (e) => {
+      const searchTerm = (e.target as HTMLInputElement).value.toLowerCase();
+      const iconButtons = iconGrid.querySelectorAll('button');
+      iconButtons.forEach(button => {
+        const iconName = button.title.toLowerCase();
+        if (iconName.includes(searchTerm)) {
+          (button as HTMLElement).style.display = 'flex';
+        } else {
+          (button as HTMLElement).style.display = 'none';
+        }
+      });
+    });
+    
+
+    
+    // Add resize and scroll handlers to reposition if needed
+    const repositionHandler = () => {
+      const existingPicker = document.querySelector('.manual-icon-picker') as HTMLElement;
+      if (existingPicker && button && buttonParent) {
+        const buttonRect = button.getBoundingClientRect();
+        const parentRect = buttonParent.getBoundingClientRect();
+        
+        // Update position relative to button parent
+        const relativeLeft = buttonRect.left - parentRect.left;
+        const relativeTop = buttonRect.bottom - parentRect.top + 5;
+        
+        existingPicker.style.left = relativeLeft + 'px';
+        existingPicker.style.top = relativeTop + 'px';
+        
+        // Ensure it doesn't go outside parent bounds
+        const maxLeft = parentRect.width - 400;
+        if (relativeLeft > maxLeft) {
+          existingPicker.style.left = maxLeft + 'px';
+        }
+        
+        // If it would go below parent, show above button instead
+        if (relativeTop + 300 > parentRect.height) {
+          existingPicker.style.top = (buttonRect.top - parentRect.top - 305) + 'px';
+        }
+      }
+    };
+    
+    window.addEventListener('resize', repositionHandler);
+    window.addEventListener('scroll', repositionHandler);
+    
+    // Store the handler for cleanup
+    (popover as any)._repositionHandler = repositionHandler;
+  }
+
+  // Update the icon picker button display
+  private updateIconPickerButtonDisplay(iconName: string): void {
+    const button = document.getElementById('poiSymbolPicker');
+    if (button) {
+      // Method 1: Try to update existing elements
+      const iconElement = button.querySelector('i.glyphicon');
+      if (iconElement) {
+        // Remove all existing glyphicon classes and add the new one
+        iconElement.className = `glyphicon glyphicon-${iconName}`;
+      }
+      
+      const textElement = button.querySelector('span');
+      if (textElement) {
+        textElement.textContent = iconName;
+      }
+      
+      // Method 2: Update data attributes
+      button.setAttribute('data-icon', `glyphicon-${iconName}`);
+      
+      // Method 3: Force a complete button rebuild if the above didn't work
+      if (!iconElement || !textElement) {
+        this.rebuildIconPickerButton(iconName);
+      }
+      
+      // Method 4: Try to trigger a click event to force Angular to re-render
+      setTimeout(() => {
+        button.click();
+        button.blur();
+      }, 50);
+    }
+  }
+
+  // Rebuild the icon picker button content completely
+  private rebuildIconPickerButton(iconName: string): void {
+    const button = document.getElementById('poiSymbolPicker');
+    if (button) {
+      // Clear the button content
+      button.innerHTML = '';
+      
+      // Recreate the icon element
+      const iconElement = document.createElement('i');
+      iconElement.className = `glyphicon glyphicon-${iconName}`;
+      iconElement.style.fontSize = '16px';
+      
+      // Recreate the text element
+      const textElement = document.createElement('span');
+      textElement.textContent = iconName;
+      textElement.style.marginLeft = '5px';
+      
+      // Append the new elements
+      button.appendChild(iconElement);
+      button.appendChild(textElement);
+    }
+  }
+
+  // Close manual icon picker
+  private closeManualIconPicker(): void {
+    const existingPicker = document.querySelector('.manual-icon-picker') as HTMLElement;
+    if (existingPicker) {
+      // Clean up event listeners
+      const repositionHandler = (existingPicker as any)._repositionHandler;
+      if (repositionHandler) {
+        window.removeEventListener('resize', repositionHandler);
+        window.removeEventListener('scroll', repositionHandler);
+      }
+      existingPicker.remove();
     }
   }
 
@@ -958,15 +1236,11 @@ export class GeoresourceAddModalComponent implements OnInit {
     // Force change detection to ensure the UI updates properly
     this.cdr.detectChanges();
     
-    // Initialize icon picker if switching to symbol mode (same as AngularJS)
+    // Reinitialize icon picker if switching to symbol mode
     if (markerStyle === 'symbol') {
-      // Wait longer for DOM to update
       setTimeout(() => {
-        const button = document.getElementById('poiSymbolPicker');
-        if (button) {
           this.initializeIconPicker();
-        }
-      }, 200); // Increased timeout to 200ms
+      }, 100);
     }
   }
 
