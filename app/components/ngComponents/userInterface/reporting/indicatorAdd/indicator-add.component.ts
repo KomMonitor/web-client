@@ -226,7 +226,7 @@ export class IndicatorAddComponent implements OnInit {
     let template = this.data.templateData.template;
     // deep copy template before any changes are made.
     // this is needed when additional timestamps are inserted.
-    this.untouchedTemplateAsString = toJson(template)
+    this.untouchedTemplateAsString = JSON.parse(JSON.stringify((template)));
     // give each page a unique id to track it by in ng-repeat
     for(let page of template.pages) {
       page.id = this.templatePageIdCounter++;
@@ -513,9 +513,6 @@ export class IndicatorAddComponent implements OnInit {
   */
 
   initSelectedDualListOption(selectedAreas, selectedTimestamps) {
-
-    this.selectedAreas = selectedAreas;
-    this.selectedTimestamps = selectedTimestamps;
    
     let updateDiagramsInterval = setInterval(() => {
       if(this.diagramsPrepared) {
@@ -611,21 +608,30 @@ export class IndicatorAddComponent implements OnInit {
 
     return pages;
   }
+  
+  copy(obj) {
+    var cp = {};
+    for (var o in obj) {
+        cp[o] = obj[o];
+    }
+    return cp;
+  }
 
   updateAreasForTimestampTemplates(newVal) {
+   
     let pagesToInsertPerTimestamp:any[] = [];
     for(let area of newVal) {
-      // get page to insert from untouched template
-      let pageToInsert = fromJson(this.untouchedTemplateAsString).pages[ this.indexOfFirstAreaSpecificPage ];
-      pageToInsert.area = area.name;
-      pageToInsert.id = this.templatePageIdCounter++;
-      pagesToInsertPerTimestamp.push(pageToInsert);
 
-      pageToInsert = fromJson(this.untouchedTemplateAsString).pages[ this.indexOfFirstAreaSpecificPage + 1];
-      pageToInsert.area = area.name;
-      pageToInsert.id = this.templatePageIdCounter++;
-      
-      pagesToInsertPerTimestamp.push(pageToInsert);
+      // get page to insert from untouched template
+      let landscapePage:any = this.copy(fromJson(this.untouchedTemplateAsString).pages[ this.indexOfFirstAreaSpecificPage]);
+      landscapePage.area = area.name;
+      landscapePage.id = this.templatePageIdCounter++;
+      pagesToInsertPerTimestamp.push(landscapePage);
+
+      let portraitPage:any = this.copy(fromJson(this.untouchedTemplateAsString).pages[ this.indexOfFirstAreaSpecificPage + 1]);
+      portraitPage.area = area.name;
+      portraitPage.id = this.templatePageIdCounter++;
+      pagesToInsertPerTimestamp.push(portraitPage);
     }
 
     // sort alphabetically by area name
@@ -662,21 +668,23 @@ export class IndicatorAddComponent implements OnInit {
         // setup pages before inserting
         for(let pageToInsert of pagesToInsertPerTimestamp) {
 
-          let titleEl = pageToInsert.pageElements.find( el => {
-            return el.type.includes("indicatorTitle-")
-          });
-          titleEl.text = this.selectedIndicator.indicatorName + " [" + this.selectedIndicator.unit + "]";
-          if(pageToInsert.area) {
-            titleEl.text += ", " + pageToInsert.area
-          }
-          titleEl.isPlaceholder = false;
+          pageToInsert.pageElements.forEach(el => {
+            
+            if(el.type.includes("indicatorTitle-")) {
+              el.text = this.selectedIndicator.indicatorName + " [" + this.selectedIndicator.unit + "]";
+              if(pageToInsert.area) {
+                el.text += ", " + pageToInsert.area
+              }
+              el.isPlaceholder = false;
+            }
 
-          let dateEl = pageToInsert.pageElements.find( el => {
-            return el.type.includes("dataTimestamp-")
+            if(el.type.includes("dataTimestamp-")) {
+              el.text = timestamp.name;
+              el.isPlaceholder = false;
+            }
           });
 
-          dateEl.text = timestamp.name;
-          dateEl.isPlaceholder = false;
+          // hier: el.text += ", " + pageToInsert.area somehow always takes the area text of the last area.. maybe rebuilds
 
           // diagrams have to be inserted later because the div element does not yet exist
         }
@@ -700,6 +708,8 @@ export class IndicatorAddComponent implements OnInit {
       // no timestamp selected, which makes inserting easier
       this.template.pages.splice(this.indexOfFirstAreaSpecificPage, 0, ...pagesToInsertPerTimestamp)
     }
+
+    console.log(this.template.pages)
   }
 
   updateAreasForTimeseriesTemplates(newVal) {
@@ -1991,9 +2001,11 @@ export class IndicatorAddComponent implements OnInit {
         });
         timestampsListSelected = this.dataExchangeService.createDualListInputArray(timestampsListSelected, "name",'id');
 
-        this.updateAreaSpecificSettings(areasListInput);
+        this.selectedAreas = areasListInput;
+        this.selectedTimestamps = timestampsListSelected;
 
         // insert areaSpecific pages by default only for indicators with less than x areas to improve loading times
+        this.updateAreaSpecificSettings(areasListInput);
         if(this.pageConfig.sections.showAreaSpecific) {
           if(this.template.name.includes("timestamp"))
             this.updateAreasForTimestampTemplates(areasListInput)
@@ -3561,25 +3573,18 @@ export class IndicatorAddComponent implements OnInit {
   filterMapByAreaName(echartsInstance, areaName, targetFeature) {
     let options = echartsInstance.getOption();
     let mapName = options.series[0].map;
-    // filter shown areas if we are in the area-specific part of the template
-    // removing areas form the series doesn't work. We have to filter the geojson of the registered map.
-  /*   let tfeatures:any = allFeatures.filter ( (el:any) => {
-      return el.properties.name === areaName
-    }); */
 
-   /*  let features:any = {
-      features: tfeatures
-    } */
-    let features:any = [];
-    features.push(targetFeature);
+    let features:any = {
+      features: [targetFeature]
+    };
 
-    echarts.registerMap(mapName, features )
+    echarts.registerMap(mapName, features);
 
     // echart map bounds are defined by a bounding box, which has to be updated as well.
-    if(!features[0].properties.bbox){
-      features[0].properties.bbox = turf.bbox(features[0]);
+    if(!targetFeature.properties.bbox){
+      targetFeature.properties.bbox = turf.bbox(targetFeature);
     }
-    let bbox = features[0].properties.bbox; // [east, south, west, north]
+    let bbox = targetFeature.properties.bbox; // [east, south, west, north]
     
     let newBounds = [[bbox[2], bbox[3]], [bbox[0], bbox[1]]] // [[west, north], [east, south]]
     options.series[0].boundingCoords = newBounds;
@@ -3879,8 +3884,10 @@ export class IndicatorAddComponent implements OnInit {
 						
 						switch(pageElement.type) {
 							case "map": {
+
 								// initialize with all areas
 								let map = await this.createPageElement_Map(pElementDom, page, pageElement);
+
 								// filter visible areas if needed
 								if(page.area && page.area.length) {
 									if(this.selectedIndicator) {
@@ -3888,10 +3895,8 @@ export class IndicatorAddComponent implements OnInit {
 									} else {
 										this.filterMapByAreaName(map, page.area, this.geoJsonForReachability_byFeatureName.get(page.area));
 									}
-									
 								}
 
-                // this causes trouble.. 
                 await this.initLeafletMapBeneathEchartsMap(page, pageElement, map);
 
 								pageElement.isPlaceholder = false;
