@@ -2308,6 +2308,47 @@ angular
               }
             } 
           },
+          { headerName: 'Letzte Job-Ausführung', minWidth: 200, cellRenderer: function (params) {
+              let latestJobIndex = 0;
+              if (params.data.jobIDs[0].length < 34){ // don't use first job if it has a short id
+                latestJobIndex = 1;
+              }
+
+              $http({
+                url: __env.targetUrlToProcessesApi + "jobs/" + params.data.jobIDs[latestJobIndex],
+                method: "GET"
+              }).then(function successCallback(response) {
+                let jobStatus;
+                switch(response.data.status){
+                  case "successful": jobStatus = "<button disabled class='btn-success btn-sm'>abgeschlossen</div>"; break;
+                  case "failed": jobStatus = "<button disabled class='btn-danger btn-sm'>gescheitert</div>"; break;
+                  case "running": jobStatus = "<button disabled class='btn-info btn-sm'>laufend</div>"; break;
+                  case "accepted": jobStatus = "<button disabled class='btn-warning btn-sm'>wartend</div>"; break;
+                  default: "Status unbekannt";
+                }
+                document.getElementById("latestJobSummary"+params.data.scheduleID).innerHTML = 
+                  "<i class='fa-regular fa-calendar'></i> "
+                  + (new Date(response.data.job_end_datetime)).toLocaleString("de-DE") 
+                  + jobStatus 
+                  + "<button class='btn-sm' onclick='onJobTableClicked(`" + params.data.scheduleID + "`)'><i class='fas fa-table'></i></button>";
+
+                $http({
+                  url: __env.targetUrlToProcessesApi + "jobs/" + params.data.jobIDs[latestJobIndex] + "/results",
+                  method: "GET"
+                }).then(function successCallback(response) {
+                  if (response.data.jobSummary[0].numberOfIntegratedIndicatorFeatures) {
+                    document.getElementById("latestJobResult"+params.data.scheduleID).innerHTML = "" + response.data.jobSummary[0].numberOfIntegratedIndicatorFeatures + " Features integriert";
+                  }
+                });
+              }, function errorCallback(error) {
+                document.getElementById("latestJobSummary"+params.data.scheduleID).innerHTML = "Fehler beim Laden des letzten Jobs";
+                console.error("Error while fetching job result.");
+                throw error;
+              });
+
+              return "<div id='latestJobSummary"+params.data.scheduleID+"'>Job wird geladen...</div><div id='latestJobResult"+params.data.scheduleID+"'></div>"
+            }
+          },
           
           { headerName: 'Ziel Raumebenen', minWidth: 300, cellRenderer: function (params) {
             
