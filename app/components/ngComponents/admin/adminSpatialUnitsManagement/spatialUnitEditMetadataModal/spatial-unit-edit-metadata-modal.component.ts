@@ -1,17 +1,20 @@
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { HttpClient } from '@angular/common/http';
 import { Subscription } from 'rxjs';
 import { KommonitorDataExchangeService } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
 import { KommonitorDataGridHelperService } from 'services/adminSpatialUnit/kommonitor-data-grid-helper.service';
+import { ColorEvent } from 'ngx-color';
+
+declare var $: any; // Declare jQuery for Bootstrap components
 
 @Component({
   selector: 'spatial-unit-edit-metadata-modal-new',
   templateUrl: './spatial-unit-edit-metadata-modal.component.html',
   styleUrls: ['./spatial-unit-edit-metadata-modal.component.css']
 })
-export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy {
+export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('metadataImportFile', { static: false }) metadataImportFile!: ElementRef;
 
   // Multi-step form
@@ -52,13 +55,15 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy 
   outlineColor = '#bf3d2c';
   outlineWidth = 2;
   selectedOutlineDashArrayObject: any = null;
+  selectedoutlineDashArrayObject: any = null; // Keep both for compatibility with original
+  
+  // Color picker visibility
+  showColorPicker = false;
 
   // Available options
   availableSpatialUnits: any[] = [];
   updateIntervalOptions: any[] = [];
   availableLoiDashArrayObjects: any[] = [];
-
-
 
   // Import/Export functionality
   metadataImportSettings: any = null;
@@ -78,18 +83,16 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy 
     private http: HttpClient,
     private broadcastService: BroadcastService
   ) {
-    console.log('SpatialUnitEditMetadataModalComponent constructor initialized');
   }
 
   ngOnInit() {
-    console.log('SpatialUnitEditMetadataModalComponent ngOnInit');
     this.loadInitialData();
     this.setupEventListeners();
     
     // Initialize date picker
     setTimeout(() => {
       if (this.kommonitorDataExchangeService.datePickerOptions) {
-        ($ as any)('#spatialUnitEditMetadataLastUpdateDatepicker').datepicker(this.kommonitorDataExchangeService.datePickerOptions);
+        $('#spatialUnitEditMetadataLastUpdateDatepicker').datepicker(this.kommonitorDataExchangeService.datePickerOptions);
       }
     }, 100);
 
@@ -104,11 +107,71 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy 
         }
       }
     }, 1000);
+
+    // Color picker is now handled by ngx-color component - no initialization needed
     
     // If currentSpatialUnitDataset is already set (from parent component), initialize form
     if (this.currentSpatialUnitDataset) {
       this.resetForm();
     }
+  }
+
+  ngAfterViewInit() {
+    // Initialize dash array dropdown after view is ready
+    setTimeout(() => {
+      // Initialize Bootstrap dropdowns
+      try {
+        $('.dropdown-toggle').dropdown();
+      } catch (error) {
+        // Bootstrap dropdown initialization failed
+      }
+
+      // Set SVG content for dash array options
+      if (this.kommonitorDataExchangeService.availableLoiDashArrayObjects) {
+        for (let i = 0; i < this.kommonitorDataExchangeService.availableLoiDashArrayObjects.length; i++) {
+          const element = document.getElementById(`outlineDashArrayDropdownItem-editMetadata-${i}`);
+          const dashArrayObject = this.kommonitorDataExchangeService.availableLoiDashArrayObjects[i];
+          
+          if (element) {
+            if (dashArrayObject.svgString) {
+              element.innerHTML = dashArrayObject.svgString;
+            } else {
+              // Fallback: show label if no SVG
+              element.innerHTML = `<span>${dashArrayObject.label || dashArrayObject.value}</span>`;
+            }
+          }
+        }
+      }
+      
+      if (this.selectedOutlineDashArrayObject) {
+        this.onChangeOutlineDashArray(this.selectedOutlineDashArrayObject);
+      }
+    }, 1500);
+
+    // Color picker is now handled by ngx-color component - no initialization needed
+  }
+
+  // Color picker methods for ngx-color
+  toggleColorPicker() {
+    this.showColorPicker = !this.showColorPicker;
+  }
+
+  onColorChange(event: ColorEvent) {
+    this.outlineColor = event.color.hex;
+  }
+
+  onColorChangeComplete(event: ColorEvent) {
+    this.outlineColor = event.color.hex;
+    // Don't auto-close - let user continue adjusting color
+  }
+
+  closeColorPicker() {
+    this.showColorPicker = false;
+  }
+
+  onColorPickerContainerClick(event: Event) {
+    // Prevent propagation to avoid triggering the outside click
+    event.stopPropagation();
   }
 
   ngOnDestroy() {
@@ -143,8 +206,6 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy 
 
     this.loadingData = false;
   }
-
-
 
   resetForm() {
     if (!this.currentSpatialUnitDataset) return;
@@ -193,42 +254,30 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy 
       }
     });
 
-    // Set outline layer settings
+    // Set outline layer settings - FIXED: Properly initialize outline layer properties
     this.isOutlineLayer = this.currentSpatialUnitDataset.isOutlineLayer || false;
     this.outlineColor = this.currentSpatialUnitDataset.outlineColor || '#bf3d2c';
     this.outlineWidth = this.currentSpatialUnitDataset.outlineWidth || 2;
 
     // Set dash array
     this.selectedOutlineDashArrayObject = null;
+    this.selectedoutlineDashArrayObject = null;
     if (this.availableLoiDashArrayObjects && this.availableLoiDashArrayObjects.length > 0) {
       this.availableLoiDashArrayObjects.forEach(option => {
         if (option.dashArrayValue === this.currentSpatialUnitDataset.outlineDashArrayString) {
           this.selectedOutlineDashArrayObject = option;
+          this.selectedoutlineDashArrayObject = option;
         }
       });
       if (!this.selectedOutlineDashArrayObject) {
         this.selectedOutlineDashArrayObject = this.availableLoiDashArrayObjects[0];
+        this.selectedoutlineDashArrayObject = this.availableLoiDashArrayObjects[0];
       }
     }
 
-    // Initialize dash array dropdown
-    setTimeout(() => {
-      if (this.availableLoiDashArrayObjects) {
-        for (let i = 0; i < this.availableLoiDashArrayObjects.length; i++) {
-          const element = document.getElementById(`outlineDashArrayDropdownItem-editMetadata-${i}`);
-          if (element) {
-            element.innerHTML = this.availableLoiDashArrayObjects[i].svgString;
-          }
-        }
-      }
-      if (this.selectedOutlineDashArrayObject) {
-        this.onChangeOutlineDashArray(this.selectedOutlineDashArrayObject);
-      }
-    }, 1000);
-
     // Set date picker value with null check
     setTimeout(() => {
-      const datePicker = ($ as any)('#spatialUnitEditMetadataLastUpdateDatepicker');
+      const datePicker = $('#spatialUnitEditMetadataLastUpdateDatepicker');
       if (datePicker && datePicker.datepicker && metadata.lastUpdate) {
         datePicker.datepicker('setDate', metadata.lastUpdate);
       }
@@ -288,9 +337,11 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy 
     }
   }
 
+
+
   onColorPickerClick() {
-    // Implement color picker functionality if needed
-    console.log('Color picker clicked');
+    // Toggle the ngx-color picker
+    this.toggleColorPicker();
   }
 
   async editSpatialUnitMetadata() {
@@ -327,9 +378,6 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy 
     );
 
     // No role management in this version to match AngularJS
-
-    // Debug: Log the payload being sent
-    console.log('Sending patch body:', JSON.stringify(patchBody, null, 2));
 
     this.loadingData = true;
     this.errorMessage = '';
@@ -475,6 +523,7 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy 
       this.availableLoiDashArrayObjects.forEach(option => {
         if (option.dashArrayValue === this.metadataImportSettings.outlineDashArrayString) {
           this.selectedOutlineDashArrayObject = option;
+          this.selectedoutlineDashArrayObject = option;
         }
       });
     }

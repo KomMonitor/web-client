@@ -116,25 +116,41 @@
             <div class="col-md-3 col-sm-6 col-xs-12">
               <div *ngIf="isOutlineLayer" class="form-group" align="center">
                 <label>Linienfarbe (Umringslayer)</label>
-                <div id="outlineColorPicker_editSpatialUnit" class="input-group" style="width: 50px;">
-                  <input 
-                    type="text" 
-                    style="display:none;" 
-                    class="form-control input-sm"
-                    [(ngModel)]="outlineColor" 
-                    name="outlineColor"
-                    placeholder="Umringsfarbwahl"
-                    value="#bf3d2c"
-                  />
-                  <span 
-                    title="Klicken, um die Farbe anzupassen"
-                    style="border: 1px solid #ccc; width: 100%"
-                    class="input-group-addon btn btn-info btn-sm"
-                    (click)="onColorPickerClick()"
+                
+                <!-- Color picker button -->
+                <div class="color-picker-container">
+                  <button 
+                    type="button"
+                    class="color-picker-button"
+                    (click)="toggleColorPicker()"
+                    [style.background-color]="outlineColor"
+                    [style.border-color]="outlineColor"
+                    style="width: 100px; height: 35px; border: 2px solid;"
+                    title="Click to change color"
                   >
-                    <i></i>
-                  </span>
+                    <span class="color-display-text">
+                      {{outlineColor}}
+                    </span>
+                  </button>
+                  
+                  <!-- ngx-color sketch picker -->
+                  <div *ngIf="showColorPicker" class="color-picker-overlay" (click)="onColorPickerContainerClick($event)">
+                    <color-sketch 
+                      [color]="outlineColor"
+                      (onChange)="onColorChange($event)"
+                      (onChangeComplete)="onColorChangeComplete($event)"
+                      [disableAlpha]="true"
+                      [width]="200">
+                    </color-sketch>
+                  </div>
+                  
+                  <!-- Click outside overlay to close color picker -->
+                  <div *ngIf="showColorPicker" 
+                       class="color-picker-backdrop" 
+                       (click)="closeColorPicker()">
+                  </div>
                 </div>
+                
                 <div class="help-block with-errors"></div>
               </div>
             </div>
@@ -171,11 +187,16 @@
                   </button>
                   <ul class="dropdown-menu dropdown-menu-center">
                     <li 
-                      *ngFor="let outlineDashArrayObject of availableLoiDashArrayObjects; let i = index"
+                      *ngFor="let outlineDashArrayObject of kommonitorDataExchangeService.availableLoiDashArrayObjects; let i = index"
                       (click)="onChangeOutlineDashArray(outlineDashArrayObject)"
                     >
                       <a href="">
-                        <div id="outlineDashArrayDropdownItem-editMetadata-{{i}}"></div>
+                        <div id="outlineDashArrayDropdownItem-editMetadata-{{i}}">
+                          <div style="margin-bottom: 5px;">{{outlineDashArrayObject.label}}</div>
+                          <div style="border: 1px solid #ccc; padding: 2px;">
+                            <!-- SVG content will be set by JavaScript -->
+                          </div>
+                        </div>
                       </a>
                     </li>
                   </ul>
