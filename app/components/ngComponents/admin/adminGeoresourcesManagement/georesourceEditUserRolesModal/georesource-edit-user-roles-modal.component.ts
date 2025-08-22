@@ -82,8 +82,12 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
 
   async ngOnInit(): Promise<void> {
     this.setupEventListeners();
+    
+    // Load access control data first, then prepare creator list
+    await this.loadAccessControlData();
+    
+    // Now prepare creator list since access control data should be available
     this.prepareCreatorList();
-    this.loadAccessControlData();
   }
 
   ngOnDestroy(): void {
@@ -109,11 +113,23 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
     this.currentGeoresourceDataset = georesourceDataset;
     this.resetGeoresourceEditUserRolesForm();
     this.kommonitorMultiStepFormHelperService?.registerClickHandler('georesourceEditUserRolesForm');
+    
+    // Ensure access control data is loaded when the modal opens
+    await this.ensureAccessControlDataLoaded();
   }
 
   prepareCreatorList(): void {
+    console.log('Preparing creator list:', {
+      hasAccessControl: !!this.kommonitorDataExchangeService.accessControl,
+      accessControlLength: this.kommonitorDataExchangeService.accessControl?.length || 0,
+      hasCurrentKomMonitorLoginRoleNames: !!this.kommonitorDataExchangeService.currentKomMonitorLoginRoleNames,
+      currentKomMonitorLoginRoleNamesLength: this.kommonitorDataExchangeService.currentKomMonitorLoginRoleNames?.length || 0,
+      currentKomMonitorLoginRoleNames: this.kommonitorDataExchangeService.currentKomMonitorLoginRoleNames
+    });
+    
     // Ensure access control data is available (like AngularJS component expects)
     if (!this.kommonitorDataExchangeService.accessControl || this.kommonitorDataExchangeService.accessControl.length === 0) {
+      console.warn('No access control data available for preparing creator list');
       return;
     }
     
@@ -137,12 +153,32 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
         }
       });
 
+      console.log('Creator rights processing:', {
+        creatorRights: creatorRights,
+        creatorRightsChildren: creatorRightsChildren
+      });
+
       // gather all children
       this.gatherCreatorRightsChildren(creatorRights, creatorRightsChildren);
 
       this.resourcesCreatorRights = this.kommonitorDataExchangeService.accessControl?.filter(
         (elem: any) => creatorRights.includes(elem.name)
       ) || [];
+      
+      console.log('Final resources creator rights:', {
+        count: this.resourcesCreatorRights.length,
+        resourcesCreatorRights: this.resourcesCreatorRights.map(org => ({ id: org.organizationalUnitId, name: org.name }))
+      });
+    } else {
+      console.warn('No current KomMonitor login role names available - using all access control data as fallback');
+      // Fallback: use all access control data if no specific creator rights are available
+      // This ensures the dropdown shows organizations even for users without specific creator roles
+      this.resourcesCreatorRights = this.kommonitorDataExchangeService.accessControl || [];
+      
+      console.log('Using fallback resources creator rights (all access control data):', {
+        count: this.resourcesCreatorRights.length,
+        resourcesCreatorRights: this.resourcesCreatorRights.map(org => ({ id: org.organizationalUnitId, name: org.name }))
+      });
     }
   }
 
@@ -171,14 +207,26 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
     }
 
     // set datasetOwner to disable checkboxes for owned datasets in permissions-table
+    // Consider both current owner and selected new owner
+    const effectiveOwnerId = this.ownerOrganization !== undefined ? this.ownerOrganization : this.currentGeoresourceDataset?.ownerId;
+    
     this.kommonitorDataExchangeService.accessControl.forEach((item: any) => {
-      if (this.currentGeoresourceDataset) {
-        if (item.organizationalUnitId === this.currentGeoresourceDataset.ownerId) {
+      if (effectiveOwnerId) {
+        if (item.organizationalUnitId === effectiveOwnerId) {
           item.datasetOwner = true;
         } else {
           item.datasetOwner = false;
         }
       }
+    });
+
+    console.log('Refreshing role management table:', {
+      currentOwnerId: this.currentGeoresourceDataset?.ownerId,
+      selectedNewOwnerId: this.ownerOrganization,
+      effectiveOwnerId: effectiveOwnerId,
+      permissions: this.permissions,
+      permissionsCount: this.permissions?.length || 0,
+      accessControlCount: this.kommonitorDataExchangeService.accessControl.length
     });
 
     // Match AngularJS logic: only reset if no permissions
@@ -251,11 +299,17 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
     
     console.log('Owner changed:', {
       newOwnerId: ownerOrganization,
+      currentOwnerId: this.currentGeoresourceDataset?.ownerId,
       activeRolesOnly: this.activeRolesOnly,
-      permissions: this.permissions
+      permissions: this.permissions,
+      permissionsCount: this.permissions?.length || 0
     });
     
+    // Refresh the roles list to show current dataset permissions
     this.refreshRoles(ownerOrganization);
+    
+    // Also refresh the main role management table to ensure consistency
+    this.refreshRoleManagementTable();
   }
 
   onOwnerOrgFilterChange(): void {
@@ -291,10 +345,17 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
 
   private refreshRoles(orgUnitId: any): void {
     const accessControl = this.kommonitorDataExchangeService.getAccessControlById(orgUnitId);
-    const permissionIds_ownerUnit = orgUnitId && accessControl ? 
-      accessControl.permissions
-        .filter((permission: any) => permission.permissionLevel === 'viewer' || permission.permissionLevel === 'editor')
-        .map((permission: any) => permission.permissionId) : [];
+    
+    // Use the current dataset's permissions, not the new owner's permissions
+    // This ensures users can still see and manage the current dataset's roles
+    const permissionIds_toUse = this.permissions || [];
+
+    console.log('Refreshing roles for ownership change:', {
+      newOwnerId: orgUnitId,
+      currentPermissions: this.permissions,
+      permissionIds_toUse: permissionIds_toUse,
+      accessControlCount: this.kommonitorDataExchangeService.accessControl?.length || 0
+    });
 
     // set datasetOwner to disable checkboxes for owned datasets in permissions-table
     this.kommonitorDataExchangeService.accessControl?.forEach((item: any) => {
@@ -322,13 +383,19 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
       'georesourceEditRoleManagementTable',
       this.roleManagementTableOptions,
       access,
-      permissionIds_ownerUnit
+      permissionIds_toUse  // Use current dataset permissions, not new owner permissions
     );
 
     // Extract column definitions and row data for ag-grid-angular and rebuild grid config
     if (this.roleManagementTableOptions) {
       this.roleManagementColumnDefs = this.roleManagementTableOptions.columnDefs || [];
       this.roleManagementRowData = this.roleManagementTableOptions.rowData || [];
+      
+      console.log('Updated role management data:', {
+        columnDefs: this.roleManagementColumnDefs.length,
+        rowData: this.roleManagementRowData.length,
+        sampleRowData: this.roleManagementRowData.slice(0, 2)
+      });
       
       // Build grid configuration (this will use the components from roleManagementTableOptions)
       this.buildRoleManagementGridConfig();
@@ -344,6 +411,8 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
           if (this.roleManagementGridApi && !this.roleManagementGridApi.isDestroyed()) {
             this.roleManagementGridApi.refreshCells();
             this.roleManagementGridApi.redrawRows();
+            
+            console.log('Grid updated with new data for ownership change');
           }
         }, 100);
       }
@@ -354,18 +423,50 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
   nextStep(): void {
     if (this.currentStep < this.totalSteps) {
       this.currentStep++;
+      // Ensure roles list is up to date when moving to next step
+      this.ensureRolesListUpToDate();
     }
   }
 
   previousStep(): void {
     if (this.currentStep > 1) {
       this.currentStep--;
+      // Ensure roles list is up to date when moving to previous step
+      this.ensureRolesListUpToDate();
     }
   }
 
   goToStep(step: number): void {
     if (step >= 1 && step <= this.totalSteps) {
       this.currentStep = step;
+      // Ensure roles list is up to date when changing steps
+      this.ensureRolesListUpToDate();
+    }
+  }
+
+  // Ensure that the roles list is properly updated when navigating between steps
+  private ensureRolesListUpToDate(): void {
+    // If we're on step 1 (Zugriffsschutz) and ownership has changed, refresh the roles list
+    if (this.currentStep === 1 && this.ownerOrganization !== this.currentGeoresourceDataset?.ownerId) {
+      console.log('Ensuring roles list is up to date for step 1 after ownership change');
+      this.refreshRoleManagementTable();
+    }
+    
+    // If we're on step 2 (Eigentümerschaft), ensure access control data is loaded
+    if (this.currentStep === 2) {
+      console.log('Ensuring access control data is loaded for step 2');
+      this.ensureAccessControlDataLoaded();
+    }
+  }
+
+  // Ensure access control data is loaded for the dropdown
+  private async ensureAccessControlDataLoaded(): Promise<void> {
+    if (!this.accessControlDataAvailable || !this.kommonitorDataExchangeService.accessControl || this.kommonitorDataExchangeService.accessControl.length === 0) {
+      console.log('Access control data not available, loading it now...');
+      await this.loadAccessControlData();
+      
+      // After loading, prepare creator list again
+      this.prepareCreatorList();
     }
   }
 
@@ -402,8 +503,20 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
   putUserRoles(): void {
     this.loadingData = true;
 
+    const selectedRoleIds = this.getSelectedRoleIds();
+    
+    console.log('Putting user roles:', {
+      selectedRoleIds: selectedRoleIds,
+      selectedRoleIdsCount: selectedRoleIds.length,
+      currentPermissions: this.permissions,
+      currentPermissionsCount: this.permissions?.length || 0,
+      ownerOrganization: this.ownerOrganization,
+      currentOwnerId: this.currentGeoresourceDataset?.ownerId,
+      isOwnershipChanging: this.ownerOrganization !== this.currentGeoresourceDataset?.ownerId
+    });
+
     const putBody = {
-      permissions: this.getSelectedRoleIds(),
+      permissions: selectedRoleIds,
       isPublic: this.currentGeoresourceDataset.isPublic
     };
 
@@ -417,6 +530,7 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
       }
     ).subscribe({
       next: (response: any) => {
+        console.log('User roles updated successfully:', response);
         this.successMessagePart = this.currentGeoresourceDataset.datasetName;
         this.broadcastService.broadcast('refreshGeoresourceOverviewTable', {
           crudType: 'edit',
@@ -428,6 +542,7 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
         }, 250);
       },
       error: (error: any) => {
+        console.error('Error updating user roles:', error);
         this.errorMessagePart = 'Fehler beim Aktualisieren der Zugriffsrechte. Fehler lautet: \n\n';
         if (error.data) {
           this.errorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
@@ -501,31 +616,60 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
 
   // Helper methods
   getFilteredOrganizations(): any[] {
+    console.log('Getting filtered organizations:', {
+      accessControlDataAvailable: this.accessControlDataAvailable,
+      hasAccessControl: !!this.kommonitorDataExchangeService.accessControl,
+      accessControlLength: this.kommonitorDataExchangeService.accessControl?.length || 0,
+      ownerOrgFilter: this.ownerOrgFilter
+    });
+    
     // Return empty array silently if data is not available (template-safe)
     if (!this.accessControlDataAvailable || !this.kommonitorDataExchangeService.accessControl || this.kommonitorDataExchangeService.accessControl.length === 0) {
+      console.log('No organizations available - returning empty array');
       return [];
     }
     
-    if (!this.ownerOrgFilter) {
-      return this.kommonitorDataExchangeService.accessControl;
-    }
-    return this.kommonitorDataExchangeService.accessControl.filter((org: any) =>
-      org.name.toLowerCase().includes(this.ownerOrgFilter.toLowerCase())
-    );
+    const organizations = !this.ownerOrgFilter ? 
+      this.kommonitorDataExchangeService.accessControl :
+      this.kommonitorDataExchangeService.accessControl.filter((org: any) =>
+        org.name.toLowerCase().includes(this.ownerOrgFilter.toLowerCase())
+      );
+    
+    console.log('Returning organizations:', {
+      count: organizations.length,
+      organizations: organizations.map(org => ({ id: org.organizationalUnitId, name: org.name }))
+    });
+    
+    return organizations;
   }
 
   getFilteredCreatorRights(): any[] {
+    console.log('Getting filtered creator rights:', {
+      accessControlDataAvailable: this.accessControlDataAvailable,
+      hasAccessControl: !!this.kommonitorDataExchangeService.accessControl,
+      accessControlLength: this.kommonitorDataExchangeService.accessControl?.length || 0,
+      resourcesCreatorRightsLength: this.resourcesCreatorRights?.length || 0,
+      ownerOrgFilter: this.ownerOrgFilter
+    });
+    
     // Return empty array silently if data is not available (template-safe)
     if (!this.accessControlDataAvailable || !this.kommonitorDataExchangeService.accessControl || this.kommonitorDataExchangeService.accessControl.length === 0) {
+      console.log('No creator rights available - returning empty array');
       return [];
     }
     
-    if (!this.ownerOrgFilter) {
-      return this.resourcesCreatorRights;
-    }
-    return this.resourcesCreatorRights.filter((org: any) =>
-      org.name.toLowerCase().includes(this.ownerOrgFilter.toLowerCase())
-    );
+    const creatorRights = !this.ownerOrgFilter ? 
+      this.resourcesCreatorRights :
+      this.resourcesCreatorRights.filter((org: any) =>
+        org.name.toLowerCase().includes(this.ownerOrgFilter.toLowerCase())
+      );
+    
+    console.log('Returning creator rights:', {
+      count: creatorRights.length,
+      creatorRights: creatorRights.map(org => ({ id: org.organizationalUnitId, name: org.name }))
+    });
+    
+    return creatorRights;
   }
 
   getCurrentOwnerName(): string {
@@ -543,7 +687,18 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
 
   // Helper method to get selected role IDs from the grid
   private getSelectedRoleIds(): string[] {
-    return this.kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid(this.roleManagementTableOptions);
+    const selectedIds = this.kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid(this.roleManagementTableOptions);
+    
+    console.log('Getting selected role IDs:', {
+      selectedIds: selectedIds,
+      selectedIdsCount: selectedIds.length,
+      roleManagementTableOptions: this.roleManagementTableOptions,
+      hasRowData: !!this.roleManagementTableOptions?.rowData,
+      rowDataCount: this.roleManagementTableOptions?.rowData?.length || 0,
+      sampleRowData: this.roleManagementTableOptions?.rowData?.slice(0, 2) || []
+    });
+    
+    return selectedIds;
   }
 
   // Alert methods
@@ -658,6 +813,13 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
   private async loadAccessControlData(): Promise<void> {
     // Check if access control data is already available
     if (this.kommonitorDataExchangeService.accessControl && this.kommonitorDataExchangeService.accessControl.length > 0) {
+      // Set flag to true since we have data
+      this.accessControlDataAvailable = true;
+      console.log('Access control data already available:', {
+        accessControlCount: this.kommonitorDataExchangeService.accessControl.length,
+        accessControlDataAvailable: this.accessControlDataAvailable
+      });
+      
       // If we have data and a georesource dataset, refresh the table
       if (this.currentGeoresourceDataset) {
         this.refreshRoleManagementTable();
@@ -665,14 +827,51 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
     } else {
       // Fetch access control data from server
       try {
+        console.log('Fetching access control data from server...');
         await this.kommonitorDataExchangeService.fetchAccessControlMetadata();
+        
+        // Check if we successfully got data
+        if (this.kommonitorDataExchangeService.accessControl && this.kommonitorDataExchangeService.accessControl.length > 0) {
+          this.accessControlDataAvailable = true;
+          console.log('Access control data loaded successfully:', {
+            accessControlCount: this.kommonitorDataExchangeService.accessControl.length,
+            accessControlDataAvailable: this.accessControlDataAvailable
+          });
+        } else {
+          console.warn('No access control data received from server');
+          this.accessControlDataAvailable = false;
+        }
+        
         // If we have data and a georesource dataset, refresh the table
         if (this.currentGeoresourceDataset) {
           this.refreshRoleManagementTable();
         }
       } catch (error) {
         console.error('Error fetching access control data:', error);
+        this.accessControlDataAvailable = false;
       }
     }
+  }
+
+  // Debug methods for template
+  getDebugInfo(): any {
+    return {
+      accessControlDataAvailable: this.accessControlDataAvailable,
+      adminPermission: this.kommonitorDataExchangeService.checkAdminPermission(),
+      accessControlCount: this.kommonitorDataExchangeService.accessControl?.length || 0,
+      resourcesCreatorRightsCount: this.resourcesCreatorRights?.length || 0,
+      filteredOrganizationsCount: this.getFilteredOrganizations()?.length || 0,
+      filteredCreatorRightsCount: this.getFilteredCreatorRights()?.length || 0,
+      ownerOrgFilter: this.ownerOrgFilter,
+      hasAccessControl: !!this.kommonitorDataExchangeService.accessControl
+    };
+  }
+
+  getSampleOrganizations(): string {
+    const orgs = this.getFilteredOrganizations();
+    if (!orgs || orgs.length === 0) {
+      return 'None';
+    }
+    return orgs.slice(0, 3).map(org => org.name).join(', ');
   }
 } 

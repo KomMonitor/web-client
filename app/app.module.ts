@@ -96,6 +96,7 @@ import { GeoresourceAddModalComponent } from './components/ngComponents/admin/ad
 import { GeoresourceBatchUpdateModalComponent } from './components/ngComponents/admin/adminGeoresourcesManagement/georesourceBatchUpdateModal/georesource-batch-update-modal.component';
 import { GeoresourceEditMetadataModalComponent } from './components/ngComponents/admin/adminGeoresourcesManagement/georesourceEditMetadataModal/georesource-edit-metadata-modal.component';
 import { GeoresourceEditFeaturesModalComponent } from './components/ngComponents/admin/adminGeoresourcesManagement/georesourceEditFeaturesModal/georesource-edit-features-modal.component';
+import { SingleFeatureEditComponent } from './components/ngComponents/common/single-feature-edit/single-feature-edit.component';
 import { GeoresourceEditUserRolesModalComponent } from './components/ngComponents/admin/adminGeoresourcesManagement/georesourceEditUserRolesModal/georesource-edit-user-roles-modal.component';
 import { GeoresourceDeleteModalComponent } from './components/ngComponents/admin/adminGeoresourcesManagement/georesourceDeleteModal/georesource-delete-modal.component';
 
@@ -203,7 +204,7 @@ declare var MathJax;
     GeoresourceAddModalComponent,
     GeoresourceBatchUpdateModalComponent,
     GeoresourceEditMetadataModalComponent,
-    GeoresourceEditFeaturesModalComponent,
+
     GeoresourceEditUserRolesModalComponent,
     GeoresourceDeleteModalComponent
   ],

@@ -383,7 +383,7 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy, 
 
   public onClickEditFeatures(georesourceDataset: any): void {
     const modalRef = this.modalService.open(GeoresourceEditFeaturesModalComponent, {
-      size: 'xl',
+      size: 'lg',
       backdrop: 'static',
       keyboard: false,
       container: 'body',
@@ -405,7 +405,7 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy, 
 
   public onClickEditUserRoles(georesourceDataset: any): void {
     const modalRef = this.modalService.open(GeoresourceEditUserRolesModalComponent, {
-      size: 'xl',
+      size: 'lg',
       backdrop: 'static',
       keyboard: false,
       container: 'body',
@@ -425,7 +425,7 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy, 
 
   public onClickDeleteGeoresource(georesourceDataset: any): void {
     const modalRef = this.modalService.open(GeoresourceDeleteModalComponent, {
-      size: 'xl',
+      size: 'lg',
       backdrop: 'static',
       keyboard: false,
       container: 'body',
@@ -468,10 +468,7 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy, 
   }
 
   onEditFeatures(georesourceDataset: any): void {
-    // Broadcast the event like the original AngularJS component
-    this.broadcastService.broadcast('onEditGeoresourceFeatures', georesourceDataset);
-    
-    // Then open the modal
+    // Open the modal directly
     this.onClickEditFeatures(georesourceDataset);
   }
 
