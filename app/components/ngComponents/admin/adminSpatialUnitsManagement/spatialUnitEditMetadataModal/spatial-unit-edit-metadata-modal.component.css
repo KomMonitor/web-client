@@ -297,11 +297,79 @@ input:checked + .switchslider:before {
 /* Dropdown styles */
 .dropdown-menu {
   min-width: 200px;
+  z-index: 1050;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  float: none;
+  background-color: #fff;
+  border: 1px solid rgba(0,0,0,.15);
+  border-radius: 4px;
+  box-shadow: 0 6px 12px rgba(0,0,0,.175);
 }
 
 .dropdown-menu-center {
   left: 50%;
   transform: translateX(-50%);
+}
+
+/* Ensure dropdown is visible when open */
+.dropdown.open .dropdown-menu {
+  display: block !important;
+}
+
+/* SVG content styling for dropdown items */
+#outlineDashArrayDropdownItem-editMetadata-0,
+#outlineDashArrayDropdownItem-editMetadata-1,
+#outlineDashArrayDropdownItem-editMetadata-2,
+#outlineDashArrayDropdownItem-editMetadata-3 {
+  padding: 8px 12px;
+  min-height: 60px;
+  display: block;
+  width: 100%;
+}
+
+#outlineDashArrayDropdownItem-editMetadata-0 svg,
+#outlineDashArrayDropdownItem-editMetadata-1 svg,
+#outlineDashArrayDropdownItem-editMetadata-2 svg,
+#outlineDashArrayDropdownItem-editMetadata-3 svg {
+  display: block !important;
+  width: 100% !important;
+  height: auto !important;
+  max-width: 100% !important;
+  border: 1px solid #ddd !important;
+  background: #f9f9f9 !important;
+}
+
+/* Ensure dropdown items are visible */
+.dropdown-menu li a {
+  display: block;
+  padding: 0;
+  clear: both;
+  font-weight: normal;
+  line-height: 1.42857143;
+  color: #333;
+  white-space: nowrap;
+}
+
+.dropdown-menu li a:hover {
+  color: #262626;
+  text-decoration: none;
+  background-color: #f5f5f5;
+}
+
+/* Custom dropdown item styling */
+.dropdown-item {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.dropdown-item:hover {
+  background-color: #f5f5f5;
+}
+
+.dropdown-item:active {
+  background-color: #e9ecef;
 }
 
 /* Vertical alignment helper */

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit, ChangeDetectorRef } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { HttpClient } from '@angular/common/http';
@@ -6,6 +6,7 @@ import { Subscription } from 'rxjs';
 import { KommonitorDataExchangeService } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
 import { KommonitorDataGridHelperService } from 'services/adminSpatialUnit/kommonitor-data-grid-helper.service';
 import { ColorEvent } from 'ngx-color';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 declare var $: any; // Declare jQuery for Bootstrap components
 
@@ -76,12 +77,16 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy,
   // Subscriptions
   private subscriptions: Subscription[] = [];
 
+  // Add flag to track if SVGs have been injected
+  private svgInjected = false;
+
   constructor(
     public activeModal: NgbActiveModal,
     public kommonitorDataExchangeService: KommonitorDataExchangeService,
     private kommonitorDataGridHelperService: KommonitorDataGridHelperService,
     private http: HttpClient,
-    private broadcastService: BroadcastService
+    private broadcastService: BroadcastService,
+    private sanitizer: DomSanitizer
   ) {
   }
 
@@ -96,19 +101,7 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy,
       }
     }, 100);
 
-    // Initialize dash array dropdown
-    setTimeout(() => {
-      if (this.kommonitorDataExchangeService.availableLoiDashArrayObjects) {
-        for (let i = 0; i < this.kommonitorDataExchangeService.availableLoiDashArrayObjects.length; i++) {
-          const element = document.getElementById(`outlineDashArrayDropdownItem-editMetadata-${i}`);
-          if (element) {
-            element.innerHTML = this.kommonitorDataExchangeService.availableLoiDashArrayObjects[i].svgString;
-          }
-        }
-      }
-    }, 1000);
-
-    // Color picker is now handled by ngx-color component - no initialization needed
+    // Remove conflicting SVG injection from ngOnInit - will be handled in ngAfterViewInit
     
     // If currentSpatialUnitDataset is already set (from parent component), initialize form
     if (this.currentSpatialUnitDataset) {
@@ -117,38 +110,32 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy,
   }
 
   ngAfterViewInit() {
-    // Initialize dash array dropdown after view is ready
+    // Initialize Bootstrap dropdowns only
     setTimeout(() => {
-      // Initialize Bootstrap dropdowns
       try {
         $('.dropdown-toggle').dropdown();
       } catch (error) {
         // Bootstrap dropdown initialization failed
       }
+    }, 300);
+  }
 
-      // Set SVG content for dash array options
-      if (this.kommonitorDataExchangeService.availableLoiDashArrayObjects) {
-        for (let i = 0; i < this.kommonitorDataExchangeService.availableLoiDashArrayObjects.length; i++) {
-          const element = document.getElementById(`outlineDashArrayDropdownItem-editMetadata-${i}`);
-          const dashArrayObject = this.kommonitorDataExchangeService.availableLoiDashArrayObjects[i];
-          
-          if (element) {
-            if (dashArrayObject.svgString) {
-              element.innerHTML = dashArrayObject.svgString;
-            } else {
-              // Fallback: show label if no SVG
-              element.innerHTML = `<span>${dashArrayObject.label || dashArrayObject.value}</span>`;
-            }
-          }
-        }
-      }
-      
-      if (this.selectedOutlineDashArrayObject) {
-        this.onChangeOutlineDashArray(this.selectedOutlineDashArrayObject);
-      }
-    }, 1500);
+  // Remove manual SVG injection - now handled by Angular templates
+  private injectSvgContentSimple() {
+    console.log('SVG injection no longer needed - using Angular templates');
+  }
 
-    // Color picker is now handled by ngx-color component - no initialization needed
+  // Remove the complex injection methods - not needed
+  private injectSvgContent() {
+    console.log('SVG injection no longer needed - using Angular templates');
+  }
+
+  private checkElementsExist(): boolean {
+    return true;
+  }
+
+  private performSvgInjection() {
+    console.log('SVG injection no longer needed - using Angular templates');
   }
 
   // Color picker methods for ngx-color
@@ -273,6 +260,11 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy,
         this.selectedOutlineDashArrayObject = this.availableLoiDashArrayObjects[0];
         this.selectedoutlineDashArrayObject = this.availableLoiDashArrayObjects[0];
       }
+      
+      // Update dropdown button display with selected SVG
+      setTimeout(() => {
+        this.updateDropdownButtonDisplay();
+      }, 100);
     }
 
     // Set date picker value with null check
@@ -328,13 +320,36 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy,
   }
 
   onChangeOutlineDashArray(outlineDashArrayObject: any) {
-    this.selectedOutlineDashArrayObject = outlineDashArrayObject;
+    console.log('=== onChangeOutlineDashArray called ===');
+    console.log('Selected object:', outlineDashArrayObject);
+    console.log('Object label:', outlineDashArrayObject?.label);
+    console.log('Object SVG string:', outlineDashArrayObject?.svgString?.substring(0, 50) + '...');
     
-    // Update dropdown button display
-    const buttonElement = document.getElementById('outlineDashArrayDropdownButton_editSpatialUnit');
-    if (buttonElement && outlineDashArrayObject && outlineDashArrayObject.svgString) {
-      buttonElement.innerHTML = outlineDashArrayObject.svgString;
+    this.selectedOutlineDashArrayObject = outlineDashArrayObject;
+    this.selectedoutlineDashArrayObject = outlineDashArrayObject; // Keep both for compatibility
+    
+    console.log('Updated selectedOutlineDashArrayObject:', this.selectedOutlineDashArrayObject);
+    
+    // Update dropdown button display using helper method
+    this.updateDropdownButtonDisplay();
+    
+    // Close the dropdown (optional - you can remove this if you want it to stay open)
+    // This requires Bootstrap dropdown functionality
+    try {
+      const buttonElement = document.getElementById('outlineDashArrayDropdownButton_editSpatialUnit');
+      const dropdownButton = buttonElement?.closest('.dropdown')?.querySelector('.dropdown-toggle');
+      if (dropdownButton) {
+        // Trigger Bootstrap dropdown close
+        $(dropdownButton).dropdown('toggle');
+        console.log('Dropdown closed successfully');
+      } else {
+        console.log('Could not find dropdown button to close');
+      }
+    } catch (error) {
+      console.log('Could not close dropdown automatically:', error);
     }
+    
+    console.log('=== onChangeOutlineDashArray completed ===');
   }
 
 
@@ -607,5 +622,24 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy,
     const metadataJSON = JSON.stringify(metadataStructure, null, 2);
     const fileName = "Raumebene_Metadaten_Vorlage_Export.json";
     this.downloadFile(metadataJSON, fileName);
+  }
+
+  // Method to safely sanitize SVG content
+  getSafeSvg(svgString: string): SafeHtml {
+    return this.sanitizer.bypassSecurityTrustHtml(svgString);
+  }
+
+  // Method to update dropdown button display
+  private updateDropdownButtonDisplay() {
+    const buttonElement = document.getElementById('outlineDashArrayDropdownButton_editSpatialUnit');
+    if (buttonElement && this.selectedOutlineDashArrayObject && this.selectedOutlineDashArrayObject.svgString) {
+      // Clear existing content and add the selected SVG
+      buttonElement.innerHTML = '';
+      const svgContainer = document.createElement('div');
+      svgContainer.innerHTML = this.selectedOutlineDashArrayObject.svgString;
+      buttonElement.appendChild(svgContainer);
+      
+      console.log('Updated dropdown button with selected SVG:', this.selectedOutlineDashArrayObject.label);
+    }
   }
 } 
