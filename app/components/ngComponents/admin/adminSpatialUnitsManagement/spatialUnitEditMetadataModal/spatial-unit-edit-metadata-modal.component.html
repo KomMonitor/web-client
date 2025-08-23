@@ -331,19 +331,30 @@
             <div class="col-md-3 col-sm-6 col-xs-12">
               <div class="form-group">
                 <label>Datum der letzten Aktualisierung*</label>
-                <div class="input-group date">
-                  <div class="input-group-addon">
-                    <i class="far fa-calendar-alt"></i>
+                <div class="input-group date-input-group">
+                    <div class="input-group-btn">
+                    <button 
+                      class="btn btn-default date-toggle-btn" 
+                      (click)="d.toggle()" 
+                      type="button"
+                      title="Kalender öffnen"
+                    >
+                      <i class="far fa-calendar-alt"></i>
+                    </button>
                   </div>
                   <input 
                     type="text" 
-                    [(ngModel)]="metadata.lastUpdate" 
+                    [ngModel]="metadata.lastUpdate" 
                     name="lastUpdate"
-                    class="form-control pull-right"
-                    id="spatialUnitEditMetadataLastUpdateDatepicker" 
+                    class="form-control"
                     placeholder="YYYY-MM-DD" 
                     required
+                    readonly
+                    ngbDatepicker
+                    #d="ngbDatepicker"
+                    (click)="d.toggle()"
                   />
+                
                 </div>
                 <div class="help-block with-errors"></div>
               </div>

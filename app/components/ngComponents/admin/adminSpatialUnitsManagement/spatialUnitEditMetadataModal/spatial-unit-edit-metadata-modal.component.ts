@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit, ChangeDetectorRef } from '@angular/core';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbActiveModal, NgbDatepicker, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { HttpClient } from '@angular/common/http';
 import { Subscription } from 'rxjs';
@@ -8,7 +8,8 @@ import { KommonitorDataGridHelperService } from 'services/adminSpatialUnit/kommo
 import { ColorEvent } from 'ngx-color';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
-declare var $: any; // Declare jQuery for Bootstrap components
+// Remove jQuery declaration - no longer needed
+// declare var $: any;
 
 @Component({
   selector: 'spatial-unit-edit-metadata-modal-new',
@@ -17,6 +18,7 @@ declare var $: any; // Declare jQuery for Bootstrap components
 })
 export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('metadataImportFile', { static: false }) metadataImportFile!: ElementRef;
+  @ViewChild('d', { static: false }) datepicker!: NgbDatepicker;
 
   // Multi-step form
   currentStep = 1;
@@ -45,6 +47,13 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy,
     note: '',
     sridEPSG: 4326
   };
+
+  // Date picker model for ng-bootstrap - using string format directly
+  // Remove the custom visibility control since ng-bootstrap handles it
+  // showDatepicker = false;
+  
+  // Date picker visibility control
+  // showDatepicker = false;
 
   // Hierarchy
   nextLowerHierarchySpatialUnit: any = null;
@@ -94,14 +103,7 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy,
     this.loadInitialData();
     this.setupEventListeners();
     
-    // Initialize date picker
-    setTimeout(() => {
-      if (this.kommonitorDataExchangeService.datePickerOptions) {
-        $('#spatialUnitEditMetadataLastUpdateDatepicker').datepicker(this.kommonitorDataExchangeService.datePickerOptions);
-      }
-    }, 100);
-
-    // Remove conflicting SVG injection from ngOnInit - will be handled in ngAfterViewInit
+    // Remove jQuery date picker initialization - no longer needed
     
     // If currentSpatialUnitDataset is already set (from parent component), initialize form
     if (this.currentSpatialUnitDataset) {
@@ -110,14 +112,14 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy,
   }
 
   ngAfterViewInit() {
-    // Initialize Bootstrap dropdowns only
-    setTimeout(() => {
-      try {
-        $('.dropdown-toggle').dropdown();
-      } catch (error) {
-        // Bootstrap dropdown initialization failed
-      }
-    }, 300);
+    // Remove Bootstrap dropdown initialization - no longer needed for date picker
+    // setTimeout(() => {
+    //   try {
+    //     $('.dropdown-toggle').dropdown();
+    //   } catch (error) {
+    //     // Bootstrap dropdown initialization failed
+    //   }
+    // }, 300);
   }
 
   // Remove manual SVG injection - now handled by Angular templates
@@ -194,6 +196,26 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy,
     this.loadingData = false;
   }
 
+  // Helper method to convert string date to NgbDateStruct for validation
+  private stringToNgbDate(dateString: string): NgbDateStruct | null {
+    if (!dateString) return null;
+    
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return null;
+    
+    return {
+      year: date.getFullYear(),
+      month: date.getMonth() + 1, // JavaScript months are 0-based
+      day: date.getDate()
+    };
+  }
+
+  // Date picker change handler - now using ng-bootstrap's built-in functionality
+  // The datepicker will automatically handle the date selection and close
+  // No need for custom methods since ng-bootstrap handles everything
+
+  // Remove custom click outside and escape key handlers since ng-bootstrap handles this
+
   resetForm() {
     if (!this.currentSpatialUnitDataset) return;
 
@@ -267,13 +289,8 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy,
       }, 100);
     }
 
-    // Set date picker value with null check
-    setTimeout(() => {
-      const datePicker = $('#spatialUnitEditMetadataLastUpdateDatepicker');
-      if (datePicker && datePicker.datepicker && metadata.lastUpdate) {
-        datePicker.datepicker('setDate', metadata.lastUpdate);
-      }
-    }, 100);
+    // Set date picker value with null check - now using ng-bootstrap
+    // The datepicker will automatically display the date from metadata.lastUpdate
 
     this.hierarchyInvalid = false;
     this.successMessagePart = '';
@@ -339,8 +356,12 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy,
       const buttonElement = document.getElementById('outlineDashArrayDropdownButton_editSpatialUnit');
       const dropdownButton = buttonElement?.closest('.dropdown')?.querySelector('.dropdown-toggle');
       if (dropdownButton) {
-        // Trigger Bootstrap dropdown close
-        $(dropdownButton).dropdown('toggle');
+        // Trigger Bootstrap dropdown close using native DOM manipulation
+        // Remove 'open' class from dropdown container
+        const dropdownContainer = buttonElement?.closest('.dropdown');
+        if (dropdownContainer) {
+          dropdownContainer.classList.remove('open');
+        }
         console.log('Dropdown closed successfully');
       } else {
         console.log('Could not find dropdown button to close');
@@ -542,6 +563,9 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy,
         }
       });
     }
+
+    // Set date picker value from import
+    // The datepicker will automatically display the imported date
 
     // No role management in this version to match AngularJS
   }
