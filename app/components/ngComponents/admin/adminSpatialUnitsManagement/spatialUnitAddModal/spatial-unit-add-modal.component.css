@@ -98,20 +98,314 @@ textarea.form-control {
   border-radius: 0.25rem;
 }
 
-.alert-success {
-  color: #155724;
-  background-color: #d4edda;
-  border-color: #c3e6cb;
+/* ng-bootstrap Datepicker Styles */
+.datepicker-dropdown {
+  position: absolute !important;
+  z-index: 9999 !important;
+  background: white !important;
+  border: 1px solid #ccc !important;
+  border-radius: 4px !important;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1) !important;
+  margin-top: 2px !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+  width: 320px !important;
+  left: 0 !important;
+  top: 100% !important;
 }
 
-.alert-danger {
-  color: #721c24;
-  background-color: #f8d7da;
-  border-color: #f5c6cb;
+/* Position the datepicker relative to the input group */
+.input-group {
+  position: relative !important;
 }
 
-.alert-dismissable {
-  padding-right: 4rem;
+.input-group .datepicker-dropdown {
+  position: absolute !important;
+  top: 100% !important;
+  left: 0 !important;
+  right: auto !important;
+  margin-top: 2px !important;
+  z-index: 9999 !important;
+}
+
+/* Ensure datepicker renders above all other elements */
+.ngb-datepicker {
+  position: absolute !important;
+  z-index: 9999 !important;
+  background: white !important;
+  border: 1px solid #ccc !important;
+  border-radius: 4px !important;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1) !important;
+  margin-top: 2px !important;
+  width: 320px !important;
+  left: 0 !important;
+  top: 100% !important;
+}
+
+/* Override any ng-bootstrap default positioning */
+.ngb-datepicker-picker {
+  position: absolute !important;
+  z-index: 9999 !important;
+  background: white !important;
+  border: 1px solid #ccc !important;
+  border-radius: 4px !important;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1) !important;
+  margin-top: 2px !important;
+  width: 320px !important;
+  left: 0 !important;
+  top: 100% !important;
+}
+
+/* Ensure the datepicker container doesn't clip content */
+.date-input-group {
+  overflow: visible !important;
+  position: relative !important;
+}
+
+/* Force datepicker to render outside button group */
+.input-group-btn {
+  position: relative !important;
+  overflow: visible !important;
+}
+
+.input-group-btn .ngb-datepicker {
+  position: absolute !important;
+  z-index: 9999 !important;
+  left: 0 !important;
+  top: 100% !important;
+  margin-top: 2px !important;
+}
+
+/* Date input group specific styling - matching original AngularJS version */
+.date-input-group {
+  border-radius: 4px !important;
+  overflow: visible !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+  position: relative !important;
+}
+
+/* Left button styling for calendar icon */
+.date-input-group .input-group-btn {
+  position: relative !important;
+}
+
+.date-input-group .date-toggle-btn {
+  border-right: none !important;
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+  background-color: #f8f9fa !important;
+  border-color: #ced4da !important;
+  color: #495057 !important;
+  padding: 8px 12px !important;
+  min-width: 40px !important;
+  transition: all 0.15s ease-in-out !important;
+  border-top-left-radius: 4px !important;
+  border-bottom-left-radius: 4px !important;
+}
+
+.date-input-group .date-toggle-btn:hover {
+  background-color: #e9ecef !important;
+  border-color: #adb5bd !important;
+  color: #007bff !important;
+}
+
+.date-input-group .date-toggle-btn:focus {
+  outline: none !important;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25) !important;
+}
+
+.date-input-group .form-control {
+  border-left: none !important;
+  border-right: 1px solid #ced4da !important;
+  border-radius: 0 !important;
+  padding: 8px 12px !important;
+  font-size: 14px !important;
+  border-top-right-radius: 4px !important;
+  border-bottom-right-radius: 4px !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease-in-out !important;
+}
+
+.date-input-group .form-control:hover {
+  background-color: #f8f9fa !important;
+  border-color: #adb5bd !important;
+}
+
+.date-input-group .form-control:focus {
+  border-color: #80bdff !important;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25) !important;
+  outline: none !important;
+  background-color: #fff !important;
+}
+
+/* Enhanced visual feedback for clickable elements */
+.date-input-group .date-toggle-btn {
+  cursor: pointer !important;
+}
+
+.date-input-group .date-toggle-btn:active {
+  background-color: #dee2e6 !important;
+  transform: translateY(1px) !important;
+}
+
+.date-input-group .form-control:active {
+  background-color: #f8f9fa !important;
+}
+
+/* Ensure proper spacing and alignment */
+.date-input-group .input-group-btn {
+  margin-right: 0 !important;
+}
+
+.date-input-group .form-control {
+  margin-left: 0 !important;
+}
+
+/* Hover effect for the entire input group */
+.date-input-group:hover {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Enhanced datepicker styling with larger fonts - matching original design */
+.datepicker-dropdown .ngb-dp-header {
+  background-color: #f8f9fa !important;
+  border-bottom: 1px solid #dee2e6 !important;
+  padding: 18px 15px !important;
+  border-radius: 4px 4px 0 0 !important;
+}
+
+.datepicker-dropdown .ngb-dp-month {
+  background: white !important;
+  padding: 15px !important;
+}
+
+.datepicker-dropdown .ngb-dp-weekday {
+  color: #6c757d !important;
+  font-weight: 600 !important;
+  font-size: 18px !important;
+  padding: 12px 8px !important;
+  text-align: center !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+}
+
+.datepicker-dropdown .ngb-dp-day {
+  padding: 10px !important;
+  text-align: center !important;
+  cursor: pointer !important;
+  border-radius: 4px !important;
+  transition: all 0.15s ease-in-out !important;
+  font-weight: 500 !important;
+  font-size: 18px !important;
+  min-width: 45px !important;
+  height: 45px !important;
+  line-height: 25px !important;
+}
+
+.datepicker-dropdown .ngb-dp-day:hover {
+  background-color: #e9ecef !important;
+  transform: scale(1.05) !important;
+}
+
+.datepicker-dropdown .ngb-dp-day.selected {
+  background-color: #007bff !important;
+  color: white !important;
+  font-weight: bold !important;
+  box-shadow: 0 2px 4px rgba(0, 123, 255, 0.3) !important;
+}
+
+.datepicker-dropdown .ngb-dp-day.focused {
+  background-color: #007bff !important;
+  color: white !important;
+  font-weight: bold !important;
+}
+
+.datepicker-dropdown .ngb-dp-day.today {
+  background-color: #fff3cd !important;
+  color: #856404 !important;
+  font-weight: bold !important;
+  border: 2px solid #ffc107 !important;
+}
+
+.datepicker-dropdown .ngb-dp-day.disabled {
+  color: #6c757d !important;
+  cursor: not-allowed !important;
+  opacity: 0.4 !important;
+}
+
+.datepicker-dropdown .ngb-dp-day.outside {
+  color: #6c757d !important;
+  opacity: 0.5 !important;
+}
+
+.datepicker-dropdown .ngb-dp-navigation-chevron {
+  border-style: solid !important;
+  border-width: 0.35em 0.35em 0 0 !important;
+  content: "" !important;
+  display: inline-block !important;
+  height: 0.7em !important;
+  transform: rotate(-45deg) !important;
+  vertical-align: top !important;
+  width: 0.7em !important;
+  color: #495057 !important;
+}
+
+.datepicker-dropdown .ngb-dp-navigation-chevron.right {
+  transform: rotate(45deg) !important;
+}
+
+.datepicker-dropdown .ngb-dp-month-name {
+  font-size: 20px !important;
+  font-weight: 600 !important;
+  color: #495057 !important;
+  text-transform: capitalize !important;
+}
+
+.datepicker-dropdown .ngb-dp-arrow {
+  background: transparent !important;
+  border: none !important;
+  padding: 12px 18px !important;
+  cursor: pointer !important;
+  border-radius: 4px !important;
+  transition: all 0.15s ease-in-out !important;
+  min-width: 50px !important;
+}
+
+.datepicker-dropdown .ngb-dp-arrow:hover {
+  background-color: #e9ecef !important;
+  transform: scale(1.1) !important;
+}
+
+.datepicker-dropdown .ngb-dp-arrow:focus {
+  outline: 2px solid #007bff !important;
+  outline-offset: 2px !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .datepicker-dropdown {
+    width: 300px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+  }
+  
+  .input-group .datepicker-dropdown {
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+  }
+  
+  .datepicker-dropdown .ngb-dp-day {
+    font-size: 16px !important;
+    min-width: 40px !important;
+    height: 40px !important;
+  }
+  
+  .datepicker-dropdown .ngb-dp-weekday {
+    font-size: 16px !important;
+  }
+  
+  .datepicker-dropdown .ngb-dp-month-name {
+    font-size: 18px !important;
+  }
 }
 
 /* Progress Bar Styles - Matching Original */
@@ -301,21 +595,6 @@ input[type="color"]::-webkit-color-swatch-wrapper {
 input[type="color"]::-webkit-color-swatch {
   border: none;
   border-radius: 4px;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .modal-body {
-    padding: 0.5rem;
-  }
-  
-  .form-group {
-    margin-bottom: 0.5rem;
-  }
-  
-  .col-xs-12 {
-    margin-bottom: 1rem;
-  }
 }
 
 /* Ensure modal is visible */
