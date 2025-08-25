@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, Inject, ViewChild, ElementRef } from '@angular/core';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbActiveModal, NgbDatepicker } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { HttpClient } from '@angular/common/http';
 import { Subscription } from 'rxjs';
@@ -21,6 +21,8 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
   @ViewChild('mappingConfigImportFile', { static: false }) mappingConfigImportFile!: ElementRef;
   @ViewChild('spatialUnitDataSourceInput', { static: false }) spatialUnitDataSourceInput!: ElementRef;
   @ViewChild('spatialUnitFeatureTable', { static: true }) spatialUnitFeatureTable!: AgGridAngular;
+  @ViewChild('d1', { static: false }) datepicker1!: NgbDatepicker;
+  @ViewChild('d2', { static: false }) datepicker2!: NgbDatepicker;
 
   // Multi-step form
   currentStep = 1;
@@ -168,13 +170,8 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
   }
 
   private initializeDatePickers(): void {
-    // Initialize date pickers
-    setTimeout(() => {
-      if (this.kommonitorDataExchangeService?.datePickerOptions) {
-        $('#spatialUnitEditFeaturesDatepickerStart').datepicker(this.kommonitorDataExchangeService.datePickerOptions);
-        $('#spatialUnitEditFeaturesDatepickerEnd').datepicker(this.kommonitorDataExchangeService.datePickerOptions);
-      }
-    }, 100);
+    // ng-bootstrap date pickers are automatically initialized via template
+    // No additional initialization needed
   }
 
   private initializeForm(): void {

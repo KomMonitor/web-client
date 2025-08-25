@@ -479,7 +479,16 @@ export class KommonitorDataGridHelperService {
     if (currentTableOptionsObject && this.gridApi_spatialUnits) {
       // Grid already exists, just update the data
       const newRowData = this.buildRoleManagementGridRowData(accessControlMetadata, selectedPermissionIds);
+      // update underlying options so callers get the latest data
+      currentTableOptionsObject.rowData = newRowData;
       this.gridApi_spatialUnits.setRowData(newRowData);
+      // ensure cells re-render to apply disabled state and checks
+      setTimeout(() => {
+        try {
+          this.gridApi_spatialUnits?.refreshCells({ force: true });
+          this.gridApi_spatialUnits?.redrawRows();
+        } catch (e) {}
+      }, 0);
     } else {
       // Create new grid options
       currentTableOptionsObject = this.buildRoleManagementGridOptions(accessControlMetadata, selectedPermissionIds, reducedRoleManagement);
@@ -504,14 +513,18 @@ export class KommonitorDataGridHelperService {
       elem.creator = false;
       if (elem.permissions && Array.isArray(elem.permissions)) {
         for (const permission of elem.permissions) {
+          const isChecked = !!(permissionIds && permissionIds.includes(permission.permissionId));
+          // keep permissions[] state in sync (as in AngularJS)
+          permission.isChecked = isChecked;
+
           if (permission.permissionLevel === 'viewer') {
-            elem.viewer = permissionIds && permissionIds.includes(permission.permissionId);
+            elem.viewer = isChecked;
           }
           if (permission.permissionLevel === 'editor') {
-            elem.editor = permissionIds && permissionIds.includes(permission.permissionId);
+            elem.editor = isChecked;
           }
           if (permission.permissionLevel === 'creator') {
-            elem.creator = permissionIds && permissionIds.includes(permission.permissionId);
+            elem.creator = isChecked;
           }
         }
       }
@@ -547,7 +560,7 @@ export class KommonitorDataGridHelperService {
         filter: false, 
         sortable: false, 
         width: 100, 
-        cellRenderer: 'agCheckboxCellRenderer',
+        cellRenderer: 'CheckboxRenderer_viewer',
         editable: true
       },
       { 
@@ -556,7 +569,7 @@ export class KommonitorDataGridHelperService {
         filter: false, 
         sortable: false, 
         width: 100, 
-        cellRenderer: 'agCheckboxCellRenderer',
+        cellRenderer: 'CheckboxRenderer_editor',
         editable: true
       }
     ];
@@ -567,7 +580,7 @@ export class KommonitorDataGridHelperService {
         filter: false, 
         sortable: false, 
         width: 100, 
-        cellRenderer: 'agCheckboxCellRenderer',
+        cellRenderer: 'CheckboxRenderer_creator',
         editable: true
       });
     }
@@ -578,6 +591,11 @@ export class KommonitorDataGridHelperService {
     const columnDefs = this.buildRoleManagementGridColumnConfig(reducedRoleManagement);
     const rowData = this.buildRoleManagementGridRowData(accessControlMetadata, selectedPermissionIds);
     const gridOptions = {
+      components: {
+        CheckboxRenderer_viewer: this.CheckboxRenderer_viewer,
+        CheckboxRenderer_editor: this.CheckboxRenderer_editor,
+        CheckboxRenderer_creator: this.CheckboxRenderer_creator
+      },
       defaultColDef: {
         editable: false,
         sortable: true,

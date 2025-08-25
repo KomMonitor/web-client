@@ -326,8 +326,19 @@
                   <div class="input-group-addon">
                     <i class="far fa-calendar-alt"></i>
                   </div>
-                  <input type="text" [(ngModel)]="periodOfValidity.startDate" name="periodOfValidityStartDate" (ngModelChange)="checkPeriodOfValidity()"
-                         class="form-control pull-right" id="spatialUnitEditFeaturesDatepickerStart" placeholder="YYYY-MM-DD" required>
+                  <input 
+                    type="text" 
+                    [(ngModel)]="periodOfValidity.startDate" 
+                    name="periodOfValidityStartDate" 
+                    (ngModelChange)="checkPeriodOfValidity()"
+                    class="form-control pull-right"
+                    placeholder="YYYY-MM-DD" 
+                    required
+                    readonly
+                    ngbDatepicker
+                    #d1="ngbDatepicker"
+                    (click)="d1.toggle()"
+                  >
                 </div>
                 <div class="help-block">
                   <p>Eintrag ist immer erforderlich, selbst wenn die räumlichen Raumeinheiten über ein Lebenszeitraum-Attribut verfügen.</p>
@@ -346,8 +357,18 @@
                   <div class="input-group-addon">
                     <i class="far fa-calendar-alt"></i>
                   </div>
-                  <input type="text" [(ngModel)]="periodOfValidity.endDate" name="periodOfValidityEndDate" (ngModelChange)="checkPeriodOfValidity()"
-                         class="form-control pull-right" id="spatialUnitEditFeaturesDatepickerEnd" placeholder="YYYY-MM-DD">
+                  <input 
+                    type="text" 
+                    [(ngModel)]="periodOfValidity.endDate" 
+                    name="periodOfValidityEndDate" 
+                    (ngModelChange)="checkPeriodOfValidity()"
+                    class="form-control pull-right"
+                    placeholder="YYYY-MM-DD"
+                    readonly
+                    ngbDatepicker
+                    #d2="ngbDatepicker"
+                    (click)="d2.toggle()"
+                  >
                 </div>
                 <div class="help-block">
                   <p>Eintrag ist erforderlich, falls die räumlichen Raumeinheiten nicht selbst über ein Lebenszeitraum-Attribut verfügen. Enddatum darf leer sein, um anzuzeigen, dass es sich um aktuell gültige Raumeinheiten handelt.</p>

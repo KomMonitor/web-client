@@ -579,6 +579,82 @@ input:checked + .switchslider:before {
 }
 
 /* Color picker */
+.color-picker-container {
+  position: relative;
+  display: inline-block;
+  z-index: 1;
+}
+
+.color-picker-button {
+  background-color: #fff;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: monospace;
+  font-size: 12px;
+  color: #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+}
+
+.color-picker-button:hover {
+  border-color: #007bff;
+  box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2);
+}
+
+.color-picker-button:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.color-display-text {
+  color: #333;
+  font-weight: 500;
+  text-shadow: 0 0 2px rgba(255, 255, 255, 0.8);
+}
+
+.color-picker-overlay {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 99999999;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  padding: 10px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+.color-picker-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 99999998;
+  background: transparent;
+  cursor: default;
+}
+
+/* Legacy color input styles for fallback */
 input[type="color"] {
   -webkit-appearance: none;
   border: none;

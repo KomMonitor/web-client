@@ -7,6 +7,8 @@ import { KommonitorDataGridHelperService } from '../../../../../services/adminSp
 import { KommonitorDataExchangeService } from '../../../../../services/adminSpatialUnit/kommonitor-data-exchange.service';
 import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef, GridOptions, GridApi, ColumnApi } from 'ag-grid-community';
+import { ColorEvent } from 'ngx-color';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 @Component({
   selector: 'spatial-unit-add-modal-new',
@@ -19,6 +21,9 @@ export class SpatialUnitAddModalComponent implements OnInit {
   @ViewChild('spatialUnitDataSourceInput', { static: false }) spatialUnitDataSourceInput!: ElementRef;
   @ViewChild('roleManagementGrid', { static: false }) roleManagementGrid!: AgGridAngular;
   @ViewChild('d', { static: false }) datepicker!: NgbDatepicker;
+  @ViewChild('startDatepicker', { static: false }) startDatepicker!: NgbDatepicker;
+  @ViewChild('endDatepicker', { static: false }) endDatepicker!: NgbDatepicker;
+  @ViewChild('lastUpdateDatepicker', { static: false }) lastUpdateDatepicker!: NgbDatepicker;
 
   // Multi-step form
   currentStep = 1;
@@ -136,9 +141,13 @@ export class SpatialUnitAddModalComponent implements OnInit {
   outlineColor = "#000000";
   selectedOutlineDashArrayObject: any = null;
   spatialUnitMetadataStructure_pretty: string = '';
+  spatialUnitMappingConfigStructure: any = {};
   
   // Role form visibility
   showRoleForm = false;
+
+  // Color picker properties
+  showColorPicker = false;
 
   // Grid ready event handler
   onRoleManagementGridReady(params: any) {
@@ -218,7 +227,8 @@ export class SpatialUnitAddModalComponent implements OnInit {
     public kommonitorImporterHelperService: KommonitorImporterHelperService,
     private kommonitorDataGridHelperService: KommonitorDataGridHelperService,
     private http: HttpClient,
-    private broadcastService: BroadcastService
+    private broadcastService: BroadcastService,
+    private sanitizer: DomSanitizer
   ) {
   }
 
@@ -257,6 +267,9 @@ export class SpatialUnitAddModalComponent implements OnInit {
 
     // Load access control data and prepare creator list
     this.loadAccessControlData();
+
+    // Initialize metadata structures
+    this.spatialUnitMappingConfigStructure = this.kommonitorImporterHelperService.mappingConfigStructure;
   }
 
   private loadAccessControlData() {
@@ -330,10 +343,18 @@ export class SpatialUnitAddModalComponent implements OnInit {
   private initializeOutlineLayerSettings() {
     this.selectedOutlineDashArrayObject = this.kommonitorDataExchangeService.availableLoiDashArrayObjects?.[0] || null;
     this.availableLoiDashArrayObjects = this.kommonitorDataExchangeService.availableLoiDashArrayObjects || [];
+    
+    // Remove jQuery-specific initialization - Angular will handle this automatically
+    
+    // Update dropdown button display with selected SVG
+    setTimeout(() => {
+      this.updateDropdownButtonDisplay();
+    }, 100);
   }
 
   private initializeMetadataStructures() {
-    this.spatialUnitMetadataStructure_pretty = this.kommonitorDataExchangeService.syntaxHighlightJSON(this.spatialUnitMetadataStructure);
+    this.spatialUnitMetadataStructure_pretty = this.kommonitorDataExchangeService.syntaxHighlightJSON(this.kommonitorDataExchangeService.spatialUnitMetadataStructure);
+    this.spatialUnitMappingConfigStructure = this.kommonitorImporterHelperService.mappingConfigStructure;
   }
 
   prepareCreatorList() {
@@ -533,9 +554,102 @@ export class SpatialUnitAddModalComponent implements OnInit {
   }
 
   onChangeOutlineDashArray(outlineDashArrayObject: any) {
+    console.log('=== onChangeOutlineDashArray called ===');
+    console.log('Selected object:', outlineDashArrayObject);
+    console.log('Object label:', outlineDashArrayObject?.label);
+    console.log('Object SVG string:', outlineDashArrayObject?.svgString?.substring(0, 50) + '...');
+    
     // Handle outline dash array change
     this.selectedOutlineDashArrayObject = outlineDashArrayObject;
     this.outlineDashArray = outlineDashArrayObject;
+    
+    // Update dropdown button display using helper method
+    this.updateDropdownButtonDisplay();
+    
+    // Close the dropdown (optional - you can remove this if you want it to stay open)
+    // This requires Bootstrap dropdown functionality
+    try {
+      const buttonElement = document.getElementById('outlineDashArrayDropdownButton_addSpatialUnit');
+      const dropdownButton = buttonElement?.closest('.dropdown')?.querySelector('.dropdown-toggle');
+      if (dropdownButton) {
+        // Trigger Bootstrap dropdown close using native DOM manipulation
+        // Remove 'open' class from dropdown container
+        const dropdownContainer = buttonElement?.closest('.dropdown');
+        if (dropdownContainer) {
+          dropdownContainer.classList.remove('open');
+        }
+        console.log('Dropdown closed successfully');
+      } else {
+        console.log('Could not find dropdown button to close');
+      }
+    } catch (error) {
+      console.log('Could not close dropdown automatically:', error);
+    }
+    
+    console.log('=== onChangeOutlineDashArray completed ===');
+  }
+
+  // Color picker methods for ngx-color
+  toggleColorPicker(event?: Event) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    this.showColorPicker = !this.showColorPicker;
+  }
+
+  onColorChange(event: ColorEvent) {
+    this.outlineColor = event.color.hex;
+  }
+
+  onColorChangeComplete(event: ColorEvent) {
+    this.outlineColor = event.color.hex;
+    // Don't auto-close - let user continue adjusting color
+  }
+
+  closeColorPicker(event?: Event) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    this.showColorPicker = false;
+  }
+
+  onColorPickerContainerClick(event: Event) {
+    // Prevent propagation to avoid triggering the outside click
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
+  onColorPickerClick() {
+    // Toggle the ngx-color picker
+    this.toggleColorPicker();
+  }
+
+  // Date picker methods
+  toggleDatepicker(datepickerRef: any) {
+    // For NgbDatepicker, we need to use a different approach
+    // The datepicker will be controlled by the input field's readonly property
+    // This method can be used to handle any additional logic if needed
+  }
+
+  // Method to update dropdown button display
+  private updateDropdownButtonDisplay() {
+    const buttonElement = document.getElementById('outlineDashArrayDropdownButton_addSpatialUnit');
+    if (buttonElement && this.selectedOutlineDashArrayObject && this.selectedOutlineDashArrayObject.svgString) {
+      // Clear existing content and add the selected SVG
+      buttonElement.innerHTML = '';
+      const svgContainer = document.createElement('div');
+      svgContainer.innerHTML = this.selectedOutlineDashArrayObject.svgString;
+      buttonElement.appendChild(svgContainer);
+      
+      console.log('Updated dropdown button with selected SVG:', this.selectedOutlineDashArrayObject.label);
+    }
+  }
+
+  // Method to safely sanitize SVG content
+  getSafeSvg(svgString: string): SafeHtml {
+    return this.sanitizer.bypassSecurityTrustHtml(svgString);
   }
 
   // Importer object building methods
@@ -909,9 +1023,17 @@ export class SpatialUnitAddModalComponent implements OnInit {
       }
     });
 
+    // Update dropdown button display with selected SVG
+    setTimeout(() => {
+      this.updateDropdownButtonDisplay();
+    }, 100);
+
     this.spatialUnitLevel = this.metadataImportSettings.spatialUnitLevel;
     this.ownerOrganization = this.metadataImportSettings.ownerId;
-    this.isPublic = this.metadataImportSettings.isPublic || false;
+    this.isPublic = this.metadataImportSettings.isPublic;
+
+    // Initialize metadata structures
+    this.spatialUnitMappingConfigStructure = this.kommonitorImporterHelperService.mappingConfigStructure;
   }
 
   parseFromMappingConfigFile(event: any) {
@@ -991,10 +1113,18 @@ export class SpatialUnitAddModalComponent implements OnInit {
       };
       this.periodOfValidityInvalid = false;
     }
+
+    // Initialize metadata structures
+    this.spatialUnitMappingConfigStructure = this.kommonitorImporterHelperService.mappingConfigStructure;
+
+    // Update dropdown button display with selected SVG
+    setTimeout(() => {
+      this.updateDropdownButtonDisplay();
+    }, 100);
   }
 
   onExportSpatialUnitAddMetadataTemplate() {
-    const metadataJSON = JSON.stringify(this.spatialUnitMetadataStructure);
+    const metadataJSON = JSON.stringify(this.kommonitorDataExchangeService.spatialUnitMetadataStructure);
     const fileName = "Raumebene_Metadaten_Vorlage_Export.json";
     this.downloadFile(metadataJSON, fileName);
   }
@@ -1104,7 +1234,13 @@ export class SpatialUnitAddModalComponent implements OnInit {
     this.outlineWidth = 3;
     this.outlineDashArray = null;
     this.selectedOutlineDashArrayObject = this.kommonitorDataExchangeService.availableLoiDashArrayObjects?.[0] || null;
+    this.spatialUnitMappingConfigStructure = {};
     
+    // Update dropdown button display with selected SVG
+    setTimeout(() => {
+      this.updateDropdownButtonDisplay();
+    }, 100);
+
     this.converter = null;
     this.schema = '';
     this.mimeType = '';
@@ -1155,6 +1291,8 @@ export class SpatialUnitAddModalComponent implements OnInit {
     this.spatialUnitMappingConfigImportError = '';
     this.spatialUnitDataSourceIdPropertyInvalid = false;
     this.spatialUnitDataSourceNamePropertyInvalid = false;
+    this.spatialUnitMappingConfigStructure = {};
+    this.spatialUnitMetadataStructure_pretty = '';
     const attributeMappingTypes = this.kommonitorImporterHelperService.getAttributeMappingTypes();
     this.attributeMapping_attributeType = attributeMappingTypes[0];
     this.errorMessage = '';

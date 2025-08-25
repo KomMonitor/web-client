@@ -662,7 +662,7 @@ input[type="color"] {
   left: 50%;
   transform: translateX(-50%);
   margin-top: 5px;
-  z-index: 1050;
+  z-index: 99999999;
   background: white;
   border-radius: 8px;
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
@@ -696,7 +696,7 @@ input[type="color"] {
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 1040; /* Below the color picker overlay but above everything else */
+  z-index: 99999998; /* Below the color picker overlay but above everything else */
   background: transparent;
   cursor: default;
 }
