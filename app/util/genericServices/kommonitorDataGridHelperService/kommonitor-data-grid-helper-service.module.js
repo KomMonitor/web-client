@@ -2318,6 +2318,10 @@ angular
                 url: __env.targetUrlToProcessesApi + "jobs/" + params.data.jobIDs[latestJobIndex],
                 method: "GET"
               }).then(function successCallback(response) {
+                let jobDateTime = "";
+                if (response.data.job_end_datetime) {
+                  jobDateTime = "<i class='fa-regular fa-calendar'></i> " + (new Date(response.data.job_end_datetime)).toLocaleString("de-DE");
+                }
                 let jobStatus;
                 switch(response.data.status){
                   case "successful": jobStatus = "<button disabled class='btn-success btn-sm'>abgeschlossen</div>"; break;
@@ -2327,8 +2331,7 @@ angular
                   default: "Status unbekannt";
                 }
                 document.getElementById("latestJobSummary"+params.data.scheduleID).innerHTML = 
-                  "<i class='fa-regular fa-calendar'></i> "
-                  + (new Date(response.data.job_end_datetime)).toLocaleString("de-DE") 
+                  "" + jobDateTime
                   + jobStatus 
                   + "<button class='btn-sm' onclick='onJobTableClicked(`" + params.data.scheduleID + "`)'><i class='fas fa-table'></i></button>";
 
@@ -2336,8 +2339,14 @@ angular
                   url: __env.targetUrlToProcessesApi + "jobs/" + params.data.jobIDs[latestJobIndex] + "/results",
                   method: "GET"
                 }).then(function successCallback(response) {
-                  if (response.data.jobSummary[0].numberOfIntegratedIndicatorFeatures) {
-                    document.getElementById("latestJobResult"+params.data.scheduleID).innerHTML = "" + response.data.jobSummary[0].numberOfIntegratedIndicatorFeatures + " Features integriert";
+                  for (let i = 0; i<params.data.inputs.target_spatial_units.length; i++) {
+                    let html = "";
+                    const spatialUnitId = params.data.inputs.target_spatial_units[i];
+                    html += "<div><b>" + kommonitorDataExchangeService.getSpatialUnitMetadataById(spatialUnitId).spatialUnitLevel + ":</b></div>";
+                    if (response.data.jobSummary[i].numberOfIntegratedIndicatorFeatures) {
+                       html += response.data.jobSummary[i].numberOfIntegratedIndicatorFeatures + " Features integriert</br>";
+                    }
+                    document.getElementById("latestJobResult"+params.data.scheduleID).innerHTML += html;
                   }
                 });
               }, function errorCallback(error) {
@@ -2346,7 +2355,7 @@ angular
                 throw error;
               });
 
-              return "<div id='latestJobSummary"+params.data.scheduleID+"'>Job wird geladen...</div><div id='latestJobResult"+params.data.scheduleID+"'></div>"
+              return "<div id='latestJobSummary"+params.data.scheduleID+"'>Job wird geladen...</div><div id='latestJobResult"+params.data.scheduleID+"'></div>";
             }
           },
           
