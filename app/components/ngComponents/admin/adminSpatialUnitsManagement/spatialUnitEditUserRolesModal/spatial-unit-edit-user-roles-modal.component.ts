@@ -219,6 +219,8 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, OnDestroy
 
   onRoleManagementGridReady(params: GridReadyEvent): void {
     this.roleManagementGridApi = params.api;
+    // Ensure helper service has the grid API to collect selected role IDs
+    this.kommonitorDataGridHelperService.setGridApi(params.api);
   }
 
   onRoleManagementFirstDataRendered(event: any): void {
@@ -367,6 +369,13 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, OnDestroy
 
       this.successMessagePart = this.currentSpatialUnitDataset.spatialUnitLevel;
       this.broadcastService.broadcast('refreshSpatialUnitOverviewTable', ['edit', this.currentSpatialUnitDataset.spatialUnitId]);
+      // Persist latest selection locally so the grid reflects changes on refresh
+      this.permissions = putBody.permissions;
+      if (this.currentSpatialUnitDataset) {
+        this.currentSpatialUnitDataset.permissions = putBody.permissions;
+      }
+      // Optionally refresh the table to sync checkbox state
+      setTimeout(() => this.refreshRoleManagementTable(), 0);
       
     } catch (error: any) {
       this.errorMessagePart = 'Fehler beim Aktualisieren der Zugriffsrechte. Fehler lautet: \n\n';

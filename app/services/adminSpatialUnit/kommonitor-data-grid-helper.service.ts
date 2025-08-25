@@ -239,7 +239,7 @@ export class KommonitorDataGridHelperService {
       sortable: true,
       flex: 1,
       minWidth: 100,
-      filter: true,
+      filter: false,
       floatingFilter: false,
       resizable: true,
       wrapText: true,
@@ -255,14 +255,12 @@ export class KommonitorDataGridHelperService {
       headerComponentParams: {
         template:
           '<div class="ag-cell-label-container" role="presentation">' +
-          '  <span ref="eMenu" class="ag-header-icon ag-header-cell-menu-button"></span>' +
           '  <div ref="eLabel" class="ag-header-cell-label" role="presentation">' +
           '    <span ref="eSortOrder" class="ag-header-icon ag-sort-order"></span>' +
           '    <span ref="eSortAsc" class="ag-header-icon ag-sort-ascending-icon"></span>' +
           '    <span ref="eSortDesc" class="ag-header-icon ag-sort-descending-icon"></span>' +
           '    <span ref="eSortNone" class="ag-header-icon ag-sort-none-icon"></span>' +
           '    <span ref="eText" class="ag-header-cell-text" role="columnheader" style="white-space: normal;"></span>' +
-          '    <span ref="eFilter" class="ag-header-icon ag-filter-icon"></span>' +
           '  </div>' +
           '</div>',
       },
@@ -655,28 +653,28 @@ export class KommonitorDataGridHelperService {
    * Get selected role IDs from role management grid
    */
   getSelectedRoleIds_roleManagementGrid(roleManagementTableOptions: any): string[] {
-    const ids: string[] = [];
-    const deselectedIds: string[] = [];
-    
-    if (roleManagementTableOptions && this.gridApi_spatialUnits) {
-      this.gridApi_spatialUnits.forEachNode((node: any, index: number) => {
-        if (node.data) {
-          for (const permission of node.data.permissions) {
-            if (permission) {
-              if (permission.isChecked) {
-                if (!deselectedIds.includes(permission.permissionId)) {
-                  ids.push(permission.permissionId);
-                }
-              } else {
-                deselectedIds.push(permission.permissionId);
-              }
-            }
-          }
+    const selectedIds = new Set<string>();
+
+    const collectFromRow = (row: any) => {
+      if (!row || !row.permissions) return;
+      for (const permission of row.permissions) {
+        if (permission && permission.isChecked && permission.permissionId) {
+          selectedIds.add(permission.permissionId);
         }
-      });
+      }
+    };
+
+    // Prefer live grid data when API is available
+    if (this.gridApi_spatialUnits && !(this.gridApi_spatialUnits as any).isDestroyed?.()) {
+      this.gridApi_spatialUnits.forEachNode((node: any) => collectFromRow(node.data));
+    } else if (roleManagementTableOptions && Array.isArray(roleManagementTableOptions.rowData)) {
+      // Fallback to current table options rowData
+      for (const row of roleManagementTableOptions.rowData) {
+        collectFromRow(row);
+      }
     }
-    
-    return ids;
+
+    return Array.from(selectedIds);
   }
 
   /**
@@ -684,7 +682,7 @@ export class KommonitorDataGridHelperService {
    */
   private CheckboxRenderer_viewer = class {
     private params: any;
-    private eGui: HTMLInputElement | null = null;
+    private eGui: HTMLElement | null = null;
     private boundCheckedHandler: any;
 
     init(params: any) {
@@ -705,18 +703,22 @@ export class KommonitorDataGridHelperService {
       }
       
       if(exists){
-        this.eGui = document.createElement('input') as HTMLInputElement;
-        this.eGui.className = className;
-        this.eGui.type = 'checkbox';
-        this.eGui.checked = isChecked;
+        const input = document.createElement('input') as HTMLInputElement;
+        this.eGui = input;
+        input.className = className;
+        input.type = 'checkbox';
+        input.checked = isChecked;
         
         if(this.params.data.datasetOwner===true)
-          this.eGui.disabled = true;
+          input.disabled = true;
         else
-          this.eGui.disabled = false;
+          input.disabled = false;
 
         this.boundCheckedHandler = this.checkedHandler.bind(this);
-        this.eGui.addEventListener('click', this.boundCheckedHandler);
+        input.addEventListener('click', this.boundCheckedHandler);
+      } else {
+        // If permission does not exist for this row, render empty content to avoid displaying boolean values like "false"
+        this.eGui = document.createElement('span');
       }
     }
 
@@ -731,9 +733,7 @@ export class KommonitorDataGridHelperService {
       }  
     }
 
-    getGui() {
-      return this.eGui;
-    }
+    getGui() { return this.eGui; }
 
     destroy() {
       if(this.eGui && this.boundCheckedHandler){
@@ -747,7 +747,7 @@ export class KommonitorDataGridHelperService {
    */
   private CheckboxRenderer_editor = class {
     private params: any;
-    private eGui: HTMLInputElement | null = null;
+    private eGui: HTMLElement | null = null;
     private boundCheckedHandler: any;
 
     init(params: any) {
@@ -768,18 +768,22 @@ export class KommonitorDataGridHelperService {
       }
 
       if(exists){
-        this.eGui = document.createElement('input') as HTMLInputElement;
-        this.eGui.className = className;
-        this.eGui.type = 'checkbox';
-        this.eGui.checked = isChecked;
+        const input = document.createElement('input') as HTMLInputElement;
+        this.eGui = input;
+        input.className = className;
+        input.type = 'checkbox';
+        input.checked = isChecked;
 
         if(this.params.data.datasetOwner===true)
-          this.eGui.disabled = true;
+          input.disabled = true;
         else
-          this.eGui.disabled = false;
+          input.disabled = false;
 
         this.boundCheckedHandler = this.checkedHandler.bind(this);
-        this.eGui.addEventListener('click', this.boundCheckedHandler);
+        input.addEventListener('click', this.boundCheckedHandler);
+      } else {
+        // If permission does not exist for this row, render empty content to avoid displaying boolean values like "false"
+        this.eGui = document.createElement('span');
       }
     }
 
@@ -801,9 +805,7 @@ export class KommonitorDataGridHelperService {
       }  
     }
 
-    getGui() {
-      return this.eGui;
-    }
+    getGui() { return this.eGui; }
 
     destroy() {
       if(this.eGui && this.boundCheckedHandler){
@@ -817,7 +819,7 @@ export class KommonitorDataGridHelperService {
    */
   private CheckboxRenderer_creator = class {
     private params: any;
-    private eGui: HTMLInputElement | null = null;
+    private eGui: HTMLElement | null = null;
     private boundCheckedHandler: any;
 
     init(params: any) {
@@ -836,18 +838,22 @@ export class KommonitorDataGridHelperService {
       }  
 
       if(exists){
-        this.eGui = document.createElement('input') as HTMLInputElement;
-        this.eGui.className = className;
-        this.eGui.type = 'checkbox';
-        this.eGui.checked = isChecked;
+        const input = document.createElement('input') as HTMLInputElement;
+        this.eGui = input;
+        input.className = className;
+        input.type = 'checkbox';
+        input.checked = isChecked;
 
         if(this.params.data.datasetOwner===true)
-          this.eGui.disabled = true;
+          input.disabled = true;
         else
-          this.eGui.disabled = false;
+          input.disabled = false;
 
         this.boundCheckedHandler = this.checkedHandler.bind(this);
-        this.eGui.addEventListener('click', this.boundCheckedHandler);
+        input.addEventListener('click', this.boundCheckedHandler);
+      } else {
+        // If permission does not exist for this row, render empty content to avoid displaying boolean values like "false"
+        this.eGui = document.createElement('span');
       }
     }
 
@@ -882,9 +888,7 @@ export class KommonitorDataGridHelperService {
       }  
     }
 
-    getGui() {
-      return this.eGui;
-    }
+    getGui() { return this.eGui; }
 
     destroy() {
       if(this.eGui && this.boundCheckedHandler){
