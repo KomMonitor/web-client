@@ -493,7 +493,7 @@
                       &nbsp;&nbsp;Zurück zur Übersicht
                   </button>
                   
-                  <button ng-disabled="!validateConfiguration()" type="button" class="btn btn-success pull-right" ng-click='onAddBtnClicked()'>
+                  <button [hidden]="!validateConfiguration()" type="button" class="btn btn-success pull-right" (click)='onAddBtnClicked()'>
                       <i class="fa fa-plus"></i>
                       <span [hidden]="!(template.name.includes('-reachability'))">POI-Layer hinzufügen</span>
                       <span [hidden]="!(!template.name.includes('-reachability'))">Indikator hinzufügen</span>

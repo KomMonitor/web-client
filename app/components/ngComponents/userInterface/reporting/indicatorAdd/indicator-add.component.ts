@@ -501,6 +501,11 @@ export class IndicatorAddComponent implements OnInit {
     this.displayableIndicatorsByName = this.dataExchangeService.pipedData.displayableIndicators.filter((e:any) => e.indicatorName.toLowerCase().includes(value)).sort(this.sortByindicatorName);
   }
 
+  onWorkflowBackButtonClicked() {
+    this.reset();
+    this.onWorkflowSelect([1]);
+  }
+
   onWorkflowSelect(value: any[]) {
     this.selectedWorkflow.emit(value);
   }
@@ -708,8 +713,6 @@ export class IndicatorAddComponent implements OnInit {
       // no timestamp selected, which makes inserting easier
       this.template.pages.splice(this.indexOfFirstAreaSpecificPage, 0, ...pagesToInsertPerTimestamp)
     }
-
-    console.log(this.template.pages)
   }
 
   updateAreasForTimeseriesTemplates(newVal) {
@@ -1391,81 +1394,6 @@ export class IndicatorAddComponent implements OnInit {
     this.reloadAreasDualList = !this.reloadAreasDualList;
   }
 
-  updateDualList(options, data, selectedItems) {
-    options.selectedItems = [];
-
-    if(options.label == "Bereiche"){
-      let numberOfTargetSpatialUnitFeatures = 0;
-      if(selectedItems && selectedItems.length){
-        numberOfTargetSpatialUnitFeatures = selectedItems.length;
-      }
-      // add one page to display the total map of all selected spatial unit features
-      numberOfTargetSpatialUnitFeatures ++;
-
-      this.leafletScreenshotCacheHelperService.resetCounter(numberOfTargetSpatialUnitFeatures, false);
-    }
-
-    let dualListInput = data.map( el => {
-      return {"name": el.properties.NAME} // we need this as an object for kommonitorDataExchangeService.createDualListInputArray
-    });
-    dualListInput = this.dataExchangeService.createDualListInputArray(dualListInput, "name",0);
-    options.items = dualListInput;
-
-    // $timeout is needed because we want to click on an element to select it.
-    // therefore we have to wait until the dual list is updated and the dom node exists
-    setTimeout( function() {
-      // if there are items to select
-      if(selectedItems && selectedItems.length > 0) {
-        // if all items should be selected we can use the "select all" button for better performance
-        if(data.length === selectedItems.length) {
-          /* let dualListBtnElement:any = undefined;
-          switch(options.label) {
-            case "Zeitpunkte":
-              dualListBtnElement = document.querySelectorAll("#reporting-indicator-add-timestamps-dual-list .duallistButton")[0];
-              break;
-            case "Bereiche":
-              dualListBtnElement = document.querySelectorAll("#reporting-indicator-add-areas-dual-list .duallistButton")[0];
-              break;
-            case "Raumebenen":
-              dualListBtnElement = document.querySelectorAll("#reporting-indicator-add-spatialUnits-dual-list .duallistButton")[0];
-              break;
-          }
-          dualListBtnElement.click(); */
-        } else {
-          for(let item of selectedItems) {
-            if(item.hasOwnProperty("properties")) {
-              if(item.properties.hasOwnProperty("NAME")) {
-                /* let name = item.properties.NAME
-                // remove item to select from left side and add to right side
-                // we can't filter programmatically here because the changes won't get applied to scope variables
-                // not even with $scope.$digest in a $timeout
-                // instead we click on the elements
-                // get dom element by name
-                let arr = [];
-                switch(options.label) {
-                  case "Zeitpunkte":
-                    arr = Array.from(document.querySelectorAll("#reporting-indicator-add-timestamps-dual-list a"));
-                    break;
-                  case "Bereiche":
-                    arr = Array.from(document.querySelectorAll("#reporting-indicator-add-areas-dual-list a"));
-                    break;
-                  case "Raumebenen":
-                    arr = Array.from(document.querySelectorAll("#reporting-indicator-add-spatialUnits-dual-list a"));
-                    break;
-                }
-                let el:any = arr.find((el:any) => {
-                  return el.textContent.includes(name)
-                });
-                el.click(); */
-              }
-            }
-          }
-        }
-      }
-    }, 150);
-  }
-
-
   // availableFeaturesBySpatialUnit has to be populated before this method is called.
   // Also it is only called in situations where an indicator is selected.
   getValidTimestampsForSpatialUnit(spatialUnit) {
@@ -2046,48 +1974,41 @@ export class IndicatorAddComponent implements OnInit {
     return result;
   }
 
-  onBackToOverviewClicked = function() {
-   /*  this.reset();
-    this.$emit('reportingBackToOverviewClicked')
- */
-  }
+  reset() {
 
-/* 
-  $scope.reset = function() {
-
-  $scope.pagePreparationIndex = 0;
-			$scope.pagePreparationSize = 0;
-    $scope.template = undefined;
-    $scope.untouchedTemplateAsString = "";
-    $scope.indicatorNameFilter = "";
-    $scope.poiNameFilter = "";
-    $scope.selectedIndicator = undefined;
-    $scope.availableFeaturesBySpatialUnit = {};
-    $scope.selectedSpatialUnit = undefined;
-    $scope.selectedAreas = [];
-    $scope.selectedTimestamps = [];
-    $scope.indexOfFirstAreaSpecificPage = undefined;
-    $scope.echartsOptions = {
+    this.pagePreparationIndex = 0;
+    this.pagePreparationSize = 0;
+    this.template = undefined;
+    this.untouchedTemplateAsString = "";
+    this.indicatorNameFilter = "";
+    this.poiNameFilter = "";
+    this.selectedIndicator = undefined;
+    this.availableFeaturesBySpatialUnit = {};
+    this.selectedSpatialUnit = undefined;
+    this.selectedAreas = [];
+    this.selectedTimestamps = [];
+    this.indexOfFirstAreaSpecificPage = undefined;
+    this.echartsOptions = {
       map: {},
       bar: {},
       line: {},
     }
-    $scope.loadingData = false;
-    $scope.templatePageIdCounter = 1;
-    $scope.dateSlider = undefined;
-    $scope.echartsRegisteredMapNames = [];
+    this.loadingData = false;
+    this.templatePageIdCounter = 1;
+    this.dateSlider = undefined;
+    this.echartsRegisteredMapNames = [];
 
     for(let i=2;i<7;i++) {
       let tab = document.querySelector("#reporting-add-indicator-tab" + i);
-      $scope.disableTab(tab);
+      this.disableTab(tab);
     }
   }
 
-  $scope.onAddBtnClicked = function() {
-			$scope.template.pageConfig = $scope.pageConfig;
+  onAddBtnClicked() {
+    this.template.pageConfig = this.pageConfig;
     // for each page: add echarts configuration objects to the template
-    for(let [idx, page] of $scope.template.pages.entries()) {
-      let pageDom = document.querySelector("#reporting-addIndicator-page-" + idx);
+    for(let [idx, page] of this.template.pages.entries()) {
+      let pageDom:any = document.querySelector("#reporting-addIndicator-page-" + idx);
       
       for(let pageElement of page.pageElements) {
 
@@ -2104,7 +2025,7 @@ export class IndicatorAddComponent implements OnInit {
         }
 
         if(pageElement.type === "map" || pageElement.type === "barchart" || pageElement.type === "linechart") {
-          let instance = echarts.getInstanceByDom( pElementDom );
+          let instance:any = echarts.getInstanceByDom( pElementDom );
           let options = JSON.parse(JSON.stringify( instance.getOption() ));
           pageElement.echartsOptions = options;
 
@@ -2115,15 +2036,15 @@ export class IndicatorAddComponent implements OnInit {
         if(pageElement.type === "datatable") {
           // add some properties so we can recreate the table later
           let columnHeaders = pageDom.querySelectorAll("th");
-          let columnNames = [];
+          let columnNames:any[] = [];
           for(let header of columnHeaders) {
             columnNames.push(header.innerText);
           }
           pageElement.columnNames = columnNames;
-          let tableData = [];
+          let tableData:any[] = [];
           let rows = pageDom.querySelectorAll("tbody tr");
           for(let row of rows) {
-            let rowData = [];
+            let rowData:any[] = [];
             let fields = row.querySelectorAll("td");
             for(let field of fields) {
               rowData.push(field.innerText);
@@ -2134,23 +2055,24 @@ export class IndicatorAddComponent implements OnInit {
         }
       }
     }
-    if($scope.selectedSpatialUnit.spatialUnitName) {
-      $scope.template.spatialUnitName = $scope.selectedSpatialUnit.spatialUnitName;
+    if(this.selectedSpatialUnit.spatialUnitName) {
+      this.template.spatialUnitName = this.selectedSpatialUnit.spatialUnitName;
     }else {
-      $scope.template.spatialUnitName = $scope.selectedSpatialUnit.spatialUnitLevel;
+      this.template.spatialUnitName = this.selectedSpatialUnit.spatialUnitLevel;
     }
-    $scope.template.absoluteLabelPositions = $scope.absoluteLabelPositions;
-    $scope.template.echartsRegisteredMapNames = [...new Set($scope.echartsRegisteredMapNames)];
-    $scope.template.isochronesRangeType = $scope.isochronesRangeType;
-    $scope.template.isochronesRangeUnits = $scope.isochronesRangeUnits;
-    if(!$scope.template.name.includes("reachability")) {
-      $scope.$emit('reportingAddNewIndicatorClicked', [$scope.selectedIndicator, $scope.template])
+    this.template.absoluteLabelPositions = this.absoluteLabelPositions;
+    this.template.echartsRegisteredMapNames = [...new Set(this.echartsRegisteredMapNames)];
+    this.template.isochronesRangeType = this.isochronesRangeType;
+    this.template.isochronesRangeUnits = this.isochronesRangeUnits;
+    if(!this.template.name.includes("reachability")) {
+      console.log("call")
+      this.broadcastSerice.broadcast('reportingIndicatorConfigurationCompleted', [this.selectedIndicator, this.template])
     } else {
-      $scope.$emit('reportingAddNewPoiLayerClicked', [$scope.selectedPoiLayer, $scope.selectedIndicator, $scope.template])
+      this.broadcastSerice.broadcast('reportingAddNewPoiLayerClicked', [this.selectedPoiLayer, this.selectedIndicator, this.template])
     }
-    $scope.reset();
+    this.onWorkflowSelect([2]);
+    //this.reset();
   }
-  */
 
   async getReportingRechabilityMapAttribution(){
     if(!this.reportingReachabilityMapAttribution){
@@ -3263,7 +3185,7 @@ export class IndicatorAddComponent implements OnInit {
   }
 
   createPageElement_Datatable(wrapper, page) {
-    
+
     // table looks different depending on template type
     // for single timestamps it is added at the end of each timestamp-section, so each area is inserted once
     // for timeseries it is added once at the end of the template and contains an extra column for timestamps.
@@ -3482,10 +3404,11 @@ export class IndicatorAddComponent implements OnInit {
  */
 
     // create table rows once the pages exist
-    this.insertDatatableRowsInterval = setInterval((rowsData:any, page, maxRows) => {
+    this.insertDatatableRowsInterval = setInterval(() => {
       // get current index of page (might have changed in the meantime)
       let idx = this.template.pages.indexOf(page)
       let wrapper:any = document.querySelector("#reporting-addIndicator-page-" + idx + "-datatable");
+
       if(wrapper) {
         clearInterval(this.insertDatatableRowsInterval); // code below still executes once
       } else {
@@ -3504,6 +3427,7 @@ export class IndicatorAddComponent implements OnInit {
       }
 
       let table = this.createDatatableSkeleton(columnNames);
+
       wrapper.appendChild(table);
       let tbody = table.querySelector("tbody");
       let pageElement = this.template.pages[idx].pageElements.find( el => el.type === "datatable");
@@ -3517,7 +3441,7 @@ export class IndicatorAddComponent implements OnInit {
           if(i > 0) idx++
           const idx_save = idx;
           const i_save = i;
-          this.intervalArr[idx_save] = setInterval((pageElement:any, idx_save, columnNames:any, maxRows, rowsData, i_save, wrapper, table, tbody) => {
+          this.intervalArr[idx_save] = setInterval(() => {
             // check if page exists already in dom, if not try again later
             wrapper = document.querySelector("#reporting-addIndicator-page-" + idx + "-datatable");
             if(wrapper) {
@@ -3531,7 +3455,7 @@ export class IndicatorAddComponent implements OnInit {
             wrapper.style.justifyContent = "flex-start"; // align table at top instead of center
             table = this.createDatatableSkeleton(columnNames);
             wrapper.appendChild(table);
-            tbody = table.querySelector("tbody");
+            let tbody:any = table.querySelector("tbody");
             pageElement = this.template.pages[idx].pageElements.find( el => el.type === "datatable");
             pageElement.isPlaceholder = false;
             
@@ -3897,6 +3821,7 @@ export class IndicatorAddComponent implements OnInit {
 									}
 								}
 
+                // hier
                 await this.initLeafletMapBeneathEchartsMap(page, pageElement, map);
 
 								pageElement.isPlaceholder = false;
@@ -4216,17 +4141,17 @@ export class IndicatorAddComponent implements OnInit {
   */
 
   getFormattedDateSliderValues(includeInBetweenValues) {
-    /* if(!$scope.dateSlider)
+    if(!this.dateSlider)
       throw new Error("Tried to get dateslider values but dateslider was not defined.");
     
-    let slider = $scope.dateSlider
-    let from = new Date(slider.result.from_value);
-    let to = new Date(slider.result.to_value);
+    let slider = this.dateSlider
+    let from:any = new Date(slider.result.from_value);
+    let to:any = new Date(slider.result.to_value);
 
     let inBetweenDates;
     if(includeInBetweenValues) {
       // get all valid timestamps for this spatial unit that lie in between from and to
-      let validTimestamps = getValidTimestampsForSpatialUnit( $scope.selectedSpatialUnit );
+      let validTimestamps = this.getValidTimestampsForSpatialUnit( this.selectedSpatialUnit );
       inBetweenDates = validTimestamps.filter( el => {
         let date = new Date(el);
         date.setHours(0); // remove time-offset...TODO is there a better way?
@@ -4256,7 +4181,7 @@ export class IndicatorAddComponent implements OnInit {
       dates: includeInBetweenValues ? [from, ...inBetweenDates, to] : [] // all dates in the interval, including "from" and "to"
     }
 
-    return result; */
+    return result;
   }
 
 
@@ -4354,8 +4279,9 @@ export class IndicatorAddComponent implements OnInit {
   }
 
   
+  */
 
-  $scope.validateConfiguration = function() {
+  validateConfiguration() {
     // indicator has to be selected (unless template is reachability)
     // at least one area has to be selected (unless template is reachability)
     // for timestamps:
@@ -4366,43 +4292,43 @@ export class IndicatorAddComponent implements OnInit {
     let isAreaSelected = false;
     let isTimestampSelected = false;
 
-    if(!$scope.template) {
+    if(!this.template) {
       return false;
     }
 
-    if($scope.selectedIndicator || $scope.template.name.includes("reachability")) {
+    if(this.selectedIndicator || this.template.name.includes("reachability")) {
       isIndicatorSelected = true;
     }
-    if($scope.selectedAreas.length >= 1  || $scope.template.name.includes("reachability")) {
+    if(this.selectedAreas.length >= 1  || this.template.name.includes("reachability")) {
       isAreaSelected = true;
     }
 
-    if( ($scope.template.name.includes("timestamp") || $scope.template.name.includes("reachability") ) && 
-      $scope.selectedTimestamps.length >= 1) {
+    if( (this.template.name.includes("timestamp") || this.template.name.includes("reachability") ) && 
+      this.selectedTimestamps.length >= 1) {
       isTimestampSelected = true;
     }
 
-    if($scope.template.name.includes("timeseries")) {
-      if(!$scope.dateSlider) {
+    if(this.template.name.includes("timeseries")) {
+      if(!this.dateSlider) {
         return false;
       }
-      if( !$scope.availableFeaturesBySpatialUnit[ $scope.selectedSpatialUnit.spatialUnitName]) {
+      if( !this.availableFeaturesBySpatialUnit[ this.selectedSpatialUnit.spatialUnitName]) {
         return false;
       }
-      let timeseries = $scope.getFormattedDateSliderValues(true).dates;
+      let timeseries = this.getFormattedDateSliderValues(true).dates;
       if(timeseries.length >= 1) {
         isTimestampSelected = true; // reuse variable here
       }
     }
 
-    if(isIndicatorSelected && isAreaSelected && isTimestampSelected && !$scope.loadingData) {
+    if(isIndicatorSelected && isAreaSelected && isTimestampSelected && !this.loadingData) {
       return true;
     } else {
       return false;
     }
 
   }
-  */
+
   transformSeriesDataToPercentageChange(dataArr) {
     // we need at least two timestamps
     if(dataArr.length <= 1) {

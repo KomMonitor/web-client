@@ -10,6 +10,10 @@ import { SafeHtmlPipe } from 'pipes/safe-html.pipe';
 import * as d3 from 'd3';
 import { LeafletScreenshotCacheHelperService } from 'services/leaflet-screenshot-cache-helper-service/leaflet-screenshot-cache-helper.service';
 import * as PptxGenJS from 'pptxgenjs-angular';
+import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { HttpClient } from '@angular/common/http';
+import * as L from 'leaflet';
+import { DiagramHelperServiceService } from 'services/diagram-helper-service/diagram-helper-service.service';
 
 @Component({
   selector: 'app-reporting-overview',
@@ -23,7 +27,6 @@ export class ReportingOverviewComponent implements OnInit {
   @Output() selectedWorkflow = new EventEmitter<any[]>();
   @Input() data:any = [];
 
-  mercatorProjection_d3 = d3.geoMercator();
   lastPageOfAddedSectionPrepared = false;
   deviceScreenDpi;
 
@@ -31,36 +34,56 @@ export class ReportingOverviewComponent implements OnInit {
   pagePreparationSize;
   pagePreparationIndex;
 
+  geoJsonForReachability_byFeatureName;
+
+  mercatorProjection_d3:any = d3.geoMercator();
+
   constructor(
     private dataExchangeService: DataExchangeService,
-    protected leafletScreenshotCacheHelperService: LeafletScreenshotCacheHelperService
+    protected leafletScreenshotCacheHelperService: LeafletScreenshotCacheHelperService,
+    private broadcastService: BroadcastService,
+    private http: HttpClient,
+    private diagramHelperService: DiagramHelperServiceService
   ) {}
 
   ngOnInit(): void {
-    console.log(this.data)
-    this.config.templateSections = [];
-    let configFileSelected = this.data.templateData[0];
-    let data:any = this.data.templateData[1];
+    
+    if(this.data.templateData) {
+      this.config.templateSections = [];
+      let configFileSelected = this.data.templateData[0];
+      let data:any = this.data.templateData[1];
+  
+      if(configFileSelected) {
+        this.importConfig(data);
+      } else {
+        this.config.template = JSON.parse(JSON.stringify(data));
 
- 
+        // pre-init pageConfig in template section as this is needed even before an indicator is selected. indicator/poi select may override this
+        let templateSection = {
+          pageConfig: jQuery.extend(true, {}, this.data.config) // deep copy to preserve section specific settings
+        }
+        for(let page of this.config.template.pages) {
+          page.templateSection = templateSection;
+        }
 
-    if(configFileSelected) {
-      this.importConfig(data);
-    } else {
-      this.config.template = JSON.parse(JSON.stringify(data));
-
-      // pre-init pageConfig in template section as this is needed even before an indicator is selected. indicator/poi select may override this
-      let templateSection = {
-        pageConfig: jQuery.extend(true, {}, this.data.config) // deep copy to preserve section specific settings
+        this.config.pages = this.config.template.pages;
       }
-      for(let page of this.config.template.pages) {
-        page.templateSection = templateSection;
-      }
-
-      this.config.pages = this.config.template.pages;
     }
+
     this.deviceScreenDpi = this.calculateScreenDpi();
     this.pxPerMilli = this.deviceScreenDpi / 25.4 // /2.54 --> cm, /10 --> mm
+
+    // catch broadcast msgs
+    this.broadcastService.currentBroadcastMsg.subscribe(broadcastMsg => {
+      let title = broadcastMsg.msg;
+      let values:any = broadcastMsg.values;
+
+      switch (title) {
+        case 'reportingIndicatorConfigurationCompleted' : {
+          this.reportingIndicatorConfigurationCompleted(values);
+        } break;
+      }
+    });
   }
 
   checkVisibility(pageElement, page){
@@ -245,9 +268,10 @@ export class ReportingOverviewComponent implements OnInit {
     onWorkflowSelect(value: any[]) {
       this.selectedWorkflow.emit(value);
     }
-		/* $on("reportingIndicatorConfigurationCompleted", function(event, data) {
+
+		reportingIndicatorConfigurationCompleted([indicator, template]) {
 			this.loadingData = true;
-			let [indicator, template] = data;
+      this.config.template = template;
 			
 			let templateSection = {
 				indicatorName: indicator ? indicator.indicatorName : "",
@@ -278,7 +302,7 @@ export class ReportingOverviewComponent implements OnInit {
 			// setup pages after dom exists
 			// at this point we still have all the echarts maps registered
 			this.setupNewPages(this.config.templateSections.at(-1));
-		}); */
+		}
 
 	/* 	$on("reportingPoiLayerConfigurationCompleted", function(event, data) {
 			this.loadingData = true;
@@ -385,198 +409,193 @@ export class ReportingOverviewComponent implements OnInit {
 		
 
 
-		setupNewPages(templateSection) {
+		async setupNewPages(templateSection) {
 
-		/* 
-				if(!templateSection.poiLayerName) {
+      if(!templateSection.poiLayerName) {
 
-					// for indicator without poi layer
-					let indicatorId = templateSection.indicatorId;
-					let spatialUnit, featureCollection, features, geoJSON;
-					
-					spatialUnit = await $scope.getSpatialUnitByIndicator(indicatorId, templateSection.spatialUnitName)
-					$scope.currentSpatialUnit = spatialUnit;
-					featureCollection = await $scope.queryFeatures(indicatorId, spatialUnit);
-					features = $scope.createLowerCaseNameProperty(featureCollection.features);
+        // for indicator without poi layer
+        let indicatorId = templateSection.indicatorId;
+        let spatialUnit, featureCollection, features, geoJSON;
 
-					$scope.geoJsonForReachability_byFeatureName = new Map();
+        spatialUnit = await this.getSpatialUnitByIndicator(indicatorId, templateSection.spatialUnitName);
+        this.currentSpatialUnit = spatialUnit;
 
-					for (let feature of features) {
-						$scope.geoJsonForReachability_byFeatureName.set(feature.properties.NAME, feature)
-					}
+        featureCollection = await this.queryFeatures(indicatorId, spatialUnit);
+        features = this.createLowerCaseNameProperty(featureCollection.features);
+        this.geoJsonForReachability_byFeatureName = new Map();
+console.log("2")
+        for (let feature of features) {
+          this.geoJsonForReachability_byFeatureName.set(feature.properties.NAME, feature)
+        }
+console.log("3")
+        this.geoJsonForReachability_byFeatureName.set("undefined", features);
 
-					$scope.geoJsonForReachability_byFeatureName.set("undefined", features);
+console.log("4")
+        geoJSON = { features: features };
 
-					geoJSON = { features: features };
+console.log("5")
+        this.lastPageOfAddedSectionPrepared = false;
+        this.pagePreparationIndex = 0;
+        // this.pagePreparationSize = this.config.pages.length; 
+        this.pagePreparationSize = document.querySelectorAll("[id^='reporting-overview-page-'].reporting-page").length;
 
-					$scope.lastPageOfAddedSectionPrepared = false;
-					$scope.pagePreparationIndex = 0;
-					// $scope.pagePreparationSize = $scope.config.pages.length; 
-					$scope.pagePreparationSize = document.querySelectorAll("[id^='reporting-overview-page-'].reporting-page").length;
+        let logProgressIndexSeparator = Math.round(this.pagePreparationSize / 100 * 10);
 
-					let logProgressIndexSeparator = Math.round($scope.pagePreparationSize / 100 * 10);
+console.log("6")
+        for(let [idx, page] of this.config.pages.entries()) {
 
-					setTimeout(function () {
-						$scope.$digest();
-					});
+          if(page.templateSection.indicatorId !== indicatorId) {
+              continue; // only do changes to new pages
+          }
 
-					for(let [idx, page] of $scope.config.pages.entries()) {
+          setTimeout(async () => {
+            // Indicator and spatial unit are the same for all added pages								
 
-						if(page.templateSection.indicatorId !== indicatorId) {
-								continue; // only do changes to new pages
-						}
+            let pageDom:any = document.querySelector("#reporting-overview-page-" + idx);
+            for(let pageElement of page.pageElements) {
+              // usually each type is included only once per page, but there is an exception for linecharts in area specific part of timeseries template
+              // for now we more or less hardcode this, but it might have to change in the future
+              let pElementDom;
+              if(pageElement.type === "linechart") {
+                let arr = pageDom.querySelectorAll(".type-linechart");
+                if(pageElement.showPercentageChangeToPrevTimestamp) {
+                  pElementDom = arr[1];
+                } else {
+                  pElementDom = arr[0];
+                }
+              } else {
+                pElementDom = pageDom.querySelector("#reporting-overview-page-" + idx + "-" + pageElement.type)
+              }
+              
+              // recreate boxplots, itemNameFormatter did not get transferred
+              if(pageElement.type === "linechart" && pageElement.showBoxplots) {
+                let xAxisLabels = pageElement.echartsOptions.xAxis[0].data;
+                pageElement.echartsOptions.dataset[1].transform.config = {
+                  itemNameFormatter: function (params) {
+                    return xAxisLabels[params.value];
+                  }
+                }
+              }
 
-						setTimeout(async function(){
-							// Indicator and spatial unit are the same for all added pages								
-
-							let pageDom = document.querySelector("#reporting-overview-page-" + idx);
-							for(let pageElement of page.pageElements) {
-								// usually each type is included only once per page, but there is an exception for linecharts in area specific part of timeseries template
-								// for now we more or less hardcode this, but it might have to change in the future
-								let pElementDom;
-								if(pageElement.type === "linechart") {
-									let arr = pageDom.querySelectorAll(".type-linechart");
-									if(pageElement.showPercentageChangeToPrevTimestamp) {
-										pElementDom = arr[1];
-									} else {
-										pElementDom = arr[0];
-									}
-								} else {
-									pElementDom = pageDom.querySelector("#reporting-overview-page-" + idx + "-" + pageElement.type)
-								}
-								
-								// recreate boxplots, itemNameFormatter did not get transferred
-								if(pageElement.type === "linechart" && pageElement.showBoxplots) {
-									let xAxisLabels = pageElement.echartsOptions.xAxis[0].data;
-									pageElement.echartsOptions.dataset[1].transform.config = {
-										itemNameFormatter: function (params) {
-											return xAxisLabels[params.value];
-										}
-									}
-								}
-
-								if(pageElement.type === "map" || pageElement.type === "barchart" || pageElement.type === "linechart") {
-									let instance = echarts.init( pElementDom );
+              if(pageElement.type === "map" || pageElement.type === "barchart" || pageElement.type === "linechart") {
+                let instance = echarts.init( pElementDom );
 
 
-									if(pageElement.type === "map") {	
-										
-										for(let series of pageElement.echartsOptions.series) {
+                // todo 
+                // not necessary in v4 anymore?! works even without, creates error if active
+               /*  if(pageElement.type === "map") {	
+                  console.log(pageElement.echartsOptions)
+                  for(let series of pageElement.echartsOptions.series) {
+                    console.log(series.boundingCoords)
+                    series.left = 0;
+                    series.top = 0;
+                    series.right = 0;
+                    series.bottom = 0;
+                    // series.boundingCoords = boundingCoords,
+                    series.projection = {
+                      project: (point) => this.mercatorProjection_d3(point),
+                      unproject: (point) => this.mercatorProjection_d3.invert(point)
+                    }
+                  }
+          
+                  if(pageElement.echartsOptions.geo){
+                    pageElement.echartsOptions.geo[0].top = 0;
+                    pageElement.echartsOptions.geo[0].left = 0;
+                    pageElement.echartsOptions.geo[0].right = 0;
+                    pageElement.echartsOptions.geo[0].bottom = 0;
+                    pageElement.echartsOptions.geo[0].projection = {
+                      project: (point) => this.mercatorProjection_d3(point),
+                      unproject: (point) => this.mercatorProjection_d3.invert(point)
+                    }				
+                    console.log(pageElement.echartsOptions.geo[0].boundingCoords);
+                    // pageElement.echartsOptions.geo[0].boundingCoords = boundingCoords
+                  }
+                  
+                  if(page.area && page.area.length) {
+                    // at this point we have not yet set echarts options, so we provide them as an extra parameter
+                    this.filterMapByArea(instance, pageElement.echartsOptions, page.area, geoJSON.features)
+                  } else {
+                    // recreate label positions
+                    pageElement.echartsOptions.labelLayout = function(feature) {
+                      // Set fixed position for labels that were previously dragged by user
+                      // For all other labels try to avoid overlaps
+                      let names = page.templateSection.absoluteLabelPositions.map(el=>el.name)
+                      let text = feature.text.split("\n")[0] // area name is the first line
+                      if(names.includes(text)) {
+                        let idx = names.indexOf(text)
+                        return {
+                          x: page.templateSection.absoluteLabelPositions[idx].x,
+                          y: page.templateSection.absoluteLabelPositions[idx].y,
+                          draggable: false // Don't allow label dragging in overview, we could have different spatial units here
+                        }
+                      } else {
+                        return {
+                          moveOverlap: 'shiftY',
+                          x: feature.rect.x + feature.rect.width / 2,
+                          draggable: false
+                        }
+                      }	
+                    }
+                  }
+                  
+                } */
 
-											series.left = 0;
-											series.top = 0;
-											series.right = 0;
-											series.bottom = 0;
-											// series.boundingCoords = boundingCoords,
-											series.projection = {
-												project: (point) => mercatorProjection_d3(point),
-												unproject: (point) => mercatorProjection_d3.invert(point)
-											}
-										}
-						
-										if(pageElement.echartsOptions.geo){
-											pageElement.echartsOptions.geo[0].top = 0;
-											pageElement.echartsOptions.geo[0].left = 0;
-											pageElement.echartsOptions.geo[0].right = 0;
-											pageElement.echartsOptions.geo[0].bottom = 0;
-											pageElement.echartsOptions.geo[0].projection = {
-												project: (point) => mercatorProjection_d3(point),
-												unproject: (point) => mercatorProjection_d3.invert(point)
-											}				
-											// pageElement.echartsOptions.geo[0].boundingCoords = boundingCoords
-										}
-										
-										if(page.area && page.area.length) {
-											// at this point we have not yet set echarts options, so we provide them as an extra parameter
-											$scope.filterMapByArea(instance, pageElement.echartsOptions, page.area, geoJSON.features)
-										} else {
-											// recreate label positions
-											pageElement.echartsOptions.labelLayout = function(feature) {
-												// Set fixed position for labels that were previously dragged by user
-												// For all other labels try to avoid overlaps
-												let names = page.templateSection.absoluteLabelPositions.map(el=>el.name)
-												let text = feature.text.split("\n")[0] // area name is the first line
-												if(names.includes(text)) {
-													let idx = names.indexOf(text)
-													return {
-														x: page.templateSection.absoluteLabelPositions[idx].x,
-														y: page.templateSection.absoluteLabelPositions[idx].y,
-														draggable: false // Don't allow label dragging in overview, we could have different spatial units here
-													}
-												} else {
-													return {
-														moveOverlap: 'shiftY',
-														x: feature.rect.x + feature.rect.width / 2,
-														draggable: false
-													}
-												}	
-											}
-										}
-										
-									}
+                instance.setOption(pageElement.echartsOptions)
 
-									instance.setOption(pageElement.echartsOptions)
+                if(pageElement.type === "map") {
+                  await this.initializeLeafletMap(page, pageElement, instance, spatialUnit, false)
+                }
+              }
 
-									if(pageElement.type === "map") {
-										await $scope.initializeLeafletMap(page, pageElement, instance, spatialUnit, false)
-									}
-								}
+              // if(pageElement.type === "overallAverage") {
+              // 	pageDom.querySelector(".type-overallAverage").style.border = "none";
+              // }
+  
+              // if(pageElement.type === "selectionAverage") {
+              // 	pageDom.querySelector(".type-selectionAverage").style.border = "none";
+              // }
 
-								// if(pageElement.type === "overallAverage") {
-								// 	pageDom.querySelector(".type-overallAverage").style.border = "none";
-								// }
-		
-								// if(pageElement.type === "selectionAverage") {
-								// 	pageDom.querySelector(".type-selectionAverage").style.border = "none";
-								// }
+              if(pageElement.type === "mapLegend") {
+                pageElement.isPlaceholder = false;
+                pageDom.querySelector(".type-mapLegend").style.display = "none";
+              }
 
-								if(pageElement.type === "mapLegend") {
-									pageElement.isPlaceholder = false;
-									pageDom.querySelector(".type-mapLegend").style.display = "none";
-								}
+              // if(pageElement.type === "overallChange") {
+              // 	let wrapper = pageDom.querySelector(".type-overallChange")
+              // 	wrapper.style.border = "none";
+              // }
 
-								// if(pageElement.type === "overallChange") {
-								// 	let wrapper = pageDom.querySelector(".type-overallChange")
-								// 	wrapper.style.border = "none";
-								// }
+              // if(pageElement.type === "selectionChange") {
+              // 	let wrapper = pageDom.querySelector(".type-selectionChange")
+              // 	wrapper.style.border = "none";
+              // }
 
-								// if(pageElement.type === "selectionChange") {
-								// 	let wrapper = pageDom.querySelector(".type-selectionChange")
-								// 	wrapper.style.border = "none";
-								// }
+              if(pageElement.type === "datatable") {
+                this.createDatatablePage(pElementDom, pageElement);
+              }
+            }
 
-								if(pageElement.type === "datatable") {
-									$scope.createDatatablePage(pElementDom, pageElement);
-								}
-							}
+            // if the last page is reached and full prepared we want to show that to the user
+            // wait additionally for 500 ms
+            this.pagePreparationIndex = idx;
 
-							// if the last page is reached and full prepared we want to show that to the user
-							// wait additionally for 500 ms
-							$scope.pagePreparationIndex = idx;
+            // every 10 percent log progress to user
+           /*  if(this.pagePreparationIndex % logProgressIndexSeparator === 0){
+              this.$digest();	
+            }	
+ */
+            if(idx == this.pagePreparationSize - 1){
+              this.lastPageOfAddedSectionPrepared = true;
+            }
+            
+          });
 
-							// every 10 percent log progress to user
-							if($scope.pagePreparationIndex % logProgressIndexSeparator === 0){
-								$scope.$digest();	
-							}	
-
-							if(idx == $scope.pagePreparationSize - 1){
-								$scope.lastPageOfAddedSectionPrepared = true;
-								setTimeout(function(){
-									$scope.$digest();
-								}, 1000);
-							}
-							
-						});
-
-						
-					}
-					$scope.loadingData = false;
-					setTimeout(function(){
-						$scope.$digest();
-					});
-				} else {					
-					$scope.handleSetupNewPagesForReachability(templateSection)
-				} */
+          
+        }
+        this.loadingData = false;
+      } else {					
+        this.handleSetupNewPagesForReachability(templateSection)
+      }
 		}
 
 		
@@ -590,30 +609,30 @@ export class ReportingOverviewComponent implements OnInit {
 			}
 			
 			if (indicatorId) {
-				spatialUnit = await $scope.getSpatialUnitByIndicator(indicatorId, templateSection.spatialUnitName);
-				featureCollection = await $scope.queryFeatures(indicatorId, spatialUnit);
+				spatialUnit = await this.getSpatialUnitByIndicator(indicatorId, templateSection.spatialUnitName);
+				featureCollection = await this.queryFeatures(indicatorId, spatialUnit);
 			} else {
-				spatialUnit = await $scope.getSpatialUnitByName(templateSection.spatialUnitName);
-				featureCollection = await $scope.queryFeatures(undefined, spatialUnit);
+				spatialUnit = await this.getSpatialUnitByName(templateSection.spatialUnitName);
+				featureCollection = await this.queryFeatures(undefined, spatialUnit);
 			}
 
-			features = $scope.createLowerCaseNameProperty(featureCollection.features);
+			features = this.createLowerCaseNameProperty(featureCollection.features);
 			geoJSON = { features: features };
 
-			$scope.geoJsonForReachability_byFeatureName = new Map();
+			this.geoJsonForReachability_byFeatureName = new Map();
 
 			for (let feature of features) {
-				$scope.geoJsonForReachability_byFeatureName.set(feature.properties.NAME, feature)
+				this.geoJsonForReachability_byFeatureName.set(feature.properties.NAME, feature)
 			}
 
-			$scope.geoJsonForReachability_byFeatureName.set("undefined", features);		
+			this.geoJsonForReachability_byFeatureName.set("undefined", features);		
 
-			$scope.lastPageOfAddedSectionPrepared = false;
-			$scope.pagePreparationIndex = 0;
-			// $scope.pagePreparationSize = $scope.config.pages.length; 
-			$scope.pagePreparationSize = document.querySelectorAll("[id^='reporting-overview-page-'].reporting-page").length;
+			this.lastPageOfAddedSectionPrepared = false;
+			this.pagePreparationIndex = 0;
+			// this.pagePreparationSize = this.config.pages.length; 
+			this.pagePreparationSize = document.querySelectorAll("[id^='reporting-overview-page-'].reporting-page").length;
 
-			for(let [idx, page] of $scope.config.pages.entries()) {
+			for(let [idx, page] of this.config.pages.entries()) {
 
 				if(page.templateSection.poiLayerName !== poiLayerName) {
 					continue; // only do changes to new pages
@@ -654,7 +673,7 @@ export class ReportingOverviewComponent implements OnInit {
 
 							if(page.area && page.area.length) {
 								// at this point we have not yet set echarts options, so we provide them as an extra parameter
-								$scope.filterMapByArea(instance, pageElement.echartsOptions, page.area, geoJSON.features)
+								this.filterMapByArea(instance, pageElement.echartsOptions, page.area, geoJSON.features)
 							} else {
 								// recreate label positions
 								pageElement.echartsOptions.labelLayout = function(feature) {
@@ -681,36 +700,36 @@ export class ReportingOverviewComponent implements OnInit {
 
 							instance.setOption( pageElement.echartsOptions )
 
-							await $scope.initializeLeafletMap(page, pageElement, instance, spatialUnit, false)
+							await this.initializeLeafletMap(page, pageElement, instance, spatialUnit, false)
 						}
 					}
 
 					// if the last page is reached and full prepared we want to show that to the user
 					// wait additionally for 500 ms
-					$scope.pagePreparationIndex = idx;
+					this.pagePreparationIndex = idx;
 					setTimeout(function(){
-						$scope.$digest();
+						this.$digest();
 					});
 
-					if (idx == $scope.pagePreparationSize - 1) {
-						$scope.lastPageOfAddedSectionPrepared = true;
+					if (idx == this.pagePreparationSize - 1) {
+						this.lastPageOfAddedSectionPrepared = true;
 						setTimeout(function () {
-							$scope.$digest();
+							this.$digest();
 						}, 1000);
 					}
 				})
 
 			}
-			$scope.loadingData = false;
+			this.loadingData = false;
 			setTimeout(function(){
-				$scope.$digest();
+				this.$digest();
 			});*/
 		}
 
     /* $rootScope.$on("screenshotsForCurrentSpatialUnitUpdate", function(event){
 			// update ui to enable button
 			setTimeout(function() {
-				$scope.$digest();
+				this.$digest();
 			})			
 		});
 
@@ -733,17 +752,17 @@ export class ReportingOverviewComponent implements OnInit {
 			}
 		}
 
-		initializeLeafletMap = async function(page, pageElement, map, spatialUnit, forceScreenshot) {
-		/* 	try {
-					let pageIdx = $scope.config.pages.indexOf(page);
+		async initializeLeafletMap(page, pageElement, echartsMap, spatialUnit, forceScreenshot) {
+			try {
+					let pageIdx = this.config.pages.indexOf(page);
 					let id = "reporting-overview-leaflet-map-container-" + pageIdx;
-					let pageDom = document.getElementById("reporting-overview-page-" + pageIdx);
-					let pageElementDom = document.getElementById("reporting-overview-page-" + pageIdx + "-map");
+					let pageDom:any = document.getElementById("reporting-overview-page-" + pageIdx);
+					let pageElementDom:any = document.getElementById("reporting-overview-page-" + pageIdx + "-map");
 					let oldMapNode = document.getElementById(id);
 					if(oldMapNode) {
 						oldMapNode.remove();
 					}
-					let div = document.createElement("div");
+					let div:any = document.createElement("div");
 					div.id = id;
 					div.style.position = "absolute";
 					div.style.left = pageElement.dimensions.left;
@@ -772,21 +791,21 @@ export class ReportingOverviewComponent implements OnInit {
 					// manually create a field for attribution so we can control the z-index.
 					let prevAttributionDiv = pageDom.querySelector(".map-attribution")
 					if(prevAttributionDiv) prevAttributionDiv.remove();
-					let attrDiv = document.createElement("div")
+					let attrDiv:any = document.createElement("div")
 					attrDiv.classList.add("map-attribution")
 					attrDiv.style.position = "absolute";
 					attrDiv.style.bottom = 0;
 					attrDiv.style.left = 0;
 					attrDiv.style.zIndex = 800;
-					let attrImg = await kommonitorDiagramHelperService.createReportingReachabilityMapAttribution();
+					let attrImg = await this.diagramHelperService.createReportingReachabilityMapAttribution();
 					attrDiv.appendChild(attrImg);
 					pageElementDom.appendChild(attrDiv);
 
-					if($scope.config.template.name.includes("reachability")){
+					if(this.config.template.name.includes("reachability")){
 						// also create the legend manually
 						let prevLegendDiv = pageDom.querySelector(".map-legend")
 						if(prevLegendDiv) prevLegendDiv.remove();
-						let legendDiv = document.createElement("div")
+						let legendDiv:any = document.createElement("div")
 						legendDiv.classList.add("map-legend")
 						legendDiv.style.position = "absolute";
 						legendDiv.style.bottom = 0;
@@ -794,7 +813,7 @@ export class ReportingOverviewComponent implements OnInit {
 						legendDiv.style.zIndex = 800;
 						let isochronesRangeType = page.templateSection.isochronesRangeType;
 						let isochronesRangeUnits = page.templateSection.isochronesRangeUnits;
-						let legendImg = await kommonitorDiagramHelperService.createReportingReachabilityMapLegend(echartsOptions, spatialUnit, isochronesRangeType, isochronesRangeUnits);
+						let legendImg = await this.diagramHelperService.createReportingReachabilityMapLegend(echartsOptions, spatialUnit, isochronesRangeType, isochronesRangeUnits);
 						legendDiv.appendChild(legendImg);
 						pageElementDom.appendChild(legendDiv)
 					}
@@ -850,8 +869,8 @@ export class ReportingOverviewComponent implements OnInit {
 						series.bottom = 0;
 						series.boundingCoords = boundingCoords,
 						series.projection = {
-							project: (point) => mercatorProjection_d3(point),
-							unproject: (point) => mercatorProjection_d3.invert(point)
+							project: (point) => this.mercatorProjection_d3(point),
+							unproject: (point) => this.mercatorProjection_d3.invert(point)
 						}
 					}
 
@@ -860,8 +879,8 @@ export class ReportingOverviewComponent implements OnInit {
 					echartsOptions.geo[0].right = 0;
 					echartsOptions.geo[0].bottom = 0;
 					echartsOptions.geo[0].projection = {
-						project: (point) => mercatorProjection_d3(point),
-						unproject: (point) => mercatorProjection_d3.invert(point)
+						project: (point) => this.mercatorProjection_d3(point),
+						unproject: (point) => this.mercatorProjection_d3.invert(point)
 					}				
 					echartsOptions.geo[0].boundingCoords = boundingCoords
 					
@@ -873,8 +892,8 @@ export class ReportingOverviewComponent implements OnInit {
 					// store spatial unit and feature id to page in order to access it later when the screenshot is needed
 					page.spatialUnitId = spatialUnit.spatialUnitId;			
 					if(page.area){
-						let feature = $scope.geoJsonForReachability_byFeatureName.get(page.area);
-						let spatialUnitFeatureId = feature.properties[__env.FEATURE_ID_PROPERTY_NAME];
+						let feature = this.geoJsonForReachability_byFeatureName.get(page.area);
+						let spatialUnitFeatureId = feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME];
 						page.spatialUnitFeatureId = spatialUnitFeatureId;
 					}						
 					
@@ -899,11 +918,11 @@ export class ReportingOverviewComponent implements OnInit {
 					// here we ntend to make a screenshot of the leaflet image as a background task in order to boost up report preview generation 
 					// for all spatial unit features		
 					let domNode = leafletMap["_container"];	
-					leafletLayer.on("load", function() { 
+					leafletLayer.on("load", () => { 
 						// there are pages for two page orientations (landscape and portait)
 						// only trigger the screenshot for those pages, that are actually present
-						if(forceScreenshot || (page.orientation == $scope.config.template.orientation)){
-							kommonitorLeafletScreenshotCacheHelperService.checkForScreenshot(pageElement.selectedBaseMap.layerConfig.name, spatialUnit.spatialUnitId, 
+						if(forceScreenshot || (page.orientation == this.config.template.orientation)){
+							this.leafletScreenshotCacheHelperService.checkForScreenshot(pageElement.selectedBaseMap.layerConfig.name, spatialUnit.spatialUnitId, 
 								page.spatialUnitFeatureId, page.orientation, domNode);
 						}
 										
@@ -916,13 +935,13 @@ export class ReportingOverviewComponent implements OnInit {
 					pageElement.echartsOptions = echartsOptions;
 				
 					// can be used to check if positioning in echarts matches the one from leaflet
-					//let geoJsonLayer = L.geoJSON( $scope.geoJsonForReachability.features )
+					//let geoJsonLayer = L.geoJSON( this.geoJsonForReachability.features )
 					//geoJsonLayer.addTo(leafletMap)
-					//let isochronesLayer = L.geoJSON( $scope.isochrones.features )
+					//let isochronesLayer = L.geoJSON( this.isochrones.features )
 					//isochronesLayer.addTo(leafletMap);
 				} catch (error) {
 					console.error(error)
-				}				 */
+				}				
 		}
 
     //async
@@ -950,26 +969,29 @@ export class ReportingOverviewComponent implements OnInit {
 		}
 
     // async
-		getSpatialUnitByIndicator(indicatorId, spatialUnitName) {
+		getSpatialUnitByIndicator(indicatorId, spatialUnitName): Promise<any> {
 			let url;
 			url = this.dataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/indicators/" + indicatorId;
-			// send request
-		/* 	return await $http({
-				url: url,
-				method: "GET"
-			}).then(function successCallback(response) {
-				let spatialUnit = response.data.applicableSpatialUnits.filter( el => {
-					return el.spatialUnitName === spatialUnitName;
-				})
-				if(spatialUnit.length === 1) return spatialUnit[0];
 
-			}, function errorCallback(error) {
-				// called asynchronously if an error occurs
-				// or server returns response with an error status.
-				this.loadingData = false;
-				this.dataExchangeService.displayMapApplicationError(error);
-				console.error(error);
-			}); */
+      return new Promise(resolve => {
+        this.http.get(url).subscribe({
+          next: (response:any) => {
+            let spatialUnit = response.applicableSpatialUnits.filter( el => {
+              return el.spatialUnitName === spatialUnitName;
+            })
+            if(spatialUnit.length === 1) 
+              resolve(spatialUnit[0]);
+          },
+          error: error => {
+            // called asynchronously if an error occurs
+            // or server returns response with an error status.
+            this.loadingData = false;
+            this.dataExchangeService.displayMapApplicationError(error);
+            console.error(error);
+          }
+        });
+      });
+      
 		}
 
 		
@@ -1294,7 +1316,7 @@ export class ReportingOverviewComponent implements OnInit {
 		}
 
     // async
-		queryFeatures(indicatorId, spatialUnit) {
+		queryFeatures(indicatorId, spatialUnit): Promise<any> {
 			// build request
 			// query different endpoints depending on if we have an indicator or not
 			let url;
@@ -1309,21 +1331,25 @@ export class ReportingOverviewComponent implements OnInit {
 				url = this.dataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() +
 					"/indicators/" + indicatorId + "/" + spatialUnit.spatialUnitId;
 			}
-			// send request
-			this.loadingData = true;
-		/* 	return await $http({
-				url: url,
-				method: "GET"
-			}).then(function successCallback(response) {
-				this.loadingData = false;
-				return response.data;
-			}, function errorCallback(error) {
-				// called asynchronously if an error occurs
-				// or server returns response with an error status.
-				this.loadingData = false;
-				this.dataExchangeService.displayMapApplicationError(error);
-				console.error(error);
-			}); */
+
+      return new Promise(resolve => {
+        // send request
+        this.loadingData = true;
+
+        this.http.get(url).subscribe({
+          next: response => {
+            this.loadingData = false;
+            resolve(response);
+          },
+          error: error => {
+            // called asynchronously if an error occurs
+            // or server returns response with an error status.
+            this.loadingData = false;
+            this.dataExchangeService.displayMapApplicationError(error);
+            console.error(error);
+          }
+        });
+      });
 		}
 
 		createLowerCaseNameProperty(features) {
@@ -1685,14 +1711,14 @@ export class ReportingOverviewComponent implements OnInit {
 				margin: 0,	
 				unit: 'mm',
 				format: 'a4',
-				orientation: $scope.config.pages[0].orientation
+				orientation: this.config.pages[0].orientation
 			});
 
       let fontName = "Helvetica"; // standard
 
-      if($scope.customFontFile) {
+      if(this.customFontFile) {
         fontName = 'CustomInternal';
-        doc.addFont($scope.customFontFile, fontName, 'normal');
+        doc.addFont(this.customFontFile, fontName, 'normal');
       }
 
       // external working as well, but unable to check for validity beforehand. Thus resulting in an critical error if invalid at rendering 
@@ -1701,9 +1727,9 @@ export class ReportingOverviewComponent implements OnInit {
 			doc.setDrawColor(148, 148, 148);
 			doc.setFont(fontName, "normal", "normal"); 
 			
-			for(let [idx, page] of $scope.config.pages.entries()) {
+			for(let [idx, page] of this.config.pages.entries()) {
 
-				if(!$scope.showThisPage(page)) {
+				if(!this.showThisPage(page)) {
 					continue;
 				}
 
@@ -1819,15 +1845,15 @@ export class ReportingOverviewComponent implements OnInit {
 								// skip
 								continue;
 							}
-							let text = "Seite " + $scope.getPageNumber(idx);
+							let text = "Seite " + this.getPageNumber(idx);
 							doc.text(text, pageElementDimensions.left, pageElementDimensions.top, { baseline: "top" })
 							break;
 						}
 						// template-specific elements
 						case "map": {
 							let instance = echarts.getInstanceByDom(pElementDom)
-							let imageDataUrl = instance.getDataURL( {pixelRatio: $scope.echartsImgPixelRatio} )
-							imageDataUrl = await $scope.createLeafletEChartsMapImage(page, pageDom, pageElement, imageDataUrl)
+							let imageDataUrl = instance.getDataURL( {pixelRatio: this.echartsImgPixelRatio} )
+							imageDataUrl = await this.createLeafletEChartsMapImage(page, pageDom, pageElement, imageDataUrl)
 
 							doc.addImage(imageDataUrl, "PNG", pageElementDimensions.left, pageElementDimensions.top,
 								pageElementDimensions.width, pageElementDimensions.height, "", 'MEDIUM');
@@ -1867,7 +1893,7 @@ export class ReportingOverviewComponent implements OnInit {
 								continue;
 							}
 							let instance = echarts.getInstanceByDom(pElementDom)
-							let base64String = instance.getDataURL( {pixelRatio: $scope.echartsImgPixelRatio} )
+							let base64String = instance.getDataURL( {pixelRatio: this.echartsImgPixelRatio} )
 							doc.addImage(base64String, "PNG", pageElementDimensions.left, pageElementDimensions.top,
 									pageElementDimensions.width, pageElementDimensions.height, "", 'MEDIUM');
 							break;
@@ -1877,7 +1903,7 @@ export class ReportingOverviewComponent implements OnInit {
 								continue;
 							}
 							let instance = echarts.getInstanceByDom(pElementDom)
-							let base64String = instance.getDataURL( {pixelRatio: $scope.echartsImgPixelRatio} )
+							let base64String = instance.getDataURL( {pixelRatio: this.echartsImgPixelRatio} )
 							doc.addImage(base64String, "PNG", pageElementDimensions.left, pageElementDimensions.top,
 									pageElementDimensions.width, pageElementDimensions.height, "", 'MEDIUM');
 							break;
@@ -1914,9 +1940,9 @@ export class ReportingOverviewComponent implements OnInit {
 			//doc.output("dataurlnewwindow")
 			let now = getCurrentDateAndTime();
 			doc.save(now + "_KomMonitor-Report.pdf");
-			$scope.loadingData = false;
+			this.loadingData = false;
 			setTimeout(function(){
-				$scope.$digest();
+				this.$digest();
 			}); */
 		}
 
@@ -1926,7 +1952,7 @@ export class ReportingOverviewComponent implements OnInit {
 			let zip = new JSZip();
 			
 			// screenshot map attribution and legend only once per section
-			for(let [idx, page] of $scope.config.pages.entries()) {
+			for(let [idx, page] of this.config.pages.entries()) {
 			
 				let pageDom = document.querySelector("#reporting-overview-page-" + idx);
 				for(let pageElement of page.pageElements) {
@@ -1945,9 +1971,9 @@ export class ReportingOverviewComponent implements OnInit {
 						let instance = echarts.getInstanceByDom(pElementDom);
 						let imageDataUrl = instance.getDataURL({
 							type: "png",
-							pixelRatio: $scope.echartsImgPixelRatio
+							pixelRatio: this.echartsImgPixelRatio
 						});
-						imageDataUrl = await $scope.createLeafletEChartsMapImage(page, pageDom, pageElement, imageDataUrl)
+						imageDataUrl = await this.createLeafletEChartsMapImage(page, pageDom, pageElement, imageDataUrl)
 						
 						let filename = "Seite_" + (idx+1) + "_" + pageElement.type + ".png";
 						if(pageElement.type === "linechart" && pageElement.showPercentageChangeToPrevTimestamp) {
@@ -1964,9 +1990,9 @@ export class ReportingOverviewComponent implements OnInit {
 			let zipFileName = getCurrentDateAndTime() + "_Kommonitor-Report-Grafiken";
 			zip.generateAsync({type:"blob"}).then(function(content) {
 				saveAs(content, zipFileName + ".zip");
-				$scope.loadingData = false;
+				this.loadingData = false;
 				setTimeout(function(){
-					$scope.$digest();
+					this.$digest();
 				});
 			}); */
 		}
@@ -1976,12 +2002,12 @@ export class ReportingOverviewComponent implements OnInit {
 			// https://docx.js.org/#/?id=basic-usage
 
 			let font = "Calibri";
-      if($scope.customFontFamily!=undefined) {
-        font = $scope.customFontFamily.replace(/['"]+/g,'');
+      if(this.customFontFamily!=undefined) {
+        font = this.customFontFamily.replace(/['"]+/g,'');
       }
-			for(let [idx, page] of $scope.config.pages.entries()) {
+			for(let [idx, page] of this.config.pages.entries()) {
 
-				if(!$scope.showThisPage(page)) {
+				if(!this.showThisPage(page)) {
 					continue;
 				}
 
@@ -2182,7 +2208,7 @@ export class ReportingOverviewComponent implements OnInit {
 							let paragraph = new docx.Paragraph({
 								children: [
 									new docx.TextRun({
-										text: "Seite " + $scope.getPageNumber(idx),
+										text: "Seite " + this.getPageNumber(idx),
 										font: font,
 										size: 32  // 16pt
 									},
@@ -2231,11 +2257,11 @@ export class ReportingOverviewComponent implements OnInit {
 							let instance = echarts.getInstanceByDom(pElementDom);
 							let imageDataUrl = instance.getDataURL({
 								type: "png",
-								pixelRatio: $scope.echartsImgPixelRatio
+								pixelRatio: this.echartsImgPixelRatio
 							   });	
 
 							if(pageElement.type === "map"){
-								imageDataUrl = await $scope.createLeafletEChartsMapImage(page, pageDom, pageElement, imageDataUrl)
+								imageDataUrl = await this.createLeafletEChartsMapImage(page, pageDom, pageElement, imageDataUrl)
 							}
 							
 
@@ -2539,7 +2565,7 @@ export class ReportingOverviewComponent implements OnInit {
 								left: 0,
 							},
 							pageNumbers: {
-								start: $scope.getPageNumber(idx),
+								start: this.getPageNumber(idx),
 								formatType: docx.NumberFormat.DECIMAL,
 							},
 							size: {
@@ -2563,9 +2589,9 @@ export class ReportingOverviewComponent implements OnInit {
 			// Used to export the file into a .docx file
 			docx.Packer.toBlob(doc).then((blob) => {
 				saveAs(blob, filename + ".docx");
-				$scope.loadingData = false;
+				this.loadingData = false;
 				setTimeout(function(){
-					$scope.$digest();
+					this.$digest();
 				});
 			}); */
 		}

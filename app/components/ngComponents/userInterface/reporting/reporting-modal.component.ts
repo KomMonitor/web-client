@@ -51,7 +51,7 @@ export class ReportingModalComponent {
   }
 
   onWorkflowDefined(workflow) {
-      this.workflowStatus = workflow[0];
-      this.data = {templateData: workflow[1], config: this.pageConfig};
+    this.workflowStatus = workflow[0];
+    this.data = {templateData: workflow[1], config: this.pageConfig};
   }
 }
