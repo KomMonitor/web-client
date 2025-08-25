@@ -441,11 +441,33 @@ export class KommonitorDataExchangeService implements OnDestroy {
    * Get available line of interest dash array objects
    */
   get availableLoiDashArrayObjects(): any[] {
+    // Align with legacy AngularJS values so persisted datasets map correctly
     return [
-      { value: 'solid', label: 'Durchgezogen', dashArray: null, dashArrayValue: 'solid', svgString: '<svg width="50" height="20"><line x1="5" y1="10" x2="45" y2="10" stroke="black" stroke-width="2"/></svg>' },
-      { value: 'dashed', label: 'Gestrichelt', dashArray: '10,5', dashArrayValue: 'dashed', svgString: '<svg width="50" height="20"><line x1="5" y1="10" x2="45" y2="10" stroke="black" stroke-width="2" stroke-dasharray="10,5"/></svg>' },
-      { value: 'dotted', label: 'Gepunktet', dashArray: '2,2', dashArrayValue: 'dotted', svgString: '<svg width="50" height="20"><line x1="5" y1="10" x2="45" y2="10" stroke="black" stroke-width="2" stroke-dasharray="2,2"/></svg>' },
-      { value: 'dash-dot', label: 'Strich-Punkt', dashArray: '10,2,2,2', dashArrayValue: 'dash-dot', svgString: '<svg width="50" height="20"><line x1="5" y1="10" x2="45" y2="10" stroke="black" stroke-width="2" stroke-dasharray="10,2,2,2"/></svg>' }
+      {
+        label: 'Durchgezogen',
+        dashArrayValue: '',
+        svgString: '<svg width=150 height=10 xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="5" x2="150" y2="5" stroke="black"/></svg>'
+      },
+      {
+        label: 'Gestrichelt (20)',
+        dashArrayValue: '20',
+        svgString: '<svg width=150 height=10 xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="5" x2="150" y2="5" stroke="black" stroke-dasharray="20"/></svg>'
+      },
+      {
+        label: 'Gestrichelt (20 10)',
+        dashArrayValue: '20 10',
+        svgString: '<svg width=150 height=10 xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="5" x2="150" y2="5" stroke="black" stroke-dasharray="20 10"/></svg>'
+      },
+      {
+        label: 'Strich-Punkt (20 10 5 10)',
+        dashArrayValue: '20 10 5 10',
+        svgString: '<svg width=150 height=10 xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="5" x2="150" y2="5" stroke="black" stroke-dasharray="20 10 5 10"/></svg>'
+      },
+      {
+        label: 'Gepunktet (5)',
+        dashArrayValue: '5',
+        svgString: '<svg width=150 height=10 xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="5" x2="150" y2="5" stroke="black" stroke-dasharray="5"/></svg>'
+      }
     ];
   }
 

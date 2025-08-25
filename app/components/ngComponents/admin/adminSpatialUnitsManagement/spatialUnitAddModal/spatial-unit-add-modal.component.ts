@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, Inject, ViewChild, ElementRef, HostListener } from '@angular/core';
 import { NgbActiveModal, NgbDatepicker } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { HttpClient } from '@angular/common/http';
@@ -24,6 +24,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
   @ViewChild('startDatepicker', { static: false }) startDatepicker!: NgbDatepicker;
   @ViewChild('endDatepicker', { static: false }) endDatepicker!: NgbDatepicker;
   @ViewChild('lastUpdateDatepicker', { static: false }) lastUpdateDatepicker!: NgbDatepicker;
+  @ViewChild('outlineDashArrayDropdown', { static: false }) outlineDashArrayDropdown!: ElementRef;
 
   // Multi-step form
   currentStep = 1;
@@ -148,6 +149,9 @@ export class SpatialUnitAddModalComponent implements OnInit {
 
   // Color picker properties
   showColorPicker = false;
+
+  // Dropdown state for outline dash array (Angular-native toggle)
+  showOutlineDashArrayDropdown = false;
 
   // Grid ready event handler
   onRoleManagementGridReady(params: any) {
@@ -566,27 +570,35 @@ export class SpatialUnitAddModalComponent implements OnInit {
     // Update dropdown button display using helper method
     this.updateDropdownButtonDisplay();
     
-    // Close the dropdown (optional - you can remove this if you want it to stay open)
-    // This requires Bootstrap dropdown functionality
-    try {
-      const buttonElement = document.getElementById('outlineDashArrayDropdownButton_addSpatialUnit');
-      const dropdownButton = buttonElement?.closest('.dropdown')?.querySelector('.dropdown-toggle');
-      if (dropdownButton) {
-        // Trigger Bootstrap dropdown close using native DOM manipulation
-        // Remove 'open' class from dropdown container
-        const dropdownContainer = buttonElement?.closest('.dropdown');
-        if (dropdownContainer) {
-          dropdownContainer.classList.remove('open');
-        }
-        console.log('Dropdown closed successfully');
-      } else {
-        console.log('Could not find dropdown button to close');
-      }
-    } catch (error) {
-      console.log('Could not close dropdown automatically:', error);
-    }
+    // Close the dropdown via Angular state
+    this.closeOutlineDashArrayDropdown();
     
     console.log('=== onChangeOutlineDashArray completed ===');
+  }
+
+  // Toggle/close handlers for outline dash array dropdown
+  toggleOutlineDashArrayDropdown(event?: Event) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    this.showOutlineDashArrayDropdown = !this.showOutlineDashArrayDropdown;
+  }
+
+  closeOutlineDashArrayDropdown() {
+    this.showOutlineDashArrayDropdown = false;
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    const clickTarget = event.target as Node;
+    // Close dropdown only if click is outside the dropdown container
+    if (this.showOutlineDashArrayDropdown && this.outlineDashArrayDropdown && this.outlineDashArrayDropdown.nativeElement && this.outlineDashArrayDropdown.nativeElement.contains) {
+      if (this.outlineDashArrayDropdown.nativeElement.contains(clickTarget)) {
+        return;
+      }
+    }
+    this.closeOutlineDashArrayDropdown();
   }
 
   // Color picker methods for ngx-color
@@ -635,21 +647,28 @@ export class SpatialUnitAddModalComponent implements OnInit {
 
   // Method to update dropdown button display
   private updateDropdownButtonDisplay() {
-    const buttonElement = document.getElementById('outlineDashArrayDropdownButton_addSpatialUnit');
-    if (buttonElement && this.selectedOutlineDashArrayObject && this.selectedOutlineDashArrayObject.svgString) {
-      // Clear existing content and add the selected SVG
-      buttonElement.innerHTML = '';
-      const svgContainer = document.createElement('div');
-      svgContainer.innerHTML = this.selectedOutlineDashArrayObject.svgString;
-      buttonElement.appendChild(svgContainer);
-      
-      console.log('Updated dropdown button with selected SVG:', this.selectedOutlineDashArrayObject.label);
-    }
+    // No-op: rendering handled via Angular bindings with cached SafeHtml
+    return;
   }
 
   // Method to safely sanitize SVG content
-  getSafeSvg(svgString: string): SafeHtml {
-    return this.sanitizer.bypassSecurityTrustHtml(svgString);
+  private svgSanitizeCache: Map<string, SafeHtml> = new Map();
+
+  getSafeSvgCached(svgString: string): SafeHtml {
+    if (!svgString) {
+      return '' as unknown as SafeHtml;
+    }
+    const cached = this.svgSanitizeCache.get(svgString);
+    if (cached) {
+      return cached;
+    }
+    const trusted = this.sanitizer.bypassSecurityTrustHtml(svgString);
+    this.svgSanitizeCache.set(svgString, trusted);
+    return trusted;
+  }
+
+  trackLoiOption(index: number, item: any) {
+    return item?.dashArrayValue ?? index;
   }
 
   // Importer object building methods

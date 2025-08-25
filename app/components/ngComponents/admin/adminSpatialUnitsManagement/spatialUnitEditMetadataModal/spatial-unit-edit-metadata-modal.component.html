@@ -190,48 +190,10 @@
                     <span class="caret"></span>
                   </button>
                   <ul class="dropdown-menu dropdown-menu-center">
-                    <li style="cursor: pointer;">
-                      <div 
-                        class="dropdown-item"
-                        (click)="onChangeOutlineDashArray(kommonitorDataExchangeService.availableLoiDashArrayObjects[0])"
-                      >
-                        <div id="outlineDashArrayDropdownItem-editMetadata-0">
-                          <div style="margin-bottom: 5px;">{{kommonitorDataExchangeService.availableLoiDashArrayObjects[0]?.label}}</div>
-                          <div [innerHTML]="getSafeSvg(kommonitorDataExchangeService.availableLoiDashArrayObjects[0]?.svgString)"></div>
-                        </div>
-                      </div>
-                    </li>
-                    <li style="cursor: pointer;">
-                      <div 
-                        class="dropdown-item"
-                        (click)="onChangeOutlineDashArray(kommonitorDataExchangeService.availableLoiDashArrayObjects[1])"
-                      >
-                        <div id="outlineDashArrayDropdownItem-editMetadata-1">
-                          <div style="margin-bottom: 5px;">{{kommonitorDataExchangeService.availableLoiDashArrayObjects[1]?.label}}</div>
-                          <div [innerHTML]="getSafeSvg(kommonitorDataExchangeService.availableLoiDashArrayObjects[1]?.svgString)"></div>
-                        </div>
-                      </div>
-                    </li>
-                    <li style="cursor: pointer;">
-                      <div 
-                        class="dropdown-item"
-                        (click)="onChangeOutlineDashArray(kommonitorDataExchangeService.availableLoiDashArrayObjects[2])"
-                      >
-                        <div id="outlineDashArrayDropdownItem-editMetadata-2">
-                          <div style="margin-bottom: 5px;">{{kommonitorDataExchangeService.availableLoiDashArrayObjects[2]?.label}}</div>
-                          <div [innerHTML]="getSafeSvg(kommonitorDataExchangeService.availableLoiDashArrayObjects[2]?.svgString)"></div>
-                        </div>
-                      </div>
-                    </li>
-                    <li style="cursor: pointer;">
-                      <div 
-                        class="dropdown-item"
-                        (click)="onChangeOutlineDashArray(kommonitorDataExchangeService.availableLoiDashArrayObjects[3])"
-                      >
-                        <div id="outlineDashArrayDropdownItem-editMetadata-3">
-                          <div style="margin-bottom: 5px;">{{kommonitorDataExchangeService.availableLoiDashArrayObjects[3]?.label}}</div>
-                          <div [innerHTML]="getSafeSvg(kommonitorDataExchangeService.availableLoiDashArrayObjects[3]?.svgString)"></div>
-                        </div>
+                    <li *ngFor="let option of kommonitorDataExchangeService.availableLoiDashArrayObjects; let i = index" style="cursor: pointer;">
+                      <div class="dropdown-item" (click)="onChangeOutlineDashArray(option)">
+                        <div style="margin-bottom: 5px;">{{option.label}}</div>
+                        <div [innerHTML]="getSafeSvg(option.svgString)"></div>
                       </div>
                     </li>
                   </ul>
