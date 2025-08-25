@@ -1,6 +1,13 @@
 ::ng-deep .modal-holder .modal-dialog { 
-  max-width: 80%;
-  width: 80%;
+  max-width: max-content;
+  width: max-content;
   transform: none !important;
+}
 
+.modal-content {
+  width: 80vw;
+
+  &.content-small {
+    width: 40vw;
+  }
 }

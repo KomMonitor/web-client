@@ -67,6 +67,7 @@ export class IndicatorAddComponent implements OnInit {
 
 	template:any = undefined;
   untouchedTemplateAsString = "";
+  untouchedTemplateAsObj:any;
   isochrones;
   typeOfMovement;
   geoJsonForReachability;
@@ -226,6 +227,7 @@ export class IndicatorAddComponent implements OnInit {
     let template = this.data.templateData.template;
     // deep copy template before any changes are made.
     // this is needed when additional timestamps are inserted.
+    this.untouchedTemplateAsObj = template;
     this.untouchedTemplateAsString = JSON.parse(JSON.stringify((template)));
     // give each page a unique id to track it by in ng-repeat
     for(let page of template.pages) {
@@ -2065,8 +2067,7 @@ export class IndicatorAddComponent implements OnInit {
     this.template.isochronesRangeType = this.isochronesRangeType;
     this.template.isochronesRangeUnits = this.isochronesRangeUnits;
     if(!this.template.name.includes("reachability")) {
-      console.log("call")
-      this.broadcastSerice.broadcast('reportingIndicatorConfigurationCompleted', [this.selectedIndicator, this.template])
+      this.broadcastSerice.broadcast('reportingIndicatorConfigurationCompleted', [this.selectedIndicator, this.template, this.untouchedTemplateAsObj])
     } else {
       this.broadcastSerice.broadcast('reportingAddNewPoiLayerClicked', [this.selectedPoiLayer, this.selectedIndicator, this.template])
     }

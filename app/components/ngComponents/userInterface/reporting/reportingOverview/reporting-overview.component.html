@@ -25,7 +25,7 @@
                   <p>Die Reihenfolge kann über Drag-and-Drop verändert werden.</p>
                   <div class="list-group" ng-sortable="sortableConfig">
 
-                      <div *ngFor="let section of config.templateSections; index as i">
+                      <div *ngFor="let section of config.templateSections; let i = index">
                           <hr class="reporting-hr-divider">
                           <div class="row row-no-gutters reporting-added-templateSections-row">
                               <div class="col-sm-11">
@@ -176,8 +176,7 @@
                       <i class="fa fa-save"></i>
                       &nbsp;&nbsp;Einstellungen exportieren
                   </button>
-                  <button type="button" class="btn btn-success pull-right" data-toggle="modal" data-target="#reporting-report-formats-selection"
-                        ng-disabled="loadingData || ! lastPageOfAddedSectionPrepared || config.indicators.length == 0 || ! $ctrl.kommonitorLeafletScreenshotCacheHelperServiceInstance.screenshotsForCurrentSpatialUnitUpdate">
+                  <button type="button" class="btn btn-success pull-right" data-toggle="modal" (click)="generateReport()" [hidden]="loadingData || ! lastPageOfAddedSectionPrepared || config.indicators.length == 0 || ! leafletScreenshotCacheHelperService.screenshotsForCurrentSpatialUnitUpdate">
                       <i class="fa fa-copy"></i>
                       &nbsp;&nbsp;Report erzeugen
                   </button> 

@@ -5,13 +5,14 @@ import { WorkflowSelectComponent } from './workflowSelect/workflow-select.compon
 import { TemplateSelectComponent } from "./templateSelect/template-select.component";
 import { IndicatorAddComponent } from "./indicatorAdd/indicator-add.component";
 import { ReportingOverviewComponent } from "./reportingOverview/reporting-overview.component";
+import { GenerateReportComponent } from './generate-report/generate-report.component';
 
 @Component({
   selector: 'app-reporting-modal',
   standalone: true,
   templateUrl: './reporting-modal.component.html',
   styleUrls: ['./reporting-modal.component.css'],
-  imports: [CommonModule, WorkflowSelectComponent, TemplateSelectComponent, IndicatorAddComponent, IndicatorAddComponent, ReportingOverviewComponent]
+  imports: [CommonModule, WorkflowSelectComponent, TemplateSelectComponent, IndicatorAddComponent, IndicatorAddComponent, ReportingOverviewComponent, GenerateReportComponent]
 })
 export class ReportingModalComponent {
 
