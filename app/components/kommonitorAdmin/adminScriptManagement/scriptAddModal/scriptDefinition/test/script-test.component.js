@@ -65,8 +65,10 @@ angular.module('scriptTest').component('scriptTest', {
 					kommonitorScriptHelperService.processParameters.reference_id = refIndicatorSelection.indicatorId;
 				}				
 				$scope.legendValues.refIndicatorSelection = refIndicatorSelection;
+				kommonitorScriptHelperService.refIndicator = refIndicatorSelection;
 
-				$scope.resetComputationFormulaAndLegend();				
+				$scope.resetComputationFormulaAndLegend();
+				$rootScope.$broadcast("refIndicatorChanged");		
 			};
 
 			$scope.onChangeReferenceDate = function(){
@@ -85,7 +87,8 @@ angular.module('scriptTest').component('scriptTest', {
 				}		
 				$scope.legendValues.compIndicatorSelection = compIndicatorSelection;
 
-				$scope.resetComputationFormulaAndLegend();				
+				$scope.resetComputationFormulaAndLegend();
+				$rootScope.$broadcast("compIndicatorChanged");		
 			};
 
 			$scope.addBaseIndicator = function(tmpIndicatorSelection){
@@ -100,6 +103,7 @@ angular.module('scriptTest').component('scriptTest', {
 				setTimeout(() => {
 					$scope.$digest();
 				});
+				$rootScope.$broadcast("baseIndicatorChanged");
 			};
 
 			$scope.removeBaseIndicator = function(baseIndicator){
@@ -120,6 +124,7 @@ angular.module('scriptTest').component('scriptTest', {
 				setTimeout(() => {
 					$scope.$digest();
 				});
+				$rootScope.$broadcast("baseIndicatorChanged");
 			};
 
 			$scope.onChangeNumTemporalItems = function(){
@@ -144,6 +149,7 @@ angular.module('scriptTest').component('scriptTest', {
 				}	
 				$scope.georesourceSelection = georesourceSelection;
 				$scope.legendValues.georesourceSelection = georesourceSelection;
+				kommonitorScriptHelperService.georesource = georesourceSelection;
 
 				$scope.compFilterData = {
 					operator: null,
@@ -157,7 +163,9 @@ angular.module('scriptTest').component('scriptTest', {
 
 				$scope.resetPropertyOptions();
 				$scope.resetNumericPropertyOptions();
-				$scope.resetComputationFormulaAndLegend();				
+				$scope.resetComputationFormulaAndLegend();		
+				
+				$rootScope.$broadcast("georesourceChanged");
 			};
 
 			$scope.resetNumericPropertyOptions = function(){
