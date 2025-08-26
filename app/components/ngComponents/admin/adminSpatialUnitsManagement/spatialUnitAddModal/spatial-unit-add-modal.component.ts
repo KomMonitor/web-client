@@ -244,7 +244,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
     this.setupEventListeners();
   }
 
-  private loadInitialData() {
+  private async loadInitialData() {
     this.loadingData = true;
     
     // Load available spatial units
@@ -265,8 +265,14 @@ export class SpatialUnitAddModalComponent implements OnInit {
       this.attributeMapping_attributeType = attributeMappingTypes[0];
     }
 
-    // Load converters and datasource types
-    this.loadConverters();
+    // Ensure importer resources are fetched before reading converters/datasource types
+    try {
+      await this.kommonitorImporterHelperService.fetchResourcesFromImporter();
+    } catch (error) {
+      console.error('Failed to fetch importer resources:', error);
+    }
+
+    // Load datasource types from importer helper after fetch
     this.loadDatasourceTypes();
 
     // Load access control data and prepare creator list
@@ -329,19 +335,14 @@ export class SpatialUnitAddModalComponent implements OnInit {
   }
 
   private loadConverters(): void {
-    const converters = this.kommonitorImporterHelperService.getAvailableConverters();
-    if (converters) {
-      // Filter converters for spatial units
-      this.availableDatasourceTypes = converters
-        .filter((converter: any) => converter.type === 'spatialUnit');
-    }
+    // Converters are fetched and exposed by the importer helper service.
+    // The template reads them directly from the service; no component state needed here.
+    return;
   }
 
   private loadDatasourceTypes(): void {
     const datasourceTypes = this.kommonitorImporterHelperService.getAvailableDatasourceTypes();
-    if (datasourceTypes) {
-      this.availableDatasourceTypes = datasourceTypes;
-    }
+    this.availableDatasourceTypes = datasourceTypes || [];
   }
 
   private initializeOutlineLayerSettings() {

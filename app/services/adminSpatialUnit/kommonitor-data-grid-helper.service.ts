@@ -708,11 +708,13 @@ export class KommonitorDataGridHelperService {
         input.className = className;
         input.type = 'checkbox';
         input.checked = isChecked;
-        
-        if(this.params.data.datasetOwner===true)
+
+        // Disable viewer if dataset owner or if editor/creator selection implies viewer
+        if (this.params.data.datasetOwner === true || this.params.data._viewerDisabledBecauseOfEditor === true || this.params.data._viewerDisabledBecauseOfCreator === true) {
           input.disabled = true;
-        else
+        } else {
           input.disabled = false;
+        }
 
         this.boundCheckedHandler = this.checkedHandler.bind(this);
         input.addEventListener('click', this.boundCheckedHandler);
@@ -773,11 +775,13 @@ export class KommonitorDataGridHelperService {
         input.className = className;
         input.type = 'checkbox';
         input.checked = isChecked;
-
-        if(this.params.data.datasetOwner===true)
+        
+        // Disable editor if dataset owner or if creator selection implies editor
+        if (this.params.data.datasetOwner === true || this.params.data._editorDisabledBecauseOfCreator === true) {
           input.disabled = true;
-        else
+        } else {
           input.disabled = false;
+        }
 
         this.boundCheckedHandler = this.checkedHandler.bind(this);
         input.addEventListener('click', this.boundCheckedHandler);
@@ -793,16 +797,29 @@ export class KommonitorDataGridHelperService {
         if (permission.permissionLevel == "viewer"){    
           if (checked){
             permission.isChecked = true;
-            // Note: jQuery selectors removed as they may not be available in Angular context
-          }                    
-          else{
-            // Note: jQuery selectors removed as they may not be available in Angular context
+          } else {
+            permission.isChecked = false;
           }
         }
         else if (permission.permissionLevel == "editor"){            
           permission.isChecked = checked;
         }
       }  
+      // If editor is checked, enforce viewer checked+disabled
+      if (checked) {
+        this.params.data._viewerDisabledBecauseOfEditor = true;
+        for (const permission of this.params.data.permissions) {
+          if (permission.permissionLevel == "viewer"){
+            permission.isChecked = true;
+          }
+        }
+      } else {
+        this.params.data._viewerDisabledBecauseOfEditor = false;
+      }
+      // Ask grid to refresh this row to update disabled state of viewer column
+      if (this.params.api && this.params.node) {
+        this.params.api.refreshCells({ force: true, rowNodes: [this.params.node] });
+      }
     }
 
     getGui() { return this.eGui; }
@@ -843,11 +860,13 @@ export class KommonitorDataGridHelperService {
         input.className = className;
         input.type = 'checkbox';
         input.checked = isChecked;
-
-        if(this.params.data.datasetOwner===true)
+        
+        // Disable creator if dataset owner is true
+        if (this.params.data.datasetOwner === true) {
           input.disabled = true;
-        else
+        } else {
           input.disabled = false;
+        }
 
         this.boundCheckedHandler = this.checkedHandler.bind(this);
         input.addEventListener('click', this.boundCheckedHandler);
@@ -860,32 +879,27 @@ export class KommonitorDataGridHelperService {
     checkedHandler(e: any) {
       let checked = e.target.checked;
       for (const permission of this.params.data.permissions) {
-        if (permission.permissionLevel == "publisher"){            
-          if(!checked)
-            permission.isChecked = false;
-        }
-        else if (permission.permissionLevel == "editor"){            
-          if (checked){
-            permission.isChecked = true;
-            // Note: jQuery selectors removed as they may not be available in Angular context
-          }                    
-          else{
-            // Note: jQuery selectors removed as they may not be available in Angular context
-          }
-        }
-        else if (permission.permissionLevel == "viewer"){            
-          if (checked){
-            permission.isChecked = true;
-            // Note: jQuery selectors removed as they may not be available in Angular context
-          }                    
-          else{
-            // Note: jQuery selectors removed as they may not be available in Angular context
-          }
-        }
-        else if (permission.permissionLevel == "creator" || permission.permissionLevel == "editor" || permission.permissionLevel == "viewer"){            
+        if (permission.permissionLevel == "creator" || permission.permissionLevel == "editor" || permission.permissionLevel == "viewer"){            
           permission.isChecked = checked;
         }
       }  
+      // If creator is checked, enforce editor and viewer checked+disabled
+      if (checked) {
+        this.params.data._editorDisabledBecauseOfCreator = true;
+        this.params.data._viewerDisabledBecauseOfCreator = true;
+        for (const permission of this.params.data.permissions) {
+          if (permission.permissionLevel == "editor" || permission.permissionLevel == "viewer"){
+            permission.isChecked = true;
+          }
+        }
+      } else {
+        this.params.data._editorDisabledBecauseOfCreator = false;
+        this.params.data._viewerDisabledBecauseOfCreator = false;
+      }
+      // Ask grid to refresh this row to update disabled state of editor/viewer columns
+      if (this.params.api && this.params.node) {
+        this.params.api.refreshCells({ force: true, rowNodes: [this.params.node] });
+      }
     }
 
     getGui() { return this.eGui; }

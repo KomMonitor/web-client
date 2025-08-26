@@ -687,6 +687,7 @@ input:checked + .switchslider:before {
 /* Legacy color input styles for fallback */
 input[type="color"] {
   -webkit-appearance: none;
+  appearance: none;
   border: none;
   width: 50px;
   height: 34px;
@@ -878,6 +879,21 @@ input[type="color"]::-webkit-color-swatch {
 /* Make sure form fields have proper spacing */
 .row.vertical-align {
   margin-bottom: 1.5rem;
+}
+
+/* Ensure first metadata row fields align horizontally */
+.meta-row {
+  display: flex;
+  align-items: flex-start;
+}
+
+.meta-row .form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.meta-row label {
+  min-height: 20px;
 }
 
 /* Ensure proper spacing between form groups */

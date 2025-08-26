@@ -33,8 +33,8 @@
       <h3 class="fs-subtitle">Angaben über die neue Raumebene</h3>
       <p><b><i>* = Pflichtfeld</i></b></p>
 
-      <div class="row vertical-align">
-        <div class="col-md-4 col-sm-6 col-xs-12">
+      <div class="row vertical-align meta-row">
+        <div class="col-md-4 col-sm-4 col-xs-4">
           <div class="form-group">
             <label>Name der Raumebene*</label>
             <input 
@@ -52,7 +52,7 @@
             </div>
           </div>
         </div>
-        <div class="col-md-4 col-sm-6 col-xs-12">
+        <div class="col-md-4 col-sm-4 col-xs-4">
           <div class="form-group">
             <label>Hierarchie: nächst niedrigere Ebene</label>
             <select 
@@ -76,7 +76,7 @@
             </div>
           </div>
         </div>
-        <div class="col-md-4 col-sm-6 col-xs-12">
+        <div class="col-md-4 col-sm-4 col-xs-4">
           <div class="form-group">
             <label>Hierarchie: nächst höhere Ebene</label>
             <select 
@@ -103,7 +103,7 @@
       </div>
 
       <div class="row vertical-align">
-        <div class="col-md-3 col-sm-6 col-xs-12">
+        <div class="col-md-3 col-sm-3 col-xs-12">
           <div class="form-group">
             <label>als Umringslayer markieren?</label>
             <label class="switch">
@@ -115,7 +115,7 @@
             </div>
           </div>
         </div>
-        <div class="col-md-3 col-sm-6 col-xs-12" *ngIf="isOutlineLayer">
+        <div class="col-md-3 col-sm-3 col-xs-12" *ngIf="isOutlineLayer">
           <div class="form-group" align="center">
             <label>Linienfarbe (Umringslayer)</label>
             
@@ -156,7 +156,7 @@
             <div class="help-block with-errors"></div>
           </div>
         </div>
-        <div class="col-md-3 col-sm-6 col-xs-12" *ngIf="isOutlineLayer">
+        <div class="col-md-3 col-sm-3 col-xs-12" *ngIf="isOutlineLayer">
           <div class="form-group" align="center">
             <label>Linienbreite (Umringslayer)</label>
             <br/>
@@ -172,7 +172,7 @@
             <div class="help-block with-errors"></div>
           </div>
         </div>
-        <div class="col-md-3 col-sm-6 col-xs-12" *ngIf="isOutlineLayer">
+        <div class="col-md-3 col-sm-3 col-xs-12" *ngIf="isOutlineLayer">
           <div class="form-group" align="center">
             <label>Linienmuster (Umringslayer)</label>
             <div class="dropdown" [class.open]="showOutlineDashArrayDropdown" #outlineDashArrayDropdown>
