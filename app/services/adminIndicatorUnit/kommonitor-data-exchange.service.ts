@@ -157,8 +157,10 @@ export class KommonitorIndicatorDataExchangeService {
    */
   async fetchSpatialUnitsMetadata(keycloakRolesArray: string[]): Promise<SpatialUnitMetadata[]> {
     try {
-      const url = `${this.baseUrl}/spatial-units`;
-      const response = await this.http.get<SpatialUnitMetadata[]>(url).toPromise();
+      const endpoint = this.getSpatialUnitsEndpoint();
+      const url = `${this.baseUrl}${endpoint}`;
+      const headers = this.getAuthHeaders();
+      const response = await this.http.get<SpatialUnitMetadata[]>(url, { headers }).toPromise();
       
       if (response) {
         this.spatialUnitsSubject.next(response);
@@ -174,6 +176,13 @@ export class KommonitorIndicatorDataExchangeService {
       console.error('Error fetching spatial units:', error);
       return [];
     }
+  }
+
+  /**
+   * Get the appropriate spatial units endpoint based on authentication
+   */
+  private getSpatialUnitsEndpoint(): string {
+    return this.enableKeycloakSecurity ? '/spatial-units' : '/public/spatial-units';
   }
 
   /**
@@ -230,11 +239,11 @@ export class KommonitorIndicatorDataExchangeService {
    */
   get updateIntervalOptions(): any[] {
     return [
-      { value: 'ARBITRARY', label: 'beliebig' },
-      { value: 'YEARLY', label: 'jährlich' },
-      { value: 'HALF_YEARLY', label: 'halbjährig' },
-      { value: 'MONTHLY', label: 'monatlich' },
-      { value: 'QUARTERLY', label: 'vierteljährlich' }
+      { apiName: 'ARBITRARY', displayName: 'beliebig' },
+      { apiName: 'YEARLY', displayName: 'jährlich' },
+      { apiName: 'HALF_YEARLY', displayName: 'halbjährig' },
+      { apiName: 'MONTHLY', displayName: 'monatlich' },
+      { apiName: 'QUARTERLY', displayName: 'vierteljährlich' }
     ];
   }
 
@@ -242,10 +251,14 @@ export class KommonitorIndicatorDataExchangeService {
    * Get indicator type options
    */
   get indicatorTypeOptions(): any[] {
+    // Mirror AngularJS expectations (apiName/displayName) and downstream checks for STATUS/DYNAMIC
     return [
-      { value: 'headline', label: 'Leitindikator' },
-      { value: 'base', label: 'Basisindikator' },
-      { value: 'computed', label: 'Berechneter Indikator' }
+      { apiName: 'STATUS_ABSOLUTE', displayName: 'Status (absolut)' },
+      { apiName: 'STATUS_RELATIVE', displayName: 'Status (relativ)' },
+      { apiName: 'STATUS_STANDARDIZED', displayName: 'Status (standardisiert)' },
+      { apiName: 'DYNAMIC_ABSOLUTE', displayName: 'Dynamik (absolut)' },
+      { apiName: 'DYNAMIC_RELATIVE', displayName: 'Dynamik (relativ)' },
+      { apiName: 'DYNAMIC_STANDARDIZED', displayName: 'Dynamik (standardisiert)' }
     ];
   }
 
@@ -253,11 +266,17 @@ export class KommonitorIndicatorDataExchangeService {
    * Get indicator unit options
    */
   get indicatorUnitOptions(): any[] {
+    // Provide simple string list as expected by templates (Angular and AngularJS)
     return [
-      { value: 'percent', label: 'Prozent' },
-      { value: 'number', label: 'Anzahl' },
-      { value: 'ratio', label: 'Verhältnis' },
-      { value: 'custom', label: 'Benutzerdefiniert' }
+      'Prozent',
+      'Anzahl',
+      'Verhältnis',
+      'Index',
+      'Punkte',
+      'km²',
+      'm²',
+      'km',
+      'm'
     ];
   }
 
@@ -265,11 +284,27 @@ export class KommonitorIndicatorDataExchangeService {
    * Get indicator creation type options
    */
   get indicatorCreationTypeOptions(): any[] {
+    // Match Angular templates which expect displayName/apiName and component logic checking for COMPUTATION
     return [
-      { value: 'manual', label: 'Manuell' },
-      { value: 'automatic', label: 'Automatisch' },
-      { value: 'import', label: 'Import' }
+      { apiName: 'INSERTION', displayName: 'manuell' },
+      { apiName: 'COMPUTATION', displayName: 'automatisierte Berechnung durch KomMonitor' }
     ];
+  }
+
+  /**
+   * Get date picker options
+   * Align with spatial unit component for consistent UI/UX
+   */
+  get datePickerOptions(): any {
+    return {
+      format: 'dd.mm.yyyy',
+      autoclose: true,
+      todayBtn: 'linked',
+      todayHighlight: true,
+      assumeNearbyYear: true,
+      startView: 2,
+      minView: 2
+    };
   }
 
   /**

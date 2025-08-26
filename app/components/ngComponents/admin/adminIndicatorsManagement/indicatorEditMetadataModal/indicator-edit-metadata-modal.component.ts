@@ -265,6 +265,18 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
     } else {
       console.log('No currentIndicatorDataset available, form will be initialized later');
     }
+
+    // Initialize datepicker for last update date (align with spatial unit component)
+    setTimeout(() => {
+      try {
+        ($ as any)('#indicatorEditLastUpdateDatepicker').datepicker(this.kommonitorDataExchangeService.datePickerOptions);
+        if (this.metadata?.lastUpdate) {
+          ($ as any)('#indicatorEditLastUpdateDatepicker').datepicker('setDate', this.metadata.lastUpdate);
+        }
+      } catch (e) {
+        console.warn('Failed to initialize datepicker for indicator edit metadata:', e);
+      }
+    }, 100);
   }
 
   ngOnDestroy(): void {
@@ -1057,6 +1069,18 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
       description: metadata.description || '',
       lastUpdate: metadata.lastUpdate || ''
     };
+
+    // Set datepicker value after metadata is assigned
+    setTimeout(() => {
+      try {
+        const datePicker = ($ as any)('#indicatorEditLastUpdateDatepicker');
+        if (datePicker && this.metadata.lastUpdate) {
+          datePicker.datepicker('setDate', this.metadata.lastUpdate);
+        }
+      } catch (e) {
+        // ignore
+      }
+    }, 100);
 
     // Set update interval
     this.kommonitorDataExchangeService.updateIntervalOptions.forEach((option: any) => {

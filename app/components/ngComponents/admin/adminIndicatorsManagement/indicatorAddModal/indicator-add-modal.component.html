@@ -211,7 +211,7 @@
                 <select [(ngModel)]="indicatorCreationType" name="indicatorCreationType" (ngModelChange)="onChangeCreationType()"
                   class="form-control" required>
                   <option [ngValue]="null" disabled selected>-- Fortführungstyp wählen --</option>
-                  <option *ngFor="let type of kommonitorDataExchangeService.indicatorCreationTypeOptions" [ngValue]="type">
+                  <option *ngFor="let type of indicatorCreationTypeOptions" [ngValue]="type">
                     {{type.displayName}}
                   </option>
                 </select>
@@ -301,13 +301,21 @@
             <div class="col-md-3 col-sm-6 col-xs-12">
               <div class="form-group">
                 <label>Datum der letzten Aktualisierung*</label>
-                <div class="input-group date">
-                  <div class="input-group-addon">
+                <div class="input-group">
+                  <div class="input-group-addon" (click)="metadataLastUpdatePicker.toggle()" style="cursor: pointer;">
                     <i class="far fa-calendar-alt"></i>
-              </div>
-                  <input type="text" [(ngModel)]="metadata.lastUpdate" name="metadata.lastUpdate"
-                    class="form-control pull-right" placeholder="YYYY-MM-DD" required>
-            </div>
+                  </div>
+                  <input class="form-control pull-right"
+                         placeholder="YYYY-MM-DD"
+                         name="metadataLastUpdate"
+                         ngbDatepicker #metadataLastUpdatePicker="ngbDatepicker"
+                         [autoClose]="true"
+                         [readonly]="true"
+                         (click)="metadataLastUpdatePicker.open()"
+                         [(ngModel)]="metadataLastUpdateModel"
+                         (dateSelect)="onMetadataLastUpdateChange($event)"
+                         required>
+                </div>
                 <div class="help-block with-errors"></div>
               </div>
             </div>
@@ -329,19 +337,7 @@
             </div>
           </div>
 
-          <div class="row vertical-align">
-            <div class="col-md-3 col-sm-6 col-xs-12">
-              <div class="form-group">
-                <label>SRID EPSG</label>
-                <input type="number" class="form-control" [(ngModel)]="metadata.sridEPSG" name="metadata.sridEPSG" 
-                  placeholder="4326" value="4326">
-                <div class="help-block">
-                  <p>Koordinatensystem für die räumlichen Daten (Standard: 4326 für WGS84)</p>
-              </div>
-                <div class="help-block with-errors"></div>
-            </div>
-              </div>
-            </div>
+          
 
           <input type="button" name="previous" class="previous previous_addIndicator action-button-previous" value="Voriger Schritt" (click)="previousStep()"/>
           <input type="button" name="next" class="next next_addIndicator action-button" value="Nächster Schritt" (click)="nextStep()"/>
@@ -1603,12 +1599,19 @@
             <div class="col-md-6 col-sm-6 col-xs-12">
               <div class="form-group">
                 <label>Zugriff von</label>
-                <div class="input-group date">
-                  <div class="input-group-addon">
+                <div class="input-group">
+                  <div class="input-group-addon" (click)="accessStartPicker.toggle()" style="cursor: pointer;">
                     <i class="far fa-calendar-alt"></i>
                   </div>
-                  <input type="text" [(ngModel)]="accessStartDate" name="accessStartDate"
-                    class="form-control pull-right" placeholder="YYYY-MM-DD">
+                  <input class="form-control pull-right"
+                         placeholder="YYYY-MM-DD"
+                         name="accessStartDate"
+                         ngbDatepicker #accessStartPicker="ngbDatepicker"
+                         [autoClose]="true"
+                         [readonly]="true"
+                         (click)="accessStartPicker.open()"
+                         [(ngModel)]="accessStartDateModel"
+                         (dateSelect)="onAccessStartDateChange($event)">
                 </div>
                 <div class="help-block">
                   <p>Startdatum für den Zugriff auf den Indikator</p>
@@ -1618,12 +1621,19 @@
             <div class="col-md-6 col-sm-6 col-xs-12">
               <div class="form-group">
                 <label>Zugriff bis</label>
-                <div class="input-group date">
-                  <div class="input-group-addon">
+                <div class="input-group">
+                  <div class="input-group-addon" (click)="accessEndPicker.toggle()" style="cursor: pointer;">
                     <i class="far fa-calendar-alt"></i>
                   </div>
-                  <input type="text" [(ngModel)]="accessEndDate" name="accessEndDate"
-                    class="form-control pull-right" placeholder="YYYY-MM-DD">
+                  <input class="form-control pull-right"
+                         placeholder="YYYY-MM-DD"
+                         name="accessEndDate"
+                         ngbDatepicker #accessEndPicker="ngbDatepicker"
+                         [autoClose]="true"
+                         [readonly]="true"
+                         (click)="accessEndPicker.open()"
+                         [(ngModel)]="accessEndDateModel"
+                         (dateSelect)="onAccessEndDateChange($event)">
                 </div>
                 <div class="help-block">
                   <p>Enddatum für den Zugriff auf den Indikator</p>

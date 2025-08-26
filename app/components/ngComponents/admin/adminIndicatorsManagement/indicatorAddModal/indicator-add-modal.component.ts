@@ -1,4 +1,5 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
+import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { HttpClient } from '@angular/common/http';
@@ -43,7 +44,7 @@ export class IndicatorAddModalComponent implements OnInit, OnDestroy {
   indicatorAbbreviation = '';
   indicatorType: any = null;
   isHeadlineIndicator = false;
-  indicatorUnit = '';
+  indicatorUnit: string | null = null;
   enableFreeTextUnit = false;
   indicatorProcessDescription = '';
   indicatorTagsString_withCommas = '';
@@ -132,6 +133,7 @@ export class IndicatorAddModalComponent implements OnInit, OnDestroy {
   availableSpatialUnits: any[] = [];
   updateIntervalOptions: any[] = [];
   indicatorTypeOptions: any[] = [];
+  indicatorCreationTypeOptions: any[] = [];
   colorbrewerPalettes: any[] = [];
   colorbrewerSchemes: any = {};
   availableIndicators: any[] = [];
@@ -164,6 +166,10 @@ export class IndicatorAddModalComponent implements OnInit, OnDestroy {
   comparisonDescription = '';
   evaluationDirection: string | null = null;
   toleranceRange: number | null = null;
+  // Ngb datepicker models
+  metadataLastUpdateModel: NgbDateStruct | null = null;
+  accessStartDateModel: NgbDateStruct | null = null;
+  accessEndDateModel: NgbDateStruct | null = null;
   
   // Additional comparison values
   additionalComparisonType: string | null = null;
@@ -241,6 +247,11 @@ export class IndicatorAddModalComponent implements OnInit, OnDestroy {
 
     // Set up event listeners for role management (like AngularJS component)
     this.setupEventListeners();
+
+    // Initialize datepicker models from existing string values
+    this.metadataLastUpdateModel = this.parseDateStringToStruct(this.metadata.lastUpdate);
+    this.accessStartDateModel = this.parseDateStringToStruct(this.accessStartDate);
+    this.accessEndDateModel = this.parseDateStringToStruct(this.accessEndDate);
   }
 
   private async loadInitialData() {
@@ -253,6 +264,11 @@ export class IndicatorAddModalComponent implements OnInit, OnDestroy {
     
     if (!this.kommonitorDataExchangeService.availableGeoresources || this.kommonitorDataExchangeService.availableGeoresources.length === 0) {
       await this.kommonitorDataExchangeService.fetchGeoresourcesMetadata(this.kommonitorDataExchangeService.currentKeycloakLoginRoles);
+    }
+
+    // Ensure spatial units are loaded (needed for lowest spatial unit selection)
+    if (!this.kommonitorDataExchangeService.availableSpatialUnits || this.kommonitorDataExchangeService.availableSpatialUnits.length === 0) {
+      await this.kommonitorDataExchangeService.fetchSpatialUnitsMetadata(this.kommonitorDataExchangeService.currentKeycloakLoginRoles);
     }
     
     // Ensure access control data is loaded
@@ -274,6 +290,9 @@ export class IndicatorAddModalComponent implements OnInit, OnDestroy {
     // Load indicator type options
     this.indicatorTypeOptions = this.kommonitorDataExchangeService.indicatorTypeOptions;
     this.indicatorType = this.indicatorTypeOptions.length > 0 ? this.indicatorTypeOptions[0] : null;
+
+    // Load indicator creation type options (cache locally to avoid template binding to a getter)
+    this.indicatorCreationTypeOptions = this.kommonitorDataExchangeService.indicatorCreationTypeOptions || [];
 
     // Load available indicators
     this.availableIndicators = this.kommonitorDataExchangeService.availableIndicators;
@@ -715,6 +734,47 @@ export class IndicatorAddModalComponent implements OnInit, OnDestroy {
     // Instantiate with palette 'Blues' or first available
     this.selectedColorBrewerPaletteEntry = this.colorbrewerPalettes.find(p => p.paletteName === 'Blues') || 
                                           this.colorbrewerPalettes[0];
+  }
+
+  // Date helpers for NgbDatepicker
+  private parseDateStringToStruct(dateString: string | null | undefined): NgbDateStruct | null {
+    if (!dateString || typeof dateString !== 'string') {
+      return null;
+    }
+    const parts = dateString.split('-');
+    if (parts.length !== 3) {
+      return null;
+    }
+    const year = Number(parts[0]);
+    const month = Number(parts[1]);
+    const day = Number(parts[2]);
+    if (!year || !month || !day) {
+      return null;
+    }
+    return { year, month, day };
+  }
+
+  private formatStructToDateString(model: NgbDateStruct | null): string {
+    if (!model) {
+      return '';
+    }
+    const pad = (n: number) => (n && n >= 10 ? `${n}` : `0${n || 0}`);
+    return `${model.year}-${pad(model.month)}-${pad(model.day)}`;
+  }
+
+  onMetadataLastUpdateChange(model: NgbDateStruct | null) {
+    this.metadataLastUpdateModel = model;
+    this.metadata.lastUpdate = this.formatStructToDateString(model);
+  }
+
+  onAccessStartDateChange(model: NgbDateStruct | null) {
+    this.accessStartDateModel = model;
+    this.accessStartDate = this.formatStructToDateString(model);
+  }
+
+  onAccessEndDateChange(model: NgbDateStruct | null) {
+    this.accessEndDateModel = model;
+    this.accessEndDate = this.formatStructToDateString(model);
   }
 
   checkDatasetName() {
@@ -1436,7 +1496,7 @@ export class IndicatorAddModalComponent implements OnInit, OnDestroy {
     this.indicatorAbbreviation = '';
     this.indicatorType = this.indicatorTypeOptions && this.indicatorTypeOptions.length > 0 ? this.indicatorTypeOptions[0] : null;
     this.isHeadlineIndicator = false;
-    this.indicatorUnit = '';
+    this.indicatorUnit = null;
     this.enableFreeTextUnit = false;
     this.indicatorProcessDescription = '';
     this.indicatorTagsString_withCommas = '';
@@ -1500,6 +1560,11 @@ export class IndicatorAddModalComponent implements OnInit, OnDestroy {
       note: '',
       sridEPSG: 4326
     };
+
+    // Reset datepicker models
+    this.metadataLastUpdateModel = null;
+    this.accessStartDateModel = null;
+    this.accessEndDateModel = null;
 
     // Reset temporary variables
     this.indicatorNameFilter = '';
