@@ -11,25 +11,6 @@ angular
 
       this.targetUrlToManagementService = __env.apiUrl + __env.basePath + "/";
 
-      this.availableScriptDataTypes = [
-        {
-					"displayName": "Textuell (String)",
-					"apiName": "string"
-				},
-				{
-					"displayName": "Wahrheitswert (Boolean)",
-					"apiName": "boolean"
-        },
-        {
-					"displayName": "Ganzzahl (Integer)",
-					"apiName": "integer"
-				},
-				{
-					"displayName": "Gleitkommazahl (Double)",
-					"apiName": "double"
-				}
-      ];
-
       this.availableScriptTypeOptions = [];
 
       this.temporalOptions = [
