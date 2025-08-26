@@ -304,7 +304,8 @@
                   <i class="far fa-calendar-alt"></i>
                 </button>
               </div>
-              <input 
+              <div>
+                 <input 
                 type="text" 
                 [(ngModel)]="metadata.lastUpdate"
                 name="lastUpdate"
@@ -316,6 +317,8 @@
                 #d="ngbDatepicker"
                 (click)="d.toggle()"
               >
+              </div>
+             
             </div>
             <div class="help-block with-errors"></div>
           </div>
@@ -705,19 +708,21 @@
                   <i class="far fa-calendar-alt"></i>
                 </button>
               </div>
-              <input 
-                type="text" 
-                [(ngModel)]="periodOfValidity.startDate"
-                name="periodStartDate"
-                (ngModelChange)="checkPeriodOfValidity()"
-                class="form-control"
-                placeholder="YYYY-MM-DD" 
-                required
-                readonly
-                ngbDatepicker
-                #startDatepicker="ngbDatepicker"
-                (click)="startDatepicker.toggle()"
-              >
+              <div>
+                <input 
+                  type="text" 
+                  [(ngModel)]="periodOfValidity.startDate"
+                  name="periodStartDate"
+                  (ngModelChange)="checkPeriodOfValidity()"
+                  class="form-control"
+                  placeholder="YYYY-MM-DD" 
+                  required
+                  readonly
+                  ngbDatepicker
+                  #startDatepicker="ngbDatepicker"
+                  (click)="startDatepicker.toggle()"
+                >
+              </div>
             </div>
             <div class="help-block">
               <p>Eintrag ist immer erforderlich, selbst wenn die räumlichen Raumeinheiten über ein Lebenszeitraum-Attribut verfügen.</p>
@@ -742,18 +747,20 @@
                   <i class="far fa-calendar-alt"></i>
                 </button>
               </div>
-              <input 
-                type="text" 
-                [(ngModel)]="periodOfValidity.endDate"
-                name="periodEndDate"
-                (ngModelChange)="checkPeriodOfValidity()"
-                class="form-control"
-                placeholder="YYYY-MM-DD"
-                readonly
-                ngbDatepicker
-                #endDatepicker="ngbDatepicker"
-                (click)="endDatepicker.toggle()"
-              >
+              <div>
+                <input 
+                  type="text" 
+                  [(ngModel)]="periodOfValidity.endDate"
+                  name="periodEndDate"
+                  (ngModelChange)="checkPeriodOfValidity()"
+                  class="form-control"
+                  placeholder="YYYY-MM-DD"
+                  readonly
+                  ngbDatepicker
+                  #endDatepicker="ngbDatepicker"
+                  (click)="endDatepicker.toggle()"
+                >
+              </div>
             </div>
             <div class="help-block">
               <p>Eintrag ist erforderlich, falls die räumlichen Raumeinheiten nicht selbst über ein Lebenszeitraum-Attribut verfügen. Enddatum darf leer sein, um anzuzeigen, dass es sich um aktuell gültige Raumeinheiten handelt.</p>

@@ -322,23 +322,32 @@
             <div class="col-md-6 col-sm-6 col-xs-12">
               <div class="form-group">
                 <label>Gültigkeitszeitraum: gültig seit*</label>
-                <div class="input-group date">
-                  <div class="input-group-addon">
-                    <i class="far fa-calendar-alt"></i>
+                <div class="input-group date-input-group">
+                  <div class="input-group-btn">
+                    <button 
+                      class="btn btn-default date-toggle-btn" 
+                      (click)="d1.toggle()" 
+                      type="button"
+                      title="Kalender öffnen"
+                    >
+                      <i class="far fa-calendar-alt"></i>
+                    </button>
                   </div>
-                  <input 
-                    type="text" 
-                    [(ngModel)]="periodOfValidity.startDate" 
-                    name="periodOfValidityStartDate" 
-                    (ngModelChange)="checkPeriodOfValidity()"
-                    class="form-control pull-right"
-                    placeholder="YYYY-MM-DD" 
-                    required
-                    readonly
-                    ngbDatepicker
-                    #d1="ngbDatepicker"
-                    (click)="d1.toggle()"
-                  >
+                  <div>
+                    <input 
+                      type="text" 
+                      [(ngModel)]="periodOfValidity.startDate" 
+                      name="periodOfValidityStartDate" 
+                      (ngModelChange)="checkPeriodOfValidity()"
+                      class="form-control"
+                      placeholder="YYYY-MM-DD" 
+                      required
+                      readonly
+                      ngbDatepicker
+                      #d1="ngbDatepicker"
+                      (click)="d1.toggle()"
+                    >
+                  </div>
                 </div>
                 <div class="help-block">
                   <p>Eintrag ist immer erforderlich, selbst wenn die räumlichen Raumeinheiten über ein Lebenszeitraum-Attribut verfügen.</p>
@@ -353,22 +362,31 @@
             <div class="col-md-6 col-sm-6 col-xs-12">
               <div class="form-group">
                 <label>Gültigkeitszeitraum: gültig bis</label>
-                <div class="input-group date">
-                  <div class="input-group-addon">
-                    <i class="far fa-calendar-alt"></i>
+                <div class="input-group date-input-group">
+                  <div class="input-group-btn">
+                    <button 
+                      class="btn btn-default date-toggle-btn" 
+                      (click)="d2.toggle()" 
+                      type="button"
+                      title="Kalender öffnen"
+                    >
+                      <i class="far fa-calendar-alt"></i>
+                    </button>
                   </div>
-                  <input 
-                    type="text" 
-                    [(ngModel)]="periodOfValidity.endDate" 
-                    name="periodOfValidityEndDate" 
-                    (ngModelChange)="checkPeriodOfValidity()"
-                    class="form-control pull-right"
-                    placeholder="YYYY-MM-DD"
-                    readonly
-                    ngbDatepicker
-                    #d2="ngbDatepicker"
-                    (click)="d2.toggle()"
-                  >
+                  <div>
+                    <input 
+                      type="text" 
+                      [(ngModel)]="periodOfValidity.endDate" 
+                      name="periodOfValidityEndDate" 
+                      (ngModelChange)="checkPeriodOfValidity()"
+                      class="form-control"
+                      placeholder="YYYY-MM-DD"
+                      readonly
+                      ngbDatepicker
+                      #d2="ngbDatepicker"
+                      (click)="d2.toggle()"
+                    >
+                  </div>
                 </div>
                 <div class="help-block">
                   <p>Eintrag ist erforderlich, falls die räumlichen Raumeinheiten nicht selbst über ein Lebenszeitraum-Attribut verfügen. Enddatum darf leer sein, um anzuzeigen, dass es sich um aktuell gültige Raumeinheiten handelt.</p>

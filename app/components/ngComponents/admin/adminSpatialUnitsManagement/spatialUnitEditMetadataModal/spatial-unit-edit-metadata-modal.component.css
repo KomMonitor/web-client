@@ -820,7 +820,7 @@ input[type="color"] {
   border-left: none !important;
   border-right: 1px solid #ced4da !important;
   border-radius: 0 !important;
-  padding: 8px 12px !important;
+  padding: 8px 42px !important;
   font-size: 14px !important;
   border-top-right-radius: 4px !important;
   border-bottom-right-radius: 4px !important;
@@ -861,6 +861,36 @@ input[type="color"] {
 
 .date-input-group .form-control {
   margin-left: 0 !important;
+}
+
+/* Align calendar button and input flush; remove unintended gaps */
+.date-input-group {
+  display: flex !important;
+  align-items: stretch !important;
+}
+
+.date-input-group .input-group-btn {
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+}
+
+.date-input-group .date-toggle-btn {
+  height: 100% !important;
+  border-right: 0 !important;
+  z-index: 10;
+}
+
+.date-input-group > div {
+  flex: 1 1 auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.date-input-group > div > .form-control,
+.date-input-group > .form-control {
+  width: 100% !important;
+  height: 100% !important;
+  border-left: 0 !important;
 }
 
 /* Hover effect for the entire input group */

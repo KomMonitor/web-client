@@ -294,7 +294,7 @@
               <div class="form-group">
                 <label>Datum der letzten Aktualisierung*</label>
                 <div class="input-group date-input-group">
-                    <div class="input-group-btn">
+                  <div class="input-group-btn">
                     <button 
                       class="btn btn-default date-toggle-btn" 
                       (click)="d.toggle()" 
@@ -304,19 +304,20 @@
                       <i class="far fa-calendar-alt"></i>
                     </button>
                   </div>
-                  <input 
-                    type="text" 
-                    [ngModel]="metadata.lastUpdate" 
-                    name="lastUpdate"
-                    class="form-control"
-                    placeholder="YYYY-MM-DD" 
-                    required
-                    readonly
-                    ngbDatepicker
-                    #d="ngbDatepicker"
-                    (click)="d.toggle()"
-                  />
-                
+                  <div>
+                    <input 
+                      type="text" 
+                      [ngModel]="metadata.lastUpdate" 
+                      name="lastUpdate"
+                      class="form-control"
+                      placeholder="YYYY-MM-DD" 
+                      required
+                      readonly
+                      ngbDatepicker
+                      #d="ngbDatepicker"
+                      (click)="d.toggle()"
+                    />
+                  </div>
                 </div>
                 <div class="help-block with-errors"></div>
               </div>
