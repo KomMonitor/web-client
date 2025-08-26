@@ -465,7 +465,7 @@ export class IndicatorAddComponent implements OnInit {
     // reinitiate page building from the scratch as easiest solution
     this.loadingData = true; 
 
-    this.leafletScreenshotCacheHelperService.resetCounter_keepingCurrentTargetFeatures(false);
+    //this.leafletScreenshotCacheHelperService.resetCounter_keepingCurrentTargetFeatures(false);
     await this.initializeAllDiagrams();			
 
     this.loadingData = false; 
@@ -570,7 +570,7 @@ export class IndicatorAddComponent implements OnInit {
     // reset leaflet screenshot helper service according to new  number of selected areas
     // add one page to display the total map of all selected spatial unit features
     numberOfTargetSpatialUnitFeatures ++;				
-    this.leafletScreenshotCacheHelperService.resetCounter(numberOfTargetSpatialUnitFeatures, false);
+    //this.leafletScreenshotCacheHelperService.resetCounter(numberOfTargetSpatialUnitFeatures, false);
 
     if(this.template.name.includes("timestamp"))
       this.updateAreasForTimestampTemplates(newVal)
@@ -2566,8 +2566,8 @@ export class IndicatorAddComponent implements OnInit {
         // there are pages for two page orientations (landscape and portait)
         // only trigger the screenshot for those pages, that are actually present
         if(page.orientation == this.template.orientation){
-          this.leafletScreenshotCacheHelperService.checkForScreenshot(this.selectedBaseMap.layerConfig.name, this.selectedSpatialUnit.spatialUnitId, 
-            page.spatialUnitFeatureId, page.orientation, domNode);
+          /* this.leafletScreenshotCacheHelperService.checkForScreenshot(this.selectedBaseMap.layerConfig.name, this.selectedSpatialUnit.spatialUnitId, 
+            page.spatialUnitFeatureId, page.orientation, domNode); */
         }
                 
       });					

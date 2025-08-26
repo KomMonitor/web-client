@@ -1,6 +1,10 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, inject, Input, OnInit } from '@angular/core';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
-import { jsPDF } from "jspdf";
+import * as echarts from 'echarts';
+import jsPDF from "jspdf";
+import { LeafletScreenshotCacheHelperService } from 'services/leaflet-screenshot-cache-helper-service/leaflet-screenshot-cache-helper.service';
+import * as docx from 'docx';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-generate-report',
@@ -10,29 +14,52 @@ import { jsPDF } from "jspdf";
 })
 export class GenerateReportComponent implements OnInit {
 
+  activeModal = inject(NgbActiveModal);
+  
   @Input() data:any = [];
 
   loadingData = false;
   config: any;
-
+  
+  deviceScreenDpi;
+  echartsImgPixelRatio = 2;
+  pxPerMilli;
 
   constructor(
-    private dataExchangeService: DataExchangeService
+    private dataExchangeService: DataExchangeService,
+    private leafletScreenshotHelperService: LeafletScreenshotCacheHelperService
   ) {}
 
   ngOnInit(): void {
-      this.config = this.data.templateData[1];
+    this.config = this.data;
+
+    this.deviceScreenDpi = this.calculateScreenDpi();
+    this.pxPerMilli = this.deviceScreenDpi / 25.4 // /2.54 --> cm, /10 --> mm
+  }
+
+  
+  calculateScreenDpi() {
+    // create a hidden div that is one inch high
+    let div = document.createElement("div")
+    div.style.height = "1in";
+    div.style.position = "absolute";
+    div.style.left = "-100%";
+    div.style.top = "-100%";
+    document.getElementsByTagName("body")[0].append(div);
+    const dpi = div.offsetHeight
+    div.style.display = "none";
+    return dpi
   }
 
   //async
-  generateReport(format) {
+  async generateReport(format) {
     this.loadingData = true;
 
     try {
-      format === "pdf" && this.generatePdfReport();
-      format === "docx" && this.generateWordReport();
-      format === "zip" && this.generateZipFolder();
-      format === "pptx" && this.generatePptxReport();
+      format === "pdf" && await this.generatePdfReport();
+      format === "docx" && await this.generateWordReport();
+      format === "zip" && await this.generateZipFolder();
+      format === "pptx" && await this.generatePptxReport();
     } catch (error:any) {
       this.loadingData = false;
       console.error(error);
@@ -406,22 +433,22 @@ export class GenerateReportComponent implements OnInit {
     return pageWillBeShown;
   }
 
-  generatePdfReport() {
-    /* 
+  async generatePdfReport() {
+   
 		// create pdf document
-    let doc = new jsPDF({
-      margin: 0,	
+    let doc:any = new jsPDF({
       unit: 'mm',
       format: 'a4',
       orientation: this.config.pages[0].orientation
     });
-
+ 
     let fontName = "Helvetica"; // standard
 
-    if(this.customFontFile) {
+    // todo
+   /*  if(this.customFontFile) {
       fontName = 'CustomInternal';
       doc.addFont(this.customFontFile, fontName, 'normal');
-    }
+    } */
 
     // external working as well, but unable to check for validity beforehand. Thus resulting in an critical error if invalid at rendering 
 
@@ -456,15 +483,15 @@ export class GenerateReportComponent implements OnInit {
         // convert dimensions to millimeters here
         // that way we don't have to use pxToMilli everywhere we use coordinates in the pdf
         let pageElementDimensions:any = {}
-        pageElementDimensions.top = pageElement.dimensions.top && pxToMilli(pageElement.dimensions.top);
-        pageElementDimensions.bottom = pageElement.dimensions.bottom && pxToMilli(pageElement.dimensions.bottom);
-        pageElementDimensions.left = pageElement.dimensions.left && pxToMilli(pageElement.dimensions.left);
-        pageElementDimensions.right = pageElement.dimensions.right && pxToMilli(pageElement.dimensions.right);
-        pageElementDimensions.width = pageElement.dimensions.width && pxToMilli(pageElement.dimensions.width);
-        pageElementDimensions.height = pageElement.dimensions.height && pxToMilli(pageElement.dimensions.height);
+        pageElementDimensions.top = pageElement.dimensions.top && this.pxToMilli(pageElement.dimensions.top);
+        pageElementDimensions.bottom = pageElement.dimensions.bottom && this.pxToMilli(pageElement.dimensions.bottom);
+        pageElementDimensions.left = pageElement.dimensions.left && this.pxToMilli(pageElement.dimensions.left);
+        pageElementDimensions.right = pageElement.dimensions.right && this.pxToMilli(pageElement.dimensions.right);
+        pageElementDimensions.width = pageElement.dimensions.width && this.pxToMilli(pageElement.dimensions.width);
+        pageElementDimensions.height = pageElement.dimensions.height && this.pxToMilli(pageElement.dimensions.height);
         
         // TODO some cases could be merged, but it's better to do that later when stuff works
-        switch(pageElement.type) {
+       /*  switch(pageElement.type) {
           case "indicatorTitle-landscape":
           case "indicatorTitle-portrait": {
             if (! page.templateSection.pageConfig.showTitle){
@@ -553,7 +580,7 @@ export class GenerateReportComponent implements OnInit {
           }
           // template-specific elements
           case "map": {
-            let instance = echarts.getInstanceByDom(pElementDom)
+            let instance:any = echarts.getInstanceByDom(pElementDom)
             let imageDataUrl = instance.getDataURL( {pixelRatio: this.echartsImgPixelRatio} )
             imageDataUrl = await this.createLeafletEChartsMapImage(page, pageDom, pageElement, imageDataUrl)
 
@@ -594,7 +621,7 @@ export class GenerateReportComponent implements OnInit {
             if(page.type == 'area_specific' && ! page.templateSection.pageConfig.showRankingChartPerArea){
               continue;
             }
-            let instance = echarts.getInstanceByDom(pElementDom)
+            let instance:any = echarts.getInstanceByDom(pElementDom)
             let base64String = instance.getDataURL( {pixelRatio: this.echartsImgPixelRatio} )
             doc.addImage(base64String, "PNG", pageElementDimensions.left, pageElementDimensions.top,
                 pageElementDimensions.width, pageElementDimensions.height, "", 'MEDIUM');
@@ -604,7 +631,7 @@ export class GenerateReportComponent implements OnInit {
             if(page.type == 'area_specific' && ! page.templateSection.pageConfig.showLineChartPerArea){
               continue;
             }
-            let instance = echarts.getInstanceByDom(pElementDom)
+            let instance:any = echarts.getInstanceByDom(pElementDom)
             let base64String = instance.getDataURL( {pixelRatio: this.echartsImgPixelRatio} )
             doc.addImage(base64String, "PNG", pageElementDimensions.left, pageElementDimensions.top,
                 pageElementDimensions.width, pageElementDimensions.height, "", 'MEDIUM');
@@ -635,16 +662,167 @@ export class GenerateReportComponent implements OnInit {
             })
             break;
           }
-        }
+        } */
       }
     }
 
     //doc.output("dataurlnewwindow")
-    let now = getCurrentDateAndTime();
+    let now = this.getCurrentDateAndTime();
     doc.save(now + "_KomMonitor-Report.pdf");
-    this.loadingData = false; */
+    this.loadingData = false;
   }
 
+  async createLeafletEChartsMapImage(page, pageDom, pageElement, echartsImgSrc) {
+    let result;
+    // screenshot leaflet map and merge it with echarts image
+    // remove page offset temporarily 
+    pageElement.leafletMap.getContainer().style.top = "0px"
+    pageElement.leafletMap.getContainer().style.left = "0px"
+
+    // wait for print process to finish
+    // var node = document.getElementById(pageDom);
+    var node = pageElement.leafletMap["_container"];
+
+    
+      //here we must check if the corresponding leaflet image has already been created and stored within cache
+      //if not or it's too old, recreate it
+      //if yes, simply use it to save a lot of time during report generation!
+    
+    let leafletMapScreenshot = this.leafletScreenshotHelperService.getResourceFromCache(pageElement.selectedBaseMap.layerConfig.name, page.spatialUnitId, page.spatialUnitFeatureId, page.orientation);
+    // let leafletMapScreenshot = await domtoimage
+          //   .toJpeg(node, { quality: 1.0 })
+          //   .then(function (dataUrl) {
+          //     return dataUrl;
+          //   })
+          //   .catch(function (error) {
+          //       console.error('oops, something went wrong!', error);
+          //   });
+
+    pageElement.leafletMap.getContainer().style.top = "90px"
+    pageElement.leafletMap.getContainer().style.left = "15px"
+    
+    // combine images
+    let canvas = document.createElement('canvas');
+    let ctx:any = canvas.getContext('2d', {
+      willReadFrequently: true
+      });
+    let pageElementDimensionsPx = this.calculateDimensions(pageElement.dimensions, "px");
+    canvas.width = pageElementDimensionsPx.width;
+    canvas.height =  pageElementDimensionsPx.height;
+    // we have to draw layers in order
+    let leafletMapImg = new Image();
+    // leafletMapImg.crossOrigin = "anonymous";
+    leafletMapImg.width = canvas.width;
+    leafletMapImg.height = canvas.height;
+    let leafletMapImgDrawn = new Promise( (resolve, reject) => {
+      leafletMapImg.onload = function() {
+        ctx.drawImage(leafletMapImg, 0, 0, canvas.width, canvas.height);
+        resolve('');
+      }
+    })
+    leafletMapImg.src = leafletMapScreenshot;
+    await leafletMapImgDrawn
+
+    let echartsImg = new Image();
+    // echartsImg.crossOrigin = "anonymous";
+    let echartsImgDrawn = new Promise( (resolve, reject) => {
+      echartsImg.onload = function() {
+        ctx.drawImage(echartsImg, 0, 0, canvas.width, canvas.height);
+        resolve('');
+      }
+    });
+    echartsImg.src = echartsImgSrc;
+    await echartsImgDrawn
+
+    let mapAttributionImg = pageDom.querySelector(".map-attribution > img");
+    ctx.fillStyle = "white";
+    ctx.fillRect(0, canvas.height - mapAttributionImg.height, mapAttributionImg.width, mapAttributionImg.height)
+    ctx.drawImage(mapAttributionImg, 0, canvas.height - mapAttributionImg.height);
+    let mapLegendImg = pageDom.querySelector(".map-legend > img")
+    if(mapLegendImg){
+      ctx.fillRect(canvas.width - mapLegendImg.width, canvas.height - mapLegendImg.height, mapLegendImg.width, mapLegendImg.height)
+      ctx.drawImage(mapLegendImg, canvas.width - mapLegendImg.width, canvas.height - mapLegendImg.height);
+    }		
+    result = canvas.toDataURL();
+    return result;
+  }
+
+  getCurrentDateAndTime() {
+    let date:any = new Date();
+    let year = date.getFullYear().toString();
+    let month = date.getMonth() + 1;
+    let day = date.getDate();
+    let time = date.getHours();
+    let minutes = date.getMinutes();
+    let seconds = date.getSeconds();
+    let now = "".concat(year, "-", month, "-", day, "_", time, "-", minutes, "-", seconds);
+    return now;
+  }
+
+  getPageNumber(index) {
+    let pageNumber = 1;
+    for(let i = 0; i < index; i ++) {
+      if (this.showThisPage(this.config.template.pages[i])) {
+        pageNumber ++;
+      }
+    }
+    return pageNumber;
+  }
+
+  pxToMilli(px) {
+    // our preview is 830px wide
+    // px / 830  gives us the percentage from the left edge, which can then be stretched to fit the A4 page
+    // This is the short version of:
+    // px / pxPerMillimeter * pxPerMillimeter * 297 / 830, where pxPerMillimeter = (deviceScreenPpi / 2.54) * 10
+    // pxPerMillimeter cancels out there, so it doesn't matter.
+    let result = parseInt(px, 10) / 830 * 297;
+    result = Math.round(result * 100) / 100;
+    return result;
+  }
+
+  calculateDimensions(dimensions, unit) {
+    let result:any = {};
+    if(unit === "px") {
+      // also scale our 830px preview up to A4 here
+      let scalefactor = this.pxPerMilli*297 / 830
+      result.top = dimensions.top && parseInt(dimensions.top, 10) * scalefactor;
+      result.bottom = dimensions.bottom && parseInt(dimensions.bottom, 10) * scalefactor;
+      result.left = dimensions.left && parseInt(dimensions.left, 10) * scalefactor;
+      result.right = dimensions.right && parseInt(dimensions.right, 10) * scalefactor;
+      result.width = dimensions.width && parseInt(dimensions.width, 10) * scalefactor;
+      result.height = dimensions.height && parseInt(dimensions.height, 10) * scalefactor;
+    }
+    if(unit === "milli") {
+      result.top = dimensions.top && this.pxToMilli(dimensions.top);
+      result.bottom = dimensions.bottom && this.pxToMilli(dimensions.bottom);
+      result.left = dimensions.left && this.pxToMilli(dimensions.left);
+      result.right = dimensions.right && this.pxToMilli(dimensions.right);
+      result.width = dimensions.width && this.pxToMilli(dimensions.width);
+      result.height = dimensions.height && this.pxToMilli(dimensions.height);
+    }
+    if(unit === "twip") {
+      result.top = dimensions.top && docx.convertMillimetersToTwip(this.pxToMilli(dimensions.top));
+      result.bottom = dimensions.bottom && docx.convertMillimetersToTwip(this.pxToMilli(dimensions.bottom));
+      result.left = dimensions.left && docx.convertMillimetersToTwip(this.pxToMilli(dimensions.left));
+      result.right = dimensions.right && docx.convertMillimetersToTwip(this.pxToMilli(dimensions.right));
+      result.width = dimensions.width && docx.convertMillimetersToTwip(this.pxToMilli(dimensions.width));
+      result.height = dimensions.height && docx.convertMillimetersToTwip(this.pxToMilli(dimensions.height));
+    }
+    if(unit === "emu") {
+      result.top = dimensions.top && this.twipToEmus(docx.convertMillimetersToTwip(this.pxToMilli(dimensions.top)));
+      result.bottom = dimensions.bottom && this.twipToEmus(docx.convertMillimetersToTwip(this.pxToMilli(dimensions.bottom)));
+      result.left = dimensions.left && this.twipToEmus(docx.convertMillimetersToTwip(this.pxToMilli(dimensions.left)));
+      result.right = dimensions.right && this.twipToEmus(docx.convertMillimetersToTwip(this.pxToMilli(dimensions.right)));
+      result.width = dimensions.width && this.twipToEmus(docx.convertMillimetersToTwip(this.pxToMilli(dimensions.width)));
+      result.height = dimensions.height && this.twipToEmus(docx.convertMillimetersToTwip(this.pxToMilli(dimensions.height)));
+    }
+    return result;
+  }
+
+  twipToEmus(value) {
+    // see: https://startbigthinksmall.wordpress.com/2010/01/04/points-inches-and-emus-measuring-units-in-office-open-xml/
+    return value * 635;
+  }
   
   generateZipFolder() {
   /* 	// creates a zip folder containing all echarts files

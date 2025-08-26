@@ -176,7 +176,7 @@
                       <i class="fa fa-save"></i>
                       &nbsp;&nbsp;Einstellungen exportieren
                   </button>
-                  <button type="button" class="btn btn-success pull-right" data-toggle="modal" (click)="generateReport()" [hidden]="loadingData || ! lastPageOfAddedSectionPrepared || config.indicators.length == 0 || ! leafletScreenshotCacheHelperService.screenshotsForCurrentSpatialUnitUpdate">
+                  <button type="button" class="btn btn-success pull-right" data-toggle="modal" (click)="generateReport()" [hidden]="loadingData || ! lastPageOfAddedSectionPrepared || ! leafletScreenshotCacheHelperService.screenshotsForCurrentSpatialUnitUpdate">
                       <i class="fa fa-copy"></i>
                       &nbsp;&nbsp;Report erzeugen
                   </button> 

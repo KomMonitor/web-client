@@ -13,6 +13,8 @@ import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { HttpClient } from '@angular/common/http';
 import * as L from 'leaflet';
 import { DiagramHelperServiceService } from 'services/diagram-helper-service/diagram-helper-service.service';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { GenerateReportComponent } from '../generate-report/generate-report.component';
 
 @Component({
   selector: 'app-reporting-overview',
@@ -66,7 +68,8 @@ export class ReportingOverviewComponent implements OnInit {
     protected leafletScreenshotCacheHelperService: LeafletScreenshotCacheHelperService,
     private broadcastService: BroadcastService,
     private http: HttpClient,
-    protected diagramHelperService: DiagramHelperServiceService
+    protected diagramHelperService: DiagramHelperServiceService,
+    private modalService: NgbModal
   ) {}
 
   ngOnInit(): void {
@@ -115,7 +118,9 @@ export class ReportingOverviewComponent implements OnInit {
   }
 
   generateReport() {
-    this.onWorkflowSelect([4,this.config]);
+    const reportingModalRef = this.modalService.open(GenerateReportComponent, {windowClass: 'modal-holder', centered: true});
+    reportingModalRef.componentInstance.data = this.config;
+   // this.onWorkflowSelect([4,this.config]);
   }
 
   checkVisibility(pageElement, page){
@@ -249,7 +254,7 @@ export class ReportingOverviewComponent implements OnInit {
 				for (const mapElement of mapElements) {
 					if(mapElement && mapElement.leafletMap){
 
-						this.leafletScreenshotCacheHelperService.resetCounter(1, false);
+						//this.leafletScreenshotCacheHelperService.resetCounter(1, false);
 				
 
 						let pageDom:any = document.querySelector("#reporting-overview-page-" + index);
@@ -933,8 +938,8 @@ export class ReportingOverviewComponent implements OnInit {
 						// there are pages for two page orientations (landscape and portait)
 						// only trigger the screenshot for those pages, that are actually present
 						if(forceScreenshot || (page.orientation == this.config.template.orientation)){
-							this.leafletScreenshotCacheHelperService.checkForScreenshot(pageElement.selectedBaseMap.layerConfig.name, spatialUnit.spatialUnitId, 
-								page.spatialUnitFeatureId, page.orientation, domNode);
+						/* 	this.leafletScreenshotCacheHelperService.checkForScreenshot(pageElement.selectedBaseMap.layerConfig.name, spatialUnit.spatialUnitId, 
+								page.spatialUnitFeatureId, page.orientation, domNode); */
 						}
 										
 					});					
@@ -1084,7 +1089,7 @@ export class ReportingOverviewComponent implements OnInit {
 
         let numberOfMapElements = this.getNumberOfMapElements(config);		
 				// reset leaflet screenshot helper service according to new  number of selected areas
-				this.leafletScreenshotCacheHelperService.resetCounter(numberOfMapElements, false);	
+				//this.leafletScreenshotCacheHelperService.resetCounter(numberOfMapElements, false);	
 
 				// restore commune logo for every page, starting at the second
 				let communeLogoSrc = ""; // base64 string
@@ -1379,83 +1384,6 @@ export class ReportingOverviewComponent implements OnInit {
 			this.generateReport(format);
 		}); */
 
-   
-
-    //async
-	createLeafletEChartsMapImage(page, pageDom, pageElement, echartsImgSrc) {
-	/* 		let result;
-			// screenshot leaflet map and merge it with echarts image
-			// remove page offset temporarily 
-			pageElement.leafletMap.getContainer().style.top = "0px"
-			pageElement.leafletMap.getContainer().style.left = "0px"
-
-			// wait for print process to finish
-			// var node = document.getElementById(pageDom);
-			var node = pageElement.leafletMap["_container"];
-
-			
-				//here we must check if the corresponding leaflet image has already been created and stored within cache
-				//if not or it's too old, recreate it
-				//if yes, simply use it to save a lot of time during report generation!
-			
-			let leafletMapScreenshot = kommonitorLeafletScreenshotCacheHelperService.getResourceFromCache(pageElement.selectedBaseMap.layerConfig.name, page.spatialUnitId, page.spatialUnitFeatureId, page.orientation);
-			// let leafletMapScreenshot = await domtoimage
-            //   .toJpeg(node, { quality: 1.0 })
-            //   .then(function (dataUrl) {
-            //     return dataUrl;
-            //   })
-            //   .catch(function (error) {
-            //       console.error('oops, something went wrong!', error);
-            //   });
-
-			pageElement.leafletMap.getContainer().style.top = "90px"
-			pageElement.leafletMap.getContainer().style.left = "15px"
-			
-			// combine images
-			let canvas = document.createElement('canvas');
-			let ctx = canvas.getContext('2d', {
-				willReadFrequently: true
-			  });
-			let pageElementDimensionsPx = calculateDimensions(pageElement.dimensions, "px");
-			canvas.width = pageElementDimensionsPx.width;
-			canvas.height =  pageElementDimensionsPx.height;
-			// we have to draw layers in order
-			let leafletMapImg = new Image();
-			// leafletMapImg.crossOrigin = "anonymous";
-			leafletMapImg.width = canvas.width;
-			leafletMapImg.height = canvas.height;
-			let leafletMapImgDrawn = new Promise( (resolve, reject) => {
-				leafletMapImg.onload = function() {
-					ctx.drawImage(leafletMapImg, 0, 0, canvas.width, canvas.height);
-					resolve();
-				}
-			})
-			leafletMapImg.src = leafletMapScreenshot;
-			await leafletMapImgDrawn
-
-			let echartsImg = new Image();
-			// echartsImg.crossOrigin = "anonymous";
-			let echartsImgDrawn = new Promise( (resolve, reject) => {
-				echartsImg.onload = function() {
-					ctx.drawImage(echartsImg, 0, 0, canvas.width, canvas.height);
-					resolve();
-				}
-			});
-			echartsImg.src = echartsImgSrc;
-			await echartsImgDrawn
-
-			let mapAttributionImg = pageDom.querySelector(".map-attribution > img");
-			ctx.fillStyle = "white";
-			ctx.fillRect(0, canvas.height - mapAttributionImg.height, mapAttributionImg.width, mapAttributionImg.height)
-			ctx.drawImage(mapAttributionImg, 0, canvas.height - mapAttributionImg.height);
-			let mapLegendImg = pageDom.querySelector(".map-legend > img")
-			if(mapLegendImg){
-				ctx.fillRect(canvas.width - mapLegendImg.width, canvas.height - mapLegendImg.height, mapLegendImg.width, mapLegendImg.height)
-				ctx.drawImage(mapLegendImg, canvas.width - mapLegendImg.width, canvas.height - mapLegendImg.height);
-			}		
-			result = canvas.toDataURL();
-			return result; */
-		}
 
 		pxToMilli(px) {
 			// our preview is 830px wide
