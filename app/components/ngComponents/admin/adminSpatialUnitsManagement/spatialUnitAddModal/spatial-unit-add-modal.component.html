@@ -367,9 +367,9 @@
           </div>
           
           <label for="addSpatialUnitUserRoleSelect">Eigentümer-Organisationseinheit*</label>
-          <div class="input-group">
+          <div class="input-group owner-filter-group">
             <span class="input-group-addon"><i class="fas fa-filter"></i></span>
-            <input type="text" class="form-control input-sm" placeholder="Stichwortfilter" [(ngModel)]="ownerOrgFilter" name="ownerOrgFilter">
+            <input type="text" class="form-control" placeholder="Stichwortfilter" [(ngModel)]="ownerOrgFilter" name="ownerOrgFilter">
           </div>
           <select *ngIf="kommonitorDataExchangeService.checkAdminPermission()" id="addSpatialUnitUserRoleSelect" [(ngModel)]="ownerOrganization" name="ownerOrganization" class="form-control" (ngModelChange)="onChangeOwner(ownerOrganization)" required>
             <option [ngValue]="null"> -- Eigentümer-Organisationseinheit wählen -- </option>
@@ -531,100 +531,98 @@
           </div>
         </div>
         <div class="col-md-3 col-sm-6 col-xs-12">
-          <div class="form-group">
-            <div *ngIf="!converter">
-              <p>bitte zuerst das Quellformat wählen</p>
+          <div *ngIf="!converter" class="form-group">
+            <p>bitte zuerst das Quellformat wählen</p>
+          </div>
+          <div *ngIf="converter">
+            <div class="form-group">
+              <label>Datenquelltyp*</label>
+              <select 
+                [(ngModel)]="datasourceType"
+                name="datasourceType"
+                (ngModelChange)="onChangeDatasourceType(datasourceType)"
+                class="form-control" 
+                required
+              >
+                <option [ngValue]="null"> -- Quelltyp wählen -- </option>
+                <option *ngFor="let datasourceType of availableDatasourceTypes" [ngValue]="datasourceType">
+                  {{datasourceType.type}}
+                </option>
+              </select>
+              <div class="help-block"></div>
             </div>
-            <div *ngIf="converter">
-              <div class="form-group">
-                <label>Datenquelltyp*</label>
-                <select 
-                  [(ngModel)]="datasourceType"
-                  name="datasourceType"
-                  (ngModelChange)="onChangeDatasourceType(datasourceType)"
+
+            <div *ngIf="datasourceType?.type === 'FILE'">
+              <label>Datei*</label>
+              <input type="file" class="form-control" #spatialUnitDataSourceInput required>
+            </div>
+            <div *ngIf="datasourceType?.type === 'OGCAPI_FEATURES'">
+              <label>Räumlicher Filter*</label>
+              <select id="datasourceTypeParameter_spatialUnitAdd_bboxType" [(ngModel)]="bboxType" name="bboxType" class="form-control" required>
+                <option value=""> -- Filter wählen -- </option>
+                <option value="ref"> Referenzraumebene </option>
+                <option value="literal"> Manueller Begrenzungsrahmen </option>
+              </select>
+
+              <div *ngIf="bboxType === 'ref'">
+                <!-- select available spatialUnits -->
+                <select id="datasourceTypeParameter_spatialUnitAdd_bboxRef"
+                  [(ngModel)]="bboxRefSpatialUnit"
+                  name="bboxRefSpatialUnit"
                   class="form-control" 
-                  required
-                >
-                  <option [ngValue]="null"> -- Quelltyp wählen -- </option>
-                  <option *ngFor="let datasourceType of availableDatasourceTypes" [ngValue]="datasourceType">
-                    {{datasourceType.type}}
+                  required>
+                  <option [ngValue]="null"> -- Raumebene wählen -- </option>
+                  <option *ngFor="let spatialUnit of availableSpatialUnits" [ngValue]="spatialUnit">
+                    {{spatialUnit.spatialUnitLevel}}
                   </option>
                 </select>
-                <div class="help-block"></div>
+                <div class="help-block">
+                  <p>Raumebene aus welchem ein umschließendes Rechteck extrahiert wird</p>
+                </div>
               </div>
-
-              <div *ngIf="datasourceType?.type === 'FILE'">
-                <label>Datei*</label>
-                <input type="file" class="form-control" #spatialUnitDataSourceInput required>
+              <div *ngIf="bboxType === 'literal'">
+                <label>Begrenzungsrahmen*</label>
+                <input id="datasourceTypeParameter_spatialUnitAdd_bbox_minx" class="form-control" type="number" lang="us" placeholder="-180" required>
+                <div class="help-block">
+                  <p>Minimale x-Koordinate</p>
+                </div>
+                <input id="datasourceTypeParameter_spatialUnitAdd_bbox_miny" class="form-control" type="number" lang="us" placeholder="-90" required>
+                <div class="help-block">
+                  <p>Minimale y-Koordinate</p>
+                </div>
+                <input id="datasourceTypeParameter_spatialUnitAdd_bbox_maxx" class="form-control" type="number" lang="us" placeholder="180" required>
+                <div class="help-block">
+                  <p>Maximale x-Koordinate</p>
+                </div>
+                <input id="datasourceTypeParameter_spatialUnitAdd_bbox_maxy" class="form-control" type="number" lang="us" placeholder="90" required>
+                <div class="help-block">
+                  <p>Maximale y-Koordinate</p>
+                </div>
               </div>
-              <div *ngIf="datasourceType?.type === 'OGCAPI_FEATURES'">
-                <label>Räumlicher Filter*</label>
-                <select id="datasourceTypeParameter_spatialUnitAdd_bboxType" [(ngModel)]="bboxType" name="bboxType" class="form-control" required>
-                  <option value=""> -- Filter wählen -- </option>
-                  <option value="ref"> Referenzraumebene </option>
-                  <option value="literal"> Manueller Begrenzungsrahmen </option>
-                </select>
-
-                <div *ngIf="bboxType === 'ref'">
-                  <!-- select available spatialUnits -->
-                  <select id="datasourceTypeParameter_spatialUnitAdd_bboxRef"
-                    [(ngModel)]="bboxRefSpatialUnit"
-                    name="bboxRefSpatialUnit"
+            </div>
+            <div *ngIf="datasourceType && datasourceType.type !== 'FILE'">
+              <div *ngFor="let parameter of datasourceType.parameters">
+                <div class="form-group" *ngIf="parameter.name !== 'bbox'">
+                  <label *ngIf="parameter.mandatory">{{parameter.name}}*</label>
+                  <label *ngIf="!parameter.mandatory">{{parameter.name}}</label>
+                  <textarea 
+                    rows="1" 
+                    [id]="'datasourceTypeParameter_spatialUnitAdd_' + parameter.name"
                     class="form-control" 
-                    required>
-                    <option [ngValue]="null"> -- Raumebene wählen -- </option>
-                    <option *ngFor="let spatialUnit of availableSpatialUnits" [ngValue]="spatialUnit">
-                      {{spatialUnit.spatialUnitLevel}}
-                    </option>
-                  </select>
+                    [placeholder]="parameter.name" 
+                    [required]="parameter.mandatory"
+                  ></textarea>
                   <div class="help-block">
-                    <p>Raumebene aus welchem ein umschließendes Rechteck extrahiert wird</p>
+                    <p>{{parameter.description}}</p>
                   </div>
-                </div>
-                <div *ngIf="bboxType === 'literal'">
-                  <label>Begrenzungsrahmen*</label>
-                  <input id="datasourceTypeParameter_spatialUnitAdd_bbox_minx" class="form-control" type="number" lang="us" placeholder="-180" required>
-                  <div class="help-block">
-                    <p>Minimale x-Koordinate</p>
-                  </div>
-                  <input id="datasourceTypeParameter_spatialUnitAdd_bbox_miny" class="form-control" type="number" lang="us" placeholder="-90" required>
-                  <div class="help-block">
-                    <p>Minimale y-Koordinate</p>
-                  </div>
-                  <input id="datasourceTypeParameter_spatialUnitAdd_bbox_maxx" class="form-control" type="number" lang="us" placeholder="180" required>
-                  <div class="help-block">
-                    <p>Maximale x-Koordinate</p>
-                  </div>
-                  <input id="datasourceTypeParameter_spatialUnitAdd_bbox_maxy" class="form-control" type="number" lang="us" placeholder="90" required>
-                  <div class="help-block">
-                    <p>Maximale y-Koordinate</p>
-                  </div>
-                </div>
-              </div>
-              <div *ngIf="datasourceType && datasourceType.type !== 'FILE'">
-                <div *ngFor="let parameter of datasourceType.parameters">
-                  <div class="form-group" *ngIf="parameter.name !== 'bbox'">
-                    <label *ngIf="parameter.mandatory">{{parameter.name}}*</label>
-                    <label *ngIf="!parameter.mandatory">{{parameter.name}}</label>
-                    <textarea 
-                      rows="1" 
-                      [id]="'datasourceTypeParameter_spatialUnitAdd_' + parameter.name"
-                      class="form-control" 
-                      [placeholder]="parameter.name" 
-                      [required]="parameter.mandatory"
-                    ></textarea>
-                    <div class="help-block">
-                      <p>{{parameter.description}}</p>
-                    </div>
-                    <div class="help-block with-errors"></div>
-                  </div>
+                  <div class="help-block with-errors"></div>
                 </div>
               </div>
             </div>
-            <div class="help-block with-errors"></div>
-            <div *ngIf="spatialUnitDataSourceInputInvalid" style="color: red;">
-              <p>Eingabe ungültig. Grund: {{spatialUnitDataSourceInputInvalidReason}}</p>
-            </div>
+          </div>
+          <div class="help-block with-errors"></div>
+          <div *ngIf="spatialUnitDataSourceInputInvalid" style="color: red;">
+            <p>Eingabe ungültig. Grund: {{spatialUnitDataSourceInputInvalidReason}}</p>
           </div>
         </div>
         <div class="col-md-3 col-sm-6 col-xs-12">

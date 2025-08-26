@@ -1256,3 +1256,53 @@ fieldset {
 .date-toggle-btn:active .calendar-svg {
   transform: scale(0.95) !important;
 } 
+
+/* Text sizing to MATCH add modal */
+.multiStepForm {
+  font-size: 12px !important;
+}
+
+/* Progress bar text sizes like add modal */
+#progressbar li {
+  font-size: 9px !important;
+}
+#progressbar li:before {
+  font-size: 12px !important;
+}
+
+/* Remove inflated modal-body font, keep default like add modal */
+:host ::ng-deep .modal-body {
+  font-size: inherit !important;
+}
+
+/* Override small admin wrapper defaults within this modal */
+/* Use app defaults for admin table wrappers (matches add modal behavior) */
+:host ::ng-deep .admin-table-wrapper,
+:host ::ng-deep .featureTableWrapper {
+  font-size: inherit !important;
+}
+
+/* Strengthen progress bar overrides against global app styles (match add modal) */
+:host ::ng-deep #progressbar li {
+  font-size: 9px !important;
+}
+:host ::ng-deep #progressbar li:before {
+  font-size: 12px !important;
+}
+
+/* Normalize key text elements */
+/* Keep form element sizes consistent with add modal (inputs 13px base) */
+:host ::ng-deep .form-group label {
+  font-size: inherit !important;
+}
+:host ::ng-deep .form-control {
+  font-size: 13px !important;
+}
+:host ::ng-deep .help-block {
+  font-size: 13px !important;
+}
+:host ::ng-deep table,
+:host ::ng-deep th,
+:host ::ng-deep td {
+  font-size: inherit !important;
+}

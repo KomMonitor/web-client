@@ -881,6 +881,17 @@ input[type="color"]::-webkit-color-swatch {
   margin-bottom: 1.5rem;
 }
 
+/* Align columns like in edit-features modal */
+.vertical-align {
+  display: flex;
+  align-items: flex-start;
+}
+
+.vertical-align .col-md-3,
+.vertical-align .col-md-6 {
+  margin-bottom: 1rem;
+}
+
 /* Ensure first metadata row fields align horizontally */
 .meta-row {
   display: flex;
@@ -900,3 +911,27 @@ input[type="color"]::-webkit-color-swatch {
 .form-group {
   margin-bottom: 1.5rem;
 } 
+
+/* Align filter icon and input horizontally in step 3 */
+.owner-filter-group {
+  display: flex;
+  align-items: stretch;
+}
+
+.owner-filter-group .input-group-addon {
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  background-color: #f8f9fa;
+  border: 1px solid #ced4da;
+  border-right: 0;
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+  height: calc(1.5em + 0.75rem + 2px);
+  width: 30px;
+}
+
+.owner-filter-group .form-control {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}

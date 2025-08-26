@@ -445,7 +445,7 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy,
       // User can close manually or we can auto-close after a delay
       setTimeout(() => {
         this.activeModal.close({ action: 'updated', spatialUnitId: this.currentSpatialUnitDataset.spatialUnitId });
-      }, 2000); // Close after 2 seconds
+      }, 5000); // Close after 5 seconds
     } catch (error: any) {
       console.error('Error updating spatial unit metadata:', error);
       console.error('Error response:', error.error);
