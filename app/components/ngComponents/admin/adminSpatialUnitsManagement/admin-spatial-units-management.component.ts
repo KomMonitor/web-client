@@ -204,11 +204,13 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
   // Modal event handlers
   onClickAddSpatialUnit(): void {
     const modalRef = this.modalService.open(SpatialUnitAddModalComponent, {
-      size: 'lg',
-      backdrop: 'static',
+      // omit size to avoid Bootstrap max-width caps like modal-lg
+      backdrop: true,
       keyboard: false,
       container: 'body',
-      animation: false
+      animation: false,
+      modalDialogClass: 'spatial-unit-add-modal',
+      windowClass: 'spatial-unit-add-modal-window'
     });
     
     modalRef.result.then((result) => {
@@ -222,11 +224,12 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
 
   onClickEditMetadata(spatialUnitMetadata: any): void {
     const modalRef = this.modalService.open(SpatialUnitEditMetadataModalComponent, {
-      size: 'lg',
-      backdrop: 'static',
+      backdrop: true,
       keyboard: false,
       container: 'body',
-      animation: false
+      animation: false,
+      modalDialogClass: 'spatial-unit-add-modal',
+      windowClass: 'spatial-unit-add-modal-window'
     });
     
     modalRef.componentInstance.currentSpatialUnitDataset = spatialUnitMetadata;
@@ -242,11 +245,12 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
 
   onClickEditFeatures(spatialUnitMetadata: any): void {
     const modalRef = this.modalService.open(SpatialUnitEditFeaturesModalComponent, {
-      size: 'lg',
-      backdrop: 'static',
+      backdrop: true,
       keyboard: false,
       container: 'body',
-      animation: false
+      animation: false,
+      modalDialogClass: 'spatial-unit-add-modal',
+      windowClass: 'spatial-unit-add-modal-window'
     });
     
     modalRef.componentInstance.currentSpatialUnitDataset = spatialUnitMetadata;
@@ -262,11 +266,12 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
 
   onClickEditUserRoles(spatialUnitMetadata: any): void {
     const modalRef = this.modalService.open(SpatialUnitEditUserRolesModalComponent, {
-      size: 'lg',
-      backdrop: 'static',
+      backdrop: true,
       keyboard: false,
       container: 'body',
-      animation: false
+      animation: false,
+      modalDialogClass: 'spatial-unit-add-modal',
+      windowClass: 'spatial-unit-add-modal-window'
     });
     
     modalRef.componentInstance.currentSpatialUnitDataset = spatialUnitMetadata;
@@ -282,11 +287,12 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
 
   onClickDeleteSpatialUnits(spatialUnitsMetadata: any[]): void {
     const modalRef = this.modalService.open(SpatialUnitDeleteModalComponent, {
-      size: 'lg',
-      backdrop: 'static',
+      backdrop: true,
       keyboard: false,
       container: 'body',
-      animation: false
+      animation: false,
+      modalDialogClass: 'spatial-unit-add-modal',
+      windowClass: 'spatial-unit-add-modal-window'
     });
     
     modalRef.componentInstance.datasetsToDelete = spatialUnitsMetadata;

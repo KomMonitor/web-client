@@ -731,9 +731,13 @@ input[type="color"]::-webkit-color-swatch {
 
 /* Global modal size overrides for NgbModal */
 :host ::ng-deep .modal-dialog {
-  max-width: 85% !important;
-  width: 85% !important;
   margin: 1.75rem auto;
+}
+
+/* Explicit override when dialog gets our custom class from open() options */
+:host ::ng-deep .modal-dialog.spatial-unit-add-modal {
+  max-width: 1200px !important;
+  width: 90% !important;
 }
 
 :host ::ng-deep .modal-content {

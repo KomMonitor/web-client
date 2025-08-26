@@ -1649,6 +1649,28 @@ table, th, td {
 	}
 }
 
+/* Custom width for Spatial Unit Add modal (ng-bootstrap modalDialogClass) */
+@media (min-width: 768px){
+	.modal-dialog.spatial-unit-add-modal {
+		/* Bootstrap 5: use CSS var plus hard width to be robust */
+		--bs-modal-width: 95vw;
+		max-width: 95vw !important;
+		width: 95vw !important;
+	}
+}
+
+/* Fallback for older ng-bootstrap/Bootstrap versions: target modal dialog within windowClass */
+@media (min-width: 768px){
+	/* High-specificity, robust override */
+	body .modal-holder.spatial-unit-add-modal-window .modal-dialog,
+	body .spatial-unit-add-modal-window .modal-dialog,
+	body .modal.spatial-unit-add-modal-window .modal-dialog {
+		--bs-modal-width: 95vw;
+		max-width: 95vw !important;
+		width: 95vw !important;
+	}
+}
+
 select {
 	overflow: auto;
 }
