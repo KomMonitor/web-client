@@ -650,6 +650,17 @@ export class KommonitorDataGridHelperService {
   }
 
   /**
+   * Expose role management checkbox renderer components for early binding in templates
+   */
+  public getRoleManagementComponents(): any {
+    return {
+      CheckboxRenderer_viewer: this.CheckboxRenderer_viewer,
+      CheckboxRenderer_editor: this.CheckboxRenderer_editor,
+      CheckboxRenderer_creator: this.CheckboxRenderer_creator
+    };
+  }
+
+  /**
    * Get selected role IDs from role management grid
    */
   getSelectedRoleIds_roleManagementGrid(roleManagementTableOptions: any): string[] {
