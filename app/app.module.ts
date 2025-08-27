@@ -82,7 +82,7 @@ import { MathjaxModule } from "mathjax-angular";
 // currently the AngularJS routing is still used as part of kommonitorClient module
 const routes: Routes = [];
 
-declare var MathJax;
+/* declare var MathJax; */
 
 @NgModule({
   imports: [
@@ -473,7 +473,7 @@ export class AppModule implements DoBootstrap {
     angular.module('kommonitorClient').constant('__env', window.__env);
 
     // MathJx directive
-    angular.module('kommonitorClient').directive("mathjaxBind", () => {
+   /*  angular.module('kommonitorClient').directive("mathjaxBind", () => {
       return {
         restrict: "EA",
         controller: [
@@ -492,7 +492,7 @@ export class AppModule implements DoBootstrap {
           },
         ],
       };
-    });
+    }); */
 
     // custom unique filter
     angular.module('kommonitorClient').filter('unique', function () {

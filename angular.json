@@ -28,7 +28,7 @@
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
               "node_modules/nouislider/dist/nouislider.css"
             ],
-            "scripts": ["node_modules/mathjax/es5/tex-mml-chtml.js"]
+            "scripts": []
           },
           "configurations": {
             "production": {
@@ -95,7 +95,7 @@
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
               "node_modules/nouislider/dist/nouislider.css"
             ],
-            "scripts": ["node_modules/mathjax/es5/tex-mml-chtml.js"]
+            "scripts": []
           }
         }
       }

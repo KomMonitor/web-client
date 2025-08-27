@@ -137,7 +137,6 @@
     "leaflet.markercluster": "^1.5.3",
     "leaflet.pattern": "^0.1.0",
     "Leaflet.vector-markers": "^0.0.6",
-    "mathjax": "^3.2.2",
     "mathjax-angular": "^3.0.0",
     "ng2-ion-range-slider": "^2.0.0",
     "ng2-nouislider": "^2.0.0",

@@ -2566,8 +2566,8 @@ export class IndicatorAddComponent implements OnInit {
         // there are pages for two page orientations (landscape and portait)
         // only trigger the screenshot for those pages, that are actually present
         if(page.orientation == this.template.orientation){
-          /* this.leafletScreenshotCacheHelperService.checkForScreenshot(this.selectedBaseMap.layerConfig.name, this.selectedSpatialUnit.spatialUnitId, 
-            page.spatialUnitFeatureId, page.orientation, domNode); */
+          this.leafletScreenshotCacheHelperService.checkForScreenshot(this.selectedBaseMap.layerConfig.name, this.selectedSpatialUnit.spatialUnitId, 
+            page.spatialUnitFeatureId, page.orientation, domNode);
         }
                 
       });					
