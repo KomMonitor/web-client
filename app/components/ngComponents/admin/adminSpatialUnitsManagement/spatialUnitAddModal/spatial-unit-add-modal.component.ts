@@ -709,14 +709,29 @@ export class SpatialUnitAddModalComponent implements OnInit {
   }
 
   async buildDatasourceTypeDefinition() {
-    
     try {
+      // Prefer robust Angular-native handling for FILE uploads
+      if (this.datasourceType?.type === 'FILE') {
+        const inputEl = this.spatialUnitDataSourceInput?.nativeElement as HTMLInputElement | undefined;
+        const file = inputEl?.files?.[0];
+        if (!file) {
+          return null;
+        }
+        const uploadedName = await this.kommonitorImporterHelperService.uploadNewFile(file, file.name);
+        return {
+          type: 'FILE',
+          parameters: [
+            { name: 'NAME', value: uploadedName }
+          ]
+        };
+      }
+
       const result = await this.kommonitorImporterHelperService.buildDatasourceTypeDefinition(
-        this.datasourceType, 
-        'datasourceTypeParameter_spatialUnitAdd_', 
+        this.datasourceType,
+        'datasourceTypeParameter_spatialUnitAdd_',
         'spatialUnitDataSourceInput'
       );
-      
+
       return result;
     } catch (error: any) {
       console.error('=== BUILDING DATASOURCE TYPE DEFINITION - ERROR ===');
@@ -750,6 +765,23 @@ export class SpatialUnitAddModalComponent implements OnInit {
     return result;
   }
 
+  private toIsoDateString(value: any): string | null {
+    if (!value) {
+      return null;
+    }
+    if (typeof value === 'string') {
+      return value;
+    }
+    const maybeStruct = value as { year?: number; month?: number; day?: number };
+    if (maybeStruct && typeof maybeStruct.year === 'number' && typeof maybeStruct.month === 'number' && typeof maybeStruct.day === 'number') {
+      const y = maybeStruct.year;
+      const m = String(maybeStruct.month).padStart(2, '0');
+      const d = String(maybeStruct.day).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+    return null;
+  }
+
   buildPostBody_spatialUnits() {
     
     const postBody: any = {
@@ -761,7 +793,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
         "sridEPSG": this.metadata.sridEPSG,
         "datasource": this.metadata.datasource,
         "contact": this.metadata.contact,
-        "lastUpdate": this.metadata.lastUpdate,
+        "lastUpdate": this.toIsoDateString(this.metadata.lastUpdate),
         "description": this.metadata.description,
         "databasis": this.metadata.databasis
       },
@@ -770,8 +802,8 @@ export class SpatialUnitAddModalComponent implements OnInit {
       "nextLowerHierarchyLevel": this.nextLowerHierarchySpatialUnit ? this.nextLowerHierarchySpatialUnit.spatialUnitLevel : null,
       "spatialUnitLevel": this.spatialUnitLevel,
       "periodOfValidity": {
-        "endDate": this.periodOfValidity && this.periodOfValidity.endDate ? this.periodOfValidity.endDate : null,
-        "startDate": this.periodOfValidity && this.periodOfValidity.startDate ? this.periodOfValidity.startDate : null
+        "endDate": this.toIsoDateString(this.periodOfValidity && this.periodOfValidity.endDate ? this.periodOfValidity.endDate : null),
+        "startDate": this.toIsoDateString(this.periodOfValidity && this.periodOfValidity.startDate ? this.periodOfValidity.startDate : null)
       },
       "nextUpperHierarchyLevel": this.nextUpperHierarchySpatialUnit ? this.nextUpperHierarchySpatialUnit.spatialUnitLevel : null,
       // Add missing outline layer properties
@@ -1091,6 +1123,20 @@ export class SpatialUnitAddModalComponent implements OnInit {
         }
       }
     }
+
+    // Populate converter parameters (e.g., CRS) from imported mapping config
+    // Defer to ensure inputs exist in the DOM after bindings render
+    setTimeout(() => {
+      const params = this.mappingConfigImportSettings?.converter?.parameters || [];
+      if (this.converter && Array.isArray(params)) {
+        for (const convParameter of params) {
+          const el = document.getElementById(`converterParameter_spatialUnitAdd_${convParameter.name}`) as HTMLInputElement | null;
+          if (el) {
+            el.value = convParameter.value ?? '';
+          }
+        }
+      }
+    }, 0);
 
     this.datasourceType = null;
     const datasourceTypes = this.kommonitorImporterHelperService.getAvailableDatasourceTypes();

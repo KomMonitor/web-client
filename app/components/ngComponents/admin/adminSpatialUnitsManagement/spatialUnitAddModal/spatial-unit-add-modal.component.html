@@ -554,7 +554,7 @@
 
             <div *ngIf="datasourceType?.type === 'FILE'">
               <label>Datei*</label>
-              <input type="file" class="form-control" #spatialUnitDataSourceInput required>
+              <input id="spatialUnitDataSourceInput" type="file" class="form-control" #spatialUnitDataSourceInput required>
             </div>
             <div *ngIf="datasourceType?.type === 'OGCAPI_FEATURES'">
               <label>Räumlicher Filter*</label>
@@ -572,7 +572,7 @@
                   class="form-control" 
                   required>
                   <option [ngValue]="null"> -- Raumebene wählen -- </option>
-                  <option *ngFor="let spatialUnit of availableSpatialUnits" [ngValue]="spatialUnit">
+                  <option *ngFor="let spatialUnit of availableSpatialUnits" [ngValue]="spatialUnit.spatialUnitId">
                     {{spatialUnit.spatialUnitLevel}}
                   </option>
                 </select>
