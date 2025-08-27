@@ -580,7 +580,7 @@ export class GenerateReportComponent implements OnInit {
             break;
           }
           // template-specific elements
-          case "map": {
+         /*  case "map": {
             let instance:any = echarts.getInstanceByDom(pElementDom)
             let imageDataUrl = instance.getDataURL( {pixelRatio: this.echartsImgPixelRatio} )
             imageDataUrl = await this.createLeafletEChartsMapImage(page, pageDom, pageElement, imageDataUrl)
@@ -588,7 +588,7 @@ export class GenerateReportComponent implements OnInit {
             doc.addImage(imageDataUrl, "PNG", pageElementDimensions.left, pageElementDimensions.top,
               pageElementDimensions.width, pageElementDimensions.height, "", 'MEDIUM');
             break;
-          }
+          } */
           // case "mapLegend" can be ignored since it is included in the map if needed
             
             //June 2025: we remove overallAverage and overallChange, overallAverage and selectionAverage from reporting overview pages.
