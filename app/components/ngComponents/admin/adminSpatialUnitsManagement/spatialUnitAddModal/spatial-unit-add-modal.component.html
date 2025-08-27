@@ -312,10 +312,11 @@
                 class="form-control"
                 placeholder="YYYY-MM-DD" 
                 required
-                readonly
+                inputmode="numeric"
+                pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}"
                 ngbDatepicker
                 #d="ngbDatepicker"
-                (click)="d.toggle()"
+                (blur)="onLastUpdateBlur()"
               >
               </div>
              
@@ -715,10 +716,11 @@
                   class="form-control"
                   placeholder="YYYY-MM-DD" 
                   required
-                  readonly
+                  inputmode="numeric"
+                  pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}"
                   ngbDatepicker
                   #startDatepicker="ngbDatepicker"
-                  (click)="startDatepicker.toggle()"
+                  (blur)="onPeriodStartBlur()"
                 >
               </div>
             </div>
@@ -753,10 +755,11 @@
                   (ngModelChange)="checkPeriodOfValidity()"
                   class="form-control"
                   placeholder="YYYY-MM-DD"
-                  readonly
+                  inputmode="numeric"
+                  pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}"
                   ngbDatepicker
                   #endDatepicker="ngbDatepicker"
-                  (click)="endDatepicker.toggle()"
+                  (blur)="onPeriodEndBlur()"
                 >
               </div>
             </div>

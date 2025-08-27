@@ -1,5 +1,5 @@
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit, ChangeDetectorRef, HostListener } from '@angular/core';
-import { NgbActiveModal, NgbDatepicker, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit, ChangeDetectorRef, HostListener, Injectable } from '@angular/core';
+import { NgbActiveModal, NgbDatepicker, NgbDateStruct, NgbDateAdapter, NgbDateParserFormatter } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { HttpClient } from '@angular/common/http';
 import { Subscription } from 'rxjs';
@@ -11,10 +11,78 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 // Remove jQuery declaration - no longer needed
 // declare var $: any;
 
+@Injectable()
+export class NgbDateISOParserFormatter_Edit extends NgbDateParserFormatter {
+  parse(value: string | null): NgbDateStruct | null {
+    if (!value) {
+      return null;
+    }
+    const trimmed = value.trim();
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
+      return null;
+    }
+    const [yStr, mStr, dStr] = trimmed.split('-');
+    const year = Number(yStr);
+    const month = Number(mStr);
+    const day = Number(dStr);
+    const dt = new Date(year, month - 1, day);
+    if (dt.getFullYear() !== year || dt.getMonth() !== month - 1 || dt.getDate() !== day) {
+      return null;
+    }
+    return { year, month, day };
+  }
+
+  format(date: NgbDateStruct | null): string {
+    if (!date) {
+      return '';
+    }
+    const y = String(date.year).padStart(4, '0');
+    const m = String(date.month).padStart(2, '0');
+    const d = String(date.day).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+}
+
+@Injectable()
+export class NgbDateStringAdapter_Edit extends NgbDateAdapter<string> {
+  fromModel(value: string | null): NgbDateStruct | null {
+    if (!value) {
+      return null;
+    }
+    const trimmed = value.trim();
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
+      return null;
+    }
+    const [yStr, mStr, dStr] = trimmed.split('-');
+    const year = Number(yStr);
+    const month = Number(mStr);
+    const day = Number(dStr);
+    const dt = new Date(year, month - 1, day);
+    if (dt.getFullYear() !== year || dt.getMonth() !== month - 1 || dt.getDate() !== day) {
+      return null;
+    }
+    return { year, month, day };
+  }
+
+  toModel(date: NgbDateStruct | null): string | null {
+    if (!date) {
+      return '';
+    }
+    const y = String(date.year).padStart(4, '0');
+    const m = String(date.month).padStart(2, '0');
+    const d = String(date.day).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+}
+
 @Component({
   selector: 'spatial-unit-edit-metadata-modal-new',
   templateUrl: './spatial-unit-edit-metadata-modal.component.html',
-  styleUrls: ['./spatial-unit-edit-metadata-modal.component.css']
+  styleUrls: ['./spatial-unit-edit-metadata-modal.component.css'],
+  providers: [
+    { provide: NgbDateParserFormatter, useClass: NgbDateISOParserFormatter_Edit },
+    { provide: NgbDateAdapter, useClass: NgbDateStringAdapter_Edit }
+  ]
 })
 export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('metadataImportFile', { static: false }) metadataImportFile!: ElementRef;
@@ -689,6 +757,46 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy,
   onLastUpdateModelChange(date: NgbDateStruct | null) {
     this.lastUpdateModel = date;
     this.metadata.lastUpdate = this.ngbDateToIsoString(date);
+  }
+
+  // Coerce invalid manual input to today's date on blur
+  private getTodayDateString(): string {
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = String(now.getMonth() + 1).padStart(2, '0');
+    const d = String(now.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+
+  private isValidDateString(value: string): boolean {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+      return false;
+    }
+    const [yStr, mStr, dStr] = value.split('-');
+    const y = Number(yStr);
+    const m = Number(mStr);
+    const d = Number(dStr);
+    const dt = new Date(y, m - 1, d);
+    return dt.getFullYear() === y && dt.getMonth() === m - 1 && dt.getDate() === d;
+  }
+
+  private ensureValidDateOrToday(value: any): string {
+    if (!value) {
+      return this.getTodayDateString();
+    }
+    if (typeof value === 'string') {
+      return this.isValidDateString(value) ? value : this.getTodayDateString();
+    }
+    // Accept NgbDateStruct as well
+    const dateStruct = value as NgbDateStruct;
+    if (dateStruct && typeof dateStruct.year === 'number' && typeof dateStruct.month === 'number' && typeof dateStruct.day === 'number') {
+      return this.ngbDateToIsoString(dateStruct) || this.getTodayDateString();
+    }
+    return this.getTodayDateString();
+  }
+
+  onLastUpdateBlur() {
+    this.metadata.lastUpdate = this.ensureValidDateOrToday(this.metadata.lastUpdate);
   }
 
   // Toggle/close handlers for outline dash array dropdown

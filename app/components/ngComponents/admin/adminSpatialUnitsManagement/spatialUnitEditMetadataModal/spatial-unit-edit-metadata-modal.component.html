@@ -307,16 +307,16 @@
                   <div>
                     <input 
                       type="text" 
-                      [ngModel]="lastUpdateModel" 
-                      (ngModelChange)="onLastUpdateModelChange($event)"
+                      [(ngModel)]="metadata.lastUpdate"
                       name="lastUpdate"
                       class="form-control"
                       placeholder="YYYY-MM-DD" 
                       required
-                      readonly
+                      inputmode="numeric"
+                      pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}"
                       ngbDatepicker
                       #d="ngbDatepicker"
-                      (click)="d.toggle()"
+                      (blur)="onLastUpdateBlur()"
                     />
                   </div>
                 </div>
