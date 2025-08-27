@@ -93,11 +93,13 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
 
   // Available options
   availableDatasourceTypes: any[] = [];
+  availableConverters: any[] = [];
   availableSpatialUnits: any[] = [];
 
   // Bbox parameters for OGCAPI_FEATURES
   bboxType: string = '';
   bboxRefSpatialUnit: any = null;
+  bboxRefSpatialUnitLevel: string = '';
 
   // Feature table settings
   enableDeleteFeatures = false;
@@ -116,6 +118,13 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
   public defaultColDef: ColDef = {};
   public paginationPageSize: number = 20;
   public paginationPageSizeSelector: number[] = [10, 20, 50, 100];
+
+  // Persisted converter parameter values (e.g., CRS)
+  public converterParameters: { [key: string]: any } = {};
+
+  // compare functions for selects to keep selection across renders
+  public compareConverter = (a: any, b: any) => a && b ? a.name === b.name : a === b;
+  public compareDatasourceType = (a: any, b: any) => a && b ? a.type === b.type : a === b;
 
   // Subscriptions
   private subscriptions: Subscription[] = [];
@@ -221,6 +230,8 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
     
     // Load available datasource types from the importer helper service
     this.availableDatasourceTypes = this.kommonitorImporterHelperService?.getAvailableDatasourceTypes() || [];
+    // Cache available converters to preserve object identity across renders
+    this.availableConverters = this.kommonitorImporterHelperService?.getAvailableConverters() || [];
   }
 
   private buildFeatureTable(): void {
@@ -564,16 +575,28 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
       this.converter, 
       "converterParameter_spatialUnitEditFeatures_", 
       this.schema, 
-      this.mimeType
+      this.mimeType,
+      this.converterParameters
     );
   }
 
   async buildDatasourceTypeDefinition(): Promise<any> {
     try {
+      const formValues: { [key: string]: string } = {};
+      if (this.datasourceType && this.datasourceType.type === 'OGCAPI_FEATURES') {
+        if (this.bboxType) {
+          formValues['bboxType'] = this.bboxType;
+          if (this.bboxType === 'ref' && this.bboxRefSpatialUnitLevel) {
+            formValues['bboxRef'] = this.bboxRefSpatialUnitLevel;
+          }
+        }
+      }
+
       return await this.kommonitorImporterHelperService?.buildDatasourceTypeDefinition(
-        this.datasourceType, 
-        'datasourceTypeParameter_spatialUnitEditFeatures_', 
-        'spatialUnitDataSourceInput_editFeatures'
+        this.datasourceType,
+        'datasourceTypeParameter_spatialUnitEditFeatures_',
+        'spatialUnitDataSourceInput_editFeatures',
+        Object.keys(formValues).length ? formValues : undefined
       );
     } catch (error) {
       this.handleError(error);
@@ -614,6 +637,8 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
     const allDataSpecified = await this.buildImporterObjects();
     if (!allDataSpecified) {
       this.loadingData = false;
+      this.errorMessage = 'Bitte füllen Sie alle Pflichtfelder in Schritt 2 aus.';
+      this.showErrorAlert();
       return;
     }
 
@@ -693,8 +718,8 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
       return;
     }
 
-    // Set converter
-    const converters = this.kommonitorImporterHelperService?.getAvailableConverters();
+    // Set converter (use cached list to keep object identity stable)
+    const converters = this.availableConverters;
     this.converter = converters?.find(
       (converter: any) => converter.name === this.mappingConfigImportSettings.converter.name
     );
@@ -742,6 +767,43 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
         endDate: this.mappingConfigImportSettings.periodOfValidity.endDate
       };
       this.checkPeriodOfValidity();
+    }
+
+    // Set converter parameters (e.g., CRS)
+    this.converterParameters = {};
+    if (this.mappingConfigImportSettings.converter?.parameters?.length) {
+      for (const param of this.mappingConfigImportSettings.converter.parameters) {
+        if (param?.name) {
+          this.converterParameters[param.name] = param.value;
+        }
+      }
+    }
+
+    // Set datasource parameters for OGC API Features (bbox)
+    if (this.datasourceType?.type === 'OGCAPI_FEATURES' && Array.isArray(this.mappingConfigImportSettings.dataSource?.parameters)) {
+      const bboxParam = this.mappingConfigImportSettings.dataSource.parameters.find((p: any) => p?.name === 'bbox');
+      if (bboxParam && typeof bboxParam.value === 'string') {
+        const value = bboxParam.value;
+        const parts = value.split(',').map((v: string) => v.trim());
+        if (parts.length === 4 && parts.every((p: string) => p !== '')) {
+          // literal bbox
+          this.bboxType = 'literal';
+          setTimeout(() => {
+            const setVal = (id: string, v: string) => {
+              const el = document.getElementById(id) as HTMLInputElement;
+              if (el) { el.value = v; }
+            };
+            setVal('datasourceTypeParameter_spatialUnitEditFeatures_bbox_minx', parts[0]);
+            setVal('datasourceTypeParameter_spatialUnitEditFeatures_bbox_miny', parts[1]);
+            setVal('datasourceTypeParameter_spatialUnitEditFeatures_bbox_maxx', parts[2]);
+            setVal('datasourceTypeParameter_spatialUnitEditFeatures_bbox_maxy', parts[3]);
+          }, 0);
+        } else {
+          // ref bbox (value is spatial unit level)
+          this.bboxType = 'ref';
+          this.bboxRefSpatialUnitLevel = value;
+        }
+      }
     }
   }
 

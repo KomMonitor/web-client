@@ -42,7 +42,7 @@
   <!-- MultiStep Form -->
   <div class="row">
     <div class="col-md-12">
-      <form class="multiStepForm form-group" style="margin-bottom: 0px;">
+      <form id="spatialUnitEditFeaturesForm" class="multiStepForm form-group" style="margin-bottom: 0px;">
         <!-- div required for click logic -->
         <div> 
           <!-- progressbar -->
@@ -157,9 +157,9 @@
             <div class="col-md-3 col-sm-6 col-xs-12">
               <div class="form-group">
                 <label>Geodaten-Quellformat*</label>
-                <select class="form-control" [(ngModel)]="converter" name="converter" (change)="onChangeConverter()" required>
+                <select class="form-control" [(ngModel)]="converter" name="converter" [compareWith]="compareConverter" (change)="onChangeConverter()" required>
                   <option value="" disabled>-- Quellformat wählen --</option>
-                  <option *ngFor="let conv of kommonitorImporterHelperService?.getAvailableConverters()" 
+                  <option *ngFor="let conv of availableConverters" 
                           [ngValue]="conv">
                     {{ conv.name }}
                   </option>
@@ -192,7 +192,8 @@
                        [id]="'converterParameter_spatialUnitEditFeatures_' + parameter.name"
                        [placeholder]="parameter.name" 
                        [required]="parameter.mandatory"
-                       [name]="'converterParameter_spatialUnitEditFeatures_' + parameter.name">
+                       [name]="'converterParameter_spatialUnitEditFeatures_' + parameter.name"
+                       [(ngModel)]="converterParameters[parameter.name]">
                 <div class="help-block">
                   <p>{{ parameter.description }}</p>
                 </div>
@@ -211,7 +212,7 @@
               <div *ngIf="converter">
                 <div class="form-group">
                   <label>Datenquelltyp*</label>
-                  <select class="form-control" [(ngModel)]="datasourceType" name="datasourceType"
+                  <select class="form-control" [(ngModel)]="datasourceType" name="datasourceType" [compareWith]="compareDatasourceType"
                           (change)="onChangeDatasourceType(datasourceType)" required>
                     <option value="" disabled>-- Quelltyp wählen --</option>
                     <option *ngFor="let dsType of availableDatasourceTypes" [ngValue]="dsType">
@@ -228,16 +229,16 @@
 
                 <div *ngIf="datasourceType?.type === 'OGCAPI_FEATURES'">
                   <label>Räumlicher Filter*</label>
-                  <select class="form-control" [(ngModel)]="bboxType" name="bboxType" required>
+                  <select class="form-control" id="datasourceTypeParameter_spatialUnitEditFeatures_bboxType" [(ngModel)]="bboxType" name="bboxType" required>
                     <option value="" disabled>-- Filter wählen --</option>
                     <option value="ref">Referenzraumebene</option>
                     <option value="literal">Manueller Begrenzungsrahmen</option>
                   </select>
 
                   <div *ngIf="bboxType === 'ref'" class="form-group">
-                    <select class="form-control" [(ngModel)]="bboxRefSpatialUnit" name="bboxRefSpatialUnit" required>
+                    <select class="form-control" id="datasourceTypeParameter_spatialUnitEditFeatures_bboxRef" [(ngModel)]="bboxRefSpatialUnitLevel" name="bboxRefSpatialUnit" required>
                       <option value="" disabled>-- Raumebene wählen --</option>
-                      <option *ngFor="let spatialUnit of availableSpatialUnits" [ngValue]="spatialUnit">
+                      <option *ngFor="let spatialUnit of availableSpatialUnits" [value]="spatialUnit.spatialUnitLevel">
                         {{ spatialUnit.spatialUnitLevel }}
                       </option>
                     </select>
@@ -248,13 +249,13 @@
 
                   <div *ngIf="bboxType === 'literal'">
                     <label>Begrenzungsrahmen*</label>
-                    <input type="number" class="form-control" placeholder="-180" required>
+                    <input type="number" class="form-control" id="datasourceTypeParameter_spatialUnitEditFeatures_bbox_minx" placeholder="-180" required>
                     <div class="help-block"><p>Minimale x-Koordinate</p></div>
-                    <input type="number" class="form-control" placeholder="-90" required>
+                    <input type="number" class="form-control" id="datasourceTypeParameter_spatialUnitEditFeatures_bbox_miny" placeholder="-90" required>
                     <div class="help-block"><p>Minimale y-Koordinate</p></div>
-                    <input type="number" class="form-control" placeholder="180" required>
+                    <input type="number" class="form-control" id="datasourceTypeParameter_spatialUnitEditFeatures_bbox_maxx" placeholder="180" required>
                     <div class="help-block"><p>Maximale x-Koordinate</p></div>
-                    <input type="number" class="form-control" placeholder="90" required>
+                    <input type="number" class="form-control" id="datasourceTypeParameter_spatialUnitEditFeatures_bbox_maxy" placeholder="90" required>
                     <div class="help-block"><p>Maximale y-Koordinate</p></div>
                   </div>
                 </div>
