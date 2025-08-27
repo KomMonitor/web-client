@@ -2,6 +2,7 @@ import { Component, inject, Input, OnInit } from '@angular/core';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import * as echarts from 'echarts';
 import jsPDF from "jspdf";
+import autoTable from 'jspdf-autotable';
 import { LeafletScreenshotCacheHelperService } from 'services/leaflet-screenshot-cache-helper-service/leaflet-screenshot-cache-helper.service';
 import * as docx from 'docx';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
@@ -491,7 +492,7 @@ export class GenerateReportComponent implements OnInit {
         pageElementDimensions.height = pageElement.dimensions.height && this.pxToMilli(pageElement.dimensions.height);
         
         // TODO some cases could be merged, but it's better to do that later when stuff works
-       /*  switch(pageElement.type) {
+        switch(pageElement.type) {
           case "indicatorTitle-landscape":
           case "indicatorTitle-portrait": {
             if (! page.templateSection.pageConfig.showTitle){
@@ -649,7 +650,7 @@ export class GenerateReportComponent implements OnInit {
             break;
           }
           case "datatable": {
-            doc.autoTable({
+            autoTable(doc,{
               html: "#reporting-overview-page-" + idx + "-" + pageElement.type + " table",
               startY: pageElementDimensions.top,
               tableWidth: "wrap",
@@ -659,10 +660,10 @@ export class GenerateReportComponent implements OnInit {
               //	fillColor: false, // transparent
               //	textColor: [0, 0, 0],
               //}
-            })
+            });
             break;
           }
-        } */
+        }
       }
     }
 
