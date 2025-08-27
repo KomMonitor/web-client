@@ -73,12 +73,14 @@
             <div class="col-md-6 col-sm-6 col-xs-12">
               <div class="form-group">
                 <label>Datenbank-Raumeinheiten bereinigen (Funktion muss zuerst aktiv eingeschaltet werden)</label>
+                <div class="toggle-center">
                 <label class="switch">
                   <input class="elementCheckbox" type="checkbox" [(ngModel)]="enableDeleteFeatures" 
                          name="enableDeleteFeatures"
                          (change)="onChangeEnableDeleteFeatures()" id="enableDeleteFeatures">
                   <span class="switchslider round text-left" style="line-height:25px;"></span>
                 </label>
+                </div>
                 <button class="btn btn-danger" (click)="clearAllSpatialUnitFeatures()" 
                         [disabled]="!enableDeleteFeatures">
                   <i class="fas fa-trash"></i>&nbsp;Lösche alle Raumeinheiten
@@ -407,10 +409,12 @@
               <div class="form-group">
                 <label>Partielles Update einzelner Geometrien*</label>
                 <br/>	
+                <div class="toggle-center">
                 <label class="switch">
                   <input type="checkbox" value="isPartialUpdate" [(ngModel)]="isPartialUpdate" name="isPartialUpdate">
                   <span class="switchslider round"></span>
                 </label>
+                </div>
                 <div class="help-block">
                   <p>Angabe, ob das Update nur einen Teil der räumlichen Objekte enthält (bspw. 20/50 Stadtteilen). Wird der vollständige Datensatz hochgeladen (Schalter deaktiviert), so vergleicht KomMonitor die in der Datenbank befindlichen Objekte und löscht solche Objekte, die nicht mehr im hochgeladenen Datensatz enthalten sind, aber im gleichen Lebenzeitintervall liegen.</p>
                 </div>
@@ -426,10 +430,12 @@
               <div class="form-group">
                 <label>Import weiterer Attribute*</label>
                 <br/>	
+                <div class="toggle-center">
                 <label class="switch">
                   <input type="checkbox" value="keepAttributes" [(ngModel)]="keepAttributes" name="keepAttributes">
                   <span class="switchslider round"></span>
                 </label>
+                </div>
                 <div class="help-block">
                   <p>Angabe, ob alle sonstigen Attribute des importierten Datensatzes mit gleichem Namen übernommen werden sollen. Falls nicht, so lassen sich einzelne Attribut-Importe definieren.</p>
                 </div>

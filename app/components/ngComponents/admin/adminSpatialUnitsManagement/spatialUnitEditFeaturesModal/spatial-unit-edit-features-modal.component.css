@@ -1306,3 +1306,14 @@ fieldset {
 :host ::ng-deep td {
   font-size: inherit !important;
 }
+
+/* Center alignment for specific toggle switches */
+.toggle-center {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.toggle-center .switch {
+  display: inline-flex;
+}
