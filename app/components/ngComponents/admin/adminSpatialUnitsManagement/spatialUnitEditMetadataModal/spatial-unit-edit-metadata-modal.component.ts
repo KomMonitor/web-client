@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit, ChangeDetectorRef, HostListener } from '@angular/core';
 import { NgbActiveModal, NgbDatepicker, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { HttpClient } from '@angular/common/http';
@@ -19,6 +19,7 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('metadataImportFile', { static: false }) metadataImportFile!: ElementRef;
   @ViewChild('d', { static: false }) datepicker!: NgbDatepicker;
+  @ViewChild('outlineDashArrayDropdown', { static: false }) outlineDashArrayDropdown!: ElementRef;
 
   // Multi-step form
   currentStep = 1;
@@ -48,6 +49,9 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy,
     sridEPSG: 4326
   };
 
+  // Model for ng-bootstrap datepicker
+  lastUpdateModel: NgbDateStruct | null = null;
+
   // Date picker model for ng-bootstrap - using string format directly
   // Remove the custom visibility control since ng-bootstrap handles it
   // showDatepicker = false;
@@ -69,6 +73,9 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy,
   
   // Color picker visibility
   showColorPicker = false;
+
+  // Dropdown state for outline dash array (Angular-native toggle)
+  showOutlineDashArrayDropdown = false;
 
   // Available options
   availableSpatialUnits: any[] = [];
@@ -210,6 +217,15 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy,
     };
   }
 
+  // Helper to convert NgbDateStruct to ISO string (YYYY-MM-DD)
+  private ngbDateToIsoString(date: NgbDateStruct | null): string {
+    if (!date) return '';
+    const y = date.year;
+    const m = String(date.month).padStart(2, '0');
+    const d = String(date.day).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+
   // Date picker change handler - now using ng-bootstrap's built-in functionality
   // The datepicker will automatically handle the date selection and close
   // No need for custom methods since ng-bootstrap handles everything
@@ -235,6 +251,9 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy,
       lastUpdate: metadata.lastUpdate || '',
       updateInterval: null
     };
+
+    // Initialize datepicker model from string
+    this.lastUpdateModel = this.stringToNgbDate(this.metadata.lastUpdate);
 
     // Set update interval with null check
     if (metadata.updateInterval) {
@@ -350,25 +369,8 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy,
     // Update dropdown button display using helper method
     this.updateDropdownButtonDisplay();
     
-    // Close the dropdown (optional - you can remove this if you want it to stay open)
-    // This requires Bootstrap dropdown functionality
-    try {
-      const buttonElement = document.getElementById('outlineDashArrayDropdownButton_editSpatialUnit');
-      const dropdownButton = buttonElement?.closest('.dropdown')?.querySelector('.dropdown-toggle');
-      if (dropdownButton) {
-        // Trigger Bootstrap dropdown close using native DOM manipulation
-        // Remove 'open' class from dropdown container
-        const dropdownContainer = buttonElement?.closest('.dropdown');
-        if (dropdownContainer) {
-          dropdownContainer.classList.remove('open');
-        }
-        console.log('Dropdown closed successfully');
-      } else {
-        console.log('Could not find dropdown button to close');
-      }
-    } catch (error) {
-      console.log('Could not close dropdown automatically:', error);
-    }
+    // Close the dropdown via Angular state
+    this.closeOutlineDashArrayDropdown();
     
     console.log('=== onChangeOutlineDashArray completed ===');
   }
@@ -530,6 +532,9 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy,
       updateInterval: null
     };
 
+    // Initialize datepicker model from imported string
+    this.lastUpdateModel = this.stringToNgbDate(this.metadata.lastUpdate);
+
     // Set update interval
     this.updateIntervalOptions.forEach(option => {
       if (option.apiName === this.metadataImportSettings.metadata.updateInterval) {
@@ -653,17 +658,64 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy,
     return this.sanitizer.bypassSecurityTrustHtml(svgString);
   }
 
+  // Cached sanitizer for performance and stability (align with Add modal)
+  private svgSanitizeCache: Map<string, SafeHtml> = new Map();
+
+  getSafeSvgCached(svgString: string): SafeHtml {
+    if (!svgString) {
+      return '' as unknown as SafeHtml;
+    }
+    const cached = this.svgSanitizeCache.get(svgString);
+    if (cached) {
+      return cached;
+    }
+    const trusted = this.sanitizer.bypassSecurityTrustHtml(svgString);
+    this.svgSanitizeCache.set(svgString, trusted);
+    return trusted;
+  }
+
   // Method to update dropdown button display
   private updateDropdownButtonDisplay() {
-    const buttonElement = document.getElementById('outlineDashArrayDropdownButton_editSpatialUnit');
-    if (buttonElement && this.selectedOutlineDashArrayObject && this.selectedOutlineDashArrayObject.svgString) {
-      // Clear existing content and add the selected SVG
-      buttonElement.innerHTML = '';
-      const svgContainer = document.createElement('div');
-      svgContainer.innerHTML = this.selectedOutlineDashArrayObject.svgString;
-      buttonElement.appendChild(svgContainer);
-      
-      console.log('Updated dropdown button with selected SVG:', this.selectedOutlineDashArrayObject.label);
+    // No-op: rendering handled via Angular bindings with cached SafeHtml
+    return;
+  }
+
+  // trackBy for stable ngFor rendering (align with Add modal)
+  trackLoiOption(index: number, item: any) {
+    return item?.dashArrayValue ?? index;
+  }
+
+  // Sync handler when datepicker model changes
+  onLastUpdateModelChange(date: NgbDateStruct | null) {
+    this.lastUpdateModel = date;
+    this.metadata.lastUpdate = this.ngbDateToIsoString(date);
+  }
+
+  // Toggle/close handlers for outline dash array dropdown
+  toggleOutlineDashArrayDropdown(event?: Event) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
     }
+    this.showOutlineDashArrayDropdown = !this.showOutlineDashArrayDropdown;
+  }
+
+  closeOutlineDashArrayDropdown(event?: Event) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    this.showOutlineDashArrayDropdown = false;
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    const clickTarget = event.target as Node;
+    if (this.showOutlineDashArrayDropdown && this.outlineDashArrayDropdown && this.outlineDashArrayDropdown.nativeElement && this.outlineDashArrayDropdown.nativeElement.contains) {
+      if (this.outlineDashArrayDropdown.nativeElement.contains(clickTarget)) {
+        return;
+      }
+    }
+    this.closeOutlineDashArrayDropdown();
   }
 } 

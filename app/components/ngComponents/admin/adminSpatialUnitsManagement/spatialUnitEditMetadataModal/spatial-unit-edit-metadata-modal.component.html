@@ -173,27 +173,27 @@
             <div class="col-md-3 col-sm-6 col-xs-12">
               <div *ngIf="isOutlineLayer" class="form-group" align="center">
                 <label>Linienmuster (Umringslayer)</label>
-                <div class="dropdown">
+                <div class="dropdown" [class.open]="showOutlineDashArrayDropdown" #outlineDashArrayDropdown>
                   <button 
                     type="button" 
                     width="200px" 
                     class="btn btn-info dropdown-toggle"
-                    data-toggle="dropdown" 
-                    aria-haspopup="true" 
-                    aria-expanded="false"
+                    (click)="toggleOutlineDashArrayDropdown($event)"
+                    [attr.aria-haspopup]="true"
+                    [attr.aria-expanded]="showOutlineDashArrayDropdown"
                   >
                     <div id="outlineDashArrayDropdownButton_editSpatialUnit">
                       <!-- Show selected SVG or default -->
-                      <div *ngIf="selectedOutlineDashArrayObject" [innerHTML]="getSafeSvg(selectedOutlineDashArrayObject.svgString)"></div>
+                      <div *ngIf="selectedOutlineDashArrayObject" [innerHTML]="getSafeSvgCached(selectedOutlineDashArrayObject.svgString)"></div>
                       <div *ngIf="!selectedOutlineDashArrayObject" style="color: #666; font-style: italic;">Linienmuster wählen</div>
                     </div> 
                     <span class="caret"></span>
                   </button>
-                  <ul class="dropdown-menu dropdown-menu-center">
-                    <li *ngFor="let option of kommonitorDataExchangeService.availableLoiDashArrayObjects; let i = index" style="cursor: pointer;">
+                  <ul class="dropdown-menu dropdown-menu-center" *ngIf="showOutlineDashArrayDropdown" (click)="$event.stopPropagation()">
+                    <li *ngFor="let option of kommonitorDataExchangeService.availableLoiDashArrayObjects; let i = index; trackBy: trackLoiOption" style="cursor: pointer;">
                       <div class="dropdown-item" (click)="onChangeOutlineDashArray(option)">
                         <div style="margin-bottom: 5px;">{{option.label}}</div>
-                        <div [innerHTML]="getSafeSvg(option.svgString)"></div>
+                        <div [innerHTML]="getSafeSvgCached(option.svgString)"></div>
                       </div>
                     </li>
                   </ul>
@@ -307,7 +307,8 @@
                   <div>
                     <input 
                       type="text" 
-                      [ngModel]="metadata.lastUpdate" 
+                      [ngModel]="lastUpdateModel" 
+                      (ngModelChange)="onLastUpdateModelChange($event)"
                       name="lastUpdate"
                       class="form-control"
                       placeholder="YYYY-MM-DD" 
