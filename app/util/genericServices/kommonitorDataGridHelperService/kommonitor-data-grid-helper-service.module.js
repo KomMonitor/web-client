@@ -2308,6 +2308,56 @@ angular
               }
             } 
           },
+          { headerName: 'Letzte Job-Ausführung', minWidth: 200, cellRenderer: function (params) {
+              let latestJobIndex = 0;
+              if (params.data.jobIDs[0].length < 34){ // don't use first job if it has a short id
+                latestJobIndex = 1;
+              }
+
+              $http({
+                url: __env.targetUrlToProcessesApi + "jobs/" + params.data.jobIDs[latestJobIndex],
+                method: "GET"
+              }).then(function successCallback(response) {
+                let jobDateTime = "";
+                if (response.data.job_end_datetime) {
+                  jobDateTime = "<i class='fa-regular fa-calendar'></i> " + (new Date(response.data.job_end_datetime)).toLocaleString("de-DE");
+                }
+                let jobStatus;
+                switch(response.data.status){
+                  case "successful": jobStatus = "<button disabled class='btn-success btn-sm'>abgeschlossen</div>"; break;
+                  case "failed": jobStatus = "<button disabled class='btn-danger btn-sm'>gescheitert</div>"; break;
+                  case "running": jobStatus = "<button disabled class='btn-info btn-sm'>laufend</div>"; break;
+                  case "accepted": jobStatus = "<button disabled class='btn-warning btn-sm'>wartend</div>"; break;
+                  default: "Status unbekannt";
+                }
+                document.getElementById("latestJobSummary"+params.data.scheduleID).innerHTML = 
+                  "" + jobDateTime
+                  + jobStatus 
+                  + "<button class='btn-sm' onclick='onJobTableClicked(`" + params.data.scheduleID + "`)'><i class='fas fa-table'></i></button>";
+
+                $http({
+                  url: __env.targetUrlToProcessesApi + "jobs/" + params.data.jobIDs[latestJobIndex] + "/results",
+                  method: "GET"
+                }).then(function successCallback(response) {
+                  for (let i = 0; i<params.data.inputs.target_spatial_units.length; i++) {
+                    let html = "";
+                    const spatialUnitId = params.data.inputs.target_spatial_units[i];
+                    html += "<div><b>" + kommonitorDataExchangeService.getSpatialUnitMetadataById(spatialUnitId).spatialUnitLevel + ":</b></div>";
+                    if (response.data.jobSummary[i].numberOfIntegratedIndicatorFeatures) {
+                       html += response.data.jobSummary[i].numberOfIntegratedIndicatorFeatures + " Features integriert</br>";
+                    }
+                    document.getElementById("latestJobResult"+params.data.scheduleID).innerHTML += html;
+                  }
+                });
+              }, function errorCallback(error) {
+                document.getElementById("latestJobSummary"+params.data.scheduleID).innerHTML = "Fehler beim Laden des letzten Jobs";
+                console.error("Error while fetching job result.");
+                throw error;
+              });
+
+              return "<div id='latestJobSummary"+params.data.scheduleID+"'>Job wird geladen...</div><div id='latestJobResult"+params.data.scheduleID+"'></div>";
+            }
+          },
           
           { headerName: 'Ziel Raumebenen', minWidth: 300, cellRenderer: function (params) {
             

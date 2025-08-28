@@ -216,7 +216,33 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 			};
 
 			$scope.resetApplicableDates = function () {
-				$scope.applicableDates = kommonitorScriptHelperService.targetIndicator.applicableDates;
+				if($scope.selectedScriptType.id.startsWith("KmIndicator")){
+					let allIndicatorDates = [];
+					if (kommonitorScriptHelperService.processParameters.computation_id){
+						allIndicatorDates.push(kommonitorDataExchangeService.getIndicatorMetadataById(kommonitorScriptHelperService.processParameters.computation_id).applicableDates);
+					}
+					if (kommonitorScriptHelperService.processParameters.computation_ids){
+						for (let id of kommonitorScriptHelperService.processParameters.computation_ids) {
+							allIndicatorDates.push(kommonitorDataExchangeService.getIndicatorMetadataById(id).applicableDates);
+						}
+					}
+					if(kommonitorScriptHelperService.processParameters.computation_id_denominator){
+						allIndicatorDates.push(kommonitorDataExchangeService.getIndicatorMetadataById(kommonitorScriptHelperService.processParameters.computation_id_denominator).applicableDates);
+					}
+					if(kommonitorScriptHelperService.processParameters.computation_id_numerator){
+						allIndicatorDates.push(kommonitorDataExchangeService.getIndicatorMetadataById(kommonitorScriptHelperService.processParameters.computation_id_numerator).applicableDates);
+					}
+					if(kommonitorScriptHelperService.processParameters.reference_id){
+						allIndicatorDates.push(kommonitorScriptHelperService.refIndicator.applicableDates);
+					}
+					let applicableDates = allIndicatorDates[0].filter(date =>
+						allIndicatorDates.every(singleIndicatorDates => singleIndicatorDates.includes(date))
+					);
+					$scope.applicableDates = applicableDates;
+				}
+				if($scope.selectedScriptType.id.startsWith("KmGeoresource")){
+					$scope.applicableDates = kommonitorScriptHelperService.georesource.availablePeriodsOfValidity.map(obj => obj["startDate"]);
+				}
 				if(kommonitorScriptHelperService.processParameters.target_time) {
 					kommonitorScriptHelperService.processParameters.target_time.excludeDates = [];
 					kommonitorScriptHelperService.processParameters.target_time.includeDates = [];
@@ -234,7 +260,6 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 
 			$scope.onTargetIndicatorChanged = function (){
 				kommonitorScriptHelperService.processParameters.target_indicator_id = kommonitorScriptHelperService.targetIndicator.indicatorId;
-				$scope.resetApplicableDates();
 				$scope.resetSelectableSpatialUnits();
 			}
 
@@ -294,6 +319,22 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 					kommonitorScriptHelperService.processParameters.execution_interval.cron = cron;
 				}
 			}
+
+			$rootScope.$on("refIndicatorChanged", function () {
+				$scope.resetApplicableDates();
+			});
+
+			$rootScope.$on("baseIndicatorChanged", function () {
+				$scope.resetApplicableDates();
+			});
+
+			$rootScope.$on("compIndicatorChanged", function () {
+				$scope.resetApplicableDates();
+			});
+
+			$rootScope.$on("georesourceChanged", function () {
+				$scope.resetApplicableDates();
+			})
 
 			$rootScope.$on("processDescriptionFetched", function (event) {
 

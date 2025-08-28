@@ -365,7 +365,19 @@
 								<p><b><i>* = Pflichtfeld</i></b></p>
 
 								<div class="row vertical-align">
-									<div class="col-md-6 col-sm-6 col-xs-12">
+									<div ng-show="!applicableDates || applicableDates.length == 0" class="col-md-6 col-sm-6 col-xs-12">
+										<div class="row vertical-align">
+											<div class="form-group">
+												<h3>Zielzeitpunkte</h3>
+												<div class="help-block with-errors">
+													<b style="color: red;">Es sind keine Zielzeitpunkte verfügbar.</b> </br>
+													Hinweis: Bitte wählen Sie Indikatoren, die mindestens einen gemeinsamen Zeitpunkt besitzen. </br>
+													Bei Georessourcen: Georessourcen müssen mindestens eine Gültigkeitsperiode mit einem Startdatum haben. 
+												</div>
+											</div>
+										</div>
+									</div>
+									<div ng-show="applicableDates && applicableDates.length > 0" class="col-md-6 col-sm-6 col-xs-12">
 										<div class="row vertical-align">
 											<div class="form-group">
 												<h3>Zielzeitpunkte</h3>
