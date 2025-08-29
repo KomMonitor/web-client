@@ -46,9 +46,13 @@ angular.module('scriptTest').component('scriptTest', {
 				}
 			};
 
-			/*
-			* reset relevant things due to change of script type
-			*/
+			$rootScope.$on("processDescriptionFetched", function (event) {
+				$scope.tmpIndicatorSelection = undefined;
+				$scope.compIndicatorSelection = undefined;
+				$scope.refIndicatorSelection = undefined;
+				$scope.baseIndicators = [];
+			});
+
 			$scope.init = function(){
 				kommonitorScriptHelperService.reset();
 			};

@@ -138,6 +138,42 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 				}
 			}
 
+			$scope.getAddScriptBtnDisabledStatus = function () {
+				if (!$scope.selectedScriptType) {
+					return true;
+				}
+				if(kommonitorScriptHelperService.scriptData && kommonitorScriptHelperService.scriptData.id == $scope.selectedScriptType.id) {
+					return Object.entries(kommonitorScriptHelperService.scriptData.inputs).some(([inputName, inputDef]) => {
+						const inputValue = kommonitorScriptHelperService.processParameters[inputName];
+						if (inputDef.schema && inputDef.schema.required) {
+							if (inputDef.schema.required[0] == "false"){
+									return false;
+							}
+							if (inputDef.schema.required[0] == "true") {
+								return inputValue == undefined || inputValue == null || inputValue == "" || inputValue == [] || inputValue == {};
+							}
+							else if (typeof inputValue == "object"){
+								if (inputValue === null) {
+									return true;
+								}
+								for (const subKey of inputDef.schema.required) {
+									if (
+										inputValue[subKey] === undefined ||
+										inputValue[subKey] === null ||
+										inputValue[subKey] === "" ||
+										inputValue[subKey] == [] ||
+										inputValue[subKey] == {}
+									) {
+										return true;
+									}
+								}
+							}
+						}
+						return false;
+					});
+				}
+			}
+
 			$scope.onScriptTypeChanged = function () {
 				if ($scope.selectedScriptType) {
 					kommonitorScriptHelperService.getProcessDescription($scope.selectedScriptType.id);
