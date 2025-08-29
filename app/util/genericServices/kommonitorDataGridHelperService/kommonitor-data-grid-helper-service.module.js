@@ -2626,6 +2626,32 @@ angular
             // Processes API JOBS OVERVIEW TABLE (NEW July 2025)
 
             this.buildDataGridColumnConfig_processJobs = function(){
+              getErrorTypeShortDescription = function(error){
+                switch(error.type) {
+                  case "missingTimestamp": return "Zeitstempel fehlt";
+                  case "missingDataset": return "Datensatz fehlt";
+                  case "missingSpatialUnit": return "Raumeinheit fehlt";
+                  case "missingSpatialUnitFeature": return "Raumeinheitsfeature fehlt";
+                  case "dataManagementApiError": return "Fehler beim Aufrufen der API";
+                  case "processingError": return "Fehler bei der Prozessierung";
+                  default: return "Fehlerbeschreibung";
+                }
+              };
+              getErrorTypeLongDescription = function(error){
+                let datasetName = kommonitorDataExchangeService.getIndicatorNameFromIndicatorId(error.affectedDatasetId);
+                let resourceType = (error.affectedResourceType.toLowerCase() == "indicator")? "Indikator" : "Georessource";
+                console.log(error);
+                switch(error.type) {
+                  case "missingTimestamp": return "Zeitstempel fehlen für " + resourceType + " '" + datasetName + "'.";
+                  case "missingDataset": return "" + resourceType + " '" + datasetName + "' fehlt.";
+                  case "missingSpatialUnit": return "Die ausgewählte Raumeinheit fehlt für '" + datasetName + "'.";
+                  case "missingSpatialUnitFeature": return "Raumeinheitsfeatures fehlen für '" + datasetName + "'.";
+                  case "dataManagementApiError": return "Fehler beim Aufrufen der API für " + resourceType + " '" + datasetName + "'.";
+                  case "processingError": return "Fehler beim Prozessieren von " + resourceType + " '" + datasetName + "'.";
+                  default: return "Fehlerbeschreibung";
+                }
+              };
+
               const columnDefs = [
                 { headerName: 'Job-Id', field: "jobID", pinned: 'left', maxWidth: 125, checkboxSelection: false, headerCheckboxSelection: false, 
                 headerCheckboxSelectionFilteredOnly: true},
@@ -2670,8 +2696,11 @@ angular
                               html += "<td>";
                               for (const error of job.errorsOccurred) {
                                 html += '<div class="box box-danger collapsed-box" style="width:200px;"><div class="box-header"><span class="box-title" style="font-size:12px">';
-                                html += error.type;
+                                //html += error.type;
+                                html += getErrorTypeShortDescription(error);
                                 html += '</span><div class="box-tools pull-right"><button type="button" class="btn btn-box-tool" data-widget="collapse" onclick="handleChildCollapse(event)"><i class="fa fa-plus"></i></button></div></div><div class="box-body">';
+                                html += getErrorTypeLongDescription(error);
+                                html += "</br></br>"
                                 html += kommonitorDataExchangeService.syntaxHighlightJSON(error);
                                 html += '</div></div>'
                               }
