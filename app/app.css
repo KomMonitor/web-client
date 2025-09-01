@@ -1,3 +1,76 @@
+/* Georesource Edit User Roles Modal: independent wide styling */
+body .modal-holder.georesource-edit-user-roles-modal-window .modal-dialog,
+body .georesource-edit-user-roles-modal-window .modal-dialog,
+body .modal.georesource-edit-user-roles-modal-window .modal-dialog,
+.modal-dialog.georesource-edit-user-roles-modal {
+  max-width: 95vw;
+  width: 95vw;
+}
+
+.georesource-edit-user-roles-modal .modal-content {
+  width: 100%;
+}
+/* Georesource Edit Metadata Modal: independent wide styling */
+body .modal-holder.georesource-edit-metadata-modal-window .modal-dialog,
+body .georesource-edit-metadata-modal-window .modal-dialog,
+body .modal.georesource-edit-metadata-modal-window .modal-dialog,
+.modal-dialog.georesource-edit-metadata-modal {
+  max-width: 95vw;
+  width: 95vw;
+}
+
+.georesource-edit-metadata-modal .modal-content {
+  width: 100%;
+}
+/* Georesource Edit Features Modal: independent wide styling */
+body .modal-holder.georesource-edit-features-modal-window .modal-dialog,
+body .georesource-edit-features-modal-window .modal-dialog,
+body .modal.georesource-edit-features-modal-window .modal-dialog,
+.modal-dialog.georesource-edit-features-modal {
+  max-width: 95vw;
+  width: 95vw;
+}
+
+.georesource-edit-features-modal .modal-content {
+  width: 100%;
+}
+/* Georesource Delete Modal: independent wide styling */
+body .modal-holder.georesource-delete-modal-window .modal-dialog,
+body .georesource-delete-modal-window .modal-dialog,
+body .modal.georesource-delete-modal-window .modal-dialog,
+.modal-dialog.georesource-delete-modal {
+  max-width: 95vw;
+  width: 95vw;
+}
+
+.georesource-delete-modal .modal-content {
+  width: 100%;
+}
+/* Georesource Batch Update Modal: independent wide styling */
+body .modal-holder.georesource-batch-update-modal-window .modal-dialog,
+body .georesource-batch-update-modal-window .modal-dialog,
+body .modal.georesource-batch-update-modal-window .modal-dialog,
+.modal-dialog.georesource-batch-update-modal {
+  max-width: 95vw;
+  width: 95vw;
+}
+
+.georesource-batch-update-modal .modal-content {
+  width: 100%;
+}
+/* Georesource Add Modal: match Spatial Unit modal sizing but with independent classes */
+body .modal-holder.georesource-add-modal-window .modal-dialog,
+body .georesource-add-modal-window .modal-dialog,
+body .modal.georesource-add-modal-window .modal-dialog,
+.modal-dialog.georesource-add-modal {
+  max-width: 95vw;
+  width: 95vw;
+}
+
+/* Optional: ensure content stretches appropriately */
+.georesource-add-modal .modal-content {
+  width: 100%;
+}
 /* app css stylesheet */
 
 :root {

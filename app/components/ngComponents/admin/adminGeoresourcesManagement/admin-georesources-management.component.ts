@@ -324,11 +324,13 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy, 
   // Modal event handlers
   onClickAddGeoresource(): void {
     const modalRef = this.modalService.open(GeoresourceAddModalComponent, {
-      size: 'lg',
-      backdrop: 'static',
+      // omit size to avoid Bootstrap max-width caps like modal-lg
+      backdrop: true,
       keyboard: false,
       container: 'body',
-      animation: false
+      animation: false,
+      modalDialogClass: 'georesource-add-modal',
+      windowClass: 'georesource-add-modal-window'
     });
     
     modalRef.result.then((result) => {
@@ -343,11 +345,13 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy, 
 
   onClickBatchUpdateGeoresource(): void {
     const modalRef = this.modalService.open(GeoresourceBatchUpdateModalComponent, {
-      size: 'lg',
-      backdrop: 'static',
+      // omit size to avoid Bootstrap max-width caps like modal-lg
+      backdrop: true,
       keyboard: false,
       container: 'body',
-      animation: false
+      animation: false,
+      modalDialogClass: 'georesource-batch-update-modal',
+      windowClass: 'georesource-batch-update-modal-window'
     });
     
     modalRef.result.then((result) => {
@@ -361,11 +365,13 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy, 
 
   public onClickEditMetadata(georesourceDataset: any): void {
     const modalRef = this.modalService.open(GeoresourceEditMetadataModalComponent, {
-      size: 'lg',
-      backdrop: 'static',
+      // omit size to avoid Bootstrap max-width caps like modal-lg
+      backdrop: true,
       keyboard: false,
       container: 'body',
-      animation: false
+      animation: false,
+      modalDialogClass: 'georesource-edit-metadata-modal',
+      windowClass: 'georesource-edit-metadata-modal-window'
     });
 
     // Pass the georesource dataset to the modal
@@ -383,11 +389,13 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy, 
 
   public onClickEditFeatures(georesourceDataset: any): void {
     const modalRef = this.modalService.open(GeoresourceEditFeaturesModalComponent, {
-      size: 'lg',
-      backdrop: 'static',
+      // omit size to avoid Bootstrap max-width caps like modal-lg
+      backdrop: true,
       keyboard: false,
       container: 'body',
-      animation: false
+      animation: false,
+      modalDialogClass: 'georesource-edit-features-modal',
+      windowClass: 'georesource-edit-features-modal-window'
     });
 
     // Pass the georesource dataset to the modal
@@ -405,11 +413,13 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy, 
 
   public onClickEditUserRoles(georesourceDataset: any): void {
     const modalRef = this.modalService.open(GeoresourceEditUserRolesModalComponent, {
-      size: 'lg',
-      backdrop: 'static',
+      // omit size to avoid Bootstrap max-width caps like modal-lg
+      backdrop: true,
       keyboard: false,
       container: 'body',
-      animation: false
+      animation: false,
+      modalDialogClass: 'georesource-edit-user-roles-modal',
+      windowClass: 'georesource-edit-user-roles-modal-window'
     });
     modalRef.componentInstance.currentGeoresourceDataset = georesourceDataset;
     
@@ -425,11 +435,13 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy, 
 
   public onClickDeleteGeoresource(georesourceDataset: any): void {
     const modalRef = this.modalService.open(GeoresourceDeleteModalComponent, {
-      size: 'lg',
-      backdrop: 'static',
+      // omit size to avoid Bootstrap max-width caps like modal-lg
+      backdrop: true,
       keyboard: false,
       container: 'body',
-      animation: false
+      animation: false,
+      modalDialogClass: 'georesource-delete-modal',
+      windowClass: 'georesource-delete-modal-window'
     });
 
     // Pass the georesource dataset to the modal (as array like original)
