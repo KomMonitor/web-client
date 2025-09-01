@@ -1152,11 +1152,17 @@ export class SpatialUnitAddModalComponent implements OnInit {
     this.metadata.note = this.metadataImportSettings.metadata.note;
     this.metadata.literature = this.metadataImportSettings.metadata.literature;
     
-    this.kommonitorDataExchangeService.updateIntervalOptions.forEach((option: any) => {
+    // Use the same array instance as the select options to ensure object identity matches
+    const intervalOptions = this.updateIntervalOptions && this.updateIntervalOptions.length
+      ? this.updateIntervalOptions
+      : this.kommonitorDataExchangeService.updateIntervalOptions;
+
+    for (const option of intervalOptions) {
       if (option.apiName === this.metadataImportSettings.metadata.updateInterval) {
         this.metadata.updateInterval = option;
+        break;
       }
-    });
+    }
     
     this.metadata.sridEPSG = this.metadataImportSettings.metadata.sridEPSG;
     this.metadata.datasource = this.metadataImportSettings.metadata.datasource;
