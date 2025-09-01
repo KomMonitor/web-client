@@ -409,12 +409,8 @@ export class KommonitorImporterHelperService {
       }
     }
 
-    if (selectedConverter.name === "OGC API - Features") {
-      converterDefinition.parameters.push({
-        "name": "CRS",
-        "value": "EPSG:4326"
-      });
-    }
+    // Track whether CRS was provided explicitly
+    let hasExplicitCRS = false;
 
     if (selectedConverter.parameters && selectedConverter.parameters.length > 0) {
       for (const parameter of selectedConverter.parameters) {
@@ -430,9 +426,20 @@ export class KommonitorImporterHelperService {
               "name": parameterName,
               "value": parameterValue
             });
+            if (parameterName === 'CRS') {
+              hasExplicitCRS = true;
+            }
           }
         }
       }
+    }
+
+    // If converter is OGC API - Features and CRS not provided, set sensible default
+    if (selectedConverter.name === "OGC API - Features" && !hasExplicitCRS) {
+      converterDefinition.parameters.push({
+        name: 'CRS',
+        value: 'EPSG:4326'
+      });
     }
 
     return converterDefinition;

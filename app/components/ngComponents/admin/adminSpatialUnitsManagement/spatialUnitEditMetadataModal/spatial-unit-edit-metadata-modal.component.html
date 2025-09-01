@@ -116,25 +116,41 @@
             <div class="col-md-3 col-sm-6 col-xs-12">
               <div *ngIf="isOutlineLayer" class="form-group" align="center">
                 <label>Linienfarbe (Umringslayer)</label>
-                <div id="outlineColorPicker_editSpatialUnit" class="input-group" style="width: 50px;">
-                  <input 
-                    type="text" 
-                    style="display:none;" 
-                    class="form-control input-sm"
-                    [(ngModel)]="outlineColor" 
-                    name="outlineColor"
-                    placeholder="Umringsfarbwahl"
-                    value="#bf3d2c"
-                  />
-                  <span 
-                    title="Klicken, um die Farbe anzupassen"
-                    style="border: 1px solid #ccc; width: 100%"
-                    class="input-group-addon btn btn-info btn-sm"
-                    (click)="onColorPickerClick()"
+                
+                <!-- Color picker button -->
+                <div class="color-picker-container">
+                  <button 
+                    type="button"
+                    class="color-picker-button"
+                    (click)="toggleColorPicker()"
+                    [style.background-color]="outlineColor"
+                    [style.border-color]="outlineColor"
+                    style="width: 100px; height: 35px; border: 2px solid;"
+                    title="Click to change color"
                   >
-                    <i></i>
-                  </span>
+                    <span class="color-display-text">
+                      {{outlineColor}}
+                    </span>
+                  </button>
+                  
+                  <!-- ngx-color sketch picker -->
+                  <div *ngIf="showColorPicker" class="color-picker-overlay" (click)="onColorPickerContainerClick($event)">
+                    <color-sketch 
+                      [color]="outlineColor"
+                      (onChange)="onColorChange($event)"
+                      (onChangeComplete)="onColorChangeComplete($event)"
+                      [disableAlpha]="true"
+                      [width]="200">
+                    </color-sketch>
+                  </div>
+                  
+                  <!-- Click outside overlay to close color picker -->
+                  <div *ngIf="showColorPicker" 
+                       class="color-picker-backdrop" 
+                       (click)="closeColorPicker()">
+                  </div>
                 </div>
+                
                 <div class="help-block with-errors"></div>
               </div>
             </div>
@@ -157,26 +173,28 @@
             <div class="col-md-3 col-sm-6 col-xs-12">
               <div *ngIf="isOutlineLayer" class="form-group" align="center">
                 <label>Linienmuster (Umringslayer)</label>
-                <div class="dropdown">
+                <div class="dropdown" [class.open]="showOutlineDashArrayDropdown" #outlineDashArrayDropdown>
                   <button 
                     type="button" 
                     width="200px" 
                     class="btn btn-info dropdown-toggle"
-                    data-toggle="dropdown" 
-                    aria-haspopup="true" 
-                    aria-expanded="false"
+                    (click)="toggleOutlineDashArrayDropdown($event)"
+                    [attr.aria-haspopup]="true"
+                    [attr.aria-expanded]="showOutlineDashArrayDropdown"
                   >
-                    <div id="outlineDashArrayDropdownButton_editSpatialUnit"></div> 
+                    <div id="outlineDashArrayDropdownButton_editSpatialUnit">
+                      <!-- Show selected SVG or default -->
+                      <div *ngIf="selectedOutlineDashArrayObject" [innerHTML]="getSafeSvgCached(selectedOutlineDashArrayObject.svgString)"></div>
+                      <div *ngIf="!selectedOutlineDashArrayObject" style="color: #666; font-style: italic;">Linienmuster wählen</div>
+                    </div> 
                     <span class="caret"></span>
                   </button>
-                  <ul class="dropdown-menu dropdown-menu-center">
-                    <li 
-                      *ngFor="let outlineDashArrayObject of availableLoiDashArrayObjects; let i = index"
-                      (click)="onChangeOutlineDashArray(outlineDashArrayObject)"
-                    >
-                      <a href="">
-                        <div id="outlineDashArrayDropdownItem-editMetadata-{{i}}"></div>
-                      </a>
+                  <ul class="dropdown-menu dropdown-menu-center" *ngIf="showOutlineDashArrayDropdown" (click)="$event.stopPropagation()">
+                    <li *ngFor="let option of kommonitorDataExchangeService.availableLoiDashArrayObjects; let i = index; trackBy: trackLoiOption" style="cursor: pointer;">
+                      <div class="dropdown-item" (click)="onChangeOutlineDashArray(option)">
+                        <div style="margin-bottom: 5px;">{{option.label}}</div>
+                        <div [innerHTML]="getSafeSvgCached(option.svgString)"></div>
+                      </div>
                     </li>
                   </ul>
                   <div class="help-block with-errors"></div>
@@ -275,19 +293,32 @@
             <div class="col-md-3 col-sm-6 col-xs-12">
               <div class="form-group">
                 <label>Datum der letzten Aktualisierung*</label>
-                <div class="input-group date">
-                  <div class="input-group-addon">
-                    <i class="far fa-calendar-alt"></i>
+                <div class="input-group date-input-group">
+                  <div class="input-group-btn">
+                    <button 
+                      class="btn btn-default date-toggle-btn" 
+                      (click)="d.toggle()" 
+                      type="button"
+                      title="Kalender öffnen"
+                    >
+                      <i class="far fa-calendar-alt"></i>
+                    </button>
                   </div>
-                  <input 
-                    type="text" 
-                    [(ngModel)]="metadata.lastUpdate" 
-                    name="lastUpdate"
-                    class="form-control pull-right"
-                    id="spatialUnitEditMetadataLastUpdateDatepicker" 
-                    placeholder="YYYY-MM-DD" 
-                    required
-                  />
+                  <div>
+                    <input 
+                      type="text" 
+                      [(ngModel)]="metadata.lastUpdate"
+                      name="lastUpdate"
+                      class="form-control"
+                      placeholder="YYYY-MM-DD" 
+                      required
+                      inputmode="numeric"
+                      pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}"
+                      ngbDatepicker
+                      #d="ngbDatepicker"
+                      (blur)="onLastUpdateBlur()"
+                    />
+                  </div>
                 </div>
                 <div class="help-block with-errors"></div>
               </div>

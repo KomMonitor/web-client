@@ -1,5 +1,5 @@
-import { Component, OnInit, Inject, ViewChild, ElementRef } from '@angular/core';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { Component, OnInit, Inject, ViewChild, ElementRef, HostListener, Injectable } from '@angular/core';
+import { NgbActiveModal, NgbDatepicker, NgbDateParserFormatter, NgbDateStruct, NgbDateAdapter } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { HttpClient } from '@angular/common/http';
 import { KommonitorImporterHelperService } from '../../../../../services/adminSpatialUnit/kommonitor-importer-helper.service';
@@ -7,17 +7,96 @@ import { KommonitorDataGridHelperService } from '../../../../../services/adminSp
 import { KommonitorDataExchangeService } from '../../../../../services/adminSpatialUnit/kommonitor-data-exchange.service';
 import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef, GridOptions, GridApi, ColumnApi } from 'ag-grid-community';
+import { ColorEvent } from 'ngx-color';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+
+@Injectable()
+export class NgbDateISOParserFormatter extends NgbDateParserFormatter {
+  parse(value: string | null): NgbDateStruct | null {
+    if (!value) {
+      return null;
+    }
+    const trimmed = value.trim();
+    const match = /^\d{4}-\d{2}-\d{2}$/.test(trimmed);
+    if (!match) {
+      return null;
+    }
+    const [yStr, mStr, dStr] = trimmed.split('-');
+    const year = Number(yStr);
+    const month = Number(mStr);
+    const day = Number(dStr);
+    if (!year || month < 1 || month > 12 || day < 1 || day > 31) {
+      return null;
+    }
+    const dt = new Date(year, month - 1, day);
+    if (dt.getFullYear() !== year || dt.getMonth() !== month - 1 || dt.getDate() !== day) {
+      return null;
+    }
+    return { year, month, day };
+  }
+
+  format(date: NgbDateStruct | null): string {
+    if (!date) {
+      return '';
+    }
+    const y = String(date.year).padStart(4, '0');
+    const m = String(date.month).padStart(2, '0');
+    const d = String(date.day).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+}
+
+@Injectable()
+export class NgbDateStringAdapter extends NgbDateAdapter<string> {
+  fromModel(value: string | null): NgbDateStruct | null {
+    if (!value) {
+      return null;
+    }
+    const trimmed = value.trim();
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
+      return null;
+    }
+    const [yStr, mStr, dStr] = trimmed.split('-');
+    const year = Number(yStr);
+    const month = Number(mStr);
+    const day = Number(dStr);
+    const dt = new Date(year, month - 1, day);
+    if (dt.getFullYear() !== year || dt.getMonth() !== month - 1 || dt.getDate() !== day) {
+      return null;
+    }
+    return { year, month, day };
+  }
+
+  toModel(date: NgbDateStruct | null): string | null {
+    if (!date) {
+      return '';
+    }
+    const y = String(date.year).padStart(4, '0');
+    const m = String(date.month).padStart(2, '0');
+    const d = String(date.day).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+}
 
 @Component({
   selector: 'spatial-unit-add-modal-new',
   templateUrl: './spatial-unit-add-modal.component.html',
-  styleUrls: ['./spatial-unit-add-modal.component.css']
+  styleUrls: ['./spatial-unit-add-modal.component.css'],
+  providers: [
+    { provide: NgbDateParserFormatter, useClass: NgbDateISOParserFormatter },
+    { provide: NgbDateAdapter, useClass: NgbDateStringAdapter }
+  ]
 })
 export class SpatialUnitAddModalComponent implements OnInit {
   @ViewChild('metadataImportFile', { static: false }) metadataImportFile!: ElementRef;
   @ViewChild('mappingConfigImportFile', { static: false }) mappingConfigImportFile!: ElementRef;
   @ViewChild('spatialUnitDataSourceInput', { static: false }) spatialUnitDataSourceInput!: ElementRef;
   @ViewChild('roleManagementGrid', { static: false }) roleManagementGrid!: AgGridAngular;
+  @ViewChild('d', { static: false }) datepicker!: NgbDatepicker;
+  @ViewChild('startDatepicker', { static: false }) startDatepicker!: NgbDatepicker;
+  @ViewChild('endDatepicker', { static: false }) endDatepicker!: NgbDatepicker;
+  @ViewChild('lastUpdateDatepicker', { static: false }) lastUpdateDatepicker!: NgbDatepicker;
+  @ViewChild('outlineDashArrayDropdown', { static: false }) outlineDashArrayDropdown!: ElementRef;
 
   // Multi-step form
   currentStep = 1;
@@ -56,7 +135,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
   outlineDashArray: any = null;
 
   // Period of validity
-  periodOfValidity: { startDate: string; endDate: string } = {
+  periodOfValidity: { startDate: any; endDate: any } = {
     startDate: '',
     endDate: ''
   };
@@ -81,6 +160,10 @@ export class SpatialUnitAddModalComponent implements OnInit {
   // Bbox parameters for OGCAPI_FEATURES
   bboxType: string = '';
   bboxRefSpatialUnit: any = null;
+  bbox_minx: any = null;
+  bbox_miny: any = null;
+  bbox_maxx: any = null;
+  bbox_maxy: any = null;
 
   // Attribute mapping
   attributeMapping_sourceAttributeName = '';
@@ -89,6 +172,10 @@ export class SpatialUnitAddModalComponent implements OnInit {
   attributeMappings_adminView: any[] = [];
   keepAttributes = true;
   keepMissingValues = true;
+
+  // Persisted parameter values for converter and datasource type
+  converterParameterValues: { [key: string]: string } = {};
+  datasourceTypeParameterValues: { [key: string]: string } = {};
 
   // Validity dates per feature
   validityStartDate_perFeature = '';
@@ -135,9 +222,16 @@ export class SpatialUnitAddModalComponent implements OnInit {
   outlineColor = "#000000";
   selectedOutlineDashArrayObject: any = null;
   spatialUnitMetadataStructure_pretty: string = '';
+  spatialUnitMappingConfigStructure: any = {};
   
   // Role form visibility
   showRoleForm = false;
+
+  // Color picker properties
+  showColorPicker = false;
+
+  // Dropdown state for outline dash array (Angular-native toggle)
+  showOutlineDashArrayDropdown = false;
 
   // Grid ready event handler
   onRoleManagementGridReady(params: any) {
@@ -217,7 +311,8 @@ export class SpatialUnitAddModalComponent implements OnInit {
     public kommonitorImporterHelperService: KommonitorImporterHelperService,
     private kommonitorDataGridHelperService: KommonitorDataGridHelperService,
     private http: HttpClient,
-    private broadcastService: BroadcastService
+    private broadcastService: BroadcastService,
+    private sanitizer: DomSanitizer
   ) {
   }
 
@@ -229,7 +324,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
     this.setupEventListeners();
   }
 
-  private loadInitialData() {
+  private async loadInitialData() {
     this.loadingData = true;
     
     // Load available spatial units
@@ -250,12 +345,21 @@ export class SpatialUnitAddModalComponent implements OnInit {
       this.attributeMapping_attributeType = attributeMappingTypes[0];
     }
 
-    // Load converters and datasource types
-    this.loadConverters();
+    // Ensure importer resources are fetched before reading converters/datasource types
+    try {
+      await this.kommonitorImporterHelperService.fetchResourcesFromImporter();
+    } catch (error) {
+      console.error('Failed to fetch importer resources:', error);
+    }
+
+    // Load datasource types from importer helper after fetch
     this.loadDatasourceTypes();
 
     // Load access control data and prepare creator list
     this.loadAccessControlData();
+
+    // Initialize metadata structures
+    this.spatialUnitMappingConfigStructure = this.kommonitorImporterHelperService.mappingConfigStructure;
   }
 
   private loadAccessControlData() {
@@ -311,28 +415,31 @@ export class SpatialUnitAddModalComponent implements OnInit {
   }
 
   private loadConverters(): void {
-    const converters = this.kommonitorImporterHelperService.getAvailableConverters();
-    if (converters) {
-      // Filter converters for spatial units
-      this.availableDatasourceTypes = converters
-        .filter((converter: any) => converter.type === 'spatialUnit');
-    }
+    // Converters are fetched and exposed by the importer helper service.
+    // The template reads them directly from the service; no component state needed here.
+    return;
   }
 
   private loadDatasourceTypes(): void {
     const datasourceTypes = this.kommonitorImporterHelperService.getAvailableDatasourceTypes();
-    if (datasourceTypes) {
-      this.availableDatasourceTypes = datasourceTypes;
-    }
+    this.availableDatasourceTypes = datasourceTypes || [];
   }
 
   private initializeOutlineLayerSettings() {
     this.selectedOutlineDashArrayObject = this.kommonitorDataExchangeService.availableLoiDashArrayObjects?.[0] || null;
     this.availableLoiDashArrayObjects = this.kommonitorDataExchangeService.availableLoiDashArrayObjects || [];
+    
+    // Remove jQuery-specific initialization - Angular will handle this automatically
+    
+    // Update dropdown button display with selected SVG
+    setTimeout(() => {
+      this.updateDropdownButtonDisplay();
+    }, 100);
   }
 
   private initializeMetadataStructures() {
-    this.spatialUnitMetadataStructure_pretty = this.kommonitorDataExchangeService.syntaxHighlightJSON(this.spatialUnitMetadataStructure);
+    this.spatialUnitMetadataStructure_pretty = this.kommonitorDataExchangeService.syntaxHighlightJSON(this.kommonitorDataExchangeService.spatialUnitMetadataStructure);
+    this.spatialUnitMappingConfigStructure = this.kommonitorImporterHelperService.mappingConfigStructure;
   }
 
   prepareCreatorList() {
@@ -451,15 +558,16 @@ export class SpatialUnitAddModalComponent implements OnInit {
   }
 
   checkPeriodOfValidity() {
-    this.periodOfValidityInvalid = false;
-    if (this.periodOfValidity.startDate && this.periodOfValidity.endDate) {
-      const startDate = new Date(this.periodOfValidity.startDate);
-      const endDate = new Date(this.periodOfValidity.endDate);
-
-      if ((startDate.getTime() === endDate.getTime()) || startDate > endDate) {
-        // failure
-        this.periodOfValidityInvalid = true;
-      }
+    // Use service method for validation
+    const validation = this.kommonitorDataExchangeService.validatePeriodOfValidity(
+      this.periodOfValidity.startDate,
+      this.periodOfValidity.endDate
+    );
+    
+    this.periodOfValidityInvalid = !validation.isValid;
+    
+    if (!validation.isValid && validation.error) {
+      console.warn('Period of validity validation error:', validation.error);
     }
   }
 
@@ -514,6 +622,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
   onChangeConverter(schema?: any) {
     this.schema = this.converter.schemas ? this.converter.schemas[0] : undefined;
     this.mimeType = this.converter.mimeTypes ? this.converter.mimeTypes[0] : undefined;
+    this.converterParameterValues = {};
   }
 
   onChangeMimeType(mimeType: any) {
@@ -528,12 +637,176 @@ export class SpatialUnitAddModalComponent implements OnInit {
     this.spatialUnitDataSourceNameProperty = '';
     this.bboxType = '';
     this.bboxRefSpatialUnit = null;
+    this.bbox_minx = null;
+    this.bbox_miny = null;
+    this.bbox_maxx = null;
+    this.bbox_maxy = null;
+    this.datasourceTypeParameterValues = {};
   }
 
   onChangeOutlineDashArray(outlineDashArrayObject: any) {
+    console.log('=== onChangeOutlineDashArray called ===');
+    console.log('Selected object:', outlineDashArrayObject);
+    console.log('Object label:', outlineDashArrayObject?.label);
+    console.log('Object SVG string:', outlineDashArrayObject?.svgString?.substring(0, 50) + '...');
+    
     // Handle outline dash array change
     this.selectedOutlineDashArrayObject = outlineDashArrayObject;
     this.outlineDashArray = outlineDashArrayObject;
+    
+    // Update dropdown button display using helper method
+    this.updateDropdownButtonDisplay();
+    
+    // Close the dropdown via Angular state
+    this.closeOutlineDashArrayDropdown();
+    
+    console.log('=== onChangeOutlineDashArray completed ===');
+  }
+
+  // Toggle/close handlers for outline dash array dropdown
+  toggleOutlineDashArrayDropdown(event?: Event) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    this.showOutlineDashArrayDropdown = !this.showOutlineDashArrayDropdown;
+  }
+
+  closeOutlineDashArrayDropdown() {
+    this.showOutlineDashArrayDropdown = false;
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    const clickTarget = event.target as Node;
+    // Close dropdown only if click is outside the dropdown container
+    if (this.showOutlineDashArrayDropdown && this.outlineDashArrayDropdown && this.outlineDashArrayDropdown.nativeElement && this.outlineDashArrayDropdown.nativeElement.contains) {
+      if (this.outlineDashArrayDropdown.nativeElement.contains(clickTarget)) {
+        return;
+      }
+    }
+    this.closeOutlineDashArrayDropdown();
+  }
+
+  // Color picker methods for ngx-color
+  toggleColorPicker(event?: Event) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    this.showColorPicker = !this.showColorPicker;
+  }
+
+  onColorChange(event: ColorEvent) {
+    this.outlineColor = event.color.hex;
+  }
+
+  onColorChangeComplete(event: ColorEvent) {
+    this.outlineColor = event.color.hex;
+    // Don't auto-close - let user continue adjusting color
+  }
+
+  closeColorPicker(event?: Event) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    this.showColorPicker = false;
+  }
+
+  onColorPickerContainerClick(event: Event) {
+    // Prevent propagation to avoid triggering the outside click
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
+  onColorPickerClick() {
+    // Toggle the ngx-color picker
+    this.toggleColorPicker();
+  }
+
+  // Date picker methods
+  toggleDatepicker(datepickerRef: any) {
+    // For NgbDatepicker, we need to use a different approach
+    // The datepicker will be controlled by the input field's readonly property
+    // This method can be used to handle any additional logic if needed
+  }
+
+  // Ensure valid date or set to today's date on blur
+  private getTodayDateString(): string {
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = String(now.getMonth() + 1).padStart(2, '0');
+    const d = String(now.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+
+  private isValidDateString(value: string): boolean {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+      return false;
+    }
+    const [yStr, mStr, dStr] = value.split('-');
+    const y = Number(yStr);
+    const m = Number(mStr);
+    const d = Number(dStr);
+    if (m < 1 || m > 12 || d < 1 || d > 31) {
+      return false;
+    }
+    const dt = new Date(y, m - 1, d);
+    return dt.getFullYear() === y && dt.getMonth() === m - 1 && dt.getDate() === d;
+  }
+
+  private ensureValidDateOrToday(value: any): string {
+    if (!value) {
+      return this.getTodayDateString();
+    }
+    if (typeof value === 'string') {
+      return this.isValidDateString(value) ? value : this.getTodayDateString();
+    }
+    const asIso = this.toIsoDateString(value);
+    return asIso ?? this.getTodayDateString();
+  }
+
+  onLastUpdateBlur() {
+    this.metadata.lastUpdate = this.ensureValidDateOrToday(this.metadata.lastUpdate);
+  }
+
+  onPeriodStartBlur() {
+    this.periodOfValidity.startDate = this.ensureValidDateOrToday(this.periodOfValidity.startDate);
+    this.checkPeriodOfValidity();
+  }
+
+  onPeriodEndBlur() {
+    if (this.periodOfValidity.endDate) {
+      this.periodOfValidity.endDate = this.ensureValidDateOrToday(this.periodOfValidity.endDate);
+    }
+    this.checkPeriodOfValidity();
+  }
+
+  // Method to update dropdown button display
+  private updateDropdownButtonDisplay() {
+    // No-op: rendering handled via Angular bindings with cached SafeHtml
+    return;
+  }
+
+  // Method to safely sanitize SVG content
+  private svgSanitizeCache: Map<string, SafeHtml> = new Map();
+
+  getSafeSvgCached(svgString: string): SafeHtml {
+    if (!svgString) {
+      return '' as unknown as SafeHtml;
+    }
+    const cached = this.svgSanitizeCache.get(svgString);
+    if (cached) {
+      return cached;
+    }
+    const trusted = this.sanitizer.bypassSecurityTrustHtml(svgString);
+    this.svgSanitizeCache.set(svgString, trusted);
+    return trusted;
+  }
+
+  trackLoiOption(index: number, item: any) {
+    return item?.dashArrayValue ?? index;
   }
 
   // Importer object building methods
@@ -566,21 +839,48 @@ export class SpatialUnitAddModalComponent implements OnInit {
       this.converter, 
       "converterParameter_spatialUnitAdd_", 
       this.schema, 
-      this.mimeType
+      this.mimeType,
+      this.converterParameterValues
     );
     
     return result;
   }
 
   async buildDatasourceTypeDefinition() {
-    
     try {
+      // Prefer robust Angular-native handling for FILE uploads
+      if (this.datasourceType?.type === 'FILE') {
+        const inputEl = this.spatialUnitDataSourceInput?.nativeElement as HTMLInputElement | undefined;
+        const file = inputEl?.files?.[0];
+        if (!file) {
+          return null;
+        }
+        const uploadedName = await this.kommonitorImporterHelperService.uploadNewFile(file, file.name);
+        return {
+          type: 'FILE',
+          parameters: [
+            { name: 'NAME', value: uploadedName }
+          ]
+        };
+      }
+
+      const formValues: { [key: string]: string } = {
+        ...this.datasourceTypeParameterValues,
+        bboxType: this.bboxType as any,
+        bboxRef: this.bboxRefSpatialUnit as any,
+        bbox_minx: this.bbox_minx as any,
+        bbox_miny: this.bbox_miny as any,
+        bbox_maxx: this.bbox_maxx as any,
+        bbox_maxy: this.bbox_maxy as any
+      } as any;
+
       const result = await this.kommonitorImporterHelperService.buildDatasourceTypeDefinition(
-        this.datasourceType, 
-        'datasourceTypeParameter_spatialUnitAdd_', 
-        'spatialUnitDataSourceInput'
+        this.datasourceType,
+        'datasourceTypeParameter_spatialUnitAdd_',
+        'spatialUnitDataSourceInput',
+        formValues
       );
-      
+
       return result;
     } catch (error: any) {
       console.error('=== BUILDING DATASOURCE TYPE DEFINITION - ERROR ===');
@@ -614,6 +914,23 @@ export class SpatialUnitAddModalComponent implements OnInit {
     return result;
   }
 
+  private toIsoDateString(value: any): string | null {
+    if (!value) {
+      return null;
+    }
+    if (typeof value === 'string') {
+      return value;
+    }
+    const maybeStruct = value as { year?: number; month?: number; day?: number };
+    if (maybeStruct && typeof maybeStruct.year === 'number' && typeof maybeStruct.month === 'number' && typeof maybeStruct.day === 'number') {
+      const y = maybeStruct.year;
+      const m = String(maybeStruct.month).padStart(2, '0');
+      const d = String(maybeStruct.day).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+    return null;
+  }
+
   buildPostBody_spatialUnits() {
     
     const postBody: any = {
@@ -625,7 +942,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
         "sridEPSG": this.metadata.sridEPSG,
         "datasource": this.metadata.datasource,
         "contact": this.metadata.contact,
-        "lastUpdate": this.metadata.lastUpdate,
+        "lastUpdate": this.toIsoDateString(this.metadata.lastUpdate),
         "description": this.metadata.description,
         "databasis": this.metadata.databasis
       },
@@ -634,8 +951,8 @@ export class SpatialUnitAddModalComponent implements OnInit {
       "nextLowerHierarchyLevel": this.nextLowerHierarchySpatialUnit ? this.nextLowerHierarchySpatialUnit.spatialUnitLevel : null,
       "spatialUnitLevel": this.spatialUnitLevel,
       "periodOfValidity": {
-        "endDate": this.periodOfValidity && this.periodOfValidity.endDate ? this.periodOfValidity.endDate : null,
-        "startDate": this.periodOfValidity && this.periodOfValidity.startDate ? this.periodOfValidity.startDate : null
+        "endDate": this.toIsoDateString(this.periodOfValidity && this.periodOfValidity.endDate ? this.periodOfValidity.endDate : null),
+        "startDate": this.toIsoDateString(this.periodOfValidity && this.periodOfValidity.startDate ? this.periodOfValidity.startDate : null)
       },
       "nextUpperHierarchyLevel": this.nextUpperHierarchySpatialUnit ? this.nextUpperHierarchySpatialUnit.spatialUnitLevel : null,
       // Add missing outline layer properties
@@ -861,11 +1178,17 @@ export class SpatialUnitAddModalComponent implements OnInit {
     this.metadata.note = this.metadataImportSettings.metadata.note;
     this.metadata.literature = this.metadataImportSettings.metadata.literature;
     
-    this.kommonitorDataExchangeService.updateIntervalOptions.forEach((option: any) => {
+    // Use the same array instance as the select options to ensure object identity matches
+    const intervalOptions = this.updateIntervalOptions && this.updateIntervalOptions.length
+      ? this.updateIntervalOptions
+      : this.kommonitorDataExchangeService.updateIntervalOptions;
+
+    for (const option of intervalOptions) {
       if (option.apiName === this.metadataImportSettings.metadata.updateInterval) {
         this.metadata.updateInterval = option;
+        break;
       }
-    });
+    }
     
     this.metadata.sridEPSG = this.metadataImportSettings.metadata.sridEPSG;
     this.metadata.datasource = this.metadataImportSettings.metadata.datasource;
@@ -907,9 +1230,17 @@ export class SpatialUnitAddModalComponent implements OnInit {
       }
     });
 
+    // Update dropdown button display with selected SVG
+    setTimeout(() => {
+      this.updateDropdownButtonDisplay();
+    }, 100);
+
     this.spatialUnitLevel = this.metadataImportSettings.spatialUnitLevel;
     this.ownerOrganization = this.metadataImportSettings.ownerId;
-    this.isPublic = this.metadataImportSettings.isPublic || false;
+    this.isPublic = this.metadataImportSettings.isPublic;
+
+    // Initialize metadata structures
+    this.spatialUnitMappingConfigStructure = this.kommonitorImporterHelperService.mappingConfigStructure;
   }
 
   parseFromMappingConfigFile(event: any) {
@@ -948,12 +1279,54 @@ export class SpatialUnitAddModalComponent implements OnInit {
       }
     }
 
+    // Populate converter parameters (e.g., CRS) from imported mapping config
+    // Defer to ensure inputs exist in the DOM after bindings render
+    setTimeout(() => {
+      const params = this.mappingConfigImportSettings?.converter?.parameters || [];
+      if (this.converter && Array.isArray(params)) {
+        for (const convParameter of params) {
+          const el = document.getElementById(`converterParameter_spatialUnitAdd_${convParameter.name}`) as HTMLInputElement | null;
+          if (el) {
+            el.value = convParameter.value ?? '';
+          }
+          this.converterParameterValues[convParameter.name] = convParameter.value ?? '';
+        }
+      }
+    }, 0);
+
     this.datasourceType = null;
     const datasourceTypes = this.kommonitorImporterHelperService.getAvailableDatasourceTypes();
     for (const datasourceType of datasourceTypes) {
       if (datasourceType.type === this.mappingConfigImportSettings.dataSource.type) {
         this.datasourceType = datasourceType;
         break;
+      }
+    }
+
+    // Populate datasource type params and bbox
+    this.datasourceTypeParameterValues = {};
+    const dsParams = this.mappingConfigImportSettings?.dataSource?.parameters || [];
+    const bboxTypeParam = dsParams.find((p: any) => p.name === 'bboxType');
+    if (bboxTypeParam) {
+      this.bboxType = bboxTypeParam.value || '';
+    }
+    const bboxParam = dsParams.find((p: any) => p.name === 'bbox');
+    if (bboxParam && typeof bboxParam.value === 'string') {
+      if (this.bboxType === 'ref') {
+        this.bboxRefSpatialUnit = bboxParam.value;
+      } else {
+        const parts = bboxParam.value.split(',');
+        if (parts.length === 4) {
+          this.bbox_minx = parts[0];
+          this.bbox_miny = parts[1];
+          this.bbox_maxx = parts[2];
+          this.bbox_maxy = parts[3];
+        }
+      }
+    }
+    for (const p of dsParams) {
+      if (p.name !== 'bbox' && p.name !== 'bboxType') {
+        this.datasourceTypeParameterValues[p.name] = p.value ?? '';
       }
     }
 
@@ -989,47 +1362,41 @@ export class SpatialUnitAddModalComponent implements OnInit {
       };
       this.periodOfValidityInvalid = false;
     }
+
+    // Initialize metadata structures
+    this.spatialUnitMappingConfigStructure = this.kommonitorImporterHelperService.mappingConfigStructure;
+
+    // Update dropdown button display with selected SVG
+    setTimeout(() => {
+      this.updateDropdownButtonDisplay();
+    }, 100);
   }
 
   onExportSpatialUnitAddMetadataTemplate() {
-    const metadataJSON = JSON.stringify(this.spatialUnitMetadataStructure);
+    const metadataJSON = JSON.stringify(this.kommonitorDataExchangeService.spatialUnitMetadataStructure);
     const fileName = "Raumebene_Metadaten_Vorlage_Export.json";
     this.downloadFile(metadataJSON, fileName);
   }
 
   onExportSpatialUnitAddMetadata() {
-    const metadataExport: any = { ...this.spatialUnitMetadataStructure };
+    // Use service method to build export structure
+    const metadataExport = this.kommonitorDataExchangeService.buildSpatialUnitMetadataExport(
+      this.metadata,
+      this.spatialUnitLevel,
+      this.nextLowerHierarchySpatialUnit?.spatialUnitLevel || null,
+      this.nextUpperHierarchySpatialUnit?.spatialUnitLevel || null,
+      this.isOutlineLayer,
+      this.outlineColor,
+      this.outlineWidth,
+      this.selectedOutlineDashArrayObject?.dashArrayValue || null
+    );
 
-    // Update metadata fields
-    metadataExport.metadata.note = this.metadata.note || "";
-    metadataExport.metadata.literature = this.metadata.literature || "";
-    metadataExport.metadata.sridEPSG = this.metadata.sridEPSG || "";
-    metadataExport.metadata.datasource = this.metadata.datasource || "";
-    metadataExport.metadata.contact = this.metadata.contact || "";
-    metadataExport.metadata.lastUpdate = this.metadata.lastUpdate || "";
-    metadataExport.metadata.description = this.metadata.description || "";
-    metadataExport.metadata.databasis = this.metadata.databasis || "";
-    metadataExport.spatialUnitLevel = this.spatialUnitLevel || "";
-
-    // Update permissions (changed from allowedRoles)
+    // Add component-specific properties
     metadataExport.permissions = [];
     if (this.roleManagementTableOptions) {
       const roleIds = this.kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid(this.roleManagementTableOptions);
       metadataExport.permissions.push(...roleIds);
     }
-
-    // Update hierarchy levels
-    if (this.metadata.updateInterval) {
-      metadataExport.metadata.updateInterval = this.metadata.updateInterval.apiName;
-    }
-    metadataExport.nextLowerHierarchyLevel = this.nextLowerHierarchySpatialUnit?.spatialUnitLevel || "";
-    metadataExport.nextUpperHierarchyLevel = this.nextUpperHierarchySpatialUnit?.spatialUnitLevel || "";
-
-    // Add outline layer properties
-    metadataExport.isOutlineLayer = this.isOutlineLayer;
-    metadataExport.outlineDashArrayString = this.selectedOutlineDashArrayObject?.dashArrayValue;
-    metadataExport.outlineColor = this.outlineColor;
-    metadataExport.outlineWidth = this.outlineWidth;
 
     // Add owner properties
     metadataExport.ownerId = this.ownerOrganization;
@@ -1045,13 +1412,13 @@ export class SpatialUnitAddModalComponent implements OnInit {
     const datasourceTypeDefinition = await this.buildDatasourceTypeDefinition();
     const propertyMappingDefinition = this.buildPropertyMappingDefinition();
 
-    const mappingConfigExport = {
-      "converter": converterDefinition,
-      "dataSource": datasourceTypeDefinition,
-      "propertyMapping": propertyMappingDefinition,
-    };
-
-    (mappingConfigExport as any).periodOfValidity = this.periodOfValidity;
+    // Use service method to build export structure
+    const mappingConfigExport = this.kommonitorDataExchangeService.buildMappingConfigExport(
+      converterDefinition,
+      datasourceTypeDefinition,
+      propertyMappingDefinition,
+      this.periodOfValidity
+    );
 
     const name = this.spatialUnitLevel;
     const metadataJSON = JSON.stringify(mappingConfigExport);
@@ -1082,23 +1449,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
 
   // Metadata structure for export
   get spatialUnitMetadataStructure() {
-    return {
-      "metadata": {
-        "note": "an optional note",
-        "literature": "optional text about literature",
-        "updateInterval": "YEARLY|HALF_YEARLY|QUARTERLY|MONTHLY|ARBITRARY",
-        "sridEPSG": 4326,
-        "datasource": "text about data source",
-        "contact": "text about contact details",
-        "lastUpdate": "YYYY-MM-DD",
-        "description": "description about spatial unit dataset",
-        "databasis": "text about data basis",
-      },
-      "permissions": ['roleId'],
-      "nextLowerHierarchyLevel": "Name of lower hierarchy level",
-      "spatialUnitLevel": "Name of spatial unit dataset",
-      "nextUpperHierarchyLevel": "Name of upper hierarchy level"
-    };
+    return this.kommonitorDataExchangeService.spatialUnitMetadataStructure;
   }
 
   get spatialUnitMappingConfigStructure_pretty() {
@@ -1132,7 +1483,13 @@ export class SpatialUnitAddModalComponent implements OnInit {
     this.outlineWidth = 3;
     this.outlineDashArray = null;
     this.selectedOutlineDashArrayObject = this.kommonitorDataExchangeService.availableLoiDashArrayObjects?.[0] || null;
+    this.spatialUnitMappingConfigStructure = {};
     
+    // Update dropdown button display with selected SVG
+    setTimeout(() => {
+      this.updateDropdownButtonDisplay();
+    }, 100);
+
     this.converter = null;
     this.schema = '';
     this.mimeType = '';
@@ -1141,6 +1498,14 @@ export class SpatialUnitAddModalComponent implements OnInit {
     this.spatialUnitDataSourceNameProperty = '';
     this.validityStartDate_perFeature = '';
     this.validityEndDate_perFeature = '';
+    this.converterParameterValues = {};
+    this.datasourceTypeParameterValues = {};
+    this.bboxType = '';
+    this.bboxRefSpatialUnit = null;
+    this.bbox_minx = null;
+    this.bbox_miny = null;
+    this.bbox_maxx = null;
+    this.bbox_maxy = null;
     this.attributeMapping_sourceAttributeName = '';
     this.attributeMapping_destinationAttributeName = '';
     this.attributeMappings_adminView = [];
@@ -1183,6 +1548,8 @@ export class SpatialUnitAddModalComponent implements OnInit {
     this.spatialUnitMappingConfigImportError = '';
     this.spatialUnitDataSourceIdPropertyInvalid = false;
     this.spatialUnitDataSourceNamePropertyInvalid = false;
+    this.spatialUnitMappingConfigStructure = {};
+    this.spatialUnitMetadataStructure_pretty = '';
     const attributeMappingTypes = this.kommonitorImporterHelperService.getAttributeMappingTypes();
     this.attributeMapping_attributeType = attributeMappingTypes[0];
     this.errorMessage = '';
@@ -1227,45 +1594,15 @@ export class SpatialUnitAddModalComponent implements OnInit {
   }
 
   private buildRoleManagementGridConfig() {
-    this.roleManagementDefaultColDef = this.buildRoleManagementDefaultColDef();
-    this.roleManagementGridOptions = this.buildRoleManagementGridOptions();
-  }
-
-  private buildRoleManagementDefaultColDef(): ColDef {
-    return {
-      editable: false,
-      sortable: true,
-      flex: 1,
-      minWidth: 100,
-      filter: false,
-      resizable: true,
-      wrapText: true,
-      autoHeight: false,
-      cellStyle: { 
-        'font-size': '12px', 
-        'white-space': 'normal !important', 
-        'line-height': '20px !important', 
-        'word-break': 'break-word !important', 
-        'padding-top': '8px', 
-        'padding-bottom': '8px' 
-      }
-    };
-  }
-
-  private buildRoleManagementGridOptions(): GridOptions {
-    // Use components from the table options if available
-    const components = this.roleManagementTableOptions?.components || {};
-
-    return {
-      components: components,
-      suppressRowClickSelection: true,
-      rowSelection: 'multiple',
-      enableCellTextSelection: true,
-      ensureDomOrder: true,
-      pagination: false,
-      suppressColumnVirtualisation: true,
-      headerHeight: 40,
-      rowHeight: 35,
+    // Use service methods for base grid configuration
+    this.roleManagementDefaultColDef = this.kommonitorDataGridHelperService.buildRoleManagementDefaultColDef();
+    const baseGridOptions = this.kommonitorDataGridHelperService.buildRoleManagementGridOptionsPublic(
+      this.roleManagementTableOptions?.components
+    );
+    
+    // Apply component-specific overrides
+    this.roleManagementGridOptions = {
+      ...baseGridOptions,
       onGridReady: (params) => {
         this.onRoleManagementGridReady(params);
       },

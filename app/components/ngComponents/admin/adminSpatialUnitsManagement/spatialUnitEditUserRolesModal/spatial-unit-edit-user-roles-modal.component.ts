@@ -190,61 +190,17 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, OnDestroy
   }
 
   private buildRoleManagementGridConfig(): void {
-    this.roleManagementDefaultColDef = this.buildRoleManagementDefaultColDef();
-    this.roleManagementGridOptions = this.buildRoleManagementGridOptions();
-  }
-
-  private buildRoleManagementDefaultColDef(): any {
-    return {
-      editable: false,
-      sortable: true,
-      flex: 1,
-      minWidth: 100,
-      filter: true,
-      floatingFilter: false,
-      resizable: true,
-      wrapText: true,
-      autoHeight: true,
-      cellStyle: { 
-        'font-size': '12px', 
-        'white-space': 'normal !important', 
-        'line-height': '20px !important', 
-        'word-break': 'break-word !important', 
-        'padding-top': '17px', 
-        'padding-bottom': '17px' 
-      },
-      headerComponentParams: {
-        template:
-          '<div class="ag-cell-label-container" role="presentation">' +
-          '  <span ref="eMenu" class="ag-header-icon ag-header-cell-menu-button"></span>' +
-          '  <div ref="eLabel" class="ag-header-cell-label" role="presentation">' +
-          '    <span ref="eSortOrder" class="ag-header-icon ag-sort-order"></span>' +
-          '    <span ref="eSortAsc" class="ag-header-icon ag-sort-ascending-icon"></span>' +
-          '    <span ref="eSortDesc" class="ag-header-icon ag-sort-descending-icon"></span>' +
-          '    <span ref="eSortNone" class="ag-header-icon ag-sort-none-icon"></span>' +
-          '    <span ref="eText" class="ag-header-cell-text" role="columnheader" style="white-space: normal;"></span>' +
-          '    <span ref="eFilter" class="ag-header-icon ag-filter-icon"></span>' +
-          '  </div>' +
-          '</div>',
-      },
-    };
-  }
-
-  private buildRoleManagementGridOptions(): GridOptions {
-    // Use components from the table options if available
-    const components = this.roleManagementTableOptions?.components || {};
-
-    return {
-      components: components,
-      suppressRowClickSelection: true,
-      rowSelection: 'multiple',
-      enableCellTextSelection: true,
-      ensureDomOrder: true,
-      pagination: true,
-      paginationPageSize: 10,
-      suppressColumnVirtualisation: true,
-      headerHeight: 40,
-      rowHeight: 35,
+    // Get base configuration from service
+    this.roleManagementDefaultColDef = this.kommonitorDataGridHelperService.buildRoleManagementDefaultColDef();
+    
+    // Get base grid options from service
+    const baseGridOptions = this.kommonitorDataGridHelperService.buildRoleManagementGridOptionsPublic(
+      this.roleManagementTableOptions?.components
+    );
+    
+    // Override with component-specific settings
+    this.roleManagementGridOptions = {
+      ...baseGridOptions,
       onGridReady: (params) => {
         this.onRoleManagementGridReady(params);
       },
@@ -257,8 +213,14 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, OnDestroy
     };
   }
 
+  // Default column definition is now handled by the service
+
+  // Grid options are now handled by the service with component-specific overrides
+
   onRoleManagementGridReady(params: GridReadyEvent): void {
     this.roleManagementGridApi = params.api;
+    // Ensure helper service has the grid API to collect selected role IDs
+    this.kommonitorDataGridHelperService.setGridApi(params.api);
   }
 
   onRoleManagementFirstDataRendered(event: any): void {
@@ -407,6 +369,13 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, OnDestroy
 
       this.successMessagePart = this.currentSpatialUnitDataset.spatialUnitLevel;
       this.broadcastService.broadcast('refreshSpatialUnitOverviewTable', ['edit', this.currentSpatialUnitDataset.spatialUnitId]);
+      // Persist latest selection locally so the grid reflects changes on refresh
+      this.permissions = putBody.permissions;
+      if (this.currentSpatialUnitDataset) {
+        this.currentSpatialUnitDataset.permissions = putBody.permissions;
+      }
+      // Optionally refresh the table to sync checkbox state
+      setTimeout(() => this.refreshRoleManagementTable(), 0);
       
     } catch (error: any) {
       this.errorMessagePart = 'Fehler beim Aktualisieren der Zugriffsrechte. Fehler lautet: \n\n';

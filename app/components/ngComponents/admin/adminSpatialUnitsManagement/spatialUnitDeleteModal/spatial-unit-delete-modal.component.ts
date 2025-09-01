@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { HttpClient } from '@angular/common/http';
-import { Subscription, forkJoin } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { KommonitorDataExchangeService } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
 
 declare const $: any;
@@ -77,12 +77,20 @@ export class SpatialUnitDeleteModalComponent implements OnInit, OnDestroy {
     this.loadingData = true;
     this.resetForm();
 
-    const deleteRequests = this.datasetsToDelete.map(dataset => 
-      this.getDeleteDatasetRequest(dataset)
-    );
-
     try {
-      await Promise.allSettled(deleteRequests);
+      // Use service method for bulk deletion
+      const spatialUnitIds = this.datasetsToDelete.map(dataset => dataset.spatialUnitId);
+      const result = await this.kommonitorDataExchangeService.bulkDeleteSpatialUnits(spatialUnitIds);
+
+      // Process results
+      this.successfullyDeletedDatasets = this.datasetsToDelete.filter(dataset => 
+        result.successful.includes(dataset.spatialUnitId)
+      );
+      
+      this.failedDatasetsAndErrors = result.failed.map(failure => {
+        const dataset = this.datasetsToDelete.find(d => d.spatialUnitId === failure.id);
+        return [dataset, failure.error];
+      });
 
       if (this.failedDatasetsAndErrors.length > 0) {
         this.errorMessage = 'Einige Raumebenen konnten nicht gelöscht werden.';
@@ -125,34 +133,7 @@ export class SpatialUnitDeleteModalComponent implements OnInit, OnDestroy {
     }
   }
 
-  private async getDeleteDatasetRequest(dataset: any): Promise<void> {
-    const url = `${this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI}/spatial-units/${dataset.spatialUnitId}`;
 
-    try {
-      await this.http.delete(url).toPromise();
-      
-      // Add to successful deletions
-      this.successfullyDeletedDatasets.push(dataset);
-
-      // Remove from available spatial units
-      const index = this.kommonitorDataExchangeService.availableSpatialUnits.findIndex(
-        (spatialUnit: any) => spatialUnit.spatialUnitId === dataset.spatialUnitId
-      );
-
-      if (index > -1) {
-        this.kommonitorDataExchangeService.availableSpatialUnits.splice(index, 1);
-      }
-
-    } catch (error) {
-      console.error(`Failed to delete spatial unit ${dataset.spatialUnitLevel}:`, error);
-      
-      const errorMessage = error && (error as any).error ? 
-        this.kommonitorDataExchangeService.syntaxHighlightJSON((error as any).error) :
-        this.kommonitorDataExchangeService.syntaxHighlightJSON(error);
-
-      this.failedDatasetsAndErrors.push([dataset, errorMessage]);
-    }
-  }
 
   hideSuccessAlert(): void {
     this.successMessage = '';

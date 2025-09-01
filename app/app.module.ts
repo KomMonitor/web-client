@@ -100,6 +100,7 @@ import { SingleFeatureEditComponent } from './components/ngComponents/common/sin
 import { GeoresourceEditUserRolesModalComponent } from './components/ngComponents/admin/adminGeoresourcesManagement/georesourceEditUserRolesModal/georesource-edit-user-roles-modal.component';
 import { GeoresourceDeleteModalComponent } from './components/ngComponents/admin/adminGeoresourcesManagement/georesourceDeleteModal/georesource-delete-modal.component';
 
+import { ColorSketchModule } from 'ngx-color/sketch';
 
 // currently the AngularJS routing is still used as part of kommonitorClient module
 const routes: Routes = [];
@@ -121,7 +122,8 @@ declare var MathJax;
     NgbCollapseModule,
     DragDropModule,
     DualListBoxComponent,
-    AgGridAngular
+    AgGridAngular,
+    ColorSketchModule
   ],
   providers:[
     {provide: LocationStrategy, useClass: HashLocationStrategy},

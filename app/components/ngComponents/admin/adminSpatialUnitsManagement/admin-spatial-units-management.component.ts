@@ -204,11 +204,13 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
   // Modal event handlers
   onClickAddSpatialUnit(): void {
     const modalRef = this.modalService.open(SpatialUnitAddModalComponent, {
-      size: 'lg',
-      backdrop: 'static',
+      // omit size to avoid Bootstrap max-width caps like modal-lg
+      backdrop: true,
       keyboard: false,
       container: 'body',
-      animation: false
+      animation: false,
+      modalDialogClass: 'spatial-unit-add-modal',
+      windowClass: 'spatial-unit-add-modal-window'
     });
     
     modalRef.result.then((result) => {
@@ -222,11 +224,12 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
 
   onClickEditMetadata(spatialUnitMetadata: any): void {
     const modalRef = this.modalService.open(SpatialUnitEditMetadataModalComponent, {
-      size: 'lg',
-      backdrop: 'static',
+      backdrop: true,
       keyboard: false,
       container: 'body',
-      animation: false
+      animation: false,
+      modalDialogClass: 'spatial-unit-add-modal',
+      windowClass: 'spatial-unit-add-modal-window'
     });
     
     modalRef.componentInstance.currentSpatialUnitDataset = spatialUnitMetadata;
@@ -242,11 +245,12 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
 
   onClickEditFeatures(spatialUnitMetadata: any): void {
     const modalRef = this.modalService.open(SpatialUnitEditFeaturesModalComponent, {
-      size: 'lg',
-      backdrop: 'static',
+      backdrop: true,
       keyboard: false,
       container: 'body',
-      animation: false
+      animation: false,
+      modalDialogClass: 'spatial-unit-add-modal',
+      windowClass: 'spatial-unit-add-modal-window'
     });
     
     modalRef.componentInstance.currentSpatialUnitDataset = spatialUnitMetadata;
@@ -262,11 +266,12 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
 
   onClickEditUserRoles(spatialUnitMetadata: any): void {
     const modalRef = this.modalService.open(SpatialUnitEditUserRolesModalComponent, {
-      size: 'lg',
-      backdrop: 'static',
+      backdrop: true,
       keyboard: false,
       container: 'body',
-      animation: false
+      animation: false,
+      modalDialogClass: 'spatial-unit-add-modal',
+      windowClass: 'spatial-unit-add-modal-window'
     });
     
     modalRef.componentInstance.currentSpatialUnitDataset = spatialUnitMetadata;
@@ -282,11 +287,12 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
 
   onClickDeleteSpatialUnits(spatialUnitsMetadata: any[]): void {
     const modalRef = this.modalService.open(SpatialUnitDeleteModalComponent, {
-      size: 'lg',
-      backdrop: 'static',
+      backdrop: true,
       keyboard: false,
       container: 'body',
-      animation: false
+      animation: false,
+      modalDialogClass: 'spatial-unit-add-modal',
+      windowClass: 'spatial-unit-add-modal-window'
     });
     
     modalRef.componentInstance.datasetsToDelete = spatialUnitsMetadata;
@@ -371,12 +377,65 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
     }
   }
 
-  // AG Grid methods
+  // AG Grid methods - using hybrid approach
   private buildDataGrid_spatialUnits(spatialUnitMetadataArray: any[]): void {
-    this.columnDefs = this.buildDataGridColumnConfig_spatialUnits(spatialUnitMetadataArray);
-    this.rowData = this.buildDataGridRowData_spatialUnits(spatialUnitMetadataArray);
-    this.defaultColDef = this.buildDefaultColDef();
-    this.gridOptions = this.buildGridOptions(spatialUnitMetadataArray);
+    // Get base configuration from service
+    const baseGridOptions = this.kommonitorDataGridHelperService.buildDataGridOptions_spatialUnits(spatialUnitMetadataArray);
+    
+    // Extract service configuration
+    this.columnDefs = baseGridOptions.columnDefs || [];
+    this.rowData = baseGridOptions.rowData || [];
+    this.defaultColDef = baseGridOptions.defaultColDef || {};
+    
+    // Add component-specific columns that are not in the service
+    this.addComponentSpecificColumns();
+    
+    // Override with component-specific settings
+    this.gridOptions = {
+      ...baseGridOptions,
+      columnDefs: this.columnDefs, // Use updated columnDefs
+      paginationPageSize: this.paginationPageSize,
+      paginationPageSizeSelector: this.paginationPageSizeSelector,
+      onGridReady: (params) => {
+        this.gridApi = params.api;
+        this.columnApi = params.columnApi;
+      },
+      onFirstDataRendered: (event) => {
+        this.headerHeightSetter();
+        // Click handler registration is now handled by the service
+      },
+      onColumnResized: (event) => {
+        this.headerHeightSetter();
+      }
+    };
+  }
+
+  // Add component-specific columns that are not in the service
+  private addComponentSpecificColumns(): void {
+    // Add the missing Umringslayer columns after the existing columns
+    this.columnDefs.push(
+      { 
+        headerName: 'Linienfarbe (Umringslayer)', 
+        minWidth: 200, 
+        cellRenderer: (params: any) => params.data.outlineColor || '-',
+        filter: 'agTextColumnFilter',
+        filterValueGetter: (params: any) => '' + (params.data.outlineColor || '-')
+      },
+      { 
+        headerName: 'Linienbreite (Umringslayer)', 
+        minWidth: 200, 
+        cellRenderer: (params: any) => params.data.outlineWidth || '-',
+        filter: 'agTextColumnFilter',
+        filterValueGetter: (params: any) => '' + (params.data.outlineWidth || '-')
+      },
+      { 
+        headerName: 'Linienmuster (Umringslayer)', 
+        minWidth: 200, 
+        cellRenderer: (params: any) => params.data.outlineDashArrayString || '-',
+        filter: 'agTextColumnFilter',
+        filterValueGetter: (params: any) => '' + (params.data.outlineDashArrayString || '-')
+      }
+    );
   }
 
   private buildDefaultColDef(): ColDef {
@@ -417,7 +476,7 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
       },
       onFirstDataRendered: (event) => {
         this.headerHeightSetter();
-        this.registerClickHandler_spatialUnits();
+        // Click handler registration is now handled by the service
       },
       onColumnResized: (event) => {
         this.headerHeightSetter();
@@ -580,15 +639,15 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
   }
 
   onRowDataChanged(): void {
-    this.registerClickHandler_spatialUnits();
+    // Click handler registration is now handled by the service
   }
 
   onModelUpdated(): void {
-    this.registerClickHandler_spatialUnits();
+    // Click handler registration is now handled by the service
   }
 
   onViewportChanged(): void {
-    this.registerClickHandler_spatialUnits();
+    // Click handler registration is now handled by the service
   }
 
   private registerClickHandler_spatialUnits(): void {
