@@ -127,6 +127,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
   spatialUnit_asGeoJson: any = null;
   spatialUnitEditFeaturesDataSourceInputInvalidReason = '';
   spatialUnitEditFeaturesDataSourceInputInvalid = false;
+  fileSelected: boolean = false;
   spatialUnitDataSourceIdProperty = '';
   spatialUnitDataSourceNameProperty = '';
 
@@ -438,6 +439,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
     this.keepMissingValues = true;
     this.isPartialUpdate = false;
     this.enableDeleteFeatures = false;
+    this.fileSelected = false;
     this.importerErrors = [];
     this.successMessagePart = '';
     this.errorMessagePart = '';
@@ -449,19 +451,23 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
 
   onChangeConverter(schema?: any): void {
     if (this.converter) {
-      this.schema = this.converter?.schemas ? this.converter.schemas[0] : '';
-      this.mimeType = this.converter?.mimeTypes ? this.converter.mimeTypes[0] : '';
+      // Initialize defaults like in Add modal
+      this.schema = this.converter.schemas ? this.converter.schemas[0] : '';
+      this.mimeType = this.converter.mimeTypes ? this.converter.mimeTypes[0] : '';
+      console.log('[EditFeatures] onChangeConverter', {
+        converter: this.converter?.name,
+        schema: this.schema,
+        mimeType: this.mimeType
+      });
 
-      // Update available datasource types for this specific converter
-      this.availableDatasourceTypes = [];
+      // Update available datasource types. If converter doesn't declare supported datasources,
+      // fall back to all available types (matches Add modal behavior)
       const allDatasourceTypes = this.kommonitorImporterHelperService?.getAvailableDatasourceTypes() || [];
-      
-      for (const datasourceType of allDatasourceTypes) {
-        for (const availableType of this.converter.datasources) {
-          if (datasourceType.type === availableType) {
-            this.availableDatasourceTypes.push(datasourceType);
-          }
-        }
+      const declared = (this.converter as any)?.datasources as string[] | undefined;
+      if (Array.isArray(declared) && declared.length > 0) {
+        this.availableDatasourceTypes = allDatasourceTypes.filter(dt => declared.includes(dt.type));
+      } else {
+        this.availableDatasourceTypes = allDatasourceTypes;
       }
 
       // Auto-select if only one datasource type is available
@@ -478,10 +484,11 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
 
   onChangeDatasourceType(datasourceType: any): void {
     this.datasourceType = datasourceType;
+    console.log('[EditFeatures] onChangeDatasourceType', { datasourceType: this.datasourceType?.type });
     
     if (this.datasourceType && this.datasourceType.type === "OGCAPI_FEATURES") {
-      this.availableSpatialUnits = this.kommonitorDataExchangeService?.availableSpatialUnits_map ? 
-        [...this.kommonitorDataExchangeService.availableSpatialUnits_map.values()] : [];
+      // Use array of available spatial units like in Add modal
+      this.availableSpatialUnits = this.kommonitorDataExchangeService?.availableSpatialUnits || [];
     }
     // reset DS param cache on type change
     this.datasourceTypeParameters = {};
@@ -733,6 +740,23 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
 
   async buildDatasourceTypeDefinition(): Promise<any> {
     try {
+      // Prefer robust Angular-native handling for FILE uploads (like Add modal)
+      if (this.datasourceType?.type === 'FILE') {
+        const inputEl = this.spatialUnitDataSourceInput?.nativeElement as HTMLInputElement | undefined;
+        const file = inputEl?.files?.[0];
+        if (!file) {
+          console.warn('[EditFeatures] buildDatasourceTypeDefinition - no file selected');
+          return null;
+        }
+        const uploadedName = await this.kommonitorImporterHelperService.uploadNewFile(file, file.name);
+        return {
+          type: 'FILE',
+          parameters: [
+            { name: 'NAME', value: uploadedName }
+          ]
+        };
+      }
+
       const formValues: { [key: string]: string } = { ...this.datasourceTypeParameters } as any;
       if (this.datasourceType && this.datasourceType.type === 'OGCAPI_FEATURES') {
         if (this.bboxType) {
@@ -785,13 +809,131 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
   }
 
   async editSpatialUnitFeatures(): Promise<void> {
+    console.log('[EditFeatures] editSpatialUnitFeatures - start', {
+      currentSpatialUnitId: this.currentSpatialUnitDataset?.spatialUnitId,
+      converter: this.converter?.name,
+      schema: this.schema,
+      mimeType: this.mimeType,
+      datasourceType: this.datasourceType?.type,
+      idProperty: this.spatialUnitDataSourceIdProperty,
+      nameProperty: this.spatialUnitDataSourceNameProperty,
+      periodStart: this.periodOfValidity?.startDate,
+      periodEnd: this.periodOfValidity?.endDate,
+      periodInvalid: this.periodOfValidityInvalid
+    });
     this.loadingData = true;
     this.importerErrors = [];
     this.successMessagePart = '';
     this.errorMessagePart = '';
 
+    // Pre-validate like legacy component (show precise issues)
+    const missing: string[] = [];
+    if (!this.converter) {
+      missing.push('Konverter');
+    } else {
+      if (Array.isArray(this.converter.schemas) && this.converter.schemas.length > 0 && !this.schema) {
+        missing.push('Schema');
+      }
+      if (Array.isArray(this.converter.mimeTypes) && this.converter.mimeTypes.length > 0 && !this.mimeType) {
+        missing.push('Quellformat');
+      }
+      if (Array.isArray(this.converter.parameters) && this.converter.parameters.length > 0) {
+        for (const p of this.converter.parameters) {
+          if (p.mandatory && (!this.converterParameters || !this.converterParameters[p.name])) {
+            missing.push(`Konverter-Parameter '${p.name}'`);
+          }
+        }
+      }
+    }
+
+    if (!this.datasourceType) {
+      missing.push('Datenquelltyp');
+    } else if (this.datasourceType.type === 'FILE') {
+      let hasFile = this.fileSelected;
+      const fileInputEl = this.spatialUnitDataSourceInput?.nativeElement as HTMLInputElement | undefined;
+      if (!hasFile && fileInputEl && fileInputEl.files && fileInputEl.files.length > 0) {
+        hasFile = true;
+      }
+      if (!hasFile) {
+        const fallbackEl = document.getElementById('spatialUnitDataSourceInput_editFeatures') as HTMLInputElement | null;
+        if (fallbackEl && fallbackEl.files && fallbackEl.files.length > 0) {
+          hasFile = true;
+        }
+      }
+      console.log('[EditFeatures] FILE datasource - fileSelected status', {
+        fileSelectedFlag: this.fileSelected,
+        viewChildHasFile: !!(fileInputEl && fileInputEl.files && fileInputEl.files.length > 0),
+        domIdHasFile: !!((document.getElementById('spatialUnitDataSourceInput_editFeatures') as HTMLInputElement | null)?.files?.length)
+      });
+      if (!hasFile) {
+        missing.push('Datei');
+      }
+    } else if (this.datasourceType.type === 'OGCAPI_FEATURES') {
+      if (!this.bboxType) {
+        missing.push('Räumlicher Filter');
+      } else if (this.bboxType === 'ref' && !this.bboxRefSpatialUnitLevel) {
+        missing.push('Referenzraumebene für Begrenzungsrahmen');
+      } else if (this.bboxType === 'literal') {
+        if (this.bbox_minx === null || this.bbox_miny === null || this.bbox_maxx === null || this.bbox_maxy === null) {
+          missing.push('Begrenzungsrahmen (minx, miny, maxx, maxy)');
+        }
+      }
+      console.log('[EditFeatures] OGCAPI_FEATURES params', {
+        bboxType: this.bboxType,
+        bboxRefSpatialUnitLevel: this.bboxRefSpatialUnitLevel,
+        bbox: [this.bbox_minx, this.bbox_miny, this.bbox_maxx, this.bbox_maxy]
+      });
+      // Other datasourceType parameters
+      if (Array.isArray(this.datasourceType.parameters) && this.datasourceType.parameters.length > 0) {
+        for (const p of this.datasourceType.parameters) {
+          if (p.name === 'bbox') { continue; }
+          const v = this.datasourceTypeParameters ? this.datasourceTypeParameters[p.name] : undefined;
+          if (p.mandatory && (v === undefined || v === null || v === '')) {
+            missing.push(`Datenquelle-Parameter '${p.name}'`);
+          }
+        }
+      }
+    } else {
+      // Generic datasourceType params
+      if (Array.isArray(this.datasourceType.parameters) && this.datasourceType.parameters.length > 0) {
+        for (const p of this.datasourceType.parameters) {
+          const v = this.datasourceTypeParameters ? this.datasourceTypeParameters[p.name] : undefined;
+          if (p.mandatory && (v === undefined || v === null || v === '')) {
+            missing.push(`Datenquelle-Parameter '${p.name}'`);
+          }
+        }
+      }
+    }
+
+    if (!this.spatialUnitDataSourceIdProperty) {
+      missing.push('ID Attributname');
+    }
+    if (!this.spatialUnitDataSourceNameProperty) {
+      missing.push('NAME Attributname');
+    }
+    if (!this.periodOfValidity.startDate) {
+      missing.push("Gültig seit (Periodenbeginn)");
+    }
+    if (this.periodOfValidityInvalid) {
+      missing.push('Gültigkeitszeitraum ist ungültig');
+    }
+
+    if (missing.length > 0) {
+      console.warn('[EditFeatures] Validation failed - missing fields', missing);
+      this.loadingData = false;
+      this.errorMessage = `Bitte füllen Sie alle Pflichtfelder in Schritt 2 aus. Fehlend: ${missing.join(', ')}.`;
+      this.showErrorAlert();
+      return;
+    }
+
     const allDataSpecified = await this.buildImporterObjects();
     if (!allDataSpecified) {
+      console.warn('[EditFeatures] buildImporterObjects returned false', {
+        converterDefinition: !!this.converterDefinition,
+        datasourceTypeDefinition: !!this.datasourceTypeDefinition,
+        propertyMappingDefinition: !!this.propertyMappingDefinition,
+        putBody_spatialUnits: !!this.putBody_spatialUnits
+      });
       this.loadingData = false;
       this.errorMessage = 'Bitte füllen Sie alle Pflichtfelder in Schritt 2 aus.';
       this.showErrorAlert();
@@ -799,6 +941,13 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
     }
 
     try {
+      console.log('[EditFeatures] Dry-run updateSpatialUnit POST about to fire', {
+        spatialUnitId: this.currentSpatialUnitDataset.spatialUnitId,
+        converterDefinition: this.converterDefinition?.name,
+        datasourceTypeDefinition: this.datasourceTypeDefinition?.type,
+        hasPropertyMapping: !!this.propertyMappingDefinition,
+        putBody: this.putBody_spatialUnits
+      });
       const updateSpatialUnitResponse_dryRun = await this.kommonitorImporterHelperService?.updateSpatialUnit(
         this.converterDefinition, 
         this.datasourceTypeDefinition, 
@@ -809,6 +958,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
       );
 
       if (!this.kommonitorImporterHelperService?.importerResponseContainsErrors(updateSpatialUnitResponse_dryRun)) {
+        console.log('[EditFeatures] Dry-run successful, firing real POST');
         const updateSpatialUnitResponse = await this.kommonitorImporterHelperService?.updateSpatialUnit(
           this.converterDefinition, 
           this.datasourceTypeDefinition, 
@@ -823,15 +973,27 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
         this.showSuccessAlert();
         this.loadingData = false;
       } else {
+        console.warn('[EditFeatures] Dry-run returned errors', updateSpatialUnitResponse_dryRun);
         this.errorMessagePart = "Einige der zu importierenden Features des Datensatzes weisen kritische Fehler auf";
         this.importerErrors = this.kommonitorImporterHelperService?.getErrorsFromImporterResponse(updateSpatialUnitResponse_dryRun) || [];
         this.showErrorAlert();
         this.loadingData = false;
       }
     } catch (error) {
+      console.error('[EditFeatures] Exception during POST', error);
       this.handleError(error);
       this.loadingData = false;
     }
+  }
+
+  onFileSelected(event: any): void {
+    const input = event?.target as HTMLInputElement;
+    if (input && input.files && input.files.length > 0) {
+      console.log('[EditFeatures] onFileSelected', { name: input.files[0].name, size: input.files[0].size });
+    } else {
+      console.log('[EditFeatures] onFileSelected - no file');
+    }
+    this.fileSelected = !!(input && input.files && input.files.length > 0);
   }
 
   // Import/Export functionality

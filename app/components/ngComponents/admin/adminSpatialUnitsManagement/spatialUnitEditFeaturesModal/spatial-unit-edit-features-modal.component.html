@@ -199,7 +199,7 @@
                 <div *ngIf="datasourceType?.type === 'FILE'">
                   <label>Datei*</label>
                   <input #spatialUnitDataSourceInput type="file" class="form-control" 
-                         id="spatialUnitDataSourceInput_editFeatures" required>
+                         id="spatialUnitDataSourceInput_editFeatures" required (change)="onFileSelected($event)">
                 </div>
 
                 <div *ngIf="datasourceType?.type === 'OGCAPI_FEATURES'">
