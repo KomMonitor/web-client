@@ -12,32 +12,7 @@
     </div>
   </div>
 
-  <!-- Success Alert -->
-  <div *ngIf="successMessage" class="alert alert-success alert-dismissable">
-    <button type="button" class="close" (click)="hideSuccessAlert()" aria-hidden="true">&times;</button>
-    <h4><i class="icon fa fa-check"></i>Erfolg!</h4>
-    {{ successMessage }}
-  </div>
-
-  <!-- Error Alert -->
-  <div *ngIf="errorMessage || errorMessagePart" class="alert alert-danger alert-dismissable">
-    <button type="button" class="close" (click)="hideErrorAlert()" aria-hidden="true">&times;</button>
-    <h4><i class="icon fa fa-ban"></i>Fehler!</h4>
-    {{ errorMessage }}
-    <div *ngIf="errorMessagePart" [innerHTML]="errorMessagePart"></div>
-    <div *ngIf="importerErrors && importerErrors.length > 0">
-      <ul>
-        <li *ngFor="let error of importerErrors">{{ error }}</li>
-      </ul>
-    </div>
-  </div>
-
-  <!-- Mapping Config Import Error Alert -->
-  <div *ngIf="spatialUnitMappingConfigImportError" class="alert alert-danger alert-dismissable">
-    <button type="button" class="close" (click)="hideMappingConfigErrorAlert()" aria-hidden="true">&times;</button>
-    <h4><i class="icon fa fa-ban"></i>Mapping-Konfiguration Fehler!</h4>
-    {{ spatialUnitMappingConfigImportError }}
-  </div>
+  
 
   <!-- MultiStep Form -->
   <div class="row">
@@ -553,3 +528,45 @@
     <i class="fas fa-undo"></i>&nbsp;Zurücksetzen
   </button>
 </div> 
+
+<!-- Success Alert -->
+<div id="spatialUnitEditFeaturesSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" 
+  *ngIf="successMessage" 
+  class="alert alert-success alert-dismissable">
+  <button type="button" class="close" (click)="hideSuccessAlert()" aria-hidden="true">&times;</button>
+  <h4><i class="icon fa fa-check"></i>Erfolg!</h4>
+  {{ successMessage }}
+  <div *ngIf="successMessagePart">
+    <p>Raumebene: {{successMessagePart}}</p>
+  </div>
+</div>
+
+<!-- Error Alert -->
+<div id="spatialUnitEditFeaturesErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" 
+  *ngIf="errorMessage || errorMessagePart" 
+  class="alert alert-danger alert-dismissable">
+  <button type="button" class="close" (click)="hideErrorAlert()" aria-hidden="true">&times;</button>
+  <h4><i class="icon fa fa-ban"></i>Fehler!</h4>
+  {{ errorMessage }}
+  <br/>
+  <pre style="overflow:auto; max-height:500px;" [innerHTML]="errorMessagePart"></pre>
+  <br/>
+  <div *ngIf="importerErrors && importerErrors.length > 0">
+    <p>Bei den {{importerErrors.length}} Raumeinheiten mit folgenden IDs scheitert der Import:</p>
+    <pre style="overflow:auto; max-height:500px;">
+      <ul>
+        <li *ngFor="let error of importerErrors">{{error}}</li>
+      </ul>
+    </pre>
+    <p>Bitte beheben Sie die angezeigten Fehler im Datensatz und wiederholen den Prozess.</p>
+  </div>
+</div>
+
+<!-- Mapping Config Import Error Alert -->
+<div id="spatialUnitEditFeaturesMappingConfigErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" 
+  *ngIf="spatialUnitMappingConfigImportError" 
+  class="alert alert-danger alert-dismissable">
+  <button type="button" class="close" (click)="hideMappingConfigErrorAlert()" aria-hidden="true">&times;</button>
+  <h4><i class="icon fa fa-ban"></i>Mapping-Konfiguration Fehler!</h4>
+  <pre [innerHTML]="spatialUnitMappingConfigImportError"></pre>
+</div>

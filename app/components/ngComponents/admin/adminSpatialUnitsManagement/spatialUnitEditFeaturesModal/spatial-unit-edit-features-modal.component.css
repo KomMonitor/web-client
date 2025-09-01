@@ -116,7 +116,6 @@
 }
 
 .modal-header .modal-title {
-  font-size: 1.25rem;
   font-weight: 500;
   color: #343a40;
 }
@@ -156,7 +155,6 @@
   display: block;
   width: 100%;
   padding: 0.5rem 0.75rem;
-  font-size: 1rem;
   line-height: 1.5;
   color: #495057;
   background-color: #fff;
@@ -251,12 +249,12 @@
 fieldset {
   border: none;
   margin: 0;
-  padding: 0;
+  padding: 1rem 3.5rem;
   min-width: 0;
 }
 
 .fs-title {
-  font-size: 1.5rem;
+  font-size: 18px;
   font-weight: 500;
   color: #343a40;
   margin-bottom: 0.5rem;
