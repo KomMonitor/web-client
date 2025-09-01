@@ -520,6 +520,8 @@
                 class="form-control"
                 [placeholder]="parameter.name" 
                 [required]="parameter.mandatory"
+                [(ngModel)]="converterParameterValues[parameter.name]"
+                [name]="'converterParam_' + parameter.name"
               >
               <div class="help-block">
                 <p>{{parameter.description}}</p>
@@ -583,19 +585,19 @@
               </div>
               <div *ngIf="bboxType === 'literal'">
                 <label>Begrenzungsrahmen*</label>
-                <input id="datasourceTypeParameter_spatialUnitAdd_bbox_minx" class="form-control" type="number" lang="us" placeholder="-180" required>
+                <input id="datasourceTypeParameter_spatialUnitAdd_bbox_minx" class="form-control" type="number" lang="us" placeholder="-180" required [(ngModel)]="bbox_minx" name="bbox_minx">
                 <div class="help-block">
                   <p>Minimale x-Koordinate</p>
                 </div>
-                <input id="datasourceTypeParameter_spatialUnitAdd_bbox_miny" class="form-control" type="number" lang="us" placeholder="-90" required>
+                <input id="datasourceTypeParameter_spatialUnitAdd_bbox_miny" class="form-control" type="number" lang="us" placeholder="-90" required [(ngModel)]="bbox_miny" name="bbox_miny">
                 <div class="help-block">
                   <p>Minimale y-Koordinate</p>
                 </div>
-                <input id="datasourceTypeParameter_spatialUnitAdd_bbox_maxx" class="form-control" type="number" lang="us" placeholder="180" required>
+                <input id="datasourceTypeParameter_spatialUnitAdd_bbox_maxx" class="form-control" type="number" lang="us" placeholder="180" required [(ngModel)]="bbox_maxx" name="bbox_maxx">
                 <div class="help-block">
                   <p>Maximale x-Koordinate</p>
                 </div>
-                <input id="datasourceTypeParameter_spatialUnitAdd_bbox_maxy" class="form-control" type="number" lang="us" placeholder="90" required>
+                <input id="datasourceTypeParameter_spatialUnitAdd_bbox_maxy" class="form-control" type="number" lang="us" placeholder="90" required [(ngModel)]="bbox_maxy" name="bbox_maxy">
                 <div class="help-block">
                   <p>Maximale y-Koordinate</p>
                 </div>
@@ -612,6 +614,8 @@
                     class="form-control" 
                     [placeholder]="parameter.name" 
                     [required]="parameter.mandatory"
+                    [(ngModel)]="datasourceTypeParameterValues[parameter.name]"
+                    [name]="'datasourceParam_' + parameter.name"
                   ></textarea>
                   <div class="help-block">
                     <p>{{parameter.description}}</p>

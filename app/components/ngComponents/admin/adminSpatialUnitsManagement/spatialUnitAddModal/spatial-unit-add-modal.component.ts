@@ -160,6 +160,10 @@ export class SpatialUnitAddModalComponent implements OnInit {
   // Bbox parameters for OGCAPI_FEATURES
   bboxType: string = '';
   bboxRefSpatialUnit: any = null;
+  bbox_minx: any = null;
+  bbox_miny: any = null;
+  bbox_maxx: any = null;
+  bbox_maxy: any = null;
 
   // Attribute mapping
   attributeMapping_sourceAttributeName = '';
@@ -168,6 +172,10 @@ export class SpatialUnitAddModalComponent implements OnInit {
   attributeMappings_adminView: any[] = [];
   keepAttributes = true;
   keepMissingValues = true;
+
+  // Persisted parameter values for converter and datasource type
+  converterParameterValues: { [key: string]: string } = {};
+  datasourceTypeParameterValues: { [key: string]: string } = {};
 
   // Validity dates per feature
   validityStartDate_perFeature = '';
@@ -614,6 +622,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
   onChangeConverter(schema?: any) {
     this.schema = this.converter.schemas ? this.converter.schemas[0] : undefined;
     this.mimeType = this.converter.mimeTypes ? this.converter.mimeTypes[0] : undefined;
+    this.converterParameterValues = {};
   }
 
   onChangeMimeType(mimeType: any) {
@@ -628,6 +637,11 @@ export class SpatialUnitAddModalComponent implements OnInit {
     this.spatialUnitDataSourceNameProperty = '';
     this.bboxType = '';
     this.bboxRefSpatialUnit = null;
+    this.bbox_minx = null;
+    this.bbox_miny = null;
+    this.bbox_maxx = null;
+    this.bbox_maxy = null;
+    this.datasourceTypeParameterValues = {};
   }
 
   onChangeOutlineDashArray(outlineDashArrayObject: any) {
@@ -825,7 +839,8 @@ export class SpatialUnitAddModalComponent implements OnInit {
       this.converter, 
       "converterParameter_spatialUnitAdd_", 
       this.schema, 
-      this.mimeType
+      this.mimeType,
+      this.converterParameterValues
     );
     
     return result;
@@ -849,10 +864,21 @@ export class SpatialUnitAddModalComponent implements OnInit {
         };
       }
 
+      const formValues: { [key: string]: string } = {
+        ...this.datasourceTypeParameterValues,
+        bboxType: this.bboxType as any,
+        bboxRef: this.bboxRefSpatialUnit as any,
+        bbox_minx: this.bbox_minx as any,
+        bbox_miny: this.bbox_miny as any,
+        bbox_maxx: this.bbox_maxx as any,
+        bbox_maxy: this.bbox_maxy as any
+      } as any;
+
       const result = await this.kommonitorImporterHelperService.buildDatasourceTypeDefinition(
         this.datasourceType,
         'datasourceTypeParameter_spatialUnitAdd_',
-        'spatialUnitDataSourceInput'
+        'spatialUnitDataSourceInput',
+        formValues
       );
 
       return result;
@@ -1263,6 +1289,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
           if (el) {
             el.value = convParameter.value ?? '';
           }
+          this.converterParameterValues[convParameter.name] = convParameter.value ?? '';
         }
       }
     }, 0);
@@ -1273,6 +1300,33 @@ export class SpatialUnitAddModalComponent implements OnInit {
       if (datasourceType.type === this.mappingConfigImportSettings.dataSource.type) {
         this.datasourceType = datasourceType;
         break;
+      }
+    }
+
+    // Populate datasource type params and bbox
+    this.datasourceTypeParameterValues = {};
+    const dsParams = this.mappingConfigImportSettings?.dataSource?.parameters || [];
+    const bboxTypeParam = dsParams.find((p: any) => p.name === 'bboxType');
+    if (bboxTypeParam) {
+      this.bboxType = bboxTypeParam.value || '';
+    }
+    const bboxParam = dsParams.find((p: any) => p.name === 'bbox');
+    if (bboxParam && typeof bboxParam.value === 'string') {
+      if (this.bboxType === 'ref') {
+        this.bboxRefSpatialUnit = bboxParam.value;
+      } else {
+        const parts = bboxParam.value.split(',');
+        if (parts.length === 4) {
+          this.bbox_minx = parts[0];
+          this.bbox_miny = parts[1];
+          this.bbox_maxx = parts[2];
+          this.bbox_maxy = parts[3];
+        }
+      }
+    }
+    for (const p of dsParams) {
+      if (p.name !== 'bbox' && p.name !== 'bboxType') {
+        this.datasourceTypeParameterValues[p.name] = p.value ?? '';
       }
     }
 
@@ -1444,6 +1498,14 @@ export class SpatialUnitAddModalComponent implements OnInit {
     this.spatialUnitDataSourceNameProperty = '';
     this.validityStartDate_perFeature = '';
     this.validityEndDate_perFeature = '';
+    this.converterParameterValues = {};
+    this.datasourceTypeParameterValues = {};
+    this.bboxType = '';
+    this.bboxRefSpatialUnit = null;
+    this.bbox_minx = null;
+    this.bbox_miny = null;
+    this.bbox_maxx = null;
+    this.bbox_maxy = null;
     this.attributeMapping_sourceAttributeName = '';
     this.attributeMapping_destinationAttributeName = '';
     this.attributeMappings_adminView = [];

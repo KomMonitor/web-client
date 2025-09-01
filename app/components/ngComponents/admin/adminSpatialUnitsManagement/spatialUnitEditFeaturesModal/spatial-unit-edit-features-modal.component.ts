@@ -100,6 +100,10 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
   bboxType: string = '';
   bboxRefSpatialUnit: any = null;
   bboxRefSpatialUnitLevel: string = '';
+  bbox_minx: any = null;
+  bbox_miny: any = null;
+  bbox_maxx: any = null;
+  bbox_maxy: any = null;
 
   // Feature table settings
   enableDeleteFeatures = false;
@@ -121,6 +125,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
 
   // Persisted converter parameter values (e.g., CRS)
   public converterParameters: { [key: string]: any } = {};
+  public datasourceTypeParameters: { [key: string]: any } = {};
 
   // compare functions for selects to keep selection across renders
   public compareConverter = (a: any, b: any) => a && b ? a.name === b.name : a === b;
@@ -406,6 +411,11 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
       this.availableSpatialUnits = this.kommonitorDataExchangeService?.availableSpatialUnits_map ? 
         [...this.kommonitorDataExchangeService.availableSpatialUnits_map.values()] : [];
     }
+    // reset DS param cache on type change
+    this.datasourceTypeParameters = {};
+    this.bboxType = '';
+    this.bboxRefSpatialUnitLevel = '';
+    this.bbox_minx = this.bbox_miny = this.bbox_maxx = this.bbox_maxy = null;
   }
 
   refreshSpatialUnitEditFeaturesOverviewTable(): void {
@@ -582,12 +592,17 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
 
   async buildDatasourceTypeDefinition(): Promise<any> {
     try {
-      const formValues: { [key: string]: string } = {};
+      const formValues: { [key: string]: string } = { ...this.datasourceTypeParameters } as any;
       if (this.datasourceType && this.datasourceType.type === 'OGCAPI_FEATURES') {
         if (this.bboxType) {
           formValues['bboxType'] = this.bboxType;
           if (this.bboxType === 'ref' && this.bboxRefSpatialUnitLevel) {
             formValues['bboxRef'] = this.bboxRefSpatialUnitLevel;
+          } else if (this.bboxType === 'literal') {
+            formValues['bbox_minx'] = this.bbox_minx as any;
+            formValues['bbox_miny'] = this.bbox_miny as any;
+            formValues['bbox_maxx'] = this.bbox_maxx as any;
+            formValues['bbox_maxy'] = this.bbox_maxy as any;
           }
         }
       }
@@ -788,21 +803,24 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
         if (parts.length === 4 && parts.every((p: string) => p !== '')) {
           // literal bbox
           this.bboxType = 'literal';
-          setTimeout(() => {
-            const setVal = (id: string, v: string) => {
-              const el = document.getElementById(id) as HTMLInputElement;
-              if (el) { el.value = v; }
-            };
-            setVal('datasourceTypeParameter_spatialUnitEditFeatures_bbox_minx', parts[0]);
-            setVal('datasourceTypeParameter_spatialUnitEditFeatures_bbox_miny', parts[1]);
-            setVal('datasourceTypeParameter_spatialUnitEditFeatures_bbox_maxx', parts[2]);
-            setVal('datasourceTypeParameter_spatialUnitEditFeatures_bbox_maxy', parts[3]);
-          }, 0);
+          this.bbox_minx = parts[0];
+          this.bbox_miny = parts[1];
+          this.bbox_maxx = parts[2];
+          this.bbox_maxy = parts[3];
         } else {
           // ref bbox (value is spatial unit level)
           this.bboxType = 'ref';
           this.bboxRefSpatialUnitLevel = value;
         }
+      }
+    }
+
+    // Populate datasource type generic parameters
+    this.datasourceTypeParameters = {};
+    const params = this.mappingConfigImportSettings?.dataSource?.parameters || [];
+    for (const p of params) {
+      if (p?.name && p.name !== 'bbox' && p.name !== 'bboxType') {
+        this.datasourceTypeParameters[p.name] = p.value;
       }
     }
   }

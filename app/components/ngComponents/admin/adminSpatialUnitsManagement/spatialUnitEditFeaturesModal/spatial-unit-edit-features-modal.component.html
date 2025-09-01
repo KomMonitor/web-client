@@ -249,13 +249,13 @@
 
                   <div *ngIf="bboxType === 'literal'">
                     <label>Begrenzungsrahmen*</label>
-                    <input type="number" class="form-control" id="datasourceTypeParameter_spatialUnitEditFeatures_bbox_minx" placeholder="-180" required>
+                    <input type="number" class="form-control" id="datasourceTypeParameter_spatialUnitEditFeatures_bbox_minx" placeholder="-180" required [(ngModel)]="bbox_minx" name="bbox_minx">
                     <div class="help-block"><p>Minimale x-Koordinate</p></div>
-                    <input type="number" class="form-control" id="datasourceTypeParameter_spatialUnitEditFeatures_bbox_miny" placeholder="-90" required>
+                    <input type="number" class="form-control" id="datasourceTypeParameter_spatialUnitEditFeatures_bbox_miny" placeholder="-90" required [(ngModel)]="bbox_miny" name="bbox_miny">
                     <div class="help-block"><p>Minimale y-Koordinate</p></div>
-                    <input type="number" class="form-control" id="datasourceTypeParameter_spatialUnitEditFeatures_bbox_maxx" placeholder="180" required>
+                    <input type="number" class="form-control" id="datasourceTypeParameter_spatialUnitEditFeatures_bbox_maxx" placeholder="180" required [(ngModel)]="bbox_maxx" name="bbox_maxx">
                     <div class="help-block"><p>Maximale x-Koordinate</p></div>
-                    <input type="number" class="form-control" id="datasourceTypeParameter_spatialUnitEditFeatures_bbox_maxy" placeholder="90" required>
+                    <input type="number" class="form-control" id="datasourceTypeParameter_spatialUnitEditFeatures_bbox_maxy" placeholder="90" required [(ngModel)]="bbox_maxy" name="bbox_maxy">
                     <div class="help-block"><p>Maximale y-Koordinate</p></div>
                   </div>
                 </div>
@@ -268,7 +268,8 @@
                               [id]="'datasourceTypeParameter_spatialUnitEditFeatures_' + parameter.name"
                               [placeholder]="parameter.name" 
                               [required]="parameter.mandatory"
-                              [name]="'datasourceTypeParameter_spatialUnitEditFeatures_' + parameter.name"></textarea>
+                              [name]="'datasourceTypeParameter_spatialUnitEditFeatures_' + parameter.name"
+                              [(ngModel)]="datasourceTypeParameters[parameter.name]"></textarea>
                     <div class="help-block">
                       <p>{{ parameter.description }}</p>
                     </div>
