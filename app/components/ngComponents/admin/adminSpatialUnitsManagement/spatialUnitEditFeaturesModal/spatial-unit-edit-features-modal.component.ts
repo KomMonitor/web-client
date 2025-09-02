@@ -1,5 +1,5 @@
-import { Component, OnInit, OnDestroy, Inject, ViewChild, ElementRef, Injectable } from '@angular/core';
-import { NgbActiveModal, NgbDatepicker, NgbDateParserFormatter, NgbDateStruct, NgbDateAdapter } from '@ng-bootstrap/ng-bootstrap';
+import { Component, OnInit, OnDestroy, Inject, ViewChild, ElementRef } from '@angular/core';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { HttpClient } from '@angular/common/http';
 import { Subscription } from 'rxjs';
@@ -12,89 +12,16 @@ import { ColDef, GridOptions, GridApi, ColumnApi, GridReadyEvent, FirstDataRende
 declare const $: any;
 declare const __env: any;
 
-@Injectable()
-export class NgbDateISOParserFormatter_EditFeatures extends NgbDateParserFormatter {
-  parse(value: string | null): NgbDateStruct | null {
-    if (!value) {
-      return null;
-    }
-    const trimmed = value.trim();
-    const match = /^\d{4}-\d{2}-\d{2}$/.test(trimmed);
-    if (!match) {
-      return null;
-    }
-    const [yStr, mStr, dStr] = trimmed.split('-');
-    const year = Number(yStr);
-    const month = Number(mStr);
-    const day = Number(dStr);
-    if (!year || month < 1 || month > 12 || day < 1 || day > 31) {
-      return null;
-    }
-    const dt = new Date(year, month - 1, day);
-    if (dt.getFullYear() !== year || dt.getMonth() !== month - 1 || dt.getDate() !== day) {
-      return null;
-    }
-    return { year, month, day } as NgbDateStruct;
-  }
-
-  format(date: NgbDateStruct | null): string {
-    if (!date) {
-      return '';
-    }
-    const y = String(date.year).padStart(4, '0');
-    const m = String(date.month).padStart(2, '0');
-    const d = String(date.day).padStart(2, '0');
-    return `${y}-${m}-${d}`;
-  }
-}
-
-@Injectable()
-export class NgbDateStringAdapter_EditFeatures extends NgbDateAdapter<string> {
-  fromModel(value: string | null): NgbDateStruct | null {
-    if (!value) {
-      return null;
-    }
-    const trimmed = value.trim();
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
-      return null;
-    }
-    const [yStr, mStr, dStr] = trimmed.split('-');
-    const year = Number(yStr);
-    const month = Number(mStr);
-    const day = Number(dStr);
-    const dt = new Date(year, month - 1, day);
-    if (dt.getFullYear() !== year || dt.getMonth() !== month - 1 || dt.getDate() !== day) {
-      return null;
-    }
-    return { year, month, day } as NgbDateStruct;
-  }
-
-  toModel(date: NgbDateStruct | null): string | null {
-    if (!date) {
-      return '';
-    }
-    const y = String(date.year).padStart(4, '0');
-    const m = String(date.month).padStart(2, '0');
-    const d = String(date.day).padStart(2, '0');
-    return `${y}-${m}-${d}`;
-  }
-}
-
 @Component({
   selector: 'spatial-unit-edit-features-modal-new',
   templateUrl: './spatial-unit-edit-features-modal.component.html',
-  styleUrls: ['./spatial-unit-edit-features-modal.component.css'],
-  providers: [
-    { provide: NgbDateParserFormatter, useClass: NgbDateISOParserFormatter_EditFeatures },
-    { provide: NgbDateAdapter, useClass: NgbDateStringAdapter_EditFeatures }
-  ]
+  styleUrls: ['./spatial-unit-edit-features-modal.component.css']
 })
 export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy {
   @ViewChild('mappingConfigImportFile', { static: false }) mappingConfigImportFile!: ElementRef;
   @ViewChild('spatialUnitDataSourceInput', { static: false }) spatialUnitDataSourceInput!: ElementRef;
   @ViewChild('spatialUnitFeatureTable', { static: true }) spatialUnitFeatureTable!: AgGridAngular;
-  @ViewChild('d1', { static: false }) datepicker1!: NgbDatepicker;
-  @ViewChild('d2', { static: false }) datepicker2!: NgbDatepicker;
+  // km-date-picker handles its own datepicker internally; no ngb refs needed
 
   // Multi-step form
   currentStep = 1;
