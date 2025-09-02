@@ -10,91 +10,19 @@ import { ColDef, GridOptions, GridApi, ColumnApi } from 'ag-grid-community';
 import { ColorEvent } from 'ngx-color';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
-@Injectable()
-export class NgbDateISOParserFormatter extends NgbDateParserFormatter {
-  parse(value: string | null): NgbDateStruct | null {
-    if (!value) {
-      return null;
-    }
-    const trimmed = value.trim();
-    const match = /^\d{4}-\d{2}-\d{2}$/.test(trimmed);
-    if (!match) {
-      return null;
-    }
-    const [yStr, mStr, dStr] = trimmed.split('-');
-    const year = Number(yStr);
-    const month = Number(mStr);
-    const day = Number(dStr);
-    if (!year || month < 1 || month > 12 || day < 1 || day > 31) {
-      return null;
-    }
-    const dt = new Date(year, month - 1, day);
-    if (dt.getFullYear() !== year || dt.getMonth() !== month - 1 || dt.getDate() !== day) {
-      return null;
-    }
-    return { year, month, day };
-  }
-
-  format(date: NgbDateStruct | null): string {
-    if (!date) {
-      return '';
-    }
-    const y = String(date.year).padStart(4, '0');
-    const m = String(date.month).padStart(2, '0');
-    const d = String(date.day).padStart(2, '0');
-    return `${y}-${m}-${d}`;
-  }
-}
-
-@Injectable()
-export class NgbDateStringAdapter extends NgbDateAdapter<string> {
-  fromModel(value: string | null): NgbDateStruct | null {
-    if (!value) {
-      return null;
-    }
-    const trimmed = value.trim();
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
-      return null;
-    }
-    const [yStr, mStr, dStr] = trimmed.split('-');
-    const year = Number(yStr);
-    const month = Number(mStr);
-    const day = Number(dStr);
-    const dt = new Date(year, month - 1, day);
-    if (dt.getFullYear() !== year || dt.getMonth() !== month - 1 || dt.getDate() !== day) {
-      return null;
-    }
-    return { year, month, day };
-  }
-
-  toModel(date: NgbDateStruct | null): string | null {
-    if (!date) {
-      return '';
-    }
-    const y = String(date.year).padStart(4, '0');
-    const m = String(date.month).padStart(2, '0');
-    const d = String(date.day).padStart(2, '0');
-    return `${y}-${m}-${d}`;
-  }
-}
+// Removed in favor of standalone km-date-picker component providers
 
 @Component({
   selector: 'spatial-unit-add-modal-new',
   templateUrl: './spatial-unit-add-modal.component.html',
-  styleUrls: ['./spatial-unit-add-modal.component.css'],
-  providers: [
-    { provide: NgbDateParserFormatter, useClass: NgbDateISOParserFormatter },
-    { provide: NgbDateAdapter, useClass: NgbDateStringAdapter }
-  ]
+  styleUrls: ['./spatial-unit-add-modal.component.css']
 })
 export class SpatialUnitAddModalComponent implements OnInit {
   @ViewChild('metadataImportFile', { static: false }) metadataImportFile!: ElementRef;
   @ViewChild('mappingConfigImportFile', { static: false }) mappingConfigImportFile!: ElementRef;
   @ViewChild('spatialUnitDataSourceInput', { static: false }) spatialUnitDataSourceInput!: ElementRef;
   @ViewChild('roleManagementGrid', { static: false }) roleManagementGrid!: AgGridAngular;
-  @ViewChild('d', { static: false }) datepicker!: NgbDatepicker;
-  @ViewChild('startDatepicker', { static: false }) startDatepicker!: NgbDatepicker;
-  @ViewChild('endDatepicker', { static: false }) endDatepicker!: NgbDatepicker;
+  // datepickers handled by km-date-picker
   @ViewChild('lastUpdateDatepicker', { static: false }) lastUpdateDatepicker!: NgbDatepicker;
   @ViewChild('outlineDashArrayDropdown', { static: false }) outlineDashArrayDropdown!: ElementRef;
 
@@ -558,14 +486,18 @@ export class SpatialUnitAddModalComponent implements OnInit {
   }
 
   checkPeriodOfValidity() {
-    // Use service method for validation
+    // Normalize to ISO strings first (handles NgbDateStruct or string)
+    const startIso = this.toIsoDateString(this.periodOfValidity.startDate);
+    const endIso = this.toIsoDateString(this.periodOfValidity.endDate);
+
+    // Use service validation (guards optional end)
     const validation = this.kommonitorDataExchangeService.validatePeriodOfValidity(
-      this.periodOfValidity.startDate,
-      this.periodOfValidity.endDate
+      startIso as any,
+      endIso as any
     );
-    
+
     this.periodOfValidityInvalid = !validation.isValid;
-    
+
     if (!validation.isValid && validation.error) {
       console.warn('Period of validity validation error:', validation.error);
     }
@@ -726,62 +658,10 @@ export class SpatialUnitAddModalComponent implements OnInit {
   }
 
   // Date picker methods
-  toggleDatepicker(datepickerRef: any) {
-    // For NgbDatepicker, we need to use a different approach
-    // The datepicker will be controlled by the input field's readonly property
-    // This method can be used to handle any additional logic if needed
-  }
+  // Datepicker toggling handled by km-date-picker
 
   // Ensure valid date or set to today's date on blur
-  private getTodayDateString(): string {
-    const now = new Date();
-    const y = now.getFullYear();
-    const m = String(now.getMonth() + 1).padStart(2, '0');
-    const d = String(now.getDate()).padStart(2, '0');
-    return `${y}-${m}-${d}`;
-  }
-
-  private isValidDateString(value: string): boolean {
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
-      return false;
-    }
-    const [yStr, mStr, dStr] = value.split('-');
-    const y = Number(yStr);
-    const m = Number(mStr);
-    const d = Number(dStr);
-    if (m < 1 || m > 12 || d < 1 || d > 31) {
-      return false;
-    }
-    const dt = new Date(y, m - 1, d);
-    return dt.getFullYear() === y && dt.getMonth() === m - 1 && dt.getDate() === d;
-  }
-
-  private ensureValidDateOrToday(value: any): string {
-    if (!value) {
-      return this.getTodayDateString();
-    }
-    if (typeof value === 'string') {
-      return this.isValidDateString(value) ? value : this.getTodayDateString();
-    }
-    const asIso = this.toIsoDateString(value);
-    return asIso ?? this.getTodayDateString();
-  }
-
-  onLastUpdateBlur() {
-    this.metadata.lastUpdate = this.ensureValidDateOrToday(this.metadata.lastUpdate);
-  }
-
-  onPeriodStartBlur() {
-    this.periodOfValidity.startDate = this.ensureValidDateOrToday(this.periodOfValidity.startDate);
-    this.checkPeriodOfValidity();
-  }
-
-  onPeriodEndBlur() {
-    if (this.periodOfValidity.endDate) {
-      this.periodOfValidity.endDate = this.ensureValidDateOrToday(this.periodOfValidity.endDate);
-    }
-    this.checkPeriodOfValidity();
-  }
+  // Date normalization handled by km-date-picker
 
   // Method to update dropdown button display
   private updateDropdownButtonDisplay() {

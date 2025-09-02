@@ -50,6 +50,7 @@ import { KommonitorFilterComponent } from './components/ngComponents/userInterfa
 import { KommonitorMapComponent } from './components/ngComponents/userInterface/kommonitorMap/kommonitor-map.component';
 import { DualListBoxComponent } from './components/ngComponents/customElements/dual-list-box/dual-list-box.component';
 import { KommonitorBalanceComponent } from './components/ngComponents/userInterface/sidebar/kommonitorBalance/kommonitor-balance.component';
+import { KmDatePickerComponent } from './components/ngComponents/customElements/date-picker/km-date-picker.component';
 import { NouisliderModule } from 'ng2-nouislider';
 import { KommonitorDiagramsComponent } from './components/ngComponents/userInterface/sidebar/kommonitorDiagrams/kommonitor-diagrams.component';
 import { UserInterfaceComponent } from './components/ngComponents/userInterface/user-interface.component';
@@ -122,7 +123,8 @@ declare var MathJax;
     DragDropModule,
     DualListBoxComponent,
     AgGridAngular,
-    ColorSketchModule
+    ColorSketchModule,
+    KmDatePickerComponent
   ],
   providers:[
     {provide: LocationStrategy, useClass: HashLocationStrategy},

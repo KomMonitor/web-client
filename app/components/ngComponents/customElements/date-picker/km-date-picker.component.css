@@ -1,0 +1,10 @@
+.km-date-picker .input-group {
+  width: 100%;
+}
+
+.km-date-picker .btn + .btn {
+  margin-left: 4px;
+}
+
+
+

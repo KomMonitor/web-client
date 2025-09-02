@@ -1038,13 +1038,20 @@ export class KommonitorDataExchangeService implements OnDestroy {
       return { isValid: true }; // Both dates are optional
     }
 
-    const start = new Date(startDate);
-    const end = new Date(endDate);
+    const start = new Date(startDate as any);
+    const end = new Date(endDate as any);
 
-    if (start === end || start > end) {
-      return { 
-        isValid: false, 
-        error: 'Start date must be before end date and they cannot be the same' 
+    // If either date is invalid, do not block submission here
+    const startTime = start.getTime();
+    const endTime = end.getTime();
+    if (isNaN(startTime) || isNaN(endTime)) {
+      return { isValid: true };
+    }
+
+    if (startTime >= endTime) {
+      return {
+        isValid: false,
+        error: 'Start date must be before end date and they cannot be the same'
       };
     }
 
