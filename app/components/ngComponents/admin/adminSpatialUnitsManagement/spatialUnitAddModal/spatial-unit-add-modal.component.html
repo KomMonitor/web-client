@@ -119,39 +119,7 @@
           <div class="form-group" align="center">
             <label>Linienfarbe (Umringslayer)</label>
             
-            <!-- Color picker button -->
-            <div class="color-picker-container">
-              <button 
-                type="button"
-                class="color-picker-button"
-                (click)="toggleColorPicker($event)"
-                [style.background-color]="outlineColor"
-                [style.border-color]="outlineColor"
-                style="width: 100px; height: 35px; border: 2px solid;"
-                title="Click to change color"
-              >
-                <span class="color-display-text">
-                  {{outlineColor}}
-                </span>
-              </button>
-              
-              <!-- ngx-color sketch picker -->
-              <div *ngIf="showColorPicker" class="color-picker-overlay" (click)="onColorPickerContainerClick($event)">
-                <color-sketch 
-                  [color]="outlineColor"
-                  (onChange)="onColorChange($event)"
-                  (onChangeComplete)="onColorChangeComplete($event)"
-                  [disableAlpha]="true"
-                  [width]="200">
-                </color-sketch>
-              </div>
-              
-              <!-- Click outside overlay to close color picker -->
-              <div *ngIf="showColorPicker" 
-                   class="color-picker-backdrop" 
-                   (click)="closeColorPicker($event)">
-              </div>
-            </div>
+            <km-color-picker [(color)]="outlineColor" label="Linienfarbe wählen"></km-color-picker>
             
             <div class="help-block with-errors"></div>
           </div>

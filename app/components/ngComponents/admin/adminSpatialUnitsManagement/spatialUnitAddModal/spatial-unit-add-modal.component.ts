@@ -8,6 +8,7 @@ import { KommonitorDataExchangeService } from '../../../../../services/adminSpat
 import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef, GridOptions, GridApi, ColumnApi } from 'ag-grid-community';
 import { ColorEvent } from 'ngx-color';
+import { KmColorPickerComponent } from '../../../customElements/color-picker/km-color-picker.component';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 // Removed in favor of standalone km-date-picker component providers
@@ -155,8 +156,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
   // Role form visibility
   showRoleForm = false;
 
-  // Color picker properties
-  showColorPicker = false;
+  // Color picker handled by km-color-picker
 
   // Dropdown state for outline dash array (Angular-native toggle)
   showOutlineDashArrayDropdown = false;
@@ -620,42 +620,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
     this.closeOutlineDashArrayDropdown();
   }
 
-  // Color picker methods for ngx-color
-  toggleColorPicker(event?: Event) {
-    if (event) {
-      event.preventDefault();
-      event.stopPropagation();
-    }
-    this.showColorPicker = !this.showColorPicker;
-  }
-
-  onColorChange(event: ColorEvent) {
-    this.outlineColor = event.color.hex;
-  }
-
-  onColorChangeComplete(event: ColorEvent) {
-    this.outlineColor = event.color.hex;
-    // Don't auto-close - let user continue adjusting color
-  }
-
-  closeColorPicker(event?: Event) {
-    if (event) {
-      event.preventDefault();
-      event.stopPropagation();
-    }
-    this.showColorPicker = false;
-  }
-
-  onColorPickerContainerClick(event: Event) {
-    // Prevent propagation to avoid triggering the outside click
-    event.preventDefault();
-    event.stopPropagation();
-  }
-
-  onColorPickerClick() {
-    // Toggle the ngx-color picker
-    this.toggleColorPicker();
-  }
+  // Color picker logic removed; handled by km-color-picker
 
   // Date picker methods
   // Datepicker toggling handled by km-date-picker
