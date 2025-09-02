@@ -30,7 +30,7 @@
 		<b>Zeige IDs</b>
 		&nbsp;
 		<label class="switch">
-			<input type="checkbox" ng-model="showScriptIds"></input>
+			<input type="checkbox" ng-model="showScriptIds" ng-change="initializeOrRefreshOverviewTable(showScriptIds)"></input>
 			<span class="switchslider round"></span>
 		</label>
 

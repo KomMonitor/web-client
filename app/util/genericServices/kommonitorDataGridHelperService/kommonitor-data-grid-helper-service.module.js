@@ -2270,15 +2270,26 @@ angular
 
       // SCRIPT OVERVIEW TABLE
 
-      this.buildDataGridColumnConfig_scripts = function(){
-        const columnDefs = [
-          { headerName: 'Id', field: "scheduleID", pinned: 'left', maxWidth: 125, checkboxSelection: true, headerCheckboxSelection: true, 
-          headerCheckboxSelectionFilteredOnly: true },
-          // { headerName: 'Name', field: "name", pinned: 'left', maxWidth: 300 },  
-          { headerName: 'Ziel-Indikatoren-Id', field: "indicatorId", maxWidth: 125, cellRenderer: function (params) {
-              return params.data.inputs.target_indicator_id;
-            } },
-          { headerName: 'Ziel-Indikatoren-Name', minWidth: 200, cellRenderer: function (params) {
+      this.buildDataGridColumnConfig_scripts = function(showScriptIds){
+
+        let columnDefs = [];
+
+        if(showScriptIds){
+          columnDefs = columnDefs.concat(
+            [
+              { headerName: 'Id', field: "scheduleID", pinned: 'left', maxWidth: 125, checkboxSelection: true, headerCheckboxSelection: true, 
+              headerCheckboxSelectionFilteredOnly: true },
+              // { headerName: 'Name', field: "name", pinned: 'left', maxWidth: 300 },  
+              { headerName: 'Ziel-Indikatoren-Id', field: "indicatorId", maxWidth: 125, cellRenderer: function (params) {
+                  return params.data.inputs.target_indicator_id;
+                } 
+              }
+            ]);
+        }
+
+        columnDefs = columnDefs.concat([
+          
+          { headerName: 'Ziel-Indikatoren-Name', pinned: 'left', minWidth: 200, cellRenderer: function (params) {
               return kommonitorDataExchangeService.getIndicatorNameFromIndicatorId(params.data.inputs.target_indicator_id);
             },
             filter: 'agTextColumnFilter', 
@@ -2310,7 +2321,7 @@ angular
           },
           { headerName: 'Letzte Job-Ausführung', minWidth: 200, cellRenderer: function (params) {
               let latestJobIndex = 0;
-              if (params.data.jobIDs[0].length < 34){ // don't use first job if it has a short id
+              if (params.data.jobIDs && params.data.jobIDs[0] && params.data.jobIDs[0].length < 34){ // don't use first job if it has a short id
                 latestJobIndex = 1;
               }
 
@@ -2331,7 +2342,8 @@ angular
                   default: "Status unbekannt";
                 }
                 document.getElementById("latestJobSummary"+params.data.scheduleID).innerHTML = 
-                  "" + jobDateTime
+                  "" + jobDateTime 
+                  + "<br>"
                   + jobStatus 
                   + "<button class='btn-sm' onclick='onJobTableClicked(`" + params.data.scheduleID + "`)'><i class='fas fa-table'></i></button>";
 
@@ -2377,22 +2389,43 @@ angular
                       </tbody>
                     </table> 
               */
-              if(params.data && params.data.inputs.target_spatial_units && params.data.inputs.target_spatial_units.length > 0){
-                let html = '<table class="table table-condensed table-bordered table-striped"><thead><tr><th>Id</th><th>Name</th></tr></thead><tbody>';
+             if(showScriptIds){
+                if(params.data && params.data.inputs.target_spatial_units && params.data.inputs.target_spatial_units.length > 0){
+                  let html = '<table class="table table-condensed table-bordered table-striped"><thead><tr><th>Id</th><th>Name</th></tr></thead><tbody>';
 
-                for (const spatialUnitId of params.data.inputs.target_spatial_units) {
-                  html += "<tr>";
-                  html += "<td>" + spatialUnitId + "</td>";
-                  html += "<td>" + kommonitorDataExchangeService.getSpatialUnitMetadataById(spatialUnitId).spatialUnitLevel + "</td>";
-                  html += "</tr>";
+                  for (const spatialUnitId of params.data.inputs.target_spatial_units) {
+                    html += "<tr>";
+                    html += "<td>" + spatialUnitId + "</td>";
+                    html += "<td>" + kommonitorDataExchangeService.getSpatialUnitMetadataById(spatialUnitId).spatialUnitLevel + "</td>";
+                    html += "</tr>";
+                  }
+                  
+                  html += "</tbody></table>";
+                  return html;  
                 }
-                
-                html += "</tbody></table>";
-                return html;  
-              }
-              else{
-                return "keine";
-              }
+                else{
+                  return "keine";
+                }
+             }
+             else{
+              // without IDs
+              if(params.data && params.data.inputs.target_spatial_units && params.data.inputs.target_spatial_units.length > 0){
+                  let html = '<table class="table table-condensed table-bordered table-striped"><tbody>';
+
+                  for (const spatialUnitId of params.data.inputs.target_spatial_units) {
+                    html += "<tr>";
+                    html += "<td>" + kommonitorDataExchangeService.getSpatialUnitMetadataById(spatialUnitId).spatialUnitLevel + "</td>";
+                    html += "</tr>";
+                  }
+                  
+                  html += "</tbody></table>";
+                  return html;  
+                }
+                else{
+                  return "keine";
+                }
+             }
+              
               
             },
             filter: 'agTextColumnFilter', 
@@ -2430,7 +2463,8 @@ angular
                       </tbody>
                     </table> 
               */
-              if(params.data && (params.data.inputs.computation_ids || params.data.inputs.computation_id || params.data.inputs.computation_id_numerator || params.data.inputs.computation_id_denominator)){
+             if(showScriptIds){
+                if(params.data && (params.data.inputs.computation_ids || params.data.inputs.computation_id || params.data.inputs.computation_id_numerator || params.data.inputs.computation_id_denominator)){
                 let html = '<table class="table table-condensed table-bordered table-striped"><thead><tr><th>Id</th><th>Name</th></tr></thead><tbody>';
 
                 if(params.data.inputs.computation_ids && params.data.inputs.computation_ids.length > 0){
@@ -2466,6 +2500,43 @@ angular
               else{
                 return "keine";
               }
+             }
+             else{
+              //without IDs
+              if(params.data && (params.data.inputs.computation_ids || params.data.inputs.computation_id || params.data.inputs.computation_id_numerator || params.data.inputs.computation_id_denominator)){
+                let html = '<table class="table table-condensed table-bordered table-striped"><tbody>';
+
+                if(params.data.inputs.computation_ids && params.data.inputs.computation_ids.length > 0){
+                  for (const baseIndicatorId of params.data.inputs.computation_ids) {
+                    html += "<tr>";
+                    html += "<td>" + kommonitorDataExchangeService.getIndicatorNameFromIndicatorId(baseIndicatorId) + "</td>";
+                    html += "</tr>";
+                  }
+                }
+                if(params.data.inputs.computation_id){
+                    html += "<tr>";
+                    html += "<td>" + kommonitorDataExchangeService.getIndicatorNameFromIndicatorId(params.data.inputs.computation_id) + "</td>";
+                    html += "</tr>";
+                }
+                if(params.data.inputs.computation_id_numerator){
+                    html += "<tr>";
+                    html += "<td>" + kommonitorDataExchangeService.getIndicatorNameFromIndicatorId(params.data.inputs.computation_id_numerator) + "</td>";
+                    html += "</tr>";
+                }
+                if(params.data.inputs.computation_id_denominator){
+                    html += "<tr>";
+                    html += "<td>" + kommonitorDataExchangeService.getIndicatorNameFromIndicatorId(params.data.inputs.computation_id_denominator) + "</td>";
+                    html += "</tr>";
+                }                
+                
+                html += "</tbody></table>";
+                return html;  
+              }
+              else{
+                return "keine";
+              }
+             }
+              
               
             },
             filter: 'agTextColumnFilter', 
@@ -2499,6 +2570,8 @@ angular
             }  
           },
           { headerName: 'notwendige Basis-Georessourcen', minWidth: 300, cellRenderer: function (params) {
+
+            if(showScriptIds){
               if(params.data && params.data.inputs.georesource_id ){
                 let html = '<table class="table table-condensed table-bordered table-striped"><thead><tr><th>Id</th><th>Name</th></tr></thead><tbody>';
 
@@ -2524,6 +2597,34 @@ angular
               else{
                 return "keine";
               }
+            }
+            else{
+              // without IDs
+              if(params.data && params.data.inputs.georesource_id ){
+                let html = '<table class="table table-condensed table-bordered table-striped"><tbody>';
+
+                // July 2025 processes api migration
+                // currently existing scripts only require one single georesource
+                // hence we only add one entry to datatable
+                // we might need this snippet in the future though 
+                // for (const baseGeoresourceId of params.data.inputs.georesource_id) {
+                //   html += "<tr>";
+                //   html += "<td>" + kommonitorDataExchangeService.getGeoresourceNameFromGeoresourceId(baseGeoresourceId) + "</td>";
+                //   html += "</tr>";
+                // }
+
+                html += "<tr>";
+                html += "<td>" + kommonitorDataExchangeService.getGeoresourceNameFromGeoresourceId(params.data.inputs.georesource_id) + "</td>";
+                html += "</tr>";
+                
+                html += "</tbody></table>";
+                return html;  
+              }
+              else{
+                return "keine";
+              }
+            }
+
             },
             filter: 'agTextColumnFilter', 
             filterValueGetter: (params) => {
@@ -2542,19 +2643,19 @@ angular
             } 
           }
                     
-        ];
+        ]);
 
         return columnDefs;
       };
 
-      this.buildDataGridRowData_scripts = function(dataArray){
+      this.buildDataGridRowData_scripts = function(dataArray, showScriptIds){
         
         return dataArray;
       };
 
-      this.buildDataGridOptions_scripts = function(scriptsArray){
-          let columnDefs = this.buildDataGridColumnConfig_scripts();
-          let rowData = this.buildDataGridRowData_scripts(scriptsArray);
+      this.buildDataGridOptions_scripts = function(scriptsArray, showScriptIds){
+          let columnDefs = this.buildDataGridColumnConfig_scripts(showScriptIds);
+          let rowData = this.buildDataGridRowData_scripts(scriptsArray, showScriptIds);
   
           let gridOptions = {
             defaultColDef: {
@@ -2607,17 +2708,19 @@ angular
           return gridOptions;        
       };
 
-      this.buildDataGrid_scripts = function (scriptsArray) {
+      this.buildDataGrid_scripts = function (scriptsArray, showScriptIds) {
         
         if (this.dataGridOptions_scripts && this.dataGridOptions_scripts.api && document.querySelector('#scriptOverviewTable').childElementCount > 0) {
 
           this.saveGridStore(this.dataGridOptions_scripts);
-          let newRowData = this.buildDataGridRowData_scripts(scriptsArray);
+          let newRowData = this.buildDataGridRowData_scripts(scriptsArray, showScriptIds);
           this.dataGridOptions_scripts.api.setRowData(newRowData);
+          let columnDefs = this.buildDataGridColumnConfig_scripts(showScriptIds);
+          this.dataGridOptions_scripts.api.setGridOption("columnDefs", columnDefs);
           this.restoreGridStore(this.dataGridOptions_scripts);
         }
         else {
-          this.dataGridOptions_scripts = this.buildDataGridOptions_scripts(scriptsArray);
+          this.dataGridOptions_scripts = this.buildDataGridOptions_scripts(scriptsArray, showScriptIds);
           let gridDiv = document.querySelector('#scriptOverviewTable');
           new agGrid.Grid(gridDiv, this.dataGridOptions_scripts);
         }

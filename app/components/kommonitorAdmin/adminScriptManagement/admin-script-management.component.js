@@ -12,6 +12,8 @@ angular.module('adminScriptManagement').component('adminScriptManagement', {
 		$scope.availableScriptDatasets;
 		$scope.selectAllEntriesInput = false;
 
+		$scope.showScriptIds = false;
+
 		$scope.$on("initialMetadataLoadingCompleted", function (event) {
 
 
@@ -32,7 +34,7 @@ angular.module('adminScriptManagement').component('adminScriptManagement', {
 			$scope.loadingData = true;
 			$scope.availableScriptDatasets = JSON.parse(JSON.stringify(kommonitorDataExchangeService.availableProcessScripts));
 
-			kommonitorDataGridHelperService.buildDataGrid_scripts($scope.availableScriptDatasets);
+			kommonitorDataGridHelperService.buildDataGrid_scripts($scope.availableScriptDatasets, $scope.showScriptIds);
 
 			$scope.loadingData = false;
 		};
