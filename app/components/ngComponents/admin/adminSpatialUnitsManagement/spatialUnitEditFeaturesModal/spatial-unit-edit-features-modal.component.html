@@ -301,34 +301,15 @@
             <div class="col-md-6 col-sm-6 col-xs-12">
               <div class="form-group">
                 <label>Gültigkeitszeitraum: gültig seit*</label>
-                <div class="input-group date-input-group">
-                  <div class="input-group-btn">
-                    <button 
-                      class="btn btn-default date-toggle-btn" 
-                      (click)="d1.toggle()" 
-                      type="button"
-                      title="Kalender öffnen"
-                    >
-                      <i class="far fa-calendar-alt"></i>
-                    </button>
-                  </div>
-                  <div>
-                    <input 
-                      type="text" 
-                      [(ngModel)]="periodOfValidity.startDate" 
-                      name="periodOfValidityStartDate" 
-                      (ngModelChange)="checkPeriodOfValidity()"
-                      class="form-control"
-                      placeholder="YYYY-MM-DD" 
-                      required
-                      inputmode="numeric"
-                      pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}"
-                      ngbDatepicker
-                      #d1="ngbDatepicker"
-                      (blur)="onPeriodStartBlur()"
-                    >
-                  </div>
-                </div>
+                <km-date-picker
+                  name="periodOfValidityStartDate"
+                  placeholder="YYYY-MM-DD"
+                  [(ngModel)]="periodOfValidity.startDate"
+                  (ngModelChange)="checkPeriodOfValidity()"
+                  (valueChange)="checkPeriodOfValidity()"
+                  [invalid]="periodOfValidityInvalid"
+                  [required]="true"
+                ></km-date-picker>
                 <div class="help-block">
                   <p>Eintrag ist immer erforderlich, selbst wenn die räumlichen Raumeinheiten über ein Lebenszeitraum-Attribut verfügen.</p>
                 </div>
@@ -342,33 +323,14 @@
             <div class="col-md-6 col-sm-6 col-xs-12">
               <div class="form-group">
                 <label>Gültigkeitszeitraum: gültig bis</label>
-                <div class="input-group date-input-group">
-                  <div class="input-group-btn">
-                    <button 
-                      class="btn btn-default date-toggle-btn" 
-                      (click)="d2.toggle()" 
-                      type="button"
-                      title="Kalender öffnen"
-                    >
-                      <i class="far fa-calendar-alt"></i>
-                    </button>
-                  </div>
-                  <div>
-                    <input 
-                      type="text" 
-                      [(ngModel)]="periodOfValidity.endDate" 
-                      name="periodOfValidityEndDate" 
-                      (ngModelChange)="checkPeriodOfValidity()"
-                      class="form-control"
-                      placeholder="YYYY-MM-DD"
-                      inputmode="numeric"
-                      pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}"
-                      ngbDatepicker
-                      #d2="ngbDatepicker"
-                      (blur)="onPeriodEndBlur()"
-                    >
-                  </div>
-                </div>
+                <km-date-picker
+                  name="periodOfValidityEndDate"
+                  placeholder="YYYY-MM-DD"
+                  [(ngModel)]="periodOfValidity.endDate"
+                  (ngModelChange)="checkPeriodOfValidity()"
+                  (valueChange)="checkPeriodOfValidity()"
+                  [invalid]="periodOfValidityInvalid"
+                ></km-date-picker>
                 <div class="help-block">
                   <p>Eintrag ist erforderlich, falls die räumlichen Raumeinheiten nicht selbst über ein Lebenszeitraum-Attribut verfügen. Enddatum darf leer sein, um anzuzeigen, dass es sich um aktuell gültige Raumeinheiten handelt.</p>
                 </div>
