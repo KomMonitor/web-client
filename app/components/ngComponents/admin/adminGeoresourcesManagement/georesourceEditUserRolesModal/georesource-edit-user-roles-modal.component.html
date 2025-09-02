@@ -59,6 +59,8 @@
                 id="georesourceEditRoleManagementTable"
                 style="height: 45vh; width: 100%;"
                 class="ag-theme-alpine"
+                [components]="kommonitorDataGridHelperService.getRoleManagementComponents()"
+                [defaultColDef]="roleManagementDefaultColDef"
                 [columnDefs]="roleManagementColumnDefs"
                 [rowData]="roleManagementRowData"
                 [gridOptions]="roleManagementGridOptions"
@@ -80,15 +82,6 @@
         <fieldset [style.display]="currentStep === 2 ? 'block' : 'none'">
           <h2 class="fs-title">Eigentuümerschaft eines Datensatzes</h2>
           <h3 class="fs-subtitle">Übetragen der Eigentuümerschaft von Datensätzen mit allen dazugehörigen Rechten</h3>
-          
-          <!-- Debug information -->
-          <div class="alert alert-info" style="font-size: 12px; margin-bottom: 15px;">
-            <strong>Debug Info:</strong><br>
-            Access Control Data Available: {{getDebugInfo().accessControlDataAvailable}}<br>
-            Admin Permission: {{getDebugInfo().adminPermission}}<br>
-            Access Control Count: {{getDebugInfo().accessControlCount}}<br>
-            Resources Creator Rights Count: {{getDebugInfo().resourcesCreatorRightsCount}}
-          </div>
           
           <div class="alert alert-danger">
             Bitte beachten Sie, dass Sie beim Übertragen einer Eigentuümerschaft einer Resource unter Umständen jegliche Rechte eben dieser verlieren.<br>Die Rechte werden unwiderruflich und sofort an den neuen Eigentümer übertragen.
@@ -123,15 +116,6 @@
               </select>
               <div *ngIf="!accessControlDataAvailable" class="form-control" style="color: #999;">
                 Lade Organisationseinheiten...
-              </div>
-              
-              <!-- Debug information for dropdown -->
-              <div class="alert alert-warning" style="font-size: 11px; margin-top: 10px;">
-                <strong>Dropdown Debug:</strong><br>
-                Filtered Organizations Count: {{getDebugInfo().filteredOrganizationsCount}}<br>
-                Filtered Creator Rights Count: {{getDebugInfo().filteredCreatorRightsCount}}<br>
-                Owner Org Filter: "{{getDebugInfo().ownerOrgFilter}}"<br>
-                Sample Organizations: {{getSampleOrganizations()}}
               </div>
             </div>
             <div class="col-md-3">

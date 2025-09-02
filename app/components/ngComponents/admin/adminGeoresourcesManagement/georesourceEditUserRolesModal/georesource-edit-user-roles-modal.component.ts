@@ -75,7 +75,7 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
     public activeModal: NgbActiveModal,
     public kommonitorDataExchangeService: KommonitorGeoresourceDataExchangeService,
     public kommonitorMultiStepFormHelperService: KommonitorMultiStepFormHelperService,
-    private kommonitorDataGridHelperService: KommonitorGeoresourceDataGridHelperService,
+    public kommonitorDataGridHelperService: KommonitorGeoresourceDataGridHelperService,
     private broadcastService: BroadcastService,
     private http: HttpClient
   ) {}
@@ -747,8 +747,8 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
         'white-space': 'normal !important', 
         'line-height': '20px !important', 
         'word-break': 'break-word !important', 
-        'padding-top': '17px', 
-        'padding-bottom': '17px' 
+        'padding-top': '12px', 
+        'padding-bottom': '12px' 
       },
       headerComponentParams: {
         template:
@@ -794,20 +794,34 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
       },
       onColumnResized: (event) => {
         this.onRoleManagementColumnResized(event);
+      },
+      onRowDataUpdated: (event) => {
+        try {
+          event.api.resetRowHeights();
+        } catch {}
       }
     };
   }
 
   onRoleManagementGridReady(params: GridReadyEvent): void {
     this.roleManagementGridApi = params.api;
+    try {
+      params.api.sizeColumnsToFit();
+      params.api.resetRowHeights();
+    } catch {}
   }
 
   onRoleManagementFirstDataRendered(event: any): void {
-    // Handle first data rendered event
+    try {
+      event.api.resetRowHeights();
+      event.api.sizeColumnsToFit();
+    } catch {}
   }
 
   onRoleManagementColumnResized(event: any): void {
-    // Handle column resized event
+    try {
+      event.api.resetRowHeights();
+    } catch {}
   }
 
   private async loadAccessControlData(): Promise<void> {
@@ -854,24 +868,5 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
   }
 
   // Debug methods for template
-  getDebugInfo(): any {
-    return {
-      accessControlDataAvailable: this.accessControlDataAvailable,
-      adminPermission: this.kommonitorDataExchangeService.checkAdminPermission(),
-      accessControlCount: this.kommonitorDataExchangeService.accessControl?.length || 0,
-      resourcesCreatorRightsCount: this.resourcesCreatorRights?.length || 0,
-      filteredOrganizationsCount: this.getFilteredOrganizations()?.length || 0,
-      filteredCreatorRightsCount: this.getFilteredCreatorRights()?.length || 0,
-      ownerOrgFilter: this.ownerOrgFilter,
-      hasAccessControl: !!this.kommonitorDataExchangeService.accessControl
-    };
-  }
-
-  getSampleOrganizations(): string {
-    const orgs = this.getFilteredOrganizations();
-    if (!orgs || orgs.length === 0) {
-      return 'None';
-    }
-    return orgs.slice(0, 3).map(org => org.name).join(', ');
-  }
+  // (removed)
 } 

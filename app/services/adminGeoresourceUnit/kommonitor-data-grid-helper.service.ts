@@ -1055,17 +1055,41 @@ export class KommonitorGeoresourceDataGridHelperService {
       gridId: gridId,
       rowData: rowData,
       columnDefs: this.buildRoleManagementGridColumnConfig(true), // Use reducedRoleManagement = true
+      components: this.getRoleManagementComponents(),
       defaultColDef: {
         editable: false,
         sortable: true,
         filter: true,
-        resizable: true
+        resizable: true,
+        wrapText: true,
+        autoHeight: true,
+        cellStyle: {
+          'font-size': '12px',
+          'white-space': 'normal',
+          'line-height': '20px',
+          'word-break': 'break-word',
+          'padding-top': '12px',
+          'padding-bottom': '12px'
+        }
       },
       suppressRowClickSelection: true,
       rowSelection: 'multiple',
       enableCellTextSelection: true,
+      ensureDomOrder: true,
       pagination: true,
-      paginationPageSize: 10
+      paginationPageSize: 10,
+      suppressColumnVirtualisation: true,
+      headerHeight: 40,
+      rowHeight: 35,
+      onFirstDataRendered: (params: any) => {
+        try { params.api.resetRowHeights(); } catch {}
+      },
+      onColumnResized: (params: any) => {
+        try { params.api.resetRowHeights(); } catch {}
+      },
+      onRowDataChanged: (params: any) => {
+        try { params.api.resetRowHeights(); } catch {}
+      }
     };
   }
 
@@ -1077,36 +1101,20 @@ export class KommonitorGeoresourceDataGridHelperService {
       return [];
     }
 
-    // Flatten permissions into boolean fields for ag-Grid built-in checkbox renderer
+    // Clone and annotate permissions with isChecked flags based on provided permissionIds
     const data = JSON.parse(JSON.stringify(accessControl));
     
     for (const elem of data) {
       if (elem.name === 'public') {
         elem.name = 'Öffentlicher Zugriff';
       }
-      
-      // Flatten permissions and store permission IDs for later use
-      elem.viewer = false;
-      elem.editor = false;
-      elem.creator = false;
-      elem.viewerPermissionId = null;
-      elem.editorPermissionId = null;
-      elem.creatorPermissionId = null;
-      
+      // Ensure helper flags exist for disable cascading
+      elem._viewerDisabledBecauseOfEditor = false;
+      elem._viewerDisabledBecauseOfCreator = false;
+      elem._editorDisabledBecauseOfCreator = false;
       if (elem.permissions && Array.isArray(elem.permissions)) {
         for (const permission of elem.permissions) {
-          if (permission.permissionLevel === 'viewer') {
-            elem.viewer = permissionIds && permissionIds.includes(permission.permissionId);
-            elem.viewerPermissionId = permission.permissionId;
-          }
-          if (permission.permissionLevel === 'editor') {
-            elem.editor = permissionIds && permissionIds.includes(permission.permissionId);
-            elem.editorPermissionId = permission.permissionId;
-          }
-          if (permission.permissionLevel === 'creator') {
-            elem.creator = permissionIds && permissionIds.includes(permission.permissionId);
-            elem.creatorPermissionId = permission.permissionId;
-          }
+          permission.isChecked = permissionIds && permissionIds.includes(permission.permissionId);
         }
       }
     }
@@ -1152,7 +1160,7 @@ export class KommonitorGeoresourceDataGridHelperService {
         filter: false, 
         sortable: false, 
         width: 100, 
-        cellRenderer: 'agCheckboxCellRenderer',
+        cellRenderer: 'CheckboxRenderer_viewer',
         editable: true
       },
       { 
@@ -1161,7 +1169,7 @@ export class KommonitorGeoresourceDataGridHelperService {
         filter: false, 
         sortable: false, 
         width: 100, 
-        cellRenderer: 'agCheckboxCellRenderer',
+        cellRenderer: 'CheckboxRenderer_editor',
         editable: true
       }
     ];
@@ -1173,7 +1181,7 @@ export class KommonitorGeoresourceDataGridHelperService {
         filter: false, 
         sortable: false, 
         width: 100, 
-        cellRenderer: 'agCheckboxCellRenderer',
+        cellRenderer: 'CheckboxRenderer_creator',
         editable: true
       });
     }
@@ -1189,22 +1197,259 @@ export class KommonitorGeoresourceDataGridHelperService {
       return [];
     }
 
-    const selectedPermissionIds: string[] = [];
-    
+    const selectedIds = new Set<string>();
+    const collectFromRow = (row: any) => {
+      if (!row || !row.permissions) return;
+      for (const permission of row.permissions) {
+        if (permission && permission.isChecked && permission.permissionId) {
+          selectedIds.add(permission.permissionId);
+        }
+      }
+    };
+
     for (const row of gridOptions.rowData) {
-      if (row.viewer && row.viewerPermissionId) {
-        selectedPermissionIds.push(row.viewerPermissionId);
+      collectFromRow(row);
+    }
+
+    return Array.from(selectedIds);
+  }
+
+  /**
+   * Expose role management checkbox renderer components for early binding in templates
+   */
+  public getRoleManagementComponents(): any {
+    return {
+      CheckboxRenderer_viewer: this.CheckboxRenderer_viewer,
+      CheckboxRenderer_editor: this.CheckboxRenderer_editor,
+      CheckboxRenderer_creator: this.CheckboxRenderer_creator
+    };
+  }
+
+  /**
+   * Checkbox renderer for viewer permissions (georesource)
+   */
+  private CheckboxRenderer_viewer = class {
+    private params: any;
+    private eGui: HTMLElement | null = null;
+    private boundCheckedHandler: any;
+
+    init(params: any) {
+      this.params = params;
+
+      let isChecked = false;
+      let exists = false;
+      let className: string | undefined;
+      if (params && params.data && Array.isArray(params.data.permissions)) {
+        for (const permission of params.data.permissions) {
+          if (permission.permissionLevel === 'viewer') {
+            exists = true;
+            isChecked = !!permission.isChecked;
+            className = permission.permissionId;
+            break;
+          }
+        }
       }
-      if (row.editor && row.editorPermissionId) {
-        selectedPermissionIds.push(row.editorPermissionId);
-      }
-      if (row.creator && row.creatorPermissionId) {
-        selectedPermissionIds.push(row.creatorPermissionId);
+
+      if (exists) {
+        const input = document.createElement('input') as HTMLInputElement;
+        this.eGui = input;
+        input.className = className || '';
+        input.type = 'checkbox';
+        input.checked = isChecked;
+
+        // Disable viewer if dataset owner or enforced by editor/creator
+        if (this.params.data.datasetOwner === true || this.params.data._viewerDisabledBecauseOfEditor === true || this.params.data._viewerDisabledBecauseOfCreator === true) {
+          input.disabled = true;
+        } else {
+          input.disabled = false;
+        }
+
+        this.boundCheckedHandler = this.checkedHandler.bind(this);
+        input.addEventListener('click', this.boundCheckedHandler);
+      } else {
+        this.eGui = document.createElement('span');
       }
     }
 
-    return selectedPermissionIds;
-  }
+    checkedHandler(e: any) {
+      const checked = e.target.checked;
+      if (this.params && this.params.data && Array.isArray(this.params.data.permissions)) {
+        for (const permission of this.params.data.permissions) {
+          if (permission.permissionLevel === 'viewer') {
+            permission.isChecked = checked;
+            break;
+          }
+        }
+      }
+    }
+
+    getGui() { return this.eGui; }
+
+    destroy() {
+      if (this.eGui && this.boundCheckedHandler) {
+        this.eGui.removeEventListener('click', this.boundCheckedHandler);
+      }
+    }
+  };
+
+  /**
+   * Checkbox renderer for editor permissions (georesource)
+   */
+  private CheckboxRenderer_editor = class {
+    private params: any;
+    private eGui: HTMLElement | null = null;
+    private boundCheckedHandler: any;
+
+    init(params: any) {
+      this.params = params;
+
+      let isChecked = false;
+      let exists = false;
+      let className: string | undefined;
+      if (params && params.data && Array.isArray(params.data.permissions)) {
+        for (const permission of params.data.permissions) {
+          if (permission.permissionLevel === 'editor') {
+            exists = true;
+            isChecked = !!permission.isChecked;
+            className = permission.permissionId;
+            break;
+          }
+        }
+      }
+
+      if (exists) {
+        const input = document.createElement('input') as HTMLInputElement;
+        this.eGui = input;
+        input.className = className || '';
+        input.type = 'checkbox';
+        input.checked = isChecked;
+
+        // Disable editor for dataset owner or creator enforced
+        if (this.params.data.datasetOwner === true || this.params.data._editorDisabledBecauseOfCreator === true) {
+          input.disabled = true;
+        } else {
+          input.disabled = false;
+        }
+
+        this.boundCheckedHandler = this.checkedHandler.bind(this);
+        input.addEventListener('click', this.boundCheckedHandler);
+      } else {
+        this.eGui = document.createElement('span');
+      }
+    }
+
+    checkedHandler(e: any) {
+      const checked = e.target.checked;
+      if (this.params && this.params.data && Array.isArray(this.params.data.permissions)) {
+        for (const permission of this.params.data.permissions) {
+          if (permission.permissionLevel === 'viewer') {
+            permission.isChecked = !!checked || !!permission.isChecked;
+          } else if (permission.permissionLevel === 'editor') {
+            permission.isChecked = checked;
+          }
+        }
+      }
+      // Enforce viewer checked+disabled when editor is checked
+      if (checked) {
+        this.params.data._viewerDisabledBecauseOfEditor = true;
+        for (const permission of this.params.data.permissions) {
+          if (permission.permissionLevel === 'viewer') {
+            permission.isChecked = true;
+          }
+        }
+      } else {
+        this.params.data._viewerDisabledBecauseOfEditor = false;
+      }
+      if (this.params.api && this.params.node) {
+        this.params.api.refreshCells({ force: true, rowNodes: [this.params.node] });
+      }
+    }
+
+    getGui() { return this.eGui; }
+
+    destroy() {
+      if (this.eGui && this.boundCheckedHandler) {
+        this.eGui.removeEventListener('click', this.boundCheckedHandler);
+      }
+    }
+  };
+
+  /**
+   * Checkbox renderer for creator permissions (georesource)
+   */
+  private CheckboxRenderer_creator = class {
+    private params: any;
+    private eGui: HTMLElement | null = null;
+    private boundCheckedHandler: any;
+
+    init(params: any) {
+      this.params = params;
+
+      let isChecked = false;
+      let exists = false;
+      let className: string | undefined;
+      if (params && params.data && Array.isArray(params.data.permissions)) {
+        for (const permission of params.data.permissions) {
+          if (permission.permissionLevel === 'creator') {
+            exists = true;
+            isChecked = !!permission.isChecked;
+            className = permission.permissionId;
+            break;
+          }
+        }
+      }
+
+      if (exists) {
+        const input = document.createElement('input') as HTMLInputElement;
+        this.eGui = input;
+        input.className = className || '';
+        input.type = 'checkbox';
+        input.checked = isChecked;
+
+        // Disable creator for dataset owner
+        if (this.params.data.datasetOwner === true) {
+          input.disabled = true;
+        } else {
+          input.disabled = false;
+        }
+
+        this.boundCheckedHandler = this.checkedHandler.bind(this);
+        input.addEventListener('click', this.boundCheckedHandler);
+      } else {
+        this.eGui = document.createElement('span');
+      }
+    }
+
+    checkedHandler(e: any) {
+      const checked = e.target.checked;
+      if (this.params && this.params.data && Array.isArray(this.params.data.permissions)) {
+        for (const permission of this.params.data.permissions) {
+          if (permission.permissionLevel === 'creator' || permission.permissionLevel === 'editor' || permission.permissionLevel === 'viewer') {
+            permission.isChecked = checked;
+          }
+        }
+      }
+      // Enforce cascading disable flags
+      if (checked) {
+        this.params.data._editorDisabledBecauseOfCreator = true;
+        this.params.data._viewerDisabledBecauseOfCreator = true;
+      } else {
+        this.params.data._editorDisabledBecauseOfCreator = false;
+        this.params.data._viewerDisabledBecauseOfCreator = false;
+      }
+      if (this.params.api && this.params.node) {
+        this.params.api.refreshCells({ force: true, rowNodes: [this.params.node] });
+      }
+    }
+
+    getGui() { return this.eGui; }
+
+    destroy() {
+      if (this.eGui && this.boundCheckedHandler) {
+        this.eGui.removeEventListener('click', this.boundCheckedHandler);
+      }
+    }
+  };
 
   /**
    * Build data grid for feature table of spatial resource (like spatial unit service)

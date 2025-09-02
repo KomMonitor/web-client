@@ -511,32 +511,48 @@ export class GeoresourceAddModalComponent implements OnInit {
     if (params.api) {
       // Auto-size columns
       params.api.sizeColumnsToFit();
+      // Ensure proper row heights
+      try {
+        params.api.resetRowHeights();
+      } catch {}
       
       // Set the row data if we have it
       if (this.roleManagementTableOptions && this.roleManagementTableOptions.rowData) {
         params.api.setRowData(this.roleManagementTableOptions.rowData);
+        try {
+          params.api.resetRowHeights();
+        } catch {}
       }
     }
   }
 
   // Handle role management first data rendered event
   onRoleManagementFirstDataRendered(params: any) {
-    // Role management first data rendered
+    try {
+      params.api.resetRowHeights();
+      params.api.sizeColumnsToFit();
+    } catch {}
   }
 
   // Handle role management column resized event
   onRoleManagementColumnResized(params: any) {
-    // Role management column resized
+    try {
+      params.api.resetRowHeights();
+    } catch {}
   }
 
   // Handle role management model updated event
   onRoleManagementModelUpdated() {
-    // Role management model updated
+    try {
+      this.roleManagementGridApi?.resetRowHeights();
+    } catch {}
   }
 
   // Handle role management viewport changed event
   onRoleManagementViewportChanged() {
-    // Role management viewport changed
+    try {
+      this.roleManagementGridApi?.resetRowHeights();
+    } catch {}
   }
 
   // Refresh role management table
