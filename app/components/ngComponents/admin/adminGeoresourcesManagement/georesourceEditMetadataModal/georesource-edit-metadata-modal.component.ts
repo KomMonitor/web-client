@@ -1,5 +1,5 @@
-import { Component, OnInit, Inject, ViewChild, ElementRef, OnDestroy, ChangeDetectorRef, NgZone } from '@angular/core';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { Component, OnInit, Inject, ViewChild, ElementRef, OnDestroy, ChangeDetectorRef, NgZone, Injectable } from '@angular/core';
+import { NgbActiveModal, NgbDatepicker, NgbDateParserFormatter, NgbDateStruct, NgbDateAdapter } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { HttpClient } from '@angular/common/http';
 import { Subscription } from 'rxjs';
@@ -7,13 +7,68 @@ import { KommonitorGeoresourceDataExchangeService } from 'services/adminGeoresou
 import { KommonitorMultiStepFormHelperService } from 'services/adminGeoresourceUnit/kommonitor-multi-step-form-helper.service';
 import { KommonitorGeoresourceDataGridHelperService } from 'services/adminGeoresourceUnit/kommonitor-data-grid-helper.service';
 
+@Injectable()
+export class NgbDateISOParserFormatter extends NgbDateParserFormatter {
+  parse(value: string | null): NgbDateStruct | null {
+    if (!value) { return null; }
+    const trimmed = value.trim();
+    const match = /^\d{4}-\d{2}-\d{2}$/.test(trimmed);
+    if (!match) { return null; }
+    const [yStr, mStr, dStr] = trimmed.split('-');
+    const year = Number(yStr);
+    const month = Number(mStr);
+    const day = Number(dStr);
+    if (!year || month < 1 || month > 12 || day < 1 || day > 31) { return null; }
+    const dt = new Date(year, month - 1, day);
+    if (dt.getFullYear() !== year || dt.getMonth() !== month - 1 || dt.getDate() !== day) { return null; }
+    return { year, month, day };
+  }
+
+  format(date: NgbDateStruct | null): string {
+    if (!date) { return ''; }
+    const y = String(date.year).padStart(4, '0');
+    const m = String(date.month).padStart(2, '0');
+    const d = String(date.day).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+}
+
+@Injectable()
+export class NgbDateStringAdapter extends NgbDateAdapter<string> {
+  fromModel(value: string | null): NgbDateStruct | null {
+    if (!value) { return null; }
+    const trimmed = value.trim();
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) { return null; }
+    const [yStr, mStr, dStr] = trimmed.split('-');
+    const year = Number(yStr);
+    const month = Number(mStr);
+    const day = Number(dStr);
+    const dt = new Date(year, month - 1, day);
+    if (dt.getFullYear() !== year || dt.getMonth() !== month - 1 || dt.getDate() !== day) { return null; }
+    return { year, month, day };
+  }
+
+  toModel(date: NgbDateStruct | null): string | null {
+    if (!date) { return ''; }
+    const y = String(date.year).padStart(4, '0');
+    const m = String(date.month).padStart(2, '0');
+    const d = String(date.day).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+}
+
 @Component({
   selector: 'georesource-edit-metadata-modal-new',
   templateUrl: './georesource-edit-metadata-modal.component.html',
-  styleUrls: ['./georesource-edit-metadata-modal.component.css']
+  styleUrls: ['./georesource-edit-metadata-modal.component.css'],
+  providers: [
+    { provide: NgbDateParserFormatter, useClass: NgbDateISOParserFormatter },
+    { provide: NgbDateAdapter, useClass: NgbDateStringAdapter }
+  ]
 })
 export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy {
   @ViewChild('metadataImportFile', { static: false }) metadataImportFile!: ElementRef;
+  @ViewChild('lastUpdateDatepicker', { static: false }) lastUpdateDatepicker!: NgbDatepicker;
 
   // Component state
   loadingData = false;
@@ -92,6 +147,52 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
     private ngZone: NgZone
   ) {
     this.initializeDefaultValues();
+  }
+
+  // Date helpers
+  private getTodayDateString(): string {
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = String(now.getMonth() + 1).padStart(2, '0');
+    const d = String(now.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+
+  private isValidDateString(value: string): boolean {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) { return false; }
+    const [yStr, mStr, dStr] = value.split('-');
+    const y = Number(yStr);
+    const m = Number(mStr);
+    const d = Number(dStr);
+    if (m < 1 || m > 12 || d < 1 || d > 31) { return false; }
+    const dt = new Date(y, m - 1, d);
+    return dt.getFullYear() === y && dt.getMonth() === m - 1 && dt.getDate() === d;
+  }
+
+  private ensureValidDateOrToday(value: any): string {
+    if (!value) { return this.getTodayDateString(); }
+    if (typeof value === 'string') {
+      return this.isValidDateString(value) ? value : this.getTodayDateString();
+    }
+    const asIso = this.toIsoDateString(value);
+    return asIso ?? this.getTodayDateString();
+  }
+
+  private toIsoDateString(value: any): string | null {
+    if (!value) { return null; }
+    if (typeof value === 'string') { return value; }
+    const maybeStruct = value as { year?: number; month?: number; day?: number };
+    if (maybeStruct && typeof maybeStruct.year === 'number' && typeof maybeStruct.month === 'number' && typeof maybeStruct.day === 'number') {
+      const y = maybeStruct.year;
+      const m = String(maybeStruct.month).padStart(2, '0');
+      const d = String(maybeStruct.day).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+    return null;
+  }
+
+  onLastUpdateBlur(): void {
+    this.metadata.lastUpdate = this.ensureValidDateOrToday(this.metadata.lastUpdate);
   }
 
   ngOnInit(): void {
@@ -347,14 +448,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
 
   private initializeDatePickers(): void {
     try {
-      // Initialize date picker using Angular date picker or custom implementation
-      const datePicker = document.getElementById('georesourceEditLastUpdateDatepicker');
-      if (datePicker && (window as any).$) {
-        (window as any).$('#georesourceEditLastUpdateDatepicker').datepicker(
-          this.kommonitorDataExchangeService.datePickerOptions || {}
-        );
-        (window as any).$('#georesourceEditLastUpdateDatepicker').datepicker('setDate', this.metadata.lastUpdate);
-      }
+      // Datepicker initialization is handled by ngbDatepicker in the template.
 
       // Initialize color pickers
       const loiColorPicker = document.getElementById('loiColorEditPicker');
@@ -743,7 +837,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
         sridEPSG: this.metadata.sridEPSG,
         datasource: this.metadata.datasource,
         contact: this.metadata.contact,
-        lastUpdate: this.metadata.lastUpdate,
+        lastUpdate: this.toIsoDateString(this.metadata.lastUpdate),
         description: this.metadata.description,
         databasis: this.metadata.databasis
       },

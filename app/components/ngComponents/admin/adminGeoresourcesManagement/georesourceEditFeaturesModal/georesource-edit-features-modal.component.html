@@ -301,11 +301,19 @@
               <div class="form-group">
                 <label>Gültigkeitszeitraum: gültig seit*</label>
                 <div class="input-group date">
-                  <div class="input-group-addon">
+                  <div class="input-group-addon" (click)="startDatepicker.toggle()">
                     <i class="far fa-calendar-alt"></i>
                   </div>
-                  <input type="text" [(ngModel)]="periodOfValidity.startDate" (ngModelChange)="checkPeriodOfValidity()"
-                    class="form-control pull-right" id="georesourceEditFeaturesDatepickerStart" placeholder="YYYY-MM-DD" required>
+                  <input type="text"
+                    class="form-control pull-right"
+                    placeholder="YYYY-MM-DD"
+                    pattern="^\\d{4}-\\d{2}-\\d{2}$"
+                    [(ngModel)]="periodOfValidity.startDate"
+                    name="periodOfValidityStart"
+                    ngbDatepicker
+                    #startDatepicker="ngbDatepicker"
+                    (blur)="onPeriodStartBlur()"
+                    required>
                 </div>
                 <div class="help-block">
                   <p>Eintrag ist immer erforderlich, selbst wenn die räumlichen Features über ein
@@ -322,11 +330,18 @@
               <div class="form-group">
                 <label>Gültigkeitszeitraum: gültig bis</label>
                 <div class="input-group date">
-                  <div class="input-group-addon">
+                  <div class="input-group-addon" (click)="endDatepicker.toggle()">
                     <i class="far fa-calendar-alt"></i>
                   </div>
-                  <input type="text" [(ngModel)]="periodOfValidity.endDate" (ngModelChange)="checkPeriodOfValidity()"
-                    class="form-control pull-right" id="georesourceEditFeaturesDatepickerEnd" placeholder="YYYY-MM-DD">
+                  <input type="text"
+                    class="form-control pull-right"
+                    placeholder="YYYY-MM-DD"
+                    pattern="^\\d{4}-\\d{2}-\\d{2}$"
+                    [(ngModel)]="periodOfValidity.endDate"
+                    name="periodOfValidityEnd"
+                    ngbDatepicker
+                    #endDatepicker="ngbDatepicker"
+                    (blur)="onPeriodEndBlur()">
                 </div>
                 <div class="help-block">
                   <p>Eintrag ist erforderlich, falls die räumlichen Features nicht selbst über ein

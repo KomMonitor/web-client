@@ -289,11 +289,18 @@
               <div class="form-group">
                 <label>Datum der letzten Aktualisierung*</label>
                 <div class="input-group date">
-                  <div class="input-group-addon">
+                  <div class="input-group-addon" (click)="lastUpdateDatepicker.toggle()">
                     <i class="far fa-calendar-alt"></i>
                   </div>
-                  <input type="text" [(ngModel)]="metadata.lastUpdate" name="metadataLastUpdate"
-                    class="form-control pull-right" id="georesourceAddLastUpdateDatepicker" placeholder="YYYY-MM-DD" required>
+                  <input type="text"
+                    class="form-control pull-right"
+                    placeholder="YYYY-MM-DD"
+                    [(ngModel)]="metadata.lastUpdate"
+                    name="metadataLastUpdate"
+                    ngbDatepicker
+                    #lastUpdateDatepicker="ngbDatepicker"
+                    (blur)="onLastUpdateBlur()"
+                    required>
                 </div>
                 <div class="help-block with-errors"></div>
               </div>
@@ -694,11 +701,18 @@
               <div class="form-group">
                 <label>Gültigkeitszeitraum: gültig seit*</label>
                 <div class="input-group date">
-                  <div class="input-group-addon">
+                  <div class="input-group-addon" (click)="startDatepicker.toggle()">
                     <i class="far fa-calendar-alt"></i>
                   </div>
-                  <input type="text" [(ngModel)]="periodOfValidity.startDate" name="periodOfValidityStart" (ngModelChange)="checkPeriodOfValidity()"
-                    class="form-control pull-right" id="georesourceAddDatepickerStart" placeholder="YYYY-MM-DD" required>
+                  <input type="text"
+                    class="form-control pull-right"
+                    placeholder="YYYY-MM-DD"
+                    [(ngModel)]="periodOfValidity.startDate"
+                    name="periodOfValidityStart"
+                    ngbDatepicker
+                    #startDatepicker="ngbDatepicker"
+                    (blur)="onPeriodStartBlur()"
+                    required>
                 </div>
                 <div class="help-block">
                   <p>Eintrag ist immer erforderlich, selbst wenn die räumlichen Features über ein Lebenszeitraum-Attribut verfügen.</p>
@@ -713,11 +727,17 @@
               <div class="form-group">
                 <label>Gültigkeitszeitraum: gültig bis</label>
                 <div class="input-group date">
-                  <div class="input-group-addon">
+                  <div class="input-group-addon" (click)="endDatepicker.toggle()">
                     <i class="far fa-calendar-alt"></i>
                   </div>
-                  <input type="text" [(ngModel)]="periodOfValidity.endDate" name="periodOfValidityEnd" (ngModelChange)="checkPeriodOfValidity()"
-                    class="form-control pull-right" id="georesourceAddDatepickerEnd" placeholder="YYYY-MM-DD">
+                  <input type="text"
+                    class="form-control pull-right"
+                    placeholder="YYYY-MM-DD"
+                    [(ngModel)]="periodOfValidity.endDate"
+                    name="periodOfValidityEnd"
+                    ngbDatepicker
+                    #endDatepicker="ngbDatepicker"
+                    (blur)="onPeriodEndBlur()">
                 </div>
                 <div class="help-block">
                   <p>Eintrag ist erforderlich, falls die räumlichen Features nicht selbst über ein Lebenszeitraum-Attribut verfügen. Enddatum darf leer sein, um anzuzeigen, dass es sich um aktuell gültige Features handelt.</p>
