@@ -11,7 +11,8 @@ import angular from "angular";
 
 import { Router, RouterModule, Routes } from '@angular/router';
 import { HashLocationStrategy, LocationStrategy } from '@angular/common';
-
+import { TranslateModule, TranslateLoader, TranslateService } from '@ngx-translate/core';
+import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { 
   ajskommonitorCacheHelperServiceProvider,
   ajskommonitorBatchUpdateHelperServiceProvider,
@@ -60,6 +61,7 @@ import { BaseIndicatorOfComputedIndicatorFilter } from 'pipes/base-indicator-of-
 import { BaseIndicatorOfHeadlineIndicatorFilter } from 'pipes/base-indicator-of-headline-indicator-filter.pipe';
 import { AuthService } from 'services/auth-service/auth.service';
 import { KommonitorReachabilityComponent } from './components/ngComponents/userInterface/sidebar/kommonitorReachability/kommonitor-reachability.component';
+import { LanguageSwitcherComponent } from './components/ngComponents/common/languageSwitcher/language-switcher.component';
 
 import { AdminTopicsManagementComponent } from './components/ngComponents/admin/adminTopicsManagement/admin-topics-management.component';
 import { TopicEditModalComponent } from './components/ngComponents/admin/adminTopicsManagement/topicEditModal/topic-edit-modal.component';
@@ -73,12 +75,17 @@ import { AdminAppConfigComponent } from './components/ngComponents/admin/adminCo
 import { AdminControlsConfigComponent } from './components/ngComponents/admin/adminConfig/adminControlsConfig/admin-controls-config.component';
 import { AdminRoleExplanationComponent } from './components/ngComponents/admin/adminRoleExplanation/admin-role-explanation.component';
 import { AdminDashboardManagementComponent } from './components/ngComponents/admin/adminDashboardManagement/admin-dashboard-management.component';
-
+import { UserLoginComponent } from './components/ngComponents/userInterface/userLogin/user-login.component';
 
 // currently the AngularJS routing is still used as part of kommonitorClient module
 const routes: Routes = [];
 
 declare var MathJax;
+
+// AoT requires an exported function for factories
+export function HttpLoaderFactory(http: HttpClient) {
+  return new TranslateHttpLoader(http, './assets/i18n/', '.json');
+}
 
 @NgModule({
   imports: [
@@ -93,7 +100,15 @@ declare var MathJax;
     JsonPipe,
     NouisliderModule,
     NgbCollapseModule,
-    DualListBoxComponent
+    DualListBoxComponent,
+    TranslateModule.forRoot({
+      defaultLanguage: 'de',
+      loader: {
+        provide: TranslateLoader,
+        useFactory: HttpLoaderFactory,
+        deps: [HttpClient]
+      }
+    })
   ],
   providers:[
     {provide: LocationStrategy, useClass: HashLocationStrategy},
@@ -149,13 +164,15 @@ declare var MathJax;
     BaseIndicatorOfHeadlineIndicatorFilter,
     RegressionDiagramComponent,
     KommonitorReachabilityComponent,
+    LanguageSwitcherComponent,
     AdminTopicsManagementComponent,
     TopicEditModalComponent,
     TopicDeleteModalComponent,
     AdminAppConfigComponent,
     AdminControlsConfigComponent,
     AdminRoleExplanationComponent,
-    AdminDashboardManagementComponent
+    AdminDashboardManagementComponent,
+    UserLoginComponent
   ],
   schemas: [
     CUSTOM_ELEMENTS_SCHEMA
@@ -168,7 +185,8 @@ export class AppModule implements DoBootstrap {
 
   constructor(
     private upgrade: UpgradeModule,
-    private authService: AuthService
+    private authService: AuthService,
+    private translateService: TranslateService
   ) {
   }
   
@@ -179,6 +197,9 @@ export class AppModule implements DoBootstrap {
     await this.loadConfigs();
     // instantiate env variable 
     this.env = window.__env || {};
+
+    // Initialize TranslateService
+    this.initializeTranslateService();
 
     this.downgradeDependencies();
 
@@ -197,6 +218,31 @@ export class AppModule implements DoBootstrap {
 
   }
 
+  private initializeTranslateService(): void {
+    // Set default language
+    this.translateService.setDefaultLang('de');
+    
+    // Get saved language preference from localStorage
+    const savedLanguage = localStorage.getItem('preferredLanguage');
+    
+    // Use saved language if available, otherwise use browser language or default to 'de'
+    if (savedLanguage && ['de', 'de-at', 'de-li', 'de-lu', 'de-ch', 'en'].includes(savedLanguage)) {
+      this.translateService.use(savedLanguage);
+    } else {
+      // Try to use browser language if it's supported
+      const browserLang = this.translateService.getBrowserLang();
+      if (browserLang && ['de', 'de-at', 'de-li', 'de-lu', 'de-ch', 'en'].includes(browserLang)) {
+        this.translateService.use(browserLang);
+        localStorage.setItem('preferredLanguage', browserLang);
+      } else {
+        this.translateService.use('de');
+        localStorage.setItem('preferredLanguage', 'de');
+      }
+    }
+    
+    console.log('TranslateService initialized with language:', this.translateService.currentLang);
+  }
+
   private downgradeDependencies(): void {  
 
     // to inject already upgraded KomMonitor Angular components into "old" AngluarJS components, we must do 2 things
@@ -209,7 +255,8 @@ export class AppModule implements DoBootstrap {
     // meaning "infoModal" must be called as <info-modal>.. , "komLegend" as <kom-legend>.... 
 
     angular.module('kommonitorUserInterface')
-    .directive('userInterfaceNew',  downgradeComponent({ component: UserInterfaceComponent }) as angular.IDirectiveFactory);
+    .directive('userInterfaceNew',  downgradeComponent({ component: UserInterfaceComponent }) as angular.IDirectiveFactory)
+    .directive('userLogin',  downgradeComponent({ component: UserLoginComponent }) as angular.IDirectiveFactory);
 
     angular.module('adminAppConfig')
     .directive('newAdminAppConfig',  downgradeComponent({ component: AdminAppConfigComponent }) as angular.IDirectiveFactory);
@@ -249,6 +296,17 @@ export class AppModule implements DoBootstrap {
     angular.module('kommonitorAdmin')
       .directive('adminDashboardManagementNew', downgradeComponent({
         component: AdminDashboardManagementComponent
+      }) as angular.IDirectiveFactory)
+      .directive('userLoginAdmin',  downgradeComponent({ component: UserLoginComponent }) as angular.IDirectiveFactory);
+
+    angular.module('kommonitorAdmin')
+      .directive('adminLanguageSwitcher', downgradeComponent({
+        component: LanguageSwitcherComponent
+      }) as angular.IDirectiveFactory);
+
+    angular.module('kommonitorUserInterface')
+      .directive('userLanguageSwitcher', downgradeComponent({
+        component: LanguageSwitcherComponent
       }) as angular.IDirectiveFactory);
 
     console.log("registered downgraded Angular components for AngularJS usage");

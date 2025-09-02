@@ -1,0 +1,60 @@
+{
+  "COMMON": {
+    "LOGIN": "Login",
+    "LOGOUT": "Logout",
+    "RELOGIN": "Relogin",
+    "USERNAME": "Nutzername",
+    "FIRST_AND_LAST_NAME": "Vor- und Nachname",
+    "LAST_NAME": "Nachname",
+    "EMAIL": "E-Mail",
+    "ROLES": "Rollen",
+    "GROUPS_HIERARCHY": "Gruppen (Hierarchie)",
+    "SESSION_VALIDITY": "Session Gültigkeit",
+    "MINUTES": "Minuten",
+    "INFORMATION": "Information",
+    "ADMIN_UI": "Admin UI",
+    "GUIDED_TOUR": "Guided Tour",
+    "CREATE_REPORT": "Report erstellen",
+    "ADVANCED_VIEW": "Erweiterte Ansicht",
+    "SHOW_HIDE_UI_ELEMENTS": "Ein- / Ausblenden von UI Elementen"
+  },
+  "SIDEBAR": {
+    "INDICATOR_SELECTION": "Indikatorenauswahl",
+    "INFRASTRUCTURE_DATA": "Infrastrukturdaten",
+    "DATA_IMPORT": "Datenimport",
+    "DISPLAY_FILTER": "Darstellungsfilter",
+    "TEMPORAL_BALANCING": "zeitliche Bilanzierung",
+    "STATISTICAL_DIAGRAMS": "statistische Diagramme",
+    "INDICATOR_RADAR": "Indikatorenradar",
+    "REGRESSION_DIAGRAM": "Regressionsdiagramm",
+    "REACHABILITY_ANALYSIS": "Erreichbarkeitsanalyse"
+  },
+  "MAP_CONTROLS": {
+    "CENTER_MAP": "Karte zentrieren",
+    "CLEAR_SPATIAL_UNIT_SELECTION": "Raumeinheits-Selektion aufheben",
+    "EXPORT_CURRENT_MAP_VIEW": "aktuellen Kartenausschnitt exportieren",
+    "SHOW_LAYER_CONTROL": "Layer Control anzeigen"
+  },
+  "USER_INTERFACE": {
+    "USER_LOGIN": "User Login",
+    "USER_REGISTRATION": "Useristration"
+  },
+  "ADMIN_DASHBOARD": {
+    "OVERVIEW": "Übersicht",
+    "OVERVIEW_DESCRIPTION": "Informationen über in KomMonitor enthaltene Daten",
+    "ORGANIZATIONS": "Organisationen",
+    "MAIN_TOPICS": "Hauptthemen",
+    "SUB_TOPICS": "Unterthemen",
+    "SPATIAL_UNITS": "Raumeinheiten",
+    "GEORESOURCES": "Georessourcen",
+    "INDICATORS": "Indikatoren",
+    "INDICATOR_SCRIPTS": "Indikatorenskripte",
+    "LOADING": "Laden...",
+    "INDICATORS_PER_TOPIC": "Indikatoren pro Thema",
+    "GEORESOURCES_PER_TYPE": "Georessourcen pro Typ",
+    "INDICATORS_PER_SPATIAL_UNIT": "Indikatoren pro Raumeinheit",
+    "POINTS_OF_INTEREST": "Points of Interest",
+    "LINES_OF_INTEREST": "Lines of Interest",
+    "AREAS_OF_INTEREST": "Areas of Interest"
+  }
+} 
