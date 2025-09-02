@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@angular/core';
+import { Inject, Injectable, OnInit } from '@angular/core';
 import pako from 'pako';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import domtoimage from 'dom-to-image-more';
@@ -6,7 +6,7 @@ import domtoimage from 'dom-to-image-more';
 @Injectable({
   providedIn: 'root'
 })
-export class LeafletScreenshotCacheHelperService {
+export class LeafletScreenshotCacheHelperService implements OnInit {
 
   CacheKey_prefix = window.__env.localStoragePrefix;
 
@@ -15,7 +15,7 @@ export class LeafletScreenshotCacheHelperService {
   // Initialize IndexedDB
   dbName = 'leafletScreenshotCache';
   storeName = "screenshots";
-  indexedDB;
+  indexedDB!: IDBDatabase;
   indexedDbCount;
 
   argetNumberOfSpatialUnitFeatures = 0;
@@ -31,7 +31,28 @@ export class LeafletScreenshotCacheHelperService {
 
   constructor(
     private broadcastService: BroadcastService
-  ) {}
+  ) {
+    const request = indexedDB.open(this.dbName, 2);
+    request.onupgradeneeded = (event: any) => {
+      this.indexedDB = event.target.result;
+      if (!this.indexedDB.objectStoreNames.contains(this.storeName)) {
+        this.indexedDB.createObjectStore(this.storeName);
+      }
+    };
+    request.onsuccess = (event: any) => {
+      this.indexedDB = event.target.result;
+      console.log('Database initialized successfully');
+    };
+    request.onerror = (event:any) => {
+      console.error('Error initializing database:', event.target.error);
+    };
+  }
+  
+  ngOnInit(): void {
+  
+  }
+
+  // hier, open db on init, because its indexedDB is undefined atm
 
   generateUniqueCacheKey(mapName, spatialUnitId, featureId, pageOrientation) {
 
@@ -64,6 +85,7 @@ export class LeafletScreenshotCacheHelperService {
     await this.saveScreenshotInIndexedDB(CacheKey, compressed);
 
     // send UI update information
+  
     this.logProgress();        
   };
 
@@ -137,6 +159,7 @@ export class LeafletScreenshotCacheHelperService {
 
   // reset will not empty the current map of screeshots, instead it just resets the counter
   resetCounter(targetNumberOfSpatialUnitFeatures, clearCacheMap) {
+
     this.targetNumberOfSpatialUnitFeatures = targetNumberOfSpatialUnitFeatures;
     this.executedScreenshotMapKeys = new Map();
     if (clearCacheMap){
@@ -172,7 +195,7 @@ export class LeafletScreenshotCacheHelperService {
       //   }
       // });
 
-      const request = indexedDB.open(this.dbName, 1);
+      const request = indexedDB.open(this.dbName, 2);
       request.onupgradeneeded = (event:any) => {
         this.indexedDB = event.target.result;
         this.indexedDB.createObjectStore(this.storeName);
@@ -200,7 +223,7 @@ export class LeafletScreenshotCacheHelperService {
       return; // Resolve the promise when clearing is successful
     };
 
-    clearRequest.onerror = (event) => {
+    clearRequest.onerror = (event:any) => {
       console.error("Error clearing store:", event.target.errorCode);
       throw new Error("Error clearing store");
     };
@@ -211,12 +234,12 @@ export class LeafletScreenshotCacheHelperService {
     const store = tx.objectStore(this.storeName);
     const countRequest = store.count();
 
-    countRequest.onsuccess = (event) => {
+    countRequest.onsuccess = (event:any) => {
       this.indexedDbCount = event.target.result;
       return this.indexedDbCount;   
     };
 
-    countRequest.onerror = (event) => {
+    countRequest.onerror = (event:any) => {
       console.error("Error counting entries:", event.target.errorCode);
       throw new Error("Error counting entries");
     };
@@ -252,7 +275,7 @@ export class LeafletScreenshotCacheHelperService {
       const result = {};
       const cursorRequest = store.openCursor();
 
-      cursorRequest.onsuccess = (event) => {
+      cursorRequest.onsuccess = (event:any) => {
         const cursor = event.target.result;
         if (cursor) {
           const compressed = cursor.value;
@@ -273,7 +296,7 @@ export class LeafletScreenshotCacheHelperService {
         }
       };
 
-      cursorRequest.onerror = (event) => reject(event.target.error);
+      cursorRequest.onerror = (event:any) => reject(event.target.error);
     });
   }
 }

@@ -190,7 +190,7 @@ export class IndicatorAddComponent implements OnInit {
     private httpClient: HttpClient,
     private broadcastService: BroadcastService,
     private reachabilityHelperService: ReachabilityHelperService,
-    private leafletScreenshotCacheHelperService: LeafletScreenshotCacheHelperService
+    protected leafletScreenshotCacheHelperService: LeafletScreenshotCacheHelperService
   ) {
   }
 
@@ -465,7 +465,7 @@ export class IndicatorAddComponent implements OnInit {
     // reinitiate page building from the scratch as easiest solution
     this.loadingData = true; 
 
-    //this.leafletScreenshotCacheHelperService.resetCounter_keepingCurrentTargetFeatures(false);
+    this.leafletScreenshotCacheHelperService.resetCounter_keepingCurrentTargetFeatures(false);
     await this.initializeAllDiagrams();			
 
     this.loadingData = false; 
@@ -570,7 +570,7 @@ export class IndicatorAddComponent implements OnInit {
     // reset leaflet screenshot helper service according to new  number of selected areas
     // add one page to display the total map of all selected spatial unit features
     numberOfTargetSpatialUnitFeatures ++;				
-    //this.leafletScreenshotCacheHelperService.resetCounter(numberOfTargetSpatialUnitFeatures, false);
+    this.leafletScreenshotCacheHelperService.resetCounter(numberOfTargetSpatialUnitFeatures, false);
 
     if(this.template.name.includes("timestamp"))
       this.updateAreasForTimestampTemplates(newVal)
@@ -1947,6 +1947,9 @@ export class IndicatorAddComponent implements OnInit {
 
         // call initSelectedDualListOption, as the selected Items have not been processed yet - only been selected on the dual lists
         this.initSelectedDualListOption(areasListInput, timestampsListSelected);    
+
+        if(this.selectedAreas.length>0)
+          this.leafletScreenshotCacheHelperService.resetCounter(this.selectedAreas.length+1, true);
 
       },1000); 
     } catch (error) {
