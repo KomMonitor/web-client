@@ -6,6 +6,7 @@ import autoTable from 'jspdf-autotable';
 import { LeafletScreenshotCacheHelperService } from 'services/leaflet-screenshot-cache-helper-service/leaflet-screenshot-cache-helper.service';
 import * as docx from 'docx';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { saveAs } from 'file-saver';
 
 @Component({
   selector: 'app-generate-report',
@@ -876,27 +877,29 @@ export class GenerateReportComponent implements OnInit {
     }); */
   }
 
-  generateWordReport() {
-    /* // see docx documentation for more info about the format:
+  async generateWordReport() {
+    // see docx documentation for more info about the format:
     // https://docx.js.org/#/?id=basic-usage
 
+    let sections:any[] = [];
+
     let font = "Calibri";
-    if(this.customFontFamily!=undefined) {
+    /* if(this.customFontFamily!=undefined) {
       font = this.customFontFamily.replace(/['"]+/g,'');
-    }
+    } */
     for(let [idx, page] of this.config.pages.entries()) {
 
       if(!this.showThisPage(page)) {
         continue;
       }
 
-      let paragraphs = [];
-      let pageDom = document.querySelector("#reporting-overview-page-" + idx);
+      let paragraphs:any = [];
+      let pageDom:any = document.querySelector("#reporting-overview-page-" + idx);
       for(let pageElement of page.pageElements) {
 
-        let pageElementDimensionsPx = calculateDimensions(pageElement.dimensions, "px");
-        let pageElementDimensionsTwip = calculateDimensions(pageElement.dimensions, "twip");
-        let pageElementDimensionsEmu = calculateDimensions(pageElement.dimensions, "emu");
+        let pageElementDimensionsPx = this.calculateDimensions(pageElement.dimensions, "px");
+        let pageElementDimensionsTwip = this.calculateDimensions(pageElement.dimensions, "twip");
+        let pageElementDimensionsEmu = this.calculateDimensions(pageElement.dimensions, "emu");
 
         switch(pageElement.type) {
           case "indicatorTitle-landscape":
@@ -946,7 +949,7 @@ export class GenerateReportComponent implements OnInit {
               let paragraph = new docx.Paragraph({
                 children: [
                   new docx.ImageRun({
-                    data: dataURItoBlob(pageElement.src),
+                    data: this.dataURItoBlob(pageElement.src),
                     transformation: {
                       width: pageElementDimensionsPx.width,
                       height: pageElementDimensionsPx.height
@@ -1090,8 +1093,10 @@ export class GenerateReportComponent implements OnInit {
                   text: "Seite " + this.getPageNumber(idx),
                   font: font,
                   size: 32  // 16pt
-                },
-                new docx.PageBreak())
+                }),
+                new docx.TextRun({
+                  break: 1, // Seitenumbruch
+                }),
               ],
               frame: {
                 position: {
@@ -1133,7 +1138,7 @@ export class GenerateReportComponent implements OnInit {
             } else {
               pElementDom = pageDom.querySelector("#reporting-overview-page-" + idx + "-" + pageElement.type)
             }
-            let instance = echarts.getInstanceByDom(pElementDom);
+            let instance:any = echarts.getInstanceByDom(pElementDom);
             let imageDataUrl = instance.getDataURL({
               type: "png",
               pixelRatio: this.echartsImgPixelRatio
@@ -1144,7 +1149,7 @@ export class GenerateReportComponent implements OnInit {
             }
             
 
-            let blob = dataURItoBlob(imageDataUrl);
+            let blob = this.dataURItoBlob(imageDataUrl);
 
             let paragraph = new docx.Paragraph({
               children: [
@@ -1352,12 +1357,12 @@ export class GenerateReportComponent implements OnInit {
             break;
           }
           case "datatable": {
-              let tableDom = document.querySelector("#reporting-overview-page-" + idx + "-" + pageElement.type + " table");
+              let tableDom:any = document.querySelector("#reporting-overview-page-" + idx + "-" + pageElement.type + " table");
               let headerFieldsDom = tableDom.querySelectorAll("thead th")
               let tableRowsDom = tableDom.querySelectorAll("tbody tr");
               
               // table to create
-              let table = {
+              let table:any = {
                 columnWidths: [],
                 rows: [],
                 float: {
@@ -1366,13 +1371,13 @@ export class GenerateReportComponent implements OnInit {
                   overlap: docx.OverlapType.NEVER,
                 },
               };
-              let headerFields = [];
-              let headerFieldNames = [];
+              let headerFields:any = [];
+              let headerFieldNames:any = [];
               for(let fieldDom of headerFieldsDom) {
-                let widthInTwip = pxToTwip(fieldDom.offsetWidth);
+                let widthInTwip = this.pxToTwip(fieldDom.offsetWidth);
                 let fieldContent = fieldDom.innerText;
                 headerFieldNames.push(fieldContent)
-                let field = new docx.TableCell({
+                let field:any = new docx.TableCell({
                   width: {
                     size: widthInTwip,
                     type: docx.WidthType.DXA,
@@ -1399,7 +1404,7 @@ export class GenerateReportComponent implements OnInit {
               
               for(let rowDom of tableRowsDom) { // excluding header
                 let fieldsDom = rowDom.querySelectorAll("td");
-                let fields = [];
+                let fields:any = [];
                 for(let [idx, fieldDom] of fieldsDom.entries()) {
                   let fieldContent = fieldDom.innerText;
                   let paragraph = new docx.Paragraph({
@@ -1464,15 +1469,43 @@ export class GenerateReportComponent implements OnInit {
 
     let doc = new docx.Document(docxConfig);
   
-    let filename = getCurrentDateAndTime() + "_KomMonitor-Report"
+    let filename = this.getCurrentDateAndTime() + "_KomMonitor-Report"
     // Used to export the file into a .docx file
     docx.Packer.toBlob(doc).then((blob) => {
       saveAs(blob, filename + ".docx");
       this.loadingData = false;
-      setTimeout(function(){
+     /*  setTimeout(function(){
         this.$digest();
-      });
-    }); */
+      }); */
+    });
   }
 
+  dataURItoBlob(dataURI) {
+    // convert base64 to raw binary data held in a string
+    // doesn't handle URLEncoded DataURIs - see SO answer #6850276 for code that does this
+    var byteString = atob(dataURI.split(',')[1]);
+  
+    // separate out the mime component
+    var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0]
+  
+    // write the bytes of the string to an ArrayBuffer
+    var ab = new ArrayBuffer(byteString.length);
+  
+    // create a view into the buffer
+    var ia = new Uint8Array(ab);
+  
+    // set the bytes of the buffer to the correct values
+    for (var i = 0; i < byteString.length; i++) {
+      ia[i] = byteString.charCodeAt(i);
+    }
+  
+    // write the ArrayBuffer to a blob, and you're done
+    //var blob = new Blob([ab], {type: mimeString});
+    return ia;
+  }
+
+  pxToTwip(px) {
+    let result = parseInt(px, 10) * 15; // 1px = 0.75pt = 15twip
+    return result * this.pxPerMilli*297 / 830 // scale from 830px to A4 page
+  }
 }

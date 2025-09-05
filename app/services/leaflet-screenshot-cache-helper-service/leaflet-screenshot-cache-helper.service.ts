@@ -138,8 +138,6 @@ export class LeafletScreenshotCacheHelperService {
   async checkForScreenshot(mapName, spatialUnitId, featureId, pageOrientation, domElement, mapElem) {
 
     let CacheKey = this.generateUniqueCacheKey(mapName, spatialUnitId, featureId, pageOrientation);
-    console.log(this.cacheMap)
-    console.log(CacheKey)
     if (!this.cacheMap.has(CacheKey)) {
       // we now trigger a process that will actually set this item after a timeout. However, for each spatial unit, two requests occur
       // for now we try to only execute one screenshot process for each spatial unit
