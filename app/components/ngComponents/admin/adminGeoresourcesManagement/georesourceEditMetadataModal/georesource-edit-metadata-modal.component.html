@@ -272,20 +272,12 @@
             <div class="col-md-3 col-sm-6 col-xs-12">
               <div class="form-group">
                 <label>Datum der letzten Aktualisierung*</label>
-                <div class="input-group date">
-                  <div class="input-group-addon" (click)="lastUpdateDatepicker.toggle()">
-                    <i class="far fa-calendar-alt"></i>
-                  </div>
-                  <input type="text"
-                    class="form-control pull-right"
-                    placeholder="YYYY-MM-DD"
-                    [(ngModel)]="metadata.lastUpdate"
-                    name="metadataLastUpdate"
-                    ngbDatepicker
-                    #lastUpdateDatepicker="ngbDatepicker"
-                    (blur)="onLastUpdateBlur()"
-                    required>
-                </div>
+                <km-date-picker
+                  name="metadataLastUpdate"
+                  placeholder="YYYY-MM-DD"
+                  [(ngModel)]="metadata.lastUpdate"
+                  [required]="true"
+                ></km-date-picker>
                 <div class="help-block with-errors"></div>
               </div>
             </div>

@@ -1,5 +1,5 @@
-import { Component, OnInit, Inject, ViewChild, ElementRef, OnDestroy, ChangeDetectorRef, NgZone, Injectable } from '@angular/core';
-import { NgbActiveModal, NgbDatepicker, NgbDateParserFormatter, NgbDateStruct, NgbDateAdapter } from '@ng-bootstrap/ng-bootstrap';
+import { Component, OnInit, Inject, ViewChild, ElementRef, OnDestroy, ChangeDetectorRef, NgZone } from '@angular/core';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { HttpClient } from '@angular/common/http';
 import { Subscription } from 'rxjs';
@@ -7,68 +7,14 @@ import { KommonitorGeoresourceDataExchangeService } from 'services/adminGeoresou
 import { KommonitorMultiStepFormHelperService } from 'services/adminGeoresourceUnit/kommonitor-multi-step-form-helper.service';
 import { KommonitorGeoresourceDataGridHelperService } from 'services/adminGeoresourceUnit/kommonitor-data-grid-helper.service';
 
-@Injectable()
-export class NgbDateISOParserFormatter extends NgbDateParserFormatter {
-  parse(value: string | null): NgbDateStruct | null {
-    if (!value) { return null; }
-    const trimmed = value.trim();
-    const match = /^\d{4}-\d{2}-\d{2}$/.test(trimmed);
-    if (!match) { return null; }
-    const [yStr, mStr, dStr] = trimmed.split('-');
-    const year = Number(yStr);
-    const month = Number(mStr);
-    const day = Number(dStr);
-    if (!year || month < 1 || month > 12 || day < 1 || day > 31) { return null; }
-    const dt = new Date(year, month - 1, day);
-    if (dt.getFullYear() !== year || dt.getMonth() !== month - 1 || dt.getDate() !== day) { return null; }
-    return { year, month, day };
-  }
-
-  format(date: NgbDateStruct | null): string {
-    if (!date) { return ''; }
-    const y = String(date.year).padStart(4, '0');
-    const m = String(date.month).padStart(2, '0');
-    const d = String(date.day).padStart(2, '0');
-    return `${y}-${m}-${d}`;
-  }
-}
-
-@Injectable()
-export class NgbDateStringAdapter extends NgbDateAdapter<string> {
-  fromModel(value: string | null): NgbDateStruct | null {
-    if (!value) { return null; }
-    const trimmed = value.trim();
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) { return null; }
-    const [yStr, mStr, dStr] = trimmed.split('-');
-    const year = Number(yStr);
-    const month = Number(mStr);
-    const day = Number(dStr);
-    const dt = new Date(year, month - 1, day);
-    if (dt.getFullYear() !== year || dt.getMonth() !== month - 1 || dt.getDate() !== day) { return null; }
-    return { year, month, day };
-  }
-
-  toModel(date: NgbDateStruct | null): string | null {
-    if (!date) { return ''; }
-    const y = String(date.year).padStart(4, '0');
-    const m = String(date.month).padStart(2, '0');
-    const d = String(date.day).padStart(2, '0');
-    return `${y}-${m}-${d}`;
-  }
-}
-
 @Component({
   selector: 'georesource-edit-metadata-modal-new',
   templateUrl: './georesource-edit-metadata-modal.component.html',
   styleUrls: ['./georesource-edit-metadata-modal.component.css'],
-  providers: [
-    { provide: NgbDateParserFormatter, useClass: NgbDateISOParserFormatter },
-    { provide: NgbDateAdapter, useClass: NgbDateStringAdapter }
-  ]
+  providers: []
 })
 export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy {
   @ViewChild('metadataImportFile', { static: false }) metadataImportFile!: ElementRef;
-  @ViewChild('lastUpdateDatepicker', { static: false }) lastUpdateDatepicker!: NgbDatepicker;
 
   // Component state
   loadingData = false;

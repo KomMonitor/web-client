@@ -288,20 +288,12 @@
             <div class="col-md-3 col-sm-6 col-xs-12">
               <div class="form-group">
                 <label>Datum der letzten Aktualisierung*</label>
-                <div class="input-group date">
-                  <div class="input-group-addon" (click)="lastUpdateDatepicker.toggle()">
-                    <i class="far fa-calendar-alt"></i>
-                  </div>
-                  <input type="text"
-                    class="form-control pull-right"
-                    placeholder="YYYY-MM-DD"
-                    [(ngModel)]="metadata.lastUpdate"
-                    name="metadataLastUpdate"
-                    ngbDatepicker
-                    #lastUpdateDatepicker="ngbDatepicker"
-                    (blur)="onLastUpdateBlur()"
-                    required>
-                </div>
+                <km-date-picker
+                  name="metadataLastUpdate"
+                  placeholder="YYYY-MM-DD"
+                  [(ngModel)]="metadata.lastUpdate"
+                  [required]="true"
+                ></km-date-picker>
                 <div class="help-block with-errors"></div>
               </div>
             </div>
@@ -502,7 +494,7 @@
               <i class="fas fa-file-import"></i>&nbsp;&nbsp;Mapping-Import
             </button>
             <input style="display:none;" class="pull-left" type="file" #mappingConfigImportFile class="form-control" 
-              id="georesourceMappingConfigAddImportFile" accept=".json" (change)="onMappingConfigFileSelected($event)">
+              id="georesourceMappingConfigAddImportFile_new" accept=".json" (change)="onMappingConfigFileSelected($event)">
             <button type="button" style="margin-left: 6px;" class="btn btn-info pull-left" (click)="onExportGeoresourceAddMappingConfig()" 
               title="Exportieren der Mapping-Konfigurationen in eine Datei">
               <i class="fas fa-file-export"></i>&nbsp;&nbsp;Mapping-Export
@@ -700,20 +692,15 @@
             <div class="col-md-6 col-sm-6 col-xs-12">
               <div class="form-group">
                 <label>Gültigkeitszeitraum: gültig seit*</label>
-                <div class="input-group date">
-                  <div class="input-group-addon" (click)="startDatepicker.toggle()">
-                    <i class="far fa-calendar-alt"></i>
-                  </div>
-                  <input type="text"
-                    class="form-control pull-right"
-                    placeholder="YYYY-MM-DD"
-                    [(ngModel)]="periodOfValidity.startDate"
-                    name="periodOfValidityStart"
-                    ngbDatepicker
-                    #startDatepicker="ngbDatepicker"
-                    (blur)="onPeriodStartBlur()"
-                    required>
-                </div>
+                <km-date-picker
+                  name="periodOfValidityStart"
+                  placeholder="YYYY-MM-DD"
+                  [(ngModel)]="periodOfValidity.startDate"
+                  (ngModelChange)="checkPeriodOfValidity()"
+                  (valueChange)="checkPeriodOfValidity()"
+                  [invalid]="periodOfValidityInvalid"
+                  [required]="true"
+                ></km-date-picker>
                 <div class="help-block">
                   <p>Eintrag ist immer erforderlich, selbst wenn die räumlichen Features über ein Lebenszeitraum-Attribut verfügen.</p>
                 </div>
@@ -726,19 +713,14 @@
             <div class="col-md-6 col-sm-6 col-xs-12">
               <div class="form-group">
                 <label>Gültigkeitszeitraum: gültig bis</label>
-                <div class="input-group date">
-                  <div class="input-group-addon" (click)="endDatepicker.toggle()">
-                    <i class="far fa-calendar-alt"></i>
-                  </div>
-                  <input type="text"
-                    class="form-control pull-right"
-                    placeholder="YYYY-MM-DD"
-                    [(ngModel)]="periodOfValidity.endDate"
-                    name="periodOfValidityEnd"
-                    ngbDatepicker
-                    #endDatepicker="ngbDatepicker"
-                    (blur)="onPeriodEndBlur()">
-                </div>
+                <km-date-picker
+                  name="periodOfValidityEnd"
+                  placeholder="YYYY-MM-DD"
+                  [(ngModel)]="periodOfValidity.endDate"
+                  (ngModelChange)="checkPeriodOfValidity()"
+                  (valueChange)="checkPeriodOfValidity()"
+                  [invalid]="periodOfValidityInvalid"
+                ></km-date-picker>
                 <div class="help-block">
                   <p>Eintrag ist erforderlich, falls die räumlichen Features nicht selbst über ein Lebenszeitraum-Attribut verfügen. Enddatum darf leer sein, um anzuzeigen, dass es sich um aktuell gültige Features handelt.</p>
                 </div>
@@ -855,14 +837,14 @@
     <i class="fas fa-file-import"></i>&nbsp;&nbsp;Metadaten-Import
   </button>
   <input style="display:none;" class="pull-left" type="file" #metadataImportFile class="form-control"
-    id="georesourceMetadataImportFile" accept=".json" (change)="onMetadataFileSelected($event)">
+    id="georesourceMetadataImportFile_new" accept=".json" (change)="onMetadataFileSelected($event)">
   <button type="button" style="margin-left: 6px;" class="btn btn-info pull-left" (click)="onExportGeoresourceAddMetadata()" 
     title="Exportieren der Metadaten in eine Datei">
     <i class="fas fa-file-export"></i>&nbsp;&nbsp;Metadaten-Export
   </button>
 
   <button type="button" class="btn btn-success" 
-    [disabled]="!datasetName || !metadata.description || !metadata.datasource || !metadata.contact || !metadata.updateInterval || !metadata.lastUpdate || !georesourceDataSourceIdProperty || !georesourceDataSourceNameProperty || !periodOfValidity.startDate || datasetNameInvalid || poiMarkerTextInvalid || periodOfValidityInvalid || !converter || !datasourceType || (kommonitorDataExchangeService.enableKeycloakSecurity && !ownerOrganization)"
+    [disabled]="isRegisterDisabled()"
     (click)="addGeoresource()">
     Georessource registrieren
   </button>

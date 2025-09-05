@@ -1,7 +1,8 @@
-import { Component, OnInit, ViewChild, ElementRef, OnDestroy, Inject, CUSTOM_ELEMENTS_SCHEMA, Injectable } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, OnDestroy, Inject, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { NgbActiveModal, NgbDatepicker, NgbDateParserFormatter, NgbDateStruct, NgbDateAdapter, NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbActiveModal, NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
+import { KmDatePickerComponent } from '../../../customElements/date-picker/km-date-picker.component';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { HttpClient } from '@angular/common/http';
 import { Subscription } from 'rxjs';
@@ -18,74 +19,21 @@ import { SingleFeatureEditComponent } from '../../../common/single-feature-edit/
 declare const $: any;
 declare const __env: any;
 
-@Injectable()
-export class NgbDateISOParserFormatter extends NgbDateParserFormatter {
-  parse(value: string | null): NgbDateStruct | null {
-    if (!value) { return null; }
-    const trimmed = value.trim();
-    const match = /^\d{4}-\d{2}-\d{2}$/.test(trimmed);
-    if (!match) { return null; }
-    const [yStr, mStr, dStr] = trimmed.split('-');
-    const year = Number(yStr);
-    const month = Number(mStr);
-    const day = Number(dStr);
-    if (!year || month < 1 || month > 12 || day < 1 || day > 31) { return null; }
-    const dt = new Date(year, month - 1, day);
-    if (dt.getFullYear() !== year || (dt.getMonth()) !== month - 1 || dt.getDate() !== day) { return null; }
-    return { year, month, day };
-  }
-
-  format(date: NgbDateStruct | null): string {
-    if (!date) { return ''; }
-    const y = String(date.year).padStart(4, '0');
-    const m = String(date.month).padStart(2, '0');
-    const d = String(date.day).padStart(2, '0');
-    return `${y}-${m}-${d}`;
-  }
-}
-
-@Injectable()
-export class NgbDateStringAdapter extends NgbDateAdapter<string> {
-  fromModel(value: string | null): NgbDateStruct | null {
-    if (!value) { return null; }
-    const trimmed = value.trim();
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) { return null; }
-    const [yStr, mStr, dStr] = trimmed.split('-');
-    const year = Number(yStr);
-    const month = Number(mStr);
-    const day = Number(dStr);
-    const dt = new Date(year, month - 1, day);
-    if (dt.getFullYear() !== year || dt.getMonth() !== month - 1 || dt.getDate() !== day) { return null; }
-    return { year, month, day };
-  }
-
-  toModel(date: NgbDateStruct | null): string | null {
-    if (!date) { return ''; }
-    const y = String(date.year).padStart(4, '0');
-    const m = String(date.month).padStart(2, '0');
-    const d = String(date.day).padStart(2, '0');
-    return `${y}-${m}-${d}`;
-  }
-}
+// Removed ng-bootstrap date adapters and formatters in favor of km-date-picker
 
 @Component({
   selector: 'georesource-edit-features-modal-new',
   templateUrl: './georesource-edit-features-modal.component.html',
   styleUrls: ['./georesource-edit-features-modal.component.css'],
   standalone: true,
-  imports: [CommonModule, FormsModule, SingleFeatureEditComponent, AgGridModule, NgbDatepickerModule],
+  imports: [CommonModule, FormsModule, SingleFeatureEditComponent, AgGridModule, NgbDatepickerModule, KmDatePickerComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
-  providers: [
-    { provide: NgbDateParserFormatter, useClass: NgbDateISOParserFormatter },
-    { provide: NgbDateAdapter, useClass: NgbDateStringAdapter }
-  ]
+  providers: []
 })
 export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy {
   @ViewChild('mappingConfigImportFile', { static: false }) mappingConfigImportFile!: ElementRef;
   @ViewChild('dataSourceInput', { static: false }) dataSourceInput!: ElementRef;
   @ViewChild('georesourceFeatureTable', { static: true }) georesourceFeatureTable!: AgGridAngular;
-  @ViewChild('startDatepicker', { static: false }) startDatepicker!: NgbDatepicker;
-  @ViewChild('endDatepicker', { static: false }) endDatepicker!: NgbDatepicker;
 
   // Component state
   loadingData = false;

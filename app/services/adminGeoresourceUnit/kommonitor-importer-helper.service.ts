@@ -6,7 +6,11 @@ import { HttpClient } from '@angular/common/http';
 })
 export class KommonitorImporterHelperService {
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) {
+    this.targetUrlToImporterService = (window as any).__env?.targetUrlToImporterService || '/api/importer/';
+  }
+
+  private targetUrlToImporterService: string = '/api/importer/';
 
   // Single feature import definitions
   converterDefinition_singleFeatureImport = {
@@ -518,12 +522,15 @@ export class KommonitorImporterHelperService {
     postBody: any,
     isDryRun: boolean = false
   ): Promise<any> {
-    // This would typically make an API call to register the georesource
-    // For now, return a mock response
-    return {
-      success: true,
-      georesourceId: 'mock-id-' + Date.now(),
-      message: isDryRun ? 'Dry run completed successfully' : 'Georesource registered successfully'
+    const payload = {
+      converter: converterDefinition,
+      dataSource: datasourceTypeDefinition,
+      propertyMapping: propertyMappingDefinition,
+      georesourcePostBody: postBody,
+      dryRun: isDryRun
     };
+    return this.http.post(`${this.targetUrlToImporterService}georesources`, payload, {
+      headers: { 'Content-Type': 'application/json' }
+    }).toPromise();
   }
 }

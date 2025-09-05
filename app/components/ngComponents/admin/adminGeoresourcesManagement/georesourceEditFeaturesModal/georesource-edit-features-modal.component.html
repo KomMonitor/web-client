@@ -300,21 +300,15 @@
             <div class="col-md-6 col-sm-6 col-xs-12">
               <div class="form-group">
                 <label>Gültigkeitszeitraum: gültig seit*</label>
-                <div class="input-group date">
-                  <div class="input-group-addon" (click)="startDatepicker.toggle()">
-                    <i class="far fa-calendar-alt"></i>
-                  </div>
-                  <input type="text"
-                    class="form-control pull-right"
-                    placeholder="YYYY-MM-DD"
-                    pattern="^\\d{4}-\\d{2}-\\d{2}$"
-                    [(ngModel)]="periodOfValidity.startDate"
-                    name="periodOfValidityStart"
-                    ngbDatepicker
-                    #startDatepicker="ngbDatepicker"
-                    (blur)="onPeriodStartBlur()"
-                    required>
-                </div>
+                <km-date-picker
+                  name="periodOfValidityStart"
+                  placeholder="YYYY-MM-DD"
+                  [(ngModel)]="periodOfValidity.startDate"
+                  (ngModelChange)="checkPeriodOfValidity()"
+                  (valueChange)="checkPeriodOfValidity()"
+                  [invalid]="periodOfValidityInvalid"
+                  [required]="true"
+                ></km-date-picker>
                 <div class="help-block">
                   <p>Eintrag ist immer erforderlich, selbst wenn die räumlichen Features über ein
                     Lebenszeitraum-Attribut
@@ -329,20 +323,14 @@
             <div class="col-md-6 col-sm-6 col-xs-12">
               <div class="form-group">
                 <label>Gültigkeitszeitraum: gültig bis</label>
-                <div class="input-group date">
-                  <div class="input-group-addon" (click)="endDatepicker.toggle()">
-                    <i class="far fa-calendar-alt"></i>
-                  </div>
-                  <input type="text"
-                    class="form-control pull-right"
-                    placeholder="YYYY-MM-DD"
-                    pattern="^\\d{4}-\\d{2}-\\d{2}$"
-                    [(ngModel)]="periodOfValidity.endDate"
-                    name="periodOfValidityEnd"
-                    ngbDatepicker
-                    #endDatepicker="ngbDatepicker"
-                    (blur)="onPeriodEndBlur()">
-                </div>
+                <km-date-picker
+                  name="periodOfValidityEnd"
+                  placeholder="YYYY-MM-DD"
+                  [(ngModel)]="periodOfValidity.endDate"
+                  (ngModelChange)="checkPeriodOfValidity()"
+                  (valueChange)="checkPeriodOfValidity()"
+                  [invalid]="periodOfValidityInvalid"
+                ></km-date-picker>
                 <div class="help-block">
                   <p>Eintrag ist erforderlich, falls die räumlichen Features nicht selbst über ein
                     Lebenszeitraum-Attribut

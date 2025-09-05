@@ -261,42 +261,34 @@ export class KommonitorGeoresourceDataGridHelperService {
    * Register click handlers for georesource buttons
    */
   private registerClickHandler_georesources(georesourceMetadataArray: GeoresourceMetadata[]): void {
-    console.log('Registering click handlers for georesources...');
+    
     
     // Edit Metadata Button
     const editMetadataButtons = document.querySelectorAll('.georesourceEditMetadataBtn');
-    console.log('Found edit metadata buttons:', editMetadataButtons.length);
     editMetadataButtons.forEach((button: any) => {
       button.removeEventListener('click', this.handleEditMetadataClick);
       button.addEventListener('click', this.handleEditMetadataClick);
-      console.log('Registered click handler for edit metadata button:', button.id);
     });
 
     // Edit Features Button
     const editFeaturesButtons = document.querySelectorAll('.georesourceEditFeaturesBtn');
-    console.log('Found edit features buttons:', editFeaturesButtons.length);
     editFeaturesButtons.forEach((button: any) => {
       button.removeEventListener('click', this.handleEditFeaturesClick);
       button.addEventListener('click', this.handleEditFeaturesClick);
-      console.log('Registered click handler for edit features button:', button.id);
     });
 
     // Edit User Roles Button
     const editUserRolesButtons = document.querySelectorAll('.georesourceEditUserRolesBtn');
-    console.log('Found edit user roles buttons:', editFeaturesButtons.length);
     editUserRolesButtons.forEach((button: any) => {
       button.removeEventListener('click', this.handleEditUserRolesClick);
       button.addEventListener('click', this.handleEditUserRolesClick);
-      console.log('Registered click handler for edit user roles button:', button.id);
     });
 
     // Delete Button
     const deleteButtons = document.querySelectorAll('.georesourceDeleteBtn');
-    console.log('Found delete buttons:', deleteButtons.length);
     deleteButtons.forEach((button: any) => {
       button.removeEventListener('click', this.handleDeleteClick);
       button.addEventListener('click', this.handleDeleteClick);
-      console.log('Registered click handler for delete button:', button.id);
     });
 
     // Also try to find buttons by their specific IDs
@@ -310,22 +302,18 @@ export class KommonitorGeoresourceDataGridHelperService {
         if (editMetadataBtn) {
           editMetadataBtn.removeEventListener('click', this.handleEditMetadataClick);
           editMetadataBtn.addEventListener('click', this.handleEditMetadataClick);
-          console.log('Registered click handler for specific edit metadata button:', editMetadataBtn.id);
         }
         if (editFeaturesBtn) {
           editFeaturesBtn.removeEventListener('click', this.handleEditFeaturesClick);
           editFeaturesBtn.addEventListener('click', this.handleEditFeaturesClick);
-          console.log('Registered click handler for specific edit features button:', editFeaturesBtn.id);
         }
         if (editUserRolesBtn) {
           editUserRolesBtn.removeEventListener('click', this.handleEditUserRolesClick);
           editUserRolesBtn.addEventListener('click', this.handleEditUserRolesClick);
-          console.log('Registered click handler for specific edit user roles button:', editUserRolesBtn.id);
         }
         if (deleteBtn) {
           deleteBtn.removeEventListener('click', this.handleDeleteClick);
           deleteBtn.addEventListener('click', this.handleDeleteClick);
-          console.log('Registered click handler for specific delete button:', deleteBtn.id);
         }
       });
     }
@@ -1030,7 +1018,6 @@ export class KommonitorGeoresourceDataGridHelperService {
    */
   reRegisterClickHandlers(): void {
     if (this.currentGeoresources && this.currentGeoresources.length > 0) {
-      console.log('Manually re-registering click handlers...');
       this.registerClickHandler_georesources(this.currentGeoresources);
     }
   }
@@ -1592,7 +1579,7 @@ export class KommonitorGeoresourceDataGridHelperService {
     if (!enableDelete) return;
     
     // This would typically register delete button click handlers
-    console.log(`Registering click handlers for ${resourceType} ${resourceId}`);
+    
   }
 
   /**
