@@ -542,7 +542,8 @@
                 <div class="form-group">
                   <label>{{parameter.name}}<i *ngIf="parameter.mandatory">*</i></label>
                   <input type="text" [id]="'converterParameter_georesourceAdd_' + parameter.name" class="form-control"
-                    [placeholder]="parameter.name" [required]="parameter.mandatory">
+                    [placeholder]="parameter.name" [required]="parameter.mandatory"
+                    [value]="converterParameterValues[parameter.name] || ''">
                   <div class="help-block">
                     <p>{{parameter.description}}</p>
                   </div>

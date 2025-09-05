@@ -28,6 +28,7 @@ export class GeoresourceAddModalComponent implements OnInit {
   // Debug logging state (prevents spam in console)
   private lastDisabledReasonsKey: string = '';
   private lastDisabledReasonsLogMs: number = 0;
+  private hasLoggedAccessControlEmptyWarning: boolean = false;
 
   // Form data
   isSubmitting = false;
@@ -100,6 +101,7 @@ export class GeoresourceAddModalComponent implements OnInit {
   converter: any = null;
   schema: string = '';
   mimeType: string = '';
+  encoding: string = 'UTF-8';
   datasourceType: any = null;
   georesourceDataSourceIdProperty = '';
   georesourceDataSourceIdPropertyInvalid = false;
@@ -118,6 +120,9 @@ export class GeoresourceAddModalComponent implements OnInit {
   attributeMappings_adminView: any[] = [];
   keepAttributes = true;
   keepMissingValues = true;
+
+  // Persisted converter/datasource parameter values
+  converterParameterValues: { [key: string]: string } = {};
 
   // Validity dates per feature
   validityStartDate_perFeature = '';
@@ -169,7 +174,8 @@ export class GeoresourceAddModalComponent implements OnInit {
       "description": "description about spatial unit dataset",
       "databasis": "text about data basis",
     },
-    "allowedRoles": ['roleId'],
+    // legacy naming used in AngularJS example
+    "permissions": ['roleId'],
     "datasetName": "Name of georesource dataset",
     "isPOI": "boolean parameter for point of interest dataset - only one of isPOI, isLOI, isAOI can be true",
     "isLOI": "boolean parameter for lines of interest dataset - only one of isPOI, isLOI, isAOI can be true",
@@ -397,6 +403,18 @@ export class GeoresourceAddModalComponent implements OnInit {
     this.availableDatasourceTypes = this.kommonitorImporterHelperService.getAvailableDatasourceTypes();
     if (!this.availableDatasourceTypes || this.availableDatasourceTypes.length === 0) {
       console.warn('[GeoresourceAddModal] No datasource types available from importer.');
+    }
+
+    // Ensure POI/LOI defaults after options are loaded
+    if (!this.selectedPoiMarkerColor && this.availablePoiMarkerColors.length > 0) {
+      this.selectedPoiMarkerColor = this.availablePoiMarkerColors[0];
+    }
+    if (!this.selectedPoiSymbolColor && this.availablePoiMarkerColors.length > 0) {
+      // Prefer the second entry if present (legacy behavior), else fall back to first
+      this.selectedPoiSymbolColor = this.availablePoiMarkerColors[1] || this.availablePoiMarkerColors[0];
+    }
+    if (!this.selectedLoiDashArrayObject && this.availableLoiDashArrayObjects.length > 0) {
+      this.selectedLoiDashArrayObject = this.availableLoiDashArrayObjects[0];
     }
     
     // Initialize metadata structure pretty print
@@ -960,10 +978,33 @@ export class GeoresourceAddModalComponent implements OnInit {
   onChangeConverter(): void {
     this.schema = this.converter?.schemas ? this.converter.schemas[0] : undefined;
     this.mimeType = this.converter?.mimeTypes ? this.converter.mimeTypes[0] : undefined;
+
+    // Filter available datasource types based on selected converter's supported datasources
+    const allTypes = this.kommonitorImporterHelperService.getAvailableDatasourceTypes() || [];
+    if (this.converter?.datasources && Array.isArray(this.converter.datasources) && this.converter.datasources.length > 0) {
+      this.availableDatasourceTypes = allTypes.filter((t: any) => this.converter.datasources.includes(t.type));
+    } else {
+      this.availableDatasourceTypes = allTypes;
+    }
+
+    // Auto-select if there is exactly one matching datasource type
+    if (this.availableDatasourceTypes.length === 1) {
+      this.datasourceType = this.availableDatasourceTypes[0];
+      this.onChangeDatasourceType(this.datasourceType);
+    } else {
+      // Reset selected datasourceType if current selection is not compatible anymore
+      if (this.datasourceType && !this.availableDatasourceTypes.find((t: any) => t.type === this.datasourceType.type)) {
+        this.datasourceType = null;
+      }
+    }
   }
 
   onChangeMimeType(mimeType: string): void {
     this.mimeType = mimeType;
+  }
+
+  onChangeEncoding(encoding: string): void {
+    this.encoding = encoding;
   }
 
   onChangeDatasourceType(datasourceType: any): void {
@@ -1716,6 +1757,26 @@ export class GeoresourceAddModalComponent implements OnInit {
         break;
       }
     }
+    // Fallback: try to find by mimeType or by name similarity
+    if (!this.converter) {
+      const allConverters = this.kommonitorImporterHelperService.availableConverters || [];
+      const byMime = allConverters.find((c: any) => Array.isArray(c.mimeTypes) && c.mimeTypes.includes(this.mappingConfigImportSettings.converter.mimeType));
+      if (byMime) {
+        this.converter = byMime;
+      } else {
+        const wantedName = (this.mappingConfigImportSettings.converter.name || '').toLowerCase();
+        const byName = allConverters.find((c: any) => (c.name || '').toLowerCase().includes(wantedName));
+        if (byName) {
+          this.converter = byName;
+        } else {
+          // Heuristic for GeoJSON
+          const geojsonConv = allConverters.find((c: any) => Array.isArray(c.mimeTypes) && c.mimeTypes.some((m: string) => m.includes('geo+json')));
+          if (geojsonConv) {
+            this.converter = geojsonConv;
+          }
+        }
+      }
+    }
 
     this.schema = '';
     if (this.converter && this.converter.schemas && this.mappingConfigImportSettings.converter.schema) {
@@ -1735,6 +1796,9 @@ export class GeoresourceAddModalComponent implements OnInit {
       }
     }
 
+    // Encoding from mapping if present
+    this.encoding = this.mappingConfigImportSettings.converter.encoding || this.encoding;
+
     this.datasourceType = undefined;
     for (const datasourceType of this.kommonitorImporterHelperService.availableDatasourceTypes) {
       if (datasourceType.type === this.mappingConfigImportSettings.dataSource.type) {
@@ -1744,12 +1808,14 @@ export class GeoresourceAddModalComponent implements OnInit {
     }
 
     // converter parameters
-    if (this.converter) {
+    this.converterParameterValues = {};
+    if (Array.isArray(this.mappingConfigImportSettings.converter.parameters)) {
       for (const convParameter of this.mappingConfigImportSettings.converter.parameters) {
         const element = document.getElementById("converterParameter_georesourceAdd_" + convParameter.name) as HTMLInputElement;
         if (element) {
-          element.value = convParameter.value;
+          element.value = convParameter.value ?? '';
         }
+        this.converterParameterValues[convParameter.name] = convParameter.value ?? '';
       }
     }
 
@@ -1829,11 +1895,25 @@ export class GeoresourceAddModalComponent implements OnInit {
   }
 
   private showMetadataErrorAlert(): void {
-    // Implementation for showing metadata error alert
+    // Ensure pretty-print structure is available and scroll alert into view
+    if (!this.georesourceMetadataStructure_pretty) {
+      this.georesourceMetadataStructure_pretty = this.kommonitorDataExchangeService.syntaxHighlightJSON(this.georesourceMetadataStructure);
+    }
+    setTimeout(() => {
+      const el = document.getElementById('georesourceMetadataImportErrorAlert');
+      el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 0);
   }
 
   private showMappingConfigErrorAlert(): void {
-    // Implementation for showing mapping config error alert
+    // Ensure pretty-print structure is available and scroll alert into view
+    if (!this.georesourceMappingConfigStructure_pretty) {
+      this.georesourceMappingConfigStructure_pretty = this.kommonitorDataExchangeService.syntaxHighlightJSON(this.kommonitorImporterHelperService.mappingConfigStructure);
+    }
+    setTimeout(() => {
+      const el = document.getElementById('georesourceMappingConfigImportErrorAlert');
+      el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 0);
   }
 
   // Form reset
@@ -1985,9 +2065,18 @@ export class GeoresourceAddModalComponent implements OnInit {
     }
 
     if (this.isPOI) {
-      postBody["poiSymbolBootstrap3Name"] = this.selectedPoiIconName;
-      postBody["poiSymbolColor"] = (this.selectedPoiSymbolColor as any)?.colorName || '';
-      postBody["poiMarkerColor"] = (this.selectedPoiMarkerColor as any)?.colorName || '';
+      // Fallback to defaults to avoid empty ColorType values
+      const symbolColorName = (this.selectedPoiSymbolColor as any)?.colorName 
+        || this.availablePoiMarkerColors[1]?.colorName 
+        || this.availablePoiMarkerColors[0]?.colorName 
+        || 'red';
+      const markerColorName = (this.selectedPoiMarkerColor as any)?.colorName 
+        || this.availablePoiMarkerColors[0]?.colorName 
+        || 'red';
+
+      postBody["poiSymbolBootstrap3Name"] = this.selectedPoiIconName || 'home';
+      postBody["poiSymbolColor"] = symbolColorName;
+      postBody["poiMarkerColor"] = markerColorName;
       postBody["poiMarkerStyle"] = this.selectedPoiMarkerStyle;
       postBody["poiMarkerText"] = this.poiMarkerText;
 
@@ -2133,8 +2222,16 @@ export class GeoresourceAddModalComponent implements OnInit {
         this.successMessagePart = this.postBody_georesources.datasetName;
         this.importedFeatures = this.kommonitorImporterHelperService.getImportedFeaturesFromImporterResponse(newGeoresourceResponse) || [];
 
+        // Show success alert before closing the modal
         this.successMessage = 'Georessource erfolgreich registriert';
-        this.activeModal.close(true);
+        this.loadingData = false;
+        this.cdr.detectChanges();
+
+        // Close modal after a short delay and pass the created georesourceId to parent
+        const createdId = this.kommonitorImporterHelperService.getIdFromImporterResponse(newGeoresourceResponse);
+        setTimeout(() => {
+          this.activeModal.close({ georesourceId: createdId });
+        }, 1500);
       } else {
         // errors occurred
         this.errorMessagePart = "Einige der zu importierenden Features des Datensatzes weisen kritische Fehler auf";
@@ -2227,11 +2324,22 @@ export class GeoresourceAddModalComponent implements OnInit {
   }
 
   private buildConverterDefinition(): any {
+    const formValues: { [key: string]: string } = {};
+    // Collect currently rendered converter parameter inputs (if any)
+    if (this.converter?.parameters && Array.isArray(this.converter.parameters)) {
+      for (const p of this.converter.parameters) {
+        const el = document.getElementById(`converterParameter_georesourceAdd_${p.name}`) as HTMLInputElement | null;
+        if (el && typeof el.value === 'string') {
+          formValues[p.name] = el.value;
+        }
+      }
+    }
     const def = this.kommonitorImporterHelperService.buildConverterDefinition(
       this.converter, 
       "converterParameter_georesourceAdd_", 
       this.schema, 
-      this.mimeType
+      this.mimeType,
+      formValues
     );
     console.log('[GeoresourceAddModal] buildConverterDefinition', {
       input: { converter: this.converter, schema: this.schema, mimeType: this.mimeType },
@@ -2249,7 +2357,8 @@ export class GeoresourceAddModalComponent implements OnInit {
       // Pre-validate FILE datasource: require a selected file
       if (this.datasourceType?.type === 'FILE') {
         const fileInput: HTMLInputElement | null = (this.georesourceDataSourceInput?.nativeElement as HTMLInputElement) || (document.getElementById('georesourceDataSourceInput_add') as HTMLInputElement);
-        const hasFile = !!fileInput?.files && fileInput.files.length > 0 && !!fileInput.files[0];
+        const file = fileInput?.files?.[0];
+        const hasFile = !!file;
         console.log('[GeoresourceAddModal] FILE datasource pre-check', {
           fileInputFound: !!fileInput,
           filesLength: fileInput?.files?.length || 0,
@@ -2259,11 +2368,21 @@ export class GeoresourceAddModalComponent implements OnInit {
           this.georesourceDataSourceInputInvalid = true;
           this.georesourceDataSourceInputInvalidReason = 'Bitte eine Datei auswählen.';
           this.cdr.detectChanges();
-          throw new Error('Missing file for FILE datasource type');
-        } else {
-          this.georesourceDataSourceInputInvalid = false;
-          this.georesourceDataSourceInputInvalidReason = '';
+          return null;
         }
+        this.georesourceDataSourceInputInvalid = false;
+        this.georesourceDataSourceInputInvalidReason = '';
+
+        // Upload file immediately and build definition locally (robust approach used in SpatialUnit add)
+        const uploadedName = await this.kommonitorImporterHelperService.uploadNewFile(file as File, (file as File).name);
+        const localDef = {
+          type: 'FILE',
+          parameters: [
+            { name: 'NAME', value: uploadedName }
+          ]
+        };
+        console.log('[GeoresourceAddModal] buildDatasourceTypeDefinition FILE result (local)', localDef);
+        return localDef;
       }
       const result = await this.kommonitorImporterHelperService.buildDatasourceTypeDefinition(
         this.datasourceType, 
@@ -2339,7 +2458,10 @@ export class GeoresourceAddModalComponent implements OnInit {
     const hasAccessControl = Array.isArray(this.kommonitorDataExchangeService.accessControl) && this.kommonitorDataExchangeService.accessControl.length > 0;
     if (this.kommonitorDataExchangeService.enableKeycloakSecurity && hasAccessControl && !this.ownerOrganization) { reasons.push('ownerOrganization'); }
     if (this.kommonitorDataExchangeService.enableKeycloakSecurity && !hasAccessControl) {
-      console.warn('[GeoresourceAddModal] Keycloak security enabled but access control is empty. Allowing submit without owner selection.');
+      if (!this.hasLoggedAccessControlEmptyWarning) {
+        console.warn('[GeoresourceAddModal] Keycloak security enabled but access control is empty. Allowing submit without owner selection.');
+        this.hasLoggedAccessControlEmptyWarning = true;
+      }
     }
     return reasons;
   }

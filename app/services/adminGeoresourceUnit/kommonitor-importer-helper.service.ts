@@ -251,19 +251,38 @@ export class KommonitorImporterHelperService {
     converter: any,
     parameterPrefix: string,
     schema: string,
-    mimeType: string
+    mimeType: string,
+    formValues?: { [key: string]: string }
   ): any {
     if (!converter) return null;
 
     const parameters: any[] = [];
-    if (converter.parameters) {
+
+    // Collect parameters from declared converter parameters (if any)
+    const declaredParams: string[] = Array.isArray(converter.parameters)
+      ? converter.parameters.map((p: any) => p.name)
+      : [];
+
+    if (Array.isArray(converter.parameters) && converter.parameters.length > 0) {
       converter.parameters.forEach((param: any) => {
-        const element = document.getElementById(parameterPrefix + param.name) as HTMLInputElement;
-        if (element) {
-          parameters.push({
-            name: param.name,
-            value: element.value
-          });
+        const key = param.name;
+        const fromForm = formValues ? formValues[key] : undefined;
+        const element = document.getElementById(parameterPrefix + key) as HTMLInputElement;
+        const value = fromForm !== undefined ? fromForm : (element ? element.value : undefined);
+        if (value !== undefined && value !== null && value !== '') {
+          parameters.push({ name: key, value });
+        }
+      });
+    }
+
+    // Also merge any additional formValues not declared on converter (e.g., CRS)
+    if (formValues) {
+      Object.keys(formValues).forEach(key => {
+        if (!declaredParams.includes(key)) {
+          const value = formValues[key];
+          if (value !== undefined && value !== null && value !== '') {
+            parameters.push({ name: key, value });
+          }
         }
       });
     }
@@ -285,27 +304,82 @@ export class KommonitorImporterHelperService {
     if (!datasourceType) return null;
 
     const parameters: any[] = [];
-    if (datasourceType.parameters) {
-      datasourceType.parameters.forEach((param: any) => {
-        const element = document.getElementById(parameterPrefix + param.name) as HTMLInputElement;
-        if (element) {
-          parameters.push({
-            name: param.name,
-            value: element.value
-          });
-        }
-      });
-    }
 
-    // Get the actual data from the input element
-    const inputElement = document.getElementById(inputElementId) as HTMLInputElement;
-    const data = inputElement?.value || '';
+    // FILE datasource: upload the file to importer and pass returned NAME like legacy flow
+    if (datasourceType.type === 'FILE') {
+      const fileInput = document.getElementById(inputElementId) as HTMLInputElement;
+      const file = fileInput?.files?.[0];
+      if (!file) {
+        return null;
+      }
+
+      let uploadedName: string;
+      try {
+        uploadedName = await this.uploadNewFile(file, file.name);
+      } catch (error) {
+        console.error('Error while uploading file to importer.', error);
+        throw error;
+      }
+
+      parameters.push({
+        name: 'NAME',
+        value: uploadedName
+      });
+    } else {
+      // Non-FILE datasource: collect parameters from DOM, handle bbox specially when present
+      if (datasourceType.parameters && datasourceType.parameters.length > 0) {
+        for (const param of datasourceType.parameters) {
+          if (param.name === 'bbox') {
+            const bboxTypeEl = document.getElementById(parameterPrefix + 'bboxType') as HTMLInputElement;
+            const bboxType = bboxTypeEl?.value;
+            if (bboxType) {
+              parameters.push({ name: 'bboxType', value: bboxType });
+            }
+
+            let bboxValue: string | undefined;
+            if (bboxType === 'ref') {
+              const bboxRefEl = document.getElementById(parameterPrefix + 'bboxRef') as HTMLInputElement;
+              bboxValue = bboxRefEl?.value;
+            } else if (bboxType === 'literal') {
+              const minx = (document.getElementById(parameterPrefix + 'bbox_minx') as HTMLInputElement)?.value;
+              const miny = (document.getElementById(parameterPrefix + 'bbox_miny') as HTMLInputElement)?.value;
+              const maxx = (document.getElementById(parameterPrefix + 'bbox_maxx') as HTMLInputElement)?.value;
+              const maxy = (document.getElementById(parameterPrefix + 'bbox_maxy') as HTMLInputElement)?.value;
+              bboxValue = `${minx},${miny},${maxx},${maxy}`;
+            }
+
+            parameters.push({ name: 'bbox', value: bboxValue || '' });
+          } else {
+            const el = document.getElementById(parameterPrefix + param.name) as HTMLInputElement;
+            const value = el?.value ?? '';
+            parameters.push({ name: param.name, value });
+          }
+        }
+      }
+    }
 
     return {
       type: datasourceType.type,
-      parameters: parameters,
-      data: data
+      parameters
     };
+  }
+
+  /**
+   * Upload a new file to importer service (legacy-compatible)
+   */
+  async uploadNewFile(fileData: File, fileName: string): Promise<string> {
+    const formData = new FormData();
+    formData.append('filename', fileName);
+    formData.append('file', fileData);
+
+    return this.http.post(`${this.targetUrlToImporterService}upload`, formData, {
+      responseType: 'text'
+    }).toPromise()
+      .then(result => result as string || '')
+      .catch(error => {
+        console.error('Error uploading file to importer service.', error);
+        throw error;
+      });
   }
 
   // Build property mapping for spatial resource
