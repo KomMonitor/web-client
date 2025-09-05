@@ -444,8 +444,8 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy, 
       windowClass: 'georesource-delete-modal-window'
     });
 
-    // Pass the georesource dataset to the modal (as array like original)
-    this.broadcastService.broadcast('onDeleteGeoresources', [georesourceDataset]);
+    // Pass the georesource dataset directly to the modal (array like original)
+    (modalRef.componentInstance as any).datasetsToDelete = [georesourceDataset];
 
     modalRef.result.then(
       (result) => {
