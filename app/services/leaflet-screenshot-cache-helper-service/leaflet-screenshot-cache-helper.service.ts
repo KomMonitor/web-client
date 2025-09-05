@@ -6,7 +6,7 @@ import domtoimage from 'dom-to-image-more';
 @Injectable({
   providedIn: 'root'
 })
-export class LeafletScreenshotCacheHelperService implements OnInit {
+export class LeafletScreenshotCacheHelperService {
 
   CacheKey_prefix = window.__env.localStoragePrefix;
 
@@ -32,6 +32,7 @@ export class LeafletScreenshotCacheHelperService implements OnInit {
   constructor(
     private broadcastService: BroadcastService
   ) {
+
     const request = indexedDB.open(this.dbName, 2);
     request.onupgradeneeded = (event: any) => {
       this.indexedDB = event.target.result;
@@ -47,12 +48,33 @@ export class LeafletScreenshotCacheHelperService implements OnInit {
       console.error('Error initializing database:', event.target.error);
     };
   }
-  
-  ngOnInit(): void {
-  
-  }
 
-  // hier, open db on init, because its indexedDB is undefined atm
+  async init() {
+    // this.targetNumberOfSpatialUnitFeatures = targetNumberOfSpatialUnitFeatures;
+    this.screenshotsForCurrentSpatialUnitUpdate = false;
+    this.executedScreenshotMapKeys = new Map();
+    this.cacheMap = new Map();
+
+    // create progress log after each 10th percent of features
+    // this.logProgressIndexSeparator = Math.round(targetNumberOfSpatialUnitFeatures / 100 * 10);
+
+    await this.loadScreenshotsFromIndexedDB();  
+    console.log(this.cacheMap)
+  }
+  
+  // (re)init the whole thing, counter and map of screenshots
+/*   async init(targetNumberOfSpatialUnitFeatures) {
+    // this.targetNumberOfSpatialUnitFeatures = targetNumberOfSpatialUnitFeatures;
+    this.screenshotsForCurrentSpatialUnitUpdate = false;
+    this.executedScreenshotMapKeys = new Map();
+    this.cacheMap = new Map();
+
+    // create progress log after each 10th percent of features
+    // this.logProgressIndexSeparator = Math.round(targetNumberOfSpatialUnitFeatures / 100 * 10);
+
+    await this.openIndexedDB();   
+    await this.loadScreenshotsFromIndexedDB();         
+  } */
 
   generateUniqueCacheKey(mapName, spatialUnitId, featureId, pageOrientation) {
 
@@ -72,10 +94,12 @@ export class LeafletScreenshotCacheHelperService implements OnInit {
     this.cacheMap.set(CacheKey, item);
     this.executedScreenshotMapKeys.set(CacheKey, CacheKey);
 
-    // todo
-    //const blob = await (await fetch(imageDataUrl)).blob({ type: 'image/png' });
-    const blob = await (await fetch(imageDataUrl)).blob();
-    // Convert blob to array buffer
+    const img = await fetch(imageDataUrl);
+    if (!img.ok) {
+      throw new Error(`Error loading image: ${img.status}`);
+    }
+    const imgData = await img.blob();
+    const blob = new Blob([imgData], { type: 'image/png' });
     const arrayBuffer = await blob.arrayBuffer();
 
     // Compress with pako (zlib compression)
@@ -111,18 +135,24 @@ export class LeafletScreenshotCacheHelperService implements OnInit {
     return undefined;
   }
 
-  async checkForScreenshot(mapName, spatialUnitId, featureId, pageOrientation, domElement) {
+  async checkForScreenshot(mapName, spatialUnitId, featureId, pageOrientation, domElement, mapElem) {
 
     let CacheKey = this.generateUniqueCacheKey(mapName, spatialUnitId, featureId, pageOrientation);
+    console.log(this.cacheMap)
+    console.log(CacheKey)
     if (!this.cacheMap.has(CacheKey)) {
       // we now trigger a process that will actually set this item after a timeout. However, for each spatial unit, two requests occur
       // for now we try to only execute one screenshot process for each spatial unit
       // thus we simply set an empty object for the current key to prevent multiple screenshot taking processes for the same item         
-      setTimeout(() => {
+      setTimeout(async () => {
         let leafletMapScreenshot = domtoimage
-          .toJpeg(domElement, { quality: 1 })
-          .then((dataUrl) => {
-            this.storeResourceInCache(mapName, spatialUnitId, featureId, pageOrientation, dataUrl);
+          .toJpeg(domElement, { 
+            quality: 1,
+            width: mapElem.getSize().x,
+            height: mapElem.getSize().y 
+          })
+          .then(async (dataUrl) => {
+            await this.storeResourceInCache(mapName, spatialUnitId, featureId, pageOrientation, dataUrl);
           })
           .catch(function (error) {
             console.error('oops, something went wrong!', error);
@@ -136,20 +166,6 @@ export class LeafletScreenshotCacheHelperService implements OnInit {
       this.logProgress();     
     }
 
-  }
-
-  // (re)init the whole thing, counter and map of screenshots
-  async init(targetNumberOfSpatialUnitFeatures) {
-    // this.targetNumberOfSpatialUnitFeatures = targetNumberOfSpatialUnitFeatures;
-    this.screenshotsForCurrentSpatialUnitUpdate = false;
-    this.executedScreenshotMapKeys = new Map();
-    this.cacheMap = new Map();
-
-    // create progress log after each 10th percent of features
-    // this.logProgressIndexSeparator = Math.round(targetNumberOfSpatialUnitFeatures / 100 * 10);
-
-    await this.openIndexedDB();   
-    await this.loadScreenshotsFromIndexedDB();         
   }
 
   clearScreenshotMap(){
@@ -248,7 +264,8 @@ export class LeafletScreenshotCacheHelperService implements OnInit {
   async saveScreenshotInIndexedDB(key, data) {
     const tx = this.indexedDB.transaction([this.storeName], 'readwrite');
     const store = tx.objectStore(this.storeName);
-    store.put(data, key);
+    await store.put(data, key);
+    console.log("Screenshot saved");
     this.getScreenshotCountFromIndexedDB()
   }
 

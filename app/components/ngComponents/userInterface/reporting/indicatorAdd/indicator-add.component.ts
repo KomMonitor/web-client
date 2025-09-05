@@ -43,7 +43,7 @@ export class IndicatorAddComponent implements OnInit {
       showLinechartOverview: new FormControl<boolean>(true),
       showBoxplotchartOverview: new FormControl<boolean>(true),
       showOverviewSection_reachability: new FormControl<boolean>(true),
-      showAreaSpecific: new FormControl<boolean>(false), // false by default, to improve loading times. Will be changed if selected specificAreas < x, or manually
+      showAreaSpecific: new FormControl<boolean>(true), // false by default, to improve loading times. Will be changed if selected specificAreas < x, or manually
       showDatatable: new FormControl<boolean>(true)
     }),
     headerFooterControl: new FormGroup({
@@ -170,7 +170,7 @@ export class IndicatorAddComponent implements OnInit {
 				showBarchartOverview: true,
 				showLinechartOverview: true,
 				showBoxplotchartOverview: true,
-				showAreaSpecific: false,
+				showAreaSpecific: true,
 				showOverviewSection_reachability: true,
 				showDatatable: true
 			}
@@ -220,6 +220,9 @@ export class IndicatorAddComponent implements OnInit {
         } break;
       }
     });
+
+    // init leafletScreenshot service after DB has beeon initialized
+    this.leafletScreenshotCacheHelperService.init();
   }
   
   initialize() {
@@ -1935,21 +1938,21 @@ export class IndicatorAddComponent implements OnInit {
         this.selectedTimestamps = timestampsListSelected;
 
         // insert areaSpecific pages by default only for indicators with less than x areas to improve loading times
-        this.updateAreaSpecificSettings(areasListInput);
-        if(this.pageConfig.sections.showAreaSpecific) {
+        //this.updateAreaSpecificSettings(areasListInput);
+        //if(this.pageConfig.sections.showAreaSpecific) {
           if(this.template.name.includes("timestamp"))
             this.updateAreasForTimestampTemplates(areasListInput)
           if(this.template.name.includes("timeseries"))
             this.updateAreasForTimeseriesTemplates(areasListInput)
           if(this.template.name.includes("reachability"))
             this.updateAreasForReachabilityTemplates(areasListInput)
-        }
+        //}
 
         // call initSelectedDualListOption, as the selected Items have not been processed yet - only been selected on the dual lists
         this.initSelectedDualListOption(areasListInput, timestampsListSelected);    
 
         if(this.selectedAreas.length>0)
-          this.leafletScreenshotCacheHelperService.resetCounter(this.selectedAreas.length+1, true);
+          this.leafletScreenshotCacheHelperService.resetCounter(this.selectedAreas.length+1, false);
 
       },1000); 
     } catch (error) {
@@ -2565,16 +2568,31 @@ export class IndicatorAddComponent implements OnInit {
       // here we ntend to make a screenshot of the leaflet image as a background task in order to boost up report preview generation 
       // for all spatial unit features		
       let domNode = leafletMap["_container"];	
-      leafletLayer.on("load", () => { 
+      /* leafletLayer.on("load", async () => { 
         // there are pages for two page orientations (landscape and portait)
         // only trigger the screenshot for those pages, that are actually present
         if(page.orientation == this.template.orientation){
-          this.leafletScreenshotCacheHelperService.checkForScreenshot(this.selectedBaseMap.layerConfig.name, this.selectedSpatialUnit.spatialUnitId, 
-            page.spatialUnitFeatureId, page.orientation, domNode);
+          // hier
+          setTimeout(async() => {
+
+            await this.leafletScreenshotCacheHelperService.checkForScreenshot(this.selectedBaseMap.layerConfig.name, this.selectedSpatialUnit.spatialUnitId, 
+                        page.spatialUnitFeatureId, page.orientation, domNode);
+          },1000);
+          
         }
                 
-      });					
-      leafletLayer.addTo(leafletMap);		
+      });		 */			
+      leafletLayer.addTo(leafletMap);	
+
+      leafletMap.whenReady(async () => {
+        if(page.orientation == this.template.orientation){
+          // hier
+
+          await this.leafletScreenshotCacheHelperService.checkForScreenshot(this.selectedBaseMap.layerConfig.name, this.selectedSpatialUnit.spatialUnitId, 
+                      page.spatialUnitFeatureId, page.orientation, domNode, leafletMap);
+          
+        }
+      })	
       
       // set selected base map in order to make it available in reporting overview
       pageElement.selectedBaseMap = this.selectedBaseMap;
@@ -3825,7 +3843,6 @@ export class IndicatorAddComponent implements OnInit {
 									}
 								}
 
-                // hier
                 await this.initLeafletMapBeneathEchartsMap(page, pageElement, map);
 
 								pageElement.isPlaceholder = false;

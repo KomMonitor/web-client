@@ -580,7 +580,7 @@ export class GenerateReportComponent implements OnInit {
             break;
           }
           // template-specific elements
-         /*  case "map": {
+          case "map": {
             let instance:any = echarts.getInstanceByDom(pElementDom)
             let imageDataUrl = instance.getDataURL( {pixelRatio: this.echartsImgPixelRatio} )
             imageDataUrl = await this.createLeafletEChartsMapImage(page, pageDom, pageElement, imageDataUrl)
@@ -588,7 +588,7 @@ export class GenerateReportComponent implements OnInit {
             doc.addImage(imageDataUrl, "PNG", pageElementDimensions.left, pageElementDimensions.top,
               pageElementDimensions.width, pageElementDimensions.height, "", 'MEDIUM');
             break;
-          } */
+          }
           // case "mapLegend" can be ignored since it is included in the map if needed
             
             //June 2025: we remove overallAverage and overallChange, overallAverage and selectionAverage from reporting overview pages.
@@ -715,21 +715,22 @@ export class GenerateReportComponent implements OnInit {
     // leafletMapImg.crossOrigin = "anonymous";
     leafletMapImg.width = canvas.width;
     leafletMapImg.height = canvas.height;
-    let leafletMapImgDrawn = new Promise( (resolve, reject) => {
+    let leafletMapImgDrawn = new Promise<void>((resolve, reject) => {
       leafletMapImg.onload = function() {
         ctx.drawImage(leafletMapImg, 0, 0, canvas.width, canvas.height);
-        resolve('');
+        resolve();
       }
-    })
+    });
     leafletMapImg.src = leafletMapScreenshot;
-    await leafletMapImgDrawn
+    
+    await leafletMapImgDrawn;
 
     let echartsImg = new Image();
     // echartsImg.crossOrigin = "anonymous";
-    let echartsImgDrawn = new Promise( (resolve, reject) => {
+    let echartsImgDrawn = new Promise<void>((resolve, reject) => {
       echartsImg.onload = function() {
         ctx.drawImage(echartsImg, 0, 0, canvas.width, canvas.height);
-        resolve('');
+        resolve();
       }
     });
     echartsImg.src = echartsImgSrc;
