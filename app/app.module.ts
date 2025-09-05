@@ -11,7 +11,7 @@ import Keycloak from 'keycloak-js';
 import angular from "angular";
 
 import { Router, RouterModule, Routes } from '@angular/router';
-import { HashLocationStrategy, LocationStrategy } from '@angular/common';
+import { HashLocationStrategy, LocationStrategy, CommonModule } from '@angular/common';
 
 import { 
   ajskommonitorCacheHelperServiceProvider,
@@ -80,6 +80,8 @@ import { AdminAppConfigComponent } from './components/ngComponents/admin/adminCo
 import { AdminControlsConfigComponent } from './components/ngComponents/admin/adminConfig/adminControlsConfig/admin-controls-config.component';
 import { AdminRoleExplanationComponent } from './components/ngComponents/admin/adminRoleExplanation/admin-role-explanation.component';
 import { AdminDashboardManagementComponent } from './components/ngComponents/admin/adminDashboardManagement/admin-dashboard-management.component';
+import { AdminRoleManagementComponent } from './components/ngComponents/admin/adminRoleManagement/admin-role-management.component';
+import { RoleAddModalComponent } from './components/ngComponents/admin/adminRoleManagement/roleAddModal/role-add-modal.component';
 import { AdminSpatialUnitsManagementComponent } from './components/ngComponents/admin/adminSpatialUnitsManagement/admin-spatial-units-management.component';
 import { SpatialUnitAddModalComponent } from './components/ngComponents/admin/adminSpatialUnitsManagement/spatialUnitAddModal/spatial-unit-add-modal.component';
 import { SpatialUnitEditMetadataModalComponent } from './components/ngComponents/admin/adminSpatialUnitsManagement/spatialUnitEditMetadataModal/spatial-unit-edit-metadata-modal.component';
@@ -100,6 +102,7 @@ import { GeoresourceEditMetadataModalComponent } from './components/ngComponents
 import { GeoresourceEditFeaturesModalComponent } from './components/ngComponents/admin/adminGeoresourcesManagement/georesourceEditFeaturesModal/georesource-edit-features-modal.component';
 import { GeoresourceEditUserRolesModalComponent } from './components/ngComponents/admin/adminGeoresourcesManagement/georesourceEditUserRolesModal/georesource-edit-user-roles-modal.component';
 import { GeoresourceDeleteModalComponent } from './components/ngComponents/admin/adminGeoresourcesManagement/georesourceDeleteModal/georesource-delete-modal.component';
+import { RoleDeleteModalComponent } from './components/ngComponents/admin/adminRoleManagement/roleDeleteModal/role-delete-modal.component';
 
 import { ColorSketchModule } from 'ngx-color/sketch';
 
@@ -111,6 +114,7 @@ declare var MathJax;
 @NgModule({
   imports: [
     BrowserModule,
+    CommonModule,
     UpgradeModule,
     RouterModule.forRoot(routes , { useHash: true }),
     NgbDatepickerModule, 
@@ -192,6 +196,8 @@ declare var MathJax;
     AdminControlsConfigComponent,
     AdminRoleExplanationComponent,
     AdminDashboardManagementComponent,
+    AdminRoleManagementComponent,
+    RoleAddModalComponent,
     AdminSpatialUnitsManagementComponent,
     SpatialUnitAddModalComponent,
     SpatialUnitEditMetadataModalComponent,
@@ -308,6 +314,11 @@ export class AppModule implements DoBootstrap {
       }) as angular.IDirectiveFactory);
 
     angular.module('kommonitorAdmin')
+      .directive('adminRoleManagementNew', downgradeComponent({
+        component: AdminRoleManagementComponent
+      }) as angular.IDirectiveFactory);
+
+    angular.module('kommonitorAdmin')
       .directive('adminSpatialUnitsManagementNew', downgradeComponent({
         component: AdminSpatialUnitsManagementComponent
       }) as angular.IDirectiveFactory);
@@ -370,6 +381,11 @@ export class AppModule implements DoBootstrap {
     angular.module('kommonitorAdmin')
       .directive('georesourceDeleteModalNew', downgradeComponent({
         component: GeoresourceDeleteModalComponent
+      }) as angular.IDirectiveFactory);
+
+    angular.module('kommonitorAdmin')
+      .directive('roleDeleteModalNew', downgradeComponent({
+        component: RoleDeleteModalComponent
       }) as angular.IDirectiveFactory);
 
     console.log("registered downgraded Angular components for AngularJS usage");

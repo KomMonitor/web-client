@@ -1,0 +1,172 @@
+<div class="modal-header">
+  <button type="button" class="close" aria-label="Close" (click)="cancel()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+  <h4 class="modal-title">Organisationseinheiten löschen</h4>
+  </div>
+  <div class="modal-body">
+
+    <div align="center">
+      <div class="loading-overlay-admin-panel" *ngIf="loadingData">
+        <span class="glyphicon glyphicon-refresh icon-spin"></span>
+      </div>
+    </div>
+
+    <h4><b>Sollen die folgenden Organisationseinheiten wirklich gelöscht werden?</b></h4>
+
+    <div class="alert alert-danger" *ngIf="organizationalChildrenEffected">
+      Beachten Sie, dass diese Organisationseinheit über Untergruppen verfügt. Bitte löschen Sie daher zunächst die Untergruppen.
+    </div>
+
+    <div *ngIf="elementsToDelete.length > 0">
+      <table class="table table-bordered table-condensed" style="overflow:auto; font-size: 11px;">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Organisations-ID</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let dataset of elementsToDelete; trackBy: trackByIndex">
+            <td><span [class.organizationalUnit-subGroup-item]="dataset.subGroup"><b>{{dataset.name}}</b></span></td>
+            <td>{{dataset.organizationalUnitId}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div *ngIf="!(elementsToDelete.length > 0)">
+      <pre>kein Datensatz zum Löschen markiert. Mindestens ein Datensatz muss markiert werden.</pre>
+    </div>
+
+    <div *ngIf="elementsToDelete.length > 0 && (affectedGeoresources.length > 0 || affectedIndicators.length > 0 || affectedSpatialUnits.length > 0)">
+      <div class="alert alert-danger">
+        <h3>ACHTUNG!</h3>
+        Es existieren Resourcen, welche durch diese Organisationseinheit(en) abgesichert sind. Solange diese Verknüpfungen existieren, ist ein Löschen der entsprechende Organisationseinheit(en) nicht möglich. <br>
+        Bitte lösen Sie zuerst die im folgenden aufgeführten Verknüpfungen.
+      </div>
+
+      <div *ngIf="affectedSpatialUnits.length > 0">
+        <h4>Betroffene Raumeinheiten</h4>
+        <table class="table table-bordered table-condensed" style="width:100%; overflow:auto; font-size: 11px;">
+          <thead>
+            <tr>
+              <th>Raumebene-ID</th>
+              <th>Raumebene-Name</th>
+              <th>verknüpfte Einheiten</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let entry of affectedSpatialUnits; trackBy: trackByIndex">
+              <td>{{entry.spatialUnitId}}</td>
+              <td>{{entry.spatialUnitLevel}}</td>
+              <td>
+                <span *ngFor="let connectedItem of entry.connectedItems; trackBy: trackByIndex">
+                  <div *ngIf="!connectedItem?.subGroup"><b>{{connectedItem?.name}}</b>-{{connectedItem?.permission}}</div>
+                  <div *ngIf="connectedItem?.subGroup"><span class="organizationalUnit-subGroup-item"><b>{{connectedItem?.name}}</b></span>-{{connectedItem?.permission}}</div>
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div *ngIf="affectedGeoresources.length > 0">
+        <h4>Betroffene Georessourcen</h4>
+        <table class="table table-bordered table-condensed" style="width:100%; overflow:auto; font-size: 11px;">
+          <thead>
+            <tr>
+              <th>Georessourcen-ID</th>
+              <th>Georessourcen-Name</th>
+              <th>verknüpfte Einheiten</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let entry of affectedGeoresources; trackBy: trackByIndex">
+              <td>{{entry.georesourceId}}</td>
+              <td>{{entry.datasetName}}</td>
+              <td>
+                <span *ngFor="let connectedItem of entry.connectedItems; trackBy: trackByIndex">
+                  <div *ngIf="!connectedItem?.subGroup"><b>{{connectedItem?.name}}</b>-{{connectedItem?.permission}}</div>
+                  <div *ngIf="connectedItem?.subGroup"><span class="organizationalUnit-subGroup-item"><b>{{connectedItem?.name}}</b></span>-{{connectedItem?.permission}}</div>
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div *ngIf="affectedIndicators.length > 0">
+        <h4>Betroffene Indikatoren</h4>
+        <table class="table table-bordered table-condensed" style="width:100%; overflow:auto; font-size: 11px;">
+          <thead>
+            <tr>
+              <th>Indikatoren-ID</th>
+              <th>Indikatoren-Name</th>
+              <th>verknüpfte Einheiten zu Metadatensatz</th>
+              <th>verknüpfte Einheiten pro verknüpfter Raumebene</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let entry of affectedIndicators; trackBy: trackByIndex">
+              <td>{{entry.indicatorId}}</td>
+              <td>{{entry.indicatorName}}</td>
+              <td>
+                <span *ngFor="let connectedItem of entry.connectedItems; trackBy: trackByIndex">
+                  <div *ngIf="!connectedItem?.subGroup"><b>{{connectedItem?.name}}</b>-{{connectedItem?.permission}}</div>
+                  <div *ngIf="connectedItem?.subGroup"><span class="organizationalUnit-subGroup-item"><b>{{connectedItem?.name}}</b></span>-{{connectedItem?.permission}}</div>
+                </span>
+              </td>
+              <td>
+                <div *ngIf="entry.connectedSpatialUnits?.length > 0">
+                  <span *ngFor="let spatialUnit of entry.connectedSpatialUnits; trackBy: trackByIndex" class="spatial-unit-list-item">
+                    {{spatialUnit.name}}:
+                    <span *ngFor="let spatialUnitIds of spatialUnit.ids; trackBy: trackByIndex">
+                      <div *ngIf="!spatialUnitIds?.subGroup"><b>{{spatialUnitIds?.name}}</b>-{{spatialUnitIds?.permission}}</div>
+                      <div *ngIf="spatialUnitIds?.subGroup"><span class="organizationalUnit-subGroup-item"><b>{{spatialUnitIds?.name}}</b></span>-{{spatialUnitIds?.permission}}</div>
+                    </span>
+                  </span><br>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-default pull-left" (click)="cancel()">Schließen</button>
+    <button type="button" class="btn btn-danger" (click)="deleteOrganizationalUnits()" [disabled]="isDeleteDisabled()">Unwiderruflich löschen</button>
+  </div>
+
+  <div style="position: absolute; bottom: 0px; width: 100%;" *ngIf="showSuccessAlert" class="alert alert-success alert-dismissable">
+    <button type="button" class="close" (click)="hideSuccessAlert()" aria-hidden="true">&times;</button>
+    <h4><i class="icon fa fa-check"></i>Folgende Organisationseinheiten wurde erfolgreich gelöscht</h4>
+    <ul>
+      <li *ngFor="let dataset of successfullyDeletedDatasets; trackBy: trackByIndex">{{dataset.name}}</li>
+    </ul>
+  </div>
+
+  <div style="position: absolute; bottom: 0px; width: 100%;" *ngIf="showErrorAlert" class="alert alert-danger alert-dismissable">
+    <button type="button" class="close" (click)="hideErrorAlert()" aria-hidden="true">&times;</button>
+    <h4><i class="icon fa fa-ban"></i>Löschen fehlgeschlagen</h4>
+    Folgende Datensätze konnten nicht gelöscht werden.
+    <br />
+    <table class="table table-bordered table-condensed" style="width:100%; overflow:auto; font-size: 11px;">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Fehlermeldung</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let dataset of failedDatasetsAndErrors; trackBy: trackByIndex">
+          <td>{{dataset[0]?.name}}</td>
+          <td><span [innerHTML]="dataset[1]"></span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+

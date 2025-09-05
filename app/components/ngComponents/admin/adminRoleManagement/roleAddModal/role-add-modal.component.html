@@ -1,0 +1,115 @@
+<div class="modal-header">
+  <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss('cancel')">
+    <span aria-hidden="true">&times;</span>
+  </button>
+  <h4 class="modal-title">Neue Organisationseinheit registrieren</h4>
+</div>
+<div class="modal-body">
+  <div align="center">
+    <div class="loading-overlay-admin-panel" *ngIf="loadingData">
+      <span class="glyphicon glyphicon-refresh icon-spin"></span>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-12">
+      <form class="form-group" style="margin-bottom: 0px;">
+        <div>
+          <ul id="progressbar">
+            <li style="width: 50%;" class="active">Basisinformationen</li>
+            <li style="width: 50%;">Rechte anderer Gruppen an neuer Gruppe</li>
+          </ul>
+        </div>
+
+        <fieldset>
+          <h2 class="fs-title">Basisinformationen</h2>
+          <h3 class="fs-subtitle">Angaben &uuml;ber die neue Organisationseinheit</h3>
+          <p><b><i>* = Pflichtfeld</i></b></p>
+
+          <div class="row vertical-align">
+            <div class="col-md-4">
+              <label>Name*</label>
+              <input class="form-control" type="text" placeholder="z.B. Fachbereich 52" [(ngModel)]="newOrganizationalUnit.name" name="ouName" (ngModelChange)="checkRoleName()" required />
+              <div *ngIf="nameInvalid" style="color: red;">
+                <p>Eingabe ung&uuml;ltig. Es existiert bereits eine andere Organisationseinheit mit gleichem Namen.</p>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <label>Beschreibung*</label>
+              <textarea class="form-control" rows="4" [(ngModel)]="newOrganizationalUnit.description" name="ouDesc" required></textarea>
+            </div>
+            <div class="col-md-4">
+              <label>Kontakt*</label>
+              <textarea class="form-control" rows="4" [(ngModel)]="newOrganizationalUnit.contact" name="ouContact" required></textarea>
+            </div>
+          </div>
+
+          <div class="row vertical-align" style="height:20em">
+            <div class="col-md-4" *ngIf="kommonitorDataExchangeService.checkAdminPermission()">
+              <div *ngIf="parentOrganizationalUnit" class="alert alert-info">
+                Zum Anlegen eines Mandanten deselektieren Sie bitte die &uuml;bergeordnete Organisationseinheit
+              </div>
+              <div class="form-group" *ngIf="!parentOrganizationalUnit">
+                <label>Mandant*</label>
+                <label class="switch">
+                  <input type="checkbox" [(ngModel)]="newOrganizationalUnit.mandant" name="ouMandant">
+                  <span class="switchslider round"></span>
+                </label>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <label for="parentOrganizationalUnitSelect"><b>Hierarchische Einordnung - Angabe der &uuml;bergeordneten Organisationseinheit</b></label>
+              <div *ngIf="newOrganizationalUnit.mandant" class="alert alert-info">
+                Mandanten k&ouml;nnen keine &uuml;bergeordnete Organisationseinheit haben
+              </div>
+              <div *ngIf="!newOrganizationalUnit.mandant">
+                <div class="input-group">
+                  <span class="input-group-addon"><i class="fas fa-filter"></i></span>
+                  <input type="text" class="form-control input-sm" placeholder="Stichwortfilter" [(ngModel)]="parentOrganizationalUnitFilter" name="ouParentFilter">
+                </div>
+                <select id="parentOrganizationalUnitSelect" size="5" class="form-control" [ngModel]="parentOrganizationalUnit" name="ouParent" (ngModelChange)="onChangeParentOrganizationalUnit($event)">
+                  <option [ngValue]="null" *ngIf="kommonitorDataExchangeService.checkAdminPermission()"><b>keine - neuer Wurzelknoten</b></option>
+                  <option *ngFor="let organizationalUnitItem of accessControlList | filter: parentOrganizationalUnitFilter : 'name'" [ngValue]="organizationalUnitItem">
+                    {{ organizationalUnitItem.name }}
+                  </option>
+                </select>
+                <div class="help-block">
+                  <p>wird keine &uuml;bergeordneten Organisationseinheit festgelegt, so ist die neue Organisationseinheit auf oberster Ebene der Hierarchie angesiedelt. Die Hierarchiebeziehung kann nachtr&auml;glich angepasst werden.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <h2 class="fs-title">Delegierte administrative Rechte</h2>
+          <div class="box box-info collapsed-box">
+            <div class="box-header">
+              <h3 class="box-title">Bedienhinweise</h3>
+              <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i></button>
+              </div>
+            </div>
+            <div class="box-body">
+              Sollen bereits existierende Organisationseinheiten/Gruppen administrative Aufgaben f&uuml;r die neu anzulegende Gruppe &uuml;bernehmen?
+            </div>
+          </div>
+
+          <div class="row vertical-align">
+            <div class="col-md-12 col-sm-12 col-xs-12">
+              <div id="addRoleEditGroupRoleManagementTable" style="height: 45vh" class="ag-theme-alpine"></div>
+            </div>
+          </div>
+        </fieldset>
+
+      </form>
+    </div>
+  </div>
+</div>
+<div class="modal-footer">
+  <button type="button" class="btn btn-default pull-left" (click)="activeModal.dismiss('cancel')">Schlie&szlig;en</button>
+  <button type="button" class="btn btn-success" [disabled]="!canSubmit()" (click)="addRole()">Gruppe registrieren</button>
+  <button type="button" class="btn btn-danger" (click)="resetRoleAddForm()">Zur&uuml;cksetzen</button>
+</div>
+
+

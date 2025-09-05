@@ -1,0 +1,85 @@
+<div id="adminRoleManagementContent">
+
+  <div align="center">
+    <div class="loading-overlay-admin-panel" *ngIf="loadingData">
+      <span class="glyphicon glyphicon-refresh icon-spin"></span>
+    </div>
+  </div>
+
+  <section class="content-header">
+    <h1>
+      Mandanten- und Gruppenverwaltung
+      <small>Userverwaltung via Keycloak</small>
+    </h1>
+
+    <div class="adminTableButtonWrapper" *ngIf="kommonitorRolePermissionService.enableKeycloakSecurity && kommonitorRolePermissionService.checkGroupCreatePermission()">
+      <div class="verticalAlign">
+        <span>Nur editierbare Datensätze anzeigen</span>
+        <div>
+          <label class="switch">
+            <input type="checkbox" [(ngModel)]="tableViewSwitcher" (ngModelChange)="onTableViewSwitch()">
+            <span class="switchslider round"></span>
+          </label>
+        </div>
+      </div>
+      <button [disabled]="!kommonitorRolePermissionService.checkGroupCreatePermission()" class="btn btn-success btn-sm" type="button" (click)="onClickCreateRole()">
+        <i class="fas fa-plus"></i>&nbsp;&nbsp;Erstellen
+      </button>
+      <button [disabled]="!kommonitorRolePermissionService.checkGroupsEditPermission()" class="btn btn-danger btn-sm" type="button" (click)="onClickDeleteDatasets()">
+        <i class="fas fa-trash"></i>&nbsp;&nbsp;Löschen
+      </button>
+    </div>
+  </section>
+
+  <section class="content container-fluid">
+    <div class="row">
+      <div class="col-md-12" *ngIf="!kommonitorRolePermissionService.enableKeycloakSecurity">
+        <div class="box box-primary">
+          <div class="box-header">
+            <h3 class="box-title">Zugriffskontrolle</h3>
+          </div>
+          <div class="box-body">
+            <p>KomMonitor nutzt die Open Source Software <b>Keycloak</b> zum Nutzer- und Rechtenmanagement.</p>
+            <h4>In der Konfiguration ist der Zugriffsschutz jedoch deaktiviert. Es muss zuerst aktiviert und mit einer validen Keycloak-Instanz konfiguriert werden bevor die Zugriffskontrolle verwaltet werden können.</h4>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-12" *ngIf="kommonitorRolePermissionService.enableKeycloakSecurity">
+        <div class="box box-primary">
+          <div class="box-header">
+            <h3 class="box-title">Mandantenspezifische Gruppenverwaltung</h3>
+          </div>
+          <div class="box-body">
+            <i>Hinweise und Erläuterungen sind unter <b>Gruppen-/Rechtekonzept</b> zu finden</i>
+            <br/>
+            <div class="admin-table-wrapper">
+              <ag-grid-angular
+                #accessControlOverviewTable
+                id="accessControlOverviewTable"
+                style="height: 70vh;"
+                class="ag-theme-alpine"
+                [columnDefs]="columnDefs"
+                [rowData]="rowData"
+                [defaultColDef]="defaultColDef"
+                [gridOptions]="gridOptions"
+                [pagination]="true"
+                [paginationPageSize]="paginationPageSize"
+                [paginationPageSizeSelector]="paginationPageSizeSelector"
+                [rowSelection]="'multiple'"
+                [suppressRowClickSelection]="true"
+                [enableCellTextSelection]="true"
+                [ensureDomOrder]="true"
+                [suppressColumnVirtualisation]="true"
+                (firstDataRendered)="onFirstDataRendered($event)"
+                (columnResized)="onColumnResized($event)">
+              </ag-grid-angular>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+
