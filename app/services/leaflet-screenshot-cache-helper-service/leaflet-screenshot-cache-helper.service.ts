@@ -59,7 +59,6 @@ export class LeafletScreenshotCacheHelperService {
     // this.logProgressIndexSeparator = Math.round(targetNumberOfSpatialUnitFeatures / 100 * 10);
 
     await this.loadScreenshotsFromIndexedDB();  
-    console.log(this.cacheMap)
   }
   
   // (re)init the whole thing, counter and map of screenshots

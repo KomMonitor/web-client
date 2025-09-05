@@ -81,7 +81,6 @@ export class ReportingOverviewComponent implements OnInit {
 
       let configFileSelected = this.data.templateData[0];
       let data:any = this.data.templateData[1];
-      console.log(data);
   
       if(configFileSelected) {
         this.importConfig(data);
@@ -97,7 +96,6 @@ export class ReportingOverviewComponent implements OnInit {
         }
 
         this.config.pages = this.config.template.pages;
-        console.log(this.config);
       }
     }
 

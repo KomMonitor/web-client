@@ -7,6 +7,7 @@ import { LeafletScreenshotCacheHelperService } from 'services/leaflet-screenshot
 import * as docx from 'docx';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { saveAs } from 'file-saver';
+import JSZip from 'jszip';
 
 @Component({
   selector: 'app-generate-report',
@@ -827,16 +828,21 @@ export class GenerateReportComponent implements OnInit {
     return value * 635;
   }
   
-  generateZipFolder() {
-  /* 	// creates a zip folder containing all echarts files
+  async generateZipFolder() {
+  	// creates a zip folder containing all echarts files
     let zip = new JSZip();
     
     // screenshot map attribution and legend only once per section
     for(let [idx, page] of this.config.pages.entries()) {
     
-      let pageDom = document.querySelector("#reporting-overview-page-" + idx);
+      if(!this.showThisPage(page)) {
+        continue;
+      }
+
+      let pageDom:any = document.querySelector("#reporting-overview-page-" + idx);
       for(let pageElement of page.pageElements) {
         if(pageElement.type === "map" || pageElement.type === "barchart" || pageElement.type === "linechart") {
+
           let pElementDom;
           if(pageElement.type === "linechart") {
             let arr = pageDom.querySelectorAll(".type-linechart");
@@ -848,12 +854,14 @@ export class GenerateReportComponent implements OnInit {
           } else {
             pElementDom = pageDom.querySelector("#reporting-overview-page-" + idx + "-" + pageElement.type)
           }
-          let instance = echarts.getInstanceByDom(pElementDom);
+          let instance:any = echarts.getInstanceByDom(pElementDom);
           let imageDataUrl = instance.getDataURL({
             type: "png",
             pixelRatio: this.echartsImgPixelRatio
           });
-          imageDataUrl = await this.createLeafletEChartsMapImage(page, pageDom, pageElement, imageDataUrl)
+
+          if(pageElement.type === "map")
+            imageDataUrl = await this.createLeafletEChartsMapImage(page, pageDom, pageElement, imageDataUrl)
           
           let filename = "Seite_" + (idx+1) + "_" + pageElement.type + ".png";
           if(pageElement.type === "linechart" && pageElement.showPercentageChangeToPrevTimestamp) {
@@ -862,19 +870,19 @@ export class GenerateReportComponent implements OnInit {
             filename = filename.replace(".png", "-proz.Veraenderung.png"); 
           }
             
-          zip.file(filename, dataURItoBlob(imageDataUrl), "");
+          zip.file(filename, this.dataURItoBlob2(imageDataUrl));
         }
       }
     }
 
-    let zipFileName = getCurrentDateAndTime() + "_Kommonitor-Report-Grafiken";
-    zip.generateAsync({type:"blob"}).then(function(content) {
+    let zipFileName = this.getCurrentDateAndTime() + "_Kommonitor-Report-Grafiken";
+    zip.generateAsync({type:"blob"}).then((content) => {
       saveAs(content, zipFileName + ".zip");
       this.loadingData = false;
-      setTimeout(function(){
+      /* setTimeout(function(){
         this.$digest();
-      });
-    }); */
+      }); */
+    });
   }
 
   async generateWordReport() {
@@ -884,6 +892,7 @@ export class GenerateReportComponent implements OnInit {
     let sections:any[] = [];
 
     let font = "Calibri";
+    // todo
     /* if(this.customFontFamily!=undefined) {
       font = this.customFontFamily.replace(/['"]+/g,'');
     } */
@@ -1503,6 +1512,19 @@ export class GenerateReportComponent implements OnInit {
     //var blob = new Blob([ab], {type: mimeString});
     return ia;
   }
+
+  dataURItoBlob2(dataURI) {
+  const byteString = atob(dataURI.split(',')[1]);
+  const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+
+  const ab = new ArrayBuffer(byteString.length);
+  const ia = new Uint8Array(ab);
+  for (let i = 0; i < byteString.length; i++) {
+    ia[i] = byteString.charCodeAt(i);
+  }
+
+  return new Blob([ab], { type: mimeString });
+}
 
   pxToTwip(px) {
     let result = parseInt(px, 10) * 15; // 1px = 0.75pt = 15twip
