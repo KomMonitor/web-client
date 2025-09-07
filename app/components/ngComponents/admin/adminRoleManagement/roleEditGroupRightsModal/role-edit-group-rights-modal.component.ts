@@ -53,6 +53,393 @@ export class RoleEditGroupRightsModalComponent implements OnInit, OnDestroy {
 
   private subscriptions: Subscription[] = [];
 
+  // Advanced checkbox renderers (ported from AngularJS)
+  private CheckboxRenderer_UM_group = class {
+    private params: any;
+    private eGui: HTMLElement | null = null;
+    private boundCheckedHandler: any;
+
+    init(params: any) {
+      this.params = params;
+
+      let isChecked = false;
+      let exists = false;
+      let className: string | undefined = undefined;
+      if (params && params.data && Array.isArray(params.data.permissions)) {
+        for (const permission of params.data.permissions) {
+          if (permission.permissionLevel === 'unit-users-creator') {
+            exists = true;
+            isChecked = !!permission.isChecked;
+            className = permission.permissionId;
+            break;
+          }
+        }
+      }
+
+      if (exists) {
+        const input = document.createElement('input') as HTMLInputElement;
+        this.eGui = input;
+        input.className = className || '';
+        input.type = 'checkbox';
+        input.checked = isChecked;
+
+        // disabled when row disabled or higher-level (client) permission is checked
+        input.disabled = !!params.data?.disabled || this.anyHigherChecked('client-users-creator');
+
+        this.boundCheckedHandler = this.checkedHandler.bind(this);
+        input.addEventListener('click', this.boundCheckedHandler);
+      } else {
+        this.eGui = document.createElement('span');
+      }
+    }
+
+    private anyHigherChecked(higherLevel: string): boolean {
+      if (!this.params?.data?.permissions) return false;
+      for (const p of this.params.data.permissions) {
+        if (p.permissionLevel === higherLevel) {
+          return !!p.isChecked;
+        }
+      }
+      return false;
+    }
+
+    checkedHandler(e: any) {
+      const checked = e.target.checked;
+      for (const permission of this.params.data.permissions) {
+        if (permission.permissionLevel === 'unit-users-creator') {
+          permission.isChecked = checked;
+          break;
+        }
+      }
+    }
+
+    getGui() { return this.eGui; }
+
+    destroy() {
+      if (this.eGui && this.boundCheckedHandler) {
+        this.eGui.removeEventListener('click', this.boundCheckedHandler);
+      }
+    }
+  };
+
+  private CheckboxRenderer_UM_subGroup = class {
+    private params: any;
+    private eGui: HTMLElement | null = null;
+    private boundCheckedHandler: any;
+
+    init(params: any) {
+      this.params = params;
+
+      let isChecked = false;
+      let exists = false;
+      let className: string | undefined = undefined;
+      if (params && params.data && Array.isArray(params.data.permissions)) {
+        for (const permission of params.data.permissions) {
+          if (permission.permissionLevel === 'client-users-creator') {
+            exists = true;
+            isChecked = !!permission.isChecked;
+            className = permission.permissionId;
+            break;
+          }
+        }
+      }
+
+      if (exists) {
+        const input = document.createElement('input') as HTMLInputElement;
+        this.eGui = input;
+        input.className = className || '';
+        input.type = 'checkbox';
+        input.checked = isChecked;
+        input.disabled = !!params.data?.disabled;
+
+        this.boundCheckedHandler = this.checkedHandler.bind(this);
+        input.addEventListener('click', this.boundCheckedHandler);
+      } else {
+        this.eGui = document.createElement('span');
+      }
+    }
+
+    checkedHandler(e: any) {
+      const checked = e.target.checked;
+      for (const permission of this.params.data.permissions) {
+        if (permission.permissionLevel === 'unit-users-creator') {
+          if (checked) {
+            permission.isChecked = true;
+          }
+        } else if (permission.permissionLevel === 'client-users-creator') {
+          permission.isChecked = checked;
+        }
+      }
+      if (this.params.api && this.params.node) {
+        this.params.api.refreshCells({ force: true, rowNodes: [this.params.node] });
+      }
+    }
+
+    getGui() { return this.eGui; }
+
+    destroy() {
+      if (this.eGui && this.boundCheckedHandler) {
+        this.eGui.removeEventListener('click', this.boundCheckedHandler);
+      }
+    }
+  };
+
+  private CheckboxRenderer_RM_group = class {
+    private params: any;
+    private eGui: HTMLElement | null = null;
+    private boundCheckedHandler: any;
+
+    init(params: any) {
+      this.params = params;
+
+      let isChecked = false;
+      let exists = false;
+      let className: string | undefined = undefined;
+      if (params && params.data && Array.isArray(params.data.permissions)) {
+        for (const permission of params.data.permissions) {
+          if (permission.permissionLevel === 'unit-resources-creator') {
+            exists = true;
+            isChecked = !!permission.isChecked;
+            className = permission.permissionId;
+            break;
+          }
+        }
+      }
+
+      if (exists) {
+        const input = document.createElement('input') as HTMLInputElement;
+        this.eGui = input;
+        input.className = className || '';
+        input.type = 'checkbox';
+        input.checked = isChecked;
+        input.disabled = !!params.data?.disabled || this.anyHigherChecked('client-resources-creator');
+
+        this.boundCheckedHandler = this.checkedHandler.bind(this);
+        input.addEventListener('click', this.boundCheckedHandler);
+      } else {
+        this.eGui = document.createElement('span');
+      }
+    }
+
+    private anyHigherChecked(higherLevel: string): boolean {
+      if (!this.params?.data?.permissions) return false;
+      for (const p of this.params.data.permissions) {
+        if (p.permissionLevel === higherLevel) {
+          return !!p.isChecked;
+        }
+      }
+      return false;
+    }
+
+    checkedHandler(e: any) {
+      const checked = e.target.checked;
+      for (const permission of this.params.data.permissions) {
+        if (permission.permissionLevel === 'unit-resources-creator') {
+          permission.isChecked = checked;
+          break;
+        }
+      }
+    }
+
+    getGui() { return this.eGui; }
+
+    destroy() {
+      if (this.eGui && this.boundCheckedHandler) {
+        this.eGui.removeEventListener('click', this.boundCheckedHandler);
+      }
+    }
+  };
+
+  private CheckboxRenderer_RM_subGroup = class {
+    private params: any;
+    private eGui: HTMLElement | null = null;
+    private boundCheckedHandler: any;
+
+    init(params: any) {
+      this.params = params;
+
+      let isChecked = false;
+      let exists = false;
+      let className: string | undefined = undefined;
+      if (params && params.data && Array.isArray(params.data.permissions)) {
+        for (const permission of params.data.permissions) {
+          if (permission.permissionLevel === 'client-resources-creator') {
+            exists = true;
+            isChecked = !!permission.isChecked;
+            className = permission.permissionId;
+            break;
+          }
+        }
+      }
+
+      if (exists) {
+        const input = document.createElement('input') as HTMLInputElement;
+        this.eGui = input;
+        input.className = className || '';
+        input.type = 'checkbox';
+        input.checked = isChecked;
+        input.disabled = !!params.data?.disabled;
+
+        this.boundCheckedHandler = this.checkedHandler.bind(this);
+        input.addEventListener('click', this.boundCheckedHandler);
+      } else {
+        this.eGui = document.createElement('span');
+      }
+    }
+
+    checkedHandler(e: any) {
+      const checked = e.target.checked;
+      for (const permission of this.params.data.permissions) {
+        if (permission.permissionLevel === 'unit-resources-creator') {
+          if (checked) {
+            permission.isChecked = true;
+          }
+        } else if (permission.permissionLevel === 'client-resources-creator') {
+          permission.isChecked = checked;
+        }
+      }
+      if (this.params.api && this.params.node) {
+        this.params.api.refreshCells({ force: true, rowNodes: [this.params.node] });
+      }
+    }
+
+    getGui() { return this.eGui; }
+
+    destroy() {
+      if (this.eGui && this.boundCheckedHandler) {
+        this.eGui.removeEventListener('click', this.boundCheckedHandler);
+      }
+    }
+  };
+
+  private CheckboxRenderer_TM_group = class {
+    private params: any;
+    private eGui: HTMLElement | null = null;
+    private boundCheckedHandler: any;
+
+    init(params: any) {
+      this.params = params;
+
+      let isChecked = false;
+      let exists = false;
+      let className: string | undefined = undefined;
+      if (params && params.data && Array.isArray(params.data.permissions)) {
+        for (const permission of params.data.permissions) {
+          if (permission.permissionLevel === 'unit-themes-creator') {
+            exists = true;
+            isChecked = !!permission.isChecked;
+            className = permission.permissionId;
+            break;
+          }
+        }
+      }
+
+      if (exists) {
+        const input = document.createElement('input') as HTMLInputElement;
+        this.eGui = input;
+        input.className = className || '';
+        input.type = 'checkbox';
+        input.checked = isChecked;
+        input.disabled = !!params.data?.disabled || this.anyHigherChecked('client-themes-creator');
+
+        this.boundCheckedHandler = this.checkedHandler.bind(this);
+        input.addEventListener('click', this.boundCheckedHandler);
+      } else {
+        this.eGui = document.createElement('span');
+      }
+    }
+
+    private anyHigherChecked(higherLevel: string): boolean {
+      if (!this.params?.data?.permissions) return false;
+      for (const p of this.params.data.permissions) {
+        if (p.permissionLevel === higherLevel) {
+          return !!p.isChecked;
+        }
+      }
+      return false;
+    }
+
+    checkedHandler(e: any) {
+      const checked = e.target.checked;
+      for (const permission of this.params.data.permissions) {
+        if (permission.permissionLevel === 'unit-themes-creator') {
+          permission.isChecked = checked;
+          break;
+        }
+      }
+    }
+
+    getGui() { return this.eGui; }
+
+    destroy() {
+      if (this.eGui && this.boundCheckedHandler) {
+        this.eGui.removeEventListener('click', this.boundCheckedHandler);
+      }
+    }
+  };
+
+  private CheckboxRenderer_TM_subGroup = class {
+    private params: any;
+    private eGui: HTMLElement | null = null;
+    private boundCheckedHandler: any;
+
+    init(params: any) {
+      this.params = params;
+
+      let isChecked = false;
+      let exists = false;
+      let className: string | undefined = undefined;
+      if (params && params.data && Array.isArray(params.data.permissions)) {
+        for (const permission of params.data.permissions) {
+          if (permission.permissionLevel === 'client-themes-creator') {
+            exists = true;
+            isChecked = !!permission.isChecked;
+            className = permission.permissionId;
+            break;
+          }
+        }
+      }
+
+      if (exists) {
+        const input = document.createElement('input') as HTMLInputElement;
+        this.eGui = input;
+        input.className = className || '';
+        input.type = 'checkbox';
+        input.checked = isChecked;
+        input.disabled = !!params.data?.disabled;
+
+        this.boundCheckedHandler = this.checkedHandler.bind(this);
+        input.addEventListener('click', this.boundCheckedHandler);
+      } else {
+        this.eGui = document.createElement('span');
+      }
+    }
+
+    checkedHandler(e: any) {
+      const checked = e.target.checked;
+      for (const permission of this.params.data.permissions) {
+        if (permission.permissionLevel === 'unit-themes-creator') {
+          if (checked) {
+            permission.isChecked = true;
+          }
+        } else if (permission.permissionLevel === 'client-themes-creator') {
+          permission.isChecked = checked;
+        }
+      }
+      if (this.params.api && this.params.node) {
+        this.params.api.refreshCells({ force: true, rowNodes: [this.params.node] });
+      }
+    }
+
+    getGui() { return this.eGui; }
+
+    destroy() {
+      if (this.eGui && this.boundCheckedHandler) {
+        this.eGui.removeEventListener('click', this.boundCheckedHandler);
+      }
+    }
+  };
+
   constructor(
     public activeModal: NgbActiveModal,
     private http: HttpClient,
@@ -136,8 +523,19 @@ export class RoleEditGroupRightsModalComponent implements OnInit, OnDestroy {
       );
 
       if (this.authorityRoleManagementTableOptions) {
-        this.authorityColumnDefs = this.authorityRoleManagementTableOptions.columnDefs || [];
-        this.authorityRowData = this.authorityRoleManagementTableOptions.rowData || [];
+        // Override to AngularJS-style advanced column groups and components
+        this.authorityRoleManagementTableOptions.components = {
+          ...(this.authorityRoleManagementTableOptions.components || {}),
+          checkboxRenderer_UM_group: this.CheckboxRenderer_UM_group,
+          checkboxRenderer_UM_subGroup: this.CheckboxRenderer_UM_subGroup,
+          checkboxRenderer_RM_group: this.CheckboxRenderer_RM_group,
+          checkboxRenderer_RM_subGroup: this.CheckboxRenderer_RM_subGroup,
+          checkboxRenderer_TM_group: this.CheckboxRenderer_TM_group,
+          checkboxRenderer_TM_subGroup: this.CheckboxRenderer_TM_subGroup
+        };
+        this.authorityColumnDefs = this.buildAdvancedRoleManagementGridColumnConfig();
+        // Mark rows disabled to make authority table read-only
+        this.authorityRowData = (this.authorityRoleManagementTableOptions.rowData || []).map((row: any) => ({ ...row, disabled: true }));
         this.authorityDefaultColDef = this.roleDataGridHelper.buildRoleManagementDefaultColDef();
         const base = this.roleDataGridHelper.buildRoleManagementGridOptionsPublic(this.authorityRoleManagementTableOptions.components);
         this.authorityGridOptions = {
@@ -181,7 +579,17 @@ export class RoleEditGroupRightsModalComponent implements OnInit, OnDestroy {
       );
 
       if (this.delegatedRoleManagementTableOptions) {
-        this.delegatedColumnDefs = this.delegatedRoleManagementTableOptions.columnDefs || [];
+        // Override to AngularJS-style advanced column groups and components
+        this.delegatedRoleManagementTableOptions.components = {
+          ...(this.delegatedRoleManagementTableOptions.components || {}),
+          checkboxRenderer_UM_group: this.CheckboxRenderer_UM_group,
+          checkboxRenderer_UM_subGroup: this.CheckboxRenderer_UM_subGroup,
+          checkboxRenderer_RM_group: this.CheckboxRenderer_RM_group,
+          checkboxRenderer_RM_subGroup: this.CheckboxRenderer_RM_subGroup,
+          checkboxRenderer_TM_group: this.CheckboxRenderer_TM_group,
+          checkboxRenderer_TM_subGroup: this.CheckboxRenderer_TM_subGroup
+        };
+        this.delegatedColumnDefs = this.buildAdvancedRoleManagementGridColumnConfig();
         this.delegatedRowData = this.delegatedRoleManagementTableOptions.rowData || [];
         this.delegatedDefaultColDef = this.roleDataGridHelper.buildRoleManagementDefaultColDef();
         const base = this.roleDataGridHelper.buildRoleManagementGridOptionsPublic(this.delegatedRoleManagementTableOptions.components);
@@ -193,6 +601,52 @@ export class RoleEditGroupRightsModalComponent implements OnInit, OnDestroy {
         };
       }
     });
+  }
+
+  private buildAdvancedRoleManagementGridColumnConfig(): any[] {
+    const columnDefs: any[] = [];
+    columnDefs.push({
+      headerName: 'Organisationseinheit',
+      field: 'name',
+      minWidth: 200,
+      cellClassRules: {
+        'user-roles-normal': (row: any) => row != undefined
+      }
+    });
+    columnDefs.push({
+      headerName: 'Verwalten von Nutzern',
+      children: [
+        { field: 'Dieser Gruppe', cellRenderer: 'checkboxRenderer_UM_group' },
+        { field: 'Untergruppen', cellRenderer: 'checkboxRenderer_UM_subGroup' }
+      ],
+      field: 'permissions',
+      filter: false,
+      sortable: false,
+      maxWidth: 100
+    });
+    columnDefs.push({
+      headerName: 'Verwalten von Resourcen',
+      children: [
+        { field: 'Dieser Gruppe', cellRenderer: 'checkboxRenderer_RM_group' },
+        { field: 'Untergruppen', cellRenderer: 'checkboxRenderer_RM_subGroup' }
+      ],
+      field: 'permissions',
+      filter: false,
+      sortable: false,
+      maxWidth: 100
+    });
+    columnDefs.push({
+      headerName: 'Verwalten von Themen',
+      children: [
+        { field: 'Dieser Gruppe', cellRenderer: 'checkboxRenderer_TM_group' },
+        { field: 'Untergruppen', cellRenderer: 'checkboxRenderer_TM_subGroup' }
+      ],
+      field: 'permissions',
+      filter: false,
+      sortable: false,
+      maxWidth: 100
+    });
+    return columnDefs;
   }
 
   async editRoleDelegates(): Promise<void> {

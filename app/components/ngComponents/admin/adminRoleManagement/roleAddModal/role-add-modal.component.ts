@@ -135,11 +135,97 @@ export class RoleAddModalComponent {
     );
 
     if (this.delegatedRoleManagementTableOptions) {
-      // Ensure column headers match legacy (Organisationseinheit, Lesen, Editieren, Löschen)
-      this.delegatedColumnDefs = this.roleDataGridHelper.buildRoleManagementGridColumnConfig(false) || this.delegatedRoleManagementTableOptions.columnDefs || [];
+      // Ensure column headers match AngularJS advanced version
+      // Columns: Organisationseinheit | Verwalten von Nutzern (Dieser Gruppe | Untergruppen)
+      //          | Verwalten von Resourcen (Dieser Gruppe | Untergruppen)
+      //          | Verwalten von Themen (Dieser Gruppe | Untergruppen)
+      this.delegatedColumnDefs = [
+        {
+          headerName: 'Organisationseinheit',
+          field: 'name',
+          minWidth: 200,
+        },
+        {
+          headerName: 'Verwalten von Nutzern',
+          field: 'permissions',
+          filter: false,
+          sortable: false,
+          children: [
+            {
+              headerName: 'Dieser Gruppe',
+              field: 'permissions',
+              filter: false,
+              sortable: false,
+              width: 120,
+              cellRenderer: 'CheckboxRenderer_UM_group'
+            },
+            {
+              headerName: 'Untergruppen',
+              field: 'permissions',
+              filter: false,
+              sortable: false,
+              width: 120,
+              cellRenderer: 'CheckboxRenderer_UM_subGroup'
+            }
+          ]
+        },
+        {
+          headerName: 'Verwalten von Resourcen',
+          field: 'permissions',
+          filter: false,
+          sortable: false,
+          children: [
+            {
+              headerName: 'Dieser Gruppe',
+              field: 'permissions',
+              filter: false,
+              sortable: false,
+              width: 120,
+              cellRenderer: 'CheckboxRenderer_RM_group'
+            },
+            {
+              headerName: 'Untergruppen',
+              field: 'permissions',
+              filter: false,
+              sortable: false,
+              width: 120,
+              cellRenderer: 'CheckboxRenderer_RM_subGroup'
+            }
+          ]
+        },
+        {
+          headerName: 'Verwalten von Themen',
+          field: 'permissions',
+          filter: false,
+          sortable: false,
+          children: [
+            {
+              headerName: 'Dieser Gruppe',
+              field: 'permissions',
+              filter: false,
+              sortable: false,
+              width: 120,
+              cellRenderer: 'CheckboxRenderer_TM_group'
+            },
+            {
+              headerName: 'Untergruppen',
+              field: 'permissions',
+              filter: false,
+              sortable: false,
+              width: 120,
+              cellRenderer: 'CheckboxRenderer_TM_subGroup'
+            }
+          ]
+        }
+      ];
       this.delegatedRowData = this.delegatedRoleManagementTableOptions.rowData || [];
-      this.delegatedDefaultColDef = this.roleDataGridHelper.buildRoleManagementDefaultColDef();
-      const base = this.roleDataGridHelper.buildRoleManagementGridOptionsPublic(this.delegatedRoleManagementTableOptions.components);
+      // Enable floating filters as in AngularJS version for visual parity
+      this.delegatedDefaultColDef = {
+        ...this.roleDataGridHelper.buildRoleManagementDefaultColDef(),
+        filter: true,
+        floatingFilter: true
+      };
+      const base = this.roleDataGridHelper.buildRoleManagementGridOptionsPublic(this.roleDataGridHelper.getAdvancedRoleManagementGridComponents());
       this.delegatedGridOptions = {
         ...base,
         onGridReady: (params: any) => {
@@ -203,6 +289,45 @@ export class RoleAddModalComponent {
           await this.roleKeycloakHelper.fetchAndSetKeycloakRoles();
         } catch (kcError: any) {
           this.keycloakErrorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON(kcError?.data || kcError);
+        }
+
+        // After creating the OU, build delegated role PUT body from selected checkboxes (advanced grid)
+        try {
+          const createdOu = created;
+          const permissionIdList: string[] = this.roleDataGridHelper.getSelectedRoleIds_roleManagementGrid(this.delegatedRoleManagementTableOptions);
+
+          const unitToRoles: Record<string, string[]> = {};
+          for (const id of permissionIdList || []) {
+            const parts = (id || '').split('-');
+            if (parts.length < 6) { continue; }
+            const unitId = parts.slice(0, 5).join('-');
+            const role = parts.slice(5).join('-');
+            if (!unitToRoles[unitId]) { unitToRoles[unitId] = []; }
+            if (!unitToRoles[unitId].includes(role)) { unitToRoles[unitId].push(role); }
+          }
+
+          const putBody: any[] = [];
+          const access = this.kommonitorDataExchangeService.accessControl || [];
+          Object.keys(unitToRoles).forEach(unitId => {
+            const orgUnit = access.find((e: any) => e.organizationalUnitId === unitId);
+            if (orgUnit) {
+              putBody.push({
+                organizationalUnitId: unitId,
+                organizationalUnitName: orgUnit.name,
+                keycloakId: orgUnit.keycloakId,
+                adminRoles: unitToRoles[unitId]
+              });
+            }
+          });
+
+          if (createdOu?.organizationalUnitId && putBody.length > 0) {
+            await this.http.put(
+              `${this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI}/organizationalUnits/${createdOu.organizationalUnitId}/role-delegates`,
+              putBody
+            ).toPromise();
+          }
+        } catch (e) {
+          // non-fatal; continue
         }
 
         // Broadcast refresh to overview table
